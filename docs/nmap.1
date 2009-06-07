@@ -1,12 +1,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 06/02/2009
+.\"      Date: 06/06/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "06/02/2009" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "06/06/2009" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * (re)Define some macros
 .\" -----------------------------------------------------------------
@@ -278,7 +278,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .ps -1
 .nf
 .BB lightgray
-Nmap 4\&.85BETA9 ( http://nmap\&.org )
+Nmap 4\&.85BETA10 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -291,7 +291,7 @@ HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
   \-sP: Ping Scan \- go no further than determining if host is online
   \-PN: Treat all hosts as online \-\- skip host discovery
-  \-PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
+  \-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
@@ -304,6 +304,7 @@ SCAN TECHNIQUES:
   \-sN/sF/sX: TCP Null, FIN, and Xmas scans
   \-\-scanflags <flags>: Customize TCP scan flags
   \-sI <zombie host[:probeport]>: Idle scan
+  \-sY/sZ: SCTP INIT/COOKIE\-ECHO scans
   \-sO: IP protocol scan
   \-b <FTP relay host>: FTP bounce scan
 PORT SPECIFICATION AND SCAN ORDER:
@@ -353,7 +354,8 @@ FIREWALL/IDS EVASION AND SPOOFING:
   \-\-ip\-options <options>: Send packets with specified ip options
   \-\-ttl <val>: Set IP time\-to\-live field
   \-\-spoof\-mac <mac address/prefix/vendor name>: Spoof your MAC address
-  \-\-badsum: Send packets with a bogus TCP/UDP checksum
+  \-\-badsum: Send packets with a bogus TCP/UDP/SCTP checksum
+  \-\-adler32: Use deprecated Adler32 instead of CRC32C for SCTP checksums
 OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename\&.
@@ -465,7 +467,7 @@ One of the very first steps in any network reconnaissance mission is to reduce a
 .PP
 Because host discovery needs are so diverse, Nmap offers a wide variety of options for customizing the techniques used\&. Host discovery is sometimes called ping scan, but it goes well beyond the simple ICMP echo request packets associated with the ubiquitous
 ping
-tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-PN\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
+tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-PN\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
 .PP
 If no host discovery options are given, Nmap sends an ICMP echo request, a TCP SYN packet to port 443, and TCP ACK packet to port 80, and an ICMP timestamp request\&. These defaults are equivalent to the
 \fB\-PE \-PS443 \-PA80 \-PP\fR
@@ -603,20 +605,51 @@ is specified) UDP packet to the given ports\&. The port list takes the same form
 \fB\-PS\fR
 and
 \fB\-PA\fR
-options\&. If no ports are specified, the default is 31338\&. This default can be configured at compile\-time by changing
+options\&. If no ports are specified, the default is 40125\&. This default can be configured at compile\-time by changing
 \fIDEFAULT_UDP_PROBE_PORT_SPEC\fR.\" DEFAULT_UDP_PROBE_PORT_SPEC
 in
 \FCnmap\&.h\F[]\&..\" nmap.h
 A highly uncommon port is used by default because sending to open ports is often undesirable for this particular scan type\&.
 .sp
-Upon hitting a closed port on the target machine, the UDP probe should elicit an ICMP port unreachable packet in return\&. This signifies to Nmap that the machine is up and available\&. Many other types of ICMP errors, such as host/network unreachables or TTL exceeded are indicative of a down or unreachable host\&. A lack of response is also interpreted this way\&. If an open port is reached, most services simply ignore the empty packet and fail to return any response\&. This is why the default probe port is 31338, which is highly unlikely to be in use\&. A few services, such as the Character Generator (chargen) protocol, will respond to an empty UDP packet, and thus disclose to Nmap that the machine is available\&.
+Upon hitting a closed port on the target machine, the UDP probe should elicit an ICMP port unreachable packet in return\&. This signifies to Nmap that the machine is up and available\&. Many other types of ICMP errors, such as host/network unreachables or TTL exceeded are indicative of a down or unreachable host\&. A lack of response is also interpreted this way\&. If an open port is reached, most services simply ignore the empty packet and fail to return any response\&. This is why the default probe port is 40125, which is highly unlikely to be in use\&. A few services, such as the Character Generator (chargen) protocol, will respond to an empty UDP packet, and thus disclose to Nmap that the machine is available\&.
 .sp
 The primary advantage of this scan type is that it bypasses firewalls and filters that only screen TCP\&. For example, I once owned a Linksys BEFW11S4 wireless broadband router\&. The external interface of this device filtered all TCP ports by default, but UDP probes would still elicit port unreachable messages and thus give away the device\&.
 .RE
 .PP
+\fB\-PY \fR\fB\fIport list\fR\fR (SCTP INIT Ping) .\" -PY .\" SCTP INIT ping
+.RS 4
+This option sends an SCTP packet containing a minimal INIT chunk\&. The default destination port is 80 (configurable at compile time by changing
+\fIDEFAULT_SCTP_PROBE_PORT_SPEC\fR
+.\" DEFAULT_SCTP_PROBE_PORT_SPEC
+in
+\FCnmap\&.h\F[])\&.
+.\" nmap.h
+Alternate ports can be specified as a parameter\&. The syntax is the same as for the
+\fB\-p\fR
+except that port type specifiers like
+\FCS:\F[]
+are not allowed\&. Examples are
+\fB\-PY22\fR
+and
+\fB\-PY22,80,179,5060\fR\&. Note that there can be no space between
+\fB\-PY\fR
+and the port list\&. If multiple probes are specified they will be sent in parallel\&.
+.sp
+The INIT chunk suggests to the remote system that you are attempting to establish an association\&. Normally the destination port will be closed, and an ABORT chunk will be sent back\&. If the port happens to be open, the target will take the second step of an SCTP four\-way\-handshake.\" four-way handshake
+by responding with an INIT\-ACK chunk\&. If the machine running Nmap has a functional SCTP stack, then it tears down the nascent association by responding with an ABORT chunk rather than sending a COOKIE\-ECHO chunk which would be the next step in the four\-way\-handshake\&. The ABORT packet is sent by the kernel of the machine running Nmap in response to the unexpected INIT\-ACK, not by Nmap itself\&.
+.sp
+Nmap does not care whether the port is open or closed\&. Either the ABORT or INIT\-ACK response discussed previously tell Nmap that the host is available and responsive\&.
+.sp
+On Unix boxes, only the privileged user
+\FCroot\F[].\" privileged users
+is generally able to send and receive raw SCTP packets\&..\" raw packets
+Using SCTP INIT Pings is currently not possible for unprivileged users\&..\" unprivileged users: limitations of
+The same limitation applies to IPv6, which is currently not supported for SCTP INIT Ping\&..\" IPv6: limitations of
+.RE
+.PP
 \fB\-PE\fR; \fB\-PP\fR; \fB\-PM\fR (ICMP Ping Types) .\" -PE .\" -PP .\" -PM .\" ICMP ping
 .RS 4
-In addition to the unusual TCP and UDP host discovery types discussed previously, Nmap can send the standard packets sent by the ubiquitous
+In addition to the unusual TCP, UDP and SCTP host discovery types discussed previously, Nmap can send the standard packets sent by the ubiquitous
 ping
 program\&. Nmap sends an ICMP type 8 (echo request) packet to the target IP addresses, expecting a type 0 (echo reply) in return from available hosts\&..\" ICMP echo
 Unfortunately for network explorers, many hosts and firewalls now block these packets, rather than responding as required by
@@ -636,10 +669,10 @@ options, respectively\&. A timestamp reply (ICMP code 14) or address mask reply 
 .PP
 \fB\-PO \fR\fB\fIprotocol list\fR\fR (IP Protocol Ping) .\" -PO .\" IP protocol ping
 .RS 4
-The newest host discovery option is the IP protocol ping, which sends IP packets with the specified protocol number set in their IP header\&. The protocol list takes the same format as do port lists in the previously discussed TCP and UDP host discovery options\&. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\&. The default protocols can be configured at compile\-time by changing
+The newest host discovery option is the IP protocol ping, which sends IP packets with the specified protocol number set in their IP header\&. The protocol list takes the same format as do port lists in the previously discussed TCP, UDP and SCTP host discovery options\&. If no protocols are specified, the default is to send multiple IP packets for ICMP (protocol 1), IGMP (protocol 2), and IP\-in\-IP (protocol 4)\&. The default protocols can be configured at compile\-time by changing
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
 in
-\FCnmap\&.h\F[]\&. Note that for the ICMP, IGMP, TCP (protocol 6), and UDP (protocol 17), the packets are sent with the proper protocol headers while other protocols are sent with no additional data beyond the IP header (unless the
+\FCnmap\&.h\F[]\&. Note that for the ICMP, IGMP, TCP (protocol 6), UDP (protocol 17) and SCTP (protocol 132), the packets are sent with the proper protocol headers while other protocols are sent with no additional data beyond the IP header (unless the
 \fB\-\-data\-length\fR
 option is specified)\&.
 .sp
@@ -722,7 +755,7 @@ as open, while a scan at the same time with the same options from across the Int
 .PP
 .\" open port state open
 .RS 4
-An application is actively accepting TCP connections or UDP packets on this port\&. Finding these is often the primary goal of port scanning\&. Security\-minded people know that each open port is an avenue for attack\&. Attackers and pen\-testers want to exploit the open ports, while administrators try to close or protect them with firewalls without thwarting legitimate users\&. Open ports are also interesting for non\-security scans because they show services available for use on the network\&.
+An application is actively accepting TCP connections, UDP datagrams or SCTP associations on this port\&. Finding these is often the primary goal of port scanning\&. Security\-minded people know that each open port is an avenue for attack\&. Attackers and pen\-testers want to exploit the open ports, while administrators try to close or protect them with firewalls without thwarting legitimate users\&. Open ports are also interesting for non\-security scans because they show services available for use on the network\&.
 .RE
 .PP
 .\" closed port state closed
@@ -760,7 +793,8 @@ which requires root access on Unix systems\&. Using an administrator account on 
 .PP
 While Nmap attempts to produce accurate results, keep in mind that all of its insights are based on packets returned by the target machines (or firewalls in front of them)\&. Such hosts may be untrustworthy and send responses intended to confuse or mislead Nmap\&. Much more common are non\-RFC\-compliant hosts that do not respond as they should to Nmap probes\&. FIN, NULL, and Xmas scans are particularly susceptible to this problem\&. Such issues are specific to certain scan types and so are discussed in the individual scan type entries\&.
 .PP
-This section documents the dozen or so port scan techniques supported by Nmap\&. Only one method may be used at a time, except that UDP scan (\fB\-sU\fR) may be combined with any one of the TCP scan types\&. As a memory aid, port scan type options are of the form
+This section documents the dozen or so port scan techniques supported by Nmap\&. Only one method may be used at a time, except that UDP scan (\fB\-sU\fR) and any one of the SCTP scan types (\fB\-sY\fR,
+\fB\-sZ\fR) may be combined with any one of the TCP scan types\&. As a memory aid, port scan type options are of the form
 \fB\-s\fR\fB\fIC\fR\fR, where
 \fIC\fR
 is a prominent character in the scan name, usually the first\&. The one exception to this is the deprecated FTP bounce scan (\fB\-b\fR)\&. By default, Nmap performs a SYN Scan, though it substitutes a connect scan if the user does not have proper privileges to send raw packets (requires root access on Unix) or if IPv6 targets were specified\&. Of the scans listed in this section, unprivileged users can only execute connect and FTP bounce scans\&.
@@ -812,12 +846,25 @@ Nmap detects rate limiting and slows down accordingly to avoid flooding the netw
 to skip slow hosts\&.
 .RE
 .PP
+\fB\-sY\fR (SCTP INIT scan) .\" -sY .\" SCTP INIT scan
+.RS 4
+
+\m[blue]\fBSCTP\fR\m[]\&\s-2\u[7]\d\s+2
+is a relatively new alternative to the TCP and UDP protocols, combining most characteristics of TCP and UDP, and also adding new features like multi\-homing and multi\-streaming\&. It is mostly being used for SS7/SIGTRAN related services but has the potential to be used for other applications as well\&. SCTP INIT scan is the SCTP equivalent of a TCP SYN scan\&. It can be performed quickly, scanning thousands of ports per second on a fast network not hampered by restrictive firewalls\&. Like SYN scan, INIT scan is relatively unobtrusive and stealthy, since it never completes SCTP associations\&. It also allows clear, reliable differentiation between the
+\FCopen\F[],
+\FCclosed\F[], and
+\FCfiltered\F[]
+states\&.
+.sp
+This technique is often referred to as half\-open scanning, because you don\'t open a full SCTP association\&. You send an INIT chunk, as if you are going to open a real association and then wait for a response\&. An INIT\-ACK chunk indicates the port is listening (open), while an ABORT chunk is indicative of a non\-listener\&. If no response is received after several retransmissions, the port is marked as filtered\&. The port is also marked filtered if an ICMP unreachable error (type 3, code 1, 2, 3, 9, 10, or 13) is received\&.
+.RE
+.PP
 \fB\-sN\fR; \fB\-sF\fR; \fB\-sX\fR (TCP NULL, FIN, and Xmas scans) .\" -sN .\" -sF .\" -sX .\" NULL scan .\" FIN scan .\" Xmas scan
 .RS 4
 These three scan types (even more are possible with the
 \fB\-\-scanflags\fR
 option described in the next section) exploit a subtle loophole in the
-\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[7]\d\s+2
+\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[8]\d\s+2
 to differentiate between
 \FCopen\F[]
 and
@@ -906,7 +953,7 @@ He described the technique in
 Phrack
 Magazine issue #49 (November 1996)\&..\" Phrack
 Nmap, which included this technique, was released two issues later\&. This technique is exactly the same as NULL, FIN, and Xmas scans, except that the probe is FIN/ACK\&. According to
-\m[blue]\fBRFC 793\fR\m[]\&\s-2\u[7]\d\s+2
+\m[blue]\fBRFC 793\fR\m[]\&\s-2\u[8]\d\s+2
 (TCP), a RST packet should be generated in response to such a probe whether the port is open or closed\&. However, Uriel noticed that many BSD\-derived systems simply drop the packet if the port is open\&.
 .RE
 .PP
@@ -937,6 +984,17 @@ or
 \FCfiltered\F[]
 port, while a FIN scan treats the same as
 \FCopen|filtered\F[]\&. Nmap will behave the same way it does for the base scan type, except that it will use the TCP flags you specify instead\&. If you don\'t specify a base type, SYN scan is used\&.
+.RE
+.PP
+\fB\-sZ\fR (SCTP COOKIE ECHO scan) .\" -sZ .\" SCTP COOKIE ECHO scan
+.RS 4
+SCTP COOKIE ECHO scan is a more advanced SCTP scan\&. It takes advantage of the fact that SCTP implementations should silently drop packets containing COOKIE ECHO chunks on open ports, but send an ABORT if the port is closed\&. The advantage of this scan type is that it is not as obvious a port scan than an INIT scan\&. Also, there may be non\-stateful firewall rulesets blocking INIT chunks, but not COOKIE ECHO chunks\&. Don\'t be fooled into thinking that this will make a port scan invisible; a good IDS will be able to detect SCTP COOKIE ECHO scans too\&. The downside is that SCTP COOKIE ECHO scans cannot differentiate between
+\FCopen\F[]
+and
+\FCfiltered\F[]
+ports, leaving you with the state
+\FCopen|filtered\F[]
+in both cases\&.
 .RE
 .PP
 \fB\-sI \fR\fB\fIzombie host\fR\fR\fB[:\fIprobeport\fR]\fR (idle scan) .\" -sI .\" idle scan
@@ -979,7 +1037,7 @@ at the same time)\&. If no response is received after retransmissions, the proto
 .PP
 \fB\-b \fR\fB\fIFTP relay host\fR\fR (FTP bounce scan) .\" -b .\" FTP bounce scan
 .RS 4
-An interesting feature of the FTP protocol (\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[8]\d\s+2) is support for so\-called proxy FTP connections\&. This allows a user to connect to one FTP server, then ask that files be sent to a third\-party server\&. Such a feature is ripe for abuse on many levels, so most servers have ceased supporting it\&. One of the abuses this feature allows is causing the FTP server to port scan other hosts\&. Simply ask the FTP server to send a file to each interesting port of a target host in turn\&. The error message will describe whether the port is open or not\&. This is a good way to bypass firewalls because organizational FTP servers are often placed where they have more access to other internal hosts than any old Internet host would\&. Nmap supports FTP bounce scan with the
+An interesting feature of the FTP protocol (\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[9]\d\s+2) is support for so\-called proxy FTP connections\&. This allows a user to connect to one FTP server, then ask that files be sent to a third\-party server\&. Such a feature is ripe for abuse on many levels, so most servers have ceased supporting it\&. One of the abuses this feature allows is causing the FTP server to port scan other hosts\&. Simply ask the FTP server to send a file to each interesting port of a target host in turn\&. The error message will describe whether the port is open or not\&. This is a good way to bypass firewalls because organizational FTP servers are often placed where they have more access to other internal hosts than any old Internet host would\&. Nmap supports FTP bounce scan with the
 \fB\-b\fR
 option\&. It takes an argument of the form
 \fIusername\fR:\fIpassword\fR@\fIserver\fR:\fIport\fR\&.
@@ -1181,7 +1239,7 @@ or
 class, which means that they increment the ID field in the IP header for each packet they send\&. This makes them vulnerable to several advanced information gathering and spoofing attacks\&.
 .\" uptime guess
 .PP
-Another bit of extra information enabled by OS detection is a guess at a target\'s uptime\&. This uses the TCP timestamp option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[9]\d\s+2) to guess when a machine was last rebooted\&. The guess can be inaccurate due to the timestamp counter not being initialized to zero or the counter overflowing and wrapping around, so it is printed only in verbose mode\&.
+Another bit of extra information enabled by OS detection is a guess at a target\'s uptime\&. This uses the TCP timestamp option (\m[blue]\fBRFC 1323\fR\m[]\&\s-2\u[10]\d\s+2) to guess when a machine was last rebooted\&. The guess can be inaccurate due to the timestamp counter not being initialized to zero or the counter overflowing and wrapping around, so it is printed only in verbose mode\&.
 .PP
 
 A paper documenting the workings, usage, and customization of OS detection is available at \m[blue]\fB\%http://nmap.org/book/osdetect.html\fR\m[]\&.
@@ -1221,7 +1279,7 @@ value (such as 1) speeds Nmap up, though you miss out on retries which could pot
 .\" Nmap Scripting Engine (NSE)
 .PP
 The Nmap Scripting Engine (NSE) is one of Nmap\'s most powerful and flexible features\&. It allows users to write (and share) simple scripts (using the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[10]\d\s+2,
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[11]\d\s+2,
 .\" Lua programming language) to automate a wide variety of networking tasks\&. Those scripts are executed in parallel with the speed and efficiency you expect from Nmap\&. Users can rely on the growing and diverse set of scripts distributed with Nmap, or write their own to meet custom needs\&.
 .PP
 Tasks we had in mind when creating the system include network discovery, more sophisticated version detection, vulnerability detection\&. NSE can even be used for vulnerability exploitation\&.
@@ -1313,7 +1371,7 @@ More complicated script selection can be done using the
 \FCor\F[], and
 \FCnot\F[]
 operators to build Boolean expressions\&. The operators have the same
-\m[blue]\fBprecedence\fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBprecedence\fR\m[]\&\s-2\u[12]\d\s+2
 as in Lua:
 \FCnot\F[]
 is the highest, followed by
@@ -1752,7 +1810,7 @@ because accuracy there requires probe consistency, but most pinging and portscan
 \fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&. \fR\fR\fB;\fR \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (Send packets with specified ip options) .\" --ip-options .\" IP options
 .RS 4
 The
-\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[12]\d\s+2
+\m[blue]\fBIP protocol\fR\m[]\&\s-2\u[13]\d\s+2
 offers several options which may be placed in packet headers\&. Unlike the ubiquitous TCP options, IP options are rarely seen due to practicality and security concerns\&. In fact, many Internet routers block the most dangerous options such as source routing\&. Yet options can still be useful in some cases for determining and manipulating the network route to target machines\&. For example, you may be able to use the record route option to determine a path to a target even when more traditional traceroute\-style approaches fail\&. Or if your packets are being dropped by a certain firewall, you may be able to specify a different route with the strict or loose source routing options\&.
 .sp
 The most powerful way to specify IP options is to simply pass in values as the argument to
@@ -1818,8 +1876,19 @@ argument examples are
 .PP
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums) .\" --badsum .\" TCP checksum .\" checksums
 .RS 4
-Asks Nmap to use an invalid TCP or UDP checksum for packets sent to target hosts\&. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or IDS that didn\'t bother to verify the checksum\&. For more details on this technique, see
+Asks Nmap to use an invalid TCP, UDP or SCTP checksum for packets sent to target hosts\&. Since virtually all host IP stacks properly drop these packets, any responses received are likely coming from a firewall or IDS that didn\'t bother to verify the checksum\&. For more details on this technique, see
 \m[blue]\fB\%http://nmap.org/p60-12.html\fR\m[]
+.RE
+.PP
+\fB\-\-adler32\fR (Use deprecated Adler32 instead of CRC32C for SCTP checksums) .\" --adler32 .\" CRC32C checksum .\" Adler32 checksum .\" SCTP checksum .\" checksums
+.RS 4
+Asks Nmap to use the deprecated Adler32 algorithm for calculating the SCTP checksum\&. If
+\fB\-\-adler32\fR
+is not given, CRC\-32C (Castagnoli) is used\&.
+\m[blue]\fBRFC 2960\fR\m[]\&\s-2\u[14]\d\s+2
+originally defined Adler32 as checksum algorithm for SCTP;
+\m[blue]\fBRFC 4960\fR\m[]\&\s-2\u[7]\d\s+2
+later redefined the SCTP checksums to use CRC\-32C\&. Current SCTP implementations should be using CRC\-32C, but in order to elicit responses from old, legacy SCTP implementations, it may be preferrable to use Adler32\&.
 .RE
 .\" 
 .\" 
@@ -1922,10 +1991,10 @@ be directed to the given filename\&. Nmap includes a document type definition (D
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
 XML offers a stable format that is easily parsed by software\&. Free XML parsers are available for all major computer languages, including C/C++, Perl, Python, and Java\&. People have even written bindings for most of these languages to handle Nmap output and execution specifically\&. Examples are
-\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[13]\d\s+2
+\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[15]\d\s+2
 .\" Nmap::Scanner
 and
-\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[14]\d\s+2
+\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[16]\d\s+2
 .\" Nmap::Parser
 in Perl CPAN\&. In almost all cases that a non\-trivial application interfaces with Nmap, XML is the preferred format\&.
 .sp
@@ -2160,7 +2229,7 @@ line being the only IPv6 give away\&.
 While IPv6 hasn\'t exactly taken the world by storm, it gets significant use in some (usually Asian) countries and most modern operating systems support it\&. To use Nmap with IPv6, both the source and target of your scan must be configured for IPv6\&. If your ISP (like most of them) does not allocate IPv6 addresses to you, free tunnel brokers are widely available and work fine with Nmap\&. I use the free IPv6 tunnel broker.\" IPv6 tunnel broker
 service at
 \m[blue]\fB\%http://www.tunnelbroker.net\fR\m[]\&. Other tunnel brokers are
-\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[15]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
+\m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[17]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
 .RE
 .PP
 \fB\-A\fR (Aggressive scan options) .\" -A
@@ -2483,7 +2552,7 @@ If you received these files with a written license agreement or contract stating
 This
 Nmap Reference Guide
 is (C) 2005\(en2009 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
-\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[16]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
+\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[18]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
@@ -2511,31 +2580,31 @@ Nmap should never be installed with special privileges (e\&.g\&. suid root) for 
 .SS "Third\-Party Software"
 .PP
 This product includes software developed by the
-\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[17]\d\s+2\&. A modified version of the
-\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[18]\d\s+2.\" libpcap
+\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[19]\d\s+2\&. A modified version of the
+\m[blue]\fBLibpcap portable packet capture library\fR\m[]\&\s-2\u[20]\d\s+2.\" libpcap
 is distributed along with Nmap\&. The Windows version of Nmap utilized the Libpcap\-derived
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[19]\d\s+2.\" WinPcap
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[21]\d\s+2.\" WinPcap
 instead\&. Regular expression support is provided by the
-\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[20]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
+\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[22]\d\s+2,.\" Perl Compatible Regular Expressions (PCRE)
 which is open\-source software, written by Philip Hazel\&..\" Hazel, Philip
 Certain raw networking functions use the
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[21]\d\s+2.\" libdnet
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[23]\d\s+2.\" libdnet
 networking library, which was written by Dug Song\&..\" Song, Dug
 A modified version is distributed with Nmap\&. Nmap can optionally link with the
-\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[22]\d\s+2.\" OpenSSL
+\m[blue]\fBOpenSSL cryptography toolkit\fR\m[]\&\s-2\u[24]\d\s+2.\" OpenSSL
 for SSL version detection support\&. The Nmap Scripting Engine uses an embedded version of the
-\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[23]\d\s+2\&..\" Lua programming language
+\m[blue]\fBLua programming language\fR\m[]\&\s-2\u[25]\d\s+2\&..\" Lua programming language
 All of the third\-party software described in this paragraph is freely redistributable under BSD\-style software licenses\&.
 .SS "United States Export Control.\" export control"
 .PP
 Nmap only uses encryption when compiled with the optional OpenSSL support and linked with OpenSSL\&. When compiled without OpenSSL support, Insecure\&.Com LLC believes that Nmap is not subject to U\&.S\&.
-\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[24]\d\s+2
+\m[blue]\fBExport Administration Regulations (EAR)\fR\m[]\&\s-2\u[26]\d\s+2
 export control\&. As such, there is no applicable ECCN (explort control classification number) and exportation does not require any special license, permit, or other governmental authorization\&.
 .PP
 When compiled with OpenSSL support or distributed as source code, Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN
-\m[blue]\fB5D002\fR\m[]\&\s-2\u[25]\d\s+2
+\m[blue]\fB5D002\fR\m[]\&\s-2\u[27]\d\s+2
 (\(lqInformation Security Software\(rq)\&. We distribute Nmap under the TSU exception for publicly available encryption software defined in
-\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[26]\d\s+2\&.
+\m[blue]\fBEAR 740\&.13(e)\fR\m[]\&\s-2\u[28]\d\s+2\&.
 .SH "Notes"
 .IP " 1." 4
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning
@@ -2568,101 +2637,111 @@ UDP
 \%http://www.rfc-editor.org/rfc/rfc768.txt
 .RE
 .IP " 7." 4
+SCTP
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc4960.txt
+.RE
+.IP " 8." 4
 TCP RFC
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc793.txt
 .RE
-.IP " 8." 4
+.IP " 9." 4
 RFC 959
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc959.txt
 .RE
-.IP " 9." 4
+.IP "10." 4
 RFC 1323
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc1323.txt
 .RE
-.IP "10." 4
+.IP "11." 4
 Lua programming language
 .RS 4
 \%http://lua.org
 .RE
-.IP "11." 4
+.IP "12." 4
 precedence
 .RS 4
 \%http://www.lua.org/manual/5.1/manual.html#2.5.3
 .RE
-.IP "12." 4
+.IP "13." 4
 IP protocol
 .RS 4
 \%http://www.rfc-editor.org/rfc/rfc791.txt
 .RE
-.IP "13." 4
+.IP "14." 4
+RFC 2960
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc2960.txt
+.RE
+.IP "15." 4
 Nmap::Scanner
 .RS 4
 \%http://sourceforge.net/projects/nmap-scanner/
 .RE
-.IP "14." 4
+.IP "16." 4
 Nmap::Parser
 .RS 4
 \%http://nmapparser.wordpress.com/
 .RE
-.IP "15." 4
+.IP "17." 4
 listed at Wikipedia
 .RS 4
 \%http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers
 .RE
-.IP "16." 4
+.IP "18." 4
 Creative Commons Attribution License
 .RS 4
 \%http://creativecommons.org/licenses/by/2.5/
 .RE
-.IP "17." 4
+.IP "19." 4
 Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "18." 4
+.IP "20." 4
 Libpcap portable packet capture library
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "19." 4
+.IP "21." 4
 WinPcap library
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "20." 4
+.IP "22." 4
 PCRE library
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "21." 4
+.IP "23." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "22." 4
+.IP "24." 4
 OpenSSL cryptography toolkit
 .RS 4
 \%http://www.openssl.org
 .RE
-.IP "23." 4
+.IP "25." 4
 Lua programming language
 .RS 4
 \%http://www.lua.org
 .RE
-.IP "24." 4
+.IP "26." 4
 Export Administration Regulations (EAR)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/ear_data.html
 .RE
-.IP "25." 4
+.IP "27." 4
 5D002
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/ccl5-pt2.pdf
 .RE
-.IP "26." 4
+.IP "28." 4
 EAR 740.13(e)
 .RS 4
 \%http://www.access.gpo.gov/bis/ear/pdf/740.pdf

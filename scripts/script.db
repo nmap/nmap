@@ -13,7 +13,7 @@ Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
-Entry { filename = "http-iis-webdav-vuln.nse", categories = { "discovery", } }
+Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", } }

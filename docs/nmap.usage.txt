@@ -1,4 +1,4 @@
-Nmap 4.85BETA9 ( http://nmap.org )
+Nmap 4.85BETA10 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -11,7 +11,7 @@ HOST DISCOVERY:
   -sL: List Scan - simply list targets to scan
   -sP: Ping Scan - go no further than determining if host is online
   -PN: Treat all hosts as online -- skip host discovery
-  -PS/PA/PU[portlist]: TCP SYN/ACK or UDP discovery to given ports
+  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
   -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   -PO[protocol list]: IP Protocol Ping
   -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
@@ -24,6 +24,7 @@ SCAN TECHNIQUES:
   -sN/sF/sX: TCP Null, FIN, and Xmas scans
   --scanflags <flags>: Customize TCP scan flags
   -sI <zombie host[:probeport]>: Idle scan
+  -sY/sZ: SCTP INIT/COOKIE-ECHO scans
   -sO: IP protocol scan
   -b <FTP relay host>: FTP bounce scan
 PORT SPECIFICATION AND SCAN ORDER:
@@ -73,7 +74,8 @@ FIREWALL/IDS EVASION AND SPOOFING:
   --ip-options <options>: Send packets with specified ip options
   --ttl <val>: Set IP time-to-live field
   --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address
-  --badsum: Send packets with a bogus TCP/UDP checksum
+  --badsum: Send packets with a bogus TCP/UDP/SCTP checksum
+  --adler32: Use deprecated Adler32 instead of CRC32C for SCTP checksums
 OUTPUT:
   -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename.
