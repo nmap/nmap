@@ -26,21 +26,25 @@ Requires: python >= 2.4
 BuildRoot: %{_tmppath}/%{name}-root
 
 %description
-Nmap is a utility for network exploration or security auditing. It
-supports ping scanning (determine which hosts are up), many port
-scanning techniques, version detection (determine service protocols
-and application versions listening behind ports), and TCP/IP
-fingerprinting (remote host OS or device identification). Nmap also
-offers flexible target and port specification, decoy/stealth scanning,
-sunRPC scanning, and more. Most Unix and Windows platforms are
-supported in both GUI and commandline modes. Several popular handheld
-devices are also supported, including the Sharp Zaurus and the iPAQ.
+
+Nmap ("Network Mapper") is a free and open source utility
+for network exploration or security auditing. Many systems and network
+administrators also find it useful for tasks such as network
+inventory, managing service upgrade schedules, and monitoring host or
+service uptime. Nmap uses raw IP packets in novel ways to determine
+what hosts are available on the network, what services (application
+name and version) those hosts are offering, what operating systems
+(and OS versions) they are running, what type of packet
+filters/firewalls are in use, and dozens of other characteristics. It
+was designed to rapidly scan large networks, but works fine against
+single hosts. Nmap runs on all major computer operating systems, and
+both console and graphical versions are available.
 
 %prep
 %setup -q
 
 %build
-%configure --without-openssl --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%configure --with-openssl --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
 %endif
