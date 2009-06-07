@@ -540,5 +540,8 @@ void script_scan (std::vector<Target *> &targets)
 void close_nse (void)
 {
   if (L_NSE != NULL)
+  {
     lua_close(L_NSE);
+    L_NSE = NULL;
+  }
 }
