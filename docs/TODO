@@ -3,6 +3,19 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 o Build x86 and x86-64 VM instances for RPM building. [Fyodor]
  * I think I'll use CentOS 5.3
 
+o Nmap build system should be split into [Fyodor]
+ o prerelease -> generates version files, man pages, script.db
+   etc. That has to be done on one system, and then results checked in
+   before doing a make release.  It does this stuff based on the
+   directory it is run in rather than some set dirname or a pure SVN
+   version
+ o release-tarballs -> does any system-dependent building and creates
+   the source tarballs.  It does this stuff based on the directory it
+   is run in rather than some set dirname or a pure SVN version
+ o release-rpms -> Same as above, but also uses the created tarballs
+   to build the Linux RPM binaries for the current platform based on the
+   tarballs.
+
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
@@ -189,6 +202,7 @@ o Scanning through proxies
 o [Ncat] Support SCTP now that Nmap does. 
   - See client support patch by Daniel Roethlisberger: 
     http://seclists.org/nmap-dev/2009/q2/0609.html
+  - Server support?
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
