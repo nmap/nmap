@@ -18,6 +18,7 @@ Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery",
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
+Entry { filename = "imap-capabilities.nse", categories = { "default", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
