@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The --version-trace option now shows the names of the probes as they
+  are sent. The patch was from Tom Sellers.
+
 o [Ncat] SSL in listen mode was made to work on systems like BSD in
   which a socket inherits its blocking of non-blocking status from the
   listening socket. Thanks to Daniel Roethlisberger for reporting the

@@ -1719,6 +1719,11 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
     const u8 *probestring;
     int probestringlen;
 
+    // Report data as probes are sent if --version-trace has been requested 
+    if (o.debugging > 1 || o.versionTrace()) {
+      log_write(LOG_PLAIN, "Service scan sending probe %s to %s:%hu (%s)\n", probe->getName(), svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+    }	
+
     assert(probe);
     if (probe->isNullProbe())
       return 0; // No need to send anything for a NULL probe;
@@ -2144,12 +2149,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // WOO HOO!!!!!!  MATCHED!  But might be soft
       if (MD->isSoft && svc->probe_matched) {
 	if (strcmp(svc->probe_matched, MD->serviceName) != 0)
-	  error("WARNING:  service %s:%hu had allready soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->NameIP(), svc->portno, svc->probe_matched, MD->serviceName);
+	  error("WARNING:  service %s:%hu had already soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->NameIP(), svc->portno, svc->probe_matched, MD->serviceName);
 	// No error if its the same - that happens frequently.  For
 	// example, if we read more data for the same probe response
 	// it will probably still match.
       } else {
-	if (o.debugging > 1) {
+	if (o.debugging > 1 || o.versionTrace()) {
 	  if (MD->product || MD->version || MD->info)
 	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
