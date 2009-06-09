@@ -32,6 +32,10 @@ o Ensure that when I build a distribution package on UNIX (e.g. make
 
 o Release 4.85BETA10
 
+o Once we go into deep stability freeze mode, create an nmap-exp
+  development branches for changes we plan to integrate after the
+  stable release.
+
 o [NSE] Open proxy detection scripts
   o We have http-open-proxy.nse, but we should probably either extrand
   that to handle other types of proxies (such as SOCKS and HTTP
@@ -84,6 +88,8 @@ o Some of the -PS443 scans (and maybe other ones) we've been running
 
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor]
+
+o Ncat-listen?
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
