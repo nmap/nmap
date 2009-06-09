@@ -1107,8 +1107,10 @@ match munin m|^# munin node at ([-\w_.]+)\n$| p/Munin/ h/$1/
 
 match multiplicity m|^MULTIPLICITYP$| p/Stardock Multiplicity KVM daemon/ o/Windows/
 
-match mupdate m|\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"\(master\)\"\r\n| p/Cyrus Murder Master/ h/$1/ v/$2/
-match mupdate m|\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mupdate://([-.\w]+)\"\r\n| p/Cyrus Murder Slave/ h/$1/ v/$2/ i/Master: $3/
+# The "^(\* [^\r\n]+\r\n)*?" construct on these matches is much faster
+# than just using the matches without an anchor.  -- Brandon
+match mupdate m|^(\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"\(master\)\"\r\n| p/Cyrus Murder Master/ h/$1/ v/$2/
+match mupdate m|^(\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mupdate://([-.\w]+)\"\r\n| p/Cyrus Murder Slave/ h/$1/ v/$2/ i/Master: $3/
 
 softmatch napster m|^1$|
 
@@ -1553,7 +1555,7 @@ match pptp m|^\0\x10\0\x01\x1a\+<M\0\x05\0\0\0\0\0\x01$| p/Point to Point Tunnel
 match pmud m|^pmud (\d[-.\w]+) \d+\n| p|pmud| i|http://sf.net/projects/apmud|
 match printer m|^lpd \[@([-.\w]+)\]: Print-services are not available to your host \([-.\w]+\)\.\n| p/BSD lpd/ i/Unauthorized host/ h/$1/
 # BSD lpr/lpd line printer spooling system (lpr v1:2000.05.07) on Linux 2.6.0-test5
-match printer m|([-.\w]+): lpd: Your host does not have line printer access\n| p|BSD/Linux lpd| h|$1| i|hostname denied|
+match printer m|^([-.\w]+): lpd: Your host does not have line printer access\n| p|BSD/Linux lpd| h|$1| i|hostname denied|
 match printer m|^lpd \[@([-\w_.]+)\]: connected from invalid port \(\d+\)\n| p|BSD/Linux lpd| h|$1| i|source port denied|
 # Linux 2.4.18 lpr 2000.05.07-4.2
 match printer m|^lpd: Host name for your address \(\d+\.\d+\.\d+\.\d+\) unknown\n$| p/Linux lpd/ i/client IP must resolve/ o/Linux/
@@ -1650,7 +1652,10 @@ match securepath m|^Unauthorized client; connection refused<EoM>\n| p/HP Storage
 match service-monitor m|^\0\0\0\x18\0\0..\0\0..\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\x02\0\0\0\0\0\0\0.([^\0]+)\0|s p/CA Spectrum/ i/User $1/
 match service-monitor m|^550 Bad syntax\. Go away\.\n$| p/CA Spectrum/
 
-match ser2net m|^.*\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/serial to network proxy/ i/Debian; serial port $1/ o/Linux/
+# We should probably comment out this match.  It doesn't have an anchor
+# and is one of our SLOWEST matches.  With a better submission we could
+# probably make a much better match (with an anchor). -- Brandon
+match ser2net m|\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/serial to network proxy/ i/Debian; serial port $1/ o/Linux/
 match ser2net m|^Port's device already in use\n\r$| p/serial to network proxy/ i/device in use/
 
 match slnp m|^220 SLNP (\w+)@[vV]ersion:[\s]?V?([^@]+)@((user:[^@]+@)?pid:[\d]+)\n$| p/Sisis $1/ v/$2/ i/$3/ o/Unix/
@@ -2195,7 +2200,7 @@ match telnet m|^220 SL4NT viewer service ready\r\n250 Currently connected channe
 match telnet m|^\xff\xfb\x03\xff\xfb\0\xff\xfb\0\xff\xfd\0\xff.*\r\rFrontDoor (\d[-.\w]+)/|s p/FrontDoor FIDONet Mailer telnetd/ v/$1/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nOK\r\n$| p/Motorola Vanguard router telnetd/ d/router/
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfc\x06.*\nPrecidia Technologies\r\n([-.+\w]+) Remote Configuration\r\n\nPassword\? |s p/Precidia serial2ethernet gateway telnetd/ i/model $1/
-match telnet m|^\xff\xfb\x01.*\n\rWelcome to the Xylan PizzaSwitch! Version (\d[-.\w]+)\n\rlogin   : |s p/Xylan PizzaSwitch telnetd/ v/$1/ d/switch/
+match telnet m|^\xff\xfb\x01\n\r.*Welcome to the Xylan PizzaSwitch! Version (\d[-.\w]+)\n\rlogin   : |s p/Xylan PizzaSwitch telnetd/ v/$1/ d/switch/
 # Bay Networks Accelar 1100 (version 2.0.5.5) switch
 match telnet m|^\xff\xfb\x01\r\n\r\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\n\r\r\* Bay Networks,Inc\..*(Accelar [-.+\w]+).*Software Release (\d[-.\w]+) |s p/Bay Networks Accelar switch telnetd/ v/$2/ i/$1/ d/switch/
 match telnet m|^\xff\xfb\x01\r\n\r\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\n\r\r\* Nortel Networks,Inc\..*\n\r\r\* Passport ([-.\w]+) .*\r\* Software Release (\d[-.\w]+) |s p/Nortel Networks Passport switch telnetd/ v/$2/ i/Passport $1/ d/switch/
