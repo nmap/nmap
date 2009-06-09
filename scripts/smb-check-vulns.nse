@@ -144,8 +144,7 @@ function check_ms08_067(host)
 		elseif(string.find(netpathcompare_result, "INVALID_NAME") ~= nil) then
 			return true, PATCHED
 		else
-io.write(string.format("\n\n%s\n\n", netpathcompare_result))
-			return true, UNKNOWN
+			return true, UNKNOWN, netpathcompare_result
 		end
 	end
 
@@ -301,33 +300,51 @@ function check_winreg_Enum_crash(host)
 	return true, PATCHED
 end
 
+---Returns the appropriate text to display, if any. 
+--
+--@param check The name of the check; for example, 'ms08-067'.
+--@param message The message to display, such as 'VULNERABLE' or 'PATCHED'.
+--@param description [optional] Extra details about the message. nil for a blank message. 
+--@param minimum_verbosity The minimum verbosity level required before the message is displayed.
+--@param minimum_debug [optional] The minimum debug level required before the message is displayed (default: 0).
+--@return A string with a textual representation of the error (or empty string, if it was determined that the message shouldn't be displayed). 
+local function get_response(check, message, description, minimum_verbosity, minimum_debug)
+	if(minimum_debug == nil) then
+		minimum_debug = 0
+	end
+
+	-- Check if we have appropriate verbosity/debug
+	if(nmap.verbosity() >= minimum_verbosity and nmap.debugging() >= minimum_debug) then
+		if(description == nil or description == '') then
+			return string.format("%s: %s\n", check, message)
+		else
+			return string.format("%s: %s (%s)\n", check, message, description)
+		end
+	else
+		return ''
+	end
+end
 
 action = function(host)
 
-	local status, result
-	local response = " \n"
-	local found = false
+	local status, result, message
+	local response = ""
 
 	-- Check for ms08-067
-	status, result = check_ms08_067(host)
+	status, result, message = check_ms08_067(host)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			response = response .. "MS08-067: ERROR: " .. result .. "\n"
-		end
+		response = response .. get_response("MS08-067", "ERROR", result, 0, 1)
 	else
 		if(result == VULNERABLE) then
-			response = response .. "MS08-067: VULNERABLE\n"
-			found = true
+			response = response .. get_response("MS08-067", "VULNERABLE",        nil,                               0)
 		elseif(result == UNKNOWN) then
-			response = response .. "MS08-067: LIKELY VULNERABLE (host stopped responding)\n"
+			response = response .. get_response("MS08-067", "LIKELY VULNERABLE", "host stopped responding",         1) -- TODO: this isn't very accurate
 		elseif(result == NOTRUN) then
-			response = response .. "MS08-067: Check disabled (remove 'safe=1' argument to run)\n"
+			response = response .. get_response("MS08-067", "CHECK DISABLED",    "remove 'safe=1' argument to run", 1)
 		elseif(result == INFECTED) then
-			response = response .. "MS08-067: PATCHED (possibly by Conficker)\n"
+			response = response .. get_response("MS08-067", "FIXED",             "likely by Conficker",             0)
 		else
-			if(nmap.verbosity() > 0) then
-				response = response .. "MS08-067: FIXED\n"
-			end
+			response = response .. get_response("MS08-067", "FIXED", nil, 1)
 		end
 	end
 
@@ -335,44 +352,37 @@ action = function(host)
 	status, result = check_conficker(host)
 	if(status == false) then
 		local msg = CONFICKER_ERROR_HELP[result] or "UNKNOWN; got error " .. result
-		response = response .. "Conficker: " .. msg .. "\n"
+		response = response .. get_response("Conficker", msg, nil, 1) -- Only set verbosity for this, since it might be an error or it might be UNKNOWN
 	else
 		if(result == CLEAN) then
-			response = response .. "Conficker: Likely CLEAN\n"
+			response = response .. get_response("Conficker", "Likely CLEAN",    nil,                        1)
 		elseif(result == INFECTED) then
-			response = response .. "Conficker: Likely INFECTED\n"
-			found = true
+			response = response .. get_response("Conficker", "Likely INFECTED", "by Conficker.C or lower",  0)
 		elseif(result == INFECTED2) then
-			response = response .. "Conficker: Likely INFECTED (by Conficker.D or higher)\n"
-			found = true
+			response = response .. get_response("Conficker", "Likely INFECTED", "by Conficker.D or higher", 0)
 		else
-			response = response .. "Conficker: Unknown response received (" .. result .. ")"
+			response = response .. get_response("Conficker", "UNKNOWN",         result,                     0, 1)
 		end
 	end
 
 	-- Check for a winreg_Enum crash
 	status, result = check_winreg_Enum_crash(host)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			response = response .. "regsvc DoS: ERROR: " .. result .. "\n"
-		end
+		response = response .. get_response("regsvc DoS", "ERROR", result, 0, 1)
 	else
 		if(result == VULNERABLE) then
-			response = response .. "regsvc DoS: VULNERABLE\n"
-			found = true
+			response = response .. get_response("regsvc DoS", "VULNERABLE", nil, 0)
 		elseif(result == NOTRUN) then
-			if(nmap.verbosity() > 0) then
-				response = response .. "regsvc DoS: Check disabled (add --script-args=unsafe=1 to run)\n"
-			end
+			response = response .. get_response("regsvc DoS", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1)
 		else
-			if(nmap.verbosity() > 0) then
-				response = response .. "regsvc DoS: FIXED\n"
-			end
+			response = response .. get_response("regsvc DoS", "FIXED", "add '--script-args=unsafe=1' to run", 1)
 		end
 	end
 
-	-- Don't show a response if we aren't verbose and we found nothing
-	if(nmap.verbosity() == 0 and found == false) then
+	-- If we got a response, add a linefeed
+	if(response ~= "") then
+		response = " \n" .. response
+	else
 		response = nil
 	end
 
