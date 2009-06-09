@@ -1,21 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Build x86 and x86-64 VM instances for RPM building. [Fyodor]
- * I think I'll use CentOS 5.3
-
-o Nmap build system should be split into [Fyodor]
- o prerelease -> generates version files, man pages, script.db
-   etc. That has to be done on one system, and then results checked in
-   before doing a make release.  It does this stuff based on the
-   directory it is run in rather than some set dirname or a pure SVN
-   version
- o release-tarballs -> does any system-dependent building and creates
-   the source tarballs.  It does this stuff based on the directory it
-   is run in rather than some set dirname or a pure SVN version
- o release-rpms -> Same as above, but also uses the created tarballs
-   to build the Linux RPM binaries for the current platform based on the
-   tarballs.
-
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
@@ -29,24 +13,16 @@ o Look into building RPMs with SSL support. Statically linking to
     increase Nmap .tar.bz2 size from about 9 megs to about 12.  OTOH,
     OpenSSL is only going to get more and more important.  Maybe we
     can include a stripped down version?
+  o If we don't integrate OpenSSL (or until we do), we might consider
+    a more prominent configure warning for when SSL is not detected.
+    We could suggest that users run "yum install libopenssl-devel" or
+    "apt-get install libssl-dev" commands or whatever is appropriate
+    and then reconfigure.  Or we could point them to a page or
+    nmap-dev posting URL with instructions.
 
-o Nmap UNIX distro build script should regenerate script.db. [Fyodor]
-
-o Ensure that when I build a distribution package on UNIX (e.g. make
-  distro), it builds what is in the Nmap directory I am calling it
-  from rather than a particular SVN version.  I'm going to start
-  building packages from a special "clean" directory which is
-  different than the one I do development work in.  Also, I want to be
-  sure that any changes in that dir are included in the release, even
-  if they aren't check in yet. [Fyodor]
-
-o Update CHANGELOG for latest changes [Fyodor]
-
-o Release 4.85BETA10
-
-o Once we go into deep stability freeze mode, create an nmap-exp
-  development branches for changes we plan to integrate after the
-  stable release.
+o [Ncat] Solve EOF issues which crop up when piping to an external
+  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. It
+  sounds like we will go with Daniel's patch [Daniel, David]
 
 o [NSE] Open proxy detection scripts
   o We have http-open-proxy.nse, but we should probably either extrand
@@ -55,13 +31,16 @@ o [NSE] Open proxy detection scripts
   types. [Joao, David]
   o Joao has written scripts, just need to finish up, evaluate, integrate.
 
-o Consider whether to let Zenmap Topology graph export the images to
-  svg/png/etc.  Also think about printing.  Note that João Medeiros
-  has written a Umit patch to do this:
-  http://trac.umitproject.org/ticket/316.
-  - Now he has Nmap patch:
-    http://seclists.org/nmap-dev/2009/q2/0409.html
-  - Consider integrating.
+o Update CHANGELOG for latest changes [Fyodor]
+
+o Release 4.85BETA10
+
+o Get set up for Coverity scan of latest version to see if it catches
+  any important issues before stable release. [Fyodor]
+ 
+o Once we go into deep stability freeze mode, create an nmap-exp
+  development branches for changes we plan to integrate after the
+  stable release.
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -81,33 +60,12 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o [NSE] Release mutexes upon script death to prevent certain deadlocks
-  [Patrick, David]
-
-o [Ncat] Solve EOF issues which crop up when piping to an external
-  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. [David]
-
-o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
-  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
-  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
-
-o Deal with Ncat newline problem.  See this thread:
-  http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
-
-o Some of the -PS443 scans (and maybe other ones) we've been running
-  have been missing the Nmap line telling how many packets were
-  sent/received, even though we had verbose mode. [David/Josh]
-
-o Get set up for Coverity scan of latest version to see if it catches
-  any important issues before stable release. [Fyodor]
-
-o Ncat-listen?
-
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o [NSE] Track active sockets in the nsock library binding and don't
   rely on garbage collection for reallocation. Can probably wait until
   post-stable release for integration. [Patrick]
+  - Patrick has a patch and is waiting on dev branch to check it in.
 
 o Deadlock identification and correction:
   o Add detection for deadlocks and print which threads are involved.
@@ -147,11 +105,8 @@ o Consider making it easier to tell whether scripts were specified by
   those scripts.
 
 o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
-
-o -PO1 and "-sO -p1" seem to send ICMP ping packets with an ICMP ID
-  field of 0, which we found that a small percentage of hosts drop
-  (61.13% responded with 0, 62% with a random value).  So we might as
-  well randomize them in these cases.
+  - OTOH, we might want to extend --chat for connect mode in the
+    future.
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too.
@@ -216,6 +171,11 @@ o Scanning through proxies
      these different applications can be scanned through using the
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
+
+o Get better password data for unpw/ncrack
+  o perhaps from Solar Designer.
+  o perhaps add phpbb hack data (there is at least a list of 28,635
+    passwords in phpbb_users.sql, and possibly more in other files.
 
 o [Ncat] Support SCTP now that Nmap does. 
   - See client support patch by Daniel Roethlisberger: 
@@ -458,29 +418,6 @@ o Deal with UDP retransmission for version detection ( I think I
   that match the port number) quickly.  Lost packets should probably
   affect ideal_parallelism.
 
-o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
-when I launch a scan on SYN such as: 
-   /home/fyodor/nmap-exp/fyodor-perf/nmap -nogcc -T4 -n -v -p- --portpingfreq 250 -oA /home/fyodor/nmap-misc/logs/WorldScan/portpingfreq/logs/portpingfreq-250-1%T-%D 67.15.236.34 67.15.236.36 81.174.236.66 81.174.236.119 170.140.20.160 170.140.20.174 202.138.180.9 202.138.180.17 202.138.180.132 209.20.64.112
-   The errors look like:
-sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
-Offending packet: TCP 64.13.134.4:59820 > 170.140.20.174:59120 S ttl=39 id=19927 iplen=44  seq=2425535549 win=4096 <mss 1460>
-sendto in send_ip_packet: sendto(7, packet, 44, 0, 67.15.236.36, 16) => Operation not permitted
-Offending packet: TCP 64.13.134.4:59820 > 67.15.236.36:15030 S ttl=57 id=50640 iplen=44  seq=2425535549 win=2048 <mss 1460>
-Discovered open port 49394/tcp on 170.140.20.174
-sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
-Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 iplen=44  seq=2425601084 win=1024 <mss 1460>
-   May be related to connection tracking and high scan rates. See
-   http://seclists.org/nmap-dev/2008/q4/0652.html
-   http://www.shorewall.net/FAQ.htm#faq26
-   Others have reported similar issues even without connection tracking.  See
-   http://seclists.org/nmap-dev/2006/q3/0277.html
-   http://seclists.org/nmap-dev/2007/q2/0292.html
-
-o Get better password data for unpw/ncrack
-  o perhaps from Solar Designer.
-  o perhaps add phpbb hack data (there is at least a list of 28,635
-    passwords in phpbb_users.sql, and possibly more in other files.
-
 o Nmaprc-related - Create a system to store Nmap defaults/preferences
   in an nmaprc file.
   o nmaprc should be in ~/.nmap on UNIX
@@ -610,6 +547,83 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
+when I launch a scan on SYN such as: 
+  - I'm going to ignore this for now unless it causes me trouble
+  again, as this is an old machine that will be replaced soon anyway.
+  And we haven't been hearing of the problems from others lately.
+   /home/fyodor/nmap-exp/fyodor-perf/nmap -nogcc -T4 -n -v -p- --portpingfreq 250 -oA /home/fyodor/nmap-misc/logs/WorldScan/portpingfreq/logs/portpingfreq-250-1%T-%D 67.15.236.34 67.15.236.36 81.174.236.66 81.174.236.119 170.140.20.160 170.140.20.174 202.138.180.9 202.138.180.17 202.138.180.132 209.20.64.112
+   The errors look like:
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59820 > 170.140.20.174:59120 S ttl=39 id=19927 iplen=44  seq=2425535549 win=4096 <mss 1460>
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 67.15.236.36, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59820 > 67.15.236.36:15030 S ttl=57 id=50640 iplen=44  seq=2425535549 win=2048 <mss 1460>
+Discovered open port 49394/tcp on 170.140.20.174
+sendto in send_ip_packet: sendto(7, packet, 44, 0, 170.140.20.174, 16) => Operation not permitted
+Offending packet: TCP 64.13.134.4:59819 > 170.140.20.174:8256 S ttl=48 id=38510 iplen=44  seq=2425601084 win=1024 <mss 1460>
+   May be related to connection tracking and high scan rates. See
+   http://seclists.org/nmap-dev/2008/q4/0652.html
+   http://www.shorewall.net/FAQ.htm#faq26
+   Others have reported similar issues even without connection tracking.  See
+   http://seclists.org/nmap-dev/2006/q3/0277.html
+   http://seclists.org/nmap-dev/2007/q2/0292.html
+
+
+o -PO1 and "-sO -p1" seem to send ICMP ping packets with an ICMP ID
+  field of 0, which we found that a small percentage of hosts drop
+  (61.13% responded with 0, 62% with a random value).  So we might as
+  well randomize them in these cases. [Josh Marlow]
+
+o Some of the -PS443 scans (and maybe other ones) we've been running
+  have been missing the Nmap line telling how many packets were
+  sent/received, even though we had verbose mode. [David/Josh]
+
+o Deal with Ncat newline problem.  See this thread:
+  http://seclists.org/nmap-dev/2009/q2/0325.html [David,Jah]
+
+o Integrate SCTP scanning support.  See Daniel Roethlisberger's branch
+  in nmap-exp/daniel/nmap-sctp.  As of 4/30/09, he is nearing
+  completion.  See http://seclists.org/nmap-dev/2009/q2/0270.html.
+
+o [NSE] Release mutexes upon script death to prevent certain deadlocks
+  [Patrick, David]
+
+o Consider whether to let Zenmap Topology graph export the images to
+  svg/png/etc.  Also think about printing.  Note that João Medeiros
+  has written a Umit patch to do this: [Joao, David]
+  http://trac.umitproject.org/ticket/316.
+  - Now he has Nmap patch:
+    http://seclists.org/nmap-dev/2009/q2/0409.html
+  - Consider integrating.
+  - Integrated!
+
+o Ensure that when I build a distribution package on UNIX (e.g. make
+  distro), it builds what is in the Nmap directory I am calling it
+  from rather than a particular SVN version.  I'm going to start
+  building packages from a special "clean" directory which is
+  different than the one I do development work in.  Also, I want to be
+  sure that any changes in that dir are included in the release, even
+  if they aren't check in yet. [Fyodor]
+
+o Nmap UNIX distro build script should regenerate script.db. [Fyodor]
+ o Now it is in make prerelease
+
+o Nmap build system should be split into [Fyodor]
+ o prerelease -> generates version files, man pages, script.db
+   etc. That has to be done on one system, and then results checked in
+   before doing a make release.  It does this stuff based on the
+   directory it is run in rather than some set dirname or a pure SVN
+   version
+ o release-tarballs -> does any system-dependent building and creates
+   the source tarballs.  It does this stuff based on the directory it
+   is run in rather than some set dirname or a pure SVN version
+ o release-rpms -> Same as above, but also uses the created tarballs
+   to build the Linux RPM binaries for the current platform based on the
+   tarballs.
+
+o Build x86 and x86-64 VM instances for RPM building. [Fyodor]
+ * I think I'll use CentOS 5.3
 
 o [NSE] Script scanning does not seem to work on Fyodor's Linux
   machines after being installed from latest SVN (or 4.85BETA9) and run
