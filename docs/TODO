@@ -19,6 +19,16 @@ o Nmap build system should be split into [Fyodor]
 o Look into building RPMs with SSL support. Statically linking to
   OpenSSL on Linux for the RPMs didn't work for me last time I
   tried. [Fyodor]
+  o Static linking of Nmap to OpenSSL does not seem to work on Fedora
+    10 or CentOS 5.3.  The problem appears to relate to the OpenSSL
+    krb5 support.
+  o Could build my own OpenSSL libraries on the build system
+    (w/o Kerberos support) and link to those.
+  o At some point, we might want to consider including OpenSSL with
+    Nmap tarball.  The problem is that it is rather big.  Would
+    increase Nmap .tar.bz2 size from about 9 megs to about 12.  OTOH,
+    OpenSSL is only going to get more and more important.  Maybe we
+    can include a stripped down version?
 
 o Nmap UNIX distro build script should regenerate script.db. [Fyodor]
 
@@ -29,6 +39,8 @@ o Ensure that when I build a distribution package on UNIX (e.g. make
   different than the one I do development work in.  Also, I want to be
   sure that any changes in that dir are included in the release, even
   if they aren't check in yet. [Fyodor]
+
+o Update CHANGELOG for latest changes [Fyodor]
 
 o Release 4.85BETA10
 
