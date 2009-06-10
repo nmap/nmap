@@ -1817,6 +1817,7 @@ int nmap_main(int argc, char *argv[]) {
          * trace is first */
         while(!Targets.empty()) {
             currenths = *Targets.begin();
+            o.numhosts_scanned++;
             log_write(LOG_XML, "<host>");
             write_host_status(currenths, o.resolve_all);
             printmacinfo(currenths);
