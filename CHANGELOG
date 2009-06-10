@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added the -PS option found in the Quick Traceroute profile to some of
+  the Intense scan profiles [Josh Marlow]
+
 o [Ncat] There is a backwards-incompatible change in the way that
   listen mode works. The new default behavior is to accept only one
   connection, and quit when the connection ends. This was necessary to
