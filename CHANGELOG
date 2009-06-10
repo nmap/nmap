@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] There is a backwards-incompatible change in the way that
+  listen mode works. The new default behavior is to accept only one
+  connection, and quit when the connection ends. This was necessary to
+  prevent data loss in some situations; some programs require Ncat to
+  send an EOF before they flush their internal buffers and finish
+  processing the last bit of data. See
+  http://seclists.org/nmap-dev/2009/q2/0528.html for more information.
+  Use the new -k or --keep-open option to get the old behavior, in
+  which Ncat will accept multiple simultaneous connection, combine all
+  their input, and accept more connections after a disconnection.
+  [Daniel Roethlisberger]
+
 o The --version-trace option now shows the names of the probes as they
   are sent. The patch was from Tom Sellers.
 
