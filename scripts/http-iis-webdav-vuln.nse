@@ -31,7 +31,6 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln", "intrusive"}
 
 require "http"
-require "nsedebug"
 require "shortport"
 
 portrule = shortport.port_or_service({80, 8080}, "http")

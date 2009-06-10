@@ -85,8 +85,6 @@ require 'bin'
 require 'netbios'
 require 'stdnse'
 
-require 'nsedebug'
-
 have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
 -- Constants

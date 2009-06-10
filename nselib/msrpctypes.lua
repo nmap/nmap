@@ -4481,9 +4481,9 @@ function marshall_atsvc_JobInfo(command, time)
 	result = result .. marshall_int32(time)                       -- Job time
 	result = result .. marshall_int32(0)                          -- Day of month
 	result = result .. marshall_int8(0, false)                    -- Day of week
-io.write("Length = " .. #result .. "\n")
+--io.write("Length = " .. #result .. "\n")
 	result = result .. marshall_atsvc_Flags("JOB_NONINTERACTIVE") -- Flags
-io.write("Length = " .. #result .. "\n\n\n")
+--io.write("Length = " .. #result .. "\n")
 	result = result .. marshall_int16(0, false)                   -- Padding
 	result = result .. marshall_unicode_ptr(command, true)        -- Command
 

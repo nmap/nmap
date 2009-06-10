@@ -121,7 +121,6 @@ module(... or "smb", package.seeall)
 require 'bit'
 require 'bin'
 require 'netbios'
-require 'nsedebug'
 require 'smbauth'
 require 'stdnse'
 

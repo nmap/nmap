@@ -101,7 +101,6 @@ runlevel = 0.5
 categories = {"intrusive", "auth"}
 
 require 'msrpc'
-require 'nsedebug'
 require 'smb'
 require 'stdnse'
 require 'unpwdb'

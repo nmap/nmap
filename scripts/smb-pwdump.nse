@@ -88,7 +88,6 @@ categories = {"intrusive"}
 require 'msrpc'
 require 'smb'
 require 'stdnse'
-require 'nsedebug'
 
 local SERVICE  = "nmap-pwdump"
 local PIPE     = "nmap-pipe"
