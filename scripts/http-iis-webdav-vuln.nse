@@ -1,5 +1,5 @@
 description = [[
-Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access secured WebDAV folders by searching for a password-protected folder and attempting to access it. As of May 2009, this vulnerability is unpatched. 
+Checks for a vulnerability in IIS 5.1/6.0 that allows arbitrary users to access secured WebDAV folders by searching for a password-protected folder and attempting to access it. This vulnerability was patched in Microsoft Security Bulletin MS09-020 <http://www.microsoft.com/technet/security/bulletin/ms09-020.mspx>.
 
 A list of well known folders (almost 900) is used by default. Each one is checked, and if returns an authentication request (401), another attempt is tried with the malicious encoding. If that attempt returns a successful result (207), then the folder is marked as vulnerable.
 
@@ -149,7 +149,7 @@ action = function(host, port)
 	local result = go_single(host, port, "/")
 	if(result == enum_results.NOT_VULNERABLE) then
 		stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is password protected, aborting.")			
-		return "Could not determine vulnerability, since root folder is password protected"
+		return nmap.verbosity() > 0 and "Could not determine vulnerability, since root folder is password protected" or nil
 	end
 
 	stdnse.print_debug(1, "http-iis-webdav-vuln: Root folder is not password protected, continuing...")
@@ -158,7 +158,7 @@ action = function(host, port)
 	if(response.status == 501) then
 		-- WebDAV is disabled
 		stdnse.print_debug(1, "http-iis-webdav-vuln: WebDAV is DISABLED (PROPFIND failed).")
-		return "WebDAV is DISABLED. Server is not currently vulnerable."
+		return nmap.verbosity() > 0 and "WebDAV is DISABLED. Server is not currently vulnerable." or nil
 	else
 		if(response.status == 207) then
 			-- PROPFIND works, WebDAV is enabled
@@ -172,7 +172,7 @@ action = function(host, port)
 			else
 				stdnse.print_debug(1, "http-iis-webdav-vuln: PROPFIND request failed.")
 			end
-			return "ERROR: This web server is not supported." 
+			return nmap.verbosity() > 0 and "ERROR: This web server is not supported." or nil
 		end
 	end
 
@@ -184,22 +184,22 @@ action = function(host, port)
 		if(result == enum_results.VULNERABLE) then
 			return string.format("WebDAV is ENABLED. Folder is vulnerable: %s", folder)
 		elseif(result == enum_results.NOT_VULNERABLE) then
-			return string.format("WebDAV is ENABLED. Folder is NOT vulnerable: %s", folder)
+			return nmap.verbosity() > 0 and string.format("WebDAV is ENABLED. Folder is NOT vulnerable: %s", folder) or nil
 		else
-			return string.format("WebDAV is ENABLED. Could not determine vulnerability of folder: %s", folder)
+			return nmap.verbosity() > 0 and string.format("WebDAV is ENABLED. Could not determine vulnerability of folder: %s", folder) or nil
 		end
 		
 	else
 		local status, results, is_vulnerable = go(host, port)
 	
 	    if(status == false) then
-			return "ERROR: " .. results
+			return nmap.verbosity() > 0 and "ERROR: " .. results or nil
 		else
 			if(#results == 0) then
 				if(is_vulnerable == false) then
-					return "WebDAV is ENABLED. Protected folder found but could not be exploited. Server does not appear to be vulnerable."
+					return nmap.verbosity() > 0 and "WebDAV is ENABLED. Protected folder found but could not be exploited. Server does not appear to be vulnerable." or nil
 				else
-					return "WebDAV is ENABLED. No protected folder found; check not run. If you know a protected folder, add --script-args=webdavfolder=<path>"
+					return nmap.verbosity() > 0 and "WebDAV is ENABLED. No protected folder found; check not run. If you know a protected folder, add --script-args=webdavfolder=<path>" or nil
 				end
 			else
 				return "WebDAV is ENABLED. Vulnerable folders discovered: " .. stdnse.strjoin(", ", results)
