@@ -2,6 +2,9 @@
 #     --define "static 1"
 # to the rpmbuild command line. To build without Ncat, add
 #     --define "buildncat 0"
+#
+# To specify openssl dir, add something like:
+#     --define "openssl /usr/local/ssl"
 
 %define name nmap
 %define version @VERSION@
@@ -44,7 +47,7 @@ both console and graphical versions are available.
 %setup -q
 
 %build
-%configure --with-openssl --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
+%configure --with-openssl=%{openssl} --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
 %endif
