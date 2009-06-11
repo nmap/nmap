@@ -562,6 +562,9 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   esac]
 )
 
+# OpenSSL and NSE C modules can require dlopen
+AC_SEARCH_LIBS(dlopen, dl)
+
 # They don't want lua
 if test "$no_lua" = "yes"; then
   CPPFLAGS="-DNOLUA $CPPFLAGS"
@@ -573,8 +576,6 @@ if test "$no_lua" = "yes"; then
   INSTALLNSE=""
 
 else 
-  # NSE C modules are loaded with dlopen.
-  AC_SEARCH_LIBS(dlopen, dl)
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then

@@ -7886,19 +7886,8 @@ if test "${with_liblua+set}" = set; then
 fi
 
 
-# They don't want lua
-if test "$no_lua" = "yes"; then
-  CPPFLAGS="-DNOLUA $CPPFLAGS"
-  LIBLUA_LIBS=""
-  LUA_DEPENDS=""
-  LUA_BUILD=""
-  LUA_CLEAN=""
-  LUA_DIST_CLEAN=""
-  INSTALLNSE=""
-
-else
-  # NSE C modules are loaded with dlopen.
-  { $as_echo "$as_me:$LINENO: checking for library containing dlopen" >&5
+# OpenSSL and NSE C modules can require dlopen
+{ $as_echo "$as_me:$LINENO: checking for library containing dlopen" >&5
 $as_echo_n "checking for library containing dlopen... " >&6; }
 if test "${ac_cv_search_dlopen+set}" = set; then
   $as_echo_n "(cached) " >&6
@@ -7985,6 +7974,18 @@ if test "$ac_res" != no; then
 
 fi
 
+
+# They don't want lua
+if test "$no_lua" = "yes"; then
+  CPPFLAGS="-DNOLUA $CPPFLAGS"
+  LIBLUA_LIBS=""
+  LUA_DEPENDS=""
+  LUA_BUILD=""
+  LUA_CLEAN=""
+  LUA_DIST_CLEAN=""
+  INSTALLNSE=""
+
+else
 
   # If they didn't specify it, we try to find it
   if test $have_lua != yes; then
