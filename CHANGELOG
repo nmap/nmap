@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed two bugs: 1) HostInfo objects would be modified in memory to
+  reflect information gathered from new scans, making scan comparisons
+  difficult.  Now, modifications are done to copies of existing hosts.
+  2) Canceling a scan and then removing it would cause the NetworkInventory
+  hosts dictionary to be cleared and not refreashed [Josh Marlow]
+
 o [Zenmap] Added the -PS option found in the Quick Traceroute profile to some of
   the Intense scan profiles [Josh Marlow]
 
