@@ -31,6 +31,15 @@ o [NSE] Open proxy detection scripts
   types. [Joao, David]
   o Joao has written scripts, just need to finish up, evaluate, integrate.
 
+o Determine whether zenmap.spec.in can currently require
+  "python-sqlite" rather than "python-sqlite2", or if it at least can
+  be easily made to do so. The former seems more compatible since
+  RHEL/CentOS 5.3 has a "python-sqlite" package, but not
+  "python-sqlite2".  Meanwhile, Fedora 10 provides the "python-sqlite"
+  capability as long as you have the Python 2.5 package installed
+  (python-2.5.2-1.fc10).  Fedora 10 does also make a
+  python-sqlite2 package available.
+
 o Update CHANGELOG for latest changes [Fyodor]
 
 o Release 4.85BETA10
