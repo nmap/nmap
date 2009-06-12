@@ -2,11 +2,21 @@ description=[[
 Checks if an HTTP proxy is open.
 
 The script attempts to connect to www.google.com through the (possible) proxy and checks
-for a <code>Server: gws</code> header field in the response.
+for a valid HTTP response code.
+
+Valid HTTP response codes are actually: 200, 301, 302.
 
 If the target is an open proxy, this script causes the target to retrieve a
 web page from www.google.com.
 ]]
+
+---
+-- @output
+-- Interesting ports on scanme.nmap.org (64.13.134.52):
+-- PORT     STATE SERVICE
+-- 8080/tcp open  http-proxy
+-- |  proxy-open-http: Potentially OPEN proxy.
+-- |_ Methods succesfully tested: GET HEAD CONNECT
 
 -- Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar> / www.buanzo.com.ar / linux-consulting.buanzo.com.ar
 -- Changelog: Added explode() function. Header-only matching now works.
@@ -15,64 +25,102 @@ web page from www.google.com.
 -- 2008-10-02 Vlatko Kosturjak <kost@linux.hr>
 --   * Match case-insensitively against "^Server: gws" rather than
 --     case-sensitively against "^Server: GWS/".
+-- 2009-05-14 Joao Correa <joao@livewire.com.br>
+--   * Included tests for HEAD and CONNECT methods
+--   * Included url arguments
+--   * Script now checks for http response status code
 
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
 require "comm"
 require "shortport"
+require "stdnse"
+require "url"
 
---- An explode function for NSE/LUA. Taken (and fixed) from http://lua-users.org/wiki/LuaRecipes
---@param d Delimiter
---@param p Buffer to explode
---@return A LUA Table
-function explode(d,p)
-	local t,ll,l
-	t={}
-	ll=0
-	while true do
-		l=string.find(p,d,ll+1,true) -- find the next d in the string
-		if l~=nil then -- if "not not" found then..
-			table.insert(t, string.sub(p,ll,l-1)) -- Save it in our array.
-			ll=l+1 -- save just after where we found it for searching next time.
-		else
-			table.insert(t, string.sub(p,ll)) -- Save what's left in our array.
-			break -- Break at end, as it should be, according to the lua manual.
-		end
-	end
-	return t
+--- check function, makes checkings for all valid returned status
+--- If any of the HTTP status below is found, the proxy is potentially open
+--@param result connection result
+--@return true if any of the status is found, otherwise false
+function check(result)
+	local status = false
+	if string.match(result:lower(),"^http.*200.*") then return true end
+	if string.match(result:lower(),"^http.*301.*") then return true end	
+	if string.match(result:lower(),"^http.*302.*") then return true end
+	return false
 end
 
-portrule = shortport.port_or_service({3128,8000,8080},{'squid-http','http-proxy'})
+portrule = shortport.port_or_service({8123,3128,8000,8080},{'polipo','squid-http','http-proxy'})
 
 action = function(host, port)
 	local response
 	local i
--- We will return this if we don't find "^Server: gws" in response headers
 	local retval
+	local supported_methods = "\nMethods succesfully tested: "
+	local fstatus = false
 
--- Ask proxy to open www.google.com
-	local req = "GET http://www.google.com HTTP/1.0\r\nHost: www.google.com\r\n\r\n"
-	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
-	
-	if not status then
-		return
+	-- Default url = nmap.org
+	-- Default host = nmap.org
+	local test_url = "http://www.google.com"
+	local hostname = "www.google.com"
+
+	-- If arg url exists, use it as url
+	-- If arg hurl exists, use it as host_url
+	-- If arg url exists, but arg hurl doesn't, use url as host_url
+	if(nmap.registry.args.openproxy and nmap.registry.args.openproxy.url) then
+		test_url = nmap.registry.args.openproxy.url
+		if not string.match(test_url, "^http://.*") then 
+			test_url = "http://" .. test_url
+			stdnse.print_debug("URL missing scheme. URL concatenated to http://")
+		end
+		url_table = url.parse(test_url)
+		hostname = url_table.host
 	end
+ 
+	-- Trying GET method!
+	req = "GET " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
+	stdnse.print_debug("GET Request: " .. req)
+	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
 
--- Explode result into the response table
-	response = explode("\n",result)
-
--- Now, search for "Server: gws" until headers (or table) end.
-	i = 0
-	while true do
-		i = i+1
-		if i > table.getn(response) then break end
-		if response[i]=="\r" then break end
-		if string.match(response[i]:lower(),"^server: gws") then
-			retval = "Potentially OPEN proxy. Google\'s \"Server: gws\" header FOUND."
-			break
+	if status then	
+		lstatus = check(result)
+		if lstatus then	
+			supported_methods = supported_methods .. "GET "
+			fstatus = true
 		end
 	end
 
-	return retval
+	-- Trying HEAD method
+	req = "HEAD " .. test_url .. " HTTP/1.0\r\nHost: " .. hostname .. "\r\n\r\n"
+	stdnse.print_debug("HEAD Request: " .. req)
+	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
+
+	if status then
+		lstatus = check(result)
+		if lstatus then	
+			supported_methods = supported_methods .. "HEAD "
+			fstatus = true
+		end
+	end 
+
+	-- Trying CONNECT method
+	-- Not really sure about how correct the code below really is!
+	req = "CONNECT " .. hostname .. ":80 HTTP/1.0\r\n\r\n"
+	stdnse.print_debug("CONNECT Request: " .. req)
+	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
+
+	if status then
+		lstatus = check(result);
+		if lstatus then	
+			supported_methods = supported_methods .. "CONNECT"
+			fstatus = true
+		end
+	end
+
+	-- If any of the tests were OK, then the proxy is potentially open
+	if fstatus then
+		retval = "Potentially OPEN proxy.\n" .. supported_methods
+		return retval
+	end
+	return
 end
