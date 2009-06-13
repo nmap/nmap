@@ -1,12 +1,13 @@
 description=[[
-Checks if an Socks proxy is open.
+Checks if an open socks proxy is running on the target.
 
-The script attempts to connect to the proxy server and send the socks4 and socks5
-payloads. If the script receives a Request Granted from server, the proxy is considered open.
+The script attempts to connect to a proxy server and send socks4 and
+socks5 payloads. It is considered an open proxy if the script receives
+a Request Granted response from the target port.
 
-The payloads try to open a connection with www.google.com at port 80.
-
-A different host can be passed as argument, as described below.
+The payloads try to open a connection to www.google.com port 80.  A
+different test host can be passed as openproxy.host (note the table
+syntax in the example) argument, as described below.
 ]]
 
 ---
