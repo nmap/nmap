@@ -324,8 +324,7 @@ o Ncat now ignores SIGPIPE in listen mode.  This fixes the command
   would try to write more date before realizing that the client had
   closed the connection.
 
-o Version detection can now detect Ncat's --chat mode (in IPv4 and
-  IPv6 modes). [David]
+o Version detection can now detect Ncat's --chat mode. [David]
 
 Nmap 4.85BETA9 [2009-05-12]
 
