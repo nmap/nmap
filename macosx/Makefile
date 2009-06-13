@@ -55,19 +55,18 @@ $(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-ndiff stage-zenmap
 
 export-%:
 	rm -rf $*
-# Using @HEAD discards local changes.
-	svn export ..@HEAD $*
-	svn export ../nbase@HEAD $*/nbase
-	svn export ../ncat@HEAD $*/ncat
-	svn export ../nsock@HEAD $*/nsock
-	svn export ../zenmap@HEAD $*/zenmap
+# Using @BASE discards local changes.
+	svn export ..@BASE $*
+	svn export ../nbase@BASE $*/nbase
+	svn export ../ncat@BASE $*/ncat
+	svn export ../nsock@BASE $*/nsock
+	svn export ../zenmap@BASE $*/zenmap
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
 	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
-	`pwd`/$(NMAP_STAGING_DIR)$(PREFIX)/bin/nmap --datadir `pwd`/$(NMAP_STAGING_DIR)$(PREFIX)/share/nmap --script-updatedb
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
 	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff $(CONFIGURE_ARGS)
