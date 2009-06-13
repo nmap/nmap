@@ -1,18 +1,16 @@
 description=[[
-Checks if an open socks proxy is running on the target.
+Checks if an Socks proxy is open.
 
-The script attempts to connect to a proxy server and send socks4 and
-socks5 payloads. It is considered an open proxy if the script receives
-a Request GRanted response from the target port.
+The script attempts to connect to the proxy server and send the socks4 and socks5
+payloads. If the script receives a Request Granted from server, the proxy is considered open.
 
-The payloads request permission to open a connection with
-www.google.com at port 80.  A different test host can be passed as
-argument, as described below.
+The payloads try to open a connection with www.google.com at port 80.
 
-This script was strongly based on the http-open-proxy.nse script, written by Andre 'Buanzo' Busleiman. 
+A different host can be passed as argument, as described below.
 ]]
 
 ---
+--@args openproxy.host Host that will be requested to the proxy
 --@output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT     STATE  SERVICE
@@ -26,6 +24,7 @@ This script was strongly based on the http-open-proxy.nse script, written by And
 author = "Joao Correa <joao@livewire.com.br>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
+
 require "shortport"
 require "bin"
 require "nmap"
@@ -71,7 +70,7 @@ action = function(host, port)
 	payload = bin.pack("H",paystring)
 
 	local socket = nmap.new_socket()
-	socket:set_timeout(1000)
+	socket:set_timeout(10000)
 	try = nmap.new_try(function() socket:close() end)
 	try(socket:connect(host.ip, port.number))
 	try(socket:send(payload))
@@ -101,7 +100,7 @@ action = function(host, port)
 
 	-- Send first Socks5 payload to estabilish connection without authentication
 	local socket2 = nmap.new_socket()
-	socket2:set_timeout(1000)
+	socket2:set_timeout(10000)
 	try = nmap.new_try(function() socket2:close() end)
 	try(socket2:connect(host.ip, port.number))
 	try(socket2:send(payload))
