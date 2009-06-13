@@ -2,28 +2,20 @@
 
 Nmap 4.85BETA10 [2009-06-12]
 
-o There is a new default ping probe set: -PE -PS443 -PA80 -PP. In
-  exhaustive testing of 90 different probes, this one emerged as the
-  best four-probe combination, finding 14% more Internet hosts than
-  the previous default, -PE -PA80. The default for nonroot users is
-  -PS80,443, replacing the previous default of -PS80. In addition,
-  ping probes are now sent in order of effectiveness (-PE first) so
-  that less likely probes may not have to be sent. [David, Fyodor]
+o The host discovery (ping probe) defaults have been enahanced to
+  include twice as many probes.  The default is now "-PE -PS443 -PA80
+  -PP". In exhaustive testing of 90 different probes, this emerged as
+  the best four-probe combination, finding 14% more Internet hosts
+  than the previous default, "-PE -PA80". The default for nonroot
+  users is -PS80,443, replacing the previous default of -PS80. In
+  addition, ping probes are now sent in order of effectiveness (-PE
+  first) so that less effective probes may not have to be sent. ARP
+  ping is still the default on local ethernet networks. [David,
+  Fyodor]
 
-o [Ncat] Handling of newlines on Windows has been improved. CRLF is
-  automatically converted to bare LF when input is from the console, but
-  not when it is from a pipe or a file. No newline translation is done
-  on output (it was being done before). This makes it possible to
-  transfer binary files with Ncat on Windows without any corruption,
-  while still being able to interactively ncat into UNIX shells and
-  other processes which require bare newlines. Ncat clients now work
-  the same way on UNIX and Windows in that respect.  For cases where
-  you do want \r\n line endings (such as connections to web and email
-  servers or Windows cmd.exe shells), you can still specify -C. [David]
-
-o Added initial SCTP port scanning support to Nmap.  SCTP is
-  a layer 4 protocol used mostly for telephony related applications.
-  This brings the following new features:
+o Added SCTP port scanning support to Nmap. SCTP is a layer 4 protocol
+  used mostly for telephony related applications.  This brings the
+  following new features:
   o SCTP INIT chunk port scan (-sY): open ports return an INIT-ACK
     chunk, closed ones an ABORT chunk.  This is the SCTP equivalent
     of a TCP SYN stealth scan.
@@ -36,8 +28,11 @@ o Added initial SCTP port scanning support to Nmap.  SCTP is
   o The ability to use the deprecated Adler32 algorithm as specified
     in RFC 2960 instead of CRC32C from RFC 4960 (--adler32).
   o 42 well-known SCTP ports were added to the nmap-services file.
+  o The server scanme.csnc.ch has been set up for your SCTP scan
+    testing pleasure. See
+    http://seclists.org/nmap-dev/2009/q2/0669.html.
   Part of the work on SCTP support was kindly sponsored by
-  Compass Security AG, Switzerland.  [Daniel Roethlisberger]
+  Compass Security AG, Switzerland. [Daniel Roethlisberger]
 
 o [NSE] Added the new script http-iis-webdav-vuln.nse, which detects
   the recently discovered WebDAV unicode bug in MS IIS 5.1/6.0 web
@@ -45,40 +40,25 @@ o [NSE] Added the new script http-iis-webdav-vuln.nse, which detects
   folders without authentication. See
   http://nmap.org/svn/scripts/http-iis-webdav-vuln.nse. [Ron]
 
-o [NSE] Added the imap-capabilities script, which uses the CAPABILITY
-  command to determine the capabilities of a target IMAP mail server.
-  A simple supporting IMAP library was added as well. See
-  http://nmap.org/nsedoc/scripts/imap-capabilities.html. [Brandon]
-
-o Optimized some Nmap version detection match lines for slightly
-  better performance. See
-  http://seclists.org/nmap-dev/2009/q2/0328.html. [Brandon]
-
-o Open Source Press completed and released the German translation of
-  the official Nmap book (Nmap Network Scanning). Learn more at
-  http://nmap.org/book/#translations.
-
-o Nmap RPM packages (x86 and x86-64) are now built with OpenSSL
-  support (statically linked in to avoid dependencies).  They are also
-  now built on CentOS 5.3 for compatability with RHEL, Fedora, and
-  other distributions. Please let us know if you discover any
-  compatability problems (or other issues) with the new RPMs. [Fyodor]
-
 o The Nmap Reference Guide has been translated to German by Open
   Source Press and Indonesian by Tedi Heriyanto. You can now read it
   in 16 langauges at http://nmap.org/docs.html. We're always looking
   for more translations of Nmap and it's documentation--see
   http://seclists.org/nmap-dev/2009/q2/0667.html if you'd like to help.
 
-o [Zenmap] The Topology tab now has a "Save Graphic" button that allows
-  saving the current topology display as PNG, PostScript, PDF, and SVG.
-  [Joao Medeiros, David]
+o Open Source Press completed and released the German translation of
+  the official Nmap book (Nmap Network Scanning). Learn more at
+  http://nmap.org/book/#translations.
 
-o Version detection can now detect Ncat's --chat mode (IPv4 and
-  IPv6). [David]
+o [NSE] Added the script socks-open-proxy.nse for scanning networks
+  for open SOCKS proxy servers. See
+  http://nmap.org/nsedoc/scripts/socks-open-proxy.html. [Joao Correa]
 
-o Changed the default UDP ping port to 40125.  This appears to be a
-  better port based on tests done by David [Josh Marlow]
+o [NSE] http-open-proxy.nse has been updated to attempt HEAD and
+  CONNECT methods as well as previously supported GET method.  It
+  still tries to reach http://www.google.com through the proxy by
+  default, but now also offers an argument for specifying a different
+  URL. [Joao Correa]
 
 o [Ncat] There is a backwards-incompatible change in the way that
   listen mode works. The new default behavior is to accept only one
@@ -90,39 +70,104 @@ o [Ncat] There is a backwards-incompatible change in the way that
   Use the new -k or --keep-open option to get the old behavior, in
   which Ncat will accept multiple simultaneous connection, combine all
   their input, and accept more connections after a disconnection.
-  [Daniel Roethlisberger]
+  [Daniel Roethlisberger, David]
 
-o Improved validate_scan_lists to handle -SP and -SA at the same time
-  when running nmap as nonroot or using IPv6.  It now combines the two
-  port lists [Josh Marlow]
+o Ncat handling of newlines on Windows has been improved. CRLF is
+  automatically converted to a bare LF when input is from the console,
+  but left untouched when it is from a pipe or a file. No newline
+  translation is done on output (where it was being done before). This
+  makes it possible to transfer binary files with Ncat on Windows
+  without any corruption, while still being able to interactively ncat
+  into UNIX shells and other processes which require bare
+  newlines. Ncat clients now work the same way on UNIX and Windows in
+  that respect.  For cases where you do want \r\n line endings (such
+  as connections to web and email servers or Windows cmd.exe shells),
+  specify -C whether your client is running on UNIX or
+  Windows. [David]
+
+o Nmap RPM packages (x86 and x86-64) are now built with OpenSSL
+  support (statically linked in to avoid dependencies).  They are also
+  now built on CentOS 5.3 for compatability with RHEL, Fedora, and
+  other distributions. Please let us know if you discover any
+  compatability problems (or other issues) with the new RPMs. [Fyodor]
+
+o [Zenmap] The Topology tab now has a "Save Graphic" button that
+  allows saving the current topology display as a PNG, PostScript,
+  PDF, and SVG image.  [Joao Medeiros, David]
+
+o Changed the default UDP ping (-PU) port from 31338 to 40125.  This
+  appears to be a better port based on David's empirical testing.
+
+o [NSE] Added the imap-capabilities script, which uses the CAPABILITY
+  command to determine the capabilities of a target IMAP mail server.
+  A simple supporting IMAP library was added as well. See
+  http://nmap.org/nsedoc/scripts/imap-capabilities.html. [Brandon]
+
+o [NSE] Brandon Enright from UCSD reports that, thanks to all the NSE
+  fixes in this release, he no longer sees any Nmap crashes in his
+  large scale scans. See
+  http://seclists.org/nmap-dev/2009/q2/0639.html.
+
+o Zenmap now works on RHEL/CentOS since it no longer requires the
+  hashlib library (which was introduced in Python 2.5, but RHEL 5
+  still uses 2.4) and removing the pysqlite2 requirement (RHEL does
+  not offer that module).  It is still desirable to have pysqlite2
+  when available, since it enables Zenmap searching and database
+  saving features. [David]
+
+o Ncat can now send SSL certificates in connect mode for client
+  authentication by using the --ssl-cert and --ssl-key options.  The
+  specified certificates are only sent when requested by the
+  server. [Venkat]
+
+o Nmap can now handle -SP and -SA at the same time when running nmap
+  as nonroot or using IPv6.  It now combines the two port lists [Josh
+  Marlow]
 
 o [Ncat] SSL in listen mode now works on systems like BSD in which a
   socket inherits its blocking or non-blocking status from the
-  listening socket. Thanks to Daniel Roethlisberger for reporting the
-  bug and providing test results. [David]
+  listening socket. [David, Daniel Roethlisberger]
 
-o The --version-trace option now shows the names of the probes as they
-  are sent to ease debugging/understanding. [Tom Sellers]
+o The --packet-trace/--version-trace options now shows the names of
+  version detection probes as they are sent, making the version
+  detection process easier to understand and debug. [Tom Sellers]
 
-o The GPG detached signatures of Nmap releases now use the more
+o The GPG detached signatures for Nmap releases now use the more
   standard .asc extension rather than .gpg.txt.  They can still be
   found at http://nmap.org/dist/sigs/ and the .gpg.txt versions for
-  previous releases are still retained for compatability reasons. For
+  previous releases are still available for compatability reasons. For
   instructions on verifying Nmap package integrity, see
   http://nmap.org/book/install.html#inst-integrity. [Fyodor]
 
-o [Zenmap] Fixed two bugs: 1) HostInfo objects would be modified in memory to
-  reflect information gathered from new scans, making scan comparisons
-  difficult.  Now, modifications are done to copies of existing hosts.
-  2) Canceling a scan and then removing it would cause the NetworkInventory
-  hosts dictionary to be cleared and not refreashed [Josh Marlow]
+o [Zenmap] Fixed two bugs: 1) When two scans are performed in Zenmap
+  and aggregated, the first one was being modified in the process,
+  preventing you from doing diffs in the "compare scans" dialogue or
+  properly saving the first scan individually. 2) If you start two
+  scans, then the faster one finishes and you cancel and remove the
+  slower one while still in progress, much of the results from both
+  scans are lost. [Josh Marlow]
+
+o [Ncat] When connecting to an SSL service in verbose mode, Ncat now
+   prints confirmation of the SSL connection, some certificate
+   information, and a cert fingerprint. For example:
+   SSL connection to 64.147.188.3:443. Electronic Frontier Foundation
+   SHA-1 fingerprint: 28BE B476 2E49 7ED5 3A9B 4D79 AD1E 69A9 82DB C75A
+
+o [NSE] Clean up output (generally reducing default verbosity) for the
+  p2p-conficker, smb-check-vulns, and http-iis-webdav-vuln scripts. In
+  general, we don't ask scripts to report that a host is clean unless
+  Nmap's verbosity level (-v) is at least one or two. [Ron, Fyodor]
 
 o [Zenmap] Added the -PS22,25,80 option found in the Quick Traceroute
   profile to some of the Intense scan profiles for improved host
   discovery. [Josh Marlow]
 
+o Fixed a bug with the --defeat-rst-ratelimit option which prevented
+  it from working properly.  See this thread:
+  http://seclists.org/nmap-dev/2009/q2/0476.html. [Josh]
+
 o [Ndiff] Avoid printing a "Not shown:" line if there weren't any
-  ports in that (extraports) state. [David]
+  ports in the non-shown (extraports) list. [David]
 
 o [Ncat] Fixed Ncat compilation with versions of OpenSSL before 0.9.7.
   Previously it would fail in ncat_openssl.c with the message
@@ -131,38 +176,35 @@ o [Ncat] Fixed Ncat compilation with versions of OpenSSL before 0.9.7.
 
 o [NSE] Removed the packet.hextobin(str) and packet.bintohex(str)
   functions. They are redundant since you get the same functionality
-  by calling with bin.pack("H", str) and bin.unpack("H", str),
+  by calling bin.pack("H", str) and bin.unpack("H", str),
   respectively. [Patrick]
 
 o [NSE[ Fixed the parsing of --script-args, which was only accepting
-  values with alphanumeric characters and underscores. Now a key, value,
-  or array value may be a sequence of characters except '{', '}', ',',
-  '=', and all space characters. You may overcome this restriction by
-  using quotes (single or double) to allow all characters within the
-  quotation marks. You may also use the quote delimiter inside the
-  sequence so long as it is escaped by a backslash. See
+  alphanumeric characters and underscores in values. Now a key, value,
+  or array value may be a sequence of any characters except '{', '}',
+  ',', '=', and all space characters. You may overcome this
+  restriction by using quotes (single or double) to allow all
+  characters within the quotation marks. You may also use the quote
+  delimiter inside the sequence so long as it is escaped by a
+  backslash. See
   http://seclists.org/nmap-dev/2009/q2/0211.html. [Patrick]
 
-o [NSE] When a script ends for any reason, all of its mutexes are
+o [NSE] When a script ends for any reason, all of its mutexes are now
   unlocked.  This prevents a permanant (and painful to debug) deadlock
   when a script crashes without unlocking a mutex. See
   http://seclists.org/nmap-dev/2009/q2/0533.html.
 
-o Added another case to NmapOps::RawScan() to cover the case where we are using
-  a SYN ping scan and issuing raw packets.  This fixes a bug wherein nmap would
-  not display the post-scan count of raw packets sent. [Josh Marlow]
+o Fixed a bug wherein nmap would not display the post-scan count of
+  raw packets sent during a SYN ping scan (-sP -PS). [Josh Marlow]
 
-o Changed the ICMP ping probes to use a random non-zero ICMP id.  Some hosts
-  seem to drop probes when the ICMP id is 0 [Josh Marlow]
+o Changed the ICMP ping probes to use a random non-zero ICMP id.
+  David's empirical testing found that some hosts drop probes when the
+  ICMP id is 0 [Josh Marlow]
 
-o Fixed a --script argument processing bug in which Nmap would abort
-  when an expression matches a set of scripts which were loaded by
-  other expressions first (a simple example is 
-  "--script default,DEFAULT". [Patrick]
-
-o Fixed a bug with the --defeat-rst-ratelimit option which prevented
-  it from working properly.  See this thread:
-  http://seclists.org/nmap-dev/2009/q2/0476.html. [Josh]
+o [NSE] Fixed a --script argument processing bug in which Nmap would
+  abort when an expression matches a set of scripts which were loaded
+  by other expressions first (a simple example is "--script
+  default,DEFAULT". [Patrick]
 
 o [Zenmap] Operating system icons are now always loaded as PNGs, even on
   platforms which support SVG images. That is much faster, and Zenmap
@@ -171,19 +213,18 @@ o [Zenmap] Operating system icons are now always loaded as PNGs, even on
 o [Ncat] The Nmap Windows uninstaller now removes the Ncat CA list
   (ca-bundle.crt) which has been installed since 4.85BETA9. [Jah]
 
-o [NSE] Brandon Enright from UCSD reports that, thanks to all the NSE
-  fixes in this release, he no longer sees any Nmap crashes in his
-  large scale scans. See
-  http://seclists.org/nmap-dev/2009/q2/0639.html.
+o Optimized some Nmap version detection match lines for slightly
+  better performance. See
+  http://seclists.org/nmap-dev/2009/q2/0328.html. [Brandon]
 
 o [NSE] Upon connection failure, a socket now immediately unlocks its
   "socket lock" to allow other pending socket connections to succeed
-  sooner. This slightly improves scan speeds by removing the wait for
-  garbage collection to free the resource. [Patrick]
+  sooner. This slightly improves scan speeds by eliminating the wait
+  for garbage collection to free the resource. [Patrick]
 
-o [NSE] Corrected a bug in nse_nsock.cc that could result in the use
-  of an invalid Lua state if a thread is collected due to timeout or
-  other even more rare reasons. Essentially, the callbacks from the
+o [NSE] Corrected a bug in nse_nsock.cc that could result in a crash
+  from the use of an invalid Lua state if a thread is collected due to
+  timeout or other rare reasons. Essentially, the callbacks from the
   nsock library were returning to an already-collected Lua state. We
   now maintain a reference to the Lua State Thread in the nsock
   userdata environment table to prevent early collection.  This is a
@@ -210,13 +251,24 @@ o [Zenmap] Fixed a crash, introduced in 4.85BETA4, that happened when
   set_date TypeError: argument must be sequence of length 9, not 3
 
 o Patched configure.ac to detect Lua include and library files in
-  "lua5.1" subdirectories of /usr/include and the like. Apparently
-  Debian puts them there. We still check the likes of
+  "lua5.1" subdirectories of /usr/include and the like. Debian
+  apparently puts them there. We still check the likes of
   /usr/include/lua.h and /usr/include/lua/lua.h as well. [Jan
   Christoph Nordholz]
 
-o The --traceroute feature is now properly disabled whenever IPv6 (-6)
-  is requested, since IPv6 traceroutes are not yet supported. [Jah]
+o Improved nsock's fselect() to be a more complete replacement for
+  select() on the Windows platform. In particularly, any or all of the
+  FD sets can be null or empty descriptor sets. This fixes an error
+  ("nsock_loop error 10022") which would occur when you ran ncat
+  --send-only on Windows. [David]
+
+o The --with-openssl= directive now works for specifying the SSL
+  location to the nsock library.  It was previously not passing the
+  poper include file path to the compiler. [Fyodor]
+
+o The --traceroute feature is now properly disabled for IPv6 (-6) ping
+  scans (-sP), since IPv6 traceroutes are not currently
+  supported. [Jah]
 
 o Fixed an assertion failure which could occur on at least SPARC Linux
   The error looked like "nsock_core.c:294: handle_connect_result:
@@ -227,11 +279,6 @@ o Nmap's make install target now uses $(INSTALL) rather than cp to
   set properly. [Fyodor]
 
 o Improved the Oracle DB version detection signatures. [Tom Sellers]
-
-o [NSE] Clean up output (generally reducing default verbosity) for the
-  p2p-conficker, smb-check-vulns, and http-iis-webdav-vuln scripts. In
-  general, we don't ask scripts to report that a host is clean unless
-  Nmap's verbosity level (-v) is at least one or two. [Ron, Fyodor]
 
 o [NSE] Remove the old nse_macros.h header file. This involved
   removing the SCRIPT_ENGINE_* status defines, moving the likes of
@@ -248,8 +295,9 @@ o Fixed a bug which would cause Nmap to sometimes miscount the number
   were specified, so 0 hosts scanned" when --traceroute and -sP were
   combined. [Jah]
 
-o Changed Nmap's configure.ac to check in more situations whether -ldl
-  is required for compilation and add it where necessary. [Fyodor]
+o Changed Nmap and Ncat's configure.ac files to check in more
+  situations whether -ldl is required for compilation and add it where
+  necessary. [Fyodor]
 
 o When building Nmap RPMs using the spec file, you can now pass in an
   openssl argument, the contents of which are passed to ./configure's
@@ -257,17 +305,27 @@ o When building Nmap RPMs using the spec file, you can now pass in an
   --define "openssl /usr/local/ssl". [Fyodor]
 
 o Fixed the make distclean target to avoid a failure which could occur
-  when you ran it right after a make clean and potentially in other
-  situations. [David]
+  when you ran it right after a make clean (it might have failed in
+  other situations as well). [David]
 
 o Updated nmap-mac-prefixes with the latest MAC address prefix data
   from http://standards.ieee.org/regauth/oui/oui.txt as of
   5/20/09. [Fyodor]
 
-o Ncat can now send SSL certificates in connect mode for client
-  authentication by using the --ssl-cert and --ssl-key options.  The
-  specified certificates are only sent when requested by the
-  server. [Venkat]
+o Ncat now uses a blocking socket in connect mode to resolve a failure
+  where the command "ncat --exec /usr/bin/yes localhost" would stop
+  sending because yes would send data so quickly that kernel send
+  buffers could not keep up and socket writes would start generating
+  EAGAIN errors. [Venkat]
+
+o Ncat now ignores SIGPIPE in listen mode.  This fixes the comamnd
+  "yes | ncat -l --keep-open --send-only", which was failing after the
+  first client disconnected due to a broken pipe signal when Ncat
+  would try to write more date before realizing that the client had
+  closed the connection.
+
+o Version detection can now detect Ncat's --chat mode (in IPv4 and
+  IPv6 modes). [David]
 
 Nmap 4.85BETA9 [2009-05-12]
 
