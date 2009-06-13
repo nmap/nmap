@@ -33,8 +33,8 @@ require "dns"
 
 --- Function that resolves IP address for hostname and
 --- returns it as hex values
---@param hostname: hostname to resolve
---@return hostname's ip address in hex
+--@param hostname Hostname to resolve
+--@return Ip address of hostname in hex
 function hex_resolve(hostname)
 	local a, b, c, d;
 	local t, err = ipOps.get_parts_as_number(dns.query(hostname))
