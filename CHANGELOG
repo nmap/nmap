@@ -179,7 +179,7 @@ o [NSE] Removed the packet.hextobin(str) and packet.bintohex(str)
   by calling bin.pack("H", str) and bin.unpack("H", str),
   respectively. [Patrick]
 
-o [NSE[ Fixed the parsing of --script-args, which was only accepting
+o [NSE] Fixed the parsing of --script-args, which was only accepting
   alphanumeric characters and underscores in values. Now a key, value,
   or array value may be a sequence of any characters except '{', '}',
   ',', '=', and all space characters. You may overcome this
