@@ -1,45 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Look into building RPMs with SSL support. Statically linking to
-  OpenSSL on Linux for the RPMs didn't work for me last time I
-  tried. [Fyodor]
-  o Static linking of Nmap to OpenSSL does not seem to work on Fedora
-    10 or CentOS 5.3.  The problem appears to relate to the OpenSSL
-    krb5 support.
-  o Could build my own OpenSSL libraries on the build system
-    (w/o Kerberos support) and link to those.
-  o At some point, we might want to consider including OpenSSL with
-    Nmap tarball.  The problem is that it is rather big.  Would
-    increase Nmap .tar.bz2 size from about 9 megs to about 12.  OTOH,
-    OpenSSL is only going to get more and more important.  Maybe we
-    can include a stripped down version?
-  o If we don't integrate OpenSSL (or until we do), we might consider
-    a more prominent configure warning for when SSL is not detected.
-    We could suggest that users run "yum install libopenssl-devel" or
-    "apt-get install libssl-dev" commands or whatever is appropriate
-    and then reconfigure.  Or we could point them to a page or
-    nmap-dev posting URL with instructions.
-
-o [Ncat] Solve EOF issues which crop up when piping to an external
-  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. It
-  sounds like we will go with Daniel's patch [Daniel, David]
-
-o [NSE] Open proxy detection scripts
-  o We have http-open-proxy.nse, but we should probably either extrand
-  that to handle other types of proxies (such as SOCKS and HTTP
-  CONNECT) or create more scripts to handle those other proxy
-  types. [Joao, David]
-  o Joao has written scripts, just need to finish up, evaluate, integrate.
-
-o Determine whether zenmap.spec.in can currently require
-  "python-sqlite" rather than "python-sqlite2", or if it at least can
-  be easily made to do so. The former seems more compatible since
-  RHEL/CentOS 5.3 has a "python-sqlite" package, but not
-  "python-sqlite2".  Meanwhile, Fedora 10 provides the "python-sqlite"
-  capability as long as you have the Python 2.5 package installed
-  (python-2.5.2-1.fc10).  Fedora 10 does also make a
-  python-sqlite2 package available.
-
 o Update CHANGELOG for latest changes [Fyodor]
 
 o Release 4.85BETA10
@@ -70,6 +30,18 @@ o Device categorization improvements
      nmap/docs/device-types.txt]
 
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
+o Consider the open proxy scripts more carefully
+ - How should we test whether the proxy attempt was successful?  Right
+   now we look for a google-specific Server header after trying to
+   reach http://www.google.com through the proxy.  Maybe we should let
+   users specify their own pattern if they specify their own URL.
+ - Is taking arguments in a table specific to a script a good idea?
+   The example in the socks-open-proxy nsedoc of "--script-args
+   openproxy={host=<host>}" is a bit of a mess and I'm not sure the
+   best way to document that in the script argument list.  Note that
+   this is the standard way we've handled it for some other scripts,
+   so it's not an open-proxy-script-specific problem.
 
 o [NSE] Track active sockets in the nsock library binding and don't
   rely on garbage collection for reallocation. Can probably wait until
@@ -556,6 +528,46 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Open proxy detection scripts
+  o We have http-open-proxy.nse, but we should probably either extrand
+  that to handle other types of proxies (such as SOCKS and HTTP
+  CONNECT) or create more scripts to handle those other proxy
+  types. [Joao, David]
+  o Joao has written scripts, just need to finish up, evaluate, integrate.
+
+o Determine whether zenmap.spec.in can currently require
+  "python-sqlite" rather than "python-sqlite2", or if it at least can
+  be easily made to do so. The former seems more compatible since
+  RHEL/CentOS 5.3 has a "python-sqlite" package, but not
+  "python-sqlite2".  Meanwhile, Fedora 10 provides the "python-sqlite"
+  capability as long as you have the Python 2.5 package installed
+  (python-2.5.2-1.fc10).  Fedora 10 does also make a
+  python-sqlite2 package available.
+
+o [Ncat] Solve EOF issues which crop up when piping to an external
+  command. See http://seclists.org/nmap-dev/2009/q2/0528.html. It
+  sounds like we will go with Daniel's patch [Daniel, David]
+
+o Look into building RPMs with SSL support. Statically linking to
+  OpenSSL on Linux for the RPMs didn't work for me last time I
+  tried. [Fyodor]
+  o Static linking of Nmap to OpenSSL does not seem to work on Fedora
+    10 or CentOS 5.3.  The problem appears to relate to the OpenSSL
+    krb5 support.
+  o Could build my own OpenSSL libraries on the build system
+    (w/o Kerberos support) and link to those.
+  o At some point, we might want to consider including OpenSSL with
+    Nmap tarball.  The problem is that it is rather big.  Would
+    increase Nmap .tar.bz2 size from about 9 megs to about 12.  OTOH,
+    OpenSSL is only going to get more and more important.  Maybe we
+    can include a stripped down version?
+  o If we don't integrate OpenSSL (or until we do), we might consider
+    a more prominent configure warning for when SSL is not detected.
+    We could suggest that users run "yum install libopenssl-devel" or
+    "apt-get install libssl-dev" commands or whatever is appropriate
+    and then reconfigure.  Or we could point them to a page or
+    nmap-dev posting URL with instructions.
 
 o Figure out why I [Fyodor] get a bunch of "Operation not permitted" errors
 when I launch a scan on SYN such as: 
