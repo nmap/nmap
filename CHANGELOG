@@ -312,11 +312,12 @@ o Updated nmap-mac-prefixes with the latest MAC address prefix data
   from http://standards.ieee.org/regauth/oui/oui.txt as of
   5/20/09. [Fyodor]
 
-o Ncat now uses a blocking socket in connect mode to resolve a failure
-  where the command "ncat --exec /usr/bin/yes localhost" would stop
-  sending because yes would send data so quickly that kernel send
-  buffers could not keep up and socket writes would start generating
-  EAGAIN errors. [Venkat]
+o Ncat now makes sockets blocking before handing them off to another
+  program with --exec or --sh-exec. This is to resolve a failure where
+  the command "ncat --exec /usr/bin/yes localhost" would stop sending
+  because yes would send data so quickly that kernel send buffers
+  could not keep up and socket writes would start generating EAGAIN
+  errors. [Venkat]
 
 o Ncat now ignores SIGPIPE in listen mode.  This fixes the command
   "yes | ncat -l --keep-open --send-only", which was failing after the
