@@ -1,15 +1,15 @@
 description=[[
-Checks if an Socks proxy is open.
+Checks if an open socks proxy is running on the target.
 
-The script attempts to connect to the proxy server and send the socks4 and socks5
-payloads. If the script receives a Request Granted from server, the proxy is considered open.
+The script attempts to connect to a proxy server and send socks4 and
+socks5 payloads. It is considered an open proxy if the script receives
+a Request GRanted response from the target port.
 
-The payloads try to open a connection with www.google.com at port 80.
+The payloads request permission to open a connection with
+www.google.com at port 80.  A different test host can be passed as
+argument, as described below.
 
-A different host can be passed as argument, as described below.
-
-This script was strongly based on the http-open-proxy.nse script, written by Andre 'Buanzo' 
-Busleiman. 
+This script was strongly based on the http-open-proxy.nse script, written by Andre 'Buanzo' Busleiman. 
 ]]
 
 ---
