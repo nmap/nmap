@@ -45,7 +45,6 @@ static int startTimeOutClock (lua_State *L)
   if (!target->timeOutClockRunning())
     target->startTimeOutClock(NULL);
   return 0;
-
 }
 
 static int stopTimeOutClock (lua_State *L)
