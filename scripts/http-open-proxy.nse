@@ -102,9 +102,7 @@ action = function(host, port)
 	local hostname = "www.google.com"
 	local pattern = "^server: gws"
 
-	-- If arg url exists, use it as url
-	-- If arg hurl exists, use it as host_url
-	-- If arg url exists, but arg hurl doesn't, use url as host_url
+	-- If arg url exists, use it as test url
 	if(nmap.registry.args.openproxy and nmap.registry.args.openproxy.url) then
 		test_url = nmap.registry.args.openproxy.url
 		pattern = false
@@ -144,7 +142,6 @@ action = function(host, port)
 	end 
 
 	-- Trying CONNECT method
-	-- Not really sure about how correct the code below really is!
 	req = "CONNECT " .. hostname .. ":80 HTTP/1.0\r\n\r\n"
 	stdnse.print_debug("CONNECT Request: " .. req)
 	local status, result = comm.exchange(host, port, req, {lines=1,proto=port.protocol, timeout=10000})
