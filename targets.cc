@@ -334,22 +334,10 @@ TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
           error("Loaded exclude target of: %s", pc);
         ++i;
       } 
-
-      /* This is a totally cheezy hack, but since I can't use strtok_r...
-       * If you can think of a better way to do this, feel free to change.
-       * As for now, we will reset strtok each time we leave parse_expr */
-      {
-	int hack_i;
-	char *hack_c = strdup(szExclude);
-
-	pc=strtok(hack_c, ",");
-
-        for (hack_i = 0; hack_i < i; hack_i++) 
-          pc=strtok(NULL, ",");
-
-	free(hack_c);
-      }
-    } 
+      pc=strtok(NULL, ",");
+    }
+    free(p_acBuf);
+    p_acBuf = NULL;
   }
   return excludelist;
 }

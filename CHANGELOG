@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a memory bug (access of freed memory) when loading exclude
+  targets with --exclude. This was reported to occasionally cause a
+  crash. Will Cladek reported the bug and contributed an initial
+  patch. [David]
+
 Nmap 4.85BETA10 [2009-06-12]
 
 o The host discovery (ping probe) defaults have been enhanced to
