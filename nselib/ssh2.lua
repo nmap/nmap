@@ -45,7 +45,13 @@ end
 transport.payload = function( packet )
   local packet_length, padding_length, payload_length, payload, offset
   offset, packet_length, padding_length = bin.unpack( ">Ic", packet )
+  assert(packet_length and padding_length)
   payload_length = packet_length - padding_length - 1
+  -- Add 4 for the packet_length field.
+  if packet_length + 4 > packet:len() then
+    stdnse.print_debug("SSH-2 packet too short: payload_length is %d but total length is only %d.", packet_length, packet:len())
+    return nil
+  end
   offset, payload = bin.unpack( ">A" .. payload_length, packet, offset )
   return payload
 end
