@@ -114,6 +114,17 @@ o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
   format similar to what Nmap provides.
 
+o Change Nsock to give an error if you try to FD_SET a fd larger than
+  FD_SETSIZE. [Brandon]
+
+o Change Nsock so that it is able to take advantage of more modern
+  interfaces to dealing with large sockets, rather than just select.
+  Perhaps we should look at poll(), Windows completion ports, and some
+  of the advanced Linux APIs.  Select() limits us to descriptors no
+  higher than FD_SETSIZE, and it may not performa all that well.  We
+  should do some benchmarking and decide on the interface to use for
+  each platform.
+
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
