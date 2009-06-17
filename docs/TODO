@@ -35,46 +35,31 @@ o [NSE] Track active sockets in the nsock library binding and don't
   post-stable release for integration. [Patrick]
   - Patrick has a patch and is waiting on dev branch to check it in.
 
-o Deadlock identification and correction:
-  o Add detection for deadlocks and print which threads are involved.
-  o use above results to make a strategy for automatic deadlock resolution.
-  o Original entry: Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
-  are not currently cleaned up if a thread dies or otherwise exits
-  without unlocking them and can cause endless deadlocks which are
-  annoying to users and can be difficult to debug :(.  Patrick has
-  some ideas for this in his SoC09 proposal:
-   "Adding a cleanup system for NSE that is called periodically
-    similar to nsock_loop. There would be a registration system
-    allowing C libraries to register a Lua function that will run
-    periodically to check for irresolvable deadlock or simply dead
-    resources. For example, the nmap library would register a mutex
-    cleanup handler which would inspect all mutexes looking for a dead
-    thread or circular dependencies. The nsock library could register
-    a handler that checks for unused sockets. The nsock may save a
-    strong reference to the thread that owns the socket and inspect it
-    to determine if the thread is dead."
-  David later says: "After some discussion we decided to start more
-  modestly, first by ensuring that a scripts mutexes are released when
-  it dies for whatever reason. I have a hunch that this is the cause
-  of most deadlocks. It was certainly the cause of two whois.nse
-  deadlocks I found. Then, the next step if deadlocks continue to be a
-  problem, is to do automatic detection and just print out a list of
-  what scripts are involved. It could be that several smb scripts are
-  deadlocked, or as in the case I observed where whois.nse was locked
-  with itself."
-
 o Consider the open proxy scripts more carefully
  - How should we test whether the proxy attempt was successful?  Right
    now we look for a google-specific Server header after trying to
    reach http://www.google.com through the proxy.  Maybe we should let
    users specify their own pattern if they specify their own URL.
- - Is taking arguments in a table specific to a script a good idea?
-   The example in the socks-open-proxy nsedoc of "--script-args
-   openproxy={host=<host>}" is a bit of a mess and I'm not sure the
-   best way to document that in the script argument list.  Note that
-   this is the standard way we've handled it for some other scripts,
-   so it's not an open-proxy-script-specific problem.
+  [ Joao is nearly done, will be checking into dev tree]
+
+
+o Update scripts which use table args to use pseudo-table format
+  "name.arg" rather than requiring the user to create a Lua table
+  themselves. On the lua side, it's not really being stored in a
+  table, but just an arg named "name.arg". [Joao]
+  - Look at all our existing scripts which use tables
+    (dns-zone-transfer, whois, the proxy scripts, etc.) and change as
+    appropriate.  Remember to change the usage throughout the script
+    and also change the nsedoc script arguments and example usage.
+    For the existing scripts, try to retain the table version check
+    for now to avoid breaing backward compatability if possible.  Just
+    add the newer style check as well.
+  - Is taking arguments in a table specific to a script a good idea?
+    The example in the socks-open-proxy nsedoc of "--script-args
+    openproxy={host=<host>}" is a bit of a mess and I'm not sure the
+    best way to document that in the script argument list.  Note that
+    this is the standard way we've handled it for some other scripts,
+    so it's not an open-proxy-script-specific problem.
 
 o Consider making it easier to tell whether scripts were specified by
   name on the command-line (rather than default or by class) so they
@@ -89,12 +74,13 @@ o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
     future.
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
-  servers too.
+  servers too. [ready for checkin to dev]
 
 o [NSE] Make NSE work better for SSL tunneled services in general by
   supporting them easily in the libraries.  For example, I don't think
   irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc.
+  over SSL.  Maybe augment comm library, etc. [tryssl basically done,
+  doing some more work to augment http.request to use tryssl]
 
 o For at least our UDP ping probes, Nmap should probably notice if it
   is a very well known service port such as 53, 161, or 137 and send
@@ -210,6 +196,8 @@ o [NSE] We may want to consider a better exception handling method --
 
 o [NSE] Consider HTTP request caching.
 
+o [NSE] Support routing http requests through proxies.
+
 o [NSE] http improvements
  o Spidering library+scripts?  How should the spider store the results
    and make them available to other scripts?  How do we limit
@@ -276,6 +264,38 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   combination with URL grinder to check for applications at
   default/common locations. See also a script that does favicon
   scanning TODO item.
+
+o Deadlock identification and correction:
+ o Plan of action: implement freeing of script mutexes when scripts
+ exit without freeing them (done and in /nmap now). And then if it
+ continues to be a problem we'll consider this other stuff:
+  o Add detection for deadlocks and print which threads are involved.
+  o use above results to make a strategy for automatic deadlock resolution.
+  o Original entry: Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
+  are not currently cleaned up if a thread dies or otherwise exits
+  without unlocking them and can cause endless deadlocks which are
+  annoying to users and can be difficult to debug :(.  Patrick has
+  some ideas for this in his SoC09 proposal:
+   "Adding a cleanup system for NSE that is called periodically
+    similar to nsock_loop. There would be a registration system
+    allowing C libraries to register a Lua function that will run
+    periodically to check for irresolvable deadlock or simply dead
+    resources. For example, the nmap library would register a mutex
+    cleanup handler which would inspect all mutexes looking for a dead
+    thread or circular dependencies. The nsock library could register
+    a handler that checks for unused sockets. The nsock may save a
+    strong reference to the thread that owns the socket and inspect it
+    to determine if the thread is dead."
+  David later says: "After some discussion we decided to start more
+  modestly, first by ensuring that a scripts mutexes are released when
+  it dies for whatever reason. I have a hunch that this is the cause
+  of most deadlocks. It was certainly the cause of two whois.nse
+  deadlocks I found. Then, the next step if deadlocks continue to be a
+  problem, is to do automatic detection and just print out a list of
+  what scripts are involved. It could be that several smb scripts are
+  deadlocked, or as in the case I observed where whois.nse was locked
+  with itself."
 
 o [NSE] Figure out a way to support people who want to do script scan,
   but not port scan or ping scan.  One option would be to allow
