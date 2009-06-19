@@ -403,7 +403,7 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
     o Problematic for scan types -sI and -b which require arguments
     o Inconsistencies.  For example, -sC and -sV do script scan and
     version detection, respectively, and yet for OS detection we use
-    -sO.
+    -O.
   o Possible solution:
     o We might want to just give them normal option strings, so you
       could do --maimon instead of -sM, for example.  For extremely
