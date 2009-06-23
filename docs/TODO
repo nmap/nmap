@@ -1,5 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Further investigate SCTP functionality, as some people reported
+  problems (see this thread:
+  http://seclists.org/nmap-dev/2009/q2/0669.html)
+
 ===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
 
 o Get set up for Coverity scan of latest version to see if it catches
@@ -130,6 +134,8 @@ o Scanning through proxies
      be standard, etc.
    o Maybe auto-detect the proxy type so that Nmap can try the most
      efficient scanning method first?
+   o I've been asked to support basic, ntlm, and digest authentication
+    if possible.
  o Implementation ideas: 
    o There is a patch by Zoltan Panczel (http://nmap-dev.fw.hu) and it
      has been improved by Jacob Appelbaum in nmap-exp/ioerror/ .  This
