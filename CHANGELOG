@@ -46,8 +46,8 @@ o Added SCTP port scanning support to Nmap. SCTP is a layer 4 protocol
     in RFC 2960 instead of CRC32C from RFC 4960 (--adler32).
   o 42 well-known SCTP ports were added to the nmap-services file.
   o The server scanme.csnc.ch has been set up for your SCTP scan
-    testing pleasure. See
-    http://seclists.org/nmap-dev/2009/q2/0669.html.
+    testing pleasure. But note that SCTP doesn't pass through most
+    NAT devices. See http://seclists.org/nmap-dev/2009/q2/0669.html.
   Part of the work on SCTP support was kindly sponsored by
   Compass Security AG, Switzerland. [Daniel Roethlisberger]
 
