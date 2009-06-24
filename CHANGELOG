@@ -1,9 +1,21 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 4.90RC1 [2009-06-25]
+
+o [Zenmap] Fixed a display hanging problem reported by Christopher
+  Caldwell at http://seclists.org/nmap-dev/2009/q2/0721.html.  This was
+  done by adding gtk2 back to macports-1.8.0-universal.diff and
+  removing the dependency on shared-mime-info so it doesn't expect
+  /usr/share/mime files at runtime. Also included GDK pixbuf loaders
+  statically rather than as external loadable modules.  [David]
+
 o Fixed a memory bug (access of freed memory) when loading exclude
   targets with --exclude. This was reported to occasionally cause a
   crash. Will Cladek reported the bug and contributed an initial
   patch. [David]
+
+o Zenmap application icons were regenerated using the newer SVG
+  representation of the Nmap eye. [David]
 
 Nmap 4.85BETA10 [2009-06-12]
 
