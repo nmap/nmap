@@ -1,10 +1,16 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+
+===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+
 o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
   http://seclists.org/nmap-dev/2009/q2/0669.html)
 
-===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
+o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
+  and then encourage maintainers of /status/ TODOs and any other TODOs
+  to migrate theirs there.  Unlike the status directory, /nmap/todo
+  would be readible by anyone.
 
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor,David]
