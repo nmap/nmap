@@ -1033,7 +1033,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 #ifdef WIN32
 	  apcopy = ap;
 #else
-    va_copy(apcopy, ap); /* Needed in case we need to so a second vnsprintf */
+    va_copy(apcopy, ap); /* Needed in case we need to so a second vsnprintf */
 #endif
     l = logt;
     fileidx = 0;
@@ -1057,7 +1057,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	writebuf = (char *) safe_realloc(writebuf, writebuflen);
 	len = Vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
-	  fatal("%s: vnsprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
+	  fatal("%s: vsnprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
 	}
       }
       if (logt == LOG_SKID && !skid_noxlate)
