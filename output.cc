@@ -1033,7 +1033,7 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 #ifdef WIN32
 	  apcopy = ap;
 #else
-    va_copy(apcopy, ap); /* Needed in case we need to so a second vsnprintf */
+    va_copy(apcopy, ap); /* Needed in case we need to do a second vsnprintf */
 #endif
     l = logt;
     fileidx = 0;
