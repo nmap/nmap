@@ -32,6 +32,8 @@
 
 local NAME = "NSE";
 
+local YIELD = "NSE_YIELD";
+local BASE = "NSE_BASE";
 local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
 local DESTRUCTOR = "NSE_DESTRUCTOR";
 
@@ -82,6 +84,45 @@ do -- Append the nselib directory to the Lua search path
   local t, path = assert(cnse.fetchfile_absolute("nselib/"));
   assert(t == "directory", "could not locate nselib directory!");
   package.path = package.path..";"..path.."?.lua";
+end
+
+-- NSE_YIELD_VALUE
+-- This is the table C uses to yield a thread with a unique value to
+-- differentiate between yields initiated by NSE or regular coroutine yields.
+local NSE_YIELD_VALUE = {};
+
+do
+  -- This is the method by which we allow a script to have nested
+  -- coroutines. If a sub-thread yields in an NSE function such as
+  -- nsock.connect, then we propogate the yield up. These replacements
+  -- to the coroutine library are used only by Script Threads, not the engine.
+
+  local function handle (co, status, ...)
+    if status and NSE_YIELD_VALUE == ... then -- NSE has yielded the thread
+      return handle(co, resume(co, yield(NSE_YIELD_VALUE)));
+    else
+      return status, ...;
+    end
+  end
+
+  function coroutine.resume (co, ...)
+    return handle(co, resume(co, ...));
+  end
+
+  local resume = coroutine.resume; -- local reference to new coroutine.resume
+  local function aux_wrap (status, ...)
+    if not status then
+      return error(..., 2);
+    else
+      return ...;
+    end
+  end
+  function coroutine.wrap (f)
+    local co = create(f);
+    return function (...)
+      return aux_wrap(resume(co, ...));
+    end
+  end
 end
 
 -- Some local helper functions --
@@ -430,16 +471,30 @@ local function run (threads)
     hosts[thread.host][thread.co] = true;
   end
 
+  -- Map of yielded threads to the base Thread
+  local yielded_base = setmetatable({}, {__mode = "kv"});
+  -- _R[YIELD] is called by nse_yield in nse_main.cc
+  _R[YIELD] = function (co)
+    yielded_base[co] = current; -- set base
+    return NSE_YIELD_VALUE; -- return NSE_YIELD_VALUE
+  end
+  _R[BASE] = function ()
+    return current.co;
+  end
   -- _R[WAITING_TO_RUNNING] is called by nse_restore in nse_main.cc
   _R[WAITING_TO_RUNNING] = function (co, ...)
-    if waiting[co] then -- ignore a thread not waiting
-      pending[co], waiting[co] = waiting[co], nil;
-      pending[co].args = {n = select("#", ...), ...};
+    local base = yielded_base[co] or all[co]; -- translate to base thread
+    if base then
+      co = base.co;
+      if waiting[co] then -- ignore a thread not waiting
+        pending[co], waiting[co] = waiting[co], nil;
+        pending[co].args = {n = select("#", ...), ...};
+      end
     end
   end
   -- _R[DESTRUCTOR] is called by nse_destructor in nse_main.cc
   _R[DESTRUCTOR] = function (what, co, key, destructor)
-    local thread = all[co] or current;
+    local thread = yielded_base[co] or all[co] or current;
     if thread then
       local ch = thread.close_handlers;
       if what == "add" then
@@ -456,7 +511,6 @@ local function run (threads)
   -- Loop while any thread is running or waiting.
   while next(running) or next(waiting) do
     local nr, nw = table_size(running), table_size(waiting);
-    cnse.nsock_loop(50); -- Allow nsock to perform any pending callbacks
     if cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)\n",
           nr+nw, nw);
@@ -489,7 +543,12 @@ local function run (threads)
             traceback(co, tostring(result)));
         thread:close();
       elseif status(co) == "suspended" then
-        waiting[co] = thread;
+        if result == NSE_YIELD_VALUE then
+          waiting[co] = thread;
+        else
+          thread:d("%THREAD yielded unexpectedly and cannot be rerun.");
+          thread:close();
+        end
       elseif status(co) == "dead" then
         hosts[thread.host][co] = nil;
         if type(result) == "string" then
@@ -516,12 +575,13 @@ local function run (threads)
       end
     end
 
+    cnse.nsock_loop(50); -- Allow nsock to perform any pending callbacks
     -- Move pending threads back to running.
     for co, thread in pairs(pending) do
       pending[co], running[co] = nil, thread;
     end
 
-    collectgarbage "collect"; -- important for collecting used sockets & proxies
+    collectgarbage "step";
   end
 
   progress "endTask";

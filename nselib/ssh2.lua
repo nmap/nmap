@@ -15,6 +15,38 @@ transport = {}
 -- table of SSH-2 constants
 local SSH2
 
+--- Retrieve the size of the packet that is being received
+--  and checks if it is fully received
+-- 
+--  This function is very similar to the function generated
+--  with match.numbytes(num) function, except that this one
+--  will check for the number of bytes on-the-fly, based on
+--  the written on the SSH packet.
+--
+--  @param buffer The receive buffer
+--  @return packet_length, packet_length or nil
+--  the return is similar to the lua function string:find()
+check_packet_length = function( buffer )
+  local packet_length, offset
+  offset, packet_length = bin.unpack( ">I", buffer )
+  assert(packet_length)
+  if packet_length + 4 > buffer:len() then return nil end
+  return packet_length, packet_length
+end
+
+--- Receives a complete SSH packet, even if fragmented
+--  this function is an abstraction layer to deal with
+--  checking the packet size to know if there is any more
+--  data to receive.
+--
+--  @param socket The socket used to receive the data
+--  @return status True or false
+--  @return packet The packet received
+transport.receive_packet = function( socket )
+  status, packet = socket:receive_buf(check_packet_length)
+  return status, packet
+end
+
 --- Pack a multiprecision integer for sending.
 -- @param bn <code>openssl</code> bignum.
 -- @return Packed multiprecision integer.
@@ -47,9 +79,8 @@ transport.payload = function( packet )
   offset, packet_length, padding_length = bin.unpack( ">Ic", packet )
   assert(packet_length and padding_length)
   payload_length = packet_length - padding_length - 1
-  -- Add 4 for the packet_length field.
-  if packet_length + 4 > packet:len() then
-    stdnse.print_debug("SSH-2 packet too short: payload_length is %d but total length is only %d.", packet_length, packet:len())
+  if packet_length ~= packet:len() then
+    stdnse.print_debug("SSH-2 packet doesn't match length: payload_length is %d but total length is only %d.", packet_length, packet:len())
     return nil
   end
   offset, payload = bin.unpack( ">A" .. payload_length, packet, offset )
@@ -136,7 +167,7 @@ fetch_host_key = function( host, port, key_type )
   if not status then socket:close(); return end
 
   local kex_init
-  status, kex_init = socket:receive_bytes(1)
+  status, kex_init = transport.receive_packet( socket )
   if not status then socket:close(); return end
   kex_init = transport.parse_kex_init( transport.payload( kex_init ) )
 
@@ -158,7 +189,7 @@ fetch_host_key = function( host, port, key_type )
   if not status then socket:close(); return end
 
   local kexdh_reply
-  status, kexdh_reply = socket:receive_bytes(1)
+  status, kexdh_reply = transport.receive_packet( socket )
   kexdh_reply = transport.payload( kexdh_reply )
   -- check for proper msg code
   if kexdh_reply:byte(1) ~= SSH2.SSH_MSG_KEXDH_REPLY then

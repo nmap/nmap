@@ -6,11 +6,45 @@
 
 module(... or "ssh1",package.seeall)
 
-local bin = require "bin"
-local bit = require "bit"
-local math = require "math"
-local stdnse = require "stdnse"
-local openssl = require "openssl"
+require "bin"
+require "bit"
+require "math"
+require "stdnse"
+require "openssl"
+
+--- Retrieve the size of the packet that is being received
+--  and checks if it is fully received
+-- 
+--  This function is very similar to the function generated
+--  with match.numbytes(num) function, except that this one
+--  will check for the number of bytes on-the-fly, based on
+--  the written on the SSH packet.
+--
+--  @param buffer The receive buffer
+--  @return packet_length, packet_length or nil
+--  the return is similar to the lua function string:find()
+check_packet_length = function( buffer )
+  local payload_length, packet_length, offset
+  offset, payload_length = bin.unpack( ">I", buffer )
+  padding = 8 - payload_length % 8
+  assert(payload_length)
+  packet_length = buffer:len()
+  if payload_length + 4 + padding > packet_length then return nil end
+  return packet_length, packet_length
+end
+
+--- Receives a complete SSH packet, even if fragmented
+--  this function is an abstraction layer to deal with
+--  checking the packet size to know if there is any more
+--  data to receive.
+--
+--  @param socket The socket used to receive the data
+--  @return status True or false
+--  @return packet The packet received
+receive_ssh_packet = function( socket )
+  status, packet = socket:receive_buf(check_packet_length)
+  return status, packet
+end
 
 --- Fetch an SSH-1 host key.
 -- @param host Nmap host table.
@@ -33,7 +67,7 @@ fetch_host_key = function(host, port)
   if not status then socket:close(); return end
 
   local data, packet_length, padding, offset
-  status,data = socket:receive()
+  status,data = receive_ssh_packet( socket )
   socket:close()
   if not status then return end
 

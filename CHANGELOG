@@ -1,5 +1,20 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a convenience top-level BSD makefile redirecting BSD make
+  to GNU make on BSD systems.  This should help prevent bogus
+  error reports when users run "make" instead of "gmake" on BSD
+  systems. [Daniel Roethlisberger]
+
+o [Zenmap] Added support to zenmap for the SCTP options: -PY, -sY and -sZ, as
+  well as making a comment in zenmapCore/NmapOptions.py on how to add new
+  options. [Josh Marlow]
+
+o The configure script now allows cross-compiling by assuming that
+  libpcap is recent enough. Previously it would quit because a test
+  program could not be run. libpcap will always be recent enough when
+  the included copy is used. The patch was contributed by Mike
+  Frysinger.
+
 Nmap 4.90RC1 [2009-06-25]
 
 o [Zenmap] Fixed a display hanging problem on Mac OS X reported by

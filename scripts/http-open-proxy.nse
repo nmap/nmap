@@ -51,10 +51,8 @@ require "url"
 --@param result connection result
 --@return true if any of the status is found, otherwise false
 function check_code(result)
-	local status = false
-	if string.match(result:lower(),"^http.*200.*") then return true end
-	if string.match(result:lower(),"^http.*301.*") then return true end	
-	if string.match(result:lower(),"^http.*302.*") then return true end
+	if string.match(result:lower(),"^http/%d\.%d%s*200") then return true end
+	if string.match(result:lower(),"^http/%d\.%d%s*30[12]") then return true end
 	return false
 end
 
@@ -63,9 +61,9 @@ end
 --@param pattern The pattern to be searched
 --@return true if pattern is found, otherwise false
 function check_pattern(result, pattern)
-	lines = stdnse.strsplit("\n", result)
-	i = 1
-	n = table.getn(lines)
+	local lines = stdnse.strsplit("\n", result)
+	local i = 1
+	local n = table.getn(lines)
 	while true do
 		if i > n then return false end
 		if string.match(lines[i]:lower(),pattern) then return true end
@@ -90,14 +88,9 @@ end
 portrule = shortport.port_or_service({8123,3128,8000,8080},{'polipo','squid-http','http-proxy'})
 
 action = function(host, port)
-	local response
-	local i
 	local retval
-	local supported_methods = "\nMethods succesfully tested: "
+	local supported_methods = "\nMethods successfully tested: "
 	local fstatus = false
-
-	-- Default url = nmap.org
-	-- Default host = nmap.org
 	local test_url = "http://www.google.com"
 	local hostname = "www.google.com"
 	local pattern = "^server: gws"

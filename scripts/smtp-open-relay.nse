@@ -17,10 +17,11 @@ Checks if an SMTP server is an open relay.
 categories = {"demo"}
 
 require "shortport"
+require "comm"
 
 ourdomain="scanme.org"
 
-portrule = shortport.port_or_service(25, "smtp")
+portrule = shortport.port_or_service({25, 465, 587}, {"smtp", "smtps"})
 
 action = function(host, port)
 	local socket = nmap.new_socket()
@@ -31,19 +32,16 @@ action = function(host, port)
 	local tor = {}
 	local i
 
-	socket:set_timeout(10000);
-	socket:connect(host.ip, port.number, port.protocol)
-	
-	status, result = socket:receive_lines(1)
+	opt = {timeout=10000, recv_before=true}
+	socket, result = comm.tryssl(host, port, "EHLO " ..ourdomain.."\r\n", opt)
+	if not socket then
+		return "Unable to estabilish connection"
+	end
 
 	if (result == "TIMEOUT") then
 		socket:close()
 		return "Timeout. Try incresing settimeout, or enhance this."
 	end
-
--- Introduce ourselves...
-	socket:send("EHLO "..ourdomain.."\r\n")
-	status, result = socket:receive_lines(1)
 
 -- close socket and return if there's an smtp status code != 250
 	if not string.match(result, "^250") then

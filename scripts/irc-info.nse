@@ -22,8 +22,10 @@ categories = {"default", "discovery"}
 
 require("stdnse")
 require "shortport"
+require("nsedebug")
+require("comm")
 
-portrule = shortport.port_or_service({6666,6667},"irc")
+portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 
 init = function()
   -- Start of MOTD, we'll take the server name from here
@@ -71,10 +73,6 @@ init = function()
     or pcre.new("^ERROR :(.*)", 0, "C")
 end
 
-
-
-
-
 action = function(host, port)
   local sd = nmap.new_socket()
   local curr_nick = random_nick()
@@ -119,14 +117,12 @@ action = function(host, port)
 
   init()
 
-  sd:connect(host.ip, port.number)
-
-  sd:send("USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
+  sd, line = comm.tryssl(host, port, "USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
+  if not sd then return "Unable to open connection" end
 
   buf = stdnse.make_buffer(sd, "\r?\n")
 
   while true do
-    local line = buf()
     if (not line) then break end
 
     -- This one lets us know we've connected, pre-PONGed, and got a NICK
@@ -203,6 +199,7 @@ action = function(host, port)
       return make_output()
     end
 
+    line = buf()
   end
 
   return make_output()

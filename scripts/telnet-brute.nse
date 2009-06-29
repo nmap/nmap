@@ -9,6 +9,7 @@ categories = {'auth', 'intrusive'}
 require('shortport')
 require('stdnse')
 require('strbuf')
+require('comm')
 
 local soc
 local catch = function() soc:close() end
@@ -52,7 +53,7 @@ local new_auth_iter = function()
 		{'visitor', ''}, {'netman', 'netman'}, {'Admin', 'Admin'},
 		{'manager', 'manager'}, {'security', 'security'},
 		{'username', 'password'}, {'user', 'pass'}, 
-
+		
 		-- sentinel 
 		{nil, nil}
 	}
@@ -184,12 +185,14 @@ action = function(host, port)
 	
 	pair = nil ; status = 3 ; count = 0
 	auth_iter = new_auth_iter(); 
+	
+	local opts = {timeout=4000}
 
-	soc = nmap.new_socket()
-	soc:set_timeout(4000)
+	soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
+  	if not soc then return "Unable to open connection" end
 
 	-- continually try user/pass pairs (reconnecting, if we have to)
-    -- until we find a valid one or we run out of pairs
+        -- until we find a valid one or we run out of pairs
 	while not (status == 1) do
 
 		if status == 2 or status == 3 then
@@ -206,7 +209,7 @@ action = function(host, port)
 		if not user then break end
 
 		if status == 3 or status == 4 then
-			try(soc:connect(host.ip, port.number, port.protocol))
+			try(soc:connect(host.ip, port.number, best_opt))
 		end
 
 		status, pair = brute_cred(user, pass)

@@ -16,7 +16,7 @@ require 'pop3'
 require 'shortport'
 require 'unpwdb'
 
-portrule = shortport.port_or_service({110}, "pop3")
+portrule = shortport.port_or_service({110, 995}, {"pop3","pop3s"})
 
 action = function(host, port)
    local pMeth = nmap.registry.args.pop3loginmethod
@@ -45,14 +45,15 @@ action = function(host, port)
    local status
    local line
    local socket = nmap.new_socket()
-
-   if not socket:connect(host.ip, port.number) then return end -- no connection
+   local opts = {timeout=10000, recv_before=true}
    
-   status, line = socket:receive_lines(1)
+   socket, nothing, bopt, line = comm.tryssl(host, port, "" , opts)
+
+   if not socket then return end -- no connection 
    if not stat(line) then return end -- no pop-connection
 
    local apopChallenge = string.match(line, "<[%p%w]+>") 
-   
+  
    if pMeth == "APOP" then 
       additional = apopChallenge 
    end
@@ -61,6 +62,7 @@ action = function(host, port)
 
    status, getUser = unpwdb.usernames()
    if (not status) then return end
+
 
    local currUser = getUser()
    while currUser do
@@ -83,8 +85,13 @@ action = function(host, port)
 	 elseif (perror == pop3.err.userError) then
 	    currPw = nil
 	 else
-	    return
-	 end
+            socstatus = socket:connect(host.ip, port.number, bopt)
+	    if not socstatus 
+	       then return
+               else recvstatus, line = socket:receive()
+                    if not stat(line) then return end -- no connection
+            end
+         end
       end
       currUser = getUser()
       getPW("reset")

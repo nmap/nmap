@@ -40,6 +40,8 @@ extern "C"
 
 extern NmapOps o;
 
+static int l_nsock_loop(lua_State * L);
+
 static int l_nsock_connect(lua_State * L);
 
 static int l_nsock_send(lua_State * L);
@@ -182,6 +184,15 @@ static size_t table_length(lua_State * L, int index)
   return len;
 }
 
+static void weak_table(lua_State * L, int narr, int nrec, const char *mode)
+{
+  lua_createtable(L, narr, nrec);
+  lua_createtable(L, 0, 1);
+  lua_pushstring(L, mode);
+  lua_setfield(L, -2, "__mode");
+  lua_setmetatable(L, -2);
+}
+
 static std::string hexify(const unsigned char *str, size_t len)
 {
   size_t num = 0;
@@ -237,49 +248,20 @@ static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
 /* Some constants used for enforcing a limit on the number of open sockets
  * in use by threads. The maximum value between MAX_PARALLELISM and
  * o.maxparallelism is the max # of threads that can have connected sockets
- * (open). THREAD_PROXY, SOCKET_PROXY, and CONNECT_WAITING are tables in the
- * nsock C functions' environment, at LUA_ENVIRONINDEX, that hold sockets and
- * threads used to enforce this. THREAD_PROXY has <Thread, Userdata> pairs
- * that associate a thread to a proxy userdata. This table has weak keys and
- * values so threads and the proxy itself can be collected. SOCKET_PROXY
- * has <Socket, Userdata> pairs that associate a socket to a proxy userdata.
- * SOCKET_PROXY has weak keys (to allow the collection of sockets) and strong
- * values, so the proxies are not collected when an associated socket is open.
+ * (open).
  *
- * All the sockets used by a thread have the same Proxy Userdata. When all
- * sockets in use by a thread are closed or collected, the entry in the
- * THREAD_PROXY table is cleared, freeing up a slot for another thread
- * to make connections. When a slot is freed, proxy_gc is called, via the
- * userdata's __gc metamethod, which will add a thread in WAITING to running.
+ * THREAD_SOCKETS is a weak keyed table of <Thread, Socket Table> pairs.
+ * A socket table is a weak keyed table (socket keys with garbage values) of
+ * sockets the Thread has allocated but not necessarily open). You may 
+ * test for an open socket by checking whether its nsiod field in the
+ * socket userdata structure is not NULL.
+ *
+ * CONNECT_WAITING is a weak keyed table of <Thread, Garbage Value> pairs.
+ * The table contains threads waiting to make a socket connection.
  */
 #define MAX_PARALLELISM   10
-#define THREAD_PROXY       1           /* <Thread, Userdata> */
-#define SOCKET_PROXY       2           /* <Socket, Userdata> */
-#define CONNECT_WAITING    3           /* Threads waiting to lock */
-#define PROXY_META         4           /* Proxy userdata's metatable */
-
-static int proxy_gc(lua_State * L)
-{
-  lua_rawgeti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
-  lua_pushnil(L);
-  if (lua_next(L, -2) != 0)
-  {
-    lua_State *thread = lua_tothread(L, -2);
-
-    nse_restore(thread, 0);
-    lua_pushnil(L);
-    lua_replace(L, -2);                // replace boolean
-    lua_settable(L, -3);               // remove thread from waiting
-  }
-  return 0;
-}
-
-static void new_proxy(lua_State * L)
-{
-  lua_newuserdata(L, 0);
-  lua_rawgeti(L, LUA_ENVIRONINDEX, PROXY_META);
-  lua_setmetatable(L, -2);
-}
+#define THREAD_SOCKETS     1           /* <Thread, Table of Sockets (keys)> */
+#define CONNECT_WAITING    2           /* Threads waiting to lock */
 
 /* int socket_lock (lua_State *L)
  *
@@ -292,64 +274,85 @@ static void new_proxy(lua_State * L)
 static int socket_lock(lua_State * L)
 {
   lua_settop(L, 1);
-  lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_PROXY);
-  lua_pushthread(L);
-  lua_gettable(L, -2);
-  if (!lua_isnil(L, -1))
+  lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_SOCKETS);
+  nse_base(L);
+  lua_rawget(L, -2);
+  if (lua_istable(L, -1))
   {
-    // Thread already has open sockets. Add the new socket to SOCKET_PROXY
-    lua_rawgeti(L, LUA_ENVIRONINDEX, SOCKET_PROXY);
-    lua_pushvalue(L, 1);               // socket
-    lua_pushvalue(L, -3);              // proxy userdata
-    lua_settable(L, -3);
-    lua_pop(L, 1);                     // SOCKET_PROXY
+    /* Thread already has a "lock" with open sockets. Place the new socket
+     * in its sockets table */
+    lua_pushvalue(L, 1);
     lua_pushboolean(L, true);
-  } else if (table_length(L, 2) >= MAX(MAX_PARALLELISM, o.max_parallelism))
+    lua_rawset(L, -3);
+  } else if (table_length(L, 2) <= MAX(MAX_PARALLELISM, o.max_parallelism))
   {
-    // Too many threads have sockets open. Add thread to waiting. The caller
-    // is expected to yield. (see the connect function in luaopen_nsock)
-    lua_rawgeti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
-    lua_pushthread(L);
+    /* There is room for this thread to open sockets */
+    nse_base(L);
+    weak_table(L, 0, 0, "k"); /* weak socket references */
+    lua_pushvalue(L, 1); /* socket */
     lua_pushboolean(L, true);
-    lua_settable(L, -3);
-    lua_pop(L, 1);                     // CONNECT_WAITING
-    return lua_yield(L, 0);
+    lua_rawset(L, -3); /* add to sockets table */
+    lua_rawset(L, 2); /* add new <Thread, Sockets Table> Pair
+                       * to THREAD_SOCKETS */
   } else
   {
-    // There is room for this thread to open sockets. Make a new proxy userdata
-    // and add it to the THREAD_PROXY and SOCKET_PROXY tables.
-    new_proxy(L);
-    lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_PROXY);
-    lua_pushthread(L);
-    lua_pushvalue(L, -3);              // proxy
-    lua_settable(L, -3);
-    lua_pop(L, 1);                     // THREAD_PROXY)
-    lua_rawgeti(L, LUA_ENVIRONINDEX, SOCKET_PROXY);
-    lua_pushvalue(L, 1);               // Socket
-    lua_pushvalue(L, -3);              // proxy
-    lua_settable(L, -3);
-    lua_pop(L, 2);                     // proxy, SOCKET_PROXY
+    /* Too many threads have sockets open. Add thread to waiting. The caller
+     * is expected to yield. (see the connect function in luaopen_nsock) */
+    lua_rawgeti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
+    nse_base(L);
     lua_pushboolean(L, true);
+    lua_settable(L, -3);
+    return nse_yield(L);
   }
+  lua_pushboolean(L, true);
   return 1;
 }
 
-/* void socket_unlock (lua_State *L, int index)
- *
- * index is the location of the userdata on the stack.
- * A socket has been closed or collected, remove it from the SOCKET_PROXY
- * table.
- */
-static void socket_unlock(lua_State * L, int index)
+static void socket_unlock(lua_State * L)
 {
-  lua_pushvalue(L, index);             // socket
-  lua_rawgeti(L, LUA_ENVIRONINDEX, SOCKET_PROXY);
-  lua_pushvalue(L, -2);                // socket
-  lua_pushnil(L);
-  lua_settable(L, -3);
-  lua_pop(L, 2);                       // socket, SOCKET_PROXY
-}
+  int top = lua_gettop(L);
 
+  lua_gc(L, LUA_GCSTOP, 0); /* don't collect threads during iteration */
+
+  lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_SOCKETS);
+  lua_pushnil(L);
+  while (lua_next(L, -2) != 0)
+  {
+    unsigned open = 0;
+
+    lua_pushnil(L);
+    while (lua_next(L, -2) != 0) /* for each socket */
+    {
+      lua_pop(L, 1); /* pop garbage boolean */
+      if (((struct l_nsock_udata *) lua_touserdata(L, -1))->nsiod != NULL)
+        open++;
+    }
+
+    if (open == 0) /* thread has no open sockets? */
+    {
+      lua_pushvalue(L, -2); /* thread key */
+      lua_pushnil(L);
+      lua_rawset(L, top+1); /* THREADS_SOCKETS */
+
+      lua_rawgeti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
+      lua_pushnil(L);
+      if (lua_next(L, -2) != 0)
+      {
+        lua_pop(L, 1); /* pop garbage boolean */
+        nse_restore(lua_tothread(L, -1), 0);
+        lua_pushnil(L);
+        lua_rawset(L, -3); /* remove thread from waiting */
+      }
+      lua_pop(L, 1); /* CONNECT_WAITING */
+    }
+
+    lua_pop(L, 1); /* pop sockets table */
+  }
+
+  lua_gc(L, LUA_GCRESTART, 0);
+
+  lua_settop(L, top);
+}
 
 void l_nsock_clear_buf(lua_State * L, l_nsock_udata * udata);
 
@@ -382,36 +385,22 @@ int luaopen_nsock(lua_State * L)
     {NULL, NULL}
   };
 
-  /* Set up an environment for all nsock C functions to share. This is
-   * especially important to make the THREAD_PROXY, SOCKET_PROXY, and
-   * CONNECT_WAITING tables available. These values can be accessed at the
-   * pseudo-index LUA_ENVIRONINDEX. These tables are documented where the
-   * #defines are above. */
-  lua_createtable(L, 5, 0);
+  /* Set up an environment for all nsock C functions to share.
+   * This table particularly contains the THREAD_SOCKETS and
+   * CONNECT_WAITING tables.
+   * These values are accessed at the Lua pseudo-index LUA_ENVIRONINDEX.
+   */
+  lua_createtable(L, 2, 0);
   lua_replace(L, LUA_ENVIRONINDEX);
 
-  lua_createtable(L, 0, 10);           // THREAD_PROXY
-  lua_createtable(L, 0, 1);            // metatable
-  lua_pushliteral(L, "kv");            // weak keys and values
-  lua_setfield(L, -2, "__mode");
-  lua_setmetatable(L, -2);
-  lua_rawseti(L, LUA_ENVIRONINDEX, THREAD_PROXY);
+  weak_table(L, 0, MAX_PARALLELISM, "k");
+  lua_rawseti(L, LUA_ENVIRONINDEX, THREAD_SOCKETS);
 
-  lua_createtable(L, 0, 193);          // SOCKET_PROXY (large amount of room)
-  lua_createtable(L, 0, 1);            // metatable
-  lua_pushliteral(L, "k");             // weak keys
-  lua_setfield(L, -2, "__mode");
-  lua_setmetatable(L, -2);
-  lua_rawseti(L, LUA_ENVIRONINDEX, SOCKET_PROXY);
-
-  lua_createtable(L, 0, 499);          // CONNECT_WAITING (large amount of
-                                       // room)
+  weak_table(L, 0, 1000, "k");
   lua_rawseti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
 
-  lua_createtable(L, 0, 1);            // PROXY_META = metatable for proxies
-  lua_pushcclosure(L, proxy_gc, 0);
-  lua_setfield(L, -2, "__gc");
-  lua_rawseti(L, LUA_ENVIRONINDEX, PROXY_META);
+  lua_pushcfunction(L, l_nsock_loop);
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_NSOCK_LOOP);
 
   /* Load the connect function */
   if (luaL_loadstring(L, connect) != 0)
@@ -476,9 +465,16 @@ int l_nsock_new(lua_State * L)
   return 1;
 }
 
-int l_nsock_loop(int tout)
+static int l_nsock_loop(lua_State * L)
 {
-  return nsock_loop(nsp, tout);
+  int tout = luaL_checkint(L, 1);
+
+  /* clean up old socket locks */
+  socket_unlock(L);
+
+  if (nsock_loop(nsp, tout) == NSOCK_LOOP_ERROR)
+    luaL_error(L, "a fatal error occurred in nsock_loop");
+  return 0;
 }
 
 int l_nsock_checkstatus(lua_State * L, nsock_event nse)
@@ -513,26 +509,32 @@ int l_nsock_checkstatus(lua_State * L, nsock_event nse)
 
 static int l_nsock_connect(lua_State * L)
 {
+  enum type {TCP, UDP, SSL};
+  static const char * const op[] = {"tcp", "udp", "ssl", NULL};
+
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
-
   const char *addr = luaL_checkstring(L, 2);
-
   unsigned short port = (unsigned short) luaL_checkint(L, 3);
-
-  const char *how = luaL_optstring(L, 4, "tcp");
+  int what = luaL_checkoption(L, 4, "tcp", op);
 
   const char *error;
-
   struct addrinfo *dest;
-
   int error_id;
 
   l_nsock_clear_buf(L, udata);
 
+#ifndef HAVE_OPENSSL
+  if (what == SSL)
+  {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Sorry, you don't have OpenSSL\n");
+    return 2;
+  }
+#endif
+
   error_id = getaddrinfo(addr, NULL, NULL, &dest);
   if (error_id)
   {
-    socket_unlock(L, 1);
     error = gai_strerror(error_id);
     lua_pushboolean(L, false);
     lua_pushstring(L, error);
@@ -540,7 +542,6 @@ static int l_nsock_connect(lua_State * L)
   }
   if (dest == NULL)
   {
-    socket_unlock(L, 1);
     lua_pushboolean(L, false);
     lua_pushstring(L, "getaddrinfo returned success but no addresses");
     return 2;
@@ -559,48 +560,26 @@ static int l_nsock_connect(lua_State * L)
   if (o.ipoptionslen)
     nsi_set_ipoptions(udata->nsiod, o.ipoptions, o.ipoptionslen);
 
-  switch (how[0])
+  switch (what)
   {
-    case 't':
-      if (strcmp(how, "tcp"))
-        goto error;
+    case TCP:
       nsock_connect_tcp(nsp, udata->nsiod, l_nsock_connect_handler,
           udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen, port);
       break;
-    case 'u':
-      if (strcmp(how, "udp"))
-        goto error;
+    case UDP:
       nsock_connect_udp(nsp, udata->nsiod, l_nsock_connect_handler,
           &udata->yield, dest->ai_addr, dest->ai_addrlen, port);
       break;
-    case 's':
-      if (strcmp(how, "ssl"))
-        goto error;
-#ifdef HAVE_OPENSSL
+    case SSL:
       nsock_connect_ssl(nsp, udata->nsiod, l_nsock_connect_handler,
           udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen, port,
           udata->ssl_session);
-      break;
-#else
-      socket_unlock(L, 1);
-      lua_pushboolean(L, false);
-      lua_pushstring(L, "Sorry, you don't have OpenSSL\n");
-      return 2;
-#endif
-    default:
-      goto error;
       break;
   }
 
   freeaddrinfo(dest);
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
-
-error:
-  socket_unlock(L, 1);
-  freeaddrinfo(dest);
-  luaL_argerror(L, 4, "invalid connection method");
-  return 0;
+  return nse_yield(L);
 }
 
 void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *yield)
@@ -608,6 +587,8 @@ void l_nsock_connect_handler(nsock_pool nsp, nsock_event nse, void *yield)
   struct nsock_yield *y = (struct nsock_yield *) yield;
 
   lua_State *L = y->thread;
+
+  if (lua_status(L) != LUA_YIELD) return;
 
   if (o.scriptTrace())
   {
@@ -647,7 +628,7 @@ static int l_nsock_send(lua_State * L)
   nsock_write(nsp, udata->nsiod, l_nsock_send_handler, udata->timeout,
       &udata->yield, string, string_len);
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *yield)
@@ -655,6 +636,8 @@ void l_nsock_send_handler(nsock_pool nsp, nsock_event nse, void *yield)
   struct nsock_yield *y = (struct nsock_yield *) yield;
 
   lua_State *L = y->thread;
+
+  if (lua_status(L) != LUA_YIELD) return;
 
   if (l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS)
   {
@@ -682,7 +665,7 @@ static int l_nsock_receive(lua_State * L)
       &udata->yield);
 
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 static int l_nsock_receive_lines(lua_State * L)
@@ -704,7 +687,7 @@ static int l_nsock_receive_lines(lua_State * L)
       &udata->yield, nlines);
 
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 static int l_nsock_receive_bytes(lua_State * L)
@@ -726,7 +709,7 @@ static int l_nsock_receive_bytes(lua_State * L)
       &udata->yield, nbytes);
 
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield)
@@ -734,6 +717,8 @@ void l_nsock_receive_handler(nsock_pool nsp, nsock_event nse, void *yield)
   struct nsock_yield *y = (struct nsock_yield *) yield;
 
   lua_State *L = y->thread;
+
+  if (lua_status(L) != LUA_YIELD) return;
 
   char *rcvd_string;
 
@@ -900,8 +885,6 @@ static int l_nsock_close(lua_State * L)
 {
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
 
-  socket_unlock(L, 1);                 // Unlock the socket.
-
   /* Never ever collect nse-pcap connections. */
   if (udata->ncap_socket)
   {
@@ -985,13 +968,13 @@ static int l_nsock_receive_buf(lua_State * L)
       /* if we didn't have enough data in the buffer another nsock_read() was
        * scheduled - its callback will put us in running state again */
       set_thread(L, 1, udata);
-      return lua_yield(L, 0);
+      return nse_yield(L);
     }
     return 2;
   }
   /* yielding with 3 arguments since we need them when the callback arrives */
   set_thread(L, 1, udata);
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield)
@@ -1001,6 +984,8 @@ void l_nsock_receive_buf_handler(nsock_pool nsp, nsock_event nse, void *yield)
   l_nsock_udata *udata = y->udata;
 
   lua_State *L = y->thread;
+
+  if (lua_status(L) != LUA_YIELD) return;
 
   char *rcvd_string;
 
@@ -1185,6 +1170,8 @@ static void l_nsock_sleep_handler(nsock_pool nsp, nsock_event nse, void *udata)
 {
   lua_State *L = (lua_State *) udata;
 
+  if (lua_status(L) != LUA_YIELD) return;
+
   assert(nse_status(nse) == NSE_STATUS_SUCCESS);
   nse_restore(L, 0);
 }
@@ -1201,7 +1188,7 @@ int l_nsock_sleep(lua_State * L)
   msecs = (int) (secs * 1000 + 0.5);
   nsock_timer_create(nsp, l_nsock_sleep_handler, msecs, L);
 
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 /****************** NCAP_SOCKET ***********************************************/
@@ -1527,7 +1514,7 @@ int l_nsock_pcap_receive(lua_State * L)
   /* no data yet? suspend thread */
   nr->suspended = 1;
 
-  return lua_yield(L, 0);
+  return nse_yield(L);
 }
 
 /* (free) excute callback function from lua script */

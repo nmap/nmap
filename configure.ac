@@ -386,7 +386,8 @@ int main() {
   exit(0);
 }],
 [AC_MSG_RESULT(yes); have_libpcap=yes],
-[AC_MSG_RESULT(no); have_libpcap=no])
+[AC_MSG_RESULT(no); have_libpcap=no],
+[AC_MSG_RESULT(cross-compiling -- assuming yes); have_libpcap=yes])
 LIBS="$LIBS_OLD"
 fi
 

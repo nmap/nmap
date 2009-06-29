@@ -241,7 +241,7 @@ static int aux_mutex (lua_State *L)
       }
       lua_pushthread(L);
       lua_rawseti(L, lua_upvalueindex(1), lua_objlen(L, lua_upvalueindex(1))+1);
-      return lua_yield(L, 0);
+      return nse_yield(L);
     case DONE:
       lua_pushthread(L);
       if (!lua_equal(L, -1, lua_upvalueindex(2)))

@@ -18,6 +18,7 @@ require('shortport')
 require('stdnse')
 require('strbuf')
 require('listop')
+require('comm')
 
 author = "Eddie Bell <ejlbell@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -32,7 +33,7 @@ local soc
 local catch = function() soc:close() end
 local try = nmap.new_try(catch)
 
-portrule = shortport.service("http")
+portrule = shortport.port_or_service({80, 443}, {"http","https"})
 
 --[[
 Download a page from host:port http server. The url is passed 
@@ -43,11 +44,12 @@ local function get_page(host, port, httpurl)
 	local lines = ""
 	local status = true
 	local response = ""
+	local opts = {timeout=10000, recv_before=false}
 
 	-- connect to webserver 
-	soc = nmap.new_socket()
-	soc:set_timeout(4000)
-	try(soc:connect(host.ip, port.number))
+	--soc = nmap.new_socket()
+	--soc:set_timeout(4000)
+	--try(soc:connect(host.ip, port.number))
 
 	httpurl = string.gsub(httpurl, "&amp;", "&")
 	--print(filename .. ": " .. httpurl) 
@@ -59,8 +61,9 @@ local function get_page(host, port, httpurl)
 	query = query .. "Accept-Language: en"
 	query = query .. "User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
 	query = query .. "Host: " .. host.ip .. ":" .. port.number 
-	try(soc:send(strbuf.dump(query, '\r\n') .. '\r\n\r\n'))
+	--try(soc:send(strbuf.dump(query, '\r\n') .. '\r\n\r\n'))
 
+	soc, response, bopt = comm.tryssl(host, port, strbuf.dump(query, '\r\n') .. '\r\n\r\n' , opts)
 	while true do
 		status, lines = soc:receive_lines(1)
 		if not status then break end

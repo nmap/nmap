@@ -52,6 +52,7 @@ categories = {"default", "discovery", "safe"}
 
 require "shortport"
 require "stdnse"
+require "comm"
 
 portrule = shortport.port_or_service({25, 587, 465}, "smtp")
 
@@ -70,29 +71,25 @@ action = function(host, port)
 	end
 	
 	local try = nmap.new_try(catch)
+
+	opt = {timeout=4000, recv_before=true}
 	
-	local proto = (port.version and port.version.service_tunnel == "ssl" and "ssl") or port.protocol
-	local attempt = try(socket:connect(host.ip, port.number, proto))
-	if attempt then
-		if nmap.verbosity() >= 2 or nmap.debugging() >= 1 then -- only tell you it fails if you are debugging or verbose X 2
-			return ("Problem connecting to %s on port %d using protocol %s%s"):format(host.ip, port.number, port.protocol, (proto == "ssl" and " (ssl)") or "")
-		else
-			return -- if you aren't debugging, just return with nothing
-		end
+	socket = comm.tryssl(host, port, "\n", opt)
+	if not socket then
+		stdnse.print_debug("Problem connecting to " .. host.ip .. " on port " .. port.number .. " using ssl and tcp protocols.")
+		return
 	end
-	
-	result = try(socket:receive_lines(1))
-	
+
 	local query = "EHLO example.org\r\n"
 	try(socket:send(query))
 	resultEHLO = try(socket:receive_lines(1))
-   
+
 	if not (string.match(resultEHLO, "^250")) then
 --		stdnse.print_debug("1","%s",resultEHLO)
 --		stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
 		resultEHLO = ""
 	end
-	
+
 	if resultEHLO ~= "" then
 		
 		resultEHLO = string.gsub(resultEHLO, "250 OK[\r\n]", "") -- 250 OK (needed to have the \r\n in there)
@@ -111,7 +108,7 @@ action = function(host, port)
 	local query = "HELP\r\n"
 	try(socket:send(query))
 	resultHELP = try(socket:receive_lines(1))
-	
+
 	if not (string.match(resultHELP, "^214")) then
 --		stdnse.print_debug("1","%s",resultHELP)
 --		stdnse.print_debug("1","HELP with errors or timeout.  Enable --script-trace to see what is happening.")
@@ -126,7 +123,7 @@ action = function(host, port)
 		resultHELP = string.gsub(resultHELP, "%s+", " ") -- get rid of extra spaces
 		resultHELP = "\nHELP " .. resultHELP
 	end
-	
+
 	result = resultEHLO .. resultHELP
 	
 	socket:close()

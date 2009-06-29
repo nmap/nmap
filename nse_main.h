@@ -31,8 +31,10 @@ class Target;
 
 
 /* API */
+int nse_yield (lua_State *);
 void nse_restore (lua_State *, int);
 void nse_destructor (lua_State *, char);
+void nse_base (lua_State *);
 
 void open_nse (void);
 void script_scan (std::vector<Target *> &targets);

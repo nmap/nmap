@@ -15,13 +15,13 @@ server version may be available.
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default"}
+categories = {"default","discovery"}
 
 require 'pop3'
 require 'shortport'
 require 'stdnse'
 
-portrule = shortport.port_or_service({110}, "pop3")
+portrule = shortport.port_or_service({110,995},{"pop3","pop3s"})
 
 action = function(host, port)
   local capa, err = pop3.capabilities(host, port)

@@ -8,6 +8,7 @@ local HAVE_SSL = false
 require 'base64'
 require 'bit'
 require 'stdnse'
+require 'comm'
 
 if pcall(require,'openssl') then
   HAVE_SSL = true
@@ -148,21 +149,21 @@ end
 function capabilities(host, port)
    local socket = nmap.new_socket()
    local capas = {}
-   socket:set_timeout(10000)
-   local proto = (port.version and port.version.service_tunnel == "ssl" and "ssl") or "tcp"
-   if not socket:connect(host.ip, port.number, proto) then return nil, "Could Not Connect" end
+   local opts = {timeout=10000, recv_before=true}
+   local i = 1
 
-   status, line = socket:receive_lines(1)
-   if not stat(line) then return nil, "No Response" end
+   socket, line, bopt, first_line = comm.tryssl(host, port, "CAPA\r\n" , opts)
+   if not socket then return nil, "Could Not Connect" end
+   if not stat(first_line) then return nil, "No Response" end
+  
+   if string.find(first_line, "<[%p%w]+>") then capas.APOP = true end
    
-   if string.find(line, "<[%p%w]+>") then capas.APOP = true end
-   
-   socket:send("CAPA\r\n")
-   status, line = socket:receive_buf("\r\n", false)
+   lines = stdnse.strsplit("\r\n",line)
+   line = lines[1]
+
    if not stat(line) then 
       capas.capa = false
    else 
-      status, line = socket:receive_buf("\r\n", false)
       while line do
 	 if line ~= "." then
 	    local capability = string.sub(line, string.find(line, "[%w-]+"))
@@ -179,7 +180,8 @@ function capabilities(host, port)
 	 else
 	    break 
 	 end
-	 status, line = socket:receive_buf("\r\n", false)
+	 line = lines[i]
+	 i = i + 1
       end
    end
    socket:close()

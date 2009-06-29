@@ -7089,13 +7089,8 @@ if test $have_libpcap = yes; then
   { $as_echo "$as_me:$LINENO: checking if libpcap version is recent enough" >&5
 $as_echo_n "checking if libpcap version is recent enough... " >&6; }
   if test "$cross_compiling" = yes; then
-  { { $as_echo "$as_me:$LINENO: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-{ { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
-See \`config.log' for more details." >&5
-$as_echo "$as_me: error: cannot run test program while cross compiling
-See \`config.log' for more details." >&2;}
-   { (exit 1); exit 1; }; }; }
+  { $as_echo "$as_me:$LINENO: result: cross-compiling -- assuming yes" >&5
+$as_echo "cross-compiling -- assuming yes" >&6; }; have_libpcap=yes
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */

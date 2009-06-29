@@ -23,6 +23,8 @@
 #define NSE_TRACEBACK "NSE_TRACEBACK"
 
 /* string keys used in interface with nse_main.lua */
+#define NSE_YIELD "NSE_YIELD"
+#define NSE_BASE "NSE_BASE"
 #define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
 
@@ -151,10 +153,16 @@ static int dump_dir (lua_State *L)
   return 1;
 }
 
+/* This must call the l_nsock_loop function defined in nse_nsock.cc.
+ * That closure is created in luaopen_nsock in order to allow
+ * l_nsock_loop to have access to the nsock library environment.
+ */
 static int nsock_loop (lua_State *L)
 {
-  if (l_nsock_loop(luaL_checkint(L, 1)) == NSOCK_LOOP_ERROR)
-    luaL_error(L, "an error occurred in nsock_loop");
+  lua_settop(L, 1);
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_NSOCK_LOOP);
+  lua_pushvalue(L, 1);
+  lua_call(L, 1, 0);
   return 0;
 }
 
@@ -464,6 +472,14 @@ static int run_main (lua_State *L)
   return 0;
 }
 
+int nse_yield (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_YIELD);
+  lua_pushthread(L);
+  lua_call(L, 1, 1); /* returns NSE_YIELD_VALUE */
+  return lua_yield(L, 1); /* yield with NSE_YIELD_VALUE */
+}
+
 void nse_restore (lua_State *L, int number)
 {
   luaL_checkstack(L, 5, "nse_restore: stack overflow");
@@ -504,6 +520,12 @@ void nse_destructor (lua_State *L, char what)
   if (lua_pcall(L, 4, 0, 0) != 0)
     fatal("nse_destructor: NSE_DESTRUCTOR error!\n%s", lua_tostring(L, -1));
   lua_pop(L, what == 'a' ? 2 : 1);
+}
+
+void nse_base (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_BASE);
+  lua_call(L, 0, 1); /* returns base thread */
 }
 
 static lua_State *L_NSE = NULL;

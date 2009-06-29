@@ -1,19 +1,19 @@
 description = [[
 Pulls a list of processes from the remote server over SMB. This will determine
 all running processes, their process IDs, and their parent processes. It is done
-by querying the remote registry service, which is disabled by default on Vista; on 
-all other Windows versions, it requires Administrator privilges. 
+by querying the remote registry service, which is disabled by default on Vista;
+on all other Windows versions, it requires Administrator privileges.
 
-Since this requires administrator privileges, it isn't especially useful for a 
+Since this requires administrator privileges, it isn't especially useful for a
 penetration tester, since they can effectively do the same thing with metasploit
-or other tools. It does, however, provide for a quick way to get process lists 
-for a bunch of systems at the same time. 
+or other tools. It does, however, provide for a quick way to get process lists
+for a bunch of systems at the same time.
 
-WARNING: I have experienced crashes in regsvc.exe while making registry calls 
-against a fully patched Windows 2000 system; I've fixed the issue that caused it,
-but there's no guarantee that it (or a similar vuln in the same code) won't show 
-up again. Since the process automatically restarts, it doesn't negatively impact 
-the system, besides showing a message box to the user. 
+WARNING: I have experienced crashes in regsvc.exe while making registry calls
+against a fully patched Windows 2000 system; I've fixed the issue that caused
+it, but there's no guarantee that it (or a similar vuln in the same code) won't
+show up again. Since the process automatically restarts, it doesn't negatively
+impact the system, besides showing a message box to the user.
 ]]
 
 ---
@@ -24,167 +24,174 @@ the system, besides showing a message box to the user.
 ---
 -- @output
 -- Host script results:
--- |  smb-enum-processes:  
--- |  -+-Idle(0)---System(8)---SMSS(140)-+-WINLOGON(160)-+-SERVICES(212)-+-spoolsv(432)
--- |   |                                 |               |               +-mstask(536)
--- |   |                                 |               |               +-WinMgmt(592)
--- |   |                                 |               |               +-svchost(620)
--- |   |                                 |               |               `-regsvc(1136)
--- |   |                                 |               `-LSASS(224)
--- |   |                                 `-CSRSS(164)
--- |   +-Unknown(296)---explorer(344)-+-firefox(636)---WinRAR(736)
--- |   |                              +-keyfinder(848)
--- |   |                              `-CMD(956)
--- |   +-Unknown(400)---IEXPLORE(1036)
--- |_  `-Unknown(840)---DRWTSN32(1192)
--- 
+-- |  smb-enum-processes:
+-- |_ Idle, System, smss, csrss, winlogon, services, logon.scr, lsass, spoolsv, msdtc, VMwareService, svchost, alg, explorer, VMwareTray, VMwareUser, wmiprvse
+--
 -- --
 -- Host script results:
--- |  smb-enum-processes:  
--- |  Idle [0] (parent: 0, priority: 0, threads: 1, handles: 0)
--- |  System [8] (parent: 0, priority: 8, threads: 34, handles: 190)
--- |  smss [140] (parent: 8, priority: 11, threads: 6, handles: 33)
--- |  winlogon [160] (parent: 140, priority: 13, threads: 14, handles: 335)
--- |  csrss [164] (parent: 140, priority: 13, threads: 10, handles: 229)
--- |  services [212] (parent: 160, priority: 9, threads: 33, handles: 462)
--- |  lsass [224] (parent: 160, priority: 9, threads: 13, handles: 267)
--- |  SPOOLSV [412] (parent: 212, priority: 8, threads: 10, handles: 95)
--- |  svchost [448] (parent: 212, priority: 8, threads: 24, handles: 369)
--- |  mstask [516] (parent: 212, priority: 8, threads: 6, handles: 89)
--- |  VMwareService.e [572] (parent: 212, priority: 13, threads: 4, handles: 95)
--- |  winmgmt [648] (parent: 212, priority: 8, threads: 3, handles: 89)
--- |  cmd [700] (parent: 212, priority: 8, threads: 1, handles: 28)
--- |  explorer [720] (parent: 620, priority: 8, threads: 10, handles: 239)
--- |  VMwareUser [748] (parent: 720, priority: 8, threads: 1, handles: 30)
--- |  VMwareTray [764] (parent: 720, priority: 8, threads: 1, handles: 30)
--- |_ regsvc [868] (parent: 212, priority: 8, threads: 4, handles: 76)
+-- |  smb-enum-processes:
+-- |  `+-Idle
+-- |   | `-System
+-- |   |   `-smss
+-- |   |     `+-csrss
+-- |   |      `-winlogon
+-- |   |        `+-services
+-- |   |         | `+-spoolsv
+-- |   |         |  +-msdtc
+-- |   |         |  +-VMwareService
+-- |   |         |  +-svchost
+-- |   |         |  `-alg
+-- |   |         +-logon.scr
+-- |   |         `-lsass
+-- |   +-explorer
+-- |   | `+-VMwareTray
+-- |   |  `-VMwareUser
+-- |_  `-wmiprvse
+--
+-- --
+-- Host script results:
+-- |  smb-enum-processes:
+-- |   PID  PPID  Priority Threads Handles
+-- |  ----- ----- -------- ------- -------
+-- |      0     0        0       1       0 `+-Idle
+-- |      4     0        8      49     395  | `-System
+-- |    252     4       11       3      19  |   `-smss
+-- |    300   252       13      10     338  |     `+-csrss
+-- |    324   252       13      18     513  |      `-winlogon
+-- |    372   324        9      16     272  |        `+-services
+-- |    872   372        8      12     121  |         | `+-spoolsv
+-- |    896   372        8      13     151  |         |  +-msdtc
+-- |   1172   372       13       3      53  |         |  +-VMwareService
+-- |   1336   372        8      20     158  |         |  +-svchost
+-- |   1476   372        8       6      90  |         |  `-alg
+-- |    376   324        4       1      22  |         +-logon.scr
+-- |    384   324        9      23     394  |         `-lsass
+-- |   1720  1684        8       9     259  +-explorer
+-- |   1796  1720        8       1      42  | `+-VMwareTray
+-- |   1808  1720        8       1      44  |  `-VMwareUser
+-- |_  1992   580        8       7     179  `-wmiprvse
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery","intrusive"}
+categories = {"discovery", "intrusive"}
 
 require "bin"
-require 'msrpc'
-require 'msrpcperformance'
-require 'smb'
-require 'stdnse'
-
--- Strings used to separate processes from one another.
-local separators = {
-	first	= "-+-";
-	last	= " `-";
-	middle	= " +-";
-	only 	= "---";
-}
-
-function psl_add (psl, ps)
-	-- Add process.
-	psl[ps.pid] = ps
-
-	-- Add dummy parent if no real one exists.
-	if psl[ps.ppid] == nil then
-		psl[ps.ppid] = {
-			name	= 'Unknown';
-			pid	= ps.ppid;
-			ppid	= ps.ppid;
-		}
-	end
-end
+require "msrpc"
+require "msrpcperformance"
+require "smb"
+require "stdnse"
 
 function psl_mode (list, i)
 	local mode
 
 	-- Decide connector for process.
-	if table.maxn(list) == 1 then
+	if #list == 1 then
 		mode = "only"
 	elseif i == 1 then
 		mode = "first"
-	elseif i == table.maxn(list) then
-		mode = "last"
-	else
+	elseif i < #list then
 		mode = "middle"
+	else
+		mode = "last"
 	end
 
 	return mode
 end
 
-function psl_print (psl)
+function psl_print (psl, lvl)
+	-- Print out table header.
 	local result = ""
+	if lvl == 2 then
+		result = result .. " PID  PPID  Priority Threads Handles\n"
+		result = result .. "----- ----- -------- ------- -------\n"
+	end
 
 	-- Find how many root processes there are.
 	local roots = {}
-	for i,ps in pairs(psl) do
+	for i, ps in pairs(psl) do
 		if psl[ps.ppid] == nil or ps.ppid == ps.pid then
 			table.insert(roots, i)
 		end
 	end
 	table.sort(roots)
 
-	-- Create vertical sibling link.
+	-- Create vertical sibling bars.
 	local bars = {}
-	if table.maxn(roots) ~= 1 then
+	if #roots ~= 1 then
 		table.insert(bars, 2)
 	end
 
 	-- Print out each root of the tree.
-	for i,root in ipairs(roots) do
+	for i, root in ipairs(roots) do
 		local mode = psl_mode(roots, i)
-		result = result .. psl_tree(psl, root, 0, bars, mode)
+		result = result .. psl_tree(psl, root, 0, bars, mode, lvl)
 	end
 
 	return result
 end
 
-function psl_tree (psl, pid, column, bars, mode)
+function psl_tree (psl, pid, column, bars, mode, lvl)
 	local ps = psl[pid]
 
 	-- Delete vertical sibling link.
-	if mode == 'last' then
+	if mode == "last" then
 		table.remove(bars)
 	end
 
-	-- Print lead-in.
-	local prefix = ''
-	if mode == 'middle' or mode == 'last' then
-		prefix = '\n'
+	-- Print information table.
+	local info = ""
+	if lvl == 2 then
+		info = info .. string.format("% 5d ", ps.pid)
+		info = info .. string.format("% 5d ", ps.ppid)
+		info = info .. string.format("% 8d ", ps.prio)
+		info = info .. string.format("% 7d ", ps.thrd)
+		info = info .. string.format("% 7d ", ps.hndl)
+	end
 
-		local i = 1
-		for j = 1, column do
-			if table.maxn(bars) >= i and
-				bars[i] == j then
-				prefix = prefix .. '|'
-				i = i + 1
-			else
-				prefix = prefix .. ' '
-			end
+	-- Print vertical sibling bars.
+	local prefix = ""
+	local i = 1
+	for j = 1, column do
+		if bars[i] == j then
+			prefix = prefix .. "|"
+			i = i + 1
+		else
+			prefix = prefix .. " "
 		end
 	end
 
-	-- Format process itself.
-	output = separators[mode] .. ps.name .. '(' .. ps.pid .. ')'
-	column = column + #output
-	local result = prefix .. output
+	-- Strings used to separate processes from one another.
+	local separators = {
+		first	= "`+-";
+		last	= " `-";
+		middle	= " +-";
+		only	= "`-";
+	}
 
-	-- Find process' children.
+	-- Format process itself.
+	local result = "\n" .. info .. prefix .. separators[mode] .. ps.name
+
+	-- Find children of the process.
 	local children = {}
-	for child_pid,child in pairs(psl) do
+	for child_pid, child in pairs(psl) do
 		if child_pid ~= pid and child.ppid == pid then
 			table.insert(children, child_pid)
 		end
 	end
 	table.sort(children)
 
-	-- Create vertical sibling link between children.
-	if table.maxn(children) > 1 then
+	-- Add vertical sibling link between children.
+	column = column + #separators[mode]
+	if #children > 1 then
 		table.insert(bars, column + 2)
 	end
 
-	-- Format process' children.
-	for i,pid in ipairs(children) do
+	-- Format process's children.
+	for i, pid in ipairs(children) do
 		local mode = psl_mode(children, i)
-		result = result .. psl_tree(psl, pid, column, bars, mode)
+		result = result .. psl_tree(psl, pid, column, bars, mode, lvl)
 	end
 
 	return result
@@ -195,15 +202,12 @@ hostrule = function(host)
 end
 
 action = function(host)
-
-	local status, result
-	local process
-	local response = " \n"
+	local process, response, result, status
 
 	-- Get the process list
 	status, result = msrpcperformance.get_performance_data(host, "230")
-	if(status == false) then
-		if(nmap.debugging() > 0) then
+	if status == false then
+		if nmap.debugging() > 0 then
 			return "ERROR: " .. result
 		else
 			return nil
@@ -211,61 +215,76 @@ action = function(host)
 	end
 
 	-- Get the process table
-	process = result['Process']
+	process = result["Process"]
 
---	for i, v in pairs(result['Processor']['_Total']) do
---		io.write(string.format("i = %s\n", i))
---	end
-
-	-- Put the processes into an array, and sort them by process id
+	-- Put the processes into an array, and sort them by pid.
 	local names = {}
 	for i, v in pairs(process) do
-		if(i ~= '_Total') then
+		if i ~= "_Total" then
 			names[#names + 1] = i
 		end
 	end
-	table.sort(names, function (a, b) return process[a]['ID Process'] < process[b]['ID Process'] end)
+	table.sort(names, function (a, b) return process[a]["ID Process"] < process[b]["ID Process"] end)
 
-	-- Put the processes into an array indexed by process id and with a value equal to the name (so we can look it up 
-	-- easily when we need to)
+	-- Put the processes into an array indexed by pid and with a value equal
+        -- to the name (so we can look it up easily when we need to).
 	local process_id = {}
 	for i, v in pairs(process) do
-		process_id[v['ID Process']] = i
+		process_id[v["ID Process"]] = i
 	end
 
-
-	if(nmap.verbosity() == 1) then
-		local psl = {}
-		for i,name in ipairs(names) do
-			if(name ~= '_Total') then
-				psl_add(psl, {
-					name	= name;
-					pid	= process[name]['ID Process'];
-					ppid	= process[name]['Creating Process ID'];
-				})
-			end
+	-- Fill the process list table.
+	--
+	-- Used fields:
+	--   Creating Process ID
+	--   Handle Count
+	--   ID Process
+	--   Priority Base
+	--   Thread Count
+	--
+	-- Unused fields:
+	--   % Privileged Time
+	--   % Processor Time
+	--   % User Time
+	--   Elapsed Time
+	--   IO Data Bytes/sec
+	--   IO Data Operations/sec
+	--   IO Other Bytes/sec
+	--   IO Other Operations/sec
+	--   IO Read Bytes/sec
+	--   IO Read Operations/sec
+	--   IO Write Bytes/sec
+	--   IO Write Operations/sec
+	--   Page Faults/sec
+	--   Page File Bytes
+	--   Page File Bytes Peak
+	--   Pool Nonpaged Bytes
+	--   Pool Paged Bytes
+	--   Private Bytes
+	--   Virtual Bytes
+	--   Virtual Bytes Peak
+	--   Working Set
+	--   Working Set Peak
+	local psl = {}
+	for i, name in ipairs(names) do
+		if name ~= "_Total" then
+			psl[process[name]["ID Process"]] = {
+				name	= name;
+				pid	= process[name]["ID Process"];
+				ppid	= process[name]["Creating Process ID"];
+				prio	= process[name]["Priority Base"];
+				thrd	= process[name]["Thread Count"];
+				hndl	= process[name]["Handle Count"];
+			}
 		end
-		response = ' \n' .. psl_print(psl)
-	elseif(nmap.verbosity() > 1) then
-		for i = 1, #names, 1 do
-			local name = names[i]
-			if(name ~= '_Total') then
-				local parent = process_id[process[name]['Creating Process ID']]
-				if(parent == nil) then
-					parent = "n/a"
-				end
+	end
 
---				response = response .. string.format("%6d %24s (Parent: %24s, Priority: %4d, Threads: %4d, Handles: %4d)\n", process[name]['ID Process'], name, parent, process[name]['Priority Base'], process[name]['Thread Count'], process[name]['Handle Count'])
-
-				response = response .. string.format("%s [%d] (parent: %s, priority: %s, threads: %s, handles: %s)\n", name, process[name]['ID Process'], process[name]['Creating Process ID'], process[name]['Priority Base'], process[name]['Thread Count'], process[name]['Handle Count'])
-			end
-			
-		end
-	else
+	-- Produce final output.
+	if nmap.verbosity() == 0 then
 		response = stdnse.strjoin(", ", names)
+	else
+		response = " \n" .. psl_print(psl, nmap.verbosity())
 	end
 
 	return response
 end
-
-
