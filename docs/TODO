@@ -15,10 +15,6 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor,David]
  
-o Once we go into deep stability freeze mode, create an nmap-exp
-  development branches for changes we plan to integrate after the
-  stable release. [Fyodor]
-
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
@@ -113,9 +109,6 @@ o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
 
-o Decide what to do about ncat source code headers -- maybe just use
-  the Nmap ones.
-
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
   Perhaps we should look at poll(), Windows completion ports, and some
@@ -123,6 +116,32 @@ o Change Nsock so that it is able to take advantage of more modern
   higher than FD_SETSIZE, and it may not performa all that well.  We
   should do some benchmarking and decide on the interface to use for
   each platform.
+
+o Ncat SSLv2 issues.  See
+  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
+  done, which was enhanced version detection probes to detect more SSL
+  servers, The defect that remains is that Nsock can't connect to a
+  small fraction of servers (including some of the ones detected by
+  the new version probe). They are the servers that do only SSLv3 or
+  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
+  though most servers don't support SSLv2, they usually respond to the
+  ClientHello and just don't offer any SSLv2 features. [David/Venkat
+  working on this]
+
+o [nsock] Fix Makefile to handle dependencies correctly (if that turns
+  out to be the problem).  See
+  http://seclists.org/nmap-dev/2009/q1/0629.html.  o Or it may be
+  related to SVN timestampling.  See
+  http://seclists.org/nmap-dev/2009/q1/0632.html. Diagnosed by David:
+  http://seclists.org/nmap-dev/2009/q2/0728.html
+
+o [Zenmap] The Search dialogue is helpful for finding a certain scan
+  you've performed recently, but we should probably also offer a similar
+  function for searching for certain applications/hosts within a scan
+  (e.g. find all the hosts running Apache).  This new functionality
+  might be a find option or some other mechanism rather than being
+  part of the Search dialogue proper.
+
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -330,16 +349,6 @@ o [NSE] Security Review
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
 
-o Ncat SSLv2 issues.  See
-  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
-  done, which was enhanced version detection probes to detect more SSL
-  servers, The defect that remains is that Nsock can't connect to a
-  small fraction of servers (including some of the ones detected by
-  the new version probe). They are the servers that do only SSLv3 or
-  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
-  though most servers don't support SSLv2, they usually respond to the
-  ClientHello and just don't offer any SSLv2 features.
-
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
   sort of thing:
@@ -354,13 +363,6 @@ o Consider converting this file to emacs org-mode
   o That format is still plain text and can be read/edited by vi
     users, etc.
 
-o [Zenmap] The Search dialogue is helpful for finding a certain scan
-  you've performed recently, but we should probably also offer a similar
-  function for searching for certain applications/hosts within a scan
-  (e.g. find all the hosts running Apache).  This new functionality
-  might be a find option or some other mechanism rather than being
-  part of the Search dialogue proper.
-
 o [Zenmap] More complete implementation of ZenmapCommandLine/profile
   editor improvement ideas. See
   http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
@@ -372,12 +374,6 @@ o Look into whether we should loosen/change the global congestion
   * Related possibility: Fix --nogcc to gracefully handle ping scans.
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
-
-o [nsock] Fix Makefile to handle dependencies correctly (if that turns
-  out to be the problem).  See
-  http://seclists.org/nmap-dev/2009/q1/0629.html.
-  o Or it may be related to SVN timestampling.  See
-  http://seclists.org/nmap-dev/2009/q1/0632.html.
 
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
@@ -596,6 +592,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Decide what to do about ncat source code headers -- maybe just use
+  the Nmap ones. [David added the Nmap headers]
+
+o Once we go into deep stability freeze mode, create an nmap-exp
+  development branches for changes we plan to integrate after the
+  stable release. [Fyodor]
 
 o Update CHANGELOG for latest changes [Fyodor]
 
