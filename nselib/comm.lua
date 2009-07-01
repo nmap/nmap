@@ -96,7 +96,10 @@ get_banner = function(host, port, opts)
 	opts = initopts(opts)
 	opts.recv_before = true
 	local socket, nothing, correct, banner = tryssl(host, port, "", opts)
-	if socket then return true, banner end
+    if socket then
+      socket:close()
+      return true, banner
+    end
 	return false, banner
 end
 
