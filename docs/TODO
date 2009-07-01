@@ -33,13 +33,8 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o [NSE] Resolve ssh2.lua buffering problems
-  (http://seclists.org/nmap-dev/2009/q2/0673.html) [Joao]
-
-o [NSE] Track active sockets in the nsock library binding and don't
-  rely on garbage collection for reallocation. Can probably wait until
-  post-stable release for integration. [Patrick]
-  - Patrick has a patch and is waiting on dev branch to check it in.
+o Joao is auditing his Lua code to make sure all his variables are
+  local where appropriate. [Joao]
 
 o Consider the open proxy scripts more carefully
  - How should we test whether the proxy attempt was successful?  Right
@@ -47,25 +42,6 @@ o Consider the open proxy scripts more carefully
    reach http://www.google.com through the proxy.  Maybe we should let
    users specify their own pattern if they specify their own URL.
   [ Joao is nearly done, will be checking into dev tree]
-
-
-o Update scripts which use table args to use pseudo-table format
-  "name.arg" rather than requiring the user to create a Lua table
-  themselves. On the lua side, it's not really being stored in a
-  table, but just an arg named "name.arg". [Joao]
-  - Look at all our existing scripts which use tables
-    (dns-zone-transfer, whois, the proxy scripts, etc.) and change as
-    appropriate.  Remember to change the usage throughout the script
-    and also change the nsedoc script arguments and example usage.
-    For the existing scripts, try to retain the table version check
-    for now to avoid breaing backward compatability if possible.  Just
-    add the newer style check as well.
-  - Is taking arguments in a table specific to a script a good idea?
-    The example in the socks-open-proxy nsedoc of "--script-args
-    openproxy={host=<host>}" is a bit of a mess and I'm not sure the
-    best way to document that in the script argument list.  Note that
-    this is the standard way we've handled it for some other scripts,
-    so it's not an open-proxy-script-specific problem.
 
 o Consider making it easier to tell whether scripts were specified by
   name on the command-line (rather than default or by class) so they
@@ -142,7 +118,6 @@ o [Zenmap] The Search dialogue is helpful for finding a certain scan
   might be a find option or some other mechanism rather than being
   part of the Search dialogue proper.
 
-
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
@@ -196,7 +171,7 @@ o [Ncat] Support SCTP now that Nmap does.
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
   determining how many to run concurrently, looking at CPU load items,
-  etc.
+  etc. [David/Patrick]
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -592,6 +567,32 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Update scripts which use table args to use pseudo-table format
+  "name.arg" rather than requiring the user to create a Lua table
+  themselves. On the lua side, it's not really being stored in a
+  table, but just an arg named "name.arg". [Joao]
+  - Look at all our existing scripts which use tables
+    (dns-zone-transfer, whois, the proxy scripts, etc.) and change as
+    appropriate.  Remember to change the usage throughout the script
+    and also change the nsedoc script arguments and example usage.
+    For the existing scripts, try to retain the table version check
+    for now to avoid breaing backward compatability if possible.  Just
+    add the newer style check as well.
+  - Is taking arguments in a table specific to a script a good idea?
+    The example in the socks-open-proxy nsedoc of "--script-args
+    openproxy={host=<host>}" is a bit of a mess and I'm not sure the
+    best way to document that in the script argument list.  Note that
+    this is the standard way we've handled it for some other scripts,
+    so it's not an open-proxy-script-specific problem.
+
+o [NSE] Track active sockets in the nsock library binding and don't
+  rely on garbage collection for reallocation. Can probably wait until
+  post-stable release for integration. [Patrick]
+  - Patrick has a patch and is waiting on dev branch to check it in.
+
+o [NSE] Resolve ssh2.lua buffering problems
+  (http://seclists.org/nmap-dev/2009/q2/0673.html) [Joao]
 
 o Decide what to do about ncat source code headers -- maybe just use
   the Nmap ones. [David added the Nmap headers]
