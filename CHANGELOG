@@ -153,7 +153,7 @@ o Ncat can now send SSL certificates in connect mode for client
   specified certificates are only sent when requested by the
   server. [Venkat]
 
-o Nmap can now handle -SP and -SA at the same time when running nmap
+o Nmap can now handle -PS and -PA at the same time when running nmap
   as non-root or using IPv6.  It now combines the two port lists [Josh
   Marlow]
 
