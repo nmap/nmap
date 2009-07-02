@@ -677,8 +677,10 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	intf->ifc.ifc_buf = (caddr_t)intf->ifcbuf;
 	intf->ifc.ifc_len = sizeof(intf->ifcbuf);
 	
-	if (ioctl(intf->fd, SIOCGIFCONF, &intf->ifc) < 0)
+	if (ioctl(intf->fd, SIOCGIFCONF, &intf->ifc) < 0) {
+        fclose(fp);
 		return (-1);
+    }
 
 	ret = 0;
 	while (fgets(buf, sizeof(buf), fp) != NULL) {
