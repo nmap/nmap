@@ -29,13 +29,11 @@ require "stdnse"
 --@param tab The table to truncate.
 --@return Truncated, formatted table.
 local truncate = function(tab)
-	local str = ""
-	str = str .. tab[1] .. "\n"
-	str = str .. tab[2] .. "\n"
-	str = str .. tab[3] .. "\n"
-	str = str .. tab[4] .. "\n"
-	str = str .. tab[5] .. "\n"
-	return str
+    return tab[1] .. "\n" ..
+           tab[2] .. "\n" ..
+           tab[3] .. "\n" ..
+           tab[4] .. "\n" ..
+           tab[5] .. "\n";
 end
 
 --- Validates the HTTP response and checks for modifications.
