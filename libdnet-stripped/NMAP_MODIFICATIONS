@@ -3,6 +3,8 @@ $Id$
 This is Dug Song's excellent Libdnet networking library version 1.12.
 It has been stripped down for inclusion within Nmap and modified as follows:
 
+o Fixed a case where an open file may not be closed in intf_loop()
+
 o Removed the following directories:
   python, test, man, trunk
 
