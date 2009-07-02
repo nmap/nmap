@@ -320,16 +320,29 @@ static void socket_unlock(lua_State * L)
   {
     unsigned open = 0;
 
-    lua_pushnil(L);
-    while (lua_next(L, -2) != 0) /* for each socket */
+    if (lua_status(lua_tothread(L, -2)) == LUA_YIELD)
     {
-      lua_pop(L, 1); /* pop garbage boolean */
-      if (((struct l_nsock_udata *) lua_touserdata(L, -1))->nsiod != NULL)
-        open++;
+      lua_pushnil(L);
+      while (lua_next(L, -2) != 0) /* for each socket */
+      {
+        lua_pop(L, 1); /* pop garbage boolean */
+        if (((struct l_nsock_udata *) lua_touserdata(L, -1))->nsiod != NULL)
+          open++;
+      }
     }
 
     if (open == 0) /* thread has no open sockets? */
     {
+      /* close all of its sockets */
+      lua_pushnil(L);
+      while (lua_next(L, -2) != 0) /* for each socket */
+      {
+        lua_pop(L, 1); /* pop garbage boolean */
+        lua_getfield(L, -1, "close");
+        lua_pushvalue(L, -2);
+        lua_call(L, 1, 0);
+      }
+
       lua_pushvalue(L, -2); /* thread key */
       lua_pushnil(L);
       lua_rawset(L, top+1); /* THREADS_SOCKETS */
