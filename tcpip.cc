@@ -1370,8 +1370,6 @@ do {
   retries++;
 } while( res == -1);
 
- PacketTrace::trace(PacketTrace::SENT, packet, len); 
-
 return res;
 }
 
@@ -1442,6 +1440,15 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
 
   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
 	       (struct sockaddr *)&sock,  (int)sizeof(struct sockaddr_in));
+
+  /* Undo the byte order switching. */
+#if FREEBSD || BSDI || NETBSD || DEC || MACOSX
+  ip->ip_len = htons(ip->ip_len);
+  ip->ip_off = htons(ip->ip_off);
+#endif
+
+  PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
+
   return res;
 }
 
