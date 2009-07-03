@@ -1373,41 +1373,62 @@ do {
 return res;
 }
 
+static int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen);
+static int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen);
 
-/* Send a pre-built IPv4 packet */
+/* Send a pre-built IPv4 packet. Handles fragmentation and whether to send with
+   an ethernet handle or a socket. */
 int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen) {
-  struct sockaddr_in sock;
-  int res;
   struct ip *ip = (struct ip *) packet;
-  struct tcp_hdr *tcp = NULL;
-  struct udp_hdr *udp;
-  u8 *eth_frame = NULL;
-  eth_t *ethsd;
-  bool ethsd_opened = false;
+  int res;
+
   assert(packet);
-  assert( (int) packetlen > 0);
+  assert((int) packetlen > 0);
 
   // fragmentation requested && packet is bigger than MTU
-  if (o.fragscan && ( packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan ))
-      return send_frag_ip_packet(sd, eth, packet, packetlen, o.fragscan);
+  if (o.fragscan && (packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan))
+    return send_frag_ip_packet(sd, eth, packet, packetlen, o.fragscan);
 
-  if (eth) {
-    eth_frame = (u8 *) safe_malloc(14 + packetlen);
-    memcpy(eth_frame + 14, packet, packetlen);
-    eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
-    if (!eth->ethsd) {
-      ethsd = eth_open_cached(eth->devname);
-      if (!ethsd) 
-	fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
-      ethsd_opened = true;
-    } else ethsd = eth->ethsd;
-    res = eth_send(ethsd, eth_frame, 14 + packetlen);
-    PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
-    /* No need to close ethsd due to caching */
-    free(eth_frame);
-    eth_frame = NULL;
-    return res;
+  if (eth)
+    res = send_ip_packet_eth(eth, packet, packetlen);
+  else
+    res = send_ip_packet_sd(sd, packet, packetlen);
+
+  PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
+
+  return res;
+}
+
+/* Send an IP packet over an ethernet handle. */
+static int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen) {
+  eth_t *ethsd;
+  u8 *eth_frame;
+  int res;
+
+  eth_frame = (u8 *) safe_malloc(14 + packetlen);
+  memcpy(eth_frame + 14, packet, packetlen);
+  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IP);
+  if (!eth->ethsd) {
+    ethsd = eth_open_cached(eth->devname);
+    if (!ethsd) 
+      fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
+  } else {
+    ethsd = eth->ethsd;
   }
+  res = eth_send(ethsd, eth_frame, 14 + packetlen);
+  /* No need to close ethsd due to caching */
+  free(eth_frame);
+
+  return res;
+}
+
+/* Send an IP packet over a raw socket. */
+static int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen) {
+  struct sockaddr_in sock;
+  struct ip *ip = (struct ip *) packet;
+  struct tcp_hdr *tcp;
+  struct udp_hdr *udp;
+  int res;
 
   assert(sd >= 0);
   memset(&sock, 0, sizeof(sock));
@@ -1415,6 +1436,7 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
 #if HAVE_SOCKADDR_SA_LEN
   sock.sin_len = sizeof(sock);
 #endif
+
   /* It is bogus that I need the address and port info when sending a RAW IP 
      packet, but it doesn't seem to work w/o them */
   if (packetlen >= 20) {
@@ -1439,15 +1461,13 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetl
 #endif
 
   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
-	       (struct sockaddr *)&sock,  (int)sizeof(struct sockaddr_in));
+	       (struct sockaddr *) &sock, (int) sizeof(struct sockaddr_in));
 
   /* Undo the byte order switching. */
 #if FREEBSD || BSDI || NETBSD || DEC || MACOSX
   ip->ip_len = htons(ip->ip_len);
   ip->ip_off = htons(ip->ip_off);
 #endif
-
-  PacketTrace::trace(PacketTrace::SENT, packet, packetlen); 
 
   return res;
 }
