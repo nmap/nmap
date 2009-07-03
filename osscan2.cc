@@ -2303,7 +2303,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
 
   /* Next we check whether the Don't Fragment bit is set */
   AVs[current_testno].attribute = (char*)"DF";
-  if(ntohs(ip->ip_off) & 0x4000) {
+  if(ntohs(ip->ip_off) & IP_DF) {
     strcpy(AVs[current_testno].value,"Y");
   } else strcpy(AVs[current_testno].value, "N");
 
@@ -2486,7 +2486,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   /* Now let us do an easy one, Don't fragment */
   AVs[current_testno].attribute = (char*)"DF";
-  if(ntohs(ip->ip_off) & 0x4000) {
+  if(ntohs(ip->ip_off) & IP_DF) {
     strcpy(AVs[current_testno].value,"Y");
   } else strcpy(AVs[current_testno].value, "N");
 
