@@ -257,7 +257,7 @@ request = function( host, port, data, options )
     while ( ptr < ( type( body ) == "string" and body:len() ) or 1 ) do
       local hex = body:match( pattern, ptr )
       if not hex then break end
-      chunk_len = tonumber( hex or 0, 16 ) or nil
+      chunk_len = tonumber( hex or 0, 16 )
       if chunk_len then
         start = ptr + hex:len() + 2*body_delim:len()
         ptr = start + chunk_len
