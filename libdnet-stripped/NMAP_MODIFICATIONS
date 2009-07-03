@@ -3,8 +3,6 @@ $Id$
 This is Dug Song's excellent Libdnet networking library version 1.12.
 It has been stripped down for inclusion within Nmap and modified as follows:
 
-o Fixed a case where an open file may not be closed in intf_loop()
-
 o Removed the following directories:
   python, test, man, trunk
 
@@ -451,9 +449,6 @@ o Added eth_get_pcap_devname() that matches up a dnet name to its pcap
   equivalent by matching hardwar addresses.  It's similar to the code
   used in eth_open()
 
-o Added SCTP support.  Not including patches since the SCTP changes
-  will be included in the next libdnet release. [Daniel Roethlisberger]
-
 o Handle the case of sa_len == 0 (meaning 0.0.0.0) in addr_stob.
 Index: src/addr.c
 ===================================================================
@@ -480,3 +475,29 @@ Index: src/addr.c
  	}
  	for (n = i = 0; i < len; i++, n += 8) {
  		if (p[i] != 0xff)
+
+o Fixed a case where an open file may not be closed in intf_loop() [Josh]
+Index: src/intf.c
+===================================================================
+--- src/intf.c	(revision 14004)
++++ src/intf.c	(working copy)
+@@ -677,8 +677,10 @@
+ 	intf->ifc.ifc_buf = (caddr_t)intf->ifcbuf;
+ 	intf->ifc.ifc_len = sizeof(intf->ifcbuf);
+ 	
+-	if (ioctl(intf->fd, SIOCGIFCONF, &intf->ifc) < 0)
++	if (ioctl(intf->fd, SIOCGIFCONF, &intf->ifc) < 0) {
++		fclose(fp);
+ 		return (-1);
++	}
+ 
+ 	ret = 0;
+ 	while (fgets(buf, sizeof(buf), fp) != NULL) {
+
+
+
+===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
+
+o Added SCTP support. [Daniel Roethlisberger]
+  Merged to libdnet r651 and r652.
+
