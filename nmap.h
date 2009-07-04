@@ -399,6 +399,10 @@ void *realloc();
 #define MAXHOSTNAMELEN 64
 #endif
 
+/* Max payload: Worst case is IPv4 with 40bytes of options and TCP with 20
+ * bytes of options. */
+#define MAX_PAYLOAD_ALLOWED 65535-60-40
+
 #ifndef recvfrom6_t
 #  define recvfrom6_t int
 #endif
