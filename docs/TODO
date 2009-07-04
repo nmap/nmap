@@ -36,6 +36,9 @@ o Device categorization improvements
 o Joao is auditing his Lua code to make sure all his variables are
   local where appropriate. [Joao]
 
+o Ndiff man page should be expanded to include sample execution/output
+  and more fully describe its functionality.
+
 o [NSE] We should document somewhere in scripting.xml the dangers inherent
   in global variables and warn people to generally declare them local
   instead.  We have a long history of bugs caused by non-local
