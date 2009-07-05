@@ -5,11 +5,18 @@
  *
  * Copyright (c) 2008-2009 Daniel Roethlisberger <daniel@roe.ch>
  *
- * $Id$
+ * $Id: sctp.h 653 2009-07-05 21:00:00Z daniel@roe.ch $
  */
 
 #ifndef DNET_SCTP_H
 #define DNET_SCTP_H
+
+#ifndef __GNUC__
+# ifndef __attribute__
+#  define __attribute__(x)
+# endif
+# pragma pack(1)
+#endif
 
 #define SCTP_HDR_LEN	12
 
@@ -18,7 +25,7 @@ struct sctp_hdr {
 	uint16_t	sh_dport;	/* destination port */
 	uint32_t	sh_vtag;	/* sctp verification tag */
 	uint32_t	sh_sum;		/* sctp checksum */
-};
+} __attribute__((__packed__));
 
 #define SCTP_PORT_MAX	65535
 
@@ -33,7 +40,7 @@ struct sctp_chunkhdr {
 	uint8_t		sch_type;	/* chunk type */
 	uint8_t		sch_flags;	/* chunk flags */
 	uint16_t	sch_length;	/* chunk length */
-};
+} __attribute__((__packed__));
 
 /* chunk types */
 #define SCTP_DATA		0x00
@@ -80,7 +87,7 @@ struct sctp_chunkhdr_init {
 	uint16_t	schi_nos;	/* Number of Outbound Streams */
 	uint16_t	schi_nis;	/* Number of Inbound Streams */
 	uint32_t	schi_itsn;	/* Initial TSN */
-};
+} __attribute__((__packed__));
 
 #define sctp_pack_chunkhdr_init(hdr, type, flags, length, itag,		\
 				arwnd, nos, nis, itsn) do {		\
@@ -105,7 +112,7 @@ struct sctp_chunkhdr_init_ack {
 	uint16_t	schia_nos;	/* Number of Outbound Streams */
 	uint16_t	schia_nis;	/* Number of Inbound Streams */
 	uint32_t	schia_itsn;	/* Initial TSN */
-};
+} __attribute__((__packed__));
 
 #define sctp_pack_chunkhdr_init_ack(hdr, type, flags, length, itag,	\
 				arwnd, nos, nis, itsn) do {		\
@@ -126,7 +133,7 @@ struct sctp_chunkhdr_abort {
 	struct sctp_chunkhdr chunkhdr;
 
 	/* empty */
-};
+} __attribute__((__packed__));
 
 #define sctp_pack_chunkhdr_abort(hdr, type, flags, length) do {		\
 	struct sctp_chunkhdr_abort *sctp_pack_chip =			\
@@ -141,7 +148,7 @@ struct sctp_chunkhdr_shutdown_ack {
 	struct sctp_chunkhdr chunkhdr;
 
 	/* empty */
-};
+} __attribute__((__packed__));
 
 #define sctp_pack_chunkhdr_shutdown_ack(hdr, type, flags, length) do {	\
 	struct sctp_chunkhdr_shutdown_ack *sctp_pack_chip =		\
@@ -156,13 +163,17 @@ struct sctp_chunkhdr_cookie_echo {
 	struct sctp_chunkhdr chunkhdr;
 
 	/* empty */
-};
+} __attribute__((__packed__));
 
 #define sctp_pack_chunkhdr_cookie_echo(hdr, type, flags, length) do {	\
 	struct sctp_chunkhdr_cookie_echo *sctp_pack_chip =		\
 			(struct sctp_chunkhdr_cookie_echo *)(hdr);	\
 	sctp_pack_chunkhdr(sctp_pack_chip, type, flags, length);	\
 } while (0)
+
+#ifndef __GNUC__
+# pragma pack()
+#endif
 
 #endif /* DNET_SCTP_H */
 
