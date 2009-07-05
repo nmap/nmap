@@ -215,10 +215,10 @@ request = function( host, port, data, options )
 
   header = stdnse.strsplit( "\r?\n", header )
 
-  local line, _
+  local line, _, value
 
   -- build nicer table for header
-  local last_header, match
+  local last_header, match, key
   for number, line in ipairs( header or {} ) do
     if number == 1 then
       local code
@@ -244,8 +244,8 @@ request = function( host, port, data, options )
     end
   end
 
-  body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
-               ( body:match( "\n" )   and "\n" ) or nil
+  local body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
+                     ( body:match( "\n" )   and "\n" ) or nil
 
   -- handle chunked encoding
   if result.header['transfer-encoding'] == 'chunked' and type( body_delim ) == "string" then
