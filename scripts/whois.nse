@@ -43,12 +43,12 @@ the RIRs.
 -- # To prevent the use of IANA assignments data supply the nofile value
 -- # to the whodb argument:
 -- nmap target --script whois --script-args whodb=nofile
--- nmap target --script whois --script-args whois={whodb=nofile}
+-- nmap target --script whois --script-args whois.whodb=nofile
 --
 -- # Supplying a sequence of whois services will also prevent the use of
 -- # IANA assignments data and override the default sequence:
 -- nmap target --script whois --script-args whodb=arin+ripe+afrinic
--- nmap target --script whois --script-args whois={whodb=apnic*lacnic}
+-- nmap target --script whois --script-args whois.whodb=apnic*lacnic
 -- # The order in which the services are supplied is the order in which
 -- # they will be queried. (N.B. commas or semi-colons should not be
 -- # used to delimit argument values.)
@@ -56,14 +56,14 @@ the RIRs.
 -- # To return the first record obtained even if it contains a referral
 -- # to another service, supply the nofollow value to whodb:
 -- nmap target --script whois --script-args whodb=nofollow
--- nmap target --script whois --script-args whois={whodb=nofollow+ripe}
+-- nmap target --script whois --script-args whois.whodb=nofollow+ripe
 -- # Note that only one service (the first one supplied) will be used in
 -- # conjunction with nofollow.
 --
 -- # To ensure discovery of smaller assignments even if larger ones
 -- # exist in the cache, supply the nocache value to whodb:
 -- nmap target --script whois --script-args whodb=nocache
--- nmap target --script whois --script-args whois={whodb=nocache}
+-- nmap target --script whois --script-args whois.whodb=nocache
 -- @output
 -- Host script results:
 -- |  whois: Record found at whois.arin.net
@@ -1655,6 +1655,8 @@ function get_args()
     args = nmap.registry.args.whois.whodb
   elseif nmap.registry.args.whodb then
     args = nmap.registry.args.whodb
+  elseif nmap.registry.args['whois.whodb'] then
+    args = nmap.registry.args['whois.whodb']
   else return
   end
 
