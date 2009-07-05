@@ -33,6 +33,8 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
+o Ndiff should be able to show NSE script result changes.
+
 o Joao is auditing his Lua code to make sure all his variables are
   local where appropriate. [Joao]
 
