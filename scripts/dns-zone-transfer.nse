@@ -46,7 +46,7 @@ Useful resources
 -- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
 -- @usage
 -- nmap --script dns-zone-transfer.nse \
---      --script-args 'dnszonetransfer={domain=<domain>}'
+--      --script-args dnszonetransfer.domain=<domain>
 
 require('shortport')
 require('strbuf')
@@ -311,6 +311,8 @@ action = function(host, port)
 
 	if args.dnszonetransfer and args.dnszonetransfer.domain then
 		domain = args.dnszonetransfer.domain
+	elseif args['dnszonetransfer.domain'] then
+		domain = args['dnszonetransfer.domain']
 	elseif args.domain then
 		domain = args.domain
 	elseif host.targetname then
