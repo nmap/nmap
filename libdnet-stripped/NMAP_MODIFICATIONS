@@ -141,79 +141,7 @@ diff -Nruw old/src/intf.c nmap-3.83.new/src/intf.c
 
 
 o Made some AIX/HP-UX portability changes sent in by Peter O'Gorman
-(nmap-dev@mlists.thewrittenword.com):
-
-
-Index: include/dnet/ip6.h
-===================================================================
---- include/dnet/ip6.h  (revision 3309)
-+++ include/dnet/ip6.h  (working copy)
-@@ -25,7 +25,9 @@
- } ip6_addr_t;
-
- #ifndef __GNUC__
-+#ifndef __attribute__
- # define __attribute__(x)
-+#endif
- # pragma pack(1)
- #endif
-
-Index: include/dnet/ip.h
-===================================================================
---- include/dnet/ip.h   (revision 3309)
-+++ include/dnet/ip.h   (working copy)
-@@ -25,7 +25,9 @@
- typedef uint32_t       ip_addr_t;
-
- #ifndef __GNUC__
-+#ifndef __attribute__
- # define __attribute__(x)
-+#endif
- # pragma pack(1)
- #endif
-
-Index: include/dnet/arp.h
-===================================================================
---- include/dnet/arp.h  (revision 3309)
-+++ include/dnet/arp.h  (working copy)
-@@ -16,7 +16,9 @@
- #define ARP_ETHIP_LEN  20      /* base ARP message length */
-
- #ifndef __GNUC__
-+#ifndef __attribute__
- # define __attribute__(x)
-+#endif
- # pragma pack(1)
- #endif
-
-Index: include/dnet/tcp.h
-===================================================================
---- include/dnet/tcp.h  (revision 3309)
-+++ include/dnet/tcp.h  (working copy)
-@@ -17,7 +17,9 @@
- #define TCP_HDR_LEN_MAX        (TCP_HDR_LEN + TCP_OPT_LEN_MAX)
-
- #ifndef __GNUC__
-+#ifndef __attribute__
- # define __attribute__(x)
-+#endif
- # pragma pack(1)
- #endif
-
-Index: include/dnet/icmp.h
-===================================================================
---- include/dnet/icmp.h (revision 3309)
-+++ include/dnet/icmp.h (working copy)
-@@ -16,7 +16,9 @@
- #define ICMP_LEN_MIN   8       /* minimum ICMP message size, with header */
-
- #ifndef __GNUC__
-+#ifndef __attribute__
- # define __attribute__(x)
-+#endif
- # pragma pack(1)
- #endif
-
+(nmap-dev@mlists.thewrittenword.com), part 2:
 Index: src/arp-ioctl.c
 ===================================================================
 --- src/arp-ioctl.c     (revision 3309)
@@ -497,6 +425,10 @@ Index: src/intf.c
 
 
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
+
+o Made some AIX/HP-UX portability changes sent in by Peter O'Gorman
+  (nmap-dev@mlists.thewrittenword.com), part 1.
+  Merged to libdnet r653.
 
 o Added SCTP support. [Daniel Roethlisberger]
   Merged to libdnet r651 and r652.
