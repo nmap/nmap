@@ -1133,7 +1133,7 @@ o Added Ncat, a much-improved reimplementation of the venerable Netcat
   option.  Thanks to Kris and David for their great work on this!
 
 o Added the Ndiff utility, which compares the results of two Nmap
-  scans and describes the new/removed hosts, newly open/cosed ports,
+  scans and describes the new/removed hosts, newly open/closed ports,
   changed operating systems, etc.  This makes it trivial to scan your
   networks on a regular basis and create a report (XML or text format)
   on all the changes.  See http://nmap.org/ndiff/ and ndiff/README for
