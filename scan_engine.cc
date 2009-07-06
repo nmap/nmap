@@ -3087,12 +3087,17 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       free(packet);
     }
   } else if (pspec->type == PS_UDP) {
+    const char *payload;
+    size_t payload_length;
+
+    payload = get_udp_payload(pspec->pd.udp.dport, &payload_length);
+
     for(decoy = 0; decoy < o.numdecoys; decoy++) {
       packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
 			     o.ttl, ipid, IP_TOS_DEFAULT, false,
 			     o.ipoptions, o.ipoptionslen,
 			     sport, pspec->pd.udp.dport,
-			     o.extra_payload, o.extra_payload_length, 
+			     (char *) payload, payload_length,
 			     &packetlen);
       if (decoy == o.decoyturn) {
 	probe->setIP(packet, packetlen, pspec);
