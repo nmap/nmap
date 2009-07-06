@@ -519,7 +519,7 @@ class HostDiff(object):
             else:
                 if not host_a.is_extraports(port_a.state):
                     port_table.append((u"-", port_a.spec_string(), port_a.state_string(), port_a.service.name_string(), port_a.service.version_string()))
-                if not host_a.is_extraports(port_b.state):
+                if not host_b.is_extraports(port_b.state):
                     port_table.append((u"+", port_b.spec_string(), port_b.state_string(), port_b.service.name_string(), port_b.service.version_string()))
 
         if len(port_table) > 1:
