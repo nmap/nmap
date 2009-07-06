@@ -103,6 +103,10 @@ extern NmapOps o;
 
   s = eval('"' + raw_input().replace('"', '\\"') + '"')
   print '"' + "".join(c.isalnum() and c or "\\%03o" % ord(c) for c in s) + '"'
+
+  These payloads are sent with every host discovery or port scan probe. Only
+  include payloads that are unlikely to crash services, trip IDS alerts, or
+  change state on the server.
 */
 
 static const char payload_DNSStatusRequest[] =

@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o For some UDP ports, Nmap will now send a protocol-specific payload
+  that is more likely to get a response than an empty packet is. This
+  improves the effectiveness of probes to those ports for host
+  discovery, and also makes an open port more likely to be classified
+  open rather than open|filtered. The ports and payloads are defined
+  in payload.cc. [David]
+
 o Fixed two memory leaks in ncat_posix.c and a bug where an open file was not
   being closed in libdnet-stripped/src/intf.c [Josh Marlow]
 
