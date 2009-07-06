@@ -109,6 +109,7 @@ extern NmapOps o;
   change state on the server.
 */
 
+static const char payload_GenericLines[] = "\015\012\015\012";
 static const char payload_DNSStatusRequest[] =
   "\000\000\020\000\000\000\000\000\000\000\000\000";
 static const char payload_NTPRequest[] =
@@ -145,6 +146,9 @@ const char *get_udp_payload(u16 dport, size_t *length) {
 #define SET_PAYLOAD(p) do { *length = sizeof(p) - 1; payload = (p); } while (0)
 
   switch (dport) {
+    case 7:
+      SET_PAYLOAD(payload_GenericLines);
+      break;
     case 53:
       SET_PAYLOAD(payload_DNSStatusRequest);
       break;
