@@ -101,6 +101,7 @@
 #include "NmapOps.h"
 #include "nmap_tty.h"
 #include "nmap_rpc.h"
+#include "payload.h"
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
