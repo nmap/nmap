@@ -83,6 +83,12 @@ o For at least our UDP ping probes, Nmap should probably notice if it
   is given.  Good probes for these services are already available in
   nmap-service-probes, though we might want to make a custom file for
   this.  We should probably do this for port scanning as well.
+  Things to think about for an external data file:
+  o Many ports may share the same payload.
+  o A port may want more than one payload, perhaps falling back to a
+    second one if the first one fails.
+  o Some probes may have to come from a specific source port.
+  o TFTP sends its response from an ephemeral port, not port 69.
 
 o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   any which we don't have, but should, for our version detection.
