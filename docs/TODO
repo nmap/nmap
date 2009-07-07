@@ -35,16 +35,25 @@ o Device categorization improvements
 
 o Ndiff should be able to show NSE script result changes.
 
-o Joao is auditing his Lua code to make sure all his variables are
-  local where appropriate. [Joao]
-
 o Ndiff man page should be expanded to include sample execution/output
   and more fully describe its functionality.
 
-o [NSE] We should document somewhere in scripting.xml the dangers inherent
-  in global variables and warn people to generally declare them local
-  instead.  We have a long history of bugs caused by non-local
-  variables defined in NSE libraies and often causing deadlocks.
+o Joao is auditing his Lua code to make sure all his variables are
+  local where appropriate. [Joao]
+
+o Ndiff man page should be built from XML source whenever a release is
+  done, as ncat/zenmap/nmap man pages are. [Fyodor]
+
+o [NSE] We need to deal with libraries which improperly use global
+  variables, as that is very common (Patrick made a list:
+  http://batbytes.com/bad.txt).  Solutions could involve augmenting
+  our runtime system (the "strict.lua" approach) to detect/prevent the
+  problem, a script we run occasionally to identify issues that we
+  then manually resolve, or, at the very minimum, documenting
+  somewhere in scripting.xml the dangers inherent in global variables
+  and warn people to generally declare them local instead.  We have a
+  long history of bugs caused by non-local variables defined in NSE
+  libraies and often causing deadlocks.
 
 o Consider the open proxy scripts more carefully
  - How should we test whether the proxy attempt was successful?  Right
@@ -66,13 +75,8 @@ o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
     future.
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
-  servers too. [ready for checkin to dev]
-
-o [NSE] Make NSE work better for SSL tunneled services in general by
-  supporting them easily in the libraries.  For example, I don't think
-  irc-info.nse currently works against all the servers which tunnel
-  over SSL.  Maybe augment comm library, etc. [tryssl basically done,
-  doing some more work to augment http.request to use tryssl]
+  servers too. [Joao has a solution and is testing the http scripts to
+  make sure they don't break.]
 
 o For at least our UDP ping probes, Nmap should probably notice if it
   is a very well known service port such as 53, 161, or 137 and send
@@ -583,6 +587,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Make NSE work better for SSL tunneled services in general by
+  supporting them easily in the libraries.  For example, I don't think
+  irc-info.nse currently works against all the servers which tunnel
+  over SSL.  Maybe augment comm library, etc. [Joao - done, except for
+  http, which is already a separate TODO item]
 
 o Update scripts which use table args to use pseudo-table format
   "name.arg" rather than requiring the user to create a Lua table
