@@ -92,6 +92,7 @@
 #include "NmapOps.h"
 
 #include "nbase.h"
+#include "payload.h"
 
 extern NmapOps o;
 
@@ -131,18 +132,28 @@ static const char payload_Sqlping[] = "\002";
 
 static const char payload_null[] = "";
 
+
 /* Get a payload appropriate for the given UDP port. If --data-length was used,
    returns the global random payload. Otherwise, for certain selected ports a
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
 const char *get_udp_payload(u16 dport, size_t *length) {
-  const char *payload;
 
   if (o.extra_payload_length > 0) {
     *length = o.extra_payload_length;
     return o.extra_payload;
   }
+  else
+    return udp_port2payload(dport, length);
+}
 
+
+/* Get a payload appropriate for the given UDP port. For certain selected 
+   ports a payload is returned, and for others a zero-length payload is 
+   returned. The length is returned through the length pointer. */
+const char *udp_port2payload(u16 dport, size_t *length){
+  const char *payload;
+  
 #define SET_PAYLOAD(p) do { *length = sizeof(p) - 1; payload = (p); } while (0)
 
   switch (dport) {
@@ -172,4 +183,6 @@ const char *get_udp_payload(u16 dport, size_t *length) {
   }
 
   return payload;
+    
 }
+
