@@ -427,10 +427,9 @@ function get_performance_data(host, objects)
 
 	local status, smbstate
 	local bind_result, openhkpd_result, queryvalue_result, data_block
-	local pos
+	local pos, object_type, counter_result
 	local result = {}
 	local i, j, k
-	local pos
 
 	-- Create the SMB session
 	status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)

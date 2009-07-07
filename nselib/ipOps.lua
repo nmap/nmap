@@ -31,6 +31,7 @@ module ( "ipOps" )
 -- @return True or false (or <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
 isPrivate = function( ip )
+  local err
 
   ip, err = expand_ip( ip )
   if err then return nil, err end
@@ -77,7 +78,7 @@ todword = function( ip )
     return nil, "Error in ipOps.todword: Expected IPv4 address."
   end
 
-  local n, ret = {}
+  local n, ret, err = {}
   n, err = get_parts_as_number( ip )
   if err then return nil, err end
 
@@ -104,6 +105,7 @@ end
 -- <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
 get_parts_as_number = function( ip )
+  local err
 
   ip, err = expand_ip( ip )
   if err then return nil, err end
@@ -250,6 +252,7 @@ end
 -- <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
 expand_ip = function( ip )
+  local err
 
   if type( ip ) ~= "string" or ip == "" then
     return nil, "Error in ipOps.expand_ip: Expected IP address as a string."
@@ -427,6 +430,7 @@ end
 -- digits (or <code>nil</code> in case of an error).
 -- @return    String error message in case of an error.
 ip_to_bin = function( ip )
+  local err
 
   ip, err = expand_ip( ip )
   if err then return nil, err end
@@ -473,6 +477,7 @@ bin_to_ip = function( binstring )
     return nil, "Error in ipOps.bin_to_ip: Expected string of binary digits."
   end
 
+  local af
   if string.len( binstring ) == 32 then
     af = 4
   elseif string.len( binstring ) == 128 then
@@ -481,7 +486,7 @@ bin_to_ip = function( binstring )
     return nil, "Error in ipOps.bin_to_ip: Expected exactly 32 or 128 binary digits."
   end
 
-  t = {}
+  local t = {}
   if af == 6 then
     local pattern = string.rep( "[01]", 16 )
     for chunk in string.gmatch( binstring, pattern ) do

@@ -26,7 +26,7 @@ require "openssl"
 check_packet_length = function( buffer )
   local payload_length, packet_length, offset
   offset, payload_length = bin.unpack( ">I", buffer )
-  padding = 8 - payload_length % 8
+  local padding = 8 - payload_length % 8
   assert(payload_length)
   packet_length = buffer:len()
   if payload_length + 4 + padding > packet_length then return nil end
@@ -42,7 +42,7 @@ end
 --  @return status True or false
 --  @return packet The packet received
 receive_ssh_packet = function( socket )
-  status, packet = socket:receive_buf(check_packet_length)
+  local status, packet = socket:receive_buf(check_packet_length)
   return status, packet
 end
 
@@ -55,7 +55,7 @@ end
 -- <code>fingerprint</code>.
 fetch_host_key = function(host, port)
   local socket = nmap.new_socket()
-  local status
+  local status, _
 
   status = socket:connect(host.ip, port.number)
   if not status then return end
@@ -169,7 +169,7 @@ fingerprint_visual = function( fingerprint, algorithm, bits )
   end
 
   -- we start in the center and mark it
-  x, y = math.ceil(fieldsize_x/2), math.ceil(fieldsize_y/2)
+  local x, y = math.ceil(fieldsize_x/2), math.ceil(fieldsize_y/2)
   field[x][y] = #characters - 1;
 
   -- iterate over fingerprint 

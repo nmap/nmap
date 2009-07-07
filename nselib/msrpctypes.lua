@@ -455,7 +455,7 @@ local function unmarshall_array(data, pos, count, func, args)
 		args = {}
 	end
 
-	pos, max_count = bin.unpack("<I", data, pos)
+	local pos, max_count = bin.unpack("<I", data, pos)
 	if(max_count == nil) then
 		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_array(). Please report!")
 	end
@@ -1165,6 +1165,7 @@ end
 --@return (pos, time) The new position, and the time in seconds since 1970. 
 function unmarshall_SYSTEMTIME(data, pos)
 	local date = {}
+    local _
 
 	pos, date['year'], date['month'], _, date['day'], date['hour'], date['min'], date['sec'], _ = bin.unpack("<SSSSSSSS", data, pos)
 	if(date['sec'] == nil) then
@@ -1227,14 +1228,13 @@ end
 --@param default The default value to return if the lookup was unsuccessful. 
 --@return (pos, policy_handle) The new position, and a table representing the policy_handle. 
 local function unmarshall_Enum32(data, pos, table, default)
-	local i, v
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_Enum32()"))
 
 	if(default == nil) then
 		default = "<unknown>"
 	end
 
-	pos, val = unmarshall_int32(data, pos)
+	local pos, val = unmarshall_int32(data, pos)
 
 	for i, v in pairs(table) do
 		if(v == val) then
@@ -1257,14 +1257,13 @@ end
 --@param pad     [optional] If set, will ensure that we end up on an even multiple of 4. Default: true. 
 --@return (pos, policy_handle) The new position, and a table representing the policy_handle. 
 local function unmarshall_Enum16(data, pos, table, default, pad)
-	local i, v
 	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_Enum16()"))
 
 	if(default == nil) then
 		default = "<unknown>"
 	end
 
-	pos, val = unmarshall_int16(data, pos, pad)
+	local pos, val = unmarshall_int16(data, pos, pad)
 
 	for i, v in pairs(table) do
 		if(v == val) then
@@ -1474,7 +1473,7 @@ function unmarshall_dom_sid2(data, pos)
 	end
 
 	-- Convert the SID to a string
-	result = string.format("S-%u-%u", sid['sid_rev_num'], sid['authority'])
+	local result = string.format("S-%u-%u", sid['sid_rev_num'], sid['authority'])
 	for i = 1, sid['num_auths'], 1 do
 		result = result .. string.format("-%u", sid['sub_auths'][i])
 	end
@@ -1528,7 +1527,7 @@ function marshall_dom_sid2(sid)
 		return nil
 	end
 
-	pos = 3
+	local pos = 3
 
 	pos_next = string.find(sid, "-", pos)
 	sid_array['sid_rev_num'] = string.sub(sid, pos, pos_next - 1)

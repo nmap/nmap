@@ -21,7 +21,7 @@ function capabilities(host, port)
    local proto = (port.version and port.version.service_tunnel == "ssl" and "ssl") or "tcp"
    if not socket:connect(host.ip, port.number, proto) then return nil, "Could Not Connect" end
 
-   status, line = socket:receive_lines(1)
+   local status, line = socket:receive_lines(1)
    if not string.match(line, "^[%*] OK") then return nil, "No Response" end
    
    socket:send("a001 CAPABILITY\r\n")

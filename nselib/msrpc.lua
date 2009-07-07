@@ -2122,6 +2122,7 @@ function winreg_queryvalue(smbstate, handle, value)
 
 	-- Format the type properly and put it in "value"
 	if(result['data'] ~= nil) then
+        local _
 		if(result['type'] == "REG_DWORD") then
 			_, result['value'] = bin.unpack("<I", result['data'])
 		elseif(result['type'] == "REG_SZ" or result['type'] == "REG_MULTI_SZ" or result['type'] == "REG_EXPAND_SZ") then
@@ -2855,35 +2856,31 @@ function samr_enum_users(host)
 		local domain = enumdomains_result['sam']['entries'][i]['name']
 		-- We don't care about the 'builtin' domain, in all my tests it's empty
 		if(domain ~= 'Builtin') then
-			local sid
-			local domain_handle
-			local opendomain_result, querydisplayinfo_result
-
 			-- Call LookupDomain()
-			status, lookupdomain_result = samr_lookupdomain(smbstate, connect_handle, domain)
+			local status, lookupdomain_result = samr_lookupdomain(smbstate, connect_handle, domain)
 			if(status == false) then
 				stop_smb(smbstate)
 				return false, lookupdomain_result
 			end
 
 			-- Save the sid
-			sid = lookupdomain_result['sid']
+			local sid = lookupdomain_result['sid']
 	
 			-- Call OpenDomain()
-			status, opendomain_result = samr_opendomain(smbstate, connect_handle, sid)
+			local status, opendomain_result = samr_opendomain(smbstate, connect_handle, sid)
 			if(status == false) then
 				stop_smb(smbstate)
 				return false, opendomain_result
 			end
 
 			-- Save the domain handle
-			domain_handle = opendomain_result['domain_handle']
+			local domain_handle = opendomain_result['domain_handle']
 
 			-- Loop as long as we're getting valid results	
 			j = 0
 			repeat
 				-- Call QueryDisplayInfo()
-				status, querydisplayinfo_result = samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
+				local status, querydisplayinfo_result = samr_querydisplayinfo(smbstate, domain_handle, j, SAMR_GROUPSIZE)
 				if(status == false) then
 					stop_smb(smbstate)
 					return false, querydisplayinfo_result
@@ -2975,7 +2972,7 @@ function lsa_enum_users(host)
 
 	-- Start with some common names, as well as the name returned by the negotiate call
 	-- Vista doesn't like a 'null' after the server name, so fix that (TODO: the way I strip the null here feels hackish, is there a better way?)
-	names = {"administrator", "guest", "test"}
+	local names = {"administrator", "guest", "test"}
 	-- These aren't always sent back (especially with 'extended security')
 	if(smbstate['domain'] ~= nil) then
 		names[#names + 1] = smbstate['domain']
@@ -3471,14 +3468,14 @@ function get_server_stats(host)
 	end
    
 	-- Bind to SRVSVC service
-	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
+	local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
 	if(status == false) then
 		smb.stop(smbstate)
 		return false, bind_result
 	end
    
 	-- Call netservergetstatistics for 'server'
-	status, netservergetstatistics_result = srvsvc_netservergetstatistics(smbstate, host.ip)
+	local status, netservergetstatistics_result = srvsvc_netservergetstatistics(smbstate, host.ip)
 	if(status == false) then
 		smb.stop(smbstate)
 		return false, netservergetstatistics_result
@@ -3573,24 +3570,23 @@ end
 --@return A table of information about the share (if status is true) or an an error string (if 
 --        status is false).
 function get_share_info(host, name)
-	local status, smbstate
 	local response = {}
 
 	-- Create the SMB session
-	status, smbstate = start_smb(host, SRVSVC_PATH)
+	local status, smbstate = start_smb(host, SRVSVC_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to SRVSVC service
-	status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
+	local status, bind_result = bind(smbstate, SRVSVC_UUID, SRVSVC_VERSION, nil)
 	if(status == false) then
 		smb.stop(smbstate) 
 		return false, bind_result
 	end
 
 	-- Call NetShareGetInfo
-	status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
+	local status, netsharegetinfo_result = srvsvc_netsharegetinfo(smbstate, host.ip, name, 2)
 	if(status == false) then
 		smb.stop(smbstate) 
 		return false, netsharegetinfo_result

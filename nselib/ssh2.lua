@@ -43,7 +43,7 @@ end
 --  @return status True or false
 --  @return packet The packet received
 transport.receive_packet = function( socket )
-  status, packet = socket:receive_buf(check_packet_length)
+  local status, packet = socket:receive_buf(check_packet_length)
   return status, packet
 end
 
@@ -95,12 +95,12 @@ end
 --- Build a <code>kex_init</code> packet.
 transport.kex_init = function( cookie, options )
   options = options or {}
-  kex_algorithms = "diffie-hellman-group1-sha1"
-  host_key_algorithms = options['host_key_algorithms'] or "ssh-dss,ssh-rsa"
-  encryption_algorithms = "aes128-cbc,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr"
-  mac_algorithms = "hmac-md5,hmac-sha1,hmac-ripemd160"
-  compression_algorithms = "none"
-  languages = ""
+  local kex_algorithms = "diffie-hellman-group1-sha1"
+  local host_key_algorithms = options['host_key_algorithms'] or "ssh-dss,ssh-rsa"
+  local encryption_algorithms = "aes128-cbc,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr"
+  local mac_algorithms = "hmac-md5,hmac-sha1,hmac-ripemd160"
+  local compression_algorithms = "none"
+  local languages = ""
 
   local payload = bin.pack( ">cAaa", SSH2.SSH_MSG_KEXINIT, cookie, kex_algorithms, host_key_algorithms )
   payload = payload .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )

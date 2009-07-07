@@ -285,14 +285,14 @@ end
 --- Set the source IP address.
 -- @param binip The source IP address as a byte string.
 function Packet:ip_set_bin_src(binip)
-	nrip = u32(binip, 0)
+	local nrip = u32(binip, 0)
 	self:set_u32(self.ip_offset + 12, nrip)
 	self.ip_bin_src		= self:raw(self.ip_offset + 12,4)	-- raw 4-bytes string
 end
 --- Set the destination IP address.
 -- @param binip The destination IP address as a byte string.
 function Packet:ip_set_bin_dst(binip)
-	nrip = u32(binip, 0)
+	local nrip = u32(binip, 0)
 	self:set_u32(self.ip_offset + 16, nrip)
 	self.ip_bin_dst		= self:raw(self.ip_offset + 16,4)
 end

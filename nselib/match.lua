@@ -29,7 +29,7 @@ regex = function(pattern)
 	local r = pcre.new(pattern, 0,"C")
 
 	return function(buf)
-		s,e = r:exec(buf, 0,0);
+		local s,e = r:exec(buf, 0,0);
 		return s,e
 	end
 end

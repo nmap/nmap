@@ -92,6 +92,8 @@ local NTLMSSP_NEGOTIATE = 0x00000001
 local NTLMSSP_CHALLENGE = 0x00000002
 local NTLMSSP_AUTH      = 0x00000003
 
+local session_key = string.rep(string.char(0x00), 16)
+
 local function to_unicode(str)
 	local unicode = ""
 
@@ -302,9 +304,8 @@ function ntlmv2_create_response(ntlm, username, domain, challenge, client_challe
 	end
 
 	local client_challenge = openssl.rand_bytes(client_challenge_length)
-	local ntlmv2_hash
 
-	status, ntlmv2_hash = ntlmv2_create_hash(ntlm, username, domain)
+	local status, ntlmv2_hash = ntlmv2_create_hash(ntlm, username, domain)
 
 	return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
 end
@@ -404,9 +405,11 @@ end
 --                 and the mac_key, which is used for message signing. 
 local function get_password_response(ip, username, domain, password, password_hash, challenge, hash_type, is_extended)
 
+    local status
 	local lm_hash   = nil
 	local ntlm_hash = nil
 	local mac_key   = nil
+    local lm_response, ntlm_response
 
 	-- Check if there's a password or hash set. This is a little tricky, because in all places (except the one passed
 	-- as a parameter), it's based on whether or not the username was stored. This lets us use blank passwords by not
@@ -570,7 +573,7 @@ function get_accounts(ip, overrides, use_defaults)
 
 	-- Do the "anonymous" account
 	if(use_defaults) then
-		result = {}
+		local result = {}
 		result['username'] = ""
 		result['domain']   = ""
 		results[#results + 1] = result
@@ -597,10 +600,6 @@ function get_security_blob(security_blob, ip, username, domain, hash_type, overr
 	local pos = 1
 	local new_blob
 	local flags = 0x00008211 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | NEGOTIATE_UNICODE)
-
-	if(session_key == nil) then
-		session_key = string.rep(string.char(0x00), 16)
-	end
 
 	if(security_blob == nil) then
 		-- If security_blob is nil, this is the initial packet

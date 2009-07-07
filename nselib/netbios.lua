@@ -289,12 +289,12 @@ function do_nbstat(host)
 
 	socket:set_timeout(1000)
 
-	status, result = socket:receive_bytes(1)
+	local status, result = socket:receive_bytes(1)
 	if(status == false) then
 		return false, result
 	end
 
-	close_status, err = socket:close()
+	local close_status, err = socket:close()
 	if(close_status == false) then
 		return false, err
 	end

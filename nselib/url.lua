@@ -213,6 +213,7 @@ end
 -- @return The corresponding absolute URL.
 -----------------------------------------------------------------------------
 function absolute(base_url, relative_url)
+    local base_parsed;
     if type(base_url) == "table" then
         base_parsed = base_url
         base_url = build(base_parsed)
@@ -313,7 +314,7 @@ function parse_query(query)
 	query = string.gsub(query, "&lt;", "<")
 	query = string.gsub(query, "&gt;", ">")
 
-	function ginsert(qstr)
+	local function ginsert(qstr)
 		local first, last = string.find(qstr, "=")
 		if first then
 			parsed[string.sub(qstr, 0, first-1)] = string.sub(qstr, first+1)

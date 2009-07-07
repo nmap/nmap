@@ -113,7 +113,7 @@ function dump(t)
 	for i=1,t['rows'] do
 		for x=1, t['cols'] do
 			if t[i][x] ~= nil then
-				length = string.len(t[i][x])
+				local length = string.len(t[i][x])
 				table = table .. t[i][x]
 				table = table .. string.rep(' ', col_len[x]-length)
 			end

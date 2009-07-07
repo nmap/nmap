@@ -717,8 +717,8 @@ end
 -- @param flgStr Flags as a binary digit string.
 -- @return Table representing flags.
 local function decodeFlags(flgStr)
-   flags = {}
-   flgTbl = str2tbl(flgStr)
+   local flags = {}
+   local flgTbl = str2tbl(flgStr)
    if flgTbl[1] == '1' then flags.QR = true end
    if flgTbl[2] == '1' then flags.OC1 = true end   
    if flgTbl[3] == '1' then flags.OC2 = true end

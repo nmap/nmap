@@ -176,6 +176,7 @@ local function decodeSeq(encStr, len, pos)
    local sStr
    pos, sStr = bin.unpack("A" .. len, encStr, pos)
    while (sPos < len) do
+      local newSeq
       sPos, newSeq = decode(sStr, sPos)
       table.insert(seq, newSeq)
       i = i + 1
@@ -206,6 +207,7 @@ function decode(encStr, pos)
    elseif (etype == "06") then -- OID
       local oid = {}
       oid._snmp = '06'
+      local octet
       pos, octet = bin.unpack("C", encStr, pos)
       oid[2] = math.mod(octet, 40)
       octet = octet - oid[2]

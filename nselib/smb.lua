@@ -309,7 +309,7 @@ function add_account(host, username, password)
 	if(string.lower(username) ~= "guest" and string.lower(username) ~= "") then
 		-- Save the new account if this is our first one, or our other account isn't an admin
 		if(nmap.registry[host.ip]['smbaccount'] == nil or nmap.registry[host.ip]['smbaccount']['is_admin'] == false) then
-			local result
+			local result, _
 	
 			nmap.registry[host.ip]['smbaccount'] = {}
 			nmap.registry[host.ip]['smbaccount']['username'] = username
@@ -587,7 +587,7 @@ function start_netbios(host, port, name)
 	-- If all else fails, use each substring of the DNS name (this is a HUGE hack, but is actually
 	-- a recommended way of doing this!)
 	if(host.name ~= nil and host.name ~= "") then
-		new_names = get_subnames(host.name)
+		local new_names = get_subnames(host.name)
 		for i = 1, #new_names, 1 do
 			names[#names + 1] = new_names[i]
 		end
@@ -604,7 +604,7 @@ function start_netbios(host, port, name)
 		-- Some debug information
 		stdnse.print_debug(1, "SMB: Trying to start NetBIOS session with name = '%s'", name)
 		-- Request a NetBIOS session
-		session_request = bin.pack(">CCSzz", 
+		local session_request = bin.pack(">CCSzz", 
 					0x81,                        -- session request
 					0x00,                        -- flags
 					0x44,                        -- length
@@ -999,7 +999,7 @@ function negotiate_protocol(smb)
 
 	-- Send the negotiate request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NEGOTIATE")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(status == false) then
 		return false, err
 	end
@@ -1011,6 +1011,7 @@ function negotiate_protocol(smb)
 	end
 
 	-- Parse out the header
+    local uid, tid, header4
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
@@ -1112,9 +1113,9 @@ function negotiate_protocol(smb)
 end
 
 function start_session_basic(smb, overrides, use_default, log_errors)
-	local i
+	local i, err
 	local status, result
-	local header, parameters, data
+	local header, parameters, data, domain
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
 	local andx_command, andx_reserved, andx_offset, action
@@ -1234,7 +1235,7 @@ end
 
 function start_session_extended(smb, overrides, use_default, log_errors)
 	local i
-	local status, status_name, result
+	local status, status_name, result, err
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
@@ -1416,7 +1417,7 @@ end
 --        table with the following elements:
 --      * 'tid'         The TreeID for the session
 function tree_connect(smb, path)
-	local header, parameters, data
+	local header, parameters, data, err, result
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset, action
@@ -1449,6 +1450,7 @@ function tree_connect(smb, path)
 	end
 
 	-- Check if we were allowed in
+    local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [20]"
@@ -1480,18 +1482,19 @@ function tree_disconnect(smb)
 
 	-- Send the tree disconnect request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TREE_DISCONNECT")
-	result, err = smb_send(smb, header, "", "")
+	local result, err = smb_send(smb, header, "", "")
 	if(result == false) then
 		return false, err
 	end
 
 	-- Read the result
-	status, header, parameters, data = smb_read(smb)
+	local status, header, parameters, data = smb_read(smb)
 	if(status ~= true) then
 		return false, header
 	end
 
 	-- Check if there was an error
+    local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [21]"
@@ -1512,7 +1515,7 @@ end
 --@return (status, result) If statis is false, result is an error message. If status is true, 
 --              the logoff was successful. 
 function logoff(smb)
-	local header, parameters
+	local header, parameters, data
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_LOGOFF_ANDX'])
@@ -1526,7 +1529,7 @@ function logoff(smb)
 
 	-- Send the tree disconnect request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_LOGOFF_ANDX")
-	result, err = smb_send(smb, header, parameters, "")
+	local result, err = smb_send(smb, header, parameters, "")
 	if(result == false) then
 		return false, err
 	end
@@ -1543,6 +1546,7 @@ function logoff(smb)
 	smb['mac_key']  = nil
 
 	-- Check if there was an error
+    local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [22]"
@@ -1598,7 +1602,7 @@ function create_file(smb, path)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NT_CREATE_ANDX")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1610,6 +1614,7 @@ function create_file(smb, path)
 	end
 
 	-- Check if we were allowed in
+    local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [23]"
@@ -1675,7 +1680,7 @@ function read_file(smb, offset, count)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_READ_ANDX")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1687,6 +1692,7 @@ function read_file(smb, offset, count)
 	end
 
 	-- Check if we were allowed in
+    local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	
 	if(mid == nil) then
@@ -1760,7 +1766,7 @@ function write_file(smb, write_data, offset)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_WRITE_ANDX")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1772,6 +1778,7 @@ function write_file(smb, write_data, offset)
 		return false, header
 	end
 
+    local uid, tid
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
@@ -1782,6 +1789,7 @@ function write_file(smb, write_data, offset)
 	end
 
 	-- Parse the parameters
+    local reserved, count_high, remaining, count_low
 	pos, andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, reserved  = bin.unpack("<CCSSSSS", parameters)
 	if(reserved == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [28]"
@@ -1816,7 +1824,7 @@ function close_file(smb)
 
 	-- Send the close file
 	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1828,6 +1836,7 @@ function close_file(smb)
 	end
 
 	-- Check if the close was successful
+    local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
@@ -1862,7 +1871,7 @@ function delete_file(smb, path)
 
 	-- Send the close file
 	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1874,6 +1883,7 @@ function delete_file(smb, path)
 	end
 
 	-- Check if the close was successful
+    local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
@@ -1946,7 +1956,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 
 	-- Send the transaction request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -1958,6 +1968,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	end
 
 	-- Check if it worked
+    local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [29]"
@@ -2031,7 +2042,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 
 	-- Send the transaction request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
-	result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data)
 	if(result == false) then
 		return false, err
 	end
@@ -2043,6 +2054,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 	end
 
 	-- Check if it worked
+    local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [31]"
@@ -2073,7 +2085,7 @@ end
 --@param share      The share to upload it to (eg, C$). 
 --@param remotefile The remote file on the machine. It is relative to the share's root. 
 function file_upload(host, localfile, share, remotefile)
-	local status, smbstate
+	local status, err, smbstate
 	local chunk = 1024
 
 	local filename = nmap.fetchfile(localfile)

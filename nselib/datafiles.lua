@@ -183,6 +183,7 @@ function parse_lines(lines, data_struct)
       elseif type(value) == "string" or type(value) == "function" then
         ret = get_array( lines, value )
       elseif type(value) == "table" then
+        local _
         _, ret[index] = parse_lines( lines, value )
       else
         -- TEMP
