@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added Apache JServe protocol version detection probe and signature
+  from Tom Sellers. He submitted some other version detection patches
+  as well.
+
 o Added a test program, test/test-cmdline-split to test the cmdline_split
   function in test/test-cmdline-split in preparation for an eventual rewrite of
   cmdline_split [Josh Marlow].
@@ -5066,8 +5070,7 @@ o Fixed an Nmap version detection crash on Windows which led to the
   code: 10053 (Unknown error)".  Thanks to Srivatsan
   (srivatsanp(a)adventnet.com) for reporting the problem.
 
-o Fixed some misspellings in docs/nmap.xml reported by Tom Sellers
-  (TSellers(a)trustmark.com).
+o Fixed some misspellings in docs/nmap.xml reported by Tom Sellers.
 
 o Applied some changes from Gisle Vanem (giva(a)bgnett.no) to make
   Nmap compile with Cygwin.
