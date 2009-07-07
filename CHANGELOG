@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a test program, test/test-cmdline-split to test the cmdline_split
+  function in test/test-cmdline-split in preparation for an eventual rewrite of
+  cmdline_split [Josh Marlow].
+
 o For some UDP ports, Nmap will now send a protocol-specific payload
   that is more likely to get a response than an empty packet is. This
   improves the effectiveness of probes to those ports for host
