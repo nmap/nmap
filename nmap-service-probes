@@ -5435,6 +5435,8 @@ match msn m|^{?Errore di sintassi : GET / HTTP/1\.0}? error\r\n$| p/amsn/ i/Ital
 
 match icap m|^ICAP/1\.0 501 Method not implemented.*\r\nServer: IronNet/([\d.]+)\r\n\r\n|s p/IronNet Compliance Application/ v/$1/
 match icap m|^ICAP/1\.0 501 Method not implemented.*\r\nService: ProxyAV AV scanner ([^\r\n]+)\r\n|s p/Blue Coat ProxyAV/ v/$1/
+match icap m|^ICAP/1\.0 501 Other\r\nServer: Traffic Spicer ([\d.]+)\r\n| p/Traffic Spicer ICAP Server/ v/$1/
+
 
 # gidentd 0.4.5 on Linux 2.4.X
 match ident m|^0, 0 : ERROR : INVALID-PORT\r\n$| p/gidentd/
