@@ -89,4 +89,10 @@
 
 /* $Id$ */
 
+#ifndef PAYLOAD_H
+#define PAYLOAD_H
+
 const char *get_udp_payload(u16 dport, size_t *length);
+const char *udp_port2payload(u16 dport, size_t *length);
+
+#endif /* PAYLOAD_H */
