@@ -1,0 +1,44 @@
+TODO.sctp $Id$ -*-text-*-
+
+o Further investigate SCTP functionality, as some people reported
+  problems (see this thread:
+  http://seclists.org/nmap-dev/2009/q2/0669.html)
+
+o [Ncat] Support SCTP now that Nmap does.
+  o Client support is in /nmap-exp/daniel/sctp-nmap.
+  o Implement SCTP server support.
+  o Test some more and merge to trunk.
+
+o Add support for UDP encapsulated SCTP (9899/udp).
+  Basically just wrap the SCTP packets into a UDP packet.
+  Think about how to add support for this to libdnet first.
+  See this Internet Draft by Michael Tuexen for the specs:
+  http://tools.ietf.org/html/draft-tuexen-sctp-udp-encaps
+
+o Verify ICMP response handling for SCTP.  Make sure all
+  ICMP types are handled in an optimal way (esp. destination
+  unreachable: protocol unreachable).
+
+o Consider removing 9899/sctp from the default port list.
+  9899/udp is used for UDP encapsulated SCTP.  One reason
+  to keep 9899/sctp is likely misconfigurations.
+
+o Investigate whether it makes sense to store scan state in
+  the itag/itsn fields for INIT scans.
+
+o Investigate the suitability of other SCTP chunks for port
+  scanning and implement more scan types if they turn out to
+  be worthwhile.
+
+o Add SCTP based service probing.
+
+o [NSE] Add SCTP support to NSE.
+
+o Investigate on differences between SCTP stacks and
+  implement SCTP based OS detection probes based on the
+  results.  For example, BSD systems send the ASCII string
+  KAME-BSD in INIT-ACK chunks.
+
+o SCTP-enable scanme.nmap.org in order to make scanme.csnc.ch
+  obsolete.
+
