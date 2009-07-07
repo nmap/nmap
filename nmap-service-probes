@@ -7386,3 +7386,13 @@ Probe TCP pervasive-btrieve q|\x3c\0\x4b\0\0\0\x20\0\0\0\0\0\0\0\0\0\xff\xff\xff
 ports 1583,3351
 rarity 8
 match psql-btrieve m|^A\0K\0\0\0....\0\0\0\0\0\0\xff\xff\xff\xff\0\0\n\x04\xa0|s p/Pervasive.SQL Server - Btrieve Engine/
+
+
+##############################NEXT PROBE##############################
+# Apache JServe Protocol (ajp) v1.3 Ping request
+Probe TCP ajp q|\x12\x34\x00\x01\x0a|
+rarity 8
+ports 8008,8009
+
+# AJP 1.3 Ping response
+match ajp13 m|^\x41\x42\x00\x01\x09$| p/Apache Jserv/ i/Protocol v1.3/
