@@ -2798,6 +2798,7 @@ int ipaddr2devname(char *dev, const struct in_addr *addr) {
 
 int devname2ipaddr(char *dev, struct in_addr *addr) {
 struct interface_info *mydevs;
+struct sockaddr_in *s;
 int numdevs;
 int i;
 mydevs = getinterfaces(&numdevs);
@@ -2805,8 +2806,11 @@ mydevs = getinterfaces(&numdevs);
 if (!mydevs) return -1;
 
 for(i=0; i < numdevs; i++) {
+  s=(struct sockaddr_in *)&mydevs[i].addr;
+  if (s->sin_family!=AF_INET) /* Currently we only support IPv4 */
+    continue;
   if (!strcmp(dev, mydevs[i].devfullname)) {  
-    memcpy(addr, (char *) &mydevs[i].addr, sizeof(struct in_addr));
+    memcpy(addr, (char *) &s->sin_addr, sizeof(struct in_addr));
     return 0;
   }
 }
