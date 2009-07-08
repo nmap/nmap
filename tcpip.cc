@@ -2995,7 +2995,8 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
     else if (rc < 0)
       mydevs[numifaces].netmask_bits = 32;
     else {
-      sin = (struct sockaddr_in *) &(tmpifr.ifr_addr); /* ifr_netmask only on Linux */
+      /* We would use ifr_netmask, but that's only on Linux, so use ifr_addr
+         which shares the same memory space in a union. */
       addr_stob(&(tmpifr.ifr_addr), &mydevs[numifaces].netmask_bits);
     }
 
