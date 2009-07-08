@@ -539,7 +539,8 @@ local function run (threads)
       local s, result = resume(co, unpack(thread.args, 1, thread.args.n));
       if not s then -- script error...
         hosts[thread.host][co] = nil;
-        thread:d("%THREAD threw an error!\n%s\n",
+        thread:d("%THREAD against %s%s threw an error!\n%s\n",
+            thread.host.ip, thread.port and ":"..thread.port.number or "",
             traceback(co, tostring(result)));
         thread:close();
       elseif status(co) == "suspended" then
