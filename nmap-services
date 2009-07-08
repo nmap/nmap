@@ -5923,7 +5923,7 @@ unknown	9893/udp	0.000330
 unknown	9894/udp	0.000330
 unknown	9897/udp	0.000661
 unknown	9898/tcp	0.000228
-sctp-tunneling	9899/sctp	0.000000	# SCTP Tunneling
+sctp-tunneling	9899/sctp	0.000000	# SCTP Tunneling (misconfiguration)
 iua	9900/tcp	0.000380	# IUA
 iua	9900/sctp	0.000000	# IUA
 unknown	9901/tcp	0.000076

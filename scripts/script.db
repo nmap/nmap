@@ -25,7 +25,7 @@ Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "saf
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "pop3-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "pop3-capabilities.nse", categories = { "default", } }
+Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "vuln", } }
 Entry { filename = "robots.txt.nse", categories = { "default", "discovery", "safe", } }
