@@ -14,6 +14,7 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
 
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor,David]
+  [Found 7 new results, 3 are real bugs, and 2 have been fixed so far]
  
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -33,10 +34,29 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Ndiff should be able to show NSE script result changes.
+o Ndiff should be able to show NSE script result changes. [David]
 
 o Ndiff man page should be expanded to include sample execution/output
-  and more fully describe its functionality.
+  and more fully describe its functionality. [David]
+
+o [NSE] Optimize NSE Performance--e.g. measure the current performance and
+  see what can be improved in terms of scheduling scan threads,
+  determining how many to run concurrently, looking at CPU load items,
+  etc. [David/Patrick]
+
+o [NSE] Figure out a way to support people who want to do script scan,
+  but not port scan or ping scan.  One option would be to allow
+  --script to list scan (-sL), but perhaps a better option is to
+  provide a way to disable port scanning in the same way as we offer
+  -PN to disable ping scanning.  As an example of this need, David had
+  to write special code to avoid ping/port scanning when doing a
+  whois.nse survey for
+  http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes.  The
+  key for this task is to figure out how to do it from a user
+  interface perspective and then implement and document it.  We've
+  already been going in the direction of allowing script scanning in
+  more types of scans--a while back we started allowing it with -sP
+  ping scans due to high demand. [David/SoC]
 
 o Joao is auditing his Lua code to make sure all his variables are
   local where appropriate. [Joao]
@@ -73,20 +93,15 @@ o Consider making it easier to tell whether scripts were specified by
 o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
   - OTOH, we might want to extend --chat for connect mode in the
     future.
+  [We're going to hold off on chat now, David/SoC is doing --broker]
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too. [Joao has a solution and is testing the http scripts to
   make sure they don't break.]
 
-o For at least our UDP ping probes, Nmap should probably notice if it
-  is a very well known service port such as 53, 161, or 137 and send
-  an appropriate probe packet (server status for DNS, public community
-  string query for SNMP, etc) rather than empty data in that case.
-  This is similar to the way our IP protocol probes automatically
-  include common headers such as TCP and UDP if that common protocol
-  is given.  Good probes for these services are already available in
-  nmap-service-probes, though we might want to make a custom file for
-  this.  We should probably do this for port scanning as well.
+o Consider moving UDP ping/portscan payloads from payload.cc to a
+  custom data file so that it is cleaner to maintain and users can
+  more easily disable/change probes. [David]
   Things to think about for an external data file:
   o Many ports may share the same payload.
   o A port may want more than one payload, perhaps falling back to a
@@ -96,11 +111,19 @@ o For at least our UDP ping probes, Nmap should probably notice if it
 
 o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   any which we don't have, but should, for our version detection.
-  They have a decent collection there.
+  They have a decent collection there.  KX sent some other programs we
+  should look at too. [David]
 
 o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
-  format similar to what Nmap provides.
+  format similar to what Nmap provides. [David/Venkat]
+
+o [Ncat] Print a message to stderr upon connection failure even if -v
+  isn't specified so the user knows what went wrong. [David/SoC]
+
+o Resolve "memcpy overlap in getinterfaces(int*) (tcpip.cc:2987)".
+  See this thread: http://seclists.org/nmap-dev/2009/q2/0713.html
+  [David/Brandon]
 
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
@@ -111,7 +134,7 @@ o Change Nsock so that it is able to take advantage of more modern
   of the advanced Linux APIs.  Select() limits us to descriptors no
   higher than FD_SETSIZE, and it may not performa all that well.  We
   should do some benchmarking and decide on the interface to use for
-  each platform.
+  each platform. [David/SoC]
 
 o Ncat SSLv2 issues.  See
   http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
@@ -123,13 +146,6 @@ o Ncat SSLv2 issues.  See
   though most servers don't support SSLv2, they usually respond to the
   ClientHello and just don't offer any SSLv2 features. [David/Venkat
   working on this]
-
-o [nsock] Fix Makefile to handle dependencies correctly (if that turns
-  out to be the problem).  See
-  http://seclists.org/nmap-dev/2009/q1/0629.html.  o Or it may be
-  related to SVN timestampling.  See
-  http://seclists.org/nmap-dev/2009/q1/0632.html. Diagnosed by David:
-  http://seclists.org/nmap-dev/2009/q2/0728.html
 
 o [Zenmap] The Search dialogue is helpful for finding a certain scan
   you've performed recently, but we should probably also offer a similar
@@ -178,20 +194,18 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
-o Get better password data for unpw/ncrack
+o [NSE] Improve username/password library (the database files
+  themselves).  We don't have very good lists at the moment.  Maybe
+  work in combination with Ncrack dev.
   o perhaps from Solar Designer.
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
+
 
 o [Ncat] Support SCTP now that Nmap does. 
   - See client support patch by Daniel Roethlisberger: 
     http://seclists.org/nmap-dev/2009/q2/0609.html
   - Server support?
-
-o [NSE] Optimize NSE Performance--e.g. measure the current performance and
-  see what can be improved in terms of scheduling scan threads,
-  determining how many to run concurrently, looking at CPU load items,
-  etc. [David/Patrick]
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -261,10 +275,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
-o [NSE] Improve username/password library (the database files
-  themselves).  We don't have very good lists at the moment.  Maybe
-  work in combination with Ncrack dev.
-
 o [NSE] High speed brute force HTTP authentication.  Possibly POST and
    GET/HEAD brute force cracking.
 
@@ -322,20 +332,6 @@ o Deadlock identification and correction:
   what scripts are involved. It could be that several smb scripts are
   deadlocked, or as in the case I observed where whois.nse was locked
   with itself."
-
-o [NSE] Figure out a way to support people who want to do script scan,
-  but not port scan or ping scan.  One option would be to allow
-  --script to list scan (-sL), but perhaps a better option is to
-  provide a way to disable port scanning in the same way as we offer
-  -PN to disable ping scanning.  As an example of this need, David had
-  to write special code to avoid ping/port scanning when doing a
-  whois.nse survey for
-  http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes.  The
-  key for this task is to figure out how to do it from a user
-  interface perspective and then implement and document it.  We've
-  already been going in the direction of allowing script scanning in
-  more types of scans--a while back we started allowing it with -sP
-  ping scans due to high demand.
 
 o [NSE] Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
@@ -587,6 +583,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [nsock] Fix Makefile to handle dependencies correctly (if that turns
+  out to be the problem).  See
+  http://seclists.org/nmap-dev/2009/q1/0629.html.  o Or it may be
+  related to SVN timestampling.  See
+  http://seclists.org/nmap-dev/2009/q1/0632.html. Diagnosed by David:
+  http://seclists.org/nmap-dev/2009/q2/0728.html
+
+o For at least our UDP ping probes, Nmap should probably notice if it
+  is a very well known service port such as 53, 161, or 137 and send
+  an appropriate probe packet (server status for DNS, public community
+  string query for SNMP, etc) rather than empty data in that case.
+  This is similar to the way our IP protocol probes automatically
+  include common headers such as TCP and UDP if that common protocol
+  is given.  Good probes for these services are already available in
+  nmap-service-probes, though we might want to make a custom file for
+  this.  We should probably do this for port scanning as well. [David]
 
 o [NSE] Make NSE work better for SSL tunneled services in general by
   supporting them easily in the libraries.  For example, I don't think
