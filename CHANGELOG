@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --broker option now automatically implies --listen. [David]
+
 o Added Apache JServe protocol version detection probe and signature
   from Tom Sellers. He submitted some other version detection patches
   as well.
