@@ -2817,6 +2817,8 @@ for(i=0; i < numdevs; i++) {
 return -1;
 }
 
+/* This struct is abused to carry either routes or interfaces, depending on the
+   function it's used in. */
 struct dnet_collector_route_nfo {
   struct sys_route *routes;
   int numroutes;
@@ -2881,35 +2883,42 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   }
   return 0;
 }
-#endif /* WIN32 */
 
-pcap_if_t *getpcapinterfaces() {
-  #ifndef WIN32
-    return NULL;
-  #endif
-  pcap_if_t *p_ifaces;
+/* Get a list of interfaces using dnet and intf_loop. */
+static struct interface_info *getinterfaces_dnet(int *howmany) {
+  struct dnet_collector_route_nfo dcrn;
+  intf_t *it;
 
-  if((pcap_findalldevs(&p_ifaces, NULL)) == -1) {
-    fatal("pcap_findalldevs() : Cannot retrieve pcap interfaces");
-    return NULL;
-  }
-  return p_ifaces;
+  dcrn.routes = NULL;
+  dcrn.numroutes = 0;
+  dcrn.numifaces = 0;
+
+  /* Initialize the interface array. */
+  dcrn.capacity = 16;
+  dcrn.ifaces = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * dcrn.capacity);
+
+  it = intf_open();
+  if (!it)
+    fatal("%s: intf_open() failed", __func__);
+  if (intf_loop(it, collect_dnet_interfaces, &dcrn) != 0)
+    fatal("%s: intf_loop() failed", __func__);
+  intf_close(it);	
+
+  *howmany = dcrn.numifaces;
+  return dcrn.ifaces;
 }
 
-struct interface_info *getinterfaces(int *howmany) {
-  static bool initialized = 0;
-  static struct interface_info *mydevs;
-  static int numifaces = 0;
+#else /* !WIN32 */
+
+/* Get a list of interfaces using ioctl(SIOCGIFCONF). */
+static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
+  struct interface_info *mydevs;
+  int numifaces = 0;
   int ii_capacity = 0;
-#if WIN32
-struct dnet_collector_route_nfo dcrn;
-intf_t *it;
-#else //!WIN32
-int sd;
+  int sd;
   struct ifconf ifc;
   struct ifreq *ifr;
   struct ifreq tmpifr;
-#endif
   int len, rc;
   char *p;
   u8 *buf;
@@ -2917,157 +2926,162 @@ int sd;
   struct sockaddr_in *sin;
   u16 ifflags;
 
-  if (!initialized) {
-    initialized = 1;
+  ii_capacity = 16;
+  mydevs = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * ii_capacity);
 
-    ii_capacity = 16;
-    mydevs = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * ii_capacity);
-
-#if WIN32
-/* On Win32 we just use Dnet to determine the interface list */
-      dcrn.routes = NULL;
-      dcrn.numroutes = 0;
-      dcrn.capacity = ii_capacity; // I'm reusing this struct for ii now
-      dcrn.ifaces = mydevs;
-      dcrn.numifaces = 0;
-	  it = intf_open();
-	  if (!it) fatal("%s: intf_open() failed", __func__);
-	  if (intf_loop(it, collect_dnet_interfaces, &dcrn) != 0)
-		  fatal("%s: intf_loop() failed", __func__);
-	  intf_close(it);	
-	  mydevs = dcrn.ifaces;
-	  numifaces = dcrn.numifaces;
-	  ii_capacity = dcrn.capacity;
-#else // !Win32
-    /* Dummy socket for ioctl */
-    sd = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sd < 0) pfatal("socket in %s", __func__);
-    bufsz = 20480;
-    buf = (u8 *) safe_zalloc(bufsz);
-    ifc.ifc_len = bufsz;
-    ifc.ifc_buf = (char *) buf;
-    if (ioctl(sd, SIOCGIFCONF, &ifc) < 0) {
-      fatal("Failed to determine your configured interfaces!\n");
-    }
-    ifr = (struct ifreq *) buf;
-    if (ifc.ifc_len == 0) 
-      fatal("%s: SIOCGIFCONF claims you have no network interfaces!\n", __func__);
+  /* Dummy socket for ioctl */
+  sd = socket(AF_INET, SOCK_DGRAM, 0);
+  if (sd < 0) pfatal("socket in %s", __func__);
+  bufsz = 20480;
+  buf = (u8 *) safe_zalloc(bufsz);
+  ifc.ifc_len = bufsz;
+  ifc.ifc_buf = (char *) buf;
+  if (ioctl(sd, SIOCGIFCONF, &ifc) < 0) {
+    fatal("Failed to determine your configured interfaces!\n");
+  }
+  ifr = (struct ifreq *) buf;
+  if (ifc.ifc_len == 0) 
+    fatal("%s: SIOCGIFCONF claims you have no network interfaces!\n", __func__);
 #if HAVE_SOCKADDR_SA_LEN
-    /*    len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
-    len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
+  /*    len = MAX(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);*/
+  len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
 #else
-    len = sizeof(struct ifreq);
-    /* len = sizeof(SA); */
+  len = sizeof(struct ifreq);
+  /* len = sizeof(SA); */
 #endif
 
-    /* Debugging code
-    printf("ifnet list length = %d\n",ifc.ifc_len);
-    printf("sa_len = %d\n",len);
-    hdump((unsigned char *) buf, ifc.ifc_len);
+  /* Debugging code
+  printf("ifnet list length = %d\n",ifc.ifc_len);
+  printf("sa_len = %d\n",len);
+  hdump((unsigned char *) buf, ifc.ifc_len);
+  printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
+  printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
+  */
+
+  for(; ifr && ifr->ifr_name[0] && ((u8 *)ifr) < buf + ifc.ifc_len;
+      ifr = (struct ifreq *)(((char *)ifr) + len)) {
+
+    /* debugging code 
+    printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));
     printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
-    printf("Size of struct ifreq: %d\n", sizeof(struct ifreq));
     */
 
-    for(; ifr && ifr->ifr_name[0] && ((u8 *)ifr) < buf + ifc.ifc_len;
-	ifr = (struct ifreq *)(((char *)ifr) + len)) {
-
-      /* debugging code 
-      printf("ifr_name size = %d\n", sizeof(ifr->ifr_name));
-      printf("ifr = %X\n",(unsigned)(*(char **)&ifr));
-      */
-
-      /* On some platforms (such as FreeBSD), the length of each ifr changes
-	 based on the sockaddr type used, so we get the next length now */
+    /* On some platforms (such as FreeBSD), the length of each ifr changes
+       based on the sockaddr type used, so we get the next length now */
 #if HAVE_SOCKADDR_SA_LEN
-      len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
+    len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
 #endif 
 
-      /* skip any device with no name */
-      if (!*((char *)ifr))
-        continue;
+    /* skip any device with no name */
+    if (!*((char *)ifr))
+      continue;
 
-      /* We currently only handle IPv4 */
-      sin = (struct sockaddr_in *) &ifr->ifr_addr;
-      if (sin->sin_family != AF_INET)
-	continue;
-      memcpy(&(mydevs[numifaces].addr), sin, MIN(sizeof(mydevs[numifaces].addr), sizeof(*sin)));
-      Strncpy(mydevs[numifaces].devname, ifr->ifr_name, sizeof(mydevs[numifaces].devname));
-      /* devname isn't allowed to have alias qualification */
-      if ((p = strchr(mydevs[numifaces].devname, ':')))
-	*p = '\0';
-      Strncpy(mydevs[numifaces].devfullname, ifr->ifr_name, sizeof(mydevs[numifaces].devfullname));
+    /* We currently only handle IPv4 */
+    sin = (struct sockaddr_in *) &ifr->ifr_addr;
+    if (sin->sin_family != AF_INET)
+      continue;
+    memcpy(&(mydevs[numifaces].addr), sin, MIN(sizeof(mydevs[numifaces].addr), sizeof(*sin)));
+    Strncpy(mydevs[numifaces].devname, ifr->ifr_name, sizeof(mydevs[numifaces].devname));
+    /* devname isn't allowed to have alias qualification */
+    if ((p = strchr(mydevs[numifaces].devname, ':')))
+      *p = '\0';
+    Strncpy(mydevs[numifaces].devfullname, ifr->ifr_name, sizeof(mydevs[numifaces].devfullname));
 
-      Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
-      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-      rc = ioctl(sd, SIOCGIFNETMASK, &tmpifr);
-      if (rc < 0 && errno != EADDRNOTAVAIL)
-	pfatal("Failed to determine the netmask of %s!", tmpifr.ifr_name);
-      else if (rc < 0)
-	mydevs[numifaces].netmask_bits = 32;
-      else {
-	sin = (struct sockaddr_in *) &(tmpifr.ifr_addr); /* ifr_netmask only on Linux */
-	addr_stob(&(tmpifr.ifr_addr), &mydevs[numifaces].netmask_bits);
-      }
+    Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
+    memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
+    rc = ioctl(sd, SIOCGIFNETMASK, &tmpifr);
+    if (rc < 0 && errno != EADDRNOTAVAIL)
+      pfatal("Failed to determine the netmask of %s!", tmpifr.ifr_name);
+    else if (rc < 0)
+      mydevs[numifaces].netmask_bits = 32;
+    else {
+      sin = (struct sockaddr_in *) &(tmpifr.ifr_addr); /* ifr_netmask only on Linux */
+      addr_stob(&(tmpifr.ifr_addr), &mydevs[numifaces].netmask_bits);
+    }
 
-      //  printf("ifr name=%s addr=%s, mask=%X\n", mydevs[numifaces].name, inet_ntoa(mydevs[numifaces].addr), mydevs[numifaces].netmask.s_addr); 
+    //  printf("ifr name=%s addr=%s, mask=%X\n", mydevs[numifaces].name, inet_ntoa(mydevs[numifaces].addr), mydevs[numifaces].netmask.s_addr); 
 
-      /* Now we need to determine the device type ... this technique
-	 is kinda iffy ... may not be portable. */
-      /* First we get the flags */
-      Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
-      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-      rc = ioctl(sd, SIOCGIFFLAGS, &tmpifr);
-      if (rc < 0) fatal("Failed to get IF Flags for device %s", ifr->ifr_name);
-      ifflags = tmpifr.ifr_flags;
+    /* Now we need to determine the device type ... this technique
+       is kinda iffy ... may not be portable. */
+    /* First we get the flags */
+    Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
+    memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
+    rc = ioctl(sd, SIOCGIFFLAGS, &tmpifr);
+    if (rc < 0) fatal("Failed to get IF Flags for device %s", ifr->ifr_name);
+    ifflags = tmpifr.ifr_flags;
 
-      if (ifflags & IFF_LOOPBACK)
-	mydevs[numifaces].device_type = devt_loopback;
-      else if (ifflags & IFF_BROADCAST) {
-	mydevs[numifaces].device_type = devt_ethernet;
-	/* Get the MAC Address ... */
+    if (ifflags & IFF_LOOPBACK)
+      mydevs[numifaces].device_type = devt_loopback;
+    else if (ifflags & IFF_BROADCAST) {
+      mydevs[numifaces].device_type = devt_ethernet;
+      /* Get the MAC Address ... */
 #ifdef SIOCGIFHWADDR
-	Strncpy(tmpifr.ifr_name, mydevs[numifaces].devname, sizeof(tmpifr.ifr_name));
-	memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin))));
-	rc = ioctl(sd, SIOCGIFHWADDR, &tmpifr);
-	if (rc < 0 && errno != EADDRNOTAVAIL)
-	  pfatal("Failed to determine the MAC address of %s!", tmpifr.ifr_name);
-	else if (rc >= 0)
-	  memcpy(mydevs[numifaces].mac, &tmpifr.ifr_addr.sa_data, 6);
+      Strncpy(tmpifr.ifr_name, mydevs[numifaces].devname, sizeof(tmpifr.ifr_name));
+      memcpy(&(tmpifr.ifr_addr), sin, MIN(sizeof(tmpifr.ifr_addr), MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin))));
+      rc = ioctl(sd, SIOCGIFHWADDR, &tmpifr);
+      if (rc < 0 && errno != EADDRNOTAVAIL)
+        pfatal("Failed to determine the MAC address of %s!", tmpifr.ifr_name);
+      else if (rc >= 0)
+        memcpy(mydevs[numifaces].mac, &tmpifr.ifr_addr.sa_data, 6);
 #else
-	/* Let's just let libdnet handle it ... */
-	eth_t *ethsd = eth_open_cached(mydevs[numifaces].devname);
-	eth_addr_t ethaddr;
+      /* Let's just let libdnet handle it ... */
+      eth_t *ethsd = eth_open_cached(mydevs[numifaces].devname);
+      eth_addr_t ethaddr;
 
-	if (!ethsd) {
-	  error("Warning: Unable to open interface %s -- skipping it.", mydevs[numifaces].devname);
-	  continue;
-	}
-	if (eth_get(ethsd, &ethaddr) != 0) 
-	  fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
-		__func__, mydevs[numifaces].devname);
-	memcpy(mydevs[numifaces].mac, ethaddr.data, 6);
+      if (!ethsd) {
+        error("Warning: Unable to open interface %s -- skipping it.", mydevs[numifaces].devname);
+        continue;
+      }
+      if (eth_get(ethsd, &ethaddr) != 0) 
+        fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
+              __func__, mydevs[numifaces].devname);
+      memcpy(mydevs[numifaces].mac, ethaddr.data, 6);
 #endif /*SIOCGIFHWADDR*/
 
-      }
-      else if (ifflags & IFF_POINTOPOINT)
-	mydevs[numifaces].device_type = devt_p2p;
-      else mydevs[numifaces].device_type = devt_other;
-
-      if (ifflags & IFF_UP)
-	mydevs[numifaces].device_up = true;
-      else mydevs[numifaces].device_up = false;
-      numifaces++;
-      if (numifaces == ii_capacity)  {      
-	ii_capacity <<= 2;
-	mydevs = (struct interface_info *) safe_realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
-      }
-      mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
     }
-    free(buf);
-    close(sd);
-#endif //!WIN32
+    else if (ifflags & IFF_POINTOPOINT)
+      mydevs[numifaces].device_type = devt_p2p;
+    else mydevs[numifaces].device_type = devt_other;
+
+    if (ifflags & IFF_UP)
+      mydevs[numifaces].device_up = true;
+    else mydevs[numifaces].device_up = false;
+    numifaces++;
+    if (numifaces == ii_capacity)  {      
+      ii_capacity <<= 2;
+      mydevs = (struct interface_info *) safe_realloc(mydevs, sizeof(struct interface_info) * ii_capacity);
+    }
+    mydevs[numifaces].devname[0] = mydevs[numifaces].devfullname[0] = '\0';
   }
-  if (howmany) *howmany = numifaces;
+  free(buf);
+  close(sd);
+
+  *howmany = numifaces;
+  return mydevs;
+}
+#endif
+
+/* Returns an allocated array of struct interface_info representing the
+   available interfaces. The number of interfaces is returned in *howmany. This
+   function just does caching of results; the real work is done in
+   getinterfaces_dnet or getinterfaces_siocgifconf. */
+struct interface_info *getinterfaces(int *howmany) {
+  static bool initialized = 0;
+  static struct interface_info *mydevs;
+  static int numifaces = 0;
+
+  if (!initialized) {
+#if WIN32
+    /* On Win32 we just use Dnet to determine the interface list */
+    mydevs = getinterfaces_dnet(&numifaces);
+#else
+    mydevs = getinterfaces_siocgifconf(&numifaces);
+#endif
+    initialized = 1;
+  }
+
+  if (howmany)
+    *howmany = numifaces;
   return mydevs;
 }
 
@@ -3088,6 +3102,19 @@ struct interface_info *getInterfaceByName(char *iname) {
   }
 
   return NULL;
+}
+
+pcap_if_t *getpcapinterfaces() {
+  #ifndef WIN32
+    return NULL;
+  #endif
+  pcap_if_t *p_ifaces;
+
+  if((pcap_findalldevs(&p_ifaces, NULL)) == -1) {
+    fatal("pcap_findalldevs() : Cannot retrieve pcap interfaces");
+    return NULL;
+  }
+  return p_ifaces;
 }
 
 
