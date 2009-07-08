@@ -900,7 +900,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.setVersionTrace(true);
 	o.debugging++;
       } else if (optcmp(long_options[option_index].name, "data-length") == 0) {
-    o.extra_payload_length = (int)strtoll( optarg, NULL, 10);
+    o.extra_payload_length = (int)strtol(optarg, NULL, 10);
     if (o.extra_payload_length < 1 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
       fatal("data-length must be between 1 and %d", MAX_PAYLOAD_ALLOWED);
     if (o.extra_payload_length > 1400 ) /* 1500 - IP with opts - TCP with opts. */
