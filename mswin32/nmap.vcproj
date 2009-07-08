@@ -307,6 +307,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\payload.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\portlist.cc"
 				>
 			</File>
@@ -493,6 +497,10 @@
 			</File>
 			<File
 				RelativePath="..\output.h"
+				>
+			</File>
+			<File
+				RelativePath="..\payload.h"
 				>
 			</File>
 			<File
