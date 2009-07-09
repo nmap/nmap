@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Added additional test cases to the ncat/test/test-cmdline-split program
+  and rewrote the cmdline_split function in ncat_posix.c [Josh Marlow]
+
 o [Ncat] The --broker option now automatically implies --listen. [David]
 
 o Added Apache JServe protocol version detection probe and signature
