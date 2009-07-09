@@ -22,7 +22,8 @@
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 #define NSE_TRACEBACK "NSE_TRACEBACK"
 
-/* string keys used in interface with nse_main.lua */
+/* These are indices into the registry, for data shared with nse_main.lua. The
+   definitions here must match those in nse_main.lua. */
 #define NSE_YIELD "NSE_YIELD"
 #define NSE_BASE "NSE_BASE"
 #define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"

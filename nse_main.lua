@@ -32,6 +32,7 @@
 
 local NAME = "NSE";
 
+-- String keys into the registry (_R), for data shared with nse_main.cc.
 local YIELD = "NSE_YIELD";
 local BASE = "NSE_BASE";
 local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
