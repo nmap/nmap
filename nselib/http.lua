@@ -20,6 +20,171 @@ module(... or "http",package.seeall)
 local url    = require 'url'
 local stdnse = require 'stdnse'
 
+-- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
+-- @return the first index following the spaces.
+-- @return the spaces skipped over.
+local function skip_space(s, offset)
+  local _, i, space = s:find("^([ \t]*)", offset)
+  return i + 1, space
+end
+
+-- Get a token starting at offset. See RFC 2616, section 2.2.
+-- @return the first index following the token, or nil if no token was found.
+-- @return the token.
+local function get_token(s, offset)
+  -- All characters except CTL and separators.
+  local _, i, token = s:find("^([^()<>@,;:\\\"/%[%]?={} %z\001-\031\127]+)", offset)
+  if i then
+    return i + 1, token
+  else
+    return nil
+  end
+end
+
+-- Get a quoted-string starting at offset. See RFC 2616, section 2.2. crlf is
+-- used as the definition for CRLF in the case of LWS within the string.
+-- @return the first index following the quoted-string, or nil if no
+-- quoted-string was found.
+-- @return the contents of the quoted-string, without quotes or backslash
+-- escapes.
+local function get_quoted_string(s, offset, crlf)
+  local result = {}
+  local i = offset
+  assert(s:sub(i, i) == "\"")
+  i = i + 1
+  while i <= s:len() do
+    local c = s:sub(i, i)
+    if c == "\"" then
+      -- Found the closing quote, done.
+      return i + 1, table.concat(result)
+    elseif c == "\\" then
+      -- This is a quoted-pair ("\" CHAR).
+      i = i + 1
+      c = s:sub(i, i)
+      if c == "" then
+        -- No character following.
+        error(string.format("\\ escape at end of input while parsing quoted-string."))
+      end
+      -- Only CHAR may follow a backslash.
+      if c:byte(1) > 127 then
+        error(string.format("Unexpected character with value > 127 (0x%02X) in quoted-string.", c:byte(1)))
+      end
+    else
+      -- This is qdtext, which is TEXT except for '"'.
+      -- TEXT is "any OCTET except CTLs, but including LWS," however "a CRLF is
+      -- allowed in the definition of TEXT only as part of a header field
+      -- continuation." So there are really two definitions of quoted-string,
+      -- depending on whether it's in a header field or not. This function does
+      -- not allow CRLF.
+      c = s:sub(i, i)
+      if c ~= "\t" and c:match("^[%z\001-\031\127]$") then
+        error(string.format("Unexpected control character in quoted-string: 0x%02X.", c:byte(1)))
+      end
+    end
+    result[#result + 1] = c
+    i = i + 1
+  end
+  return nil
+end
+
+-- Get a ( token | quoted-string ) starting at offset.
+-- @return the first index following the token or quoted-string, or nil if
+-- nothing was found.
+-- @return the token or quoted-string.
+local function get_token_or_quoted_string(s, offset, crlf)
+  if s:sub(offset, offset) == "\"" then
+    return get_quoted_string(s, offset)
+  else
+    return get_token(s, offset)
+  end
+end
+
+-- This is an interator that breaks a "chunked"-encoded string into its chunks.
+-- Each iteration produces one of the chunks.
+local function get_chunks(s, offset, crlf)
+  local finished_flag = false
+
+  return function()
+    if finished_flag then
+      -- The previous iteration found the 0 chunk.
+      return nil
+    end
+
+    offset = skip_space(s, offset)
+
+    -- Get the chunk-size.
+    local _, i, hex
+    _, i, hex = s:find("^([%x]+)", offset)
+    if not i then
+      error(string.format("Chunked encoding didn't find hex at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+    end
+    offset = i + 1
+
+    local chunk_size = tonumber(hex, 16)
+    if chunk_size == 0 then
+      -- Process this chunk so the caller gets the following offset, but halt
+      -- the iteration on the next round.
+      finished_flag = true
+    end
+
+    -- Ignore chunk-extensions.
+    -- RFC 2616, section 2.1 ("Implied *LWS") seems to allow *LWS between the
+    -- parts of a chunk-extension, but that is ambiguous. Consider this case:
+    -- "1234;a\r\n =1\r\n...". It could be an extension with a chunk-ext-name
+    -- of "a" (and no value), and a chunk-data beginning with " =", or it could
+    -- be a chunk-ext-name of "a" with a value of "1", and a chunk-data
+    -- starting with "...". We don't allow *LWS here, only ( SP | HT ), so the
+    -- first interpretation will prevail.
+    offset = skip_space(s, offset)
+    while s:sub(offset, offset) == ";" do
+      local token
+      offset = offset + 1
+      offset = skip_space(s, offset)
+      i, token = get_token(s, offset)
+      if not token then
+        error(string.format("chunk-ext-name missing at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+      end
+      offset = i
+      offset = skip_space(s, offset)
+      if s:sub(offset, offset) == "=" then
+        offset = offset + 1
+        offset = skip_space(s, offset)
+        i, token = get_token_or_quoted_string(s, offset)
+        if not token then
+          error(string.format("chunk-ext-name missing at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+        end
+      end
+      offset = i
+      offset = skip_space(s, offset)
+    end
+
+    _, i = s:find("^" .. crlf, offset)
+    if not i then
+      error(string.format("Didn't find CRLF after chunk-size [ chunk-extension ] at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+    end
+    offset = i + 1
+
+    -- Now get the chunk-data.
+    local chunk = s:sub(offset, offset + chunk_size - 1)
+    if chunk:len() ~= chunk_size then
+      error(string.format("Chunk starting at position %d was only %d bytes, not %d as expected.", offset, chunk:len(), chunk_size))
+    end
+    offset = offset + chunk_size
+
+    if chunk_size > 0 then
+      _, i = s:find("^" .. crlf, offset)
+      if not i then
+        error(string.format("Didn't find CRLF after chunk-data at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+      end
+      offset = i + 1
+    end
+
+    -- print(string.format("chunk %d %d", offset, chunk_size))
+
+    return offset, chunk
+  end
+end
+
 --
 -- http.get( host, port, path, options )
 -- http.request( host, port, request, options )
@@ -248,23 +413,13 @@ request = function( host, port, data, options )
                      ( body:match( "\n" )   and "\n" ) or nil
 
   -- handle chunked encoding
-  if result.header['transfer-encoding'] == 'chunked' and type( body_delim ) == "string" then
-    body = body_delim .. body
-    local b = {}
-    local start, ptr = 1, 1
-    local chunk_len
-    local pattern = ("%s([^%s]+)%s"):format( body_delim, body_delim, body_delim )
-    while ( ptr < ( type( body ) == "string" and body:len() ) or 1 ) do
-      local hex = body:match( pattern, ptr )
-      if not hex then break end
-      chunk_len = tonumber( hex or 0, 16 )
-      if chunk_len then
-        start = ptr + hex:len() + 2*body_delim:len()
-        ptr = start + chunk_len
-        b[#b+1] = body:sub( start, ptr-1 )
-      end
+  if result.header['transfer-encoding'] == 'chunked' then
+    local _, chunk
+    local chunks = {}
+    for _, chunk in get_chunks(body, 1, body_delim) do
+      chunks[#chunks + 1] = chunk
     end
-    body = table.concat( b )
+    body = table.concat(chunks)
   end
 
   -- special case for conjoined header and body
