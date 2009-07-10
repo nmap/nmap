@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now prints a message like "Connection refused." by
+  default when a socket error occurs. This used to require -v, but
+  printing no message at all could make a failed connection look like
+  success in a case like
+    ncat remote < short-file
+
 o [Ncat] Added additional test cases to the ncat/test/test-cmdline-split program
   and rewrote the cmdline_split function in ncat_posix.c [Josh Marlow]
 
