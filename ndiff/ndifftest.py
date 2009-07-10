@@ -641,6 +641,15 @@ class table_test(unittest.TestCase):
         t.append(("a", "b", "c", "d"))
         self.assertEqual(str(t), "<<<a>>>b!!!cd")
 
+    def test_append_raw(self):
+        """Test the append_raw method that inserts an unformatted row."""
+        t = Table("<* * *>")
+        t.append(("1", "2", "3"))
+        t.append_raw("   row   ")
+        self.assertEqual(str(t), "<1 2 3>\n   row   ")
+        t.append(("4", "5", "6"))
+        self.assertEqual(str(t), "<1 2 3>\n   row   \n<4 5 6>")
+
     def test_strip(self):
         """Test that trailing whitespace is stripped."""
         t = Table("* * * ")

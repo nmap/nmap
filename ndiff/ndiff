@@ -739,6 +739,10 @@ class Table(object):
             strings.append(s)
         self.rows.append(strings)
 
+    def append_raw(self, s):
+        """Append a raw string for a row that is not formatted into columns."""
+        self.rows.append(s)
+
     def __len__(self):
         return len(self.rows)
 
@@ -747,12 +751,16 @@ class Table(object):
         for row in self.rows:
             parts = [self.prefix]
             i = 0
-            while i < len(row):
-                parts.append(row[i].ljust(self.widths[i]))
-                if i < len(self.padding):
-                    parts.append(self.padding[i])
-                i += 1
-            lines.append(u"".join(parts).rstrip())
+            if isinstance(row, basestring):
+                # A raw string.
+                lines.append(row)
+            else:
+                while i < len(row):
+                    parts.append(row[i].ljust(self.widths[i]))
+                    if i < len(self.padding):
+                        parts.append(self.padding[i])
+                    i += 1
+                lines.append(u"".join(parts).rstrip())
         return u"\n".join(lines)
 
 def parse_port_list(port_list):
