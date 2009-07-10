@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed an error that would cause Ncat to use 100% CPU in
+  broker mode after a client disconnected or a read error happened.
+  [Kris, David]
+
 o [Ncat] Ncat now prints a message like "Connection refused." by
   default when a socket error occurs. This used to require -v, but
   printing no message at all could make a failed connection look like
