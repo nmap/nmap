@@ -202,27 +202,6 @@ class address_test(unittest.TestCase):
         self.assertEqual(e, e)
         self.assertNotEqual(a, e)
 
-    def test_sort(self):
-        """Test the sort order of addresses."""
-        l = [MACAddress("00:00:00:00:00:00"), IPv4Address("127.0.0.1"), IPv6Address("::1")]
-        l.sort()
-        self.assertEqual(["ipv4", "ipv6", "mac"], [a.type for a in l])
-
-        strings = ["3.0.0.0", "20.0.0.0", "100.0.0.2", "100.0.0.10"]
-        l = [IPv4Address(s) for s in strings]
-        l.sort()
-        self.assertEqual(strings, [a.s for a in l])
-
-        strings = ["3::", "20::", "100::2", "100::10"]
-        l = [IPv6Address(s) for s in strings]
-        l.sort()
-        self.assertEqual(strings, [a.s for a in l])
-
-        strings = ["20:00:00:00:00:00", "a0:00:00:00:00:20", "a0:00:00:00:00:a0"]
-        l = [MACAddress(s) for s in strings]
-        l.sort()
-        self.assertEqual(strings, [a.s for a in l])
-
 class port_test(unittest.TestCase):
     """Test the Port class."""
     def test_spec_string(self):
