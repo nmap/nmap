@@ -46,8 +46,8 @@ class scan_test(unittest.TestCase):
         scan = Scan()
         scan.load_from_file("test-scans/complex.xml")
         host = scan.hosts[0]
-        self.assertEqual(len(host.ports), 5)
-        self.assertEqual(set(host.extraports.items()), set([("filtered", 95), ("open|filtered", 100)]))
+        self.assertEqual(len(host.ports), 6)
+        self.assertEqual(set(host.extraports.items()), set([("filtered", 95), ("open|filtered", 99)]))
 
     def test_addresses(self):
         """Test that addresses are recorded."""
@@ -66,7 +66,7 @@ class scan_test(unittest.TestCase):
     def test_os(self):
         """Test that OS information is recorded."""
         scan = Scan()
-        scan.load_from_file("test-scans/os.xml")
+        scan.load_from_file("test-scans/complex.xml")
         host = scan.hosts[0]
         self.assertTrue(len(host.os) > 0)
 
