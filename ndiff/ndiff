@@ -68,6 +68,7 @@ class Host(object):
         self.ports = {}
         self.extraports = {}
         self.os = []
+        self.script_results = []
 
     def get_id(self):
         """Return an id that is used to determine if hosts are "the same" across
@@ -244,6 +245,7 @@ class Port(object):
         self.spec = spec
         self.state = state
         self.service = Service()
+        self.script_results = []
 
     def state_string(self):
         if self.state is None:
@@ -333,6 +335,39 @@ class Service(object):
             elem.setAttribute(attr, v)
         if len(elem.attributes) > 0:
             frag.appendChild(elem)
+        return frag
+
+class ScriptResult(object):
+    def __init__(self):
+        self.id = None
+        self.output = None
+
+    def __eq__(self, other):
+        return self.id == other.id and self.output == other.output
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __cmp__(self, other):
+        return cmp((self.id, self.output), (other.id, other.output))
+
+    def get_lines(self):
+        result = []
+        lines = self.output.splitlines()
+        if len(lines) > 0:
+            lines[0] = self.id + u": " + lines[0]
+        for line in lines[:-1]:
+            result.append(u"|  " + line)
+        if len(lines) > 0:
+            result.append(u"|_ " + lines[-1])
+        return result
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"script")
+        elem.setAttribute(u"id", self.id)
+        elem.setAttribute(u"output", self.output)
+        frag.appendChild(elem)
         return frag
 
 def format_banner(scan):
@@ -945,6 +980,26 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             self.current_port.service.version = attrs.get(u"version")
             self.current_port.service.extrainfo = attrs.get(u"extrainfo")
             self.current_port.service.tunnel = attrs.get(u"tunnel")
+        elif name == u"script":
+            assert self.current_host is not None
+            result = ScriptResult()
+            try:
+                result.id = attrs[u"id"]
+            except KeyError:
+                warn(u"%s element of host %s missing the \"id\" attribute; skipping." % (name, self.current_host.format_name()))
+                return
+            try:
+                result.output = attrs[u"output"]
+            except KeyError:
+                warn(u"%s element of host %s missing the \"output\" attribute; skipping." % (name, self.current_host.format_name()))
+                return
+            if self.parent_element() == u"hostscript":
+                self.current_host.script_results.append(result)
+            elif self.parent_element() == u"port":
+                self.current_port.script_results.append(result)
+            else:
+                warn(u"%s element of host %s not inside hostscript or port element; ignoring." % (name, self.current_host.format_name()))
+                return
         elif name == u"osmatch":
             assert self.parent_element() == u"os"
             assert self.current_host is not None
@@ -974,8 +1029,10 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                         assert spec not in self.current_host.ports
                         self.current_host.add_port(Port(spec, state = extraports_state))
 
+            self.current_host.script_results.sort()
             self.current_host = None
         elif name == u"port":
+            self.current_port.script_results.sort()
             self.current_port = None
 
 def usage():
