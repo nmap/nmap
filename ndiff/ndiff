@@ -546,16 +546,22 @@ class HostDiff(object):
 
         for port in self.ports:
             diff = self.port_diffs[port]
-            port_a = diff.port_a
-            port_b = diff.port_b
-            if diff.cost == 0:
+            a_columns = [diff.port_a.spec_string(),
+                diff.port_a.state_string(),
+                diff.port_a.service.name_string(),
+                diff.port_a.service.version_string()]
+            b_columns = [diff.port_b.spec_string(),
+                diff.port_b.state_string(),
+                diff.port_b.service.name_string(),
+                diff.port_b.service.version_string()]
+            if a_columns == b_columns:
                 if verbose:
-                    port_table.append((u" ", port.spec_string(), port.state_string(), port.service.name_string(), port.service.version_string()))
+                    port_table.append([u" "] + a_columns)
             else:
-                if not host_a.is_extraports(port_a.state):
-                    port_table.append((u"-", port_a.spec_string(), port_a.state_string(), port_a.service.name_string(), port_a.service.version_string()))
-                if not host_b.is_extraports(port_b.state):
-                    port_table.append((u"+", port_b.spec_string(), port_b.state_string(), port_b.service.name_string(), port_b.service.version_string()))
+                if not host_a.is_extraports(diff.port_a.state):
+                    port_table.append([u"-"] + a_columns)
+                if not host_b.is_extraports(diff.port_b.state):
+                    port_table.append([u"+"] + b_columns)
 
         if len(port_table) > 1:
             print >> f, port_table
