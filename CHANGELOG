@@ -10,6 +10,10 @@ o [Ncat] Ncat now prints a message like "Connection refused." by
   success in a case like
     ncat remote < short-file
 
+o [Ncat] Using --send-only in conjunction with the plain listen or broker modes
+  now behaves as it should: nothing will be read from the network end.  Ncat
+  was simply discarding any data received. [Kris]
+
 o [Ncat] Added additional test cases to the ncat/test/test-cmdline-split program
   and rewrote the cmdline_split function in ncat_posix.c [Josh Marlow]
 
