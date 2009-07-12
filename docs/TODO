@@ -311,6 +311,10 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   default/common locations. See also a script that does favicon
   scanning TODO item.
 
+o [NSE] Consider how we compare to the Nessus Web Application Attack
+  scripts
+  (http://blog.tenablesecurity.com/2009/06/enhanced-web-application-attacks-added-to-nessus.html).
+
 o Deadlock identification and correction:
  o Plan of action: implement freeing of script mutexes when scripts
  exit without freeing them (done and in /nmap now). And then if it
