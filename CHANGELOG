@@ -457,7 +457,7 @@ o Regenerate script.db to remove references to non-existent
   smb-check-vulns-2.nse. This caused the following error messages when
   people used the --script=all option: "nse_main.lua:319:
   smb-check-vulns-2.nse is not a file!"  The script.db entries are now
-  sorted again to make diffs easier to read. [David,Patrick]
+  sorted again to make diffs easier to read. [David, Patrick]
 
 o Fixed --script-updatedb on Windows--it was adding bogus backslashes
   preceding file names in the generated script.db. Reported by
@@ -1010,7 +1010,7 @@ o There is a new OS detection test named SEQ.CI. Like TI and II, CI
   for open ports on some operating systems (though we don't yet know
   which ones).  The new test won't have an effect until new
   fingerprints containing it are added to nmap-os-db. We got the idea
-  from some notes sent in by Dario Ciccarone. [David,Fyodor]
+  from some notes sent in by Dario Ciccarone. [David, Fyodor]
 
 o OS fingerprints now include the SEQ.II test (ICMP IP ID sequence
   generation) even if there are no other SEQ test results. The
@@ -1071,7 +1071,7 @@ o Improved the efficiency of the xml_convert() routine which handles
 o Removed 9 OS detection device types which only had one or two
   instances in our whole database (ATM, TV, oscilloscope, etc.) and
   made some other cleanups as well. We plan to enhance this even
-  further for the next release. [Fyodor,David,Doug]
+  further for the next release. [Fyodor, David, Doug]
 
 o [Zenmap] Removed some unnecessary GTK+ files from the files
   installed by the Windows executable installer. [David]
