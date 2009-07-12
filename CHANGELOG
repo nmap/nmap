@@ -69,7 +69,6 @@ o [Zenmap] Fixed a display hanging problem on Mac OS X reported by
   files at runtime. Also included GDK pixbuf loaders statically rather
   than as external loadable modules.  [David]
 
->>>>>>> .r14197
 o Fixed a memory bug (access of freed memory) when loading exclude
   targets with --exclude. This was reported to occasionally cause a
   crash. Will Cladek reported the bug and contributed an initial
