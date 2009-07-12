@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat]Ncat proxy now hides the proxy's response
+  ("HTTP/1.0 200 OK" or whatever it may be). Before, if you 
+  retrieved a file through a proxy, it would have the "HTTP/1.0 200 OK" 
+  stuck to the top of it. For this Ncat uses blocking sockets 
+  untill the proxy negotiation is done and once it
+  is successfull, Nsock takes over for rest of the connection.[Venkat]
+
 o [Ncat] Fixed an error that would cause Ncat to use 100% CPU in
   broker mode after a client disconnected or a read error happened.
   [Kris, David]
@@ -62,6 +69,7 @@ o [Zenmap] Fixed a display hanging problem on Mac OS X reported by
   files at runtime. Also included GDK pixbuf loaders statically rather
   than as external loadable modules.  [David]
 
+>>>>>>> .r14197
 o Fixed a memory bug (access of freed memory) when loading exclude
   targets with --exclude. This was reported to occasionally cause a
   crash. Will Cladek reported the bug and contributed an initial
