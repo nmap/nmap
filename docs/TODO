@@ -114,6 +114,16 @@ o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   They have a decent collection there.  KX sent some other programs we
   should look at too. [David]
 
+o [Web] Consider adding training/introduction videos to the Nmap site
+ o Would be great to have a (5 minute or less) promotional video
+   introduction to each tool (Nmap, Zenmap, Ncat, Ndiff) on its web
+   page.
+ o They need to be good to be useful--the sort of the quality you see
+   in Laura Chappell's Wireshark videos or James Messer's Nmap videos.
+ o Besides the promotional videos, users would probably enjoy more
+   in-depth video instructions (e.g. covering the Nmap Network
+   Scanning topics).
+
 o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
   format similar to what Nmap provides. [David/Venkat]
