@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Scripts that are listed by name with the --script option now
+  have their verbosity level automatically increased by one. Many
+  will print negative results ("no infection found") at a higher
+  verbosity level. The idea is that if you ask for a script
+  specifically, you are more interested in such results.
+  [David, Patrick]
+
 o [Ncat]Ncat proxy now hides the proxy's response
   ("HTTP/1.0 200 OK" or whatever it may be). Before, if you 
   retrieved a file through a proxy, it would have the "HTTP/1.0 200 OK" 

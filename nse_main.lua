@@ -37,6 +37,7 @@ local YIELD = "NSE_YIELD";
 local BASE = "NSE_BASE";
 local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
 local DESTRUCTOR = "NSE_DESTRUCTOR";
+local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 
 local _R = debug.getregistry(); -- The registry
 local _G = _G;
@@ -299,6 +300,7 @@ do
       license = rawget(env, "license"),
       runlevel = tonumber(rawget(env, "runlevel")) or 1,
       threads = {},
+      selected_by_name = false,
     }, {__index = Script, __metatable = Script});
   end
 end
@@ -384,6 +386,11 @@ local function get_chosen_scripts (rules)
       assert(type(category) == "string", "bad entry in script database");
       r_categories[lower(category)] = true; -- Lowercase the entry
     end
+
+    -- Was this entry selected by name with the --script option? We record
+    -- whether it was so that scripts so selected can get a verbosity boost.
+    -- See nmap.verbosity.
+    local selected_by_name = false;
     -- A matching function for each script rule.
     -- If the pattern directly matches a category (e.g. "all"), then
     -- we return true. Otherwise we test if it is a filename or if
@@ -396,17 +403,21 @@ local function get_chosen_scripts (rules)
       pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
       pattern = gsub(pattern, "%*", ".*"); -- change to Lua wildcard
       pattern = "^"..pattern.."$"; -- anchor to beginning and end
-      return not not find(escaped_basename, pattern);
+      local found = not not find(escaped_basename, pattern);
+      selected_by_name = selected_by_name or found;
+      return found;
     end
     local env = {m = m};
 
+    local script;
     for globalized_rule, rule_table in pairs(entry_rules) do
       if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
         used_rules[rule_table.original_rule] = true;
         local t, path = cnse.fetchfile_absolute(filename);
         if t == "file" then
           if not files_loaded[path] then
-            chosen_scripts[#chosen_scripts+1] = Script.new(path);
+            script = Script.new(path);
+            chosen_scripts[#chosen_scripts+1] = script;
             files_loaded[path] = true;
             -- do not break so other rules can be marked as used
           end
@@ -414,6 +425,12 @@ local function get_chosen_scripts (rules)
           log_error("Warning: Could not load '%s': %s", filename, path);
           break;
         end
+      end
+    end
+    if script then
+      script.selected_by_name = selected_by_name;
+      if script.selected_by_name then
+        print_debug(2, "Script %s was selected by name.", script.basename);
       end
     end
   end
@@ -431,7 +448,10 @@ local function get_chosen_scripts (rules)
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");
       elseif t == "file" and not files_loaded[path] then
-        chosen_scripts[#chosen_scripts+1] = Script.new(path);
+        local script = Script.new(path);
+        script.selected_by_name = true;
+        chosen_scripts[#chosen_scripts+1] = script;
+        print_debug(2, "Script %s was selected by name.", script.filename);
         files_loaded[path] = true;
       elseif t == "directory" then
         for i, file in ipairs(cnse.dump_dir(path)) do
@@ -507,6 +527,9 @@ local function run (threads)
         ch[key] = nil;
       end
     end
+  end
+  _R[SELECTED_BY_NAME] = function()
+    return current and current.selected_by_name;
   end
 
   -- Loop while any thread is running or waiting.

@@ -23,7 +23,10 @@ function have_ssl()
 
 --- Returns the verbosity level as a non-negative integer.
 --
--- The verbosity level can be set with the <code>-v</code> option.
+-- The verbosity level can be set with the <code>-v</code> option. When
+-- a script is given by name with the <code>--script</code> option, as
+-- opposed to being selected by default or by category, its verbosity
+-- level is automatically increased by one.
 -- @return The verbosity level.
 -- @usage if nmap.verbosity() > 0 then ... end
 function verbosity()
