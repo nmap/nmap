@@ -76,7 +76,7 @@ version 0, which was rather different. -->
 
 <!ELEMENT hostdiff (host | (a, b?) | b)>
 
-<!ELEMENT host (status | address | hostnames | ports | os | a | b)*>
+<!ELEMENT host (status | address | hostnames | ports | os | hostscript | a | b)*>
 
 <!ELEMENT status EMPTY>
 <!ATTLIST status state %host-state; #REQUIRED>
@@ -93,13 +93,13 @@ version 0, which was rather different. -->
 <!ELEMENT ports ((extraports* | (a, b))?, (portdiff | port)*)>
 
 
-<!ELEMENT portdiff ((a, b?) | b)>
+<!ELEMENT portdiff (port | (a, b?) | b)>
 
 <!ELEMENT extraports EMPTY>
 <!ATTLIST extraports state %port-state; #REQUIRED
                      count CDATA #REQUIRED>
 
-<!ELEMENT port (state?, service?)>
+<!ELEMENT port (state | service | script | a | b)*>
 <!ATTLIST port protocol %protocol; #REQUIRED
                portid CDATA #REQUIRED>
 
@@ -113,12 +113,17 @@ version 0, which was rather different. -->
                   extrainfo CDATA #IMPLIED
                   tunnel CDATA #IMPLIED>
 
+<!ELEMENT script EMPTY>
+<!ATTLIST script id CDATA #REQUIRED
+                 output CDATA #REQUIRED>
 
 <!ELEMENT os (osmatch | a | b)*>
 
 <!ELEMENT osmatch EMPTY>
 <!ATTLIST osmatch name CDATA #REQUIRED>
 
-<!ENTITY % diff-elem "(host | hostname | extraports* | port | state | service | os | osmatch*)">
+<!ELEMENT hostscript (script | a | b)*>
+
+<!ENTITY % diff-elem "(host | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
 <!ELEMENT a %diff-elem;>
 <!ELEMENT b %diff-elem;>

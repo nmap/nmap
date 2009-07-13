@@ -174,6 +174,12 @@ class Host(object):
                 os_elem.appendChild(self.os_to_dom_fragment(document, os))
             elem.appendChild(os_elem)
 
+        if len(self.script_results) > 0:
+            hostscript_elem = document.createElement(u"hostscript")
+            for sr in self.script_results:
+                hostscript_elem.appendChild(sr.to_dom_fragment(document))
+            elem.appendChild(hostscript_elem)
+
         frag.appendChild(elem)
         return frag
 
@@ -260,7 +266,8 @@ class Port(object):
         d = cmp(self.spec, other.spec)
         if d != 0:
             return d
-        return cmp((self.spec, self.service), (other.spec, other.service))
+        return cmp((self.spec, self.service, self.script_results),
+            (other.spec, other.service, other.script_results))
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -272,6 +279,8 @@ class Port(object):
             state_elem.setAttribute(u"state", self.state)
             elem.appendChild(state_elem)
         elem.appendChild(self.service.to_dom_fragment(document))
+        for sr in self.script_results:
+            elem.appendChild(sr.to_dom_fragment(document))
         frag.appendChild(elem)
         return frag
 
@@ -450,6 +459,7 @@ class HostDiff(object):
         self.ports = []
         self.port_diffs = {}
         self.os_diffs = []
+        self.script_result_diffs = []
         self.cost = 0
 
         self.diff()
@@ -491,6 +501,9 @@ class HostDiff(object):
         if extraports_a != extraports_b:
             self.extraports_changed = True
             self.cost += 1
+
+        self.script_result_diffs = ScriptResultDiff.diff_lists(self.host_a.script_results, self.host_b.script_results)
+        self.cost += len(self.script_result_diffs)
 
     def include_diff(self, diff):
         # Don't include the diff if the states are only extraports. Include all
@@ -684,6 +697,28 @@ class HostDiff(object):
             if os_elem.hasChildNodes():
                 host_elem.appendChild(os_elem)
 
+        # Host script changes.
+        if len(self.script_result_diffs) > 0 or verbose:
+            hostscript_elem = document.createElement(u"hostscript")
+            if len(host_a.script_results) == 0 and len(host_b.script_results) == 0:
+                pass
+            elif len(host_b.script_results) == 0:
+                a_elem = document.createElement(u"a")
+                for sr in host_a.script_results:
+                    a_elem.appendChild(sr.to_dom_fragment(document))
+                a_elem.appendChild(hostscript_elem)
+                host_elem.appendChild(a_elem)
+            elif len(host_a.script_results) == 0:
+                b_elem = document.createElement(u"b")
+                for sr in host_b.script_results:
+                    b_elem.appendChild(sr.to_dom_fragment(document))
+                b_elem.appendChild(hostscript_elem)
+                host_elem.appendChild(b_elem)
+            else:
+                for sr_diff in self.script_result_diffs:
+                    hostscript_elem.appendChild(sr_diff.to_dom_fragment(document))
+                host_elem.appendChild(hostscript_elem)
+
         hostdiff_elem.appendChild(host_elem)
 
         return frag
@@ -694,6 +729,7 @@ class PortDiff(object):
     def __init__(self, port_a, port_b):
         self.port_a = port_a
         self.port_b = port_b
+        self.script_result_diffs = []
         self.cost = 0
 
         self.diff()
@@ -707,6 +743,9 @@ class PortDiff(object):
 
         if self.port_a.service != self.port_b.service:
             self.cost += 1
+
+        self.script_result_diffs = ScriptResultDiff.diff_lists(self.port_a.script_results, self.port_b.script_results)
+        self.cost += len(self.script_result_diffs)
 
     # PortDiffs are inserted into a Table and then printed, not printed out
     # directly. That's why this class has append_to_port_table instead of
@@ -736,14 +775,83 @@ class PortDiff(object):
         frag = document.createDocumentFragment()
         portdiff_elem = document.createElement(u"portdiff")
         frag.appendChild(portdiff_elem)
-        a_elem = document.createElement(u"a")
-        b_elem = document.createElement(u"b")
-        portdiff_elem.appendChild(a_elem)
-        portdiff_elem.appendChild(b_elem)
+        if self.port_a.spec == self.port_b.spec and self.port_a.state == self.port_b.state:
+            port_elem = document.createElement(u"port")
+            port_elem.setAttribute(u"portid", unicode(self.port_a.spec[0]))
+            port_elem.setAttribute(u"protocol", self.port_a.spec[1])
+            if self.port_a.state is not None:
+                state_elem = document.createElement(u"state")
+                state_elem.setAttribute(u"state", self.port_a.state)
+                port_elem.appendChild(state_elem)
+            if self.port_a.service == self.port_b.service:
+                port_elem.appendChild(self.port_a.service.to_dom_fragment(document))
+            else:
+                a_elem = document.createElement(u"a")
+                a_elem.appendChild(self.port_a.service.to_dom_fragment(document))
+                port_elem.appendChild(a_elem)
+                b_elem = document.createElement(u"b")
+                b_elem.appendChild(self.port_b.service.to_dom_fragment(document))
+                port_elem.appendChild(b_elem)
+            for sr_diff in self.script_result_diffs:
+                port_elem.appendChild(sr_diff.to_dom_fragment(document))
+            portdiff_elem.appendChild(port_elem)
+        else:
+            a_elem = document.createElement(u"a")
+            a_elem.appendChild(self.port_a.to_dom_fragment(document))
+            portdiff_elem.appendChild(a_elem)
+            b_elem = document.createElement(u"b")
+            b_elem.appendChild(self.port_b.to_dom_fragment(document))
+            portdiff_elem.appendChild(b_elem)
 
-        a_elem.appendChild(self.port_a.to_dom_fragment(document))
-        b_elem.appendChild(self.port_b.to_dom_fragment(document))
+        return frag
 
+class ScriptResultDiff(object):
+    def __init__(self, sr_a, sr_b):
+        """One of sr_a and sr_b may be None."""
+        self.sr_a = sr_a
+        self.sr_b = sr_b
+
+    def diff_lists(a, b):
+        """Return a list of ScriptResultDiffs from two sorted lists of
+        ScriptResults."""
+        diffs = []
+        i = 0
+        j = 0
+        # This algorithm is like a merge of sorted lists.
+        while i < len(a) and j < len(b):
+            if a[i].id < b[j].id:
+                diffs.append(ScriptResultDiff(a[i], None))
+                i += 1
+            elif a[i].id > b[j].id:
+                diffs.append(ScriptResultDiff(None, b[j]))
+                j += 1
+            else:
+                if a[i].output != b[j].output or verbose:
+                    diffs.append(ScriptResultDiff(a[i], b[j]))
+                i += 1
+                j += 1
+        while i < len(a):
+            diffs.append(ScriptResultDiff(a[i], None))
+            i += 1
+        while j < len(b):
+            diffs.append(ScriptResultDiff(None, b[j]))
+            j += 1
+        return diffs
+    diff_lists = staticmethod(diff_lists)
+
+    def to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        if self.sr_a is not None and self.sr_b is not None and self.sr_a == self.sr_b:
+            frag.appendChild(self.sr_a.to_dom_fragment(document))
+        else:
+            if self.sr_a is not None:
+                a_elem = document.createElement(u"a")
+                a_elem.appendChild(self.sr_a.to_dom_fragment(document))
+                frag.appendChild(a_elem)
+            if self.sr_b is not None:
+                b_elem = document.createElement(u"b")
+                b_elem.appendChild(self.sr_b.to_dom_fragment(document))
+                frag.appendChild(b_elem)
         return frag
 
 class Table(object):

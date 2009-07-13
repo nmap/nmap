@@ -323,7 +323,7 @@ class scan_diff_test(unittest.TestCase):
             diff = ScanDiff(a, b)
             scan_apply_diff(a, diff)
             diff = ScanDiff(a, b)
-            self.assertEqual(len(diff.host_diffs), 0, "%d != 0 in pair %s" % (len(diff.host_diffs), str(pair)))
+            self.assertEqual(diff.host_diffs, {})
             self.assertEqual(set(diff.hosts), set(diff.host_diffs.keys()))
 
 class parse_port_list_test(unittest.TestCase):
@@ -711,5 +711,16 @@ def host_apply_diff(host, diff):
             del host.ports[port.spec]
         else:
             host.ports[port.spec] = diff.port_diffs[port].port_b
+
+    for sr_diff in diff.script_result_diffs:
+        sr_a = sr_diff.sr_a
+        sr_b = sr_diff.sr_b
+        if sr_a is None:
+            host.script_results.append(sr_b)
+        elif sr_b is None:
+            host.script_results.remove(sr_a)
+        else:
+            host.script_results[host.script_results.index(sr_a)] = sr_b
+    host.script_results.sort()
 
 unittest.main()
