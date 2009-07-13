@@ -23,6 +23,28 @@ require("shortport")
 portrule = shortport.port_or_service({80, 443, 631, 8080},
 	{"http", "https", "ipp", "http-alt"})
 
+local format_difftime
+
+action = function(host, port)
+	-- Get the local date in UTC.
+	local request_date = os.date("!*t")
+	local response = http.get(host, port, "/")
+	if not response.status or not response.header["date"] then
+		return
+	end
+
+	local response_date = http.parse_date(response.header["date"])
+	if not response_date then
+		return
+	end
+
+	-- Should account for estimated RTT too.
+	local diff = format_difftime(response_date, request_date)
+
+	return string.format("%s; %s from local time.",
+		response.header["date"], diff)
+end
+
 -- Turn a positive or negative number of seconds into a string in one of the
 -- forms. Signs can of course vary.
 -- 0s
@@ -31,7 +53,7 @@ portrule = shortport.port_or_service({80, 443, 631, 8080},
 -- -9h12m34s
 -- +5d17h05m06s
 -- -2y177d10h13m20s
-local function format_difftime(t2, t1)
+format_difftime = function(t2, t1)
 	local d, s, sign, yeardiff
 
 	d = os.difftime(os.time(t2), os.time(t1))
@@ -89,24 +111,4 @@ local function format_difftime(t2, t1)
 	-- Years.
 	s = string.format("%dy", yeardiff) .. s
 	return sign .. s
-end
-
-action = function(host, port)
-	-- Get the local date in UTC.
-	local request_date = os.date("!*t")
-	local response = http.get(host, port, "/")
-	if not response.status or not response.header["date"] then
-		return
-	end
-
-	local response_date = http.parse_date(response.header["date"])
-	if not response_date then
-		return
-	end
-
-	-- Should account for estimated RTT too.
-	local diff = format_difftime(response_date, request_date)
-
-	return string.format("%s; %s from local time.",
-		response.header["date"], diff)
 end
