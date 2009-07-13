@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A bug in Nsock was fixed: On systems where a nonblocking connect
+  could succeed immediately, connections that were requested to be
+  tunnelled through SSL would actually be plain text. This could be
+  verified with an Ncat client and server running on localhost. This
+  was observed to happen with localhost connections on FreeBSD 7.2.
+  Non-localhost connections were likely not affected. The bug was
+  reported by Daniel Roethlisberger. [David]
+
 o [NSE] Scripts that are listed by name with the --script option now
   have their verbosity level automatically increased by one. Many
   will print negative results ("no infection found") at a higher
