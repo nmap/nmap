@@ -585,6 +585,19 @@ class HostDiff(object):
                     for i in range(i1, i2):
                         print >> f, "   %s" % host_a.os[i]
 
+        table = Table(u"*")
+        for sr_diff in self.script_result_diffs:
+            sr_diff.append_to_port_table(table)
+        if len(table) > 0:
+            print >> f
+            if len(host_b.script_results) == 0:
+                print >> f, u"-Host script results:"
+            elif len(host_a.script_results) == 0:
+                print >> f, u"+Host script results:"
+            else:
+                print >> f, u" Host script results:"
+            print >> f, table
+
     def to_dom_fragment(self, document):
         host_a = self.host_a
         host_b = self.host_b
@@ -763,13 +776,16 @@ class PortDiff(object):
             self.port_b.service.name_string(),
             self.port_b.service.version_string()]
         if a_columns == b_columns:
-            if verbose:
+            if verbose or self.script_result_diffs > 0:
                 table.append([u" "] + a_columns)
         else:
             if not host_a.is_extraports(self.port_a.state):
                 table.append([u"-"] + a_columns)
             if not host_b.is_extraports(self.port_b.state):
                 table.append([u"+"] + b_columns)
+
+        for sr_diff in self.script_result_diffs:
+            sr_diff.append_to_port_table(table)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
@@ -838,6 +854,28 @@ class ScriptResultDiff(object):
             j += 1
         return diffs
     diff_lists = staticmethod(diff_lists)
+
+    # Script result diffs are appended to a port table rather than being printed
+    # directly, so append_to_port_table exists instead of print_text.
+    def append_to_port_table(self, table):
+        a_lines = []
+        b_lines = []
+        if self.sr_a is not None:
+            a_lines = self.sr_a.get_lines()
+        if self.sr_b is not None:
+            b_lines = self.sr_b.get_lines()
+        if a_lines != b_lines or verbose:
+            diffs = difflib.SequenceMatcher(None, a_lines, b_lines)
+            for op, i1, i2, j1, j2 in diffs.get_opcodes():
+                if op == "replace" or op == "delete":
+                    for k in range(i1, i2):
+                        table.append_raw(u"-" + a_lines[k])
+                if op == "replace" or op == "insert":
+                    for k in range(j1, j2):
+                        table.append_raw(u"+" + b_lines[k])
+                if op == "equal":
+                    for k in range(i1, i2):
+                        table.append_raw(u" " + a_lines[k])
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
