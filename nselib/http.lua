@@ -19,6 +19,7 @@ module(... or "http",package.seeall)
 
 local url    = require 'url'
 local stdnse = require 'stdnse'
+local comm   = require 'comm'
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
 -- @return the first index following the spaces.
@@ -308,16 +309,11 @@ request = function( host, port, data, options )
     host = host.ip
   end
 
-  local protocol = 'tcp'
   if type(port) == 'table' then
     if port.protocol and port.protocol ~= 'tcp' then
       stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
       return nil
     end
-    if port.service == 'https' or port.service == 'https-alt' or ( port.version and port.version.service_tunnel == 'ssl' ) then
-      protocol = 'ssl'
-    end
-    port = port.number
   end
 
   -- Build the header.
@@ -333,30 +329,24 @@ request = function( host, port, data, options )
     data = data .. options.content
   end
 
-  local result = {status=nil,["status-line"]=nil,header={},body=""}
-  local socket = nmap.new_socket()
-  local default_timeout = {}
   if options.timeout then
-    socket:set_timeout( options.timeout )
+    local opts = {timeout=options.timeout, recv_before=false}
   else
-    default_timeout = get_default_timeout( nmap.timing_level() )
-    socket:set_timeout( default_timeout.connect )
+    local df_timeout = get_default_timeout( nmap.timing_level() )
+    local opts = {connect_timeout=df_timeout.connect, request_timeout = df_timeout.request, recv_before=false}
   end
 
-  if not socket:connect( host, port, protocol ) then
-    return result
-  end
+  local response = {}
+  local result = {status=nil,["status-line"]=nil,header={},body=""}
+  local socket, bopt
 
-  if not options.timeout then
-    socket:set_timeout( default_timeout.request )
-  end
+  socket, response[1], bopt = comm.tryssl(host, port, data, opts)
 
-  if not socket:send( data ) then
+  if not socket or not response then
     return result
   end
 
   -- no buffer - we want everything now!
-  local response = {}
   while true do
     local status, part = socket:receive()
     if not status then
