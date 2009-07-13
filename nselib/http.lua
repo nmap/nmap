@@ -428,6 +428,63 @@ request = function( host, port, data, options )
 
 end
 
+local MONTH_MAP = {
+  Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
+  Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12
+}
+
+--- Parses an HTTP date string, in any of the following formats from section
+-- 3.3.1 of RFC 2616:
+-- * Sun, 06 Nov 1994 08:49:37 GMT  (RFC 822, updated by RFC 1123)
+-- * Sunday, 06-Nov-94 08:49:37 GMT (RFC 850, obsoleted by RFC 1036)
+-- * Sun Nov  6 08:49:37 1994       (ANSI C's <code>asctime()</code> format)
+-- @arg s the date string.
+-- @return a table with keys <code>year</code>, <code>month</code>,
+-- <code>day</code>, <code>hour</code>, <code>min</code>, <code>sec</code>, and
+-- <code>isdst</code>, relative to GMT, suitable for input to
+-- <code>os.time</code>.
+function parse_date(s)
+  local day, month, year, hour, min, sec, tz, month_name
+  -- RFC 2616, section 3.3.1:
+
+  -- Handle RFC 1123 and 1036 at once.
+  day, month_name, year, hour, min, sec, tz = s:match("^%w+, (%d+)[- ](%w+)[- ](%d+) (%d+):(%d+):(%d+) (%w+)$")
+  if not day then
+    month_name, day, hour, min, sec, year = s:match("%w+ (%w+)  ?(%d+) (%d+):(%d+):(%d+) (%d+)")
+    tz = "GMT"
+  end
+  if not day then
+    stdnse.print_debug(1, "http.parse_date: can't parse date \"%s\": unknown format.", s)
+    return nil
+  end
+  -- Look up the numeric code for month.
+  month = MONTH_MAP[month_name]
+  if not month then
+    stdnse.print_debug(1, "http.parse_date: unknown month name \"%s\".", month_name)
+    return nil
+  end
+  if tz ~= "GMT" then
+    stdnse.print_debug(1, "http.parse_date: don't know time zone \"%s\", only \"GMT\".", tz)
+    return nil
+  end
+  day = tonumber(day)
+  year = tonumber(year)
+  hour = tonumber(hour)
+  min = tonumber(min)
+  sec = tonumber(sec)
+
+  if year < 100 then
+    -- Two-digit year. Make a guess.
+    if year < 70 then
+      year = year + 2000
+    else
+      year = year + 1900
+    end
+  end
+
+  return { year = year, month = month, day = day, hour = hour, min = min, sec = sec, isdst = false }
+end
+
 get_default_timeout = function( nmap_timing )
   local timeout = {}
   if nmap_timing >= 0 and nmap_timing <= 3 then
