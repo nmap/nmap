@@ -7,7 +7,9 @@ sent, so the difference includes at least the duration of one RTT.
 ---
 -- @output
 -- 80/tcp open  http
--- |_ http-date: Mon, 13 Jul 2009 20:53:46 GMT; -5s from local time.
+-- |_ http-date: Mon, 13 Jul 2009 22:44:27 GMT; -5s from local time.
+-- 80/tcp open  http
+-- |_ http-date: Sun, 07 Jan 2007 08:57:52 GMT; -2y187d13h46m40s from local time.
 
 author = "David Fifield <david@bamsoftware.com>"
 
@@ -22,59 +24,89 @@ portrule = shortport.port_or_service({80, 443, 631, 8080},
 	{"http", "https", "ipp", "http-alt"})
 
 -- Turn a positive or negative number of seconds into a string in one of the
--- forms:
+-- forms. Signs can of course vary.
 -- 0s
--- +2s
 -- -4s
 -- +02m38s
 -- -9h12m34s
--- 5d17h05m06s
-local function format_difftime(t)
-	local s, sign, sec
+-- +5d17h05m06s
+-- -2y177d10h13m20s
+local function format_difftime(t2, t1)
+	local d, s, sign, yeardiff
 
-	if t > 0 then
+	d = os.difftime(os.time(t2), os.time(t1))
+	if d > 0 then
 		sign = "+"
-	elseif t < 0 then
+	elseif d < 0 then
 		sign = "-"
+		t2, t1 = t1, t2
+		d = -d
 	else
 		sign = ""
 	end
-	t = math.abs(t)
+	-- t2 is always later than or equal to t1 here.
+
+	-- The year is a tricky case because it's not a fixed number of days
+	-- the way a day is a fixed number of hours or an hour is a fixed
+	-- number of minutes. For example, the difference between 2008-02-10
+	-- and 2009-02-10 is 366 days because 2008 was a leap year, but it
+	-- should be printed as 1y0d0h0m0s, not 1y1d0h0m0s. We advance t1 to be
+	-- the latest year such that it is still before t2, which means that its
+	-- year will be equal to or one less than t2's. The number of years
+	-- skipped is stored in yeardiff.
+	if t2.year > t1.year then
+		local tmpyear = t1.year
+		-- Put t1 in the same year as t2.
+		t1.year = t2.year
+		d = os.difftime(os.time(t2), os.time(t1))
+		if d < 0 then
+			-- Too far. Back off one year.
+			t1.year = t2.year - 1
+			d = os.difftime(os.time(t2), os.time(t1))
+		end
+		yeardiff = t1.year - tmpyear
+		t1.year = tmpyear
+	else
+		yeardiff = 0
+	end
 
 	-- Seconds.
-	sec = t % 60
+	local sec = d % 60
 	s = string.format("%gs", sec)
-	t = math.floor(t / 60)
-	if t == 0 then return sign .. s end
+	d = math.floor(d / 60)
+	if d == 0 and yeardiff == 0 then return sign .. s end
 	-- Minutes.
-	s = string.format("%02dm%02ds", t % 60, sec)
-	t = math.floor(t / 60)
-	if t == 0 then return sign .. s end
+	s = string.format("%02dm%02ds", d % 60, sec)
+	d = math.floor(d / 60)
+	if d == 0 and yeardiff == 0 then return sign .. s end
 	-- Hours.
-	s = string.format("%dh", t % 24) .. s
-	t = math.floor(t / 24)
-	if t == 0 then return sign .. s end
+	s = string.format("%dh", d % 24) .. s
+	d = math.floor(d / 24)
+	if d == 0 and yeardiff == 0 then return sign .. s end
 	-- Days.
-	s = string.format("%dd", t) .. s
+	s = string.format("%dd", d) .. s
+	if yeardiff == 0 then return sign .. s end
+	-- Years.
+	s = string.format("%dy", yeardiff) .. s
 	return sign .. s
 end
 
 action = function(host, port)
-	-- Get local time in UTC.
-	local request_time = os.time(os.date("!*t"))
+	-- Get the local date in UTC.
+	local request_date = os.date("!*t")
 	local response = http.get(host, port, "/")
 	if not response.status or not response.header["date"] then
 		return
 	end
 
-	local date = http.parse_date(response.header["date"])
-	if not date then
+	local response_date = http.parse_date(response.header["date"])
+	if not response_date then
 		return
 	end
 
 	-- Should account for estimated RTT too.
-	local diff = os.difftime(os.time(date), request_time)
+	local diff = format_difftime(response_date, request_date)
 
 	return string.format("%s; %s from local time.",
-		response.header["date"], format_difftime(diff))
+		response.header["date"], diff)
 end
