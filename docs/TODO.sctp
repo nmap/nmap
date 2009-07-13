@@ -5,8 +5,9 @@ o Further investigate SCTP functionality, as some people reported
   http://seclists.org/nmap-dev/2009/q2/0669.html)
 
 o [Ncat] Support SCTP now that Nmap does.
-  o Client support is in /nmap-exp/daniel/sctp-nmap.
-  o Implement SCTP server support.
+  o Client and listen mode support is in /nmap-exp/daniel/sctp-nmap.
+  o Fix the zero-length message issue on Linux.
+  o Implement SCTP broker mode.
   o Test some more and merge to trunk.
 
 o Add support for UDP encapsulated SCTP (9899/udp).
