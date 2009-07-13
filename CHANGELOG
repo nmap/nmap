@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Ndiff now shows changes in script output. [David]
+
 o A bug in Nsock was fixed: On systems where a nonblocking connect
   could succeed immediately, connections that were requested to be
   tunnelled through SSL would actually be plain text. This could be

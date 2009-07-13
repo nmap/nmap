@@ -3,7 +3,8 @@ Ndiff
 Ndiff is a tool to aid in the comparison of Nmap scans. Specifically, it
 takes two Nmap XML output files and prints the differences between them.
 It is capable of showing changes in host states (up or down), port
-states (open, closed, etc.), and changes in service and OS detection.
+states (open, closed, etc.), script results, and changes in service and
+OS detection.
 
 To install, run (as root)
 	python setup.py install

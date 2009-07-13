@@ -31,13 +31,30 @@
 
     <para>
     Ndiff is a tool to aid in the comparison of Nmap scans. It takes two
-    Nmap XML output files and prints the differences between them: hosts
-    coming up and down, ports becoming open or closed, etc.
+    Nmap XML output files and prints the differences between them. The
+    differences observed are:
+    <itemizedlist>
+      <listitem>
+        <para>Host states (e.g. up to down)</para>
+      </listitem>
+      <listitem>
+        <para>Port states (e.g. open to closed)</para>
+      </listitem>
+      <listitem>
+        <para>Service versions (from <option>-sV</option>)</para>
+      </listitem>
+      <listitem>
+        <para>OS matches (from <option>-O</option>)</para>
+      </listitem>
+      <listitem>
+        <para>Script output</para>
+      </listitem>
+    </itemizedlist>
     </para>
 
     <para>
-    Ndiff compares two scans at a time. The first scan is called the A
-    scan and the second scan is called the B scan.
+    Ndiff, like the standard <command>diff</command> utility, compares two scans
+    at a time.
     </para>
   </refsect1>
 
@@ -86,8 +103,7 @@
 
     <para>
     Any other arguments are taken to be the names of Nmap XML output
-    files. There must be exactly two. The first one listed is the A scan
-    and the second is the B scan.
+    files. There must be exactly two.
     </para>
   </refsect1>
 
