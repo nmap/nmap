@@ -545,23 +545,8 @@ class HostDiff(object):
         port_table.append((mark, u"PORT", u"STATE", u"SERVICE", u"VERSION"))
 
         for port in self.ports:
-            diff = self.port_diffs[port]
-            a_columns = [diff.port_a.spec_string(),
-                diff.port_a.state_string(),
-                diff.port_a.service.name_string(),
-                diff.port_a.service.version_string()]
-            b_columns = [diff.port_b.spec_string(),
-                diff.port_b.state_string(),
-                diff.port_b.service.name_string(),
-                diff.port_b.service.version_string()]
-            if a_columns == b_columns:
-                if verbose:
-                    port_table.append([u" "] + a_columns)
-            else:
-                if not host_a.is_extraports(diff.port_a.state):
-                    port_table.append([u"-"] + a_columns)
-                if not host_b.is_extraports(diff.port_b.state):
-                    port_table.append([u"+"] + b_columns)
+            port_diff = self.port_diffs[port]
+            port_diff.append_to_port_table(port_table, host_a, host_b)
 
         if len(port_table) > 1:
             print >> f, port_table
@@ -722,6 +707,30 @@ class PortDiff(object):
 
         if self.port_a.service != self.port_b.service:
             self.cost += 1
+
+    # PortDiffs are inserted into a Table and then printed, not printed out
+    # directly. That's why this class has append_to_port_table instead of
+    # print_text.
+    def append_to_port_table(self, table, host_a, host_b):
+        """Append this port diff to a Table containing five columns:
+            +- PORT STATE SERVICE VERSION
+        The "+-" stands for the diff indicator column."""
+        a_columns = [self.port_a.spec_string(),
+            self.port_a.state_string(),
+            self.port_a.service.name_string(),
+            self.port_a.service.version_string()]
+        b_columns = [self.port_b.spec_string(),
+            self.port_b.state_string(),
+            self.port_b.service.name_string(),
+            self.port_b.service.version_string()]
+        if a_columns == b_columns:
+            if verbose:
+                table.append([u" "] + a_columns)
+        else:
+            if not host_a.is_extraports(self.port_a.state):
+                table.append([u"-"] + a_columns)
+            if not host_b.is_extraports(self.port_b.state):
+                table.append([u"+"] + b_columns)
 
     def to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
