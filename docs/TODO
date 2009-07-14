@@ -1,16 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-
-===FEATURES FOR NEXT STABLE VERSION GO ABOVE THIS POINT===
-
-o Further investigate SCTP functionality, as some people reported
-  problems (see this thread:
-  http://seclists.org/nmap-dev/2009/q2/0669.html)
-
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
-  would be readible by anyone.
+  would be readible by anyone. [Fyodor]
 
 o Get set up for Coverity scan of latest version to see if it catches
   any important issues before stable release. [Fyodor,David]
@@ -36,6 +29,13 @@ o Device categorization improvements
 
 o Ndiff should be able to show NSE script result changes. [David]
 
+o [Zenmap] The Search dialogue is helpful for finding a certain scan
+  you've performed recently, but we should probably also offer a similar
+  function for searching for certain applications/hosts within a scan
+  (e.g. find all the hosts running Apache).  This new functionality
+  might be a find option or some other mechanism rather than being
+  part of the Search dialogue proper.
+
 o Ndiff man page should be expanded to include sample execution/output
   and more fully describe its functionality. [David]
 
@@ -58,8 +58,8 @@ o [NSE] Figure out a way to support people who want to do script scan,
   more types of scans--a while back we started allowing it with -sP
   ping scans due to high demand. [David/SoC]
 
-o Joao is auditing his Lua code to make sure all his variables are
-  local where appropriate. [Joao]
+o Ncat should give it's ethernet cat ASCII logo after
+  configure--similar to the way that Nmap, Ncrack, and Nping do.
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
@@ -95,6 +95,9 @@ o The Nmap refguide (http://nmap.org/book/man-performance.html) says
   You can't use --max-parallelism with --scan-delay.
   QUITTING!
   We need to either make that work or adjust the documentation.
+
+o Joao is auditing his Lua code to make sure all his variables are
+  local where appropriate. [Joao]
 
 o Consider the open proxy scripts more carefully
  - How should we test whether the proxy attempt was successful?  Right
@@ -181,13 +184,6 @@ o Ncat SSLv2 issues.  See
   ClientHello and just don't offer any SSLv2 features. [David/Venkat
   working on this]
 
-o [Zenmap] The Search dialogue is helpful for finding a certain scan
-  you've performed recently, but we should probably also offer a similar
-  function for searching for certain applications/hosts within a scan
-  (e.g. find all the hosts running Apache).  This new functionality
-  might be a find option or some other mechanism rather than being
-  part of the Search dialogue proper.
-
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
@@ -227,6 +223,10 @@ o Scanning through proxies
      these different applications can be scanned through using the
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
+
+o Further investigate SCTP functionality, as some people reported
+  problems (see this thread:
+  http://seclists.org/nmap-dev/2009/q2/0669.html)
 
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
