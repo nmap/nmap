@@ -275,6 +275,9 @@ static int aux_mutex (lua_State *L)
       {
         lua_pushthread(L);
         lua_replace(L, lua_upvalueindex(2));
+        lua_pushvalue(L, lua_upvalueindex(3)); // unique identifier
+        lua_pushvalue(L, lua_upvalueindex(4)); // aux_mutex_done closure
+        nse_destructor(L, 'a');
         lua_pushboolean(L, true);
       }
       else
