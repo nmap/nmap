@@ -28,6 +28,7 @@
 #define NSE_BASE "NSE_BASE"
 #define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
+#define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 
 #define MAX_FILENAME_LEN 4096
 
@@ -527,6 +528,12 @@ void nse_base (lua_State *L)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_BASE);
   lua_call(L, 0, 1); /* returns base thread */
+}
+
+void nse_selectedbyname (lua_State *L)
+{
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_SELECTED_BY_NAME);
+  lua_call(L, 0, 1); /* returns boolean, whether script was selected by name */
 }
 
 static lua_State *L_NSE = NULL;

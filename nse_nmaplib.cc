@@ -21,9 +21,6 @@ extern "C" {
 #include "nse_nmaplib.h"
 #include "nse_nsock.h"
 
-/* This is used to index the registry in nse_main.lua. */
-#define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
-
 #define SCRIPT_ENGINE_PUSHSTRING_NOTNULL(c_str, str) if(c_str != NULL) {\
   lua_pushstring(L, c_str); \
   lua_setfield(L, -2, str); \
@@ -524,16 +521,9 @@ static int l_get_verbosity (lua_State *L)
   int verbosity;
 
   verbosity = o.verbose;
-  /* Call the SELECTED_BY_NAME function in nse_main.lua. When a script is
-     selected by name, we lie to it and say the verbosity is one higher than it
-     really is. */
-  lua_getfield(L, LUA_REGISTRYINDEX, NSE_SELECTED_BY_NAME);
-  if (!lua_isnil(L, -1)) {
-    lua_call(L, 0, 1);
-    if (lua_toboolean(L, -1))
-      verbosity += 1;
-  }
-  lua_pop(L, 1);
+  /* Check if script is selected by name. When a script is selected by name,
+     we lie to it and say the verbosity is one higher than it really is. */
+  verbosity += (nse_selectedbyname(L), lua_toboolean(L, -1) ? 1 : 0);
 
   lua_pushnumber(L, verbosity);
   return 1;
