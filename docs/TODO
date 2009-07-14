@@ -5,10 +5,6 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
 
-o Get set up for Coverity scan of latest version to see if it catches
-  any important issues before stable release. [Fyodor,David]
-  [Found 7 new results, 3 are real bugs, and 2 have been fixed so far]
- 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
@@ -27,7 +23,30 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Ndiff should be able to show NSE script result changes. [David]
+o Add -sn and -Pn options which are aliases for -sP and -PN.  Once
+  they've been around long enough to be in most people's copy of Nmap,
+  we plan to document those as the preferred version.  Those match -n,
+  and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you still might
+  want to use NSE. [David]
+
+o Make -sP work with -PN to disable both port and ping scanning.  We
+  need to make sure the various options still work (-O, --script,
+  --traceroute, etc.) with this, as many currently don't as they don't
+  expect this behavior, which used to be unsupported and cause Nmap to
+  quit with an error messaqge.  It may be OK to refuse -O since that
+  will rarely give useful results.  OTOH, -O may work on some systems
+  with unique closed port signatures where Nmap guesses a closed
+  port. Users should then be able to do an NSE-only scan with "-sP -PN
+  --script [scripts]" We should document this -sP -PN usage in
+  refguide.  [David]
+
+o David is going to reexamine the old coverity-reported issues (the
+  ones we previously marked as "ignore" because they weren't real bugs)
+  just to be sure that is (and is still) the case.
+
+o Ndiff man page should be expanded to include sample execution/output
+  and more fully describe its functionality. [David]
 
 o [Zenmap] The Search dialogue is helpful for finding a certain scan
   you've performed recently, but we should probably also offer a similar
@@ -36,30 +55,14 @@ o [Zenmap] The Search dialogue is helpful for finding a certain scan
   might be a find option or some other mechanism rather than being
   part of the Search dialogue proper.
 
-o Ndiff man page should be expanded to include sample execution/output
-  and more fully describe its functionality. [David]
-
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
   determining how many to run concurrently, looking at CPU load items,
   etc. [David/Patrick]
 
-o [NSE] Figure out a way to support people who want to do script scan,
-  but not port scan or ping scan.  One option would be to allow
-  --script to list scan (-sL), but perhaps a better option is to
-  provide a way to disable port scanning in the same way as we offer
-  -PN to disable ping scanning.  As an example of this need, David had
-  to write special code to avoid ping/port scanning when doing a
-  whois.nse survey for
-  http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes.  The
-  key for this task is to figure out how to do it from a user
-  interface perspective and then implement and document it.  We've
-  already been going in the direction of allowing script scanning in
-  more types of scans--a while back we started allowing it with -sP
-  ping scans due to high demand. [David/SoC]
-
 o Ncat should give it's ethernet cat ASCII logo after
-  configure--similar to the way that Nmap, Ncrack, and Nping do.
+  configure--similar to the way that Nmap, Ncrack, and Nping
+  do. [David/SoC]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
@@ -94,7 +97,7 @@ o The Nmap refguide (http://nmap.org/book/man-performance.html) says
   # ./nmap --max-parallelism 1 --scan-delay 10 scanme.nmap.org
   You can't use --max-parallelism with --scan-delay.
   QUITTING!
-  We need to either make that work or adjust the documentation.
+  We need to either make that work or adjust the documentation. [David/SoC]
 
 o Joao is auditing his Lua code to make sure all his variables are
   local where appropriate. [Joao]
@@ -105,19 +108,6 @@ o Consider the open proxy scripts more carefully
    reach http://www.google.com through the proxy.  Maybe we should let
    users specify their own pattern if they specify their own URL.
   [ Joao is nearly done, will be checking into dev tree]
-
-o Consider making it easier to tell whether scripts were specified by
-  name on the command-line (rather than default or by class) so they
-  have the option of providing extra verbosity in that case.  For
-  example, see http://seclists.org/nmap-dev/2009/q2/0563.html.  We
-  could either provide a special function for scripts to determine
-  that, or we could magically adjust nmap.verbosity() when called by
-  those scripts. [David]
-
-o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
-  - OTOH, we might want to extend --chat for connect mode in the
-    future.
-  [We're going to hold off on chat now, David/SoC is doing --broker]
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too. [Joao has a solution and is testing the http scripts to
@@ -154,13 +144,6 @@ o [Web] Consider adding training/introduction videos to the Nmap site
 o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
   traffic stats when a client connection ends.  Maybe it could use a
   format similar to what Nmap provides. [David/Venkat]
-
-o [Ncat] Print a message to stderr upon connection failure even if -v
-  isn't specified so the user knows what went wrong. [David/SoC]
-
-o Resolve "memcpy overlap in getinterfaces(int*) (tcpip.cc:2987)".
-  See this thread: http://seclists.org/nmap-dev/2009/q2/0713.html
-  [David/Brandon]
 
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
@@ -235,11 +218,11 @@ o [NSE] Improve username/password library (the database files
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
-
 o [Ncat] Support SCTP now that Nmap does. 
   - See client support patch by Daniel Roethlisberger: 
     http://seclists.org/nmap-dev/2009/q2/0609.html
   - Server support?
+  - Daniel has a patch, David looking to apply once an nsock thing is fixed.
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -440,8 +423,15 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
     o Problematic for scan types -sI and -b which require arguments
     o Inconsistencies.  For example, -sC and -sV do script scan and
     version detection, respectively, and yet for OS detection we use
-    -O.
+    -O.  Also, control flow (-sP, -sL) is used with -s, which further
+    overloads the options.
   o Possible solution:
+    o We are enabling -Pn and -sn as preferred notations for -PN and
+      -sP which mean "no ping" and "no port scan".  Those match the
+      already existing -n for "no DNS".  The problem with -sP is that it
+      implies "ping only", when what it really should mean is "disable
+      port scan" because you may want to do NSE, OS detection,
+      traceroute, etc. still.
     o We might want to just give them normal option strings, so you
       could do --maimon instead of -sM, for example.  For extremely
       common options such as SYN scan, UDP scan, version detection, we
@@ -452,6 +442,8 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
       you're combining mulitiple ones.  Doesn't allow for individual
       scan arguments easily.  I (Fyodor) think I prefer the idea above
       of just givem them top level arguments.
+    o If we keep -s*, we could just give it one defined function, such
+      as selecting port scan type, or control flow.
   o Obviously this will take some discussion/brainstorming on nmap-dev.
 
 o libnmap organization for UNIX and Windows
@@ -623,6 +615,49 @@ o random tip database
 
 DONE:
 
+o Resolve "memcpy overlap in getinterfaces(int*) (tcpip.cc:2987)".
+  See this thread: http://seclists.org/nmap-dev/2009/q2/0713.html
+  [David/Brandon]
+
+o [Ncat] Print a message to stderr upon connection failure even if -v
+  isn't specified so the user knows what went wrong. [David/SoC]
+
+o [Ncat] Maybe --chat should imply -l.  And Maybe --broker should too?
+  - OTOH, we might want to extend --chat for connect mode in the
+    future.
+  [We're going to hold off on chat now, David/SoC is doing --broker]
+
+o Consider making it easier to tell whether scripts were specified by
+  name on the command-line (rather than default or by class) so they
+  have the option of providing extra verbosity in that case.  For
+  example, see http://seclists.org/nmap-dev/2009/q2/0563.html.  We
+  could either provide a special function for scripts to determine
+  that, or we could magically adjust nmap.verbosity() when called by
+  those scripts. [David]
+
+o [NSE] Figure out a way to support people who want to do script scan,
+  but not port scan or ping scan.  One option would be to allow
+  --script to list scan (-sL), but perhaps a better option is to
+  provide a way to disable port scanning in the same way as we offer
+  -PN to disable ping scanning.  As an example of this need, David had
+  to write special code to avoid ping/port scanning when doing a
+  whois.nse survey for
+  http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes.  The
+  key for this task is to figure out how to do it from a user
+  interface perspective and then implement and document it.  We've
+  already been going in the direction of allowing script scanning in
+  more types of scans--a while back we started allowing it with -sP
+  ping scans due to high demand. [David/SoC]
+  [ We decided how we're going to do it (-sP -PN to start out with;
+  leading to eventual -sn -Pn) and added new TODO entries for actually
+  doing the code/docs. ]
+
+o Ndiff should be able to show NSE script result changes. [David]
+
+o Get set up for Coverity scan of latest version to see if it catches
+  any important issues before stable release. [Fyodor,David]
+  [Found 7 new results, 3 are real bugs, and 2 have been fixed so far]
+ 
 o [nsock] Fix Makefile to handle dependencies correctly (if that turns
   out to be the problem).  See
   http://seclists.org/nmap-dev/2009/q1/0629.html.  o Or it may be
