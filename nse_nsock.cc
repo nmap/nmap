@@ -273,7 +273,7 @@ static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
  */
 static int socket_lock(lua_State * L)
 {
-  int p = o.max_parallelism == 0 ? MAX_PARALLELISM : o.max_parallelism;
+  unsigned p = o.max_parallelism == 0 ? MAX_PARALLELISM : o.max_parallelism;
   lua_settop(L, 1);
   lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_SOCKETS);
   nse_base(L);
