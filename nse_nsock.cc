@@ -259,7 +259,7 @@ static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
  * CONNECT_WAITING is a weak keyed table of <Thread, Garbage Value> pairs.
  * The table contains threads waiting to make a socket connection.
  */
-#define MAX_PARALLELISM   10
+#define MAX_PARALLELISM   40
 #define THREAD_SOCKETS     1           /* <Thread, Table of Sockets (keys)> */
 #define CONNECT_WAITING    2           /* Threads waiting to lock */
 
@@ -273,6 +273,7 @@ static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
  */
 static int socket_lock(lua_State * L)
 {
+  int p = o.max_parallelism == 0 ? MAX_PARALLELISM : o.max_parallelism;
   lua_settop(L, 1);
   lua_rawgeti(L, LUA_ENVIRONINDEX, THREAD_SOCKETS);
   nse_base(L);
@@ -284,7 +285,7 @@ static int socket_lock(lua_State * L)
     lua_pushvalue(L, 1);
     lua_pushboolean(L, true);
     lua_rawset(L, -3);
-  } else if (table_length(L, 2) <= MAX(MAX_PARALLELISM, o.max_parallelism))
+  } else if (table_length(L, 2) <= p)
   {
     /* There is room for this thread to open sockets */
     nse_base(L);
