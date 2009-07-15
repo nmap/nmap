@@ -174,7 +174,8 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
 
-  ;Check if VC++ 2008 runtimes are already installed:
+  ;Check if VC++ 2008 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
+  ;whenever the Redistributable package is upgraded:
     ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9A25302D-30C0-39D9-BD6F-21E6EC160475}" "DisplayName"
     StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.17" create_uninstaller vcredist_silent_install
 
