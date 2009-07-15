@@ -174,19 +174,6 @@ static int key_was_pressed (lua_State *L)
   return 1;
 }
 
-static int ref (lua_State *L)
-{
-  lua_settop(L, 1);
-  lua_pushinteger(L, (lua_Integer) luaL_ref(L, LUA_REGISTRYINDEX));
-  return 1;
-}
-
-static int unref (lua_State *L)
-{
-  luaL_unref(L, LUA_REGISTRYINDEX, luaL_checkint(L, 1));
-  return 0;
-}
-
 static int updatedb (lua_State *L)
 {
   lua_pushboolean(L, script_updatedb());
@@ -232,8 +219,6 @@ static void open_cnse (lua_State *L)
     {"dump_dir", dump_dir},
     {"nsock_loop", nsock_loop},
     {"key_was_pressed", key_was_pressed},
-    {"ref", ref},
-    {"unref", unref},
     {"updatedb", updatedb},
     {"scan_progress_meter", scan_progress_meter},
     {"timedOut", timedOut},
