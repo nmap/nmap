@@ -43,7 +43,7 @@ end
 
 action = function(host, port)
 
-  local data, result, redir, title
+  local data, result, redir, title, loc
 
   data = http.get( host, port, '/' )
 
