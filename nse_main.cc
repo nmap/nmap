@@ -533,7 +533,12 @@ void nse_base (lua_State *L)
 void nse_selectedbyname (lua_State *L)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_SELECTED_BY_NAME);
-  lua_call(L, 0, 1); /* returns boolean, whether script was selected by name */
+  if (lua_isnil(L, -1)) {
+    lua_pushboolean(L, 0);
+    lua_replace(L, -2);
+  } else {
+    lua_call(L, 0, 1); /* returns boolean, whether script was selected by name */
+  }
 }
 
 static lua_State *L_NSE = NULL;
