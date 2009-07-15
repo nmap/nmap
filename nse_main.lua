@@ -88,6 +88,8 @@ do -- Append the nselib directory to the Lua search path
   package.path = package.path..";"..path.."?.lua";
 end
 
+(require "strict")() -- strict global checking
+
 -- NSE_YIELD_VALUE
 -- This is the table C uses to yield a thread with a unique value to
 -- differentiate between yields initiated by NSE or regular coroutine yields.
