@@ -259,7 +259,7 @@ static void set_thread (lua_State *L, int index, struct l_nsock_udata *n)
  * CONNECT_WAITING is a weak keyed table of <Thread, Garbage Value> pairs.
  * The table contains threads waiting to make a socket connection.
  */
-#define MAX_PARALLELISM   40
+#define MAX_PARALLELISM   20
 #define THREAD_SOCKETS     1           /* <Thread, Table of Sockets (keys)> */
 #define CONNECT_WAITING    2           /* Threads waiting to lock */
 
