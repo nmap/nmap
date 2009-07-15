@@ -19,6 +19,7 @@ Attempts to find the owner of an open TCP port by querying an auth
 -- 5666/tcp open     unknown
 -- |_ auth-owners: root
 
+-- The protocol is documented in RFC 1413.
 
 author = "Diman Todorov <diman.todorov@gmail.com>"
 
@@ -55,7 +56,7 @@ action = function(host, port)
 	local localip, localport, remoteip, remoteport =
         	try(client_service:get_info())
 
-	local request = port.number .. ", " .. localport .. "\n"
+	local request = port.number .. ", " .. localport .. "\r\n"
 
 	try(client_ident:send(request))
 
@@ -64,7 +65,7 @@ action = function(host, port)
 	if string.match(owner, "ERROR") then 
 		owner = nil
 	else
-		owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
+		owner = string.match(owner, "USERID : .+ : (.-)\r?\n", 1)
 	end
 
 	try(client_ident:close())
