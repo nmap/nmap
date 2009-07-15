@@ -47,7 +47,7 @@ action = function(host, port)
    local socket = nmap.new_socket()
    local opts = {timeout=10000, recv_before=true}
    
-   socket, nothing, bopt, line = comm.tryssl(host, port, "" , opts)
+   local socket, nothing, bopt, line = comm.tryssl(host, port, "" , opts)
 
    if not socket then return end -- no connection 
    if not stat(line) then return end -- no pop-connection
@@ -59,6 +59,7 @@ action = function(host, port)
    end
    
    local getUser
+   local _
 
    status, getUser = unpwdb.usernames()
    if (not status) then return end
@@ -85,10 +86,10 @@ action = function(host, port)
 	 elseif (perror == pop3.err.userError) then
 	    currPw = nil
 	 else
-            socstatus = socket:connect(host.ip, port.number, bopt)
+            local socstatus = socket:connect(host.ip, port.number, bopt)
 	    if not socstatus 
 	       then return
-               else recvstatus, line = socket:receive()
+               else _, line = socket:receive()
                     if not stat(line) then return end -- no connection
             end
          end
