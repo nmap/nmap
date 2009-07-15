@@ -303,6 +303,7 @@ end
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 request = function( host, port, data, options )
+  local opts
   options = options or {}
 
   if type(host) == 'table' then
@@ -330,10 +331,10 @@ request = function( host, port, data, options )
   end
 
   if options.timeout then
-    local opts = {timeout=options.timeout, recv_before=false}
+    opts = {timeout=options.timeout, recv_before=false}
   else
     local df_timeout = get_default_timeout( nmap.timing_level() )
-    local opts = {connect_timeout=df_timeout.connect, request_timeout = df_timeout.request, recv_before=false}
+    opts = {connect_timeout=df_timeout.connect, request_timeout = df_timeout.request, recv_before=false}
   end
 
   local response = {}
