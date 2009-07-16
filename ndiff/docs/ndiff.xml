@@ -176,12 +176,38 @@ $ ndiff -v scanme-1.xml scanme-2.xml
 
     <para>
     <xref linkend="ndiff-man-ex-text-output"/> is an example of text
-    output.
+    output. Here, port 80 on the host
+    <literal>photos-cache-snc1.facebook.com</literal> gained a service
+    version (<computeroutput>lighttpd 1.5.0</computeroutput>). The host
+    at 69.63.179.25 changed its reverse DNS name. The host at
+    69.63.184.145 was completely absent in the first scan but came up in
+    the second.
     </para>
 
     <example id="ndiff-man-ex-text-output">
       <title>Ndiff text output</title>
 <screen>
+-Nmap 4.85BETA3 at 2009-03-15 11:00
++Nmap 4.85BETA4 at 2009-03-18 11:00
+
+ photos-cache-snc1.facebook.com (69.63.178.41):
+ Host is up.
+ Not shown: 99 filtered ports
+ PORT   STATE SERVICE VERSION
+-80/tcp open  http
++80/tcp open  http    lighttpd 1.5.0
+
+-cm.out.snc1.tfbnw.net (69.63.179.25):
++mailout-snc1.facebook.com (69.63.179.25):
+ Host is up.
+ Not shown: 100 filtered ports
+
++69.63.184.145:
++Host is up.
++Not shown: 98 filtered ports
++PORT    STATE SERVICE  VERSION
++80/tcp  open  http     Apache httpd 1.3.41.fb1
++443/tcp open  ssl/http Apache httpd 1.3.41.fb1
 </screen>
     </example>
 
@@ -203,12 +229,84 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     <xref linkend="ndiff-man-ex-xml-output"/> shows the XML diff of the
     same scans shown above in
     <xref linkend="ndiff-man-ex-text-output" xrefstyle="select: label"/>.
+    Notice how port 80 of
+    <literal>photos-cache-snc1.facebook.com</literal> is enclosed in
+    <varname>portdiff</varname> tags. For 69.63.179.25, the old hostname
+    is in <varname>a</varname> tags and the new is in
+    <varname>b</varname>. For the new host 69.63.184.145, there is a
+    <varname>b</varname> in the <varname>hostdiff</varname> without a
+    corresponding <varname>a</varname>, indicating that there was no
+    information for the host in the first scan.
     </para>
 
     <example id="ndiff-man-ex-xml-output">
       <title>Ndiff XML output</title>
 <screen>
 <![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<nmapdiff version="1">
+  <scandiff>
+    <hostdiff>
+      <host>
+        <status state="up"/>
+        <address addr="69.63.178.41" addrtype="ipv4"/>
+        <hostnames>
+          <hostname name="photos-cache-snc1.facebook.com"/>
+        </hostnames>
+        <ports>
+          <extraports count="99" state="filtered"/>
+          <portdiff>
+            <port portid="80" protocol="tcp">
+              <state state="open"/>
+              <a>
+                <service name="http"/>
+              </a>
+              <b>
+                <service name="http" product="lighttpd" version="1.5.0"/>
+              </b>
+            </port>
+          </portdiff>
+        </ports>
+      </host>
+    </hostdiff>
+    <hostdiff>
+      <host>
+        <status state="up"/>
+        <address addr="69.63.179.25" addrtype="ipv4"/>
+        <hostnames>
+          <a>
+            <hostname name="cm.out.snc1.tfbnw.net"/>
+          </a>
+          <b>
+            <hostname name="mailout-snc1.facebook.com"/>
+          </b>
+        </hostnames>
+        <ports>
+          <extraports count="100" state="filtered"/>
+        </ports>
+      </host>
+    </hostdiff>
+    <hostdiff>
+      <b>
+        <host>
+          <status state="up"/>
+          <address addr="69.63.184.145" addrtype="ipv4"/>
+          <ports>
+            <extraports count="98" state="filtered"/>
+            <port portid="80" protocol="tcp">
+              <state state="open"/>
+              <service name="http" product="Apache httpd" version="1.3.41.fb1"/>
+            </port>
+            <port portid="443" protocol="tcp">
+              <state state="open"/>
+              <service name="http" product="Apache httpd" tunnel="ssl" version="1.3.41.fb1"/>
+            </port>
+          </ports>
+        </host>
+      </b>
+    </hostdiff>
+  </scandiff>
+</nmapdiff>
 ]]>
 </screen>
     </example>
