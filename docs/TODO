@@ -125,6 +125,10 @@ o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
   They have a decent collection there.  KX sent some other programs we
   should look at too. [David]
 
+o [Ncat] This may sound rediculous, but I'm starting to think that
+  Ncat should offer a very simple built-in http server (e.g. for simply
+  sharing files, etc.)
+
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
    introduction to each tool (Nmap, Zenmap, Ncat, Ndiff) on its web
