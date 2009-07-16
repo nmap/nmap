@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The Ndiff man page was expanded with examples and sample output.
+  [David]
+
 o Made RPC grinding work from service detection again by changing the
   looked-for service name from "rpc" to "rpcbind", the name it has in
   nmap-service-probes. [David]
