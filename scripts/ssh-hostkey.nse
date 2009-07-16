@@ -48,9 +48,10 @@ if pcall(require,"openssl") then
   require("ssh1")
   require("ssh2")
 else
-  action = function()
-    stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", filename )
-  end 
+  portrule = function() return false end
+  action = function() end
+  stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", filename )
+  return;
 end
 
 portrule = shortport.port_or_service(22, "ssh")
@@ -65,7 +66,7 @@ local add_key_to_registry = function( host, key )
   table.insert( nmap.registry.sshhostkey[host.ip], key )
 end
 
-action = action or function(host, port)
+action = function(host, port)
   local output = {}
   local keys = {}
   local _,key
