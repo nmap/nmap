@@ -10,10 +10,7 @@ message and changes it to the message given.
 -- @arg pjl_ready_message Ready message to display.
 -- @output
 -- 9100/tcp open  jetdirect
--- |   hprdymsg: "Printer display initially read: "<initial message>"
--- |_ "p0wn3d pr1nt3r" was set as the display for printer at printer.ip.address
--- |_ "Re-polling printer to check that message was successful"
--- |_ "Current printer display message: "p0wn3d pr1nt3r"
+-- |_ pjl-ready-message: "READY" changed to "p0wn3d pr1nt3r"
 -- @usage
 -- nmap --script=pjl-ready-message.nse \
 --   --script-args='pjl_ready_message="your message here"'
@@ -31,19 +28,12 @@ portrule = shortport.port_or_service(9100, "jetdirect")
 local function parse_response(response)
 	local msg
 	local line
-	local found=0
 	
 	for line in response:gmatch(".-\n") do
 		msg = line:match("^DISPLAY=\"(.*)\"")
 		if msg then
-			found=1
-			break
+			return msg
 		end
-	end
-	if found==1 then
-		return(msg)
-	else
-		return("No Response from Printer")
 	end
 end
 
@@ -67,14 +57,28 @@ action = function(host, port)
 	response,data=socket:receive()  
 	if not response then			--send an initial probe. If no response, send nothing further. 
 		socket:close()
-		return("No response from printer")
-	else
-	--The following block will check for an argument from the command line and if there isn't one, it will attempt to return the current display and quit out
-		if not nmap.registry.args.pjl_ready_message then
-			status=parse_response(data)
-			return("Current Display: \""..status.."\"")
-		else	--There is a command-line arg if you got here. Set up the new display message for injection. 
-			rdymsgarg=nmap.registry.args.pjl_ready_message
+		if nmap.verbosity() > 0 then
+			return "No response from printer: "..data
+		else
+			return nil
+		end
+	end
+
+	status = parse_response(data)
+	if not status then
+		if nmap.verbosity() > 0 then
+			return "Error reading printer response: "..data
+		else
+			return nil
+		end
+	end
+
+	rdymsgarg = nmap.registry.args.pjl_ready_message
+	if not rdymsgarg then
+		if status then
+			return "\""..status.."\"" 
+		else
+			return nil
 		end
 	end
 	
@@ -83,11 +87,17 @@ action = function(host, port)
 	
 	try(socket:send(statusmsg))		--this block gets the status again for comparison
 	response,data=socket:receive()
+	if not response then
+		socket:close()
+		return "\""..status.."\""
+	end
 	newstatus=parse_response(data)
+	if not newstatus then
+		socket:close()
+		return "\""..status.."\""
+	end
 	
 	socket:close()
 	
-	local outstring
-	outstring = "\""..rdymsgarg.."\"".." was set as the display for printer at "..host.ip.."\r\n".."Re-polling printer to check that message was successful...\r\n".."Current printer display message: \""..newstatus.."\""
-	return(outstring)
+	return "\""..status.."\" changed to \""..newstatus.."\""
 end
