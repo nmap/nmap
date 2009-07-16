@@ -178,15 +178,16 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
   struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
   size_t slen;             /* needed for funct but not used */
   unsigned long mask = 0;  /* our trusty netmask, which we convert to nbo */
-  struct sockaddr_in *checkhost;
+  struct sockaddr_in *checkhost_in;
 
   if ((TargetGroup *)0 == exclude_group)
     return 0;
 
-  assert(checksocklen >= sizeof(struct sockaddr_in));
-  checkhost = (struct sockaddr_in *) checksock;
-  if (checkhost->sin_family != AF_INET)
-    checkhost = NULL;
+  checkhost_in = NULL;
+  if (checksock->sa_family == AF_INET) {
+    assert(checksocklen >= sizeof(struct sockaddr_in));
+    checkhost_in = (struct sockaddr_in *) checksock;
+  }
 
   /* First find out what type of addresses are in the target group */
   targets_type = exclude_group[i].get_targets_type();
@@ -201,8 +202,10 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
       /* For Netmasks simply compare the network bits and move to the next
        * group if it does not compare, we don't care about the individual addrs */
       if (targets_type == TargetGroup::IPV4_NETMASK) {
+        if (checkhost_in == NULL)
+          break;
         mask = htonl((unsigned long) (0-1) << (32-exclude_group[i].get_mask()));
-        if ((tmpTarget & mask) == (checkhost->sin_addr.s_addr & mask)) {
+        if ((tmpTarget & mask) == (checkhost_in->sin_addr.s_addr & mask)) {
 	  exclude_group[i].rewind();
 	  return 1;
         }
@@ -214,16 +217,18 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
        * we should skip the rest of the addrs in the octet, thank wam for this
        * optimization */
       else if (targets_type == TargetGroup::IPV4_RANGES) {
-        if (tmpTarget == checkhost->sin_addr.s_addr) {
+        if (checkhost_in == NULL)
+          break;
+        if (tmpTarget == checkhost_in->sin_addr.s_addr) {
           exclude_group[i].rewind();
           return 1;
         }
         else { /* note these are in network byte order */
-	  if ((tmpTarget & 0x000000ff) != (checkhost->sin_addr.s_addr & 0x000000ff))
+	  if ((tmpTarget & 0x000000ff) != (checkhost_in->sin_addr.s_addr & 0x000000ff))
             exclude_group[i].skip_range(TargetGroup::FIRST_OCTET); 
-	  else if ((tmpTarget & 0x0000ff00) != (checkhost->sin_addr.s_addr & 0x0000ff00))
+	  else if ((tmpTarget & 0x0000ff00) != (checkhost_in->sin_addr.s_addr & 0x0000ff00))
             exclude_group[i].skip_range(TargetGroup::SECOND_OCTET); 
-	  else if ((tmpTarget & 0x00ff0000) != (checkhost->sin_addr.s_addr & 0x00ff0000))
+	  else if ((tmpTarget & 0x00ff0000) != (checkhost_in->sin_addr.s_addr & 0x00ff0000))
             exclude_group[i].skip_range(TargetGroup::THIRD_OCTET); 
 
           continue;
