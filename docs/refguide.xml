@@ -605,10 +605,20 @@ you would expect.</para>
           <indexterm><primary>UDP ping</primary></indexterm>
         </term>
         <listitem>
+          <indexterm><primary>payloads, protocol-specific</primary><see>protocol-specific payloads</see></indexterm>
 
           <para>Another host discovery option is the UDP ping, which
-          sends an empty (unless <option>--data-length</option> is
-          specified) UDP packet to the given ports.  The port list
+          sends a UDP packet to the given ports. For most ports, the
+          packet will be empty, though for a few a protocol-specific
+          payload will be sent that is more likely to get a
+          response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          See the file
+          <filename>payload.cc</filename><indexterm><primary><filename>payload.cc</filename></primary></indexterm>
+          for exactly which ports have payloads. The
+          <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
+          option sends a fixed-length random payload for all ports.</para>
+
+          <para>The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
           no ports are specified, the default is 40125.  This default
@@ -775,9 +785,12 @@ you would expect.</para>
           in <filename>nmap.h</filename>.
           Note that for the ICMP, IGMP, TCP (protocol 6), UDP
           (protocol 17) and SCTP (protocol 132), the packets are sent
-          with the proper protocol headers while other protocols are
+          with the proper protocol
+          headers<indexterm><primary>protocol-specific payloads</primary><secondary>IP</secondary></indexterm>
+          while other protocols are
           sent with no additional data beyond the IP header (unless the
-          <option>--data-length</option> option is specified).</para>
+          <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
+          option is specified).</para>
 
           <para>This host discovery method looks for either responses
           using the same protocol as a probe, or ICMP protocol
@@ -1185,8 +1198,13 @@ can be combined with a TCP scan type such as SYN scan
 (<option>-sS</option>) to check both protocols during the same
 run.</para>
 
-<para>UDP scan works by sending an empty (no data) UDP header to every
-targeted port.  If an ICMP port unreachable error (type 3, code 3) is
+<para>UDP scan works by sending a UDP packet to every
+targeted port. For some common ports such as 53 and 161, a
+protocol-specific payload is sent, but for most ports the packet is
+empty.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+The <option>--data-length</option> option can be used to send a
+fixed-length random payload to every port.
+If an ICMP port unreachable error (type 3, code 3) is
 returned, the port is <literal>closed</literal>.  Other ICMP unreachable errors (type 3,
 codes 1, 2, 9, 10, or 13) mark the port as <literal>filtered</literal>.  Occasionally, a
 service will respond with a UDP packet, proving that it is <literal>open</literal>.  If
@@ -3134,9 +3152,17 @@ support the option completely, as does UDP scan.</para>
         <listitem>
           <para>Normally Nmap sends minimalist packets containing only
           a header. So its TCP packets are generally 40
-          bytes and ICMP echo requests are just 28. This option
+          bytes and ICMP echo requests are just 28. Some
+          UDP ports<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
+          and IP protocols<indexterm><primary>protocol-specific payloads</primary><secondary>IP</secondary></indexterm>
+          get a custom payload by default.
+          This option
           tells Nmap to append the given number of random bytes to
-          most of the packets it sends. OS detection (<option>-O</option>) packets
+          most of the packets it sends, and not to use any
+          protocol-specific payloads. (Use <option>--data-length 0</option>
+          for no random or protocol-specific
+          payloads.<indexterm><primary>protocol-specific payloads</primary><secondary>disabling with <option>--data-length</option></secondary></indexterm>
+          OS detection (<option>-O</option>) packets
           are not affected<indexterm><primary><option>--data-length</option></primary><secondary>no effect in OS detection</secondary></indexterm>
           because accuracy there requires probe consistency, but most pinging and portscan packets
           support this. It slows things down a little, but can make a scan slightly less
