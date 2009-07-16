@@ -5625,7 +5625,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 	break; // done!
       rsi.rpc_current_port->getServiceDeductions(&sd);
       if (sd.name && sd.service_tunnel == SERVICE_TUNNEL_NONE && 
-	  strcmp(sd.name, "rpc") == 0)
+	  strcmp(sd.name, "rpcbind") == 0)
 	break; // Good - an RPC port for us to scan.
     }
     

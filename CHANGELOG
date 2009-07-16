@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made RPC grinding work from service detection again by changing the
+  looked-for service name from "rpc" to "rpcbind", the name it has in
+  nmap-service-probes. [David]
+
 o [Ndiff] Ndiff now shows changes in script output. [David]
 
 o A bug in Nsock was fixed: On systems where a nonblocking connect
