@@ -1,3 +1,11 @@
+description = [[
+Retrieves or sets the ready message on printers that support the Printer
+Job Language. This includes most PostScript printers that listen on port
+9100. Without an argument, displays the current ready message. With the
+<code>pjl_ready_message</code> script argument, displays the old ready
+message and changes it to the message given.
+]]
+
 ---
 -- @arg pjl_ready_message Ready message to display.
 -- @output
@@ -9,17 +17,18 @@
 -- @usage
 -- nmap --script=pjl-ready-message.nse \
 --   --script-args='pjl_ready_message="your message here"'
--- if no argument provided, script will poll for the current display text and return that instead. 
-description="Proof of concept script that will change the display message on the target printer"
+
 author = "Aaron Leininger <rilian4@hotmail.com>" 
+
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+
 categories = {"intrusive"}
 
 require "nmap"
 require "shortport"
 portrule = shortport.port_or_service(9100, "jetdirect")
 
-local function parse_response(response) --parsing algorithm provided by David Fitfield
+local function parse_response(response)
 	local msg
 	local line
 	local found=0
@@ -47,8 +56,8 @@ action = function(host, port)
 	
 	statusmsg="@PJL INFO STATUS\n"
 	
-	rdymsg=""			--string containing text to send to the printer. 
-	rdymsgarg=""		--will contain the argument from the command line if one exists
+	local rdymsg=""			--string containing text to send to the printer. 
+	local rdymsgarg=""		--will contain the argument from the command line if one exists
 
 	local socket = nmap.new_socket()
 	socket:set_timeout(15000)
