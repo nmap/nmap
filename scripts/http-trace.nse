@@ -29,11 +29,13 @@ require "stdnse"
 --@param tab The table to truncate.
 --@return Truncated, formatted table.
 local truncate = function(tab)
-    return tab[1] .. "\n" ..
-           tab[2] .. "\n" ..
-           tab[3] .. "\n" ..
-           tab[4] .. "\n" ..
-           tab[5] .. "\n";
+	local str = ""
+	str = str .. tab[1] .. "\n"
+	str = str .. tab[2] .. "\n"
+	str = str .. tab[3] .. "\n"
+	str = str .. tab[4] .. "\n"
+	str = str .. tab[5] .. "\n"
+	return str
 end
 
 --- Validates the HTTP response and checks for modifications.
@@ -83,17 +85,15 @@ local validate = function(response, original)
 	return
 end
 
-portrule = shortport.port_or_service({80, 8080}, "http")
+portrule = shortport.port_or_service({80, 8080, 443}, {"http", "https"})
 
 action = function(host, port)
 	local cmd = "TRACE / HTTP/1.0\r\n\r\n"
 
-	local status, response = comm.exchange(host, port, cmd, {lines=1,timeout=5000})
-
-	if not status then
+	local sd, response = comm.tryssl(host, port, cmd, false)
+	if not sd then 
+		stdnse.print_debug("Unable to open connection") 
 		return
 	end
-
 	return validate(response, cmd)
 end
-

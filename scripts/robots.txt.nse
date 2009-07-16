@@ -26,11 +26,12 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 runlevel = 1.0
 
-portrule = shortport.port_or_service({80, 8080}, {"http"})
+portrule = shortport.port_or_service({80, 8080,443}, {"http","https"})
 local last_len = 0
 
 -- split the output in 50 character length lines 
 local function buildOutput(output, w)
+        local nl
 
 	if w:len() == 0 then
 		return nil
@@ -68,6 +69,7 @@ local function parse_robots(body, output)
 end
 
 action = function(host, port)
+        local dis_count, noun 
 	local answer = http.get(host, port, "/robots.txt" )
 
 	if answer.status ~= 200 then
@@ -99,7 +101,7 @@ action = function(host, port)
 
 	noun = dis_count == 1 and "entry " or "entries "
 
-	shown = (detail == 0 or detail == dis_count) 
+	local shown = (detail == 0 or detail == dis_count) 
                  and "\n" or '(' .. detail .. ' shown)\n'
 
 	return "has " .. dis_count .. " disallowed " .. noun ..

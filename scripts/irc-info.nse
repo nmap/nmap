@@ -27,7 +27,7 @@ require("comm")
 
 portrule = shortport.port_or_service({6666,6667,6697,6679},{"irc","ircs"})
 
-init = function()
+local init = function()
   -- Start of MOTD, we'll take the server name from here
   nmap.registry.ircserverinfo_375 = nmap.registry.ircserverinfo_375
     or pcre.new("^:([\\w-_.]+) 375", 0, "C")
@@ -117,7 +117,7 @@ action = function(host, port)
 
   init()
 
-  sd, line = comm.tryssl(host, port, "USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
+  local sd, line = comm.tryssl(host, port, "USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
   if not sd then return "Unable to open connection" end
 
   buf = stdnse.make_buffer(sd, "\r?\n")

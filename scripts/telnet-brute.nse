@@ -73,7 +73,7 @@ end
 ---
 -- Go through telnet's option palaver so we can get to the login prompt.
 -- We just deny every options the server asks us about.
-local negotiate_options = function(result)
+local negotiate_options = function(result, soc)
 	local index, x, opttype, opt, retbuf
 
 	index = 0
@@ -111,7 +111,7 @@ end
 -- server. Through pattern matching, it tries to deem if a user/pass
 -- pair is valid. Telnet does not have a way of telling the client
 -- if it was authenticated....so we have to make an educated guess
-local brute_line = function(line, user, pass, usent)
+local brute_line = function(line, user, pass, usent, soc)
 
 	if (line:find 'incorrect' or line:find 'failed' or line:find 'denied' or 
             line:find 'invalid' or line:find 'bad') and usent then
@@ -148,7 +148,7 @@ return value:
 	(4, nil)  	 - disconnected and didn't send pair
 --]]
 
-local brute_cred = function(user, pass)
+local brute_cred = function(user, pass, soc)
 	local status, ret, value, usent, results
 
 	usent = false ; ret = 0
@@ -164,13 +164,13 @@ local brute_cred = function(user, pass)
 		end
 
 		if (string.byte(results, 1) == 255) then
-			negotiate_options(results)
+			negotiate_options(results, soc)
 		end
 
 		results = string.lower(results)
 
 		for line in results:gmatch '[^\r\n]+' do 
-			ret, value, usent = brute_line(line, user, pass, usent)
+			ret, value, usent = brute_line(line, user, pass, usent, soc)
 			if (ret > 0) then
 				return ret, value
 			end
@@ -188,7 +188,7 @@ action = function(host, port)
 	
 	local opts = {timeout=4000}
 
-	soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
+	local soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
   	if not soc then return "Unable to open connection" end
 
 	-- continually try user/pass pairs (reconnecting, if we have to)
@@ -212,7 +212,7 @@ action = function(host, port)
 			try(soc:connect(host.ip, port.number, best_opt))
 		end
 
-		status, pair = brute_cred(user, pass)
+		status, pair = brute_cred(user, pass, soc)
 	end
 	soc:close()
 	return pair
