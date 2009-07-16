@@ -133,6 +133,34 @@
 <screen>
 </screen>
     </example>
+
+    <para>
+    XML output, intended to be processed by other programs, is selected
+    with the <option>--xml</option> option. It is based on Nmap's XML
+    output, with a few additional elements to indicate differences. The
+    XML document is enclosed in <varname>nmapdiff</varname> and
+    <varname>scandiff</varname> elements. Host differences are enclosed
+    in <varname>hostdiff</varname> tags and port differences are
+    enclosed in <varname>portdiff</varname> tags. Inside a
+    <varname>hostdiff</varname> or <varname>portdiff</varname>,
+    <varname>a</varname> and <varname>b</varname> tags show the state of
+    the host or port in the first scan (<varname>a</varname>) or the
+    second scan (<varname>b</varname>).
+    </para>
+
+    <para>
+    <xref linkend="ndiff-man-ex-xml-output"/> shows the XML diff of the
+    same scans shown above in
+    <xref linkend="ndiff-man-ex-text-output" xrefstyle="select: label"/>.
+    </para>
+
+    <example id="ndiff-man-ex-xml-output">
+      <title>Ndiff XML output</title>
+<screen>
+<![CDATA[
+]]>
+</screen>
+    </example>
   </refsect1>
 
   <refsect1>
