@@ -108,6 +108,75 @@
   </refsect1>
 
   <refsect1>
+    <title>Output</title>
+
+    <para>
+    There are two output modes: text and XML. Text output is the
+    default, and is also selected with the <option>--text</option>
+    option. Text output resembles a unified diff of Nmap's normal
+    terminal output. Each line is preceded by a character indicating
+    whether and how it changed. <literal>-</literal> means that the line
+    was in the first scan but not in the second; <literal>+</literal>
+    means it was in the second but not the first. A line that changed is
+    represented by a <literal>-</literal> line followed by a
+    <literal>+</literal> line. Lines that did not change are preceded by
+    a blank space.
+    </para>
+
+    <para>
+    <xref linkend="ndiff-man-ex-text-output"/> is an example of text
+    output.
+    </para>
+
+    <example id="ndiff-man-ex-text-output">
+      <title>Ndiff text output</title>
+<screen>
+</screen>
+    </example>
+  </refsect1>
+
+  <refsect1>
+    <title>Example</title>
+
+    <para>
+    Using Nmap, Ndiff, cron, and a shell script, it's possible to scan a
+    network daily and get email reports of the state of the network and
+    changes since the previous scan.
+    <xref linkend="ndiff-man-ex-cron"/> shows the script that ties it
+    together.
+    </para>
+
+    <example id="ndiff-man-ex-cron">
+      <title>Scanning a network periodically with Ndiff and cron</title>
+<programlisting>
+#!/bin/sh
+TARGETS="<replaceable>targets</replaceable>"
+OPTIONS="-v -T4 -F -sV"
+date=`date +%F`
+cd /root/scans
+nmap $OPTIONS $TARGETS -oA scan-$date &gt; /dev/null
+if [ -e scan-prev.xml ]; then
+        ndiff scan-prev.xml scan-$date.xml &gt; diff-$date
+        echo "*** NDIFF RESULTS ***"
+        cat diff-$date
+        echo
+fi
+echo "*** NMAP RESULTS ***"
+cat scan-$date.nmap
+ln -sf scan-$date.xml scan-prev.xml
+</programlisting>
+    </example>
+
+    <para>
+    If the script is saved as <filename>/root/scan-ndiff.sh</filename>,
+    add the following line to root's crontab:
+<programlisting>
+0 12 * * * /root/scan-ndiff.sh
+</programlisting>
+    </para>
+  </refsect1>
+
+  <refsect1>
     <title>Bugs</title>
     <para>
     Report bugs to the <citetitle>nmap-dev</citetitle> mailing list at
