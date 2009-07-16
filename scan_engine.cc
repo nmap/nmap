@@ -5516,7 +5516,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   struct scanstats ss;
   int senddelay = 0;
   int rpcportsscanned = 0;
-  int tries = 0;
   time_t starttime;
   struct timeval starttm;
   struct portinfo *scan = NULL,  *current, *next;
@@ -5585,14 +5584,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
   do {
     ss.changed = 0;
-    if (tries > 3 && tries < 10) {
-      senddelay += 10000 * (tries - 3); 
-      if (o.verbose) log_write(LOG_STDOUT, "Bumping up senddelay by %d (to %d), due to excessive drops\n", 10000 * (tries - 3), senddelay);
-    } else if (tries >= 10) {
-      senddelay += 75000; 
-      if (o.verbose) log_write(LOG_STDOUT, "Bumping up senddelay by 75000 (to %d), due to excessive drops\n", senddelay);
-    }
-    
+
     if (senddelay > 200000) {
       ss.max_width = MIN(ss.max_width, 5);
       ss.numqueries_ideal = MIN(ss.max_width, ss.numqueries_ideal);
@@ -5778,27 +5770,13 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     }
     current = pil.testinglist = &scan[0]; 
     pil.firewalled = NULL;
-    ss.numqueries_outstanding = 0;
-    /* Now we out o' here! */
-    continue;
-    
-    if (ss.numqueries_outstanding != 0) {
-      fatal("Bean counting error no. 4321897: ports_left: %d numqueries_outstanding: %d\n", ss.ports_left, ss.numqueries_outstanding);
-    }
-
-    tries++;
 
     if (o.debugging) {
-      log_write(LOG_STDOUT, "Finished round #%d. Current stats: numqueries_ideal: %d; min_width: %d; max_width: %d; packet_incr: %d; senddelay: %dus; fallback: %.f%%\n", tries, (int) ss.numqueries_ideal, ss.min_width, ss.max_width, ss.packet_incr, senddelay, floor(100 * ss.fallback_percent));
+      log_write(LOG_STDOUT, "Finished round. Current stats: numqueries_ideal: %d; min_width: %d; max_width: %d; packet_incr: %d; senddelay: %dus; fallback: %.f%%\n", (int) ss.numqueries_ideal, ss.min_width, ss.max_width, ss.packet_incr, senddelay, floor(100 * ss.fallback_percent));
     }
     ss.numqueries_ideal = ss.initial_packet_width;
-    
-  } while(pil.testinglist && tries < 20);
+  } while(pil.testinglist);
   
-  if (tries == 20) {
-    error("WARNING: GAVE UP ON SCAN AFTER 20 RETRIES");
-  }
-
   numports = rpcportsscanned;
   if (SPM && o.verbose && (numports > 0)) {
     char scannedportsstr[14];
