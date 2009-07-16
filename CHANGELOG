@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the pjl-ready-message.nse script from Aaron Leininger. This
+  script allows viewing and setting the message displayed by printers
+  that support the Printer Job Language.
+
 o The Ndiff man page was expanded with examples and sample output.
   [David]
 
