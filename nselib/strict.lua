@@ -60,7 +60,7 @@ function strict ()
     if type(_index) == "function" then
       local v = _index(t, n); -- hook it
       if v ~= nil then return v end
-    else
+    elseif _index ~= nil then
       local v = _index[n];
       if v ~= nil then return v end
     end
