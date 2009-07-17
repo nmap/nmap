@@ -2500,9 +2500,8 @@ reasonable, though I only adjust this value as a last resort.</para>
 
 <para>The <option>--max-parallelism</option> option is sometimes set to one
 to prevent Nmap from sending more than one probe at a time to hosts.
-This can be useful in combination with <option>--scan-delay</option>
-(discussed later), although the latter usually serves the purpose well
-enough by itself.</para>
+The <option>--scan-delay</option> option, discussed later, is another
+way to do this.</para>
 
         </listitem>
       </varlistentry>

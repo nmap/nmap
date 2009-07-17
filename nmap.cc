@@ -1339,9 +1339,8 @@ int nmap_main(int argc, char *argv[]) {
     if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
     if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
     if (o.scan_delay > o.maxSCTPScanDelay()) o.setMaxSCTPScanDelay(o.scan_delay);
-    o.max_parallelism = 1;
-    if(pre_max_parallelism != -1)
-      fatal("You can't use --max-parallelism with --scan-delay.");
+    if (pre_max_parallelism != -1 || o.min_parallelism != -1)
+      error("Warning: --min-parallelism and --max-parallelism are ignored with --scan-delay.");
   }
   if (pre_max_scan_delay != -1) {
     o.setMaxTCPScanDelay(pre_max_scan_delay);
