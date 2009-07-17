@@ -256,9 +256,10 @@ void NmapOps::Initialize() {
   override_excludeports = 0;
   version_intensity = 7;
   pingtype = PINGTYPE_UNKNOWN;
-  listscan = pingscan = allowall = ackscan = bouncescan = connectscan = 0;
+  listscan = allowall = ackscan = bouncescan = connectscan = 0;
   rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;
-  maimonscan = idlescan = finscan = udpscan = ipprotscan = noresolve = 0;
+  maimonscan = idlescan = finscan = udpscan = ipprotscan;
+  noportscan = noresolve = 0;
   sctpinitscan = 0;
   sctpcookieechoscan = 0;
   append_output = 0;
@@ -344,7 +345,7 @@ void NmapOps::ValidateOptions() {
 
 
   /* Insure that at least one scantype is selected */
-  if (TCPScan() + UDPScan() + SCTPScan() + ipprotscan + listscan + pingscan == 0) {
+  if (!noportscan && !(TCPScan() || UDPScan() || SCTPScan() || ipprotscan)) {
     if (isr00t && af() == AF_INET)
       synscan++;
     else connectscan++;
@@ -380,16 +381,16 @@ void NmapOps::ValidateOptions() {
    fatal("Sorry, IPProto Ping (-PO) only works if you are root (because we need to read raw responses off the wire) and only for IPv4");
  }
 
- if (ipprotscan + (TCPScan() || UDPScan() || SCTPScan()) + listscan + pingscan > 1) {
-   fatal("Sorry, the IPProtoscan, Listscan, and Pingscan (-sO, -sL, -sP) must currently be used alone rather than combined with other scan types.");
+ if (ipprotscan && (TCPScan() || UDPScan() || SCTPScan())) {
+   fatal("Sorry, the IPProtoscan (-sO) must currently be used alone rather than combined with other scan types.");
  }
 
- if ((pingscan && pingtype == PINGTYPE_NONE)) {
+ if ((noportscan && pingtype == PINGTYPE_NONE && !listscan)) {
     fatal("-PN (skip ping) is incompatable with -sP (ping scan).  If you only want to enumerate hosts, try list scan (-sL)");
   }
 
- if (pingscan && (TCPScan() || UDPScan() || SCTPScan() || ipprotscan || listscan)) {
-   fatal("Ping scan is not valid with any other scan types (the other ones all include a ping scan");
+ if (noportscan && (TCPScan() || UDPScan() || SCTPScan() || ipprotscan)) {
+   fatal("-sL and -sP (skip port scan) are not valid with any other scan types");
  }
 
  if (af() == AF_INET6 && (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))) {
@@ -453,8 +454,8 @@ void NmapOps::ValidateOptions() {
   }
 #endif
   
-  if (osscan && pingscan) {
-    fatal("WARNING:  OS Scan is unreliable with a ping scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sP");
+  if (osscan && noportscan) {
+    fatal("WARNING:  OS Scan is unreliable without a port scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sP");
   }
 
   if (osscan && ipprotscan) {
@@ -467,7 +468,7 @@ void NmapOps::ValidateOptions() {
     servicescan = 0;
   }
 
-  if (servicescan && pingscan)
+  if (servicescan && noportscan)
     servicescan = 0;
 
   if (defeat_rst_ratelimit && !synscan) {

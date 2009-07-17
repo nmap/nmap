@@ -280,7 +280,6 @@ class NmapOps {
   int servicescan;
   int pingtype;
   int listscan;
-  int pingscan;
   int allowall;
   int fragscan; /* 0 or MTU (without IPv4 header size) */
   int ackscan;
@@ -299,6 +298,7 @@ class NmapOps {
   int windowscan;
   int xmasscan;
   int noresolve;
+  int noportscan;
   int append_output; /* Append to any output files rather than overwrite */
   FILE *logfd[LOG_NUM_FILES];
   FILE *nmap_stdout; /* Nmap standard output */

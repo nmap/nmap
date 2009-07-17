@@ -1256,11 +1256,11 @@ int nmap_main(int argc, char *argv[]) {
 	case 'C':  o.script = 1; break;
 #endif
 	case 'F':  o.finscan = 1; break;
-	case 'L':  o.listscan = 1; o.pingtype = PINGTYPE_NONE; break;
+	case 'L':  o.listscan = 1; o.noportscan = 1; o.pingtype = PINGTYPE_NONE; break;
 	case 'M':  o.maimonscan = 1; break;
 	case 'N':  o.nullscan = 1; break;
 	case 'O':  o.ipprotscan = 1; break;
-	case 'P':  o.pingscan = 1; break;
+	case 'P':  o.noportscan = 1; break;
 	case 'R':  o.rpcscan = 1; break;
 	case 'S':  o.synscan = 1; break;	  
 	case 'T':  o.connectscan = 1; break;
@@ -1422,8 +1422,8 @@ int nmap_main(int argc, char *argv[]) {
   }
 
 
-  if ((o.pingscan || o.listscan) && (portlist || o.fastscan))
-    fatal("You cannot use -F (fast scan) or -p (explicit port selection) with PING scan or LIST scan");
+  if ((o.noportscan) && (portlist || o.fastscan))
+    fatal("You cannot use -F (fast scan) or -p (explicit port selection) when not doing a port scan");
 
   if (portlist && o.fastscan)
     fatal("You cannot use -F (fast scan) with -p (explicit port selection) but see --top-ports and --port-ratio to fast scan a range of ports");
@@ -1431,7 +1431,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.ipprotscan) {
 	  if (portlist) getpts(portlist, &ports);
 	  else getpts((char *) (o.fastscan ? "[P:0-]" : "0-"), &ports);  // Default protocols to scan
-  } else if (!o.pingscan && !o.listscan) {
+  } else if (!o.noportscan) {
     gettoppts(o.topportlevel, portlist, &ports);
   }
 
@@ -1727,7 +1727,7 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-    if ((o.pingscan && !o.traceroute
+    if ((o.noportscan && !o.traceroute
 #ifndef NOLUA
 	 && !o.script
 #endif
@@ -1807,7 +1807,7 @@ int nmap_main(int argc, char *argv[]) {
       o.decoys[o.decoyturn] = Targets[0]->v4source();
     
     /* ping scan traceroutes */
-    if(o.traceroute && o.pingscan) {
+    if(o.traceroute && o.noportscan) {
         /* Assume that all targets in a group use the same device */
         troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType(), &ports);
         troute->trace(Targets);

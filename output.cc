@@ -540,7 +540,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 
   vector<const char *> saved_servicefps;
 
-  if (o.pingscan)
+  if (o.noportscan)
     return;
 
   log_write(LOG_XML, "<ports>");
@@ -1372,7 +1372,7 @@ void write_host_status(Target *currenths, int resolve_all) {
 	      currenths->weird_responses);
     log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Smurf (%d responses)\n",  currenths->targetipstr(), currenths->HostName(), currenths->weird_responses);
     
-    if (o.pingscan)
+    if (o.noportscan)
       log_write(LOG_PLAIN,"Host %s seems to be a subnet broadcast address (returned %d extra pings).%s\n",  currenths->NameIP(hostname, sizeof(hostname)), currenths->weird_responses, 
 		(currenths->flags & HOST_UP)? " Note -- the actual IP also responded." : "");
     else {
@@ -1389,7 +1389,7 @@ void write_host_status(Target *currenths, int resolve_all) {
 
     write_xml_initial_hostinfo(currenths, 
 			       (currenths->flags & HOST_UP)? "up" : "down");
-    if (o.pingscan || o.verbose) {
+    if (o.noportscan || o.verbose) {
       if (currenths->flags & HOST_UP) {
         log_write(LOG_PLAIN, "Host %s is up", currenths->NameIP(hostname, sizeof(hostname)));
         if (o.reason)
