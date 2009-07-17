@@ -2919,7 +2919,7 @@ local function marshall_srvsvc_NetShareInfo2(location, name, sharetype, comment,
 	local max_users     = marshall_basetype(location, marshall_int32, {max_users})
 	local current_users = marshall_basetype(location, marshall_int32, {current_users})
 	local path          = marshall_ptr(location, marshall_unicode, {path, true},      path)
-	local password      = marshall_ptr(location, marshall_password, {password, true}, password)
+	local password      = marshall_ptr(location, marshall_unicode, {password, true}, password)
 
 	result =  name .. sharetype .. comment .. permissions .. max_users .. current_users .. path .. password
 
