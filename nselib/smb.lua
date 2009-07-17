@@ -1253,7 +1253,7 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 		-- This loop takes care of the multiple packets that "extended security" requires
 		repeat
 			-- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
-			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, use_defaults)
+			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, use_default)
 
 			-- There was an error processing the security blob	
 			if(status == false) then
@@ -1789,9 +1789,9 @@ function write_file(smb, write_data, offset)
 	end
 
 	-- Parse the parameters
-    local reserved, count_high, remaining, count_low
-	pos, andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, reserved  = bin.unpack("<CCSSSSS", parameters)
-	if(reserved == nil) then
+    local count_reserved, count_high, remaining, count_low
+	pos, andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, count_reserved  = bin.unpack("<CCSSSSS", parameters)
+	if(count_reserved == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [28]"
 	end
 

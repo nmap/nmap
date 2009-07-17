@@ -660,7 +660,7 @@ function srvsvc_netservergetstatistics(smbstate, server)
 	stdnse.print_debug(2, "MSRPC: Calling NetServerGetStatistics() [%s]", smbstate['ip'])
 
 --		[in]      [string,charset(UTF16)] uint16 *server_unc,
-	arguments = msrpctypes.marshall_unicode_ptr(server_unc, true)
+	arguments = msrpctypes.marshall_unicode_ptr(server, true)
 
 --		[in]      [string,charset(UTF16)] uint16 *service,
 	arguments = arguments .. msrpctypes.marshall_unicode_ptr(service, true)

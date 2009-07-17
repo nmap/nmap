@@ -199,7 +199,7 @@ function unicode_to_string(buffer, pos, length, do_null)
 		pos = pos + 2
 	end
 
-	stdnse.print_debug(4, "MSRPC: Leaving unicode_to_string()", i, count)
+	stdnse.print_debug(4, "MSRPC: Leaving unicode_to_string()")
 
 	return pos, string
 end
@@ -910,7 +910,7 @@ function marshall_int16_ptr(int16, pad)
 	local result
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_int16_ptr()"))
-	result = marshall_ptr(ALL, marshal_int16, {int16, pad}, int16)
+	result = marshall_ptr(ALL, marshall_int16, {int16, pad}, int16)
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_int16_ptr()"))
 
 	return result
@@ -928,7 +928,7 @@ function marshall_int8_ptr(int8, pad)
 	local result
 
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_int8_ptr()"))
-	result = marshall_ptr(ALL, marshal_int8, {int8, pad}, int8)
+	result = marshall_ptr(ALL, marshall_int8, {int8, pad}, int8)
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_int8_ptr()"))
 
 	return result
@@ -4251,7 +4251,7 @@ function unmarshall_svcctl_Type(data, pos)
 	return pos, str
 end
 
----Convert a <code>svcctl_Type</code> value to a string that can be shown to the user. This is
+--[[Convert a <code>svcctl_Type</code> value to a string that can be shown to the user. This is
 -- based on the <code>_str</table> table. 
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
@@ -4264,7 +4264,7 @@ function svcctl_Type_tostr(val)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving svcctl_Type_tostr()"))
 	return result
-end
+end]]--
 
 
 
@@ -4305,7 +4305,7 @@ function unmarshall_svcctl_State(data, pos)
 	return pos, str
 end
 
----Convert a <code>svcctl_State</code> value to a string that can be shown to the user. This is
+--[[Convert a <code>svcctl_State</code> value to a string that can be shown to the user. This is
 -- based on the <code>_str</table> table. 
 --
 --@param val The string value (returned by the <code>unmarshall_</code> function) to convert.
@@ -4318,7 +4318,7 @@ function svcctl_State_tostr(val)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving svcctl_State_tostr()"))
 	return result
-end
+end]]--
 
 
 ---Unmarshall a SERVICE_STATUS struct, converting it to a table. The structure is as
