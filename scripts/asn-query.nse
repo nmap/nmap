@@ -455,6 +455,7 @@ function nice_output( output, combined_records )
   if #output == 0 then return nil end
 
   -- sort BGP asc. and combine BGP when ASN info is duplicated
+  local first, second
   table.sort( output, function(a,b) return (get_prefix_length(a) or 0) > (get_prefix_length(b) or 0) end )
   for i=1,#output,1 do
     for j=1,#output,1 do

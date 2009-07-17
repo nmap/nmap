@@ -196,7 +196,7 @@ action = function( host )
 
     if tracking.this_db then
       -- do query
-      response = do_query( tracking.this_db, host.ip )
+      local response = do_query( tracking.this_db, host.ip )
       tracking.completed[#tracking.completed+1] = tracking.this_db
 
       -- analyse data
@@ -571,7 +571,7 @@ function analyse_response( tracking, ip, response, data )
   -- check for foreign resource
   for _, db in pairs( nmap.registry.whois.whoisdb ) do
     if type( db ) == "table" and type( db.id ) == "string" and db.id ~= "iana" and db.id ~= this_db and type( db.hostname ) == "string" then
-      pattern = db.id:upper() .. ".*%s*resource:%s*" .. db.hostname
+      local pattern = db.id:upper() .. ".*%s*resource:%s*" .. db.hostname
       if response:match( pattern ) then
         mirrored_db = db.id
         meta = db
@@ -584,6 +584,7 @@ function analyse_response( tracking, ip, response, data )
   meta = meta or nmap.registry.whois.whoisdb[this_db]
 
   -- do we recognize objects in the response?.
+  local have_objects
   if type( meta ) == "table" and type( meta.fieldreq ) == "table" and type( meta.fieldreq.ob_exist ) == "string" then
     have_objects = response:match( meta.fieldreq.ob_exist )
   else
@@ -597,8 +598,8 @@ function analyse_response( tracking, ip, response, data )
     local tmp, msg
     -- may have found our record saying something similar to "No Record Found"
     for _, pattern in ipairs( nmap.registry.whois.m_none ) do
-      pattern_l = pattern:gsub( "$addr", ip:lower() )
-      pattern_u = pattern:gsub( "$addr", ip:upper() )
+      local pattern_l = pattern:gsub( "$addr", ip:lower() )
+      local pattern_u = pattern:gsub( "$addr", ip:upper() )
       msg = response:match( pattern_l ) or response:match( pattern_u )
       if msg then
         stdnse.print_debug( 4, "%s %s %s responded with a message which is assumed to be authoritative (but may not be).", filename, ip, this_db )
@@ -1048,7 +1049,7 @@ function not_short_prefix( ip, range, redirect )
 
   if type( range ) ~= "string" or range == "" then return nil end
 
-  local err, zp_first, zp_last, fake_prefix, first, last = {}
+  local err, zero_first, zero_last, fake_prefix, short_prefix, safe_prefix, first, last = {}
   if range:match( ":" ) then
     short_prefix = 23
     safe_prefix = 96
@@ -2060,7 +2061,7 @@ function parse_assignments( address_family_spec, table_of_lines )
   local mnetwork = address_family_spec.match_assignment
   local mservice = address_family_spec.match_service
 
-  local ret = {}
+  local ret, net, svc = {}
 
   for i, line in ipairs( table_of_lines ) do
 
