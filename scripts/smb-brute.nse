@@ -175,9 +175,10 @@ local function get_random_string(length, set)
 	local str = ""
 
 	-- Seed the random number, if we haven't already
-	if(random_set == false) then
+	if not nmap.registry.smbbrute or not nmap.registry.smbbrute.seeded then
 		math.randomseed(os.time())
-		random_set = true
+		nmap.registry.smbbrute = {}
+		nmap.registry.smbbrute.seeded = true
 	end
 
 	for i = 1, length, 1 do
