@@ -395,22 +395,23 @@ you would expect.</para>
           scanning, OS detection, or ping scanning cannot be combined
           with this.  If you wish to disable ping scanning while still
           performing such higher level functionality, read up on the
-          <option>-PN</option> option.</para>
+          <option>-PN</option> (skip ping) option.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-        <option>-sP</option> (Ping Scan)
+        <option>-sP</option> (Skip port scan)
         <indexterm><primary><option>-sP</option></primary></indexterm>
         <indexterm><primary>ping scan</primary></indexterm>
+        <indexterm><primary>port scan</primary><secondary>disabling with <option>-sP</option></secondary></indexterm>
         </term>
         <listitem>
-           <para>This option tells Nmap to only perform a ping scan
-           (host discovery), then print out the available hosts that
-           responded to the scan.  Traceroute and NSE host scripts are
-           also run if requested, but no further testing (such as port
-           scanning or OS detection) is performed.  This is by default
+           <para>This option tells Nmap not to do a port scan after host
+           discovery, and only print out the available hosts that
+           responded to the scan.  This is often known as a <quote>ping
+           scan</quote>, but you can also request that traceroute and
+           NSE host scripts be run. This is by default
            one step more intrusive than the list scan, and can often
            be used for the same purposes.  It allows light
            reconnaissance of a target network without attracting much
@@ -469,7 +470,11 @@ you would expect.</para>
           Proper host discovery is skipped as with the list scan, but
           instead of stopping and printing the target list, Nmap
           continues to perform requested functions as if each target
-          IP is active.  For machines on a local ethernet network, ARP
+          IP is active. To skip ping scan <emphasis>and</emphasis> port
+          scan, while still allowing NSE to run, use the two options
+          <option>-PN -sP</option> together.</para>
+          
+          <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
           <option>--send-ip</option> is specified) because Nmap needs
           MAC addresses to further scan target hosts.  This option flag used to be <option>P0</option> (uses zero), but was renamed to avoid confusion with protocol ping's <option>PO</option> (uses the letter O) flag.</para>
