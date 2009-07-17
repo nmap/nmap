@@ -323,7 +323,7 @@ bool NmapOps::UDPScan() {
 }
 
 bool NmapOps::RawScan() {
-  if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)
+  if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|osscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan|traceroute)
     return true;
   if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP|PINGTYPE_SCTP_INIT))
     return true;

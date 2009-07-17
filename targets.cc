@@ -473,7 +473,7 @@ do {
       /* We figure out the source IP/device IFF
 	 1) We are r00t AND
 	 2) We are doing tcp or udp pingscan OR
-	 3) We are doing a raw-mode portscan or osscan OR
+	 3) We are doing a raw-mode portscan or osscan or traceroute OR
 	 4) We are on windows and doing ICMP ping */
       if (o.isr00t && o.af() == AF_INET && 
 	  ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
