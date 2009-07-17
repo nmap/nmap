@@ -32,12 +32,10 @@ class scan_test(unittest.TestCase):
         self.assertEqual(len(host.ports), 2)
 
     def test_extraports(self):
-        """Test that the correct number of known ports is returned when there
-        are extraports in only one state."""
         scan = Scan()
         scan.load_from_file("test-scans/single.xml")
         host = scan.hosts[0]
-        self.assertEqual(len(host.ports), 100)
+        self.assertEqual(len(host.ports), 5)
         self.assertEqual(host.extraports.items(), [("filtered", 95)])
 
     def test_extraports_multi(self):
@@ -170,7 +168,7 @@ class host_test(unittest.TestCase):
         s = Scan()
         s.load_from_file("test-scans/single.xml")
         h = s.hosts[0]
-        self.assertEqual(len(h.ports), 100)
+        self.assertEqual(len(h.ports), 5)
         self.assertEqual(len(h.extraports), 1)
         self.assertEqual(h.extraports.keys()[0], u"filtered")
         self.assertEqual(h.extraports.values()[0], 95)
@@ -325,39 +323,6 @@ class scan_diff_test(unittest.TestCase):
             diff = ScanDiff(a, b)
             self.assertEqual(diff.host_diffs, {})
             self.assertEqual(set(diff.hosts), set(diff.host_diffs.keys()))
-
-class parse_port_list_test(unittest.TestCase):
-    """Test the parse_port_list function."""
-    def test_empty(self):
-        ports = parse_port_list(u"")
-        self.assertEqual(len(ports), 0)
-
-    def test_single(self):
-        ports = parse_port_list(u"1,10,100")
-        self.assertEqual(len(ports), 3)
-        self.assertEqual(set(ports), set([1, 10, 100]))
-
-    def test_range(self):
-        ports = parse_port_list(u"10-20")
-        self.assertEqual(len(ports), 11)
-        self.assertEqual(set(ports), set(range(10, 21)))
-
-    def test_combo(self):
-        ports = parse_port_list(u"1,10,100-102,150")
-        self.assertEqual(set(ports), set([1, 10, 100, 101, 102, 150]))
-
-    def test_dups(self):
-        ports = parse_port_list(u"5,1-10")
-        self.assertEqual(len(ports), 10)
-        self.assertEqual(set(ports), set(range(1, 11)))
-
-    def test_invalid(self):
-        self.assertRaises(ValueError, parse_port_list, u"a")
-        self.assertRaises(ValueError, parse_port_list, u",1")
-        self.assertRaises(ValueError, parse_port_list, u"1,,2")
-        self.assertRaises(ValueError, parse_port_list, u"1,")
-        self.assertRaises(ValueError, parse_port_list, u"1-2-3")
-        self.assertRaises(ValueError, parse_port_list, u"10-1")
 
 class host_diff_test(unittest.TestCase):
     """Test the HostDiff class."""

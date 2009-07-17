@@ -959,31 +959,6 @@ class Table(object):
                 lines.append(u"".join(parts).rstrip())
         return u"\n".join(lines)
 
-def parse_port_list(port_list):
-    """Parse a port list like
-    "1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080,1083-1084"
-    into a list of numbers. Raises ValueError if the port list is somehow
-    invalid."""
-    result = set()
-    if port_list == u"":
-        return list(result)
-    chunks = port_list.split(u",")
-    for chunk in chunks:
-        if u"-" in chunk:
-            start, end = chunk.split(u"-")
-            start = int(start)
-            end = int(end)
-            if start >= end:
-                raise ValueError(u"In range %s, start must be less than end." % chunk)
-        else:
-            start = int(chunk)
-            end = start
-        for p in range(start, end + 1):
-            result.add(p)
-    result = list(result)
-    result.sort()
-    return result
-
 def warn(str):
     """Print a warning to stderr."""
     print >> sys.stderr, str
@@ -999,7 +974,6 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
         # popping on end.
         self.element_stack = []
 
-        self.scanned_ports = {}
         self.current_host = None
         self.current_port = None
 
@@ -1032,25 +1006,6 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                 start_timestamp = int(attrs.get(u"start"))
                 self.scan.start_date = datetime.datetime.fromtimestamp(start_timestamp)
             self.scan.version = attrs.get(u"version")
-        elif name == u"scaninfo":
-            assert self.parent_element() == u"nmaprun"
-            try:
-                protocol = attrs[u"protocol"]
-            except KeyError:
-                warn(u"%s element missing the \"protocol\" attribute; skipping." % name)
-                return
-            try:
-                services_str = attrs[u"services"]
-            except KeyError:
-                warn(u"%s element missing the \"services\" attribute; skipping." % name)
-                return
-            try:
-                services = parse_port_list(services_str)
-            except ValueError:
-                warn(u"Services list \"%s\" cannot be parsed; skipping.")
-                return
-            assert protocol not in self.scanned_ports
-            self.scanned_ports[protocol] = services
         elif name == u"host":
             assert self.parent_element() == u"nmaprun"
             self.current_host = Host()
@@ -1175,21 +1130,7 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
                 self.scan.end_date = datetime.datetime.fromtimestamp(end_timestamp)
 
     def endElementAux(self, name):
-        if name == u"nmaprun":
-            self.scanned_ports = None
-        elif name == u"host":
-            if len(self.current_host.extraports) == 1:
-                # We can infer the state of unlisted ports.
-                extraports_state = self.current_host.extraports.keys()[0]
-                known_specs = self.current_host.ports.keys()
-                for protocol in self.scanned_ports:
-                    for portid in self.scanned_ports[protocol]:
-                        spec = portid, protocol
-                        if spec in known_specs:
-                            continue
-                        assert spec not in self.current_host.ports
-                        self.current_host.add_port(Port(spec, state = extraports_state))
-
+        if name == u"host":
             self.current_host.script_results.sort()
             self.current_host = None
         elif name == u"port":
