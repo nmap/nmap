@@ -566,8 +566,8 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
         probe = getTraceProbe (t);
         if (probe.type == PS_NONE) {
             if (o.verbose > 1)
-                log_write (LOG_STDOUT, "%s: no responsive %s\n",
-                           t->targetipstr (), "probes");
+                log_write (LOG_STDOUT, "%s: no responsive probes\n",
+                           t->targetipstr ());
             continue;
         }
 
