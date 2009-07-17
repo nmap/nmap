@@ -385,10 +385,6 @@ void NmapOps::ValidateOptions() {
    fatal("Sorry, the IPProtoscan (-sO) must currently be used alone rather than combined with other scan types.");
  }
 
- if ((noportscan && pingtype == PINGTYPE_NONE && !listscan)) {
-    fatal("-PN (skip ping) is incompatable with -sP (ping scan).  If you only want to enumerate hosts, try list scan (-sL)");
-  }
-
  if (noportscan && (TCPScan() || UDPScan() || SCTPScan() || ipprotscan)) {
    fatal("-sL and -sP (skip port scan) are not valid with any other scan types");
  }
