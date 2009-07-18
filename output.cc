@@ -1052,12 +1052,12 @@ void log_vwrite(int logt, const char *fmt, va_list ap) {
 	  /* Windows seems to just give -1 rather than the amount of space we 
 	     would need.  So lets just gulp up a huge amount in the hope it
 	     will be enough */
-	  writebuflen *= 150;
+	  writebuflen *= 500;
 	}
 	writebuf = (char *) safe_realloc(writebuf, writebuflen);
 	len = Vsnprintf(writebuf, writebuflen, fmt, apcopy);
 	if (len <= 0 || len >= writebuflen) {
-	  fatal("%s: vsnprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please email this message to fyodor@insecure.org.  Quitting.", __func__, writebuflen, len, logt);
+	  fatal("%s: vsnprintf failed.  Even after increasing bufferlen to %d, Vsnprintf returned %d (logt == %d).  Please report this as a bug to nmap-dev (including this whole error message) as described at http://nmap.org/book/man-bugs.html.  Quitting.", __func__, writebuflen, len, logt);
 	}
       }
       if (logt == LOG_SKID && !skid_noxlate)
