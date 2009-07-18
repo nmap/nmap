@@ -87,6 +87,14 @@ o The configure script now allows cross-compiling by assuming that
   the included copy is used. The patch was contributed by Mike
   Frysinger.
 
+Nmap 5.00 [2009-07-16]
+
+o Bumped up version number to 5.00!
+
+o [NSE] http-open-proxy script fixed to avoid false positives from bad
+  pattern matching and to properly declare some formerly-global
+  variables as local. [Joao]
+
 Nmap 4.90RC1 [2009-06-25]
 
 o [Zenmap] Fixed a display hanging problem on Mac OS X reported by
