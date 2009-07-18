@@ -1681,7 +1681,8 @@ int nmap_main(int argc, char *argv[]) {
   }
   if (o.servicescan)
     o.scriptversion = 1;
-  open_nse();
+  if (o.scriptversion || o.script)
+    open_nse();
 #endif
   
   /* Time to create a hostgroup state object filled with all the requested
@@ -2017,7 +2018,8 @@ void nmap_free_mem() {
   if (o.extra_payload) free(o.extra_payload);
   if (o.ipoptions) free(o.ipoptions);
 #ifndef NOLUA
-  close_nse();
+  if (o.scriptversion || o.script)
+    close_nse();
   free(o.scriptargs);
 #endif
 }
