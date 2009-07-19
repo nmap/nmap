@@ -1137,7 +1137,7 @@ int nmap_main(int argc, char *argv[]) {
 	o.pingtype |= PINGTYPE_ICMP_MASK;
       else if (*optarg == 'P') 
 	o.pingtype |= PINGTYPE_ICMP_TS;
-      else if (*optarg == '0' || *optarg == 'N' || *optarg == 'D')      
+      else if (*optarg == 'n' || *optarg == '0' || *optarg == 'N' || *optarg == 'D')      
 	o.pingtype = PINGTYPE_NONE;
       else if (*optarg == 'R')
 	o.pingtype |= PINGTYPE_ARP;
@@ -1250,6 +1250,10 @@ int nmap_main(int argc, char *argv[]) {
       p = optarg;
       while(*p) {
 	switch(*p) {
+        case 'n':
+	case 'P':
+          o.noportscan = 1;
+          break;
 	case 'A': o.ackscan = 1; break;
 	case 'B':  fatal("No scan type 'B', did you mean bounce scan (-b)?"); break;
 #ifndef NOLUA
@@ -1260,7 +1264,6 @@ int nmap_main(int argc, char *argv[]) {
 	case 'M':  o.maimonscan = 1; break;
 	case 'N':  o.nullscan = 1; break;
 	case 'O':  o.ipprotscan = 1; break;
-	case 'P':  o.noportscan = 1; break;
 	case 'R':  o.rpcscan = 1; break;
 	case 'S':  o.synscan = 1; break;	  
 	case 'T':  o.connectscan = 1; break;
