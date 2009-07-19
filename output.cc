@@ -566,7 +566,7 @@ void printportoutput(Target *currenths, PortList *plist) {
 		currenths->NameIP(hostname, sizeof(hostname)), 
 		(numignoredports == 1)? "is" : "are");
       if (plist->numIgnoredStates() == 1) {
-	log_write(LOG_PLAIN, statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
+	log_write(LOG_PLAIN, "%s", statenum2str(plist->nextIgnoredState(PORT_UNKNOWN)));
       } else {
 	prevstate = PORT_UNKNOWN;
 	while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {

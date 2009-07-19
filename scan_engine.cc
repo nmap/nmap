@@ -3783,7 +3783,7 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	case ENETRESET:
 	case ECONNABORTED:
 	  Snprintf(buf, sizeof(buf), "Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval) );
-	  pfatal(buf);
+	  pfatal("%s", buf);
 	  break;
 	default:
 	  Snprintf(buf, sizeof(buf), "Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));

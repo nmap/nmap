@@ -11,6 +11,10 @@ o Made RPC grinding work from service detection again by changing the
   looked-for service name from "rpc" to "rpcbind", the name it has in
   nmap-service-probes. [David]
 
+o Fixed a log_write call and a pfatal call to use a syntax which is
+  safer from format strings bugs.  This allows Nmap to build with the
+  gcc -Wformat -Werror=format-security options. [Guillaume Rousse]
+
 o [Ndiff] Ndiff now shows changes in script output. [David]
 
 o A bug in Nsock was fixed: On systems where a nonblocking connect
