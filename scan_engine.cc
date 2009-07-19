@@ -3689,51 +3689,39 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	case 0:
 #ifdef LINUX
 	  if (!FD_ISSET(sd, &fds_rtmp)) {
-	    /* Linux goofiness -- We need to actually test that it is writeable */
-	    res = send(sd, "", 0, 0);
-	    
-	    if (res < 0 ) {
-	      if (o.debugging > 1) {
-		log_write(LOG_STDOUT, "Bad port %hu caught by 0-byte write: ",
-			  pport);
-		perror("");
-	      }
-	      newportstate = PORT_CLOSED;
-	    } else {
-	      if (getpeername(sd, (struct sockaddr *) &sin, &sinlen) < 0) {
-		pfatal("error in getpeername of connect_results for port %hu", (u16) pport);
-	      } else {
-		s_in = (struct sockaddr_in *) &sin;
-		s_in6 = (struct sockaddr_in6 *) &sin;
-		if ((o.af() == AF_INET &&
-		     pport != ntohs(s_in->sin_port))
+            if (getpeername(sd, (struct sockaddr *) &sin, &sinlen) < 0) {
+              pfatal("error in getpeername of connect_results for port %hu", (u16) pport);
+            } else {
+              s_in = (struct sockaddr_in *) &sin;
+              s_in6 = (struct sockaddr_in6 *) &sin;
+              if ((o.af() == AF_INET &&
+                   pport != ntohs(s_in->sin_port))
 #ifdef HAVE_IPV6
-		    || (o.af() == AF_INET6 && pport != ntohs(s_in6->sin6_port))
+                  || (o.af() == AF_INET6 && pport != ntohs(s_in6->sin6_port))
 #endif
-		    ) {
-		  error("Mismatch!!!! we think we have port %hu but we really have a different one", (u16) pport);
-		}
-	      }
-	      
-	      if (getsockname(sd, (struct sockaddr *) &sout, &soutlen) < 0) {
-		pfatal("error in getsockname for port %hu", (u16) pport);
-		}
-	      s_in = (struct sockaddr_in *) &sout;
-	      s_in6 = (struct sockaddr_in6 *) &sout;
-	      if ((o.af() == AF_INET && htons(s_in->sin_port) == pport) 
+                  ) {
+                error("Mismatch!!!! we think we have port %hu but we really have a different one", (u16) pport);
+              }
+            }
+            
+            if (getsockname(sd, (struct sockaddr *) &sout, &soutlen) < 0) {
+              pfatal("error in getsockname for port %hu", (u16) pport);
+              }
+            s_in = (struct sockaddr_in *) &sout;
+            s_in6 = (struct sockaddr_in6 *) &sout;
+            if ((o.af() == AF_INET && htons(s_in->sin_port) == pport) 
 #ifdef HAVE_IPV6
-		  || (o.af() == AF_INET6 && htons(s_in6->sin6_port) == pport)
+                || (o.af() == AF_INET6 && htons(s_in6->sin6_port) == pport)
 #endif
-		  ) {
-		/* Linux 2.2 bug can lead to bogus successful connect()ions
-		   in this case -- we treat the port as bogus even though it
-		   is POSSIBLE that this is a real connection */
-		newportstate = PORT_CLOSED;
-	      } else {
-		newhoststate = HOST_UP;
-		newportstate = PORT_OPEN;
-	      }
-	    }
+                ) {
+              /* Linux 2.2 bug can lead to bogus successful connect()ions
+                 in this case -- we treat the port as bogus even though it
+                 is POSSIBLE that this is a real connection */
+              newportstate = PORT_CLOSED;
+            } else {
+              newhoststate = HOST_UP;
+              newportstate = PORT_OPEN;
+            }
 	  } else {
 	    newhoststate = HOST_UP;
 	    newportstate = PORT_OPEN;
