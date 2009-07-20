@@ -3609,7 +3609,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   u16 pport = 0;
   reason_t current_reason = ER_NORESPONSE;
 #ifdef LINUX
-  int res;
   struct sockaddr_storage sin,sout;
   struct sockaddr_in *s_in;
   struct sockaddr_in6 *s_in6;
