@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now prints a warning instead of a fatal error when the hardware
+  address of an interface can't be found. This is the case for
+  FireWire interfaces, which have a hardware address format not
+  supported by libdnet. Thanks to Julian Berdych for the bug report.
+  [David]
+
 o Added the pjl-ready-message.nse script from Aaron Leininger. This
   script allows viewing and setting the message displayed by printers
   that support the Printer Job Language.

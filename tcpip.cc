@@ -3034,9 +3034,10 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
         error("Warning: Unable to open interface %s -- skipping it.", devs[count].devname);
         continue;
       }
-      if (eth_get(ethsd, &ethaddr) != 0) 
-        fatal("%s: Failed to obtain MAC address for ethernet interface (%s)",
-              __func__, devs[count].devname);
+      if (eth_get(ethsd, &ethaddr) != 0) {
+        error("Warning: Unable to get hardware address for interface %s -- skipping it.", devs[count].devname);
+        continue;
+      }
       memcpy(devs[count].mac, ethaddr.data, 6);
 #endif /*SIOCGIFHWADDR*/
     } else if (ifflags & IFF_POINTOPOINT) {
