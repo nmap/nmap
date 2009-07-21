@@ -262,7 +262,10 @@ do
     end
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
-    local env = setmetatable({}, {__index = _G});
+    local env = setmetatable({
+      filename = filename,
+      runlevel = 1,
+    }, {__index = _G});
     setfenv(file_closure, env);
     local co = create(file_closure); -- Create a garbage thread
     assert(resume(co)); -- Get the globals it loads in env
