@@ -149,6 +149,12 @@ o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
 
+o [Ncat] Think about whether we should offer "-q secs" (quit after EOF
+  + delay of secs) and/or -k (set SO_KEEPALIVE on socket) (or maybe that
+  should be set by default).  Anyway, these were suggested here:
+  http://lwn.net/Articles/341706/
+
+
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
   Perhaps we should look at poll(), Windows completion ports, and some
