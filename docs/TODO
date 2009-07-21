@@ -5,6 +5,17 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
 
+o Ncat SSLv2 issues.  See
+  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
+  done, which was enhanced version detection probes to detect more SSL
+  servers, The defect that remains is that Nsock can't connect to a
+  small fraction of servers (including some of the ones detected by
+  the new version probe). They are the servers that do only SSLv3 or
+  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
+  though most servers don't support SSLv2, they usually respond to the
+  ClientHello and just don't offer any SSLv2 features. [David/Venkat
+  working on this]
+
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
@@ -23,30 +34,14 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
-o Add -sn and -Pn options which are aliases for -sP and -PN.  Once
-  they've been around long enough to be in most people's copy of Nmap,
-  we plan to document those as the preferred version.  Those match -n,
-  and the main problem with -sP is that we now use it more for
-  "disable portscan" than ping only.  For example, you still might
-  want to use NSE. [David]
-
-o Make -sP work with -PN to disable both port and ping scanning.  We
-  need to make sure the various options still work (-O, --script,
-  --traceroute, etc.) with this, as many currently don't as they don't
-  expect this behavior, which used to be unsupported and cause Nmap to
-  quit with an error messaqge.  It may be OK to refuse -O since that
-  will rarely give useful results.  OTOH, -O may work on some systems
-  with unique closed port signatures where Nmap guesses a closed
-  port. Users should then be able to do an NSE-only scan with "-sP -PN
-  --script [scripts]" We should document this -sP -PN usage in
-  refguide.  [David]
-
-o David is going to reexamine the old coverity-reported issues (the
-  ones we previously marked as "ignore" because they weren't real bugs)
-  just to be sure that is (and is still) the case.
-
-o Ndiff man page should be expanded to include sample execution/output
-  and more fully describe its functionality. [David]
+o After the new -sn and -PN options (added to SVN around 7/20, just
+  after the 5.00 release) have been around long enough to be in most
+  people's copy of Nmap (e.g. in all the versions we distribute from
+  download page (stable+dev)) for at least a few monts, we'll document
+  these as the preferred version rather than -sP and -PN.  These match
+  -n, and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you can also use
+  NSE, traceroute, etc. [David]
 
 o [Zenmap] The Search dialogue is helpful for finding a certain scan
   you've performed recently, but we should probably also offer a similar
@@ -63,6 +58,15 @@ o [NSE] Optimize NSE Performance--e.g. measure the current performance and
 o Ncat should give it's ethernet cat ASCII logo after
   configure--similar to the way that Nmap, Ncrack, and Nping
   do. [David/SoC]
+
+o Seriously consider making --traceroute work even when we haven't
+  found a probe which elicits a response from the target.  We'd just
+  have to pick a probe in that case (probably echo request, as we
+  found that to be the most effective in prev. empirical testing).
+  This is similar to UNIX traceroute and Windows tracert.exe which
+  just pick a probe (high UDP port on UNIX, ICMP echo request on Win).
+  Even if the host is down or something, we usually get some useful
+  hop information.
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
@@ -83,22 +87,12 @@ o [NSE] Allow spaces in script arguments without the user having to
   http://seclists.org/nmap-dev/2009/q3/0090.html
   [Patrick]
 
-o [NSE] Consider integrating HP Laserjet print PJL status-setting
-  script.  See this thread for an example of such a script:
-  http://seclists.org/nmap-dev/2009/q3/0083.html (note that it is
-  updated during the thread).  Also, see this thread:
-  http://seclists.org/nmap-dev/2009/q3/0092.html
-
-o The Nmap refguide (http://nmap.org/book/man-performance.html) says
-  "The --max-parallelism option is sometimes set to one to prevent Nmap
-  from sending more than one probe at a time to hosts. This can be
-  useful in combination with --scan-delay (discussed later), although
-  the latter usually serves the purpose well enough by itself."  But
-  when you actually try it:
-  # ./nmap --max-parallelism 1 --scan-delay 10 scanme.nmap.org
-  You can't use --max-parallelism with --scan-delay.
-  QUITTING!
-  We need to either make that work or adjust the documentation. [David/SoC]
+o Add PJL (Printer Job Language) probes to
+  nmap-service-probes. Brandon wrote some in
+  http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
+  they cause anything to be printed out (on paper) with printers that
+  don't support PJL. If not, then remove the JetDirect ports from the
+  default exclude list. The script pjl-ready-message.nse also uses PJL.
 
 o Joao is auditing his Lua code to make sure all his variables are
   local where appropriate. [Joao - done, should be commited very soon]
@@ -129,6 +123,12 @@ o [Ncat] This may sound rediculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)
 
+o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
+  the man page location for ncat and ndiff.
+ o Don't break packaging/build system
+ o Don't break the system for posting html to web site. 
+ [Fyodor]
+
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
    introduction to each tool (Nmap, Zenmap, Ncat, Ndiff) on its web
@@ -154,7 +154,6 @@ o [Ncat] Think about whether we should offer "-q secs" (quit after EOF
   should be set by default).  Anyway, these were suggested here:
   http://lwn.net/Articles/341706/
 
-
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
   Perhaps we should look at poll(), Windows completion ports, and some
@@ -162,17 +161,6 @@ o Change Nsock so that it is able to take advantage of more modern
   higher than FD_SETSIZE, and it may not performa all that well.  We
   should do some benchmarking and decide on the interface to use for
   each platform. [David/SoC]
-
-o Ncat SSLv2 issues.  See
-  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
-  done, which was enhanced version detection probes to detect more SSL
-  servers, The defect that remains is that Nsock can't connect to a
-  small fraction of servers (including some of the ones detected by
-  the new version probe). They are the servers that do only SSLv3 or
-  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
-  though most servers don't support SSLv2, they usually respond to the
-  ClientHello and just don't offer any SSLv2 features. [David/Venkat
-  working on this]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -262,7 +250,6 @@ o [NSE] Consider HTTP request caching.
 
 o [NSE] Consider Rob Nicholls http-enum script for incorporation:
   http://seclists.org/nmap-dev/2009/q1/0889.html
-
 
 o [NSE] Support routing http requests through proxies.
 
@@ -625,6 +612,50 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o The Nmap refguide (http://nmap.org/book/man-performance.html) says
+  "The --max-parallelism option is sometimes set to one to prevent Nmap
+  from sending more than one probe at a time to hosts. This can be
+  useful in combination with --scan-delay (discussed later), although
+  the latter usually serves the purpose well enough by itself."  But
+  when you actually try it:
+  # ./nmap --max-parallelism 1 --scan-delay 10 scanme.nmap.org
+  You can't use --max-parallelism with --scan-delay.
+  QUITTING!
+  We need to either make that work or adjust the documentation. [David/SoC]
+  o David changed this to a warning.  Note that with --scan-dealy,
+  --max-parallelism is essentially 1 anyway.
+
+o [NSE] Consider integrating HP Laserjet print PJL status-setting
+  script.  See this thread for an example of such a script:
+  http://seclists.org/nmap-dev/2009/q3/0083.html (note that it is
+  updated during the thread).  Also, see this thread:
+  http://seclists.org/nmap-dev/2009/q3/0092.html
+
+o Ndiff man page should be expanded to include sample execution/output
+  and more fully describe its functionality. [David]
+
+o David is going to reexamine the old coverity-reported issues (the
+  ones we previously marked as "ignore" because they weren't real bugs)
+  just to be sure that is (and is still) the case.
+
+o Make -sP work with -PN to disable both port and ping scanning.  We
+  need to make sure the various options still work (-O, --script,
+  --traceroute, etc.) with this, as many currently don't as they don't
+  expect this behavior, which used to be unsupported and cause Nmap to
+  quit with an error messaqge.  It may be OK to refuse -O since that
+  will rarely give useful results.  OTOH, -O may work on some systems
+  with unique closed port signatures where Nmap guesses a closed
+  port. Users should then be able to do an NSE-only scan with "-sP -PN
+  --script [scripts]" We should document this -sP -PN usage in
+  refguide.  [David]
+
+o Add -sn and -Pn options which are aliases for -sP and -PN.  Once
+  they've been around long enough to be in most people's copy of Nmap,
+  we plan to document those as the preferred version.  Those match -n,
+  and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you still might
+  want to use NSE. [David]
 
 o [NSE] Make sure all our HTTP scripts transparently support SSL
   servers too. [Joao has a solution and is testing the http scripts to
