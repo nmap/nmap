@@ -3499,7 +3499,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # AV-TECH Digital Video Recorder (device connected to a surveillance camera), AVT AVC 773W 4CH Network DVR
 Fingerprint AVtech AVC 773W digital video recorder
 Class AVtech | embedded || webcam
-SEQ(SP=C-1E%GCD=1-6%ISR=1B-5F%TI=I%II=RI%SS=O|S%TS=U)
+SEQ(SP=C-1E%GCD=1-6%ISR=1B-6F%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M59E%O2=M578%O3=M280%O4=M59E%O5=M218%O6=M109)
 WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
 ECN(R=Y%DF=Y%T=FA-104%TG=FF%W=FAF0%O=M59E%CC=N%Q=)
