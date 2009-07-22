@@ -174,10 +174,10 @@ function is_vhost( rhost, host )
   opts.retAll = true
   if host.ip:match( ":" ) then opts.dtype = "AAAA" end
 
-  local answer, msg = dns.query( rhost, opts )
+  local status, answer = dns.query( rhost, opts )
 
-  if not answer then
-    stdnse.print_debug( "html-title.nse: DNS query failed for target %s.  Query was: %s. Error Code: %s", host.targetname or host.ip, rhost, msg or "nil" )
+  if not status then
+    stdnse.print_debug( "html-title.nse: DNS query failed for target %s.  Query was: %s. Error: %s", host.targetname or host.ip, rhost, answer or "nil" )
     return false
   end
 
