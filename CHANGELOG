@@ -34,7 +34,8 @@ o Made RPC grinding work from service detection again by changing the
 
 o Fixed a log_write call and a pfatal call to use a syntax which is
   safer from format strings bugs.  This allows Nmap to build with the
-  gcc -Wformat -Werror=format-security options. [Guillaume Rousse]
+  gcc -Wformat -Werror=format-security options. [Guillaume Rousse,
+  Dmitry Levin]
 
 o [Ndiff] Ndiff now shows changes in script output. [David]
 

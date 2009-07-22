@@ -3603,7 +3603,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   int newhoststate = HOST_UNKNOWN;
   int optval;
   recvfrom6_t optlen = sizeof(int);
-  char buf[128];
   int numGoodSD = 0;
   int err = 0;
   u16 pport = 0;
@@ -3781,12 +3780,10 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
 	case ENETDOWN:
 	case ENETRESET:
 	case ECONNABORTED:
-	  Snprintf(buf, sizeof(buf), "Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval) );
-	  pfatal("%s", buf);
+	  fatal("Strange SO_ERROR from connection to %s (%d - '%s') -- bailing scan", host->target->targetipstr(), optval, strerror(optval));
 	  break;
 	default:
-	  Snprintf(buf, sizeof(buf), "Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));
-	  perror(buf);
+	  error("Strange read error from %s (%d - '%s')", host->target->targetipstr(), optval, strerror(optval));
 	  break;
 	}
 
