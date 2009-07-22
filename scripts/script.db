@@ -13,6 +13,7 @@ Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
+Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
@@ -24,6 +25,7 @@ Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "in
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
+Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
