@@ -5033,7 +5033,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
        the request came from, therefore listening for ARP packets directed to
        us is not enough. Look inside the ARP reply at the target address field
        instead. The filter string will look like
-         arp and arp[18:4] = 0xAABBCCDD and arp[22:2] = 0xCCDD */
+         arp and arp[18:4] = 0xAABBCCDD and arp[22:2] = 0xEEFF */
     char macstring[2 * ETH_ADDR_LEN + 1];
     const u8 *mac = Targets[0]->SrcMACAddress();
     assert(mac);
