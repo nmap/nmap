@@ -55,10 +55,6 @@ o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   determining how many to run concurrently, looking at CPU load items,
   etc. [David/Patrick]
 
-o Ncat should give it's ethernet cat ASCII logo after
-  configure--similar to the way that Nmap, Ncrack, and Nping
-  do. [David/SoC]
-
 o Seriously consider making --traceroute work even when we haven't
   found a probe which elicits a response from the target.  We'd just
   have to pick a probe in that case (probably echo request, as we
@@ -68,24 +64,30 @@ o Seriously consider making --traceroute work even when we haven't
   Even if the host is down or something, we usually get some useful
   hop information.
 
+o Ncat should give it's ethernet cat ASCII logo after
+  configure--similar to the way that Nmap, Ncrack, and Nping
+  do. [David/SoC]
+
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
-o [NSE] We need to deal with libraries which improperly use global
-  variables, as that is very common (Patrick made a list:
-  http://batbytes.com/bad.txt).  Solutions could involve augmenting
-  our runtime system (the "strict.lua" approach) to detect/prevent the
-  problem, a script we run occasionally to identify issues that we
-  then manually resolve, or, at the very minimum, documenting
-  somewhere in scripting.xml the dangers inherent in global variables
-  and warn people to generally declare them local instead.  We have a
-  long history of bugs caused by non-local variables defined in NSE
-  libraies and often causing deadlocks.
 
 o [NSE] Allow spaces in script arguments without the user having to
   manually quote them (beyond normal shell escape quoting).  See:
   http://seclists.org/nmap-dev/2009/q3/0090.html
   [Patrick]
+
+o Add scripting.xml documentation on strict.lua and the avoidance of
+  global vars in libraries. See
+  http://seclists.org/nmap-dev/2009/q3/0169.html. [Patrick]
+
+o Consider the open proxy scripts more carefully
+ - How should we test whether the proxy attempt was successful?  Right
+   now we look for a google-specific Server header after trying to
+   reach http://www.google.com through the proxy.  Maybe we should let
+   users specify their own pattern if they specify their own URL.
+  [ Joao is done with changes for http-open-proxy and
+  socks-open-proxy, will send to nmap-dev today (7/21) for review and
+  then check in a few days later]
 
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
@@ -93,16 +95,6 @@ o Add PJL (Printer Job Language) probes to
   they cause anything to be printed out (on paper) with printers that
   don't support PJL. If not, then remove the JetDirect ports from the
   default exclude list. The script pjl-ready-message.nse also uses PJL.
-
-o Joao is auditing his Lua code to make sure all his variables are
-  local where appropriate. [Joao - done, should be commited very soon]
-
-o Consider the open proxy scripts more carefully
- - How should we test whether the proxy attempt was successful?  Right
-   now we look for a google-specific Server header after trying to
-   reach http://www.google.com through the proxy.  Maybe we should let
-   users specify their own pattern if they specify their own URL.
-  [ Joao is nearly done, will be checking into dev tree]
 
 o Consider moving UDP ping/portscan payloads from payload.cc to a
   custom data file so that it is cleaner to maintain and users can
@@ -206,6 +198,8 @@ o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
   http://seclists.org/nmap-dev/2009/q2/0669.html)
 
+o [NSE] Consider HTTP request caching.
+
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
   work in combination with Ncrack dev.
@@ -213,29 +207,12 @@ o [NSE] Improve username/password library (the database files
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
-o [Ncat] Support SCTP now that Nmap does. 
-  - See client support patch by Daniel Roethlisberger: 
-    http://seclists.org/nmap-dev/2009/q2/0609.html
-  - Server support?
-  - Daniel has a patch, David looking to apply once an nsock thing is fixed.
-
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
   as Ron) already make use of Patrick's traceback.nse in their
   experimental trees.  For some inspiration/ideas, look at Diman's NSE
   debugger (http://seclists.org/nmap-dev/2008/q1/0228.html) and also
   Patrick's traceback.nse 
-
-o [NSE] Look into moving packet module to C for better performance
-  [Patrick]
-
-o Add Nmap web board.
- 
-o Create Nmap wiki
-
-o [NSE] Consider whether we need script.db for performance reasons at
-  all or should just read through all the scripts and parse on the fly.
-  See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
 o [NSE] We may want to consider a better exception handling method --
   one which doesn't require wrapping every I/O line in its own try
@@ -246,10 +223,16 @@ o [NSE] We may want to consider a better exception handling method --
   Something based on that would be better [than the current system], I
   think."
 
-o [NSE] Consider HTTP request caching.
+o [NSE] Look into moving packet module to C for better performance
+  [Patrick]
+
+o [NSE] Consider whether we need script.db for performance reasons at
+  all or should just read through all the scripts and parse on the fly.
+  See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
 o [NSE] Consider Rob Nicholls http-enum script for incorporation:
   http://seclists.org/nmap-dev/2009/q1/0889.html
+  [Joao tested w/his HEAD support, is going to check this in]
 
 o [NSE] Support routing http requests through proxies.
 
@@ -264,31 +247,13 @@ o [NSE] http improvements
    similar to scanning to see which ports are open.
  o Cookie suppport?  Might be useful for spidering sites which use it
    for authentication/authorization/personalization.
- o HTTP keepalive? May make spidering/grinding/auth cracking more efficient
+ o HTTP persistant connections/keepalive? May make
+   spidering/grinding/auth cracking more efficient
  o Pipeliing? May make spidering/grinding/auth cracking more efficient
  o Consider POST/HEAD support. See
    http://seclists.org/nmap-dev/2009/q1/0889.html.
-
-o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
- o We should do an audit to ensure that we are in complete compliance for the
- licenses of all the software we ship in any of our downloads, as some
- licenses have special clauses for things like including their
- license/copyright file, mentioning them in our documentation, etc.
- And of course we want to credit them properly even where the license
- doesn't require it.  We should probably make a list of these in our
- docs/ directory along with any special information/requirements of
- their license.  And maybe we should put the current licenses in a
- subdir too.  In particular, these come to mind:
- o libpcre
- o lua
- o OpenSSL
- o libpcap
- o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
-   PyGTK)
- o SQLite
- o Python (Win/Mac versions of Zenmap link to Python)
- o X.org libraries (Mac version links to them)
- o libdnet
+  o Implemented:  http://seclists.org/nmap-dev/2009/q3/0074.html
+  o Joao going to check in very soon soon.
 
 o [NSE] High speed brute force HTTP authentication.  Possibly POST and
    GET/HEAD brute force cracking.
@@ -320,44 +285,44 @@ o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
   (http://blog.tenablesecurity.com/2009/06/enhanced-web-application-attacks-added-to-nessus.html).
 
-o Deadlock identification and correction:
- o Plan of action: implement freeing of script mutexes when scripts
- exit without freeing them (done and in /nmap now). And then if it
- continues to be a problem we'll consider this other stuff:
-  o Add detection for deadlocks and print which threads are involved.
-  o use above results to make a strategy for automatic deadlock resolution.
-  o Original entry: Figure out what to do about NSE mutexes:
-  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
-  are not currently cleaned up if a thread dies or otherwise exits
-  without unlocking them and can cause endless deadlocks which are
-  annoying to users and can be difficult to debug :(.  Patrick has
-  some ideas for this in his SoC09 proposal:
-   "Adding a cleanup system for NSE that is called periodically
-    similar to nsock_loop. There would be a registration system
-    allowing C libraries to register a Lua function that will run
-    periodically to check for irresolvable deadlock or simply dead
-    resources. For example, the nmap library would register a mutex
-    cleanup handler which would inspect all mutexes looking for a dead
-    thread or circular dependencies. The nsock library could register
-    a handler that checks for unused sockets. The nsock may save a
-    strong reference to the thread that owns the socket and inspect it
-    to determine if the thread is dead."
-  David later says: "After some discussion we decided to start more
-  modestly, first by ensuring that a scripts mutexes are released when
-  it dies for whatever reason. I have a hunch that this is the cause
-  of most deadlocks. It was certainly the cause of two whois.nse
-  deadlocks I found. Then, the next step if deadlocks continue to be a
-  problem, is to do automatic detection and just print out a list of
-  what scripts are involved. It could be that several smb scripts are
-  deadlocked, or as in the case I observed where whois.nse was locked
-  with itself."
-
 o [NSE] Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
    with respect to buffer overflows, format string bugs, any other
    maliciously formatted responses from target systems, etc.  Maybe
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
+
+o [Ncat] Support SCTP now that Nmap does. 
+  - See client support patch by Daniel Roethlisberger: 
+    http://seclists.org/nmap-dev/2009/q2/0609.html
+  - Server support?
+  - Daniel has a patch, David looking to apply once an nsock thing is fixed.
+
+o Add Nmap web board.
+ 
+o Create Nmap wiki
+
+o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o We should do an audit to ensure that we are in complete compliance for the
+ licenses of all the software we ship in any of our downloads, as some
+ licenses have special clauses for things like including their
+ license/copyright file, mentioning them in our documentation, etc.
+ And of course we want to credit them properly even where the license
+ doesn't require it.  We should probably make a list of these in our
+ docs/ directory along with any special information/requirements of
+ their license.  And maybe we should put the current licenses in a
+ subdir too.  In particular, these come to mind:
+ o libpcre
+ o lua
+ o OpenSSL
+ o libpcap
+ o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
+   PyGTK)
+ o SQLite
+ o Python (Win/Mac versions of Zenmap link to Python)
+ o X.org libraries (Mac version links to them)
+ o libdnet
+
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -612,6 +577,52 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Deadlock identification and correction:
+ o Plan of action: implement freeing of script mutexes when scripts
+ exit without freeing them (done and in /nmap now). And then if it
+ continues to be a problem we'll consider this other stuff:
+  o Add detection for deadlocks and print which threads are involved.
+  o use above results to make a strategy for automatic deadlock resolution.
+  o Original entry: Figure out what to do about NSE mutexes:
+  http://seclists.org/nmap-dev/2008/q3/0276.html . In particular, they
+  are not currently cleaned up if a thread dies or otherwise exits
+  without unlocking them and can cause endless deadlocks which are
+  annoying to users and can be difficult to debug :(.  Patrick has
+  some ideas for this in his SoC09 proposal:
+   "Adding a cleanup system for NSE that is called periodically
+    similar to nsock_loop. There would be a registration system
+    allowing C libraries to register a Lua function that will run
+    periodically to check for irresolvable deadlock or simply dead
+    resources. For example, the nmap library would register a mutex
+    cleanup handler which would inspect all mutexes looking for a dead
+    thread or circular dependencies. The nsock library could register
+    a handler that checks for unused sockets. The nsock may save a
+    strong reference to the thread that owns the socket and inspect it
+    to determine if the thread is dead."
+  David later says: "After some discussion we decided to start more
+  modestly, first by ensuring that a scripts mutexes are released when
+  it dies for whatever reason. I have a hunch that this is the cause
+  of most deadlocks. It was certainly the cause of two whois.nse
+  deadlocks I found. Then, the next step if deadlocks continue to be a
+  problem, is to do automatic detection and just print out a list of
+  what scripts are involved. It could be that several smb scripts are
+  deadlocked, or as in the case I observed where whois.nse was locked
+  with itself."
+
+o Joao is auditing his Lua code to make sure all his variables are
+  local where appropriate. [Joao - done, should be commited very soon]
+
+o [NSE] We need to deal with libraries which improperly use global
+  variables, as that is very common (Patrick made a list:
+  http://batbytes.com/bad.txt).  Solutions could involve augmenting
+  our runtime system (the "strict.lua" approach) to detect/prevent the
+  problem, a script we run occasionally to identify issues that we
+  then manually resolve, or, at the very minimum, documenting
+  somewhere in scripting.xml the dangers inherent in global variables
+  and warn people to generally declare them local instead.  We have a
+  long history of bugs caused by non-local variables defined in NSE
+  libraies and often causing deadlocks.
 
 o The Nmap refguide (http://nmap.org/book/man-performance.html) says
   "The --max-parallelism option is sometimes set to one to prevent Nmap
