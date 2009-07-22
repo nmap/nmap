@@ -211,24 +211,13 @@ function ip_to_asn( query )
   end
 
   -- send the query
-  local decoded_response, other_response = dns.query( query, options)
+  local status, decoded_response = dns.query( query, options)
 
-  -- failed to find or get a response from any dns server - fatal
-  if not decoded_response and ( other_response == nil or other_response == 9 ) then
-    stdnse.print_debug( "%s Failed to send dns query.  Response from dns.query(): %s", filename, other_response or "nil" )
-    return false, nil
+  if not status then
+    stdnse.print_debug( "%s Error from dns.query(): %s", filename, decoded_response )
   end
 
-  -- error codes from dns.lua
-  if not decoded_response and type( other_response ) == "number" then
-    if other_response ~= 3 then stdnse.print_debug( "%s Error from dns.query() Code: %s in response to %s", filename, other_response, query ) end
-    return false, err_code[other_response] or "Unknown Error"
-  end
-
-  -- catch
-  if not decoded_response then return false, nil end
-
-  return true, decoded_response
+  return status, decoded_response
 
 end
 
