@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The ARP host discovery scan now filters ARP packets based on their
+  target address address field, not the destination address in the
+  enclosing ethernet frame. Some operating systems, including Windows
+  7 and Solaris 10, are known to at least sometimes send their ARP
+  replies to the broadcast address and Nmap wouldn't notice them. The
+  symptom of this was that root scans wouldn't work ("Host seems
+  down") but non-root scans would work. Thanks to Mike Calmus and
+  Vijay Sankar for reporting the problem, and Marcus Haebler for
+  suggesting the fix.
+
 o The -fno-strict-aliasing option is now used unconditionally when
   using GCC. It was already this way, in effect, because a test
   against the GCC version number was reversed: <= 4 rather than >= 4.

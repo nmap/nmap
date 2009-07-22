@@ -5011,7 +5011,6 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   string pcap_filter="";
   /* 20 IPv6 addresses is max (45 byte addy + 14 (" or src host ")) * 20 == 1180 */
   string dst_hosts="";
-  char macstring[100];
   unsigned int len = 0;
   unsigned int targetno;
   bool doIndividual = Targets.size() <= 20; // Don't bother IP limits if scanning huge # of hosts
@@ -5028,15 +5027,26 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
   }
 
   USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
-  if(USI->ping_scan_arp){
+  if (USI->ping_scan_arp){
+    /* Some OSs including Windows 7 and Solaris 10 have been seen to send their
+       ARP replies to the broadcast address, not to the (unicast) address that
+       the request came from, therefore listening for ARP packets directed to
+       us is not enough. Look inside the ARP reply at the target address field
+       instead. The filter string will look like
+         arp and arp[18:4] = 0xAABBCCDD and arp[22:2] = 0xCCDD */
+    char macstring[2 * ETH_ADDR_LEN + 1];
     const u8 *mac = Targets[0]->SrcMACAddress();
     assert(mac);
-    pcap_filter="arp and ether dst host ";
-    len = Snprintf(macstring, sizeof(macstring), 
-      "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    if(len>=sizeof(macstring))
-      fatal("macstring too long");
-    pcap_filter+=macstring;
+    len = Snprintf(macstring, sizeof(macstring), "%02X%02X%02X%02X%02X%02X",
+      mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    if (len != sizeof(macstring) - 1)
+      fatal("macstring length is %d, should be %u", len, sizeof(macstring) - 1);
+    /* First four bytes of MAC. */
+    pcap_filter = "arp and arp[18:4] = 0x";
+    pcap_filter.append(macstring, 0, 4 * 2);
+    /* Last two bytes. */
+    pcap_filter += " and arp[22:2] = 0x";
+    pcap_filter.append(macstring, 4 * 2, 2 * 2);
     //its not arp, so lets check if for a protocol scan.
   } else if(USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan)){
     if (doIndividual){
