@@ -38,12 +38,16 @@ require "dns"
 --@return Ip address of hostname in hex
 function hex_resolve(hostname)
 	local a, b, c, d;
-	local t, err = ipOps.get_parts_as_number(dns.query(hostname))
+	local dns_status, ip = dns.query(hostname)
+	if not dns_status then
+		return false
+	end
+	local t, err = ipOps.get_parts_as_number(ip)
 	if t and not err
 		then a, b, c, d = unpack(t)
 		else return false
-	end	
-	sip = string.format("%.2x ", a) .. string.format("%.2x ", b) .. string.format("%.2x ", c) .. string.format("%.2x ",d)
+	end
+	local sip = string.format("%.2x ", a) .. string.format("%.2x ", b) .. string.format("%.2x ", c) .. string.format("%.2x ",d)
 	return true, sip
 end
 
