@@ -4194,38 +4194,10 @@ test -z "$INSTALL_SCRIPT" && INSTALL_SCRIPT='${INSTALL}'
 test -z "$INSTALL_DATA" && INSTALL_DATA='${INSTALL} -m 644'
 
 
- if test -n "$GXX"; then
-      CXXFLAGS="$CXXFLAGS -Wall "
- fi
-
-{ $as_echo "$as_me:$LINENO: checking whether the compiler is gcc 4 or greater" >&5
-$as_echo_n "checking whether the compiler is gcc 4 or greater... " >&6; }
-if test x"$GXX" = xno; then
-  { $as_echo "$as_me:$LINENO: result: no" >&5
-$as_echo "no" >&6; }
-else
-  # On some distros, there are snapshots available as gcc4
-  if test -z "$ac_cv_prog_CC" || test x"$CC" = xgcc4; then
-    our_gcc="$CC"
-  else
-    our_gcc="$ac_cv_prog_CC"
-  fi
-
-  nmap_gcc_major_version=0
-  case `$our_gcc --version | sed -e 's,\..*,.,' -e q` in
-    *4.)
-      nmap_gcc_major_version=4
-      ;;
-  esac
-
-  if test 4 -ge $nmap_gcc_major_version; then
-    { $as_echo "$as_me:$LINENO: result: yes" >&5
-$as_echo "yes" >&6; }
-    CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-  else
-    { $as_echo "$as_me:$LINENO: result: no" >&5
-$as_echo "no" >&6; }
-  fi
+if test -n "$GXX"; then
+  # -fno-strict-aliasing disables strict-aliasing optimizations that assume
+  # that pointers of different types never point to the same object.
+  CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
 # Remember that all following tests will run with this CXXFLAGS by default

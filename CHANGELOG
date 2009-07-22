@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The -fno-strict-aliasing option is now used unconditionally when
+  using GCC. It was already this way, in effect, because a test
+  against the GCC version number was reversed: <= 4 rather than >= 4.
+  Solar Designer reported the problem.
+
 o Nmap now prints a warning instead of a fatal error when the hardware
   address of an interface can't be found. This is the case for
   FireWire interfaces, which have a hardware address format not

@@ -45,34 +45,10 @@ AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
 
- if test -n "$GXX"; then
-      CXXFLAGS="$CXXFLAGS -Wall "
- fi
-
-AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
-if test x"$GXX" = xno; then
-  AC_MSG_RESULT([no])
-else
-  # On some distros, there are snapshots available as gcc4
-  if test -z "$ac_cv_prog_CC" || test x"$CC" = xgcc4; then
-    our_gcc="$CC"
-  else
-    our_gcc="$ac_cv_prog_CC"
-  fi
-
-  nmap_gcc_major_version=0
-  case `$our_gcc --version | sed -e 's,\..*,.,' -e q` in
-    *4.)
-      nmap_gcc_major_version=4
-      ;;
-  esac
-
-  if test 4 -ge $nmap_gcc_major_version; then
-    AC_MSG_RESULT([yes])
-    CXXFLAGS="$CXXFLAGS -fno-strict-aliasing"
-  else
-    AC_MSG_RESULT([no])
-  fi
+if test -n "$GXX"; then
+  # -fno-strict-aliasing disables strict-aliasing optimizations that assume
+  # that pointers of different types never point to the same object.
+  CXXFLAGS="$CXXFLAGS -Wall -fno-strict-aliasing"
 fi
 
 # Remember that all following tests will run with this CXXFLAGS by default
