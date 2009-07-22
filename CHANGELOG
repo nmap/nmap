@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat]In verbose mode Ncat prints In and OUT traffic in bytes once the client connection
+  is terminated,in this way "Finished. 29 bytes sent, 24 bytes received."
+  For this few lines of code has been added to Nsock
+  so that other nsock dependent applications also can use this traffic count.[Venkat].
+
 o The ARP host discovery scan now filters ARP packets based on their
   target address address field, not the destination address in the
   enclosing ethernet frame. Some operating systems, including Windows
