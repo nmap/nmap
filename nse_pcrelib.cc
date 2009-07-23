@@ -183,7 +183,7 @@ static void Lpcre_push_substrings (lua_State *L, const char *text, pcre2 *ud)
 		unsigned int n = (tabptr[0] << 8) | tabptr[1]; /* number of the capturing parenthesis */
 		if (n > 0 && n <= (unsigned) ud->ncapt) {   /* check range */
 			unsigned int j = n * 2;
-			lua_pushstring(L, strdup((char*)tabptr + 2)); /* name of the capture, zero terminated */
+			lua_pushstring(L, (char*)tabptr + 2); /* name of the capture, zero terminated */
 			if (match[j] >= 0)
 				lua_pushlstring(L, text + match[j], match[j + 1] - match[j]);
 			else
