@@ -1,4 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [Zenmap] Merged the changes in the zenmap-filter branch to the main zenmap
+  branch.  Pressing Ctrl+L now brings up the filter interface for filtering out
+  uninteresting hosts. Alternatively, the interface is accessible via the
+  'Filter Hosts' button.  [Josh]
 
 o [Ncat]In verbose mode Ncat prints In and OUT traffic in bytes once the client connection
   is terminated,in this way "Finished. 29 bytes sent, 24 bytes received."
