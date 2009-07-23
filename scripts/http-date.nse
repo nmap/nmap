@@ -7,9 +7,9 @@ sent, so the difference includes at least the duration of one RTT.
 ---
 -- @output
 -- 80/tcp open  http
--- |_ http-date: Mon, 13 Jul 2009 22:44:27 GMT; -5s from local time.
+-- |_ http-date: Thu, 23 Jul 2009 23:15:57 GMT; -6s from local time.
 -- 80/tcp open  http
--- |_ http-date: Sun, 07 Jan 2007 08:57:52 GMT; -2y187d13h46m40s from local time.
+-- |_ http-date: Wed, 17 Jan 2007 09:29:10 GMT; -2y187d13h46m53s from local time.
 
 author = "David Fifield <david@bamsoftware.com>"
 
@@ -49,7 +49,7 @@ end
 -- forms. Signs can of course vary.
 -- 0s
 -- -4s
--- +02m38s
+-- +2m38s
 -- -9h12m34s
 -- +5d17h05m06s
 -- -2y177d10h13m20s
@@ -92,19 +92,28 @@ format_difftime = function(t2, t1)
 		yeardiff = 0
 	end
 
-	-- Seconds.
-	local sec = d % 60
-	s = string.format("%gs", sec)
+	local s, sec, min
+	s = ""
+	-- Seconds (pad to two digits).
+	sec = d % 60
 	d = math.floor(d / 60)
-	if d == 0 and yeardiff == 0 then return sign .. s end
-	-- Minutes.
-	s = string.format("%02dm%02ds", d % 60, sec)
+	if d == 0 and yeardiff == 0 then
+		return sign .. string.format("%gs", sec) .. s
+	end
+	s = string.format("%02gs", sec) .. s
+	-- Minutes (pad to two digits).
+	min = d % 60
 	d = math.floor(d / 60)
-	if d == 0 and yeardiff == 0 then return sign .. s end
+	if d == 0 and yeardiff == 0 then
+		return sign .. string.format("%dm", min) .. s
+	end
+	s = string.format("%02dm", min) .. s
 	-- Hours.
 	s = string.format("%dh", d % 24) .. s
 	d = math.floor(d / 24)
-	if d == 0 and yeardiff == 0 then return sign .. s end
+	if d == 0 and yeardiff == 0 then
+		return sign .. s
+	end
 	-- Days.
 	s = string.format("%dd", d) .. s
 	if yeardiff == 0 then return sign .. s end
