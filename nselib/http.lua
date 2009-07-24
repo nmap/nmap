@@ -284,6 +284,90 @@ get_url = function( u, options )
   return get( parsed.host, port, path, options )
 end
 
+--- Makes a HEAD request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The function builds the request and calls
+-- <code>http.request</code>.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @return Table as described in the module description.
+-- @see http.request
+head = function( host, port, path, options )
+  local options = options or {}
+
+  -- Private copy of the options table, used to add default header fields.
+  local mod_options = {
+    header = {
+      Host = get_hostname(host),
+      Connection = "close",
+      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+    }
+  }
+  -- Add any other options into the local copy.
+  table_augment(mod_options, options)
+
+  local data = "HEAD " .. path .. " HTTP/1.1\r\n"
+
+  return request( host, port, data, mod_options )
+end
+
+--- Makes a POST request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a table with data to be
+-- posted. The function builds the request and calls
+-- <code>http.request</code>.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param postada A table of data to be posted
+-- @return Table as described in the module description.
+-- @see http.request
+post = function( host, port, path, options, postdata)
+  local options = options or {}
+  local content = ""
+
+  if postdata and type(postdata) == "table" then
+    local k, v
+    for k, v in pairs(postdata) do
+      content = content .. k .. "=" .. url.escape(v) .. "&"
+    end
+    content = string.gsub(content, "%%20","+") 
+    content = string.sub(content, 1, string.len(content)-1)
+  elseif postdata and type(postdata) == "string" then
+    content = postdata
+    content = string.gsub(content, " ","+")
+  end
+
+  local mod_options = {
+    header = {
+      Host = get_hostname(host),
+      Connection = "close",
+      ["Content-Type"] = "application/x-www-form-urlencoded",
+      ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+    },
+    content = content
+  }
+
+  table_augment(mod_options, options)
+
+  local data = "POST " .. path .. " HTTP/1.1\r\n"
+
+  return request( host, port, data, mod_options )
+end
+
+
+
 --- Sends request to host:port and parses the answer.
 --
 -- The first argument is either a string with the hostname or a table like the
