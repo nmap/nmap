@@ -586,8 +586,8 @@ static int l_nsock_connect(lua_State * L)
       break;
     case SSL:
       nsock_connect_ssl(nsp, udata->nsiod, l_nsock_connect_handler,
-          udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen, port,
-          udata->ssl_session);
+          udata->timeout, &udata->yield, dest->ai_addr, dest->ai_addrlen,
+          IPPROTO_TCP, port, udata->ssl_session);
       break;
   }
 

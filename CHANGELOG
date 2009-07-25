@@ -1,4 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o [Nsock] [Ncat] Implemented SSL over SCTP connections in client mode.
+  SCTP support is now fully SSL enabled. [Daniel Roethlisberger]
+
+o [Ncat] Implemented support for SCTP listening sockets, including SSL
+  support.  Since there is no SSL support for SCTP client sockets yet,
+  SSL support is not terribly useful yet. [Daniel Roethlisberger]
+
+o [Nsock] [Ncat] Implemented basic SCTP client functionality.  Only the
+  default SCTP stream is used.  This is also called TCP compatible mode.
+  While it allows Ncat to be used for manually probing open SCTP ports,
+  more complicated services making use of multiple streams or depending
+  on specific message boundaries cannot be talked to successfully.
+  [Daniel Roethlisberger]
+
 o [Zenmap] Merged the changes in the zenmap-filter branch to the main zenmap
   branch.  Pressing Ctrl+L now brings up the filter interface for filtering out
   uninteresting hosts. Alternatively, the interface is accessible via the

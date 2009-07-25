@@ -1792,7 +1792,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 	  nsock_connect_ssl(nsp, svc->niod, servicescan_connect_handler, 
 			    DEFAULT_CONNECT_SSL_TIMEOUT, svc, 
 			    (struct sockaddr *) &ss,
-			    ss_len, svc->portno, svc->ssl_session);
+			    ss_len, svc->proto, svc->portno, svc->ssl_session);
 	}
       } else {
 	assert(svc->proto == IPPROTO_UDP);
