@@ -258,6 +258,27 @@ o [NSE] http improvements
 o [NSE] High speed brute force HTTP authentication.  Possibly POST and
    GET/HEAD brute force cracking.
 
+o Investigate and document how easy it is to drop Ncat.exe by itself
+  on other systems and have it work.  We should also look into the
+  dependencies of Nmap and Zenmap.  It may be instructive to look at
+  "Portable Firefox"
+  (http://portableapps.com/apps/internet/firefox_portable) which is
+  built using open source technology from portableapps.com, or look at
+  "The Network Toolkit" by Cace
+  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
+  and Nping, we may want to improve our Winpcap to load as a DLL
+  without requiring installation.  There is a separate TODO item for that.
+
+o Consider offering a way to link Winpcap DLLs so that they start the
+  service as needed rather than requiring explicitly installing
+  Winpcap and having it start upon system boot.  CACE has offered such
+  a thing for many years as WinPcap Pro
+  (http://www.cacetech.com/products/winpcap_pro.html).  If we change
+  WinPcap in this way, we'd presumably want to also change the symbol
+  names as is done in WinPcap Pro.  And it would mean that we have to
+  build our Winpcap binaries ourselves (including 64-bit).  We might
+  even have to sign our drivers for 64-bit Windows.
+
 o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
   which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html
 
