@@ -1,5 +1,22 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Now Nsock supports pure TLSv1 and SSLv3 servers too. 
+  Nsock uses SSLv23 method which sends SSLv2 hello message and can be understood 
+  only by SSLv23 or SSLv2 servers but not by pure SSLv3 and TLSv1 servers.
+  Intialising ssl connection with nsp_ssl_init_max_speed() in which SSL_OP_NO_SSLv2 
+  option is not set causes the "wrong version number" when tried to connect a
+  pure SSLv3 or TLSv1 servers.So with this change Nsock reconnects to the server by 
+  setting SSL_OP_NO_SSLv2 option when a initial connection with no SSL_OP_NO_SSLv2 set is failed.  
+  At present Ncat never uses SSLv2(which is intialized by nsp_ssl_init() instead of nsp_ssl_init_max_speed()) 
+  for security reasons so it is not affected by this change.
+
+  This behaviour was found in Ncat's SSL and Nmap's SSL version detection probes and has been
+  reported here:
+  http://seclists.org/nmap-dev/2009/q1/0319.html
+  http://seclists.org/nmap-dev/2008/q2/0702.html
+  More discussion on this here:
+  http://seclists.org/nmap-dev/2009/q1/0330.html
+
 o [Nsock] [Ncat] Implemented SSL over SCTP connections in client mode.
   SCTP support is now fully SSL enabled. [Daniel Roethlisberger]
 
