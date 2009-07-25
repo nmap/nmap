@@ -624,7 +624,7 @@ do -- Load script arguments (--script-args)
   local function parse_string (str, start)
     -- Unquoted
     local uqi, uqj, uqm = find(str,
-        "^%s*([^'\"%s{},=][^%s{},=]*)%s*[},=]", start);
+        "^%s*([^'\"%s{},=][^{},=]-)%s*[},=]", start);
     -- Quoted
     local qi, qj, q, qm = find(str, "^%s*(['\"])(.-[^\\])%1%s*[},=]", start);
     -- Empty Quote
