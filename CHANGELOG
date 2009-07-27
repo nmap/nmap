@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now handles the case when a primary network interface (venet0)
+  does not have an address assigned but its aliases do (venet0:1
+  etc.). This could result in the error messages
+    Failed to find device venet0 which was referenced in /proc/net/route
+    Failed to lookup subnet/netmask for device (venet0): venet0: no IPv4 address assigned
+  This was observed particularly under OpenVZ. [Dmitry Levin]
+
 o [Ncat] The --ssl-cert, --ssl-key, and --ssl-trustfile options now
   automatically turn on SSL mode. Previously they were ignored if
   --ssl was not also used. [David]

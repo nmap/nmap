@@ -406,7 +406,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   Snprintf(filter, sizeof(filter), "tcp and src host %s and dst host %s and src port %hu", p, q, proxy->probe_port);
  free(p); 
  free(q);
- set_pcap_filter(proxy->host.deviceName(), proxy->pd,  filter);
+ set_pcap_filter(proxy->host.deviceFullName(), proxy->pd,  filter);
 /* Windows nonsense -- I am not sure why this is needed, but I should
    get rid of it at sometime */
 

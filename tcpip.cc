@@ -2721,8 +2721,8 @@ bool setTargetNextHopMAC(Target *target) {
   /* OK, the last choice is to send our own damn ARP request (and
      retransmissions if necessary) to determine the MAC */
   target->SourceSockAddr(&srcss, NULL);
-  if (doArp(target->deviceName(), target->SrcMACAddress(), &srcss, &targetss, 
-	    mac)) {
+  if (doArp(target->deviceFullName(), target->SrcMACAddress(),
+	    &srcss, &targetss, mac)) {
     NmapArpCache(ARPCACHE_SET, &targetss, mac);
     target->setNextHopMACAddress(mac);
     return true;
@@ -3200,6 +3200,17 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
       if (!strcmp(iface, ifaces[i].devfullname)) {
         routes[numroutes].device = &ifaces[i];
         break;
+      }
+    }
+    /* If device name in the route file does not match the full name (including
+       alias extension) of any interface, then try to find at least an alias of
+       the proper interface. */
+    if (i == numifaces) {
+      for(i=0; i < numifaces; i++) {
+        if (!strcmp(iface, ifaces[i].devname)) {
+          routes[numroutes].device = &ifaces[i];
+          break;
+        }
       }
     }
     if (i == numifaces) {

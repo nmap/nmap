@@ -3266,7 +3266,7 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   filterlen = len;
     
   if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter);
-  set_pcap_filter(Targets[0]->deviceName(), HOS->pd, pcap_filter);
+  set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
   
   return;
 }

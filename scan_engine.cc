@@ -5071,7 +5071,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     }
   }else assert(0);
   if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter.c_str());
-  set_pcap_filter(Targets[0]->deviceName(), USI->pd, pcap_filter.c_str());
+  set_pcap_filter(Targets[0]->deviceFullName(), USI->pd, pcap_filter.c_str());
   /* pcap_setnonblock(USI->pd, 1, NULL); */
   return;
 }
