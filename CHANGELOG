@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Now Ncat supports wildcard SSL certificates too.Wildcard character(*) can
+  be in commonname field or in DNS field of Subject Alternative Name(SAN)
+  Extension of SSL certificate.
+  Wildcard Matching Rules:
+  -'*' should be only on the leftmost component of FQDN.(*.example.com but not www.*.com or www.example*.com).
+  -The leftmost component should contain only '*' and it should be followed by '.'(*.example.com but not *w.example.com or w*.example.com).
+  -There should be atleast three components in FQDN.(*.exmaple.com but not *.com or *.com.).[venkat]
+  
 o Nmap now handles the case when a primary network interface (venet0)
   does not have an address assigned but its aliases do (venet0:1
   etc.). This could result in the error messages
