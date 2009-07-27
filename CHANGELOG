@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The --ssl-cert, --ssl-key, and --ssl-trustfile options now
+  automatically turn on SSL mode. Previously they were ignored if
+  --ssl was not also used. [David]
+
 o [Nsock] Now Nsock supports pure TLSv1 and SSLv3 servers too. 
   Nsock uses SSLv23 method which sends SSLv2 hello message and can be understood 
   only by SSLv23 or SSLv2 servers but not by pure SSLv3 and TLSv1 servers.
