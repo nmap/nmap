@@ -5,17 +5,6 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
 
-o Ncat SSLv2 issues.  See
-  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
-  done, which was enhanced version detection probes to detect more SSL
-  servers, The defect that remains is that Nsock can't connect to a
-  small fraction of servers (including some of the ones detected by
-  the new version probe). They are the servers that do only SSLv3 or
-  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
-  though most servers don't support SSLv2, they usually respond to the
-  ClientHello and just don't offer any SSLv2 features. [David/Venkat
-  working on this]
-
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
     nmap-service-probes.  Decide if some small categories which have
@@ -43,12 +32,9 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
   "disable portscan" than ping only.  For example, you can also use
   NSE, traceroute, etc. [David]
 
-o [Zenmap] The Search dialogue is helpful for finding a certain scan
-  you've performed recently, but we should probably also offer a similar
-  function for searching for certain applications/hosts within a scan
-  (e.g. find all the hosts running Apache).  This new functionality
-  might be a find option or some other mechanism rather than being
-  part of the Search dialogue proper.
+o [Zenmap] When the inventory is changed, the current host/service selection is
+  forgotten and the Ports / Hosts tab is switched to hosts mode. It should
+  remember your current selection and not change the view.
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
@@ -63,10 +49,6 @@ o Seriously consider making --traceroute work even when we haven't
   just pick a probe (high UDP port on UNIX, ICMP echo request on Win).
   Even if the host is down or something, we usually get some useful
   hop information.
-
-o Ncat should give it's ethernet cat ASCII logo after
-  configure--similar to the way that Nmap, Ncrack, and Nping
-  do. [David/SoC]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
@@ -106,10 +88,8 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
   o Some probes may have to come from a specific source port.
   o TFTP sends its response from an ephemeral port, not port 69.
 
-o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
-  any which we don't have, but should, for our version detection.
-  They have a decent collection there.  KX sent some other programs we
-  should look at too. [David]
+o Consider what new UDP payloads we might want to add.  David has many
+  ideas at: http://seclists.org/nmap-dev/2009/q3/0290.html
 
 o [Ncat] This may sound rediculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -134,9 +114,9 @@ o [Web] Consider adding training/introduction videos to the Nmap site
  o Here's an example product page with lots of videos (we may not go
    that far): http://www.splunk.com/product
 
-o [Ncat] In verbose mode, I'd like to see clock time and maybe in/out
-  traffic stats when a client connection ends.  Maybe it could use a
-  format similar to what Nmap provides. [David/Venkat]
+o [Ncat] In verbose mode, I'd like to see clock time (duration) and
+  maybe in/out traffic stats when a client connection ends.  Maybe it
+  could use a format similar to what Nmap provides. [David/Venkat]
 
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
@@ -313,12 +293,6 @@ o [NSE] Security Review
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
 
-o [Ncat] Support SCTP now that Nmap does. 
-  - See client support patch by Daniel Roethlisberger: 
-    http://seclists.org/nmap-dev/2009/q2/0609.html
-  - Server support?
-  - Daniel has a patch, David looking to apply once an nsock thing is fixed.
-
 o Add Nmap web board.
  
 o Create Nmap wiki
@@ -432,6 +406,7 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
 
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
+  o It is interesting to look at: http://www.gnupg.org/gpgme.html
 
 o Perhaps --traceroute should set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
@@ -598,6 +573,39 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] Support SCTP now that Nmap does. 
+  - See client support patch by Daniel Roethlisberger: 
+    http://seclists.org/nmap-dev/2009/q2/0609.html
+  - Server support?
+  - Daniel has a patch, David looking to apply once an nsock thing is fixed.
+
+o Look at etc/payloads.conf in unicornscan-0.4.7 and see if they have
+  any which we don't have, but should, for our version detection.
+  They have a decent collection there.  KX sent some other programs we
+  should look at too. [David]
+
+o Ncat should give it's ethernet cat ASCII logo after
+  configure--similar to the way that Nmap, Ncrack, and Nping
+  do. [David/SoC]
+
+o [Zenmap] The Search dialogue is helpful for finding a certain scan
+  you've performed recently, but we should probably also offer a similar
+  function for searching for certain applications/hosts within a scan
+  (e.g. find all the hosts running Apache).  This new functionality
+  might be a find option or some other mechanism rather than being
+  part of the Search dialogue proper.
+
+o Ncat SSLv2 issues.  See
+  http://seclists.org/nmap-dev/2009/q1/0319.html.  A big part of it is
+  done, which was enhanced version detection probes to detect more SSL
+  servers, The defect that remains is that Nsock can't connect to a
+  small fraction of servers (including some of the ones detected by
+  the new version probe). They are the servers that do only SSLv3 or
+  TLSv1 and don't respond to a SSLv2-compatible ClientHello.  Even
+  though most servers don't support SSLv2, they usually respond to the
+  ClientHello and just don't offer any SSLv2 features. [David/Venkat
+  working on this]
 
 o Deadlock identification and correction:
  o Plan of action: implement freeing of script mutexes when scripts
