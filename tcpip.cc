@@ -2965,7 +2965,7 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
       continue;
 
     /* Make room for this new interface if necessary. */
-    if (count > capacity) {
+    if (count >= capacity) {
       capacity <<= 2;
       devs = (struct interface_info *) safe_realloc(devs, sizeof(struct interface_info) * capacity);
     }
