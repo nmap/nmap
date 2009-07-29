@@ -526,20 +526,8 @@ Traceroute::readTraceResponses () {
     return finished ();
 }
 
-/* Estimate how many hops away a host is by actively probing it.
- *
- * If the scan protocol isn't udp we guesstimate how many hops away
- * the target is by sending a probe to an open or closed port and
- * calculating a possible hop distance based on the returned ttl
- *
- * If the scan protocol is udp then we send a probe to a closed,
- * filtered or open port. Closed ports are more accurate because
- * we can exactly determine the hop distance based on the packet
- * return in the icmp port unreachable's payload. Open ports use
- * the same estimation method as tcp probes. Filtered ports are
- * only used as a last resort, although the hop distance guess is
- * accurate, the filtered response may not be from the destination
- * target, it may be from a node filtering the target */
+/* Estimate how many hops away a host is by actively probing it. The hop
+ * distance is set by setHopDistance from readTraceResponses. */
 inline void
 Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&valid_targets) {
     Target *t = NULL;
@@ -585,7 +573,7 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
          * we don't need to calculate it */
         if (t->distance != -1) {
             tg->setHopDistance (0, t->distance);
-	    } else {
+        } else {
             tp = new TraceProbe (t->v4hostip ()->s_addr,
                                  t->v4sourceip ()->s_addr, sport, probe);
             tp->setProbeType (PROBE_TTL);
