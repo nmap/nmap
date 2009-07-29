@@ -247,10 +247,17 @@ Traceroute::getTraceProbe (Target * t) {
     struct probespec probe;
 
     probe = t->pingprobe;
-    /* If this is an IP protocol probe, fill in some fields for some common
-       protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
-       ICMP-specific fields. Traceroute::sendProbe checks for them there. */
-    if (probe.type == PS_PROTO) {
+    if (probe.type == PS_NONE) {
+        /* No responsive probe known? The user probably skipped both ping and
+           port scan. Guess ICMP echo as the most likely to get a response. */
+        probe.type = PS_ICMP;
+        probe.proto = IPPROTO_ICMP;
+        probe.pd.icmp.type = ICMP_ECHO;
+        probe.pd.icmp.code = 0;
+    } else if (probe.type == PS_PROTO) {
+        /* If this is an IP protocol probe, fill in some fields for some common
+           protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
+           ICMP-specific fields. Traceroute::sendProbe checks for them there. */
         if (probe.proto == IPPROTO_TCP) {
             probe.pd.tcp.flags = TH_ACK;
             probe.pd.tcp.dport = get_random_u16();
@@ -552,12 +559,7 @@ Traceroute::sendTTLProbes (vector < Target * >&Targets, vector < Target * >&vali
 
         /* Determine active port to probe */
         probe = getTraceProbe (t);
-        if (probe.type == PS_NONE) {
-            if (o.verbose > 1)
-                log_write (LOG_STDOUT, "%s: no responsive probes\n",
-                           t->targetipstr ());
-            continue;
-        }
+        assert(probe.type != PS_NONE);
 
         /* start off with a random source port and increment 
          * it for each probes sent. The source port is the
@@ -1135,9 +1137,6 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
             it->second->timing.setState (P_TIMEDOUT);
             decRemaining ();
 
-            if(it->second->ttl > MAX_TTL)
-                setState(G_DEAD_TTL);
-
             if ((++consecTimeouts) > 5 && maxRetransmissions > 2)
                 maxRetransmissions = 2;
             if (it->second->probeType () == PROBE_TTL) {
@@ -1145,6 +1144,8 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
                 noDistProbe = true;
                 if (o.verbose)
                     log_write (LOG_STDOUT, "%s: no reply to our hop distance probe!\n", IPStr ());
+            } else if (it->second->ttl > MAX_TTL) {
+                setState(G_DEAD_TTL);
             }
         } else {
             droppedPackets++;
