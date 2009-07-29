@@ -733,19 +733,21 @@ Traceroute::trace (vector < Target * >&Targets) {
         return;
     }
 
+    if (o.current_scantype != REF_TRACEROUTE)
+        o.current_scantype = TRACEROUTE;
+
     /* perform the reference trace first */
     if (Targets.size () > 1) {
-        o.current_scantype = TRACEROUTE;
+        o.current_scantype = REF_TRACEROUTE;
         for (targ = Targets.begin (); targ != Targets.end (); ++targ) {
             reference.push_back (*targ);
             sendTTLProbes (reference, valid_targets);
             if (valid_targets.size ()) {
-                o.current_scantype = REF_TRACEROUTE;
                 this->trace (valid_targets);
-                o.current_scantype = TRACEROUTE;
                 break;
             }
         }
+        o.current_scantype = TRACEROUTE;
     }
 
     /* guess hop distance to targets. valid_targets
