@@ -157,22 +157,6 @@
 
 #define MAX_PARSE_ARGS 254 /* +1 for integrity checking + 1 for null term */
 
-/* Timeval subtraction in microseconds */
-#define TIMEVAL_SUBTRACT(a,b) (((a).tv_sec - (b).tv_sec) * 1000000 + (a).tv_usec - (b).tv_usec)
-/* Timeval subtract in milliseconds */
-#define TIMEVAL_MSEC_SUBTRACT(a,b) ((((a).tv_sec - (b).tv_sec) * 1000) + ((a).tv_usec - (b).tv_usec) / 1000)
-/* Timeval subtract in seconds; truncate towards zero */
-#define TIMEVAL_SEC_SUBTRACT(a,b) ((a).tv_sec - (b).tv_sec + (((a).tv_usec < (b).tv_usec) ? - 1 : 0))
-
-/* assign one timeval to another timeval plus some msecs: a = b + msecs */
-#define TIMEVAL_MSEC_ADD(a, b, msecs) { (a).tv_sec = (b).tv_sec + ((msecs) / 1000); (a).tv_usec = (b).tv_usec + ((msecs) % 1000) * 1000; (a).tv_sec += (a).tv_usec / 1000000; (a).tv_usec %= 1000000; }
-#define TIMEVAL_ADD(a, b, usecs) { (a).tv_sec = (b).tv_sec + ((usecs) / 1000000); (a).tv_usec = (b).tv_usec + ((usecs) % 1000000); (a).tv_sec += (a).tv_usec / 1000000; (a).tv_usec %= 1000000; }
-
-/* Find our if one timeval is before or after another, avoiding the integer
-   overflow that can result when doing a TIMEVAL_SUBTRACT on two widely spaced
-   timevals. */
-#define TIMEVAL_BEFORE(a, b) (((a).tv_sec < (b).tv_sec) || ((a).tv_sec == (b).tv_sec && (a).tv_usec < (b).tv_usec))
-#define TIMEVAL_AFTER(a, b) (((a).tv_sec > (b).tv_sec) || ((a).tv_sec == (b).tv_sec && (a).tv_usec > (b).tv_usec))
 
 /* Return num if it is between min and max.  Otherwise return min or
    max (whichever is closest to num), */
