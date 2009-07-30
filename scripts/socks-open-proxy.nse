@@ -9,9 +9,9 @@ The payloads try to open a connection to www.google.com port 80.  A
 different test host can be passed as openproxy.host (note the table
 syntax in the example) argument, as described below.
 ]]
-
 ---
---@args openproxy.host Host that will be requested to the proxy
+--@args proxy.url Url that will be requested to the proxy
+--@args proxy.pattern Pattern that will be searched inside the request results
 --@output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT     STATE  SERVICE
@@ -20,144 +20,148 @@ syntax in the example) argument, as described below.
 -- |_ Versions succesfully tested: Socks4 Socks5
 --@usage
 -- nmap --script=socks-open-proxy \
---		--script-args openproxy={host=<host>}
+--		--script-args proxy.url=<host>,proxy.pattern=<pattern>
 
 author = "Joao Correa <joao@livewire.com.br>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
 
 require "shortport"
-require "bin"
-require "nmap"
 require "stdnse"
-require "dns"
+require "url"
+require "proxy"
 
---- Function that resolves IP address for hostname and
---- returns it as hex values
---@param hostname Hostname to resolve
---@return Ip address of hostname in hex
-function hex_resolve(hostname)
-	local a, b, c, d;
-	local dns_status, ip = dns.query(hostname)
-	if not dns_status then
-		return false
-	end
-	local t, err = ipOps.get_parts_as_number(ip)
-	if t and not err
-		then a, b, c, d = unpack(t)
-		else return false
-	end
-	local sip = string.format("%.2x ", a) .. string.format("%.2x ", b) .. string.format("%.2x ", c) .. string.format("%.2x ",d)
-	return true, sip
+--- Performs the custom test, with user's arguments 
+-- @param host The host table
+-- @param port The port table
+-- @param test_url The url te send the request
+-- @param pattern The pattern to check for valid result
+-- @return status (if any request was succeded
+-- @return response String with supported methods
+local function custom_test(host, port, test_url, pattern)
+  local status4, status5, fstatus
+  local get_r4, get_r5
+  local methods
+  local response = "Versions succesfully tested:"
+
+  -- strip hostname
+  if not string.match(test_url, "^http://.*") then 
+    test_url = "http://" .. test_url
+    stdnse.print_debug("URL missing scheme. URL concatenated to http://")
+  end
+  local url_table = url.parse(test_url)
+  local hostname = url_table.host
+
+  -- make requests
+  status4, get_r4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
+  status5, get_r5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+
+  if(status4) then fstatus = true; response = response .. " Socks4" end
+  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(fstatus) then return fstatus, response end	
+end
+
+--- Performs the default test
+-- First: Default google request and checks for Server: gws
+-- Seconde: Request to wikipedia.org and checks for wikimedia pattern
+-- Third: Request to computerhistory.org and checks for museum pattern
+--
+-- If any of the requests is succesful, the proxy is considered open
+-- If all requests return the same result, the user is alerted that
+-- the proxy might be redirecting his requests (very common on wi-fi
+-- connections at airports, cafes, etc.)
+--
+-- @param host The host table
+-- @param port The port table
+-- @return status (if any request was succeded
+-- @return response String with supported methods
+local function default_test(host, port)
+  local status4, status5, fstatus
+  local cstatus4, cstatus5
+  local get_r4, get_r5
+  local methods
+  local response = "Versions succesfully tested:"
+	
+  local test_url = "http://www.google.com"
+  local hostname = "www.google.com"
+  local pattern = "^server: gws"
+  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
+  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+
+  if(status4) then fstatus = true; response = response .. " Socks4" end
+  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(fstatus) then return fstatus, response end
+
+  -- if we receive a invalid response, but with a valid 
+  -- response code, we should make a next attempt.
+  -- if we do not receive any valid status code,
+  -- there is no reason to keep testing... the proxy is probably not open
+  if not (cstatus4 or cstatus5) then return false, nil end
+  stdnse.print_debug("Test 1 - Google Web Server: Received valid status codes, but pattern does not match")
+	
+  test_url = "http://www.wikipedia.org"
+  hostname = "www.wikipedia.org"
+  pattern  = "wikimedia"
+  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
+  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+
+  if(status4) then fstatus = true; response = response .. " Socks4" end
+  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(fstatus) then return fstatus, response end
+
+  if not (cstatus4 or cstatus5) then return false, nil end
+  stdnse.print_debug("Test 2 - Wikipedia.org: Received valid status codes, but pattern does not match")
+
+  test_url = "http://www.computerhistory.org"
+  hostname = "www.computerhistory.org"
+  pattern  = "museum"
+  status4, get_r4, cstatus4 = proxy.test_get(host, port, "socks4", test_url, hostname, pattern)
+  status5, get_r5, cstatus5 = proxy.test_get(host, port, "socks5", test_url, hostname, pattern)
+
+  if(status4) then fstatus = true; response = response .. " Socks4" end
+  if(status5) then fstatus = true; response = response .. " Socks5" end
+  if(fstatus) then return fstatus, response end
+
+  if not (cstatus4 or cstatus5) then return false, nil end
+  stdnse.print_debug("Test 3 - Computer History: Received valid status codes, but pattern does not match")
+
+  -- Check if GET is being redirected
+  if proxy.redirectCheck(get_r4, get_r5) then
+    return false, "Proxy might be redirecting requests"
+  end
+
+  -- Nothing works...
+  return false, nil
+
 end
 
 portrule = shortport.port_or_service({1080},{"socks","socks4","socks5"})
 
 action = function(host, port)
-	local response
-	local retval
-	local supported_versions = "\nVersions succesfully tested: "
-	local fstatus = false
-	local test_host = "www.google.com"
+  local supported_versions = "\nVersions succesfully tested: "
+  local fstatus = false
+  local pattern, test_url
+  local def_test = true
+  local hostname
+  local retval
 
-	-- If arg open-proxy.host exists, query dns for IP number and convert it to hex
-	if (nmap.registry.args.openproxy and nmap.registry.args.openproxy.host) then test_host = nmap.registry.args.openproxy.host end
-	local status, sip = hex_resolve(test_host)
-	if not status then
-		stdnse.print_debug("Failed to resolve IP Address")
-		return
-	end
+  test_url, pattern = proxy.return_args()
 
-	-- Attempting Socks 4 connection	
-	-- Socks 4 payload: Version, Command, Null, Port, Ip Address, User (nmap), Null
-	-- Default port is always 80, different ports means different services, with different results
-	paystring = '04 01 00 50 ' .. sip .. ' 6e 6d 61 70 00'
-	payload = bin.pack("H",paystring)
+  if(test_url) then def_test = false end
+  if(pattern) then pattern = ".*" .. pattern .. ".*" end
 
-	local socket = nmap.new_socket()
-	socket:set_timeout(10000)
-	try = nmap.new_try(function() socket:close() end)
-	try(socket:connect(host.ip, port.number))
-	try(socket:send(payload))
-	response = try(socket:receive())
-	request_status = string.byte(response, 2)
+  if def_test
+    then fstatus, supported_versions = default_test(host, port)
+    else fstatus, supported_versions = custom_test(host, port, test_url, pattern)
+  end
 
-	-- Send Socks4 payload to estabilish connection
-	-- If did not receive Request Granted byte from server, skip next test
-	if(request_status == 0x5b) then 
-		stdnse.print_debug("Socks4: Received \"Request rejected or failed\" from proxy server")
-	elseif (request_status == 0x5c) then 
-		stdnse.print_debug("Socks4: Received \"request failed because client is not running identd\" from proxy server")
-	elseif (request_status == 0x5d) then 
-		stdnse.print_debug("Socks4: Received \"request failed because client's identd could not confirm the user ID string in the request\n from proxy server")
+  -- If any of the tests were OK, then the proxy is potentially open
+  if fstatus then
+    retval = "Potentially OPEN proxy.\n" .. supported_versions
+    return retval
+  elseif not fstatus and supported_versions then
+    return supported_versions
+  end
+  return
 
-	-- If received Request Granted byte from server, proxy is considered open
-	elseif (request_status == 0x5a) then
-		stdnse.print_debug("Socks4: Received \"Request Granted\" from proxy server")
-		supported_versions = supported_versions .. "Socks4 "			
-		fstatus = true
-	end
-	socket:close()
-
-	-- Attempting Socks 5 connection
-	-- Socks5 payload: Version, Auths Length, Auths methods required
-	payload = bin.pack("H",'05 01 00')
-
-	-- Send first Socks5 payload to estabilish connection without authentication
-	local socket2 = nmap.new_socket()
-	socket2:set_timeout(10000)
-	try = nmap.new_try(function() socket2:close() end)
-	try(socket2:connect(host.ip, port.number))
-	try(socket2:send(payload))
-	auth = try(socket2:receive())
-	r2 = string.byte(auth,2)
-	
-	-- If Auth is required, proxy is closed, skip next test
-	if(r2 ~= 0x00) then 
-		stdnse.print_debug("Socks5: Authentication required")
-
-	-- If no Auth is required, try to estabilish connection
-	else
-		stdnse.print_debug("Socks5: No authentication required")
-
-		-- Socks5 second payload: Version, Command, Null, Address type, Ip-Address, Port number	
-		paystring = '05 01 00 01 ' .. sip .. '00 50'
-		payload = bin.pack("H",paystring)	
-		try(socket2:send(payload))
-		z = try(socket2:receive())	
-		request_status = string.byte(z, 2)
-	
-		-- If did not received Request Granted byte from server, skip next test
-		if(request_status == 0x01) then 
-			stdnse.print_debug("Socks5: Received \"General failure\" from proxy server")
-		elseif (request_status == 0x02) then 
-			stdnse.print_debug("Socks5: Received \"Connection not allowed by ruleset\" from proxy server")
-		elseif (request_status == 0x03) then 
-			stdnse.print_debug("Socks5: Received \"Network unreachable\" from proxy server")
-		elseif (request_status == 0x04) then 
-			stdnse.print_debug("Socks5: Received \"Host unreachable\" from proxy server")
-		elseif (request_status == 0x05) then 
-			stdnse.print_debug("Socks5: Received \"Connection refused by destination host\" from proxy server")
-		elseif (request_status == 0x06) then 
-			stdnse.print_debug("Socks5: Received \"TTL Expired\" from proxy server")
-		elseif (request_status == 0x07) then
-			stdnse.print_debug("Socks5: Received \"command not supported / protocol error\" from proxy server")
-		elseif (request_status == 0x08) then
-			stdnse.print_debug("Socks5: Received \"Address type not supported\" from proxy server")
-
-		-- If received request granted byte from server, the proxy is considered open
-		elseif (request_status == 0x00) then
-			stdnse.print_debug("Socks5: Received \"Request granted\" from proxy server")
-			supported_versions = supported_versions .. "Socks5"
-			fstatus = true
-		end
-	end
-	socket2:close()	
-
-	-- show results
-	if fstatus then
-		retval = "Potentially OPEN proxy." .. supported_versions
-		return retval
-	end
-	return
 end
