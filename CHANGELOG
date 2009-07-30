@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat, Ndiff] The exit codes of these programs now reflect whether
+  they succeeeded. For Ncat, 0 means the connection was successful, 1
+  indicates a network error, and 2 indicates any other error. For
+  Ndiff, 0 means the scans were equal, 1 means they were different,
+  and 2 indicates a runtime error. [David]
+
 o [Ncat] Now Ncat supports wildcard SSL certificates too.Wildcard character(*) can
   be in commonname field or in DNS field of Subject Alternative Name(SAN)
   Extension of SSL certificate.
