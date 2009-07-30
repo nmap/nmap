@@ -356,6 +356,21 @@ ln -sf scan-$date.xml scan-prev.xml
   </refsect1>
 
   <refsect1>
+    <title>Exit Code</title>
+
+    <para>
+    The exit code indicates whether the scans are equal.
+    <itemizedlist spacing="compact">
+      <listitem><para>0 means that the scans are the same in all the
+      aspects Ndiff knows about.</para></listitem>
+      <listitem><para>1 means that the scans differ.</para></listitem>
+      <listitem><para>2 indicates a runtime error, such as the failure
+      to open a file.</para></listitem>
+    </itemizedlist>
+    </para>
+  </refsect1>
+
+  <refsect1>
     <title>Bugs</title>
     <para>
     Report bugs to the <citetitle>nmap-dev</citetitle> mailing list at

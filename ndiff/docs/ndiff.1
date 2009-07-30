@@ -2,12 +2,12 @@
 .\"     Title: ndiff
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 07/22/2009
+.\"      Date: 07/30/2009
 .\"    Manual: User Commands
 .\"    Source: Ndiff
 .\"  Language: English
 .\"
-.TH "NDIFF" "1" "07/22/2009" "Ndiff" "User Commands"
+.TH "NDIFF" "1" "07/30/2009" "Ndiff" "User Commands"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -370,6 +370,44 @@ If the script is saved as
 .RE
 .\}
 .sp
+.SH "EXIT CODE"
+.PP
+The exit code indicates whether the scans are equal\&.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+0 means that the scans are the same in all the aspects Ndiff knows about\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+1 means that the scans differ\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+2 indicates a runtime error, such as the failure to open a file\&.
+.RE
+.sp
+.RE
 .SH "BUGS"
 .PP
 Report bugs to the

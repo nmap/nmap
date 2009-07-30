@@ -446,6 +446,8 @@ class ScanDiff(object):
         document.writexml(f, addindent = u"  ", newl = u"\n", encoding = "UTF-8")
         document.unlink()
 
+    cost = property(lambda self: sum([hd.cost for hd in self.host_diffs.values()]))
+
 class HostDiff(object):
     """A diff of two Hosts. It contains the two hosts, variables describing what
     changed, and a list of PortDiffs and OS differences."""
@@ -1150,10 +1152,14 @@ service and OS detection.
   --xml          display output in XML format\
 """ % sys.argv[0]
 
+EXIT_EQUAL = 0
+EXIT_DIFFERENT = 1
+EXIT_ERROR = 2
+
 def usage_error(msg):
     print >> sys.stderr, u"%s: %s" % (sys.argv[0], msg)
     print >> sys.stderr, u"Try '%s -h' for help." % sys.argv[0]
-    sys.exit(1)
+    sys.exit(EXIT_ERROR)
 
 def main():
     global verbose
@@ -1199,5 +1205,17 @@ def main():
     elif output_format == "xml":
         diff.print_xml()
 
+    if diff.cost == 0:
+        return EXIT_EQUAL
+    else:
+        return EXIT_DIFFERENT
+
+# Catch uncaught exceptions so they can produce an exit code of 2 (EXIT_ERROR),
+# not 1 like they would by default.
+def excepthook(type, value, tb):
+    sys.__excepthook__(type, value, tb)
+    sys.exit(EXIT_ERROR)
+
 if __name__ == "__main__":
-    main()
+    sys.excepthook = excepthook
+    sys.exit(main())
