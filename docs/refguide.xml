@@ -3349,7 +3349,7 @@ support the option completely, as does UDP scan.</para>
     <title>Output</title>
     <indexterm class="startofrange" id="man-output-indexterm"><primary>output formats</primary></indexterm>
 
-    <para>Any security tools is only as useful as the output it
+    <para>Any security tool is only as useful as the output it
     generates.  Complex tests and algorithms are of little value if
     they aren't presented in an organized and comprehensible fashion.
     Given the number of ways Nmap is used by people and other
