@@ -368,6 +368,7 @@ static int ip_is_reserved(struct in_addr *ip)
     case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
     case 179:       /* 179/8 is IANA reserved       */
+    case 181:       /* 181/8 is IANA reserved       */
     case 185:       /* 185/8 is IANA reserved       */
     case 223:       /* 223/8 is IANA reserved       */
       return 1;
@@ -383,14 +384,10 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
-  /* 175-177/8 is IANA reserved */
-  if (i1 >= 175 && i1 <= 177)
+  /* 176-177/8 is IANA reserved */
+  if (i1 >= 176 && i1 <= 177)
     return 1;
   
-  /* 181-182/8 is IANA reserved */
-  if (i1 >= 181 && i1 <= 182)
-    return 1;
-
   /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
   /* 192.0.2.0/24 is reserved for documentation and examples */
   /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */

@@ -179,6 +179,9 @@ o The configure script now allows cross-compiling by assuming that
   the included copy is used. The patch was contributed by Mike
   Frysinger.
 
+o Updated IANA assignment IP list for random IP (-iR)
+  generation. [Kris]
+
 Nmap 5.00 [2009-07-16]
 
 o Bumped up version number to 5.00!
