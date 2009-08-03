@@ -43,10 +43,10 @@ function tostr(data, indent)
 		for i, v in pairs(data) do
 			-- Check for a table in a table
 			if(type(v) == "table") then
-				str = str .. (" "):rep(indent) .. i .. ":\n"
+				str = str .. (" "):rep(indent) .. tostring(i) .. ":\n"
 				str = str .. tostr(v, indent + 2)
 			else
-				str = str .. (" "):rep(indent) .. i .. ": " .. tostr(v, 0)
+				str = str .. (" "):rep(indent) .. tostring(i) .. ": " .. tostr(v, 0)
 			end
 		end
 	else
