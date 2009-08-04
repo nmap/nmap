@@ -41,14 +41,45 @@ o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   determining how many to run concurrently, looking at CPU load items,
   etc. [David/Patrick]
 
-o Seriously consider making --traceroute work even when we haven't
-  found a probe which elicits a response from the target.  We'd just
-  have to pick a probe in that case (probably echo request, as we
-  found that to be the most effective in prev. empirical testing).
-  This is similar to UNIX traceroute and Windows tracert.exe which
-  just pick a probe (high UDP port on UNIX, ICMP echo request on Win).
-  Even if the host is down or something, we usually get some useful
-  hop information.
+o Fix traceroute performance/algorithms.  It is terribly bad in some
+  cases.  For example, this traceroute scan took 36 minutes against a
+  single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
+  don't need to go up to hop 50 in such cases (maybe some heuristic
+  like "at least go to hop 15, and stop after 5 unresolved in a row).
+  And more importantly, there is no reason each hop should take 40s to
+  timeout.  It should probably use timeout variables like we use in
+  port scanning.  And it should parallelize as much as possible.  Even
+  if parallel resolution means we went a little further than we had to
+  in incrementing the TTL, and we go to hop 15 when host is at 12
+  that's no big deal (of course we would only report up to hop 12 in
+  the output).  Also, on a much more trivial note, we should give some
+  indication that the RTT is in ms.  Changing the column header to
+  maybe "RTT MS" or "RTT (MS)" would probably do the trick or we could
+  append "ms" to each value. Once we do this, we should put back the
+  ability to make --traceroute work even when we haven't found a probe
+  which elicits a response from the target. (that feature was added in
+  July, but we'll probably take it out until we can fix
+  performance). [David]
+
+o --traceroute should probably set currenths->distance because right
+  now, I do an -O scan against scanme.nmap.org, and it does not figure
+  out the distance.  So the fingerprint shows no distance element and
+  Nmap doesn't print "Network Distance" in the results line.  That may
+  be OK (Nmap probably isn't receiving the probe response needed for
+  this, and maybe doesn't want to print the TG), but even when I do
+  --traceroute I get no distance printed.  Yet Nmap clearly knows the
+  distance since the traceroute shows all the hops up to and including
+  the target (scanme.nmap.org).
+
+o OS fingerprint should probably specify somewhow when DS=1 if it's
+  because target->directlyConnected is true, or because it sent the
+  distance probe and calculated a distance of 1.  The second situation
+  should never happen, but often David strongly suspects that it is the
+  case.
+
+o [Ncat] Prefix Ncat stderr messages with "Ncat: " to make it clear
+  that they are coming from Ncat and not the remote server (or typed in
+  by user). [David/SoC]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
@@ -116,17 +147,13 @@ o [Web] Consider adding training/introduction videos to the Nmap site
  o Here's an example product page with lots of videos (we may not go
    that far): http://www.splunk.com/product
 
-o [Ncat] In verbose mode, I'd like to see clock time (duration) and
-  maybe in/out traffic stats when a client connection ends.  Maybe it
-  could use a format similar to what Nmap provides. [David/Venkat]
-
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
 
-o [Ncat] Think about whether we should offer "-q secs" (quit after EOF
-  + delay of secs) and/or -k (set SO_KEEPALIVE on socket) (or maybe that
-  should be set by default).  Anyway, these were suggested here:
-  http://lwn.net/Articles/341706/
+o [Ncat] Right now our -i (idle timeout) causes Ncat to quit if EITHER
+  reading or writing is idle for the given amount of time.  But it is
+  really only idle if BOTH reading AND writing are idle for the
+  period.  We should make the code work that way.
 
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
@@ -146,7 +173,7 @@ o The Nmap 5.00 tarball contains:
   reguide too.  But rather than add that, we should probably take
   these out.  After all, people can easily grab them from svn or our
   new http svn gateway if desired.  So no need to bloat the tarball
-  with these files which aren't installed.
+  with these files which aren't installed. [Fyodor]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -279,6 +306,9 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
+o Look a bit more at default version detection timing.  Particularly
+  deciding the number of probes to run in parallel.
+
 o [NSE] NFS query script for checking exports, etc.?
 
 o [NSE] Finish (or write new) favicon fingerprinting script. See
@@ -332,7 +362,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
-
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
   sort of thing:
@@ -346,10 +375,6 @@ o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
   o That format is still plain text and can be read/edited by vi
     users, etc.
-
-o [Zenmap] More complete implementation of ZenmapCommandLine/profile
-  editor improvement ideas. See
-  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
 
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
@@ -422,16 +447,6 @@ o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
   o It is interesting to look at: http://www.gnupg.org/gpgme.html
 
-o Perhaps --traceroute should set currenths->distance because right
-  now, I do an -O scan against scanme.nmap.org, and it does not figure
-  out the distance.  So the fingerprint shows no distance element and
-  Nmap doesn't print "Network Distance" in the results line.  That may
-  be OK (Nmap probably isn't receiving the probe response needed for
-  this, and maybe doesn't want to print the TG), but even when I do
-  --traceroute I get no distance printed.  Yet Nmap clearly knows the
-  distance since the traceroute shows all the hops up to and including
-  the target (scanme.nmap.org).
-
 o Improve the "run Zenmap as root" menu item to work on distributions
   without su-to-root.  We might even want to improve Zenmap so that it
   itself does not have to run as root, and just executes Nmap that
@@ -445,9 +460,6 @@ o Consider enhancing the new OS Assist system to handle version
   detection too. [SOC task?]
 
 o Do -p- Internet UDP scans.
-
-o Look a bit more at default version detection timing.  Particularly
-  deciding the number of probes to run in parallel.
 
 o Deal with UDP retransmission for version detection ( I think I
   should just do a second run of all probes for UDP if it fails to
@@ -541,10 +553,6 @@ o Provide an option to send a comment in scan packet data for target
   s|&lt;iLLz!  I'll 0wN UR b0x!"
   o Note, this shouldn't be implemented yet.
 
-o I should add code to Nmap to bail if sizeof(char) isn't 1.
-  Otherwise there could be security risks if it is not one on any
-  platforms.
-
 o Consider implementing RPC scan with ultra_scan or something else.
   Right now it is the only program using pos_scan.  On the other hand,
   I'm not sure TCP rpc scanning is appropriate for ultra_scan.
@@ -587,6 +595,37 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o I should add code to Nmap to bail if sizeof(char) isn't 1.
+  Otherwise there could be security risks if it is not one on any
+  platforms.  [ Actually, we think C standard requires this and we've
+  not heard of any system where sizeof(char) isn't 1.  So removing
+  this item.]
+
+o [Zenmap] More complete implementation of ZenmapCommandLine/profile
+  editor improvement ideas. See
+  http://www.bamsoftware.com/wiki/Nmap/ZenmapCommandLine. [David]
+
+o [Ncat] Think about whether we should offer "-q secs" (quit after EOF
+  + delay of secs) and/or -k (set SO_KEEPALIVE on socket) (or maybe
+  that should be set by default).  Anyway, these were suggested here:
+  http://lwn.net/Articles/341706/ [We're going to fix -i (added
+  separate item), and not worry about SO_KEEPALIVE unless we see more
+  demand for it. It doesn't seem that nc110 or OpenBSD nc or so-called
+  GNU Netcat support SO_KEEPALIVE either]
+
+o [Ncat] In verbose mode, I'd like to see clock time (duration) and
+  maybe in/out traffic stats when a client connection ends.  Maybe it
+  could use a format similar to what Nmap provides. [David/Venkat]
+
+o Seriously consider making --traceroute work even when we haven't
+  found a probe which elicits a response from the target.  We'd just
+  have to pick a probe in that case (probably echo request, as we
+  found that to be the most effective in prev. empirical testing).
+  This is similar to UNIX traceroute and Windows tracert.exe which
+  just pick a probe (high UDP port on UNIX, ICMP echo request on Win).
+  Even if the host is down or something, we usually get some useful
+  hop information.
 
 o [NSE] Allow spaces in script arguments without the user having to
   manually quote them (beyond normal shell escape quoting).  See:
