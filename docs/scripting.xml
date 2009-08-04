@@ -1053,6 +1053,35 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       &nse-modules;
       </sect2>
 
+      <sect2 id="hacking-nse-libraries">
+        <title>Hacking NSE Libraries</title>
+        <para>
+          Libraries often accidently make use of globals variables when local
+          scope was intended. Two or more scripts that make use of library
+          functions which unintentionally use the same global variable will
+          find that variable constantly rewritten. This is a serious bug that
+          can cause NSE to stall or a correct script to spectacularly fail,
+          and, because Lua uses global-by-default scope assignment when it
+          encounters a variable, this is also a common bug.
+        </para>
+        <para>
+          Consider a global variable being used by two different scripts,
+          within the library, to hold sockets or data. When one script is
+          yielded after storing data in the variable, another script awakens
+          only to replace that data. In contrast, a local variable would store
+          the information on the stack of the running script separate from
+          others.
+        </para>
+        <para>
+          To help correct this problem, NSE now uses an adapted library from
+          the standard Lua distribution called 'strict.lua'. The library will
+          raise a runtime error on any access or modification of a global
+          variable which was undeclared in the file scope. A global variable is
+          considered declared if the library makes an assignment to the global
+          name (even nil) in the file scope.
+        </para>
+      </sect2>
+
     <sect2 id="nse-library-c-modules">
       <title>Adding C Modules to Nselib</title>
       <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>C modules</secondary></indexterm>
