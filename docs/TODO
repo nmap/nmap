@@ -97,13 +97,6 @@ o Update nsedoc to refer to 'libraries' rather than 'modules'.  This
   people still using old URLs) and the title of the module pages like
   http://nmap.org/nsedoc/modules/base64.html. [Patrick]
 
-o Consider the open proxy scripts more carefully
- - How should we test whether the proxy attempt was successful?  Right
-   now we look for a google-specific Server header after trying to
-   reach http://www.google.com through the proxy.  Maybe we should let
-   users specify their own pattern if they specify their own URL.
-  [ Joao is going to check it in today (7/28)]
-
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
   http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
@@ -251,10 +244,6 @@ o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
   See: [http://seclists.org/nmap-dev/2009/q2/0221.html]
 
-o [NSE] Consider Rob Nicholls http-enum script for incorporation:
-  http://seclists.org/nmap-dev/2009/q1/0889.html
-  [Joao tested w/his HEAD support, is going to check this in]
-
 o [NSE] Support routing http requests through proxies.
 
 o [NSE] http improvements
@@ -271,10 +260,6 @@ o [NSE] http improvements
  o HTTP persistant connections/keepalive? May make
    spidering/grinding/auth cracking more efficient
  o Pipeliing? May make spidering/grinding/auth cracking more efficient
- o Consider POST/HEAD support. See
-   http://seclists.org/nmap-dev/2009/q1/0889.html.
-  o Implemented:  http://seclists.org/nmap-dev/2009/q3/0074.html
-  o Joao going to check in very soon soon.
 
 o [NSE] High speed brute force HTTP authentication.  Possibly POST and
    GET/HEAD brute force cracking.
@@ -329,6 +314,8 @@ o [NSE] Web application fingerprinting script.  Would be great to be
 o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
   (http://blog.tenablesecurity.com/2009/06/enhanced-web-application-attacks-added-to-nessus.html).
+  [Joao making a list of web scripts which we might find useful,
+  Fyodor asking HD moore for permission to use http enum dir list]
 
 o [NSE] Security Review
  o Consider what, if any, vulnerabilities or security risks NSE has
@@ -595,6 +582,22 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Consider POST/HEAD support. See
+  http://seclists.org/nmap-dev/2009/q1/0889.html.
+  o Implemented:  http://seclists.org/nmap-dev/2009/q3/0074.html
+  o Joao going to check in very soon soon.
+
+o [NSE] Consider Rob Nicholls http-enum script for incorporation:
+  http://seclists.org/nmap-dev/2009/q1/0889.html
+  [Joao tested w/his HEAD support, is going to check this in]
+
+o Consider the open proxy scripts more carefully
+ - How should we test whether the proxy attempt was successful?  Right
+   now we look for a google-specific Server header after trying to
+   reach http://www.google.com through the proxy.  Maybe we should let
+   users specify their own pattern if they specify their own URL.
+  [ Joao is going to check it in today (7/28)]
 
 o I should add code to Nmap to bail if sizeof(char) isn't 1.
   Otherwise there could be security risks if it is not one on any
