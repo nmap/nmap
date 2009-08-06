@@ -987,7 +987,7 @@ Traceroute::outputTarget (Target * t) {
 
         /* normal hop output (rtt, ip and hostname) */
         if (!tp->timing.consolidated && !last_consolidation) {
-            Snprintf(timebuf, 16, "%.2f", (float) 
+            Snprintf(timebuf, 16, "%.2f ms", (float) 
             TIMEVAL_SUBTRACT (tp->timing.recvTime, tp->timing.sendTime) / 1000);
             Tbl->addItemFormatted (row_count, HOP_COL, false, "%d", tp->ttl);
         if (tp->timing.getState () != P_TIMEDOUT) {
