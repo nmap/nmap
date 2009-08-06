@@ -130,7 +130,7 @@ static int parse_scanflags(char *arg) {
   int flagval = 0;
   char *end = NULL;
 
-  if (isdigit(arg[0])) {
+  if (isdigit((int) (unsigned char) arg[0])) {
     flagval = strtol(arg, &end, 0);
     if (*end || flagval < 0 || flagval > 255) return -1;
   } else {
@@ -1461,7 +1461,7 @@ int nmap_main(int argc, char *argv[]) {
       const char *p = spoofmac;
       while(*p) { 
 	if (*p == ':') p++;
-	if (isxdigit(*p) && isxdigit(*(p+1))) {
+	if (isxdigit((int) (unsigned char) *p) && isxdigit((int) (unsigned char) *(p+1))) {
 	  if (pos >= 6) fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", spoofmac);
 	  tmphex[0] = *p; tmphex[1] = *(p+1); tmphex[2] = '\0';
 	  mac_data[pos] = (u8) strtol(tmphex, NULL, 16);
@@ -2055,7 +2055,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   if ((p = strstr(filestr, " as: ")))
     p += 5;
   else fatal("Unable to parse supposed log file %s.  Are you sure this is an Nmap output file?", fname);
-  while(*p && !isspace((int) *p))
+  while(*p && !isspace((int) (unsigned char) *p))
     p++;
   if (!*p) fatal("Unable to parse supposed log file %s.  Sorry", fname);
   p++; /* Skip the space between program name and first arg */
@@ -2106,7 +2106,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     if (q) {    
       while((q = strstr(q, "\nAll "))) {
 	q+= 5;
-	while(isdigit(*q)) q++;
+	while(isdigit((int) (unsigned char) *q)) q++;
 	if (strncmp(q, " scanned ports on", 17) == 0)
 	  found = q;
       }
@@ -2355,7 +2355,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 
   current_range = origexpr;
   do {
-    while(isspace((int) *current_range))
+    while(isspace((int) (unsigned char) *current_range))
       current_range++; /* I don't know why I should allow spaces here, but I will */
 
     if (change_range_type) {
@@ -2406,7 +2406,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
       else
         rangestart = 1;
     }
-    else if (isdigit((int) *current_range)) {
+    else if (isdigit((int) (unsigned char) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
       if (range_type & SCAN_PROTOCOLS) {
         if (rangestart < 0 || rangestart > 255)
@@ -2416,11 +2416,11 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
 	  fatal("Ports to be scanned must be between 0 and 65535 inclusive");
       }
       current_range = endptr;
-      while(isspace((int) *current_range)) current_range++;
-    } else if (islower((int) *current_range) || *current_range == '*' || *current_range == '?') {
+      while(isspace((int) (unsigned char) *current_range)) current_range++;
+    } else if (islower((int) (unsigned char) *current_range) || *current_range == '*' || *current_range == '?') {
       i = 0;
 
-      while (*current_range && !isspace((int)*current_range) && *current_range != ',' && *current_range != ']') {
+      while (*current_range && !isspace((int) (unsigned char) *current_range) && *current_range != ',' && *current_range != ']') {
         servmask[i++] = *(current_range++);
         if (i >= ((int)sizeof(servmask)-1))
           fatal("A service mask in the port/protocol specification is either malformed or too long");
@@ -2452,7 +2452,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
           rangeend = 255;
         else
           rangeend = 65535;
-      } else if (isdigit((int) *current_range)) {
+      } else if (isdigit((int) (unsigned char) *current_range)) {
 	rangeend = strtol(current_range, &endptr, 10);
         if (range_type & SCAN_PROTOCOLS) {
 	  if (rangeend < 0 || rangeend > 255)
@@ -2507,7 +2507,7 @@ static void getpts_aux(const char *origexpr, int nested, u8 *porttbl, int range_
     }
     
     /* Find the next range */
-    while(isspace((int) *current_range)) current_range++;
+    while(isspace((int) (unsigned char) *current_range)) current_range++;
 
     if (*current_range == ']') {
       if (!nested) fatal("Unexpected ] character in port/protocol specification");

@@ -155,7 +155,7 @@ static void rpc_services_init() {
       ri.num_alloc *= 3;
     }
 
-    while(*p && *p != '#' && !isalnum((int) *p)) p++;
+    while(*p && *p != '#' && !isalnum((int) (unsigned char) *p)) p++;
 
     if (!*p || *p == '#') continue;
 
@@ -167,7 +167,7 @@ static void rpc_services_init() {
     ri.names[ri.num_used] = cp_strdup(p);
     p = tmpptr + 1;
 
-    while(*p && !isdigit((int) *p)) p++;
+    while(*p && !isdigit((int) (unsigned char) *p)) p++;
 
     if (!*p)
       continue;

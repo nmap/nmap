@@ -583,7 +583,7 @@ static u32 parse_inaddr_arpa(unsigned char *buf, int maxlen) {
     maxlen -= buf[0] + 1;
     if (maxlen <= 0) return 0;
 
-    for (j=1; j<=buf[0]; j++) if (!isdigit(buf[j])) return 0;
+    for (j=1; j<=buf[0]; j++) if (!isdigit((int) buf[j])) return 0;
 
     ip |= atoi((char *) buf+1) << (8*i);
     buf += buf[0] + 1;

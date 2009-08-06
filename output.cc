@@ -144,7 +144,7 @@ static void skid_output(char *s)
 	case 'O': s[i]='0'; break;
 	case 's':
 	case 'S': 
-	  if (s[i+1] && !isalnum((int) s[i+1])) 
+	  if (s[i+1] && !isalnum((int) (unsigned char) s[i+1])) 
 	    s[i] = 'z';
 	  else s[i] = '$';
 	  break;

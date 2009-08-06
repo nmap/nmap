@@ -185,7 +185,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       
       *s = '\0';  /* Make sure target_net is terminated before the /## */
       s++;        /* Point s at the netmask */
-      if (!isdigit(*s)) {
+      if (!isdigit((int) (unsigned char) *s)) {
         error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
         netmask = 32;
       } else {
@@ -199,7 +199,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     } else
       netmask = 32;
     for(i=0; *(hostexp + i); i++) 
-      if (isupper((int) *(hostexp +i)) || islower((int) *(hostexp +i))) {
+      if (isupper((int) (unsigned char) *(hostexp +i)) ||
+          islower((int) (unsigned char) *(hostexp +i))) {
         namedhost = 1;
         break;
       }
@@ -251,7 +252,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
           *r = '\0';
           addy[i] = r + 1;
         }
-        else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int)*r)) 
+        else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) 
           fatal("Invalid character in host specification.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.");
         *r++;
       }

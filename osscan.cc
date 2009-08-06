@@ -222,19 +222,19 @@ static int AVal_match(struct AVal *reference, struct AVal *fprint, struct AVal *
 	  if (val == 0 || *endptr) { if (andexp) { testfailed=1; break; } }
 	  else { numtrue++; if (orexp) break; }
 	}
-      } else if (*p == '<' && isxdigit((int) p[1])) {
+      } else if (*p == '<' && isxdigit((int) (unsigned char) p[1])) {
 	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
 	number = strtol(p + 1, &endptr, 16);
 	val = strtol(current_fp->value, &endptr, 16);
 	if (val >= number || *endptr) { if (andexp)  { testfailed=1; break; } }
 	else { numtrue++; if (orexp) break; }
-      } else if (*p == '>' && isxdigit((int) p[1])) {
+      } else if (*p == '>' && isxdigit((int) (unsigned char) p[1])) {
 	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
 	number = strtol(p + 1, &endptr, 16);
 	val = strtol(current_fp->value, &endptr, 16);
 	if (val <= number || *endptr) { if (andexp) { testfailed=1; break; } }
 	else { numtrue++; if (orexp) break; }
-      } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) p[0]) && isxdigit((int) q1[1])) {
+      } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) (unsigned char) p[0]) && isxdigit((int) (unsigned char) q1[1])) {
 		if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
 		*q1 = '\0'; number = strtol(p, NULL, 16);
 		number1 = strtol(q1 + 1, NULL, 16);
@@ -793,9 +793,9 @@ static char *substrstrip(const char *p, const char *q) {
 
   assert(p <= q);
 
-  while (isspace(*p))
+  while (isspace((int) (unsigned char) *p))
     p++;
-  while (q > p && isspace(*(q - 1)))
+  while (q > p && isspace((int) (unsigned char) *(q - 1)))
     q--;
 
   s = (char *) cp_alloc(q - p + 1);
@@ -842,7 +842,7 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno,
     fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
   /* OS generation is handled specially: instead of an empty string it's
      supposed to be NULL. */
-  while (isspace(*begin))
+  while (isspace((int) (unsigned char) *begin))
     begin++;
   if (begin < end)
     os_class->OS_Generation = substrstrip(begin, end);
@@ -884,7 +884,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
     if (nextline) *nextline++ = '\0';
     /* printf("Preparing to handle next line: %s\n", thisline); */
 
-    while(*thisline && isspace((int) *thisline)) thisline++;
+    while(*thisline && isspace((int) (unsigned char) *thisline)) thisline++;
     if (!*thisline) {
       fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);    
     }
@@ -893,11 +893,11 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
       /* Ignore a second Fingerprint line if it appears. */
       if (FP->OS_name == NULL) {
         p = thisline + 12;
-        while(*p && isspace((int) *p)) p++;
+        while(*p && isspace((int) (unsigned char) *p)) p++;
 
         q = strchr(p, '\n');
         if (!q) q = p + strlen(p);
-        while(q > p && isspace(*(--q)))
+        while(q > p && isspace((int) (unsigned char) *(--q)))
           ;
 
         FP->OS_name = (char *) cp_alloc(q - p + 2);
@@ -1029,12 +1029,12 @@ while(fgets(line, sizeof(line), fp)) {
   } else {
     DB->prints[numrecords] = current;
     p = line + 12;
-    while(*p && isspace((int) *p)) p++;
+    while(*p && isspace((int) (unsigned char) *p)) p++;
     
     q = strpbrk(p, "\n#");
     if (!p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-    while(isspace(*(--q)))
+    while(isspace((int) (unsigned char) *(--q)))
       ;
 
     if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);

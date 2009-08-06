@@ -119,7 +119,7 @@ int wildtest(char *wild, char *test) {
       if (wild[1] == '\0') return 1;
 
       for(i=0; test[i]!='\0'; i++)
-        if ((tolower((int)wild[1]) == tolower((int)test[i]) || wild[1] == '?')
+        if ((tolower((int) (unsigned char) wild[1]) == tolower((int) (unsigned char) test[i]) || wild[1] == '?')
             &&  wildtest(wild+1, test+i) == 1) return 1;
 
       return 0;
@@ -128,11 +128,11 @@ int wildtest(char *wild, char *test) {
     /* --- '?' can't match '\0'. --- */
     if (*wild == '?' && *test == '\0') return 0;
 
-    if (*wild != '?' && tolower((int)*wild) != tolower((int)*test)) return 0;
+    if (*wild != '?' && tolower((int) (unsigned char) *wild) != tolower((int) (unsigned char) *test)) return 0;
     wild++; test++;
   }
 
-  if (tolower((int)*wild) == tolower((int)*test)) return 1;
+  if (tolower((int) (unsigned char) *wild) == tolower((int) (unsigned char) *test)) return 1;
   return 0;
 
 }
@@ -392,7 +392,7 @@ int arg_parse(const char *command, char ***argv) {
   myargv++;
   start = mycommand;
   while(start && *start) {
-    while(*start && isspace((int) *start))
+    while(*start && isspace((int) (unsigned char) *start))
       start++;
     if (*start == '"') {
       start++;
@@ -404,7 +404,7 @@ int arg_parse(const char *command, char ***argv) {
       continue;
     } else {
       end = start+1;
-      while(*end && !isspace((int) *end)) {      
+      while(*end && !isspace((int) (unsigned char) *end)) {      
 	end++;
       }
     }
@@ -446,14 +446,14 @@ void arg_parse_free(char **argv) {
 static unsigned char hex2char(unsigned char a, unsigned char b)
 {
   int val;
-  if (!isxdigit(a) || !isxdigit(b)) return 0;
-  a = tolower(a);
-  b = tolower(b);
-  if (isdigit(a))
+  if (!isxdigit((int) a) || !isxdigit((int) b)) return 0;
+  a = tolower((int) a);
+  b = tolower((int) b);
+  if (isdigit((int) a))
     val = (a - '0') << 4;
   else val = (10 + (a - 'a')) << 4;
 
-  if (isdigit(b))
+  if (isdigit((int) b))
     val += (b - '0');
   else val += 10 + (b - 'a');
 
@@ -492,12 +492,12 @@ char *cstring_unescape(char *str, unsigned int *newlen) {
       case 'x':
 	src++;
 	if (!*src || !*(src + 1)) return NULL;
-	if (!isxdigit(*src) || !isxdigit(*(src + 1))) return NULL;
+	if (!isxdigit((int) (unsigned char) *src) || !isxdigit((int) (unsigned char) *(src + 1))) return NULL;
 	newchar = hex2char(*src, *(src + 1));
 	src += 2;
 	break;
       default:
-	if (isalnum(*src))
+	if (isalnum((int) (unsigned char) *src))
 	  return NULL; // I don't really feel like supporting octals such as \015
 	// Other characters I'll just copy as is
 	newchar = *src;
@@ -558,7 +558,7 @@ int parse_ip_options(char *txt, u8 *data, int datalen, int* firsthopoff, int* la
       	base = 16;
         break;
       }
-      if(isxdigit(*c)){
+      if(isxdigit((int) (unsigned char) *c)){
         *d++ = strtol(c, &n, base);
         c=n-1;
       }else

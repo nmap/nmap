@@ -201,13 +201,13 @@ static std::string hexify(const unsigned char *str, size_t len)
 
   // If more than 95% of the chars are printable, we escape unprintable chars
   for (size_t i = 0; i < len; i++)
-    if (isprint(str[i]))
+    if (isprint((int) str[i]))
       num++;
   if ((double) num / (double) len >= 0.95)
   {
     for (size_t i = 0; i < len; i++)
     {
-      if (isprint(str[i]) || isspace(str[i]))
+      if (isprint((int) str[i]) || isspace((int) str[i]))
         ret << str[i];
       else
         ret << std::setw(3) << "\\" << (unsigned int) (unsigned char) str[i];
@@ -225,7 +225,7 @@ static std::string hexify(const unsigned char *str, size_t len)
       else
         ret << "   ";
     for (size_t j = i; j < i + 16 && j < len; j++)
-      ret.put(isgraph(str[j]) ? (unsigned char) str[j] : ' ');
+      ret.put(isgraph((int) str[j]) ? (unsigned char) str[j] : ' ');
     ret << std::endl;
   }
   return ret.str();

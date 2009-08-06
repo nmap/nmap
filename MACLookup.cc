@@ -156,18 +156,18 @@ static void mac_prefix_init() {
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
     if (*line == '#') continue;
-    if (!isxdigit(*line)) {
+    if (!isxdigit((int) (unsigned char) *line)) {
       error("Parse error one line #%d of %s. Giving up parsing.", lineno, filename);
       break;
     }
     /* First grab the prefix */
     pfx = strtol(line, &endptr, 16);
-    if (!endptr || !isspace(*endptr)) {
+    if (!endptr || !isspace((int) (unsigned char) *endptr)) {
       error("Parse error one line #%d of %s. Giving up parsing.", lineno, filename);
       break;
     }
     /* Now grab the vendor */
-    while(*endptr && isspace(*endptr)) endptr++;
+    while(*endptr && isspace((int) (unsigned char) *endptr)) endptr++;
     assert(*endptr);
     p = endptr;
     while(*endptr && *endptr != '\n' && *endptr != '\r') endptr++;

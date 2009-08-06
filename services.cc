@@ -186,7 +186,7 @@ static int nmap_services_init() {
   while(fgets(line, sizeof(line), fp)) {
     lineno++;
     p = line;
-    while(*p && isspace((int) *p))
+    while(*p && isspace((int) (unsigned char) *p))
       p++;
     if (*p == '#')
       continue;

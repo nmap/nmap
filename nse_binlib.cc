@@ -133,10 +133,10 @@ static int l_unpack(lua_State *L) 		/** unpack(f,s, [init]) */
  {
   int c=*f++;
   int N=1;
-  if (isdigit(*f)) 
+  if (isdigit((int) (unsigned char) *f)) 
   {
    N=0;
-   while (isdigit(*f)) N=10*N+(*f++)-'0';
+   while (isdigit((int) (unsigned char) *f)) N=10*N+(*f++)-'0';
    if (N==0 && c==OP_STRING) { lua_pushliteral(L,""); ++n; }
   }
   while (N-- && done == 0) switch (c)
@@ -283,10 +283,10 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
  {
   int c=*f++;
   int N=1;
-  if (isdigit(*f)) 
+  if (isdigit((int) (unsigned char) *f)) 
   {
    N=0;
-   while (isdigit(*f)) N=10*N+(*f++)-'0';
+   while (isdigit((int) (unsigned char) *f)) N=10*N+(*f++)-'0';
   }
   while (N--) switch (c)
   {
@@ -357,8 +357,8 @@ static int l_pack(lua_State *L) 		/** pack(f,...) */
       int odd = 0;
       const char *a = luaL_checklstring(L, i++, &l);
       for (ii = 0; ii < l; ii++) {
-	if (isxdigit(a[ii])) {
-	  if (isdigit(a[ii])) {
+	if (isxdigit((int) (unsigned char) a[ii])) {
+	  if (isdigit((int) (unsigned char) a[ii])) {
 	    sbyte += a[ii] - '0';
 	    odd++;
 	  } else if (a[ii] >= 'A' && a[ii] <= 'F') {

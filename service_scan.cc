@@ -302,7 +302,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   isInitialized = true;
 
   deflineno = lineno;
-  while(isspace(*matchtext)) matchtext++;
+  while(isspace((int) (unsigned char) *matchtext)) matchtext++;
 
   // first we find whether this is a "soft" or normal match
   if (strncmp(matchtext, "softmatch ", 10) == 0) {
@@ -330,7 +330,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // options. ('i' means "case insensitive", 's' means that . matches
   // newlines (both are just as in perl)
   matchtext = p;
-  while(isspace(*matchtext)) matchtext++;
+  while(isspace((int) (unsigned char) *matchtext)) matchtext++;
   if (*matchtext == 'm') {
     if (!*(matchtext+1))
       fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
@@ -347,7 +347,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
     
     matchtext = p + 1; // skip past the delim
     // any options?
-    while(*matchtext && !isspace(*matchtext)) {
+    while(*matchtext && !isspace((int) (unsigned char) *matchtext)) {
       if (*matchtext == 'i')
 	matchops_ignorecase = true;
       else if (*matchtext == 's')
@@ -384,7 +384,7 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
    * delimiter character and ... is a template */
 
   while(1) {
-  while(isspace(*matchtext)) matchtext++;
+  while(isspace((int) (unsigned char) *matchtext)) matchtext++;
     if (*matchtext == '\0' || *matchtext == '\r' || *matchtext == '\n') break;
 
     modechar = *(matchtext++);
@@ -507,7 +507,7 @@ static int getsubstcommandargs(struct substargs *args, char *args_start,
 
   while(*args_start && *args_start != ')') {
     // Find the next argument.
-    while(isspace(*args_start)) args_start++;
+    while(isspace((int) (unsigned char) *args_start)) args_start++;
     if (*args_start == ')')
       break;
     else if (*args_start == '"') {
@@ -581,7 +581,7 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
   if (*tmplvar != '$') return -1;
   tmplvar++;
 
-  if (!isdigit(*tmplvar)) {
+  if (!isdigit((int) (unsigned char) *tmplvar)) {
     p = strchr(tmplvar, '(');
     if (!p) return -1;
     len = p - tmplvar;
@@ -707,7 +707,7 @@ static int dotmplsubst(const u8 *subject, int subjectlen,
       }
       *dst = '\0';
       while (--dst >= newstr) {
-	if (isspace(*dst) || *dst == ',') 
+	if (isspace((int) (unsigned char) *dst) || *dst == ',') 
 	  *dst = '\0';
 	else break;
       }
@@ -734,7 +734,7 @@ static int dotmplsubst(const u8 *subject, int subjectlen,
     return -1;
   *dst = '\0';
   while (--dst >= newstr) {
-    if (isspace(*dst) || *dst == ',') 
+    if (isspace((int) (unsigned char) *dst) || *dst == ',') 
       *dst = '\0';
     else break;
   }
@@ -887,7 +887,7 @@ void ServiceProbe::setProbeDetails(char *pd, int lineno) {
   pd += 4;
 
   // Next the service name
-  if (!isalnum(*pd)) fatal("Parse error on line %d of nmap-service-probes - bad probe name", lineno);
+  if (!isalnum((int) (unsigned char) *pd)) fatal("Parse error on line %d of nmap-service-probes - bad probe name", lineno);
   p = strchr(pd, ' ');
   if (!p) fatal("Parse error on line %d of nmap-service-probes - nothing after probe name", lineno);
   len = p - pd;
@@ -928,14 +928,14 @@ void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr,
   current_range = portstr;
 
   do {
-    while(*current_range && isspace(*current_range)) current_range++;
-    if (isdigit((int) *current_range)) {
+    while(*current_range && isspace((int) (unsigned char) *current_range)) current_range++;
+    if (isdigit((int) (unsigned char) *current_range)) {
       rangestart = strtol(current_range, &endptr, 10);
       if (rangestart < 0 || rangestart > 65535) {
 	fatal("Parse error on line %d of nmap-service-probes: Ports must be between 0 and 65535 inclusive", lineno);
       }
       current_range = endptr;
-      while(isspace((int) *current_range)) current_range++;
+      while(isspace((int) (unsigned char) *current_range)) current_range++;
     } else {
       fatal("Parse error on line %d of nmap-service-probes: An example of proper portlist form is \"21-25,53,80\"", lineno);
     }
@@ -946,7 +946,7 @@ void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr,
       rangeend = rangestart;
     } else if (*current_range == '-') {
       current_range++;
-      if (isdigit((int) *current_range)) {
+      if (isdigit((int) (unsigned char) *current_range)) {
 	rangeend = strtol(current_range, &endptr, 10);
 	if (rangeend < 0 || rangeend > 65535 || rangeend < rangestart) {
 	  fatal("Parse error on line %d of nmap-service-probes: Ports must be between 0 and 65535 inclusive", lineno);
@@ -966,7 +966,7 @@ void ServiceProbe::setPortVector(vector<u16> *portv, const char *portstr,
     }
     
     /* Find the next range */
-    while(isspace((int) *current_range)) current_range++;
+    while(isspace((int) (unsigned char) *current_range)) current_range++;
     if (*current_range && *current_range != ',') {
       fatal("Parse error on line %d of nmap-service-probes: An example of proper portlist form is \"21-25,53,80\"", lineno);
     }
@@ -1430,7 +1430,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
     else if (resp[srcidx] == '\0') {
       /* We need to be careful with this, because if it is followed by
 	 an ASCII number, PCRE will treat it differently. */
-      if (srcidx + 1 >= respused || !isdigit(resp[srcidx + 1]))
+      if (srcidx + 1 >= respused || !isdigit((int) resp[srcidx + 1]))
 	addServiceString("\\0", servicewrap);
       else addServiceString("\\x00", servicewrap);
     } else if (strchr("\\?\"[]().*+$^|", resp[srcidx])) {
