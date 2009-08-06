@@ -1144,6 +1144,9 @@ TraceGroup::retransmissions (vector < TraceProbe * >&retrans) {
             if (it->second->probeType () == PROBE_TTL) {
                 hopDistance = 1;
                 noDistProbe = true;
+                /* Give up on this host. We should be able to do a trace against
+                   an unresponsive target but for now it's too slow. */
+                setState(G_DEAD_TTL);
                 if (o.verbose)
                     log_write (LOG_STDOUT, "%s: no reply to our hop distance probe!\n", IPStr ());
             } else if (it->second->ttl > MAX_TTL) {
