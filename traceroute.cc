@@ -867,9 +867,9 @@ Traceroute::addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_cou
 	char *ip = inet_ntoa(ref_ipaddr);
 
 	if(ttl == 1)
-		len = Snprintf(mbuf, 64, "Hop 1 is the same as for %s", ip);
+		len = Snprintf(mbuf, sizeof(mbuf), "Hop 1 is the same as for %s", ip);
 	else
-		len = Snprintf(mbuf, 64, "Hops 1-%d are the same as for %s", ttl, ip);
+		len = Snprintf(mbuf, sizeof(mbuf), "Hops 1-%d are the same as for %s", ttl, ip);
 
 	assert(len);
 	Tbl->addItem(row_count, HOP_COL, true, "-", 1);
@@ -987,8 +987,8 @@ Traceroute::outputTarget (Target * t) {
 
         /* normal hop output (rtt, ip and hostname) */
         if (!tp->timing.consolidated && !last_consolidation) {
-            Snprintf(timebuf, 16, "%.2f ms", (float) 
-            TIMEVAL_SUBTRACT (tp->timing.recvTime, tp->timing.sendTime) / 1000);
+            Snprintf(timebuf, sizeof(timebuf), "%.2f ms", (float) 
+            TIMEVAL_SUBTRACT(tp->timing.recvTime, tp->timing.sendTime) / 1000);
             Tbl->addItemFormatted (row_count, HOP_COL, false, "%d", tp->ttl);
         if (tp->timing.getState () != P_TIMEDOUT) {
             Tbl->addItem (row_count, RTT_COL, true, timebuf);
@@ -1418,8 +1418,8 @@ hostStr (u32 ip) {
     memset (nameipbuf, '\0', MAXHOSTNAMELEN + INET6_ADDRSTRLEN);
     addr.s_addr = ip;
     if((hname = lookup_cached_host(ip)) == NULL)
-        Snprintf(nameipbuf, MAXHOSTNAMELEN+INET6_ADDRSTRLEN, "%s", inet_ntoa(addr));
+        Snprintf(nameipbuf, sizeof(nameipbuf), "%s", inet_ntoa(addr));
     else
-        Snprintf (nameipbuf, MAXHOSTNAMELEN + INET6_ADDRSTRLEN, "%s (%s)", hname, inet_ntoa (addr));
+        Snprintf(nameipbuf, sizeof(nameipbuf), "%s (%s)", hname, inet_ntoa (addr));
     return nameipbuf;
 }
