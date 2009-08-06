@@ -28,6 +28,8 @@ o A number of portability changes to remove errors/warnings during
 o Added libdnet-stripped.vcproj -- A Visual Studio.Net project file
   for dnet.
 
+o Rebuilt configure and aclocal.m4 with Autoconf 2.63.
+
 o Made some code changes to intf.c (the patch below).  This does the following:
 
   o Preserve the alias qualifier from interface name in more cases
