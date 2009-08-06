@@ -117,6 +117,10 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
 o Consider what new UDP payloads we might want to add.  David has many
   ideas at: http://seclists.org/nmap-dev/2009/q3/0290.html
 
+o We may want to look into if/how we support IPv6 nameservers.  Here
+  is a bug report from someone having a problem with them:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244
+
 o [Ncat] This may sound rediculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)
