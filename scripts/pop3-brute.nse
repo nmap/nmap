@@ -21,7 +21,6 @@ portrule = shortport.port_or_service({110, 995}, {"pop3","pop3s"})
 action = function(host, port)
    local pMeth = nmap.registry.args.pop3loginmethod
    if (not pMeth) then pMeth = nmap.registry.pop3loginmethod end
-   if (not pMeth) then pMeth = method end
    if (not pMeth) then pMeth = "USER" end
 
    local login
