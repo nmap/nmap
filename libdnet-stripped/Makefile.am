@@ -2,7 +2,7 @@
 
 include $(top_srcdir)/Makefile.am.common
 
-SUBDIRS =	include man src python test
+SUBDIRS =	include src
 
 bin_SCRIPTS =	dnet-config
 
@@ -14,3 +14,4 @@ aux_dir = config
 
 AUX_DIST = $(aux_dir)/acinclude.m4
 
+ACLOCAL_AMFLAGS = -I config
