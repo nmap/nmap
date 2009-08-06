@@ -61,6 +61,10 @@ o Fix traceroute performance/algorithms.  It is terribly bad in some
   July, but we'll probably take it out until we can fix
   performance). [David]
 
+o Update "History and Future of Nmap"
+  (http://nmap.org/book/history-future.html) to include all the news
+  since September 2008. [Fyodor]
+
 o --traceroute should probably set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
   out the distance.  So the fingerprint shows no distance element and
