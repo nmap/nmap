@@ -4,7 +4,7 @@ Attempts to find an SNMP community string by brute force guessing.
 -- 2008-07-03
 
 ---
--- @args snmpcommunity The SNMP community string to use. If supplied, this
+-- @args snmpcommunity The SNMP community string to use. If not supplied, this
 -- script will not run.
 -- @args snmplist The filename of a list of community strings to try.
 
@@ -45,7 +45,7 @@ action = function(host, port)
 	
   local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")
 
-  local commFile = nmap.fetchfile(nmap.registry.args.snmplist)
+  local commFile = nmap.registry.args.snmplist and nmap.fetchfile(nmap.registry.args.snmplist)
   local commTable
   
   -- fetch wordlist from file (from unpwdb-lib)
