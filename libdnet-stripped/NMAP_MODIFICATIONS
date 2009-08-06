@@ -28,7 +28,8 @@ o A number of portability changes to remove errors/warnings during
 o Added libdnet-stripped.vcproj -- A Visual Studio.Net project file
   for dnet.
 
-o Rebuilt configure and aclocal.m4 with Autoconf 2.63.
+o Regenerated build files with Autoconf 2.63, Automake 1.10.1, and
+  libtool 2.2.6.
 
 o Made some code changes to intf.c (the patch below).  This does the following:
 
