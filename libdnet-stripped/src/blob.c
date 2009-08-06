@@ -162,7 +162,7 @@ blob_fmt(blob_t *b, int pack, const char *fmt, va_list *ap)
 	for (p = (char *)fmt; *p != '\0'; p++) {
 		if (*p == '%') {
 			p++;
-			if (isdigit((int)*p)) {
+			if (isdigit((int) (unsigned char) *p)) {
 				len = strtol(p, &p, 10);
 			} else if (*p == '*') {
 				len = va_arg(*ap, int);

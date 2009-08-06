@@ -234,7 +234,7 @@ _find_ifindex(intf_t *intf, const char *device)
 	char *p = (char *)device;
 	int n, type = _ifcombo_type(device);
 	
-	while (isalpha(*p)) p++;
+	while (isalpha((int) (unsigned char) *p)) p++;
 	n = atoi(p);
 
 	return (intf->ifcombo[type].idx[n]);
