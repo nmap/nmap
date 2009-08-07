@@ -634,7 +634,7 @@ int
 intf_get_dst(intf_t *intf, struct intf_entry *entry, struct addr *dst)
 {
 	struct sockaddr_in sin;
-	int n;
+	socklen_t n;
 	
 	if (dst->addr_type != ADDR_TYPE_IP) {
 		errno = EINVAL;

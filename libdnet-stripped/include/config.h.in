@@ -142,6 +142,9 @@
 /* Define if sockaddr struct has sa_len. */
 #undef HAVE_SOCKADDR_SA_LEN
 
+/* Define to 1 if the system has the type `socklen_t'. */
+#undef HAVE_SOCKLEN_T
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -295,4 +298,8 @@ int	strlcpy(char *, const char *, int);
 
 #ifndef HAVE_STRSEP
 char	*strsep(char **, const char *);
+#endif
+
+#ifndef HAVE_SOCKLEN_T
+typedef socklen_t int
 #endif

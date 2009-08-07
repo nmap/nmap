@@ -30,3 +30,7 @@ int	strlcpy(char *, const char *, int);
 #ifndef HAVE_STRSEP
 char	*strsep(char **, const char *);
 #endif
+
+#ifndef HAVE_SOCKLEN_T
+typedef socklen_t int
+#endif
