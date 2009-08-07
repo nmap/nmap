@@ -1074,11 +1074,13 @@ action refer to <xref linkend="nse-tutorial-action"/>.
         </para>
         <para>
           To help correct this problem, NSE now uses an adapted library from
-          the standard Lua distribution called 'strict.lua'. The library will
+          the standard Lua distribution called
+          <filename>strict.lua</filename>.<indexterm><primary><filename>strict.lua</filename></primary></indexterm>
+          The library will
           raise a runtime error on any access or modification of a global
           variable which was undeclared in the file scope. A global variable is
           considered declared if the library makes an assignment to the global
-          name (even nil) in the file scope.
+          name (even <literal>nil</literal>) in the file scope.
         </para>
       </sect2>
 
