@@ -1056,7 +1056,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <sect2 id="hacking-nse-libraries">
         <title>Hacking NSE Libraries</title>
         <para>
-          Libraries often accidently make use of globals variables when local
+          Libraries often accidentally make use of globals variables when local
           scope was intended. Two or more scripts that make use of library
           functions which unintentionally use the same global variable will
           find that variable constantly rewritten. This is a serious bug that
