@@ -1,4 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o Added the x11-access.nse script that checks if access to an X11
+  server is allowed (as with "xhost +" for example). The script was
+  written by vladz.
+
 o Added explicit casts to (int)(unsigned char) for arguments to ctype function
   calls in nmap, ncat and nbase.  Thanks to Solar Designer for pointing out
   the need and fix for this. [Josh]

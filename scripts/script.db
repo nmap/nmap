@@ -14,6 +14,7 @@ Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-enum.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
@@ -59,3 +60,4 @@ Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
 Entry { filename = "whois.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "x11-access.nse", categories = { "default", "safe", } }
