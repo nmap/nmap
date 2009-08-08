@@ -52,7 +52,15 @@ action = function(host, port)
   local request = bin.pack('>IIIIIIILL',0x80000028,transaction_id,0,2,100000,2,4,0,0)
   try(socket:send(request))
 
-  local answer = try(socket:receive_bytes(1))
+  local status, answer = socket:receive_bytes(1)
+  if not status then
+    stdnse.print_debug(1, "%s failed to receive a response from %s:%d with error: %s",
+      filename:match( "[\\/]([^\\/]+)\.nse$" ) or filename,
+      host.ip, port.number,
+      answer or "unknown")
+    socket:close()
+    return nil
+  end
 
   local _,offset,header,length,tx_id,msg_type,reply_state,accept_state,value,payload,last_fragment
   last_fragment = false; offset = 1; payload = ''
