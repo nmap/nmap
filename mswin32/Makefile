@@ -1,5 +1,5 @@
-MAKENSIS="/c/apps/NSIS/makensis.exe"
-VCEXPRESS="/c/Program Files/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe"
+MAKENSIS="/cygdrive/c/Program Files/NSIS/makensis.exe"
+VCEXPRESS="/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe"
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
