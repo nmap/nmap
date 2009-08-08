@@ -60,4 +60,4 @@ Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
 Entry { filename = "whois.nse", categories = { "discovery", "external", "safe", } }
-Entry { filename = "x11-access.nse", categories = { "default", "safe", } }
+Entry { filename = "x11-access.nse", categories = { "auth", "default", "safe", } }

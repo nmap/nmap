@@ -18,7 +18,7 @@ server access is granted".
 
 author = "vladz <vladz@devzero.fr>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "safe"}
+categories = {"default", "safe", "auth"}
 
 portrule = function(host, port)
         return ((port.number >= 6000 and port.number <= 6009)
