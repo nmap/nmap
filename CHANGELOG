@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o Added explicit casts to (int)(unsigned char) for arguments to ctype function
+  calls in nmap, ncat and nbase.  Thanks to Solar Designer for pointing out
+  the need and fix for this. [Josh]
 
 o [Ncat, Ndiff] The exit codes of these programs now reflect whether
   they succeeeded. For Ncat, 0 means the connection was successful, 1
