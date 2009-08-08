@@ -21,15 +21,11 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 portrule = function( host, port )
-        if 
-                port.number >= 6000 and port.number <= 6009
-                and string.match(port.service, "^X11") 
+	return ((port.number >= 6000 and port.number <= 6009)
+                or string.match(port.service, "^X11"))
                 -- If port.version.product is not equal to nil, version 
                 -- detection "-sV" has already done this X server test. 
                 and port.version.product == nil 
-        then
-                return true
-        end
 end
 
 action = function(host, port)
