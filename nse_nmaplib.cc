@@ -140,16 +140,15 @@ void set_portinfo(lua_State *L, Port* port) {
  * */
 void set_hostinfo(lua_State *L, Target *currenths) {
   unsigned int i;
-  char hostname[1024];
 
-  lua_pushstring(L, strncpy(hostname, currenths->targetipstr(), 1024));
+  lua_pushstring(L, currenths->targetipstr());
   lua_setfield(L, -2, "ip");
 
-  lua_pushstring(L, strncpy(hostname, currenths->HostName(), 1024));
+  lua_pushstring(L, currenths->HostName());
   lua_setfield(L, -2, "name");
 
   if ( currenths->TargetName() ) { // else nil
-    lua_pushstring(L, strncpy(hostname, currenths->TargetName(), 1024));
+    lua_pushstring(L, currenths->TargetName());
     lua_setfield(L, -2, "targetname");
   }
 
@@ -167,7 +166,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_setfield(L, -2, "mac_addr_src");
   }
   if(currenths->deviceName()){
-    lua_pushstring(L, strncpy(hostname, currenths->deviceName(), 1024));
+    lua_pushstring(L, currenths->deviceName());
     lua_setfield(L, -2, "interface");
   }
   if( (u32)(currenths->v4host().s_addr) ){
