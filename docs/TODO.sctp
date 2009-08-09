@@ -4,12 +4,6 @@ o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
   http://seclists.org/nmap-dev/2009/q2/0669.html)
 
-o [Ncat] Support SCTP now that Nmap does.
-  o Client and listen mode support is in /nmap-exp/daniel/sctp-nmap.
-  o Fix the zero-length message issue on Linux.
-  o Implement SCTP broker mode.
-  o Test some more and merge to trunk.
-
 o Add support for UDP encapsulated SCTP (9899/udp).
   Basically just wrap the SCTP packets into a UDP packet.
   Think about how to add support for this to libdnet first.
@@ -32,6 +26,8 @@ o Investigate the suitability of other SCTP chunks for port
   be worthwhile.
 
 o Add SCTP based service probing.
+
+o [Ncat] Consider implementing SCTP broker mode.
 
 o [NSE] Add SCTP support to NSE.
 
