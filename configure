@@ -7778,7 +7778,7 @@ LIBDNETDIR=libdnet-stripped
 # copy of libdnet. That is, with the other libraries we check for a system
 # version by default, whereas with dnet we use the local version unless
 # specifically asked to use a system version.  This is because we have
-# made many improvements and fixes to our version od dnet.
+# made many improvements and fixes to our version of dnet.
 
 # Check whether --with-libdnet was given.
 if test "${with_libdnet+set}" = set; then
