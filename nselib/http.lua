@@ -461,8 +461,7 @@ request = function( host, port, data, options )
   local last_header, match, key
   for number, line in ipairs( header or {} ) do
     if number == 1 then
-      local code
-      _, _, code = string.find( line, "HTTP/%d\.%d (%d+)")
+      local code = line:match "HTTP/%d%.%d (%d+)";
       result.status = tonumber(code)
       if code then result["status-line"] = line end
     else
