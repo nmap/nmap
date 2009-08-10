@@ -17,7 +17,7 @@ author = "Rob Nicholls <robert@everythingeverything.co.uk>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "discovery", "safe"}
+categories = {"discovery", "intrusive", "vuln"}
 
 local url    = require 'url'
 local http   = require 'http'
