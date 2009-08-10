@@ -146,7 +146,7 @@ end
 -- @param port_number The number of the port to check
 -- @return bool True if port is usually ssl, otherwise false
 local function is_ssl(port_number)
-	local common_ssl_ports = {22, 443, 465, 995, 587, 6697, 6679, 8443}
+	local common_ssl_ports = {465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
 	local table_size = table.maxn(common_ssl_ports)	
 	local i = 0
 	while i < table_size do
@@ -208,7 +208,10 @@ local function opencon(ip, port, protocol, data, opts)
 	end
 
 	local status = sd:connect(ip, port, protocol)
-	if not status then return nil, nil, nil end
+	if not status then 
+          sd:close()
+          return nil, nil, nil 
+        end
 
 	-- check for request_timeout or timeout option
 
@@ -232,7 +235,10 @@ local function opencon(ip, port, protocol, data, opts)
 		end
 		response = early_resp
 	end
-	if not status then return nil, response, early_resp end
+	if not status then 
+          sd:close()
+          return nil, response, early_resp 
+        end
 	return sd, response, early_resp
 end
 
