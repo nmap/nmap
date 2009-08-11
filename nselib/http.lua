@@ -423,9 +423,9 @@ request = function( host, port, data, options )
 
   local response = {}
   local result = {status=nil,["status-line"]=nil,header={},body=""}
-  local socket, bopt
+  local socket
 
-  socket, response[1], bopt = comm.tryssl(host, port, data, opts)
+  socket, response[1] = comm.tryssl(host, port, data, opts)
 
   if not socket or not response then
     return result
