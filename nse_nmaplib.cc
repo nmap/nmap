@@ -261,6 +261,7 @@ static int aux_mutex (lua_State *L)
         lua_State *thread = lua_tothread(L, lua_upvalueindex(2));
         lua_pushvalue(L, lua_upvalueindex(3)); // destructor key
         lua_pushvalue(L, lua_upvalueindex(4)); // destructor
+        luaL_checkstack(thread, 2, "adding destructor");
         lua_xmove(L, thread, 2);
         nse_destructor(thread, 'a');
         nse_restore(thread, 0);
@@ -295,6 +296,7 @@ static int aux_mutex_done (lua_State *L)
   lua_State *thread = lua_tothread(L, 1);
   lua_pushvalue(L, lua_upvalueindex(1)); // aux_mutex, actual mutex closure
   lua_pushliteral(L, "done");
+  luaL_checkstack(thread, 2, "aux_mutex_done");
   lua_xmove(L, thread, 2);
   if (lua_pcall(thread, 1, 0, 0) != 0) lua_pop(thread, 1); // pop error msg
   return 0;
