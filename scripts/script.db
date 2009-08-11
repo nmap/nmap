@@ -1,3 +1,4 @@
+Entry { filename = "apache-userdir-enum.nse", categories = { "discovery", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", } }
