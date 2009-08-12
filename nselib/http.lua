@@ -222,37 +222,467 @@ local function get_hostname(host)
   end
 end
 
---- Fetches a resource with a GET request.
+--- Parses a response header and return a table with cookie jar
 --
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The function builds the request and calls
--- <code>http.request</code>.
+--  The cookie attributes can be accessed by:
+--  cookie_table[1]['name']
+--  cookie_table[1]['value']  
+--  cookie_table[1]['attr']
+--
+--  Where attr is the attribute name, like expires or path.
+--  Attributes without a value, are considered boolean (like http-only)
+--
+--  @param header The response header
+--  @return cookie_table A table with all the cookies
+local function parseCookies(header)
+  local lines = stdnse.strsplit("\r?\n", header)
+  local i = 1
+  local n = table.getn(lines)
+  local cookie_table = {}
+  local cookie_attrs
+  while i <= n do
+    if string.match(lines[i]:lower(), "set%-cookie:") then
+      local cookie = {}
+      local _, cookie_attrs = string.match(lines[i], "(.+): (.*)")
+      cookie_attrs = stdnse.strsplit(";",cookie_attrs)
+      cookie['name'], cookie['value'] = string.match(cookie_attrs[1],"(.*)=(.*)")
+      local j = 2
+      while j <= #cookie_attrs do
+        local attr = string.match(cookie_attrs[j],"^%s-(.*)=")
+        local value = string.match(cookie_attrs[j],"=(.*)$")
+        if attr and value then 
+          local attr = string.gsub(attr, " ", "")
+          cookie[attr] = value
+        else
+          cookie[string.gsub(cookie_attrs[j]:lower()," ","")] = true
+        end
+        j = j + 1
+      end
+    table.insert(cookie_table, cookie)
+    end
+    i = i + 1
+  end
+  return cookie_table
+end
+
+--- Tries to extract the max number of requests that should be made on
+--  a keep-alive connection based on "Keep-Alive: timeout=xx,max=yy" response
+--  header.
+--
+--  If the value is not available, an arbitrary value is used. If the connection
+--  is not explicitly closed by the server, this same value is attempted.
+--
+--  @param response The http response - Might be a table or a raw response
+--  @return The max number of requests on a keep-alive connection
+local function getPipelineMax( response )
+  if response then
+    if type(response) ~= "table" then response = parseResult( response ) end
+    if response.header and response.header.connection ~= "close" then
+      if response.header["keep-alive"] then
+        local max = string.match( response.header["keep-alive"], "max\=(%d*)")
+        return max
+      else return 40 end
+    end
+    return 1
+  end
+end
+
+--- Sets all the values and options for a get request and than calls buildRequest to
+--  create a string to be sent to the server as a resquest
+--
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @return Table as described in the module description.
--- @see http.request
-get = function( host, port, path, options )
+-- @param cookies A table with cookies
+-- @return Request String 
+local buildGet = function( host, port, path, options, cookies )
   options = options or {}
 
   -- Private copy of the options table, used to add default header fields.
   local mod_options = {
     header = {
       Host = get_hostname(host),
-      Connection = "close",
       ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
     }
   }
+  if cookies then
+    local cookies = buildCookies(cookies, path)
+    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+  end
+
+  if options and options.connection 
+    then mod_options["header"]["Connection"] = options.connection
+    else mod_options["header"]["Connection"] = "Close" end
+
   -- Add any other options into the local copy.
   table_augment(mod_options, options)
 
   local data = "GET " .. path .. " HTTP/1.1\r\n"
+  return data, mod_options
+end
 
-  return request( host, port, data, mod_options )
+--- Sets all the values and options for a head request and than calls buildRequest to
+--  create a string to be sent to the server as a resquest
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @return Request String 
+local buildHead = function( host, port, path, options, cookies )
+  local options = options or {}
+
+  -- Private copy of the options table, used to add default header fields.
+  local mod_options = {
+    header = {
+      Host = get_hostname(host),
+      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+    }
+  }
+  if cookies then
+    local cookies = buildCookies(cookies, path)
+    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+  end
+  if options and options.connection 
+    then mod_options["header"]["Connection"] = options.connection
+    else mod_options["header"]["Connection"] = "Close" end
+
+  -- Add any other options into the local copy.
+  table_augment(mod_options, options)
+
+  local data = "HEAD " .. path .. " HTTP/1.1\r\n"
+  return data, mod_options
+end
+
+--- Sets all the values and options for a post request and than calls buildRequest to
+--  create a string to be sent to the server as a resquest
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @return Request String 
+local buildPost = function( host, port, path, options, cookies, postdata)
+  local options = options or {}
+  local content = ""
+
+  if postdata and type(postdata) == "table" then
+    local k, v
+    for k, v in pairs(postdata) do
+      content = content .. k .. "=" .. url.escape(v) .. "&"
+    end
+    content = string.gsub(content, "%%20","+") 
+    content = string.sub(content, 1, string.len(content)-1)
+  elseif postdata and type(postdata) == "string" then
+    content = postdata
+    content = string.gsub(content, " ","+")
+  end
+
+  local mod_options = {
+    header = {
+      Host = get_hostname(host),
+      Connection = "close",
+      ["Content-Type"] = "application/x-www-form-urlencoded",
+      ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+    },
+    content = content
+  }
+  if cookies then
+    local cookies = buildCookies(cookies, path)
+    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+  end
+
+  table_augment(mod_options, options)
+
+  local data = "POST " .. path .. " HTTP/1.1\r\n"
+
+  return data, mod_options
+end
+
+--- Parses all options from a request and creates the string
+--  to be sent to the server
+--
+--  @param data 
+--  @param options
+--  @return A string ready to be sent to the server
+local buildRequest = function (data, options) 
+  options = options or {} 
+
+  -- Build the header.
+  for key, value in pairs(options.header or {}) do
+    data = data .. key .. ": " .. value .. "\r\n"
+  end
+  if(options.content ~= nil and options.header['Content-Length'] == nil) then
+    data = data .. "Content-Length: " .. string.len(options.content) .. "\r\n"
+  end
+  data = data .. "\r\n"
+
+  if(options.content ~= nil) then
+    data = data .. options.content
+  end
+
+  return data
+end
+
+--- Transforms multiple raw responses from a pipeline request
+--  (a single and long string with all the responses) into a table
+--  containing one response in each field.
+--
+--  @param response The raw multiple response
+--  @return Table with one response in each field
+local function splitResults( response )
+  local tmp
+  local i
+  local results = {}
+
+  response = stdnse.strsplit("\n", response)
+
+  --Index adjustment based on response.
+  if(string.match(response[1], "HTTP/%d\.%d %d+"))
+    then i = 0
+    else i = 1; results[1] = ""
+  end
+
+  for _, line in ipairs( response or {} ) do
+    if(string.match(line, "HTTP/%d\.%d %d+")) then
+      i = i + 1
+      results[i] = ""
+    end
+    results[i] = results[i] .. line .. "\n"
+  end
+  return results 
+end
+
+--- Builds a string to be added to the request mod_options table
+-- 
+--  @param cookies A cookie jar just like the table returned by parseCookies
+--  @param path If the argument exists, only cookies with this path are included to the request
+--  @return A string to be added to the mod_options table
+function buildCookies(cookies, path)
+  local cookie = ""
+  if type(cookies) == 'string' then return cookies end 
+  for i, ck in ipairs(cookies or {}) do
+    if not path or string.match(ck["path"],".*" .. path .. ".*") then
+      if i ~= 1 then cookie = cookie .. " " end
+      cookie = cookie .. ck["name"] .. "=" .. ck["value"] .. ";"
+    end
+  end
+  return cookie
+end
+
+--- Fetches a resource with a GET request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a cookie table.
+-- The function calls buildGet to build the request, calls request to send it 
+-- and than parses the result calling parseResult
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @return Table as described in the module description.
+-- @see http.parseResult
+get = function( host, port, path, options, cookies )
+  local data, mod_options = buildGet(host, port, path, options, cookies)
+  data = buildRequest(data, mod_options)
+  local response = request(host, port, data)
+  return parseResult(response)
+end
+
+--- Fetches a resource with a HEAD request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a cookie table.
+-- The function calls buildHead to build the request, calls request to send it 
+-- and than parses the result calling parseResult.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @return Table as described in the module description.
+-- @see http.parseResult
+head = function( host, port, path, options, cookies )
+  local data, mod_options = buildHead(host, port, path, options, cookies)
+  data = buildRequest(data, mod_options)
+  local response = request(host, port, data)
+  return parseResult(response)
+end
+
+--- Fetches a resource with a POST request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a cookie table. The sixth 
+-- argument is a table with data to be posted. 
+-- The function calls buildHead to build the request, calls request to send it 
+-- and than parses the result calling parseResult.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param postada A table of data to be posted
+-- @return Table as described in the module description.
+-- @see http.parseResult
+post = function( host, port, path, options, cookies , postdata )
+  local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
+  data = buildRequest(data, mod_options)
+  local response = request(host, port, data)
+  return parseResult(response)
+end
+
+--- Builds a get request to be used in a pipeline request
+--
+--  Calls buildGet to build a get request
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param allReqs A table with all the pipeline requests
+-- @return Table with the pipeline get requests (plus this new one)
+function pGet( host, port, path, options, cookies, allReqs )
+  local req = {}
+  if not allReqs then allReqs = {} end
+  if not options then options = {} end
+  local object = {data="", opts=""}
+  options.connection = "Keep-alive"
+  object["data"], object["opts"] =  buildGet(host, port, path, options, cookies)
+  allReqs[#allReqs + 1] =  object
+  return allReqs
+end
+
+--- Builds a Head request to be used in a pipeline request
+--
+--  Calls buildHead to build a get request
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param allReqs A table with all the pipeline requests
+-- @return Table with the pipeline get requests (plus this new one)
+function pHead( host, port, path, options, cookies, allReqs )
+  local req = {}
+  if not allReqs then allReqs = {} end
+  if not options then options = {} end
+  local object = {data="", opts=""}
+  options.connection = "Keep-alive"
+  object["data"], object["opts"] =  buildHead(host, port, path, options, cookies)
+  allReqs[#allReqs + 1] =  object
+  return allReqs
+end
+
+
+--- Performs pipelined that are in allReqs to the resource.
+--  After requesting it will call splitResults to split the multiple responses
+--  from the server, and than call parseResult to create the http response table
+--
+--  Possible options are:
+--  raw:
+--  - false, result is parsed as http response tables.
+--  - true, result is only splited in different tables by request.
+--
+--  @param host The host to query.
+--  @param port The port for the host.
+--  @param allReqs A table with all the previously built pipeline requests
+--  @param options A table with options to configure the pipeline request
+--  @return A table with multiple http response tables
+pipeline = function(host, port, allReqs, options)
+  stdnse.print_debug("Total number of pipelined requests: " .. #allReqs)
+  local response = {}
+  local response_tmp
+  local response_tmp_table = {}
+  local requests = ""
+  local response_raw
+  local response_splitted = {}
+  local i = 2
+  local j, opts
+  local opts
+  local recv_status = true
+  
+  opts = {connect_timeout=5000, request_timeout=3000, recv_before=false}
+
+  local socket, bopt
+
+  -- We'll try a first request with keep-alive, just to check if the server
+  -- supports and how many requests we can send into one socket!
+  socket, response_raw, bopt = comm.tryssl(host, port, buildRequest(allReqs[1]["data"], allReqs[1]["opts"]), opts)
+  if not socket or not response_raw then return response_raw end
+  response_splitted[1] = response_raw
+  local limit = tonumber(getPipelineMax(response_raw))
+  stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
+
+  while i <= #allReqs do
+    -- we build a big request with many requests, upper limited by the var "limit"
+
+    j = i
+    while j < i + limit and j <= #allReqs do
+      if j + 1 == i + limit or j == #allReqs then
+        allReqs[j]["opts"]["header"]["Connection"] = "Close"
+      end
+      requests = requests .. buildRequest(allReqs[j]["data"], allReqs[j]["opts"])
+      j = j + 1
+    end
+
+    -- Connect to host and send all the requests at once!
+
+    if not socket:get_info() then socket:connect(host.ip, port.number, bopt) end
+    socket:set_timeout(10000)
+    socket:send(requests)
+    response_raw = ""
+    while recv_status do
+      recv_status, response_tmp = socket:receive()
+      response_raw = response_raw .. response_tmp
+    end
+
+    -- Transform the raw response we received in a table of responses and
+    -- count the number of responses for pipeline control
+
+    response_tmp_table = splitResults(response_raw)
+    for _, v in ipairs(response_tmp_table) do
+      response_splitted[#response_splitted + 1] = v
+    end
+
+    -- We check if we received all the requests we sent
+    -- if we didn't, reduce the number of requests (server might be overloaded)
+
+    i = i + #response_tmp_table
+    if(#response_tmp_table < limit and i <= #allReqs) then
+      limit = #response_tmp_table
+      stdnse.print_debug("Didn't receive all expcted responses.\nDecreasing max pipelined requests to " .. limit )
+    end
+    recv_status = true
+    socket:close()
+    requests = ""
+  end
+
+  -- Prepare responses and return it!
+
+  stdnse.print_debug("Number of received responses: " .. #response_splitted)
+  if options and options.raw then
+    response = response_splitted
+  else
+    for _, value in ipairs(response_splitted) do
+      response[#response + 1] = parseResult(value)
+    end
+  end
+  return(response)
 end
 
 --- Parses a URL and calls <code>http.get</code> with the result.
@@ -284,89 +714,6 @@ get_url = function( u, options )
   return get( parsed.host, port, path, options )
 end
 
---- Makes a HEAD request.
---
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The function builds the request and calls
--- <code>http.request</code>.
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @return Table as described in the module description.
--- @see http.request
-head = function( host, port, path, options )
-  local options = options or {}
-
-  -- Private copy of the options table, used to add default header fields.
-  local mod_options = {
-    header = {
-      Host = get_hostname(host),
-      Connection = "close",
-      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
-    }
-  }
-  -- Add any other options into the local copy.
-  table_augment(mod_options, options)
-
-  local data = "HEAD " .. path .. " HTTP/1.1\r\n"
-
-  return request( host, port, data, mod_options )
-end
-
---- Makes a POST request.
---
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a table with data to be
--- posted. The function builds the request and calls
--- <code>http.request</code>.
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param postada A table of data to be posted
--- @return Table as described in the module description.
--- @see http.request
-post = function( host, port, path, options, postdata)
-  local options = options or {}
-  local content = ""
-
-  if postdata and type(postdata) == "table" then
-    local k, v
-    for k, v in pairs(postdata) do
-      content = content .. k .. "=" .. url.escape(v) .. "&"
-    end
-    content = string.gsub(content, "%%20","+") 
-    content = string.sub(content, 1, string.len(content)-1)
-  elseif postdata and type(postdata) == "string" then
-    content = postdata
-    content = string.gsub(content, " ","+")
-  end
-
-  local mod_options = {
-    header = {
-      Host = get_hostname(host),
-      Connection = "close",
-      ["Content-Type"] = "application/x-www-form-urlencoded",
-      ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
-    },
-    content = content
-  }
-
-  table_augment(mod_options, options)
-
-  local data = "POST " .. path .. " HTTP/1.1\r\n"
-
-  return request( host, port, data, mod_options )
-end
-
-
 
 --- Sends request to host:port and parses the answer.
 --
@@ -386,10 +733,9 @@ end
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
-request = function( host, port, data, options )
+request = function( host, port, data )
   local opts
-  options = options or {}
-
+  
   if type(host) == 'table' then
     host = host.ip
   end
@@ -399,26 +745,6 @@ request = function( host, port, data, options )
       stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
       return nil
     end
-  end
-
-  -- Build the header.
-  for key, value in pairs(options.header or {}) do
-    data = data .. key .. ": " .. value .. "\r\n"
-  end
-  if(options.content ~= nil and options.header['Content-Length'] == nil) then
-    data = data .. "Content-Length: " .. string.len(options.content) .. "\r\n"
-  end
-  data = data .. "\r\n"
-
-  if(options.content ~= nil) then
-    data = data .. options.content
-  end
-
-  if options.timeout then
-    opts = {timeout=options.timeout, recv_before=false}
-  else
-    local df_timeout = get_default_timeout( nmap.timing_level() )
-    opts = {connect_timeout=df_timeout.connect, request_timeout = df_timeout.request, recv_before=false}
   end
 
   local response = {}
@@ -445,13 +771,27 @@ request = function( host, port, data, options )
 
   response = table.concat( response )
 
+  return response
+end
+
+
+--- Parses a simple response and creates a default http response table
+--  splitting header, cookies and body.
+--
+--  @param response A response received from the server for a request
+--  @return A table with the values received from the server
+function parseResult( response )
+  local result = {status=nil,["status-line"]=nil,header={},body=""}
+
   -- try and separate the head from the body
   local header, body
-  if response:match( "\r?\n\r?\n" ) then
+  if response and response:match( "\r?\n\r?\n" ) then
     header, body = response:match( "^(.-)\r?\n\r?\n(.*)$" )
   else
     header, body = "", response
   end
+
+  result.cookies = parseCookies(header)
 
   header = stdnse.strsplit( "\r?\n", header )
 
