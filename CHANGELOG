@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now always prefixes its own output messages with "Ncat: "
+  or "NCAT DEBUG: " to make it clear that they are not coming from the
+  remote host. This only matters when output goes to a terminal, where
+  the standard output and standard error streams are mixed. [David]
+
 o Added the x11-access.nse script that checks if access to an X11
   server is allowed (as with "xhost +" for example). The script was
   written by jlanthea.
