@@ -46,6 +46,7 @@ action = function(host, port)
   local check404body = ""
   local checkHEAD = "200"
   local result = ""
+  local all = {}
   local safeURLcheck = {
     {checkdir="/_vti_bin/", checkdesc="FrontPage directory"},
     {checkdir="/_vti_cnf/", checkdesc="FrontPage directory"},
@@ -130,11 +131,15 @@ action = function(host, port)
   if check404:match( "200" ) then
     -- check body for specific text, add confirmation message to result
     for _, combination in pairs (safeURLcheck) do
+      all = http.pGet( host, port, combination.checkdir, nil, nil, all )
+    end
 
-      data = http.get( host, port, combination.checkdir )
+    results = http.pipeline(host, port, all, nil)
+
+    for i, data in pairs( results ) do
 
       if data and data.status and tostring( data.status ):match( "403" ) then
-        result = result .. combination.checkdir .. " " .. combination.checkdesc .. " (403 Forbidden)\n"
+        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (403 Forbidden)\n"
       else
         if data.body and check404body then
           -- compare body and look for matches
@@ -142,7 +147,7 @@ action = function(host, port)
             -- assume it's another 404 page
           else
             -- assume it's not a 404
-            result = result .. combination.checkdir .. " " .. combination.checkdesc .. "\n"
+            result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
           end
         end
       end
@@ -151,19 +156,25 @@ action = function(host, port)
 
   else
 
-    for _, combination in pairs (safeURLcheck) do
-
-      if checkHEAD:match( "200" ) then
-        data = http.head( host, port, combination.checkdir )
-      else
-        data = http.get( host, port, combination.checkdir )
+    if checkHEAD:match( "200" ) then
+      for _, combination in pairs (safeURLcheck) do
+        all = http.pHead( host, port, combination.checkdir, nil, nil, all )
       end
+    else
+      for _, combination in pairs (safeURLcheck) do
+        all = http.pGet( host, port, combination.checkdir, nil, nil, all )
+      end
+    end
+
+    results = http.pipeline(host, port, all, nil)
+
+    for i, data in pairs( results ) do
 
       if data and data.status and tostring( data.status ):match( "200" ) then
-        result = result .. combination.checkdir .. " " .. combination.checkdesc .. "\n"
+        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
       end
       if data and data.status and tostring( data.status ):match( "403" ) then
-        result = result .. combination.checkdir .. " " .. combination.checkdesc .. " (403 Forbidden)\n"
+        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (403 Forbidden)\n"
       end
     end
 
