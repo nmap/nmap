@@ -1326,11 +1326,6 @@ int nmap_main(int argc, char *argv[]) {
 
   tty_init(); // Put the keyboard in raw mode
 
-#if HAVE_SIGNAL
-  if (!o.debugging)
-    signal(SIGSEGV, sigdie); 
-#endif
-
   // After the arguments are fully processed we now make any of the timing
   // tweaks the user might've specified:
   if (pre_max_parallelism != -1) o.max_parallelism = pre_max_parallelism;
@@ -1614,7 +1609,7 @@ int nmap_main(int argc, char *argv[]) {
 
 #if defined(HAVE_SIGNAL) && defined(SIGPIPE)
   signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE so our program doesn't crash because
-			       of it, but we really shouldn't get an unsuspected
+			       of it, but we really shouldn't get an unexpected
 			       SIGPIPE */
 #endif
 
@@ -2736,68 +2731,6 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
 
   ftp->sd = sd;
   return sd;
-}
-
-#ifndef WIN32
-
-void reaper(int signo) {
-  int status;
-  pid_t pid;
-
-  if ((pid = wait(&status)) == -1) {
-    gh_perror("waiting to reap child");
-  } else {
-    fprintf(stderr, "\n[%d finished status=%d (%s)]\nnmap> ", (int) pid, status, (status == 0)? "success"  : "failure");
-  }
-}
-#endif
-
-void sigdie(int signo) {
-  int abt = 0;
-
-  fflush(stdout);
-
-  switch(signo) {
-  case SIGINT:
-    error("caught SIGINT signal, cleaning up");
-    break;
-
-#ifdef SIGTERM
-  case SIGTERM:
-    error("caught SIGTERM signal, cleaning up");
-    break;
-#endif
-
-#ifdef SIGHUP
-  case SIGHUP:
-    error("caught SIGHUP signal, cleaning up");
-    break;
-#endif
-
-#ifdef SIGSEGV
-  case SIGSEGV:
-    error("caught SIGSEGV signal, cleaning up");
-    abt = 1;
-    break;
-#endif
-
-#ifdef SIGBUS
-  case SIGBUS:
-    error("caught SIGBUS signal, cleaning up");
-    abt = 1;
-    break;
-#endif
-
-  default:
-    error("caught signal %d, cleaning up", signo);
-    abt = 1;
-    break;
-  }
-
-  fflush(stderr);
-  log_close(LOG_MACHINE|LOG_NORMAL|LOG_SKID);
-  if (abt) abort();
-  exit(1);
 }
 
 /* Returns one if the file pathname given exists, is not a directory and

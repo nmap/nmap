@@ -439,7 +439,6 @@ void nmap_free_mem();
 /* general helper functions */
 const char *statenum2str(int state);
 const char *scantype2str(stype scantype);
-void sigdie(int signo);
 void reaper(int signo);
 char *seqreport(struct seq_info *seq);
 const char *ipidclass2ascii(int seqclass);

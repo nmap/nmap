@@ -170,16 +170,6 @@ int main(int argc, char *argv[]) {
   mtrace();
 #endif
 
-  /* Trap these sigs for cleanup */
-#if HAVE_SIGNAL
-  signal(SIGINT, sigdie);
-  signal(SIGTERM, sigdie);
-#ifndef WIN32
-  signal(SIGHUP, sigdie); 
-  signal(SIGCHLD, reaper);
-#endif
-#endif
-
   if ((cptr = getenv("NMAP_ARGS"))) {
     if (Snprintf(command, sizeof(command), "nmap %s", cptr) >= (int) sizeof(command)) {
         error("Warning: NMAP_ARGS variable is too long, truncated");
