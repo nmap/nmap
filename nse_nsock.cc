@@ -13,6 +13,7 @@ extern "C"
 
 #include "nse_nsock.h"
 #include "nse_main.h"
+#include "nse_ssl_cert.h"
 
 #include "nsock.h"
 #include "nmap_error.h"
@@ -395,6 +396,7 @@ int luaopen_nsock(lua_State * L)
     {"pcap_close", l_nsock_ncap_close},
     {"pcap_register", l_nsock_ncap_register},
     {"pcap_receive", l_nsock_pcap_receive},
+    {"get_ssl_certificate", l_get_ssl_certificate},
     // {"callback_test", l_nsock_pcap_callback_test},
     {NULL, NULL}
   };
@@ -440,6 +442,11 @@ int luaopen_nsock(lua_State * L)
   lua_pop(L, 1);                       // nsock metatable
 
   luaL_newmetatable(L, "nsock_proxy");
+
+#if HAVE_OPENSSL
+  /* Set up the SSL certificate userdata code in nse_ssl_cert.cc. */
+  nse_nsock_init_ssl_cert(L);
+#endif
 
   nsp = nsp_new(NULL);
   if (o.scriptTrace())
@@ -1735,6 +1742,27 @@ int ncap_restore_lua(ncap_request * nr)
     return 4;
   return 0;
 }
+
+#if HAVE_OPENSSL
+const SSL *nse_nsock_get_ssl(lua_State *L)
+{
+  const l_nsock_udata *udata;
+
+  udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
+  if (!nsi_checkssl(udata->nsiod))
+    error("Socket is not an SSL socket");
+
+  return (SSL *) nsi_getssl(udata->nsiod);
+}
+#else
+/* If HAVE_OPENSSL is defined, this comes from nse_ssl_cert.cc. */
+int l_get_ssl_certificate(lua_State *L)
+{
+  error("Socket is not an SSL socket");
+
+  return 0;
+}
+#endif
 
 /****************** DNET ******************************************************/
 static int l_dnet_open_ethernet(lua_State * L);

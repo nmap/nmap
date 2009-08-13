@@ -467,6 +467,49 @@ function pcap_receive()
 -- @usage socket:pcap_close()
 function pcap_close()
 
+---
+-- Retrieves the SSL certificate of the peer. The returned value can be accessed
+-- like a table and has the following members:
+--
+-- <code>
+-- subject = { commonName = "...", countryName = "...",
+--             { "2", "5", "4", "15" } = "...", ... },
+-- issuer = { commonName = "...", ... },
+-- validity = { notBefore = { year = 2020, month = 5, day = 5,
+--                            hour = 0, min = 0, sec = 0 },
+--              notAfter = { year = 2021, month = 5, day = 5,
+--                           hour = 0, min = 0, sec = 0 } },
+-- pem = "-----BEGIN CERTIFICATE-----\nMIIFxzCCBK+gAwIBAgIQX02QuADDB7CVj..."
+-- </code>
+--
+-- It also has the following member functions:
+--
+-- * <code>digest(algorithm)</code> returns the digest of the certificate using the given digest algorithm, which is any of the strings returned by <code>openssl.supported_digests</code>, typicaly something like <code>"md5"</code> or <code>"sha1"</code>.
+--
+-- The <code>"subject"</code> and <code>"issuer"</code> fields hold each
+-- distinguished name. Fields with an unknown OID are represented as an array
+-- whose elements are the numeric components of the OID, encoded as strings.
+--
+-- The <code>"validity"</code> table has the members <code>"notBefore"</code>
+-- and <code>"notAfter"</code>. Each of these is a table as returned by
+-- <code>os.date("!*t")</code> if the date in the certificate could be parsed,
+-- except that they lack the <code>"wday"</code> and <code>"yday"</code>
+-- members. If the date could not be parsed, the value will be a string
+-- containing the raw byte values of the field. If absent, the value will be
+-- <code>nil</code>.
+--
+-- The <code>"pem"</code> field contains a PEM-encoded string of the entire
+-- contents of the certificate.
+-- @return A table as described above.
+-- @usage
+-- local s = nmap.new_socket()
+-- local status, error = s:connect(host.ip, port.number, "ssl")
+-- if status then
+--     local cert = s:get_ssl_certificate()
+--     local digest = s:digest("md5")
+-- end
+function get_ssl_certificate()
+
 --- Creates a new dnet object, used to send raw packets.
 -- @usage local dnet = nmap.new_dnet()
 function new_dnet()
