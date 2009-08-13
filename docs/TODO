@@ -34,7 +34,7 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
 
 o [Zenmap] When the inventory is changed, the current host/service selection is
   forgotten and the Ports / Hosts tab is switched to hosts mode. It should
-  remember your current selection and not change the view.
+  remember your current selection and not change the view. [David/SoC]
 
 o [NSE] Optimize NSE Performance--e.g. measure the current performance and
   see what can be improved in terms of scheduling scan threads,
@@ -162,7 +162,10 @@ o Change Nsock so that it is able to take advantage of more modern
   of the advanced Linux APIs.  Select() limits us to descriptors no
   higher than FD_SETSIZE, and it may not performa all that well.  We
   should do some benchmarking and decide on the interface to use for
-  each platform. [David/SoC]
+  each platform. May want to take a look at libevent
+  (http://www.monkey.org/~provos/libevent/) for inspiration.  The
+  libevent home page has some interesting benchmark graphs too.
+  [David/SoC]
 
 o The Nmap 5.00 tarball contains:
   -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
