@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the ssl-cert.nse script, which retrieves and prints the server
+  SSL certificate. [David]
+
 o [Ncat] The --idle-timeout option now exits when *both* stdin and the
   socket have been idle for the given time. Previously it would exit
   when *either* of them had been idle, meaning that the program would

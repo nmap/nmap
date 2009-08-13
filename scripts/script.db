@@ -57,6 +57,7 @@ Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery"
 Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "intrusive", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
+Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
