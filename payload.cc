@@ -138,6 +138,17 @@ static const char payload_rip[] =
   "\001\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
   "\000\000\000\000\000\000\000\020";
 
+/* DNS Service Discovery (DNS-SD) service query, as used in Zeroconf.
+   Transaction ID 0x0000, flags 0x0000, 1 question: PTR query for
+   _services._dns-sd._udp.local. If the remote host supports DNS-SD it will send
+   back a list of all its services. This is the same as a packet capture of
+     dns-sd -B _services._dns-sd._udp .
+   See section 9 of
+   http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt. */
+static const char payload_dns_sd[] =
+  "\000\000\000\000\000\001\000\000\000\000\000\000"
+  "\011_services\007_dns-sd\004_udp\005local\000\000\014\000\001";
+
 /*
 This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
 static const char payload_Sqlping[] = "\002";
@@ -196,6 +207,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       SET_PAYLOAD(payload_Sqlping);
       break;
     */
+    case 5353:
+      SET_PAYLOAD(payload_dns_sd);
+      break;
     default:
       SET_PAYLOAD(payload_null);
       break;
