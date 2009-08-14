@@ -1,7 +1,9 @@
 #ifndef NMAP_LUA_NSOCK_H
 #define NMAP_LUA_NSOCK_H
 
+#ifdef HAVE_CONFIG_H
 #include "nmap_config.h"
+#endif
 
 int luaopen_nsock(lua_State *);
 int l_nsock_new(lua_State *);
