@@ -125,6 +125,12 @@ static const char payload_SNMPv3GetRequest[] =
   "\001\003\004\0200\016\004\000\002\001\000\002\001\000\004\000\004"
   "\000\004\0000\022\004\000\004\000\240\014\002\0027\360\002\001\000"
   "\002\001\0000\000";
+
+/* X Display Manager Control Protocol. Version 1, packet type Query (2), no
+   authorization names. We expect a Willing or Unwilling packet in reply.
+   http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
+static const char payload_xdmcp[] = "\000\001\000\002\000\001\000";
+
 /*
 This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
 static const char payload_Sqlping[] = "\002";
@@ -171,6 +177,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 161:
       SET_PAYLOAD(payload_SNMPv3GetRequest);
+      break;
+    case 177:
+      SET_PAYLOAD(payload_xdmcp);
       break;
     /*
     case 1434:
