@@ -295,6 +295,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_ssl_cert.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\osscan.cc"
 				>
 			</File>
@@ -485,6 +489,10 @@
 			</File>
 			<File
 				RelativePath="..\nse_pcrelib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_ssl_cert.h"
 				>
 			</File>
 			<File

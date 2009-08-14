@@ -90,6 +90,7 @@
 /* $Id:$ */
 
 #include <assert.h>
+#include <ctype.h>
 #include <errno.h>
 #include <openssl/bio.h>
 #include <openssl/pem.h>
@@ -100,15 +101,17 @@ extern "C"
 {
 #include "lua.h"
 #include "lauxlib.h"
+void *safe_realloc(void *, size_t);
 }
 
 #include "nse_nsock.h"
-#include "nbase.h"
 
 struct cert_userdata {
   X509 *cert;
   int attributes_table;
 };
+
+const SSL *nse_nsock_get_ssl(lua_State *L);
 
 /* This is a reference to a table that will be used as the metatable for
    certificate attribute tables. It has an __index entry that points to the
