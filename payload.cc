@@ -131,6 +131,40 @@ static const char payload_SNMPv3GetRequest[] =
    http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
 static const char payload_xdmcp[] = "\000\001\000\002\000\001\000";
 
+/* Internet Key Exchange version 1, phase 1 Main Mode. We offer every
+   combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
+   be acceptable. Because we use a fixed cookie, we set the association lifetime
+   to 1 second to reduce the chance that repeated probes will look like
+   retransmissions (and therefore not get a response). This payload comes from
+     ike-scan --lifetime 1 --cookie 0011223344556677 --trans=5,2,1,2 --trans=5,1,1,2 --trans=1,2,1,2 --trans=1,1,1,2
+   We expect another phase 1 message in response. This payload works better with
+   a source port of 500 or a randomized initiator cookie. */
+static const char payload_ike[] =
+  /* Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000. */
+  "\000\021\042\063\104\125\146\167\000\000\000\000\000\000\000\000"
+  /* Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192. */
+  "\001\020\002\000\000\000\000\000\000\000\000\300"
+  /* Security Association payload, length 164, IPSEC, IDENTITY. */
+  "\000\000\000\244\000\000\000\001\000\000\000\001"
+  /* Proposal 1, length 152, ISAKMP, 4 transforms. */
+  "\000\000\000\230\001\001\000\004"
+  /* Transform 1, 3DES-CBC, SHA, PSK, group 2. */
+  "\003\000\000\044\001\001\000\000\200\001\000\005\200\002\000\002"
+  "\200\003\000\001\200\004\000\002"
+  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  /* Transform 2, 3DES-CBC, MD5, PSK, group 2. */
+  "\003\000\000\044\002\001\000\000\200\001\000\005\200\002\000\001"
+  "\200\003\000\001\200\004\000\002"
+  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  /* Transform 3, DES-CBC, SHA, PSK, group 2. */
+  "\003\000\000\044\003\001\000\000\200\001\000\001\200\002\000\002"
+  "\200\003\000\001\200\004\000\002"
+  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  /* Transform 4, DES-CBC, MD5, PSK, group 2. */
+  "\000\000\000\044\004\001\000\000\200\001\000\001\200\002\000\001"
+  "\200\003\000\001\200\004\000\002"
+  "\200\013\000\001\000\014\000\004\000\000\000\001";
+
 /* Routing Information Protocol version 1. Special-case request for the entire
    routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
    section 3.4.1. */
@@ -198,6 +232,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 177:
       SET_PAYLOAD(payload_xdmcp);
+      break;
+    case 500:
+      SET_PAYLOAD(payload_ike);
       break;
     case 520:
       SET_PAYLOAD(payload_rip);
