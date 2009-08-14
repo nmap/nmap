@@ -131,6 +131,13 @@ static const char payload_SNMPv3GetRequest[] =
    http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
 static const char payload_xdmcp[] = "\000\001\000\002\000\001\000";
 
+/* Routing Information Protocol version 1. Special-case request for the entire
+   routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
+   section 3.4.1. */
+static const char payload_rip[] =
+  "\001\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
+  "\000\000\000\000\000\000\000\020";
+
 /*
 This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
 static const char payload_Sqlping[] = "\002";
@@ -180,6 +187,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 177:
       SET_PAYLOAD(payload_xdmcp);
+      break;
+    case 520:
+      SET_PAYLOAD(payload_rip);
       break;
     /*
     case 1434:
