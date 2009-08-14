@@ -7158,7 +7158,7 @@ softmatch oracle-tns m|^\0.\0\0[\x02\x04]\0\0\0|s p/Oracle TNS Listener/
 match dbsnmp m|^\0,\0\0\x04\0\0\0\"\0\0 \(CONNECT_DATA=\(COMMAND=version\)\)| p/Oracle DBSNMP/
 
 ##############################NEXT PROBE##############################
-Probe UDP xdmcp q|\0\x01\0\x02\0\x01\0\0|
+Probe UDP xdmcp q|\0\x01\0\x02\0\x01\0|
 rarity 6
 ports 177
 match xdmcp m/^\0\x01\0\x05..\0\0\0.(.+)\0.(.+)/ p/XDMCP/ v/host $1 willing/ i/Status: $2/ o/Unix/
