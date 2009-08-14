@@ -116,6 +116,9 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
   o A port may want more than one payload, perhaps falling back to a
     second one if the first one fails.
   o Some probes may have to come from a specific source port.
+  o Some protocols may require variable payloads, for example IKE
+    benefits from a random initiator cookie so that packets after the
+    first don't get ignored for looking like retransmissions.
   o TFTP sends its response from an ephemeral port, not port 69.
 
 o Consider what new UDP payloads we might want to add.  David has many
