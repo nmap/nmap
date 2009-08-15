@@ -781,6 +781,7 @@ end
 --  @param response A response received from the server for a request
 --  @return A table with the values received from the server
 function parseResult( response )
+  if type(response) ~= "string" then return response end
   local result = {status=nil,["status-line"]=nil,header={},body=""}
 
   -- try and separate the head from the body
