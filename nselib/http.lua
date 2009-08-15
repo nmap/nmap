@@ -283,8 +283,8 @@ local function getPipelineMax( response )
         return max
       else return 40 end
     end
-    return 1
   end
+  return 1
 end
 
 --- Sets all the values and options for a get request and than calls buildRequest to
