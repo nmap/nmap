@@ -134,7 +134,7 @@ action = function(host, port)
       all = http.pGet( host, port, combination.checkdir, nil, nil, all )
     end
 
-    results = http.pipeline(host, port, all, nil)
+    local results = http.pipeline(host, port, all, nil)
 
     for i, data in pairs( results ) do
 
@@ -166,7 +166,7 @@ action = function(host, port)
       end
     end
 
-    results = http.pipeline(host, port, all, nil)
+    local results = http.pipeline(host, port, all, nil)
 
     for i, data in pairs( results ) do
 
