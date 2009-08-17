@@ -4,7 +4,7 @@ of the information requires an administrative account, although a user account
 will still get a lot of it. Guest probably won't get any, nor will anonymous. 
 This goes for all operating systems, including Windows 2000. 
 
-Windows Vista disables remote registry access by default, so unless itw as enabled, 
+Windows Vista disables remote registry access by default, so unless it was enabled, 
 this script won't work.
 
 If you know of more information stored in the Windows registry that could be interesting, 
