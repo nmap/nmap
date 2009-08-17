@@ -3,7 +3,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery"}
 description = [[
 Attempts to enumerate valid usernames on webservers running with the mod_userdir
-module enabled.
+module or similar enabled.
 
 The Apache mod_userdir module allows user-specific directories to be accessed
 using the http://example.com/~user/ syntax.  This script makes http requests in
@@ -36,9 +36,7 @@ local datafiles = require 'datafiles'
 
 
 ---
--- The script will run against http[s] and http[s]-alt ports and, if version
--- detection is performed, will run only against targets likely to be using
--- mod_userdir or similar.
+-- The script will run against http[s] and http[s]-alt tcp ports.
 portrule = function(host, port)
   local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
                 ssl = { ["https"] = 1, ["https-alt"] = 1 } }
@@ -50,22 +48,6 @@ portrule = function(host, port)
   if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl') and not
   nmap.have_ssl() then
     return false
-  end
-  -- Reduce execution to likely targets when version detection was performed
-  if port.version and port.version.product then
-    local v = port.version
-    if v.product:lower():match('apache') and
-    not ( v.product:lower():match('tomcat') or v.product:lower():match('coyote') ) then
-      return true
-    elseif v.product:lower():match('lighttpd') then
-      return true
-    elseif v.product:lower():match('nginx') then
-      return true -- unlikely! no userdir module for nginx, but config can emulate it.
-    elseif v.extrainfo and v.extrainfo:lower():match('based on apache') then
-      return true
-    else
-      return false
-    end
   end
   return true
 end
