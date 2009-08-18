@@ -113,6 +113,10 @@ extern NmapOps o;
 static const char payload_GenericLines[] = "\015\012\015\012";
 static const char payload_DNSStatusRequest[] =
   "\000\000\020\000\000\000\000\000\000\000\000\000";
+static const char payload_RPCCheck[] =
+  "\162\376\035\023\000\000\000\000\000\000\000\002\000\001\206\240"
+  "\000\001\227\174\000\000\000\000\000\000\000\000\000\000\000\000"
+  "\000\000\000\000\000\000\000\000";
 static const char payload_NTPRequest[] =
   "\343\000\004\372\000\001\000\000\000\001\000\000\000\000\000\000\000"
   "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
@@ -234,6 +238,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 53:
       SET_PAYLOAD(payload_DNSStatusRequest);
+      break;
+    case 111:
+      SET_PAYLOAD(payload_RPCCheck);
       break;
     case 123:
       SET_PAYLOAD(payload_NTPRequest);
