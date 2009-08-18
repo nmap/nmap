@@ -1,5 +1,16 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
+  our pcap installer).
+
+o We should seriously consider packaging the rendered Nroff man page
+  translations in the tarball to make it easier for distributors to
+  package them.  For example, see
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
+  the translations would add 2.5MB to the (currently 28MB)
+  uncompressed tarball and about 800KB to the (currently 9MB) bz2
+  compressed tarball.
+
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
@@ -65,9 +76,13 @@ o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
-o See if we need to update our config.{sub,guess} files.  This Debian
-  bug #542079 requests that we do so:
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079
+o We should update our config.{sub,guess} files.  This Debian bug
+  #542079 requests that we do so:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079.  We last
+  updated on 3/15/08 and in that case we used versions from
+  http://cvs.savannah.gnu.org/viewvc/config/?root=config.  That may or
+  may not be the best place to get them now (e.g. perhaps there has
+  been a recent official release).
 
 o --traceroute should probably set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
