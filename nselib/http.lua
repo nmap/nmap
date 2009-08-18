@@ -841,7 +841,7 @@ function parseResult( response )
   if type( result.status ) ~= "number" and type( body ) == "string" then
     local code, remainder = body:match( "HTTP/%d\.%d (%d+)(.*)") -- The Reason-Phrase will be prepended to the body :(
     if code then
-      stdnse.print_debug( "Interesting variation on the HTTP standard.  Please submit a --script-trace output for this host (%s) to nmap-dev[at]insecure.org.", host )
+      stdnse.print_debug( "Interesting variation on the HTTP standard.  Please submit a --script-trace output for this host to nmap-dev[at]insecure.org.")
       result.status = tonumber(code)
       body = remainder or body
     end
