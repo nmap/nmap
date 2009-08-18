@@ -124,7 +124,7 @@ static int ssl_cert_digest(lua_State *L)
   struct cert_userdata *udata;
   const char *algorithm;
   unsigned char buf[256];
-  size_t n;
+  unsigned int n;
   const EVP_MD *md;
 
   udata = (struct cert_userdata *) luaL_checkudata(L, 1, "SSL_CERT");
