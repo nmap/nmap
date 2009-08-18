@@ -103,37 +103,37 @@ extern NmapOps o;
   can convert them to this C strings with this program:
 
   s = eval('"' + raw_input().replace('"', '\\"') + '"')
-  print '"' + "".join(c.isalnum() and c or "\\%03o" % ord(c) for c in s) + '"'
+  print '"' + "".join(c.isalnum() and c or "\\x%02X" % ord(c) for c in s) + '"'
 
   These payloads are sent with every host discovery or port scan probe. Only
   include payloads that are unlikely to crash services, trip IDS alerts, or
   change state on the server.
 */
 
-static const char payload_GenericLines[] = "\015\012\015\012";
+static const char payload_GenericLines[] = "\x0D\x0A\x0D\x0A";
 static const char payload_DNSStatusRequest[] =
-  "\000\000\020\000\000\000\000\000\000\000\000\000";
+  "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 static const char payload_RPCCheck[] =
-  "\162\376\035\023\000\000\000\000\000\000\000\002\000\001\206\240"
-  "\000\001\227\174\000\000\000\000\000\000\000\000\000\000\000\000"
-  "\000\000\000\000\000\000\000\000";
+  "\x72\xFE\x1D\x13\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA0"
+  "\x00\x01\x97\x7C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00";
 static const char payload_NTPRequest[] =
-  "\343\000\004\372\000\001\000\000\000\001\000\000\000\000\000\000\000"
-  "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-  "\000\000\000\000\000\000\305O\043Kq\261R\363";
+  "\xE3\x00\x04\xFA\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00\xC5\x4F\x23\x4B\x71\xB1\x52\xF3";
 static const char payload_NBTStat[] =
-  "\200\360\000\020\000\001\000\000\000\000\000\000\040CKAAAAAAAAAAAAAA"
-  "AAAAAAAAAAAAAAAA\000\000\041\000\001";
+  "\x80\xF0\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00"
+  "\x20" "CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x00\x00\x21\x00\x01";
 static const char payload_SNMPv3GetRequest[] =
-  "0\072\002\001\0030\017\002\002Ji\002\003\000\377\343\004\001\004\002"
-  "\001\003\004\0200\016\004\000\002\001\000\002\001\000\004\000\004"
-  "\000\004\0000\022\004\000\004\000\240\014\002\0027\360\002\001\000"
-  "\002\001\0000\000";
+  "\x30\x3A\x02\x01\x03\x30\x0F\x02\x02\x4A\x69\x02\x03\x00\xFF\xE3"
+  "\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0E\x04\x00\x02\x01\x00\x02"
+  "\x01\x00\x04\x00\x04\x00\x04\x00\x30\x12\x04\x00\x04\x00\xA0\x0C"
+  "\x02\x02\x37\xF0\x02\x01\x00\x02\x01\x00\x30\x00";
 
 /* X Display Manager Control Protocol. Version 1, packet type Query (2), no
    authorization names. We expect a Willing or Unwilling packet in reply.
    http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
-static const char payload_xdmcp[] = "\000\001\000\002\000\001\000";
+static const char payload_xdmcp[] = "\x00\x01\x00\x02\x00\x01\x00";
 
 /* Internet Key Exchange version 1, phase 1 Main Mode. We offer every
    combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
@@ -145,36 +145,36 @@ static const char payload_xdmcp[] = "\000\001\000\002\000\001\000";
    a source port of 500 or a randomized initiator cookie. */
 static const char payload_ike[] =
   /* Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000. */
-  "\000\021\042\063\104\125\146\167\000\000\000\000\000\000\000\000"
+  "\x00\x11\x22\x33\x44\x55\x66\x77\x00\x00\x00\x00\x00\x00\x00\x00"
   /* Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192. */
-  "\001\020\002\000\000\000\000\000\000\000\000\300"
+  "\x01\x10\x02\x00\x00\x00\x00\x00\x00\x00\x00\xC0"
   /* Security Association payload, length 164, IPSEC, IDENTITY. */
-  "\000\000\000\244\000\000\000\001\000\000\000\001"
+  "\x00\x00\x00\xA4\x00\x00\x00\x01\x00\x00\x00\x01"
   /* Proposal 1, length 152, ISAKMP, 4 transforms. */
-  "\000\000\000\230\001\001\000\004"
+  "\x00\x00\x00\x98\x01\x01\x00\x04"
   /* Transform 1, 3DES-CBC, SHA, PSK, group 2. */
-  "\003\000\000\044\001\001\000\000\200\001\000\005\200\002\000\002"
-  "\200\003\000\001\200\004\000\002"
-  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  "\x03\x00\x00\x24\x01\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x02"
+  "\x80\x03\x00\x01\x80\x04\x00\x02"
+  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
   /* Transform 2, 3DES-CBC, MD5, PSK, group 2. */
-  "\003\000\000\044\002\001\000\000\200\001\000\005\200\002\000\001"
-  "\200\003\000\001\200\004\000\002"
-  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  "\x03\x00\x00\x24\x02\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x01"
+  "\x80\x03\x00\x01\x80\x04\x00\x02"
+  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
   /* Transform 3, DES-CBC, SHA, PSK, group 2. */
-  "\003\000\000\044\003\001\000\000\200\001\000\001\200\002\000\002"
-  "\200\003\000\001\200\004\000\002"
-  "\200\013\000\001\000\014\000\004\000\000\000\001"
+  "\x03\x00\x00\x24\x03\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x02"
+  "\x80\x03\x00\x01\x80\x04\x00\x02"
+  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
   /* Transform 4, DES-CBC, MD5, PSK, group 2. */
-  "\000\000\000\044\004\001\000\000\200\001\000\001\200\002\000\001"
-  "\200\003\000\001\200\004\000\002"
-  "\200\013\000\001\000\014\000\004\000\000\000\001";
+  "\x00\x00\x00\x24\x04\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x01"
+  "\x80\x03\x00\x01\x80\x04\x00\x02"
+  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01";
 
 /* Routing Information Protocol version 1. Special-case request for the entire
    routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
    section 3.4.1. */
 static const char payload_rip[] =
-  "\001\001\000\000\000\000\000\000\000\000\000\000\000\000\000\000"
-  "\000\000\000\000\000\000\000\020";
+  "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x10";
 
 /* RADIUS Access-Request. This is a degenerate packet with no username or
    password; we expect an Access-Reject in response. The Identifier and Request
@@ -187,16 +187,16 @@ static const char payload_rip[] =
    payload only works when the server is configured (or misconfigured) to know
    the scanning machine as a client. */
 static const char payload_radius[] =
-  "\001\000\000\024"
-  "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+  "\x01\x00\x00\x14"
+  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
 /* NFS version 2, RFC 1831. XID 0x00000000, program 100003 (NFS), procedure
    NFSPROC_NULL (does nothing, see section 2.2.1), null authentication (see
    section 9.1). */
 static const char payload_nfs[] =
-  "\000\000\000\000\000\000\000\000\000\000\000\002\000\001\206\243"
-  "\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000"
-  "\000\000\000\000\000\000\000\000";
+  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA3"
+  "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00";
 
 /* DNS Service Discovery (DNS-SD) service query, as used in Zeroconf.
    Transaction ID 0x0000, flags 0x0000, 1 question: PTR query for
@@ -206,12 +206,12 @@ static const char payload_nfs[] =
    See section 9 of
    http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt. */
 static const char payload_dns_sd[] =
-  "\000\000\000\000\000\001\000\000\000\000\000\000"
-  "\011_services\007_dns-sd\004_udp\005local\000\000\014\000\001";
+  "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
+  "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01";
 
 /*
 This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
-static const char payload_Sqlping[] = "\002";
+static const char payload_Sqlping[] = "\x02";
 */
 
 static const char payload_null[] = "";
