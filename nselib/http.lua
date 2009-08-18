@@ -665,7 +665,7 @@ pipeline = function(host, port, allReqs, options)
     i = i + #response_tmp_table
     if(#response_tmp_table < limit and i <= #allReqs) then
       limit = #response_tmp_table
-      stdnse.print_debug("Didn't receive all expcted responses.\nDecreasing max pipelined requests to " .. limit )
+      stdnse.print_debug("Didn't receive all expected responses.\nDecreasing max pipelined requests to " .. limit )
     end
     recv_status = true
     socket:close()
