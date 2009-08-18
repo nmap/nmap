@@ -3,18 +3,68 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
-o We should seriously consider packaging the rendered Nroff man page
-  translations in the tarball to make it easier for distributors to
+o [Ncat] David says: "After you get EOF on stdin with --send-only, the
+  program hangs on until the idle timeout expires instead of terminating
+  immediately.  I had a fix for it but it involved deleting events in
+  the Nsock queue and it caused an assertion failure in Nmap so I backed
+  it out. I have a less intrusive solution." [David]
+
+o We should update our config.{sub,guess} files.  This Debian bug
+  #542079 requests that we do so:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079.  We last
+  updated on 3/15/08 and in that case we used versions from
+  http://cvs.savannah.gnu.org/viewvc/config/?root=config.  That may or
+  may not be the best place to get them now (e.g. perhaps there has
+  been a recent official release). [David]
+
+o We should package the rendered Nroff man page translations (e.g. all
+  16 languages) in the tarball to make it easier for distributors to
   package them.  For example, see
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
   the translations would add 2.5MB to the (currently 28MB)
   uncompressed tarball and about 800KB to the (currently 9MB) bz2
-  compressed tarball.
+  compressed tarball. [Fyodor]
+
+o Figure out best favicon to use for Nmap and related web sites
+  [David]
+
+o The Nmap 5.00 tarball contains:
+  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
+  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
+  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
+  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
+  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
+  If we're going to include the XML source files, we should include
+  reguide too.  But rather than add that, we should probably take
+  these out.  After all, people can easily grab them from svn or our
+  new http svn gateway if desired.  So no need to bloat the tarball
+  with these files which aren't installed. [Fyodor]
+
+o Once all the man page languages are in the Nmap tarball, we should
+  update our install system to install them in the appropriate place.
+  We'll want to integrate this with configure so users can decide which
+  languages they want.  David thinks the standard way is like
+  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
 
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
+
+o [NSE] Improve username/password library (the database files
+  themselves).  We don't have very good lists at the moment.  Maybe
+  work in combination with Ncrack dev.
+  o We've improved the ncrack files--we should probably either use
+    those for NSE or use a subset of them.
+  o perhaps from Solar Designer. (he sent us permission)
+  o perhaps add phpbb hack data (there is at least a list of 28,635
+    passwords in phpbb_users.sql, and possibly more in other files.
+
+o [NSE] Finish (or write new) favicon fingerprinting script. See
+  http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
+  some more scanning and increase the DB size a bit.  May or may not
+  want to later combine this as part of a larger webapp fingerprinting
+  script.
 
 o Device categorization improvements
   o Examine Nmap's device categorization in nmap-os-deb and
@@ -34,6 +84,10 @@ o Device categorization improvements
     [Doug has done some initial work on this.  For example, see
      nmap/docs/device-types.txt]
 
+o Add Nmap web board.
+ 
+o Create Nmap wiki
+
 o After the new -sn and -PN options (added to SVN around 7/20, just
   after the 5.00 release) have been around long enough to be in most
   people's copy of Nmap (e.g. in all the versions we distribute from
@@ -46,11 +100,6 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
 o [Zenmap] When the inventory is changed, the current host/service selection is
   forgotten and the Ports / Hosts tab is switched to hosts mode. It should
   remember your current selection and not change the view. [David/SoC]
-
-o [NSE] Optimize NSE Performance--e.g. measure the current performance and
-  see what can be improved in terms of scheduling scan threads,
-  determining how many to run concurrently, looking at CPU load items,
-  etc. [David/Patrick]
 
 o Fix traceroute performance/algorithms.  It is terribly bad in some
   cases.  For example, this traceroute scan took 36 minutes against a
@@ -72,18 +121,6 @@ o Fix traceroute performance/algorithms.  It is terribly bad in some
   July, but we'll probably take it out until we can fix
   performance). [David]
 
-o Update "History and Future of Nmap"
-  (http://nmap.org/book/history-future.html) to include all the news
-  since September 2008. [Fyodor]
-
-o We should update our config.{sub,guess} files.  This Debian bug
-  #542079 requests that we do so:
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079.  We last
-  updated on 3/15/08 and in that case we used versions from
-  http://cvs.savannah.gnu.org/viewvc/config/?root=config.  That may or
-  may not be the best place to get them now (e.g. perhaps there has
-  been a recent official release).
-
 o --traceroute should probably set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
   out the distance.  So the fingerprint shows no distance element and
@@ -100,25 +137,12 @@ o OS fingerprint should probably specify somewhow when DS=1 if it's
   should never happen, but often David strongly suspects that it is the
   case.
 
-o [Ncat] Prefix Ncat stderr messages with "Ncat: " to make it clear
-  that they are coming from Ncat and not the remote server (or typed in
-  by user). [David/SoC]
+o Update "History and Future of Nmap"
+  (http://nmap.org/book/history-future.html) to include all the news
+  since September 2008. [Fyodor]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
-o Add scripting.xml documentation on strict.lua and the avoidance of
-  global vars in libraries. See
-  http://seclists.org/nmap-dev/2009/q3/0169.html. Probably a new
-  section just above "Adding C Modules to "Nselib", such as "Writing
-  Your Own Library" or somesuch. [Patrick]
-
-o Update nsedoc to refer to 'libraries' rather than 'modules'.  This
-  affects the front page (which calls them 'Libraries' on left sidebar
-  and 'Modules' on the list of right, and affects the url (we should
-  change /modules/ to /lib/ and then have Fyodor add a redirect for
-  people still using old URLs) and the title of the module pages like
-  http://nmap.org/nsedoc/modules/base64.html. [Patrick]
 
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
@@ -147,7 +171,7 @@ o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244
 
-o [Ncat] This may sound rediculous, but I'm starting to think that
+o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)
 
@@ -173,11 +197,6 @@ o [Web] Consider adding training/introduction videos to the Nmap site
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
 
-o [Ncat] Right now our -i (idle timeout) causes Ncat to quit if EITHER
-  reading or writing is idle for the given amount of time.  But it is
-  really only idle if BOTH reading AND writing are idle for the
-  period.  We should make the code work that way.
-
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
   Perhaps we should look at poll(), Windows completion ports, and some
@@ -188,18 +207,6 @@ o Change Nsock so that it is able to take advantage of more modern
   (http://www.monkey.org/~provos/libevent/) for inspiration.  The
   libevent home page has some interesting benchmark graphs too.
   [David/SoC]
-
-o The Nmap 5.00 tarball contains:
-  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
-  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
-  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
-  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
-  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
-  If we're going to include the XML source files, we should include
-  reguide too.  But rather than add that, we should probably take
-  these out.  After all, people can easily grab them from svn or our
-  new http svn gateway if desired.  So no need to bloat the tarball
-  with these files which aren't installed. [Fyodor]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -246,13 +253,6 @@ o Further investigate SCTP functionality, as some people reported
   http://seclists.org/nmap-dev/2009/q2/0669.html)
 
 o [NSE] Consider HTTP request caching.
-
-o [NSE] Improve username/password library (the database files
-  themselves).  We don't have very good lists at the moment.  Maybe
-  work in combination with Ncrack dev.
-  o perhaps from Solar Designer.
-  o perhaps add phpbb hack data (there is at least a list of 28,635
-    passwords in phpbb_users.sql, and possibly more in other files.
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -324,16 +324,7 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
-o Look a bit more at default version detection timing.  Particularly
-  deciding the number of probes to run in parallel.
-
 o [NSE] NFS query script for checking exports, etc.?
-
-o [NSE] Finish (or write new) favicon fingerprinting script. See
-  http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
-  some more scanning and increase the DB size a bit.  May or may not
-  want to later combine this as part of a larger webapp fingerprinting
-  script.
 
 o [NSE] Web application fingerprinting script.  Would be great to be
   able to take a URL and determine things like "this is Joomla" or
@@ -356,10 +347,6 @@ o [NSE] Security Review
    maliciously formatted responses from target systems, etc.  Maybe
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
-
-o Add Nmap web board.
- 
-o Create Nmap wiki
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o We should do an audit to ensure that we are in complete compliance for the
@@ -515,6 +502,11 @@ o Search for nmap on google news, on google web, and add appropriate
 o Nping -- like hping3 but uses Nmap infrastructure and to a
   large degree the same command-line options as Nmap.
 
+o Make version detection and NSE timing system more dynamic so that
+  the concurrency can change based on network conditions/ability.
+  After all, beefy systems on fast connections should be able to handle
+  far more parallel connections than slower systems.
+
 o Website: Create shr (shared) directory in svn, which will contain
   directories shared between the Insecure.org network of sites
   (e.g. templates, error, css).  Then sites such as sectools,
@@ -615,6 +607,41 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Look a bit more at default version detection timing.  Particularly
+  deciding the number of probes to run in parallel. [ We increased
+  that a bit on 8/18/09]
+
+o [Ncat] Right now our -i (idle timeout) causes Ncat to quit if EITHER
+  reading or writing is idle for the given amount of time.  But it is
+  really only idle if BOTH reading AND writing are idle for the
+  period.  We should make the code work that way.
+
+o Add scripting.xml documentation on strict.lua and the avoidance of
+  global vars in libraries. See
+  http://seclists.org/nmap-dev/2009/q3/0169.html. Probably a new
+  section just above "Adding C Modules to "Nselib", such as "Writing
+  Your Own Library" or somesuch. [Patrick]
+
+o Update nsedoc to refer to 'libraries' rather than 'modules'.  This
+  affects the front page (which calls them 'Libraries' on left sidebar
+  and 'Modules' on the list of right, and affects the url (we should
+  change /modules/ to /lib/ and then have Fyodor add a redirect for
+  people still using old URLs) and the title of the module pages like
+  http://nmap.org/nsedoc/modules/base64.html. [Patrick]
+
+o [Ncat] Prefix Ncat stderr messages with "Ncat: " to make it clear
+  that they are coming from Ncat and not the remote server (or typed in
+  by user). [David/SoC]
+
+o [NSE] Optimize NSE Performance--e.g. measure the current performance and
+  see what can be improved in terms of scheduling scan threads,
+  determining how many to run concurrently, looking at CPU load items,
+  etc. [David/Patrick]
+
+o Increase version scan concurrency based on Patrick's performance
+  testing.  We decided to go to 20 for timing_level 3, 30 for 4, and 50
+  for 5.
 
 o [NSE] Consider POST/HEAD support. See
   http://seclists.org/nmap-dev/2009/q1/0889.html.
