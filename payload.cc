@@ -190,6 +190,14 @@ static const char payload_radius[] =
   "\001\000\000\024"
   "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
 
+/* NFS version 2, RFC 1831. XID 0x00000000, program 100003 (NFS), procedure
+   NFSPROC_NULL (does nothing, see section 2.2.1), null authentication (see
+   section 9.1). */
+static const char payload_nfs[] =
+  "\000\000\000\000\000\000\000\000\000\000\000\002\000\001\206\243"
+  "\000\000\000\002\000\000\000\000\000\000\000\000\000\000\000\000"
+  "\000\000\000\000\000\000\000\000";
+
 /* DNS Service Discovery (DNS-SD) service query, as used in Zeroconf.
    Transaction ID 0x0000, flags 0x0000, 1 question: PTR query for
    _services._dns-sd._udp.local. If the remote host supports DNS-SD it will send
@@ -271,6 +279,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
     case 1645:
     case 1812:
       SET_PAYLOAD(payload_radius);
+      break;
+    case 2049:
+      SET_PAYLOAD(payload_nfs);
       break;
     case 5353:
       SET_PAYLOAD(payload_dns_sd);
