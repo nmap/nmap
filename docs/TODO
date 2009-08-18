@@ -65,6 +65,10 @@ o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
+o See if we need to update our config.{sub,guess} files.  This Debian
+  bug #542079 requests that we do so:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079
+
 o --traceroute should probably set currenths->distance because right
   now, I do an -O scan against scanme.nmap.org, and it does not figure
   out the distance.  So the fingerprint shows no distance element and
