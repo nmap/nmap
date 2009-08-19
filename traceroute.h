@@ -26,7 +26,7 @@
  *   nmap-os-db or nmap-service-probes.                                    *
  * o Executes Nmap and parses the results (as opposed to typical shell or  *
  *   execution-menu apps, which simply display raw Nmap output and so are  *
- *   not derivative works.)                                                * 
+ *   not derivative works.)                                                *
  * o Integrates/includes/aggregates Nmap into a proprietary executable     *
  *   installer, such as those produced by InstallShield.                   *
  * o Links to a library or executes a program that does any of the above   *
@@ -105,8 +105,8 @@
 /* Group states */
 #define G_OK P_OK
 #define G_DEAD_TTL 3            /* TTL has reached maximum value */
-#define G_ALIVE_TTL 4            /* TTL has reached maximum value */
-#define G_FINISH 5         /* tracing has complete successfully */
+#define G_ALIVE_TTL 4           /* TTL has reached maximum value */
+#define G_FINISH 5              /* tracing has complete successfully */
 
 #define G_TTL(x) (x == G_ALIVE_TTL || x == G_DEAD_TTL)
 
@@ -166,15 +166,21 @@ class NmapOutputTable;
 /* Keeps track of each probes timing state */
 class TimeInfo {
   public:
-    TimeInfo ();
-    int retranLimit ();
-    void adjustTimeouts (struct timeval *recv, u16 scan_delay);
+    TimeInfo();
+    int retranLimit();
+    void adjustTimeouts(struct timeval *recv, u16 scan_delay);
 
-    unsigned long probeTimeout () { return MIN (10000000, to.timeout * 10); }
+    unsigned long probeTimeout() {
+        return MIN(10000000, to.timeout * 10);
+    }
     /* true if this probe has been replied to */ 
-    u8 gotReply () { return (recvTime.tv_usec != 0 && recvTime.tv_sec != 0); }
-    u8 getState () { return state; }
-    u8 setState (u8 state);
+    u8 gotReply() {
+        return recvTime.tv_usec != 0 && recvTime.tv_sec != 0;
+    }
+    u8 getState() {
+        return state;
+    }
+    u8 setState(u8 state);
 
     struct timeout_info to;
     /* set to true if this probe is going to
@@ -190,31 +196,33 @@ class TimeInfo {
     u8 state;
 };
 
-/* traceprobes represent a single packet at a specific
- * ttl. Traceprobes are stored inside tracegroups. */
+/* traceprobes represent a single packet at a specific ttl. Traceprobes are
+ * stored inside tracegroups. */
 class TraceProbe {
   public:
-    TraceProbe (u32 dip, u32 sip, u16 sport, struct probespec& probe);
-    ~TraceProbe ();
+    TraceProbe(u32 dip, u32 sip, u16 sport, struct probespec& probe);
+    ~TraceProbe();
 
-    /* Return the ip address and resolved hostname in a string 
-     * EG
-     *   host.com (1.2.3.4)  
-     * Or
-     *   6.6.6.6
-     */
-    const char *nameIP ();
-    const char *HostName ()
-      { if(!hostname || !(*hostname))
-             return NULL;
-	else
-	  return *hostname; 
-	 }
-    /* probe type is either a standard probe (PROBE_TRACE) or
-     * a hop distance probe (PROBE_TTL) */
-    void setProbeType (u8 type) { this->probetype = type; }
-    u8 probeType () { return probetype; }
-    char *ipReplyStr () { return inet_ntoa (ipreplysrc); }
+    /* Return the ip address and resolved hostname in a string such as
+     * "host.com (1.2.3.4)" or "6.6.6.6". */
+    const char *nameIP();
+    const char *HostName() {
+        if (!hostname || !(*hostname))
+            return NULL;
+        else
+            return *hostname; 
+    }
+    /* probe type is either a standard probe (PROBE_TRACE) or a hop distance
+     * probe (PROBE_TTL) */
+    void setProbeType(u8 type) {
+        this->probetype = type;
+    }
+    u8 probeType() {
+        return probetype;
+    }
+    char *ipReplyStr() {
+        return inet_ntoa (ipreplysrc);
+    }
 
     /* protocol information for this probe */
     TimeInfo timing;
@@ -231,35 +239,39 @@ class TraceProbe {
     char *hostnameip;
 };
 
-/* each trace group represents a target ip and contains
- * a map of probes that have been sent/recv'ed to/from
- * the ip */
+/* each trace group represents a target ip and contains a map of probes that
+ * have been sent/recv'ed to/from the ip */
 class TraceGroup {
   public:
-    TraceGroup (u32 dip, u16 sport, struct probespec& probe);
-    ~TraceGroup ();
-    /* map of all probes sent to this TraceGroups IP address. The map 
-     * is keyed by the source port of the probe */
+    TraceGroup(u32 dip, u16 sport, struct probespec& probe);
+    ~TraceGroup();
+    /* map of all probes sent to this TraceGroups IP address. The map is keyed
+     * by the source port of the probe */
     std::map < u16, TraceProbe * >TraceProbes;
-    std::map < u16, TraceProbe * >::size_type size () { return TraceProbes.size ();}
-    /* checks for timedout probes and retransmits them 
-     * Any probe that exceeds the timing limits is 
-     * considered non-responsive */ 
-     void retransmissions (std::vector < TraceProbe * >&retrans);
-    /* consolidate timeouts, remove common paths elements
-     * and performs general upkeep on a finished trace */
-    void consolidateHops ();
-    /* the next ttl to send, if the destination has replied
-     * the ttl is decremented, if it hasn't it is incremented */
+    std::map < u16, TraceProbe * >::size_type size() {
+        return TraceProbes.size ();
+    }
+    /* checks for timedout probes and retransmits them Any probe that exceeds
+     * the timing limits is considered non-responsive */ 
+     void retransmissions(std::vector < TraceProbe * >&retrans);
+    /* consolidate timeouts, remove common paths elements and performs general
+     * upkeep on a finished trace */
+    void consolidateHops();
+    /* the next ttl to send, if the destination has replied the ttl is
+     * decremented, if it hasn't it is incremented */
     void nextTTL();
     /* number of probes currently waiting for replies */
     void incRemaining();
     void decRemaining();
     char *IPStr();
-    u8 getRemaining () { return remaining;}
-    u8 getState () { return state; }
-    u8 setState (u8 state);
-    u8 setHopDistance (u8 hop_distance, u8 ttl);
+    u8 getRemaining() {
+        return remaining;
+    }
+    u8 getState() {
+        return state;
+    }
+    u8 setState(u8 state);
+    u8 setHopDistance(u8 hop_distance, u8 ttl);
 
     bool gotReply;
     bool noDistProbe;
@@ -278,15 +290,13 @@ class TraceGroup {
     u8 hopDistance;
     /* largest ttl send so far */
     u8 ttl;
-    /* the initial ttl guess. This is needed because the ttl 
-     * may have to be incremented to reach the destination host. 
-     * Once nmap has reached the destination it needs to 
-     * start decrementing the ttl from the original value
-     * so no duplicate probes are sent
+    /* the initial ttl guess. This is needed because the ttl may have to be
+     * incremented to reach the destination host. Once nmap has reached the
+     * destination it needs to start decrementing the ttl from the original
+     * value so no duplicate probes are sent.
      *
-     * EG. If the guess is 20 but the target is at 23. We will
-     *     start tracing backwards at 19 
-     */
+     * For example, if the guess is 20 but the target is at 23. We will start
+     * tracing backwards at 19. */
     u8 start_ttl;
     u8 consolidation_start;
     const u8 *src_mac_addr;
@@ -304,15 +314,15 @@ class TraceGroup {
 /* Public interface to traceroute functionality */
 class Traceroute {
   public:
-    Traceroute (const char *device_name, devtype type, const scan_lists * probe_ports);
-     ~Traceroute ();
+    Traceroute(const char *device_name, devtype type, const scan_lists * probe_ports);
+     ~Traceroute();
 
     /* perform the traceroute on a list of targets */
-    void trace (std::vector < Target * >&Targets);
+    void trace(std::vector < Target * >&Targets);
     /* Use nmaps rDNS functions to mass resolve the hops ip addresses */
-    void resolveHops ();
+    void resolveHops();
     /* display plain and XML traceroutes for target t */
-    void outputTarget (Target * t);
+    void outputTarget(Target * t);
 
   private:
     /* map of all TraceGroups, keyed by 
@@ -327,21 +337,18 @@ class Traceroute {
     struct in_addr ref_ipaddr;
 
     /* called by outputTarget to log XML data */
-    void outputXMLTrace (TraceGroup * tg);
+    void outputXMLTrace(TraceGroup * tg);
     /* find a responsive port for t based on scan results */
-    const probespec getTraceProbe (Target * t);
-    /* sendTTLProbes() guesses the hop distance to a 
-     * target by actively probing the host. */
-    void sendTTLProbes (std::vector < Target * >&Targets, std::vector < Target * >&vaild_targets);
-    int sendProbe (TraceProbe * tp);
-    /* reads probe replies for all protocols.
-     * returns finished(), which returns true
-     * when all groups have finished or failed */
-    bool readTraceResponses ();
-    bool finished ();
-    /* add message to output table "hops 1 to X are the
-     * same as <reference ip>". This message should always
-     * come before none-consolidated hop output */
+    const probespec getTraceProbe(Target * t);
+    /* sendTTLProbes() guesses the hop distance to a target by actively probing
+     * the host. */
+    void sendTTLProbes(std::vector < Target * >&Targets, std::vector < Target * >&vaild_targets);
+    int sendProbe(TraceProbe * tp);
+    /* reads probe replies for all protocols. returns finished(), which returns
+     * true when all groups have finished or failed */
+    bool readTraceResponses();
+    bool finished();
+    /* add message to output table "hops 1 to X are the same as <reference ip>".
+     * This message should always come before none-consolidated hop output */
     void addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_count, unsigned short ttl);
-
 };
