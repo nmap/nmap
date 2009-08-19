@@ -625,7 +625,7 @@ Traceroute::sendProbe(TraceProbe * tp) {
         tg->nextTTL();
 
         if (tg->ttl > MAX_TTL) {
-            tg->setState(G_ALIVE_TTL);
+            tg->setState(G_DEAD_TTL);
             return -1;
         }
         if (!tg->ttl || (tg->gotReply && tg->noDistProbe) ) {
@@ -1006,7 +1006,7 @@ Traceroute::outputTarget(Target * t) {
     }
     log_write(LOG_PLAIN, "%s", Tbl->printableTable(NULL));
 
-    if (G_TTL(tg->getState()))
+    if (tg->getState() == G_DEAD_TTL)
         log_write(LOG_PLAIN, "! maximum TTL reached (50)\n");
     else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
         log_write(LOG_PLAIN, "! destination not reached (%s)\n", inet_ntoa(tp->ipdst));
@@ -1071,7 +1071,7 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
         log_write(LOG_XML, "/>\n");
     }
 
-    if (G_TTL(tg->getState()))
+    if (tg->getState() == G_DEAD_TTL)
         log_write(LOG_XML, "<error errorstr=\"maximum TTL reached\"/>\n");
     else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
         log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(tp->ipdst));
