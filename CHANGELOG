@@ -181,7 +181,10 @@ o For some UDP ports, Nmap will now send a protocol-specific payload
   improves the effectiveness of probes to those ports for host
   discovery, and also makes an open port more likely to be classified
   open rather than open|filtered. The ports and payloads are defined
-  in payload.cc. [David]
+  in payload.cc. The ports that have a payload are 7 (echo),
+  53 (domain), 111 (rpcbind), 123 (ntp), 137 (netbios-ns), 161 (snmp),
+  177 (xdmcp), 500 (isakmp), 520 (route), 1645 and 1812 (radius),
+  2049 (nfs), 5353 (zeroconf), and 10080 (amanda). [David]
 
 o Fixed two memory leaks in ncat_posix.c and a bug where an open file was not
   being closed in libdnet-stripped/src/intf.c [Josh Marlow]
