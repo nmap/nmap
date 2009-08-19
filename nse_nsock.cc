@@ -1744,7 +1744,7 @@ int ncap_restore_lua(ncap_request * nr)
 }
 
 #if HAVE_OPENSSL
-const SSL *nse_nsock_get_ssl(lua_State *L)
+SSL *nse_nsock_get_ssl(lua_State *L)
 {
   const l_nsock_udata *udata;
 
