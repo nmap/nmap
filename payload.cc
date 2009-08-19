@@ -209,6 +209,16 @@ static const char payload_dns_sd[] =
   "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
   "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01";
 
+/* Amanda backup service noop request. I think that this does nothing on the
+   server but only asks it to send back its feature list. In reply we expect an
+   ACK or (more likely) an ERROR. I couldn't find good online documentation of
+   the Amanda network protocol. There is parsing code in the Amanda source at
+   common-src/security-util.c. This is based on a packet capture of
+     amcheck <config> <host> */
+static const char payload_amanda[] =
+  "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
+  "SERVICE noop\n";
+
 /*
 This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
 static const char payload_Sqlping[] = "\x02";
@@ -285,6 +295,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 5353:
       SET_PAYLOAD(payload_dns_sd);
+      break;
+    case 10080:
+      SET_PAYLOAD(payload_amanda);
       break;
     default:
       SET_PAYLOAD(payload_null);
