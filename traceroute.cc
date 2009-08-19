@@ -543,7 +543,7 @@ Traceroute::sendTTLProbes(vector < Target * >&Targets, vector < Target * >&valid
     TraceGroup *tg = NULL;
     vector < Target * >::iterator it;
 
-    for (Targets.begin(); it != Targets.end(); ++it) {
+    for (it = Targets.begin(); it != Targets.end(); ++it) {
         t = *it;
 
         /* No point in tracing directly connected nodes */
