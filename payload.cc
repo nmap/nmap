@@ -97,17 +97,11 @@
 extern NmapOps o;
 
 /*
-  These payloads are taken from nmap-service-probes.
-
-  The nmap-service-probes probe strings also happen to be Python strings, so you
-  can convert them to this C strings with this program:
-
-  s = eval('"' + raw_input().replace('"', '\\"') + '"')
-  print '"' + "".join(c.isalnum() and c or "\\x%02X" % ord(c) for c in s) + '"'
-
   These payloads are sent with every host discovery or port scan probe. Only
   include payloads that are unlikely to crash services, trip IDS alerts, or
   change state on the server.
+
+  Some of them are taken from nmap-service-probes.
 */
 
 static const char payload_GenericLines[] = "\x0D\x0A\x0D\x0A";
@@ -134,6 +128,11 @@ static const char payload_SNMPv3GetRequest[] =
    authorization names. We expect a Willing or Unwilling packet in reply.
    http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
 static const char payload_xdmcp[] = "\x00\x01\x00\x02\x00\x01\x00";
+
+/*
+This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
+static const char payload_Sqlping[] = "\x02";
+*/
 
 /* Internet Key Exchange version 1, phase 1 Main Mode. We offer every
    combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
@@ -219,11 +218,6 @@ static const char payload_amanda[] =
   "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
   "SERVICE noop\n";
 
-/*
-This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
-static const char payload_Sqlping[] = "\x02";
-*/
-
 static const char payload_null[] = "";
 
 
@@ -242,12 +236,12 @@ const char *get_udp_payload(u16 dport, size_t *length) {
 }
 
 
-/* Get a payload appropriate for the given UDP port. For certain selected 
-   ports a payload is returned, and for others a zero-length payload is 
-   returned. The length is returned through the length pointer. */
+/* Get a payload appropriate for the given UDP port. For certain selected ports
+   a payload is returned, and for others a zero-length payload is returned. The
+   length is returned through the length pointer. */
 const char *udp_port2payload(u16 dport, size_t *length){
   const char *payload;
-  
+
 #define SET_PAYLOAD(p) do { *length = sizeof(p) - 1; payload = (p); } while (0)
 
   switch (dport) {
@@ -305,6 +299,4 @@ const char *udp_port2payload(u16 dport, size_t *length){
   }
 
   return payload;
-    
 }
-
