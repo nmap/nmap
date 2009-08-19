@@ -404,12 +404,12 @@ Traceroute::readTraceResponses() {
             break;
         } else if (commonPath[tp->ttl] == 0) {
             commonPath[tp->ttl] = tp->ipreplysrc.s_addr;
-        /* remember which host is the reference trace */
+            /* remember which host is the reference trace */
             if (!cp_flag) {
                ref_ipaddr.s_addr = tg->ipdst;
                cp_flag = 1;
+            }
         }
-    }
         break;
     case IPPROTO_TCP:
         tcp = (struct tcp_hdr *) ((char *) ip + 4 * ip->ip_hl);
@@ -771,9 +771,9 @@ Traceroute::trace(vector < Target * >&Targets) {
                 for (pcount = 0; pcount < retrans_probes.size(); pcount++)
                     sendProbe(retrans_probes[pcount]);
                 retrans_probes.clear();
-                /* Max number of packets outstanding is 2 if we don't have a reply yet
-                 * otherwise it is equal to o.timing_level. If the timing level it 0
-                 * it is equal to 1 */
+                /* Max number of packets outstanding is 2 if we don't have a
+                 * reply yet otherwise it is equal to o.timing_level. If the
+                 * timing level it 0 it is equal to 1 */
                 if (tg->getRemaining() >=
                     (tg->gotReply ? (!o.timing_level ? 1 : o.timing_level) : 2))
                     continue;
