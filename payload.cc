@@ -227,14 +227,13 @@ static const char payload_null[] = "";
    length is returned through the length pointer. */
 const char *get_udp_payload(u16 dport, size_t *length) {
 
-  if (o.extra_payload_length > 0) {
+  if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
     return o.extra_payload;
-  }
-  else
+  } else {
     return udp_port2payload(dport, length);
+  }
 }
-
 
 /* Get a payload appropriate for the given UDP port. For certain selected ports
    a payload is returned, and for others a zero-length payload is returned. The

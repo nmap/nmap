@@ -899,11 +899,11 @@ int nmap_main(int argc, char *argv[]) {
         o.debugging++;
       } else if (optcmp(long_options[option_index].name, "data-length") == 0) {
         o.extra_payload_length = (int)strtol(optarg, NULL, 10);
-        if (o.extra_payload_length < 1 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
+        if (o.extra_payload_length < 0 || o.extra_payload_length > MAX_PAYLOAD_ALLOWED)
           fatal("data-length must be between 0 and %d", MAX_PAYLOAD_ALLOWED);
         if (o.extra_payload_length > 1400 ) /* 1500 - IP with opts - TCP with opts. */
           error("WARNING: Payloads bigger than 1400 bytes may not be sent successfully.");
-        o.extra_payload = (char *) safe_malloc(o.extra_payload_length);
+        o.extra_payload = (char *) safe_malloc(MIN(o.extra_payload_length, 1));
         get_random_bytes(o.extra_payload, o.extra_payload_length);
       } else if (optcmp(long_options[option_index].name, "send-eth") == 0) {
         o.sendpref = PACKET_SEND_ETH_STRONG;
