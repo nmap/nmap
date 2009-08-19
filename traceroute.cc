@@ -151,8 +151,8 @@
  *   Hops 1-10 are the same as for X.X.X.X
  *
  * Traceroute does not work with connect scans or idle scans and has trouble
- * with ICMP_TIMESTAMP and ICMP_ADDRESSMASK scans because so many host filter
- * them out. The quickest seems to be SYN scan.
+ * with ICMP_TSTAMP and ICMP_MASK scans because so many host filter them out.
+ * The quickest seems to be SYN scan.
  *
  * Bugs
  * ----
@@ -171,6 +171,7 @@
 #include "timing.h"
 #include "utils.h"
 #include <algorithm>
+#include <dnet.h>
 #include <stdlib.h>
 
 using namespace std;
@@ -305,7 +306,7 @@ Traceroute::readTraceResponses() {
         sport = ntohs(icmp->icmp_id);
 
         /* Process ICMP replies that encapsulate our original probe */
-        if (icmp->icmp_type == ICMP_DEST_UNREACH || icmp->icmp_type == ICMP_TIME_EXCEEDED) {
+        if (icmp->icmp_type == ICMP_UNREACH || icmp->icmp_type == ICMP_TIMEXCEED) {
             if ((unsigned) ip->ip_hl * 4 + 28 > bytes)
                 break;
             ip2 = (struct ip *) (((char *) ip) + 4 * ip->ip_hl + 8);
@@ -349,16 +350,16 @@ Traceroute::readTraceResponses() {
             break;
 
         if ((tg->probe.proto == IPPROTO_UDP && (ip2 && ip2->ip_p == IPPROTO_UDP)) ||
-            (icmp->icmp_type == ICMP_DEST_UNREACH)) {
+            (icmp->icmp_type == ICMP_UNREACH)) {
             switch (icmp->icmp_code) {
                 /* reply from a closed port */
-            case ICMP_PORT_UNREACH:
+            case ICMP_UNREACH_PORT:
                 /* replies from a filtered port */
-            case ICMP_HOST_UNREACH:
-            case ICMP_PROT_UNREACH:
-            case ICMP_NET_ANO:
-            case ICMP_HOST_ANO:
-            case ICMP_PKT_FILTERED:
+            case ICMP_UNREACH_HOST:
+            case ICMP_UNREACH_PROTO:
+            case ICMP_UNREACH_NET_PROHIB:
+            case ICMP_UNREACH_HOST_PROHIB:
+            case ICMP_UNREACH_FILTER_PROHIB:
                 if (tp->probeType() == PROBE_TTL) {
                    tg->setHopDistance(o.ttl - ip2->ip_ttl, 0);
                    tg->start_ttl = tg->ttl = tg->hopDistance;
@@ -371,7 +372,7 @@ Traceroute::readTraceResponses() {
         }
         /* icmp ping scan replies */
         else if (tg->probe.proto == IPPROTO_ICMP && (icmp->icmp_type == ICMP_ECHOREPLY ||
-                icmp->icmp_type == ICMP_ADDRESSREPLY || icmp->icmp_type == ICMP_TIMESTAMPREPLY)) {
+                icmp->icmp_type == ICMP_MASKREPLY || icmp->icmp_type == ICMP_TSTAMPREPLY)) {
             if (tp->probeType() == PROBE_TTL) {
                 tg->setHopDistance(get_initial_ttl_guess(ip->ip_ttl), ip->ip_ttl);
                 tg->start_ttl = tg->ttl = tg->hopDistance;

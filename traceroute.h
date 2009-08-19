@@ -118,49 +118,6 @@
 
 #define NAMEIPLEN MAXHOSTNAMELEN+INET6_ADDRSTRLEN
 
-#ifndef ICMP_ECHOREPLY
- #define ICMP_ECHOREPLY 0
-#endif
-#ifndef ICMP_DEST_UNREACH
- #define ICMP_DEST_UNREACH 3
-#endif
-#ifndef ICMP_ECHO
- #define ICMP_ECHO 8
-#endif
-#ifndef ICMP_TIME_EXCEEDED
- #define ICMP_TIME_EXCEEDED 11
-#endif
-#ifndef ICMP_TIMESTAMP
- #define ICMP_TIMESTAMP 13
-#endif
-#ifndef ICMP_TIMESTAMPREPLY
- #define ICMP_TIMESTAMPREPLY 14
-#endif
-#ifndef ICMP_ADDRESS
- #define ICMP_ADDRESS 17
-#endif
-#ifndef ICMP_ADDRESSREPLY
- #define ICMP_ADDRESSREPLY 18
-#endif
-#ifndef ICMP_HOST_UNREACH
- #define ICMP_HOST_UNREACH 1
-#endif
-#ifndef ICMP_PROT_UNREACH
- #define ICMP_PROT_UNREACH 2
-#endif
-#ifndef ICMP_PORT_UNREACH
- #define ICMP_PORT_UNREACH 3
-#endif
-#ifndef ICMP_NET_ANO
- #define ICMP_NET_ANO 9
-#endif
-#ifndef ICMP_HOST_ANO
- #define ICMP_HOST_ANO 10
-#endif
-#ifndef ICMP_PKT_FILTERED
- #define ICMP_PKT_FILTERED 13
-#endif
-
 class NmapOutputTable;
 
 /* Keeps track of each probes timing state */
