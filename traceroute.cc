@@ -1207,6 +1207,34 @@ void TraceGroup::consolidateHops() {
         TraceProbes.erase(++ttl_count);
 }
 
+/* This is the function that gives the traceroute its "up and down" nature.
+   gotReply is true if we've gotten a reply from the target (finished counting
+   up). */
+void TraceGroup::nextTTL() {
+    if (gotReply) {
+        ttl--;
+    } else {
+        ttl++;
+        hopDistance++;
+    }
+}
+
+void TraceGroup::incRemaining() {
+    if (remaining < 255)
+        ++remaining;
+}
+
+void TraceGroup::decRemaining() {
+    if (remaining > 0)
+        --remaining;
+}
+
+char *TraceGroup::IPStr() {
+    struct in_addr s;
+    s.s_addr = ipdst;
+    return inet_ntoa (s);
+}
+
 u8
 TraceGroup::setState(u8 state) {
     if (state <= G_FINISH && state >= G_OK)

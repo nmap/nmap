@@ -251,11 +251,11 @@ class TraceGroup {
     void consolidateHops ();
     /* the next ttl to send, if the destination has replied
      * the ttl is decremented, if it hasn't it is incremented */
-    void nextTTL () { if (gotReply) ttl--; else { ttl++; hopDistance++;}}
+    void nextTTL();
     /* number of probes currently waiting for replies */
-    void incRemaining () { if (remaining < 255) ++remaining; }
-    void decRemaining () { if (remaining > 0) --remaining; }
-    char *IPStr () { struct in_addr s; s.s_addr = ipdst; return inet_ntoa (s);}
+    void incRemaining();
+    void decRemaining();
+    char *IPStr();
     u8 getRemaining () { return remaining;}
     u8 getState () { return state; }
     u8 setState (u8 state);
