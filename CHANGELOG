@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
+
 o Added the ssl-cert.nse script, which retrieves and prints the server
   SSL certificate. [David]
 
