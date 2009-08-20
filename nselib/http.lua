@@ -648,7 +648,7 @@ pipeline = function(host, port, allReqs, options)
     response_raw = ""
     while recv_status do
       recv_status, response_tmp = socket:receive()
-      response_raw = response_raw .. response_tmp
+      if recv_status then response_raw = response_raw .. response_tmp end
     end
 
     -- Transform the raw response we received in a table of responses and
