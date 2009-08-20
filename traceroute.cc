@@ -802,6 +802,16 @@ Traceroute::trace(vector < Target * >&Targets) {
             swap(total_complete, total_size);
         SPM->printStats(MIN((double) total_complete / total_size, 0.99), NULL);
     }
+
+    /* Now set the distance in the Target structure for each of the valid
+     * targets. */
+    for (targ = valid_targets.begin(); targ != valid_targets.end(); ++targ) {
+        int distance;
+        distance = TraceGroups[t->v4host().s_addr]->getDistance();
+        if (distance != -1)
+            (*targ)->distance = distance;
+    }
+
     SPM->endTask(NULL, NULL);
     delete SPM;
 }
@@ -1135,7 +1145,6 @@ TraceGroup::retransmissions(vector < TraceProbe * >&retrans) {
             if ((++consecTimeouts) > 5 && maxRetransmissions > 2)
                 maxRetransmissions = 2;
             if (it->second->probeType() == PROBE_TTL) {
-                hopDistance = 1;
                 noDistProbe = true;
                 /* Give up on this host. We should be able to do a trace against
                    an unresponsive target but for now it's too slow. */
@@ -1272,6 +1281,17 @@ TraceGroup::setHopDistance(u8 hop_distance, u8 ttl) {
     if (o.verbose)
         log_write(LOG_STDOUT, "%s: guessing hop distance at %d\n", IPStr(), this->hopDistance);
     return this->hopDistance;
+}
+
+/* Get the number of hops to the target, or -1 if unknown. Use this instead of
+ * reading hopDistance, which despite its name does not contain the final hop
+ * count. */
+int TraceGroup::getDistance() {
+    if (this->getState() != G_FINISH)
+        return -1;
+    /* After a successful trace, hopDistance is 1 greater than the number of
+     * hops. */
+    return this->hopDistance - 1;
 }
 
 TraceProbe::TraceProbe(u32 dip, u32 sip, u16 sport, struct probespec& probe) {

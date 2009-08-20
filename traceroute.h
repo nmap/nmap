@@ -227,6 +227,11 @@ class TraceGroup {
     u8 setState(u8 state);
     u8 setHopDistance(u8 hop_distance, u8 ttl);
 
+    /* Get the number of hops to the target, or -1 if unknown. Use this instead
+     * of reading hopDistance, which despite its name does not contain the final
+     * hop count. */
+    int getDistance();
+
     bool gotReply;
     bool noDistProbe;
 
