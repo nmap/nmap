@@ -901,7 +901,9 @@ Traceroute::outputTarget(Target * t) {
     this->outputXMLTrace(tg);
 
     /* table headers */
-    Tbl = new NmapOutputTable(tg->hopDistance+1, 3);
+    /* This should be tg->hopDistance + 1, but there is a bug that sometimes
+       causes an extra row to be printed. */
+    Tbl = new NmapOutputTable(tg->hopDistance+2, 3);
     Tbl->addItem(row_count, HOP_COL, false, "HOP", 3);
     Tbl->addItem(row_count, RTT_COL, false, "RTT", 3);
     Tbl->addItem(row_count, HOST_COL, false, "ADDRESS", 7);
