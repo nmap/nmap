@@ -901,9 +901,7 @@ Traceroute::outputTarget(Target * t) {
     this->outputXMLTrace(tg);
 
     /* table headers */
-    /* This should be tg->hopDistance + 1, but there is a bug that sometimes
-       causes an extra row to be printed. */
-    Tbl = new NmapOutputTable(tg->hopDistance+2, 3);
+    Tbl = new NmapOutputTable(tg->hopDistance+1, 3);
     Tbl->addItem(row_count, HOP_COL, false, "HOP", 3);
     Tbl->addItem(row_count, RTT_COL, false, "RTT", 3);
     Tbl->addItem(row_count, HOST_COL, false, "ADDRESS", 7);
@@ -913,7 +911,7 @@ Traceroute::outputTarget(Target * t) {
         assert(row_count <= tg->hopDistance);
 
         /* consolidate hops based on the reference trace (commonPath)  */
-        if (commonPath[ttl_count] && ttl_count <= tg->consolidation_start) {
+        if (commonPath[ttl_count] && ttl_count < tg->consolidation_start) {
             /* do not consolidate in debug mode */
             if (o.debugging) {
                 row_count++;
