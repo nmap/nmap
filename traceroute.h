@@ -200,7 +200,7 @@ class TraceGroup {
     TraceGroup(u32 dip, u16 sport, struct probespec& probe);
     ~TraceGroup();
     /* map of all probes sent to this TraceGroups IP address. The map is keyed
-     * by the source port of the probe */
+     * by the TTL value of the probe */
     std::map < u16, TraceProbe * >TraceProbes;
     std::map < u16, TraceProbe * >::size_type size() {
         return TraceProbes.size ();
