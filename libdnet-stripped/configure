@@ -14712,12 +14712,22 @@ esac
 
 elif test "$ac_cv_header_net_if_tun_h" = yes ; then
 	if test "$ac_cv_header_stropts_h" = yes ; then
-		case " $LIBOBJS " in
+               case "$host_os" in
+               *kfreebsd*)
+                       case " $LIBOBJS " in
+  *" tun-bsd.$ac_objext "* ) ;;
+  *) LIBOBJS="$LIBOBJS tun-bsd.$ac_objext"
+ ;;
+esac
+;;
+               *)
+                       case " $LIBOBJS " in
   *" tun-solaris.$ac_objext "* ) ;;
   *) LIBOBJS="$LIBOBJS tun-solaris.$ac_objext"
  ;;
 esac
-
+;;
+               esac
 	else
 		case " $LIBOBJS " in
   *" tun-bsd.$ac_objext "* ) ;;

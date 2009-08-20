@@ -279,7 +279,12 @@ if test "$ac_cv_header_linux_if_tun_h" = yes ; then
 	AC_LIBOBJ([tun-linux])
 elif test "$ac_cv_header_net_if_tun_h" = yes ; then
 	if test "$ac_cv_header_stropts_h" = yes ; then
-		AC_LIBOBJ([tun-solaris])
+               case "$host_os" in
+               *kfreebsd*)
+                       AC_LIBOBJ([tun-bsd]);;
+               *)
+                       AC_LIBOBJ([tun-solaris]);;
+               esac
 	else
 		AC_LIBOBJ([tun-bsd])
 	fi

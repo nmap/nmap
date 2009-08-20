@@ -468,3 +468,32 @@ o Made some AIX/HP-UX portability changes sent in by Peter O'Gorman
 o Added SCTP support. [Daniel Roethlisberger]
   Merged to libdnet r651 and r652.
 
+o Applied a fix for building on GNU/kFreeBSD from Peter Salinger:
+--- configure	(revision 15144)
++++ configure	(working copy)
+@@ -14712,12 +14712,22 @@
+ 
+ elif test "$ac_cv_header_net_if_tun_h" = yes ; then
+ 	if test "$ac_cv_header_stropts_h" = yes ; then
+-		case " $LIBOBJS " in
++               case "$host_os" in
++               *kfreebsd*)
++                       case " $LIBOBJS " in
++  *" tun-bsd.$ac_objext "* ) ;;
++  *) LIBOBJS="$LIBOBJS tun-bsd.$ac_objext"
++ ;;
++esac
++;;
++               *)
++                       case " $LIBOBJS " in
+   *" tun-solaris.$ac_objext "* ) ;;
+   *) LIBOBJS="$LIBOBJS tun-solaris.$ac_objext"
+  ;;
+ esac
+-
++;;
++               esac
+ 	else
+ 		case " $LIBOBJS " in
+   *" tun-bsd.$ac_objext "* ) ;;
+
