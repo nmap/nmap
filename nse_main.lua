@@ -544,6 +544,16 @@ local function run (threads)
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)\n",
           nr+nw, nw);
       progress("printStats", 1-(nr+nw)/total);
+      if debugging() >= 2 then
+        for co, thread in pairs(running) do
+          thread:d("Running: %THREAD\n\t%s",
+              (gsub(traceback(co), "\n", "\n\t")));
+        end
+        for co, thread in pairs(waiting) do
+          thread:d("Waiting: %THREAD\n\t%s",
+              (gsub(traceback(co), "\n", "\n\t")));
+        end
+      end
     elseif progress "mayBePrinted" then
       if verbosity() > 1 or debugging() > 0 then
         progress("printStats", 1-(nr+nw)/total);
