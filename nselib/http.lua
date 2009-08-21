@@ -280,6 +280,9 @@ local function getPipelineMax( response )
     if response.header and response.header.connection ~= "close" then
       if response.header["keep-alive"] then
         local max = string.match( response.header["keep-alive"], "max\=(%d*)")
+        if(max == nil) then
+          return 40
+        end
         return max
       else return 40 end
     end

@@ -146,7 +146,7 @@ end
 -- @param port_number The number of the port to check
 -- @return bool True if port is usually ssl, otherwise false
 local function is_ssl(port_number)
-	local common_ssl_ports = {465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
+	local common_ssl_ports = {443, 465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
 	local table_size = table.maxn(common_ssl_ports)	
 	local i = 0
 	while i < table_size do
