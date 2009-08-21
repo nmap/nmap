@@ -1176,7 +1176,7 @@ TraceGroup::retransmissions(vector < TraceProbe * >&retrans) {
 
 /* Returns a map from TTLs to probes, stripped of all unneeded probes and with
  * timed-out probes marked for consolidation. */
-map < u8, TraceProbe * > TraceGroup::consolidateHops() {
+map < u8, TraceProbe * > TraceGroup::consolidateHops() const {
     map < u16, TraceProbe * >::size_type ttl_count;
     map < u8, TraceProbe * >ttlProbes;
     map < u16, TraceProbe * >::const_iterator probe_iter;

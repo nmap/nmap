@@ -210,7 +210,7 @@ class TraceGroup {
      void retransmissions(std::vector < TraceProbe * >&retrans);
     /* Returns a map from TTLs to probes, stripped of all unneeded probes and
      * with timed-out probes marked for consolidation. */
-    std::map < u8, TraceProbe * > consolidateHops();
+    std::map < u8, TraceProbe * > consolidateHops() const;
     /* the next ttl to send, if the destination has replied the ttl is
      * decremented, if it hasn't it is incremented */
     void nextTTL();
