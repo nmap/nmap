@@ -1290,11 +1290,23 @@ TraceGroup::setHopDistance(u8 hop_distance, u8 ttl) {
  * reading hopDistance, which despite its name does not contain the final hop
  * count. */
 int TraceGroup::getDistance() {
+    map < u8, TraceProbe * >ttlProbes;
+    int i;
+
     if (this->getState() != G_FINISH)
         return -1;
-    /* After a successful trace, hopDistance is 1 greater than the number of
-     * hops. */
-    return this->hopDistance - 1;
+
+    for (i = 1; i < consolidation_start; i++) {
+        if (commonPath[i] == 0)
+            return i - 1;
+    }
+    ttlProbes = consolidateHops();
+    for ( ; i < MAX_TTL; i++) {
+        if (ttlProbes.find(i) == ttlProbes.end())
+            break;
+    }
+
+    return i - 1;
 }
 
 TraceProbe::TraceProbe(u32 dip, u32 sip, u16 sport, struct probespec& probe) {
