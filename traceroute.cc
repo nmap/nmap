@@ -883,9 +883,8 @@ Traceroute::addConsolidationMessage(NmapOutputTable *Tbl, unsigned short row_cou
 /* print a trace in plain text format */
 void
 Traceroute::outputTarget(Target * t) {
-    map < u16, TraceProbe * >::const_iterator it;
-    map < u16, TraceProbe * >::size_type ttl_count;
-    map < u16, TraceProbe * >sortedProbes;
+    map < u8, TraceProbe * >::size_type ttl_count;
+    map < u8, TraceProbe * >ttlProbes;
     TraceProbe *tp = NULL;
     TraceGroup *tg = NULL;
     NmapOutputTable *Tbl = NULL;
@@ -900,13 +899,8 @@ Traceroute::outputTarget(Target * t) {
         return;
     tg = TraceGroups[t->v4host().s_addr];
 
-    /* sort into ttl order */
-    for (it = tg->TraceProbes.begin(); it != tg->TraceProbes.end(); ++it)
-        sortedProbes[it->second->ttl] = it->second;
-    sortedProbes.swap(tg->TraceProbes);
-
     /* clean up and consolidate traces */
-    tg->consolidateHops();
+    ttlProbes = tg->consolidateHops();
 
     this->outputXMLTrace(tg);
 
@@ -935,7 +929,7 @@ Traceroute::outputTarget(Target * t) {
         }
 
         /* here we print the final hop for a trace that is fully consolidated */
-        if ((it = tg->TraceProbes.find(ttl_count)) == tg->TraceProbes.end()) {
+        if (ttlProbes.find(ttl_count) == ttlProbes.end()) {
             if (common_consolidation && ttl_count == tg->hopDistance) {
                 if (ttl_count-2 == 1) {
                     Tbl->addItemFormatted(row_count, RTT_COL, false, "--");
@@ -952,7 +946,7 @@ Traceroute::outputTarget(Target * t) {
         if (ttl_count < tg->consolidation_start)
               continue;
 
-        tp = tg->TraceProbes[ttl_count];
+        tp = ttlProbes[ttl_count];
 
         /* end of reference trace consolidation */
         if (common_consolidation) {
@@ -1180,21 +1174,28 @@ TraceGroup::retransmissions(vector < TraceProbe * >&retrans) {
     }
 }
 
-/* Remove uneeded probes and mark timed out probes for consolidation */
-void TraceGroup::consolidateHops() {
+/* Returns a map from TTLs to probes, stripped of all unneeded probes and with
+ * timed-out probes marked for consolidation. */
+map < u8, TraceProbe * > TraceGroup::consolidateHops() {
     map < u16, TraceProbe * >::size_type ttl_count;
+    map < u8, TraceProbe * >ttlProbes;
+    map < u16, TraceProbe * >::const_iterator probe_iter;
     map < u16, u32 >::iterator com_iter;
     TraceProbe *tp;
     int timeout_count = 0;
 
+    /* Make a map of probes indexed by TTL. */
+    for (probe_iter = TraceProbes.begin(); probe_iter != TraceProbes.end(); ++probe_iter)
+        ttlProbes[probe_iter->second->ttl] = probe_iter->second;
+
     /* remove any superfluous probes */
-    for (ttl_count = hopDistance + 1; ttl_count <= TraceProbes.size() + 1; ttl_count++)
-        TraceProbes.erase(ttl_count);
+    for (ttl_count = hopDistance + 1; ttl_count <= ttlProbes.size() + 1; ttl_count++)
+        ttlProbes.erase(ttl_count);
 
     for (ttl_count = 1; ttl_count <= hopDistance; ttl_count++) {
-        tp = TraceProbes[ttl_count];
+        tp = ttlProbes[ttl_count];
         if (!tp) {
-            TraceProbes.erase(ttl_count);
+            ttlProbes.erase(ttl_count);
             continue;
         }
 
@@ -1203,8 +1204,8 @@ void TraceGroup::consolidateHops() {
             timeout_count = 0;
         } else {
             if (++timeout_count > 1 && !o.debugging) {
-                TraceProbes[(ttl_count == 1) ? 1 : ttl_count - 1]->timing.consolidated = true;
-                TraceProbes[(ttl_count == 1) ? 1 : ttl_count]->timing.consolidated = true;
+                ttlProbes[(ttl_count == 1) ? 1 : ttl_count - 1]->timing.consolidated = true;
+                ttlProbes[(ttl_count == 1) ? 1 : ttl_count]->timing.consolidated = true;
             }
         }
 
@@ -1214,7 +1215,9 @@ void TraceGroup::consolidateHops() {
 
     /* we may have accidently shot past the intended destination */
     while (ttl_count <= hopDistance)
-        TraceProbes.erase(++ttl_count);
+        ttlProbes.erase(++ttl_count);
+
+    return ttlProbes;
 }
 
 /* This is the function that gives the traceroute its "up and down" nature.

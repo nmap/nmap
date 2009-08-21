@@ -200,7 +200,7 @@ class TraceGroup {
     TraceGroup(u32 dip, u16 sport, struct probespec& probe);
     ~TraceGroup();
     /* map of all probes sent to this TraceGroups IP address. The map is keyed
-     * by the TTL value of the probe */
+     * by the source port number of the probe */
     std::map < u16, TraceProbe * >TraceProbes;
     std::map < u16, TraceProbe * >::size_type size() {
         return TraceProbes.size ();
@@ -208,9 +208,9 @@ class TraceGroup {
     /* checks for timedout probes and retransmits them Any probe that exceeds
      * the timing limits is considered non-responsive */ 
      void retransmissions(std::vector < TraceProbe * >&retrans);
-    /* consolidate timeouts, remove common paths elements and performs general
-     * upkeep on a finished trace */
-    void consolidateHops();
+    /* Returns a map from TTLs to probes, stripped of all unneeded probes and
+     * with timed-out probes marked for consolidation. */
+    std::map < u8, TraceProbe * > consolidateHops();
     /* the next ttl to send, if the destination has replied the ttl is
      * decremented, if it hasn't it is incremented */
     void nextTTL();
