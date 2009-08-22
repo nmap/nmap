@@ -1,4 +1,3 @@
-Entry { filename = "apache-userdir-enum.nse", categories = { "discovery", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", } }
@@ -20,6 +19,7 @@ Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", } }
+Entry { filename = "http-userdir-enum.nse", categories = { "discovery", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", } }
