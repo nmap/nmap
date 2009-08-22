@@ -74,6 +74,11 @@ portrule = function(host, port)
     return true
 end
 
+---Take the data returned from a HTTP request and return the status string. Useful 
+-- for <code>print_debug</code> messaes and even for advanced output. 
+--
+--@param data The data returned by a HTTP request (can be nil or empty)
+--@return The status string, the status code, or "<unknown status>". 
 local function get_status_string(data)
 	-- Make sure we have valid data
 	if(data == nil) then
@@ -95,7 +100,14 @@ local function get_status_string(data)
 	end
 end
 
-local function add_from_files(entries)
+---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. 
+--
+-- TODO: It may be a good idea, in the future, to cache them. Otherwise, these files are re-read for every 
+-- host that's scanned. That can be quite a bit of i/o. 
+--
+--@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>. 
+local function get_fingerprints()
+	local entries  = {}
 	local PREAUTH  = "# Pre-Auth"
 	local POSTAUTH = "# Post-Auth"
 
@@ -110,7 +122,7 @@ local function add_from_files(entries)
 		else
 			stdnse.print_debug(1, "http-enum: Attempting to parse fingerprint file %s", filename)
 
-			local product = ""
+			local product = nil
 		    for line in io.lines(filename) do
 				-- Ignore "Pre-Auth", "Post-Auth", and blank lines
 				if(string.sub(line, 1, #PREAUTH) ~= PREAUTH and string.sub(line, 1, #POSTAUTH) ~= POSTAUTH and #line > 0) then
@@ -135,10 +147,20 @@ end
 -- 200, and doesn't return data. We implement the check like this because can't always rely on OPTIONS to 
 -- tell the truth. 
 --
+--Note: If <code>identify_404</code> returns a 200 status, HEAD requests should be disabled. 
+--
 --@param host The host object. 
 --@param port The port to use -- note that SSL will automatically be used, if necessary. 
+--@param result_404 [optional] The result when an unknown page is requested. This is returned by <code>identify_404</code>. 
+--                  If the 404 page returns a '200' code, then we disable HEAD requests. 
 --@return A boolean value: true if HEAD is usable, false otherwise. 
-local function check_head(host, port)
+local function can_use_head(host, port, result_404)
+	-- If the 404 result is 200, don't use HEAD. 
+	if(result_404 == 200) then
+		return false
+	end
+
+	-- Perform a HEAD request and see what happens. 
 	local data = http.head( host, port, '/' )
 	if data then
 		if data.status and data.status == 302 and data.header and data.header.location then
@@ -165,13 +187,16 @@ local function check_head(host, port)
 	return false
 end
 
----Determine whether or not we can actually scan the server (if a 301 is returned, that's bad). 
+---Request the root folder, "/", in order to determine if we can use a GET request against this server. If the server returns
+-- 301 Moved Permanently or 401 Authentication Required, then tests against this server will most likely fail. 
+--
+-- TODO: It's probably worthwhile adding a script-arg that will ignore the output of this function and always scan servers. 
 --
 --@param host The host object. 
 --@param port The port to use -- note that SSL will automatically be used, if necessary. 
 --@return (result, message) result is a boolean: true means we're good to go, false means there's an error.
 --        The error is returned in message. 
-local function check_get(host, port)
+local function can_use_get(host, port)
 	stdnse.print_debug(1, "Checking if a GET request is going to work out")
 
 	-- Try getting the root directory
@@ -248,14 +273,13 @@ local function clean_404(body)
 		return openssl.md5(body)
 	end
 
---io.write(body .. "\n\n")
-
 	return body
 end
 
----Try requesting a non-existent file to determine how the server responds to unknown pages ("404 pages"). If the server
--- responds with a 404 status code, as it is supposed to, then this function simply returns 404. If it contains one 
--- of a series of common error codes, including unauthorized, moved, and others, it is returned like a 404. 
+---Try requesting a non-existent file to determine how the server responds to unknown pages ("404 pages"), which a) 
+-- tells us what to expect when a non-existent page is requested, and b) tells us if the server will be impossible to
+-- scan. If the server responds with a 404 status code, as it is supposed to, then this function simply returns 404. If it 
+-- contains one of a series of common status codes, including unauthorized, moved, and others, it is returned like a 404. 
 --
 -- If, however, the 404 page returns a 200 status code, it gets interesting. First, it attempts to clean the returned
 -- body (see <code>clean_404</code> for details). Once any dynamic-looking data has been removed from the string, another
@@ -273,7 +297,7 @@ local function identify_404(host, port)
 	data = http.get(host, port, URL_404)
 
 	if(data == nil) then
-		stdnse.print_debug(1, "http-enum.nse: Failed while testing for 404 error message")
+		stdnse.print_debug(1, "http-enum.nse: Failed while testing for 404 status code")
 		return false, "Failed while testing for 404 error message"
 	end
 
@@ -333,29 +357,65 @@ local function identify_404(host, port)
 	return false, string.format("Unexpected response returned for 404 check: %s", get_status_string(data))
 end
 
-action = function(host, port)
+---Determine whether or not the page that was returned is a 404 page. This is actually a pretty simple function, 
+-- but it's best to keep this logic close to <code>identify_404</code>, since they will generally be used 
+-- together. 
+--
+--@param data The data returned by the HTTP request
+--@param result_404 The status code to expect for non-existent pages. This is returned by <code>identify_404</code>. 
+--@param known_404  The 404 page itself, if <code>result_404</code> is 200. If <code>result_404</code> is something
+--                  else, this parameter is ignored and can be set to <code>nil</code>. This is returned by 
+--                  <code>identfy_404</code>. 
+local function page_exists(data, result_404, known_404)
+	if(data and data.status) then
+		-- Handle the most complicated case first: the "200 Ok" response
+		if(data.status == 200) then
+			if(result_404 == 200) then
+				-- If the 404 response is also "200", deal with it (check if the body matches)
+				if(clean_404(data.body) ~= known_404) then
+					stdnse.print_debug(1, "http-enum.nse: Page returned a body that doesn't match known 404 body, it exists")
+					return true
+				else
+					return false
+				end
+			else
+				-- If 404s return something other than 200, and we got a 200, we're good to go
+				stdnse.print_debug(1, "http-enum.nse: Page was '%s', it exists!", get_status_string(data))
+				return true
+			end
+		else
+			-- If the result isn't a 200, check if it's a 404 or returns the same code as a 404 returned
+			if(data.status ~= 404 and data.status ~= result_404) then
+				-- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
+				-- asks for everything (with a script argument), only display 401 Authentication Required here.
+				stdnse.print_debug(1, "http-enum.nse: Page didn't match the 404 response (%s)", get_status_string(data))
 
-	local safeURLcheck = { }
+				if(data.status == 401) then -- "Authentication Required"
+					return true
+				else
+					if(nmap.registry.args.displayall == '1' or nmap.registry.args.displayall == "true") then
+						return true
+					end
+				end
+
+				return false
+			else
+				-- Page was a 404, or looked like a 404
+				return false
+			end
+		end
+	else
+		stdnse.print_debug(1, "http-enum.nse: HTTP request failed (is the host still up?)")
+		return false
+	end
+end
+
+action = function(host, port)
 
 	local response = " \n"
 
 	-- Add URLs from external files
-	safeURLcheck = add_from_files(safeURLcheck)
-
-	-- Check if we can use HEAD requests
-	local use_head = check_head(host, port)
-
-	-- If we can't use HEAD, make sure we can use GET requests
-	if(use_head == false) then
-		local result, err = check_get(host, port)
-		if(result == false) then
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. err
-			else
-				return nil
-			end
-		end
-	end
+	local URLs = get_fingerprints()
 
 	-- Check what response we get for a 404
 	local result, result_404, known_404 = identify_404(host, port)
@@ -367,30 +427,40 @@ action = function(host, port)
 		end
 	end
 
-	-- need to be able to check body if returned
-	if(known_404 ~= nil) then
-		use_head = false
+	-- Check if we can use HEAD requests
+	local use_head = can_use_head(host, port, result_404)
+
+	-- If we can't use HEAD, make sure we can use GET requests
+	if(use_head == false) then
+		local result, err = can_use_get(host, port)
+		if(result == false) then
+			if(nmap.debugging() > 0) then
+				return "ERROR: " .. err
+			else
+				return nil
+			end
+		end
 	end
 
 	-- Queue up the checks
 	local all = {}
 	local i
-	for i = 1, #safeURLcheck, 1 do
+	for i = 1, #URLs, 1 do
 		if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
 			stdnse.print_debug(1, "http-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
 			break;
 		end
 
 		if(use_head) then
-			all = http.pHead(host, port, safeURLcheck[i].checkdir, nil, nil, all)
+			all = http.pHead(host, port, URLs[i].checkdir, nil, nil, all)
 		else
-			all = http.pGet(host, port, safeURLcheck[i].checkdir, nil, nil, all)
+			all = http.pGet(host, port, URLs[i].checkdir, nil, nil, all)
 		end
 	end
 
 	local results = http.pipeline(host, port, all, nil)
 
-	-- check for http.pipeline error
+	-- Check for http.pipeline error
 	if(results == nil) then
 		stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
 		if(nmap.debugging() > 0) then
@@ -401,40 +471,14 @@ action = function(host, port)
 	end
 
 	for i, data in pairs(results) do
-
-		if(data and data.status) then
-			-- Handle the most complicated case first: the "200 Ok" response
-			if(data.status == 200) then
-				-- If the 404 response is also "200", deal with it
-				if(result_404 == 200) then
-					if(clean_404(data.body) ~= known_404) then
-						stdnse.print_debug(1, "http-enum.nse: Page returned that doesn't match the 404 body (%s: %s)", safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc)
-						response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
-					end
-				else
-					-- If 404s return something other than 200, and we got a 200, we're good to go
-					stdnse.print_debug(1, "http-enum.nse: Page was '%s'  (%s: %s)", get_status_string(data), safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc)
-					response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
-				end
+		if(page_exists(data, result_404, known_404)) then
+			if(URLs[i].checkdesc) then
+				stdnse.print_debug(1, "http-enum.nse: Found a valid page! (%s: %s)", URLs[i].checkdir, URLs[i].checkdesc)
+				response = response .. URLs[i].checkdir .. " " .. URLs[i].checkdesc .. "\n"
 			else
-				-- If the response isn't a 200, check it against what we expect a 404 to be
-				if(data.status ~= result_404 and data.status ~= 404) then
-					-- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
-					-- asks for everything (with a script argument), only display 401 Authentication Required here.
-					stdnse.print_debug(1, "http-enum.nse: Page didn't match the 404 response  (%s: %s [%s])", safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc, get_status_string(data))
-
-					if(data.status == 401) then -- "Authentication Required"
-						response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (" .. get_status_string(data) .. ")\n"
-					else
-						-- 
-						if(nmap.registry.args.displayall == '1' or nmap.registry.args.displayall == "true") then
-							response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (" .. get_status_string(data) .. ")\n"
-						end
-					end
-				end
+				stdnse.print_debug(1, "http-enum.nse: Found a valid page! (%s: %s)", URLs[i].checkdir, URLs[i].checkdesc)
+				response = response .. URLs[i].checkdir .. "\n"
 			end
-		else
-			stdnse.print_debug(1, "http-enum.nse: HTTP request failed to return either a status or data")
 		end
 	end
 		
