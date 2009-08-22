@@ -618,6 +618,12 @@ pipeline = function(host, port, allReqs, options)
   local j, opts
   local opts
   local recv_status = true
+
+  -- Check for an empty request
+  if(#allReqs == 0) then
+    stdnse.print_debug(1, "Warning: empty set of requests passed to http.pipeline()")
+    return {}
+  end
   
   opts = {connect_timeout=5000, request_timeout=3000, recv_before=false}
 
