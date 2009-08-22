@@ -1,28 +1,63 @@
 description = [[
 Enumerates directories used by popular web applications and servers.
 
-Initially performs checks of an unlikely file in an attempt to detect
-servers that have been configured to return a 302 or 200 response,
-which should help prevent false positives.
+This parses fingerprint files that are properly formatted. Multiple files are included
+with Nmap, including:
+* http-fingerprints: These attempt to find common files and folders. For the most part, they were in the original http-enum.nse. 
+* yokoso-fingerprints: These are application-specific fingerprints, designed for finding the presense of specific applications/hardware, including Sharepoint, Forigate's Web interface, Arcsight SmartCollector appliances, Outlook Web Access, etc. These are from the Yokoso project, by InGuardians, and included with permission from Kevin Johnson <http://seclists.org/nmap-dev/2009/q3/0685.html>. 
+
+Initially, this script attempts to access two different random files in order to detect servers
+that don't return a proper 404 Not Found status. In the event that they return 200 OK, the body
+has any non-static-looking data removed (URI, time, etc), and saved. If the two random attempts
+return different results, the script aborts (since a 200-looking 404 cannot be distinguished from
+an actual 200). This will prevent most false positives. 
+
+In addition, if the root folder returns a 301 Moved Permanently or 401 Authentication Required, 
+this script will also abort. If the root folder has disappeared or requires authentication, there
+is little hope of finding anything inside it. 
+
+By default, only pages that return 200 OK or 401 Authentication Required are displayed. If the
+script-arg <code>displayall</code> is set, however, then all results will be displayed (except
+for 404 Not Found and the status code returned by the random files). 
 ]]
 
 ---
 --@output
--- Interesting ports on scanme.nmap.org (64.13.134.52):
--- PORT   STATE SERVICE
--- 80/tcp open  http
--- |_ http-enum: /icons/ Icons directory
+-- Interesting ports on test.skullsecurity.org (208.81.2.52):
+-- PORT   STATE SERVICE REASON
+-- 80/tcp open  http    syn-ack
+-- |  http-enum:
+-- |  /icons/ Icons and images
+-- |_ /x_logo.gif Xerox Phaser Printer
+-- 
+--
+--@args displayall Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
+--                 "200 OK" and "401 Authentication Required" pages. Although this is more likely to find certain
+--                 hidden folders, it also generates far more false positives. 
+--@args limit      Limit the number of folders to check. This option is useful if using a list from, for example, 
+--                 the DirBuster projects which can have 80,000+ entries. 
 
-author = "Rob Nicholls <robert@everythingeverything.co.uk>"
+author = "Ron Bowes <ron@skullsecurity.net>, Andrew Orr <andrew@andreworr.ca>, Rob Nicholls <robert@everythingeverything.co.uk>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "intrusive", "vuln"}
 
-local url    = require 'url'
-local http   = require 'http'
-local ipOps  = require 'ipOps'
-local stdnse = require 'stdnse'
+require 'stdnse'
+require 'http'
+require 'stdnse'
+
+---Use ssl if we have it
+local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
+
+-- The 404 used for URL checks
+local URL_404 = '/Nmap404Check' .. os.time(os.date('*t'))
+
+-- The directory where the fingerprint files are stored
+local FILENAME_BASE = "nselib/data/"
+
+-- List of fingerprint files
+local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
 
 portrule = function(host, port)
     local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
@@ -39,149 +74,373 @@ portrule = function(host, port)
     return true
 end
 
+local function get_status_string(data)
+	-- Make sure we have valid data
+	if(data == nil) then
+		return "<unknown status>"
+	elseif(data['status-line'] == nil) then
+		if(data['status'] ~= nil) then
+			return data['status']
+		end
+
+		return "<unknown status>"
+	end
+
+	-- We basically want everything after the space
+	local space = string.find(data['status-line'], ' ')
+	if(space == nil) then
+		return data['status-line']
+	else
+		return string.sub(data['status-line'], space + 1)
+	end
+end
+
+local function add_from_files(entries)
+	local PREAUTH  = "# Pre-Auth"
+	local POSTAUTH = "# Post-Auth"
+
+	local i
+	for i = 1, #fingerprint_files, 1 do
+	    local filename = FILENAME_BASE .. fingerprint_files[i]
+		local filename_full = nmap.fetchfile(filename)
+		local count = 0
+	
+	    if(filename_full == nil) then
+			stdnse.print_debug(1, "http-enum: Couldn't find fingerprints file: %s", filename)
+		else
+			stdnse.print_debug(1, "http-enum: Attempting to parse fingerprint file %s", filename)
+
+			local product = ""
+		    for line in io.lines(filename) do
+				-- Ignore "Pre-Auth", "Post-Auth", and blank lines
+				if(string.sub(line, 1, #PREAUTH) ~= PREAUTH and string.sub(line, 1, #POSTAUTH) ~= POSTAUTH and #line > 0) then
+					-- Commented lines indicate products
+			        if(string.sub(line, 1, 1) == "#") then
+						product = string.sub(line, 3)
+					else
+						table.insert(entries, {checkdir=line, checkdesc=product})
+						count = count + 1
+					end
+				end
+		    end
+		
+			stdnse.print_debug(1, "http-enum: Added %d entries from file %s", count, filename)
+		end
+	end
+	
+	return entries
+end
+
+---Determine whether or not the server supports HEAD by requesting '/' and verifying that it returns 
+-- 200, and doesn't return data. We implement the check like this because can't always rely on OPTIONS to 
+-- tell the truth. 
+--
+--@param host The host object. 
+--@param port The port to use -- note that SSL will automatically be used, if necessary. 
+--@return A boolean value: true if HEAD is usable, false otherwise. 
+local function check_head(host, port)
+	local data = http.head( host, port, '/' )
+	if data then
+		if data.status and data.status == 302 and data.header and data.header.location then
+			stdnse.print_debug(1, "http-enum.nse: Warning: Host returned 302 and not 200 when performing HEAD.")
+			return false
+		end
+
+		if data.status and data.status == 200 and data.header then
+			-- check that a body wasn't returned
+			if string.len(data.body) > 0 then
+				stdnse.print_debug(1, "http-enum.nse: Warning: Host returned data when performing HEAD.")
+				return false
+			end
+
+			stdnse.print_debug(1, "http-enum.nse: Host supports HEAD.")
+			return true
+		end
+
+		stdnse.print_debug(1, "http-enum.nse: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
+		return false
+	end
+
+	stdnse.print_debug(1, "http-enum.nse: HEAD request completely failed.")
+	return false
+end
+
+---Determine whether or not we can actually scan the server (if a 301 is returned, that's bad). 
+--
+--@param host The host object. 
+--@param port The port to use -- note that SSL will automatically be used, if necessary. 
+--@return (result, message) result is a boolean: true means we're good to go, false means there's an error.
+--        The error is returned in message. 
+local function check_get(host, port)
+	stdnse.print_debug(1, "Checking if a GET request is going to work out")
+
+	-- Try getting the root directory
+	local data = http.get( host, port, '/' )
+	if(data == nil) then
+		return false, "GET request returned nil. Is the server still up?"
+	end
+
+	-- If the root directory is a permanent redirect, we're going to run into troubles
+	if(data.status == 301) then
+		if(data.header and data.header.location) then
+			return false, string.format("GET request returned %s -- try scanning %s instead, if possible", get_status_string(data), data.header.location)
+		else
+			return false, string.format("GET request returned %s -- site is trying to redirect us, but didn't say where", get_status_string(data))
+		end
+	end
+
+	-- If the root directory requires authentication, we're outta luck
+	if(data.status == 401) then
+		return false, string.format("Root directory required authentication -- giving up (%s)", get_status_string(data))
+	end
+
+	stdnse.print_debug(1, "It appears that the GET request will work")
+
+	return true
+end
+
+---Try and remove anything that might change within a 404. For example:
+-- * A file path (includes URI)
+-- * A time
+-- * A date
+-- * An execution time (numbers in general, really)
+--
+-- The intention is that two 404 pages from different URIs and taken hours apart should, whenever
+-- possible, look the same. 
+--
+-- During this function, we're likely going to over-trim things. This is fine -- we want enough to match on that it'll a) be unique, 
+-- and b) have the best chance of not changing. Even if we remove bits and pieces from the file, as long as it isn't a significant
+-- amount, it'll remain unique. 
+--
+-- One case this doesn't cover is if the server generates a random haiku for the user. 
+--
+--@param body The body of the page. 
+--@param uri  The URI that the page came from. 
+local function clean_404(body)
+
+	-- Remove anything that looks like time 
+	body = string.gsub(body, '%d?%d:%d%d:%d%d', "")
+	body = string.gsub(body, '%d%d:%d%d', "")
+	body = string.gsub(body, 'AM', "")
+	body = string.gsub(body, 'am', "")
+	body = string.gsub(body, 'PM', "")
+	body = string.gsub(body, 'pm', "")
+
+	-- Remove anything that looks like a date (this includes 6 and 8 digit numbers)
+	-- (this is probably unnecessary, but it's getting pretty close to 11:59 right now, so you never know!)
+	body = string.gsub(body, '%d%d%d%d%d%d%d%d', "") -- 4-digit year (has to go first, because it overlaps 2-digit year)
+	body = string.gsub(body, '%d%d%d%d%-%d%d%-%d%d', "")
+	body = string.gsub(body, '%d%d%d%d/%d%d/%d%d', "")
+	body = string.gsub(body, '%d%d%-%d%d%-%d%d%d%d', "")
+	body = string.gsub(body, '%d%d%/%d%d%/%d%d%d%d', "")
+
+	body = string.gsub(body, '%d%d%d%d%d%d', "") -- 2-digit year
+	body = string.gsub(body, '%d%d%-%d%d%-%d%d', "")
+	body = string.gsub(body, '%d%d%/%d%d%/%d%d', "")
+
+	-- Remove anything that looks like a path (note: this will get the URI too) (note2: this interferes with the date removal above, so it can't be moved up)
+	body = string.gsub(body, "/[^ ]+", "") -- Unix - remove everything from a slash till the next space
+	body = string.gsub(body, "[a-zA-Z]:\\[^ ]+", "") -- Windows - remove everything from a "x:\" pattern till the next space
+
+	-- If we have SSL available, save us a lot of memory by hashing the page (if SSL isn't available, this will work fine, but
+	-- take up more memory). If we're debugging, don't hash (it makes things far harder to debug). 
+	if(have_ssl and nmap.debugging() == 0) then
+		return openssl.md5(body)
+	end
+
+--io.write(body .. "\n\n")
+
+	return body
+end
+
+---Try requesting a non-existent file to determine how the server responds to unknown pages ("404 pages"). If the server
+-- responds with a 404 status code, as it is supposed to, then this function simply returns 404. If it contains one 
+-- of a series of common error codes, including unauthorized, moved, and others, it is returned like a 404. 
+--
+-- If, however, the 404 page returns a 200 status code, it gets interesting. First, it attempts to clean the returned
+-- body (see <code>clean_404</code> for details). Once any dynamic-looking data has been removed from the string, another
+-- 404 page is requested. If the response isn't identical to the first 404 page, an error is returned. The reason is, 
+-- obviously, because we now have no way to tell a valid page from an invalid one. 
+--
+--@param host The host object.
+--@param port The port to which we are establishing the connection. 
+--@return (status, result, body) If status is false, result is an error message. Otherwise, result is the code to expect and 
+--        body is the cleaned-up body (or a hash of the cleaned-up body). 
+local function identify_404(host, port)
+	local data
+	local bad_responses = { 301, 302, 401, 403, 499, 501 }
+
+	data = http.get(host, port, URL_404)
+
+	if(data == nil) then
+		stdnse.print_debug(1, "http-enum.nse: Failed while testing for 404 error message")
+		return false, "Failed while testing for 404 error message"
+	end
+
+	if(data.status and data.status == 404) then
+		stdnse.print_debug(1, "http-enum.nse: Host returns proper 404 result.")
+		return true, 404
+	end
+
+	if(data.status and data.status == 200) then
+		stdnse.print_debug(1, "http-enum.nse: Host returns 200 instead of 404.")
+
+		-- Clean up the body (for example, remove the URI). This makes it easier to validate later
+		if(data.body) then
+			-- Obtain another 404, with a different URI, to make sure things are consistent -- if they aren't, there's little hope
+			local data2 = http.get(host, port, URL_404 .. "-2")
+			if(data2 == nil) then
+				stdnse.print_debug(1, "http-enum.nse: Failed while testing for second 404 error message")
+				return false, "Failed while testing for second 404 error message"
+			end
+
+			-- Check if the return code became something other than 200
+			if(data2.status ~= 200) then
+				if(data2.status == nil) then
+					data2.status = "<unknown>"
+				end
+				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed during request (become %d; server is acting very strange).", data2.status)
+				return false, string.format("HTTP 404 status changed during request (became %d; server is acting very strange).", data2.status)
+			end
+
+			-- Check if the returned body (once cleaned up) matches the first returned body
+			local clean_body  = clean_404(data.body)
+			local clean_body2 = clean_404(data2.body)
+			if(clean_body ~= clean_body2) then
+				stdnse.print_debug(1, "http-enum.nse: Two known 404 pages returned valid and different pages; unable to identify valid response.")
+				stdnse.print_debug(1, "http-enum.nse: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
+			end
+
+			return true, 200, clean_body
+		end
+
+		stdnse.print_debug(1, "http-enum.nse: The 200 response didn't contain a body.")
+		return true, 200
+	end
+
+	-- Loop through any expected error codes
+	for _,code in pairs(bad_responses) do
+		if(data.status and data.status == code) then
+			stdnse.print_debug(1, "http-enum.nse: Host returns %s instead of 404 File Not Found.", get_status_string(data))
+			return true, code
+		end
+	end
+
+	stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
+--	io.write("\n\n" .. nsedebug.tostr(data) .. "\n\n")
+
+	return false, string.format("Unexpected response returned for 404 check: %s", get_status_string(data))
+end
+
 action = function(host, port)
 
-  local data
-  local check404 = "404"
-  local check404body = ""
-  local checkHEAD = "200"
-  local result = ""
-  local all = {}
-  local safeURLcheck = {
-    {checkdir="/_vti_bin/", checkdesc="FrontPage directory"},
-    {checkdir="/_vti_cnf/", checkdesc="FrontPage directory"},
-    {checkdir="/_vti_log/", checkdesc="FrontPage directory"},
-    {checkdir="/_vti_pvt/", checkdesc="FrontPage directory"},
-    {checkdir="/_vti_txt/", checkdesc="FrontPage directory"},
-    {checkdir="/admin/", checkdesc="Admin directory"},
-    {checkdir="/backup/", checkdesc="Backup directory"},
-    {checkdir="/beta/", checkdesc="Beta directory"},
-    {checkdir="/bin/", checkdesc="Bin directory"},
-    {checkdir="/css", checkdesc="CSS directory"},
-    {checkdir="/data/", checkdesc="Data directory"},
-    {checkdir="/db/", checkdesc="Possible database directory"},
-    {checkdir="/demo/", checkdesc="Demo directory"},
-    {checkdir="/dev/", checkdesc="Possible development directory"},
-    {checkdir="/downloads/", checkdesc="Downloads directory"},
-    {checkdir="/etc/passwd", checkdesc="Password file served by website"},
-    {checkdir="/exchange/", checkdesc="Outlook Web Access"},
-    {checkdir="/exchweb/", checkdesc="Outlook Web Access"},
-    {checkdir="/forum/", checkdesc="Forum software"},
-    {checkdir="/forums/", checkdesc="Forum software"},
-    {checkdir="/icons/", checkdesc="Icons directory"},
-    {checkdir="/iissamples/", checkdesc="IIS sample scripts"},
-    {checkdir="/images/", checkdesc="Images directory"},
-    {checkdir="/includes/", checkdesc="Includes directory"},
-    {checkdir="/incoming/", checkdesc="Incoming files directory"},
-    {checkdir="/install/", checkdesc="Installation directory"},
-    {checkdir="/intranet/", checkdesc="Intranet directory"},
-    {checkdir="/logs/", checkdesc="Log directory"},
-    {checkdir="/log.htm", checkdesc="Log file"},
-    {checkdir="/login/", checkdesc="Login directory"},
-    {checkdir="/mail/", checkdesc="Mail directory"},
-    {checkdir="/manual/", checkdesc="Apache manual directory"},
-    {checkdir="/phpmyadmin/", checkdesc="phpMyAdmin"},
-    {checkdir="/phpMyAdmin/", checkdesc="phpMyAdmin"},
-    {checkdir="/test.htm", checkdesc="Test file"},
-    {checkdir="/test.html", checkdesc="Test file"},
-    {checkdir="/test.asp", checkdesc="Test file"},
-    {checkdir="/test.php", checkdesc="Test file"},
-    {checkdir="/test.txt", checkdesc="Test file"},
-    {checkdir="/test/", checkdesc="Test directory"},
-    {checkdir="/webmail/", checkdesc="Webmail directory"},
-  }
+	local safeURLcheck = { }
 
-  -- check that the server supports HEAD (can't always rely on OPTIONS to tell the truth),
-  -- otherwise we need to make GET requests from now on.
-  -- might be worth checking that the HEAD request doesn't return anything in the body?
-  data = http.head( host, port, '/' )
-  if data then
-    if data.status and tostring( data.status ):match( "302" ) and data.header and data.header.location then
-      checkHEAD = "302"
-      stdnse.print_debug( "http-enum.nse: Warning: Host returned 302 and not 200 when performing HEAD." )
-    end
-    if data.status and tostring( data.status ):match( "200" ) and data.header then
-      -- check that a body wasn't returned
-      if string.len(data.body) > 0 then
-        checkHEAD = "xxx" -- fake code because HEAD shouldn't return a body
-      else
-        checkHEAD = "200"
-        stdnse.print_debug( "http-enum.nse: Host supports HEAD, using this to speed up the scan." )
-      end
-    end
-  end
+	local response = " \n"
 
-  -- check for 302 or 200 when 404 is expected.
-  -- Use GET request as we may need to store the body for comparison
-  data = http.get( host, port, '/Nmap404Check' )
-  if data then
-    if data.status and tostring( data.status ):match( "302" ) and data.header and data.header.location then
-      check404 = "302"
-      stdnse.print_debug( "http-enum.nse: Host returns 302 instead of 404 File Not Found." )
-    end
-    if data.status and tostring( data.status ):match( "200" ) and data.header then
-      check404 = "200"
-      result = result .. "Warning: Host returns 200 instead of 404 File Not Found.\n"
-      if data.body then
-        check404body = data.body
-      end
-    end
-  end
+	-- Add URLs from external files
+	safeURLcheck = add_from_files(safeURLcheck)
 
-  if check404:match( "200" ) then
-    -- check body for specific text, add confirmation message to result
-    for _, combination in pairs (safeURLcheck) do
-      all = http.pGet( host, port, combination.checkdir, nil, nil, all )
-    end
+	-- Check if we can use HEAD requests
+	local use_head = check_head(host, port)
 
-    local results = http.pipeline(host, port, all, nil)
+	-- If we can't use HEAD, make sure we can use GET requests
+	if(use_head == false) then
+		local result, err = check_get(host, port)
+		if(result == false) then
+			if(nmap.debugging() > 0) then
+				return "ERROR: " .. err
+			else
+				return nil
+			end
+		end
+	end
 
-    for i, data in pairs( results ) do
+	-- Check what response we get for a 404
+	local result, result_404, known_404 = identify_404(host, port)
+	if(result == false) then
+		if(nmap.debugging() > 0) then
+			return "ERROR: " .. result_404
+		else
+			return nil
+		end
+	end
 
-      if data and data.status and tostring( data.status ):match( "403" ) then
-        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (403 Forbidden)\n"
-      else
-        if data.body and check404body then
-          -- compare body and look for matches
-          if data.body == check404body then
-            -- assume it's another 404 page
-          else
-            -- assume it's not a 404
-            result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
-          end
-        end
-      end
+	-- need to be able to check body if returned
+	if(known_404 ~= nil) then
+		use_head = false
+	end
 
-    end
+	-- Queue up the checks
+	local all = {}
+	local i
+	for i = 1, #safeURLcheck, 1 do
+		if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
+			stdnse.print_debug(1, "http-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
+			break;
+		end
 
-  else
+		if(use_head) then
+			all = http.pHead(host, port, safeURLcheck[i].checkdir, nil, nil, all)
+		else
+			all = http.pGet(host, port, safeURLcheck[i].checkdir, nil, nil, all)
+		end
+	end
 
-    if checkHEAD:match( "200" ) then
-      for _, combination in pairs (safeURLcheck) do
-        all = http.pHead( host, port, combination.checkdir, nil, nil, all )
-      end
-    else
-      for _, combination in pairs (safeURLcheck) do
-        all = http.pGet( host, port, combination.checkdir, nil, nil, all )
-      end
-    end
+	local results = http.pipeline(host, port, all, nil)
 
-    local results = http.pipeline(host, port, all, nil)
+	-- check for http.pipeline error
+	if(results == nil) then
+		stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
+		if(nmap.debugging() > 0) then
+			return "ERROR: http.pipeline returned nil"
+		else
+			return nil
+		end
+	end
 
-    for i, data in pairs( results ) do
+	for i, data in pairs(results) do
 
-      if data and data.status and tostring( data.status ):match( "200" ) then
-        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
-      end
-      if data and data.status and tostring( data.status ):match( "403" ) then
-        result = result .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (403 Forbidden)\n"
-      end
-    end
+		if(data and data.status) then
+			-- Handle the most complicated case first: the "200 Ok" response
+			if(data.status == 200) then
+				-- If the 404 response is also "200", deal with it
+				if(result_404 == 200) then
+					if(clean_404(data.body) ~= known_404) then
+						stdnse.print_debug(1, "http-enum.nse: Page returned that doesn't match the 404 body (%s: %s)", safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc)
+						response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
+					end
+				else
+					-- If 404s return something other than 200, and we got a 200, we're good to go
+					stdnse.print_debug(1, "http-enum.nse: Page was '%s'  (%s: %s)", get_status_string(data), safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc)
+					response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. "\n"
+				end
+			else
+				-- If the response isn't a 200, check it against what we expect a 404 to be
+				if(data.status ~= result_404 and data.status ~= 404) then
+					-- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
+					-- asks for everything (with a script argument), only display 401 Authentication Required here.
+					stdnse.print_debug(1, "http-enum.nse: Page didn't match the 404 response  (%s: %s [%s])", safeURLcheck[i].checkdir, safeURLcheck[i].checkdesc, get_status_string(data))
 
-  end
+					if(data.status == 401) then -- "Authentication Required"
+						response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (" .. get_status_string(data) .. ")\n"
+					else
+						-- 
+						if(nmap.registry.args.displayall == '1' or nmap.registry.args.displayall == "true") then
+							response = response .. safeURLcheck[i].checkdir .. " " .. safeURLcheck[i].checkdesc .. " (" .. get_status_string(data) .. ")\n"
+						end
+					end
+				end
+			end
+		else
+			stdnse.print_debug(1, "http-enum.nse: HTTP request failed to return either a status or data")
+		end
+	end
+		
+	if string.len(response) > 2 then
+		return response
+	end
 
-  if string.len(result) > 0 then
-    return result
-  end
-
+	return nil
 end
