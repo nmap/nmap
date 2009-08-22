@@ -60,18 +60,18 @@ local FILENAME_BASE = "nselib/data/"
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
 
 portrule = function(host, port)
-    local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
-                ssl = { ["https"] = 1, ["https-alt"] = 1 } }
-    if port.protocol ~= 'tcp'
-    or not ( svc.std[port.service] or svc.ssl[port.service] ) then
-        return false
-    end
-    -- Don't bother running on SSL ports if we don't have SSL.
-    if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl')
-    and not nmap.have_ssl() then
-        return false
-    end
-    return true
+	local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
+				ssl = { ["https"] = 1, ["https-alt"] = 1 } }
+	if port.protocol ~= 'tcp'
+	or not ( svc.std[port.service] or svc.ssl[port.service] ) then
+		return false
+	end
+	-- Don't bother running on SSL ports if we don't have SSL.
+	if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl')
+	and not nmap.have_ssl() then
+		return false
+	end
+	return true
 end
 
 ---Take the data returned from a HTTP request and return the status string. Useful 
@@ -113,28 +113,28 @@ local function get_fingerprints()
 
 	local i
 	for i = 1, #fingerprint_files, 1 do
-	    local filename = FILENAME_BASE .. fingerprint_files[i]
+		local filename = FILENAME_BASE .. fingerprint_files[i]
 		local filename_full = nmap.fetchfile(filename)
 		local count = 0
 	
-	    if(filename_full == nil) then
+		if(filename_full == nil) then
 			stdnse.print_debug(1, "http-enum: Couldn't find fingerprints file: %s", filename)
 		else
 			stdnse.print_debug(1, "http-enum: Attempting to parse fingerprint file %s", filename)
 
 			local product = nil
-		    for line in io.lines(filename) do
+			for line in io.lines(filename) do
 				-- Ignore "Pre-Auth", "Post-Auth", and blank lines
 				if(string.sub(line, 1, #PREAUTH) ~= PREAUTH and string.sub(line, 1, #POSTAUTH) ~= POSTAUTH and #line > 0) then
 					-- Commented lines indicate products
-			        if(string.sub(line, 1, 1) == "#") then
+					if(string.sub(line, 1, 1) == "#") then
 						product = string.sub(line, 3)
 					else
 						table.insert(entries, {checkdir=line, checkdesc=product})
 						count = count + 1
 					end
 				end
-		    end
+			end
 		
 			stdnse.print_debug(1, "http-enum: Added %d entries from file %s", count, filename)
 		end
