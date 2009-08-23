@@ -116,3 +116,6 @@
 # Robots file
 /robots.txt
 
+# Ruby on Rails
+/images/rails.png
+
