@@ -1202,7 +1202,11 @@ function page_exists(data, result_404, known_404, page, displayall)
 		if(data.status == 200) then
 			if(result_404 == 200) then
 				-- If the 404 response is also "200", deal with it (check if the body matches)
-				if(clean_404(data.body) ~= known_404) then
+				if(string.len(data.body) == 0) then
+					-- I observed one server that returned a blank string instead of an error, on some occasions
+					stdnse.print_debug(1, "http-enum.nse: Page returned a totally empty body; page likely doesn't exist")
+					return false
+				elseif(clean_404(data.body) ~= known_404) then
 					stdnse.print_debug(1, "http-enum.nse: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
 					return true
 				else
