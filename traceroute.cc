@@ -808,8 +808,10 @@ Traceroute::trace(vector < Target * >&Targets) {
     for (targ = valid_targets.begin(); targ != valid_targets.end(); ++targ) {
         int distance;
         distance = TraceGroups[t->v4host().s_addr]->getDistance();
-        if (distance != -1)
+        if (distance != -1) {
             (*targ)->distance = distance;
+            (*targ)->distance_calculation_method = DIST_METHOD_TRACEROUTE;
+        }
     }
 
     SPM->endTask(NULL, NULL);

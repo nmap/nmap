@@ -96,6 +96,7 @@
 #include "nmap.h"
 #include "global_structures.h"
 #include "FingerPrintResults.h"
+#include "Target.h"
 
 #define OSSCAN_SUCCESS 0
 #define OSSCAN_NOMATCHES -1
@@ -146,7 +147,11 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
 void freeFingerPrint(FingerPrint *FP);
-const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP, const struct in_addr * const addr, int distance, const u8 *mac, int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit);
+const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
+                           const struct in_addr * const addr, int distance,
+                           enum dist_calc_method distance_calculation_method,
+                           const u8 *mac, int openTcpPort, int closedTcpPort,
+                           int closedUdpPort, bool wrapit);
 
 #endif /*OSSCAN_H*/
 

@@ -114,6 +114,16 @@ enum osscan_flags {
 	OS_NOTPERF=0, OS_PERF, OS_PERF_UNREL
 };
 
+/* The method used to calculate the Target::distance, included in OS
+   fingerprints. */
+enum dist_calc_method {
+	DIST_METHOD_NONE,
+	DIST_METHOD_LOCALHOST,
+	DIST_METHOD_DIRECT,
+	DIST_METHOD_ICMP,
+	DIST_METHOD_TRACEROUTE
+};
+
 struct host_timeout_nfo {
   unsigned long msecs_used; /* How many msecs has this Target used? */
   bool toclock_running; /* Is the clock running right now? */
@@ -242,6 +252,7 @@ class Target {
 
   struct seq_info seq;
   int distance;
+  enum dist_calc_method distance_calculation_method;
   FingerPrintResults *FPR; /* FP results get by the OS scan system. */
   PortList ports;
 

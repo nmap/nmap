@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o There is a new OS detection pseudo-test, SCAN.DC, which records how
+  the network distance in SCAN.DS was calculated. Its value can be "L"
+  for localhost, "D" for a direct connection, "I" for an ICMP TTL
+  calculation, and "T" for a traceroute hop count. This is mainly for
+  the benefit of OS integration, when it is sometimes important to
+  distinguish between DS=1%DC=I (probably the result of forged TTLs)
+  and DS=1%DC=D (a true one-hop connection.) [David]
+
 o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
 
 o Added the ssl-cert.nse script, which retrieves and prints the server

@@ -443,17 +443,43 @@ if (!FP) return;
 return;
 }
 
+static const char *dist_method_fp_string(enum dist_calc_method method)
+{
+  const char *s = "";
+
+  switch (method) {
+  case DIST_METHOD_NONE:
+    s = "";
+    break;
+  case DIST_METHOD_LOCALHOST:
+    s = "L";
+    break;
+  case DIST_METHOD_DIRECT:
+    s = "D";
+    break;
+  case DIST_METHOD_ICMP:
+    s = "I";
+    break;
+  case DIST_METHOD_TRACEROUTE:
+    s = "T";
+    break;
+  }
+
+  return s;
+}
 
 /* Writes an informational "Test" result suitable for including at the
    top of a fingerprint.  Gives info which might be useful when the
    FPrint is submitted (eg Nmap version, etc).  Result is written (up
    to ostrlen) to the ostr var passed in */
 static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
-				const struct in_addr * const addr, int distance, const u8 *mac,
-				int openTcpPort, int closedTcpPort, int closedUdpPort) {
+				const struct in_addr * const addr, int distance,
+                                enum dist_calc_method distance_calculation_method,
+                                const u8 *mac, int openTcpPort,
+                                int closedTcpPort, int closedUdpPort) {
   struct tm *ltime;
   time_t timep;
-  char dsbuf[10], otbuf[8], ctbuf[8], cubuf[8];
+  char dsbuf[10], otbuf[8], ctbuf[8], cubuf[8], dcbuf[8];
   char macbuf[16];
   timep = time(NULL);
   ltime = localtime(&timep);
@@ -472,14 +498,19 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
   if(distance != -1) {
 	Snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
   }
+  if (distance_calculation_method != DIST_METHOD_NONE) {
+	Snprintf(dcbuf, sizeof(dcbuf), "%%DC=%s", dist_method_fp_string(distance_calculation_method));
+  } else {
+	dcbuf[0] = '\0';
+  }
   
   macbuf[0] = '\0';
   if (mac)
     Snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
-  Snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%%G=%c%s%%TM=%X%%P=%s)",
+  Snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%s%%G=%c%s%%TM=%X%%P=%s)",
 		   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
-		   otbuf, ctbuf, cubuf, isipprivate(addr)?'Y':'N', dsbuf, isGoodFP?'Y':'N',
+		   otbuf, ctbuf, cubuf, isipprivate(addr)?'Y':'N', dsbuf, dcbuf, isGoodFP?'Y':'N',
 		   macbuf, (int) timep, NMAP_PLATFORM);
 }
 
@@ -622,8 +653,10 @@ static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
    are included only once. If wrapit is true, the string is wrapped for
    submission. */
 const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
-			   const struct in_addr * const addr, int distance, const u8 *mac,
-			   int openTcpPort, int closedTcpPort, int closedUdpPort, bool wrapit) {
+                           const struct in_addr * const addr, int distance,
+                           enum dist_calc_method distance_calculation_method,
+                           const u8 *mac, int openTcpPort, int closedTcpPort,
+                           int closedUdpPort, bool wrapit) {
   static char str[10240];
   static char wrapstr[10240];
 
@@ -689,7 +722,7 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   p = str;
 
   /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
-  WriteSInfo(p, sizeof(str), isGoodFP, addr, distance, mac, openTcpPort, closedTcpPort, closedUdpPort);
+  WriteSInfo(p, sizeof(str), isGoodFP, addr, distance, distance_calculation_method, mac, openTcpPort, closedTcpPort, closedUdpPort);
   p = p + strlen(str);
   if (!wrapit) *p++ = '\n';
 

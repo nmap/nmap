@@ -3623,6 +3623,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
   int distance = -1;
+  enum dist_calc_method distance_calculation_method = DIST_METHOD_NONE;
 
   for(hostI = OSI->incompleteHosts.begin(); 
       hostI != OSI->incompleteHosts.end(); hostI++) {
@@ -3652,14 +3653,18 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
     if (islocalhost(hsi->target->v4hostip())) {
       /* scanning localhost */
       distance = 0;
+      distance_calculation_method = DIST_METHOD_LOCALHOST;
     } else if (hsi->target->MACAddress()) {
       /* on the same network segment */
       distance = 1;
+      distance_calculation_method = DIST_METHOD_DIRECT;
     } else if (hsi->hss->distance!=-1) {
       distance = hsi->hss->distance;
+      distance_calculation_method = DIST_METHOD_ICMP;
     }
     
     hsi->target->distance = hsi->target->FPR->distance = distance;
+    hsi->target->distance_calculation_method = distance_calculation_method;
     hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
 
   }
@@ -3717,6 +3722,7 @@ static void printFP(OsScanInfo *OSI) {
 		  hsi->target->targetipstr(),
 		  mergeFPs(FPR->FPs, FPR->numFPs, true,
 			   hsi->target->v4hostip(), hsi->target->distance, 
+			   hsi->target->distance_calculation_method,
 			   hsi->target->MACAddress(),
 			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport, 
 			   FPR->osscan_closedudpport, false));

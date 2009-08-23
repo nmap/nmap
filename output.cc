@@ -1562,9 +1562,9 @@ static const char *merge_fpr(const FingerPrintResults *FPR,
                              const Target *currenths,
                              bool isGoodFP, bool wrapit) {
   return mergeFPs(FPR->FPs, FPR->numFPs, isGoodFP, currenths->v4hostip(),
-                  currenths->distance, currenths->MACAddress(),
-                  FPR->osscan_opentcpport, FPR->osscan_closedtcpport,
-                  FPR->osscan_closedudpport, wrapit);
+                  currenths->distance, currenths->distance_calculation_method,
+                  currenths->MACAddress(), FPR->osscan_opentcpport,
+                  FPR->osscan_closedtcpport, FPR->osscan_closedudpport, wrapit);
 }
 
 static void write_merged_fpr(const FingerPrintResults *FPR,
