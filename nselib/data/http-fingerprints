@@ -113,3 +113,6 @@
 /atom.xml
 /atom.aspx
 
+# Robots file
+robots.txt
+
