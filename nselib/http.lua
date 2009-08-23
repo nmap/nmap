@@ -14,6 +14,12 @@
 -- concatenated and separated by commas. The <code>body</code> value is a string
 -- containing the body of the HTTP response.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--
+--@args displayall Set to '1' or 'true' to treat status codes other than 200 OK and 
+--                 401 Authentication Required as valid pages. This is generally honoured 
+--                 by scripts that search for valid pages, such as http-enum.nse and 
+--                 http-userdir-enum.nse. Enabling this will create a lot of false positives. 
+
 
 module(... or "http",package.seeall)
 

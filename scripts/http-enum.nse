@@ -31,9 +31,6 @@ for 404 Not Found and the status code returned by the random files).
 -- |_ /x_logo.gif Xerox Phaser Printer
 -- 
 --
---@args displayall Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
---                 "200 OK" and "401 Authentication Required" pages. Although this is more likely to find certain
---                 hidden folders, it also generates far more false positives. 
 --@args limit      Limit the number of folders to check. This option is useful if using a list from, for example, 
 --                 the DirBuster projects which can have 80,000+ entries. 
 
