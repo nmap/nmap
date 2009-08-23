@@ -103,3 +103,13 @@
 /test.class
 /test/
 
+# RSS
+/rss
+/rss.php
+/rss.xml
+/rss.aspx
+/atom
+/atom.php
+/atom.xml
+/atom.aspx
+
