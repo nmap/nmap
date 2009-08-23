@@ -1,9 +1,9 @@
 # Apache configuration file
 /.htaccess
-/.htpsswd
+/.htpasswd
 
 # Subversion data
-/.svn
+/.svn/
 /.svn/text-base/Web.config.svn-base
 /.svn/text-base/.htaccess.svn-base
 /.svn/text-base/.htpasswd.svn-base
@@ -28,7 +28,7 @@
 /bin/
 
 # CSS directory
-/css
+/css/
 
 # Data directory
 /data/
@@ -54,7 +54,7 @@
 
 # Icons and images
 /icons/
-/images
+/images/
 
 # IIS sample scripts
 /iissamples/
@@ -104,11 +104,11 @@
 /test/
 
 # RSS
-/rss
+/rss/
 /rss.php
 /rss.xml
 /rss.aspx
-/atom
+/atom/
 /atom.php
 /atom.xml
 /atom.aspx
