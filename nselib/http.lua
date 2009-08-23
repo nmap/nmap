@@ -15,10 +15,6 @@
 -- containing the body of the HTTP response.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
---@args displayall Set to '1' or 'true' to treat status codes other than 200 OK and 
---                 401 Authentication Required as valid pages. This is generally honoured 
---                 by scripts that search for valid pages, such as http-enum.nse and 
---                 http-userdir-enum.nse. Enabling this will create a lot of false positives. 
 
 
 module(... or "http",package.seeall)
@@ -1197,8 +1193,10 @@ end
 --                  else, this parameter is ignored and can be set to <code>nil</code>. This is returned by 
 --                  <code>identfy_404</code>. 
 --@param page       The page being requested (used in error messages). 
+--@param displayall [optional] If set to true, "true", or "1", displays all error codes that don't look like a 404 instead
+--                  of just 200 OK and 401 Authentication Required. 
 --@return A boolean value: true if the page appears to exist, and false if it does not. 
-function page_exists(data, result_404, known_404, page)
+function page_exists(data, result_404, known_404, page, displayall)
 	if(data and data.status) then
 		-- Handle the most complicated case first: the "200 Ok" response
 		if(data.status == 200) then
@@ -1224,10 +1222,8 @@ function page_exists(data, result_404, known_404, page)
 
 				if(data.status == 401) then -- "Authentication Required"
 					return true
-				else
-					if(nmap.registry.args.displayall == '1' or nmap.registry.args.displayall == "true") then
-						return true
-					end
+				elseif(displayall == true or displayall == '1' or displayall == "true") then
+					return true
 				end
 
 				return false

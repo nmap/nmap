@@ -22,6 +22,9 @@ Ref: CVE-2001-1013 http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013
 -- @args
 -- users=path/to/custom/usernames.list or
 -- userdir.users=path/to/custom/usernames.list
+--@args limit      Limit the number of users to check. This option is useful if using a list from, for example, 
+--                 the DirBuster projects which can have 80,000+ entries. 
+
 --
 -- @output
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
@@ -56,43 +59,88 @@ end
 
 action = function(host, port)
 
-  if not nmap.registry.userdir then init() end
+  if(not nmap.registry.userdir) then 
+    init()
+  end
   local usernames = nmap.registry.userdir
-  if #usernames == 0 then return nil end  -- speedy exit if no usernames
 
-  local filename = filename:match( "[\\/]([^\\/]+)\.nse$" )
-  local hname = host.targetname or ( host.name ~= '' and host.name ) or host.ip
-  local found = {}
-
-  for i, uname in ipairs(usernames) do
-
-    local data = http.get( host, port, ("/~%s/"):format(uname) )
-    if data and type(data.status) == 'number' then
-      if (data.status == 403 or data.status == 200) and i == 1 then
-        -- This server is unlikely to yield useful information since it returned
-        -- 200 or 403 to a request for a directory which is highly unlikely to exist.
-        stdnse.print_debug(1, "%s detected false positives at %s:%d - status was %d",
-          filename, hname, port.number, data.status)
-        break
-      elseif data.status == 403 or data.status == 200 then
-        found[#found+1] = ("%s (%d)"):format(uname, data.status)
-      -- else we didn't get an interesting status code
-      end
+  -- speedy exit if no usernames
+  if(#usernames == 0) then
+    if(nmap.debugging() > 0) then
+      return "Didn't find any users to test (should be in nselib/data/usernames.lst)"
     else
-      stdnse.print_debug(2, "%s got a bad or zero response from %s:%d",
-        filename, hname, port.number)
+      return nil
+    end
+  end
+
+  -- Check what response we get for a 404
+  local result, result_404, known_404 = http.identify_404(host, port)
+  if(result == false) then
+    if(nmap.debugging() > 0) then
+      return "ERROR: " .. result_404
+    else
+      return nil
+    end
+  end
+
+  -- Check if we can use HEAD requests
+  local use_head = http.can_use_head(host, port, result_404)
+
+  -- If we can't use HEAD, make sure we can use GET requests
+  if(use_head == false) then
+    local result, err = http.can_use_get(host, port)
+    if(result == false) then
+      if(nmap.debugging() > 0) then
+        return "ERROR: " .. err
+      else
+        return nil
+      end
+    end
+  end
+
+  -- Queue up the checks
+  local all = {}
+  local i
+  for i = 1, #usernames, 1 do
+    if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
+      stdnse.print_debug(1, "http-userdir-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
+      break;
     end
 
+    if(use_head) then
+      all = http.pHead(host, port, "/~" .. usernames[i], nil, nil, all)
+    else
+      all = http.pGet(host, port, "/~" .. usernames[i], nil, nil, all)
+    end
   end
 
-  if #found == 0 then
-    stdnse.print_debug(2, "%s found Zero users at %s:%d",
-      filename, hname, port.number)
-    return nil
+  local results = http.pipeline(host, port, all, nil)
+
+  -- Check for http.pipeline error
+  if(results == nil) then
+    stdnse.print_debug(1, "http-userdir-enum.nse: http.pipeline returned nil")
+    if(nmap.debugging() > 0) then
+      return "ERROR: http.pipeline returned nil"
+    else
+      return nil
+    end
   end
 
-  return ("Potential Users: %s"):format(table.concat(found, ", "))
+  local found = {}
+  for i, data in pairs(results) do
+    if(http.page_exists(data, result_404, known_404, "/~" .. usernames[i], true)) then
+      stdnse.print_debug(1, "http-userdir-enum.nse: Found a valid user: %s", usernames[i])
+      table.insert(found, usernames[i])
+    end
+  end
 
+  if(#found > 0) then
+    return string.format("Potential Users: %s", table.concat(found, ", "))
+  elseif(nmap.debugging() > 0) then
+    return "Didn't find any users!"
+  end
+
+  return nil
 end
 
 
@@ -117,8 +165,8 @@ function init()
     nmap.registry.userdir = {}
     return nil
   end
-  -- random dummy username to catch false positives
-  if #usernames > 0 then table.insert(usernames, 1, randomstring()) end
+  -- random dummy username to catch false positives (not necessary)
+--  if #usernames > 0 then table.insert(usernames, 1, randomstring()) end
   nmap.registry.userdir = usernames
   stdnse.print_debug(1, "%s Testing %d usernames.", filename, #usernames)
   return nil
