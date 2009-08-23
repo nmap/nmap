@@ -52,6 +52,7 @@ local FILENAME_BASE = "nselib/data/"
 
 -- List of fingerprint files
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
+--local fingerprint_files = { "test-fingerprints" }
 
 portrule = function(host, port)
 	local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
@@ -173,13 +174,21 @@ action = function(host, port)
 
 	for i, data in pairs(results) do
 		if(http.page_exists(data, result_404, known_404, URLs[i].checkdir, nmap.registry.args.displayall)) then
+			-- Build the description
+			local description = string.format("%s", URLs[i].checkdir)
 			if(URLs[i].checkdesc) then
-				stdnse.print_debug(1, "http-enum.nse: Found a valid page! (%s: %s)", URLs[i].checkdir, URLs[i].checkdesc)
-				response = response .. URLs[i].checkdir .. " " .. URLs[i].checkdesc .. "\n"
-			else
-				stdnse.print_debug(1, "http-enum.nse: Found a valid page! (%s: %s)", URLs[i].checkdir, URLs[i].checkdesc)
-				response = response .. URLs[i].checkdir .. "\n"
+				description = string.format("%s: %s", URLs[i].checkdir, URLs[i].checkdesc)
 			end
+
+			-- Build the status code, if it isn't a 200
+			local status = ""
+			if(data.status ~= 200) then
+				status = " (" .. http.get_status_string(data) .. ")"
+			end
+
+			stdnse.print_debug("Found a valid page! (%s)%s", description, status)
+
+			response = response .. string.format("%s%s\n", description, status)
 		end
 	end
 		

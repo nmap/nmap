@@ -948,7 +948,7 @@ end
 --
 --@param data The data returned by a HTTP request (can be nil or empty)
 --@return The status string, the status code, or "<unknown status>". 
-local function get_status_string(data)
+function get_status_string(data)
 	-- Make sure we have valid data
 	if(data == nil) then
 		return "<unknown status>"
