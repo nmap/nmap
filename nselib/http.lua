@@ -16,6 +16,10 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @args http-max-cache-size The maximum memory size (in bytes) of the cache.
 --
+--@arg pipeline If set, it represents the number of HTTP requests that'll be pipelined 
+--              (ie, sent in a single request). This can be set low to make debugging
+--              easier, or it can be set high to test how a server reacts (its chosen
+--              max is ignored). 
 
 local MAX_CACHE_SIZE = "http-max-cache-size";
 
@@ -302,6 +306,11 @@ end
 --  @param response The http response - Might be a table or a raw response
 --  @return The max number of requests on a keep-alive connection
 local function getPipelineMax( response )
+  -- Allow users to override this with a script-arg
+  if nmap.registry.args.pipeline ~= nil then
+    return tonumber(nmap.registry.args.pipeline)
+  end
+
   if response then
     if type(response) ~= "table" then response = parseResult( response ) end
     if response.header and response.header.connection ~= "close" then
