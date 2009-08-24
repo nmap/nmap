@@ -14,8 +14,13 @@
 -- concatenated and separated by commas. The <code>body</code> value is a string
 -- containing the body of the HTTP response.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @args http-max-cache-size The maximum memory size (in bytes) of the cache.
 --
 
+local MAX_CACHE_SIZE = "http-max-cache-size";
+
+local coroutine = require "coroutine";
+local table = require "table";
 
 module(... or "http",package.seeall)
 
@@ -28,6 +33,20 @@ local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
 -- The 404 used for URL checks
 local URL_404 = '/Nmap404Check' .. os.time(os.date('*t'))
+
+-- Recursively copy a table.
+-- Only recurs when a value is a table, other values are copied by assignment.
+local function tcopy (t)
+  local tc = {};
+  for k,v in pairs(t) do
+    if type(v) == "table" then
+      tc[k] = tcopy(v);
+    else
+      tc[k] = v;
+    end
+  end
+  return tc;
+end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
 -- @return the first index following the spaces.
@@ -484,6 +503,117 @@ function buildCookies(cookies, path)
   return cookie
 end
 
+local function check_size (cache)
+  local max_size = tonumber(nmap.registry.args[MAX_CACHE_SIZE] or 1e6);
+  local size = cache.size;
+
+  if size > max_size then
+    stdnse.print_debug(1,
+        "Current http cache size (%d bytes) exceeds max size of %d",
+        size, max_size);
+    table.sort(cache, function(r1, r2)
+      return (r1.last_used or 0) < (r2.last_used or 0);
+    end);
+
+    for i, record in ipairs(cache) do
+      if size <= max_size then break end
+      local result = record.result;
+      if type(result.body) == "string" then
+        size = size - record.size;
+        record.size, record.get, result.body = 0, false, "";
+      end
+    end
+    cache.size = size;
+  end
+  stdnse.print_debug(1, "Final http cache size (%d bytes) of max size of %d",
+      size, max_size);
+  return size;
+end
+
+-- Cache of GET and HEAD requests. Uses <"host:port:path", record>.
+-- record is in the format:
+--   result: The result from http.get or http.head
+--   last_used: The time the record was last accessed or made.
+--   get: Was the result received from a request to get or recently wiped?
+--   size: The size of the record, equal to #record.result.body.
+--   network_cost: The cost of the request on the network (upload).
+local cache = {size = 0};
+
+-- Unique value to signal value is being retrieved.
+-- Also holds <mutex, thread> pairs, working thread is value
+local WORKING = setmetatable({}, {__mode = "v"});
+
+local function lookup_cache (method, host, port, path, options)
+  options = options or {};
+  local bypass_cache = options.bypass_cache; -- do not lookup
+  local no_cache = options.no_cache; -- do not save result
+  local no_cache_body = options.no_cache_body; -- do not save body
+
+  if type(host) == "table" then host = host.ip end
+  if type(port) == "table" then port = port.number end
+
+  local key = host..":"..port..":"..path;
+  local mutex = nmap.mutex(tostring(lookup_cache)..key);
+
+  local state = {
+    mutex = mutex,
+    key = key,
+    method = method,
+    bypass_cache = bypass_cache,
+    no_cache = no_cache,
+    no_cache_body = no_cache_body,
+  };
+
+  while true do
+    mutex "lock";
+    local record = cache[key];
+    if bypass_cache or record == nil or method == "GET" and not record.get then
+      WORKING[mutex] = coroutine.running();
+      cache[key], state.old_record = WORKING, record;
+      return nil, state;
+    elseif record == WORKING then
+      local working = WORKING[mutex];
+      if working == nil or coroutine.status(working) == "dead" then
+        -- thread died before insert_cache could be called
+        cache[key] = nil; -- reset
+      end
+      mutex "done";
+    else
+      mutex "done";
+      record.last_used = os.time();
+      return tcopy(record.result), state;
+    end
+  end
+end
+
+local function insert_cache (state, result, raw_response)
+  local key = assert(state.key);
+  local mutex = assert(state.mutex);
+
+  if result == nil or state.no_cache or
+      result.status == 206 then -- ignore partial content response
+    cache[key] = state.old_record;
+  else
+    local record = {
+      result = tcopy(result),
+      last_used = os.time(),
+      get = state.method == "GET",
+      size = type(result.body) == "string" and #result.body or 0,
+      network_cost = #raw_response,
+    };
+    result = record.result; -- only modify copy
+    cache[key], cache[#cache+1] = record, record;
+    if state.no_cache_body then
+      record.get, result.body = false, "";
+    end
+    if type(result.body) == "string" then
+      cache.size = cache.size + #result.body;
+      check_size(cache);
+    end
+  end
+  mutex "done";
+end
+
 --- Fetches a resource with a GET request.
 --
 -- The first argument is either a string with the hostname or a table like the
@@ -501,10 +631,15 @@ end
 -- @return Table as described in the module description.
 -- @see http.parseResult
 get = function( host, port, path, options, cookies )
-  local data, mod_options = buildGet(host, port, path, options, cookies)
-  data = buildRequest(data, mod_options)
-  local response = request(host, port, data)
-  return parseResult(response)
+  local result, state = lookup_cache("GET", host, port, path, options);
+  if result == nil then
+    local data, mod_options = buildGet(host, port, path, options, cookies)
+    data = buildRequest(data, mod_options)
+    local response = request(host, port, data)
+    result = parseResult(response)
+    insert_cache(state, result, response);
+  end
+  return result;
 end
 
 --- Fetches a resource with a HEAD request.
@@ -524,10 +659,15 @@ end
 -- @return Table as described in the module description.
 -- @see http.parseResult
 head = function( host, port, path, options, cookies )
-  local data, mod_options = buildHead(host, port, path, options, cookies)
-  data = buildRequest(data, mod_options)
-  local response = request(host, port, data)
-  return parseResult(response)
+  local result, state = lookup_cache("HEAD", host, port, path, options);
+  if result == nil then
+    local data, mod_options = buildHead(host, port, path, options, cookies)
+    data = buildRequest(data, mod_options)
+    local response = request(host, port, data)
+    result = parseResult(response)
+    insert_cache(state, result, response);
+  end
+  return result;
 end
 
 --- Fetches a resource with a POST request.
@@ -750,6 +890,10 @@ end
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
+-- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
+-- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
+-- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
+
 request = function( host, port, data )
   local opts
   
