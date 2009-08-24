@@ -912,7 +912,7 @@ char *xml_convert(const char *str) {
 
     len = strlen(repl);
     /* Double the size of the result buffer if necessary. */
-    if (i + len > n) {
+    if (i == 0 || i + len > n) {
       n = (i + len) * 2;
       result = (char *) safe_realloc(result, n + 1);
     }
