@@ -963,6 +963,10 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
     thisline = nextline; /* Time to handle the next line, if there is one */
     lineno++;
   } while (thisline && *thisline);
+
+  /* Free the temporary fingerprint copy. */
+  free(fprint);
+
   return FP;
 }
 
