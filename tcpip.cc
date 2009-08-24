@@ -2233,8 +2233,14 @@ if (!pd) fatal("NULL packet device passed to %s", __func__);
 
  do {
 #ifdef WIN32
-   gettimeofday(&tv_end, NULL);
-   long to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+   long to_left;
+
+   if (to_usec > 0) {
+     gettimeofday(&tv_end, NULL);
+     to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+   } else {
+     to_left = 1;
+   }
    // Set the timeout (BUGBUG: this is cheating)
    PacketSetReadTimeout(pd->adapter, to_left);
 #endif
