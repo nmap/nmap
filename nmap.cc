@@ -2842,7 +2842,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   if (!foundsomething) { /* Try the nMap directory */
 	  char fnbuf[MAX_PATH];
 	  int i;
-	  res = GetModuleFileName(GetModuleHandle(0), fnbuf, 1024);
+	  res = GetModuleFileName(GetModuleHandle(0), fnbuf, sizeof(fnbuf));
       if(!res) fatal("GetModuleFileName failed (!)\n");
 	  /*	Strip it */
 	  for(i = res - 1; i >= 0 && fnbuf[i] != '/' && fnbuf[i] != '\\'; i--);
