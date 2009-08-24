@@ -856,10 +856,6 @@ static int l_nsock_get_info(lua_State * L)
 
   struct sockaddr remote;
 
-  char *ipstring_local = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-
-  char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-
   if (udata->nsiod == NULL)
   {
     lua_pushboolean(L, false);
@@ -871,6 +867,9 @@ static int l_nsock_get_info(lua_State * L)
       &local, &remote, sizeof(sockaddr));
 
   lua_pushboolean(L, true);
+
+  char *ipstring_local = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
+  char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
 
   lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
   lua_pushnumber(L, inet_port_both(af, &local));
