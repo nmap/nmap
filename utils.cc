@@ -971,11 +971,11 @@ char *mmapfile(char *fname, int *length, int openflags)
  if (!fileptr)
   pfatal ("%s(%u): MapViewOfFile()", __FILE__, __LINE__);
 
- CloseHandle (fd);
-
  if (o.debugging > 2)
   log_write(LOG_PLAIN, "%s(): fd %08lX, gmap %08lX, fileptr %08lX, length %d\n",
     __func__, (DWORD)fd, (DWORD)gmap, (DWORD)fileptr, *length);
+
+ CloseHandle (fd);
 
 	return fileptr;
 }
