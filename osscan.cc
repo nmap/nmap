@@ -1069,7 +1069,7 @@ while(fgets(line, sizeof(line), fp)) {
     while(*p && isspace((int) (unsigned char) *p)) p++;
     
     q = strpbrk(p, "\n#");
-    if (!p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
+    if (!q) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
     while(isspace((int) (unsigned char) *(--q)))
       ;
