@@ -3385,10 +3385,12 @@ struct sys_route *getsysroutes(int *howmany) {
 
   /* First let us try Linux-style /proc/net/route */
   routefp = fopen("/proc/net/route", "r");
-  if (routefp)
+  if (routefp) {
     routes = getsysroutes_proc(routefp, howmany);
-  else
+    fclose(routefp);
+  } else {
     routes = getsysroutes_dnet(howmany);
+  }
 
   numroutes = *howmany;
 
