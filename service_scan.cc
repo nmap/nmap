@@ -1829,7 +1829,7 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG, 
 			     ServiceNFO *svc) {
 
-  if (strncmp(svc->probe_matched, "ssl/", 4) == 0) {
+  if (svc->probe_matched && strncmp(svc->probe_matched, "ssl/", 4) == 0) {
     /* The service has been detected without having to make an SSL connection */
     svc->tunnel = SERVICE_TUNNEL_SSL;
     svc->probe_matched += 4;
