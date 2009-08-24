@@ -771,12 +771,11 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
 
   struct sockaddr remote;
 
-  char *ipstring_local = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-
-  char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-
   if (!nsi_is_pcap(nsiod))
   {
+    char *ipstring_local = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
+    char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
+
     status = nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
         &local, &remote, sizeof(sockaddr));
     log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
