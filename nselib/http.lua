@@ -35,9 +35,6 @@ local comm   = require 'comm'
 ---Use ssl if we have it
 local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
--- The 404 used for URL checks
-local URL_404 = '/Nmap404Check' .. os.time(os.date('*t'))
-
 -- Recursively copy a table.
 -- Only recurs when a value is a table, other values are copied by assignment.
 local function tcopy (t)
@@ -1260,10 +1257,13 @@ end
 -- scan. If the server responds with a 404 status code, as it is supposed to, then this function simply returns 404. If it 
 -- contains one of a series of common status codes, including unauthorized, moved, and others, it is returned like a 404. 
 --
--- If, however, the 404 page returns a 200 status code, it gets interesting. First, it attempts to clean the returned
--- body (see <code>clean_404</code> for details). Once any dynamic-looking data has been removed from the string, another
--- 404 page is requested. If the response isn't identical to the first 404 page, an error is returned. The reason is, 
--- obviously, because we now have no way to tell a valid page from an invalid one. 
+-- I (Ron Bowes) have observed one host that responds differently for three scenarios:
+-- * A non-existent page, all lowercase (a login page)
+-- * A non-existent page, with uppercase (a weird error page that says, "Filesystem is corrupt.")
+-- * A page in a non-existent directory (a login page with different font colours)
+--
+-- As a result, I've devised three different 404 tests, one to check each of these conditions. They all have to match, 
+-- the tests can proceed; if any of them are different, we can't check 404s properly. 
 --
 --@param host The host object.
 --@param port The port to which we are establishing the connection. 
@@ -1273,7 +1273,12 @@ function identify_404(host, port)
 	local data
 	local bad_responses = { 301, 302, 401, 403, 499, 501 }
 
-	data = http.get(host, port, URL_404)
+	-- The URLs used to check 404s
+	local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
+	local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
+	local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
+
+	data = http.get(host, port, URL_404_1)
 
 	if(data == nil) then
 		stdnse.print_debug(1, "http-enum.nse: Failed while testing for 404 status code")
@@ -1290,11 +1295,12 @@ function identify_404(host, port)
 
 		-- Clean up the body (for example, remove the URI). This makes it easier to validate later
 		if(data.body) then
-			-- Obtain another 404, with a different URI, to make sure things are consistent -- if they aren't, there's little hope
-			local data2 = http.get(host, port, URL_404 .. "-2")
-			if(data2 == nil) then
-				stdnse.print_debug(1, "http-enum.nse: Failed while testing for second 404 error message")
-				return false, "Failed while testing for second 404 error message"
+			-- Obtain a couple more 404 pages to test different conditions
+			local data2 = http.get(host, port, URL_404_2)
+			local data3 = http.get(host, port, URL_404_3)
+			if(data2 == nil or data3 == nil) then
+				stdnse.print_debug(1, "http-enum.nse: Failed while testing for extra 404 error messages")
+				return false, "Failed while testing for extra 404 error messages"
 			end
 
 			-- Check if the return code became something other than 200
@@ -1302,17 +1308,33 @@ function identify_404(host, port)
 				if(data2.status == nil) then
 					data2.status = "<unknown>"
 				end
-				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed during request (become %d; server is acting very strange).", data2.status)
-				return false, string.format("HTTP 404 status changed during request (became %d; server is acting very strange).", data2.status)
+				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed for second request (became %d).", data2.status)
+				return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
 			end
 
-			-- Check if the returned body (once cleaned up) matches the first returned body
+			-- Check if the return code became something other than 200
+			if(data3.status ~= 200) then
+				if(data3.status == nil) then
+					data3.status = "<unknown>"
+				end
+				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed for third request (became %d).", data3.status)
+				return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+			end
+
+			-- Check if the returned bodies (once cleaned up) matches the first returned body
 			local clean_body  = clean_404(data.body)
 			local clean_body2 = clean_404(data2.body)
+			local clean_body3 = clean_404(data3.body)
 			if(clean_body ~= clean_body2) then
 				stdnse.print_debug(1, "http-enum.nse: Two known 404 pages returned valid and different pages; unable to identify valid response.")
 				stdnse.print_debug(1, "http-enum.nse: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
 				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
+			end
+
+			if(clean_body ~= clean_body3) then
+				stdnse.print_debug(1, "http-enum.nse: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+				stdnse.print_debug(1, "http-enum.nse: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
 			end
 
 			return true, 200, clean_body
