@@ -1362,9 +1362,10 @@ static int l_nsock_ncap_close(lua_State * L)
   ns->references--;
   if (ns->references == 0)
   {
-    ncap_socket_map_del(ns->key);
-    if (ns->key)
+    if (ns->key) {
+      ncap_socket_map_del(ns->key);
       free(ns->key);
+    }
     nsi_delete(ns->nsiod, NSOCK_PENDING_NOTIFY);
     free(ns);
   }
