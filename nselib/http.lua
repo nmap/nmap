@@ -1178,24 +1178,20 @@ function can_use_get(host, port)
 	-- Try getting the root directory
 	local data = http.get( host, port, '/' )
 	if(data == nil) then
-		return false, "GET request returned nil. Is the server still up?"
-	end
-
-	-- If the root directory is a permanent redirect, we're going to run into troubles
-	if(data.status == 301) then
-		if(data.header and data.header.location) then
-			return false, string.format("GET request returned %s -- try scanning %s instead, if possible", get_status_string(data), data.header.location)
-		else
-			return false, string.format("GET request returned %s -- site is trying to redirect us, but didn't say where", get_status_string(data))
+		stdnse.print_debug(1, string.format("GET request for '/' returned nil when verifying host %s", host.ip))
+	else
+		-- If the root directory is a permanent redirect, we're going to run into troubles
+		if(data.status == 301 or data.status == 302) then
+			if(data.header and data.header.location) then
+				stdnse.print_debug(1, string.format("GET request for '/' returned a forwarding address (%s) -- try scanning %s instead, if possible", get_status_string(data), data.header.location))
+			end
+		end
+	
+		-- If the root directory requires authentication, we're outta luck
+		if(data.status == 401) then
+			stdnse.print_debug(1, string.format("Root directory requires authentication (%s), scans may not work", get_status_string(data)))
 		end
 	end
-
-	-- If the root directory requires authentication, we're outta luck
-	if(data.status == 401) then
-		return false, string.format("Root directory required authentication -- giving up (%s)", get_status_string(data))
-	end
-
-	stdnse.print_debug(1, "It appears that the GET request will work")
 
 	return true
 end
