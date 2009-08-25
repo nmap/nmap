@@ -31,11 +31,13 @@ for 404 Not Found and the status code returned by the random files).
 -- |_ /x_logo.gif Xerox Phaser Printer
 -- 
 --
---@args displayall Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
---                 "200 OK" and "401 Authentication Required" pages. Although this is more likely to find certain
---                 hidden folders, it also generates far more false positives. 
---@args limit      Limit the number of folders to check. This option is useful if using a list from, for example, 
---                 the DirBuster projects which can have 80,000+ entries. 
+--@args displayall    Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
+--                    "200 OK" and "401 Authentication Required" pages. Although this is more likely to find certain
+--                    hidden folders, it also generates far more false positives. 
+--@args limit         Limit the number of folders to check. This option is useful if using a list from, for example, 
+--                    the DirBuster projects which can have 80,000+ entries. 
+--@args fingerprints  Specify a different file to read fingerprints from. This will be read instead of the default
+--                    files. 
 
 author = "Ron Bowes <ron@skullsecurity.net>, Andrew Orr <andrew@andreworr.ca>, Rob Nicholls <robert@everythingeverything.co.uk>"
 
@@ -48,10 +50,13 @@ require 'http'
 require 'stdnse'
 
 -- The directory where the fingerprint files are stored
-local FILENAME_BASE = "nselib/data/"
 
 -- List of fingerprint files
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
+if(nmap.registry.args.fingerprints ~= nil) then
+	fingerprint_files = { nmap.registry.args.fingerprints }
+end
+
 --local fingerprint_files = { "test-fingerprints" }
 
 portrule = function(host, port)
@@ -88,9 +93,17 @@ local function get_fingerprints()
 	end
 
 	for i = 1, #fingerprint_files, 1 do
-		local filename = FILENAME_BASE .. fingerprint_files[i]
-		local filename_full = nmap.fetchfile(filename)
 		local count = 0
+
+		-- Try using the root path, if possible
+		local filename = fingerprint_files[i]
+		local filename_full = nmap.fetchfile(filename)
+
+		if(filename_full == nil) then
+			-- If the root path fails, try looking in the nselib/data directory
+			filename = "nselib/data/" .. fingerprint_files[i]
+			filename_full = nmap.fetchfile(filename)
+		end
 	
 		if(filename_full == nil) then
 			stdnse.print_debug(1, "http-enum: Couldn't find fingerprints file: %s", filename)
