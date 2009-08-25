@@ -2223,7 +2223,7 @@ if (!pd) fatal("NULL packet device passed to %s", __func__);
      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
    } 
    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head.caplen);
-   lamont_hdump(p, head.caplen);
+   nmap_hexdump((unsigned char*)p, head.caplen);
    exit(1);
  }
 

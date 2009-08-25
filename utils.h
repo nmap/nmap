@@ -173,8 +173,7 @@ template<class T> T box(T bmin, T bmax, T bnum) {
 
 int wildtest(char *wild, char *test);
 
-void hdump(unsigned char *packet, unsigned int len);
-void lamont_hdump(char *cp, unsigned int length);
+void nmap_hexdump(unsigned char *cp, unsigned int length);
 
 /* Compare a canonical option name (e.g. "max-scan-delay") with a
    user-generated option such as "max_scan_delay" and returns 0 if the

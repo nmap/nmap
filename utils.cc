@@ -137,89 +137,18 @@ int wildtest(char *wild, char *test) {
 
 }
 
+/* Wrapper for nbase function hexdump() */
+void nmap_hexdump(unsigned char *cp, unsigned int length){
 
-
-/* Hex dump */
-void hdump(unsigned char *packet, unsigned int len) {
-unsigned int i=0, j=0;
-
-log_write(LOG_PLAIN, "Here it is:\n");
-
-for(i=0; i < len; i++){
-  j = (unsigned) (packet[i]);
-  log_write(LOG_PLAIN, "%-2X ", j);
-  if (!((i+1)%16))
-    log_write(LOG_PLAIN, "\n");
-  else if (!((i+1)%4))
-    log_write(LOG_PLAIN, "  ");
-}
-log_write(LOG_PLAIN, "\n");
+ char *string=NULL;
+ string = hexdump((u8*)cp, length);
+ if(string){
+    log_write(LOG_PLAIN, "%s", string);
+    free(string);
+ }
+ return;
 }
 
-/* A better version of hdump, from Lamont Granquist.  Modified slightly
-   by Fyodor (fyodor@insecure.org) */
-void lamont_hdump(char *cp, unsigned int length) {
-
-  /* stolen from tcpdump, then kludged extensively */
-
-  static const char asciify[] = "................................ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~.................................................................................................................................";
-
-  const u_short *sp;
-  const u_char *ap;
-  unsigned char *bp = (unsigned char *) cp;
-  u_int i, j;
-  int nshorts, nshorts2;
-  int padding;
-  
-  log_write(LOG_PLAIN, "\n\t");
-  padding = 0;
-  sp = (u_short *)bp;
-  ap = (u_char *)bp;
-  nshorts = (u_int) length / sizeof(u_short);
-  nshorts2 = (u_int) length / sizeof(u_short);
-  i = 0;
-  j = 0;
-  while(1) {
-    while (--nshorts >= 0) {
-      log_write(LOG_PLAIN, " %04x", ntohs(*sp));
-      sp++;
-      if ((++i % 8) == 0)
-        break;
-    }
-    if (nshorts < 0) {
-      if ((length & 1) && (((i-1) % 8) != 0)) {
-        log_write(LOG_PLAIN, " %02x  ", *(u_char *)sp);
-        padding++;
-      }
-      nshorts = (8 - (nshorts2 - nshorts));
-      while(--nshorts >= 0) {
-        log_write(LOG_PLAIN, "     ");
-      }
-      if (!padding) log_write(LOG_PLAIN, "     ");
-    }
-    log_write(LOG_PLAIN, "  ");
-
-    while (--nshorts2 >= 0) {
-      log_write(LOG_PLAIN, "%c%c", asciify[*ap], asciify[*(ap+1)]);
-      ap += 2;
-      if ((++j % 8) == 0) {
-        log_write(LOG_PLAIN, "\n\t");
-        break;
-      }
-    }
-    if (nshorts2 < 0) {
-      if ((length & 1) && (((j-1) % 8) != 0)) {
-        log_write(LOG_PLAIN, "%c", asciify[*ap]);
-      }
-      break;
-    }
-  }
-  if ((length & 1) && (((i-1) % 8) == 0)) {
-    log_write(LOG_PLAIN, " %02x", *(u_char *)sp);
-    log_write(LOG_PLAIN, "                                       %c", asciify[*ap]);
-  }
-  log_write(LOG_PLAIN, "\n");
-}
 
 #ifndef HAVE_STRERROR
 char *strerror(int errnum) {

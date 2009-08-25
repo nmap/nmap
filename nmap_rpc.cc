@@ -317,7 +317,7 @@ int send_rpc_query(Target *target_host, unsigned short portno,
     /* Simply send this sucker we have created ... */
     do {  
       if (o.debugging > 1)
-	hdump((unsigned char *) rpch, sizeof(struct rpc_hdr));
+	  nmap_hexdump((unsigned char *) rpch, sizeof(struct rpc_hdr));
       res = sendto(udp_rpc_socket, (char *)rpch, sizeof(struct rpc_hdr), 0,
 		   (struct sockaddr *) &sock, socklen);
       if (res == -1)

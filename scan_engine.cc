@@ -4264,9 +4264,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    break;
 
 	  default:
-	    error("Unexpected ICMP type/code 3/%d unreachable packet:", 
+	    error("Unexpected ICMP type/code 3/%d unreachable packet:\n", 
 		  icmp->icmp_code);
-	    hdump((unsigned char *)icmp, ntohs(ip->ip_len) - 
+	      nmap_hexdump((unsigned char *)icmp, ntohs(ip->ip_len) - 
 		  sizeof(struct ip));
 	    break;
 	  }
