@@ -71,9 +71,6 @@ end
 
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. 
 --
--- TODO: It may be a good idea, in the future, to cache them. Otherwise, these files are re-read for every 
--- host that's scanned. That can be quite a bit of i/o. 
---
 --@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>. 
 local function get_fingerprints()
 	local entries  = {}
@@ -81,6 +78,15 @@ local function get_fingerprints()
 	local POSTAUTH = "# Post-Auth"
 
 	local i
+
+	-- Check if we've already read the file
+	-- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
+	-- of that would be minimal (and definitely isn't security)
+	if(nmap.registry.http_fingerprints ~= nil) then
+		stdnse.print_debug(1, "http-enum: Using cached HTTP fingerprints")
+		return nmap.registry.http_fingerprints
+	end
+
 	for i = 1, #fingerprint_files, 1 do
 		local filename = FILENAME_BASE .. fingerprint_files[i]
 		local filename_full = nmap.fetchfile(filename)
@@ -108,6 +114,9 @@ local function get_fingerprints()
 			stdnse.print_debug(1, "http-enum: Added %d entries from file %s", count, filename)
 		end
 	end
+
+	-- Cache the fingerprints for other scripts, so we aren't reading the files every time
+	nmap.registry.http_fingerprints = entries
 	
 	return entries
 end
