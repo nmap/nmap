@@ -1,21 +1,94 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Add PJL (Printer Job Language) probes to
+  nmap-service-probes. Brandon wrote some in
+  http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
+  they cause anything to be printed out (on paper) with printers that
+  don't support PJL. If not, then remove the JetDirect ports from the
+  default exclude list. The script pjl-ready-message.nse also uses PJL.
+
+o Device categorization improvements
+  o Examine Nmap's device categorization in nmap-os-deb and
+    nmap-service-probes.  Decide if some small categories which have
+    never really took off should be consolidated, or whether others
+    should be split off.  For example, maybe there are some groups in
+    'specialized' or other misc. categories which are now large enough
+    to split off.  Personally, I wouldn't give anything its own
+    category unless there are at least half a dozen of them and no
+    other category really fits them well.  We should use a combined
+    system for nmap-os-db and nmap-service-probes.
+  o Add a classification sect1 to os-detection.xml
+    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
+    classification.  It should include a list with descriptions of
+    each device type recognized by Nmap.  Version-detection.xml should
+    reference (link to) it in the approprate place.
+    [Doug has done some initial work on this.  For example, see
+     nmap/docs/device-types.txt] [David]
+
+o [Zenmap] When the inventory is changed, the current host/service selection is
+  forgotten and the Ports / Hosts tab is switched to hosts mode. It should
+  remember your current selection and not change the view. [David/SoC]
+
+o Fix traceroute performance/algorithms.  It is terribly bad in some
+  cases.  For example, this traceroute scan took 36 minutes against a
+  single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
+  don't need to go up to hop 50 in such cases (maybe some heuristic
+  like "at least go to hop 15, and stop after 5 unresolved in a row).
+  And more importantly, there is no reason each hop should take 40s to
+  timeout.  It should probably use timeout variables like we use in
+  port scanning.  And it should parallelize as much as possible.  Even
+  if parallel resolution means we went a little further than we had to
+  in incrementing the TTL, and we go to hop 15 when host is at 12
+  that's no big deal (of course we would only report up to hop 12 in
+  the output).  Once we do this, we should put back the ability to
+  make --traceroute work even when we haven't found a probe which
+  elicits a response from the target. (that feature was added in July,
+  but we'll probably take it out until we can fix
+  performance). [David]
+
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
-o [Ncat] David says: "After you get EOF on stdin with --send-only, the
-  program hangs on until the idle timeout expires instead of terminating
-  immediately.  I had a fix for it but it involved deleting events in
-  the Nsock queue and it caused an assertion failure in Nmap so I backed
-  it out. I have a less intrusive solution." [David]
-
-o We should update our config.{sub,guess} files.  This Debian bug
-  #542079 requests that we do so:
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079.  We last
-  updated on 3/15/08 and in that case we used versions from
-  http://cvs.savannah.gnu.org/viewvc/config/?root=config.  That may or
-  may not be the best place to get them now (e.g. perhaps there has
-  been a recent official release). [David]
+o Scanning through proxies
+ o Nmap should be able to scan through proxy servers, particularly now
+   that we have an NSE script for detectiong open proxies and now that
+   Ncat can act as proxy client or server.
+ o Requirements:
+   o Would be nice to be able to chain through multiple proxy servers of
+     different types
+   o Support IPv4 and v6
+   o Need to figure out how to get good performance.  Pool of
+     connections to proxy or proxies for concurrency?  HTTP pipelining?
+   o Support the different varieties of proxies: socks4, socks4a,
+     socks5, HTTP GET (if possible), HTTP CONNECT.  Note that GET
+     proxies present some challenges since the error messages may not
+     be standard, etc.
+   o Maybe auto-detect the proxy type so that Nmap can try the most
+     efficient scanning method first?
+   o I've been asked to support basic, ntlm, and digest authentication
+     if possible.
+ o Implementation ideas: 
+   o There is a patch by Zoltan Panczel (http://nmap-dev.fw.hu) and it
+     has been improved by Jacob Appelbaum in nmap-exp/ioerror/ .  This
+     patch doesn't handle things like parallelization, but it may be a
+     good proof of concept.
+   o This might not be appropriate for ultra_scan ... perhaps would be
+     better to write a general scanning engine for abusing
+     applications for port scanning purposes.  This could handle
+     scanning through proxies and the existing FTP bounce scan would
+     also be ported to this engine (or, frankly, we could probably get
+     away with removing FTP bounce).  rembrandt at jpberlin.de tells me
+     that you can also do this with the "forwarding" commands on IMAP
+     servers.  Whoever does this should probably start by reading the
+     code for the main port scanning engine (ultra_scan()) and also
+     the version detection code (service_scan()).  And the version
+     detection paper at http://nmap.org/book/vscan.html.  If you
+     understand all that, you may be ready for this project :).  This
+     is important, because it is easy to do poorly.  The tough part is
+     high performance and clean code which is general enough that all
+     these different applications can be scanned through using the
+     same basic engine.  You should run your ideas by nmap-dev in as
+     much detail as possible before starting.
 
 o We should package the rendered Nroff man page translations (e.g. all
   16 languages) in the tarball to make it easier for distributors to
@@ -25,8 +98,11 @@ o We should package the rendered Nroff man page translations (e.g. all
   uncompressed tarball and about 800KB to the (currently 9MB) bz2
   compressed tarball. [Fyodor]
 
-o Figure out best favicon to use for Nmap and related web sites
-  [David]
+o Once all the man page languages are in the Nmap tarball, we should
+  update our install system to install them in the appropriate place.
+  We'll want to integrate this with configure so users can decide which
+  languages they want.  David thinks the standard way is like
+  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
 
 o The Nmap 5.00 tarball contains:
   -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
@@ -39,12 +115,6 @@ o The Nmap 5.00 tarball contains:
   these out.  After all, people can easily grab them from svn or our
   new http svn gateway if desired.  So no need to bloat the tarball
   with these files which aren't installed. [Fyodor]
-
-o Once all the man page languages are in the Nmap tarball, we should
-  update our install system to install them in the appropriate place.
-  We'll want to integrate this with configure so users can decide which
-  languages they want.  David thinks the standard way is like
-  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
 
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
@@ -66,24 +136,6 @@ o [NSE] Finish (or write new) favicon fingerprinting script. See
   want to later combine this as part of a larger webapp fingerprinting
   script.
 
-o Device categorization improvements
-  o Examine Nmap's device categorization in nmap-os-deb and
-    nmap-service-probes.  Decide if some small categories which have
-    never really took off should be consolidated, or whether others
-    should be split off.  For example, maybe there are some groups in
-    'specialized' or other misc. categories which are now large enough
-    to split off.  Personally, I wouldn't give anything its own
-    category unless there are at least half a dozen of them and no
-    other category really fits them well.  We should use a combined
-    system for nmap-os-db and nmap-service-probes.
-  o Add a classification sect1 to os-detection.xml
-    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
-    classification.  It should include a list with descriptions of
-    each device type recognized by Nmap.  Version-detection.xml should
-    reference (link to) it in the approprate place.
-    [Doug has done some initial work on this.  For example, see
-     nmap/docs/device-types.txt]
-
 o Add Nmap web board.
  
 o Create Nmap wiki
@@ -97,59 +149,12 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
   "disable portscan" than ping only.  For example, you can also use
   NSE, traceroute, etc. [David]
 
-o [Zenmap] When the inventory is changed, the current host/service selection is
-  forgotten and the Ports / Hosts tab is switched to hosts mode. It should
-  remember your current selection and not change the view. [David/SoC]
-
-o Fix traceroute performance/algorithms.  It is terribly bad in some
-  cases.  For example, this traceroute scan took 36 minutes against a
-  single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
-  don't need to go up to hop 50 in such cases (maybe some heuristic
-  like "at least go to hop 15, and stop after 5 unresolved in a row).
-  And more importantly, there is no reason each hop should take 40s to
-  timeout.  It should probably use timeout variables like we use in
-  port scanning.  And it should parallelize as much as possible.  Even
-  if parallel resolution means we went a little further than we had to
-  in incrementing the TTL, and we go to hop 15 when host is at 12
-  that's no big deal (of course we would only report up to hop 12 in
-  the output).  Also, on a much more trivial note, we should give some
-  indication that the RTT is in ms.  Changing the column header to
-  maybe "RTT MS" or "RTT (MS)" would probably do the trick or we could
-  append "ms" to each value. Once we do this, we should put back the
-  ability to make --traceroute work even when we haven't found a probe
-  which elicits a response from the target. (that feature was added in
-  July, but we'll probably take it out until we can fix
-  performance). [David]
-
-o --traceroute should probably set currenths->distance because right
-  now, I do an -O scan against scanme.nmap.org, and it does not figure
-  out the distance.  So the fingerprint shows no distance element and
-  Nmap doesn't print "Network Distance" in the results line.  That may
-  be OK (Nmap probably isn't receiving the probe response needed for
-  this, and maybe doesn't want to print the TG), but even when I do
-  --traceroute I get no distance printed.  Yet Nmap clearly knows the
-  distance since the traceroute shows all the hops up to and including
-  the target (scanme.nmap.org).
-
-o OS fingerprint should probably specify somewhow when DS=1 if it's
-  because target->directlyConnected is true, or because it sent the
-  distance probe and calculated a distance of 1.  The second situation
-  should never happen, but often David strongly suspects that it is the
-  case.
-
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
-o Add PJL (Printer Job Language) probes to
-  nmap-service-probes. Brandon wrote some in
-  http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
-  they cause anything to be printed out (on paper) with printers that
-  don't support PJL. If not, then remove the JetDirect ports from the
-  default exclude list. The script pjl-ready-message.nse also uses PJL.
 
 o Consider moving UDP ping/portscan payloads from payload.cc to a
   custom data file so that it is cleaner to maintain and users can
@@ -164,9 +169,6 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
     first don't get ignored for looking like retransmissions.
   o TFTP sends its response from an ephemeral port, not port 69.
 
-o Consider what new UDP payloads we might want to add.  David has many
-  ideas at: http://seclists.org/nmap-dev/2009/q3/0290.html
-
 o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244
@@ -179,6 +181,7 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
   the man page location for ncat and ndiff.
  o Don't break packaging/build system
  o Don't break the system for posting html to web site. 
+ o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
 
 o [Web] Consider adding training/introduction videos to the Nmap site
@@ -248,45 +251,6 @@ o Change Nsock so that it is able to take advantage of more modern
   libevent home page has some interesting benchmark graphs too.
   [David/SoC]
 
-o Scanning through proxies
- o Nmap should be able to scan through proxy servers, particularly now
-   that we have an NSE script for detectiong open proxies and now that
-   Ncat can act as proxy client or server.
- o Requirements:
-   o Should be able to chain through multiple proxy servers of different
-     types
-   o Support IPv4 and v6
-   o Need to figure out how to get good performance.  Pool of
-     connections to proxy or proxies for concurrency?  HTTP pipelining?
-   o Support the different varieties of proxies: socks4, socks4a,
-     socks5, HTTP GET (if possible), HTTP CONNECT.  Note that GET
-     proxies present some challenges since the error messages may not
-     be standard, etc.
-   o Maybe auto-detect the proxy type so that Nmap can try the most
-     efficient scanning method first?
-   o I've been asked to support basic, ntlm, and digest authentication
-    if possible.
- o Implementation ideas: 
-   o There is a patch by Zoltan Panczel (http://nmap-dev.fw.hu) and it
-     has been improved by Jacob Appelbaum in nmap-exp/ioerror/ .  This
-     patch doesn't handle things like parallelization, but it may be a
-     great proof of concept.
-   o This might not be appropriate for ultra_scan ... perhaps would be
-     better to write a general scanning engine for abusing
-     applications for port scanning purposes.  This could handle
-     scanning through proxies and the existing FTP bounce scan would
-     also be ported to this engine.  rembrandt at jpberlin.de tells me
-     that you can also do this with the "forwarding" commands on IMAP
-     servers.  Whoever does this should probably start by reading the
-     code for the main port scanning engine (ultra_scan()) and also
-     the version detection code (service_scan()).  And the version
-     detection paper at http://nmap.org/book/vscan.html.  If you
-     understand all that, you may be ready for this project :).  This
-     is important, because it is easy to do poorly.  The tough part is
-     high performance and clean code which is general enough that all
-     these different applications can be scanned through using the
-     same basic engine.  You should run your ideas by nmap-dev in as
-     much detail as possible before starting.
 
 o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
@@ -647,6 +611,47 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Consider what new UDP payloads we might want to add.  David has many
+  ideas at: http://seclists.org/nmap-dev/2009/q3/0290.html
+
+o For traceroute we should give some indication that the RTT is in ms.
+  Changing the column header to maybe "RTT MS" or "RTT (MS)" would
+  probably do the trick or we could append "ms" to each value.
+  [David]
+
+o OS fingerprint should probably specify somewhow when DS=1 if it's
+  because target->directlyConnected is true, or because it sent the
+  distance probe and calculated a distance of 1.  The second situation
+  should never happen, but often David strongly suspects that it is the
+  case.
+
+o --traceroute should probably set currenths->distance because right
+  now, I do an -O scan against scanme.nmap.org, and it does not figure
+  out the distance.  So the fingerprint shows no distance element and
+  Nmap doesn't print "Network Distance" in the results line.  That may
+  be OK (Nmap probably isn't receiving the probe response needed for
+  this, and maybe doesn't want to print the TG), but even when I do
+  --traceroute I get no distance printed.  Yet Nmap clearly knows the
+  distance since the traceroute shows all the hops up to and including
+  the target (scanme.nmap.org).
+
+o Figure out best favicon to use for Nmap and related web sites
+  [David]
+
+o [Ncat] David says: "After you get EOF on stdin with --send-only, the
+  program hangs on until the idle timeout expires instead of terminating
+  immediately.  I had a fix for it but it involved deleting events in
+  the Nsock queue and it caused an assertion failure in Nmap so I backed
+  it out. I have a less intrusive solution." [David]
+
+o We should update our config.{sub,guess} files.  This Debian bug
+  #542079 requests that we do so:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=542079.  We last
+  updated on 3/15/08 and in that case we used versions from
+  http://cvs.savannah.gnu.org/viewvc/config/?root=config.  That may or
+  may not be the best place to get them now (e.g. perhaps there has
+  been a recent official release). [David]
 
 o Look a bit more at default version detection timing.  Particularly
   deciding the number of probes to run in parallel. [ We increased
