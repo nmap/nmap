@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] If you have any hosts or services selected, they will
+  remain selected after aggregating another scan or running a filter
+  (as long as they are still up and visible). Before the selection was
+  lost whenever the scan inventory was changed. [David]
+
 o There is a new OS detection pseudo-test, SCAN.DC, which records how
   the network distance in SCAN.DS was calculated. Its value can be "L"
   for localhost, "D" for a direct connection, "I" for an ICMP TTL
