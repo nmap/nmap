@@ -18,8 +18,10 @@
 # Admin directory
 /admin/
 
-# Backup directory
+# Backup
 /backup/
+/bak/
+backup.sql
 
 # Beta directory
 /beta/
