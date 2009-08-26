@@ -49,13 +49,19 @@ o Fix traceroute performance/algorithms.  It is terribly bad in some
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
+o New Nmap dev release (5.05BETA1 or whatever)
+
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
    Ncat can act as proxy client or server.
  o Requirements:
    o Would be nice to be able to chain through multiple proxy servers of
-     different types
+     different types.
+   o Would be nice to be able to spread the load amongst multiple
+     proxies.
+   o Should support port scanning, version detection, and NSE.  In
+     other words, nsock should support proxies.
    o Support IPv4 and v6
    o Need to figure out how to get good performance.  Pool of
      connections to proxy or proxies for concurrency?  HTTP pipelining?
