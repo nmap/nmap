@@ -21,7 +21,7 @@
 # Backup
 /backup/
 /bak/
-backup.sql
+/backup.sql
 
 # Beta directory
 /beta/
