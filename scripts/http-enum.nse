@@ -53,7 +53,7 @@ require 'stdnse'
 
 -- List of fingerprint files
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
-if(nmap.registry.args.fingerprints ~= nil) then
+if(nmap and nmap.registry and nmap.registry.args and nmap.registry.args.fingerprints ~= nil) then
 	fingerprint_files = { nmap.registry.args.fingerprints }
 end
 
