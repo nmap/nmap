@@ -555,10 +555,9 @@ local function lookup_cache (method, host, port, path, options)
   local no_cache = options.no_cache; -- do not save result
   local no_cache_body = options.no_cache_body; -- do not save body
 
-  if type(host) == "table" then host = host.ip end
   if type(port) == "table" then port = port.number end
 
-  local key = host..":"..port..":"..path;
+  local key = get_hostname(host)..":"..port..":"..path;
   local mutex = nmap.mutex(tostring(lookup_cache)..key);
 
   local state = {
