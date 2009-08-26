@@ -1024,7 +1024,8 @@ Traceroute::outputTarget(Target * t) {
 /* print a trace in xml */
 void
 Traceroute::outputXMLTrace(TraceGroup * tg) {
-    map < u16, TraceProbe * >::const_iterator it;
+    map < u8, TraceProbe * >::const_iterator it;
+    map < u8, TraceProbe * >ttlProbes;
     TraceProbe *tp = NULL;
     const char *hostname_tmp = NULL;
     struct in_addr addr;
@@ -1048,8 +1049,10 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
     }
     log_write(LOG_XML, ">\n");
 
+    ttlProbes = tg->consolidateHops();
+
     /* add missing hosts host from the common path */
-    for (ttl_count = 1 ; ttl_count < tg->TraceProbes.begin()->second->ttl; ttl_count++) {
+    for (ttl_count = 1 ; ttl_count < ttlProbes.begin()->second->ttl; ttl_count++) {
         addr.s_addr = commonPath[ttl_count];
         log_write(LOG_XML, "<hop ttl=\"%d\" rtt=\"--\" ", ttl_count);
         log_write(LOG_XML, "ipaddr=\"%s\"", inet_ntoa(addr));
@@ -1060,7 +1063,7 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
 
     /* display normal traceroute nodes.  Consolidation based on the common path
      * is not performed */
-    for (it = tg->TraceProbes.begin() ;it != tg->TraceProbes.end(); it++) {
+    for (it = ttlProbes.begin(); it != ttlProbes.end(); it++) {
         tp = it->second;
 
         if (tp->probeType() == PROBE_TTL)
