@@ -64,8 +64,8 @@ action = function(host, port)
 	end
 
 	local response = " \n"
-	for i, v in pairs(result.header) do
-		response = response .. string.format(" %s: %s\n", i, v)
+	for _, header in pairs(result.rawheader) do
+		response = response .. header .. "\n"
 	end
 		
 	return response

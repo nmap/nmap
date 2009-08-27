@@ -948,7 +948,7 @@ end
 --  @return A table with the values received from the server
 function parseResult( response )
   if type(response) ~= "string" then return response end
-  local result = {status=nil,["status-line"]=nil,header={},body=""}
+  local result = {status=nil,["status-line"]=nil,header={},rawheader={},body=""}
 
   -- try and separate the head from the body
   local header, body
@@ -974,6 +974,8 @@ function parseResult( response )
     else
       match, _, key, value = string.find( line, "(.+): (.*)" )
       if match and key and value then
+        -- Keep the raw header too, in case a script wants to access it
+        table.insert(result['rawheader'], line)
         key = key:lower()
         if result.header[key] then
           result.header[key] = result.header[key] .. ',' .. value
