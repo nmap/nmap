@@ -1128,39 +1128,48 @@ end
 --
 --@param host The host object. 
 --@param port The port to use -- note that SSL will automatically be used, if necessary. 
---@param result_404 [optional] The result when an unknown page is requested. This is returned by <code>identify_404</code>. 
---                  If the 404 page returns a '200' code, then we disable HEAD requests. 
+--@param result_404 [optional] The result when an unknown page is requested. This is returned by 
+--                  <code>identify_404</code>. If the 404 page returns a '200' code, then we 
+--                  disable HEAD requests. 
+--@param path [optional] The path to request; by default, '/' is used. 
 --@return A boolean value: true if HEAD is usable, false otherwise. 
-function can_use_head(host, port, result_404)
+--@return If HEAD is usable, the result of the HEAD request is returned (so potentially, a script can
+--        avoid an extra call to HEAD
+function can_use_head(host, port, result_404, path)
 	-- If the 404 result is 200, don't use HEAD. 
 	if(result_404 == 200) then
 		return false
 	end
 
+	-- Default path
+	if(path == nil) then
+		path = '/'
+	end
+
 	-- Perform a HEAD request and see what happens. 
-	local data = http.head( host, port, '/' )
+	local data = http.head( host, port, path )
 	if data then
 		if data.status and data.status == 302 and data.header and data.header.location then
-			stdnse.print_debug(1, "http-enum.nse: Warning: Host returned 302 and not 200 when performing HEAD.")
+			stdnse.print_debug(1, "HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
 			return false
 		end
 
 		if data.status and data.status == 200 and data.header then
 			-- check that a body wasn't returned
 			if string.len(data.body) > 0 then
-				stdnse.print_debug(1, "http-enum.nse: Warning: Host returned data when performing HEAD.")
+				stdnse.print_debug(1, "HTTP: Warning: Host returned data when performing HEAD.")
 				return false
 			end
 
-			stdnse.print_debug(1, "http-enum.nse: Host supports HEAD.")
-			return true
+			stdnse.print_debug(1, "HTTP: Host supports HEAD.")
+			return true, data
 		end
 
-		stdnse.print_debug(1, "http-enum.nse: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
+		stdnse.print_debug(1, "HTTP: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
 		return false
 	end
 
-	stdnse.print_debug(1, "http-enum.nse: HEAD request completely failed.")
+	stdnse.print_debug(1, "HTTP: HEAD request completely failed.")
 	return false
 end
 
@@ -1278,17 +1287,17 @@ function identify_404(host, port)
 	data = http.get(host, port, URL_404_1)
 
 	if(data == nil) then
-		stdnse.print_debug(1, "http-enum.nse: Failed while testing for 404 status code")
+		stdnse.print_debug(1, "HTTP: Failed while testing for 404 status code")
 		return false, "Failed while testing for 404 error message"
 	end
 
 	if(data.status and data.status == 404) then
-		stdnse.print_debug(1, "http-enum.nse: Host returns proper 404 result.")
+		stdnse.print_debug(1, "HTTP: Host returns proper 404 result.")
 		return true, 404
 	end
 
 	if(data.status and data.status == 200) then
-		stdnse.print_debug(1, "http-enum.nse: Host returns 200 instead of 404.")
+		stdnse.print_debug(1, "HTTP: Host returns 200 instead of 404.")
 
 		-- Clean up the body (for example, remove the URI). This makes it easier to validate later
 		if(data.body) then
@@ -1296,7 +1305,7 @@ function identify_404(host, port)
 			local data2 = http.get(host, port, URL_404_2)
 			local data3 = http.get(host, port, URL_404_3)
 			if(data2 == nil or data3 == nil) then
-				stdnse.print_debug(1, "http-enum.nse: Failed while testing for extra 404 error messages")
+				stdnse.print_debug(1, "HTTP: Failed while testing for extra 404 error messages")
 				return false, "Failed while testing for extra 404 error messages"
 			end
 
@@ -1305,7 +1314,7 @@ function identify_404(host, port)
 				if(data2.status == nil) then
 					data2.status = "<unknown>"
 				end
-				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed for second request (became %d).", data2.status)
+				stdnse.print_debug(1, "HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
 				return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
 			end
 
@@ -1314,7 +1323,7 @@ function identify_404(host, port)
 				if(data3.status == nil) then
 					data3.status = "<unknown>"
 				end
-				stdnse.print_debug(1, "http-enum.nse: HTTP 404 status changed for third request (became %d).", data3.status)
+				stdnse.print_debug(1, "HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
 				return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
 			end
 
@@ -1323,28 +1332,28 @@ function identify_404(host, port)
 			local clean_body2 = clean_404(data2.body)
 			local clean_body3 = clean_404(data3.body)
 			if(clean_body ~= clean_body2) then
-				stdnse.print_debug(1, "http-enum.nse: Two known 404 pages returned valid and different pages; unable to identify valid response.")
-				stdnse.print_debug(1, "http-enum.nse: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+				stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
+				stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
 				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
 			end
 
 			if(clean_body ~= clean_body3) then
-				stdnse.print_debug(1, "http-enum.nse: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
-				stdnse.print_debug(1, "http-enum.nse: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+				stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+				stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
 				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
 			end
 
 			return true, 200, clean_body
 		end
 
-		stdnse.print_debug(1, "http-enum.nse: The 200 response didn't contain a body.")
+		stdnse.print_debug(1, "HTTP: The 200 response didn't contain a body.")
 		return true, 200
 	end
 
 	-- Loop through any expected error codes
 	for _,code in pairs(bad_responses) do
 		if(data.status and data.status == code) then
-			stdnse.print_debug(1, "http-enum.nse: Host returns %s instead of 404 File Not Found.", get_status_string(data))
+			stdnse.print_debug(1, "HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
 			return true, code
 		end
 	end
@@ -1376,17 +1385,17 @@ function page_exists(data, result_404, known_404, page, displayall)
 				-- If the 404 response is also "200", deal with it (check if the body matches)
 				if(string.len(data.body) == 0) then
 					-- I observed one server that returned a blank string instead of an error, on some occasions
-					stdnse.print_debug(1, "http-enum.nse: Page returned a totally empty body; page likely doesn't exist")
+					stdnse.print_debug(1, "HTTP: Page returned a totally empty body; page likely doesn't exist")
 					return false
 				elseif(clean_404(data.body) ~= known_404) then
-					stdnse.print_debug(1, "http-enum.nse: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
+					stdnse.print_debug(1, "HTTP: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
 					return true
 				else
 					return false
 				end
 			else
 				-- If 404s return something other than 200, and we got a 200, we're good to go
-				stdnse.print_debug(1, "http-enum.nse: Page was '%s', it exists! (%s)", get_status_string(data), page)
+				stdnse.print_debug(1, "HTTP: Page was '%s', it exists! (%s)", get_status_string(data), page)
 				return true
 			end
 		else
@@ -1394,7 +1403,7 @@ function page_exists(data, result_404, known_404, page, displayall)
 			if(data.status ~= 404 and data.status ~= result_404) then
 				-- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
 				-- asks for everything (with a script argument), only display 401 Authentication Required here.
-				stdnse.print_debug(1, "http-enum.nse: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
+				stdnse.print_debug(1, "HTTP: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
 
 				if(data.status == 401) then -- "Authentication Required"
 					return true
@@ -1409,7 +1418,7 @@ function page_exists(data, result_404, known_404, page, displayall)
 			end
 		end
 	else
-		stdnse.print_debug(1, "http-enum.nse: HTTP request failed (is the host still up?)")
+		stdnse.print_debug(1, "HTTP: HTTP request failed (is the host still up?)")
 		return false
 	end
 end
