@@ -82,7 +82,7 @@ action = function(host, port)
 	end
 
 	local response = "(" .. request_type .. " used)\n"
-	for _, header in pairs(result.rawheader) do
+	for _, header in ipairs(result.rawheader) do
 		response = response .. header .. "\n"
 	end
 		
