@@ -6,16 +6,13 @@ Does a GET request for the root folder ("/"), and displays the HTTP headers retu
 --@output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT   STATE SERVICE
--- 80/tcp open  http
--- |  http-headers:  
--- |   connection: close
--- |   content-type: text/html; charset=UTF-8
--- |   content-length: 739
--- |   accept-ranges: bytes
--- |   date: Sun, 23 Aug 2009 01:14:30 GMT
--- |   etag: "fc8c91-2e3-44d8e17edd540"
--- |   last-modified: Mon, 19 May 2008 04:49:49 GMT
--- |_  server: Apache/2.2.2 (Fedora)
+-- 80/tcp open  http    syn-ack
+-- |  http-headers: (HEAD used)
+-- |  HTTP/1.1 200 OK
+-- |  Date: Thu, 27 Aug 2009 15:46:39 GMT
+-- |  Server: Apache/2.2.11 (Unix) PHP/5.2.8
+-- |  Connection: close
+-- |_ Content-Type: text/html;charset=ISO-8859-1
 -- 
 --@arg path The path to request, such as '/index.php'. Default: '/'. 
 --@arg useget Set to force GET requests instead of HEAD. 

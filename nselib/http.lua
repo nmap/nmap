@@ -967,6 +967,9 @@ function parseResult( response )
   -- build nicer table for header
   local last_header, match, key
   for number, line in ipairs( header or {} ) do
+    -- Keep the raw header too, in case a script wants to access it
+    table.insert(result['rawheader'], line)
+
     if number == 1 then
       local code = line:match "HTTP/%d%.%d (%d+)";
       result.status = tonumber(code)
@@ -974,8 +977,6 @@ function parseResult( response )
     else
       match, _, key, value = string.find( line, "(.+): (.*)" )
       if match and key and value then
-        -- Keep the raw header too, in case a script wants to access it
-        table.insert(result['rawheader'], line)
         key = key:lower()
         if result.header[key] then
           result.header[key] = result.header[key] .. ',' .. value
