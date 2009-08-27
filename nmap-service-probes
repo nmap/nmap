@@ -7405,3 +7405,22 @@ rarity 4
 ports 5353
 # mDNSResponder-176.3
 match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01| p/Apple mDNSResponder/
+
+
+##############################NEXT PROBE##############################
+# HP Printer Job Language, supported on most PostScript printers.
+# http://h20000.www2.hp.com/bc/docs/support/SupportManual/bpl13208/bpl13208.pdf
+# http://h20000.www2.hp.com/bc/docs/support/SupportManual/bpl13207/bpl13207.pdf
+Probe TCP hp-pjl q|\x1b%-12345X@PJL INFO ID\x0d\x0a\x1b%-12345X\x0d\x0a|
+ports 9100-9107
+rarity 9
+
+# Most printers respond with the printer version in quotes
+match hp-pjl m|^@PJL INFO ID\r?\n\"([^"]+)\"\r?\n| p/$1/ d/printer/
+# Some respond without the quotes
+match hp-pjl m|^@PJL INFO ID\r?\n([\w\d _-]+)\r?\n| p/$1/ d/printer/
+# Some respond with blank info
+match hp-pjl m|@PJL\x20INFO\x20ID\r?\n\r?\n| d/printer/
+
+# We don't want to send a bunch more probes that will be printed
+softmatch hp-pjl m|^| i/hp-pdl probe got something back/
