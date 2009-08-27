@@ -945,7 +945,7 @@ unknown	615/tcp	0.000063
 unknown	615/udp	0.000330
 unknown	616/tcp	0.000289
 unknown	616/udp	0.000330
-sco-dtmgr	617/tcp	0.000226	# SCO Desktop Administration Server or Arkeia (www.akriea.com) backup software
+sco-dtmgr	617/tcp	0.000226	# SCO Desktop Administration Server or Arkeia (www.arkeia.com) backup software
 sco-dtmgr	617/udp	0.001302	# SCO Desktop Administration Server
 unknown	618/tcp	0.000013
 unknown	619/tcp	0.000025
