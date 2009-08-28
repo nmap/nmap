@@ -257,6 +257,9 @@ o Change Nsock so that it is able to take advantage of more modern
   libevent home page has some interesting benchmark graphs too.
   [David/SoC]
 
+o [NSE] Add DNS based service discovery script.  See
+  http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
+  from David.
 
 o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
