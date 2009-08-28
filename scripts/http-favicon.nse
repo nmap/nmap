@@ -113,15 +113,15 @@ function parseIcon( body )
         
   -- check each tag for our favicon tag
   for k, v in ipairs(tags) do
-	icon = string.match( v, '<(%s-link.-rel%s-=%s-".-icon".-/?)>')
+        icon = string.match( v, '<(%s-link.-rel%s-=%s-".-icon".-/?)>')
         if icon then
                 icon = string.match( icon, 'href%s*=%s*"(.-)"')
-	        -- if favicon is in absolute format, we need to parse it!
-	        absolute_icon = string.match(icon, '^http://')
-	        if absolute_icon then
-	                parsed_icon = url.parse(icon)
-	                icon = parsed_icon.path
-	        end
+                -- if favicon is in absolute format, we need to parse it!
+                absolute_icon = string.match(icon, '^http://')
+                if absolute_icon then
+                        parsed_icon = url.parse(icon)
+                        icon = parsed_icon.path
+                end
                 break
         end
   end
