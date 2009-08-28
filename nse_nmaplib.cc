@@ -328,18 +328,33 @@ static int l_mutex (lua_State *L)
 
 Target *get_target (lua_State *L, int index)
 {
+  int top = lua_gettop(L);
   Target *target;
   luaL_checktype(L, index, LUA_TTABLE);
+  lua_getfield(L, index, "targetname");
   lua_getfield(L, index, "ip");
-  if (!lua_isstring(L, -1))
-    luaL_error(L, "host table does not contain 'ip' string field");
+  if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
+    luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
   lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
-  lua_pushvalue(L, -2); /* target ip string */
-  lua_rawget(L, -2);
-  if (!lua_islightuserdata(L, -1))
-    luaL_argerror(L, 1, "host is not being processed right now");
+  if (lua_isstring(L, -3)) /* targetname */
+  {
+    lua_pushvalue(L, -3);
+    lua_rawget(L, -2);
+    if (lua_islightuserdata(L, -1))
+      goto done;
+    else
+      lua_pop(L, 1);
+  }
+  if (lua_isstring(L, -2)) /* ip */
+  {
+    lua_pushvalue(L, -2); /* ip */
+    lua_rawget(L, -2);
+    if (!lua_islightuserdata(L, -1))
+      luaL_argerror(L, 1, "host is not being processed right now");
+  }
+done:
   target = (Target *) lua_touserdata(L, -1);
-  lua_pop(L, 3); /* target ip string, current_hosts, target luserdata */
+  lua_settop(L, top); /* reset stack */
   return target;
 }
 

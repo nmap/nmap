@@ -445,12 +445,19 @@ static int run_main (lua_State *L)
   for (std::vector<Target *>::iterator ti = targets->begin();
        ti != targets->end(); ti++)
   {
+    Target *target = (Target *) *ti;
+    const char *TargetName = target->TargetName();
+    const char *targetipstr = target->targetipstr();
     lua_newtable(L);
-    set_hostinfo(L, (Target *) *ti);
+    set_hostinfo(L, target);
     lua_rawseti(L, 3, lua_objlen(L, 3) + 1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
-    lua_pushlightuserdata(L, (void *) *ti);
-    lua_setfield(L, -2, (*ti)->targetipstr());
+    if (TargetName != NULL && strcmp(TargetName, "") != 0)
+      lua_pushstring(L, TargetName);
+    else
+      lua_pushstring(L, targetipstr);
+    lua_pushlightuserdata(L, target);
+    lua_rawset(L, -3);
     lua_pop(L, 1); /* current_hosts */
   }
 
