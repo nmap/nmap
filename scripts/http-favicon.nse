@@ -4,12 +4,17 @@ Gets the favicon.ico from the root of a web service and tries to enumerate it
 
 ---
 -- @args favicon.uri Uri that will be requested for favicon
+-- @args favicon.root Webserver path to search for favicon
 -- @output
 -- |_ http-favicon: Found favicon from Socialtext
 
 -- HTTP default favicon enumeration script
 -- rev 1.2 (2009-03-11)
 -- Original NASL script by Javier Fernandez-Sanguino Pena
+--@usage
+-- nmap --script=http-favicon.nse \
+--		--script-args favicon.root=<root>,favicon.uri=<uri>
+
 
 author = "Vlatko Kosturjak <kost@linux.hr>"
 
