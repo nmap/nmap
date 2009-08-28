@@ -16,6 +16,7 @@ Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", } }
+Entry { filename = "http-favicon.nse", categories = { "default", "discovery", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
