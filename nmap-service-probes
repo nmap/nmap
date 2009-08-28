@@ -103,8 +103,8 @@ match scmbug m|^SCMBUG-SERVER RELEASE_([-\w_.]+) \d+\n| p/Scmbug bugtracker/ v/$
 match bru m|^0x[0-9a-fA-F]{32}L| p/Tolis BRU/ i/Backup and Restore Utility/
 
 # Bruker AXS X-ray machines (how cool is that!?!?) (Brandon)
-match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=1|s p/Bruker AXS X-ray controller status/ i/X-rays: On/ d/X-ray machine/
-match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=0|s p/Bruker AXS X-ray controller status/ i/X-rays: Off/ d/X-ray machine/
+match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=1|s p/Bruker AXS X-ray controller status/ i/X-rays: On/ d/specialized/
+match bruker-axs m|^\[ANGLESTATUS.*\[XYZSTATUS.*\[ZOOMSTATUS.*\[INSTRUMENTSTATUS.*XRAYSON=0|s p/Bruker AXS X-ray controller status/ i/X-rays: Off/ d/specialized/
 
 match buildservice m|^200 HELLO - BuildForge Agent v([\w-_.]+)\n| p/BuildForge Agent/ v/$1/
 match buildservice m|^\$\0\0\0\$\0\0\x000RAR\0 \0\0.\xe2\x02\0\xc4G\x0f\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/Xoreax IncrediBuild/ o/Windows/
@@ -760,7 +760,7 @@ match fyre m|^220 Fyre rendering server ready\n| p/Fyre rendering cluster node/
 match galaxy m|^\0\0\0\t\0\0\0\x80\0\0\0\0\0\0\0\0\0\0\x042\0\0\0\x01\0\0\t_\0\0\0h| p/Galaxy Client Event Manager/ o/Windows/
 match gnats m|^200 ([-.\w]+) GNATS server (\d[-.\w]+) ready\.\r\n| p/GNATS bugtracking system/ h/$1/ v/$2/
 
-match ganglia m|^<\?xml version=\"1\.0\".*<!DOCTYPE GANGLIA_XML.*<GANGLIA_XML VERSION=\"([^\"]+)\" SOURCE=\"([^\"]+)\">.*<CLUSTER NAME=\"([^\"]+)\" LOCALTIME=\"\d+\" OWNER=\"([^\"]+)\"|s p/Ganglia XML Grid monitor/ v/$1/ i/Cluster name: $3; Owner: $4; Source: $2/ d/cluster/
+match ganglia m|^<\?xml version=\"1\.0\".*<!DOCTYPE GANGLIA_XML.*<GANGLIA_XML VERSION=\"([^\"]+)\" SOURCE=\"([^\"]+)\">.*<CLUSTER NAME=\"([^\"]+)\" LOCALTIME=\"\d+\" OWNER=\"([^\"]+)\"|s p/Ganglia XML Grid monitor/ v/$1/ i/Cluster name: $3; Owner: $4; Source: $2/ d/specialized/
 
 # Probably not general enough...
 match gnatbox m|^GBPK\xfb\xf7n\x93W\xaf\x86\x93x@\xa9\x0e\xca\*\x9bS\0| p/GNATBox firewall administration/ d/firewall/
@@ -2159,7 +2159,7 @@ match solproxy m|^The solproxy is used by [\d.]+\n\rThe client is closed!\n\r| p
 # and http://simp.mitre.org/drafts/antp.html
 # for details
 match beep m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n\r\n<greeting><profile uri=\"http://www\.codingmonkeys\.de/BEEP/SubEthaEditHandshake\"| p/SubEthaEdit collaborative text editor/ o/Mac OS X/
-match beep m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n\r\n<greeting.<profile uri=\"http://www\.apple\.com/beep/GSS\"/>.*/beep/xgrid/controller/|s p/Apple Xgrid Controller/ d/cluster/ o/Mac OS X/
+match beep m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n\r\n<greeting.<profile uri=\"http://www\.apple\.com/beep/GSS\"/>.*/beep/xgrid/controller/|s p/Apple Xgrid Controller/ d/specialized/ o/Mac OS X/
 softmatch beep m|^RPY \d \d \. \d \d+\r\nContent-Type: application/beep\+xml\r\n|
 
 match kvm m|^\0\0\0\x0bSynergy\0\x01\0| p/Synergy KVM/
@@ -3174,7 +3174,7 @@ match paromed m|^PCS-[\w-_.]+,V([\w-_.]+),OK\nERROR:102: ENERROR:102: EN| p/Paro
 # torque, Tera-scale Open-source Resource and QUEue manager (PBS)
 # http://supercluster.org/torque
 # maui, http://supercluster.org/maui
-match pbs-maui m|^\+2\+15\+15056\+\d+\+\d+| p|PBS/Maui Roll| i/Rocks Cluster/ d/cluster/
+match pbs-maui m|^\+2\+15\+15056\+\d+\+\d+| p|PBS/Maui Roll| i/Rocks Cluster/ d/specialized/
 
 match peercast m|^OK2\r\nicy-caps:\d+\r\n\r\nOK\r\n$| p/Peercast/
 # Mercury/32 3.32 PH Server module on Windows XP
@@ -4301,7 +4301,7 @@ match http m|^HTTP/1\.0 \d\d\d .*<title>mikrotik routeros > administration</titl
 match http m|^HTTP/1\.0 \d\d\d .*<title>mikrotik routeros > administration</title>|s p/MikroTik router http config/ d/router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: thttpd-alphanetworks/([\d.]+)\r\nContent-Type: text/html\r\nDate: .*\r\nLast-Modified: .*\r\nAccept-Ranges: bytes\r\nConnection: close\r\nWWW-Authenticate: Basic realm=\"Broadband Router\"\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD><BODY onLoad=javascript:document\.forms\[0\]\.submit\(\);>| p/FiberLine router http config/ i/thttpd-alphanetworks $1/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: RMC Webserver ([\d.]+)\r\n.*<title>Remote Access Controller</title>|s p/Dell Remote Access Controller http interface/ v/$1/ d/remote management/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PROJECTOR\" \r\nContent-Type: text/html\r\n\r\n<HTML><BODY><H2>HTTP Error 401 - Unauthorized</H2><HR></BODY></HTML>| p/Panasonic Video Projector http config/ d/projector/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PROJECTOR\" \r\nContent-Type: text/html\r\n\r\n<HTML><BODY><H2>HTTP Error 401 - Unauthorized</H2><HR></BODY></HTML>| p/Panasonic Video Projector http config/ d/media device/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Footprint ([\d.]+)/FPMCP\r\n| p/Sandpiper Footprint http load balancer/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: LogMeIn Web Gateway\r\n| p/LogMeIn remote access web gateway/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ArGoSoft Mail Server Freeware, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server Freeware httpd/ v/$1/ o/Windows/
@@ -4655,7 +4655,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs\r\nDate: .*\r\nWWW-Aut
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Micro-Web\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<P><TABLE BORDER=0 CELLPADDING=0 CELLSPACING=0 WIDTH=\"100%\">\n<TR><TD WIDTH=\"100%\" ALIGN=CENTER>\n<APPLET CODE=\"Login\.class\" WIDTH=545 HEIGHT=418\nALT=\"\[ Login applet is not available \]\">\n| p/Overland Storage Neo2000 http config/ i/Micro-Web httpd/ d/storage-misc/
 match http m|^HTTP/1\.1 200\r\nContent-type: text/html\r\nConnection: close\r\nCONTENT-LENGTH: \d+\r\n\r\n<html>\r\n <head>\r\n  <title>1761-NET-ENI</title>\r\n| p/Allen Bradley 1761-NET-ENI http config/
 match http m|^HTTP/1\.0 200 OK    \r\nServer: A-B WWW/([\d.]+)\r\n.*<img src=\"/images/rockcolor\.gif|s p/Rockwell Automation Ethernet Processor http config/ i/A-B WWW httpd $1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=Shift_JIS\">\r\n<title>NEC Projector LAN Control</title>\r\n| p/NEC Projector http config/ d/projector/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: NetPort Software ([\d.]+)\r\nDate: .*\r\nContent-type: text/html\r\n\r\n<html>\r\n<head>\r\n<meta http-equiv=\"content-type\" content=\"text/html;charset=Shift_JIS\">\r\n<title>NEC Projector LAN Control</title>\r\n| p/NEC Projector http config/ d/media device/
 match http m|^HTTP/1\.0 200 ;OK\r\nServer: UPS_Server/([\d.]+)\r\nContent-Type: text/html\r\nConnection: Close\r\n\r\n<html>\n<head>\n<title>UPS Properties</title>\n| p/MGE UPS httpd/ v/$1/ d/power-device/
 match http m|^HTTP/1\.1 \d\d\d .*\nContent-Length: \d+\nPragma: no-cache\nExpires: 0\nConnection: close\n\n<HTML><HEAD><TITLE>Bridgit Conferencing Server</TITLE>| p/Bridgit Conferencing httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Web Server\r\n.*\n<title>Cisco Systems, Inc\. VPN 3000 Concentrator \[vpn-conc-3030\]</title>\n|s p/Cisco VPN 3000 Concentrator http config/ d/security-misc/
@@ -5160,7 +5160,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: lighttpd|si p/lighttpd/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"U\.S\. Robotics ADSL Router\"\r\n| p/US Robotics USR9107A ADSL http config/ d/broadband router/ i/micro_httpd/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\nDate: .*<SCRIPT language=Javascript src=\"language_us\.js\"></SCRIPT>\n<SCRIPT>assign_var\(\);</SCRIPT>\n<SCRIPT language=JavaScript src=\"showMenu\.js\"></SCRIPT>\n<SCRIPT>\n\tvar helpItem \t='indexa';|s p/Belkin N1 F5D8231-4 WAP http config/ d/WAP/
 match http m|^<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\" \"http://www\.w3\.org/TR/1999/REC-html401-19991224/loose\.dtd\">\n<HTML>\n<HEAD>\n<TITLE>Mac OS X Personal Web Sharing</TITLE>.*<H1>Your website here\.</H1>|s p/REALbasic 2008 example httpd/
-match http m|^HTTP/1\.1 200\r\n.*<TITLE>ProjectorView Control System</TITLE>.*CODE=com\.mitsubishi\.x500u\.X500UApplet\.class\r\n|s p/Mitsubishi Projector XD1000 http config/ d/projector/
+match http m|^HTTP/1\.1 200\r\n.*<TITLE>ProjectorView Control System</TITLE>.*CODE=com\.mitsubishi\.x500u\.X500UApplet\.class\r\n|s p/Mitsubishi Projector XD1000 http config/ d/media device/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Wireless Router\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><HEAD><TITLE>401 Unauthorized</TITLE></HEAD>\n<BODY BGCOLOR=\"#cc9999\"><H4>401 Unauthorized</H4>\nAuthorization required\.\n| p/Asus wl-600g WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 301 Moved Permanently\r\nCache-Control: no-cache\r\nConnection: close\r\nPragma: no-cache\r\nLocation: /TopAccess/default\.htm\r\nServer: TOSHIBA TEC CORPORATION\r\n| p/Toshiba Tec printer http config/ d/printer/
 match http m|^HTTP/1\.0 303 See Other\r\nLocation: http://[\w-_.]+:8080\r\n\0 .*\rContent-Length: 0\r\n\r\n| p|Toshiba e-STUDIO 233 copier/printer/fax http config| d/printer/
@@ -5333,7 +5333,7 @@ match http-proxy m|^HTTP/1\.0 302 Moved\r\nDate: .*\r\nServer: DeleGate/([\d.]+)
 match http-proxy m|^HTTP/1\.0 302 Moved\r\nDate: .*\r\nServer: DeleGate| p/DeleGate proxy/
 match http-proxy m|^HTTP/1\.0 200 OK\r\nProxy-agent: Netscape-Proxy/([\d.]+)\r\n| p/Netscape-proxy/ v/$1/
 match http-proxy m|^HTTP/1\.0 504 Gateway Timeout\r\nContent-Type: text/html\r\nPragma: no-cache\r\n\r\n<H4><font COLOR=\"#FF0000\">Error parsing http request : </font></H2><p><pre>GET / / HTTP/1\.0\r\n\r\n</pre>| p/WinProxy http proxy/ o/Windows/
-match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nServer: NetCache appliance \(NetApp/([\d.]+)\)\r\n\r\n| p/Network Appliance NetCache http proxy/ v/$1/ d/firewall/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Length: \d+\r\nContent-Type: text/html\r\nServer: NetCache appliance \(NetApp/([\d.]+)\)\r\n\r\n| p/Network Appliance NetCache http proxy/ v/$1/ d/proxy server/
 match http-proxy m|^HTTP/1\.0  500 \r\nProxy-agent: MultiCertify PROXY/([\d.]+)\r\n| p/MultiCertify http proxy/ v/$1/ o/Windows/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: HTTP::Proxy/([\d.]+)\r\n| p/Perl HTTP::Proxy/ v/$1/
 match http-proxy m|^HTTP/1\.1 407 Proxy Authentication Required\r\nProxy-Authenticate: NTLM\r\nProxy-Authenticate: BASIC realm=\"DOMBUD\"\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n| p/CacheFlow http proxy/ o/CacheOS/
@@ -5350,12 +5350,12 @@ match http-proxy m|^HTTP/1\.1 403 Forbidden\r\nServer: Eplicator/([\d.]+)\r\n| p
 match http-proxy m|^AdsGone Blocked HTML Ad$| p/AdsGone http proxy/ o/Windows/
 match http-proxy m|^<font face=verdana size=1>AdsGone (\d+)  Blocked HTML Ad</font>$| p/AdsGone $1 http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nContent-Type: text/html\r\nPragma: no-cache\r\n\r\n<html>\n<head>\n<title>Proxy\+ WWW Admin interface</title>\n\n| p/Fortech Proxy+ http admin/ o/Windows/
-match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html.*\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD>.*\n<big>Access Denied \(policy_denied\)</big>\n|s p/BlueCoat SG-400 http proxy/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html.*\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Access Denied</TITLE>\n</HEAD>.*\n<big>Access Denied \(policy_denied\)</big>\n|s p/BlueCoat SG-400 http proxy/ d/proxy server/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nContent-Type: text/html.*\r\nProxy-Connection: close\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<HTML><HEAD>\n<TITLE>Request Error</TITLE>\n</HEAD>.*\n<big>Request Error \(invalid_request\)</big>\n|s p/BlueCoat http proxy/
-match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: BlueCoat-Security-Appliance\r\n|s p/BlueCoat http proxy/
-match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-WinProxy\r\n| p/BlueCoat WinProxy http proxy/ o/Windows/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: BlueCoat-Security-Appliance\r\n|s p/BlueCoat http proxy/ d/proxy server/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-WinProxy\r\n| p/BlueCoat WinProxy http proxy/ o/Windows/ d/proxy server/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nServer: Sawmill/([-\w_.]+)\r\n|s p/BlueCoat Sawmill http proxy config/ v/$1/
-match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-ProxyAV\r\n| p/BlueCoat ProxyAV appliance http proxy/ d/security-misc/
+match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nProxy-agent: BlueCoat-ProxyAV\r\n| p/BlueCoat ProxyAV appliance http proxy/ d/proxy server/
 match http-proxy m|^HTTP/1\.0 200 Connection established\r\nPragma: no-cach\r\nContent-Type: text/html; charset=windows-1251\r\n\r\n$| p/UserGate http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nServer: Simple, Secure Web Server ([\d.]+)\r\n|s p/Symantec firewall http proxy/ i/Simple, Secure Web Server $1/ d/firewall/
 match http-proxy m|^HTTP/1\.0 \d\d\d .*\r\nContent-Length: \d+\r\n.*<B>KEN! Proxy</B>|s p/AVM KEN! http proxy/
@@ -5416,8 +5416,8 @@ match http-proxy m|^\njava\.net\.UnknownHostException: /\r\n\tat java\.net\.Plai
 match http-proxy m|^HTTP/1\.1 403 Bad Protocol\r\n.*<H1>I2P ERROR: NON-HTTP PROTOCOL</H1>The request uses a bad protocol\. The I2P HTTP Proxy supports http:// requests ONLY\. Other protocols such as https:// and ftp:// are not allowed\.<BR>|s p/I2P http proxy/
 match http-proxy m|^HTTP/1\.0 502 Bad Gateway\r\nProxy-Connection: close\r\nContent-type: text/html; charset=us-ascii\r\n\r\n<html><head><title>502 Bad Gateway</title></head>\r\n<body><h2>502 Bad Gateway</h2><h3>Host Not Found or connection failed</h3></body></html>\r\n| p/3proxy http proxy/
 match http-proxy m|^HTTP/1\.0 407 Proxy Authentication Required\r\nProxy-Authenticate: NTLM\r\nProxy-Authenticate: basic realm=\"proxy\"\r\nProxy-Connection: close\r\n.*<h2>407 Proxy Authentication Required</h2><h3>Access to requested resource disallowed by administrator or you need valid username/password to use this resource</h3>|s p/3proxy http proxy/ i|authentication required|
-match http-proxy m|^HTTP/1\.0 404 Object not found\r\n.*<title>MIMEsweeper for Web :: ACCESS DENIED</title>|s p/Clearswift MIMEsweeper for web http proxy/ d/security-misc/
-match http-proxy m|^HTTP/1\.1 200 .*<title>Web Filter Block Override</title>.*/XX/YY/ZZ/logo_fguard_wf\.gif|s p/Fortinet FortiGuard http proxy/ d/security-misc/
+match http-proxy m|^HTTP/1\.0 404 Object not found\r\n.*<title>MIMEsweeper for Web :: ACCESS DENIED</title>|s p/Clearswift MIMEsweeper for web http proxy/ d/proxy server/
+match http-proxy m|^HTTP/1\.1 200 .*<title>Web Filter Block Override</title>.*/XX/YY/ZZ/logo_fguard_wf\.gif|s p/Fortinet FortiGuard http proxy/ d/firewall/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: ziproxy\r\n.*\(ziproxy/([\w-_.]+)\)</ADDRESS>|s p/ziproxy http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: ziproxy\r\n| p/ziproxy http proxy/
 
@@ -5803,7 +5803,7 @@ match http m|^HTTP/1\.0 302 \r\nLocation: ,\r\n\r\n$| p/BlackBox LWU0200-POE-M e
 match http m|^HTTP/1\.0 400 Bad Request \r\nContent-Type: text/plain\r\nContent-Length: \d+\r\n\r\n400 Bad Request Cannot parse request\r\n| p/GotoMeeting httpd/
 
 match http-proxy m|^HTTP/1\.1 503 Service Unavailable\r\ndate: .*\r\nconnection: close\r\n\r\n<html><body><pre><h1>Service unavailable</h1></pre></body></html>\n| p/HTTP Replicator proxy/
-match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/security-misc/
+match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error message template file\.|s p/IBM WebSEAL reverse http proxy/ d/proxy server/
 
 match policy m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Postfix mail policyd/
 

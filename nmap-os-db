@@ -3201,7 +3201,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # AudioCodes Mediant 1000
 Fingerprint AudioCodes Mediant 1000 VoIP gateway
-Class AudioCodes | embedded || VoIP gateway
+Class AudioCodes | embedded || VoIP adapter
 SEQ(SP=C-16%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9F-A9%TI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW1NNSNNT11%O2=M578NW1NNSNNT11%O3=M280NW1NNT11%O4=M5B4NW1NNSNNT11%O5=M218NW1NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
@@ -3219,7 +3219,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Audiocodes MP-118-4FXS4FXO VoIP Gate
 # Audiocodes MP-114 FXO
 Fingerprint Audiocodes MP-114 or MP-118 VoIP gateway
-Class AudioCodes | embedded || VoIP gateway
+Class AudioCodes | embedded || VoIP adapter
 SEQ(SP=C-16%GCD=1E848|3D090|5B8D8|7A120|98968%ISR=9F-A9%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=21F0%W5=20C0%W6=209D)
@@ -3320,7 +3320,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Avaya G360 Media Gateway running software version 26.36.0
 Fingerprint Avaya G350 Media Gateway (VoIP gateway)
-Class Avaya | embedded || VoIP gateway
+Class Avaya | embedded || VoIP adapter
 SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M550%O2=M550%O3=M550%O4=M550%O5=M550%O6=M550)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -3338,7 +3338,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Avaya G700 Telephony Media Gateway
 # Konica Minolta 7145 printer
 Fingerprint Avaya G700 Telephony Media Gateway
-Class Avaya | embedded || VoIP gateway
+Class Avaya | embedded || VoIP adapter
 SEQ(SP=18-1C%GCD=FA00|1F400|2EE00|3E800|4E200|5DC00%ISR=9D-A2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M200NW0NNT11%O2=M200NW0NNT11%O3=M200NW0NNT11%O4=M200NW0NNT11%O5=M200NW0NNT11%O6=M200NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -3355,7 +3355,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Avaya IP Office IP403
 Fingerprint Avaya Office IP403 VoIP gateway
-Class Avaya | embedded || VoIP gateway
+Class Avaya | embedded || VoIP adapter
 SEQ(SP=11-2D%GCD=10000|20000|30000|40000|50000%ISR=CA-D4%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=1111%W2=1111%W3=1111%W4=1111%W5=1111%W6=1111)
@@ -3373,7 +3373,7 @@ IE(DFI=S%T=23-3D%TG=40%CD=S)
 # Avaya IP500, Firmware 4.1 (9)
 # avaya IP Office 500 . mixed-type PABX (analog + voip)
 Fingerprint Avaya Office IP500 VoIP gateway
-Class Avaya | embedded || VoIP gateway
+Class Avaya | embedded || VoIP adapter
 SEQ(SP=0-13%GCD=10000|20000|30000|40000|50000|650000|CA0000|12F0000|1940000|1F90000%ISR=CB-D5%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=1111%W2=1111%W3=1111%W4=1111%W5=1111%W6=1111)
@@ -5279,7 +5279,7 @@ IE(DFI=S%T=FB-105%TG=FF%CD=S)
 
 # Cisco Systems, Inc./VPN 3000 Concentrator Version 4.1.7.O
 Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.1.7.O)
-Class Cisco | embedded || encryption accelerator
+Class Cisco | embedded || proxy server
 SEQ(SP=D3-DD%GCD=1-6%ISR=DB-E5%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -5296,7 +5296,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 
 # Cisco VPN Concentrator, software revision: "Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.2.D Dec 20 2005 15:26:54"
 Fingerprint Cisco VPN 3000 Concentrator VPN platform (software version 4.7.2.D)
-Class Cisco | embedded || encryption accelerator
+Class Cisco | embedded || proxy server
 SEQ(SP=D0-DA%GCD=1-6%ISR=DA-E4%TI=I%II=RI%SS=O|S%TS=1|2)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -5313,7 +5313,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 
 # Cisco Concentrator 3030
 Fingerprint Cisco VPN 3030 Concentrator VPN platform
-Class Cisco | embedded || encryption accelerator
+Class Cisco | embedded || proxy server
 SEQ(SP=D6-E0%GCD=1-6%ISR=D8-E2%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -5330,7 +5330,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=S)
 
 # Cisco Systems, Inc./VPN 3000 Concentrator Version 4.7.2.F (VPN Concentrator Type: 3030)
 Fingerprint Cisco VPN 3030 Concentrator VPN platform (software 4.7.2.F)
-Class Cisco | embedded || encryption accelerator
+Class Cisco | embedded || proxy server
 SEQ(SP=CE-D8%GCD=1-6%ISR=CF-D9%TI=RD%II=RI%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -5686,7 +5686,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Cisco Micro Webserver 200, Cisco MicroWeb II, Software Version: Eclipse 1.0.1(100)
 # Tektronix oscilloscope model TDS-3034B, Firmware V3.29. (c) 2001
 Fingerprint Cisco Micro Webserver 200, HP WP110 print server, Tektronix TDS3034B oscilloscope, or Xerox Document Centre 405 printer
-Class Cisco | embedded || web server
+Class Cisco | embedded || general purpose
 Class HP | embedded || print server
 Class Tektronix | embedded || specialized
 Class Xerox | embedded || printer
@@ -6649,7 +6649,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Citrix Access Gateway model 2000, software release 4.5.8. Rebadged Supermicro 5013C-M. The operating system itself is some form of Linux.
 Fingerprint Citrix Access Gateway VPN gateway
-Class Citrix | embedded || encryption accelerator
+Class Citrix | embedded || proxy server
 SEQ(SP=C6-D0%GCD=1-6%ISR=CC-D6%TI=Z%II=I%TS=U)
 OPS(O1=M586NNSNW0%O2=M586NNSNW0%O3=M586NW0%O4=M586NNSNW0%O5=M586NNSNW0%O6=M586NNS)
 WIN(W1=1618%W2=1618%W3=1618%W4=1618%W5=1618%W6=1618)
@@ -6792,8 +6792,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Ethernet to wall socket connector provided by BT. Runs 10Mbps ethernet through house electrics.
 # Acbel Polytech Ethernet over Powerline 200Mbit/sec bridge
 Fingerprint AcBel or Comtrend powerline Ethernet adapter
-Class Comtrend | embedded || specialized
-Class AcBel | embedded || specialized
+Class Comtrend | embedded || bridge
+Class AcBel | embedded || bridge
 SEQ(SP=0-16%GCD=9C4|1388|1D4C|2710|30D4%ISR=0-67%TI=I%TS=U)
 OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
 WIN(W1=7805%W2=7805%W3=7805%W4=7805%W5=7805%W6=7805)
@@ -6810,7 +6810,7 @@ IE(R=N)
 
 # Comtrend CT-800 SIP gateway
 Fingerprint Comtrend CT-800 VoIP gateway
-Class Comtrend | embedded || VoIP gateway
+Class Comtrend | embedded || VoIP adapter
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -7247,7 +7247,7 @@ IE(DFI=S%T=19-23%TG=20%CD=S)
 
 # D-Link VoIP Gateway DVG-4022S
 Fingerprint D-Link DVG-4022S VoIP gateway
-Class D-Link | embedded || VoIP gateway
+Class D-Link | embedded || VoIP adapter
 SEQ(SP=8F-99%GCD=1-6%ISR=92-9C%TI=I%II=RI%SS=O%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -8371,7 +8371,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Eicon Shiva series VPN gateway. Running an embedded Linux-based operating system.
 Fingerprint Eicon Shiva VPN gateway
-Class Eicon | embedded || encryption accelerator
+Class Eicon | embedded || proxy server
 SEQ(SP=101-10B%GCD=1-6%ISR=105-10F%TI=I%II=RI%SS=S%TS=U)
 OPS(O1=WAN%O2=M578%O3=%O4=%O5=M218%O6=M109)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -10486,7 +10486,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 
 # Fujitsu Siemens, integrated Remote Control Board on a FSC RX300.
 Fingerprint Fujitsu Siemens PRIMERGY RX300 S4 server
-Class Fujitsu Siemens | embedded || web server
+Class Fujitsu Siemens | embedded || general purpose
 SEQ(SP=C-16%GCD=FA7F|1F4FE|2EF7D|3E9FC|4E47B%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=MF8%O2=MF8%O3=MF8%O4=MF8%O5=MF8%O6=MF8)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -10666,7 +10666,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Grandstream Handytone HT-488
 Fingerprint Grandstream HandyTone HT-488 analog VoIP adapter
-Class Grandstream | embedded || VoIP gateway
+Class Grandstream | embedded || VoIP adapter
 SEQ(SP=0-5%GCD=0%ISR=0-5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A6%O2=M5A6%O3=M5A6%O4=M5A6%O5=M5A6%O6=M5A6)
 WIN(W1=5A6%W2=578%W3=280%W4=280%W5=218%W6=109)
@@ -15850,7 +15850,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Linksys PAP2T VoIP Router Software Version 5.1.3(LS) Hardware Version 0.1.5
 # LinkSys Phone Adapter with 2 Ports for Voice-Over-IP, Firmware Version: 3.1.15(LS)
 Fingerprint Linksys PAP2T VoIP router
-Class Linksys | embedded || VoIP gateway
+Class Linksys | embedded || VoIP adapter
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -15890,7 +15890,7 @@ IE(DFI=N%T=F5-FF%TG=FF%CD=S)
 # Linksys SPA962 Version 5.2.8
 Fingerprint Linksys SPA942, SPA962, or SPA9000 VoIP phone; SPA3102 VoIP gateway; or Sipura SPA-2100 or SPA-2101 VoIP adapter
 Class Linksys | embedded || VoIP phone
-Class Linksys | embedded || VoIP gateway
+Class Linksys | embedded || VoIP adapter
 Class Sipura | embedded || VoIP adapter
 SEQ(SP=FC-108%GCD=1-6%ISR=104-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5A8%O2=M5A8%O3=M5A8%O4=M5A8%O5=M5A8%O6=M5A8)
@@ -28211,7 +28211,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Mitel 3300 CXI vxworks
 Fingerprint Mitel 3300 CXi VoIP PBX
-Class Mitel | embedded || VoIP gateway
+Class Mitel | embedded || VoIP adapter
 SEQ(SP=92-9C%GCD=1-6%ISR=9A-A4%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=21F0%W2=2088%W3=2258%W4=2134%W5=20C0%W6=209D)
@@ -28963,7 +28963,7 @@ IE(DFI=S%T=37-41%TG=40%CD=S)
 
 # Netcomm V300 VOIP ATA running software version A007-S9210NGT-C00_00
 Fingerprint Netcomm V300 VoIP gateway
-Class Netcomm | embedded || VoIP gateway
+Class Netcomm | embedded || VoIP adapter
 SEQ(SP=14-1E%GCD=7A00|F400|16E00|1E800|26200%ISR=91-9B%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M550NW0NNT11%O2=M550NW0NNT11%O3=M550NW0NNT11%O4=M550NW0NNT11%O5=M550NW0NNT11%O6=M550NNT11)
 WIN(W1=43E0%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
@@ -30033,7 +30033,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Occam ONT ON2342 Firmware version: 1.1.5 Configuration version: 1.6.3 Build String: Sun Aug 20
 Fingerprint Occam ONT ON2342 Voice/Video over IP box
-Class Occam | embedded || VoIP gateway
+Class Occam | embedded || VoIP adapter
 SEQ(SP=B4-BE%GCD=1-6%ISR=CB-D5%TI=Z%II=I%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
@@ -30986,7 +30986,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Patton/Inalp (www.patton.com) Smartnode 4960 VoIP Gateway. OS is Smartware 4.2.
 Fingerprint Patton SmartNode 4960 VoIP gateway (SmartWare 4.2)
-Class Patton | SmartWare | 4.X | VoIP gateway
+Class Patton | SmartWare | 4.X | VoIP adapter
 SEQ(SP=0-1D%GCD=0|8000|10000|18000|20000|28000%ISR=0-FB%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -31457,7 +31457,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=S)
 
 # Portech GSM VoIP GSM:900/1800MHz v6.0 gateway
 Fingerprint PORTech GSM VoIP gateway
-Class PORTech | embedded || VoIP gateway
+Class PORTech | embedded || VoIP adapter
 SEQ(SP=0-16%GCD=FA|1F4|2EE|3E8|4E2|61A8|C350|124F8|186A0|1E848%ISR=8A-94%TI=I%II=RI%SS=O|S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M5B4%O5=M218%O6=M109)
 WIN(W1=3180%W2=3180%W3=3180%W4=3180%W5=3180%W6=3180)
@@ -31474,7 +31474,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # 4-port GSM-SIP gateway PORTech MV-374
 Fingerprint PORTech MV-374 GSM-SIP VoIP gateway
-Class PORTech | embedded || VoIP gateway
+Class PORTech | embedded || VoIP adapter
 SEQ(SP=0-5%GCD=61A8|C350|124F8|186A0|1E848%ISR=8A-94%TI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4|WANM5B4T10S%O2=M578|M578W0ST10L%O3=M280|T10NNW5NM280%O4=M5B4|ST10WAL%O5=M218|M218ST10WAL%O6=M109ST10)
 WIN(W1=0|3180%W2=0|3180%W3=0|3180%W4=0|3180%W5=0|3180%W6=0)
@@ -32058,7 +32058,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Samsung Office Serve 7200 Phone System
 Fingerprint Samsung OfficeServ 7200 VoIP gateway
-Class Samsung | embedded || VoIP gateway
+Class Samsung | embedded || VoIP adapter
 SEQ(SP=100-10A%GCD=1-6%ISR=106-110%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3354%W2=3354%W3=3354%W4=3354%W5=3354%W6=3354)
@@ -32732,7 +32732,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # ShoteTel ShoteGear T1
 Fingerprint ShoreTel ShoreGear-T1 VoIP switch
-Class ShoreTel | embedded || VoIP gateway
+Class ShoreTel | embedded || VoIP adapter
 SEQ(R=N)
 OPS(R=N)
 WIN(R=N)
@@ -35118,7 +35118,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Hardware Platform  : Vega 400  H323 Firmware Rev 08.00 for H/W Type 10
 Fingerprint Vegastream Vega 400 VoIP Gateway
-Class Vegastream | embedded || VoIP gateway
+Class Vegastream | embedded || VoIP adapter
 SEQ(SP=E7-103%GCD=1-6%ISR=106-110%TI=I|RD%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
