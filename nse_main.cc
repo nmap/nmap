@@ -433,6 +433,12 @@ static int run_main (lua_State *L)
       lua_touserdata(L, 1);
 
   lua_settop(L, 0);
+
+  /* New host group */
+  luaL_unref(L, LUA_REGISTRYINDEX, current_hosts);
+  lua_newtable(L);
+  current_hosts = luaL_ref(L, LUA_REGISTRYINDEX);
+
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TRACEBACK); /* index 1 */
 
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_MAIN); /* index 2 */
