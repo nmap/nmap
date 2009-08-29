@@ -334,20 +334,18 @@ Target *get_target (lua_State *L, int index)
   lua_getfield(L, index, "ip");
   if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
     luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
-  if (lua_isstring(L, -3)) /* targetname */
+  if (lua_isstring(L, -2)) /* targetname */
   {
-    nse_gettarget(L, -3); /* use targetname */
+    nse_gettarget(L, -2); /* use targetname */
     if (lua_islightuserdata(L, -1))
       goto done;
     else
       lua_pop(L, 1);
   }
-  if (lua_isstring(L, -2)) /* ip */
-  {
-    nse_gettarget(L, -2); /* use ip */
-    if (!lua_islightuserdata(L, -1))
-      luaL_argerror(L, 1, "host is not being processed right now");
-  }
+  if (lua_isstring(L, -1)) /* ip */
+    nse_gettarget(L, -1); /* use ip */
+  if (!lua_islightuserdata(L, -1))
+    luaL_argerror(L, 1, "host is not being processed right now");
 done:
   target = (Target *) lua_touserdata(L, -1);
   lua_settop(L, top); /* reset stack */
