@@ -5037,7 +5037,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     len = Snprintf(macstring, sizeof(macstring), "%02X%02X%02X%02X%02X%02X",
       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
     if (len != sizeof(macstring) - 1)
-      fatal("macstring length is %d, should be %u", len, sizeof(macstring) - 1);
+      fatal("macstring length is %d, should be %u", len, (unsigned)(sizeof(macstring) - 1));
     /* First four bytes of MAC. */
     pcap_filter = "arp and arp[18:4] = 0x";
     pcap_filter.append(macstring, 0, 4 * 2);
