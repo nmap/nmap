@@ -618,8 +618,10 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
     memcpy(newstr, subject + offstart, len);
     byteswritten = len;
   } else if (strcmp(substcommand, "P") == 0) {
-    if (command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT)
+    if (command_args.num_args != 1 ||
+        command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT) {
       return -1;
+    }
     subnum = command_args.int_args[0];
     if (subnum > 9 || subnum <= 0) return -1;
     if (subnum >= nummatches) return -1;
@@ -639,8 +641,12 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
   } else if (strcmp(substcommand, "SUBST") == 0) {
     char *findstr, *replstr;
     int findstrlen, replstrlen;
-   if (command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT)
+    if (command_args.num_args != 3 ||
+        command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT ||
+        command_args.arg_types[1] != SUBSTARGS_ARGTYPE_STRING ||
+	command_args.arg_types[2] != SUBSTARGS_ARGTYPE_STRING) {
       return -1;
+    }
     subnum = command_args.int_args[0];
     if (subnum > 9 || subnum <= 0) return -1;
     if (subnum >= nummatches) return -1;
@@ -648,9 +654,6 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
     offend = ovector[subnum * 2 + 1];
     assert(offstart >= 0 && offstart < subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
-    if (command_args.arg_types[1] != SUBSTARGS_ARGTYPE_STRING ||
-	command_args.arg_types[2] != SUBSTARGS_ARGTYPE_STRING)
-      return -1;
     findstr = command_args.str_args[1];
     findstrlen = command_args.str_args_len[1];
     replstr = command_args.str_args[2];
