@@ -1512,7 +1512,8 @@ char *ping = (char *) &pingpkt;
    dlen -= 12;
  } else if (ptype == 17 && pcode == 0) /* icmp netmask req */ {
    icmplen = 12;
-   *datastart++ = 0;
+   memset(datastart, 0, 4);
+   datastart += 4;
    dlen -= 4;
  } else 
    fatal("Unknown icmp type/code (%d/%d) in %s", ptype, pcode, __func__);
