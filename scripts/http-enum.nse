@@ -38,6 +38,7 @@ for 404 Not Found and the status code returned by the random files).
 --                    the DirBuster projects which can have 80,000+ entries. 
 --@args fingerprints  Specify a different file to read fingerprints from. This will be read instead of the default
 --                    files. 
+--@args path          The base path to prepend to each request. Leading/trailing slashes are not required. 
 
 author = "Ron Bowes <ron@skullsecurity.net>, Andrew Orr <andrew@andreworr.ca>, Rob Nicholls <robert@everythingeverything.co.uk>"
 
@@ -48,16 +49,18 @@ categories = {"discovery", "intrusive", "vuln"}
 require 'stdnse'
 require 'http'
 require 'stdnse'
-
 -- The directory where the fingerprint files are stored
 
 -- List of fingerprint files
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
 if(nmap and nmap.registry and nmap.registry.args and nmap.registry.args.fingerprints ~= nil) then
-	fingerprint_files = { nmap.registry.args.fingerprints }
+	-- Specifying multiple entries in a table doesn't seem to work
+	if(type(nmap.registry.args.fingerprints) == "table") then
+		fingerprint_files = nmap.registry.args.fingerprints
+	else
+		fingerprint_files = { nmap.registry.args.fingerprints }
+	end
 end
-
---local fingerprint_files = { "test-fingerprints" }
 
 portrule = function(host, port)
 	local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
@@ -166,51 +169,81 @@ action = function(host, port)
 		end
 	end
 
+	-- Get the base path, if the user entered one
+	local paths = {''}
+	if(nmap.registry.args.path ~= nil) then
+		if(type(nmap.registry.args.path) == 'table') then
+			paths = nmap.registry.args.path
+		else
+			paths = { nmap.registry.args.path }
+		end
+	end
+
 	-- Queue up the checks
-	local all = {}
-	local i
-	for i = 1, #URLs, 1 do
-		if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
-			stdnse.print_debug(1, "http-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
-			break;
+
+	for j = 1, #paths, 1 do
+		local all = {}
+		local path = paths[j]
+
+		-- Remove trailing slash, if it exists
+		if(#path > 1 and string.sub(path, #path, #path) == '/') then
+			path = string.sub(path, 1, #path - 1)
 		end
 
-		if(use_head) then
-			all = http.pHead(host, port, URLs[i].checkdir, nil, nil, all)
+		-- Add a leading slash, if it doesn't exist
+		if(#path <= 1) then
+			path = ''
 		else
-			all = http.pGet(host, port, URLs[i].checkdir, nil, nil, all)
+			if(string.sub(path, 1, 1) ~= '/') then
+				path = '/' .. path
+			end
 		end
-	end
 
-	local results = http.pipeline(host, port, all, nil)
-
-	-- Check for http.pipeline error
-	if(results == nil) then
-		stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
-		if(nmap.debugging() > 0) then
-			return "ERROR: http.pipeline returned nil"
-		else
-			return nil
-		end
-	end
-
-	for i, data in pairs(results) do
-		if(http.page_exists(data, result_404, known_404, URLs[i].checkdir, nmap.registry.args.displayall)) then
-			-- Build the description
-			local description = string.format("%s", URLs[i].checkdir)
-			if(URLs[i].checkdesc) then
-				description = string.format("%s: %s", URLs[i].checkdir, URLs[i].checkdesc)
+		-- Loop through the URLs
+		stdnse.print_debug(1, "http-enum.nse: Searching for entries under path '%s' (change with 'path' argument)", path)
+		for i = 1, #URLs, 1 do
+			if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
+				stdnse.print_debug(1, "http-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
+				break;
 			end
 
-			-- Build the status code, if it isn't a 200
-			local status = ""
-			if(data.status ~= 200) then
-				status = " (" .. http.get_status_string(data) .. ")"
+			if(use_head) then
+				all = http.pHead(host, port, path .. URLs[i].checkdir, nil, nil, all)
+			else
+				all = http.pGet(host, port, path .. URLs[i].checkdir, nil, nil, all)
 			end
+		end
 
-			stdnse.print_debug("Found a valid page! (%s)%s", description, status)
-
-			response = response .. string.format("%s%s\n", description, status)
+		local results = http.pipeline(host, port, all, nil)
+	
+		-- Check for http.pipeline error
+		if(results == nil) then
+			stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
+			if(nmap.debugging() > 0) then
+				return "ERROR: http.pipeline returned nil"
+			else
+				return nil
+			end
+		end
+	
+		for i, data in pairs(results) do
+			if(http.page_exists(data, result_404, known_404, path .. URLs[i].checkdir, nmap.registry.args.displayall)) then
+				-- Build the description
+				local description = string.format("%s", path .. URLs[i].checkdir)
+				if(URLs[i].checkdesc) then
+					description = string.format("%s: %s", path .. URLs[i].checkdir, URLs[i].checkdesc)
+				end
+	
+				-- Build the status code, if it isn't a 200
+				local status = ""
+				if(data.status ~= 200) then
+					status = " (" .. http.get_status_string(data) .. ")"
+				end
+	
+				stdnse.print_debug("Found a valid page! (%s)%s", description, status)
+	
+				response = response .. string.format("%s%s\n", description, status)
+			end
 		end
 	end
 		
