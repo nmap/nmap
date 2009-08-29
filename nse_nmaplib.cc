@@ -27,7 +27,6 @@ extern "C" {
 }
 
 extern NmapOps o;
-extern int current_hosts;
 
 void set_version(lua_State *L, struct serviceDeductions sd) {
   SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.name, "name");
@@ -335,11 +334,9 @@ Target *get_target (lua_State *L, int index)
   lua_getfield(L, index, "ip");
   if (!(lua_isstring(L, -2) || lua_isstring(L, -1)))
     luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
-  lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
   if (lua_isstring(L, -3)) /* targetname */
   {
-    lua_pushvalue(L, -3);
-    lua_rawget(L, -2);
+    nse_gettarget(L, -3); /* use targetname */
     if (lua_islightuserdata(L, -1))
       goto done;
     else
@@ -347,8 +344,7 @@ Target *get_target (lua_State *L, int index)
   }
   if (lua_isstring(L, -2)) /* ip */
   {
-    lua_pushvalue(L, -2); /* ip */
-    lua_rawget(L, -2);
+    nse_gettarget(L, -2); /* use ip */
     if (!lua_islightuserdata(L, -1))
       luaL_argerror(L, 1, "host is not being processed right now");
   }

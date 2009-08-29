@@ -29,12 +29,11 @@
 #define NSE_WAITING_TO_RUNNING "NSE_WAITING_TO_RUNNING"
 #define NSE_DESTRUCTOR "NSE_DESTRUCTOR"
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
+#define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
 
 #define MAX_FILENAME_LEN 4096
 
 extern NmapOps o;
-
-int current_hosts = LUA_NOREF;
 
 static int timedOut (lua_State *L)
 {
@@ -384,10 +383,8 @@ static int init_main (lua_State *L)
   luaL_openlibs(L);
   set_nmap_libraries(L);
 
-  /* Load current_hosts */
-  luaL_unref(L, LUA_REGISTRYINDEX, current_hosts);
   lua_newtable(L);
-  current_hosts = luaL_ref(L, LUA_REGISTRYINDEX);
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
 
   /* Load debug.traceback for collecting any error tracebacks */
   lua_settop(L, 0); /* clear the stack */
@@ -435,9 +432,8 @@ static int run_main (lua_State *L)
   lua_settop(L, 0);
 
   /* New host group */
-  luaL_unref(L, LUA_REGISTRYINDEX, current_hosts);
   lua_newtable(L);
-  current_hosts = luaL_ref(L, LUA_REGISTRYINDEX);
+  lua_setfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
 
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TRACEBACK); /* index 1 */
 
@@ -448,6 +444,7 @@ static int run_main (lua_State *L)
    * This has all the target names, 1-N, in a list.
    */
   lua_createtable(L, targets->size(), 0); // stack index 3
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS); /* index 4 */
   for (std::vector<Target *>::iterator ti = targets->begin();
        ti != targets->end(); ti++)
   {
@@ -457,15 +454,14 @@ static int run_main (lua_State *L)
     lua_newtable(L);
     set_hostinfo(L, target);
     lua_rawseti(L, 3, lua_objlen(L, 3) + 1);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, current_hosts);
     if (TargetName != NULL && strcmp(TargetName, "") != 0)
       lua_pushstring(L, TargetName);
     else
       lua_pushstring(L, targetipstr);
     lua_pushlightuserdata(L, target);
-    lua_rawset(L, -3);
-    lua_pop(L, 1); /* current_hosts */
+    lua_rawset(L, 4); /* add to NSE_CURRENT_HOSTS */
   }
+  lua_pop(L, 1); /* pop NSE_CURRENT_HOSTS */
 
   if (lua_pcall(L, 1, 0, 1) != 0) lua_error(L); /* we wanted a traceback */
 
@@ -537,6 +533,15 @@ void nse_selectedbyname (lua_State *L)
   } else {
     lua_call(L, 0, 1); /* returns boolean, whether script was selected by name */
   }
+}
+
+void nse_gettarget (lua_State *L, int index)
+{
+  lua_pushvalue(L, index);
+  lua_getfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
+  lua_insert(L, -2);
+  lua_rawget(L, -2);
+  lua_replace(L, -2);
 }
 
 static lua_State *L_NSE = NULL;
