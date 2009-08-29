@@ -556,9 +556,9 @@ static int getsubstcommandargs(struct substargs *args, char *args_start,
 }
 
 // This function does the actual substitution of a placeholder like $2
-// or $U(4) into the given buffer.  It returns the number of chars
+// or $P(4) into the given buffer.  It returns the number of chars
 // written, or -1 if it fails.  tmplvar is a template variable, such
-// as "$U(2)".  We determine the appropriate string representing that,
+// as "$P(2)".  We determine the appropriate string representing that,
 // and place it in newstr (as long as it doesn't exceed newstrlen).
 // We then set *tmplvarend to the character after the
 // variable. subject, subjectlen, ovector, and nummatches mean the
@@ -566,7 +566,6 @@ static int getsubstcommandargs(struct substargs *args, char *args_start,
 static int substvar(char *tmplvar, char **tmplvarend, char *newstr, 
 	     int newstrlen, const u8 *subject, int subjectlen, int *ovector,
 	     int nummatches) {
-
   char substcommand[16];
   char *p = NULL;
   char *p_end;
@@ -582,6 +581,7 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
   tmplvar++;
 
   if (!isdigit((int) (unsigned char) *tmplvar)) {
+    /* This is a command like $P(1). */
     p = strchr(tmplvar, '(');
     if (!p) return -1;
     len = p - tmplvar;
@@ -595,6 +595,7 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
     if (rc <= 0) return -1;
     tmplvar = p_end;
   } else {
+    /* This is a placeholder like $2. */
     substcommand[0] = '\0';
     subnum = *tmplvar - '0';
     tmplvar++;
@@ -603,6 +604,7 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
   if (tmplvarend) *tmplvarend = tmplvar;
 
   if (!*substcommand) {
+    /* Handler for a placeholder like $2. */
     if (subnum > 9 || subnum <= 0) return -1;
     if (subnum >= nummatches) return -1;
     offstart = ovector[subnum * 2];
