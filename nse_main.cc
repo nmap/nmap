@@ -558,7 +558,7 @@ void nse_selectedbyname (lua_State *L)
   if (lua_isnil(L, -1)) {
     lua_pushboolean(L, 0);
     lua_replace(L, -2);
-  } else
+  } else {
     lua_call(L, 0, 1);
   }
 }
