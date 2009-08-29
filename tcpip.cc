@@ -1493,7 +1493,9 @@ struct ppkt {
   u16 seq;
   u8 data[1500]; /* Note -- first 4-12 bytes can be used for ICMP header */
 } pingpkt;
-u32 *datastart = (u32 *) pingpkt.data;
+u8 *datastart = pingpkt.data;
+/* dlen is the amount of space remaining in the data buffer; it may be reduced
+   depending on type. */
 int dlen = sizeof(pingpkt.data); 
 int icmplen=0;
 char *ping = (char *) &pingpkt;
@@ -1507,11 +1509,11 @@ char *ping = (char *) &pingpkt;
    icmplen = 20;
    memset(datastart, 0, 12);
    datastart += 12;
-   //datalen -= 12;
+   dlen -= 12;
  } else if (ptype == 17 && pcode == 0) /* icmp netmask req */ {
    icmplen = 12;
    *datastart++ = 0;
-   //datalen -= 4;
+   dlen -= 4;
  } else 
    fatal("Unknown icmp type/code (%d/%d) in %s", ptype, pcode, __func__);
 
