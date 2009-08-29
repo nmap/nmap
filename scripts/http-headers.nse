@@ -14,8 +14,8 @@ Does a GET request for the root folder ("/"), and displays the HTTP headers retu
 -- |  Connection: close
 -- |_ Content-Type: text/html;charset=ISO-8859-1
 -- 
---@arg path The path to request, such as '/index.php'. Default: '/'. 
---@arg useget Set to force GET requests instead of HEAD. 
+--@args path The path to request, such as '/index.php'. Default: '/'. 
+--@args useget Set to force GET requests instead of HEAD. 
 
 
 author = "Ron Bowes <ron@skullsecurity.org>"
