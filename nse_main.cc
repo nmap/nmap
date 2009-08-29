@@ -468,6 +468,13 @@ static int run_main (lua_State *L)
   return 0;
 }
 
+/* int nse_yield (lua_State *L)                            [-?, +?, e]
+ *
+ * This function will yield the running thread back to NSE, even across script
+ * auxiliary coroutines. All NSE initiated yields must use this function. The
+ * correct and only way to call is as a tail call:
+ *   return nse_yield(L);
+ */
 int nse_yield (lua_State *L)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_YIELD);
@@ -476,6 +483,13 @@ int nse_yield (lua_State *L)
   return lua_yield(L, 1); /* yield with NSE_YIELD_VALUE */
 }
 
+/* void nse_restore (lua_State *L, int number)             [-, -, e]
+ *
+ * Restore the thread 'L' back into the running NSE queue. 'number' is the
+ * number of values on the stack to be passed when the thread is resumed. This
+ * function may cause a panic due to extraordinary and unavoidable
+ * circumstances.
+ */
 void nse_restore (lua_State *L, int number)
 {
   luaL_checkstack(L, 5, "nse_restore: stack overflow");
@@ -489,13 +503,15 @@ void nse_restore (lua_State *L, int number)
     fatal("nse_restore: WAITING_TO_RUNNING error!\n%s", lua_tostring(L, -1));
 }
 
-/* This function adds (what = 'a') or removes (what 'r') a destructor
- * from the Thread owning the running Lua thread (L). We call the nse_main.lua
- * function _R.NSE_DESTRUCTOR in order to add (or remove) the destructor to
- * the Thread's close handler table.
+/* void nse_destructor (lua_State *L, char what)           [-(1|2), +0, e]
+ *
+ * This function adds (what = 'a') or removes (what = 'r') a destructor from
+ * the Thread owning the running Lua thread (L). A destructor is called when
+ * the thread finishes for any reason (including error). A unique key is used
+ * to associate with the destructor so it is removable later.
  *
  * what == 'r', destructor key on stack
- * what == 'a', destructor key and destructor on stack
+ * what == 'a', destructor key and destructor function on stack
  */
 void nse_destructor (lua_State *L, char what)
 {
@@ -518,23 +534,42 @@ void nse_destructor (lua_State *L, char what)
   lua_pop(L, what == 'a' ? 2 : 1);
 }
 
+/* void nse_base (lua_State *L)                             [-0, +1, e]
+ *
+ * Returns the base Lua thread (coroutine) for the running thread. The base
+ * thread is resumed by NSE (runs the action function). Other coroutines being
+ * used by the base thread may be in a chain of resumes, we use the base thread
+ * as the "holder" of resources (for the Nsock binding in particular).
+ */
 void nse_base (lua_State *L)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_BASE);
   lua_call(L, 0, 1); /* returns base thread */
 }
 
+/* void nse_selectedbyname (lua_State *L)                  [-0, +1, e]
+ *
+ * Returns a boolean signaling whether the running script was selected by name
+ * on the command line (--script).
+ */
 void nse_selectedbyname (lua_State *L)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_SELECTED_BY_NAME);
   if (lua_isnil(L, -1)) {
     lua_pushboolean(L, 0);
     lua_replace(L, -2);
-  } else {
-    lua_call(L, 0, 1); /* returns boolean, whether script was selected by name */
+  } else
+    lua_call(L, 0, 1);
   }
 }
 
+/* void nse_gettarget (lua_State *L)                  [-0, +1, -]
+ *
+ * Given the index to a string on the stack identifying the host, an ip or a
+ * targetname (host name specified on the command line, see Target.h), returns
+ * a lightuserdatum that points to the host's Target (see Target.h). If the
+ * host cannot be found, nil is returned.
+ */
 void nse_gettarget (lua_State *L, int index)
 {
   lua_pushvalue(L, index);
