@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The nselib/data directory is now installed. It was not installed
+  before because of an error in the Makefile. The scripts that would
+  not have worked after installation because they were missing data
+  files are http-enum.nse, http-favicon.nse, http-iis-webdav-vuln.nse,
+  http-userdir-enum.nse, smb-pwdump.nse, pop3-brute.nse,
+  smb-brute.nse, and snmp-brute.nse. [David]
+
 o Fixed a compile error on NetBSD. It was
     tcpip.cc:2948: error: pointer of type 'void *' used in arithmetic
   Thanks to Jay Fink for reporting the problem and submitting a patch.
