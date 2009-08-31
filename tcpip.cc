@@ -3037,7 +3037,7 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
   ifr = ifc.ifc_req;
 
   for (ifr = ifc.ifc_req;
-       ifr && ifr->ifr_name[0] && (void *) ifr < ifc.ifc_buf + ifc.ifc_len;
+       ifr && ifr->ifr_name[0] && (void *) ifr < (char *) ifc.ifc_buf + ifc.ifc_len;
        ifr = (struct ifreq *) ((char *) ifr + len)) {
     struct sockaddr_in *sin;
     struct ifreq tmpifr;
