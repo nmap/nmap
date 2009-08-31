@@ -6,7 +6,7 @@ Gets the favicon.ico from the root of a web service and tries to enumerate it
 -- @args favicon.uri Uri that will be requested for favicon
 -- @args favicon.root Webserver path to search for favicon
 -- @output
--- |_ http-favicon: Found favicon from Socialtext
+-- |_ http-favicon: Socialtext
 
 -- HTTP default favicon enumeration script
 -- rev 1.2 (2009-03-11)
@@ -91,9 +91,11 @@ action = function(host, port)
 	md5sum=string.upper(stdnse.tohex(openssl.md5(answer.body)))
 	match=favicondb[md5sum]
 	if match then
-		result = result .. "Found favicon from " .. match .. "."
+		result = match
 	else
-		result="Unknown favicon MD5: " .. md5sum 
+		if nmap.verbosity() > 0 then
+			result = "Unknown favicon MD5: " .. md5sum 
+		end
 	end
   else		
 	stdnse.print_debug( 1, "No favicon found.")
