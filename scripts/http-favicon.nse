@@ -36,7 +36,7 @@ action = function(host, port)
   local match
   local status, favicondb
   local result= ""
-  local favicondbfile="favicon-db"
+  local favicondbfile="nselib/data/favicon-db"
   local index, icon
   local root = ""
 
