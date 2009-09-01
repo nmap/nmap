@@ -7,28 +7,6 @@ o Add PJL (Printer Job Language) probes to
   don't support PJL. If not, then remove the JetDirect ports from the
   default exclude list. The script pjl-ready-message.nse also uses PJL.
 
-o Device categorization improvements
-  o Examine Nmap's device categorization in nmap-os-deb and
-    nmap-service-probes.  Decide if some small categories which have
-    never really took off should be consolidated, or whether others
-    should be split off.  For example, maybe there are some groups in
-    'specialized' or other misc. categories which are now large enough
-    to split off.  Personally, I wouldn't give anything its own
-    category unless there are at least half a dozen of them and no
-    other category really fits them well.  We should use a combined
-    system for nmap-os-db and nmap-service-probes.
-  o Add a classification sect1 to os-detection.xml
-    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
-    classification.  It should include a list with descriptions of
-    each device type recognized by Nmap.  Version-detection.xml should
-    reference (link to) it in the approprate place.
-    [Doug has done some initial work on this.  For example, see
-     nmap/docs/device-types.txt] [David]
-
-o [Zenmap] When the inventory is changed, the current host/service selection is
-  forgotten and the Ports / Hosts tab is switched to hosts mode. It should
-  remember your current selection and not change the view. [David/SoC]
-
 o Fix traceroute performance/algorithms.  It is terribly bad in some
   cases.  For example, this traceroute scan took 36 minutes against a
   single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
@@ -45,6 +23,13 @@ o Fix traceroute performance/algorithms.  It is terribly bad in some
   elicits a response from the target. (that feature was added in July,
   but we'll probably take it out until we can fix
   performance). [David]
+
+o [NSE] Fix http pipelining.  Responses are being split on anything
+  that looks like HTTP/1.X which doesn't come at the beginning of a
+  line, and doesn't work when a line like that happens to legitimately
+  come in a body.  Joao has an nmap-exp branch which resolves this
+  issue, though David found some bugs in that and sent some hard test
+  cases. [Joao]
 
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
@@ -96,6 +81,17 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
+o [NSE] We should do a favicon survey like the one Brandon did for
+  /favicon.ico files but which uses the favicons specified by the HTML
+  files rather than just that exact location.  For example, insecure.org
+  sites include in the headers:
+  <link REL="SHORTCUT ICON" HREF="http://images.insecure.org/images/tiny-eyeicon.png" TYPE="image/png">
+  Then we should update our favicon database to include the top ones,
+  and we should also improve our favicon script so that it either
+  omits checking /favicon.ico if the HTML-specified one exists, or it
+  should just download, interpret, and display info for both (right
+  now it seems to give prority to the wrong one: /favicon.ico).
+
 o We should package the rendered Nroff man page translations (e.g. all
   16 languages) in the tarball to make it easier for distributors to
   package them.  For example, see
@@ -136,12 +132,6 @@ o [NSE] Improve username/password library (the database files
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
-o [NSE] Finish (or write new) favicon fingerprinting script. See
-  http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
-  some more scanning and increase the DB size a bit.  May or may not
-  want to later combine this as part of a larger webapp fingerprinting
-  script.
-
 o Add Nmap web board.
  
 o Create Nmap wiki
@@ -177,7 +167,10 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
 
 o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244 [Ankur]
+
+o Fix four Nmap bugs discovered by Ankur and analyzed a bit by
+  David. [Ankur]
 
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -264,8 +257,6 @@ o [NSE] Add DNS based service discovery script.  See
 o Further investigate SCTP functionality, as some people reported
   problems (see this thread:
   http://seclists.org/nmap-dev/2009/q2/0669.html)
-
-o [NSE] Consider HTTP request caching.
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -620,6 +611,36 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Consider HTTP request caching.
+
+o [NSE] Finish (or write new) favicon fingerprinting script. See
+  http://seclists.org/nmap-dev/2008/q4/0583.html .  May need to do
+  some more scanning and increase the DB size a bit.  May or may not
+  want to later combine this as part of a larger webapp fingerprinting
+  script.
+
+o [Zenmap] When the inventory is changed, the current host/service selection is
+  forgotten and the Ports / Hosts tab is switched to hosts mode. It should
+  remember your current selection and not change the view. [David/SoC]
+
+o Device categorization improvements
+  o Examine Nmap's device categorization in nmap-os-deb and
+    nmap-service-probes.  Decide if some small categories which have
+    never really took off should be consolidated, or whether others
+    should be split off.  For example, maybe there are some groups in
+    'specialized' or other misc. categories which are now large enough
+    to split off.  Personally, I wouldn't give anything its own
+    category unless there are at least half a dozen of them and no
+    other category really fits them well.  We should use a combined
+    system for nmap-os-db and nmap-service-probes.
+  o Add a classification sect1 to os-detection.xml
+    (http://nmap.org/book/osdetect.html) to cover how Nmap handles OS
+    classification.  It should include a list with descriptions of
+    each device type recognized by Nmap.  Version-detection.xml should
+    reference (link to) it in the approprate place.
+    [Doug has done some initial work on this.  For example, see
+     nmap/docs/device-types.txt] [David]
 
 o Consider what new UDP payloads we might want to add.  David has many
   ideas at: http://seclists.org/nmap-dev/2009/q3/0290.html
