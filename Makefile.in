@@ -214,7 +214,8 @@ install-nmap: $(TARGET)
 
 # Update the Ncat version number.
 $(NCATDIR)/ncat.h: nmap.h
-	sed -i -e 's/^#[ \t]*define[ \t]\+NCAT_VERSION[ \t]\+\(".*"\)/#define NCAT_VERSION "$(NMAP_VERSION)"/' $@
+	sed -e 's/^#[ \t]*define[ \t]\+NCAT_VERSION[ \t]\+\(".*"\)/#define NCAT_VERSION "$(NMAP_VERSION)"/' $@ > $@.tmp
+	mv -f $@.tmp $@
 
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
