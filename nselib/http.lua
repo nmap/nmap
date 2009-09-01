@@ -1278,7 +1278,7 @@ end
 --        body is the cleaned-up body (or a hash of the cleaned-up body). 
 function identify_404(host, port)
 	local data
-	local bad_responses = { 301, 302, 401, 403, 499, 501 }
+	local bad_responses = { 301, 302, 400, 401, 403, 499, 501 }
 
 	-- The URLs used to check 404s
 	local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
