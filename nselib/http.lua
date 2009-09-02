@@ -1278,7 +1278,7 @@ end
 --        body is the cleaned-up body (or a hash of the cleaned-up body). 
 function identify_404(host, port)
 	local data
-	local bad_responses = { 301, 302, 400, 401, 403, 499, 501 }
+	local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
 	-- The URLs used to check 404s
 	local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
@@ -1362,7 +1362,7 @@ function identify_404(host, port)
 	stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
 --	io.write("\n\n" .. nsedebug.tostr(data) .. "\n\n")
 
-	return false, string.format("Unexpected response returned for 404 check: %s", get_status_string(data))
+	return true, data.status
 end
 
 ---Determine whether or not the page that was returned is a 404 page. This is actually a pretty simple function, 
