@@ -425,7 +425,7 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
 
   if (o.generate_random_ips) {
     do {
-      ip.s_addr = get_random_u32();
+      ip.s_addr = get_random_unique_u32();
     } while (ip_is_reserved(&ip));
     Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
   } else if (!inputfd) {
