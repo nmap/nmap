@@ -1,5 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Get mailing lists working again
+
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
   http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
