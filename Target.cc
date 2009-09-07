@@ -266,7 +266,7 @@ void Target::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
 }
 
 // Returns IPv4 host address or {0} if unavailable.
-struct in_addr Target::v4source() {
+struct in_addr Target::v4source() const {
   const struct in_addr *addy = v4sourceip();
   struct in_addr in;
   if (addy) return *addy;
@@ -275,7 +275,7 @@ struct in_addr Target::v4source() {
 }
 
 // Returns IPv4 host address or NULL if unavailable.
-const struct in_addr *Target::v4sourceip() {
+const struct in_addr *Target::v4sourceip() const {
   struct sockaddr_in *sin = (struct sockaddr_in *) &sourcesock;
   if (sin->sin_family == AF_INET) {
     return &(sin->sin_addr);
@@ -451,11 +451,11 @@ const u8 *Target::MACAddress() const {
   return (MACaddress_set)? MACaddress : NULL;
 }
 
-const u8 *Target::SrcMACAddress() {
+const u8 *Target::SrcMACAddress() const {
   return (SrcMACaddress_set)? SrcMACaddress : NULL;
 }
 
-const u8 *Target::NextHopMACAddress() {
+const u8 *Target::NextHopMACAddress() const {
   return (NextHopMACaddress_set)? NextHopMACaddress : NULL;
 }
 

@@ -155,8 +155,8 @@ class Target {
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
   void setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
-  struct in_addr v4source();
-  const struct in_addr *v4sourceip();
+  struct in_addr v4source() const;
+  const struct in_addr *v4sourceip() const;
   /* The IPv4 or IPv6 literal string for the target host */
   const char *targetipstr() { return targetipstring; }
   /* Give the name from the last setHostName() call, which should be
@@ -236,8 +236,8 @@ class Target {
 
   /* Returns a pointer to 6-byte MAC address, or NULL if none is set */
   const u8 *MACAddress() const;
-  const u8 *SrcMACAddress();
-  const u8 *NextHopMACAddress();
+  const u8 *SrcMACAddress() const;
+  const u8 *NextHopMACAddress() const;
 
 /* Set the device names so that they can be returned by deviceName()
    and deviceFullName().  The normal name may not include alias
