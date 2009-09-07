@@ -1012,10 +1012,12 @@ Traceroute::outputTarget(Target * t) {
     }
     log_write(LOG_PLAIN, "%s", Tbl->printableTable(NULL));
 
-    if (tg->getState() == G_DEAD_TTL)
+    if (tg->getState() == G_DEAD_TTL) {
         log_write(LOG_PLAIN, "! maximum TTL reached (50)\n");
-    else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
-        log_write(LOG_PLAIN, "! destination not reached (%s)\n", inet_ntoa(tp->ipdst));
+    } else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst))) {
+        struct in_addr addr = { tg->ipdst };
+        log_write(LOG_PLAIN, "! destination not reached (%s)\n", inet_ntoa(addr));
+    }
 
     log_flush(LOG_PLAIN);
     delete Tbl;
@@ -1082,8 +1084,10 @@ Traceroute::outputXMLTrace(TraceGroup * tg) {
 
     if (tg->getState() == G_DEAD_TTL)
         log_write(LOG_XML, "<error errorstr=\"maximum TTL reached\"/>\n");
-    else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
-        log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(tp->ipdst));
+    else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst))) {
+    	addr.s_addr = tg->ipdst;
+	log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(addr));
+    }
 
     /* traceroute XML footer */
     log_write(LOG_XML, "</trace>\n");
