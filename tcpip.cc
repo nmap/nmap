@@ -3265,6 +3265,10 @@ static struct sys_route *getsysroutes_proc(FILE * routefp, int *howmany) {
       continue; /* Deleted route -- any other valid reason for a route to start with an asterict? */
     Strncpy(iface, p, sizeof(iface));
     p = strtok(NULL, " \t\n");
+    if (!p) {
+      error("Could not find destination in /proc/net/route line");
+      continue;
+    }
     endptr = NULL;
     routes[numroutes].dest = strtoul(p, &endptr, 16);
     if (!endptr || *endptr) {
@@ -3274,8 +3278,10 @@ static struct sys_route *getsysroutes_proc(FILE * routefp, int *howmany) {
 
     /* Now for the gateway */
     p = strtok(NULL, " \t\n");
-    if (!p)
-      break;
+    if (!p) {
+      error("Could not find gateway in /proc/net/route line");
+      continue;
+    }
     endptr = NULL;
     routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
     if (!endptr || *endptr) {
