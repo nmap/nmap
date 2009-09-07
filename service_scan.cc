@@ -1126,14 +1126,14 @@ void parse_nmap_service_probe_file(AllProbes *AP, char *filename) {
     }
   }
 
-  assert(newProbe);
-  if (newProbe->isNullProbe()) {
-    assert(!AP->nullProbe);
-    AP->nullProbe = newProbe;
-  } else {
-    AP->probes.push_back(newProbe);
+  if (newProbe != NULL) {
+    if (newProbe->isNullProbe()) {
+      assert(!AP->nullProbe);
+      AP->nullProbe = newProbe;
+    } else {
+      AP->probes.push_back(newProbe);
+    }
   }
-  
   fclose(fp);
 
   AP->compileFallbacks();
@@ -1280,7 +1280,8 @@ void AllProbes::compileFallbacks() {
   curr = probes.begin();
 
   // The NULL probe is a special case:
-  nullProbe->fallbacks[0] = nullProbe;
+  if (nullProbe != NULL)
+    nullProbe->fallbacks[0] = nullProbe;
 
   while (curr != probes.end()) {
 
