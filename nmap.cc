@@ -1810,14 +1810,15 @@ int nmap_main(int argc, char *argv[]) {
     /* ping scan traceroutes */
     if(o.traceroute && o.noportscan) {
         /* Assume that all targets in a group use the same device */
+        vector<Target *>::iterator it;
         troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType(), &ports);
         troute->trace(Targets);
         troute->resolveHops();
 
         /* print ping traceroutes, making sure the reference
          * trace is first */
-        while(!Targets.empty()) {
-            currenths = *Targets.begin();
+        for (it = Targets.begin(); it != Targets.end(); it++) {
+            currenths = *it;
             o.numhosts_scanned++;
             log_write(LOG_XML, "<host>");
             write_host_status(currenths, o.resolve_all);
@@ -1825,8 +1826,11 @@ int nmap_main(int argc, char *argv[]) {
             troute->outputTarget(currenths);
             log_write(LOG_XML, "</host>\n");
             log_write(LOG_PLAIN,"\n");
+        }
+        while(!Targets.empty()) {
+            currenths = Targets.back();
             delete currenths;
-            Targets.erase(Targets.begin());
+            Targets.pop_back();
         }
         o.numhosts_scanning = 0;
         log_flush_all();
