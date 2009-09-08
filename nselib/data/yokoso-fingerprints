@@ -54,6 +54,7 @@
 # Virtual Center
 /client/VMware-viclient.exe
 /ui/
+/vmware/imx/vmware_boxes-16x16.png
 
 # TopAccess Toshiba e-Studio520
 /Default?MAIN=DEVICE
@@ -180,7 +181,8 @@
 
 # HP DesignJet 1055CM
 /gif/hp.gif
-
+/gif/printer.gif
+/gif/hp_invent_logo.gif
 
 # Xerox Phaser Printer
 /x_logo.gif
@@ -245,4 +247,7 @@
 
 # Raritan Remote Client
 /rrc.htm
+
+# Oracle Web Server
+/footer1.gif
 

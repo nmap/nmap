@@ -39,6 +39,7 @@ for 404 Not Found and the status code returned by the random files).
 --@args fingerprints  Specify a different file to read fingerprints from. This will be read instead of the default
 --                    files. 
 --@args path          The base path to prepend to each request. Leading/trailing slashes are not required. 
+--@args variations    Set to '1' or 'true' to attempt variations on the files such as .bak, ~, Copy of", etc.
 
 author = "Ron Bowes <ron@skullsecurity.net>, Andrew Orr <andrew@andreworr.ca>, Rob Nicholls <robert@everythingeverything.co.uk>"
 
@@ -49,7 +50,6 @@ categories = {"discovery", "intrusive", "vuln"}
 require 'stdnse'
 require 'http'
 require 'stdnse'
--- The directory where the fingerprint files are stored
 
 -- List of fingerprint files
 local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
@@ -75,6 +75,82 @@ portrule = function(host, port)
 		return false
 	end
 	return true
+end
+
+---Convert the filename to backup variations. These can be valuable for a number of reasons. 
+-- First, because they may not have the same access restrictions as the main version (file.php 
+-- may run as a script, but file.php.bak or file.php~ might not). And second, the old versions
+-- might contain old vulnerablities
+--
+-- At the time of the writing, these were all decided by me (Ron Bowes). 
+local function get_variations(filename)
+	local variations = {}
+
+	if(filename == nil or filename == "" or filename == "/") then
+		return {}
+	end
+
+	local is_directory = (string.sub(filename, #filename, #filename) == "/")
+	if(is_directory) then
+		filename = string.sub(filename, 1, #filename - 1)
+	end
+
+	-- Try some extensions
+	table.insert(variations, filename .. ".bak")
+	table.insert(variations, filename .. ".1")
+	table.insert(variations, filename .. ".tmp")
+
+	-- Strip off the extension, if it has one, and try it all again. 
+	-- For now, just look for three-character extensions. 
+	if(string.sub(filename, #filename - 3, #filename - 3) == '.') then
+		local bare = string.sub(filename, 1, #filename - 4)
+		local extension = string.sub(filename, #filename - 3)
+
+		table.insert(variations, bare .. ".bak")
+		table.insert(variations, bare .. ".1")
+		table.insert(variations, bare .. ".tmp")
+		table.insert(variations, bare .. "_1" .. extension)
+		table.insert(variations, bare .. "2" .. extension)
+	end
+
+	-- Some compressed formats
+	table.insert(variations, filename .. ".zip")
+	table.insert(variations, filename .. ".tar")
+	table.insert(variations, filename .. ".tar.gz")
+	table.insert(variations, filename .. ".tgz")
+	table.insert(variations, filename .. ".tar.bz2")
+
+
+	-- Some Windowsy things
+	local onlyname = string.sub(filename, 2)
+	-- If the name contains a '/', forget it
+	if(string.find(onlyname, "/") == nil) then
+		table.insert(variations, "/Copy of " .. onlyname)
+		table.insert(variations, "/Copy (2) of " .. onlyname)
+		table.insert(variations, "/Copy of Copy of " .. onlyname)
+
+		-- Word/Excel/etc replace the first two characters with '~$', it seems
+		table.insert(variations, "/~$" .. string.sub(filename, 4))
+	end
+
+	-- Some editors add a '~'
+	table.insert(variations, filename .. "~")
+
+	-- Try some directories
+	table.insert(variations, "/bak" .. filename)
+	table.insert(variations, "/backup" .. filename)
+	table.insert(variations, "/backups" .. filename)
+	table.insert(variations, "/beta" .. filename)
+	table.insert(variations, "/test" .. filename)
+
+	-- If it's a directory, add a '/' after every entry
+	if(is_directory) then
+		for i, v in ipairs(variations) do
+			variations[i] = v .. "/"
+		end
+	end
+
+	return variations
 end
 
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. 
@@ -123,6 +199,14 @@ local function get_fingerprints()
 					else
 						table.insert(entries, {checkdir=line, checkdesc=product})
 						count = count + 1
+
+						-- If the user requested variations, add those as well
+						if(nmap.registry.args.variations == '1' or nmap.registry.args.variations == 'true') then
+							local variations = get_variations(line)
+							for _, variation in ipairs(variations) do
+								table.insert(entries, {checkdir=variation, checkdesc=product .. " (variation)"})
+							end
+						end
 					end
 				end
 			end
