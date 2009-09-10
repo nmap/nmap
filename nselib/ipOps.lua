@@ -8,6 +8,7 @@ local ipairs   = ipairs
 local tonumber = tonumber
 
 local stdnse   = require "stdnse"
+local bit      = require "bit"
 
 module ( "ipOps" )
 
@@ -88,7 +89,26 @@ todword = function( ip )
 
 end
 
+---
+-- Converts the supplied IPv4 address from a DWORD value into a dotted string. 
+--
+-- For example, the address (((a*256+b)*256+c)*256+d) becomes a.b.c.d. 
+--
+--@param ip DWORD representing an IPv4 address. 
+--@return The string representing the address. 
+fromdword = function( ip )
+  if type( ip ) ~= "number" then
+    stdnse.print_debug(1, "Error in ipOps.todword: Expected IPv4 address.")
+    return nil
+  end
 
+  local n1 = bit.band(bit.rshift(ip, 0),  0x000000FF)
+  local n2 = bit.band(bit.rshift(ip, 8),  0x000000FF)
+  local n3 = bit.band(bit.rshift(ip, 16), 0x000000FF)
+  local n4 = bit.band(bit.rshift(ip, 24), 0x000000FF)
+
+  return string.format("%d.%d.%d.%d", n1, n2, n3, n4)
+end
 
 ---
 -- Separates the supplied IP address into its constituent parts and

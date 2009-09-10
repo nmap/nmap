@@ -3,6 +3,7 @@ Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", } }
+Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-recursion.nse", categories = { "default", "intrusive", } }
@@ -15,8 +16,8 @@ Entry { filename = "html-title.nse", categories = { "default", "discovery", "saf
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
-Entry { filename = "http-headers.nse", categories = { "discovery", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", } }
+Entry { filename = "http-headers.nse", categories = { "discovery", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
