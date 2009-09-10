@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added dhcp-discover.nse, which sends out DHCP probes on UDP/67 and
+  displays all interesting results (or, with verbosity, all results).
+  Optionally, multiple probes can be sent and the MAC address can be
+  randomized in an attempt to exhaust the DHCP server's address pool
+  and potentially create a denial of service condition. [Ron]
+
 o The nselib/data directory is now installed. It was not installed
   before because of an error in the Makefile. The scripts that would
   not have worked after installation because they were missing data
