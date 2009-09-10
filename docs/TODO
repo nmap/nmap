@@ -1,7 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Get mailing lists working again
-
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
   http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
@@ -115,7 +113,7 @@ o The Nmap 5.00 tarball contains:
   -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
   -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
   If we're going to include the XML source files, we should include
-  reguide too.  But rather than add that, we should probably take
+  refguide too.  But rather than add that, we should probably take
   these out.  After all, people can easily grab them from svn or our
   new http svn gateway if desired.  So no need to bloat the tarball
   with these files which aren't installed. [Fyodor]
@@ -170,9 +168,6 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
 o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244 [Ankur]
-
-o Fix four Nmap bugs discovered by Ankur and analyzed a bit by
-  David. [Ankur]
 
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -613,6 +608,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix four Nmap bugs discovered by Ankur and analyzed a bit by
+  David. [Ankur]
 
 o [NSE] Consider HTTP request caching.
 
