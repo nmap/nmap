@@ -14,7 +14,7 @@ Additionally, the MAC address can be randomized, which should override the cache
 assign a new IP address. Extra requests can also be sent to exhaust the IP address range more quickly. 
 See the 'args' section for more information. 
 
-DHCPINFOM is another type of DHCP request that requests the same information, but doesn't reserve
+DHCPINFORM is another type of DHCP request that requests the same information, but doesn't reserve
 an address. Unfortunately, because many home routers simply ignore DHCPINFORM requests, we opted
 to use DHCPDISCOVER instead. 
 
