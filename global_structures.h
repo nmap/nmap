@@ -194,7 +194,6 @@ struct timeout_info {
 struct seq_info {
   int responses;
   int ts_seqclass; /* TS_SEQ_* defines in nmap.h */
-  time_t uptime; /* time of latest system boot (or 0 if unknown ) */
   int ipid_seqclass; /* IPID_SEQ_* defines in nmap.h */
   u32 seqs[NUM_SEQ_SAMPLES];
   u32 timestamps[NUM_SEQ_SAMPLES];
