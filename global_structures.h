@@ -199,7 +199,7 @@ struct seq_info {
   u32 timestamps[NUM_SEQ_SAMPLES];
   int index;
   u16 ipids[NUM_SEQ_SAMPLES];
-  time_t lastboot; /* 0 means unknown */
+  long lastboot; /* 0 means unknown */
 };
 
 /* Different kinds of Ipids. */

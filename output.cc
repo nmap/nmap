@@ -1706,9 +1706,11 @@ void printosscanoutput(Target *currenths) {
   if (currenths->seq.lastboot) {
     char tmbuf[128];
     struct timeval tv;
-    gettimeofday(&tv, NULL);
-    strncpy(tmbuf, ctime(&(currenths->seq.lastboot)), sizeof(tmbuf));
+    time_t lastboot;
+    lastboot = (time_t) currenths->seq.lastboot;
+    strncpy(tmbuf, ctime(&lastboot), sizeof(tmbuf));
     chomp(tmbuf);
+    gettimeofday(&tv, NULL);
     if (o.verbose)
       log_write(LOG_PLAIN,"Uptime guess: %.3f days (since %s)\n", (double) (tv.tv_sec - currenths->seq.lastboot) / 86400, tmbuf);
     log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n", tv.tv_sec - currenths->seq.lastboot, tmbuf);

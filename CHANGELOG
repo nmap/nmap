@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an integer overflow that could occur when a target with a low
+  TCP timestamp clock frequency uses large timestamp values, such that
+  a naive uptime calculation shows a boot time before the epoch. Also
+  fixed a printf format specifier mismatch that was revealed by the
+  overflow. Toby Simmons reported the problem and helped with the fix.
+  [David]
+
 o Added dhcp-discover.nse, which sends out DHCP probes on UDP/67 and
   displays all interesting results (or, with verbosity, all results).
   Optionally, multiple probes can be sent and the MAC address can be
