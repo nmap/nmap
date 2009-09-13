@@ -2210,7 +2210,7 @@ Boolean expression describing a more complex set of scripts. Each
 element is interpreted first as an expression, then as a category, and
 finally as a file or directory name. The special argument
 <literal>all</literal> makes every script in Nmap's script database
-eligible to run.
+eligible to run.  The <literal>all</literal> argument should be used with caution as NSE may contain dangerous scripts including exploits, brute force authentication crackers, and denial of service attacks.
 </para>
 
 <para>

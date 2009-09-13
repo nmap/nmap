@@ -460,7 +460,7 @@ Boolean expression describing a more complex set of scripts. Each
 element is interpreted first as an expression, then as a category, and
 finally as a file or directory name. The special argument
 <literal>all</literal> makes every script in Nmap's script database
-eligible to run.
+eligible to run.  The <literal>all</literal> argument should be used with caution as NSE may contain dangerous scripts including exploits, brute force authentication crackers, and denial of service attacks.
 </para>
 
 <para>
@@ -500,8 +500,8 @@ subdirectory of the Nmap data directory by default (see
 a database stored
 in <filename>scripts/script.db</filename>,<indexterm><primary><filename>script.db</filename></primary></indexterm>
 which lists the category or categories in which each script belongs.
-Give the argument <literal>all</literal> to execute all scripts in the
-Nmap script database.</para>
+The argument <literal>all</literal> will execute all scripts in the
+Nmap script database, but should be used cautiously since Nmap may contain exploits, denial of service attacks, and other dangerous scripts.</para>
           </listitem>
         </varlistentry>
 
@@ -616,13 +616,6 @@ Nmap script database.</para>
           category, the <filename>banner.nse</filename> script, and all
           <filename>.nse</filename> files in the directory
           <filename>/home/user/customscripts</filename>.</para>
-          </listitem>
-        </varlistentry>
-        <varlistentry>
-          <term><command>nmap --script all</command></term>
-          <listitem>
-          <para>Loads every script in
-          <filename>script.db</filename>.<indexterm><primary><filename>script.db</filename></primary></indexterm></para>
           </listitem>
         </varlistentry>
       </variablelist>
