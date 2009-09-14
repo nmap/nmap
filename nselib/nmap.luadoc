@@ -146,7 +146,7 @@ function get_interface_link(interface_name)
 -- lock, and release the mutex. The returned function takes only one argument,
 -- which must be one of
 -- * <code>"lock"</code>: makes a blocking lock on the mutex. If the mutex is busy then the thread will yield and wait. The function returns with the mutex locked.
--- * <code>"trylock"</code>: makes a non-blocking lock on the mutex. If the mutex is busy then it immediately returns with a return value of false. Otherwise, the mutex locks the mutex and returns true.
+-- * <code>"trylock"</code>: makes a non-blocking lock on the mutex. If the mutex is busy then it immediately returns a false value. Otherwise, the mutex locks the mutex and returns true.
 -- * <code>"done"</code>: releases the mutex and allows another thread to lock it. If the thread does not have a lock on the mutex, an error will be raised.
 -- * <code>"running"</code>: returns the thread locked on the mutex or <code>nil</code> if no thread is locked. This should only be used for debugging as it interferes with finished threads from being collected.
 -- @param object Object to create a mutex for.
@@ -181,9 +181,9 @@ function mutex(object)
 -- before the script terminates.
 --
 -- A function that may raise an exception must follow the return protocol
--- understood by this function: on an exception its return values are false
--- followed by an error message; on success its return values are true followed
--- by any other results.
+-- understood by this function: on an exception its return values are
+-- <code>false</code> or <code>nil</code> followed by an error message; on
+-- success its return values are any true value followed by any other results.
 -- @param handler User cleanup function (optional).
 -- @usage
 -- local result, socket, try, catch
@@ -227,9 +227,10 @@ function new_socket()
 -- <code>"tcp"</code>, <code>"udp"</code> or <code>"ssl"</code>; it is
 -- <code>"tcp"</code> if not specified.
 --
--- On success the function returns true. On failure it returns false and an
--- error string. Those strings are taken from the <code>gai_strerror</code> C
--- function. They are (with the error code in parentheses):
+-- On success the function returns a true value. On failure it returns a false
+-- value (<code>false</code> or <code>nil</code>) and an error string. Those
+-- strings are taken from the <code>gai_strerror</code> C function. They are
+-- (with the error code in parentheses):
 -- * <code>"Address family for hostname not supported"</code> (<code>EAI_ADDRFAMILY</code>)
 -- * <code>"Temporary failure in name resolution"</code> (<code>EAI_AGAIN</code>)
 -- * <code>"Bad value for ai_flags"</code> (<code>EAI_BADFLAGS</code>)
@@ -252,15 +253,19 @@ function new_socket()
 -- @return Status (true or false).
 -- @return Error code (if status is false).
 -- @see new_socket
--- @usage local status, err = socket:connect(host.ip, port, "udp")
+-- @usage
+-- local status, err = socket:connect(host.ip, port, "udp")
+-- if not status then
+--     return string.format("Can't connect: %s", err)
+-- end
 function connect(hostid, port, protocol)
 
 --- Sends data on an open socket.
 --
 -- This socket method sends the data contained in the data string through an
--- open connection. On success the function returns true. If the send operation
--- has failed, the function returns true along with an error string. The error
--- strings are
+-- open connection. On success the function returns a true value. If the send
+-- operation fails, the function returns a false value (<code>false</code> or
+-- <code>nil</code>) along with an error string. The error strings are
 -- * <code>"Trying to send through a closed socket"</code>: There was no call to <code>socket:connect</code> before the send operation.
 -- * <code>"TIMEOUT"</code>: The operation took longer than the specified timeout for the socket.
 -- * <code>"ERROR"</code>: An error occurred inside the underlying Nsock library.
@@ -278,11 +283,11 @@ function send(data)
 --
 -- The receive method does a non-blocking receive operation on an open socket.
 -- On success the function returns true along with the received data. On
--- failure the function returns false along with an error string. A failure
--- occurs for example if <code>receive</code> is called on a closed socket. The
--- receive call returns to the NSE script all the data currently stored in the
--- receive buffer of the socket. Error conditions are the same as for
--- <code>send</code>.
+-- failure the function returns a false value (<code>false</code> or
+-- <code>nil</code>) along with an error string. A failure occurs for example if
+-- <code>receive</code> is called on a closed socket. The receive call returns
+-- to the NSE script all the data currently stored in the receive buffer of the
+-- socket. Error conditions are the same as for <code>send</code>.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 -- @see new_socket
@@ -299,9 +304,7 @@ function receive()
 -- returned, not just <code>n</code>. Use <code>stdnse.make_buffer</code> to
 -- guarantee only one line is returned per call.
 --
--- On success the function returns true along with the received data. If
--- receiving data has failed, the function returns false along with an error
--- string. Error conditions are the same as for <code>send</code>.
+-- The return values and error codes are the same as for <code>send</code>.
 -- @param n Minimum number of lines to read.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
@@ -317,9 +320,7 @@ function receive_lines(n)
 -- even one is received then it is returned. If no characters arrive before the
 -- operation times out, a <code>"TIMEOUT"</code> error occurs.
 --
--- On success the function returns true along with the received data. If
--- receiving data has failed, the function returns false along with an error
--- string. Error conditions are the same as for <code>send</code>.
+-- The return values and error codes are the same as for <code>send</code>.
 -- @param n Minimum number of bytes to read.
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
@@ -350,9 +351,9 @@ function receive_bytes(n)
 -- received data (true) or discarded (false).
 --
 -- On success the function returns true along with the received data. On failure
--- the function returns false along with an error string. Possible error
--- messages are the same as those that the other receive functions can return,
--- with the addition of
+-- the function returns <code>false</code> or <code>nil</code> along with an
+-- error string. Possible error messages are the same as those that the other
+-- receive functions can return, with the addition of
 -- * <code>"Error inside splitting-function"</code>: The first argument was a function which caused an error while being called.
 -- * <code>"Error in string.find (nsockobj:receive_buf)!"</code>: A string was provided as the first argument, and string.find() yielded an error while being called.
 -- * <code>"Expected either a function or a string!"</code>: The first argument was neither a function nor a string.
@@ -370,9 +371,9 @@ function receive_buf(delimiter, keeppattern)
 --- Closes an open connection.
 --
 -- On success the function returns true. If the close fails, the function
--- returns false and an error string. Currently the only error message is
--- <code>"Trying to close a closed socket"</code>, which is issued if the
--- socket has already been closed.
+-- returns <code>false</code> or <code>nil</code> and an error string. Currently
+-- the only error message is <code>"Trying to close a closed socket"</code>,
+-- which is issued if the socket has already been closed.
 --
 -- Sockets are subject to garbage collection. Should you forget to close a
 -- socket, it will get closed before it gets deleted (on the next occasion Lua's
@@ -387,12 +388,12 @@ function close()
 --- Gets information about a socket.
 --
 -- This function returns information about a socket object. It returns five
--- values. If an error occurred, the first value is <code>nil</code> and the
--- second value is an error string. Otherwise the first value is true and the
--- remaining 4 values describe both endpoints of the TCP connection. If you put
--- the call inside an exception handler created by <code>new_try</code> the
--- status value is consumed. The call can be used for example if you want to
--- query an authentication server.
+-- values. If an error occurred, the first value is <code>false</code> or
+-- <code>nil</code> and the second value is an error string. Otherwise the first
+-- value is true and the remaining 4 values describe both endpoints of the TCP
+-- connection. If you put the call inside an exception handler created by
+-- <code>new_try</code> the status value is consumed. The call can be used for
+-- example if you want to query an authentication server.
 -- @return Status (true or false).
 -- @return Local IP address (if status is true) or error string (if status is
 -- false).
