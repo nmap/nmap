@@ -1579,8 +1579,8 @@ improvements!</para>
 of iterating through the port number field of a UDP packet, it sends
 IP packet headers and iterates through the eight-bit IP protocol field.
 The headers are usually empty, containing no data and not even the
-proper header for the claimed protocol.  The three exceptions are TCP,
-UDP, and ICMP.  A proper protocol header for those is included since
+proper header for the claimed protocol.  The exceptions are TCP,
+UDP, ICMP, SCTP, and IGMP.  A proper protocol header for those is included since
 some systems won't send them otherwise and because Nmap already has
 functions to create them.  Instead of watching for ICMP port
 unreachable messages, protocol scan is on the lookout for ICMP
