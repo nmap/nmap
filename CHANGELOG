@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a check for a SMBv2 vulnerability (CVE-2009-3103) to 
+  smb-check-vulns. Due to its nature (it performs a DoS, then checks
+  if the system is still online), the script isn't run by default 
+  and requires a special script-arg to work. [Ron]
+
 o Fixed an integer overflow that could occur when a target with a low
   TCP timestamp clock frequency uses large timestamp values, such that
   a naive uptime calculation shows a boot time before the epoch. Also
