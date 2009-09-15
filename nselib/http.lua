@@ -302,14 +302,15 @@ end
 --
 --  @param response The http response - Might be a table or a raw response
 --  @return The max number of requests on a keep-alive connection
-local function getPipelineMax( response )
+local function getPipelineMax( response, method )
   -- Allow users to override this with a script-arg
   if nmap.registry.args.pipeline ~= nil then
     return tonumber(nmap.registry.args.pipeline)
   end
 
+  local parse_opts = {method=method}
   if response then
-    if type(response) ~= "table" then response = parseResult( response ) end
+    if type(response) ~= "table" then response = parseResult( response, parse_opts ) end
     if response.header and response.header.connection ~= "close" then
       if response.header["keep-alive"] then
         local max = string.match( response.header["keep-alive"], "max\=(%d*)")
@@ -468,28 +469,98 @@ end
 --  containing one response in each field.
 --
 --  @param response The raw multiple response
+--  @param methods Request method
 --  @return Table with one response in each field
-local function splitResults( response )
-  local tmp
-  local i
-  local results = {}
+local function splitResults( response, methods )
+  local responses = {}
+  local opt = {method="", dechunk="true"}
+  local parsingOpts = {}
 
-  response = stdnse.strsplit("\n", response)
-
-  --Index adjustment based on response.
-  if(string.match(response[1], "HTTP/%d\.%d %d+"))
-    then i = 0
-    else i = 1; results[1] = ""
-  end
-
-  for _, line in ipairs( response or {} ) do
-    if(string.match(line, "HTTP/%d\.%d %d+")) then
-      i = i + 1
-      results[i] = ""
+  for k, v in ipairs(methods) do
+    if not response then
+      stdnse.print_debug("Response expected, but not found")
     end
-    results[i] = results[i] .. line .. "\n"
+    if k == #methods then
+      responses[#responses+1] = response
+    else
+      responses[#responses+1], response = getNextResult( response, v)
+    end
+    opt["method"] = v
+    parsingOpts[#parsingOpts+1] = opt
   end
-  return results 
+  return responses, parsingOpts
+end
+
+function getNextResult( full_response, method )
+  local header = ""
+  local body = ""
+  local response = ""
+  local header_end, body_start
+  local length, size, msg_pointer
+
+  -- Split header from body
+  header_end, body_start = full_response:find("\r?\n\r?\n")
+  if header_end then
+    header = full_response:sub(1, body_start)
+    if not header_end then
+      return full_response, nil
+    end
+  end
+
+  -- If it is a get response, attach body to response
+  if method == "get" then
+    body_start = body_start + 1 -- fixing body start offset
+    length = getLength( header )
+    if length then
+      length = length + #header
+      body = full_response:sub(body_start, length)
+    elseif isChunked(header) then
+      full_response = full_response:sub(body_start)
+      local body_delim = ( full_response:match( "\r\n" ) and "\r\n" )  or
+                         ( full_response:match( "\n" )   and "\n" ) or nil
+      local chunk, tmp_size
+      local chunks = {}
+      for tmp_size, chunk in get_chunks(full_response, 1, body_delim) do
+        chunks[#chunks + 1] = chunk
+		size = tmp_size
+      end
+      body = table.concat(chunks)
+    else
+      stdnse.print_debug("Didn't find chunked encoding or content-length field, not splitting response")
+      body = full_response:sub(body_start)
+    end
+  end
+
+  -- Return response (header + body) and the string with all 
+  -- responses less the one we just grabbed
+  response = header .. body
+  if size then 
+	msg_pointer = size
+  else msg_pointer = #response+1 end
+  full_response = full_response:sub(msg_pointer)
+  return response, full_response
+end
+
+function isChunked( header )
+  header = stdnse.strsplit( "\r?\n", header )
+  local encoding = nil
+  for number, line in ipairs( header or {} ) do
+    line = line:lower()
+    encoding = line:match("(transfer%-encoding: chunked)")
+    if encoding then return true end
+  end
+  return false
+end
+
+function getLength( header )
+  header = stdnse.strsplit( "\r?\n", header )
+  local length = nil
+  for number, line in ipairs( header or {} ) do
+    line = line:lower()
+    length = line:match("content%-length:%s*(%d+)")
+    if length then break end
+  end
+  return length
 end
 
 --- Builds a string to be added to the request mod_options table
@@ -641,7 +712,8 @@ get = function( host, port, path, options, cookies )
     local data, mod_options = buildGet(host, port, path, options, cookies)
     data = buildRequest(data, mod_options)
     local response = request(host, port, data)
-    result = parseResult(response)
+    local parse_options = {method="get"}
+    result = parseResult(response, parse_options)
     insert_cache(state, result, response);
   end
   return result;
@@ -669,7 +741,8 @@ head = function( host, port, path, options, cookies )
     local data, mod_options = buildHead(host, port, path, options, cookies)
     data = buildRequest(data, mod_options)
     local response = request(host, port, data)
-    result = parseResult(response)
+	local parse_options = {method="head"}
+    result = parseResult(response, parse_options)
     insert_cache(state, result, response);
   end
   return result;
@@ -697,7 +770,8 @@ post = function( host, port, path, options, cookies , postdata )
   local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
   data = buildRequest(data, mod_options)
   local response = request(host, port, data)
-  return parseResult(response)
+  local parse_options = {method="post"}
+  return parseResult(response, parse_options)
 end
 
 --- Builds a get request to be used in a pipeline request
@@ -715,7 +789,7 @@ function pGet( host, port, path, options, cookies, allReqs )
   local req = {}
   if not allReqs then allReqs = {} end
   if not options then options = {} end
-  local object = {data="", opts=""}
+  local object = {data="", opts="", method="get"}
   options.connection = "Keep-alive"
   object["data"], object["opts"] =  buildGet(host, port, path, options, cookies)
   allReqs[#allReqs + 1] =  object
@@ -737,7 +811,7 @@ function pHead( host, port, path, options, cookies, allReqs )
   local req = {}
   if not allReqs then allReqs = {} end
   if not options then options = {} end
-  local object = {data="", opts=""}
+  local object = {data="", opts="", method="head"}
   options.connection = "Keep-alive"
   object["data"], object["opts"] =  buildHead(host, port, path, options, cookies)
   allReqs[#allReqs + 1] =  object
@@ -762,11 +836,14 @@ end
 pipeline = function(host, port, allReqs, options)
   stdnse.print_debug("Total number of pipelined requests: " .. #allReqs)
   local response = {}
-  local response_tmp
+  local response_tmp = ""
   local response_tmp_table = {}
+  local parsing_opts = {}
+  local parsing_tmp_opts = {}
   local requests = ""
   local response_raw
   local response_splitted = {}
+  local request_methods = {}
   local i = 2
   local j, opts
   local opts
@@ -785,12 +862,22 @@ pipeline = function(host, port, allReqs, options)
   -- We'll try a first request with keep-alive, just to check if the server
   -- supports and how many requests we can send into one socket!
   socket, response_raw, bopt = comm.tryssl(host, port, buildRequest(allReqs[1]["data"], allReqs[1]["opts"]), opts)
+
+  -- we need to make sure that we received the total first response
+  while socket and recv_status do
+    response_raw = response_raw .. response_tmp
+    recv_status, response_tmp = socket:receive()
+  end  
   if not socket or not response_raw then return response_raw end
-  response_splitted[1] = response_raw
-  local limit = tonumber(getPipelineMax(response_raw))
+  response_splitted[#response_splitted + 1] = response_raw
+  parsing_opts[1] = {method=allReqs[1]["method"]}
+
+  local limit = tonumber(getPipelineMax(response_raw, allReqs[1]["method"]))
   stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
+  --request_methods[1] = allReqs[1]["method"]
 
   while i <= #allReqs do
+    response_raw = ""
     -- we build a big request with many requests, upper limited by the var "limit"
 
     j = i
@@ -799,15 +886,15 @@ pipeline = function(host, port, allReqs, options)
         allReqs[j]["opts"]["header"]["Connection"] = "Close"
       end
       requests = requests .. buildRequest(allReqs[j]["data"], allReqs[j]["opts"])
+      request_methods[#request_methods+1] = allReqs[j]["method"]
       j = j + 1
     end
 
     -- Connect to host and send all the requests at once!
-
     if not socket:get_info() then socket:connect(host.ip, port.number, bopt) end
     socket:set_timeout(10000)
     socket:send(requests)
-    response_raw = ""
+	recv_status = true
     while recv_status do
       recv_status, response_tmp = socket:receive()
       if recv_status then response_raw = response_raw .. response_tmp end
@@ -815,10 +902,10 @@ pipeline = function(host, port, allReqs, options)
 
     -- Transform the raw response we received in a table of responses and
     -- count the number of responses for pipeline control
-
-    response_tmp_table = splitResults(response_raw)
-    for _, v in ipairs(response_tmp_table) do
+	response_tmp_table, parsing_tmp_opts = splitResults(response_raw, request_methods)
+    for k, v in ipairs(response_tmp_table) do
       response_splitted[#response_splitted + 1] = v
+      parsing_opts[#parsing_opts + 1] = parsing_tmp_opts[k]
     end
 
     -- We check if we received all the requests we sent
@@ -829,9 +916,9 @@ pipeline = function(host, port, allReqs, options)
       limit = #response_tmp_table
       stdnse.print_debug("Didn't receive all expected responses.\nDecreasing max pipelined requests to " .. limit )
     end
-    recv_status = true
     socket:close()
     requests = ""
+    request_methods = {}
   end
 
   -- Prepare responses and return it!
@@ -840,8 +927,8 @@ pipeline = function(host, port, allReqs, options)
   if options and options.raw then
     response = response_splitted
   else
-    for _, value in ipairs(response_splitted) do
-      response[#response + 1] = parseResult(value)
+    for k, value in ipairs(response_splitted) do
+      response[#response + 1] = parseResult(value, parsing_opts[k])
     end
   end
   return(response)
@@ -946,7 +1033,10 @@ end
 --
 --  @param response A response received from the server for a request
 --  @return A table with the values received from the server
-function parseResult( response )
+function parseResult( response, options )
+  local chunks_decoded = false
+  local method
+
   if type(response) ~= "string" then return response end
   local result = {status=nil,["status-line"]=nil,header={},rawheader={},body=""}
 
@@ -956,6 +1046,15 @@ function parseResult( response )
     header, body = response:match( "^(.-)\r?\n\r?\n(.*)$" )
   else
     header, body = "", response
+  end
+
+  if options then
+    if options["method"] then method = options["method"] end
+    if options["dechunk"] then chunks_decoded = true end
+  end
+
+  if method == "head" and #body > 1 then
+    stdnse.print_debug("Response to HEAD with more than 1 character")
   end
 
   result.cookies = parseCookies(header)
@@ -997,13 +1096,15 @@ function parseResult( response )
                      ( body:match( "\n" )   and "\n" ) or nil
 
   -- handle chunked encoding
-  if result.header['transfer-encoding'] == 'chunked' then
-    local _, chunk
-    local chunks = {}
-    for _, chunk in get_chunks(body, 1, body_delim) do
-      chunks[#chunks + 1] = chunk
+  if method ~= "head" then
+    if result.header['transfer-encoding'] == 'chunked' and not chunks_decoded then
+      local _, chunk
+      local chunks = {}
+      for _, chunk in get_chunks(body, 1, body_delim) do
+        chunks[#chunks + 1] = chunk
+      end
+      body = table.concat(chunks)
     end
-    body = table.concat(chunks)
   end
 
   -- special case for conjoined header and body
