@@ -516,11 +516,7 @@ function getNextResult( full_response, method )
   -- If it is a get response, attach body to response
   if method == "get" then
     body_start = body_start + 1 -- fixing body start offset
-    length = getLength( header )
-    if length then
-      length = length + #header
-      body = full_response:sub(body_start, length)
-    elseif isChunked(header) then
+    if isChunked(header) then
       full_response = full_response:sub(body_start)
       local body_delim = ( full_response:match( "\r\n" ) and "\r\n" )  or
                          ( full_response:match( "\n" )   and "\n" ) or nil
@@ -528,12 +524,18 @@ function getNextResult( full_response, method )
       local chunks = {}
       for tmp_size, chunk in get_chunks(full_response, 1, body_delim) do
         chunks[#chunks + 1] = chunk
-		size = tmp_size
+                size = tmp_size
       end
       body = table.concat(chunks)
     else
-      stdnse.print_debug("Didn't find chunked encoding or content-length field, not splitting response")
-      body = full_response:sub(body_start)
+      length = getLength( header )
+      if length then
+        length = length + #header
+        body = full_response:sub(body_start, length)
+      else
+        stdnse.print_debug("Didn't find chunked encoding or content-length field, not splitting response")
+        body = full_response:sub(body_start)
+      end
     end
   end
 
@@ -556,8 +558,15 @@ function isChunked( header )
   local encoding = nil
   for number, line in ipairs( header or {} ) do
     line = line:lower()
-    encoding = line:match("(transfer%-encoding: chunked)")
-    if encoding then return true end
+    encoding = line:match("transfer%-encoding: (.*)")
+    if encoding then
+      print(encoding)
+      if encoding:match("identity") then
+        return false
+      else
+        return true
+      end
+    end
   end
   return false
 end
