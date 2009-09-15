@@ -491,6 +491,12 @@ local function splitResults( response, methods )
   return responses, parsingOpts
 end
 
+--- Tries to get the next response from a string with multiple responses
+--
+--  @arg full_response The full response (as received by pipeline() function)
+--  @arg method The method used for this request
+--  @return response The next single response
+--  @return left_response The left data on the response string
 function getNextResult( full_response, method )
   local header = ""
   local body = ""
@@ -541,6 +547,10 @@ function getNextResult( full_response, method )
   return response, full_response
 end
 
+--- Checks the header for chunked body encoding
+--
+--  @arg header The header
+--  @return boolean True if the body is chunked, false if not
 function isChunked( header )
   header = stdnse.strsplit( "\r?\n", header )
   local encoding = nil
@@ -552,6 +562,10 @@ function isChunked( header )
   return false
 end
 
+--- Get body length
+--  
+--  @arg header The header
+--  @return The body length (nil if not found)
 function getLength( header )
   header = stdnse.strsplit( "\r?\n", header )
   local length = nil
