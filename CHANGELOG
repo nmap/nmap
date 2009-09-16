@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a script called http-malware-host.nse. Its future intention
+  is to discover hosts that are serving malware (for example, that 
+  are compromised and have malicious code inserted). At the moment, 
+  it checks for one specific attack discussed here:
+  http://blog.unmaskparasites.com/2009/09/11/dynamic-dns-and-botnet-of-zombie-web-servers/
+  [Ron]
+
 o Added a check for a SMBv2 vulnerability (CVE-2009-3103) to 
   smb-check-vulns. Due to its nature (it performs a DoS, then checks
   if the system is still online), the script isn't run by default 
