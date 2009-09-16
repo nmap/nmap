@@ -36,6 +36,16 @@ o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
 
 o New Nmap dev release (5.05BETA1 or whatever)
 
+o Fix a bug in which Nmap can wrongly associate responses to SYN and
+  ACK host discovery probes.  For example:
+  # nmap -sP -PS80 -PA80 australia.gov.au --packet-trace -d2
+  SENT (0.0760s) TCP 192.168.0.21:60182 > 152.91.126.70:80 S ttl=43 id=13466 iplen=44  seq=4046449223 win=4096 <mss 1460>
+  SENT (0.0770s) TCP 192.168.0.21:60182 > 152.91.126.70:80 A ttl=48 id=39976 iplen=40  seq=4046449223 win=1024 ack=921915001
+  RCVD (0.3020s) TCP 152.91.126.70:80 > 192.168.0.21:60182 SA ttl=53 id=0 iplen=44  seq=3924706636 win=5840 ack=4046449224 <mss 1380>
+  We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
+  ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
+ In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
+
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
