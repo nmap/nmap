@@ -1368,11 +1368,17 @@ double TracerouteState::completion_fraction() const {
   return sum / hosts.size();
 }
 
+static int traceroute_direct(std::vector<Target *> targets);
+
 int traceroute(std::vector<Target *> &Targets) {
   std::vector<Target *>::iterator target_iter;
 
   if (Targets.empty() || Targets[0]->ifType() == devt_loopback)
     return 1;
+
+  if (Targets[0]->directlyConnected())
+    /* Special case for directly connected targets. */
+    return traceroute_direct(Targets);
 
   TracerouteState global_state(Targets);
 
@@ -1419,6 +1425,32 @@ int traceroute(std::vector<Target *> &Targets) {
         hop_cache_size());
     }
     traceroute_hop_cache_clear();
+  }
+
+  return 1;
+}
+
+/* This is a special case of traceroute when all the targets are directly
+   connected. Because the distance to each target is known to be 1, we send no
+   probes at all, only fill in a TracerouteHop structure. */
+static int traceroute_direct(std::vector<Target *> targets) {
+  std::vector<Target *>::iterator it;
+
+  for (it = targets.begin(); it != targets.end(); it++) {
+    TracerouteHop hop;
+    const char *hostname;
+    size_t sslen;
+
+    sslen = sizeof(hop.tag);
+    (*it)->TargetSockAddr(&hop.tag, &sslen);
+    hop.timedout = false;
+    hop.rtt = (*it)->to.srtt / 1000.0;
+    hostname = (*it)->HostName();
+    if (hostname != NULL && hostname[0] != '\0')
+      hop.name = hostname;
+    hop.addr = hop.tag;
+    hop.ttl = 1;
+    (*it)->traceroute_hops.push_front(hop);
   }
 
   return 1;
