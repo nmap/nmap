@@ -116,6 +116,7 @@ void Target::Initialize() {
   FPR = NULL;
   osscan_flag = OS_NOTPERF;
   weird_responses = flags = 0;
+  traceroute_probespec.type = PS_NONE;
   memset(&to, 0, sizeof(to));
   memset(&targetsock, 0, sizeof(targetsock));
   memset(&sourcesock, 0, sizeof(sourcesock));
@@ -228,7 +229,7 @@ void Target::setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
 }
 
 // Returns IPv4 host address or {0} if unavailable.
-struct in_addr Target::v4host() {
+struct in_addr Target::v4host() const {
   const struct in_addr *addy = v4hostip();
   struct in_addr in;
   if (addy) return *addy;

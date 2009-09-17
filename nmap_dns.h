@@ -88,6 +88,8 @@
 
 class Target;
 
+#include "nbase.h"
+
 #include <string>
 #include <list>
 

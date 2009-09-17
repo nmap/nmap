@@ -1897,6 +1897,162 @@ void printhostscriptresults(Target *currenths) {
 }
 #endif
 
+/* Print a table with traceroute hops. */
+static void printtraceroute_normal(Target *currenths) {
+  static const int HOP_COL = 0, RTT_COL = 1, HOST_COL = 2;
+  NmapOutputTable Tbl(currenths->traceroute_hops.size() + 1, 3);
+  struct probespec probe;
+  list <TracerouteHop>::iterator it;
+  int row;
+
+  /* No trace, must be localhost. */
+  if (currenths->traceroute_hops.size() == 0)
+    return;
+
+  /* Print header. */
+  log_write(LOG_PLAIN, "\n");
+  probe = currenths->traceroute_probespec;
+  if (probe.type == PS_TCP) {
+    log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
+      probe.pd.tcp.dport, proto2ascii(probe.proto));
+  } else if (probe.type == PS_UDP) {
+    log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
+      probe.pd.udp.dport, proto2ascii(probe.proto));
+  } else if (probe.type == PS_SCTP) {
+    log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
+      probe.pd.sctp.dport, proto2ascii(probe.proto));
+  } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
+    struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
+    log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
+      probe.proto, proto ? proto->p_name : "unknown");
+  }
+
+  row = 0;
+  Tbl.addItem(row, HOP_COL, false, "HOP");
+  Tbl.addItem(row, RTT_COL, false, "RTT");
+  Tbl.addItem(row, HOST_COL, false, "ADDRESS");
+  row++;
+
+  it = currenths->traceroute_hops.begin();
+
+  if (!o.debugging) {
+    /* Consolidate shared hops. */
+    TracerouteHop *shared_hop = NULL;
+    struct sockaddr_storage addr;
+    size_t sslen;
+
+    sslen = sizeof(addr);
+    currenths->TargetSockAddr(&addr, &sslen);
+    while (it != currenths->traceroute_hops.end()
+      && sockaddr_storage_cmp(&it->tag, &addr) != 0) {
+      shared_hop = &*it;
+      it++;
+    }
+
+    if (shared_hop != NULL) {
+      Tbl.addItem(row, HOP_COL, false, "-");
+      if (shared_hop->ttl == 1) {
+        Tbl.addItemFormatted(row, RTT_COL, true, "Hop 1 is the same as for %s",
+          inet_ntop_ez(&shared_hop->tag, sizeof(shared_hop->tag)));
+      } else if (shared_hop->ttl > 1) {
+        Tbl.addItemFormatted(row, RTT_COL, true,
+          "Hops 1-%d are the same as for %s", shared_hop->ttl,
+          inet_ntop_ez(&shared_hop->tag, sizeof(shared_hop->tag)));
+      }
+      row++;
+    }
+  }
+
+  while (it != currenths->traceroute_hops.end()) {
+    Tbl.addItemFormatted(row, HOP_COL, false, "%d", it->ttl);
+    if (it->timedout) {
+      if (o.debugging) {
+        Tbl.addItem(row, RTT_COL, false, "...");
+        it++;
+      } else {
+        /* The beginning and end of timeout consolidation. */
+        int begin_ttl, end_ttl;
+        begin_ttl = end_ttl = it->ttl;
+        for (; it != currenths->traceroute_hops.end() && it->timedout; it++)
+          end_ttl = it->ttl;
+        if (begin_ttl == end_ttl)
+          Tbl.addItem(row, RTT_COL, false, "...");
+        else
+          Tbl.addItemFormatted(row, RTT_COL, false, "... %d", end_ttl);
+      }
+      row++;
+    } else {
+      char namebuf[256];
+      /* Normal hop output. */
+
+      it->display_name(namebuf, sizeof(namebuf));
+      Tbl.addItemFormatted(row, RTT_COL, false, "%.2f ms", it->rtt);
+      Tbl.addItemFormatted(row, HOST_COL, false, "%s", namebuf);
+      row++;
+      it++;
+    }
+  }
+
+  log_write(LOG_PLAIN, "%s", Tbl.printableTable(NULL));
+
+  log_flush(LOG_PLAIN);
+}
+
+static void printtraceroute_xml(Target *currenths) {
+  struct probespec probe;
+  list <TracerouteHop>::iterator it;
+
+  /* No trace, must be localhost. */
+  if (currenths->traceroute_hops.size() == 0)
+    return;
+
+  /* XML traceroute header */
+  log_write(LOG_XML, "<trace ");
+  probe = currenths->traceroute_probespec;
+  if (probe.type == PS_TCP) {
+      log_write(LOG_XML, "port=\"%d\" ", probe.pd.tcp.dport);
+  } else if (probe.type == PS_UDP) {
+      log_write(LOG_XML, "port=\"%d\" ", probe.pd.udp.dport);
+  } else if (probe.type == PS_SCTP) {
+      log_write(LOG_XML, "port=\"%d\" ", probe.pd.sctp.dport);
+  } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
+      struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
+      if (proto == NULL)
+          log_write(LOG_XML, "proto=\"%d\"", probe.proto);
+      else
+          log_write(LOG_XML, "proto=\"%s\"", proto->p_name);
+  }
+  log_write(LOG_XML, ">\n");
+
+  for (it = currenths->traceroute_hops.begin();
+       it != currenths->traceroute_hops.end();
+       it++) {
+    if (it->timedout)
+      continue;
+    log_write(LOG_XML, "<hop ttl=\"%d\" rtt=\"%.2f\" ipaddr=\"%s\"",
+      it->ttl, it->rtt, inet_ntop_ez(&it->addr, sizeof(it->addr)));
+    if (!it->name.empty())
+      log_write(LOG_XML, " host=\"%s\"", it->name.c_str());
+    log_write(LOG_XML, "/>\n");
+  }
+
+  /*
+  if (tg->getState() == G_DEAD_TTL)
+      log_write(LOG_XML, "<error errorstr=\"maximum TTL reached\"/>\n");
+  else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
+      log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(tp->ipdst));
+  */
+
+  /* traceroute XML footer */
+  log_write(LOG_XML, "</trace>\n");
+  log_flush(LOG_XML);
+}
+
+void printtraceroute(Target *currenths) {
+  printtraceroute_normal(currenths);
+  printtraceroute_xml(currenths);
+}
+
 /* Prints a status message while the program is running */
 void printStatusMessage() {
   // Pre-computations

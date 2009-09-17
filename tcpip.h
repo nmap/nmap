@@ -505,10 +505,10 @@ int send_ip_raw( int sd, struct eth_nfo *eth,
    packetlen, which must be a valid int pointer. */
 u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
 		  int ttl, u16 ipid, u8 tos, bool df,
-		  u8* ipopt, int ipoptlen,
+		  const u8* ipopt, int ipoptlen,
 		  u16 sport, u16 dport,
 		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
-		  u8 *options, int optlen,
+		  const u8 *options, int optlen,
 		  char *data, u16 datalen,
 		  u32 *packetlen);
 
@@ -518,11 +518,11 @@ u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
    actually sent by this function.  Caller must delete the buffer when
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
-u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
+u8 *build_udp_raw(const struct in_addr *source, const struct in_addr *victim,
  		  int ttl, u16 ipid, u8 tos, bool df,
 		  u8* ipopt, int ipoptlen,
  		  u16 sport, u16 dport, 
- 		  char *data, u16 datalen,
+ 		  const char *data, u16 datalen,
  		  u32 *packetlen);
 
 /* Builds an SCTP packet (including an IP header) by packing the fields

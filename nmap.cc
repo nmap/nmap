@@ -569,7 +569,6 @@ int nmap_main(int argc, char *argv[]) {
   char *endptr = NULL;
   struct scan_lists ports = { 0 };
   TargetGroup *exclude_group = NULL;
-  Traceroute *troute = NULL;
   char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
@@ -1811,9 +1810,7 @@ int nmap_main(int argc, char *argv[]) {
     if(o.traceroute && o.noportscan) {
         /* Assume that all targets in a group use the same device */
         vector<Target *>::iterator it;
-        troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType(), &ports);
-        troute->trace(Targets);
-        troute->resolveHops();
+        traceroute(Targets);
 
         /* print ping traceroutes, making sure the reference
          * trace is first */
@@ -1823,7 +1820,7 @@ int nmap_main(int argc, char *argv[]) {
             log_write(LOG_XML, "<host>");
             write_host_status(currenths, o.resolve_all);
             printmacinfo(currenths);
-            troute->outputTarget(currenths);
+            printtraceroute(currenths);
             log_write(LOG_XML, "</host>\n");
             log_write(LOG_PLAIN,"\n");
         }
@@ -1834,8 +1831,6 @@ int nmap_main(int argc, char *argv[]) {
         }
         o.numhosts_scanning = 0;
         log_flush_all();
-        delete troute;
-        troute = NULL;
         continue;
     }
 
@@ -1906,11 +1901,8 @@ int nmap_main(int argc, char *argv[]) {
     if (o.osscan == OS_SCAN_DEFAULT)
 	  os_scan2(Targets);
 
-    if(o.traceroute) {
-        troute = new Traceroute(Targets[0]->deviceName(), Targets[0]->ifType(), &ports);
-        troute->trace(Targets);
-        troute->resolveHops();
-    }
+    if(o.traceroute)
+        traceroute(Targets);
 
     if (o.servicescan || o.rpcscan) {
       /* This scantype must be after any TCP or UDP scans since it
@@ -1949,8 +1941,8 @@ int nmap_main(int argc, char *argv[]) {
 #endif
       }
     
-    if(troute)
-        troute->outputTarget(currenths);
+    if(o.traceroute)
+      printtraceroute(currenths);
 
       if (o.debugging) 
 	log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n", 
@@ -1973,9 +1965,6 @@ int nmap_main(int argc, char *argv[]) {
     o.numhosts_scanning = 0;
   } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
   
-  if(troute)
-    delete troute;
- 
   delete hstate;
   if (exclude_group)
     delete[] exclude_group;
@@ -2027,6 +2016,7 @@ void nmap_free_mem() {
     close_nse();
   free(o.scriptargs);
 #endif
+  traceroute_hop_cache_clear();
 }
 
 /* Reads in a (normal or machine format) Nmap log file and gathers enough
@@ -2646,7 +2636,6 @@ const char *scantype2str(stype scantype) {
   case OS_SCAN: return "OS Scan"; break;
   case SCRIPT_SCAN: return "Script Scan"; break;
   case TRACEROUTE: return "Traceroute" ; break;
-  case REF_TRACEROUTE: return "Reference Traceroute"; break;
   default: assert(0); break;
   }
 

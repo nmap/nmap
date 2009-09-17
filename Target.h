@@ -106,6 +106,8 @@
 #include "tcpip.h"
 #include "scan_engine.h"
 
+#include <list>
+
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46
 #endif
@@ -131,6 +133,22 @@ struct host_timeout_nfo {
   time_t host_start, host_end; /* The absolute start and end for this host */
 };
 
+struct TracerouteHop {
+  struct sockaddr_storage tag;
+  bool timedout;
+  std::string name;
+  struct sockaddr_storage addr;
+  int ttl;
+  float rtt; /* In milliseconds. */
+
+  int display_name(char *buf, size_t len) {
+    if (name.empty())
+      return Snprintf(buf, len, "%s", inet_ntop_ez(&addr, sizeof(addr)));
+    else
+      return Snprintf(buf, len, "%s (%s)", name.c_str(), inet_ntop_ez(&addr, sizeof(addr)));
+  }
+};
+
 class Target {
  public: /* For now ... a lot of the data members should be made private */
   Target();
@@ -148,7 +166,7 @@ class Target {
      to sockaddr_storage */
   void setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len);
   // Returns IPv4 target host address or {0} if unavailable.
-  struct in_addr v4host();
+  struct in_addr v4host() const;
   const struct in_addr *v4hostip() const;
   /* The source address used to reach the target */
   int SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
@@ -158,7 +176,7 @@ class Target {
   struct in_addr v4source() const;
   const struct in_addr *v4sourceip() const;
   /* The IPv4 or IPv6 literal string for the target host */
-  const char *targetipstr() { return targetipstring; }
+  const char *targetipstr() const { return targetipstring; }
   /* Give the name from the last setHostName() call, which should be
    the name obtained from reverse-resolution (PTR query) of the IP (v4
    or v6).  If the name has not been set, or was set to NULL, an empty
@@ -261,6 +279,9 @@ class Target {
   struct timeout_info to;
   char *hostname; // Null if unable to resolve or unset
   char * targetname; // The name of the target host given on the commmand line if it is a named host
+
+  struct probespec traceroute_probespec;
+  std::list <TracerouteHop> traceroute_hops;
 
 #ifndef NOLUA
   ScriptResults scriptResults;

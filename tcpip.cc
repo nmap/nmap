@@ -1149,7 +1149,7 @@ void eth_close_cached() {
 
 // fill ip header. no error check.
 // This function is also changing what's needed from host to network order.
-static inline int fill_ip_raw(struct ip *ip, int packetlen, u8 *ipopt,
+static inline int fill_ip_raw(struct ip *ip, int packetlen, const u8 *ipopt,
                               int ipoptlen, int ip_tos, int ip_id,
                               int ip_off, int ip_ttl, int ip_p,
                               const struct in_addr *ip_src,
@@ -1221,9 +1221,9 @@ int send_tcp_raw_decoys(int sd, struct eth_nfo *eth,
    packetlen, which must be a valid int pointer. */
 u8 *build_tcp_raw(const struct in_addr *source,
                   const struct in_addr *victim, int ttl, u16 ipid, u8 tos,
-                  bool df, u8 *ipopt, int ipoptlen, u16 sport, u16 dport,
+                  bool df, const u8 *ipopt, int ipoptlen, u16 sport, u16 dport,
                   u32 seq, u32 ack, u8 reserved, u8 flags, u16 window,
-                  u16 urp, u8 *tcpopt, int tcpoptlen, char *data,
+                  u16 urp, const u8 *tcpopt, int tcpoptlen, char *data,
                   u16 datalen, u32 *outpacketlen) {
   int packetlen = sizeof(struct ip) + ipoptlen + sizeof(struct tcp_hdr) + tcpoptlen + datalen;
   u8 *packet = (u8 *) safe_malloc(packetlen);
@@ -1792,11 +1792,11 @@ int send_udp_raw_decoys(int sd, struct eth_nfo *eth,
    actually sent by this function.  Caller must delete the buffer when
    finished with the packet.  The packet length is returned in
    packetlen, which must be a valid int pointer. */
-u8 *build_udp_raw(struct in_addr *source, const struct in_addr *victim,
+u8 *build_udp_raw(const struct in_addr *source, const struct in_addr *victim,
                   int ttl, u16 ipid, u8 tos, bool df,
                   u8 *ipopt, int ipoptlen,
                   u16 sport, u16 dport,
-                  char *data, u16 datalen, u32 *outpacketlen) {
+                  const char *data, u16 datalen, u32 *outpacketlen) {
   int packetlen =
       sizeof(struct ip) + ipoptlen + sizeof(struct udp_hdr) + datalen;
   u8 *packet = (u8 *) safe_malloc(packetlen);
