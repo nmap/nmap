@@ -750,6 +750,10 @@ Probe *Probe::make(HostState *host, struct probespec pspec, u8 ttl)
 
 TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   std::vector<Target *>::iterator it;
+  struct sockaddr_storage srcaddr;
+  size_t sslen;
+  char pcap_filter[128];
+  int n;
 
   assert(targets.size() > 0);
 
@@ -774,6 +778,12 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
 
   /* Assume that all the targets share the same device. */
   pd = my_pcap_open_live(targets[0]->deviceName(), 128, o.spoofsource, 2);
+  sslen = sizeof(srcaddr);
+  targets[0]->SourceSockAddr(&srcaddr, &sslen);
+  n = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
+    ss_to_string(&srcaddr));
+  assert(n < (int) sizeof(pcap_filter));
+  set_pcap_filter(targets[0]->deviceFullName(), pd, pcap_filter);
 
   for (it = targets.begin(); it != targets.end(); it++) {
     HostState *state = new HostState(*it);
