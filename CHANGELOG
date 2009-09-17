@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap's --traceroute has been rewritten for better performance.
+  Probes are sent in parallel to individual hosts, not just across all
+  hosts as before. Trace consolidation is more sophisticated, allowing
+  common traces to be identified sooner and fewer probes to be sent.
+  The older traceroute could be very slow (taking minutes per target)
+  if the target did not respond to the trace probes, and this new
+  traceroute avoids that. In a trace of 110 hosts in a /24 over the
+  Internet, the number of probes sent dropped 50% from 1565 to 743,
+  and the time taken dropped 92% from 95 seconds to 7.6 seconds. [David]
+
 o Added a script called http-malware-host.nse. Its future intention
   is to discover hosts that are serving malware (for example, that 
   are compromised and have malicious code inserted). At the moment, 
