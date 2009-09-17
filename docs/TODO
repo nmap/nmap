@@ -142,6 +142,9 @@ o [NSE] Improve username/password library (the database files
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
+o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
+  http://seclists.org/nmap-dev/2009/q3/0986.html).
+
 o Add Nmap web board.
  
 o Create Nmap wiki
