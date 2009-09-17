@@ -380,6 +380,15 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
+o The Zenmap translation system
+  (http://nmap.org/book/zenmap-lang.html) has been pretty successful
+  so far.  We should consider doing the same for Nmap.  After all, we
+  already have the reference guide in 16 languages at
+  http://nmap.org/docs.html.  We should definitely try to use the same
+  translation methods for Zenmap as we do for Nmap.  In fact, maybe we
+  can create a combined PO file Nmap, Zenmap, Ncat, and Ndiff so that
+  they can all be translated and maintained together.
+
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
   sort of thing:
