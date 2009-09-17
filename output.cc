@@ -1986,7 +1986,10 @@ static void printtraceroute_normal(Target *currenths) {
       /* Normal hop output. */
 
       it->display_name(namebuf, sizeof(namebuf));
-      Tbl.addItemFormatted(row, RTT_COL, false, "%.2f ms", it->rtt);
+      if (it->rtt < 0)
+        Tbl.addItem(row, RTT_COL, false, "--");
+      else
+        Tbl.addItemFormatted(row, RTT_COL, false, "%.2f ms", it->rtt);
       Tbl.addItemFormatted(row, HOST_COL, false, "%s", namebuf);
       row++;
       it++;
@@ -2029,8 +2032,12 @@ static void printtraceroute_xml(Target *currenths) {
        it++) {
     if (it->timedout)
       continue;
-    log_write(LOG_XML, "<hop ttl=\"%d\" rtt=\"%.2f\" ipaddr=\"%s\"",
-      it->ttl, it->rtt, inet_ntop_ez(&it->addr, sizeof(it->addr)));
+    log_write(LOG_XML, "<hop ttl=\"%d\" ipaddr=\"%s\"",
+      it->ttl, inet_ntop_ez(&it->addr, sizeof(it->addr)));
+    if (it->rtt < 0)
+      log_write(LOG_XML, " rtt=\"--\"");
+    else
+      log_write(LOG_XML, " rtt=\"%.2f\"", it->rtt);
     if (!it->name.empty())
       log_write(LOG_XML, " host=\"%s\"", it->name.c_str());
     log_write(LOG_XML, "/>\n");
