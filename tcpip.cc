@@ -2410,7 +2410,7 @@ char *readip_pcap(pcap_t * pd, unsigned int *len, long to_usec,
 
 // Returns whether the system supports pcap_get_selectable_fd() properly
 bool pcap_selectable_fd_valid() {
-#if defined(WIN32) || defined(MACOSX)
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return false;
 #else
   return true;
@@ -2424,7 +2424,7 @@ bool pcap_selectable_fd_valid() {
    results.  If you just want to test whether the function is supported,
    use pcap_selectable_fd_valid() instead. */
 int my_pcap_get_selectable_fd(pcap_t * p) {
-#if defined(WIN32) || defined(MACOSX)
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return -1;
 #else
   assert(pcap_selectable_fd_valid());
