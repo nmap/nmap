@@ -428,7 +428,9 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
 
 o Look into memory consumption of UDP scans with -p- and large
   hostgroups.  See if there is a way to prevent them from eating up gigs
-  of RAM.
+  of RAM. See the message "Port memory bloat" at
+  http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
+  reduces Port memory use by about 50%.
 
 o Zenmap should be able to export normal Nmap output
 
