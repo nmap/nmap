@@ -131,6 +131,7 @@ individually.
 #include "nmap_dns.h"
 #include "nmap_error.h"
 #include "nmap_tty.h"
+#include "osscan2.h"
 #include "payload.h"
 #include "timing.h"
 #include "NmapOps.h"
@@ -139,6 +140,7 @@ individually.
 #include <dnet.h>
 
 #include <algorithm>
+#include <bitset>
 #include <list>
 #include <map>
 #include <set>
@@ -168,6 +170,11 @@ static std::map<struct HopIdent, Hop *> hop_cache;
 /* A list of timedout hops, which are not kept in hop_cache, so we can delete
    all hops on occasion. */
 static std::list<Hop *> timedout_hops;
+/* The TTL at which we start sending probes if we don't have a distance
+   estimate. This is updated after each host group on the assumption that hosts
+   across groups will not differ much in distance. Having this closer to the
+   true distance makes the trace faster but is not needed for accuracy. */
+static u8 initial_ttl = 10;
 
 static struct timeval get_now(struct timeval *now = NULL);
 static const char *ss_to_string(const struct sockaddr_storage *ss);
@@ -224,7 +231,9 @@ public:
   enum counting_state { COUNTING_DOWN, COUNTING_UP };
 
   Target *target;
-  u8 initial_ttl;
+  /* A bitmap of TTLs that have been sent, to avoid duplicates when we switch
+     around the order counting up or down. */
+  std::bitset<MAX_TTL + 1> sent_ttls;
   u8 current_ttl;
   enum counting_state state;
   /* If nonzero, the known hop distance to the target. */
@@ -240,6 +249,7 @@ public:
   bool has_more_probes() const;
   bool is_finished() const;
   bool send_next_probe(int rawsd, eth_t *ethsd);
+  void next_ttl();
   void count_up();
   int cancel_probe(std::list<Probe *>::iterator it);
   int cancel_probes_below(u8 ttl);
@@ -322,7 +332,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) {
   this->target = target;
-  initial_ttl = current_ttl = HostState::distance_guess(target);
+  current_ttl = HostState::distance_guess(target);
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
@@ -343,8 +353,12 @@ HostState::~HostState() {
 }
 
 bool HostState::has_more_probes() const {
+  /* We are done if we are counting up and
+     1. we've reached and exceeded the target, or
+     2. we've exceeded MAX_TTL. */
   return !(state == HostState::COUNTING_UP
-           && (reached_target || current_ttl > MAX_TTL));
+           && ((reached_target > 0 && current_ttl >= reached_target)
+               || current_ttl > MAX_TTL));
 }
 
 bool HostState::is_finished() const {
@@ -364,6 +378,8 @@ bool HostState::send_next_probe(int rawsd, eth_t *ethsd) {
     return true;
   }
 
+  this->next_ttl();
+
   if (!this->has_more_probes())
     return false;
 
@@ -371,29 +387,24 @@ bool HostState::send_next_probe(int rawsd, eth_t *ethsd) {
   unanswered_probes.push_back(probe);
   active_probes.push_back(probe);
   probe->send(rawsd, ethsd);
-
-  /* Increment or decrement the TTL, depending. */
-  if (state == HostState::COUNTING_DOWN) {
-    if (current_ttl <= 1)
-      this->count_up();
-    else
-      current_ttl--;
-  } else {
-    current_ttl++;
-  }
+  sent_ttls.set(current_ttl);
 
   return true;
 }
 
-/* Start counting the TTL upward from the initial TTL + 1. */
-void HostState::count_up() {
+/* Find the next TTL we should send to. */
+void HostState::next_ttl() {
+  assert(current_ttl > 0);
   if (state == HostState::COUNTING_DOWN) {
-    if (o.debugging > 1) {
-      log_write(LOG_STDOUT, "Traceroute for %s now counting up\n",
-        target->targetipstr());
-    }
-    state = HostState::COUNTING_UP;
-    current_ttl = initial_ttl + 1;
+    while (current_ttl > 1 && sent_ttls.test(current_ttl))
+      current_ttl--;
+    if (current_ttl == 1)
+      state = HostState::COUNTING_UP;
+  }
+  /* Note no "else". */
+  if (state == HostState::COUNTING_UP) {
+    while (current_ttl <= MAX_TTL && sent_ttls.test(current_ttl))
+      current_ttl++;
   }
 }
 
@@ -501,10 +512,8 @@ void HostState::link_to(Hop *hop) {
 double HostState::completion_fraction() const {
   if (this->is_finished())
     return 1.0;
-  else if (state == HostState::COUNTING_DOWN)
-    return (double) (initial_ttl - current_ttl) / (initial_ttl + 1);
   else
-    return (double) current_ttl / (current_ttl + 1);
+    return (double) sent_ttls.count() / MAX_TTL;
 }
 
 void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) {
@@ -521,7 +530,8 @@ u8 HostState::distance_guess(const Target *target) {
   if (target->distance != -1)
     return target->distance;
   else
-    return 10;
+    /* initial_ttl is a variable with file-level scope. */
+    return initial_ttl;
 }
 
 /* Get the probe that will be used for the traceroute. This is the
@@ -531,7 +541,7 @@ struct probespec HostState::get_probe(const Target *target) {
   struct probespec probe;
 
   probe = target->pingprobe;
-  if (probe.type == PS_NONE) {
+  if (probe.type == PS_NONE || probe.type == PS_ARP) {
     /* No responsive probe known? The user probably skipped both ping and
        port scan. Guess ICMP echo as the most likely to get a response. */
     probe.type = PS_ICMP;
@@ -956,8 +966,11 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
       struct sockaddr_storage addr;
       size_t sslen;
 
-      while (hop->parent != NULL)
+      while (hop->parent != NULL) {
         hop = hop->parent;
+        /* No need to re-probe any merged hops. */
+        host->sent_ttls.set(hop->ttl);
+      }
       sslen = sizeof(addr);
       host->target->TargetSockAddr(&addr, &sslen);
       if (sockaddr_storage_cmp(&hop->tag, &addr) == 0) {
@@ -966,7 +979,7 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
             host->target->targetipstr(), host->current_ttl);
         }
       } else {
-        host->count_up();
+        host->state = HostState::COUNTING_UP;
         num_active_probes -= host->cancel_probes_below(ttl);
       }
     }
@@ -983,6 +996,7 @@ struct Reply {
   struct timeval rcvdtime;
   struct sockaddr_storage from_addr;
   struct sockaddr_storage target_addr;
+  u8 ttl;
   u16 token;
 };
 
@@ -1067,6 +1081,8 @@ static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   addr_in = (struct sockaddr_in *) &reply->from_addr;
   addr_in->sin_family = AF_INET;
   addr_in->sin_addr = ip->ip_src;
+
+  reply->ttl = ip->ip_ttl;
 
   if (ip->ip_p == IPPROTO_ICMP) {
     /* ICMP responses comprise all the TTL exceeded messages we expect from all
@@ -1167,6 +1183,13 @@ void TracerouteState::read_replies(long timeout) {
     if (sockaddr_storage_cmp(&ss, &reply.from_addr) == 0) {
       if (host->reached_target == 0 || probe->ttl < host->reached_target)
         host->reached_target = probe->ttl;
+      if (host->state == HostState::COUNTING_DOWN) {
+        /* If this probe was past the target, skip ahead to what we think the
+           actual distance is. */
+        int distance = get_initial_ttl_guess(reply.ttl) - reply.ttl + 1;
+        if (distance > 0 && distance < host->current_ttl)
+          host->current_ttl = distance;
+      }
       num_active_probes -= host->cancel_probes_above(probe->ttl);
     }
 
@@ -1346,7 +1369,7 @@ double TracerouteState::completion_fraction() const {
 }
 
 int traceroute(std::vector<Target *> &Targets) {
-  std::vector<HostState *>::iterator state_iter;
+  std::vector<Target *>::iterator target_iter;
 
   if (Targets.empty() || Targets[0]->ifType() == devt_loopback)
     return 1;
@@ -1380,6 +1403,15 @@ int traceroute(std::vector<Target *> &Targets) {
     global_state.resolve_hops();
   /* This puts the hops into the Targets known by the global_state. */
   global_state.transfer_hops();
+
+  /* Update initial_ttl to be the highest distance seen in this host group, as
+     an estimate for the next. */
+  initial_ttl = 0;
+  for (target_iter = Targets.begin();
+       target_iter != Targets.end();
+       target_iter++) {
+    initial_ttl = MAX(initial_ttl, (*target_iter)->traceroute_hops.size());
+  }
 
   if (hop_cache_size() > MAX_HOP_CACHE_SIZE) {
     if (o.debugging) {
