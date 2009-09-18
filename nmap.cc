@@ -349,7 +349,6 @@ static int ip_is_reserved(struct in_addr *ip)
     {
     case 0:         /* 000/8 is IANA reserved       */
     case 1:         /* 001/8 is IANA reserved       */
-    case 2:         /* 002/8 is IANA reserved       */
     case 5:         /* 005/8 is IANA reserved       */
     case 6:         /* USA Army ISC                 */
     case 7:         /* used for BGP protocol        */
@@ -362,7 +361,6 @@ static int ip_is_reserved(struct in_addr *ip)
     case 37:        /* 037/8 is IANA reserved       */
     case 39:        /* 039/8 is IANA reserved       */
     case 42:        /* 042/8 is IANA reserved       */
-    case 46:        /* 046/8 is IANA reserved       */
     case 49:        /* 049/8 is IANA reserved       */
     case 50:        /* 050/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
