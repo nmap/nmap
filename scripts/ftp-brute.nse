@@ -1,61 +1,210 @@
 description = [[
 Tries to get FTP login credentials by guessing usernames and passwords.
+
+This uses the standard unpwdb username/password list. However, in tests FTP servers are 
+significantly slower than other servers when responding, so the accounts were artificially 
+limited (can be changed with script-args). 
+
+2008-11-06 Vlatko Kosturjak <kost@linux.hr>
+Modified xampp-default-auth script to generic ftp-brute script
+
+2009-09-18 Ron Bowes <ron@skullsecurity.net>
+Made into an actual bruteforce script (previously, it only tried one username/password). 
 ]]
 
 ---
 -- @output
--- 21/tcp open  ftp
--- |_ ftp-auth: Login success with u/p: nobody/xampp
+-- PORT   STATE SERVICE REASON
+-- 21/tcp open  ftp     syn-ack
+-- |  ftp-brute:
+-- |  anonymous: IEUser@
+-- |_ test: password
 --
--- 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
--- Modified xampp-default-auth script to generic ftp-brute script
+-- @args userlimit The number of user accounts to try (default: 10). Set to 0 for no limit. 
+-- @args passlimit The number of passwords to try (default: 10). Set to 0 for no limit. 
+-- @args limit     Set userlimlt + passlimit at the same time. Set to 0 for no limit. 
 
-author = "Diman Todorov <diman.todorov@gmail.com>"
+author = "Diman Todorov <diman.todorov@gmail.com>, Vlatko Kosturjak <kost@linux.hr>, Ron Bowes <ron@skullsecurity.net>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"auth", "intrusive"}
 
 require "shortport"
+require "stdnse"
+require "unpwdb"
 
 portrule = shortport.port_or_service(21, "ftp")
 
-login = function(socket, user, pass)
+local function get_limits()
+	local userlimit = 10
+	local passlimit = 10
+
+	if(nmap.registry.args.userlimit) then
+		userlimit = tonumber(nmap.registry.args.userlimit)
+	end
+
+	if(nmap.registry.args.passlimit) then
+		passlimit = tonumber(nmap.registry.args.passlimit)
+	end
+
+	if(nmap.registry.args.limit) then
+		userlimit = tonumber(nmap.registry.args.limit)
+		passlimit = tonumber(nmap.registry.args.limit)
+	end
+
+	return userlimit, passlimit
+end
+
+local function login(host, port, user, pass)
 	local status, err
 	local res = ""
-	status, err = socket:send("USER " .. user .. "\n")
-	status, err = socket:send("PASS " .. pass .. "\n")
 
-	-- consume the banner and stuff
-	while true do
-		status, res = socket:receive_lines(1)
-		if 
-			not string.match(res, "^220") 
-			and not string.match(res, "^331 ") 
-		then
+	-- Create a new socket
+	local socket = nmap.new_socket()
+	status, err = socket:connect(host.ip, port.number)
+	if(not(status)) then
+		socket:close()
+		return false, "Couldn't connect to host: " .. err
+	end
+
+	status, err = socket:send("USER " .. user .. "\r\n")
+	if(not(status)) then
+		socket:close()
+		return false, "Couldn't send login: " .. err
+	end
+
+	status, err = socket:send("PASS " .. pass .. "\n\n")
+	if(not(status)) then
+		socket:close()
+		return false, "Couldn't send login: " .. err
+	end
+
+	-- Create a buffer and receive the first line
+	local buffer = stdnse.make_buffer(socket, "\r?\n")
+	local line = buffer()
+
+	-- Loop over the lines
+	while(line)do
+		stdnse.print_debug("Received: %s", line)
+		if(string.match(line, "^230")) then
+			stdnse.print_debug(1, "ftp-brute: Successful login: %s/%s", user, pass)
+			socket:close()
+			return true, true
+		elseif(string.match(line, "^530")) then
+			socket:close()
+			return true, false
+		elseif(string.match(line, "^220")) then
+		elseif(string.match(line, "^331")) then
+		else
+			stdnse.print_debug(1, "ftp-brute: WARNING: Unhandled response: %s", line)
+		end
+
+		line = buffer()
+	end
+
+	socket:close()
+	return false, "Login didn't return a proper response"
+end
+
+local function go(host, port)
+	local status, err
+	local result
+	local userlimit, passlimit = get_limits()
+	local authcombinations = { 
+		{user="anonymous", password="IEUser@"}, -- Anonymous user
+		{user="nobody", password="xampp"}       -- XAMPP default ftp
+	}
+
+	-- Load accounts from unpwdb
+	local usernames, username, passwords, password
+
+	-- Load the usernames
+	status, usernames = unpwdb.usernames()
+	if(not(status)) then
+		return false, "Couldn't load username list: " .. usernames
+	end
+
+	-- Load the passwords
+	status, passwords = unpwdb.passwords()
+	if(not(status)) then
+		return false, "Couldn't load password list: " .. usernames
+	end
+
+	-- Figure out how many 
+	local i = 0
+	local j = 0
+
+	-- Add the passwords to the authcombinations table
+	password = passwords()
+	while (password) do
+		-- Limit the passwords
+		i = i + 1
+		if(passlimit > 0 and i > passlimit) then
 			break
+		end
+
+		j = 0
+		username = usernames()
+		while(username) do
+			-- Limit the usernames
+			j = j + 1
+			if(userlimit > 0 and j > userlimit) then
+				break
+			end
+
+			table.insert(authcombinations, {user=username, password=password})
+			username = usernames()
+		end
+
+		usernames('reset')
+		password = passwords()
+	end
+
+	stdnse.print_debug(1, "ftp-brute: Loaded %d username/password pairs", #authcombinations)
+
+	local results = {}
+	for _, combination in ipairs(authcombinations) do
+
+
+		-- Attempt a login
+		status, result = login(host, port, combination.user, combination.password)
+
+		-- Check for an error
+		if(not(status)) then
+			return false, result
+		end
+
+		-- Check for a success
+		if(status and result) then
+			table.insert(results, combination)
 		end
 	end
 
-	-- are we logged in?
-	if string.match(res, "^230") then
-		return "Login success with u/p: " .. user .. "/" .. pass
-	end
+
+	return true, results
 end
 
 action = function(host, port)
-	local res
-	local socket = nmap.new_socket()
-	local authcombinations = { 
-		{user="nobody", password="xampp"}, --- XAMPP default ftp
-	}
+	local status, results = go(host, port)
 
-	for _, combination in pairs (authcombinations) do
-		socket:connect(host.ip, port.number)
-		res = login(socket, combination.user, combination.password)
-		socket:close()
+	if(not(status)) then
+		if(nmap.debugging() > 0) then
+			return "ERROR: " .. results
+		else
+			return nil
+		end
 	end
-	
-	return  res
+
+	if(#results == 0) then
+		return "No accounts found"
+	end
+
+	local response = " \n"
+	for i, v in ipairs(results) do
+		response = response .. string.format("%s: %s\n", v.user, v.password)
+	end
+
+	return response
 end
 
