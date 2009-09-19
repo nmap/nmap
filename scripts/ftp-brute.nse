@@ -2,8 +2,8 @@ description = [[
 Tries to get FTP login credentials by guessing usernames and passwords.
 
 This uses the standard unpwdb username/password list. However, in tests FTP servers are 
-significantly slower than other servers when responding, so the accounts were artificially 
-limited (can be changed with script-args). 
+significantly slower than other servers when responding, so the number of usernames/passwords
+can be artificially limited using script-args.
 
 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
 Modified xampp-default-auth script to generic ftp-brute script
@@ -20,9 +20,9 @@ Made into an actual bruteforce script (previously, it only tried one username/pa
 -- |  anonymous: IEUser@
 -- |_ test: password
 --
--- @args userlimit The number of user accounts to try (default: 10). Set to 0 for no limit. 
--- @args passlimit The number of passwords to try (default: 10). Set to 0 for no limit. 
--- @args limit     Set userlimlt + passlimit at the same time. Set to 0 for no limit. 
+-- @args userlimit The number of user accounts to try (default: unlimited).
+-- @args passlimit The number of passwords to try (default: unlimited).
+-- @args limit     Set userlimlt + passlimit at the same time.
 
 author = "Diman Todorov <diman.todorov@gmail.com>, Vlatko Kosturjak <kost@linux.hr>, Ron Bowes <ron@skullsecurity.net>"
 
@@ -37,8 +37,8 @@ require "unpwdb"
 portrule = shortport.port_or_service(21, "ftp")
 
 local function get_limits()
-	local userlimit = 10
-	local passlimit = 10
+	local userlimit = -1
+	local passlimit = -1
 
 	if(nmap.registry.args.userlimit) then
 		userlimit = tonumber(nmap.registry.args.userlimit)
