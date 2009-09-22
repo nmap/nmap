@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: zenmap
 .\"    Author: [see the "Authors" section]
-.\" Generator: DocBook XSL-NS Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 07/24/2009
+.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\"      Date: 09/22/2009
 .\"    Manual: Zenmap Reference Guide
 .\"    Source: Zenmap
 .\"  Language: English
 .\"
-.TH "ZENMAP" "1" "07/24/2009" "Zenmap" "Zenmap Reference Guide"
+.TH "ZENMAP" "1" "09/22/2009" "Zenmap" "Zenmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -18,91 +18,34 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-
-  
-  .SH "NAME"
+.SH "NAME"
 zenmap \- Graphical Nmap frontend and results viewer
-
-  
-  .SH "SYNOPSIS"
-
-    .HP \w'\fBzenmap\fR\ 'u
-
-      \fBzenmap\fR
-       [\fIoptions\fR]
-       [\fIresults\ file\fR]
-    
-
-  
-  .SH "DESCRIPTION"
-
-    
-    <web>
-    .if n \{\
-.sp
-.\}
-.RS 4
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-.br
-.ps +1
-\fBNote\fR
-.ps -1
-.br
+.SH "SYNOPSIS"
+.HP \w'\fBzenmap\fR\ 'u
+\fBzenmap\fR [\fIoptions\fR] [\fIresults\ file\fR]
+.SH "DESCRIPTION"
 .PP
-This document describes the very latest version of Zenmap available from
-\m[blue]\fB\%http://nmap.org/download.html\fR\m[]\&. Please ensure you are using the latest version before reporting that a feature doesn\'t work as described\&.
-.sp .5v
-.RE
-    </web>
-
-    .PP
 Zenmap is a multi\-platform graphical Nmap frontend and results viewer\&. Zenmap aims to make Nmap easy for beginners to use while giving experienced Nmap users advanced features\&. Frequently used scans can be saved as profiles to make them easy to run repeatedly\&. A command creator allows interactive creation of Nmap command lines\&. Scan results can be saved and viewed later\&. Saved scan results can be compared with one another to see how they differ\&. The results of recent scans are stored in a searchable database\&.
-
-
-    .PP
+.PP
 This man page only describes the few Zenmap command\-line options and some critical notes\&. A much more detailed Zenmap User\'s Guide is available at
 \m[blue]\fB\%http://nmap.org/book/zenmap.html\fR\m[]\&. Other documentation and information is available from the Zenmap web page at
 \m[blue]\fB\%http://nmap.org/zenmap/\fR\m[]\&.
-
-  
-
-  .SH "OPTIONS SUMMARY"
-
-    
-    
-      .PP
+.SH "OPTIONS SUMMARY"
+.PP
 \fB\-f\fR, \fB\-\-file \fR\fB\fIresults file\fR\fR
 .RS 4
-
-        
-        
-        
-          Open the given results file for viewing\&. The results file may be an Nmap XML output file (\&.xml, as produced by
+Open the given results file for viewing\&. The results file may be an Nmap XML output file (\&.xml, as produced by
 \fBnmap \-oX\fR) or a Umit scan results file (\&.usr)\&. This option may be given more than once\&.
-
-        
-      .RE
-      .PP
+.RE
+.PP
 \fB\-h\fR, \fB\-\-help\fR
 .RS 4
-
-        
-        
-        
-          Show a help message and exit\&.
-
-        
-      .RE
-      .PP
+Show a help message and exit\&.
+.RE
+.PP
 \fB\-n\fR, \fB\-\-nmap \fR\fB\fINmap command line\fR\fR
 .RS 4
-
-        
-        
-        
-          Run the given Nmap command within the Zenmap interface\&. After
+Run the given Nmap command within the Zenmap interface\&. After
 \fB\-n\fR
 or
 \fB\-\-nmap\fR, every remaining command line argument is read as the command line to execute\&. This means that
@@ -113,133 +56,63 @@ must be given last, after any other options\&. Note that the command line must i
 \fBnmap\fR
 executable name:
 \fBzenmap \-n nmap \-sS target\fR\&.
-
-        
-      .RE
-      .PP
+.RE
+.PP
 \fB\-p\fR, \fB\-\-profile \fR\fB\fIprofile\fR\fR
 .RS 4
-
-        
-        
-        
-          Start with the given profile selected\&. The profile name is just a string:
+Start with the given profile selected\&. The profile name is just a string:
 "Regular scan"\&. If combined with
 \fB\-t\fR, begin a scan with the given profile against the specified target\&.
-
-        
-      .RE
-      .PP
+.RE
+.PP
 \fB\-t\fR, \fB\-\-target \fR\fB\fItarget\fR\fR
 .RS 4
-
-        
-        
-        
-          Start with the given target\&. If combined with
+Start with the given target\&. If combined with
 \fB\-p\fR, begin a scan with the given profile against the specified target\&.
-
-        
-      .RE
-      .PP
+.RE
+.PP
 \fB\-v\fR, \fB\-\-verbose\fR
 .RS 4
-
-        
-        
-        
-          Increase verbosity (of Zenmap, not Nmap)\&. This option may be given multiple times to get even more verbosity\&.
-
-        
-      .RE
-    
-
-    .PP
+Increase verbosity (of Zenmap, not Nmap)\&. This option may be given multiple times to get even more verbosity\&.
+.RE
+.PP
 Any other arguments are taken to be the names of results files to open\&.
-
-  
-
-  
-
-  .SH "ENVIRONMENT VARIABLES"
-
-    
-    
-      .PP
+.SH "ENVIRONMENT VARIABLES"
+.PP
 \fBZENMAP_DEVELOPMENT\fR
 .RS 4
-
-        
-        
-          Set
+Set
 \fBZENMAP_DEVELOPMENT\fR
 to disable automatic crash reporting\&.
-
-        
-      .RE
-    
-  
-
-  .SH "BUGS"
-
-    
-    .PP
+.RE
+.SH "BUGS"
+.PP
 Like their authors, Nmap and Zenmap aren\(cqt perfect\&. But you can help make them better by sending bug reports or even writing patches\&. If Nmap or Zenmap doesn\(cqt behave the way you expect, first upgrade to the latest version available from
 \m[blue]\fB\%http://nmap.org\fR\m[]\&. If the problem persists, do some research to determine whether it has already been discovered and addressed\&. Try Googling the error message or browsing the
 nmap\-dev
 archives at
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&. Read this full manual page as well\&. If nothing comes of this, mail a bug report to
 nmap\-dev@insecure\&.org\&. Please include everything you have learned about the problem, as well as what version of Zenmap you are running and what operating system version it is running on\&. Problem reports and Zenmap usage questions sent to nmap\-dev@insecure\&.org are far more likely to be answered than those sent to Fyodor directly\&.
-
-
-    .PP
+.PP
 Code patches to fix bugs are even better than bug reports\&. Basic instructions for creating patch files with your changes are available at
 \m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]\&. Patches may be sent to
 nmap\-dev
 (recommended) or to Fyodor directly\&.
-
-  
-
-  .SH "HISTORY"
-
-    
-
-    .PP
+.SH "HISTORY"
+.PP
 Zenmap was originally derived from Umit, an Nmap GUI created during the Google\-sponsored Nmap Summer of Code in 2005 and 2006\&. The primary author of Umit was Adriano Monteiro Marques\&. When Umit was modified and integrated into Nmap in 2007, it was renamed Zenmap\&.
-
-
-  
-
-  .SH "AUTHORS"
-
-    
-    
-
-    .SS "Nmap"
-
-      
-      .PP
+.SH "AUTHORS"
+.SS "Nmap"
+.PP
 Fyodor
 fyodor@insecure\&.org
 (\m[blue]\fB\%http://insecure.org\fR\m[])
-
-
-      .PP
+.PP
 Hundreds of people have made valuable contributions to Nmap over the years\&. These are detailed in the
 CHANGELOG
 file which is distributed with Nmap and also available from
 \m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]\&.
-
-    
-
-    .SS "Umit"
-
-      
-      .PP
+.SS "Umit"
+.PP
 Zenmap is derived from the Umit Nmap frontend, which was started by Adriano Monteiro Marques as an Nmap/Google Summer of Code project (py\&.adriano@gmail\&.com,
 \m[blue]\fB\%http://www.umitproject.org\fR\m[])\&.
-
-    
-  
-
-  
