@@ -1,5 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
+
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
   http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
@@ -7,34 +9,18 @@ o Add PJL (Printer Job Language) probes to
   don't support PJL. If not, then remove the JetDirect ports from the
   default exclude list. The script pjl-ready-message.nse also uses PJL.
 
-o Fix traceroute performance/algorithms.  It is terribly bad in some
-  cases.  For example, this traceroute scan took 36 minutes against a
-  single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
-  don't need to go up to hop 50 in such cases (maybe some heuristic
-  like "at least go to hop 15, and stop after 5 unresolved in a row).
-  And more importantly, there is no reason each hop should take 40s to
-  timeout.  It should probably use timeout variables like we use in
-  port scanning.  And it should parallelize as much as possible.  Even
-  if parallel resolution means we went a little further than we had to
-  in incrementing the TTL, and we go to hop 15 when host is at 12
-  that's no big deal (of course we would only report up to hop 12 in
-  the output).  Once we do this, we should put back the ability to
-  make --traceroute work even when we haven't found a probe which
-  elicits a response from the target. (that feature was added in July,
-  but we'll probably take it out until we can fix
-  performance). [David]
-
-o [NSE] Fix http pipelining.  Responses are being split on anything
-  that looks like HTTP/1.X which doesn't come at the beginning of a
-  line, and doesn't work when a line like that happens to legitimately
-  come in a body.  Joao has an nmap-exp branch which resolves this
-  issue, though David found some bugs in that and sent some hard test
-  cases. [Joao]
-
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
 o New Nmap dev release (5.05BETA1 or whatever)
+
+o [NSE] HTTP header parsing is not very robust, and is duplicated in a
+lot of places. For example, it's legal to have header fields like
+Content-type:\r\n
+___text/html\r\n
+(with spaces in place of _, but http.lua won't parse such a header
+correctly. In other words you can extend them to any number of lines
+as long as each line after the first begins with whitespace. [Joao]
 
 o Fix a bug in which Nmap can wrongly associate responses to SYN and
   ACK host discovery probes.  For example:
@@ -45,6 +31,10 @@ o Fix a bug in which Nmap can wrongly associate responses to SYN and
   We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
   ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
  In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
+ o we're thinking about ways to encode the information better.  Right
+  now we have pingseq and tryno, but we may want to just move to a
+  single probe ID and then we can look up any other information in
+  structures attached to that ID in memory when we get the response.
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -632,6 +622,30 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Fix http pipelining.  Responses are being split on anything
+  that looks like HTTP/1.X which doesn't come at the beginning of a
+  line, and doesn't work when a line like that happens to legitimately
+  come in a body.  Joao has an nmap-exp branch which resolves this
+  issue, though David found some bugs in that and sent some hard test
+  cases. [Joao]
+
+o Fix traceroute performance/algorithms.  It is terribly bad in some
+  cases.  For example, this traceroute scan took 36 minutes against a
+  single host(!): http://seclists.org/nmap-dev/2009/q3/0425.html .  We
+  don't need to go up to hop 50 in such cases (maybe some heuristic
+  like "at least go to hop 15, and stop after 5 unresolved in a row).
+  And more importantly, there is no reason each hop should take 40s to
+  timeout.  It should probably use timeout variables like we use in
+  port scanning.  And it should parallelize as much as possible.  Even
+  if parallel resolution means we went a little further than we had to
+  in incrementing the TTL, and we go to hop 15 when host is at 12
+  that's no big deal (of course we would only report up to hop 12 in
+  the output).  Once we do this, we should put back the ability to
+  make --traceroute work even when we haven't found a probe which
+  elicits a response from the target. (that feature was added in July,
+  but we'll probably take it out until we can fix
+  performance). [David]
 
 o Fix four Nmap bugs discovered by Ankur and analyzed a bit by
   David. [Ankur]
