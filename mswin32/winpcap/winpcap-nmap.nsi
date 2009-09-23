@@ -288,6 +288,7 @@ Section "WinPcap" SecWinPcap
 
   ; Check windows version
   ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
+  DetailPrint "Windows CurrentVersion: $R0"
   StrCpy $R0 $R0 2 
   StrCmp $R0 '6.' vista_files
 
@@ -307,10 +308,12 @@ Section "WinPcap" SecWinPcap
     StrCmp $0 "0" is32bit is64bit
 
     is32bit:
+      DetailPrint "Installing x86 driver"
       File npf.sys ; x86 NT5/NT6 version
       Goto npfdone
 
     is64bit:
+      DetailPrint "Installing x64 driver"
       ; disable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
       File x64\npf.sys ; x64 NT5/NT6 version
