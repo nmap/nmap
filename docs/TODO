@@ -81,6 +81,11 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
+o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
+  connections and not long-dead ones.  See this thread
+  (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
+  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for details.
+
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
   files rather than just that exact location.  For example, insecure.org
