@@ -332,7 +332,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) {
   this->target = target;
-  current_ttl = HostState::distance_guess(target);
+  current_ttl = MAX(1, HostState::distance_guess(target));
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
