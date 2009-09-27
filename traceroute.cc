@@ -280,6 +280,7 @@ public:
   struct timeval sent_time;
 
   Probe(HostState *host, struct probespec pspec, u8 ttl);
+  virtual ~Probe();
   void send(int rawsd, eth_t *ethsd, struct timeval *now = NULL);
   void resend(int rawsd, eth_t *ethsd, struct timeval *now = NULL);
   bool is_timedout(struct timeval *now = NULL) const;
@@ -575,6 +576,9 @@ Probe::Probe(HostState *host, struct probespec pspec, u8 ttl) {
   sent_time.tv_sec = 0;
   sent_time.tv_usec = 0;
   num_resends = 0;
+}
+
+Probe::~Probe() {
 }
 
 void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
