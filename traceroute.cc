@@ -1277,7 +1277,8 @@ void TracerouteState::resolve_hops() {
   i = 0;
   addr_iter = addrs.begin();
   while (i < n) {
-    struct sockaddr_in sin = { AF_INET };
+    struct sockaddr_in sin;
+    sin.sin_family = AF_INET;
     sin.sin_addr.s_addr = *addr_iter;
     targets[i] = new Target();
     targets[i]->setTargetSockAddr((struct sockaddr_storage *) &sin, sizeof(sin));
