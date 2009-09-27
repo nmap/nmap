@@ -60,6 +60,7 @@ o There is a new OS detection pseudo-test, SCAN.DC, which records how
   and DS=1%DC=D (a true one-hop connection.) [David]
 
 o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
+  Updated translations: French and German.
 
 o Added the ssl-cert.nse script, which retrieves and prints the server
   SSL certificate. [David]
