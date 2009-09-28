@@ -2013,11 +2013,14 @@ static void printtraceroute_xml(Target *currenths) {
   log_write(LOG_XML, "<trace ");
   probe = currenths->traceroute_probespec;
   if (probe.type == PS_TCP) {
-      log_write(LOG_XML, "port=\"%d\" ", probe.pd.tcp.dport);
+      log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
+        probe.pd.tcp.dport, proto2ascii(probe.proto));
   } else if (probe.type == PS_UDP) {
-      log_write(LOG_XML, "port=\"%d\" ", probe.pd.udp.dport);
+      log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
+        probe.pd.udp.dport, proto2ascii(probe.proto));
   } else if (probe.type == PS_SCTP) {
-      log_write(LOG_XML, "port=\"%d\" ", probe.pd.sctp.dport);
+      log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
+        probe.pd.sctp.dport, proto2ascii(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
       struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
       if (proto == NULL)
