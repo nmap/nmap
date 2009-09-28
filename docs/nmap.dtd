@@ -137,7 +137,7 @@
 <!ELEMENT host		( status, address , (address | hostnames |
                           smurf | ports | os | distance | uptime | 
                           tcpsequence | ipidsequence | tcptssequence |
-                          hostscript | trace)*, times ) >
+                          hostscript | trace)*, times? ) >
 <!ATTLIST host
 			starttime	%attr_numeric;	#IMPLIED
 			endtime		%attr_numeric;	#IMPLIED
