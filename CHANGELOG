@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] On Windows, Zenmap no longer uses the cmd.exe shell to run
+  Nmap subprocesses. This means that canceling a scan will kill the
+  Nmap process as it does on other platforms (previously it would just
+  kill the shell). It also means that that scanning will work as a
+  user whose name contains characters like & that are significant to
+  the shell.  Mike Crawford and Nick Marsh reported bugs related to
+  this. [David]
+
 o Nmap's --traceroute has been rewritten for better performance.
   Probes are sent in parallel to individual hosts, not just across all
   hosts as before. Trace consolidation is more sophisticated, allowing
