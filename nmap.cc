@@ -1804,122 +1804,96 @@ int nmap_main(int argc, char *argv[]) {
     if (o.af() == AF_INET && o.RawScan())
       o.decoys[o.decoyturn] = Targets[0]->v4source();
     
-    /* ping scan traceroutes */
-    if(o.traceroute && o.noportscan) {
-        /* Assume that all targets in a group use the same device */
-        vector<Target *>::iterator it;
-        traceroute(Targets);
-
-        /* print ping traceroutes, making sure the reference
-         * trace is first */
-        for (it = Targets.begin(); it != Targets.end(); it++) {
-            currenths = *it;
-            o.numhosts_scanned++;
-            log_write(LOG_XML, "<host>");
-            write_host_status(currenths, o.resolve_all);
-            printmacinfo(currenths);
-            printtraceroute(currenths);
-            log_write(LOG_XML, "</host>\n");
-            log_write(LOG_PLAIN,"\n");
-        }
-        while(!Targets.empty()) {
-            currenths = Targets.back();
-            delete currenths;
-            Targets.pop_back();
-        }
-        o.numhosts_scanning = 0;
-        log_flush_all();
-        continue;
-    }
-
     /* I now have the group for scanning in the Targets vector */
 
-    // Ultra_scan sets o.scantype for us so we don't have to worry
-    if (o.synscan)
-      ultra_scan(Targets, &ports, SYN_SCAN);
-    
-    if (o.ackscan)
-      ultra_scan(Targets, &ports, ACK_SCAN);
-    
-    if (o.windowscan)
-      ultra_scan(Targets, &ports, WINDOW_SCAN);
-    
-    if (o.finscan)
-      ultra_scan(Targets, &ports, FIN_SCAN);
-    
-    if (o.xmasscan)
-      ultra_scan(Targets, &ports, XMAS_SCAN);
-    
-    if (o.nullscan)
-      ultra_scan(Targets, &ports, NULL_SCAN);
-    
-    if (o.maimonscan)
-      ultra_scan(Targets, &ports, MAIMON_SCAN);
-    
-    if (o.udpscan)
-      ultra_scan(Targets, &ports, UDP_SCAN);
-    
-    if (o.connectscan)
-      ultra_scan(Targets, &ports, CONNECT_SCAN);
-    
-    if (o.sctpinitscan)
-      ultra_scan(Targets, &ports, SCTP_INIT_SCAN);
-    
-    if (o.sctpcookieechoscan)
-      ultra_scan(Targets, &ports, SCTP_COOKIE_ECHO_SCAN);
-    
-    if (o.ipprotscan)
-      ultra_scan(Targets, &ports, IPPROT_SCAN);
-    
-    /* These lame functions can only handle one target at a time */
-    if (o.idlescan) {
-      for(targetno = 0; targetno < Targets.size(); targetno++) {
-         o.current_scantype = IDLE_SCAN;
-         keyWasPressed(); // Check if a status message should be printed
-         idle_scan(Targets[targetno], ports.tcp_ports, 
-				ports.tcp_count, idleProxy, &ports);
+    if (!o.noportscan) {
+      // Ultra_scan sets o.scantype for us so we don't have to worry
+      if (o.synscan)
+        ultra_scan(Targets, &ports, SYN_SCAN);
+      
+      if (o.ackscan)
+        ultra_scan(Targets, &ports, ACK_SCAN);
+      
+      if (o.windowscan)
+        ultra_scan(Targets, &ports, WINDOW_SCAN);
+      
+      if (o.finscan)
+        ultra_scan(Targets, &ports, FIN_SCAN);
+      
+      if (o.xmasscan)
+        ultra_scan(Targets, &ports, XMAS_SCAN);
+      
+      if (o.nullscan)
+        ultra_scan(Targets, &ports, NULL_SCAN);
+      
+      if (o.maimonscan)
+        ultra_scan(Targets, &ports, MAIMON_SCAN);
+      
+      if (o.udpscan)
+        ultra_scan(Targets, &ports, UDP_SCAN);
+      
+      if (o.connectscan)
+        ultra_scan(Targets, &ports, CONNECT_SCAN);
+      
+      if (o.sctpinitscan)
+        ultra_scan(Targets, &ports, SCTP_INIT_SCAN);
+      
+      if (o.sctpcookieechoscan)
+        ultra_scan(Targets, &ports, SCTP_COOKIE_ECHO_SCAN);
+      
+      if (o.ipprotscan)
+        ultra_scan(Targets, &ports, IPPROT_SCAN);
+      
+      /* These lame functions can only handle one target at a time */
+      if (o.idlescan) {
+        for(targetno = 0; targetno < Targets.size(); targetno++) {
+           o.current_scantype = IDLE_SCAN;
+           keyWasPressed(); // Check if a status message should be printed
+           idle_scan(Targets[targetno], ports.tcp_ports, 
+                                  ports.tcp_count, idleProxy, &ports);
+        }
       }
-    }
-    if (o.bouncescan) {
-      for(targetno = 0; targetno < Targets.size(); targetno++) {
-         o.current_scantype = BOUNCE_SCAN;
-         keyWasPressed(); // Check if a status message should be printed
-	if (ftp.sd <= 0) ftp_anon_connect(&ftp);
-	if (ftp.sd > 0) bounce_scan(Targets[targetno], ports.tcp_ports, 
-				    ports.tcp_count, &ftp);
+      if (o.bouncescan) {
+        for(targetno = 0; targetno < Targets.size(); targetno++) {
+           o.current_scantype = BOUNCE_SCAN;
+           keyWasPressed(); // Check if a status message should be printed
+          if (ftp.sd <= 0) ftp_anon_connect(&ftp);
+          if (ftp.sd > 0) bounce_scan(Targets[targetno], ports.tcp_ports, 
+                                      ports.tcp_count, &ftp);
+        }
       }
-    }
 
-    if (o.servicescan) {
-      o.current_scantype = SERVICE_SCAN; 
+      if (o.servicescan) {
+        o.current_scantype = SERVICE_SCAN; 
 
-      service_scan(Targets);
+        service_scan(Targets);
+      }
+
+      if (o.servicescan || o.rpcscan) {
+        /* This scantype must be after any TCP or UDP scans since it
+         * get's it's port scan list from the open port list of the current
+         * host rather than port list the user specified.
+         */
+        for(targetno = 0; targetno < Targets.size(); targetno++)
+          pos_scan(Targets[targetno], NULL, 0, RPC_SCAN);
+      }
     }
 
     if (o.osscan == OS_SCAN_DEFAULT)
-	  os_scan2(Targets);
+      os_scan2(Targets);
 
-    if(o.traceroute)
-        traceroute(Targets);
-
-    if (o.servicescan || o.rpcscan) {
-      /* This scantype must be after any TCP or UDP scans since it
-       * get's it's port scan list from the open port list of the current
-       * host rather than port list the user specified.
-       */
-      for(targetno = 0; targetno < Targets.size(); targetno++)
-        pos_scan(Targets[targetno], NULL, 0, RPC_SCAN);
-    }
+    if (o.traceroute)
+      traceroute(Targets);
 
 #ifndef NOLUA
     if(o.script || o.scriptversion) {
-	    script_scan(Targets);
+      script_scan(Targets);
     }
 #endif
 
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
-    /* Now I can do the output and such for each host */
+      /* Now I can do the output and such for each host */
       log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
 		(unsigned long) currenths->StartTime(),
 		(unsigned long) currenths->EndTime());
@@ -1939,8 +1913,8 @@ int nmap_main(int argc, char *argv[]) {
 #endif
       }
     
-    if(o.traceroute)
-      printtraceroute(currenths);
+      if (o.traceroute)
+        printtraceroute(currenths);
 
       if (o.debugging) 
 	log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n", 
