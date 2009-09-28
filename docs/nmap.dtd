@@ -289,8 +289,8 @@
 
 <!ELEMENT trace (hop*, error?) >
 <!ATTLIST trace
-      proto   CDATA   #REQUIRED
-      port    CDATA   #REQUIRED
+      proto   CDATA   #IMPLIED
+      port    CDATA   #IMPLIED
 >
 
 <!ELEMENT hop EMPTY>
