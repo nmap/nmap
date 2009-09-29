@@ -55,7 +55,8 @@ function timing_level()
 -- This function takes a host table and a port table and returns a port table
 -- for the queried port. The port table returned is similar in structure to the
 -- ones passed to the <code>hostrule</code>, <code>portrule</code>, and
--- <code>action</code> functions.
+-- <code>action</code> functions. If the given port was not scanned the function
+-- returns <code>nil</code>.
 --
 -- You can of course reuse the host and port tables passed to a script's rule
 -- function. The purpose of this call is to be able to match scripts against
@@ -68,7 +69,7 @@ function timing_level()
 -- @param host Host table, containing an <code>ip</code> field.
 -- @param port Port table, containing <code>number</code> and
 -- <code>protocol</code> fields.
--- @return A new port table holding the status and information for the port.
+-- @return A new port table holding the status and information for the port, or <code>nil</code>.
 -- @usage p = nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 function get_port_state(host, port)
 
