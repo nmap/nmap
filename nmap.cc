@@ -435,6 +435,12 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
 	if (host_spec_index == 0) continue;
 	host_spec[host_spec_index] = '\0';
 	return host_spec;
+      } else if (ch == '#') {
+        /* Found a comment marker, ignore everything until EOL or EOF */
+        while ((ch = getc(inputfd)) != EOF && ch != '\n')
+          ;
+        if (ch != EOF)
+          ungetc(ch, inputfd);
       } else if (host_spec_index < sizeof(host_spec) / sizeof(char) -1) {
 	host_spec[host_spec_index++] = (char) ch;
       } else fatal("One of the host_specifications from your input file is too long (> %d chars)", (int) sizeof(host_spec));
