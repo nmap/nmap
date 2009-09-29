@@ -12,6 +12,12 @@ o Add PJL (Printer Job Language) probes to
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
+o [NSE] Decide which scripts belong to the "safe" category (we now have 20
+  which aren't either safe or intrusive), then remove the intrusive
+  category since people can now specify "not safe".  See
+  http://seclists.org/nmap-dev/2009/q3/1091.html and that whole
+  thread.
+
 o New Nmap dev release (5.05BETA1 or whatever)
 
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
