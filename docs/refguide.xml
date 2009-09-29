@@ -233,6 +233,8 @@ you would expect.</para>
           newlines.  You can specify a hyphen (<literal>-</literal>)
           as the filename if you want Nmap to read hosts from standard
           input rather than an actual file.</para>
+          <para>The input file may contain comments that start with
+          <literal>#</literal> and extend to the end of the line.</para>
         </listitem>
       </varlistentry>
 
@@ -293,6 +295,8 @@ you would expect.</para>
           newline, space, or tab delimited
           <replaceable>exclude_file</replaceable> rather than on the
           command line.</para>
+          <para>The exclude file may contain comments that start with
+          <literal>#</literal> and extend to the end of the line.</para>
         </listitem>
       </varlistentry>
     </variablelist>
