@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The files read by the -iL (input from file) and --excludefile
+  options now support comments that start with # and go to the end of
+  the line. This was implemented by Tom Sellers.
+
 o [Zenmap] On Windows, Zenmap no longer uses the cmd.exe shell to run
   Nmap subprocesses. This means that canceling a scan will kill the
   Nmap process as it does on other platforms (previously it would just
