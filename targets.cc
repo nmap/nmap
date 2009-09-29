@@ -247,104 +247,58 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
   return 0;
 }
 
-/* loads an exclude file into an exclude target list  (mdmcl) */
-TargetGroup* load_exclude(FILE *fExclude, char *szExclude) {
-  int i=0;			/* loop counter */
-  int iLine=0;			/* line count */
-  int iListSz=0;		/* size of our exclude target list. 
-				 * It doubles in size as it gets
-				 *  close to filling up
-				 */
-  char acBuf[512];
-  char *p_acBuf;
-  TargetGroup *excludelist;	/* list of ptrs to excluded targets */
-  char *pc;			/* the split out exclude expressions */
-  char b_file = (char)0;        /* flag to indicate if we are using a file */
+/* Convert a vector of host specifications to an array (allocated with new[]) of
+   TargetGroups. The size of the returned array is one greater than the number
+   of host specs, to leave on uninitialized member at the end. */
+static TargetGroup *specs_to_targetgroups(const std::vector<std::string> &specs) {
+  TargetGroup *excludelist;
+  unsigned int i;
 
-  /* If there are no params return now with a NULL list */
-  if (((FILE *)0 == fExclude) && ((char *)0 == szExclude)) {
-    excludelist=NULL;
-    return excludelist;
-  }
+  excludelist = new TargetGroup[specs.size() + 1];
 
-  if ((FILE *)0 != fExclude)
-    b_file = (char)1;
-
-  /* Since I don't know of a realloc equiv in C++, we will just count
-   * the number of elements here. */
-
-  /* If the input was given to us in a file, count the number of elements
-   * in the file, and reset the file */
-  if (1 == b_file) {
-    while ((char *)0 != fgets(acBuf,sizeof(acBuf), fExclude)) {
-      /* the last line can contain no newline, then we have to check for EOF */
-      if ((char *)0 == strchr(acBuf, '\n') && !feof(fExclude)) {
-        fatal("Exclude file line %d was too long to read.  Exiting.", iLine);
-      }
-      pc=strtok(acBuf, "\t\n ");	
-      while (NULL != pc) {
-        iListSz++;
-        pc=strtok(NULL, "\t\n ");
-      }
-    }
-    rewind(fExclude);
-  } /* If the exclude file was provided via command line, count the elements here */
-  else {
-    p_acBuf=strdup(szExclude);
-    pc=strtok(p_acBuf, ",");
-    while (NULL != pc) {
-      iListSz++;
-      pc=strtok(NULL, ",");
-    }
-    free(p_acBuf);
-    p_acBuf = NULL;
-  }
-
-  /* allocate enough TargetGroups to cover our entries, plus one that
-   * remains uninitialized so we know we reached the end */
-  excludelist = new TargetGroup[iListSz + 1];
-
-  /* don't use a for loop since the counter isn't incremented if the 
-   * exclude entry isn't parsed
-   */
-  i=0;
-  if (1 == b_file) {
-    /* If we are parsing a file load the exclude list from that */
-    while ((char *)0 != fgets(acBuf, sizeof(acBuf), fExclude)) {
-      ++iLine;
-      if ((char *)0 == strchr(acBuf, '\n') && !feof(fExclude)) {
-        fatal("Exclude file line %d was too long to read.  Exiting.", iLine);
-      }
-  
-      pc=strtok(acBuf, "\t\n ");	
-  
-      while ((char *)0 != pc) {
-         if(excludelist[i].parse_expr(pc,o.af()) == 0) {
-           if (o.debugging > 1)
-             error("Loaded exclude target of: %s", pc);
-           ++i;
-         } 
-         pc=strtok(NULL, "\t\n ");
-      }
+  for (i = 0; i < specs.size(); i++) {
+    if (excludelist[i].parse_expr(specs[i].c_str(), o.af()) == 0) {
+      if (o.debugging > 1)
+        error("Loaded exclude target of: %s", specs[i].c_str());
     }
   }
-  else {
-    /* If we are parsing command line, load the exclude file from the string */
-    p_acBuf=strdup(szExclude);
-    pc=strtok(p_acBuf, ",");
 
-    while (NULL != pc) {
-      if(excludelist[i].parse_expr(pc,o.af()) == 0) {
-        if (o.debugging >1)
-          error("Loaded exclude target of: %s", pc);
-        ++i;
-      } 
-      pc=strtok(NULL, ",");
-    }
-    free(p_acBuf);
-    p_acBuf = NULL;
-  }
   return excludelist;
+}
+
+/* Load an exclude list from a file for --excludefile. */
+TargetGroup* load_exclude_file(FILE *fp) {
+  std::vector<std::string> specs;
+  char host_spec[1024];
+  size_t n;
+
+  while ((n = read_host_from_file(fp, host_spec, sizeof(host_spec))) > 0) {
+    if (n >= sizeof(host_spec))
+      fatal("One of your exclude file specifications was too long to read (>= %u chars)", (unsigned int) sizeof(host_spec));
+    specs.push_back(host_spec);
+  }
+
+  return specs_to_targetgroups(specs);
+}
+
+/* Load a comma-separated exclude list from a string, the argument to
+   --exclude. */
+TargetGroup* load_exclude_string(const char *s) {
+  std::vector<std::string> specs;
+  const char *begin, *p;
+
+  p = s;
+  while (*p != '\0') {
+    begin = p;
+    while (*p != '\0' && *p != ',')
+      p++;
+    specs.push_back(std::string(begin, p - begin));
+    if (*p == '\0')
+      break;
+    p++;
+  }
+
+  return specs_to_targetgroups(specs);
 }
 
 static inline bool is_host_separator(int c) {

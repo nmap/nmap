@@ -432,7 +432,7 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
     if (n == 0)
       return NULL;
     else if (n >= sizeof(host_spec))
-      fatal("One of the host_specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
+      fatal("One of the host specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
   }
   return host_spec;
 }
@@ -1651,16 +1651,20 @@ int nmap_main(int argc, char *argv[]) {
   }
 
   /* lets load our exclude list */
-  if ((NULL != excludefd) || (NULL != exclude_spec)) {
-    exclude_group = load_exclude(excludefd, exclude_spec);
+  if (excludefd != NULL) {
+    exclude_group = load_exclude_file(excludefd);
+    fclose(excludefd);
+  }
+  if (exclude_spec != NULL) {
+    /* Simultaneous --excludefile and --exclude are not supported. */
+    assert(exclude_group == NULL);
+    exclude_group = load_exclude_string(exclude_spec);
+    free(exclude_spec);
+  }
 
+  if (exclude_group != NULL) {
     if (o.debugging > 3)
       dumpExclude(exclude_group);
-
-    if ((FILE *)NULL != excludefd)
-      fclose(excludefd);
-    if ((char *)NULL != exclude_spec)
-      free(exclude_spec);
   }
 
 #ifndef NOLUA
