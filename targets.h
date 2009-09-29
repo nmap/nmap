@@ -161,6 +161,8 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
 		 struct scan_lists *ports, int pingtype);
 /* loads an exclude file into a excluded target list */
 TargetGroup* load_exclude(FILE *fExclude, char *szExclude);
+/* Read a single host specification from a file, as for -iL and --excludefile. */
+size_t read_host_from_file(FILE *fp, char *buf, size_t n);
 /* a debugging routine to dump an exclude list to stdout. */
 int dumpExclude(TargetGroup*exclude_group);
 /* Returns the last host obtained by nexthost.  It will be given again the next

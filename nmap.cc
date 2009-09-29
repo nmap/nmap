@@ -417,9 +417,8 @@ static int ip_is_reserved(struct in_addr *ip)
 
 static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
   static char host_spec[1024];
-  unsigned int host_spec_index;
-  int ch;
   struct in_addr ip;
+  size_t n;
 
   if (o.generate_random_ips) {
     do {
@@ -429,25 +428,12 @@ static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
   } else if (!inputfd) {
     return( (optind < argc)?  fakeargv[optind++] : NULL);
   } else { 
-    host_spec_index = 0;
-    while((ch = getc(inputfd)) != EOF) {
-      if (ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t' || ch == '\0') {
-	if (host_spec_index == 0) continue;
-	host_spec[host_spec_index] = '\0';
-	return host_spec;
-      } else if (ch == '#') {
-        /* Found a comment marker, ignore everything until EOL or EOF */
-        while ((ch = getc(inputfd)) != EOF && ch != '\n')
-          ;
-        if (ch != EOF)
-          ungetc(ch, inputfd);
-      } else if (host_spec_index < sizeof(host_spec) / sizeof(char) -1) {
-	host_spec[host_spec_index++] = (char) ch;
-      } else fatal("One of the host_specifications from your input file is too long (> %d chars)", (int) sizeof(host_spec));
-    }
-    host_spec[host_spec_index] = '\0';
+    n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
+    if (n == 0)
+      return NULL;
+    else if (n >= sizeof(host_spec))
+      fatal("One of the host_specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
   }
-  if (!*host_spec) return NULL;
   return host_spec;
 }
 
