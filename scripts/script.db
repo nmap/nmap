@@ -1,14 +1,14 @@
-Entry { filename = "asn-query.nse", categories = { "discovery", "external", } }
+Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
-Entry { filename = "auth-spoof.nse", categories = { "malware", } }
+Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
-Entry { filename = "daytime.nse", categories = { "discovery", } }
-Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", } }
+Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
+Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-recursion.nse", categories = { "default", "intrusive", } }
 Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery", "intrusive", } }
-Entry { filename = "finger.nse", categories = { "default", "discovery", } }
+Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
@@ -16,26 +16,26 @@ Entry { filename = "html-title.nse", categories = { "default", "discovery", "saf
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
-Entry { filename = "http-favicon.nse", categories = { "default", "discovery", } }
-Entry { filename = "http-headers.nse", categories = { "discovery", } }
+Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
-Entry { filename = "http-malware-host.nse", categories = { "malware", } }
+Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
-Entry { filename = "http-trace.nse", categories = { "discovery", } }
-Entry { filename = "http-userdir-enum.nse", categories = { "discovery", } }
+Entry { filename = "http-trace.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
-Entry { filename = "imap-capabilities.nse", categories = { "default", } }
-Entry { filename = "irc-info.nse", categories = { "default", "discovery", } }
+Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
+Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", } }
+Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
-Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "vuln", } }
+Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
@@ -53,8 +53,8 @@ Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusiv
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-open-relay.nse", categories = { "demo", } }
-Entry { filename = "smtp-strangeport.nse", categories = { "malware", } }
-Entry { filename = "sniffer-detect.nse", categories = { "discovery", } }
+Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
+Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "snmp-sysdescr.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
