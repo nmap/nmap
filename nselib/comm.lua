@@ -253,7 +253,6 @@ end
 --
 -- @param host The host table
 -- @param port The port table
--- @param sslservice The name of the ssl service version
 -- @param data The first data payload of the connection
 -- @param opts Options, such as timeout
 -- @return sd The socket descriptor
