@@ -1,6 +1,6 @@
 author = "jah <jah@zadkiel.plus.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"discovery", "intrusive"}
 description = [[
 Attempts to enumerate valid usernames on webservers running with the mod_userdir
 module or similar enabled.

@@ -36,7 +36,7 @@ server (your default DNS server, or whichever one you specified with the
 
 author = "jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "external"}
+categories = {"discovery", "external", "safe"}
 runlevel = 1
 
 

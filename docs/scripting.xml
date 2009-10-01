@@ -286,7 +286,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
 
         <varlistentry>
         <term>Intrusiveness</term>
-        <listitem><para>Some scripts are very intrusive because they use significant resources on the remote system, are likely to crash the system or service, or are likely to be perceived as an attack by the remote administrators.  The more intrusive a script is, the less suitable it is for the <literal>default</literal> category.</para></listitem>
+        <listitem><para>Some scripts are very intrusive because they use significant resources on the remote system, are likely to crash the system or service, or are likely to be perceived as an attack by the remote administrators.  The more intrusive a script is, the less suitable it is for the <literal>default</literal> category.  Default scripts are almost always in the <literal>safe</literal> category too, though we occasionally allow <literal>intrusive</literal> scripts by default when they are only mildly intrusive and score well in the other factors.</para></listitem>
         </varlistentry>
 
         <varlistentry>
@@ -354,7 +354,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
             device's SNMP community string by sending common values
             such
             as <literal>public</literal>, <literal>private</literal>,
-            and <literal>cisco</literal>).</para>
+            and <literal>cisco</literal>).  Unless a script is in the special <literal>version</literal> category, it should be categorized as either <literal>safe</literal> or <literal>intrusive</literal>.</para>
 
           </listitem>
         </varlistentry>
@@ -387,7 +387,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
               network discovery. Examples are
               <literal>ssh-hostkey</literal> (retrieves an SSH host key) and
               <literal>html-title</literal> (grabs the title from a
-              web page).</para>
+              web page).  Scripts in the <literal>version</literal> category are not categorized by safety, but any other scripts which aren't in <literal>safe</literal> should be placed in <literal>intrusive</literal>.</para>
           </listitem>
         </varlistentry>
 

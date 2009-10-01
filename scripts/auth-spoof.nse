@@ -11,7 +11,7 @@ author = "Diman Todorov <diman.todorov@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"malware"}
+categories = {"malware", "safe"}
 
 require "comm"
 require "shortport"

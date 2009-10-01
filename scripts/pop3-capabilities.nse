@@ -15,7 +15,7 @@ server version may be available.
 author = "Philip Pickering <pgpickering@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default","discovery"}
+categories = {"default","discovery","safe"}
 
 require 'pop3'
 require 'shortport'

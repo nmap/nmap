@@ -20,7 +20,7 @@ author = "Vlatko Kosturjak <kost@linux.hr>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "discovery"}
+categories = {"default", "discovery", "safe"}
 
 require "shortport"
 require "http"

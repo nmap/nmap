@@ -22,7 +22,7 @@ author = "Ron Bowes <ron@skullsecurity.org>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery"}
+categories = {"discovery", "safe"}
 
 require "shortport"
 require "http"

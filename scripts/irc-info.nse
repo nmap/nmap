@@ -18,7 +18,7 @@ author = "Doug Hoyte"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "discovery"}
+categories = {"default", "discovery", "safe"}
 
 require("stdnse")
 require "shortport"

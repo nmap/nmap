@@ -6,7 +6,7 @@ author = "Diman Todorov <diman.todorov@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery"}
+categories = {"discovery", "safe"}
 
 require "comm"
 require "shortport"

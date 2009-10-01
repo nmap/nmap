@@ -13,7 +13,7 @@ http://www.securityfriday.com/promiscuous_detection_01.pdf.
 author = "Marek Majkowski <majek04+nse@gmail.com>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery"}
+categories = {"discovery", "intrusive"}
 
 -- okay, we're interested only in hosts that are on our ethernet lan
 hostrule = function(host, port)
