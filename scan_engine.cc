@@ -305,7 +305,6 @@ private:
     ConnectProbe *CP;
     //    ArpProbe *AP;
   } probes;
-  void *internalProbe;
 };
 
 /* Global info for the connect scan */
