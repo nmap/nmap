@@ -9,6 +9,12 @@ o Add support for UDP encapsulated SCTP (9899/udp).
   Think about how to add support for this to libdnet first.
   See this Internet Draft by Michael Tuexen for the specs:
   http://tools.ietf.org/html/draft-tuexen-sctp-udp-encaps
+  This is actually quite a challenging task due to the
+  current architecture of the scan engine.  How to best
+  differentiate a UDP packet related to a UDP scan from a
+  UDP wrapped SCTP packet?  How to unpack the UDP wrapped
+  SCTP packet in order not to duplicate a lot of code?
+  A good solution will be non-trivial.
 
 o Verify ICMP response handling for SCTP.  Make sure all
   ICMP types are handled in an optimal way (esp. destination
@@ -23,7 +29,9 @@ o Investigate whether it makes sense to store scan state in
 
 o Investigate the suitability of other SCTP chunks for port
   scanning and implement more scan types if they turn out to
-  be worthwhile.
+  be worthwhile.  One unverified idea is to experiment with
+  undefined chunk types and their first two magic bits to
+  provoke ERROR responses.
 
 o Add SCTP based service probing.
 
