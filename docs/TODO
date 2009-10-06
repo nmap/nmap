@@ -1,16 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Improve Nmap output to show the forward DNS name when specified on
-  command line as well as rDNS where appropriate.  We're also going to
-  reorganize output to enable some other improvements as well.  See
-  the proposal at http://seclists.org/nmap-dev/2009/q3/814, and that
-  whole thread which starts at
-  http://seclists.org/nmap-dev/2009/q3/805 [David].
-
-o [Seclists] There is currently some extra vertical space after the
-first post of a thread in the thread index (example:
-http://seclists.org/nmap-dev/2009/q4/index.html).
-
 o Fix a bug in which Nmap can wrongly associate responses to SYN and
   ACK host discovery probes.  [David]
   For example:
@@ -34,17 +23,42 @@ o Fix a bug in which Nmap can wrongly associate responses to SYN and
      whether we can still reproduce that and, if so, what is going on
      before "fixing" this issue.
 
+o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
+  connections and not long-dead ones.  See this thread
+  (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
+  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for
+  details.  Venkat has a patch for David to review and potentially merge.
+
 o [Ncat] Fix 100% CPU usage with ncat -l --send-only.  See this
   thread: http://seclists.org/nmap-dev/2009/q2/797 and continues
   further at http://seclists.org/nmap-dev/2009/q3/99.  This message is
   key: http://seclists.org/nmap-dev/2009/q3/308 [David]
 
+o Improve Nmap output to show the forward DNS name when specified on
+  command line as well as rDNS where appropriate.  We're also going to
+  reorganize output to enable some other improvements as well.  See
+  the proposal at http://seclists.org/nmap-dev/2009/q3/814, and that
+  whole thread which starts at
+  http://seclists.org/nmap-dev/2009/q3/805 [David].
+
+o Potential OS X 10.6 problems.  There are two issues reported by the
+  same user which may be related:
+  http://seclists.org/nmap-dev/2009/q3/0936.html,
+  http://seclists.org/nmap-dev/2009/q3/0996.html.  One is that Nmap
+  hangs doing nothing and needs to be killed with Ctrl-C, and the
+  other is that it dies after printing "Initiating UDP Scan".  Another
+  reported the same problem at
+  http://seclists.org/nmap-dev/2009/q3/0990.html, where it dies after
+  the first ARP request is sent.  But Brandon has run Nmap on 10.6
+  without problems.  It is a bit of a mystery. [David]
+
+o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
+  proxy authentication patch.  See
+  http://seclists.org/nmap-dev/2009/q3/773. [David]
+
 o Add a way in NSE to set socket source addresses and port numbers.
   See this thread: http://seclists.org/nmap-dev/2009/q3/821.  Some
   potential solutions are discussed later in the thread.
-
-o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
-  crash reporter. [David]
 
 o Resolve allow_ipid_match issue which can cause some malformed
   replies to be ignored when we might be able to still use them.  See
@@ -52,6 +66,9 @@ o Resolve allow_ipid_match issue which can cause some malformed
 
 o Add --confdir option to Zenmap. See
   http://seclists.org/nmap-dev/2009/q1/92 [David]
+
+o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
+  crash reporter. [David]
 
 o Web site HTML improvements
   - Maybe start with nmap.org.
@@ -68,7 +85,8 @@ o Web site HTML improvements
     to) the root URL of current site.  e.g. seclists.org,
     sectools.org, nmap.org rather than always insecure.org.
 
-o in_chksum in packet.lua doesn't work with an odd number of bytes.
+o [NSE] in_chksum in packet.lua doesn't work with an odd number of
+  bytes.
 
 o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
@@ -85,16 +103,12 @@ o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
 o New Nmap dev release (5.05BETA1 or whatever)
 
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
-lot of places. For example, it's legal to have header fields like
+  lot of places. For example, it's legal to have header fields like
 Content-type:\r\n
 ___text/html\r\n
 (with spaces in place of _, but http.lua won't parse such a header
 correctly. In other words you can extend them to any number of lines
 as long as each line after the first begins with whitespace. [Joao]
-
-o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
-  proxy authentication patch.  See
-  http://seclists.org/nmap-dev/2009/q3/773. [David]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -140,23 +154,6 @@ o Scanning through proxies
      these different applications can be scanned through using the
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
-
-o Potential OS X 10.6 problems.  There are two issues reported by the
-  same user which may be related:
-  http://seclists.org/nmap-dev/2009/q3/0936.html,
-  http://seclists.org/nmap-dev/2009/q3/0996.html.  One is that Nmap
-  hangs doing nothing and needs to be killed with Ctrl-C, and the
-  other is that it dies after printing "Initiating UDP Scan".  Another
-  reported the same problem at
-  http://seclists.org/nmap-dev/2009/q3/0990.html, where it dies after
-  the first ARP request is sent.  But Brandon has run Nmap on 10.6
-  without problems.  It is a bit of a mystery. [David]
-
-o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
-  connections and not long-dead ones.  See this thread
-  (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
-  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for
-  details.  Venkat has a patch for David to review and potentially merge.
 
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
@@ -702,6 +699,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Seclists] There is currently some extra vertical space after the
+  first post of a thread in the thread index (example:
+  http://seclists.org/nmap-dev/2009/q4/index.html).
 
 o [NSE] Decide which scripts belong to the "safe" category (we now have 20
   which aren't either safe or intrusive), then remove the intrusive
