@@ -371,6 +371,51 @@ static void socket_unlock(lua_State * L)
 
 void l_nsock_clear_buf(lua_State * L, l_nsock_udata * udata);
 
+void l_nsock_ssl_reconnect_handler(nsock_pool nsp, nsock_event nse, void *yield)
+{
+  struct nsock_yield *y = (struct nsock_yield *) yield;
+
+  lua_State *L = y->thread;
+
+  if (lua_status(L) != LUA_YIELD) return;
+
+  if (o.scriptTrace())
+    l_nsock_trace(nse_iod(nse), "SSL RECONNECT", TO);
+
+  if (l_nsock_checkstatus(L, nse) == NSOCK_WRAPPER_SUCCESS)
+    nse_restore(y->thread, 1);
+  else
+    nse_restore(y->thread, 2);
+}
+
+static int l_nsock_reconnect_ssl (lua_State *L)
+{
+  l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
+
+  l_nsock_clear_buf(L, udata);
+
+  if (udata->nsiod == NULL)
+  {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Trying to reconnect ssl through a closed socket\n");
+    return 2;
+  }
+#ifndef HAVE_OPENSSL
+  if (1)
+  {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Sorry, you don't have OpenSSL\n");
+    return 2;
+  }
+#endif
+
+  nsock_reconnect_ssl(nsp, udata->nsiod, l_nsock_ssl_reconnect_handler,
+      udata->timeout, &udata->yield, udata->ssl_session);
+
+  set_thread(L, 1, udata);
+  return nse_yield(L);
+}
+
 int luaopen_nsock(lua_State * L)
 {
   /* nsock:connect(socket, ...) This Lua function is a wrapper around the
@@ -397,6 +442,7 @@ int luaopen_nsock(lua_State * L)
     {"pcap_register", l_nsock_ncap_register},
     {"pcap_receive", l_nsock_pcap_receive},
     {"get_ssl_certificate", l_get_ssl_certificate},
+    {"reconnect_ssl", l_nsock_reconnect_ssl},
     // {"callback_test", l_nsock_pcap_callback_test},
     {NULL, NULL}
   };

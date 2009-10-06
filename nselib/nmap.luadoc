@@ -261,6 +261,19 @@ function new_socket()
 -- end
 function connect(hostid, port, protocol)
 
+--- Reconnect the open (connected) socket with SSL.
+--
+-- It is sometimes desirable to request SSL over an established connection.
+-- The internal buffers for the socket are cleared when the reconnection is
+-- made. Any received data that has not yet been read through a call to receive
+-- is lost.
+-- @usage
+-- local status, err = socket:reconnect_ssl()
+-- if not status then
+--   return string.format("Can't reconnect with ssl: %s", err)
+-- end
+function reconnect_ssl()
+
 --- Sends data on an open socket.
 --
 -- This socket method sends the data contained in the data string through an
