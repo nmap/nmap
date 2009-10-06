@@ -1,5 +1,75 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Improve Nmap output to show the forward DNS name when specified on
+  command line as well as rDNS where appropriate.  We're also going to
+  reorganize output to enable some other improvements as well.  See
+  the proposal at http://seclists.org/nmap-dev/2009/q3/814, and that
+  whole thread which starts at
+  http://seclists.org/nmap-dev/2009/q3/805 [David].
+
+o [Seclists] There is currently some extra vertical space after the
+first post of a thread in the thread index (example:
+http://seclists.org/nmap-dev/2009/q4/index.html).
+
+o Fix a bug in which Nmap can wrongly associate responses to SYN and
+  ACK host discovery probes.  [David]
+  For example:
+  # nmap -sP -PS80 -PA80 australia.gov.au --packet-trace -d2
+  SENT (0.0760s) TCP 192.168.0.21:60182 > 152.91.126.70:80 S ttl=43 id=13466 iplen=44  seq=4046449223 win=4096 <mss 1460>
+  SENT (0.0770s) TCP 192.168.0.21:60182 > 152.91.126.70:80 A ttl=48 id=39976 iplen=40  seq=4046449223 win=1024 ack=921915001
+  RCVD (0.3020s) TCP 152.91.126.70:80 > 192.168.0.21:60182 SA ttl=53 id=0 iplen=44  seq=3924706636 win=5840 ack=4046449224 <mss 1380>
+  We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
+  ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
+ In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
+ o we're thinking about ways to encode the information better.  Right
+  now we have pingseq and tryno, but we may want to just move to a
+  single probe ID and then we can look up any other information in
+  structures attached to that ID in memory when we get the response.
+ o A related problem, which we hope the fix for this will also
+  resolve, is that replies can currently match any probe whose tryno
+  is less than or equal to the tryno encoded in the reply.
+   o However, "fixing" this problem has been shown in the past to
+     cause accuracy problems.  See
+     http://seclists.org/nmap-dev/2009/q1/387.  We should figure out
+     whether we can still reproduce that and, if so, what is going on
+     before "fixing" this issue.
+
+o [Ncat] Fix 100% CPU usage with ncat -l --send-only.  See this
+  thread: http://seclists.org/nmap-dev/2009/q2/797 and continues
+  further at http://seclists.org/nmap-dev/2009/q3/99.  This message is
+  key: http://seclists.org/nmap-dev/2009/q3/308 [David]
+
+o Add a way in NSE to set socket source addresses and port numbers.
+  See this thread: http://seclists.org/nmap-dev/2009/q3/821.  Some
+  potential solutions are discussed later in the thread.
+
+o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
+  crash reporter. [David]
+
+o Resolve allow_ipid_match issue which can cause some malformed
+  replies to be ignored when we might be able to still use them.  See
+  this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
+
+o Add --confdir option to Zenmap. See
+  http://seclists.org/nmap-dev/2009/q1/92 [David]
+
+o Web site HTML improvements
+  - Maybe start with nmap.org.
+    - Find and fix HTML validation problems, bad links.  I'm not sure
+      what tool is best for this.
+    - Update to use CSS, at least for header bars
+      - Also, if it is easy to give the header bars rounded corners,
+        we should probably do so.  But if it is hard, it isn't
+        important enough to matter.
+    - The Nmap.Org navigation table should have a background and more
+      subtle lines, like we use for our calendars now.
+  - Then do the same with seclists.org, insecure.org, sectools.org
+  - The icon on the top-left of the screen should be for (and link
+    to) the root URL of current site.  e.g. seclists.org,
+    sectools.org, nmap.org rather than always insecure.org.
+
+o in_chksum in packet.lua doesn't work with an odd number of bytes.
+
 o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
 o Add PJL (Printer Job Language) probes to
@@ -12,12 +82,6 @@ o Add PJL (Printer Job Language) probes to
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
 
-o [NSE] Decide which scripts belong to the "safe" category (we now have 20
-  which aren't either safe or intrusive), then remove the intrusive
-  category since people can now specify "not safe".  See
-  http://seclists.org/nmap-dev/2009/q3/1091.html and that whole
-  thread.
-
 o New Nmap dev release (5.05BETA1 or whatever)
 
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
@@ -28,19 +92,9 @@ ___text/html\r\n
 correctly. In other words you can extend them to any number of lines
 as long as each line after the first begins with whitespace. [Joao]
 
-o Fix a bug in which Nmap can wrongly associate responses to SYN and
-  ACK host discovery probes.  For example:
-  # nmap -sP -PS80 -PA80 australia.gov.au --packet-trace -d2
-  SENT (0.0760s) TCP 192.168.0.21:60182 > 152.91.126.70:80 S ttl=43 id=13466 iplen=44  seq=4046449223 win=4096 <mss 1460>
-  SENT (0.0770s) TCP 192.168.0.21:60182 > 152.91.126.70:80 A ttl=48 id=39976 iplen=40  seq=4046449223 win=1024 ack=921915001
-  RCVD (0.3020s) TCP 152.91.126.70:80 > 192.168.0.21:60182 SA ttl=53 id=0 iplen=44  seq=3924706636 win=5840 ack=4046449224 <mss 1380>
-  We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
-  ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
- In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
- o we're thinking about ways to encode the information better.  Right
-  now we have pingseq and tryno, but we may want to just move to a
-  single probe ID and then we can look up any other information in
-  structures attached to that ID in memory when we get the response.
+o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
+  proxy authentication patch.  See
+  http://seclists.org/nmap-dev/2009/q3/773. [David]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -87,10 +141,22 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
+o Potential OS X 10.6 problems.  There are two issues reported by the
+  same user which may be related:
+  http://seclists.org/nmap-dev/2009/q3/0936.html,
+  http://seclists.org/nmap-dev/2009/q3/0996.html.  One is that Nmap
+  hangs doing nothing and needs to be killed with Ctrl-C, and the
+  other is that it dies after printing "Initiating UDP Scan".  Another
+  reported the same problem at
+  http://seclists.org/nmap-dev/2009/q3/0990.html, where it dies after
+  the first ARP request is sent.  But Brandon has run Nmap on 10.6
+  without problems.  It is a bit of a mystery. [David]
+
 o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
   connections and not long-dead ones.  See this thread
   (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
-  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for details.
+  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for
+  details.  Venkat has a patch for David to review and potentially merge.
 
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
@@ -182,6 +248,9 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
 o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244 [Ankur]
+
+o [Ncat] Drop privileges once it has started up, bound the ports it
+  needs to, etc.
 
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -633,6 +702,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Decide which scripts belong to the "safe" category (we now have 20
+  which aren't either safe or intrusive), then remove the intrusive
+  category since people can now specify "not safe".  See
+  http://seclists.org/nmap-dev/2009/q3/1091.html and that whole
+  thread. [Fyodor]
+  [ OK, see http://seclists.org/nmap-dev/2009/q4/0002.html]
 
 o [NSE] Fix http pipelining.  Responses are being split on anything
   that looks like HTTP/1.X which doesn't come at the beginning of a
