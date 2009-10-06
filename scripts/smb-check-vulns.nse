@@ -78,7 +78,7 @@ on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]).
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive","exploit","dos"}
+categories = {"intrusive","exploit","dos","vuln"}
 -- Set the runlevel to >2 so this runs last (so if it DOES crash something, it doesn't
 -- till other scans have had a chance to run)
 runlevel = 2
