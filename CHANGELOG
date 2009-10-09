@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed the combination of --max-conns and --exec on Windows.
+  The count of connected clients was not decreased when the program
+  spawned by --exec finished. With --max-conns 5, for example, no more
+  connections would be allowed after the fifth, even if some of the
+  earlier ones had ended. Jon Greaves reported the problem and Venkat
+  contributed a patch.
+
+o [Ncat] The code that manages the count of connected clients has been
+  made robust with respect to signals. The code was contributed by
+  Solar Designer.
+
 o The files read by the -iL (input from file) and --excludefile
   options now support comments that start with # and go to the end of
   the line. This was implemented by Tom Sellers.
