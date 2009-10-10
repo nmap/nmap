@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed proxy connections in connect mode on Windows. Because
+  the dup function does not work on Windows, an assertion failure
+  would be raised reading
+    (fh >= 0 && (unsigned)fd < (unsigned)_nhandle)
+  [David]
+
 o [Ncat] Fixed the combination of --max-conns and --exec on Windows.
   The count of connected clients was not decreased when the program
   spawned by --exec finished. With --max-conns 5, for example, no more
