@@ -3351,7 +3351,7 @@ match zabbix m|^ZBXD\x01\x10\0\0\0\0\0\0\0ZBX_NOTSUPPORTED| p/Zabbix Monitoring 
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,4000,4444,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
 sslports 443,4443
 
 match ajp13 m|^AB\0\x13\x04\x01\x90\0\x0bBad Request\0\0\0AB\0\x02\x05\x01$| p/Apache Jserv/
@@ -5719,6 +5719,8 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: CordaServer \(PopChartServer compati
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebSTAR/([\d.]+) ID/\d+\r\n|s p/WebSTAR/ v/$1/
 
 match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Authorization Failed</H1></HTML></BODY>\0| p/Network Flight Recorder BackOfficer Friendly http honeypot/
+
+match oem-agent m|^HTTP/1\.1 400 Bad Request\r\nConnection: Close\r\nX-ORCL-EMSV: ([\d.]+)\r\n| p/Oracle Enterprise Manager Agent/ v/$1/
 
 match wbem m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nDate: .*\r\nServer: Java/([-\d_.]+) javax\.wbem\.client\.adapter\.http\.transport\.HttpServerConnection\r\nContent-Length: 0\r\n\r\n| p/Solaris WBEM web management httpd/ i/Java $1/ o/Solaris/
 
