@@ -35,7 +35,7 @@ action = function(host, port)
 	opt = {timeout=10000, recv_before=true}
 	socket, result = comm.tryssl(host, port, "EHLO " ..ourdomain.."\r\n", opt)
 	if not socket then
-		return "Unable to estabilish connection"
+		return "Unable to establish connection"
 	end
 
 	if (result == "TIMEOUT") then
