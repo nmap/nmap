@@ -813,14 +813,11 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
   int protocol;
   int af;
 
-  struct sockaddr_storage local;
-
-  struct sockaddr_storage remote;
-
-  if (!nsi_is_pcap(nsiod))
-  {
-    char *ipstring_local = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
-    char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
+  if (!nsi_is_pcap(nsiod)) {
+    char ipstring_local[INET6_ADDRSTRLEN];
+    char ipstring_remote[INET6_ADDRSTRLEN];
+    struct sockaddr_storage local;
+    struct sockaddr_storage remote;
 
     status = nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
         (sockaddr *) &local, (sockaddr *) &remote, sizeof(sockaddr_storage));
@@ -832,11 +829,7 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
         (direction == TO) ? ">" : "<",
         inet_ntop_both(af, &remote, ipstring_remote),
         inet_port_both(af, &remote), message);
-
-    free(ipstring_local);
-    free(ipstring_remote);
-  } else
-  {                                    // is pcap device
+  } else {                                    // is pcap device
     log_write(LOG_STDOUT, "%s: %s | %s\n",
         SCRIPT_ENGINE, (direction == TO) ? ">" : "<", message);
   }
