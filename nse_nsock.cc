@@ -813,9 +813,9 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
   int protocol;
   int af;
 
-  struct sockaddr local;
+  struct sockaddr_storage local;
 
-  struct sockaddr remote;
+  struct sockaddr_storage remote;
 
   if (!nsi_is_pcap(nsiod))
   {
@@ -823,7 +823,7 @@ void l_nsock_trace(nsock_iod nsiod, const char *message, int direction)
     char *ipstring_remote = (char *) safe_malloc(sizeof(char) * INET6_ADDRSTRLEN);
 
     status = nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
-        &local, &remote, sizeof(sockaddr));
+        (sockaddr *) &local, (sockaddr *) &remote, sizeof(sockaddr_storage));
     log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
         SCRIPT_ENGINE,
         IPPROTO2STR_UC(protocol),
