@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] There is a new function, nmap.bind, to set the source address
+  of a socket. [David]
+
 o [Nsock] Made it a fatal error instead of silent memory corruption
   when an attempt is made to use a file descriptor whose number is not
   less than FD_SETSIZE. This applies only on non-Windows platforms

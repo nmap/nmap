@@ -43,6 +43,8 @@ extern NmapOps o;
 
 static int l_nsock_loop(lua_State * L);
 
+static int l_nsock_bind(lua_State * L);
+
 static int l_nsock_connect(lua_State * L);
 
 static int l_nsock_send(lua_State * L);
@@ -152,6 +154,9 @@ struct l_nsock_udata
   int timeout;
   nsock_iod nsiod;
   void *ssl_session;
+  struct sockaddr_storage source_addr;
+  size_t source_addrlen;
+
   struct nsock_yield yield;
   /* used for buffered reading */
   int bufidx;                                    /* index inside lua's registry 
@@ -429,6 +434,7 @@ int luaopen_nsock(lua_State * L)
       "  return connect(socket, ...);\n" "end";
 
   static const luaL_Reg l_nsock[] = {
+    {"bind", l_nsock_bind},
     {"send", l_nsock_send},
     {"receive", l_nsock_receive},
     {"receive_lines", l_nsock_receive_lines},
@@ -519,6 +525,8 @@ int l_nsock_new(lua_State * L)
   lua_setfenv(L, -2);
   udata->nsiod = NULL;
   udata->ssl_session = NULL;
+  udata->source_addr.ss_family = AF_UNSPEC;
+  udata->source_addrlen = sizeof(udata->source_addr);
   udata->timeout = DEFAULT_TIMEOUT;
   udata->bufidx = LUA_NOREF;
   udata->bufused = 0;
@@ -574,6 +582,70 @@ int l_nsock_checkstatus(lua_State * L, nsock_event nse)
   return -1;
 }
 
+/* Set the local address for socket operations. The two optional parameters
+   after the first (which is the socket object) are a string representing a
+   numeric address, and a port number. If either optional parameter is omitted
+   or nil, that part of the address will be left unspecified. */
+static int l_nsock_bind(lua_State * L)
+{
+  struct addrinfo hints = { 0 };
+  struct addrinfo *results;
+  char port_buf[16];
+  l_nsock_udata *udata;
+  const char *addr_str = NULL;
+  const char *port_str = NULL;
+  int rc;
+
+  udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
+  if (!lua_isnoneornil(L, 2))
+    addr_str = luaL_checkstring(L, 2);
+  if (!lua_isnoneornil(L, 3)) {
+    int port;
+    port = luaL_checkint(L, 3);
+    Snprintf(port_buf, sizeof(port_buf), "%d", port);
+    port_str = port_buf;
+  }
+
+  /* If we don't have a string to work with, set our configured address family
+     to get the proper unspecified address (0.0.0.0 or ::). Otherwise infer the
+     family from the string. */
+  if (addr_str == NULL)
+    hints.ai_family = o.af();
+  else
+    hints.ai_family = AF_UNSPEC;
+  /* AI_NUMERICHOST: don't use DNS to resolve names.
+     AI_NUMERICSERV: don't look up service names.
+     AI_PASSIVE: set an unspecified address if addr_str is NULL. */
+  hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE;
+
+  rc = getaddrinfo(addr_str, port_str, &hints, &results);
+  if (rc != 0) {
+    lua_pushnil(L);
+    lua_pushstring(L, gai_strerror(rc));
+    return 2;
+  }
+  if (results == NULL) {
+    lua_pushnil(L);
+    lua_pushstring(L, "getaddrinfo: no results found");
+    return 2;
+  }
+  if (results->ai_addrlen > sizeof(udata->source_addr)) {
+    freeaddrinfo(results);
+    lua_pushnil(L);
+    lua_pushstring(L, "getaddrinfo: result is too big");
+    return 2;
+  }
+
+  /* We ignore any results after the first. */
+  /* We would just call nsi_set_localaddr here, but udata->nsiod is not created
+     until connect. So store the address in the userdatum. */
+  udata->source_addrlen = results->ai_addrlen;
+  memcpy(&udata->source_addr, results->ai_addr, udata->source_addrlen);
+
+  lua_pushboolean(L, 1);
+  return 1;
+}
+
 static int l_nsock_connect(lua_State * L)
 {
   enum type {TCP, UDP, SSL};
@@ -615,10 +687,10 @@ static int l_nsock_connect(lua_State * L)
   }
 
   udata->nsiod = nsi_new(nsp, NULL);
-  if (o.spoofsource)
-  {
+  if (udata->source_addr.ss_family != AF_UNSPEC) {
+    nsi_set_localaddr(udata->nsiod, &udata->source_addr, udata->source_addrlen);
+  } else if (o.spoofsource) {
     struct sockaddr_storage ss;
-
     size_t sslen;
 
     o.SourceSockAddr(&ss, &sslen);

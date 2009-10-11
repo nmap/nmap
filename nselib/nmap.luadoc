@@ -220,6 +220,24 @@ function new_try(handler)
 -- @usage local socket = nmap.new_socket()
 function new_socket()
 
+--- Sets the local address of a socket.
+--
+-- This socket method sets the local address and port of a socket. It must be
+-- called before <code>connect</code>. The address set by <code>bind</code>
+-- overrides Nmap's source address and port set by the <code>-S</code> and
+-- <code>-g</code> options.
+-- @param addr Address string or <code>nil</code> (optional).
+-- @param port Port number or <code>nil</code> (optional).
+-- @return Status (true or false).
+-- @return Error string (if status is false).
+-- @usage
+-- try = nmap.new_try()
+-- try(socket:bind(nil, 53))
+-- try(socket:bind("1.2.3.4"))
+-- try(socket:bind("2001:db8::1"))
+-- try(socket:bind("1.2.3.4", 53))
+function bind(addr, port)
+
 --- Establishes a connection.
 --
 -- This method puts a socket in a state ready for communication. It takes as
