@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Made it a fatal error instead of silent memory corruption
+  when an attempt is made to use a file descriptor whose number is not
+  less than FD_SETSIZE. This applies only on non-Windows platforms
+  where FD_SETSIZE is a limit on the value of file descriptors as well
+  as a limit on the number of descriptors in the set. The error will
+  look like
+    nsock_core.c:186: Attempt to FD_SET fd 1024, which is not less
+    than FD_SETSIZE (1024). Try using a lower parallelism.
+  Thanks to Brandon Enright for discovering the problem and much help
+  debugging it, and to Jay Fink for submitting an initial patch. [David]
+
 o [Ncat] Fixed proxy connections in connect mode on Windows. Because
   the dup function does not work on Windows, an assertion failure
   would be raised reading
