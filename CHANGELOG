@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash that could occur when entering certain
+  characters in the target entry (those whose UTF-8 encoding contains
+  a byte that counts as whitespace in the Windows locale):
+    File "zenmapGUI\ScanNotebook.pyo", line 184, in _target_entry_changed
+    File "zenmapCore\NmapOptions.pyo", line 719, in render_string
+    UnicodeDecodeError: 'utf8' codec can't decode byte 0xc3 in position 1:
+      unexpected end of data
+  One such character is a with grave accent, U+00E0, which in UTF-8 is
+  C0 A0, where the A0 is interpreted as a no-break space when the
+  string is interpreted byte by byte. [David]
+
 o [NSE] There is a new function, nmap.bind, to set the source address
   of a socket. [David]
 
