@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified NSE script ssl-cert.nse to support TLS negotiation
+  against SMTP ports that support it. Depends on Patrick's addition
+  of the reconnect_ssl method.  [Tom Sellers, David]
+
+o [NSE] Added the reconnect_ssl method for sockets. We sometimes need
+  to reconnect a socket with SSL because the initial communication on 
+  the socket is done without SSL. See this thread [1] for more details. 
+  [Patrick, Tom Sellers]
+
+  [1] http://seclists.org/nmap-dev/2009/q4/3
+
 o [Zenmap] Fixed a crash that could occur when entering certain
   characters in the target entry (those whose UTF-8 encoding contains
   a byte that counts as whitespace in the Windows locale):
