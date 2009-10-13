@@ -23,17 +23,6 @@ o Fix a bug in which Nmap can wrongly associate responses to SYN and
      whether we can still reproduce that and, if so, what is going on
      before "fixing" this issue.
 
-o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
-  connections and not long-dead ones.  See this thread
-  (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
-  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for
-  details.  Venkat has a patch for David to review and potentially merge.
-
-o [Ncat] Fix 100% CPU usage with ncat -l --send-only.  See this
-  thread: http://seclists.org/nmap-dev/2009/q2/797 and continues
-  further at http://seclists.org/nmap-dev/2009/q3/99.  This message is
-  key: http://seclists.org/nmap-dev/2009/q3/308 [David]
-
 o Improve Nmap output to show the forward DNS name when specified on
   command line as well as rDNS where appropriate.  We're also going to
   reorganize output to enable some other improvements as well.  See
@@ -56,10 +45,6 @@ o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
   http://seclists.org/nmap-dev/2009/q3/773. [David]
 
-o Add a way in NSE to set socket source addresses and port numbers.
-  See this thread: http://seclists.org/nmap-dev/2009/q3/821.  Some
-  potential solutions are discussed later in the thread.
-
 o Resolve allow_ipid_match issue which can cause some malformed
   replies to be ignored when we might be able to still use them.  See
   this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
@@ -68,7 +53,8 @@ o Add --confdir option to Zenmap. See
   http://seclists.org/nmap-dev/2009/q1/92 [David]
 
 o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
-  crash reporter. [David]
+  crash reporter. David has fixed some of them so far, but there are a
+  few more remaining that may be related. [David]
 
 o Web site HTML improvements
   - Maybe start with nmap.org.
@@ -699,6 +685,21 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add a way in NSE to set socket source addresses and port numbers.
+  See this thread: http://seclists.org/nmap-dev/2009/q3/821.  Some
+  potential solutions are discussed later in the thread.
+
+o [Ncat] Fix --max-conns on Windows so that it only counts concurrent
+  connections and not long-dead ones.  See this thread
+  (http://seclists.org/nmap-dev/2009/q3/1017.html) and particularly this
+  message (http://seclists.org/nmap-dev/2009/q3/1032.html) for
+  details.  Venkat has a patch for David to review and potentially merge.
+
+o [Ncat] Fix 100% CPU usage with ncat -l --send-only.  See this
+  thread: http://seclists.org/nmap-dev/2009/q2/797 and continues
+  further at http://seclists.org/nmap-dev/2009/q3/99.  This message is
+  key: http://seclists.org/nmap-dev/2009/q3/308 [David]
 
 o [Seclists] There is currently some extra vertical space after the
   first post of a thread in the thread index (example:
