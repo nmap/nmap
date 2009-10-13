@@ -118,8 +118,10 @@ action = function(host, port)
     lines[#lines + 1] = "Not valid after:  " ..
         date_to_string(cert.validity.notAfter)
 
-    lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
-    lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+    if nmap.verbosity() > 0 then
+        lines[#lines + 1] = "MD5:   " .. stdnse.tohex(cert:digest("md5"), { separator = " ", group = 4 })
+        lines[#lines + 1] = "SHA-1: " .. stdnse.tohex(cert:digest("sha1"), { separator = " ", group = 4 })
+	end
 
     if nmap.verbosity() > 1 then
         lines[#lines + 1] = cert.pem
