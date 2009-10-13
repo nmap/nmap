@@ -81,7 +81,12 @@ o Add PJL (Printer Job Language) probes to
   http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
   they cause anything to be printed out (on paper) with printers that
   don't support PJL. If not, then remove the JetDirect ports from the
-  default exclude list. The script pjl-ready-message.nse also uses PJL.
+  default exclude list. The script pjl-ready-message.nse also uses
+  PJL.  We have concerns about the safety of this probe given
+  http://seclists.org/nmap-dev/2009/q4/61 and
+  http://seclists.org/nmap-dev/2009/q4/83, but it still is probably
+  better to have the probe in there than not, as long as we continue
+  blocking the ports by default with the Exclude directive.
 
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer).
@@ -259,49 +264,6 @@ o [Web] Consider adding training/introduction videos to the Nmap site
  o Here's an example product page with lots of videos (we may not go
    that far): http://www.splunk.com/product
 
-o Change Nsock to give an error if you try to FD_SET a fd larger than
-  FD_SETSIZE. [Brandon]
-  o Some research from David:
-     We have help off on this change because of Windows portability
-     problems. The Windows fd_set works differently than the Unix
-     fd_set. In Unix, FD_SETSIZE (which is typically 1024) is both the
-     maximum number of file descriptors that can be in the set and one
-     greater than the greatest file descriptor number that can be
-     set. In other words, we want to bail out whenever someone tries
-     to FD_SET file descriptor 1060, for example. But on Windows it's
-     different: FD_SETSIZE is only 64, but any file descriptor
-     numbers, no matter how great, may be stored in the set. Windows
-     socket descriptors are typically greater than 1023, but you can
-     only have 64 of them in the set at once.
-
-     So the fix on Unix would be
-     --- nsock/src/nsock_core.c	(revision 15214)
-     +++ nsock/src/nsock_core.c	(working copy)
-     @@ -97,6 +97,7 @@
-      do { \
-        assert((count) >= 0); \
-        (count)++; \
-     +  assert((sd) < FD_SETSIZE); \
-        FD_SET((sd), (fdset)); \
-        (max_sd) = MAX((max_sd), (sd)); \
-        return 1; \
-     @@ -107,6 +108,7 @@
-        assert((count) > 0); \
-        (count)--; \
-        if ((count) == 0) { \
-     +    assert((sd) < FD_SETSIZE); \
-          FD_CLR((sd), (fdset)); \
-          assert((iod)->events_pending > 0); \
-          if ((iod)->events_pending == 1 && (max_sd) == (sd)) \
-
-     But that doesn't work on Windows (I just tried it) because even
-     the smallest socket descriptor is bigger than FD_SETSIZE, 64.
-     Really we're trying to accomplish two different things on the two
-     platforms: On Unix we must not store a file descriptor greater
-     than 1023, no matter how many or how few other descriptors have
-     been set. On Windows we must not set more than 64 descriptors at
-     a time, no matter what their descriptor number happens to be.
-
 o Change Nsock so that it is able to take advantage of more modern
   interfaces to dealing with large sockets, rather than just select.
   Perhaps we should look at poll(), Windows completion ports, and some
@@ -386,7 +348,9 @@ o Consider offering a way to link Winpcap DLLs so that they start the
   even have to sign our drivers for 64-bit Windows.
 
 o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
-  which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html
+  which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html.
+  And here is one by Duart Silva using Expat:
+  http://seclists.org/nmap-dev/2009/q3/1093.
 
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
@@ -685,6 +649,49 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Change Nsock to give an error if you try to FD_SET a fd larger than
+  FD_SETSIZE. [Brandon]
+  o Some research from David:
+     We have help off on this change because of Windows portability
+     problems. The Windows fd_set works differently than the Unix
+     fd_set. In Unix, FD_SETSIZE (which is typically 1024) is both the
+     maximum number of file descriptors that can be in the set and one
+     greater than the greatest file descriptor number that can be
+     set. In other words, we want to bail out whenever someone tries
+     to FD_SET file descriptor 1060, for example. But on Windows it's
+     different: FD_SETSIZE is only 64, but any file descriptor
+     numbers, no matter how great, may be stored in the set. Windows
+     socket descriptors are typically greater than 1023, but you can
+     only have 64 of them in the set at once.
+
+     So the fix on Unix would be
+     --- nsock/src/nsock_core.c	(revision 15214)
+     +++ nsock/src/nsock_core.c	(working copy)
+     @@ -97,6 +97,7 @@
+      do { \
+        assert((count) >= 0); \
+        (count)++; \
+     +  assert((sd) < FD_SETSIZE); \
+        FD_SET((sd), (fdset)); \
+        (max_sd) = MAX((max_sd), (sd)); \
+        return 1; \
+     @@ -107,6 +108,7 @@
+        assert((count) > 0); \
+        (count)--; \
+        if ((count) == 0) { \
+     +    assert((sd) < FD_SETSIZE); \
+          FD_CLR((sd), (fdset)); \
+          assert((iod)->events_pending > 0); \
+          if ((iod)->events_pending == 1 && (max_sd) == (sd)) \
+
+     But that doesn't work on Windows (I just tried it) because even
+     the smallest socket descriptor is bigger than FD_SETSIZE, 64.
+     Really we're trying to accomplish two different things on the two
+     platforms: On Unix we must not store a file descriptor greater
+     than 1023, no matter how many or how few other descriptors have
+     been set. On Windows we must not set more than 64 descriptors at
+     a time, no matter what their descriptor number happens to be.
 
 o Add a way in NSE to set socket source addresses and port numbers.
   See this thread: http://seclists.org/nmap-dev/2009/q3/821.  Some
