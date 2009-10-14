@@ -651,14 +651,14 @@ public:
 
   void log_overall_rates(int logt) {
     log_write(logt, "Overall sending rates: %.2f packets / s", send_rate_meter.getOverallPacketRate(&now));
-    if (send_rate_meter.getNumBytes()> 0)
+    if (send_rate_meter.getNumBytes() > 0)
       log_write(logt, ", %.2f bytes / s", send_rate_meter.getOverallByteRate(&now));
     log_write(logt, ".\n");
   }
 
   void log_current_rates(int logt, bool update = true) {
     log_write(logt, "Current sending rates: %.2f packets / s", send_rate_meter.getCurrentPacketRate(&now, update));
-    if (send_rate_meter.getNumBytes()> 0)
+    if (send_rate_meter.getNumBytes() > 0)
       log_write(logt, ", %.2f bytes / s", send_rate_meter.getCurrentByteRate(&now));
     log_write(logt, ".\n");
   }
