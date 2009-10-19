@@ -670,9 +670,10 @@ described in <xref linkend="inst-source" />.
 released in 2000 and has since become the second most popular Nmap
 platform (behind Linux). Because of this popularity and the fact that
 many Windows users do not have a compiler, binary executables are
-distributed for each major Nmap release.  While it has improved
-dramatically, the Windows port is not quite as efficient or stable as
-on Unix.  Here are some known limitations:
+distributed for each major Nmap release.  Nmap supports all versions
+of Windows since NT, including 2K, XP, Vista, Windows 7, and Server
+2003/2008. While it has improved dramatically, the Windows port is not
+quite as efficient as on Unix.  Here are the known limitations:
 </para>
 
 
