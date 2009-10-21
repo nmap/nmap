@@ -614,9 +614,8 @@ static int l_nsock_bind(lua_State * L)
   else
     hints.ai_family = AF_UNSPEC;
   /* AI_NUMERICHOST: don't use DNS to resolve names.
-     AI_NUMERICSERV: don't look up service names.
      AI_PASSIVE: set an unspecified address if addr_str is NULL. */
-  hints.ai_flags = AI_NUMERICHOST | AI_NUMERICSERV | AI_PASSIVE;
+  hints.ai_flags = AI_NUMERICHOST | AI_PASSIVE;
 
   rc = getaddrinfo(addr_str, port_str, &hints, &results);
   if (rc != 0) {
