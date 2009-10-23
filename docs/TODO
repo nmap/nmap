@@ -46,8 +46,10 @@ o Update our Winpcap from 4.0.2 to 4.1
   because we have our own installer.  See
   http://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
 
+o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
+
 o Update our included Libpcap from 0.9.7 to 1.0.0
-  (http://www.tcpdump.org/)
+  (http://www.tcpdump.org/) [David]
 
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
@@ -59,10 +61,6 @@ o Resolve allow_ipid_match issue which can cause some malformed
 
 o Add --confdir option to Zenmap. See
   http://seclists.org/nmap-dev/2009/q1/92 [David]
-
-o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
-  crash reporter. David has fixed some of them so far, but there are a
-  few more remaining that may be related. [David]
 
 o Web site HTML improvements
   - Maybe start with nmap.org.
@@ -82,7 +80,7 @@ o Web site HTML improvements
 o [NSE] in_chksum in packet.lua doesn't work with an odd number of
   bytes.
 
-o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
+
 
 o Add PJL (Printer Job Language) probes to
   nmap-service-probes. Brandon wrote some in
@@ -657,6 +655,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
+  crash reporter. David has fixed some of them so far, but there are a
+  few more remaining that may be related. [David]
 
 o Change Nsock to give an error if you try to FD_SET a fd larger than
   FD_SETSIZE. [Brandon]
