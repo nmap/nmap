@@ -558,7 +558,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   int servicecol = -1;          // service or protocol name
   int versioncol = -1;
   int reasoncol = -1;
-  // int ownercol = -1; // Used for ident scan
   int colno = 0;
   unsigned int rowno;
   int numrows;
@@ -668,8 +667,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   servicecol = colno++;
   if (o.reason)
     reasoncol = colno++;
-  /*  if (o.identscan)
-     ownercol = colno++; */
   if (o.servicescan || o.rpcscan)
     versioncol = colno++;
 
@@ -698,10 +695,6 @@ void printportoutput(Target * currenths, PortList * plist) {
     Tbl->addItem(0, versioncol, false, "VERSION", 7);
   if (reasoncol > 0)
     Tbl->addItem(0, reasoncol, false, "REASON", 6);
-  /*
-  if (ownercol > 0)
-    Tbl->addItem(0, ownercol, false, "OWNER", 5);
-  */
 
   log_write(LOG_MACHINE, "\t%s: ", (o.ipprotscan) ? "Protocols" : "Ports");
 
@@ -803,10 +796,6 @@ void printportoutput(Target * currenths, PortList * plist) {
         if (o.reason)
           Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
 
-        /*
-        if (current->owner)
-          Tbl->addItem(rowno, ownercol, true, current->owner);
-        */
         if (*sd.fullversion)
           Tbl->addItem(rowno, versioncol, true, sd.fullversion);
 
@@ -2187,13 +2176,6 @@ static void printtraceroute_xml(Target * currenths) {
       log_write(LOG_XML, " host=\"%s\"", it->name.c_str());
     log_write(LOG_XML, "/>\n");
   }
-
-  /*
-     if (tg->getState() == G_DEAD_TTL)
-     log_write(LOG_XML, "<error errorstr=\"maximum TTL reached\"/>\n");
-     else if (!tg->gotReply || (tp && (tp->ipreplysrc.s_addr != tg->ipdst)))
-     log_write(LOG_XML, "<error errorstr=\"destination not reached (%s)\"/>\n", inet_ntoa(tp->ipdst));
-   */
 
   /* traceroute XML footer */
   log_write(LOG_XML, "</trace>\n");
