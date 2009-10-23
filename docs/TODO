@@ -41,7 +41,7 @@ o Potential OS X 10.6 problems.  There are two issues reported by the
   the first ARP request is sent.  But Brandon has run Nmap on 10.6
   without problems.  It is a bit of a mystery. [David]
 
-o Update our Winpcap from 4.0.2 to 4.1
+o Update our Winpcap from 4.0.2 to 4.1.1
   (http://seclists.org/nmap-dev/2009/q4/128).  This is a bit complex
   because we have our own installer.  See
   http://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
@@ -50,6 +50,12 @@ o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
 o Update our included Libpcap from 0.9.7 to 1.0.0
   (http://www.tcpdump.org/) [David]
+
+o Integrate latest OS fingerprint submissions and corrections. This
+  was last done based on submissions up to May 8, 2009.
+
+o Integrate latest version detection submissions and corrections.
+  This was last done based on submissions until February 9, 2009.
 
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
