@@ -1293,21 +1293,20 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
   log_flush_all();
 }
 
-//A simple helper function for doscaninfo handles the c14n of o.scanflags
+// A simple helper function for doscaninfo handles the c14n of o.scanflags
 static void doscanflags() {
   struct {
     unsigned char flag;
     const char *name;
   } flags[] = {
-    {
-    TH_FIN, "FIN"}, {
-    TH_SYN, "SYN"}, {
-    TH_RST, "RST"}, {
-    TH_PUSH, "PSH"}, {
-    TH_ACK, "ACK"}, {
-    TH_URG, "URG"}, {
-    TH_ECE, "ECE"}, {
-    TH_CWR, "CWR"}
+    { TH_FIN, "FIN" },
+    { TH_SYN, "SYN" },
+    { TH_RST, "RST" },
+    { TH_PUSH, "PSH" },
+    { TH_ACK, "ACK" },
+    { TH_URG, "URG" },
+    { TH_ECE, "ECE" },
+    { TH_CWR, "CWR" }
   };
   if (o.scanflags != -1) {
     log_write(LOG_XML, "scanflags=\"");
