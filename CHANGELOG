@@ -128,7 +128,8 @@ o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
   Updated translations: French and German.
 
 o Added the ssl-cert.nse script, which retrieves and prints the server
-  SSL certificate. [David]
+  SSL certificate. Thanks to Matt Selsky for noticing a bug in date
+  parsing. [David]
 
 o [Ncat] The --idle-timeout option now exits when *both* stdin and the
   socket have been idle for the given time. Previously it would exit
