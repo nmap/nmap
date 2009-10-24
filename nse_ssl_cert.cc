@@ -280,6 +280,10 @@ static int time_to_tm(const ASN1_TIME *t, struct tm *result)
   }
 
   result->tm_mon = parse_int(p, 2);
+  /* struct tm uses zero-indexed months. */
+  if (result->tm_mon == 0)
+    return -1;
+  result->tm_mon--;
   result->tm_mday = parse_int(p + 2, 2);
   result->tm_hour = parse_int(p + 4, 2);
   result->tm_min = parse_int(p + 6, 2);
@@ -302,6 +306,7 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
 
   lua_pushnumber(L, tm->tm_year);
   lua_setfield(L, -2, "year");
+  /* Lua uses one-indexed months. */
   lua_pushnumber(L, tm->tm_mon + 1);
   lua_setfield(L, -2, "month");
   lua_pushnumber(L, tm->tm_mday);
