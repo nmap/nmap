@@ -1378,23 +1378,26 @@ static void print_MAC_XML_Info(Target * currenths) {
 
 /* Helper function to write the status and address/hostname info of a host
    into the XML log */
-static void write_xml_initial_hostinfo(Target * currenths,
+static void write_xml_initial_hostinfo(Target *currenths,
                                        const char *status) {
   log_write(LOG_XML, "<status state=\"%s\" reason=\"%s\"/>\n", status,
             reason_str(currenths->reason.reason_id, SINGULAR));
   log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"%s\" />\n",
-            currenths->targetipstr(),
-            (o.af() == AF_INET) ? "ipv4" : "ipv6");
+            currenths->targetipstr(), (o.af() == AF_INET) ? "ipv4" : "ipv6");
   print_MAC_XML_Info(currenths);
-  if (*currenths->HostName()) {
-    log_write(LOG_XML,
-              "<hostnames><hostname name=\"%s\" type=\"PTR\" /></hostnames>\n",
-              currenths->HostName());
-  } else {
-    /* If machine is up, put blank hostname so front ends know that no name
-       resolution is forthcoming */
-    if (strcmp(status, "up") == 0)
-      log_write(LOG_XML, "<hostnames />\n");
+  /* Output a hostnames element whenever we have a name to write or the target
+     is up. */
+  if (currenths->TargetName() != NULL || *currenths->HostName() || strcmp(status, "up") == 0) {
+    log_write(LOG_XML, "<hostnames>\n");
+    if (currenths->TargetName() != NULL) {
+      log_write(LOG_XML, "<hostname name=\"%s\" type=\"user\"/>\n",
+                currenths->TargetName());
+    }
+    if (*currenths->HostName()) {
+      log_write(LOG_XML, "<hostname name=\"%s\" type=\"PTR\"/>\n",
+                currenths->HostName());
+    }
+    log_write(LOG_XML, "</hostnames>\n");
   }
   log_flush_all();
 }

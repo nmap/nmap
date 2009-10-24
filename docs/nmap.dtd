@@ -55,7 +55,7 @@
 <!-- don't know how to escape states like open|filtered -->
 <!ENTITY % port_states "CDATA" >
 
-<!ENTITY % hostname_types "(PTR)" >
+<!ENTITY % hostname_types "(user|PTR)" >
 
 <!-- see output.c:output_xml_scaninfo_records for scan types -->
 <!ENTITY % scan_types "(syn|ack|bounce|connect|null|xmas|window|maimon|fin|udp|sctpinit|sctpcookieecho|ipproto)" >
