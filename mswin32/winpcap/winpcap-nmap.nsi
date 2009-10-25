@@ -6,6 +6,9 @@
 ;; Updated to 4.01, July 2007
 ;; Updated to 4.02, November 2007
 
+;; Rob Nicholls
+;; Updated to 4.1.1, October 2009
+
 ;-------------------------------- 
 ;Include Modern UI 
  
@@ -15,23 +18,21 @@
 ;General
 
 ; The name of the installer
-Name "WinPcap (Nmap) 4.0.2"
+Name "WinPcap (Nmap) 4.1.1"
 
 ; The file to write
-OutFile "winpcap-nmap-4.02.exe"
+OutFile "winpcap-nmap-4.11.exe"
 
 RequestExecutionLevel admin
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\WinPcap
+;No longer check registry for the location, let installer handle everything.
 
-;Get installation folder from registry if available 
-InstallDirRegKey HKLM "Software\WinPcap" "" 
-
-VIProductVersion "4.0.0.1040"
-VIAddVersionKey /LANG=1033 "FileVersion" "4.0.0.1040"
+VIProductVersion "4.1.0.1753"
+VIAddVersionKey /LANG=1033 "FileVersion" "4.1.0.1753"
 VIAddVersionKey /LANG=1033 "ProductName" "WinPcap" 
-VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.0.2 installer" 
+VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.1.1 installer" 
 VIAddVersionKey /LANG=1033 "LegalCopyright" ""
 
 ;--------------------------------
@@ -75,7 +76,7 @@ VIAddVersionKey /LANG=1033 "LegalCopyright" ""
 ;Pages
 
 !insertmacro MUI_PAGE_LICENSE "LICENSE" 
-!insertmacro MUI_PAGE_DIRECTORY 
+; Don't let user choose where to install the files. WinPcap doesn't let people, and it's one less thing for us to worry about.
 !insertmacro MUI_PAGE_INSTFILES 
 !insertmacro MUI_UNPAGE_CONFIRM 
 !insertmacro MUI_UNPAGE_INSTFILES 
@@ -112,8 +113,8 @@ Function .onInit
 
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
-  StrCpy $my_ver "4.0.0.1040" 
-  
+  StrCpy $my_ver "4.1.0.1753" 
+    
   IfSilent do_silent no_silent
 
   do_silent:
@@ -138,6 +139,8 @@ Function .onInit
       Delete $0\rpcapd.exe
       Delete $0\LICENSE
       Delete $0\uninstall.exe
+	  ; Official 4.1 installer creates an install.log
+	  Delete $0\install.log
       RMDir "$0"
       DeleteRegKey HKLM "Software\WinPcap"
 
@@ -189,8 +192,21 @@ Function .onInit
 
   finish:
     ReadRegStr $0 "HKLM" "Software\WinPcap" ""
-
-    IfFileExists "$0\Uninstall.exe" run_uninstaller
+    ; Strip any surrounding double quotes from around the install string
+	; this is required as all of our previous installers (since at least 2006)
+	; have incorrectly stored this information (oops!).
+	; Check the first and last character for safety!
+	StrCpy $1 $0 1
+    StrCmp $1 "$\"" maybestripquotes nostrip
+	maybestripquotes:
+	StrLen $1 $0
+	IntOp $1 $1 - 1
+	StrCpy $1 $0 1 $1
+    StrCmp $1 "$\"" stripquotes nostrip
+	stripquotes:
+	StrCpy $0 $0 -1 1
+	nostrip:
+	IfFileExists "$0\uninstall.exe" run_uninstaller
     return
 
   run_uninstaller:
@@ -272,17 +288,8 @@ FunctionEnd
 ; The stuff to install
 Section "WinPcap" SecWinPcap
 
-  ; Set output path to the installation directory.
-  SetOutPath $INSTDIR
-  
-  ; Put file there
-  File rpcapd.exe
-  File LICENSE
-
-  WriteUninstaller "uninstall.exe"
-
+  ; These x86 files are automatically redirected to the right place on x64
   SetOutPath $SYSDIR
-
   File pthreadVC.dll
   File wpcap.dll
 
@@ -293,37 +300,47 @@ Section "WinPcap" SecWinPcap
   StrCmp $R0 '6.' vista_files
 
   File Packet.dll
-  File WanPacket.dll
+  ; WanPacket.dll no longer present as of 4.1.0
   Goto install
 
   vista_files:
     File vista\Packet.dll
 
   install:
-    SetOutPath $SYSDIR\drivers
-
+    
     ; check for x64, install the correct npf.sys file into system32\drivers
     System::Call "kernel32::GetCurrentProcess() i .s"
     System::Call "kernel32::IsWow64Process(i s, *i .r0)"
     StrCmp $0 "0" is32bit is64bit
 
     is32bit:
-      DetailPrint "Installing x86 driver"
+	  SetOutPath "$PROGRAMFILES\WinPcap"
+	  File rpcapd.exe
+      File LICENSE
+	  WriteUninstaller "$PROGRAMFILES\WinPcap\uninstall.exe"
+	  DetailPrint "Installing x86 driver"
+	  SetOutPath $SYSDIR\drivers
       File npf.sys ; x86 NT5/NT6 version
+	  WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES\WinPcap"
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" "$PROGRAMFILES\WinPcap\uninstall.exe"
       Goto npfdone
 
     is64bit:
-      DetailPrint "Installing x64 driver"
+      SetOutPath "$PROGRAMFILES64\WinPcap"
+	  File rpcapd.exe
+      File LICENSE
+	  WriteUninstaller "$PROGRAMFILES64\WinPcap\uninstall.exe"
+	  DetailPrint "Installing x64 driver"
+	  SetOutPath $SYSDIR\drivers
       ; disable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
       File x64\npf.sys ; x64 NT5/NT6 version
+	  WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES64\WinPcap"
       ; re-enable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" "$PROGRAMFILES64\WinPcap\uninstall.exe"
 
     npfdone:
-
-    ; Install some basic registry keys
-    WriteRegStr HKLM "Software\WinPcap" "" '"$INSTDIR"'
 
     ; stop the service, in case it's still registered, so it can be deleted 
     nsExec::Exec "net stop npf"
@@ -338,9 +355,8 @@ Section "WinPcap" SecWinPcap
       Call autoStartWinPcap
     skip_auto_start:
 
-    ; Write the uninstall keys for Windows
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.02"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" '"$INSTDIR\uninstall.exe"'
+    ; Write the rest of the uninstall keys for Windows
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.11"
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1
 
@@ -366,7 +382,7 @@ Section "Uninstall"
 
   Delete $SYSDIR\Packet.dll
   Delete $SYSDIR\pthreadVC.dll
-  Delete $SYSDIR\WanPacket.dll
+  ; No longer need to delete WanPacket.dll as of WinPcap 4.1.0.
   Delete $SYSDIR\wpcap.dll
 
   ; check for x64, delete npf.sys file from system32\drivers

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded our Winpcap installer to use the new WinPcap version 4.1.1.
+  A bug which could prevent proper uninstallation of previous versions
+  was fixed at the same time. [Rob Nicholls]
+
 o [NSE] Modified NSE script ssl-cert.nse to support TLS negotiation
   against SMTP ports that support it. Depends on Patrick's addition
   of the reconnect_ssl method.  [Tom Sellers, David]

@@ -214,19 +214,31 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath 
 SectionEnd 
  
-Section "WinPcap 4.02" SecWinPcap 
+Section "WinPcap 4.1.1" SecWinPcap 
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
-  File ..\winpcap\winpcap-nmap-4.02.exe 
+  File ..\winpcap\winpcap-nmap-4.11.exe 
   ; If the Nmap installer was launched using /S then pass some arguments to WinPcap
   IfSilent winpcap_silent winpcap_loud
   winpcap_silent:
-    ExecWait '"$INSTDIR\winpcap-nmap-4.02.exe" /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
+    ; check for x64 so we install files into C:\Program Files on both platforms
+    ; as this is consistent with WinPcap 4.1 (even though rpcapd is a 32-bit
+    ; executable that probably should be in C:\Program Files (x86)\ (where we've
+    ; installed it in the past). Otherwise install in the normal x86 location.
+    System::Call "kernel32::GetCurrentProcess() i .s"
+    System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+    StrCmp $0 "0" InstDir32bit InstDir64bit
+      InstDir64bit:
+        ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" /S /D=$\""$PROGRAMFILES64\WinPcap\"$\"' 
+	    Goto InstDirDone
+      InstDir32bit:
+	    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
+    InstDirDone:
   Goto delete_winpcap
   winpcap_loud:
-    ExecWait '"$INSTDIR\winpcap-nmap-4.02.exe"' 
+    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe"' 
   delete_winpcap:
-  Delete "$INSTDIR\winpcap-nmap-4.02.exe" 
+  Delete "$INSTDIR\winpcap-nmap-4.11.exe" 
 SectionEnd 
 
 Section "Network Performance Improvements" SecPerfRegistryMods 
@@ -270,7 +282,7 @@ SectionEnd
   ;Component strings 
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
-  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.0 (required for most Nmap scans unless it is already installed)" 
+  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 

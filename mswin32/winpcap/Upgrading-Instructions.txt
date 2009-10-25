@@ -1,51 +1,51 @@
-How to upgrade Nmap to a new WinPcap release (2007)
+How to upgrade Nmap to a new WinPcap release (2009)
 ---------------------------------------------------
 
 1) Download the latest version of WinPcap from www.winpcap.org and make
-   a note of the version (for example 4.0).
+   a note of the version (for example 4.1).
 
-2) Remove all instances of WinPcap (through Add/Remove Programs), then
-   install the new version.
+2) Update the LICENSE file, if necessary. I couldn't find a plain
+   WinPcap license file anywhere. There's an HTML version at
+   http://www.winpcap.org/misc/copyright.htm. You can copy and paste
+   the license text from the installer into the LICENSE file.
 
-   2a) Update the LICENSE file, if necessary. I couldn't find a plain
-      WinPcap license file anywhere. There's an HTML version at
-      http://www.winpcap.org/misc/copyright.htm. You can copy and paste
-      the license text from the installer into the LICENSE file.
-
-3) Copy the installed files into the mswin32/winpcap directory. The
-   installed files at time of writing are
+3) Extract all the files from the setup file using 7-Zip
+   (http://www.7-zip.org/). Enter the $SYSDIR subdirectory. One by one,
+   extract (you can drag and drop) the different copies of the files.
+   Copy the files into the mswin32/winpcap directory (you may need to 
+   install WinPcap in order to determine the correct files; if you get
+   two similar looking files it's usually the smaller one). The installed
+   files at time of writing are:
 
         C:\Program Files\WinPcap\rpcapd.exe
         C:\Windows\system32\Packet.dll
         C:\Windows\system32\pthreadVC.dll
-        C:\Windows\system32\WanPacket.dll
         C:\Windows\system32\wpcap.dll
         C:\Windows\system32\drivers\npf.sys
    
-4) Copy the Vista version of Packet.dll. This is tricky because there
-   are several (three, as of this writing) versions of Packet.dll in the
-   installer but only one is installed at a time. You can see all the
-   versions by opening the installer with 7-Zip (http://www.7-zip.org/).
-   Select the installer within 7-Zip and click "File", "Open Inside".
-   Enter the $SYSDIR subdirectory. One by one, extract (you can drag and
-   drop) the copies of Packet.dll somewhere. Right-click on each
-   Packet.dll, click "Properties", then select the "Version" tab. The
+   The Vista version of Packet.dll needs to be extracted into the
+   mswin32/winpcap/vista subdirectory. Right click on each Packet.dll,
+   click "Properties", then select the "Version" tab. The
    "Description:" field will have a string containing "NT4", "NT5", or
-   "Vista". When you find the Vista file copy it to vista/Packet.dll.
+   "Vista". We don't support NT4, so those files are not required.
 
-5) Open winpcap-nmap.nsi.
-   5a) Change the version for the following lines:
+   The AMD64 version of npf.sys needs to be extracted into the
+   mswin32/winpcap/x64 subdirectory. Right click on each npf.sys,
+   click "Properties", then select the "Version" tab. The
+   "Description:" field will have a string containing "AMD64".
 
-        Name "WinPcap (Nmap) X.X"
-        OutFile "winpcap-nmap-X.X.exe
-        WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap X.X"
+4) Open winpcap-nmap.nsi. Change the version for the following lines:
 
-   5b) Get the internal 'FileVersion' from wpcap.dll. Right-click on
-      wpcap.dll and select "Properties", then select the "Version" tab.
-      Copy the number there into this part of winpcap-nmap.nsi:
+     Name "WinPcap (Nmap) X.X.X"
+     OutFile "winpcap-nmap-X.XX.exe
+     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap X.XX"
 
-        var /GLOBAL my_ver
-        StrCpy $my_ver "X.X.X.X"  <-- file version goes here
+5) Get the internal 'FileVersion' from wpcap.dll. Right-click on
+    wpcap.dll and select "Properties", then select the "Version" tab.
+    Copy the number there into this part of winpcap-nmap.nsi:
+
+    var /GLOBAL my_ver
+    StrCpy $my_ver "X.X.X.X"  <-- file version goes here
 
 6) Generate installer exe by compiling winpcap-nmap.nsi using the
    running the command
