@@ -205,7 +205,7 @@ class Target {
      away when you setTargetSockAddr(), so make sure you do these in proper
      order
   */
-  void setTargetName(char *name);
+  void setTargetName(const char *name);
 
   /* If the host is directly connected on a network, set and retrieve
      that information here.  directlyConnected() will abort if it hasn't

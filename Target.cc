@@ -307,7 +307,7 @@ void Target::setHostName(char *name) {
   }
 }
 
-void Target::setTargetName(char *name) {
+void Target::setTargetName(const char *name) {
   if (targetname) {
     free(targetname);
     targetname = NULL;
