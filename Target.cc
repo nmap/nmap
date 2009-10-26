@@ -325,9 +325,12 @@ void Target::setTargetName(char *name) {
 const char *Target::NameIP(char *buf, size_t buflen) {
   assert(buf);
   assert(buflen > 8);
-  if (hostname) {
+  if (targetname)
+    Snprintf(buf, buflen, "%s (%s)", targetname, targetipstring);
+  else if (hostname)
     Snprintf(buf, buflen, "%s (%s)", hostname, targetipstring);
-  } else Strncpy(buf, targetipstring, buflen);
+  else
+    Strncpy(buf, targetipstring, buflen);
   return buf;
 }
 
