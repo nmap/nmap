@@ -48,6 +48,8 @@ o Update our Winpcap from 4.0.2 to 4.1.1
 
 o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
+o Standardize on a proper file header for the Zenmap source code.
+
 o Update our included Libpcap from 0.9.7 to 1.0.0
   (http://www.tcpdump.org/) [David]
 
