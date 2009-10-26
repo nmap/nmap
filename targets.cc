@@ -458,11 +458,11 @@ do {
       hs->hostbatch[hidx] = new Target();
       hs->hostbatch[hidx]->setTargetSockAddr(&ss, sslen);
 
-      /* put target expression in target if we have a named host without netmask */
-      if ( hs->current_expression.get_targets_type() == TargetGroup::IPV4_NETMASK  &&
-	  hs->current_expression.get_namedhost() &&
-	  !strchr( hs->target_expressions[hs->next_expression-1], '/' ) ) {
-	hs->hostbatch[hidx]->setTargetName(hs->target_expressions[hs->next_expression-1]);
+      /* Special handling for the resolved address (for example whatever
+         scanme.nmap.org resolves to in scanme.nmap.org/24). */
+      if (hs->current_expression.is_resolved_address(&ss)) {
+        if (hs->current_expression.get_namedhost())
+          hs->hostbatch[hidx]->setTargetName(hs->current_expression.get_resolved_name());
       }
 
       /* We figure out the source IP/device IFF

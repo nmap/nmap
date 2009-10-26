@@ -198,6 +198,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       }
     } else
       netmask = 32;
+    resolvedname = hostexp;
     for(i=0; *(hostexp + i); i++) 
       if (isupper((int) (unsigned char) *(hostexp +i)) ||
           islower((int) (unsigned char) *(hostexp +i))) {
@@ -206,11 +207,11 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       }
     if (netmask != 32 || namedhost) {
       targets_type = IPV4_NETMASK;
-      if (!inet_pton(AF_INET, target_net, &(startaddr))) {
+      if (!inet_pton(AF_INET, target_net, &(resolvedaddr))) {
         if ((target = gethostbyname(target_net))) {
           int count=0;
 
-          memcpy(&(startaddr), target->h_addr_list[0], sizeof(struct in_addr));
+          memcpy(&(resolvedaddr), target->h_addr_list[0], sizeof(resolvedaddr));
 
           while (target->h_addr_list[count]) count++;
 
@@ -223,7 +224,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         }
       } 
       if (netmask) {
-        unsigned long longtmp = ntohl(startaddr.s_addr);
+        unsigned long longtmp = ntohl(resolvedaddr.s_addr);
         startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
         endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
       } else {
@@ -508,6 +509,26 @@ int TargetGroup::return_last_host() {
     assert(ipsleft == 1);    
   }
   return 0;
+}
+
+/* Returns true iff the given address is the one that was resolved to create
+   this target group; i.e., not one of the addresses derived from it with a
+   netmask. */
+bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
+{
+  const struct sockaddr_in *sin;
+
+  if (targets_type != IPV4_NETMASK || ss->ss_family != AF_INET)
+    return false;
+  sin = (struct sockaddr_in *) ss;
+
+  return sin->sin_addr.s_addr == htonl(startaddr.s_addr);
+}
+
+/* Return a string of the name or address that was resolved for this group. */
+const char *TargetGroup::get_resolved_name(void)
+{
+  return resolvedname.c_str();
 }
 
 /* Lookahead is the number of hosts that can be
