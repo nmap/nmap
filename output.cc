@@ -1428,6 +1428,7 @@ void write_host_header(Target *currenths) {
   write_host_status(currenths, o.resolve_all);
   /* Print reverse DNS if it differs. */
   if (currenths->TargetName() != NULL
+      && currenths->HostName() != NULL && currenths->HostName()[0] != '\0'
       && strcmp(currenths->TargetName(), currenths->HostName()) != 0) {
     log_write(LOG_PLAIN, "rDNS record for %s: %s\n",
       currenths->targetipstr(), currenths->HostName());
