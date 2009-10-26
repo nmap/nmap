@@ -626,9 +626,6 @@ void printportoutput(Target * currenths, PortList * plist) {
     log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
               tbufs, tm_sece - tm_secs);
   }
-  log_write(LOG_PLAIN, "Interesting %s on %s:\n",
-            (o.ipprotscan) ? "protocols" : "ports",
-            currenths->NameIP(hostname, sizeof(hostname)));
   log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
             currenths->HostName());
 
@@ -1422,6 +1419,19 @@ static char *num_to_string_sigdigits(double d, int digits) {
   assert(n > 0 && n < (int) sizeof(buf));
 
   return buf;
+}
+ 
+/* Writes a heading for a full scan report ("Nmap scan report for..."),
+   including host status and DNS records. */
+void write_host_header(Target *currenths) {
+  log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
+  write_host_status(currenths, o.resolve_all);
+  /* Print reverse DNS if it differs. */
+  if (currenths->TargetName() != NULL
+      && strcmp(currenths->TargetName(), currenths->HostName()) != 0) {
+    log_write(LOG_PLAIN, "rDNS record for %s: %s\n",
+      currenths->targetipstr(), currenths->HostName());
+  }
 }
 
 /* Writes host status info to the log streams (including STDOUT).  An

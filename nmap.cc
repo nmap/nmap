@@ -1893,7 +1893,7 @@ int nmap_main(int argc, char *argv[]) {
       log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
 		(unsigned long) currenths->StartTime(),
 		(unsigned long) currenths->EndTime());
-      write_host_status(currenths, o.resolve_all);
+      write_host_header(currenths);
       if (currenths->timedOut(NULL)) {
 	log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n", 
 		  currenths->NameIP(hostname, sizeof(hostname)));

@@ -178,6 +178,10 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
    requested and the ports which it will scan for */
 void output_xml_scaninfo_records(struct scan_lists *ports);
 
+/* Writes a heading for a full scan report ("Nmap scan report for..."),
+   including host status and DNS records. */
+void write_host_header(Target *currenths);
+
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to 
    machine log.  resolve_all should be passed nonzero if the user asked
