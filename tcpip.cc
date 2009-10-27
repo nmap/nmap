@@ -883,7 +883,7 @@ const char *inet_socktop(struct sockaddr_storage *ss) {
    if hostname cannot be resolved.  It is OK to pass in a sockaddr_in or 
    sockaddr_in6 casted to a sockaddr_storage as long as you use the matching 
    pf.*/
-int resolve(char *hostname, struct sockaddr_storage *ss, size_t * sslen, int pf) {
+int resolve(char *hostname, struct sockaddr_storage *ss, size_t *sslen, int pf) {
   struct addrinfo hints;
   struct addrinfo *result;
   int rc;
@@ -2000,7 +2000,7 @@ int send_ip_raw(int sd, struct eth_nfo *eth,
  * >0 for success. If select() fails we bail out because it couldn't work with
  * the file descriptor we got from my_pcap_get_selectable_fd()
  */
-int pcap_select(pcap_t * p, struct timeval *timeout) {
+int pcap_select(pcap_t *p, struct timeval *timeout) {
   int fd, ret;
   fd_set rfds;
 
@@ -2024,7 +2024,7 @@ int pcap_select(pcap_t * p, struct timeval *timeout) {
   return ret;
 }
 
-int pcap_select(pcap_t * p, long usecs) {
+int pcap_select(pcap_t *p, long usecs) {
   struct timeval tv;
 
   tv.tv_sec = usecs / 1000000;
@@ -2189,7 +2189,7 @@ static bool validatepkt(u8 *ipc, unsigned len) {
    linknfo->header will be filled with the appropriate values. */
 /* Specifying true for validate will enable validity checks against the
    received IP packet.  See validatepkt() for a list of checks. */
-char *readip_pcap(pcap_t * pd, unsigned int *len, long to_usec,
+char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo,
                   bool validate) {
   unsigned int offset = 0;
@@ -2423,7 +2423,7 @@ bool pcap_selectable_fd_valid() {
    otherwise simply calls pcap_selectable_fd and returns the
    results.  If you just want to test whether the function is supported,
    use pcap_selectable_fd_valid() instead. */
-int my_pcap_get_selectable_fd(pcap_t * p) {
+int my_pcap_get_selectable_fd(pcap_t *p) {
 #if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return -1;
 #else
@@ -2445,7 +2445,7 @@ bool pcap_recv_timeval_valid() {
 
 /* Prints stats from a pcap descriptor (number of received and dropped
    packets). */
-void pcap_print_stats(int logt, pcap_t * pd) {
+void pcap_print_stats(int logt, pcap_t *pd) {
   struct pcap_stat stat;
 
   assert(pd != NULL);
@@ -2522,7 +2522,7 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
    0.  to_usec is the timeout periaod in microseconds.  Use 0 to avoid
    blocking to the extent possible.  Returns
    -1 or exits if ther is an error. */
-int read_arp_reply_pcap(pcap_t * pd, u8 *sendermac,
+int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct in_addr *senderIP, long to_usec,
                         struct timeval *rcvdtime) {
   static int warning = 0;
@@ -2642,7 +2642,7 @@ int read_arp_reply_pcap(pcap_t * pd, u8 *sendermac,
 
    This function assumes that ip has already been verified as
    containing a complete IP header (or at least the first 20 bytes). */
-int setTargetMACIfAvailable(Target * target, struct link_header *linkhdr,
+int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
                             struct ip *ip, int overwrite) {
   if (!linkhdr || !target || !ip)
     return 1;
@@ -2769,7 +2769,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
    involved. setDirectlyConnected() (whether true or false) should
    have already been called on target before this.  The target device
    and src mac address should also already be set.  */
-bool setTargetNextHopMAC(Target * target) {
+bool setTargetNextHopMAC(Target *target) {
   struct sockaddr_storage targetss, srcss;
   size_t sslen;
   arp_t *a;
@@ -2828,7 +2828,7 @@ bool setTargetNextHopMAC(Target * target) {
 }
 
 /* Set a pcap filter */
-void set_pcap_filter(const char *device, pcap_t * pd, const char *bpf, ...) {
+void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
   va_list ap;
   char buf[3072];
   struct bpf_program fcode;
@@ -3230,7 +3230,7 @@ static int nmaskcmp(const void *a, const void *b) {
 }
 
 /* Read system routes from a handle to a /proc/net/route file. */
-static struct sys_route *getsysroutes_proc(FILE * routefp, int *howmany) {
+static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany) {
   struct sys_route *routes = NULL;
   int route_capacity = 128;
   struct interface_info *ifaces;
@@ -3528,7 +3528,7 @@ struct sys_route *getsysroutes(int *howmany) {
    of the routing details.  This function takes into account -S and -e
    options set by user (o.spoofsource, o.device) */
 bool route_dst(const struct sockaddr_storage * const dst,
-               struct route_nfo * rnfo) {
+               struct route_nfo *rnfo) {
   struct interface_info *ifaces;
   struct interface_info *iface = NULL;
   int numifaces = 0;
