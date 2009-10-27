@@ -1448,8 +1448,7 @@ void write_host_header(Target *currenths) {
    for all hosts (even down ones) to be resolved */
 void write_host_status(Target * currenths, int resolve_all) {
   if (o.listscan) {
-    /* write "unknown" to stdout, machine, and xml */
-    log_write(LOG_PLAIN, "Host not scanned\n");
+    /* write "unknown" to machine and xml */
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
               currenths->targetipstr(), currenths->HostName());
     write_xml_initial_hostinfo(currenths, "unknown");
