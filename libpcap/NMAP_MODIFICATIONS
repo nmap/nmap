@@ -23,6 +23,100 @@ o Added @CFLAGS@ to the CFLAGS definition in Makefile.in to pick up -g
   #  INSTALL = @INSTALL@
   #   INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
+o Eliminated Lex/Yacc requirement and added the generated files:
+  grammar.c
+  scanner.c
+  scanner.h
+  tokdefs.h
+
+--- Makefile.in.orig    2009-10-27 16:17:34.000000000 -0600
++++ Makefile.in 2009-10-27 16:19:50.000000000 -0600
+@@ -62,14 +62,6 @@
+ INSTALL_DATA = @INSTALL_DATA@
+ RANLIB = @RANLIB@
+
+-#
+-# Flex and bison allow you to specify the prefixes of the global symbols
+-# used by the generated parser.  This allows programs to use lex/yacc
+-# and link against libpcap.  If you don't have flex or bison, get them.
+-#
+-LEX = @V_LEX@
+-YACC = @V_YACC@
+-
+ # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
+ # Also, gcc does not remove the .o before forking 'as', which can be a
+ # problem if you don't own the file but can write to the directory.
+@@ -122,7 +114,7 @@
+ TAGFILES = \
+        $(SRC) $(HDR) $(TAGHDR)
+
+-CLEANFILES = $(OBJ) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
++CLEANFILES = $(OBJ) libpcap.a lex.yy.c
+
+ MAN1 = pcap-config.1
+
+@@ -344,22 +336,11 @@
+                -compatibility_version 1 \
+                -current_version `sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`
+
+-scanner.c: $(srcdir)/scanner.l
+-       @rm -f $@
+-       ./runlex.sh $(LEX) -o$@ $<
+-
+ scanner.o: scanner.c tokdefs.h
+        $(CC) $(CFLAGS) -c scanner.c
+
+ pcap.o: version.h
+
+-tokdefs.h: grammar.c
+-grammar.c: $(srcdir)/grammar.y
+-       @rm -f grammar.c tokdefs.h
+-       $(YACC) -d $<
+-       mv y.tab.c grammar.c
+-       mv y.tab.h tokdefs.h
+-
+ grammar.o: grammar.c
+        @rm -f $@
+        $(CC) $(CFLAGS) -Dyylval=pcap_lval -c grammar.c
+--- configure.in.orig   2009-10-27 16:20:34.000000000 -0600
++++ configure.in        2009-10-27 16:14:32.000000000 -0600
+@@ -848,24 +848,6 @@
+ fi
+
+
+-AC_LBL_LEX_AND_YACC(V_LEX, V_YACC, pcap_)
+-if test "$V_LEX" = lex ; then
+-# Some versions of lex can't handle the definitions section of scanner.l .
+-# Try lexing it and complain if it can't deal.
+-       AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
+-               if lex -t scanner.l > /dev/null 2>&1; then
+-                       tcpdump_cv_capable_lex=yes
+-               else
+-                       tcpdump_cv_capable_lex=insufficient
+-               fi)
+-       if test $tcpdump_cv_capable_lex = insufficient ; then
+-               AC_MSG_ERROR([Your operating system's lex is insufficient to compile
+- libpcap.  flex is a lex replacement that has many advantages, including
+- being able to compile libpcap.  For more information, see
+- http://www.gnu.org/software/flex/flex.html .])
+-       fi
+-fi
+-
+ #
+ # Assume a.out/ELF convention for shared library names (".so"), and
+ # V7/BSD convention for man pages (file formats in section 5,
+@@ -1004,10 +986,8 @@
+ AC_SUBST(V_DEFS)
+ AC_SUBST(V_INCLS)
+ AC_SUBST(V_LIBS)
+-AC_SUBST(V_LEX)
+ AC_SUBST(V_PCAP)
+ AC_SUBST(V_FINDALLDEVS)
+-AC_SUBST(V_YACC)
+ AC_SUBST(SSRC)
+ AC_SUBST(DYEXT)
+ AC_SUBST(DAGLIBS)
+
 o The following patch removes some code that apparently causes libpcap
   on Solaris to wait for 64K chunks before returning in some cases,
   regardless of the timeout values.  Problem report and original patch
@@ -45,3 +139,5 @@ o The following patch removes some code that apparently causes libpcap
         return (retv);
  }
  #endif /* HAVE_SYS_BUFMOD_H */
+
+o Regenerated configure.

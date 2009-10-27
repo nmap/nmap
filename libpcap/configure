@@ -675,8 +675,6 @@ CPP
 GREP
 EGREP
 LIBOBJS
-V_LEX
-V_YACC
 RANLIB
 V_CCOPT
 V_DEFS
@@ -1297,8 +1295,6 @@ Optional Packages:
   --with-dag-includes=DIR   Endace DAG include directory
   --with-dag-libraries=DIR  Endace DAG library directory
   --with-septel[=DIR]     include Septel support (located in directory DIR, if supplied).  default=yes, on Linux, if present
-  --without-flex          don't use flex
-  --without-bison         don't use bison
 
 Some influential environment variables:
   CC          C compiler command
@@ -8405,177 +8401,6 @@ echo "$as_me: error: Specifying the capture type as 'septel' requires the Septel
 fi
 
 
-
-# Check whether --with-flex was given.
-if test "${with_flex+set}" = set; then
-  withval=$with_flex;
-fi
-
-
-# Check whether --with-bison was given.
-if test "${with_bison+set}" = set; then
-  withval=$with_bison;
-fi
-
-    if test "$with_flex" = no ; then
-	    V_LEX=lex
-    else
-	    for ac_prog in flex
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_prog_V_LEX+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$V_LEX"; then
-  ac_cv_prog_V_LEX="$V_LEX" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_V_LEX="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-fi
-fi
-V_LEX=$ac_cv_prog_V_LEX
-if test -n "$V_LEX"; then
-  { echo "$as_me:$LINENO: result: $V_LEX" >&5
-echo "${ECHO_T}$V_LEX" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-  test -n "$V_LEX" && break
-done
-test -n "$V_LEX" || V_LEX="lex"
-
-    fi
-    if test "$V_LEX" = flex ; then
-	    # The -V flag was added in 2.4
-	    { echo "$as_me:$LINENO: checking for flex 2.4 or higher" >&5
-echo $ECHO_N "checking for flex 2.4 or higher... $ECHO_C" >&6; }
-	    if test "${ac_cv_lbl_flex_v24+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if flex -V >/dev/null 2>&1; then
-			ac_cv_lbl_flex_v24=yes
-		else
-			ac_cv_lbl_flex_v24=no
-		fi
-fi
-
-	    { echo "$as_me:$LINENO: result: $ac_cv_lbl_flex_v24" >&5
-echo "${ECHO_T}$ac_cv_lbl_flex_v24" >&6; }
-	    if test $ac_cv_lbl_flex_v24 = no ; then
-		    s="2.4 or higher required"
-		    { echo "$as_me:$LINENO: WARNING: ignoring obsolete flex executable ($s)" >&5
-echo "$as_me: WARNING: ignoring obsolete flex executable ($s)" >&2;}
-		    V_LEX=lex
-	    fi
-    fi
-    if test "$with_bison" = no ; then
-	    V_YACC=yacc
-    else
-	    for ac_prog in bison
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_prog_V_YACC+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$V_YACC"; then
-  ac_cv_prog_V_YACC="$V_YACC" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_prog_V_YACC="$ac_prog"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-fi
-fi
-V_YACC=$ac_cv_prog_V_YACC
-if test -n "$V_YACC"; then
-  { echo "$as_me:$LINENO: result: $V_YACC" >&5
-echo "${ECHO_T}$V_YACC" >&6; }
-else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-  test -n "$V_YACC" && break
-done
-test -n "$V_YACC" || V_YACC="yacc"
-
-    fi
-    if test "$V_YACC" = bison ; then
-	    V_YACC="$V_YACC -y"
-    fi
-    if test "$V_LEX" != lex -a "$V_YACC" = yacc -o "$V_LEX" = lex -a "$V_YACC" != yacc ; then
-	    { echo "$as_me:$LINENO: WARNING: don't have both flex and bison; reverting to lex/yacc" >&5
-echo "$as_me: WARNING: don't have both flex and bison; reverting to lex/yacc" >&2;}
-	    V_LEX=lex
-	    V_YACC=yacc
-    fi
-    if test "$V_LEX" = flex -a -n "pcap_" ; then
-	    V_LEX="$V_LEX -Ppcap_"
-	    V_YACC="$V_YACC -p pcap_"
-    fi
-if test "$V_LEX" = lex ; then
-# Some versions of lex can't handle the definitions section of scanner.l .
-# Try lexing it and complain if it can't deal.
-	{ echo "$as_me:$LINENO: checking for capable lex" >&5
-echo $ECHO_N "checking for capable lex... $ECHO_C" >&6; }
-if test "${tcpdump_cv_capable_lex+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if lex -t scanner.l > /dev/null 2>&1; then
-			tcpdump_cv_capable_lex=yes
-		else
-			tcpdump_cv_capable_lex=insufficient
-		fi
-fi
-{ echo "$as_me:$LINENO: result: $tcpdump_cv_capable_lex" >&5
-echo "${ECHO_T}$tcpdump_cv_capable_lex" >&6; }
-	if test $tcpdump_cv_capable_lex = insufficient ; then
-		{ { echo "$as_me:$LINENO: error: Your operating system's lex is insufficient to compile
- libpcap.  flex is a lex replacement that has many advantages, including
- being able to compile libpcap.  For more information, see
- http://www.gnu.org/software/flex/flex.html ." >&5
-echo "$as_me: error: Your operating system's lex is insufficient to compile
- libpcap.  flex is a lex replacement that has many advantages, including
- being able to compile libpcap.  For more information, see
- http://www.gnu.org/software/flex/flex.html ." >&2;}
-   { (exit 1); exit 1; }; }
-	fi
-fi
-
 #
 # Assume a.out/ELF convention for shared library names (".so"), and
 # V7/BSD convention for man pages (file formats in section 5,
@@ -9172,8 +8997,6 @@ _ACEOF
 
 rm -f net
 ln -s ${srcdir}/bpf/net net
-
-
 
 
 
@@ -10147,8 +9970,6 @@ CPP!$CPP$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
-V_LEX!$V_LEX$ac_delim
-V_YACC!$V_YACC$ac_delim
 RANLIB!$RANLIB$ac_delim
 V_CCOPT!$V_CCOPT$ac_delim
 V_DEFS!$V_DEFS$ac_delim
@@ -10172,7 +9993,7 @@ INSTALL_DATA!$INSTALL_DATA$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 84; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 82; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
