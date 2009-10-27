@@ -227,7 +227,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
             count++;
           }
 
-          if (count > 1)
+          if (count > 1 && o.verbose > 1)
              error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
         } else {
           error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
