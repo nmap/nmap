@@ -463,6 +463,7 @@ do {
       if (hs->current_expression.is_resolved_address(&ss)) {
         if (hs->current_expression.get_namedhost())
           hs->hostbatch[hidx]->setTargetName(hs->current_expression.get_resolved_name());
+        hs->hostbatch[hidx]->resolved_addrs = hs->current_expression.get_resolved_addrs();
       }
 
       /* We figure out the source IP/device IFF

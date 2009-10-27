@@ -1427,6 +1427,12 @@ void write_host_header(Target *currenths) {
   if ((currenths->flags & HOST_UP) || o.verbose || o.resolve_all)
     log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
   write_host_status(currenths, o.resolve_all);
+  if (currenths->TargetName() != NULL
+      && currenths->resolved_addrs.size() > 1) {
+    log_write(LOG_PLAIN, "Hostname %s resolves to %u IPs. Only scanned %s\n",
+      currenths->TargetName(), currenths->resolved_addrs.size(),
+      currenths->targetipstr());
+  }
   /* Print reverse DNS if it differs. */
   if (currenths->TargetName() != NULL
       && currenths->HostName() != NULL && currenths->HostName()[0] != '\0'

@@ -95,6 +95,7 @@
 #ifndef TARGETGROUP_H
 #define TARGETGROUP_H
 
+#include <list>
 #include <string>
 
 #include "nmap.h"
@@ -129,6 +130,9 @@ class TargetGroup {
   bool is_resolved_address(const struct sockaddr_storage *ss);
   /* Return a string of the name or address that was resolved for this group. */
   const char *get_resolved_name(void);
+  /* Return the list of addresses that the name for this group resolved to, if
+     it came from a name resolution. */
+  const std::list<struct sockaddr_storage> &get_resolved_addrs(void);
   /* return the target type */
   char get_targets_type() {return targets_type;};
   /* get the netmask */
@@ -145,11 +149,12 @@ class TargetGroup {
   struct sockaddr_in6 ip6;
 #endif
 
+  std::list<struct sockaddr_storage> resolvedaddrs;
+
   /* These are used for the '/mask' style of specifying target 
      net (IPV4_NETMASK) */
   u32 netmask;
   std::string resolvedname;
-  struct in_addr resolvedaddr;
   struct in_addr startaddr;
   struct in_addr currentaddr;
   struct in_addr endaddr;

@@ -167,6 +167,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
 
   ipsleft = 0;
 
+  resolvedaddrs.clear();
+
   if (af == AF_INET) {
 
     if (strchr(hostexp, ':'))
@@ -206,14 +208,24 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         break;
       }
     if (netmask != 32 || namedhost) {
+      struct in_addr addr;
+
       targets_type = IPV4_NETMASK;
-      if (!inet_pton(AF_INET, target_net, &(resolvedaddr))) {
+      if (!inet_pton(AF_INET, target_net, &(addr))) {
         if ((target = gethostbyname(target_net))) {
           int count=0;
 
-          memcpy(&(resolvedaddr), target->h_addr_list[0], sizeof(resolvedaddr));
+          memcpy(&(addr), target->h_addr_list[0], sizeof(addr));
 
-          while (target->h_addr_list[count]) count++;
+          while (target->h_addr_list[count]) {
+            struct sockaddr_storage ss;
+            struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
+
+            sin->sin_family = AF_INET;
+            sin->sin_addr = addr;
+            resolvedaddrs.push_back(ss);
+            count++;
+          }
 
           if (count > 1)
              error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
@@ -224,7 +236,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         }
       } 
       if (netmask) {
-        unsigned long longtmp = ntohl(resolvedaddr.s_addr);
+        unsigned long longtmp = ntohl(addr.s_addr);
         startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
         endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
       } else {
@@ -516,19 +528,34 @@ int TargetGroup::return_last_host() {
    netmask. */
 bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
 {
-  const struct sockaddr_in *sin;
+  const struct sockaddr_in *sin, *sin_resolved;
+  struct sockaddr_storage resolvedaddr;
 
-  if (targets_type != IPV4_NETMASK || ss->ss_family != AF_INET)
+  if (targets_type != IPV4_NETMASK || ss->ss_family != AF_INET
+      || resolvedaddrs.empty()) {
     return false;
-  sin = (struct sockaddr_in *) ss;
+  }
+  resolvedaddr = *resolvedaddrs.begin();
+  if (resolvedaddr.ss_family != AF_INET)
+    return false;
 
-  return sin->sin_addr.s_addr == resolvedaddr.s_addr;
+  sin = (struct sockaddr_in *) ss;
+  sin_resolved = (struct sockaddr_in *) &resolvedaddr;
+
+  return sin->sin_addr.s_addr == sin_resolved->sin_addr.s_addr;
 }
 
 /* Return a string of the name or address that was resolved for this group. */
 const char *TargetGroup::get_resolved_name(void)
 {
   return resolvedname.c_str();
+}
+
+/* Return the list of addresses that the name for this group resolved to, if
+   it came from a name resolution. */
+const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void)
+{
+  return resolvedaddrs;
 }
 
 /* Lookahead is the number of hosts that can be
