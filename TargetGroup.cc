@@ -522,7 +522,7 @@ bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
     return false;
   sin = (struct sockaddr_in *) ss;
 
-  return sin->sin_addr.s_addr == htonl(startaddr.s_addr);
+  return sin->sin_addr.s_addr == resolvedaddr.s_addr;
 }
 
 /* Return a string of the name or address that was resolved for this group. */
