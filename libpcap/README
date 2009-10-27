@@ -1,20 +1,22 @@
-@(#) $Header: /tcpdump/master/libpcap/README,v 1.30 2004/10/12 02:02:28 guy Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/README,v 1.30.4.3 2008-10-17 10:39:20 ken Exp $ (LBL)
 
-LIBPCAP 0.9
-Now maintained by "The Tcpdump Group"
-See 		www.tcpdump.org
+LIBPCAP 1.0.0
 
-Please send inquiries/comments/reports to 	tcpdump-workers@tcpdump.org
+www.tcpdump.org
+
+Please send inquiries/comments/reports to:
+	tcpdump-workers@lists.tcpdump.org
 
 Anonymous CVS is available via:
 	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master login
 	(password "anoncvs")
 	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout libpcap
 
-Version 0.9 of LIBPCAP can be retrieved with the CVS tag "libpcap_0_9rel1":
-	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout -r libpcap_0_9rel1 libpcap
+Version 1.0.0 of LIBPCAP can be retrieved with the CVS tag "libpcap_1_0":
+	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout -r libpcap_1_0 libpcap
 
-Please send patches against the master copy to patches@tcpdump.org.
+Please submit patches against the master copy to the libpcap project on
+sourceforge.net.
 
 formerly from 	Lawrence Berkeley National Laboratory
 		Network Research Group <libpcap@ee.lbl.gov>
@@ -29,8 +31,6 @@ for packet capture, and since we've developed several tools that
 require this functionality, we've created this system-independent API
 to ease in porting and to alleviate the need for several
 system-dependent packet capture modules in each application.
-
-Note well: this interface is new and is likely to change.
 
 For some platforms there are README.{system} files that discuss issues
 with the OS's interface for packet capture on those platforms, such as
@@ -77,16 +77,28 @@ Linux, in the 2.2 kernel and later kernels, has a "Socket Filter"
 mechanism that accepts BPF filters; see the README.linux file for
 information on configuring that option.
 
+Note to Linux distributions and *BSD systems that include libpcap:
+
+There's now a rule to make a shared library, which should work on Linux 
+and *BSD (and OS X).
+
+It sets the soname of the library to "libpcap.so.1"; this is what it 
+should be, *NOT* libpcap.so.1.0 or libpcap.so.1.0.0 or something such as 
+that.
+
+We've been maintaining binary compatibility between libpcap releases for 
+quite a while; there's no reason to tie a binary linked with libpcap to 
+a particular release of libpcap.
+
 Problems, bugs, questions, desirable enhancements, etc. should be sent
-to the address "tcpdump-workers@tcpdump.org".  Bugs, support requests,
-and feature requests may also be submitted on the SourceForge site for
-libpcap at
+to the address "tcpdump-workers@lists.tcpdump.org".  Bugs, support
+requests, and feature requests may also be submitted on the SourceForge
+site for libpcap at
 
 	http://sourceforge.net/projects/libpcap/
 
 Source code contributions, etc. should be sent to the email address
-"patches@tcpdump.org", or submitted as patches on the SourceForge site
-for libpcap.
+submitted as patches on the SourceForge site for libpcap.
 
 Current versions can be found at www.tcpdump.org, or the SourceForge
 site for libpcap.

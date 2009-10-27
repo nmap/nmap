@@ -22,7 +22,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.99.2.9 2007/06/11 09:52:05 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.110.2.2 2008/02/06 10:21:47 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -52,7 +52,7 @@ static const char rcsid[] _U_ =
 #define AI_NUMERICHOST 0x04
 #endif
 #endif /*INET6*/
-#include <pcap-namedb.h>
+#include <pcap/namedb.h>
 #include "tokdefs.h"
 
 #ifdef HAVE_OS_PROTO_H
@@ -79,6 +79,7 @@ extern YYSTYPE yylval;
 
 N		([0-9]+|(0X|0x)[0-9A-Fa-f]+)
 B		([0-9A-Fa-f][0-9A-Fa-f]?)
+B2		([0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f])
 W		([0-9A-Fa-f][0-9A-Fa-f]?[0-9A-Fa-f]?[0-9A-Fa-f]?)
 
 %a 18400
@@ -166,6 +167,10 @@ V6004		::{N}\.{N}\.{N}\.{N}
 
 V6		({V680}|{V670}|{V671}|{V672}|{V673}|{V674}|{V675}|{V676}|{V677}|{V660}|{V661}|{V662}|{V663}|{V664}|{V665}|{V666}|{V650}|{V651}|{V652}|{V653}|{V654}|{V655}|{V640}|{V641}|{V642}|{V643}|{V644}|{V630}|{V631}|{V632}|{V633}|{V620}|{V621}|{V622}|{V610}|{V611}|{V600}|{V6604}|{V6504}|{V6514}|{V6524}|{V6534}|{V6544}|{V6554}|{V6404}|{V6414}|{V6424}|{V6434}|{V6444}|{V6304}|{V6314}|{V6324}|{V6334}|{V6204}|{V6214}|{V6224}|{V6104}|{V6114}|{V6004})
 
+MAC		({B}:{B}:{B}:{B}:{B}:{B}|{B}\-{B}\-{B}\-{B}\-{B}\-{B}|{B}\.{B}\.{B}\.{B}\.{B}\.{B}|{B2}\.{B2}\.{B2}|{B2}{3})
+
+
+
 %%
 dst		return DST;
 src		return SRC;
@@ -247,6 +252,14 @@ protochain	{
 
 gateway		return GATEWAY;
 
+type		return TYPE;
+subtype		return SUBTYPE;
+direction|dir	return DIR;
+address1|addr1	return ADDR1;
+address2|addr2	return ADDR2;
+address3|addr3	return ADDR3;
+address4|addr4	return ADDR4;
+
 less		return LESS;
 greater		return GREATER;
 byte		return CBYTE;
@@ -307,11 +320,11 @@ sls		return SLS;
 ">>"			return RSH;
 ${B}			{ yylval.e = pcap_ether_aton(((char *)yytext)+1);
 			  return AID; }
+{MAC}			{ yylval.e = pcap_ether_aton((char *)yytext);
+			  return EID; }
 {N}			{ yylval.i = stoi((char *)yytext); return NUM; }
 ({N}\.{N})|({N}\.{N}\.{N})|({N}\.{N}\.{N}\.{N})	{
 			yylval.s = sdup((char *)yytext); return HID; }
-{B}:{B}:{B}:{B}:{B}:{B} { yylval.e = pcap_ether_aton((char *)yytext);
-			  return EID; }
 {V6}			{
 #ifdef INET6
 			  struct addrinfo hints, *res;

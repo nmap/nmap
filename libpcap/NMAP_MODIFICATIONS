@@ -1,197 +1,47 @@
-Nmap currently includes a modified version of the tcpdump.org release
-of libpcap version 0.9.7 (released July 23, 2007).  The modifications
-are as follows:
+o Included this file, renamed directory from libpcap-1.0.0 to libpcap.
 
-o Included this file, renamed directory from libpcap-0.9.7 to
-  libpcap.
+o Removed these files and directories:
+  packaging/
+  config.guess
+  config.sub
+  install-sh
+  Win32
+  msdos
 
-o Renamed configure.in to configure.ac, which is the name now
-  recommended by the autoconf project.
+o Added @CFLAGS@ to the CFLAGS definition in Makefile.in to pick up -g
+  if configure determines that it is supported:
 
-o Removed the .cvsignore file, all 'CVS' directories, the 'packaging'
-  directory, (pcap spec file conflicts w/Nmap spec file when I
-  rpmbuild from tarball) and the install-sh script.
+--- Makefile.in.orig    2009-10-27 13:17:52.000000000 -0600
++++ Makefile.in 2009-10-27 13:14:42.000000000 -0600
+@@ -55,7 +55,7 @@
+ PROG=libpcap
 
-o Removed libpcap-0.9, CHANGES~, gencode.c.orig, gencode.c.rej,
-  wlan_filtering.patch, .#CHANGES.1.59 and .#Makefile.in.1.99.2.1
-
-o Updated config.sub and config.guess (in the distribution file they
-  are just symlinks to the corresponding files in the nmap dir)
-
-o Removed the Win32 and msdos directories as Nmap doesn't use them
-
-o Added the gcc debugging flag (-g) to aclocal.m4 if gcc is being used:
-
---- libpcap-0.9.7/aclocal.m4	2005-04-20 22:42:09.000000000 -0500
-+++ libpcap/aclocal.m4	2007-08-25 17:11:22.000000000 -0500
-@@ -76,7 +76,7 @@ AC_DEFUN(AC_LBL_C_INIT,
-     if test "$GCC" = yes ; then
- 	    if test "$SHLICC2" = yes ; then
- 		    ac_cv_lbl_gcc_vers=2
--		    $1="-O2"
-+		    $1="-g -O2"
- 	    else
- 		    AC_MSG_CHECKING(gcc version)
- 		    AC_CACHE_VAL(ac_cv_lbl_gcc_vers,
-@@ -87,7 +87,7 @@ AC_DEFUN(AC_LBL_C_INIT,
- 				-e 's/\..*//'`)
- 		    AC_MSG_RESULT($ac_cv_lbl_gcc_vers)
- 		    if test $ac_cv_lbl_gcc_vers -gt 1 ; then
--			    $1="-O2"
-+			    $1="-g -O2"
- 		    fi
- 	    fi
-     else
-
-o Used to change pcap-linux.c by adding a select() call guarding
-  recvfrom() to insure that it returns after the timeout period
-  specified in pcap_open_live() rather than blocking forever.  But now
-  we use the new get_selectable_fd() API instead (thanks to Doug Hoyte
-  for the patch).
-
-o Eliminated Lex/Yacc requirement (I now ship the generated .c files).
-  This involved:
-
-   o Changes to Makefile.in:
-
---- libpcap-0.9.7/Makefile.in	2007-07-23 21:35:15.000000000 -0500
-+++ libpcap/Makefile.in	2007-08-25 17:37:07.000000000 -0500
-@@ -63,8 +63,8 @@ RANLIB = @RANLIB@
- # used by the generated parser.  This allows programs to use lex/yacc
- # and link against libpcap.  If you don't have flex or bison, get them.
- #
--LEX = @V_LEX@
--YACC = @V_YACC@
-+LEX = flex
-+YACC = yacc
- 
- # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
- # Also, gcc does not remove the .o before forking 'as', which can be a
-@@ -97,7 +97,7 @@ TAGHDR = \
- TAGFILES = \
- 	$(SRC) $(HDR) $(TAGHDR)
- 
--CLEANFILES = $(OBJ) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
-+CLEANFILES = $(OBJ) libpcap.a version.c lex.yy.c
- 
- all: libpcap.a
- 
-  o Ripped LEX/YACC detection code from configure.ac:
-
---- libpcap-0.9.7/configure.in	2007-07-05 08:56:00.000000000 -0500
-+++ libpcap/configure.ac	2007-08-25 17:37:22.000000000 -0500
-@@ -703,24 +703,6 @@ if test "$V_PCAP" = septel -a "$ac_cv_lb
- fi
- 
- 
--AC_LBL_LEX_AND_YACC(V_LEX, V_YACC, pcap_)
--if test "$V_LEX" = lex ; then
--# Some versions of lex can't handle the definitions section of scanner.l .
--# Try lexing it and complain if it can't deal.
--	AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
--		if lex -t scanner.l > /dev/null 2>&1; then
--			tcpdump_cv_capable_lex=yes
--		else
--			tcpdump_cv_capable_lex=insufficient
--		fi)
--	if test $tcpdump_cv_capable_lex = insufficient ; then
--		AC_MSG_ERROR([Your operating system's lex is insufficient to compile
-- libpcap.  flex is a lex replacement that has many advantages, including
-- being able to compile libpcap.  For more information, see
-- http://www.gnu.org/software/flex/flex.html .])
--	fi
--fi
--
- DYEXT="so"
- case "$host_os" in
- 
-@@ -803,11 +818,9 @@ AC_SUBST(V_CCOPT)
- AC_SUBST(V_DEFS)
- AC_SUBST(V_INCLS)
- AC_SUBST(V_LIBS)
--AC_SUBST(V_LEX)
- AC_SUBST(V_PCAP)
- AC_SUBST(V_FINDALLDEVS)
- AC_SUBST(V_RANLIB)
--AC_SUBST(V_YACC)
- AC_SUBST(SSRC)
- AC_SUBST(DYEXT)
- AC_SUBST(DAGLIBS)
+  # Standard CFLAGS
+  # -CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
+  # +CFLAGS = @CFLAGS@ $(CCOPT) $(INCLS) $(DEFS)
+  #
+  #  INSTALL = @INSTALL@
+  #   INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
 o The following patch removes some code that apparently causes libpcap
   on Solaris to wait for 64K chunks before returning in some cases,
   regardless of the timeout values.  Problem report and original patch
   came from Ben Harris (bjh21(a)cam.ac.uk)
 
---- libpcap-0.9.7/pcap-dlpi.c	2006-09-19 14:26:25.000000000 -0500
-+++ libpcap/pcap-dlpi.c	2007-08-25 17:10:28.000000000 -0500
-@@ -902,17 +902,6 @@ pcap_open_live(const char *device, int s
- 			goto bad;
- 		}
- 	}
+--- dlpisubs.c.orig     2009-10-27 10:24:45.000000000 -0600
++++ dlpisubs.c  2009-10-27 10:24:49.000000000 -0600
+@@ -291,14 +291,6 @@
+                }
+        }
+
+-       /* Set the chunk length. */
+-       chunksize = CHUNKSIZE;
+-       if (strioctl(p->fd, SBIOCSCHUNK, sizeof(chunksize), (char *)&chunksize)
+-           != 0) {
+-               pcap_stream_err("SBIOCSCHUNKP", errno, p->errbuf);
+-               retv = -1;
+-       }
 -
--	/*
--	** Set the chunk length.
--	*/
--	chunksize = CHUNKSIZE;
--	if (strioctl(p->fd, SBIOCSCHUNK, sizeof(chunksize), (char *)&chunksize)
--	    != 0) {
--		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SBIOCSCHUNKP: %s",
--		    pcap_strerror(errno));
--		goto bad;
--	}
- #endif
- 
- 	/*
-
-o Changed the configure.ac to enable -fno-strict-aliasing when GCC 4+
-is in use.  Here is that patch:
-
---- libpcap-0.9.7/configure.in	2007-07-05 08:56:00.000000000 -0500
-+++ libpcap/configure.ac	2007-08-25 17:12:49.000000000 -0500
-@@ -790,6 +790,39 @@ AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
- 
- AC_LBL_UNALIGNED_ACCESS
- 
-+pcap_gcc_major_version=0
-+AC_MSG_CHECKING([whether the compiler is gcc 4 or greater])
-+if test x"$GCC" = xno; then
-+  AC_MSG_RESULT([no])
-+else
-+  # new major versions must be added here
-+  case `$CC --version | sed -e 's,\..*,.,' -e q` in
-+    *4.)
-+      pcap_gcc_major_version=4
-+      ;;
-+    *3.)
-+      pcap_gcc_major_version=3
-+      ;;
-+    *2.)
-+      pcap_gcc_major_version=2
-+      ;;
-+    *1.)
-+      pcap_gcc_major_version=1
-+      ;;
-+  esac
-+  if test "$pcap_gcc_major_version" -ge 4; then
-+    AC_MSG_RESULT([yes])
-+  else
-+    AC_MSG_RESULT([no - $pcap_gcc_major_version ; $CC ; $GCC])
-+  fi
-+fi
-+
-+# Remember that all following tests will run with this CXXFLAGS by default
-+if test "$pcap_gcc_major_version" -ge 4; then
-+  V_CCOPT="$V_CCOPT -fno-strict-aliasing"
-+fi
-+
-+
- #
- # Makefile.in includes rules to generate version.h, so we assume
- # that it will be generated if autoconf is used.
-
-o Ran autoconf to regenerate configure (I ship those with the Nmap
-  tarball rather than generating them at build time).
-
-o Removed config.sub, config.guess, and install-sh. These files are found in
-  the parent (i.e., Nmap's) directory.
+        return (retv);
+ }
+ #endif /* HAVE_SYS_BUFMOD_H */

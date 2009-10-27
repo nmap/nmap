@@ -1,4 +1,4 @@
-@(#) $Header: /tcpdump/master/libpcap/INSTALL.txt,v 1.12.2.1 2005/06/20 21:30:14 guy Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/INSTALL.txt,v 1.21.2.8 2008-06-12 20:25:38 guy Exp $ (LBL)
 
 To build libpcap, run "./configure" (a shell script). The configure
 script will determine your system attributes and generate an
@@ -211,8 +211,7 @@ Read the README.aix file for information on installing libpcap and
 configuring your system to be able to support libpcap.
 
 If you use NeXTSTEP, you will not be able to build libpcap from this
-release. We hope to support this operating system in some future
-release of libpcap.
+release.
 
 If you use SINIX, you should be able to build libpcap from this
 release. It is known to compile and run on SINIX-Y/N 5.42 with the C-DS
@@ -229,22 +228,22 @@ Another workaround is to use flex and bison.
 
 If you use SCO, you might have trouble building libpcap from this
 release. We do not have a machine running SCO and have not had reports
-of anyone successfully building on it. Since SCO apparently supports
-DLPI, it's possible the current version works. Meanwhile, SCO provides
-a tcpdump binary as part of their "Network/Security Tools" package:
+of anyone successfully building on it; the current release of libpcap
+does not compile on SCO OpenServer 5.  Although SCO apparently supports
+DLPI to some extent, the DLPI in OpenServer 5 is very non-standard, and
+it appears that completely new code would need to be written to capture
+network traffic.  SCO do not appear to provide tcpdump binaries for
+OpenServer 5 or OpenServer 6 as part of SCO Skunkware:
 
-    http://www.sco.com/technology/internet/goodies/#SECURITY
+	http://www.sco.com/skunkware/
 
-There is also a README that explains how to enable packet capture.
-
-If you use UnixWare, you will not be able to build libpcap from this
-release. We hope to support this operating system in some future
-release of libpcap. Meanwhile, there appears to be an UnixWare port of
-libpcap 0.0 (and tcpdump 3.0) in:
-
-    ftp://ftp1.freebird.org/pub/mirror/freebird/internet/systools/
-
-UnixWare appears to use a hacked version of DLPI.
+If you use UnixWare, you might be able to build libpcap from this
+release, or you might not.  We do not have a machine running UnixWare,
+so we have not tested it; however, SCO provide packages for libpcap
+0.6.2 and tcpdump 3.7.1 in the UnixWare 7/Open UNIX 8 part of SCO
+Skunkware, and the source package for libpcap 0.6.2 is not changed from
+the libpcap 0.6.2 source release, so this release of libpcap might also
+build without changes on UnixWare 7.
 
 If linking tcpdump fails with "Undefined: _alloca" when using bison on
 a Sun4, your version of bison is broken. In any case version 1.16 or
@@ -298,7 +297,6 @@ CHANGES		- description of differences between releases
 ChmodBPF/*	- Mac OS X startup item to set ownership and permissions
 		  on /dev/bpf*
 CREDITS		- people that have helped libpcap along
-FILES		- list of files exported as part of the distribution
 INSTALL.txt	- this file
 LICENSE		- the license under which tcpdump is distributed
 Makefile.in	- compilation rules (input to the configure script)
@@ -309,6 +307,7 @@ README.hpux	- notes on using libpcap on HP-UX
 README.linux	- notes on using libpcap on Linux
 README.macosx	- notes on using libpcap on Mac OS X
 README.septel   - notes on using libpcap to capture on Intel/Septel devices
+README.sita	- notes on using libpcap to capture on SITA devices
 README.tru64	- notes on using libpcap on Digital/Tru64 UNIX
 README.Win32	- notes on using libpcap on Win32 systems (with WinPcap)
 SUNOS4		- pre-SunOS 4.1 replacement kernel nit modules
@@ -326,16 +325,22 @@ config.h.in	- autoconf input
 config.sub	- autoconf support
 configure	- configure script (run this first)
 configure.in	- configure script source
+dlpisubs.c	- DLPI-related functions for pcap-dlpi.c and pcap-libdlpi.c
+dlpisubs.h	- DLPI-related function declarations
 etherent.c	- /etc/ethers support routines
 ethertype.h	- Ethernet protocol types and names definitions
 fad-getad.c	- pcap_findalldevs() for systems with getifaddrs()
 fad-gifc.c	- pcap_findalldevs() for systems with only SIOCGIFLIST
 fad-glifc.c	- pcap_findalldevs() for systems with SIOCGLIFCONF
 fad-null.c	- pcap_findalldevs() for systems without capture support
+fad-sita.c	- pcap_findalldevs() for systems with SITA support
 fad-win32.c	- pcap_findalldevs() for WinPcap
+filtertest.c	- test program for BPF compiler
+findalldevstest.c - test program for pcap_findalldevs()
 gencode.c	- BPF code generation routines
 gencode.h	- BPF code generation definitions
 grammar.y	- filter string grammar
+ieee80211.h	- 802.11 definitions
 inet.c		- network routines
 install-sh	- BSD style install script
 lbl/os-*.h	- OS-dependent defines and prototypes
@@ -348,8 +353,16 @@ nlpid.h		- OSI network layer protocol identifier definitions
 net		- symlink to bpf/net
 optimize.c	- BPF optimization routines
 packaging	- packaging information for building libpcap RPMs
+pcap/bluetooth.h - public definition of DLT_BLUETOOTH_HCI_H4_WITH_PHDR header
+pcap/bpf.h	- BPF definitions
+pcap/namedb.h	- public libpcap name database definitions
+pcap/pcap.h	- public libpcap definitions
+pcap/sll.h	- public definition of DLT_LINUX_SLL header
+pcap/usb.h	- public definition of DLT_USB header
 pcap-bpf.c	- BSD Packet Filter support
-pcap-bpf.h	- BPF definitions
+pcap-bpf.h	- header for backwards compatibility
+pcap-bt-linux.c	- Bluetooth capture support for Linux
+pcap-bt-linux.h	- Bluetooth capture support for Linux
 pcap-dag.c	- Endace DAG device capture support
 pcap-dag.h	- Endace DAG device capture support
 pcap-dlpi.c	- Data Link Provider Interface support
@@ -357,27 +370,34 @@ pcap-dos.c	- MS-DOS capture support
 pcap-dos.h	- headers for MS-DOS capture support
 pcap-enet.c	- enet support
 pcap-int.h	- internal libpcap definitions
+pcap-libdlpi.c	- Data Link Provider Interface support for systems with libdlpi
 pcap-linux.c	- Linux packet socket support
-pcap-namedb.h	- public libpcap name database definitions
+pcap-namedb.h	- header for backwards compatibility
 pcap-nit.c	- SunOS Network Interface Tap support
 pcap-nit.h	- SunOS Network Interface Tap definitions
 pcap-null.c	- dummy monitor support (allows offline use of libpcap)
 pcap-pf.c	- Ultrix and Digital/Tru64 UNIX Packet Filter support
 pcap-pf.h	- Ultrix and Digital/Tru64 UNIX Packet Filter definitions
-pcap-septel.c   - INTEL/Septel device capture support
-pcap-septel.h   - INTEL/Septel device capture support
+pcap-septel.c   - Intel/Septel device capture support
+pcap-septel.h   - Intel/Septel device capture support
+pcap-sita.c	- SITA device capture support
+pcap-sita.h	- SITA device capture support
+pcap-sita.html	- SITA device capture documentation
 pcap-stdinc.h	- includes and #defines for compiling on Win32 systems
 pcap-snit.c	- SunOS 4.x STREAMS-based Network Interface Tap support
 pcap-snoop.c	- IRIX Snoop network monitoring support
+pcap-usb-linux.c - USB capture support for Linux
+pcap-usb-linux.h - USB capture support for Linux
 pcap-win32.c	- WinPcap capture support
-pcap.3		- manual entry
+pcap.3pcap	- manual entry for the library
 pcap.c		- pcap utility routines
-pcap.h		- public libpcap definitions
-pf.h		- OpenBSD DLT_PFLOG definitions
+pcap.h		- header for backwards compatibility
+pcap_*.3pcap	- manual entries for library functions
+pcap-filter.4	- manual entry for filter syntax
+pcap-linktype.4	- manual entry for link-layer header types
 ppp.h		- Point to Point Protocol definitions
-rawss7.h	- information on DLT_ types for SS7
+runlex.sh	- wrapper for Lex/Flex
 savefile.c	- offline support
 scanner.l	- filter string scanner
-sll.h		- definitions for Linux cooked mode fake link-layer header
 sunatmpos.h	- definitions for SunATM capturing
 Win32		- headers and routines for building on Win32 systems

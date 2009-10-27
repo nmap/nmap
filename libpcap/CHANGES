@@ -1,21 +1,41 @@
-@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.59.2.11 2007/07/24 02:27:32 mcr Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.67.2.4 2008-10-28 00:27:42 ken Exp $ (LBL)
 
-Wed.	July 23, 2007.  mcr@xelerance.com.  Summary for 0.9.7 libpcap release
+Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap release
+	Compile with IPv6 support by default
+	Compile with large file support on by default
+	Add pcap-config script, which deals with -I/-L flags for compiling
+	DLT: Add IPMB
+	DLT: Add LAPD
+	DLT: Add AX25 (AX.25 w/KISS header)
+	DLT: Add JUNIPER_ST
+	802.15.4 support
+	Variable length 802.11 header support
+	X2E data type support 
+	SITA ACN Interface support - see README.sita
+	Support for zerocopy BPF on platforms that support it
+	Better support for dealing with VLAN tagging/stripping on Linux
+	Fix dynamic library support on OSX
+	Return PCAP_ERROR_IFACE_NOT_UP if the interface isn't 'UP', so applications
+	 can print better diagnostic information
+	Return PCAP_ERROR_PERM_DENIED if we don't have permission to open a device, so
+	 applications can tell the user they need to go play with permissions
+	On Linux, ignore ENETDOWN so we can continue to capture packets if the 
+	 interface goes down and comes back up again.
+	On Linux, support new tpacket frame headers (2.6.27+)
+	On Mac OS X, add scripts for changing permissions on /dev/pbf* and launchd plist
+	On Solaris, support 'passive mode' on systems that support it
+	Fixes to autoconf and general build environment
+	Man page reorganization + cleanup
+	Autogenerate VERSION numbers better
 
-	FIXED version file to be 0.9.7 instead of 0.9.5.
-	added flags/configuration for cloning bpf device.
-	added DLT_MTP2_WITH_PHDR support (PPI)
-        "fix" the "memory leak" in icode_to_fcode() -- documentation bug
-        Various link-layer types, with a pseudo-header, for SITA http://www.sita.aero/
-	introduces support for the DAG ERF type TYPE_COLOR_MC_HDLC_POS.
-	Basic BPF filtering support for DLT_MTP2_WITH_PHDR is also added.
-        check for IPv4 and IPv6, even for DLT_RAW 
-	add support for DLT_JUNIPER_ISM
-  	Pick up changes from NetBSD: many from tron, christos, drochner
-	Allocate DLT_ for 802.15.4 without any header munging, for Mikko Saarnivala.
-	Header for 802.16 MAC Common Part Sublayer plus a radiotap radio header
+Mon.    September 10, 2007.  ken@xelerance.com.  Summary for 0.9.8 libpcap release
+        Change build process to put public libpcap headers into pcap subir
+        DLT: Add value for IPMI IPMB packets
+        DLT: Add value for u10 Networks boards
+        Require <net/pfvar.h> for pf definitions - allows reading of pflog formatted 
+         libpcap files on an OS other than where the file was generated
 
-Wed.	April 25, 2007. ken@xelerance.com.  Summary for 0.9.6 libpcap release
+Wed.	April 25, 2007.  ken@xelerance.com.  Summary for 0.9.6 libpcap release
 
 	Put the public libpcap headers into a pcap subdirectory in both the
 	 source directory and the target include directory, and have include

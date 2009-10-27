@@ -23,11 +23,18 @@
  *  THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR
  *  IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ *  Modifications:     Added PACKET_MMAP support
+ *                     Paolo Abeni <paolo.abeni@email.it> 
+ *                     
+ *                     based on previous works of:
+ *                     Simon Patarin <patarin@cs.unibo.it>
+ *                     Phil Wood <cpw@lanl.gov>
  */
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-linux.c,v 1.110.2.14 2006/10/12 17:26:58 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-linux.c,v 1.129.2.29 2008-10-28 00:50:39 guy Exp $ (LBL)";
 #endif
 
 /*
@@ -77,17 +84,6 @@ static const char rcsid[] _U_ =
 #include "config.h"
 #endif
 
-#include "pcap-int.h"
-#include "sll.h"
-
-#ifdef HAVE_DAG_API
-#include "pcap-dag.h"
-#endif /* HAVE_DAG_API */
-
-#ifdef HAVE_SEPTEL_API
-#include "pcap-septel.h"
-#endif /* HAVE_SEPTEL_API */
-	  
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -96,10 +92,39 @@ static const char rcsid[] _U_ =
 #include <sys/socket.h>
 #include <sys/ioctl.h>
 #include <sys/utsname.h>
+#include <sys/mman.h>
 #include <net/if.h>
 #include <netinet/in.h>
 #include <linux/if_ether.h>
 #include <net/if_arp.h>
+#include <poll.h>
+
+/*
+ * Got Wireless Extensions?
+ */
+#ifdef HAVE_LINUX_WIRELESS_H
+#include <linux/wireless.h>
+#endif
+
+#include "pcap-int.h"
+#include "pcap/sll.h"
+#include "pcap/vlan.h"
+
+#ifdef HAVE_DAG_API
+#include "pcap-dag.h"
+#endif /* HAVE_DAG_API */
+
+#ifdef HAVE_SEPTEL_API
+#include "pcap-septel.h"
+#endif /* HAVE_SEPTEL_API */
+
+#ifdef PCAP_SUPPORT_USB
+#include "pcap-usb-linux.h"
+#endif
+
+#ifdef PCAP_SUPPORT_BT
+#include "pcap-bt-linux.h"
+#endif
 
 /*
  * If PF_PACKET is defined, we can use {SOCK_RAW,SOCK_DGRAM}/PF_PACKET
@@ -141,7 +166,23 @@ static const char rcsid[] _U_ =
   */
 # ifdef PACKET_HOST
 #  define HAVE_PF_PACKET_SOCKETS
+#  ifdef PACKET_AUXDATA
+#   define HAVE_PACKET_AUXDATA
+#  endif /* PACKET_AUXDATA */
 # endif /* PACKET_HOST */
+
+
+ /* check for memory mapped access avaibility. We assume every needed 
+  * struct is defined if the macro TPACKET_HDRLEN is defined, because it
+  * uses many ring related structs and macros */
+# ifdef TPACKET_HDRLEN
+#  define HAVE_PACKET_RING
+#  ifdef TPACKET2_HDRLEN
+#   define HAVE_TPACKET2
+#  else
+#   define TPACKET_V1	0
+#  endif /* TPACKET2_HDRLEN */
+# endif /* TPACKET_HDRLEN */
 #endif /* PF_PACKET */
 
 #ifdef SO_ATTACH_FILTER
@@ -149,7 +190,7 @@ static const char rcsid[] _U_ =
 #include <linux/filter.h>
 #endif
 
-#ifndef __GLIBC__
+#ifndef HAVE_SOCKLEN_T
 typedef int		socklen_t;
 #endif
 
@@ -185,18 +226,43 @@ typedef int		socklen_t;
 #define BIGGER_THAN_ALL_MTUS	(64*1024)
 
 /*
- * Prototypes for internal functions
+ * Prototypes for internal functions and methods.
  */
 static void map_arphrd_to_dlt(pcap_t *, int, int);
-static int live_open_old(pcap_t *, const char *, int, int, char *);
-static int live_open_new(pcap_t *, const char *, int, int, char *);
+#ifdef HAVE_PF_PACKET_SOCKETS
+static short int map_packet_type_to_sll_type(short int);
+#endif
+static int pcap_activate_linux(pcap_t *);
+static int activate_old(pcap_t *);
+static int activate_new(pcap_t *);
+static int activate_mmap(pcap_t *);
+static int pcap_can_set_rfmon_linux(pcap_t *);
 static int pcap_read_linux(pcap_t *, int, pcap_handler, u_char *);
 static int pcap_read_packet(pcap_t *, pcap_handler, u_char *);
 static int pcap_inject_linux(pcap_t *, const void *, size_t);
 static int pcap_stats_linux(pcap_t *, struct pcap_stat *);
 static int pcap_setfilter_linux(pcap_t *, struct bpf_program *);
 static int pcap_setdirection_linux(pcap_t *, pcap_direction_t);
-static void pcap_close_linux(pcap_t *);
+static void pcap_cleanup_linux(pcap_t *);
+
+union thdr {
+	struct tpacket_hdr	*h1;
+	struct tpacket2_hdr	*h2;
+	void			*raw;
+};
+
+#ifdef HAVE_PACKET_RING
+#define RING_GET_FRAME(h) (((union thdr **)h->buffer)[h->offset])
+
+static void destroy_ring(pcap_t *handle);
+static int create_ring(pcap_t *handle);
+static int prepare_tpacket_socket(pcap_t *handle);
+static void pcap_cleanup_linux_mmap(pcap_t *);
+static int pcap_read_linux_mmap(pcap_t *, int, pcap_handler , u_char *);
+static int pcap_setfilter_linux_mmap(pcap_t *, struct bpf_program *);
+static int pcap_setnonblock_mmap(pcap_t *p, int nonblock, char *errbuf);
+static int pcap_getnonblock_mmap(pcap_t *p, char *errbuf);
+#endif
 
 /*
  * Wrap some ioctl calls
@@ -208,6 +274,9 @@ static int	iface_get_mtu(int fd, const char *device, char *ebuf);
 static int 	iface_get_arptype(int fd, const char *device, char *ebuf);
 #ifdef HAVE_PF_PACKET_SOCKETS
 static int 	iface_bind(int fd, int ifindex, char *ebuf);
+static int	has_wext(int sock_fd, const char *device, char *ebuf);
+static int	enter_rfmon_mode_wext(pcap_t *handle, int sock_fd,
+    const char *device);
 #endif
 static int 	iface_bind_old(int fd, const char *device, char *ebuf);
 
@@ -223,6 +292,204 @@ static struct sock_fprog	total_fcode
 	= { 1, &total_insn };
 #endif
 
+pcap_t *
+pcap_create(const char *device, char *ebuf)
+{
+	pcap_t *handle;
+
+#ifdef HAVE_DAG_API
+	if (strstr(device, "dag")) {
+		return dag_create(device, ebuf);
+	}
+#endif /* HAVE_DAG_API */
+
+#ifdef HAVE_SEPTEL_API
+	if (strstr(device, "septel")) {
+		return septel_create(device, ebuf);
+	}
+#endif /* HAVE_SEPTEL_API */
+
+#ifdef PCAP_SUPPORT_BT
+	if (strstr(device, "bluetooth")) {
+		return bt_create(device, ebuf);
+	}
+#endif
+
+#ifdef PCAP_SUPPORT_USB
+	if (strstr(device, "usb")) {
+		return usb_create(device, ebuf);
+	}
+#endif
+
+	handle = pcap_create_common(device, ebuf);
+	if (handle == NULL)
+		return NULL;
+
+	handle->activate_op = pcap_activate_linux;
+	handle->can_set_rfmon_op = pcap_can_set_rfmon_linux;
+	return handle;
+}
+
+static int
+pcap_can_set_rfmon_linux(pcap_t *p)
+{
+#ifdef IW_MODE_MONITOR
+	int sock_fd;
+	struct iwreq ireq;
+#endif
+
+	if (p->opt.source == NULL) {
+		/*
+		 * This is equivalent to the "any" device, and we don't
+		 * support monitor mode on it.
+		 */
+		return 0;
+	}
+
+#ifdef IW_MODE_MONITOR
+	/*
+	 * Bleah.  There doesn't appear to be an ioctl to use to ask
+	 * whether a device supports monitor mode; we'll just do
+	 * SIOCGIWMODE and, if it succeeds, assume the device supports
+	 * monitor mode.
+	 *
+	 * Open a socket on which to attempt to get the mode.
+	 * (We assume that if we have Wireless Extensions support
+	 * we also have PF_PACKET support.)
+	 */
+	sock_fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
+	if (sock_fd == -1) {
+		(void)snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "socket: %s", pcap_strerror(errno));
+		return PCAP_ERROR;
+	}
+
+	/*
+	 * Attempt to get the current mode.
+	 */
+	strncpy(ireq.ifr_ifrn.ifrn_name, p->opt.source,
+	    sizeof ireq.ifr_ifrn.ifrn_name);
+	ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+	if (ioctl(sock_fd, SIOCGIWMODE, &ireq) != -1) {
+		/*
+		 * Well, we got the mode; assume we can set it.
+		 */
+		close(sock_fd);
+		return 1;
+	}
+	if (errno == ENODEV) {
+		/* The device doesn't even exist. */
+		close(sock_fd);
+		return PCAP_ERROR_NO_SUCH_DEVICE;
+	}
+	close(sock_fd);
+#endif
+	return 0;
+}
+
+/*
+ * With older kernels promiscuous mode is kind of interesting because we
+ * have to reset the interface before exiting. The problem can't really
+ * be solved without some daemon taking care of managing usage counts.
+ * If we put the interface into promiscuous mode, we set a flag indicating
+ * that we must take it out of that mode when the interface is closed,
+ * and, when closing the interface, if that flag is set we take it out
+ * of promiscuous mode.
+ *
+ * Even with newer kernels, we have the same issue with rfmon mode.
+ */
+
+static void	pcap_cleanup_linux( pcap_t *handle )
+{
+	struct ifreq	ifr;
+#ifdef IW_MODE_MONITOR
+	struct iwreq ireq;
+#endif
+
+	if (handle->md.must_clear != 0) {
+		/*
+		 * There's something we have to do when closing this
+		 * pcap_t.
+		 */
+		if (handle->md.must_clear & MUST_CLEAR_PROMISC) {
+			/*
+			 * We put the interface into promiscuous mode;
+			 * take it out of promiscuous mode.
+			 *
+			 * XXX - if somebody else wants it in promiscuous
+			 * mode, this code cannot know that, so it'll take
+			 * it out of promiscuous mode.  That's not fixable
+			 * in 2.0[.x] kernels.
+			 */
+			memset(&ifr, 0, sizeof(ifr));
+			strncpy(ifr.ifr_name, handle->md.device,
+			    sizeof(ifr.ifr_name));
+			if (ioctl(handle->fd, SIOCGIFFLAGS, &ifr) == -1) {
+				fprintf(stderr,
+				    "Can't restore interface flags (SIOCGIFFLAGS failed: %s).\n"
+				    "Please adjust manually.\n"
+				    "Hint: This can't happen with Linux >= 2.2.0.\n",
+				    strerror(errno));
+			} else {
+				if (ifr.ifr_flags & IFF_PROMISC) {
+					/*
+					 * Promiscuous mode is currently on;
+					 * turn it off.
+					 */
+					ifr.ifr_flags &= ~IFF_PROMISC;
+					if (ioctl(handle->fd, SIOCSIFFLAGS,
+					    &ifr) == -1) {
+						fprintf(stderr,
+						    "Can't restore interface flags (SIOCSIFFLAGS failed: %s).\n"
+						    "Please adjust manually.\n"
+						    "Hint: This can't happen with Linux >= 2.2.0.\n",
+						    strerror(errno));
+					}
+				}
+			}
+		}
+
+#ifdef IW_MODE_MONITOR
+		if (handle->md.must_clear & MUST_CLEAR_RFMON) {
+			/*
+			 * We put the interface into rfmon mode;
+			 * take it out of rfmon mode.
+			 *
+			 * XXX - if somebody else wants it in rfmon
+			 * mode, this code cannot know that, so it'll take
+			 * it out of rfmon mode.
+			 */
+			strncpy(ireq.ifr_ifrn.ifrn_name, handle->md.device,
+			    sizeof ireq.ifr_ifrn.ifrn_name);
+			ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1]
+			    = 0;
+			ireq.u.mode = handle->md.oldmode;
+			if (ioctl(handle->fd, SIOCSIWMODE, &ireq) == -1) {
+				/*
+				 * Scientist, you've failed.
+				 */
+				fprintf(stderr,
+				    "Can't restore interface wireless mode (SIOCSIWMODE failed: %s).\n"
+				    "Please adjust manually.\n",
+				    strerror(errno));
+			}
+		}
+#endif
+
+		/*
+		 * Take this pcap out of the list of pcaps for which we
+		 * have to take the interface out of some mode.
+		 */
+		pcap_remove_from_pcaps_to_close(handle);
+	}
+
+	if (handle->md.device != NULL) {
+		free(handle->md.device);
+		handle->md.device = NULL;
+	}
+	pcap_cleanup_live_common(handle);
+}
+
 /*
  *  Get a handle for a live capture from the given device. You can
  *  pass NULL as device to get all packages (without link level
@@ -230,45 +497,25 @@ static struct sock_fprog	total_fcode
  *  will be set to promiscous mode (XXX: I think this usage should
  *  be deprecated and functions be added to select that later allow
  *  modification of that values -- Torsten).
- *
- *  See also pcap(3).
  */
-pcap_t *
-pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
-    char *ebuf)
+static int
+pcap_activate_linux(pcap_t *handle)
 {
-	pcap_t		*handle;
-	int		mtu;
-	int		err;
-	int		live_open_ok = 0;
-	struct utsname	utsname;
+	const char	*device;
+	int		status = 0;
+	int		activate_ok = 0;
 
-#ifdef HAVE_DAG_API
-	if (strstr(device, "dag")) {
-		return dag_open_live(device, snaplen, promisc, to_ms, ebuf);
-	}
-#endif /* HAVE_DAG_API */
+	device = handle->opt.source;
 
-#ifdef HAVE_SEPTEL_API
-	if (strstr(device, "septel")) {
-		return septel_open_live(device, snaplen, promisc, to_ms, ebuf);
-	}
-#endif /* HAVE_SEPTEL_API */
-
-	/* Allocate a handle for this session. */
-
-	handle = malloc(sizeof(*handle));
-	if (handle == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
-			 pcap_strerror(errno));
-		return NULL;
-	}
-
-	/* Initialize some components of the pcap structure. */
-
-	memset(handle, 0, sizeof(*handle));
-	handle->snapshot	= snaplen;
-	handle->md.timeout	= to_ms;
+	handle->inject_op = pcap_inject_linux;
+	handle->setfilter_op = pcap_setfilter_linux;
+	handle->setdirection_op = pcap_setdirection_linux;
+	handle->set_datalink_op = NULL;	/* can't change data link type */
+	handle->getnonblock_op = pcap_getnonblock_fd;
+	handle->setnonblock_op = pcap_setnonblock_fd;
+	handle->cleanup_op = pcap_cleanup_linux;
+	handle->read_op = pcap_read_linux;
+	handle->stats_op = pcap_stats_linux;
 
 	/*
 	 * NULL and "any" are special devices which give us the hint to
@@ -277,21 +524,21 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	if (!device || strcmp(device, "any") == 0) {
 		device			= NULL;
 		handle->md.device	= strdup("any");
-		if (promisc) {
-			promisc = 0;
+		if (handle->opt.promisc) {
+			handle->opt.promisc = 0;
 			/* Just a warning. */
-			snprintf(ebuf, PCAP_ERRBUF_SIZE,
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			    "Promiscuous mode not supported on the \"any\" device");
+			status = PCAP_WARNING_PROMISC_NOTSUP;
 		}
 
 	} else
 		handle->md.device	= strdup(device);
 
 	if (handle->md.device == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "strdup: %s",
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "strdup: %s",
 			 pcap_strerror(errno) );
-		free(handle);
-		return NULL;
+		return PCAP_ERROR;
 	}
 
 	/*
@@ -304,118 +551,50 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 * trying both methods with the newer method preferred.
 	 */
 
-	if ((err = live_open_new(handle, device, promisc, to_ms, ebuf)) == 1)
-		live_open_ok = 1;
-	else if (err == 0) {
-		/* Non-fatal error; try old way */
-		if (live_open_old(handle, device, promisc, to_ms, ebuf))
-			live_open_ok = 1;
+	if ((status = activate_new(handle)) == 1) {
+		activate_ok = 1;
+		/*
+		 * Try to use memory-mapped access.
+		 */
+		if (activate_mmap(handle) == 1)
+			return 0;	/* we succeeded; nothing more to do */
 	}
-	if (!live_open_ok) {
+	else if (status == 0) {
+		/* Non-fatal error; try old way */
+		if ((status = activate_old(handle)) == 1)
+			activate_ok = 1;
+	}
+	if (!activate_ok) {
 		/*
 		 * Both methods to open the packet socket failed. Tidy
 		 * up and report our failure (ebuf is expected to be
 		 * set by the functions above).
 		 */
-
-		if (handle->md.device != NULL)
-			free(handle->md.device);
-		free(handle);
-		return NULL;
+		goto fail;
 	}
 
-	/*
-	 * Compute the buffer size.
-	 *
-	 * If we're using SOCK_PACKET, this might be a 2.0[.x] kernel,
-	 * and might require special handling - check.
-	 */
-	if (handle->md.sock_packet && (uname(&utsname) < 0 ||
-	    strncmp(utsname.release, "2.0", 3) == 0)) {
+	if (handle->opt.buffer_size != 0) {
 		/*
-		 * We're using a SOCK_PACKET structure, and either
-		 * we couldn't find out what kernel release this is,
-		 * or it's a 2.0[.x] kernel.
-		 *
-		 * In the 2.0[.x] kernel, a "recvfrom()" on
-		 * a SOCK_PACKET socket, with MSG_TRUNC set, will
-		 * return the number of bytes read, so if we pass
-		 * a length based on the snapshot length, it'll
-		 * return the number of bytes from the packet
-		 * copied to userland, not the actual length
-		 * of the packet.
-		 *
-		 * This means that, for example, the IP dissector
-		 * in tcpdump will get handed a packet length less
-		 * than the length in the IP header, and will
-		 * complain about "truncated-ip".
-		 *
-		 * So we don't bother trying to copy from the
-		 * kernel only the bytes in which we're interested,
-		 * but instead copy them all, just as the older
-		 * versions of libpcap for Linux did.
-		 *
-		 * The buffer therefore needs to be big enough to
-		 * hold the largest packet we can get from this
-		 * device.  Unfortunately, we can't get the MRU
-		 * of the network; we can only get the MTU.  The
-		 * MTU may be too small, in which case a packet larger
-		 * than the buffer size will be truncated *and* we
-		 * won't get the actual packet size.
-		 *
-		 * However, if the snapshot length is larger than
-		 * the buffer size based on the MTU, we use the
-		 * snapshot length as the buffer size, instead;
-		 * this means that with a sufficiently large snapshot
-		 * length we won't artificially truncate packets
-		 * to the MTU-based size.
-		 *
-		 * This mess just one of many problems with packet
-		 * capture on 2.0[.x] kernels; you really want a
-		 * 2.2[.x] or later kernel if you want packet capture
-		 * to work well.
+		 * Set the socket buffer size to the specified value.
 		 */
-		mtu = iface_get_mtu(handle->fd, device, ebuf);
-		if (mtu == -1) {
-			pcap_close_linux(handle);
-			free(handle);
-			return NULL;
+		if (setsockopt(handle->fd, SOL_SOCKET, SO_RCVBUF,
+		    &handle->opt.buffer_size,
+		    sizeof(handle->opt.buffer_size)) == -1) {
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				 "SO_RCVBUF: %s", pcap_strerror(errno));
+			status = PCAP_ERROR;
+			goto fail;
 		}
-		handle->bufsize = MAX_LINKHEADER_SIZE + mtu;
-		if (handle->bufsize < handle->snapshot)
-			handle->bufsize = handle->snapshot;
-	} else {
-		/*
-		 * This is a 2.2[.x] or later kernel (we know that
-		 * either because we're not using a SOCK_PACKET
-		 * socket - PF_PACKET is supported only in 2.2
-		 * and later kernels - or because we checked the
-		 * kernel version).
-		 *
-		 * We can safely pass "recvfrom()" a byte count
-		 * based on the snapshot length.
-		 *
-		 * If we're in cooked mode, make the snapshot length
-		 * large enough to hold a "cooked mode" header plus
-		 * 1 byte of packet data (so we don't pass a byte
-		 * count of 0 to "recvfrom()").
-		 */
-		if (handle->md.cooked) {
-			if (handle->snapshot < SLL_HDR_LEN + 1)
-				handle->snapshot = SLL_HDR_LEN + 1;
-		}
-		handle->bufsize = handle->snapshot;
 	}
 
 	/* Allocate the buffer */
 
 	handle->buffer	 = malloc(handle->bufsize + handle->offset);
 	if (!handle->buffer) {
-	        snprintf(ebuf, PCAP_ERRBUF_SIZE,
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			 "malloc: %s", pcap_strerror(errno));
-		pcap_close_linux(handle);
-		free(handle);
-		return NULL;
+		status = PCAP_ERROR;
+		goto fail;
 	}
 
 	/*
@@ -424,17 +603,11 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 */
 	handle->selectable_fd = handle->fd;
 
-	handle->read_op = pcap_read_linux;
-	handle->inject_op = pcap_inject_linux;
-	handle->setfilter_op = pcap_setfilter_linux;
-	handle->setdirection_op = pcap_setdirection_linux;
-	handle->set_datalink_op = NULL;	/* can't change data link type */
-	handle->getnonblock_op = pcap_getnonblock_fd;
-	handle->setnonblock_op = pcap_setnonblock_fd;
-	handle->stats_op = pcap_stats_linux;
-	handle->close_op = pcap_close_linux;
+	return status;
 
-	return handle;
+fail:
+	pcap_cleanup_linux(handle);
+	return status;
 }
 
 /*
@@ -468,7 +641,17 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 #else
 	struct sockaddr		from;
 #endif
+#if defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI)
+	struct iovec		iov;
+	struct msghdr		msg;
+	struct cmsghdr		*cmsg;
+	union {
+		struct cmsghdr	cmsg;
+		char		buf[CMSG_SPACE(sizeof(struct tpacket_auxdata))];
+	} cmsg_buf;
+#else /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
 	socklen_t		fromlen;
+#endif /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
 	int			packet_len, caplen;
 	struct pcap_pkthdr	pcap_header;
 
@@ -489,9 +672,36 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 	offset = 0;
 #endif
 
-	/* Receive a single packet from the kernel */
-
+	/*
+	 * Receive a single packet from the kernel.
+	 * We ignore EINTR, as that might just be due to a signal
+	 * being delivered - if the signal should interrupt the
+	 * loop, the signal handler should call pcap_breakloop()
+	 * to set handle->break_loop (we ignore it on other
+	 * platforms as well).
+	 * We also ignore ENETDOWN, so that we can continue to
+	 * capture traffic if the interface goes down and comes
+	 * back up again; comments in the kernel indicate that
+	 * we'll just block waiting for packets if we try to
+	 * receive from a socket that delivered ENETDOWN, and,
+	 * if we're using a memory-mapped buffer, we won't even
+	 * get notified of "network down" events.
+	 */
 	bp = handle->buffer + handle->offset;
+
+#if defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI)
+	msg.msg_name		= &from;
+	msg.msg_namelen		= sizeof(from);
+	msg.msg_iov		= &iov;
+	msg.msg_iovlen		= 1;
+	msg.msg_control		= &cmsg_buf;
+	msg.msg_controllen	= sizeof(cmsg_buf);
+	msg.msg_flags		= 0;
+
+	iov.iov_len		= handle->bufsize - offset;
+	iov.iov_base		= bp + offset;
+#endif /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
+
 	do {
 		/*
 		 * Has "pcap_breakloop()" been called?
@@ -505,12 +715,17 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 			handle->break_loop = 0;
 			return -2;
 		}
+
+#if defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI)
+		packet_len = recvmsg(handle->fd, &msg, MSG_TRUNC);
+#else /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
 		fromlen = sizeof(from);
 		packet_len = recvfrom(
 			handle->fd, bp + offset,
 			handle->bufsize - offset, MSG_TRUNC,
 			(struct sockaddr *) &from, &fromlen);
-	} while (packet_len == -1 && errno == EINTR);
+#endif /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
+	} while (packet_len == -1 && (errno == EINTR || errno == ENETDOWN));
 
 	/* Check if an error occured */
 
@@ -518,7 +733,7 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 		if (errno == EAGAIN)
 			return 0;	/* no packet there */
 		else {
-			snprintf(handle->errbuf, sizeof(handle->errbuf),
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 				 "recvfrom: %s", pcap_strerror(errno));
 			return -1;
 		}
@@ -586,42 +801,7 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 		packet_len += SLL_HDR_LEN;
 
 		hdrp = (struct sll_header *)bp;
-
-		/*
-		 * Map the PACKET_ value to a LINUX_SLL_ value; we
-		 * want the same numerical value to be used in
-		 * the link-layer header even if the numerical values
-		 * for the PACKET_ #defines change, so that programs
-		 * that look at the packet type field will always be
-		 * able to handle DLT_LINUX_SLL captures.
-		 */
-		switch (from.sll_pkttype) {
-
-		case PACKET_HOST:
-			hdrp->sll_pkttype = htons(LINUX_SLL_HOST);
-			break;
-
-		case PACKET_BROADCAST:
-			hdrp->sll_pkttype = htons(LINUX_SLL_BROADCAST);
-			break;
-
-		case PACKET_MULTICAST:
-			hdrp->sll_pkttype = htons(LINUX_SLL_MULTICAST);
-			break;
-
-		case PACKET_OTHERHOST:
-			hdrp->sll_pkttype = htons(LINUX_SLL_OTHERHOST);
-			break;
-
-		case PACKET_OUTGOING:
-			hdrp->sll_pkttype = htons(LINUX_SLL_OUTGOING);
-			break;
-
-		default:
-			hdrp->sll_pkttype = -1;
-			break;
-		}
-
+		hdrp->sll_pkttype = map_packet_type_to_sll_type(from.sll_pkttype);
 		hdrp->sll_hatype = htons(from.sll_hatype);
 		hdrp->sll_halen = htons(from.sll_halen);
 		memcpy(hdrp->sll_addr, from.sll_addr,
@@ -630,7 +810,37 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 		      from.sll_halen);
 		hdrp->sll_protocol = from.sll_protocol;
 	}
-#endif
+
+#if defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI)
+	for (cmsg = CMSG_FIRSTHDR(&msg); cmsg; cmsg = CMSG_NXTHDR(&msg, cmsg)) {
+		struct tpacket_auxdata *aux;
+		unsigned int len;
+		struct vlan_tag *tag;
+
+		if (cmsg->cmsg_len < CMSG_LEN(sizeof(struct tpacket_auxdata)) ||
+		    cmsg->cmsg_level != SOL_PACKET ||
+		    cmsg->cmsg_type != PACKET_AUXDATA)
+			continue;
+
+		aux = (struct tpacket_auxdata *)CMSG_DATA(cmsg);
+		if (aux->tp_vlan_tci == 0)
+			continue;
+
+		len = packet_len > iov.iov_len ? iov.iov_len : packet_len;
+		if (len < 2 * ETH_ALEN)
+			break;
+
+		bp -= VLAN_TAG_LEN;
+		memmove(bp, bp + VLAN_TAG_LEN, 2 * ETH_ALEN);
+
+		tag = (struct vlan_tag *)(bp + 2 * ETH_ALEN);
+		tag->vlan_tpid = htons(ETH_P_8021Q);
+		tag->vlan_tci = htons(aux->tp_vlan_tci);
+
+		packet_len += VLAN_TAG_LEN;
+	}
+#endif /* defined(HAVE_PACKET_AUXDATA) && defined(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI) */
+#endif /* HAVE_PF_PACKET_SOCKETS */
 
 	/*
 	 * XXX: According to the kernel source we should get the real
@@ -681,7 +891,7 @@ pcap_read_packet(pcap_t *handle, pcap_handler callback, u_char *userdata)
 	/* Fill in our own header data */
 
 	if (ioctl(handle->fd, SIOCGSTAMP, &pcap_header.ts) == -1) {
-		snprintf(handle->errbuf, sizeof(handle->errbuf),
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			 "SIOCGSTAMP: %s", pcap_strerror(errno));
 		return -1;
 	}
@@ -915,6 +1125,16 @@ pcap_platform_finddevs(pcap_if_t **alldevsp, char *errbuf)
 		return (-1);
 #endif /* HAVE_SEPTEL_API */
 
+#ifdef PCAP_SUPPORT_BT
+	if (bt_platform_finddevs(alldevsp, errbuf) < 0)
+		return (-1);
+#endif
+
+#ifdef PCAP_SUPPORT_USB
+	if (usb_platform_finddevs(alldevsp, errbuf) < 0)
+		return (-1);
+#endif
+
 	return (0);
 }
 
@@ -934,7 +1154,7 @@ pcap_setfilter_linux(pcap_t *handle, struct bpf_program *filter)
 		return -1;
 	if (!filter) {
 	        strncpy(handle->errbuf, "setfilter: No filter specified",
-			sizeof(handle->errbuf));
+			PCAP_ERRBUF_SIZE);
 		return -1;
 	}
 
@@ -1072,10 +1292,46 @@ pcap_setdirection_linux(pcap_t *handle, pcap_direction_t d)
 	 * We're not using PF_PACKET sockets, so we can't determine
 	 * the direction of the packet.
 	 */
-	snprintf(handle->errbuf, sizeof(handle->errbuf),
+	snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 	    "Setting direction is not supported on SOCK_PACKET sockets");
 	return -1;
 }
+
+
+#ifdef HAVE_PF_PACKET_SOCKETS
+/*
+ * Map the PACKET_ value to a LINUX_SLL_ value; we
+ * want the same numerical value to be used in
+ * the link-layer header even if the numerical values
+ * for the PACKET_ #defines change, so that programs
+ * that look at the packet type field will always be
+ * able to handle DLT_LINUX_SLL captures.
+ */
+static short int
+map_packet_type_to_sll_type(short int sll_pkttype)
+{
+	switch (sll_pkttype) {
+
+	case PACKET_HOST:
+		return htons(LINUX_SLL_HOST);
+
+	case PACKET_BROADCAST:
+		return htons(LINUX_SLL_BROADCAST);
+
+	case PACKET_MULTICAST:
+		return  htons(LINUX_SLL_MULTICAST);
+
+	case PACKET_OTHERHOST:
+		return htons(LINUX_SLL_OTHERHOST);
+
+	case PACKET_OUTGOING:
+		return htons(LINUX_SLL_OUTGOING);
+
+	default:
+		return -1;
+	}
+}
+#endif
 
 /*
  *  Linux uses the ARP hardware type to identify the type of an
@@ -1113,7 +1369,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 		 * XXX - are there any sorts of "fake Ethernet" that have
 		 * ARPHRD_ETHER but that *shouldn't offer DLT_DOCSIS as
 		 * a Cisco CMTS won't put traffic onto it or get traffic
-		 * bridged onto it?  ISDN is handled in "live_open_new()",
+		 * bridged onto it?  ISDN is handled in "activate_new()",
 		 * as we fall back on cooked mode there; are there any
 		 * others?
 		 */
@@ -1139,7 +1395,7 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 		break;
 
 	case ARPHRD_AX25:
-		handle->linktype = DLT_AX25;
+		handle->linktype = DLT_AX25_KISS;
 		break;
 
 	case ARPHRD_PRONET:
@@ -1371,6 +1627,17 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 		handle->linktype = DLT_LINUX_LAPD;
 		break;
 
+#ifndef ARPHRD_NONE
+#define ARPHRD_NONE	0xFFFE
+#endif
+	case ARPHRD_NONE:
+		/*
+		 * No link-layer header; packets are just IP
+		 * packets, so use DLT_RAW.
+		 */
+		handle->linktype = DLT_RAW;
+		break;
+
 	default:
 		handle->linktype = -1;
 		break;
@@ -1380,218 +1647,265 @@ static void map_arphrd_to_dlt(pcap_t *handle, int arptype, int cooked_ok)
 /* ===== Functions to interface to the newer kernels ================== */
 
 /*
- *  Try to open a packet socket using the new kernel interface.
- *  Returns 0 on failure.
- *  FIXME: 0 uses to mean success (Sebastian)
+ * Try to open a packet socket using the new kernel PF_PACKET interface.
+ * Returns 1 on success, 0 on an error that means the new interface isn't
+ * present (so the old SOCK_PACKET interface should be tried), and a
+ * PCAP_ERROR_ value on an error that means that the old mechanism won't
+ * work either (so it shouldn't be tried).
  */
 static int
-live_open_new(pcap_t *handle, const char *device, int promisc,
-	      int to_ms, char *ebuf)
+activate_new(pcap_t *handle)
 {
 #ifdef HAVE_PF_PACKET_SOCKETS
-	int			sock_fd = -1, arptype;
-	int			err;
-	int			fatal_err = 0;
+	int			sock_fd = -1, arptype, val;
+	int			err = 0;
 	struct packet_mreq	mr;
+	const char* device = handle->opt.source;
 
-	/* One shot loop used for error handling - bail out with break */
+	/*
+	 * Open a socket with protocol family packet. If a device is
+	 * given we try to open it in raw mode otherwise we use
+	 * the cooked interface.
+	 */
+	sock_fd = device ?
+		socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))
+	      : socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));
 
-	do {
-		/*
-		 * Open a socket with protocol family packet. If a device is
-		 * given we try to open it in raw mode otherwise we use
-		 * the cooked interface.
-		 */
-		sock_fd = device ?
-			socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))
-		      : socket(PF_PACKET, SOCK_DGRAM, htons(ETH_P_ALL));
+	if (sock_fd == -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "socket: %s",
+			 pcap_strerror(errno) );
+		return 0;	/* try old mechanism */
+	}
 
-		if (sock_fd == -1) {
-			snprintf(ebuf, PCAP_ERRBUF_SIZE, "socket: %s",
-				 pcap_strerror(errno) );
-			break;
-		}
+	/* It seems the kernel supports the new interface. */
+	handle->md.sock_packet = 0;
 
-		/* It seems the kernel supports the new interface. */
-		handle->md.sock_packet = 0;
+	/*
+	 * Get the interface index of the loopback device.
+	 * If the attempt fails, don't fail, just set the
+	 * "md.lo_ifindex" to -1.
+	 *
+	 * XXX - can there be more than one device that loops
+	 * packets back, i.e. devices other than "lo"?  If so,
+	 * we'd need to find them all, and have an array of
+	 * indices for them, and check all of them in
+	 * "pcap_read_packet()".
+	 */
+	handle->md.lo_ifindex = iface_get_id(sock_fd, "lo", handle->errbuf);
 
-		/*
-		 * Get the interface index of the loopback device.
-		 * If the attempt fails, don't fail, just set the
-		 * "md.lo_ifindex" to -1.
-		 *
-		 * XXX - can there be more than one device that loops
-		 * packets back, i.e. devices other than "lo"?  If so,
-		 * we'd need to find them all, and have an array of
-		 * indices for them, and check all of them in
-		 * "pcap_read_packet()".
-		 */
-		handle->md.lo_ifindex = iface_get_id(sock_fd, "lo", ebuf);
+	/*
+	 * Default value for offset to align link-layer payload
+	 * on a 4-byte boundary.
+	 */
+	handle->offset	 = 0;
 
-		/*
-		 * Default value for offset to align link-layer payload
-		 * on a 4-byte boundary.
-		 */
-		handle->offset	 = 0;
+	/*
+	 * What kind of frames do we have to deal with? Fall back
+	 * to cooked mode if we have an unknown interface type
+	 * or a type we know doesn't work well in raw mode.
+	 */
+	if (device) {
+		/* Assume for now we don't need cooked mode. */
+		handle->md.cooked = 0;
 
-		/*
-		 * What kind of frames do we have to deal with? Fall back
-		 * to cooked mode if we have an unknown interface type.
-		 */
-
-		if (device) {
-			/* Assume for now we don't need cooked mode. */
-			handle->md.cooked = 0;
-
-			arptype	= iface_get_arptype(sock_fd, device, ebuf);
-			if (arptype == -1) {
-				fatal_err = 1;
-				break;
-			}
-			map_arphrd_to_dlt(handle, arptype, 1);
-			if (handle->linktype == -1 ||
-			    handle->linktype == DLT_LINUX_SLL ||
-			    handle->linktype == DLT_LINUX_IRDA ||
-			    handle->linktype == DLT_LINUX_LAPD ||
-			    (handle->linktype == DLT_EN10MB &&
-			     (strncmp("isdn", device, 4) == 0 ||
-			      strncmp("isdY", device, 4) == 0))) {
-				/*
-				 * Unknown interface type (-1), or a
-				 * device we explicitly chose to run
-				 * in cooked mode (e.g., PPP devices),
-				 * or an ISDN device (whose link-layer
-				 * type we can only determine by using
-				 * APIs that may be different on different
-				 * kernels) - reopen in cooked mode.
-				 */
-				if (close(sock_fd) == -1) {
-					snprintf(ebuf, PCAP_ERRBUF_SIZE,
-						 "close: %s", pcap_strerror(errno));
-					break;
-				}
-				sock_fd = socket(PF_PACKET, SOCK_DGRAM,
-						 htons(ETH_P_ALL));
-				if (sock_fd == -1) {
-					snprintf(ebuf, PCAP_ERRBUF_SIZE,
-						 "socket: %s", pcap_strerror(errno));
-					break;
-				}
-				handle->md.cooked = 1;
-
-				/*
-				 * Get rid of any link-layer type list
-				 * we allocated - this only supports cooked
-				 * capture.
-				 */
-				if (handle->dlt_list != NULL) {
-					free(handle->dlt_list);
-					handle->dlt_list = NULL;
-					handle->dlt_count = 0;
-				}
-
-				if (handle->linktype == -1) {
-					/*
-					 * Warn that we're falling back on
-					 * cooked mode; we may want to
-					 * update "map_arphrd_to_dlt()"
-					 * to handle the new type.
-					 */
-					snprintf(ebuf, PCAP_ERRBUF_SIZE,
-						"arptype %d not "
-						"supported by libpcap - "
-						"falling back to cooked "
-						"socket",
-						arptype);
-				}
-				/* IrDA capture is not a real "cooked" capture,
-				 * it's IrLAP frames, not IP packets. */
-				if (handle->linktype != DLT_LINUX_IRDA &&
-			    		handle->linktype != DLT_LINUX_LAPD)
-					handle->linktype = DLT_LINUX_SLL;
-			}
-
-			handle->md.ifindex = iface_get_id(sock_fd, device, ebuf);
-			if (handle->md.ifindex == -1)
-				break;
-
-			if ((err = iface_bind(sock_fd, handle->md.ifindex,
-			    ebuf)) < 0) {
-				if (err == -2)
-					fatal_err = 1;
-				break;
-			}
-		} else {
+		if (handle->opt.rfmon) {
 			/*
-			 * This is cooked mode.
+			 * We were asked to turn on monitor mode.
+			 * Do so before we get the link-layer type,
+			 * because entering monitor mode could change
+			 * the link-layer type.
 			 */
+			err = enter_rfmon_mode_wext(handle, sock_fd, device);
+			if (err < 0) {
+				/* Hard failure */
+				close(sock_fd);
+				return err;
+			}
+			if (err == 0) {
+				/*
+				 * Nothing worked for turning monitor mode
+				 * on.
+				 */
+				close(sock_fd);
+				return PCAP_ERROR_RFMON_NOTSUP;
+			}
+		}
+		arptype	= iface_get_arptype(sock_fd, device, handle->errbuf);
+		if (arptype < 0) {
+			close(sock_fd);
+			return arptype;
+		}
+		map_arphrd_to_dlt(handle, arptype, 1);
+		if (handle->linktype == -1 ||
+		    handle->linktype == DLT_LINUX_SLL ||
+		    handle->linktype == DLT_LINUX_IRDA ||
+		    handle->linktype == DLT_LINUX_LAPD ||
+		    (handle->linktype == DLT_EN10MB &&
+		     (strncmp("isdn", device, 4) == 0 ||
+		      strncmp("isdY", device, 4) == 0))) {
+			/*
+			 * Unknown interface type (-1), or a
+			 * device we explicitly chose to run
+			 * in cooked mode (e.g., PPP devices),
+			 * or an ISDN device (whose link-layer
+			 * type we can only determine by using
+			 * APIs that may be different on different
+			 * kernels) - reopen in cooked mode.
+			 */
+			if (close(sock_fd) == -1) {
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+					 "close: %s", pcap_strerror(errno));
+				return PCAP_ERROR;
+			}
+			sock_fd = socket(PF_PACKET, SOCK_DGRAM,
+			    htons(ETH_P_ALL));
+			if (sock_fd == -1) {
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				    "socket: %s", pcap_strerror(errno));
+				return PCAP_ERROR;
+			}
 			handle->md.cooked = 1;
-			handle->linktype = DLT_LINUX_SLL;
 
 			/*
-			 * We're not bound to a device.
-			 * XXX - true?  Or true only if we're using
-			 * the "any" device?
-			 * For now, we're using this as an indication
-			 * that we can't transmit; stop doing that only
-			 * if we figure out how to transmit in cooked
-			 * mode.
+			 * Get rid of any link-layer type list
+			 * we allocated - this only supports cooked
+			 * capture.
 			 */
-			handle->md.ifindex = -1;
-		}
-
-		/*
-		 * Select promiscuous mode on if "promisc" is set.
-		 *
-		 * Do not turn allmulti mode on if we don't select
-		 * promiscuous mode - on some devices (e.g., Orinoco
-		 * wireless interfaces), allmulti mode isn't supported
-		 * and the driver implements it by turning promiscuous
-		 * mode on, and that screws up the operation of the
-		 * card as a normal networking interface, and on no
-		 * other platform I know of does starting a non-
-		 * promiscuous capture affect which multicast packets
-		 * are received by the interface.
-		 */
-
-		/*
-		 * Hmm, how can we set promiscuous mode on all interfaces?
-		 * I am not sure if that is possible at all.
-		 */
-
-		if (device && promisc) {
-			memset(&mr, 0, sizeof(mr));
-			mr.mr_ifindex = handle->md.ifindex;
-			mr.mr_type    = PACKET_MR_PROMISC;
-			if (setsockopt(sock_fd, SOL_PACKET,
-				PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) == -1)
-			{
-				snprintf(ebuf, PCAP_ERRBUF_SIZE,
-					"setsockopt: %s", pcap_strerror(errno));
-				break;
+			if (handle->dlt_list != NULL) {
+				free(handle->dlt_list);
+				handle->dlt_list = NULL;
+				handle->dlt_count = 0;
 			}
+
+			if (handle->linktype == -1) {
+				/*
+				 * Warn that we're falling back on
+				 * cooked mode; we may want to
+				 * update "map_arphrd_to_dlt()"
+				 * to handle the new type.
+				 */
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+					"arptype %d not "
+					"supported by libpcap - "
+					"falling back to cooked "
+					"socket",
+					arptype);
+			}
+
+			/*
+			 * IrDA capture is not a real "cooked" capture,
+			 * it's IrLAP frames, not IP packets.  The
+			 * same applies to LAPD capture.
+			 */
+			if (handle->linktype != DLT_LINUX_IRDA &&
+			    handle->linktype != DLT_LINUX_LAPD)
+				handle->linktype = DLT_LINUX_SLL;
 		}
 
-		/* Save the socket FD in the pcap structure */
+		handle->md.ifindex = iface_get_id(sock_fd, device,
+		    handle->errbuf);
+		if (handle->md.ifindex == -1) {
+			close(sock_fd);
+			return PCAP_ERROR;
+		}
 
-		handle->fd 	 = sock_fd;
-
-		return 1;
-
-	} while(0);
-
-	if (sock_fd != -1)
-		close(sock_fd);
-
-	if (fatal_err) {
+		if ((err = iface_bind(sock_fd, handle->md.ifindex,
+		    handle->errbuf)) != 1) {
+		    	close(sock_fd);
+			if (err < 0)
+				return err;
+			else
+				return 0;	/* try old mechanism */
+		}
+	} else {
 		/*
-		 * Get rid of any link-layer type list we allocated.
+		 * This is cooked mode.
 		 */
-		if (handle->dlt_list != NULL)
-			free(handle->dlt_list);
-		return -2;
-	} else
-		return 0;
+		handle->md.cooked = 1;
+		handle->linktype = DLT_LINUX_SLL;
+
+		/*
+		 * We're not bound to a device.
+		 * XXX - true?  Or true only if we're using
+		 * the "any" device?
+		 * For now, we're using this as an indication
+		 * that we can't transmit; stop doing that only
+		 * if we figure out how to transmit in cooked
+		 * mode.
+		 */
+		handle->md.ifindex = -1;
+	}
+
+	/*
+	 * Select promiscuous mode on if "promisc" is set.
+	 *
+	 * Do not turn allmulti mode on if we don't select
+	 * promiscuous mode - on some devices (e.g., Orinoco
+	 * wireless interfaces), allmulti mode isn't supported
+	 * and the driver implements it by turning promiscuous
+	 * mode on, and that screws up the operation of the
+	 * card as a normal networking interface, and on no
+	 * other platform I know of does starting a non-
+	 * promiscuous capture affect which multicast packets
+	 * are received by the interface.
+	 */
+
+	/*
+	 * Hmm, how can we set promiscuous mode on all interfaces?
+	 * I am not sure if that is possible at all.
+	 */
+
+	if (device && handle->opt.promisc) {
+		memset(&mr, 0, sizeof(mr));
+		mr.mr_ifindex = handle->md.ifindex;
+		mr.mr_type    = PACKET_MR_PROMISC;
+		if (setsockopt(sock_fd, SOL_PACKET, PACKET_ADD_MEMBERSHIP,
+		    &mr, sizeof(mr)) == -1) {
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				"setsockopt: %s", pcap_strerror(errno));
+			close(sock_fd);
+			return PCAP_ERROR;
+		}
+	}
+
+	/* Enable auxillary data if supported and reserve room for
+	 * reconstructing VLAN headers. */
+#ifdef HAVE_PACKET_AUXDATA
+	val = 1;
+	if (setsockopt(sock_fd, SOL_PACKET, PACKET_AUXDATA, &val,
+		       sizeof(val)) == -1 && errno != ENOPROTOOPT) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "setsockopt: %s", pcap_strerror(errno));
+		close(sock_fd);
+		return PCAP_ERROR;
+	}
+	handle->offset += VLAN_TAG_LEN;
+#endif /* HAVE_PACKET_AUXDATA */
+
+	/*
+	 * This is a 2.2[.x] or later kernel (we know that
+	 * because we're not using a SOCK_PACKET socket -
+	 * PF_PACKET is supported only in 2.2 and later
+	 * kernels).
+	 *
+	 * We can safely pass "recvfrom()" a byte count
+	 * based on the snapshot length.
+	 *
+	 * If we're in cooked mode, make the snapshot length
+	 * large enough to hold a "cooked mode" header plus
+	 * 1 byte of packet data (so we don't pass a byte
+	 * count of 0 to "recvfrom()").
+	 */
+	if (handle->md.cooked) {
+		if (handle->snapshot < SLL_HDR_LEN + 1)
+			handle->snapshot = SLL_HDR_LEN + 1;
+	}
+	handle->bufsize = handle->snapshot;
+
+	/* Save the socket FD in the pcap structure */
+	handle->fd = sock_fd;
+
+	return 1;
 #else
 	strncpy(ebuf,
 		"New packet capturing interface not supported by build "
@@ -1599,6 +1913,488 @@ live_open_new(pcap_t *handle, const char *device, int promisc,
 	return 0;
 #endif
 }
+
+static int 
+activate_mmap(pcap_t *handle)
+{
+#ifdef HAVE_PACKET_RING
+	int ret;
+
+	if (handle->opt.buffer_size == 0) {
+		/* by default request 2M for the ring buffer */
+		handle->opt.buffer_size = 2*1024*1024;
+	}
+	ret = prepare_tpacket_socket(handle);
+	if (ret == 0)
+		return ret;
+	ret = create_ring(handle);
+	if (ret == 0)
+		return ret;
+
+	/* override some defaults and inherit the other fields from
+	 * activate_new
+	 * handle->offset is used to get the current position into the rx ring 
+	 * handle->cc is used to store the ring size */
+	handle->read_op = pcap_read_linux_mmap;
+	handle->cleanup_op = pcap_cleanup_linux_mmap;
+	handle->setfilter_op = pcap_setfilter_linux_mmap;
+	handle->setnonblock_op = pcap_setnonblock_mmap;
+	handle->getnonblock_op = pcap_getnonblock_mmap;
+	handle->selectable_fd = handle->fd;
+	return 1;
+#else /* HAVE_PACKET_RING */
+	return 0;
+#endif /* HAVE_PACKET_RING */
+}
+
+#ifdef HAVE_PACKET_RING
+static int
+prepare_tpacket_socket(pcap_t *handle)
+{
+#ifdef HAVE_TPACKET2
+	socklen_t len;
+	int val;
+#endif
+
+	handle->md.tp_version = TPACKET_V1;
+	handle->md.tp_hdrlen = sizeof(struct tpacket_hdr);
+
+#ifdef HAVE_TPACKET2
+	/* Probe whether kernel supports TPACKET_V2 */
+	val = TPACKET_V2;
+	len = sizeof(val);
+	if (getsockopt(handle->fd, SOL_PACKET, PACKET_HDRLEN, &val, &len) < 0) {
+		if (errno == ENOPROTOOPT)
+			return 1;
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "can't get TPACKET_V2 header len on socket %d: %d-%s",
+			 handle->fd, errno, pcap_strerror(errno));
+		return 0;
+	}
+	handle->md.tp_hdrlen = val;
+
+	val = TPACKET_V2;
+	if (setsockopt(handle->fd, SOL_PACKET, PACKET_VERSION, &val,
+		       sizeof(val)) < 0) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "can't activate TPACKET_V2 on socket %d: %d-%s",
+			 handle->fd, errno, pcap_strerror(errno));
+		return 0;
+	}
+	handle->md.tp_version = TPACKET_V2;
+
+	/* Reserve space for VLAN tag reconstruction */
+	val = VLAN_TAG_LEN;
+	if (setsockopt(handle->fd, SOL_PACKET, PACKET_RESERVE, &val,
+		       sizeof(val)) < 0) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "can't set up reserve on socket %d: %d-%s",
+			 handle->fd, errno, pcap_strerror(errno));
+		return 0;
+	}
+
+#endif /* HAVE_TPACKET2 */
+	return 1;
+}
+
+static void
+compute_ring_block(int frame_size, unsigned *block_size, unsigned *frames_per_block)
+{
+	/* compute the minumum block size that will handle this frame. 
+	 * The block has to be page size aligned. 
+	 * The max block size allowed by the kernel is arch-dependent and 
+	 * it's not explicitly checked here. */
+	*block_size = getpagesize();
+	while (*block_size < frame_size) 
+		*block_size <<= 1;
+
+	*frames_per_block = *block_size/frame_size;
+}
+
+static int
+create_ring(pcap_t *handle)
+{
+	unsigned i, j, ringsize, frames_per_block;
+	struct tpacket_req req;
+
+	/* Note that with large snapshot (say 64K) only a few frames 
+	 * will be available in the ring even with pretty large ring size
+	 * (and a lot of memory will be unused). 
+	 * The snap len should be carefully chosen to achive best
+	 * performance */
+	req.tp_frame_size = TPACKET_ALIGN(handle->snapshot +
+					  TPACKET_ALIGN(handle->md.tp_hdrlen) +
+					  sizeof(struct sockaddr_ll));
+	req.tp_frame_nr = handle->opt.buffer_size/req.tp_frame_size;
+	compute_ring_block(req.tp_frame_size, &req.tp_block_size, &frames_per_block);
+	req.tp_block_nr = req.tp_frame_nr / frames_per_block;
+
+	/* req.tp_frame_nr is requested to match frames_per_block*req.tp_block_nr */
+	req.tp_frame_nr = req.tp_block_nr * frames_per_block;
+
+	/* ask the kernel to create the ring */
+retry:
+	if (setsockopt(handle->fd, SOL_PACKET, PACKET_RX_RING,
+					(void *) &req, sizeof(req))) {
+		/* try to reduce requested ring size to prevent memory failure */
+		if ((errno == ENOMEM) && (req.tp_block_nr > 1)) {
+			req.tp_frame_nr >>= 1;
+			req.tp_block_nr = req.tp_frame_nr/frames_per_block;
+			goto retry;
+		}
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "can't create rx ring on "
+				"packet socket %d: %d-%s", handle->fd, errno, 
+				pcap_strerror(errno));
+		return 0;
+	}
+
+	/* memory map the rx ring */
+	ringsize = req.tp_block_nr * req.tp_block_size;
+	handle->bp = mmap(0, ringsize, PROT_READ| PROT_WRITE, MAP_SHARED, 
+					handle->fd, 0);
+	if (handle->bp == MAP_FAILED) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, "can't mmap rx ring: %d-%s",
+			errno, pcap_strerror(errno));
+
+		/* clear the allocated ring on error*/
+		destroy_ring(handle);
+		return 0;
+	}
+
+	/* allocate a ring for each frame header pointer*/
+	handle->cc = req.tp_frame_nr;
+	handle->buffer = malloc(handle->cc * sizeof(union thdr *));
+	if (!handle->buffer) {
+		destroy_ring(handle);
+		return 0;
+	}
+
+	/* fill the header ring with proper frame ptr*/
+	handle->offset = 0;
+	for (i=0; i<req.tp_block_nr; ++i) {
+		void *base = &handle->bp[i*req.tp_block_size];
+		for (j=0; j<frames_per_block; ++j, ++handle->offset) {
+			RING_GET_FRAME(handle) = base;
+			base += req.tp_frame_size;
+		}
+	}
+
+	handle->bufsize = req.tp_frame_size;
+	handle->offset = 0;
+	return 1;
+}
+
+/* free all ring related resources*/
+static void
+destroy_ring(pcap_t *handle)
+{
+	/* tell the kernel to destroy the ring*/
+	struct tpacket_req req;
+	memset(&req, 0, sizeof(req));
+	setsockopt(handle->fd, SOL_PACKET, PACKET_RX_RING,
+				(void *) &req, sizeof(req));
+
+	/* if ring is mapped, unmap it*/
+	if (handle->bp) {
+		/* need to re-compute the ring size */
+		unsigned frames_per_block, block_size;
+		compute_ring_block(handle->bufsize, &block_size, &frames_per_block);
+
+		/* do not perform sanity check here: we can't recover any error */
+		munmap(handle->bp, block_size * handle->cc / frames_per_block);
+		handle->bp = 0;
+	}
+}
+
+static void
+pcap_cleanup_linux_mmap( pcap_t *handle )
+{
+	destroy_ring(handle);
+	pcap_cleanup_linux(handle);
+}
+
+
+static int
+pcap_getnonblock_mmap(pcap_t *p, char *errbuf)
+{
+	/* use negative value of timeout to indicate non blocking ops */
+	return (p->md.timeout<0);
+}
+
+static int
+pcap_setnonblock_mmap(pcap_t *p, int nonblock, char *errbuf)
+{
+	/* map each value to the corresponding 2's complement, to 
+	 * preserve the timeout value provided with pcap_set_timeout */
+	if (nonblock) {
+		if (p->md.timeout > 0)
+			p->md.timeout = p->md.timeout*-1 - 1;
+	} else 
+		if (p->md.timeout < 0)
+			p->md.timeout = (p->md.timeout+1)*-1;
+	return 0;
+}
+
+static inline union thdr *
+pcap_get_ring_frame(pcap_t *handle, int status)
+{
+	union thdr h;
+
+	h.raw = RING_GET_FRAME(handle);
+	switch (handle->md.tp_version) {
+	case TPACKET_V1:
+		if (status != (h.h1->tp_status ? TP_STATUS_USER :
+						TP_STATUS_KERNEL))
+			return NULL;
+		break;
+#ifdef HAVE_TPACKET2
+	case TPACKET_V2:
+		if (status != (h.h2->tp_status ? TP_STATUS_USER :
+						TP_STATUS_KERNEL))
+			return NULL;
+		break;
+#endif
+	}
+	return h.raw;
+}
+
+static int
+pcap_read_linux_mmap(pcap_t *handle, int max_packets, pcap_handler callback, 
+		u_char *user)
+{
+	int pkts = 0;
+
+	/* wait for frames availability.*/
+	if ((handle->md.timeout >= 0) &&
+	    !pcap_get_ring_frame(handle, TP_STATUS_USER)) {
+		struct pollfd pollinfo;
+		int ret;
+
+		pollinfo.fd = handle->fd;
+		pollinfo.events = POLLIN;
+
+		do {
+			/* poll() requires a negative timeout to wait forever */
+			ret = poll(&pollinfo, 1, (handle->md.timeout > 0)?
+			 			handle->md.timeout: -1);
+			if ((ret < 0) && (errno != EINTR)) {
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, 
+					 "can't poll on packet socket fd %d: %d-%s",
+					handle->fd, errno, pcap_strerror(errno));
+				return -1;
+			}
+			/* check for break loop condition on interrupted syscall*/
+			if (handle->break_loop) {
+				handle->break_loop = 0;
+				return -2;
+			}
+		} while (ret < 0);
+	}
+
+	/* non-positive values of max_packets are used to require all 
+	 * packets currently available in the ring */
+	while ((pkts < max_packets) || (max_packets <= 0)) {
+		int run_bpf;
+		struct sockaddr_ll *sll;
+		struct pcap_pkthdr pcaphdr;
+		unsigned char *bp;
+		union thdr h;
+		unsigned int tp_len;
+		unsigned int tp_mac;
+		unsigned int tp_snaplen;
+		unsigned int tp_sec;
+		unsigned int tp_usec;
+
+		h.raw = pcap_get_ring_frame(handle, TP_STATUS_USER);
+		if (!h.raw)
+			break;
+
+		switch (handle->md.tp_version) {
+		case TPACKET_V1:
+			tp_len	   = h.h1->tp_len;
+			tp_mac	   = h.h1->tp_mac;
+			tp_snaplen = h.h1->tp_snaplen;
+			tp_sec	   = h.h1->tp_sec;
+			tp_usec	   = h.h1->tp_usec;
+			break;
+#ifdef HAVE_TPACKET2
+		case TPACKET_V2:
+			tp_len	   = h.h2->tp_len;
+			tp_mac	   = h.h2->tp_mac;
+			tp_snaplen = h.h2->tp_snaplen;
+			tp_sec	   = h.h2->tp_sec;
+			tp_usec	   = h.h2->tp_nsec / 1000;
+			break;
+#endif
+		default:
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, 
+				"unsupported tpacket version %d",
+				handle->md.tp_version);
+			return -1;
+		}
+		/* perform sanity check on internal offset. */
+		if (tp_mac + tp_snaplen > handle->bufsize) {
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, 
+				"corrupted frame on kernel ring mac "
+				"offset %d + caplen %d > frame len %d", 
+				tp_mac, tp_snaplen, handle->bufsize);
+			return -1;
+		}
+
+		/* run filter on received packet
+		 * If the kernel filtering is enabled we need to run the
+		 * filter until all the frames present into the ring 
+		 * at filter creation time are processed. 
+		 * In such case md.use_bpf is used as a counter for the 
+		 * packet we need to filter.
+		 * Note: alternatively it could be possible to stop applying 
+		 * the filter when the ring became empty, but it can possibly
+		 * happen a lot later... */
+		bp = (unsigned char*)h.raw + tp_mac;
+		run_bpf = (!handle->md.use_bpf) || 
+			((handle->md.use_bpf>1) && handle->md.use_bpf--);
+		if (run_bpf && handle->fcode.bf_insns && 
+				(bpf_filter(handle->fcode.bf_insns, bp,
+					tp_len, tp_snaplen) == 0))
+			goto skip;
+
+		/* check direction and interface index */
+		sll = (void *)h.raw + TPACKET_ALIGN(handle->md.tp_hdrlen);
+		if ((sll->sll_ifindex == handle->md.lo_ifindex) &&
+					(sll->sll_pkttype == PACKET_OUTGOING))
+			goto skip;
+
+		/* get required packet info from ring header */
+		pcaphdr.ts.tv_sec = tp_sec;
+		pcaphdr.ts.tv_usec = tp_usec;
+		pcaphdr.caplen = tp_snaplen;
+		pcaphdr.len = tp_len;
+
+		/* if required build in place the sll header*/
+		if (handle->md.cooked) {
+			struct sll_header *hdrp;
+
+			/*
+			 * The kernel should have left us with enough
+			 * space for an sll header; back up the packet
+			 * data pointer into that space, as that'll be
+			 * the beginning of the packet we pass to the
+			 * callback.
+			 */
+			bp -= SLL_HDR_LEN;
+
+			/*
+			 * Let's make sure that's past the end of
+			 * the tpacket header, i.e. >=
+			 * ((u_char *)thdr + TPACKET_HDRLEN), so we
+			 * don't step on the header when we construct
+			 * the sll header.
+			 */
+			if (bp < (u_char *)h.raw +
+					   TPACKET_ALIGN(handle->md.tp_hdrlen) +
+					   sizeof(struct sockaddr_ll)) {
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE, 
+					"cooked-mode frame doesn't have room for sll header");
+				return -1;
+			}
+
+			/*
+			 * OK, that worked; construct the sll header.
+			 */
+			hdrp = (struct sll_header *)bp;
+			hdrp->sll_pkttype = map_packet_type_to_sll_type(
+							sll->sll_pkttype);
+			hdrp->sll_hatype = htons(sll->sll_hatype);
+			hdrp->sll_halen = htons(sll->sll_halen);
+			memcpy(hdrp->sll_addr, sll->sll_addr, SLL_ADDRLEN);
+			hdrp->sll_protocol = sll->sll_protocol;
+
+			/* update packet len */
+			pcaphdr.caplen += SLL_HDR_LEN;
+			pcaphdr.len += SLL_HDR_LEN;
+		}
+
+#ifdef HAVE_TPACKET2
+		if (handle->md.tp_version == TPACKET_V2 && h.h2->tp_vlan_tci &&
+		    tp_snaplen >= 2 * ETH_ALEN) {
+			struct vlan_tag *tag;
+
+			bp -= VLAN_TAG_LEN;
+			memmove(bp, bp + VLAN_TAG_LEN, 2 * ETH_ALEN);
+
+			tag = (struct vlan_tag *)(bp + 2 * ETH_ALEN);
+			tag->vlan_tpid = htons(ETH_P_8021Q);
+			tag->vlan_tci = htons(h.h2->tp_vlan_tci);
+
+			pcaphdr.caplen += VLAN_TAG_LEN;
+			pcaphdr.len += VLAN_TAG_LEN;
+		}
+#endif
+
+		/* pass the packet to the user */
+		pkts++;
+		callback(user, &pcaphdr, bp);
+		handle->md.packets_read++;
+
+skip:
+		/* next packet */
+		switch (handle->md.tp_version) {
+		case TPACKET_V1:
+			h.h1->tp_status = TP_STATUS_KERNEL;
+			break;
+#ifdef HAVE_TPACKET2
+		case TPACKET_V2:
+			h.h2->tp_status = TP_STATUS_KERNEL;
+			break;
+#endif
+		}
+		if (++handle->offset >= handle->cc)
+			handle->offset = 0;
+
+		/* check for break loop condition*/
+		if (handle->break_loop) {
+			handle->break_loop = 0;
+			return -2;
+		}
+	}
+	return pkts;
+}
+
+static int 
+pcap_setfilter_linux_mmap(pcap_t *handle, struct bpf_program *filter)
+{
+	int n, offset;
+	int ret = pcap_setfilter_linux(handle, filter);
+	if (ret < 0)
+		return ret;
+
+	/* if the kernel filter is enabled, we need to apply the filter on
+	 * all packets present into the ring. Get an upper bound of their number
+	 */
+	if (!handle->md.use_bpf)
+		return ret;
+
+	/* walk the ring backward and count the free slot */
+	offset = handle->offset;
+	if (--handle->offset < 0)
+		handle->offset = handle->cc - 1;
+	for (n=0; n < handle->cc; ++n) {
+		if (--handle->offset < 0)
+			handle->offset = handle->cc - 1;
+		if (!pcap_get_ring_frame(handle, TP_STATUS_KERNEL))
+			break;
+	}
+
+	/* be careful to not change current ring position */
+	handle->offset = offset;
+
+	/* store the number of packets currently present in the ring */
+	handle->md.use_bpf = 1 + (handle->cc - n);
+	return ret;
+}
+
+#endif /* HAVE_PACKET_RING */
+
 
 #ifdef HAVE_PF_PACKET_SOCKETS
 /*
@@ -1624,6 +2420,8 @@ iface_get_id(int fd, const char *device, char *ebuf)
 
 /*
  *  Bind the socket associated with FD to the given device.
+ *  Return 1 on success, 0 if we should try a SOCK_PACKET socket,
+ *  or a PCAP_ERROR_ value on a hard error.
  */
 static int
 iface_bind(int fd, int ifindex, char *ebuf)
@@ -1638,9 +2436,20 @@ iface_bind(int fd, int ifindex, char *ebuf)
 	sll.sll_protocol	= htons(ETH_P_ALL);
 
 	if (bind(fd, (struct sockaddr *) &sll, sizeof(sll)) == -1) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-			 "bind: %s", pcap_strerror(errno));
-		return -1;
+		if (errno == ENETDOWN) {
+			/*
+			 * Return a "network down" indication, so that
+			 * the application can report that rather than
+			 * saying we had a mysterious failure and
+			 * suggest that they report a problem to the
+			 * libpcap developers.
+			 */
+			return PCAP_ERROR_IFACE_NOT_UP;
+		} else {
+			snprintf(ebuf, PCAP_ERRBUF_SIZE,
+				 "bind: %s", pcap_strerror(errno));
+			return PCAP_ERROR;
+		}
 	}
 
 	/* Any pending errors, e.g., network is down? */
@@ -1648,251 +2457,815 @@ iface_bind(int fd, int ifindex, char *ebuf)
 	if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &errlen) == -1) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
 			"getsockopt: %s", pcap_strerror(errno));
-		return -2;
+		return 0;
 	}
 
-	if (err > 0) {
+	if (err == ENETDOWN) {
+		/*
+		 * Return a "network down" indication, so that
+		 * the application can report that rather than
+		 * saying we had a mysterious failure and
+		 * suggest that they report a problem to the
+		 * libpcap developers.
+		 */
+		return PCAP_ERROR_IFACE_NOT_UP;
+	} else if (err > 0) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
 			"bind: %s", pcap_strerror(err));
-		return -2;
+		return 0;
 	}
 
+	return 1;
+}
+
+/*
+ * Check whether the device supports the Wireless Extensions.
+ * Returns 1 if it does, 0 if it doesn't, PCAP_ERROR_NO_SUCH_DEVICE
+ * if the device doesn't even exist.
+ */
+static int
+has_wext(int sock_fd, const char *device, char *ebuf)
+{
+#ifdef IW_MODE_MONITOR
+	struct iwreq ireq;
+
+	strncpy(ireq.ifr_ifrn.ifrn_name, device,
+	    sizeof ireq.ifr_ifrn.ifrn_name);
+	ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+	if (ioctl(sock_fd, SIOCGIWNAME, &ireq) >= 0)
+		return 1;	/* yes */
+	snprintf(ebuf, PCAP_ERRBUF_SIZE,
+	    "%s: SIOCGIWPRIV: %s", device, pcap_strerror(errno));
+	if (errno == ENODEV)
+		return PCAP_ERROR_NO_SUCH_DEVICE;
+#endif
 	return 0;
 }
 
-#endif
+/*
+ * Per me si va ne la citta dolente,
+ * Per me si va ne l'etterno dolore,
+ *	...
+ * Lasciate ogne speranza, voi ch'intrate.
+ *
+ * XXX - airmon-ng does special stuff with the Orinoco driver and the
+ * wlan-ng driver.
+ */
+typedef enum {
+	MONITOR_WEXT,
+	MONITOR_HOSTAP,
+	MONITOR_PRISM,
+	MONITOR_PRISM54,
+	MONITOR_ACX100,
+	MONITOR_RT2500,
+	MONITOR_RT2570,
+	MONITOR_RT73,
+	MONITOR_RTL8XXX
+} monitor_type;
 
+/*
+ * Use the Wireless Extensions, if we have them, to try to turn monitor mode
+ * on if it's not already on.
+ *
+ * Returns 1 on success, 0 if we don't support the Wireless Extensions
+ * on this device, or a PCAP_ERROR_ value if we do support them but
+ * we weren't able to turn monitor mode on.
+ */
+static int
+enter_rfmon_mode_wext(pcap_t *handle, int sock_fd, const char *device)
+{
+#ifdef IW_MODE_MONITOR
+	/*
+	 * XXX - at least some adapters require non-Wireless Extensions
+	 * mechanisms to turn monitor mode on.
+	 *
+	 * Atheros cards might require that a separate "monitor virtual access
+	 * point" be created, with later versions of the madwifi driver.
+	 * airmon-ng does "wlanconfig ath create wlandev {if} wlanmode
+	 * monitor -bssid", which apparently spits out a line "athN"
+	 * where "athN" is the monitor mode device.  To leave monitor
+	 * mode, it destroys the monitor mode device.
+	 *
+	 * Some Intel Centrino adapters might require private ioctls to get
+	 * radio headers; the ipw2200 and ipw3945 drivers allow you to
+	 * configure a separate "rtapN" interface to capture in monitor
+	 * mode without preventing the adapter from operating normally.
+	 * (airmon-ng doesn't appear to use that, though.)
+	 *
+	 * It would be Truly Wonderful if mac80211 and nl80211 cleaned this
+	 * up, and if all drivers were converted to mac80211 drivers.
+	 *
+	 * If interface {if} is a mac80211 driver, the file
+	 * /sys/class/net/{if}/phy80211 is a symlink to
+	 * /sys/class/ieee80211/{phydev}, for some {phydev}.
+	 *
+	 * On Fedora 9, with a 2.6.26.3-29 kernel, my Zydas stick, at
+	 * least, has a "wmaster0" device and a "wlan0" device; the
+	 * latter is the one with the IP address.  Both show up in
+	 * "tcpdump -D" output.  Capturing on the wmaster0 device
+	 * captures with 802.11 headers.
+	 *
+	 * airmon-ng searches through /sys/class/net for devices named
+	 * monN, starting with mon0; as soon as one *doesn't* exist,
+	 * it chooses that as the monitor device name.  If the "iw"
+	 * command exists, it does "iw dev {if} interface add {monif}
+	 * type monitor", where {monif} is the monitor device.  It
+	 * then (sigh) sleeps .1 second, and then configures the
+	 * device up.  Otherwise, if /sys/class/ieee80211/{phydev}/add_iface
+	 * is a file, it writes {mondev}, without a newline, to that file,
+	 * and again (sigh) sleeps .1 second, and then iwconfig's that
+	 * device into monitor mode and configures it up.  Otherwise,
+	 * you can't do monitor mode.
+	 *
+	 * All these devices are "glued" together by having the
+	 * /sys/class/net/{device}/phy80211 links pointing to the same
+	 * place, so, given a wmaster, wlan, or mon device, you can
+	 * find the other devices by looking for devices with
+	 * the same phy80211 link.
+	 *
+	 * To turn monitor mode off, delete the monitor interface,
+	 * either with "iw dev {monif} interface del" or by sending
+	 * {monif}, with no NL, down /sys/class/ieee80211/{phydev}/remove_iface
+	 *
+	 * Note: if you try to create a monitor device named "monN", and
+	 * there's already a "monN" device, it fails, as least with
+	 * the netlink interface (which is what iw uses), with a return
+	 * value of -ENFILE.  (Return values are negative errnos.)  We
+	 * could probably use that to find an unused device.
+	 */
+	int err;
+	struct iwreq ireq;
+	struct iw_priv_args *priv;
+	monitor_type montype;
+	int i;
+	__u32 cmd;
+	int args[2];
+	int channel;
+
+	/*
+	 * Does this device *support* the Wireless Extensions?
+	 */
+	err = has_wext(sock_fd, device, handle->errbuf);
+	if (err <= 0)
+		return err;	/* either it doesn't or the device doesn't even exist */
+	/*
+	 * Try to get all the Wireless Extensions private ioctls
+	 * supported by this device.
+	 *
+	 * First, get the size of the buffer we need, by supplying no
+	 * buffer and a length of 0.  If the device supports private
+	 * ioctls, it should return E2BIG, with ireq.u.data.length set
+	 * to the length we need.  If it doesn't support them, it should
+	 * return EOPNOTSUPP.
+	 */
+	memset(&ireq, 0, sizeof ireq);
+	strncpy(ireq.ifr_ifrn.ifrn_name, device,
+	    sizeof ireq.ifr_ifrn.ifrn_name);
+	ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+	ireq.u.data.pointer = args;
+	ireq.u.data.length = 0;
+	ireq.u.data.flags = 0;
+	if (ioctl(sock_fd, SIOCGIWPRIV, &ireq) != -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: SIOCGIWPRIV with a zero-length buffer didn't fail!",
+		    device);
+		return PCAP_ERROR;
+	}
+	if (errno == EOPNOTSUPP) {
+		/*
+		 * No private ioctls, so we assume that there's only one
+		 * DLT_ for monitor mode.
+		 */
+		return 0;
+	}
+	if (errno != E2BIG) {
+		/*
+		 * Failed.
+		 */
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: SIOCGIWPRIV: %s", device, pcap_strerror(errno));
+		return PCAP_ERROR;
+	}
+	priv = malloc(ireq.u.data.length * sizeof (struct iw_priv_args));
+	if (priv == NULL) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "malloc: %s", pcap_strerror(errno));
+		return PCAP_ERROR;
+	}
+	ireq.u.data.pointer = priv;
+	if (ioctl(sock_fd, SIOCGIWPRIV, &ireq) == -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+		    "%s: SIOCGIWPRIV: %s", device, pcap_strerror(errno));
+		free(priv);
+		return PCAP_ERROR;
+	}
+
+	/*
+	 * Look for private ioctls to turn monitor mode on or, if
+	 * monitor mode is on, to set the header type.
+	 */
+	montype = MONITOR_WEXT;
+	cmd = 0;
+	for (i = 0; i < ireq.u.data.length; i++) {
+		if (strcmp(priv[i].name, "monitor_type") == 0) {
+			/*
+			 * Hostap driver, use this one.
+			 * Set monitor mode first.
+			 * You can set it to 0 to get DLT_IEEE80211,
+			 * 1 to get DLT_PRISM, or 2 to get
+			 * DLT_IEEE80211_RADIO_AVS.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if (!(priv[i].set_args & IW_PRIV_SIZE_FIXED))
+				break;
+			if ((priv[i].set_args & IW_PRIV_SIZE_MASK) != 1)
+				break;
+			montype = MONITOR_HOSTAP;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "set_prismhdr") == 0) {
+			/*
+			 * Prism54 driver, use this one.
+			 * Set monitor mode first.
+			 * You can set it to 2 to get DLT_IEEE80211
+			 * or 3 or get DLT_PRISM.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if (!(priv[i].set_args & IW_PRIV_SIZE_FIXED))
+				break;
+			if ((priv[i].set_args & IW_PRIV_SIZE_MASK) != 1)
+				break;
+			montype = MONITOR_PRISM54;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "forceprismheader") == 0) {
+			/*
+			 * RT2570 driver, use this one.
+			 * Do this after turning monitor mode on.
+			 * You can set it to 1 to get DLT_PRISM or 2
+			 * to get DLT_IEEE80211.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if (!(priv[i].set_args & IW_PRIV_SIZE_FIXED))
+				break;
+			if ((priv[i].set_args & IW_PRIV_SIZE_MASK) != 1)
+				break;
+			montype = MONITOR_RT2570;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "forceprism") == 0) {
+			/*
+			 * RT73 driver, use this one.
+			 * Do this after turning monitor mode on.
+			 * Its argument is a *string*; you can
+			 * set it to "1" to get DLT_PRISM or "2"
+			 * to get DLT_IEEE80211.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_CHAR)
+				break;
+			if (priv[i].set_args & IW_PRIV_SIZE_FIXED)
+				break;
+			montype = MONITOR_RT73;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "prismhdr") == 0) {
+			/*
+			 * One of the RTL8xxx drivers, use this one.
+			 * It can only be done after monitor mode
+			 * has been turned on.  You can set it to 1
+			 * to get DLT_PRISM or 0 to get DLT_IEEE80211.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if (!(priv[i].set_args & IW_PRIV_SIZE_FIXED))
+				break;
+			if ((priv[i].set_args & IW_PRIV_SIZE_MASK) != 1)
+				break;
+			montype = MONITOR_RTL8XXX;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "rfmontx") == 0) {
+			/*
+			 * RT2500 or RT61 driver, use this one.
+			 * It has one one-byte parameter; set
+			 * u.data.length to 1 and u.data.pointer to
+			 * point to the parameter.
+			 * It doesn't itself turn monitor mode on.
+			 * You can set it to 1 to allow transmitting
+			 * in monitor mode(?) and get DLT_IEEE80211,
+			 * or set it to 0 to disallow transmitting in
+			 * monitor mode(?) and get DLT_PRISM.
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if ((priv[i].set_args & IW_PRIV_SIZE_MASK) != 2)
+				break;
+			montype = MONITOR_RT2500;
+			cmd = priv[i].cmd;
+			break;
+		}
+		if (strcmp(priv[i].name, "monitor") == 0) {
+			/*
+			 * Either ACX100 or hostap, use this one.
+			 * It turns monitor mode on.
+			 * If it takes two arguments, it's ACX100;
+			 * the first argument is 1 for DLT_PRISM
+			 * or 2 for DLT_IEEE80211, and the second
+			 * argument is the channel on which to
+			 * run.  If it takes one argument, it's
+			 * HostAP, and the argument is 2 for
+			 * DLT_IEEE80211 and 3 for DLT_PRISM.
+			 *
+			 * If we see this, we don't quit, as this
+			 * might be a version of the hostap driver
+			 * that also supports "monitor_type".
+			 */
+			if ((priv[i].set_args & IW_PRIV_TYPE_MASK) != IW_PRIV_TYPE_INT)
+				break;
+			if (!(priv[i].set_args & IW_PRIV_SIZE_FIXED))
+				break;
+			switch (priv[i].set_args & IW_PRIV_SIZE_MASK) {
+
+			case 1:
+				montype = MONITOR_PRISM;
+				cmd = priv[i].cmd;
+				break;
+
+			case 2:
+				montype = MONITOR_ACX100;
+				cmd = priv[i].cmd;
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+	free(priv);
+
+	/*
+	 * XXX - ipw3945?  islism?
+	 */
+
+	/*
+	 * Get the old mode.
+	 */
+	strncpy(ireq.ifr_ifrn.ifrn_name, device,
+	    sizeof ireq.ifr_ifrn.ifrn_name);
+	ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+	if (ioctl(sock_fd, SIOCGIWMODE, &ireq) == -1) {
+		/*
+		 * We probably won't be able to set the mode, either.
+		 */
+		return PCAP_ERROR_RFMON_NOTSUP;
+	}
+
+	/*
+	 * Is it currently in monitor mode?
+	 */
+	if (ireq.u.mode == IW_MODE_MONITOR) {
+		/*
+		 * Yes.  Just leave things as they are.
+		 * We don't offer multiple link-layer types, as
+		 * changing the link-layer type out from under
+		 * somebody else capturing in monitor mode would
+		 * be considered rude.
+		 */
+		return 1;
+	}
+	/*
+	 * No.  We have to put the adapter into rfmon mode.
+	 */
+
+	/*
+	 * If we haven't already done so, arrange to have
+	 * "pcap_close_all()" called when we exit.
+	 */
+	if (!pcap_do_addexit(handle)) {
+		/*
+		 * "atexit()" failed; don't put the interface
+		 * in rfmon mode, just give up.
+		 */
+		return PCAP_ERROR_RFMON_NOTSUP;
+	}
+
+	/*
+	 * Save the old mode.
+	 */
+	handle->md.oldmode = ireq.u.mode;
+
+	/*
+	 * Put the adapter in rfmon mode.  How we do this depends
+	 * on whether we have a special private ioctl or not.
+	 */
+	if (montype == MONITOR_PRISM) {
+		/*
+		 * We have the "monitor" private ioctl, but none of
+		 * the other private ioctls.  Use this, and select
+		 * the Prism header.
+		 *
+		 * If it fails, just fall back on SIOCSIWMODE.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		ireq.u.data.length = 1;	/* 1 argument */
+		args[0] = 3;	/* request Prism header */
+		memcpy(ireq.u.name, args, IFNAMSIZ);
+		if (ioctl(sock_fd, cmd, &ireq) != -1) {
+			/*
+			 * Success.
+			 * Note that we have to put the old mode back
+			 * when we close the device.
+			 */
+			handle->md.must_clear |= MUST_CLEAR_RFMON;
+
+			/*
+			 * Add this to the list of pcaps to close
+			 * when we exit.
+			 */
+			pcap_add_to_pcaps_to_close(handle);
+
+			return 1;
+		}
+
+		/*
+		 * Failure.  Fall back on SIOCSIWMODE.
+		 */
+	}
+
+	/*
+	 * First, turn monitor mode on.
+	 */
+	strncpy(ireq.ifr_ifrn.ifrn_name, device,
+	    sizeof ireq.ifr_ifrn.ifrn_name);
+	ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+	ireq.u.mode = IW_MODE_MONITOR;
+	if (ioctl(sock_fd, SIOCSIWMODE, &ireq) == -1) {
+		/*
+		 * Scientist, you've failed.
+		 */
+		return PCAP_ERROR_RFMON_NOTSUP;
+	}
+
+	/*
+	 * XXX - airmon-ng does "iwconfig {if} key off" after setting
+	 * monitor mode and setting the channel, and then does
+	 * "iwconfig up".
+	 */
+
+	/*
+	 * Now select the appropriate radio header.
+	 */
+	switch (montype) {
+
+	case MONITOR_WEXT:
+		/*
+		 * We don't have any private ioctl to set the header.
+		 */
+		break;
+
+	case MONITOR_HOSTAP:
+		/*
+		 * Select the AVS header if we can, otherwise
+		 * select the Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 2;	/* request AVS header */
+		memcpy(ireq.u.name, args, sizeof (int));
+		if (ioctl(sock_fd, cmd, &ireq) == -1) {
+			/*
+			 * Failure - try the Prism header.
+			 */
+			memset(&ireq, 0, sizeof ireq);
+			strncpy(ireq.ifr_ifrn.ifrn_name, device,
+			    sizeof ireq.ifr_ifrn.ifrn_name);
+			ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+			args[0] = 1;	/* request Prism header */
+			memcpy(ireq.u.name, args, sizeof (int));
+			ioctl(sock_fd, cmd, &ireq);
+		}
+		break;
+
+	case MONITOR_PRISM:
+		/*
+		 * The private ioctl failed.
+		 */
+		break;
+
+	case MONITOR_PRISM54:
+		/*
+		 * Select the Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 3;	/* request Prism header */
+		memcpy(ireq.u.name, args, sizeof (int));
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+
+	case MONITOR_ACX100:
+		/*
+		 * Get the current channel.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		if (ioctl(sock_fd, SIOCGIWFREQ, &ireq) == -1) {
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			    "%s: SIOCGIWFREQ: %s", device,
+			    pcap_strerror(errno));
+			return PCAP_ERROR;
+		}
+		channel = ireq.u.freq.m;
+
+		/*
+		 * Select the Prism header, and set the channel to the
+		 * current value.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 1;		/* request Prism header */
+		args[1] = channel;	/* set channel */
+		memcpy(ireq.u.name, args, 2*sizeof (int));
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+
+	case MONITOR_RT2500:
+		/*
+		 * Disallow transmission - that turns on the
+		 * Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 0;	/* disallow transmitting */
+		memcpy(ireq.u.name, args, sizeof (int));
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+
+	case MONITOR_RT2570:
+		/*
+		 * Force the Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 1;	/* request Prism header */
+		memcpy(ireq.u.name, args, sizeof (int));
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+
+	case MONITOR_RT73:
+		/*
+		 * Force the Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		ireq.u.data.length = 1;	/* 1 argument */
+		ireq.u.data.pointer = "1";
+		ireq.u.data.flags = 0;
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+
+	case MONITOR_RTL8XXX:
+		/*
+		 * Force the Prism header.
+		 */
+		memset(&ireq, 0, sizeof ireq);
+		strncpy(ireq.ifr_ifrn.ifrn_name, device,
+		    sizeof ireq.ifr_ifrn.ifrn_name);
+		ireq.ifr_ifrn.ifrn_name[sizeof ireq.ifr_ifrn.ifrn_name - 1] = 0;
+		args[0] = 1;	/* request Prism header */
+		memcpy(ireq.u.name, args, sizeof (int));
+		ioctl(sock_fd, cmd, &ireq);
+		break;
+	}
+
+	/*
+	 * Note that we have to put the old mode back when we
+	 * close the device.
+	 */
+	handle->md.must_clear |= MUST_CLEAR_RFMON;
+
+	/*
+	 * Add this to the list of pcaps to close when we exit.
+	 */
+	pcap_add_to_pcaps_to_close(handle);
+
+	return 1;
+#else
+	/*
+	 * We don't have the Wireless Extensions available, so we can't
+	 * do monitor mode.
+	 */
+	return 0;
+#endif
+}
+
+#endif /* HAVE_PF_PACKET_SOCKETS */
 
 /* ===== Functions to interface to the older kernels ================== */
 
 /*
- * With older kernels promiscuous mode is kind of interesting because we
- * have to reset the interface before exiting. The problem can't really
- * be solved without some daemon taking care of managing usage counts.
- * If we put the interface into promiscuous mode, we set a flag indicating
- * that we must take it out of that mode when the interface is closed,
- * and, when closing the interface, if that flag is set we take it out
- * of promiscuous mode.
- */
-
-/*
- * List of pcaps for which we turned promiscuous mode on by hand.
- * If there are any such pcaps, we arrange to call "pcap_close_all()"
- * when we exit, and have it close all of them to turn promiscuous mode
- * off.
- */
-static struct pcap *pcaps_to_close;
-
-/*
- * TRUE if we've already called "atexit()" to cause "pcap_close_all()" to
- * be called on exit.
- */
-static int did_atexit;
-
-static void	pcap_close_all(void)
-{
-	struct pcap *handle;
-
-	while ((handle = pcaps_to_close) != NULL)
-		pcap_close(handle);
-}
-
-static void	pcap_close_linux( pcap_t *handle )
-{
-	struct pcap	*p, *prevp;
-	struct ifreq	ifr;
-
-	if (handle->md.clear_promisc) {
-		/*
-		 * We put the interface into promiscuous mode; take
-		 * it out of promiscuous mode.
-		 *
-		 * XXX - if somebody else wants it in promiscuous mode,
-		 * this code cannot know that, so it'll take it out
-		 * of promiscuous mode.  That's not fixable in 2.0[.x]
-		 * kernels.
-		 */
-		memset(&ifr, 0, sizeof(ifr));
-		strncpy(ifr.ifr_name, handle->md.device, sizeof(ifr.ifr_name));
-		if (ioctl(handle->fd, SIOCGIFFLAGS, &ifr) == -1) {
-			fprintf(stderr,
-			    "Can't restore interface flags (SIOCGIFFLAGS failed: %s).\n"
-			    "Please adjust manually.\n"
-			    "Hint: This can't happen with Linux >= 2.2.0.\n",
-			    strerror(errno));
-		} else {
-			if (ifr.ifr_flags & IFF_PROMISC) {
-				/*
-				 * Promiscuous mode is currently on; turn it
-				 * off.
-				 */
-				ifr.ifr_flags &= ~IFF_PROMISC;
-				if (ioctl(handle->fd, SIOCSIFFLAGS, &ifr) == -1) {
-					fprintf(stderr,
-					    "Can't restore interface flags (SIOCSIFFLAGS failed: %s).\n"
-					    "Please adjust manually.\n"
-					    "Hint: This can't happen with Linux >= 2.2.0.\n",
-					    strerror(errno));
-				}
-			}
-		}
-
-		/*
-		 * Take this pcap out of the list of pcaps for which we
-		 * have to take the interface out of promiscuous mode.
-		 */
-		for (p = pcaps_to_close, prevp = NULL; p != NULL;
-		    prevp = p, p = p->md.next) {
-			if (p == handle) {
-				/*
-				 * Found it.  Remove it from the list.
-				 */
-				if (prevp == NULL) {
-					/*
-					 * It was at the head of the list.
-					 */
-					pcaps_to_close = p->md.next;
-				} else {
-					/*
-					 * It was in the middle of the list.
-					 */
-					prevp->md.next = p->md.next;
-				}
-				break;
-			}
-		}
-	}
-
-	if (handle->md.device != NULL)
-		free(handle->md.device);
-	handle->md.device = NULL;
-	pcap_close_common(handle);
-}
-
-/*
- *  Try to open a packet socket using the old kernel interface.
- *  Returns 0 on failure.
- *  FIXME: 0 uses to mean success (Sebastian)
+ * Try to open a packet socket using the old kernel interface.
+ * Returns 1 on success and a PCAP_ERROR_ value on an error.
  */
 static int
-live_open_old(pcap_t *handle, const char *device, int promisc,
-	      int to_ms, char *ebuf)
+activate_old(pcap_t *handle)
 {
 	int		arptype;
 	struct ifreq	ifr;
+	const char	*device = handle->opt.source;
+	struct utsname	utsname;
+	int		mtu;
 
-	do {
-		/* Open the socket */
+	/* Open the socket */
 
-		handle->fd = socket(PF_INET, SOCK_PACKET, htons(ETH_P_ALL));
-		if (handle->fd == -1) {
-			snprintf(ebuf, PCAP_ERRBUF_SIZE,
-				 "socket: %s", pcap_strerror(errno));
-			break;
+	handle->fd = socket(PF_INET, SOCK_PACKET, htons(ETH_P_ALL));
+	if (handle->fd == -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "socket: %s", pcap_strerror(errno));
+		return PCAP_ERROR_PERM_DENIED;
+	}
+
+	/* It worked - we are using the old interface */
+	handle->md.sock_packet = 1;
+
+	/* ...which means we get the link-layer header. */
+	handle->md.cooked = 0;
+
+	/* Bind to the given device */
+
+	if (!device) {
+		strncpy(handle->errbuf, "pcap_activate: The \"any\" device isn't supported on 2.0[.x]-kernel systems",
+			PCAP_ERRBUF_SIZE);
+		return PCAP_ERROR;
+	}
+	if (iface_bind_old(handle->fd, device, handle->errbuf) == -1)
+		return PCAP_ERROR;
+
+	/*
+	 * Try to get the link-layer type.
+	 */
+	arptype = iface_get_arptype(handle->fd, device, handle->errbuf);
+	if (arptype < 0)
+		return PCAP_ERROR;
+
+	/*
+	 * Try to find the DLT_ type corresponding to that
+	 * link-layer type.
+	 */
+	map_arphrd_to_dlt(handle, arptype, 0);
+	if (handle->linktype == -1) {
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+			 "unknown arptype %d", arptype);
+		return PCAP_ERROR;
+	}
+
+	/* Go to promisc mode if requested */
+
+	if (handle->opt.promisc) {
+		memset(&ifr, 0, sizeof(ifr));
+		strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
+		if (ioctl(handle->fd, SIOCGIFFLAGS, &ifr) == -1) {
+			snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+				 "SIOCGIFFLAGS: %s", pcap_strerror(errno));
+			return PCAP_ERROR;
 		}
+		if ((ifr.ifr_flags & IFF_PROMISC) == 0) {
+			/*
+			 * Promiscuous mode isn't currently on,
+			 * so turn it on, and remember that
+			 * we should turn it off when the
+			 * pcap_t is closed.
+			 */
 
-		/* It worked - we are using the old interface */
-		handle->md.sock_packet = 1;
-
-		/* ...which means we get the link-layer header. */
-		handle->md.cooked = 0;
-
-		/* Bind to the given device */
-
-		if (!device) {
-		        strncpy(ebuf, "pcap_open_live: The \"any\" device isn't supported on 2.0[.x]-kernel systems",
-				PCAP_ERRBUF_SIZE);
-			break;
-		}
-		if (iface_bind_old(handle->fd, device, ebuf) == -1)
-			break;
-
-		/*
-		 * Try to get the link-layer type.
-		 */
-		arptype = iface_get_arptype(handle->fd, device, ebuf);
-		if (arptype == -1)
-			break;
-
-		/*
-		 * Try to find the DLT_ type corresponding to that
-		 * link-layer type.
-		 */
-		map_arphrd_to_dlt(handle, arptype, 0);
-		if (handle->linktype == -1) {
-			snprintf(ebuf, PCAP_ERRBUF_SIZE,
-				 "unknown arptype %d", arptype);
-			break;
-		}
-
-		/* Go to promisc mode if requested */
-
-		if (promisc) {
-			memset(&ifr, 0, sizeof(ifr));
-			strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
-			if (ioctl(handle->fd, SIOCGIFFLAGS, &ifr) == -1) {
-				snprintf(ebuf, PCAP_ERRBUF_SIZE,
-					 "SIOCGIFFLAGS: %s", pcap_strerror(errno));
-				break;
+			/*
+			 * If we haven't already done so, arrange
+			 * to have "pcap_close_all()" called when
+			 * we exit.
+			 */
+			if (!pcap_do_addexit(handle)) {
+				/*
+				 * "atexit()" failed; don't put
+				 * the interface in promiscuous
+				 * mode, just give up.
+				 */
+				return PCAP_ERROR;
 			}
-			if ((ifr.ifr_flags & IFF_PROMISC) == 0) {
-				/*
-				 * Promiscuous mode isn't currently on,
-				 * so turn it on, and remember that
-				 * we should turn it off when the
-				 * pcap_t is closed.
-				 */
 
-				/*
-				 * If we haven't already done so, arrange
-				 * to have "pcap_close_all()" called when
-				 * we exit.
-				 */
-				if (!did_atexit) {
-					if (atexit(pcap_close_all) == -1) {
-						/*
-						 * "atexit()" failed; don't
-						 * put the interface in
-						 * promiscuous mode, just
-						 * give up.
-						 */
-						strncpy(ebuf, "atexit failed",
-							PCAP_ERRBUF_SIZE);
-						break;
-					}
-					did_atexit = 1;
-				}
-
-				ifr.ifr_flags |= IFF_PROMISC;
-				if (ioctl(handle->fd, SIOCSIFFLAGS, &ifr) == -1) {
-				        snprintf(ebuf, PCAP_ERRBUF_SIZE,
-						 "SIOCSIFFLAGS: %s",
-						 pcap_strerror(errno));
-					break;
-				}
-				handle->md.clear_promisc = 1;
-
-				/*
-				 * Add this to the list of pcaps
-				 * to close when we exit.
-				 */
-				handle->md.next = pcaps_to_close;
-				pcaps_to_close = handle;
+			ifr.ifr_flags |= IFF_PROMISC;
+			if (ioctl(handle->fd, SIOCSIFFLAGS, &ifr) == -1) {
+			        snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
+					 "SIOCSIFFLAGS: %s",
+					 pcap_strerror(errno));
+				return PCAP_ERROR;
 			}
+			handle->md.must_clear |= MUST_CLEAR_PROMISC;
+
+			/*
+			 * Add this to the list of pcaps
+			 * to close when we exit.
+			 */
+			pcap_add_to_pcaps_to_close(handle);
 		}
+	}
 
+	/*
+	 * Compute the buffer size.
+	 *
+	 * We're using SOCK_PACKET, so this might be a 2.0[.x]
+	 * kernel, and might require special handling - check.
+	 */
+	if (uname(&utsname) < 0 ||
+	    strncmp(utsname.release, "2.0", 3) == 0) {
 		/*
-		 * Default value for offset to align link-layer payload
-		 * on a 4-byte boundary.
+		 * Either we couldn't find out what kernel release
+		 * this is, or it's a 2.0[.x] kernel.
+		 *
+		 * In the 2.0[.x] kernel, a "recvfrom()" on
+		 * a SOCK_PACKET socket, with MSG_TRUNC set, will
+		 * return the number of bytes read, so if we pass
+		 * a length based on the snapshot length, it'll
+		 * return the number of bytes from the packet
+		 * copied to userland, not the actual length
+		 * of the packet.
+		 *
+		 * This means that, for example, the IP dissector
+		 * in tcpdump will get handed a packet length less
+		 * than the length in the IP header, and will
+		 * complain about "truncated-ip".
+		 *
+		 * So we don't bother trying to copy from the
+		 * kernel only the bytes in which we're interested,
+		 * but instead copy them all, just as the older
+		 * versions of libpcap for Linux did.
+		 *
+		 * The buffer therefore needs to be big enough to
+		 * hold the largest packet we can get from this
+		 * device.  Unfortunately, we can't get the MRU
+		 * of the network; we can only get the MTU.  The
+		 * MTU may be too small, in which case a packet larger
+		 * than the buffer size will be truncated *and* we
+		 * won't get the actual packet size.
+		 *
+		 * However, if the snapshot length is larger than
+		 * the buffer size based on the MTU, we use the
+		 * snapshot length as the buffer size, instead;
+		 * this means that with a sufficiently large snapshot
+		 * length we won't artificially truncate packets
+		 * to the MTU-based size.
+		 *
+		 * This mess just one of many problems with packet
+		 * capture on 2.0[.x] kernels; you really want a
+		 * 2.2[.x] or later kernel if you want packet capture
+		 * to work well.
 		 */
-		handle->offset	 = 0;
+		mtu = iface_get_mtu(handle->fd, device, handle->errbuf);
+		if (mtu == -1)
+			return PCAP_ERROR;
+		handle->bufsize = MAX_LINKHEADER_SIZE + mtu;
+		if (handle->bufsize < handle->snapshot)
+			handle->bufsize = handle->snapshot;
+	} else {
+		/*
+		 * This is a 2.2[.x] or later kernel.
+		 *
+		 * We can safely pass "recvfrom()" a byte count
+		 * based on the snapshot length.
+		 */
+		handle->bufsize = handle->snapshot;
+	}
 
-		return 1;
+	/*
+	 * Default value for offset to align link-layer payload
+	 * on a 4-byte boundary.
+	 */
+	handle->offset	 = 0;
 
-	} while (0);
-
-	pcap_close_linux(handle);
-	return 0;
+	return 1;
 }
 
 /*
@@ -1971,7 +3344,13 @@ iface_get_arptype(int fd, const char *device, char *ebuf)
 	if (ioctl(fd, SIOCGIFHWADDR, &ifr) == -1) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
 			 "SIOCGIFHWADDR: %s", pcap_strerror(errno));
-		return -1;
+		if (errno == ENODEV) {
+			/*
+			 * No such device.
+			 */
+			return PCAP_ERROR_NO_SUCH_DEVICE;
+		}
+		return PCAP_ERROR;
 	}
 
 	return ifr.ifr_hwaddr.sa_family;
@@ -1995,7 +3374,7 @@ fix_program(pcap_t *handle, struct sock_fprog *fcode)
 	len = handle->fcode.bf_len;
 	f = (struct bpf_insn *)malloc(prog_size);
 	if (f == NULL) {
-		snprintf(handle->errbuf, sizeof(handle->errbuf),
+		snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 			 "malloc: %s", pcap_strerror(errno));
 		return -1;
 	}
@@ -2167,7 +3546,7 @@ set_kernel_filter(pcap_t *handle, struct sock_fprog *fcode)
 			if (save_errno != EAGAIN) {
 				/* Fatal error */
 				reset_kernel_filter(handle);
-				snprintf(handle->errbuf, sizeof(handle->errbuf),
+				snprintf(handle->errbuf, PCAP_ERRBUF_SIZE,
 				 "recv: %s", pcap_strerror(save_errno));
 				return -2;
 			}

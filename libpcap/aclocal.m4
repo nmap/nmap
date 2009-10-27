@@ -1,4 +1,4 @@
-dnl @(#) $Header: /tcpdump/master/libpcap/aclocal.m4,v 1.85.2.1 2005/04/21 03:42:09 guy Exp $ (LBL)
+dnl @(#) $Header: /tcpdump/master/libpcap/aclocal.m4,v 1.86.2.6 2008-09-28 17:13:37 guy Exp $ (LBL)
 dnl
 dnl Copyright (c) 1995, 1996, 1997, 1998
 dnl	The Regents of the University of California.  All rights reserved.
@@ -57,7 +57,7 @@ AC_DEFUN(AC_LBL_C_INIT,
 	    LBL_CFLAGS="$CFLAGS"
     fi
     if test -z "$CC" ; then
-	    case "$target_os" in
+	    case "$host_os" in
 
 	    bsdi*)
 		    AC_CHECK_PROG(SHLICC2, shlicc2, yes, no)
@@ -76,7 +76,7 @@ AC_DEFUN(AC_LBL_C_INIT,
     if test "$GCC" = yes ; then
 	    if test "$SHLICC2" = yes ; then
 		    ac_cv_lbl_gcc_vers=2
-		    $1="-g -O2"
+		    $1="-O2"
 	    else
 		    AC_MSG_CHECKING(gcc version)
 		    AC_CACHE_VAL(ac_cv_lbl_gcc_vers,
@@ -87,7 +87,7 @@ AC_DEFUN(AC_LBL_C_INIT,
 				-e 's/\..*//'`)
 		    AC_MSG_RESULT($ac_cv_lbl_gcc_vers)
 		    if test $ac_cv_lbl_gcc_vers -gt 1 ; then
-			    $1="-g -O2"
+			    $1="-O2"
 		    fi
 	    fi
     else
@@ -100,7 +100,7 @@ AC_DEFUN(AC_LBL_C_INIT,
 		    ac_cv_lbl_cc_ansi_prototypes=no))
 	    AC_MSG_RESULT($ac_cv_lbl_cc_ansi_prototypes)
 	    if test $ac_cv_lbl_cc_ansi_prototypes = no ; then
-		    case "$target_os" in
+		    case "$host_os" in
 
 		    hpux*)
 			    AC_MSG_CHECKING(for HP-UX ansi compiler ($CC -Aa -D_HPUX_SOURCE))
@@ -129,7 +129,7 @@ AC_DEFUN(AC_LBL_C_INIT,
 	    $2="$$2 -I/usr/local/include"
 	    LDFLAGS="$LDFLAGS -L/usr/local/lib"
 
-	    case "$target_os" in
+	    case "$host_os" in
 
 	    irix*)
 		    V_CCOPT="$V_CCOPT -xansi -signed -g3"
@@ -269,7 +269,7 @@ AC_DEFUN(AC_LBL_LIBPCAP,
 	    AC_MSG_RESULT($libpcap)
     fi
     LIBS="$libpcap $LIBS"
-    case "$target_os" in
+    case "$host_os" in
 
     aix*)
 	    pseexe="/lib/pse.exp"
@@ -301,7 +301,7 @@ AC_DEFUN(AC_LBL_TYPE_SIGNAL,
     else
 	    AC_DEFINE(RETSIGVAL,(0),[return value of signal handlers])
     fi
-    case "$target_os" in
+    case "$host_os" in
 
     irix*)
 	    AC_DEFINE(_BSD_SIGNALS,1,[get BSD semantics on Irix])
@@ -627,7 +627,7 @@ AC_DEFUN(AC_LBL_UNALIGNED_ACCESS,
 	# know it does work, and have the script just fail on other
 	# cpu types and update it when such a failure occurs.
 	#
-	alpha*|arm*|hp*|mips*|sh*|sparc*|ia64|nv1)
+	alpha*|arm*|bfin*|hp*|mips*|sh*|sparc*|ia64|nv1)
 		ac_cv_lbl_unaligned_fail=yes
 		;;
 
@@ -682,7 +682,7 @@ EOF
 dnl
 dnl If using gcc and the file .devel exists:
 dnl	Compile with -g (if supported) and -Wall
-dnl	If using gcc 2, do extra prototype checking
+dnl	If using gcc 2 or later, do extra prototype checking
 dnl	If an os prototype include exists, symlink os-proto.h to it
 dnl
 dnl usage:
@@ -712,7 +712,7 @@ AC_DEFUN(AC_LBL_DEVEL,
 			    fi
 		    fi
 	    else
-		    case "$target_os" in
+		    case "$host_os" in
 
 		    irix6*)
 			    V_CCOPT="$V_CCOPT -n32"
@@ -722,7 +722,7 @@ AC_DEFUN(AC_LBL_DEVEL,
 			    ;;
 		    esac
 	    fi
-	    os=`echo $target_os | sed -e 's/\([[0-9]][[0-9]]*\)[[^0-9]].*$/\1/'`
+	    os=`echo $host_os | sed -e 's/\([[0-9]][[0-9]]*\)[[^0-9]].*$/\1/'`
 	    name="lbl/os-$os.h"
 	    if test -f $name ; then
 		    ln -s $name os-proto.h
@@ -745,6 +745,11 @@ dnl
 dnl results:
 dnl
 dnl	LIBS
+dnl
+dnl XXX - "AC_LBL_LIBRARY_NET" was redone to use "AC_SEARCH_LIBS"
+dnl rather than "AC_LBL_CHECK_LIB", so this isn't used any more.
+dnl We keep it around for reference purposes in case it's ever
+dnl useful in the future.
 dnl
 
 define(AC_LBL_CHECK_LIB,
@@ -898,3 +903,59 @@ AC_DEFUN(AC_LBL_TPACKET_STATS,
    if test $ac_cv_lbl_tpacket_stats = yes; then
        AC_DEFINE(HAVE_TPACKET_STATS,1,[if if_packet.h has tpacket_stats defined])
    fi])
+
+dnl
+dnl Checks to see if the tpacket_auxdata struct has a tp_vlan_tci member.
+dnl
+dnl usage:
+dnl
+dnl	AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
+dnl
+dnl results:
+dnl
+dnl	HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI (defined)
+dnl
+dnl NOTE: any compile failure means we conclude that it doesn't have
+dnl that member, so if we don't have tpacket_auxdata, we conclude it
+dnl doesn't have that member (which is OK, as either we won't be using
+dnl code that would use that member, or we wouldn't compile in any case).
+dnl
+AC_DEFUN(AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,
+    [AC_MSG_CHECKING(if tpacket_auxdata struct has tp_vlan_tci member)
+    AC_CACHE_VAL(ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1,
+	AC_TRY_COMPILE([
+#	include <linux/if_packet.h>],
+	[u_int i = sizeof(((struct tpacket_auxdata *)0)->tp_vlan_tci)],
+	ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci=yes,
+	ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci=no))
+    AC_MSG_RESULT($ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci)
+    if test $ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci = yes ; then
+	    AC_DEFINE(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,1,[if tp_vlan_tci exists])
+    fi])
+
+dnl
+dnl Checks to see if Solaris has the dl_passive_req_t struct defined
+dnl in <sys/dlpi.h>.
+dnl
+dnl usage:
+dnl
+dnl	AC_LBL_DL_PASSIVE_REQ_T
+dnl
+dnl results:
+dnl 
+dnl 	HAVE_DLPI_PASSIVE (defined)
+dnl
+AC_DEFUN(AC_LBL_DL_PASSIVE_REQ_T,
+        [AC_MSG_CHECKING(if dl_passive_req_t struct exists)
+       AC_CACHE_VAL(ac_cv_lbl_has_dl_passive_req_t,
+                AC_TRY_COMPILE([
+#       include <sys/types.h>
+#       include <sys/dlpi.h>],
+        [u_int i = sizeof(dl_passive_req_t)],
+        ac_cv_lbl_has_dl_passive_req_t=yes,
+        ac_cv_lbl_has_dl_passive_req_t=no))
+    AC_MSG_RESULT($ac_cv_lbl_has_dl_passive_req_t)
+    if test $ac_cv_lbl_has_dl_passive_req_t = yes ; then
+            AC_DEFINE(HAVE_DLPI_PASSIVE,1,[if passive_req_t primitive
+		exists])
+    fi])

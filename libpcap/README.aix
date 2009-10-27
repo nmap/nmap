@@ -13,14 +13,17 @@ Using BPF:
 
 (2) If libpcap doesn't compile on your machine when configured to use
     BPF, or if the workarounds fail to make it work correctly, you
-    should send to tcpdump-workers@tcpdump.org a detailed bug report (if
-    the compile fails, send us the compile error messages; if it
-    compiles but fails to work correctly, send us as detailed as
+    should send to tcpdump-workers@lists.tcpdump.org a detailed bug
+    report (if the compile fails, send us the compile error messages;
+    if it compiles but fails to work correctly, send us as detailed as
     possible a description of the symptoms, including indications of the
     network link-layer type being wrong or time stamps being wrong).
 
-    If you fix the problems yourself, please send to patches@tcpdump.org
-    a patch, so we can incorporate them into the next release.
+    If you fix the problems yourself, please submit a patch to
+
+	http://sourceforge.net/projects/libpcap/
+
+    so we can incorporate them into the next release.
 
     If you don't fix the problems yourself, you can, as a workaround,
     make libpcap use DLPI instead of BPF.

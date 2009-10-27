@@ -17,7 +17,7 @@
 #  WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 #  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 #
-# @(#) $Header: /tcpdump/master/libpcap/Makefile.in,v 1.99.2.2 2007/07/24 02:35:15 mcr Exp $ (LBL)
+# @(#) $Header: /tcpdump/master/libpcap/Makefile.in,v 1.108.2.28 2008-10-23 22:13:21 guy Exp $ (LBL)
 
 #
 # Various configurable paths (remember to edit Makefile.in, not Makefile)
@@ -26,11 +26,14 @@
 # Top level hierarchy
 prefix = @prefix@
 exec_prefix = @exec_prefix@
+datarootdir = @datarootdir@
+# Pathname of directory to install the configure program
+bindir = @bindir@
 # Pathname of directory to install the include files
 includedir = @includedir@
 # Pathname of directory to install the library
 libdir =  @libdir@
-# Pathname of directory to install the man page
+# Pathname of directory to install the man pages
 mandir = @mandir@
 
 # VPATH
@@ -47,11 +50,12 @@ INCLS = -I. @V_INCLS@
 DEFS = @DEFS@ @V_DEFS@
 LIBS = @V_LIBS@
 DAGLIBS = @DAGLIBS@
+DEPLIBS = @DEPLIBS@
 DYEXT = @DYEXT@
 PROG=libpcap
 
 # Standard CFLAGS
-CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
+CFLAGS = @CFLAGS@ $(CCOPT) $(INCLS) $(DEFS)
 
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -63,8 +67,8 @@ RANLIB = @RANLIB@
 # used by the generated parser.  This allows programs to use lex/yacc
 # and link against libpcap.  If you don't have flex or bison, get them.
 #
-LEX = flex
-YACC = yacc
+LEX = @V_LEX@
+YACC = @V_YACC@
 
 # Explicitly define compilation rule since SunOS 4's make doesn't like gcc.
 # Also, gcc does not remove the .o before forking 'as', which can be a
@@ -73,7 +77,7 @@ YACC = yacc
 	@rm -f $@
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
-PSRC =	pcap-@V_PCAP@.c
+PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@
 FSRC =  fad-@V_FINDALLDEVS@.c
 SSRC =  @SSRC@
 CSRC =	pcap.c inet.c gencode.c optimize.c nametoaddr.c \
@@ -86,10 +90,31 @@ SRC =	$(PSRC) $(FSRC) $(CSRC) $(SSRC) $(GENSRC)
 # We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
 # hack the extra indirection
 OBJ =	$(PSRC:.c=.o) $(FSRC:.c=.o) $(CSRC:.c=.o) $(SSRC:.c=.o) $(GENSRC:.c=.o) $(LIBOBJS)
-HDR =	pcap.h pcap-int.h pcap-namedb.h pcap-nit.h pcap-pf.h \
-	ethertype.h gencode.h gnuc.h
+HDR = \
+	acconfig.h \
+	arcnet.h \
+	atmuni31.h \
+	ethertype.h \
+	gencode.h \
+	ieee80211.h \
+	llc.h \
+	nlpid.h \
+	pcap/bluetooth.h \
+	pcap/bpf.h \
+	pcap/namedb.h \
+	pcap/pcap.h \
+	pcap/sll.h \
+	pcap/usb.h \
+	pcap/vlan.h \
+	pcap.h \
+	pcap-int.h \
+	pcap-namedb.h \
+	pcap-stdinc.h \
+	ppp.h \
+	sunatmpos.h
+
 GENHDR = \
-	tokdefs.h version.h
+	scanner.h tokdefs.h version.h
 
 TAGHDR = \
 	pcap-bpf.h
@@ -97,13 +122,200 @@ TAGHDR = \
 TAGFILES = \
 	$(SRC) $(HDR) $(TAGHDR)
 
-CLEANFILES = $(OBJ) libpcap.a version.c lex.yy.c
+CLEANFILES = $(OBJ) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
 
-all: libpcap.a
+MAN1 = pcap-config.1
+
+MAN3PCAP_EXPAND = \
+	pcap.3pcap.in \
+	pcap_compile.3pcap.in \
+	pcap_datalink.3pcap.in \
+	pcap_dump_open.3pcap.in \
+	pcap_list_datalinks.3pcap.in \
+	pcap_open_dead.3pcap.in \
+	pcap_open_offline.3pcap.in
+
+MAN3PCAP_NOEXPAND = \
+	pcap_activate.3pcap \
+	pcap_breakloop.3pcap \
+	pcap_can_set_rfmon.3pcap \
+	pcap_close.3pcap \
+	pcap_create.3pcap \
+	pcap_datalink_name_to_val.3pcap \
+	pcap_datalink_val_to_name.3pcap \
+	pcap_dump.3pcap \
+	pcap_dump_close.3pcap \
+	pcap_dump_file.3pcap \
+	pcap_dump_flush.3pcap \
+	pcap_dump_ftell.3pcap \
+	pcap_file.3pcap \
+	pcap_fileno.3pcap \
+	pcap_findalldevs.3pcap \
+	pcap_freealldevs.3pcap \
+	pcap_freecode.3pcap \
+	pcap_free_datalinks.3pcap \
+	pcap_get_selectable_fd.3pcap \
+	pcap_geterr.3pcap \
+	pcap_inject.3pcap \
+	pcap_is_swapped.3pcap \
+	pcap_lib_version.3pcap \
+	pcap_lookupdev.3pcap \
+	pcap_lookupnet.3pcap \
+	pcap_loop.3pcap \
+	pcap_major_version.3pcap \
+	pcap_next_ex.3pcap \
+	pcap_offline_filter.3pcap \
+	pcap_open_live.3pcap \
+	pcap_set_buffer_size.3pcap \
+	pcap_set_datalink.3pcap \
+	pcap_set_promisc.3pcap \
+	pcap_set_rfmon.3pcap \
+	pcap_set_snaplen.3pcap \
+	pcap_set_timeout.3pcap \
+	pcap_setdirection.3pcap \
+	pcap_setfilter.3pcap \
+	pcap_setnonblock.3pcap \
+	pcap_snapshot.3pcap \
+	pcap_stats.3pcap \
+	pcap_statustostr.3pcap \
+	pcap_strerror.3pcap
+
+MAN3PCAP = $(MAN3PCAP_NOEXPAND) $(MAN3PCAP_EXPAND:.in=)
+
+MANFILE = \
+	pcap-savefile.manfile.in
+
+MANMISC = \
+	pcap-filter.manmisc.in \
+	pcap-linktype.manmisc.in
+
+EXTRA_DIST = \
+	CHANGES \
+	ChmodBPF/ChmodBPF \
+	ChmodBPF/StartupParameters.plist \
+	CREDITS \
+	INSTALL.txt \
+	LICENSE \
+	Makefile.in \
+	README \
+	README.aix \
+	README.dag \
+	README.hpux \
+	README.linux \
+	README.macosx \
+	README.septel \
+	README.sita \
+	README.tru64 \
+	README.Win32 \
+	SUNOS4/nit_if.o.sparc \
+	SUNOS4/nit_if.o.sun3 \
+	SUNOS4/nit_if.o.sun4c.4.0.3c \
+	TODO \
+	VERSION \
+	aclocal.m4 \
+	bpf/net/bpf_filter.c \
+	chmod_bpf \
+	config.guess \
+	config.h.in \
+	config.sub \
+	configure \
+	configure.in \
+	dlpisubs.c \
+	dlpisubs.h \
+	fad-getad.c \
+	fad-gifc.c \
+	fad-glifc.c \
+	fad-null.c \
+	fad-sita.c \
+	fad-win32.c \
+	filtertest.c \
+	findalldevstest.c \
+	grammar.y \
+	install-sh \
+	lbl/os-aix4.h \
+	lbl/os-hpux11.h \
+	lbl/os-osf4.h \
+	lbl/os-osf5.h \
+	lbl/os-solaris2.h \
+	lbl/os-sunos4.h \
+	lbl/os-ultrix4.h \
+	missing/snprintf.c \
+	mkdep \
+	msdos/bin2c.c \
+	msdos/common.dj \
+	msdos/makefile \
+	msdos/makefile.dj \
+	msdos/makefile.wc \
+	msdos/ndis2.c \
+	msdos/ndis2.h \
+	msdos/ndis_0.asm \
+	msdos/pkt_rx0.asm \
+	msdos/pkt_rx1.s \
+	msdos/pktdrvr.c \
+	msdos/pktdrvr.h \
+	msdos/readme.dos \
+	net/bpf_filter.c \
+	org.tcpdump.chmod_bpf.plist \
+	packaging/pcap.spec.in \
+	pcap-bpf.c \
+	pcap-bpf.h \
+	pcap-bt-linux.c \
+	pcap-bt-linux.h \
+	pcap-config.in \
+	pcap-dag.c \
+	pcap-dag.h \
+	pcap-dlpi.c \
+	pcap-dos.c \
+	pcap-dos.h \
+	pcap-enet.c \
+	pcap-int.h \
+	pcap-libdlpi.c \
+	pcap-linux.c \
+	pcap-namedb.h \
+	pcap-nit.c \
+	pcap-null.c \
+	pcap-pf.c \
+	pcap-septel.c \
+	pcap-septel.h \
+	pcap-sita.h \
+	pcap-sita.c \
+	pcap-sita.html \
+	pcap-snit.c \
+	pcap-snoop.c \
+	pcap-usb-linux.c \
+	pcap-usb-linux.h \
+	pcap-win32.c \
+	runlex.sh \
+	scanner.l \
+	Win32/Include/Gnuc.h \
+	Win32/Include/addrinfo.h \
+	Win32/Include/bittypes.h \
+	Win32/Include/cdecl_ext.h \
+	Win32/Include/inetprivate.h \
+	Win32/Include/ip6_misc.h \
+	Win32/Include/sockstorage.h \
+	Win32/Include/arpa/nameser.h \
+	Win32/Include/net/if.h \
+	Win32/Include/net/netdb.h \
+	Win32/Include/net/paths.h \
+	Win32/Prj/libpcap.dsp \
+	Win32/Prj/libpcap.dsw \
+	Win32/Src/ffs.c \
+	Win32/Src/gai_strerror.c \
+	Win32/Src/getaddrinfo.c \
+	Win32/Src/getnetbynm.c \
+	Win32/Src/getnetent.c \
+	Win32/Src/getopt.c \
+	Win32/Src/getservent.c \
+	Win32/Src/inet_aton.c \
+	Win32/Src/inet_net.c \
+	Win32/Src/inet_pton.c
+
+all: libpcap.a pcap-config
 
 libpcap.a: $(OBJ)
 	@rm -f $@
-	ar rc $@ $(OBJ) $(LIBS)
+	$(AR) rc $@ $(OBJ) $(LIBS)
 	$(RANLIB) $@
 
 shared: libpcap.$(DYEXT)
@@ -114,19 +326,27 @@ shared: libpcap.$(DYEXT)
 #
 libpcap.so: $(OBJ)
 	@rm -f $@
-	$(CC) -shared -o $@.`cat VERSION` $(OBJ) $(DAGLIBS)
+	$(CC) -shared -Wl,-soname,$@.1 -o $@.`cat $(srcdir)/VERSION` $(OBJ) $(DAGLIBS)
 
-# the following rule succeeds, but the result is untested.
+#
+# The following rule succeeds, but the result is untested.
+#
+# XXX - OS X installs the library as "libpcap.A.dylib", with that as the
+# install_name, and sets the current version to 1 as well.  VERSION
+# might contain a not-purely-numeric version number, but
+# -current_version requires a purely numeric version, so this won't
+# work with top-of-tree builds.
+#
 libpcap.dylib: $(OBJ)
 	rm -f libpcap*.dylib
-	$(CC) -dynamiclib -undefined error -o libpcap.`cat VERSION`.dylib $(OBJ) \
-		-install_name $(libdir)/libpcap.0.dylib -compatibility_version `cat VERSION` \
-		-current_version `cat VERSION`
-
+	$(CC) -dynamiclib -undefined error -o libpcap.`cat $(srcdir)/VERSION`.dylib $(OBJ) \
+		-install_name $(libdir)/libpcap.A.dylib \
+		-compatibility_version 1 \
+		-current_version `sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`
 
 scanner.c: $(srcdir)/scanner.l
 	@rm -f $@
-	$(LEX) -t $< > $$$$.$@; mv $$$$.$@ $@
+	./runlex.sh $(LEX) -o$@ $<
 
 scanner.o: scanner.c tokdefs.h
 	$(CC) $(CFLAGS) -c scanner.c
@@ -172,43 +392,135 @@ bpf_filter.c: $(srcdir)/bpf/net/bpf_filter.c
 bpf_filter.o: bpf_filter.c
 	$(CC) $(CFLAGS) -c bpf_filter.c
 
-install: libpcap.a 
+#
+# Generate the pcap-config script.
+#
+pcap-config: pcap-config.in Makefile
+	@rm -f $@ $@.tmp
+	sed -e 's|@includedir[@]|$(includedir)|g' \
+	    -e 's|@libdir[@]|$(libdir)|g' \
+	    -e 's|@DEPLIBS[@]|$(DEPLIBS)|g' \
+	    pcap-config.in >$@.tmp
+	mv $@.tmp $@
+	chmod a+x $@
+
+#
+# Test programs - not built by default, and not installed.
+#
+filtertest: filtertest.c libpcap.a
+	$(CC) $(CFLAGS) -I. -L. -o filtertest filtertest.c libpcap.a
+
+findalldevstest: findalldevstest.c libpcap.a
+	$(CC) $(CFLAGS) -I. -L. -o findalldevstest findalldevstest.c libpcap.a
+
+install: libpcap.a pcap-config
 	[ -d $(DESTDIR)$(libdir) ] || \
 	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
 	$(INSTALL_DATA) libpcap.a $(DESTDIR)$(libdir)/libpcap.a
 	$(RANLIB) $(DESTDIR)$(libdir)/libpcap.a
 	[ -d $(DESTDIR)$(includedir) ] || \
 	    (mkdir -p $(DESTDIR)$(includedir); chmod 755 $(DESTDIR)$(includedir))
+	[ -d $(DESTDIR)$(includedir)/pcap ] || \
+	    (mkdir -p $(DESTDIR)$(includedir)/pcap; chmod 755 $(DESTDIR)$(includedir)/pcap)
+	[ -d $(DESTDIR)$(mandir)/man1 ] || \
+	    (mkdir -p $(DESTDIR)$(mandir)/man1; chmod 755 $(DESTDIR)$(mandir)/man1)
+	[ -d $(DESTDIR)$(mandir)/man3 ] || \
+	    (mkdir -p $(DESTDIR)$(mandir)/man3; chmod 755 $(DESTDIR)$(mandir)/man3)
+	[ -d $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@ ] || \
+	    (mkdir -p $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@; chmod 755 $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@)
+	[ -d $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@ ] || \
+	    (mkdir -p $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@; chmod 755 $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@)
+	$(INSTALL_DATA) $(srcdir)/pcap/pcap.h \
+	    $(DESTDIR)$(includedir)/pcap/pcap.h
+	$(INSTALL_DATA) $(srcdir)/pcap/bpf.h \
+	    $(DESTDIR)$(includedir)/pcap/bpf.h
+	$(INSTALL_DATA) $(srcdir)/pcap/namedb.h \
+	    $(DESTDIR)$(includedir)/pcap/namedb.h
+	$(INSTALL_DATA) $(srcdir)/pcap/sll.h \
+	    $(DESTDIR)$(includedir)/pcap/sll.h
+	$(INSTALL_DATA) $(srcdir)/pcap/usb.h \
+	    $(DESTDIR)$(includedir)/pcap/usb.h
 	$(INSTALL_DATA) $(srcdir)/pcap.h $(DESTDIR)$(includedir)/pcap.h
 	$(INSTALL_DATA) $(srcdir)/pcap-bpf.h \
 	    $(DESTDIR)$(includedir)/pcap-bpf.h
 	$(INSTALL_DATA) $(srcdir)/pcap-namedb.h \
 	    $(DESTDIR)$(includedir)/pcap-namedb.h
-	[ -d $(DESTDIR)$(mandir)/man3 ] || \
-		(mkdir -p $(DESTDIR)$(mandir)/man3; chmod 755 $(DESTDIR)$(mandir)/man3)
-	$(INSTALL_DATA) $(srcdir)/pcap.3 \
-	    $(DESTDIR)$(mandir)/man3/pcap.3
+	$(INSTALL_PROGRAM) pcap-config $(DESTDIR)$(bindir)/pcap-config
+	for i in $(MAN1); do \
+		$(INSTALL_DATA) $(srcdir)/$$i \
+		    $(DESTDIR)$(mandir)/man1/$$i; done
+	for i in $(MAN3PCAP); do \
+		$(INSTALL_DATA) $(srcdir)/$$i \
+		    $(DESTDIR)$(mandir)/man3/$$i; done
+	ln $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_name.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_dump_open.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_geterr.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_inject.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_loop.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_major_version.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_next_ex.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_open_offline.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
+	ln $(DESTDIR)$(mandir)/man3/pcap_setnonblock.3pcap \
+		 $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+	for i in $(MANFILE); do \
+		$(INSTALL_DATA) $(srcdir)/`echo $$i | sed 's/.manfile.in/.manfile/'` \
+		    $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@/`echo $$i | sed 's/.manfile.in/.@MAN_FILE_FORMATS@/'`; done
+	for i in $(MANMISC); do \
+		$(INSTALL_DATA) $(srcdir)/`echo $$i | sed 's/.manmisc.in/.manmisc/'` \
+		    $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@/`echo $$i | sed 's/.manmisc.in/.@MAN_MISC_INFO@/'`; done
 
 install-shared: install-shared-$(DYEXT)
 install-shared-so: libpcap.so
 	$(INSTALL_PROGRAM) libpcap.so.`cat VERSION` $(DESTDIR)$(libdir)/libpcap.so.`cat VERSION`
 install-shared-dylib: libpcap.dylib
 	$(INSTALL_PROGRAM) libpcap.`cat VERSION`.dylib $(DESTDIR)$(libdir)/libpcap.`cat VERSION`.dylib
-	VER=`cat VERSION`; cd $(DESTDIR)$(libdir) && ln -sf libpcap.$$VER.dylib libpcap.0.dylib;  ln -sf libpcap.0.dylib libpcap.dylib
+	VER=`cat VERSION`; cd $(DESTDIR)$(libdir) && ln -sf libpcap.$$VER.dylib libpcap.A.dylib;  ln -sf libpcap.A.dylib libpcap.dylib
 
 uninstall:
 	rm -f $(DESTDIR)$(libdir)/libpcap.a
+	rm -f $(DESTDIR)$(includedir)/pcap/pcap.h
+	rm -f $(DESTDIR)$(includedir)/pcap/bpf.h
+	rm -f $(DESTDIR)$(includedir)/pcap/namedb.h
+	rm -f $(DESTDIR)$(includedir)/pcap/sll.h
+	rm -f $(DESTDIR)$(includedir)/pcap/usb.h
+	-rmdir $(DESTDIR)$(includedir)/pcap
 	rm -f $(DESTDIR)$(includedir)/pcap.h
 	rm -f $(DESTDIR)$(includedir)/pcap-bpf.h
 	rm -f $(DESTDIR)$(includedir)/pcap-namedb.h
-	rm -f $(DESTDIR)$(mandir)/man3/pcap.3
+	for i in $(MAN1); do \
+		rm -f $(DESTDIR)$(mandir)/man1/$$i; done
+	for i in $(MAN3PCAP); do \
+		rm -f $(DESTDIR)$(mandir)/man3/$$i; done
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_datalink_val_to_description.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_dump_fopen.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_perror.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_sendpacket.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_dispatch.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_minor_version.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_next.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_fopen_offline.3pcap
+	rm -f  $(DESTDIR)$(mandir)/man3/pcap_getnonblock.3pcap
+	for i in $(MANFILE); do \
+		rm -f $(DESTDIR)$(mandir)/man@MAN_FILE_FORMATS@/`echo $$i | sed 's/.manfile.in/.@MAN_FILE_FORMATS@/'`; done
+	for i in $(MANMISC); do \
+		rm -f $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@/`echo $$i | sed 's/.manmisc.in/.@MAN_MISC_INFO@/'`; done
 
 clean:
 	rm -f $(CLEANFILES) libpcap*.dylib libpcap.so*
 
 distclean: clean
 	rm -f Makefile config.cache config.log config.status \
-	    config.h gnuc.h os-proto.h bpf_filter.c stamp-h stamp-h.in
+	    config.h gnuc.h os-proto.h bpf_filter.c pcap-config \
+	    stamp-h stamp-h.in
+	rm -f $(MAN3PCAP_EXPAND:.in=) $(MANFILE:.in=) $(MANMISC:.in=)
 	rm -rf autom4te.cache
 
 tags: $(TAGFILES)
@@ -220,8 +532,12 @@ packaging/pcap.spec: packaging/pcap.spec.in VERSION
 
 releasetar:
 	@cwd=`pwd` ; dir=`basename $$cwd` ; name=$(PROG)-`cat VERSION` ; \
-	   list="" ; make distclean; cd ..; mkdir -p n; cd n; ln -s ../$$dir $$name; \
-	   tar -c -z -f $$name.tar.gz $$name/. ;
+	   mkdir $$name; \
+	   tar cf - $(CSRC) $(HDR) $(MAN1) $(MAN3PCAP_EXPAND) \
+	      $(MAN3PCAP_NOEXPAND) $(MANFILE) $(MANMISC) $(EXTRA_DIST) | \
+	      (cd $$name; tar xf -); \
+	   tar -c -z -f $$name.tar.gz $$name; \
+	   rm -rf $$name
 
 depend:	$(GENSRC) $(GENHDR) bpf_filter.c
 	./mkdep -c $(CC) $(DEFS) $(INCLS) $(SRC)

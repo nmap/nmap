@@ -33,7 +33,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.88.2.17 2007/06/22 06:43:58 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.112.2.12 2008-09-22 20:16:01 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -70,10 +70,205 @@ static const char rcsid[] _U_ =
 #include <dagapi.h>
 #endif
 
+int 
+pcap_not_initialized(pcap_t *pcap)
+{
+	/* this means 'not initialized' */
+	return PCAP_ERROR_NOT_ACTIVATED;
+}
+
+/*
+ * Returns 1 if rfmon mode can be set on the pcap_t, 0 if it can't,
+ * a PCAP_ERROR value on an error.
+ */
+int
+pcap_can_set_rfmon(pcap_t *p)
+{
+	return (p->can_set_rfmon_op(p));
+}
+
+/*
+ * For systems where rfmon mode is never supported.
+ */
+static int
+pcap_cant_set_rfmon(pcap_t *p _U_)
+{
+	return (0);
+}
+
+pcap_t *
+pcap_create_common(const char *source, char *ebuf)
+{
+	pcap_t *p;
+
+	p = malloc(sizeof(*p));
+	if (p == NULL) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		    pcap_strerror(errno));
+		return (NULL);
+	}
+	memset(p, 0, sizeof(*p));
+#ifndef WIN32
+	p->fd = -1;	/* not opened yet */
+#endif 
+
+	p->opt.source = strdup(source);
+	if (p->opt.source == NULL) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		    pcap_strerror(errno));
+		free(p);
+		return (NULL);
+	}
+
+	/*
+	 * Default to "can't set rfmon mode"; if it's supported by
+	 * a platform, it can set the op to its routine to check
+	 * whether a particular device supports it.
+	 */
+	p->can_set_rfmon_op = pcap_cant_set_rfmon;
+
+	/*
+	 * Some operations can be performed only on activated pcap_t's;
+	 * have those operations handled by a "not supported" handler
+	 * until the pcap_t is activated.
+	 */
+	p->read_op = (read_op_t)pcap_not_initialized;
+	p->inject_op = (inject_op_t)pcap_not_initialized;
+	p->setfilter_op = (setfilter_op_t)pcap_not_initialized;
+	p->setdirection_op = (setdirection_op_t)pcap_not_initialized;
+	p->set_datalink_op = (set_datalink_op_t)pcap_not_initialized;
+	p->getnonblock_op = (getnonblock_op_t)pcap_not_initialized;
+	p->setnonblock_op = (setnonblock_op_t)pcap_not_initialized;
+	p->stats_op = (stats_op_t)pcap_not_initialized;
+#ifdef WIN32
+	p->setbuff_op = (setbuff_op_t)pcap_not_initialized;
+	p->setmode_op = (setmode_op_t)pcap_not_initialized;
+	p->setmintocopy_op = (setmintocopy_op_t)pcap_not_initialized;
+#endif
+	p->cleanup_op = pcap_cleanup_live_common;
+
+	/* put in some defaults*/
+	pcap_set_timeout(p, 0);
+	pcap_set_snaplen(p, 65535);	/* max packet size */
+	p->opt.promisc = 0;
+	p->opt.buffer_size = 0;
+	return (p);
+}
+
+int
+pcap_check_activated(pcap_t *p)
+{
+	if (p->activated) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "can't perform "
+			" operation on activated capture");
+		return -1;
+	}
+	return 0;
+}
+
+int
+pcap_set_snaplen(pcap_t *p, int snaplen)
+{
+	if (pcap_check_activated(p))
+		return PCAP_ERROR_ACTIVATED;
+	p->snapshot = snaplen;
+	return 0;
+}
+
+int
+pcap_set_promisc(pcap_t *p, int promisc)
+{
+	if (pcap_check_activated(p))
+		return PCAP_ERROR_ACTIVATED;
+	p->opt.promisc = promisc;
+	return 0;
+}
+
+int
+pcap_set_rfmon(pcap_t *p, int rfmon)
+{
+	if (pcap_check_activated(p))
+		return PCAP_ERROR_ACTIVATED;
+	p->opt.rfmon = rfmon;
+	return 0;
+}
+
+int
+pcap_set_timeout(pcap_t *p, int timeout_ms)
+{
+	if (pcap_check_activated(p))
+		return PCAP_ERROR_ACTIVATED;
+	p->md.timeout = timeout_ms;
+	return 0;
+}
+
+int
+pcap_set_buffer_size(pcap_t *p, int buffer_size)
+{
+	if (pcap_check_activated(p))
+		return PCAP_ERROR_ACTIVATED;
+	p->opt.buffer_size = buffer_size;
+	return 0;
+}
+
+int
+pcap_activate(pcap_t *p)
+{
+	int status;
+
+	status = p->activate_op(p);
+	if (status >= 0)
+		p->activated = 1;
+	return (status);
+}
+
+pcap_t *
+pcap_open_live(const char *source, int snaplen, int promisc, int to_ms, char *errbuf)
+{
+	pcap_t *p;
+	int status;
+
+	p = pcap_create(source, errbuf);
+	if (p == NULL)
+		return (NULL);
+	status = pcap_set_snaplen(p, snaplen);
+	if (status < 0)
+		goto fail;
+	status = pcap_set_promisc(p, promisc);
+	if (status < 0)
+		goto fail;
+	status = pcap_set_timeout(p, to_ms);
+	if (status < 0)
+		goto fail;
+	/*
+	 * Mark this as opened with pcap_open_live(), so that, for
+	 * example, we show the full list of DLT_ values, rather
+	 * than just the ones that are compatible with capturing
+	 * when not in monitor mode.  That allows existing applications
+	 * to work the way they used to work, but allows new applications
+	 * that know about the new open API to, for example, find out the
+	 * DLT_ values that they can select without changing whether
+	 * the adapter is in monitor mode or not.
+	 */
+	p->oldstyle = 1;
+	status = pcap_activate(p);
+	if (status < 0)
+		goto fail;
+	return (p);
+fail:
+	if (status == PCAP_ERROR || status == PCAP_ERROR_NO_SUCH_DEVICE ||
+	    status == PCAP_ERROR_PERM_DENIED)
+		strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
+	else
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", source,
+		    pcap_statustostr(status));
+	pcap_close(p);
+	return (NULL);
+}
+
 int
 pcap_dispatch(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 {
-
 	return p->read_op(p, cnt, callback, user);
 }
 
@@ -222,6 +417,12 @@ pcap_datalink(pcap_t *p)
 }
 
 int
+pcap_datalink_ext(pcap_t *p)
+{
+	return (p->linktype_ext);
+}
+
+int
 pcap_list_datalinks(pcap_t *p, int **dlt_buffer)
 {
 	if (p->dlt_count == 0) {
@@ -240,7 +441,7 @@ pcap_list_datalinks(pcap_t *p, int **dlt_buffer)
 		**dlt_buffer = p->linktype;
 		return (1);
 	} else {
-		*dlt_buffer = (int*)malloc(sizeof(**dlt_buffer) * p->dlt_count);
+		*dlt_buffer = (int*)calloc(sizeof(**dlt_buffer), p->dlt_count);
 		if (*dlt_buffer == NULL) {
 			(void)snprintf(p->errbuf, sizeof(p->errbuf),
 			    "malloc: %s", pcap_strerror(errno));
@@ -250,6 +451,23 @@ pcap_list_datalinks(pcap_t *p, int **dlt_buffer)
 		    sizeof(**dlt_buffer) * p->dlt_count);
 		return (p->dlt_count);
 	}
+}
+
+/*
+ * In Windows, you might have a library built with one version of the
+ * C runtime library and an application built with another version of
+ * the C runtime library, which means that the library might use one
+ * version of malloc() and free() and the application might use another
+ * version of malloc() and free().  If so, that means something
+ * allocated by the library cannot be freed by the application, so we
+ * need to have a pcap_free_datalinks() routine to free up the list
+ * allocated by pcap_list_datalinks(), even though it's just a wrapper
+ * around free().
+ */
+void
+pcap_free_datalinks(int *dlt_list)
+{
+	free(dlt_list);
 }
 
 int
@@ -327,7 +545,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_NULL, "BSD loopback"),
 	DLT_CHOICE(DLT_EN10MB, "Ethernet"),
 	DLT_CHOICE(DLT_IEEE802, "Token ring"),
-	DLT_CHOICE(DLT_ARCNET, "ARCNET"),
+	DLT_CHOICE(DLT_ARCNET, "BSD ARCNET"),
 	DLT_CHOICE(DLT_SLIP, "SLIP"),
 	DLT_CHOICE(DLT_PPP, "PPP"),
 	DLT_CHOICE(DLT_FDDI, "FDDI"),
@@ -338,6 +556,7 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_ATM_CLIP, "Linux Classical IP-over-ATM"),
 	DLT_CHOICE(DLT_PPP_SERIAL, "PPP over serial"),
 	DLT_CHOICE(DLT_PPP_ETHER, "PPPoE"),
+        DLT_CHOICE(DLT_SYMANTEC_FIREWALL, "Symantec Firewall"),
 	DLT_CHOICE(DLT_C_HDLC, "Cisco HDLC"),
 	DLT_CHOICE(DLT_IEEE802_11, "802.11"),
 	DLT_CHOICE(DLT_FRELAY, "Frame Relay"),
@@ -349,17 +568,25 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_PRISM_HEADER, "802.11 plus Prism header"),
 	DLT_CHOICE(DLT_IP_OVER_FC, "RFC 2625 IP-over-Fibre Channel"),
 	DLT_CHOICE(DLT_SUNATM, "Sun raw ATM"),
-	DLT_CHOICE(DLT_IEEE802_11_RADIO, "802.11 plus BSD radio information header"),
-	DLT_CHOICE(DLT_APPLE_IP_OVER_IEEE1394, "Apple IP-over-IEEE 1394"),
+	DLT_CHOICE(DLT_IEEE802_11_RADIO, "802.11 plus radiotap header"),
 	DLT_CHOICE(DLT_ARCNET_LINUX, "Linux ARCNET"),
+        DLT_CHOICE(DLT_JUNIPER_MLPPP, "Juniper Multi-Link PPP"),
+	DLT_CHOICE(DLT_JUNIPER_MLFR, "Juniper Multi-Link Frame Relay"),
+        DLT_CHOICE(DLT_JUNIPER_ES, "Juniper Encryption Services PIC"),
+        DLT_CHOICE(DLT_JUNIPER_GGSN, "Juniper GGSN PIC"),
+	DLT_CHOICE(DLT_JUNIPER_MFR, "Juniper FRF.16 Frame Relay"),
+        DLT_CHOICE(DLT_JUNIPER_ATM2, "Juniper ATM2 PIC"),
+        DLT_CHOICE(DLT_JUNIPER_SERVICES, "Juniper Advanced Services PIC"),
+        DLT_CHOICE(DLT_JUNIPER_ATM1, "Juniper ATM1 PIC"),
+	DLT_CHOICE(DLT_APPLE_IP_OVER_IEEE1394, "Apple IP-over-IEEE 1394"),
+	DLT_CHOICE(DLT_MTP2_WITH_PHDR, "SS7 MTP2 with Pseudo-header"),
+	DLT_CHOICE(DLT_MTP2, "SS7 MTP2"),
+	DLT_CHOICE(DLT_MTP3, "SS7 MTP3"),
+	DLT_CHOICE(DLT_SCCP, "SS7 SCCP"),
 	DLT_CHOICE(DLT_DOCSIS, "DOCSIS"),
 	DLT_CHOICE(DLT_LINUX_IRDA, "Linux IrDA"),
-	DLT_CHOICE(DLT_LINUX_LAPD, "Linux vISDN LAPD"),
 	DLT_CHOICE(DLT_IEEE802_11_RADIO_AVS, "802.11 plus AVS radio information header"),
-        DLT_CHOICE(DLT_SYMANTEC_FIREWALL, "Symantec Firewall"),
-        DLT_CHOICE(DLT_JUNIPER_ATM1, "Juniper ATM1 PIC"),
-        DLT_CHOICE(DLT_JUNIPER_ATM2, "Juniper ATM2 PIC"),
-        DLT_CHOICE(DLT_JUNIPER_MLPPP, "Juniper Multi-Link PPP"),
+        DLT_CHOICE(DLT_JUNIPER_MONITOR, "Juniper Passive Monitor PIC"),
 	DLT_CHOICE(DLT_PPP_PPPD, "PPP for pppd, with direction flag"),
 	DLT_CHOICE(DLT_JUNIPER_PPPOE, "Juniper PPPoE"),
 	DLT_CHOICE(DLT_JUNIPER_PPPOE_ATM, "Juniper PPPoE/ATM"),
@@ -367,27 +594,35 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_GPF_T, "GPF-T"),
 	DLT_CHOICE(DLT_GPF_F, "GPF-F"),
 	DLT_CHOICE(DLT_JUNIPER_PIC_PEER, "Juniper PIC Peer"),
-	DLT_CHOICE(DLT_JUNIPER_MLFR, "Juniper Multi-Link Frame Relay"),
 	DLT_CHOICE(DLT_ERF_ETH,	"Ethernet with Endace ERF header"),
 	DLT_CHOICE(DLT_ERF_POS, "Packet-over-SONET with Endace ERF header"),
-        DLT_CHOICE(DLT_JUNIPER_GGSN, "Juniper GGSN PIC"),
-        DLT_CHOICE(DLT_JUNIPER_ES, "Juniper Encryption Services PIC"),
-        DLT_CHOICE(DLT_JUNIPER_MONITOR, "Juniper Passive Monitor PIC"),
-        DLT_CHOICE(DLT_JUNIPER_SERVICES, "Juniper Advanced Services PIC"),
-	DLT_CHOICE(DLT_JUNIPER_MFR, "Juniper FRF.16 Frame Relay"),
+	DLT_CHOICE(DLT_LINUX_LAPD, "Linux vISDN LAPD"),
 	DLT_CHOICE(DLT_JUNIPER_ETHER, "Juniper Ethernet"),
 	DLT_CHOICE(DLT_JUNIPER_PPP, "Juniper PPP"),
 	DLT_CHOICE(DLT_JUNIPER_FRELAY, "Juniper Frame Relay"),
 	DLT_CHOICE(DLT_JUNIPER_CHDLC, "Juniper C-HDLC"),
 	DLT_CHOICE(DLT_MFR, "FRF.16 Frame Relay"),
 	DLT_CHOICE(DLT_JUNIPER_VP, "Juniper Voice PIC"),
-	DLT_CHOICE(DLT_MTP2, "SS7 MTP2"),
 	DLT_CHOICE(DLT_A429, "Arinc 429"),
 	DLT_CHOICE(DLT_A653_ICM, "Arinc 653 Interpartition Communication"),
 	DLT_CHOICE(DLT_USB, "USB"),
 	DLT_CHOICE(DLT_BLUETOOTH_HCI_H4, "Bluetooth HCI UART transport layer"),
+	DLT_CHOICE(DLT_IEEE802_16_MAC_CPS, "IEEE 802.16 MAC Common Part Sublayer"),
+	DLT_CHOICE(DLT_USB_LINUX, "USB with Linux header"),
 	DLT_CHOICE(DLT_CAN20B, "Controller Area Network (CAN) v. 2.0B"),
-	DLT_CHOICE(DLT_MTP2_WITH_PHDR, "SS7 MTP2 with Pseudo-header"),
+	DLT_CHOICE(DLT_IEEE802_15_4_LINUX, "IEEE 802.15.4 with Linux padding"),
+	DLT_CHOICE(DLT_PPI, "Per-Packet Information"),
+	DLT_CHOICE(DLT_IEEE802_16_MAC_CPS_RADIO, "IEEE 802.16 MAC Common Part Sublayer plus radiotap header"),
+	DLT_CHOICE(DLT_JUNIPER_ISM, "Juniper Integrated Service Module"),
+	DLT_CHOICE(DLT_IEEE802_15_4, "IEEE 802.15.4"),
+	DLT_CHOICE(DLT_SITA, "SITA pseudo-header"),
+	DLT_CHOICE(DLT_ERF, "Endace ERF header"),
+	DLT_CHOICE(DLT_RAIF1, "Ethernet with u10 Networks pseudo-header"),
+	DLT_CHOICE(DLT_IPMB, "IPMB"),
+	DLT_CHOICE(DLT_JUNIPER_ST, "Juniper Secure Tunnel"),
+	DLT_CHOICE(DLT_BLUETOOTH_HCI_H4_WITH_PHDR, "Bluetooth HCI UART transport layer plus pseudo-header"),
+	DLT_CHOICE(DLT_AX25_KISS, "AX.25 with KISS header"),
+	DLT_CHOICE(DLT_IEEE802_15_4_NONASK_PHY, "IEEE 802.15.4 with non-ASK PHY data"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -679,6 +914,53 @@ pcap_win32strerror(void)
 #endif
 
 /*
+ * Generate error strings for PCAP_ERROR_ and PCAP_WARNING_ values.
+ */
+const char *
+pcap_statustostr(int errnum)
+{
+	static char ebuf[15+10+1];
+
+	switch (errnum) {
+
+	case PCAP_WARNING:
+		return("Generic warning");
+
+	case PCAP_WARNING_PROMISC_NOTSUP:
+		return ("That device doesn't support promiscuous mode");
+
+	case PCAP_ERROR:
+		return("Generic error");
+
+	case PCAP_ERROR_BREAK:
+		return("Loop terminated by pcap_breakloop");
+
+	case PCAP_ERROR_NOT_ACTIVATED:
+		return("The pcap_t has not been activated");
+
+	case PCAP_ERROR_ACTIVATED:
+		return ("The setting can't be changed after the pcap_t is activated");
+
+	case PCAP_ERROR_NO_SUCH_DEVICE:
+		return ("No such device exists");
+
+	case PCAP_ERROR_RFMON_NOTSUP:
+		return ("That device doesn't support monitor mode");
+
+	case PCAP_ERROR_NOT_RFMON:
+		return ("That operation is supported only in monitor mode");
+
+	case PCAP_ERROR_PERM_DENIED:
+		return ("You don't have permission to capture on that device");
+
+	case PCAP_ERROR_IFACE_NOT_UP:
+		return ("That device is not up");
+	}
+	(void)snprintf(ebuf, sizeof ebuf, "Unknown error: %d", errnum);
+	return(ebuf);
+}
+
+/*
  * Not all systems have strerror().
  */
 const char *
@@ -689,7 +971,7 @@ pcap_strerror(int errnum)
 #else
 	extern int sys_nerr;
 	extern const char *const sys_errlist[];
-	static char ebuf[20];
+	static char ebuf[15+10+1];
 
 	if ((unsigned int)errnum < sys_nerr)
 		return ((char *)sys_errlist[errnum]);
@@ -735,19 +1017,162 @@ pcap_stats_dead(pcap_t *p, struct pcap_stat *ps _U_)
 	return (-1);
 }
 
-void
-pcap_close_common(pcap_t *p)
+#ifdef WIN32
+int
+pcap_setbuff(pcap_t *p, int dim)
 {
-	if (p->buffer != NULL)
+	return p->setbuff_op(p, dim);
+}
+
+static int
+pcap_setbuff_dead(pcap_t *p, int dim)
+{
+	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+	    "The kernel buffer size cannot be set on a pcap_open_dead pcap_t");
+	return (-1);
+}
+
+int
+pcap_setmode(pcap_t *p, int mode)
+{
+	return p->setmode_op(p, mode);
+}
+
+static int
+pcap_setmode_dead(pcap_t *p, int mode)
+{
+	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+	    "impossible to set mode on a pcap_open_dead pcap_t");
+	return (-1);
+}
+
+int
+pcap_setmintocopy(pcap_t *p, int size)
+{
+	return p->setmintocopy_op(p, size);
+}
+
+static int
+pcap_setmintocopy_dead(pcap_t *p, int size)
+{
+	snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+	    "The mintocopy parameter cannot be set on a pcap_open_dead pcap_t");
+	return (-1);
+}
+#endif
+
+/*
+ * On some platforms, we need to clean up promiscuous or monitor mode
+ * when we close a device - and we want that to happen even if the
+ * application just exits without explicitl closing devices.
+ * On those platforms, we need to register a "close all the pcaps"
+ * routine to be called when we exit, and need to maintain a list of
+ * pcaps that need to be closed to clean up modes.
+ *
+ * XXX - not thread-safe.
+ */
+
+/*
+ * List of pcaps on which we've done something that needs to be
+ * cleaned up.
+ * If there are any such pcaps, we arrange to call "pcap_close_all()"
+ * when we exit, and have it close all of them.
+ */
+static struct pcap *pcaps_to_close;
+
+/*
+ * TRUE if we've already called "atexit()" to cause "pcap_close_all()" to
+ * be called on exit.
+ */
+static int did_atexit;
+
+static void
+pcap_close_all(void)
+{
+	struct pcap *handle;
+
+	while ((handle = pcaps_to_close) != NULL)
+		pcap_close(handle);
+}
+
+int
+pcap_do_addexit(pcap_t *p)
+{
+	/*
+	 * If we haven't already done so, arrange to have
+	 * "pcap_close_all()" called when we exit.
+	 */
+	if (!did_atexit) {
+		if (atexit(pcap_close_all) == -1) {
+			/*
+			 * "atexit()" failed; let our caller know.
+			 */
+			strncpy(p->errbuf, "atexit failed",
+			    PCAP_ERRBUF_SIZE);
+			return (0);
+		}
+		did_atexit = 1;
+	}
+	return (1);
+}
+
+void
+pcap_add_to_pcaps_to_close(pcap_t *p)
+{
+	p->md.next = pcaps_to_close;
+	pcaps_to_close = p;
+}
+
+void
+pcap_remove_from_pcaps_to_close(pcap_t *p)
+{
+	pcap_t *pc, *prevpc;
+
+	for (pc = pcaps_to_close, prevpc = NULL; pc != NULL;
+	    prevpc = pc, pc = pc->md.next) {
+		if (pc == p) {
+			/*
+			 * Found it.  Remove it from the list.
+			 */
+			if (prevpc == NULL) {
+				/*
+				 * It was at the head of the list.
+				 */
+				pcaps_to_close = pc->md.next;
+			} else {
+				/*
+				 * It was in the middle of the list.
+				 */
+				prevpc->md.next = pc->md.next;
+			}
+			break;
+		}
+	}
+}
+
+void
+pcap_cleanup_live_common(pcap_t *p)
+{
+	if (p->buffer != NULL) {
 		free(p->buffer);
+		p->buffer = NULL;
+	}
+	if (p->dlt_list != NULL) {
+		free(p->dlt_list);
+		p->dlt_list = NULL;
+		p->dlt_count = 0;
+	}
+	pcap_freecode(&p->fcode);
 #if !defined(WIN32) && !defined(MSDOS)
-	if (p->fd >= 0)
+	if (p->fd >= 0) {
 		close(p->fd);
+		p->fd = -1;
+	}
 #endif
 }
 
 static void
-pcap_close_dead(pcap_t *p _U_)
+pcap_cleanup_dead(pcap_t *p _U_)
 {
 	/* Nothing to do. */
 }
@@ -764,7 +1189,13 @@ pcap_open_dead(int linktype, int snaplen)
 	p->snapshot = snaplen;
 	p->linktype = linktype;
 	p->stats_op = pcap_stats_dead;
-	p->close_op = pcap_close_dead;
+#ifdef WIN32
+	p->setbuff_op = pcap_setbuff_dead;
+	p->setmode_op = pcap_setmode_dead;
+	p->setmintocopy_op = pcap_setmintocopy_dead;
+#endif
+	p->cleanup_op = pcap_cleanup_dead;
+	p->activated = 1;
 	return p;
 }
 
@@ -795,11 +1226,28 @@ pcap_inject(pcap_t *p, const void *buf, size_t size)
 void
 pcap_close(pcap_t *p)
 {
-	p->close_op(p);
-	if (p->dlt_list != NULL)
-		free(p->dlt_list);
-	pcap_freecode(&p->fcode);
+	if (p->opt.source != NULL)
+		free(p->opt.source);
+	p->cleanup_op(p);
 	free(p);
+}
+
+/*
+ * Given a BPF program, a pcap_pkthdr structure for a packet, and the raw
+ * data for the packet, check whether the packet passes the filter.
+ * Returns the return value of the filter program, which will be zero if
+ * the packet doesn't pass and non-zero if the packet does pass.
+ */
+int
+pcap_offline_filter(struct bpf_program *fp, const struct pcap_pkthdr *h,
+    const u_char *pkt)
+{
+	struct bpf_insn *fcode = fp->bf_insns;
+
+	if (fcode != NULL) 
+		return (bpf_filter(fcode, pkt, h->len, h->caplen));
+	else
+		return (0);
 }
 
 /*
@@ -817,7 +1265,7 @@ pcap_close(pcap_t *p)
 #ifdef HAVE_VERSION_H
 #include "version.h"
 #else
-static const char pcap_version_string[] = "libpcap version 0.9.7";
+static const char pcap_version_string[] = "libpcap version 0.9[.x]";
 #endif
 
 #ifdef WIN32

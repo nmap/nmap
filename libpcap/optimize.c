@@ -22,7 +22,7 @@
  */
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/optimize.c,v 1.85.2.2 2007/07/15 19:55:04 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/optimize.c,v 1.90.2.1 2008/01/02 04:22:16 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -51,6 +51,10 @@ extern int dflag;
 #if defined(MSDOS) && !defined(__DJGPP__)
 extern int _w32_ffs (int mask);
 #define ffs _w32_ffs
+#endif
+
+#if defined(WIN32) && defined (_MSC_VER)
+int ffs(int mask);
 #endif
 
 /*
@@ -904,6 +908,17 @@ opt_peep(b)
 			JT(b) = JF(b);
 		if (b->s.k == 0xffffffff)
 			JF(b) = JT(b);
+	}
+	/*
+	 * If we're comparing against the index register, and the index
+	 * register is a known constant, we can just compare against that
+	 * constant.
+	 */
+	val = b->val[X_ATOM];
+	if (vmap[val].is_const && BPF_SRC(b->s.code) == BPF_X) {
+		bpf_int32 v = vmap[val].const_val;
+		b->s.code &= ~BPF_X;
+		b->s.k = v;
 	}
 	/*
 	 * If the accumulator is a known constant, we can compute the
@@ -1972,7 +1987,7 @@ opt_init(root)
 	 */
 	unMarkAll();
 	n = count_blocks(root);
-	blocks = (struct block **)malloc(n * sizeof(*blocks));
+	blocks = (struct block **)calloc(n, sizeof(*blocks));
 	if (blocks == NULL)
 		bpf_error("malloc");
 	unMarkAll();
@@ -1980,14 +1995,14 @@ opt_init(root)
 	number_blks_r(root);
 
 	n_edges = 2 * n_blocks;
-	edges = (struct edge **)malloc(n_edges * sizeof(*edges));
+	edges = (struct edge **)calloc(n_edges, sizeof(*edges));
 	if (edges == NULL)
 		bpf_error("malloc");
 
 	/*
 	 * The number of levels is bounded by the number of nodes.
 	 */
-	levels = (struct block **)malloc(n_blocks * sizeof(*levels));
+	levels = (struct block **)calloc(n_blocks, sizeof(*levels));
 	if (levels == NULL)
 		bpf_error("malloc");
 
@@ -2034,8 +2049,8 @@ opt_init(root)
 	 * we'll need.
 	 */
 	maxval = 3 * max_stmts;
-	vmap = (struct vmapinfo *)malloc(maxval * sizeof(*vmap));
-	vnode_base = (struct valnode *)malloc(maxval * sizeof(*vnode_base));
+	vmap = (struct vmapinfo *)calloc(maxval, sizeof(*vmap));
+	vnode_base = (struct valnode *)calloc(maxval, sizeof(*vnode_base));
 	if (vmap == NULL || vnode_base == NULL)
 		bpf_error("malloc");
 }
@@ -2275,6 +2290,15 @@ int
 install_bpf_program(pcap_t *p, struct bpf_program *fp)
 {
 	size_t prog_size;
+
+	/*
+	 * Validate the program.
+	 */
+	if (!bpf_validate(fp->bf_insns, fp->bf_len)) {
+		snprintf(p->errbuf, sizeof(p->errbuf),
+			"BPF program is not valid");
+		return (-1);
+	}
 
 	/*
 	 * Free up any already installed program.

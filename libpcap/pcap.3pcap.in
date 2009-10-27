@@ -1,0 +1,386 @@
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap.3pcap.in,v 1.1.2.2 2008-10-21 07:44:57 guy Exp $
+.\"
+.\" Copyright (c) 1994, 1996, 1997
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution, and (3) all advertising materials mentioning
+.\" features or use of this software display the following acknowledgement:
+.\" ``This product includes software developed by the University of California,
+.\" Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.TH PCAP 3PCAP "4 April 2008"
+.SH NAME
+pcap \- Packet Capture library
+.SH SYNOPSIS
+.nf
+.ft B
+#include <pcap/pcap.h>
+.LP
+.ft B
+.ft
+.fi
+.SH DESCRIPTION
+The Packet Capture library
+provides a high level interface to packet capture systems. All packets
+on the network, even those destined for other hosts, are accessible
+through this mechanism.
+It also supports saving captured packets to a ``savefile'', and reading
+packets from a ``savefile''.
+.PP
+To open a handle for a live capture, call
+.BR pcap_create() ,
+set the appropriate options on the handle, and then activate it with
+.BR pcap_activate() .
+To open a handle for a ``savefile'' with captured packets, call
+.BR pcap_open_offline() .
+Both
+.B pcap_create()
+and
+.B pcap_open_offline()
+return a pointer to a
+.BR pcap_t ,
+which is the handle used for reading packets from the capture stream or
+the ``savefile'', and for finding out information about the capture
+stream or ``savefile''.
+.PP
+The options that can be set on a capture handle include
+.IP "snapshot length"
+If, when capturing, you capture the entire contents of the packet, that
+requires more CPU time to copy the packet to your application, more disk
+and possibly network bandwidth to write the packet data to a file, and
+more disk space to save the packet.  If you don't need the entire
+contents of the packet - for example, if you are only interested in the
+TCP headers of packets - you can set the "snapshot length" for the
+capture to an appropriate value.  If the snapshot length is set to
+.IR snaplen ,
+and
+.I snaplen
+is less
+than the size of a packet that is captured, only the first
+.I snaplen
+bytes of that packet will be captured and provided as packet data.
+.IP
+A snapshot length of 65535 should be sufficient, on most if not all
+networks, to capture all the data available from the packet.
+.IP
+The snapshot length is set with
+.BR pcap_set_snaplen() .
+.IP "promiscuous mode"
+On broadcast LANs such as Ethernet, if the network isn't switched, or if
+the adapter is connected to a "mirror port" on a switch to which all
+packets passing through the switch are sent, a network adapter receives
+all packets on the LAN, including unicast or multicast packets not sent
+to a network address that the network adapter isn't configured to
+recognize.
+.IP
+Normally, the adapter will discard those packets; however, many network
+adapters support "promiscuous mode", which is a mode in which all
+packets, even if they are not sent to an address that the adapter
+recognizes, are provided to the host.  This is useful for passively
+capturing traffic between two or more other hosts for analysis.
+.IP
+Note that even if an application does not set promiscuous mode, the
+adapter could well be in promiscuous mode for some other reason.
+.IP
+For now, this doesn't work on the "any" device; if an argument of "any"
+or NULL is supplied, the setting of promiscuous mode is ignored.
+.IP
+Promiscuous mode is set with
+.BR pcap_set_promisc() .
+.IP "monitor mode"
+On IEEE 802.11 wireless LANs, even if an adapter is in promiscuous mode,
+it will supply to the host only frames for the network with which it's
+associated.  It might also supply only data frames, not management or
+control frames, and might not provide the 802.11 header or radio
+information pseudo-header for those frames.
+.IP
+In "monitor mode", sometimes also called "rfmon mode" (for "Radio
+Frequency MONitor"), the adapter will supply all frames that it
+receives, with 802.11 headers, and might supply a pseudo-header with
+radio information about the frame as well.
+.IP
+Note that in monitor mode the adapter might disassociate from the
+network with which it's associated, so that you will not be able to use
+any wireless networks with that adapter.  This could prevent accessing
+files on a network server, or resolving host names or network addresses,
+if you are capturing in monitor mode and are not connected to another
+network with another adapter.
+.IP
+Monitor mode is set with
+.BR pcap_set_rfmon() ,
+and
+.B pcap_can_set_rfmon()
+can be used to determine whether an adapter can be put into monitor
+mode.
+.IP "read timeout"
+If, when capturing, packets are delivered as soon as they arrive, the
+application capturing the packets will be woken up for each packet as it
+arrives, and might have to make one or more calls to the operating
+system to fetch each packet.
+.IP
+If, instead, packets are not delivered as soon as they arrive, but are
+delivered after a short delay (called a "read timeout"), more than one
+packet can be accumulated before the packets are delivered, so that a
+single wakeup would be done for multiple packets, and each set of calls
+made to the operating system would supply multiple packets, rather than
+a single packet.  This reduces the per-packet CPU overhead if packets
+are arriving at a high rate, increasing the number of packets per second
+that can be captured.
+.IP
+The read timeout is required so that an application won't wait for the
+operating system's capture buffer to fill up before packets are
+delivered; if packets are arriving slowly, that wait could take an
+arbitrarily long period of time.
+.IP
+Not all platforms support a read timeout; on platforms that
+don't, the read timeout is ignored.  A zero value for the timeout,
+on platforms that support a read timeout,
+will cause a read to wait forever to allow enough packets to
+arrive, with no timeout.
+.IP
+.BR NOTE :
+the read timeout cannot be used to cause calls that read
+packets to return within a limited period of time, because, on some
+platforms, the read timeout isn't supported, and, on other platforms,
+the timer doesn't start until at least one packet arrives.  This means
+that the read timeout should
+.B NOT
+be used, for example, in an interactive application to allow the packet
+capture loop to ``poll'' for user input periodically, as there's no
+guarantee that a call reading packets will return after the timeout
+expires even if no packets have arrived.
+.IP
+The read timeout is set with
+.BR pcap_set_timeout() .
+.IP "buffer size"
+Packets that arrive for a capture are stored in a buffer, so that they
+do not have to be read by the application as soon as they arrive.  On
+some platforms, the buffer's size can be set; a size that's too small
+could mean that, if too many packets are being captured and the snapshot
+length doesn't limit the amount of data that's buffered, packets could
+be dropped if the buffer fills up before the application can read
+packets from it, while a size that's too large could use more
+non-pageable operating system memory than is necessary to prevent
+packets from being dropped.
+.IP
+The buffer size is set with
+.BR pcap_set_buffer_size() .
+.PP
+Reading packets from a network interface may require that you have
+special privileges:
+.TP
+.B Under SunOS 3.x or 4.x with NIT or BPF:
+You must have read access to
+.I /dev/nit
+or
+.IR /dev/bpf* .
+.TP
+.B Under Solaris with DLPI:
+You must have read/write access to the network pseudo device, e.g.
+.IR /dev/le .
+On at least some versions of Solaris, however, this is not sufficient to
+allow
+.I tcpdump
+to capture in promiscuous mode; on those versions of Solaris, you must
+be root, or the application capturing packets
+must be installed setuid to root, in order to capture in promiscuous
+mode.  Note that, on many (perhaps all) interfaces, if you don't capture
+in promiscuous mode, you will not see any outgoing packets, so a capture
+not done in promiscuous mode may not be very useful.
+.IP
+In newer versions of Solaris, you must have been given the
+.B net_rawaccess
+privilege; this is both necessary and sufficient to give you access to the
+network pseudo-device - there is no need to change the privileges on
+that device.  A user can be given that privilege by, for example, adding
+that privilege to the user's
+.B defaultpriv
+key with the
+.B usermod (1M)
+command.
+.TP
+.B Under HP-UX with DLPI:
+You must be root or the application capturing packets must be installed
+setuid to root.
+.TP
+.B Under IRIX with snoop:
+You must be root or the application capturing packets must be installed
+setuid to root.
+.TP
+.B Under Linux:
+You must be root or the application capturing packets must be installed
+setuid to root (unless your distribution has a kernel
+that supports capability bits such as CAP_NET_RAW and code to allow
+those capability bits to be given to particular accounts and to cause
+those bits to be set on a user's initial processes when they log in, in
+which case you  must have CAP_NET_RAW in order to capture and
+CAP_NET_ADMIN to enumerate network devices with, for example, the
+.B \-D
+flag).
+.TP
+.B Under ULTRIX and Digital UNIX/Tru64 UNIX:
+Any user may capture network traffic.
+However, no user (not even the super-user) can capture in promiscuous
+mode on an interface unless the super-user has enabled promiscuous-mode
+operation on that interface using
+.IR pfconfig (8),
+and no user (not even the super-user) can capture unicast traffic
+received by or sent by the machine on an interface unless the super-user
+has enabled copy-all-mode operation on that interface using
+.IR pfconfig ,
+so
+.I useful
+packet capture on an interface probably requires that either
+promiscuous-mode or copy-all-mode operation, or both modes of
+operation, be enabled on that interface.
+.TP
+.B Under BSD (this includes Mac OS X):
+You must have read access to
+.I /dev/bpf*
+on systems that don't have a cloning BPF device, or to
+.I /dev/bpf
+on systems that do.
+On BSDs with a devfs (this includes Mac OS X), this might involve more
+than just having somebody with super-user access setting the ownership
+or permissions on the BPF devices - it might involve configuring devfs
+to set the ownership or permissions every time the system is booted,
+if the system even supports that; if it doesn't support that, you might
+have to find some other way to make that happen at boot time.
+.PP
+Reading a saved packet file doesn't require special privileges.
+.PP
+To open a ``savefile`` to which to write packets, call
+.BR pcap_dump_open() .
+It returns a pointer to a
+.BR pcap_dumper_t ,
+which is the handle used for writing packets to the ``savefile''.
+.PP
+Packets are read with
+.B pcap_dispatch()
+or
+.BR pcap_loop() ,
+which process one or more packets, calling a callback routine for each
+packet, or with
+.B pcap_next()
+or
+.BR pcap_next_ex() ,
+which return the next packet.
+The callback for
+.B pcap_dispatch()
+and
+.BR pcap_loop()
+is supplied a pointer to a
+.IR "struct pcap_pkthdr" ,
+which includes the following members:
+.RS
+.TP
+.B ts
+a
+.I struct timeval
+containing the time when the packet was captured
+.TP
+.B caplen
+a
+.I bpf_u_int32
+giving the number of bytes of the packet that are available from the
+capture
+.TP
+.B len
+a
+.I bpf_u_int32
+giving the length of the packet, in bytes (which might be more than the
+number of bytes available from the capture, if the length of the packet
+is larger than the maximum number of bytes to capture).
+.RE
+.PP
+.B pcap_next_ex()
+supplies that pointer through a pointer argument.
+.B pcap_next()
+is passed an argument that points to a
+.I struct pcap_pkthdr
+structure, and fills it in.
+.PP
+The callback is also supplied a
+.I const u_char
+pointer to the first
+.B caplen
+(as given in the
+.I struct pcap_pkthdr
+a pointer to which is passed to the callback routine)
+bytes of data from the packet.  This won't necessarily be the entire
+packet; to capture the entire packet, you will have to provide a value
+for
+.I snaplen
+in your call to
+.B pcap_open_live()
+that is sufficiently large to get all of the packet's data - a value of
+65535 should be sufficient on most if not all networks).  When reading
+from a ``savefile'', the snapshot length specified when the capture was
+performed will limit the amount of packet data available.
+.B pcap_next()
+returns that pointer;
+.B pcap_next_ex()
+supplies that pointer through a pointer argument.
+.SH BACKWARDS COMPATIBILITY
+.PP
+In versions of libpcap prior to 1.0, the
+.B pcap.h
+header file was not in a
+.B pcap
+directory on most platforms; if you are writing an application that must
+work on versions of libpcap prior to 1.0, include
+.BR <pcap.h> ,
+which will include
+.B <pcap/pcap.h>
+for you, rather than including
+.BR <pcap/pcap.h> .
+.PP
+.B pcap_create()
+and
+.B pcap_activate()
+were not available in versions of libpcap prior to 1.0; if you are
+writing an application that must work on versions of libpcap prior to
+1.0, either use
+.B pcap_open_live()
+to get a handle for a live capture or, if you want to be able to use the
+additional capabilities offered by using
+.B pcap_create()
+and
+.BR pcap_activate() ,
+use an
+.BR autoconf (1)
+script or some other configuration script to check whether the libpcap
+1.0 APIs are available and use them only if they are.
+.SH SEE ALSO
+autoconf(1), tcpdump(1), tcpslice(1), pcap-filter(@MAN_MISC_INFO@), pfconfig(8),
+usermod(1M)
+.SH AUTHORS
+The original authors of libpcap are:
+.LP
+Van Jacobson,
+Craig Leres and
+Steven McCanne, all of the
+Lawrence Berkeley National Laboratory, University of California, Berkeley, CA.
+.LP
+The current version is available from "The Tcpdump Group"'s Web site at
+.LP
+.RS
+.I http://www.tcpdump.org/
+.RE
+.SH BUGS
+Please send problems, bugs, questions, desirable enhancements, etc. to:
+.LP
+.RS
+tcpdump-workers@lists.tcpdump.org
+.RE

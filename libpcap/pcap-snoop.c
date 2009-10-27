@@ -20,7 +20,7 @@
  */
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-snoop.c,v 1.54.2.1 2005/05/03 18:54:38 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-snoop.c,v 1.55.2.3 2008-04-14 20:41:52 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -194,9 +194,8 @@ pcap_stats_snoop(pcap_t *p, struct pcap_stat *ps)
 }
 
 /* XXX can't disable promiscuous */
-pcap_t *
-pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
-    char *ebuf)
+static int
+pcap_activate_snoop(pcap_t *p)
 {
 	int fd;
 	struct sockaddr_raw sr;
@@ -204,55 +203,50 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	u_int v;
 	int ll_hdrlen;
 	int snooplen;
-	pcap_t *p;
 	struct ifreq ifr;
 
-	p = (pcap_t *)malloc(sizeof(*p));
-	if (p == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
-		    pcap_strerror(errno));
-		return (NULL);
-	}
-	memset(p, 0, sizeof(*p));
 	fd = socket(PF_RAW, SOCK_RAW, RAWPROTO_SNOOP);
 	if (fd < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "snoop socket: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop socket: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	p->fd = fd;
 	memset(&sr, 0, sizeof(sr));
 	sr.sr_family = AF_RAW;
-	(void)strncpy(sr.sr_ifname, device, sizeof(sr.sr_ifname));
+	(void)strncpy(sr.sr_ifname, p->opt.source, sizeof(sr.sr_ifname));
 	if (bind(fd, (struct sockaddr *)&sr, sizeof(sr))) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "snoop bind: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "snoop bind: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	memset(&sf, 0, sizeof(sf));
 	if (ioctl(fd, SIOCADDSNOOP, &sf) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SIOCADDSNOOP: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCADDSNOOP: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
-	v = 64 * 1024;
+	if (handle->opt.buffer_size != 0)
+		v = handle->opt.buffer_size;
+	else
+		v = 64 * 1024;	/* default to 64K buffer size */
 	(void)setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&v, sizeof(v));
 	/*
 	 * XXX hack - map device name to link layer type
 	 */
-	if (strncmp("et", device, 2) == 0 ||	/* Challenge 10 Mbit */
-	    strncmp("ec", device, 2) == 0 ||	/* Indigo/Indy 10 Mbit,
-						   O2 10/100 */
-	    strncmp("ef", device, 2) == 0 ||	/* O200/2000 10/100 Mbit */
-	    strncmp("eg", device, 2) == 0 ||	/* Octane/O2xxx/O3xxx Gigabit */
-	    strncmp("gfe", device, 3) == 0 ||	/* GIO 100 Mbit */
-	    strncmp("fxp", device, 3) == 0 ||	/* Challenge VME Enet */
-	    strncmp("ep", device, 2) == 0 ||	/* Challenge 8x10 Mbit EPLEX */
-	    strncmp("vfe", device, 3) == 0 ||	/* Challenge VME 100Mbit */
-	    strncmp("fa", device, 2) == 0 ||
-	    strncmp("qaa", device, 3) == 0 ||
-	    strncmp("cip", device, 3) == 0 ||
-	    strncmp("el", device, 2) == 0) {
+	if (strncmp("et", p->opt.source, 2) == 0 ||	/* Challenge 10 Mbit */
+	    strncmp("ec", p->opt.source, 2) == 0 ||	/* Indigo/Indy 10 Mbit,
+							   O2 10/100 */
+	    strncmp("ef", p->opt.source, 2) == 0 ||	/* O200/2000 10/100 Mbit */
+	    strncmp("eg", p->opt.source, 2) == 0 ||	/* Octane/O2xxx/O3xxx Gigabit */
+	    strncmp("gfe", p->opt.source, 3) == 0 ||	/* GIO 100 Mbit */
+	    strncmp("fxp", p->opt.source, 3) == 0 ||	/* Challenge VME Enet */
+	    strncmp("ep", p->opt.source, 2) == 0 ||	/* Challenge 8x10 Mbit EPLEX */
+	    strncmp("vfe", p->opt.source, 3) == 0 ||	/* Challenge VME 100Mbit */
+	    strncmp("fa", p->opt.source, 2) == 0 ||
+	    strncmp("qaa", p->opt.source, 3) == 0 ||
+	    strncmp("cip", p->opt.source, 3) == 0 ||
+	    strncmp("el", p->opt.source, 2) == 0) {
 		p->linktype = DLT_EN10MB;
 		p->offset = RAW_HDRPAD(sizeof(struct ether_header));
 		ll_hdrlen = sizeof(struct ether_header);
@@ -285,29 +279,38 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 			p->dlt_list[1] = DLT_DOCSIS;
 			p->dlt_count = 2;
 		}
-	} else if (strncmp("ipg", device, 3) == 0 ||
-		   strncmp("rns", device, 3) == 0 ||	/* O2/200/2000 FDDI */
-		   strncmp("xpi", device, 3) == 0) {
+	} else if (strncmp("ipg", p->opt.source, 3) == 0 ||
+		   strncmp("rns", p->opt.source, 3) == 0 ||	/* O2/200/2000 FDDI */
+		   strncmp("xpi", p->opt.source, 3) == 0) {
 		p->linktype = DLT_FDDI;
 		p->offset = 3;				/* XXX yeah? */
 		ll_hdrlen = 13;
-	} else if (strncmp("ppp", device, 3) == 0) {
+	} else if (strncmp("ppp", p->opt.source, 3) == 0) {
 		p->linktype = DLT_RAW;
 		ll_hdrlen = 0;	/* DLT_RAW meaning "no PPP header, just the IP packet"? */
-	} else if (strncmp("qfa", device, 3) == 0) {
+	} else if (strncmp("qfa", p->opt.source, 3) == 0) {
 		p->linktype = DLT_IP_OVER_FC;
 		ll_hdrlen = 24;
-	} else if (strncmp("pl", device, 2) == 0) {
+	} else if (strncmp("pl", p->opt.source, 2) == 0) {
 		p->linktype = DLT_RAW;
 		ll_hdrlen = 0;	/* Cray UNICOS/mp pseudo link */
-	} else if (strncmp("lo", device, 2) == 0) {
+	} else if (strncmp("lo", p->opt.source, 2) == 0) {
 		p->linktype = DLT_NULL;
 		ll_hdrlen = 4;
 	} else {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE,
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
 		    "snoop: unknown physical layer type");
 		goto bad;
 	}
+
+	if (p->opt.rfmon) {
+		/*
+		 * No monitor mode on Irix (no Wi-Fi devices on
+		 * hardware supported by Irix).
+		 */
+		return (PCAP_ERROR_RFMON_NOTSUP);
+	}
+
 #ifdef SIOCGIFMTU
 	/*
 	 * XXX - IRIX appears to give you an error if you try to set the
@@ -315,9 +318,9 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 * the MTU first and, if that succeeds, trim the snap length
 	 * to be no greater than the MTU.
 	 */
-	(void)strncpy(ifr.ifr_name, device, sizeof(ifr.ifr_name));
+	(void)strncpy(ifr.ifr_name, p->opt.source, sizeof(ifr.ifr_name));
 	if (ioctl(fd, SIOCGIFMTU, (char *)&ifr) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SIOCGIFMTU: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCGIFMTU: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -338,8 +341,8 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 #ifndef ifr_mtu
 #define ifr_mtu	ifr_metric
 #endif
-	if (snaplen > ifr.ifr_mtu + ll_hdrlen)
-		snaplen = ifr.ifr_mtu + ll_hdrlen;
+	if (p->snapshot > ifr.ifr_mtu + ll_hdrlen)
+		p->snapshot = ifr.ifr_mtu + ll_hdrlen;
 #endif
 
 	/*
@@ -347,18 +350,17 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 * payload bytes to capture - it doesn't count link-layer
 	 * header bytes.
 	 */
-	snooplen = snaplen - ll_hdrlen;
+	snooplen = p->snapshot - ll_hdrlen;
 	if (snooplen < 0)
 		snooplen = 0;
 	if (ioctl(fd, SIOCSNOOPLEN, &snooplen) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPLEN: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPLEN: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
-	p->snapshot = snaplen;
 	v = 1;
 	if (ioctl(fd, SIOCSNOOPING, &v) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPING: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "SIOCSNOOPING: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -366,7 +368,7 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	p->bufsize = 4096;				/* XXX */
 	p->buffer = (u_char *)malloc(p->bufsize);
 	if (p->buffer == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "malloc: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -384,18 +386,23 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	p->getnonblock_op = pcap_getnonblock_fd;
 	p->setnonblock_op = pcap_setnonblock_fd;
 	p->stats_op = pcap_stats_snoop;
-	p->close_op = pcap_close_common;
 
-	return (p);
+	return (0);
  bad:
-	(void)close(fd);
-	/*
-	 * Get rid of any link-layer type list we allocated.
-	 */
-	if (p->dlt_list != NULL)
-		free(p->dlt_list);
-	free(p);
-	return (NULL);
+	return (PCAP_ERROR);
+}
+
+pcap_t *
+pcap_create(const char *device, char *ebuf)
+{
+	pcap_t *p;
+
+	p = pcap_create_common(device, ebuf);
+	if (p == NULL)
+		return (NULL);
+
+	p->activate_op = pcap_activate_snoop;
+	return (p);
 }
 
 int

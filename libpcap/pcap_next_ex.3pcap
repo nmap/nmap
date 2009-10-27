@@ -1,0 +1,90 @@
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_next_ex.3pcap,v 1.1.2.3 2008-04-06 03:21:56 guy Exp $
+.\"
+.\" Copyright (c) 1994, 1996, 1997
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution, and (3) all advertising materials mentioning
+.\" features or use of this software display the following acknowledgement:
+.\" ``This product includes software developed by the University of California,
+.\" Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.TH PCAP_NEXT_EX 3PCAP "5 April 2008"
+.SH NAME
+pcap_next_ex, pcap_next \- read the next packet from a pcap_t
+.SH SYNOPSIS
+.nf
+.ft B
+#include <pcap/pcap.h>
+.ft
+.LP
+.ft B
+int pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
+.ti +8
+const u_char **pkt_data);
+const u_char *pcap_next(pcap_t *p, struct pcap_pkthdr *h);
+.ft
+.fi
+.SH DESCRIPTION
+.B pcap_next_ex()
+reads the next packet and returns a success/failure indication.
+If the packet was read without problems, the pointer pointed to by the
+.I pkt_header
+argument is set to point to the
+.I pcap_pkthdr
+struct for the packet, and the
+pointer pointed to by the
+.I pkt_data
+argument is set to point to the data in the packet.
+.PP
+.B pcap_next()
+reads the next packet (by calling
+.B pcap_dispatch()
+with a
+.I cnt
+of 1) and returns a
+.I u_char
+pointer to the data in that packet.
+The
+.I pcap_pkthdr
+structure pointed to by
+.I h
+is filled in with the appropriate values for the packet.
+.SH RETURN VALUE
+.B pcap_next_ex()
+returns 1 if the packet was read without problems, 0
+if packets are being read from a live capture, and the timeout expired,
+\-1 if an error occurred while reading the packet, and \-2 if
+packets are being read from a ``savefile'', and there are no more
+packets to read from the savefile.
+If \-1 is returned,
+.B pcap_geterr()
+or
+.B pcap_perror()
+may be called with
+.I p
+as an argument to fetch or display the error text.
+.PP
+.B pcap_next()
+returns a pointer to the packet data on success, and returns
+.B NULL
+if an error occured, or if no packets were read from a live
+capture (if, for example, they were discarded because they didn't pass
+the packet filter, or if, on platforms that support a read timeout that
+starts before any packets arrive, the timeout expires before any packets
+arrive, or if the file descriptor for the capture device is in
+non-blocking mode and no packets were available to be read), or if no
+more packets are available in a ``savefile.''  Unfortunately, there is
+no way to determine whether an error occured or not.
+.SH SEE ALSO
+pcap(3PCAP), pcap_geterr(3PCAP), pcap_dispatch(3PCAP)

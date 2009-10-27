@@ -18,7 +18,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/gencode.h,v 1.60.2.11 2007/06/11 09:52:04 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/gencode.h,v 1.70.2.1 2007/11/18 02:04:55 guy Exp $ (LBL)
  */
 
 /*
@@ -132,6 +132,10 @@
 #define Q_DST		2
 #define Q_OR		3
 #define Q_AND		4
+#define Q_ADDR1		5
+#define Q_ADDR2		6
+#define Q_ADDR3		7
+#define Q_ADDR4		8
 
 #define Q_DEFAULT	0
 #define Q_UNDEF		255
@@ -311,6 +315,9 @@ struct block *gen_pf_ruleset(char *);
 struct block *gen_pf_reason(int);
 struct block *gen_pf_action(int);
 struct block *gen_pf_dir(int);
+
+struct block *gen_p80211_type(int, int);
+struct block *gen_p80211_fcdir(int);
 
 void bpf_optimize(struct block **);
 void bpf_error(const char *, ...)

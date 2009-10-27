@@ -1,0 +1,52 @@
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_open_dead.3pcap.in,v 1.1.2.2 2008-10-21 07:44:57 guy Exp $
+.\"
+.\" Copyright (c) 1994, 1996, 1997
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution, and (3) all advertising materials mentioning
+.\" features or use of this software display the following acknowledgement:
+.\" ``This product includes software developed by the University of California,
+.\" Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.TH PCAP_OPEN_DEAD 3PCAP "5 April 2008"
+.SH NAME
+pcap_open_dead \- open a fake pcap_t for compiling filters or opening a
+capture for output
+.SH SYNOPSIS
+.nf
+.ft B
+#include <pcap/pcap.h>
+.ft
+.LP
+.ft B
+pcap_t *pcap_open_dead(int linktype, int snaplen);
+.ft
+.fi
+.SH DESCRIPTION
+.PP
+.B pcap_open_dead()
+is used for creating a
+.B pcap_t
+structure to use when calling the other functions in libpcap.  It is
+typically used when just using libpcap for compiling BPF code.
+.PP
+.I linktype
+specifies the link-layer type for the
+.BR pcap_t .
+.PP
+.I snaplen
+specifies the snapshot length for the
+.BR pcap_t .
+.SH SEE ALSO
+pcap(3PCAP), pcap-linktype(@MAN_MISC_INFO@)

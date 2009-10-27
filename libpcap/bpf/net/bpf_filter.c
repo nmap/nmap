@@ -40,7 +40,7 @@
 
 #if !(defined(lint) || defined(KERNEL) || defined(_KERNEL))
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/bpf/net/bpf_filter.c,v 1.44 2003/11/15 23:24:07 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/bpf/net/bpf_filter.c,v 1.45.2.1 2008/01/02 04:22:16 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -71,7 +71,7 @@ static const char rcsid[] _U_ =
 
 #endif /* WIN32 */
 
-#include <pcap-bpf.h>
+#include <pcap/bpf.h>
 
 #if !defined(KERNEL) && !defined(_KERNEL)
 #include <stdlib.h>
@@ -200,8 +200,8 @@ m_xhalf(m, k, err)
  */
 u_int
 bpf_filter(pc, p, wirelen, buflen)
-	register struct bpf_insn *pc;
-	register u_char *p;
+	register const struct bpf_insn *pc;
+	register const u_char *p;
 	u_int wirelen;
 	register u_int buflen;
 {
@@ -512,54 +512,155 @@ bpf_filter(pc, p, wirelen, buflen)
 	}
 }
 
-
 /*
  * Return true if the 'fcode' is a valid filter program.
  * The constraints are that each jump be forward and to a valid
- * code.  The code must terminate with either an accept or reject.
- * 'valid' is an array for use by the routine (it must be at least
- * 'len' bytes long).
+ * code, that memory accesses are within valid ranges (to the
+ * extent that this can be checked statically; loads of packet
+ * data have to be, and are, also checked at run time), and that
+ * the code terminates with either an accept or reject.
  *
  * The kernel needs to be able to verify an application's filter code.
  * Otherwise, a bogus program could easily crash the system.
  */
 int
 bpf_validate(f, len)
-	struct bpf_insn *f;
+	const struct bpf_insn *f;
 	int len;
 {
-	register int i;
-	register struct bpf_insn *p;
+	u_int i, from;
+	const struct bpf_insn *p;
+
+	if (len < 1)
+		return 0;
+	/*
+	 * There's no maximum program length in userland.
+	 */
+#if defined(KERNEL) || defined(_KERNEL)
+	if (len > BPF_MAXINSNS)
+		return 0;
+#endif
 
 	for (i = 0; i < len; ++i) {
-		/*
-		 * Check that that jumps are forward, and within
-		 * the code block.
-		 */
 		p = &f[i];
-		if (BPF_CLASS(p->code) == BPF_JMP) {
-			register int from = i + 1;
-
-			if (BPF_OP(p->code) == BPF_JA) {
-				if (from + p->k >= (unsigned)len)
-					return 0;
-			}
-			else if (from + p->jt >= len || from + p->jf >= len)
-				return 0;
-		}
+		switch (BPF_CLASS(p->code)) {
 		/*
 		 * Check that memory operations use valid addresses.
 		 */
-		if ((BPF_CLASS(p->code) == BPF_ST ||
-		     (BPF_CLASS(p->code) == BPF_LD &&
-		      (p->code & 0xe0) == BPF_MEM)) &&
-		    (p->k >= BPF_MEMWORDS || p->k < 0))
+		case BPF_LD:
+		case BPF_LDX:
+			switch (BPF_MODE(p->code)) {
+			case BPF_IMM:
+				break;
+			case BPF_ABS:
+			case BPF_IND:
+			case BPF_MSH:
+				/*
+				 * There's no maximum packet data size
+				 * in userland.  The runtime packet length
+				 * check suffices.
+				 */
+#if defined(KERNEL) || defined(_KERNEL)
+				/*
+				 * More strict check with actual packet length
+				 * is done runtime.
+				 */
+				if (p->k >= bpf_maxbufsize)
+					return 0;
+#endif
+				break;
+			case BPF_MEM:
+				if (p->k >= BPF_MEMWORDS)
+					return 0;
+				break;
+			case BPF_LEN:
+				break;
+			default:
+				return 0;
+			}
+			break;
+		case BPF_ST:
+		case BPF_STX:
+			if (p->k >= BPF_MEMWORDS)
+				return 0;
+			break;
+		case BPF_ALU:
+			switch (BPF_OP(p->code)) {
+			case BPF_ADD:
+			case BPF_SUB:
+			case BPF_MUL:
+			case BPF_OR:
+			case BPF_AND:
+			case BPF_LSH:
+			case BPF_RSH:
+			case BPF_NEG:
+				break;
+			case BPF_DIV:
+				/*
+				 * Check for constant division by 0.
+				 */
+				if (BPF_RVAL(p->code) == BPF_K && p->k == 0)
+					return 0;
+				break;
+			default:
+				return 0;
+			}
+			break;
+		case BPF_JMP:
+			/*
+			 * Check that jumps are within the code block,
+			 * and that unconditional branches don't go
+			 * backwards as a result of an overflow.
+			 * Unconditional branches have a 32-bit offset,
+			 * so they could overflow; we check to make
+			 * sure they don't.  Conditional branches have
+			 * an 8-bit offset, and the from address is <=
+			 * BPF_MAXINSNS, and we assume that BPF_MAXINSNS
+			 * is sufficiently small that adding 255 to it
+			 * won't overflow.
+			 *
+			 * We know that len is <= BPF_MAXINSNS, and we
+			 * assume that BPF_MAXINSNS is < the maximum size
+			 * of a u_int, so that i + 1 doesn't overflow.
+			 *
+			 * For userland, we don't know that the from
+			 * or len are <= BPF_MAXINSNS, but we know that
+			 * from <= len, and, except on a 64-bit system,
+			 * it's unlikely that len, if it truly reflects
+			 * the size of the program we've been handed,
+			 * will be anywhere near the maximum size of
+			 * a u_int.  We also don't check for backward
+			 * branches, as we currently support them in
+			 * userland for the protochain operation.
+			 */
+			from = i + 1;
+			switch (BPF_OP(p->code)) {
+			case BPF_JA:
+#if defined(KERNEL) || defined(_KERNEL)
+				if (from + p->k < from || from + p->k >= len)
+#else
+				if (from + p->k >= len)
+#endif
+					return 0;
+				break;
+			case BPF_JEQ:
+			case BPF_JGT:
+			case BPF_JGE:
+			case BPF_JSET:
+				if (from + p->jt >= len || from + p->jf >= len)
+					return 0;
+				break;
+			default:
+				return 0;
+			}
+			break;
+		case BPF_RET:
+			break;
+		case BPF_MISC:
+			break;
+		default:
 			return 0;
-		/*
-		 * Check for constant division by 0.
-		 */
-		if (p->code == (BPF_ALU|BPF_DIV|BPF_K) && p->k == 0)
-			return 0;
+		}
 	}
 	return BPF_CLASS(f[len - 1].code) == BPF_RET;
 }

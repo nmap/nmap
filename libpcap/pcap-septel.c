@@ -16,7 +16,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-septel.c,v 1.1.2.2 2005/06/21 01:03:23 guy Exp $";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-septel.c,v 1.2.2.2 2008-04-14 20:41:52 guy Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -50,20 +50,14 @@ static const char rcsid[] _U_ =
 /* This code is required when compiling for a Septel device only. */
 #include "pcap-septel.h"
 
-/* Replace dag function names with pcap equivalent. */
-#define septel_open_live pcap_open_live
+/* Replace septel function names with pcap equivalent. */
+#define septel_create pcap_create
 #define septel_platform_finddevs pcap_platform_finddevs
 #endif /* SEPTEL_ONLY */
 
 static int septel_setfilter(pcap_t *p, struct bpf_program *fp);
 static int septel_stats(pcap_t *p, struct pcap_stat *ps);
 static int septel_setnonblock(pcap_t *p, int nonblock, char *errbuf);
-
-static void septel_platform_close(pcap_t *p) {
-
-}
-
-
 
 /*
  *  Read at most max_packets from the capture queue and call the callback
@@ -199,28 +193,14 @@ septel_inject(pcap_t *handle, const void *buf _U_, size_t size _U_)
 }
 
 /*
- *  Get a handle for a live capture from the given Septel device.  Always pass a NULL device
+ *  Activate a handle for a live capture from the given Septel device.  Always pass a NULL device
  *  The promisc flag is ignored because Septel cards have built-in tracing.
- *  The to_ms parameter is also ignored as it is
- *  not supported in hardware.
+ *  The timeout is also ignored as it is not supported in hardware.
  *
  *  See also pcap(3).
  */
-pcap_t *septel_open_live(const char *device, int snaplen, int promisc, int to_ms, char *ebuf) {
-  pcap_t *handle;
-
-  handle = malloc(sizeof(*handle));
-  if (handle == NULL) {
-    snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc %s: %s", device, pcap_strerror(errno));
-    return NULL;
-  }
-
-  /* Initialize some components of the pcap structure. */
-  
-  memset(handle, 0, sizeof(*handle));
-  
-  handle->snapshot = snaplen;
-
+static pcap_t *septel_activate(pcap_t* handle) {
+  /* Initialize some components of the pcap structure. */  
   handle->linktype = DLT_MTP2;
   
   handle->bufsize = 0;
@@ -237,16 +217,19 @@ pcap_t *septel_open_live(const char *device, int snaplen, int promisc, int to_ms
   handle->getnonblock_op = pcap_getnonblock_fd;
   handle->setnonblock_op = septel_setnonblock;
   handle->stats_op = septel_stats;
-  handle->close_op = septel_platform_close;
 
-  return handle;
+  return 0;
+}
 
-fail:
-  if (handle != NULL) {
-    free(handle);
-  }
+pcap_t *septel_create(const char *device, char *ebuf) {
+	pcap_t *p;
 
-  return NULL;
+	p = pcap_create_common(device, ebuf);
+	if (p == NULL)
+		return NULL;
+
+	p->activate_op = septel_activate;
+	return p;
 }
 
 static int septel_stats(pcap_t *p, struct pcap_stat *ps) {

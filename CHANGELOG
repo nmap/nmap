@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded the included libpcap to 1.0.0. [David]
+
 o Nmap now prefers to display the hostname supplied by the user instead
   of the reverse-DNS name in most places. If a reverse DNS record
   exists, and it differs from the user-supplied name, it is printed

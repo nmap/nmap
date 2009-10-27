@@ -13,7 +13,7 @@
 #	@(#)mkdep.sh	5.11 (Berkeley) 5/5/88
 #
 
-PATH=/bin:/usr/bin:/usr/ucb:/usr/local:/usr/local/bin
+PATH=/bin:/usr/bin:/usr/ucb:/usr/local:/usr/local/bin:/usr/sfw/bin
 export PATH
 
 MAKE=Makefile			# default makefile name is "Makefile"

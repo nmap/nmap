@@ -1,0 +1,58 @@
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_list_datalinks.3pcap.in,v 1.1.2.2 2008-10-21 07:44:57 guy Exp $
+.\"
+.\" Copyright (c) 1994, 1996, 1997
+.\"	The Regents of the University of California.  All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that: (1) source code distributions
+.\" retain the above copyright notice and this paragraph in its entirety, (2)
+.\" distributions including binary code include the above copyright notice and
+.\" this paragraph in its entirety in the documentation or other materials
+.\" provided with the distribution, and (3) all advertising materials mentioning
+.\" features or use of this software display the following acknowledgement:
+.\" ``This product includes software developed by the University of California,
+.\" Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+.\" the University nor the names of its contributors may be used to endorse
+.\" or promote products derived from this software without specific prior
+.\" written permission.
+.\" THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+.\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+.\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+.\"
+.TH PCAP_LIST_DATALINKS 3PCAP "5 April 2008"
+.SH NAME
+pcap_list_datalinks \- get a list of link-layer header types supported
+by a capture device
+.SH SYNOPSIS
+.nf
+.ft B
+#include <pcap/pcap.h>
+.ft
+.LP
+.ft B
+int pcap_list_datalinks(pcap_t *p, int **dlt_buf);
+.ft
+.fi
+.SH DESCRIPTION
+.B pcap_list_datalinks()
+is used to get a list of the supported data link types of the interface
+associated with the pcap descriptor.
+.B pcap_list_datalinks()
+allocates an array to hold the list and sets
+.IR *dlt_buf .
+The caller is responsible for freeing the array with
+.BR pcap_free_datalinks (3PCAP).
+.SH RETURN VALUE
+.B pcap_list_datalinks()
+returns the number of data link types in the array on success and \-1
+on failure.
+If \-1 is returned,
+.B pcap_geterr()
+or
+.B pcap_perror()
+may be called with
+.I p
+as an argument to fetch or display the error text.
+.SH SEE ALSO
+pcap(3PCAP), pcap_geterr(3PCAP), pcap_free_datalinks(3PCAP),
+pcap-linktype(@MAN_MISC_INFO@)

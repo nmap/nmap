@@ -1,11 +1,11 @@
 /*
  *  This file is part of DOS-libpcap
- *  Ported to DOS/DOSX by G. Vanem <giva@bgnett.no>
+ *  Ported to DOS/DOSX by G. Vanem <gvanem@broadpark.no>
  *
  *  pcap-dos.c: Interface to PKTDRVR, NDIS2 and 32-bit pmode
  *              network drivers.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap-dos.c,v 1.1.2.1 2005/05/03 18:54:35 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap-dos.c,v 1.2.2.5 2008-04-22 17:16:49 guy Exp $ (LBL)
  */
 
 #include <stdio.h>
@@ -97,9 +97,10 @@ static volatile BOOL exc_occured = 0;
 
 static struct device *handle_to_device [20];
 
+static int  pcap_activate_dos (pcap_t *p);
 static int  pcap_read_dos (pcap_t *p, int cnt, pcap_handler callback,
                            u_char *data);
-static void pcap_close_dos (pcap_t *p);
+static void pcap_cleanup_dos (pcap_t *p);
 static int  pcap_stats_dos (pcap_t *p, struct pcap_stat *ps);
 static int  pcap_sendpacket_dos (pcap_t *p, const void *buf, size_t len);
 static int  pcap_setfilter_dos (pcap_t *p, struct bpf_program *fp);
@@ -142,59 +143,64 @@ static struct device *get_device (int fd)
   return handle_to_device [fd-1];
 }
 
+pcap_t *pcap_create (const char *device, char *ebuf)
+{
+	pcap_t *p;
+
+	p = pcap_create_common(device, ebuf);
+	if (p == NULL)
+		return (NULL);
+
+	p->activate_op = pcap_activate_dos;
+	return (p);
+}
+
 /*
  * Open MAC-driver with name 'device_name' for live capture of
  * network packets.
  */
-pcap_t *pcap_open_live (const char *device_name, int snaplen, int promisc,
-                        int timeout_ms, char *errbuf)
+static int pcap_activate_dos (pcap_t *pcap)
 { 
-  struct pcap *pcap;
-
-  if (snaplen < ETH_MIN)
-      snaplen = ETH_MIN;
-
-  if (snaplen > ETH_MAX)   /* silently accept and truncate large MTUs */
-      snaplen = ETH_MAX;
-
-  pcap = calloc (sizeof(*pcap), 1);
-  if (!pcap)
-  {
-    strcpy (errbuf, "Not enough memory (pcap)");
-    return (NULL);
+  if (pcap->opt.rfmon) {
+    /*
+     * No monitor mode on DOS.
+     */
+    return (PCAP_ERROR_RFMON_NOTSUP);
   }
 
-  pcap->snapshot          = max (ETH_MIN+8, snaplen);
+  if (pcap->snapshot < ETH_MIN+8)
+      pcap->snapshot = ETH_MIN+8;
+
+  if (pcap->snapshot > ETH_MAX)   /* silently accept and truncate large MTUs */
+      pcap->snapshot = ETH_MAX;
+
   pcap->linktype          = DLT_EN10MB;  /* !! */
-  pcap->inter_packet_wait = timeout_ms;
-  pcap->close_op          = pcap_close_dos;
+  pcap->cleanup_op        = pcap_cleanup_dos;
   pcap->read_op           = pcap_read_dos;
   pcap->stats_op          = pcap_stats_dos;
   pcap->inject_op         = pcap_sendpacket_dos;
   pcap->setfilter_op      = pcap_setfilter_dos;
-	pcap->setdirection_op   = NULL; /* Not implemented.*/
+  pcap->setdirection_op   = NULL; /* Not implemented.*/
   pcap->fd                = ++ref_count;
 
   if (pcap->fd == 1)  /* first time we're called */
   {
-    if (!init_watt32(pcap, device_name, errbuf) ||
-        !first_init(device_name, errbuf, promisc))
+    if (!init_watt32(pcap, pcap->opt.source, pcap->errbuf) ||
+        !first_init(pcap->opt.source, pcap->errbuf, pcap->opt.promisc))
     {
-      free (pcap);
-      return (NULL);
+      return (PCAP_ERROR);
     } 
     atexit (close_driver);
   }
-  else if (stricmp(active_dev->name,device_name))
+  else if (stricmp(active_dev->name,pcap->opt.source))
   {
-    snprintf (errbuf, PCAP_ERRBUF_SIZE,
+    snprintf (pcap->errbuf, PCAP_ERRBUF_SIZE,
               "Cannot use different devices simultaneously "
-              "(`%s' vs. `%s')", active_dev->name, device_name);
-    free (pcap);
-    pcap = NULL;
+              "(`%s' vs. `%s')", active_dev->name, pcap->opt.source);
+    return (PCAP_ERROR);
   }
   handle_to_device [pcap->fd-1] = active_dev;
-  return (pcap);
+  return (0);
 }
 
 /*
@@ -205,15 +211,14 @@ static int
 pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
 {
   struct pcap_pkthdr pcap;
-  struct bpf_insn   *fcode = p->fcode.bf_insns;
   struct timeval     now, expiry;
   BYTE  *rx_buf;
   int    rx_len = 0;
 
-  if (p->inter_packet_wait > 0)
+  if (p->md.timeout > 0)
   {
     gettimeofday2 (&now, NULL);
-    expiry.tv_usec = now.tv_usec + 1000UL * p->inter_packet_wait;
+    expiry.tv_usec = now.tv_usec + 1000UL * p->md.timeout;
     expiry.tv_sec  = now.tv_sec;
     while (expiry.tv_usec >= 1000000L)
     {
@@ -258,7 +263,7 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
       pcap.len    = rx_len;
 
       if (callback &&
-          (!fcode || bpf_filter(fcode, rx_buf, pcap.len, pcap.caplen)))
+          (!p->fcode.bf_insns || bpf_filter(p->fcode.bf_insns, rx_buf, pcap.len, pcap.caplen)))
       {
         filter_count++;
 
@@ -285,7 +290,7 @@ pcap_read_one (pcap_t *p, pcap_handler callback, u_char *data)
     /* If not to wait for a packet or pcap_close() called from
      * e.g. SIGINT handler, exit loop now.
      */
-    if (p->inter_packet_wait <= 0 || (volatile int)p->fd <= 0)
+    if (p->md.timeout <= 0 || (volatile int)p->fd <= 0)
        break;
 
     gettimeofday2 (&now, NULL);
@@ -421,7 +426,7 @@ u_long pcap_filter_packets (void)
 /*
  * Close pcap device. Not called for offline captures.
  */
-static void pcap_close_dos (pcap_t *p)
+static void pcap_cleanup_dos (pcap_t *p)
 {
   if (p && !exc_occured)
   {
@@ -477,7 +482,7 @@ int pcap_lookupnet (const char *device, bpf_u_int32 *localnet,
 {
   if (!_watt_is_init)
   {
-    strcpy (errbuf, "pcap_open_offline() or pcap_open_live() must be "
+    strcpy (errbuf, "pcap_open_offline() or pcap_activate() must be "
                     "called first");
     return (-1);
   }
@@ -588,7 +593,7 @@ void pcap_set_wait (pcap_t *p, void (*yield)(void), int wait)
   if (p)
   {
     p->wait_proc         = yield;
-    p->inter_packet_wait = wait;
+    p->md.timeout        = wait;
   }
 }
 
@@ -734,13 +739,13 @@ static void exc_handler (int sig)
          fprintf (stderr, "Catching signal %d.\n", sig);
   }
   exc_occured = 1;
-  pcap_close_dos (NULL);
+  pcap_cleanup_dos (NULL);
 }
 #endif  /* __DJGPP__ */
 
 
 /*
- * Open the pcap device for the first client calling pcap_open_live()
+ * Open the pcap device for the first client calling pcap_activate()
  */
 static int first_init (const char *name, char *ebuf, int promisc)
 {
@@ -991,7 +996,7 @@ int EISA_bus = 0;  /* Where is natural place for this? */
  * Application config hooks to set various driver parameters.
  */
 
-static struct config_table debug_tab[] = {
+static const struct config_table debug_tab[] = {
             { "PKT.DEBUG",       ARG_ATOI,   &pcap_pkt_debug    },
             { "PKT.VECTOR",      ARG_ATOX_W, NULL               },
             { "NDIS.DEBUG",      ARG_ATOI,   NULL               },

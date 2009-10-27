@@ -24,7 +24,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-pf.c,v 1.91.2.2 2005/05/03 18:54:37 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-pf.c,v 1.94.2.3 2008-04-14 20:41:52 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -62,7 +62,7 @@ struct rtentry;
 #include <unistd.h>
 
 /*
- * Make "pcap.h" not include "pcap-bpf.h"; we are going to include the
+ * Make "pcap.h" not include "pcap/bpf.h"; we are going to include the
  * native OS version, as we need various BPF ioctls from it.
  */
 #define PCAP_DONT_INCLUDE_PCAP_BPF_H
@@ -88,7 +88,6 @@ static int
 pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 {
 	register u_char *p, *bp;
-	struct bpf_insn *fcode;
 	register int cc, n, buflen, inc;
 	register struct enstamp *sp;
 #ifdef LBL_ALIGN
@@ -98,7 +97,6 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 	register int pad;
 #endif
 
-	fcode = pc->md.use_bpf ? NULL : pc->fcode.bf_insns;
  again:
 	cc = pc->cc;
 	if (cc == 0) {
@@ -187,7 +185,8 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 
 		/*
 		 * Short-circuit evaluation: if using BPF filter
-		 * in kernel, no need to do it now.
+		 * in kernel, no need to do it now - we already know
+		 * the packet passed the filter.
 		 *
 #ifdef PCAP_FDDIPAD
 		 * Note: the filter code was generated assuming
@@ -197,8 +196,8 @@ pcap_read_pf(pcap_t *pc, int cnt, pcap_handler callback, u_char *user)
 		 * skipping that padding.
 #endif
 		 */
-		if (fcode == NULL ||
-		    bpf_filter(fcode, p, sp->ens_count, buflen)) {
+		if (pc->md.use_bpf ||
+		    bpf_filter(pc->fcode.bf_insns, p, sp->ens_count, buflen)) {
 			struct pcap_pkthdr h;
 			pc->md.TotAccepted++;
 			h.ts = sp->ens_tstamp;
@@ -285,30 +284,21 @@ pcap_stats_pf(pcap_t *p, struct pcap_stat *ps)
 }
 
 /*
- * We include the OS's <net/bpf.h>, not our "pcap-bpf.h", so we probably
+ * We include the OS's <net/bpf.h>, not our "pcap/bpf.h", so we probably
  * don't get DLT_DOCSIS defined.
  */
 #ifndef DLT_DOCSIS
 #define DLT_DOCSIS	143
 #endif
 
-pcap_t *
-pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
-    char *ebuf)
+static int
+pcap_activate_pf(pcap_t *p)
 {
-	pcap_t *p;
 	short enmode;
 	int backlog = -1;	/* request the most */
 	struct enfilter Filter;
 	struct endevp devparams;
 
-	p = (pcap_t *)malloc(sizeof(*p));
-	if (p == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-		    "pcap_open_live: %s", pcap_strerror(errno));
-		return (0);
-	}
-	memset(p, 0, sizeof(*p));
 	/*
 	 * Initially try a read/write open (to allow the inject
 	 * method to work).  If that fails due to permission
@@ -328,21 +318,21 @@ pcap_open_live(const char *device, int snaplen, int promisc, int to_ms,
 	 * "const char *" as its first argument.  That appears to be
 	 * the case, at least on Digital UNIX 4.0.
 	 */
-	p->fd = pfopen(device, O_RDWR);
+	p->fd = pfopen(p->opt.source, O_RDWR);
 	if (p->fd == -1 && errno == EACCES)
-		p->fd = pfopen(device, O_RDONLY);
+		p->fd = pfopen(p->opt.source, O_RDONLY);
 	if (p->fd < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "pf open: %s: %s\n\
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "pf open: %s: %s\n\
 your system may not be properly configured; see the packetfilter(4) man page\n",
-			device, pcap_strerror(errno));
+			p->opt.source, pcap_strerror(errno));
 		goto bad;
 	}
 	p->md.OrigMissed = -1;
 	enmode = ENTSTAMP|ENBATCH|ENNONEXCL;
-	if (promisc)
+	if (p->opt.promisc)
 		enmode |= ENPROMISC;
 	if (ioctl(p->fd, EIOCMBIS, (caddr_t)&enmode) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCMBIS: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCMBIS: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -353,13 +343,13 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 #endif
 	/* set the backlog */
 	if (ioctl(p->fd, EIOCSETW, (caddr_t)&backlog) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCSETW: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSETW: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 	/* discover interface type */
 	if (ioctl(p->fd, EIOCDEVP, (caddr_t)&devparams) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCDEVP: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCDEVP: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
@@ -441,8 +431,8 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 		 * framing", there's not much we can do, as that
 		 * doesn't specify a particular type of header.
 		 */
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "unknown data-link type %u",
-		    devparams.end_dev_type);
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+		    "unknown data-link type %u", devparams.end_dev_type);
 		goto bad;
 	}
 	/* set truncation */
@@ -451,32 +441,31 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 		p->fddipad = PCAP_FDDIPAD;
 
 		/* packetfilter includes the padding in the snapshot */
-		snaplen += PCAP_FDDIPAD;
+		p->snapshot += PCAP_FDDIPAD;
 	} else
 		p->fddipad = 0;
 #endif
-	if (ioctl(p->fd, EIOCTRUNCATE, (caddr_t)&snaplen) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCTRUNCATE: %s",
+	if (ioctl(p->fd, EIOCTRUNCATE, (caddr_t)&p->snapshot) < 0) {
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCTRUNCATE: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
-	p->snapshot = snaplen;
 	/* accept all packets */
 	memset(&Filter, 0, sizeof(Filter));
 	Filter.enf_Priority = 37;	/* anything > 2 */
 	Filter.enf_FilterLen = 0;	/* means "always true" */
 	if (ioctl(p->fd, EIOCSETF, (caddr_t)&Filter) < 0) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCSETF: %s",
+		snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSETF: %s",
 		    pcap_strerror(errno));
 		goto bad;
 	}
 
-	if (to_ms != 0) {
+	if (p->md.timeout != 0) {
 		struct timeval timeout;
-		timeout.tv_sec = to_ms / 1000;
-		timeout.tv_usec = (to_ms * 1000) % 1000000;
+		timeout.tv_sec = p->md.timeout / 1000;
+		timeout.tv_usec = (p->md.timeout * 1000) % 1000000;
 		if (ioctl(p->fd, EIOCSRTIMEOUT, (caddr_t)&timeout) < 0) {
-			snprintf(ebuf, PCAP_ERRBUF_SIZE, "EIOCSRTIMEOUT: %s",
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "EIOCSRTIMEOUT: %s",
 				pcap_strerror(errno));
 			goto bad;
 		}
@@ -485,7 +474,7 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	p->bufsize = BUFSPACE;
 	p->buffer = (u_char*)malloc(p->bufsize + p->offset);
 	if (p->buffer == NULL) {
-		strlcpy(ebuf, pcap_strerror(errno), PCAP_ERRBUF_SIZE);
+		strlcpy(p->errbuf, pcap_strerror(errno), PCAP_ERRBUF_SIZE);
 		goto bad;
 	}
 
@@ -502,19 +491,23 @@ your system may not be properly configured; see the packetfilter(4) man page\n",
 	p->getnonblock_op = pcap_getnonblock_fd;
 	p->setnonblock_op = pcap_setnonblock_fd;
 	p->stats_op = pcap_stats_pf;
-	p->close_op = pcap_close_common;
 
-	return (p);
+	return (0);
  bad:
-	if (p->fd >= 0)
-		close(p->fd);
-	/*
-	 * Get rid of any link-layer type list we allocated.
-	 */
-	if (p->dlt_list != NULL)
-		free(p->dlt_list);
-	free(p);
-	return (NULL);
+	return (PCAP_ERROR);
+}
+
+pcap_t *
+pcap_create(const char *device, char *ebuf)
+{
+	pcap_t *p;
+
+	p = pcap_create_common(device, ebuf);
+	if (p == NULL)
+		return (NULL);
+
+	p->activate_op = pcap_activate_pf;
+	return (p);
 }
 
 int

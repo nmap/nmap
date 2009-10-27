@@ -1,0 +1,1071 @@
+dnl @(#) $Header: /tcpdump/master/libpcap/configure.in,v 1.138.2.22 2008-10-24 07:30:18 guy Exp $ (LBL)
+dnl
+dnl Copyright (c) 1994, 1995, 1996, 1997
+dnl	The Regents of the University of California.  All rights reserved.
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+
+AC_REVISION($Revision: 1.138.2.22 $)
+AC_PREREQ(2.50)
+AC_INIT(pcap.c)
+
+AC_CANONICAL_SYSTEM
+
+AC_LBL_C_INIT(V_CCOPT, V_INCLS, V_LIBS)
+AC_LBL_C_INLINE
+AC_C___ATTRIBUTE__
+
+AC_LBL_CHECK_TYPE(u_int8_t, u_char)
+AC_LBL_CHECK_TYPE(u_int16_t, u_short)
+AC_LBL_CHECK_TYPE(u_int32_t, u_int)
+AC_LBL_CHECK_TYPE(u_int64_t, unsigned long long)
+
+#
+# Try to arrange for large file support.
+#
+AC_SYS_LARGEFILE
+AC_FUNC_FSEEKO
+
+dnl
+dnl libpcap doesn't itself use <sys/ioccom.h>; however, the test program
+dnl in "AC_LBL_FIXINCLUDES" in "aclocal.m4" uses it, so we have to
+dnl test for it and set "HAVE_SYS_IOCCOM_H" if we have it, otherwise
+dnl "AC_LBL_FIXINCLUDES" won't work on some platforms such as Solaris.
+dnl
+AC_CHECK_HEADERS(sys/ioccom.h sys/sockio.h limits.h paths.h)
+AC_CHECK_HEADERS(net/pfvar.h, , , [#include <sys/types.h>
+#include <sys/socket.h>
+#include <net/if.h>])
+if test "$ac_cv_header_net_pfvar_h" = yes; then
+	#
+	# Check for various PF actions.
+	#
+	AC_MSG_CHECKING(whether net/pfvar.h defines PF_NAT through PF_NORDR)
+	AC_TRY_COMPILE(
+	    [#include <sys/types.h>
+	    #include <sys/socket.h>
+	    #include <net/if.h>
+	    #include <net/pfvar.h>],
+	    [return PF_NAT+PF_NONAT+PF_BINAT+PF_NOBINAT+PF_RDR+PF_NORDR;],
+	    [
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_PF_NAT_THROUGH_PF_NORDR, 1,
+		    [define if net/pfvar.h defines PF_NAT through PF_NORDR])
+	    ],
+	    AC_MSG_RESULT(no))
+fi
+AC_CHECK_HEADERS(netinet/if_ether.h, , , [#include <sys/types.h>
+#include <sys/socket.h>])
+if test "$ac_cv_header_netinet_if_ether_h" != yes; then
+	#
+	# The simple test didn't work.
+	# Do we need to include <net/if.h> first?
+	# Unset ac_cv_header_netinet_if_ether_h so we don't
+	# treat the previous failure as a cached value and
+	# suppress the next test.
+	#
+	AC_MSG_NOTICE([Rechecking with some additional includes])
+	unset ac_cv_header_netinet_if_ether_h
+	AC_CHECK_HEADERS(netinet/if_ether.h, , , [#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+struct mbuf;
+struct rtentry;
+#include <net/if.h>])
+fi
+
+AC_LBL_FIXINCLUDES
+
+AC_CHECK_FUNCS(strerror strlcpy)
+
+needsnprintf=no
+AC_CHECK_FUNCS(vsnprintf snprintf,,
+	[needsnprintf=yes])
+if test $needsnprintf = yes; then
+	AC_LIBOBJ(snprintf)
+fi
+
+#
+# Do this before checking for ether_hostton(), as it's a
+# "gethostbyname() -ish function".
+#
+AC_LBL_LIBRARY_NET
+
+#
+# You are in a twisty little maze of UN*Xes, all different.
+# Some might not have ether_hostton().
+# Some might have it, but not declare it in any header file.
+# Some might have it, but declare it in <netinet/if_ether.h>.
+# Some might have it, but declare it in <netinet/ether.h>
+# (And some might have it but document it as something declared in
+# <netinet/ethernet.h>, although <netinet/if_ether.h> appears to work.)
+#
+# Before you is a C compiler.
+#
+AC_CHECK_FUNCS(ether_hostton)
+if test "$ac_cv_func_ether_hostton" = yes; then
+	#
+	# OK, we have ether_hostton().  Do we have <netinet/if_ether.h>?
+	#
+	if test "$ac_cv_header_netinet_if_ether_h" = yes; then
+		#
+		# Yes.  Does it declare ether_hostton()?
+		#
+		AC_CHECK_DECL(ether_hostton,
+		    [
+			AC_DEFINE(NETINET_IF_ETHER_H_DECLARES_ETHER_HOSTTON,,
+			    [Define to 1 if netinet/if_ether.h declares `ether_hostton'])
+		    ],,
+		    [
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+struct mbuf;
+struct rtentry;
+#include <net/if.h>
+#include <netinet/if_ether.h>
+		    ])
+	fi
+	#
+	# Did that succeed?
+	#
+	if test "$ac_cv_have_decl_ether_hostton" != yes; then
+		#
+		# No, how about <netinet/ether.h>, as on Linux?
+		#
+		AC_CHECK_HEADERS(netinet/ether.h)
+		if test "$ac_cv_header_netinet_ether_h" = yes; then
+			#
+			# We have it - does it declare ether_hostton()?
+			# Unset ac_cv_have_decl_ether_hostton so we don't
+			# treat the previous failure as a cached value and
+			# suppress the next test.
+			#
+			unset ac_cv_have_decl_ether_hostton
+			AC_CHECK_DECL(ether_hostton,
+			    [
+				AC_DEFINE(NETINET_ETHER_H_DECLARES_ETHER_HOSTTON,,
+				    [Define to 1 if netinet/ether.h declares `ether_hostton'])
+			    ],,
+			    [
+#include <netinet/ether.h>
+			    ])
+		fi
+	fi
+	#
+	# Is ether_hostton() declared?
+	#
+	if test "$ac_cv_have_decl_ether_hostton" != yes; then
+		#
+		# No, we'll have to declare it ourselves.
+		# Do we have "struct ether_addr"?
+		#
+		AC_CHECK_TYPES(struct ether_addr,,,
+		    [
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+struct mbuf;
+struct rtentry;
+#include <net/if.h>
+#include <netinet/if_ether.h>
+		    ])
+		AC_DEFINE(HAVE_DECL_ETHER_HOSTTON, 0,
+		    [Define to 1 if you have the declaration of `ether_hostton', and to 0 if you
+don't.])
+	else
+		AC_DEFINE(HAVE_DECL_ETHER_HOSTTON, 1,
+		    [Define to 1 if you have the declaration of `ether_hostton', and to 0 if you
+don't.])
+	fi
+fi
+
+dnl to pacify those who hate protochain insn
+AC_MSG_CHECKING(if --disable-protochain option is specified)
+AC_ARG_ENABLE(protochain, [  --disable-protochain    disable \"protochain\" insn])
+case "x$enable_protochain" in
+xyes)	enable_protochain=enabled	;;
+xno)	enable_protochain=disabled	;;
+x)	enable_protochain=enabled	;;
+esac
+
+if test "$enable_protochain" = "disabled"; then
+	AC_DEFINE(NO_PROTOCHAIN,1,[do not use protochain])
+fi
+AC_MSG_RESULT(${enable_protochain})
+
+#
+# SITA support is mutually exclusive with native capture support;
+# "--with-sita" selects SITA support.
+#
+AC_ARG_WITH(sita, [  --with-sita             include SITA support],
+[
+	AC_DEFINE(SITA,1,[include ACN support])
+	AC_MSG_NOTICE(Enabling SITA ACN support)
+	V_PCAP=sita
+	V_FINDALLDEVS=sita
+],
+[
+dnl
+dnl Not all versions of test support -c (character special) but it's a
+dnl better way of testing since the device might be protected. So we
+dnl check in our normal order using -r and then check the for the /dev
+dnl guys again using -c.
+dnl
+dnl XXX This could be done for cross-compiling, but for now it's not.
+dnl
+if test -z "$with_pcap" && test "$cross_compiling" = yes; then
+	AC_MSG_ERROR(pcap type not determined when cross-compiling; use --with-pcap=...)
+fi
+AC_ARG_WITH(pcap, [  --with-pcap=TYPE        use packet capture TYPE])
+AC_MSG_CHECKING(packet capture type)
+if test ! -z "$with_pcap" ; then
+	V_PCAP="$withval"
+elif test -r /dev/bpf ; then
+	#
+	# Cloning BPF device.
+	#
+	V_PCAP=bpf
+	AC_DEFINE(HAVE_CLONING_BPF,1,[define if you have a cloning BPF device])
+elif test -r /dev/bpf0 ; then
+	V_PCAP=bpf
+elif test -r /usr/include/net/pfilt.h ; then
+	V_PCAP=pf
+elif test -r /dev/enet ; then
+	V_PCAP=enet
+elif test -r /dev/nit ; then
+	V_PCAP=snit
+elif test -r /usr/include/sys/net/nit.h ; then
+	V_PCAP=nit
+elif test -r /usr/include/linux/socket.h ; then
+	V_PCAP=linux
+elif test -r /usr/include/net/raw.h ; then
+	V_PCAP=snoop
+elif test -r /usr/include/odmi.h ; then
+	#
+	# On AIX, the BPF devices might not yet be present - they're
+	# created the first time libpcap runs after booting.
+	# We check for odmi.h instead.
+	#
+	V_PCAP=bpf
+elif test -r /usr/include/sys/dlpi.h ; then
+	V_PCAP=dlpi
+elif test -c /dev/bpf0 ; then		# check again in case not readable
+	V_PCAP=bpf
+elif test -c /dev/enet ; then		# check again in case not readable
+	V_PCAP=enet
+elif test -c /dev/nit ; then		# check again in case not readable
+	V_PCAP=snit
+else
+	V_PCAP=null
+fi
+AC_MSG_RESULT($V_PCAP)
+
+#
+# Do capture-mechanism-dependent tests.
+#
+case "$V_PCAP" in
+dlpi)
+	#
+	# Checks to see if Solaris has the public libdlpi(3LIB) library.
+	# Note: The existence of /usr/include/libdlpi.h does not mean it is the
+	# public libdlpi(3LIB) version. Before libdlpi was made public, a 
+	# private version also existed, which did not have the same APIs. 
+	# Due to a gcc bug, the default search path for 32-bit libraries does
+	# not include /lib, we add it explicitly here.
+	# [http://bugs.opensolaris.org/view_bug.do?bug_id=6619485]. 
+	# Also, due to the bug above applications that link to libpcap with
+	# libdlpi will have to add "-L/lib" option to "configure".
+	#
+	saved_ldflags=$LDFLAGS
+	LDFLAGS="$LIBS -L/lib"
+	AC_CHECK_LIB(dlpi, dlpi_walk,
+		LIBS="-ldlpi $LIBS"
+		V_PCAP=libdlpi
+		AC_DEFINE(HAVE_LIBDLPI,1,[if libdlpi exists]),
+		V_PCAP=dlpi)
+	LDFLAGS=$saved_ldflags
+
+	#
+	# Checks whether <sys/dlpi.h> is usable, to catch weird SCO
+	# versions of DLPI.
+	#
+	AC_MSG_CHECKING(whether <sys/dlpi.h> is usable)
+	AC_CACHE_VAL(ac_cv_sys_dlpi_usable,
+		AC_TRY_COMPILE(
+		    [
+			#include <sys/types.h>
+			#include <sys/time.h>
+			#include <sys/dlpi.h>
+		    ],
+		    [int i = DL_PROMISC_PHYS;],
+		    ac_cv_sys_dlpi_usable=yes,
+		    ac_cv_sys_dlpi_usable=no))
+	AC_MSG_RESULT($ac_cv_sys_dlpi_usable)
+	if test $ac_cv_sys_dlpi_usable = no ; then
+		AC_MSG_ERROR(<sys/dlpi.h> is not usable on this system; it probably has a non-standard DLPI)
+	fi
+
+	#
+	# Check whether we have a /dev/dlpi device or have multiple devices.
+	#
+	AC_MSG_CHECKING(for /dev/dlpi device)
+	if test -c /dev/dlpi ; then
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_DEV_DLPI, 1, [define if you have a /dev/dlpi])
+	else
+		AC_MSG_RESULT(no)
+		dir="/dev/dlpi"
+		AC_MSG_CHECKING(for $dir directory)
+		if test -d $dir ; then
+			AC_MSG_RESULT(yes)
+			AC_DEFINE_UNQUOTED(PCAP_DEV_PREFIX, "$dir", [/dev/dlpi directory])
+		else
+			AC_MSG_RESULT(no)
+		fi
+	fi
+
+	#
+	# This check is for Solaris with DLPI support for passive modes.
+	# See dlpi(7P) for more details.
+	#
+	AC_LBL_DL_PASSIVE_REQ_T
+	;;
+
+linux)
+	AC_MSG_CHECKING(Linux kernel version)
+ 	if test "$cross_compiling" = yes; then
+ 		AC_CACHE_VAL(ac_cv_linux_vers,
+ 		    ac_cv_linux_vers=unknown)
+ 	else
+ 		AC_CACHE_VAL(ac_cv_linux_vers,
+ 		    ac_cv_linux_vers=`uname -r 2>&1 | \
+ 			sed -n -e '$s/.* //' -e '$s/\..*//p'`)
+ 	fi
+	AC_MSG_RESULT($ac_cv_linux_vers)
+ 	if test $ac_cv_linux_vers = unknown ; then
+ 		AC_MSG_ERROR(cannot determine linux version when cross-compiling)
+ 	fi
+	if test $ac_cv_linux_vers -lt 2 ; then
+		AC_MSG_ERROR(version 2 or higher required; see the INSTALL doc for more info)
+	fi
+	AC_CHECK_HEADERS(linux/wireless.h, [], [],
+	[
+#include <sys/socket.h>
+#include <net/if.h>
+#include <linux/types.h>
+	])
+	AC_CHECK_HEADERS()
+	AC_LBL_TPACKET_STATS
+	AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
+	;;
+
+bpf)
+	#
+	# Check whether we have the *BSD-style ioctls.
+	#
+	AC_CHECK_HEADERS(net/if_media.h)
+
+	AC_MSG_CHECKING(whether the system supports zerocopy BPF)
+	AC_TRY_COMPILE(
+	    [#include <sys/socket.h>
+	    #include <sys/ioctl.h>
+	    #include <net/if.h>
+	    #include <net/bpf.h>],
+	    [return (BIOCROTZBUF + BPF_BUFMODE_ZBUF);],
+	    [  
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_ZEROCOPY_BPF, 1,
+		[define if the system supports zerocopy BPF])
+	    ],
+	    AC_MSG_RESULT(no))
+	;;
+
+dag)
+	V_DEFS="$V_DEFS -DDAG_ONLY"
+	;;
+
+septel)
+	V_DEFS="$V_DEFS -DSEPTEL_ONLY"
+	;;
+
+null)
+	AC_MSG_WARN(cannot determine packet capture interface)
+	AC_MSG_WARN((see the INSTALL doc for more info))
+	;;
+esac
+
+dnl
+dnl Now figure out how we get a list of interfaces and addresses,
+dnl if we support capturing.  Don't bother if we don't support
+dnl capturing.
+dnl
+if test "$V_PCAP" = null
+then
+	#
+	# We can't capture, so we can't open any capture
+	# devices, so we won't return any interfaces.
+	#
+	V_FINDALLDEVS=null
+else
+	AC_CHECK_FUNC(getifaddrs,[
+		#
+		# We have "getifaddrs()"; make sure we have <ifaddrs.h>
+		# as well, just in case some platform is really weird.
+		#
+		AC_CHECK_HEADER(ifaddrs.h,[
+		    #
+		    # We have the header, so we use "getifaddrs()" to
+		    # get the list of interfaces.
+		    #
+		    V_FINDALLDEVS=getad
+		],[
+		    #
+		    # We don't have the header - give up.
+		    # XXX - we could also fall back on some other
+		    # mechanism, but, for now, this'll catch this
+		    # problem so that we can at least try to figure
+		    # out something to do on systems with "getifaddrs()"
+		    # but without "ifaddrs.h", if there is something
+		    # we can do on those systems.
+		    #
+		    AC_MSG_ERROR([Your system has getifaddrs() but doesn't have a usable <ifaddrs.h>.])
+		])
+	],[
+		#
+		# Well, we don't have "getifaddrs()", so we have to use
+		# some other mechanism; determine what that mechanism is.
+		#
+		# The first thing we use is the type of capture mechanism,
+		# which is somewhat of a proxy for the OS we're using.
+		#
+		case "$V_PCAP" in
+
+		dlpi|libdlpi)
+			AC_CHECK_HEADERS(sys/bufmod.h sys/dlpi_ext.h)
+			#
+			# This might be Solaris 8 or later, with
+			# SIOCGLIFCONF, or it might be some other OS
+			# or some older version of Solaris, with
+			# just SIOCGIFCONF.
+			#
+			AC_MSG_CHECKING(whether we have SIOCGLIFCONF)
+			AC_CACHE_VAL(ac_cv_lbl_have_siocglifconf,
+			    AC_TRY_COMPILE(
+				[#include <sys/param.h>
+				#include <sys/file.h>
+				#include <sys/ioctl.h>
+				#include <sys/socket.h>
+				#include <sys/sockio.h>],
+				[ioctl(0, SIOCGLIFCONF, (char *)0);],
+				ac_cv_lbl_have_siocglifconf=yes,
+				ac_cv_lbl_have_siocglifconf=no))
+			AC_MSG_RESULT($ac_cv_lbl_have_siocglifconf)
+			if test $ac_cv_lbl_have_siocglifconf = yes ; then
+				V_FINDALLDEVS=glifc
+			else
+				V_FINDALLDEVS=gifc
+			fi
+			#
+			# Needed for common functions used by pcap-[dlpi,libdlpi].c
+			#
+		 	SSRC="dlpisubs.c"
+			;;
+
+		*)
+			#
+			# Assume we just have SIOCGIFCONF.
+			# (XXX - on at least later Linux kernels, there's
+			# another mechanism, and we should be using that
+			# instead.)
+			#
+			V_FINDALLDEVS=gifc
+			;;
+		esac])
+fi
+])
+
+AC_MSG_CHECKING(for socklen_t)
+AC_TRY_COMPILE([
+	#include <sys/types.h>
+	#include <sys/socket.h>
+	],
+	[ socklen_t x; ],
+	have_socklen_t=yes,
+	have_socklen_t=no)
+if test "x$have_socklen_t" = "xyes"; then
+	AC_DEFINE(HAVE_SOCKLEN_T, 1, [define if socklen_t is defined])
+fi
+AC_MSG_RESULT($have_socklen_t)
+
+AC_ARG_ENABLE(ipv6, [  --enable-ipv6           build IPv6-capable version @<:@default=yes, if getaddrinfo available@:>@],
+    [],
+    [enable_ipv6=ifavailable])
+if test "$enable_ipv6" != "no"; then
+	AC_CHECK_FUNC(getaddrinfo,
+	    [
+		AC_DEFINE(INET6,1,[IPv6])
+	    ],
+	    [
+		if test "$enable_ipv6" != "ifavailable"; then
+			AC_MSG_FAILURE([--enable-ipv6 was given, but getaddrinfo isn't available])
+		fi
+	    ])
+fi
+
+AC_MSG_CHECKING(whether to build optimizer debugging code)
+AC_ARG_ENABLE(optimizer-dbg, [  --enable-optimizer-dbg  build optimizer debugging code])
+if test "$enable_optimizer_dbg" = "yes"; then
+	AC_DEFINE(BDEBUG,1,[Enable optimizer debugging])
+fi
+AC_MSG_RESULT(${enable_optimizer_dbg-no})
+
+AC_MSG_CHECKING(whether to build parser debugging code)
+AC_ARG_ENABLE(yydebug, [  --enable-yydebug        build parser debugging code])
+if test "$enable_yydebug" = "yes"; then
+	AC_DEFINE(YYDEBUG,1,[Enable parser debugging])
+fi
+AC_MSG_RESULT(${enable_yydebug-no})
+
+AC_MSG_CHECKING(whether we have /proc/net/dev)
+if test -r /proc/net/dev ; then
+	ac_cv_lbl_proc_net_dev=yes
+else
+	ac_cv_lbl_proc_net_dev=no
+fi
+if test $ac_cv_lbl_proc_net_dev = yes; then
+	AC_DEFINE(HAVE_PROC_NET_DEV, 1, [define if you have a /proc/net/dev])
+fi
+AC_MSG_RESULT($ac_cv_lbl_proc_net_dev)
+
+# Check for Endace DAG card support.
+AC_ARG_WITH([dag], [  --with-dag[[=DIR]]        include Endace DAG support ("yes", "no" or DIR; default="yes" on BSD and Linux if present)],
+[
+	if test "$withval" = no
+	then
+		# User doesn't want DAG support.
+		want_dag=no
+	elif test "$withval" = yes
+	then
+		# User wants DAG support but hasn't specified a directory.
+		want_dag=yes
+	else
+		# User wants DAG support and has specified a directory, so use the provided value.
+		want_dag=yes
+		dag_root=$withval
+	fi
+],[
+	#
+	# Use DAG API if present, otherwise don't
+	#
+	want_dag=ifpresent
+])
+
+AC_ARG_WITH([dag-includes], [  --with-dag-includes=DIR   Endace DAG include directory],
+[
+	# User wants DAG support and has specified a header directory, so use the provided value.
+	want_dag=yes
+	dag_include_dir=$withval
+],[])
+
+AC_ARG_WITH([dag-libraries], [  --with-dag-libraries=DIR  Endace DAG library directory],
+[
+	# User wants DAG support and has specified a library directory, so use the provided value.
+	want_dag=yes
+	dag_lib_dir=$withval
+],[])
+
+case "$V_PCAP" in
+linux|bpf|dag)
+	#
+	# We support the DAG API if we're on Linux or BSD, or if we're
+	# building a DAG-only libpcap.
+	#
+	;;
+*)
+	#
+	# If the user explicitly requested DAG, tell them it's not
+	# supported.
+	#
+	# If they expressed no preference, don't include it.
+	#
+	if test $want_dag = yes; then
+		AC_MSG_ERROR([DAG support is only available with 'linux' 'bpf' and 'dag' packet capture types])
+	elif test $want_dag = yes; then
+		want_dag=no
+	fi
+	;;
+esac
+
+ac_cv_lbl_dag_api=no
+if test "$want_dag" != no; then
+
+	AC_MSG_CHECKING([whether we have DAG API headers])
+
+	# If necessary, set default paths for DAG API headers and libraries.
+	if test -z "$dag_root"; then
+	    dag_root=/usr/local
+	fi
+
+	if test -z "$dag_include_dir"; then
+		dag_include_dir="$dag_root/include"
+	fi
+
+	if test -z "$dag_lib_dir"; then
+	    dag_lib_dir="$dag_root/lib"
+	fi
+	
+	if test -z "$dag_tools_dir"; then
+	    dag_tools_dir="$dag_root/tools"
+		fi
+
+	if test -r $dag_include_dir/dagapi.h; then
+		ac_cv_lbl_dag_api=yes
+	fi
+	AC_MSG_RESULT([$ac_cv_lbl_dag_api ($dag_include_dir)])
+fi
+
+if test $ac_cv_lbl_dag_api = yes; then
+
+	AC_MSG_CHECKING([dagapi.o])	
+	dagapi_obj=no
+	if test -r $dag_tools_dir/dagapi.o; then
+		# 2.4.x.
+		dagapi_obj=$dag_tools_dir/dagapi.o
+	elif test -r $dag_lib_dir/dagapi.o; then
+		# 2.5.x.
+		dagapi_obj=$dag_lib_dir/dagapi.o
+	elif test -r $dag_lib_dir/libdag.a; then
+		# 2.5.x.
+		ar x $dag_lib_dir/libdag.a dagapi.o 2>/dev/null
+		if test -r ./dagapi.o; then
+		    dagapi_obj=./dagapi.o
+		else
+		    ar x $dag_lib_dir/libdag.a libdag_la-dagapi.o 2>/dev/null
+		    if test -r ./libdag_la-dagapi.o; then
+		       dagapi_obj=./libdag_la-dagapi.o
+		    fi		
+		fi
+	fi
+
+	if test $dagapi_obj = no; then
+		AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_tools_dir  $dag_lib_dir/libdag.a)])
+			ac_cv_lbl_dag_api=no
+	else
+		AC_MSG_RESULT([yes ($dagapi_obj)])
+	fi
+fi
+
+if test $ac_cv_lbl_dag_api = yes; then
+
+	AC_MSG_CHECKING([dagopts.o])	
+	dagopts_obj=no
+	if test -r $dag_tools_dir/dagopts.o; then
+		# 2.4.x.
+		dagopts_obj=$dag_tools_dir/dagopts.o
+	elif test -r $dag_lib_dir/dagopts.o; then
+		# 2.5.x.
+		dagopts_obj=$dag_lib_dir/dagopts.o
+	elif test -r $dag_lib_dir/libdag.a; then
+		# 2.5.x.
+		ar x $dag_lib_dir/libdag.a dagopts.o 2>/dev/null
+		if test -r ./dagopts.o; then
+		    dagopts_obj=./dagopts.o
+		else
+		    ar x $dag_lib_dir/libdag.a libdag_la-dagopts.o 2>/dev/null
+		    if test -r ./libdag_la-dagopts.o; then
+		       dagopts_obj=./libdag_la-dagopts.o
+		    fi
+		fi
+	fi
+
+	if test $dagopts_obj = no; then
+		AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_tools_dir  $dag_lib_dir/libdag.a)])
+		ac_cv_lbl_dag_api=no
+	else
+		AC_MSG_RESULT([yes ($dagopts_obj)])
+	fi
+fi
+
+if test $ac_cv_lbl_dag_api = yes; then
+	# Under 2.5.x only we need to add dagreg.o.
+	if test -r $dag_include_dir/dagreg.h; then
+		AC_MSG_CHECKING([dagreg.o])	
+		dagreg_obj=no
+		if test -r $dag_lib_dir/dagreg.o; then
+			# Object file is ready and waiting.
+			dagreg_obj=$dag_lib_dir/dagreg.o
+		elif test -r $dag_lib_dir/libdag.a; then
+			# Extract from libdag.a.
+			ar x $dag_lib_dir/libdag.a dagreg.o 2>/dev/null
+			if test -r ./dagreg.o; then
+				dagreg_obj=./dagreg.o
+			else
+				ar x $dag_lib_dir/libdag.a libdag_la-dagreg.o 2>/dev/null
+				if test -r ./libdag_la-dagreg.o; then
+				   dagreg_obj=./libdag_la-dagreg.o
+				fi
+			fi
+		fi
+
+		if test $dagreg_obj = no; then
+			AC_MSG_RESULT([no (checked $dag_lib_dir  $dag_lib_dir/libdag.a)])
+			ac_cv_lbl_dag_api=no
+		else
+			AC_MSG_RESULT([yes ($dagreg_obj)])
+		fi
+	fi
+fi
+
+if test $ac_cv_lbl_dag_api = yes; then
+	V_INCLS="$V_INCLS -I$dag_include_dir"
+	V_LIBS="$V_LIBS $dagapi_obj $dagopts_obj $dagreg_obj"
+	if test $V_PCAP != dag ; then
+		 SSRC="pcap-dag.c"
+	fi
+
+	# See if we can find a general version string.
+	# Don't need to save and restore LIBS to prevent -ldag being
+	# included if there's a found-action (arg 3).
+	saved_ldflags=$LDFLAGS
+	LDFLAGS="-L$dag_lib_dir"
+	AC_CHECK_LIB([dag], [dag_attach_stream], [dag_streams="1"], [dag_streams="0"])
+	AC_CHECK_LIB([dag],[dag_get_erf_types], [
+		AC_DEFINE(HAVE_DAG_GET_ERF_TYPES, 1, [define if you have dag_get_erf_types()])])
+	AC_CHECK_LIB([dag],[dag_get_stream_erf_types], [
+		AC_DEFINE(HAVE_DAG_GET_STREAM_ERF_TYPES, 1, [define if you have dag_get_stream_erf_types()])])
+	LDFLAGS=$saved_ldflags
+
+	if test "$dag_streams" = 1; then
+		AC_DEFINE(HAVE_DAG_STREAMS_API, 1, [define if you have streams capable DAG API])
+		DAGLIBS="-ldag"
+	fi
+
+	AC_DEFINE(HAVE_DAG_API, 1, [define if you have the DAG API])
+fi
+
+AC_MSG_CHECKING(whether we have the DAG API)
+
+if test $ac_cv_lbl_dag_api = no; then
+	AC_MSG_RESULT(no)
+	if test "$want_dag" = yes; then
+        	# User wanted DAG support but we couldn't find it.
+		AC_MSG_ERROR([DAG API requested, but not found at $dag_root: use --without-dag])
+	fi
+
+	if test "$V_PCAP" = dag; then
+		# User requested "dag" capture type but the DAG API wasn't
+		# found.
+		AC_MSG_ERROR([Specifying the capture type as "dag" requires the DAG API to be present; use the --with-dag options to specify the location. (Try "./configure --help" for more information.)])
+	fi
+else
+	AC_MSG_RESULT(yes)
+fi
+
+AC_ARG_WITH(septel, [  --with-septel[[=DIR]]     include Septel support (located in directory DIR, if supplied).  [default=yes, on Linux, if present]],
+[
+	if test "$withval" = no
+	then
+		want_septel=no
+	elif test "$withval" = yes
+	then
+		want_septel=yes
+		septel_root=
+	else
+		want_septel=yes
+		septel_root=$withval
+	fi
+],[
+	#
+	# Use Septel API if present, otherwise don't
+	#
+	want_septel=ifpresent
+	septel_root=./../septel
+])
+ac_cv_lbl_septel_api=no
+case "$V_PCAP" in
+linux|septel)
+	#
+	# We support the Septel API if we're on Linux, or if we're building
+	# a Septel-only libpcap.
+	#
+	;;
+*)
+	#
+	# If the user explicitly requested Septel, tell them it's not
+	# supported.
+	#
+	# If they expressed no preference, don't include it.
+	#
+	if test $want_septel = yes; then
+		AC_MSG_ERROR(Septel support only available with 'linux' and 'septel' packet capture types)
+	elif test $want_septel = yes; then
+		want_septel=no
+	fi
+	;;
+esac
+
+if test "$with_septel" != no; then
+	AC_MSG_CHECKING(whether we have Septel API)
+
+	if test -z "$septel_root"; then
+		septel_root=$srcdir/../septel
+
+	fi
+
+	septel_tools_dir="$septel_root"
+	septel_include_dir="$septel_root/INC"
+	DEF="-DHAVE_SEPTEL_API"
+
+	ac_cv_lbl_septel_api=no
+	if test -r "$septel_include_dir/msg.h"; then
+		V_INCLS="$V_INCLS -I$septel_include_dir"
+		V_DEFS="$V_DEFS $DEF"
+		V_LIBS="$V_LIBS $septel_tools_dir/asciibin.o $septel_tools_dir/bit2byte.o $septel_tools_dir/confirm.o $septel_tools_dir/fmtmsg.o $septel_tools_dir/gct_unix.o $septel_tools_dir/hqueue.o $septel_tools_dir/ident.o $septel_tools_dir/mem.o $septel_tools_dir/pack.o $septel_tools_dir/parse.o $septel_tools_dir/pool.o $septel_tools_dir/sdlsig.o $septel_tools_dir/strtonum.o $septel_tools_dir/timer.o $septel_tools_dir/trace.o "
+
+		if test "$V_PCAP" != septel ; then
+			 SSRC="pcap-septel.c"
+
+		fi
+		ac_cv_lbl_septel_api=yes
+	fi
+
+	AC_MSG_RESULT($ac_cv_lbl_septel_api)
+	if test $ac_cv_lbl_septel_api = no; then
+		if test "$want_septel" = yes; then
+			AC_MSG_ERROR(Septel API not found under directory $septel_root; use --without-septel)
+		fi
+	else
+		AC_DEFINE(HAVE_SEPTEL_API, 1, [define if you have a Septel API])
+	fi
+fi
+
+if test "$V_PCAP" = septel -a "$ac_cv_lbl_septel_api" = no; then
+	AC_MSG_ERROR(Specifying the capture type as 'septel' requires the Septel API to be present; use --with-septel=DIR)
+fi
+
+
+AC_LBL_LEX_AND_YACC(V_LEX, V_YACC, pcap_)
+if test "$V_LEX" = lex ; then
+# Some versions of lex can't handle the definitions section of scanner.l .
+# Try lexing it and complain if it can't deal.
+	AC_CACHE_CHECK([for capable lex], tcpdump_cv_capable_lex,
+		if lex -t scanner.l > /dev/null 2>&1; then
+			tcpdump_cv_capable_lex=yes
+		else
+			tcpdump_cv_capable_lex=insufficient
+		fi)
+	if test $tcpdump_cv_capable_lex = insufficient ; then
+		AC_MSG_ERROR([Your operating system's lex is insufficient to compile
+ libpcap.  flex is a lex replacement that has many advantages, including
+ being able to compile libpcap.  For more information, see
+ http://www.gnu.org/software/flex/flex.html .])
+	fi
+fi
+
+#
+# Assume a.out/ELF convention for shared library names (".so"), and
+# V7/BSD convention for man pages (file formats in section 5,
+# miscellaneous info in section 7).
+#
+DYEXT="so"
+MAN_FILE_FORMATS=5
+MAN_MISC_INFO=7
+case "$host_os" in
+
+aix*)
+	dnl Workaround to enable certain features
+	AC_DEFINE(_SUN,1,[define on AIX to get certain functions])
+
+	# We need "-lodm" and "-lcfg", as libpcap requires them on
+	# AIX.
+	DEPLIBS="-lodm -lcfg"
+	;;
+
+darwin*)
+	DYEXT="dylib"
+	V_CCOPT="$V_CCOPT -fno-common"
+	;;
+
+hpux9*)
+	AC_DEFINE(HAVE_HPUX9,1,[on HP-UX 9.x])
+
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+hpux10.0*)
+
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+hpux10.1*)
+
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+hpux*)
+	dnl HPUX 10.20 and above is similar to HPUX 9, but
+	dnl not the same....
+	dnl
+	dnl XXX - DYEXT should be set to "sl" if this is building
+	dnl for 32-bit PA-RISC, but should be left as "so" for
+	dnl 64-bit PA-RISC or, I suspect, IA-64.
+	AC_DEFINE(HAVE_HPUX10_20_OR_LATER,1,[on HP-UX 10.20 or later])
+
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+irix*)
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+linux*)
+	V_CCOPT="$V_CCOPT -fPIC"
+	;;
+
+osf*)
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+
+sinix*)
+	AC_MSG_CHECKING(if SINIX compiler defines sinix)
+	AC_CACHE_VAL(ac_cv_cc_sinix_defined,
+		AC_TRY_COMPILE(
+		    [],
+		    [int i = sinix;],
+		    ac_cv_cc_sinix_defined=yes,
+		    ac_cv_cc_sinix_defined=no))
+	    AC_MSG_RESULT($ac_cv_cc_sinix_defined)
+	    if test $ac_cv_cc_sinix_defined = no ; then
+		    AC_DEFINE(sinix,1,[on sinix])
+	    fi
+	;;
+
+solaris*)
+	AC_DEFINE(HAVE_SOLARIS,1,[On solaris])
+
+	#
+	# Use System V conventions for man pages.
+	#
+	MAN_FILE_FORMATS=4
+	MAN_MISC_INFO=5
+	;;
+esac
+
+AC_PROG_RANLIB
+
+AC_LBL_DEVEL(V_CCOPT)
+
+AC_LBL_SOCKADDR_SA_LEN
+
+AC_LBL_SOCKADDR_STORAGE
+
+AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
+
+AC_LBL_UNALIGNED_ACCESS
+
+#
+# Makefile.in includes rules to generate version.h, so we assume
+# that it will be generated if autoconf is used.
+#
+AC_DEFINE(HAVE_VERSION_H, 1, [define if version.h is generated in the build procedure])
+
+rm -f net
+ln -s ${srcdir}/bpf/net net
+
+AC_SUBST(V_CCOPT)
+AC_SUBST(V_DEFS)
+AC_SUBST(V_INCLS)
+AC_SUBST(V_LIBS)
+AC_SUBST(V_LEX)
+AC_SUBST(V_PCAP)
+AC_SUBST(V_FINDALLDEVS)
+AC_SUBST(V_YACC)
+AC_SUBST(SSRC)
+AC_SUBST(DYEXT)
+AC_SUBST(DAGLIBS)
+AC_SUBST(DEPLIBS)
+AC_SUBST(MAN_FILE_FORMATS)
+AC_SUBST(MAN_MISC_INFO)
+
+dnl check for USB sniffing support
+AC_MSG_CHECKING(for USB sniffing support)
+case "$host_os" in
+linux*)
+       AC_DEFINE(PCAP_SUPPORT_USB, 1, [target host supports USB sniffing])
+       USB_SRC=pcap-usb-linux.c
+       AC_MSG_RESULT(yes)
+       ac_usb_dev_name=`udevinfo -q name -p /sys/class/usb_device/usbmon 2>/dev/null`
+       if test $? -ne 0 ; then
+               ac_usb_dev_name="usbmon"
+       fi
+       AC_DEFINE_UNQUOTED(LINUX_USB_MON_DEV, "/dev/$ac_usb_dev_name", [path for device for USB sniffing])
+       AC_MSG_NOTICE(Device for USB sniffing is /dev/$ac_usb_dev_name)
+       ;;
+*)
+       AC_MSG_RESULT(no)
+       ;;
+esac
+AC_SUBST(PCAP_SUPPORT_USB)
+AC_SUBST(USB_SRC)
+
+dnl check for bluetooth sniffing support
+case "$host_os" in
+linux*)
+       AC_CHECK_HEADER(bluetooth/bluetooth.h,
+       	[
+	  AC_DEFINE(PCAP_SUPPORT_BT, 1, [target host supports Bluetooth sniffing])
+          BT_SRC=pcap-bt-linux.c
+          AC_MSG_NOTICE(Bluetooth sniffing is supported)
+	],
+	AC_MSG_NOTICE(Bluetooth sniffing is not supported; install bluez-lib devel to enable it)
+       )
+       ;;
+*)
+       AC_MSG_NOTICE(no Bluetooth sniffing support)
+       ;;
+esac
+AC_SUBST(PCAP_SUPPORT_BT)
+AC_SUBST(BT_SRC)
+
+AC_PROG_INSTALL
+
+AC_CONFIG_HEADER(config.h)
+
+AC_OUTPUT(Makefile pcap-filter.manmisc pcap-linktype.manmisc
+	pcap-savefile.manfile pcap.3pcap pcap_compile.3pcap
+	pcap_datalink.3pcap pcap_dump_open.3pcap
+	pcap_list_datalinks.3pcap pcap_open_dead.3pcap
+	pcap_open_offline.3pcap)
+
+if test -f .devel ; then
+	make depend
+fi
+exit 0
