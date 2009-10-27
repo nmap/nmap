@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now prefers to display the hostname supplied by the user instead
+  of the reverse-DNS name in most places. If a reverse DNS record
+  exists, and it differs from the user-supplied name, it is printed
+  like this:
+    Nmap scan report for www.google.com (74.125.53.103)
+    rDNS record for 74.125.53.103: pw-in-f103.1e100.net
+  See http://seclists.org/nmap-dev/2009/q4/199 for a summary of other
+  minor changes to output. [David]
+
 o Upgraded our Winpcap installer to use the new WinPcap version 4.1.1.
   A bug which could prevent proper uninstallation of previous versions
   was fixed at the same time. [Rob Nicholls]
