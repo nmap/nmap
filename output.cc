@@ -1477,23 +1477,21 @@ void write_host_status(Target * currenths, int resolve_all) {
     /* Ping scan / port scan. */
 
     write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
-    if (o.noportscan || o.verbose) {
-      if (currenths->flags & HOST_UP) {
-        log_write(LOG_PLAIN, "Host is up");
-        if (o.reason)
-          log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
-        if (currenths->to.srtt != -1)
-          log_write(LOG_PLAIN, " (%ss latency)",
-                    num_to_string_sigdigits(currenths->to.srtt / 1000000.0, 2));
-        log_write(LOG_PLAIN, ".\n");
+    if (currenths->flags & HOST_UP) {
+      log_write(LOG_PLAIN, "Host is up");
+      if (o.reason)
+        log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
+      if (currenths->to.srtt != -1)
+        log_write(LOG_PLAIN, " (%ss latency)",
+                  num_to_string_sigdigits(currenths->to.srtt / 1000000.0, 2));
+      log_write(LOG_PLAIN, ".\n");
 
-        log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
-                  currenths->targetipstr(), currenths->HostName());
-      } else if (o.verbose || resolve_all) {
-        log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT, "Host is down.\n");
-        log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
-                  currenths->targetipstr(), currenths->HostName());
-      }
+      log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
+                currenths->targetipstr(), currenths->HostName());
+    } else if (o.verbose || resolve_all) {
+      log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT, "Host is down.\n");
+      log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
+                currenths->targetipstr(), currenths->HostName());
     }
   }
 }
