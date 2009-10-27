@@ -1430,7 +1430,7 @@ void write_host_header(Target *currenths) {
   if (currenths->TargetName() != NULL
       && currenths->resolved_addrs.size() > 1) {
     log_write(LOG_PLAIN, "Hostname %s resolves to %u IPs. Only scanned %s\n",
-      currenths->TargetName(), currenths->resolved_addrs.size(),
+      currenths->TargetName(), (unsigned int) currenths->resolved_addrs.size(),
       currenths->targetipstr());
   }
   /* Print reverse DNS if it differs. */
