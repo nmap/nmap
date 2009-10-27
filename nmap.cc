@@ -1728,7 +1728,7 @@ int nmap_main(int argc, char *argv[]) {
         ) || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
-	write_host_status(currenths, o.resolve_all);
+	write_host_header(currenths);
 	printmacinfo(currenths);
 	//	if (currenths->flags & HOST_UP)
 	//  log_write(LOG_PLAIN,"\n");

@@ -1424,7 +1424,8 @@ static char *num_to_string_sigdigits(double d, int digits) {
 /* Writes a heading for a full scan report ("Nmap scan report for..."),
    including host status and DNS records. */
 void write_host_header(Target *currenths) {
-  log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
+  if ((currenths->flags & HOST_UP) || o.verbose || o.resolve_all)
+    log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
   write_host_status(currenths, o.resolve_all);
   /* Print reverse DNS if it differs. */
   if (currenths->TargetName() != NULL
@@ -1440,12 +1441,9 @@ void write_host_header(Target *currenths) {
    machine log.  resolve_all should be passed nonzero if the user asked
    for all hosts (even down ones) to be resolved */
 void write_host_status(Target * currenths, int resolve_all) {
-  char hostname[1200];
-
   if (o.listscan) {
     /* write "unknown" to stdout, machine, and xml */
-    log_write(LOG_PLAIN, "Host %s not scanned\n",
-              currenths->NameIP(hostname, sizeof(hostname)));
+    log_write(LOG_PLAIN, "Host not scanned\n");
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
               currenths->targetipstr(), currenths->HostName());
     write_xml_initial_hostinfo(currenths, "unknown");
@@ -1462,13 +1460,11 @@ void write_host_status(Target * currenths, int resolve_all) {
               currenths->weird_responses);
 
     if (o.noportscan) {
-      log_write(LOG_PLAIN, "Host %s seems to be a subnet broadcast address (returned %d extra pings).%s\n",
-                currenths->NameIP(hostname, sizeof(hostname)),
+      log_write(LOG_PLAIN, "Host seems to be a subnet broadcast address (returned %d extra pings).%s\n",
                 currenths->weird_responses,
                 (currenths->flags & HOST_UP) ? " Note -- the actual IP also responded." : "");
     } else {
-      log_write(LOG_PLAIN, "Host %s seems to be a subnet broadcast address (returned %d extra pings). %s.\n",
-                currenths->NameIP(hostname, sizeof(hostname)),
+      log_write(LOG_PLAIN, "Host seems to be a subnet broadcast address (returned %d extra pings). %s.\n",
                 currenths->weird_responses,
                 (currenths->flags & HOST_UP) ? " Still scanning it due to ping response from its own IP" : "Skipping host");
     }
@@ -1478,8 +1474,7 @@ void write_host_status(Target * currenths, int resolve_all) {
     write_xml_initial_hostinfo(currenths, (currenths->flags & HOST_UP) ? "up" : "down");
     if (o.noportscan || o.verbose) {
       if (currenths->flags & HOST_UP) {
-        log_write(LOG_PLAIN, "Host %s is up",
-                  currenths->NameIP(hostname, sizeof(hostname)));
+        log_write(LOG_PLAIN, "Host is up");
         if (o.reason)
           log_write(LOG_PLAIN, ", %s", target_reason_str(currenths));
         if (currenths->to.srtt != -1)
@@ -1490,8 +1485,7 @@ void write_host_status(Target * currenths, int resolve_all) {
         log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
                   currenths->targetipstr(), currenths->HostName());
       } else if (o.verbose || resolve_all) {
-        log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT,
-                  "Host %s is down.\n", currenths->NameIP(hostname, sizeof (hostname)));
+        log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT, "Host is down.\n");
         log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
                   currenths->targetipstr(), currenths->HostName());
       }
