@@ -23,12 +23,10 @@ o Fix a bug in which Nmap can wrongly associate responses to SYN and
      whether we can still reproduce that and, if so, what is going on
      before "fixing" this issue.
 
-o Improve Nmap output to show the forward DNS name when specified on
-  command line as well as rDNS where appropriate.  We're also going to
-  reorganize output to enable some other improvements as well.  See
-  the proposal at http://seclists.org/nmap-dev/2009/q3/814, and that
-  whole thread which starts at
-  http://seclists.org/nmap-dev/2009/q3/805 [David].
+o Change Nmap to not show the "Host not scanned" lines in list scan
+
+o Change Nmap to show latency in "host is up" lines even w/o verbose
+  mode.
 
 o Potential OS X 10.6 problems.  There are two issues reported by the
   same user which may be related:
@@ -49,9 +47,6 @@ o Update our Winpcap from 4.0.2 to 4.1.1
 o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
 o Standardize on a proper file header for the Zenmap source code.
-
-o Update our included Libpcap from 0.9.7 to 1.0.0
-  (http://www.tcpdump.org/) [David]
 
 o Integrate latest OS fingerprint submissions and corrections. This
   was last done based on submissions up to May 8, 2009.
@@ -663,6 +658,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Update our included Libpcap from 0.9.7 to 1.0.0
+  (http://www.tcpdump.org/) [David]
+
+o Improve Nmap output to show the forward DNS name when specified on
+  command line as well as rDNS where appropriate.  We're also going to
+  reorganize output to enable some other improvements as well.  See
+  the proposal at http://seclists.org/nmap-dev/2009/q3/814, and that
+  whole thread which starts at
+  http://seclists.org/nmap-dev/2009/q3/805 [David].
 
 o [Zenmap] Solve some unusual utf8 Zenmap crashes reported in the
   crash reporter. David has fixed some of them so far, but there are a
