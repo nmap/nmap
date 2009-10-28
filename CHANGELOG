@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] There is a new command-line option, --confdir, which allows
+  setting the per-user configuration directory. Its value defaults to
+  $HOME/.zenmap. This was suggested by Jesse McCoppin. [David]
+
 o Upgraded the included libpcap to 1.0.0. [David]
 
 o Nmap now prefers to display the hostname supplied by the user instead
