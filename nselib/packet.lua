@@ -82,6 +82,9 @@ function in_cksum(b)
 		x = x:sub(3)
 		sum = sum + u16(c, 0)
 	end
+	if x:len() == 1 then
+		sum = sum + u8(x, 0) * 256
+	end
 
 	sum = bit.rshift(sum, 16) + bit.band(sum, 0xffff)
 	sum = sum + bit.rshift(sum, 16)
