@@ -1721,11 +1721,11 @@ int nmap_main(int argc, char *argv[]) {
       if (currenths->flags & HOST_UP && !o.listscan) 
 	o.numhosts_up++;
     
-    if ((o.noportscan && !o.traceroute
+      if ((o.noportscan && !o.traceroute
 #ifndef NOLUA
-	 && !o.script
+	   && !o.script
 #endif
-        ) || o.listscan) {
+          ) || o.listscan) {
 	/* We're done with the hosts */
 	log_write(LOG_XML, "<host>");
 	write_host_header(currenths);
