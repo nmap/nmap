@@ -74,16 +74,16 @@ end
 -- @return Checksum.
 function in_cksum(b)
 	local sum = 0
-	local c
-	local x = b
+	local i
 
-	while x:len() > 1 do
-		c = x:sub(1,2)
-		x = x:sub(3)
-		sum = sum + u16(c, 0)
+	-- Note we are using 0-based indexes here.
+	i = 0
+	while i < b:len() - 1 do
+		sum = sum + u16(b, i)
+		i = i + 2
 	end
-	if x:len() == 1 then
-		sum = sum + u8(x, 0) * 256
+	if i < b:len() then
+		sum = sum + u8(b, i) * 256
 	end
 
 	sum = bit.rshift(sum, 16) + bit.band(sum, 0xffff)
