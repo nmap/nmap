@@ -1,9 +1,6 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 ==Must do before next release==
-o Fix Zenmap 'make install' TypeError issue
-  (http://seclists.org/nmap-dev/2009/q4/225). [David]
-
 o Standardize on a proper file header for the Zenmap source code. [David]
  o For now, David is going to augment the templatereplacement system
    to insert the normal nmap.header.tmpl, but change the comment format
@@ -627,6 +624,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix Zenmap 'make install' TypeError issue
+  (http://seclists.org/nmap-dev/2009/q4/225). [David]
 
 o Fix a bug in which Nmap can wrongly associate responses to SYN and
   ACK host discovery probes.  [David]
