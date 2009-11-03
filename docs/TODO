@@ -1,32 +1,48 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Fix a bug in which Nmap can wrongly associate responses to SYN and
-  ACK host discovery probes.  [David]
-  For example:
-  # nmap -sP -PS80 -PA80 australia.gov.au --packet-trace -d2
-  SENT (0.0760s) TCP 192.168.0.21:60182 > 152.91.126.70:80 S ttl=43 id=13466 iplen=44  seq=4046449223 win=4096 <mss 1460>
-  SENT (0.0770s) TCP 192.168.0.21:60182 > 152.91.126.70:80 A ttl=48 id=39976 iplen=40  seq=4046449223 win=1024 ack=921915001
-  RCVD (0.3020s) TCP 152.91.126.70:80 > 192.168.0.21:60182 SA ttl=53 id=0 iplen=44  seq=3924706636 win=5840 ack=4046449224 <mss 1380>
-  We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
-  ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
- In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
- o we're thinking about ways to encode the information better.  Right
-  now we have pingseq and tryno, but we may want to just move to a
-  single probe ID and then we can look up any other information in
-  structures attached to that ID in memory when we get the response.
- o A related problem, which we hope the fix for this will also
-  resolve, is that replies can currently match any probe whose tryno
-  is less than or equal to the tryno encoded in the reply.
-   o However, "fixing" this problem has been shown in the past to
-     cause accuracy problems.  See
-     http://seclists.org/nmap-dev/2009/q1/387.  We should figure out
-     whether we can still reproduce that and, if so, what is going on
-     before "fixing" this issue.
+==Must do before next release==
+o Fix Zenmap 'make install' TypeError issue
+  (http://seclists.org/nmap-dev/2009/q4/225). [David]
 
-o Change Nmap to not show the "Host not scanned" lines in list scan
+o Standardize on a proper file header for the Zenmap source code. [David]
+ o For now, David is going to augment the templatereplacement system
+   to insert the normal nmap.header.tmpl, but change the comment format
+   to work with Python, and then replace the current Zenmap headers
+   with that.
 
-o Change Nmap to show latency in "host is up" lines even w/o verbose
-  mode.
+o We should package the rendered Nroff man page translations (e.g. all
+  16 languages) in the tarball to make it easier for distributors to
+  package them.  For example, see
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
+  the translations would add 2.5MB to the (currently 28MB)
+  uncompressed tarball and about 800KB to the (currently 9MB) bz2
+  compressed tarball. [Fyodor]
+
+o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
+  our pcap installer). [Fyodor]
+
+o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
+
+o The Nmap 5.00 tarball contains:
+  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
+  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
+  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
+  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
+  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
+  If we're going to include the XML source files, we should include
+  refguide too.  But rather than add that, we should probably take
+  these out.  After all, people can easily grab them from svn or our
+  new http svn gateway if desired.  So no need to bloat the tarball
+  with these files which aren't installed. [Fyodor]
+
+o Ndiff man page should be built from XML source whenever a release is
+  done, as ncat/zenmap/nmap man pages are. [Fyodor]
+
+==Try to do before next release==
+
+o Resolve allow_ipid_match issue which can cause some malformed
+  replies to be ignored when we might be able to still use them.  See
+  this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
 
 o Potential OS X 10.6 problems.  There are two issues reported by the
   same user which may be related:
@@ -39,31 +55,38 @@ o Potential OS X 10.6 problems.  There are two issues reported by the
   the first ARP request is sent.  But Brandon has run Nmap on 10.6
   without problems.  It is a bit of a mystery. [David]
 
-o Update our Winpcap from 4.0.2 to 4.1.1
-  (http://seclists.org/nmap-dev/2009/q4/128).  This is a bit complex
-  because we have our own installer.  See
-  http://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
-
-o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
-
-o Standardize on a proper file header for the Zenmap source code.
-
 o Integrate latest OS fingerprint submissions and corrections. This
   was last done based on submissions up to May 8, 2009.
 
 o Integrate latest version detection submissions and corrections.
   This was last done based on submissions until February 9, 2009.
 
+o Once all the man page languages are in the Nmap tarball, we should
+  update our install system to install them in the appropriate place.
+  We'll want to integrate this with configure so users can decide which
+  languages they want.  David thinks the standard way is like
+  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
+
+o Make the nmap.header.tmpl wording a little more generic so it more
+  clearly applies to Ncat, Zenmap, Nping, etc. Then use
+  templatereplace.pl to apply those changes to the code. [Fyodor]
+
+o [NSE] We should do a favicon survey like the one Brandon did for
+  /favicon.ico files but which uses the favicons specified by the HTML
+  files rather than just that exact location.  For example, insecure.org
+  sites include in the headers:
+  <link REL="SHORTCUT ICON" HREF="http://images.insecure.org/images/tiny-eyeicon.png" TYPE="image/png">
+  Then we should update our favicon database to include the top ones,
+  and we should also improve our favicon script so that it either
+  omits checking /favicon.ico if the HTML-specified one exists, or it
+  should just download, interpret, and display info for both (right
+  now it seems to give prority to the wrong one: /favicon.ico).
+
+==Make New Nmap dev release (5.05BETA1 or whatever)==
+
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
   http://seclists.org/nmap-dev/2009/q3/773. [David]
-
-o Resolve allow_ipid_match issue which can cause some malformed
-  replies to be ignored when we might be able to still use them.  See
-  this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
-
-o Add --confdir option to Zenmap. See
-  http://seclists.org/nmap-dev/2009/q1/92 [David]
 
 o Web site HTML improvements
   - Maybe start with nmap.org.
@@ -80,28 +103,6 @@ o Web site HTML improvements
     to) the root URL of current site.  e.g. seclists.org,
     sectools.org, nmap.org rather than always insecure.org.
 
-o [NSE] in_chksum in packet.lua doesn't work with an odd number of
-  bytes.
-
-
-
-o Add PJL (Printer Job Language) probes to
-  nmap-service-probes. Brandon wrote some in
-  http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
-  they cause anything to be printed out (on paper) with printers that
-  don't support PJL. If not, then remove the JetDirect ports from the
-  default exclude list. The script pjl-ready-message.nse also uses
-  PJL.  We have concerns about the safety of this probe given
-  http://seclists.org/nmap-dev/2009/q4/61 and
-  http://seclists.org/nmap-dev/2009/q4/83, but it still is probably
-  better to have the probe in there than not, as long as we continue
-  blocking the ports by default with the Exclude directive.
-
-o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
-  our pcap installer).
-
-o New Nmap dev release (5.05BETA1 or whatever)
-
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
   lot of places. For example, it's legal to have header fields like
 Content-type:\r\n
@@ -109,6 +110,13 @@ ___text/html\r\n
 (with spaces in place of _, but http.lua won't parse such a header
 correctly. In other words you can extend them to any number of lines
 as long as each line after the first begins with whitespace. [Joao]
+
+o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
+  the man page location for ncat and ndiff.
+ o Don't break packaging/build system
+ o Don't break the system for posting html to web site. 
+ o Consider standardizing names for nping and ncrack man pages as well.
+ [Fyodor]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -155,43 +163,6 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
-o [NSE] We should do a favicon survey like the one Brandon did for
-  /favicon.ico files but which uses the favicons specified by the HTML
-  files rather than just that exact location.  For example, insecure.org
-  sites include in the headers:
-  <link REL="SHORTCUT ICON" HREF="http://images.insecure.org/images/tiny-eyeicon.png" TYPE="image/png">
-  Then we should update our favicon database to include the top ones,
-  and we should also improve our favicon script so that it either
-  omits checking /favicon.ico if the HTML-specified one exists, or it
-  should just download, interpret, and display info for both (right
-  now it seems to give prority to the wrong one: /favicon.ico).
-
-o We should package the rendered Nroff man page translations (e.g. all
-  16 languages) in the tarball to make it easier for distributors to
-  package them.  For example, see
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
-  the translations would add 2.5MB to the (currently 28MB)
-  uncompressed tarball and about 800KB to the (currently 9MB) bz2
-  compressed tarball. [Fyodor]
-
-o Once all the man page languages are in the Nmap tarball, we should
-  update our install system to install them in the appropriate place.
-  We'll want to integrate this with configure so users can decide which
-  languages they want.  David thinks the standard way is like
-  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
-
-o The Nmap 5.00 tarball contains:
-  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
-  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
-  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
-  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
-  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
-  If we're going to include the XML source files, we should include
-  refguide too.  But rather than add that, we should probably take
-  these out.  After all, people can easily grab them from svn or our
-  new http svn gateway if desired.  So no need to bloat the tarball
-  with these files which aren't installed. [Fyodor]
-
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
@@ -226,9 +197,6 @@ o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
-o Ndiff man page should be built from XML source whenever a release is
-  done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
 o Consider moving UDP ping/portscan payloads from payload.cc to a
   custom data file so that it is cleaner to maintain and users can
   more easily disable/change probes. [David]
@@ -253,13 +221,6 @@ o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)
 
-o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
-  the man page location for ncat and ndiff.
- o Don't break packaging/build system
- o Don't break the system for posting html to web site. 
- o Consider standardizing names for nping and ncrack man pages as well.
- [Fyodor]
-
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
    introduction to each tool (Nmap, Zenmap, Ncat, Ndiff) on its web
@@ -273,16 +234,33 @@ o [Web] Consider adding training/introduction videos to the Nmap site
  o Here's an example product page with lots of videos (we may not go
    that far): http://www.splunk.com/product
 
-o Change Nsock so that it is able to take advantage of more modern
-  interfaces to dealing with large sockets, rather than just select.
-  Perhaps we should look at poll(), Windows completion ports, and some
-  of the advanced Linux APIs.  Select() limits us to descriptors no
-  higher than FD_SETSIZE, and it may not performa all that well.  We
-  should do some benchmarking and decide on the interface to use for
-  each platform. May want to take a look at libevent
-  (http://www.monkey.org/~provos/libevent/) for inspiration.  The
-  libevent home page has some interesting benchmark graphs too.
-  [David/SoC]
+o The Zenmap translation system
+  (http://nmap.org/book/zenmap-lang.html) has been pretty successful
+  so far.  We should consider doing the same for Nmap.  After all, we
+  already have the reference guide in 16 languages at
+  http://nmap.org/docs.html.  We should definitely try to use the same
+  translation methods for Zenmap as we do for Nmap.  In fact, maybe we
+  can create a combined PO file Nmap, Zenmap, Ncat, and Ndiff so that
+  they can all be translated and maintained together.
+
+o Consider changing Nsock so that it is able to take advantage of more
+  modern interfaces to dealing with large sockets, rather than just
+  select.  Perhaps we should look at poll(), Windows completion ports,
+  and some of the advanced Linux APIs.  Select() limits us to
+  descriptors no higher than FD_SETSIZE, and it may not performa all
+  that well.  We should do some benchmarking and decide on the
+  interface to use for each platform. May want to take a look at
+  libevent (http://www.monkey.org/~provos/libevent/) for inspiration.
+  The libevent home page has some interesting benchmark graphs too.
+  [Josh implemented poll as a SoC student, but it had problems with
+  Nsock's architecture.  O(1) lookups were becoming O(n) because of
+  the nature of the data structures. It was slower in his benchmarks.
+  Nsock would have change from a model of "loop over the event list,
+  and check to see if the fd for each event is set," to one of "loop
+  over the fd list, and see if there is a corresponding event for
+  each. It is the "see if the fd is set" operation that's O(1) with
+  select (it's FD_ISSET) and O(n) with poll (it's a traversal of a
+  linked list).]
 
 o [NSE] Add DNS based service discovery script.  See
   http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
@@ -408,15 +386,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o Python (Win/Mac versions of Zenmap link to Python)
  o X.org libraries (Mac version links to them)
  o libdnet
-
-o The Zenmap translation system
-  (http://nmap.org/book/zenmap-lang.html) has been pretty successful
-  so far.  We should consider doing the same for Nmap.  After all, we
-  already have the reference guide in 16 languages at
-  http://nmap.org/docs.html.  We should definitely try to use the same
-  translation methods for Zenmap as we do for Nmap.  In fact, maybe we
-  can create a combined PO file Nmap, Zenmap, Ncat, and Ndiff so that
-  they can all be translated and maintained together.
 
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
@@ -658,6 +627,58 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix a bug in which Nmap can wrongly associate responses to SYN and
+  ACK host discovery probes.  [David]
+  For example:
+  # nmap -sP -PS80 -PA80 australia.gov.au --packet-trace -d2
+  SENT (0.0760s) TCP 192.168.0.21:60182 > 152.91.126.70:80 S ttl=43 id=13466 iplen=44  seq=4046449223 win=4096 <mss 1460>
+  SENT (0.0770s) TCP 192.168.0.21:60182 > 152.91.126.70:80 A ttl=48 id=39976 iplen=40  seq=4046449223 win=1024 ack=921915001
+  RCVD (0.3020s) TCP 152.91.126.70:80 > 192.168.0.21:60182 SA ttl=53 id=0 iplen=44  seq=3924706636 win=5840 ack=4046449224 <mss 1380>
+  We got a TCP ping packet back from 152.91.126.70 port 80 (trynum = 0)
+  ultrascan_host_probe_update called for machine 152.91.126.70 state UNKNOWN -> HOST_UP (trynum 0 time: 226875) Changing ping technique for 152.91.126.70 to tcp to port 80; flags: A
+ In the example above, Nmap wrongly uses ACK as the preferred ping technique, when it should be SYN. [David]
+ o we're thinking about ways to encode the information better.  Right
+  now we have pingseq and tryno, but we may want to just move to a
+  single probe ID and then we can look up any other information in
+  structures attached to that ID in memory when we get the response.
+ o A related problem, which we hope the fix for this will also
+  resolve, is that replies can currently match any probe whose tryno
+  is less than or equal to the tryno encoded in the reply.
+   o However, "fixing" this problem has been shown in the past to
+     cause accuracy problems.  See
+     http://seclists.org/nmap-dev/2009/q1/387.  We should figure out
+     whether we can still reproduce that and, if so, what is going on
+     before "fixing" this issue.
+
+o Add PJL (Printer Job Language) probes to
+  nmap-service-probes. Brandon wrote some in
+  http://seclists.org/nmap-dev/2009/q1/0560.html. Test them to see if
+  they cause anything to be printed out (on paper) with printers that
+  don't support PJL. If not, then remove the JetDirect ports from the
+  default exclude list. The script pjl-ready-message.nse also uses
+  PJL.  We have concerns about the safety of this probe given
+  http://seclists.org/nmap-dev/2009/q4/61, but it still is probably
+  better to have the probe in there than not, as long as we continue
+  blocking the ports by default with the Exclude directive.
+  [We put in the probes, but are keeping the Exclude directives
+  because the probes still seem a bit dangerous]
+
+o [NSE] in_chksum in packet.lua doesn't work with an odd number of
+  bytes.  Also make it more efficient.
+
+o Add --confdir option to Zenmap. See
+  http://seclists.org/nmap-dev/2009/q1/92 [David]
+
+o Update our Winpcap from 4.0.2 to 4.1.1
+  (http://seclists.org/nmap-dev/2009/q4/128).  This is a bit complex
+  because we have our own installer.  See
+  http://nmap.org/svn/mswin32/winpcap/Upgrading-Instructions.txt.
+
+o Change Nmap to not show the "Host not scanned" lines in list scan
+
+o Change Nmap to show latency in "host is up" lines even w/o verbose
+  mode.
 
 o Update our included Libpcap from 0.9.7 to 1.0.0
   (http://www.tcpdump.org/) [David]
