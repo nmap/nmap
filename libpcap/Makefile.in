@@ -303,6 +303,15 @@ EXTRA_DIST = \
 	Win32/Src/inet_net.c \
 	Win32/Src/inet_pton.c
 
+# Inihibit implicit rule Make seems to have for using yacc/lex to
+# recompile new scanner.c/grammar.c -- we ship ones which we want to
+# use instead.
+grammar.c:
+	echo "Not rebuilding grammar.c or scanner.c"
+
+scanner.c:
+	echo "Not rebuilding grammar.c or scanner.c"
+
 all: libpcap.a pcap-config
 
 libpcap.a: $(OBJ)
@@ -319,6 +328,9 @@ shared: libpcap.$(DYEXT)
 libpcap.so: $(OBJ)
 	@rm -f $@
 	$(CC) -shared -Wl,-soname,$@.1 -o $@.`cat $(srcdir)/VERSION` $(OBJ) $(DAGLIBS)
+
+grammar.c scanner.c:
+	echo
 
 #
 # The following rule succeeds, but the result is untested.
