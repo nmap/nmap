@@ -11,17 +11,17 @@ o Removed these files and directories:
 o Added @CFLAGS@ to the CFLAGS definition in Makefile.in to pick up -g
   if configure determines that it is supported:
 
---- Makefile.in.orig    2009-10-27 13:17:52.000000000 -0600
-+++ Makefile.in 2009-10-27 13:14:42.000000000 -0600
+--- Makefile.in.orig	2009-11-04 11:35:44.000000000 -0700
++++ Makefile.in	2009-11-04 11:50:02.000000000 -0700
 @@ -55,7 +55,7 @@
  PROG=libpcap
-
-  # Standard CFLAGS
-  # -CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
-  # +CFLAGS = @CFLAGS@ $(CCOPT) $(INCLS) $(DEFS)
-  #
-  #  INSTALL = @INSTALL@
-  #   INSTALL_PROGRAM = @INSTALL_PROGRAM@
+ 
+ # Standard CFLAGS
+-CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
++CFLAGS = @CFLAGS@ $(CCOPT) $(INCLS) $(DEFS)
+ 
+ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 
 o Eliminated Lex/Yacc requirement and added the generated files:
   grammar.c
