@@ -4558,208 +4558,77 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           continue;
         }
 
-        if (ip2->ip_p == IPPROTO_ICMP && USI->ptech.rawicmpscan) {
-          /* The response was based on a ping packet we sent */
-          memset(&sin, 0, sizeof(sin));
-          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
-          sin.sin_family = AF_INET;
-          hss = USI->findHost((struct sockaddr_storage *) &sin);
-          if (!hss) continue; // Not referring to a host that interests us
-          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-          probeI = hss->probes_outstanding.end();
-          listsz = hss->num_probes_outstanding();
+        /* Bail out early if possible. */
+        if (!USI->ptech.rawprotoscan) {
+          if (ip2->ip_p == IPPROTO_ICMP && !USI->ptech.rawicmpscan)
+            continue;
+          if (ip2->ip_p == IPPROTO_TCP && !USI->ptech.rawtcpscan)
+            continue;
+          if (ip2->ip_p == IPPROTO_UDP && !USI->ptech.rawudpscan)
+            continue;
+          if (ip2->ip_p == IPPROTO_SCTP && !USI->ptech.rawsctpscan)
+            continue;
+        }
 
-          /* Find the probe that provoked this response. */
-          for (probenum = 0; probenum < listsz; probenum++) {
-            probeI--;
-            probe = *probeI;
+        memset(&sin, 0, sizeof(sin));
+        sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
+        sin.sin_family = AF_INET;
+        hss = USI->findHost((struct sockaddr_storage *) &sin);
+        if (!hss) continue; // Not referring to a host that interests us
+        setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
+        probeI = hss->probes_outstanding.end();
+        listsz = hss->num_probes_outstanding();
 
-            if (o.af() != AF_INET || probe->protocol() != IPPROTO_ICMP)
-              continue;
+        /* Find the probe that provoked this response. */
+        for (probenum = 0; probenum < listsz; probenum++) {
+          probeI--;
+          probe = *probeI;
 
-            /* Ensure the connection info matches. */
+          assert(o.af() == AF_INET);
+          if (probe->protocol() != ip2->ip_p || 
+              hss->target->v4sourceip()->s_addr != ip2->ip_src.s_addr || 
+              hss->target->v4hostip()->s_addr != ip2->ip_dst.s_addr)
+            continue;
+
+          if (ip2->ip_p == IPPROTO_ICMP && USI->ptech.rawicmpscan) {
+            /* The response was based on a ping packet we sent */
             if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
               continue;
-
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
-            /* If we made it this far, we found it. We don't yet know if it's
-               going to change a host state (goodone) or not. */
-            break;
-          }
-          /* Did we fail to find a probe? */
-          if (probenum >= listsz)
-            continue;
-        } else if (ip2->ip_p == IPPROTO_TCP && USI->ptech.rawtcpscan) {
-          /* The response was based our TCP probe */
-          struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
-          /* Now ensure this host is even in the incomplete list */
-          memset(&sin, 0, sizeof(sin));
-          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
-          sin.sin_family = AF_INET;
-          hss = USI->findHost((struct sockaddr_storage *) &sin);
-          if (!hss) continue; // Not referring to a host that interests us
-          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-          probeI = hss->probes_outstanding.end();
-          listsz = hss->num_probes_outstanding();
-
-          /* Find the probe that provoked this response. */
-          for (probenum = 0; probenum < listsz; probenum++) {
-            probeI--;
-            probe = *probeI;
-
-            if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
-              continue;
-
-            /* Ensure the connection info matches. */
+          } else if (ip2->ip_p == IPPROTO_TCP && USI->ptech.rawtcpscan) {
+            struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
             if (probe->dport() != ntohs(tcp->th_dport)
               || probe->sport() != ntohs(tcp->th_sport)
               || probe->tcpseq() != ntohl(tcp->th_seq)
               || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
               continue;
-
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
-            /* If we made it this far, we found it. We don't yet know if it's
-               going to change a host state (goodone) or not. */
-            break;
-          }
-          /* Did we fail to find a probe? */
-          if (probenum >= listsz)
-            continue;
-        } else if (ip2->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
-          /* The response was based our UDP probe */
-          if ((unsigned) ip2->ip_hl * 4 + 8 > bytes)
-            continue;
-          struct udp_hdr *udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
-          /* Search for this host on the incomplete list */
-          memset(&sin, 0, sizeof(sin));
-          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
-          sin.sin_family = AF_INET;
-          hss = USI->findHost((struct sockaddr_storage *) &sin);
-          if (!hss) continue; // Not referring to a host that interests us
-          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-          probeI = hss->probes_outstanding.end();
-          listsz = hss->num_probes_outstanding();
-
-          for(probenum = 0; probenum < listsz; probenum++) {
-            probeI--;
-            probe = *probeI;
-
-            if (o.af() != AF_INET || probe->protocol() != IPPROTO_UDP)
-              continue;
-
-            /* Ensure the connection info matches. */
+          } else if (ip2->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
+            struct udp_hdr *udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
             if (probe->dport() != ntohs(udp->uh_dport) ||
                 probe->sport() != ntohs(udp->uh_sport) ||
                 hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
               continue;
-            
-            /* Sometimes we get false results when scanning localhost with
-               -p- because we scan localhost with src port = dst port and
-               see our outgoing packet and think it is a response. */
-            if (probe->dport() == probe->sport() && 
-                ip->ip_src.s_addr == ip->ip_dst.s_addr && 
-                probe->ipid() == ntohs(ip->ip_id))
-              continue; /* We saw the packet we ourselves sent */
-
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
-            /* If we made it this far, we found it. We don't yet know if it's
-               going to change a host state (goodone) or not. */
-            break;
-          }
-          /* Did we fail to find a probe? */
-          if (probenum >= listsz)
-            continue;
-        } else if (ip2->ip_p == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
-          /* The response was based our SCTP probe */
-          if ((unsigned) ip2->ip_hl * 4 + 8 > bytes)
-            continue;
-          struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
-          /* Search for this host on the incomplete list */
-          memset(&sin, 0, sizeof(sin));
-          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
-          sin.sin_family = AF_INET;
-          hss = USI->findHost((struct sockaddr_storage *) &sin);
-          if (!hss) continue; // Not referring to a host that interests us
-          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-          probeI = hss->probes_outstanding.end();
-          listsz = hss->num_probes_outstanding();
-
-          for(probenum = 0; probenum < listsz; probenum++) {
-            probeI--;
-            probe = *probeI;
-
-            if (o.af() != AF_INET || probe->protocol() != IPPROTO_SCTP)
-              continue;
-
-            /* Ensure the connection info matches. */
+          } else if (ip2->ip_p == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
+            struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
             if (probe->dport() != ntohs(sctp->sh_dport) ||
                 probe->sport() != ntohs(sctp->sh_sport) ||
                 hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
               continue;
-            
-            /* Sometimes we get false results when scanning localhost with
-               -p- because we scan localhost with src port = dst port and
-               see our outgoing packet and think it is a response. */
-            if (probe->dport() == probe->sport() && 
-                ip->ip_src.s_addr == ip->ip_dst.s_addr && 
-                probe->ipid() == ntohs(ip->ip_id))
-              continue; /* We saw the packet we ourselves sent */
-
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
-            /* If we made it this far, we found it. We don't yet know if it's
-               going to change a host state (goodone) or not. */
-            break;
+          } else if (USI->ptech.rawprotoscan) {
+            /* Success; we already know that the address and protocol match. */
+          } else {
+            assert(0);
           }
-          /* Did we fail to find a probe? */
-          if (probenum >= listsz)
+
+          if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
             continue;
-        } else if (!USI->ptech.rawprotoscan) {
-          if (o.debugging)
-            error("Got ICMP response to a packet which was not TCP, UDP, SCTP or ICMP");
+
+          /* If we made it this far, we found it. We don't yet know if it's
+             going to change a host state (goodone) or not. */
+          break;
+        }
+        /* Did we fail to find a probe? */
+        if (probenum >= listsz)
           continue;
-        }
-        
-        if (!goodone && USI->ptech.rawprotoscan) {
-          memset(&sin, 0, sizeof(sin));
-          sin.sin_addr.s_addr = ip2->ip_dst.s_addr;
-          sin.sin_family = AF_INET;
-          hss = USI->findHost((struct sockaddr_storage *) &sin);
-          if (!hss) continue; // Not referring to a host that interests us
-          setTargetMACIfAvailable(hss->target, &linkhdr, ip, 0);
-          probeI = hss->probes_outstanding.end();
-          listsz = hss->num_probes_outstanding();
-
-          /* Find the probe that provoked this response. */
-          for (probenum = 0; probenum < listsz; probenum++) {
-            probeI--;
-            probe = *probeI;
-
-            if (o.af() != AF_INET || probe->protocol() != ip2->ip_p)
-              continue;
-
-            /* Ensure the connection info matches. */
-            if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
-              continue;
-
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
-            /* If we made it this far, we found it. We don't yet know if it's
-               going to change a host state (goodone) or not. */
-            break;
-	  }
-          /* Did we fail to find a probe? */
-          if (probenum >= listsz)
-            continue;
-        }
 
         if (ping->type == 3) {
           /* Destination unreachable. */
