@@ -81,6 +81,11 @@ o [NSE] We should do a favicon survey like the one Brandon did for
 
 ==Make New Nmap dev release (5.05BETA1 or whatever)==
 
+o We should print host latency (when available) in the XML output, as
+  suggested at http://seclists.org/nmap-dev/2009/q4/215.
+  docs/nmap.dtd will have to be modified accordingly, and you might
+  even consider adding support to docs/nmap.xsl.
+
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
   http://seclists.org/nmap-dev/2009/q3/773. [David]
