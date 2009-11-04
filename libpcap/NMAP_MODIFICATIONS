@@ -1,39 +1,5 @@
 o Included this file, renamed directory from libpcap-1.0.0 to libpcap.
 
-o Added dummy rules to inhibit GNU Make's implicit yacc/lex creation
-  of scanner.c and grammar.c:
-Index: Makefile.in
-===================================================================
---- Makefile.in	(revision 15981)
-+++ Makefile.in	(working copy)
-@@ -303,6 +303,15 @@
- 	Win32/Src/inet_net.c \
- 	Win32/Src/inet_pton.c
- 
-+# Inihibit implicit rule Make seems to have for using yacc/lex to
-+# recompile new scanner.c/grammar.c -- we ship ones which we want to
-+# use instead.
-+grammar.c:
-+	echo "Not rebuilding grammar.c or scanner.c"
-+
-+scanner.c:
-+	echo "Not rebuilding grammar.c or scanner.c"
-+
- all: libpcap.a pcap-config
- 
- libpcap.a: $(OBJ)
-@@ -320,6 +329,9 @@
- 	@rm -f $@
- 	$(CC) -shared -Wl,-soname,$@.1 -o $@.`cat $(srcdir)/VERSION` $(OBJ) $(DAGLIBS)
- 
-+grammar.c scanner.c:
-+	echo
-+
- #
- # The following rule succeeds, but the result is untested.
- #
-
-
 o Removed these files and directories:
   packaging/
   config.guess
@@ -63,12 +29,20 @@ o Eliminated Lex/Yacc requirement and added the generated files:
   scanner.h
   tokdefs.h
 
---- Makefile.in.orig    2009-10-27 16:17:34.000000000 -0600
-+++ Makefile.in 2009-10-27 16:19:50.000000000 -0600
-@@ -62,14 +62,6 @@
+--- Makefile.in.orig	2009-11-04 11:35:44.000000000 -0700
++++ Makefile.in	2009-11-04 11:46:43.000000000 -0700
+@@ -55,21 +55,13 @@
+ PROG=libpcap
+ 
+ # Standard CFLAGS
+-CFLAGS = $(CCOPT) $(INCLS) $(DEFS)
++CFLAGS = @CFLAGS@ $(CCOPT) $(INCLS) $(DEFS)
+ 
+ INSTALL = @INSTALL@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
  INSTALL_DATA = @INSTALL_DATA@
  RANLIB = @RANLIB@
-
+ 
 -#
 -# Flex and bison allow you to specify the prefixes of the global symbols
 -# used by the generated parser.  This allows programs to use lex/yacc
@@ -82,36 +56,52 @@ o Eliminated Lex/Yacc requirement and added the generated files:
  # problem if you don't own the file but can write to the directory.
 @@ -122,7 +114,7 @@
  TAGFILES = \
-        $(SRC) $(HDR) $(TAGHDR)
-
+ 	$(SRC) $(HDR) $(TAGHDR)
+ 
 -CLEANFILES = $(OBJ) libpcap.a $(GENSRC) $(GENHDR) lex.yy.c
 +CLEANFILES = $(OBJ) libpcap.a lex.yy.c
-
+ 
  MAN1 = pcap-config.1
-
-@@ -344,22 +336,11 @@
-                -compatibility_version 1 \
-                -current_version `sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`
-
+ 
+@@ -313,6 +305,15 @@
+ 
+ all: libpcap.a pcap-config
+ 
++# Inhibit implicit rule Make seems to have for using yacc/lex to
++# recompile new scanner.c/grammar.c -- we ship ones which we want to
++# use instead.
++grammar.c:
++	echo "Not rebuilding grammar.c"
++
++scanner.c:
++	echo "Not rebuilding scanner.c"
++
+ libpcap.a: $(OBJ)
+ 	@rm -f $@
+ 	$(AR) rc $@ $(OBJ) $(LIBS)
+@@ -344,22 +345,11 @@
+ 		-compatibility_version 1 \
+ 		-current_version `sed 's/[^0-9.].*$$//' $(srcdir)/VERSION`
+ 
 -scanner.c: $(srcdir)/scanner.l
--       @rm -f $@
--       ./runlex.sh $(LEX) -o$@ $<
+-	@rm -f $@
+-	./runlex.sh $(LEX) -o$@ $<
 -
  scanner.o: scanner.c tokdefs.h
-        $(CC) $(CFLAGS) -c scanner.c
-
+ 	$(CC) $(CFLAGS) -c scanner.c
+ 
  pcap.o: version.h
-
+ 
 -tokdefs.h: grammar.c
 -grammar.c: $(srcdir)/grammar.y
--       @rm -f grammar.c tokdefs.h
--       $(YACC) -d $<
--       mv y.tab.c grammar.c
--       mv y.tab.h tokdefs.h
+-	@rm -f grammar.c tokdefs.h
+-	$(YACC) -d $<
+-	mv y.tab.c grammar.c
+-	mv y.tab.h tokdefs.h
 -
  grammar.o: grammar.c
-        @rm -f $@
-        $(CC) $(CFLAGS) -Dyylval=pcap_lval -c grammar.c
+ 	@rm -f $@
+ 	$(CC) $(CFLAGS) -Dyylval=pcap_lval -c grammar.c
 --- configure.in.orig   2009-10-27 16:20:34.000000000 -0600
 +++ configure.in        2009-10-27 16:14:32.000000000 -0600
 @@ -848,24 +848,6 @@
