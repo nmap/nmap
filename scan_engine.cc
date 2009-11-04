@@ -236,7 +236,7 @@ public:
   void setARP(u8 *arppkt, u32 arplen);
   // The 4 accessors below all return in HOST BYTE ORDER
   // source port used if TCP, UDP or SCTP
-  u16 sport() {
+  u16 sport() const {
     switch (mypspec.proto) {
       case IPPROTO_TCP:
 	return probes.IP.pd.tcp.sport;
@@ -250,7 +250,7 @@ public:
     /* not reached */
   }
   // destination port used if TCP, UDP or SCTP
-  u16 dport() {
+  u16 dport() const {
     switch (mypspec.proto) {
       case IPPROTO_TCP:
 	return mypspec.pd.tcp.dport;
@@ -265,10 +265,10 @@ public:
     }
     /* not reached */
   }
-  u16 ipid() { return probes.IP.ipid; }
-  u32 tcpseq(); // TCP sequence number if protocol is TCP
+  u16 ipid() const { return probes.IP.ipid; }
+  u32 tcpseq() const; // TCP sequence number if protocol is TCP
   /* Number, such as IPPROTO_TCP, IPPROTO_UDP, etc. */
-  u8 protocol() { return mypspec.proto; }
+  u8 protocol() const { return mypspec.proto; }
   ConnectProbe *CP() { return probes.CP; } // if type == UP_CONNECT
   // Arpprobe removed because not used.
   //  ArpProbe *AP() { return probes.AP; } // if UP_ARP
@@ -276,12 +276,12 @@ public:
   // reading the appropriate fields of the probespec.
 
 /* Get general details about the probe */
-  const probespec *pspec() { return &mypspec; }
+  const probespec *pspec() const { return &mypspec; }
 
   /* Returns true if the given tryno and pingseq match those within this
      probe. */
-  bool check_tryno_pingseq(unsigned int tryno, unsigned int pingseq) {
-    return (pingseq == 0 && tryno >= this->tryno) || (pingseq > 0 && pingseq == this->pingseq);
+  bool check_tryno_pingseq(unsigned int tryno, unsigned int pingseq) const {
+    return (pingseq == 0 && tryno == this->tryno) || (pingseq > 0 && pingseq == this->pingseq);
   }
 
   u8 tryno; /* Try (retransmission) number of this probe */
@@ -832,7 +832,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
   return;
 }
 
-u32 UltraProbe::tcpseq() {
+u32 UltraProbe::tcpseq() const {
   if (mypspec.proto == IPPROTO_TCP)
     return probes.IP.pd.tcp.seq;
   else
@@ -2319,8 +2319,8 @@ static u32 seq32_encode(UltraScanInfo *USI, unsigned int trynum,
 
 /* Undoes seq32_encode. This extracts a try number and a port number from a
    32-bit value. Returns true if the checksum is correct, false otherwise. */
-static bool seq32_decode(UltraScanInfo *USI, u32 seq, unsigned int *trynum,
-                         unsigned int *pingseq) {
+static bool seq32_decode(const UltraScanInfo *USI, u32 seq,
+  unsigned int *trynum, unsigned int *pingseq) {
   if (trynum)
     *trynum = 0;
   if (pingseq)
@@ -2364,7 +2364,7 @@ static u16 sport_encode(UltraScanInfo *USI, u16 portno, unsigned int trynum,
    a port number given a "magic" original port number (the one given to
    sport_encode). Returns true if the decoded values seem reasonable, false
    otherwise. */
-static bool sport_decode(UltraScanInfo *USI, u16 magic_portno, u16 portno,
+static bool sport_decode(const UltraScanInfo *USI, u16 magic_portno, u16 portno,
                          unsigned int *trynum, unsigned int *pingseq) {
   int t;
 
@@ -2388,23 +2388,94 @@ static bool sport_decode(UltraScanInfo *USI, u16 magic_portno, u16 portno,
   return true;
 }
 
-/* Extracts a probe response's try number and ping sequence number from a TCP
-   header. The values come from either the destination port number or the ACK
-   field, depending on whether o.magic_port_set is true. */
-static bool tcp_trynum_pingseq_decode(UltraScanInfo *USI,
-                                      const struct tcp_hdr *tcp,
-                                      unsigned int *trynum,
-                                      unsigned int *pingseq) {
+static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
+  const HostScanStats *hss, const struct ip *ip) {
+  const struct tcp_hdr *tcp;
+  const struct probespec_tcpdata *probedata;
+  unsigned int tryno, pingseq;
+  bool goodseq;
+
+  if (ip->ip_p != IPPROTO_TCP)
+    return false;
+
+  tcp = (struct tcp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
+
+  if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
+    return false;
+
+  /* Ensure the connection info matches. */
+  if (probe->dport() != ntohs(tcp->th_sport)
+      || probe->sport() != ntohs(tcp->th_dport)
+      || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+    return false;
+
+  tryno = 0;
+  pingseq = 0;
   if (o.magic_port_set) {
-    /* We can't get the values from the port number. Try to get them from the
-       ACK field. First try ACK - 1 because some probes include SYN or FIN
-       packet and thus call for increment. */
-    return seq32_decode(USI, ntohl(tcp->th_ack) - 1, trynum, pingseq)
-      || seq32_decode(USI, ntohl(tcp->th_ack), trynum, pingseq);
+    /* We are looking to recover the tryno and pingseq of the probe, which are
+       encoded in the ACK field for probes with the ACK flag set and in the SEQ
+       field for all other probes. According to RFC 793, section 3.9, under
+       "SEGMENT ARRIVES", it's supposed to work like this: If our probe had ACK
+       set, our ACK number is reflected in the response's SEQ field. If our
+       probe had SYN or FIN set (and not ACK), then our SEQ is one less than the
+       returned ACK value because SYN and FIN consume a sequence number (section
+       3.3). Otherwise, our SEQ is the returned ACK.
+       
+       However, nmap-os-db shows that these assumptions can't be relied on, so
+       we try all three possibilities for each probe. */
+    goodseq = seq32_decode(USI, ntohl(tcp->th_ack) - 1, &tryno, &pingseq)
+      || seq32_decode(USI, ntohl(tcp->th_ack), &tryno, &pingseq)
+      || seq32_decode(USI, ntohl(tcp->th_seq), &tryno, &pingseq);
   } else {
-    /* Get the values from the port number. */
-    return sport_decode(USI, o.magic_port, ntohs(tcp->th_dport), trynum, pingseq);
+    /* Get the values from the destination port (our source port). */
+    sport_decode(USI, o.magic_port, ntohs(tcp->th_dport), &tryno, &pingseq);
+    goodseq = true;
   }
+
+  if (!goodseq) {
+    /* TODO: I need to do some testing and find out how often this happens
+       and whether other techniques such as the response seq should be
+       used in those cases where it happens. Then I should make this just
+       a debugging > X statement. */
+    if (o.debugging)
+      log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntoa(ip->ip_src));
+    /* I'll just assume it is a response to this (most recent) probe. */
+    tryno = probe->tryno;
+    pingseq = probe->pingseq;
+  }
+
+  /* Make sure that trynum and pingseq match the values in the probe. */
+  if (!probe->check_tryno_pingseq(tryno, pingseq))
+    return false;
+
+  /* Make sure we are matching up the right kind of probe, otherwise just the
+     ports, address, tryno, and pingseq can be ambiguous, between a SYN and an
+     ACK probe during a -PS80 -PA80 scan for example. A SYN/ACK can only be
+     matched to a SYN probe. A RST/ACK can only be matched to a SYN or FIN. A
+     bare RST cannot be matched to a SYN or FIN. */
+  probedata = &probe->pspec()->pd.tcp;
+  if ((tcp->th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)
+      && !(probedata->flags & TH_SYN)) {
+    return false;
+  }
+  if ((tcp->th_flags & (TH_RST | TH_ACK)) == (TH_RST | TH_ACK)
+      && !(probedata->flags & (TH_SYN | TH_FIN))) {
+    return false;
+  }
+  if ((tcp->th_flags & (TH_RST | TH_ACK)) == TH_RST
+      && (probedata->flags & (TH_SYN | TH_FIN))) {
+    return false;
+  }
+
+  /* Sometimes we get false results when scanning localhost with -p- because we
+     scan localhost with src port = dst port and see our outgoing packet and
+     think it is a response. */
+  if (probe->dport() == probe->sport()
+      && ip->ip_src.s_addr == ip->ip_dst.s_addr
+      && probe->ipid() == ntohs(ip->ip_id))
+    return false;
+
+  return true;
 }
 
 /* This function provides the proper cwnd and ssthresh to use.  It may
@@ -3059,9 +3130,14 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   if (pspec->type == PS_TCP) {
     assert(USI->scantype != CONNECT_SCAN);
 
-    seq = seq32_encode(USI, tryno, pingseq);
+    /* Normally we encode the tryno and pingseq in the SEQ field, because that
+       comes back (possibly incremented) in the ACK field of responses. But if
+       our probe has the ACK flag set, the response reflects our own ACK number
+       instead. */
     if (pspec->pd.tcp.flags & TH_ACK)
-	  ack = get_random_u32();
+      ack = seq32_encode(USI, tryno, pingseq);
+    else
+      seq = seq32_encode(USI, tryno, pingseq);
 
     if (pspec->pd.tcp.flags & TH_SYN) {
       tcpops = (u8 *) "\x02\x04\x05\xb4";
@@ -3938,8 +4014,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   struct sockaddr_in sin;
   list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
-  unsigned int trynum = 0;
-  unsigned int pingseq = 0;
   int newstate = PORT_UNKNOWN;
   unsigned int probenum;
   unsigned int listsz;
@@ -4027,43 +4101,11 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
       
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
-	bool goodseq = false;
 	probeI--;
 	probe = *probeI;
 
-	if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
-	  continue;
-
-	/* Ensure the connection info matches. */
-	if (probe->dport() != ntohs(tcp->th_sport)
-            || probe->sport() != ntohs(tcp->th_dport)
-            || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
-	  continue;
-
-        goodseq = tcp_trynum_pingseq_decode(USI, tcp, &trynum, &pingseq);
-        if (!goodseq) {
-          /* TODO: I need to do some testing and find out how often this happens
-             and whether other techniques such as the response seq should be
-             used in those cases where it happens. Then I should make this just
-             a debugging > X statement. */
-	  if (o.debugging)
-	    log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntoa(ip->ip_src));
-	  /* I'll just assume it is a response to this (most recent) probe. */
-          trynum = probe->tryno;
-          pingseq = probe->pingseq;
-        }
-
-        /* Make sure that trynum and pingseq match the values in the probe. */
-        if (!probe->check_tryno_pingseq(trynum, pingseq))
+        if (!tcp_probe_match(USI, probe, hss, ip))
           continue;
-
-	/* Sometimes we get false results when scanning localhost with
-	   -p- because we scan localhost with src port = dst port and
-	   see our outgoing packet and think it is a response. */
-	if (probe->dport() == probe->sport() && 
-	    ip->ip_src.s_addr == ip->ip_dst.s_addr && 
-	    probe->ipid() == ntohs(ip->ip_id))
-	  continue; /* We saw the packet we ourselves sent */
 
 	if (!probe->isPing()) {
 	  /* Now that response has been matched to a probe, I interpret it */
@@ -4400,7 +4442,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   list<UltraProbe *>::iterator probeI;
   UltraProbe *probe = NULL;
   unsigned int trynum = 0;
-  unsigned int pingseq = 0;
   unsigned int requiredbytes;
   int newstate = HOST_UNKNOWN;
   unsigned int probenum;
@@ -4770,43 +4811,11 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       /* Find the probe that provoked this response. */
       for (probenum = 0; probenum < listsz && !goodone; probenum++) {
-        bool goodseq = false;
         probeI--;
         probe = *probeI;
 
-        if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
+        if (!tcp_probe_match(USI, probe, hss, ip))
           continue;
-
-        /* Ensure the connection info matches. */
-        if (probe->dport() != ntohs(tcp->th_sport)
-            || probe->sport() != ntohs(tcp->th_dport)
-            || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
-          continue;
-
-        goodseq = tcp_trynum_pingseq_decode(USI, tcp, &trynum, &pingseq);
-        if (!goodseq) {
-          /* TODO: I need to do some testing and find out how often this happens
-             and whether other techniques such as the response seq should be
-             used in those cases where it happens. Then I should make this just
-             a debugging > X statement. */
-	  if (o.debugging)
-	    log_write(LOG_PLAIN, "Bad Sequence number from host %s.\n", inet_ntoa(ip->ip_src));
-	  /* I'll just assume it is a response to this (most recent) probe. */
-          trynum = probe->tryno;
-          pingseq = probe->pingseq;
-        }
-
-        /* Make sure that trynum and pingseq match the values in the probe. */
-        if (!probe->check_tryno_pingseq(trynum, pingseq))
-          continue;
-
-	/* Sometimes we get false results when scanning localhost with
-	   -p- because we scan localhost with src port = dst port and
-	   see our outgoing packet and think it is a response. */
-	if (probe->dport() == probe->sport() && 
-	    ip->ip_src.s_addr == ip->ip_dst.s_addr && 
-	    probe->ipid() == ntohs(ip->ip_id))
-	  continue; /* We saw the packet we ourselves sent */
 
         goodone = true;
         newstate = HOST_UP;
