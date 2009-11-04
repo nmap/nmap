@@ -4620,6 +4620,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
             if (probe->dport() != ntohs(sctp->sh_dport) ||
                 probe->sport() != ntohs(sctp->sh_sport) ||
+                probe->sctpvtag() != ntohl(sctp->sh_vtag) ||
                 hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
               continue;
           } else if (USI->ptech.rawprotoscan) {
