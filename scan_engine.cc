@@ -4577,11 +4577,11 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             if (o.af() != AF_INET || probe->protocol() != IPPROTO_ICMP)
               continue;
 
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
             /* Ensure the connection info matches. */
             if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+              continue;
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
               continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
@@ -4612,14 +4612,14 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             if (o.af() != AF_INET || probe->protocol() != IPPROTO_TCP)
               continue;
 
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
             /* Ensure the connection info matches. */
             if (probe->dport() != ntohs(tcp->th_dport)
               || probe->sport() != ntohs(tcp->th_sport)
               || probe->tcpseq() != ntohl(tcp->th_seq)
               || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+              continue;
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
               continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
@@ -4651,9 +4651,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             if (o.af() != AF_INET || probe->protocol() != IPPROTO_UDP)
               continue;
 
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
             /* Ensure the connection info matches. */
             if (probe->dport() != ntohs(udp->uh_dport) ||
                 probe->sport() != ntohs(udp->uh_sport) ||
@@ -4667,6 +4664,9 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                 ip->ip_src.s_addr == ip->ip_dst.s_addr && 
                 probe->ipid() == ntohs(ip->ip_id))
               continue; /* We saw the packet we ourselves sent */
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
+              continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
                going to change a host state (goodone) or not. */
@@ -4697,9 +4697,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             if (o.af() != AF_INET || probe->protocol() != IPPROTO_SCTP)
               continue;
 
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
             /* Ensure the connection info matches. */
             if (probe->dport() != ntohs(sctp->sh_dport) ||
                 probe->sport() != ntohs(sctp->sh_sport) ||
@@ -4713,6 +4710,9 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
                 ip->ip_src.s_addr == ip->ip_dst.s_addr && 
                 probe->ipid() == ntohs(ip->ip_id))
               continue; /* We saw the packet we ourselves sent */
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
+              continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
                going to change a host state (goodone) or not. */
@@ -4745,11 +4745,11 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             if (o.af() != AF_INET || probe->protocol() != ip2->ip_p)
               continue;
 
-            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-              continue;
-
             /* Ensure the connection info matches. */
             if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+              continue;
+
+            if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
               continue;
 
             /* If we made it this far, we found it. We don't yet know if it's
