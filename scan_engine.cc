@@ -4595,33 +4595,29 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
           assert(o.af() == AF_INET);
           if (probe->protocol() != ip2->ip_p || 
+              hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr ||
               hss->target->v4sourceip()->s_addr != ip2->ip_src.s_addr || 
               hss->target->v4hostip()->s_addr != ip2->ip_dst.s_addr)
             continue;
 
           if (ip2->ip_p == IPPROTO_ICMP && USI->ptech.rawicmpscan) {
             /* The response was based on a ping packet we sent */
-            if (hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
-              continue;
           } else if (ip2->ip_p == IPPROTO_TCP && USI->ptech.rawtcpscan) {
             struct tcp_hdr *tcp = (struct tcp_hdr *) (((char *) ip2) + 4 * ip2->ip_hl);
-            if (probe->dport() != ntohs(tcp->th_dport)
-              || probe->sport() != ntohs(tcp->th_sport)
-              || probe->tcpseq() != ntohl(tcp->th_seq)
-              || hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+            if (probe->dport() != ntohs(tcp->th_dport) ||
+                probe->sport() != ntohs(tcp->th_sport) ||
+                probe->tcpseq() != ntohl(tcp->th_seq))
               continue;
           } else if (ip2->ip_p == IPPROTO_UDP && USI->ptech.rawudpscan) {
             struct udp_hdr *udp = (struct udp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
             if (probe->dport() != ntohs(udp->uh_dport) ||
-                probe->sport() != ntohs(udp->uh_sport) ||
-                hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+                probe->sport() != ntohs(udp->uh_sport))
               continue;
           } else if (ip2->ip_p == IPPROTO_SCTP && USI->ptech.rawsctpscan) {
             struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
             if (probe->dport() != ntohs(sctp->sh_dport) ||
                 probe->sport() != ntohs(sctp->sh_sport) ||
-                probe->sctpvtag() != ntohl(sctp->sh_vtag) ||
-                hss->target->v4sourceip()->s_addr != ip->ip_dst.s_addr)
+                probe->sctpvtag() != ntohl(sctp->sh_vtag))
               continue;
           } else if (USI->ptech.rawprotoscan) {
             /* Success; we already know that the address and protocol match. */
