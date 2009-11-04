@@ -4248,10 +4248,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    hss->target->v4hostip()->s_addr != ip2->ip_dst.s_addr)
 	  continue;
 
-	/* Checking IPID is a little more complex because you can't always count on it */
-	if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-	  continue;
-
 	if (ip2->ip_p == IPPROTO_TCP && !USI->prot_scan) {
 	  struct tcp_hdr *tcp = (struct tcp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
 	  if (ntohs(tcp->th_sport) != probe->sport() || 
@@ -4272,6 +4268,10 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	} else if (!USI->prot_scan) {
 	  assert(0);
 	} 
+
+	/* Checking IPID is a little more complex because you can't always count on it */
+	if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
+	  continue;
 
 	if (icmp->icmp_type == 3) {
 	  switch(icmp->icmp_code) {
