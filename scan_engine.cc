@@ -205,6 +205,7 @@ struct IPExtraProbeData_udp {
 
 struct IPExtraProbeData_sctp {
   u16 sport;
+  u32 vtag;
 };
 
 struct IPExtraProbeData {
@@ -267,6 +268,7 @@ public:
   }
   u16 ipid() const { return probes.IP.ipid; }
   u32 tcpseq() const; // TCP sequence number if protocol is TCP
+  u32 sctpvtag() const; // SCTP vtag if protocol is SCTP
   /* Number, such as IPPROTO_TCP, IPPROTO_UDP, etc. */
   u8 protocol() const { return mypspec.proto; }
   ConnectProbe *CP() { return probes.CP; } // if type == UP_CONNECT
@@ -826,6 +828,7 @@ void UltraProbe::setIP(u8 *ippacket, u32 iplen, const probespec *pspec) {
     assert(iplen >= (unsigned) ipv4->ip_hl * 4 + 12);
     sctp = (struct sctp_hdr *) ((u8 *) ipv4 + ipv4->ip_hl * 4);
     probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
+    probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
   }
 
   mypspec = *pspec;
@@ -840,6 +843,11 @@ u32 UltraProbe::tcpseq() const {
 	  pspectype2ascii(mypspec.type));
 
   return 0; // Unreached
+}
+
+u32 UltraProbe::sctpvtag() const {
+  assert(mypspec.proto == IPPROTO_SCTP);
+  return probes.IP.pd.sctp.vtag;
 }
 
 /* Sets this UltraProbe as type UP_CONNECT, preparing to connect to given
@@ -4257,7 +4265,8 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	} else if (ip2->ip_p == IPPROTO_SCTP && !USI->prot_scan) {
 	  struct sctp_hdr *sctp = (struct sctp_hdr *) ((u8 *) ip2 + ip2->ip_hl * 4);
 	  if (ntohs(sctp->sh_sport) != probe->sport() || 
-	      ntohs(sctp->sh_dport) != probe->dport())
+	      ntohs(sctp->sh_dport) != probe->dport() ||
+	      ntohl(sctp->sh_vtag) != probe->sctpvtag())
 	    continue;
 	} else if (ip2->ip_p == IPPROTO_UDP && !USI->prot_scan) {
 	  /* TODO: IPID verification */
