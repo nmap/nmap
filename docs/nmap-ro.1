@@ -1,0 +1,1047 @@
+.\"     Title: nmap
+.\"    Author: 
+.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
+.\"      Date: 06/15/2008
+.\"    Manual: 
+.\"    Source: 
+.\"
+.TH "NMAP" "1" "06/15/2008" "" ""
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.SH "NAME"
+nmap - Instrument de explorare a retelei si scaner de securitate / porturi
+.SH "SYNOPSIS"
+.HP 5
+\fBnmap\fR [\fITip\ de\ scanare\fR...] [\fIOptiuni\fR] {\fIspecificarea\ tintei\fR}
+.SH "DESCRIERE"
+.PP
+Nmap (\(lqNetwork Mapper\(rq) este un instrument open source pentru explorarea retelei si audit de securitate A fost proiectat sa scaneze repede retele mari, cu toate ca functioneaza bine si la scanarea unui singur host\. Nmap foloseste pachete IP in forma bruta intr\-un mod inovator pentru a determina ce calculatoare sunt disponibile in retea, ce servicii (numele aplicatiei si versiunea) ofera acestea, ce sistem de operare (si versiune) ruleaza, ce tipuri de filtre de pachete/firewall sunt utilizate si o multime de alte caracteristici\. Nmap este folosit in mod curent in procesul de audit al securitatii, dar este folosit si de administratorii de retea pentru rutinele de inventariere a retelei, managementul upgradeurilor si monitorizarea calculatoarelor sau a perioadelor de uptime pentru servicii\.
+.PP
+Rezultatul generat de Nmap este o lista de tinte scanate, cu informatii secventiale despre fiecare in functie de optiunile utilizate\. O parte cheie a informatiilor furnizate este\(lqtabela de porturi interesante\(rq\. Aceasta tabela contine numarul portului si protocolul, numele serviciului si starea\. Starea poate fiopen (deschis),filtered (filtrat),closed (inchis), sauunfiltered (nefiltrat)\. Deschis (open) inseamna ca aplicatia de pe masina tinta asculta la portul respectiv, asteptand conexiuni\.Filtered (filtrat)inseamna ca un firewall, filtru sau alt obstacol in retea blocheaza respectivul port astfel incat Nmap nu poate spune daca estedeschissauinchis\. Porturileinchisenu au nici o aplicatie care sa astepte conexiuni, cu toate ca ele se pot deschide in orice moment\. Porturile sunt clasificate canefiltratecand ele raspund la probele Nmap, dar Nmap nu poate determina daca sunt inchise sau deschise\. Nmap raporteaza combinatia de stariopen|filtered (deschis|filtrat)siclosed|filtered (inchis|filtrat)cand nu poate determina care din cele doua stari este cea corecta\. Tabela de porturi mai poate include versiuni ale softwareului cand detectia versiunii a fost solicitata\. Cand un protocol de scanare IP este solicitat (\fB\-sO\fR), Nmap furnizeaza informatii despre protocoalele IP suportate in locul listei de porturi\.
+.PP
+In plus fata de lista de porturi interesante, Nmap poate furniza si alte informatii despre tinte, incluzand aici nume obtinute prin reverse DNS, poate ghici sistemul de operare, tipul hardwareului si adresele MAC\.
+.PP
+O scanare tipica cu Nmap este exemplificata inExample\ 1, \(lqO scanare reprezentativa cu Nmap\(rq\. Singurele argumente folosite in aceste exemplu sunt\fB\-A\fR, pentru a activa detectia versiunii si a sistemului de operare,\fB\-T4\fRpentru executia mai rapida a scanarii, si apoi specificatiile pentru cele doua tinte\.
+.PP
+\fBExample\ 1.\ O scanare reprezentativa cu Nmap\fR
+.sp
+.RS 4
+.nf
+# nmap \-A \-T4 scanme\.nmap\.org playground
+
+Starting nmap ( http://www\.insecure\.org/nmap/ )
+Interesting ports on scanme\.nmap\.org (205\.217\.153\.62):
+(The 1663 ports scanned but not shown below are in state: filtered)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 3\.9p1 (protocol 1\.99)
+53/tcp  open   domain
+70/tcp  closed gopher
+80/tcp  open   http    Apache httpd 2\.0\.52 ((Fedora))
+113/tcp closed auth
+Device type: general purpose
+Running: Linux 2\.4\.X|2\.5\.X|2\.6\.X
+OS details: Linux 2\.4\.7 \- 2\.6\.11, Linux 2\.6\.0 \- 2\.6\.11
+Uptime 33\.908 days (since Thu Jul 21 03:38:03 2005)
+
+Interesting ports on playground\.nmap\.org (192\.168\.0\.40):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios\-ssn
+389/tcp  open  ldap?
+445/tcp  open  microsoft\-ds  Microsoft Windows XP microsoft\-ds
+1002/tcp open  windows\-icfw?
+1025/tcp open  msrpc         Microsoft Windows RPC
+1720/tcp open  H\.323/Q\.931   CompTek AquaGateKeeper
+5800/tcp open  vnc\-http      RealVNC 4\.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3\.8)
+MAC Address: 00:A0:CC:63:85:4B (Lite\-on Communications)
+Device type: general purpose
+Running: Microsoft Windows NT/2K/XP
+OS details: Microsoft Windows XP Pro RC1+ through final release
+Service Info: OSs: Windows, Windows XP
+
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\.392 seconds
+.fi
+.RE
+.PP
+Cea mai noua versiune de Nmap poate fi obtinuta de la\fI\%http://www.insecure.org/nmap/\fR\. Cea mai noua versiune a paginii man poate fi vizualizata la\fI\%http://www.insecure.org/nmap/man/\fR\.
+.SH "TRADUCERE"
+.PP
+Aceasta editie inlimba romana a Ghidului de referinta Nmap a fost tradus din versiunea 2991 a textului original aflat la
+\fIoriginal English version\fR\&[1]
+de Dan Catalin Vasile
+<hardware_cta@yahoo\.com>\. Traducerea a fost facuta cu scopul de a asigura o intelegere mai buna a functionalitatilor Nmap intai pentru autor si mai apoi pentru toti vorbitorii nativi de limba romana\. Autorul traducerii nu va poate garanta faptul ca traducerea este la fel de completa cu versiunea actualizata in limba engleza\. Acest produs poate fi modificat si redistribuit in conditiile stipulate de
+\fICreative Commons Attribution License\fR\&[2]\. Autorul traducerii va invita de asemenea pe primul site dedicat profesionistilor in securitate informatica din Romania:
+\fIITSecure\fR\&[3]\.
+.SH "SUMARUL OPTIUNILOR"
+.PP
+Acest sumar al optiunilor este printat cand Nmap este rulat fara nici un argument si ultima versiune este disponibila la\fI\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\. Ajuta oamenii sa isi aduca aminte de cele mai comune optiuni, dar nu reprezinta un substitut pentru documentatia in profunzime din restul acestui manual\. Unele optiuni obscure nici nu sunt incluse aici\.
+.PP
+.RS 4
+.nf
+Usage: nmap [Scan Type(s)] [Options] {target specification}
+TARGET SPECIFICATION:
+  Can pass hostnames, IP addresses, networks, etc\.
+  Ex: scanme\.nmap\.org, microsoft\.com/24, 192\.168\.0\.1; 10\.0\.0\-255\.1\-254
+  \-iL <inputfilename>: Input from list of hosts/networks
+  \-iR <num hosts>: Choose random targets
+  \-\-exclude <host1[,host2][,host3],\.\.\.>: Exclude hosts/networks
+  \-\-excludefile <exclude_file>: Exclude list from file
+HOST DISCOVERY:
+  \-sL: List Scan \- simply list targets to scan
+  \-sP: Ping Scan \- go no further than determining if host is online
+  \-P0: Treat all hosts as online \-\- skip host discovery
+  \-PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+  \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
+SCAN TECHNIQUES:
+  \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+  \-sN/sF/sX: TCP Null, FIN, and Xmas scans
+  \-\-scanflags <flags>: Customize TCP scan flags
+  \-sI <zombie host[:probeport]>: Idlescan
+  \-sO: IP protocol scan
+  \-b <ftp relay host>: FTP bounce scan
+PORT SPECIFICATION AND SCAN ORDER:
+  \-p <port ranges>: Only scan specified ports
+    Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
+  \-F: Fast \- Scan only the ports listed in the nmap\-services file)
+  \-r: Scan ports consecutively \- don\'t randomize
+SERVICE/VERSION DETECTION:
+  \-sV: Probe open ports to determine service/version info
+  \-\-version\-light: Limit to most likely probes for faster identification
+  \-\-version\-all: Try every single probe for version detection
+  \-\-version\-trace: Show detailed version scan activity (for debugging)
+OS DETECTION:
+  \-O: Enable OS detection
+  \-\-osscan\-limit: Limit OS detection to promising targets
+  \-\-osscan\-guess: Guess OS more aggressively
+TIMING AND PERFORMANCE:
+  \-T[0\-5]: Set timing template (higher is faster)
+  \-\-min\-hostgroup/max\-hostgroup <msec>: Parallel host scan group sizes
+  \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
+  \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
+      probe round trip time\.
+  \-\-host\-timeout <msec>: Give up on target after this long
+  \-\-scan\-delay/\-\-max_scan\-delay <msec>: Adjust delay between probes
+FIREWALL/IDS EVASION AND SPOOFING:
+  \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
+  \-D <decoy1,decoy2[,ME],\.\.\.>: Cloak a scan with decoys
+  \-S <IP_Address>: Spoof source address
+  \-e <iface>: Use specified interface
+  \-g/\-\-source\-port <portnum>: Use given port number
+  \-\-data\-length <num>: Append random data to sent packets
+  \-\-ttl <val>: Set IP time\-to\-live field
+  \-\-spoof\-mac <mac address/prefix/vendor name>: Spoof your MAC address
+OUTPUT:
+  \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
+     and Grepable format, respectively, to the given filename\.
+  \-oA <basename>: Output in the three major formats at once
+  \-v: Increase verbosity level (use twice for more effect)
+  \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  \-\-packet\-trace: Show all packets sent and received
+  \-\-iflist: Print host interfaces and routes (for debugging)
+  \-\-append\-output: Append to rather than clobber specified output files
+  \-\-resume <filename>: Resume an aborted scan
+  \-\-stylesheet <path/URL>: XSL stylesheet to transform XML output to HTML
+  \-\-webxml: Reference stylesheet from Insecure\.Org for more portable XML
+  \-\-no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+MISC:
+  \-6: Enable IPv6 scanning
+  \-A: Enables OS detection and Version detection
+  \-\-datadir <dirname>: Specify custom Nmap data file location
+  \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
+  \-\-privileged: Assume that the user is fully privileged
+  \-V: Print version number
+  \-h: Print this help summary page\.
+EXAMPLES:
+  nmap \-v \-A scanme\.nmap\.org
+  nmap \-v \-sP 192\.168\.0\.0/16 10\.0\.0\.0/8
+  nmap \-v \-iR 10000 \-P0 \-p 80
+.fi
+.RE
+.SH "SPECIFICAREA TINTELOR"
+.PP
+Tot ceea ce in lina de comanda a Nmap nu este optiune (sau argument al unei optiuni) este tratat ca specificare a unei tinte\. Cel mai simplu caz este specificarea adresei IP sau a numelui calculatorului ce urmeaza a fi scanat\.
+.PP
+Cateodata se doreste scanarea unei intregi retele pentru calculatoare adiacente\. Pentru asta, Nmap suporta stilul de adresare CIDR\. Se poate adauga /\fInumarul de biti\fRla o adresa IP sau nume si Nmap va scana toate adresele IP pentru care primii\fIbiti\fRsunt aceeasi cu IP sau numele de referinta\. De exemplu, 192\.168\.10\.0/24 va scana cele 256 de calculatoare intre 192\.168\.10\.0 (binar:11000000 10101000 00001010 00000000) si 192\.168\.10\.255 (binar:11000000 10101000 00001010 11111111), inclusiv\. 192\.168\.10\.40/24 va realiza exact acelasi lucru\. Dat fiind numele scanme\.nmap\.org cu adresa IP 205\.217\.153\.62, specificatia scanme\.nmap\.org/16 va scana cele 65\.536 adrese IP intre 205\.217\.0\.0 si 205\.217\.255\.255\. Cea mai mica valoare permisa este /1, care va scana jumatate de Internet\. Cea mai mare este 32, care va scana doar calculatorul specificat prin nume sau IP deoarece toti bitii sunt fixati\.
+.PP
+Natatia CIDR este scurta dar nu intotdeauna suficient de flexibila\. De exemplu, puteti dori scanarea 192\.168\.0\.0/16 dar fara adresele care se termina in \.0 sau \.255, deoarece ele sunt in general adrese de broadcast\. Nmap suporta acest lucru prin adresarea unei anumite limite pentru fiecare octet in parte\. In locul specificarii adresei IP normale, puteti specifica o lista de numere separate prin virgula sau un domeniu pentru fiecare octet\. De exemplu, 192\.168\.0\-255\.1\-254 va sari toate adresele din acest domeniu care se termina in \.0 si \.255\. Domeniile nu se limiteaza la ultimii octeti: specificatorul 0\-255\.0\-255\.13\.37 va scana Internetul dupa toate IPurile care se termina in \.13\.37\. Acest tip de scanare poate fi folositor pentru inspectarea si cercetarea Internetului\.
+.PP
+Adresele IPv6 pot fi specificate doar prin adresa completa sau nume\. CIDR si domeniile pe octeti nu sunt suportate pentru IPv6 deoarece sunt rareori folositoare\.
+.PP
+Nmap accepta specificarea mai multor adrese in linia de comanda si nici nu este necesar ca ele sa fie de acelasi tip\. Comnda\fBnmapscanme\.nmap\.org 192\.168\.0\.0/8 10\.0\.0,1,3\-7\.0\-255\fRrealizeaza exact ceea ce asteptati\.
+.PP
+Desi tintele sunt specificate in mod uzual in linia de comanda, exista si urmatoarele optiuni pentru selectia tintelor
+.PP
+\fB\-iL <fisierdeintrare>\fR(Preluare dintr\-un fisier)
+.RS 4
+Citeste specificarile tintelor din\fIfisierdeintrare\fR\. Preluarea unei liste mari de calculatoare este un lucru greu de facut din linia de comanda, desi acest lucru este de preferat\. De exemplu, serverul DHCP poate exporta o lista de 10\.000 de IP pe care le\-a atribuit si pe care noi dorim sa le scanam\. Sau poate dorim sa scanam toate adresele\fIcu exceptia\fRcelor generate de DHCP pentru a monitoriza adresele statice neautorizate\. Generati lista de IPuri si plasati numele fisierului ca argument al optiunii\fB\-iL\fRIntrarile din fisier pot fi in orice format acceptat de Nmap in linia d ecomanda (adrese IP, nume, CIDR, IPv6 sau domenii pe octeti)\. Fiecare intrare trebuie separata prin unul sau mai multe spatii libere sau prin linie noua\. Puteti specifica caracterul\-ca nume de fisier daca vreti ca Nmap sa citeasca de la intrarea standard in locul unui fisier\.
+.RE
+.PP
+\fB\-iR <numar de tinte>\fR(Alegere de tinte aleatoare)
+.RS 4
+Pentru sondaje asupra Internetului sau alte cercetari, puteti alege tinte aleator\.\fINumarul de tinte\fRcomunica Nmapului cate tinte aleatoare sa genereze\. Adrese nedorite cum ar fi IPurile private, cele de multicast sau cele nealocate sunt sarite in mod automat la generarea listei\. Argumentul0poate specifica o scanare fara sfarsit\. Tineti minte ca unii administratori de retea sunt deranjati de scanarile neautorizate asupra retelei lor si pot depune plangeri\. Folositi aceasta optiune asumandu\-va riscurile! Daca sunteti cu adevarat plictisit intr\-o dupa\-amiaza ploioasa incercati comanda\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fRpentru a localiza aleator servere care gazduiesc pagini web si incepeti sa faceti brosing\.
+.RE
+.PP
+\fB\-\-exclude<host1[,host2][,host3],\.\.\.>\fR(Se exclud de la scanare calculatoarele/retelele specificate ca argument)
+.RS 4
+Specifica o lista separata prin virgula de tinte excluse de la scanare chiar daca ele se afla in domeniul specificat\. Lista foloseste sintaxa normala a Nmap, asa ca poate include nume, specificatori CIDR, domenii pe octeti, etc\. Aceasta optiune poate fi folositoare cand reteaua pe care dorim sa o scanam include servere ce ruleaza aplicatii critice, sisteme care reactioneaza la scanari sau subretele administrate de alte persoane\.
+.RE
+.PP
+\fB\-\-excludefile <fisier_de_excludere>\fR(Lista de excludere dintr\-un fisier)
+.RS 4
+Aceasta ofera aceeasi functionalitate ca si optiunea\fB\-\-exclude\fR, cu exceptia ca ca tintele excluse sunt furnizate intr\-un format delimitat prin linie noua, spatiu sau tab din\fIfisierul_de_excludere\fRin loc sa fie furnizate din linia de comanda\.
+.RE
+.SH "DESCOPERIREA HOSTURILOR"
+.PP
+Nota: Vom imprumuta din limba engleza termenul de host\. Acesta se refera la orice element din retea care comunica sau poate comunica\. Aceste elemente pot fi statii de lucru, servere, routere, imprimante de retea, etc\. Unul din primii pasi ai descoperirii elementelor din retea este reducerea numarului (adesea urias) de IP intr\-o lista de hosturi active sau interesante\. Scanarea fiecarui port de pe fiecare IP este un proces lent si de obicei inutil\. Desigur, ce transforma un host intr\-unul interesant depinde in mare parte de scopul scanarii\. Administratorii de retea ar putea fi interesati doar de calculatoarele ce ruleaza anumite servicii, in timp ce auditorii de securitate pot fi interesati de toate elementele ce poseda o adresa IP\. Unui administrator ii poate fi suficient un simplu pachet ping ICMP pentru localizarea calculatoarelor din reteaua interna, in timp ce un auditor extern poate folosi o multitudine de probe in incercarea de a scapa de restrictiile firewallului\.
+.PP
+Deoarece necesitatile in vederea descoperirii hosturilor sunt atat de diverse , Nmap ofera o varietate mare de optiuni de personalizare a tehnicilor folosite\. Descoperirea hosturilor este adesea numita scanare ping, dar trece cu mult de simplul stadiu al pachetelor ICMP care solicita un raspuns asociate omniprezentului instrumentpingUtilizatorii pot sari de pasul care implica pingul cu o scanare de tip lista (\fB\-sL\fR) sau dezactivand pingul (\fB\-P0\fR), sau angrenand alte combinatii arbitrare de probe multiport TCP SYN/ACK, UDP si ICMP\. Scopul acestor probe este sa solicite raspunsuri care sa demonstreze daca o adresa IP este cu adevarat activa (este folosita de un dispozitiv din retea)\. In multe retele, doar un mic procentaj de adrese IP sunt active la un moment dat\. Acest lucru este in mod special adevarat intr\-un spatiu de adrese rezervat conform binecuvantatului RFC1918 cum ar fi 10\.0\.0\.0/8\. Aceasta retea are 16 milioane de IPuri, dar am vazut ca sunt folosite de companii cu mai putin de o mie de calculatoare\. Descoperirea hosturilor poate gasi acele masini risipite in marea de adrese IP\.
+.PP
+Daca nu sunt furnizate optiuni de descoperire a hosturilor, Nmap trimite un pachet TCP ACK destinat portului 80 si un pachet de interogare ICMP cu solicitare de raspuns la fiecare masina tinta\. O exceptie la acestea este ca scanarea ARP este folosita pentru orice tinta dintr\-o retea locala\. Pentru utilizatori neprivilegiati cu conturi shell pe sisteme UNIX, sunt trimise pachete SYN in locul celor ack folosind apelul de sistem\fBconnect()\fR\. Aceste optiuni implicite sunt echivalente cu\fB\-PA \-PE\fR\. Descoperirea hosturilor este de obicei suficienta pentru scanarea retelelor locale, dar un set mult mai cuprinzator de probe pentru descoperire este recomandat in auditul de securitate\.
+.PP
+Optiunea\fB\-P*\fR(care selecteaza tipul pingului) poate fi combinata\. Puteti mari sansele de penetrare a unor firewalluri stricte trimitand mai multe probe folosind diferite porturi/flaguri (indicatori din pachetele) TCP si coduri ICMP\. Notati de asemenea ca descoperirea ARP (\fB\-PR\fR) este executata implicit impotriva tintelor dintr\-o retea locala chiar daca specificati alta optiune\fB\-P*\fR, deoarece este aproape intotdeauna mai rapida si mai eficienta\.
+.PP
+Urmatoarele optiuni controleaza descoperirea hosturilor\.
+.PP
+\fB\-sL\fR(Scanarea de tip lista)
+.RS 4
+Scanarea de tip lista este o forma degenerata de descoperire a hosturilor care listeaza fiecare host al retelei specificate, fara a trimite nici un pachet tintelor\. In mod implicit, Nmap realizeaza totusi o rezolutie inversa DNS pentru a afla si numele tintelor\. Adesea este surprinzator cate informatii utile ne pot oferi simplele nume ale hosturilor\. De exemplu,fw\.chi\.playboy\.comeste firewallul biroului din Chicago al Playboy Enterprises\. Nmap raporteaza numarul total de adrese IP la sfarsit\. Scanarea de tip lista este o buna verificare a faptului ca aveti adresele IP corecte pentru tinte\. Daca hosturile au nume pe care nu le recunoasteti, este bine sa investigati in profunzime pentru a nu scana reteaua unei alte companii\.
+.sp
+Din moment ce ideea este de afisa o lista cu tinte, optiunile pentru un nivel mai inalt de functionalitate cum ar fi scanare de porturi, detectia sistemului de operare sau scanarea ping nu pot fi combinate cu aceasta\. Daca doriti dezactivarea scanarea ping si in acelasi timp sa executati tehnicile corespunzatoare nivelului inalt de functionalitate, cititi paragraful destinat optiunii\fB\-P0\fR\.
+.RE
+.PP
+\fB\-sP\fR(Scanare ping)
+.RS 4
+Aceasta optiune spune Nmapului sa realizeze\fInumai\fRo scanare ping (descoperirea hosturilor) si apoi sa afiseze hosturile disponibile care raspund la scanare\. Nici un alt fel de test (cum ar fi scanarea de porturi sau detectia sistemului de operare) nu va fi realizat\. Acest pas este mai intruziv decat scanarea de tip lista si poate fi folosita adesea in acelasi scop\. Permite o descoperire a tintelor din retea fara a atrage prea mult atentia\. Cunoscand cate hosturi sunt active este o informatie mult mai valoroasa unui atacator decat simpla lista furizata de scanarea de tip lista a fiecarei adrese IP si a numelor hosturilor\.
+.sp
+Administratorii de sistem gasesc adesea aceasta optiune pretioasa ca atare\. Poate fi usor utilizat pentru numararea masinilor disponibile intr\-o retea sau pentru monitorizarea disponibilitatii serverelor\. Adesea este denumita maturare ping si este mai de incredere decat pingul asupra adresei de broadcast deoarece multe hosturi nu raspund la solicitarile de broadcast\.
+.sp
+Optiunea\fB\-sP\fRtrimite un pachet ICMP cu solicitare de raspuns si un pachet TCP la portul 80 in mod implicit\. Cand se executa de catre un utilizator neprivilegiat, un pachet SYN este trimis (folosin apelul\fBconnect()\fR) la portul 80 al tintei\. Cand un utilizator privilegiat incearca sa scaneze tinte dintr\-o retea locala, solicitari ARP (\fB\-PR\fR) sunt utilizate, doar daca\fB\-\-send\-ip\fR(adresa IP de expediere) a fost specificat\. Optiunea\fB\-sP\fRpoate fi combinata cu oricare dintre tipurile de probe de descoperire (optiunile\fB\-P*\fR, exluzand\fB\-P0\fR) pentru o mai mare flexibilitate\. Daca oricare dintre tipurile de probe si optiuni de porturi sunt utilizate, se renunta la probele implicite (ACK si ICMP cu solicitare de raspuns)\. Cand firewalluri stricte sunt plasate intre calculatorul sursa care ruleaza Nmap si reteaua tinta, folosirea acelor tehnici avansate este recomandata\. Altfel, hosturi pot ramane nedescoperite cand firewallul executa comanda drop (pur si simplu ignora pachetele) la probe sau la raspunsuri\.
+.RE
+.PP
+\fB\-P0\fR(Fara ping)
+.RS 4
+Aceasta optiune sare complet peste faza de descoperire\. In mod normal, Nmap foloseste aceasta faza pentru a determina masinile active pentru scanarea avansata\. Implicit, Nmap realizeaza scanarea avansata cum ar fi scanarea de porturi, detectia versiunii si a sistemului de operare doar pentru hosturile gasite active\. Dezactivarea descoperirii hosturilor cu\fB\-P0\fRface ca Nmap sa incerce tehnicile avansate de scanare pentru\fIfiecare\fRadresa IP specificata ca tinta\. Asadar, daca spatiul unei clase B (/16) este specificata in linia de comanda, toate cele 65,536 de IP vor fi scanate cu tehnicile avansate\. Cel de\-al doilea caracter din optiunea\fB\-P0\fReste un zero si nu litera O\. Descoperirea obisnuita a hosturilor este sarita execucandu\-se o scanare de tip lista, dar in loc sa se opreasca si sa afiseze lista de tinte, Nmap continua sa realizeze cererile din linia de comanda ca si cum fiecare adresa IP ar fi activa\.
+.RE
+.PP
+\fB\-PS [listadeporturi]\fR(Ping TCP SYN)
+.RS 4
+Aceasta optiune trimite un pachet TCP gol cu flagul SYN setat\. Portul de destinatie implicit este 80 (configurabil la compilare prin schimbarea DEFAULT_TCP_PROBE_PORT in\fInmap\.h\fR), dar un alt port poate fi specificat ca parametru\. Chiar o lista separata prin virgula de porturi poate fi specificata (de exemplu\fB\-PS22,23,25,80,113,1050,35000\fR),caz in care probele vor fi trimise la fiecare port in paralel\.
+.sp
+Flagul SYN sugereaza tintei ca dorim sa stabilim o conexiune\. In mod normal portul destinatie va fi inchis si un pachet RST (de resetare) este trimis inapoi\. Daca se intampla ca portul sa fie deschis, tinta va face cel de\-al doilea pas dintr\-un 3\-way\-handshake (stabilirea unei conexiuni in trei pasi) raspunzand cu un pachet TCP SYN/ACK\. Masina care ruleaza nmap va inchide apoi conexiunea raspunzand cu un pachet RST in loc sa trimita pachetul ACK care ar completa 3\-way\-handshakeul si ar stabili o conexiune completa\. Pachetul RST este trimis de kernelul sistemului de operare al masinii care ruleaza Nmap ca raspuns la pachetul SYN/ACK neasteptat, si nu de catre Nmap ca atare\.
+.sp
+Nmapului nu ii pasa daca portul este deschis sau inchis\. Fie ca este RST sau SYN/ACK dupa cum s\-a vazut anterior, raspunsul anunta Nmapul ca hostul este activ si raspunde la probe
+.sp
+Pe masinile UNIX, numai utilizatorii privilegiatirootsunt capabili sa trimita si sa primeasca pachete TCP in forma bruta\. Pentru utilizatorii neprivilegiati, un ocolis este automat pus in functiune si implica apelul de sistem connect() initiat impotriva fiecarui port tinta\. Acesta are ca efect trimiterea unui pachet SYN catre tinta, intr\-o incercare de a stabili conexiunea\. Daca connect() returneaza o valoare care indica succesul operatiunii sau un raspuns ECONNREFUSED (conexiune refuzata), inseamna ca nivelele inferioare ale stivei TCP au primit un SYN/ACK sau RST iar hostul este marcat ca fiind disponibil\. Daca tentativa de conexiune este lasata sa astepte un timp mai mare decat timeoutul (timpul maxim in care se asteapta un raspuns), hostul este marcat ca indisponibil\. Acest ocolis este utilizat si pentru conexiunile IPv6, deoarece constructia pachetelor brute IPv6 nu este inca suportata de Nmap\.
+.RE
+.PP
+\fB\-PA [lista_de_porturi]\fR(Ping TCP ACK)
+.RS 4
+Pingul TCP ACK este similar cu proaspat discutatul ping SYN\. Diferenta, dupa cum probabil ati ghicit, este ca flagul TCP ACK este setat in locul celui SYN\. Un astfel de pachet ACK pretinde ca transporta date in cadrul unei conexiuni ACK deja stabilite, dar nu exista nici o astfel de conexiune\. Asadar tintele trebuie sa raspunda intotdeauna cu un pachet RST, dezvaluindu\-si existenta in cadrul acestui proces\.
+.sp
+Optiunea\fB\-PA\fRfoloseste acelasi port implicit ca probele SYN si de asemenea poate prelua o lista de porturi destinatie in acelasi format\. Daca un utilizator neprivilegiat incearca aceasta optiune, sau o tinta IPv6 este specificata, ocolisul connect() discutat anterior este utilizat\. Acest ocolis este imperfect deoarece connect() trimite de fapt un pachet SYN in locul unuia ACK\.
+.sp
+Motivul oferirii ambelor probe de ping SYN si ACK este de a maximiza sansele de trecere printr\-un firewall\. Multi administratori configureaza routerele si alte firewalluri simple pentru a bloca pachetele SYN cu exceptia acelora destinate serviciilor publice cum ar fi serverul web sau serverul de mail al companiei\. Acest lucru previne realizarea altor conexiuni catre reteaua organizatiei, in timp ce permite utilizatorilor sa realizeze neobstructionati conexiuni catre Internet\. Aceasta abordare non\-statefull sau stateless (nu se analizeaza ACK) utilizeaza putine resurse ale firewallului sau routerului si este suportata intr\-un procent mare de filtrele hardware sau software\. Firewallul software din Linux Netfilter/iptables ofera o optiune convenabila\fB\-\-syn\fRpentru implementarea acestei abordari stateless\. Cand firewalluri stateless ca acestea sunt in functiune, probele ping SYN (\fB\-PS\fR) vor fi mai mult ca sigur blocate in drumul lor catre porturi tinta inchise\. In aceste cazuri, probele ACK stralucesc deoarece trec cu usurinta de aceste reguli\.
+.sp
+Alt tip comun de firewalluri folosesc reguli statefull care ignora pachetele ce nu sunt asteptate\. Aceasta optiune a fost initial gasita doar in firewallurile high\-end, dar a devenit mult mai comuna de\-a lungul timpului\. In linux, sistemul Netfilter/iptables suporta aceasta abordare prin optiunea\fB\-\-state\fR, care catalogheaza pachetele in functie de starea conexiunii\. O proba SYN este mai probabil sa functioneze impotriva unui astfel de sistem din moment ce pachetele neasteptate sunt in general recunoscute ca fiind simulate si ignorate\. O solutie la aceasta dilema este trimiterea ambelor probe, SYN si ACK, specificand\fB\-PS\fRsi\fB\-PA\fR\.
+.RE
+.PP
+\fB\-PU [lista_de_porturi]\fR(Ping UDP)
+.RS 4
+Alta optiune de descoperire a hosturilor este pingul UDP, care trimite un pachet gol (doar daca optiunea\fB\-\-data\-length\fRnu este specificata) UDP la portul specificat\. Lista de porturi are acelasi format cu cel discutat anterior la optiunile\fB\-PS\fRsi\fB\-PA\fR\. daca nici un port nu este specificat, implicit este utilizat 31338\. Aceasta valoare implicita poate fi configurata la compilare schimband DEFAULT_PROBE_PORT in\fInmap\.h\fR\. Un port necomun este folosit implicit deoarece trimiterea unui pachet la un port deschis nu este de dorit pentru acest tip de scanare\.
+.sp
+Dupa trimiterea probei catre un port inchis al tintei, proba UDP trebuie sa obtina un pachet ICMP de port indisponibil\. Acest lucru semnalizeaza Nmapul ca masina este activa si disponibila\. Multe alte tipuri de erori ICMP, cum ar fi cele de host/retea ce nu pot fi contactate sau TTL (time to live = timp de viata; timpul maxim admis pentru asteptarea raspunsului) depasit sunt indicatori al unui host inactiv sau care nu poate fi contactat\. Lipsa unui raspuns este interpretata la fel\. Daca un port deschis este nimerit de pachetul de proba, multe servicii vor ignora pachetul si nu vor returna nici un raspuns\. De aceea portul de proba este 31338, care are o probabilitate mare sa nu fie utilizat\. Cateva servicii vor raspunde totusi la un pachet UDP gol, dezvaluind in acest fel Nmapului faptul ca masina este disponibila\.
+.sp
+Principalul avantaj al acestui tip de scanare este ca poate trece de firewallurile si filtrele care monitorizeaza doar traficul TCP\. De exemplu, am avut o data un router wireless Linksys BEFW11S4\. Interfata externa a acestui dispozitiv filtra in mod implicit toate porturile TCP, dar probele UDP puteau totusi sa obtina mesajele de port indisponibil si in felul acesta sa arate starea hostului\.
+.RE
+.PP
+\fB\-PE\fR;\fB\-PP\fR;\fB\-PM\fR(Tipuri de ping ICMP)
+.RS 4
+Pe langa tipurile de descoperire TCP si UDP uzuale discutate anterior, Nmap poate trimite pachete standard prin intermediul omniprezentuluiping\. Nmap un pachet ICMP de tipul 8 (solicitare de raspuns) catre adresa IP tinta, asteptand un pachet de tip 0 (raspuns) in schimb de la hosturile disponibile\. Din pacate pentru exploratorii de retele, in zilele noastre multe hosturi si firewalluri blocheaza aceste pachete, in loc sa raspunda in conformitate cu\fIRFC1122\fR\&[4]\. Din acest motiv scanarile ICMP simple sau rareori de incredere impotriva unor tinte necunoscute din Internet\. Dar pentru administratorii de sistem care monitorizeaza o retea interna, ea poate fi o abordare practica si eficienta\. Folositi optiunea\fB\-PE\fRpentru a activa acest comportament de solicitare a raspunsului\.
+.sp
+Cu toate ca cererile de raspuns ICMP sunt standard, Nmap nu se opreste aici\. Standardul ICMP (\fIRFC792\fR\&[5]) specifica de asemenea solicitarea amprentei de timp, a informatiilor si a mastii de retea corespunzatoare codurilor 13,15 si 17\. Aceste solicitari au ca scop aflarea de informatii precum amprenta de timp sau masca de retea dar pot fi usor folosite si la descoperirea hosturilor\. Un sistem care raspunde este disponibil\. Nmap nu implementeaza inca solicitarea de informatii (15) deoarece acestea nu beneficiaza de o implementare la nivel larg\. RFC 1122 insista ca\(lqun host NU TREBUIE sa implmenteze aceste mesaje\(rq\. Solicitarile de amprenta de timp si masca de retea pot fi trimise cu ajutorul optiunilor\fB\-PP\fR, respectiv\fB\-PM\fR\. Un raspuns amprenta de timp (ICMP cod 14) sau un raspuns masca de retea (cod 18) dezvaluie un host disponibil\. Aceste doua interogari pot fi de folos cand administratorul de retea blocheaza pingul ICMP standard uitand faptul ca si celelalte solicitari ICMP pot fi folosite in acelasi scop\.
+.RE
+.PP
+\fB\-PR\fR(Ping ARP)
+.RS 4
+Unul dintre cele mai comune scenarii de utilizare ale Nmapului o reprezinta scanarea unei intregi retele locale (LAN)\. In multe LANuri, in special in cele care folosesc spatiul privat de adrese specificat in RFC1918, mare majoritate a adreselor IP nu sunt utilizate la un moment dat\. Cand Nmap incearca sa trimita un pachet ICMP solicitand un raspuns, sistemul de operare trebuie sa determine adresa de destinatie hardware (ARP) corespunzatoare adresei tinta IP astfel incat sa poata adresa in mod corect frameul ethernet\. Este adesea un proces lent, din moment ce sistemele de operare nu au fost proiectate sa realizeze milioane de solicitari ARP catre hosturi indisponibile intr\-o peioada foarte scurta de timp\.
+.sp
+Scanarea ARP pune Nmapul si algoritmii lui optimizati in functiune pentru a realiza solicitarile ARP\. Si daca primeste un raspuns, Nmap nici nu mai ia in in considerare pingurile bazate pe IP din moment ce stie deja ca hostul este activ\. Acest lucru face scanarea ARP mult mai rapida si mai corecta decat scanarile bazate pe IP\. Asadar este realizata implicit cand Nmapul detecteaza faptul ca adresele scanate fac parte dintr\-un LAN\. Chiar daca tipuri diferite de ping (cum ar fi optiunea\fB\-PE\fRsau\fB\-PS\fR) sunt specificate, Nmap foloseste ARP in locul lor pentru orice adresa din acelasi LAN cu masina care ruleaza Nmap\. Daca sunteti sigur ca nu doriti scanare ARP, specificati\fB\-\-send\-ip\fR\.
+.RE
+.PP
+\fB\-n\fR(Nu se realizeaza rezolutia DNS)
+.RS 4
+Transmite Nmapului ca\fIniciodata\fRsa nu realizeze rezolutia inversa DNS pentru IPurile active gasite\. Din moment ce DNS este adesea lent, aceasta optiune poate mari viteza de scanare\.
+.RE
+.PP
+\fB\-R\fR(Rezolutie DNS pentru toate tintele)
+.RS 4
+Transmite Nmapului ca\fIintotdeauna\fRsa realizeze rezolutia DNS pentru IPurile tinta\. In mod normal acest lucru este realizat cand o masina este gasita activa\.
+.RE
+.PP
+\fB\-\-system_dns\fR(Foloseste DNSul sistemului de operare)
+.RS 4
+Implicit, Nmap rezolva adresele IP prin trimiterea de cereri la DNSurile configurate pe sistem si asteapta apoi raspunsuri\. Multe solicitari (adesea foarte multe) sunt realizate in paralel pentru o performanta crescuta\. Specificati aceasta optiune daca doriti sa folositi DNSul sistemului de operare (cate un IP o data prin intermediul apelului getnameinfo())\. Aceasta optiune este lenta si rareori folositoare\. O putei folosi in cazul in care exista o problema in codul DNS al Nmapului \(en va rugam sa ne contactati in acest caz\. DNSul sistemului este intotdeauna folosit pentru scanarile IPv6\.
+.RE
+.SH "BAZELE SCANARII DE PORTURI"
+.PP
+Cu toate ca functiile Nmap au crescut ca numar in timp, el a inceput ca un scaner de porturi eficient si acesasta ramane fuctia lui de baza\. Simpla comanda\fBnmap\fR\fB\fItinta\fR\fRscaneaza mai mult de 1660 de porturi TCP ale\fItintei\fR\. In timp ce multe scanere de porturi traditionale catalogheaza porturile in deschise si inchise, Nmap este mult mai avansat\. El imparte porturile in sase stari:open (deschis),closed (inchis),filtered (filtrat),unfiltered (nefiltrat),open|filtered (deschis|filtrat), orclosed|filtered (inchis|filtrat)\.
+.PP
+Aceste stari nu sunt proprietati intrinsece ale porturilor, dar descriu modul in care sunt vazute de Nmap\. De exemplu, o scanare Nmap din aceeasi retea ca si tinta poate arata portul tcp 135 ca deschis, in timp ce o scanare realizata simultan din Internet cu aceleasi optiuni poate arata portul cafiltered (filtrat)\.
+.PP
+\fBCele sase stari ale porturilor recunoscute de Nmap\fR
+.PP
+open (deschis)
+.RS 4
+O aplicatie accepta in mod activ conexiuni TCP sau pachete UDP la respectivul port\. Gasirea acestora este adesea scopul principal al scanarii de porturi\. Oamenii preocupati de securitate stiu ca fiecare port deschis reprezinta o cale de acces pentru un atac\. Atacatorii si pen\-testerii doresc exploatarea porturilor deschise, in timp ce administratorii incearca sa le inchida sau sa le protejeze prin firewalluri fara a incurca planurile utilizatorilor legitimi\. Porturile deschise sunt interesante si pentru scanarile ce nu urmaresc stabilirea securitatii deoarece ele arata serviciile disponibile pentru retea de la respectivul host\.
+.RE
+.PP
+closed (inchis)
+.RS 4
+Un port inchis este accesibil (primeste si raspunde la un pachet de proba trimis de Nmap), dar nu exista nici o aplicatie care sa asculte la el\. Pot fi folositoare in dezvaluirea starii hostului sau ca parte a detectiei sistemului de operare\. Deoarece cu porturile inchise se pote comunica, ele merita scanate si mai tarziu in caz ca vreunul dintre ele se deschide\. Administratorii pot lua in considerare blocarea unor astfel de porturi cu ajutorul unui firewall\. Astfel ele vor aparea avand starea filtrat, discutata mai departe
+.RE
+.PP
+filtered (filtrat)
+.RS 4
+Nmap nu poate determina daca portul este deschis datorita unui filtru de pachete care impiedica pachetele sa ajunga la portul destinatie\. Filtrarea poate proveni de la un firewall dedicat, din regulile unui router sau dintr\-un firewall software al tintei\. Aceste porturi frustreaza atacatorii deoarece furnizeaza foarte putine informatii\. Uneori raspund cu un mesaj de eroare ICMP cum ar fi tipul 3 codul 13 (destinatie care nu a putu fi atinsa: comunicatia interzisa administrativ), dar filtrele care executa operatia drop (ignora pachetul) fara sa raspunda sunt mult mai comune\. Acest lucru forteaza Nmap sa retrimita de cateva ori probele pentru cazul in care pachetul s\-a pierdut din cauza congestionarii retelei si nu din cauza filtrarii\. Acest lucru incetineste viteza de scanare dramatic\.
+.RE
+.PP
+unfiltered (nefiltrat)
+.RS 4
+Starea nefiltrata inseamna ca portul este accesibil, dar Nmap nu poate determina daca portul este inchis sau deschis\. Numai scanarea ACK, folosita pentru maparea regulilor din firewall, clasifica portul in aceasta stare\. Scanarea porturilor nefiltrate cu alte tipuri de optiuni cum ar fi scanarea Window(fereastra), scanarea SYN sau scanarea FIN poate stabili daca portul este deschis\.
+.RE
+.PP
+open|filtered (deschis|filtrat)
+.RS 4
+Nmap plaseaza porturi in aceasta categorie cand nu poate determina daca portul este deschis sau filtrat\. Acestea apar pentru tipurile de scanari in care porturile deschise nu ofera nici un raspuns\. Lipsa raspunsului poate sa mai insemne si ca un filtru de pachete a ignorat pachetul de proba sau orice raspuns aferent\. Asadar Nmap nu poate stii sigur daca portul este deschis sau filtrat\. Scanarile UDP, IP, FIN, Null sau Xmas clasifica porturile in aceasta stare\.
+.RE
+.PP
+closed|filtered (inchis|filtrat)
+.RS 4
+Aceasta stare este folosita cand Nmap este in imposibilitatea de a determina daca portul este inchis sau filtrat\. Este folosit doar de scanarea IPID Idle\.
+.RE
+.SH "TEHNICI DE SCANARE DE PORTURI"
+.PP
+Ca un incepator care incearca sa repare un motor, ma pot stradui ore intregi sa gasesc ustensile rudimentare (ciocan, banda adeziva, etc\.) potrivite pentru operatia propusa\. Cand esuez lamentabil si imi las rabla pe mana unui mecanic adevarat, invariabil el gaseste in marea de unelte ustensila potrivita care face treaba sa para una fara efort\. Arta scanarii de porturi este similara\. Expertii inteleg multitudinea de tehnici de scanare si o aleg pe cea potrivita (sau combinatia potrivita) pentru o anumita misiune\. Pe de alta parte, utilizatorii neexperimentati si script kiddies incearca sa rezolve problema prin scanarea SYN implicita\. Din moment ce Nmap este gratuit, singura bariera in arta scanarii de porturi o reprezinta cunostintele\. Acest fapt bate lucrurile din viata reala, unde cu multa pricepere poti determina ca ai nevoie de un arc nou pentru compresor, dar totusi esti nevoit sa platesti si bani buni pe el\.
+.PP
+Multe dintre tipurile de scanare sunt disponibile doar utilizatorilor privilegiati\. Aceasta datorita faptului ca trimit si primesc pachete brute, care necesita acces root pe sistemele UNIX\. Folosirea unui cont de administrator sub Windows este recomandata, cu toate ca Nmap functioneaza cateodata si pentru utilizatorii neprivilegiati pe platformele pe care WinPcap a fost deja incarcat de sistemul de operare\. Necesitatea privilegiilor root au reprezentat o problema serioasa la lansarea Nmapului in 1997, deoarece multi utilizatori beneficiau doar de conturi limitate\. Acum lumea e diferita\. Calculatoarele sunt ieftine, multi oameni au acces direct si permanent la Internet iar sistemele UNIX (incluzand Linux si MAC OS X) sunt raspandite\. O versiune de Windows a Nmap este acum disponibila, permitand rularea acestuia pe si mai multe calculatoare\. Oricare ar fi motivul, utilizatorii au o nevoie mai mica de a rula Nmap de pe conturi limitate\. Acesta este un lucru bun, deoarece optiunile privilegiate sunt mult mai puternice si mai flexibile\.
+.PP
+Chiar daca Nmap incearca sa produca cele mai precise rezultate, tineti minte intotdeauna ca el se bazeaza pe pachetele returnate de masina tinta (sau firewallul din fata lui)\. Asemenea hosturi pot sa nu fie de incredere iar raspunsurile trimise pot fi menite sa incurce sau sa duca pe o pista gresita Nmapul\. Comune sunt hosturile neconcordante cu standardele RFC care nu raspund cum ar trebui probelor Nmap\. Scanarile Fin, Null si Xmas sunt in mod particular susceptibile de asa ceva\. Astfele de probleme sunt specifice anumitor tipuri de scanari si sunt discutate individual la fiecare tip de scanare in parte\.
+.PP
+Aceasta sectiune documenteaza multitudinea de tehnici de scanare de porturi suportate de Nmap\. O singura metoda poate fi folosita la o scanare (nu pot fi combinate mai multe tipuri), cu exceptia scanarii UDP (\fB\-sU\fR) care poate fi combinata cu unul din tipurile de scanare TCP\. Cu un ajutor la memorare, tipurile de scanare de porturi sunt de forma\fB\-s\fR\fB\fIC\fR\fR, unde\fIC\fReste caracterul principal al numelui scanarii, in general primul\. Singura exceptie o reprezinta scanarea sarita FTP (metoda depasita moral) (\fB\-b\fR)\. Implicit, Nmap executa o scanare SYN, cu toate ca o poate inlocui cu una Connect() daca utilizatorul nu are privilegii pentru a trimite pachete brute (acces root pe sisteme UNIX) sau daca tinte IPv6 au fost specificate\. Dintre scanarile mentionate in aceasta sectiune, utilizatorii neprivilegiati le pot executa doar pe cele de tipul connect() si ftp sarit\.
+.PP
+\fB\-sS\fR(Scanare TCP SYN)
+.RS 4
+Scanarea SYN este implicita si cea mai populara metoda pentru motive bine intemeiate\. Poate fi executata rapid, scanand mii de porturi pe secunda intr\-o retea rapida neobstructionata de un firewall deranjant\. Scanarile SYN sunt relativ invizibile, din moment ce nu stabilesc niciodata o conexiune TCP\. Functioneaza impotriva oricarei implementari conforma cu standardul de stiva TCP in loc sa depinda de platforma asa cum o fac scanarile Fin/Null/Xmas, Maimon si Idle\. Ofera de asemenea o diferenta clara si precisa intre starileopen (deschisa),closed (inchisa), sifiltered (filtrata)\.
+.sp
+Aceasta tehnica este adesea denumita ca o scanare jumatate deschisa, deoarece nu deschideti o conexiune completa TCP\. Trimiteti un pachet SYN, ca si cum ati deschide o conexiune si asteptati un raspuns\. Un pachet SYN/ACK indica faptul ca portul este deschis, in timp ce un RST (reset) este indicatorul unui port inchis\. Daca nici un raspuns nu este primit dupa mai multe retransmiteri, portul este marcat ca fiind filtrat\. Portul este de asemena marcat filtrat daca un mesaj de eroare ICMP negasit (tipul 3, codurile 1,2,3,9,10 sau 13) este receptionat\.
+.RE
+.PP
+\fB\-sT\fR(Scanare TCP connect())
+.RS 4
+Scanarea TCP Connect() este implicita cand SYN nu reprezinta o optiune viabila\. Acesta este cazul in care utilizatorul nu beneficiaza de posibilitatea de trimitere a pachetelor brute sau scaneaza retele IPv6\. In locul scrierii pachetelor brute asa cum o fac majoritatea tipurilor de scanare, Nmap cere nivelelor inferioare ale sistemului de operare sa stabileasca o conexiune cu masina tinta si portul dorit realizand un apel de sistemconnect()\. Acesta este acelasi apel de sistem prin care aplicatiile de nivel inalt cum ar fi browserele, clientii P2P si in general aplicatiile cu functii de retea le folosesc pentru stabilirea conexiunii\. Este o parte a interfetei de programare cunoscuta ca Berkley Sockets API\. In loc sa citeasca pachete brute ca raspuns, Nmap foloseste API pentru a obtine informatii despre starea fiecarei conexiuni incercate\.
+.sp
+Cand scanarea SYN este disponibila, ea reprezinta in general alegerea mai buna\. Nmap are un control mai restrans asupra nivelului inalt al apeluluiconnect()cu pachete brute, facandu\-l mai putin eficient\. Apelul de sistem completeaza conexiunea pentru a deschide conexiunea in loc sa efectueze o jumatate de conexiune asa cum scanarea SYN o face\. Nu numai ca acest lucru dureaza mai mult si necesita mai multe pachete pentru a obtine aceeasi informatie, dar exista sanse mai mari ca masinile tinta sa logheze conexiunea\. Un IDS decent va prinde si el conexiunea, dar multe masinii nu au astfel de sisteme de alarma\. Multe servicii ale unui sistem uzual UNIX vor adauga o nota la syslog si cateodata si un mesaj criptic de eroare cand Nmap se conecteaza si apoi inchide conexiunea fara a trimite date\. Servicii patetice se pot bloca in acest caz, dar nu este un lucru comun\. Un administrator care vede o multime de tentative de conexiune in loguri venind de la o singura sursa trebuie sa stie ca a fost scanat prin metoda connect\.
+.RE
+.PP
+\fB\-sU\fR(Scanare UDP)
+.RS 4
+In tim ce multe servicii in Internet ruleaza prin protocolul TCP, serviciile\fIUDP\fR\&[6]sunt si ele raspandite\. DNS, SNMP si DHCP (porturile inregistrate 53, 161/162 si 67/68) sunt trei dintre cele mai comune\. Deoarece scanarea UDP este in general lenta si mai dificila decat TCP, unii auditori de securitate ignora aceste porturi\. Aceasta este o greseala, deoarece serviciile UDP exploatabile sunt destul de cunoscute si atacatorii cu siguranta nu vor ignora un intreg protocol\. Din fericire, Nmap poate ajuta la inventarierea porturilor UDP\.
+.sp
+Scanarea UDP este acivata cu optiunea\fB\-sU\fR\. Poate fi combinata cu o scanare TCP cum ar fi scanrea SYN (\fB\-sS\fR) pentru a verifica ambele protocoale in timpul aceleiasi scanari\.
+.sp
+Scanarea UDP functioneaza prin trimiterea de headere UDP goale (fara date) la fiecare port specificat al masinii tinta\. Daca un mesaj ICMP de port inaccesibil (tipul 3, codul 3) este returnat, portul esteclosed (inchis)\. Alte mesaje ICMP de port care nu poate fi atins (tipul 3, codurile 1, 2, 9, 10 sau 13) marcheaza portul cafiltered (filtrat)\. Ocazional, un serviciu poate raspunde cu un pachet UDP, demonstrand faptul ca esteopen (deschis)\. Daca nici un raspuns nu este primit dupa mai multe retransmisii atunci portul este catalogat caopen|filtered (deschis|filtrat)\. Asta inseamna ca portul poate fi deschis sau poate un filtru de pachete blocheaza comunicatia\. Scanarile de versiune (\fB\-sV\fR) pot fi folosite pentru a ne ajuta sa diferentiem porturile cu adevarat deschise de cele filtrate\.
+.sp
+O mare incercare in scanarea UDP o reprezinta realizarea acesteia rapid\. Porturile deschise si filtrate rareori trimit raspuns, lasand Nmapul sa astepte si apoi sa retrimita pachetul pentru situatia in care proba sau raspunsul s\-au pierdut\. Porturile inchise reprezinta adesea o problema si mai mare\. In mod uzual trimit inapoi un mesaj de eroare ICMP inaccesibil\. Dar spre deosebire de de pachetele RST trimise de porturile TCP inchise ca raspuns la scanarile SYN sau connect, multe hosturi limiteaza rata de mesaje ICMP port inaccesibil\. Linux si Solaris sunt foarte stricte in aceasta privinta\. De exemplu, kernelul Linux 2\.4\.20 limiteaza aceste mesaje la unul pe secunda (din\fInet/ipv4/icmp\.c\fR)\.
+.sp
+Nmap detecteaza rata de limitare si incetineste scanarea in conformitate cu aceasta pentru a preveni inundarea retelei cu pachete inutile pe care masina tinta le va ignora\. Din pacate, o limitare de genul Linuxului de un pachet la o secunda face ca o scanare de 65\.536 de porturi sa dureze mai mult de 18 ore\. Ideile de accelerare a scanarii UDP includ scanarea in paralel a mai multor hosturi, scanarea doar a porturilor cunoscute, scanarea din spatele firewallului si folosind optiunea\fB\-\-host\-timeout\fRpentru a sari peste hosturile lente\.
+.RE
+.PP
+\fB\-sN\fR;\fB\-sF\fR;\fB\-sX\fR(Scanari TCP Null, FIN, si Xmas)
+.RS 4
+Aceste trei tipuri de scanare (chiar si mai multe posibile folosind optiunea\fB\-\-scanflags\fRdescrisa in aceasta sectiune) exploateaza o portita din\fITCP RFC\fR\&[7]pentru a diferentia intre porturiledeschise (open)si celeinchise (closed)\. Pagina 65 spune ca\(lqdaca starea portului [destinatie] este INCHIS \.\.\. un segment de intrare care nu contine un RST face ca un raspuns RST sa fie trimis inapoi\(rqIn urmatoarea pagina se discuta pachetele trimise catre porturile deschise fara bitii SYN, RST sau ACK setati, specificand ca:\(lqeste putin probabil sa ajungeti intr\-o asemenea situatie, dar daca o faceti, ignorati segmentul si reveniti\(rq
+.sp
+Cand scanam un sistem compatibil cu textul RFC, orice pachet care nu contine bitii SYN, RST sau ACK va genera un raspuns RST daca portul este inchis si nici un raspuns daca portul este deschis\. De vreme ce nici unul dintre acesti biti nu este inclus, orice combinatie a celorlalti trei (FIN, PSH si URG) este buna\. Nmap exploateaza aceasta problema cu trei tipuri de scanari:
+.PP
+Scanare Null (\fB\-sN\fR)
+.RS 4
+Nu seteaza nici un bit (flagul header tcp este 0)
+.RE
+.PP
+Scanare FIN (\fB\-sF\fR)
+.RS 4
+Seteaza doar bitul TCP FIN\.
+.RE
+.PP
+Scanare Xmas (\fB\-sX\fR)
+.RS 4
+Seteaza flagurile FIN, PSH si URG, luminand pachetul ca pe un pom de Craciun\.
+.RE
+.sp
+Aceste trei tipuri de scanare sunt identice in comportament exceptand flagurile TCP setate in pachetele de proba\. Daca un pachet RST este primit, portul este consideratclosed (inchis), in vreme ce nici un raspuns inseamna un portopen|filtered (deschis|filtrat)\. Portul este marcat cafiltered (filtrat)daca un mesaj de eroare ICMP de port indisponibil (tipul 3, codurile 1, 2, 3, 9, 10 sau 13) este receptionat\.
+.sp
+Principalul avantaj al acestor tipuri de scanare este acela ca se pot strecura prin anumite firewalluri non\-statefull si routere cu filtrare de pachete\. Alt avantaj al acestor tipuri de scanare este ca sunt si mai discrete decat o scanare SYN\. Nu va bazati pe asta \(en multe IDSuri moderne pot fi configurate sa le detecteze\. Marea problema este ca nu toate sistemele urmeaza RFC 793 litera cu litera\. Un numar de sisteme trimit un raspuns RST la probe indiferent daca portul este deschis sau nu\. Acest lucru face ca porturile sa fie marcate ca fiindinchise (closed)\. Majoritatea sistemelor care fac acest lucru sunt Microsoft Windows, multe dispozitive Cisco, BSDI si IBM OS/400\. Acest tip de scanare functioneaza impotriva celor mai multe sisteme bazate pe UNIX\. Alta problema este ca aceste tipuri de scanari nu pot face diferenta intre porturiledeschise (open)de celefiltrate (filtered), lasand un raspuns de tipuldeschis|filtrat (open|filtered)\.
+.RE
+.PP
+\fB\-sA\fR(Scanare TCP ACK)
+.RS 4
+Aceasta scanare e diferita de celelalte discutate pana acum in sensul in care nu poate determina niciodata un portdeschis (open)(sau chiardeschis|filtrat (open|filtered))\. Este folosita pentru a mapa regulile firewallului, determinand daca acestea sunt statefull sau nu si ce porturi sunt filtrate\.
+.sp
+Packetul de proba la scanrea ACK are doar bitul ACK setat (doar daca nu se specifica altceva cu\fB\-\-scanflags\fR)\. Cand scanam sisteme nefiltrate porturile,deschise (open)siinchise (closed)vor returna un pachet RST\. Nmap le eticheteaza canefiltrate (unfiltered), ceea ce inseamna ca sunt disponibile pentru pachetul ACK dar nu se poate determina daca suntdeschise (open)sauinchise (closed)\. Porturile care nu raspuns, sau trimit inapoi anumite mesaje de eroare ICMP (tipul 3, codurile 1, 2, 3, 9, 10 sau 13) sunt etichetate cafiltrate (filtered)\.
+.RE
+.PP
+\fB\-sW\fR(Scanare TCP Window)
+.RS 4
+Scanarea Window (fereastra) este asemanatoare cu scanarea ACK, cu exceptia ca exploateaza un detaliu de implementare a anumitor sisteme pentru a diferentia porturile deschise de cele inchise, in loc sa aisezenefiltrat (unfiltered)cand un RST este returnat\. Realizeaza acest lucru prin examinarea campului TCP Window din pachetul RST returnat\. Pe unele sisteme, porturile deschise folosesc o valoare pozitiva in timp ce porturile inchise au valoarea 0\. Astfel ca in loc sa afiseze o lista de porturinefiltrate (unfiltered)cand primeste un RST, scanrea TCP Window marcheaza porturile cadeschise (open)sauinchise (closed)daca valoarea TCP Window este pozitiva sau 0, dupa caz\.
+.sp
+Scanarea se bazeaza pe detalii de implementare a unei minoritati de sisteme din Internet, deci nu va bazati intotdeauna pe ea\. Sistemele care nu suporta aceasta implementare returneaza de obicei toate porturileinchise (closed)\. Desigur, este posibil ca respectiva masina sa nu aiba porturi deschise\. Daca majoritatea porturilor suntinchise (closed)dar cateva numere comune cum ar fi (22, 25, 53) suntfiltrate (filtered), sistemul este unul compatibil cu scanarea\. Ocazional, sistemul va raporta un comportament inversat\. Daca scanarea returneaza 1000 de porturi deschise si 3 inchise sau filtrate, atunci acele trei pot fi adevaratele porturi deschise\.
+.RE
+.PP
+\fB\-sM\fR(Scanarea TCP Maimon)
+.RS 4
+Scanarea TCP Maimon este denumita astfel dupa descoperitorul ei, Uriel Maimon\. El descrie aceasta tehnica in Magazinul Phrak editia 49 (noiembrie 1996)\. Nmap, care include aceasta tehnica, a fost lansat doua editii mai tarziu\. Tehnica este similara cu scanarile Null, FIN si Xmas cu exceptia ca proba este FIN/ACK\. In conformitate cu RFC 793, un pachet RST trebuie generat ca raspuns la o astfel de proba indiferent daca portul este inchis sau deschis\. Oricum, Uriel a remarcat faptul ca multe sisteme derivate din BSD ignora pachetul daca portul este deschis\.
+.RE
+.PP
+\fB\-\-scanflags\fR(Scanare TCP personalizata)
+.RS 4
+Utilizatorii avansati de Nmap nu trebuie sa se limiteze la tipurile de scanare generale oferite Optiunea\fB\-\-scanflags\fRva permite sa creati propriile tipuri de scanare prin specificarea flagurilor TCP\. Lasati spiritul creativ sa lucreze, penetrand IDSurile ale caror producatori se multumesc sa adauge reguli specifice doar pentru tipurile clasice de scanare\.
+.sp
+Argumentul pentru\fB\-\-scanflags\fRpoate fi o valoare numerica cum ar fi 9 (PSH si FIN), dar folosirea numelor simbolice este mult mai comoda\. Puneti alaturi orice combinatie dintreURG,ACK,PSH,RST,SYN, andFIN\. De exemplu,\fB\-\-scanflagsURGACKPSHRSTSYNFIN\fRsetaza toti bitii, desi nu este foarte folositor pentru scanare\. Ordinea in care se fac specificarile este irelevanta\.
+.sp
+In plus fata de specificarea flagurilor, puteti specifica si tipul de scanare TCP (cum ar fi\fB\-sA\fRsau\fB\-sF\fR)\. Aceasta spune Nmapului cum sa interpreteze raspunsurile\. De exemplu, o scanare SYN considera ca lipsa unui raspuns indica un portfiltrat (filtered), in timp ce o scanare FIN trateaza acelasi raspuns cadeschis|filtrat (open|filtered)\. Nmap se va comporta in acelasi fel in care o face pentru scanarile de baza, cu exceptia faptului ca va folosi flagurile TCP specificate\. Daca nu specificati o scanare de baza, SYN va fi utilizata\.
+.RE
+.PP
+\fB\-sI <host zombie [:port_de_proba]>\fR(Scanare Idle)
+.RS 4
+Aceasta metoda avansata de scanare permite o scanare TCP complet oarba a tintei (insemnand ca nici un pachet nu este trimis tintei de la adresa IP reala)\. In loc, un canal derivat de atac exploateaza o secventa de fragmentare IPID predictibila a hostului zombie pentru a culege informatii despre porturile deschise pe masina tinta\. Sistemele IDS vor indica scanarea ca venind de la hostul zombie specificat (care trebuie sa fie functional si sa indeplineasca anumite criterii)\. Acest tip fascinant de scanare este prea complex pentru a fi descris in acest ghid de referinta, astfel ca am scris un document informativ cu detalii complete disponibil la\fI\%http://nmap.org/book/idlescan.html\fR\.
+.sp
+In afara faptului ca este extrem de discreta (datorita naturii oarbe), acest tip de scanare permite maparea relatiilor de incredere bazate pe IP intre masini\. Lista de porturi arata porturile deschise\fIdin perspectiva hostului zombie\.\fRAsa ca puteti incerca scanarea tintei folosind diferiti zombie despre care credeti ca ar putea avea relatii de incredere cu tinta (prin router/filtru de pachete)\.
+.sp
+Puteti adauga doua puncte (\(lq:\(rq) urmate de numarul portului de pe calculatorul zombie daca vreti sa probati un port particular al zombieului pentru modificari IPID\. Altfel Nmap va folosi portul utilizat implicit pentru pinguri tcp (80)\.
+.RE
+.PP
+\fB\-sO\fR(Scanarea protocolului IP)
+.RS 4
+Scanarea protocolului IP permite determinarea protocoalelor (TCP, ICMP, IGMP, etc\.) suportate de masina tinta\. Aceasta nu reprezinta din punct de vedere tehnic o scanare de porturi, din moment ce trece prin numarul protocoalelor IP in loc de numarul porturilor TCP sau UDP\. Totusi foloseste optiunea\fB\-p\fRpentru selectarea numerelor de protocol, raporteaza rezultatele in formatul de tabel specific scanriif de porturi, si chiar foloseste acelasi motor de scanare ca la scanarea de porturi\. Este strans legata asadar de scanarea de porturi asa ca apartine acestei categorii\.
+.sp
+Pe langa faptul ca este folositoare in sine, scanarea protocoalelor demonstreaza puterea softwareului open source\. In vreme ce ideea fundamentala este destul de simpla, nu m\-am gandit sa adaug sau sa primesc solicitari pentru o astfel de functionalitate\. Apoi in vara lui 2000, Gerhard Rieger a intuit aceasta necesitate, a scris un patch excelent implementand\-o si a trimis\-o la lista de discutii nmap\-hackers\. Am incorporat patchul in distributia Nmap si am lansat o noua versiune in ziua urmatoare\. Putine softwareuri comerciale au utilizatori suficient de entuziasti sa realizeze si sa contribuie cu propriile imbunatatiri\.
+.sp
+Scanarea protocoalelor functioneaza intr\-un mod similar cu scanarea UDP\. In locul iterarii numerelor de porturi ale unui pachet UDP, se trimite un pachet IP si se itereaza cei 8 biti ai ai campului destinat protocolului din headerul pachetului IP\. Headerele sunt de obicei goale, necontinand date si nici macar headerul potrivit pentru protocolul pretins\. Cele trei exceptii sunt TCP, UDP si ICMP\. Un header potrivit pentru acestea este inclus din moment ce unele sisteme nu le vor trimite altfel si pentru ca Nmap are deja functiile sa le creeze\. In loc sa primeasca mesaje ICMP de port indisponibil, scanarea de protocoale cauta aceste mesaje de\fIprotocol\fRICMP port indiponibil\. Daca Nmap primeste orice raspuns de la tinta, Nmap marcheaza protocolul cadeschis (open)\. Un mesaj ICMP de protocol indisponibil (tip 2, cod 3) face ca protocolul sa fie marcatinchis (closed)\. Alte erori ICMP de indisponibilitate (tipul 3, codurile 1, 3, 9, 10 sau 13) duc la marcarea protocolului cafiltrat (filtered)(cu toate ca ele dovedesc ca ICMP estedeschis (open)in acelasi timp)\. Daca nici un mesaj nu este primit dupa retransmisie, protocolul este marcat cadeschis|filtrat (open|filtered)
+.RE
+.PP
+\fB\-b <host ftp de intermediere>\fR(Scanare FTP sarita)
+.RS 4
+Un aspect interesant al protocolului FTP (\fIRFC 959\fR\&[8]) este suportul pentru asa numitele conexiuni proxy ftp\. Acesta permite utilizatorului conectarea la un server FTP si apoi solicitarea ca anumite fisiere sa fie trimise pe un al alt server\. O astfel de functionalitate poate fi folosita pentru abuzuri asa ca multe servere au incetat sa o mai suporte\. Unul dintre aceste abuzuri face ca serverul FTP sa scaneze alte hosturi\. Cereti serverului sa trimita un fisier la fiecare port al masinii tinta\. Mesajul de eroare va descrie daca portul este inchis sau deschis\. Este o buna modalitate de a sari un firewall deoarece FTPurile sunt adesea plasate in zone cu acces la reteaua interna\. Nmap suporta scanarea ftp sarita prin optiunea\fB\-b\fR\. Preia un argument de forma\fInumeutilizator\fR:\fIparola\fR@\fIserver\fR:\fIport\fR\.\fIServer\fReste numele sau adresa IP a serverului FTP vulnerabil\. La fel ca la URLul normal puteti omite\fInumeutilizator\fR:\fIparola\fR, caz in care sunt folosite valorile implicite (numeutilizator:anonymousparola:\-wwwuser@)\. Numarul portului (si caracterul doua puncte \(lq:\(rq care il precede) pot fi omise de asemenea, caz in care portul implicit FTP (21) al\fIserverului\fReste utilizat\.
+.sp
+Aceasta vulnerabilitate era raspandita in 1997 cand Nmap a fost lansat, dar in mare parte a fost rezolvata\. Servere vulnerabile exista inca, deci merita sa le cautati cand orice alta optiune a picat\. Daca trecerea de un firewall reprezinta tinta dumneavoastra, scanati reteaua dupa portul 21 (sau orice alt serviciu ftp pe care il detectati cu ajutorul optiunii de identificare a versiunii), apoi incercati un atac sarit prin respectivul server\. Nmap va va anunta daca serverul este vulnerabil sau nu\. Daca incercati doar sa va acoperiti urmele, nu aveti nevoie (de fapt nici nu trebuie) sa va limitati la hosturile din reteaua tinta\. Inainte sa scanati aleator prin Internet dupa servere FTP vulnerabile, luati in considerare faptul ca administratorii de sistem pot sa nu aprecieze faptul ca abuzati de serverele lor in acest mod\.
+.RE
+.SH "SPECIFICAREA PORTURILOR SI A ORDINII DE SCANARE"
+.PP
+In plus fata de toate metodele discutate anterior, Nmap ofera optiuni pentru specificarea porturilor ce urmeaza a fi scanate si daca scanarea se va realiza intr\-o ordine aleatoare sau secventiala\. Implicit, Nmap scanaeaza toate porturile pana la 1024 inclusiv, precum si porturile mai mari aflate in fisierul\fInmap\-services\fRpentru protocolul/protocoalele scanate\.
+.PP
+\fB\-p <domeniu de porturi>\fR(Se scaneaza doar porturile specificate aici)
+.RS 4
+Aceasta optiune specifica porturile pe care doriti sa le scanati, trecand peste valorile implicite\. Numere de porturi individuale reprezinta o optiune valida, precum si domenii separate prin cratima (de exemplu 1\-1023)\. Valorile de inceput si/sau sfarsit ale domeniului pot fi omise, Nmap inlocuindu\-le cu 1, respectiv 65535\. Specificand optiunea\fB\-p\-\fRse vor scana porturile de la 1 la 65535\. Scanarea portului 0 este permisa daca specificati acest lucru explicit\. Pentru scanarea protocolului IP (\fB\-sO\fR), aceasta optiune specifica numarul protocolului pe care doriti sa\-l scanati (0\-255)\.
+.sp
+Cand scanati atat porturi TCP cat si UDP, puteti specifica un protocol particular precedand numarul portului cuT:sauU:\. Identificatorul are domeniu de actiune pana la aparitia altui identificator\. De exemplu, argumentul\fB\-pU:53,111,137,T:21\-25,80,139,8080\fRva scana porturile UDP 53, 111 si 137 precum si porturile TCP listate\. De notat ca pentru scanarea simultana de porturi UDP si TCP, trebuie sa specificati\fB\-sU\fRsi cel putin un tip de scanare TCP (cum ar fi\fB\-sS\fR,\fB\-sF\fR, sau\fB\-sT\fR)\. Daca nici un calificator nu a fost furnizat, numerele de porturi sunt adaugate fiecarui protocol in parte\.
+.RE
+.PP
+\fB\-F\fR(Scanare rapida (numar limitat de porturi)
+.RS 4
+Specifica faptul ca doriti sa scanati doar porturile listate in\fInmap\-services\fR, fisier care vine cu nmap (sau fisierul de protocoale pentru\fB\-sO\fR)\. Este mult mai rapida decat scanarea tuturor celor 65535 porturi de pe un host\. Deoarece lista contine atat de multe porturi TCP (mai mult de 1200), diferenta de viteza fata de o scanare implicita TCP (aproximativ 1650 de porturi) este dramatica\. Diferenta poate fi enorma daca specificati propriul fisier minimizat in functie de nevoi\fInmap\-services\fRutilizand optiunea\fB\-\-datadir\fR\.
+.RE
+.PP
+\fB\-r\fR(Nu se scaneaza porturile in ordine aleatoare)
+.RS 4
+Implicit, Nmap scaneaaz porturile intr\-o ordine aleatoare (cu exceptia faptului ca anumite porturi uzuale sunt mutate la inceputul scanarii din motive de eficienta)\. Aceasta ordine aleatoare este in mod normal de dorit, dar puteti specifica\fB\-r\fRpentru scanarea secventiala\.
+.RE
+.SH "DETECTIA SERVICIILOR SI A VERSIUNILOR"
+.PP
+Rulati nmap pe o masina si el ar putea sa va spuna ca porturile 25/tcp, 80/tcp si 53/udp sunt deschise\. Folosind baza de date\fInmap\-services\fRde aproximativ 2\.200 servicii cunoscute, Nmap va raporta ca respectivele porturi corespund unui server de mail (SMTP), unui server web (HTTP) si respectiv unui server DNS (53)\. Aceasta recunoastere este de obicei corecta \(en majoritatea serviciilor care asculta la portul TCP 25 sunt servere de mail\. Totusi, nu trebuie sa va bazati pe asta! Oamenii pot si chiar ruleaza servicii pe porturi ciudate\.
+.PP
+Chiar daca Nmap realizeaza recunoasterea corect, si ipoteticul server de mai sus ruleaza SMTP, HTTP si DNS, tot nu este suficienta informatie\. Cand se realizeaza o evaluare a vulnerabilitatilor (sau chiar o simpla inventariere a retelei) a companiilor sau clientilor dumneavoastra, vreti sa stiti ce server de mail, ce server DNS si in ce versiuni ruleaza acestea\. Avand un numar corect de versiune ne ajuta foarte mult sa determinam la ce exploituri este serverul vulnerabil\. Detectia versiunilor ne ajuta sa obtinem aceste informatii\.
+.PP
+Dupa ce porturile TCP si/sau UDP sunt descoperite folosind una dintre metodele de scanare, detectia versiunii interogheaza acele porturi pentru a determina mai multe despre ce se ruleaza la ele de fapt\. Baza de date\fInmap\-service\-probes\fRcontine probe pentru interogarea diferitelor servicii si compara expresiile pentru a recunoaste si procesa raspunsurile\. Nmap incearca sa determine protocolul serviciului (ex: ftp, ssh, telnet, http), numele aplicatiei (ex: ISC Bind, Apache httpd, Solaris telnetd), numarul versiunii, numele hostului, tipul masinii (ex: printer, router), familia de sisteme de operare (ex: Windows, Linux) si cateodata si alte informatii diverse cum ar fi daca exista un server X deschis la conexiuni\. Daca Nmap a fost compilat cu suport OpenSSL, se va conecta la servere SSL pentru a deduce serviciile care asculta in spatele acelui nivel de criptare\. Cand servicii RPC sunt descoperite, evaluatorul RPC din Nmap (\fB\-sR\fR) este automat folosit pentru a determina programul RPC si numarul versiunii\. Unele porturi UDP sunt lasate in stareadeschis|filtrat (open|filtered)dupa o scanare UDP care nu a putut determina daca porturile sunt deschise sau filtrate\. Detectia versiunii va incerca sa smulga un raspuns de la aceste porturi (asa cum o face cu porturile deschise), si sa sa le schimbe starea in deschis daca reuseste\. Porturile TCPdeschis|filtrat (open|filtered)sunt tratate in aceeasi maniera\. Notati ca optiunea\fB\-A\fRactiveaza detectia versiunii printre altele\. Un document care explica aceste lucruri, utilizarea lor si rafinarea detectiei versiunii este disponibila la\fI\%http://www.insecure.org/nmap/vscan/\fR\.
+.PP
+Cand Nmap primeste raspunsuri de la un serviciu dar nu gaseste ceva corespunzator in baza de date, afiseaza o amprenta si un URL pentru a o putea trimite daca stiti cu exactitate ce ruleaza la respectivul port\. Va rog sa va rupeti cateva minute pentru a face acest lucru, astfel incat de descoperirea dumneavoastra sa poata beneficia toata lumea\. Datorita amprentelor trimise de utilizatori, Nmap are aproximativ 3\.000 de modele pentru 350 de protocoale cum ar fi smtp, ftp, http, etc\.
+.PP
+Detectia versiunii este activata si controlata de urmatoarele optiuni:
+.PP
+\fB\-sV\fR(Detectia versiunii)
+.RS 4
+Activeaza detectia versiunii, dupa cum s\-a discutat anterior\. Alternativ, puteti folosi\fB\-A\fRpentru activarea detectiei versiunii si a sistemului de operare simultan\.
+.RE
+.PP
+\fB\-\-allports\fR(Nu se exclude nici un port de la detectia versiunii)
+.RS 4
+Implicit, detectia versiunii din Nmap sare peste portul TCP 9100, deoarece unele imprimante imprima orice data trimisa la acel port, ducand la o multime de pagini pline de cererei HTTP, sesiuni SSL, etc\. Acest comportament poate fi schimbat prin modificarea sau stergerea directiveiExcludedin\fInmap\-service\-probes\fR, sau prin specificarea\fB\-\-allports\fRpentru scanarea tuturor porturilor in ciuda directiveiExclude\.
+.RE
+.PP
+\fB\-\-version\-intensity <intensitate>\fR(Seteaza intensitatea detectiei versiunii)
+.RS 4
+Cand realizam o detectie a versiunii (\fB\-sV\fR), nmap trimite o serie de probe, fiecare cu o valoare atasata, intre 1 si 9, care reprezinta raritatea\. Probele cu numere mici sunt eficiente impotriva unei arii largi a serviciilor comune, in timp ce acelea cu numere mari sunt mai rar folosite\. Nivelul de intensitate specifica ce probe trebuie aplicate\. Cu cat mai mare este numarul, cu atat mai precisa este detectarea versiunii\. Oricum, scanarea cu intensitate mare dureaza mai mult\. Intensitatea trebuie sa fie intre 0 si 9\. Implicit este 7\. Cand o proba este gasita ca o legatura intre\fInmap\-service\-probes\fRsi numarul portului, atunci proba este incercata indiferent de nivelul de intensitate\. Acest lucru asigura faptul ca probele DNS vor fi incercate pentru fiecare port 53 gasit deschis, probele SSL pentru portl 443, etc\.
+.RE
+.PP
+\fB\-\-version\-light\fR(Activeaza modul delicat)
+.RS 4
+Este o notare convenabila pentru\fB\-\-version\-intensity 2\fR\. Acest mod delicat face scanarea versiunii mult mai rapida, dar si mai putin precisa in identificarea serviciilor\.
+.RE
+.PP
+\fB\-\-version\-all\fR(Incearca toate probele)
+.RS 4
+Un sinonim pentru\fB\-\-version\-intensity 9\fR, asigurandu\-se ca toate probele vor fi incercate impotriva fiecarui port\.
+.RE
+.PP
+\fB\-\-version\-trace\fR(Urmareste activitatea scanarii vesiunii)
+.RS 4
+Acest lucru face ca Nmap sa afiseze informatii detaliate despre ce face detectarea versiunii\. Este un subset al informatiilor obtinute cu\fB\-\-packet\-trace\fR\.
+.RE
+.PP
+\fB\-sR\fR(Scanare RPC)
+.RS 4
+Aceasta metoda functioneaza in combinatie cu multimea de metode de scanare de porturi a Nmapului\. Ia toate porturile TCP/UDP deschise si le inunda cu pachete de comanda SunRPC nule in incercarea de a determina daca sunt porturi RPC si, daca e asa, ce program si ce versiune servesc\. Puteti obtine aceleasi informatii cu\fBrpcinfo \-p\fRchiar daca portmapperul tintei se afla in spatele unui firewall (sau este protejat de TCP wrapper)\. Momelile nu functioneaza cu scanarea RPC\. Este activat automat ca parte a scanarii versiunii (\fB\-sV\fR) daca solicitati asa ceva\. Deoarece detectia versiunii include si rezultatele acestei scanari fiind mult mai larga in acoperire,\fB\-sR\fReste rareori necesara\.
+.RE
+.SH "DETECTIA SISTEMULUI DE OPERARE"
+.PP
+Una dintre cele mai cunoscute facilitati ale Nmap o reprezinta detectarea de la distanta a sistemului de operare folosind amprentele stivei TCP/IP\. Nmap trimite o serie de pachete TCP si UDP la calculatorul tinta si examineaza practic bit cu bit raspunsul\. Dupa ce ruleaza o multime de teste ce includ crearea de modele TCP ISN, suportul si ordonarea optiunilor TCP, crearea de modele IPID si verificarea dimensiunii intiale a cadrului, Nmap compare rezultatul cu baza de date\fInmap\-os\-fingerprints\fRce contine mai mult de 1500 de amprente de sisteme de operare, si afiseaza detaliile acestuia daca este gasita o similitudine\. Fiecare amprenta include o descriere textuala a sistemului de operare si o clasificare ce furnizeaza numele producatorului (ex: Sun), sistemul de operare (ex: Solaris), versiunea (ex: 10) si tipul masinii (scop general, router, switch, consola de jocuri, etc\.)
+.PP
+Daca Nmap este in imposibilitatea de a ghici sistemul de operare al unei masini iar conditiile sunt favorabile (ex: cel putin un port deschis si unul inchis au fost gasite), Nmap va furniza un URL pe care il puteti folosi pentru a trimite, daca stiti cu siguranta, ce sistem de operare ruleaza\. Prin acest lucru contribuiti la baza de sisteme cunoscute de Nmap, facand identificarea sistemului de operare mai precisa si pentru ceilalti\.
+.PP
+Detectia sistemului de operare activeaza alte cateva teste care folosesc oricum informatia obtinuta in acest proces\. Unul dintre acestea este masurarea timpului de activitate (uptime), care foloseste optiunea de amprenta de timp din pachetele TCP (RFC 1323) si ghiceste cand a fost ultima oara rebutata masina\. Acest lucru este raportat doar pentru masinile care furnizeaza aceasta informatie\. Alt test este cel de clasificare al predictibilitatii secventei TCP\. Acesta masoara cu aproximatie cat de greu este sa stabilesti o conexiune falsificata TCP cu tinta\. Este folositoare pentru exploatarea relatiilor de incredere bazate pe IP (rlogin, filtre firewall, etc\.) sau pentru ascunderea sursei unui atac\. Acest tip de ascundere a identitatii este rar intalnita in zilele noastre, dar multe masini sunt inca vulnerabile\. Numarul ce reprezinta dificultatea este bazat pe modelarea statistica si poate fluctua\. In general este mai bine daca se foloseste clasificarea textuala, cum ar fi\(lqworthy challenge (merita incercat)\(rqsau\(lqtrivial joke (gluma banala)\(rq\. Acestea sunt raportate doar in modul afisare detaliata (\fB\-v\fR)\. Cand modul afisare detaliata este activat alaturi de\fB\-O\fR, generarea secventei IPID este si ea raportata\. Cele mai multe masini sunt in clasa\(lqincrementala\(rq, ceea ce inseamna ca incrementeaza campul ID din headerul fiecarui pachet pe care il trimit\. Acest lucru le face vulnerabile la cateva tehnici avansate de culegere a informatiilor si la atacuri simulate\.
+.PP
+Un articol ce documenteaza aceste aspecte, precum si personalizarea detectiei versiunii este disponibil in mai multe limbi la\fI\%http://www.insecure.org/nmap/osdetect/\fR\.
+.PP
+Detectarea sistemului de operare este activata si controlata prin urmatoarele optiuni:
+.PP
+\fB\-O\fR(Activeaza detectia sistemului de operare)
+.RS 4
+Activeaza detectia sistemului de operare, dupa cum s\-a discutat inainte\. Alternativ, se poate folosi\fB\-A\fRpentru activarea atat a detectiei sistemului de operare cat si a detectiei versiunii\.
+.RE
+.PP
+\fB\-\-osscan\-limit\fR(Limiteaza detectarea sistemului de operare la tintele promitatoare)
+.RS 4
+Detectia sistemului de operare este mult mai eficienta daca sunt gasite cel putin un port TCP inchis si unul deschis\. Setati aceasta optiune si Nmap nici nu va mai incerca detectarea sistemului de operare pentru hosturile care nu indeplinesc aceste criterii\. Acest lucru poate salva timp substantial, in special in scanarile mai multor hosturi cu optiunea\fB\-P0\fR\. Optiunea are valoare atunci cand detectia sistemului de operare a fost solicitata prin\fB\-O\fRsau\fB\-A\fR\.
+.RE
+.PP
+\fB\-\-osscan\-guess\fR;\fB\-\-fuzzy\fR(Ghiceste sistemul de operare pe baza rezultatelor)
+.RS 4
+Cand Nmap nu poate determina cu exactitate un sistem de operare, poate oferi un raspuns bazat pe asemanare\. Asemanarea trebuie sa fie foarte apropiata in mod implicit\. Oricare dintre aceste optiuni fac Nmapul sa adopte o atitudine mai agresiva in gasirea similitudinilor\.
+.RE
+.SH "OPTIUNI DE TIMP SI PERFORMANTA"
+.PP
+Una dintre prioritatile principale in dezvoltarea Nmapului a fost performanta\. O scanare implicita (\fBnmap\fR\fB\fInume_host\fR\fR) de pe un calculator din reteaua locala ia mai putin de o cincime de secunda\. Cu greu ai timp sa clipesti, dar timpul creste o data cu numarul hosturilor\. Mai mult, anumite optiuni cum ar fi scanarea UDP si detectia versiunii pot mari substantial timpul de scanare\. Acelasi lucru il pot face si anumite configuratii firewall, in special cele care limiteaza rata de raspuns\. Cu toate ca Nmap utilizeaza paralelismul si algoritmi avansati de accelerare a scanarilor, controlul final asupra a cum ruleaza Nmap revine utilizatorului\. Expertii compun cu atentie comenzile Nmap pentru a obtine numai informatia de care au nevoie incadrandu\-se si in perioada de timp\.
+.PP
+Tehnicile pentru imbunatatirea vitezei de scanare includ omiterea testelor ne\-critice si upgradeul la ultima versiune de Nmap (imbunatatiri de performanta se realizeaza frecvent)\. Optimizarea parametrilor de timp poate aduce de asemenea un spor substantial\. Aceste optuni sunt prezentate in cele ce urmeaza\.
+.PP
+\fB\-\-min\-hostgroup <milisecunde>\fR;\fB\-\-max\-hostgroup<milisecunde>\fR(Ajusteaza dimensiunea grupurilor pentru scanari paralele)
+.RS 4
+Nmap are capacitatea de a scana porturi sau versiuni pe mai multe hosturi in paralel\. Nmap realizeaza acest lucru prin divizarea spatiului de adrese IP tinta in grupuri si scanand fiecare grup pe rand\. In general, grupurile mari sunt mult mai eficiente\. Aspectul negativ este ca rezultatul scanarii pentru fiecare host nu poate fi furnizat pana ce nu e terminata scanarea pentru intregul grup\. Daca Nmap porneste scanarea unui grup de 50 de hosturi, utilizatorul nu va primi nici un raport (cu exceptia updateurilor oferite de modul vizualizare detaliata) pana ce primele nu s\-a terminat scanarea pentru aceste hosturi\.
+.sp
+Implicit, Nmap adopta o abordare de compromis in acest conflict\. Porneste cu un grup mic de cinci pentru a afisa rapid primele rezultate si apoi creste dimensiunea grupului pana la 1024\. Numarul exact depinde de optiunea data\. Din motive de eficienta, Nmap utilizeaza grupuri mai mari pentru scanarile UDP si pentru cateva din porturile TCP\.
+.sp
+Cand o dimensiune maxima este specificata cu\fB\-\-max\-hostgroup\fR, Nmap nu va depasi niciodata aceasta valoare\. Specificati o dimensiune minima cu\fB\-\-min\-hostgroup\fRsi Nmap va incerca sa mentina dimensiunile grupurilor peste acel nivel\. Nmap se poate vedea nevoit sa foloseasca grupuri mai mici daca nu mai sunt suficiente tinte ramase pentru a completa nivelul minim\. Amandoua pot fi folosite pentru a mentine dimensiunea grupului intre anumite limite, desi acest lucru este in putine cazuri unul de dorit\.
+.sp
+Principala utilizare a acestei optiuni este specificarea dimensiunii minime a unui grup astfel incat scanarea sa ruleze mai rapid\. O alegere uzuala este 256 pentru scanarea unei retele in bucati egale cu o clasa C\. Pentru o scanare cu multe porturi, depasirea acestui numar este improbabil sa ajute la ceva\. Pentru o scanare cu doar cateva porturi, grupurile de 2048 sau mai multe hosturi pot fi folositoare\.
+.RE
+.PP
+\fB\-\-min\-parallelism <milisecunde>\fR;\fB\-\-max\-parallelism<milisecunde>\fR(Seteaza paralelizarea probelor)
+.RS 4
+Aceste optiuni controleaza numarul de probe in asteptare pentru un host\. Sunt folosite la scanarea de porturi si la descoperirea hosturilor\. Implicit, Nmap calculeaza un numar ideal pentru paralelism, mereu variabil, in baza performantelor retelei\. Daca unele pachete sunt ignorate, Nmap incetineste ritmul si permite un numar mai mic de probe in asteptare\. Numarul ideal de probe creste incet pe masura ce reteaua este mai rapida\. Aceste optiuni stabilesc limitele minima si maxima ale acestei variabile\. Implicit, paralelismul ideal poate scadea la 1 daca reteaua raspunde greu si se ridica pana la cateva sute in conditii perfecte\.
+.sp
+Cea mai comuna utilizare o reprezinta setarea\fB\-\-min\-parallelism\fRla o valoare mai mare de unu pentru a mari viteza de scanare pentru hosturi si retele cu performante slabe\. Aceasta este o optiune riscanta, deoarece setarea ei la o valoare prea mare poate influenta calitatea rezultatului\. Setarea acesteia reduce de asemenea capacitatea Nmap de a controla paralelismul in mod dinamic pe baza conditiilor intalnite in retea\. O valoare de zece poate fi una rezonabila, cu toate ca eu ajustez aceasta valoare doar ca o ultima optiune\.
+.sp
+Optiunea\fB\-\-max\-parallelism\fReste setata cateodata pentru a preveni Nmap sa trimita mai mult de o proba o data catre un host\. Poate fi folositoare in combinatie cu\fB\-\-scan\-delay\fR(ce va fi discutata mai tarziu), cu toate ca cea de\-a doua face acest lucru destul de bine si singura\.
+.RE
+.PP
+\fB\-\-min_rtt_timeout <milisecunde>\fR,\fB\-\-max\-rtt\-timeout <milisecunde>\fR,\fB\-\-initial\-rtt\-timeout<milisecunde>\fR(Seteaza timpul de viata al probelor)
+.RS 4
+Nmap mentine un timp de viata pentru determinarea timpului maxim asteptat pentru ca o proba sa genereze un raspuns, inainte sa se renunte la ea sau sa fie retransmisa\. Este calculata pe baza timpilor de raspuns a probelor anterioare\. Daca latenta retelei are o valoare mare si variabila, atunci timpul de viata poate creste pana la cateva secunde\. Porneste de la o valoare mare si poate ramane asa un timp pana cand Nmap scaneaza hosturi care nu raspund\.
+.sp
+Aceasta optiune preia o valoare in milisecunde\. Specificand o valoare mica pentru\fB\-\-max\-rtt\-timeout\fRsi\fB\-\-initial\-rtt\-timeout\fR, in scanarile default se pot obtine reduceri de timp semnificative\. Acest lucru este in particular adevarat pentru hosturile care nu raspund la ping (\fB\-P0\fR) si a celor impotriva retelelor masiv filtrate\. nu deveniti insa prea agresiv\. Scanarea poate sfarsi intr\-un timp mare daca valorile sunt prea mici si probele expira repede, fiind necesara retransmiterea lor in timp ce probabil raspunsul este pe drum\.
+.sp
+Daca hosturile fac parte din reteaua interna, o valoare de 100 milisecunde este una suficient de agresiva pentru\fB\-\-max\-rtt\-timeout\fR\. Daca routarea intra in joc, executati un ping la un host din respectiva retea folosind utilitarul PING din sistemul de operare, sau cu un utilitar de construit pachete cum ar fi hping2 ce are mai multe sanse de a trece prin firewall\. Analizati timpul maxim dintr\-un grup de zece pachete\. Il puteti dubla pentru\fB\-\-initial\-rtt\-timeout\fRsi tripla pentru\fB\-\-max\-rtt\-timeout\fR\. In general, nu setati timpul maxim rtt sub 100 milisecunde\., indiferent de ce raporteaza pingurile\. Si nici nu depasiti 1000 milisecunde\.
+.sp
+\fB\-\-min_rtt_timeout\fReste rar folosita si nu este folositoare intr\-o retea pentru care valoarea implicita a Nmap este prea agresiva\. Din moment ce Nmap reduce timpul de viata al pachetelor pana la minim pentru o retea eficienta, nevoia acestei optiuni nu este uzuala si ar trebui raporta ca o problema in lista de discutii nmap\-dev\.
+.RE
+.PP
+\fB\-\-host\-timeout <milisecunde>\fR(Se renunta la tintele lente in raspuns)
+.RS 4
+Unele hosturi iau un timp prea\fIlung\fRde scanare\. Se poate datora unor performante proaste ale retelei hardware si software, limitarii a ratei de pachete sau firewallurilor restrictive\. Cele mai lente cateva hosturi pot manca majoritata timpului de scanare\. Cateodata este bine sa scapam de aceste pierderi si sa sarim aceste hosturi\. Acest lucru poate fi realizat prin specificarea\fB\-\-host\-timeout\fRcu un numar de milisecunde in care sunteti disponibili sa asteptati\. De obicei specific 1800000 pentru a ma asigura ca Nmap nu va pierde mai mult de o jumatate de ora pentru un singur host\. De notat ca Nmap poate scana si alte hosturi in acelasi timp, deci nu reprezinta o pierdere totala acest timp\. Un host care depaseste aceasta perioada este sarit\. Tabela de porturi, detectia sistemului de operare sau detectia versiunii nu sunt afisate pentru acel host\.
+.RE
+.PP
+\fB\-\-scan\-delay <milisecunde>\fR;\fB\-\-max_scan\-delay<milisecunde>\fR(Ajusteaza pauza dintre probe)
+.RS 4
+Aceasta optiune face ca Nmap sa astepte cel putin un numar dat de milisecunde intre probele trimise la un host\. Este folositoare in particular in cazul in care exista o rata de limitare\. Masinile Solaris (printre multe altele) vor raspunde scanarii UDP cu un singur mesaj ICMP pe secunda\. Orice alta proba trimisa de Nmap in acest interval va fi irosita\. O optiune\fB\-\-scan\-delay\fRcu valoarea 1000 va mentine Nmap la acea rata lenta\. Nmap incearca detectarea ratei de limitare si ajusteaza scanarea in functie de aceasta, dar nu face rau sa specificati explicit daca stiti deja ce rata functioneaza cel mai bine\.
+.sp
+Alta utilizare a\fB\-\-scan\-delay\fReste ascunderea scanarii in fata IDS/IPSurilor bazate pe un anumit prag de raspuns\.
+.RE
+.PP
+\fB\-T<Paranoid|Sneaky|Polite|Normal|Aggressive|Insane>\fR(Seteaza optiunile de timp)
+.RS 4
+Desi optiunile detaliate de control al timpilor discutate mai sus sunt puternice si eficiente, unii oameni le gasesc confuze\. Mai mult, alegerea valorilor corecte poate dura uneori mai mult decat scanarea in sine\. Asadar Nmap ofera o abordare mai simpla, cu sase modele de timp\. Le puteti specifica cu optiunea\fB\-T\fRsi numarul (0\-5) sau numele\. Numele modelelor sunt paranoid (paranoic \- 0), sneaky (siret \- 1), polite (politicos \-2), aggresive (agresiv \- 4) si insane (nebun \- 5)\. Primele doua sunt folosite pentru ascunderea de IDS\. Modul politicos incetineste ritmul scanarii pentru a utiliza mai putina latime de banda a masinii tinta\. Modul normal este implicit asa ca\fB\-T3\fRnu face nimic\. Modul agresiv accelereaza scanarea presupunand ca va aflati intr\-o retea rapida\. In fine, modul nebun presupune ca va aflati intr\-o retea extrem de rapida sau ca sunteti dispus sa sacrificati acuratetea rezultatelor in favoarea vitezei\.
+.sp
+Aceste modele permit utilizatorului sa specifice cat de agresiva sa fie scanarea, lasand totusi Nmapul sa aleaga valorile exacte\. Modelele realizeaza uneori mici reglaje pentru care inca nu exista optiuni de control\. De exemplu,\fB\-T4\fRinterzice scanarii dinamice sa depaseasca 10 milisecunde pentru porturile TCP si\fB\-T5\fRreduce aceasta valoare la 5 milisecunde\. Modelele pot fi folosite in combinatie cu controalele fine de timp, atat timp cat modelul este specificat mai intai\. Altfel valorile standard ale modelului pot suprascrie valorile specificate\. Se recomanda folosirea\fB\-T4\fRcand se scaneaza retele moderne rapide\. Pastrati aceasta optiune la inceputul liniei de comanda chiar si cand adaugati optiuni de control fin pentru a beneficia de micile ajustari oferite\.
+.sp
+Daca folositi o conexiune broadband sau ethernet, recomand folosirea intotdeauna a optiunii\fB\-T4\fR\. Unii oameni adora\fB\-T5\fRcu toate ca este prea agresiva pentru gustul meu\. Altii specifica\fB\-T2\fRdeoarece cred ca scanarea va bloca hosturile si se considere pe ei politicosi in general\. De obicei nu realizeaza cat de inceata este optiunea\fB\-TPolite\fR\. Scanarile lor pot lua de zece ori mai mult timp decat unele implicite\. Blocarile masinilor si probleme legate de banda sunt rare cu modelul implicit (\fB\-T3\fR) asa ca in mod normal este recomandat pentru scanere precaute\. Omiterea detectiei versiunii este mult mai eficienta decat jocul cu optiunile de timp\.
+.sp
+Desi\fB\-T0\fRsi\fB\-T1\fRpot fi folosite pentru pacalirea IDSurilor, ele pot lua un timp extrem de mare pentru a scana mii de masini sau porturi\. Pentru o astfel de scanare lunga, puteti prefera setarea exacta a optiunilor de timp decat sa va bazati pe cele inglobate in optiunile\fB\-T0\fRsi\fB\-T1\fR\.
+.sp
+Principalul efect al\fBT0\fReste serializarea scanarii astfel incat un singur port este scanat o data, si se asteapta cinci minute intre trimiterea probelor\.\fBT1\fRsi\fBT2\fRsunt similare dar asteapta doar 15 secunde, respectiv 0,4 secunde intre probe\.\fBT3\fReste comportamentul implicit al Nmapului ce include si paralelizarea\.\fBT4\fRrealizeaza echivalentul\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fRsi seteaza intarzierea maxima pentru scanarea TCP la 10 milisecunde\.\fBT5\fRrealizeaza echivalentul la\fB\-\-max\-rtt\-timeout 300 \-\-min_rtt_timeout 50 \-\-initial\-rtt\-timeout 250 \-\-host\-timeout 900000\fRsi seteaza intarzierea maxima pentru scanarea TCP la 5 milisecunde\.
+.RE
+.SH "PACALIREA FIREWALL/IDSURILOR SI ASCUNDEREA IDENTITATII"
+.PP
+Multi pionieri ai internetului au prevazut o retea globala deschisa cu un spatiu universal de adrese IP permitand conexiuni virtuale intre oricare doua noduri\. Acest lucru permite hosturilor sa actioneze ca parteneri in comunicatie, sa serveasca si sa obtina informatii unul de la celalalt\. Oamenii pot accesa sistemele de acasa, sa schimbe temperatura in casa sau sa deschida usa pentru oaspetii grabiti\. Viziunea conectivitatii universale a fost inabusita de micsorarea spatiului de adrese si de problemele de securitate\. La inceputul anilor 90, organizatiile au inceput implementarea firewallurilor cu scopul precis de reducere a conectivitatii\. Retele uriase au fost separate de Internetul nefiltrat prin aplicatii proxy, traduceri de adrese de retea (NAT) si filtre de pachete\. Fluxul nerestrictionat de informatii a facut loc canalelor de comunicatie aprobate si supuse unor anumite reguli, precum si controlului datelor ce trece prin ele\.
+.PP
+Obstacolele din retea cum ar fi firewallurile pot face din maparea retelei o operatie extrem de dificila\. Nu va deveni mai usor din moment ce constrangerile aplicate retelei reprezinta adesea un scop al implementarii noilor echipamente in retea\. Nu e mai putin adevarat ca Nmap ofera multe optiuni pentru intelegerea acestor retele complexe si sa verifice daca filtrele functioneaza asa cum trebuie\. Chiar suporta mecanisme de depasire a sistemelor de aparare prost implementate\. Punetiva in pielea unui atacator si aplicati tehnici din aceasta sectiune in reteaua dumneavoastra\. Lansati un atac sarit FTP, o scanare Idle, o fragmentare a atacului sau incercati realizarea unui tunel printr\-un proxy de\-al dumneavoastra\.
+.PP
+In plus fata restrictiile retelelor, companiile au inceput sa monitorizeze traficul cu sisteme de detectie a intruziunilor (IDS)\. Toate IDSurile cunoscute sunt livrate cu reguli care sa detecteze scanarile Nmap deoarece acestea preced de obicei un atac\. Multe dintre acestea sau transformat in sisteme de\fIprevenire\fRa intruziunilor (IPS) care blocheaza in mod activ traficul presupus malitios\. Din pacate pentru administratorii de retea si vanzatorii IDSurilor, detectarea in mod corect a relelor intentii prin analizarea pachetelor este o problema dificila\. Atacatorii cu rabdare, indemanare si ajutor din partea anumitor optiuni Nmap pot in mod normal sa treaca de IDS nedetectati\. Intre timp, administratorii au de a face cu o multime de alerte false cand trafic inocent este gresit diagnosticat si se emite o atentionare sau este chiar blocat\.
+.PP
+Cateodata oamenii sugereaza ca Nmap nu ar trebui sa ofere functii de pacalire a regulilor firewallurilor sau de trecerea nedetectata de IDS\. Argumeenteaza prin faptul ca pot fi folosite de atacatori\. Problema in acest rationament este ca atacatorii tot vor gasi instrumente sau patchuri pentru Nmap pentru a realiza acest lucru\. Intre timp, administratorii pot descoperii ca munca lor este mult mai dificila\. Instalarea numai a serverelor FTP moderne, cu patchurile aplicate la zi este o metoda mult mai buna de protectie decat prevenirea distribuirii instrumentelor ce implementeaza atacurile sarite FTP\.
+.PP
+Nu exista nici o optiune magica in Nmap pentru detectarea si pacalirea firewallurilor si a sistemelor IDS\. Acest lucru ia indemanare si experienta\. O prezentare detaliata este dincolo de scopul acestui ghid de referinta, care listeaza doar optiunile relevante si descrie ce fac ele\.
+.PP
+\fB\-f\fR(fragmenteaza pachetele);\fB\-\-mtu\fR(foloseste MTU specificat \(en Unitatea Maxima de Transmitere)
+.RS 4
+Optiunea\fB\-f\fRface ca scanarea ceruta (incluzand scanarea ping) sa foloseasa fragmente mici de pachete IP\. Ideea este impartirea headerului TCP in mai multe pachete pentru a ingreuna misiunea filtrelor de pachete, sistemelor de detectare a intruziunilor si a altor elemente de detectare a activitatii\. Atentie cu aceasta optiune! Unele programe au probleme in manevrarea acestor pachete mici\. De exemplu Sniffit esua dupa primirea primului fragment\. Specificati aceasta optiune o data si Nmap va imparti pachetul in fragmente de opt bytes sau mai putin dupa headerul IP\. Astfel, un header TCP de 20 bytes va fi impartit in 3 pachete\. Doua de opt bytes si unul cu ultimii patru\. Desigur, fiecare fragment are propriul header TCP\. Specificati\fB\-f\fRinca o data pentru folosirea a 16 bytes pe fragment (reducand numarul de fragmente)\. Sau puteti specifica propriile dimensiuni cu optiunea\fB\-\-mtu\fR\. Nu specificati si\fB\-f\fRdaca folositi\fB\-\-mtu\fR\. Dimensiunea trebuie sa fie un multiplu de 8\. Pachetele fragmentate nu vor trece de filtrele de pachete si firewallurile care interogheaza toate fragmentele IP, cum ar fi optiunea CONFIG_IP_ALWAYS_DEFRAG din kernelul Linuxului, unele retele nu\-si pot permite pierderea de performanta cauzata de aceste configurari si le dezactiveaza\. Altele nu pot activa configurarile de acest gen deoarece fragmentele pot intra pe rute diferite in retea\. Unele sisteme defragmenteaza pachetele de iesire in kernel\. Linux cu modulul de urmarire a conexiunii din iptables este un exemplu\. Realizati o scanare si rulati in acelasi timp un sniffer de genul Ethereal pentru a va asigura ca pachetele sunt fragmentate\. Daca sistemul de operare va creaza probleme, incercati optiunea\fB\-\-send\-eth\fRde sarire a nivelului IP si de trimitere de cadre ethernet brute\.
+.RE
+.PP
+\fB\-D <momeala1 [,momeala2][,ME (EU)],\.\.\.>\fR(Scanare acoperita de momeli)
+.RS 4
+Face ca o scanare acoperita de momeli sa fie executata, ceea ce face ca tinta sa creada ca momelile specificate ca argument scaneaza si ele reteaua\. Astfel IDS poate raporta 5\-10 scanari de porturi de la adrese IP unice, dar nu va stii care adresa scaneaza cu adevarat si care sunt momeli inocente\. Cu toate ca aceasta tehnica poate fi contrata prin urmarirea caii prin routere, ignorarea raspunsului si alte mecanisme active, ea reprezinta o tehnica eficienta de ascundere a adresei IP\.
+.sp
+Separati fiecare momeala prin virgule si folositi optionalME(adica propria adresa IP) ca una dintre momeli pentru a reprezenta adevarata pozitie a adresei IP reale\. Daca punetiMEin a sasea pozitie sau mai tarziu, unele detectoare de scanari de porturi (cum ar fi Solar Design) pot sa nici nu afiseze adresa IP reala\. Daca nu folositiME, nmap il va pune intr\-o pozitie aleatoare\.
+.sp
+Retineti faptul ca tintele pe care le folositi ca momeli trebuie sa fie active sau altfel riscati sa inundati cu pachete SYN tinta\. In aceeasi ordine de idei, este usor de determina cine face scanarea daca o singura adresa IP este activa\. E de preferat sa utilizati adrese IP in loc de nume (astfel incat numele hostului dumneavoastra sa nu apara in logurile DNSului tinta)\.
+.sp
+Momelile sunt folosite atat in pingul initial (folosind ICMP, SYN, ACK sau orice altceva) si in timpul scanarii efective de porturi\. Momelile sunt de asemenea folosite la detectarea sistemului de operare (\fB\-O\fR)\. Momelile nu functioneaza cu detectia versiunii sau scanarea TCP connect()\.
+.sp
+Nu folositi prea multe momeli deoarece pot incetini scanarea si o pot face mai putin corecta\. De asemena, unii ISP vor filtra pachetele false, dar multi nu restrictioneaza pachetele IP de loc\.
+.RE
+.PP
+\fB\-S <Adresa_IP>\fR(Seteaza adresa IP sursa)
+.RS 4
+In anumite circumstante, Nmap se poate afla in imposibilitatea determinarii adresei sursa (Nmap va anunta daca acest lucru se intampla)\. In aceasta situatie, folositi\fB\-S\fRcu adresa IP a interfetei pe care doriti sa trimiteti pachetele\.
+.sp
+Alta posibila utilizare a acestei optiuni este sa faceti tinta sa creada ca este scanata de\fIaltcineva\fR\. Imaginativa o companie permananent scanata de un competitor! Optiunea\fB\-e\fRva fi in general necesara pentru astfel de utilizare si\fB\-P0\fReste de asemenea recomanda\.
+.RE
+.PP
+\fB\-e <interfata>\fR(Foloseste interfata specificata)
+.RS 4
+Spune Nmapului ce interfata sa foloseasca pentru trimiterea si primirea pachetelor\. Nmap ar trebui sa poata determina automat acest lucru, dar va va anunta daca nu poate\.
+.RE
+.PP
+\fB\-\-source\-port <numarul_portului>;\fR\fB\-g <numarul_portului>\fR(Seteaza portul sursa)
+.RS 4
+O greseala surprinzator de des intalnita o reprezinta configurarea relatiilor de incredere in functie de numaul portului sursa\. Este usor de inteles cum stau lucrurile\. Un administrator instaleaza un nou firewall si este apoi ingropat in plangeri din partea utilizatorilor nemultumiti ale caror aplicatii nu mai functioneaza\. In particular, DNSul poate fi blocat deoarece raspunsurile UDP DNS de la serverele externe nu mai pot intra in retea\. FTP este un alt exemplu\. In transferurile FTP active, serverul incearca sa stabileasca o conexiune inapoi la client pentru transferarea fisierului solicitat\.
+.sp
+Solutii securizate la aceste probleme exista, de obicei sub forma de proxiuri la nivelul aplicatie sau module firewall care analizeaza protocoalele\. Din pacate exista si solutii mai simple si mai nesigure\. Notand faptul ca raspunsurile DNS vin de la portul 53 si cele de la conexiunile FTP de la portul 20, multi administratori au cazut in capcana permiterii neconditionate a traficului de la aceste porturi\. Adesea ei presupun ca nici un atacator nu va observa si exploata astfel de gauri in firewall\. In alte cazuri, administratorii considera aceasta rezolvare ca una pe termen scurt pana cand vor implementa o solutie mai sigura\. Apoi ei uita sa mai faca upgradeul de securitate\.
+.sp
+Administratorii retelelor supraincarcate nu sunt singurii care cad in aceasta capcana\. Numeroase produse au fost livrate cu aceste reguli nesigure\. Chiar si Microsoft are partea ei de vina\. Filtrele IPsec livrate cu Windows 2000 si Windows XP contin o regula implicita care permite traficul oricarui pachet UDP cu portul sursa 53 (DNS) sau 67 (DHCP)\.
+.sp
+Nmap ofera optiunile\fB\-g\fRsi\fB\-\-source\-port\fR(care sunt echivalente) pentru exploatarea acestei slabiciuni\. Specificati un numar ca argument si Nmap va trimite pachete de la acel port oricand acest lucru este posibil\. Nmap trebuie sa foloseasca porturi diferite pentru anumite teste de detectare a sistemului de operare si cererile DNS ignora optiunea\fB\-\-source\-port\fRdeoarece Nmap se bazeaza pe librariile sistemului pentru a le manevra\. Multe scanari TCP, incluzand\-o pe cea SYN, suporta aceasta optiune, la fel ca si scanarea UDP\.
+.RE
+.PP
+\fB\-\-data\-length <numar>\fR(Adauga un numar aleator de date la pachetul trimis)
+.RS 4
+In mod normal Nmap trimite pachete minimaliste continand doar headerul\. Astfel pachetele TCP au in general 40 bytes si cererile de raspuns ICMP doar 28\. Aceasta optiune adauga un numarul dat ca argument de bytes, generati aleator, la majoritatea pachetelor trimise\. Pachetele pentru detectia sistemului de operare (\fB\-O\fR) nu sunt afectate, dar majoritatea pingurilor si scanarilor de porturi sunt\. Acest lucru incetineste viteza de scanare, dar pachetele pot fi mai putin suspicioase\.
+.RE
+.PP
+\fB\-\-ttl <valoare>\fR(Seteaza campul IP time\-to\-live \(en timp de viata)
+.RS 4
+Seteaza campul IP time\-to\-live \(en timp de viata \(en la valoarea specificata\.
+.RE
+.PP
+\fB\-\-randomize\-hosts\fR(Scaneaza hosturile in ordine aleatoare)
+.RS 4
+Spune Nmapului sa aranjeze aleator grupuri de 8096 hosturi inainte de scanare\. Aceasta optiune poate face scanarea mai putin vizibila pentru anumite sisteme de monitorizare a retelei, in special cand e combina cu un specificator mic de timp\. Daca vreti ca aranjarea aleatoare sa se realizeze pentru grupuri mai mari, cresteti valoarea PING_GROUP_SZ din\fInmap\.h\fRsi recompilati\. O solutie alternativa o reprezinta generarea listei de IPuri ce urmeaza a fi scanata cu o scanre de tip lista (\fB\-sL \-n \-oN\fR\fB\fInumefisier\fR\fR), si sa realizati aranjarea aleatoare a lor cu un script Perl, apoi sa furnizati intreaga lista Nmapului cu optiunea\fB\-iL\fR\.
+.RE
+.PP
+\fB\-\-spoof\-mac <adresa mac, prefix, numele vanzatorului >\fR(Falsifica adresa MAC)
+.RS 4
+Cere Nmapului sa foloseasca adresa MAC furnizata pentru toate cadrele ethernet pe care le trimite\. Aceata optiune implica\fB\-\-send\-eth\fRpentru a se asigura ca Nmap trimite pachetele la nivelul retea\. MACul specificat poate avea cateva formate\. Daca spcificati sirul\(lq0\(rq, Nmap alege un MAC complet aleator pentru sesiunea respectiva\. Daca sirul furnizat este un numar par de digiti hexa (cu perechile separate prin caracterul \(lq:\(rq), Nmap va folosi respectuva adresa MAC\. Daca mai putin de 12 digiti sunt furnizati, Nmap umple 6 bytes cu valori aleatoare\. Daca argumentul nu este nici 0, nici sir hexa, Nmap cauta in\fInmap\-mac\-prefixes\fRpentru a gasi un producator care sa contina sirul dat (cautare insenzitiva)\. Daca o asemanare este gasita, Nmap foloseste identificatorul unic al vanzatorului (3 bytes) si completeaza cu 3 bytes alesi aleator\. Argumentele valide ale optiunii\fB\-\-spoof\-mac\fRsuntApple,0,01:02:03:04:05:06,deadbeefcafe,0020F2, siCisco\.
+.RE
+.SH "AFISAREA REZULTATELOR"
+.PP
+Orice instrument de securitate este bun in masura rezultatelor generate\. Teste complexe si algoritmi nu au nici o valoare daca nu sunt prezentate intr\-un mod organizat si inteligibil\. Dat fiind numarul de moduri in care Nmap este folosit de oamenii sau programe, nu exista un format unic care sa ii multumeasca pe toti\. Asadar, Nmap ofera mai multe formate, incluzandu\-l pe cel interactiv pentru citirea uzuala si XML pentru interpretarea rezultatelor de catre software\.
+.PP
+In plus fata de oferirea diferitelor formate de afisare, Nmap furnizeaza si optiuni de control al cantitatii de informatii si al mesajelor de eroare\. Tipurile de afisare a rezultatelor sunt trimise la iesirea standard sau in fisiere, unde Nmap poate adauga sau rescrie\. Fisierele cu rezultate pot fi de asemenea folosite pentru reluarea scanarilor intrerupte\.
+.PP
+Nmap face rezultatele disponibile in cinci formate\. Cel implicit este numitafisare interactiva, si este trimis la iesirea standard (stdout)\. Exista si un mod deafisare normala, care este similar cu celinteractivcu exceptia faptului ca afiseaza mai putine informatii si avertizari in timpul rularii din moment ce se asteapta analizarea rezultatelor dupa ce scanarea s\-a incheiat\.
+.PP
+Formatul XML este unul dintre cele mai importante tipuri, deoarece poate fi convertit in HTML, prelucrat de programe cum ar fi interfata grafica a Nmap sau importat in baze de date\.
+.PP
+Celelalte doua tipuri sunt mai simpleformatul pentru comanda grepcare include majoritatea informatiilor despre un host pe o singura linie sif0rm4Tu1 sCRiPt KiDDi3pentru utilizatorii care se considera |<\-r4d\.
+.PP
+In vreme ce afisarea interactiva este formatul implicit si nu are asociat o optiune pentru linia de comanda, celelalte patru formate folosesc aceeasi sintaxa\. Ele iau un argument, care este numele fisierului in care se stocheaza rezultatele\. Formate multiple pot fi specificate, dar fiecare format poate fi specificat cel mult o data\. De exemplu, puteti dori salvarea in formatul normal pentru citirea ulterioara si in formatul XML pentru analiza software\. Puteti realiza acestea cu optiunea\fB\-oX scanarea_mea\.xml \-oN scanarea_mea\.nmap\fR\. Desi in acest capitol numele folosite sunt simple, precumscanarea_mea\.xmlpentru simplitate, nume mai descriptive sunt recomandate\. Numele alese sunt o chestie de preferinta, iar eu folosesc nume lungi care incorporeaza data scanarii si un cuvant doua pentru descriere si sunt plasate in directoare numite in functie de companiile scanate\.
+.PP
+Desi aceste optiuni salveaza rezultatele in fisiere, Nmap afiseaza totusi in modul interactiv la iesirea standard rezultatele\. De exemplu, comanda\fBnmap \-oX scanarea_mea\.xml tinta\fRscrie in format XML in\fIscanarea_mea\.xml\fRsi afiseaza la iesirea standard rezultatele in modul interactiv ca si cum optiunea\fB\-oX\fRnu a fost specificata\. Puteti modifica acest lucru furnizand ca argument al optiunii caracterul cratima (\(lq\-\(rq) la unul din tipurile de formate de afisare\. Acest lucru face ca Nmap sa dezactiveze formatul interactiv, si sa afiseze in schimb rezultatele in formatul specificat la iesirea standard\. Comanda\fBnmap \-oX \- tinta\fRva trimite rezultatele in format XML la iesirea standard\. Erorile mari pot fi scrise in mod normal in sirul de erori, stderr\.
+.PP
+Spre deosebire de argumentele Nmap, spatiul dintre optiune (cum este\fB\-oX\fR) si numele fisierului sau cratima este obligatoriu\. In caz contrar, in situatii ca\fB\-oG\-\fRsau\fB\-oXscan\.xml\fR, o functie de compatibilitate cu versiunile anterioare va face ca Nmap sa creeze in\fIformatul normal\fRfisiere de iesire cu numele\fIG\-\fRsi\fIXscan\.xml\fR\.
+.PP
+Nmap ofera optiuni de control al nivelului de informatii afisate si daca la fisiere se va face adaugare de informatie sau vor fi suprascrise\. Toate optiunile sunt descrise mai jos
+.PP
+\fBFormate de afisare a rezultatelor\fR
+.PP
+\fB\-oN <specificator_fisier>\fR(Afisare normala)
+.RS 4
+Cere caformatul normalsau fie directionat catre fisierul specificat\. Asa cum s\-a discutat mai sus, exista o mica diferenta fata deformatul interactiv\.
+.RE
+.PP
+\fB\-oX <specificator_fisier>\fR(Formatul XML)
+.RS 4
+Cere caformatul XMLsa fie directionat catre fisierul specificat\. Nmap include o definitie a tipului de document (DTD) care permite analizatoarelor XML sa valideze fisierele cu rezultate in format XML\. Desi este in principal folosit in programare, el poate ajuta si oamenii sa interpreteze rezultatele\. DTD defineste elementele legale ale formatului si adesea enumera atributele si valorile pe care le pot lua\. Ultima versiune este intotdeauna disponibila la\fI\%http://www.insecure.org/nmap/data/nmap.dtd\fR\.
+.sp
+XML ofera un format stabil care este usor interpretat de software\. Analizatoare XML sunt disponibile pentru majoritate limbajelor de programare, incluzand C/C++, Perl, Python si Java\. Oamenii au scris programe pentru majoritatea acestor limbaje care interpreteaza direct rezultatele Nmap\. Exemplele sunt\fINmap::Scanner\fR\&[9]si\fINmap::Parser\fR\&[10]in Perl CPAN\. In majoritatea cazurilor in care o aplicatie interfereaza cu Nmap, XML este formatul preferat\.
+.sp
+Formatul XML referentiaza un format de pagina XSL care poate fi folosit pentru convertirea rezultatelor in HTML\. Cea mai usoara cale de a realiza acest lucru o reprezinta simpla incarcare a fisierului XML intr\-un browser cum ar fi Firefox sau IE\. Implicit, acest lucru functioneaza doar pe masinile pe care rulati Nmap (sau pe cele configurate similar) din cauza caii fisierului\fInmap\.xsl\fR\. Folositi optiunile\fB\-\-webxml\fRsau\fB\-\-stylesheet\fRpentru crearea de fisiere XML portabile care sunt randate ca HTML pe orice masina conectata la web\.
+.RE
+.PP
+\fB\-oS <specificator de fisier>\fR(f0rm4u1 ScRipT KIdd|3)
+.RS 4
+Formatul script kiddie este asemanator cu formatul interactiv, cu exceptia faptului ca sirul de iesire este post\-procesat pentru a se potrivi mai bine cu stilul HaXXorZ care au neglijat in trecut Nmapul datorita formatului corect gramatical si ortografic de afisare a rezultatelor\. Cei fara umor ar trebui sa noteze faptul ca eu iau peste picior script kiddie, inainte de a ma blama pentru presupusul\(lqajutor acordat\(rq\.
+.RE
+.PP
+\fB\-oG <specificator_fisier>\fR(Formatul pentru comanda grep)
+.RS 4
+Acest format este lasat la urma deoarece este invechit\. Formatul XML este mult mai puternic si este aproape la fel de convenabil pentru utilizatorii experimentati\. XML este un standar pentru care exista o multime de interpretoare, in vreme ce formatul grep reprezinta solutia doar pentru probleme punctuale\. XML este extensibil pentru a prelua noi functionalitati ale Nmap in versiunile urmatoare in vreme ce sunt nevoit adeseori sa omit aceste optiuni din formatul greu din cauza lipsei de spatiu\.
+.sp
+Nu e mai putin adevarat ca formatul grep este inca destul de popular\. Este un format simplu care listeaza fiecare host pe cate o linie si poate fi usor interpretat cu instrumente standard UNIX cum ar fi grep, awk, cut, sed, diff si Perl\. Chiar si eu il folosesc pentru unul din testele realizate in linie de comanda\. Gasirea tuturor hosturilor cu portul ssh deschis si care ruleaza Solaris presupune o simpla comanda grep pentru identificarea hosturilor, imbinata cu awk sau cut pentru afisarea campurilor dorite\.
+.sp
+Formatul grep consta in comentarii (linii care incep cu diez (#)) si linii cu tinte\. O linie cu tinta include o combinatie de 6 campuri etichetate, separate prin taburi si urmate de doua puncte (\(lq:\(rq)\. Campurile suntHost,Porturi,Protocoale,Status ignorat,Sistem de operare,Index Seq,IPID, siStatus\.
+.sp
+Cele mai importante dintre aceste campuri sunt in generalPorturile, care ofera detalii despre fiecare port interesant\. Este o lista separata prin virgule de porturi\. Fiecare port reprezinta un port interesant, si ia forma unui subcamp separat in sapte de caracterul slash (/)\. Subcampurile sunt:Numarul portului,Status,Protocol,Detinator,Serviciu,informatii SunRPC, siInformatii despre versiune\.
+.sp
+Ca si pentru formaul XML, aceasta pagina man nu permite documentarea intregului format\. O detaliere a formatului pentru comanda grep este disponibila la\fI\%http://www.unspecific.com/nmap-oG-output\fR\.
+.RE
+.PP
+\fB\-oA <nume_de_baza>\fR(Scrie in toate formatele)
+.RS 4
+Pentru usurinta, puteti specifica\fB\-oA\fR\fB\fInume_de_baza\fR\fRpentru stocarea rezultatelor in formatele normal, XML si pentru comanda grep, toate odata\. Ele sunt stocate in\fInume_de_baza\fR\.nmap,\fInume_de_baza\fR\.xml, si\fInume_de_baza\fR\.gnmap\. La fel ca in majoritatea programelor puteti adauga si calea inaintea numelor fisierelor, ca in exemplele\fI~/logurinmap/foocorp/\fRsub UNIX sau\fIc:\ehacking\esco\fRsub Windows\.
+.RE
+.PP
+\fBOptiuni privind cantitatea de informatii afisate si depanare\fR
+.PP
+\fB\-v\fR(Creste cantitatea de informatii afisate)
+.RS 4
+Creste cantitatea de informatii afisate, facand ca Nmap sa afiseze mai multe date despre scanarea in curs\. Porturile deschise sunt afisate pe masura ce sunt descoperite si un timp estimat al terminarii este furnizat atunci cand Nmap constata ca scanarea va dura mai mult decat cateva minute\. Folositi de doua ori optiunea pentru un efect si mai puternic\. Folosirea mai mult de doua ori nu are nici un efect\.
+.sp
+Majoritatea modificarilor vor afecta doar afisarea interactiva si unele mai pot afecta formatul script kiddie\. Celelalte formate sunt concepute pentru a fi procesate de masini, asa ca Nmap ofera implicit un nivel detaliat de informatii fara a obosi utilizatorul\. Totusi, exista cateva schimbari in celelalte moduri unde dimensiunea rezultatelor poate fi redusa substantial prin omiterea unor detalii\. De exemplu, o linie ce contine comentarii in formatul pentru comanda grep care furnizeaza o lista cu toate porturile scanate este furnizata doar in modul de afisare cu informatii detaliate (\-v) dearece poate fi destul de lunga\.
+.RE
+.PP
+\fB\-d [nivel]\fR(Creste sau seteaza nivelul de depanare)
+.RS 4
+Cand modul afisare detaliata nu va ofera suficiente informatii, modul depanare este disponibil pentru a va inunda cu si mai multa informatie! La fel ca si cu optiunea de vizualizare detaliata (\fB\-v\fR), modul depanare este activat printr\-un specificator (\fB\-d\fR) si nivelul de depanare poate fi crescut prin specificarea lui de mai multe ori\. Alternativ, se poate seta un nivel de depanare prin specificarea unui argument la\fB\-d\fR\. De exemplu,\fB\-d9\fRseteaza nivelul 9\. Acesta este cel mai mare nivel efectiv si va produce mii de linii, doar daca nu realizati o scanare simpla cu cateva porturi si hosturi\.
+.sp
+Modul depanare este folositor cand se suspecteaza o problema in Nmap, sau daca esti pur si simplu incurcat de ce si ce face Nmap\. Cum aceasta functionalitate este in general destinata dezvoltatorilor, mesajele de depanare nu sunt intotdeauna clare\. Puteti vedea ceva de genul:Timeoutvals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\. Daca nu intelegeti o linie, singurele lucruri de facut este sa o ignorati, sa cautati in codul sursa sau sa solicitati ajutor in lista de dezvoltare (nmap\-dev)\. Unele linii sunt explicite, dar mesajele devin mai obscure pe masura ce nivelul de depanare creste\.
+.RE
+.PP
+\fB\-\-packet\-trace\fR(Urmareste pachetele si datele trimise si primite)
+.RS 4
+Face ca Nmap sa afiseze un sumar cu toate pachetele trimise sau primite\. Este adesea folositoare pentru depanare, dar este si o sursa pretioasa pentru noii utilizatori de a intelege exact ce face Nmap\. Pentru a evita printarea de mii de linii, puteti dori specificarea unui numar limitat de porturi in vederea scanarii, cum ar fi\fB\-p20\-30\fR\. Daca va intereseaza doar ce se intampla in timpul detectarii versiunii, folositi in schimb\fB\-\-version\-trace\fR\.
+.RE
+.PP
+\fB\-\-iflist\fR(Listeaza interfetele si caiule de rutare)
+.RS 4
+Afiseaza interfetele si caile de rutare ale sistemului asa cum sunt ele detectate de Nmap\. Este folositor pentru depanarea cailor de rutare sau interpretarea gresita a dispozitivelor (cum ar fi tratarea de catre Nmap a unei conexiuni PPP ca una Ethernet)\.
+.RE
+.PP
+\fBOptiuni pentru afisare unor informatii diverse\fR
+.PP
+\fB\-\-append\-output\fR(Adauga la fisierul de rezultate in loc sa il inlocuiasca)
+.RS 4
+Cand specificati un nume de fisier la optiuni cum ar fi\fB\-oX\fRsau\fB\-oN\fR, acel fisier este suprascris implicit\. Daca prefereati pastrarea continutului si adaugarea la sfarsitul lui de noi informatii, specificati optiunea\fB\-\-append\-output\fR\. Toate fisierele de rezultate specificate la executia Nmap vor fi deschise in modul adaugare in loc sa fie suprascrise\. Acest lucru nu functioneaza bine cu formatul XML (\fB\-oX\fR) deoarece rezultatul nu va fi interpretat corect pana nu aranjati fisierul manual\.
+.RE
+.PP
+\fB\-\-resume <nume_fisier>\fR(Reia o scanare intrerupta)
+.RS 4
+Unele scanari Nmap pot lua un timp foarte mare \(en de ordinul zilelor\. Asemenea scanari nu ruleaza pana la sfarsit\. Anumite restrictii pot face Nmapul sa nu ruleze in orele cu trafic intens, reteaua poate fi cazuta, masina pe care ruleaza Nmap poate suferii o restartare planificata sau neplanificata, sau Nmap poate sa se blocheze\. Administratorul care ruleaza Nmap poate opri scanarea pentru orice alt motiv, apasandctrl\-C\. Refacerea intregii scanari de la inceput nu este de dorit\. Din fericire, in modul normal (\fB\-oN\fR) sau cel pentru comanda grep (\fB\-oG\fR) logurile sunt pastrate, utilizatorul poate solicita Nmap reluarea scanarii de la ultima tinta care era scanata in momentul intreruperii\. Specificati optiunea\fB\-\-resume\fRsi furnizati ca argument fisierul de rezultate in formatul normal sau grep\. Nici un alt argument nu este permis, pentru ca Nmap citeste fisierul de rezultate si foloseste aceleasi optiuni specificate\. Rulati Nmap cu\fBnmap \-\-resume\fR\fB\fInumele_fisierului_log\fR\fR\. Nmap va adauga la fisier noile rezultate\. Reluarea nu este suportata de formatul XML deoarece combinarea a doua rulari succesive intr\-un singur fisier XML valid este dificila\.
+.RE
+.PP
+\fB\-\-stylesheet <cale sau URL>\fR(Seteaza formatul XSL pentru transformarea rezultatului XML)
+.RS 4
+Nmap este furnizat cu un format XSL numit\fInmap\.xsl\fRpentru vizualizarea sau traducerea rezultatelor XML in HTML\. Rezultatele in formatul XML includ o directivaxml\-stylesheetdirective care indica fisierul\fInmap\.xml\fRdin locatia in care a fost instalat Nmap (sau din directorul curent in Windows)\. Incarcati rezultatul scanarii cu Nmap in format XML intr\-un browser si acesta ar trebui sa aleaga\fInmap\.xsl\fRdin sistemul de fisiere si sa\-l foloseasca pentru afisarea rezultatelor\. Daca doriti specificarea unui alt format de afisare, specificati\-l ca argument pentru\fB\-\-stylesheet\fR\. Trebuie sa furnizati calea completa sau URLul\. O apelare uzuala este\fB\-\-stylesheethttp://www\.insecure\.org/nmap/data/nmap\.xsl\fR\. Aceasta aplelare spune browserului sa incarce cel mai nou format de afisare de la Insecure\.Org\. Optiunea\fB\-\-webxml\fRrealizeaza acelasi lucru cu mai putine lucruri de tastat si memorat\. Incarcand fisierul XSL de la Insecure\.Org face vizualizarea mai facila pentru un calculator care nu are Nmap instalat (si implicit nici\fInmap\.xsl\fR) Astfel URLul este adesea mult mai folositor, dar fisierul local nmap\.xsl este utilizat implicit din motive de securitate\.
+.RE
+.PP
+\fB\-\-webxml\fR(Incarca formatul stylesheet de la Insecure\.Org)
+.RS 4
+Este un sinonim covenabil pentru\fB\-\-stylesheet http://www\.insecure\.org/nmap/data/nmap\.xsl\fR\.
+.RE
+.PP
+\fB\-\-no_stylesheet\fR(Se omite declaratia stylesheetului XSL din XML)
+.RS 4
+Specificati aceasta optiune daca vreti sa preveniti Nmapul sa asocieze vreun format XSL cu fisierul XML\. Directivaxml\-stylesheeteste omisa\.
+.RE
+.SH "OPTIUNI DIVERSE"
+.PP
+Aceasta sectiune descrie cateva optiuni importante (si mai putin importante) care nu si\-au gasit locul in nici o alta sectiune
+.PP
+\fB\-6\fR(Activeaza scanarea IPv6)
+.RS 4
+Din 2002, Nmap ofera suport IPv6 pentru majoritatea functionalitatilor sale\. In particular, scanarea ping (doar TCP), scanarea connect() si detectarea versiunii suporta toate IPv6\. Sintaxa comenzii este aceeasi cu exceptia adaugarii optiunii\fB\-6\fR\. Desigur, trebuie sa folositi sintaxa IPv6 daca specificati o adresa in locul unui hostname\. O adresa poate arata3ffe:7501:4819:2000:210:f3ff:fe03:14d0, asa ca hostnameurile sunt recomandate\. Rezultatul arata in mod normal, cu adresa IPv6 pe linia\(lqporturi_interesante\(rqca singura adresa\.
+.sp
+Desi IPv6 nu a revolutionat lumea, are parte de o folosire semnificativa in unele tari (in special in Asia) si majoritatea sistemelor moderne de operare ofera suport\. Pentru folosirea Nmap cu IPv6, atat sursa cat si tinta scanarii trebuie sa fie configurate in IPv6\. Daca ISPul dumneavoastra nu aloca o adresa IPv6 (multi nu o fac), tunele de trecere sunt disponibile gratuit si functioneaza bine cu Nmap\. Unul dintre cele mai bune este cel rulat de BT Exact la\fI\%https://tb.ipv6.btexact.com/\fR\. Am folosit si cel furnizat de Hurricane Electric la\fI\%http://ipv6tb.he.net/\fR\. Tunelele 6la4 sunt de asemenea folosite, existand si optiuni gratuite\.
+.RE
+.PP
+\fB\-A\fR(Optiuni de scanare agresive)
+.RS 4
+Aceasta optiune activeaza alte optiuni avansate si agresive\. Nu m\-am decis inca de la ce vine litera de specificare\. In prezent activeaza detectia sistemului de operare (\fB\-O\fR) si scanarea versiunii (\fB\-sV\fR)\. Mai multe functionalitati pot fi inglobate pe viitor\. Ideea este de a activa un set cuprinzator de optiuni de scanare fara ca oamenii sa fie nevoiti sa tina minte un set intreg de optiuni\. Aceasta optiune activeaza functionalitatile, nu si optiunile de timp (cum ar fi\fB\-T4\fR) sau nivelul de informatii afisat (\fB\-v\fR) pe care le\-ati dori\.
+.RE
+.PP
+\fB\-\-datadir <nume_director>\fR(Specifica un anumit director pentru localizarea fisierelor Nmap)
+.RS 4
+Nmap obtine anumite date in momentul rularii in fisierele numite\fInmap\-service\-probes\fR,\fInmap\-services\fR,\fInmap\-protocols\fR,\fInmap\-rpc\fR,\fInmap\-mac\-prefixes\fR, si\fInmap\-os\-fingerprints\fR\. Nmap incearca intai sa caute aceste fisiere in directorul specificat cu optiunea\fB\-\-datadir\fR(daca exista)\. Orice fisier negasit aici este cautat in directorul specificat de directiva NMAPDIR\. La rand vin apoi\fI~/\.nmap\fRpentru sisteme POSIX sau locatia executabilului Nmap (pe sistemele Win32), si apoi o locatie precompilata cum ar fi\fI/usr/local/share/nmap\fRsau\fI/usr/share/nmap\fR\. Ca o ultima optiune, Nmap va cauta in directorul curent\.
+.RE
+.PP
+\fB\-\-send\-eth\fR(Foloseste trimiterea bruta ethernet)
+.RS 4
+Cere Nmapului sa trimita pachete brute ethernet (la nivelul legaturii de date) in locul trimiterii de la nivelul IP superior\. Implicit, Nmap alege pe cel care este in general potrivit pentru platforma de rulare\. Socketuri brute (nivelul IP) sunt in general mult mai eficiente pe masinile UNIX, in timp ce cadre ethernet sunt necesare pentru operatii sub Windows, din moment ce Microsoft a dezactivat suportul pentru suport de socketuri brute\. Nmap foloseste pachete IP brute pe UNIX in ciuda acestei optiunii cand nu exista nici o alta alegere (conexiuni non\-ethernet)\.
+.RE
+.PP
+\fB\-\-send\-ip\fR(Trimite pachete brute la nivelul IP)
+.RS 4
+Cere Nmapului sa trimita pachete brute prin socketuri IP in locul trimiterii lor la nivelul cadrelor ethernet\. Este complementul optiunii\fB\-\-send\-eth\fRdiscutata anterior\.
+.RE
+.PP
+\fB\-\-privileged\fR(Se presupune ca utilizatorul are privilegii depline)
+.RS 4
+Spune Nmapului sa presupuna ca are privilegii suficiente pentru a trimite pachete brute, sa intercepteze pachete si alte operatii similare care in general necesita privilegii de root pe sisteme UNIX\. Implicit Nmap renunta la astfel de operatii daca getuid() nu este zero\.\fB\-\-privileged\fReste o optiune folositoare impreuna cu capacitatea kernelului de Linux de a permite utilizatorilor neprivilegiati sa realizeze scanari cu pachete brute\. Asigurativa ca ati mentionat aceasta optiune inaintea oricarei optiuni care necesita privilegii (scanare SYN, detectia sistemului de operare, etc\.)\. Variabila NMAP_PRIVILEGED poate fi setata ca o alternativa la\fB\-\-privileged\fR\.
+.RE
+.PP
+\fB\-\-interactive\fR(Porneste in modul interactiv)
+.RS 4
+Nmap porneste in modul interactiv, care ofera posibilitatea de a lansa scanari multiple (fie sincron, fie in fundal)\. Este folositor pentru oameni care scaneaza de pe sisteme multi\-utilizator ce doresc testarea securitatii fara ca ceilalti utilizatori sa stie ce se realizeaza\. Folositi\fB\-\-interactive\fRpentru activarea acestui mod si mai apoi tastatihpentru ajutor\. Aceasta optiune este rar folosita deoarece shellurile uzuale sunt mult mai familiare si mai complete\. Aceasta optiune include un operator bang (!) pentru executarea de comenzi shell, ceea ce este unul din multele argumente pentru a nu seta Nmap ca root\.
+.RE
+.PP
+\fB\-V\fR;\fB\-\-version\fR(Afiseaza numarul versiunii)
+.RS 4
+Afiseaza versiunea de Nmap si iese\.
+.RE
+.PP
+\fB\-h\fR;\fB\-\-help\fR(Afiseaza o pagina sumara de ajutor)
+.RS 4
+Afiseaza un ecran de ajutor cu principalele optiuni\. Rularea Nmap fara nici un argument face exact acelasi lucru\.
+.RE
+.SH "INTERACTIUNE IN TIMPUL RULARII"
+.PP
+Aceasta functionalitate nu exista inca in Nmap\. Fie voi adauga suport, fie voi scoate aceasta sectiune\.
+.PP
+In timpul executiei Nmap, toate tastele apasate sunt inregistrate\. Acest lucru va perite interactiunea cu programul fara oprirea si restartarea lui\. Anumite taste vor schimba optiuni in vreme ce altele vor afisa mesaje despre scanarea in curs\. Conventia este ca\fIliterele mici cresc\fRnivelul de afisare si\fIliterele mari scad\fRacest nivel\.
+.PP
+\fBv\fR/\fBV\fR
+.RS 4
+Cresc / Descresc cantitatea de informatii afisate
+.RE
+.PP
+\fBd\fR/\fBD\fR
+.RS 4
+Cresc /Descresc cantitatea de informatii de depanare
+.RE
+.PP
+\fBp\fR/\fBP\fR
+.RS 4
+Activeaza / Dezactiveaza urmarirea pachetelor
+.RE
+.PP
+Anything else (Orice altceva)
+.RS 4
+Afiseaza un mesaj de genul:
+.sp
+Stats: 0:00:08 elapsed; 111 hosts completed (5 up), 5 undergoing Service Scan
+.sp
+Service scan Timing: About 28\.00% done; ETC: 16:18 (0:00:15 remaining)
+.RE
+.SH "EXEMPLE"
+.PP
+Aici sunt cateva exemple de utilizare a Nmap, de la unele simple si de rutina pana la altele mai complexe si ezoterice\. Unele adrese IP si nume de domenii sunt folosite pentru a face lucrurile mai concrete\. In locul lor trebuie sa puneti adresele/numele din\fIreteaua dumneavoastra\.\fR\. Desi nu cred ca scanarea de porturi a altor retele este sau ar trebui sa fie ilegala, unii administratori de retea nu apreciaza scanari nesolicitate ale retelelor lor si pot depune plangere\. Obtinerea mai intai a permisiunii este cea mai buna abordare\.
+.PP
+Pentru testare, aveti permisiunea sa scanati hostulscanme\.nmap\.org\. Aceasta permisiune include doar scanarea cu Nmap si nu testarea gaurilor de securitate sau atacuri de tip DOS\. Pentru conservarea latimii de banda, va rog sa nu initiati mai multe scanari zilnic\. Daca aceasta tinta este abuzata, va fi indisponibila in retea si Nmap va raporta imposibilitatea de a gasi hostulFailed to resolve given hostname/IP: scanme\.nmap\.org\. Aceasta permisiune se aplica si hosturilorscanme2\.nmap\.org,scanme3\.nmap\.org, si asa mai departe, desi acestea nu exista inca\.
+.PP
+\fBnmap \-v scanme\.nmap\.org\fR
+.PP
+Aceasta linie de comanda scaneaza toate porturile TCP rezervate de pe masinascanme\.nmap\.org\. Optiunea\fB\-v\fRactiveaza modul de afisare in timp real a rezultateor\.
+.PP
+\fBnmap \-sS \-O scanme\.nmap\.org/24\fR
+.PP
+Lanseaza o scanare SYN impotriva tuturor celor 255 masini din reteaua de\(lqclasa C\(rqunde isi are locul hostul scanme\. De asemenea incearca determinarea sistemului de operare a fiecarui host activ\. Acesta lansare necesita privilegii root din cauza scanarii SYN si a detectarii sistemului de operare\.
+.PP
+\fBnmap \-sV \-p 22,53,110,143,4564 198\.116\.0\-255\.1\-127\fR
+.PP
+Lanseaza enumerarea hosturilor si o scanare TCP in prima jumatate a celor 255 de subretele 198\.116 de clasa B\. Testeaza daca sistemul ruleaza sshd, DNS, pop3d, imapd sau portul 4546\. Pentru fiecare dintre porturile gasite deschise, detectia versiunii este pusa in functiune pentru a se determina aplicatia care ruleaza\.
+.PP
+\fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
+.PP
+Cere Nmapului sa aleaga aleator 100\.000 tinte si sa le scaneze in cautarea serverelor web (portul 80)\. Enumerarea hosturilor este dezactivata cu\fB\-P0\fRdin moment ce trimiterea unui cuplu de probe pentru a determina daca hostul este activ este o pierdere de timp atata vreme cat se cauta un singur port al fiecarei tinte\.
+.PP
+\fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\.xml \-oG logs/pb\-port80scan\.gnmap 216\.163\.128\.20/20\fR
+.PP
+Scaneaza cele 4096 IPuri dupa servere web (fara ping) si salveaza rezultatele in formatul pentru comanda grep si in formatul XML\.
+.PP
+\fBhost \-l company\.com | cut \-d \-f 4 | nmap \-v \-iL \-\fR
+.PP
+Realizeaza un transfer de zona DNS pentru a gasi toate hosturile din company\.com si apoi furnizeaza adresele Nmapului\. Comanda de mai sus este valabila pentru un sistem Linux \(en alte sisteme beneficiaza de comenzi diferite pentru realizarea transferului DNS\.
+.SH "PROBLEME"
+.PP
+Asemeni autorului, Nmap nu este perfect\. Dar ilputeti face mai bun trimitand rapoarte despre problemele aparute si chiar scriind patchuri\. daca Nmap nu se comporta in modul in care va asteptati, faceti upgradeul la ultima versiune disponibila la\fI\%http://www.insecure.org/nmap/\fR\. Daca problema persista, faceti munca de cercetare pentru a vedea daca problema a fost descoperita si discutata\. Incercati cautarea in Google a mesajului de eroare sau navigand prin arhivele Nmap\-dev la\fI\%http://seclists.org/\fR\. Cititi acest manual in intregime de asemenea\. Daca nimic nu se rezolva, trimiteti un mail la<nmap\-dev@insecure\.org>\. Va rog sa includeti tot ce ati aflat despre problema, precum si versiunea de Nmap pe care o folositi si sistemul de operare\. Problemele si intrebarile legate de utilizarea Nmapului trimise la nmap\-dev@insecure\.org au sanse mult mai mari de a li se raspunde decat cele trimise direct la Fyodor\.
+.PP
+Patchurile de rezolvare a problemelor sunt si mai bune decat rapoartele despre problema in sine\. Instructiuni de baza pentru crearea patchurilor sunt disponibile la\fI\%http://www.insecure.org/nmap/data/HACKING\fR\. Patchurile pot fi trimise la nmap\-dev (recomandat) sau direct la Fyodor\.
+.SH "AUTOR"
+.PP
+Fyodor<fyodor@insecure\.org>(\fI\%http://www.insecure.org\fR)
+.PP
+Sute de oameni au facut contributii importante la Nmap de\-a lungul timpului\. Ei sunt mentionati in fisierul\fICHANGELOG\fRdistribuit cu Nmap si disponibil la\fI\%http://www.insecure.org/nmap/nmap_changelog.html\fR\.
+.SH "ASPECTE LEGALE"
+.SS "Unofficial Translation Disclaimer / Disculparea fata de traducerea neoficiala"
+.PP
+This is an unnofficial translation of the
+\fINmap license details\fR\&[11]
+into Romanian\. It was not written by Insecure\.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\. However, we hope that this translation helps Romanian speakers understand the Nmap license better\.
+.PP
+Aceasta este traducerea neoficiala a
+\fIdetaliilor de licenta ale Nmap\fR\&[11]
+in limba romana\. Nu a fost scrisa de Insecure\.Com LLC si nu statueaza in mod legal termenii distributiei Nmap \(en numai textul original in limba engleza realizeaza acest lucru\. Oricum speram ca aceasta traducere sa ajute vorbitorii de limba romana sa inteleaga termenii licentei Nmap mai bine\.
+.SS "Dreptul de autor si licentiere"
+.PP
+Scanerul de securitate Nmap este (C) 1996\-2005 a Insecure\.Com LLC\. Nmap este marca inregistrata a Insecure\.Com LLC\. Acest program este software liber; il puteti redistribui si/sau modifica sub termenii Licentei Publice Generale (GNU General Public License) asa cum este publicata de Free Software Foundation; Versiunea 2\. Aceasta va garanteaza dreptul de folosire, modificare si redistribuire sub anumite conditii\. Daca doriti sa incorporati tehnologie Nmap in software proprietar, suntem dispusi sa vindem licente alternative (contact<sales@insecure\.com>)\. Multi producatori de scanere de securitate au licentiat deja tehnologie Nmap cum ar fi descoperirea hosturilor, scanare de porturi, detectia sistemului de operare si detectia serviciului/versiunii\.
+.PP
+Notati ca GPL pune restrictii importante asupra\(lqproduselor derivate\(rq, desi nu furnizeaza o definitie detaliata a termenului\. Pentru a evita neintelegerile, consideram ca o aplicatie este\(lqprodus derivat\(rqin termenii licentei daca realizeaza unul din urmatoarele lucruri:
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Integreaza cod sursa din Nmap
+.RE
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Citeste sau include fisiere Nmap proteja de drepturi de autor, cum ar fi\fInmap\-os\-fingerprints\fRsau\fInmap\-service\-probes\fR\.
+.RE
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Executa Nmap si interpreteaza rezultatele (spre deosebire de aplicatiile shell care afiseaza outputul brut al Nmapului si nu reprezinta produse derivate)\.
+.RE
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Integreaza/include/agregheaza Nmap intr\-un executabil de instalare proprietar, cum sunt cele produse de InstallShield\.
+.RE
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Face legatura la o biblioteca sau executa un program care realizeaza oricare dintre cele enumerate\.
+.RE
+.PP
+Termenul\(lqNmap\(rqinclude si portiuni din produse derivate din Nmap\. Lista nu este exclusiva, dar este menita a clarifica interpretarea noastra a produselor derivate cu exemple comune\. Aceste restrictii se aplica doar pentru cazul in care redistribuiti Nmap\. De exemplu, nimic nu va impiedica sa scrieti interfete grafice proprietare pentru Nmap\. Distribuiti\-o independent si invitati oamenii la\fI\%http://www.insecure.org/nmap/\fRpentru a descarca Nmap\.
+.PP
+Nu consideram aceste ca restrictii adugate peste GPL ci doar o clarificare a modului in care interpretam termenul de\(lqprodus derivat\(rqasa cum se aplica el la produsul Nmap licentiat GPL\. Este similar modului in care Linus Torvalds a anuntat interpretarea sa asupra a cum se aplica termenul de\(lqprodus derivat\(rqla modulele kernellului Linux\. Interpretarea noastra se refera doar la Nmap \(en nu vorbim in numele nici unui alt produs GPL\.
+.PP
+Daca aveti intrebari despre restrictiile licentei GPL in ceea ce priveste folosirea Nmap in produse non\-GPL, sunt bucurosi sa va ajutam\. Asa cum am mentionat, oferim licente alternative pentru integrarea Nmap in aplicatii si aplicari proprietare\. Astfel de contracte au fost vandute majoritatii producatorilor de software de securitate si in general includ o licenta perpetua precum si furnizarea prioritara de suport si actualizari, dupa cum ne si ajuta sa finantam dezvoltarea tehnologiei Nmap\. Va rugam sa trimiteti un email la<sales@insecure\.com>pentru mai multe informatii\.
+.PP
+Ca o exceptie speciala de la termenii GPL, Insecure\.Com LLC permite legarea acestui cod cu orice versiune de biblioteca OpenSSL distribuita sub o licenta identica cu cea din fiserul Copying\.OpenSSL si distribuirea codului legat a celor doua\. Trebuie sa va supuneti GNU GPL pentru orice cod in afara de OpenSSL\. Daca modificati acest fisier, puteti extinde aceasta exceptie si asupra fisierului dumneavoastra, desi nu sunteti obligati sa o faceti\.
+.PP
+Daca primiti aceste fisiere cu o alta licenta scrisa sau contract care specifica alti termeni decat cei precizati aici, atunci licenta alternativa ia locul celei de fata\.
+.SS "Disponibilitatea codului sursa si contributiile comunitatii"
+.PP
+Sursa este furnizata cu acest software deoarece consideram ca utilizatorii au dreptul de a stii exact ce face un program inainte de a\-l rula\. Acest lucru permite si auditul softwareului in vederea descoperirii gaurilor de securitate (nici una nu a fost descoperita pana acum)\.
+.PP
+Codul sursa permite portarea Nmap pe noi platforme, rezolvarea problemelor si adaugarea de noi functionalitati\. Sunteti incurajati sa trimiteti modificarile dumneavoastra la<fyodor@insecure\.org>pentru o posibila incorporare in distributia principala\. Prin trimiterea acestor modificari catre Fyodor sau la una din listele de dezvoltare de la Insecure\.Org, se presupune ca oferiti lui Fyodor si Insecure\.Com LLC dreptul neliitat, neexclusiv de reutilizare, modificare si relicentiere a codului\. Nmap va fi intotdeauna disponibil ca software cu sursa disponibila, dar acest lucru este important din cauza imposibilitatii relicentierii ce a creat probleme devastatoare pentru alte proiecte cu software liber (cum sunt KDE si NASM)\. Ocazional relicentiam codul catre terti asa cum s\-a discutat mai devreme\. Daca doriti sa specificati conditii speciale de licentiere a contributiei dumneavoastra, precizati acest lucru cand o trimiteti\.
+.SS "Nici o garantie"
+.PP
+Acest program este distribuit in speranta ca va fi folositor, dar FARA NICI O GARANTIE; fara macar a garantiei de COMERCIABILITATE sau POTRIVIRE PENTRU UN SCOP PARTICULAR\. Vezi GNU GPL pentru mai multe detalii la\fI\%http://www.gnu.org/copyleft/gpl.html\fR, sau in fisierul COPYING inclus in Nmap\.
+.PP
+Notati si faptul ca Nmap, ocazional, blocheaza aplicatii prost scrise, stive TCP/IP si chiar sisteme de operare\. Desi este un lucru extrem de rar, este important sa tinteti minte ca\fINmap nu trebuie niciodata rulat impotriva sistemelor cu aplicatii critice\fRdecat daca sunteti pregatit sa suferiti eventuale blocari\. Statuam aici faptul ca Nmap poate bloca sistemele sau retelele dumneavoastra si ne disculpam de orice paguba sau problema pe care Nmap o poate cauza\.
+.SS "Utilizare inadecvata"
+.PP
+Datorita micului risc de blocare si pentru ca unele personaje negative folosesc Nmap in cunoasterea tintelor premergator atacului, exista administratori care devin suparati si pot depune plangere daca sistemele lor sunt scanate\. Asadar, este recomandata solicitarea permisiunii chiar si inaintea unei scanari superficiale a retelei\.
+.PP
+Din ratiuni de securitate Nmap nu ar trebui instalat niciodata cu privilegii speciale (ex: suid root)
+.SS "Software de la terti"
+.PP
+Acest produs iclude software dezvoltat de\fIApache Software Foundation\fR\&[12]\. O versiune modificata a\fIbibliotecii de captura a pachetelor Libpcapportable\fR\&[13]este distribuita impreuna cu Nmap\. Versiunea de Windows a Nmap utilizeaza biblioteca derivata din libpcap,\fIWinPcap\fR\&[14]\. Suportul pentru expresiile regulate este furnizat de\fIPCRE library\fR\&[15], software open source, scris de Philip Hazel\. Anumite functii brute de retea folosesc biblioteca\fILibdnet\fR\&[16], scrisa de Dug Song\. O versiune modificata este distribuita cu Nmap\. Optional Nmap se poate lega de\fITrusa criptografica OpenSSL\fR\&[17]pentru suportul de detectare a versiunii SSL\. Toate softurile de la terti descrise in acest paragraf sunt redistribuibile gratuit sub licente de tipul BSD\.
+.SS "Clasificarea de control al exportului din SUA"
+.PP
+Clasificarea de control al exportului din SUA: Insecure\.Com LLC considera ca Nmap cade sub incidenta US ECCN (numarul de control al clasificarii de export) 5D992\. Aceasta categorie este denumita\(lqSoftware de securitate a informatiilor necontrolat de 5D002\(rq\. Singurele restrictii ale acestei clasificari sunt AT (anti\-terrorism) care se aplica aproape tuturor bunurilor si interzic exportul catre cateva natiuni ca Iranul si Coreea de Nord\. Asadar exportul Nmapului nu necesita licente speciale, permisiuni sau autorizari guvernamentale\.
+.SH "NOTES"
+.IP " 1." 4
+original English version
+.RS 4
+\%http://www.insecure.org/nmap/man/
+.RE
+.IP " 2." 4
+Creative Commons Attribution License
+.RS 4
+\%http://creativecommons.org/licenses/by/2.5/
+.RE
+.IP " 3." 4
+ITSecure
+.RS 4
+\%http://www.itsecure.ro
+.RE
+.IP " 4." 4
+RFC1122
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc1122.txt
+.RE
+.IP " 5." 4
+RFC792
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc792.txt
+.RE
+.IP " 6." 4
+UDP
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc768.txt
+.RE
+.IP " 7." 4
+TCP RFC
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc793.txt
+.RE
+.IP " 8." 4
+RFC 959
+.RS 4
+\%http://www.rfc-editor.org/rfc/rfc959.txt
+.RE
+.IP " 9." 4
+Nmap::Scanner
+.RS 4
+\%http://sourceforge.net/projects/nmap-scanner/
+.RE
+.IP "10." 4
+Nmap::Parser
+.RS 4
+\%http://www.nmapparser.com
+.RE
+.IP "11." 4
+Nmap license details
+.RS 4
+\%http://www.insecure.org/nmap/man/man-legal.html
+.RE
+.IP "12." 4
+Apache Software Foundation
+.RS 4
+\%http://www.apache.org
+.RE
+.IP "13." 4
+bibliotecii de captura a pachetelor Libpcapportable
+.RS 4
+\%http://www.tcpdump.org
+.RE
+.IP "14." 4
+WinPcap
+.RS 4
+\%http://www.winpcap.org
+.RE
+.IP "15." 4
+PCRE library
+.RS 4
+\%http://www.pcre.org
+.RE
+.IP "16." 4
+Libdnet
+.RS 4
+\%http://libdnet.sourceforge.net
+.RE
+.IP "17." 4
+Trusa criptografica OpenSSL
+.RS 4
+\%http://www.openssl.org
+.RE
