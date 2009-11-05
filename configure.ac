@@ -4,6 +4,10 @@ AC_PREREQ(2.13)
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(nmap.cc)
 
+dnl Give us the --enable-nls option, to choose which translated man pages get
+dnl installed. This gets replaced with AM_GNU_GETTEXT for full gettext support.
+AM_NLS
+
 AC_ARG_WITH(localdirs,
 AC_HELP_STRING([--with-localdirs], [Explicitly ask compiler to use /usr/local/{include,libs} if they exist ]),
   [ case "$with_localdirs" in

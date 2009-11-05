@@ -51,6 +51,16 @@ LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_L
 INSTALL = @INSTALL@
 # MAKEDEPEND = @MAKEDEPEND@
 export RPMTDIR=$(HOME)/rpm
+# Whether the user wants to install translated man pages. If "yes", then
+# all translated man pages are installed, unless a subset is specified
+# with the LINGUAS environment variable.
+USE_NLS = @USE_NLS@
+# A space-separated list of language codes supported (for man page
+# installation). The user can install a subset of these with the LINGUAS
+# environment variable or none of them with --disable-nls.
+ALL_LINGUAS =
+# A space-separated list of language codes requested by the user.
+LINGUAS ?= $(ALL_LINGUAS)
 
 
 # DESTDIR is used by some package maintainers to install Nmap under
@@ -203,6 +213,12 @@ install-nmap: $(TARGET)
 # http://seclists.org/nmap-dev/2007/q4/0272.html.
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap
 	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
+	if [ "$(USE_NLS)" = "yes" ]; then \
+	  for ll in $(LINGUAS); do \
+	    $(INSTALL) -d $(DESTDIR)$(mandir)/$$ll/man1; \
+	    $(INSTALL) -c -m 644 docs/$(TARGET)-$$ll.1 $(DESTDIR)$(mandir)/$$ll/man1/$(TARGET).1; \
+	  done; \
+	fi
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 docs/nmap.dtd $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-services $(DESTDIR)$(nmapdatadir)/
@@ -277,6 +293,7 @@ uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@
 uninstall-nmap:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
 	rm -f $(DESTDIR)$(mandir)/man1/$(TARGET).1
+	rm -f $(DESTDIR)$(mandir)/*/man1/$(TARGET).1
 	rm -rf $(DESTDIR)$(nmapdatadir)
 
 uninstall-zenmap:
