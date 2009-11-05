@@ -3896,41 +3896,6 @@ static bool do_one_select_round(UltraScanInfo *USI, struct timeval *stime) {
   return numGoodSD;
 }
 
-/* ICMP error messages generally return the IP header they were sent
-   with.  That provides the opportunity to look at the IPID to
-   determine which probe the packet matches up with.  Unfortunately,
-   this doesn't always work.  Some systems screw up the IPID in the
-   process of sending, and remote systems can screw it up as well.
-   This function is a "soft" match, that returns true if hey really do
-   match, or if matching seems to be broken for one reason or
-   another.  You can send in HBO or NBO, just as
-   long as the two values are in the same byte order. */
-static bool allow_ipid_match(u16 ipid_sent, u16 ipid_rcvd) {
-  static int numvalid = 0;
-  static int numbogus = 0;
-
-  /* TODO: I should check if this applies to more recent Solaris releases */
-  /* These systems seem to hose sent IPID */
-#if defined(SOLARIS) || defined(SUNOS) || defined(IRIX) || defined(HPUX)
-  return true;
-#endif
-
-  if (ipid_sent == ipid_rcvd) {
-    numvalid++;
-    return true;
-  } else numbogus++;
-
-  if (numbogus >= 2 && numvalid == 0)
-    return true; /* Test does not seem to be working */
-
-  /* This test is because sometimes a valid will come by luck */
-  if (numbogus / (numbogus + numvalid) > .8)
-    return true;
-
-  return false;
-
-}
-
 /* Tries to get one *good* (finishes a probe) ARP response with pcap
    by the (absolute) time given in stime.  Even if stime is now, try
    an ultra-quick pcap read just in case.  Returns true if a "good"
@@ -4278,10 +4243,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  assert(0);
 	} 
 
-	/* Checking IPID is a little more complex because you can't always count on it */
-	if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-	  continue;
-
 	if (icmp->icmp_type == 3) {
 	  switch(icmp->icmp_code) {
 	  case 0: /* Network unreachable */
@@ -4624,9 +4585,6 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
           } else {
             assert(0);
           }
-
-          if (!allow_ipid_match(probe->ipid(), ntohs(ip2->ip_id)))
-            continue;
 
           /* If we made it this far, we found it. We don't yet know if it's
              going to change a host state (goodone) or not. */
