@@ -1428,8 +1428,8 @@ Optional Packages:
   --with-libpcre=included Always use the version included with Nmap
   --with-libdnet=DIR      Use an existing (compiled) dnet lib from DIR/include
                           and DIR/lib. This is NOT RECOMMENDED because we have
-                          made many important fixes to libdnet, as described
-                          at
+                          made many important fixes to our included libdnet,
+                          as described at
                           http://nmap.org/svn/libdnet-stripped/NMAP_MODIFICATIONS
   --with-libdnet=included Use the libdnet version included with Nmap (default)
   --with-liblua=DIR       Use an existing (compiled) lua lib from DIR/include
@@ -5836,12 +5836,14 @@ if test "$with_ndiff" != "no"; then
       # If the user set $PYTHON, use it and don't search something else.
       { $as_echo "$as_me:$LINENO: checking whether $PYTHON version >= 2.4" >&5
 $as_echo_n "checking whether $PYTHON version >= 2.4... " >&6; }
-      prog="import sys, string
+      prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
-minver = map(int, string.split('2.4', '.')) + [0, 0, 0]
+# map returns an iterator in Python 3.0 and a list in 2.x
+minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
 minverhex = 0
-for i in xrange(0, 4): minverhex = (minverhex << 8) + minver[i]
+# xrange is not present in Python 3.0 and range returns an iterator
+for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
 sys.exit(sys.hexversion < minverhex)"
   if { echo "$as_me:$LINENO: $PYTHON -c "$prog"" >&5
    ($PYTHON -c "$prog") >&5 2>&5
@@ -5866,14 +5868,16 @@ if test "${am_cv_pathless_PYTHON+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 python1.6 python1.5 none; do
+	for am_cv_pathless_PYTHON in python python2 python3 python3.0 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
-	  prog="import sys, string
+	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
-minver = map(int, string.split('2.4', '.')) + [0, 0, 0]
+# map returns an iterator in Python 3.0 and a list in 2.x
+minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
 minverhex = 0
-for i in xrange(0, 4): minverhex = (minverhex << 8) + minver[i]
+# xrange is not present in Python 3.0 and range returns an iterator
+for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
 sys.exit(sys.hexversion < minverhex)"
   if { echo "$as_me:$LINENO: $am_cv_pathless_PYTHON -c "$prog"" >&5
    ($am_cv_pathless_PYTHON -c "$prog") >&5 2>&5
@@ -5958,7 +5962,7 @@ $as_echo_n "checking for $am_display_PYTHON version... " >&6; }
 if test "${am_cv_python_version+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_version=`$PYTHON -c "import sys; print sys.version[:3]"`
+  am_cv_python_version=`$PYTHON -c "import sys; sys.stdout.write(sys.version[:3])"`
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_version" >&5
 $as_echo "$am_cv_python_version" >&6; }
@@ -5977,7 +5981,7 @@ $as_echo_n "checking for $am_display_PYTHON platform... " >&6; }
 if test "${am_cv_python_platform+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_platform=`$PYTHON -c "import sys; print sys.platform"`
+  am_cv_python_platform=`$PYTHON -c "import sys; sys.stdout.write(sys.platform)"`
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_platform" >&5
 $as_echo "$am_cv_python_platform" >&6; }
@@ -5991,8 +5995,21 @@ $as_echo_n "checking for $am_display_PYTHON script directory... " >&6; }
 if test "${am_cv_python_pythondir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX')" 2>/dev/null ||
+  if test "x$prefix" = xNONE
+     then
+       am_py_prefix=$ac_default_prefix
+     else
+       am_py_prefix=$prefix
+     fi
+     am_cv_python_pythondir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(0,0,prefix='$am_py_prefix'))" 2>/dev/null ||
      echo "$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages"`
+     case $am_cv_python_pythondir in
+     $am_py_prefix*)
+       am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
+       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,$PYTHON_PREFIX,"`
+       ;;
+     esac
+
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_pythondir" >&5
 $as_echo "$am_cv_python_pythondir" >&6; }
@@ -6008,8 +6025,21 @@ $as_echo_n "checking for $am_display_PYTHON extension module directory... " >&6;
 if test "${am_cv_python_pyexecdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX')" 2>/dev/null ||
-     echo "${PYTHON_EXEC_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"`
+  if test "x$exec_prefix" = xNONE
+     then
+       am_py_exec_prefix=$am_py_prefix
+     else
+       am_py_exec_prefix=$exec_prefix
+     fi
+     am_cv_python_pyexecdir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(1,0,prefix='$am_py_exec_prefix'))" 2>/dev/null ||
+     echo "$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages"`
+     case $am_cv_python_pyexecdir in
+     $am_py_exec_prefix*)
+       am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
+       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,$PYTHON_EXEC_PREFIX,"`
+       ;;
+     esac
+
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_pyexecdir" >&5
 $as_echo "$am_cv_python_pyexecdir" >&6; }
@@ -6060,12 +6090,14 @@ if test "$with_zenmap" != "no"; then
       # If the user set $PYTHON, use it and don't search something else.
       { $as_echo "$as_me:$LINENO: checking whether $PYTHON version >= 2.4" >&5
 $as_echo_n "checking whether $PYTHON version >= 2.4... " >&6; }
-      prog="import sys, string
+      prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
-minver = map(int, string.split('2.4', '.')) + [0, 0, 0]
+# map returns an iterator in Python 3.0 and a list in 2.x
+minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
 minverhex = 0
-for i in xrange(0, 4): minverhex = (minverhex << 8) + minver[i]
+# xrange is not present in Python 3.0 and range returns an iterator
+for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
 sys.exit(sys.hexversion < minverhex)"
   if { echo "$as_me:$LINENO: $PYTHON -c "$prog"" >&5
    ($PYTHON -c "$prog") >&5 2>&5
@@ -6090,14 +6122,16 @@ if test "${am_cv_pathless_PYTHON+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
 
-	for am_cv_pathless_PYTHON in python python2 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 python1.6 python1.5 none; do
+	for am_cv_pathless_PYTHON in python python2 python3 python3.0 python2.5 python2.4 python2.3 python2.2 python2.1 python2.0 none; do
 	  test "$am_cv_pathless_PYTHON" = none && break
-	  prog="import sys, string
+	  prog="import sys
 # split strings by '.' and convert to numeric.  Append some zeros
 # because we need at least 4 digits for the hex conversion.
-minver = map(int, string.split('2.4', '.')) + [0, 0, 0]
+# map returns an iterator in Python 3.0 and a list in 2.x
+minver = list(map(int, '2.4'.split('.'))) + [0, 0, 0]
 minverhex = 0
-for i in xrange(0, 4): minverhex = (minverhex << 8) + minver[i]
+# xrange is not present in Python 3.0 and range returns an iterator
+for i in list(range(0, 4)): minverhex = (minverhex << 8) + minver[i]
 sys.exit(sys.hexversion < minverhex)"
   if { echo "$as_me:$LINENO: $am_cv_pathless_PYTHON -c "$prog"" >&5
    ($am_cv_pathless_PYTHON -c "$prog") >&5 2>&5
@@ -6182,7 +6216,7 @@ $as_echo_n "checking for $am_display_PYTHON version... " >&6; }
 if test "${am_cv_python_version+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_version=`$PYTHON -c "import sys; print sys.version[:3]"`
+  am_cv_python_version=`$PYTHON -c "import sys; sys.stdout.write(sys.version[:3])"`
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_version" >&5
 $as_echo "$am_cv_python_version" >&6; }
@@ -6201,7 +6235,7 @@ $as_echo_n "checking for $am_display_PYTHON platform... " >&6; }
 if test "${am_cv_python_platform+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_platform=`$PYTHON -c "import sys; print sys.platform"`
+  am_cv_python_platform=`$PYTHON -c "import sys; sys.stdout.write(sys.platform)"`
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_platform" >&5
 $as_echo "$am_cv_python_platform" >&6; }
@@ -6215,8 +6249,21 @@ $as_echo_n "checking for $am_display_PYTHON script directory... " >&6; }
 if test "${am_cv_python_pythondir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(0,0,prefix='$PYTHON_PREFIX')" 2>/dev/null ||
+  if test "x$prefix" = xNONE
+     then
+       am_py_prefix=$ac_default_prefix
+     else
+       am_py_prefix=$prefix
+     fi
+     am_cv_python_pythondir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(0,0,prefix='$am_py_prefix'))" 2>/dev/null ||
      echo "$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages"`
+     case $am_cv_python_pythondir in
+     $am_py_prefix*)
+       am__strip_prefix=`echo "$am_py_prefix" | sed 's|.|.|g'`
+       am_cv_python_pythondir=`echo "$am_cv_python_pythondir" | sed "s,^$am__strip_prefix,$PYTHON_PREFIX,"`
+       ;;
+     esac
+
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_pythondir" >&5
 $as_echo "$am_cv_python_pythondir" >&6; }
@@ -6232,8 +6279,21 @@ $as_echo_n "checking for $am_display_PYTHON extension module directory... " >&6;
 if test "${am_cv_python_pyexecdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print sysconfig.get_python_lib(1,0,prefix='$PYTHON_EXEC_PREFIX')" 2>/dev/null ||
-     echo "${PYTHON_EXEC_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"`
+  if test "x$exec_prefix" = xNONE
+     then
+       am_py_exec_prefix=$am_py_prefix
+     else
+       am_py_exec_prefix=$exec_prefix
+     fi
+     am_cv_python_pyexecdir=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.get_python_lib(1,0,prefix='$am_py_exec_prefix'))" 2>/dev/null ||
+     echo "$PYTHON_EXEC_PREFIX/lib/python$PYTHON_VERSION/site-packages"`
+     case $am_cv_python_pyexecdir in
+     $am_py_exec_prefix*)
+       am__strip_prefix=`echo "$am_py_exec_prefix" | sed 's|.|.|g'`
+       am_cv_python_pyexecdir=`echo "$am_cv_python_pyexecdir" | sed "s,^$am__strip_prefix,$PYTHON_EXEC_PREFIX,"`
+       ;;
+     esac
+
 fi
 { $as_echo "$as_me:$LINENO: result: $am_cv_python_pyexecdir" >&5
 $as_echo "$am_cv_python_pyexecdir" >&6; }
