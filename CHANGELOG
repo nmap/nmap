@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed IP ID matching in packet headers returned in ICMP errors.
+  This was already the case for some operating systems that are known
+  the IDs of sent IP packets. In rare cases of ID mangling, requiring
+  a match could cause replies to be ignored even after other tests had
+  shown them to be relevant. See http://seclists.org/nmap-dev/2009/q2/580
+  for an example of host order affecting scan results, caused by this
+  phonomenon. [David]
+
+o Added some additional matching rules to keep a reply to a SYN probe
+  from matching an ACK probe to the same port, or vice versa, in ping
+  scans that include both scan types. Such a mismatch could cause an
+  ineffective timing ping or traceroute probe to be selected. [David]
+
 o [Zenmap] There is a new command-line option, --confdir, which allows
   setting the per-user configuration directory. Its value defaults to
   $HOME/.zenmap. This was suggested by Jesse McCoppin. [David]
