@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified script telnet-brute.nse to use the unpw database
+  instead of a hardcoded list. [Ron]
+
 o Removed IP ID matching in packet headers returned in ICMP errors.
   This was already the case for some operating systems that are known
   the IDs of sent IP packets. In rare cases of ID mangling, requiring

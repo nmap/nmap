@@ -1,8 +1,10 @@
 description = [[
 Tries to get Telnet login credentials by guessing usernames and passwords.
+
+Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
 ]]
 
-author = 'Eddie Bell <ejlbell@gmail.com>'
+author = 'Eddie Bell <ejlbell@gmail.com>, Ron Bowes <ron@skullsecurity.net>'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'auth', 'intrusive'}
 
@@ -10,6 +12,7 @@ require('shortport')
 require('stdnse')
 require('strbuf')
 require('comm')
+require('unpwdb')
 
 local soc
 local catch = function() soc:close() end
@@ -22,51 +25,6 @@ local escape_cred = function(cred)
 		return '<blank>'
 	else
 		return cred 
-	end
-end
-
----
--- Returns a function which returns the next user/pass pair each time
--- it is called. When no more pairs are available nil is returned. 
---
--- There are plenty more possible pairs but we need to find
--- a compromise between speed and coverage
---@return iterator Function which will return user and password pairs.
-local new_auth_iter = function()
-	local userpass = { 
-		-- guest
-		{'guest', ''}, {'guest', 'guest'}, {'guest', 'visitor'},
-
-		-- root
-		{'root', ''}, {'root', 'root'}, 
-		{'root', 'pass'}, {'root', 'password'},
-
-		-- admin
-		{'admin', ''}, {'admin', 'admin'},
-		{'admin', 'pass'}, {'admin', 'password'},
-
-		-- adminstrator
-		{'adminstrator', ''}, {'adminstrator', 'adminstrator'},
-		{'adminstrator', 'password'}, {'adminstrator', 'pass'},
-		
-		-- others
-		{'visitor', ''}, {'netman', 'netman'}, {'Admin', 'Admin'},
-		{'manager', 'manager'}, {'security', 'security'},
-		{'username', 'password'}, {'user', 'pass'}, 
-		
-		-- sentinel 
-		{nil, nil}
-	}
-
-	local i = 1 
-	return function(direction)
-		if not userpass[i][1] then 
-			return
-		 end
-
-		i = i + 1
-		stdnse.print_debug(3, "%s %s:%s", filename, userpass[i-1][1], escape_cred(userpass[i-1][2]))
-		return userpass[i-1][1], userpass[i-1][2]
 	end
 end
 
@@ -179,34 +137,61 @@ local brute_cred = function(user, pass, soc)
 	return 1, "error -> this should never happen"
 end
 
-action = function(host, port)
-	local pair, status, auth_iter 
+local function go(host, port)
+	local pair, status
 	local user, pass, count, rbuf
-	
-	pair = nil ; status = 3 ; count = 0
-	auth_iter = new_auth_iter(); 
-	
+	local usernames, passwords
+
+	status, usernames = unpwdb.usernames()
+	if(not(status)) then
+		return false, usernames
+	end
+
+	status, passwords = unpwdb.passwords()
+	if(not(status)) then
+		return false, passwords
+	end
+
+	pair = nil
+	status = 3
+	count = 0
+
 	local opts = {timeout=4000}
 
 	local soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
-  	if not soc then return "Unable to open connection" end
+  	if not soc then 
+		return false, "Unable to open connection" 
+	end
 
 	-- continually try user/pass pairs (reconnecting, if we have to)
         -- until we find a valid one or we run out of pairs
+	pass = passwords()
 	while not (status == 1) do
 
 		if status == 2 or status == 3 then
-			user, pass = auth_iter() 
+			user = usernames()
+			if(not(user)) then
+				usernames('reset')
+				user = usernames()
+				pass = passwords()
+
+				if(not(pass)) then
+					return false, "No accounts found"
+				end
+			end
+
+			stdnse.print_debug(2, "telnet-brute: Trying %s/%s", user, pass)
 		end
 
 		-- make sure we don't get stuck in a loop
 		if status == 4 then
 			count = count + 1
-			if count > 3 then return nil end
-		else count = 0 end
-
-		-- no more users left
-		if not user then break end
+			if count > 3 then
+				return false, nil
+			end
+		else
+			count = 0
+		end
 
 		if status == 3 or status == 4 then
 			try(soc:connect(host.ip, port.number, best_opt))
@@ -215,5 +200,20 @@ action = function(host, port)
 		status, pair = brute_cred(user, pass, soc)
 	end
 	soc:close()
-	return pair
+	return true, pair
 end
+
+action = function(host, port)
+
+	local status, result = go(host, port)
+
+	if(not(status)) then
+		if(nmap.debugging() > 0) then
+			return "ERROR: "  .. result
+		end
+	else
+		return result
+	end
+end
+
+
