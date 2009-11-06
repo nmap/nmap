@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added support for connecting to nameservers over IPv6. IPv6 addresses
+  can be used in /etc/resolv.conf or with the --dns-servers option. The
+  parallel reverse DNS resolver still only support IPv4 addresses, but
+  it can look them up over IPv6. [Ankur Nandwani]
+
 o [NSE] Modified script telnet-brute.nse to use the unpw database
   instead of a hardcoded list. [Ron]
 

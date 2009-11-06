@@ -243,7 +243,7 @@ typedef struct host_elem_s host_elem;
 
 struct dns_server_s {
   char *hostname;
-  sockaddr_in addr;
+  sockaddr_storage addr;
   nsock_iod nsd;
   int connected;
   int reqs_on_wire;
@@ -793,12 +793,12 @@ static void add_dns_server(char *ipaddrs) {
   std::list<dns_server *>::iterator servI;
   dns_server *tpserv;
   char *hostname;
-  struct sockaddr_in addr;
+  struct sockaddr_storage addr;
   size_t addr_len = sizeof(addr);
 
   for (hostname = strtok(ipaddrs, " ,"); hostname != NULL; hostname = strtok(NULL, " ,")) {
 
-    if (!resolve(hostname, (struct sockaddr_storage *) &addr, &addr_len, PF_INET)) continue;
+    if (!resolve(hostname, (struct sockaddr_storage *) &addr, &addr_len, PF_UNSPEC)) continue;
 
     for(servI = servs.begin(); servI != servs.end(); servI++) {
       tpserv = *servI;
@@ -860,7 +860,7 @@ static void connect_dns_servers() {
     s->capacity = CAPACITY_MIN;
     s->write_busy = 0;
 
-    nsock_connect_udp(dnspool, s->nsd, connect_evt_handler, NULL, (struct sockaddr *) &s->addr, sizeof(struct sockaddr), 53);
+    nsock_connect_udp(dnspool, s->nsd, connect_evt_handler, NULL, (struct sockaddr *) &s->addr, sizeof(s->addr), 53);
     nsock_read(dnspool, s->nsd, read_evt_handler, -1, NULL);
     s->connected = 1;
   }
@@ -954,7 +954,7 @@ static void parse_resolvdotconf() {
     // Skip any leading whitespace
     while (*tp == ' ' || *tp == '\t') tp++;
 
-    if (sscanf(tp, "nameserver %15s", ipaddr) == 1) add_dns_server(ipaddr);
+    if (sscanf(tp, "nameserver %65s", ipaddr) == 1) add_dns_server(ipaddr);
   }
 
   fclose(fp);
@@ -1343,6 +1343,7 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 // Returns a list of known DNS servers
 std::list<std::string> get_dns_servers() {
   init_servs();
+  char addrStr[INET6_ADDRSTRLEN];
 
   // If the user said --system-dns (!o.mass_dns), we should never return a list
   // of servers.
@@ -1350,8 +1351,9 @@ std::list<std::string> get_dns_servers() {
 
   std::list<dns_server *>::iterator servI;
   std::list<std::string> serverList;
-  for(servI = servs.begin(); servI != servs.end(); servI++)
-    serverList.push_back(inet_ntoa((*servI)->addr.sin_addr));
-
+  for(servI = servs.begin(); servI != servs.end(); servI++) {
+    inet_ntop((*servI)->addr.ss_family, (&(*servI)->addr),addrStr, sizeof(addrStr));  
+    serverList.push_back(addrStr);
+  }
   return serverList;
 }
