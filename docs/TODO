@@ -182,6 +182,11 @@ o [NSE] Improve username/password library (the database files
 o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
   http://seclists.org/nmap-dev/2009/q3/0986.html).
 
+o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
+  remote shell, etc.  See this thread:
+  http://seclists.org/nmap-dev/2009/q4/255, particularly the
+  implementation sketch at http://seclists.org/nmap-dev/2009/q4/268
+
 o Add Nmap web board.
  
 o Create Nmap wiki
