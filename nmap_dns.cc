@@ -244,6 +244,7 @@ typedef struct host_elem_s host_elem;
 struct dns_server_s {
   char *hostname;
   sockaddr_storage addr;
+  size_t addr_len;
   nsock_iod nsd;
   int connected;
   int reqs_on_wire;
@@ -813,6 +814,7 @@ static void add_dns_server(char *ipaddrs) {
 
       tpserv->hostname = strdup(hostname);
       memcpy(&tpserv->addr, &addr, sizeof(addr));
+      tpserv->addr_len = addr_len;
 
       servs.push_front(tpserv);
 
@@ -860,7 +862,7 @@ static void connect_dns_servers() {
     s->capacity = CAPACITY_MIN;
     s->write_busy = 0;
 
-    nsock_connect_udp(dnspool, s->nsd, connect_evt_handler, NULL, (struct sockaddr *) &s->addr, sizeof(s->addr), 53);
+    nsock_connect_udp(dnspool, s->nsd, connect_evt_handler, NULL, (struct sockaddr *) &s->addr, s->addr_len, 53);
     nsock_read(dnspool, s->nsd, read_evt_handler, -1, NULL);
     s->connected = 1;
   }
