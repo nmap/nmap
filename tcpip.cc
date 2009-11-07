@@ -2342,7 +2342,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
       }
       p += offset;
     }
-    if (!p || (*p & 0x40) != 0x40) {
+    if (!p || (*p & 0xF0) != 0x40) {
       /* Should we timeout? */
       if (to_usec == 0) {
         timedout = 1;
@@ -2353,7 +2353,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
         }
       }
     }
-  } while (!timedout && (!p || (*p & 0x40) != 0x40)); /* Go until we get IPv4 packet */
+  } while (!timedout && (!p || (*p & 0xF0) != 0x40)); /* Go until we get IPv4 packet */
 
   if (timedout) {
     *len = 0;
