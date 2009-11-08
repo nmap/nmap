@@ -1,5 +1,25 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Improved the authentication used by the smb-* scripts. Instead of 
+  looking in a bunch of places (registry, commandline, etc) for the
+  usernames/passwords, a table is kept. This lets us store any number
+  of accounts for later use, and remove them if they stop working. This
+  also fixes a bug where typing in a password incorrectly would lock
+  out an account (since it wouldn't stop trying the account in question). 
+  [Ron]
+
+o [NSE] smb-enum-shares.nse now checks whether or not a share is writable
+  by attempting to write a file (and deleting it if it's successful). 
+  Significantly cleaned up the code, as well. [Ron]
+
+o [NSE] New script: smbv2-enabled.nse. Basically, it checks if the
+  smbv2 protocol is enabled on the server. [Ron]
+
+o [NSE] New script: smb-psexec.nse. This script implements the functionality
+  found in Microsoft Sysinternals' psexec utility and Metasploit's psexec
+  "exploit". In addition to this script, some default configurations
+  are also included. [Ron]
+
 o Added support for connecting to nameservers over IPv6. IPv6 addresses
   can be used in /etc/resolv.conf or with the --dns-servers option. The
   parallel reverse DNS resolver still only support IPv4 addresses, but
