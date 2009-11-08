@@ -41,9 +41,9 @@
 --
 --<code>
 -- status, smbstate = smb.start(host)
--- status, err      = smb.negotiate_protocol(smbstate)
--- status, err      = smb.start_session(smbstate)
--- status, err      = smb.tree_connect(smbstate, path)
+-- status, err      = smb.negotiate_protocol(smbstate, {})
+-- status, err      = smb.start_session(smbstate, {})
+-- status, err      = smb.tree_connect(smbstate, path, {})
 -- ...
 -- status, err      = smb.tree_disconnect(smbstate)
 -- status, err      = smb.logoff(smbstate)
@@ -112,6 +112,7 @@
 --@args smbport      Override the default port choice. If <code>smbport</code> is open, it's used. It's assumed
 --                   to be the same protocol as port 445, not port 139. Since it probably isn't possible to change
 --                   Windows' ports normally, this is mostly useful if you're bouncing through a relay or something. 
+--@args randomseed   Set to a value to change the filenames/service names that are randomly generated. 
 --                   
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
@@ -133,7 +134,45 @@ status_names = {}
 local mutexes = setmetatable({}, {__mode = "k"});
 --local debug_mutex = nmap.mutex("SMB-DEBUG")
 
-local TIMEOUT = 20000
+local TIMEOUT = 10000
+
+---Wrapper around <code>smbauth.add_account</code>.
+function add_account(host, username, domain, password, password_hash, hash_type, is_admin)
+	smbauth.add_account(host, username, domain, password, password_hash, hash_type, is_admin)
+end
+
+---Wrapper around <code>smbauth.get_account</code>. 
+function get_account(host)
+	return smbauth.get_account(host)
+end
+---Create an 'overrides' table
+function get_overrides(username, domain, password, password_hash, hash_type, overrides)
+	if(not(overrides)) then
+		return {username=username, domain=domain, password=password, password_hash=password_hash, hash_type=hash_type}
+	else
+		overrides['username'] = username
+		overrides['domain'] = domain
+		overrides['password'] = password
+		overrides['password_hash'] = password_hash
+		overrides['hash_type'] = hash_type
+	end
+end
+
+---Get an 'overrides' table for the anonymous user
+--
+--@param overrides [optional] A base table of overrides. The appropriate fields will be added. 
+function get_overrides_anonymous(overrides)
+	if(not(overrides)) then
+		return {username='', domain='', password='', password_hash=nil, hash_type='none'}
+	else
+		overrides['username'] = ''
+		overrides['domain'] = ''
+		overrides['password'] = ''
+		overrides['password_hash'] = ''
+		overrides['hash_type'] = 'none'
+	end
+end
+
 
 ---Returns the mutex that should be used by the current connection. This mutex attempts
 -- to use the name, first, then falls back to the IP if no name was returned. 
@@ -204,7 +243,7 @@ end
 function get_status_name(status)
 
 	if(status_names[status] == nil) then
-		-- If the name wasn't found in the array, do a linear search on it (TODO: Why is this happening??) (XXX: I think I fixed this)
+		-- If the name wasn't found in the array, do a linear search on it
 		for i, v in pairs(status_names) do
 			if(v == status) then
 				return i
@@ -265,74 +304,12 @@ function disable_extended(smb)
 	smb['extended_security'] = false
 end
 
----Writes the given account to the registry. There are several places where accounts are stored:
--- * registry['usernames'][username]        => true
--- * registry['smbaccounts'][username]      => password
--- * registry[ip]['smbaccounts'][username]  => password
--- * registry[ip]['smbaccount']['username'] => username
--- * registry[ip]['smbaccount']['password'] => password
--- * registry[ip]['smbaccount']['is_admin'] => true or false
---
--- The final place, 'smbaccount', is reserved for the "best" account. This is an administrator
--- account, if one's found; otherwise, it's the first account discovered that isn't <code>guest</code>. 
---
--- This has to be called while no SMB connections are made, since it potentially makes its own connection.
---
---@param ip       The ip address of the host
---@param username The username to add. 
---@param password The password to add. 
-function add_account(host, username, password)
-	local best_account = false
-
-	-- Save the username in a global list
-	if(nmap.registry.usernames == nil) then
-		nmap.registry.usernames = {}
-	end
-	nmap.registry.usernames[username] = true
-
-	-- Save the username/password pair in a global list
-	if(nmap.registry.smbaccounts == nil) then
-		nmap.registry.smbaccounts = {}
-	end
-	nmap.registry.smbaccounts[username] = password
-
-	-- Save the username/password pair for the server with the others
-	if(nmap.registry[host.ip] == nil) then
-		nmap.registry[host.ip] = {}
-	end
-	if(nmap.registry[host.ip]['smbaccounts'] == nil) then
-		nmap.registry[host.ip]['smbaccounts'] = {}
-	end
-	nmap.registry[host.ip]['smbaccounts'][username] = password
-
-	-- Don't bother saving if our account is guest or blank (those are tried anyways)
-	if(string.lower(username) ~= "guest" and string.lower(username) ~= "") then
-		-- Save the new account if this is our first one, or our other account isn't an admin
-		if(nmap.registry[host.ip]['smbaccount'] == nil or nmap.registry[host.ip]['smbaccount']['is_admin'] == false) then
-			local result, _
-	
-			nmap.registry[host.ip]['smbaccount'] = {}
-			nmap.registry[host.ip]['smbaccount']['username'] = username
-			nmap.registry[host.ip]['smbaccount']['password'] = password
-	
-			-- Try getting information about "IPC$". This determines whether or not the user is administrator
-			-- since only admins can get share info. 
-			nmap.registry[host.ip]['smbaccount']['is_admin'], _ = msrpc.get_share_info(host, "IPC$")
-	
-			if(nmap.registry[host.ip]['smbaccount']['is_admin'] == true) then
-				stdnse.print_debug(1, "SMB: Saved an administrative account: %s", username)
-			else
-				stdnse.print_debug(1, "SMB: Saved a non-administrative account: %s", username)
-			end
-		end
-	end
-end
-
 --- Begins a SMB session, automatically determining the best way to connect. Also starts a mutex
 --  with mutex_id. This prevents multiple threads from making queries at the same time (which breaks
 --  SMB). 
 --
 -- @param host The host object
+-- @param overrides [optional] Overrides for various fields
 -- @return (status, smb) if the status is true, result is the newly crated smb object; 
 --         otherwise, socket is the error message. 
 function start(host)
@@ -342,6 +319,7 @@ function start(host)
 
 	state['uid']      = 0
 	state['tid']      = 0
+	state['host']     = host
 	state['ip']       = host.ip
 	state['sequence'] = -1
 
@@ -363,6 +341,9 @@ function start(host)
 	if(port == nil) then
 		return false, "SMB: Couldn't find a valid port to check"
 	end
+
+	-- Initialize the accounts for logging on (note: this has to be outside the mutex, or things break)
+	smbauth.init_account(host)
 
 	lock_mutex(state, "start(1)")
 
@@ -406,10 +387,15 @@ end
 --                          packet isn't sent. 
 --@param create_file        [optional] The path and name of the file (or pipe) that's created, if given. If 
 --                          not given, packet isn't sent. 
+--@param overrides          [optional] A table of overrides (for, for example, username, password, etc.) to pass 
+--                          to all functions. 
 --@param disable_extended   [optional] If set to true, disables extended security negotiations. 
-function start_ex(host, negotiate_protocol, start_session, tree_connect, create_file, disable_extended)
+function start_ex(host, negotiate_protocol, start_session, tree_connect, create_file, disable_extended, overrides)
 	local smbstate
 	local status, err
+
+	-- Make sure we have overrides
+	overrides = overrides or {}
 
 	-- Begin the SMB session
 	status, smbstate = smb.start(host)
@@ -424,7 +410,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 
 	if(negotiate_protocol == true) then
 		-- Negotiate the protocol
-		status, err = smb.negotiate_protocol(smbstate)
+		status, err = smb.negotiate_protocol(smbstate, overrides)
 		if(status == false) then
 			smb.stop(smbstate)
 			return false, err
@@ -432,7 +418,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 
 		if(start_session == true) then	
 			-- Start up a session
-			status, err = smb.start_session(smbstate)
+			status, err = smb.start_session(smbstate, overrides)
 			if(status == false) then
 				smb.stop(smbstate)
 				return false, err
@@ -440,7 +426,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 
 			if(tree_connect ~= nil) then
 				-- Connect to share
-				status, err = smb.tree_connect(smbstate, tree_connect)
+				status, err = smb.tree_connect(smbstate, tree_connect, overrides)
 				if(status == false) then
 					smb.stop(smbstate)
 					return false, err
@@ -448,7 +434,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 
 				if(create_file ~= nil) then
 					-- Try to connect to requested pipe
-					status, err = smb.create_file(smbstate, create_file)
+					status, err = smb.create_file(smbstate, create_file, overrides)
 					if(status == false) then
 						smb.stop(smbstate)
 						return false, err
@@ -841,14 +827,26 @@ function smb_send(smb, header, parameters, data)
     local encoded_parameters = smb_encode_parameters(parameters)
     local encoded_data       = smb_encode_data(data)
 	local body               = header .. encoded_parameters .. encoded_data
+	local attempts           = 5
+	local status, err
 
 	-- Calculate the message signature
 	body = message_sign(smb, body)
 
     local out = bin.pack(">I<A", string.len(body), body)
 
-	stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d)", string.len(out))
-    return smb['socket']:send(out)
+
+	repeat
+		attempts = attempts - 1
+		stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d, attempts remaining: %d)", string.len(out), attempts)
+		status, err = smb['socket']:send(out)
+	until(status or (attempts == 0))
+
+	if(attempts == 0) then
+		stdnse.print_debug(1, "SMB: Sending packet failed after 5 tries! Giving up.")
+	end
+
+	return status, err
 end
 
 --- Reads the next packet from the socket, and parses it into the header, parameters, 
@@ -865,16 +863,21 @@ end
 function smb_read(smb, read_data)
 	local status, result
 	local pos, netbios_length, length, header, parameter_length, parameters, data_length, data
+	local attempts = 5
 
 	stdnse.print_debug(3, "SMB: Receiving SMB packet")
 
 	-- Receive the response -- we make sure to receive at least 4 bytes, the length of the NetBIOS length
 	smb['socket']:set_timeout(TIMEOUT)
-	status, result = smb['socket']:receive_bytes(4);
+
+	repeat
+		attempts = attempts - 1
+		status, result = smb['socket']:receive_bytes(4);
+	until(status or (attempts == 0))
 
 	-- Make sure the connection is still alive
 	if(status ~= true) then
-		return false, "SMB: Failed to receive bytes: " .. result
+		return false, "SMB: Failed to receive bytes after 5 attempts: " .. result
 	end
 
 	-- The length of the packet is 4 bytes of big endian (for our purposes).
@@ -892,12 +895,17 @@ function smb_read(smb, read_data)
 	-- If we haven't received enough bytes, try and get the rest (fragmentation!)
 	if(#result < length) then
 		local new_result
+		local attempts = 5
 		stdnse.print_debug(1, "SMB: Received a fragmented packet, attempting to receive the rest of it (got %d bytes, need %d)", #result, length)
 
-		status, new_result = smb['socket']:receive_bytes(netbios_length - #result)
+		repeat
+			attempts = attempts - 1
+			status, new_result = smb['socket']:receive_bytes(netbios_length - #result)
+		until(status or (attempts == 0))
+
 		-- Make sure the connection is still alive
 		if(status ~= true) then
-			return false, "SMB: Failed to receive bytes: " .. result
+			return false, "SMB: Failed to receive bytes after 5 attempts: " .. result
 		end
 
 		-- Append the new data to the old stuff
@@ -967,7 +975,8 @@ end
 -- * The capabilities
 -- * The server and domain names
 --
---@param smb    The SMB object associated with the connection
+--@param smb       The SMB object associated with the connection
+--@param overrides [optional] Overrides for various fields
 --@return (status, result) If status is false, result is an error message. Otherwise, result is
 --        nil and the following elements are added to <code>smb</code>:
 --      * 'security_mode'    Whether or not to use cleartext passwords, message signatures, etc.
@@ -984,18 +993,29 @@ end
 --      * 'server_challenge' A random string used for challenge/response
 --      * 'domain'           The server's primary domain
 --      * 'server'           The server's name
-function negotiate_protocol(smb)
+function negotiate_protocol(smb, overrides)
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, ehader4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
 
 	header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'])
 
+	-- Make sure we have overrides
+	overrides = overrides or {}
+
 	-- Parameters are blank
 	parameters = ""
 
 	-- Data is a list of strings, terminated by a blank one. 
-	data       = bin.pack("<CzCz", 2, "NT LM 0.12", 2, "")
+	if(overrides['dialects'] == nil) then
+		data       = bin.pack("<CzCz", 2, (overrides['dialect'] or "NT LM 0.12"), 2, "")
+	else
+		data = ""
+		for _, v in ipairs(overrides['dialects']) do
+			data = data .. bin.pack("<Cz", 2, v)
+		end
+		data = data .. bin.pack("Cz", 2, "")
+	end
 
 	-- Send the negotiate request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NEGOTIATE")
@@ -1013,6 +1033,12 @@ function negotiate_protocol(smb)
 	-- Parse out the header
     local uid, tid, header4
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+
+	-- Get the protocol version
+	local protocol_version = string.char(header1, header2, header3, header4)
+	if(protocol_version == (string.char(0xFE) .. "SMB")) then
+		return false, "SMB: Server returned a SMBv2 packet, don't know how to handle"
+	end
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
 	if(mid == nil) then
@@ -1112,7 +1138,8 @@ function negotiate_protocol(smb)
 	return true
 end
 
-function start_session_basic(smb, overrides, use_default, log_errors)
+
+function start_session_basic(smb, log_errors, overrides)
 	local i, err
 	local status, result
 	local header, parameters, data, domain
@@ -1120,16 +1147,26 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
 	local andx_command, andx_reserved, andx_offset, action
 	local os, lanmanager
-
-	local accounts  = smbauth.get_accounts(smb['ip'], overrides, use_default)
+	local username, domain, password, password_hash, hash_type
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
 
-	-- Loop through the credentials returned by get_accounts() (there should be 1 - 3, but we make no assumptions)
-	for i = 1, #accounts, 1 do
+	-- Get the first account, unless they overrode it
+	if(overrides ~= nil and overrides['username'] ~= nil) then
+		result = true
+		username      = overrides['username']
+		domain        = overrides['domain']
+		password      = overrides['password']
+		password_hash = overrides['password_hash']
+		hash_type     = overrides['hash_type']
+	else
+		result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+	end
+		
+	while result ~= false do
 		local lanman, ntlm
 
-		lanman, ntlm, smb['mac_key'] = smbauth.get_password_hashes(smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, smb['server_challenge'], false)
+		lanman, ntlm, smb['mac_key'] = smbauth.get_password_response(smb['ip'], username, domain, password, password_hash, hash_type, smb['server_challenge'], false)
 
 		-- Parameters
 		parameters = bin.pack("<CCSSSSISSII", 
@@ -1145,13 +1182,13 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 					0x00000000,         -- Reserved
 	                0x00000050          -- Capabilities
 				)
-	
+
 		-- Data is a list of strings, terminated by a blank one. 
 		data       = bin.pack("<AAzzzz", 
 					lanman,                 -- ANSI/Lanman password
 					ntlm,                   -- Unicode/NTLM password
-					accounts[i]['username'],-- Account
-					accounts[i]['domain'],  -- Domain
+					username,               -- Account
+					domain,                 -- Domain
 					"Nmap",                 -- OS
 					"Native Lanman"         -- Native LAN Manager
 				)
@@ -1207,9 +1244,9 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 			-- Check if they were logged in as a guest
 			if(log_errors == nil or log_errors == true) then
 				if(smb['is_guest'] == 1) then
-					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']))
+					stdnse.print_debug(1, "SMB: Login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username))
 				else
-					stdnse.print_debug(1, "SMB: Login as %s\\%s succeeded", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']))
+					stdnse.print_debug(2, "SMB: Login as %s\\%s succeeded", domain, stdnse.string_or_blank(username))
 				end
 			end
 
@@ -1221,19 +1258,27 @@ function start_session_basic(smb, overrides, use_default, log_errors)
 		else
 			-- This username failed, print a warning and keep going
 			if(log_errors == nil or log_errors == true) then
-				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']), get_status_name(status))
+				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
+			end
+
+			-- Go to the next account
+			if(overrides == nil or overrides['username'] == nil) then
+				smbauth.next_account(smb['host'])
+				result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+			else
+				result = false
 			end
 		end
 	end
 
-	if(log_errors == nil or log_errors == true) then
-		stdnse.print_debug(1, "SMB: ERROR: All logins failed, sorry it didn't work out!")
+	if(log_errors ~= false) then
+		stdnse.print_debug(1, "SMB: ERROR: %s", username)
 	end
 
 	return false, get_status_name(status)
 end
 
-function start_session_extended(smb, overrides, use_default, log_errors)
+function start_session_extended(smb, log_errors, overrides)
 	local i
 	local status, status_name, result, err
 	local header, parameters, data
@@ -1241,11 +1286,21 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid 
 	local andx_command, andx_reserved, andx_offset, action, security_blob_length
 	local os, lanmanager
+	local username, domain, password, password_hash, hash_type
 
-	local accounts  = smbauth.get_accounts(smb['ip'], overrides, use_default)
+	-- Get the first account, unless they overrode it
+	if(overrides ~= nil and overrides['username'] ~= nil) then
+		result = true
+		username      = overrides['username']
+		domain        = overrides['domain']
+		password      = overrides['password']
+		password_hash = overrides['password_hash']
+		hash_type     = overrides['hash_type']
+	else
+		result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+	end
 
-	-- Loop through the credentials returned by get_accounts() (there should be 1 - 3, but we make no assumptions)
-	for i = 1, #accounts, 1 do
+	while result ~= false do
 		-- These are loop variables
 		local security_blob = nil
 		local security_blob_length = 0
@@ -1253,7 +1308,7 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 		-- This loop takes care of the multiple packets that "extended security" requires
 		repeat
 			-- Get the new security blob, passing the old security blob as a parameter. If there was no previous security blob, then nil is passed, which creates a new one
-			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], accounts[i]['username'], accounts[i]['domain'], accounts[i]['hash_type'], overrides, use_default)
+			status, security_blob, smb['mac_key'] = smbauth.get_security_blob(security_blob, smb['ip'], username, domain, password, password_hash, hash_type)
 
 			-- There was an error processing the security blob	
 			if(status == false) then
@@ -1335,9 +1390,9 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 					-- Check if they were logged in as a guest
 					if(log_errors == nil or log_errors == true) then
 						if(smb['is_guest'] == 1) then
-							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username'])))
+							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username)))
 						else
-							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s succeeded", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username'])))
+							stdnse.print_debug(2, string.format("SMB: Extended login as %s\\%s succeeded", domain, stdnse.string_or_blank(username)))
 						end
 					end
 	
@@ -1351,12 +1406,19 @@ function start_session_extended(smb, overrides, use_default, log_errors)
 
 		-- Display a message to the user, and try the next account
 		if(log_errors == nil or log_errors == true) then
-			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", accounts[i]['domain'], stdnse.string_or_blank(accounts[i]['username']), status_name)
+			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), status_name)
 		end
 
 		-- Reset the user id and security_blob
 		smb['uid'] = 0
 
+		-- Go to the next account
+		if(overrides == nil or overrides['username'] == nil) then
+			smbauth.next_account(smb['host'])
+			result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+		else
+			result = false
+		end
 	end -- Loop over the accounts
 	
 	if(log_errors == nil or log_errors == true) then
@@ -1379,12 +1441,9 @@ end
 -- * Server OS
 --
 --@param smb          The SMB object associated with the connection
---@param username     [optional] Overrides the account name to use. Will use Nmap parameters or registry by 
---                    default, or NULL session if it isn't set anywhere
---@param domain       [optional] Overrides the domain to use. 
---@param password     [optional] Overrides the password to use. Will use Nmap parameters or registry by default.
---@param hash_type    [optional] Overrides the hash type to use (can be v1, LM, NTLM, LMv2, v2). Default is 'NTLM'.
---@param use_defaults  [optional] If set, will attempt anonymous/guest. Default: true.
+--@param overrides    [optional] A table of overrides for username, domain, password, password_hash, and hash_type. 
+--                    If any of these are given, it's used first. If they aren't, then Nmap parameters, Nmap registry entries, 
+--                    guest, and NULL sessions are used. 
 --@param log_errors   [optional] If set, will display login. Default: true. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is nil and the following
 --        elements are added to the smb table:
@@ -1392,13 +1451,11 @@ end
 --    *  'is_guest'    If set, the username wasn't found so the user was automatically logged in as the guest account
 --    *  'os'          The operating system
 --    *  'lanmanager'  The servers's LAN Manager
-function start_session(smb, username, domain, password, password_hash, hash_type, use_defaults, log_errors)
-	local overrides = { username=username, domain=domain, password=password, password_hash=password_hash, hash_type=hash_type }
-
+function start_session(smb, overrides, log_errors)
 	if(smb['extended_security'] == true) then
-		return start_session_extended(smb, overrides, use_defaults, log_errors)
+		return start_session_extended(smb, log_errors, overrides)
 	else
-		return start_session_basic(smb, overrides, use_defaults, log_errors)
+		return start_session_basic(smb, log_errors, overrides)
 	end
 end
  
@@ -1411,29 +1468,33 @@ end
 -- Receives the following:
 -- * Tree ID
 --
---@param smb    The SMB object associated with the connection
---@param path   The path to connect (eg, <code>"\\servername\C$"</code>)
+--@param smb       The SMB object associated with the connection
+--@param path      The path to connect (eg, <code>"\\servername\C$"</code>)
+--@param overrides [optional] Overrides for various fields
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a 
 --        table with the following elements:
 --      * 'tid'         The TreeID for the session
-function tree_connect(smb, path)
+function tree_connect(smb, path, overrides)
 	local header, parameters, data, err, result
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset, action
+
+	-- Make sure we have overrides
+	overrides = overrides or {}
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_TREE_CONNECT_ANDX'])
 	parameters = bin.pack("<CCSSS", 
 					0xFF,   -- ANDX no further commands
 					0x00,   -- ANDX reserved
 					0x0000, -- ANDX offset
-					0x0000, -- flags
+					(overrides['tree_connect_flags'] or 0x0000), -- flags
 					0x0000 -- password length (for share-level security)
 				)
 	data = bin.pack("zz", 
 					        -- Share-level password
 					path,   -- Path
-					"?????" -- Type of tree ("?????" = any)
+					(overrides['tree_type'] or "?????") -- Type of tree ("?????" = any)
 				)
 
 	-- Send the tree connect request
@@ -1568,16 +1629,20 @@ end
 --  Most of the parameters I pass here are used directly from a packetlog, especially the various permissions fields and flags. 
 --  I might make this more adjustable in the future, but this has been working for me. 
 --
---@param smb    The SMB object associated with the connection
---@param path   The path of the file or pipe to open
+--@param smb       The SMB object associated with the connection
+--@param path      The path of the file or pipe to open
+--@param overrides [optional] Overrides for various fields
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table
 --        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
-function create_file(smb, path)
+function create_file(smb, path, overrides)
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset
 	local oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory
+
+	-- Make sure we have overrides
+	overrides = overrides or {}
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_NT_CREATE_ANDX'])
 	parameters = bin.pack("<CCSCSIIILIIIIIC", 
@@ -1586,16 +1651,16 @@ function create_file(smb, path)
 					0x0000, -- ANDX offset
 					0x00,   -- Reserved
 					string.len(path), -- Path length
-					0x00000016,       -- Create flags
-					0x00000000,       -- Root FID
-					0x02000000,       -- Access mask
-					0x0000000000000000, -- Allocation size
-					0x00000000,         -- File attributes
-					0x00000007,         -- Share attributes
-					0x00000000,         -- Disposition
-					0x00000000,         -- Create options
-					0x00000002,         -- Impersonation
-					0x01                -- Security flags
+					(overrides['file_create_flags']            or 0x00000016),         -- Create flags
+					(overrides['file_create_root_fid']         or 0x00000000),         -- Root FID
+					(overrides['file_create_access_mask']      or 0x02000000),         -- Access mask
+					(overrides['file_create_allocation_size']  or 0x0000000000000000), -- Allocation size
+					(overrides['file_create_attributes']       or 0x00000000),         -- File attributes
+					(overrides['file_create_share_attributes'] or 0x00000007),         -- Share attributes
+					(overrides['file_create_disposition']      or 0x00000000),         -- Disposition
+					(overrides['file_create_options']          or 0x00000000),         -- Create options
+					(overrides['file_create_impersonation']    or 0x00000002),         -- Impersonation
+					(overrides['file_create_security_flags']   or 0x01)                -- Security flags
 				)
 
 	data = bin.pack("z", path)
@@ -1653,7 +1718,7 @@ end
 --@param offset The offset to read from (ignored if it's a pipe)
 --@param count  The maximum number of bytes to read
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table
---        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
+--        containing a lot of different elements. 
 function read_file(smb, offset, count)
 	local header, parameters, data
 	local pos
@@ -1713,21 +1778,25 @@ function read_file(smb, offset, count)
 
 
 	-- data_start is the offset of the beginning of the data section -- we use this to calculate where the read data lives
-	local data_start = #header + 1 + #parameters + 2 
-	if(data_offset < data_start) then
-		return false, "SMB: Start of data isn't in data section"
+	if(response['data_length'] == 0) then
+		response['data'] = 0
+	else
+		local data_start = #header + 1 + #parameters + 2 
+		if(data_offset < data_start) then
+			return false, "SMB: Start of data isn't in data section"
+		end
+	
+		-- Figure out the offset into the data section
+		data_offset = data_offset - data_start
+	
+		-- Make sure we don't run off the edge of the packet
+		if(data_offset + response['data_length'] > #data) then
+			return false, "SMB: Data returned runs off the end of the packet"
+		end
+	
+		-- Pull the data string out of the data
+		response['data'] = string.sub(data, data_offset + 1, data_offset + response['data_length'])
 	end
-
-	-- Figure out the offset into the data section
-	data_offset = data_offset - data_start
-
-	-- Make sure we don't run off the edge of the packet
-	if(data_offset + response['data_length'] > #data) then
-		return false, "SMB: Data returned runs off the end of the packet"
-	end
-
-	-- Pull the data string out of the data
-	response['data'] = string.sub(data, data_offset + 1, data_offset + response['data_length'])
 
 	return true, response
 end
@@ -1862,7 +1931,7 @@ function delete_file(smb, path)
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_DELETE'])
 	parameters = bin.pack("<S",
-					0x0000 -- Search attributes
+					0x0027 -- Search attributes (0x27 = include read only, hidden, system, and archive)
 				)
 
 	data = bin.pack("<Cz", 
@@ -2073,8 +2142,6 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [32]"
 	end
 
-	-- TODO: Do I actually need anything from here?
-
 	return true, response
 end
 
@@ -2084,7 +2151,9 @@ end
 --@param localfile  The file on the local machine, relative to the nmap path
 --@param share      The share to upload it to (eg, C$). 
 --@param remotefile The remote file on the machine. It is relative to the share's root. 
-function file_upload(host, localfile, share, remotefile)
+--@param overrides  A table of override values that's passed to the smb functions. 
+--@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
+function file_upload(host, localfile, share, remotefile, overrides)
 	local status, err, smbstate
 	local chunk = 1024
 
@@ -2094,7 +2163,7 @@ function file_upload(host, localfile, share, remotefile)
 	end
 
 	-- Create the SMB session
-	status, smbstate = smb.start_ex(host, true, true, share, remotefile)
+	status, smbstate = smb.start_ex(host, true, true, share, remotefile, nil, overrides)
 	if(status == false) then
 		return false, smbstate
 	end
@@ -2128,11 +2197,171 @@ function file_upload(host, localfile, share, remotefile)
 	return true
 end
 
+---Write given data to the remote machine on the given share. This is similar to <code>file_upload</code>, except the 
+-- data is given as a string, not a file. 
+--
+--@param host          The host object
+--@param share         The share to upload it to (eg, C$). 
+--@param remotefile    The remote file on the machine. It is relative to the share's root. 
+--@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user. 
+--@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
+function file_write(host, data, share, remotefile, use_anonymous)
+	local status, err, smbstate
+	local chunk = 1024
+	local overrides = nil
+
+	-- If anonymous is being used, create some overrides
+	if(use_anonymous) then
+		overrides = get_overrides_anonymous()
+	end
+
+	-- Create the SMB sessioan
+	status, smbstate = smb.start_ex(host, true, true, share, remotefile, nil, overrides)
+
+	if(status == false) then
+		return false, smbstate
+	end
+
+	local i = 1
+	while(i <= #data) do
+		local chunkdata = string.sub(data, i, i + chunk - 1)
+		status, err = smb.write_file(smbstate, chunkdata, i - 1)
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, err
+		end
+
+		i = i + chunk
+	end
+	
+	status, err = smb.close_file(smbstate)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, err
+	end
+
+	-- Stop the session
+	smb.stop(smbstate)
+
+	return true
+end
+
+---Write given data to the remote machine on the given share. This is similar to <code>file_upload</code>, except the 
+-- data is given as a string, not a file. 
+--
+--@param host          The host object
+--@param share         The share to read it from (eg, C$). 
+--@param remotefile    The remote file on the machine. It is relative to the share's root. 
+--@param use_anonymous [optional] If set to 'true', test is done by the anonymous user rather than the current user. 
+--@param overrides     [optional] Override various fields in the SMB packets. 
+--@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
+function file_read(host, share, remotefile, use_anonymous, overrides)
+	local status, err, smbstate
+	local result
+	local chunk = 1024
+	local read = ""
+
+	-- Make sure we got overrides
+	overrides = overrides or {}
+
+	-- If anonymous is being used, create some overrides
+	if(use_anonymous) then
+		overrides = get_overrides_anonymous(overrides)
+	end
+
+	-- Create the SMB sessioan
+	status, smbstate = smb.start_ex(host, true, true, share, remotefile, nil, overrides)
+
+	if(status == false) then
+		return false, smbstate
+	end
+
+	local i = 1
+	while true do
+		status, result = smb.read_file(smbstate, i - 1, chunk)
+		if(status == false) then
+			smb.stop(smbstate)
+			return false, result
+		end
+
+		if(result['data_length'] == 0) then
+			break
+		end
+
+		read = read .. result['data']
+		i = i + chunk
+	end
+	
+	status, err = smb.close_file(smbstate)
+	if(status == false) then
+		smb.stop(smbstate)
+		return false, err
+	end
+
+	-- Stop the session
+	smb.stop(smbstate)
+	return true, read
+end
+
+---Check how many files, in a given list, exist on the given share. 
+--
+--@param host          The host object
+--@param share         The share to read it from (eg, C$). 
+--@param fo;es         A list of files to look for; it is relative to the share's root.
+--@param overrides     [optional] Override various fields in the SMB packets. 
+--@return status: A true/false value indicating success
+--@return count:  The number of files that existed, or an error message if status is 'false'
+--@return files:  A list of the files that existed.
+function files_exist(host, share, files, overrides)
+	local status, smbstate, result, err
+
+	-- Make sure we got overrides
+	overrides = overrides or {}
+
+	-- We don't wan to be creating the files
+	overrides['file_create_disposition'] = 1
+
+	-- Create the SMB sessioan
+	status, smbstate = smb.start_ex(host, true, true, share, nil, nil, overrides)
+
+	if(status == false) then
+		return false, smbstate
+	end
+
+	local exist = 0
+	local list  = {}
+
+	for _, file in ipairs(files) do
+		-- Try and open the file
+		status, result = create_file(smbstate, file, overrides)
+
+		-- If there was an error other than 'file already exists', return an error
+		if(not(status) and result ~= 'NT_STATUS_OBJECT_NAME_NOT_FOUND') then
+			return false, result
+		end
+
+		-- If the file existed, count it and close it
+		if(status) then
+			exist = exist + 1
+			table.insert(list, file)
+			status, err = smb.close_file(smbstate)
+			if(status == false) then
+				smb.stop(smbstate)
+				return false, err
+			end
+		end
+	end
+	
+	-- Stop the session
+	smb.stop(smbstate)
+	return true, exist, list
+end
+
 ---Delete a file from the remote machine
 -- 
 --@param host       The host object
 --@param share      The share to upload it to (eg, C$). 
---@param remotefile The remote file on the machine. It is relative to the share's root. 
+--@param remotefile The remote file on the machine. It is relative to the share's root. It can be a string, or an array. 
 --@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
 function file_delete(host, share, remotefile)
 	local status, smbstate, err
@@ -2143,16 +2372,443 @@ function file_delete(host, share, remotefile)
 		return false, smbstate
 	end
 
-	status, err = smb.delete_file(smbstate, remotefile)
-	if(status == false) then
-		smb.stop(smbstate)
-		return false, err
+	-- Make sure the remotefile is always a table, to save on duplicate code
+	if(type(remotefile) ~= "table") then
+		remotefile = {remotefile}
+	end
+
+
+	for _, file in ipairs(remotefile) do
+		status, err = smb.delete_file(smbstate, file)
+		if(status == false) then
+			stdnse.print_debug(1, "SMB: Couldn't delete %s\\%s: %s", share, file, err)
+			if(err ~= 'NT_STATUS_OBJECT_NAME_NOT_FOUND') then
+				smb.stop(smbstate)
+				return false, err
+			end
+		end
 	end
 
 	-- Stop the session
 	smb.stop(smbstate)
 
 	return true
+end
+
+---Determine whether or not the anonymous user has write access on the share. This is done by creating then 
+-- deleting a file. 
+--
+--@param host     The host object
+--@param share    The share to test
+--@return (status, result) If status is false, result is an error message. The error message 'NT_STATUS_OBJECT_NAME_NOT_FOUND'
+--        should be handled gracefully; it indicates that the share isn't a fileshare. Otherwise, result is a boolean value: 
+--        true if the file was successfully written, false if it was not. 
+function share_anonymous_can_write(host, share)
+	local filename, status, err
+
+	-- First, choose a filename. This should be random. 
+	filename = "nmap-test-file"
+
+	-- Next, attempt to write to that file
+	status, err = file_write(host, string.rep("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10), share, filename, true)
+	if(status == false) then
+		if(err == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+			return false, err
+		end
+
+		if(err == "NT_STATUS_ACCESS_DENIED") then
+			return true, false
+		end
+
+		return false, "Error writing test file to disk as anonymous: " .. err
+	end
+
+	-- Now the important part: delete it
+	status, err = file_delete(host, share, filename)
+	if(status == false) then
+		return false, "Error deleting test file as anonymous: " .. err
+	end
+
+	return true, true
+end
+
+
+---Determine whether or not the current user has read or read/write access on the share. This is done by creating then 
+-- deleting a file. 
+--
+--@param host     The host object
+--@param share    The share to test
+--@return (status, result) If status is false, result is an error message. The error message 'NT_STATUS_OBJECT_NAME_NOT_FOUND'
+--        should be handled gracefully; it indicates that the share isn't a fileshare. Otherwise, result is a boolean value: 
+--        true if the file was successfully written, false if it was not. 
+function share_user_can_write(host, share)
+
+	local filename, status, err
+
+	-- First, choose a filename. This should be random. 
+	filename = "nmap-test-file"
+
+	-- Next, attempt to write to that file
+	status, err = file_write(host, string.rep("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 10), share, filename)
+	if(status == false) then
+		if(err == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+			return false, err
+		end
+
+		if(err == "NT_STATUS_ACCESS_DENIED") then
+			return true, false
+		end
+
+		return false, "Error writing test file to disk as user: " .. err
+	end
+
+	-- Now the important part: delete it
+	status, err = file_delete(host, share, filename)
+	if(status == false) then
+		return false, "Error deleting test file as user: " .. err
+	end
+
+	return true, true
+end
+
+---Check whether or not a share is accessible by the anonymous user. Assumes that <code>share_host_returns_proper_error</code>
+-- has been called and returns <code>true</code>. 
+--
+--@param host     The host object
+--@param share    The share to test
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
+--        true if anonymous access is permitted, false otherwise. 
+function share_anonymous_can_read(host, share)
+	local status, smbstate, err
+	local overrides = get_overrides_anonymous()
+
+	-- Begin the SMB session
+	status, smbstate = smb.start(host)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Negotiate the protocol
+	status, err = smb.negotiate_protocol(smbstate, overrides)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Start up a null session
+	status, err = smb.start_session(smbstate, overrides)
+
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Attempt a connection to the share
+	status, err = smb.tree_connect(smbstate, share, overrides)
+	if(status == false) then
+
+		-- Stop the session
+		smb.stop(smbstate)
+
+		-- ACCESS_DENIED is the expected error: it tells us that the connection failed
+		if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
+			return true, false
+		else
+			return false, err
+		end
+	end
+
+
+
+	smb.stop(smbstate) 
+	return true, true
+end
+
+---Check whether or not a share is accessible by the current user. Assumes that <code>share_host_returns_proper_error</code>
+-- has been called and returns <code>true</code>. 
+--
+--@param host     The host object
+--@param share    The share to test
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
+--        true if anonymous access is permitted, false otherwise. 
+function share_user_can_read(host, share)
+	local status, smbstate, err
+	local overrides = {}
+
+	-- Begin the SMB session
+	status, smbstate = smb.start(host)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Negotiate the protocol
+	status, err = smb.negotiate_protocol(smbstate, overrides)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Start up a null session
+	status, err = smb.start_session(smbstate, overrides)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Attempt a connection to the share
+	status, err = smb.tree_connect(smbstate, share, overrides)
+	if(status == false) then
+
+		-- Stop the session
+		smb.stop(smbstate)
+
+		-- ACCESS_DENIED is the expected error: it tells us that the connection failed
+		if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
+			return true, false
+		else
+			return false, err
+		end
+	end
+
+	smb.stop(smbstate) 
+	return true, true
+end
+
+---Determine whether or not a host will accept any share name (I've seen this on certain systems; it's 
+-- bad, because it means we cannot tell whether or not a share exists). 
+--
+--@param host     The host object
+--@param share    The share to test
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
+--        true if the file was successfully written, false if it was not. 
+function share_host_returns_proper_error(host)
+	local status, smbstate, err
+	local share = "nmap-share-test"
+	local overrides = get_overrides_anonymous()
+
+	-- Begin the SMB session
+	status, smbstate = smb.start(host)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Negotiate the protocol
+	status, err = smb.negotiate_protocol(smbstate, overrides)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Start up a null session
+	status, err = smb.start_session(smbstate, overrides)
+	if(status == false) then
+		smb.stop(smbstate) 
+		return false, err
+	end
+
+	-- Connect to the share
+	stdnse.print_debug(1, "SMB: Trying a random share to see if server responds properly: %s", share)
+	status, err = smb.tree_connect(smbstate, share, overrides)
+
+	if(status == false) then
+		-- If the error is NT_STATUS_ACCESS_DENIED (0xc0000022), that's bad -- we don't want non-existent shares
+		-- showing up as 'access denied'. Any other error is ok. 
+		if(err == 0xc0000022 or err == 'NT_STATUS_ACCESS_DENIED') then
+			stdnse.print_debug(1, "SMB: Server doesn't return proper value for non-existent shares (returns ACCESS_DENIED)")
+			smb.stop(smbstate)
+			return true, false
+		end
+	else
+		-- If we were actually able to connect to this share, then there's probably a serious issue
+		stdnse.print_debug(1, "SMB: Server doesn't return proper value for non-existent shares (accepts the connection)")
+		smb.stop(smbstate)
+		return true, false
+	end
+
+	smb.stop(smbstate)
+	return true, true
+end
+
+---Get all the details we can about the share. These details are stored in a table and returned. 
+--
+--@param host   The host object.
+--@param shares An array of shares to check.
+--@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
+--        true if the file was successfully written, false if it was not. 
+function share_get_details(host, share)
+    local smbstate, status, result
+    local i
+	local details = {}
+
+	-- Save the name
+	details['name'] = share
+
+	-- Ensure that the server returns the proper error message
+	status, result = share_host_returns_proper_error(host)
+	if(status == false) then
+		return false, result
+	end
+	if(status == true and result == false) then
+		return false, "Server doesn't return proper value for non-existent shares"
+	end
+
+	-- Check if the current user can read the share
+	stdnse.print_debug(1, "SMB: Checking if share %s can be read by the current user", share)
+	status, result = share_user_can_read(host, share)
+	if(status == false) then
+		return false, result
+	end
+	details['user_can_read'] = result
+
+	-- Check if the anonymous reader can read the share
+	stdnse.print_debug(1, "SMB: Checking if share %s can be read by the anonymous user", share)
+	status, result = share_anonymous_can_read(host, share)
+	if(status == false) then
+		return false, result
+	end
+	details['anonymous_can_read'] = result
+
+	-- Check if the current user can write to the share
+	stdnse.print_debug(1, "SMB: Checking if share %s can be written by the current user", share)
+	status, result = share_user_can_write(host, share)
+	if(status == false) then
+		if(result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+			details['user_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
+		else
+			return false, result
+		end
+	end
+	details['user_can_write'] = result
+
+	-- Check if the anonymous user can write to the share
+	stdnse.print_debug(1, "SMB: Checking if share %s can be written by the anonymous user", share)
+	status, result = share_anonymous_can_write(host, share)
+	if(status == false) then
+		if(result == "NT_STATUS_OBJECT_NAME_NOT_FOUND") then
+			details['anonymous_can_write'] = "NT_STATUS_OBJECT_NAME_NOT_FOUND"
+		else
+			return false, result
+		end
+	end
+	details['anonymous_can_write'] = result
+
+
+	-- Try and get full details about the share
+	status, result = msrpc.get_share_info(host, share)
+	if(status == false) then
+		-- We don't stop for this error (it's pretty common since administive privileges are required here)
+		stdnse.print_debug(1, "SMB: Failed to get share info for %s: %s", share, result)
+		details['details'] = result
+	else
+		-- Process the result a bit
+		result = result['info']
+		if(result['max_users'] == 4294967295) then
+			result['max_users'] = "<unlimited>"
+		end
+		details['details'] = result
+	end
+	
+    return true, details
+end
+
+---Retrieve a list of fileshares, along with any details that could be pulled. This is the core of smb-enum-shares.nse, but
+-- can also be used by any script that needs to find an open share. 
+--
+-- In the best care, the shares are determined by calling <code>msrpc.enum_shares</code>, and information is gathered by calling 
+-- <code>msrpc.get_share_info</code>. These require a certain level of access, though, so as a fallback, a pre-programmed list of
+-- shares is used, and these are verified by attempting a connection. 
+--
+--@param host The host object. 
+--@return (status, result, extra) If status is false, result is an error message. Otherwise, result is an array of shares with as much
+--        detail as we could get. If extra isn't nil, it is set to extra information that should be displayed (such as a warning). 
+function share_get_list(host)
+
+	local enum_status
+	local extra = ""
+	local shares = {}
+	local share_details = {}
+
+	-- Try and do this the good way, make a MSRPC call to get the shares
+	stdnse.print_debug(1, "SMB: Attempting to log into the system to enumerate shares")
+	enum_status, shares = msrpc.enum_shares(host)
+
+	-- If that failed, try doing it with brute force. This almost certainly won't find everything, but it's the
+	-- best we can do. 
+	if(enum_status == false) then
+		stdnse.print_debug(1, "SMB: Enumerating shares failed, guessing at common ones (%s)", shares)
+		extra = string.format("ERROR: Enumerating shares failed, guessing at common ones (%s)", shares)
+
+		-- Take some common share names I've seen (thanks to Brandon Enright for most of these, except the last few)
+		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$", "PUBLIC", "PRINT", "PRINT$", "GROUPS", "USERS", "MEDIA", "SOFTWARE", "XSERVE", "NETLOGON", "INFO", "PROGRAMS", "FILES", "WWW", "STMP", "TMP", "DATA", "BACKUP", "DOCS", "HD", "WEBSERVER", "WEB DOCUMENTS", "SHARED", "DESKTOP", "MY DOCUMENTS", "PORN", "PRON", "PR0N"}
+
+		-- Try every alphabetic share, with and without a trailing '$'
+		for i = string.byte("A", 1), string.byte("Z", 1), 1 do
+			shares[#shares + 1] = string.char(i)
+			shares[#shares + 1] = string.char(i) .. "$"
+		end
+	else
+		stdnse.print_debug(1, "SMB: Found %d shares, will attempt to find more information", #shares)
+	end
+
+	-- Sort the shares
+	table.sort(shares)
+
+	-- Get more information on each share
+	for i = 1, #shares, 1 do
+		local status, result
+		stdnse.print_debug(1, "SMB: Getting information for share: %s", shares[i])
+		status, result = smb.share_get_details(host, shares[i])
+		if(status == false and result == 'NT_STATUS_BAD_NETWORK_NAME') then
+			stdnse.print_debug(1, "SMB: Share doesn't exist: %s", shares[i])
+		elseif(status == false) then
+			stdnse.print_debug(1, "SMB: Error while getting share details: %s", result)
+			return false, result
+		else
+			-- Save the share details
+			table.insert(share_details, result)
+		end
+	end
+
+	return true, share_details, extra
+end
+
+---Find a share that the current user can write to. Return it, along with its path. If no share could be found, 
+-- an error is returned. If the path cannot be determined, the returned path is nil. 
+--
+--@param host The host object. 
+--@return (status, name, path, names) If status is false, result is an error message. Otherwise, name is the name of the share, 
+--        path is its path, if it could be determined, and names is a list of all writable shares. 
+function share_find_writable(host)
+	local i
+	local status, shares
+	local main_name, main_path
+	local names = {}
+	local writable = {}
+
+	status, shares = share_get_list(host)
+	if(status == false) then
+		return false, shares
+	end
+
+	for i = 1, #shares, 1 do
+		if(shares[i]['user_can_write'] == true) then
+			if(main_name == nil) then
+				main_name = shares[i]['name']
+
+				if(shares[i]['details'] ~= nil) then
+					main_path = shares[i]['details']['path']
+				end
+			end
+
+			table.insert(names, shares[i]['name'])
+		end
+	end
+
+	if(main_name == nil) then
+		return false, "Couldn't find a writable share!"
+	else
+		return true, main_name, main_path, names
+	end
 end
 
 --- Converts numbered Windows version strings (<code>"Windows 5.0"</code>, <code>"Windows 5.1"</code>) to names (<code>"Windows 2000"</code>, <code>"Windows XP"</code>). 
@@ -2204,6 +2860,152 @@ function get_os(host)
     smb.stop(smbstate)
 
 	return true, response
+end
+
+---Basically a wrapper around <code>socket:get_info</code>, except that it also makes a SMB connection before calling the
+-- <code>get_info</code> function. Returns the mac address as well, for convenience. 
+--
+--@param host The host object
+--@return status: true for successful, false otherwise.
+--@return If status is true, the local ip address; otherwise, an error message. 
+--@return The local port (not really meaningful, since it'll change next time).
+--@return The remote ip address.
+--@return The report port.
+--@return The mac address, if possible; nil otherwise.
+function get_socket_info(host)
+	local status, lhost, lport, rhost, rport
+	local smbstate, socket
+
+	-- Start SMB (we need a socket to get the proper local ip
+	status, smbstate = smb.start_ex(host)
+    if(status == false) then
+		return false, smbstate
+    end
+
+	socket = smbstate['socket']
+	status, lhost, lport, rhost, rport = socket:get_info()
+		if(status == false) then
+		return false, lhost
+	end
+
+	-- Stop SMB
+	smb.stop(smbstate)
+
+	-- Get the mac in hex format, if possible
+	local lmac = nil
+	if(host.mac_addr_src) then
+		lmac = stdnse.tohex(host.mac_addr_src, {separator = ":"})
+	end
+
+	return true, lhost, lport, rhost, rport, lmac
+end
+
+---Generate a string that's somewhat unique, but is based on factors that won't change on a host. At the moment, this is a very simple
+-- hash based on the IP address. This hash is *very* likely to have collisions, and that's by design -- while it should be somewhat unique, 
+-- I don't want it to be trivial to uniquely determine who it originated from. 
+--
+-- TODO: At some point, I should re-do this function properly, with a method of hashing that's somewhat proven. 
+--
+--@param host      The host object
+--@param extension [optional] The extension to add on the end of the file. Default: none. 
+--@param seed      [optional] Some randomness on which to base the name. If you want to do multiple files, each with its 
+--                 own uniqueish name, this can be used. 
+--@return (status, data) If status is true, data is a table of values; otherwise, data is an error message. Can be any kind of string. 
+function get_uniqueish_name(host, extension, seed)
+
+	local status
+	local lhost, lport, rhost, rport
+	if(type(host) == "table") then
+		status, lhost = get_socket_info(host)
+	else
+		lhost = host
+	end
+
+	-- Create our ultra-weak hash by using a simple xor/shift algorithm
+	-- I tested this, and in 255 tests, there were roughly 10 collisions. That's about what I'm looking for. 
+	local hash = 0
+	local i
+	local str = lhost .. (seed or "") .. (extension or "") .. (nmap.registry.args.randomseed or "")
+
+	for i = 1, #str, 1 do
+		local chr = string.byte(string.sub(str, i, i), 1)
+		hash = bit.bxor(hash, chr)
+		hash = bit.bor(bit.lshift(hash, 3), bit.rshift(hash, 29))
+		hash = bit.bxor(hash, 3)
+		hash = bit.band(hash, 0xFFFFFFFF)
+	end
+
+	local response
+	if(extension) then
+		response = string.format("%x.%s", hash, extension)
+	else
+		response = string.format("%x", hash)
+	end
+
+	return true, response
+end
+
+---Determines, as accurately as possible, whether or not an account is an administrator. If there is an error, 
+-- 'false' is simply returned. 
+function is_admin(host, username, domain, password, password_hash, hash_type)
+	local status, smbstate, err, result
+	local overrides = get_overrides(username, domain, password, password_hash, hash_type)
+
+	stdnse.print_debug("SMB: Checking if %s is an administrator", username)
+
+	status, smbstate = smb.start(host)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to start SMB: %s [%s]", smbstate, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	status, err      = smb.negotiate_protocol(smbstate, overrides)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to negotiatie protocol: %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	status, err      = smb.start_session(smbstate, overrides)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to start session %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	status, err      = smb.tree_connect(smbstate, "IPC$", overrides)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to connect tree: %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	status, err      = smb.create_file(smbstate, msrpc.SRVSVC_PATH, overrides)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to create file: %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	status, err      = msrpc.bind(smbstate, msrpc.SRVSVC_UUID, msrpc.SRVSVC_VERSION, nil)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Failed to bind: %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+  
+	-- Call netservergetstatistics for 'server'
+	status, err = msrpc.srvsvc_netservergetstatistics(smbstate, host.ip)
+	if(status == false) then
+		stdnse.print_debug("SMB; is_admin: Couldn't get server stats (may be normal): %s [%s]", err, username)
+		smb.stop(smbstate)
+		return false
+	end
+
+	smb.stop(smbstate)
+
+	return true
 end
 
 command_codes = 

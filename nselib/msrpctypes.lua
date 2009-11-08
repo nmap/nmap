@@ -130,6 +130,16 @@ function string_to_unicode(string, do_null)
 		do_null = false
 	end
 
+	-- Try converting the value to a string
+	if(type(string) ~= 'string') then
+		string = tostring(string)
+	end
+
+	if(string == nil) then
+		stdnse.print_debug(1, "MSRPC: WARNING: couldn't convert value to string in string_to_unicode()")
+	end
+		
+
 	-- Loop through the string, adding each character followed by a char(0)
 	for i = 1, string.len(string), 1 do
 		result = result .. string.sub(string, i, i) .. string.char(0)

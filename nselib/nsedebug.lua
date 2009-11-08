@@ -34,9 +34,9 @@ function tostr(data, indent)
 		str = str .. (" "):rep(indent) .. data .. "\n"
 	elseif(type(data) == "boolean") then
 		if(data == true) then
-			str = str .. "true"
+			str = str .. "true\n"
 		else
-			str = str .. "false"
+			str = str .. "false\n"
 		end
 	elseif(type(data) == "table") then
 		local i, v

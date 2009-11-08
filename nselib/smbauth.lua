@@ -94,6 +94,219 @@ local NTLMSSP_AUTH      = 0x00000003
 
 local session_key = string.rep(string.char(0x00), 16)
 
+-- Types of accounts (ordered by how useful they are
+local ACCOUNT_TYPES = {
+	ANONYMOUS = 0,
+	GUEST     = 1,
+	USER      = 2,
+	ADMIN     = 3
+}
+
+local function account_exists(host, username, domain)
+	if(nmap.registry[host.ip] == nil or nmap.registry[host.ip]['smbaccounts'] == nil) then
+		return false
+	end
+
+	for i, j in pairs(nmap.registry[host.ip]['smbaccounts']) do
+		if(j['username'] == username and j['domain'] == domain) then
+			return true
+		end
+	end
+
+	return false
+end
+
+function next_account(host, num)
+	if(num == nil) then
+		if(nmap.registry[host.ip]['smbindex'] == nil) then
+			nmap.registry[host.ip]['smbindex'] = 1
+		else
+			nmap.registry[host.ip]['smbindex'] = nmap.registry[host.ip]['smbindex'] + 1
+		end
+	else
+		nmap.registry[host.ip]['smbindex'] = num
+	end
+end
+
+---Writes the given account to the registry. There are several places where accounts are stored:
+-- * registry['usernames'][username]    => true
+-- * registry['smbaccounts'][username]  => password
+-- * registry[ip]['smbaccounts']        => array of table containing 'username', 'password', and 'is_admin'
+--
+-- The final place, 'smbaccount', is reserved for the "best" account. This is an administrator
+-- account, if one's found; otherwise, it's the first account discovered that isn't <code>guest</code>. 
+--
+-- This has to be called while no SMB connections are made, since it potentially makes its own connection.
+--
+--@param host          The host object. 
+--@param username      The username to add. 
+--@param domain        The domain to add. 
+--@param password      The password to add. 
+--@param password_hash The password hash to add. 
+--@param hash_type     The hash type to use.
+--@param is_admin      [optional] Set to 'true' the account is known to be an administrator. 
+function add_account(host, username, domain, password, password_hash, hash_type, is_admin)
+	-- Save the username in a global list -- TODO: restore this
+--	if(nmap.registry.usernames == nil) then
+--		nmap.registry.usernames = {}
+--	end
+--	nmap.registry.usernames[username] = true
+--
+--	-- Save the username/password pair in a global list
+--	if(nmap.registry.smbaccounts == nil) then
+--		nmap.registry.smbaccounts = {}
+--	end
+--	nmap.registry.smbaccounts[username] = password
+
+	-- Check if we've already recorded this account
+	if(account_exists(host, username, domain)) then
+		return
+	end
+
+	if(nmap.registry[host.ip] == nil) then
+		nmap.registry[host.ip] = {}
+	end
+	if(nmap.registry[host.ip]['smbaccounts'] == nil) then
+		nmap.registry[host.ip]['smbaccounts'] = {}
+	end
+
+	-- Determine the type of account, if it wasn't given
+	local account_type = nil
+	if(is_admin) then
+		account_type = ACCOUNT_TYPES.ADMIN
+	else
+		if(username == '') then
+			-- Anonymous account
+			account_type = ACCOUNT_TYPES.ANONYMOUS
+		elseif(string.lower(username) == 'guest') then
+			-- Guest account
+			account_type = ACCOUNT_TYPES.GUEST
+		else
+			-- We have to assume it's a user-level account (we just can't call any SMB functions from inside here)
+			account_type = ACCOUNT_TYPES.USER
+		end
+	end
+
+	-- Set some defaults
+	if(hash_type == nil) then
+		hash_type = 'ntlm'
+	end
+
+	-- Save the new account if this is our first one, or our other account isn't an admin
+	local new_entry = {}
+	new_entry['username']      = username
+	new_entry['domain']        = domain
+	new_entry['password']      = password
+	new_entry['password_hash'] = password_hash
+	new_entry['hash_type']     = string.lower(hash_type)
+	new_entry['account_type']  = account_type
+
+	-- Insert the new entry into the table
+	table.insert(nmap.registry[host.ip]['smbaccounts'], new_entry)
+
+	-- Sort the table based on the account type (we want anonymous at the end, administrator at the front)
+	table.sort(nmap.registry[host.ip]['smbaccounts'], function(a,b) return a['account_type'] > b['account_type'] end)
+
+	-- Print a debug message
+	stdnse.print_debug(1, "SMB: Added account '%s' to account list", username)
+
+	-- Reset the credentials
+	next_account(host, 1)
+
+--	io.write("\n\n" .. nsedebug.tostr(nmap.registry[host.ip]['smbaccounts']) .. "\n\n")
+end
+
+---Retrieve the current set of credentials set in the registry. If these fail, <code>next_credentials</code> should be
+-- called. 
+--
+--@param host The host object. 
+--@return (result, username, domain, password, password_hash, hash_type) If result is false, username is an error message. Otherwise, username and password are
+--        the current username and password that should be used. 
+function get_account(host)
+	if(nmap.registry[host.ip]['smbindex'] == nil) then
+		nmap.registry[host.ip]['smbindex'] = 1
+	end
+
+	local index = nmap.registry[host.ip]['smbindex']
+	local account = nmap.registry[host.ip]['smbaccounts'][index]
+
+	if(account == nil) then
+		return false, "No accounts left to try"
+	end
+
+	return true, account['username'], account['domain'], account['password'], account['password_hash'], account['hash_type']
+end
+
+---Create the account table with the anonymous and guest users, as well as the user given in the script's
+-- arguments, if there is one. 
+--
+--@param host The host object. 
+function init_account(host)
+	-- Create the key if it exists
+	if(nmap.registry[host.ip] == nil) then
+		nmap.registry[host.ip] = {}
+	end
+
+	-- Don't run this more than once for each host
+	if(nmap.registry[host.ip]['smbaccounts'] ~= nil) then
+		return
+	end
+
+	-- Create the list
+	nmap.registry[host.ip]['smbaccounts'] = {}
+
+	-- Add the anonymous/guest accounts
+	add_account(host, '',      '', '', nil, 'none')
+	add_account(host, 'guest', '', '', nil, 'ntlm')
+
+	-- Add the account given on the commandline (TODO: allow more than one?)
+	local args = nmap.registry.args
+	local username      = nil
+	local domain        = ''
+	local password      = nil
+	local password_hash = nil
+	local hash_type     = 'ntlm'
+
+	-- Do the username first
+	if(args.smbusername ~= nil) then
+		username = args.smbusername
+	elseif(args.smbuser ~= nil) then
+		username = args.smbuser
+	end
+
+	-- If the username exists, do everything else
+	if(username ~= nil) then
+		-- Domain
+		if(args.smbdomain ~= nil) then
+			domain = args.smbdomain
+		end
+
+		-- Type
+		if(args.smbtype ~= nil) then
+			hash_type = args.smbtype
+		end
+
+		-- Do the password
+		if(args.smbpassword ~= nil) then
+			password = args.smbpassword
+		elseif(args.smbpass ~= nil) then
+			password = args.smbpass
+		end
+
+		-- Only use the hash if there's no password
+		if(password == nil) then
+			password_hash = args.smbhash
+		end
+
+		-- Add the account, if we got a password
+		if(password == nil and password_hash == nil) then
+			stdnse.print_debug(1, "SMB: Either smbpass, smbpassword, or smbhash have to be passed as script arguments to use an account")
+		else
+			add_account(host, username, domain, password, password_hash, hash_type)
+		end
+	end
+end
+
 local function to_unicode(str)
 	local unicode = ""
 
@@ -310,82 +523,6 @@ function ntlmv2_create_response(ntlm, username, domain, challenge, client_challe
 	return true, openssl.hmac("MD5", ntlmv2_hash, challenge .. client_challenge) .. client_challenge
 end
 
----Determines which hash type is going to be used, based on the function parameters and 
--- the nmap arguments (in that order).
---
---@param hash_type [optional] The function parameter version, which will override all others if set. 
---@return The highest priority hash type that's set.
-local function get_hash_type(hash_type)
-	
-	if(hash_type ~= nil) then
-		stdnse.print_debug(2, "SMB: Using logon type passed as a parameter: %s", hash_type)
-	else
-		if(nmap.registry.args.smbtype ~= nil) then
-			hash_type = nmap.registry.args.smbtype
-			stdnse.print_debug(2, "SMB: Using logon type passed as an nmap parameter: %s", hash_type)
-		else
-			hash_type = "ntlm"
-			stdnse.print_debug(2, "SMB: Using default logon type: %s", hash_type)
-		end
-	end
-
-	return string.lower(hash_type)
-end
-
-
----Determines which username is going to be used, based on the function parameters, the nmap arguments, 
--- and the registry (in that order).
---
---@param ip       The ip address, used when reading from the registry
---@param username [optional] The function parameter version, which will override all others if set. 
---@return The highest priority username that's set.
-local function get_username(ip, username)
-
-	if(username ~= nil) then
-		stdnse.print_debug(2, "SMB: Using username passed as a parameter: %s", username)
-	else
-		if(nmap.registry.args.smbusername ~= nil) then
-			username = nmap.registry.args.smbusername
-			stdnse.print_debug(2, "SMB: Using username passed as an nmap parameter (smbusername): %s", username)
-		elseif(nmap.registry.args.smbuser ~= nil) then
-			username = nmap.registry.args.smbuser
-			stdnse.print_debug(2, "SMB: Using username passed as an nmap parameter (smbuser): %s", username)
-		elseif(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccount'] ~= nil and nmap.registry[ip]['smbaccount']['username'] ~= nil) then
-			username = nmap.registry[ip]['smbaccount']['username']
-			stdnse.print_debug(2, "SMB: Using username found in the registry: %s", username)
-		else
-			username = nil
-			stdnse.print_debug(2, "SMB: Couldn't find a username to use, not logging in")
-		end
-	end
-
-	return username
-end
-
----Determines which domain is going to be used, based on the function parameters and 
--- the nmap arguments (in that order).
---
--- [TODO] registry
---
---@param domain [optional] The function parameter version, which will override all others if set. 
---@return The highest priority domain that's set.
-local function get_domain(ip, domain)
-
-	if(domain ~= nil) then
-		stdnse.print_debug(2, "SMB: Using domain passed as a parameter: %s", domain)
-	else
-		if(nmap.registry.args.smbdomain ~= nil) then
-			domain = nmap.registry.args.smbdomain
-			stdnse.print_debug(2, "SMB: Using domain passed as an nmap parameter: %s", domain)
-		else
-			domain = ""
-			stdnse.print_debug(2, "SMB: Couldn't find domain to use, using blank")
-		end
-	end
-
-	return domain
-end
-
 ---Generate the Lanman and NTLM password hashes. The password itself is taken from the function parameters,
 -- the nmap arguments, and the registry (in that order). If no password is set, then the password hash
 -- is used (which is read from all the usual places). If neither is set, then a blank password is used. 
@@ -403,49 +540,22 @@ end
 --                   message-signing key to be generated properly). 
 --@return (lm_response, ntlm_response, mac_key) The two strings that can be sent directly back to the server, 
 --                 and the mac_key, which is used for message signing. 
-local function get_password_response(ip, username, domain, password, password_hash, challenge, hash_type, is_extended)
-
+function get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, is_extended)
     local status
 	local lm_hash   = nil
 	local ntlm_hash = nil
 	local mac_key   = nil
     local lm_response, ntlm_response
 
-	-- Check if there's a password or hash set. This is a little tricky, because in all places (except the one passed
-	-- as a parameter), it's based on whether or not the username was stored. This lets us use blank passwords by not
-	-- specifying one. 
-	if(password ~= nil) then
-		stdnse.print_debug(2, "SMB: Using password/hash passed as a parameter (username = '%s')", username)
-
-	elseif(nmap.registry.args.smbusername ~= nil or nmap.registry.args.smbuser ~= nil) then
-		stdnse.print_debug(2, "SMB: Using password/hash passed as an nmap parameter")
-
-		if(nmap.registry.args.smbpassword ~= nil) then
-			password = nmap.registry.args.smbpassword
-		elseif(nmap.registry.args.smbpass ~= nil) then
-			password = nmap.registry.args.smbpass
-		elseif(nmap.registry.args.smbhash ~= nil) then
-			password_hash = nmap.registry.args.smbhash
-		end
-
-	elseif(nmap.registry[ip] ~= nil and nmap.registry[ip]['smbaccount'] ~= nil and nmap.registry[ip]['smbaccount']['username'] ~= nil) then
-		stdnse.print_debug(2, "SMB: Using password/hash found in the registry")
-
-		if(nmap.registry[ip]['smbaccount']['password'] ~= nil) then
-			password = nmap.registry[ip]['smbaccount']['password']
-		elseif(nmap.registry[ip]['smbaccount']['hash'] ~= nil) then
-			password_hash = nmap.registry[ip]['smbaccount']['password']
-		end
-
-	else
-		password = nil
-		password_hash = nil
-	end
-
 	-- Check for a blank password
 	if(password == nil and password_hash == nil) then
 		stdnse.print_debug(2, "SMB: Couldn't find password or hash to use (assuming blank)")
 		password = ""
+	end
+
+	-- The anonymous user requires a single 0-byte instead of a LANMAN hash (don't ask me why, but it doesn't work without)
+	if(hash_type == 'none') then
+		return string.char(0), '', nil
 	end
 
 	-- If we got a password, hash it
@@ -523,7 +633,12 @@ local function get_password_response(ip, username, domain, password, password_ha
 
 	else
 		-- Default to NTLMv1
-		stdnse.print_debug(1, "SMB: Invalid login type specified, using default (NTLM)")
+		if(hash_type ~= nil) then
+			stdnse.print_debug(1, "SMB: Invalid login type specified ('%s'), using default (NTLM)", hash_type)
+		else
+			stdnse.print_debug(1, "SMB: No login type specified, using default (NTLM)")
+		end
+	
 		status, lm_response   = ntlm_create_response(ntlm_hash, challenge)
 		status, ntlm_response = ntlm_create_response(ntlm_hash, challenge)
 
@@ -535,68 +650,7 @@ local function get_password_response(ip, username, domain, password, password_ha
 	return lm_response, ntlm_response, mac_key
 end
 
----Get the list of accounts to use to log in. TODO: More description
-function get_accounts(ip, overrides, use_defaults)
-	local results = {}
-	-- Just so we can index into it
-	if(overrides == nil) then
-		overrides = {}
-	end
-	-- By default, use defaults
-	if(use_defaults == nil) then
-		use_defaults = true
-	end
-
-	-- If we don't have OpenSSL, don't bother with any of this because we aren't going to 
-	-- be able to hash the password
-	if(have_ssl == true) then
-		local result = {}
-
-		-- Get the "real" information
-		result['username']  = get_username(ip, overrides['username'])
-		result['domain']    = get_domain(ip,   overrides['domain'])
-		result['hash_type'] = get_hash_type(overrides['hash_type'])
-
-		if(result['username'] ~= nil) then
-			results[#results + 1] = result
-		end
-
-		-- Do the "guest" account, if use_defaults is set
-		if(use_defaults) then
-			result = {}
-			result['username'] = "guest"
-			result['domain']   = ""
-			result['hash_type'] = get_hash_type(overrides['hash_type'])
-			results[#results + 1] = result
-		end
-	end
-
-	-- Do the "anonymous" account
-	if(use_defaults) then
-		local result = {}
-		result['username'] = ""
-		result['domain']   = ""
-		results[#results + 1] = result
-	end
-
-	return results
-end
-
-function get_password_hashes(ip, username, domain, hash_type, overrides, challenge, is_extended)
-	if(overrides == nil) then
-		overrides = {}
-	end
-
-	if(username == "") then
-		return string.char(0), '', nil
-	elseif(username == "guest") then
-		return get_password_response(ip, username, domain, "", nil, challenge, hash_type, is_extended)
-	else
-		return get_password_response(ip, username, domain, overrides['password'], overrides['password_hash'], challenge, hash_type, is_extended)
-	end
-end
-
-function get_security_blob(security_blob, ip, username, domain, hash_type, overrides, use_default)
+function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type)
 	local pos = 1
 	local new_blob
 	local flags = 0x00008211 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | NEGOTIATE_UNICODE)
@@ -619,7 +673,7 @@ function get_security_blob(security_blob, ip, username, domain, hash_type, overr
 		pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved = bin.unpack("<LISSIIA8A8", security_blob, 1)
 
 		-- Get the information for the current login
-        local lanman, ntlm, mac_key = get_password_hashes(ip, username, domain, hash_type, overrides, challenge, true)
+        local lanman, ntlm, mac_key = get_password_response(ip, username, domain, password, password_hash, hash_type, challenge, true)
 
 		-- Convert the username and domain to unicode (TODO: Disable the unicode flag, evaluate if that'll work)
 		username = to_unicode(username)

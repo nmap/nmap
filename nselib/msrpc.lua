@@ -122,10 +122,12 @@ local LSA_MINEMPTY = 10
 --@param host The host object. 
 --@param path The path to the named pipe; for example, msrpc.SAMR_PATH or msrpc.SRVSVC_PATH. 
 --@param disable_extended [optional] If set to 'true', disables extended security negotiations. 
+--@param overrides [optional] Overrides variables in all the SMB functions. 
 --@return (status, smbstate) if status is false, smbstate is an error message. Otherwise, smbstate is
 --        required for all further calls. 
-function start_smb(host, path, disable_extended)
-	return smb.start_ex(host, true, true, "IPC$", path, disable_extended)
+function start_smb(host, path, disable_extended, overrides)
+	overrides = overrides or {}
+	return smb.start_ex(host, true, true, "IPC$", path, disable_extended, overrides)
 end
 
 --- A wrapper around the <code>smb.stop</code> function. I only created it to add symmetry, so client code
@@ -3272,15 +3274,16 @@ function service_start(host, servicename, args)
 		return false, start_result
 	end
 
-	-- Wait for it to start
-	stdnse.print_debug(2, "Waiting for the service to start")
+	-- Wait for it to start (TODO: Check the query result better)
+	stdnse.print_debug(1, "Waiting for the service to start")
 	repeat
 		status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
 		if(status == false) then
 			smb.stop(smbstate)
 			return false, query_result
 		end
-	until query_result['service_status']['controls_accepted'][1] == "SERVICE_CONTROL_STOP"
+		stdnse.sleep(.5)
+	until query_result['service_status']['controls_accepted'][1] == "SERVICE_CONTROL_STOP" or query_result['service_status']['state'][1] == "SERVICE_STATE_ACTIVE"
 
 	-- Close the handle to the service
 	status, close_result = svcctl_closeservicehandle(smbstate, open_service_result['handle'])
@@ -3353,7 +3356,7 @@ function service_stop(host, servicename)
 		return false, control_result
 	end
 
-	-- Wait for it to stop (TODO: Make this better)
+	-- Wait for it to stop (TODO: Check the query result better)
 	stdnse.print_debug(2, "Waiting for the service to stop")
 	repeat
 		status, query_result = svcctl_queryservicestatus(smbstate, open_service_result['handle'])
@@ -3361,6 +3364,7 @@ function service_stop(host, servicename)
 			smb.stop(smbstate)
 			return false, query_result
 		end
+		stdnse.sleep(.5)
 	until query_result['service_status']['controls_accepted'][1] == nil
 
 	-- Close the handle to the service

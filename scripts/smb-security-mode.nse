@@ -27,7 +27,12 @@ author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
+-- Set the runlevel to above 1 to ensure this runs after the bulk of the scripts. That lets us more effectively
+-- find out which account we've been using. 
+runlevel = 1.01
+
 require 'smb'
+require 'stdnse'
 
 -- Check whether or not this script should be run.
 hostrule = function(host)
@@ -39,6 +44,7 @@ action = function(host)
 
 	local state
 	local status, err
+	local overrides = {}
 
 	status, state = smb.start(host)
 	if(status == false) then
@@ -49,7 +55,7 @@ action = function(host)
 		end
 	end
 
-	status, err = smb.negotiate_protocol(state)
+	status, err = smb.negotiate_protocol(state, overrides)
 
 	if(status == false) then
 		smb.stop(state)
@@ -63,6 +69,11 @@ action = function(host)
 	local security_mode = state['security_mode']
 
 	local response = ""
+
+	local result, username, domain = smb.get_account(host)
+	if(result ~= false) then
+		response = string.format("Account that was used for smb scripts: %s\%s\n", domain, stdnse.string_or_blank(username, '<blank>'))
+	end
 	
 	-- User-level authentication or share-level authentication
     if(bit.band(security_mode, 1) == 1) then

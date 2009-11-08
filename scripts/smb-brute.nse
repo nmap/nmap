@@ -311,19 +311,18 @@ end
 --@return Result, an integer value from the <code>results</code> constants. 
 local function check_login(hostinfo, username, password, logintype)
 	local result
-	local domain
+	local domain = ""
 	local smbstate = hostinfo['smbstate']
 	if(logintype == nil) then
 		logintype = get_type(hostinfo)
 	end
---io.write(string.format("Trying %s:%s\n", username, password))
+
 	-- Determine if we have a password hash or a password
 	if(#password == 32 or #password == 64 or #password == 65) then
---io.write("Hash\n")
 		-- It's a hash (note: we always use NTLM hashes)
-		status, err	  = smb.start_session(smbstate, username, domain, nil, password, "ntlm", false, true)
+		status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, nil, password, "ntlm"), false)
 	else
-		status, err	  = smb.start_session(smbstate, username, domain, password, nil, logintype, false, false)
+		status, err	  = smb.start_session(smbstate, smb.get_overrides(username, domain, password, nil, logintype), false)
 	end
    
 	if(status == true) then
@@ -850,7 +849,14 @@ function found_account(hostinfo, username, password, result)
 			return false, err
 		end
 
-		smb.add_account(hostinfo['host'], username, password)
+		-- Check if we have an 'admin' account
+        -- Try getting information about "IPC$". This determines whether or not the user is administrator
+        -- since only admins can get share info. Note that on Vista and up, unless UAC is disabled, all 
+        -- accounts are non-admin. 
+		local is_admin = smb.is_admin(hostinfo['host'], username, '', password, nil, nil)
+
+		-- Add the account
+		smb.add_account(hostinfo['host'], username, '', password, nil, nil, is_admin)
 
 		-- If we haven't retrieved the real user list yet, do so
 		if(hostinfo['have_user_list'] == false) then
