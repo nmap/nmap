@@ -497,3 +497,23 @@ o Applied a fix for building on GNU/kFreeBSD from Peter Salinger:
  		case " $LIBOBJS " in
    *" tun-bsd.$ac_objext "* ) ;;
 
+o Made a change to open bpf devices in read/write mode, to work around a
+  bug in Mac OS X 10.6. See http://seclists.org/nmap-dev/2009/q4/277.
+
+Index: src/eth-bsd.c
+===================================================================
+--- src/eth-bsd.c	(revision 16023)
++++ src/eth-bsd.c	(working copy)
+@@ -47,7 +47,11 @@
+ 	if ((e = calloc(1, sizeof(*e))) != NULL) {
+ 		for (i = 0; i < 128; i++) {
+ 			snprintf(file, sizeof(file), "/dev/bpf%d", i);
+-			e->fd = open(file, O_WRONLY);
++			/* This would be O_WRONLY, but Mac OS X 10.6 has a bug
++			   where that prevents other users of the interface
++			   from seeing incoming traffic, even in other
++			   processes. */
++			e->fd = open(file, O_RDWR);
+ 			if (e->fd != -1 || errno != EBUSY)
+ 				break;
+ 		}
