@@ -250,6 +250,24 @@ local function get_hostname(host)
   end
 end
 
+--- Get a value suitable for the Host header field.
+local function get_host_field(host, port)
+  local hostname = get_hostname(host)
+  local portno
+  if port == nil then
+    portno = 80
+  elseif type(port) == "table" then
+    portno = port.number
+  else
+    portno = port
+  end
+  if portno == 80 then
+    return hostname
+  else
+    return hostname .. ":" .. tostring(portno)
+  end
+end
+
 --- Parses a response header and return a table with cookie jar
 --
 --  The cookie attributes can be accessed by:
@@ -339,7 +357,7 @@ local buildGet = function( host, port, path, options, cookies )
   -- Private copy of the options table, used to add default header fields.
   local mod_options = {
     header = {
-      Host = get_hostname(host),
+      Host = get_host_field(host, port),
       ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
     }
   }
@@ -374,7 +392,7 @@ local buildHead = function( host, port, path, options, cookies )
   -- Private copy of the options table, used to add default header fields.
   local mod_options = {
     header = {
-      Host = get_hostname(host),
+      Host = get_host_field(host, port),
       ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
     }
   }
@@ -420,7 +438,7 @@ local buildPost = function( host, port, path, options, cookies, postdata)
 
   local mod_options = {
     header = {
-      Host = get_hostname(host),
+      Host = get_host_field(host, port),
       Connection = "close",
       ["Content-Type"] = "application/x-www-form-urlencoded",
       ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
