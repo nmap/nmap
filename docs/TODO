@@ -37,6 +37,14 @@ o Ndiff man page should be built from XML source whenever a release is
 
 ==Try to do before next release==
 
+o [NSE] Patrick's worker thread patch:
+  http://seclists.org/nmap-dev/2009/q4/294
+
+o [NSE] Patrick's script dependency patch:
+  http://seclists.org/nmap-dev/2009/q4/295
+  o I'm not sure if he has gone through and actually set appropriate
+    dependencies (and removed runlevels) yet
+
 o Resolve allow_ipid_match issue which can cause some malformed
   replies to be ignored when we might be able to still use them.  See
   this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
