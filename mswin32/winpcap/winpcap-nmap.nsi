@@ -122,11 +122,15 @@ Function .onInit
     IfFileExists "$SYSDIR\wpcap.dll" silent_checks
     return
     silent_checks:
-
+      ; check for the presence of Nmap's custom WinPcapInst registry key:
+      ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "InstalledBy"
+      StrCmp $0 "Nmap" silent_uninstall winpcap_installedby_keys_not_present
+	  
+	  winpcap_installedby_keys_not_present:
       ; check for the presence of WinPcapInst's UninstallString
-      ; first and manually cleanup registry entries to avoid running 
+      ; and manually cleanup registry entries to avoid running 
       ; the GUI uninstaller and assume our installer will overwrite 
-      ; the files. Needs to be checked first in case someone (force) 
+      ; the files. Needs to be checked in case someone (force) 
       ; installs WinPcap over the top of our installation
       ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
       StrCmp $0 "" winpcap_keys_not_present
@@ -150,16 +154,16 @@ Function .onInit
 
       winpcap_keys_not_present:
 
-      ; if our registry key is present then assume all is well 
+      ; if our old registry key is present then assume all is well 
       ; (we got this far so the official WinPcap wasn't installed) 
       ; and use our uninstaller to (magically) silently uninstall 
       ; everything cleanly and avoid having to overwrite files
       ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString"
-      StrCmp $0 "" winpcap-nmap_keys_not_present finish
+      StrCmp $0 "" winpcap-nmap_keys_not_present silent_uninstall
 
       winpcap-nmap_keys_not_present:
 
-      ; setoverwrite on to avoid any problems when trying to install the files
+      ; setoverwrite on to try and avoid any problems when trying to install the files
       ; wpcap.dll is still present at this point, but unclear where it came from
       SetOverwrite on
 
@@ -167,6 +171,12 @@ Function .onInit
       ExecWait '"net stop npf"'
 
       return
+	  
+	  silent_uninstall:
+	    ; Our old UninstallString is present, should have quotes and uninstall.exe location
+		; and should support a silent uninstall by passing /S to it.
+	    ExecWait '$0 /S _?=$INSTDIR'
+	  return
 
   no_silent:
     IfFileExists "$SYSDIR\wpcap.dll" do_version_check
@@ -183,18 +193,38 @@ Function .onInit
 
     StrCmp $inst_ver $my_ver same_ver
 
-    MessageBox MB_YESNO|MB_ICONQUESTION "WinPcap version $inst_ver exists on this system. Replace with version $my_ver?" IDYES finish
+    MessageBox MB_YESNO|MB_ICONQUESTION "WinPcap version $inst_ver exists on this system. Replace with version $my_ver?" IDYES try_uninstallers
     quit
 
   same_ver:
     MessageBox MB_OK "Skipping WinPcap installation since version $inst_ver already exists on this system.  Uninstall that version first if you wish to force install."
     quit
 
-  finish:
-    ReadRegStr $0 "HKLM" "Software\WinPcap" ""
-    ; Strip any surrounding double quotes from around the install string
-	; this is required as all of our previous installers (since at least 2006)
-	; have incorrectly stored this information (oops!).
+  try_uninstallers:
+  
+    ; check for UninstallString and use that in preference (should already have double quotes and uninstall.exe)
+	ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
+    StrCmp $0 "" no_uninstallstring
+	IfFileExists "$0" uninstaller_exists no_uninstallstring
+	uninstaller_exists:
+	ExecWait '$0 _?=$INSTDIR'
+	return
+	
+	no_uninstallstring:
+	; didn't find an UninstallString, check for our old UninstallString and if uninstall.exe exists:
+	ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString"
+    StrCmp $0 "" still_no_uninstallstring
+	IfFileExists "$0" old_uninstaller_exists still_no_uninstallstring
+	old_uninstaller_exists:
+	MessageBox MB_OK "Using our old UninstallString, file exists"
+	ExecWait '$0 _?=$INSTDIR'
+	return
+
+	still_no_uninstallstring:
+	; still didn't find anything, try looking for an uninstall.exe file at:
+      ReadRegStr $0 "HKLM" "Software\WinPcap" ""
+    ; Strip any surrounding double quotes from around the install string,
+	; as WinPcap hasn't used quotes in the past, but our old installers did.
 	; Check the first and last character for safety!
 	StrCpy $1 $0 1
     StrCmp $1 "$\"" maybestripquotes nostrip
@@ -206,11 +236,11 @@ Function .onInit
 	stripquotes:
 	StrCpy $0 $0 -1 1
 	nostrip:
-	IfFileExists "$0\uninstall.exe" run_uninstaller
-    return
-
-  run_uninstaller:
-    ExecWait '"$0\Uninstall.exe" _?=$INSTDIR'
+	IfFileExists "$0\uninstall.exe" run_last_uninstaller no_uninstall_exe
+	run_last_uninstaller:
+	ExecWait '"$0\Uninstall.exe" _?=$INSTDIR'
+	no_uninstall_exe:
+    ; give up now, we've tried our hardest to determine a valid uninstaller!
     return
 
 FunctionEnd
@@ -312,6 +342,13 @@ Section "WinPcap" SecWinPcap
     System::Call "kernel32::GetCurrentProcess() i .s"
     System::Call "kernel32::IsWow64Process(i s, *i .r0)"
     StrCmp $0 "0" is32bit is64bit
+	
+	; Note, NSIS states: "You should always quote the path to make sure spaces 
+	; in the path will not disrupt Windows to find the uninstaller."
+	; See: http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
+	; This matches (most) Windows installations. Rather inconsistently, 
+	; DisplayIcon doesn't usually have quotes (even on Microsoft installations) and
+	; HKLM Software\PackageName doesn't usually have quotes either.
 
     is32bit:
 	  SetOutPath "$PROGRAMFILES\WinPcap"
@@ -322,7 +359,9 @@ Section "WinPcap" SecWinPcap
 	  SetOutPath $SYSDIR\drivers
       File npf.sys ; x86 NT5/NT6 version
 	  WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES\WinPcap"
-	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" "$PROGRAMFILES\WinPcap\uninstall.exe"
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$PROGRAMFILES\WinPcap\uninstall.exe$\""
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$PROGRAMFILES\WinPcap\uninstall.exe$\" /S"
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$PROGRAMFILES\WinPcap\uninstall.exe"
       Goto npfdone
 
     is64bit:
@@ -338,7 +377,9 @@ Section "WinPcap" SecWinPcap
 	  WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES64\WinPcap"
       ; re-enable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
-	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "UninstallString" "$PROGRAMFILES64\WinPcap\uninstall.exe"
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$PROGRAMFILES64\WinPcap\uninstall.exe$\""
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$PROGRAMFILES64\WinPcap\uninstall.exe$\" /S"
+	  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$PROGRAMFILES64\WinPcap\uninstall.exe"
 
     npfdone:
 
@@ -356,10 +397,21 @@ Section "WinPcap" SecWinPcap
     skip_auto_start:
 
     ; Write the rest of the uninstall keys for Windows
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "DisplayName" "winpcap-nmap 4.11"
-    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoModify" 1
-    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap" "NoRepair" 1
-
+    
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName" "WinPcap 4.1.1"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion" "4.1.0.1753"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "Publisher" "CACE Technologies"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "URLInfoAbout" "http://www.cacetech.com"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "URLUpdateInfo" "http://www.winpcap.org"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "VersionMajor" "4"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "VersionMinor" "1"
+	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "InstalledBy" "Nmap"
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "NoModify" 1
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "NoRepair" 1
+	
+  ; delete our  legacy winpcap-nmap keys if they still exist (e.g. official 4.0.2 force installed over our 4.0.2):
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap"
+  	
 SectionEnd ; end the section
 
 
@@ -373,7 +425,9 @@ Section "Uninstall"
   ; unregister the driver as a system service using Windows API calls, so it works on Windows 2000
   Call un.registerServiceAPI
 
+  ; delete our winpcap-nmap and any WinPcapInst registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\winpcap-nmap"
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst"
   DeleteRegKey HKLM "Software\WinPcap"
 
   Delete $INSTDIR\rpcapd.exe
