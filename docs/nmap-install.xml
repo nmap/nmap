@@ -436,6 +436,31 @@ I would run <command>./configure --prefix=<replaceable>/home/fyodor</replaceable
 </variablelist>
 </sect2>
 
+<sect2 id="inst-env"><title>Environment Variables</title>
+
+<indexterm><primary>environment variables</primary><secondary>in configuration</secondary></indexterm>
+
+<para>The <filename>configure</filename> script is sensitive to several environment variables. These are some of those variables and their effects.</para>
+
+<variablelist>
+<varlistentry>
+<indexterm><primary><envar>CFLAGS</envar></primary></indexterm>
+<indexterm><primary><envar>CXXFLAGS</envar></primary></indexterm>
+<indexterm><primary><envar>LDFLAGS</envar></primary></indexterm>
+<term><envar>CFLAGS</envar></term><term><envar>CXXFLAGS</envar></term><term>LDFLAGS</term>
+<listitem><para>Extra options to pass to the C compiler, C++ compiler, and linker, respectively. Because parts of Nmap are written in C and others in C++, it's best to use both <envar>CFLAGS</envar> and <envar>CXXFLAGS</envar> if you're going to use one of them.</para></listitem>
+</varlistentry>
+<varlistentry>
+<indexterm><primary><envar>LINGUAS</envar> environment variable</primary></indexterm>
+<term><envar>LINGUAS</envar></term>
+<indexterm><primary>translations</primary><secondary>of manual pages</secondary></indexterm>
+<indexterm><primary>foreign languages</primary><see>translations</see></indexterm>
+<listitem><para>By default, <command>make install</command> will install all the available translations of the Nmap man page in addition to the English one. The <envar>LINGUAS</envar> environment variable can control which translations are installed. Its value should be a space-separated list of ISO language codes. For example, to install only the French and German translations, you might run <command>LINGUAS="fr de" make install</command>. To disable the installation of all translations, run configure with the <option>--disable-nls</option> option or set <envar>LINGUAS</envar> to the empty string.</para></listitem>
+</varlistentry>
+</variablelist>
+
+</sect2>
+
 <sect2 id="inst-compilation-probs"><title>If You Encounter Compilation Problems</title>
 <indexterm><primary>compilation</primary><secondary>problems with</secondary></indexterm>
 <para>In an ideal world, software would always compile perfectly (and quickly) on every system.  Unfortunately, society has not yet reached that state of nirvana.  Despite all our efforts to make Nmap portable, compilation issues occasionally arise.  Here are some suggestions in case the source distribution compilation fails.</para>
