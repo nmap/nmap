@@ -214,7 +214,7 @@ install-nmap: $(TARGET)
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap
 	$(INSTALL) -c -m 644 docs/$(TARGET).1 $(DESTDIR)$(mandir)/man1/
 	if [ "$(USE_NLS)" = "yes" ]; then \
-	  for ll in $(LINGUAS); do \
+	  for ll in $(filter $(ALL_LINGUAS),$(LINGUAS)); do \
 	    $(INSTALL) -d $(DESTDIR)$(mandir)/$$ll/man1; \
 	    $(INSTALL) -c -m 644 docs/$(TARGET)-$$ll.1 $(DESTDIR)$(mandir)/$$ll/man1/$(TARGET).1; \
 	  done; \
