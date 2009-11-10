@@ -256,7 +256,10 @@ o The Zenmap translation system
   http://nmap.org/docs.html.  We should definitely try to use the same
   translation methods for Zenmap as we do for Nmap.  In fact, maybe we
   can create a combined PO file Nmap, Zenmap, Ncat, and Ndiff so that
-  they can all be translated and maintained together.
+  they can all be translated and maintained together. Something to
+  consider: calling setlocale can change the behavior of functions like
+  isalpha. Locale-dependent functions need to be checked for security
+  risks.
 
 o Consider changing Nsock so that it is able to take advantage of more
   modern interfaces to dealing with large sockets, rather than just
