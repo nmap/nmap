@@ -332,21 +332,21 @@ configure: creating ./config.status
 config.status: creating Makefile
 config.status: creating nsock_config.h
 config.status: nsock_config.h is unchanged
-  (  )   /\   _                 (     
+   (  )   /\   _                 (
     \ |  (  \ ( \.(               )                      _____
   \  \ \  `  `   ) \             (  ___                 / _   \
  (_`    \+   . x  ( .\            \/   \____-----------/ (o)   \_
 - .-               \+  ;          (  O                           \____
-                          )        \_____________  `              \  /
-(__                +- .( -'.- <. - _  VVVVVVV VV V\                 \/
-(_____            ._._: <_ - <- _  (--  _AAAAAAA__A_/                |
-  .    /./.+-  . .- /  +--  - .     \______________//_              \_______
-  (__ ' /x  / x _/ (                                  \___'          \     /
- , x / ( '  . / .  /                                      |           \   /
-    /  /  _/ /    +                                      /              \/
-   '  (__/                                             /                  \
+(__                +- .( -'.- <.   \_____________  `              \  /
+(_____            ._._: <_ - <- _- _  VVVVVVV VV V\                \/
+  .    /./.+-  . .- /  +--  - .    (--_AAAAAAA__A_/                |
+  (__ ' /x  / x _/ (                \______________//_              \_______
+ , x / ( '  . / .  /                                  \___'          \     /
+    /  /  _/ /    +                                       |           \   /
+   '  (__/                                               /              \/
+                                                       /                  \
              NMAP IS A POWERFUL TOOL -- USE CAREFULLY AND RESPONSIBLY
-Configuration complete. Type make (gmake on some *BSD machines) to compile.
+Configuration complete.  Type make (or gmake on some *BSD machines) to compile.
 ]]></screen></example>
 
 </listitem>
