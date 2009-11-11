@@ -45,10 +45,6 @@ o [NSE] Patrick's script dependency patch:
   o I'm not sure if he has gone through and actually set appropriate
     dependencies (and removed runlevels) yet
 
-o Resolve allow_ipid_match issue which can cause some malformed
-  replies to be ignored when we might be able to still use them.  See
-  this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
-
 o Potential OS X 10.6 problems.  There are two issues reported by the
   same user which may be related:
   http://seclists.org/nmap-dev/2009/q3/0936.html,
@@ -65,12 +61,6 @@ o Integrate latest OS fingerprint submissions and corrections. This
 
 o Integrate latest version detection submissions and corrections.
   This was last done based on submissions until February 9, 2009.
-
-o Once all the man page languages are in the Nmap tarball, we should
-  update our install system to install them in the appropriate place.
-  We'll want to integrate this with configure so users can decide which
-  languages they want.  David thinks the standard way is like
-  "--enable-nls=es,de,hr,..." or --disable-nls for English only.
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -224,10 +214,6 @@ o Consider moving UDP ping/portscan payloads from payload.cc to a
     benefits from a random initiator cookie so that packets after the
     first don't get ignored for looking like retransmissions.
   o TFTP sends its response from an ephemeral port, not port 69.
-
-o We may want to look into if/how we support IPv6 nameservers.  Here
-  is a bug report from someone having a problem with them:
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244 [Ankur]
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -645,6 +631,19 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We may want to look into if/how we support IPv6 nameservers.  Here
+  is a bug report from someone having a problem with them:
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=539244 [Ankur]
+
+o Once all the man page languages are in the Nmap tarball, we should
+  update our install system to install them in the appropriate place.
+  We'll want to integrate this with configure so users can decide which
+  languages they want.  See http://seclists.org/nmap-dev/2009/q4/249.
+
+o Resolve allow_ipid_match issue which can cause some malformed
+  replies to be ignored when we might be able to still use them.  See
+  this thread: http://seclists.org/nmap-dev/2009/q2/665 [David]
 
 o Fix Zenmap 'make install' TypeError issue
   (http://seclists.org/nmap-dev/2009/q4/225). [David]
