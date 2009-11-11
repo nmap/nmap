@@ -937,6 +937,13 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
         memcpy(FP->OS_name, p, q - p + 1);
         FP->OS_name[q - p + 1] = '\0';
       }
+    } else if (strncmp(thisline, "MatchPoints", 11) == 0) {
+      p = thisline + 11;
+      if (*p && !isspace((int) (unsigned char) *p))
+	fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+      while(*p && isspace((int) (unsigned char) *p)) p++;
+      if (*p != '\0')
+	fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
       parse_classline(FP, thisline, lineno, &classno);
