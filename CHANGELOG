@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that could cause an infinite loop ("Unable to find
+  listening socket in get_rpc_results") in RPC scan. The loop would
+  happen when scanning a port that sent no responses, and there was at
+  least one other port to scan. Thanks to Lionel Cons for reporting
+  the problem. [David]
+
 o [NSE] Improved the authentication used by the smb-* scripts. Instead of 
   looking in a bunch of places (registry, commandline, etc) for the
   usernames/passwords, a table is kept. This lets us store any number

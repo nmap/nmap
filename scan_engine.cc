@@ -5501,6 +5501,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 		    log_write(LOG_STDOUT, "RPC Scan giving up on port %hu proto %d due to repeated lack of response\n", rsi.rpc_current_port->portno,  rsi.rpc_current_port->proto);
 		  }
 		  rsi.rpc_status = RPC_STATUS_NOT_RPC;
+		  ss.numqueries_outstanding = 0;
 		  break;
 		}
 		else {
