@@ -37,6 +37,10 @@ o Ndiff man page should be built from XML source whenever a release is
 
 ==Try to do before next release==
 
+o Investigate get_rpc_results error (infinite loop) reported by Lionel
+  Cons. See these threads: http://seclists.org/nmap-dev/2009/q4/24,
+  http://seclists.org/nmap-dev/2009/q4/120
+
 o [NSE] Patrick's worker thread patch:
   http://seclists.org/nmap-dev/2009/q4/294
 
