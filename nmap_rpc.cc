@@ -519,8 +519,7 @@ void get_rpc_results(Target *target, struct portinfo *scan,
     max_sd = udp_rpc_socket;
   } else if (tcp_rpc_socket >= 0 && rsi->rpc_current_port->proto == IPPROTO_TCP) {
     FD_SET(tcp_rpc_socket, &fds_r);
-    if (tcp_rpc_socket > max_sd)
-      max_sd = tcp_rpc_socket;
+    max_sd = tcp_rpc_socket;
   } else {
     error("Unable to find listening socket in %s", __func__);
     return;
