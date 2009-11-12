@@ -143,13 +143,19 @@ function get_interface_link(interface_name)
 --
 -- This function returns another function that works as a mutex on the object
 -- passed. This object can be any Lua data type except <code>nil</code>,
--- Booleans, and numbers. The returned function allows you to lock, try to
--- lock, and release the mutex. The returned function takes only one argument,
--- which must be one of
+-- Booleans, and Numbers. The Mutex (the returned function) allows you to lock,
+-- try to lock, and release the mutex.  The Mutex function takes only one
+-- argument, which must be one of
 -- * <code>"lock"</code>: makes a blocking lock on the mutex. If the mutex is busy then the thread will yield and wait. The function returns with the mutex locked.
 -- * <code>"trylock"</code>: makes a non-blocking lock on the mutex. If the mutex is busy then it immediately returns a false value. Otherwise, the mutex locks the mutex and returns true.
 -- * <code>"done"</code>: releases the mutex and allows another thread to lock it. If the thread does not have a lock on the mutex, an error will be raised.
 -- * <code>"running"</code>: returns the thread locked on the mutex or <code>nil</code> if no thread is locked. This should only be used for debugging as it interferes with finished threads from being collected.
+--
+-- NSE maintains a weak reference to the Mutex function so other calls to
+-- nmap.mutex with the same object will return the same function (Mutex);
+-- however, if you discard your reference to the Mutex then it may be collected
+-- and subsequent calls to nmap.mutex with the object will return a different
+-- Mutex!
 -- @param object Object to create a mutex for.
 -- @return Mutex function which takes one of the following arguments:
 -- <code>"lock"</code>, <code>"trylock"</code>, <code>"done"</code>, or
