@@ -259,3 +259,105 @@ function string_or_blank(string, blank)
   end
 end
 
+--- This function allows you to create worker threads that may perform
+-- network tasks in parallel with your script thread.
+--
+-- Any network task (e.g. <code>socket:connect(...)</code>) will cause the
+-- running thread to yield to NSE. This allows network tasks to appear to be
+-- blocking while being able to run multiple network tasks at once.
+-- While this is useful for running multiple separate scripts, it is
+-- unfortunately difficult for a script itself to perform network tasks in
+-- parallel. In order to allow scripts to also have network tasks running in
+-- parallel, we provide this function, <code>stdnse.new_thread</code>, to
+-- create a new thread that can perform its own network related tasks
+-- in parallel with the script.
+--
+-- The script launches the worker thread by calling the <code>new_thread</code>
+-- function with the parameters:
+-- * The main Lua function for the script to execute, similar to the script action function.
+-- * The variable number of arguments to be passed to the worker's main function.
+--
+-- The <code>stdnse.new_thread</code> function will return two results:
+--  * The worker thread's base (main) coroutine (useful for tracking status).
+--  * A status query function (described below).
+--
+-- The status query function shall return two values:
+-- * The result of coroutine.status using the worker thread base coroutine.
+-- * The error object thrown that ended the worker thread or <code>nil</code> if no error was thrown. This is typically a string, like most Lua errors.
+--
+-- Note that NSE discards all return values of the worker's main function. You
+-- must use function parameters, upvalues or environments to communicate
+-- results.
+--
+-- You should use the condition variable (<code>nmap.condvar</code>)
+-- and mutex (<code>nmap.mutex</code>) facilities to coordinate with your
+-- worker threads. Keep in mind that Nmap is single threaded so there are
+-- no (memory) issues in synchronization to worry about; however, there
+-- <b>is</b> resource contention. Your resources are usually network bandwidth,
+-- network sockets, etc. Condition variables are also useful if the work for any
+-- single thread is dynamic. For example, a web server spider script with a pool
+-- of workers will initially have a single root html document. Following the
+-- retrieval of the root document, the set of resources to be retrieved
+-- (the worker's work) will become very large (an html document adds many
+-- new hyperlinks (resources) to fetch).
+--@name new_thread
+--@class function
+--@param main The main function of the worker thread.
+--@param ... The arguments passed to the main worker thread.
+--@return co The base coroutine of the worker thread.
+--@return info A query function used to obtain status information of the worker.
+--@usage
+--local requests = {"/", "/index.html", --[[ long list of objects ]]}
+--
+--function thread_main (host, port, responses, ...)
+--  local condvar = nmap.condvar(responses);
+--  local what = {n = select("#", ...), ...};
+--  local allReqs = nil;
+--  for i = 1, what.n do
+--    allReqs = http.pGet(host, port, what[i], nil, nil, allReqs);
+--  end
+--  local p = assert(http.pipeline(host, port, allReqs));
+--  for i, response in ipairs(p) do responses[#responses+1] = response end
+--  condvar "signal";
+--end
+--
+--function many_requests (host, port)
+--  local threads = {};
+--  local responses = {};
+--  local condvar = nmap.condvar(responses);
+--  local i = 1;
+--  repeat
+--    local j = math.min(i+10, #requests);
+--    local co = stdnse.new_thread(thread_main, host, port, responses,
+--        unpack(requests, i, j));
+--    threads[co] = true;
+--    i = j+1;
+--  until i > #requests;
+--  repeat
+--    condvar "wait";
+--    for thread in pairs(threads) do
+--      if coroutine.status(thread) == "dead" then threads[thread] = nil end
+--    end
+--  until next(threads) == nil;
+--  return responses;
+--end
+do end -- no function here, see nse_main.lua
+
+--- Returns the base coroutine of the running script.
+--
+-- A script may be resuming multiple coroutines to facilitate its own
+-- collaborative multithreading design. Because there is a "root" or "base"
+-- coroutine that lets us determine whether the script is still active
+-- (that is, the script did not end, possibly due to an error), we provide
+-- this <code>stdnse.base</code> function that will retrieve the base
+-- coroutine of the script. This base coroutine is the coroutine that runs
+-- the action function.
+--
+-- The base coroutine is useful for many reasons but here are some common
+-- uses:
+-- * We want to attribute the ownership of an object (perhaps a network socket) to a script.
+-- * We want to identify if the script is still alive.
+--@name base
+--@class function
+--@return coroutine Returns the base coroutine of the running script.
+do end -- no function here, see nse_main.lua

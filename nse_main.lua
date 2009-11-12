@@ -51,6 +51,7 @@ local loadstring = loadstring;
 local next = next;
 local pairs = pairs;
 local rawget = rawget;
+local rawset = rawset;
 local select = select;
 local setfenv = setfenv;
 local setmetatable = setmetatable;
@@ -87,6 +88,8 @@ do -- Append the nselib directory to the Lua search path
   assert(t == "directory", "could not locate nselib directory!");
   package.path = package.path..";"..path.."?.lua";
 end
+
+local stdnse = require "stdnse";
 
 (require "strict")() -- strict global checking
 
@@ -536,6 +539,34 @@ local function run (threads)
   _R[SELECTED_BY_NAME] = function()
     return current and current.selected_by_name;
   end
+  rawset(stdnse, "new_thread", function (main, ...)
+    assert(type(main) == "function", "function expected");
+    local co = create(function(...) main(...) end); -- do not return results
+    print_debug(2, "%s spawning new thread (%s).",
+        current.parent.info, tostring(co));
+    local thread = {
+      co = co,
+      args = {n = select("#", ...), ...},
+      host = current.host,
+      port = current.port,
+      parent = current.parent,
+      info = format("'%s' worker (%s)", current.short_basename, tostring(co));
+      -- d = function(...) end, -- output no debug information
+    };
+    local thread_mt = {
+      __metatable = Thread,
+      __index = current,
+    };
+    setmetatable(thread, thread_mt);
+    total, all[co], pending[co] = total+1, thread, thread;
+    local function info ()
+      return status(co), rawget(thread, "error");
+    end
+    return co, info;
+  end);
+  rawset(stdnse, "base", function ()
+    return current.co;
+  end);
 
   -- Loop while any thread is running or waiting.
   while next(running) or next(waiting) do
@@ -581,6 +612,7 @@ local function run (threads)
         thread:d("%THREAD against %s%s threw an error!\n%s\n",
             thread.host.ip, thread.port and ":"..thread.port.number or "",
             traceback(co, tostring(result)));
+        thread.error = result;
         thread:close();
       elseif status(co) == "suspended" then
         if result == NSE_YIELD_VALUE then

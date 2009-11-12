@@ -325,6 +325,73 @@ static int l_mutex (lua_State *L)
   return 1; // aux_mutex closure
 }
 
+static int aux_condvar (lua_State *L)
+{
+  size_t i, n = 0;
+  enum {WAIT, SIGNAL, BROADCAST};
+  static const char * op[] = {"wait", "signal", "broadcast"};
+  switch (luaL_checkoption(L, 1, NULL, op))
+  {
+    case WAIT:
+      lua_pushthread(L);
+      lua_rawseti(L, lua_upvalueindex(1), lua_objlen(L, lua_upvalueindex(1))+1);
+      return nse_yield(L);
+    case SIGNAL:
+      n = lua_objlen(L, lua_upvalueindex(1));
+      break;
+    case BROADCAST:
+      n = 1;
+      break;
+  }
+  lua_pushvalue(L, lua_upvalueindex(1));
+  for (i = lua_objlen(L, -1); i >= n; i--)
+  {
+    lua_rawgeti(L, -1, i); /* get the thread */
+    if (lua_isthread(L, -1))
+      nse_restore(lua_tothread(L, -1), 0);
+    lua_pop(L, 1); /* pop the thread */
+    lua_pushnil(L);
+    lua_rawseti(L, -2, i);
+  }
+  return 0;
+}
+
+static int aux_condvar_done (lua_State *L)
+{
+  lua_State *thread = lua_tothread(L, 1);
+  lua_pushvalue(L, lua_upvalueindex(1)); // aux_condvar closure
+  lua_pushliteral(L, "broadcast"); // wake up all threads waiting
+  luaL_checkstack(thread, 2, "aux_condvar_done");
+  lua_xmove(L, thread, 2);
+  if (lua_pcall(thread, 1, 0, 0) != 0) lua_pop(thread, 1); // pop error msg
+  return 0;
+}
+
+static int l_condvar (lua_State *L)
+{
+  int t = lua_type(L, 1);
+  if (t == LUA_TNONE || t == LUA_TNIL || t == LUA_TBOOLEAN || t == LUA_TNUMBER)
+   luaL_argerror(L, 1, "object expected");
+  lua_pushvalue(L, 1);
+  lua_gettable(L, lua_upvalueindex(1));
+  if (lua_isnil(L, -1))
+  {
+    lua_newtable(L); // waiting threads
+    lua_pushnil(L); // placeholder for aux_mutex_done
+    lua_pushcclosure(L, aux_condvar, 2);
+    lua_pushvalue(L, -1); // aux_condvar closure
+    lua_pushcclosure(L, aux_condvar_done, 1);
+    lua_setupvalue(L, -2, 2); // replace nil upvalue with aux_condvar_done
+    lua_pushvalue(L, 1); // "condition variable object"
+    lua_pushvalue(L, -2); // condvar function
+    lua_settable(L, lua_upvalueindex(1)); // Add to condition variable table
+  }
+  lua_pushvalue(L, -1); // aux_condvar closure
+  lua_getupvalue(L, -1, 2); // aux_mutex_done closure
+  nse_destructor(L, 'a');
+  return 1; // condition variable closure
+}
+
 Target *get_target (lua_State *L, int index)
 {
   int top = lua_gettop(L);
@@ -616,6 +683,14 @@ int luaopen_nmap (lua_State *L)
   lua_setmetatable(L, -2); // Allow closures to be collected (see l_mutex)
   lua_pushcclosure(L, l_mutex, 1); /* mutex function */
   lua_setfield(L, -2, "mutex");
+
+  lua_newtable(L);
+  lua_createtable(L, 0, 1);
+  lua_pushliteral(L, "v");
+  lua_setfield(L, -2, "__mode");
+  lua_setmetatable(L, -2); // Allow closures to be collected (see l_condvar)
+  lua_pushcclosure(L, l_condvar, 1); // condvar function
+  lua_setfield(L, -2, "condvar");
 
   lua_newtable(L);
   lua_setfield(L, -2, "registry");
