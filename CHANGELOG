@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Add a new script, db2-info.nse, that enhances DB2 database instance detection.  
+  The script provides detection when version probes fail, but will default to 
+  the value provided the version probes if that value is more precise. The 
+  script also detects the server platform and database instance name. 
+  [Tom]
+
+o Updated DB2 port ranges to be broader in order to improve detection of the
+  database instances that typically live in the 50000-50025 and 60000-60025
+  range. [Tom] 
+
 o Fixed a bug that could cause an infinite loop ("Unable to find
   listening socket in get_rpc_results") in RPC scan. The loop would
   happen when scanning a port that sent no responses, and there was at
