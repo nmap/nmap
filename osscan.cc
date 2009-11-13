@@ -115,36 +115,6 @@
 
 extern NmapOps o;
 
-// Prints a note if observedFP has a classification and it is not in referenceFP
-// Returns 0 if they match, nonzero otherwise
-static int compareclassifications(FingerPrint *referenceFP, 
-				  FingerPrint *observedFP, bool verbose) {
-  int refclassno;
-  struct OS_Classification *obclass, *refclass;
-  if (observedFP->num_OS_Classifications > 0) {
-    obclass = &(observedFP->OS_class[0]);
-    for(refclassno = 0; refclassno < referenceFP->num_OS_Classifications; refclassno++) {
-      refclass = &(referenceFP->OS_class[refclassno]);
-      if (strcmp(obclass->OS_Vendor, refclass->OS_Vendor) == 0 &&
-	  strcmp(obclass->OS_Family, refclass->OS_Family) == 0 &&
-	  strcmp(obclass->Device_Type, refclass->Device_Type) == 0 &&
-	  (obclass->OS_Generation == refclass->OS_Generation ||
-	   (obclass->OS_Generation != NULL && refclass->OS_Generation != NULL && 
-	    strcmp(obclass->OS_Generation, refclass->OS_Generation) == 0))) {
-	// A match!  lets get out of here
-	return 0;
-      }
-    }
-  } else {
-    if (verbose)
-      log_write(LOG_PLAIN, "Observed fingerprint lacks a classification\n");
-    return 1;
-  }
-  if (verbose)
-    log_write(LOG_PLAIN, "[WARN] Classification of observed fingerprint does not appear in reference fingerprint.\n");
-  return 1;
-}
-
 static struct AVal *getattrbyname(struct AVal *AV, const char *name) {
   if (!AV) return NULL;
   do {
@@ -292,8 +262,6 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
   unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
   assert(observedFP);
-
-  if (verbose) compareclassifications(referenceFP, observedFP, true);
 
   for(currentReferenceTest = referenceFP; currentReferenceTest; 
       currentReferenceTest = currentReferenceTest->next) {
