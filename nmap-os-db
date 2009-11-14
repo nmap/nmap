@@ -6149,7 +6149,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco VG 224 Analog Phone Gateway
 Fingerprint Cisco Aironet 1240AG or 1250 WAP, 1811 or 2800 router, or VG 224 VoIP gateway (IOS 12.4)
 Class Cisco | IOS | 12.X | router
-Class Cisco | embedded || VoIP gateway
+Class Cisco | embedded || VoIP adapter
 SEQ(SP=F7-10D%GCD=1-6%ISR=FE-110%TI=RD%CI=RD|RI%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
@@ -36296,7 +36296,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Jetstream 8500 Terminal Server
 # Perle JETset 3.6.0.G "CONSOLESERVER 9000"
 Fingerprint Perle JetStream 8500 or CS 9000 remote access server
-Class Perle | embedded || remove management
+Class Perle | embedded || remote management
 Class Perle | embedded || terminal server
 SEQ(SP=C-16%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
@@ -36607,7 +36607,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Central Telephone server HI-PATH4000
 Fingerprint Siemens HiPath 4000 VoIP gateway
-Class Siemens | embedded || VoIP gateway
+Class Siemens | embedded || VoIP adapter
 SEQ(SP=AE-B8%GCD=1-6%ISR=B4-BE%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=60F4%W2=60F4%W3=60F4%W4=60F4%W5=60F4%W6=60F4)
@@ -37088,7 +37088,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Cognex DataMan 200 (running http://www.sics.se/~adam/lwip/)
 Fingerprint Cognex DataMan 200 ID reader (lwIP TCP/IP stack)
-Class Gognex | embedded || specialized
+Class Cognex | embedded || specialized
 SEQ(SP=0-59%GCD=1-6|CE|19C|26A|338|406%ISR=55-5F%TI=I%CI=I%II=RI%SS=O%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
@@ -38049,7 +38049,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # APC NetBotz 200 Rack Monitor (NBRK0200)
 Fingerprint APC NetBotz 200 rack monitor
-Class APC | embedded || power-misc
+Class APC | embedded || power-device
 SEQ(SP=5F-A9%GCD=1-6%ISR=DD-E7%CI=RD|RI%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=10F8%W2=1044%W3=112C%W4=10F8%W5=1060%W6=10CD)
@@ -38100,7 +38100,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # APC Smart-UPS RT 8000 RM XL 8kVA With Link3 network management card.
 Fingerprint APC Smart-UPS RT 8000 RM XL UPS
-Class APC | embedded || power-misc
+Class APC | embedded || power-device
 SEQ(SP=EE-F8%GCD=1-6%ISR=EE-F8%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
 WIN(W1=10F8%W2=1044%W3=112C%W4=10F8%W5=1060%W6=10CD)
@@ -38134,7 +38134,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Vegastream, Express Logic's ThreadX RTOS
 Fingerprint Vegastream VoIP Gateway
-Class Vegastream | ThreadX || VoIP gateway
+Class Vegastream | ThreadX || VoIP adapter
 SEQ(SP=FB-10B%GCD=1-6%ISR=107-111%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=3E80%W2=3E80%W3=3E80%W4=3E80%W5=3E80%W6=3E80)
@@ -38771,7 +38771,7 @@ IE(DFI=N%T=41%TG=40%CD=S)
 
 # 3Com NBX 100. VxWorks: http://www.3com.com/products/en_US/detail.jsp?tab=features&pathtype=purchase&sku=WEBBNGNBX100COMSYS
 Fingerprint 3Com NBX 100 VoIP gateway (VxWorks)
-Class 3Com | VxWorks || VoIP gateway
+Class 3Com | VxWorks || VoIP adapter
 SEQ(SP=13-1D%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=98-A2%TI=I%II=I%SS=S%TS=1)
 OPS(O1=M5C2NW0NNT11%O2=M5C2NW0NNT11%O3=M5C2NW0NNT11%O4=M5C2NW0NNT11%O5=M5C2NW0NNT11%O6=M5C2NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -40477,7 +40477,7 @@ IE(DFI=S%T=2B-35%TG=40%CD=Z)
 
 # TRIPP LITE SMART1500SLT, Firmware Version: 12.04.0045
 Fingerprint Tripp Lite SMART1500SLT UPS
-Class Tripp Lite | embedded || power-misc
+Class Tripp Lite | embedded || power-device
 SEQ(SP=CC-F4%GCD=1-6%ISR=D5-E7%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4W0L%O2=M5B4W0L%O3=M5B4W0L%O4=M5B4W0L%O5=M5B4W0L%O6=M5B4)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
@@ -40732,7 +40732,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Vonage V-Portal device.
 Fingerprint Vonage V-Portal VoIP gateway
-Class Vonage | embedded || VoIP gateway
+Class Vonage | embedded || VoIP adapter
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=I%TS=7)
 OPS(O1=M5ACNW0NNT11%O2=M5ACNW0NNT11%O3=M5ACNW0NNT11%O4=M5ACNW0NNT11%O5=M5ACNW0NNT11%O6=M5ACNNT11)
 WIN(W1=4380%W2=4110%W3=423C%W4=4074%W5=4180%W6=403D)
