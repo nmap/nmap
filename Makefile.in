@@ -280,7 +280,12 @@ install-nse: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
 	$(INSTALL) -c -m 644 $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib/data
-	$(INSTALL) -c -m 644 $(NSE_LIB_DATA_FILES) $(DESTDIR)$(nmapdatadir)/nselib/data
+	for f in `find nselib/data -name .svn -prune -o -type d -print`; do \
+		$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/$$f; \
+	done
+	for f in `find nselib/data -name .svn -prune -o -type f -print`; do \
+			$(INSTALL) -c -m 644 $$f $(DESTDIR)$(nmapdatadir)/$$f; \
+	done
 
 install-ncat: $(NCATDIR)/ncat
 	@cd $(NCATDIR) && $(MAKE) install
