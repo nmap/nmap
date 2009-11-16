@@ -1489,7 +1489,7 @@ void write_host_status(Target * currenths, int resolve_all) {
       log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
                 currenths->targetipstr(), currenths->HostName());
     } else if (o.verbose || resolve_all) {
-      log_write(resolve_all ? LOG_PLAIN : LOG_STDOUT, "Host is down.\n");
+      log_write(LOG_PLAIN, "Host is down.\n");
       log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
                 currenths->targetipstr(), currenths->HostName());
     }
