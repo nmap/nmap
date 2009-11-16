@@ -1,5 +1,5 @@
 MAKENSIS="/cygdrive/c/Program Files/NSIS/makensis.exe"
-VCEXPRESS="/cygdrive/c/Program Files/Microsoft Visual Studio 9.0/Common7/IDE/VCExpress.exe"
+VCEXPRESS := $(shell reg query "HKEY_CLASSES_ROOT\\Applications\\VCExpress.exe\\shell\\edit\\command" | egrep '[A-H]:\\' | cut -d\" -f2 | sed 's%\\%/%g' | tr -d '\n')
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
@@ -17,7 +17,7 @@ winbuild:
 	@rm ./nmap.nsi.tmp ./nmap.rc.tmp
 	@./license-format/licformat.sh ../COPYING > LICENSE
 
-	$(VCEXPRESS) nmap.sln /build release /log $(LOGLOC)
+	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
