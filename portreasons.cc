@@ -357,7 +357,6 @@ void print_xml_state_summary(PortList *Ports, int state) {
 char *target_reason_str(Target *t) {
 	static char reason[128];
 	memset(reason,'\0', 128);
-	assert(t->reason.reason_id != ER_NORESPONSE);
 	Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR)); 
 	return reason;
 }
