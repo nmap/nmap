@@ -1732,6 +1732,7 @@ int nmap_main(int argc, char *argv[]) {
 	printmacinfo(currenths);
 	//	if (currenths->flags & HOST_UP)
 	//  log_write(LOG_PLAIN,"\n");
+	printtimes(currenths);
 	log_write(LOG_XML, "</host>\n");
 	log_flush_all();
 	delete currenths;
@@ -1915,11 +1916,8 @@ int nmap_main(int argc, char *argv[]) {
       if (o.traceroute)
         printtraceroute(currenths);
 
-      if (o.debugging) 
-	log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n", 
-		  currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
-      log_write(LOG_XML, "<times srtt=\"%d\" rttvar=\"%d\" to=\"%d\" />\n",
-		currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
+      printtimes(currenths);
+
       log_write(LOG_PLAIN|LOG_MACHINE,"\n");
       log_write(LOG_XML, "</host>\n");
     }

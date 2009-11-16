@@ -2201,6 +2201,17 @@ void printtraceroute(Target * currenths) {
   printtraceroute_xml(currenths);
 }
 
+void printtimes(Target *currenths) {
+  if (currenths->to.srtt != -1 || currenths->to.rttvar != -1) {
+    if (o.debugging) {
+      log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n",
+        currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
+    }
+    log_write(LOG_XML, "<times srtt=\"%d\" rttvar=\"%d\" to=\"%d\" />\n",
+      currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
+  }
+}
+
 /* Prints a status message while the program is running */
 void printStatusMessage() {
   // Pre-computations

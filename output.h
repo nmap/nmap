@@ -201,6 +201,9 @@ void printhostscriptresults(Target *currenths);
 /* Print a table with traceroute hops. */
 void printtraceroute(Target *currenths);
 
+/* Print "times for host" output with latency. */
+void printtimes(Target *currenths);
+
 /* Print a detailed list of Nmap interfaces and routes to
    normal/skiddy/stdout output */
 int print_iflist(void);
