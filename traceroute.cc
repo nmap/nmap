@@ -1195,6 +1195,7 @@ void TracerouteState::read_replies(long timeout) {
     sslen = sizeof(ss);
     host->target->TargetSockAddr(&ss, &sslen);
     if (sockaddr_storage_cmp(&ss, &reply.from_addr) == 0) {
+      adjust_timeouts2(&probe->sent_time, &reply.rcvdtime, &host->target->to);
       if (host->reached_target == 0 || probe->ttl < host->reached_target)
         host->reached_target = probe->ttl;
       if (host->state == HostState::COUNTING_DOWN) {
