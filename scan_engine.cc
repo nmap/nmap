@@ -441,6 +441,10 @@ public:
   /* Whether we have sent an ICMP timestamp request. */
   bool sent_icmp_ts;
 
+  /* Have we warned that we've given up on a port for this host yet? Only one
+     port per host is reported. */
+  bool retry_capped_warned;
+
   void probeSent(unsigned int nbytes);
 
   /* How long I am currently willing to wait for a probe response
@@ -1139,6 +1143,7 @@ HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   sent_icmp_ping = false;
   sent_icmp_mask = false;
   sent_icmp_ts = false;
+  retry_capped_warned = false;
   num_probes_active = 0; 
   num_probes_waiting_retransmit = 0;
   lastping_sent = lastprobe_sent = lastrcvd = USI->now;
@@ -4924,7 +4929,6 @@ static void processData(UltraScanInfo *USI) {
   list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
-  static UltraScanInfo *lastRetryCappedWarning = NULL;
   int newstate;
   unsigned int maxtries = 0;
   bool scanmaybedone = true; /* The whole scan is not yet done */
@@ -4998,11 +5002,11 @@ static void processData(UltraScanInfo *USI) {
 	    ultrascan_port_probe_update(USI, host, probeI, newstate, NULL);
 	  if (host->target->reason.reason_id == ER_UNKNOWN)
 	    host->target->reason.reason_id = ER_NORESPONSE;
-	  if (tryno_capped && lastRetryCappedWarning != USI) {
-	    /* Perhaps I should give this on a per-host basis.  Oh
-	       well, hopefully it is rare anyway. */
-	    log_write(LOG_PLAIN, "Warning: Giving up on port early because retransmission cap hit.\n");
-	    lastRetryCappedWarning = USI;
+	  if (tryno_capped && !host->retry_capped_warned) {
+	    log_write(LOG_PLAIN, "Warning: %s giving up on port because"
+              " retransmission cap hit (%d).\n", host->target->targetipstr(),
+              probe->tryno);
+            host->retry_capped_warned = true;
 	  }
 	  continue;
 	} else if (probe->tryno >= maxtries && 
