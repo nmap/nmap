@@ -4,19 +4,25 @@
 
 I. ZENMAP BUILD DEPENDENCIES
 
+Here are the build dependencies for Zenmap and where to get them.  The
+latest known tested versions are listed here, but I usually start by
+grabbing the latest version available on the sites rather than these
+known-good versions.
 
-I've listed the build dependencies for Zenmap, the versions I am using, and
-where to get them:
-
-GTK+ All-in-one bundle (2.14.7)
+GTK+ All-in-one bundle
   o http://www.gtk.org/download-windows.html
-Python (2.6.1) - http://www.python.org/download
-  o python-2.6.1.msi
-PyGTK (2.12.1-3) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
-  o pygtk-2.12.1-3.win32-py2.6.exe
-PyCairo (1.4.12-2) - http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
-  o pycairo-1.4.12-2.win32-py2.6.exe
-PyGObject (2.14.2-2) - http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
+  o Tested: gtk+-bundle_2.16.6-20091013_win32.zip
+Python
+  o http://www.python.org/download
+  o Tested: python-2.6.4.msi
+PyGTK
+  o http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
+  o Tested: pygtk-2.12.1-3.win32-py2.6.exe
+PyCairo
+  o http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
+  o Tested: pycairo-1.4.12-2.win32-py2.6.exe
+PyGObject
+  o http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
   o pygobject-2.14.2-2.win32-py2.6.exe
 Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe
   o py2exe-0.6.9.win32-py2.6.exe
@@ -27,7 +33,16 @@ c:\GTK.  The other components have installers-using the default
 install directories is important, especially for Python (C:\Python26)
 and GTK (C:\GTK).  See Section IV if you must change the directories.
 
-After installing GTK, creat C:\GTK\etc\gtk-2.0\gtkrc with the
+You may need to set your Windows $PATH so that it can find the GTK
+DLLs while py2exe is doing its thing.  On Windows 7 x64, I did this as
+follows:
+ o Open control panel, search for "environment variables", click on
+   "Edit the system environment variables", which opens the "System
+   Properties" dialogue.  Select the "Advanced" tab then click the
+   "Environment Variables" button.  Add ";C:\GTK\bin" to the end of
+   the user PATH variable.
+
+After installing GTK, create C:\GTK\etc\gtk-2.0\gtkrc with the
 contents:
 gtk-theme-name = "MS-Windows"
 
@@ -41,11 +56,11 @@ You'll also need Cygwin installed in order to build the Nmap installer (not
 required for normal compiling).  You'll find it at http://www.cygwin.com
 
 And last, you'll need the Nullsoft Scriptable Install System installed.  You
-can download if from http://nsis.sourceforge.net/Download 
+can download if from http://nsis.sourceforge.net/Download  (Version
+2.45 tested)
 
 
 III. BUILDING
-
 
 With all of the requirements and dependencies installed, open up a Cygwin
 shell and go to the mswin32 directory in the Nmap directory and type "make".
@@ -54,7 +69,6 @@ zip archive (nmap-<version>-setup.exe and nmap-<version>-win32.zip).
 
 
 IV. INSTALLATION PATHS / PROBLEMS
-
 
 If you have Python installed to a directory other than the default mentioned
 above, then you need to edit the copy_and_compile.bat file under
