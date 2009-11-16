@@ -159,7 +159,7 @@ class TargetGroup {
   struct in_addr currentaddr;
   struct in_addr endaddr;
 
-  // These three are for the '138.[1-7,16,91-95,200-].12.1' style (IPV4_RANGES)
+  // These three are for the '138.1-7,16,91-95,200-.12.1' style (IPV4_RANGES)
   u8 addresses[4][256];
   unsigned int current[4];
   u8 last[4];  
