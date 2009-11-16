@@ -1424,8 +1424,12 @@ static char *num_to_string_sigdigits(double d, int digits) {
 /* Writes a heading for a full scan report ("Nmap scan report for..."),
    including host status and DNS records. */
 void write_host_header(Target *currenths) {
-  if ((currenths->flags & HOST_UP) || o.verbose || o.resolve_all)
-    log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
+  if ((currenths->flags & HOST_UP) || o.verbose || o.resolve_all) {
+    if (currenths->flags & HOST_UP)
+      log_write(LOG_PLAIN, "Nmap scan report for %s\n", currenths->NameIP());
+    else if (currenths->flags & HOST_DOWN)
+      log_write(LOG_PLAIN, "Nmap scan report for %s [host down]\n", currenths->NameIP());
+  }
   write_host_status(currenths, o.resolve_all);
   if (currenths->TargetName() != NULL
       && currenths->resolved_addrs.size() > 1) {
@@ -1488,8 +1492,7 @@ void write_host_status(Target * currenths, int resolve_all) {
 
       log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up\n",
                 currenths->targetipstr(), currenths->HostName());
-    } else if (o.verbose || resolve_all) {
-      log_write(LOG_PLAIN, "Host is down.\n");
+    } else if (currenths->flags & HOST_DOWN) {
       log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Down\n",
                 currenths->targetipstr(), currenths->HostName());
     }

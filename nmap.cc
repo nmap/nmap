@@ -1747,6 +1747,9 @@ int nmap_main(int argc, char *argv[]) {
       /* I used to check that !currenths->weird_responses, but in some
 	 rare cases, such IPs CAN be port successfully scanned and even connected to */
       if (!(currenths->flags & HOST_UP)) {
+	log_write(LOG_XML, "<host>");
+	write_host_header(currenths);
+	log_write(LOG_XML, "</host>\n");
 	delete currenths;
 	o.numhosts_scanned++;
 	continue;
