@@ -9,9 +9,6 @@ o We should package the rendered Nroff man page translations (e.g. all
   uncompressed tarball and about 800KB to the (currently 9MB) bz2
   compressed tarball. [Fyodor]
 
-o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
-  our pcap installer). [Fyodor]
-
 o The Nmap 5.00 tarball contains:
   -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
   -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
@@ -22,11 +19,11 @@ o The Nmap 5.00 tarball contains:
   refguide too.  But rather than add that, we should probably take
   these out.  After all, people can easily grab them from svn or our
   new http svn gateway if desired.  So no need to bloat the tarball
-  with these files which aren't installed. [Fyodor]
+  with these files which aren't installed. [We're going to take the
+  XML source files out of the tarball] [Fyodor]
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
 
 ==Try to do before next release==
 
@@ -41,6 +38,22 @@ o Many people may have stale (since removed/renamed) scripts in their
 
 o Fix assertion failure with certain --exclude arguments (see
   http://seclists.org/nmap-dev/2009/q4/276). [David]
+
+o Update the CHANGELOG for new (5.05BETA1 or whatever) BETA
+  release. [Fyodor]
+
+o Make the new Nmap beta release (5.05BETA1 or whatever)
+
+o Look into reducing Nmap memory consumption
+  o UDP scans with -p- and large hostgroups are a particularly large
+    offender.  See if there is a way to prevent them from eating up
+    gigs of RAM. See the message "Port memory bloat" at
+    http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
+    reduces Port memory use by about 50%. 
+  o One idea David has been considering is a way to represent filtered
+    ports (or whatever the default state is) without creating a Port
+    object for each one.
+  [David]
 
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
@@ -70,8 +83,6 @@ o [NSE] We should do a favicon survey like the one Brandon did for
   should just download, interpret, and display info for both (right
   now it seems to give prority to the wrong one: /favicon.ico).
 
-==Make New Nmap dev release (5.05BETA1 or whatever)==
-
 o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
   the man page location for ncat and ndiff.
  o Don't break packaging/build system
@@ -82,6 +93,11 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
+
+o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
+  remote shell, etc.  See this thread:
+  http://seclists.org/nmap-dev/2009/q4/255, particularly the
+  implementation sketch at http://seclists.org/nmap-dev/2009/q4/268 [Venkat,David]
 
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
@@ -171,11 +187,6 @@ o [NSE] Improve username/password library (the database files
 
 o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
   http://seclists.org/nmap-dev/2009/q3/0986.html).
-
-o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
-  remote shell, etc.  See this thread:
-  http://seclists.org/nmap-dev/2009/q4/255, particularly the
-  implementation sketch at http://seclists.org/nmap-dev/2009/q4/268
 
 o Add Nmap web board.
  
@@ -388,11 +399,6 @@ o Figure out and document (in at least the Ncat user's guide) the best
   With another listener/--sh-exec pair for each additional proxy.
   But perhaps we can make it easier by adding it to the syntax.
 
-o Consider converting this file to emacs org-mode
-  (http://orgmode.org/) format. [Fyodor]
-  o That format is still plain text and can be read/edited by vi
-    users, etc.
-
 o Look into whether we should loosen/change the global congestion
   control system to address possible cases of one target host with many
   dropped packets slowing down the whole group.  See
@@ -415,12 +421,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   may involve hard-coding settings that are not normally configured by
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
-
-o Look into memory consumption of UDP scans with -p- and large
-  hostgroups.  See if there is a way to prevent them from eating up gigs
-  of RAM. See the message "Port memory bloat" at
-  http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
-  reduces Port memory use by about 50%.
 
 o Zenmap should be able to export normal Nmap output
 
@@ -619,6 +619,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Consider converting this file to emacs org-mode
+  (http://orgmode.org/) format. [Fyodor]
+  o That format is still plain text and can be read/edited by vi
+    users, etc.
+  [Considered, but I don't think I'll change right now]
+
+o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
+  our pcap installer). [Fyodor]
 
 o We should print host latency (when available) in the XML output, as
   suggested at http://seclists.org/nmap-dev/2009/q4/215.
