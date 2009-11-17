@@ -39,6 +39,9 @@ o Many people may have stale (since removed/renamed) scripts in their
   just in case someone has custom scripts/libs there (though that is
   still a bad idea). [David]
 
+o Fix assertion failure with certain --exclude arguments (see
+  http://seclists.org/nmap-dev/2009/q4/276). [David]
+
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
