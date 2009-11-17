@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 09/22/2009
+.\"      Date: 11/16/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "09/22/2009" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/16/2009" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -261,6 +261,10 @@ Reads target specifications from
 for those to locate hosts using unauthorized static IP addresses\&. Simply generate the list of hosts to scan and pass that filename to Nmap as an argument to the
 \fB\-iL\fR
 option\&. Entries can be in any of the formats accepted by Nmap on the command line (IP address, hostname, CIDR, IPv6, or octet ranges)\&. Each entry must be separated by one or more spaces, tabs, or newlines\&. You can specify a hyphen (\-) as the filename if you want Nmap to read hosts from standard input rather than an actual file\&.
+.sp
+The input file may contain comments that start with
+#
+and extend to the end of the line\&.
 .RE
 .PP
 \fB\-iR \fR\fB\fInum hosts\fR\fR (Choose random targets) .\" -iR .\" random targets .\" target specification: at random
@@ -289,6 +293,10 @@ This offers the same functionality as the
 option, except that the excluded targets are provided in a newline, space, or tab delimited
 \fIexclude_file\fR
 rather than on the command line\&.
+.sp
+The exclude file may contain comments that start with
+#
+and extend to the end of the line\&.
 .RE
 .SH "HOST DISCOVERY"
 .\" host discovery
@@ -2403,7 +2411,7 @@ If you received these files with a written license agreement or contract stating
 .PP
 This
 Nmap Reference Guide
-is (C) 2005\(en2009 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.5 of the
+is (C) 2005\(en2009 Insecure\&.Com LLC\&. It is hereby placed under version 3\&.0 of the
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[18]\d\s+2\&. This allows you redistribute and modify the work as you desire, as long as you credit the original source\&. Alternatively, you may choose to treat this document as falling under the same license as Nmap itself (discussed previously)\&.
 .SS "Source Code Availability and Community Contributions"
 .PP
@@ -2546,7 +2554,7 @@ listed at Wikipedia
 .IP "18." 4
 Creative Commons Attribution License
 .RS 4
-\%http://creativecommons.org/licenses/by/2.5/
+\%http://creativecommons.org/licenses/by/3.0/
 .RE
 .IP "19." 4
 Apache Software Foundation
