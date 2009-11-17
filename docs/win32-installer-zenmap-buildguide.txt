@@ -11,7 +11,17 @@ known-good versions.
 
 GTK+ All-in-one bundle
   o http://www.gtk.org/download-windows.html
-  o Tested: gtk+-bundle_2.16.6-20091013_win32.zip
+  o Tested: gtk+=bundle_2.14.7-20090119_win32.zip
+  o Also tried the more recent gtk+-bundle_2.16.6-20091013_win32.zip,
+    but while that worked on Windows 7, I got DLL errors when I tried
+    to run Zenmap on Windows XP.  It basically failed to load:
+    Traceback (most recent call last):
+    File "zenmap", line 89, in <module>
+    File "zenmapGUI\App.pyo", line 113, in <module>
+    File "gtk\__init__.pyo", line 48, in <module>
+    File "gtk\_gtk.pyo", line 12, in <module>
+    File "gtk\_gtk.pyo", line 10, in __load
+    ImportError: DLL load failed: The specified procedure could not be found.
 Python
   o http://www.python.org/download
   o Tested: python-2.6.4.msi
