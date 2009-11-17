@@ -3,6 +3,7 @@ Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
+Entry { filename = "db2-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
