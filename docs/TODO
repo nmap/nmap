@@ -1,12 +1,6 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 ==Must do before next release==
-o Standardize on a proper file header for the Zenmap source code. [David]
- o For now, David is going to augment the templatereplacement system
-   to insert the normal nmap.header.tmpl, but change the comment format
-   to work with Python, and then replace the current Zenmap headers
-   with that.
-
 o We should package the rendered Nroff man page translations (e.g. all
   16 languages) in the tarball to make it easier for distributors to
   package them.  For example, see
@@ -17,8 +11,6 @@ o We should package the rendered Nroff man page translations (e.g. all
 
 o Windows 7 RTM Nmap testing (With particular attention to 64-bit and
   our pcap installer). [Fyodor]
-
-o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
 
 o The Nmap 5.00 tarball contains:
   -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
@@ -35,33 +27,27 @@ o The Nmap 5.00 tarball contains:
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
 
+
 ==Try to do before next release==
 
-o Investigate get_rpc_results error (infinite loop) reported by Lionel
-  Cons. See these threads: http://seclists.org/nmap-dev/2009/q4/24,
-  http://seclists.org/nmap-dev/2009/q4/120
+o Many people may have stale (since removed/renamed) scripts in their
+  Nmap scripts directory because our 'make install' does not remove
+  them and so they remain and can cause problems (like running twice
+  after being renamed).  We should probably add a line to our 'make
+  install' which removes the scripts/lib names we have previously
+  used.  We're doing this rather than blowing away the old directory
+  just in case someone has custom scripts/libs there (though that is
+  still a bad idea). [David]
 
-o [NSE] Patrick's worker thread patch:
-  http://seclists.org/nmap-dev/2009/q4/294
+o [NSE] Document Patrick's worker thread patch in scripting.xml (see
+  http://seclists.org/nmap-dev/2009/q4/294,
+  http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
+  http://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
 
 o [NSE] Patrick's script dependency patch:
   http://seclists.org/nmap-dev/2009/q4/295
   o I'm not sure if he has gone through and actually set appropriate
     dependencies (and removed runlevels) yet
-
-o Potential OS X 10.6 problems.  There are two issues reported by the
-  same user which may be related:
-  http://seclists.org/nmap-dev/2009/q3/0936.html,
-  http://seclists.org/nmap-dev/2009/q3/0996.html.  One is that Nmap
-  hangs doing nothing and needs to be killed with Ctrl-C, and the
-  other is that it dies after printing "Initiating UDP Scan".  Another
-  reported the same problem at
-  http://seclists.org/nmap-dev/2009/q3/0990.html, where it dies after
-  the first ARP request is sent.  But Brandon has run Nmap on 10.6
-  without problems.  It is a bit of a mystery. [David]
-
-o Integrate latest OS fingerprint submissions and corrections. This
-  was last done based on submissions up to May 8, 2009.
 
 o Integrate latest version detection submissions and corrections.
   This was last done based on submissions until February 9, 2009.
@@ -83,10 +69,16 @@ o [NSE] We should do a favicon survey like the one Brandon did for
 
 ==Make New Nmap dev release (5.05BETA1 or whatever)==
 
-o We should print host latency (when available) in the XML output, as
-  suggested at http://seclists.org/nmap-dev/2009/q4/215.
-  docs/nmap.dtd will have to be modified accordingly, and you might
-  even consider adding support to docs/nmap.xsl.
+o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
+  the man page location for ncat and ndiff.
+ o Don't break packaging/build system
+ o Don't break the system for posting html to web site. 
+ o Consider standardizing names for nping and ncrack man pages as well.
+ [Fyodor]
+
+o Update "History and Future of Nmap"
+  (http://nmap.org/book/history-future.html) to include all the news
+  since September 2008. [Fyodor]
 
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
@@ -114,13 +106,6 @@ ___text/html\r\n
 (with spaces in place of _, but http.lua won't parse such a header
 correctly. In other words you can extend them to any number of lines
 as long as each line after the first begins with whitespace. [Joao]
-
-o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
-  the man page location for ncat and ndiff.
- o Don't break packaging/build system
- o Don't break the system for posting html to web site. 
- o Consider standardizing names for nping and ncrack man pages as well.
- [Fyodor]
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -201,10 +186,6 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
   -n, and the main problem with -sP is that we now use it more for
   "disable portscan" than ping only.  For example, you can also use
   NSE, traceroute, etc. [David]
-
-o Update "History and Future of Nmap"
-  (http://nmap.org/book/history-future.html) to include all the news
-  since September 2008. [Fyodor]
 
 o Consider moving UDP ping/portscan payloads from payload.cc to a
   custom data file so that it is cleaner to maintain and users can
@@ -635,6 +616,44 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should print host latency (when available) in the XML output, as
+  suggested at http://seclists.org/nmap-dev/2009/q4/215.
+  docs/nmap.dtd will have to be modified accordingly, and you might
+  even consider adding support to docs/nmap.xsl.
+
+o Integrate latest OS fingerprint submissions and corrections. This
+  was last done based on submissions up to May 8, 2009.
+
+o Potential OS X 10.6 problems.  There are two issues reported by the
+  same user which may be related:
+  http://seclists.org/nmap-dev/2009/q3/0936.html,
+  http://seclists.org/nmap-dev/2009/q3/0996.html.  One is that Nmap
+  hangs doing nothing and needs to be killed with Ctrl-C, and the
+  other is that it dies after printing "Initiating UDP Scan".  Another
+  reported the same problem at
+  http://seclists.org/nmap-dev/2009/q3/0990.html, where it dies after
+  the first ARP request is sent.  But Brandon has run Nmap on 10.6
+  without problems.  It is a bit of a mystery. [David] [Resolution:
+  Apple fixed the problems in 10.6.2; For users who have 10.6 and
+  10.6.1, the versions David builds on 10.5 will still work for them
+  because they are 32-bit binaries rather than 64.  Users who build
+  Nmap on 10.6 or 10.6.1 should compile with -m32 or update to 10.6.2]
+
+o [NSE] Patrick's worker thread patch:
+  http://seclists.org/nmap-dev/2009/q4/294
+
+o Investigate get_rpc_results error (infinite loop) reported by Lionel
+  Cons. See these threads: http://seclists.org/nmap-dev/2009/q4/24,
+  http://seclists.org/nmap-dev/2009/q4/120
+
+o Upgrade to latest version of NSIS on Nmap Win build system [Fyodor].
+
+o Standardize on a proper file header for the Zenmap source code. [David]
+ o For now, David is going to augment the templatereplacement system
+   to insert the normal nmap.header.tmpl, but change the comment format
+   to work with Python, and then replace the current Zenmap headers
+   with that.
 
 o We may want to look into if/how we support IPv6 nameservers.  Here
   is a bug report from someone having a problem with them:
