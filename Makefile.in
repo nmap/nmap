@@ -274,10 +274,14 @@ NSE_LIB_LUA_FILES = nselib/*.lua
 NSE_LIB_DATA_FILES = nselib/data/*
 
 install-nse: $(TARGET)
-	$(INSTALL) -c -m 644 nse_main.lua $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
-	$(INSTALL) -c -m 644 $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib
+
+# Remove obsolete scripts from a previous installation.
+	(cd $(DESTDIR)$(nmapdatadir)/scripts && rm -f $(OLD_SCRIPT_NAMES))
+
+	$(INSTALL) -c -m 644 nse_main.lua $(DESTDIR)$(nmapdatadir)/
+	$(INSTALL) -c -m 644 $(NSE_FILES) $(DESTDIR)$(nmapdatadir)/scripts
 	$(INSTALL) -c -m 644 $(NSE_LIB_LUA_FILES) $(DESTDIR)$(nmapdatadir)/nselib
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/nselib/data
 	for f in `find nselib/data -name .svn -prune -o -type d -print`; do \
@@ -336,3 +340,20 @@ config.status: configure
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
 include makefile.dep
+
+# These the old names of scripts that have been renamed or deleted. Any
+# scripts with these names will be deleted from the installation
+# directory on "make install" so that duplicate, old copies of scripts
+# are not run.
+OLD_SCRIPT_NAMES = $(addsuffix .nse, \
+anonFTP ASN brutePOP3 bruteTelnet chargenTest daytimeTest \
+dns-safe-recursion-port dns-safe-recursion-txid dns-test-open-recursion \
+echoTest ftpbounce HTTPAuth HTTP_open_proxy HTTPpasswd HTTPtrace \
+iax2Detect ircServerInfo ircZombieTest MSSQLm MySQLinfo \
+netbios-smb-os-discovery popcapa PPTPversion promiscuous \
+RealVNC_auth_bypass ripeQuery robots showHTMLTitle showHTTPVersion \
+showOwner showSMTPVersion showSSHVersion skype_v2-version \
+smb-enumdomains smb-enumsessions smb-enumshares smb-enumusers \
+smb-serverstats smb-systeminfo SMTPcommands SMTP_openrelay_test \
+SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey SSHv1-support \
+SSLv2-support strangeSMTPport UPnP-info xamppDefaultPass zoneTrans)
