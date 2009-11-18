@@ -351,6 +351,15 @@ int TargetGroup::skip_range(_octet_nums octet) {
   if (targets_type != IPV4_RANGES)
     return -1;
 
+  /* The decision to skip a range was based on the address that came immediately
+     before what our current array contains now. For example, if we have just
+     handed out 0.0.0.0 from the the range 0-5.0.0.0, and we're asked to skip
+     the first octet, we want to advance to 1.0.0.0. But 1.0.0.0 is what is in
+     the current array right now, because TargetGroup::get_next_host advances
+     the array after returning an address. If we didn't step back we would
+     erroneously skip ahead to 2.0.0.0. */
+  return_last_host();
+
   switch (octet) {
     case FIRST_OCTET:
       oct = 0;
@@ -386,9 +395,7 @@ int TargetGroup::skip_range(_octet_nums octet) {
     current[i] = 0;
   }
 
-  /* we actually don't skip the current, it was accounted for 
-   * by get_next_host */
-  ipsleft -= hosts_skipped - 1;
+  ipsleft -= hosts_skipped;
  
   return hosts_skipped;
 }

@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an error in the handling of exclude groups that used IPv4
+  ranges. Si Stransky reported the problem and provided a number of
+  useful test cases in http://seclists.org/nmap-dev/2009/q4/276. The
+  error caused various assertion failures along the lines of
+    TargetGroup.cc:465: int
+    TargetGroup::get_next_host(sockaddr_storage*, size_t*):
+    Assertion `ipsleft > 1' failed.
+  [David]
+
 o Add a new script, db2-info.nse, that enhances DB2 database instance detection.  
   The script provides detection when version probes fail, but will default to 
   the value provided the version probes if that value is more precise. The 
