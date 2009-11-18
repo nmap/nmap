@@ -1752,7 +1752,7 @@ way.</para>
           (except that certain commonly accessible ports are moved
           near the beginning for efficiency reasons).  This
           randomization is normally desirable, but you can specify
-          <option>-r</option> for sequential port scanning
+          <option>-r</option> for sequential (sorted from lowest to highest) port scanning
           instead.</para>
         </listitem>
       </varlistentry>
