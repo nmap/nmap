@@ -199,8 +199,6 @@ class Port {
 			      const char *ostype, const char *devicetype,
 			      const char *extrainfo, const char *fingerprint);
 
-  char* cstringSanityCheck(const char* string, int len);
-
   /* Sets the results of an RPC scan.  if rpc_status is not
    RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args. This function
    takes care of setting the port's service and version

@@ -300,9 +300,8 @@ int Port::getServiceDeductions(struct serviceDeductions *sd) {
 // one is available and the user should submit it.  tunnel must be
 // SERVICE_TUNNEL_NULL (normal) or SERVICE_TUNNEL_SSL (means ssl was
 // detected and we tried to tunnel through it ).
-
-char* Port::cstringSanityCheck(const char* string, int len) {
-	char* result;
+static char *cstringSanityCheck(const char* string, int len) {
+  char *result;
   int slen;
 
   if(!string)
