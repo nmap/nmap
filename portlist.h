@@ -226,8 +226,6 @@ class Port {
   unsigned long rpc_program; /* Only valid if rpc_state == RPC_STATUS_GOOD_PROG */
   unsigned int rpc_lowver;
   unsigned int rpc_highver;
-  Port *next; /* Internal use only -- we sometimes like to link them
-			together */
   enum serviceprobestate serviceprobe_results; // overall results of service scan
   char *serviceprobe_service; // If a service was discovered, points to the name
   // Any of these next three can be NULL if the details are not available
