@@ -2702,7 +2702,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
   /* Start listening */
   pd = my_pcap_open_live(dev, 50, 1, 25);
   set_pcap_filter(dev, pd,
-                  "arp and ether dst host %02X:%02X:%02X:%02X:%02X:%02X",
+                  "arp and arp[18:4] = 0x%02X%02X%02X%02X and arp[22:2] = 0x%02X%02X",
                   srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4],
                   srcmac[5]);
 
