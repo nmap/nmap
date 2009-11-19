@@ -216,7 +216,7 @@ install-nmap: $(TARGET)
 	if [ "$(USE_NLS)" = "yes" ]; then \
 	  for ll in $(filter $(ALL_LINGUAS),$(LINGUAS)); do \
 	    $(INSTALL) -d $(DESTDIR)$(mandir)/$$ll/man1; \
-	    $(INSTALL) -c -m 644 docs/$(TARGET)-$$ll.1 $(DESTDIR)$(mandir)/$$ll/man1/$(TARGET).1; \
+	    $(INSTALL) -c -m 644 docs/man-xlate/$(TARGET)-$$ll.1 $(DESTDIR)$(mandir)/$$ll/man1/$(TARGET).1; \
 	  done; \
 	fi
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
