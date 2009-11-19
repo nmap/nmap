@@ -1,0 +1,3356 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id: manhtml.xml 2940 2005-11-17 22:39:47Z fyodor $ -->
+<!-- <?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"> -->
+<article id="man">
+  <artheader>
+    <title>Guia de Referência do Nmap (Página Man)</title>
+  </artheader>
+
+  <refentry id="man-nmap1">
+    <refmeta>
+      <refentrytitle>nmap</refentrytitle>
+
+      <manvolnum>1</manvolnum>
+    </refmeta>
+
+    <refnamediv id="man-name">
+      <refname>nmap</refname>
+
+      <refpurpose>Ferramenta de exploração de Rede e Rastreio de Segurança /
+      Portas</refpurpose>
+    </refnamediv>
+
+    <!-- body begins here -->
+
+    <refsynopsisdiv id="man-synopsis">
+      <cmdsynopsis>
+        <command>nmap</command>
+
+        <arg choice="opt" rep="repeat">
+          <replaceable>Tipo de Rastreio(Scan)</replaceable>
+        </arg>
+
+        <arg choice="opt">
+          <replaceable>Opções</replaceable>
+        </arg>
+
+        <arg choice="req">
+          <replaceable>Especificação do Alvo</replaceable>
+        </arg>
+      </cmdsynopsis>
+    </refsynopsisdiv>
+
+    <refsect1 id="man-description">
+      <title>Descrição</title>
+
+      <para>O Nmap (<quote>Network Mapper</quote>) é uma ferramenta em código
+      aberto para exploração de rede e auditoria de segurança. Foi
+      desenhada para rastrear(Scan) rapidamente redes amplas contudo funciona bem
+      com um único anfitrião(host). Nmap usa pacotes IP em estado bruto(raw) sobre
+      novas formas para determinar que anfitriões(hosts) estão disponíveis
+      na rede, que serviços (nome e versão da aplicação) esses anfitriões(hosts) estão
+      disponibilizando, que sistemas operativos (e versões de SO) estão em uso,
+      que tipo de filtros de pacotes/firewalls estão em uso e dezenas de outras
+      características. Enquanto o Nmap é frequentemente usado para
+      auditorias de segurança, muitos sistemas e administradores de 
+      redes consideram-no útil para as tarefas de rotina como o
+      inventário da rede, gestão de actualizações de serviços
+      e monitorizar o uptime de anfitriões ou serviços.</para>
+
+      <para>A saída do Nmap é uma lista de alvos rastreados(scanned) com
+      informações adicionais de cada um dependendo das opções utilizadas.
+      Uma informação chave é a <quote>tabela de portas interessantes</quote>. Essa tabela
+      lista o número da porta e o protocolo, o nome do serviço e o estado. O
+      estado pode ser <literal>aberto (open)</literal>, <literal>filtrado
+      (filtered)</literal>, <literal>fechado (closed)</literal>, ou
+      <literal>não-filtrado (unfilterd)</literal>. Aberto (open) significa que
+      uma aplicação na máquina-alvo está escutando as conexões/pacotes nessa
+      porta. <literal>Filtrado (filtered)</literal> significa que o firewall,
+      filtro ou outro obstáculo de rede está bloqueando a porta de forma que
+      o Nmap não consegue dizer se ela está <literal>aberta (open)</literal>
+      ou <literal>fechada (closed)</literal>. Portas <literal>fechadas
+      (closed)</literal>não possuem uma aplicação escutando nelas embora
+      possam abrir a qualquer instante. Portas são classificadas como
+      <literal>não filtradas (unfiltered)</literal>quando elas respondem às
+      sondagens do Nmap mas o Nmap não consegue determinar se as portas estão
+      abertas ou fechadas. O Nmap reporta as combinações
+      <literal>aberta|filtrada (open|filtered)</literal>e
+      <literal>fechada|filtrada (closed|filtered)</literal>quando não consegue
+      determinar qual dos dois estados descrevem melhor a porta. A tabela de
+      portas também pode incluir detalhes de versão de software quando a
+      detecção de versão for solicitada. Quando um rastreio(scan) do protocolo IP é
+      solicitado (<option>-sO</option>) o Nmap fornece informações dos
+      protocolos IP suportados ao invés de portas que estejam abertas.</para>
+
+      <para>Além da tabela de portas interessantes o Nmap pode fornecer
+      informações adicionais sobre os alvos, incluíndo nomes de DNS reverso,
+      suposições de sistema operativo, tipos de dispositivos e endereços
+      MAC.</para>
+
+      <para>Um rastreio(scan) típico do Nmap é mostrado em <xref
+      linkend="man-ex-repscan" />. Os únicos argumentos que o Nmap utiliza
+      nesse exemplo são <option>-A</option> para permitir a detecção de SO e
+      a versão <option>-T4</option> para execução mais rápida e os nomes
+      de anfitrião(hostnames) de dois alvos.</para>
+
+      <example id="man-ex-repscan">
+        <title>Uma amostra de rastreio(scan) do Nmap</title>
+
+        <screen>
+# nmap -A -T4 scanme.nmap.org playground
+
+Starting nmap ( http://www.insecure.org/nmap/ )
+Interesting ports on scanme.nmap.org (205.217.153.62):
+(The 1663 ports scanned but not shown below are in state: filtered)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
+53/tcp  open   domain
+70/tcp  closed gopher
+80/tcp  open   http    Apache httpd 2.0.52 ((Fedora))
+113/tcp closed auth
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X|2.6.X
+OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
+Uptime 33.908 days (since Thu Jul 21 03:38:03 2005)
+
+Interesting ports on playground.nmap.org (192.168.0.40):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn
+389/tcp  open  ldap?
+445/tcp  open  microsoft-ds  Microsoft Windows XP microsoft-ds
+1002/tcp open  windows-icfw?
+1025/tcp open  msrpc         Microsoft Windows RPC
+1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
+5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3.8)
+MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
+Device type: general purpose
+Running: Microsoft Windows NT/2K/XP
+OS details: Microsoft Windows XP Pro RC1+ through final release
+Service Info: OSs: Windows, Windows XP
+
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
+</screen>
+      </example>
+
+      <para>A versão mais nova do Nmap pode ser obtida em <ulink
+      url="http://www.insecure.org/nmap/" />. A versão mais nova da página man
+      está disponível em <ulink
+      url="http://www.insecure.org/nmap/man/" />.</para>
+    </refsect1>
+
+    <refsect1 id="man-briefoptions">
+      <title>Sumário das Opções</title>
+
+      <para>Este sumário de opções é mostrado quando o Nmap é executado sem
+      argumentos e a última versão está sempre disponível em <ulink
+      url="http://www.insecure.org/nmap/data/nmap.usage.txt" />. Ele ajuda as
+      pessoas a lembrar-se das opções mais comuns mas não substitui a
+      documentação mais técnica do restante deste manual. Algumas opções mais
+      obscuras nem estão aqui incluídas.</para>
+
+      <para>
+        <literallayout class="normal">Synopsis: nmap [Tipo(s) de Rastreio(Scan)] [Opções] {especificação do alvo}
+ESPECIFICAÇÂO DO ALVO:
+  Pode-se usar nomes de anfitriões(hostnames), Endereços IP, redes, etc.
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0-255.0-255.1-254
+  -iL &lt;inputfilename&gt;: Entrada(Input) de listas de anfitriões(hosts)/redes
+  -iR &lt;num hosts&gt;: Escolher alvos aleatoriamente
+  --exclude &lt;host1[,host2][,host3],...&gt;: Excluir anfitriões(hosts)/redes
+  --excludefile &lt;exclude_file&gt;: Lista de exclusões de um ficheiro
+DESCOBERTA DE ANFITRIÕES(HOSTS):
+  -sL: List Scan - lista simplesmente os alvos para efectuar o rastreio(scan)
+  -sP: Ping Scan - apenas determnina se o anfitrião está online
+  -P0: Considera todos os anfitriões como online -- salta a descoberta de anfitriões
+  -PS/PA/PU [portlist]: rastreio de descoberta TCP SYN/ACK ou UDP para determinadas portas
+  -PE/PP/PM: Rastreio(scan) de descoberta ICMP echo, timestamp, and netmask request
+  -n/-R: Nunca resolver/Resolver sempre nomes de DNS [default: resolver algumas vezes]
+TÉCNICAS DE SCAN:
+  -sS/sT/sA/sW/sM: Rastreios(Scans) TCP SYN/Connect()/ACK/Window/Maimon
+  -sN/sF/sX: Rastreios(Scans) TCP Null, FIN, and Xmas
+  --scanflags &lt;flags&gt;: Customizar as TCP scan flags
+  -sI &lt;anfitrião(host) zombie[:probeport]&gt;: Idlescan 
+  -sO: Rastreio(Scan) de protocolo IP
+  -b &lt;ftp relay host&gt;: FTP bounce scan
+ESPECIFICAÇÃO DO PORTO E ORDEM DE RASTREIO:
+  -p &lt;port ranges&gt;: Apenas efectuar o rastreio(scan) de portas específicas
+    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
+  -F: Rápido - Efectua o rastreio(Scan) apenas das portas especificadas no ficheiro nmap-services
+  -r: Efectuar o rastreio(Scan) das portas consecutivas e não aleatoriamente
+DETECÇÃO DO SERVIÇO/VERSÃO:
+  -sV: Rastrear(scan) portas abertas para determinar a informação sobre o serviço/versão
+  --version-light: Limitar aos rastreios mais prováveis para identificação mais rápida
+  --version-all: Experimentar todos os rastreios para detectar a versão
+  --version-trace: Mostrar detalhadamente a actividade do rastreio(scan)
+ da versão (para debugging)
+DETECÇÃO DO SO:
+  -O: Permite a detecção do SO
+  --osscan-limit: Limitar a detecção de SO aos alvos promissores
+  --osscan-guess: Efectuar o rastreio do SO de forma mais agressiva
+TIMING AND PERFORMANCE:
+  -T[0-6]: Ajustar o tempo do modelo(template) (maior é mais rápido)
+  --min-hostgroup/max-hostgroup &lt;msec&gt;: Tamanho dos grupos de rastreio(scan)
+ de anfitrião(host) paralelo
+  --min-parallelism/max-parallelism &lt;msec&gt;: Rastreio paralelismo
+  --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Ajustar o
+      tempo de retorno do rastreio.
+  --host-timeout &lt;msec&gt;: Desistir de um alvo após este tempo
+  --scan-delay/--max_scan-delay &lt;msec&gt;: Ajustar esperas entre rastreios
+FIREWALL/IDS EVASÃO E DISFARÇE(SPOOFING):
+  -f; --mtu &lt;val&gt;: fragmentar pacotes (opcional com dado MTU)
+  -D &lt;decoy1,decoy2[,ME],...&gt;: Disfarça um rastreio(scan) com iscos           
+  -S &lt;IP_Address&gt;: Disfarçar(Spoof) endereço de origem
+  -e &lt;iface&gt;: Usar um interface especifico
+  -g/--source-port &lt;portnum&gt;: Usar um determinado numero de porta
+  --data-length &lt;num&gt;: Acrescentar dados aleatorios aos pacotes enviados
+  --ttl &lt;val&gt;: Ajustar o campo IP TTL tempo-de-vida
+  --spoof-mac &lt;mac address, prefix, or vendor name&gt;: Disfarçar(Spoof) o endereço MAC
+SAIDA(OUTPUT):
+  -oN/-oX/-oS/-oG &lt;file&gt;: Retorna os resultados do rastreio(scan) em XML normal, s|&lt;rIpt kIddi3,
+     e formatados respectivamente para o ficheiro especificado
+  -oA &lt;basename&gt;: Saida(Output) nos três formatos principais
+  -v: Aumenta o nivel de informação apresentada(verbosity) (usar 2x para aumentar o efeito)
+  -d[level]: Ajusta o nivel de debugging (Áté 9 é significativo)
+  --packet-trace: Mostra todos os pacotes enviados e recebidos
+  --iflist: Mostra os interfaces do anfitrião e rotas (para debugging)
+  --append-output: Acrescenta, em vez de destruir/substituir,  ficheiros de resultados 
+  --resume &lt;filename&gt;: Continuar um rastreio cancelado(aborted)
+  --stylesheet &lt;path/URL&gt;: A XSL stylesheet para transformar retorno(output) XML para HTML
+  --no_stylesheet: Impedir que o Nmap de associar a XSL stylesheet com retorno(output) XML
+OUTROS(MISC):
+  -6: Permitir rastreio(scanning) IPv6 
+  -A: Permitir detecção do SO e versão
+  --datadir &lt;dirname&gt;: Especifica a localização do ficheiro de dados personalizado do Nmap
+  --send-eth/--send-ip: Enviar pacotes utilizando "raw ethernet frames" ou pacotes IP
+  --privileged: Assume que o utilizador possui os previlégios necessários
+  -V: Mostra a versão
+  -h: Mostra esta página de sumário de ajuda
+EXEMPLOS:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -P0 -p 80
+</literallayout>
+      </para>
+    </refsect1>
+
+    <refsect1 id="man-target-specification">
+      <title>Especificação de Alvo</title>
+
+      <para>Tudo na linha de comando do Nmap que não for uma opção (ou
+      argumento de uma opção) é tratado como uma especificação de um anfitrião
+      (host)-alvo. O caso mais simples é especificar um endereço IP como alvo ou
+      um nome de anfitrião(hostname) para ser rastreado(scaned).</para>
+
+      <para>Algumas vezes pode querer efectuar o rastreio(scan) de uma rede
+      inteira de anfitriões(hosts) adjacentes.
+      Para isso o Nmap suporta o estilo de endereçamento CIDR.
+      Pode acrescentar /<replaceable>númerodebits</replaceable> em um
+      endereço ou hostname e o Nmap irá efectuar o rastreio(scan) de cada
+      endereço IP para o qual os primeiros 
+     <replaceable>númerosdebits</replaceable> sejam o mesmo que
+      o IP de referência ou o hostname dado. Por exemplo, 192.168.10.0/24
+      escanearia os 256 hosts entre 192.168.10.0 (binário: <literal>11000000
+      10101000 00001010 00000000</literal>) e 192.168.10.255 (binário:
+      <literal>11000000 10101000 00001010 11111111</literal>), inclusive.
+      192.168.10.40/24 faria exatamente a mesma coisa. Dado que o afitrião(host)
+      scanme.nmap.org está no endereço IP 205.217.153.62, a especificação
+      scanme.nmap.org/16 efectuaria o rastreio(scan) dos 65.536 endereços IP entre 205.217.0.0 e
+      205.217.255.255. O menor valor permitido é /1, que equivale ao rastreio(scan)
+      de metada da Internet. O maior valor é 32, que faz o rastreio(scan) de apenas o 
+      anfitrião(host) nomeado ou endereço IP porque todos os bits de endereçamento estão
+      fixos.</para>
+
+      <para>A notação CIDR é curta mas nem sempre flexível o suficiente. Por
+      exemplo, pode querer fazer o rastreio(scan) de 192.168.0.0/16 mas desejar
+      saltar todos os IPs terminados em .0 ou .255 porque eles são normalmente
+      endereços de broadcast. O Nmap suporta isso através de endereçamento por
+      faixa de octeto. Ao invés de especificar um endereço IP normal, 
+      pode especificar uma lista de números separada por vírgulas ou faixa de
+      números para cada octeto. Por exemplo, 192.168.0-255.1-254 irá saltar
+      todos os endereços na faixa que terminarem com .0 e/ou .255. Faixas não
+      precisam ser limitadas ao octeto final: o especificador
+      0-255.0-255.13.37 irá executar um rastreio(scan) em toda a Internet buscando os
+      endereços IP terminados em 13.37. Esse tipo de amostragem ampla pode ser
+      útil em levantamentos e pesquisas de toda a Internet.</para>
+
+      <para>Endereços IPv6 podem apenas ser especificados utilizando o
+      endereço IP ou hostname IPv6 completamente qualificado. Faixas CIDR e
+      octetos não são suportados para o IPv6 porque eles raramente são
+      úteis.</para>
+
+      <para>O Nmap aceita múltiplas especificações de anfitrião(host) na linha de
+      comando, e elas não precisam ser do mesmo tipo. O comando <command>nmap
+      scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.0-255</command> executa o que
+      se espera dele.</para>
+
+      <para>Embora os alvos sejam normalmente especificados na linha de
+      comando, as seguintes opções também estão disponíveis para controlar a
+      seleção de alvos:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-iL &lt;arquivodeentrada&gt;</option> (Entrada a
+          partir de uma lista)</term>
+
+          <listitem>
+            <para>Lê a especificação de alvos à partir de um
+            <replaceable>arquivodeentrada</replaceable>. Passar uma lista
+            enorme de anfitriões(hosts) na linha de comando é muito ruim, ainda que seja
+            normalmente desejável. Por exemplo, o seu servidor DHCP pode exportar
+            uma lista de 10.000 endereços correntes em uso que   deseja
+            efectuar o rastreio(scan). Ou talvez deseje o rastreio(scan) dr todos os
+            endereços IP <emphasis>excepto</emphasis> aqueles usados para localizar 
+            anfitriões(hosts) que usam endereços IP estáticos não-autorizados. 
+       Simplesmente gere uma lista de anfitriões(hosts) a efectuar o rastreio(scan)
+           e passe o nome do arquivo para o
+            Nmap como um argumento à opção <option>-iL</option>. As entradas
+            podem estar em qualquer um dos formatos aceites pelo Nmap na linha
+            de comando (endereço IP, hostname, CIDR, IPv6, ou faixas de
+            octetos). Cada entrada deve ser separada por um ou mais espaços em
+            branco, tabulações ou newlines. Você pode especificar um hífen
+            (<literal>-</literal>) como nome de arquivo se quiser que o Nmap
+            leia os nomes de anfitrião(hostsnames) da entrada padrão (standard input) ao invés
+            de um arquivo.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-iR &lt;número de afitriões(hosts)&gt;</option> (Escolhe alvos
+          aleatórios)</term>
+
+          <listitem>
+            <para>Para levantamentos na Internet toda e outras pesquisas, 
+            pode querer escolher alvos de forma aleatória. O argumento
+            <replaceable>número de anfitriões(hosts)</replaceable> diz ao Nmap quantos IPs
+            ele deverá gerar. IPs indesejáveis, tais como aqueles de certas
+            redes privadas, multicast e faixas de endereços não-alocadas são
+            automaticamente anuladas. O argumento <literal>0</literal>
+            (zero) pode ser especificado caso deseje um rastreio(scan) sem fim. Tenha em
+            mente que alguns administradores de rede não gostam de rastreios(scans)
+            não-autorizados de suas redes e podem apresentar queixa Use esta
+            opção por sua conta e risco! Se   estiver realmente aborrecido
+            em uma tarde chuvosa, tente o comando <command>nmap -sS -PS80 -iR
+            0 -p 80</command> para localizar servidores web aleatórios para
+            navegar.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--exclude &lt;host1[,host2][,host3],...&gt;</option>
+          (Exclui anfitriões(hosts)/redes)</term>
+
+          <listitem>
+            <para>Especifica uma lista de alvos, separados por vírgula, a
+            serem excluídos do rastreio(scan) mesmo que façam parte da faixa de rede
+            especificada. A lista que   fornece utiliza a sintaxe normal do
+            Nmap, portanto ela pode incluir nomes de afitrião(hosts), blocos de rede
+            CIDR, faixas de octetos, etc. Isso pode ser útil quando a rede que
+            deseja efectuar o rastreio(scan) inclui servidores de missão crítica
+            intocáveis, sistemas que reconhecidamente reagem mal a
+            rastreio(scan) de portas ou sub-redes administradas por outras
+            pessoas.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--excludefile &lt;arquivo_exclusão&gt;</option>
+          (Exclui a lista do arquivo)</term>
+
+          <listitem>
+            <para>Oferece a mesma funcionalidade que a opção
+            <option>--exclude</option>, excepto que os alvos a excluir são
+            fornecidos em um <replaceable>exclude_file</replaceable> ,
+            delimitados por newline, espaço em branco ou tabulação, ao invés
+            de na linha de comando.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-host-discovery">
+      <title>Descoberta de Hosts</title>
+
+      <para>Um dos primeiros passos em qualquer missão de reconhecimento de
+      uma rede é reduzir um conjunto (às vezes enorme) de faixas de endereços
+      IP, em uma lista de anfitriões(hosts) activos e interessantes. Efectuar 
+      o rastreio(scan) de cada porta de
+      cada endereço IP é lento e normalmente desnecessário. É claro que o
+      que torna um anfitrião(host) interessante depende muito do propósito do rastreio(scan).
+      Administradores de rede podem estar apenas interessados em hosts que
+      executam um determinado serviço, enquanto os auditores de segurança
+      podem se importar com cada dispositivo que possuir um endereço IP. Um
+      administrador pode se sentir à vontade em usar o ping ICMP para
+      localizar os anfitriões(hosts) na rede interna, enquanto um profissional externo de
+      análise de vulnerabilidades (penetration tester) pode utilizar um
+      conjunto diversificado de dezenas de sondagens numa tentativa de
+      enganar as restrições da firewall.</para>
+
+      <para>As necessidades para o descobrimento de anfitrião(host) são muito diversas e,
+      por isso, o Nmap oferece uma ampla variedade de opções para customizar
+      as técnicas utilizadas. A descoberta de anfitrião(host) às vezes é chamada de
+      rastreo ping(ping scan), mas ela vai muito além dos simples pacotes ICMP de echo request
+      associados com a popular ferramenta conhecida como ping. Os usuários
+      podem saltar a etapa do ping inteiramente com uma lista de rastreio(scan)
+      (<option>-sL</option>) ou desactivado o ping (<option>-P0</option>),
+      ou enfrentar a rede com combinações arbitrárias de sondagens
+      multi-portas TCP SYN/ACK, UDP, e ICMP. O objetivo dessas sondagens é
+      solicitar respostas que mostrem que um endereço IP está realmente activo
+      (é utilizado por um afitrião(host) ou dispositivo de rede). Em muitas redes,
+      apenas uma pequena percentagem dos endereços IP está activa em um dado
+      momento. Isso é particularmente comum com o espaço de endereçamento
+      privado ao abrigo do RFC1918 como, por exemplo, 10.0.0.0/8. Essa
+      rede tem 16 milhões de IPs, mas eu já a vi sendo utilizado em empresas
+      com menos de mil máquinas. A descoberta de anfitriões(hosts) pode encontrar essas
+      máquinas escassamente alocadas em um mar de endereços IP.</para>
+
+      <para>Se nenhuma opção de descoberta de hosts for dada, o Nmap envia um
+      pacote TCP ACK destinado a porta 80 e uma procura ICMP Echo Request a
+      cada máquina-alvo. Uma exceção a isso é que um rastreio(scan) ARP é utilizado para
+      cada alvo localizado na rede ethernet local. Para usuários Unix sem
+      privilégios de shell, um pacote SYN é enviado ao invés do ack
+      utilizando a chamada de sistema <function>connect()</function>. Esses
+      valores default equivalem às opções <option>-PA -PE</option>. Esta
+      descoberta de anfitrião(host) frequentemente é suficiente para o rastreio(scan)
+      de redes locais, mas um conjunto de sondagens mais abrangentes é recomendado para
+      auditoria de segurança.</para>
+
+      <para>As opções <option>-P*</option> (que seleccionam tipos de ping)
+      podem ser combinadas. Você pode aumentar as chances de penetrar numa
+      firewall enviando muitos tipos de sondagens, utilizando
+      diferentes portas/flags TCP e códigos ICMP. Note também que a descoberta
+      por ARP (<option>-PR</option>) é feita por default contra alvos na rede
+      ethernet local mesmo que   especifique outras opções
+      <option>-P*</option> , porque é quase sempre mais rápida e mais
+      eficiente.</para>
+
+      <para>As seguintes opções controlam a descoberta de anfitriões(hosts).</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-sL</option> (Listagem de rastreio(scan))</term>
+
+          <listitem>
+            <para>A listagem de rastreio(scan) é uma forma degenerada de descoberta de
+            anfitriões(hosts) que simplesmente lista cada anfitrião(host) da
+          rede especificada, sem enviar nenhum pacote aos hosts-alvos. Por default o Nmap
+            fará a resolução de DNS dos anfitriões(hosts) para descobrir seus nomes.
+            Ainda é surpreendente a quantidade de informações úteis que
+            simples nomes de hosts podem dar. Por exemplo,
+            <literal>fw.chi.playboy.com</literal> é o firewall do escritório
+            de Chicago da Playboy Enterprises. Nmap também reporta o número
+            total de endereços IP ao final. A listagem de rastreio(scan) é um bom teste de
+            sanidade para assegurar que está com a lista correta de
+            endereços IP dos seus alvos. Se os anfitriões(hosts) mostrarem nomes de
+            domínios que   não reconhece, vale a pena investigar melhor
+            para evitar o rastreio(scan) da rede da empresa errada.</para>
+
+            <para>Uma vez que a idéia é apenas mostrar uma lista dos
+            hosts-alvos, as opções de funcionalidade de nível mais alto tais
+            como o rastreio(scan) de portas, detecção de SO, ou rastreio(scan) utilizando ping, não
+            podem ser combinadas com esta opção. Se   deseja desactivar o
+            rastreio(scan) utilizando ping enquanto executa funções de nível elevado,
+            leia a opção <option>-P0</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sP</option> (Rastreio(scan) usando Ping)</term>
+
+          <listitem>
+            <para>Esta opção diz ao Nmap para <emphasis>somente</emphasis>
+            executar um rastreio(scan) usando o ping (descoberta de anfitriões(hosts)), e então
+            mostrar os hosts disponíveis que responderam ao scan. Nenhum teste
+            adicional (tais como o rastreio(scan) de portas e deteção de SO) é
+            executado. Isto é um pouco mais intrusivo que a listagem de rastreio(scan), e
+            pode ser usado para os mesmos propósitos. Permite um
+            reconhecimento leve de uma rede-alvo sem chamar muita atenção.
+            Saber quantos hosts estão ativos é mais valioso para invasores que
+            a lista fornecida pela listagem de rastreio(scan) com cada endereço IP e seu
+            nome de anfitrião(host).</para>
+
+            <para>Administradores de sistemas frequentemente acham esta opção
+            valiosa. Ela pode ser facilmente utilizada para contar o número de
+            máquinas disponíveis em uma rede ou monitorar a disponibilidade
+            dos servidores. Isto é normalmente chamado de varredura com ping
+            (ping sweep), e é mais confiável do que fazer um ping num
+            endereço de broadcast, pois muitos anfitriões(rastreio(scan)hosts) não respondem a pesquisas
+            com broadcast.</para>
+
+            <para>A opção <option>-sP</option> envia um ICMP echo request e um
+            pacote TCP para a porta 80 por default. Quando executada por um
+            usuário sem privilégios, um pacote SYN é enviado (usando uma
+            chamada <function>connect()</function>) para a porta 80 no alvo.
+            Quando um usuário privilegiado tenta rastrear(scan) alvos na rede
+            ethernet local, requisições ARP (<option>-PR</option>) são
+            utilizadas, a menos que <option>--send-ip</option> tenha sido
+            especificado. A opção <option>-sP</option> pode ser combinada com
+            qualquer um dos tipos de sondagens de descobrimento (as opções
+            <option>-P*</option> , excluindo <option>-P0</option>) para maior
+            flexibilidade. Se qualquer uma dessas opções de tipos de sondagens
+            e número de porta for utilizada, as sondagens default (ACK e echo
+            request) são sobrepostas. Quando firewalls restritivos estão
+            posicionados entre o host de origem que executa o Nmap e a
+            rede-alvo, utilizar essas técnica avançadas é recomendado. Do
+            contrário, hosts podem ser perdidos quando o firewall ignorar as
+            sondagens ou as respostas delas.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-P0</option> (Sem ping)</term>
+
+          <listitem>
+            <para>Esta opção salta completamente a fase
+ de descoberta do
+            Nmap. Normalmente o Nmap utiliza este estágio para determinar as
+            máquinas activas para o rastreio(scan) mais agressivo. Por default, o
+            Nmap apenas executa sondagens agressivas tais como o rastreio(scan) de
+            portas, detecção de versões, ou detecções do SO contra afitriões(hosts) que
+            foram verificados como activos. Desactivar a descoberta de anfitriões(hosts)
+            com <option>-P0</option> faz com que o Nmap teste as funções de
+            rastreio(scan) solicitadas contra <emphasis>todos</emphasis> os
+            endereços IP alvos especificados. Portanto se um espaço de
+            endereçamento alvo do tamanho de uma classe B (/16) for
+            especificado na linha de comando, todos os 65.536 endereços IP
+            serão alvo do rastreio(scan). O segundo caracter da opção <option>-P0</option>
+            é um zero e não a letra O. A descoberta de anfitriões(hosts) apropriada é
+            desconsiderada como na listagem de rastreio(scan), mas ao invés de parar e
+            mostrar a lista de alvos, o Nmap continua a executar as funções
+            solicitadas como se cada alvo IP estivesse activo.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-PS [listadeportas]</option> (Ping usando TCP
+          SYN)</term>
+
+          <listitem>
+            <para>Esta opção envia um pacote TCP vazio com a flag SYN marcada.
+            A porta de destino default é a 80 (configurada em tempo de
+            compilação pela variável DEFAULT_TCP_PROBE_PORT no
+            <filename>nmap.h</filename>), mas uma porta alternativa pode ser
+            especificada como um parâmetro. Até uma lista de portas separadas
+            por vírgula pode ser especificada (p.ex.
+            <option>-PS22,23,25,80,113,1050,35000</option>), nesse caso as
+            sondagens serão tentadas contra cada porta em paralelo.</para>
+
+            <para>A flag SYN sugere aos sistemas remotos que   está
+            tentando estabelecer uma comunicação. Normalmente a porta de
+            destino estará fechada e um pacote RST (reset) será enviado de
+            volta. Se a porta estiver aberta, o alvo irá dar o
+            segundo passo do cumprimento-de-três-vias (3-way-handshake) do TCP
+            respondendo com um pacote TCP SYN/ACK TCP. A máquina executando o
+            Nmap então derruba a conexão recém-criada respondendo com um RST
+            ao invés de enviar um pacote ACK que iria completar o
+            cumprimento-de-três-vias e estabelecer uma conexão completa. O
+            pacote RST é enviado pelo kernel da máquina que está executando o
+            Nmap em resposta ao SYN/ACK inesperado, e não pelo próprio
+            Nmap.</para>
+
+            <para>O Nmap não se importa se a porta está aberta ou fechada.
+            Tanto a resposta RST ou SYN/ACK discutidas anteriormente dizem ao
+            Nmap se o hosts está disponível e responsivo.</para>
+
+            <para>Em máquinas UNIX apenas o usuário privilegiado
+            <literal>root</literal> é capaz, normalmente, de enviar e receber
+            pacotes TCP em estado bruto(raw packets). Para usuários não privilegiados um
+            contorno é automaticamente empregado em concordância com a chamada
+            de sistema connect() iniciada contra cada porta-alvo. Isso tem o
+            efeito de enviar um pacote SYN ao anfitrião(host) alvo em uma tentativa de
+            estabelecer uma conexão. Se o connect() retornar com sucesso
+            rápido ou com uma falha ECONNREFUSED, a pilha TCP subjacente deve
+            ter recebido um SYN/ACK ou RST e o anfitrião(host) é marcado como disponível.
+            Se a tentativa de conexão for abandonada até que um timeout
+            ocorra, o host é marcado como indisponível. Esse contorno também é
+            usado para conexões IPv6, pois o suporte a construção de pacotes
+            IPv6 em estado bruto(raw) ainda não está disponível no Nmap.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-PA [listadeportas]</option> (Ping usando TCP
+          ACK)</term>
+
+          <listitem>
+            <para>O ping usando TCP ACK é muito similar ao recém-discutido
+            ping usando SYN. A diferença como   poderia imaginar, é que a
+            flag TCP ACK é marcada ou invés da flag SYN. O pacote ACK finge
+            reconhecer dados de uma conexão TCP estabelecida, quando nenhuma
+            conexão existe de facto. Então os anfitriões(hosts) remotos deveriam sempre
+            responder com pacotes RST revelando sua existência no
+            processo.</para>
+
+            <para>A opção <option>-PA</option> utiliza a mesma porta default
+            que a sondagem SYM (80) e pode também obter uma lista de portas
+            destino no mesmo formato. Se um usuário privilegiado tenta isto,
+            ou se um alvo IPv6 é especificado, o contorno connect() discutido
+            anteriormente é utilizado. Esse contorno é imperfeito pois o
+            connect() está realmente enviando um pacote SYN ao invés de um
+            ACK.</para>
+
+            <para>O motivo para oferecer ambas as sondagens ping, que utilizam
+            SYN e ACK, é maximizar as chances de passar por firewalls. Muitos
+            administradores configuram routers e outros firewalls simples
+            para bloquear a entrada de pacotes SYN excepto aqueles destinados a
+            serviços públicos como o site web da empresa ou servidor de
+            correio electrónico. Isso evita as demais conexões entradas na
+            organização, permitindo aos usuários fazer conexões desobstruidas
+            à Internet. Essa aproximação não-orientada à conexão (non-stateful
+            ou stateless) consome poucos recursos no firewall/router e é
+            amplamente suportada por filtros de hardware e software. O
+            firewall de software Netfilter/iptables do Linux oferece a
+            conveniência da opção <option>--syn</option> para implementar essa
+            abordagem stateless. Quando regras stateless do firewall como
+            essas são implementadas, sondagens de ping usando SYN
+            (<option>-PS</option>) muito provavelmente serão bloqueadas quando
+            forem enviadas à portas fechadas. Nesses casos, a sondagem ACK se
+            destaca pois ela simplesmente passa por essas regras.</para>
+
+            <para>Outro tipo comum de firewall utiliza regras orientadas a
+            conexão que descartam pacotes inesperados. Esta característica era
+            encontrada inicialmente apenas em firewalls de alto-nível, embora
+            tenha se tornado mais comum com o passar dos anos. O sistema
+            Netfilter/iptables do Linux suporta esta característica através da
+            opção <option>--state</option>, que categoriza os pacotes baseados
+            no estado da conexão. Uma sondagem SYN tem maiores chances de
+            funcionar contra um sistema assim, pois pacotes ACK inesperados
+            são normalmente reconhecidos como falsos e descartados. Uma
+            solução para esse dilema é enviar ambas as sondagens SYN e ACK
+            especificando <option>-PS</option> e <option>-PA</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-PU [listadeportas]</option> (Ping usando UDP)</term>
+
+          <listitem>
+            <para>Outra opção de descoberta de anfitriões(hosts) é o ping usando UDP, que
+            envia um pacote UDP vazio (a menos que
+            <option>--data-length</option> seja especificado) para as portas
+            informadas. A listadeportas tem o mesmo formato que os discutidos
+            anteriormente nas opções <option>-PS</option> e
+            <option>-PA</option>. Se nenhuma porta for especificada, o default
+            é 31338. Esse default pode ser configurado em tempo de compilação
+            alterando DEFAULT_UDP_PROBE_PORT no <filename>nmap.h</filename>.
+            Uma porta alta não comum é utilizada como default porque enviar para
+            portas abertas normalmente é indesejado para este tipo particular
+            de rastreio(scan).</para>
+
+            <para>Ao bater contra uma porta fechada na máquina-alvo, a
+            sondagem UDP deve criar um pacote ICMP de porta inalcançável como
+            resposta. Isso diz ao Nmap que a máquina está activa e disponível.
+            Muitos outros tipos de erros ICMP, tais como anfitrião(host)/rede
+            inalcançável ou TTL excedido são indicativos de um anfitrião(host) inactivo ou
+            inalcançável. A falta de resposta também é interpretada dessa
+            forma. Se uma porta aberta é alcançada, a maioria dos serviços
+            simplesmente ignoram o pacote vazio e falham em retornar qualquer
+            resposta. É por isso que a porta de sondagem default é 31338, que
+            pouco provavelmente estará em uso. Uns poucos serviços, tal como o
+            chargen, irá responder a um pacote UDP vazio, e com isso revelará
+            ao Nmap que a máquina está disponível.</para>
+
+            <para>A principal vantagem deste tipo de scan é que ele passa por
+            firewalls e filtros que apenas examinam o TCP. Por exemplo, uma
+            vez eu tive um router broadband sem-fios Linksys BEFW11S4. A
+            interface externa desse dispositivo filtrava todas as portas TCP
+            por default, mas as sondagens UDP ainda causavam mensagens de
+            porta inalcançável, denunciando assim o dispositivo.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-PE</option>; <option>-PP</option>;
+          <option>-PM</option> (Tipos de Ping do ICMP)</term>
+
+          <listitem>
+            <para>Além dos tipos incomuns de descoberta de anfitriões(hosts) TCP e UDP
+            discutidos anteriormente, o Nmap pode enviar os pacotes-padrão que
+            normalmente são enviados pelo popular programa ping. O Nmap
+            envia um pacote ICMP do tipo 8 (echo request) ao endereço IP alvo,
+            esperando como resposta um tipo 0 (Echo Reply) do anfitrião(host) disponível.
+            Infelizmente para muitos exploradores de rede, muitos anfitriões(hosts) e
+            firewalls actualmente bloqueiam esses pacotes, ao invés de
+            responder como é requerido pela <ulink
+            url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC 1122</ulink>.
+            Por essa razão, rastreios(scans) puramente ICMP são raramente confiáveis o
+            suficiente contra alvos desconhecidos na Internet. Mas para
+            administradores de sistemas monitorando uma rede interna eles
+            podem ser uma abordagem prática e eficiente. Utilize a opção
+            <option>-PE</option> para activar esse comportamento echo
+            request.</para>
+
+            <para>Embora o echo request seja a pesquisa padrão de um ping
+            ICMP, o Nmap não pára aqui. A padronização do ICMP (<ulink
+            url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC 792</ulink>)
+            também especifica timestamp request, information request, e
+            pacotes address mask request como códigos 13, 15, e 17,
+            respectivamente. Apesar do propósito ostensivo dessas pesquisas
+            seja obter informações tais como a máscara do endereço e hora
+            corrente, eles podem ser facilmente utilizados para descoberta de
+            anfitriões(hosts). Um sistema que responda está activo e disponível. O Nmap não
+            implementa actualmente os pacotes de requisição de informações,
+            pois eles não são amplamente suportados. A RFC 1122 insiste que
+            <quote>um anfitrião(host) NÃO DEVERIA implementar essas mensagens</quote>.
+            Pesquisas de marcação de hora (Timestamp) e máscara de endereço
+            podem ser enviadas com as opções <option>-PP</option> e
+            <option>-PM</option> , respectivamente. Uma resposta timestamp
+            reply (código ICMP 14) ou uma resposta address mask reply (código
+            18) revela que o host está disponível. Essas duas pesquisas podem
+            ser valiosas quando os administradores bloqueiam pacotes echo
+            request especificamente e esquecem que outras pesquisas ICMP podem
+            ser usadas com o mesmo propósito.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-PR</option> (Ping usando ARP)</term>
+
+          <listitem>
+            <para>Um dos cenários de uso mais comuns do Nmap é o rastreio(scan) da LAN
+            ethernet. Na maioria das LANs, especialmente aquelas que utilizam
+            a faixa de endereçamento privado ao abrigo do RFC1918, a vasta
+            maioria dos endereços IP nuca são utilizados. Quando o Nmap
+            tenta enviar um pacote IP em estado bruto(raw), tal como um ICMP echo
+            request, o sistema operativo deve determinar o endereço físico
+            de destino (ARP) correspondente ao IP-alvo de forma que ele possa
+            endereçar adequadamente o frame ethernet. Isso normalmente é lento
+            e problemático, pois os sistemas operativos não foram escritos
+            com a expectativa de que precisariam fazer milhões de requisições
+            ARP contra anfitriões(hosts) indisponíveis em um curto período de
+            tempo.</para>
+
+            <para>O rastreio(scan) ARP encarrega o Nmap e seus algorítmos optimizados de
+            fazer as requisições ARP. E se ele conseguir uma resposta de
+            volta, o Nmap não precisa de se preocupar com os pacotes ping
+            baseados em IP, uma vez que ele já sabe que o anfitrião(host) está activo.
+            Isso torna o rastreio(sca) ARP muito mais rápido e mais confiável que os
+            rastreios(scans) baseados em IP. Portanto isso é feito por default quando se
+            faz o rastreio(scan) de anfitriões(hosts) ethernet que o Nmap detecta estarem posicionados em
+            uma rede ethernet local. Mesmo se tipos diferentes de ping (tais
+            como <option>-PI</option> ou <option>-PS</option>) sejam
+            especificados, o Nmap usa o ARP em vez, para cada um dos alvos
+            que estiverem na mesma LAN. Se   não quiser de forma alguma
+            fazer um ratreio(scan) ARP, especifique <option>--send-ip</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-n</option> (Não faça resolução DNS)</term>
+
+          <listitem>
+            <para>Diz ao Nmap para <emphasis>nunca</emphasis> fazer uma
+            resolução DNS nos endereços IP activos que ele encontrar.
+            Uma vez que o DNS é normalmente lento, isso acelera as
+            coisas.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-R</option> (resolução DNS para todos os alvos)</term>
+
+          <listitem>
+            <para>Diz ao Nmap para fazer <emphasis>sempre</emphasis> uma
+            resolução DNS reversa nos endereços IP-alvos. Normalmente isto
+            apenas é executado quando uma máquina está activa.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-port-scanning-basics">
+      <title>Fundamentos do Rastreio(Scan) de Portas</title>
+
+      <para>Embora o Nmap tenha crescido em funcionalidades ao longo dos anos,
+      ele começou como um eficiente scanner de portas e essa permanece a sua
+      função principal. O simples comando <command>nmap
+      <replaceable>alvo</replaceable></command> faz o rastreio(scan) a mais de 1660 portas
+      TCP no anfitrião(host) <replaceable>alvo</replaceable>. Embora muitos scanner de
+      portas tenham tradicionalmente agrupado todas as portas nos estados
+      aberto ou fechado, o Nmap é muito mais granular. Ele divide as portas em
+      seis estados: <literal>aberto(open)</literal>,
+      <literal>fechado(closed)</literal>,<literal>filtrado(filtered)</literal>,
+      <literal>não-filtrado(unfiltered)</literal>,
+      <literal>aberto(open)|filtrado(filtered)</literal>, ou
+      <literal>fechado(closed)|filtrado(filtered)</literal>.</para>
+
+      <para>Esses estados não são propriedades intrínsecas da porta mas
+      descrevem como o Nmap as vê. Por exemplo, um rastreio(scan) do Nmap da mesma rede
+      como alvo pode mostrar a porta 135/tcp como aberta, enquanto um rastreio(scan) ao
+      mesmo tempo com as mesmas opções a partir da Internet poderia mostrar
+      essa porta como <literal>filtrada</literal>.</para>
+
+      <variablelist>
+        <title>Os seis estados de porta reconhecidos pelo Nmap</title>
+
+        <varlistentry>
+          <term>aberto (open)</term>
+
+          <listitem>
+            <para>Uma aplicação está activamente aceitando conexões TCP ou
+            pacotes UDP nesta porta. Encontrar esse estado é frequentemente o
+            objectivo principal de um rastreio(scan) de portas. Pessoas
+            conscientes sobre a segurança sabem que cada porta aberta é um
+            convite para um ataque. Invasores e profissionais de avaliação de
+            segurança querem explorar as portas abertas, enquanto os
+            administradores tentam fechar ou proteger com firewalls sem
+            bloquear usuários legítimos. Portas abertas são também
+            interessantes para rastreios(scans) não-relacionados à segurança pois mostram
+            os serviços disponíveis para utilização na rede.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>fechado (closed)</term>
+
+          <listitem>
+            <para>Uma porta fechada está acessível (ela recebe e responde a
+            pacotes de sondagens do Nmap), mas não há nenhuma aplicação
+            ouvindo nela. Elas podem ser úteis para mostrar que um anfitrião(host) está
+            activo em um determinado endereço IP (descoberta de hosts, ou rastreio(scan)
+            usando ping), e como parte de uma deteção de SO. Pelo facto de
+            portas fechadas serem alcançáveis, pode valer a pena o rastreio(scan) mais
+            tarde no caso de alguma delas abrir. Os administradores deveriam
+            considerar o bloqueio dessas portas com um firewall. Então elas
+            apareceriam no estado filtrado, discutido a seguir.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>filtrado(filtered)</term>
+
+          <listitem>
+            <para>O Nmap não consegue determinar se a porta está aberta porque
+            uma filtragem de pacotes impede que as sondagens alcancem a porta.
+            A filtragem poderia ser de um dispositivo firewall dedicado,
+            regras de router, ou um software de firewall baseado em anfitrião(host).
+            Essas portas frustram os atacantes pois elas fornecem poucas
+            informações. Às vêzes elas respondem com mensagens de erro ICMP
+            tais como as do tipo 3 código 13 (destino inalcançável:
+            comunicação proibida administrativamente), mas os filtros que
+            simplesmente descartam pacotes sem responder são bem mais comuns.
+            Isso força o Nmap a tentar diversas vezes só para o caso de a
+            sondagem ter sido descartada por congestionamento da rede ao invés
+            de filtragem. Isso reduz a velocidade do rastreio(scan)
+            dramaticamente.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>não-filtrado(unfiltered)</term>
+
+          <listitem>
+            <para>O estado não-filtrado significa que uma porta está
+            acessível, mas que o Nmap é incapaz de determinar se ela está
+            aberta ou fechada. Apenas o rastreio(scan) ACK, que é usado para mapear
+            conjuntos de regras de firewall classifica portas com este
+            estado. O rastreio(scan) de portas não-filtradas com outros tipos de scan,
+            tal como scan Window, scan Syn, ou scan FIN, podem ajudar a
+            responder se a porta está aberta.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>open|filtered</term>
+
+          <listitem>
+            <para>O Nmap coloca portas neste estado quando é incapaz de
+            determinar se uma porta está aberta ou filtrada. Isso acontece
+            para tipos de rastreio(scan) onde as portas abertas não dão nenhuma
+            resposta. A falta de resposta poderia também significar que um
+            filtro de pacotes descartou a sondagem ou qualquer resposta que
+            ela tenha provocado. Portanto o não sabe com certeza se a porta
+            está aberta ou se está sendo filtrada. Os rastreios(scans) UDP, IP Protocol,
+            FIN, Null, e Xmas classificam portas desta forma.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>closed|filtered</term>
+
+          <listitem>
+            <para>Este estado é usado quando o Nmap é incapaz de determinar se
+            uma porta está fechada ou filtrada. É apenas usado para o rastreio(scan)
+            IPID Idle scan.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-port-scanning-techniques">
+      <title>Técnicas de Rastreio(Scan) de Portas</title>
+
+      <para>Como um novato executando uma reparação automóvel posso perder
+      horas tentando usar minhas ferramentas rudimentares (martelo, fita
+      adesiva, grifo, etc.) nas tarefas. Quando eu falho miseravelmente e
+      reboco minha lata-velha para um mecânico de verdade ele invariavelmente
+      pesca aqui e ali em um enorme baú de ferramentas até pegar a coisa perfeita
+      que torna a tarefa numa brincadeira. A arte de rastrear(scaning) portas é
+      similar. Os peritos entendem as dezenas de técnicas de rastreio(scan) e
+      escolhem as que são apropriadas (ou uma combinação) para uma dada
+      tarefa. Usuários inexperientes e script kiddies, por outro lado, tentam
+      resolver todos os problemas com o scan SYN default. Uma vez que o Nmap é
+      gratuito a única barreira para a mestria em rastreio(scaning) de portas é o
+      conhecimento. Isso certamente é melhor que no mundo automóvel onde
+      pode ser necessário uma grande habilidade para determinar que  
+      precisa de um compressor de molas e então   tem que pagar milhares de
+      euros por um.</para>
+
+      <para>A maioria dos tipos de rastreio(scan) está disponível apenas para usuários
+      privilegiados. Isso acontece porque eles enviam e recebem pacotes em
+      estado bruto(raw), o que requer acesso de root em sistemas Unix. Utilizar a
+      conta de administrador no Windows é recomendado, embora o Nmap às vêzes
+      funcione com usuários sem privilégios nessa plataforma quando o WinPcap
+      foi carregado no SO. Requerer privilégio de root era uma séria limitação
+      quando o Nmap foi lançado em 1997, pois muitos usuários apenas tinham
+      acesso a contas de shell compartilhadas. Agora o mundo é diferente.
+      Computadores estão mais baratos, muito mais pessoas tem acesso directo e
+      permanente à Internet e computadores desktop Unix (incluindo Linux e
+      MAC OS X) são comuns. Uma versão para o Windows do Nmap se encontra
+      actualmente disponível permitindo que se use em muito mais computadores
+      desktop. Por todas essas razões os usuários têm menos necessidade de
+      executar o Nmap a partir de contas de shell compartilhadas e limitadas.
+      Isso é muito bom pois as opções privilegiadas tornam o Nmap muito mais
+      poderoso e flexível.</para>
+
+      <para>Embora o Nmap tente produzir resultados precisos tenha em mente
+      que todas as deduções são baseadas em pacotes devolvidos pelas
+      máquinas-alvo (ou firewalls na frente delas). Tais anfitriões(hosts) podem
+      não ser confiáveis e enviar respostas com o propósito de confundir ou
+      enganar o Nmap. Muito mais comum são os anfitriões(hosts) não-de-acordo-com-a-rfc
+      que não respondem como deveriam às sondagens do Nmap. As sondagens FIN,
+      Null e Xmas são particularmente suscetíveis a esse problema. Tais
+      questões são específicas de determinados tipos de scan e portanto são
+      discutidos nas entradas individuais de cada um dos tipos.</para>
+
+      <para>Esta seção documenta as dezenas de técnicas de rastreio(scan) de
+      portas suportadas pelo Nmap. Apenas um método pode ser utilizado de cada
+      vezm excepto que um scan UDP (<option>-sU</option>) pode ser combinado
+      com qualquer um dos tipos de scan TCP. Como uma ajuda para a memória as
+      opções dos tipos de rastreio(scan) de portas estão no formato
+      <option>-s<replaceable>C</replaceable></option>, onde
+      <replaceable>C</replaceable> é um caracter proeminente no nome do rastreio(scan),
+      normalmente o primeiro. A única excepção a essa regra é para o rastreio(scan)
+      denominado FTP bounce (<option>-b</option>). Por default o Nmap executa
+      um rastreio(scan) SYN, embora ele substitua por um rastreio(scan) Connect() se o usuário não
+      tiver os privilégios adequados para enviar pacotes em estado bruto(raw)
+      (requer acesso de root no UNIX) ou se alvos IPv6 forem especificados.
+      Dos rastreios(scans) listados nesta secção os usuários não privilegiados podem
+      apenas executar os rastreios(scans) connect() e ftp bounce.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-sS</option> (rastreio(scan) TCP SYN)</term>
+
+          <listitem>
+            <para>O rastreio(scan) SYN é a opção de rastreio(scan) default e a mais 
+            popular por boas razões. Pode ser executada rapidamente fazendo o rastreio(scan) 
+            a milhares de portas por segundo em uma rede rápida, não bloqueada por firewalls
+            intrusivos. O rastreio(scan) SYN é relativamente não-obstrusivo e camuflado,
+            uma vez que ele nunca completa uma conexão TCP. Ele também
+            trabalha contra qualquer pilha TCP padronizada ao invés de
+            depender de factores específicos de plataformas como os
+            rastreios(scans) Fin/Null/Xmas, Maimon e Idle fazem. Ele também permite uma
+            diferenciação limpa e confiável entre os estados <literal>aberto
+            (open)</literal>, <literal>fechado (closed)</literal>, e
+            <literal>filtrado (filtered)</literal>.</para>
+
+            <para>Esta técnica é freqüentemente chamada de rastreio(scan) de
+            porta entreaberta (half-open scanning), porque   não abre uma
+            conexão TCP completamente. Você envia um pacote SYN, como se fosse
+            abrir uma conexão real e então espera uma resposta. Um SYN/ACK
+            indica que a porta está ouvindo (aberta) enquanto um RST (reset)
+            é indicativo de uma não-ouvinte. Se nenhuma resposta é recebida
+            após diversas retransmissões a porta é marcada como filtrada. A
+            porta também é marcada como filtrada se um erro ICMP de
+            inalcançável é recebido (tipo 3, código 1,2, 3, 9, 10, ou
+            13).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sT</option> (rastreio(scan) TCP connect())</term>
+
+          <listitem>
+            <para>O rastreio(scan) TCP Connect() é o rastreio(scan) default do 
+            TCP quando o rastreio(scan) SYN não é uma opção. Esse é o caso quando o 
+            usuário não tem privilégios para criar pacotes em estado bruto(raw) ou rastrear 
+            redes IPv6. Ao invés de criar pacotes em estado bruto(raw) como a maioria dos
+            outros tipos de rastreio(scan) fazem, o Nmap pede ao sistema operativo
+            para estabelecer uma conexão com a máquina e porta alvos enviando
+            uma chamada de sistema <literal>connect()</literal>. Essa é a
+            mesma chamada de alto nível que os navegadores da web, clientes
+            P2P, e a maioria das outras aplicações para rede utilizam para
+            estabelecer uma conexão. É parte do interface de programação
+            conhecida como API de Sockets de Berkeley. Ao invés de ler as
+            respostas em pacotes em estado bruto(raw) directamente dos fios, 
+            o Nmap utiliza esta API para obter informações do estado de cada
+            tentativa de conexão.</para>
+
+            <para>Quando um rastreio(scan) SYN está disponível é normalmente a melhor
+            escolha. O Nmap tem menos controle sobre a chamada de alto nível
+            <literal>connect()</literal> do que sobre os pacotes em estado
+            bruto(raw) tornando-o menos eficiente. A chamada de sistema completa
+            as conexões nas portas-alvo abertas ao invés de executar o reset
+            de porta entreaberta que o rastreio(scan) SYN faz. Isso não só leva mais
+            tempo e requer mais pacotes para obter a mesma informação mas
+            também torna mais provável que as máquinas-alvo registrem a
+            conexão. Um sistema IDS decente irá detectar qualquer um deles,
+            mas a maioria das máquinas não tem esse tipo de sistema de alarme.
+            Muitos serviços na maioria dos sistema Unix irão acrescentar uma
+            nota na syslog e às vêzes uma mensagem de erro obscura, quando o
+            Nmap se conecta e então fecha a conexão sem enviar nenhum dado.
+            Serviços verdadeiramente patéticos irão travar quando isso
+            acontecer embora isso seja incomum. Um administrador que vê um
+            punhado de tentativas de conexão nos registros vindos de um único
+            sistema deveria saber que foi rastreado(scanned) com connect.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sU</option> (rastreios(scans) UDP)</term>
+
+          <listitem>
+            <para>Embora os serviços mais populares na Internet operem
+            sobre o protocolo TCP, os serviços <ulink
+            url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> são
+            amplamente difundidos. O DNS, o SNMP e o DHCP (registrados nas
+            portas 53, 161/162, e 67/68) são três dos mais comuns. Pelo facto
+            do rastreio(scan) UDP ser normalmente mais lento e mais difícil que
+            o TCP alguns auditores de segurança ignoram essas portas. Isso é
+            um erro pois serviços UDP passíveis de exploração são bastante
+            comuns e invasores certamente não ignoram o protocolo inteiro.
+            Felizmente o Nmap pode ajudar a inventariar as portas UDP.</para>
+
+            <para>O rastreio(scan) UDP é activado com a opção <option>-sU</option>. Ele
+            pode ser combinado com um tipo de rastreio(scan) TCP como o rastreio(scan)
+             SYN (<option>-sS</option>) para averiguar ambos protocolos na mesma
+            execução.</para>
+
+            <para>O  SYN UDP funciona enviando um cabeçalho UDP vazio (sem
+            dados) para cada porta pretendida. Se um erro ICMP de porta
+            inalcançável (tipo 3, código 3) é retornado a porta está
+            <literal>fechada</literal>. Outros erros do tipo inalcançável
+            (tipo 3, códigos 1, 2, 9, 10, ou 13) marcam a porta como
+            <literal>filtrada</literal>. Ocasionalmente um serviço irá
+            responder com um pacote UDP provando que está
+            <literal>aberta</literal>. Se nenhuma resposa é recebida após as
+            retransmissões a porta é classificada como
+            <literal>aberta|filtrada</literal>. Isso significa que a porta
+            poderia estar aberta ou talvez que filtros de pacotes estejam
+            bloqueando a comunicação. Rastreios(scans) de versões (<option>-sV</option>)
+            podem ser utilizados para ajudar a diferenciar as portas
+            verdadeiramente abertas das que estão filtradas.</para>
+
+            <para>Um grande desafio com o rastreio(scan) UDP é fazê-lo
+            rapidamente. Portas abertas e filtradas raramente enviam alguma
+            resposta, deixando o Nmap esgotar o tempo (time out) e então
+            efectuar retransmissões para o caso de a sondagem ou a resposta ter
+            sido perdida. Portas fechadas são normalmente um problema ainda
+            maior. Elas costumam enviar de volta um erro ICMP de porta
+            inalcançável. Mas, ao contrário dos pacotes RST enviados pelas
+            portas TCP fechadas em resposta a um rastreio(scan) SYN ou Connect, muitos
+            anfitriões(hosts) limitam a taxa de mensagens ICMP de porta inalcançável por
+            default. O Linux e o Solaris são particularmente rigorosos quanto
+            a isso. Por exemplo, o kernel 2.4.20 do Linux limita a quantidade
+            de mensagens de destino inalcançável a até uma por segundo (no
+            <filename>net/ipv4/icmp.c</filename>).</para>
+
+            <para>O Nmap detecta a limitação de taxa e diminui o ritmo de
+            acordo para evitar inundar a rede com pacotes inúteis que a
+            máquina-alvo irá descartar. Infelizmente, um limite como o do
+            Linux de um pacote por segundo faz com que um rastreio(scan) de 65.536
+            portas leve mais de 18 horas. Idéias para acelerar o rastreio(scan)
+            UDP incluem rastrear(scan) mais anfitriões(hosts) em paralelo, fazer um rastreio(scan) rápido
+            apenas das portas mais comuns primeiro, rastrear(scan) por detrás de um
+            firewall e utilizar <option>--host-timeout</option> para saltar os
+            anfitriões(hosts) lentos.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sN</option>; <option>-sF</option>;
+          <option>-sX</option> (rastreios(scans) TCP Null, FIN, e Xmas)</term>
+
+          <listitem>
+            <para>Estes três tipos de rastreio(scan) (até mais são possíveis com a opção
+            <option>--scanflags</option> descrita na próxima secção) exploram
+            uma brecha subtil na <ulink
+            url="http://www.rfc-editor.org/rfc/rfc793.txt">RFC do TCP</ulink>
+            para diferenciarem entre portas <literal>abertas</literal> e
+            <literal>fechadas</literal>. A página 65 diz que <quote>se a porta
+            [destino] estiver FECHADA .... um segmento de entrada que não
+            contenha um RST irá causar o envio de um RST como
+            resposta.</quote> Então a página seguinte discute os pacotes
+            enviados a portas abertas sem os bits SYN, RST ou ACK marcados,
+            afirmando que: <quote>é pouco provável que   chegue aqui, mas
+            se chegar, descarte o segmento e volte.</quote></para>
+
+            <para>Quando se rastreia(scan) sistemas padronizados com o texto desta
+            RFC, qualquer pacote que não contenha os bits SYN, RST ou ACK irá
+            resultar em um RST como resposta se a porta estiver fechada e
+            nenhuma resposta se a porta estiver aberta. Contanto que nenhum
+            desses três bits esteja incluídos qualquer combinação dos outros
+            três (FIN, PSH e URG) é válida. O Nmap explora isso com três tipos
+            de rastreio(scan):</para>
+
+            <variablelist>
+              <varlistentry>
+                <term>rastreio(scan) Null (<option>-sN</option>)</term>
+
+                <listitem>
+                  <para>Não marca nenhum bit (o cabeçalho de flag do tcp é
+                  0)</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>rastreio(scan) FIN (<option>-sF</option>)</term>
+
+                <listitem>
+                  <para>Marca apenas o bit FIN do TCP.</para>
+                </listitem>
+              </varlistentry>
+
+              <varlistentry>
+                <term>rastreio(scan) Xmas(<option>-sX</option>)</term>
+
+                <listitem>
+                  <para>Marca as flags FIN, PSH e URG, iluminando o pacote
+                  como uma árvore de Natal.</para>
+                </listitem>
+              </varlistentry>
+            </variablelist>
+
+            <para>Estes três tipos de rastreio(scan) são exatamente os mesmos em termos
+            de comportamento exceto pelas flags TCP marcadas no pacotes de
+            sondagem. Se um pacote RST for recebido a porta é considerada
+            <literal>fechada</literal> e nenhuma resposta significa que está
+            <literal>aberta|filtrada</literal>. A porta é marcada como
+            <literal>filtrada</literal> se um erro ICMP do tipo inalcançável
+            (tipo 3, código 1, 2, 3, 9, 10, ou 13) for recebido.</para>
+
+            <para>A vantagem principal destes tipos de rastreio(scan) é que eles podem
+            bisbilhotar através de alguns firewalls não-orientados à conexão e
+            de routers que filtram pacotes. Outra vantagem é que esses
+            tipos de rastreio(scan) são um pouco mais camuflados do que o rastreio(scan) SYN. Mas
+            não conte com isso -- a maioria dos produtos IDS modernos podem
+            ser configurados para detectá-los. O maior problema é que nem
+            todos os sistemas seguem a RFC 793 ao pé-da-letra. Diversos
+            sistemas enviam respostas RST para as sondagens independentemente
+            do facto da porta estar aberta ou não. Isso faz com que todas as
+            portas sejam classificadas como <literal>fechadas</literal>. A
+            maioria dos sistemas operativos que fazem isso são Microsoft
+            Windows, muitos dispositivos Cisco, BSDI e o IBM OS/400. Esse
+            rastreio(scan) funciona realmente contra a maioria dos sistemas baseados em
+            Unix. Outro ponto negativo desses rastreios(scans) é que eles não conseguem
+            diferenciar portas <literal>abertas</literal> de alguns tipos de
+            portas <literal>filtradas</literal> deixando  com a resposta
+            <literal>abera|filtrada</literal>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sA</option> (rastreio(scan) TCP ACK)</term>
+
+          <listitem>
+            <para>Este rastreio(scan) é diferente dos outros discutidos até agora pelo
+            facto de que ele nunca determina se uma porta está
+            <literal>aberta</literal> (ou mesmo
+            <literal>aberta|filtrada</literal>). Ele é utilizado para mapear
+            conjuntos de regras do firewall determinando se eles são
+            orientados à conexão ou não e quais portas estão filtradas.</para>
+
+            <para>O pacote de sondagem do rastreio(scan) ACK tem apenas a flag ACK
+            marcada (a menos que  use <option>--scanflags</option>).
+            Quando se rastreia(scan) sistemas não-filtrados as portas
+            <literal>abertas</literal> e <literal>fechadas</literal> irão
+            devolver um pacote RST. O Nmap então coloca nelas o rótulo
+            <literal>não-filtradas (unfiltered)</literal> significando que
+            elas estão alcançáveis pelo pacote ACK, mas se elas estão
+            <literal>abertas</literal> ou <literal>fechadas</literal> é
+            indeterminado. Portas que não respondem ou que devolvem certas
+            mensagens de erro ICMP (tipo 3, código 1, 2, 3, 9, 10, ou 13), são
+            rotuladas como <literal>filtradas</literal>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sW</option> (rastreio(scan) da Janela TCP)</term>
+
+          <listitem>
+            <para>Rastreio(scan) da Janela é exactamente o mesmo que o rastreio(scan) ACK excepto
+            que ele explora um detalhe da implementação de certos sistemas de
+            forma a diferenciar as portas abertas das fechadas ao invés de
+            sempre mostrar <literal>não-filtrada</literal> quando um RST é
+            devolvido. Ele faz isso examinando o campo Janela TCP (TCP Window)
+            do pacote RST devolvido. Em alguns sistemas as portas abertas
+            usam um valor positivo de tamanho de janela (mesmo para pacotes
+            RST) enquanto que as portas fechadas têm um valor igual a zero.
+            Então, ao invés de mostrar sempre uma porta como
+            <literal>não-filtrada</literal> quando se recebe um RST de volta,
+            o rastreio(scan) da Janela mostra a porta como <literal>aberta</literal> ou
+            <literal>fechada</literal> se o valor da Janela TCP no reset for
+            positivo ou zero, respectivamente.</para>
+
+            <para>Este rastreio(scan) se baseia em um detalhe de implementação de uma
+            minoria de sistemas na Internet, portanto não se pode confiar
+            sempre nele. Sistemas que não suportam isso irão normalmente
+            devolver todas as portas como <literal>fechadas</literal>. É claro
+            que é possível que a máquina realmente não tenha nenhuma porta
+            aberta. Se a maioria das portas rastreadas(scaned) estiver
+            <literal>fechada</literal> mas uns poucos números de portas comuns
+            (tais como 22, 25, 53) estão <literal>filtrados</literal>, o
+            sistema muito provavelmente está vulnerável. De vez em quando os
+            sistemas irão mostrar exatamente o comportamento oposto. Se o seu
+            rastreio(scan) mostrar 1000 portas abertas e 3 fechadas ou filtradas, então
+            essas três podem muito bem ser as verdadeiramente abertas.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sM</option> (rastreio(scan) TCP Maimon)</term>
+
+          <listitem>
+            <para>O rastreio(scan) Maimon recebeu o nome de seu descobridor, Uriel
+            Maimon. Ele descreveu a técnica na Phrack Magazine, edição 49
+            (Novembro de 1996). O Nmap, que incluiu essa técnica, foi lançado
+            duas edições mais tarde. A técnica é exatamente a mesma que os
+            rastreios(scans) Null, FIN e Xmas, exceto que a sondagem é FIN/ACK. De acordo
+            com a RFC 793 (TCP) um pacote RST deveria ser gerado em resposta
+            a tal sondagem se a porta estiver aberta ou fechada. Entretanto,
+            Uriel notou que muitos sistemas derivados do BSD simplesmente
+            descartavam o pacote se a porta estivesse aberta.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--scanflags</option> (rastreio(scan) TCP Customizado)</term>
+
+          <listitem>
+            <para>Usuários verdadeiramente avançados do Nmap não precisam se
+            limitar aos tipos de rastreios(scans) enlatados oferecidos. A opção
+            <option>--scanflags</option> permite que  desenhe seu próprio
+            rastreio(scan) permitindo a especificação de flags TCP arbitrárias. Deixe
+            sua imaginação correr solta enquanto dribla sistemas de detecção
+            de intrusão cujos fabricantes apenas olharam rapidamente a página
+            man do Nmap adicionando regras específicas!</para>
+
+            <para>O argumento do <option>--scanflags</option> pode ser um
+            valor numérico da marca (flag) como o 9 (PSH e FIN), mas usar
+            nomes simbólicos é mais fácil. Apenas esprema alguma combinação de
+            <literal>URG</literal>, <literal>ACK</literal>,
+            <literal>PSH</literal>, <literal>RST</literal>,
+            <literal>SYN</literal>, e <literal>FIN</literal>. Por exemplo,
+            <option>--scanflags URGACKPSHRSTSYNFIN</option> marca tudo, embora
+            não seja muito útil para rastreio(scan). A ordem em que essas marcas
+            são especificadas é irrelevante.</para>
+
+            <para>Além de especificar as marcas desejadas  pode
+            especificar um tipo de rastreio(scan) TCP (como o <option>-sA</option> ou
+            <option>-sF</option>). Esse tipo-base diz ao Nmap como interpretar
+            as respostas. Por exemplo, um rastreio(scan) SYN considera nenhuma-resposta
+            como uma indicação de porta <literal>filtrada</literal> enquanto
+            que um rastreio(scan) FIN trata a mesma como
+            <literal>aberta|filtrada</literal>. O Nmap irá se comportar da
+            mesma forma que o tipo de rastreio(scan)-base escolhido, excepto que ele irá
+            usar as marcas TCP que  especificar. Se  não escolher um
+            tipo-base, o rastreio(scan) SYN é utilizado.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sI &lt;hostzumbi[:portadesondagem]&gt;</option> (rastreio(scan)
+          Idle)</term>
+
+          <listitem>
+            <para>Este método avançado de rastreio(scan) permite um rastreio(scan) TCP realmente
+            cego das portas do alvo (significando que nenhum pacote é enviado
+            para o alvo do seu endereço IP real). Ao invés disso um ataque
+            canal-lateral (side-channel) explora a previsível geração de
+            sequência de ID, consequência da fragmentação do IP no anfitrião(host)
+            zumbi, para juntar informações sobre as portas abertas no alvo.
+            Sistemas IDS irão mostrar o rastreio(scan) como se viessem da máquina zumbi
+            que  especificou (que deve estar activa e obedecer a alguns
+            critérios). Este tipo fascinante de rastreio(scan) é complexo demais para se
+            descrever completamente aqui neste guia de referência, então eu
+            escrevi e postei um trabalho informal com detalhes completos em
+            <ulink url="http://nmap.org/book/idlescan.html" />.</para>
+
+            <para>Além de ser extraordinariamente camuflado (devido à sua
+            natureza cega), este tipo de rastreio(scan) permite mapear relações de
+            confiança baseadas em IP entre máquinas. A listagem de portas
+            mostra as portas abertas <emphasis>da perspectiva do anfitrião(host)
+            zumbi.</emphasis> Portanto  pode tentar rastrear(scan) um alvo
+            usando vários zumbis que  acha que podem ser confiáveis (via
+            regras de router/filtro de pacotes).</para>
+
+            <para>Você pode adicionar os dois-pontos seguindo do número da
+            porta ao nome do anfitrião(host) zumbi, se quiser sondar uma porta em
+            particular no zumbi verificando as mudanças de IPID. Do contrário
+            o Nmap irá utilizar a porta que ele normalmente usa por default
+            para pings tcp (80).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sO</option> (Rastreios(Scans) do protocolo IP)</term>
+
+          <listitem>
+            <para>Scans do Protocolo IP permitem que  determine quais
+            protocolos IP (TCP, ICMP, IGMP, etc.) são suportados pelas
+            máquina-alvo. Isso não é tecnicamente um rastreio(scan) de portas, pois
+            ele varia os números do protocolo IP ao invés dos números de
+            portas TCP e UDP. Ainda assim, ele utiliza a opção
+            <option>-p</option> para seleccionar os números de protocolos a
+            rastrear(scan), mostra os resultados dentro do formato normal da tabela
+            de portas e até usa o mesmo mecanismo de rastreio(scan) dos
+            métodos de descoberta de portas. Portanto ele é parecido o
+            suficiente com um rastreio(scan) de portas e por isso pertence a este
+            lugar.</para>
+
+            <para>Além de ser útil de certa forma, o rastreio(scan) de protocolo mostra o
+            poder do software de código aberto. Embora a idéia fundamental
+            seja bastante simples, eu não tinha pensado em adicioná-la e nem
+            havia recebido nenhuma solicitação para essa funcionalidade.
+            Então, no verão de 2000, Gerhard Rieger concebeu a idéia, escreveu
+            uma excelente alteração (patch) implementando-a e enviou-a para a
+            lista de discussão nmap-hackers. Eu incorporei a alteração na
+            árvore do Nmap e lancei uma nova versão no dia seguinte. Poucos
+            produtos de software comercial tem usuários entusiasmados o
+            suficiente para desenhar e contribuir com melhorias!</para>
+
+            <para>O rastreio(scan) de protocolo funciona de uma forma similar a um rastreio(scan)
+            UDP. Ao invés de ficar repetindo alternando o campo de número de
+            porta de um pacote UDP, ele envia cabeçalhos de pacote IP e faz a
+            repetição alternando o campo de protocolo IP de 8 bits. Os
+            cabeçalhos normalmente estão vazios, sem conter dados, nem mesmo
+            o cabeçalho apropriado do suposto protocolo. As três
+            excepções são o TCP, o UDP e o ICMP. Um cabeçalho de protocolo
+            apropriado para estes é incluído, uma vez que alguns sistemas não
+            os enviarão caso não tenham e porque o Nmap tem as funções para
+            criá-los ao invés de observar as mensagens de erro ICMP de porta
+            inalcançável, o rastreio(scan) de protocolo fica de olho nas mensagens ICMP
+            de <emphasis>protocolo</emphasis> inalcançável. Se o Nmap recebe
+            qualquer resposta de qualquer protocolo do anfitrião(host)-alvo, o Nmap marca
+            esse protocolo como <literal>aberto</literal>. Um erro ICMP de
+            protocolo não-alcançável (tipo 3, código 2) faz com que o
+            protocolo seja marcado como <literal>fechado</literal>. Outros
+            erros ICMP do tipo inalcançável (tipo 3, código 1, 3, 9, 10, ou
+            13) fazem com que o protocolo seja marcado como
+            <literal>filtrado</literal> (embora eles provem, ao mesmo tempo,
+            que o ICMP está <literal>aberto</literal>). Se nenhuma resposta
+            for recebida após as retransmissões, o protocolo é marcado como
+            <literal>aberto|filtrado.</literal></para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-b &lt;anfitrião(host) para relay de ftp&gt;</option> (Rastreio(Scan) de
+          FTP bounce)</term>
+
+          <listitem>
+            <para>Uma característica interessante do protocolo FTP (<ulink
+            url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) é
+            o suporte a conexões denominadas proxy ftp. Isso permite que um
+            usuário conecte-se a um servidor FTP e então solicite que
+            arquivos sejam enviados a um terceiro servidor. Tal característica
+            é sujeita a abusos em diversos níveis, por isso a maioria dos
+            servidores parou de suportá-la. Um dos abusos permitidos é fazer
+            com que o servidor FTP efectue o rastreio(scan) das portas de outros anfitriões(hosts).
+            Simplesmente solicite que o servidor FTP envie um arquivo para
+            cada porta interessante do anfitrião(host)-alvo. A mensagem de erro irá
+            descrever se a porta está aberta ou não. Esta é uma boa forma de
+            passar por cima de firewalls porque os servidores FTP de empresas
+            normalmente são posicionados onde tem mais acesso a outros anfitriões(hosts)
+            internos que os velhos servidores da Internet teriam. O Nmap
+            suporta o rastreio(scan) de ftp bounce com a opção <option>-b</option>. Ela
+            recebe um argumento no formato
+            <replaceable>nomedousuário</replaceable>:<replaceable>senha</replaceable>@<replaceable>servidor</replaceable>:<replaceable>porta</replaceable>.
+            <replaceable>Servidor</replaceable> é o nome ou endereço IP de um
+            servidor FTP vulnerável. Assim como em uma URL normal,  pode
+            omitir
+            <replaceable>nomedousuário</replaceable>:<replaceable>senha</replaceable>,
+            neste caso as credenciais de login anónimo (usuário:
+            <literal>anonymous</literal> senha:<literal>-wwwuser@</literal>)
+            serão usados. O número da porta (e os dois-pontos) podem ser
+            omitidos, e então a porta FTP default (21) no
+            <replaceable>servidor</replaceable> será utilizada.</para>
+
+            <para>Esta vulnerabilidade espalhou-se em 1997 quando o Nmap foi
+            lançado mas foi corrigida amplamente. Servidores vulneráveis
+            ainda estão por aí, então pode valer a pena tentar se tudo o mais
+            falhar. Se passar por cima de um firewall é o seu objetivo,
+            faça o rastreio(scan) da rede-alvo procurando por uma porta 21 aberta (ou mesmo
+            por qualquer serviço FTP se  rastrear(scan) todas as portas com a
+            detecção de versão), então tente um rastreio(scan) bounce usando-as. O Nmap
+            irá dizer se o anfitrião(host) é vulnerável ou não. Se  estiver apenas
+            tentando encobrir suas pegadas,  não precisa (e, na verdade,
+            não deveria) limitar-se a anfitriões(hosts) na rede-alvo. Antes de sair
+            rastreando endereços aleatórios na Internet procurando por
+            servidores FTP, considere que os administradores de sistemas podem
+            não apreciar o seu abuso nos servidores deles.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-port-specification">
+      <title>Especificação de Portas e Ordem de Scan</title>
+
+      <para>Somado a todos os métodos de rastreio(scan) discutidos anteriormente, o Nmap
+      oferece opções para especificar quais portas são rastreadas(scaned) e se a ordem
+      de rastreio(scan) é aleatória ou sequencial. Por default, o Nmap rastreia(scan)
+      todas as portas até, e incluindo, 1024, bem como portas com numeração
+      alta listadas no arquivo <filename>nmap-services</filename> para
+      o(s) protocolo(s) rastreados(scaned).</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-p &lt;faixa de portas&gt;</option> (Rastreia apenas
+          as portas especificadas)</term>
+
+          <listitem>
+            <para>Esta opção especifica quais as portas que  deseja rastrear(scan)
+            e prevalece sobre o default. Números de portas individuais são OK,
+            bem como as faixas separadas por um hífen (p.ex.: 1-1023). Os
+            valores iniciais e/ou finais da faixa podem ser omitidos, o que
+            faz com que o Nmap use 1 e 65535 respectivamente. Portanto 
+            pode especificar <option>-p-</option> para rastrear(scan) as portas de 1
+            até 65535. Escanear a porta zero é permitido se  especificar
+            explicitamente. Para o rastreio(scan) do protocolo IP
+            (<option>-sO</option>), esta opção especifica os números dos
+            protocolos que  deseja rastrear(scan) (0-255).</para>
+
+            <para>Quando rastrear(scan) ambas as portas TCP e UDP,  pode
+            especificar um protocolo em particular precedendo os números de
+            portas com <literal>T:</literal> ou <literal>U:</literal>. O
+            qualificador dura até que  especifique um novo qualificador.
+            Por exemplo, o argumento <option>-p
+            U:53,111,137,T:21-25,80,139,8080</option> faria o rastreio(scan) das portas UDP
+            53, 111 e 137, bem como as portas TCP listadas. Note que para
+            rastrear(scan) ambas as portas UDP &amp; TCP,  tem que especificar
+            <option>-sU</option> e pelo menos um tipo de rastreio(scan) TCP (tal como
+            <option>-sS</option>, <option>-sF</option> ou
+            <option>-sT</option>). Se nenhum qualificador de protocolo for
+            informado, os números de portas serão acrescentados à todas as
+            listas de protocolos.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-F</option> (rastreio(scan) Rápido (portas limitadas))</term>
+
+          <listitem>
+            <para>Especifica que  deseja apenas rastrear(scan) as portas
+            listadas no arquivo <filename>nmap-services</filename> que vem com
+            o nmap (ou o arquivo de protocolos para o <option>-sO</option>).
+            Isto é muito mais rápido do que rastrear(scan) todas as 65535 portas de
+            um anfitrião(host). Pelo facto desta lista conter tantas portas TCP (mais de
+            1200), a diferença de velocidade de um rastreio(scan) TCP default (cerca de
+            1650 portas) não é dramática. A diferença pode ser enorme se 
+            especificar seu próprio minúsculo arquivo
+            <filename>nmap-services</filename> usando a opção
+            <option>--datadir</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-r</option> (Não usa as portas de forma
+          aleatória)</term>
+
+          <listitem>
+            <para>Por default o Nmap usa a ordem das portas a serem
+            rastreadas de forma aleatória (excepto aquelas portas normalmente
+            acessíveis que são movidas próximas ao início por
+            motivos de eficiência). Essa técnica de busca aleatória
+            normalmente é desejável mas  pode especificar
+            <option>-r</option> para um rastreio(scan) de portas
+            sequencial.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-version-detection">
+      <title>Detecção de Serviço e Versão</title>
+
+      <para>Aponte o Nmap para uma máquina remota e ele poderá lhe dizer que
+      as portas 25/tcp, 80/tcp e 53/udp estão abertas. Utilizar o banco de
+      dados <filename>nmap-services</filename> com cerca de 2.200 serviços
+      bastante conhecidos do Nmap iria relatar que aquelas portas
+      provavelmente correspondem a um servidor de correio eletrônico (SMTP), a
+      um servidor de páginas web (HTTP) e a um servidor de nomes (DNS)
+      respectivamente. Essa pesquisa normalmente é precisa -- a grande maioria
+      de daemons escutando na porta TCP 25 é de facto de servidores de
+      correio eletrónico. Entretanto  não deveria apostar a sua segurança
+      nesta informação! As pessoas podem e executam serviços em portas
+      estranhas.</para>
+
+      <para>Mesmo que o Nmap esteja certo e o servidor hipotético acima
+      esteja executando os serviços SMTP, HTTP e DNS, isso não é informação o
+      bastante. Quando fizer uma avaliação de vulnerabilidades (ou mesmo um
+      simples inventário da rede) de sua empresa ou clientes,   realmente
+      deseja saber qual o programa-servidor de correio eletrónico ou de nomes
+      e as versões que estão rodando. Ter um número de versão exacto ajuda
+      substancialmente na determinação de quais explorações (exploits) o
+      servidor está vulnerável. A detecção de versão ajuda a obter esta
+      informação.</para>
+
+      <para>Depois que as portas TCP e/ou UDP forem descobertas usando
+      qualquer um dos outros métodos de rastreio(scan), a detecção de versão interroga
+      essas portas para determinar mais informações sobre o que realmente
+      sendo executado nessas portas. O banco de dados
+      <filename>nmap-service-probes</filename> do Nmap contém sondagens para
+      pesquisar diversos serviços e expressões de acerto (match expressions)
+      para reconhecer e destrinchar as respostas. O Nmap tenta determinar os
+      protocolos de serviços (p.ex.: ftp, ssh, telnet, http), o nome da
+      aplicação (p.ex.: ISC Bind, Apache httpd, Solaris telnetd), o número da
+      versão, o nome do anfitrião(host), tipo de dispositivo (p.ex.: impressora,
+      router), a família do SO (p.ex.: Windows, Linux) e às vezes detalhes
+      diversos do tipo, se um servidor X está aberto para conexões, a versão
+      do protocolo SSH ou o nome do usuário do KaZaA. É claro que a maioria
+      dos serviços não fornece todas essas informações. Se o Nmap foi
+      compilado com o suporte ao OpenSSL ele irá se conectar aos servidores
+      SSL para deduzir qual o serviço que está escutando por trás da camada
+      criptografada. Quando os serviços RPC são descobertos, o "amolador" de
+      RPC (RPC grinder) do Nmap (<option>-sR</option>) é automaticamente
+      utilizado para determinar o nome do programa RPC e o número da versão.
+      Algumas portas UDP são deixadas no estado
+      <literal>aberta|filtrada</literal> depois que rastreio(scan) de porta UDP não
+      consegue determinar se a porta está aberta ou filtrada. A detecção de
+      versão irá tentar provocar uma resposta dessas portas (do mesmo jeito
+      que faz com as portas abertas) e alterar o estado para aberta se
+      conseguir. Portas TCP do tipo <literal>aberta|filtrada</literal> são
+      tratadas da mesma forma. Note que a opção <option>-A</option> do Nmap
+      habilita a detecção de versão entre outras coisas. Um trabalho
+      documentando o funcionamento, uso e customização da detecção de versão
+      está disponível em <ulink
+      url="http://www.insecure.org/nmap/versionscan.html" />.</para>
+
+      <para>Quando o Nmap recebe uma resposta de um serviço mas não consegue
+      encontrá-la em seu banco de dados, ele mostra uma identificação
+      (fingerprint) especial e uma URL para que  envie informações se
+      souber com certeza o que está rodando nessa porta. Por favor considere
+      dispor de alguns minutos para mandar essa informação de forma que sua
+      descoberta possa beneficiar a todos. Graças a esses envios o Nmap tem
+      cerca de 3.000 padrões de acerto para mais de 350 protocolos, tais como
+      o smtp, ftp, http, etc.</para>
+
+      <para>A detecção de versão é habilitada e controlada com as seguintes
+      opções:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-sV</option> (detecção de versão)</term>
+
+          <listitem>
+            <para>Habilita a detecção de versão, conforme discutido acima.
+            Alternativamente  pode usar a opção <option>-A</option> para
+            habilitar tanto a detecção de SO como a detecção de versão.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--allports</option> (Não exclui nenhuma porta da
+          detecção de versão)</term>
+
+          <listitem>
+            <para>Por default a detecção de versão do Nmap salta a porta TCP
+            9100 por causa de algumas impressoras que imprimem qualquer coisa
+            que seja enviada para essa porta, levando a dezenas de páginas com
+            requisições HTTP, requisições de sessões SSL binárias, etc. Esse
+            comportamento pode ser alterado modificando-se ou removendo a
+            directiva <literal>Exclude</literal> no
+            <filename>nmap-service-probes</filename> ou  pode especificar
+            <option>--allports</option> para rastrear(scan) todas as portas
+            independente de qualquer directiva
+            <literal>Exclude</literal>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--version-intensity &lt;intensidade&gt;</option>
+          (Estabelece a intensidade do rastreio(scan) de versão)</term>
+
+          <listitem>
+            <para>Quando está executando um rastreio(scan) de versão
+            (<option>-sV</option>) o nmap envia uma série de sondagens, cada
+            qual com um valor atribuído de raridade, entre 1 e 9. As sondagens
+            com números baixos são efectivas contra uma ampla variedade de
+            serviços comuns, enquanto as com números altos são raramente
+            úteis. O nível de intensidade especifica quais sondagens devem ser
+            utilizadas. Quando mais alto o número, maiores as chances de o
+            serviço ser corretamente identificado. Entretanto rastreios(scans) de alta
+            intensidade levam mais tempo. A intensidade deve estar entre 0 e
+            9. O default é 7. Quando uma sondagem é registrada na porta-alvo
+            através da directiva <filename>nmap-service-probes</filename>
+            <literal>ports</literal>, essa sondagem é tentada
+            independentemente do nível de intensidade. Isso assegura que as
+            sondagens DNS sempre serão tentadas contra qualquer porta 53
+            aberta e a sondagem SSL será realizada contra a 443, etc.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--version-light</option> (Habilita o modo leve
+          (light))</term>
+
+          <listitem>
+            <para>Esse é um apelido conveniente para
+            <option>--version-intensity 2</option>. Esse modo leve torna o
+            rastreio(scan) de versão muito mais rápido, mas é ligeiramente menos
+            provável que identifique os serviços.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--version-all</option> (Tenta simplesmente todas as
+          sondagens)</term>
+
+          <listitem>
+            <para>Um apelido para <option>--version-intensity 9</option>,
+            assegurando que todas as sondagens sejam tentadas contra cada
+            porta.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--version-trace</option> (Monitora as atividades do
+          rastreio(scan) de versão)</term>
+
+          <listitem>
+            <para>Isto faz com que o Nmap mostre informações de depuração
+            extensivas sobre o que o rastreio(scan) de versão está fazendo. É um
+            sub-conjunto do que  obteria com
+            <option>--packet-trace</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-sR</option> (Scan RPC)</term>
+
+          <listitem>
+            <para>Este método trabalha em conjunto com os vários métodos de
+            rastreio(scan) de portas do Nmap. Ele pega todas as portas TCP/UDP
+            descobertas no estado aberta e inunda-as com comandos NULL do
+            programa SunRPC em uma tentativa de determinar se elas são portas
+            RPC e se forem, quais programas e números de versão elas mostram.
+            Dessa forma  pode obter efectivamente a mesma informação que o
+            <command>rpcinfo -p</command> mesmo se o portmapper do alvo
+            estiver atrás de um firewall (ou protegido por TCP wrappers).
+            Chamarizes não funcionam ainda com o rastreio(scan) RPC. Isso é habilitado
+            automaticamente como parte do rastreio(scan) de versão
+            (<option>-sV</option>) se  o solicitar. Como a detecção de
+            versão inclui isso e é muito mais abrangente, o
+            <option>-sR</option> raramente é necessário.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-os-detection">
+      <title>Detecção de SO</title>
+
+      <para>Uma das características mais conhecidas do Nmap é a detecção
+      remota de SO utilizando a identificação da pilha (stack fingerprinting)
+      do TCP/IP. O Nmap envia uma série de pacotes TCP e UDP ao anfitrião(host) remoto e
+      examina praticamente todos os bits das respostas. Após executar dezenas
+      de testes como a amostragem TCP ISN, suporte e ordenamento das opções do
+      TCP, amostragem IPID e a observação do tamanho inicial da janela, o Nmap
+      compara os resultados com o banco de dados
+      <filename>nmap-os-fingerprints</filename> com mais de 1500
+      identificações de SO conhecidas e mostra os detalhes do SO se houver uma
+      correspondência. Cada identificação inclui uma descrição textual livre
+      do SO e uma classificação que fornece o nome do fabricante (p.ex.: Sun),
+      SO base (p.ex.: Solaris), geração do SO (p.ex.: 10) e tipo de
+      dispositivo (genérico, router, switch, consola de jogo, etc.).</para>
+
+      <para>Se o Nmap não conseguir identificar o SO da máquina e as
+      condições forem favoráveis (p.ex.: pelo menos uma porta aberta e uma
+      porta fechada foram encontradas), o Nmap irá fornecer uma URL onde 
+      poderá enviar a identificação se souber (com certeza) o SO em execução
+      na máquina. Fazendo isso,  contribui para o pool de sistemas
+      operacionais conhecidos pelo Nmap e, com isso, ele será mais preciso
+      para todos.</para>
+
+      <para>A detecção de SO habilita diversos outros testes que usam as
+      informações coletadas durante o processo. Um deles é a medição de
+      uptime, que utiliza a opção timestamp do TCP (RFC 1323) para supor
+      quando uma máquina foi reiniciada pela última vez. Isso apenas é
+      mostrado para as máquinas que fornecem essa informação. Outro é a
+      Classificação de Previsibilidade da Seqüencia do TCP. Ele mede
+      aproximadamente o grau de dificuldade de se estabelecer uma conexão TCP
+      forjada contra um anfitrião(host) remoto. É útil para se explorar relações de
+      confiança baseadas no IP de origem (rlogin, filtros de firewall, etc.)
+      ou para ocultar a origem de um ataque. Esse tipo de enganação (spoofing)
+      raramente é executada hoje em dia, mas muitas máquinas ainda estão
+      vulneráveis a ele. O número de dificuldade real é baseado em amostragens
+      estatísticas e pode variar. Normalmente é melhor usar a classificação em
+      inglês, do tipo <quote>worthy challenge</quote> (um desafio que vale a
+      pena) ou <quote>trivial joke</quote> (uma piada, muito fácil). Isso só é
+      mostrado na saída normal do modo verbose (<option>-v</option>). Quando o
+      modo verbose é habilitado juntamente com o <option>-O</option>, a
+      Geração de Seqüencia IPID também é mostrada. A maioria das máquinas é
+      classificada como <quote>incremental</quote> , o que significa que elas
+      incrementam o campo ID no cabeçalho IP para cada pacote que envia. Isso
+      torna-as vulnerável a diversos ataques avançados de levantamento e
+      forjamento de informações.</para>
+
+      <para>Um trabalho documentando o funcionamento, utilização e
+      customização da datecção de versão está disponível em mais de uma dezena
+      de línguas em <ulink
+      url="http://www.insecure.org/nmap/osdetect/" />.</para>
+
+      <para>A deteção de SO é habilitada e controlada com as seguintes
+      opções:</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-O</option> (Habilita a detecção de SO)</term>
+
+          <listitem>
+            <para>Habilita a deteção de SO como discutido acima.
+            Alternativamente pode usar <option>-A</option> para
+            habilitar tanto a detecção de SO quanto a detecção de
+            versão.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--osscan-limit</option> (Limitar a detecção de SO a
+          alvos promissores)</term>
+
+          <listitem>
+            <para>A detecção de SO é bem mais eficiente se ao menos uma porta
+            TCP aberta e uma fechada for encontrada. Escolha esta opção e o
+            Nmap não irá nem tentar a detecção de SO contra anfitriões(hosts) que não
+            correspondam a este critério. Isso pode economizar um tempo
+            considerável, particularmente em rastreios(scans) <option>-P0</option> contra
+            muitos anfitriões(hosts). Isso só importa quando a detecção de SO é solicitada
+            através de <option>-O</option> ou <option>-A</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--osscan-guess</option>; <option>--fuzzy</option>
+          (Resultados de tentativas de detecção de SO)</term>
+
+          <listitem>
+            <para>Quano o Nmap não é capaz de detectar uma correspondência
+            exacta de SO, às vêzes ele oferece possibilidades aproximada. A
+            correspondência tem que ser muito próxima para o Nmap fazer isso
+            por default. Qualquer uma dessas opções (equivalentes) tornam as
+            tentativas do Nmap mais agressivas.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-performance">
+      <title>Temporização (Timing) e Desempenho</title>
+
+      <para>Uma das minhas mais altas prioridades no desenvolvimento do Nmap
+      tem sido o desempenho. Um rastreio(scan) default (<command>nmap
+      <replaceable>hostname</replaceable></command>) de um anfitrião(host) em minha rede
+      local leva apenas um quinto de segundo. Isso mal dá tempo de piscar o
+      olho, mas esse tempo conforme  está rastreando dezenas ou centenas
+      de milhares de anfitriões(hosts). Além disso, certos tipos de rastreio(scan) como o
+      rastreio(scan) UDP ou a detecção de versão, aumentam o tempo de
+      rastreio(scan) substancialmente. Da mesma forma algumas configurações de
+      firewall fazem o mesmo, particularmente quando limitam a taxa de
+      resposta. Embora o Nmap se utilize de paralelismo e muitos outros
+      algoritmos avançados para acelerar esses rastreios(scans) o usuário tem o controle
+      final sobre como o Nmap executa. Usuários avançados elaboram comandos do
+      Nmap cuidadosamente para obter apenas as informações que importam,
+      sempre se preocupando com as restrições de tempo.</para>
+
+      <para>Técnicas para melhorar os tempos de rastreio(scan) incluem omitir testes
+      não-críticos e atualizar até a versão mais recente do Nmap (melhorias de
+      desempenho são feitas freqüentemente). Otimizar os parâmetros de tempo
+      também podem fazer uma grande diferença. Essas opções estão listadas
+      abaixo.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>--min-hostgroup &lt;milissegundos&gt;</option>;
+          <option>--max-hostgroup &lt;milissegundos&gt;</option> (Ajuste dos
+          tamanhos dos grupos de rastreio(scan) paralelos)</term>
+
+          <listitem>
+            <para>O Nmap tem a habilidade de fazer um rastreio(scan) de portas ou de
+            versões em múltiplos anfitriões(hosts) em paralelo. O Nmap faz isso dividindo
+            a faixa de endereços IP-alvo em grupos e então rastreando um
+            grupo de cada vez. No geral grupos maiores são mais eficientes. A
+            contrapartida é que os resultados dos anfitriões(hosts) não pode ser fornecido
+            até que o grupo inteiro tenha terminado. Portanto se o Nmap
+            começou com um tamanho de grupo igual a 50, o usuário não
+            receberia nenhum relatório (exceto pelas atualizações mostradas no
+            modo verbose) até que os primeiros 50 anfitriões(hosts) tivessem
+            completado.</para>
+
+            <para>Por default, o Nmap assume um compromisso para resolver esse
+            conflito. Ele começa com um tamanho de grupo pequeno, igual a
+            cinco, para que os primeiros resultados venham rápido e então
+            aumenta o tamanho até que chegue em 1024. O número default exacto
+            depende das opções fornecidas. Por questões de eficiência o Nmap
+            usa tamanhos de grupo maiores para o UDP ou para rastreios(scans) TCP com
+            poucas portas.</para>
+
+            <para>Quando o tamanho de grupo máximo é especificado com
+            <option>--max-hostgroup</option>, o Nmap nunca irá exceder esse
+            tamanho. Especifique um tamanho mínimo com
+            <option>--min-hostgroup</option> e o Nmap irá tentar manter o
+            tamanho dos grupos acima desse nível. O Nmap pode ter que usar
+            tamanhos menores do que  especificou, se não houverem
+            anfitriões(hosts)-alvo suficientes restando em uma dada interface para
+            completar o mínimo especificado. Ambos podem ser configurados para
+            manter o tamanho do grupo dentro de uma faixa específica, embora
+            isso raramente seja desejado.</para>
+
+            <para>O uso primário destas opções é especificar um tamanho de
+            grupo mínimo grande de forma que o rastreio(scan) completo seja executado mais
+            rapidamente. Uma escolha comum é 256 para rastrear(scan) uma rede em
+            blocos de tamanho Classe C. Para um rastreio(scan) com muitas portas
+            exceder esse número não irá ajudar muito. Para rastreios(scans) com poucos
+            números de portas um tamanho de grupo de anfitriões(hosts) de 2048 ou mais
+            pode ser útil.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--min-parallelism &lt;milissegundos&gt;</option>;
+          <option>--max-parallelism &lt;milissegundos&gt;</option> (Ajuste da
+          paralelização das sondagens)</term>
+
+          <listitem>
+            <para>Estas opções controlam o número total de sondagens que podem
+            estar pendentes para um grupo de anfitriões(hosts). Elas são usadas para o
+            rastreio(scan) de portas e para a descoberta de anfitriões(hosts). Por default
+            o Nmap calcula um paralelismo ideal e constantemente actualizado
+            baseado no desempenho da rede. Se os pacotes estiverem sendo
+            descartados o Nmap reduz o ritmo e liberta menos sondagens
+            pendentes. O número de sondagens ideal aumenta vagarosamente
+            conforme a rede se mostre mais confiável. Estas opções estabelecem
+            limites mínimo e máximo nessa variável. Por default o paralelismo
+            ideal pode cair até 1 se a rede se mostrar não-confiável e subir
+            até diversas centenas em condições perfeitas.</para>
+
+            <para>O uso mais comum é estabelecer
+            <option>--min-parallelism</option> em um número maior que um para
+            melhorar a velocidade dos rastreios(scans) de anfitriões(hosts) ou redes com desempenho
+            ruim. Esta é uma opção arriscada para se ficar brincando pois
+            configurar um valor alto demais pode afetar a precisão. Configurar
+            isso também reduz a habilidade do Nmap de controlar o paralelismo
+            dinamicamente baseado nas condições da rede. Um valor igual a dez
+            pode ser razoável, embora eu só ajuste esse valor como última
+            alternativa.</para>
+
+            <para>A opção <option>--max-parallelism</option> às vêzes é
+            configurada para evitar que o Nmap envie aos anfitriões(hosts) mais do que uma
+            sondagem de cada vez. Isso pode ser útil em conjunto com
+            <option>--scan-delay</option> (discutido mais tarde), embora esta
+            última normalmente sirva bem ao propósito por si só.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--min_rtt_timeout &lt;milissegundos&gt;</option>,
+          <option>--max-rtt-timeout &lt;milissegundos&gt;</option>,
+          <option>--initial-rtt-timeout &lt;milissegundos&gt;</option> (Ajuste
+          de tempo de expiração (timeouts) das sondagens)</term>
+
+          <listitem>
+            <para>O Nmap mantém um valor de tempo de expiração (timeout) de
+            execução para determinar quanto tempo ele deve esperar por uma
+            resposta de uma sondagem antes de desistir ou retransmitir essa
+            sondagem. Isso é calculado com base nos tempos de resposta de
+            sondagens anteriores. Se a lentidão da rede se mostra
+            significativa e variável esse tempo de expiração pode subir para
+            vários segundos. Ele também começa com um nível conservador
+            (alto) e pode ficar desse jeito por um tempo enquanto o Nmap
+            rastreia(scan) anfitriões(hosts) não-responsivos.</para>
+
+            <para>Estas opções recebem um valor em milissegundos. Especificar
+            um <option>--max-rtt-timeout</option> e
+            <option>--initial-rtt-timeout</option> mais baixos que o default
+            pode reduzir o tempo de rastreio(scan) significativamente. Isso é
+            particularmente verdade para rastreios(scans) sem ping
+            (<option>-P0</option>) e para aqueles contra redes bastante
+            filtradas. Mas não se torne muito agressivo. O rastreio(scan) pode acabar
+            levando mais tempo se  especificar um valor tão baixo que
+            muitas sondagens irão expirar o tempo e serem retransmitidas
+            enquanto a resposta ainda está em trânsito.</para>
+
+            <para>Se todos os anfitriões(hosts) estão em uma rede local, 100 milissegundos
+            é um valor de <option>--max-rtt-timeout</option> razoavelmente
+            agressivo. Se houver roteamento envolvido faça um ping de um anfitrião(host)
+            da rede primeiro com o utilitário ICMP ping ou com um formatador
+            de pacotes customizados como o hping2, que pode passar por um
+            firewall mais facilmente. Descubra o tempo máximo de round trip em
+            dez pacotes mais ou menos. Coloque o dobro desse valor em
+            <option>--initial-rtt-timeout</option> e o triplo ou quádruplo
+            para o <option>--max-rtt-timeout</option>. Normalmente eu não
+            configuro o rtt máximo abaixo de 100ms, não importa quais os
+            tempos de ping. Eu também não excedo o valor 1000ms.</para>
+
+            <para><option>--min_rtt_timeout</option> é uma opção raramente
+            utilizada que poderia ser útil quando uma rede é tão não-confiável
+            que mesmo o default do Nmap é muito agressivo. Considerando que o
+            Nmap apenas reduz o tempo de expiração para um valor mínimo quando
+            a rede parece ser confiável, esta necessidade não é comum e
+            deveria ser reportada à lista de discussão nmap-dev como um
+            bug.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--host-timeout &lt;milissegundos&gt;</option> (Desiste
+          em anfitriões(hosts)-alvo lentos)</term>
+
+          <listitem>
+            <para>Alguns anfitriões(hosts) simplesmente levam tempo
+            <emphasis>demais</emphasis> para serem rastreados. Isso pode ser
+            causado por um hardware ou software de rede com fraco desempenho
+            ou pouco confiável, limitação na taxa dos pacotes ou por um
+            firewall restritivo. Os poucos anfitriões(hosts) mais lentos de todos os anfitriões(hosts)
+            escaneados podem acabar sendo responsáveis pela maior parte do
+            tempo total gasto com o rastreio(scan). Às vêzes é melhor cortar fora o
+            prejuízo e saltar esses anfitriões(hosts) logo no início. Isso pode ser feito
+            especificando <option>--host-timeout</option> com o número de
+            milissegundos que  tolera esperar. Eu normalmente especifico
+            1800000 para ter certeza de que o Nmap não irá gastar mais do que
+            meia hora em um único anfitrião(host). Note que o Nmap pode estar escaneando
+            outros anfitriões(hosts) ao mesmo tempo em que essa meia hora desse único anfitrião(host)
+            está correndo, então não é uma perda de tempo total. Um anfitriões(hosts) que
+            expira o tempo é saltado. Nenhum resultado de tabela de portas,
+            detecção de SO ou detecção de versão é mostrado para esse
+            anfitrião(host).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--scan-delay &lt;milissegundos&gt;</option>;
+          <option>--max_scan-delay &lt;milissegundos&gt;</option> (Ajusta o
+          atraso entre sondagens)</term>
+
+          <listitem>
+            <para>Esta opção faz com que o Nmap aguarde um determinado número
+            de milissegundos entre cada sondagem enviada a um dado anfitrião(host). Isto
+            é particularmente útil no caso de limitação de taxas de
+            transferência. Máquinas Solaris (entre muitas outras) irão
+            normalmente responder a pacotes de sondagens de rastreios(scans) UDP com
+            apenas uma mensagem ICMP por segundo. Qualquer número maior que
+            isso, enviado pelo Nmap, será um desperdício. Um
+            <option>--scan-delay</option> de 1000 irá manter uma taxa de
+            transferência baixa. O Nmap tenta detectar a limitação de taxa e
+            ajusta o atraso no rastreio(scan) de acordo, mas não dói especificar
+            explicitamente se   já sabe qual a taxa que funciona
+            melhor.</para>
+
+            <para>Outro uso do <option>--scan-delay</option> é para evitar os
+            sistemas de prevenção e deteção de intrusão (IDS/IPS) baseados em
+            limites.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-T
+          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
+          (Estabelece um padrão de temporização)</term>
+
+          <listitem>
+            <para>Embora os controles de temporização de ajuste fino
+            discutidos nas seções anteriores sejam poderosos e efectivos,
+            algumas pessoas consideram-nos confusos. Escolher os
+            valores apropriados pode às vêzes levar mais tempo do que o
+            próprio rastreio(scan) que está tentando optimizar. Por isso o Nmap
+            oferece uma aproximação mais simples com seis padrões de
+            temporização. Você pode especificá-los com a opção
+            <option>-T</option> e os números (0 - 5) ou os nomes. Os nomes de
+            padrões são paranóico (paranoid, 0), furtivo (sneaky, 1), educado
+            (polite, 2), normal (3), agressivo (agressive, 4) e insano
+            (insane, 5). Os dois primeiros são para evitar um IDS. O modo
+            educado (ou polido), diminui o ritmo de rastreio(scan) para usar
+            menos banda e recursos da máquina alvo. O modo normal é o default
+            e, portanto, <option>-T3</option> não faz nada. O modo agressivo
+            acelera os rastreios(scans) assumindo que  está em uma rede razoavelmente
+            rápida e confiável. Finalmente, o modo insano assume que  está
+            em uma rede extraordinariamente rápida ou está disposto a
+            sacrificar alguma precisão pela velocidade.</para>
+
+            <para>Estes padrões permitem que o usuário especifique o quão
+            agressivo desejam ser, ao mesmo tempo que deixam o Nmap escolher
+            os valores de temporização exactos. Os padrões também fazem ajustes
+            pequenos na velocidade onde ainda não existem opções para controle
+            de ajuste fino. Por exemplo, <option>-T4</option> proibe que o
+            atraso dinâmico de rastreio(scan) exceda 10ms para portas TCP e
+            <option>-T5</option> corta esse valor para 5 milissegundos.
+            Padrões podem ser utilizados em conjunto com controles de ajuste
+            fino desde que o padrão seja especificado primeiramente. Do
+            contrário os valores default para os padrões irão se sobrepor aos
+            valores que  especificar. Eu recomendo usar
+            <option>-T4</option> quando rastrear(scan) redes razoavelmente modernas
+            e confiáveis. Mantenha essa opção (no começo da linha de comando)
+            mesmo que  adicione controles de ajuste fino, de forma que
+             possa se beneficiar com as pequenas otimizações extras que
+            ela habilita.</para>
+
+            <para>Se  tiver uma conexão ethernet ou de banda-larga
+            decente, eu recomendaria sempre utilizar <option>-T4</option>.
+            Algumas pessoas adoram o <option>-T5</option> embora seja
+            agressivo demais para o meu gosto. As pessoas às vêzes especificam
+            <option>-T2</option> porque acham que diminui a probabilidade de
+            travar os anfitriões(hosts) ou porque elas consideram-se educadas em geral.
+            Normalmente elas não percebem o quão lento o <option>-T
+            Polite</option> realmente é. Esses rastreios(scans) podem levar dez vêzes
+            mais tempo que um rastreio(scan) default. Travamento de máquinas e problemas
+            com a banda são raros com as opções de temporização default
+            (<option>-T3</option>) e portanto, eu normalmente as recomendo
+            para escaneadores precavidos. Omitir a detecção de versão é bem
+            mais eficaz do que ficar brincando com os valores de temporização
+            para reduzir esses problemas.</para>
+
+            <para>Embora o <option>-T0</option> e o <option>-T1</option>
+            possam ser usados para evitar alertas no IDS, eles irão leva muito
+            mais tempo para rastrear(scan) milhares de máquinas ou portas. Para um
+            rastreio(scan) tão amplo prefira estabelecer os valores exatos de
+            temporização que  precisa ao invés de depender dos valores
+            "engessados" de <option>-T0</option> e
+            <option>-T1</option>.</para>
+
+            <para>Os principais efeitos de <option>T0</option> é serializar o
+            rastreio(scan) de forma que apenas uma porta é rastreada de cada vez e então
+            aguardar cinco minutos entre o envio de cada sondagem.
+            <option>T1</option> e <option>T2</option> são similares mas
+            aguardam apenas 15 segundos e 0,4 segundos, respectivamente, entre
+            as sondagens. <option>T3</option> é o comportamento default do
+            Nmap, que inclui o paralelismo. <option>T4</option> faz o mesmo
+            que <option>--max-rtt-timeout 1250 --initial-rtt-timeout
+            500</option> e estabelece o atraso máximo de rastreio(scan) TCP em 10
+            milissegundos. <option>T5</option> faz o mesmo que
+            <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+            --initial-rtt-timeout 250 --host-timeout 900000</option> e
+            estabelece o atraso máximo de rastreio(scan) TCP em 5ms.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-bypass-firewalls-ids">
+      <title>Evitando e enganando o Firewall/IDS</title>
+
+      <para>Muitos pioneiros da Internet vislumbraram uma rede mundial aberta
+      com um espaço de endereçamento IP universal que permitisse conexões
+      virtuais entre quaisquer dois nós. Isso permite que os anfitriões(hosts) actuem como
+      verdadeiros semelhantes, servindo e obtendo informações uns dos outros.
+      As pessoas poderiam aceder a seus computadores domésticos do trabalho,
+      mudando os ajustes do controle de climatização ou abrindo as portas para
+      convidados. Essa visão de conectividade universal foi sufocada pela
+      falta de espaço de endereçamento e preocupações com a segurança. No
+      início dos anos 1990 as empresas começaram a instalar firewalls para o
+      propósito claro de reduzir a conectividade. Rede enormes foram isoladas
+      da Internet-sem-fronteiras por proxies de aplicativos, tradução de
+      endereçamento de rede (network address translation) e filtros de
+      pacotes. O fluxo irrestrito de informações deu a vez à regulamentação
+      acirrada de canais de comunicação autorizados e ao conteúdo que neles
+      trafegam.</para>
+
+      <para>As obstruções de rede como o firewall podem tornar o mapeamente
+      de uma rede extremamente difícil. E isso não vai se tornar mais fácil,
+      pois sufocar as sondagens casuais é freqüentemente o objetivo
+      principal de se instalar esses dispositivos. Apesar disso o Nmap
+      oferece muitas ferramentas para ajudar a entender essas redes complexas
+      e para verificar que os filtros estão funcionando como esperado. Ele até
+      suporta mecanismos para passar por cima de defesas mal implementadas. Um
+      dos melhores métodos para se entender a postura de segurança de uma rede
+      é tentar derrubá-la. Pense com a mente de uma pessoa que quer atacá-lo
+      e aplique técnicas desta seção contra a sua rede. Lance um rastreio(scan) FTP
+      bounce, um rastreio(scan) idle, um ataque de fragmentação ou tente "tunelar"
+      (criar um túnel) através de um de seus próprios proxies.</para>
+
+      <para>Além de restringir a atividade de rede as empresas estão
+      monitorando o tráfego cada vez mais com sistemas de detecção de
+      intrusão (IDS). Todos os principais IDS vêm com regras designadas para
+      detectar rastreios(scans) feitos com o Nmap porque os rastreios(scans) são, às vêzes,
+      precursores de ataques. Muitos desses produtos foram recentemente
+      metamorfoseados em sistemas de <emphasis>prevenção</emphasis> de
+      intrusão (IPS) que bloqueiam o tráfego considerado malicioso de forma
+      activa. Infelizmente para administradores de rede e vendedores de IDS,
+      detectar confiavelmente as más intenções através da análise de dados de
+      pacotes é um problema difícil. Atacantes com paciência, habilidade e a
+      ajuda de certas opções do Nmap podem normalmente passar por um IDS sem
+      serem detectados. Enquanto isso, os administradores devem lidar com um
+      alto número de resultados do tipo falso-positivo onde actividades
+      inocentes são diagnosticadas erradamente e recebem alertas ou são
+      bloqueadas.</para>
+
+      <para>De vez em quando as pessoas sugerem que o Nmap não deveria
+      oferecer opções que permitam evitar as regras de firewalls ou passar
+      desapercebidos por IDSs. Elas argumentam que essas características são
+      tão sujeitas à má-utilização por atacantes quanto são utilizadas por
+      administradores para aumentar a segurança. O problema com esta lógica é
+      que esses métodos ainda assim seriam utilizados pelos atacantes que
+      encontrariam outras ferramentas ou então acrescentariam essa
+      funcionalidade no Nmap. Enquanto isso os administradores achariam muito
+      mais difícil executar suas tarefas. Instalar apenas servidores FTP
+      modernos e corrigidos é uma defesa muito melhor do que tentar evitar a
+      distribuição de ferramentas que implementem o ataque FTP bounce.</para>
+
+      <para>Não existe uma carta mágica (ou opção do Nmap) para detectar e
+      subverter firewalls e sistemas IDS. É necessário habilidade e
+      experiência. Um tutorial está além do objectivo deste guia de referência
+      que apenas lista as opções relevantes e descreve suas funções.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-f</option> (fragmenta os pacotes);
+          <option>--mtu</option> (usando a MTU especificada)</term>
+
+          <listitem>
+            <para>A opção <option>-f</option> faz com que o rastreio(scan) solicitado
+            (incluindo rastreios(scans) usando ping) utilize pequenos pacotes IP
+            fragmentados. A idéia é dividir o cabeçalho TCP em diversos
+            pacotes para tornar mais difícil para os filtros de pacotes, os
+            sistemas de detecção de intrusão e outros aborrecimentos,
+            detectar o que  está fazendo. Tenha cuidado com isto! Alguns
+            programas tem problemas para lidar com estes pequenos pacotes. O
+            sniffer da velha-guarda chamado Sniffit sofria uma falha de
+            segmentação assim que recebia o primeiro fragmento. Especifique
+            esta opção uma vez e o Nmap dividirá os pacotes em 8 bytes ou
+            menos após o cabeçalho IP. Portanto, um cabeçalho TCP de 20 bytes
+            seria dividido em 3 pacotes. Dois com oito bytes do cabeçalho TCP
+            e um com os quatro restantes. É claro que cada fragmento também
+            tem um cabeçalho IP. Especifique <option>-f</option> novamente
+            para usar 16 bytes por fragmento (reduzindo o número de
+            fragmentos). Ou então,  pode especificar o seu próprio tamanho
+            de quebra com a opção <option>--mtu</option>. Não especifique
+            também o <option>-f</option> se  usar o
+            <option>--mtu</option>. A quebra deve ser um múltiplo de 8. Embora
+            os pacotes fragmentados não passem por filtros de pacotes e
+            firewalls que enfilerem todos os fragmentos IP, tal como a opção
+            CONFIG_IP_ALWAYS_DEFRAG do kernel do Linux faz, algumas redes não
+            aguentam o impacto no desempenho que isso causa deixando a opção
+            desabilitada. Outros não conseguem habilitar isso porque os
+            fragmentos podem seguir por rotas diferentes na rede. Alguns
+            sistemas de origem desfragmentam pacotes de saída no kernel. O
+            Linux e o módulo de reastreamento de conexão do iptables é um
+            exemplo desse tipo. Faça um rastreio(scan) enquanto executa um sniffer como
+            o Ethereal para ter a certeza de que pacotes enviados estão
+            fragmentados. Se o SO do seu anfitrião(host) estiver causando problemas
+            tente a opção <option>--send-eth</option> para passar por cima da
+            camada IP e enviar frames ethernet em estado bruto(raw).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-D &lt;chamariz1 [,chamariz2][,ME],...&gt;</option>
+          (Disfarça um rastreio(scan) usando chamarizes)</term>
+
+          <listitem>
+            <para>Faz com que um rastreio(scan) com chamarizes seja executado, o que
+            parece ao anfitrião(host) remoto que, o(s) anfitrião(host)(s) que  especificou como
+            chamarizes também estejam  rastreando a rede-alvo. Com isso, o IDS
+            poderá reportar 5 a 10 rastreios(scans) de portas de endereços IP únicos, mas
+            não saberá qual IP estava realmente efectuado o rastreio(scan) e qual era um
+            chamariz inocente. Embora isso possa ser desvendado através de
+            rastreamento de caminho de router, descarte de respostas
+            (response-dropping) e outros mecanismos activos, normalmente é uma
+            técnica eficaz para esconder o seu endereço IP.</para>
+
+            <para>Separe cada anfitrião(host)-chamariz com vírgulas e  pode
+            opcionalmente usar <literal>ME</literal> como um dos chamarizes
+            para representar a posição do seu endereço IP real. Se 
+            colocar <literal>ME</literal> na 6a. posição ou acima, alguns
+            detectores de rastreio(scan) de portas comuns (como o excelente scanlogd da
+            Solar Designer) pouco provavelmente irão mostrar o seu endereço
+            IP. Se  não utilizar o <literal>ME</literal> o nmap irá
+            colocá-lo em uma posição aleatória.</para>
+
+            <para>Observe que os anfitriões(hosts) que  utilizar como chamarizes devem
+            estar activos ou  poderá acidentamente inundar com SYN os
+            seus alvos. Também será bastante fácil determinar qual é o anfitrião(host)
+            que está a efectuar o rastreio(scan) se houver apenas um anfitrião(host) realmente activo na
+            rede. Você pode preferir usar endereços IP ao invés de nomes (de
+            forma que as redes chamarizes não vejam  em seus logs dos
+            servidores de nomes).</para>
+
+            <para>Chamarizes são utilizados tanto no rastreio(scan) com ping inicial
+            (usando ICMP, SYN, ACK ou qualquer outro) como também durante a
+            fase real de rastreio(scan) de portas. Chamarizes também são usados
+            durante a detecção de SO remoto (<option>-O</option>). Chamarizes
+            não funcionam com a detecção de versão ou com o rastreio(scan) TCP
+            connect().</para>
+
+            <para>Vale a pena observar que usar chamarizes demais pode deixar
+            seu rastreio(scan) lento e potencialmente até torná-lo menos preciso. Outra
+            coisa, alguns provedores ISP irão filtrar os seus pacotes
+            disfarçados mas muitos não restringem pacotes IP
+            disfarçados.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-S &lt;Endereço_IP&gt;</option> (Disfarça o endereço
+          de origem)</term>
+
+          <listitem>
+            <para>Em algumas circunstâncias o Nmap pode não conseguir
+            determinar o seu endereço de origem (o Nmap irá dizer se for esse
+            o caso). Nesta situação use o <option>-S</option> com o endereço
+            IP da interface que  deseja utilizar para enviar os
+            pacotes.</para>
+
+            <para>Outro uso possível para esta flag é para disfarçar o rastreio(scan) e
+            fazer com que os alvos achem que <emphasis>alguma outra
+            pessoa</emphasis> está fazendo o rastreio(scan). Imagine uma empresa que está
+            constantemente sofrendo rastreios(scans) de portas de um concorrente! A opção
+            <option>-e</option> normalmente seria requerida para este tipo de
+            uso e <option>-P0</option> seria recomendável.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-e &lt;interface&gt;</option> (Usa a interface
+          especificada)</term>
+
+          <listitem>
+            <para>Diz ao Nmap qual interface deve ser utilizada para enviar e
+            receber pacotes. O Nmap deveria ser capaz de detectar isto
+            automaticamente mas ele informará se não conseguir.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--source-port &lt;númerodaporta&gt;;</option>
+          <option>-g &lt;númerodaporta&gt;</option> (Disfarça o número de
+          porta de origem)</term>
+
+          <listitem>
+            <para>Um erro de configuração surpreendentemente comum é confiar
+            no tráfego com base apenas no número da porta de origem. É fácil
+            entender como isso acontece. Um administrador configura um
+            firewall novinho em folha só para ser inundado com queixas de
+            usuários ingratos cujas aplicações param de funcionar. Em
+            particular, o DNS pode parar de funcionar porque as respostas DNS
+            UDP de servidores externos não conseguem mais entrar na rede. O
+            FTP é outro exemplo comum. Em tranferências FTP activas o servidor
+            remoto tenta estabelecer uma conexão de volta com o cliente para
+            poder transferir o arquivo solicitado.</para>
+
+            <para>Soluções seguras para esses problemas existem
+            frequentemente na forma de proxies no nível da aplicação ou
+            módulos de firewall para análise de protocolo. Infelizmente também
+            há soluções mais fáceis e inseguras. Observando que as respostas
+            DNS chegam pela porta 53 e o FTP activo pela porta 20 muitos
+            administradores caem na armadilha de apenas permitir tráfego vindo
+            dessas portas. Eles normalmente assumem que nenhum atacante irá
+            notar e explorar essas brechas no firewall. Em outros casos os
+            administradores consideram isso uma medida provisória de curto
+            prazo até que eles possam implementar uma solução mais segura.
+            Normalmente ele esquecem-se de fazer as actualizações de
+            segurança.</para>
+
+            <para>Administradores de rede sobrecarregados não são os únicos a
+            caírem nessa armadilha. Diversos produtos foram empacotados com
+            essas regras inseguras. Mesmo a Microsoft é culpada. Os filtros
+            IPsec que vieram com o Windows 2000 e com o Windows XP contém uma
+            regra implícita que permite todo o tráfego TCP ou UDP da porta 88
+            (Kerberos). Em outro caso bastante conhecido, versões do firewall
+            pessoal Zone Alarm, até a versão 2.1.25, permitiam qualquer pacote
+            UDP entrante com a porta de origem 53 (DNS) ou 67 (DHCP).</para>
+
+            <para>O Nmap oferece as opções <option>-g</option> e
+            <option>--source-port</option> (elas são equivalentes) para
+            explorar essas fraquezas. Apenas forneça um número de porta e o
+            Nmap irá enviar pacotes dessa porta onde for possível. O Nmap
+            utiliza números de porta diferentes para que certos testes de
+            detecção de SO funcionem direito e as requisições DNS ignoram a
+            flag <option>--source-port</option> porque o Nmap confia nas
+            bibliotecas de sistema para lidar com isso. A maioria dos rastreios(scans)
+            TCP, incluindo o rastreio(scan) SYN, suportam a opção completamente assim
+            como o rastreio(scan) UDP.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--data-length &lt;número&gt;</option> (Acrescenta
+          dados aleatórios nos pacotes enviados)</term>
+
+          <listitem>
+            <para>Normalmente o Nmap envia pacotes minimalistas contendo
+            apenas o cabeçalho. Dessa forma os pacotes TCP têm normalmente 40
+            bytes e os echo requests ICMP tem só 28. Esta opção faz com que o
+            Nmap acrescente o número informado de bytes aleatórios na maioria
+            dos pacotes que envia. Os pacotes de detecção de SO
+            (<option>-O</option>) não são afectados mas a maioria dos pacotes
+            de ping e rastreio(scan) de portas são. Isso atrasa as coisas mas pode
+            tornar um rastreio(scan) ligeiramente menos chamativo.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--ttl &lt;valor&gt;</option> (Establece o valor do
+          campo time-to-live)</term>
+
+          <listitem>
+            <para>Estabelece que o campo tempo-de-vida (time-to-live) dos
+            pacotes enviados terá o valor informado.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--randomize-hosts</option> (Torna aleatória a ordem
+          dos anfitriões(hosts)-alvo)</term>
+
+          <listitem>
+            <para>Informa ao Nmap que ele deve embaralhar cada grupo de, no
+            máximo, 8096 anfitriões(hosts) antes de efectuar o rastreio(scan). 
+            Isso torna os rastreios(scans) menos
+            óbvios a vários sistemas de monitoramento de rede, especialmente
+            quando  combina isso com as opções de temporização lentas. Se
+             deseja que fazer isso em grupos maiores aumente o
+            PING_GROUP_SZ no <filename>nmap.h</filename> e recompile. Uma
+            solução alternativa é gerar uma lista de endereços IP-alvos com um
+            rastreio(scan) de lista (<option>-sL -n -oN
+            <replaceable>nomedoarquivo</replaceable></option>), embaralhar a
+            lista com um script Perl e então fornecer a lista completa para o
+            Nmap com <option>-iL</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--spoof-mac &lt;endereço mac, prefixo, ou nome do
+          fabricante&gt;</option> (Disfarça o endereço MAC)</term>
+
+          <listitem>
+            <para>Solicita ao Nmap que utilize o endereço MAC informado para
+            todos os frames ethernet em estado bruto (raw) que ele enviar.
+            Esta opção implica em <option>--send-eth</option> para assegurar
+            que o Nmap realmente envie pacotes no nível ethernet. O MAC
+            fornecido pode assumir diversos formatos. Se for apenas a string
+            <quote>0</quote> o Nmap irá escolher um MAC completamente
+            aleatório para a sessão. Se a string informada for um número par
+            de dígitos hexa (com os pares opcionalmente separados por dois
+            pontos) o Nmap irá usa-la como o MAC. Se menos do que 12 dígitos
+            hexa forem informados o Nmap preenche o restante dos 6 bytes com
+            valores aleatórios. Se o argumento não for um 0 ou uma string
+            hexa o Nmap irá procurar no
+            <filename>nmap-mac-prefixes</filename> para encontrar o nome de um
+            fabricante contendo a string informada (não é sensível a
+            maiúsculas ou minúsculas). Se encontrar, o Nmap usa o OUI (prefixo
+            de 3 bytes) do fabricante e preenche os 3 bytes restantes
+            aleatoriamente. Exemplos de argumentos
+            <option>--spoof-mac</option> válidos são <literal>Apple</literal>,
+            <literal>0</literal>, <literal>01:02:03:04:05:06</literal>,
+            <literal>deadbeefcafe</literal>, <literal>0020F2</literal> e
+            <literal>Cisco</literal>.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-output">
+      <title>Saída (Output)</title>
+
+      <para>Qualquer ferramenta de segurança só é útil se a saída que ela gera
+      também o for. Testes e algorítmos complexos são de pouco valor se não
+      forem apresentados de uma forma organizada e compreensível. Dado o
+      número de formas que o Nmap é utilizado pelas pessoas e por outros
+      softwares, nenhum formato irá agradar a todos. Então o Nmap oferece
+      diversos formatos incluindo o modo interativo para humanos lerem
+      diretamente e o XML para fácil interpretação por um software.</para>
+
+      <para>Além de oferecer diversos formatos de saída, o Nmap fornece opções
+      para controlar a verbosidade da saída assim como as mensagens de
+      depuração. Os tipos de saída podem ser enviados para a saída padrão
+      (standard output) ou para arquivos, o qual o Nmap pode acrescentar ou
+      então sobrescrever. Arquivos de saída também podem ser utilizados para
+      se retomar rastreios(scans) abortados.</para>
+
+      <para>O Nmap torna a saída disponível em cinco formatos diferentes. O
+      default é chamado de <literal>saída interativa (interactive
+      output)</literal> e é enviada para a saída padrão (stdout). Há também a
+      <literal>saída normal (normal output)</literal> que é similar à
+      <literal>interativa</literal> excepto pelo facto de mostrar menos
+      informações e alertas sobre a execução uma vez que se espera que seja
+      feita uma análise somente após o rastreio(scan) completar, ao invés de
+      interativamente.</para>
+
+      <para>A saída XML é um dos tipos de saída mais importantes pois permite
+      a conversão para HTML, é facilmente analisada por programas como a
+      interface gráfica do Nmap ou pode ser importada em banco de
+      dados.</para>
+
+      <para>Os dois tipos restantes de saída são a simples <literal>saída para
+      o grep (grepable output)</literal> que inclui a maioria das informações
+      de um anfitrião(host)-alvo em uma única linha e a <literal>s4íd4 sCRiPt KiDDi3
+      (sCRiPt KiDDi3 0utPUt)</literal> para usuários que se consideram 1r4d0z
+      (|&lt;-r4d).</para>
+
+      <para>Embora a saída interativa seja a default e não tenha associada
+      nenhuma opção de linha de comando, as outras quatro opções de formato
+      utilizam a mesma sintaxe. Elas recebem um argumento que é o nome do
+      arquivo onde os resultados devem ser armazenados. Formatos múltiplos
+      podem ser especificados mas cada formato só pode ser especificado uma
+      vez. Por exemplo,  pode querer armazenar a saída normal para seu uso
+      enquanto grava a saída XML do mesmo rastreio(scan) para análise utilizando
+      programas. Você pode fazer isso com as opções <option>-oX myscan.xml -oN
+      myscan.nmap</option>. Embora este capítulo use nomes simples como
+      <literal>myscan.xml</literal> por uma questão de brevidade, nomes mais
+      descritivos normalmente são recomendados. Os nomes escolhidos são uma
+      questão de preferência pessoal, embora eu use nomes longos que
+      incorporam da data do rastreio(scan) e uma palavra ou duas que descrevam o rastreio(scan),
+      colocados em um diretório com o nome da empresa que eu estou
+      rastreando.</para>
+
+      <para>Mesmo que essas opções gravem os resultados em arquivos, o Nmap
+      ainda assim mostra a saída interativa na stdout como de costume. Por
+      exemplo, o comando <command>nmap -oX myscan.xml target</command> grava
+      em XML no <filename>myscan.xml</filename> e enche a saída padrão com os
+      mesmos resultados interativos que teria mostrado se a opção
+      <option>-oX</option> não tivesse sido especificada. Você pode mudar isso
+      passando um caracter hífen como argumento de um dos tipos de formato.
+      Isso faz com que o Nmap desactive a saída interativa e apenas grave os
+      resultados no formato que  especificou para a saída padrão. Dessa
+      forma, o comando <command>nmap -oX - target</command> irá enviar apenas
+      a saída XML para a stdout. Erros sérios ainda podem ser mostrados na
+      saída padrão de erros, stderr.</para>
+
+      <para>Ao contrário de alguns argumentos do Nmap o espaço em branco
+      entre a flag da opção (como a <option>-oX</option>) e o nome do arquivo
+      ou hífen é obrigatório. Se  omitir as flags e informar argumentos
+      como <option>-oG-</option> ou <option>-oXscan.xml</option>, uma
+      característica de compatibilidade retroactiva do Nmap irá causar a
+      criação de arquivos de saída do tipo <emphasis>normal format</emphasis>
+      chamados <filename>G-</filename> e <filename>Xscan.xml</filename>
+      respectivamente.</para>
+
+      <para>O Nmap também oferece opções para controlar a verbosidade do rastreio(scan)
+      e para acrescentar informações nos arquivos de saída ao invés de
+      sobrepor. Todas essas opções estão descritas abaixo.</para>
+
+      <variablelist>
+        <title>Formatos de Saída do Nmap</title>
+
+        <varlistentry>
+          <term><option>-oN &lt;especificaçãodearquivo&gt;</option> (Saída
+          normal)</term>
+
+          <listitem>
+            <para>Solicita que a <literal>saída normal (normal
+            output)</literal> seja direcionada para o arquivo informado.
+            Conforme discutido acima, é um pouco diferente da <literal>saída
+            interativa (interactive output)</literal>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-oX &lt;especificaçãodearquivo&gt;</option> (Saída em
+          XML)</term>
+
+          <listitem>
+            <para>Solicita que a <literal>saída em XML (XML output)</literal>
+            seja direcionada para o arquivo informado. O Nmap inclui uma
+            definição do tipo de documento (document type definition, DTD) que
+            permite que os analisadores (parsers) XML validem a saida em XML
+            do Nmap. Embora seja primeiramente voltada para ser usada por
+            programas também pode ajudar os humanos a interpretar a saída em
+            XML do Nmap. A DTD define os elementos válidos do formato e
+            geralmente enumera os atributos e valores que eles podem receber.
+            A última versão está sempre disponível em <ulink
+            url="http://www.insecure.org/nmap/data/nmap.dtd" />.</para>
+
+            <para>O XML oferece um formato estável que é facilmente
+            interpretado por software. Interpretadores (parsers) XML gratuitos
+            estão disponível para as principais linguagens de computador,
+            incluindo C/C++, Perl, Python e Java. As pessoas até já escreveram
+            extensões para a maioria dessas linguagens para manipular a saída
+            e a execução especificamente do Nmap. Exemplos são o <ulink
+            url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink>
+            e o <ulink url="http://www.nmapparser.com">Nmap::Parser</ulink> em
+            Perl CPAN. Em quase todos os casos em que uma aplicação
+            não-trivial faz interface com o Nmap, o XML é o formato
+            preferido.</para>
+
+            <para>A saída XML faz referência a uma folha de estilo que pode
+            ser usada para formatar os resultados em HTML. A forma mais fácil
+            de se utilizar isso é simplesmente carregar a saída XML em um
+            navegador web como o Firefox ou o IE. Por default, isso só irá
+            funcionar na máquina onde  rodou o Nmap (ou em uma máquina
+            similarmente configurada) devido ao caminho (path) do sistema de
+            arquivos (filesystem) gravado de forma inalterável do
+            <filename>nmap.xsl</filename>. Veja a opção
+            <option>--stylesheet</option> para ver uma forma de criar um
+            arquivo XML portável que possa ser interpretado como um HTML em
+            qualquer máquina conectada à web.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-oS &lt;especificaçãodearquivo&gt;</option> (S4íd4
+          ScRipT KIdd|3)</term>
+
+          <listitem>
+            <para>A saída script kiddie é como a saída interativa, com a
+            diferença de ser pós-processada para atender melhor ao "hacker de
+            elite" ('l33t HaXXorZ') que antigamente rejeitava o Nmap devido ao
+            uso consistente de maiúsculas e minúsculas e a grafia correta.
+            Pessoas sem senso de humor devem observar que esta opção serve
+            para se fazer graça dos script kiddies antes de me lixar por
+            estar, supostamente, <quote>ajudando-os</quote>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-oG &lt;especificaçãodearquivo&gt;</option> (Saída
+          para o grep)</term>
+
+          <listitem>
+            <para>Este formato de saída é mencionado por último porque está
+            depreciado. O formato de saída XML é muito mais poderoso e é
+            bastante adequado para usuário avançados. O XML é um padrão para o
+            qual existem dezenas de excelentes interpretadores (parsers)
+            disponíveis, enquanto que a saída para o grep é um quebra-galho
+            feito por mim. O XML é estensível para suportar novas
+            características do Nmap conforme elas forem lançadas, por outro
+            lado, sempre tenho que omitir essas novas características da saída
+            para o grep por falta de onde colocá-las.</para>
+
+            <para>Apesar disso a saída para o grep é bastante popular. É um
+            formato simples que lista cada anfitrião(host) em uma linha e pode ser
+            pesquisado de forma trivial e interpretado por qualquer
+            ferramenta padrão do Unix como o grep, awk, cut, sed, diff e
+            Perl. Eu mesmo uso-a para testes rápidos feitos na linha de
+            comando. Descobrir todos os anfitriões(hosts) com a porta ssh aberta ou que
+            estão com o SO Solaris requer apenas um simples grep para
+            identificá-los, concatenado via pipe a um comando awk ou cut para
+            mostrar os campos desejados.</para>
+
+            <para>A saída para o grep consiste de comentários (linhas
+            começadas com o símbolo #) e linhas-alvo. Uma linha-alvo inclui
+            uma combinação de 16 campos rotulados, separados por tab e
+            seguidos por dois-pontos. Os campos são <literal>Host</literal>,
+            <literal>Portas (Ports)</literal>,<literal>Protocolos
+            (Protocols)</literal>, <literal>Estado Ignorado (Ignored
+            State)</literal>, <literal>SO (OS)</literal>, <literal>Índice de
+            Seqüência (Seq Index)</literal>, <literal>IPID</literal> e
+            <literal>Estado (Status)</literal>.</para>
+
+            <para>O campo mais importante é normalmente <literal>Portas
+            (Ports)</literal>, que fornece detalhes de cada porta
+            interessante. É uma lista com a relação de portas separada por
+            vírgula. Cada porta representa uma porta interessante e tem o
+            formato de sete sub-campos separados por barra (/). Esses
+            sub-campos são: <literal>Número da Porta (Port number)</literal>,
+            <literal>Estado (State)</literal>, <literal>Protocolo
+            (Protocol)</literal>, <literal>Proprietário (Owner)</literal>,
+            <literal>Serviço (Service)</literal>, <literal>informação sobre o
+            SunRPC (SunRPC info)</literal> e <literal>informação sobre a
+            Versão (Version info)</literal>.</para>
+
+            <para>Assim como na saída XML, esta página man não permite que se
+            documente o formato todo. Uma visão mais detalhada sobre o formato
+            de saída para o grep do Nmap está disponível em <ulink
+            url="http://www.unspecific.com/nmap-oG-output" />.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-oA &lt;nome-base&gt;</option> (Saída para todos os
+          formatos)</term>
+
+          <listitem>
+            <para>Para facilitar pode especificar <option>-oA
+            <replaceable>nome-base</replaceable></option> para armazenar os
+            resultados de rastreio(scan) nos formatos normal, XML e para o grep de uma
+            só vez. Eles são armazenados nos arquivos
+            <replaceable>nome-base</replaceable>.nmap,
+            <replaceable>nome-base</replaceable>.xml e
+            <replaceable>nome-base</replaceable>.gnmap, respectivamente. Como
+            na maioria dos programas pode colocar como prefixo nos nomes
+            de arquivos o caminho de um diretório como
+            <filename>~/nmaplogs/foocorp/</filename> no UNIX ou
+            <filename>c:\hacking\sco</filename> no Windows.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <variablelist>
+        <title>Opções de Verbosidade e depuração (debugging)</title>
+
+        <varlistentry>
+          <term><option>-v</option> (Aumenta o nível de verbosidade)</term>
+
+          <listitem>
+            <para>Aumenta o nível de verbosidade fazendo com que o Nmap
+            mostre mais informações sobre o progresso do rastreio(scan). Portas abertas
+            são mostradas conforme são encontradas e estimativas de tempo
+            para o término são fornecidas quando o Nmap acha que um rastreio(scan) irá
+            demorar mais do que alguns minutos. Use duas vêzes para uma
+            verbosidade ainda maior. Usar mais do que duas vêzes não surte
+            nenhum efeito.</para>
+
+            <para>A maioria das alterações afectam apenas a saída interactiva e
+            algumas também afectam a saída normal e script kiddie. Os outros
+            tipos de saída foram feitos para serem processados por máquinas,
+            então o Nmap pode dar informações bastante detalhadas por default
+            nesse formatos sem cansarem o usuário humano. Entretanto, existem
+            algumas mudanças nos outros modos onde o tamanho da saída pode ser
+            reduzido substancialmente pela omissão de alguns detalhes. Por
+            exemplo, uma linha de comentário na saída para o grep que
+            fornece uma lista de todas as portas rastreadas só é mostrada no
+            modo verboso porque ela pode ser bem longa.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-d [nível]</option> (Aumenta ou estabelece o nível de
+          depuração)</term>
+
+          <listitem>
+            <para>Se mesmo o modo verboso não fornece dados suficientes para
+            si, o modo de depuração está disponível para inundá-lo com muito
+            mais! Assim como na opção de verbosidade (<option>-v</option>), a
+            depuração é habilitada com uma flag na linha de comando
+            (<option>-d</option>) e o nível de depuração pode ser aumentado
+            especificando-a múltiplas vêzes. Alternativamente pode
+            estabelecer o nível de depuração fornecendo um argumento para o
+            <option>-d</option>. Por exemplo, <option>-d9</option> estabelece
+            o nível nove. Esse é efectivamente o nível mais alto e irá produzir
+            milhares de linhas a menos que  execute um rastreio(scan) muito simples
+            com poucas portas e alvos.</para>
+
+            <para>A saída da depuração é útil quando há a suspeita de um bug
+            no Nmap ou se está simplesmente confuso com o que o Nmap
+            está fazendo e porquê. Como esta opção é na maioria das vêzes
+            destinada a programadores, as linhas de depuração nem sempre são
+            auto-explicativas. Pode obter algo como:
+            <computeroutput>Timeout vals: srtt: -1 rttvar: -1 to: 1000000
+            delta 14987 ==&gt; srtt: 14987 rttvar: 14987 to:
+            100000</computeroutput>. Se não entender alguma linha suas
+            únicas opções serão ignorá-la, procurar no código-fonte ou pedir
+            ajuda na lista de discussão de desenvolvimento (nmap-dev). Algumas
+            linhas são auto-explicativas mas as mensagens ficam cada vez mais
+            obscuras conforme o nível de depuração é aumentado.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--packet-trace</option> (Rastreia pacotes e dados
+          enviados e recebidos)</term>
+
+          <listitem>
+            <para>Faz com que o Nmap moste um sumário de todos os pacotes
+            enviados ou recebidos. Isto é bastante usado para depuração mas
+            também é uma forma valiosa para novos usuário entenderem
+            exatamente o que o Nmap está fazendo por debaixo dos panos. Para
+            evitar mostrar milhares de linhas, pode querer especificar um
+            número limitado de portas a rastrear(scan) como
+            <option>-p20-30</option>. Se tudo o que lhe interessa for saber o
+            que se passa no subsistema de detecção de versão, use o
+            <option>--version-trace</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--iflist</option> (Lista as interfaces e rotas)</term>
+
+          <listitem>
+            <para>Mostra a lista de interfaces e rotas do sistema conforme
+            detectados pelo Nmap. Isto é útil para depurar problemas de
+            roteamento ou erro de configuração de dispositivo (como, por
+            exemplo, no caso do Nmap tratar uma conexão PPP como se fosse uma
+            Ethernet).</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <variablelist>
+        <title>Opções diversas (miscellaneous) de saída</title>
+
+        <varlistentry>
+          <term><option>--append-output</option> (Acrescenta no arquivo de
+          saída ao invés de sobrepor)</term>
+
+          <listitem>
+            <para>Quando especifica um nome de arquivo na flag de formato
+            de saída, como <option>-oX</option> ou <option>-oN</option>, esse
+            arquivo é sobreposto por default. Se  preferir manter o
+            conteúdo existente no arquivo e acrescentar os novos resultados,
+            especifique a opção <option>--append-output</option>. Todos os
+            arquivos de saída especificados na execução do Nmap terão os
+            resultados acrescidos ao invés de sobrepostos. Isso não funciona
+            bem com os dados de rastreio(scan) para XML (<option>-oX</option>) pois o
+            arquivo resultante não será adequadamente interpretado até que
+            consserte manualmente.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--resume &lt;nomedoarquivo&gt;</option> (Retoma um
+          rastreio(scan) abortado)</term>
+
+          <listitem>
+            <para>Algumas execuções extensas do Nmap podem levar muito tempo,
+            na ordem de dias. Tais rastreios(scans) nem sempre rodam até o fim. Podem
+            haver restrições que impeçam que o Nmap seja executado durante o
+            horário de expediente, a rede pode cair, a máquina onde o Nmap
+            está a ser executado pode sofrer um reboot planeado ou não, ou o Nmap
+            pode simplesmente travar. O administrador que está executando o Nmap
+            poderia cancelá-lo por qualquer outra razão bastando teclar
+            <keycap>ctrl-C</keycap>. Reiniciar um rastreio(scan) inteiro do começo pode
+            ser indesejável. Felizmente se forem mantidos logs normais
+            (<option>-oN</option>) ou para o grep (<option>-oG</option>), o
+            usuário pode pedir que o Nmap continue o rastreio(scan) do alvo que
+            estava verificando quando a execução foi interrompida.
+            Simplesmente especifique a opção <option>--resume</option> e
+            informe o arquivo da saída normal/para o grep como argumento.
+            Nenhum outro argumento é permitido, pois o Nmap analisa o arquivo
+            de saída e usa os mesmos argumentos especificados anteriormente.
+            Basta chamar o Nmap com <command>nmap --resume
+            <replaceable>nomedoarquivodelog</replaceable></command>. O Nmap
+            irá acrescentar os novos resultados ao arquivo de dados
+            especificado na execução anterior. Essa retomada de execução não
+            suporta o formato de saída XML porque combinar as duas execuções
+            em um arquivo XML válido seria difícil.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--stylesheet &lt;caminho ou URL&gt;</option> (Informa
+          a folha de estilo XSL usada para transformar a saída XML)</term>
+
+          <listitem>
+            <para>O Nmap vem com uma folha de estilo (stylesheet) chamada
+            <filename>nmap.xsl</filename> para visualizar ou traduzir a saída
+            XML em HTML. A saída XML inclui uma diretiva
+            <literal>xml-stylesheet</literal> que mostra para o
+            <filename>nmap.xml</filename> onde ele foi inicialmente instalado
+            pelo Nmap (ou para o diretório corrente no Windows). Simplesmente
+            carregue a saída XML do Nmap em um navegador moderno e ele deve
+            conseguir achar o <filename>nmap.xsl</filename> no sistema de
+            arquivos e utilizá-lo para interpretar os resultados. Se 
+            desejar utilizar uma folha de estilo diferente, especifique-a como
+            um argumento para <option>--stylesheet</option>. Deve
+            informar o caminho completo ou a URL. Uma chamada comum é
+            <option>--stylesheet
+            http://www.insecure.org/nmap/data/nmap.xsl</option> . Isso diz ao
+            navegador para carregar a versão mais actual da folha de estilo da
+            Insecure.Org. Isso torna mais fácil ver os resultados em uma
+            máquina que não tenha o Nmap instalado (e consequentemente o
+            <filename>nmap.xsl</filename>). A URL é normalmente mais
+            útil mas a localização nmap.xsl num sistema de ficheiros(filesystem) local é usada
+            por default por questões de privacidade.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--no_stylesheet</option> (Omite do XML a declaração da
+          folha de estilo XSL)</term>
+
+          <listitem>
+            <para>Especifique esta opção para evitar que o Nmap associe
+            qualquer folha de estilo XSL à saída XML. A directiva
+            <literal>xml-stylesheet</literal> é omitida.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-misc-options">
+      <title>Opções Diversas (Miscellaneous)</title>
+
+      <para>Esta seção descreve algumas opções importantes (e
+      não-tão-importantes) que realmente não couberam em nenhum outro
+      lugar.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>-6</option> (Habilita o rastreio(scan) IPv6)</term>
+
+          <listitem>
+            <para>Desde 2002 que o Nmap oferece suporte a IPv6 na maioria de suas
+            opções mais populares. Em particular o rastreio(scan) com ping (apenas
+            TCP), o rastreio(scan) com connect() e a detecção de versão, todas suportam
+            IPv6. A sintaxe de comando é a mesma de sempre excepto que 
+            irá também adicionar a opção <option>-6</option>. É claro que 
+            deve usar a sintaxe IPv6 se especificar um endereço no lugar de um
+            nome de anfitrião(host). Um endereço pode se parecer com
+            <literal>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>,
+            portanto os nomes de anfitrião(host) são recomendados. A saída é a mesma de
+            sempre com o endereço IPv6 na linha <quote>portas
+            interessantes</quote> sendo a única dica visível de que se tratar
+            realmente de IPv6.</para>
+
+            <para>Muito embora o IPv6 não tenha exactamente se alastrado pelo
+            mundo, seu uso se torna mais significativo em alguns países
+            (normalmente asiáticos) e a maioria dos sistemas operativos
+            modernos passaram a suportá-lo. Para usar o Nmap com o IPv6, tanto a
+            origem quanto o alvo de seu rastreio(scan), devem estar configurados para
+            IPv6. Se o seu provedor (ISP) (como a maioria) não aloca endereços
+            IPv6 para si, alguns intermediários que fazem o túnel
+            gratuitamente estão amplamente disponíveis e funcionam bem com o
+            Nmap. Um dos melhores é disponibilizado pela BT Exact em <ulink
+            url="https://tb.ipv6.btexact.com/" />. Também tenho utilizado um
+            fornecido pela Hurricane Electric em <ulink
+            url="http://ipv6tb.he.net/" />. Túneis 6para4 são outra abordagem
+            gratuita e popular.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-A</option> (Opções agressivas de rastreio(scan))</term>
+
+          <listitem>
+            <para>Esta opção habilita opções adicionais avançadas e
+            agressivas. Ainda não decidi exactamente qual das duas é a certa.
+            Actualmente ela habilita a Detecção de SO (<option>-O</option>) e o
+            rastreio(scan) de versão (<option>-sV</option>). Mais
+            características poderão ser adicionadas no futuro. A questão é
+            habilitar um conjunto completo de opções de rastreio(scan) sem que
+            as pessoas tenham que se lembrar de um grupo grande de flags. Esta
+            opção apenas habilita as funções e não as opções de temporização
+            (como a <option>-T4</option>) ou opções de verbosidade
+            (<option>-v</option>) que  pode também querer.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--datadir &lt;nomedodiretório&gt;</option> (Especifica
+          a localização dos arquivos de dados do rastreio(scan))</term>
+
+          <listitem>
+            <para>O Nmap obtém alguns dados especiais em tempo de execução
+            em arquivos chamados <filename>nmap-service-probes</filename>,
+            <filename>nmap-services</filename>,
+            <filename>nmap-protocols</filename>,
+            <filename>nmap-rpc</filename>,
+            <filename>nmap-mac-prefixes</filename> e
+            <filename>nmap-os-fingerprints</filename>. O Nmap primeiramente
+            procura esses arquivos num diretório especificado na opção
+            <option>--datadir</option> (se houver). Qualquer arquivo que não
+            seja encontrado lá é procurado no diretório especificado pela
+            variável de ambiente NMAPDIR. A seguir vem o
+            <filename>~/.nmap</filename> para se achar os UIDs reais e
+            efectivos (apenas em sistemas POSIX) ou a localização do executável
+            do Nmap (apenas Win32) e então, a localização definida na
+            compilação que pode ser
+            <filename>/usr/local/share/nmap</filename> ou
+            <filename>/usr/share/nmap</filename> . Como último recurso, o Nmap
+            irá procurar no diretório corrente.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--send-eth</option> (Usa a transmissão pela ethernet
+          em estado bruto(raw))</term>
+
+          <listitem>
+            <para>Solicita ao Nmap para que envie pacotes na ethernet (data
+            link) em estado bruto (raw) ao invés de usar a camada de nível
+            mais alto IP (rede). Por default, o Nmap escolhe o que for melhor
+            para a plataforma onde está rodando. Soquetes (sockets) em estado
+            bruto (camada IP) são normalmente mais eficientes em máquinas
+            UNIX enquanto que os frames ethernet são necessários nas
+            operações do Windows, uma vez que a Microsoft desabilitou o
+            suporte a sockets em estado bruto. O Nmap ainda usa pacotes IP em
+            estado bruto no UNIX, independentemente desta opção, quando não há
+            outra alternativa (como no caso de conexões não-ethernet).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--send-ip</option> (Envia no nível do IP em estado
+          bruto(raw))</term>
+
+          <listitem>
+            <para>Pede ao Nmap que envie os pacotes pelos sockets IP em
+            estado bruto(raw) ao invés de enviar pelo nível mais baixo dos frames
+            ethernet. É o complemento da opção <option>--send-eth</option>
+            discutida anteriormente.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--privileged</option> (Assume que o usuário é
+          altamente privilegiado)</term>
+
+          <listitem>
+            <para>Informa ao Nmap para simplesmente assumir que ele tem
+            privilégios suficientes para executar transmissões de sockets em
+            estado bruto(raw), farejar (sniff) pacotes e operações similares que
+            normalmente requerem privilégio de root em sistemas UNIX. Por
+            default, o Nmap encerra se tal operação é solicitada mas o
+            geteuid() não é zero <option>--privileged</option>. É útil com as
+            possibilidades oferecidas pelo kernel do Linux e sistemas
+            similares que pode ser configurado para permitir que usuários
+            não-privilegiados executem rastreios(scans) de pacotes em estado bruto.
+            Assegure-se de informar esta flag de opção antes de outras flags
+            de opção que requeiram privilégios (rastreio(scan) SYN, detecção de OS,
+            etc.). A variável NMAP_PRIVILEGED pode ser configurada como uma
+            alternativa equivalente de <option>--privileged</option>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>--interactive</option> (Inicia em modo
+          interactivo)</term>
+
+          <listitem>
+            <para>Inicia o Nmap em modo interactivo oferecendo um prompt
+            interactivo do Nmap, permitindo o início de múltiplos rastreios(scans) (tanto
+            síncronos quanto em background). Isto é útil para pessoas que
+            fzem o rastreio(scan) a partir de sistemas multi-usuários e que normalmente
+            querem testar a segurança sem deixar todos os utilizadores saberem exactamente
+            quais sistemas eles estão rastreando. Use
+            <option>--interactive</option> para ativar este modo e então tecle
+            <keycap>h</keycap> para uma ajuda (help). Esta opção é raramente
+            utilizada porque um shell adequado é mais familiar e tem mais
+            opções. Esta opção inclui um operador exclamação (!) para a
+            execução de comandos de shell, o que é uma das muitas razões de
+            não se instalar o Nmap com setuid root.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-V</option>; <option>--version</option> (Mostra o
+          número da versão)</term>
+
+          <listitem>
+            <para>Mostra o número da versão do Nmap e sai.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>-h</option>; <option>--help</option> (Mostra a página
+          do sumário de ajuda)</term>
+
+          <listitem>
+            <para>Mostra uma pequena tela com as flags de comandos mais
+            comuns. Executar o nmap sem nenhum argumento faz a mesma
+            coisa.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-runtime-interaction">
+      <title>Interação em Tempo de Execução</title>
+
+      <para>
+        <remark>Esta característica ainda não existe no Nmap. Preciso
+        adicioná-la ou remover esta secção</remark>
+      </para>
+
+      <para>Durante a execução do Nmap todas as teclas pressionadas são
+      capturadas. Isso permite que  interaja com o programa sem abortá-lo
+      ou reiniciá-lo. Algumas teclas especiais irão mudar as opções enquanto
+      outras irão mostrar uma mensagem de estado dando informações sobre o
+      rastreio(scan). A convenção é que <emphasis>letras minúsculas aumentam</emphasis>
+      a quantidade de informação e <emphasis>letras maiúsculas
+      diminuem</emphasis>.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term><option>v</option> / <option>V</option></term>
+
+          <listitem>
+            <para>Aumenta / Diminui a quantidade de informações
+            (Verbosity)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>d</option> / <option>D</option></term>
+
+          <listitem>
+            <para>Aumenta / Diminui o Nível de Depuração (Debugging
+            Level)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><option>p</option> / <option>P</option></term>
+
+          <listitem>
+            <para>Habilita / Desabilita o Rastreamento de Pacotes (Packet
+            Tracing)</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Qualquer outra letra</term>
+
+          <listitem>
+            <para>Mostra uma mensagem de estado como esta:</para>
+
+            <para>Stats: 0:00:08 elapsed; 111 anfitriões(hosts) completed (5 up), 5
+            undergoing Service Scan</para>
+
+            <para>Service rastreio(scan) Timing: About 28.00% done; ETC: 16:18 (0:00:15
+            remaining)</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </refsect1>
+
+    <refsect1 id="man-examples">
+      <title>Exemplos</title>
+
+      <para>Aqui estão alguns exemplos de utilização do Nmap desde o simples e
+      rotineiro, até ao mais complexo e esotérico. Alguns endereços IP
+      reais e nomes de domínio foram utilizados para tornar as coisas mais
+      concretas. Nesses lugares  deve substituir os endereços/nomes pelos
+      da <emphasis>sua própria rede</emphasis>. Embora eu não ache que o
+      rastreio(scan) de portas de outras redes seja ou deva ser considerado
+      ilegal, alguns administradores de rede não apreciam o rastreio(scan)
+      não-solicitado de suas redes e podem reclamar. Obter a permissão
+      antecipadamente é a melhor opção.</para>
+
+      <para>Para fins de teste  tem permissão para rastrear(scan) o anfitrião(host)
+      <literal>scanme.nmap.org</literal>. Esta permissão inclui apenas o
+      rastreio(scan) via Nmap e não tentativas de explorar vulnerabilidades ou
+      ataques de negação de serviço (denial of service). Para preservar a
+      banda, por favor não inicie mais do que uma dúzia de rastreios(scans) contra o anfitrião(host)
+      por dia. Se esse serviço de alvo livre para rastreio(scan) for abusado,
+      será derrubado e o Nmap irá reportar <computeroutput>Failed to resolve
+      given hostname/IP: scanme.nmap.org</computeroutput>. Essas permissões
+      também se aplicam aos anfitriões(hosts) <literal>scanme2.nmap.org</literal>,
+      <literal>scanme3.nmap.org</literal> e assim por diante, embora esses
+      anfitriões(hosts) ainda não existam.</para>
+
+      <para>
+        <userinput>nmap -v scanme.nmap.org</userinput>
+      </para>
+
+      <para>Esta opção rastreia(scan) todas as portas TCP reservadas na máquina
+      <literal>scanme.nmap.org</literal>. A opção <option>-v</option>
+      habilita o modo verboso (verbose).</para>
+
+      <para>
+        <userinput>nmap -sS -O scanme.nmap.org/24</userinput>
+      </para>
+
+      <para>Inicia um rastreio(scan) SYN camuflado contra cada máquina que estiver activa
+      das 255 possíveis da rede <quote>classe C</quote> onde o Scanme reside.
+      Ele também tenta determinar qual o sistema operativo que está sendo executado
+      em cada anfitrião(host) activo. Isto requer privilégio de root por causa do rastreio(scan) SYN
+      e da detecção de SO.</para>
+
+      <para>
+        <userinput>nmap -sV -p 22,53,110,143,4564
+        198.116.0-255.1-127</userinput>
+      </para>
+
+      <para>Inicia uma enumeração de anfitriões(hosts) e um rastreio(scan) TCP na primeira metade de
+      cada uma das 255 sub-redes de 8 bits possíveis na classe B do espaço de
+      endereçamento 198.116. Também testa se os sistemas estão executando
+      sshd, DNS, pop3d, imapd ou a porta 4564. Para cada uma destas portas
+      encontradas abertas a detecção de versão é usada para determinar qual
+      aplicação está em execução.</para>
+
+      <para>
+        <userinput>nmap -v -iR 100000 -P0 -p 80</userinput>
+      </para>
+
+      <para>Pede ao Nmap para escolher 100.000 anfitriões(hosts) de forma aleatória e
+      rastreia-os procurando por servidores web (porta 80). A enumeração de
+      anfitriões(hosts) é desabilitada com <option>-P0</option> uma vez que enviar
+      primeiramente um par de sondagens para determinar se um anfitriões(hosts) está activo
+      é um desperdício quando se está sondando uma porta em cada anfitrião(host)
+      alvo.</para>
+
+      <para>
+        <userinput>nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+        logs/pb-port80scan.gnmap 216.163.128.20/20</userinput>
+      </para>
+
+      <para>Este exemplo rastreia(scan) 4096 endereços IP buscando por servidores
+      web (sem usar o ping) e grava a saída nos formatos XML e compatível com
+      o programa grep.</para>
+
+      <para>
+        <userinput>anfitrião(host) -l company.com | cut -d -f 4 | nmap -v -iL
+        -</userinput>
+      </para>
+
+      <para>Faz uma transferência de zona DNS para descobrir os anfitriões(hosts) em
+      company.com e então alimenta o Nmap com os endereços IP. Os comandos
+      acima são para a minha máquina GNU/Linux -- outros sistemas têm comandos
+      diferentes para executar a transferência de zona.</para>
+    </refsect1>
+
+    <refsect1 id="man-bugs">
+      <title>Bugs</title>
+
+      <para>Como o seu autor, o Nmap não é perfeito. Mas pode ajudar a
+      torná-lo melhor enviando relatórios de erros (bug reports) ou mesmo
+      escrevendo correções. Se o Nmap não se comporta da forma que 
+      espera, primeiro actualize para a versão mais atual disponível em <ulink
+      url="http://www.insecure.org/nmap/" />. Se o problema persistir,
+      pesquise um pouco para determinar se o problema já foi descoberto e
+      encaminhado. Tente procurar no Google pela mensagem de erro ou navegar
+      nos arquivos da Nmap-dev em <ulink url="http://seclists.org/" />. Se não
+      encontrar nada envie uma mensagem com um relatório do erro para
+      <email>nmap-dev@insecure.org</email>. Por favor inclua tudo o que
+      souber sobre o problema bem como a versão do Nmap que está
+      executando e em qual versão e sistema operativo que está a usar.</para>
+
+      <para>Correções codificadas para concertar os erros são ainda melhores
+      que os relatórios de erro. Instruções básicas para a criação de arquivos
+      de correções com as suas alterações estão disponíveis em <ulink
+      url="http://www.insecure.org/nmap/data/HACKING" />.</para>
+    </refsect1>
+
+    <refsect1 id="man-author">
+      <title>Autor</title>
+
+      <para>Fyodor <email>fyodor@insecure.org</email> (<ulink
+      url="http://www.insecure.org" />)</para>
+
+      <para>Centenas de pessoas fizeram contribuições valiosas para o Nmap ao
+      longo dos anos. Isso está detalhado no arquivo <filename
+      moreinfo="none">CHANGELOG</filename> que é distribuído com o Nmap e
+      também está disponível em <ulink
+      url="http://www.insecure.org/nmap/changelog.html" />.</para>
+    </refsect1>
+
+    <refsect1 id="man-xlation">
+      <title>Tradução</title>
+
+      <para>Português (Portugal) : José Domingos 
+      <email>jd_pt@yahoo.com</email>
+      Português (Portugal) : Andreia Gaita
+      <email>shana.ufie@gmail.com</email></para>
+
+      <para>Translation Disclaimer: The translation attempts to achieve the
+      highest possible accuracy. The official text is the English version
+      available at [url]. Any discrepancies or differences created in
+      translations are not binding and have no legal effect or compliance or
+      enforcement purposes. If any questions arise in regard to the accuracy
+      of information contained in any translated portion of text, please refer
+      to the official English version. Slangs and language structures in
+      English are not easily translated into another language. Source text
+      that includes jargon common to an industry, may not be translated
+      accurately. Insecure.Com LLC is not responsible for translation errors.
+      We apologize for any translation that is not correct.</para>
+
+      <para>Desobrigação da Tradução: A tradução tenta alcançar a maior
+      precisão possível. O texto oficial é a versão em inglês disponível em
+      [url]. Quaisquer discrepâncias ou diferenças criadas pelas traduções não
+      são obrigações e não tem efeito legal, conformidade ou propósitos
+      impositivos. Se qualquer dúvida surgir em relação à precisão da
+      informação contida em qualquer parte traduzida do texto, por favor
+      verifique a versão oficial em inglês. Gírias e estruturas de linguagem
+      em inglês não são facilmente traduzidas em outra língua. Texto original
+      que inclui jargão comum a uma atividade pode não ser traduzido com
+      precisão. A Insecure.Com LLC não é responsável por erros de tradução.
+      Nós pedimos desculpas se alguma parte da tradução não estiver correcta.</para>
+    </refsect1>
+
+    <refsect1 id="man-legal">
+      <title>Avisos Legais</title>
+
+      <refsect2>
+        <title>Copyright e Licenciamento</title>
+
+        <para>O Nmap Security Scanner é (C) 1996-2005 Insecure.Com LLC. O Nmap
+        também é uma marca registada de Insecure.Com LLC. Este programa é um
+        software livre; pode redistribuí-lo e/ou modificá-lo sob os
+        termos da Licença Pública Geral GNU (GNU General Public License)
+        conforme publicado pela Free Software Foundation; Versão 2. Isso
+        garante o seu direito de usar, modificar e redistribuir este software
+        sob certas condições. Se  desejar embutir a tecnologia do Nmap em
+        um software proprietário poderemos querer vender licenças
+        alternativas (contate <email>sales@insecure.com</email>). Muitos
+        vendedores de scanner de segurança já licenciam a tecnologia do Nmap,
+        tal como a descoberta de anfitriões(hosts), rastreio(scan) de portas, detecção de SO
+        e detecção de serviços/versões.</para>
+
+        <para>Observe que a GPL impõe restrições importantes em
+        <quote>trabalhos derivados</quote> embora ela não forneça uma
+        definição detalhada desse termo. Para evitar más-interpretações
+        consideramos que uma aplicação constitui um <quote>trabalho
+        derivado</quote> para o propósito desta licença, se ela se enquadra
+        em um dos seguintes ítens:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Contém código fonte do Nmap</para>
+          </listitem>
+
+          <listitem>
+            <para>Lê ou inclui arquivos de dados do Nmap que são protegidos
+            por copyright, tal como o
+            <filename>nmap-os-fingerprints</filename> ou
+            <filename>nmap-service-probes</filename>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Executa o Nmap e decompõe (parse) os resultados
+            (diferentemente de uma execução típica de um shell ou aplicações
+            de menu de execução que simplesmente mostram a saída em estado
+            bruto do Nmap e portanto não constituem um trabalho
+            derivado).</para>
+          </listitem>
+
+          <listitem>
+            <para>Integra/inclui/agrega o Nmap em um instalador executável
+            proprietário tal como os produzidos pelo InstallShield.</para>
+          </listitem>
+
+          <listitem>
+            <para>Estabelece uma ligação (link) com uma biblioteca ou executa
+            um programa que faz qualquer um dos dois ítens em cima.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>O termo <quote>Nmap</quote> deve ser considerado como contendo
+        parte ou sendo trabalho derivado do Nmap. Esta lista não é definitiva
+        mas deve ser entendida como uma forma de esclareçer nossa interpretação
+        de trabalho derivado com alguns exemplos comuns. Estas restrições
+        apenas se aplicam quando   realmente redistribui o Nmap. Por
+        exemplo, nada impede que escreva e venda um front-end
+        proprietário para o Nmap. Apenas redistribua o seu produto
+        isoladamente e mostre às pessoas onde elas podem descarregar(download) o Nmap.</para>
+
+        <para>Nós não consideramos isso como restrições adicionais à GPL mas
+        apenas uma elucidação de como nós interpretamos <quote>trabalhos
+        derivados</quote> pois elas se aplicam ao nosso produto Nmap
+        licenciado no formato GPL. Isso é idêntico à forma como Linus Torvalds
+        anunciou sua interpretação de como os <quote>trabalhos
+        derivados</quote> se aplicam aos módulos do kernel do Linux. A nossa
+        interpretação refere-se apenas ao Nmap - não respondemos por qualquer
+        outro produto GPL.</para>
+
+        <para>Se  tiver qualquer dúvida quanto às restrições do
+        licenciamento GPL na utilização do Nmap em produtos não-GPL,
+        ficaríamos felizes em ajudar. Como mencionado acima, também oferecemos
+        licenças alternativas para a integração do Nmap em aplicações e
+        dispositivos proprietários. Esses contratos foram vendidos para muitas
+        empresas de segurança e geralmente incluem uma licença perpétua, disponibiliza 
+        um suporte para actualizações prioritários, e também
+        nos ajuda financeiramente o desenvolvimento contínuo da tecnologia do
+        Nmap. Por favor, envie um e-mail para
+        <email>sales@insecure.com</email> se desejar mais informações.</para>
+
+        <para>Como uma exceção especial aos termos da GPL, a Insecure.Com LLC
+        permite que uma ligação (link) do código deste program seja feito com
+        qualquer versão da biblioteca do OpenSSL que seja distribuída sob uma
+        licença idêntica àquela listada no arquivo Copying.OpenSSL incluido e
+        distribuir combinações de ligação incluindo os dois. Deve
+        obedecer à GPL GNU em todos os aspectos para todo o código utilizado
+        que não seja OpenSSL. Se modificar este aquivo pode
+        estender esta excepção para a sua versão do arquivo mas não é
+        obrigado a fazer isso.</para>
+
+        <para>Se recebeu estes arquivos com um acordo de licenciamento
+        por escrito ou um contrato ditando termos que não sejam diferentes dos
+        em cima então essa licença alternativa tem precedência sobre estes
+        comentários.</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Disponibilidade de código fonte e contribuições da
+        comunidade</title>
+
+        <para>O código fonte é fornecido com este software porque acreditamos
+        que os usuários tem o direito de saber exactamente o que um programa
+        irá fazer antes de executá-lo. Isso também permite que vaudite
+        o software procurando por falhas na segurança (nenhuma foi encontrada
+        até agora).</para>
+
+        <para>O código fonte também permite que porte o Nmap para novas
+        plataformas consserte problemas e adicione novas características. 
+        E altamente encorajado a enviar suas alterações para
+        <email>fyodor@insecure.org</email> para uma possível incorporação na
+        distribuição principal. Enviar essas alterações para Fyodor ou para
+        alguém da lista de mensagens de desenvolvimento da Insecure.Org,
+        pressupõe que está oferecendo a Fyodor e à Insecure.Com LLC o
+        direito ilimitado e não-exclusivo para reutilizar, modificar e
+        relicenciar o código. O Nmap sempre estará disponível como um Open
+        Source mas isto é importante porque a impossibilidade de relicenciar
+        o código causou problemas devastadores para outros projetos de
+        Software Livre (tal como o KDE e o NASM). Nós também relicenciamos
+        ocasionalmente o código para terceiros conforme discutido
+        anteriormente. Se  deseja especificar condições de licenciamento
+        especiais das suas contribuições deixe isso claro quando
+        enviá-las.</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Nenhuma Garantia</title>
+
+        <para>Este programa é distribuído na esperança de que será útil mas
+        SEM QUALQUER GARANTIA; sem sequer a garantia implícita de
+        COMERCIALIZAÇÃO ou ADEQUAÇÃO A QUALQUER PROPÓSITO PARTICULAR. Veja a
+        Licença Pública Geral GNU para mais detalhes em <ulink
+        url="http://www.gnu.org/copyleft/gpl.html" /> ou no arquivo COPYING
+        incluído com o Nmap.</para>
+
+        <para>Também deve ser observado que o Nmap reconhecidamente trava
+        certas aplicações mal-escritas, a pilha TCP/IP e mesmo alguns sistemas
+        operativos. <emphasis remap="B">O Nmap nunca deve ser executado
+        contra sistemas de missão-crítica</emphasis> a menos que esteja
+        preparado para lidar com o serviço fora do ar (downtime). Nós
+        reconhecemos aqui que o Nmap pode travar os seus sistemas ou redes e
+        nós renunciamos toda e qualquer responsabilidade por qualquer dano ou
+        problema que o Nmap possa causar.</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Uso inapropriado</title>
+
+        <para>Pelo facto de haver o menor risco de travamento e porque existem
+        pessoas mal-intencionadas (black hats) que gostam de usar o Nmap para
+        reconhecimento antes atacar um sistema, existem administradores que
+        ficam chateados e podem reclamar quando o sistema deles é rastreado.
+        Portanto é normalmente aconselhável que solicite a permissão antes
+        de fazer um rastreio(scan) de uma rede por mais leve que seja.</para>
+
+        <para>O Nmap nunca deveria ser instalado com privilégios especiais
+        (p.ex.: suid root) por questões de segurança.</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Software de Terceiros</title>
+
+        <para>Este produto inclui software desenvolvido pela <ulink
+        url="http://www.apache.org">Apache Software Foundation</ulink>. Uma
+        versão modificada da <ulink url="http://www.tcpdump.org">biblioteca
+        portátil de captura de pacotes Libpcap</ulink> é distribuída junto com
+        o Nmap. A versão para o Windows do Nmap por outro lado utiliza
+        <ulink url="http://www.winpcap.org">biblioteca WinPcap</ulink>,
+        derivada da libpcap. O suporte a expressões regulares é fornecido pela
+        <ulink url="http://www.pcre.org">biblioteca PCRE</ulink> que é um
+        software de código aberto escrito por by Philip Hazel. Algumas
+        funções de rede em estado bruto utilizam a biblioteca de rede <ulink
+        url="http://libdnet.sourceforge.net">Libdnet</ulink> que foi escrita
+        por Dug Song. Uma versão modificada é distribuída com o Nmap. O Nmap
+        pode opcionalmente ser ligado ao <ulink
+        url="http://www.openssl.org">conjunto de ferramentas de criptografia
+        do OpenSSL</ulink> para o suporte à detecção de versão do SSL. Todos
+        os softwares de terceiros descritos neste parágrafo são distribuídos
+        gratuitamente sob o licenciamento de software no estilo BSD.</para>
+      </refsect2>
+
+      <refsect2>
+        <title>Classificação do Controle de Exportação dos EUA</title>
+
+        <para>Controle de Exportação dos EUA: A Insecure.Com LLC acredita que
+        o Nmap se enquadra no US ECCN (número de classificação para controle
+        de exportação) 5D992. Essa categoria é chamada de <quote>software de
+        Segurança da Informação não-controlado pela 5D002</quote>. A única
+        restrição a essa classificação é o AT (anti-terrorismo) que se aplica
+        a quase todos os produtos e nega a exportação a um punhado de nações
+        não-confiáveis tais como o Irão e a Coreia do Norte. Portanto, exportar
+        o Nmap não requer nenhuma licença ou permissão especial ou qualquer
+        outro tipo de autorização governamental.</para>
+      </refsect2>
+    </refsect1>
+  </refentry>
+</article>

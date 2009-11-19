@@ -1,0 +1,3028 @@
+<?xml version="1.0"?>
+<!-- $Id: manhtml.xml 2991 2005-12-12 10:21:33Z fyodor $ -->
+<article id="man">
+<artheader>
+  <title>Nmap - Referencna prirucka  (Man Page,Slovak translation)</title>
+</artheader>
+<refentry id="man-nmap1">
+  <refmeta>
+    <refentrytitle>nmap</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv id="man-name">
+    <refname>nmap</refname>
+    <refpurpose>Nastroj na skumanie siete a scanner bezpecnosti/portov</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id="man-synopsis">
+    <cmdsynopsis sepchar=" ">
+      <command moreinfo="none">nmap</command>
+      <arg choice="opt" rep="repeat">
+        <replaceable>Typ scanu</replaceable>
+      </arg>
+      <arg choice="opt" rep="norepeat">
+        <replaceable>Moznosti</replaceable>
+      </arg>
+      <arg choice="req" rep="norepeat">
+        <replaceable>Specifikacia cielovej stanice</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="man-description">
+    <title>Opis</title>
+
+    <para>Nmap (<quote>Network Mapper</quote>) je open-source nastrojom na skumanie siete a kontrolu bezpecnosti.  
+	Bol vyvinuty s ohladom na rychle scanovanie velkych sieti, hoci funguje vyborne aj pri nasadeni proti jednotlivym hostitelom.
+    Nmap neobvyklymi sposobmi pouziva neupravene IP pakety na urcenie hostitelskych stanic v sieti,
+	sluzieb, ktore (aplikacia
+	Nmap neobvyklym sposobom pouziva neupravene IP pakety na urcenie cisla a verzie) tieto hostitelske stanice ponukaju,
+   	na akom operacnom systeme
+    (a verziach OS) bezia, aky typ paketovych filtrov alebo firewallu je pouzity,
+	a mnoho dalsich charakteristickych veci.  Hoci sa Nmap bezne pouziva na vykonavanie kontrol bezpecnosti,
+    mnoho systemovych a sietovych administratorov ho vyuzije aj pri obvyklych ulohach ako napriklad
+	obsah siete, sprava casovych rozvrhnuti upgradeovania sluzby ci 
+	monitorovanie uptimu hostitelskej stanice alebo sluzby.
+	</para>
+
+    <para> Vystup aplikacie Nmap je tvoreny zoznamom scanovanych cielovych stanic s dodatocnymi informaciami o kazdom
+	z nich v zavislosti na pouzitych moznostiach.
+	 Klucovou medzi tymito informaciami je <quote>tabulka zaujimavych portov
+    </quote>.  Tato tabulka obsahuje zoznam cisla portu a protokolu, nazov sluzby
+	 a stav. Stav moze byt bud
+    <literal moreinfo="none">otvoreny</literal>, <literal moreinfo="none">filtrovany</literal>,
+    <literal moreinfo="none">zatvoreny</literal>, alebo <literal moreinfo="none">nefiltrovany</literal>. Otvoreny
+	Open znamena, ze aplikacia na cielovom pocitaci nacuva spojeniam alebo paketom na tomto porte.
+    <literal moreinfo="none">Filtrovany</literal> znamena, ze nejaky firewall, filter alebo sietova prekazka
+	blokuje port takym sposobom, ze Nmap nedokaze urcit, ci je port
+	<literal moreinfo="none">otvoreny</literal> alebo <literal moreinfo="none">zatvoreny</literal>.  
+	<literal moreinfo="none">Zatvorene</literal> porty neobsahuju ziadne na nich nacuvajuce aplikaciu, 
+    aj ked by sa mohli kedykolvek otvorit.  Porty su oznacovane ako <literal moreinfo="none">nefiltrovane</literal>
+	ak reaguju na testovanie Nmapom, no Nmap nedokaze urcit, ci su otvorene alebo zatvorene.
+      Nmap ohlasi kombinaciu stavov
+    <literal moreinfo="none">otvoreny|filtrovany</literal> a
+    <literal moreinfo="none">zatvoreny|filtrovany</literal> ak nedokaze urcit, ktory z dvoch stavov zodpoveda portu.
+	.  Ak bola vyzadovana detekcia verzie, tabulka portov moze takisto obsahovat podrobnosti o verzii softwaru.
+	Ak je vyzadovany scan protokolu IP 
+    (<option>-sO</option>), Nmap poskytne informacie namiesto nacuvajucich portov 
+	informacie o podporovanych protokoloch IP.</para>
+
+    <para>Okrem tabulky zaujimavych portov dokaze Nmap poskytnut dalsie
+	informacie o cielovych staniciach, vratane reverznych nazvov DNS, odhadov operacneho systemu, 
+	typoch zariadeni a MAC adries.</para>
+
+    <para>Typicky Nmap scan je zobrazeny na tomto mieste.<xref linkend="man-ex-repscan"/>.  
+	Jedinymi parametrami Nmapu pouzitymi v tomto priklade su <option>-A</option>, na povolenie
+	detekcie OS a verzie,<option>-T4</option> kvoli rychlejsiemu behu programu, a dva hostitelske nazvy
+	cielovych stanic.</para>
+
+<example id="man-ex-repscan"><title>Ukazkovy Nmap scan</title>
+<screen format="linespecific">
+# nmap -A -T4 scanme.nmap.org playground
+
+Starting nmap ( http://www.insecure.org/nmap/ )
+Interesting ports on scanme.nmap.org (205.217.153.62):
+(The 1663 ports scanned but not shown below are in state: filtered)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
+53/tcp  open   domain
+70/tcp  closed gopher
+80/tcp  open   http    Apache httpd 2.0.52 ((Fedora))
+113/tcp closed auth
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X|2.6.X
+OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
+Uptime 33.908 days (since Thu Jul 21 03:38:03 2005)
+
+Interesting ports on playground.nmap.org (192.168.0.40):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn
+389/tcp  open  ldap?
+445/tcp  open  microsoft-ds  Microsoft Windows XP microsoft-ds
+1002/tcp open  windows-icfw?
+1025/tcp open  msrpc         Microsoft Windows RPC
+1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
+5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3.8)
+MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
+Device type: general purpose
+Running: Microsoft Windows NT/2K/XP
+OS details: Microsoft Windows XP Pro RC1+ through final release
+Service Info: OSs: Windows, Windows XP
+
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
+</screen>
+</example>
+
+<para>Najnovsia verzia Nmapu sa nachadza na adrese <ulink url="http://www.insecure.org/nmap/"/>.  
+Najnovsia verzia manualu je k dispozicii na adrese <ulink url="http://www.insecure.org/nmap/man/"/>.</para>
+
+  </refsect1>
+  
+  <refsect1 id="man-translation">
+  <title>Poznamky o preklade</title>
+
+  <para>Tato slovenska verzia referencnej prirucky Nmapu bola prelozena z verzie
+  2991 <ulink
+  url="http://www.insecure.org/nmap/man/"> povodnej anglickej verzie </ulink> 
+  Stanislavom Sivakom.  Dufam sice, ze tento preklad viac spristupni Nmap slovensky hovoriacim
+  ludom na celom svete, ale nemozem zarucit, ze preklad je taky uplny alebo aktualny ako
+  oficialna anglicka verzia.
+  Toto dielo moze byt modifikovane a siritelne podla podmienok licencie <ulink
+  url="http://creativecommons.org/licenses/by/2.5/">Creative
+  Commons Attribution License</ulink>.</para>
+</refsect1>
+
+  <refsect1 id="man-briefoptions">
+    <title>Zoznam moznosti</title>
+
+<para>Tento zoznam moznosti sa zobrazi, ak je Nmap spusteny bez parametrov a 
+jeho najnovsia verzia je k dispozii na adrese
+<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>.
+Pomaha ludom zapamatat si najbeznejsie moznosti, ale nie je nahradou za podrobnu
+dokumentaciu v zostavajucej casti tohoto manualu. Na tomto mieste nie su dokonca uvedene niektore
+malo zname, nejasne moznosti.
+</para>
+
+<para>
+<literallayout format="linespecific" class="normal">Pouzitie: nmap [Typ(y) scanu] [Moznosti] {specifikacia cielovej stanice}
+SPECIFIKACIE CIELOVEJ STANICE:
+  Je mozne zadat hostitelsky nazov stanice, IP adresy, siete atd.
+  Priklad: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  -iL &lt;inputfilename&gt;: Pouzit ako vstup zoznam hostistelskych stanic alebo sieti
+  -iR &lt;num hosts&gt;: Zvolit nahodne cielove stanice
+  --exclude &lt;host1[,host2][,host3],...&gt;: Vynechat hostitelske stanice alebo siete
+  --excludefile &lt;exclude_file&gt;: Vynechat zoznam zo suboru
+ZISTOVANIE HOSTITELSKEJ STANICE:
+  -sL: List Scan - zobrazit zoznam cielovych stanic, ktore sa maju scanovat
+  -sP: Ping Scan - nevykonat nic ine okrem zistenia, ci je hostitelska stanice online 
+  -P0: Treat all hosts as online -- preskocit zistovanie hostitelskych stanic
+  -PS/PA/PU [portlist]: pre zadane porty vykonat zistenie protokolov TCP SYN/ACK alebo UDP 
+  -PE/PP/PM: vyskusat ICMP echo, parameter timestamp a poziadavku na sietovu masku
+  -n/-R: Nikdy nevykonavat DNS preklad/Vzdy vykonavat preklad DNS [povodne nastavenie: niekedy]
+  --dns_servers &lt;serv1[,serv2],...&gt;: Zadat vlastne servery DNS
+  --system_dns: Pouzit prekladac DNS operacneho systemu 
+SPOSOBY SCANOVANIA:
+  -sS/sT/sA/sW/sM: Scan typu TCP SYN/Connect()/ACK/Window/Maimon
+  -sN/sF/sX: Scany typu TCP Null, FIN a Xmas
+  --scanflags &lt;flags&gt;: Nastavit vlastne flagy scanu TCP scan
+  -sI &lt;zombie host[:probeport]&gt;: Scan typu Idlescan
+  -sO: Scan protokolu IP
+  -b &lt;ftp relay host&gt;: Scan vyuzivajuci FTP bounce
+SPECIFIKACIA PORTOV A PORADIE SCANOVANIA:
+  -p &lt;port ranges&gt;: Len specifikovane porty
+    Priklad: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
+  -F: Fast - Vykonat scan len na portoch zahrnutych v subore nmap-services
+  -r: Scanovat porty postupne a nie nahodne
+DETEKCIA SLUZBY/VERZIE:
+  -sV: Testovat otvorene porty na urcenie informacii o sluzbe/verzii
+  --version_light: Kvoli rychlejsej identifikacii sluzby/verzie vykonat len tie 
+    najpravdepodobnejsie testy
+  --version_all: Vykonat vsetky mozne testy
+  --version_trace: Zobrazit podrobnosti o priebehu scanovanie verzie (pre ucely debugovania)
+DETEKCIA OS:
+  -O: Povolit detekciu OS
+  --osscan_limit: Zuzit detekciu OS len na slubne vyzerajuce cielove stanice 
+  --osscan_guess: Pouzit agresivnejsiu detekciu OS
+CASOVANIE A VYKON:
+  -T[0-5]: Nastavit casovaciu sablonu (vyssie cislo zodpoveda rychlejsej sablone)
+  --min_hostgroup/max_hostgroup &lt;size&gt;: Velkosti skupin paralelnych scanov
+  --min_parallelism/max_parallelism &lt;msec&gt;: Paralelizacia testu
+  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout &lt;msec&gt;: Udava
+      velkost hodnoty RTT testu 
+  --max_retries &lt;tries&gt;: Udava pocet retransmisii testu scanovania portov.
+  --host_timeout &lt;msec&gt;: Po uplynuti tohoto casoveho limitu ukoncit test cielovej stanice
+  --scan_delay/--max_scan_delay &lt;msec&gt;: Prisposobit oneskorenie medzi testami 
+OBIDENIE FIREWALLU/IDS A FALSOVANIE:
+  -f; --mtu &lt;val&gt;: Fragmentovat pakety ( s pridanou moznostou fragmentovania podla velkosti MTU)
+  -D &lt;decoy1,decoy2[,ME],...&gt;: Ukryt scan pouzitim trikov
+  -S &lt;IP_Address&gt;: Sfalsovat zdrojovu adresu
+  -e &lt;iface&gt;: Pouzit zadane rozhranie
+  -g/--source_port &lt;portnum&gt;: Pouzit dane cislo portu
+  --data_length &lt;num&gt;: Do odosielanych paketov vlozit nahodne data
+  --ttl &lt;val&gt;: Nastavit velkost polozky time-to-live protokolu IP
+  --spoof_mac &lt;mac address/prefix/vendor name&gt;: Sfalsovat MAC adresu aktualneho pocitaca
+  --badsum: Odoslat pakety s falosnym kontrolnym suctom TCP/UDP 
+VYSTUP:
+  -oN/-oX/-oS/-oG &lt;file&gt;: Vystup scanu zadaneho suboru vo formate obycajnom, XML, s|&lt;rIpt kIddi3,
+     a Grep.
+  -oA &lt;basename&gt;: Vystup sucasne vo vsetkych troch hlavnych formatoch
+  -v: Zvysit uroven priebezneho vystupu (pre vacsi ucinok pouzit dvakrat)
+  -d[level]: Nastavit alebo zvysit uroven debugovania (Zmysel maju hodnoty do 9)
+  --packet_trace: Zobrazit vsetky odoslane a prijate pakety
+  --iflist: Vytlacit rozhrania hostitelskej stanice a trasy (pre ucely debugovania)
+  --append_output: Namiesto vymazania dat suborov pridat vystup k datam zadanych vystupnych suborov
+  --resume &lt;filename&gt;: Pokracovat v prerusenom scane
+  --stylesheet &lt;path/URL&gt;: Na prenesenie vystupu vo formate XML do formatu HTML pouzit stylesheet XSL
+  --webxml: Na ziskanie prenositelnejsieho formatu XML pouzit referencny stylesheet zo stranky Insecure.Org 
+  --no_stylesheet: Nepouzivat stylesheet pre vystup v XML
+ROZNE:
+  -6: Povolit scan pre protokol IPv6
+  -A: Povolit detekciu OS a verzie
+  --datadir &lt;dirname&gt;: Zadat vlastne umiestnenie datoveho suboru pre Nmap
+  --send_eth/--send_ip: Odoslat pouzitim neupravenych ethernetovych ramcov alebo IP paketov
+  --privileged: Usudzovat, ze uzivatel ma plne opravnenia 
+  -V: zobrazit cislo verzie
+  -h: zobrazit suhrn tejto stranky napovedy.
+PRIKLADY:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -P0 -p 80
+</literallayout>
+
+</para>
+
+  </refsect1>
+
+  <refsect1 id="man-target-specification">
+    <title>Specifikacia cielovej stanice</title>
+
+<para>Vsetko v prikazovom riadku Nmapu co nie je parametrom (alebo argumentom parametra) sa povazuje
+za specifikaciu cielovej stanice. Najjednoduchsim pripadom je specifikovat cielovu IP adresu alebo 
+hostitelsky nazov stanice, ktora sa ma scanovat.
+</para>
+
+<para>Niekedy je potrebne scanovat celu siet susednych hostitelskych stanic.
+Pre tento ucel podporuje Nmap adresovanie typu CIDR. K IP adrese alebo hostitelskemu nazvu je mozne pripojit
+/<replaceable>numbits</replaceable> a 
+Nmap vykona scan kazdej IP adresy, u ktorej sa zhoduju prve
+<replaceable>numbits</replaceable> s referencnou IP adresou alebo hostitelskym nazvom.  
+Napriklad po zadani adresy v tvare 192.168.10.0/24 by sa scanovalo 256 hostitelskych stanic medzi 
+192.168.10.0 (v binarnom tvare: <literal moreinfo="none">11000000 10101000
+00001010 00000000</literal>) a 192.168.10.255 (v binarnom tvare: <literal moreinfo="none">11000000 10101000
+00001010 11111111</literal>), vratane.
+Zadanie adresy 192.168.10.40/24 by sposobilo presne to iste.  Za predpokladu, ze 
+ nazov scanme.nmap.org je na IP adrese 205.217.153.62, specifikacia 
+scanme.nmap.org/16 sposobi, ze by sa scanovalo 65,536 IP adries medzi adresami 
+205.217.0.0 a 205.217.255.255.  Najmensia povolena hodnota je /1,
+co sposobi scanovanie polovice internetu.  Najvacsia hodnota je 32, co ma za nasledok scanovanie
+len spomenutej hostitelskej stanice, pretoze vsetky bity IP adresy su pevne.</para>
+
+<para>Zapis typu CIDR je sice kratky, no nie vzdy dostatocne flexibilny.  Napriklad, ak je 
+potrebne scanovat adresy v rozsahu 192.168.0.0/16, ale pritom preskocit vsetky adresy zakoncene
+.0 alebo .255, pretoze bezne su to broadcastove adresy. Nmap to podporuje pomocou
+pouzitia specifikacie jednotlivych oktetov adresy. Namiesto zadania obycajnej
+IP adresy je mozne specifikovat zoznam cisel alebo rozsah pre kazdy oktet, oddeleny ciarkou.
+Rozsah 192.168.0-255.1-254 napriklad preskoci vsetky adresy v zadanom rozsahu, ktore obsahuju
+na konci .0 alebo .255.  Rozsahy sa nemusia viazat len na posledne oktety: specifikacia
+0-255.0-255.13.37 vykona scan vsetkych adries na internete konciace oktetmi 13.37.
+Tento druh specifikacie sa moze hodit pri skumani internetu a vyskume.</para>
+
+<para>Adresy protokolu IPv6 mozu byt specifikovane len plne urcenou IPv6 adresou
+alebo hostitelskym nazvom.  Zapisy typu CIDR a rozsahy oktetov nie su podporovane pre IPv6,
+pretoze su zriedkavo uzitocne.</para>
+
+<para>Nmap akceptuje viacnasobne specifikacie hostitelskych stanic v prikazovom riadku,
+ktore pritom nemusia byt rovnakeho typu. Prikaz<command moreinfo="none">nmap
+scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.0-255</command> funguje podla ocakavania.</para>
+
+<para> Zatial co su cielove stanice obvykle specifikovane v prikazovom riadku, je mozne tiez
+specifikovat nasledujuce moznosti, a tym riadit vyber cielovych stanic:
+</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-iL &lt;inputfilename&gt;</option> (Vstup zo zoznamu)
+        </term>
+        <listitem>
+          <para>Nacita specifikacie cielovych stanic z 
+          <replaceable>inputfilename</replaceable>.  Zadavanie velkeho zoznamu hostitelskych stanic
+		  do prikazoveho riadku je casto tazkopadne avsak casto ziadane.
+		  Napriklad vas DHCP server moze exportovat zoznam momentalnych 10000 pridelenych adries, ktore sa maju
+		  scanovat, alebo je mozne scanovat vsetky IP adresy
+          <emphasis>okrem</emphasis> tychto na zistenie hostitelskych stanic pouzivajucich neopravnene
+          staticke adresy.  Vytvorite zoznam hostitelskych stanic, ktore sa maju scanovat
+          a nazov suboru zadate ako argument k parametru<option>-iL</option>.  Polozky v subore mozu
+		   byt v lubovolnom formate, ktory je akceptovany Nmapom v prikazovom riadku
+          (IP adresa, hostitelsky nazov, IP adresa typu CIDR, IPv6, alebo rozsahy oktetov). Kazda polozka musi
+		  musi byt oddelena aspon jednou medzerou, tabulatormi alebo novym riadkom. 
+		  Ak sa maju hostitelske stanice nacitavat zo standardneho vstupu 
+		  a nie aktualneho suboru, je mozne pouzit spojitko (<literal moreinfo="none">-</literal>)</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-iR &lt;num hosts&gt;</option> (Vybrat nahodne cielove stanice)
+        </term>
+        <listitem>
+          <para>Pre rozsiahle internetove prieskumy a dalsi vyskum je mozne zvolit nahodne
+          cielove stanice.  Argument <replaceable>num hosts</replaceable> udava, kolko IP adries ma Nmap
+          generovat.  Automaticky sa preskocia adresy privatne, multicastove alebo nealokovane.  
+		  Argument <literal moreinfo="none">0</literal>
+          udava scan, ktory sa nikdy neskonci.  Je potrebne uvedomit si, ze niektori sietovi administratori
+		  s nevolou sleduju neopravnene scanovania sieti a mozu sa stazovat. Pouzitie tejto moznosti 
+		  je na vlastne nebezpecie! Ak sa budete v jedno dazdive odpoludnie naozaj nudit,
+		  pokuste sa prikazom <command moreinfo="none">nmap -sS -PS80 -iR 0 -p
+          80</command> najst nahodne webove servery.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--exclude
+          &lt;host1[,host2][,host3],...&gt;</option> (Vynechat hostitelske stanice alebo siete)
+        </term>
+        <listitem>
+          <para>Specifikuje zoznam cielovych stanic oddelenych ciarkou, ktore sa 
+		  maju vynechat zo scanu, aj ked su castou celkoveho specifikovaneho sietoveho rozsahu.
+          Zoznam pouziva obvyklu syntax Nmapu, to znamena hostitelske nazvy, bloky adries podla CIDR,
+		  rozsahy oktetov, atd. Tato moznost je uzitocna, ak sa v scanovanych sietach vyskytuju
+		  nedotknutelne kriticke servery, systemy s nepriaznivou reakciou na scanovanie portov,
+		  ci systemy spravovane dalsimi ludmi.
+         </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--excludefile &lt;exclude_file&gt;</option> (Vynechat subor zo zoznamu)
+        </term>
+        <listitem>
+          <para> Ponuka podobnu funkcionalitu ako moznost <option>--exclude</option>
+          s tym rozdielom, ze vynechane cielove stanice su namiesto prikazoveho riadku ulozene v 
+          <replaceable>exclude_file</replaceable> s polozkami oddelenymi novym riadkom, medzerou alebo tabulatorom.
+		  </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-host-discovery">
+    <title>Zistovanie hostitelskych stanic</title>
+ 
+   <para> Jednym z uplne prvych krokov pri prieskume siete 
+   je zuzit niekedy obrovsku mnozinu rozsahov IP adries na zoznam aktivnych alebo zaujimavych hostitelskych stanic.
+    Scanovanie kazdeho portu kazdej jednej adresy nie je obycajne nevyhnutne. Samozrejme, ze ciel scanovania
+    zavisi od typu scanu. Sietovych administratorov mozu zaujimat
+	len hostitelske stanice, na ktorych bezi urcita sluzba, kym spravcov bezpecnosti mozu dbat o kazde zariadenie
+	s IP adresou. Administratorovi moze stacit ICMP ping, aby nasiel hostitelske stanice vo vnutornej sieti,
+	kym tester moznosti vonkajsieho preniknutia do siete moze pouzit mnozinu testov pri pokuse vyhnut sa obmedzeniam
+	firewallu.
+	</para>
+
+    <para> Pretoze potreby pri zistovanie hostitelskych stanic su rozmanite, Nmap ponuka
+    siroku paletu moznosti prisposobenia pouzitych technik. Zistovanie hostitelskej stanice
+    sa niekedy nazyva ping scan, zachadza vsak daleko za jednoduchym ICMP echo request
+	spojenou so vsadepritomnym 
+    <application moreinfo="none">ping</application> nastrojom. Pouzivatelia mozu krok pingovania 
+    vynechat uplne pouzitim parametra (<option>-sL</option>) alebo
+    zakazanim pingu parametrom (<option>-P0</option>), ci pouzit v sieti nahodne kombinacie multi-portovych testov
+    TCP SYN/ACK, UDP, a
+    ICMP. Cielom tychto testov je pokusit sa ziskat odpovede, ktore ukazuju, ze 
+    IP adresa je vlastne aktivna (je pouzivana hostitelskou stanicou alebo sietovym zariadenim).
+	Vo viacerych sietach je aktivne len male percento IP adries v rovnakom momente, co je obvykle hlavne pre
+	rozsah privatnych adries, napr. 10.0.0.0/8 podla standardu RFC1918.
+	Tato siet obsahuje 16 milionov IP adries, ale videl som, ze ich pouzivali spolocnosti s menej ako tisic pocitacmi.
+    Zistovanie hostitelskych stanic dokaze najst tieto pocitace v riedko alokovanom oceane
+    IP adries.</para>
+
+    <para>Ak nie su zadane ziadne parametre pre zistovanie hostitelskych stanic, Nmap
+          odosle kazdej cielovej stanici TCP ACK
+          paket urceny pre port 80 a poziadavku ICMP Echo Request.  
+		  Vynimkou je je ARP scan pouzivany pre vsetky cielove stanice v lokalnej ethernetovej sieti.
+          Pri neprivelegovanych pouzivateloch UNIXoveho shellu sa namiesto typu ACK odosle paket typu 
+		  SYN pouzitim systemoveho volania<function moreinfo="none">connect()</function>
+          Tieto predvolene nastavenia odpovedaju parametrom 
+          <option>-PA -PE</option>. Taketo zistovanie hostitelskych stanic je sice
+          casto postacujuce pri scanovani lokalnych sieti, ale pri testovani bezpecnosti
+		  sa odporuca pouzit rozsiahlejsiu mnozinu testov na zistovanie.</para>
+    
+    <para>Parametre<option>-P*</option> (vyberajuce typy pingu) sa mozu kombinovat. 
+	Vyhliadky preniknutia nekompromisnymi firewallmi sa mozu zvysit odoslanim viacerych typov testov 
+	vyuzivajuc rozlicne typy portov a priznakov TCP a ICMP sprav.
+    Je dolezite vsimnut si, ze zistovanie ARP (<option>-PR</option>) sa normalne vykonava na
+	cielovych staniciach v lokalnej ethernetovej sieti, aj pri zadani dalsich parametrov
+    <option>-P*</option>, pretoze je to takmer vzdy rychlejsie a efektivnejsie.</para>
+
+    <para>Nasledujuce parametre sluzia na ovladanie zistovania hostitelskych stanic.</para>
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>-sL</option> (List scan)</term>
+        <listitem>
+          <para> List scan je neupravena podoba zistovania hostitelskych stanic,
+          ktora jednoducho zobrazi zoznam kazdej hostitelskej stanice specifikovanej sieti
+		  bez odoslania paketov cielovym staniciam. V predvolenom nastaveni vykonava Nmap
+		  reverzny preklad DNS hostitelskych stanic kvoli ziskaniu nazvov.
+		  Je casto prekvapujuce, kolko uzitocnych informacii vydaju jednoduche hostitelske nazvy. Napriklad nazov
+          <literal moreinfo="none">fw.chi.playboy.com</literal> je firewallom spolocnosti 
+          Playboy Enterprises kancelarie v Chicagu.  Nmap na konci takisto oznami celkovy pocet
+		  IP adries. Zoznam scanovania je dobrou kontrolou spravnosti, ze su vybrate 
+		  nalezite IP adresy. Ak hostitelske stanice vykazuju nazvy domen, ktore nerozponavate,
+		  je ich vhodne preskumat hlbsie, aby sa predislo scanovaniu siete nespravnej spolocnosti.</para>
+
+          <para> Kedze myslienkou je len jednoduchy vypis zoznamu
+		  hostitelskych stanic, parametre funkcionality vyssieho stupna ako scanovanie portov,
+		  detekcia OS alebo scanovanie pouzitim pingu nemoze byt kombinovane.
+		  Ak chcete zakazat vykonat tieto vyssie funkcie a zakazat scanovanie pouzitim pingu, 
+          dalsie informacie su uvedene pri parametri
+          <option>-P0</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sP</option> (Ping scan)</term>
+        <listitem>
+
+           <para>Tento parameter zabezpeci, ze sa vykona <emphasis>len</emphasis>
+           ping scan (zistovanie hostitelskych stanic) a potom sa zobrazia 
+		   dostupne hostitelske stanice, ktore odpovedali na scan. Ziadne dalsie testovanie
+		   ako scan portov alebo detekcia OS, sa nevykona. Je to o krok dotieravejsie ako list scan
+		   a casto sa moze pouzit pre rovnake ucely. Dovoluje jemne preskumanie cielovej siete bez vzbudenia
+		   velkej pozornosti. Poznatok o pocte aktivnych hostitelskych stanic je pre utocnikov cennejsi
+		   ako zoznam poskytnuty list scanom kazdej IP adresy a nazvu host. stanice.</para>
+
+           <para>Systemovi administratori tiez casto ocenia tento parameter.
+		   Moze sa pouzit jednoducho na zistenie poctu dostupnych pocitacov
+		   v sieti alebo monitorovanie dostupnosti servera. Casto sa to nazyva
+		   ping sweep a je spolahlivejsie ako vysielanie pingu broadcastovej adrese,
+		   pretoze mnoho hostitelskych stanic neodpoveda na broadcastove poziadavky.
+           </para>
+
+           <para>Parameter<option>-sP</option> normalne vysle ICMP echo
+           request a TCP paket na port 80. Ak je prikaz spusteny neprivilegovanym pouzivatelom,
+		   vysle sa na port 80 cielovej stanice SYN paket 
+           (pouzitim volania funkcie <function moreinfo="none">connect()</function>). 
+		   Ak sa privilegovany pouzivatel pokusa scanovat cielove stanice na lokalnej ethernetovej sieti, 
+		   pouzivaju sa spravy ARP request (<option>-PR</option>) , ak nie je explicitne zadany parameter
+           <option>--send_ip</option>.
+           Parameter<option>-sP</option> sa moze kombinovat s akymkolvek
+		   z testov zistovania ( parametre <option>-P*</option>,
+           s vynimkou <option>-P0</option>) kvoli vacsej flexibilite.
+           Ak sa pouziju nejake z tychto typov testov a parametrov cisel portov, prepisu sa tym
+		   predvolene testy (ACK a echo request). Ak sa medzi zdrojovou host. stanicou so spustenym Nmapom
+		   a cielovou sietou nachadza nekompromisny firewall, odporuca sa pouzitie tychto pokrocilych
+		   technik, inac by mohli hostitelske stanice chybat v pripade, ze firewall vyluci spusteny test alebo 
+		   odpovede hostitelskych stanic.
+		  </para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>-P0</option> (Bez pingu)
+        </term>
+        <listitem>
+          <para>Tento parameter kompletne preskoci fazu zistovania.
+          Nmap obvykle pouziva tuto fazu na zistenie aktivnych
+		  pocitacov pred rozsiahlejsim scanovanim. 
+		  V predvolenom nastaveni vykonava Nmap len intenzivne testovanie ako 
+		  scanovania portov, detekciu verzie alebo detekciu OS pri zistenych aktivnych hostitelskych staniciach.
+          Zakazanie zistovania hostitelskych stanic parametrom <option>-P0</option> 
+		  sposobi, ze Nmap vykona pozadovanie funkcie scanovania na 
+          <emphasis>kazdej</emphasis> specifikovanej IP adrese.  Takze ak je v prikazovom riadku zadany
+          adresovy priestor triedy B (/16), bude sa scanovat vsetkych 65 536  IP adries.
+          Druhy znak v parametri <option>-P0</option> je nula a nie pismeno O.
+		  Riadne zistovanie hostitelskych stanic sa vynecha ako pri list scane, ale namiesto zastavenia a 
+		  zobrazenia cieloveho zoznamu, Nmap pokracuje vo vykonavani pozadovanych funkcii ako keby bola kazda cielova
+		  IP adresa aktivna.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PS [portlist]</option> (Ping TCP SYN )</term>
+        <listitem>
+
+          <para>Tento parameter vysiela prazdny TCP paket s nastavenym flagom SYN. Predvoleny cielovy port
+		  je 80 (konfigurovatelny v case kompilacie zmenou hodnoty premennej DEFAULT_TCP_PROBE_PORT v subore
+          <filename moreinfo="none">nmap.h</filename>), no alternativny port moze byt
+		  specifikovany ako parameter.  Zoznam portov oddeleny ciarkou moze byt
+		  dokonca specifikovany za parametrom
+          (napriklad <option>-PS22,23,25,80,113,1050,35000</option>), a v tomto pripade sa testy budu vykonavat
+		  paralelne pre kazdy port.</para>
+
+          <para>SYN flag vyjadruje pre vzdialeny system pokus o nadviazanie spojenia.
+		  Za normalnych podmienok by bol cielovy port zatvoreny a spat by bol odoslany RST(reset) paket. Ak sa port zda
+		  byt otvoreny, ciel vysle druhy stupen mechanizmu TCP 3-way handshake, a teda odpovie SYN/ACK TCP paketom. Pocitac
+		  so spustenym Nmapom potom zrusi vznikajuce spojenie odpovedanim RST paketom namiesto ACK paketom, ktory by
+		  dokoncil uplny mechanizmus 3-way-handshake a nadviazal plne spojenie. RST paket nie je odoslany Nmapom, ale 
+		  kernelom pocitaca, na ktorom je spusteny Nmap, ako odpoved na neocakavany paket SYN/ACK.
+          </para>
+
+          <para>Nmap sa nestara o to, ci je port otvoreny alebo zatvoreny.
+          Odpoved s flagom RST alebo SYN/ACK opisana vyssie prezradi Nmapu, ci je hostitelska stanica dostupna a 
+		  ci odpoveda.</para>
+
+          <para> Na pocitacoch s UNIXom moze vseobecne len privilegovany pouzivatel
+          <literal moreinfo="none">root</literal> posielat a prijimat neupravene TCP pakety.
+		  Pri neprivilegovanych pouzivateloch sa automaticky pouzije systemove volanie funkcie connect() na kazdy cielovy port.
+		  Ma to za efekt odoslanie SYN paketu cielovej stanici ako pokusu o nadviazanie spojenia.
+		  Ak funkcia connect() vrati rychlo uspesny vysledok alebo chybu ECONNREFUSED, zakladny TCP stack musel
+          prijat SYN/ACK alebo RST paket a hostitelska stanica je oznacena ako dostupna. Ak je pokus o spojenie
+          neukonceny az do dosiahnutia casoveho limitu, hostitelska stanica je oznacena ako nedostupna.		  
+          To sa pouziva aj pre spojenia pre protokol IPv6, kedze podpora neupravenych IPv6 paketov v Nmape este
+          nie je dostupna. 		  
+		  </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PA [portlist]</option> (Ping TCP ACK)</term>
+        <listitem>
+          <para>Ping TCP ACK je dost podoba na prave rozobraty SYN ping.
+		  Rozdiel je v tom, ze namiesto SYN flagu je nastaveny ACK flag.
+		  Takyto ACK paket znaci potvrdenie dat nad vybudovanym TCP spojenim, ale pritom 
+		  ziadne taketo spojenie neexistuje, takze vzdialene hostitelske stanice by mali vzdy odpovedat
+		  RST paketom, cim v tomto procese prezradia svoju existenciu.
+		  </para>
+
+          <para>Parameter<option>-PA</option> pouziva rovnaky predvoleny port ako test SYN (80)
+		  a takisto moze spracovat zoznam cielovych portov v rovnakom formate. Ak sa o to pokusa
+		  neprivilegovany pouzivatel alebo je specifikovany cielova stanica s protokolom IPv6,
+		  pouzije sa obvykle systemove volanie funkcie connect(), co nie je bezchybne,
+		  pretoze connect() vysiela SYN paket a nie ACK paket.
+		  </para>
+
+          <para> Pricinou moznosti zvolenia medzi testami SYN a ACK ping je
+		  maximalizovat sancu obidenia firewallov. Vela administratorov nastavi
+		  router a dalsie jednoduche firewally tak, ze blokuju prichadzajuce SYN pakety okrem 
+		  tych, ktore su urcene pre verejne sluzby ako napr. webova stranka spolocnosti alebo postovy server.
+		  Toto brani pred dalsimi prichodzimi spojeniami k organizacii, zatial co
+		  pouzivatelia mozu nadvazovat neobmedzene vychadzajuce spojenia na internet.
+		  Tento bezstavovy pristup zabera malo systemovych prostriedkov na firewalle alebo routeri
+		  a je siroko podporovany v hardwarovych a softwarovych filtroch.
+		  Linuxovsky firewallovy software Netfilter/iptables ponuka
+		  parameter
+          <option>--syn</option> na realizaciu tejto bezstavovej metody.
+		  Ak su zavedene taketo bezstavove pravidla, je mozne, ze testy SYN ping 
+		   (<option>-PS</option>) pri zatvorenych cielovych portoch budu blokovane.
+		  V takychto pripadoch sa velmi zide test ACK, pretoze je schopny prejst tymito pravidlami.
+          </para>
+
+          <para> Dalsi bezny typ firewallu pouziva stavove pravidla, ktore odhadzuju neocakavane
+		  pakety. Tato funkcia bola spociatku implementovana hlavne na high-endovych firewalloch,
+		  hoci sa v poslednych rokoch stala beznejsou.
+		  Linuxovsky system Netfilter/iptables podporuje tuto funkciu cez parameter
+		  <option>--state</option>, ktory triedi pakety na zaklade stavu spojenia.
+		  Test SYN bude v takychto podmienkach pravdepodobne fungovat,
+		  zatial co ACK pakety budu vseobecne povazovane za falosne a budu zahodene.
+		  Riesenim tohoto problemu je vykonat oba testy SYN a ACK zadanim parametrov.
+          <option>-PS</option> a <option>-PA</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PU [portlist]</option> (Ping UDP)</term>
+        <listitem>
+
+          <para> Dalsou moznostou zistenia hostitelskych stanic je UDP ping, ktory vysiela
+		  prazdny UDP paket
+		  (v pripade, ze nie je specifikovany parameter <option>--data_length</option> )
+          na dane cielove porty. Zoznam portov ma rovnaky format ako pri predtym 
+		  rozoberanych parametroch
+          <option>-PS</option> a <option>-PA</option>.  Ak nie je specifikovane inac,
+		  predvoleny port je 31338, co je mozne zmenit v case kompilacie zmenou premennej
+          DEFAULT_UDP_PROBE_PORT v subore<filename moreinfo="none">nmap.h</filename>. 
+		  V predvolenom nastaveni sa pouziva velmi neobvykly port, pretoze odosielanie na otvorene porty
+		  je casto nevyziadane v tomto specialnom type scanovania.
+          </para>
+
+          <para> Po zisteni zatvoreneho portu na cielovej stanici
+		  by mal UDP test vratit spravu ICMP Port unreachable.
+		   To indikuje Nmapu, ze pocitac je aktivny a dostupny.
+		   Mnoho dalsich chybovych sprav ICMP ako host/network unreachable alebo TTL exceeeded 
+		   indikuje neaktivnu alebo nedosiahnutelnu hostitelsku stanicu.
+		   Touto cestou sa interpretuje aj neobdrzanie ziadnej odpovede.
+		   Ak sa dosiahne otvoreny port, vacsina sluzieb jednoducho
+		   ignoruje prazdny paket a nevratia ziadnu odpoved.
+		   To je dovod, preco je predvolenym portom testu port 31338, u ktoreho je vysoka pravdepodobnost, ze
+		   sa nebude pouzivat.
+		   Niekolko sluzieb, napr. sluzba chargen, odpovie na prazdny UDP paket a takto 
+		   prezradi Nmapu, ze pocitac je dostupny.
+		   </para>
+
+          <para>Hlavna vyhoda tohoto typu scanu je, ze obchadza 
+		  tie firewally a filtre, ktore presetruju len TCP protokol.
+		  Niekedy som napriklad vlastnil bezdratovy broadbandovy router 
+		  Linksys BEFW11S4. Externe rozhranie tohoto zariadenia filtrovalo vsetky TCP porty v predvolenom nastaveni.
+		  ale UDP testy stale dokazali zistit spravy port unreachable a takto prezradit zariadenie.
+		  </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PE</option>;
+        <option>-PP</option>;
+        <option>-PM</option> (Typy ICMP Pingu )</term>
+        <listitem>
+
+          <para> Okrem neobvyklych, predtym rozoberanych typov
+		  TCP a UDP testov, Nmap dokaze odoslat normalne pakety
+		  odoslane vsade sa vyskytujucim programom 
+          <application moreinfo="none">ping</application>. Nmap odosiela
+		  paket typu 8(echo request) na cielove IP adresy stanic,
+          ocakavajuc, ze dostupne hostitelske stanice odpovedia spravou typu 0 (Echo Reply).
+		  Nanestastie pre sietovych badatelov, mnoho hostitelskych stanic a firewallov v 
+		  sucasnosti blokuje tieto pakety namiesto odpovede podla normy
+		  <ulink url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC
+          1122</ulink>.  Z tohoto dovodu su samotne ICMP scany
+		  zriedkavo spolahlive pri nasadeni proti neznamym cielovym staniciam na internete, no
+		  pre systemovych administratorov monitorujucich vnutornu siet mozu byt praktickou
+		  a efektivnou metodou.
+          Tato moznost sa povoli zadanim parametra <option>-PE</option>.</para>
+
+          <para> Aj ked echo request je standardnou poziadavkou ICMP pingu,
+		  Nmap pokracuje dalej. Standard ICMP (<ulink url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC
+          792</ulink>) takisto specifikuje poziadavky timestamp request, information
+          request a address mask request ako spravy s kodmi 13, 15,
+          a 17. Aj ked zdanlivy ucel pre tieto dotazy moze byt ziskanie informacii
+		  ako napr. masky adresy alebo momentalny cas, mozu byt lahko pouzite
+		  na zistovanie hostitelskych stanic. System, ktory odpovie, je aktivny a dostupny.
+		  Nmap v sucanosti neimplementuje poziadavky information request, pretoze nie su siroko
+          podporovane.  RFC 1122 trva na tom, ze 
+          <quote>hostitelska stanica by NEMALA implementovat tieto spravy</quote>.
+          Dotazy na casove razitko a masku adresy mozu byt odoslane parametrami 
+          <option>-PP</option> a <option>-PM</option>.
+		  Odpoved timestamp reply (ICMP kod 14) alebo odpoved
+          mask reply (kod 18) prezradi to, ze hostitelska stanica je dostupna.
+          Tieto dve dotazy mozu byt cenne, ked administrator specificky
+		  zablokuje pakety poziadavky echo request a zabudne pritom, ze na tento
+		  ucel sa daju pouzit dalsie ICMP dotazy.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PR</option> (Ping ARP )</term>
+        <listitem>
+
+          <para> Jeden z najbeznejsich pouzivatelskych scenarov pouzitia Nmapu je scanovanie lokalnej ethernetovej
+		  siete. Vo vacsine takychto sieti, hlavne tych pouzivajucich privatne adresove rozsahy podla 
+          RFC1918, je vacsina IP adries nepouzivana v lubovolnom casovom okamihu.
+		  Ak sa Nmap pokusi o odoslanie neupraveneho IP paketu ako napr. ICMP echo request, operacny system
+          musi urcit adresu cieloveho zariadenia 
+          (ARP) oodpovedajucu cielovej IP adrese, aby sa mohol 
+		  odoslat ethernetovy ramec s prislusnou adresou. Tento proces je casto pomaly
+		  a problematicky, pretoze operacne systemy neboli vytvorene s ocakavanim,
+		  ze budu musiet v kratkom casovom intervale vykonat miliony ARP dotazov na nedostupne hostitelske stanice.</para>
+
+          <para> ARP scan prenechava zodpovednost pri poziadavkach ARP request na 
+		  Nmap a jeho optimalizovane algoritmy a ak je ziskana spiatocna odpoved,
+          Nmap sa nezaujima o IP ping pakety, pretoze uz vie, ze prislusna hostitelska
+		  stanica je aktivna. Preto je ARP scan omnoho rychlejsi a spolahlivejsi ako scany zalozene na IP.
+          Takto sa to aj bezne vykonava, ked sa scanuju ethernetove
+ 		  hostitelske stanice, ktore Nmap detekuje v lokalnej ethernetovej sieti, a to aj ked su pouzite 
+		  odlisne typy pingov(napriklad <option>-PE</option> alebo
+          <option>-PS</option>).  Ak sa chcete predsa vyhnut ARP scanu, pouzite parameter
+          <option>--send_ip</option>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-n</option> (Bez prekladu DNS)
+        </term>
+        <listitem>
+          <para> Indikuje Nmapu, aby 
+          <emphasis>nikdy</emphasis> nevykonaval reverzny preklad DNS
+          aktivnych IP adries, ktore najde. Kedze DNS je casto pomale, proces sa urychli.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-R</option> (DNS preklad pre vsetky cielove stanice)
+        </term>
+        <listitem>
+          <para>Indikuje Nmapu, aby 
+          <emphasis>vzdy</emphasis> vykonaval reverzny preklad cielovych IP adries.
+           Za normalnych podmienok sa to vykonava len ak je pocitac povazovany 
+		   za aktivny.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--system_dns</option> (Pouzit systemovy prekladac DNS)
+        </term>
+        <listitem>
+          <para>V predvolenom nastaveni preklada Nmap IP adresy tak, ze
+		  odosiela dotazy priamo DNS serverom nastavenym v lokalnej host. stanici
+		   a potom caka na odpovede. Vela dotazov (casto tucty) sa vykonava paralelne kvoli
+		   vykonu. Specifikovanim toho parametra sa namiesto toho pouzije systemovy prekladac.
+          (jedna IP adresa sucasne prostrednictvom volania getnameinfo()).  Je to pomalsie a malokedy
+		  pouzivane -- v pripade, ze sa v DNS kode Nmapu vyskytuje chyba, kontaktujte nas prosim. 
+		  Systemovy prekladac sa vzdy pouziva pre scany IPv6 protokolu.
+         </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dns_servers &lt;server1[,server2],...&gt;
+          </option> (Servery, ktore sa maju pouzit pre reverzne DNS dotazy)
+        </term>
+        <listitem>
+          <para>Za normalnych okolnosti sa Nmap pokusi
+		  urcit DNS servery z konfiguracneho suboru (UNIX) alebo registrov (Win32)
+		  lokalneho pocitaca, avsak alternativne je mozne pouzit tuto moznost na zadanie vlastnych serverov.
+          Tento parameter sa nedodrzuje, pri pouziti parametra 
+          <option>--system_dns</option> alebo scanu protokolu IPv6. Pouzitie viacerych DNS serverov
+		  je casto rychlejsie ako odoslanie dotazov na jeden server.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-port-scanning-basics">
+    <title>Zaklady scanovania portov</title>
+
+          <para> Aj ked Nmap ziskal rokmi vacsiu funkcionalitu,
+          zacinal ako efektivny scanovac portov a to aj zostava jeho hlavnou funkciou.
+		  Jednoduchy prikaz <command moreinfo="none">nmap
+          <replaceable>target</replaceable></command> scanuje viac ako 1660 TCP portov cielovej stanice
+          <replaceable>target</replaceable>.  Zatial co mnoho scanovacov portov tradicne deli
+		  vsetky porty na otvorene alebo zatvorene, Nmap pouziva granularnejsi pristup.
+		  Deli porty do 6 stavov: <literal moreinfo="none">otvoreny</literal>,
+          <literal moreinfo="none">zatvoreny</literal>, <literal moreinfo="none">filtrovany</literal>,
+          <literal moreinfo="none">nefiltrovany</literal>,
+          <literal moreinfo="none">otvoreny|filtrovany</literal>, alebo
+          <literal moreinfo="none">zatvoreny|filtrovany</literal>.</para>
+
+<para>Tieto stavy nie su pravymi vlastnostami samotneho portu, ale opisuju, ako ich vidi Nmap. 
+ Napriklad ak scan z tej istej siete, v akej sa nachadza cielova stanica moze odhalit port 135/tcp ako otvoreny,
+ kym scan v rovnakom case a parametrami z internetu mozu odhalit, ze port je <literal moreinfo="none">filtrovany</literal>.</para>
+
+<variablelist><title>Sest stavov portov rozpoznavanych Nmapom</title>
+
+  <varlistentry><term>otvoreny</term>
+  <listitem><para>Aplikacia na tomto porte aktivne prijima TCP spojenia alebo UDP pakety.
+  Zistenie tohoto faktu je casto hlavnym cielom scanovania portov. Ludia s bezpecnostou
+  v mysli vedia, ze kazdy otvoreny port je pristupom pre utok. Utocnici a testeri preniknutia 
+  chcu vyuzivat otvorene porty, zatial co administratori sa pokusaju
+  zatvorit ich alebo chranit ich firewallmi bez limitovania opravnenych pouzivatelov.
+  Otvorene porty su zaujimave aj pre nebezpecnostne scany, pretoze ukazuju sluzby dostupne v sieti.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>zatvoreny</term>
+
+  <listitem><para> Zatvoreny port je pristupny (prijima a odpoveda na pakety testu vykonavaneho Nmapom),
+  ale ziadna aplikacia na nom nepocuva. Mozu sa zist pri zistovani ci je hostitelska stanica
+  aktivna na IP adrese (zistenie hostitelskej stanice alebo ping scan) a ako cast detekcie OS.
+  Pretoze zatvorene porty su dosiahnutelne, moze byt uzitocne vykonat neskorsi scan a niektore mozu byt 
+  neskor otvorene. Administratori mozu uvazovat o blokovani takychto portov prostrednictvom firewallu.
+  Tie by sa potom objavili vo filtrovanom stave, ktory je rozobrany nizsie.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>filtrovany</term>
+
+  <listitem><para>Nmap nedokaze urcite, ci je port otvoreny, pretoze filtrovanie paketov zabranuje testom
+  dosiahnut tento port.
+  Filtrovanie moze pochadzat z osobitneho firewalloveho zariadenia, pravidiel routera alebo
+  hostitelskeho softwaroveho firewallu.
+  Tieto porty frustruju utocnikov, pretoze poskytuju malo informacii.
+  Niekedy odpovedia chybovou spravou ICMP ako napriklad typ 3, kod 13 
+  (destination unreachable: communication administratively
+  prohibited), ale filtre, ktore jednoducho zahodia test bez odpovede su ovela beznejsie.
+  Tento jav prinuti Nmap zopakovat pokus niekolkokrat kvoli moznemu pripadu, ze test bol zahodeny
+  kvoli zahlteniu siete. Toto dramaticky spomaluje scan.</para></listitem></varlistentry>
+
+  <varlistentry><term>nefiltrovany</term>
+  <listitem><para>Nefiltrovany stav znamena, ze port je pristupny, ale
+  Nmap nedokaze urcite, ci je otvoreny alebo zatvoreny. Len ACK scan, pouzivany na 
+  zmapovanie pravidiel firewallu, klasifikuje porty do tohoto stavu.
+  Scanovanie nefiltrovanych portov inymi typmi scanu ako napr. Window scan, SYN scan alebo FIN scan, moze pomoct
+  rozlustit, ci je port otvoreny.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>otvoreny|filtrovany</term>
+  <listitem><para>Nmap charakterizuje porty tymto stavom, ak nedokaze urcit, 
+  ci je port otvoreny alebo filtrovany. K tomu dochadza pri typoch scanov portov, kde
+  otvorene porty neposkytuju odpoved, co moze tiez znamenat, ze paketovy filter
+  zahodil test alebo vyvolanu odpoved, takze Nmap nedokaze naisto urcit,
+  ci je port otvoreny alebo filtrovany. Protokoly UDP,IP a scany FIN, Null a Xmas vykonavaju
+  takuto klasifikaciu portov.</para></listitem></varlistentry>
+
+  <varlistentry><term>zatvoreny|filtrovany</term>
+  <listitem><para>Tento stav je pouzity, ked Nmap nedokaze urcit ci je 
+  port zatvoreny alebo filtrovany. Pouziva sa len pri scane typu IPID Idle.</para></listitem></varlistentry>
+  </variablelist>
+</refsect1>
+
+<refsect1 id="man-port-scanning-techniques">
+  <title>Sposoby scanovania portov</title>
+
+<para>Ako novacik pokusajuci sa opravit auto, mozem sa trapit dlhe hodiny, aby som nasiel
+vhodne zakladne naradie (kladivo, lepiaca paska, kluc, atd) na danu ulohu.
+Ked sa uz citim utrapene a odtiahnem svoj vrak ku naozajstnemu mechanikovi, ten stale obchadza
+auto s velkou debnou naradia, az kym nevylovi tu vecicku co z prace urobi hracku.
+Podobne je aj umenie scanovania. Experti ovladaju kopu metod scanovania a zvolia prislusnu 
+(alebo kombinaciu) pre danu ulohu. Na druhej strane neskuseni pouzivatelia a rychlokvaseni
+majstri v praci so skriptom budu riesit kazdy problem predvolenym SYN scanom. Kedze Nmap je zadarmo,
+jedinou barierou pred majstrovstvom v scanovani portov je vedomost, co urcite poraza svet automobilov,
+kde zistenie potreby pruzinoveho kompresora stale vyzadujuce zaplatit zan tisice dolarov, moze vyzadovat velke
+zrucnosti.</para>
+
+<para>Vacsina typov scanov je dostupna len pre privilegovanych pouzivatelov, z toho dovodu,
+ze posielaju a prijimaju neupravene pakety, co si na UNIXovych systemoch vyzaduje pristup roota.
+Na platforme Windows sa odporuca administratorsky ucet, hoci po nahrati kniznice WinPcap do OS
+funguje niekedy Nmap aj pre neprivilegovanych pouzivatelov.
+V roku 1997 po vydani Nmapu bola otazka privilegii roota dost vaznym obmedzenim, kedze mnohi pouzivatelia
+mali pristup len ku shared shell uctu. Svet sa vsak zmenil.
+Pocitace su lacnejsie, ovela viac ludi ma teraz neprestajny priamy pristup na internet a UNIXove
+systemy pre desktop (vratane Linuxu a MAC OS X) su rozsirene. Dostupna je aj verzia Nmapu pre Windows,
+co dovoluje spustit program na este viac desktopoch. Z tychto vsetkych dovodov nemaju pouzivatelia
+taku potrebu spustat Nmap z obmedzenych shared shell uctov.
+To je stastne, pretoze parametre vyzadajuce privilegia robia z Nmapu ovela mocnejsi a flexibilnejsi
+nastroj.
+</para>
+
+<para>Nmap sa sice pokusa produkovat presne vysledky, ale je dolezite si uvedomovat,
+ze vsetko jeho chapania problemu su zalozene na paketoch odoslanych cielovymi pocitacmi
+alebo firewallmi pred nimi. Taketo hostitelske stanice mozu byt nedoveryhodne a posielat 
+zamerne matuce odpovede a uviest Nmap do omylu.
+Ovela beznejsie su vsak hostitelske stanice nevyhovujuce standardu RFC, ktore neodpovedaju na testy
+Nmapom tak ako by mali. Specialne nachylne na tento problem su scany typu FIN, Null a Xmas.
+Taketo potiaze su specificke pre iste typy scanov a su rozobrate v zaznamoch
+o jednotlivych typoch scanov.
+</para>
+
+<para> Tento cast dokumentuje asi tucet metod scanovania portov podporovanych Nmapom.
+  Len jedna metoda moze byt pouzita sucasne, s vynimkou UDP scanu
+  (<option>-sU</option>), ktory moze byt kombinovany s lubovolnym dalsim TCP scanom. 
+  Ako pomocka pre pamat, parametre typu scanovania portov su vo formate
+  <option>-s<replaceable>C</replaceable></option>, kde
+<replaceable>C</replaceable> predstavuje hlavny znak v nazve scanu, obycajne ten prvy.
+Vynimkou je uz odmietnuty FTP bounce scan (<option>-b</option>).  V predvolenom nastaveni
+vykonava Nmap SYN scan, hoci ak pouzivatel nema dostatocne privilegia alebo ciele IPv6 neboli
+specifikovane, nahradzuje
+ho volanim Connect(), aby sa mohli odoslat neupravene pakety (to vyzaduje pristup roota na 
+UNIXovych pocitacoch). Zo vsetkych spomenutych scanov mozu pouzivatelia bez
+privilegii spustit len scany connect() a ftp bounce. </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        <option>-sS</option> (Scan TCP SYN )</term>
+        <listitem>
+
+<para> SYN scan je predvolenym a najoblubenejsim typom scanu a to z dobrych dovodov.
+Dokaze byt vykonany rychlo, scanujuc tisicky portov za sekundu tam, kde je rychla siet bez
+obmedzeni dotieravych firewallov. SYN scan je relativne nenapadny a tajny, pretoze
+nikdy nedokonci fazu nadvazovania TCP spojeni. Funguje aj proti akymkolvek TCP stackom
+a nezavisi teda na svojraznostiach konkretnych platform ako dalsie Nmapovske scany
+Fin, Null, Xmas, Maimon a Idle.
+Umoznuje takisto ciste a spolahlive rozlisenie medzi 
+<literal moreinfo="none">otvorenymi</literal>,
+<literal moreinfo="none">zatvorenymi</literal> a <literal moreinfo="none">filtrovanymi</literal>
+stavmi.</para>
+
+<para>Na tuto metodu sa casto odkazuje ako na polootvorene scanovanie,pretoze
+nie je potrebne otvarat plne TCP spojenie. Odosle sa SYN paket ako keby sa nadvazovalo
+skutocne spojenie a potom sa caka na spojenie. Prichodzi SYN/ACK paket indikuje, 
+ze port nacuva (je otvoreny), kym RST (reset) naznacuje, ze port nenacuva.
+Ak sa neodosle ziadna odpoved ani po niekolkych retransmisiach, port sa oznaci 
+ako filtrovany. Taketo oznacenie sa pouzije, aj ked pride
+chybova sprava ICMP unreachable error (typ 3, kody 1,2, 3, 9, 10, alebo 13).</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sT</option> (Scan TCP connect())</term>
+        <listitem>
+
+<para>Scan TCP Connect() je predvolenym typom TCP scanu, ak SYN scan nepatri medzi
+moznosti. K tomu dochadza, ak pouzivatel nema privilegia na odosielanie neupravenych
+paketov, alebo pri scanovani sieti s protokolom IPv6. Nmap namiesto vytvorenia neupravenych
+paketov, ako pri vacsine dalsich scanov, poziada operacny system o vytvorenie spojenia s cielovou 
+stanicou a portom pomocou systemoveho volania <literal moreinfo="none">connect()</literal>.
+Je to presne to iste volanie na vyssej urovni k vytvoreniu spojenia, ktore vyuzivaju webove prehliadace,
+klienti P2P a vacsina dalsich aplikacii vyuzivajucich siet a tvori cast programoveho rozhrania
+znameneho pod menom  Berkeley Sockets
+API. Namiesto prijimania a spracovavania neupravenych odpovedi po sieti, Nmap pri kazdom pokuse o spojenie
+pouziva toto rozhranie API na ziskanie informacii o stave.
+</para>
+
+<para>Ak je dostupny SYN scan, je obycajne lepsou volbou. Nmap ma mensiu kontrolu nad 
+vysokourovnovym volanim <literal moreinfo="none">connect()</literal> ako 
+nad neupravenymi paketmi, co sposobuje horsiu efektivnost.Systemove volanie
+dokoncuje nadvazovanie spojeni k otvorenym portom cieloveho hostitela namiesto 
+vykonania polootvoreneho resetu, ktory vykonava SYN scan. Tento postup nielenze 
+trva dlhsie, ale takisto vyzaduje viac paketov na ziskanie tych istych informacii a cielove
+pocitace budu spojenie pravdepodobne zaznamenavat do logu. 
+Poriadny IDS to sice tiez zachyti, ale vacsina pocitacov nema takyto system.
+Ked sa Nmap pripoji a potom zavrie spojenia bez odoslania dat,
+vacsina sluzieb na priemernom UNIXovom system prida poznamku do syslogu.
+Niektore fakt ubohe sluzby mozu pritom spadnut, ale to je nezvycajne.
+Administrator, ktory vidi v logu niekolko pokusov o spojenie od jedneho systemu by mal vediet, 
+ze bol scannovany s ohladom na nadviazanie spojenia. 
+  </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sU</option> (UDP scany)</term>
+        <listitem>
+
+<para>Zatial co vacsina oblubenych sluzieb na internete funguje na TCP protokole,
+<ulink url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> sluzby
+su tiez siroko nasadzovane. Tri najbeznejsie z nich su DNS, SNMP a DHCP
+(registrovane porty 53, 161/162 a 67/68). Pretoze scanovanie UDP je vseobecne pomalsie
+a narocnejsie ako TCP, niektori spravcovia bezpecnosti si nevsimaju tieto porty a to je chyba, lebo
+zneuzitelne UDP sluzby su celkom bezne a utocnici iste nebudu ignorovat cely protokol. 
+Nastastie, Nmap dokaze pomoct urobit supis tychto UDP portov.</para>
+
+<para>UDP scan je mozne spustit parametrom <option>-sU</option>.  
+Moze sa kombinovat s TCP scanom ako napr. SYN scan 
+(<option>-sS</option>) a tak sa mozu skontrolovat oba protokoly pocas jedneho spustenia.</para>
+
+<para>UDP scan funguje tak, ze odosle kazdemu cielovemu portu prazdnu hlavicku UDP header bez dat.
+Ak sa vrati chybova sprava ICMP port unreachable error (typ 3, kod 3) port je <literal moreinfo="none">zatvoreny</literal>.  
+Ostatne chybove spravy ICMP (typ 3,
+kody 1, 2, 9, 10 alebo 13) oznacuju port ako <literal moreinfo="none">filtrovany</literal>.  Prilezitostne moze
+sluzba odpovedat UDP paketom a tym dokaze, ze port je <literal moreinfo="none">otvoreny</literal>.  Ak sa po
+opakovanych retransmisiach neobjavi ziadna odpoved, port je oznaceny ako
+<literal moreinfo="none">otvoreny|filtrovany</literal>.  
+To znamena, ze port by mohol byt otvoreny alebo mozno paketove filtre blokuju komunikaciu.
+Na pomoc pri odliseni otvorenych a filtrovanych portov sa moze pouzit parameter 
+(<option>-sV</option>).</para>
+
+<para> Velkou vyzvou pre scanovanie UDP je rychlost. Otvorene a filtrovane porty malokedy
+posielaju odpoved a tak pre vyprsi casovy limit, co vyusti v dalsie retransmisie pre pripad,
+ze sa test alebo odpoved mohli v sieti stratit. Zatvorene porty su casto vacsim problemom.
+Obycajne odosielaju spat chybovu spravu ICMP port unreachable error, no na rozdiel od
+RST paketov odosielanych zatvorenymi TCP portmi ako odpoved na SYN alebo Connect scan,
+, mnoho hostitelskych stanic standardne pouziva limit takychto odoslanych chybovych sprav.
+Specialne prisne na tento fakt su Linux a Solaris.
+Napriklad linuxove jadro 2.4.20 dava obmedzenie na spravy typu destination unreachable v pocte
+jedna sprava za sekundu (v subore <filename moreinfo="none">net/ipv4/icmp.c</filename>).</para>
+
+<para>Nmap detekuje obmedzenie v pocte a podla toho sa spomali, aby sa vyhol zaplaveniu siete nepotrebnymi
+paketmi, ktore by cielova stanica zahodila. Linuxovske obmedzenie 1 paket za sekundu nanestastie sposobuje, 
+ze by scan 65536 portov trval 18 hodin. Napady ako tento proces urychlit su napr.scanovanie viacerych hostov sucasne
+, vykonat najprv rychly scan popularnych portov, scanovat spoza firewallu alebo pouzitie parametru
+<option>--host_timeout</option> na preskocenie pomalych hostitelskych stanic.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sN</option>; <option>-sF</option>; <option>-sX</option> (TCP Null, FIN a Xmas scany)</term>
+        <listitem>
+
+<para>Tieto tri typy scanov (dalsie sa daju vykonat pouzitim parametra
+<option>--scanflags</option> su opisane v dalsej casti)
+vyuzivaju malu dieru v standarde <ulink url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC</ulink>, aby rozlisili
+medzi<literal moreinfo="none">otvorenymi</literal> a
+<literal moreinfo="none">zatvorenymi</literal> portmi.  Na strane sa 65 hovori, ze <quote>ak je 
+[cielovy] port zatvoreny.... prichadzajuci segment, ktory neobsahuje flag RST sposobi, ze sa ako
+odpoved odosle RST segment.</quote>  Dalsia strana potom rozobera pakety odosielane na otvorene porty
+bez nastavenych bitov SYN, RST ani ACK a tvrdi: <quote>je nepravdepodobne, ze sa dostanete 
+do tejto situacie, ale ak k nej dojde, zahodte segment a vratte sa.</quote></para>
+
+<para>Ak sa scanuju systemy zodpovedajuce tomuto textu RFC, lubovolny paket
+neobsahujuci nastavene bity SYN, RST ani ACK vyvola odpoved s RST bitom, ak bol port
+zatvoreny a ziadnu odpoved, ak je port zatvoreny. Pokial nie su zahrnute ziadne z tychto troch bitov,
+je v poriadku lubovolna kombinacia flagov (FIN, PSH a URG). Nmap ich vyuziva pomocou
+tychto troch typov scanov:</para>
+
+<variablelist>
+  <varlistentry><term>Null scan (<option>-sN</option>)</term>
+  <listitem><para>Nenastavuje ziadne bity(tcp flag header je nastaveny na 0)</para></listitem></varlistentry> 
+
+  <varlistentry><term>FIN scan (<option>-sF</option>)</term>
+  <listitem><para>Nastavi len bit TCP FIN.</para></listitem></varlistentry> 
+
+  <varlistentry><term>Xmas scan (<option>-sX</option>)</term>
+  <listitem><para>Nastavi flagy FIN, PSH a URG, cim sa paket "rozsvieti" ako 
+  Vianocny stromcek.</para></listitem></varlistentry>
+</variablelist>
+
+<para>Tieto tri typy scanov maju rovnake spravanie az na to nastavenie
+TCP flagov. Ak dojde ako odpoved RST paket, port sa povazuje za <literal moreinfo="none">zatvoreny</literal>, 
+kym ziadna odpoved znaci <literal moreinfo="none">otvoreny|filtrovany</literal>.  Port sa oznaci ako
+<literal moreinfo="none">filtrovany</literal> ak dorazi chybova sprava ICMP unreachable (typ 3, kod
+1, 2, 3, 9, 10 alebo 13).</para>
+
+<para>Klucovou vyhodou tychto typov scanov je, ze sa dokazu pretlacit cez
+iste bezstavove firewally a routre s filtrovanim paketov. Okrem toho su este viac tajnejsie
+ako SYN scan, no neda sa na to spoliehat -- vacsina modernych IDS sa da nastavit tak, aby ich detekovala.
+Velkou nevyhodou je, ze cely rad systemov sa nedrzi do pismena standardu RFC 793, posielaju odpovede
+RST bez ohladu na to, ci je port otvoreny alebo zatvoreny.
+Preto su vsetky taketo porty oznacovane ako <literal moreinfo="none">closed</literal>.  
+Hlavne operacne systemy s takymto spravanim su Microsoft Windows, mnohe zariadenia Cisco ,
+ BSDI a IBM OS/400.
+Tento scan vsak funguje na mnohe UNIXovske systemy.
+Dalsim hacikom tychto scanov je, ze nedokazu rozlisit <literal moreinfo="none">otvorene</literal> porty od 
+istych<literal moreinfo="none">filtrovanych</literal>, takze vyvolaju odpoved
+<literal moreinfo="none">otvoreny|filtrovany</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sA</option> (Scan TCP ACK)</term>
+        <listitem>
+
+<para>Tento scan sa lisi od ostatnych doposial rozoberanych v tom,
+ze nikdy neurcuje porty v stave <literal moreinfo="none">otvoreny</literal> (dokonca ani
+<literal moreinfo="none">otvoreny|filtrovany</literal>).  Pouziva sa na zmapovanie
+sad pravidiel firewallu, ci su stavove alebo bezstavove a ktore porty su filtrovane.</para>
+
+<para>Testovaci ACK Paket ma nastaveny len ACK flag (ak nie je pouzity parameter <option>--scanflags</option>). 
+ Ak sa scanuju nefiltrovane systemy, stavy portov
+<literal moreinfo="none">otvoreny</literal> a <literal moreinfo="none">zatvoreny</literal> vratia zhodny 
+RST paket.  Nmap ich potom oznaci ako 
+<literal moreinfo="none">nefiltrovane</literal>, co znamena, ze su dostupne pomocou ACK paketu
+, ale nie je rozpoznane, ci su <literal moreinfo="none">otvorene</literal> alebo
+<literal moreinfo="none">zatvorene</literal>.  Porty, ktore neodpovedia ci odoslu spat nejaku chybovu spravu
+ICMP (typ 3, kod 1,2,3,9,10 alebo 13) su oznacene ako <literal moreinfo="none">filtrovane</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sW</option> (Scan TCP Window)</term>
+        <listitem>
+
+<para>Window scan je presne taky isty ako ACK scan az na to, ze vyuziva
+implementacne detaily istych systemov na rozlisenie otvorenych a zatvorenych
+portov, namiesto prosteho vypisu 
+<literal moreinfo="none">nefiltrovany</literal> po navrate RST paketu. Realizuje sa to
+preskumanim polozky RST paketu s nazvom TCP  Window. Na niektorych systemoch pouzivaju
+otvorene porty kladnu velkost okienka, dokonca aj pre RST pakety, kym, zatvorene porty maju
+nulovu velkost okienka, takze namiesto vypisu stavu portu ako <literal moreinfo="none">nefiltrovany</literal> 
+Window scan zobrazi port v stave<literal moreinfo="none">otvoreny</literal> alebo
+<literal moreinfo="none">zatvoreny</literal> podla velkosti okienka (kladna resp. nulova).</para>
+
+<para>Tento typ scanu sa spolieha na implementacny detail
+mensiny systemov na internete, takze mu nie je mozne vzdy doverovat.
+Systemy ktore to nepodporuju obycajne vratia vsetky porty v stave
+<literal moreinfo="none">zatvoreny</literal>.  Je samozrejme mozne, ze pocitac
+nema ziadne otvorene porty. Ak je vacsina scanovanych portov 
+<literal moreinfo="none">zatvorena</literal>, ale niekolko beznych 
+portov (napr. 22,
+25, 53) je v stave <literal moreinfo="none">filtrovany</literal> system je pravdepodobne
+nachylny na tento scan.  Zriedkavo mozu systemy vykazat 
+presne opacne spravanie. Ak je scan ukaze, ze je 1000 otvorenych portov a 3 zatvorene alebo filtrovane
+, tieto tri porty mozu byt pokojne tie otvorene.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sM</option> (Scan TCP Maimon)</term>
+        <listitem>
+
+<para>Maimon scan je pomenovany po svojom objavitelovi, Urielovi Maimonovi. Tuto techniku
+opisal v casopise Phrack, vydanie #49 (November 1996)
+Nmap s touto metodou bol vydany o dve vydania neskor.
+Metoda funguje presne ako scany Null, FIN a Xmas, ale test je typu FIN/ACK. Podla standardu
+RFC 793 (TCP), RST paket by mal byt generovany ako odpoved na tento test bez ohladu na otvoreny alebo
+zatvoreny port. Uriel vsak spozoroval, ze mnohe systemy odvodene od BSD jednoducho zahodia paket, ak je port
+otvoreny.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scanflags</option> (Vlastny TCP scan)</term>
+        <listitem>
+
+<para>Naozaj pokrocili pouzivatelia Nmapu sa nemusia obmedzovat len na
+vopred ponuknute type scanov. Parameter <option>--scanflags</option> vzdy umozni zadanim lubovolnych TCP
+flagov vytvorit vlastny scan. Neobmedzujte svoju kreativitu pri vyhybani sa systemom IDS, ktorych 
+vyrobcovia jednoducho prelisovali manual k Nmapu a pridali specificke pravidla. 
+</para>
+
+<para>Argumentom parametru<option>--scanflags</option> moze byt hodnota cisla flagu ako napr.
+9 (PSH a FIN), no je jednoduchsie pouzivat nazvy, staci zlepit dokopy lubovolnu kombinaciu flagov
+<literal moreinfo="none">URG</literal>,
+<literal moreinfo="none">ACK</literal>, <literal moreinfo="none">PSH</literal>,
+<literal moreinfo="none">RST</literal>, <literal moreinfo="none">SYN</literal> a
+<literal moreinfo="none">FIN</literal>.  Napriklad <option>--scanflags
+URGACKPSHRSTSYNFIN</option> nastavi vsetko, hoci to nie je prilis uzitocne pre scanovanie. Poradie nazvov nie 
+je dolezite.</para>
+
+<para>Okrem specifikovanie ziadanych flagov je mozne 
+zadat typ TCP scanu (napriklad<option>-sA</option> alebo <option>-sF</option>), co 
+Nmapu napovie ako interpretovat odpovede. Napriklad SYN scan povazuje
+absenciu odpovede za port so stavom
+<literal moreinfo="none">filtrovany</literal>, kym FIN scan odpovie na rovnaku situaciu
+<literal moreinfo="none">otvoreny|filtrovany</literal>.  Nmap bude postupovat
+presne tak ako pri zakladnych typoch scanu, no pouzije TCP flagy, ktore budu 
+zadane. Ak nie je zadany zakladny typ scanu, pouzije sa SYN scan.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sI &lt;zombie
+        host[:probeport]&gt;</option> (Scan naprazdno - Idlescan)</term>
+
+        <listitem>
+
+          <para>Tato pokrocila metoda umoznuje naozaj
+		  slepy scan portov cielovej stanice s tym, ze z lokalnej skutocnej
+		  IP adresy nie su odosielane ziadne pakety. Namiesto toho sa pouzije 
+		  utok po bocnom kanale, ktory vyuziva 
+		  delenie na IP fragmenty a predpovedatelne tvorenie sekvencie ID cisel na zombie hostitelovi.
+		  Tym sa zhromazduju informacie o otvorenych portoch na cielovom pocitaci.
+		  IDS systemy zobrazia, ze scan pochadza z pocitaca zombie, ktory bol specifikovany, musi
+		  byt samozrejme aktivny a splnat urcite kriteria.
+		  Tento fascinujuci typ scanu je prilis zlozity na plny popis v tejto prirucke,
+		  takze som uplne detaily popisal neformalnym sposobom a ulozil na adresu 
+		  <ulink url="http://nmap.org/book/idlescan.html"/>.</para>
+
+          <para>Okrem toho, ze tento scan je vynimocne nenapadny (kvoli svojej slepej povahe),
+		  umoznuje zmapovat doveryhodne vztahy medzi pocitacmi zalozene na IP adrese.
+		  Zoznam portov zobrazuje otvorene porty 
+          <emphasis>z pohladu zombie hostitela.</emphasis> Takze je mozne 
+		  pokusit sa o scan cielovej stanice pouzitim roznych zombie pocitacov, o ktorych
+		  si myslite, ze su doveryhodne (pomocou pravidiel routra alebo paketoveho filtra).</para>
+
+          <para>Ak sa ma na strane zombie pocitaca testovat specificky port kvoli zmenam hodnoty IPID,
+		  pridajte dvojbodku nasledovanu cislom portu. Inak Nmap pouzije povodny port urceny na
+          tcp pingovanie - 80.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sO</option> (Scan protokolu IP)</term>
+        <listitem>
+          
+<para>Scan protokolu IP umoznuje urcite, ktore protokoly IP (TCP, ICMP, IGMP, atd.) 
+su podporovane cielovymi pocitacmi. Technicky to nie je scan portov, pretoze prebieha
+roznymi cislami protokolov IP a nie cislami portov protokolov TCP a UDP. Aj napriek tomu
+pouziva parameter <option>-p</option> na vyber scanovanych cisel protokolov, oznamuje 
+vysledky v normalnom formate tabulky portov a dokonca pouziva ten isty mechanizmus scanu
+ako prave metody scanovania portov, takze je dost blizko scanovaniu portov, a preto patri sem.</para>
+
+<para>
+Okrem toho, ze je uzitocny vo vlastnom zmysle,
+scan protokolov demonstruje silu open-source softwaru.
+Zatial co zakladna myslienka je dost jednoducha, nerozmyslal som nad jej pridanim ani 
+som nedostal poziadavky o takuto funkcionalitu.
+Potom vsak v lete roku 2000 dostal Gerhard Rieger tento napad, napisal excelentny
+patch, ktory to implementoval a poslal ho do mailing listu skupiny hackerov nmapu.
+Tento patch som vlozil do stromu Nmapu a na dalsi den vydal novu verziu. 
+Len malo zastupcov komercneho softwaru ma nadsenych uzivatelov, ktori vytvaraju a prispievaju
+svojimi vylepseniami.</para>
+
+<para> Scan protokolu funguje podobne ako UDP scan.
+Namiesto iterovania cez cisla portov v policku UDP paketu vysiela Nmap hlavicky
+IP paketu a iteruje cez 8-bitove policko IP protokolu. Hlavicky su zvycajne prazdne, neobsahuju
+data a ani patricnu hlavicku pre vyhlaseny protokol.
+Troma vynimkami su protokoly TCP,
+UDP a ICMP.  Tu je patricna hlavicka protokolu zahrnuta, pretoze
+ niektore systemy ich inak neodoslu a pretoze uz Nmap obsahuje funkcie na ich
+ vytvorenie.
+ Namiesto pozorovania sprav ICMP port
+unreachable protocol sa scan zaujima o spravy ICMP
+<emphasis>protocol</emphasis> unreachable.  Ak Nmap prijme od cieloveho hostitela akukolvek odpoved akehokolvek
+protokolu, Nmap oznaci protokol ako <literal moreinfo="none">otvoreny</literal>.  
+Chybova sprava ICMP protocol unreachable(typ 3, kod 2) sposobi,
+ze sa protokol oznaci ako 
+<literal moreinfo="none">zatvoreny</literal> Dalsie chybove spravy ICMP unreachable (typ 3, kod
+1, 3, 9, 10 alebo 13) sposobia stav protokolu ako 
+<literal moreinfo="none">filtrovany</literal> (hoci v rovnakom momente dokazuju, ze je 
+<literal moreinfo="none">otvoreny</literal>).  
+Ak sa neobdrzi ziadna odpoved po retransmisiach, protokol sa oznaci ako 
+<literal moreinfo="none">otvoreny|filtrovany</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>
+        <option>-b &lt;ftp relay host&gt;</option> (FTP bounce scan)</term>
+        <listitem>
+
+<para> Zaujimavou funkciou protokolu FTP (<ulink url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>) je
+podpora takzvanych proxy ftp spojeni, co umoznuje pouzivatelovi pripojit sa
+k jednemu FTP serveru a potom ziadat o to, aby sa subory posielali serveru tretej strany.
+Tato vlastnost je priam idealna pre zneuzitie na mnohych urovniach
+, takze mnohe servery ju prestali podporovat.
+Jednym z tychto zneuziti tejto funkcie je vyvolanie situacie, kde FTP server scanuje
+porty dalsich hostitelskych stanic. Je mozne zaradom jednoducho poziadat FTP server o zaslatie
+subor na kazdy zaujimavy port cieloveho hostitela. Chybova sprava opise, ci 
+je port otvoreny alebo nie. To je dobry sposob ako obist firewally, pretoze FTP servery
+organizacii su casto umiestnovane tam, kde maju vacsi pristup k vnutornym hostitelskym staniciam ako kazda
+ina stanica na internete. Nmap podporuje ftp bounce scan pomocou parametra <option>-b</option>. 
+Ako argumenty pouziva 
+<replaceable>pouzivatelske meno</replaceable>:<replaceable>heslo</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>.
+<replaceable>Server</replaceable> je nazvom IP adresy zranitelneho FTP servera.  
+Tak ako aj pri normalnej URL adrese, aj tu sa moze vynechat 
+<replaceable>pouzivatelske meno</replaceable>:<replaceable>heslo</replaceable>,
+pricom sa pouziju anonymne prihlasovacie udaje (pouzivatel:
+<literal moreinfo="none">anonymous</literal> heslo:<literal moreinfo="none">-wwwuser@</literal>). 
+ Cislo portu (a predchadzajuca dvojbodka ) mozu byt vynechane tiez, pricom sa vtedy pouzije povodny
+ FTP port (21) na
+<replaceable>serveri</replaceable>.</para>
+
+<para>Tato zranitelnost bola siroko rozsirena v roku 1997,
+ked bol Nmap vydany, no bola do velkej miery opravena. Zranitelne servery su stale
+naokolo, takze stoji to za to vyskusat ich. Ak je cielom obist firewall, je mozne
+scanovat cielovu siet s cielovym portom 21 (alebo aj akekolvek ftp sluzby ak sa scanuju
+vsetky porty s detekciou verzie) a potom vyskusat spustit scan bounce scan ftp.
+Nmap prezradi, ci je hostitelska stanica zranitelna alebo nie.
+Ak sa pokusate len zakryt svoje stopy, nie je nevyhnutne (a v skutocnosti by sa ani nemalo) obmedzovat
+sa na hostitelske stanice v cielovej sieti. Pred scanovanim nahodnych internetovych adries
+na zistenie zranitelnych FTP serverov zoberte do uvahy, ze systemovym administratorom
+sa nemusi pacit zneuzitie ich serverov takymto sposobom.</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+   <refsect1 id="man-port-specification">
+    <title>Specifikacia portu a poradie scanov</title>
+
+    <para>Okrem vyssie rozoberanych scanov ponuka Nmap moznosti na 
+	specifikaciu scanovanych portov a ci ma byt poradie scanov nahodne alebo 
+	sekvencne. V predvolenom nastaveni scanuje Nmap
+	vsetky porty do a vratane 1024 tak ako aj vyssie cisla portov zobrazenych pre scanovane 
+	protokoly v subore <filename moreinfo="none">nmap-services</filename>.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-p &lt;port ranges&gt;</option> (Scanovat len specifikovane porty)
+        </term>
+        <listitem>
+
+          <para> Tento parameter specifikuje, ktore porty sa maju scanovat a prepise povodne nastavenie.  
+		  Mozu byt pouzite jednotlive cisla portov, ako aj rozsahy oddelene spojovnikom, napr. 1-1023. 
+		  Zaciatocne a konecne hodnoty rozsahu mozu byt vynechane, cim budu Nmapom pouzite hodnoty
+		  1 resp. 65535. Je teda mozne specifikovat parameter <option>-p-</option> 
+		  cim sa budu scanovat porty od 1 po
+          65535. Po explicitnom specifikovani je mozne scanovat aj port 0.
+		  Pri scanovani protokolu IP ,(<option>-sO</option>), tento parameter specifikuje cisla protokolov,
+		  ktore sa maju scanovat
+          (0-255).</para>
+
+          <para>Ak sa scanuju TCP aj UDP porty, mozete prislusny protokol charakterizovat
+		  pismenami <literal moreinfo="none">T:</literal>
+          alebo <literal moreinfo="none">U:</literal> predchadzajucimi cislo portu.
+		  Toto pismeno plati az kym nespecifikujete dalsie pismeno.
+		  Napriklad argument <option>-p
+          U:53,111,137,T:21-25,80,139,8080</option> bude scanovat UDP
+          porty 53,111 a 137 a takisto spomenute TCP porty. Na to, aby sa scanovali TCP aj UDP, je 
+		  potrebne zadat parameter 
+          <option>-sU</option> a aspon jeden typ TCP scanu (napriklad
+          <option>-sS</option>, <option>-sF</option> alebo
+          <option>-sT</option>). Ak nie je zadane ziadne urcujuce pismeno, cisla portov su pridane
+		  do zoznamu vsetkych protokolov.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-F</option> (Rychly scan s limitovanym poctom portov)
+        </term>
+        <listitem>
+
+          <para>Udava, ze je nutne scanovat len porty uvedene v subore <filename moreinfo="none">nmap-services</filename>
+          ktory je dodavany spolu s Nmapom(alebo subor s protokolmi pomocou parametra
+          <option>-sO</option>). Tento sposob je ovela rychlejsi ako
+		  scannovanie vsetkych 655535 portov na hostitelskej stanici.
+		  Pretoze tento zoznam obsahuje viac ako TCP portov, nie je tu vyrazny rozdiel
+		  oproti povodnemu TCP scanu s okolo 1650 portmi. Rozdiel je dramaticky, ak specifikujete svoj vlastny
+		  maly subor 
+          <filename moreinfo="none">nmap-services</filename> pouzitim parametru 
+          <option>--datadir</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-r</option> (Nevyberat porty nahodne)
+        </term>
+        <listitem>
+          <para>V predvolenom nastaveni vybera Nmap poradie scanovanych portov nahodne
+		  (okrem toho, ze iste vseobecne pristupne porty su z 
+		  dovodov efektivnosti na zaciatok).  Tento proces randomizacie je za normalnych okolnosti
+		  ziadany, ale parametrom 
+          <option>-r</option> je mozne specifikovat sekvencne scanovanie portov.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+  <refsect1 id="man-version-detection">
+    <title>Detekcia sluzby a verzie</title>
+
+    <para>Pouzite Nmap na vzdialeny pocitac a ten potom moze prezradit,
+	ze porty 25/tcp, 80/tcp a 53/udp su otvorene. Pouzitim svojej databazy 
+    <filename moreinfo="none">nmap-services</filename> s obsahom okolo 2,200 znamych sluzieb,
+	by dokazal Nmap oznamit, ze tieto porty pravdepodobne patria postovemu serveru (SMTP)
+    webovemu serveru (HTTP) a DNS serveru (DNS). Toto vyhladanie je obycajne 
+	presne - drviva vacsina daemonov nacuvajucich na TCP porte 25 su v skutocnosti
+	postove servery, no urcite sa na tomto neda stavit bezpecnost, ludia mozu mat
+    spustene sluzby na zvlastnych portoch.</para>
+
+    <para>Aj ked ma Nmap pravdu a hypoteticky server ma spustene
+	servery SMTP, HTTP a DNS, neznamena to vela informacii. Ked vykonavate odhady zranitelnosti alebo
+	hoci aj jednoduche supisy siete vasich firiem alebo klientov, chcete naozaj vediet aj to,
+    ake mailove a DNS servery a ich verzie su spustene. Ziskanie presneho cisla verzie
+    pomaha dramaticky urcit, pred akymi zneuzitim je server zranitelny. Detekcia verzie pomaha zistit tuto
+	informaciu.</para>
+
+    <para> Po zisteni TCP alebo UDP portov pomocou jednej z metod scanu,
+	detekcia verzie skuma tieto porty, aby zistila, co na nich bezi.Subor s databazou
+    <filename moreinfo="none">nmap-service-probes</filename> obsahuje testy na
+	dotazovanie rozlicnych sluzieb a zodpovedajucih vyrazov na rozpoznanie a vykonanie
+	rozboru odpovedi. Nmap sa pokusa urcit protokol sluzby (napriklad ftp, ssh, telnet, http), nazov aplikacie
+	(napriklad ISC
+    Bind, Apache httpd, Solaris telnetd), cislo verzie,
+    hostitelsky nazov, typ zariadenia(napr. tlaciaren, router), skupinu OS 
+    (napr. Windows, Linux) a niekedy rozlicne podrobnosti ako napr. ci je X server otvoreny spojeniam
+    verziu SSH protokolu alebo pouzivatelske meno v programe KaZaA). Samozrejme, ze vacsina sluzieb
+    neposkytuje tieto informacie. Ak bol Nmap kompilovany s podporou OpenSSL ,
+	pripoji sa k SSL serverom, aby urcil sluzbu nacuvajucu za zasifrovanou vrstvou.
+	Ked su objavene RPC sluzby, automaticky sa pouzije Nmap RPC grinder (<option>-sR</option>) 
+	na urcenie RPC programu a cisla verzie. Po tom, co scan UDP portov nie je
+	schopny urcit, ci je port otvoreny alebo zatvoreny, niektore UDP porty su oznacene v stave 
+    <literal moreinfo="none">otvoreny|filtrovany</literal>. Detekcia verzie sa
+	bude snazit vyvolat odpoved tychto portov (presne tak ako aj pri otvorenych portoch)
+    a stav sa moze zmenit na otvoreny, ak tato detekcia uspeje. Pri
+	<literal moreinfo="none">otvorenych|filtrovanych</literal> TCP portoch sa postupuje
+	tou istou cestou. Je potrebne si vsimnut, ze parameter Nmapu <option>-A</option>
+    medzi inym ponuka detekciu verzie. Dokument opisujuci priebeh, pouzitie a vlastne prisposobenie
+	detekcie verzie je dostupny na adrese <ulink url="http://www.insecure.org/nmap/vscan/"/>.</para>
+
+    <para>Ak Nmap dostane odpovede od sluzby, ale nevie ju
+	priradit ziadnej polozke v databaze, zobrazi specialny fingerprint a takisto
+	adresu URL, kde mozete odoslat odpoved, ak ju poznate.
+    Venujte prosim tejto operacii niekolko minut, aby bola na prospech
+    kazdemu. Vdaka tymto odpovediem ma Nmap okolo 3,000 zodpovedajucich vzorov pre viac 
+	ako 350 protokolov napr. smtp, ftp, http, atd.</para>
+
+    <para> Detekcia verzie sa povoli a da sa ovladat nasledujucimi parametrami:</para>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>-sV</option> (Detekcia verzie)</term>
+        <listitem>
+
+          <para>Umoznuje detekciu verziu ako bolo spomenute vyssie.
+          Je mozne pouzit namiesto toho parameter <option>-A</option>, ktorym sa povoli aj
+		  detekcia OS.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--allports</option> (Pri detekcii verzie nevynechavat ziadne porty)
+        </term>
+        <listitem>
+          <para> V predvolenom nastaveni Nmap pri detekcii verzie vynechava
+		  TCP port 9100, pretoze niektore tlaciarne tlacia vsetko co pride na tento port a vedie
+		  to k hromade vytlacenych stran poziadaviek HTTP get request, poziadaviek
+		  SSL session request, atd..
+		  Toto spravanie sa da zmenit upravenim alebo odstranenim direktivy <literal moreinfo="none">Exclude</literal>
+          v subore<filename moreinfo="none">nmap-service-probes</filename> alebo mozete zadat
+          parameter<option>--allports</option>, aby sa scanovali vsetky porty nehladiac na direktivu
+          <literal moreinfo="none">Exclude</literal>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version_intensity &lt;intensity&gt;</option> (Nastavit intenzitu scanovania verzie)
+        </term>
+        <listitem>
+
+          <para>Ak sa vykonava scan verzie (<option>-sV</option>), Nmap odosiela seriu testov
+          , pricom kazdemu z nich je priradena vynimocna hodnota medzi 
+          1 az 9. Kym testy z nizsou hodnotou su ucinne na testovanie sirokej skalu
+		  beznych sluzieb, vyssie cisla su len zriedkavo uzitocne. Stupen intenzity udava, ktore
+		  testy sa maju pouzit. Cim vyssie je cislo, tym vacsia je pravdepodobnost, ze sluzba
+		  bude spravne indentifikovana, taketo scany vsak trvaju dlhsie. Predvolena hodnota je 7.
+		  Ak je test registrovany na cielovy port v subore 
+          <filename moreinfo="none">nmap-service-probes</filename> pomocou direktivy <literal moreinfo="none">ports</literal>, 
+		  tento test sa vykona bez ohladu na stupen intenzity. Zaistuje to to, ze DNS testy sa budu vzdy
+		  robit vhladom na lubovolny otvoreny port 53, SSL skuska vzhladom na port 443, atd..</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version_light</option> (Povolit light mod )
+        </term>
+        <listitem>
+          <para>Je to pohodlny alias pre parameter
+          <option>--version_intensity 2</option>.  Tento light mod znacne urychluje 
+		  scanovanie verzie, no znizuje sa pravdepodobnost spravnej identifikacie sluzieb.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version_all</option> (Vyskusat kazdy test)
+        </term>
+        <listitem>
+          <para>Alias pre parameter <option>--version_intensity 9</option>,
+          cim sa zaisti vykonanie kazdeho testu voci kazdemu portu.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version_trace</option> (Sledovat cinnost scanovania verzie)
+        </term>
+        <listitem>
+          <para>Nmap zobrazi rozsiahle debugovacie
+		  informacie cinnosti scanovania verzie. Je to podmnozina vystupu pri zadani
+		  parametra <option>--packet_trace</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sR</option> (RPC scan)</term>
+        <listitem>
+          <para> Tato metoda funguje v spojeni s rozlicnymi scanmi portov
+		  Nmapu, vsetky zistene otvorene TCP/UDP porty
+		  zahlti NULL prikazmi programu SunRPC za ucelom zistenia, ci su to 
+		  porty sluzby RPC a ak ano, ktoremu programu a cisle verzii sluzia.
+		   Rovnake informacie sa daju efektivne ziskat pomocou parametru 
+		   <command moreinfo="none">rpcinfo -p</command> aj ked je mapovac portov cielovej
+		   stanice za firewallom alebo chraneny TCP wrappermi.
+		   Decoye momentalne nefunguju s RPC scanom.
+		   Toto je automaticky povolene ako cast scanu verzie pri zadani parametra
+          (<option>-sV</option>). Kedze detekcie verzie obsahuje okrem tohoto este
+		  ovela viac veci, parameter
+          <option>-sR</option> sa pouziva zriedka.</para>
+        </listitem>
+      </varlistentry>
+  
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-os-detection">
+
+    <title>Detekcia OS</title>
+
+    <para>Jedna z najznamejsich funkcii Nmapu je vzdialena
+	detekcia OS pomocu fingerprintingu stacku TCP/IP. Nmap odosiela vzdialenej hostitelskej stanici
+	rad TCP a UDP paketov a potom skuma kazdy bit odpovedi.
+	Po vykonani serie testov ako napr. sampling TCP
+    ISN, poradie a podpora moznosti TCP, sampling IPID a 
+    pociatocna kontrola velkosti okienka porovnava Nmap vysledky so databazou
+    <filename moreinfo="none">nmap-os-fingerprints</filename> skladajucej sa z viac ako 1500 znamych
+    odtlackov OS a pri zhode zobrazi podrobnosti o OS.
+	Kazdy fingerprint zahrna textovy popis OS vo volnom formate a klasifikaciu poskytujucu
+    nazov vyrobcu OS (napr. Sun), zakladny typ OS	
+    Each fingerprint includes a freeform textual description of the
+    (napr. Solaris), generacia OS (napr. 10) a typ zariadenia (bez specialneho ucelu, router, switch, herna konzola,
+    atd).</para>
+
+    <para>Ak Nmap nedokaze odhadnut OS pocitaca a podmienky su pritom dobre
+	(napr. zistilo sa, ze aspon 1 port je otvoreny a aspon 1 zatvoreny),
+	Nmap poskytne adresu URL, na ktorej mozete zadat fingerprint, ak ste si isty OS beziacom na vasom pocitaci.
+	Tymto prispievate do mnoziny operacnych systemov znamych Nmapu a proces sa spresnuje pre kazdeho dalsieho.
+	</para>
+
+    <para> Detekcia OS umoznuje vykonanie niekolko dalsich testov, ktore vyuzivaju informacie vzdy nadobudnute 
+	tymto procesom. Jednym z nich je merania uptimu, ktore na odhadnutie casu od posledneho 
+	restartovania pocitaca vyuziva moznost TCP timestamp 
+	(RFC 1323).  Parameter sa oznamuje len pre pocitace, ktore poskytuju tuto informaciu. Dalsim z nich je 
+    TCP Sequence Predictability Classification - Klasifikacia predvidatelnosti TCP sekvencie. 
+	Toto meranie zistuje, ake je narocne nadviazat falosne TCP spojenie so vzdialenou hostitelskou
+	stanicou a je uzitocne na zistovanie slabin relacii, ktore stavaju doveru na 
+	zdrojovej IP adrese (rlogin, firewall, filtre, atd.) alebo takisto je uzitocne kvoli moznosti
+	ukryvania zdroja utoku. Tento typ falsovania sa dnes vykonava zriedkavo, no mnohe
+	pocitace su na to stale zranitelne. Vlastne cislo obtiaznosti je zalozene ne statistickom vzorkovani
+	a moze sa menit. Vseobecne je lepsie pouzit anglicku klasifikaciu, napr.
+	<quote>worthy challenge</quote> - hodne vyzvy alebo <quote>trivial joke</quote> - jednoduchy zabava.
+	Normalne sa to oznamuje len v mode verbose (<option>-v</option>).
+	Ak sa povoli verbose mod sucasne z parametrom <option>-O</option>, oznamuje sa aj Vytvaranie
+	sekvencie IPID. Vacsina pocitacov sa nachadza
+    <quote>inkrementalnej</quote> triede, co znamena, ze zvysuju
+	cislo policka ID v IP hlavicke kazdeho odoslaneho paketu, co z nich robi zranitelne ciele pre niektore pokrocile utoky, 
+	ktore su zalozene na zbere informacii a falsovani.</para>
+
+    <para> Dokument popisujuci cinnost, pouzitie a priposobenie
+	detekcie verzie je dostupny vo viacerych jazykoch na adrese.<ulink url="http://www.insecure.org/nmap/osdetect/"/>.</para>
+
+    <para>Detekcia OS je povolovana a ovladana nasledujucimi moznostami parametrov:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-O</option> (Povolit detekciu OS)
+        </term>
+        <listitem>
+          <para>Umozni detekciu OS podla vyssie opisaneho rozboru. Alternativne sa pouzitim parametra
+          <option>-A</option> umozni detekciu OS aj verzie.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan_limit</option> (Obmedzit detekciu OS len na slubne cielove stanice)
+        </term>
+        <listitem>
+          <para>Detekcia OS je ovela efektivnejsie, ak je zisteny aspon
+		  1 port otvoreny a 1 port zatvoreny. Po nastaveni tohoto parametra sa nebude vykonavat
+		  detekcia OS na pocitacoch, ktore nesplnaju tieto kriteria, cim sa da usetrit
+		  podstatny cas, hlavne pri scanoch s parametrom <option>-P0</option> aplikovanych na 
+		  mnohych hostitelskych staniciach, no je to dolezite len ak sa pre detekciu OS zada parameter <option>-O</option> alebo <option>-A</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan_guess</option>; <option>--fuzzy</option> (Odhadnut vysledky
+		  detekcie OS)
+        </term>
+        <listitem>
+          <para>Ak je Nmap nedokaze detekovat uplnu zhodu s OS,
+          niekedy navrhne dalsie co najblizsie zhody ako moznosti. Nmap to normalne vykonava,
+		  len ak je zhoda velmi podobna. Kazda z tychto dvoch ekvivalentnych moznosti sposobi agresivnejsi
+          odhad Nmapu.		  
+		  </para>
+        </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+  </refsect1>
+
+   <refsect1 id="man-performance">
+    <title>Casovanie a vykon</title>
+    <para>Jednou z mojich najvyssich priorit pri vyvoji Nmapu
+	bol vzdy vykon. Predvoleny scan (<command moreinfo="none">nmap
+<replaceable>hostname</replaceable></command>) hostitelskej stanice v mojej lokalnej
+sieti trva patinu sekundy. Trva to sice menej ako zmrknutie oka, ale pridava to na vyzname,
+ak sa scanuju stovky alebo tisice hostitelskych stanic. Navyse urcite moznosti scanov
+ako UDP scanovanie a detekcia verzie mozu podstatne zvysit cas vykonanavania scanu, tak ako aj
+urcite nastavenia firewallu, zvlast obmedzenie poctu odpovedi.
+Nmap sice na zrychlenie scanov vyuziva paralelizmus a mnohe pokrocile algoritmy,
+je to pouzivatel, kto ma absolutnu kontrolu nad tym, ako Nmap pracuje. 
+Ak je cas obmedzenim, pouzivatelia na urovni expertov sikovne produkuju prikazu, aby ziskali len informacie,
+o ktore maju zaujem.</para>
+
+    <para> Metody zlepsujuce casy scanov zahrnuju
+	vynechanie nekritickych testov a prechadzanie na poslednu verziu Nmapu
+	(zdokonolanie vykonu sa vykonava casto). Optimalizovanie casovych parametrov
+	dokaze takisto sposobit markantny rozdiel. Tieto parametre su spomenute nizsie:</para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>--min_hostgroup &lt;numhosts&gt;</option>; 
+        <option>--max_hostgroup
+        &lt;numhosts&gt;</option> (Prisposobit velkosti paralelnych skupin pri scanovani)</term>
+        <listitem>
+<para>Nmap ma schopnost sucasne scanovat porty alebo verzie viacerych hostitelskych stanic a to takym, sposobom,
+ze sa cielovy rozsah IP adries rozdeli do skupin a potom sa scanuje jedna skupina sucasne. Vo vseobecnosti
+su efektivnejsie vacsie skupiny, no nevyhodou je, ze vysledky nemozu byt poskytnute, kym nie je ukoncene cela skupina.
+cize ak Nmap zacne so skupinou velkosti 50, pouzivatel nedostane ziadnu spravu (okrem updatov v mode verbose) az kym
+nie je ukoncenych vsetkych 50 hostitelskych stanic.
+</para>
+
+<para> V predvolenom nastaveni riesi Nmap tento konflikt
+kompromisom. Zacne skupinou o pocte 5, takze prve vysledky sa dostavia rychlo
+ a potom sa velkost skupiny zvysi na 1024. Presne predvolene cisla
+ zavisia od zadanych parametroch. Z dovodov efektivity pouziva Nmap rozsiahle skupiny pre UDP scany alebo malo 
+ portove TCP scany.</para>
+
+<para> Po zadani maximalnej velkosti skupiny pomocou parametra
+<option>--max_hostgroup</option> Nmap nikdy neprokroci tuto hodnotu.
+Po zadani minimalnej velkosti skupiny parametrom <option>--min_hostgroup</option> nebude Nmap pouzivat mensie skupiny
+ako bolo zadane. Ak vsak nie je dostatok hostitelskych stanic, Nmap moze pracovat s mensimi skupinami ako specifikovane
+parametrom. Aj ked je to zriedkavo vyuzivane, oba parametre mozu byt pouzite sucasne na specifikovanie rozsahu skupiny.
+</para>
+
+<para> Hlavne pouzitie tychto parametrov je specifikacia
+vacsieho minima velkosti skupiny, takze plny scan pobezi rychlejsie.
+Vseobecna volba velkosti minima na scan porcii siete triedy C je cislo 256.
+Nie je obvykle prilis uzitocne zvysovat toto cislo, ak sa jedna o scan s mnohymi portmi.
+Pri scanoch s par cislami portov je velkost skupiny hostitelskych pocitacov rovna 2048 alebo viac prospesna.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min_parallelism &lt;numprobes&gt;</option>;
+        <option>--max_parallelism
+        &lt;numprobes&gt;</option> (Upravit paralelizaciu testov)</term>
+        <listitem>
+
+<para>Tieto parametre ovladaju absolutny pocet testov, co
+moze byt nedokoncene pre skupinu hostitelskych pocitacov.
+Pouzivaju sa pri scanovani portov a zistovenie hostitelskych pocitacov.
+V povodnom nastaveni pocita vzdy sa meniaci idealny
+stav paralelizmu v zavislosti na vykone siete. Ak su pakety zahadzovane,
+Nmap spomali a povoli menej neukoncenych scanov. Idealny pocet
+testov pri dobrych podmienkach v sieti pomaly stupa. Tieto parametre
+urcuju na tuto premennu minimalnu a maximalnu hranicu. V predvolenom nastaveni
+sa idealny paralelizmus moze znizit az na 1, ak sa sietove testy javia ako nespolahlive
+ a na druhej strane idealizmus stupa pri vybornych podmienkach.</para>
+
+<para>Najcastejsim pouzitim je nastavenie parametra
+<option>--min_parallelism</option> na vyssiu hodnotu ako je 1 kvoli
+urychleniu scanovania pomalych hostitelskych stanic alebo sieti. Je to riskantny 
+parameter na zabavu, pretoze prilis vysoka hodnota moze ovplyvnit presnost
+a takisto schopnost Nmapu ovladat paralelizmus dynamicky podla sietovych podmienok.
+Hodnota desat moze byt rozumna, hoci tuto hodnotu nastavujem len ako poslednu moznost.
+</para>
+
+<para>Parameter <option>--max_parallelism</option> je niekedy nastaveny na 1, aby sa predislo
+odosielaniu viac ako jedneho testu sucasne. Moze sa to hodit v kombinacii s parametrom
+<option>--scan_delay</option>
+(rozoberanom nizsie), hoci tento druhy parameter je dostatocne silny, aby sam sluzil svojmu ucelu.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min_rtt_timeout &lt;time&gt;</option>, 
+        <option>--max_rtt_timeout &lt;time&gt;</option>, 
+        <option>--initial_rtt_timeout
+        &lt;time&gt;</option> (Nastavit casovy interval testu)</term>
+        <listitem>
+
+<para>Nmap si uchovava hodnotu casoveho intervalu kvoli urceniu, ako dlho bude cakat na odpoved
+testu predtym ako to vzda alebo vykona retransmisiu testu. Pocita sa to
+na zaklade casov odpovedi predchadzajucich testov. Ak je latencia siete vyznamnym faktorom
+ a meni sa, tento casovy interval narastie na niekolko sekund.
+ Takisto zacina na opatrnej(vysokej) urovni a ak Nmap scanuje neodpovedajuce
+ hostitelske stanice, moze to na nej aj chvilu ostat.</para>
+
+<para>Tieto parametre maju hodnotu v milisekundach alebo je mozne pridat argument jednotky
+<literal moreinfo="none">s</literal>, <literal moreinfo="none">m</literal>alebo<literal moreinfo="none">h</literal> to
+a takto sa cas specifuje v sekundach, minutach alebo hodinach.
+Specifikovanie nizsich hodnot parametrov<option>--max_rtt_timeout</option> a
+<option>--initial_rtt_timeout</option> ako predvolene hodnoty moze
+vyznamne skratit casy scanov, co plati hlavne pre scany bez pingu 
+(<option>-P0</option>) a dalej pre velmi filtrovane siete, nie je vsak dobre
+zadavat prilis kratke hodnoty, pretoze potom moze scan pozadovat viac casu ako je specifikovane
+a pre vela testov vyprsi casovy interval, zatial co odpoved je stale na ceste.
+</para>
+
+<para>Ak su vsetky hostitelske stanice v lokalnej sieti, rozumna hodnota intervalu je 
+100 milisekund <option>--max_rtt_timeout</option>.  Ak je zahrnute routovanie, je potrebne
+najprv vykonat ping hosta bud pomocnym programom ICMP ping alebo prisposobenym
+ programom pre tvorenie paketov ako napr. hping2, ktory sa pravdepodobnejsie dostane
+cez firewall. Vsimnite si maximalny cas hodnoty RTT (Maximum Round Trip) asi 10 paketov.
+Tuto hodnotu mozete zdvojnasobit pre 
+<option>--initial_rtt_timeout</option> a stroj- alebo stvornasobit pre parameter<option>--max_rtt_timeout</option>. 
+Vseobecne nenastavujem tento parameter
+maximum rtt pod 100ms, bez ohladu na hodnoty pingov, a ani ich nezvysujem nad 1000ms.</para>
+
+<para>Parameter <option>--min_rtt_timeout</option> je malokedy pouzivany. Moze sa zist,
+ked je siet taka nespolahliva, ze aj predvolena hodnota Nmapu je prilis agresivna.
+Kedze vsak Nmap pri spolahlivej sieti znizuje casovy interval na minimum, tento 
+parameter nie je potrebny a jeho pouzitie by sa malo nahlasit ako bug do mailingu listu nmap-dev.</para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>--max_retries &lt;numtries&gt;</option> (Specifikovat maximalny pocet
+		  retransmisii testov scanovania portov)
+        </term>
+        <listitem>
+
+<para>Ak Nmap nedostane odpoved na test scanu portov, moze to znamenat
+, ze port je filtrovany alebo ze bol test alebo odpoved jednoducho stratena po sieti. Je mozne tiez,
+ze cielova stanica obmedzenie poctu odpovedi a to docasne zablokovalo odpoved, takze
+sa Nmap opatovna pokusi poslat pociatocny test. Ak Nmap detekuje slabu sietovu
+spolahlivost, moze sa pokusit o retransmissiu viackrat pred ukoncenim snahy.
+Na jednej strane to zvysuje presnost, no takisto aj cas scanov.
+Ak je kriticky vykon, scany mozu byt urychlenie limitovanim povoleneho poctu retransmisii.
+Retransmisiam sa zabrani parametrom 
+<option>--max_retries 0</option>, no zriedkakedy sa to odporuca.
+</para>
+
+<para>Predvolena hodnota (bez parametru<option>-T</option>) je 10 
+ten retransmisii.  Ak sa siet zda byt spolahliva a cielove stanice
+neobmedzuju pocet odpovedi, Nmap obycajne vykona len jednu retransmisiu,
+takze vacsina scanov ani nie je ovplyvnena, ak sa parameter
+<option>--max_retries</option> znizi na 3.  Tieto hodnoty dokazy podstatne zrychlit
+scany pomalych (s obmedzenim poctu odpovedi) hostitelskych stanic. Ak Nmap prilis skoro zanechava
+testy portov, obycajne sa stracaju nejake informacie, hoci moze to stale moze byt uprednostnovane pred
+situaciou, kde uplynie interval parametru
+<option>--host_timeout</option> a stratia sa vsetky informacie o cielovej stanici.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--host_timeout &lt;time&gt;</option> (Zanechat pomale cielove stanice)
+        </term>
+        <listitem>
+
+<para> Niektore hostitelske stanice jednoducho potrebuju <emphasis>dlhy</emphasis> cas na to, aby boli prescanovane,
+co moze byt dosledkom zleho vykonu alebo nespolahliveho sietoveho hardwaru/softwaru, obmedzeniu poctu paketov
+alebo obmedzujuceho firewallu. Najpomalsich malo percent scanovanych hostitelskych stanic moze 
+zabrat podstatu casu scanu. Niekedy je lepsie orezat tieto straty casu a preskocit taketo stanice uz na zaciatku.
+Da sa to dosiahnut zadanim parametra 
+<option>--host_timeout</option> s pozadovanym poctom milisekund cakania.
+Alternativne je mozne pripojit argument jednotky
+<literal moreinfo="none">s</literal>, <literal moreinfo="none">m</literal> alebo<literal moreinfo="none">h</literal> to
+, cim sa casovy interval specifikuje v sekundach, minutach alebo hodinach. Ja casto specifikujem
+hodnotu
+<literal moreinfo="none">30m</literal>, aby Nmap neplytval viac ako polhodinou
+na 1 stanicu. Vsimnite si, ze Nmap moze sucasne scanovat dalsie hostitelske stanice, takze to nie je 
+uplna strata casu. Hostitelska stanica, ktorej casovy interval vyprsi sa vynecha a nezobrazi sa pre nu
+tabulka portov, detekcia OS, ani detekcia verzie.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scan_delay &lt;time&gt;</option>;
+        <option>--max_scan_delay
+        &lt;time&gt;</option> (Nastavit oneskorenie medzi testami)</term>
+        <listitem>
+
+<para>Tento parameter sposobi, ze Nmap bude cakat aspon
+zadany hodnotu v milisekundach medzi odoslanim dalsieho testu hostitelskej stanice.
+Tak ako aj pri inych parametroch casu, aj tu je mozne pripojit <literal moreinfo="none">s</literal>,
+<literal moreinfo="none">m</literal>alebo<literal moreinfo="none">h</literal> ako argument na specifikovanie
+oneskorenia v sekundach, minutach alebo hodinach namiesto ms.
+Hodi sa to hlavne v pripade obmedzenia poctu odpovedi. Pocitace so systemom Solaris ako aj niektore ine
+obycajne na test UDP scanu odpovedia jednou ICMP spravou za sekundu.
+Vsetko co sa odosle Nmapom navyse, bude stratene.
+Parameter <option>--scan_delay</option> nastaveny na 
+<literal moreinfo="none">1s</literal> udrzi Nmap na takejto pomalej rychlosti.
+Nmap sa pokusi detekovat obmedzenie a priposobit oneskorenie scanu podla toho,
+ale nie je na skodu specifikovat to explicitne, ak uz viete, aka rychlost je najvhodnejsia.</para>
+
+<para>Ak Nmap prisposobuje oneskorenie scanu smerom nahor 
+pri obmedzeni rychlosti odpovedi, scan sa dramaticky spomali.
+Parameter<option>--max_scan_delay</option> specifikuje najvacsie oneskorenie,
+ktore povoli Nmap.  Nastavenie prilis nizkej hodnoty moze pri zavedenej obmedzenej rychlosti 
+odpovedi viest
+k zbytocnym retransmisiam paketov a moznym vynechanym portom.</para>
+
+<para>Dalsie pouzitie parametra <option>--scan_delay</option> je vyhnut sa systemom detekcie
+(IDS) a narusenia (IPS) zalozenych na prahovej hodnote.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-T
+          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
+          (Nastavit casovu sablonu)
+        </term>
+        <listitem>
+
+<para>Je sice pravda, ze vyssie rozoberane jemne casove ovladanie scanov je mocne a ucinne,
+no niektori ludia to povazuju za dezorientujuce.
+Niekedy dokonca moze volenie primeranych hodnot zabrat viac casu
+ako scan, ktory sa pokusat optimalizovat, a tak Nmap ponuka jednoduchsi pristup so siestimi
+sablonami. Je ich mozne specifikovat parametrom
+<option>-T</option> a ich cislami(0 - 5) ci menami.
+Nazvy sablon tu paranoid (0), sneaky (1), polite (2), normal
+(3), aggressive (4) a insane (5).  Prve dve su urcene
+pre obidenie systemov IDS.  Mod Polite sa spomali, ked scan pouziva mensiu
+sirky pasma a prostriedkov cieloveho pocitaca. Mod Normal je predvolenym a teda
+<option>-T3</option> neurobi ziadnu zmenu. Mod Aggressive urychli scan predpokladom,
+ze ste na rozumne rychlej a spolahlivej sieti. Konecne mod Instane predpoklada, ze ste na vynimocne
+rychlej sieti alebo chcete obetovat presnost za rychlost.</para>
+
+<para>Tieto sablony dovoluju pouzivatelovi specifikovat agresivitu, zatial co, Nmap sam vyberie
+presne hodnoty casovania. Sablony takisto vykonavaju male prisposobenia rychlosti, na ktore momentalne
+neexistuju jemne ovladacie parametre. Napriklad moznost
+<option>-T4</option> zakazuje, aby dynamicke oneskorenie scanu 
+prekrocilo 
+10ms pre TCP porty a<option>-T5</option> ohranici tuto hodnotu 5 milisekundami.  
+Pokial sa sablona specifikuje ako prva, moze byt pouzita v kombinacii s jemnym ovladanim, inak
+sa povodne hodnoty pre sablony prepisat vami specifikovanymi hodnotami.
+Odporucam pouzitie parametra <option>-T4</option> ak sa scanuju moderne a spolahlive
+siete. Aj ked zadate dalsie jemne ovladanie kvoli dodatocnym malym povolenym optimalizaciam, zachovajte
+tento parameter (na zaciatok prikazoveho riadku).</para>
+
+<para>Ak ste na poriadnej sieti s broadbandovym alebo ethernetovym pripojenim,
+vzdy by som odporucal pouzitie parametra<option>-T4</option>.  
+Niektori ludia preferuju moznost
+<option>-T5</option>, hoci pre mna je prilis agresivna.
+Ini zasa niekedy zadaju <option>-T2</option>, pretoze si myslia, ze tymto je 
+mensia pravdepodobnost sposobenia spadnutia pocitaca alebo pretoze sa sami 
+vo vseobecnosti povazuju za zdvorilych. Casto si pritom neuvedomuju, za moznost <option>-T
+Polite</option> je skutocne velmi pomala.  Takyto scan moze trvat desatkrat viac 
+ako povodny scan.
+Spadnutia pocitacov a problemy so sirkou pasma su zriedkave pri pouziti predvoleneho parametra casovania
+(<option>-T3</option>)  a tak ho normalne odporucam pre pozornych scannerov.
+Vynechanie detekcie verzie je vsak casovo ovela ucinnejsie ako hranie sa s hodnotami casovania.</para>
+
+<para>Zatial co moznosti <option>-T0</option>a<option>-T1</option> mozu byt uzitocne 
+pre vyhnutie sa upozorneni systemov IDS, scanovanie tisicov portov pocitacov bude trvat vynimocne dlho.
+Pri takomto dlhom scane je mozno lepsie nastaveni presnych hodnot casovania
+namiesto spolahnutia sa na vopred pripravene moznosti<option>-T0</option>a<option>-T1</option>
+.</para>
+
+<para>Hlavnymi nasledkami pouzitia parametru<option>T0</option> je serializacia scanovania portov,
+takze sa sucasne scanuje len jeden port, a pred vyslanim dalsieho testu sa caka 5 minut.
+Moznosti <option>T1</option> a
+<option>T2</option> su podobne, ale medzi jednotlivymi testami cakaju len 15 resp. 0.4
+sekund.  Moznost<option>T3</option> je predvolenou pre Nmap a zahrna paralelizaciu.
+Moznost <option>T4</option>
+je ekvivalentna zadaniu<option>--max_rtt_timeout 1250
+--initial_rtt_timeout 500 --max_retries 6</option> a nastavuje maximalne oneskorenie
+TCP scanu na 10 ms. Moznost<option>T5</option> je ekvivalentna zadaniu
+<option>--max_rtt_timeout 300 --min_rtt_timeout 50
+--initial_rtt_timeout 250 --max_retries 2 --host_timeout 900000</option> a takisto nastavenia 
+maximalneho oneskorenia TCP scanu na 5ms.</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-bypass-firewalls-ids">
+    <title>Vyhnutie sa firewallu/ Systemu IDS a falsovanie</title>
+
+<para>Mnohi priekopnici internetu si predstavovalo globalnu
+otvorenu siet s univerzalnym priestorom IP adries umoznujucim
+vykonavat virtualne spojenia medzi lubovolnymi dvoma uzlami. To
+umoznuje hostitelskym staniciam posobit ako ozajstni peers, poskytujuc a ziskavajuc informacie
+od kazdeho jedneho. Ludia mohli pristupovat na vsetky domace systemy z prac a tak zmenit nastavenie
+ovladania klimy alebo otvorenia dveru pre skorych hosti. Tato vizia univerzalnej
+konektivity je vsak potlacena nedostatkom priestoru IP adries a obavami z bezpecnosti.
+Na zaciatku 90.rokov zacali organizacie nasadzovat firewally na rychly ucel obmedzenia
+konektivity.
+Obrovske siete boli uzavrete pred nefiltrovanym intenernetom pomocou aplikacnych proxy serverov,
+prekladu NAT a paketovych filtrov. Neobmedzeny tok informacii dal zelenu uzkej regulacii
+odsuhlasenych komunikacnych kanalov a obsahu, ktory cez ne prechadza.</para>
+
+<para> Sietove prekazky ako firewally vedia velmi stazit zmapovanie siete. Nezjednodusi sa to,
+pretoze potlacenie neplanovaneho skumania siete ja casto klucovym cielom implementovania
+tychto zariadeni. Napriek tomu obsahuje Nmap mnohe funkcie, ktore pomahaju
+pochopit tieto zlozite siete a overit, ze filtre funguju podla ocakavania, dokonca podporuje aj 
+mechanizmy obidenia pre slabo implementovane obrany. Jednou z najlepsich metod pochopenia situacie
+vasej sietovej bezpecnosti je pokusit sa ju prelomit.
+Predstavte si seba ako utocnika a nasadte proti vasim sietam metody z tejto sekcie.
+Spustite scan FTP bounce ftp, Idle scan, utok pomocou fragmentacie alebo sa pokuste pretunelovat
+cez jeden z vasich proxy serverov.
+</para>
+
+<para>Okrem obmedzovania sietovej aktivity spolocnosti stale viac
+monitoruju traffic v sieti pomocou systemov na detekciu preniknutia (IDS).  
+Vsetky hlavne systemy IDS sa dodavaju s pravidlami vytvorenymi na detekciu scanov Nmapu,
+pretoze tieto scany su niekedy pociatkom pre utoky. Vela tychto produktov sa casom
+vyvinulo do systemov s
+<emphasis>prevenciou</emphasis> preniknutia (IPS), ktore aktivne blokuju
+traffic, ktory sa zda byt skodlivy. Spolahlive detekovanie zlych umyslov pomocou analyzy 
+dat v paketoch je nanestastie pre sietovych 
+administratorov a vyrobcov systemov IDS tazky problem. Utocnici s trpezlivostou,
+zrucnostou a pomocou urcitych parametrov Nmapu mozu obycajne zabranit detekcii systemu IDS.
+Na druhej strane sa administratori musia popasovat s velkym mnozstvom falosnych
+pozitivnych vysledkov, kde sa nespravne diagnizuje nevinna aktivita a je v stave pohotovosti
+alebo je blokovana.
+</para>
+
+<para> Niekedy ludia navrhuju, ze by Nmap nemal ponukat
+funkcie na vyhnutie sa pravidlam firewallu alebo prejdenia cez systemy IDS.
+Zdovodnuju, ze tieto funkcie mozu byt tak vyuzite administratormi na zvysenie bezpecnosti
+ako aj utocnikmi. Problemom toho je, ze tieto metody by sa stale vyuzivali utocnikmi,
+ktori by si namiesto toho nasli dalsie nastroje alebo patche, ktore by fungovali
+s Nmapom.
+Na druhej strane, pre administratorov by bolo ovela tazsie vykonavat si svoju pracu. 
+Nasadzovanie len modernych, opravenych FTP serverov
+je ovela mocnejsia obrana, ako snaha predist rozsireniu nastrojov implementujucich utok FTP bounce.
+</para>
+
+<para> Neexistuje ziadne specialne magicke kuzlo(alebo parameter Nmapu) na detekciu a
+podkopanie firewallov a systemov IDS. Vyzaduje si to zrucnost a skusenost.
+Tutorial je za mimo rozsahu tejto referencnej prirucky, ktora len podava zoznam
+relevantnych parametrov a opisuje, co robia.
+</para>
+
+<variablelist>
+      <varlistentry>
+        <term>
+          <option>-f</option> (fragmentovat pakety);
+          <option>--mtu</option> (pouzitim specifikovanej velkosti jednotky MTU)
+        </term>
+
+        <listitem>
+          <para>Parameter <option>-f</option> sposobi, ze pozadovany scan(vratane
+          scanov pingu) pouzije male fragmentovane IP pakety.
+		  Myslienka je rozdelit hlavicku TCP na niekolko paketov, cim sa stazi detekcia aktivity
+		  pre paketove filtre, systemy IDS a ine.
+		  Je nutne byt pri tomto opatrny. Niektore programy
+		  nedokazu korektne prijat male pakety. Sniffer zo starej skoly s nazvom 
+          Sniffit po prijati prveho segmetu okamzite zahlasil chybu "segmentation fault".
+		  Po jednom zadani tohoto parametra Nmap rozdeli pakety po hlavicke IP na maximalne 8 bajtov
+		  dlhe, takze 20-bajtova hlavicka TCP sa rozdeli na 3 pakety, dva s velkostou hlavicky TCP
+		  osem bajtov a posledny o velkosti styri. Samozrejme, ze kazdy fragment
+		  ma takisto hlavicku IP. 
+		  Po opatovnom zadani moznosti <option>-f</option> sa na jeden fragment pouzije 16 bajtov, cim sa znizi
+		  pocet fragmentov.
+          Dalej je mozne specifikovat vlastnu velkost offsetu zadanim parametra <option>--mtu</option>.
+		  Nezadavajte sucasne parametre<option>-f</option> a <option>--mtu</option>. 
+		  Offset musi byt nasobkom cisla 8. Zatial co fragmentovane pakety
+		  neprejdu cez paketove filtre a firewally, ktore zhromazduju vsetky IP fragmenty v rade,
+          ako napriklad parameter CONFIG_IP_ALWAYS_DEFRAG v jadre Linuxu,
+		  niektore siete si nemozu dovolit takyto zasah do vykonu siete a preto
+		  nechavaju parameter zakazany. Ine to zase neumoznuju,
+		  pretoze fragmenty mozu putovat do siete roznymi cestami.
+		  Niektore zdrojove systemy defragmentuju vychadzajuce pakety v jadre, jednym z nich
+		  Linux s modulom ip tables. Pocas vykonavania scanu je mozne pouzit
+		  sniffer napr. Ethereal a tym sa da sledovat, ci su odosielane pakety fragmentovane.
+		  Ak sa v lokalnom OS na lokalnom pocitaci vyskytnu problemy, skuste zadat parameter<option>--send_eth</option> cim sa to obide
+		  vrstva IP a odoslu sa neupravene ethernetove ramce.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-D &lt;decoy1 [,decoy2][,ME],...&gt;</option>
+          (Zakryt scan pomocou decoys)
+        </term>
+        <listitem>
+          <para>Spusti sa scan pomocou obetnych stanic(decoys), cim sa pre vzdialenu hostitelsku stanicu
+		  bude specifikovana scanovacia hostitelska stanica/stanice javit ako decoy, ktora takisto ako ozajstna stanica scanuje
+		  cielovu siet. Ich system IDS preto moze zahlasit 5-10 scanov portov z roznych IP adries, no nebude
+		  vediet, ktore scany boli prave, a z ktorej IP adresy sa naozaj scanovalo.
+		  Zatial co sa tato metoda porazit pouzitim mechanizmov sledovania drah routerov, zahodenia odpovedi a dalsich aktivnych mechanizmov,
+		  je to stale ucinny sposob ako zakryt pravu IP adresu.
+          </para>
+
+          <para>Adresu kazdej decoy je potrebne oddelit ciarkami a je mozne pouzit parameter
+		  <literal moreinfo="none">ME</literal> urcujuci, ktora z decoys
+		  reprezentuje vasu realnu IP adresu. Ak sa ME
+          <literal moreinfo="none">ME</literal> vlozi na vzdialenejsiu ako 6.poziciu, 
+		  niektore bezne detektory scanov portov (napr. vyborny scanlogd spolocnosti Solar Designer)
+          by nemali byt vobec dokazat zobrazit vasu IP adresu. Ak pouzijete <literal moreinfo="none">ME</literal>
+		  , nmap vlozi vasu IP adresu na nahodnu poziciu.</para>
+          <para>Vsimnite si, ze hostitelske stanice pouzite ako falosne scannery teda decoys by mali byt aktivne, inak
+		  mozete nahodne zahltit cielove stanice SYN paketmi. Ak bude aktivna len jedna hostitelska stanica,
+		  bude velmi jednoduche zistit, ktora z decoys vykonala scan. Namiesto DNS nazvov moze byt uzitocne pouzit 
+		  IP adresy (takze vas siete pocitacov decoys nebudu vidiet v logu nameserveru.)
+          </para>
+
+          <para>Decoys su pouzivane pri pociatocnom ping scane (pouzijuc ICMP, SYN, ACK alebo ine) tak ako 
+		  aj pocas samotnej fazy scanovania, a pouzivaju sa aj pri detekcii vzdialeneho OS (<option>-O</option>). 
+		  Decoys nefunguju pri detekcii verzie alebo scane typu TCP connect().</para>
+
+          <para> Prilis mnoho decoys moze spomalit scan a potencialne
+		  ho znepresnit. Niektori internetovi provideri mozu filtrovat falosne 
+		  pakety, no mnohi ich vobec neobmedzuju.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-S &lt;IP_Address&gt;</option> (Falosna zdrojova IP adresa)
+        </term>
+        <listitem>
+          <para> Pri niektorych okolnostiach nedokaze Nmap urcit lokalnu zdrojovu IP adresu ( 
+          ak je s tym problen, Nmap to oznami). V tejto situacii je nutne pouzit parameter<option>-S</option> 
+		  s IP adresou, cez ktoru sa maju odosielat pakety.</para>
+
+          <para>Dalsim moznym sposobom pouzitia tohoto flagu je falsovanie scanu, cim sa cielove stanice budu 
+          domnievat, ze ich scanuje <emphasis>niekto iny</emphasis>. Predstavte si firmu, ktora
+		  je opakovane scanovana konkurencnou firmou. Parameter
+          <option>-e</option> bude pre tento typ pouzitia vsobecne vyzadovany a
+		  parameter <option>-P0</option> je tiez vhodny.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-e &lt;interface&gt;</option> (Pouzit specifikovane rozhranie)
+        </term>
+        <listitem>
+          <para>Povie Nmapu, cez ktore rozhranie sa maju odosielat a prijimat pakety.
+		  Nmap by to mal vediet detekovat automaticky, ale v opacnom pripade to oznami.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--source_port &lt;portnumber&gt;;</option>
+          <option>-g &lt;portnumber&gt;</option> (Falsovat zdrojove cislo portu)
+        </term>
+        <listitem>
+
+<para>Jednou z bezne nespravnej  konfiguracie je ak sa doveruje trafficu zalozenom na zdrojovom cisle portu.
+Nie je tazke pochopit ako k tomu dochadza. Administrator nastavi nablyskany novy firewall a bude zahlteny 
+staznostami nevdacnych pouzivatelov, ktorych aplikacie prestali fungovat. Specialnym pripadom moze byt
+pokazeny DNS server, pretoze odpovede na DNS request z vonkajsich serverov uz nemozu vstupovat do siete.
+Dalsim castym prikladom je FTP. Pri aktivnych prenosoch FTP sa vzdialeny server pokusa o spatne spojenie
+ku klientovi, aby dodal pozadovany subor.
+</para>
+
+<para> Bezpecnymi rieseniami na tieto problemy su casto vo forme proxy serverov na aplikacnej urovni alebo 
+firewallove moduly skumajuce protokoly. Existuju nanestastie aj jednoduchsie a nebezpecne riesenia.
+Vediac, ze DNS odpovede prichadzaju z portu 53 a aktivne ftp z portu 20, vela administratorov sa chytilo do pasce
+a jednoducho povolilo prichadzajuci traffic z tychto portov, pricom castu beru do uvahy, ze to ziadny
+utocnik nespozoruje a ani nezneuzije tuto dieru vo firewalle. V inych pripadoch to administrator povazuje
+za kratkodobe opatrenie az kym sa neimplementuje bezpecnejsie riesenie, a potom na tento upgrade zabudnu.
+</para>
+
+<para> Prepracovani sietovi administratori vsak nie su jedinymi, kto sa chyti do tejto pasce. Mnohe produkty
+sa dodavaju s tymito nebezpecnymi pravidlami, dokonca aj Microsoft bol vinny. Filtre protokolu IPsec dodavane so
+systemami Windows 2000 a Windows XO obsahuju implicitne pravidlo, ktore povoluje cely neobmedzeny TCP a UDP traffic
+z portu 88 (Kerberos).  Dalsim dobre znamym pripadom povolovali verzie osobneho firewallu Zone Alarm az do verzie
+2.1.25 vsetky prichadzajuce UDP pakety so zdrojovym portom 53(DNS) alebo 67 (DHCP).
+</para>
+
+<para>Nmap ponuka na objavenie tychto zranitelnosti ekvivalentne parametere<option>-g</option> a
+<option>--source_port</option>.  Jednoducho zadate cislo portu a Nmap z neho odosle pakety.
+Pri niektorych testoch detekcie OS kvoli ich spravnej funkcii musi Nmap pouzivat odlisne cisla portov 
+ a DNS poziadavky ignoruju parameter 
+<option>--source_port</option>, pretoze Nmap ich nechava na pleciach systemovych kniznic.
+Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter uplne.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--data_length &lt;number&gt;</option> (Do odosielanych paketov pripojit nahodne data)
+        </term>
+        <listitem>
+          <para>Za normalnych okolnosti odosiela Nmap minimalne pakety obsahujuce len hlavicku, takze
+		  TCP pakety maju obycajne 40 bajtov a ICMP echo poziadavky len 28. Tento parameter napoveda Nmapu, aby
+		  pripojil nahodne bajty nahodnej dlzky do odosielanych paketov.
+		  Pakety detekcie OS(<option>-O</option>) nie su ovplyvnene na rozdiel od vacsiny ping a portscan paketov.
+          Spomaluje to proces, ale trochu znenapadnuje scan.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ttl &lt;value&gt;</option> (Nastavit pole IP time-to-live)
+        </term>
+        <listitem>
+          <para>Nastavi hodnotu pola IPv4 time-to-live odosielanych paketov na udanu hodnotu.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--randomize_hosts</option> (Nahodne vybrat poradie cielovych pocitacov)
+        </term>
+        <listitem>
+          <para>Nmap premiesa kazdu skupinu o velkosti az do 8096 hostitelskych stanic pred ich scanovanim, co
+		  moze znenapadnit scany pre rozne sietove moniturujuce systemy, hlavne ked sa skombinuju s parametrami
+		  pomaleho casovania. Ak chcete nahodne premiesat vacsie velkosti skupin, zvyste hodnotu premennej
+		  PING_GROUP_SZ v subore <filename moreinfo="none">nmap.h</filename> a znovu skompilujte.
+          Dalsim riesenim je vytvorit zoznam cielovych stanic pomocou list scanu
+		  An alternative solution is to generate the target IP list
+          (<option>-sL -n -oN
+          <replaceable>filename</replaceable></option>), premiesat ho nahodne pomocoou scriptu napisaneho 
+		  v Perli a potom tento zoznam predat Nmapu parametrom
+          <option>-iL</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--spoof_mac &lt;mac address, prefix, or vendor
+          name&gt;</option> (Vytvorit falosnu MAC adresu)
+        </term>
+        <listitem>
+
+          <para>Nmap pouzije zadanu MAC adresu pre 
+		  vsetky odosielane neupravene ethernetove ramce. Zahrna to v sebe parameter
+		  <option>--send_eth</option>, cim sa zaisti, ze Nmap vlastne odosle
+		  pakety na urovni ethernetu. Zadana MAC adresa moze byt v roznych formatoch. Ak je to jednoducho znak 
+		  <quote>0</quote>, Nmap zvoli uplne nahodnu mac adresu. Ak je zadanym retazcom parny pocet hexadecimalnych 
+		  cislic (s parmi dvoch nepovinne oddelenymi ciarkami), Nmap ich pouzije ako MAC adresu. Ak je zadanych menej 
+		  ako 12 hexadec. cisel, Nmap vyplni zbytok zvyskom 6 byteov nahodnych hodnot. Ak sa nepouzije ani jedna 
+		  z tycho moznosti, Nmap prehlada subor
+  <filename moreinfo="none">nmap-mac-prefixes</filename> pri pokuse najst nazov vyrobcu obsahujuci dany retazec (nezavisi na velkosti
+  velkych a malych pismen). Ak je najdena zhoda, Nmap pouzije OUI vyrobcu (3-bajtova predpona) a nahodne vyplne 3
+  zostavajuce bajty. Spravne zadanymi prikladmi pre parameter<option>--spoof_mac</option> su <literal moreinfo="none">Apple</literal>, <literal moreinfo="none">0</literal>,
+  <literal moreinfo="none">01:02:03:04:05:06</literal>, <literal moreinfo="none">deadbeefcafe</literal>, <literal moreinfo="none">0020F2</literal> ci <literal moreinfo="none">Cisco</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--badsum</option> (Odoslat pakety s falosnym kontrolnym suctom TCP/UDP)
+        </term>
+        <listitem>
+
+          <para>Nmap pouzije neplatny kontrolny sucet TCP alebo UDP na odoslanie paketov cielovej stanici.  
+		  Kedze prakticky vsetky hostitelske IP stacky dokladne zahadzuju taketo pakety, ak pride odpoved,
+		  pochadza pravdepodobne od firewallu alebo systemu IDS, ktory neoveroval kontrolny sucet.
+		  Viac podrobnosti o tejto metode najdete na adrese <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="man-output">
+    <title>Vystup</title>
+
+    <para>Kazdy bezpecnostny nastroj je len tak uzitocny, ako uzitocny je vytvarany vystup.
+	Zlozite testy a algoritmy maju malu hodnotu, ak nie su prezentovane v organizovanej a zrozumitelnej forme.
+	Pri pohlade na pocet sposobov, akymi je Nmap pouzivany ludmi a dalsim softwarom, neexistuje jednotlivy
+	format, ktory by vyhovoval kazdemu, takze preto Nmap ponuka niekolko formatov vratane interaktivneho modu citatelneho
+	pre ludi a  XML formatu lahko spracovavaneho softwarom.
+    </para>
+
+<para>Okrem ponukania rozlicnych vystupnych formatov poskytuje Nmap parametre na ovladanie miery mnozstva vystupu
+tak ako aj debugovacie spravy. Vystupne typy mozu byt odoslane na standardny vystup alebo do nazvaneho suboru,
+do ktoreho moze Nmap data pripojit k existujucim alebo premazat subor a vlozit data.
+Vystupne subory mozu byt tiez pouzite na pokracovanie zachytavania vystupu z prerusenych scanov.</para>
+
+<para>Nmap ponuka vystup v piatich moznych formatoch. Predvolenym je 
+<literal moreinfo="none">interactive output</literal> a je odosielany na standardny vystup (stdout).  
+Existuje aj <literal moreinfo="none">normal output</literal> podobny <literal moreinfo="none">interactive</literal> s tou vynimkou,
+ze zobrazuje menej runtimeovych informacii a upozorneni pri behu Nmapu, pretoze sa od neho ocakava, ze
+bude analyzovany az po skonceni scanu a nie interaktivne.</para>
+
+<para>Vystup vo formate je jednym z najdolezitejsich vystupnych typov a moze byt konvertovany na HTML format,
+ lahko rozobraty dalsimi programami napr. grafickymi rozhraniami Nmapu, alebo importovany do databaz.</para>
+
+<para>Dva zostavajuce typy vystupov su jednoduchy <literal moreinfo="none">grepable
+output</literal> obsahujuci vacsinu informacii o cielovej stanici na jednom riadku
+, a<literal moreinfo="none">sCRiPt KiDDi3 0utPUt</literal> pre pouzivatelov povazujucich sa za
+|&lt;-r4d.</para>
+
+<para>Zatial co interaktivny vystup je predvoleny a nema ziadne
+suvisiace parametre prikazoveho riadku, dalsie styri formaty maju tu istu syntax.
+Pouzivaju jeden argument, ktorym nazov vystupneho suboru. Mozu byt zadane aj viacere formaty, ale vzdy len raz.
+Ak napriklad chcete ulozit normalny vystup pre seba a zaroven ho ulozit do XML formatu kvoli analyze programu,
+mozete pouzit parametre
+<option>-oX myscan.xml -oN myscan.nmap</option>. Tato kapitola sice pouziva kvoli strucnosti
+jednoduche nazvy suborov ako <literal moreinfo="none">myscan.xml</literal>, ale odporuca sa pouzit popisnejsie 
+nazvy. Zvolene nazvy su otazkou osobnych preferencii, hoci ja pouzivam dlhe nazvy zahrnujuce datum scanu a par slov
+opisujucich scan, ktory je umiestneny v adresari podla scanovej spolocnosti.</para>
+
+<para> Kym tieto parametre ukladaju vysledky do suborov, Nmap stale zobrazuje
+interaktivny vystup na stdout ako obycajne. Napriklad prikaz
+<command moreinfo="none">nmap -oX myscan.xml target</command> zobrazi XML vystup do suboru
+<filename moreinfo="none">myscan.xml</filename> a standardny vystup zobrazi presne tie iste interaktivne vysledky, ako keby
+parameter <option>-oX</option> nebol vobec specifikovany.  Zmenit to mozete zadanim spojovnika ako argumentu
+pre jeden z typov formatov, co sposobi, ze Nmap deaktivuje interaktivny vystup a namiesto toho posle vysledky len
+do zadaneho formatu, cize prikaz <command moreinfo="none">nmap -oX - target</command> odosle do stdout len vystup v XML. 
+Vazne chyby mozu byt stale zobrazovane do normalneho chyboveho streamu s nazvom stderr.</para>
+
+<para>Na rozdiel od niektorych argumentov Nmapu, medzera medzi parametrom logovacieho suboru
+(napr. <option>-oX</option>) a nazvom suboru alebo spojovnikom je povinna.
+Ak vynechate flagy a zadate argumenty ako napr.
+<option>-oG-</option> alebo <option>-oXscan.xml</option> funkcia spatnej kompatibility Nmapu sposobi, ze
+sa vytvori vystupnych suborov v 
+<emphasis>normal format</emphasis> s nazvom
+<filename moreinfo="none">G-</filename>, resp. <filename moreinfo="none">Xscan.xml</filename>
+.</para>
+
+<para>Nmap takisto ponuka parametre na ovladanie mnozstva vystupu scanu a ci sa maju vystupne subory prepisat alebo
+sa ma pokracovat v pripajani dat. Vsetky tieto parametre su opisane nizsie.
+</para>
+
+<variablelist><title>Vystupne formaty Nmapu</title>
+      <varlistentry>
+        <term>
+        <option>-oN &lt;filespec&gt;</option> (Normalny vystup)</term>
+        <listitem>
+          <para>Sposobi, ze<literal moreinfo="none">normal output</literal> sa presmeruje do suboru so zadanym nazvom.
+		  Ako bolo rozobrate vyssie, tento vystup sa mierne lisi od interaktivneho - 
+          <literal moreinfo="none">interactive output</literal>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oX &lt;filespec&gt;</option> (XML vystup)</term>
+        <listitem>
+
+          <para>Sposobi, ze <literal moreinfo="none">XML output</literal> sa presmeruje do suboru
+		  so zadanym nazvom. Nmap zahrna definiciu typu dokumentu (DTD), co umoznuje XML parserom vytvarat
+		  korektny XML vystup Nmapu. Je to sice urcene hlavne pre programove ucely, moze takisto pomoct ludom
+		  interpretovat XML vystup Nmapu. DTD definuje platne prvky formatu a casto vymenuva atributy
+	      a hodnoty, ktore mozu nadobudat. Posledna verzia je dostupna z adresy
+          <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/>.</para>
+
+          <para>XML ponuka stabilny format lahko spracovatelny softwarom.
+		  Volne XML parsery su dostupne vo vsetkych hlavnych programovacich jazykoch
+		  vratane C/C++,Perl, Python a 
+          Java. Su ponukane napojenia pre vacsinu tychto jazykov tak, ze si vedia specificky poradit
+		  s vystupom a behom Nmapu.
+          Prikladmi su <ulink url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink>
+          a <ulink url="http://www.nmapparser.com">Nmap::Parser</ulink> v Perl
+          CPAN.  Skoro vo vsetkych pripadoch rozhrania netrivialnej aplikacie
+		  s Nmapom, XML je preferovanym formatom.</para>
+
+          <para>XML vystup sa odkazuje na XSL stylesheet,
+          ktory moze byt pouzity na formatovanie vysledkov do HTML. Najjednoduchsim sposobom ako ho pouzit
+je jednoducho nahrat vystup v XML do weboveho prehliadaaca akym je Firefox alebo IE.
+          Za normalnych okolnosti to bude fungovat len na pocitaci, na ktorom bezi
+		  Nmap (alebo na podobne nastavenom) kvoli napevno zadanej ceste suboru <filename moreinfo="none">nmap.xsl</filename>
+          suboroveho systemu.  Zadanim parametrov <option>--webxml</option> alebo
+          <option>--stylesheet</option> vytvorite prenosne XML
+          subory, ktore sa na kazdom pocitaci s webovym prehliadacom zobrazia v HTML formate.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oS &lt;filespec&gt;</option> (ScRipT KIdd|3 oUTpuT)</term>
+        <listitem>
+   <para>Vystup formatu Script kiddie je podobny interaktivnemu, no dodatocne sa spracuvava,
+   aby vyhovoval skupine l33t HaXXorZ, ktori predtym opovrhovali Nmapom kvoli jeho doslednemu formatovaniu
+   velkych pismen a hlaskovaniu. Ludia s nedostatkom zmyslu pre humor by si mali uvedomit,
+ze tento parameter je mysleny ako vtip pre script kiddies, predtym ako ma zacnu flamovat za to,
+ze im udajne <quote>pomaham</quote>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oG &lt;filespec&gt;</option> (Vystup typu Grep)</term>
+        <listitem>
+
+<para>Tento format vystupu je spomenuty ako posledny, pretoze je zastaraly. Vystup vo formate XML
+je ovela mocnejsi a takmer tak isto vhodny a pohodlny pre skusenych pouzivatelov. XML je standardom,
+pre ktory je dostupnych mnoho excelentnych parserov, kym vystup typu grep je len moj vlastny vymysel.
+XML je rozsiritelne na podporu novych vydanych funkcii Nmapu, zatial co tieto funkcie musim casto vynechat 
+pri vystupe formatu grep kvoli nedostatku miesta na ich umiestnenie.
+</para>
+
+<para>Aj tak je vsak tento format stale dost oblubeny. Je to jednoduchy format, ktory
+zobrazuje kazdy hostitelsku stanicu na jeden riadok a moze byt jednoducho prehladavany
+a parsovany standardnymi UNIXovymi nastrojmi ako grep, awk, cut,
+sed, diff ci Perl.  Aj ja ho dokonca pouzivam pre jednorazove 
+testy na prikazovom riadku. Najst vsetky hostitelske stanice s otvorenym 
+portom ssh alebo s beziacim systemom Solaris si vyzaduje jednoduchy grep na identifikaciu
+hostitelskych stanic, napojeny rurou - pipe na prikaz awk alebo cut, cim sa zobrazia
+pozadovane polia.</para>
+
+<para>Vystup vo formate Grep sa sklada z komentara (riadky zacinajuce sa znakom) a riadkami cielov. 
+ Riadok ciela zahrnuje kombinaciu 6 oznacenych poli, oddelenych tabulatorom a nasledovanym dvojbodkou,
+<literal moreinfo="none">Host</literal>, <literal moreinfo="none">Ports</literal>,
+<literal moreinfo="none">Protocols</literal>, <literal moreinfo="none">Ignored State</literal>,
+<literal moreinfo="none">OS</literal>, <literal moreinfo="none">Seq Index</literal>,
+<literal moreinfo="none">IPID</literal> a <literal moreinfo="none">Status</literal>.</para>
+
+<para>Najdolezitejsim z tychto poli je vo vseobecnosti 
+<literal moreinfo="none">Ports</literal>, ktore poskytuje podrobnosti o kazdom
+zaujimavom porte a obsahuje zoznam poloziek portov oddelenenych ciarkou,
+pricom kazda polozka reprezentuje jednotlivy port a zaujima podobu siedmych mensich poli oddelenych
+znakom /.  Su nimi: <literal moreinfo="none">Port
+number</literal>, <literal moreinfo="none">State</literal>, <literal moreinfo="none">Protocol</literal>,
+<literal moreinfo="none">Owner</literal>, <literal moreinfo="none">Service</literal>, <literal moreinfo="none">SunRPC
+info</literal> a <literal moreinfo="none">Version info</literal>.</para>
+
+<para>Tak ako pri vystupe XML, ani tento manual nemoze pokryvat dokumentaciu celeho formatu. Podrobnejsi pohlad
+na format typu grep Nmapu je dostupny z adresy
+<ulink url="http://www.unspecific.com/nmap-oG-output"/>.</para>
+        </listitem>
+      </varlistentry>
+
+     <varlistentry>
+        <term>
+        <option>-oA &lt;basename&gt;</option> (Vystup vo vsetkych formatoch)</term>
+       <listitem><para>
+           Pre ucel pohodlnosti je mozne zadat <option>-oA
+           <replaceable>basename</replaceable></option>, cim sa vysledky scanu naraz ulozia v normalnom,
+XML a grep formate. Ulozia sa do suborov v tvare
+           are stored in <replaceable>basename</replaceable>.nmap,
+           <replaceable>basename</replaceable>.xml a 
+           <replaceable>basename</replaceable>.gnmap.
+           Tak ako pri vacsine programov je aj tu mozne pridat predponu adresarovej cesty, napr.
+		   
+           
+           <filename moreinfo="none">~/nmaplogs/foocorp/</filename> na UNIXovych systemoch alebo
+           <filename moreinfo="none">c:\hacking\sco</filename> na Windows.</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+    <variablelist><title>Miera vypisu a moznosti debugovania</title>
+      <varlistentry>
+        <term>
+          <option>-v</option> (Zvysit stupen miery vypisu)
+        </term>
+        <listitem>
+          <para>Zvysi stupen miery vypisu, cim Nmap zobrazi viac informacii o vykonavanom scane. Otvorene
+		  porty su zobrazovane hned pri ich najdeni. Ak Nmap odhaduje, ze scan zabere viac ako niekolko minut,
+		  zobrazi tento odhad. Pri dvojnasobnom pouziti parametru sa este viac zvysi miera vypisu.
+		  Viacnasobne pouzitie nema ziadny efekt.</para>
+
+          <para>Vacsina zmien ovplyvnuje len interaktivny vystup a niektore tiez normalny a script kiddie format vystupu.
+		  Ostatne typy vystupov su spracovavane pocitacmi, takze Nmap poskytuje podstatne podrobnosti predvolene
+		  bez unavovania cloveka. Existuje vsak niekolko zmien v dalsich modoch, kde sa moze velkost vystupu podstatne 
+		  zmensit vynechanim niektorych podrobnosti. Napriklad riadok s komentarom vo formate grep poskytujuci vsetkych
+		  scanovanych portov sa zobrazi len v mode verbose - s velkou mierou vypisu - pretoze moze byt dost dlhy.
+		  </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-d [level]</option> (Zvysit alebo nastavit uroven debugovania)
+        </term>
+        <listitem>
+
+<para>Ak ani mod verbose neposkytuje dostatocne udaje, je vhodne pouzit debugovanie, cim sa doda omnoho viac
+informacii. Tak ako pri parametri stupna urovne vypisu,
+(<option>-v</option>), debugovanie sa povoli riadkovym parametrom(<option>-d</option>) 
+a jeho stupen sa da zvysit jeho niekolkonasobnym zadanim. Alternativne je mozne nastavit 
+stupen debugovania dosadenim argumentu za parameter <option>-d</option>, napriklad
+<option>-d9</option> nastavi uroven na devat, co predstavuje najvyssi platny stupen a v pripade, 
+ze sa nevykonava velmi jednoduchy scan s par portmi a cielovymi stanicami vyprodukuje
+tisicky riadkov.</para>
+
+<para>Vystup debugovania je uzitocny, ak je podozrive, ze Nmap obsahuje bug,
+alebo ak ste proste zmateni, co Nmap robi a preco. Riadky debuggovania nie su prilis samo
+vysvetlujuce, kedze su urcene pre vyvojarov. Je mozne dopracovat sa k niecomu takemu:
+<computeroutput moreinfo="none">Timeout
+vals: srtt: -1 rttvar: -1 to: 1000000 delta 14987 ==&gt; srtt: 14987
+rttvar: 14987 to: 100000</computeroutput>.  Ak nerozumiete ani jednemu riadku, jedinym riesenim je ignorovat
+vypis alebo si ho vyhladat v zdrojovom kode, pripadne si vyziadat pomoc zo development listu (nmap-dev).
+Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca prehlad.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--packet_trace</option> (Sledovat odosielane a prijimane pakety a data)
+        </term>
+        <listitem>
+          <para>Nmap zobrazi obsah kazdeho odoslaneho alebo prijateho paketu.
+		  Casto sa to pouziva pre debugovanie, ale zide sa tiez novacikom,
+		  ktori su presne rozumiet, co sa deje pod pokryvkou Nmapu.
+		  Ak chcete predist zobrazovaniu tisicov riadkov, je mozne specifikovat
+		  obmedzeny pocet portov na scanovanie, napr.<option>-p20-30</option>.  
+		  Ak vas zaujima len priebeh detekcie verzie, zadajte
+          <option>--version_trace</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--iflist</option> (Zobrazit zoznam rozhrani a ciest)
+        </term>
+        <listitem>
+          <para>Zobrazi zoznam rozhrani a systemovych ciest tak ako boli detekovane 
+		  Nmapom, co sa hodi pre debugovanie problemov s routovanim alebo nespravnou
+		  charakterizaciou zariadenia, napr. ak Nmap povazuje pripojenie PPP za ethernetovske.
+		  .</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+   <variablelist><title>Rozne moznosti vystupu</title>
+
+      <varlistentry>
+        <term>
+          <option>--append_output</option> (Pripojit vystup namiesto vymazania predchadzajucich dat)
+        </term>
+        <listitem>
+           <para>Pri specifikacii nazvu suboru za parametrom formatu vystupu napr.
+		   <option>-oX</option> alebo <option>-oN</option>sa v predvolenom nastaveni subor prepise.
+		   Ak chcete zachovat obsah suboru a pripojit nove vysledky, zadajte parameter <option>--append_output</option> 
+		   a vsetky zadane nazvy suborov sa namiesto prepisovania budu rozsirovat o nove data. Nefunguje to pre data scanu
+		   pre format XML(<option>-oX</option>), pretoze sa vysledny subor nespracuje spravne, az kym
+		   ho neopravite rucne.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resume &lt;filename&gt;</option> (Pokracovat v prerusenom scane)
+        </term>
+        <listitem>
+
+          <para> Niektore rozsiahle scany trvaju Nmapu velmi dlho - radovo aj dni. Taketo scany
+		  nebezia stale do konca. Mozu existovat obmedzenia, ze Nmap nesmie byt spusteny pocas
+		  pracovneho casu, mohla by spadnut siet, pocitac so spustenym Nmapom by mohol planovane ci neplanovane
+		  restartovat alebo by Nmap sam mohol zhavarovat.
+          Administrator ho moze zrusit takisto a to stlacenim kombinacie 
+          <keycap moreinfo="none">ctrl-C</keycap>.  Restartovat cely scan
+		  od zaciatku moze byt neprijatelne. Nastastie, ak sa uchovavali logovacie
+		  zaznamy typu normal 
+          (<option>-oN</option>) alebo grep (<option>-oG</option>)
+          , pouzivatel moze pokracovat v scanovani s tymi istymi cielovymi
+		  stanicami ako predtym pred prerusenim scanu. Docieli sa to zadanim parametra
+           <option>--resume</option> a vystupneho suboru vo formate normal/grep ako argumentu.
+		   Ziadne dalsie argumenty nie su povolene, pretoze Nmap spracuvava subor pomocou
+		   predchadzajucich parametrov. Je teda potrebne zadat 
+          <command moreinfo="none">nmap --resume
+          <replaceable>logfilename</replaceable></command>.  Nmap pripoji nove vysledky
+		  do suborov specifikovanych v predchadzajucom vykonavani scanu.
+		  Taketo obnovenie scanu nepodporuje vystup v XML
+          formate, pretoze miesanie vysledkov dvoch spusteni scanu do jedneho
+		  spolocneho spravneho XML suboru by bolo narocne.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--stylesheet &lt;path or URL&gt;</option> (Nastavit XSL stylesheet na prevod XML vystupu)
+        </term>
+        <listitem>
+          <para> Nmap je dodavany s XSL stylesheetom nazvanym
+          <filename moreinfo="none">nmap.xsl</filename> na prezeranie a preklad XML formatu do HTML.
+		  Vystup XML zahrna direktivu <literal moreinfo="none">xml-stylesheet</literal>
+          , ktora ukazuje na subor <filename moreinfo="none">nmap.xml</filename>, kde bola 
+          pocitatocne nainstalovana Nmapom (vo Windowse aktualnym pracovnym adresarom).  
+		  Nahrajete XML vystup Nmapu do moderneho weboveho prehliadaca a ten by mal zo suboroveho systemu najst subor
+          <filename moreinfo="none">nmap.xsl</filename> a pouzit ho na preklad vysledkov.
+		  Ak si zelate pouzit odlisny stylesheet, zadajte ho ako argument za parametrom 
+          <option>--stylesheet</option>.  Je nutne zadat plnu cestu alebo adresu URL.
+		  Jednym z beznych prikladov je  
+          <option>--stylesheet
+          http://www.insecure.org/nmap/data/nmap.xsl</option>, co sposobi, ze browser nahra najnovsiu
+		  verziu stylesheetu z adresy Insecure.Org.  Parameter <option>--webxml</option> 
+          robi to iste bez tolkeho pisania a memorovania. Nahratie XSL stylesheetu z 
+          Insecure.Org ulahcuje prezeranie vysledkov na pocitaci,
+		  ktory nema Nmap (a preto ani
+          <filename moreinfo="none">nmap.xsl</filename>).  URL je teda casto uzitocnejsia,
+		  ale ulozenie suboru v lokalnom suborovom systeme sa pouziva predvolene
+          kvoli bezpecnosti.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--webxml</option> (Nahrat stylesheet z adresy Insecure.Org)
+        </term>
+        <listitem>
+          <para>Tento pohodlny parameter je jednoducho alternativou k zadaniu 
+		  <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--no_stylesheet</option> (Vynechat zadanie XSL stylesheetu z XML)
+        </term>
+        <listitem>
+          <para>Tento parameter zabrani Nmapu spajat XSL stylesheet s XML vystupom. Vynecha sa direktiva
+		  <literal moreinfo="none">xml-stylesheet</literal>.</para>
+        </listitem>
+      </varlistentry>
+
+
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-misc-options">
+    <title>Rozne moznosti</title>
+    <para>Tato cast opisuje niektore dolezite a menej dolezite moznosti, ktore 
+	nikam inam nezapadaju.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-6</option> (Povolit scanovanie IPv6)
+        </term>
+        <listitem>
+
+          <para>Od roku 2002 ponuka Nmap podporu protokolu IPv6 pre svoje najpopularnejsie
+		  funkcie, specialne pre ping scan (len pri TCP), scanovani typu connect() a detekcii verzie.
+		  Syntax prikazov je rovnaka, len sa este prida parameter
+          <option>-6</option>.  Pri zadavani IP adresy je samozrejme nutne
+		  pouzit syntax IPv6. 
+		  Adresa moze byt napr. v tvare
+          <literal moreinfo="none">3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>,
+          a preto je odporucane pouzit hostitelske nazvy.  Vystup vyzera podobne
+		  ako zvycajne, s adresou v tvare IPv6 v riadku <quote>interesting
+          ports</quote>, ktory IPv6 prezradza ako jediny.</para>
+
+          <para>Aj ked sa IPv6 stale nerozsiril poriadne, pouziva sa vyznamne v niektorych krajinach, zvycajne
+		  azijskych, a vacsina modernych operacnych systemov ho podporuju. Ak chcete pouzit
+		  Nmap s protokolom IPv6, musia byt zdrojovy aj cielovy pocitac scanu nastavene na tento
+		  protokol. Ak vam vas ISP, ako vacsina, nepriradi IPv6 adresy, su zdarma dostupne
+		  tunelovacie programy pre IPv6 a dobre spolupracuju s Nmapom. Jeden z tych lepsich
+		  je BT Exact na adrese <ulink url="https://tb.ipv6.btexact.com/"/>.  Pouzil 
+		  som aj jeden poskytovany spolocnostou na adrese<ulink url="http://ipv6tb.he.net/"/>.  
+		  Dalsou metodou zdarma su tunely IPv6 na IPv4.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-A</option> (Parametre agresivneho scanu)
+        </term>
+        <listitem>
+          <para>Tento parameter umoznuje dalsie pokrocile a agresivne moznosti. Este som sa 
+		  nerozhodol presne, co vsetko to predstavuje. V sucasnosti umoznuje
+		  detekciu OS
+          (<option>-O</option>) a scan verzie(<option>-sV</option>). Viac funkcii
+		  sa moze pridat v buducnosti. Dovodom je umoznit rozsiahlu
+		  mnozinu moznosti scanu bez toho, aby si ludia museli pamatat mnozstvo flagov.
+		  Tento parameter povoluje len funkcie, no nie casovacie moznosti (napr.<option>-T4</option>)
+		  alebo parametre miery vystupu (<option>-v</option>), ktore by tiez mohli
+		  byt potrebne.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--datadir &lt;directoryname&gt;</option> (Specifikovat vlastne datoveho suboru Nmapu)
+        </term>
+        <listitem>
+          <para>Nmap ziskava specialne data pocas behu zo suborov<filename moreinfo="none">nmap-service-probes</filename>,
+          <filename moreinfo="none">nmap-services</filename>,
+          <filename moreinfo="none">nmap-protocols</filename>,
+          <filename moreinfo="none">nmap-rpc</filename>,
+          <filename moreinfo="none">nmap-mac-prefixes</filename> a 
+          <filename moreinfo="none">nmap-os-fingerprints</filename>.  Najprv ich hlada 
+		  v adresari zadanom volitelne parametrom 
+          <option>--datadir</option>. Ak tam nie su najdene vsetky subory,
+		  chybajuce su hladane v adresari specifikovanom premennou NMAPDIR.
+		  Dalsim v poradi je adresar <filename moreinfo="none">~/.nmap</filename>, kde sa hladaju 
+		  pre systemy POSIX realne a efektivne UID  a pre systemy Win32 umiestnenia spustitelneho suboru Nmapu.
+		  Potom sa hlada nakompilovane umiestnenie napr.
+          <filename moreinfo="none">/usr/local/share/nmap</filename> 
+		  ci <filename moreinfo="none">/usr/share/nmap</filename>
+          . Ako posledna moznost pri hladani sa pouzije aktualny adresar.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send_eth</option> (Posielat neupravene pakety na ethernetovej vrstve)
+        </term>
+        <listitem>
+          <para>Nmap bude odosielat pakety na neupravenej druhej, ethernetovej vrstve 
+		  (vrstva data link) namiesto vyssej sietovej vrstvy. V predvolenom nastaveni
+		  zvoli Nmap sposob, ktory sa lepsie hodi pre danu platformu. Neupravene sockety
+		  (sietova vrstva) su efektivnejsie pre UNIXovske pocitace, kym ethernetovske
+		  ramce sa vyzaduju pre operacie na platforme Windows, pretoze Microsoft
+		   nepodporuje neupravene sockety. Nmap pouziva na UNIXoch vzdy neupravene IP pakety,
+		   napriek tejto moznosti, aj ked neexistuje ina volba.
+		   </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send_ip</option> (Posielat neupravene pakety na vrstve IP)
+        </term>
+        <listitem>
+          <para>Nmap bude odosielat pakety prostrednictvom
+		  neupravenych IP socketov a nebude odosielat 
+		  nizkourovnove ethernetove ramce. Je to doplnkom parametra <option>--send-eth</option> 
+		  rozoberaneho predtym.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--privileged</option> (Predpokladat, ze pouzivatel je plne privilegovany)
+        </term>
+        <listitem>
+          <para>Nmap bude predpokladat, ze ma dost privilegii,
+		  aby mohol odosielat neupravene sockety, vykonavat sniffing paketov a 
+		  podobne operacie, ktore obycajne na UNIXovych systemoch vyzaduju privilegia roota.
+		  Za normalnych okolnosti Nmap skonci, ak su taketo operacie pozadovane,
+		  no funkcia geteuid() nevrati nulu.
+		  Parameter <option>--privileged</option> sa hodi pri schopnostiach
+		  kernelu Linuxu a pri podobnych systemoch, ktore mozu byt konfigurovane,
+		  aby umoznili neprivilegovanym pouzivatelom vykonavat scany pouzitim neupravenych
+		  paketov. Tento parameter je potrebne zadat pred vsetkymi
+		  parametrami, ktore vyzaduju privilegia (SYN scan, detekcia OS, atd.).
+		  Premenna NMAP_PRIVILEGED moze byt nastavena ako ekvivalentna
+		  alternativa k parametru
+          <option>--privileged</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--interactive</option> (Zacat v interaktivnom mode)
+        </term>
+        <listitem>
+          <para>Nmap zacne pracovat v interaktivnom mode, 
+		  ktory ponuka moznost pouzitia vyzvy na jednoduche spustenie
+		  viacnasobnych scanov, bud synchronne alebo v pozadi. Zide sa to 
+		  pre pouzivatelov, ktori scanuju zo systemov typu multi-user a
+		  casto chcu testovat bezpecnost bez toho, aby niekto v systeme vedel
+		  , ktore systemy sa presne scanuju. Tento mod sa aktivuje parametrom
+		  <option>--interactive</option> a zadanim <keycap moreinfo="none">h</keycap> pre napovedu.
+		  Tento parameter sa pouziva zriedkavo, pretoze poriadne shelly su dovernejsie zname a maju
+		  vela funkcii. Tento parameter zahrnuje operator ! kvoli spusteniu
+		  prikazov shellu, co je jednou z mnohych pricin, preco sa
+		  nema instalovat setuid root Nmapu.
+		  </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-V</option>; <option>--version</option> (Zobrazit cislo verzie)
+        </term>
+        <listitem>
+          <para>Zobrazi cislo verzie Nmapu a ukonci sa.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-h</option>; <option>--help</option> (Zobrazi obsah napovedy)
+        </term>
+        <listitem>
+          <para>Zobrazi kratku obrazovku napovedy s najbeznejsimi prikazmi. To iste sa dosiahne
+		  pri spusteni Nmapu bez argumentov.
+		  </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-runtime-interaction">
+    <title>Interakcia s behom programu</title>
+ 
+    <note><para>Funkcia interakcie s behom programu este na systemoch Windows nie je plne 
+	podporovana.
+	</para></note>
+
+    <para>Pocas behu Nmapu sa zachytavaju
+	vsetky stlacenie klucovych klavesov, co dovoluje komunikovat s programom
+	bez jeho zastavenia a restartovania. Iste specialne klavesy
+	zmenia parametre, zatial co ine klavesy zobrazia stavovu spravu informujucu
+	o scane. Konvencia je taka, ze
+    <emphasis>male pismena </emphasis> zvysuju mnozstvo zobrazovanych udajov a 
+    <emphasis>velke pismena</emphasis> ho znizuju.</para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>v</option> / <option>V</option>
+        </term>
+        <listitem>
+          <para>Zvysit / Znizit mieru zobrazovania</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>d</option> / <option>D</option>
+        </term>
+        <listitem>
+          <para>Zvysit / Znizit stupen debugovania</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>p</option> / <option>P</option>
+        </term>
+        <listitem>
+          <para>Zapnut/ Vypnut sledovanie paketov</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          Cokolvek ine
+        </term>
+        <listitem>
+          <para>Zobrazi stavovu spravu, napr.:</para>
+          <para>Stats: 0:00:08 elapsed; 111 hosts completed (5 up),
+          5 undergoing Service Scan</para>
+          <para>Service scan Timing: About 28.00% done; ETC: 16:18
+          (0:00:15 remaining)</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-examples">
+    <title>Priklady</title>
+    <para>Na tomto mieste je niekolko prikladov pouzitia Nmapu, od jednoduchych a rutinnych
+	az po zlozitejsie a tajuplne. Pouzite su niektore vlastne IP adresy a nazvy domen, aby bol
+	proces konkretny, no namiesto nich by sme mali pouzit nahrady 
+	<emphasis>vasej vlastnej siete.</emphasis>.  Aj ked si nemyslim, ze scanovanie portov
+	dalsich sieti je alebo by malo byt nelegalne, administratori niektorych
+	sieti nijak neocenuju nevyziadane scanovanie svojich sieti a mozu sa stazovat.
+    Najlepsie je najprv ziskat opravnenie.</para>
+
+    <para>Pre testovacie ucely mate opravnenie scanovat pocitac na adrese
+    <literal moreinfo="none">scanme.nmap.org</literal>.  Toto opravnenie vsak obsahuje
+	len scanovanie pomocou Nmapu a nie testovanie exploitov alebo utokov typu Denial of service.
+	Aby sa nevycerpala sirka pasma, nespustajte viac ako 12 scanov na tento pocitac za jeden den.
+	Ak je tato sluzba volneho scanovania cieloveho pocitaca zneuzita, zrusi sa a Nmap oznami
+	<computeroutput moreinfo="none">Failed to resolve given hostname/IP:
+    scanme.nmap.org</computeroutput>.  Tieto opravnenia sa tiez vztahuju
+	na hostitelske pocitace <literal moreinfo="none">scanme2.nmap.org</literal>,
+    <literal moreinfo="none">scanme3.nmap.org</literal> atd., hoci tieto stanice
+	momentalne neexistuju.</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -v scanme.nmap.org</userinput>
+    </para>
+    <para>Tento parameter spusti scan vsetkych rezervovanych TCP portov
+	na pocitaci
+    <literal moreinfo="none">scanme.nmap.org</literal> . Parameter<option>-v</option>
+    umoznuje tzv. verbose mode.</para>
+    <para>
+      <userinput moreinfo="none">nmap -sS -O scanme.nmap.org/24</userinput>
+    </para>
+    <para>Spusti SYN scan proti kazdemu aktivnemu pocitacu v sieti triedy
+	<quote>class C</quote> s nazvom
+    Scanme. Takisto sa pokusi urcit spustene operacne systemy aktivnych pocitacov. K tymto parametrom
+	sa vyzaduju privilegia roota.
+	</para>
+    <para>
+      <userinput moreinfo="none">nmap -sV -p 22,53,110,143,4564
+      198.116.0-255.1-127</userinput>
+    </para>
+
+    <para> Spusti vypocet hostitelskych stanic a TCP scan na prvu polovicu z 255 moznych 8-bitovych 
+	subnetov v adresnom priestore 198.116 triedy B.
+    Zaroven sa testuje, ci na systemoch bezia sluzby sshd, DNS, 
+    pop3d, imapd alebo port 4564. Pre kazdy z najdenych otvorenych portov sa pouzije
+	detekcia verzia na urcenie spustenych aplikacii.
+	</para>
+
+    <para>
+    <userinput moreinfo="none">nmap -v -iR 100000 -P0 -p 80</userinput>
+    </para>
+
+    <para>Nmap zvoli nahodne 100 000 hostitelskych pocitacov a scanuje ich port 80.
+	Vypocet hostitelskych stanic je zakazany parametrom
+    <option>-P0</option>, pretoze je zbytocne najprv
+	posielat test na zistenie, ci je hostitelska stanica aktivna, ak sa
+	bude aj tak testovat len jeden port.
+	</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+      logs/pb-port80scan.gnmap 216.163.128.20/20</userinput>
+    </para>
+    <para>Scanuje 4096 IP adries kvoli najdeniu webserverov (bez ich pingnutia) 
+	a vystup ulozi vo formatoch grep a XML.</para>
+
+    <para>
+      <userinput moreinfo="none">host -l company.com | cut -d -f 4 | nmap -v -iL
+      -</userinput>
+    </para>
+
+    <para>Vykona preklad domeny DNS, cim sa najdu hostitelske pocitace na adrese company.com 
+	a potom Nmap pouzije tieto IP adresy. Tieto prikazy sa mozu pouzit pre
+	pocitac so systemom GNU/Linux - dalsie systemy maju odlisne prikazy na vykonavanie
+	prekladu domeny.</para>
+
+  </refsect1>
+
+  <refsect1 id="man-bugs">
+    <title>Bugy</title>
+
+    <para>Tak ako autor, ani Nmap nie
+	je dokonaly, no mate moznost pomoct pri jeho vylepsovani tym, ze zaslete spravu o bugoch alebo
+	dokonca napisete patch. Ak sa Nmap nechova podla ocakavania, vykonajte najprv
+	upgrade na najnovsiu verziu dostupnu z adresy
+	<ulink url="http://www.insecure.org/nmap/"/>.  Ak problem pretrvava,
+	preskumajte, ci uz nebol objaveny a adresovany. Vyskusajte pouzit google
+	s vyrazom chybovej spravy alebo prehladajte archivy Nmap-dev na adrese
+    <ulink url="http://seclists.org/"/>.  Precitajte si aj tento plny manual.
+	Ak nenajdete nic podobne, poslite mail o bugu na adresu 
+    <email>nmap-dev@insecure.org</email>.  Zahrnte vsetko, co ste sa dozvedeli
+	o probleme spolu s verziou Nmapu a operacnym systemom. Spravy o problemoch
+	a otazky na pouzivanie Nmapu budu ovela pravdepodobnejsie zodpovedane, ak budu odoslane
+	na nmap-dev@insecure.org namiesto odosielania priamo Fyodorovi.</para>
+
+    <para>Patche s kodom na opravu bugov su este lepsie ako samotne spravy o bugoch. Zakladne
+	instrukcie na tvorbu suborov patchov s vasimi zmenami su dostupne na 
+	<ulink url="http://www.insecure.org/nmap/data/HACKING"/>.  
+	Patche mozu byt odoslane prednostne na nmap-dev alebo priamo Fyodorovi.</para>
+  </refsect1>
+
+  <refsect1 id="man-author">
+    <title>Autor</title>
+    <para>Fyodor 
+    <email>fyodor@insecure.org</email>
+    (<ulink url="http://www.insecure.org"/>)
+    </para>
+
+    <para>Za posledne roky stovky ludi vyznamne prispeli pre Nmap. Podrobnosti o nich
+	su obsiahnute v subore<filename moreinfo="none">CHANGELOG</filename>, ktory
+	sa dodava s Nmapom a je dostupny z adresy<ulink url="http://www.insecure.org/nmap/changelog.html"/>.</para>
+
+  </refsect1>
+
+  <refsect1 id="man-legal">
+    <title>Pravne prehlasenia</title>
+	
+	<refsect2 id="translation-disclaimer">
+  <title>Unofficial Translation Disclaimer/ Zrieknutie sa zaruky nad neoficialnym prekladom</title>
+
+  <para>This is an unnofficial translation of the <ulink
+  url="http://www.insecure.org/nmap/man/man-legal.html">Nmap
+  license details</ulink> into Slovak.  It was not written by
+  Insecure.Com LLC, and does not legally state the distribution terms
+  for Nmap -- only the original English text does that.  However, we
+  hope that this translation helps Slovak speakers understand the
+  Nmap license better.</para>
+
+  <para>Toto je len neoficialny preklad<ulink
+  url="http://www.insecure.org/nmap/man/man-legal.html">licencnych 
+  podrobnosti Nmapu </ulink> do slovenciny.  Nebol vytvoreny spolocnostou 
+  Insecure.Com LLC a ani legalne nevyjadruje podmienky distribucie pre Nmap; to ma za ulohu
+  len povodny anglicky text. Aj tak vsak dufame, ze tento preklad pomoze slovensky hovoriacim 
+  ludom lepsie pochopit licenciu pre Nmap.
+  </para>
+</refsect2>
+
+<refsect2 id="nmap-copyright">
+  <title>Copyright a licencia Nmapu</title>
+
+<para>Program Nmap Security
+Scanner je produktom (C) 1996-2005 Insecure.Com LLC. Nmap je tiez registrovana obchodna znacka
+spolocnosti Insecure.Com LLC.  Tento program je free softwarom; je mozne ho
+redistribuovat alebo modifikovat podla podmienok licencie GNU General
+Public License 2 uverejnenou zdruzenim Free Software Foundation.
+ Zarucuje pravo na pouzivanie, modifikaciu a redistribuciu tohoto softwaru za istych podmienok.
+ Ak mate zaujem o zaclenenie technologie Nmapu do proprietarneho softwaru, mozeme predat
+ alternativne licencie (kontakt <email>sales@insecure.com</email>). Vela vyrobcov bezpecnostnych
+ scannerov uz licencuju technologiu Nmapu, napr. zistovanie hostitelskych stanic,
+ scanovanie portov, detekcia OS a detekcia sluzby/verzie.</para>
+
+<para>Je nutne poznamenat, ze GPL uvaluje dolezite obmedzenia na 
+<quote>odvodene diela</quote>, no neposkytuje podrobnu definiciu tohoto pojmu.
+Aby sa predislo nedorozumeniam, za ucelom tejto licencie povazujeme aplikaciu za <quote>odvodene dielo (derivative work)</quote> 
+ak vykonava lubovolnu z nasledujucich veci:</para>
+
+<itemizedlist>
+<listitem><para>Zaclenuje zdrojovy kod z Nmapu</para></listitem>
+<listitem><para>Nacitava alebo obsahuje Nmapovske Nmap datove subory chranene copyrightom, napr.
+    <filename moreinfo="none">nmap-os-fingerprints</filename> ci
+    <filename moreinfo="none">nmap-service-probes</filename>.</para></listitem>
+<listitem><para>Spusta Nmap a spracuvava vysledky(oproti typickym shellovskym aplikaciam 
+     ci aplikaciam s menu pre spustanie, ktore jednoducho zobrazia neupraveny vystup Nmapu
+	 a nie su odvodenym dielami.)</para></listitem>
+<listitem><para>Zaclenuje, obsahuje alebo zhromazduje Nmap do proprietarneho
+spustitelneho instalacneho programu, napr. tie vyrobene spolocnostou 
+    InstallShield.</para></listitem>
+<listitem><para>Je prepojeny na kniznicu alebo spusta program, co vykonava lubovolnu hore uvedenu cinnost.
+</para></listitem>
+</itemizedlist>
+
+<para>Pojem <quote>Nmap</quote> by sa mal pouzit aj pri zahrnuti akychkolvek casti alebo
+diel odvodenych od Nmapu. Tento zoznam nie je vyhradny, no jeho zamerom je objasnit nasu
+interpretaciu odvodenych diel pomocou niekolkych beznych prikladov. Tieto obmedzenia vlastne platia
+len pri redistribucii Nmapu. Napriklad vas nic nemoze zastavit od napisania a predavania
+proprietarnej celnej aplikacie k Nmapu, mozete to sami distribuovat a zverejnit pre verejnost
+adresu <ulink url="http://www.insecure.org/nmap/"/> na stiahnutie Nmapu.</para>
+
+<para>Nepokladame to za dodatocne restrikcie ku GPL, ale len ako
+objasnenie toho ako interpretujeme <quote>odvodene
+diela</quote> podla vztahu k nasmu produktu s licenciou GPL.  Je to nieco podobne, 
+ako ked Linus Torvalds oznamil svoju interpretaciu ako sa vztahuju
+<quote>odvodene diela</quote> k modulom linuxovskeho kernelu. Nasa intepretacia sa odkazuje
+len na Nmap - nehovorime za ine GPL produkty.</para>
+
+<para>Ak mate otazky tykajuce sa obmedzeni licencii GPL ohladom pouzivania Nmapu v dielach nelicencovanych
+GPL, radi pomozeme. Ako uz bolo spomenute vyssie, tiez ponukame alternativne licencie na zahrnutie
+Nmapu do proprietarnych aplikacii a zariadeni. Tieto zmluvy uz boli predane
+mnohym vyrobcom zaoberajucich sa bezpecnostou a vseobecne zahrnuju trvalu
+licenciu tak ako aj poskytovanie prioritnej podpory a updateov a pomoc
+financne podporovat pokracujuci vyvoj technologie Nmapu. Na ziskanie dalsich informacii
+zaslite e-mail na adresu <email>sales@insecure.com</email>.</para>
+
+<para>Ako vynimku ku terminom licencie GPL, spolocnost Insecure.Com LLC udeluje povolenie
+spajat kod tohoto programu s lubovolnou verziou kniznice OpenSSL, ktora je distribuovana
+pod licenciou identickou k tej zmienenej v zahrnutom subore 
+Copying.OpenSSL, a distribuovat suvisiace kombinacie vratane tychto dvoch.
+Musite dodrziavat GNU GPL vo vsetkych ohladoch pre kod iny ako OpenSSL. Ak pozmenite
+tento subor, je mozne nezavazne rozsirit tuto vynimku na vasu verziu tohoto suboru.
+</para>
+
+<para>Ak ste tieto subory ziskali s pisomnou licencnou zmluvou alebo sa zmluva zmienuje
+o inych pojmoch ako su vyssie uvedene, ma prednost pred tymito podmienkami.
+</para>
+</refsect2>
+
+<refsect2 id="man-copyright">
+  <title>Licencia Creative Commons pre tuto prirucku Nmapu</title>
+  <para>Tato prirucka Nmapu je chranena copyrightom spolocnosti (C) 2005 Insecure.Com LLC a je preto umiestnena
+  pod verziou licenciou <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
+   Attribution License</ulink> verzie 2.5, co dovoluje redistribuovat a modifikovat dielo podla ziadosti, pricom
+   sa odkazete na povodny zdroj. Alternativne je mozne vybrat si, ze tento dokument sa bude povazovat,
+   ze spada pod tu istu licenciu ako sam Nmap (predtym rozobrata).
+   </para>
+</refsect2>
+
+<refsect2 id="source-contrib">
+  <title>Dostupnost zdrojoveho kodu a prispevky komunity</title>
+
+<para>K tomuto softwaru je poskytovany kod, pretoze si myslime, ze pouzivatelia
+maju pravo poznat pred jeho spustenim, co presne program vykona. To umoznuje aj vam
+skumat software kvoli bezpecnostnym dieram, aj ked zatial neboli ziadne najdene.
+</para>
+
+<para>Zdrojovy kod vam tiez dovoluje portovat Nmap na nove platformy, opravovat bugy,
+a pridavat nove funkcie. Ste vrelo podporovani zasielat vase modifikacie pre pripadne zaclenenie
+do hlavnej distribucie na adresu
+<email>fyodor@insecure.org</email>. Zaslatim tychto zmien Fyodorovi alebo na niektory
+z vyvojarskych mailing listov  Insecure.Org sa predpoklada, ze poskytujete Fyodorovi
+a firme Insecure.Com LLC nelimitovane, nevylucne pravo na pouzivanie, modifikaciu a opatovne
+licencovanie kodu. Nmap bude vzdy dostupnym Open Source programom, ale tato zmienka je dolezita,
+pretoze nemoznost prelicencovat kod uz sposobila obrovske problemy dalsim projektom Free Software (napr. KDE a NASM).
+Prilezitostne relicencujeme kod tretim stranam podla hore spomenuteho. Ak si prajete specifikovat
+specialne podmienky licencie vasich prispevkov, uvedte to pri ich zasielani.
+</para>
+</refsect2>
+
+<refsect2 id="no-warranty"><title>Bez zaruky</title>
+
+<para>Tento program je distribuovany s vierou, ze bude uzitocny, ale BEZ AKEJKOLVEK ZARUKY;
+dokonca aj bez naznacenej zaruky PREDAJNOSTI a VHODNOSTI NA URCITY UCEL. Dalsie podrobnosti
+mozete najst na adrese<ulink url="http://www.gnu.org/copyleft/gpl.html"/>, alebo v subore COPYING 
+zahrnutym v Nmape.</para>
+
+<para>Je takisto dolezite poznamenat, ze Nmap je znamy tym, ze obcas sposobi zrutenie
+slabo naprogramovanych aplikacii, stackov TCP/IP a dokonca aj operacnych systemov. Aj ked sa to
+stava velmi zriedkave, je na to potrebne mysliet.
+<emphasis>Nmap by sa nikdy nemal spustat na testovanie kritickych systemov
+</emphasis>, kym nie ste pripraveny trpiet ich vypadky.
+Na tomto mieste uznavame, ze Nmap moze sposobit spadnutie vasich systemov alebo sieti
+a zriekame sa vsetkych zavazkov za akukolvek skodu alebo problemy pripadne zapricinene Nmapom.
+</para>
+</refsect2>
+
+<refsect2 id="inappropriate-usage"><title>Nevhodne pouzitie</title>
+<para>Kvoli istemu riziku padov systemov a niekolkym trufalcom, ktori
+pouzivaju Nmap na prieskum pred napadnutim systemov existuju administratori, ktori
+su znepokojeni a mozu sa stazovat pri zisteni scanovania systemu. Je preto doporuceniahodne
+vyziadat si povolenie pred podniknutim co i len lahkeho scanu siete.
+</para>
+
+<para>Nmap by nikdy nemal byt z bezpecnostnych dovodov instalovany so specialnymi privilegiami (napr. suid root)
+</para>
+</refsect2>
+
+<refsect2 id="third-party-soft"><title>Software tretich stran</title>
+<para>Tento produkt zahrnuje software vyvinuty organizaciou
+<ulink url="http://www.apache.org">Apache Software Foundation</ulink>.  Modifikovana verzia
+kniznice <ulink url="http://www.tcpdump.org">Libpcap
+portable packet capture library</ulink> sa dofavat spolu s nmapom.
+Verzia Nmapu pre Windows namiesto toho vyuziva od tejto kniznice odvodenu <ulink url="http://www.winpcap.org">WinPcap library</ulink>.  
+Podpora regularnych vyrazov je poskytovana kniznicou<ulink url="http://www.pcre.org">PCRE library</ulink>, 
+ktora je open source softwarom a jej autorom je Philip Hazel.  Niektore neupravene sietove funkcie
+pouzivaju sietovu kniznicu s nazvom<ulink url="http://libdnet.sourceforge.net">Libdnet</ulink>
+vytvorena autorom Dug Song. Jej pozmenena verzia sa dodava s Nmapom.
+Nmap moze byt volitelne spojeny s toolkitom<ulink url="http://www.openssl.org">OpenSSL cryptography toolkit</ulink> 
+na podporu detekcie verzie protokolu SSL.
+Kazdy z tu spomenuteho softwaru tretich stran je volne siritelny
+pod softwarovymi licenciami typu BSD.</para>
+</refsect2>
+
+<refsect2 id="us-export"><title>Klasifikacia riadenia exportu z USA (US Export Control Classification)</title>
+<para>Klasifikacia riadenia exportu z USA: Insecure.Com LLC sa domnieva, ze Nmap spada 
+pod americky ECCN (export control classification number) 5D992. Tato kategoria sa nazyva
+<quote>Information Security software not controlled
+by 5D002</quote>. Jedinym obmedzenim tejto klasifikacie je 
+AT (anti-terorizmus), ktory sa vztahuje na skoro vsetky tovary
+a odmieta exportovat do par nebezpecnych krajin ako su Iran a Severna Korea, preto 
+exportovanie Nmapu nevyzaduje ziadnu specialnu licenciu, povolenie alebo ine splnomocnenie vladou.</para>
+</refsect2>
+
+  </refsect1>
+</refentry>
+
+</article>

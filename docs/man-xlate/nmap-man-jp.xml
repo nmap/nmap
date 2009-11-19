@@ -1,0 +1,1430 @@
+﻿<?xml version="1.0"?>
+<!-- $Id: manhtml.xml 2940 2005-11-17 22:39:47Z fyodor $ -->
+<article id="man">
+<artheader>
+  <title>Nmap リファレンスガイド (Man Page)</title>
+</artheader>
+<refentry id="man-nmap1">
+  <refmeta>
+    <refentrytitle>nmap</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv id="man-name">
+    <refname>nmap</refname>
+    <refpurpose>ネットワーク調査ツールおよびセキュリティ/ポート スキャナ</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id="man-synopsis">
+    <cmdsynopsis sepchar=" ">
+      <command moreinfo="none">nmap</command>
+      <arg choice="opt" rep="repeat">
+        <replaceable>スキャンタイプ</replaceable>
+      </arg>
+      <arg choice="opt" rep="norepeat">
+        <replaceable>オプション</replaceable>
+      </arg>
+      <arg choice="req" rep="norepeat">
+        <replaceable>ターゲットの指定</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="man-description">
+    <title>ツール説明</title>
+
+    <para>Nmap (<quote>Network Mapper</quote>)は、ネットワーク調査およびセキュリティ監査を行うためのオープンソースのツールである。大規模ネットワークを高速でスキャンするように設計されているが、単一のホストに対してもまったく問題なく機能する。Nmapは生の(raw)IPパケットを用いて、ネットワーク上でどのようなホストか利用可能になっているか、これらのホストが提供しているサービス(アプリケーション名とバージョン)は何か、ホストが実行しているOS(OS名とバージョン)は何か、どのような種類のパケットフィルタ/ファイアウォールが使用されているかなど、その他数多くの特徴を斬新な方法で判別する。Nmapは、セキュリティ監査用に広く利用されているばかりでなく、ネットワーク・インベントリ(資産情報収集)、サービスのアップグレード予定管理、ホストやサービスのアップタイム(利用可能時間)の監視等の日常業務にNmapを役立てているシステム管理者やネットワーク管理者も多い。</para>
+
+    <para>Nmapは、スキャン調査対象の一覧を、使用したオプションに応じた補足情報とともに出力する。このなかで最も重要な情報は、<quote>interesting ports table</quote>(興味深いポートの一覧表)である。この一覧表には、ポート番号、プロトコル、サービス名、状態が記載されている。状態は、<literal moreinfo="none">open</literal>、<literal moreinfo="none">filtered</literal>、<literal moreinfo="none">closed</literal>、または<literal moreinfo="none">unfiltered</literal>のいずれかになる。<literal moreinfo="none">open</literal>(開いた)ポートは、調査対象マシン上のアプリケーションがそのポート上で接続/パケットを待ち受けている状態であることを示す。 <literal moreinfo="none">Filtered</literal>(フィルタあり)は、ファイアウォールやフィルタなどのネットワーク上の障壁でポートが遮られている状態にあり、ポートが開いているか閉じているかをNmapが判断できないことを意味する。<literal moreinfo="none">Closed</literal>(閉じた)ポートには、待ち受け状態のアプリケーションは何もないが、これらはいつでも開放することが可能である。ポートがNmapのプローブには応答するが、開いているか閉じているかをNmapが判別できない場合には <literal moreinfo="none">unfiltered</literal>に分類される。ポートの状態が<literal moreinfo="none">open|filtered</literal>や<literal moreinfo="none">closed|filtered</literal>のように、2つの状態の組み合わせで報告されるのは、そのどちらがポートの状態を表しているかをNmapが判断できない場合である。またこのポート一覧表には、バージョンの検出が求められた場合には、ソフトウェアのバージョン情報も記載される。IPプロトコルスキャン(<option>-sO</option>)が要求された場合には、ポートを一覧表示するのではなく、対応可能なIPプロトコルに関する情報が提供される。</para>
+
+    <para>Nmapは、このポート一覧表以外にも、逆引きDNS名、OSの推測、デバイスの種類、MACアドレスなどの、調査対象に関するさらに詳細な情報を提供できる。</para>
+
+    <para>典型的なNmapスキャンの例を、以下の <xref linkend="例１"/>に示した。この例で使用されているNmapの引数は、OSとそのバージョンの検出を可能にする<option>-A</option>と、処理を高速に実行するための<option>-T4</option>、および２つのターゲットホスト名だけである。</para>
+
+<example id="例１"><title>Nmapスキャンの典型的な例</title>
+<screen>
+# nmap -A -T4 scanme.nmap.org playground
+
+Starting nmap ( http://www.insecure.org/nmap/ )
+Interesting ports on scanme.nmap.org (205.217.153.62):
+(The 1663 ports scanned but not shown below are in state: filtered)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
+53/tcp  open   domain
+70/tcp  closed gopher
+80/tcp  open   http    Apache httpd 2.0.52 ((Fedora))
+113/tcp closed auth
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X|2.6.X
+OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
+Uptime 33.908 days (since Thu Jul 21 03:38:03 2005)
+
+Interesting ports on playground.nmap.org (192.168.0.40):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn
+389/tcp  open  ldap?
+445/tcp  open  microsoft-ds  Microsoft Windows XP microsoft-ds
+1002/tcp open  windows-icfw?
+1025/tcp open  msrpc         Microsoft Windows RPC
+1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
+5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3.8)
+MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
+Device type: general purpose
+Running: Microsoft Windows NT/2K/XP
+OS details: Microsoft Windows XP Pro RC1+ through final release
+Service Info: OSs: Windows, Windows XP
+
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
+</screen>
+</example>
+
+<para>Nmapの最新バージョンは、<ulink url="http://www.insecure.org/nmap/"/>から入手できる。また、本マニュアルページの最新版は、<ulink url="http://www.insecure.org/nmap/man/"/>で参照できる。</para>
+
+  </refsect1>
+
+  <refsect1 id="man-briefoptions">
+    <title>オプション概要</title>
+
+<para>このオプション概要は、Nmapを引数なしで実行すると表示される。最新版は<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"/>で参照できる。これを見ると、比較的利用機会の多いオプションについての概要を確認できるが、本マニュアルの以下に掲載する詳細な解説に代わるものではない。使用頻度の低いオプションには、ここに含まれていないものもある。</para>
+
+<para>
+<literallayout class="normal">Usage: nmap [Scan Type(s)] [Options] {target specification}
+TARGET SPECIFICATION:
+  Can pass hostnames, IP addresses, networks, etc.
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  -iL &lt;inputfilename&gt;: Input from list of hosts/networks
+  -iR &lt;num hosts&gt;: Choose random targets
+  --exclude &lt;host1[,host2][,host3],...&gt;: Exclude hosts/networks
+  --excludefile &lt;exclude_file&gt;: Exclude list from file
+HOST DISCOVERY:
+  -sL: List Scan - simply list targets to scan
+  -sP: Ping Scan - go no further than determining if host is online
+  -P0: Treat all hosts as online -- skip host discovery
+  -PS/PA/PU [portlist]: TCP SYN/ACK or UDP discovery to given ports
+  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
+  -n/-R: Never do DNS resolution/Always resolve [default: sometimes]
+SCAN TECHNIQUES:
+  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
+  -sN/sF/sX: TCP Null, FIN, and Xmas scans
+  --scanflags &lt;flags&gt;: Customize TCP scan flags
+  -sI &lt;zombie host[:probeport]&gt;: Idlescan
+  -sO: IP protocol scan
+  -b &lt;ftp relay host&gt;: FTP bounce scan
+PORT SPECIFICATION AND SCAN ORDER:
+  -p &lt;port ranges&gt;: Only scan specified ports
+    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
+  -F: Fast - Scan only the ports listed in the nmap-services file)
+  -r: Scan ports consecutively - don't randomize
+SERVICE/VERSION DETECTION:
+  -sV: Probe open ports to determine service/version info
+  --version-light: Limit to most likely probes for faster identification
+  --version-all: Try every single probe for version detection
+  --version-trace: Show detailed version scan activity (for debugging)
+OS DETECTION:
+  -O: Enable OS detection
+  --osscan-limit: Limit OS detection to promising targets
+  --osscan-guess: Guess OS more aggressively
+TIMING AND PERFORMANCE:
+  -T[0-6]: Set timing template (higher is faster)
+  --min-hostgroup/max-hostgroup &lt;msec&gt;: Parallel host scan group sizes
+  --min-parallelism/max-parallelism &lt;msec&gt;: Probe parallelization
+  --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
+      probe round trip time.
+  --host-timeout &lt;msec&gt;: Give up on target after this long
+  --scan-delay/--max_scan-delay &lt;msec&gt;: Adjust delay between probes
+FIREWALL/IDS EVASION AND SPOOFING:
+  -f; --mtu &lt;val&gt;: fragment packets (optionally w/given MTU)
+  -D &lt;decoy1,decoy2[,ME],...&gt;: Cloak a scan with decoys
+  -S &lt;IP_Address&gt;: Spoof source address
+  -e &lt;iface&gt;: Use specified interface
+  -g/--source-port &lt;portnum&gt;: Use given port number
+  --data-length &lt;num&gt;: Append random data to sent packets
+  --ttl &lt;val&gt;: Set IP time-to-live field
+  --spoof-mac &lt;mac address/prefix/vendor name&gt;: Spoof your MAC address
+OUTPUT:
+  -oN/-oX/-oS/-oG &lt;file&gt;: Output scan in normal, XML, s|&lt;rIpt kIddi3,
+     and Grepable format, respectively, to the given filename.
+  -oA &lt;basename&gt;: Output in the three major formats at once
+  -v: Increase verbosity level (use twice for more effect)
+  -d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  --packet-trace: Show all packets sent and received
+  --iflist: Print host interfaces and routes (for debugging)
+  --append-output: Append to rather than clobber specified output files
+  --resume &lt;filename&gt;: Resume an aborted scan
+  --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML output to HTML
+  --no_stylesheet: Prevent associating of XSL stylesheet w/XML output
+MISC:
+  -6: Enable IPv6 scanning
+  -A: Enables OS detection and Version detection
+  --datadir &lt;dirname&gt;: Specify custom Nmap data file location
+  --send-eth/--send-ip: Send using raw ethernet frames or IP packets
+  --privileged: Assume that the user is fully privileged
+  -V: Print version number
+  -h: Print this help summary page.
+EXAMPLES:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -P0 -p 80
+</literallayout>
+
+</para>
+
+  </refsect1>
+
+  <refsect1 id="man-target-specification">
+    <title>ターゲットの指定</title>
+
+<para>Nmapのコマンドラインで、オプション(もしくはオプションの引数)でないものはすべて、ターゲットホストの指定として扱われる。最も簡単な例は、スキャンを行うターゲットのIPアドレスやホスト名の指定である。</para>
+
+<para>隣接した複数のホストから成るネットワーク全体をスキャン対象としたい場合は、CIDR表記のアドレス指定を利用できる。IPアドレスやホスト名の末尾に<replaceable>bit数</replaceable>を付加すると、Nmapは、アドレスの上位から指定した<replaceable>bit数</replaceable>までが参照するIPアドレスや特定のホスト名と同じアドレスをすべてスキャンする。例えば、192.168.10.0/24を指定すると 192.168.10.0 (２進表示： <literal moreinfo="none">11000000 10101000 00001010 00000000</literal>)から192.168.10.255 (２進表示： <literal moreinfo="none">11000000 10101000 00001010 11111111</literal>)までの２５６のホストがスキャンされる。192.168.10.40/24を指定しても、まったく同じ結果になる。ホスト scanme.nmap.orgのIPアドレスが205.217.153.62であるとすると、scanme.nmap.org/16という指定では、205.217.0.0 から 205.217.255.255 までの65,536個のIPアドレスをスキャンすることになる。指定可能な最小値は/1であり、これはインターネットの半分をスキャンすることになる。最大値は/32で、すべてのアドレスビットが固定されるので、指定したホストやIPアドレスだけがスキャンされる。</para>
+
+<para>CIDR表記は簡潔であるが、必ずしも十分な柔軟性があるわけではない。例えば、192.168.0.0/16をスキャンする際に、.0や.255で終わるアドレスは、通常はブロードキャストアドレスなのですべて対象から除外したい場合があるだろう。Nmapではこのケースには、オクテット(octet=8bit)範囲のアドレス指定によって対応する。通常のIPアドレスを指定する代わりに、コンマ区切りの数のリストや各オクテット(8bit)の範囲を指定できる。例えば、192.168.0-255.1-254と指定すると、.0と.255で終わる範囲のアドレスはすべて省かれる。この範囲は最後のオクテットだけに限る必要はない。すなわち、0-255.0-255.13.37と指定すると、13.37で終わるすべてのIPアドレスをインターネット全体でスキャンする。このような広範囲からのサンプリングは、インターネットの調査や研究を行う場合に役立つ。</para>
+
+<para>IPv6アドレスは、完全修飾形(省略なし)のIPv6アドレスやホスト名でしか指定できない。IPv6では、CIDRやオクテット範囲は使い道がほとんどないため、サポートされない。</para>
+
+<para>Nmapはコマンドラインでの複数のホスト指定方法に対応しており、すべて同じ形式にしなくてもよい。<command moreinfo="none">nmap scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.0-255</command>というコマンドを実行しても、期待通りの結果になる。</para>
+
+<para>ターゲットは通常、コマンドライン上で指定されるが、以下のオプションもまた、ターゲットの選択を制御するために利用できる。</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-iL &lt;inputfilename&gt;</option> (リストから入力)
+        </term>
+        <listitem>
+          <para><replaceable>入力ファイル名</replaceable>から、ターゲットの指定を読み込む。コマンドラインで非常に巨大なホストリストを渡すのは不適切である場合が多いが、それが望まれるのもよくあるケースである。例えば、スキャンの対象にしたいと考えている目下の割り当てアドレスの10000個のリストが、DHCPサーバからエクスポートされる可能性もある。あるいは、不正な固定IPアドレスを使用しているホストの位置を示すアドレスを<emphasis>除いた</emphasis>すべてのIPアドレスをスキャンしたいと思う場合もあるかもしれない。とにかく、スキャンするべきホストのリストを作成し、そのファイル名を<option>-iL</option>オプションの引数としてNmapに渡せばよい。入力の形式は、Nmapがコマンドラインで対応しているもの(IPアドレス、ホスト名、CIDR、IPv6、オクテット範囲)なら何でもよいが、各入力は、1つ以上のスペース、タブ、改行文字で区切る必要がある。実際のファイルではなくて標準入力から、Nmapにホストを読み込ませたい場合は、ファイル名としてハイフン(<literal moreinfo="none">-</literal>)を指定するとよい。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-iR &lt;num hosts&gt;</option> (ターゲットを無作為に選ぶ)
+        </term>
+        <listitem>
+          <para>インターネット全域に対する調査や研究を行う場合、ターゲットを無作為に選びたい場合もあるだろう。<replaceable>ホスト数</replaceable>の引数は、IPをいくつ生成するべきかをNmapに伝える。プライベート、マルチキャスト、未割り当てなどのアドレス範囲のような望ましくないIPは、自動的に飛ばして進むようになっている。引数に<literal moreinfo="none">0(ゼロ)</literal>を指定すると、スキャンが無限に続けられる。ただし、ネットワーク管理者のなかには、自身の管理するネットワークを不正にスキャンされたことに腹を立ててクレームをつける場合もあることに注意しておこう。このオプションは、自己責任で使用すること！　雨の日の午後、退屈しのぎに拾い見るためのWebサーバを無作為に見つけたい場合は、<command moreinfo="none">nmap -sS -PS80 -iR 0 -p 80</command>というコマンドを試してみるとよい。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--exclude
+          &lt;host1[,host2][,host3],...&gt;</option> (ホスト/ネットワークを除外する)
+        </term>
+        <listitem>
+          <para>ターゲットのコンマ区切りリストを指定し、それらが指定した全ネットワーク範囲の一部であっても、スキャン対象から除外されるようにする。引数として渡すリストでは通常のNmap構文が用いられるので、ホスト名、CIDR表記のネットブロック、オクテット範囲などを含めることもできる。このオプションが役に立つのは、スキャンしたいネットワークに、ポートスキャンによって悪影響が及ぶことがわかっている、触れてはならないミッションクリティカルなサーバやシステムや、他人が管理しているサブネットワークが含まれる場合である。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--excludefile &lt;exclude_file&gt;</option> (ファイルからリストを除外する)
+        </term>
+        <listitem>
+          <para><option>--exclude</option>オプションとほぼ同じ機能を提供するが、異なる点は、除外されるターゲットが、コマンドラインではなく、改行文字、スペース、タブなどで区切った<replaceable>除外ファイル</replaceable>で渡されることである。</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-host-discovery">
+    <title>ホストの発見</title>
+ 
+   <para>ネットワーク偵察ミッションの第一段階に行うべきことの1つは、一連の(非常に広範な場合もある)IP範囲を限定して、アクティブな状態であるか、関心のあるホストのリストを作成することである。各IPアドレスのポートを1つ1つスキャンするのは、時間はかかるもののなかなか進まない、通常は無駄な作業である。もちろん、あるホストに興味を引かれる要因は、スキャンの目的に大きく左右される。ネットワーク管理者なら、特定のサービスを実行しているホストにしか興味を示さないかもしれないし、セキュリティ監査人なら、IPアドレスを持つデバイス1つ1つに関心を引かれる場合もあるだろう。内部ネットワーク管理者なら、自分が管理するネットワーク上のホストの位置を確認するためにICMP pingを使えるだけで満足かもしれないし、外部のペネトレーションテストの実施担当者なら、ファイアウォールの制限をすり抜けようとして、多種多様な調査手法を使う場合もあるだろう。</para>
+
+    <para>このように、ホスト発見のニーズは多岐にわたるので、Nmapには、使用する技法をカスタマイズするための幅広い種類のオプションが備わっている。ホスト探索はpingスキャンと呼ばれることもあるが、一般的な<application moreinfo="none">ping</application>ツールによる単純なICMPエコー要求パケットよりもはるかに優れている。ユーザは、リストスキャン(<option>-sL</option>)を用いるか、pingを無効にして(<option>-P0</option>)、このping段階を完全に省略するか、もしくはネットワークに対してマルチポートのTCP SYN/ACK、UDP、ICMPなどのプローブを任意に組み合わせて行うことができる。これらのプローブの目的は、IPアドレスが実際にアクティブな状態(ホストやネットワークデバイスによって使用中)であることを示す応答を誘い出すことである。多くのネットワークでは、いつでもアクティブなIPアドレスは全体のほんのわずかしかない。RFC1918で定められたプライベートアドレス空間(例：10.0.0.0/8)では特にそうなっている。このネットワークには、1600万個のIPアドレスがあるが、これが1000台足らずのマシンしかない企業で使われているのを見たことがある。ホスト発見を実行すると、こうした広大なIPアドレスの海の中から、まばらにIPアドレスを割り振られたマシンを探し出すことができる。</para>
+
+    <para>　ホスト発見のオプションが何も指定されない場合、Nmapはポート80宛てのTCP ACKパケットと、ICMPエコー要求クエリを各ターゲットマシンに送信する。この例外は、ローカル イーサネット ネットワーク上にあるターゲットに対して、ARPスキャンが用いられている場合である。高い権限のないUNIXシェルユーザでは、<function moreinfo="none">connect()</function>システムコールを使って、ACKの代わりにSYNパケットが送られる。これらのデフォルトは、<option>-PA -PE</option> オプションに相当する。このホスト発見機能は、ローカルネットワークをスキャンする場合は十分だが、より包括的な一連の発見調査は、セキュリティ監査に任せた方がよい。</para>
+    
+    <para><option>-P*</option>オプション(pingの種類を選ぶ)を組み合わせることもできる。様々なTCPポート/フラグやICMPコードを用いた多種多様なプローブを送ることで、制限の厳しいファイアウォールをすり抜ける確率を上げることができる。さらに留意すべき点は、ローカル イーサネット ネットワーク上のターゲットに対しては、その他の<option>-P*</option>オプションを指定している場合でも、ARP探索(<option>-PR</option>)がデフォルトで行われることである。これはほとんどの場合、他よりも高速で効果的に実施できるからである。</para>
+
+    <para>ホスト発見を制御するオプションを以下に挙げる。</para>
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>-sL</option> (リストスキャン)</term>
+        <listitem>
+          <para>ホスト発見の縮小版で、単に指定されたネットワークの全ホストを一覧するだけであり、ターゲットホストには何もパケットを送らない。デフォルトでは、Nmapはホスト名を知るために、ホスト上でDNSの逆引き解決も行う。単なるホスト名とはいえ、意外なほど有用な情報をもたらしてくれることも多い。例えば<literal moreinfo="none">fw.chi.playboy.com</literal>は、プレイボーイ社(Playboy Enterprises)のシカゴ(Chicago)支社のファイアウォールである。また最終的には、IPアドレスの総数についての報告もある。リストスキャンは、自分のターゲットに対して正しいIPアドレスが得られていることを確認するための有効な健全性検査になる。ターゲットのホストが見覚えのないドメイン名を示している場合は、間違って別の会社のネットワークをスキャンしてしまわないように、さらに詳しく調査するだけの価値はある。</para>
+
+          <para>リストスキャンの狙いは、単にターゲットホストのリストを出力するだけなので、ポートスキャン、OS検出、pingスキャンなどのより高度なレベルの機能を実現するためのオプションは、これと組み合わせることはできない。これらのハイレベルの機能を実行する際に、pingスキャンを無効にしたい場合は、<option>-P0</option>オプションの項を参照のこと。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sP</option> (Ping スキャン)</term>
+        <listitem>
+
+           <para>このオプションを使うと、Nmapはpingスキャン(ホスト発見)<emphasis>のみ</emphasis>を実行し、応答した利用可能なホストの一覧を出力する。それ以上の調査(ポートスキャンやOS検出など)は行わない。リストスキャンよりも一歩立ち入った調査になるが、同じ目的で使用される場合が多い。ターゲットネットワークの予備調査を、あまり注意を引かずに軽く実行できる。攻撃者にとっては、IPおよびホスト名を1つ1つリストスキャンして得られるリストよりも、アクティブなホストがいくつあるかを知ることのほうが価値がある。</para>
+
+           <para>またこのオプションは、システム管理者の役に立つ場合も多く、ネットワーク上の利用可能なマシンの数を数えたり、サーバの可用性を監視したりするために容易に利用できる。pingスウィープと呼ばれることも多く、ブロードキャストのクエリには応答しないホストが多いために、ブロードキャストアドレスにpingを打つよりも信頼性が高い。</para>
+
+           <para><option>-sP</option>オプションはデフォルトで、ICMPエコー要求と80番ポート宛てのTCPパケットを送信する。高い権限がないユーザが実行する場合は、SYNパケットが(<function moreinfo="none">connect()</function>コールを使って)ターゲットの80番ポートに送られる。高い権限を持つユーザが、ローカル イーサネット ネットワーク上のターゲットのスキャンを試みる場合は、<option>--send-ip</option>が指定されていない限り、ARP要求(<option>-PR</option>)が用いられる。<option>-sP</option>オプションを、発見プローブタイプ(<option>-P0</option>を除く<option>-P*</option>タイプ)のオプションと組み合わせると、さらに柔軟に対応できる。このプローブタイプのどれかとポート番号のオプションを使うと、デフォルトのプローブ(ACKやエコー要求)よりも優先される。Nmapを実行している発信元ホストとターゲットネットワークの間に、制限の厳しいファイアウォールが設置してある場合は、これらの高度なテクニックを用いるべきである。さもないと、ファイアウォールでプローブパケットやホストの応答パケットが破棄された場合に、ホストを検出し損ねる可能性がある。</para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>-P0</option> (ping なし)
+        </term>
+        <listitem>
+          <para>このオプションを指定すると、Nmapが実行するホスト発見の段階が完全に省略される。Nmapは通常この検出段階で、さらに立ち入ったスキャンを行うためのアクティブなマシンを割り出す。Nmapはデフォルトでは、ポートスキャン、バージョン検出、OS検出などの立ち入ったプローブは、作動していることが判明したホストに対してしか実行しないようになっている。<option>-P0</option>を使ってホスト発見を無効にすると、Nmapはターゲットに指定されたIPアドレス<emphasis>すべて</emphasis>に対して、要求されたスキャン機能を実行しようとする。つまり、クラスBのサイズのアドレス空間(/16)を、コマンドラインでターゲットに指定した場合、65,536個のIPアドレスすべてがスキャンされる。<option>-P0</option>の2番目の文字は数字のゼロであり、英字のオーではない。リストスキャンの場合と同様に、本来行うべきホスト発見の段階は省略されるが、Nmapはそこで停止してターゲットのリストを出力するのではなくて、各ターゲットIPがアクティブであるかのように、要求された機能を実行し続ける。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PS [portlist]</option> (TCP SYN Ping)</term>
+        <listitem>
+
+          <para>このオプションによって、SYNフラグ付きの空のTCPパケットが送信される。デフォルトの送信先ポートは80番(この設定は、<filename moreinfo="none">nmap.h</filename>のDEFAULT_TCP_PROBE_PORTを書き換えてコンパイルすると変更できる)だが、代わりのポートをパラメタとして指定できる。また、コンマ区切りのポート番号リスト(例：<option>-PS22,23,25,80,113,1050,35000</option>)を指定することも可能である。この場合、各ポートに対するプローブは同時並行で試みられる。</para>
+
+          <para>SYNフラグによって、こちら側がコネクションの確立を試みていることをリモートのシステムに知らせる。通常は送信先ポートが閉じており、RST(リセット)パケットが送り返される。このポートがたまたま開いていた場合は、ターゲットはSYN/ACK TCPパケットで応答し、TCPの3ウェイハンドシェイクの第二段階に進む。続いて、Nmapを実行しているマシンが、ACKパケットを送って3ウェイハンドシェイクを完了すれば、完全なコネクションが確立されるが、その代わりにRSTで応答することで、生成途中のコネクションを切断する。このRSTパケットは、Nmap自身ではなくて、Nmapを実行しているマシンのカーネルが、予期せぬSYN/ACKに応答して送るものである。</para>
+
+          <para>Nmapでは、対象のポートが開いているか閉じているかは問題にしない。対象のホストがアクセス可能で、反応があることをNmapに告げるのは、上で述べたRSTかSYN/ACKの応答である。</para>
+
+          <para>UNIXマシンでは通常、生のTCPパケットを送受信できるのは<literal moreinfo="none">root</literal>権限を持つユーザに限られる。こうした権限のないユーザの場合は、次善策が自動的に採用され、各ターゲットポートに対してconnect()システムコールが起動される。これにより、SYNパケットをターゲットホストに送信し、コネクションの確立を試みる。connect()の戻り値としてすみやかに成功か失敗(ECONNREFUSED)が得られた場合、下位のTCPスタックではSYN/ACKかRSTパケットを受信したことになり、ターゲットホストはアクセス可能と見なされる。このコネクションの試みが未確立のままでタイムアウトに達した場合は、ホストはダウンしていると見なされる。Nmapは生のIPv6パケットの生成にはまだ対応していないので、この次善策はIPv6による接続にも用いられる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PA [portlist]</option> (TCP ACK Ping)</term>
+        <listitem>
+          <para>TCP ACK pingは、すぐ上で述べたSYN pingのケースに酷似している。異なる点は、想像される通り、SYNフラグの代わりにTCP ACKフラグが付けられることである。こうしたACKパケットは、確立されたTCPコネクション上のデータを承認していると称しているが、そのようなコネクションは存在しないのである。そのため、リモートホストは常にRSTパケットで応答しなければならなくなり、この過程で自らの存在を明らかにすることになる。</para>
+
+          <para><option>-PA</option>オプションは、SYNプローブと同じデフォルトポート(80)を使用し、同じ形式の目的ポートリストを得ることができる。権限のないユーザがこれを試みる場合や、IPv6ターゲットが指定された場合は、上で述べたconnect()の次善策が用いられる。ただし実際には、connect()はACKではなくてSYNパケットを送るので、この次善策は完全とは言えない。</para>
+
+          <para>SYNおよびACKの両方の pingが使えるようになっている理由は、ファイアウォールをすり抜ける可能性を最大限高くするためである。多くの管理者は、内向きのSYNパケットに関しては、企業のWebサイトやメールサーバなどの共用サービス宛てのもの以外はすべてブロックするように、ルータや簡易ファイアウォールを設定している。これにより、組織へのその他の内向きコネクションは阻止されるものの、ユーザが利用するインターネットへの外向きコネクションは、何にも妨げられずに許可されている。このようなステートフル(処理状態を把握して動的に対処する)でないアプローチは、ファイアウォール/ルータ上でリソースをほとんど消費せず、ハードウェアおよびソフトウェアフィルタで広くサポートされている。Linux用ファイアウォールソフトウェア「Netfilter/iptables」には、こうしたステートレスなアプローチを実装するための「--syn」という便利なオプションが用意されている。このようなステートレスなファイアウォールルールが設定されている場合、SYN pingプローブ(<option>-PS</option>)を閉じたターゲットポートに送ってもブロックされる可能性が高い。そうした場合は、ACKプローブが効力を発揮し、このルールを突破する。</para>
+
+          <para>またよく使われるファイアウォールで、別の種類のものには、想定外のパケットは破棄するというステートフルルールが採用されている。当初こうした機能はハイエンドのファイアウォールでしか見られなかったが、ここ数年の間に一般に広く普及してきている。LinuxのNetfilter/iptablesシステムは、<option>--state</option>オプションでこの機能をサポートしており、コネクションの状態に応じてパケットを分類する。このようなシステムでは、想定外のACKパケットは通常、偽物と認識されて破棄されるので、SYNプローブのほうが有効である可能性が高い。この難題に対する解決策の1つは、<option>-PS</option> および <option>-PA</option>を指定して、SYN および ACKの両方のプローブを送ることである。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PU [portlist]</option> (UDP Ping)</term>
+        <listitem>
+
+          <para>これもホスト発見用オプションで、空の(<option>--data-length</option>が指定されている場合を除き)UDPパケットを特定のポートに送信する。ポートリストは、上で述べた<option>-PS</option> や <option>-PA</option>のオプションの場合と同じ形式にする。特にポートが指定されていない場合、デフォルトでは31338番になる。このデフォルト値を設定するには、<filename moreinfo="none">nmap.h</filename>のDEFAULT_UDP_PROBE_PORTを書き換えてコンパイルする。ほとんど使われることがないポートがデフォルトで使用されている理由は、開放ポートへの送信が、このスキャンタイプでは特に望ましくない場合が多いからである。</para>
+
+          <para>UDPプローブがターゲットマシンで閉じたポートに行き着いた場合は、ICMPポート到達不能パケットが返送されるはずである。Nmapはこれにより、ターゲットマシンが稼動中でアクセス可能であることを知ることになる。ICMPにはこの他にも、ホスト/ネットワーク到達不能やTTL超過などの、ホストがダウンしているか到達不能であることを示す多様なエラーメッセージがある。応答がないのも、これと同様に解釈される。空のパケットが開放ポートに到達した場合、ほとんどのサービスはこれを無視して、何の応答も返さない。デフォルトのプローブポートが、ほぼ使用中ではない31338番になっているのは、このためである。「chargen」などのサービスには、空のUDPパケットに応答するものがいくつかあり、マシンが利用可能であることをNmapに知らせることになる。</para>
+
+          <para>この種類のスキャンの主なメリットは、TCPしかふるいに掛けないファイアウォールやフィルタをすり抜けることである。例えば、筆者が以前持っていたLinksys社の無線ブロードバンドルータ、BEFW11S4の外部インターフェースは、デフォルトですべてのTCPポートにフィルタ処理するようになっていたが、UDPプローブを使うと、ポート到達不能メッセージを引き出し、デバイスの正体を明らかにすることができた。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PE</option>;
+        <option>-PP</option>;
+        <option>-PM</option> (ICMP Ping タイプ)</term>
+        <listitem>
+
+          <para>Nmapは、上で述べたようなTCP や UDPによるホスト発見の特異なタイプに加えて、どこにでもある<application moreinfo="none">ping</application>プログラムによって送信される標準的なパケットを送ることもできる。Nmapは、ICMPタイプ8(エコー要求)パケットをターゲットのIPアドレスに送信し、利用可能なホストからタイプ0(エコー応答)が返されるのを待ち受ける。ネットワーク調査を行う者にとっては残念なことに、最近のホストやファイアウォールは、<ulink url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC1122</ulink>の要件通り応答を返すよりは、これらのパケットをブロックするものが多い。そのため、インターネット上の未知のターゲットに対しては、ICMPスキャンだけでは十分な信頼性が得られない。だが、内部ネットワークを監視しているシステム管理者にとっては、実用的で効率的なアプローチになる場合もある。このエコー要求動作を有効にするには、<option>-PE</option>オプションを使用すること。</para>
+
+          <para>エコー要求は標準的なICMP pingクエリであるが、Nmapはそれだけにとどまらない。ICMP規格(<ulink url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC792</ulink>)には、タイムスタンプ要求、情報要求、アドレスマスク要求などのパケットが、それぞれコード13、15、17として指定されている。これらのクエリの表向きの目的は、アドレスマスクや現在の時刻などの情報を知ることだが、ホスト発見にも容易に利用できる。応答を返すシステムはすなわち、稼動中で利用可能なのである。情報要求パケットは、それほど広くサポートされているわけではないので、今のところNmapには実装されていない。RFC 1122では<quote>ホストにはこの種のメッセージを実装するべきではありません</quote>と提唱されている。タイムスタンプとアドレスマスクに関するクエリは、それぞれ<option>-PP</option>と<option>-PM</option>のオプションを付けることで送信できる。タイムスタンプ応答(ICMP コード14)やアドレスマスク応答(コード18)によって、ホストが利用可能であることが明らかになる。これら2つのクエリは、管理者がエコー要求パケットを限定してブロックしているが、他のICMPクエリが同じ目的で用いられる可能性があることを見落としている場合に有効である。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PR</option> (ARP Ping)</term>
+        <listitem>
+
+          <para>Nmapの最も一般的な使用法の1つは、イーサネットLANのスキャンである。たいていのLAN、特にRFC1918提唱のプライベートアドレス範囲が用いられているLANでは、IPアドレスの大部分は常に未使用のままになっている。NmapがICMPエコー要求のような生のIPパケットを送信する場合、OSはイーサネットフレームのアドレスを正しく指定できるように、ターゲットIPに対応する送信先ハードウェア(ARP)のアドレスを決める必要がある。だがこの処理は遅く、不確実である場合が多い。なぜなら、OSは、利用できないホストに対して何百万という数のARP要求を短時間で行わなければならないことを想定して作られているわけではないからである。</para>
+
+          <para>NmapのARPスキャンでは、ARP要求の処理を行うのに、そのために最適化したアルゴリズムを用いている。応答が返された場合、Nmapはすでにそのホストが稼動中であることがわかるので、IPベースのpingパケット処理の心配はしなくてよくなる。これにより、ARPスキャンはIPベースのスキャンよりもずっと高速で信頼性の高い処理を行うことができる。そのため、Nmapがローカル イーサネット ネットワーク上で検出したイーサネット ホストをスキャンする場合は、デフォルトでARPスキャンが行われるようになっている。別のpingタイプ(<option>-PE</option>や<option>-PS</option>など)が指定されている場合でも、同一のLAN上にあるターゲットに対しては、Nmapはそれらの代わりにARPを用いる。あくまでもARPスキャンを行いたくない場合は、<option>--send-ip</option>を指定すること。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-n</option> (DNS解決を行わない)
+        </term>
+        <listitem>
+          <para>Nmapが発見したアクティブなIPアドレスに対して逆引きのDNS解決を<emphasis>行わない</emphasis>ように指定する。DNSは処理が遅いことが多いので、これによって進行を速めることができる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-R</option> (全ターゲットにDNS解決を行う)
+        </term>
+        <listitem>
+          <para>ターゲットのIPアドレスに対して常に逆引きDNS解決を<emphasis>常に行う</emphasis>ように指定する。この指定は通常、対象のマシンが稼動していることが判明している場合にのみ行われる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--system_dns</option> (システムのDNSリゾルバを使う)
+        </term>
+        <listitem>
+          <para>Nmapはデフォルトでは、ホスト上に構成されたネームサーバに直接クエリを送り、応答を待ち受けることで、IPアドレスを解決する。パフォーマンスを上げるために、数多くの要求(数十件に及ぶことも多い)が並行処理される。代わりに自分のシステムのリゾルバを使いたい(getnameinfo()コールを介して1回に1個のIPを処理する)場合は、このオプションを指定すること。だがこれは低速でほとんど使い物にならない。ただし、NmapのDNSコードにバグがある場合はこの限りではない－－その場合は連絡していただきたい。IPv6スキャンでは常に、システムのリゾルバが使われる。</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-port-scanning-basics">
+    <title>ポートスキャンの基本</title>
+
+          <para>Nmapはここ数年で、機能面でいろいろと拡充されてきたが、もとは効率的なポートスキャナとして開発されたものであり、ポートスキャンは今でもNmapの中核を成す機能である。<command moreinfo="none">nmap
+          <replaceable>target</replaceable></command>というシンプルなコマンドで、<replaceable>ターゲット</replaceable>ホスト上の1660個あまりのTCPポートをスキャンできる。多くのポートスキャナでは従来、すべてのポートは一括してopen」(開いている)かclosed(閉じている)のどちらかの状態にあるものとして扱われてきたが、Nmapではさらにきめ細かく取り扱われる。すなわち、ポートは以下の6つの状態に分類される：　<literal moreinfo="none">open</literal>、<literal moreinfo="none">closed</literal>、<literal moreinfo="none">filtered</literal>、<literal moreinfo="none">unfiltered</literal>、<literal moreinfo="none">open|filtered</literal>、または<literal moreinfo="none">closed|filtered</literal>。</para>
+
+<para>これらの状態は、ポート自体に固有の特性ではなくて、Nmapがポートをどのように認識しているかを表している。例えば、Nmapがターゲットと同じネットワークからスキャンを行うと、135番/tcpポートはopen状態にあるように見えるが、同時刻に同じオプションでこのスキャンをインターネット上から行った場合、同ポートは<literal moreinfo="none">filtered</literal>と見えるだろう。</para>
+
+<variablelist><title>Nmapに認識されるポートの6つの状態</title>
+
+  <varlistentry><term>open</term>
+  <listitem><para>このポートでは、アプリケーションがTCPコネクションやUDPパケットをアクティブに受け入れている。多くの場合、ポートスキャンの第一の目的は、この種のポートを見つけることである。セキュリティを重視する人なら、openポートが攻撃者の通り道になることをご存知だろう。攻撃者やペンテスト実施者は、このopenポートの弱点を突こうとする一方で、管理者は正規ユーザの利用を妨げることなく、これらのポートをファイアウォールで閉じたり防御したりしようとする。また、Openポートを見ると、ネットワーク上で利用可能なサービスが何かわかるので、セキュリティスキャン以外でも興味を引かれるポートである。
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>closed</term>
+
+  <listitem><para>closed(閉じた)ポートは、アクセス可能(Nmapのプローブパケットを受信したり応答したりする)だが、そこで受信待機しているアプリケーションはない。この種のポートは、あるIPアドレスでホストが稼動中であることを確認する場合(ホスト発見やpingスキャン)や、OS検出の一環として役に立つ場合もある。closedポートは到達可能なので、後にその一部が開放された場合は、スキャンの対象になる可能性がある。管理者がこの種のポートもファイアウォールでブロックすることを検討する場合もあるだろう。そうなると、これらは次で述べるfiltered(フィルタあり)状態として見えるようになる。
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>filtered</term>
+
+  <listitem><para>Nmapは、このポートが開いているかどうかを判別できない。なぜなら、パケットフィルタのせいで、プローブがポートまで到達できないからである。このフィルタ処理は、ファイアウォール専用機器、ルータのルール、ホストベースのファイアウォールソフトなどで実行できる。これらのポートからは情報がほとんど得られないので、攻撃者の企てを阻むことになる。場合によっては、タイプ3コード13(destination unreachable（宛先到達不能）：通信が管理上の理由で禁止されている)などのICMPエラーメッセージを返すこともあるが、応答しないでプローブを破棄するだけのフィルタのほうがはるかに多く使われるようになっている。この場合、Nmapは、プローブが破棄されたのはフィルタリングではなくてネットワークの混雑のせいと見なして、再試行を数回行わざるを得なくなるので、スキャンの進行速度が格段に落ちる。</para></listitem></varlistentry>
+
+  <varlistentry><term>unfiltered</term>
+  <listitem><para>unfiltered状態とは、ポートにはアクセス可能だが、そのポートが開いているか閉じているかをNmapでは判別できないことを意味する。ポートをこの状態に分類できるのは、ファイアウォールルールを解読するのに使われるACKスキャンだけである。unfilteredポートのスキャンをその他のスキャンタイプ、例えばWindowスキャン、SYNスキャン、FINスキャンなどで行うと、ポートが開いているかどうかを決めるのに役立つ場合もある。
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>open|filtered</term>
+  <listitem><para>Nmapがポートをこの状態に分類するのは、対象のポートが開いているかフィルタ処理されているかを判別できない場合である。openポートからの応答がないタイプのスキャンには、こうしたケースが発生する。また、応答がないことは、プローブやそれが引き出した応答をパケットフィルタが破棄したことを意味する場合もある。そのためNmapは、対象のポートがopenなのかfilteredなのかを確実に見分けることができない。UDP、IP プロトコル、FIN、Null、Xmasなどのスキャンは、ポートをこの状態に分類する。</para></listitem></varlistentry>
+
+  <varlistentry><term>closed|filtered</term>
+  <listitem><para>この状態は、ポートが閉じているかフィルタ処理されているかを、Nmapが判断できない場合に用いられる。IPID Idleスキャンにのみ使用される。</para></listitem></varlistentry>
+  </variablelist>
+</refsect1>
+
+<refsect1 id="man-port-scanning-techniques">
+  <title>ポートスキャンのテクニック</title>
+
+<para>自動車修理に関して全くの初心者である筆者が修理を行う場合、原始的な工具(ハンマー、ダクトテープ、レンチなど)を次々と取り出し、目の前の作業を行うのに適した工具を探してあれでもないこれでもないと何時間も悪戦苦闘する様が想像できる。結局うまく行かず、ポンコツ車を本物の修理工のところまで引っ張っていくと、彼はいつも巨大な工具箱をごそごそ漁って、最適な小道具を引っ張り出し、いとも簡単に作業を終わらせてしまう。ポートスキャンの技術も、これに似ている。専門家は数多くのスキャンテクニックを熟知しており、与えられた作業を行うのに最適のテクニック(あるいは組み合わせ)を選択する。一方、経験の乏しいユーザやスクリプトキディたちは、あらゆる問題をデフォルトのSYNスキャンだけで解決しようとする。Nmapは無料なので、ポートスキャン技術に精通するか否かの分かれ目は、知識だけなのだ。その点については、自動車業界よりましなのは間違いない。なにしろ自動車業界では、ストラット スプリングコンプレッサーが必要と判断するには卓越したスキルが必要であるばかりか、それを手に入れるために数千ドルを支払わなければならないからだ。</para>
+
+<para>ほとんどのスキャンタイプを利用できるのは、高い権限を持つユーザに限られる。こうしたスキャンでは生パケットが送受信されるが、これを行うのにUNIXシステムではrootアクセス権が必要だからである。Windowsでは管理者アカウントの使用が推奨されるが、このプラットフォームでは、WinPcapがすでにOSにロードされている場合には、Nmapが高い権限を持たないユーザにも役に立つ場合がある。Nmapがリリースされた1997年当時は、共用のシェルアカウントしか使えないユーザが多かったので、root権限が必要という条件は重大な制約になった。だが今や、世の中は変わった。コンピュータはますます安くなり、常時接続のインターネットアクセスを利用するユーザは激増し、デスクトップのUNIXシステム(Linux や MAC OS Xなど)も広く普及している。WindowsバージョンのNmapも利用可能になり、さらに多くのデスクトップでNmapを実行できるようになっている。これらの理由により、ユーザが制限のある共用シェルアカウントからNmapを実行する必要性が少なくなってきている。これは好都合なことである。高い権限を必要とするオプションを利用できれば、Nmapははるかに大きな効果と柔軟性を発揮するからだ。ほとんどのスキャンタイプを利用できるのは、高い権限を持つユーザに限られる。こうしたスキャンでは生パケットが送受信されるが、これを行うのにUNIXシステムではrootアクセス権が必要だからである。Windowsでは管理者アカウントの使用が推奨されるが、このプラットフォームでは、WinPcapがすでにOSにロードされている場合には、Nmapが高い権限を持たないユーザにも役に立つ場合がある。Nmapがリリースされた1997年当時は、共用のシェルアカウントしか使えないユーザが多かったので、root権限が必要という条件は重大な制約になった。だが今や、世の中は変わった。コンピュータはますます安くなり、常時接続のインターネットアクセスを利用するユーザは激増し、デスクトップのUNIXシステム(Linux や MAC OS Xなど)も広く普及している。WindowsバージョンのNmapも利用可能になり、さらに多くのデスクトップでNmapを実行できるようになっている。これらの理由により、ユーザが制限のある共用シェルアカウントからNmapを実行する必要性が少なくなってきている。これは好都合なことである。高い権限を必要とするオプションを利用できれば、Nmapははるかに大きな効果と柔軟性を発揮するからだ。</para>
+
+<para>Nmapは正確な結果を出そうと試みるが、その洞察はすべて、ターゲットマシン(もしくは前面のファイアウォール)から送り返されるパケットに基づいて得られたものであるという点に留意する必要がある。RFCに準拠していないホストがますます広く使われるようになっているが、これらのホストからは、Nmapのプローブに対して、当然想定される応答は返ってこない。FIN、Null、Xmasスキャンなどは特に、この問題の影響を受けやすい。これらは特定のスキャンタイプに固有の問題なので、個々のスキャンタイプの項で述べることにする。</para>
+
+<para>本節では、Nmapがサポートする10個あまりのスキャンテクニックについて述べる。この手法は一度に1つしか使えないが、UDPスキャン(<option>-sU</option>)だけは例外で、TCPスキャンタイプのいずれか1つと組み合わせて用いることができる。ポートスキャンタイプのオプションは、覚えやすいように<option>-s<replaceable>C</replaceable></option>の形式になっている。ここで<replaceable>C</replaceable>は、スキャン名のなかの目立つ文字で、通常は頭文字になる。この規則の例外の1つは、廃止予定のFTPバウンススキャン(<option>-b</option>)である。デフォルトでは、NmapはSYNスキャンを実行するが、ユーザが生パケットを送信するための然るべき権限(UNIX上ではrootアクセス権が必要)を持っていない場合や、IPv6のターゲットが指定された場合は、代わりにConnect()スキャンが用いられる。ここで一覧したスキャンのなかで、高い権限を持たないユーザが実行できるのは、connect()スキャンと ftpバウンススキャンだけである。 </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        <option>-sS</option> (TCP SYN スキャン)</term>
+        <listitem>
+
+<para>SYNスキャンはデフォルトであり、正当な理由で最もよく使用されるスキャンオプションである。強制的なファイアウォールによる妨害のない、高速なネットワーク上では、数千ポート毎秒という高速なスキャンを実行できる。SYNスキャンは、TCPコネクションを確立しないため、比較的秘匿性が高い。また、NmapのFin/Null/Xmas、Maimon、Idleスキャンのように特定のプラットフォームの特質に左右されることはなく、規格準拠のTCPスタックなら何に対しても機能する。さらには、<literal moreinfo="none">open</literal>、<literal moreinfo="none">closed</literal>、および<literal moreinfo="none">filtered</literal>というポートの状態を明確かつ確実に区別することができる。 </para>
+
+<para>この技法は、完全なTCPコネクションを開くわけではないので、 ハーフオープン(half-open)スキャンと呼ばれることも多い。あたかも実際にコネクションを開くつもりがあるかのように、SYNパケットを送信し、応答を待つ。SYN/ACKの応答は、ポートが待ち受け状態(open)であることを示し、またRST(reset)は、待ち受け状態にないことを示している。数回再送信しても何の応答もない場合、ポートはfilteredと見なされる。また、ICMP到達不能エラー(タイプ 3、コード 1、2、3、9、10、13)が送り返された場合も、ポートはfilteredと見なされる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sT</option> (TCP connect() スキャン)</term>
+        <listitem>
+
+<para>　TCP Connect()スキャンは、SYNスキャンを選択できない場合のデフォルトのTCPスキャンタイプである。ユーザが生パケットの権限を持たないか、IPv6ネットワークをスキャンする場合がこれにあてはまる。Nmapは、他のほとんどのスキャンタイプのように生パケットに書き込むのではなく、<literal moreinfo="none">connect()</literal>システムコールを発行して、ターゲットのマシンやポートにとのコネクションを確立するよう下位OSに要求する。これは、Webブラウザ、P2Pクライアント、その他ほとんどのネットワーク対応アプリケーションがコネクションを確立するために使用するのと同じ高レベルのシステムコールである。これは、「BerkeleyソケットAPI」というプログラミングインターフェースの一部である。Nmapは、生パケットの応答を回線から読み込むのではなく、このAPIを使って、接続を試みるたびにステータス情報を入手する。</para>
+
+<para>SYNスキャンが利用できる場合は通常、そちらを使用した方がよい。Nmapは生パケットよりも、高レベルのシステムコールである<literal moreinfo="none">connect()</literal>に対するほうが制御の自由度が低いので、処理効率も悪くなるからだ。connect()システムコールは、SYNスキャンが行うようにハーフオープン接続をリセットするのではなく、ターゲットのopenポートとのコネクションを確立する。この処理は、同じ情報を得るのにさらに多くの時間とパケットを必要とするだけでなく、ターゲットマシンのログに接続が記録される可能性も高くなる。まともなIDSならどちらも検知するはずだが、たいがいのマシンにはそのような警告システムは備わっていない。平均的なUNIXシステムで実行されているサービスの多くは、Nmapが接続を確立し、その後データ送信を行わずに接続を閉じた場合、syslogに簡単な記録や時には不可解なエラーメッセージを追加する。真にお粗末なサービスは、これが起きた場合に停止してしまうが、まずめったにないことだ。管理者は、特定のシステムからの接続試行がかなりの回数にわたってログに記録されているのを発見したら、このconnect()スキャンのターゲットになっていると見なすべきである。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sU</option> (UDP スキャン)</term>
+        <listitem>
+
+<para>インターネット上で最も広く利用されているサービスの大部分は、TCPプロトコルで実行されているが、<ulink url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink>サービスも広く導入されている。DNS、SNMP、DHCP(それぞれ登録ポートは 53、161/162、67/68)の3つは、最もよく利用されているUDPサービスである。UDPスキャンは通常、TCPよりも処理に時間がかかり難易度も高いので、セキュリティ監査人のなかにはこれらのポートを無視する人もいる。だがこれは誤りである。悪用可能なUDPサービスは極めてよくあるものであり、攻撃者がこうしたプロトコルを見過ごすわけはないからだ。好都合なことに、NmapはUDPポートの一覧表を作成するのに役立てることができる。</para>
+
+<para>UDPスキャンを作動させるには、<option>-sU</option>オプションを指定する。SYN スキャン(<option>-sS</option>)などのTCPスキャンタイプと組み合わせて用いて、同じ実行時間中に両方のプロトコルをチェックできる。</para>
+
+<para>UDPスキャンは、空の(データなし)UDPヘッダを各ターゲットポートに送ることで機能する。ICMPポート到達不能エラー(タイプ3、コード 1、2、9、10、13)が返された場合、ポートは<literal moreinfo="none">closed</literal>（閉じている）状態にある。その他のICMPポート到達不能エラー(タイプ3、コード3)が返された場合、ポートは<literal moreinfo="none">filtered</literal>（フィルタあり）と見なされる。まれにサービスがUDPパケットで応答することがあるが、その場合はポートが<literal moreinfo="none">open</literal>であることがわかる。数回の再試行の後も応答がない場合、ポートは<literal moreinfo="none">open|filtered</literal>に分類される。これは、ポートが開いているか、もしくはパケットフィルタが通信を阻んでいることを意味する。バージョンスキャン(<option>-sV</option>)を用いて、実際に開いているポートとフィルタ処理されたポートを識別することもできる。</para>
+
+<para>UDPスキャンに関する大きな課題は、処理の高速化である。Openポートやfilteredポートから応答が送り返されることはほとんどないため、Nmapはそのままタイムアウトし、プローブや応答が行方不明になった場合に備えて再試行を行うことになる。閉じたポートは、さらに大きな問題になる場合が多い。閉じたポートからは通常、ICMPポート到達不能エラーが返されるが、閉じたTCPポートがSYNやConnectスキャンに応答してRSTパケットを送る場合とは異なり、多くのホストでは、ICMPポート到達不能メッセージがデフォルトでレート制限されている。Linux や Solarisは、この点に関して特に厳しい。例えば、Linux 2.4.20カーネルは、宛先到達不能メッセージを毎秒1個(<filename moreinfo="none">net/ipv4/icmp.c</filename>で指定)に制限している。</para>
+
+<para>Nmapはレート制限を検出し、それに応じて処理速度を下げて、ターゲットマシンで落とされるような無用なパケットでネットワークを溢れさせないようにする。残念ながら、Linux方式で毎秒1パケットに制限されると、65,536個のポートをスキャンするのに18時間あまりかかる。UDPスキャンの速度を上げるためのアイデアには、次のようなものがある。同時並行でスキャンするホストの数を増やす、よく使われるポートだけを先に重点的にスキャンする、ファイアウォールの背後からスキャンする、<option>--host-timeout</option>オプションを使って低速なホストをスキップする。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sN</option>; <option>-sF</option>; <option>-sX</option> (TCP Null、FIN、およびXmasスキャン)</term>
+        <listitem>
+
+<para>これら3つのスキャンタイプ(次の節で述べる<option>--scanflags</option>オプションを併用するとさらにいろいろなことができる)は、<ulink url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC</ulink>の巧妙な抜け穴を突いて、<literal moreinfo="none">open</literal>ポートと<literal moreinfo="none">closed</literal>ポートを識別するためのものである。TCP RFCの65ページには、<quote>宛先ポートの状態が CLOSEDならば...　RSTを含まない入力セグメントは、その応答としてRSTを送信する</quote>とある。次のページでは、SYN、RST、ACKなどのビットセットを含まない、<literal moreinfo="none">open</literal>ポート宛てパケットについて述べてあり、<quote>ここに至ることはなさそうであるが、もし至ったらセグメントを破棄してリターンする</quote>とある。</para>
+
+<para>このRFC文書に準拠しているシステムをスキャンすると、SYN、RST、ACKなどのフラグビットを含まないパケットに対しては、ポートが閉じている場合はRSTが返され、ポートが開いている場合は何の応答も返されないことになる。これら3つのフラグビットが含まれない限り、他の3つ(FIN、PSH、URG)をどのように組み合わせてもよい。Nmapは以下の3つのスキャンタイプでこの弱点を突く。</para>
+
+<variablelist>
+  <varlistentry><term>Null スキャン (<option>-sN</option>)</term>
+  <listitem><para>何のビットも設定しない(tcpヘッダのフラグは0)</para></listitem></varlistentry> 
+
+  <varlistentry><term>FIN スキャン (<option>-sF</option>)</term>
+  <listitem><para>TCP FINビットだけを設定する</para></listitem></varlistentry> 
+
+  <varlistentry><term>Xmas スキャン (<option>-sX</option>)</term>
+  <listitem><para>FIN、PSH、URGのフラグをすべて設定し、クリスマスツリーのようにパケットをライトアップする</para></listitem></varlistentry>
+</variablelist>
+
+<para>これら3つのスキャンタイプは、プローブパケットに設定されるTCPフラグの違いを除けば、まったく同じ動作を示す。RSTが返された場合、ターゲットポートは<literal moreinfo="none">closed</literal>と見なされ、何の応答もない場合は<literal moreinfo="none">open|filtered</literal>になる。ポートが<literal moreinfo="none">filtered</literal>に分類されるのは、ICMP到達不能エラー(タイプ 3、コード 1、2、3、9、10、13)が返された場合である。</para>
+
+<para>これらのスキャンの最大の利点は、特定のステートレスなファイアウォールやパケットフィルタリング・ルータをすり抜けることができる点である。さらには、SYNスキャンよりもやや秘匿性が高いことも利点として挙げられる。しかし、あまり当てにしないように。最近のIDS製品はほとんど、これらを検知するように設定できるからだ。不利な点は、すべてのシステムがRFC 793に忠実に準拠しているわけではないことだ。ポートが開いているか否かに関係なく、プローブに対してRST応答を送信するシステムは数多くある。これにより、すべてのポートは<literal moreinfo="none">closed</literal>に分類されることになる。メジャーなOSでこれを行うのは、マイクロソフトWindows、多くのシスコ製デバイス、BSDI、IBM OS/400などが挙げられる。それでもこのスキャンは、ほとんどのUNIXベースのシステムに対しては有効である。またもう1つ不利な点は、<literal moreinfo="none">open</literal>ポートと特定の<literal moreinfo="none">filtered</literal>ポートを区別できないので、応答が<literal moreinfo="none">open|filtered</literal>に分類されることである。 </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sA</option> (TCP ACK スキャン)</term>
+        <listitem>
+
+<para>このACKスキャンは、<literal moreinfo="none">open</literal>ポート(<literal moreinfo="none">open|filtered</literal>も)を判別しないという点で、これまで述べてきたスキャンとは異なっている。ファイアウォールのルールセットを明らかにするために用いられ、ファイアウォールがステートフルか否か、どのポートがフィルタされているかなどを決定する。</para>
+
+<para>ACKスキャンのプローブパケットは、ACKフラグだけが設定されている(<option>--scanflags</option>を用いている場合を除く)。フィルタなしのシステムをスキャンする場合は、<literal moreinfo="none">open</literal>ポートと<literal moreinfo="none">closed</literal>ポートの両方からRSTパケットが返される。Nmapはこれらを<literal moreinfo="none">unfiltered</literal>として分類する。すなわち、ポートはACKパケットで到達可能だが、<literal moreinfo="none">open</literal>か<literal moreinfo="none">closed</literal>かは判別できないことを意味する。応答を返さないポートや、特定のICMPエラーメッセージ(タイプ 3、コード 1、2、3、9、10、13)を返すポートは<literal moreinfo="none">filtered</literal>に分類される。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sW</option> (TCP ウィンドウスキャン)</term>
+        <listitem>
+
+<para>ウィンドウスキャンは、以下の点を除いては、ACKスキャンとまったく同じものである。すなわち、RSTが返されたら常に<literal moreinfo="none">unfiltered</literal>と分類するのではなく、特定のシステムの実装に関する情報を用いて、<literal moreinfo="none">open</literal>ポートと<literal moreinfo="none">closed</literal>ポートを識別する点である。これは、返されるRSTパケットのTCPウィンドウのフィールドを調査して判断する。一部のシステムでは、<literal moreinfo="none">open</literal>ポートで正の値のウィンドウサイズ(RSTパケットに対しても)が使われ、<literal moreinfo="none">closed</literal>ポートではゼロになる。これにより、ウィンドウスキャンは、RSTが返された場合は常にポートを<literal moreinfo="none">unfiltered</literal>に分類するのではなく、RSTパケット内のTCPウィンドウサイズの値が正であるかゼロであるかによって、それぞれ<literal moreinfo="none">open</literal>ポートか<literal moreinfo="none">closed</literal>ポートかに分類する。</para>
+
+<para>このスキャンは、インターネット上では少数派のシステムの実装に関する情報に基づいているので、必ずしも信用できるとは限らない。通常、この実装をサポートしていないシステムは、すべてのポートが<literal moreinfo="none">closed</literal>という応答を返す。もちろん、対象マシンに開ポートが本当に1つもない場合もあり得る。スキャンしたポートのほとんどが<literal moreinfo="none">closed</literal>でも、よく使われるポート番号(22、25、53など)がいくつか<literal moreinfo="none">filtered</literal>である場合、このシステムは影響を受ける可能性が最も高い。またまれに、システムがまさに正反対の挙動を示す場合もある。スキャンの結果、開ポートが1000個で、closed や filteredが3個あることがわかった場合、この3個のポートこそが、本当はopenポートである可能性はかなり高い。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sM</option> (TCP Maimon スキャン)</term>
+        <listitem>
+
+<para>Maimonスキャンは、発見者であるUriel Maimon氏の名前にちなんで名付けられた。この技法に関する同氏の論文は、「Phrack」誌の第49号(1996年11月発行)に掲載された。この技法を搭載したNmapは、これの2号後の第51号で公開された。Maimonスキャンは、プローブがFIN/ACKであるという点以外は、Null、FIN、Xmasスキャンとまったく同じものである。RFC 793 (TCP)によると、この種のプローブの応答としては、ポートがopenか closedかに関係なく、RSTパケットが生成されることになっている。だがMaimon氏は、BSD由来のシステムの多くで、ポートが開いている場合には、単にパケットが破棄されるだけになるという現象を見出した。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scanflags</option> (カスタム TCP スキャン)</term>
+        <listitem>
+
+<para>本物のNmap上級ユーザなら、あらかじめ用意されたスキャンタイプを使うだけで満足している必要はない。この<option>--scanflags</option>オプションを使うと、任意のTCPフラグを指定することで、ユーザ独自のスキャンを設計することができる。さあ、創造力を全開にして、Nmapのmanページをただ流し読みして具体的なルールを追加しているようなメーカーのIDSの裏をかいてやろう。</para>
+
+<para><option>--scanflags</option>の引数は、例えば9(PSH と FIN)などの数字のフラグ値で指定することもできるが、記号名を使った方が簡単である。<literal moreinfo="none">URG</literal>、<literal moreinfo="none">ACK</literal>、<literal moreinfo="none">PSH</literal>、<literal moreinfo="none">RST</literal>、<literal moreinfo="none">SYN</literal>、<literal moreinfo="none">FIN</literal>をごちゃまぜに組み合わせればよいだけだ。例えば<option>--scanflags
+URGACKPSHRSTSYNFIN</option>で全部指定できるわけだが、もっともこれは、実際のスキャンには使えない。引数を指定する順序は不同である。</para>
+
+<para>またここでは、使いたいフラグだけでなく、TCPスキャンタイプ(<option>-sA</option> や <option>-sF</option>など)も指定できる。この基本タイプによって、応答を解釈する方法をNmapに伝える。例えば、SYNスキャンであれば、応答なしは<literal moreinfo="none">filtered</literal>ポートであることと見なし、FINスキャンであれば、同じ応答なしを<literal moreinfo="none">open|filtered</literal>と解釈するわけだ。Nmapは、この基本のスキャンタイプと同じ動作をするが、異なる点は、ユーザが指定するTCPフラグを代わりに使うことである。基本のスキャンタイプが指定されない場合は、SYNスキャンが使用される。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sI &lt;zombie
+        host[:probeport]&gt;</option> (Idle スキャン)</term>
+
+        <listitem>
+
+          <para>この高度なスキャン手法を使用すると、対象ホストに対して完全に匿名でTCPポートスキャンを実行できる(スキャンする側の実IPアドレスからは、対象ホストにパケットが送信されない)。それだけではなく、ゾンビホスト上で連続的に生成されるIPフラグメントID(識別子)が予測可能であることを巧妙に利用した独自のサイドチャネル攻撃を実行して、対象ホスト上のopenポートに関する情報を収集することもできる。IDSシステムでは、このスキャンはこちらで指定したゾンビマシン(稼動中でかつ特定の条件を満たす必要がある)から行われているものとして表示される。この非常に興味深いスキャンタイプは複雑すぎて本稿ではとても全容を説明しきれないので、完全な詳細を掲載した非公式の論文を以下に投稿しておくことにする：<ulink url="http://nmap.org/book/idlescan.html"/></para>
+
+          <para>このスキャンタイプは、(その匿名性のために)格別に秘匿性が高いことに加え、マシン間のIPベースの信頼関係を明らかにすることができる。ポートリストには、<emphasis>指定したゾンビホストから見た</emphasis><literal moreinfo="none">open</literal>ポートが表示される。よって、(ルータ/パケットフィルタのルールから)信頼関係にあると思われる様々なゾンビマシンを使ってターゲットをスキャンしてみることもできる。</para>
+
+          <para>IPIDの変化について、ゾンビホストの特定のポートを調査したい場合は、コロンの後にポート番号を付けたものをゾンビホストに追加して指定できる(ゾンビホスト:プローブポート)。ここでポートを指定しない場合、NmapはTCP Ping用にデフォルトで使用するポート(80)を用いる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sO</option> (IP プロトコル スキャン)</term>
+        <listitem>
+          
+<para>IPプロトコルスキャンを使うと、ターゲットマシン上でどのIPプロトコル(TCP、ICMP、IGMPなど)がサポートされているかを特定できる。繰り返し表示されるのは、TCP や UDPのポート番号ではなくて、IPプロトコル番号なので、厳密にはポートスキャンとは言えない。とはいえ、スキャンするプロトコル番号を選定するのに<option>-p</option>オプションを使い、結果は標準的なポートテーブル形式でレポートし、実際のポートスキャン手法と同じスキャンエンジンを基礎に用いている。そのため、ポートスキャンに十分近いものとして、ここに含めた。</para>
+
+<para>プロトコルスキャンは機能として有用であるだけでなく、オープンソースソフトウェアとしての強力さを示すものでもある。この機能については、基本となるアイデアは極めて単純だが、筆者自身追加しようと思ったこともなかったし、周りからそうした要望が寄せられることもなかった。そして2000年の夏、Gerhard Rieger氏がアイデアを考案し、素晴らしい実装パッチを作成して、「nmap-hackers」メーリングリストに投稿してくれた。筆者はこのパッチをNmapのツリーに組み込んで、その翌日に新バージョンとして公開した。市販のソフトウェアで、その機能向上のために設計段階から寄与するほど熱心なユーザを持つソフトはほとんどない</para>
+
+<para>プロトコルスキャンは、UDPスキャンと同様の仕組みで機能する。すなわち、UDPパケットのポート番号フィールドをすべて繰り返し試行する代わりに、IPパケットヘッダを送信して、8bitのIPプロトコル番号フィールドをすべて繰り返し試行する。このヘッダは通常は空で、何のデータも、求められるプロトコルに適したヘッダすら含まれていない。これには例外が3つあり、TCP、UDP、ICMPである。これらのプロトコルについては、適切なプロトコルヘッダが含まれる。そうしないとヘッダを送信しないシステムがあるからで、Nmapはすでにこれらを作成する機能を備えている。プロトコルスキャンは、ICMPポート到達不能メッセージではなくて、ICMP<emphasis>protocol</emphasis>到達不能メッセージが返されるのを待つ。Nmapはターゲットホストから何らかの応答を何らかのプロトコルで受信した場合、そのプロトコルを<literal moreinfo="none">open</literal>として分類する。ICMPプロトコル到達不能エラー(タイプ 3、 コード 2)が返されたら、プロトコルは<literal moreinfo="none">closed</literal>と分類される。その他のICMP到達不能エラー(タイプ 3、 コード 1、3、9、10、13)が返されたら、プロトコルは<literal moreinfo="none">filtered</literal>とマークされる(またこれにより、ICMPが<literal moreinfo="none">open</literal>であることも同時に明らかになる)。数回再送しても何の応答もない場合、プロトコルは<literal moreinfo="none">open|filtered</literal>として分類される。 </para>
+
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>
+        <option>-b &lt;ftp relay host&gt;</option> (FTP バウンス スキャン)</term>
+        <listitem>
+
+<para>FTPプロトコル(<ulink url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>)の興味深い特徴の1つは、いわゆるプロキシFTP接続に対応していることである。これにより、ユーザは一台のFTPサーバに接続し、そのファイルを第三者サーバに送るように要求できる。これは、様々なレベルの悪用にうってつけの機能なので、たいていのサーバでは、サポートするのを止めている。例えば、この機能を悪用して、FTPサーバに他のホストをポートスキャンさせることも可能である。単に、ターゲットホストの興味あるポートに順にファイルを送信するよう、そのFTPサーバに要求するだけでよい。エラーメッセージには、ポートが開いているか否かが記述される。これは、ファイアウォールをすり抜けるための有効な手段になる。組織のFTPサーバは、どんなインターネットホストよりも、他の内部ホストにアクセスしやすい場所に設置されている場合が多いからだ。Nmapは、<option>-b</option>オプションでftpバウンススキャンを実行できる。引数は<replaceable>username</replaceable>:<replaceable>password</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>のような形式になる。<replaceable>Server</replaceable>は、この脆弱性の影響を受けるFTPサーバの名前かIPアドレスを指定する。通常のURLの場合と同様に、匿名ログインの認証情報(user:
+<literal moreinfo="none">anonymous</literal> password:<literal moreinfo="none">-wwwuser@</literal>)が使われる場合は、<replaceable>username</replaceable>:<replaceable>password</replaceable>の部分は省略できる。<replaceable>server</replaceable>のデフォルトのFTPポート(21)を用いる場合は、ポート番号(と前のコロン)も省略可能である。 </para>
+
+<para>この脆弱性は、Nmapがリリースされた1997年に大きく広まったが、今ではほとんど修正されている。それでも、脆弱なサーバは、いまだにあちらこちらにあるので、その他の方法がすべて失敗した場合は、試してみるだけの価値はある。ファイアウォールの回避が目的なら、ターゲットネットワークをスキャンして開いている21番ポート(もしくはバージョン検出ですべてのポートをスキャンする場合はftpサービスなら何でもよい)を探し出し、それぞれのポートを用いてバウンススキャンを試してみることだ。Nmapを使うと、対象のホストが脆弱か否かを見分けることができる。単に自分の行動の形跡を隠そうとしているだけであれば、ターゲットネットワーク上のホストだけに対象を限定する必要はない(し、むしろそうするべきではない)。脆弱なFTPサーバを求めてインターネットアドレスを無作為にスキャンする場合は、始める前に、システム管理者はこのような方法で自分のサーバを不正に使用されることを迷惑がる場合もあることを頭に入れておく必要がある。</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+   <refsect1 id="man-port-specification">
+    <title>ポートの指定とスキャンの順序</title>
+
+    <para>Nmapには、これまでに述べたすべてのスキャン手法に加えて、どのポートをスキャンするかや、スキャンの順序をランダムにするか順序通りにするかなどを指定するためのオプションが用意されている。デフォルトでは、Nmapは、1024番(を含む)までの全ポートと、1025番以降のポートはスキャン対象のプロトコルに応じて<filename moreinfo="none">nmap-services</filename>ファイルに記載されたポートをスキャンする。 </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-p &lt;port ranges&gt;</option> (指定されたポートのみスキャン)
+        </term>
+        <listitem>
+
+          <para>このオプションで、スキャンしたいポートを指定できる。この指定は、デフォルトより優先される。ポート番号は個別に指定しても、ハイフン区切りの範囲(例：1-1023)で指定してもよい。範囲の先頭や終端の値は省略できる場合があり、この場合は範囲の先頭に1、終端に65535がそれぞれ使われる。したがって、<option>-p-</option>と指定すると、1番から65535番までのポートをスキャンできる。ゼロ番ポートのスキャンは、明示的に指定することで実行できる。IPプロトコルスキャン(<option>-sO</option>)を行うには、このオプションでスキャンしたいプロトコル番号を指定する(0-255)。</para>
+
+          <para>TCPポートとUDPポート両方のスキャンを実行する場合は、ポート番号の前に<literal moreinfo="none">T:</literal>や<literal moreinfo="none">U:</literal>という限定子を付けることで、特定のプロトコルを指定できる。この限定子は、次に別の限定子が指定されるまで有効になる。例えば、<option>-p U:53,111,137,T:21-25,80,139,8080</option> という引数を指定すると、UDPポートの53番、111番、137番と、列挙したTCPポートのスキャンが実行される。UDPとTCPポート両方のスキャンを実行するためには、<option>-sU</option>および最低1つのTCPスキャンタイプ(<option>-sS</option>、<option>-sF</option>、<option>-sT</option>など)を指定する必要があるので注意すること。プロトコル限定子が特に指定されていない場合、指定したこれらのポート番号はすべてのプロトコルリストに追加される。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-F</option> (高速 (限定したポートだけ) スキャン)
+        </term>
+        <listitem>
+
+          <para>Nmapに同梱されている<filename moreinfo="none">nmap-services</filename>ファイル(<option>-sO</option>では「protocols」ファイル)に列挙されているポートだけをスキャンするように指定する。こうすることで、ホスト上の全65535ポートをスキャンするよりもはるかに高速になる。このリストには非常に多く(1200以上)のTCPポートが含まれているので、デフォルトのTCPスキャン(約1650ポート)との速度差はそれほど大きくはない。<option>--datadir</option>オプションを使って、自分で独自に作成した小さな<filename moreinfo="none">nmap-services</filename>ファイルを指定すると、この速度差をかなり大きくすることができる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-r</option> (ポートの順番を無作為にしない)
+        </term>
+        <listitem>
+          <para>デフォルトでは、Nmapはスキャンするポートの順番を無作為に選ぶようになっている(効率化のために特定のよく使われるポートを最初のほうに移動した場合を除く)。このような無作為化は通常であれば望ましいが、代わりに番号順にポートスキャンを行いたい場合はこの<option>-r</option>オプションを指定する。</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+  <refsect1 id="man-version-detection">
+    <title>サービスとバージョンの検出</title>
+
+    <para>リモートマシンをターゲットにしてNmapを実行した結果、25/tcp、80/tcp、53/udpの各ポートが開いていることが判明したとしよう。Nmapは、約2200個のよく知られたサービスから成る<filename moreinfo="none">nmap-services</filename>のデータベースを用いて、これらのポートがそれぞれメールサーバ(SMTP)、Webサーバ(HTTP)、ネームサーバ(DNS)に相当するとレポートする。通常、この検索結果は正確である。すなわち、TCPポート25番で待ち受けするデーモンの大部分は、実際にメールサーバである。だが、これをすべて鵜呑みにしてはいけない。通常とは異なるポートでサービスが実行されるケースも実際にあり得る。</para>
+
+    <para>たとえNmapが正しくて、上で仮定したサーバがそれぞれSMTP、HTTP、DNSサーバを実行している場合でも、これは多くの情報にはならない。自社やクライアントの脆弱性調査(簡単なインベントリ調査の場合でも)を実施する際には、どのメールサーバやDNSサーバが動作中であるかを知りたいはずである。正確なバージョン番号を入手することは、サーバがどのような攻撃に対して脆弱であるかを判断するのに大いに役に立つ。バージョン検出はこうした情報を入手するのに役立つ手法である。</para>
+
+    <para>別のスキャン手法を用いてTCPポートや UDPポートを発見したら、そこで何が実行されているかについての詳細を明らかにするために、これらのポートをバージョン検出によってさらに綿密に調査する。<filename moreinfo="none">nmap-service-probes</filename>データベースには、様々なサービスの問い合わせを行うためのプローブや、応答を識別して解析するための照合表現が含まれている。Nmapは以下の情報の特定を試みる：サービスプロトコル(例：ftp、ssh、telnet、http)、アプリケーション名(例：ISC Bind、Apache httpd、Solaris telnetd)、バージョン番号、ホスト名、デバイスタイプ(例：プリンタ、ルータ)、OSファミリ(例：Windows、 Linux) さらには、Xサーバが接続に対してopen状態にあるかどうかや、SSHプロトコルのバージョン、KaZaAのユーザ名などのその他様々な詳細情報の特定が試みられる場合もある。もちろんたいていのサービスは、これらの情報をすべて提供できるわけではない。NmapにOpenSSLのサポート機能が組み困れている場合は、SSLサーバに接続して、この暗号化層の背後で待ち受けしているサービスを推定する。RPC(Remote Procedure Call)サービスが発見された場合は、RPCプログラムとバージョン番号を特定するためにNmapのRPCグラインダー(<option>-sR</option>)が自動的に使用される。UDPポートスキャンを実行しても、「open」か「filtered」かを判定できなかった一部のポートは、<literal moreinfo="none">open|filtered</literal>状態として保留される。バージョン検出は、これらのポートから応答を導き出して、可能な場合はその状態を「open」に変更しようと試みる。<literal moreinfo="none">open|filtered</literal>のTCPポートも同様に取り扱われる。ここで注目すべき点は、バージョン検出がNmapの<option>-A</option>オプションで有効になる機能の1つに含まれることである。バージョン検出のメカニズム、使用法、カスタマイズ方法に関する論文は、以下で入手できる：<ulink url="http://www.insecure.org/nmap/vscan/"/></para>
+
+    <para>Nmapがサービスからの応答を受信しても、データベースに一致するものが見つからなかった場合は、特別なフィンガープリントとURLが出力される。このURLは、ポートで何が動作しているかが確実に分かっている場合に、フィンガープリントを投稿していただくためのものだ。あなたの発見がいろいろな人のためになるよう、2、3分もかからないのでぜひ投稿していただきたい。こうした投稿のおかげで、Nmapは、smtp, ftp, httpなどの350以上のプロトコルに対する約3000件のパターン照合例を備えるまでになっている。</para>
+
+    <para>バージョン検出は、以下のオプションで実行および制御が可能である：</para>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>-sV</option> (バージョン検出)</term>
+        <listitem>
+
+          <para>上で述べたようなバージョン検出を実行する。またもう1つの方法として、<option>-A</option>オプションを使うと、OS検出とバージョン検出の両方を実行できる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--allports</option> (バージョン検出の対象からすべてのポートを除外しない)
+        </term>
+        <listitem>
+          <para>デフォルトでは、Nmapのバージョン検出は、TCPポート9100番をスキップするようになっている。一部のプリンタはこのポートに送られたものは何でも出力するので、HTTP GETリクエストやバイナリ形式のSSLセッションリクエストなどのページが何十枚も印刷されることになるからだ。この動作を変更するには、<filename moreinfo="none">nmap-service-probes</filename>の当該の「除外」(<literal moreinfo="none">Exclude</literal>)ディレクティブを変更あるいは削除するか、もしくは<option>--allports</option>を指定すると、<literal moreinfo="none">Exclude</literal>ディレクティブに関係なくすべてのポートがスキャンされるようにできる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-intensity &lt;intensity&gt;</option> (バージョンスキャンの強度を設定)
+        </term>
+        <listitem>
+
+          <para>Nmapは、バージョンスキャン(<option>-sV</option>)を実行する際に、1から9までの「希少」(rarity)値が割り振られた一連のプローブを送信する。この希少値が小さいプローブほど、よく用いられる各種サービスに対して有効であり、この希少値が大きいプローブほど、用途が限られることになる。強度レベルは、どのプローブを適用するべきかを指定するオプションである。この数字が大きいほど、サービスが正しく特定される確率は高くなる。だが、強度が高いスキャンは、それだけ時間がかかる。強度は0から9の間で指定する必要があり、デフォルトは7である。<filename moreinfo="none">nmap-service-probes</filename>の<literal moreinfo="none">ports</literal>ディレクティブによって、ターゲットポートにプローブを登録すると、このプローブは強度レベルに関係なく試行される。これにより、DNSプローブは常に開ポート53番に対して試行され、SSLプローブはポート443番に対して実行されるようにすることなどができる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-light</option> (ライトモードを有効にする)
+        </term>
+        <listitem>
+          <para>これは、<option>--version-intensity 2</option>の場合に便利なエイリアスである。このライトモードを使うと、スキャンを通常よりずっと高速に行うことができるが、サービスを特定できる確率はやや低くなる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-all</option> (プローブを1つずつ試行する)
+        </term>
+        <listitem>
+          <para><option>--version-intensity 9</option>の場合に有用なエイリアスで、各ポートに対してプローブが1つずつ試行されるようにする。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-trace</option> (バージョンスキャンの動作状況を追跡する)
+        </term>
+        <listitem>
+          <para>これにより、Nmapは、どのようなバージョンスキャンが実行されているかに関する広範なデバッグ情報を出力する。この情報は、<option>--packet-trace</option>によって得られるものの一部である。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sR</option> (RPC スキャン)</term>
+        <listitem>
+          <para>この手法は、Nmapの他の様々なポートスキャン手法と連携して機能する。「open」状態であることが確認されたすべてのTCP/UDPポートに対して、SunRPCプログラムのNullコマンドを大量に送信し、ポートがRPCポートであるかどうかを判定し、そうである場合は、そこで実行されているプログラム名とバージョン番号の特定を試みる。従って、ターゲットのポートマッパーがファイアウォールの背後にある(あるいはTCPラッパーで保護されている)場合でも、<command moreinfo="none">rpcinfo -p</command>の結果と同じ情報を効率的に取得することができる。現時点では、囮(おとり)は、RPCスキャンとは連携して機能しない。要求があれば、バージョンスキャン(<option>-sV</option>)の一部として自動的に有効になる。すでにバージョン検出に含まれており、そちらのほうがずっと包括的なので、<option>-sR</option>が必要になることはめったにない。</para>
+        </listitem>
+      </varlistentry>
+  
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-os-detection">
+
+    <title>OS 検出</title>
+
+    <para>Nmapの最も有名な機能の1つは、TCP/IPスタック・フィンガープリンティングを用いた、リモートからのOS検出機能である。Nmapは、一連のTCPやUDPのパケットをリモートホストに送り、その応答をほぼ全面的に調査する。TCP ISN(イニシャルシーケンス番号)サンプリング、TCPオプションのサポートや順序の調査、IPIDサンプリング、TCP初期ウィンドウサイズ調査などの数多くのテストを実施した後、Nmapはこれらの結果を、既知のOSフィンガープリントが1500件以上データベース化された<filename moreinfo="none">nmap-os-fingerprints</filename>と照合し、一致するものがあった場合はそのOSに関する詳細情報を出力する。各フィンガープリントには、フリーテキスト形式のOSの解説、ベンダ名を与える分類(例：Sun)、下位のOS(例：Solaris)、OSの世代(例：10)、デバイスの種類(汎用、ルータ、スイッチ、ゲーム機など)が含まれる。 </para>
+
+    <para>条件(例えば少なくともopenポート1つとclosedポート1つの存在がわかっているなど)は整っているが、NmapがターゲットマシンのOSを推測できない場合は、フィンガープリント投稿用URLがNmapから提供される。対象のマシンで動作しているOSが何か(確実に)わかっている場合は、当該のフィンガープリントをこのURLを使って投稿できる。こうした投稿が行われることで、Nmapが認識できるOSのデータベースに新たなデータが蓄積され、あらゆるユーザがさらに精度の高い調査を行えるようになる。</para>
+
+    <para>OS検出を行うことで、そのプロセスのなかで収集される情報を利用した別のテストをいくつか行うこともできる。例えば、アップタイムの測定がその1つで、TCPのタイムスタンプオプション(RFC 1323)を用いて、マシンが最後に再起動されたのはいつかを推定する。これは、その情報を返したマシンに関してのみ報告される。もう一つのテストは、TCPシーケンス番号の予測可能性の分類である。これにより、リモートホストに対して偽造したTCP接続を確立するのがどの程度困難であるかがおおよそ判定できる。これは、発信元IPベースの信頼関係(rlogin、ファイアウォール、フィルタなど)の弱点を悪用したり、攻撃の出所を隠蔽したりする場合に役立つ。この種のスプーフィングはもはやめったに行われないが、これに対して脆弱なマシンがいまだに数多くある。難易度を表す実際の数値は、統計的なサンプリングに基づいているために上下する可能性がある。通常は<quote>worthy challenge（価値ある挑戦)</quote>や<quote>trivial joke（つまらないジョーク）</quote>などの言葉の表現による分類を利用する方がよい。これは、冗長(<option>-v</option>)モードの標準出力にのみレポートされる。<option>-O</option>オプションとともに冗長モードが有効になっている場合、IPIDシーケンス番号の生成に関する情報もレポートされる。ほとんどのマシンは、<quote>インクリメンタル(incremental)</quote>に分類される。これは、送信するパケットごとに、IPヘッダのIDフィールドの値を1ずつ増加させることを意味する。この仕組みのせいで、これらのマシンは高度な情報収集攻撃やスプーフィング攻撃に対して脆弱になっている。</para>
+
+    <para>OS検出のメカニズム、使用法、カスタマイズ方法について述べた論文は、以下で入手できる(十数ヶ国語の翻訳版あり)： <ulink url="http://www.insecure.org/nmap/osdetect/"/></para>
+
+    <para>OS検出は、以下のオプションで実行および制御できる：</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-O</option> (OS検出を実行)
+        </term>
+        <listitem>
+          <para>上で述べたOS検出を実行する。また別な方法として<option>-A</option>オプションを使うと、OS検出とバージョン検出の両方を実行できる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan-limit</option> (OS検出を有望なターゲットに絞る)
+        </term>
+        <listitem>
+          <para>少なくとも1つのopenおよびclosedのTCPポートが見つかれば、OS検出の効率はかなり上がる。このオプションを設定すると、Nmapは上の基準に満たないホストにはOS検出を試行しないようになる。これにより、かなりの時間が節約できる。多くのホストに対して<option>-P0</option>スキャンを行う場合は特にそうである。<option>-O</option> あるいは <option>-A</option>で、OS検出の実行をいつ要求するかだけが重要になる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan-guess</option>; <option>--fuzzy</option> (OS検出の結果を推測)
+        </term>
+        <listitem>
+          <para>Nmapが完全に一致するOSを検出できない場合、それに近似するものを候補として挙げる場合がある。Nmapがこれをデフォルトで行うためには、近似はかなり近いものでなければならない。上のどちらか(同等)のオプションを指定すると、Nmapはより大まかな近似をアグレッシブに行うようになる。</para>
+        </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+  </refsect1>
+
+   <refsect1 id="man-performance">
+    <title>タイミングとパフォーマンス</title>
+    <para>Nmapの開発を行ううえで、常に優先事項の1つとして念頭に置いているのが「パフォーマンス」である。筆者のローカルネットワーク上のホストにデフォルトスキャン(<command moreinfo="none">nmap
+<replaceable>hostname</replaceable></command>)を実行するのにかかる時間は、5分の1秒である。瞬き1回程度の時間だが、何万、いや何十万というホストをスキャンする場合は、この時間も積算されるわけだ。さらには、UDPスキャンやバージョン検出などの特定のスキャンオプションによって、スキャン時間が大幅に増加する可能性がある。特定のファイアウォール設定、特に応答レート制限の場合も同様である。Nmapには、スキャン速度を上げるための並行処理や高度なアルゴリズムが使用されているが、Nmapをどのように実行するかを最終的に決めるのはユーザである。熟練したユーザは、自分たちの時間的制約を満たしつつ、関心のある情報だけを取得するように、Nmapコマンドに入念な細工を施すものだ。</para>
+
+    <para>スキャン時間を改善するテクニックとしては、重要でないテストの省略や、Nmapを最新版にアップグレードする(パフォーマンスの強化は頻繁に行われている)などが挙げられる。タイミング(時間調節)パラメタを最適化すると、かなりの違いが生じる場合もある。この種のオプションを、以下に列挙する。</para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>--min-hostgroup &lt;milliseconds&gt;</option>; 
+        <option>--max-hostgroup
+        &lt;milliseconds&gt;</option> (並列スキャンのグループサイズを調節する)</term>
+        <listitem>
+<para>Nmapには、複数のホストを並行してポートスキャンやバージョンスキャンする能力がある。これは、ターゲットのIP空間をいくつかのグループに分割し、一度に1グループずつスキャンすることで行われる。一般に、グループの規模を大きくするほど、効率がよくなる。デメリットは、グループ全体のスキャンが終了してからでないと、ホストの結果が得られないことである。そのため、グループサイズが50から始めた場合、ユーザがレポートを受け取るのは、(冗長モードで最新情報が提供される場合を除く)最初の50台のホストが完了してからになる。</para>
+
+<para>デフォルトでは、Nmapはこうした競合問題に対して、妥協的なアプローチを採る。すなわち、最初の結果がすぐに得られるように、5程度の小さなグループサイズから始めて、それから1024くらいにまで増やすようにする。初めに設定する数値は、指定するオプションによって決まる。効率上の理由で、Nmapは、UDPスキャンやポート数の少ないTCPスキャンに対しては比較的大きなグループサイズを用いる。</para>
+
+<para>グループサイズの最大値が<option>--max-hostgroup</option>で指定されている場合、Nmapがこのサイズを超過することは決してない。グループサイズの最小値を<option>--min-hostgroup</option>で指定すると、Nmapはグループサイズがこの値よりも小さくならないようにしようとする。Nmapは、オプションで指定された最小値の条件を満たすのに十分な数のターゲットホストが、所定のインターフェース上に残っていない場合は、指定より小さいグループサイズを使わざるを得なくなる場合もある。グループサイズを特定の範囲内に収めるために、最大値と最小値の両方を設定する場合もあるが、これが必要になるケースはめったにない。</para>
+
+<para>このオプションの主な使用法は、スキャンをより高速に完了できるように、グループサイズの最小値に大きな値を指定することである。クラスC規模のネットワークをスキャンするには通常、256を指定する。数多くのポートに対してスキャンを実行する場合は、これ以上の数値を設定しても、あまり効果は期待できない。ポート数がごくわずかのスキャンを行う場合は、ホストのグループサイズを2048以上に設定すると有効だろう。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min-parallelism &lt;milliseconds&gt;</option>;
+        <option>--max-parallelism
+        &lt;milliseconds&gt;</option> (プローブの並列処理を調節する)</term>
+        <listitem>
+
+<para>ホストグループに向けて送信されるプローブの総数を決めるオプションで、ポートスキャンやホスト発見に用いられる。デフォルトでは、Nmapは、ネットワークパフォーマンスに基づいて、常に変化する理想的な並列処理可能数を算出している。パケットが続けて破棄される場合は、Nmapは処理速度を落とし、送信するプローブの数を減らす。理想的なプローブ数は、ネットワークが示すパフォーマンスの高さに応じて、緩やかに増加する。これらのオプションは、この変数に対して上限と下限を設定する。デフォルトでは、理想的な並列処理可能数は、ネットワークの信頼性が低い場合は1まで下がり、最高の状態の場合は数百まで上がる場合もある。</para>
+
+<para>最も一般的な使用法は、<option>--min-parallelism</option>に1より大きな数値を設定して、パフォーマンスの低いホストやネットワークに対するスキャンの処理速度を上げることである。ただし、軽く使うにはリスクを伴うオプションであり、あまりに大きな値を設定すると、精度に悪影響が及ぶ場合がある。またこれにより、ネットワーク状態に基づいて並列処理可能数を動的に制御するNmapの能力を低下させることにもなる。10程度にしておくのが妥当かと思われるが、この値の調節は最後の手段としてしか行わない。</para>
+
+<para>Nmapがホストに対して一度に2つ以上のプローブを送れないようにするために、<option>--max-parallelism</option>オプションに「1」が設定される場合がある。これは、(下で述べる)<option>--scan-delay</option>オプションと組み合わせて用いると便利である。もっとも、後者のオプションは通常は単独でも十分に役立つものである。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min_rtt_timeout &lt;milliseconds&gt;</option>, 
+        <option>--max-rtt-timeout &lt;milliseconds&gt;</option>, 
+        <option>--initial-rtt-timeout
+        &lt;milliseconds&gt;</option> (プローブのタイムアウトを調節する)</term>
+        <listitem>
+
+<para>Nmapは、プローブを中止もしくは再送信するまで、プローブの応答を待機する時間をどのくらいにするかを決める実行タイムアウト値を保持している。この値は、それまでに送信したプローブの応答時間に基づいて算出される。ネットワークの待ち時間が、かなり長くて変化しやすい場合、タイムアウト値は数秒にまで達する可能性もある。また、反応が鈍いホストをスキャンする際には、控え目な(高い)レベルから始めて、しばらくの間そのままの値にしておく場合もある。</para>
+
+<para>これらのオプションはミリ秒単位で設定する。<option>--max-rtt-timeout</option> と <option>--initial-rtt-timeout</option>にデフォルトより小さな値を指定すると、スキャン時間を大幅に短縮できる。厳重なフィルタ処理が施されたネットワークに対してpingなし(<option>-P0</option>)スキャンを行う場合は特にそうなる。とはいえ、あまりアグレッシブに小さくしすぎないように。小さすぎる値を指定してしまったために、応答が送信されている間に数多くのプローブがタイムアウトして再送信されてしまい、結果的にスキャンの実行に通常より余計に時間がかかる可能性があるからだ。</para>
+
+<para>すべてのホストがローカルネットワーク上にある場合、<option>--max-rtt-timeout</option>の値は100ミリ秒(ms)にするのが、アグレッシブに小さく指定するとしても妥当な値である。ルーティングが関係してくる場合は、ICMP pingユーティリティか、ファイアウォールを通過できる可能性が高いhping2などのカスタムパケット作成ツールを用いて、最初にネットワーク上のホストにpingを実行する必要がある。10個程度のパケットを送信してみて、最大往復時間(RTT)を調べること。<option>--initial-rtt-timeout</option>の値は、この値を2倍にするとよい。また、<option>--max-rtt-timeout</option>の値は、これを3倍か4倍にしたものにするとよいだろう。筆者は通常、pingで調査した時間の大小に関係なく、最大RTTを100ms未満に設定することはないし、1000msを超える値にすることもない。 </para>
+
+<para><option>--min_rtt_timeout</option>は、ほとんど使用されないオプションであるが、ネットワークの信頼性があまりに低いために、Nmapのデフォルト値でも小さく設定しすぎになる場合に役立つと思われる。Nmapは単にタイムアウト時間を指定された最小値まで小さくするだけなので、ネットワークが信頼できると思われる場合は、この要求は異常であり、nmap-devメーリングリストにバグとして報告されるはずである。</para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>--host-timeout &lt;milliseconds&gt;</option> (遅いターゲットホストを見切る)
+        </term>
+        <listitem>
+
+<para>ホストのなかには、とにかくスキャンに<emphasis>長い</emphasis>時間がかかるものがある。理由としては、実行手順の不手際、信頼性の低いネットワークハードウェアやソフトウェア、パケットレート制限、厳重なファイアウォールなどが考えられる。スキャン対象ホスト全体の数パーセントを占める、最も反応が遅いホストによって、スキャン時間の大半を使われてしまうこともある。このような無駄はカットして、遅いホストは最初から省くほうがよい場合がある。これは、待機しても構わない時間を<option>--host-timeout</option>にミリ秒単位の数値で指定することで実行できる。筆者は、Nmapが単一ホストに対して30分を超える時間を浪費しないように、1800000という値を指定することが多い。注意すべき点は、Nmapはこの30分の間に、同時に他のホストもスキャンできるので、まったくの無駄にはならないことだ。タイムアウトするホストはスキップされ、ポートテーブル、OS検出、バージョン検出などの結果は出力されない。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scan-delay &lt;milliseconds&gt;</option>;
+        <option>--max_scan-delay
+        &lt;milliseconds&gt;</option> (プローブ間の遅滞時間を調節する)</term>
+        <listitem>
+
+<para>指定したホスト宛てに送られるプローブの送信間隔において、ミリ秒単位の数値で指定した時間だけNmapを待機状態にする。これは、レート制限が行われている場合に特に役に立つ。Solarisマシンは(制限が特に厳しく)、通常はUDPスキャンのプローブパケットに対して、ICMPメッセージの応答を毎秒1回しか返さない。Nmapがそれ以上のパケットを送ってもすべて無駄になる。<option>--scan-delay</option> に1000を指定すると、Nmapは毎秒1回という遅いレートを保つことになる。Nmapは、レート制限を検出し、それに応じてスキャンの進行を遅らせようとするが、どの程度のレートが最適であるかがすでにわかっている場合は明示的に指定してもよい。</para>
+
+<para><option>--scan-delay</option> は他にも、しきい値ベースの侵入検知や侵入防止システム(IDS/IPS)の回避に使用される。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-T
+          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
+          (タイミングのテンプレートを設定する)
+        </term>
+        <listitem>
+
+<para>前節で述べたような、タイミングのきめ細やかな制御はとても効果が大きいが、分かりにくいと感じるユーザもいるようだ。さらには、最適化を試みているスキャンを実行するよりも、適切な数値を選ぶほうが時間がかかるという事態に陥る可能性もある。そこでNmapには、6つのタイミング用テンプレートを用いたもっと簡単なアプローチが用意されている。テンプレートは、<option>-T</option>オプションと番号(0 - 5)か名前で指定できる。テンプレート名は、paranoid (0)、sneaky (1)、polite (2)、normal (3)、aggressive (4)、insane (5)である。最初の2つは、IDS回避用のテンプレートである。Politeモードは、スキャン処理速度を落とし、帯域幅とターゲットマシンのリソースの使用量を少なくするためのものである。Normalモードはデフォルトなので、<option>-T3</option>としても特に何もしない。Aggressiveモードは、ユーザが適度に高速で信頼性の高いネットワーク上にいることを想定して、スキャン速度を上げる。最後にInsaneモードは、非常に高速なネットワーク上にいるか、あるいは速度と引き換えに精度の一部を犠牲にしても構わない場合を想定したモードである。 </para>
+
+<para>これらのテンプレートを利用すると、ユーザは、的確なタイミング値の選定はNmapに任せつつ、どの程度アグレッシブなスキャンを実行したいかを指定できる。また、今のところきめ細かい制御のオプションが存在しない、速度の微調整の一部をこのテンプレートで行うこともできる。例えば、<option>-T4</option>は、TCPポートに対するスキャン処理の動的な遅延時間が10msを越えないようにすることができ、また<option>-T5</option>では、この値の上限が5msに制限される。テンプレートを最初に指定する場合に限り、きめ細かい制御オプションとテンプレートを組み合わせて用いることができる。そうしないと、テンプレートの標準値がユーザの指定した値で上書きされてしまう。適度に最近の信頼性が高いネットワークをスキャンする場合は、<option>-T4</option>がお勧めである。きめ細かい制御オプションを追加する場合でも、このオプションを(コマンドラインの最初に)付けておくことで、テンプレートによって有効になる細部にわたる最適化のメリットを享受できる。</para>
+
+<para>適正なブロードバンド接続やイーサネット接続の環境にいる場合は、常時<option>-T4</option>を利用することをお勧めする。<option>-T5</option>を好む人もいるが、私にはアグレッシブすぎるように思われる。<option>-T2</option>を指定しているユーザもたまにいるが、ホストをクラッシュさせる可能性が低いと見ているからか、自分のことを全般的に礼儀正しい(polite)と思っているからのようだ。こうしたユーザは単に、「-T Polite」が実際にはいかに遅いものであるかを理解していないだけだ。Politeモードは、デフォルトスキャンの10倍の時間がかかる。デフォルトのタイミングオプション(<option>-T3</option>)に関しては、マシンのクラッシュや帯域幅が問題になることはめったにないので、慎重なスキャンユーザには通常はこれを勧めている。タイミング値をあれこれ操作して、これらの問題を軽減しようとするよりも、バージョン検出を省略するほうがずっと効率的である。</para>
+
+<para><option>-T0</option> や <option>-T1</option>は、IDSの警告を回避するには役立つかもしれないが、何千ものマシンやポートをスキャンするには非常に長い時間がかかる。そのように長いスキャンを行う場合は、あらかじめ用意された<option>-T0</option> や <option>-T1</option>の値に頼るよりも、必要に応じて的確なタイミング値を設定するほうが好ましいだろう。</para>
+
+<para><option>T0</option>の主な効果は、スキャンを連続的に実行して一度に1つのポートしかスキャンされないようにすることと、各プローブを送信する間に5分間待機することである。<option>T1</option> と <option>T2</option>は似ているが、それぞれプローブ間の待機時間が15秒と0.4秒しかない。<option>T3</option>はNmapのデフォルト動作で、並列処理が含まれる。<option>T4</option>は<option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>に相当し、TCPスキャンの最大遅延時間を10msに設定する。<option>T5</option>は<option>--max-rtt-timeout 300 --min_rtt_timeout 50 --initial-rtt-timeout 250 --host-timeout 900000</option>に相当し、TCPスキャンの最大遅延時間を5msに設定する。 </para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-bypass-firewalls-ids">
+    <title>ファイアウォール/IDS の回避とスプーフィング</title>
+
+<para>多くのインターネット先駆者たちは、あらゆるノード間のネットワーク接続を可能にする、世界共通のIPアドレス空間を有する世界規模のオープンネットワークの構想を描いていた。これにより、ホストは文字通りピアとして機能し、お互いに情報のやり取りができるようになる。ユーザは、自宅のすべてのシステムに仕事場からアクセスして、エアコンの設定を変えたり、早めに来た客のためにドアを開錠したりできるだろう。このような世界規模の相互接続性の構想の拡大は、アドレス空間の不足とセキュリティ上の問題によって阻害されている。1990年代初期、組織は特に相互接続性を軽減する目的で、ファイアウォールを導入し始めた。大規模なネットワークと玉石混淆のインターネットとの間に、アプリケーションプロキシ、ネットワークアドレス変換、パケットフィルタなどによる防御線が張り巡らされた。情報の自由な流れは、認可された通信チャンネルとそこを通るコンテンツに対する厳しい規制にとって代わられた。</para>
+
+<para>ファイアウォールなどのネットワーク上の障害物によって、ネットワークのマッピングは著しく困難になる。これは、もうこれ以上軽減されることはないはずだ。いつ行われるかわからない探索行為を阻止することが、こうした機器を実装する主な目的である場合が多いからである。それでも、Nmapは、この複雑なネットワークを理解するのに役立てたり、フィルタが目的通りに機能していることを検証したりするための機能を数多く備えている。また、実装が不完全な防御策を回避する仕組みにも対応している。自身のネットワークセキュリティ状況を理解する最善の方法の1つは、それを打ち破ってみることだ。自分が攻撃者になったつもりで、本節のテクニックを自分自身のネットワークに対して実行してみるとよい。FTPバウンススキャン、Idleスキャン、フラグメンテーション攻撃などを仕掛けたり、自分のプロキシの1つにトンネルを通したりしてみよう。</para>
+
+<para>企業は、ネットワーク活動を制限することに加えて、侵入検知システム(IDS)によるトラフィック監視を強化してきている。メジャーなIDSにはすべて、Nmapによるスキャンを検知するように設計されたルールが標準で搭載されている。これは、スキャンが攻撃に先立って行われる場合があるからだ。これらの製品の多くは最近、侵入<emphasis>防止</emphasis>システム(IPS)に姿を変えている。IPSは、悪意があると見なされるトラフィックを積極的にブロックする。ネットワーク管理者やIDSベンダにとって残念なことに、パケットデータを解析して悪意を確実に検知するのは困難な課題である。根気とスキル、それにNmapの特定のオプションの手助けがあれば、攻撃者はたいていの場合、IDSに検知されないで通り過ぎることができる。その一方で、管理者は大量の誤検知結果の対処に追われることになる。IDSの誤検知によって、悪意のない活動が誤診され、警告が発せられたりブロックされたりする。</para>
+
+<para>Nmapには、ファイアウォールルールを回避したりIDSをこっそりすり抜けたりするための機能は搭載しないようにするべきだと言われることがたまにある。こうした人々の言い分は、その手の機能は、管理者がセキュリティ向上のために利用するのと同じくらいの確率で、攻撃者に悪用されるおそれがあるというものだ。この論理の問題点は、いずれにしろこの種の手法は攻撃者に悪用されるに決まっているということだ。攻撃者は、別のツールを見つけてきたり、Nmapに機能を組み込んだりするものだからである。一方、管理者は、自分たちの業務がそれだけますますやりにくくなると思われるだろう。最新型の、パッチを適用したFTPサーバを導入することは、FTPバウンス攻撃を実装しているツールの配布を阻止しようとすることよりも、はるかに強力な防御策になる。</para>
+
+<para>ファイアウォールやIDSシステムを検出して破壊するための「魔法の弾丸」のようなNmapオプションなど存在しない。それには、スキルと経験が必要なのだ。チュートリアルについては、本リファレンスガイドの範囲を超えている。本稿の目的は単に、関連したオプションを列挙し、それで何ができるかについて説明することだけである。</para>
+
+<variablelist>
+      <varlistentry>
+        <term>
+          <option>-f</option> (パケットをフラグメント化する);
+          <option>--mtu</option> (指定したMTUを用いる)
+        </term>
+
+        <listitem>
+          <para><option>-f</option>オプションを指定すると、要求されたスキャン(pingスキャンを含む)は小さく断片化されたIPパケットを利用するようになる。これを行う目的は、TCPヘッダを複数のパケットに分割することで、パケットフィルタや侵入検知システム(IDS)などの厄介なセキュリティ策にスキャンを検知されにくくすることである。ただし、以下の点には注意が必要だ。すなわち、プログラムのなかには、このような小さなパケットの処理によって問題を生じるものがあることだ。旧式のスニファ「Sniffit」は、最初のフラグメントを受信した瞬間にセグメンテーション障害を起こした。このオプションを一度指定すると、NmapはIPヘッダを8バイトかそれ以下の大きさのパケットに分割する。つまり、20バイトのTCPヘッダは3つのパケットに分割されることになる。8バイトのパケットが2つと、残りの1つが4バイトになる。もちろん、各フラグメントにもIPヘッダがある。<option>-f</option>を再度指定すると、フラグメントあたり16バイトが使われる(フラグメントの数は減る)。あるいは、<option>--mtu</option>オプションで、ユーザ独自の分割サイズを指定することもできる。<option>--mtu</option>を使う場合は、同時に<option>-f</option>は指定しないこと。分割サイズは8の倍数にする必要がある。断片化されたパケットは、すべてのIPフラグメントを待ち行列に入れるパケットフィルタやファイアウォール（例えば、LinuxカーネルのCONFIG_IP_ALWAYS_DEFRAGオプションなど）を通り抜けることはできないが、ネットワークによっては、この断片化によって生じるパフォーマンスの低下に耐えきれないために、これを無効にしているところがある。またそれ以外にも、各フラグメントがそれぞれ異なる経路を通ってネットワークに至る可能性があるために、この機能を有効にできないところもある。一部の発信元システムでは、カーネルで発信パケットのフラグメント化を解消するものもある。コネクション追跡モジュールの「iptables」を備えるLinuxなどがこれにあたる。送信パケットがきちんとフラグメント化されていることを確認するために、Etherealなどのスニファを実行しながら、スキャンを行うようにすること。自身のホストのOSが原因で問題が生じる場合は、IP層を回避して「生」イーサネット フレームを送るために、<option>--send-eth</option>を試してみるとよい。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-D &lt;decoy1 [,decoy2][,ME],...&gt;</option>
+          (おとりを使ってスキャンを隠蔽する)
+        </term>
+        <listitem>
+          <para>おとり(囮)スキャンを実行する。おとりスキャンとは、実際のスキャンの他に、おとりとして指定したホスト(複数可)もターゲットネットワークをスキャンしているようにリモートホストに見せかけるためのものである。この結果、対象ホストのIDSは、それぞれ異なる複数のIPアドレスから、5から10のポートスキャンが実行されたことを報告する場合もあるが、実際にどのIPがスキャンを実行していたもので、どれが無実のおとりだったのかを知られることはない。このおとりスキャンは、ルータの経路追跡、応答の破棄、その他の動的メカニズムによって阻止される可能性があるが、通常は攻撃元のIPアドレスを隠蔽する技法として非常に効果的である。</para>
+
+          <para>各おとりホストはコンマで区切る。おとりの1つとして<literal moreinfo="none">ME</literal>(自分)オプションを用いて、ユーザの本物のIPアドレスをその位置に表示することもできる。<literal moreinfo="none">ME</literal>をおとりホストの6番目以降に置くと、(Solar Designerの優れたscanlogdなどの)よく使われる一部のポートスキャン検出ツールが、ユーザのIPアドレスを明らかにすることはほぼ不可能である。<literal moreinfo="none">ME</literal>オプションを使わない場合、ユーザはNmapが無作為に選んだ位置に置かれる。</para>
+          <para>注意すべき点は、おとりとして使用するホストが稼動中でないと、ターゲットに誤ってSYN flood攻撃を仕掛けることになる。また、ネットワーク上で実際に稼動しているホストが1つしかない場合は、どのホストがスキャンを実行しているかを容易に特定されてしまう。また、ホスト名よりもIPアドレスを使った方がよいだろう(おとりネットワークのネームサーバのログに記録されないようにするため)。</para>
+
+          <para>おとりは、初期段階に行うpingスキャン（ICMP、SYN、ACK、その他利用できるものなら何でも）と、実際のポートスキャンの実行段階の両方で使用される。また、リモートOS検出(<option>-O</option>)を行う際にも使われる。だが、バージョン検出やTCP connect()スキャンとは連携しない。</para>
+
+          <para>おとりを多く使いすぎると、スキャンの速度が低下するだけでなく、精度も下がるおそれがあることに注意する。また、一部のISPは偽装パケットをフィルタで除外しているが、偽装したIPパケットを制限しているところは少ない。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-S &lt;IP_Address&gt;</option> (ソースアドレスを偽装する)
+        </term>
+        <listitem>
+          <para>一部の環境では、Nmapがユーザのソースアドレスを特定できない場合がある(その場合はかならず、Nmapからユーザに通知がある)。こうした状況では、<option>-S</option>オプションを使って、パケットの送信に利用したいインターフェースのIPアドレスを指定すること。</para>
+
+          <para>このフラグの他の利用方法として考えられるのは、スキャンを偽装して、<emphasis>第三者（誰か別の人間）</emphasis>がスキャンを実行しているとターゲットに思い込ませることだ。企業が、ライバル企業から繰り返しポートスキャンを受けたとしたらどうなるだろうか。この種の用途に用いるには、たいていの場合<option>-e</option>オプションが必要になるだろう。また通常は<option>-P0</option>も使った方が望ましい。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-e &lt;interface&gt;</option> (特定のインターフェースを使用する)
+        </term>
+        <listitem>
+          <para>パケットを送受信する際に、どのインターフェースを利用するかをNmapに伝えるためのオプション。Nmapは、インターフェースを自動的に検知できるようになっているが、検知できない場合はその旨がユーザに通知される。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--source-port &lt;portnumber&gt;;</option>
+          <option>-g &lt;portnumber&gt;</option> (ソースポート番号を偽装する)
+        </term>
+        <listitem>
+
+<para>よく見かける設定ミスの1つは、ソースポート番号だけを基準にして、トラフィックを信頼していることである。これがどのようにして起きるかを理解するのは簡単である。管理者が真新しいファイアウォールをセットアップすると必ず、恩知らずのユーザから、アプリケーションが機能しなくなったという苦情が殺到することになるものだ。特に、外部サーバからのUDP DNS応答がネットワークに入れなくなることが原因で、DNSが動かなくなる場合がある。この他に、FTPもよく見られる例である。アクティブFTP転送が行われる際に、リモートサーバは、要求されたファイルを転送するために、再びクライアントへのコネクションを確立しようとする。</para>
+
+<para>これらの問題に対するセキュアなソリューションは、多くの場合、アプリケーションレベルのプロキシや、プロトコル解析型ファイアウォールモジュールの形で存在する。だが残念ながら、もっと簡単で、安全性の低いソリューションもあるのだ。多くの管理者は、DNS応答は53番ポートから、アクティブftpは20番ポートから来ることに注目し、これらのポートからの内向きトラフィックを無条件に許可してしまうという罠に陥る。こうしたファイアウォールの抜け穴の存在に気付いて悪用するような攻撃者がいるとは思ってもいない場合が多い。また別のケースでは、管理者がこうした処置を、より安全性の高いソリューションを実装するまでの短期間の応急処置と見なしている場合もある。そして結局、セキュリティを向上させることなどすっかり忘れてしまうわけだ。</para>
+
+<para>こうした罠に陥るのは何も、多忙なネットワーク管理者だけではない。この種の安全性の低いルールが標準で装備されてくる製品は膨大な数にのぼる。マイクロソフト社にも、責任の一端はある。Windows 2000 や Windows XPに標準装備されているIPsecフィルタには、88番ポート(Kerberos)からのTCP や UDPのトラフィックをすべて許可するという暗黙のルールが含まれている。この他に有名なケースでは、Zone Alarm社製パーソナルファイアウォールの2.1.25以下のバーションでは、ソースポートが53番(DNS)と67番(DHCP)の内向きUDPパケットをすべて許可するようになっていた。</para>
+
+<para>Nmapには、この種の弱点を突くためのオプションとして、<option>-g</option> や<option>--source-port</option>(これらは同等のもの)が用意されている。単ポート番号を指定すると、可能な場合であれば、Nmapはそのポートからパケットを送信する。特定のOS検出検査が正しく機能するようにするために、Nmapは様々なポート番号を使用する必要がある。NmapはDNS要求の処理にシステムのライブラリを用いているので、この<option>--source-port</option>フラグを指定していても、DNS要求には無視されることになる。SYNスキャンを含む大部分のTCPスキャン、およびUDPスキャンは、このオプションに完全に対応している。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--data-length &lt;number&gt;</option> (送信パケットにランダムデータを付加する)
+        </term>
+        <listitem>
+          <para>通常、Nmapはヘッダのみを含む最小限のパケットを送信する。従って、TCPパケットは通常40バイト、ICMPエコー要求パケットは28バイト程度の大きさしかない。このオプションは、Nmapが送信するほとんどのパケットに、指定したバイト数のランダムデータを付加するようにする。OS検出(<option>-O</option>)パケットにはデータは付加されないが、ほとんどのping およびポートスキャンのパケットには付加される。これにより、処理速度は低下するが、スキャンを幾分でも目立たなくすることができる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ttl &lt;value&gt;</option> (IPのTTLフィールド値を設定する)
+        </term>
+        <listitem>
+          <para>送信パケットのIPv4生存時間(TTL：Time-to-Live)フィールドを指定した値に設定する。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--randomize-hosts</option> (ターゲットホストの順番を無作為化する)
+        </term>
+        <listitem>
+          <para>このオプションは、Nmapがスキャンを実行する前に、各グループあたり最大8096のホストをランダムに並び替えるようにする。これにより、特にスキャン速度を遅く設定するタイミングオプションと併用する場合は、各種ネットワーク監視システムにスキャンが検知される可能性を小さくすることができる。より大規模なグループを無作為化したい場合は、<filename moreinfo="none">nmap.h</filename>のPING_GROUP_SZを増やして再コンパイルする。別の手段としては、リストスキャンでターゲットIPリストを作成し(<option>-sL -n -oN
+          <replaceable>filename</replaceable></option>)、これをPerlスクリプトで無作為化して、<option>-iL</option>でリストをそのままNmapに渡す。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--spoof-mac &lt;mac address, prefix, or vendor
+          name&gt;</option> (MACアドレスを偽装する)
+        </term>
+        <listitem>
+
+          <para>Nmapが送信するすべての生イーサネット フレームに、指定したMACアドレスを使うようにする。このオプションは、Nmapが実際にイーサネットレベルのパケットを送信するように、<option>--send-eth</option>が必要条件になる。MACアドレスは、さまざまな形式で指定できる。文字列の<quote>0</quote>だけが指定された場合は、NmapはセッションのMACアドレスを完全に無作為に選ぶ。指定した文字列が偶数の16進数(一組ずつ状況に応じてコロンで区切る)の場合は、NmapはこれをMACアドレスとして使用する。12桁未満の16進数が指定された場合は、Nmapは残りの6バイトにランダムな値を補充する。引数が0や16進文字列ではない場合は、Nmapは<filename moreinfo="none">nmap-mac-prefixes</filename> を調べて、指定した文字列を含むベンダ名を見つける(大文字と小文字は区別されない)。一致するものがあった場合、そのベンダのOUI(Organizationally Unique Identifier:3バイトのベンダコード)を使用し、残りの3バイトにはランダムに記入する。有効な<option>--spoof-mac</option>引数は、<literal moreinfo="none">Apple</literal>、<literal moreinfo="none">0</literal>、<literal moreinfo="none">01:02:03:04:05:06</literal>、<literal moreinfo="none">deadbeefcafe</literal>、<literal moreinfo="none">0020F2</literal>、<literal moreinfo="none">Cisco</literal>などになる。</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="man-output">
+    <title>出力</title>
+
+    <para>セキュリティツールの実用性は、生成される出力で決まる。複雑なテストやアルゴリズムも、結果が整理された、わかりやすい形で提示されなければ、ほとんど価値はない。ユーザや他のソフトウェアによるNmapの使い方がこれほど数多くあることを考えると、たった1つですべてのユーザが満足するようなフォーマットが存在するはずもない。そこでNmapには、人間が直接読めるようにしたインタラクティブ方式や、ソフトウェアで簡単に解析できるXML方式などのさまざまな出力フォーマットが用意されている。</para>
+
+<para>Nmapには様々な出力フォーマットが備わっているだけでなく、出力やデバッグメッセージの冗長性を制御するオプションも用意されている。出力結果は標準出力(stdout)や指定したファイルに送られる。ファイルにはデータを追加したり上書きしたりできる。また、出力ファイルは、中断したスキャンを再開するためにも使われる。</para>
+
+<para>Nmapの出力は、5種類のフォーマットが利用できる。デフォルトは<literal moreinfo="none">interactive output（インタラクティブ出力）</literal>と呼ばれるもので、標準出力に送られる。また、出力には、<literal moreinfo="none">normal output（通常出力）</literal>というのがある。これは、<literal moreinfo="none">インタラクティブ</literal>に似ているが、異なる点は、実行時間情報や警告が表示される回数が少ないことである。その理由は、この出力が、インタラクティブにではなくて、スキャン完了後に解析するために提供されるものだからである。</para>
+
+<para>XML出力は、最も重要な出力タイプの1つであり、HTMLに変換し、NmapのGUIやデータベースにインポートして、プログラムで容易に解析できる。</para>
+
+<para>残り2つの出力タイプは、<literal moreinfo="none">grepで検索可能な</literal>シンプルな出力で、ターゲットホストに関するほとんどの情報が1行で表示されるものと、自分のことを>sCRiPt KiDDi3だと思うユーザ向けの<literal moreinfo="none">sCRiPt KiDDi3 0utPUt（出力）</literal>だ。</para>
+
+<para>インタラクティブ出力はデフォルトで、関連するコマンドラインオプションはないが、他の4つのフォーマットオプションでは、同じ構文が使われる。取る引数は1つで、結果を保存するファイル名である。複数のフォーマットを指定してもよいが、各フォーマットは1度しか指定できない。例えば、自分の調査用に通常の出力を保存し、同時に同じスキャン結果をプログラムの解析用にXML形式で保存したい場合もあるだろう。これは、<option>-oX myscan.xml -oN myscan.nmap</option>というオプションを使って実行できる。なお、ここでは簡潔にするために<literal moreinfo="none">myscan.xml</literal>のような単純なファイル名を用いているが、通常はもっと説明的な名前にするのが推奨されている。どのようなファイル名にするかは、個人の好みの問題だが、筆者はスキャンの実施日と簡単なコメントを組み入れた長い名前を使い、スキャン対象の企業名にちなんだ名前のディレクトリに入れている。</para>
+
+<para>これらのオプションは結果をファイルに保存するが、同時にNmapは通常通りインタラクティブ出力を標準出力(stdout)に書き出している。例えば、<command moreinfo="none">nmap -oX myscan.xml target</command>というコマンドで、XML出力が<filename moreinfo="none">myscan.xml</filename>に書き込まれ、同じ結果のインタラクティブ出力が標準出力に書き出される。この出力は、<option>-oX</option>が指定されなかった場合でも行われる。ハイフン(-)文字を引数としてフォーマットタイプの1つに渡すと、これを変更することができる。すなわち、Nmapはインタラクティブ出力を停止して、代わりにユーザが指定した形式の結果を、標準出力ストリーム(stdout)に書き出すことになる。<command moreinfo="none">nmap -oX - target</command>というコマンドでは、XML出力だけがstdoutに送られる。この場合も、重大なエラーは標準エラーストリーム(stderr)に書き出される場合がある。 </para>
+
+<para>Nmapの一部の引数とは異なり、ログファイルオプションのフラグ(例：<option>-oX</option>)とファイル名やハイフンとの間のスペースは必須である。この注意を無視して、引数を<option>-oG-</option>や<option>-oG-</option>のように指定したら、Nmapの下位互換機能により、それぞれ<filename moreinfo="none">G-</filename>や<filename moreinfo="none">Xscan.xml</filename>という名前の<emphasis>標準フォーマット</emphasis>の出力ファイルが作成される。</para>
+
+<para>またNmapには、スキャン結果の冗長性を制御するオプションや、出力ファイルに上書きしないで追加書き込みするためのオプションも用意されている。これらのオプションについてはすべて以下で説明する。</para>
+
+<variablelist><title>Nmapの出力フォーマット</title>
+      <varlistentry>
+        <term>
+        <option>-oN &lt;filespec&gt;</option> (通常出力)</term>
+        <listitem>
+          <para><literal moreinfo="none">通常の出力</literal>が指定した名前のファイルに書き込まれるようにする。上で述べた通り、これは<literal moreinfo="none">インタラクティブ出力</literal>と一部異なる。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oX &lt;filespec&gt;</option> (XML 出力)</term>
+        <listitem>
+
+          <para><literal moreinfo="none">XML出力</literal>が指定した名前のファイルに書き込まれるようにする。Nmapには文書型定義(DTD)が組み込まれており、XMLパーサーはこれを用いて、NmapのXML出力を検証する。本来はプログラムによる使用を目的としたものだが、人間がNmapのXML出力を解釈するのにも役立つ。DTDには、フォーマットの文法要素が定義されており、これらの要素が取ることのできる属性や値が列挙されていることが多い。最新版は以下から常時入手できる：<ulink url="http://www.insecure.org/nmap/data/nmap.dtd"/></para>
+
+          <para>XMLは、ソフトウェアで容易に解析できる定型書式を提供する。C/C++、Perl、Python、Javaなどを含む、あらゆるメジャーなコンピュータ言語用のXMLパーサーが、フリーで入手できるようになっている。これらの言語のほとんどについては、Nmapの出力と実行に特化して処理するためのバインディングも作成されている。例えば、Perl CPAN(Comprehensive Perl Archive Network)の<ulink url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink> や <ulink url="http://www.nmapparser.com">Nmap::Parser</ulink>などがある。重要なアプリケーションがNmapとインターフェースで連結する場合はほとんど、XMLが推奨フォーマットになる。</para>
+
+          <para>XML出力はXSLスタイルシートを参照して、出力結果の書式をHTMLに変換できる。これを使用する最も簡単な方法としては、単にFirefoxやIEなどのWebブラウザでXML出力を読み込むだけでよい。デフォルトでは、これはNmapを実行したマシン上(もしくは同じ構成のマシン)でのみ機能する。これは、<filename moreinfo="none">nmap.xsl</filename>のファイルシステムのパスがハードコード化されているためである。Webに接続したマシン上であればHTMLとして表示されるような、移植性のあるXMLファイルを作成する方法については、<option>--stylesheet</option>オプションの項を参照のこと。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oS &lt;filespec&gt;</option> (ScRipT KIdd|3 oUTpuT)</term>
+        <listitem>
+   <para>スクリプトキディ出力は、インタラクティブ出力に似ているが、異なる点は、「l33t HaXXorZ」(leet hacker)向けに後処理してあることだ。Nmapは以前より、一貫性のある大文字やスペルの使い方のせいで、この人たちに見下されてきた。ユーモアを解さない人々は、<quote>スクリプトキディの手助けをしている</quote>として筆者に非難の言葉を浴びせる前に、まず気付くべきだ。このオプションが、彼らをからかうためのものだということを。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oG &lt;filespec&gt;</option> (Grep検索可能出力)</term>
+        <listitem>
+
+<para>この出力フォーマットを最後に取り上げたのは、廃止予定だからだ。XML出力フォーマットのほうがはるかに強力であり、熟練ユーザにとっての使い勝手もほぼ変わらない。XMLはパーサーの標準で、多数の優れたXMLパーサーが利用可能になっているのに対し、grep可能出力は筆者独自のスクリプトに過ぎない。XMLは拡張性が高く、Nmapの新機能がリリースされるたびに対応可能だが、grep可能出力にはこうした機能を追加する余地がないため、割愛せざるを得ないことも多い。</para>
+
+<para>とはいえやはり、grep可能出力はいまだに広く使われている。各対象ホストが一行ずつ列挙されているというシンプルな形式で、grep、awk、cut、sed、diff、PerlなどのUNIXの標準ツールを使って簡単に検索や解析を行うことができる。筆者も通常、コマンドラインで行うちょっとしたテストのために使用している。sshポートが開いているホストや、Solarisを実行しているホストなどを見つける場合、簡単なgrep検索を行うと、こうしたホストをすべて特定し、パイプでawkやcutコマンドに送って、目的のフィールドを書き出すことができる。</para>
+
+<para>Grep可能出力は、コメント行(パウンド(#)記号で始まる行)とターゲット行で構成される。ターゲット行は、6つのラベル付きフィールドの組み合わせになっており、それぞれのフィールドはタブで区切られ、最後にコロンが付く。各フィールドは、<literal moreinfo="none">Host</literal>、<literal moreinfo="none">Ports</literal>、<literal moreinfo="none">Protocols</literal>、<literal moreinfo="none">Ignored State</literal>、<literal moreinfo="none">OS</literal>、<literal moreinfo="none">Seq Index</literal>、<literal moreinfo="none">IPID</literal>、<literal moreinfo="none">Status</literal>になっている。</para>
+
+<para>これらのフィールドの中で通常最も重要なのは、<literal moreinfo="none">Ports(ポート)</literal>であり、ここからそれぞれの興味あるポートに関する詳細情報が得られる。ポートエントリのカンマ区切りリストになっており、各ポートエントリは、1つの興味あるポートを表し、7つのスラッシュ(/)で区切られたサブフィールドから成る。各サブフィールドは<literal moreinfo="none">Port number</literal>、<literal moreinfo="none">State</literal>、<literal moreinfo="none">Protocol</literal>、<literal moreinfo="none">Owner</literal>、<literal moreinfo="none">Service</literal>、<literal moreinfo="none">SunRPC
+info</literal>、<literal moreinfo="none">Version info</literal>である。</para>
+
+<para>XML出力の場合と同様に、本稿でこのフォーマットのすべてを論ずることはできない。Nmapのgrep可能出力フォーマットについての詳細な解説は以下で入手できる：<ulink url="http://www.unspecific.com/nmap-oG-output"/></para>
+        </listitem>
+      </varlistentry>
+
+     <varlistentry>
+        <term>
+        <option>-oA &lt;basename&gt;</option> (全フォーマットに出力する)</term>
+       <listitem><para>
+           簡便のために、<option>-oA
+           <replaceable>basename</replaceable></option>を指定すると、スキャン結果を通常、XML、grep可能の3つのフォーマットで一度に保存できるようにした。それぞれ、<replaceable>basename</replaceable>.nmap、<replaceable>basename</replaceable>.xml、<replaceable>basename</replaceable>.gnmapというファイルに保存される。たいていのプログラムと同じく、以下の例のようにファイル名の前にディレクトリパスを付けることもできる：<filename moreinfo="none">~/nmaplogs/foocorp/</filename>(UNIX)、<filename moreinfo="none">c:\hacking\sco</filename>(Windows)</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+    <variablelist><title>冗長性とデバッグのオプション</title>
+      <varlistentry>
+        <term>
+          <option>-v</option> (冗長性レベルを上げる)
+        </term>
+        <listitem>
+          <para>冗長性レベルを上げて、Nmapが進行中のスキャンに関してさらに多くの情報を書き出すようにする。開きポートは見つかり次第表示され、スキャンの実行に数分以上かかると見なされる場合は予測される完了時間が提示される。2回使用するとさらに冗長レベルは上がるが、3回以上の使用は無効である。</para>
+
+          <para>ほとんどの変更の効果が表れるのはインタラクティブ出力だけだが、通常出力とスクリプトキディ出力にも一部効果がある。その他の出力タイプは、コンピュータ処理するための出力なので、ユーザの手を煩わさなくとも、デフォルトでかなり詳細な情報が与えられている。それでも、その他の出力モードでもいくつか変更される点があり、詳細情報を一部省略することで、出力サイズを大幅に減らすことができる。例えば、grep可能出力のコメント行で、スキャン対象の全ポートの一覧表を提供するものは、かなり長くなる可能性があるので、冗長モードでのみ書き出される。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-d [level]</option> (デバッグレベルを上げる/設定する)
+        </term>
+        <listitem>
+
+<para>冗長モードでも満足する情報が得られない場合は、さらに大量の情報を得るためにデバッグを利用できる。冗長オプション(<option>-v</option>)の場合と同様に、デバッグもコマンドラインのフラグ(<option>-d</option>)で有効になり、これを複数回指定することで、デバッグレベルを上げることができる。もしくは、デバッグレベルは<option>-d</option>に引数として与えることでも設定できる。例えば、<option>-d9</option>でレベル9に設定される。これは最も効果の高いレベルであり、ごく少数のポートやターゲットに対して非常に単純なスキャンを実行するのでない限り、数千行に及ぶ出力が生成される。</para>
+
+<para>デバッグ出力が有用なのは、Nmapにバグがある疑いがある場合や、Nmapが何をなぜ行っているのかについて単純によく分からなくなった場合である。この機能は主に開発者向けのものなので、デバッグ行は必ずしも誰が見てもすぐ分かるわけではない。例えば、このような出力が得られる: <computeroutput moreinfo="none">Timeout
+vals: srtt: -1 rttvar: -1 to: 1000000 delta 14987 ==&gt; srtt: 14987
+rttvar: 14987 to: 100000</computeroutput>。こうした行の内容が理解できない場合は、無視するか、ソースコードを見て調べるか、開発リスト(nmap-dev)に助けを求めるかなどをする他ない。見れば内容が分かる行もなかにはあるが、デバッグレベルが上がるほど、メッセージも分かりにくくなる。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--packet-trace</option> (送受信したパケットやデータを追跡する)
+        </term>
+        <listitem>
+          <para>Nmapが送受信した全パケットのサマリーを書き出すようにする。デバッグで用いられる場合が多いが、Nmapが見えないところで何を行っているかを新しいユーザが理解するための手段として役立てることができる。何千もの行が書き出されないようにするには、<option>-p20-30</option>などを指定して、スキャン対象のポートの数を制限するとよいだろう。バージョン検出サブシステムの挙動にのみ関心がある場合は、代わりに<option>--version-trace</option>を使用すること。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--iflist</option> (インターフェースや経路の一覧を表示する)
+        </term>
+        <listitem>
+          <para>Nmapが検出したインターフェースやシステム経路のリストを書き出す。これは、ルーティング問題やデバイスのキャラクタリゼーションの誤り(例えばNmapがPPP接続をイーサネットとして処理すること)などをデバッグするのに役立つ。</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+   <variablelist><title>その他の出力オプション</title>
+
+      <varlistentry>
+        <term>
+          <option>--append-output</option> (出力ファイルは上書きせず追加する)
+        </term>
+        <listitem>
+           <para><option>-oX</option> や <option>-oN</option>などの出力フォーマットのフラグにファイル名を指定すると、デフォルトではそのファイルは上書きされる。既存のファイルの内容はそのままにして、新しい結果を追加したい場合は、この<option>--append-output</option>オプションを指定する。こうしてNmapを実行すれば、ここで指定した出力ファイルはすべて、上書きではなくて追加されることになる。だがこれは、XMLスキャン(-oX)のデータに対してはあまり有効ではない。XMLの結果ファイルは通常、手動で修正しないと適正に解析できないからだ。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resume &lt;filename&gt;</option> (中断したスキャンを再開する)
+        </term>
+        <listitem>
+
+          <para>対象が広範囲にわたるNmapの実行には非常に長い時間がかかり、数日ほどに及ぶ場合もある。そのようなスキャンは、常に完了するまで続けて実行できるとは限らない。様々な制約によってNmapを就業時間内に実行できなくなったり、ネットワークがダウンしたり、Nmapが動作しているマシンが計画的あるいは予定外に再起動させられたり、Nmap自体がクラッシュしたりなどが起こる可能性があるからだ。その他いかなる理由であっても同様に、Nmapを実行している管理者は、<keycap moreinfo="none">ctrl-C</keycap>を押すことによって実行をキャンセルできる。このような場合、スキャン全体を最初から再開するのは望ましくないだろう。幸いにも、通常出力(<option>-oN</option>)やgrep可能出力(<option>-oG</option>)のログが残っていれば、ユーザは、実行を中断された際のターゲットに対するスキャンを再開するようNmapに命じることができる。これを行うには、<option>--resume</option> オプションを指定し、通常/grep可能の出力ファイルを引数として渡す。Nmapはその出力ファイルをパースして、前に指定されたのと同じものを使うので、それ以外の引数は指定できない。<command moreinfo="none">nmap --resume<replaceable>logfilename</replaceable></command>として、Nmapを呼び出す。Nmapは、前回の実行で指定されたデータファイルに新たな結果を追加する。この再開オプションは、XML出力フォーマットをサポートしていない。2回の実行結果を結合して1つの妥当なXMLファイルにするのは困難であるためだ。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--stylesheet &lt;path or URL&gt;</option> (XML出力変換のXSLスタイルシートを設定する)
+        </term>
+        <listitem>
+          <para>Nmapには、XML出力を閲覧したりHTMLに変換したりするための<filename moreinfo="none">nmap.xsl</filename>というXSLスタイルシートが同梱されている。XML出力には、<literal moreinfo="none">xml-stylesheet</literal>ディレクティブが組み込まれており、Nmapが最初にインストールした場所(もしくはWindows上の現在作業中のフォルダ)にある<filename moreinfo="none">nmap.xml</filename>を参照する。最近のWebブラウザにNmapのXML出力を読み込むと、ブラウザはファイルシステムから<filename moreinfo="none">nmap.xsl</filename> を読み出して、出力結果の処理に使用する。別のスタイルシートを使いたい場合は、この<option>--stylesheet</option>オプションの引数として指定する。引数はフルパス名かURLで指定する。よく用いられる例を以下に示す：
+<option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option> 
+これで、スタイルシートの最新バージョンがInsecure.Orgからブラウザに読み込まれる。これにより、Nmap(および <filename moreinfo="none">nmap.xsl</filename>)がインストールされていないマシン上でも、結果を閲覧しやすくなる。そのため、URLのほうが便利な場合が多いが、デフォルトではプライバシー上の理由で、ローカルファイルシステムでのnmap.xslの場所が使われている。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--no_stylesheet</option> (XSLスタイルシート宣言をXMLから除外する)
+        </term>
+        <listitem>
+          <para>NmapがXML出力をXSLスタイルシートと関連付けないようにする。<literal moreinfo="none">xml-stylesheet</literal> ディレクティブは無視される。</para>
+        </listitem>
+      </varlistentry>
+
+
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-misc-options">
+    <title>その他のオプション</title>
+    <para>本節では、他の節のどこにも適合しないオプションで、重要な(およびそれほど重要でない)ものについて述べる。</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-6</option> (IPv6スキャンを有効にする)
+        </term>
+        <listitem>
+
+          <para>Nmapは2002年より、その最もよく使われる機能に対してIPv6のサポートを提供している。特に、pingスキャン(TCPのみ)、connect()スキャン、バージョン検出などはすべてIPv6に対応している。コマンド構文は、<option>-6</option>オプションを追加する以外は従来通りである。もちろん、ホスト名ではなくてアドレスを指定する場合は、IPv6の構文を使う必要がある。ただし、アドレス表示は<literal moreinfo="none">3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>のようになるので、ホスト名を使う方がよい。出力も従来とほぼ同じであり、<quote>興味のあるポート</quote>行のアドレスがIPv6方式になっているのが唯一のIPv6の証拠である。</para>
+
+          <para>IPv6は必ずしも世界を席巻しているわけではないが、一部(通常はアジア)の国々ではかなり普及しており、最近のOSのほとんどでサポートされている。NmapをIPv6で使用するためには、スキャンのソースとターゲットの両方をIPv6対応に設定する必要がある。自分のISP(他の多くのISPと同様の)からIPv6アドレスを割り当てられていない場合は、様々な場所で入手可能なフリーのトンネルブローカーがNmapとうまく連携して機能する。優れたトンネルブローカーの1つに、BT Exact社が以下で運営しているものがある：<ulink url="https://tb.ipv6.btexact.com/"/>。 Hurricane Electric社が以下で提供しているものも使ったことがある：<ulink url="http://ipv6tb.he.net/"/>。「6to4 tunnels」という人気のフリーソフトもある。 </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-A</option> (アグレッシブ・スキャンオプション)
+        </term>
+        <listitem>
+          <para>このオプションは、Additional(付加的)、Advanced(高度)、Aggressive(アグレッシブ)なオプションを有効にする。だが、このうちのどれを表すのかはまだ明確には決めていない。現在はこのオプションを指定すると、OS検出(<option>-O</option>)とバージョンスキャン(<option>-sV</option>)を実行できる。今後、さらに多くの機能が追加されるだろう。ポイントは、ユーザが数多くのフラグをまとめて覚えなくても済むように、複数のスキャンオプションを包括的にまとめて実行できるようにすることである。このオプションが有効にするのは機能のみで、同じくそうしたいと思われるタイミングオプション(例えば<option>-T4</option>)や冗長オプション(<option>-v</option>)などは、有効にならない。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--datadir &lt;directoryname&gt;</option> (Nmapの特別データファイルの位置を指定する)
+        </term>
+        <listitem>
+          <para>Nmapは、実行時に特別なデータを、<filename moreinfo="none">nmap-service-probes</filename>、<filename moreinfo="none">nmap-services</filename>、<filename moreinfo="none">nmap-protocols</filename>、<filename moreinfo="none">nmap-rpc</filename>、<filename moreinfo="none">nmap-mac-prefixes</filename>、<filename moreinfo="none">nmap-os-fingerprints</filename>という名前のファイルに取得する。Nmapはまず、(ある場合は)<option>--datadir</option> オプションで指定したディレクトリ内で、これらのファイルを探す。ここで見つからなかったファイルは、「NMAPDIR」環境変数で指定したディレクトリから検索する。次に、実在する有効なUID(POSIXシステムの場合)やNmapの実行ファイル(Win32の場合)が格納されているディレクトリの<filename moreinfo="none">~/.nmap</filename> を探し、その次に、組み込みディレクトリの<filename moreinfo="none">/usr/local/share/nmap</filename> や<filename moreinfo="none">/usr/share/nmap</filename>を探す。それでもない場合は最後の手段として、Nmapはカレントディレクトリを検索する。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send-eth</option> (raw（生の）イーサネット層で送信する)
+        </term>
+        <listitem>
+          <para>Nmapが、上層のIP(ネットワーク)層ではなくて、rawイーサネット(データリンク)層でパケットを送信するようにする。デフォルトでは通常、Nmapは動作しているプラットフォームに最適の層を選ぶようになっている。raw ソケット (IP層)は一般に、UNIXマシンには最適であるが、マイクロソフト社がraw ソケットに対応する機能を無効にしているため、Windows OSにはイーサネットフレームが必要になる。Nmapは、他に選択肢がない(非イーサネット接続などの)場合は、このオプションがあるにもかかわらずUNIX上ではいまだにraw IPパケットを使用する。</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send-ip</option> (raw IPレベルで送信する)
+        </term>
+        <listitem>
+          <para>Nmapがパケットを送信するのに、下位のイーサネットフレームではなくて、raw IPソケットを介して送るようにする。これは、上で述べた<option>--send-eth</option>を補完するオプションである。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--privileged</option> (ユーザが十分な権限を持つことを想定する)
+        </term>
+        <listitem>
+          <para>Nmapが、通常はUNIXシステム上のroot権限を必要とする操作を行うのに十分な特権を持つことを想定する。こうした操作には、生ソケットの送信やパケット盗聴などがある。デフォルトでは、Nmapはこのような操作が要求された場合でも、geteuid()がゼロでなければ実行を中止するようになっている。<option>--privileged</option> は、Linuxカーネル機能や、権限のないユーザが生パケットスキャンを実行できるように設定可能な同様のシステムとともに用いると便利である。注意点は、このオプションフラグを、特権を必要とするオプション(SYNスキャンやOS検出など)より前に指定することだ。<option>--privileged</option>オプションに相当する別の方法には、「NMAP_PRIVILEGED」変数の設定がある。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--interactive</option> (インタラクティブモードで開始する)
+        </term>
+        <listitem>
+          <para>Nmapをインタラクティブモードで開始する。このモードでは、対話型のプロンプトによって、複数のスキャンを(同時進行かバックグラウンドかで)簡単に開始することができる。これは、マルチユーザシステムからスキャンを行う場合に役に立つ。システムのセキュリティ検査を行う際に、どのシステムをスキャンしているかをシステム上の誰にも知られずに実施したい場合が多いからだ。<option>--interactive</option> を使ってインタラクティブモードにしたら、<keycap moreinfo="none">h</keycap> と入力してヘルプを表示してみよう。このオプションはめったに使用されない。なぜなら、適切なシェルのほうが、使い慣れているし、機能も揃っているからだ。このオプションには、シェルコマンドを実行するためのbang演算子(!)が組み込まれている。setuid rootでNmapをインストールしない多くの理由の1つがこれである。 </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-V</option>; <option>--version</option> (バージョン番号を表示する)
+        </term>
+        <listitem>
+          <para>Nmapのバージョン番号を書き出して終了する。</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-h</option>; <option>--help</option> (ヘルプのサマリーページを表示する)
+        </term>
+        <listitem>
+          <para>最も一般的なコマンドフラグについての短いヘルプ画面を表示する。Nmapを引数なしで実行しても同様の結果が得られる。</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-runtime-interaction">
+    <title>実行時の対話型操作</title>
+
+    <para><remark>この機能はまだNmapに存在しない。この項は内容を追加するか削除する必要がある。</remark></para>
+
+    <para>Nmapの実行中に、すべてのキープロセスをキャプチャする。これにより、停止して再開という手順を経ないでも、プログラムとの情報のやり取りが可能になる。特定の特殊キーで、オプションを変更する。その他のキーは、スキャンに関する情報を伝えるステータスメッセージを表示する。仕様としては、<emphasis>小文字は書き出される情報量を増やし</emphasis>、<emphasis>大文字は減らす</emphasis>。</para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>v</option> / <option>V</option>
+        </term>
+        <listitem>
+          <para>冗長レベルを上げる / 下げる</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>d</option> / <option>D</option>
+        </term>
+        <listitem>
+          <para>デバッグレベルを上げる / 下げる</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>p</option> / <option>P</option>
+        </term>
+        <listitem>
+          <para>パケット追跡を有効にする / 無効にする</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          その他
+        </term>
+        <listitem>
+          <para>書き出されるステータスメッセージは以下のようになる：</para>
+          <para>Stats: 0:00:08 elapsed; 111 hosts completed (5 up),
+          5 undergoing Service Scan</para>
+          <para>Service scan Timing: About 28.00% done; ETC: 16:18
+          (0:00:15 remaining)</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-examples">
+    <title>使用例</title>
+    <para>以下に、Nmapの使用例を、単純なものからやや複雑で難解なものまでいくつか示した。例で使用したIPアドレスやドメイン名は、あくまでも具体性を持たせることが目的であるため、実際のスキャンでは、それらを<emphasis>自分のネットワーク</emphasis>のアドレスまたはホスト名で置き換えることに注意する。筆者は個人的に、他人のネットワークに対してポートスキャンを実行することは違法行為には当たらないと見ているが、ネットワーク管理者のなかには、自分のネットワークを勝手にスキャンされるのを快く思わずに苦情を訴える者もいるかもしれない。最初に許可を得たほうが得策である。</para>
+
+    <para>ユーザには、テスト目的で、ホスト<literal moreinfo="none">scanme.nmap.org</literal>をスキャンする許可が与えられている。この許可の対象は、Nmapによるスキャンに限定されるものであり、エクスプロイトやサービス妨害攻撃のテストは含まれない。帯域幅を節約するために、このホストに対するスキャンは、一日につき十数回以上は行わないようにすること。このフリーのスキャン対象提供サービスが悪用された場合、サービスは停止され、Nmapは<computeroutput moreinfo="none">Failed to resolve given hostname/IP: scanme.nmap.org</computeroutput>（指定したホスト名/IP：scanme.nmap.orgの解決に失敗しました）という報告を出す。これらの許可は、<literal moreinfo="none">scanme2.nmap.org</literal>、<literal moreinfo="none">scanme3.nmap.org</literal>等の各ホストにも適用されるが、これらのホストは、現在は存在しない。 </para>
+
+    <para>
+      <userinput moreinfo="none">nmap -v scanme.nmap.org</userinput>
+    </para>
+    <para>このオプションを利用すると、<literal moreinfo="none">scanme.nmap.org</literal>というマシン上の予約済みTCPポートすべてに対してスキャンを実行する。また、<option>-v</option>が指定されているため、冗長モードが有効になる。</para>
+    <para>
+      <userinput moreinfo="none">nmap -sS -O scanme.nmap.org/24</userinput>
+    </para>
+    <para>scanme.nmap.orgが属している<quote>クラスC</quote>ネットワーク上のマシン255台のうちで稼動している各マシンに対して、SYNスキャン(ステルススキャン)を実行する。また、稼動中の各ホスト上で動作しているOSの特定も同時に試行する。SYNスキャンとOSの検出を行うため、root権限が必要となる。</para>
+    <para>
+      <userinput moreinfo="none">nmap -sV -p 22,53,110,143,4564
+      198.116.0-255.1-127</userinput>
+    </para>
+
+    <para>198.116のクラスBアドレス空間で、8ビットで表せる255のサブネットに属するホストのうち、前半(1-127)のIPアドレスを持つホストに対して、ホストの列挙とTCPスキャンを行う。このスキャンを行う目的は、対象システムでsshd、DNS、POP3d、IMAPd、4564番ポートが動作しているかどうかを調査することだ。これらのポートのなかで開いている(open)ことが判明したポートすべてに対してバージョン検出を使用して、何のアプリケーションが動作しているかを特定する。</para>
+
+    <para>
+    <userinput moreinfo="none">nmap -v -iR 100000 -P0 -p 80</userinput>
+    </para>
+
+    <para>Nmapは100,000台のホストを無作為に選び、Webサーバ(80番ポート)のスキャンを行う。ホストの列挙は<option>-P0</option> で無効にしてある。各ターゲットホスト上で1つのポートしか調査しないのに、どのホストが稼動中であるかを特定するためにプローブを送るのは無駄だからだ。</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+      logs/pb-port80scan.gnmap 216.163.128.20/20</userinput>
+    </para>
+    <para>4096個のIPをスキャンしてWebサーバを見つけ出し(pingなしで)、結果出力をgrep可能およびXMLフォーマットで保存する。</para>
+
+    <para>
+      <userinput moreinfo="none">host -l company.com | cut -d -f 4 | nmap -v -iL
+      -</userinput>
+    </para>
+
+    <para>company.comに存在するホストを発見するためにDNSのゾーン転送を実行し、発見したIPアドレスをnmapに渡す。このコマンドは、筆者のGNU/Linuxマシンで使用しているものだ。他のシステムには、ゾーン転送を実行するための別のコマンドがある。</para>
+
+  </refsect1>
+
+  <refsect1 id="man-bugs">
+    <title>バグ</title>
+
+    <para>Nmapも作者と同様に完全ではない。それでもNmapのほうは、ユーザによるバグの報告やパッチの作成のおかげで、よりよいものにしてゆくことができる。Nmapを使っていて、思い通りに動かない場合は、まず<ulink url="http://www.insecure.org/nmap/"/>から入手できる最新のバージョンにアップグレードしてみる。問題が続くようなら、すでに発見・対処が行われた問題かどうかを調査して確かめる。エラーメッセージをGoogle検索したり、<ulink url="http://seclists.org/"/>でNmap-devアーカイブを閲覧したりしてみる。このmanページも全体に目を通した方がよい。それでもどうにもならない場合は、バグレポートを<email>nmap-dev@insecure.org</email>宛てにメールで送ること。メールには、使用しているNmapのバージョンと、Nmapを実行しているOSの名前とバージョンなどの情報だけでなく、問題に関して分かったことは何でも書いていただきたい。問題の報告やNmapの使い方についての質問などは、nmap-dev@insecure.org宛てに送るほうが、筆者宛てに直接送るよりも返事がある可能性ははるかに高い。 </para>
+
+    <para>またバグレポートより、バグを修正するためのコードパッチのほうが歓迎される。ユーザ自身のコード変更によるパッチファイルの作成方法についての基本的な注意事項は<ulink url="http://www.insecure.org/nmap/data/HACKING"/> で参照できる。パッチは、nmap-dev宛てに送る(推奨)か、筆者Fyodorまで直接送っていただきたい。</para>
+  </refsect1>
+
+  <refsect1 id="man-author">
+    <title>作者</title>
+    <para>Fyodor 
+    <email>fyodor@insecure.org</email>
+    (<ulink url="http://www.insecure.org"/>)
+    </para>
+
+    <para>ここ数年で何百人もの人々から、Nmapに対して貴重な貢献をしていただいた。この詳細については、Nmapとともに配布されている<filename moreinfo="none">CHANGELOG</filename>ファイルを参照のこと。CHANGELOGファイルは以下からも入手できる：<ulink url="http://www.insecure.org/nmap/nmap_changelog.html"/></para>
+
+  </refsect1>
+
+  <refsect1 id="man-legal">
+    <title>法的通知事項</title>
+
+<refsect2>
+  <title>著作権と使用許諾</title>
+
+<para>Nmapセキュリティスキャナの著作権は、Insecure.Com LLCに帰属している（1996-2005）。また、Nmapは、Insecure.Com LLCの登録商標。このプログラムはフリーソフトウェアであり、Free Software Foundation（FSF）が発行するGNU一般公衆利用許諾契約書のバージョン2で定められている条件に従い、再配布、改変することが可能である。これは、特定の条件下でNmapを使用、改変、再配布する権利を保証するものである。Nmapの技術を独自仕様のソフトウェアに組み込むことを希望する場合は、喜んで別の形態のライセンスを販売する（その際は、<email>sales@insecure.com</email>に連絡）。多くのセキュリティスキャナのベンダーは、ホスト発見、ポートスキャン、OS検出、サービス/バージョンの検出などの、Nmap技術のライセンスを受けている。</para>
+
+<para>GPL(一般公有使用許諾)は、<quote>派生著作物</quote>に対して重要な制約を課していることに注意する必要がある。けれども、この用語の詳細な定義はいまだに与えられていない。ここでは誤解を避けるため、以下のいずれかの事項が行われた場合に、アプリケーションが、GPLにおける<quote>派生著作物</quote>を構成するものと見なす：</para>
+
+<itemizedlist>
+<listitem><para>Nmapのソースコードを統合する</para></listitem>
+<listitem><para><filename moreinfo="none">nmap-os-fingerprints</filename> や <filename moreinfo="none">nmap-service-probes</filename>などの、Nmapの著作権のあるデータファイルを読み込む</para></listitem>
+<listitem><para>Nmapを実行して結果を解析処理する(通常のシェルや実行メニューのアプリケーションとは異なる。これらは未処理のNmap出力を単に表示するだけなので、派生著作物にはならない)</para></listitem>
+<listitem><para>InstallShield社の製品のような独自開発の実行可能インストーラに統合/組込/集約する</para></listitem>
+<listitem><para>上で述べたことを行うような、ライブラリにリンクしたりプログラムを実行したりする</para></listitem>
+</itemizedlist>
+
+<para><quote>Nmap</quote>という用語は、Nmapの一部あるいは派生物を含めるために用いられるべきである。このリストは排他的な性質のものではなく、一般的な例を用いて、派生著作物の解釈を明確にすることを意図したものである。これらの制約事項は、実際にNmapを再配布する場合にのみ適用される。例えば、Nmap向けの独自開発フロントエンドを作成して販売することには何ら支障はない。ただし、その製品を単体で配布することと、ユーザにNmapのダウンロード先として以下を示すことが必要である：<ulink url="http://www.insecure.org/nmap/"/></para>
+
+<para>われわれはこれらを、GPLにさらに追加された制約とは見なしていない。そうではなくて、<quote>派生著作物</quote> という用語がGPL準拠のNmap製品に適用される場合に、それをどのように解釈するかを明確にするためのものと見なしている。これは、Linus Torvalds氏が、Linuxカーネルモジュールに<quote>派生著作物</quote> がどのように適用されるかについての自分の解釈を表明したやり方に似ている。われわれの解釈はNmapだけに言及するもので、その他のGPL製品について述べているわけではない。</para>
+
+<para>GPL準拠でない著作物におけるNmapの使用に対する、GPLライセンスによる制約について質問がある場合は喜んでお答えするつもりだ。上で述べたように、独自開発のアプリケーションやアプライアンスにNmapを統合するための代替ライセンスも提供している。このライセンス契約はすでに多くのセキュリティベンダに販売されており、その内容には通常、永久ライセンス、サポートやアップデートの優先提供、Nmap技術の開発継続のための資金援助などが含まれている。詳細については電子メールで<email>sales@insecure.com</email> に問い合わせていただきたい。</para>
+
+<para>Insecure.Com LLCは、GPLの取り決めに対する特例として、NmapのコードとOpenSSLライブラリとのリンクを認めており、この2つをリンクで組み合わせたものを配布している。OpenSSLライブラリは、同梱のCopying.OpenSSLファイルにリストされたものと同一のライセンスのもとで配布されている。OpenSSL以外の使用されているすべてのコードに対しては、あらゆる点でGNU GPLに従わなければならない。このファイルの一部を変更する場合、そのファイルの自身のバージョンにこの例外を拡大して適用できるが、そのように行う義務を負うものではない。</para>
+
+<para>上記の条件以外の条件が記載されたライセンス契約書とともにこれらのファイルを入手した場合、そのライセンス契約書は、ここで述べた内容に優先する。</para>
+</refsect2>
+
+<refsect2>
+  <title>ソースコードの入手可能性とコミュニティへの寄与</title>
+
+<para>われわれは、ユーザーにこのプログラムのソースコードを提供している。その理由は、ユーザが実際にプログラムを実行する前に、そのプログラムがどんな動作を行うのかを正確に知る権利がある、と考えているからだ。また、ソフトウェアに対して脆弱性を見つけるための監査を行うこともできる(まだ1つも見つかったことはないが)。</para>
+
+<para>ソースコードは、新しいプラットフォームへの移植、バグの修正、新しい機能の追加を可能にする。コードに何らかの変更を加えた場合は、主要ディストリビューションに組み込まれる可能性もあるため、その内容を<email>fyodor@insecure.org</email> までぜひお送りいただきたい。ただし、変更したコードをFyodorまたはInsecure.orgの開発用メーリングリストの1つに送信することで、そのコードを無制限かつ非独占的に再利用、改変、再ライセンスする権利をFyodorおよびInsecure.Com LLCに提供するものと見なす。Nmapは常にオープンソースで利用できるようにする予定だが、これが重要なのは、コードのライセンス再発行ができなかったことで、他のフリーソフトウェア・プロジェクト（KDEやNSAMなど）に壊滅的な問題が発生したことがあったためである。また上で述べた通り、サードパーティに対してコードの再ライセンスを行こともある。自分が寄与したコードに特別なライセンス条件を指定したい場合は、コードの送信時にその旨を伝えて欲しい。</para>
+</refsect2>
+
+<refsect2><title>無保証</title>
+
+<para>このプログラムは、人々の役に立つことを期待して配布されているが、その保証は一切行わない。すなわち、商品適格性や特定目的への適合性の黙示保証は一切行わない。詳細については、GNU一般公有使用許諾契約書を参照のこと。GNU GPLは、 <ulink url="http://www.gnu.org/copyleft/gpl.html"/>から、またはNmapに同梱のCOPYINGファイルで参照できる。</para>
+
+<para>またNmapは、不完全なアプリケーション、TCP/IPスタック、OSなどをクラッシュさせることが確認されていることに注意すること。きわめてまれなこととはいえ、記憶に留めておく必要がある。ダウンタイムを受容する準備ができていない限り、<emphasis>Nmapをミッションクリティカルなシステムに対して実行してはならない</emphasis> 。Nmapがシステムやネットワークに障害を与える可能性がある点については認めたうえで、Nmapの使用により発生しうるいかなる損害や問題に対しても一切の責任を負わないものとする。</para>
+</refsect2>
+
+<refsect2><title>不適切な使用</title>
+<para>システム障害のリスクがわずかながらあることや、悪意のある攻撃者が攻撃を実行する前の調査手段としてNmapを好んで利用することなどのせいで、管理しているシステムがスキャンされると気分を害し、場合によっては苦情を申し立てる管理者もいる。従って、たとえネットワークを軽くスキャンする際も、事前に管理者の許可を取っておくことを推奨する。</para>
+
+<para>セキュリティ上の理由から、Nmapは特権（suid rootなど）でインストールしてはならない。</para>
+</refsect2>
+
+<refsect2><title>サードパーティ ソフトウェア</title>
+<para>Nmapには、 <ulink url="http://www.apache.org">Apache Software Foundation</ulink> によって開発されたソフトウェアが含まれており、改訂版の<ulink url="http://www.tcpdump.org">Libpcap
+portable packet capture library</ulink> が、Nmapとともに配布されている。Windows版Nmapでは、libpcapより派生した<ulink url="http://www.winpcap.org">WinPcap ライブラリ</ulink>が用いられる。正規表現のサポートは、Philip Hazel氏作成のオープンソースのソフトウェアである <ulink url="http://www.pcre.org">PCRE ライブラリ</ulink>パッケージで提供されている。特定のRAWネットワーク機能では、Dug Song氏作の<ulink url="http://libdnet.sourceforge.net">Libdnet</ulink>ネットワークライブラリが使用される。修正バージョンが、Nmapとともに配布されている。Nmapはオプションで、SSLバージョン検出をサポートするために、 <ulink url="http://www.openssl.org">OpenSSL 暗号化ツールキット</ulink> とリンクできる。ここで述べたすべてのサードパーティ・ソフトウェアは、BSD方式のソフトウェアライセンスのもとで、自由に再配布できる。 </para>
+</refsect2>
+
+<refsect2><title>米国輸出管理分類</title>
+<para>米国輸出管理：Insecure.Com LLCでは、NmapはUS ECCN（輸出管理分類番号）5D992に該当すると考えている。5D992に分類されるものは、<quote>5D002で規制されない情報セキュリティソフトウェア</quote>となっており、この分類に唯一適用される規制は、AT（テロ防止）規制である。ATは、ほぼすべての物品に適用され、イランや北朝鮮などの少数の無法国家への輸出を禁止する規制である。このため、Nmapの輸出には、特別なライセンスや許可、あるいは政府の承認を一切必要としない。</para>
+</refsect2>
+
+  </refsect1>
+</refentry>
+
+</article>

@@ -1,0 +1,2580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: manhtml.xml 2991 2005-12-12 10:21:33Z fyodor $ -->
+<article id="man">
+<artheader>
+  <title>Nmap vodič (Upute)</title>
+</artheader>
+<refentry id="man-nmap1">
+  <refmeta>
+    <refentrytitle>nmap</refentrytitle>
+    <manvolnum>1</manvolnum>
+  </refmeta>
+  <refnamediv id="man-name">
+    <refname>nmap</refname>
+    <refpurpose>Alat za istraživanje mreže i sigurnosni/port skener</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id="man-synopsis">
+    <cmdsynopsis sepchar=" ">
+      <command moreinfo="none">nmap</command>
+      <arg choice="opt" rep="repeat">
+        <replaceable>Tip skena</replaceable>
+      </arg>
+      <arg choice="opt" rep="norepeat">
+        <replaceable>Opcije</replaceable>
+      </arg>
+      <arg choice="req" rep="norepeat">
+        <replaceable>specifikacija cilja</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="man-description">
+    <title>Opis</title>
+
+    <para>Nmap (<quote>Network Mapper</quote>) je open source alat za istraživanje
+    mreže i sigurnosni auditing.  Dizajniran je za brzo skeniranje velikih mreža,
+    ali radi jednako dobro i kad je u pitanju samo jedan host. Nmap koristi sirove
+    (raw) IP pakete na nov i originalan način da bi ustanovio koji hostovi su dostupni
+    na mreži, koji servisi (naziv aplikacije i verzija) su pokrenuti na tim hostovima,
+    o kojim operativnim sustavima (i verzijama) je riječ, koji tipovi paket filtera i
+    vatrozida se koriste, te mnogo drugih karakteristika. Iako je Nmap najčešće
+    korišten  za sigurnosni auditing, mnogi sistemski i mrežni administratori pronašli
+    su u njemu koristan alat za rutinske zadatke poput sastavljanja popisa mrežnog inventara,
+    upravljanja vremenima nadogradnje servisa i nadgledanja uptime-a računala ili servisa.</para>
+
+    <para>Rezultat Nmap pretraživanja je popis skeniranih meta s dodatnim informacijama
+    o svakoj od njih ovisno o korištenim parametrima. Ključna informacija je <quote>
+    tabela zanimljivih portova</quote>. U tabeli se nalati broj porta i protokol,
+    naziv servisa i stanje.Stanje je ili:
+    <literal moreinfo="none">otvoreno</literal>, <literal moreinfo="none">filtrirano</literal>,
+    <literal moreinfo="none">zatvoreno</literal> ili <literal moreinfo="none">nefiltrirano</literal>.
+    <literal moreinfo="none">Otvoreno</literal> znači da na ciljanom računalu postoji
+    aplikacija koja sluša na tom portu i čeka na konekciju/pakete.
+    <literal moreinfo="none">Filtrirano</literal> znači da između nas i ciljanog računala postoji
+    vatrozid, paket filter ili neki drugi mrežni uređaj koji blokira port, pa Nmap
+    ne može reći da li je port <literal moreinfo="none">otvoren</literal> ili
+    <literal moreinfo="none">zatvoren</literal>.
+    <literal moreinfo="none">Zatvoreni</literal> portovi trenutno nemaju aplikacije koje slušaju na njima.
+    Portovi su klasificirani kao <literal moreinfo="none">nefiltrirani</literal> u situacijama
+    kada odgovaraju na Nmap-ove upite, ali Nmap nije u mogućnosti ustanoviti da li su otvoreni ili zatvoreni.
+    Nmap vraća sljedeće kombinacije u izvještajima:
+    <literal moreinfo="none">otvoren|filtriran</literal> i
+    <literal moreinfo="none">zatvoren|filtriran</literal> kad ne može ustanoviti koje od dva stanja točnije
+    opisuje port. Port tabela može također sadržavati i informacije o verziji softvera, kada
+    je ta opcija upaljena kod skeniranja. Kad je zatraženo skeniranje IP protokola
+    (<option>-sO</option>), Nmap vraća informacije o podržanim IP protokolima, a ne o portovima.
+    </para>
+
+     <para>Uz navedenu tabelu portova, Nmap može dati i dodatne informacije o ciljanom računalu,
+    uključujući reverse DNS imena, pretopstavku o tome koji operativni sustav je s druge strane,
+    tipove uređaja i MAC adrese.</para>
+
+    <para>Prikaz tipičnom Nmap skena je prikazan u: <xref linkend="man-ex-repscan"></xref>.
+    Jedan od Nmap argumenata korišten u navedenom primjeru je <option>-A</option>,
+    opcija za otkrivanje OS-a i njegove verzije, zatim<option>-T4</option> za brže skeniranje,
+    te nakon toga dva hosta koje želimo skenirati.</para>
+    
+<example id="man-ex-repscan"><title>Ovako izgleda primjer Nmap skena</title>
+<screen format="linespecific">
+# nmap -A -T4 scanme.nmap.org playground
+
+Starting nmap ( http://www.insecure.org/nmap/ )
+Interesting ports on scanme.nmap.org (205.217.153.62):
+(The 1663 ports scanned but not shown below are in state: filtered)
+PORT    STATE  SERVICE VERSION
+22/tcp  open   ssh     OpenSSH 3.9p1 (protocol 1.99)
+53/tcp  open   domain
+70/tcp  closed gopher
+80/tcp  open   http    Apache httpd 2.0.52 ((Fedora))
+113/tcp closed auth
+Device type: general purpose
+Running: Linux 2.4.X|2.5.X|2.6.X
+OS details: Linux 2.4.7 - 2.6.11, Linux 2.6.0 - 2.6.11
+Uptime 33.908 days (since Thu Jul 21 03:38:03 2005)
+
+Interesting ports on playground.nmap.org (192.168.0.40):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE       VERSION
+135/tcp  open  msrpc         Microsoft Windows RPC
+139/tcp  open  netbios-ssn
+389/tcp  open  ldap?
+445/tcp  open  microsoft-ds  Microsoft Windows XP microsoft-ds
+1002/tcp open  windows-icfw?
+1025/tcp open  msrpc         Microsoft Windows RPC
+1720/tcp open  H.323/Q.931   CompTek AquaGateKeeper
+5800/tcp open  vnc-http      RealVNC 4.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3.8)
+MAC Address: 00:A0:CC:63:85:4B (Lite-on Communications)
+Device type: general purpose
+Running: Microsoft Windows NT/2K/XP
+OS details: Microsoft Windows XP Pro RC1+ through final release
+Service Info: OSs: Windows, Windows XP
+
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88.392 seconds
+</screen>
+</example>
+
+<para>Najnoviju verziju Nmap-a možete downloadati sa sljedećeg linka: <ulink url="http://www.insecure.org/nmap/">
+</ulink>.  Najnovija verzija man stranica (uputa) dostupna je na sljedećem linku:
+<ulink url="http://www.insecure.org/nmap/man/"></ulink>.</para>
+
+  </refsect1>
+  
+<refsect1 id="man-translation">
+  <title>Napomene o prijevodu</title>
+
+  <para>Hrvatsku verziju Nmap vodiča je preveo Robert Petrunić s <ulink url="http://www.insecure.org/nmap/man/">
+  originalne Engleske verije</ulink> 2991.
+  Iako se nadam da će prijevod učiniti Nmap dostupniji ljudima Hrvatskog govornog područja, ne mogu garantirati da je
+  prijevod kompletan i up to date kao i originalna Engleska verzija. Projevod možete modificirati i redistribuirati
+  pod uvjetima <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative
+  Commons Attribution Licence</ulink>. Ovo je prva verzija i najvjerovatnije ima dosta nekonzistentnih
+  prijevoda (riječi koje su na različitim mjestima prevedene drugačije), ali smisao prijevoda je i dalje ostao isti.
+  Nadam se da ću u idućim verzijama napisati više "književni" točan prijevod </para>
+</refsect1>
+
+
+  <refsect1 id="man-briefoptions">
+    <title>Pregled opcija</title>
+
+<para>Sljedeći pregled opcija je ispisan kad pokrenete Nmap bez ikakvih parametara,
+a posljednja verzija je uvijek dostupna na:
+<ulink url="http://www.insecure.org/nmap/data/nmap.usage.txt"></ulink>.
+Pomaže ljudima zapamtiti najčešće opcije, ali nije zamjena za detaljne upute koje se nalaze u ovom manualu.
+Neke manje korištene opcije čak se ni ne nalaze u pregledu opcija.</para>
+
+<para>
+<literallayout class="normal">Upotreba: nmap [Tip(ovi) skeniranja] [Opcije] {ciljano računalo}
+CILJANO RAČUNALO:
+  Možete upisati hostname (naziv računala), IP adrese, mreže (subnete) isl.
+  Primjer: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+  -iL &lt;naziv datoteke&gt;: Naziv datoteke u kojoj se nalazi popis hostova/mreža
+  -iR &lt;broj hostova&gt;: Odaberi nasumične hostove
+  --exclude &lt;host1[,host2][,host3],...&gt;: Ne skeniraj navedene hostove/mreže
+  --excludefile &lt;datoteka&gt;: Ne skeniraj navedene hostove/mreže koji se nalaze u navedenoj datoteci
+OTKRIVANJE HOSTOVA:
+  -sL: List Scan - samo navedi mete koje skeniraš
+  -sP: Ping Scan - samo ustanovi da li je host online i ne radi ništa više
+  -P0: Smatraj sve hostove online -- ne pokušavaj ustanoviti da li postoje.
+  -PS/PA/PU [lista_portova]: koristi TCP SYN/ACK ili UDP za otkrivanje hostova
+  -PE/PP/PM: ICMP echo, timestamp i netmask pokušaji skeniranja
+  -n/-R: Ne pokušavaj raditi DNS rezoluciju/uvijek koristi DNS rezoluciju [default: ponekad]
+TEHNIKE SKENIRANJA:
+  -sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon skenovi
+  -sN/sF/sX: TCP Null, FIN, and Xmas skenovi
+  --scanflags &lt;flagovi&gt;: Navedi TCP flagove pomoću kojih želiš skenirati
+  -sI &lt;zombie host[:probeport]&gt;: Idlescan
+  -sO: IP protocol scan
+  -b &lt;ftp relay host&gt;: FTP bounce scan
+SPECIFIKACIJA PORTOVA I REDOSLJED SKENIRANJA:
+  -p &lt;port ranges&gt;: Skeniraj samo navedene portove
+    Primjer: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080
+  -F: Brzo - Skeniraj samo portove navedene u nmap-services fileu
+  -r: Skeniraj portove po redu - ne randomiziraj
+OTKRIVANJE SERVISA/VERZIJA:
+  -sV: Pokušaj na osnovu otvorenih portova saznati informacije o servisu/verziji
+  --version_light: Koristi najvjerovatnije skenove zbog ubrzane detekcije verzije
+  --version_all: Isprobaj sve vrste skenova za saznavanje verzije
+  --version_trace: Pokaži detaljnu aktivnost skeniranja verzije (za debugging)
+DETEKCIJA OS-a:
+  -O: Uključi OS detekciju
+  --osscan_limit: Ograniči OS detekciju samo na one ciljeve koji obećavaju
+  --osscan_guess: Pogađaj OS malo agresivnije
+TIMING I PERFORMANSE:
+  -T[0-6]: Podesi predložak za timing (veći broj je brže)
+  --min_hostgroup/max_hostgroup &lt;msec&gt;: Paralelno skeniraj hostove / veličina sken grupe
+  --min_parallelism/max_parallelism &lt;msec&gt;: Paraleliziraj sonde
+  --min_rtt_timeout/max_rtt_timeout/initial_rtt_timeout &lt;msec&gt;: Navedi vrijeme potrebno za povratak (engl. round trip time) sonde.
+  --host_timeout &lt;msec&gt;: Odustani od skeniranja ciljanog računala nakon navedenog vremena u milisekundama
+  --scan_delay/--max_scan_delay &lt;msec&gt;: Podesi pauzu između slanja upita
+OBILAŽENJE FIREWALL-a/IDS-a  I SPOOFING:
+  -f; --mtu &lt;vrijednost&gt;: fragmentiraj pakete (opcionalno sa zadanim MTU-om)
+  -D &lt;mamac1,mamac2[,ME],...&gt;: Sakrij skan korištenjem mamaca
+  -S &lt;IP_Address&gt;: Spoofaj ishodišnu (source) adresu
+  -e &lt;iface&gt;: Koristi navedeni interface (mrežni adapter)
+  -g/--source_port &lt;broj_porta&gt;: Koristi navedeni broj ishodišnog (source) porta
+  --data_length &lt;broj&gt;: Dodaj random podatke u poslane pakete
+  --ttl &lt;vrijednost&gt;: Podesi IP time-to-live polje
+  --spoof_mac &lt;mac adresa/prefiks/naziv proizvođača&gt;: Spoofaj svoju MAC adresu
+ISPIS:
+  -oN/-oX/-oS/-oG &lt;file&gt;: Ispiši scan normalno, kao XML, s|&lt;rIpt kIddi3,
+     i Grep format u navedeni file
+  -oA &lt;osnovni_naziv&gt;: Ispis u tri glavna formata istovremeno
+  -v: Povećaj verbose nivo (ako želite postići veći efekt, stavite opciju -vv)
+  -d[nivo]: Podesi ili povećaj debuging nivo (Ima smisla do brojke 9, više od toga ne)
+  --packet_trace: Pokaži sve poslane i primljene pakete
+  --iflist: Ispiši host interface i rute (za debuging)
+  --append_output: Dodaj ispis u postojeće datoteke - nemoj ih prepisati
+  --resume &lt;naziv_datoteke&gt;: Nastavi prekinuti scan
+  --stylesheet &lt;putanja/URL&gt;: XSL stylesheet za transformiranje XML generiranog dokumenta u HTML
+  --no_stylesheet: Spriječi povezivanje XSL stylesheet-a s XML ispisom
+RAZNO:
+  -6: Omogući skeniranje IPv6 protokola
+  -A: Omogući prepoznavanje OS-a i verzije OS-a
+  --datadir &lt;naziv_direktorija&gt;: Navedi customizirani Nmap data file
+  --send_eth/--send_ip: šalji sirove (RAW) ethernet frame-ove ili IP pakete
+  --privileged: Pretpostavka da je korisnik koji je pokrenuo Nmap u potpunosti privilegiran (ima admin ovlasti)
+  -V: Ispiši verziju Nmap-a
+  -h: Ispiši ovaj help ekran
+PRIMJERI:
+  nmap -v -A scanme.nmap.org
+  nmap -v -sP 192.168.0.0/16 10.0.0.0/8
+  nmap -v -iR 10000 -P0 -p 80
+</literallayout>
+
+</para>
+
+  </refsect1>
+
+  <refsect1 id="man-target-specification">
+   <title>Odabir ciljanog računala</title>
+
+<para>Sve što unesete u komandnu liniju Nmap-a, a nije opcija ili argument opcije (dakle nije parametar samog
+programa), tretira se kao ciljano računalo. Najjednostavniji slučaj je da unesete IP adrese ili naziv ciljanog
+hosta.</para>
+
+<para>Ponekad želite skenirati čitavu mrežu hostova.
+Za tu namjenu Nmap podržava CIDR adresiranje.  Dakle, nakon IP adrese ili naziva računala, možete dodati
+/<replaceable>numbits (broj bitova)</replaceable> koji se koriste kao mrežni ID. Npr. 192.168.10.0/24 će skenirati
+256 hostova između 192.168.10.0 (binarno: <literal moreinfo="none">11000000 10101000 00001010 00000000</literal>) i
+192.168.10.255 (binarno: <literal moreinfo="none">11000000 10101000 00001010 11111111</literal>) uključujući i
+192.168.10.0 i 192.168.10.255. 192.168.10.40/24 će učiniti istu stvar. Ako smo pak odabrali scanme.nmap.org, a recimo
+da je IP adresa tog hosta 205.217.153.62, scanme.nmap.org/16 bi skeniralo 65,536 IP adresa između 205.217.0.0 i
+205.217.255.255. Najmanja dozvoljena vrijednost je 1 (što bi skeniralo gotovo cijeli internet), dok je najveća
+dozvoljena vrijednost 32, što skenira samo jednog hosta.</para>
+
+<para>CIDR notacija je kratka, ali nije uvijek dovoljno fleksibilna. Npr. želite skenirati 192.168.0.0/16, ali želite
+izbjeći sve IP adrese koje završavaju s .0 ili .255, jer su to mrežni ID i broadcast IP adresa u klasful adresiranju.
+Nmap za tu situaciju podržava adresiranje na nivou okteta. Umjesto da navedete normalnu IP adresu, možete navesti
+listu brojeva odvojenih zarezom (1,2,3) ili područja za svaki oktet (1-254). Npr. 192.168.0-255.1-254 će preskočiti
+sve adrese u navedenom području koje završavaju na .0 i .255, tj. skenirat će sve IP adrese od 192.168.0.1 do
+192.168.255.254, preskačući one IP adrese koje u zadnjem oktetu imaju 0 ili 255. Područja nisu limitirana na zadnji
+oktet, recimo, 0-255.0-255.13.37 će skenirati SVE IP adrese koje završavaju na 13.37. Ovaj način skeniranja može biti
+koristan za razna istraživanja i ispitivanja.</para>
+
+<para>IPv6 adrese mogu biti specificirane isključivo u potpunosti definirane (fully qualified) kao IP adrese ili
+naziv hosta. CIDR i oktet područja nisu podržani za IPv6 jer se rijetko koriste.</para>
+
+<para>Nmap prihvaća navođenje više hostova u komandnoj liniji, a hostovi ne moraju biti istog tipa. Naredba
+<command moreinfo="none">nmap scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.0-255</command> će učiniti upravo ono što
+očekujete od nje.</para>
+
+<para>Ciljevi skeniranja su obično navedeni u samoj komandnoj liniji, ali podržane su i sljedeće opcije:</para>
+
+     <variablelist>
+      <varlistentry>
+        <term>
+          <option>-iL &lt;naziv ulazne datoteke&gt;</option> (Iščitaj parametre iz liste)
+        </term>
+        <listitem>
+          <para>Iščita informacije o ciljanom hostu iz
+          <replaceable>ulazne datoteke</replaceable>.  Proslijediti Nmapu veliku količinu hostova iz komandne linije
+          izgleda nepregledno, ali to je ono što u većini slučajeva i želimo. Npr. iz DHCP servera ste izvukli popis
+          10 000 trenutno iznajmljenih IP adresa i želite ih skenirati ili možda želite skenirate sve ip adrese
+          <emphasis>osim</emphasis> tih kako bi pronašli hostove koji imaju neautoriziranu statičku IP adresu. Da bi
+          to postigli, generirajte popis hostova koje želite skenirati u neku datoteku i proslijedite tu datoteku
+          Nmap-u kao argument opciji <option>-iL</option>. U datoteci mogu biti unosi u bilo kojem formatu koji Nmap
+          podržava u samoj komandnoj liniji (IP adresa, naziv hosta, CIDR, IPv6, ili oktet nekog područja). Svaki
+          unos mora biti odvojen s jednim ili s više razmaka, tabom ili novim redom. Isto tako možete staviti minus
+          (<literal moreinfo="none">-</literal>), ukoliko želite da Nmap iščita hostove iz standardnog unosa umjesto
+          iz navedene datoteke.</para>
+        </listitem>
+      </varlistentry>
+
+       <varlistentry>
+        <term>
+          <option>-iR &lt;broj hostova&gt;</option> (Nasumično odaberi ciljano računalo)
+        </term>
+        <listitem>
+          <para>Za istraživače interneta i ostale koji žele odabrati ciljano računalo nasumično. Argument
+          <replaceable>broj hostova</replaceable> kaže Nmap-u koliko IP adresa da generira. Neželjene IP adrese,
+          poput privatnih, multicast ili nedodjeljenih IP adresnih područja su automatski izbačene. Argument
+          <literal moreinfo="none">0</literal> može biti naveden za skeniranje koje nikad neće završiti.
+          Imajte na umu da neki mrežni administratori ne vole neautorizirano skeniranje i mogli bi se žaliti vašem
+          ISP-u, što bi pak moglo rezultirati zabranom pristupa internetu za vas. Koristitte ovu opciju na vlastitu
+          odgovornost. Ukoliko se pak, jednog kišnog popodneva, nađete u situaciji da ne znate što bi sa sobom,
+          iskušajte naredbu
+          <command moreinfo="none">nmap -sS -PS80 -iR 0 -p80</command> kako bi nasumično pronašli web servere za
+          browsanje.</para>
+        </listitem>
+      </varlistentry>
+      
+      <varlistentry>
+        <term>
+          <option>--exclude
+          &lt;host1[,host2][,host3],...&gt;</option> (isključi iz skeniranja hostove/mreže)
+        </term>
+        <listitem>
+          <para>Navedite zarezom odvojenu listu hostova koje želite isključiti iz skena iako se nalaze u mrežnom
+          području koje ste specificirali. Popis koji proslijedite na ovaj način koristi normalnu Nmap sintaksu, pa
+          možete upisati naziv hosta, CIDR mrežne blokove, oktete rangeva isl. To može biti korisno u slučaju kad
+          mreža koju želite skenirati ima nedodirljive i kritične servere, sisteme za koje se zna da će odmah
+          reagirati na port sken, ili postoje podmreže koje administriraju drugi administratori i ne želite skenirati
+          njihov dio mreže.</para>
+        </listitem>
+      </varlistentry>
+      
+    <varlistentry>
+        <term>
+          <option>--excludefile &lt;naziv_datoteke&gt;</option> (Isključi iz skeniranja koristeći ulazni file)
+        </term>
+        <listitem>
+          <para> Ova opcija nudi istu funkcionalnost kao i prije opisana opcija <option>--exclude</option>, s tim da
+          hostove koje ne želite skenirati ne navodite u komandnoj liniji, već unutar datoteke. Hostovi mogu biti
+          navedeni u datoteci (<replaceable>naziv_datoteke</replaceable>) koji kao delimiter koristi novi red, razmak
+          ili tab.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-host-discovery">
+    <title>Postupak Pronalaženja hostova</title>
+ 
+   <para>Jedan od prvih koraka kad je u pitanju sakupljanje informacija o mreži je smanjivanje (ponekad velike)
+   količine IP adresnih područja u popis aktivnih i zanimljivih hostova. Skeniranje svih portova za svaku adresu je
+   sporo i najčešće nepotrebno. Naravno, ono što nekog hosta čini zanimljivim uvelike ovisi o razlogu samog skena.
+   Mrežni administratori će možda biti zainteresirani samo za hostove koji imaju pokrenut određeni servis, dok će
+   sigurnosni auditori biti zainteresirani za svaki uređaj s IP adresom. Administratoru će možda biti dovoljno
+   korištenje ICMP pinga kako bi pronašao hostove na mreži, dok će vanjski penetration tester koristiti široki
+   spektar alata i nebrojene sonde u pokušaju da obiđe zabrane postavljene na vatrozidu.</para>
+
+    <para>Budući da su potrebe korisnika kod pronalaženja hostova tako različite, Nmap nudi široki spektar opcija za
+    prilagođavanje korištenim tehnikama. Pronalaženje hostova (engl host discovery) se ponekad naziva Ping scan, ali
+    ide daleko dalje od običnog ICMP echo paketa povezanog sa sveprisutnim
+    <application moreinfo="none">ping</application> alatom. Korisnici mogu preskočiti dio pinganja s list skenom
+    (<option>-sL</option>) ili isključivanjem pinganja (<option>-P0</option>) ili da pristupe mreži s kombinacijama
+    multi port TCP SYN/ACK, UDP i ICMP sondi. Namjena tih sondi je iznuđivanje odgovora koji dokazuje da je IP
+    adresa u stvari aktivna (korištena je od strane hosta ili mrežnog uređaja). Na većini mreža je samo jedan mali
+    postotak IP adresa aktivan. To je pogotovo točno za mreže blagoslovljene RFC1918 dokumentom (privatni adresni
+    prostor poput 10.0.0.0/8). Navedena mreža ima 16 miliona IP adresa, ali imao sam prilike vidjeti da je koriste
+    firme s manje od tisuću mašina. Postupak pronalaženja hostova može pronaći koja su to računala u tom moru
+    neaktivnih IP adresa.</para>
+
+    <para>Ukoliko ne navedete nikakvu opciju Postupku pronalaženja hostova, Nmap šalje TCP ACK paket namjenjen portu
+    80 i ICMP echo zahtijev na ciljano računalo. Izuzetak od ovog pravila je taj da je ARP sken korišten za ciljana
+    računala na lokalnoj ethernet mreži. Za neprivilegirane UNIX shell korisnike, Nmap šalje SYN paket umjesto ACK-a
+    korištenjem <function moreinfo="none">connect()</function> sistemskog poziva. To je jednako opcijama
+    <option>-PA -PE</option>. Takav način pronalaženja hostova je obično dostatan kad su u pitanju lokalne mreže, ali
+    preporučen je malo potpuniji set sondi za istraživanje kod sigurnosnog auditinga.</para>
+    
+    <para>Opcija <option>-P*</option> (koja odabire ping tipove) može biti kombinirana.  Možete povećati šanse
+    provaljivanja vatrozida slanjem mnogo sondi koje koriste različite TCP portove/zastavice (engl. flags) i ICMP
+    kodove. Također imajte na umu da se po defaultu na lokalnoj mreži za otkrivanje hostova koristi ARP discovery
+    (<option>-PR</option>) čak i kad navedete druge <option>-P*</option> opcije zbog toga jer je gotovo uvijek brži i
+    efikasniji.</para>
+
+    <para>Sljedeće opcije upravljaju postupkom otkrivanja hostova.</para>
+    <variablelist>
+
+       <varlistentry>
+        <term>
+        <option>-sL</option> (List Sken)</term>
+        <listitem>
+          <para>List sken nije skeniranje hosta, već saznavanje nekih javno dostupnih informacija o njemu bez slanja
+          ijednog paketa prema tom hostu. List scan jednostavno ispiše svakog hosta kojeg smo specificirali i napravi
+          reverse DNS rezoluciju da bi saznao njegovo ime. Iznenađujuće je koliko korisnih informacija možete dobiti
+          ovim načinom "skeniranja". Npr. <literal moreinfo="none">fw.chi.playboy.com</literal> je vatrozid Čikaškog
+          (Chichago) ureda firme Playboy Enterprises. Nmap na kraju navede i ukupan broj IP adresa koje pripadaju tom
+          hostu. List Sken je koristan u situacijama kada se želite uvjeriti da imate ispravne IP adrese koje želite
+          skenirati. Ukoliko List sken izbaci nazive domena koje ne poznajete bilo bi dobro provjeriti prije nego
+          pokrenete skeniranje, jer ne bi bilo dobro da počnete skenirati krive hostove ;-).</para>
+
+          <para>Kako je ideja samo ispisati popis ciljanih hostova, ne možete kombinirati opcije za funkcionalnosti
+          višeg nivoa, poput skeniranja portova, detekcije OS-a, ping skeniranja isl. Ukoliko želite isključiti ping
+          skeniranje, a ipak koristiti funkcionalnosti višeg nivoa, pročitajte opis <option>-P0</option> opcije.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sP</option> (Ping Sken)</term>
+        <listitem>
+
+           <para>Ova opcija kaže Nmap-u da napravi <emphasis>samo</emphasis> ping sken (otkrivanje hostova) i da
+           ispiše hostove koji su odgovorili na skeniranje. Ne radi se nikakvo dodatno testiranje (poput port
+           skeniranja ili detekcije OS-a). To je način skeniranja koji je stupanj intruzivniji od list skena ali se
+           može koristiti u istu svrhu. Dozvoljava lagano "pretraživanje neprijateljskog teritorija" (engl.
+           reconnaissance), bez pretjeranog privlačenja pažnje, jer znati koliko hostova je stvarno "živo" na mreži
+           je važnija informacija za napadača ili sigurnosnog auditora, nego lista koju je izbacio list scans popisom
+           svih IP adresa i hostova koji postoje.</para>
+
+           <para>Sistemski administratori također nalaze ovu opciju poprilično korisnom. Može se koristiti za
+           pronalaženje dostupnih računala na mreži ili koristiti kao alat za nadgledanje dostupnosti servera. Taj
+           način primjene se naziva ping sweep i mnogo je pouzdaniji od pinganja broadcast adrese zato jer mnogi
+           hostovi ne odgovaraju na broadcast upite. (Konkretno windows mašine ne odgovaraju na broadcast ping, ali
+           odgovaraju na druge tipove broadcast paketa).</para>
+
+           <para>Po defaultu <option>-sP</option> opcija šalje ICMP echo i TCP paket na port 80. Kad je pokrenuta od
+           strane neprivilegiranog korisnika (korisnika koji nije lokalni administrator), poslan je SYN paket na port
+           80 (korištenjem API poziva <function moreinfo="none">connect()</function> ). Kad privilegirani korisnik
+           pokušava skenirati hostve na lokalnoj mreži, koriste se ARP zahtjevi (<option>-PR</option>) osim ako nije
+           specificirana opcija <option>--send_ip</option>.
+           Opciju <option>-sP</option> možete kombinirati s bilo kojim tipom otkrivajućih (discovery) tipova
+           skeniranja (sve <option>-P*</option> opcije osim <option>-P0</option> opcije) kako bi postigli veću
+           fleksibilnost. Ukoliko se koristi bilo koji od tih tipova skeniranja i port broj, automatski su defaultne
+           postavke skeniranja premošćene (ACK i echo zahtjevi). Ukoliko su između hosta na kojem je pokrenut Nmap i
+           ciljanog hosta nalaze vatrozidi, preporuka je koristiti upravo te tehnike kako vatrozid ne bi filtrirao
+           upite ili odgovore na njih.</para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>-P0</option> (Bez pinganja)
+        </term>
+        <listitem>
+          <para>Ova opcija preskače fazu otkrivanja hostova. Ukliko ne koristite ovu opciju, Nmap pokušava ping
+          skeniranjem saznati koja računala su dostupna kako bi SAMO njih i skenirao. Ukoliko koristite ovu opciju
+          Nmap će skenirati svakog navedenog hosta bez obzira da li je dostupan ili ne, jer neće raditi provjeru.
+          Ukoliko odaberete kompletnu klasu B (/16 po CIDR notaciji) Nmap će skenirati svih 65536 hostova, bez obzira
+          da li su "živi" ili ne. Napomena: drugi karakter u ovoj opciji je NULA, a ne veliko slovo O. Ukoliko je na
+          hostu zatvoren ICMP protokol (što je slučaj kod 90% računala na internetu), a niste stavili
+          <option>-P0</option> opciju, Nmap neće skenirati ta računala, dakle, ukoliko želite skenirati računala koja
+          ne odgovaraju na ICMP echo upit, a znate da postoje i da su "živi" stavite ovu opciju.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PS [lista_portova]</option> (TCP SYN Ping)</term>
+        <listitem>
+
+          <para>Ova opcija šalje prazan TCP paket s upaljenim SYN flagom. Defaultni odredišni port je 80 (možete se
+          konfigurirati kod kompajliranja programa na način da promijenite DEFAULT_TCP_PROBE_PORT u
+          <filename moreinfo="none">nmap.h</filename> biblioteci), no,  možete navesti i neki drugi port kao
+          parametar.
+          Isto tako je moguće poslati zarezom odvojenu listu portova kao parametar ovoj opciji (npr. <option>-PS22,
+          23,25,80,113,1050,35000</option>). U tom će slučaju nmap poslati paket na svaki od navedenih portova
+          paralelno.</para>
+
+          <para>SYN flag u paketu kaže ciljanom hostu da se želite spojiti na navedeni port/portove. Ukoliko je port
+          zatvoren, odgovor koji će Nmap dobiti od ciljanog hosta je RST (reset). Ukoliko je port otvoren, ciljano
+          računalo će poslati SYN/ACK paket, što je drugi korak u trostrukom rukovanju TCP protokola. Računalo na
+          kojem je pokrenut Nmap u tom trenutku prekida konekciju na način da pošalje RST paket (umjesto ACK paketa
+          koji bi završio trostruko rukovanje i uspostavio konekciju sa ciljanim hostom). RST paket je poslao kernel
+          računala na kojem je pokrenut Nmap, jer je dobio SYN/ACK paket koji nije očekivao.</para>
+
+          <para>Nmap ne zanima da li je port otvoren ili zatvoren, RST ili SYN/ACK odgovor koji je dobio dovoljan su
+          odgovor da je računalo "živo". Bez obzira na to RST odgovor znači da je računalo tu i da je "živo",
+          dok SYN/ACK odgovor uz to znači i da računalo "sluša" na navedenom portu.</para>
+
+          <para>Na UNIX mašinama samo privilegirani korisnik <literal moreinfo="none">root</literal> može slati i
+          primati sirove (RAW) TCP pakete. Za neprivilegirane korisnike napravljen je obilazni put u kojem Nmap
+          automatski poziva connect() API na svaki navedeni port. To je postiglo efekt slanja SYN paketa na coljani
+          host i iniciran je poušaj ostvarivanja  konekcije. Ukoliko connect() API vrati brzi odgovor uspješnog
+          spajanja ili ECONNREFUSED grešku, TCP stack na OS-u je dobio SYN/ACK ili RST od ciljanog hosta i host je
+          označen kao dostupan. Ukoliko konekcija "visi" dok ne istekne timeout, ciljani host je označen kao
+          nedostupan (ugašen). Navedeni obilazni put se koristi i kod IPv6 konekcija, je Nmap još nema implementiranu
+          izradu sirovih (RAW) paketa za IPv6 protokol.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PA [lista_portova]</option> (TCP ACK Ping)</term>
+        <listitem>
+          <para>TCP ACK ping je sličan SYN pingu. Razlika je, što je lako zaključiti iz samog naziva, u tome što se
+          umjsto SYN flaga upali ACK flag. Takav paket podrazumijeva da je konekcija već uspostavljena iako nije,
+          samim tim bi ciljani hostovi uvijek trebali odgovoriti s RST paketom, te na taj način potvrditi svoje
+          postojanje.
+          </para>
+          
+          <para><option>-PA</option> opcija koristi isti defaultni port kao i SYN scan (port 80) i isto kao
+          i SYN scan može primiti listu portova u istom formatu. Ukoliko neprivilegirani korisnik pokuša
+          pokrenuti Nmap s ovom opcijom ili je u pitanju IPv6 TCP konekcija, koristi se obilazni put opisan u TCP SYN
+          pingu. Ova opcija nije savršena, jer connect() u stvari šalje SYN pakete umjesto ACK paketa</para>
+
+          <para>Razlog zašto koristiti i SYN i ACK sonde je radi povećavanja šansi za obilaženje vatrozida.
+          Mnogi administratori konfiguriraju rutere i ostale jednostavne vatrozide na način da zaustavljaju dolazeće
+          SYN pakete osim ako nisu namijenjeni nekim javnim servisima, poput weba ili mail servera. Takav način
+          podešavanja uređaja sprječava nedozovljene konekcije prema računalima tvrtke, ali omogućava neograničen
+          izlazni promet prema internetu. Ovakav pristup konekcija bez stanja (engl. stateless) oduzima malo resursa
+          na vatrozidima/ruterima i podržan je na gotovo svim hardverskim i softverskim filterima. Netfilter/
+          iptables, poznati vatrozid na Linux operativnom sustavu nudi opciju <option>--syn</option> kako bi mogli
+          implementirati ovakav pristup konekcija bez stanja (engl. stateless). Kod tako konfiguriranih vatrozida,
+          sonde SYN ping (<option>-PS</option>) će najvjerovatnije biti blokirane kad ih pošaljete na zatvorene
+          portove. No međutim, ACK sonde će bez problema prolaziti kroz njih.</para>
+
+          <para>Drugi tip vatrozida podržava konekcije sa stanjem (engl. stateful) koji odbacuju sve neočekivane
+          pakete. Ova opcija se u početku koristila samo kod naprednijih vatrozid rješenja, ali je vremenom postala
+          rasprostranjenija. Linux vatrozid Netfilter/iptables podržava ovu opciju korištenjem opcije
+          <option>--state</option>, koja kategorizira pakete vezano uz stanje konekcije. Skeniranjem takvih sustava
+          veća je vjerovatnost da ćemo od SYN sonde dobiti nekakvu informaciju, nego od ACK, jer se ACK sonde koje
+          nemaju uspostavljenu konekciju tretiraju kao lažne i odbačeni su bez ikakvog odgovora. U slučaju dvojbe,
+          najbolje je poslati i SYN i ACK sonde naviođenjem opcija
+          <option>-PS</option> i
+          <option>-PA</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PU [lista_portova]</option> (UDP Ping)</term>
+        <listitem>
+
+          <para>Još jedna metoda detekcije hostova je i UDP ping. UDP ping šalje prazne UDP pakete (osim ako nije
+          definirana opcija
+          <option>--data_length</option>) na navedene portove. Portlist opcija ima isti format kao
+          i prije obrađene opcije <option>-PS</option> i <option>-PA</option>. Ukoliko nije naveden niti jedan port,
+          defaultni je 31338. To se može promijeniti kod kompajliranja promjenom DEFAULT_UDP_PROBE_PORT u
+          <filename moreinfo="none">nmap.h</filename> biblioteci.
+          Namjerno je odabran visoki nestandardni port, jer bi slanje paketa na otvorene UDP portove dalo neželjene
+          rezultate za ovu vrstu skena.</para>
+
+          <para>Nakon što je ciljano računalo dobilo paket na zatvoreni port, trebalo bi odgovoriti ICMP paketom "
+          nedostupan port" (engl. port unreachable). Na osnovu toga Nmap može zaključiti da je ciljani host "živ".
+          Drugi tipovi ICMP grešaka, poput nedostupan host/mreža ili premašen TTL (engl. TTL exceeded) nagovještavaju
+          da je host ugašen ili nedostupan. Ukoliko nema nikakvog odgovora, Nmap također zaključi da je host ugašen/
+          nedostupan.
+          Ukoliko je paket stigao na otvoreni UDP port, većina servisa će jednostavno ignorirati prazan UDP paket i
+          Nmap neće dobiti nikakav odgovor. Zbog toga je defaultni port 32338, jer je mala mogućnost da će neki
+          servis koristiti taj port. Postoje i neki servisi, poput chargen-a, koji će odgovoriti na prazan UDP paket
+          i na taj način otkriti Nmapu da je host "živ".</para>
+
+          <para>Glavna prednost ovog tipa skeniranja je da obilazi vatrozide i paket filtere koji skeniraju samo
+          TCP promet. Npr. Linksys BEFW11S4 bežični (wireless) ruter na vanjskom mrežnom adapteru filtrira samo TCP
+          portove, a na UDP skenove odgovara s ICMP port nedostupan.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PE</option>;
+        <option>-PP</option>;
+        <option>-PM</option> (ICMP tipovi pinganja)</term>
+        <listitem>
+
+          <para>Uz do sad navedene tipove skeniranja i otkrivanja hostova, Nmap može slati i standardne ICMP pakete
+          korištenjem klasičnog <application moreinfo="none">ping</application> programa. Nmap šalje ICMP paket tipa
+          8 (echo request) na ciljanu IP adresu očekujući odgovor tipa 0 (echo reply), ukoliko je host "živ". Na
+          štetu mrežnih istraživača, većina hostova i vatrozida na internetu blokira te pakete umjesto da na njih
+          odgovara kako je opisano u <ulink url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC 1122</ulink>
+          dokumentu. Zbog toga su ICMP skenovi rijetko ili gotovo nikad pouzdani kad se ciljani host nalazi na
+          internetu, ali za sistem administratore koji nadgledaju unutrašnje mreže, ovo je praktičan i
+          najjednostavniji pristup za skeniranje hostova. Opisani način skeniranja možete upaliti korištenjem
+          <option>-PE</option> opcije.</para>
+
+          <para>Bez obzira na to što je echo zahtijev standardni ICMP ping upit, Nmap se nije zaustavio na tome. Ako
+          pogledate ICMP standard (<ulink url="http://www.rfc-editor.org/rfc/rfc792.txt">RFC 792</ulink>) vidjet ćete
+          da je u njemu naveden i timestamp zahtijev, information zahtijev i zahtijev za adresnom maskom i to pod
+          kodovima 13,15 i 17. Iako je namjena tih upita saznati informacije poput adresne maske i trenutnog vremena,
+          vrlo ih je lako iskoristiti za otkrivanje hostova. Host koji odgovori je "živ". Nmap u trenutnoj verziji ne
+          podržava information zahtijev, jer se ne koristi često. RFC 1122 inzistira na tome da <quote>host NE BI
+          TREBAO implementirati taj ICMP tip poruka</quote>. Upite za timestamp i adresnu masku možete poslati s
+          <option>-PP</option> i <option>-PM</option> opcijama. Timestamp odgovor (ICMP kod 14) ili odgovor adresne
+          maske (kod 18) otkrivaju da je ciljani host "živ". Ta dva upita su korisni u slučajevima kad administratori
+          blokiraju echo zahtijev pakete, ali zaborave blokirati ostale ICMP pakete.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-PR</option> (ARP Ping)</term>
+        <listitem>
+
+          <para>Jedan od najčešćih scenarija korištenja Nmap-a je skeniranje ethernet LAN-a. Na većini LAN-ova,
+          posebno na onima koji koriste privatne ip adrese definirane u RFC 1918 dokumentu je većina IP adresa u
+          stvari neiskorištena. Kad Nmap pokuša poslati sirovi IP paket poput ICMP echo zahtjeva, operativni sustav
+          mora ustanoviti MAC adresu računala koja pripada ciljanoj IP adresi, kako bi moglo adresirati ethernet
+          frame. To je obično sporo i problematično jer operativni sustavi nisu napisani s pretpostavkom da će u vrlo
+          kratkom vremenskom periodu morati poslati milione ARP zahtjeva prema nepostojećim hostovima.
+          </para>
+
+          <para> ARP sken zadužuje Nmap i njegove optimizirane algoritme za ARP zahtjeve i ukoliko Nmap dobije
+          odgovor ne mora uopće pokretati IP bazirani ping, jer već zna da je računalo dostupno. Ovo čini ARP scan
+          mnogo bržim i pouzdanijim od IP baziranog skena, pa se defaultno koristi kod skeniranje hostova na
+          ethernetu za koje Nmap zaključi da su na lokalnoj mreži. Čak ako ste i naveli neke druge tipove pinga,
+          (poput
+          <option>-PE</option> ili
+          <option>-PS</option>), Nmap će koristiti ARP sken za sve hostove koji su na istoj mreži. Ukoliko ne želite
+          koristiti ARP sken, navedite opciju
+          <option>--send-ip</option>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-n</option> (Bez DNS rezolucije)
+        </term>
+        <listitem>
+          <para>Ova opcija kaže Nmap-u da
+          <emphasis>nikad</emphasis> ne radi obrnutu DNS rezoluciju (engl. reverse DNS lookup) na aktivnim IP
+          adresama koje pronađe. Kako je obrnuta DNS rezolucija često spora, ova opcija ubrzava postupak.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-R</option> (DNS rezolucija za sva ciljana računala)
+        </term>
+        <listitem>
+          <para>Ova opcija kaže Nmap-u da
+          <emphasis>uvijek</emphasis> radi obrnutu rezoluciju ciljanih IP adresa. U normalnim okolnostima to se radi
+          samo kad je potvrđeno da računalo postoji.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--system_dns</option> (Koristi sistemski DNS rezolver)
+        </term>
+        <listitem>
+          <para>Defaultno Nmap radi rezolving adresa slanjem upita direktno imenskim serverima (engl. name servers)
+          koji su podešeni na vašem računalu i čeka odgovore. Mnogo zahtjeva je poslano istovremeno (10 i više) kako
+          bi brže radilo. Ovu opciju navedite ukoliko želite koristiti sistemski rezolver (jedna po jedna IP adresa
+          pozivom sistemskog API poziva getnameinfo()). Ovo je sporije i rijetko je korisno osim ako u Nmap DNS kodu
+          postoji greška -- molim kontaktirajte nas u tom slučaju. Sistemski rezolver se uvijek koristi za IPv6
+          skenove.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dns_servers &lt;server1[,server2],...&gt;
+          </option> (Serveri koji će se koristiti za obrnute DNS upite)
+        </term>
+        <listitem>
+          <para>U normalnim okolnostima, Nmap će pokušati pronaći vaše DNS servere iz resolv.conf datoteke (na
+          UNIX-u) ili iz registry baze podataka (na Win32). Naravno, postoji mogućnost da navedete servere po želji
+          korištenjem ove opcije. Ova opcija se ne koristi ako koristitite opciju
+          <option>--system_dns</option>
+          ili IPv6 sken. Korištenje više DNS servera je obično brže nego samo jednog.
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-port-scanning-basics">
+    <title>Osnove skeniranja portova</title>
+
+          <para>Bez obzira na to što je vremenom Nmap porastao gledano s funkcionalne strane, počeo je kao efikasan
+          port skener, te mu to i dalje ostaje osnovna namjena. Jednostavna naredba <command moreinfo="none">nmap
+          <replaceable>ciljani host</replaceable></command> skenira više od 1660 TCP portova na navedenom računalu.
+          Iako je većina port skenera grupirala portove u otvorene ili zatvorene, Nmap ima granularniji pristup, te
+          dijeli portove na:
+          <literal moreinfo="none">otvorene</literal>,
+          <literal moreinfo="none">zatvorene</literal>,
+          <literal moreinfo="none">filtrirane</literal>,
+          <literal moreinfo="none">nefiltriran</literal>,
+          <literal moreinfo="none">otvorene|filtrirane</literal> i
+          <literal moreinfo="none">zatvorene|filtrirane</literal>.</para>
+
+<para>Gore navedena stanja ne potiču od stvarnih stanja portova, već su opis onoga što Nmap u stvari vidi. Npr.,
+ukoliko Nmap-om skenirate neku mrežu, dok ste fizički spojeni na nju, Nmap bi mogao reći da je port 135 otvoren, dok
+bi isti taj sken u slučaju da tu istu mrežu skenirate s interneta, najvjerovatnije rekao da je port
+<literal moreinfo="none">filtriran</literal> (nalazi se iza vatrozida ili paket filtera).</para>
+
+<variablelist><title>Šest stanja portova kako ih Nmap prepoznaje</title>
+
+  <varlistentry><term>otvoren</term>
+  <listitem><para>Aplikacija aktivno prihvaća TCP konekcije ili UDP pakete na navedenom portu. To je ujedno i cilj
+  skoro svakog skeniranja. Osobe koje se bave sigurnošću znaju da je svaki otvoreni port, potencijalno mjesto napada.
+  Napadači i penetration testeri žele iskoristiti otvorene portove, dok ih administratori pokušavaju zatvoriti ili
+  zaštititi vatrozidima, bez da zabrane pristup legitimnim korisnicima. Skeniranje otvorenih portova je zanimljivo
+  ne samo za sigurnosne skenove, već i u slučaju kad želite saznati koji servisi i aplikacije su dostupni na mreži.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>zatvoren</term>
+
+  <listitem><para>Zatvoreni port je dostupan (odgovorio je na Nmap-ov upit), ali na njemu ne sluša niti jedna
+  aplikacija. Zatvoreni port nam govori da se na toj IP adresi nalazi host koji je upaljen, koji najvjerovatnije nije
+  iza vatrozida ili paket filtera, a to nam može pomoći i i otkrivanju verzije OS-a. Kako su zatvoreni portovi
+  dostupni (nitko nam nije zabranio pristup do njih), isplati se kasnije ponoviti sken, jer možda će kasnije biti
+  otvoreni. Administratori se trude zabraniti pristup takvim portovima korištenjem vatrozida i paket filtera, u tom
+  bi slučaju port bio filtriran, a ne zatvoren (što je objašnjeno u nastavku).
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>filtriran</term>
+
+  <listitem><para>Nmap ne može ustanoviti da li je port otvoren ili ne, jer neki uređaj (vatrozid, pravila na ruteru,
+  paket filter) blokira upite prema tom portu. Ti su portovi frustrirajući za hakere, jer ne daju gotovo nikakve
+  informacije. Ponekad odgovaraju s ICMP porukom o grešci poput tip 3 kod 13 (odredište je nedostupno - komunikacija
+  administrativno zabranjena), ali filteri koji samo odbace paket i ne daju nikakav odgovor na njegu su najčešći.
+  Zbog toga Nmap mora poslati upit više puta kako bi bio siguran da je paket odbačen zbog filtriranja, a ne zbog
+  mrežnog zagušenja te samim tim usporava skeniranje.</para></listitem></varlistentry>
+
+  <varlistentry><term>nefiltriran</term>
+  <listitem><para>Ovo stanje znači da je port dostupan, ali Nmap ne može ustanoviti da li je otvoren ili zatvoren.
+  Samo ACK sken (koji se koristi za otkrivanje pravila na vatrozidu može vratiti nefiltriran kao odgovor. Skeniranje
+  nefiltriranih portova nekom drugom metodom (poput Windows skena, SYN skena ili FIN skena može dati odgovor na
+  pitanje da li je port otvoren ili zatvoren.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>otvoren|filtriran</term>
+  <listitem><para>Nmap okarakterizira port ovim stanjem kada nije u mogućnosti ustanoviti da li je port otvoren ili
+  filtriran. To se dogodi u situacijama kada na upit ne dobije nikakav odgovor. Nedostatak odgovora može značiti da
+  je paket filter odbacio paket i/ili bilo kakav odgovor koji je taj paket inicirao. Samim tim Nmap nije siguran da
+  li je port otvoren ili filtriran. UDP, IP protokol, FIN Null i Xmas scan mogu klasificirati port ovim stanjem.
+  </para></listitem></varlistentry>
+
+  <varlistentry><term>zatvoren|filtriran</term>
+  <listitem><para>U slučaju kad Nmap ne može ustanoviti da li je port zatvoren ili filtriran, okarakterizirat će ga
+  ovim stanjem. IPID Idle Scan je jedina sken metoda koja može vratiti ovakav rezultat.
+  </para></listitem></varlistentry>
+  </variablelist>
+</refsect1>
+
+<refsect1 id="man-port-scanning-techniques">
+  <title>Tehnike skeniranja portova</title>
+
+<para>Kako nisam previše vičan popravcima na automobilu, mogu potrošiti sate i sate samo da nađem odgovarajući alat
+(poput čekića, ljpljive trake, ključa isl.). Nakon što odustanem od smješnih pokušaja da nešto popravim i odvezem
+auto kod stvarnog mehaničara, začuđen sam kako jednostavno i nadasve uspješno izvadi iz velike kutije s alatatom baš
+onaj koji je potreban za uspješan popravak. Umjestnost skeniranja portova je slična. Stručnjak razumije mnoštvo
+tehnika skeniranja i odabere baš onu (ili kombinaciju više tehnika) koja je odgovarajuća za određeni posao. Neiskusni
+korisnisi i script kiddies (osobe koje koriste skripte koje je napisao netko drugi ne razumijevajući što i kako te
+skripte rade), pokušavaju sve riješiti defaultnim SYN skanom. Kako je Nmap besplatan program, jedina prepreka između
+Vas i masteriranja port skeninga je znanje. To je definitivno suprotno od automehaničarskog posla, u kojem recimo mož
+ete znati da Vam treba zračni kompresor, ali to ne umanjuje činjenicu da ga trebate i kupiti.
+</para>
+
+<para>Većina tipova skeniranja koje nmap podržava dostupni su privilegiranim korisnicima (morate biti ulogirani kao
+administrator). To je zbog toga jer šalju sirove (RAW) pakete koji zahtjevaju root pristup u UNIX svijetu. Korištenje
+administratorskog korisničkog accounta je preporučeno na windows operativnim sustavima, mada Nmap ponekad radi i s
+neprivilegiranim korisnicima, ako je WinPCap prethodno instaliran na sustav i aktivan. Zahtjev za root privilegijama
+je bila ozbiljna prepreka kad je Nmap prvi put pušten u javnost 1997. godine, jer je većina korisnika imala pristup
+dijeljenim shell accountima. Sada je svijet drugačiji. Kompjutori su jeftiniji, veći broj ljudi ima stalni pristup
+internetu, a desktop UNIX sustavi su dominantni (uključujući linux i MAC OS X). Windows verzija Nmap-a je također
+dostupna, te je samim tim i Nmap dostupniji većem broju korisnika. Zbog svih tih razloga, sve je manja potreba
+korisnika da pokreću Nmap logirani sa dijeljenim shell accountima. To je naravno super stvarm jer je Nmap pokrenut
+pod accountom privilegiranog korisnika mnogo moćniji i fleksibilniji.</para>
+
+<para>Iako Nmap pokušava reproducirati ispravan rezultat svojih skenova, imajte na umu da su sve unutrašnje
+komponente Nmap-a bazirane na paketima vraćenim od ciljanih računala (ili firewall uređaja ispred njih). Neki hostovi
+mogu biti nepouzdani i podešeni na način da vrate pakete koji će zavarati Nmap i dati krivi rezultat. Još češći su
+hostovi koji ne podržavaju RFC standard, te ne odgovaraju onako kako Nmap očekuje od njih. FIN, Null i Xmas skenovi
+su pogotovo podložni tim problemima. Problemi poput gore navedenih su specifični za pojedine tipove skeniranja i o
+tome se raspravlja u svakoj od tih tehnika skeniranja.</para>
+
+<para>Ovo poglavlje dokumentira hrpu tehnika skeniranja portova koje podržava Nmap. Samo jedna od spomenutih metoda
+može biti korištena u jednom trenutku, osim UDP skena (<option>-sU</option>) koji može biti kombiniran s bilo kojom
+od TCP sken matoda. Radi lakšeg pamćenja, opcije skeniranja portova su u obliku
+<option>-s<replaceable>C</replaceable></option>, gdje je <replaceable>C</replaceable> vidljiv iz samog naziva sken
+tipa i obično je to prvo slovo. Jedini izuzetak je FTP bounce scan (<option>-b</option>). Defaultno, Nmap radi SYN
+scan iako će ga zamijeniti s Connect() skenom, ako korisnik nema odgovarajuće ovlasti slanja raw paketa (root pristup
+na UNIX sustavima) ili ako je specificirana IPv6 kao ciljana IP adresa. Od svih navedenih tipova skenova u ovom
+poglavlju, neprivilegirani korisnik može pokrenuti samo Connect() i FTP bounce scan.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        <option>-sS</option> (TCP SYN scan)</term>
+        <listitem>
+
+<para>SYN scan je defaultni i najpopularniji način skeniranja i to zbog opravdanih razloga. Može ga se izvesti brzo,
+može skenirati tisuće portova u sekundi na brzim mrežama koje nisu opterećene firewall uređajima koji utječu na
+kretanje paketa. SYN scan je relativno neagresivan i nevidljiv, jer nikad ne završi TCP konekciju (ne uspostavi
+trostruko rukovanje do kraja). Također je jednako efikasan na svim implementacijama TCP stacka, jer ne ovisi o
+specifičnim platformama kao što je to slučaj kod Nmap-ovog Fin/Null/Xmas, Maimon i Idle skena. Također je u
+mogućnosti čisto i pouzdano razlučiti između <literal moreinfo="none">otvorenog</literal>,
+<literal moreinfo="none">zatvorenog</literal> i <literal moreinfo="none">filtriranog</literal> stanja porta.</para>
+
+<para>Tehnika SYN scana se najčešće naziva poluotvoreno skeniranje, jer nikad ne uspostavite potpunu TCP konekciju.
+Naime, pošaljete SYN paket, kao što bi ga poslali u slučaju da želite uspostaviti stvarnu TCP konekciju i čekate na
+odgovor. Ako kao odgovor dobijete SYN/ACK, znači da postoji aplikacija koja sluša na tom portu (port je otvoren), dok
+RST (reset) znači da ne postoji aplikacija koja sluša na tom portu (port je zatvoren). Ukoliko i nakon nekoliko
+ponovnih slanja upita nema nikakvog odgovorar, port je okarakteriziran kao filtriran. Port je također označen kao
+filtriran ako kao odgovor dođe ICMP unreachable error (ICMP nedostupan - tip 3, kodovi 1, 2, 3, 9, 10 ili 13).</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sT</option> (TCP connect() scan)</term>
+        <listitem>
+
+<para>TCP Connect() scan je defaultni TCP tip skeniranja ukoliko je SYN scan nedostupan. To se događa u slučajevima
+kad korisnik nema privilegiju slanja raw paketa ili kad je skenirani host na IPv6 mreži. Umjesto da šalje raw pakete,
+kao što to radi većina drugih tipova skeniranja, Nmap zatraži operativni sustav da uspostavi konekciju s ciljanim
+računalom na poru kojiželimo skenirati, na način da pošalje <literal moreinfo="none">connect()</literal> sistemski
+poziv. To je isti sistemski poziv koji koriste web preglednici, P2P klijenti i većina drugih mrežnih aplikacija kad ž
+ele uspostaviti konekciju. Dio je programskog unosa poznatog kao Berkeley Sockets API. Umjesto da iščitava raw pakete
+Nmap koristi navedeni API kako bi dobio statusne informacije svake pokušane konekcije.</para>
+
+<para>Ukoliko je SYN scan dostupan, obično je i bolji odabir. Naime, Nmap ima puno manje kontrole nad <literal moreinfo="none">connect()</literal> API pozivom, nego nad raw paketima, te je samim tim Nap manje efikasan. Sistemski
+poziv napravi potpunu konekciju na otvorene portove ciljanog računala umjesto da napravi reset kao što je slučaj kod
+SYN skena. Tim postupkom ne samo da gubimo više vremena kako bi saznali da li su portovi otvoreni ili ne, nego
+postoji i veća vjerovatnost dsa će host zapisati u log pokušaj spajanja. Činjenica je da će svaki IDS sustav logirati
+i SYN i Connect scan, ali isto tako je činjenica da većina računala nema IDS sustav. Većina servisa na UNIX-oidima će
+dodati zapis u syslog i (ponekad) kriptičnu poruku o grešci, kad se Nmap spoji i odmah odspoji bez slanja podataka.
+Jadno napisani servisi se skrše kad se to dogodi, mada je to stvarno rijetkost. Administrator koji vidi hrpu pokušaja
+spajanja u logovima koji su svi inicirani s jednog hosta, odmah će znati da je netko skenirao portove Connect()
+metodom.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sU</option> (UDP skenovi)</term>
+        <listitem>
+
+<para>Iako većina popularnih servisa na internetu korisiti TCP protokol, <ulink url="http://www.rfc-editor.org/rfc/
+rfc768.txt">UDP</ulink> servisi su isto tako široko zastupljeni. DNS, SNMP i DHCP (registrirani portovi 53, 161/162 i
+67/68) su tri najpoznatija. Zbog toga što je UDP skeniranje mnogo sporije i teže za izvesti nego TCP, neki sigurnosni
+auditori, ignoriraju UDP portove. To je velika pogreška, jer su exploitabilni UDP servisi česta pojava i napadači ih
+sigurno neće ignorirati. Srećom, Nmap može pomoći u istraživanju UDP portova.</para>
+
+<para>UDP scan aktivirate naredbom <option>-sU</option>. Može biti kombinirana s TCP skenom poput SYN skena (<option>
+-sS</option>), kako bi oba protokola bili provjereni "jednim udarcem".</para>
+
+<para>UDP scan radi na način da pošalje prazan UDP header (bez podataka) na svaki ciljani port. Ukoliko je vraćen
+ICMP port unreachable (ICMP nedostupan port) i to tip 3 kod 3, onda je port
+<literal moreinfo="none">zatvoren</literal>. Druge ICMP greške (tip 3, kodovi 1, 2, 9, 10 ili 13) označavaju port kao
+<literal moreinfo="none">filtriran</literal>.Povremeno će servis odgovriti s UDP paketom, dokazujući da je port
+<literal moreinfo="none">otvoren</literal>. Ukoliko nakon nekoliko retransmisija nema nikakvog odgovora, port je
+okarakteriziran kao <literal moreinfo="none">otvoren|filtriran</literal>. To znači da bi port mogao biti otvoren ili
+možda paket filteri blokiraju promet prema njemu. Version scan (<option>-sV</option>) može pomoći da se ustanovi koji
+portovi su stvarno otvoreni, a koji su filtrirani.</para>
+
+<para>Veliki izaziv kod skeniranja UDP portova je napraviti ti brzo. Otvoreni i filtrirani portovi rijetko pošalju
+ikakav odgovor, ostavljajući Nmap da napravi time out, te nakon toga ponovno pošalje paket u slučaju da je prethodni
+iz bilo kojeg razloga bio izgubljen. Zatvoreni portovi su često još veći problem. Oni najčešće pošalju kao odgovor
+ICMP port unreacheble grešku. No, za razliku od RST paketa koje pošalju zatvoreni portovi na TCP protokolu kao odgovr
+na SYN ili Connect() scan, mnogi hostovi ograničavaju ICMP port urnreachable poruku po defaultu. Linnux i Solaris su
+jako striktni vezano za to. Tako npr. Linux 2.4.20 kernel ograničava destination unreachable poruku na jednu po
+sekundi (u <filename moreinfo="none">net/ipv4/icmp.c</filename> biblioteci)..</para>
+
+<para>Nmap pokušava ustanoviti da li je to slučaj i smanjuje brzinu skeniranja veano uz to, kako bi spriječio zaguš
+ivanje nekorisnim paketima koje će ciljano računalo tako i tako tiho odbaciti. Nažalost, spomenuti limit koji je
+postavljen kod linuxa, znači da će skeniranje svih 65536 portova trajati više od 18 sati. Ideja ubrzavanja UDP skena
+je da se paralelno skenira više hostova, na način da se najprije skleniraju najpopularniji portovi na brz način,
+skenirajući iza firewall-a i koristeći <option>--host-timeout</option> kako bi se izbjegli spori hostovi.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sN</option>; <option>-sF</option>; <option>-sX</option> (TCP Null, FIN i Xmas skenovi)</term>
+        <listitem>
+
+<para>Ova tri tipa skenova (moguće ih je postići i više korištenjem <option>--scanflags</option> opcije opisane u
+sljedećoj sekciji) iskorištavaju rupu u standardu <ulink url="http://www.rfc-editor.org/rfc/rfc793.txt">TCP RFC
+</ulink>, kako bi razlučili koji port je <literal moreinfo="none">otvoren</literal>, a koji <literal moreinfo="none">
+zatvoren</literal>. Na strani 65 piše: <quote>Ukoliko je stanje odredišnog porta ZATVORENO ... dolazeći segment koji
+ne sadrži RST prouzročuje da RST bude poslan kao odgovor.</quote> Na idućoj stranici se raspravlja o paketima
+poslanim na otovorene portove bez upaljenih SYN, RST ili ACK bitova i kaže da: <quote>najvjerovatnije se nećete naći
+u takovoj situaciji, ali ako se nađete, jednostavno odbacite paket.</quote></para>
+
+<para>Kod skeniranja sistema koji su kompatibilni s tim RFC tekstom, svaki paket koji u sebi ima upaljene bitove SYN,
+RST ili ACK rezzultirat će vraćenim RST paketom ako je port zatvoren, a neće dati nikakav odgovor, ako je port
+otvoren. Dok god nije upaljen niti jedan od tih bitova, bilo koja kombinacija druga tri bita (FIN, PSH i URG) je u
+redu. Nmap to iskorištava s tri dolje navedena tipa skeniranja:</para>
+
+<variablelist>
+  <varlistentry><term>Null scan (<option>-sN</option>)</term>
+  <listitem><para>Ne uključuje niti jedan od bitova (TCP oznaka zaglavlja je 0)</para></listitem></varlistentry>
+
+  <varlistentry><term>FIN scan (<option>-sF</option>)</term>
+  <listitem><para>Uključuje samo TCP FIN bit</para></listitem></varlistentry>
+
+  <varlistentry><term>Xmas scan (<option>-sX</option>)</term>
+  <listitem><para>Uključuje FIN, PSH i URG flagove, "osvjetljavajući" paket kao božićno drvce. (op. prev. Xmas=Božić
+  </para></listitem></varlistentry>
+</variablelist>
+
+<para>Sva tri tipa skeniranja su potpuno ista što se ponašanja tiče, samo što su im upaljene različite TCP oznake u
+paketima. Ukoliko je kao odgovor dobiven RST paket, port se smatra <literal moreinfo="none">zatvorenim</literal>, dok
+situacija u kojoj nema odgovora, smatra da je port <literal moreinfo="none">otvoren|filtriran</literal>. Port je
+označen kao <literal moreinfo="none">filtriran</literal>, ako je odgovor na scan ICMP unreachable greška (tip 3,
+kodovi 1, 2, 3, 9, 10 ili 13).</para>
+
+<para>Glavna prednost ovih tipova skeniranja je ta da mogu "proviriti" kroz neke ne stateful firewall uređaje i paket
+filtering rutere. Druga prednost im je ta da su još više nevidljivi od SYN skena. No, nemojte se u to pouzdavati, jer
+većina modernih IDS sustava može biti konfigurirana da ih prepozna. Veliki nedostatak je da ne podržavaju svi sistemi
+RFC 793 do zadnjeg slova, pa tako većina sustava odgovara RST paketom bez obzira na to da li je port otvoren ili
+nije. Kod takvih sustava su svi portovi koje Nmap skenira okarakterizirani kao <literal moreinfo="none">zatvoreni
+</literal>. Većina operativnih sustava koji se tako ponašaju su Microsoft Windows, većina Cisco uređaja, BSDI i IBM
+OS/400. No, ovaj tip skeniranja radi na većini UNIX sustava. Dodatan nedostatak ovih tipova skenova je taj što ne
+mogu razlikovati <literal moreinfo="none">otvorene</literal> portove od nekih <literal moreinfo="none">filtriranih
+</literal>, te kao odgovor dobijete <literal moreinfo="none">otvoren|filtriran</literal>, pa si vi mislite...</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sA</option> (TCP ACK scan)</term>
+        <listitem>
+
+<para>Ovaj tip skeniranja razlikuje se od ostalih do sad opisanih po tome što nikad ne otkrije <literal moreinfo="
+none">otvorene</literal> ili čak <literal moreinfo="none">otvorene|filtrirane</literal> portove. Namjena mu je
+mapirati pravila firewall-a, tj. da zaključi da li je firewall stateful, te koji su portovi filtrirani.</para>
+
+<para>Kad je u pitanju ACK scan, onda je upaljena samo ACK zastavica (flag) (osim ako koristite <option>--scanflags
+</option>). Kad skenirate nefiltrirane hostove, <literal moreinfo="none">otvoreni</literal> i
+<literal moreinfo="none">zatvoreni</literal>  portovi će vratiti RST paket. Nmap ih u tom slučaju označi kao <literal moreinfo="none">nefiltrirane</literal>, što znači da su dostupni ACK paketima, ali nije definirano da li su <literal moreinfo="none">otvoreni</literal> ili <literal moreinfo="none">zatvoreni</literal>. Portovi koji ne odgovaraju na
+upite ili pošalju određene ICMP greške (tip 3, kod 1, 2, 3, 9, 10 ili 13) su označeni kao <literal moreinfo="none">
+filtrirani</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sW</option> (TCP Window scan)</term>
+        <listitem>
+
+<para>Window scan je sličan ACK scanu, samo što exploatira implamentacijske detalje operativnih sustava kako bi
+razlučio otvorene portove od zatvorenih, umjesto da uvijek ispiše <literal moreinfo="none">nefiltriran</literal> kad
+dobije RST kao odgovor. To radi na način da pregleda TCP Window polje RST paketa koji je dobio. Na nekim sustavima
+otovreni portovi koriste pozitivnu veličinu prozora (čak i za RST pakete), dok zatvoreni portovi imaju prozor
+veličine 0. Dakle, umjesto da uvijek označi port kao <literal moreinfo="none">nefiltriran</literal> kad dobije RST
+kao odgovor, Window scan označi portove kao <literal moreinfo="none">otvorene</literal> ili <literal moreinfo="none">
+zatvorene</literal>, ovisno o tome da li je veličina prozora pozitivna ili 0.</para>
+
+<para>Ovaj način skeniranja se pouzdaje u implementacijske detalje nekih operativnih sustava, tako da mu ne morate
+uvijek vjerovati. Sistemi koji su "otporni" na ovaj način skeniranja obično će vratiti sve portove kao
+<literal moreinfo="none">zatvorene</literal>. Naravno isto tako je moguće da računal stvarno nema otovrenih portova.
+Ukoliko je većina portova <literal moreinfo="none">zatvorena</literal>, ali ima onih koji su označeni kao
+<literal moreinfo="none">filtrirani</literal>, (npr. češće korišteni portovi poput 22, 25, 53) , sustav je podložan
+ovom načinu skeniranja i rezultat je najvjerovatnije ispravan. Ukoliko pokrenete sken koji vam vrati 1000 zatvorenih
+portova i 3 otvorena ili filtrirana porta, najvjerovatnije su ta 3 porta uistinu i otvorena.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sM</option> (TCP Maimon scan)</term>
+        <listitem>
+
+<para>Maimon scan je dobio naziv po osobi koja ga je otkrila - Uriel Maimon. Tehniku skeniranja je opisao u časopisu Phrack broj 49 (Studeni 1996). Nmap je izdan 2 godine kasnije i omogućavao je tu tehniku skeniranja. Tehnika je ista kao i Null, Xmas i FIN scan, osim što je paket koji se šalje FIN/ACK. Po RFC dokumentu 793 (TCP), treba odgovoriti RST paketom, bez obzira da li je port otvoren ili zatvoren. No, Uriel je primjetio da većina BSD sistema jednostavno odbaci paket ako je port otvoren.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scanflags</option> (Custom TCP scan)</term>
+        <listitem>
+
+<para>Napredni Nmap korisnici nisu vezani uz poznate tipove skenova. <option>--scanflags</option> opcija dozvoljava
+da dizajnirate vlastiti tip skeniranja, navodeći bilo koju kombinaciju TCP zastavica (flagova). Neka važi kreativni
+sokovi teku, dok izbjegavate otkrivanje svojih radnji od strane IDS sustava čiji su autori samo prošli kroz Nmap
+opcije i dodali pravila koja prepoznaju navedene tipove skeniranja.</para>
+
+<para><option>--scanflags</option> argument može biti brojčana vrijednost poput 9 (PSH i FIN), ali korištenje
+simboličnih imena je jednostavnije. Jednostavno izmješajte zajedno bilo koju kombinaciju zastavica (flagova)
+<literal moreinfo="none">URG</literal>, <literal moreinfo="none">ACK</literal>,
+<literal moreinfo="none">PSH</literal>, <literal moreinfo="none">RST</literal>,
+<literal moreinfo="none">SYN</literal> i <literal moreinfo="none">FIN</literal>.
+Npr. <option> --scanflags URGACKPSHRSTSYNFIN</option> postavlja sve zastavice, ali nije pretjerano koristan za
+skeniranje. Redosljed navođenja zastavica je nebitan.</para>
+
+<para>Uz navođenje željenih zastavica, možete navesti i bazni TCP tip skeniranja (poput <option>-sA</option> ili
+<option>-sF</option>), što će objasniti Nmap-u kako da interpretira odgovore. Npr. SYN scan tretira paket na koji
+nije dobio odgovor kao <literal moreinfo="none">filtriran</literal> port, dok ga FIN scan tretira kao
+<literal moreinfo="none">otvoren|filtriran</literal>. Nmap će se ponašati isto kao što se ponaša kod specificiranog
+baznog skena, osim što će koristiti zastavice koje ste naveli. Ukoliko ne navedete bazni tip skeniranja, koristit će
+se SYN scan.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sI &lt;zombie
+        host[:probeport]&gt;</option> (Idlescan)</term>
+
+        <listitem>
+
+          <para>Ova napredna metoda skeniranja omogućava slijepo skeniranje ciljanog računala (niti jedan paket nije
+          poslan na ciljano računalo s vaše stvarne IP adrese).Umjesto toga koristite zombie host računalo i
+          predvidljiv IP fragmentation ID na njemu kako bi dobili informaciju o tome koji su portovi otvoreni na
+          ciljanom računalu. IDS sustavi će pokazati da scan dolazi sa zombie mašine kojju ste specificirali kod
+          pokretanja ovog tipa skeniranja (zombie mora biti upaljen i mora zadovoljavati neke kriterije). Ovaj način
+          skeniranja je prekompleksan da bi ga ovdje opisali u potpunosti, pa sam napisao i postao informativni
+          članak sa svim detaljima na <ulink url="http://nmap.org/book/idlescan.html"></ulink>.</para>
+
+          <para>Osim što je nevjerovatno nevidljiv (zbog načina na koji radi) ovaj tip skeniranja omogućava mapiranje
+          IP baziranih pravila između računala. Ispis portova pokazuje otvorene portove <emphasis>kako ih vidi zombi
+          računalo.</emphasis> Dakle, možete koristiti više zombie računala za skeniranje ciljanog računala.</para>
+
+          <para>Možete staviti dvotočku i broj porta iza nje, kako bi na tom portu provjerili da li su IPID promjene
+          predvidljive. Ukoliko to ne navedete, Nmap će koristiti standardni port za TCP pinganje (80).</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sO</option> (IP protocol scan)</term>
+        <listitem>
+          
+<para>IP protokol scan Vam omogućava da provjerite koji IP protokoli (TCP, ICMP, IGMP isl.) su podržani na ciljanim
+mašinama. Tehnički gledano, to i nije port scan jer prolazi kroz brojeve IP protokola, a ne kroz brojeve TCP i UDP
+portova. No ipak koristi opciju <option>-p</option>, kako bi odabrao skenirane brojeve IP protokola, ispisuje
+rezultate u normalnoj tabeli kao i kod skeniranja portova, pa čak koristi i isti engine za skeniranje kao i kod
+skeniranja portova. Kad sve to uzmemo u obzir - ova metoda skeniranja je dovoljno slična skeniranju portova, pa je
+stoga i uključena u ovo poglavlje.</para>
+
+<para>Osim što je koristan sam po sebi, protokol scan pokazuje i snagu open source softvera. Iako je temeljna metoda
+vrlo jednostavna, nisam je mislio uključiti u Nmap, niti sam dobio zahtjev za tom funkcionalnošću, sve dok u ljeto
+2000, Gerhard Rieger nije razvio ideju, napisao izvanredan patch koji to implementira u Nmap i posalo na nmap-hakers
+listu. Uključio sam taj patch u Nmap i pustio novu verziju već drugi dan. Jako malo komercijalnog softvera ima
+korisnike koji su toliki entuzijasti da bi razvili vlastita poboljšanja za pojedine produkte!</para>
+
+<para>Protokol scan radi vrlo slično kao i UDP scan. Umjesto da prolazi kroz brojeve portova UDP paketa, šalje IP
+pakete i prolazi kroz 8 bitnio polje samog IP protokola. Headeri (zaglavlja) su obično prazni i ne sadrže nikakve
+podatke, pa čak niti ispravni header za određeni protokol. Izuzeci od tog pravila su TCP, UDP i ICMP protokol. Za te
+protokole je uključen ispravan protokol header (zaglavlje), jer neki sustavi u suprotonom ne žele poslati paket, tako
+da Nmap već ima funkcije za kreiranje ispravnih headera. Umjesto da čeka ICMP unreachable poruku, protokol scan traži
+ICMP <emphasis>protoKol</emphasis> unreachable poruku. Ukoliko Nmap dobije bilo kakav odgovor u bilo kojem protokolu
+od ciljanog računala, Nmap označi taj protokol kao o<literal moreinfo="none">Otvoren</literal>. ICMP protocol
+unreachable greška (tip 3, kod 2) označi protokol kao <literal moreinfo="none">Zatvoren</literal>. Sve ostale ICMP
+poruke (tip 3, kod 1, 3, 9, 10 i 13) označe protokol kao <literal moreinfo="none">filtriran</literal> (iako je to
+istovremeno dokaz da je ICMP protokol <literal moreinfo="none">otvoren</literal>). Ukoliko ne dođe nikakav odgovor
+nakon ponovnih pokušaja slanja, protokol je označen kao <literal moreinfo="none">otvoren|filtriran</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>
+        <option>-b &lt;ftp relay host&gt;</option> (FTP bounce scan)</term>
+        <listitem>
+
+<para>Zanimljiva funkcionalnost FTP protokola (<ulink url="http://www.rfc-editor.org/rfc/rfc959.txt">RFC 959</ulink>)
+je podrška za tzv. proxy ftp konekcije. To omogućuje korisniku da se spoji na jedan FTP server, te nakon toga zatraži
+da fileovi budu poslani na neki drugi FTP server. Ta funkcionalnost je sazrijela za napade na mnogo nivoa, tako da je
+većina servera prestala pružati podršku za to. Jedan od napada koji je izvediv je taj da omogućava napadaču natjerati
+FTP server da skenira druge FTP servera u potrazi za otvorenim portovima. Jednostavno zatražite od FTP servera da poš
+alje datoteku na svaki od portova koji vas zanima na ciljanom računalu. Poruka o grešci koju ćete dobiti će vam raći
+da li je port otvoren ili nije. To je ujedno i dobar način obilaženja firewall-a (vatrozida), jer su mnogi FTP
+serveri smješteni tamo gdje imaju veći pristup unutrašnjim računalima, nego bilo koje računalo s interneta. Nmap
+podržava FTP bounce scan s opcijom <option>-b</option>. Prima parametar u sljedećem obliku:
+<replaceable>username</replaceable>:
+<replaceable>password</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>.
+<replaceable>Server</replaceable> je naziv ili IP adresa ranjivog FTP servera. Kao i kod normalnog URL-a, možete
+zanemariti <replaceable>username</replaceable>:<replaceable>password</replaceable>, te ćete se u tom slučaju spojiti
+kao anonymous user i koriste se sljedeći parametri <literal moreinfo="none">anonymous</literal> password:<literal moreinfo="none">-wwwuser@</literal>. Broj porta i dvotočka ispred njega također mogu biti zanemarini, a u tom slučaju
+ćete se spojiti na standardni FTP port (21).</para>
+
+<para>1997., kad je Nmap lansiran, ova ranjivost je bila široko rasprostranjena, ali do sad je uglavnom "pokrpana" na većini računala. Ipak, još uvijek postoji ranjivi serveri, pa nije loše pokušati i ovu opciju kad sve oostale zataje. Ukoliko je obilaženje vatrozida vaš cilj, skenirajte ciljanu mrežu za otvorenim portom 21 (ili bilo koji ftp servis, ako skenirate sve portove s otkrivanjem verzije programa - version detection), te nakon toga pokušajte ftp bounce scan. Nmap će vam reći da li je host ranjiv ili nije. Ukoliko samo pokušavate sakriti tragove, ne biste trebali (u stvari ne biste smjeli) skenirati samo hostove na ciljanoj mreži. No, prije nego nasumično počnete skenirati za ranjivim ftp serverima na internetu, imajte na umu da većina sysadmina neće cijeniti što im "iskorištavate" servere na taj način</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+   <refsect1 id="man-port-specification">
+    <title>Specifikacija portova i redosljed skeniranja</title>
+
+    <para>Uz sve do sad nabrojane metode skeniranja, Nmap nudi opcije pomoću kojih možete specificirati koje portove
+    želite skenirati, da li će skeniranje portova biti nasumično ili sekvencionalno. Defaultno Nmap skenira sve
+    portove od 0 do 1024 (uključujući i njih) kao i sve portove iznad 1024 koji su navedeni u
+    <filename moreinfo="none">nmap-services</filename> datoteci.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-p &lt;port ranges&gt;</option> (Skeniraj samo navedene portove)
+        </term>
+        <listitem>
+
+          <para>Pomoću ove opcije možete odabrati koje portove ćete skenirati i na taj način obići defaultne
+          postavke. Možete unijeti pojedinačne brojeve i/ili niz brojeva odvojenih minusom (npr. 1-1023).Ukoliko ž
+          elite skenirati sve portove možete napisati samo parametar <option>-p-</option> i Nmap će skenirati sve
+          portove od 1-65535. Port 0 je moguće skenirati jedino ako ga navedete. Kad je u pitanju IP protokol scan
+          (<option>-sO</option>), opcija -p definira koji protokol želite skenirati (od 0-255).</para>
+
+          <para>Kad skenirate i TCP i UDP portove zajedno, možete navesti identifikator protokola na način da prije
+          brojeva portova stavite identifikator T: za TCP porove ili <literal moreinfo="none">U:</literal> za UDP
+          portove. Parametar vrijedi sve dok ne navedete neki drugi. Npr. možete napisati
+          <option>-p U:53,111,137,T:21-25,80,139,8080</option>. Na taj bi način skenirali UDP portove 53, 111 i 137,
+          kao i TCP portove 21-25, 80, 139 i 8080. Imajte na umu da morate navesti parametar <option>-sU</option> i
+          bar jedan TCP tip skeniranja (kao npr. <option>-sS</option>, <option>-sF</option> ili
+          <option>-sT</option>) kako bi mogli istovremeno skenirati i TCP i UDP portove. Ukoliko niste naveli
+          identifikator protokola, navedeni portovi će biti skenirani i po TCP i po UDP protokolu.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-F</option> (brzi scan (s ograničenim portovima))
+        </term>
+        <listitem>
+
+          <para>Ova opcija kaže Nmapu da skenira samo portove navedene u <filename moreinfo="none">nmap-services
+          </filename> datoteci, koja dolazi s Nmap-om. (ili protokol datoteke kad je u pitanju opcija <option>-sO
+          </option>) To je mnogo brže nego skeniranje svih 65535 portova. Kako navedeni popis ima preko 1200 TCP
+          portova, razlika u brzini između ove opcije i defaultnog TCP scana (koji ima oko 1650 portova) nije
+          dramatična. Razlika može biti osjetno velika ako koristite svoju <filename moreinfo="none">nmap-services
+          </filename> datoteku koristeći opciju <option>--datadir</option></para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-r</option> (Ne miješaj portove)
+        </term>
+        <listitem>
+          <para>Defaultno, Nmap nasumično odabire potove koje skenira (osim nekih standardnih portova koji su
+          stavljeni na početak zbog efikasnosti). To "miješanje" portova je u normalnim situacijama poželjno, ali
+          pomoću ove opcije možete skenirati portove baš onim redosljedom kojim ste ih naveli.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+   </refsect1>
+
+  <refsect1 id="man-version-detection">
+    <title>Prepoznavanje servisa i njihovih verzija</title>
+
+    <para>Skenirajte neko računalo pomoću Nmap-a i mogao bi vam reći da su portovi 25/tcp, 80/tcp i 53/tcp otvoreni.
+    Koristeći <filename moreinfo="none">nmap-services</filename> bazu podataka u kojoj se nalazi preko 2200 poznatih
+    servisa, Nmap će vam reći da su na navedenim portzovima najvjerovatnije mail server (SMTP), web server (HTTP) i
+    name server (DNS). To je u većini slučajeva ispravno, većina servera koji slušaju na portu 25 su uistinu mail
+    serveri, ali nemojte biti 100% sigurni u to, jer postoje ljudi koji pokreću servise na "čudnim" portovima.</para>
+
+    <para>
+    Ako je Nmap ipak u pravu i server o kojem je riječ ima pokrenut SMTP, HTTP i DNS server, to ipak nije pretjerano
+    mnogo informacija. Ukoiko radite pregled ranjivosti (vulnerability assessment) ili samo jednostavan inventar mrež
+    nih servisa na računalima u firmi, činjenica je da trebate mnogo više informacija od gore navedenih. Želite znati
+    koje verzije mail, HTTP i DNS servera su pokrenute na tom računalu. Kad imate "pri ruci" ispravnu verziju
+    serverske komponente nije teško ustanoviti koje ranjivosti dotični server ima. Otkrivanje verzije vam pomaže u
+    dobivanju tih informacija.
+</para>
+
+    <para>Nakon što ste otkrili koji TCP i/ili UDP portovi su otvoreni korištenjem neke od do sad opisanih tehnika,
+    otkrivanje verzije ispituje te portove ne bi li otkrilo što je u stvari na tim portovima, tj. koja aplikacija je
+    otvorila dotičpne portove. <filename moreinfo="none">nmap-service-probes</filename> baza podataka sadži upite za
+    ispitivanje raznih servisa i prepoznavanje na osnovu odgovora koje dobije. Nmap pokušava ustanoviti protokol na
+    kojem radi servis (npr. ftp, ssh, telnet, http), naziv aplikacije (npr. ISC Bind, Apache, httpd, Solaris telnetd)
+    , verziju, naziv hosta, tip uređaja (npr. printer, ruter), porodicu iz koje dolazi OS (npr. Windows, Linux) i
+    ponekad neke detalje poput toga da li je otvoren X server, verziju protokola koju koristi SSH ili KaZaA
+    korisničko ime. Naravno, većina servisa ne daje sve te informacije. Ukoliko je Nmap kompajliran s podrškom za
+    OpenSSL protokol, spojit će se na SSL servere kako bi ustanovio servise koji se nalaze iznad enkripcijskog sloja.
+    Ako su otkriveni RPC servisi, Nmap RCP istraživač (<option>-sR</option>) je automatski uključen kako bi otkrio
+    koji program se nalazi iz RPC-a i koja mu je verzija. Neki UDP portovi su označeni s <literal moreinfo="none">
+    otvoren|filtriran</literal>, ako UDP scan nije mogao odrediti da li je port otvoren ili filtriran. Otkrivanje
+    verzije će pokušati dobiti odgovor s tih portova (isto kao što to radi i kod otvorenih portova), te će
+    promijeniti njihovo stanje u otvoren ako uspije dobiti odgovor. TCP portovi koji su okarakterizirani kao <literal moreinfo="none">otvoreni|filtrirani</literal>, tretirani su na isti način. Imajte na umu da opcija
+    <option>-A</option> omogućije otkrivanje verzije uz ostale stvari koje podržava. Dokument koji objašnjava rad,
+    korištenje i mijenjanje ovog dijela programa je dostupan na linku:
+    <ulink url="http://www.insecure.org/nmap/vscan/"></ulink>.
+    </para>
+
+    <para>Kad Nmap dobije odgovr od servisa, a ne može ga usporediti s ni jednim zapisom u svojoj bazi podataka, ispisat će scepijalni "fingerprint" i URL linka na koji ga možete poslati ukoliko ste sigurni u to što se nalazi na tom portu. Molim vas da odvojite nekoliko minuta svog vremena kako bi poslali te informacije, jer će kasnije nekom drugom biti od velike koristi. Zahvaljujući upravo takvom načinu prikupljanaj informacija, Nmap ima preko 3000 zapisa koji odgovaraju (prepoznavaju) preko 350 protokola, poput smtp-a, ftp-a, http-a, itd..</para>
+
+    <para>Otkrivanje verzije se uključuje i njime se upravlja korištenjem sljedećih opcija:</para>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>-sV</option> (Otkrivanje verzije)</term>
+        <listitem>
+
+          <para>Uključuje otkrivanje verzije, kao što je opisano gore. Kao zamjenu, možete koristiti opciju
+          <option>-A</option> da bi istovremeno uključili OS detekciju i otkrivanje verzije servisa.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--allports</option> (koristi sve portove u otkrivanju verzije servisa)
+        </term>
+        <listitem>
+          <para>Nmap-ovo otkrivanje verzije servisa preskače port 9100, jer neki printeri jednostavno isprintaju sve
+          što se pošalje na taj port, što rezultira s hrpom stranica na kojima su HTTP GET zahtjevi, binarni SSL
+          zahtjevi isl. Ukoliko ipak želite koristiti i takve portove, možete to napraviti na način da maknete
+          <literal moreinfo="none">Exclude</literal> naredbu u <filename moreinfo="none">nmap-service-probes
+          </filename> datoteci ili jednostavno uključite opciju <option>--allports</option>, koja će ignorirati
+          <literal moreinfo="none">Exclude</literal> naredbu u nmap-services-probes.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-intensity &lt;intensity&gt;</option> (podesite intenzitet otkrivanja verzije servisa)
+        </term>
+        <listitem>
+
+          <para>Kad radite scan otkrivanja verzije (<option>-sV</option>), Nmap šalje seriju upita od kojih je svakom
+          dodijeljen broj od 1 do 9. Oni upiti koji imaju niže brojeve u efikasni kod većine često korištenih
+          servisa, dok su oni s višim brojevima rijetko korisni. Nivo nntenziteta skeniranja određuje koji upiti će
+          biti korišteni. Što je veći broj, to je veća vjerovatnost da će servis biti ispravno identificiran. No,
+          takvi skenovi traju duže. Intenzitet mora biti između 0 i 9. Preddefinirana vrijednost je 7. Ukoliko je
+          upit registriran u <filename moreinfo="none">nmap-service-probes</filename> <literal moreinfo="none">ports
+          </literal> naredbi, bit će isproban bez obzira na nivo intenziteta. To garantira da će DNS upiti uvijek
+          biti odrađeni na portu 53, SSL na portu 443 itd.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-light</option> (omogući "lagani" mod)
+        </term>
+        <listitem>
+          <para>To je jednostavniji način pozivanja opcije <option>--version-intensity 2</option>. Lagani mod ubrzava
+          skeniranje, ali je samim tim i manja vjerovatnost da će identificirati servis.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-all</option> (isprobaj sve upite)
+        </term>
+        <listitem>
+          <para>Zamjena za opciju <option>--version-intensity 9</option>. Isprobat će sve upite u bazi podataka
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version-trace</option> (prati sve što se događa tijekom skena)
+        </term>
+        <listitem>
+          <para>Nmap ispiše opširne debug informacije o tome što trenutno radi opcija otkrivanja verzije servisa. To
+          je dio onoga što ćete dobiti opcijom <option>--packet-trace</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-sR</option> (RPC scan)</term>
+        <listitem>
+          <para>Ova metoda radi u sprezi s različitim port scan metodama Nmap-a. Uzme sve TCP/UDP portove koji su
+          identificirani kao otvoreni i preplavi ih sa SunRPC NULL naredbama pokušavajući ustanoviti da li su RPC
+          portovi i ako jesu za koje programe rade. Stoga možete efikasno dobiti iste informacije kao i s naredbom
+          <command moreinfo="none">rpcinfo -p</command>, čak i kad je ciljani portmapper iza firewall-a (ili zaštićen
+          TCP omotačima). Mamci trenutno NE rade s RPC skenom. To je automatski uključeno kao dio skeniranja verzije
+          servisa (<option>-sV</option>). Budući da otkrivanje verzije servisa samo po sebi već ima uključenu ovu
+          opciju, <option>-sR</option> se rijetko koristi.</para>
+        </listitem>
+      </varlistentry>
+  
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-os-detection">
+
+    <title>Otkrivanje OS-a</title>
+
+    <para>Jedna od najpoznatijih odlika Nmapa je otkrivanje OS-a na ciljanom računalu korištenjem  TCP/IP stack
+    otiska (engl. fingerprint). Nmap šalje mnoštvo TCP i UDP paketa na udaljeno računalo i istražuje svaki bit
+    vraćenih paketa. Nakon što je učinio hrpu testova poput TCP ISN sampling, podrška i redosljed TCP opcija, IPID
+    sampling i provjeru veličine inicijalnog TCP prozora, Nmap uspoređuje rezultate s <filename moreinfo="none">
+    nmap-os-fingerprints</filename> bazom podataka s više od 1500 poznatih OS otisaka (engl fingerprint), te ispiše
+    detalje o OS-u ukoliko ga je uspio "pogoditi". Svaki otisak sadrži neformatirani tekstualni opis OS-a i
+    klasifikaciju u koju ulazi naziv izdavača (npr. Sun), OS (npr. Solaris), generacija OS-a (npr. 10) i tip uređaja
+    (općenite namjene, ruter, switch, igraća konzola isl.).</para>
+
+    <para>Ukoliko Nmap nije u stanju odrediti koji OS je pokrenut na ciljanom računalu, a uvjeti su dobri (npr.
+    postoji barem jedan otvoreni port na računalu), Nmap će vam ponuditi URL link preko kojeg možete poslati otisak
+    ukoliko ste sigurni u to koji OS se nalazi na tom računalu. Na taj način pomažete u nastojanjima da Nmap nauči
+    raspoznati što je moguće više sistema i samim tim postane precizniji u pogađanju.</para>
+
+    <para>Otkrivanje OS-a omogućava još neke dodatne testove koji koriste informacije prikupljene tijekom procesa
+    pogađanja. Jedan od tih dodatnih testova je i vrijeme od kad je upaljeno računalo (uptime), koji koristi TCP
+    timestamp opciju (RFC 1323) kako bi pogodio kad je računalo zadnji put resetirano.To je prikazano samo za ona
+    računala koja daju tu informaciju. Drugi test je predvidljivost TCP  sekvenci. Taj test mjeri koliko je teško
+    uspostaviti lažiranu TCP vezu s udaljenim računalom. To je korisno ukoliko želite iskoristiti povjerenje bazirano
+    na ishodišnoj IP adresi (recimo kod rlogin-a, vatrozida, filtera itd.) ili u situacijama kada želite sakriti
+    svoje tragove. Ovaj način prikrivanja se danas rijetko koristi, no još uvijek postoji velika količina računala
+    koja su ranjiva. Stvarni broj "težine" je baziran na statističkom skupljanju podataka i varira. Obično je bolje
+    koristiti klasifikaciju poput <quote>popriličan izazov</quote> i <quote>toliko jednostavno da je smiješno</quote>
+    . Ovakakv način izvještavanja dobit ćete u normalnom ispisu kad uključite verbose opciju (<option>-v</option>).
+    Kad je verbose opcija uključena zajedno s <option>-O</option>, onda kao rezultat dobijete i izvještaj generiranja
+    IPID  sekvence. Većina računala je u tzv. <quote>inkrementalnoj</quote> klasi, što znači da sa svakim poslanim
+    paketom uvećaju ID polje IP zaglavlja. To ih čini ranjivima na nekoliko naprednih načina sakupljanja informacija
+    i napade zavaravanja (engl. spoofing).</para>
+
+    <para>Dokument u kojem je opisano kako radi, kako se koristi i kako se može prilagoditi otkrivanje verzije,
+    dostupan je u podosta jezika na linku:
+    <ulink url="http://www.insecure.org/nmap/osdetect/"></ulink>.</para>
+
+    <para>Otkrivanje OS-a se uključuje i upravlja sa sljedećim opcijama</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-O</option> (Uključi otkrivanje OS-a)
+        </term>
+        <listitem>
+          <para>Ova opcije uključi otkrivanje OS-a kako je opisano u prethodnom odlomku. Isto tak omožete koristiti
+          opciju <option>-A</option> da istovremeno uključite otkrivanje OS-a i verzije</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan-limit</option> (ograniči otkrivanje OS-a samo na ciljeve koji obećavaju)
+        </term>
+        <listitem>
+          <para>Otkrivanje OS-a je mnogo učinkovitije ako postoji bar jedan otvoren i zatvoren port. Ukoliko
+          uključite ovu opciju, Nmap neće niti pokušati raditi otkrivanje OS-a na hostovima koji nisu zadovoljili
+          ovaj kriterij. To vam može uštedjeti mnogo vremena, pogotovo kod skeniranja s opcijom <option>-P0</option>
+          kad koristite mnogo ciljanih računala. Ovu opciju možete koristiti samo su kombinaciji s opcijama
+          <option>-O</option> ili <option>-A</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--osscan-guess</option>; <option>--fuzzy</option> (probaj pogoditi OS na osnovu rezultata)
+        </term>
+        <listitem>
+          <para>Ukoliko Nmap nije našao idealan rezultat, ponekad ponudi najbliži rezultat koji bi mogao biti.
+          Ukoliko odaberete neku od ovih opcija, Nmap će <quote>pogađati agresivnije</quote>.</para>
+        </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+  </refsect1>
+
+   <refsect1 id="man-performance">
+    <title>Vrijeme odaziva i performanse</title>
+    <para>Jedan od najviših prioriteta tijekom razvijanja Nmap-a su performase. Defaultni scan
+    (<command moreinfo="none">nmap<replaceable>hostname</replaceable></command>) nekog računala na lokalnoj mreži
+    traje petinu sekunde. To je manje od vremena koje vam je potrebno za treptaj oka, ali naravno kad skenirate 10
+    ili 100 tisuća hostova postane osjetno. Uz to, neki tipovi skenova, poput UDP skeniranja i otkrivanja verzijemogu
+    to vrijeme poprilično produžiti. Isto tako skeniranje mogu usporiti i neke konfiguracije vatrozida, pogptovo
+    limitiranje količine odgovora u jedinici vremena.Iako Nmap koristi paralalno izvršavanje skenova kako bi ih
+    dodatno ubrzao, sam korisnik ima potpunu kontrolu nad time. Napredni korisnici pažljivo kombiniraju Nmap naredbe
+    kako bi dobili samo informacije koje im trebaju poštivajući vremenske termine koje su si zadali.</para>
+
+    <para>Tehnike za ubrzavanje skeniranja sastoje se od toga da izbacite nepotrebne testove i naravno da nadogradite
+    Nmap na posljednju verziju (poboljšanja performansi se konstantno rade). Optimiziranje vremena odziva (engl.
+    Timing) takođem može utjecati na brzinu skeniranja. Opcije slijede:</para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>--min-hostgroup &lt;numhosts&gt;</option>; 
+        <option>--max-hostgroup
+        &lt;numhosts&gt;</option> (Podešava veličinu grupe paralelnih skenova)</term>
+        <listitem>
+<para>Nmap ima mogućnost skeniranja više hostova paralelno. To radi na način da podijeli adresni prostor ciljanih
+računala u grupe i onda skenira grupu po grupu. U principu ispada da su veće grupe učinkovitije. Nedostatak je taj š
+to rezultati ne mogu biti prikazani dok cijela grupa nije odskenirana do kraja. Dakle, ako je Nmap krenuo skenirati
+grupu od 50 računala, korisnik nrćr vidjeti nikakve rezultate (osim onih koje ispisuje opcija -v) dok svih 50 hostova
+nije odskenirano.</para>
+
+<para>
+Defaultno Nmap radi kompromis. Počinje s grupom od 5 hostova, tako da se prvi rezultati brzo pojave na ekranu, a
+nakon toga poveća veličinu grupe na 1024. Točan broj ovisi o uključenim opcijama. Zbog povećane efikasnosti Nmap
+koristi veće grupe za UDP skenove, a manje za TCP skenove.
+</para>
+
+<para>Kad definirate maksimalnu veličinu grupe pomoću opcije <option>--max-hostgroup</option>, Nmap je neće nikad
+premašiti. Ukoliko pak specificirate minimalnu veličinu grupe s <option>--min-hostgroup</option>, Nmap će pokušati
+zadržati veličinu grupe iznad tog nivoa. Naravno, ukoliko broj hostova koji su ostali za skeniranje bude manji od
+minimalne grupa Nmap će normalno odraditi svoj posao. Obje opcije možete koristiti istovremeno kako bi veličinu grupe
+zadržali u željenim okvirima, ali to je rijetko potrebno.</para>
+
+<para>Primarna upotrenba ovih opcija je navođenje što veće minimalne veličine grupe kako bi skenovi brže odradili
+svoj posao. Najčeđći odabir je 256, kako bi skeniranje mreže išlo u odsječcima C klase. Za skenove u kojima se
+skenira mnogo portova, povećanje tog broja iznad 256 će rijetko pomoći. Ukoliko pak skenirate samo nekoliko portova,
+veličina grupe od 2048 ili više, može biti od pomoći.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min-parallelism &lt;numprobes&gt;</option>;
+        <option>--max-parallelism
+        &lt;numprobes&gt;</option> (Podesi paralelizam)</term>
+        <listitem>
+
+<para>Ove opcije upravljaju brojem sondi (engl. probe) koje mogu biti poslane po grupi hostova. Koriste se za
+skeniranje portova i otkrivanje hostova. Defaultno Nmap svaki put izračuna idealni paralelizam vezano uz mrežne
+performanse, a mijenja ga tijekom skena, ovisno o ujetima. Ukoliko dolazi do odbačenih paketa, Nmap uspori tj. šalje
+manje sondi. Broj sondi polako raste ako mreža daje naznaku da može prihvatiti više od trenutnog broja. Ove opcije
+postavljaju minimalnu i maksimalnu granicu. Defaultno paralelizam može pasti na 1 ako je mreža nepouzdana ili narasti
+na nekoliko stotina, ako imamo idealne uvjete.</para>
+
+<para>Najčešći način upotrebe je da se podesi <option>--min-parallelism</option> na broj veći od 1 kako bi se ubrzalo
+skeniranje sporijih hostova i mreža. To je ujedno i riskantna opcija, jer ako podesite prevelik broj, utjecat ćete na
+točnost skena. Isto tako, ukolik opodesite ovu opciju, sprječavate Nmap da dinamički upravlja paralelizmom vezano uz
+stvarne uvjete na mreži. Broj 10 ima smisla, ali osobno podešavam tu vrijednost kad nemam ništa drugo na
+rapolaganju.</para>
+
+<para>Opcija <option>--max-parallelism</option> stavite na 1 ukoliko želite spriječiti Nmap da koristi paralelizam,
+tj. želite da šalje samo jednu po jednu sondu.To može biti korisno u kombinaciji s opcijom <option>--scan-delay
+</option> (objasnit ćemo je kasnije), mada ta opcija sama po sebi služi svrsi dovoljno dobro.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--min_rtt_timeout &lt;time&gt;</option>, 
+        <option>--max-rtt-timeout &lt;time&gt;</option>, 
+        <option>--initial-rtt-timeout
+        &lt;time&gt;</option> (Podesi vrijeme trajanja sondi)</term>
+        <listitem>
+
+<para>Nmap pazi na vrijeme isteka da bi mogao ustanoviti koliko dugo će čekati na odgovor sonde prije nego odustane
+ili ponovno pokuša poslati istu sondu. To se izračunava na osnovu prethodnih sondi i vremenskog odaziva koji su
+imale. Ukoliko se mrežno kašnjenje pokaže značajnim i promjenjivim, vrijeme isteka može narasti i na nekoliko
+sekundi. Također počinje na konzervativnom (visokom) nivou i takvo će ostati u slučaju da Nmap skenira hostove koji
+ne odgovaraju.</para>
+
+<para>Ove opcije primaju vrijednost u milisekundama, ali vi možete navesti vrijeme u sekundama, minutama ili satima
+na način da stavite opciju <literal moreinfo="none">s</literal>, <literal moreinfo="none">m</literal> ili
+<literal moreinfo="none">h</literal>. Navođenje nižeg <option>--max-rtt-timeout</option> i
+<option>--initial-rtt-timeout</option> od defaultnog može osjetno skratiti vrijeme potrebno za skeniranje. To je
+posebno vidljivo kod (<option>-P0</option>) skenova i skenova prema jako filtriranim mrežama. Ipak, nemojte biti
+preagresivni, jer vam u tom slučaju skeniranje može i dulje potrajati, jer će Nmap ponovno slati sonde, a odgovr na
+prethodne je možda na putu nazad.</para>
+
+<para>Ukoliko su svi hostovi na lokalnoj mreži, 100ms je razumna vrijednost za <option>--max-rtt-timeout</option>
+_timeout. Ukoliko postoje ruteri između Nmapa i hostova, najprije pingajte hosta s ICMP ping alatom ili s naprednijim
+alatom poput Hping2 koji ima veće mogućnosti proći kroz vatrozid. Pogledajte koja je srednja vrijednost vremena
+portebnog da se paket vrati za 10-tak paketa. Tu vrijednost pomnožite s 2 za <option>--initial-rtt-timeout</option> i
+s 3 ili 4 za <option>--max-rtt-timeout</option>. Osobno ne postavljam maksimalni rtt ispod 100ms, bez obzira na
+vrijednosti koje dobijem pinganjem, niti stavljam više od 1000ms.</para>
+
+<para><option>--min-rtt-timeout</option> je rijetko korištena opcija koja može biti korisna kod jako nepouzdanih mrež
+a na kojima su čak i Nmap-ove defaultne postavke preagresivne. Kako Nmap spušta vrijeme isteka na minimum tek kad
+zaključi da je mreža pouzdana, ovo bi trebalo prijeviti kao bug na nmap-dev mailing listu.</para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>--max-retries &lt;numtries&gt;</option> (Navedi maksimalni broj ponovnih slanja sondi)
+        </term>
+        <listitem>
+
+<para>Kad Nmap ne dobije odgovor na sondu koja skenira port, to može značiti da je port filtriran ili to da je sonda
+ili odgovor na nju izgubljen na mreži. Isto tako je moguće da ciljani host ima podešenu granicu na količinu paketa na
+koje odgovara, pa je samo privremeno blokiran odgovor. Kako bi bio siuguran o čemiu je riječ, Nmap ponovno šalje
+sonde na koje nije dobio odgovor. Ukoliko ustanovi da je mreža nepouzdana, može se dogoditi da pošalje sondu još
+mnogo puta prije nego odustane. Ovo je opcija koja daje točnije rezultate, ali isto tako i usporava postupak
+skeniranja. Kad je brzina skeniranja ključna, možete koristiti ovu opciju kako bi ograničili broj ponovnih slanja
+sondi. Čak možete navesti i <option>--max-retries 0</option> kako bi u potunosti spriječili ponovno slanje, makar je
+to rijetko preporučljivo.
+</para>
+
+<para>Defaultna postavka (bez <option>-T</option> predloška) je 10 ponovnih slanja. Ukoliko se mreža pokaže pouzdanom
+i ciljani hostovi ne ograničavaju skeniranje, Nmap će napraviti samo jedno ponovno slanje. Gledano iz tog kuta, na
+većinu ciljanih računala ne utječe ako stavite <option>--max-retries</option> na nizak broj poput 3. To je vrijednost
+koja može mnogostruko ubrzati skeniranje sporih hostova (onih koji ne dozvoljavaju mnogo port skenova s jedne IP
+adrese, nego ih jednostavno blokiraju). Istina je da obično izgubite neke informacija ako Nmap prerano odustane od
+hosta, ali i to je bolje nego ostaviti <option>--host-timeout</option> da istekne i izgibiti sve informacije o
+ciljanom hostu.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--host-timeout &lt;time&gt;</option> (odustani od skeniranja sporih hostova)
+        </term>
+        <listitem>
+
+<para>Skeniranje nekih hostova jednostavno traje <emphasis>jako</emphasis> dugo. To može biti zbog lošeg mrežnog
+hardvera ili softvera, ograničavanju količine paketa ili restriktivnih vatrozida. Nekoliko posto sporih hostova, mogu
+<quote>pojesti</quote> većinu vremena koje je potrebno za skeniranje. Ponekad je najbolje odustati od skeniranja
+takvih hostova kako bi stvar brže završila. To možete napraviti navođenjem parametra <option>--host-timeout</option>
+s brojem milisekundi koliko ste voljni čekati odgovor. Možete staviti i <literal moreinfo="none">s</literal>,
+<literal moreinfo="none">m</literal> ili <literal moreinfo="none">h</literal> kako bi naveli sekunde, minute i sate.
+Osobno obično stavim 30m kako bih se osigurao da Nmap ne troši više od <literal moreinfo="none">30m</literal> vremena
+po hostu. Imajte na umu da će Nmap za to vrijeme skenirati i ostale hostove, tako da to nije u potpunosti izgubljeno
+vrijeme. Host koji je dosegao vrijeme isteka je preskočen i z anjega nije ispisan nikakav rezultat poput port tabele,
+OS detekcije ili detekcije verzija.
+</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--scan-delay &lt;time&gt;</option>;
+        <option>--max_scan-delay
+        &lt;time&gt;</option> (podesi stanke između sondi)</term>
+        <listitem>
+
+<para>Ova opcija prisiljava Nmap da pričeka barem navedeno vrijeme u milisekundama prije nego pošalje iduću sondu
+prema tom hostu. Kao i kod većine drugih opcija koje imaju veze s vremenom, možete navesti <literal moreinfo="none">
+s</literal>, <literal moreinfo="none">m</literal> ili <literal moreinfo="none">h</literal> da bi definirali kašnjenje
+u sekundama, minutama ili satima. To je itekako korisno kod računala koja imaju upaljen "rate limiting". Solaris
+računala (između ostalih) će na UDP sken sonde odgovarati samo s jednom ICMP porukom po sekundi. Ako Nmap šalje UDP
+pakete češće od 1 sekunde, ti su paketa jednostavno uludo bačeni. Opcija <option>--scan-delay</option> od
+<literal moreinfo="none">1s</literal> će zadržati Nmap u sporom tempu. Nmap pokušava ustanoviti koji je "rate limit"
+podešen na jostu i prilagođava sken ovisno o tome, ali neće škoditi ako ga unaprijed definirate za hostove za koje
+ste sigurni da će se tako ponašati.
+</para>
+
+<para>Kad Nmap podesi sken shodno tome, dolazi do dramatičnog usporavanja. <option>--max_scan-delay</option>  opcija
+definira najveće kašnjanje koje će Nmap dozvoliti. Ukoliko podesite ovu opciju na premalu vrijednost, doći će do
+uzaludnog (prečestog) slanja paketa i samim tim promašenih otvorenih portova ako ciljani host ima uključen <quote>
+rate limiting</quote>.
+</para>
+
+<para>Još jedno način korištenja opcije <option>--scan-delay</option> je da se izbjegnu intrusion detection i
+intrusion prevention (IDS/IPS) sustavi, koji su bazirani na zadanoj vrijednosti (engl. treshold).</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-T
+          &lt;Paranoid|Sneaky|Polite|Normal|Aggressive|Insane&gt;</option>
+          (Podesite predložak za vremenske postavke)
+        </term>
+        <listitem>
+
+<para>Iako su do sad navedene opcije snažne i efikasne, većini ljudi su nerazumljive i zbunjujuće. Uz to, odabrati
+prave vrijednosti ponekad može potrajati duže od skena koji želite optimizirati. Zbog toga Vam Nmap nudi
+jednostavniji pristup, korištenjem 6 preddefiniranih predložaka. Možete ih navesti korištenjem <option>-T</option>
+opcije s brojevima od 0-5 ili njihovim imenima.Nazivi predložaka su: paranoidno (engl. paranoid) (0), skriven (engl.
+sneaky) (1), pristojan (eng. polite) (2), normalan (engl. normal) (3), agresivan (engl. aggressive) (4) i lud (engl.
+insane) (5). Prva dva su za obilaženje IDS sustava. Predložak pristojan usporava skeniranje kako bi što je moguće
+manje opteretio mrežne resurse i računalo koje skenirate. Normalni mod je defaultna postavka i postavljanje opcije
+<option>-T3</option> zapravo ne uvodi nikakve promjene. Agresivni mod ubrzava skeniranje pod pretpostavkom da ste na
+poprilično brzoj i pouzdanoj mreži. Na kraju "ludi" mod pretpostavlja da ste na posebno brzoj mreži i da ste spremni
+žrtvovati točnost rezultata kako bi dobili na brzini.
+</para>
+
+<para>Navedeni predlošci omogućavaju korisnicima da navedu koliko agresivni žele biti, ostavljajući Nmap-u da odabere
+točne vrijednosti. Predlošci također rade neka manja podešavanja brzine za koja trenutno ne postoje drugi načini.
+Npr. <option>-T4</option> sprječava da dinamičko kašnjenje skeniranja prijeđe 10ms za TCP portove, dok
+<option>-T5</option> drži tu vrijednost na 5ms. Predlođke možete kombinirati s finijim kontrolama, sve dok je
+template naveden prvi inače će vrijednosti iz predloška nadjačati one koje ste naveli. Predlažem korisštenje opcije
+<option>-T4</option> kod skeniranja modernih i pouzdanih mreža. Ostavite tu opciju na početku komandne linije čak i
+kad koristite neke finije naredbe kako bi imali koristi od dodatnih optimizacija koje predložak donosi.</para>
+
+<para>Ukoliko ste na pristojnoj broadband ili eternet konekciji, predlažem korištenje opcije <option>-T4</option>.
+Neki ljudi vole <option>-T5</option>, mada je preagresoivan za moj ukus. Isto tako ljudi ponekad stave
+<option>-T2</option> misleći da je manja vjerovatnost da će tako srušiti host ili se inače smatraju pristojnima. No
+oni u stvari ne razumiju koliko je opcije <option>-T pristojno</option> u stvari spora. Ovaj način skeniranja može
+potrajati i do 10 puta duže nego defaultni.Padovi računala i problemi s bandwithom su rijetki s korištenjem defaultne
+opcije <option>-T3</option>, pa je normalno preporučam opreznim skenerima.Izbjegavanje otkrivanja verzije je u svakom
+slučaju efikasnije u pokušaju rješevanja tih problema nego igranje s vremenima odaziva.</para>
+
+<para>Iako su opcije <option>-T0</option> i <option>-T1</option> korisne u izbjegavanju otkrivanja od strane IDS
+sustava, skeniranje tisuću portova će trajati jaaaako dugo. Kod takcih skenova je možda bolje direktno navesti
+vremena odaziva nego se pouzdati u preddefinirane vrijednosti opcija <option>-T0</option> i <option>-T1</option>.
+</para>
+
+<para>Glavni efekt korištenja opcije <option>T0</option> je taj da su skenovi serijski (skenira se port po port) i
+nakon odskeniranog porta čeka 5 minuta prije nego će poslati iduću sondu.<option>T1</option> i
+<option>T2</option> su slični s tim da <option>T1</option> čeka 15 sekundi između sondi, dok <option>T2</option> čeka
+0.4 sekunde između sondi. <option>T3</option> je defaultna postavka koja uključuje paralilizam (skenirano je više
+portova istovremeno). Opcije <option>T3</option> je isto kao i <option>--max-rtt-timeout 1250
+--initial-rtt-timeout 500 --max-retries 6</option>, te podešava maksimalno TCP kašnjenje na 10ms. Opcija <option>T5
+</option> je isto kao i <option>--max-rtt-timeout 300 --min_rtt_timeout 50
+--initial-rtt-timeout 250 --max-retries 2 --host-timeout 900000</option> kao i postavljanje maksimalnog TCP sken kaš
+njenja na 5ms.</para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-bypass-firewalls-ids">
+    <title>Izbjegavanje i zavaravanje vatrozida i IDS-a</title>
+
+<para>Mnogo pionira interneta zu zamislili globalnu otvorenu mrežu univerzalnog adresnog prostora u kojoj je
+dozvoljeno spajanje bilo koja dva čvora. To bi omogućilo hostovima da šalju i primaju informacije jedan od drugog.
+Ljudi bi mogli pristupiti svim svojim sustavima s posla i mijenjati postavke grijanja i hlađenja, pa čak i
+otključavati vrata gostima koji su uranili.Ta verzija univerzalne povezanosti je ugušena nedovoljnim adresnim
+prostorom i ponajviše iz sigurnosnih razloga. U ranim 90-tima, firme su počele uvoditi vatrozide s primarnom namjenom
+da smanje mogućnosti povezivanja koje su postojale. Ogromne mreže su ofgrađene od nefiltriranog interneta korištenjem
+aplikacijskih proxy-a, NAT uređajai paket filtera. Otvoreno kolanje informacija predalo je tron kontroliranim
+komunikacijskim kanalima i sadržajem koji je njima prolazio.</para>
+
+<para>Mrežne barijere poput vatrozida mogu otežati mapiranje mreže, a vremenom neće biti ništa lakše, jer ugušiti
+lagodno istraživanje mreže je primarni cilj većine uređaja. No ipak, Nmap nudi mnogo mogućnosti kako bi nam pomogao u
+razumijevanju tih kompleksnih mreža i kako bi provjerio da li filteri uistinu rade onako kako smo zamislili. Čak
+podržava mehanizme za obilaženje loše implementiranih mjera zaštite. Jedna od najboljeh metoda pomoću koje ćete
+razumjeti postavke svoje mrežne sigurnosti je pokušaj da je obiđete. Pokušajte se postaviti u mentalni sklop napadača
+i iskoristite tehnike iz ovog poglavlja protiv svojih mreža. Pokrenite FTP bounce sken, idle sken, napad
+fragmentacijom ili pokušajte tunelirati kroz svoj proxy server.</para>
+
+<para>Uz to što brane mrežnu aktivnost, firme sve više nadgledaju promet sa sustavima za otkrivanje upada (engl.
+intrusion detection system) IDS. Većina poznatijih IDS sustava dolaze s podešenim pravilima koja mogu prepoznati Nmap
+skenove, jer ponekad je sken u stvari prethodnik napada. Većina tih sustava je nedavno prerasla u sustave za zaštitu
+od upada (engl. intrusion <emphasis>prevention</emphasis> system) IPS koji aktivno blokiraju promet koji ocjene kao
+zloćudan. Na štetu mrežnih administratora i proizvođača IDS sustava, pouzdano ustanoviti što je zloćudno, a što nije
+samo analizom paketa je teško. Napadači koji imaju strpljenja i sposobnosti obično mogu uz pomoć nekin Nmap-ovih
+opcija proći nezapaženo od IDS sustava. U međuvremenu admnistratori se moraju boriti s velikom količinom lažnih
+uzbuna, gdje je normalna mrežna aktivnost pogrešno dijagnosticirana i možda čak blokirana od IPS sustava.</para>
+
+<para>Ponekad ljudi predlažu da Nmap ne bi trebao nuditi mogućnosti za obilaženjem vatrozida i provlašenja pored
+IDS-a. Tvrde da će te mogućnosti biti korištene od strane napadača isto kao i od strane administratora. Problem u
+ovoj logici je taj što će metode tako i tako biti dostupne napadačima koji će koristiti neki fdrugi alat ili sami
+doprogramirati funkcionalnost u Nmap, dok bi administratori imali puno teži posao u sprješavanju upada na svoje
+sustave. Postavljanje samo modernih, zakrpanih FTP servera je mnogo učinkovitija obrana od sprječavanja distribucije
+alata koji mogu napraviti FTP bounce napad.
+</para>
+
+<para>Ne postoji čarobni metak (ili Nmap opcija) za otkrivanje i potkopavanje vatrozida i IDS sustava. Za to je
+potrebna vještina i iskustvo. Tutorial je nešto što ne spada u ovaj dokument, koji samo navodi opcije i opisuje što
+one mogu.
+</para>
+
+<variablelist>
+      <varlistentry>
+        <term>
+          <option>-f</option> (fragmentiraj pakete);
+          <option>--mtu</option> (koristi navedeni MTU)
+        </term>
+
+        <listitem>
+          <para><option>-f</option> opcija prisiljava pokrenuti sken (uključujući i ping sken) da koristi male
+          fragmente IP paketa. Ideja se sastoji od toga da zaglavlje TCP paketa prelomi na više paketa kako bi paket
+          filterima, IDS-ovima i drugim dosadnjakovićima bilo teže otkriti što radite. Budite pažljivi s tim! Neki
+          programi imaju problema u radu s takvim malim paketima. Jedan stari sniffer imenom Sniffit, je automatski
+          pukao kad bi primio prvi fragment. Nakon što navedete ovu opciju jednom, Nmap podijeli pakete u 8 bytova
+          ili manje. Tako će 20 bytno TCP zaglavlje biti podijeljeno u 3 paketa, dva po 8 bytova i jedan od 4. Imajte
+          na umu da svaki od tih paketa koje smo prelomili dobiva novo zaglavlje, koje nema nikakve veze s
+          originalnim. Navedite <option>-f</option> još jednom i Nmap će koristiti 16 bytova po fragmentu (smanjujući
+          broj fragmenata). Isto tako možete definirati bilo koju željenu veličinu korištenjem --mtu opcije. Ukoliko
+          koristite <option>--mtu</option> opciju nemojte koristiti i <option>-f</option> opciju. Fragment mora biti
+          višekratnik broja 8. Iako fragmenti neće proći pored paet filtera i vatrozida koji skupljaju se fragmente
+          kako bi vidjeli što je u originalnom paketu, popout opcije CONFIG_IP_ALWAYS_DEFRAG u linux jezgri
+          operativnog sustava, činjenica je da si neke mreže ne mogu dozvoliti udar na performanse koji ta opcija
+          ima, pa je stoga na njima isključena. Drugi pak sustavi ne mogu imati upaljnu tu opciju, jer fragmenti mogu
+          doći u njihovu mrežu drugom rutom. Neki sustavi defragmentiraju izlazne pakete u samoj jezgri, poput linuxa
+          koji ima iptables s upaljenim modulom praćenja konekcije. Pokrenite sken dok je upaljen snifer poput
+          ethereal-a kako bi se osigurali da su odlazni paketi fragmentirani. Ukoliko vaš OS radi probleme (kao što
+          smo naveli malo prije kod linuxa i iptables-a), pokušajte slati sirove eternet frame-ove opcijom <option>
+          --send-eth</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-D &lt;decoy1 [,decoy2][,ME],...&gt;</option>
+          (sakrij sken pomoću mamaca)
+        </term>
+        <listitem>
+          <para>Ovaj način skeniranja učini to da na hostu koji skenirate izgleda kao da ga skeniraju i sustavi koje
+          ste stavili u mamce. Tako će IDS navesti 5- port skenova s jedne IP adrese i tako za sve mamce koje ste
+          naveli i za vas. Samim tim neće znati tko je stvarno skenirao mrežu, a tko je bio nevina žrtva (mamac). Ovo
+          može biti eliminirano traženjem ruterskog puta (engl. router path tracing), odbacivanja odgovora (engl.
+          response-dropping) i nekim drugim aktivnim mehanizmima, ali je ipak efikasna tehnika za sakrivanj IP
+          adrese.</para>
+
+          <para>Odvojite svaki host mamac sa zarezimaa možete opcionalno navesti i
+          <literal moreinfo="none">ME</literal> (što predstavlja vašu IP adresu), kako bi bila pozicionirana baš na
+          onom mjestu u skeniranju na kojem je želite. Ako postavite <literal moreinfo="none">ME</literal> na 6.
+          mjesto ili kasnije, neki uobičajeni detektori port skenova (poput alata "scanlogd" firme Solar Designer's)
+          uopće neće pokazati Vašu IP adresu. Ukoliko ne kkoristite <literal moreinfo="none">ME</literal> opciju,
+          Nmap će staviti vašu IP adresu na proizvoljno mjesto.</para>
+          
+          
+          <para>Imajte na umu da hostovi koje navodite kao mamce moraju biti upaljeni, jer ćete inače slučajno
+          napasti host koji skenirate Syn flood napadom. Isto tako poprilično je lako ustanoviti tko vas skenira ako
+          samo jedan host od navedenih uistinu postoji na mreži. Možete koristiti IP adrese umjesto imena (kako vas
+          mamci ne bi vidjeli u svojim name server logovima).</para>
+
+          <para>Mamci se koriste u inicijalnom ping skenu (korištenjem ICMP, SYN, ACK ili bilo kojeg drugog načina)
+          kao i za trajanja stvarnog skena portova. Mamci se također koriste i kod udaljenog otkrivanja operativnog
+          sustava (<option>-O</option>). Mamci NE rade s otkrivanjem verzije ili TCP connect() skena.</para>
+
+          <para>Činjenica je da će korištenje previše mamaca usporiti skeniranje i potencijalno ga učiniti manje
+          točnim. Isto tako, neki ISP-ovi će filtrirati lažirane pakete, ali većina ih ne zabranjuje.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-S &lt;IP_Address&gt;</option> (Lažiraj ishodišnu adresu)
+        </term>
+        <listitem>
+          <para>U nekim situacijama Nmap neće moći ustanoviti vašu ishodišnu IP adresu (Nmap će vam reći ako dođe do
+          toga). U tom slučaju koristite opciju <option>-S</option> s IP adresom mrežnog adaptera preko kojeg želite
+          poslati paket.</para>
+
+          <para>Još jedna mogućnost korištenja ove opcije je lažirati sken kako bi ciljano računalo mislilo da ga
+          skenira <emphasis>netko drugi</emphasis>. Zamislite firmu koju konstantno skenira konkurencija!
+          <option>-e</option> opcija j eobično potrebna za ovu namjenu i <option>-P0</option> je također
+          preporučeno.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-e &lt;interface&gt;</option> (koristi navedenu mrežnu karticu)
+        </term>
+        <listitem>
+          <para>Ova opcija kaže Nmap-u koju mrežnu karticu da koristi za slanje i primanje paketa. Nmap bi to trebao
+          otkriti automatski, a sam će vam reći ako to ne uspije.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--source-port &lt;portnumber&gt;;</option>
+          <option>-g &lt;portnumber&gt;</option> (Lažiraj broj ishodišnog porta)
+        </term>
+        <listitem>
+
+<para>Iznenađujuće česta greška je samo vjerovanje prometu koji dolazi s određenog porta. Jednostavno je shvatiti
+odakle to dolazi. Administrator podesi novi novcati vatrozid i najednom je obasut pritužbama korisnika kako su im
+aplikacije prestale raditi. Čak štoviše, možda je prestao raditi i DNS, jer UDP DNS odgovori s vanjskih servera više
+ne mogu ući u mrežu. FTP je još jedan dobar primjer. Kod aktivnih FTP prijenosa, FTP pokuša uspostaviti vezu nazad
+prema klijentu da bi poslao zatraženu datoteku.</para>
+
+<para>Postoje sigurna rješenja tih problema, često u obliku proxy-a na aplikacijskom nivou ili modula na vatrozidu
+koji parsaju protokol. Nažalost postoje i lakša, manje sigurna rješenja. Vidjevši da DNS odgovori dolaze s porta 53 i
+aktivni FTP s porta 20, mnogi su administratori pali u zamku jednostavno dozvoljavajući ulazni promet s tih portova.
+Obično pretpostavljaju da napadači neće uočiti i iskoristiti takve rupe u vatrozidu. U nekim slučajevima
+administratori smatraju to rješenje kao privremenu zakrpu, dok ne implementiraju bolje rješenje, a onda zaborave na
+to.</para>
+
+<para>U te zamke ne padaju samo preopterećeni mrežni administratori. Mnogo uređaja je isporučeno s takvim nesigurnim
+pravilima. Čak je i Microsoft bio kriv. IPSec filter koji dolazi s Windows 2000 i s WIndows XP OS-om ima implicitno
+pravilo koje dozvoljava sav TCP i UDP promet s porta 88 (Kerberos). Još jedan dobro poznati primjer je ZOne Alarm
+osobni vatrozid, koji je do verzije 2.1.25 dozvoljavao bilo koje dolazne UDP pakete sa ishodišnog porta 53 (DNS) i 67
+(DHCP).</para>
+
+<para>Nmap nudi opcije <option>-g</option> i <option>--source-port</option> (iste su) kako bi iskoristili ovakve
+slabosti. Jednostavno navedite broj porta i Nmap će ga koristiti kao ishodišni port gdje je to moguće. Nmap mora
+koristiti različite portove kako bi neki testovi otkrivanja OS-a radili ispravno,a DNS zahtjevi ignoriraju opciju
+<option>--source-port</option>, jer se kod toga Nmap oslanja na sistemske biblioteke. Većina TCP skenova uključujući
+i SYN sken podržava ove opcije u potpunosti isto kao i UDP sken.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--data-length &lt;number&gt;</option> (Dodaj proizvoljne podatke na pakete koje šalješ)
+        </term>
+        <listitem>
+          <para>U normalnim situacijama Nmap šalje minimalističke pakete koji se sastoje samo od zaglavlja. Tako da
+          su Nmap-ovi TCP paketu u načelu veličine 40 bytova, a ICMP paketi 28 bytova. Ova opcija kaže Nmap-u da doda
+          određenu količinu proizvoljnih bytova u paket koji šalje. Paketi koje koristi otkrivanje OS-a
+          (<option>-O</option>) nisu zahvaćeni ovom opcijom, dok većina ping skenova i portskenova je. To usporava
+          skeniranje, ali ga isto tako čini manje sumnjivim.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ttl &lt;value&gt;</option> (Podesi polje IP time-to-live)
+        </term>
+        <listitem>
+          <para>Podešava polje time-to-live i IPv4 paketima na zadanu vrijednost.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--randomize-hosts</option> (Proizvoljno poredaj hostove koje skeniraš)
+        </term>
+        <listitem>
+          <para>Ova opcija kaže Nmap-u da pomiješa svaku grupu od 8096 hostova prije nego ih počne skenirati. To može
+          učiniti skeniranje manje očitim za većinu sustava za nadgledanje mreže, pogotovo kad ovu opciju kombinirate
+          sa sporim vremenima kašnjenja (engl. timing options). Ukoliko želite pomiješati veće grupe, povećajte
+          PING_GROUP_SZ u <filename moreinfo="none">nmap.h</filename> biblioteci i ponovno kompajlirajte Nmap.
+          Alternativno rješenje je da kreirate listu ciljanih IP adresa s list skenom (<option>-sL -n -oN
+          <replaceable>naziv datoteke</replaceable></option>), pomiješate je s perl skriptom i onda dodate tu listu
+          Nmap-u s opcijom <option>-iL</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--spoof-mac &lt;mac adresa, prefiks ili naziv proizvođača&gt;</option> (Lažiraj MAC adresu)
+        </term>
+        <listitem>
+
+          <para>Ova opcija zatraži Nmap da koristi navedenu MAC adresu za sve ethernet frame-ove koje pošalje. Ova
+          opcija podrazumijeva <option>--send-eth</option> opciju kako bi osigurala da Nmap uistinu šalje pakete na
+          nivou etherneta. MAC adresa može imati nekoliko formata. Ukoliko je string <quote>0</quote>, Nmap će sam
+          odabrtati proizvoljnu MAC adresu za trajanje sesije. Ukoliko je zadani string sačinjen od parnog broja hex
+          znamenaka (gdje su parovi opcionalno odvojenih dvotočkom), Nmap će  korisiti tu MAC adresu. Ako je upisano
+          manje od 12 znamenaka, Nmap će ostatak nadopuniti s proizvoljnim vrijednostima. Ako nije navedena 0 niti
+          hex string, Nmap pregleda datoteku <filename moreinfo="none">nmap-mac-prefixes</filename> tražeći naziv
+          proivođača koji sadrži navedeni string (case sensitive). Ako se nešto poklopi, Nmap koristi OUI (3 bytni
+          prefix) proizvođača, a ostatak dopuni proizvoljno. Ispravni <option>--spoof-mac</option> argumenti su npr.
+          <literal moreinfo="none">Apple</literal>, <literal moreinfo="none">0</literal>,
+          <literal moreinfo="none">01:02:03:04:05:06</literal>, <literal moreinfo="none">deadbeefcafe</literal>,
+          <literal moreinfo="none">0020F2</literal>, and <literal moreinfo="none">Cisco</literal>.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--badsum</option> (Šalji pakete s lažnim TCP/UDP checksumom)
+        </term>
+        <listitem>
+
+          <para>Ova opcija traži od Nmap-a da koristi neispravne TCP i UDP checksume za pakete koje šalje na ciljano
+          računalo. Kako skoro svaki IP stack odbacuje takve pakete, svaki odgovor koji dobijete najvjerovatnie
+          dolazi od vatrozida ili IDS sustava koji nisu provjeravali checksum. Za više detalja o ovoj tehnici,
+          pogledajte: <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"></ulink>.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="man-output">
+    <title>Izvještaji</title>
+
+    <para>Svaki sigurnosni alat je koristan onoliko koliko dobar izvještaj ponudi. Kompleksni testovi i algoritmi su
+    od malo koristi ako njihov rezultat nije predstavljen na organiziran i razumljiv način. Obzirom na različite
+    načine korištenja Nmap-a od strane ljudi i drugih programa, jedan format ne može zadovoljiti sve, tako da Nmap
+    nudi više formata izvještaja, uključujući interaktivni mod koji direktno možete pročitati i XML kako bi ga
+    kasnije mogli pregledavati i analizirati drugi automatizirani alati.</para>
+
+<para>Uz to što nudi različite formate izvještaja, Nmap nudi opcije za upravljanje količinom prikazanih informacija,
+kao i poruke za debugiranje. Izvještaji mogu biti standardni (na ekran op prev.) ili spremljeni u datoteke, u koje
+Nmap može dodavati podatke ili ih prepisati. Datoteke u koje se spremaju rezultati taskođer mogu biti korištene za
+prekinute skenove koje ste nastavili.</para>
+
+<para>Nmap nam nudi izvještaje u 5 različitih formata. Defaultni se zove <literal moreinfo="none">interaktivni izvješ
+taj</literal> i poslan je na standardni izlaz (sdtout) (zaslon računala, op. prev.). Također postoji i
+<literal moreinfo="none">normalni izvještaj</literal> koji je sličan <literal moreinfo="none">interaktivnom</literal>
+s tim da prikazuje manje informacija i upozorenja, jer je predviđen za kasniju analizu, a ne trenutnu..</para>
+
+<para>XML izvještaj je jedan od najbitnijih, jer ga lako možete konvertirati u HTML, može lako biti pregledavan
+pomoću programa poput Nmap-ovog grafičkog korisničkog sučelja, te može biti importiran u bazu podataka.</para>
+
+<para>Dva preostala tipa izvještaja su jednostavni <literal moreinfo="none">grepabilni izvještaj</literal> koji
+uključuje većinu informacija o hostu u jednoj liniji i <literal moreinfo="none">sCRiPt KiDDi3 Izvj3št4j</literal> za
+korisnike koji se smatraju |&lt;-r4d.</para>
+
+<para>Dok je interaktivni izvještaj defaultni i nema komandnolinijskih opcija, preostale 4 opcije koriste istu
+sintaksu. Mogu preuzeti jedan parametar, a to je naziv datoteke u koji će biti pohranjeni rezultati. Možete navesti
+više različitih formata, ali svaki od njih smijete navesesti samo jednom. Npr. želite gledati normalni izvještaj za
+sebe, dok istovremeno želite razultate pohraniti i u XML datoteku, za kasniju programsku analizu. To možete postići
+opcijama <option>-oX myscan.xml -oN myscan.nmap</option>. Iako su u ovom poglavlju korištena imena poput
+<literal moreinfo="none">myscan.xml</literal> zbog jasnoće, preporučeno je korištenje određenijih i jasnijih imena.
+Imena koja ćete odabrati ovise o vašim željama i navikama, mada osobno koristim dugačka imena u kojima se nalazi
+datum skeniranjai nekoliko riječi koje opisuju što je u stvari skenirano, a sve to pohranim u direktorij nazvan
+imenom tvrtke koju skeniram.</para>
+
+<para>Iako navedene opcije spremaju rezultat u datoteke, Nmap i dalje ispisuje interaktivni izvještaj na zaslon
+računala. Npr. naredba <command moreinfo="none">nmap -oX myscan.xml target</command> sprema rezultate skena u XML
+datoteku imenom <filename moreinfo="none">myscan.xml</filename> i također ispisuje na zaslon računala ono što bi
+ispisao da opcija <option>-oX</option> nije bila navedena. Ovo možete promijeniti dodajući znak "-" (minus op. prev.)
+kao parametar jednom od tipova izvještaja, što će prisiliti Nmap da deaktivira interaktivni izvještaj i umjesto njega
+na stdout pošalje format koji ste naveli. Tako će naredba <command moreinfo="none">nmap -oX - target</command>
+posalti samo XML na stdout. Ozbiljne greške će i dalje biti ispisane na normalni tok grešaka - stderr.</para>
+
+<para>Za razliku od nekih Nmap-ovih opcija, razmak između opcije za naziv log datoteke (poput <option>-oX</option>) i
+naziva datoteke ili znamka minus je obavezan. Ukoliko ga izostavite, npr. napišete
+<option>-oG-</option> ili <option>-oXscan.xml</option>, Nmap će napraviti datoteke <emphasis>normalnog formata
+</emphasis> imenom <filename moreinfo="none">G-</filename> i <filename moreinfo="none">Xscan.xml</filename>.</para>
+
+<para>Nmap također nudi i opcije za upravljanje količinom prikazanih informacija i opcije da doda podatke u postojeću
+datoteku , a ne da je prepiše. Sve navedene opcije opisane su u daljnjem tekstu:</para>
+
+<variablelist><title>Formati Nmap-ovih izvještaja</title>
+      <varlistentry>
+        <term>
+        <option>-oN &lt;filespec&gt;</option> (Normalni izvještaj)</term>
+        <listitem>
+          <para>Zahtjeva da <literal moreinfo="none">normalni izvještaj</literal> bude spremljen u navedeno ime. Kao
+          što je opisano gore u tekstu, to se malo razlikuje od <literal moreinfo="none">interactivnog izvještaja
+          </literal>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oX &lt;filespec&gt;</option> (XML izvještaj)</term>
+        <listitem>
+
+          <para><literal moreinfo="none">XML izvještaj</literal> će biti pohranjen u navedenu datoteku. Nmap ima i
+          definiciju tipa dokumenta (engl Document Type Definition) kratica: DTD koja dozvoljava XML parserima da
+          provjere Nmap-ov XML izvještaj. Iako je primarno namijenjeno za programsko korištenje, može pomoći i
+          ljudima da interpretiraju Nmap-ov XML izvještaj. DTD definira ispravne elemente formata i često navodi
+          atribute i vrijednosti koje mogu poprimiti. Najsvježija verija je uvijek dostupna na:
+          <ulink url="http://www.insecure.org/nmap/data/nmap.dtd"></ulink>.</para>
+
+          <para>XML nudi stabilan format koji je lako čitljiv od strane programa. Besplatni XML parseri su dostupni
+          za većinu kompjutorskih jezika, uključujući C/C++, Perl, Python i Java-u. Čak postoje i poveznice za većinu
+          tih jezika koje omogućuju direktno interpretiranje Nmap-ovih izvještaja. Primjeri su:
+          <ulink url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink>
+          i <ulink url="http://www.nmapparser.com">Nmap::Parser</ulink> u Perlu i CPAN-u. U većini slučajeva kad neka
+          ozbiljnija aplikacija komunicira s Nmap-om, XML je željeni format.</para>
+
+          <para>XML izvještaj se poziva na XSL stilove, koji mogu biti korišteni za formatiranje rezultata u HTML.
+          Najjednostavniji način je da jednostavno učitate XML izvještaj u web preglednik poput firefox-a ili IE-a.
+          Defaultno će to raditi samo na računalu nakojem ste pokrenuli nmap (ili na računalu koje je slično
+          konfigurirano), jer je <filename moreinfo="none">nmap.xsl</filename> hardkodiran. Koristite opciju
+          <option>--webxml</option> ili
+          <option>--stylesheet</option> kako bi kreirali prenosive XML datoteke koje prikazuju podatke u HTML-u na
+          bilo kojem računalu spojenom na web.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oS &lt;filespec&gt;</option> (ScRipT KIdd|3 izvještaj)</term>
+        <listitem>
+   <para>Script kiddie izvještaj je poput interaktivnog s tim d je naknadno obrađen kako bi bolje odgovarao l33t
+   HaXXorZ koji je prije pazio na Nmap zbog njegovog konstantnog pisanja velikih slova i spelinga. Osobe koje ne
+   razumiju humor (prije nego me počnu napadati), trebale bi shvatiti da ova opcija tu da bi ismijavala script
+   kiddie-je, a ne da bi im <quote>pomagala</quote>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>-oG &lt;filespec&gt;</option> (Grepabilni izvještaj)</term>
+        <listitem>
+
+<para>Ovaj format zvještaja je  obrađen zadnji jer nije previše popularan. XML je mnogo moćniji i odgovara većini
+iskusnih korisnika. XML je format za koji postoji hrpa izvrsnih parsera, dok je grepabilni izvještaj moj osobni mali
+hack. XML je proširiv i podržava nove stvari koje budu ugrađene u Nmap, dok je to često ispušteno u grepabilnom
+izvještaju, jer nema mjesta za njih.</para>
+
+<para>No ipak, grepabilni izvještaj je poprilično popularan. To je jednostavni format koji prikazuje svakog hosta na
+jednoj liniji i može ga se lako pretraživati standardnim UNIX alatima, poput grep-a, awk-a, cut-a, sed-a, diff-a i
+Perl-a. Čak ga i ja koristim za jednokratne testove iz komandne linije. Pronaći sve hostove koji imaju otvoren ssh
+port ili se na njima vrti Solaris je vrlo lako pomoću grep naredbe, a to pak može biti poslano awk ili cut naredbi da
+bi se prikazala željena polja.</para>
+
+<para>Grepabilni izvještaj sastoji se od komentara (linija koje počinju s pound znakom (#)) i ciljanih linija.
+Ciljana linija sadrži kombinaciju od 6 imenovanih polja, odvojenih tabovima i iza njih dolazi dvotočka. Polja su:
+<literal moreinfo="none">Host</literal>, <literal moreinfo="none">Ports</literal>,
+<literal moreinfo="none">Protocols</literal>, <literal moreinfo="none">Ignored State</literal>,
+<literal moreinfo="none">OS</literal>, <literal moreinfo="none">Seq Index</literal>,
+<literal moreinfo="none">IPID</literal>, and <literal moreinfo="none">Status</literal>.</para>
+
+<para>Najvažnije od tih polja je obično <literal moreinfo="none">Ports</literal>, koje daje datalje o svakom
+zanimljivom portu. To je zarezom odvojena lista portova. Svaki zapis o portu predstavlja jedan zanimljivi port i ima
+oblik sedam podpolja odvojenih slash znakom (/). Podpolja su:
+<literal moreinfo="none">Port number</literal>,
+<literal moreinfo="none">State</literal>, <literal moreinfo="none">Protocol</literal>,
+<literal moreinfo="none">Owner</literal>, <literal moreinfo="none">Service</literal>,
+<literal moreinfo="none">SunRPC info</literal>, and <literal moreinfo="none">Version info</literal>.</para>
+
+<para>
+Kao i kod XML formata, više informacija možete naći na sljedećem linku:
+<ulink url="http://www.unspecific.com/nmap-oG-output"></ulink>.</para>
+        </listitem>
+      </varlistentry>
+
+     <varlistentry>
+        <term>
+        <option>-oA &lt;basename&gt;</option> (Izvještaj u svim formatima)</term>
+       <listitem><para>Radi jednostavnosti, možete navesti opciju <option>-oA
+           <replaceable>basename</replaceable></option>, kako bi spremili rezultate u normalnom, XML i grepabilnom
+           formatu odjednom.  spremljeni su u datoteke imanom <replaceable>basename</replaceable>.nmap, <replaceable>
+           basename</replaceable>.xml i <replaceable>basename</replaceable>.gnmap. Kao i kod većine programa možete
+           staviti prefiks ispred naziva datoteke kako bi je spremili u željeni direktorij, kao npr.
+           <filename moreinfo="none">~/nmaplogs/foocorp/</filename> na UNIX-u ili
+           <filename moreinfo="none">c:\hacking\sco</filename> na Windows platformi.</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+    <variablelist><title>Opcije za prikaz količine informacija i debugiranje</title>
+      <varlistentry>
+        <term>
+          <option>-v</option> (povećaj količinu prikazanih informacija)
+        </term>
+        <listitem>
+          <para>Povećava nivo količine prikazanih informacija, te Nmap prikazuje više informacija o tekućem sken
+          procesu. Otvoreni portovi su prikazani odmah čim su otkrivani i Nmap prikazuje procjenu koliko vremena mu
+          treba za završetak posla ako procijeni da će sken trajati više od nekoliko minuta. Ukoliko želite još više
+          informacija, upišite ga dvaput. Korištenje -v opcije više od dva puta nema nikakav učinak.</para>
+
+          <para>Većina promjena koje se dobiju korištenjem ove opcije utječu na normalni i script kiddie izvještaj.
+          Ostali izvještaji su namijenjeni za automatiziranu obradu, pa Nmap u njima može navesti dodatne informacije
+          bez suvišnog opterećivanja korisnika. Ipak, postoji nekoliko promjena u ostalim modovima gdje veličinu
+          izvještaja možete osjetno smanjiti ne navodeći neke detalje. Npr. komentirana linija u gerepabilnom
+          formatu, koja daje listu svih skeniranih portova isprintana je samo u verose modu, jer može biti poprilično
+          velika.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-d [level]</option> (povećaj ili podesi nivo debugiranja)
+        </term>
+        <listitem>
+
+<para>Čak i kad verbose mod ne daje dovoljno informacija, debuging Vam stoji na raspolaganju, kako bi vas preplavio s
+još više podataka! Kao i kod opcje verbose (<option>-v</option>), uključujete ga s opcijom (<option>-d</option>), a
+sam nivo debugiranja možete povećati navođenjem opcije više puta. Čak možete navesti nivo debugiranja i navođenjem
+brojke nakon opcije (<option>-d</option>). Npr. (<option>-d9</option>) podešava nivo debugiranja 9. To je najviši
+mogući nivo i kao rezultat će dazi tisuće linija osim ako ste pokrenuli jako jednostavan sken s par ciljeva i
+portova.</para>
+
+<para>Debuging izvještaj je koristan kad sumnjate da u Nmap-u postoji greška ili ako ste jednostavno zbunjeni oko
+toga što Nmap radi i zašto. Kako je ova opcija najviše namjenjena developerima, debug linije nisu uvijek samoobjaš
+njavajuće. Možete dobiti nešto poput: Timeout vals: <computeroutput moreinfo="none">Timeout
+vals: srtt: -1 rttvar: -1 to: 1000000 delta 14987 ==&gt; srtt: 14987
+rttvar: 14987 to: 100000</computeroutput>. Ukoliko ne razumijete liniju, jedini smjer kojim možete nastaviti je da je
+ignorirate, potražite u izvornom kodu programa ili zatražite pomoć na razvojnoj listi (nmap-dev). Neke linije su
+samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja veći.</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--packet-trace</option> (Prati pakete i podatke koji su poslani/primljeni)
+        </term>
+        <listitem>
+          <para>Nmap ispiše informaciju o svakom poslanom i primljenom paketu. Ovo se najčešće koristi za
+          debugiranje, ali je isto tako dobar način za nove korisnike da saznaju što Nmap radi ispod haube. Kako bi
+          izbjegli ispisivanje tisuća linija, odaberite ograničeni broj portova koje skenirate, npr.
+          <option>-p20-30</option>. Ako Vas pak zanima samo što radi podsustav otkrivanja verzije, radije koristite
+          opciju <option>--version-trace</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--iflist</option> (Izlista mrežne adaptere i rute)
+        </term>
+        <listitem>
+          <para>Ispiše popis mrežnih adaptera i ruta kako ih vidi Nmap. To je korisno u debugiranju problema s
+          rutanjem ili krivog prepoznavanja uređaja (kao kad recimo Nmap tretira PPP konekciju kao ethernet).</para>
+        </listitem>
+      </varlistentry>
+
+   </variablelist>
+
+   <variablelist><title>Ostale opcije izvještaja</title>
+
+      <varlistentry>
+        <term>
+          <option>--append-output</option> (Dodaj rezultate u postojeći file umjesto da ih prepišeš)
+        </term>
+        <listitem>
+           <para>Kad navedete naziv datoteke nakon opcija poput <option>-oX</option> ili <option>-oN</option>,
+           datoteka istog imena je prepisan aako postoji. Ukoliko želite zadržati sadržaj postojeće datoteke i u
+           njega dodati nove rezultate, navedite <option>--append-output</option> opciju. Svie navedene datoteke u
+           tom pokretanju Nmap-a će biti sačuvane i u njoh će biti dodani novi podaci. To ne radi dobro s XML
+           datotekama (<option>-oX</option>), jer tako dobivena datoteka neće biti ispravna dok je ručno ne
+           prepravite.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--resume &lt;filename&gt;</option> (Nastavi prekinut sken)
+        </term>
+        <listitem>
+
+          <para>Neka temeljita Nmap skeniranja mogu potrajati i danima. Takvi skenovi ne uspiju uvijek odraditi posao
+          do kraja. Zabrane mogu spriječiti Nmap da radi tijekom radnih sati, mreža može pasti, računalo na kojem je
+          pokrenut Nmap može biti resetirano (planski ili neplanski) ili se čak sam Nmap može srušiti. Čak i osoba
+          koja je pokrenula Nmap sken može biti ta koja će ga prekinuti korištenjem tipaka
+          <keycap moreinfo="none">ctrl-C</keycap>. Ponovno pokretanje cijelog skena nije isplativo. Na sreću, ukoliko
+          ste spremali normalne  (<option>-oN</option>) ili grepabilne (<option>-oG</option>) logove, možete zatraž
+          iti Nmap da nastavi skeniranje tamo gdje je stalo. Jednostavno navedite opciju <option>--resume</option> i
+          proslijedite naziv datoteke normalnom ili grepabilnom načinu skeniranja. Nisu dozvoljeni nikakvi drugi
+          argumenti, jer će Nmap pretražiti postojeću datoteku i koristiti iste opcije koje je koristio i prije.
+          jednostavno pozovite Nmap:
+          <command moreinfo="none">nmap --resume<replaceable>logfilename</replaceable></command>. Nmap će dodati nove
+          rezultate u postojeću datoteku. Nastavljanje ne podržava XML izvještaje, jer bi spajanje dvije datoteke u
+          jednu ispravnu bilo prekomplicirano.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--stylesheet &lt;putanja ili URL&gt;</option> (Podesi XSL stil za transformiranje XML izvještaja)
+
+        </term>
+        <listitem>
+          <para>Nmap dolazi s XSL stilom nazvanim <filename moreinfo="none">nmap.xsl</filename> koji je namijenjen za
+          gledanje ili prevođenje XML izvještaja u HTML. XML izvještaj sadrži <literal moreinfo="none">
+          xml-stylesheet</literal> naredbu koja pokazuje na <filename moreinfo="none">nmap.xml</filename> datoteku
+          gdje je inicijalno instalitrana od Nmap-a (ili u trenutni direktorij u kojem je pokrenut Nmap kad je u
+          pitanju Windows OS). Jednostavno otvorite Nmap-ov XML izvještaj u neki noviji web preglednik i on bi trebao
+          dohvatiti <filename moreinfo="none">nmap.xsl</filename> i iskoristiti ga za prikaz rezultata. Ukoliko ž
+          elite koristiti neki drugi stil, navedite ga kao argument opciji <option>--stylesheet</option>. Morate
+          navesti kompletnu putanju do njega ili URL. Npr. --stylesheet <option>--stylesheet
+          http://www.insecure.org/nmap/data/nmap.xsl</option>. Ova naredba kaže pregledniku da učita zadnju verziju
+          stila s isecure.org. Opcija <option>--webxml</option> čini isto to bez potrebe pretjeranog pisanja i
+          pamćenja linka. Učitavanje XSL stila sa stranica insecure.org omogućava gledanje rezultata na jednostavniji
+          način čak i računalima koja nemaju instaliran Nmap (a samim tim i
+          <filename moreinfo="none">nmap.xsl</filename>). Tako da je URL najčešće i korisniji, no, nmap.xsl-a koji se
+          nalazi na datotečnom sustavu koristi se ukoliko želite imati više privatnosti.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--webxml</option> (Učitaj stil sa stranice Insecure.Org)
+        </term>
+        <listitem>
+          <para>Ovo je jednostavno kratica za <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl
+          </option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--no_stylesheet</option> (Izbaci deklaraciju stila iz XML-a)
+        </term>
+        <listitem>
+          <para>Ukoliko ne želite da Nmap poveže XSL stil s XML-om, odaberite ovu opciju. U tom slučaju se ne koristi
+          naredba <literal moreinfo="none">xml-stylesheet</literal></para>
+        </listitem>
+      </varlistentry>
+
+
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-misc-options">
+    <title>Razne opcije</title>
+    <para>Ovo poglavlje opisuje neke važne (i neke ne toliko važne) opcije koje jednostavno ne spadaju nigdje
+    drugdje.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-6</option> (Uključi skeniranje IPv6 protokola)
+        </term>
+        <listitem>
+
+          <para>Od 2002. godine, Nmap nudi i podršku za IPv6 svojih najpopularnijih svojstava. Točnije, ping scan (
+          samo TCP), connect() scan i otkrivanje verzije podržavaju IPv6. Sintaksa je jednaka osim što dodate opciju
+          <option>-6</option>. Naravno, morate koristiti IPv6 sintaksu IP adrese ako navedete IP Adresu,a ne naziv
+          hosta. Adresa može izgledati kao <literal moreinfo="none">3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>,
+          pa je stoga preporučeno korištenje host imena. Izvještaj izgleda isto osim što je na liniji <quote>
+          zanimljivih portova</quote> IPv6 IP adresa.</para>
+
+          <para>Iako IPv6 nije pregazila svijet ipak se poprilično koristi u nekim zemljama (osobito Azijskim), a i
+          većina modernih OS-ova ima ugrađenu podršku. Da bi mogli koristiti Nmap s IPv6 protokolom i ciljano
+          računalo i vaše računalo moraju biti podešeni za korištenje IPv6. Ukoliko vaš ISP (poput većine drugih) ne
+          dodjeljuje IPv6 IP adrese, postoje oni koji nude besplatno IPv6 tuneliranje, što poprilično dobro radi s
+          Nmap-om. Jedan od boljih davatelja takvih usluga je BT Exact
+          <ulink url="https://tb.ipv6.btexact.com/"></ulink>. Također sam koristio i usluge tvrtke Hurricane Electric
+          <ulink url="http://ipv6tb.he.net/"></ulink>. 6to4 tuneli su još jedan popularan besplatan pristup.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-A</option> (opcija agresivnog skeniranja)
+        </term>
+        <listitem>
+          <para>OVa opcija omogućuje dodatne napredne i agresivne opcije. Još uvijek nisam u potpunosti odlučio na š
+          to će se sve odnositi. Trenutno ova opcija omogućuje OS detekciju (<option>-O</option>) i skeniranje
+          verzije (<option>-sV</option>). U budućnosti mogu biti dodane nove mogućnosti. Poanta je u tome da se
+          ljudima omogući pristojan set scan opcija bez potrebe za pamćenjem velikog broja zastavica (engl. flag).
+          Ova opcija samo uključuje navedene stvari bez podešavanja vremena odaziva (engl. timing) (poput
+          <option>-T4</option>) ili verbose opcija (<option>-v</option>) kojU najvjerovatnije također želite
+          navesti.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--datadir &lt;directoryname&gt;</option> (Navedi korisnički definiranu lokaciju Nmap-ovih datoteka)
+        </term>
+        <listitem>
+          <para>Nmap dohvaća neke podatke tijekom izvršavanja programa iz datoteka:
+          <filename moreinfo="none">nmap-service-probes</filename>,
+          <filename moreinfo="none">nmap-services</filename>,
+          <filename moreinfo="none">nmap-protocols</filename>,
+          <filename moreinfo="none">nmap-rpc</filename>,
+          <filename moreinfo="none">nmap-mac-prefixes</filename>, and
+          <filename moreinfo="none">nmap-os-fingerprints</filename>. Najprije ih traži u direktoriju navedenom u
+          <option>--datadir</option> opciji (ako postoji). Sve datoteke koje se ne nalaze u navedenom direktoriju
+          potražit će u direktoriju navedenom u NMAPDIR varijabli. Nakon toga je na redu
+          <filename moreinfo="none">~/.nmap</filename> za stvarne i efektivne UID-e (samo kod POSIX sustava) ili
+          lokacija Nmap izvršne datoteke (samo kod Win32 sustava), te na kraju u kompajliranoj lokaciji poput
+          <filename moreinfo="none">/usr/local/share/nmap</filename> ili
+          <filename moreinfo="none">/usr/share/nmap</filename>. Kao posljednju đansu, Nmap će potražiti u tekućem
+          direktoriju.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send-eth</option> (koristi sirove (raw) pakete za slanje preko etherneta)
+        </term>
+        <listitem>
+          <para>Zatraži Nmap da šalje pakete na sirovom (raw) ethernet (data link) sloju umjesto na višem IP (mrež
+          nom) sloju. Defaultno, Nmap odabire koja je opcija bolja za platformu na kojoj je pokrenut. Sirove utičnice
+          (engl. raw sockets) (IP sloj) su obično najefikasnije na UNIX mašinama, dok su ethernet frame-ovi obavezni
+          na Windows OS-u (IP sloj), jer je Microsoft izbacio podršku za sirove utičnice. Nmap ipak koristi sirove IP
+          pakete na UNIX-u, bez obzira na ovu opciju, ako nema drugog izbora (recimo kad ste na mreži koja nije
+          ethernet).</para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send-ip</option> (Šalji na sirovom (raw) IP sloju)
+        </term>
+        <listitem>
+          <para>Zatraži Nmap da šalje pakete preko sirovih IP utičnica umjesto preko nižih ethernet okvira (
+          engl.frame). To je dodatak opciji <option>--send-eth</option> objašnjenoj malo prije.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--privileged</option> (Pretpostavka da je korisnik u potpunosti privilegiran (op. prev.
+          administrator sustava))
+        </term>
+        <listitem>
+          <para>Kaže Nmap-u da jednostavno pretpostavi kako je dovoljno privilegiran da može koristiti sirove
+          utičnice (engl. raw sockets), snifati pakete i slične radnje koje na UNIX sustavima zahtjevaju root prava.
+          Defaultno, Nmap prekida rad, ako su takve radnje zatražene od njega, ali getuid() nije nula (op. prev.
+          korisnik nema ta prava). <option>--privileged</option> opcija je korisna  na onim sustavima koji omogućuju
+          neprivilegiranim korisnicima korištenje sirovih paketa (poput Linux kernela isl.). Obavezno navedite ovu
+          opciju prije bilo koje druge koja zahtijeva privilegije (poput SYN scan-a, OS detekcije isl.). Alternativa
+          ovoj opciji je NMAP_PRIVILEGED varijabla.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--interactive</option> (Startaj u interaktivnom modu)
+        </term>
+        <listitem>
+          <para>Starta Nmap u interaktivnom modu, što omogućava lako pokretanje više skenova (sinhrono ili u
+          pozadini). Ovo je korisno za korisnike koji skeniraju s multikorisničkih sustava, jer često žele testirati
+          sigurnost, bez da dozvole svima ostalima koji su ulogirani na sustav da vide što i koga oni skeniraju.
+          Koristite --interactive opciju kako bi aktivirali ovaj mod, te nakon toga pritisnite
+          <keycap moreinfo="none">h</keycap> za pomoć. Ovo se rijetko koristi, jer su shell-ovi obično poznatiji i
+          imaju dovoljno mogućnosti. Ova opcija uključuje bang (!) operator za izvršavanje shell naredbi, što je
+          jedan od glavnih razloga zašto ne bi trebalo instalirati Nmap sa setuid = root (op. prev. Ako instalirate
+          Nmap sa setuid=root, svatko tko ga pokrene, moći će napraviti na sustavu što god hoće, jer može iz Nmap-a
+          pokrenuti bilo koju naredbu s root pravima).</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--noninteractive</option> (Za pokretanje Nmap-a iz nekog drugog programa)
+        </term>
+        <listitem>
+          <para>Ovu opciju možete navesti kad je Nmap pokrenut od strane neke druge aplikacije. Trenutno je jedina
+          razlika u tome što je Runtime interaction (opisano u poglavlju nazvanom
+          <xref linkend="man-runtime-interaction"></xref>) isključeno. Bez obzira na zbunjujuće slično ime, ova
+          opcija <emphasis>nije</emphasis> jednostavna suprotnost <option>--interactive</option> opciji.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-V</option>; <option>--version</option> (Ispiši broj verzije)
+        </term>
+        <listitem>
+          <para>Ispiše broj verzije Nmap-a i prekine izvršavanje programa</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-h</option>; <option>--help</option> (Ispiši sumarnu help stranicu)
+        </term>
+        <listitem>
+          <para>Ispiše kratki help ekran s najčešće korištenim mokandama i zastavicama. Pokretanje Nmap-a bez ijednog
+          argumenta napravi isto to.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-runtime-interaction">
+    <title>Interakcija za vrijeme izvršavanja</title>
+ 
+    <note><para>Ova opcija je za sad nedostupna na Windows OS-u</para></note>
+
+    <para>Tijekom izvršavanja Nmap-a sve tipke koje pritisnete su uhvaćene. To omogućvava interakciju s programom bez
+    da ga zaustavljate u radu. Određene specijalne tipke će mijenjati opcije, dok će druge ispisati statusne poruke
+    koje vas obavještavaju o tekućem skenu. Konvencija je takva da <emphasis>mala slova povećavaju</emphasis>
+    količinu ispisa, dok <emphasis>velika slova smanjuju</emphasis> količinu ispisa. Ova funkcionalnost može biti
+    isključena navođenjem <option>--noninteractive</option> opcije.</para>
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>v</option> / <option>V</option>
+        </term>
+        <listitem>
+          <para>Povećaj / smanji količinu prikazanih informacija</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>d</option> / <option>D</option>
+        </term>
+        <listitem>
+          <para>povećaj / smanji nivo debugiranja</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          <option>p</option> / <option>P</option>
+        </term>
+        <listitem>
+          <para>Uključi / isključi praćenje paketa</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+          Bilo što drugo
+        </term>
+        <listitem>
+          <para>Ispiše statusnu poruku poput sljedeće:</para>
+          <para>Stats: 0:00:08 elapsed; 111 hosts completed (5 up), 5 undergoing Service Scan</para>
+          <para>Service scan Timing: About 28.00% done; ETC: 16:18 (0:00:15 remaining)</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="man-examples">
+    <title>Primjeri</title>
+    <para>Ovdje su neki primjeri korištenja Nmap-a i to od jednostavnih i rutinskih do malo manje kompleksnih i
+    ezoteričnih. Korištene su neke stvarne IP adrese i domene kako bi stvar bila malo konkretnija. Umjesto njih
+    trebali bi staviti adrese/domene <emphasis>iz svoje mreže.</emphasis>. Iako osobno ne smatram da je skeniranje
+    tuđih mreža iligelano i da bi trebalo biti, neki mrežni administratori ne vole nedozvoljeno skeniranje njihovih
+    mreža i mogli bi se žaliti. Dobiti dozvolu prije samog čina je u svakom slučaju ispravan postupak.</para>
+
+    <para>Za testiranje imate dozvolu skenirati host <literal moreinfo="none">scanme.nmap.org</literal>. Dozvola
+    vrijedi samo za skeniranje korištenjem Nmap-a i ne vrijedi za testiranje exploita i DOS (denial of Service)
+    napada. Kako ne bi preopteretili mrežu, molim Vas da ne skenirate više od 12-tak portova dnevno. Ukoliko će ovaj
+    host biti napadan na bilo koji način, uklonit ću ga s NET-a i Nmap će javiti grešku
+    <computeroutput moreinfo="none">Failed to resolve given hostname/IP:
+    scanme.nmap.org</computeroutput>. Ova dozvola vrijedi i za hostove
+    <literal moreinfo="none">scanme2.nmap.org</literal>,
+    <literal moreinfo="none">scanme3.nmap.org</literal> itd., iako navedeni hostovi za sad ne postoje.</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -v scanme.nmap.org</userinput>
+    </para>
+    <para>Ova naredba skenira sve rezervirane TCP portove na računalu
+    <literal moreinfo="none">scanme.nmap.org</literal>. Opcija <option>-v</option> uključuje verbose mod..</para>
+    <para>
+      <userinput moreinfo="none">nmap -sS -O scanme.nmap.org/24</userinput>
+    </para>
+    <para>Pokreće skriveni (engl. stealth) SYN scan prema svakom računalu koje je upaljeno od njih 255 mogućih na
+    mreži <quote>class C</quote> na kojoj se nalazi scanme host. Također pokuša ustanoviti koji OS je pokrenut na
+    svakom od otkrivnih (upaljenih) hostova. Ovo zahtijeva root prava zbog SYN scan-a i OS detekcije.</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -sV -p 22,53,110,143,4564
+      198.116.0-255.1-127</userinput>
+    </para>
+
+    <para>Pokreće enumeraciju hostova i TCP scan na prvoj polovici svakog od 255 mogućih 8 bitnih subneta u mrežnog
+    ID-a 192.168 klase B adresnog prostora. Scan provjerava da li je na ciljanim računalima pokrenut sshd, DNS,
+    pop3d, imapd i/ili port 4564. Za svaki od navedenih portova koji su otvoreni, pokrenuto je i otkrivanje verzije,
+    kak obi se ustanovilo koja aplikacija je otvorila taj port.</para>
+
+    <para>
+    <userinput moreinfo="none">nmap -v -iR 100000 -P0 -p 80</userinput>
+    </para>
+
+    <para>Ova naredba zatraži Nmap da nasumično odabere 100 000 hostova i skenira ih u potrazi za web serverom (port
+    80). Enumeracija hostova je isključena opcijom <option>-P0</option>, jer slanje nekoliko sondi kako bi se
+    ustanovilo da li je host upaljen ili ne kad se skenira samo jedan port je ionako nepotrebno.</para>
+
+    <para>
+      <userinput moreinfo="none">nmap -P0 -p80 -oX logs/pb-port80scan.xml -oG
+      logs/pb-port80scan.gnmap 216.163.128.20/20</userinput>
+    </para>
+    <para>Skenira 4096 IP adresa za web serverom (bez prethodnog pinganja) i sprema izvještaj u grepabilnom  iXML
+    formatu.</para>
+
+  </refsect1>
+
+  <refsect1 id="man-bugs">
+    <title>Greške</title>
+
+    <para>Poput svog autora niti Nmap nije savršen, no Vi možete pomoći slanjem prijava o greškama, pa čak i pišući
+    patcheve. Ukoliko se Nmap ne ponaša onako kako očekujete od njega, najprije ga nadogradite na najnoviju verziju
+    dostupnu na
+    <ulink url="http://www.insecure.org/nmap/"></ulink>. Ukoliko je problem i dalje tu, istražite da li je već
+    otkriven i prijavljen. Pokušajte "zaguglati" poruku o grešci ili otiđite na Nmap-dev arhive na
+    <ulink url="http://seclists.org/"></ulink>. Također pročitajte i kompletan manual. Ukoliko ništa od toga ne
+    pomogne, pošaljite izvještaj o grešci na <email>nmap-dev@insecure.org</email>. Molim Vas napišite sve što ste do
+    tad otkrili o problemu, te koju verziju Nmap- imate i koju verziju OS-a imate. Izvještaji o prijavljenim
+    problemima i upiti o korištenju Nmap-a koji su poslani na nmap-dev@insecure.org imaju više šansi da budu
+    odgovoreni nego oni poslani direktno Fyodor-u.</para>
+
+    <para>Patchevi za otklanjanje bugova su još i bolji od samih prijava. Osnovne upute za kreiranje patch datoteka s
+    promjenama su dostupne na <ulink url="http://www.insecure.org/nmap/data/HACKING"></ulink>. Patchevi mogu biti
+    poslani na nmap-dev (što je preporučeno) ili direktno Fyodoru.</para>
+  </refsect1>
+
+  <refsect1 id="man-author">
+    <title>Author</title>
+    <para>Fyodor 
+    <email>fyodor@insecure.org</email>
+    (<ulink url="http://www.insecure.org"></ulink>)
+    </para>
+
+    <para>Stotine ljudi su doprinjeli u stvaranju Nmap-a tijekom godina. To je navedeno u
+    <filename moreinfo="none">CHANGELOG</filename> datoteci koja je distribuirana s Nmap-om, a dostupna je i na
+    sljedećem linku: <ulink url="http://www.insecure.org/nmap/changelog.html"></ulink>.</para>
+
+  </refsect1>
+
+  <refsect1 id="man-legal">
+    <title>Pravne smjernice</title>
+
+<refsect2 id="nmap-copyright">
+  <title>Nmap Copyright i licenciranje</title>
+
+<para>Nmap sigurnosni skener je (C) 1996-2005 Insecure.Com LLC. Nmap je također reigistered trademark Insecure.Com
+LLC. Program je besplatan;možete ga redistribuirati a/ili modificirati pod uvjetima GNU General Public License kako
+je objavljeno od strane Free Software Fondacije;Verzija 2. To vam garantira pravo korištenja, modificiranja i
+redistribuiranja ovog softvera pod određenim uvjetima. Ukoliko želite inkorporirati Nmap tehnologiju u svoj softver,
+možda ćemo vam prodati dodatne licence (kontaktirajte <email>sales@insecure.com</email>). Mnogi proizvođači
+sigurnosnih skenera već imaju licencu Nmap tehnologije poput otkrivanja hostova, skeniranja portova, OS detekcije i
+otkrivanja servisa/verzije.</para>
+
+<para>Imajte na umu da GPL postavlja važna ograničenja na <quote>derivirana djela</quote>, ali ne daje detaljne
+definicije istih. Kako bi se izbjegli nesporazumi, za potrebe ove licence, mi smatramo da aplikacija sadrži <quote>
+derivirano djelo</quote>, ako čini bilo što od navedenog:</para>
+
+<itemizedlist>
+<listitem><para>Uključuje izvorni kod iz Nmap-a</para></listitem>
+<listitem><para>Čita ili sadrži Nmap datoteke koje imaju copyright, poput
+<filename moreinfo="none">nmap-os-fingerprints</filename> ili
+<filename moreinfo="none">nmap-service-probes</filename>.</para>
+</listitem>
+
+<listitem>
+<para>Pokreće Nmap i čita njegove rezultate (za razliku od tipičnih shell ili izvršnih meni aplikacija, koje
+jednostavno ispišu sirovi Nmap izvještaj i time nisu derivirana djela).</para></listitem>
+<listitem><para>Integrira/sadrži/agregira Nmap u neki izvršni instaler, poput onog napravljenog od strane
+InstallShield-a.</para></listitem>
+<listitem><para>Linka na biblioteku (dll, op. prev.) ili izvršu datoteku koja radi bilo što od gore navedenog.</para>
+</listitem>
+</itemizedlist>
+
+<para>Naziv <quote>Nmap</quote> je također uključen u to. Ova lista nije eksluzivna, ali je navedena kako bi
+pojasnila našu interpretaciju deriviranih djela s najčešćim primjerima. Zabrane se primjenjuju samo u slučaju da
+uistinu redistribuirate i Nmap.  Npr. mišta vas ne sprječava da napišete i prodate front-end za Nmap. Distribuirajte
+front end i usmjerite ljude na <ulink url="http://www.insecure.org/nmap/"></ulink> kako bi preuzeli Nmap.</para>
+
+<para>Ne smatramo da su to dodatne zabrane povrh GPL-a, nego samo pojašnjenja toga kako mi interpretiramo <quote>
+derivirano djelo</quote> jer se primjenjuje na naš produkt pod GPL licencom. To je slično načinu na koji je Linus
+Torvalds objavio svoju interpretaciju <quote>deriviranog djela</quote> i kako se to odnosi na module linux kernela.
+Naša interpretacija se odnosi samo na Nmap - ne govorimo o nijednom drugom produktu licenciranom po GPL-u.</para>
+
+<para>Ukoliko imate bilo kakvo pitanje o GPL licenciranju i restrikcijama kod korištenja Nmap-a u ne GPL djelima,
+rado ćemo Vam pomoći. Kao što je gore navedeno, također nudimo i alternativne licence za integriranje Nmapa u neke
+druge aplikacije i uređaje. Takvi ugovori su prodani mnogim sigurnosnim izdavačima i generalno sadrže stalnu licencu
+kao i uslugu prioritetne podrške, a uz to financijski pomažu kontinuirani razvoj Nmap tehnologije. Molimo Vas da poš
+aljete mail na <email>sales@insecure.com</email> za daljne informacije.</para>
+
+<para>Kao posebno izuzeće od GPL uvjeta, Insecure.Com LLC daje dozvolu za povezivanje koda ovog programa s bilo kojom
+verzijom OpenSSL biblioteke koja je distribuirana pod sličnom licencom kao i s licencom koja se nalazi u datoteci
+Copying.OpenSSL i distribuirati povezanu kombinaciju oba programa. Morate poštivati GNU GPL na svim područjima za
+bilo koji kod koji nije OpenSSL. Ukoliko modificirate navedenu datoteku možete proširiti to izuzeće i na svoju
+verziju programa, ali niste obavezni to napraviti.</para>
+
+<para>Ukoliko dobijete navedene datoteke s pismenom licencom ili ugovorom koji navodi drukčije uvjete od navedenih gore, onda je ta alternativna licenca jača i preuzima primat.</para>
+</refsect2>
+
+<refsect2 id="man-copyright">
+  <title>Creative Commons licenca za ove upute</title>
+  <para>Nmap referentne upute su (C) 2005 Insecure.Com LLC. Time su stavljene pod verziju 2.5
+  <ulink url="http://creativecommons.org/licenses/by/2.5/">Creative Commons
+  Attribution License</ulink>. To Vam omogućuje da redistribuirate, modificirate tekst po želji, dok god navodite
+  druge izvore koji su radili na njemu. Osim toga, možete tretirati ovaj dokument kao da spada pod istu licencu kao i
+  Nmap (obajšnjeno prije).</para>
+</refsect2>
+
+<refsect2 id="source-contrib">
+  <title>Dostupnost izvornog koda i doprinos zajednici (engl. comunity)</title>
+
+<para>Izvorni kod je dostupan s programom zato jer vjerujemo da korisnik ima pravo znati što uistinu program radi
+prije nego će ga pokrenuti. To Vam isto tako omogućava provjeru softvera na sigurnosne rupe (do sad nije pronađena
+niti jedna).</para>
+
+<para>Izvorni Vam kod isto tako omogućava prijenos Nmap-a na nove platforme, popravljanje grešaka i dodavanje novih
+mogućnosti. Potaknuti ste da promjene pošaljete na <email>fyodor@insecure.org</email> kako bi eventualno bile
+inkorporirane u buduće verzije glavne distribucije. Slanjem promjena Fyodoru ili nekom na Insecure.Org mailing listi
+developera, podrazumijeva se da Fyodoru i Insecure.Org-u dajete puna prava na korištenje, modificiranje i
+relicenciranje koda. Nmap će uvijek biti dostupan kao open source, ali to je bitno jer je nemogućnost relicenciranja
+koda stvorila ogromne probleme nekim drugim besplatnim softverskim projektima (poput KDE-a i NASM-a). Također
+povremeno relicenciramo kod drugim tvrtkama kako je navedeno gore. Ukoliko želite definirati posebne licenčne uvjete
+za svoj doprinos, navedite to odmah kad ih pošaljete.</para>
+</refsect2>
+
+<refsect2 id="no-warranty"><title>Nema garancije</title>
+
+<para>Program je distribuiran u nadi da će bit koristan, ali BEZ IKAKVE GARANCIJE; čak i bez pretopstavljene
+garancije na PRIHVATLJIVU KVALITETU ili SPOSOBNOST ZA ODREĐENE ZADAĆE. Pogledajte GNU General Public License za više
+detalja na <ulink url="http://www.gnu.org/copyleft/gpl.html"></ulink> ili u COPYING datoteci uključenoj s Nmap
+distribucijom.</para>
+
+<para>Treba uzeti u obzir da je Nmap povremeno srušio loše napisane aplikacije, TCP/IP stackove, pa čak i operativne
+sustave. Iako je to ekstremno rijetko, važno je za znati. <emphasis>Nmap nikad ne bi trebalo pokrenuti na kritičnim
+sustavima</emphasis> osim ako ste spremni prihvatiti da sustav neko vrijeme ne radi. Ovdje potvrđujemo da Nmap može
+srušiti vaš sustav ili mrežu i ograđujemo se od bilo kakve odgovornosti za bilo kakvu štetu ili problem prouzročen od
+Nmap-a.</para>
+</refsect2>
+
+<refsect2 id="inappropriate-usage"><title>Neispravno korištenje</title>
+<para>Zbog male mogućnosti pada sustava i zbog toga što neki crno šeširaši vole koristiti Nmap za prikupljanje
+informacija, postoje administratori koji se uznemire i mogu se žaliti kad primjete da im je mreža skenirana. Stoga je
+uvijek preporučeno zatražiti dozvolu prije nego započnete i lagani scan mreže.</para>
+
+<para>Nmap nikad ne bi trebao biti instaliran sa specijalnim privilegijama (npr. suid root) iz sigurnosnih razloga.</para>
+</refsect2>
+
+<refsect2 id="third-party-soft"><title>Softver drugih tvrtki</title>
+<para>Ovaj produkt sadrži softver razvijen od
+<ulink url="http://www.apache.org">Apache Software Fondacije</ulink>. Modificirana verzija
+<ulink url="http://www.tcpdump.org">Libpcap prijenosne paket capture biblioteke</ulink> je distribuirana zajedno s
+Nmap-om. Windows verzija Nmap-a koristi obradu libpcap-a -
+<ulink url="http://www.winpcap.org">WinPcap</ulink>. Podrška za regularne izraze je dana od
+<ulink url="http://www.pcre.org">PCRE biblioteke</ulink>  koja je open source softver. Napisao ga je Philip Hazel.
+Neke funkcije sirovog netvorkinga koriste
+<ulink url="http://libdnet.sourceforge.net">Libdnet</ulink> mrežnu biblioteku koju je napisao Dug Song. Modificirana
+verzija je distribuirana s Nmap-om. Nmap se opcionalno može povezati s
+<ulink url="http://www.openssl.org">OpenSSL kriptografskim alatima</ulink>  za podršku detekcije SSL verzije. Sav
+gore navedeni softver se slobodno redistribuira pod softverskom licencom po BSD-u.</para>
+</refsect2>
+
+<refsect2 id="us-export"><title>Klasifikacija kontrole izvoza u US-u.</title>
+<para>Klasifikacija kontrole izvoza u US-u: Insecure.Com LLC vjeruje da Nmap spada pod US ECCN (export control
+clasification number - klasifikacijski broj kontrole izvoza) 5D992. Ta se kategorija zove <quote>Softver
+informacijske sigurnosti koji nije kontroliran ECCN-om 5D002</quote>. Jedina zabrana te klasifikacije je AT (anti
+terorizam), koja se primjenjuje na gotovo svu robu i zabranjuje izvoz hrpi lažljivih zemalja, poput Iran-a i Sjeverne
+Koreje (op. prev. iliti onih s kojima Ameri nisu dobri). Tako da Nmap ne zahtijeva nikakvu posebnu licencu, dozvolu
+ili bilo kakvu drugu autorizaciju američke vlade.</para>
+</refsect2>
+
+  </refsect1>
+</refentry>
+
+</article>
