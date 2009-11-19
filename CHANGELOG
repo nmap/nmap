@@ -1,5 +1,116 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.05BETA2 [2009-11-19]
+
+o Added 8 new NSE scripts!
+  o smb-psexec.nse implements the functionality found in Microsoft
+    Sysinternals' psexec utility and Metasploit's psexec "exploit". In
+    addition to this script, some default configurations are also
+    included. See http://nmap.org/nsedoc/scripts/smb-psexec.html [Ron]
+
+  o dhcp-discover.nse sends out DHCP probes on UDP/67 and displays all
+    interesting results (or, with verbosity, all results).
+    Optionally, multiple probes can be sent and the MAC address can be
+    randomized in an attempt to exhaust the DHCP server's address pool
+    and potentially create a denial of service condition. [Ron]
+
+  o ssl-cert.nse retrieves and prints the server SSL
+    certificate. Thanks to Matt Selsky for noticing a bug in date
+    parsing. [David]
+
+  o x11-access.nse checks whether access to an X11 server is allowed
+    (as with "xhost +" for example). It was written by jlanthea.
+
+  o db2-info.nse enhances DB2 database instance detection. It provides
+    detection when version probes fail, but will default to the
+    version detection probe value if that is more precise. It also
+    detects the server platform and database instance name. The DB2
+    version detecton port ranges were broadened to 50000-50025 and
+    60000-60025 as well. [Tom]
+
+  o smbv2-enabled.nse checks if the smbv2 protocol is enabled on
+    target servers. See
+    http://nmap.org/nsedoc/scripts/smbv2-enabled.html [Ron]
+
+  o pjl-ready-message.nse allows viewing and setting the status
+    message on printers which support the Printer Job Language. [Aaron
+    Leininger]
+
+  o http-malware-host.nse is designed to discover hosts that are
+    serving malware (perhaps because they were compromised), but so
+    far it only checks for one specific attack. See
+    http://nmap.org/nsedoc/scripts/http-malware-host.html. [Ron]
+
+o Nmap's --traceroute has been rewritten for better performance.
+  Probes are sent in parallel to individual hosts, not just across all
+  hosts as before. Trace consolidation is more sophisticated, allowing
+  common traces to be identified sooner and fewer probes to be sent.
+  The older traceroute could be very slow (taking minutes per target)
+  if the target did not respond to the trace probes, and this new
+  traceroute avoids that. In a trace of 110 hosts in a /24 over the
+  Internet, the number of probes sent dropped 50% from 1565 to 743,
+  and the time taken dropped 92% from 95 seconds to 7.6 seconds. [David]
+
+o [Zenmap] Merged the changes in the zenmap-filter branch to the main zenmap
+  branch.  Pressing Ctrl+L now brings up the filter interface for filtering out
+  uninteresting hosts. Alternatively, the interface is accessible via the
+  'Filter Hosts' button.  [Josh Marlow]
+
+o For some UDP ports, Nmap will now send a protocol-specific payload
+  that is more likely to get a response than an empty packet is. This
+  improves the effectiveness of probes to those ports for host
+  discovery, and also makes an open port more likely to be classified
+  open rather than open|filtered. The ports and payloads are defined
+  in payload.cc. The ports that have a payload are 7 (echo),
+  53 (domain), 111 (rpcbind), 123 (ntp), 137 (netbios-ns), 161 (snmp),
+  177 (xdmcp), 500 (isakmp), 520 (route), 1645 and 1812 (radius),
+  2049 (nfs), 5353 (zeroconf), and 10080 (amanda). [David]
+
+o Nmap now prefers to display the hostname supplied by the user instead
+  of the reverse-DNS name in most places. If a reverse DNS record
+  exists, and it differs from the user-supplied name, it is printed
+  like this:
+    Nmap scan report for www.google.com (74.125.53.103)
+    rDNS record for 74.125.53.103: pw-in-f103.1e100.net
+  See http://seclists.org/nmap-dev/2009/q4/199 for a summary of other
+  minor changes to output. [David]
+
+o Ndiff now shows changes in script output. [David]
+
+o Fixed a bug that could cause an infinite loop ("Unable to find
+  listening socket in get_rpc_results") in RPC scan. The loop would
+  happen when scanning a port that sent no responses, and there was at
+  least one other port to scan. Thanks to Lionel Cons for reporting
+  the problem. [David]
+
+o Added support for connecting to nameservers over IPv6. IPv6 addresses
+  can be used in /etc/resolv.conf or with the --dns-servers option. The
+  parallel reverse DNS resolver still only support IPv4 addresses, but
+  it can look them up over IPv6. [Ankur Nandwani]
+
+o [NSE] smb-enum-shares.nse now checks whether or not a share is
+  writable by attempting to write a file (and deleting it if it's
+  successful).  Significantly cleaned up the code, as well. [Ron]
+
+o [NSE] telnet-brute.nse now uses the unpw database instead of a
+  hardcoded list. [Ron]
+
+o [NSE] ssl-cert.nse now supports TLS negotiation against SMTP ports
+  that support it. [Tom Sellers, David]
+
+o The nselib/data directory is now installed. It was not installed
+  before because of an error in the Makefile. The scripts that would
+  not have worked after installation because they were missing data
+  files are http-enum.nse, http-favicon.nse, http-iis-webdav-vuln.nse,
+  http-userdir-enum.nse, smb-pwdump.nse, pop3-brute.nse,
+  smb-brute.nse, and snmp-brute.nse. [David]
+
+o Upgraded the included libpcap to 1.0.0. [David]
+
+o Upgraded our Winpcap installer to use the new WinPcap version 4.1.1.
+  A bug which could prevent proper uninstallation of previous versions
+  was fixed at the same time. [Rob Nicholls]
+
 o Fixed an error in the handling of exclude groups that used IPv4
   ranges. Si Stransky reported the problem and provided a number of
   useful test cases in http://seclists.org/nmap-dev/2009/q4/276. The
@@ -9,22 +120,6 @@ o Fixed an error in the handling of exclude groups that used IPv4
     Assertion `ipsleft > 1' failed.
   [David]
 
-o Add a new script, db2-info.nse, that enhances DB2 database instance detection.  
-  The script provides detection when version probes fail, but will default to 
-  the value provided the version probes if that value is more precise. The 
-  script also detects the server platform and database instance name. 
-  [Tom]
-
-o Updated DB2 port ranges to be broader in order to improve detection of the
-  database instances that typically live in the 50000-50025 and 60000-60025
-  range. [Tom] 
-
-o Fixed a bug that could cause an infinite loop ("Unable to find
-  listening socket in get_rpc_results") in RPC scan. The loop would
-  happen when scanning a port that sent no responses, and there was at
-  least one other port to scan. Thanks to Lionel Cons for reporting
-  the problem. [David]
-
 o [NSE] Improved the authentication used by the smb-* scripts. Instead of 
   looking in a bunch of places (registry, commandline, etc) for the
   usernames/passwords, a table is kept. This lets us store any number
@@ -32,26 +127,6 @@ o [NSE] Improved the authentication used by the smb-* scripts. Instead of
   also fixes a bug where typing in a password incorrectly would lock
   out an account (since it wouldn't stop trying the account in question). 
   [Ron]
-
-o [NSE] smb-enum-shares.nse now checks whether or not a share is writable
-  by attempting to write a file (and deleting it if it's successful). 
-  Significantly cleaned up the code, as well. [Ron]
-
-o [NSE] New script: smbv2-enabled.nse. Basically, it checks if the
-  smbv2 protocol is enabled on the server. [Ron]
-
-o [NSE] New script: smb-psexec.nse. This script implements the functionality
-  found in Microsoft Sysinternals' psexec utility and Metasploit's psexec
-  "exploit". In addition to this script, some default configurations
-  are also included. [Ron]
-
-o Added support for connecting to nameservers over IPv6. IPv6 addresses
-  can be used in /etc/resolv.conf or with the --dns-servers option. The
-  parallel reverse DNS resolver still only support IPv4 addresses, but
-  it can look them up over IPv6. [Ankur Nandwani]
-
-o [NSE] Modified script telnet-brute.nse to use the unpw database
-  instead of a hardcoded list. [Ron]
 
 o Removed IP ID matching in packet headers returned in ICMP errors.
   This was already the case for some operating systems that are known
@@ -70,31 +145,10 @@ o [Zenmap] There is a new command-line option, --confdir, which allows
   setting the per-user configuration directory. Its value defaults to
   $HOME/.zenmap. This was suggested by Jesse McCoppin. [David]
 
-o Upgraded the included libpcap to 1.0.0. [David]
-
-o Nmap now prefers to display the hostname supplied by the user instead
-  of the reverse-DNS name in most places. If a reverse DNS record
-  exists, and it differs from the user-supplied name, it is printed
-  like this:
-    Nmap scan report for www.google.com (74.125.53.103)
-    rDNS record for 74.125.53.103: pw-in-f103.1e100.net
-  See http://seclists.org/nmap-dev/2009/q4/199 for a summary of other
-  minor changes to output. [David]
-
-o Upgraded our Winpcap installer to use the new WinPcap version 4.1.1.
-  A bug which could prevent proper uninstallation of previous versions
-  was fixed at the same time. [Rob Nicholls]
-
-o [NSE] Modified NSE script ssl-cert.nse to support TLS negotiation
-  against SMTP ports that support it. Depends on Patrick's addition
-  of the reconnect_ssl method.  [Tom Sellers, David]
-
 o [NSE] Added the reconnect_ssl method for sockets. We sometimes need
-  to reconnect a socket with SSL because the initial communication on 
-  the socket is done without SSL. See this thread [1] for more details. 
-  [Patrick, Tom Sellers]
-
-  [1] http://seclists.org/nmap-dev/2009/q4/3
+  to reconnect a socket with SSL because the initial communication on
+  the socket is done without SSL. See this thread for more details:
+  http://seclists.org/nmap-dev/2009/q4/3 [Patrick, Tom Sellers]
 
 o [Zenmap] Fixed a crash that could occur when entering certain
   characters in the target entry (those whose UTF-8 encoding contains
@@ -103,9 +157,8 @@ o [Zenmap] Fixed a crash that could occur when entering certain
     File "zenmapCore\NmapOptions.pyo", line 719, in render_string
     UnicodeDecodeError: 'utf8' codec can't decode byte 0xc3 in position 1:
       unexpected end of data
-  One such character is a with grave accent, U+00E0, which in UTF-8 is
-  C0 A0, where the A0 is interpreted as a no-break space when the
-  string is interpreted byte by byte. [David]
+  For more details on this curious problem, see
+  http://seclists.org/nmap-dev/2009/q4/82 [David]
 
 o [NSE] There is a new function, nmap.bind, to set the source address
   of a socket. [David]
@@ -140,57 +193,27 @@ o [Ncat] The code that manages the count of connected clients has been
 
 o The files read by the -iL (input from file) and --excludefile
   options now support comments that start with # and go to the end of
-  the line. This was implemented by Tom Sellers.
+  the line. [Tom Sellers]
 
 o [Zenmap] On Windows, Zenmap no longer uses the cmd.exe shell to run
   Nmap subprocesses. This means that canceling a scan will kill the
   Nmap process as it does on other platforms (previously it would just
   kill the shell). It also means that that scanning will work as a
-  user whose name contains characters like & that are significant to
+  user whose name contains characters like '&' that are significant to
   the shell.  Mike Crawford and Nick Marsh reported bugs related to
   this. [David]
-
-o Nmap's --traceroute has been rewritten for better performance.
-  Probes are sent in parallel to individual hosts, not just across all
-  hosts as before. Trace consolidation is more sophisticated, allowing
-  common traces to be identified sooner and fewer probes to be sent.
-  The older traceroute could be very slow (taking minutes per target)
-  if the target did not respond to the trace probes, and this new
-  traceroute avoids that. In a trace of 110 hosts in a /24 over the
-  Internet, the number of probes sent dropped 50% from 1565 to 743,
-  and the time taken dropped 92% from 95 seconds to 7.6 seconds. [David]
-
-o Added a script called http-malware-host.nse. Its future intention
-  is to discover hosts that are serving malware (for example, that 
-  are compromised and have malicious code inserted). At the moment, 
-  it checks for one specific attack discussed here:
-  http://blog.unmaskparasites.com/2009/09/11/dynamic-dns-and-botnet-of-zombie-web-servers/
-  [Ron]
 
 o Added a check for a SMBv2 vulnerability (CVE-2009-3103) to 
   smb-check-vulns. Due to its nature (it performs a DoS, then checks
   if the system is still online), the script isn't run by default 
   and requires a special script-arg to work. [Ron]
 
-o Fixed an integer overflow that could occur when a target with a low
-  TCP timestamp clock frequency uses large timestamp values, such that
-  a naive uptime calculation shows a boot time before the epoch. Also
-  fixed a printf format specifier mismatch that was revealed by the
-  overflow. Toby Simmons reported the problem and helped with the fix.
-  [David]
-
-o Added dhcp-discover.nse, which sends out DHCP probes on UDP/67 and
-  displays all interesting results (or, with verbosity, all results).
-  Optionally, multiple probes can be sent and the MAC address can be
-  randomized in an attempt to exhaust the DHCP server's address pool
-  and potentially create a denial of service condition. [Ron]
-
-o The nselib/data directory is now installed. It was not installed
-  before because of an error in the Makefile. The scripts that would
-  not have worked after installation because they were missing data
-  files are http-enum.nse, http-favicon.nse, http-iis-webdav-vuln.nse,
-  http-userdir-enum.nse, smb-pwdump.nse, pop3-brute.nse,
-  smb-brute.nse, and snmp-brute.nse. [David]
+o Fixed an integer overflow in uptime calculation which could occur
+  when a target with a low TCP timestamp clock frequency uses large
+  timestamp values, such that a naive uptime calculation shows a boot
+  time before the epoch. Also fixed a printf format specifier mismatch
+  that was revealed by the overflow. Toby Simmons reported the problem
+  and helped with the fix.  [David]
 
 o Fixed a compile error on NetBSD. It was
     tcpip.cc:2948: error: pointer of type 'void *' used in arithmetic
@@ -198,8 +221,11 @@ o Fixed a compile error on NetBSD. It was
 
 o [Zenmap] If you have any hosts or services selected, they will
   remain selected after aggregating another scan or running a filter
-  (as long as they are still up and visible). Before the selection was
-  lost whenever the scan inventory was changed. [David]
+  (as long as they are still up and visible). Previously the selection
+  was lost whenever the scan inventory was changed. [David]
+
+o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
+  Updated translations: French and German.
 
 o There is a new OS detection pseudo-test, SCAN.DC, which records how
   the network distance in SCAN.DS was calculated. Its value can be "L"
@@ -208,13 +234,6 @@ o There is a new OS detection pseudo-test, SCAN.DC, which records how
   the benefit of OS integration, when it is sometimes important to
   distinguish between DS=1%DC=I (probably the result of forged TTLs)
   and DS=1%DC=D (a true one-hop connection.) [David]
-
-o [Zenmap] New translation: Russian (contributed by Alexander Khodyrev).
-  Updated translations: French and German.
-
-o Added the ssl-cert.nse script, which retrieves and prints the server
-  SSL certificate. Thanks to Matt Selsky for noticing a bug in date
-  parsing. [David]
 
 o [Ncat] The --idle-timeout option now exits when *both* stdin and the
   socket have been idle for the given time. Previously it would exit
@@ -227,10 +246,6 @@ o [Ncat] Ncat now always prefixes its own output messages with "Ncat: "
   remote host. This only matters when output goes to a terminal, where
   the standard output and standard error streams are mixed. [David]
 
-o Added the x11-access.nse script that checks if access to an X11
-  server is allowed (as with "xhost +" for example). The script was
-  written by jlanthea.
-
 o Added explicit casts to (int)(unsigned char) for arguments to ctype function
   calls in nmap, ncat and nbase.  Thanks to Solar Designer for pointing out
   the need and fix for this. [Josh]
@@ -241,65 +256,50 @@ o [Ncat, Ndiff] The exit codes of these programs now reflect whether
   Ndiff, 0 means the scans were equal, 1 means they were different,
   and 2 indicates a runtime error. [David]
 
-o [Ncat] Now Ncat supports wildcard SSL certificates too.Wildcard character(*) can
-  be in commonname field or in DNS field of Subject Alternative Name(SAN)
-  Extension of SSL certificate.
-  Wildcard Matching Rules:
-  -'*' should be only on the leftmost component of FQDN.(*.example.com but not www.*.com or www.example*.com).
-  -The leftmost component should contain only '*' and it should be followed by '.'(*.example.com but not *w.example.com or w*.example.com).
-  -There should be atleast three components in FQDN.(*.exmaple.com but not *.com or *.com.).[venkat]
+o Ncat now supports wildcard SSL certificates too.  The wildcard
+  character (*) can be in commonname field or in DNS field of Subject
+  Alternative Name(SAN) Extension of SSL certificate.
+  Matching Rules:
+  -'*' should be only on the leftmost component of FQDN.(*.example.com
+     but not www.*.com or www.example*.com).
+  -The leftmost component should contain only '*' and it should be
+     followed by '.'(*.example.com but not *w.example.com or
+     w*.example.com).
+  -There should be atleast three components in FQDN.(*.exmaple.com but
+     not *.com or *.com.).[venkat]
   
 o Nmap now handles the case when a primary network interface (venet0)
   does not have an address assigned but its aliases do (venet0:1
   etc.). This could result in the error messages
     Failed to find device venet0 which was referenced in /proc/net/route
     Failed to lookup subnet/netmask for device (venet0): venet0: no IPv4 address assigned
-  This was observed particularly under OpenVZ. [Dmitry Levin]
+  This was observed under OpenVZ. [Dmitry Levin]
 
 o [Ncat] The --ssl-cert, --ssl-key, and --ssl-trustfile options now
   automatically turn on SSL mode. Previously they were ignored if
   --ssl was not also used. [David]
 
-o [Nsock] Now Nsock supports pure TLSv1 and SSLv3 servers too. 
-  Nsock uses SSLv23 method which sends SSLv2 hello message and can be understood 
-  only by SSLv23 or SSLv2 servers but not by pure SSLv3 and TLSv1 servers.
-  Intialising ssl connection with nsp_ssl_init_max_speed() in which SSL_OP_NO_SSLv2 
-  option is not set causes the "wrong version number" when tried to connect a
-  pure SSLv3 or TLSv1 servers.So with this change Nsock reconnects to the server by 
-  setting SSL_OP_NO_SSLv2 option when a initial connection with no SSL_OP_NO_SSLv2 set is failed.  
-  At present Ncat never uses SSLv2(which is intialized by nsp_ssl_init() instead of nsp_ssl_init_max_speed()) 
-  for security reasons so it is not affected by this change.
+o [Nsock] Now Nsock supports pure TLSv1 and SSLv3 servers in addition
+  to the (already supported and far more commone) SSLv2 and SSLv23
+  servers.  Ncat currently never uses SSLv2 for security reasons, so
+  it is unaffected by this change.
 
-  This behaviour was found in Ncat's SSL and Nmap's SSL version detection probes and has been
-  reported here:
-  http://seclists.org/nmap-dev/2009/q1/0319.html
-  http://seclists.org/nmap-dev/2008/q2/0702.html
-  More discussion on this here:
-  http://seclists.org/nmap-dev/2009/q1/0330.html
-
-o [Nsock] [Ncat] Implemented SSL over SCTP connections in client mode.
-  SCTP support is now fully SSL enabled. [Daniel Roethlisberger]
+o [Ncat] Implemented SSL over SCTP connections in client mode.  SCTP
+  support is now fully SSL enabled. [Daniel Roethlisberger]
 
 o [Ncat] Implemented support for SCTP listening sockets, including SSL
-  support.  Since there is no SSL support for SCTP client sockets yet,
-  SSL support is not terribly useful yet. [Daniel Roethlisberger]
+  support.  The usefulness of SSL support is limited until SCTP client
+  mode also supports SSL. [Daniel Roethlisberger]
 
-o [Nsock] [Ncat] Implemented basic SCTP client functionality.  Only the
-  default SCTP stream is used.  This is also called TCP compatible mode.
-  While it allows Ncat to be used for manually probing open SCTP ports,
-  more complicated services making use of multiple streams or depending
-  on specific message boundaries cannot be talked to successfully.
-  [Daniel Roethlisberger]
+o [Ncat] Implemented basic SCTP client functionality.  Only the
+  default SCTP stream is used.  This is also called TCP compatible
+  mode.  While it allows Ncat to be used for manually probing open
+  SCTP ports, more complicated services making use of multiple streams
+  or depending on specific message boundaries cannot be talked to
+  successfully.  [Daniel Roethlisberger]
 
-o [Zenmap] Merged the changes in the zenmap-filter branch to the main zenmap
-  branch.  Pressing Ctrl+L now brings up the filter interface for filtering out
-  uninteresting hosts. Alternatively, the interface is accessible via the
-  'Filter Hosts' button.  [Josh]
-
-o [Ncat]In verbose mode Ncat prints In and OUT traffic in bytes once the client connection
-  is terminated,in this way "Finished. 29 bytes sent, 24 bytes received."
-  For this few lines of code has been added to Nsock
-  so that other nsock dependent applications also can use this traffic count.[Venkat].
+o [Ncat] In verbose mode, Ncat now prints the number of bytes read and
+  written after the client connection is terminated. [Venkat]
 
 o The ARP host discovery scan now filters ARP packets based on their
   target address address field, not the destination address in the
@@ -309,7 +309,7 @@ o The ARP host discovery scan now filters ARP packets based on their
   symptom of this was that root scans wouldn't work ("Host seems
   down") but non-root scans would work. Thanks to Mike Calmus and
   Vijay Sankar for reporting the problem, and Marcus Haebler for
-  suggesting the fix.
+  suggesting the fix. [David]
 
 o The -fno-strict-aliasing option is now used unconditionally when
   using GCC. It was already this way, in effect, because a test
@@ -322,10 +322,6 @@ o Nmap now prints a warning instead of a fatal error when the hardware
   supported by libdnet. Thanks to Julian Berdych for the bug report.
   [David]
 
-o Added the pjl-ready-message.nse script from Aaron Leininger. This
-  script allows viewing and setting the message displayed by printers
-  that support the Printer Job Language.
-
 o The Ndiff man page was expanded with examples and sample output.
   [David]
 
@@ -337,8 +333,6 @@ o Fixed a log_write call and a pfatal call to use a syntax which is
   safer from format strings bugs.  This allows Nmap to build with the
   gcc -Wformat -Werror=format-security options. [Guillaume Rousse,
   Dmitry Levin]
-
-o [Ndiff] Ndiff now shows changes in script output. [David]
 
 o A bug in Nsock was fixed: On systems where a nonblocking connect
   could succeed immediately, connections that were requested to be
@@ -355,12 +349,12 @@ o [NSE] Scripts that are listed by name with the --script option now
   specifically, you are more interested in such results.
   [David, Patrick]
 
-o [Ncat]Ncat proxy now hides the proxy's response
-  ("HTTP/1.0 200 OK" or whatever it may be). Before, if you 
-  retrieved a file through a proxy, it would have the "HTTP/1.0 200 OK" 
-  stuck to the top of it. For this Ncat uses blocking sockets 
-  untill the proxy negotiation is done and once it
-  is successfull, Nsock takes over for rest of the connection.[Venkat]
+o Ncat proxy now hides the proxy's response ("HTTP/1.0 200 OK" or
+  whatever it may be). Before, if you retrieved a file through a
+  proxy, it would have the "HTTP/1.0 200 OK" stuck to the top of
+  it. For this Ncat uses blocking sockets untill the proxy negotiation
+  is done and once it is successfull, Nsock takes over for rest of the
+  connection.[Venkat]
 
 o [Ncat] Fixed an error that would cause Ncat to use 100% CPU in
   broker mode after a client disconnected or a read error happened.
@@ -372,52 +366,32 @@ o [Ncat] Ncat now prints a message like "Connection refused." by
   success in a case like
     ncat remote < short-file
 
-o [Ncat] Using --send-only in conjunction with the plain listen or broker modes
-  now behaves as it should: nothing will be read from the network end.  Ncat
-  was simply discarding any data received. [Kris]
-
-o [Ncat] Added additional test cases to the ncat/test/test-cmdline-split program
-  and rewrote the cmdline_split function in ncat_posix.c [Josh Marlow]
+o [Ncat] Using --send-only in conjunction with the plain listen or
+  broker modes now behaves as it should: nothing will be read from the
+  network end.  Ncat previously read and discarded any data
+  received. [Kris]
 
 o [Ncat] The --broker option now automatically implies --listen. [David]
 
-o Added Apache JServe protocol version detection probe and signature
-  from Tom Sellers. He submitted some other version detection patches
-  as well.
-
-o Added a test program, test/test-cmdline-split to test the cmdline_split
-  function in test/test-cmdline-split in preparation for an eventual rewrite of
-  cmdline_split [Josh Marlow].
-
-o For some UDP ports, Nmap will now send a protocol-specific payload
-  that is more likely to get a response than an empty packet is. This
-  improves the effectiveness of probes to those ports for host
-  discovery, and also makes an open port more likely to be classified
-  open rather than open|filtered. The ports and payloads are defined
-  in payload.cc. The ports that have a payload are 7 (echo),
-  53 (domain), 111 (rpcbind), 123 (ntp), 137 (netbios-ns), 161 (snmp),
-  177 (xdmcp), 500 (isakmp), 520 (route), 1645 and 1812 (radius),
-  2049 (nfs), 5353 (zeroconf), and 10080 (amanda). [David]
+o Added Apache JServe protocol version detection probe and signatures
+  and some some other nmap-service-probes patches. [Tom Sellers]
 
 o Fixed two memory leaks in ncat_posix.c and a bug where an open file was not
   being closed in libdnet-stripped/src/intf.c [Josh Marlow]
 
-o Added a convenience top-level BSD makefile redirecting BSD make
-  to GNU make on BSD systems.  This should help prevent bogus
-  error reports when users run "make" instead of "gmake" on BSD
-  systems. [Daniel Roethlisberger]
+o Added a convenience top-level BSDmakefile which automatically
+  redirects BSD make to GNU make on BSD systems. The Nmap Makefile
+  relies on numerous GNU Make extensions. [Daniel Roethlisberger]
 
-o [Zenmap] Added support to zenmap for the SCTP options: -PY, -sY and -sZ, as
-  well as making a comment in zenmapCore/NmapOptions.py on how to add new
-  options. [Josh Marlow]
+o [Zenmap] Added profile editor support for the Nmap SCTP options:
+  -PY, -sY and -sZ. [Josh Marlow]
 
 o The configure script now allows cross-compiling by assuming that
-  libpcap is recent enough. Previously it would quit because a test
-  program could not be run. libpcap will always be recent enough when
-  the included copy is used. The patch was contributed by Mike
-  Frysinger.
+  libpcap is recent enough to use rather than trying to compile and
+  run a test program. Libpcap will always be recent enough when Nmap's
+  included copy is used. [Mike Frysinger]
 
-o Updated IANA assignment IP list for random IP (-iR)
+o Updated the IANA assignment IP list for random IP (-iR)
   generation. [Kris]
 
 Nmap 5.00 [2009-07-16]
