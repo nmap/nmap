@@ -154,6 +154,8 @@ struct l_nsock_udata
   int timeout;
   nsock_iod nsiod;
   void *ssl_session;
+  struct sockaddr_storage source_addr;
+  size_t source_addrlen;
 
   struct nsock_yield yield;
   /* used for buffered reading */
@@ -514,8 +516,6 @@ int luaopen_nsock(lua_State * L)
 int l_nsock_new(lua_State * L)
 {
   struct l_nsock_udata *udata;
-  struct sockaddr_storage ss;
-  size_t sslen;
 
   udata =
       (struct l_nsock_udata *) lua_newuserdata(L, sizeof(struct l_nsock_udata));
@@ -523,8 +523,10 @@ int l_nsock_new(lua_State * L)
   lua_setmetatable(L, -2);
   lua_createtable(L, 1, 0); /* room for thread in array */
   lua_setfenv(L, -2);
-  udata->nsiod = nsi_new(nsp, NULL);
+  udata->nsiod = NULL;
   udata->ssl_session = NULL;
+  udata->source_addr.ss_family = AF_UNSPEC;
+  udata->source_addrlen = sizeof(udata->source_addr);
   udata->timeout = DEFAULT_TIMEOUT;
   udata->bufidx = LUA_NOREF;
   udata->bufused = 0;
@@ -534,12 +536,6 @@ int l_nsock_new(lua_State * L)
   udata->ncap_socket = NULL;
   udata->ncap_request = NULL;
   udata->ncap_cback_ref = 0;
-
-  o.SourceSockAddr(&ss, &sslen);
-  nsi_set_localaddr(udata->nsiod, &ss, sslen);
-
-  if (o.ipoptionslen)
-    nsi_set_ipoptions(udata->nsiod, o.ipoptions, o.ipoptionslen);
 
   return 1;
 }
@@ -632,10 +628,18 @@ static int l_nsock_bind(lua_State * L)
     lua_pushstring(L, "getaddrinfo: no results found");
     return 2;
   }
+  if (results->ai_addrlen > sizeof(udata->source_addr)) {
+    freeaddrinfo(results);
+    lua_pushnil(L);
+    lua_pushstring(L, "getaddrinfo: result is too big");
+    return 2;
+  }
 
   /* We ignore any results after the first. */
-  nsi_set_localaddr(udata->nsiod, (struct sockaddr_storage *) &results->ai_addr,
-    results->ai_addrlen);
+  /* We would just call nsi_set_localaddr here, but udata->nsiod is not created
+     until connect. So store the address in the userdatum. */
+  udata->source_addrlen = results->ai_addrlen;
+  memcpy(&udata->source_addr, results->ai_addr, udata->source_addrlen);
 
   lua_pushboolean(L, 1);
   return 1;
@@ -680,6 +684,19 @@ static int l_nsock_connect(lua_State * L)
     lua_pushstring(L, "getaddrinfo returned success but no addresses");
     return 2;
   }
+
+  udata->nsiod = nsi_new(nsp, NULL);
+  if (udata->source_addr.ss_family != AF_UNSPEC) {
+    nsi_set_localaddr(udata->nsiod, &udata->source_addr, udata->source_addrlen);
+  } else if (o.spoofsource) {
+    struct sockaddr_storage ss;
+    size_t sslen;
+
+    o.SourceSockAddr(&ss, &sslen);
+    nsi_set_localaddr(udata->nsiod, &ss, sslen);
+  }
+  if (o.ipoptionslen)
+    nsi_set_ipoptions(udata->nsiod, o.ipoptions, o.ipoptionslen);
 
   switch (what)
   {
