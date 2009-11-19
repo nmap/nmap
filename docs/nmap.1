@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 11/17/2009
+.\"      Date: 11/19/2009
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/17/2009" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "11/19/2009" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -111,7 +111,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.05BETA1 ( http://nmap\&.org )
+Nmap 5\&.05BETA2 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -967,7 +967,7 @@ means to scan only ports that are named in the services file (normally Nmap scan
 .RS 4
 By default, Nmap randomizes the scanned port order (except that certain commonly accessible ports are moved near the beginning for efficiency reasons)\&. This randomization is normally desirable, but you can specify
 \fB\-r\fR
-for sequential port scanning instead\&.
+for sequential (sorted from lowest to highest) port scanning instead\&.
 .RE
 .PP
 \fB\-\-port\-ratio <decimal number between 0 and 1>\fR
