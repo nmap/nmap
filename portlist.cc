@@ -109,7 +109,6 @@ extern NmapOps o;  /* option structure */
 
 Port::Port() {
   portno = proto = 0;
-  owner = NULL;
   rpc_status = RPC_STATUS_UNTESTED;
   rpc_program = rpc_lowver = rpc_highver = 0;
   state = 0;
@@ -123,8 +122,6 @@ Port::Port() {
 }
 
 Port::~Port() {
- if (owner)
-   free(owner);
  if (serviceprobe_product)
    free(serviceprobe_product);
  if (serviceprobe_version)
@@ -426,21 +423,16 @@ PortList::~PortList() {
 }
 
 
-int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
+int PortList::addPort(u16 portno, u8 protocol, int state) {
   Port *current;
-  char msg[128];
   int proto = INPROTO2PORTLISTPROTO(protocol);
 
   assert(state < PORT_HIGHEST_STATE);
 
   if ((state == PORT_OPEN && o.verbose) || (o.debugging > 1)) {
-    if (owner && *owner) {
-      Snprintf(msg, sizeof(msg), " (owner: %s)", owner);
-    } else msg[0] = '\0';
-    
-    log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s%s\n",
+    log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s\n",
 	      statenum2str(state), portno, 
-	      proto2ascii(protocol), msg, idstr? idstr : "");
+	      proto2ascii(protocol), idstr? idstr : "");
     log_flush(LOG_STDOUT);
   }
 
@@ -457,7 +449,7 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
   if (current) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
-    if (o.debugging && current->state == state && (!owner || !*owner)) {
+    if (o.debugging && current->state == state) {
       error("Duplicate port (%hu/%s)", portno, proto2ascii(protocol));
     } 
     state_counts_proto[proto][current->state]--;
@@ -472,12 +464,6 @@ int PortList::addPort(u16 portno, u8 protocol, char *owner, int state) {
   
   current->state = state;
   state_counts_proto[proto][state]++;
-
-  if (owner && *owner) {
-    if (current->owner)
-      free(current->owner);
-    current->owner = strdup(owner);
-  }
  
   if(state == PORT_FILTERED || state == PORT_OPENFILTERED)
   	setStateReason(portno, protocol, ER_NORESPONSE, 0, 0); 

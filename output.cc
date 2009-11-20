@@ -540,7 +540,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   char rpcmachineinfo[64];
   char portinfo[64];
   char grepvers[256];
-  char grepown[64];
   char *p;
   char *xmlBuf = NULL;
   const char *state;
@@ -801,22 +800,12 @@ void printportoutput(Target * currenths, PortList * plist) {
         // such as \/ and \\ .  // But that makes it harder to pick
         // out fields with awk, cut, and such.  So I'm gonna use the
         // ugly hat (fitting to grepable output) or replacing the '/'
-        // character with '|' in the version and owner fields.
+        // character with '|' in the version field.
         Strncpy(grepvers, sd.fullversion, sizeof(grepvers) / sizeof(*grepvers));
         p = grepvers;
         while ((p = strchr(p, '/'))) {
           *p = '|';
           p++;
-        }
-        if (!current->owner)
-          *grepown = '\0';
-        else {
-          Strncpy(grepown, current->owner, sizeof(grepown) / sizeof(*grepown));
-          p = grepown;
-          while ((p = strchr(p, '/'))) {
-            *p = '|';
-            p++;
-          }
         }
         if (!sd.name)
           serviceinfo[0] = '\0';
@@ -827,9 +816,8 @@ void printportoutput(Target * currenths, PortList * plist) {
             p++;
           }
         }
-        log_write(LOG_MACHINE, "%d/%s/%s/%s/%s/%s/%s/", current->portno,
-                  state, protocol, grepown, serviceinfo, rpcmachineinfo,
-                  grepvers);
+        log_write(LOG_MACHINE, "%d/%s/%s//%s/%s/%s/", current->portno,
+                  state, protocol, serviceinfo, rpcmachineinfo, grepvers);
 
         log_write(LOG_XML, "<port protocol=\"%s\" portid=\"%d\">",
                   protocol, current->portno);
@@ -839,9 +827,6 @@ void printportoutput(Target * currenths, PortList * plist) {
         if (current->reason.ip_addr.s_addr)
           log_write(LOG_XML, " reason_ip=\"%s\"", inet_ntoa(current->reason.ip_addr));
         log_write(LOG_XML, "/>");
-        if (current->owner && *current->owner) {
-          log_write(LOG_XML, "<owner name=\"%s\" />", current->owner);
-        }
 
         if (sd.name || sd.service_fp) {
           xmlBuf = getServiceXMLBuf(&sd);

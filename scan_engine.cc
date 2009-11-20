@@ -2631,25 +2631,25 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
        in a SYN scan, but not neccessarily for UDP scan */
   case PORT_TESTING:
     /* Brand new port -- add it to the list */
-    hss->target->ports.addPort(portno, proto, NULL, newstate);
+    hss->target->ports.addPort(portno, proto, newstate);
     break;
   case PORT_OPEN:
     if (newstate != PORT_OPEN) {
       if (noresp_open_scan) {
-	hss->target->ports.addPort(portno, proto, NULL, newstate);
+	hss->target->ports.addPort(portno, proto, newstate);
       } /* Otherwise The old open takes precendence */
     }
     break;
   case PORT_CLOSED:
     if (newstate != PORT_CLOSED) {
       if (!noresp_open_scan && newstate != PORT_FILTERED)
-	hss->target->ports.addPort(portno, proto, NULL, newstate);
+	hss->target->ports.addPort(portno, proto, newstate);
     }
     break;
   case PORT_FILTERED:
     if (newstate != PORT_FILTERED) {
       if (!noresp_open_scan || newstate != PORT_OPEN) 
-	hss->target->ports.addPort(portno, proto, NULL, newstate);
+	hss->target->ports.addPort(portno, proto, newstate);
     }
     break;
   case PORT_UNFILTERED:
@@ -2658,11 +2658,11 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
        case.  I'll change it if the new state is open or closed,
        though I don't expect that to ever happen */
     if (newstate == PORT_OPEN || newstate == PORT_CLOSED)
-      hss->target->ports.addPort(portno, proto, NULL, newstate);
+      hss->target->ports.addPort(portno, proto, newstate);
     break;
   case PORT_OPENFILTERED:
     if (newstate != PORT_OPENFILTERED) {
-      hss->target->ports.addPort(portno, proto, NULL, newstate);
+      hss->target->ports.addPort(portno, proto, newstate);
     }
     break;
   default:
@@ -5258,10 +5258,8 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	      perror("recv problem from FTP bounce server");
 	    } else if (res == 0) {
 	      if (timedout)
-		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, 
-				      PORT_FILTERED);
-	      else target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, 
-					 PORT_CLOSED);
+		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_FILTERED);
+	      else target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_CLOSED);
 	    } else {
 	      recvbuf[res] = '\0';
 	      if (o.debugging) log_write(LOG_STDOUT, "result of LIST: %s", recvbuf);
@@ -5272,7 +5270,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		res = recvtime(sd, recvbuf, 2048,10, NULL);
 	      }
 	      if (recvbuf[0] == '1' || recvbuf[0] == '2') {
-		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, PORT_OPEN);
+		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_OPEN);
 		if (recvbuf[0] == '1') {
 		  res = recvtime(sd, recvbuf, 2048,5, NULL);
 		  if (res < 0)
@@ -5292,7 +5290,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		}
 	      } else {
 		/* This means the port is closed ... */
-		target->ports.addPort(portarray[i], IPPROTO_TCP, NULL, PORT_CLOSED);
+		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_CLOSED);
 	      }
 	    }
 	  }

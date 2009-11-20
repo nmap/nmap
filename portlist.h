@@ -208,7 +208,6 @@ class Port {
 
   u16 portno;
   u8 proto;
-  char *owner;
   int state; 
   state_reason_t reason;
 
@@ -264,7 +263,7 @@ class PortList {
   
   /* Add a new port to this list.  If the state has changed, it is
      OK to call this function to effect the change */
-  int addPort(u16 portno, u8 protocol, char *owner, int state);
+  int addPort(u16 portno, u8 protocol, int state);
   int removePort(u16 portno, u8 protocol);
   /* Saves an identification string for the target containing these
      ports (an IP addrss might be a good example, but set what you

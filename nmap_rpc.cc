@@ -362,7 +362,7 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
   if (rsi->rpc_current_port->state == PORT_OPENFILTERED) {
     /* Received a packet, so this port is actually open */
      target->ports.addPort(rsi->rpc_current_port->portno, 
-			   rsi->rpc_current_port->proto, NULL, PORT_OPEN);
+			   rsi->rpc_current_port->proto, PORT_OPEN);
   }
 
   rpc_pack = (struct rpc_hdr_rcv *) msg;     

@@ -960,10 +960,10 @@ static int idle_treescan(struct idle_proxy_info *proxy, Target *target,
   }
 
   if (firstHalfSz == 1 && flatcount1 == 1) 
-    target->ports.addPort(ports[0], IPPROTO_TCP, NULL, PORT_OPEN);
+    target->ports.addPort(ports[0], IPPROTO_TCP, PORT_OPEN);
   
   if ((secondHalfSz == 1) && flatcount2 == 1) 
-    target->ports.addPort(ports[firstHalfSz], IPPROTO_TCP, NULL, PORT_OPEN);
+    target->ports.addPort(ports[firstHalfSz], IPPROTO_TCP, PORT_OPEN);
   return totalfound;
 
 }
@@ -1044,8 +1044,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
      but not determined to be open, and add them in the "closed" state */
   for(portidx = 0; portidx < numports; portidx++) {
     if (target->ports.getPortEntry(portarray[portidx], IPPROTO_TCP) == NULL) {
-      target->ports.addPort(portarray[portidx], IPPROTO_TCP, NULL,
-	      PORT_CLOSEDFILTERED);
+      target->ports.addPort(portarray[portidx], IPPROTO_TCP, PORT_CLOSEDFILTERED);
 	  target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, 0);
     } else 
       target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, 0);

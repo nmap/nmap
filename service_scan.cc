@@ -1700,7 +1700,7 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
   char host[128];
 
   if (svc->port->state == PORT_OPENFILTERED) {
-    svc->target->ports.addPort(svc->portno, svc->proto, NULL, PORT_OPEN);
+    svc->target->ports.addPort(svc->portno, svc->proto, PORT_OPEN);
     if (svc->proto == IPPROTO_TCP) 
         svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
     if (svc->proto == IPPROTO_UDP)

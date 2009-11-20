@@ -486,13 +486,13 @@ static int l_set_port_state (lua_State *L)
       case PORT_OPEN:
         if (port->state == PORT_OPEN)
           return 0;
-        target->ports.addPort(port->portno, port->proto, NULL, PORT_OPEN);
+        target->ports.addPort(port->portno, port->proto, PORT_OPEN);
         port->state = PORT_OPEN;
         break;
       case PORT_CLOSED:
         if (port->state == PORT_CLOSED)
           return 0;
-        target->ports.addPort(port->portno, port->proto, NULL, PORT_CLOSED);
+        target->ports.addPort(port->portno, port->proto, PORT_CLOSED);
         port->state = PORT_CLOSED;
         break;
     }
