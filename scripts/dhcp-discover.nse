@@ -35,14 +35,14 @@ and <code>dhcp_parse</code>, with their related functions, can easily be abstrac
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE
 -- 67/udp open  dhcps
--- |  dhcp-discover:  
--- |   IP Offered: 192.168.1.100
--- |   DHCP Message Type: DHCPOFFER
--- |   Server Identifier: 192.168.1.1
--- |   IP Address Lease Time: 1 day, 0:00:00
--- |   Subnet Mask: 255.255.255.0
--- |   Router: 192.168.1.1
--- |_  Domain Name Server: 208.81.7.10, 208.81.7.14
+-- |  dhcp-discover:
+-- |  |  IP Offered: 192.168.1.101
+-- |  |  DHCP Message Type: DHCPOFFER
+-- |  |  Server Identifier: 192.168.1.1
+-- |  |  IP Address Lease Time: 1 day, 0:00:00
+-- |  |  Subnet Mask: 255.255.255.0
+-- |  |  Router: 192.168.1.1
+-- |_ |_ Domain Name Server: 208.81.7.10, 208.81.7.14
 -- 
 --
 --@args dhcptype The type of DHCP request to make. By default, DHCPDISCOVER is sent, but this argument
@@ -710,11 +710,7 @@ action = function(host, port)
 	local status, results = go(host, port)
 
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. results
-		else
-			return nil
-		end
+		return stdnse.format_output(false, results)
 	end
 
 	if(results == nil) then
@@ -724,25 +720,25 @@ action = function(host, port)
 	-- Set the port state to open
 	nmap.set_port_state(host, port, "open")
 
-	local response = " \n"
+	local response = {}
 
 	-- Display the results
 	for i, result in ipairs(results) do
 		if(#results ~= 1) then
-			response = response .. string.format("Result %d\n", i)
+			table.insert(response, string.format("Result %d", i))
 		end
-	
-		response = response .. string.format(" IP Offered: %s\n", result.yiaddr_str)
+
+		table.insert(response, string.format("IP Offered: %s", result.yiaddr_str))
 		for _, v in ipairs(result.options) do
 			if(type(v['value']) == 'table') then
-				response = response .. string.format(" %s: %s\n", v['name'], stdnse.strjoin(", ", v['value']))
+				table.insert(response, string.format("%s: %s", v['name'], stdnse.strjoin(", ", v['value'])))
 			else
-				response = response .. string.format(" %s: %s\n", v['name'], v['value'])
+				table.insert(response, string.format("%s: %s\n", v['name'], v['value']))
 			end
 		end
 	end
 
-	return response
+	return stdnse.format_output(true, response)
 end
 
 

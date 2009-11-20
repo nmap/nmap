@@ -67,16 +67,16 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 --@output
 -- Host script results:
 -- |  smb-brute:
--- |  bad name:test => Login was successful
--- |  consoletest:test => Password was correct, but user can't log in without changing it
--- |  guest:<anything> => Password was correct, but user's account is disabled
--- |  mixcase:BuTTeRfLY1 => Login was successful
--- |  test:password1 => Login was successful
--- |  this:password => Login was successful
--- |  thisisaverylong:password => Login was successful
--- |  thisisaverylongname:password => Login was successful
--- |  thisisaverylongnamev:password => Login was successful
--- |_ web:TeSt => Password was correct, but user's account is disabled
+-- |  |  bad name:test => Login was successful
+-- |  |  consoletest:test => Password was correct, but user can't log in without changing it
+-- |  |  guest:<anything> => Password was correct, but user's account is disabled
+-- |  |  mixcase:BuTTeRfLY1 => Login was successful
+-- |  |  test:password1 => Login was successful
+-- |  |  this:password => Login was successful
+-- |  |  thisisaverylong:password => Login was successful
+-- |  |  thisisaverylongname:password => Login was successful
+-- |  |  thisisaverylongnamev:password => Login was successful
+-- |_ |_ web:TeSt => Password was correct, but user's account is disabled
 -- 
 -- @args smblockout Unless this is set to '1' or 'true', the script won't continue if it 
 --       locks out an account or thinks it will lock out an account. 
@@ -1001,7 +1001,7 @@ action = function(host, port)
 --	TRACEBACK[coroutine.running()] = true;
 
 	local status, result
-	local response = " \n"
+	local response = {}
 
 	local username
 	local usernames = {}
@@ -1010,11 +1010,7 @@ action = function(host, port)
 
 	status, result, locked_result = go(host)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. result
-		else
-			return nil
-		end
+		return stdnse.format_output(false, result)
 	end
 
 	-- Put the usernames in their own table
@@ -1027,11 +1023,11 @@ action = function(host, port)
 
 	-- Display the usernames
 	if(#usernames == 0) then
-		response = "No accounts found\n"
+		table.insert(response, "No accounts found")
 	else
 		for i=1, #usernames, 1 do
 			local username = usernames[i]
-			response = response .. format_result(username, result[username]['password'], result[username]['result']) .. "\n"
+			table.insert(response, format_result(username, result[username]['password'], result[username]['result']))
 		end
 	end
 
@@ -1044,9 +1040,9 @@ action = function(host, port)
 		table.sort(locked)
 
 		-- Display the list
-		response = response .. string.format("Locked accounts found: %s\n", stdnse.strjoin(", ", locked))
+		table.insert(response, string.format("Locked accounts found: %s", stdnse.strjoin(", ", locked)))
 	end
 
-	return response
+	return stdnse.format_output(true, response)
 end
 

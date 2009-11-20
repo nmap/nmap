@@ -26,26 +26,20 @@ the system, besides showing a message box to the user.
 -- @output
 -- Host script results:
 -- |  smb-system-info:
--- |  OS Details
--- |  |_ Microsoft Windows Server 2003 Service Pack 2 (ServerNT 5.2 build 3790)
--- |  |_ Installed on 2007-11-26 23:40:40
--- |  |_ Registered to Ron Bowes (organization: MYCOMPANY)
--- |  |_ Path: %SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\Program Files\Microsoft SQL Server\90\Tools\binn\;C:\Program Files\IBM\Rational AppScan\
--- |  |_ Systemroot: C:\WINDOWS
--- |  |_ Page files: C:\pagefile.sys 2046 4092 (cleared at shutdown => 0)
--- |  Hardware
--- |  |_ CPU 0: Intel(R) Xeon(TM) CPU 2.80GHz [2780mhz GenuineIntel]
--- |  |_ Identifier 0: x86 Family 15 Model 2 Stepping 9
--- |  |_ CPU 1: Intel(R) Xeon(TM) CPU 2.80GHz [2780mhz GenuineIntel]
--- |  |_ Identifier 1: x86 Family 15 Model 2 Stepping 9
--- |  |_ CPU 2: Intel(R) Xeon(TM) CPU 2.80GHz [2780mhz GenuineIntel]
--- |  |_ Identifier 2: x86 Family 15 Model 2 Stepping 9
--- |  |_ CPU 3: Intel(R) Xeon(TM) CPU 2.80GHz [2780mhz GenuineIntel]
--- |  |_ Identifier 3: x86 Family 15 Model 2 Stepping 9
--- |  |_ Video driver: RAGE XL PCI Family (Microsoft Corporation)
--- |  Browsers
--- |  |_ Internet Explorer 7.0000
--- |_ |_ Firefox 3.0.3 (en-US)
+-- |  |  OS Details
+-- |  |  |  Microsoft Windows 2000 Service Pack 4 (ServerNT 5.0 build 2195)
+-- |  |  |  Installed on 2008-10-10 05:47:19
+-- |  |  |  Registered to Ron (organization: Government of Manitoba)
+-- |  |  |  Path: %SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;C:\Program Files\Graphviz2.20\Bin;
+-- |  |  |  Systemroot: C:\WINNT
+-- |  |  |_ Page files: C:\pagefile.sys 192 384 (cleared at shutdown => 0)
+-- |  |  Hardware
+-- |  |  |  CPU 0: Intel(R) Xeon(TM) CPU 2.80GHz [2800mhz GenuineIntel]
+-- |  |  |  |_ Identifier 0: x86 Family 15 Model 3 Stepping 8
+-- |  |  |_ Video driver: VMware SVGA II
+-- |  |  Browsers
+-- |  |  |  Internet Explorer 6.0000
+-- |_ |_ |_ Firefox 3.0.12 (en-US)
 -----------------------------------------------------------------------
 
 
@@ -58,6 +52,8 @@ categories = {"discovery","intrusive"}
 require 'msrpc'
 require 'smb'
 require 'stdnse'
+
+-- TODO: This script needs some love
 
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
@@ -183,59 +179,62 @@ action = function(host)
 	status, result = get_info_registry(host)
 
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. result
-		else
-			return nil
-		end
-	else
-
-		local response = " \n"
-
-		if(result['status-os'] == true) then
-			response = response .. string.format("OS Details\n")
-			response = response .. string.format("|_ %s %s (%s %s build %s)\n",                   result['productname'], result['csdversion'], result['producttype'], result['currentversion'], result['currentbuildnumber'])
-			response = response .. string.format("|_ Installed on %s\n",                          result['installdate'])
-			response = response .. string.format("|_ Registered to %s (organization: %s)\n",      result['registeredowner'], result['registeredorganization'])
-			response = response .. string.format("|_ Path: %s\n",                                 result['path'])
-			response = response .. string.format("|_ Systemroot: %s\n",                           result['systemroot'])
-			response = response .. string.format("|_ Page files: %s (cleared at shutdown => %s)\n", result['pagingfiles'], result['clearpagefileatshutdown'])
-	
-			response = response .. string.format("Hardware\n")
-			for i = 0, result['number_of_processors'] - 1, 1 do
-				if(result['status-processornamestring'..i] == false) then
-					result['status-processornamestring'..i] = "Unknown"
-				end
-
-				response = response .. string.format("|_ CPU %d: %s [%dmhz %s]\n", i, result['processornamestring'..i], result['~mhz'..i], result['vendoridentifier'..i])
-				response = response .. string.format("|_ Identifier %d: %s\n",  i, result['identifier'..i])
-			end
-			response = response .. string.format("|_ Video driver: %s\n", result['video_driverdesc'])
-
-			response = response .. string.format("Browsers\n")
-			response = response .. string.format("|_ Internet Explorer %s\n", result['ie_version'])
-			if(result['status-ff_version']) then
-				response = response .. string.format("|_ Firefox %s\n", result['ff_version'])
-			end
-		elseif(result['status-productname'] == true) then
-			if(nmap.debugging() > 0) then
-				response = response .. string.format("|_ Access was denied for certain values; try an administrative account for more complete information\n")
-			end
-			response = response .. string.format("OS Details\n")
-			response = response .. string.format("|_ %s %s (%s %s build %s)\n",                   result['productname'], result['csdversion'], result['producttype'], result['currentversion'], result['currentbuildnumber'])
-			response = response .. string.format("|_ Installed on %s\n",                          result['installdate'])
-			response = response .. string.format("|_ Registered to %s (organization: %s)\n",      result['registeredowner'], result['registeredorganization'])
-			response = response .. string.format("|_ Systemroot: %s\n",                           result['systemroot'])
-		else
-			if(nmap.debugging() > 0) then
-				response = string.format("|_ Account being used was unable to probe for information, try using an administrative account\n")
-			else
-				response = nil
-			end
-		end
-
-		return response
+		return stdnse.format_output(false, result)
 	end
+
+	local response = {}
+
+	if(result['status-os'] == true) then
+		local osdetails = {}
+		osdetails['name'] = "OS Details"
+		table.insert(osdetails, string.format("%s %s (%s %s build %s)",                     result['productname'], result['csdversion'], result['producttype'], result['currentversion'], result['currentbuildnumber']))
+		table.insert(osdetails, string.format("Installed on %s",                            result['installdate']))
+		table.insert(osdetails, string.format("Registered to %s (organization: %s)",        result['registeredowner'], result['registeredorganization']))
+		table.insert(osdetails, string.format("Path: %s",                                   result['path']))
+		table.insert(osdetails, string.format("Systemroot: %s",                             result['systemroot']))
+		table.insert(osdetails, string.format("Page files: %s (cleared at shutdown => %s)", result['pagingfiles'], result['clearpagefileatshutdown']))
+		table.insert(response, osdetails)
+
+		local hardware = {}
+		hardware['name'] = "Hardware"
+		for i = 0, result['number_of_processors'] - 1, 1 do
+			if(result['status-processornamestring'..i] == false) then
+				result['status-processornamestring'..i] = "Unknown"
+			end
+
+			local processor = {}
+			processor['name'] = string.format("CPU %d: %s [%dmhz %s]", i, string.gsub(result['processornamestring'..i], '  ', ''), result['~mhz'..i], result['vendoridentifier'..i])
+			table.insert(processor, string.format("Identifier %d: %s",  i, result['identifier'..i]))
+			table.insert(hardware, processor)
+		end
+		table.insert(hardware, string.format("Video driver: %s", result['video_driverdesc']))
+		table.insert(response, hardware)
+
+		local browsers = {}
+		browsers['name'] = "Browsers"
+		table.insert(browsers, string.format("Internet Explorer %s", result['ie_version']))
+		if(result['status-ff_version']) then
+			table.insert(browsers, string.format("Firefox %s", result['ff_version']))
+		end
+		table.insert(response, browsers)
+
+		return stdnse.format_output(true, response)
+	elseif(result['status-productname'] == true) then
+
+		local osdetails = {}
+		osdetails['name'] = 'OS Details'
+		osdetails['warning'] = "Access was denied for certain values; try an administrative account for more complete information"
+
+		table.insert(osdetails, string.format("%s %s (%s %s build %s)",              result['productname'], result['csdversion'], result['producttype'], result['currentversion'], result['currentbuildnumber']))
+		table.insert(osdetails, string.format("Installed on %s",                     result['installdate']))
+		table.insert(osdetails, string.format("Registered to %s (organization: %s)", result['registeredowner'], result['registeredorganization']))
+		table.insert(osdetails, string.format("Systemroot: %s",                      result['systemroot']))
+		table.insert(response, osdetails)
+
+		return stdnse.format_output(true, response)
+	end
+
+	return stdnse.format_output(false, "Account being used was unable to probe for information, try using an administrative account")
 end
 
 

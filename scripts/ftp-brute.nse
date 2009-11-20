@@ -17,8 +17,8 @@ Made into an actual bruteforce script (previously, it only tried one username/pa
 -- PORT   STATE SERVICE REASON
 -- 21/tcp open  ftp     syn-ack
 -- |  ftp-brute:
--- |  anonymous: IEUser@
--- |_ test: password
+-- |  |  anonymous: IEUser@
+-- |_ |_ test: password
 --
 -- @args userlimit The number of user accounts to try (default: unlimited).
 -- @args passlimit The number of passwords to try (default: unlimited).
@@ -186,25 +186,21 @@ local function go(host, port)
 end
 
 action = function(host, port)
+	local response = {}
 	local status, results = go(host, port)
 
 	if(not(status)) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. results
-		else
-			return nil
-		end
+		return stdnse.format_output(false, results)
 	end
 
 	if(#results == 0) then
-		return "No accounts found"
+		return stdnse.format_output(false, "No accounts found")
 	end
 
-	local response = " \n"
 	for i, v in ipairs(results) do
-		response = response .. string.format("%s: %s\n", v.user, v.password)
+		table.insert(response, string.format("%s: %s\n", v.user, v.password))
 	end
 
-	return response
+	return stdnse.format_output(true, response)
 end
 

@@ -99,42 +99,30 @@ the code I wrote for this is largely based on the techniques used by them.
 -- @output
 -- Host script results:
 -- |  smb-enum-users:
--- |_ TESTBOX\Administrator, EXTERNAL\DnsAdmins, TESTBOX\Guest, 
---    EXTERNAL\HelpServicesGroup, EXTERNAL\PARTNERS$, TESTBOX\SUPPORT_388945a0
+-- |_ |_ Domain: RON-WIN2K-TEST; Users: Administrator, Guest, IUSR_RON-WIN2K-TEST, IWAM_RON-WIN2K-TEST, test1234, TsInternetUser
 -- 
 -- Host script results:
 -- |  smb-enum-users:
--- |  Administrator
--- |    |_ Type: User
--- |    |_ Domain: LOCALSYSTEM
--- |    |_ Full name: Built-in account for administering the computer/domain
--- |    |_ Flags: Normal account, Password doesn't expire
--- |  DnsAdmins
--- |    |_ Type: Alias
--- |    |_ Domain: EXTRANET
--- |  EventViewer
--- |    |_ Type: User
--- |    |_ Domain: SHARED
--- |  ProxyUsers
--- |    |_ Type: Group
--- |    |_ Domain: EXTRANET
--- |  ComputerAccounts
--- |    |_ Type: Group
--- |    |_ Domain: EXTRANET
--- |  Helpdesk
--- |    |_ Type: Group
--- |    |_ Domain: EXTRANET
--- |  Guest
--- |    |_ Type: User
--- |    |_ Domain: LOCALSYSTEM
--- |    |_ Full name: Built-in account for guest access to the computer/domain
--- |    |_ Flags: Normal account, Disabled, Password not required, Password doesn't expire
--- |  Staff
--- |    |_ Type: Alias
--- |    |_ Domain: LOCALSYSTEM
--- |  Students
--- |    |_ Type: Alias
--- |_   |_ Domain: LOCALSYSTEM
+-- |  |  RON-WIN2K-TEST\Administrator (RID: 500)
+-- |  |  |  Description: Built-in account for administering the computer/domain
+-- |  |  |_ Flags:       Password does not expire, Normal user account
+-- |  |  RON-WIN2K-TEST\Guest (RID: 501)
+-- |  |  |  Description: Built-in account for guest access to the computer/domain
+-- |  |  |_ Flags:       Password not required, Password does not expire, Normal user account
+-- |  |  RON-WIN2K-TEST\IUSR_RON-WIN2K-TEST (RID: 1001)
+-- |  |  |  Full name:   Internet Guest Account
+-- |  |  |  Description: Built-in account for anonymous access to Internet Information Services
+-- |  |  |_ Flags:       Password not required, Password does not expire, Normal user account
+-- |  |  RON-WIN2K-TEST\IWAM_RON-WIN2K-TEST (RID: 1002)
+-- |  |  |  Full name:   Launch IIS Process Account
+-- |  |  |  Description: Built-in account for Internet Information Services to start out of process applications
+-- |  |  |_ Flags:       Password not required, Password does not expire, Normal user account
+-- |  |  RON-WIN2K-TEST\test1234 (RID: 1005)
+-- |  |  |_ Flags:       Normal user account
+-- |  |  RON-WIN2K-TEST\TsInternetUser (RID: 1000)
+-- |  |  |  Full name:   TsInternetUser
+-- |  |  |  Description: This user account is used by Terminal Services.
+-- |_ |_ |_ Flags:       Password not required, Password does not expire, Normal user account
 -- 
 -- @args lsaonly If set, script will only enumerate using an LSA bruteforce (requires less
 --       access than samr). Only set if you know what you're doing, you'll get better results
@@ -165,112 +153,109 @@ action = function(host)
 	local samr_result = "Didn't run"
 	local lsa_result  = "Didn't run"
 	local names = {}
-	local name_strings = {}
-	local response = " \n"
+	local names_lookup = {}
+	local response = {}
 	local samronly = nmap.registry.args.samronly
 	local lsaonly  = nmap.registry.args.lsaonly
 	local do_samr  = samronly ~= nil or (samronly == nil and lsaonly == nil)
 	local do_lsa   = lsaonly  ~= nil or (samronly == nil and lsaonly == nil)
 
-	-- Try enumerating through LSA first. Since LSA provides less information, we want the
-	-- SAMR result to overwrite it. 
-	if(do_lsa) then
-		lsa_status, lsa_result  = msrpc.lsa_enum_users(host)
-		if(lsa_status == false) then
-			if(nmap.debugging() > 0) then
-				response = response .. "ERROR: Couldn't enumerate through LSA: " .. lsa_result .. "\n"
-			end
-		else
-			-- Copy the returned array into the names[] table, using the name as the key
-			stdnse.print_debug(2, "EnumUsers: Received %d names from LSA", #lsa_result)
-			for i = 1, #lsa_result, 1 do
-				if(lsa_result[i]['name'] ~= nil) then
-					names[string.upper(lsa_result[i]['name'])] = lsa_result[i]
-				end
+	-- Try enumerating through SAMR. This is the better source of information, if we can get it. 
+	if(do_samr) then
+		samr_status, samr_result = msrpc.samr_enum_users(host)
+
+		if(samr_status) then
+			-- Copy the returned array into the names[] table
+			stdnse.print_debug(2, "EnumUsers: Received %d names from SAMR", #samr_result)
+			for i = 1, #samr_result, 1 do
+				-- Insert the full info into the names list
+				table.insert(names, samr_result[i])
+				-- Set the names_lookup value to 'true' to avoid duplicates
+				names_lookup[samr_result[i]['name']] = true
 			end
 		end
 	end
 
-	-- Try enumerating through SAMR
-	if(do_samr) then
-		samr_status, samr_result = msrpc.samr_enum_users(host)
-		if(samr_status == false) then
-			if(nmap.debugging() > 0) then
-				response = response .. "ERROR: Couldn't enumerate through SAMR: " .. samr_result .. "\n"
-			end
-		else
-			-- Copy the returned array into the names[] table, using the name as the key
-			stdnse.print_debug(2, "EnumUsers: Received %d names from SAMR", #samr_result)
-			for i = 1, #samr_result, 1 do
-				names[string.upper(samr_result[i]['name'])] = samr_result[i]
+	-- Try enumerating through LSA. 
+	if(do_lsa) then
+		lsa_status, lsa_result  = msrpc.lsa_enum_users(host)
+		if(lsa_status) then
+			-- Copy the returned array into the names[] table
+			stdnse.print_debug(2, "EnumUsers: Received %d names from LSA", #lsa_result)
+			for i = 1, #lsa_result, 1 do
+				if(lsa_result[i]['name'] ~= nil) then
+					-- Check if the name already exists
+					if(not(names_lookup[lsa_result[i]['name']])) then
+						table.insert(names, lsa_result[i])
+					end
+				end
 			end
 		end
 	end
 
 	-- Check if both failed
 	if(samr_status == false and lsa_status == false) then
-		if(nmap.debugging() > 0) then
-			return response
-		else
-			return nil
+		if(string.find(lsa_result, 'ACCESS_DENIED')) then
+			return stdnse.format_output(false, "Access denied while trying to enumerate users; except against Windows 2000, Guest or better is typically required")
 		end
+
+		return stdnse.format_output(false, {"Couldn't enumerate users", "SAMR returned " .. samr_result, "LSA returned " .. lsa_result})
 	end
 
-	-- Put the names into an array of strings, so we can sort them
-	for name, details in pairs(names) do
-		name_strings[#name_strings + 1] = names[name]['name']
-	end
 	-- Sort them
-	table.sort(name_strings, function (a, b) return string.lower(a) < string.lower(b) end)
+	table.sort(names, function (a, b) return string.lower(a.name) < string.lower(b.name) end)
+
+	-- Break them out by domain
+	local domains = {}
+	for _, name in ipairs(names) do
+		local domain    = name['domain']
+
+		-- Make sure the entry in the domains table exists
+		if(not(domains[domain])) then
+			domains[domain] = {}
+		end
+
+		table.insert(domains[domain], name)
+	end
 
 	-- Check if we actually got any names back
-	if(#name_strings == 0) then
-		response = response .. "Couldn't find any account names anonymously, sorry!"
+	if(#names == 0) then
+		table.insert(response, "Couldn't find any account names, sorry!")
 	else
 		-- If we're not verbose, just print out the names. Otherwise, print out everything we can
 		if(nmap.verbosity() < 1) then
-			local response_array = {}
-			for i = 1, #name_strings, 1 do
-				local name = string.upper(name_strings[i])
-				response_array[#response_array + 1] = (names[name]['domain'] .. "\\" .. names[name]['name'])
-			end
-				
-			response = response .. stdnse.strjoin(", ", response_array)
-		else
-			for i = 1, #name_strings, 1 do
-				local name = string.upper(name_strings[i])
-				response = response .. string.format("%s\n", names[name]['name'])
-
-				if(names[name]['typestr'] ~= nil)     then response = response .. string.format("  |_ Type: %s\n",        names[name]['typestr'])     end
-				if(names[name]['domain'] ~= nil)      then response = response .. string.format("  |_ Domain: %s\n",      names[name]['domain'])      end
-				if(nmap.verbosity() > 1) then
-					if(names[name]['rid'] ~= nil)         then response = response .. string.format("  |_ RID: %s\n",         names[name]['rid'])         end
+			for domain, domain_users in pairs(domains) do
+				-- Make an impromptu list of users
+				local names = {}
+				for _, info in ipairs(domain_users) do
+					table.insert(names, info['name'])
 				end
-				if(names[name]['fullname'] ~= nil)    then response = response .. string.format("  |_ Full name: %s\n",   names[name]['fullname'])    end
-				if(names[name]['description'] ~= nil) then response = response .. string.format("  |_ Description: %s\n", names[name]['description']) end
 
-				if(names[name]['flags'] ~= nil)       then response = response .. string.format("  |_ Flags: %s\n",       stdnse.strjoin(", ", names[name]['flags'])) end
+				-- Add this domain to the response
+				table.insert(response, string.format("Domain: %s; Users: %s", domain, stdnse.strjoin(", ", names)))
+			end
+		else
+			for domain, domain_users in pairs(domains) do
+				for _, info in ipairs(domain_users) do
+					local response_part = {}
+					response_part['name'] = string.format("%s\\%s (RID: %d)", domain, info['name'], info['rid'])
 
-				if(nmap.verbosity() > 1) then
-					if(names[name]['source'] ~= nil)      then response = response .. string.format("  |_ Source: %s\n",      names[name]['source']) end
+					if(info['fullname']) then
+						table.insert(response_part, string.format("Full name:   %s", info['fullname']))
+					end
+					if(info['description']) then
+						table.insert(response_part, string.format("Description: %s", info['description']))
+					end
+					if(info['flags']) then
+						table.insert(response_part, string.format("Flags:       %s", stdnse.strjoin(", ", info['flags'])))
+					end
+
+					table.insert(response, response_part)
 				end
 			end
 		end
 	end
 
-	return response
+	return stdnse.format_output(true, response)
 end
-
---real_action = action
---
--- function action (...)
--- 	local t = {n = select("#", ...), ...};
--- 	local status, ret = xpcall(function() return real_action(unpack(t, 1, t.n)) end, debug.traceback)
--- 
--- 	if not status then 
--- 		error(ret) 
--- 	end
--- 
--- 	return ret
--- end
 

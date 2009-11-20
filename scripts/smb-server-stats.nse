@@ -21,9 +21,9 @@ up to version 1.0.3 (and possibly higher).
 -- @output
 -- Host script results:
 -- |  smb-server-stats:
--- |  Server statistics collected since 2008-12-12 14:53:27 (89d17h37m48s):
--- |  |_ 22884718 bytes (2.95 b/s) sent, 28082489 bytes (3.62 b/s) received
--- |_ |_ 5759 failed logins, 16 permission errors, 0 system errors, 0 print jobs, 1273 files opened
+-- |  |  Server statistics collected since 2009-09-22 09:56:00 (48d5h53m36s):
+-- |  |  |  6513655 bytes (1.56 b/s) sent, 40075383 bytes (9.61 b/s) received
+-- |_ |_ |_ 19323 failed logins, 179 permission errors, 0 system errors, 0 print jobs, 2921 files opened
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -42,23 +42,21 @@ end
 action = function(host)
 
 	local result, stats
-	local response = " \n"
+	local response = {}
+	local subresponse = {}
 
 	result, stats = msrpc.get_server_stats(host)
 
 	if(result == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. stats
-		else
-			return nil
-		end
+		return stdnse.format_output(false, response)
 	end
 
-	response = response .. string.format("Server statistics collected since %s (%s):\n", stats['start_str'], stats['period_str'])
-	response = response .. string.format("|_ %d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received\n", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond'])
-	response = response .. string.format("|_ %d failed logins, %d permission errors, %d system errors, %d print jobs, %d files opened\n", stats['pwerrors'], stats['permerrors'], stats['syserrors'], stats['jobsqueued'], stats['fopens'])
+	table.insert(response, string.format("Server statistics collected since %s (%s):", stats['start_str'], stats['period_str']))
+	table.insert(subresponse, string.format("%d bytes (%.2f b/s) sent, %d bytes (%.2f b/s) received", stats['bytessent'], stats['bytessentpersecond'], stats['bytesrcvd'], stats['bytesrcvdpersecond']))
+	table.insert(subresponse, string.format("%d failed logins, %d permission errors, %d system errors, %d print jobs, %d files opened", stats['pwerrors'], stats['permerrors'], stats['syserrors'], stats['jobsqueued'], stats['fopens']))
+	table.insert(response, subresponse)
 
-	return response
+	return stdnse.format_output(true, response)
 end
 
 

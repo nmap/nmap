@@ -48,7 +48,7 @@ the system, besides showing a message box to the user.
 -- Host script results:
 -- |  smb-enum-sessions:
 -- |  Users logged in:
--- |  |_ TESTBOX\Administrator since 2008-10-21 08:17:14
+-- |  |  TESTBOX\Administrator since 2008-10-21 08:17:14
 -- |  |_ DOMAIN\rbowes since 2008-10-20 09:03:23
 -- |  Active SMB Sessions:
 -- |_ |_ ADMINISTRATOR is connected from 10.100.254.138 for [just logged in, it's probably you], idle for [not idle]
@@ -264,39 +264,41 @@ end
 action = function(host)
 --    TRACEBACK[coroutine.running()] = true;
 
-	local response = " \n"
+	local response = {}
 
 	local status1, status2
 
 	-- Enumerate the logged in users
+	local logged_in = {}
+	logged_in['name'] = "Users logged in"
 	status1, users = winreg_enum_rids(host)
 	if(status1 == false) then
-		response = response .. "ERROR: Couldn't enumerate login sessions: " .. users .. "\n"
+		logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
 	else
-		response = response .. "Users logged in:\n"
 		if(#users == 0) then
-			response = response .. "|_ <nobody>\n"
+			table.insrt(response, "<nobody>")
 		else
 			for i = 1, #users, 1 do
 				if(users[i]['name'] ~= nil) then
-					response = response .. string.format("|_ %s\\%s since %s\n", users[i]['domain'], users[i]['name'], users[i]['changed_date'])
+					table.insert(logged_in, string.format("%s\\%s since %s", users[i]['domain'], users[i]['name'], users[i]['changed_date']))
 				end
 			end
 		end
 	end
+	table.insert(response, logged_in)
 
 	-- Get the connected sessions
+	local sessions_output = {}
+	sessions_output['name'] = "Active SMB sessions"
 	status2, sessions = srvsvc_enum_sessions(host)
 	if(status2 == false) then
-		response = response .. "ERROR: Couldn't enumerate network sessions: " .. sessions .. "\n"
+		sessions['warning'] = "Couldn't enumerate network sessions: " .. sessions
 	else
-		response = response .. "Active SMB Sessions:\n"
 		if(#sessions == 0) then
-			response = response .. "|_ <none>\n"
+			table.insert(sessions_output, "<none>")
 		else
 			-- Format the result
 			for i = 1, #sessions, 1 do
-		
 				local time = sessions[i]['time']
 				if(time == 0) then
 					time = "[just logged in, it's probably you]"
@@ -318,21 +320,14 @@ action = function(host)
 				else
 					idle_time = string.format("%02dm%02ds", idle_time / 60, idle_time % 60)
 				end
-	
-				response = response .. string.format("|_ %s is connected from %s for %s, idle for %s\n", sessions[i]['user'], sessions[i]['client'], time, idle_time)
+
+				table.insert(sessions_output, string.format("%s is connected from %s for %s, idle for %s", sessions[i]['user'], sessions[i]['client'], time, idle_time))
 			end
 		end
 	end
+	table.insert(response, sessions_output)
 
-	if(status1 == false and status2 == false) then
-		if(nmap.debugging() > 0) then
-			return response
-		else
-			return nil
-		end
-	else
-		return response
-	end
+	return stdnse.format_output(true, response)
 end
 
 

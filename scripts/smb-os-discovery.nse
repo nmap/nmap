@@ -27,10 +27,11 @@ they likely won't change the outcome in any meaningful way.
 -- sudo nmap -sU -sS --script smb-os-discovery.nse -p U:137,T:139 127.0.0.1
 --
 --@output
--- |  smb-os-discovery: Windows 2000
--- |  LAN Manager: Windows 2000 LAN Manager
--- |  Name: WORKGROUP\TEST1
--- |_ System time: 2008-09-09 20:55:55 UTC-5
+-- Host script results:
+-- |  smb-os-discovery:
+-- |  |  OS: Windows 2000 (Windows 2000 LAN Manager)
+-- |  |  Name: WORKGROUP\RON-WIN2K-TEST
+-- |_ |_ System time: 2009-11-09 14:33:39 UTC-6
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -61,18 +62,18 @@ function get_windows_version(os)
 end
 
 action = function(host)
-
+	local response = {}
 	local status, result = smb.get_os(host)
 
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "smb-os-discovery: ERROR: " .. result
-		else
-			return nil
-		end
+		return stdnse.format_output(false, result)
 	end
 
-	return string.format("%s\nLAN Manager: %s\nName: %s\\%s\nSystem time: %s %s\n", get_windows_version(result['os']), result['lanmanager'], result['domain'], result['server'], result['date'], result['timezone_str'])
+	table.insert(response, string.format("OS: %s (%s)", get_windows_version(result['os']), result['lanmanager']))
+	table.insert(response, string.format("Name: %s\\%s", result['domain'], result['server']))
+	table.insert(response, string.format("System time: %s %s", result['date'], result['timezone_str']))
+
+	return stdnse.format_output(true, response)
 end
 
 

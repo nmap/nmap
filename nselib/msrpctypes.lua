@@ -744,6 +744,24 @@ function marshall_int32(int32)
 	return result
 end
 
+---Marshall an array of int32 values. 
+--
+--@param data The array
+--@return A string representing the marshalled data
+function marshall_int32_array(data)
+	local result = ""
+
+	result = result .. marshall_int32(0x0400) -- Max count
+	result = result .. marshall_int32(0)     -- Offset
+	result = result .. marshall_int32(#data) -- Actual count
+
+	for _, v in ipairs(data) do
+		result = result .. marshall_int32(v)
+	end
+
+	return result
+end
+
 --- Marshall an int16, which has the following format:
 -- <code>     [in]            uint16           var</code>
 --
@@ -816,12 +834,10 @@ end
 function unmarshall_int32(data, pos)
 	local value
 
-	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_int32()"))
 	pos, value = bin.unpack("<I", data, pos)
 	if(value == nil) then
 		stdnse.print_debug(1, "MSRPC: ERROR: Ran off the end of a packet in unmarshall_int32(). Please report!")
 	end
-	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int32()"))
 
 	return pos, value
 end
@@ -1080,6 +1096,38 @@ function unmarshall_int8_array_ptr(data, pos, pad)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_int8_array_ptr()"))
 	return pos, str
+end
+
+--- Unmarshall an array of int32s. 
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, str) The position, and the resulting string, which cannot be nil. 
+function unmarshall_int32_array(data, pos, count)
+	local maxcount
+	local result = {}
+
+	pos, maxcount = unmarshall_int32(data, pos)
+
+	for i = 1, count, 1 do
+		pos, result[i] = unmarshall_int32(data, pos)
+	end
+
+	return pos, result
+end
+
+--- Unmarshall a pointer to an array of int32s.
+--
+--@param data The data packet. 
+--@param pos  The position within the data. 
+--@return (pos, str) The position, and the resulting string, which cannot be nil. 
+function unmarshall_int32_array_ptr(data, pos)
+	local count, array
+
+	pos, count = unmarshall_int32(data, pos)
+	pos, array = unmarshall_ptr(ALL, data, pos, unmarshall_int32_array, {count})
+
+	return pos, array
 end
 
 ---Marshalls an NTTIME. This is sent as the number of 1/10 microseconds since 1601; however
@@ -1462,7 +1510,6 @@ end
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2(data, pos)
 	local i
-	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_dom_sid2()"))
 
 	-- Read the SID from the packet
 	local sid = {}
@@ -1488,7 +1535,6 @@ function unmarshall_dom_sid2(data, pos)
 		result = result .. string.format("-%u", sid['sub_auths'][i])
 	end
 
-	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_dom_sid2()"))
 	return pos, result
 end
 
@@ -1499,13 +1545,7 @@ end
 --@param pos      The position within <code>data</code>. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 function unmarshall_dom_sid2_ptr(data, pos)
-	local result
-	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_dom_sid2_ptr()"))
-
-	pos, result = unmarshall_ptr(ALL, data, pos, unmarshall_dom_sid2, {})
-
-	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_dom_sid2_ptr()"))
-	return pos, result
+	return unmarshall_ptr(ALL, data, pos, unmarshall_dom_sid2, {})
 end
 
 ---Marshall a struct with the following definition:
@@ -1601,8 +1641,9 @@ end
 --@param str        The string to marshall
 --@param max_length [optional] The maximum size of the buffer, in characters, including the null terminator. 
 --                  Defaults to the length of the string, including the null. 
+--@param do_null    [optional] Appends a null to the end of the string. Default false. 
 --@return A string representing the marshalled data. 
-local function marshall_lsa_String_internal(location, str, max_length)
+local function marshall_lsa_String_internal(location, str, max_length, do_null)
 	local length
 	local result = ""
 	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_String_internal()"))
@@ -1622,12 +1663,16 @@ local function marshall_lsa_String_internal(location, str, max_length)
 		length = string.len(str)
 	end
 
+	if(do_null == nil) then
+		do_null = false
+	end
+
 	if(location == HEAD or location == ALL) then
-		result = result .. bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(HEAD, marshall_unicode, {str, false, max_length}, str))
+		result = result .. bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(HEAD, marshall_unicode, {str, do_null, max_length}, str))
 	end
 
 	if(location == BODY or location == ALL) then
-		result = result .. bin.pack("<A", marshall_ptr(BODY, marshall_unicode, {str, false, max_length}, str))
+		result = result .. bin.pack("<A", marshall_ptr(BODY, marshall_unicode, {str, do_null, max_length}, str))
 	end
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_lsa_String_internal()"))
@@ -1703,6 +1748,29 @@ function marshall_lsa_String_array(strings)
 	result = marshall_array(array)
 
 	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_lsa_String_array()"))
+	return result
+end
+
+---Basically the same as <code>marshall_lsa_String_array</code>, except it has a different structure
+--
+--@param strings The array of strings to marshall
+function marshall_lsa_String_array2(strings)
+	local array = {}
+	local result
+
+	for i = 1, #strings, 1 do
+		array[i] = {}
+		array[i]['func'] = marshall_lsa_String_internal
+		array[i]['args'] = {strings[i], nil, nil, false}
+	end
+
+	result = marshall_int32(1000) -- Max length
+	result = result .. marshall_int32(0) -- Offset
+	result = result .. marshall_array(array)
+
+--require 'nsedebug'
+--nsedebug.print_hex(result)
+--os.exit()
 	return result
 end
 
@@ -1913,7 +1981,6 @@ end
 --                anything. 
 --@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
 local function unmarshall_lsa_TranslatedSid2(location, data, pos, result)
-	stdnse.print_debug(4, string.format("MSRPC: Entering unmarshall_lsa_TranslatedSid2()"))
 	if(result == nil) then
 		result = {}
 	end
@@ -1929,7 +1996,6 @@ local function unmarshall_lsa_TranslatedSid2(location, data, pos, result)
 	if(location == BODY or location == ALL) then
 	end
 
-	stdnse.print_debug(4, string.format("MSRPC: Leaving unmarshall_lsa_TranslatedSid2()"))
 	return pos, result
 end
 
@@ -2289,7 +2355,6 @@ end
 function marshall_lsa_SidArray(sids)
 	local result = ""
 	local array = {}
-	stdnse.print_debug(4, string.format("MSRPC: Entering marshall_lsa_SidArray()"))
 
 	result = result .. marshall_int32(#sids)
 
@@ -2301,10 +2366,47 @@ function marshall_lsa_SidArray(sids)
 
 	result = result .. marshall_ptr(ALL, marshall_array, {array}, array)
 
-	stdnse.print_debug(4, string.format("MSRPC: Leaving marshall_lsa_SidArray()"))
 	return result
 end
 
+---Unmarshall a struct with the following definition:
+--    typedef struct {
+--        dom_sid2 *sid;
+--    } lsa_SidPtr;
+--
+--@param location The part of the pointer wanted, either HEAD (for the data itself), BODY
+--                (for nothing, since this isn't a pointer), or ALL (for the data). Generally, unless the 
+--                referent_id is split from the data (for example, in an array), you will want 
+--                ALL. 
+--@param data     The data being processed. 
+--@param pos      The position within <code>data</code>. 
+--@param result   This is required when unmarshalling the BODY section, which always comes after 
+--                unmarshalling the HEAD. It is the result returned for this parameter during the 
+--                HEAD unmarshall. If the referent_id was '0', then this function doesn't unmarshall
+--                anything. 
+--@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
+function unmarshall_lsa_SidPtr(location, data, pos, result)
+	return unmarshall_ptr(location, data, pos, unmarshall_dom_sid2, {}, result)
+end
+
+---Unmarshall a struct with the following definition:
+--
+--    typedef [public] struct {
+--        [range(0,1000)] uint32 num_sids;
+--        [size_is(num_sids)] lsa_SidPtr *sids;
+--    } lsa_SidArray;
+--
+--@param data     The data being processed. 
+--@param pos      The position within <code>data</code>. 
+--@return (pos, result) The new position in <code>data</code>, and a table representing the datatype.
+function unmarshall_lsa_SidArray(data, pos)
+	local sidarray = {}
+
+	pos, sidarray['count'] = unmarshall_int32(data, pos)
+	pos, sidarray['sids']  = unmarshall_ptr(ALL, data, pos, unmarshall_array, {sidarray['count'], unmarshall_lsa_SidPtr, {}})
+
+	return pos, sidarray
+end
 
 ---Marshall a struct with the following definition:
 --
@@ -4140,6 +4242,26 @@ function unmarshall_samr_DomainInfo_ptr(data, pos)
 	return pos, result
 end
 
+---Unmarshall a structure with the following definition:
+--
+--<code>
+--    typedef struct {
+--        [range(0,1024)]  uint32 count;
+--        [size_is(count)] uint32 *ids;
+--    } samr_Ids;
+--</code>
+--
+--@param data     The data being processed. 
+--@param pos      The position within <code>data</code>. 
+--@return (pos, result) The new position in <code>data</code>, and a table representing the datatype. May return
+--                <code>nil</code> if there was an error. 
+function unmarshall_samr_Ids(data, pos)
+    local array
+
+	pos, array = unmarshall_int32_array_ptr(data, pos)
+
+	return pos, array
+end
 
 ----------------------------------
 --       SVCCTL
@@ -4490,9 +4612,7 @@ function marshall_atsvc_JobInfo(command, time)
 	result = result .. marshall_int32(time)                       -- Job time
 	result = result .. marshall_int32(0)                          -- Day of month
 	result = result .. marshall_int8(0, false)                    -- Day of week
---io.write("Length = " .. #result .. "\n")
 	result = result .. marshall_atsvc_Flags("JOB_NONINTERACTIVE") -- Flags
---io.write("Length = " .. #result .. "\n")
 	result = result .. marshall_int16(0, false)                   -- Padding
 	result = result .. marshall_unicode_ptr(command, true)        -- Command
 

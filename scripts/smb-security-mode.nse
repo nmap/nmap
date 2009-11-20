@@ -18,18 +18,17 @@ set the username and password, etc.), but it probably won't ever require them.
 -- sudo nmap -sU -sS --script smb-security-mode.nse -p U:137,T:139 127.0.0.1
 --
 --@output
--- |  smb-security-mode: User-level authentication
--- |  smb-security-mode: Challenge/response passwords supported
--- |_ smb-security-mode: Message signing supported
+-- Host script results:
+-- |  smb-security-mode:
+-- |  |  Account that was used for smb scripts: administrator
+-- |  |  User-level authentication
+-- |  |  SMB Security: Challenge/response passwords supported
+-- |_ |_ Message signing disabled (dangerous, but default)
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
-
--- Set the runlevel to above 1 to ensure this runs after the bulk of the scripts. That lets us more effectively
--- find out which account we've been using. 
-runlevel = 1.01
 
 require 'smb'
 require 'stdnse'
@@ -48,58 +47,49 @@ action = function(host)
 
 	status, state = smb.start(host)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. state
-		else
-			return nil
-		end
+		return stdnse.format_output(false, state)
 	end
 
 	status, err = smb.negotiate_protocol(state, overrides)
-
 	if(status == false) then
 		smb.stop(state)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. err
-		else
-			return nil
-		end
+		return stdnse.format_output(false, err)
 	end
 
 	local security_mode = state['security_mode']
 
-	local response = ""
+	local response = {}
 
 	local result, username, domain = smb.get_account(host)
 	if(result ~= false) then
-		response = string.format("Account that was used for smb scripts: %s\%s\n", domain, stdnse.string_or_blank(username, '<blank>'))
+		table.insert(response, string.format("Account that was used for smb scripts: %s\%s\n", domain, stdnse.string_or_blank(username, '<blank>')))
 	end
 	
 	-- User-level authentication or share-level authentication
-    if(bit.band(security_mode, 1) == 1) then
-        response = response .. "User-level authentication\n"
-    else
-        response = response .. " Share-level authentication\n"
-    end
+	if(bit.band(security_mode, 1) == 1) then
+		table.insert(response, "User-level authentication")
+	else
+		table.insert(response, "Share-level authentication (dangerous)")
+	end
 
-    -- Challenge/response supported?
-    if(bit.band(security_mode, 2) == 0) then
-        response = response .. "SMB Security: Plaintext only\n"
-    else
-        response = response .. "SMB Security: Challenge/response passwords supported\n"
-    end
+	-- Challenge/response supported?
+	if(bit.band(security_mode, 2) == 0) then
+		table.insert(response, "Plaintext passwords required (dangerous)")
+	else
+		table.insert(response, "SMB Security: Challenge/response passwords supported")
+	end
 
-    -- Message signing supported/required?
-    if(bit.band(security_mode, 8) == 8) then
-        response = response .. "SMB Security: Message signing required\n"
-    elseif(bit.band(security_mode, 4) == 4) then
-        response = response .. "SMB Security: Message signing supported\n"
-    else
-        response = response .. "SMB Security: Message signing not supported\n"
-    end
+	-- Message signing supported/required?
+	if(bit.band(security_mode, 8) == 8) then
+		table.insert(response, "Message signing required")
+	elseif(bit.band(security_mode, 4) == 4) then
+		table.insert(response, "Message signing supported")
+	else
+		table.insert(response, "Message signing disabled (dangerous, but default)")
+	end
 
 	smb.stop(state)
-	return response
+	return stdnse.format_output(true, response)
 end
 
 

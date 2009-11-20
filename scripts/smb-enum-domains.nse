@@ -32,26 +32,20 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 --
 --@output
 -- Host script results:
--- |  smb-enum-domains:
--- |  Domain: LOCALSYSTEM
--- |   |_ SID: S-1-5-21-2956463495-2656032972-1271678565
--- |   |_ Users: Administrator, Guest, SUPPORT_388945a0
--- |   |_ Creation time: 2007-11-26 15:24:04
--- |   |_ Passwords: min length: 11 characters; min age: 5 days; max age: 63 days
--- |   |_ Password lockout: 3 attempts in under 15 minutes will lock the account until manually reset
--- |   |_ Password history : 5 passwords
--- |   |_ Password properties:
--- |     |_  Password complexity requirements exist
--- |     |_  Administrator account cannot be locked out
--- |  Domain: Builtin
--- |   |_ SID: S-1-5-32
--- |   |_ Users:
--- |   |_ Creation time: 2007-11-26 15:24:04
--- |   |_ Passwords: min length: n/a; min age: n/a; max age: 42 days
--- |   |_ Account lockout disabled
--- |   |_ Password properties:
--- |     |_  Password complexity requirements do not exist
--- |_    |_  Administrator account cannot be locked out
+-- |  smb-enum-domains:  
+-- |  |  WINDOWS2003 (S-1-5-21-4146152237-3614947961-1862238888)
+-- |  |  |  Groups: HelpServicesGroup, IIS_WPG, TelnetClients
+-- |  |  |  Users: Administrator, ASPNET, Guest, IUSR_WINDOWS2003, IWAM_WINDOWS2003, ron, SUPPORT_388945a0, test
+-- |  |  |  Creation time: 2009-10-17 12:46:43
+-- |  |  |  Passwords: min length: n/a; min age: n/a; max age: 42 days; history: n/a
+-- |  |  |_ Account lockout disabled
+-- |  |  Builtin (S-1-5-32)
+-- |  |  |  Groups: Administrators, Backup Operators, Distributed COM Users, Guests, Network Configuration Operators, Performance Log Users, Performance Monitor Users, Power Users, Print Operators, Remote Desktop Users, Replicator, Users
+-- |  |  |  Users: n/a
+-- |  |  |  Creation time: 2009-10-17 12:46:43
+-- |  |  |  Passwords: min length: n/a; min age: n/a; max age: 42 days; history: n/a
+-- |_ |_ |_ Account lockout disabled
+--
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -63,46 +57,191 @@ require 'msrpc'
 require 'smb'
 require 'stdnse'
 
+-- TODO: This script needs some love...
+
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
 
+local function get_domain_info(smbstate, domain)
+	local sid
+	local domain_handle
+
+	-- Call LookupDomain()
+	status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect_handle, domain)
+	if(status == false) then
+		return false, "Couldn't look up the domain: " .. lookupdomain_result
+	end
+
+	-- Save the sid
+	sid = lookupdomain_result['sid']
+
+	-- Call OpenDomain()
+	status, opendomain_result = msrpc.samr_opendomain(smbstate, connect_handle, sid)
+	if(status == false) then
+		return false, opendomain_result
+	end
+
+	-- Save the domain handle
+	domain_handle = opendomain_result['domain_handle']
+
+	-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
+	-- the most useful information. 
+	status_1,  querydomaininfo2_result_1  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 1)
+	status_8,  querydomaininfo2_result_8  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 8)
+	status_12, querydomaininfo2_result_12 = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 12)
+
+	if(status_1 == false) then
+		return false, querydomaininfo2_result_1
+	end
+
+	if(status_8 == false) then
+		return false, querydomaininfo2_result_8
+	end
+
+	if(status_12 == false) then
+		return false, thenquerydomaininfo2_result_12
+	end
+
+	-- Call EnumDomainUsers() to get users
+	status, enumdomainusers_result = msrpc.samr_enumdomainusers(smbstate, domain_handle)
+	if(status == false) then
+		return false, enumdomainusers_result
+	end
+
+	-- Call EnumDomainAliases() to get groups
+	local status, enumdomaingroups_result = msrpc.samr_enumdomainaliases(smbstate, domain_handle)
+	if(status == false) then
+		return false, enumdomaingroups_result
+	end
+
+	-- Close the domain handle
+	msrpc.samr_close(smbstate, domain_handle)
+
+	-- Create a list of groups
+	local groups = {}
+	if(enumdomaingroups_result['sam'] ~= nil and enumdomaingroups_result['sam']['entries'] ~= nil) then
+		for _, group in ipairs(enumdomaingroups_result['sam']['entries']) do
+			table.insert(groups, group.name)
+		end
+	end
+
+	-- Create the list of users
+	local names = {}
+	if(enumdomainusers_result['sam'] ~= nil and enumdomainusers_result['sam']['entries'] ~= nil) then
+		for _, name in ipairs(enumdomainusers_result['sam']['entries']) do
+			table.insert(names, name.name)
+		end
+	end
+
+	-- Our output table
+	local response = {}
+
+	-- Finally, start filling in the response!
+	response['name'] = string.format("%s (%s)", domain, sid)
+
+	-- Add the list of groups as a comma-separated list
+	if(groups and (#groups > 0)) then
+		table.insert(response, string.format("Groups: %s", stdnse.strjoin(", ", groups)))
+	else
+		table.insert(response, string.format("Groups: n/a"))
+	end
+
+	-- Add the list of users as a comma-separated list
+	if(names and (#names > 0)) then
+		table.insert(response, string.format("Users: %s", stdnse.strjoin(", ", names)))
+	else
+		table.insert(response, string.format("Users: n/a"))
+	end
+
+
+
+	if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
+		table.insert(response, string.format("Creation time: %s", os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time'])))
+	end
+
+	-- Password characteristics
+	local min_password_length = querydomaininfo2_result_1['info']['min_password_length']
+	local max_password_age    = querydomaininfo2_result_1['info']['max_password_age'] / 60 / 60 / 24
+	local min_password_age    = querydomaininfo2_result_1['info']['min_password_age'] / 60 / 60 / 24
+	local password_history    = querydomaininfo2_result_1['info']['password_history_length']
+
+	if(min_password_length > 0) then
+		min_password_length = string.format("%d characters", min_password_length)
+	else
+		min_password_length = "n/a"
+	end
+
+	if(max_password_age > 0 and max_password_age < 5000) then
+		max_password_age = string.format("%d days", max_password_age)
+	else
+		max_password_age = "n/a"
+	end
+
+	if(min_password_age > 0) then
+		min_password_age = string.format("%d days", min_password_age)
+	else
+		min_password_age = "n/a"
+	end
+
+	if(password_history > 0) then
+		password_history = string.format("%d passwords", password_history)
+	else
+		password_history = "n/a"
+	end
+
+	table.insert(response, string.format("Passwords: min length: %s; min age: %s; max age: %s; history: %s", min_password_length, min_password_age, max_password_age, password_history))
+
+	local lockout_duration = querydomaininfo2_result_12['info']['lockout_duration']
+	if(lockout_duration < 0) then
+		lockout_duration = string.format("for %d minutes", querydomaininfo2_result_12['info']['lockout_duration'])
+	else
+		lockout_duration = "until manually reset"
+	end
+
+	if(querydomaininfo2_result_12['info']['lockout_threshold'] > 0) then
+		table.insert(response, string.format("Password lockout: %d attempts in under %d minutes will lock the account %s",  querydomaininfo2_result_12['info']['lockout_threshold'], querydomaininfo2_result_12['info']['lockout_window'] / 60, lockout_duration))
+	else
+		table.insert(response, string.format("Account lockout disabled"))
+	end
+
+	local password_properties = querydomaininfo2_result_1['info']['password_properties']
+	
+	if(#password_properties > 0) then
+		local password_properties_response = {}
+		password_properties_response['name'] = "Password properties:"
+		for j = 1, #password_properties, 1 do
+			table.insert(password_properties_response, msrpc.samr_PasswordProperties_tostr(password_properties[j]))
+		end
+		table.insert(response, password_properties_response)
+	end
+
+	return true, response
+end
+
+
 action = function(host)
 
-	local response = " \n"
+	local response = {}
 	local status, smbstate
 	local i, j
 
 	-- Create the SMB session
 	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
 	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. smbstate
-		else
-			return nil
-		end
+		return stdnse.format_output(false, smbstate)
 	end
 
 	-- Bind to SAMR service
 	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. bind_result
-		else
-			return nil
-		end
+		return stdnse.format_output(false, bind_result)
 	end
 
 	-- Call connect4()
 	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. connect4_result
-		else
-			return nil
-		end
+		return stdnse.format_output(false, connect4_result)
 	end
 
 	-- Save the connect_handle
@@ -111,170 +250,27 @@ action = function(host)
 	-- Call EnumDomains()
 	status, enumdomains_result = msrpc.samr_enumdomains(smbstate, connect_handle)
 	if(status == false) then
-		msrpc.stop_smb(smbstate)
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. enumdomains_result
-		else
-			return nil
-		end
+		return stdnse.format_output(false, enumdomains_result)
 	end
 
 	-- If no domains were returned, print an error (I don't expect this will actually happen)
 	if(#enumdomains_result['sam']['entries'] == 0) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: Couldn't find any domains to check"
-		else
-			return nil
-		end
+		return stdnse.format_output(false, "Couldn't find any domains")
 	end
 
 	for i = 1, #enumdomains_result['sam']['entries'], 1 do
-
 		local domain = enumdomains_result['sam']['entries'][i]['name']
-		local sid
-		local domain_handle
+		local status, domain_info = get_domain_info(smbstate, domain)
 
-		-- Call LookupDomain()
-		status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect_handle, domain)
-		if(status == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. lookupdomain_result
-			else
-				return nil
-			end
-		end
-		-- Save the sid
-		sid = lookupdomain_result['sid']
-
-		-- Call OpenDomain()
-		status, opendomain_result = msrpc.samr_opendomain(smbstate, connect_handle, sid)
-		if(status == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. opendomain_result
-			else
-				return nil
-			end
-		end
-
-		-- Save the domain handle
-		domain_handle = opendomain_result['domain_handle']
-
-		-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
-		-- the most useful information. 
-		status_1,  querydomaininfo2_result_1  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 1)
-		status_8,  querydomaininfo2_result_8  = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 8)
-		status_12, querydomaininfo2_result_12 = msrpc.samr_querydomaininfo2(smbstate, domain_handle, 12)
-
-		if(status_1 == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result_1
-			else
-				return nil
-			end
-		end
-		if(status_8 == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result_8
-			else
-				return nil
-			end
-		end
-		if(status_12 == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. querydomaininfo2_result_12
-			else
-				return nil
-			end
-		end
-
-		-- Call EnumDomainUsers() to get users
-		status, enumdomainusers_result = msrpc.samr_enumdomainusers(smbstate, domain_handle)
-		if(status == false) then
-			msrpc.stop_smb(smbstate)
-			if(nmap.debugging() > 0 and enumdomainusers_result ~= nil) then
-				return "ERROR: " .. enumdomainusers_result
-			else
-				return nil
-			end
-		end
-
-		-- Close the domain handle
-		msrpc.samr_close(smbstate, domain_handle)
-
-		-- Create the list of users
-		local names = {}
-		if(enumdomainusers_result['sam'] ~= nil and enumdomainusers_result['sam']['entries'] ~= nil) then
-			for j = 1, #enumdomainusers_result['sam']['entries'], 1 do
-				local name = enumdomainusers_result['sam']['entries'][j]['name']
-				names[#names + 1] = name
-			end
-		end
-
-		-- Finally, fill in the response!
-		response = response .. string.format("Domain: %s\n", domain)
-		response = response .. string.format(" |_ SID: %s\n",             lookupdomain_result['sid'])
-		if(#names ~= 0) then
-			response = response .. string.format(" |_ Users: %s\n",           stdnse.strjoin(", ", names))
-		end
-
-		if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
-			response = response .. string.format(" |_ Creation time: %s\n",   os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time']))
-		end
-
-		-- Password characteristics
-		local min_password_length = querydomaininfo2_result_1['info']['min_password_length']
-		local max_password_age = querydomaininfo2_result_1['info']['max_password_age'] / 60 / 60 / 24
-		local min_password_age = querydomaininfo2_result_1['info']['min_password_age'] / 60 / 60 / 24
-
-		if(min_password_length > 0) then
-			min_password_length = string.format("%d characters", min_password_length)
+		if(not(status)) then
+			local error_table = {}
+			error_table['name'] = "Domain: " .. domain
+			error_table['warning'] = "Couldn't get info for the domain: " .. domain_info
+			table.insert(response, error_table)
 		else
-			min_password_length = "n/a"
+			table.insert(response, domain_info)
 		end
 
-		if(max_password_age > 0 and max_password_age < 5000) then
-			max_password_age = string.format("%d days", max_password_age)
-		else
-			max_password_age = "n/a"
-		end
-
-		if(min_password_age > 0) then
-			min_password_age = string.format("%d days", min_password_age)
-		else
-			min_password_age = "n/a"
-		end
-
-		response = response .. string.format(" |_ Passwords: min length: %s; min age: %s; max age: %s\n", min_password_length, min_password_age, max_password_age)
-
-		local lockout_duration = querydomaininfo2_result_12['info']['lockout_duration']
-		if(lockout_duration < 0) then
-			lockout_duration = string.format("for %d minutes", querydomaininfo2_result_12['info']['lockout_duration'])
-		else
-			lockout_duration = "until manually reset"
-		end
-
-		if(querydomaininfo2_result_12['info']['lockout_threshold'] > 0) then
-			response = response .. string.format(" |_ Password lockout: %d attempts in under %d minutes will lock the account %s\n",  querydomaininfo2_result_12['info']['lockout_threshold'], querydomaininfo2_result_12['info']['lockout_window'] / 60, lockout_duration)
-		else
-			response = response .. string.format(" |_ Account lockout disabled\n")
-		end
-
-		if(querydomaininfo2_result_1['info']['password_history_length']) > 0 then
-			response = response .. string.format(" |_ Password history: %d passwords\n", querydomaininfo2_result_1['info']['password_history_length'])
-		end
-
-		local password_properties = querydomaininfo2_result_1['info']['password_properties']
-		if(#password_properties > 0) then
-			response = response .. " |_ Password properties:\n"
-			for j = 1, #password_properties, 1 do
-				response = response .. "    |_ " .. msrpc.samr_PasswordProperties_tostr(password_properties[j]) .. "\n"
-			end
-		end
 	end
 
 	-- Close the connect handle
@@ -283,8 +279,6 @@ action = function(host)
 	-- Close the SMB session
 	msrpc.stop_smb(smbstate)
 
-	return response
-
+	return stdnse.format_output(true, response)
 end
-
 

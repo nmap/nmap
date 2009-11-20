@@ -63,10 +63,10 @@ on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]).
 --@output
 -- Host script results:
 -- |  smb-check-vulns:
--- |  MS08-067: FIXED
--- |  Conficker: Likely INFECTED
--- |  regsvc DoS: FIXED
--- |_ SMBv2 DoS (CVE-2009-3103): VULNERABLE
+-- |  |  MS08-067: NOT VULNERABLE
+-- |  |  Conficker: Likely CLEAN
+-- |  |  regsvc DoS: NOT VULNERABLE
+-- |_ |_ SMBv2 DoS (CVE-2009-3103): NOT VULNERABLE
 --
 -- @args unsafe If set, this script will run checks that, if the system isn't
 --       patched, are basically guaranteed to crash something. Remember that
@@ -407,9 +407,9 @@ local function get_response(check, message, description, minimum_verbosity, mini
 	-- Check if we have appropriate verbosity/debug
 	if(nmap.verbosity() >= minimum_verbosity and nmap.debugging() >= minimum_debug) then
 		if(description == nil or description == '') then
-			return string.format("%s: %s\n", check, message)
+			return string.format("%s: %s", check, message)
 		else
-			return string.format("%s: %s (%s)\n", check, message, description)
+			return string.format("%s: %s (%s)", check, message, description)
 		end
 	else
 		return ''
@@ -419,23 +419,23 @@ end
 action = function(host)
 
 	local status, result, message
-	local response = ""
+	local response = {}
 
 	-- Check for ms08-067
 	status, result, message = check_ms08_067(host)
 	if(status == false) then
-		response = response .. get_response("MS08-067", "ERROR", result, 0, 1)
+		table.insert(response, get_response("MS08-067", "ERROR", result, 0, 1))
 	else
 		if(result == VULNERABLE) then
-			response = response .. get_response("MS08-067", "VULNERABLE",        nil,                               0)
+			table.insert(response, get_response("MS08-067", "VULNERABLE",        nil,                               0))
 		elseif(result == UNKNOWN) then
-			response = response .. get_response("MS08-067", "LIKELY VULNERABLE", "host stopped responding",         1) -- TODO: this isn't very accurate
+			table.insert(response, get_response("MS08-067", "LIKELY VULNERABLE", "host stopped responding",         1)) -- TODO: this isn't very accurate
 		elseif(result == NOTRUN) then
-			response = response .. get_response("MS08-067", "CHECK DISABLED",    "remove 'safe=1' argument to run", 1)
+			table.insert(response, get_response("MS08-067", "CHECK DISABLED",    "remove 'safe=1' argument to run", 1))
 		elseif(result == INFECTED) then
-			response = response .. get_response("MS08-067", "FIXED",             "likely by Conficker",             0)
+			table.insert(response, get_response("MS08-067", "NOT VULNERABLE",    "likely by Conficker",             0))
 		else
-			response = response .. get_response("MS08-067", "FIXED", nil, 1)
+			table.insert(response, get_response("MS08-067", "NOT VULNERABLE", nil, 1))
 		end
 	end
 
@@ -443,55 +443,48 @@ action = function(host)
 	status, result = check_conficker(host)
 	if(status == false) then
 		local msg = CONFICKER_ERROR_HELP[result] or "UNKNOWN; got error " .. result
-		response = response .. get_response("Conficker", msg, nil, 1) -- Only set verbosity for this, since it might be an error or it might be UNKNOWN
+		table.insert(response, get_response("Conficker", msg, nil, 1)) -- Only set verbosity for this, since it might be an error or it might be UNKNOWN
 	else
 		if(result == CLEAN) then
-			response = response .. get_response("Conficker", "Likely CLEAN",    nil,                        1)
+			table.insert(response, get_response("Conficker", "Likely CLEAN",    nil,                        1))
 		elseif(result == INFECTED) then
-			response = response .. get_response("Conficker", "Likely INFECTED", "by Conficker.C or lower",  0)
+			table.insert(response, get_response("Conficker", "Likely INFECTED", "by Conficker.C or lower",  0))
 		elseif(result == INFECTED2) then
-			response = response .. get_response("Conficker", "Likely INFECTED", "by Conficker.D or higher", 0)
+			table.insert(response, get_response("Conficker", "Likely INFECTED", "by Conficker.D or higher", 0))
 		else
-			response = response .. get_response("Conficker", "UNKNOWN",         result,                     0, 1)
+			table.insert(response, get_response("Conficker", "UNKNOWN",         result,                     0, 1))
 		end
 	end
 
 	-- Check for a winreg_Enum crash
 	status, result = check_winreg_Enum_crash(host)
 	if(status == false) then
-		response = response .. get_response("regsvc DoS", "ERROR", result, 0, 1)
+		table.insert(response, get_response("regsvc DoS", "ERROR", result, 0, 1))
 	else
 		if(result == VULNERABLE) then
-			response = response .. get_response("regsvc DoS", "VULNERABLE", nil, 0)
+			table.insert(response, get_response("regsvc DoS", "VULNERABLE", nil, 0))
 		elseif(result == NOTRUN) then
-			response = response .. get_response("regsvc DoS", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1)
+			table.insert(response, get_response("regsvc DoS", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1))
 		else
-			response = response .. get_response("regsvc DoS", "FIXED", nil, 1)
+			table.insert(response, get_response("regsvc DoS", "NOT VULNERABLE", nil, 1))
 		end
 	end
 
 	-- Check for SMBv2 vulnerablity
 	status, result = check_smbv2_dos(host)
 	if(status == false) then
-		response = response .. get_response("SMBv2 DoS (CVE-2009-3103)", "ERROR", result, 0, 1)
+		table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "ERROR", result, 0, 1))
 	else
 		if(result == VULNERABLE) then
-			response = response .. get_response("SMBv2 DoS (CVE-2009-3103)", "VULNERABLE", nil, 0)
+			table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "VULNERABLE", nil, 0))
 		elseif(result == NOTRUN) then
-			response = response .. get_response("SMBv2 DoS (CVE-2009-3103)", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1)
+			table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "CHECK DISABLED", "add '--script-args=unsafe=1' to run", 1))
 		else
-			response = response .. get_response("SMBv2 DoS (CVE-2009-3103)", "FIXED", nil, 1)
+			table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "NOT VULNERABLE", nil, 1))
 		end
 	end
 
-	-- If we got a response, add a linefeed
-	if(response ~= "") then
-		response = " \n" .. response
-	else
-		response = nil
-	end
-
-	return response
+	return stdnse.format_output(true, response)
 end
 
 

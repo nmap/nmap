@@ -137,19 +137,19 @@ local brute_cred = function(user, pass, soc)
 	return 1, "error -> this should never happen"
 end
 
-local function go(host, port)
+action = function(host, port)
 	local pair, status
 	local user, pass, count, rbuf
 	local usernames, passwords
 
 	status, usernames = unpwdb.usernames()
 	if(not(status)) then
-		return false, usernames
+		stdnse.format_output(false, usernames)
 	end
 
 	status, passwords = unpwdb.passwords()
 	if(not(status)) then
-		return false, passwords
+		return stdnse.format_output(false, passwords)
 	end
 
 	pair = nil
@@ -160,7 +160,7 @@ local function go(host, port)
 
 	local soc, line, best_opt = comm.tryssl(host, port, "\n",opts)
   	if not soc then 
-		return false, "Unable to open connection" 
+		return stdnse.format_output(false, "Unable to open connection")
 	end
 
 	-- continually try user/pass pairs (reconnecting, if we have to)
@@ -176,7 +176,7 @@ local function go(host, port)
 				pass = passwords()
 
 				if(not(pass)) then
-					return false, "No accounts found"
+					return stdnse.format_output(true, "No accounts found")
 				end
 			end
 
@@ -199,21 +199,9 @@ local function go(host, port)
 
 		status, pair = brute_cred(user, pass, soc)
 	end
+
 	soc:close()
-	return true, pair
+
+	return pair
 end
-
-action = function(host, port)
-
-	local status, result = go(host, port)
-
-	if(not(status)) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: "  .. result
-		end
-	else
-		return result
-	end
-end
-
 

@@ -26,9 +26,14 @@ for 404 Not Found and the status code returned by the random files).
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- |  http-enum:
--- |  /icons/ Icons and images
--- |_ /x_logo.gif Xerox Phaser Printer
+-- |  http-enum:  
+-- |  |  /icons/: Icons and images
+-- |  |  /images/: Icons and images
+-- |  |  /robots.txt: Robots file
+-- |  |  /sw/auth/login.aspx: Citrix WebTop
+-- |  |  /images/outlook.jpg: Outlook Web Access
+-- |  |  /nfservlets/servlet/SPSRouterServlet/: netForensics
+-- |_ |_ /nfservlets/servlet/SPSRouterServlet/: netForensics
 -- 
 --
 --@args displayall    Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
@@ -223,7 +228,7 @@ end
 
 action = function(host, port)
 
-	local response = " \n"
+	local response = {}
 
 	-- Add URLs from external files
 	local URLs = get_fingerprints()
@@ -231,11 +236,7 @@ action = function(host, port)
 	-- Check what response we get for a 404
 	local result, result_404, known_404 = http.identify_404(host, port)
 	if(result == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. result_404
-		else
-			return nil
-		end
+		return stdnse.format_output(false, result_404)
 	end
 
 	-- Check if we can use HEAD requests
@@ -245,11 +246,7 @@ action = function(host, port)
 	if(use_head == false) then
 		local result, err = http.can_use_get(host, port)
 		if(result == false) then
-			if(nmap.debugging() > 0) then
-				return "ERROR: " .. err
-			else
-				return nil
-			end
+			return stdnse.format_output(false, err)
 		end
 	end
 
@@ -303,11 +300,7 @@ action = function(host, port)
 		-- Check for http.pipeline error
 		if(results == nil) then
 			stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
-			if(nmap.debugging() > 0) then
-				return "ERROR: http.pipeline returned nil"
-			else
-				return nil
-			end
+			return stdnse.format_output(false, "http.pipeline returned nil")
 		end
 	
 		for i, data in pairs(results) do
@@ -325,15 +318,11 @@ action = function(host, port)
 				end
 	
 				stdnse.print_debug("Found a valid page! (%s)%s", description, status)
-	
-				response = response .. string.format("%s%s\n", description, status)
+
+				table.insert(response, string.format("%s%s", description, status))	
 			end
 		end
 	end
 		
-	if string.len(response) > 2 then
-		return response
-	end
-
-	return nil
+	return stdnse.format_output(true, response)
 end

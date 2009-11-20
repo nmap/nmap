@@ -25,7 +25,7 @@ impact the system, besides showing a message box to the user.
 -- @output
 -- Host script results:
 -- |  smb-enum-processes:
--- |_ Idle, System, smss, csrss, winlogon, services, logon.scr, lsass, spoolsv, msdtc, VMwareService, svchost, alg, explorer, VMwareTray, VMwareUser, wmiprvse
+-- |_ |_ Idle, System, smss, csrss, winlogon, services, logon.scr, lsass, spoolsv, msdtc, VMwareService, svchost, alg, explorer, VMwareTray, VMwareUser, wmiprvse
 --
 -- --
 -- Host script results:
@@ -281,7 +281,7 @@ action = function(host)
 
 	-- Produce final output.
 	if nmap.verbosity() == 0 then
-		response = stdnse.strjoin(", ", names)
+		response = "|_ " .. stdnse.strjoin(", ", names)
 	else
 		response = " \n" .. psl_print(psl, nmap.verbosity())
 	end

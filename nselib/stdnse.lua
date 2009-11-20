@@ -7,13 +7,16 @@
 local assert = assert;
 local error = error;
 local pairs = pairs
+local ipairs = ipairs
 local tonumber = tonumber;
 local type = type
 
 local ceil = math.ceil
 local max = math.max
 local format = string.format;
+local rep = string.rep
 local concat = table.concat;
+local insert = table.insert;
 
 local nmap = require "nmap";
 
@@ -257,6 +260,148 @@ function string_or_blank(string, blank)
   else
     return string
   end
+end
+
+---Get the indentation symbols at a given level. 
+local function format_get_indent(indent, at_end)
+	local str = ""
+	local had_continue = false
+
+	if(not(at_end)) then
+		str = rep('|  ', #indent)
+	else
+		for i = #indent, 1, -1 do
+			if(indent[i] and not(had_continue)) then
+				str = str .. "|_ "
+			else
+				had_continue = true
+				str = str .. "|  "
+			end
+		end
+	end
+
+	return str
+end
+
+---Takes a table of output on the commandline and formats it for display to the 
+-- user. This is basically done by converting an array of nested tables into a 
+-- string. In addition to numbered array elements, each table can have a 'name' 
+-- and a 'warning' value. The 'name' will be displayed above the table, and 
+-- 'warning' will be displayed, with a 'WARNING' tag, if and only if debugging
+-- is enabled. 
+-- 
+-- Here's an example of a table:
+-- <code>
+--   local domains = {}
+--   domains['name'] = "DOMAINS"
+--   table.insert(domains, 'Domain 1')
+--   table.insert(domains, 'Domain 2')
+-- 
+--   local names = {}
+--   names['name'] = "NAMES"
+--   names['warning'] = "Not all names could be determined!"
+--   table.insert(names, "Name 1")
+-- 
+--   local response = {}
+--   table.insert(response, "Apple pie")
+--   table.insert(response, domains)
+--   table.insert(response, names)
+-- 
+--   return stdnse.format_output(true, response)
+-- </code>
+--
+-- With debugging enabled, this is the output:
+-- <code>
+--   Host script results:
+--   |  smb-enum-domains:
+--   |  |  Apple pie
+--   |  |  DOMAINS
+--   |  |  |  Domain 1
+--   |  |  |_ Domain 2
+--   |  |  NAMES (WARNING: Not all names could be determined!)
+--   |_ |_ |_ Name 1
+-- </code>
+--
+--@param status A boolean value dictating whether or not the script succeeded. 
+--              If status is false, and debugging is enabled, 'ERROR' is prepended
+--              to every line. If status is false and ebugging is disabled, no output
+--              occurs. 
+--@param data   The table of output. 
+--@param indent Used for indentation on recursive calls; should generally be set to
+--              nil when callling from a script. 
+function format_output(status, data, indent)
+	-- Don't bother if we don't have any data
+	if(#data == 0) then
+		return ""
+	end
+
+	-- Return a single line of output as-is
+	if(#data == 1 and not(data['name']) and not(data['warning'])) then
+		return data[1]
+	end
+
+	-- If data is nil, die with an error (I keep doing that by accident)
+	assert(data, "No data was passed to format_output()")
+
+	-- Used to put 'ERROR: ' in front of all lines on error messages
+	local prefix = ""
+	-- Initialize the output string to blank (or, if we're at the top, add a newline)
+	local output = ""
+	if(not(indent)) then
+		output = ' \n'
+	end
+
+	if(not(status)) then
+		if(nmap.debugging() < 1) then
+			return nil
+		end
+		prefix = "ERROR: "
+	end
+
+	-- If a string was passed, turn it into a table
+	if(type(data) == 'string') then
+		data = {data}
+	end
+
+	-- Make sure we have an indent value
+	indent = indent or {}
+
+	for i, value in ipairs(data) do
+		if(type(value) == 'table') then
+			if(value['name']) then
+				if(value['warning'] and nmap.debugging() > 0) then
+					output = output .. format("%s|  %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
+				else
+					output = output .. format("%s|  %s%s\n", format_get_indent(indent), prefix, value['name'])
+				end
+			elseif(value['warning'] and nmap.debugging() > 0) then
+					output = output .. format("%s|  %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
+			end
+
+			-- Do a shallow copy of indent
+			local new_indent = {}
+			for _, v in ipairs(indent) do
+				insert(new_indent, v)
+			end
+
+			if(i ~= #data) then
+				insert(new_indent, false)
+			else
+				insert(new_indent, true)
+			end
+
+			output = output .. format_output(status, value, new_indent)
+				
+		elseif(type(value) == 'string') then
+			if(i ~= #data) then
+				output = output .. format("%s|  %s%s\n", format_get_indent(indent, false), prefix, value)
+			else
+				output = output .. format("%s|_ %s%s\n", format_get_indent(indent, true), prefix, value)
+			end
+		end
+	end
+
+	return output
 end
 
 --- This function allows you to create worker threads that may perform

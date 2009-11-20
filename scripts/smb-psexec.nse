@@ -304,32 +304,82 @@ Some ideas for later versions:
 --
 -- @output
 -- Host script results:
--- |  smb-psexec:  
--- |  IP Address and MAC Address from 'ipconfig.exe'
--- |  | Ethernet adapter Local Area Connection:
--- |  |    MAC Address: 00:0C:29:12:E6:DB
--- |  |_   IP Address: 192.168.1.21
--- |   
--- |  User list from 'net user'
--- |  | Administrator            Guest                    ron                      
--- |  |_SUPPORT_388945a0         test                     
--- |   
--- |  Membership of 'administrators' from 'net localgroup administrators'
--- |  | Administrator
--- |  | ron
--- |  |_test
--- |   
--- |  Can the host ping our address?
--- |  | Pinging 192.168.1.100 with 32 bytes of data:
--- |  |_Reply from 192.168.1.100: bytes=32 time<1ms TTL=64
--- |   
--- |  Traceroute back to the scanner
--- |  |_  1    <1 ms    <1 ms    <1 ms  192.168.1.100 
--- |   
--- |  ARP Cache from arp.exe
--- |  |   Internet Address      Physical Address      Type
--- |  |_  192.168.1.100         00-21-9b-e5-78-ea     dynamic   
--- |_
+-- |  smb-psexec:
+-- |  |  Windows version
+-- |  |  |_ Microsoft Windows 2000 [Version 5.00.2195]
+-- |  |  IP Address and MAC Address from 'ipconfig.exe'
+-- |  |  |  Ethernet adapter Local Area Connection 2:
+-- |  |  |         MAC Address: 00:50:56:A1:24:C2
+-- |  |  |         IP Address: 10.0.0.30
+-- |  |  |  Ethernet adapter Local Area Connection:
+-- |  |  |_        MAC Address: 00:50:56:A1:00:65
+-- |  |  User list from 'net user'
+-- |  |  |  Administrator            TestUser3                Guest
+-- |  |  |  IUSR_RON-WIN2K-TEST      IWAM_RON-WIN2K-TEST      nmap
+-- |  |  |  rontest123               sshd                     SvcCOPSSH
+-- |  |  |_ test1234                 Testing                  TsInternetUser
+-- |  |  Membership of 'administrators' from 'net localgroup administrators'
+-- |  |  |  Administrator
+-- |  |  |  SvcCOPSSH
+-- |  |  |  test1234
+-- |  |  |_ Testing
+-- |  |  Can the host ping our address?
+-- |  |  |  Pinging 10.0.0.138 with 32 bytes of data:
+-- |  |  |_ Reply from 10.0.0.138: bytes=32 time<10ms TTL=64
+-- |  |  Traceroute back to the scanner
+-- |  |  |_   1   <10 ms   <10 ms   <10 ms  10.0.0.138
+-- |  |  ARP Cache from arp.exe
+-- |  |  |    Internet Address      Physical Address      Type
+-- |  |  |_   10.0.0.138            00-50-56-a1-27-4b     dynamic
+-- |  |  List of listening and established connections (netstat -an)
+-- |  |  |    Proto  Local Address          Foreign Address        State
+-- |  |  |    TCP    0.0.0.0:22             0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:25             0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:135            0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:443            0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:445            0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:1025           0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:1028           0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:1029           0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING
+-- |  |  |    TCP    0.0.0.0:4933           0.0.0.0:0              LISTENING
+-- |  |  |    TCP    10.0.0.30:139          0.0.0.0:0              LISTENING
+-- |  |  |    TCP    127.0.0.1:2528         127.0.0.1:2529         ESTABLISHED
+-- |  |  |    TCP    127.0.0.1:2529         127.0.0.1:2528         ESTABLISHED
+-- |  |  |    TCP    127.0.0.1:2531         127.0.0.1:2532         ESTABLISHED
+-- |  |  |    TCP    127.0.0.1:2532         127.0.0.1:2531         ESTABLISHED
+-- |  |  |    TCP    127.0.0.1:5152         0.0.0.0:0              LISTENING
+-- |  |  |    TCP    127.0.0.1:5152         127.0.0.1:2530         CLOSE_WAIT
+-- |  |  |    UDP    0.0.0.0:135            *:*
+-- |  |  |    UDP    0.0.0.0:445            *:*
+-- |  |  |    UDP    0.0.0.0:1030           *:*
+-- |  |  |    UDP    0.0.0.0:3456           *:*
+-- |  |  |    UDP    10.0.0.30:137          *:*
+-- |  |  |    UDP    10.0.0.30:138          *:*
+-- |  |  |    UDP    10.0.0.30:500          *:*
+-- |  |  |    UDP    10.0.0.30:4500         *:*
+-- |  |  |_   UDP    127.0.0.1:1026         *:*
+-- |  |  Full routing table from 'netstat -nr'
+-- |  |  |  ===========================================================================
+-- |  |  |  Interface List
+-- |  |  |  0x1 ........................... MS TCP Loopback interface
+-- |  |  |  0x2 ...00 50 56 a1 00 65 ...... VMware Accelerated AMD PCNet Adapter
+-- |  |  |  0x1000004 ...00 50 56 a1 24 c2 ...... VMware Accelerated AMD PCNet Adapter
+-- |  |  |  ===========================================================================
+-- |  |  |  ===========================================================================
+-- |  |  |  Active Routes:
+-- |  |  |  Network Destination        Netmask          Gateway       Interface  Metric
+-- |  |  |           10.0.0.0    255.255.255.0        10.0.0.30       10.0.0.30      1
+-- |  |  |          10.0.0.30  255.255.255.255        127.0.0.1       127.0.0.1      1
+-- |  |  |     10.255.255.255  255.255.255.255        10.0.0.30       10.0.0.30      1
+-- |  |  |          127.0.0.0        255.0.0.0        127.0.0.1       127.0.0.1      1
+-- |  |  |          224.0.0.0        224.0.0.0        10.0.0.30       10.0.0.30      1
+-- |  |  |    255.255.255.255  255.255.255.255        10.0.0.30               2      1
+-- |  |  |  ===========================================================================
+-- |  |  |  Persistent Routes:
+-- |  |  |    None
+-- |_ |_ |_ Route Table
 -- 
 --@args config  The config file to use (eg, default). Config files require a .lua extension, and are located in nselib/data/psexec. 
 --@args nohide  Don't set the uploaded files to hidden/system/etc.
@@ -742,7 +792,8 @@ local function get_config(host)
 			if(#missing_args > 0) then
 				enabled = false
 				mod.disabled_message = {}
-				table.insert(mod.disabled_message, string.format("Configuration error: Required argument(s) ('%s') weren't given. Please add --script-args=[arg]=[value] to your commandline to run this module", stdnse.strjoin("', '", missing_args)))
+				table.insert(mod.disabled_message, string.format("Configuration error: Required argument(s) ('%s') weren't given.", stdnse.strjoin("', '", missing_args)))
+				table.insert(mod.disabled_message, string.format("Please add --script-args=[arg]=[value] to your commandline to run this module"))
 				if(#missing_args == 1) then
 					table.insert(mod.disabled_message, string.format("For example: --script-args=%s=123", missing_args[1]))
 				else
@@ -763,6 +814,7 @@ local function get_config(host)
 				if(mod.url) then
 					stdnse.print_debug(1, "You can try getting it from: %s", mod.url)
 					table.insert(mod.disabled_message, string.format("You can try getting it from: %s", mod.url))
+					table.insert(mod.disabled_message, "And placing it in Nmap's nselib/data/psexec/ directory")
 				end
 			else
 				-- We found it
@@ -1189,7 +1241,7 @@ local function parse_output(config, data)
 			-- If we're including it, do the replacements
 			if(include) then
 				line = do_replacements(mod, line)
-				table.insert(result['lines'], line)
+				table.insert(result, line)
 			end
 		end
 	end
@@ -1207,7 +1259,10 @@ local function parse_output(config, data)
 		if(type(mod.disabled_message) == 'string') then
 			mod.disabled_message = {mod.disabled_message}
 		end
-		result['lines'] = mod.disabled_message
+
+		for _, message in ipairs(mod.disabled_message) do
+			table.insert(result, "WARNING: " .. message)
+		end
 
 		table.insert(results, result)
 	end
@@ -1215,31 +1270,7 @@ local function parse_output(config, data)
 	return true, results
 end
 
----Convert the array generated by <code>parse_output</code> into something a little friendlier. 
-local function results_to_string(results)
-	local response = " \n"
-
-	for _, mod in ipairs(results) do
-		response = response .. string.format("%s\n", mod.name)
-
-		for i = 1, #mod.lines, 1 do
-			if(i < #mod.lines) then
-				response = response .. string.format("| %s\n", mod.lines[i])
-			else
-				response = response .. string.format("|_%s\n", mod.lines[i])
-				response = response .. " \n"
-			end
-		end
-	end
-
-	if(response == " \n") then
-		return ""
-	end
-
-	return response
-end
-
-function go(host)
+action = function(host)
 	local status, result, err
 	local key
 
@@ -1253,7 +1284,7 @@ function go(host)
 	-- Parse the configuration file
 	status, config = get_config(host)
 	if(not(status)) then
-		return false, config
+		return stdnse.format_output(false, config)
 	end
 
 	if(#config.enabled_modules > 0) then
@@ -1262,55 +1293,57 @@ function go(host)
 	
 		-- If the user just wanted a cleanup, do it
 		if(nmap.registry.args.cleanup == '1' or nmap.registry.args.cleanup == 'true') then
-			return true, "Cleanup complete"
+			return stdnse.format_output(true, "Cleanup complete.")
 		end
 	
 		-- Check if any of the files exist
 		status, result, files = smb.files_exist(host, config.share, config.all_files, {})
 		if(not(status)) then
-			return false, "Couldn't log in to check for remote files: " .. result
+			return stdnse.format_output(false, "Couldn't log in to check for remote files: " .. result)
 		end
 		if(result > 0) then
-			return false, "One or more output files already exist on the host, and couldn't be removed. Try:\n" ..
-			              " * Running the script with --script-args=cleanup=1 to force a cleanup (passing -d and looking for error messages might hlep),\n" .. 
-			              " * Running the script with --script-args=randomseed=ABCD (or something) to change the name of the uploaded files,\n" .. 
-			              " * Changing the share and path using, for example, --script-args=share=C$,sharepath=C:, or\n" .. 
-			              " * Deleting the affected file(s) off the server manually (\\\\" .. config.share .. "\\" .. stdnse.strjoin(", \\\\" .. config.share .. "\\", files) .. ")"
+			local response = {}
+			table.insert(response, "One or more output files already exist on the host, and couldn't be removed. Try:")
+			table.insert(response, "* Running the script with --script-args=cleanup=1 to force a cleanup (passing -d and looking for error messages might help),")
+			table.insert(response, "* Running the script with --script-args=randomseed=ABCD (or something) to change the name of the uploaded files,")
+			table.insert(response, "* Changing the share and path using, for example, --script-args=share=C$,sharepath=C:, or")
+			table.insert(response, "* Deleting the affected file(s) off the server manually (\\\\" .. config.share .. "\\" .. stdnse.strjoin(", \\\\" .. config.share .. "\\", files) .. ")")
+			return stdnse.format_output(false, response)
 		end
 	
 		-- Upload the modules
 		status, err = upload_everything(host, config)
 		if(not(status)) then
 			cleanup(host, config)
-			return false, err
+			return stdnse.format_output(false, err)
 		end
 	
 		-- Create the service
 		status, err = create_service(host, config)
 		if(not(status)) then
 			cleanup(host, config)
-			return false, err
+			return stdnse.format_output(false, err)
 		end
 	
 		-- Get the table of parameters to pass to the service when we start it
 		status, params = get_params(config)
 		if(not(status)) then
 			cleanup(host, config)
-			return false, params
+			return stdnse.format_output(false, params)
 		end
 	
 		-- Start the service
 		status, params = start_service(host, config, params)
 		if(not(status)) then
 			cleanup(host, config)
-			return false, params
+			return stdnse.format_output(false, params)
 		end
 
 		-- Get the result
 		status, result = get_output_file(host, config, config.share)
 		if(not(status)) then
 			cleanup(host, config)
-			return false, result
+			return stdnse.format_output(false, result)
 		end
 
 		-- Do a final cleanup
@@ -1321,40 +1354,21 @@ function go(host)
 	end
 
 	-- Build the output into a nice table
-	status, results = parse_output(config, result)
+	status, response = parse_output(config, result)
 	if(status == false) then
-		return false, "Couldn't parse output: " .. results
+		return stdnse.format_output(false, "Couldn't parse output: " .. results)
 	end
-
-	-- Parse the results into a pretty string
-	response = results_to_string(results)
 
 	-- Add a warning if nothing was enabled
 	if(#config.enabled_modules == 0) then
 		if(#response == 0) then
-			response = "No modules were enabled! Please check your configuration file."
+			response = {"No modules were enabled! Please check your configuration file."}
 		else
-			response = response .. "\n\nNo modules were enabled! Please fix any errors displayed above, or check your configuration file."
+			table.insert(response, "No modules were enabled! Please fix any errors displayed above, or check your configuration file.")
 		end
 	end
 
 	-- Return the string
-	return true, response
+	return stdnse.format_output(true, response)
 end
-
-action = function(host)
-
-	local status, result = go(host)
-
-	if(status == false) then
-		if(nmap.debugging() > 0) then
-			return "ERROR: " .. result
-		else
-			return nil
-		end
-	end
-
-	return result
-end
-
 

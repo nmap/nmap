@@ -11,19 +11,20 @@ owns.
 -- sudo nmap -sU --script nbstat.nse -p137 <host>\n
 --
 -- @output
--- (no verbose)\n
--- |_ nbstat: NetBIOS name: TST, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
---\n
--- (verbose)\n
--- |  nbstat: NetBIOS name: TST, NetBIOS user: RON, NetBIOS MAC: 00:0c:29:f9:d9:28\n
--- |  Name: TST<00>            Flags: <unique><active>\n
--- |  Name: TST<20>            Flags: <unique><active>\n
--- |  Name: WORKGROUP<00>        Flags: <group><active>\n
--- |  Name: TST<03>            Flags: <unique><active>\n
--- |  Name: WORKGROUP<1e>        Flags: <group><active>\n
--- |  Name: RON<03>              Flags: <unique><active>\n
--- |  Name: WORKGROUP<1d>        Flags: <unique><active>\n
--- |_ Name: \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>\n
+-- Host script results:
+-- |_ nbstat: NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5
+--
+-- Host script results:
+-- |  nbstat:
+-- |  |  NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5
+-- |  |  Names
+-- |  |  |  WINDOWS2003<00>      Flags: <unique><active>
+-- |  |  |  WINDOWS2003<20>      Flags: <unique><active>
+-- |  |  |  SKULLSECURITY<00>    Flags: <group><active>
+-- |  |  |  SKULLSECURITY<1e>    Flags: <group><active>
+-- |  |  |  SKULLSECURITY<1d>    Flags: <unique><active>
+-- |_ |_ |_ \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
+
 
 author = "Brandon Enright <bmenrigh@ucsd.edu>, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -67,7 +68,7 @@ action = function(host)
 	local names, statistics
 	local server_name, user_name
 	local mac
-	local result = ""
+	local response = {}
 
 	-- Get the list of NetBIOS names
 	status, names, statistics = netbios.do_nbstat(host.ip)
@@ -75,19 +76,19 @@ action = function(host)
 	status, names, statistics = netbios.do_nbstat(host.ip)
 	status, names, statistics = netbios.do_nbstat(host.ip)
 	if(status == false) then
-		return "ERROR: " .. names
+		return stdnse.format_output(false, names)
 	end
 
 	-- Get the server name
 	status, server_name = netbios.get_server_name(host.ip, names)
 	if(status == false) then
-		return "ERROR: " .. server_name
+		return stdnse.format_output(false, server_name)
 	end
 
 	-- Get the logged in user
 	status, user_name = netbios.get_user_name(host.ip, names)
 	if(status == false) then
-		return "ERROR: " .. user_name
+		return stdnse.format_output(false, user_name)
 	end
 
 	-- Format the Mac address in the standard way
@@ -106,27 +107,40 @@ action = function(host)
 		user_name = "<unknown>"
 	end
 
-	result = result .. string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac)
 
 	-- If verbosity is set, dump the whole list of names
 	if(nmap.verbosity() >= 1) then
+		table.insert(response, string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac))
+
+		local names_output = {}
+		names_output['name'] = "Names"
 		for i = 1, #names, 1 do
 			local padding = string.rep(" ", 17 - string.len(names[i]['name']))
 			local flags_str = netbios.flags_to_string(names[i]['flags'])
-			result = result .. string.format("Name: %s<%02x>%sFlags: %s\n", names[i]['name'], names[i]['suffix'], padding, flags_str)
+			table.insert(names_output, string.format("%s<%02x>%sFlags: %s\n", names[i]['name'], names[i]['suffix'], padding, flags_str))
 		end
+
+		table.insert(response, names_output)
 
 		-- If super verbosity is set, print out the full statistics
 		if(nmap.verbosity() >= 2) then
-			result = result .. "Statistics: "
+			local statistics_output = {}
+			local statistics_string = ''
+			statistics_output['name'] = "Statistics"
 			for i = 1, #statistics, 1 do
-				result = result .. string.format("%02x ", statistics:byte(i))
+				statistics_string = statistics_string .. string.format("%02x ", statistics:byte(i))
+				if(i ~= #statistics and ((i) % 16) == 0) then
+					table.insert(statistics_output, statistics_string)
+					statistics_string = ''
+				end
 			end
-			result = result .. "\n"
+			table.insert(statistics_output, statistics_string)
+			table.insert(response, statistics_output)
 		end
+
+		return stdnse.format_output(true, response)
+	else
+		return string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac)
 	end
-
-
-	return result
 
 end
