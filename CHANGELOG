@@ -2,7 +2,7 @@
 
 Nmap 5.05BETA2 [2009-11-19]
 
-o Added 8 new NSE scripts!
+o Added 9 new NSE scripts!
   o smb-psexec.nse implements the functionality found in Microsoft
     Sysinternals' psexec utility and Metasploit's psexec "exploit". In
     addition to this script, some default configurations are also
@@ -40,6 +40,10 @@ o Added 8 new NSE scripts!
     serving malware (perhaps because they were compromised), but so
     far it only checks for one specific attack. See
     http://nmap.org/nsedoc/scripts/http-malware-host.html. [Ron]
+
+  o http-enum-groups will display a list of groups on the remote 
+    system along with their membershp(like enum.exe with the -G 
+    flag). [Ron]
 
 o Nmap's --traceroute has been rewritten for better performance.
   Probes are sent in parallel to individual hosts, not just across all
