@@ -395,6 +395,65 @@ local function call_function(smbstate, opnum, arguments)
 	return true, result
 end
 
+---LANMAN API calls use different conventions than everything else, so make a separate function for them. 
+function call_lanmanapi(smbstate, opnum, server_type)
+	local status, result
+	local parameters = ""
+	local data
+	local convert, entry_count, available_entries
+	local entries = {}
+	local pos
+
+	parameters = bin.pack("<SzzSSI", 
+							opnum, 
+							"WrLehDO",  -- Parameter Descriptor
+							"B16",      -- Return Descriptor
+							0,          -- Detail level
+							14724,      -- Return buffer size
+							server_type -- Server type
+						)
+
+	stdnse.print_debug(1, "MSRPC: Sending Browser Service request")
+	status, result = smb.send_transaction_named_pipe(smbstate, parameters, nil, "\\PIPE\\LANMAN", true)
+	if(not(status)) then
+		return false, "Couldn't call LANMAN API: " .. result
+	end
+
+	parameters = result.parameters
+	data       = result.data
+
+	stdnse.print_debug(1, "MSRPC: Parsing Browser Service response")
+	pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
+	if(status ~= 0) then
+		return false, string.format("Call to Browser Service failed with status = %d", status)
+	end
+
+	stdnse.print_debug(1, "MSRPC: Browser service returned %d entries", entry_count)
+
+	local pos = 1
+	local entry
+	for i = 1, entry_count, 1 do
+		-- Read the string
+		pos, entry = bin.unpack("<z", data, pos)
+		stdnse.print_debug(1, "MSRPC: Found name: %s", entry)
+
+		-- pos needs to be rounded to the next even multiple of 16
+		while(((pos - 1) % 16) ~= 0) do
+			pos = pos + 1
+		end
+
+		-- Make sure we didn't hit the end of the packet
+		if(not(entry)) then
+			return false, "Call to browser service didn't receive enough data"
+		end
+
+		-- Insert the result
+		table.insert(entries, entry)
+	end
+
+	return true, entries
+end
+
 ---A proxy to a <code>msrpctypes</code> function that converts a ShareType to an english string. 
 -- I implemented this as a proxy so scripts don't have to make direct calls to <code>msrpctypes</code>
 -- functions.

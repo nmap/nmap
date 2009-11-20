@@ -1972,18 +1972,23 @@ end
 -- It is probably best to think of this as another protocol layer. This function will wrap SMB stuff around a 
 -- MSRPC call, make the call, then unwrap the SMB stuff from it before returning. 
 --
---@param smb    The SMB object associated with the connection
---@param function_parameters The parameter data to pass to the function. This is untested, since none of the
---       transactions I've done have required parameters. 
---@param function_data   The data to send with the packet. This is basically the next protocol layer
---@param pipe [optional] The pipe to transact on. Default: "\PIPE\". 
+--@param smb                  The SMB object associated with the connection
+--@param function_parameters  The parameter data to pass to the function. This is untested, since none of the
+--                            transactions I've done have required parameters. 
+--@param function_data        The data to send with the packet. This is basically the next protocol layer
+--@param pipe [optional]      The pipe to transact on. Default: "\PIPE\". 
+--@param no_setup [optional]  If set, the 'setup' is set to 0 and some parameters are left off. This occurs while
+--                            using the LANMAN Remote API. Default: false. 
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
 --        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
-function send_transaction_named_pipe(smb, function_parameters, function_data, pipe)
+function send_transaction_named_pipe(smb, function_parameters, function_data, pipe, no_setup)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local header, parameters, data
-	local parameters_offset, data_offset
-	local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2
+	local parameter_offset = 0
+	local parameter_size   = 0
+	local data_offset      = 0
+	local data_size        = 0
+	local total_word_count, total_data_count, reserved1, parameter_count, parameter_displacement, data_count, data_displacement, setup_count, reserved2
 	local response = {}
 
 	if(pipe == nil) then
@@ -1994,34 +1999,52 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION']) -- 0x25 = SMB_COM_TRANSACTION
 
 	-- 0x20 for SMB header, 0x01 for parameters header, 0x20 for parameters length, 0x02 for data header, 0x07 for "\PIPE\"
-	parameters_offset = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1)
-	data_offset       = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1) + string.len(function_parameters)
+	if(function_parameters) then
+		parameter_offset = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1)
+		parameter_size = #function_parameters
+	end
+
+	if(function_data) then
+		data_offset       = 0x20 + 0x01 + 0x20 + 0x02 + (#pipe + 1) + parameter_size
+		data_size         = #function_data
+	end
 
 	-- Parameters are 0x20 bytes long. 
-	parameters = bin.pack("<SSSSCCSISSSSSCCSS",
-					string.len(function_parameters), -- Total parameter count. 
-					string.len(function_data),       -- Total data count. 
-					0x000,                           -- Max parameter count.
-					0x400,                           -- Max data count.
+	parameters = bin.pack("<SSSSCCSISSSSS",
+					parameter_size,                  -- Total parameter count. 
+					data_size,                       -- Total data count. 
+					0x0008,                          -- Max parameter count.
+					0x3984,                          -- Max data count.
 					0x00,                            -- Max setup count.
 					0x00,                            -- Reserved.
 					0x0000,                          -- Flags (0x0000 = 2-way transaction, don't disconnect TIDs).
-					0x00000000,                      -- Timeout (0x00000000 = return immediately).
+					0x00001388,                      -- Timeout (0x00000000 = return immediately).
 					0x0000,                          -- Reserved.
-					string.len(function_parameters), -- Parameter bytes.
-					parameters_offset,               -- Parameter offset.
-					string.len(function_data),       -- Data bytes.
-					data_offset,                     -- Data offset.
-					0x02,                            -- Number of 'setup' words (only ever seen '2').
-					0x00,                            -- Reserved.
-					0x0026,                          -- Function to call.
-					smb['fid']                       -- Handle to open file
-				)
+					parameter_size,                  -- Parameter bytes.
+					parameter_offset,                -- Parameter offset.
+					data_size,                       -- Data bytes.
+					data_offset                      -- Data offset.
+	)
 
-	-- \PIPE\ is 0x07 bytes long. 
-	data = bin.pack("<z", pipe);
-	data = data .. function_parameters;
-	data = data .. function_data
+	if(no_setup) then
+		parameters = parameters .. bin.pack("<CC", 
+						0x00,                            -- Number of 'setup' words (none)
+						0x00                             -- Reserved.
+					)
+	else
+		parameters = parameters .. bin.pack("<CCSS",
+						0x02,                            -- Number of 'setup' words
+						0x00,                            -- Reserved.
+						0x0026,                          -- Function to call.
+						smb['fid']                       -- Handle to open file
+					)
+	end
+
+	data = bin.pack("<z", pipe)
+	data = data .. bin.pack("<I", 0) -- Padding
+
+	data = data .. (function_parameters or '')
+	data = data .. (function_data or '')
 
 	-- Send the transaction request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION")
@@ -2075,7 +2098,7 @@ end
 function send_transaction_waitnamedpipe(smb, priority, pipe)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local header, parameters, data
-	local parameters_offset, data_offset
+	local parameter_offset, data_offset
 	local total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2
 	local response = {}
 	local padding = ""
@@ -2643,15 +2666,6 @@ function share_get_details(host, share)
 	-- Save the name
 	details['name'] = share
 
-	-- Ensure that the server returns the proper error message
-	status, result = share_host_returns_proper_error(host)
-	if(status == false) then
-		return false, result
-	end
-	if(status == true and result == false) then
-		return false, "Server doesn't return proper value for non-existent shares"
-	end
-
 	-- Check if the current user can read the share
 	stdnse.print_debug(1, "SMB: Checking if share %s can be read by the current user", share)
 	status, result = share_user_can_read(host, share)
@@ -2702,7 +2716,7 @@ function share_get_details(host, share)
 	else
 		-- Process the result a bit
 		result = result['info']
-		if(result['max_users'] == 4294967295) then
+		if(result['max_users'] == 0xFFFFFFFF) then
 			result['max_users'] = "<unlimited>"
 		end
 		details['details'] = result
@@ -2723,6 +2737,7 @@ end
 --        detail as we could get. If extra isn't nil, it is set to extra information that should be displayed (such as a warning). 
 function share_get_list(host)
 
+	local status, result
 	local enum_status
 	local extra = ""
 	local shares = {}
@@ -2752,6 +2767,15 @@ function share_get_list(host)
 
 	-- Sort the shares
 	table.sort(shares)
+
+	-- Ensure that the server returns the proper error message
+	status, result = share_host_returns_proper_error(host)
+	if(status == false) then
+		return false, result
+	end
+	if(status == true and result == false) then
+		return false, "Server doesn't return proper value for non-existent shares; can't enumerate shares"
+	end
 
 	-- Get more information on each share
 	for i = 1, #shares, 1 do
