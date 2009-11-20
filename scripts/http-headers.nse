@@ -1,5 +1,5 @@
 description = [[
-Performs a GET request for the root folder ("/") of a web server, and displays the HTTP headers returned. 
+Performs a GET request for the root folder ("/") of a web server and displays the HTTP headers returned. 
 ]]
 
 ---
