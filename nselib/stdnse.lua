@@ -268,14 +268,14 @@ local function format_get_indent(indent, at_end)
 	local had_continue = false
 
 	if(not(at_end)) then
-		str = rep('|  ', #indent)
+		str = rep(' ', #indent) -- Was: "|  "
 	else
 		for i = #indent, 1, -1 do
 			if(indent[i] and not(had_continue)) then
-				str = str .. "|_ "
+				str = str .. " " -- Was: "|_ "
 			else
 				had_continue = true
-				str = str .. "|  "
+				str = str .. " " -- Was: "|  "
 			end
 		end
 	end
@@ -370,12 +370,12 @@ function format_output(status, data, indent)
 		if(type(value) == 'table') then
 			if(value['name']) then
 				if(value['warning'] and nmap.debugging() > 0) then
-					output = output .. format("%s|  %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
+					output = output .. format("%s %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
 				else
-					output = output .. format("%s|  %s%s\n", format_get_indent(indent), prefix, value['name'])
+					output = output .. format("%s %s%s\n", format_get_indent(indent), prefix, value['name'])
 				end
 			elseif(value['warning'] and nmap.debugging() > 0) then
-					output = output .. format("%s|  %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
+					output = output .. format("%s %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
 			end
 
 			-- Do a shallow copy of indent
@@ -394,9 +394,9 @@ function format_output(status, data, indent)
 				
 		elseif(type(value) == 'string') then
 			if(i ~= #data) then
-				output = output .. format("%s|  %s%s\n", format_get_indent(indent, false), prefix, value)
+				output = output .. format("%s %s%s\n", format_get_indent(indent, false), prefix, value)
 			else
-				output = output .. format("%s|_ %s%s\n", format_get_indent(indent, true), prefix, value)
+				output = output .. format("%s %s%s\n", format_get_indent(indent, true), prefix, value)
 			end
 		end
 	end
