@@ -694,7 +694,7 @@ local function get_config(host)
 	-- any possible sanity checking should be done before this)
 	status, config.share, config.path, config.all_shares = find_share(host)
 	if(not(status)) then
-		return false, share
+		return false, config.share
 	end
 
 	-- Get information about the socket; it's a bit out of place here, but it should go before the mod loop
