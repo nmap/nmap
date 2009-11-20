@@ -1,5 +1,5 @@
 description = [[
-Gets the favicon.ico from the root of a web service and tries to enumerate it
+Obtains the favicon.ico from the root of a web service (or with the html link rel attribute if that fails) and tries to identify its source (such as a certain web application) using a database lookup.
 ]]
 
 ---
