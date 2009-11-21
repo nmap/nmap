@@ -1,161 +1,13 @@
+'\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 05/08/2009
+.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\"      Date: 11/21/2009
 .\"    Manual: Panduan Referensi Nmap
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "05/08/2009" "Nmap" "Panduan Referensi Nmap"
-.\" -----------------------------------------------------------------
-.\" * (re)Define some macros
-.\" -----------------------------------------------------------------
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" toupper - uppercase a string (locale-aware)
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de toupper
-.tr aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ
-\\$*
-.tr aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SH-xref - format a cross-reference to an SH section
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de SH-xref
-.ie n \{\
-.\}
-.toupper \\$*
-.el \{\
-\\$*
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SH - level-one heading that works better for non-TTY output
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de1 SH
-.\" put an extra blank line of space above the head in non-TTY output
-.if t \{\
-.sp 1
-.\}
-.sp \\n[PD]u
-.nr an-level 1
-.set-an-margin
-.nr an-prevailing-indent \\n[IN]
-.fi
-.in \\n[an-margin]u
-.ti 0
-.HTML-TAG ".NH \\n[an-level]"
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-\." make the size of the head bigger
-.ps +3
-.ft B
-.ne (2v + 1u)
-.ie n \{\
-.\" if n (TTY output), use uppercase
-.toupper \\$*
-.\}
-.el \{\
-.nr an-break-flag 0
-.\" if not n (not TTY), use normal case (not uppercase)
-\\$1
-.in \\n[an-margin]u
-.ti 0
-.\" if not n (not TTY), put a border/line under subheading
-.sp -.6
-\l'\n(.lu'
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SS - level-two heading that works better for non-TTY output
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de1 SS
-.sp \\n[PD]u
-.nr an-level 1
-.set-an-margin
-.nr an-prevailing-indent \\n[IN]
-.fi
-.in \\n[IN]u
-.ti \\n[SN]u
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-.ps \\n[PS-SS]u
-\." make the size of the head bigger
-.ps +2
-.ft B
-.ne (2v + 1u)
-.if \\n[.$] \&\\$*
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" BB/BE - put background/screen (filled box) around block of text
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de BB
-.if t \{\
-.sp -.5
-.br
-.in +2n
-.ll -2n
-.gcolor red
-.di BX
-.\}
-..
-.de EB
-.if t \{\
-.if "\\$2"adjust-for-leading-newline" \{\
-.sp -1
-.\}
-.br
-.di
-.in
-.ll
-.gcolor
-.nr BW \\n(.lu-\\n(.i
-.nr BH \\n(dn+.5v
-.ne \\n(BHu+.5v
-.ie "\\$2"adjust-for-leading-newline" \{\
-\M[\\$1]\h'1n'\v'+.5v'\D'P \\n(BWu 0 0 \\n(BHu -\\n(BWu 0 0 -\\n(BHu'\M[]
-.\}
-.el \{\
-\M[\\$1]\h'1n'\v'-.5v'\D'P \\n(BWu 0 0 \\n(BHu -\\n(BWu 0 0 -\\n(BHu'\M[]
-.\}
-.in 0
-.sp -.5v
-.nf
-.BX
-.in
-.sp .5v
-.fi
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" BM/EM - put colored marker in margin next to block of text
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de BM
-.if t \{\
-.br
-.ll -2n
-.gcolor red
-.di BX
-.\}
-..
-.de EM
-.if t \{\
-.br
-.di
-.ll
-.gcolor
-.nr BH \\n(dn
-.ne \\n(BHu
-\M[\\$1]\D'P -.75n 0 0 \\n(BHu -(\\n[.i]u - \\n(INu - .75n) 0 0 -\\n(BHu'\M[]
-.in 0
-.nf
-.BX
-.in
-.fi
-.\}
-..
+.TH "NMAP" "1" "11/21/2009" "Nmap" "Panduan Referensi Nmap"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -166,14 +18,12 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "Name"
+.SH "NAME"
 nmap \- Tool eksplorasi jaringan dan keamanan / scanner port
-.SH "Synopsis"
-.fam C
+.SH "SYNOPSIS"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fIJenis\ Scan\fR...] [\fIOpsi\fR] {\fIspesifikasi\ target\fR}
-.fam
-.SH "Deskripsi"
+.SH "DESKRIPSI"
 .\" Nmap: description of
 .PP
 Nmap (\(lqNetwork Mapper\(rq) merupakan sebuah tool open source untuk eksplorasi dan audit keamanan jaringan\&. Ia dirancang untuk memeriksa jaringan besar secara cepat, meskipun ia dapat pula bekerja terhadap host tunggal\&. Nmap menggunakan paket IP raw dalam cara yang canggih untuk menentukan host mana saja yang tersedia pada jaringan, layanan (nama aplikasi dan versi) apa yang diberikan, sistem operasi (dan versinya) apa yang digunakan, apa jenis firewall/filter paket yang digunakan, dan sejumlah karakteristik lainnya\&. Meskipun Nmap umumnya digunakan untuk audit keamanan, namun banyak administrator sistem dan jaringan menganggapnya berguna untuk tugas rutin seperti inventori jaringan, mengelola jadwal upgrade layanan, dan melakukan monitoring uptime host atau layanan\&.
@@ -181,24 +31,24 @@ Nmap (\(lqNetwork Mapper\(rq) merupakan sebuah tool open source untuk eksplorasi
 Output Nmap adalah sebuah daftar target yang diperiksa, dengan informasi tambahannya tergantung pada opsi yang digunakan\&. Hal kunci di antara informasi itu adalah
 \(lqtabel port menarik\(rq\&..\" ports: \(lqinteresting\(rq
 Tabel tersebut berisi daftar angka port dan protokol, nama layanan, dan status\&. Statusnya adalah
-\FCterbuka (open)\F[],
-\FCdifilter (filtered)\F[],
-\FCtertutup (closed)\F[], atau
-\FCtidak difilter (unfiltered)\F[]\&.
-\FCTerbuka\F[].\" open port state
+terbuka (open),
+difilter (filtered),
+tertutup (closed), atau
+tidak difilter (unfiltered)\&.
+Terbuka.\" open port state
 berarti bahwa aplikasi pada mesin target sedang mendengarkan (listening) untuk koneksi/paket pada port tersebut\&.
-\FCDifilter\F[].\" filtered port state
+Difilter.\" filtered port state
 berarti bahwa sebuah firewall, filter, atau penghalang jaringan lainnya memblokir port sehingga Nmap tidak dapat mengetahui apakah ia
-\FCterbuka\F[]
+terbuka
 atau
-\FCtertutup\F[]\&.
-\FCTertutup\F[].\" closed port state
+tertutup\&.
+Tertutup.\" closed port state
 port tidak memiliki aplikasi yang sedang mendengarkan, meskipun mereka dapat terbuka kapanpun\&. Port digolongkan sebagai
-\FCtidak difilter\F[].\" unfiltered port state
+tidak difilter.\" unfiltered port state
 ketika mereka menanggapi probe Nmap, namun Nmap tidak dapat menentukan apakah mereka terbuka atau tertutup\&. Nmap melaporkan kombinasi status
-\FCopen|filtered\F[].\" open|filtered port state
+open|filtered.\" open|filtered port state
 dan
-\FCclosed|filtered\F[].\" closed|filtered port state
+closed|filtered.\" closed|filtered port state
 ketika ia tidak dapat menentukan status manakah yang menggambarkan sebuah port\&. Tabel port mungkin juga menyertakan detil versi software ketika diminta melakukan pemeriksaan versi\&. Ketika sebuah pemeriksaan protokol IP diminta (\fB\-sO\fR), Nmap memberikan informasi pada protokol IP yang didukung alih\-alih port\-port yang mendengarkan\&.
 .PP
 Selain tabel port yang menarik, Nmap dapat pula memberikan informasi lebih lanjut tentang target, termasuk nama reverse DNS, prakiraan sistem operasi, jenis device, dan alamat MAC\&.
@@ -215,15 +65,7 @@ untuk eksekusi yang lebih cepat; dan dua buah nama host target\&.
 .if n \{\
 .RS 4
 .\}
-.fam C
-.ps -1
 .nf
-.if t \{\
-.sp -1
-.\}
-.BB lightgray adjust-for-leading-newline
-.sp -1
-
 # nmap \-A \-T4 scanme\&.nmap\&.org
 
 Starting Nmap ( http://nmap\&.org )
@@ -249,13 +91,7 @@ HOP RTT   ADDRESS
 10  9\&.93  scanme\&.nmap\&.org (64\&.13\&.134\&.52)
 
 Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
-.EB lightgray adjust-for-leading-newline
-.if t \{\
-.sp 1
-.\}
 .fi
-.fam
-.ps +1
 .if n \{\
 .RE
 .\}
@@ -263,13 +99,13 @@ Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
 Versi terbaru Nmap dapat diperoleh dari
 \m[blue]\fB\%http://nmap.org\fR\m[]\&. Versi terbaru man page tersedia di
 \m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]\&.
-.SH "Catatan Terjemahan"
+.SH "CATATAN TERJEMAHAN"
 .PP
 Edisi bahasa Indonesia Nmap Reference Guide ini diterjemahkan dari versi [12855]
 \m[blue]\fBversi Inggris\fR\m[]\&\s-2\u[1]\d\s+2
 oleh Tedi Heriyanto\&. Meskipun kami berharap bahwa hal ini akan membuat Nmap lebih dapat diakses oleh para pengguna bahasa Indonesia di seluruh dunia, namun kami tidak dapat menjamin bahwa terjemahanan ini lengkap atau up\-to\-date seperti versi bahasa Inggris resminya\&. Pekerjaan ini dapat dimodifikasi dan didistribusikan kembali berdasarkan syarat\-syarat
 \m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2\&.
-.SH "Ringkasan Opsi"
+.SH "RINGKASAN OPSI"
 .PP
 Ringkasan opsi ini ditampilkan ketika Nmap dijalankan tanpa argumen, dan versi terakhir selalu tersedia di
 \m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]\&. Ia membantu mengingat opsi\-opsi umum, namun ia bukanlah pengganti dokumentasi lengkap dalam halaman\-halaman berikut manual ini\&. Bahkan beberapa opsi tersembunyi tidak disertakan di sini\&.
@@ -279,10 +115,7 @@ Ringkasan opsi ini ditampilkan ketika Nmap dijalankan tanpa argumen, dan versi t
 .if n \{\
 .RS 4
 .\}
-.fam C
-.ps -1
 .nf
-.BB lightgray
 Nmap 4\&.85BETA7 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
@@ -389,16 +222,13 @@ EXAMPLES:
   nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
 SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
-.EB lightgray
 .fi
-.fam
-.ps +1
 .if n \{\
 .RE
 .\}
 .\" 
 .\" 
-.SH "Spesifikasi Target"
+.SH "SPESIFIKASI TARGET"
 .\" target specification
 .PP
 Semua yang ada pada perintah baris Nmap yang bukan berupa opsi (atau argumen opsi) dianggap sebagai spesifikasi host target\&. Kasus paling sederhana adalah menspesifikasikan alamat IP target atau nama host untuk diperiksa\&.
@@ -407,14 +237,14 @@ Terkadang anda ingin memeriksa seluruh jaringan host\-host yang berdekatan\&. Un
 ke sebuah alamat IPv4 atau nama host dan Nmap akan memeriksa setiap alamat IP yang alamat
 \fInumbits\fR
 pertamanya sama dengan alamat IP referensi atau nama host yang diberikan\&. Sebagai contoh, 192\&.168\&.10\&.0/24 akan memeriksa 256 host antara 192\&.168\&.10\&.0 (biner:
-\FC11000000 10101000 00001010 00000000\F[]) dan 192\&.168\&.10\&.255 (biner:
-\FC11000000 10101000 00001010 11111111\F[]), inklusif\&. 192\&.168\&.10\&.40/24 akan memeriksa target\-target yang sama\&. Misalkan host
-\FCscanme\&.nmap\&.org\F[].\" scanme.nmap.org
+11000000 10101000 00001010 00000000) dan 192\&.168\&.10\&.255 (biner:
+11000000 10101000 00001010 11111111), inklusif\&. 192\&.168\&.10\&.40/24 akan memeriksa target\-target yang sama\&. Misalkan host
+scanme\&.nmap\&.org.\" scanme.nmap.org
 memiliki alamat IP 64\&.13\&.134\&.52, spesifikasi scanme\&.nmap\&.org/16 akan memeriksa sebanyak 65\&.536 alamat IP antara 64\&.13\&.0\&.0 dan 64\&.13\&.255\&.255\&. Nilai terkecil yang diijinkan adalah /0, yang akan memeriksa seluruh Internet\&. Nilai terbesar adalah /32, yang hanya akan memeriksa host atau alamat IP yang disebutkan karena seluruh bit alamat tetap\&.
 .\" rentang alamat
 .PP
 Notasi CIDR pendek namun tidak selalu fleksibel\&. Sebagai contoh, anda mungkin ingin memeriksa 192\&.168\&.0\&.0/16 namun ingin melewati IP yang diakhiri dengan \&.0 atau \&.255 karena mereka mungkin digunakan sebagai subnet jaringan dan alamat broadcast\&. Nmap mendukung hal ini melalui pengalamatan rentang oktet\&. Alih\-alih menspesifikasikan alamat IP normal, anda dapat menspesifikasikan daftar angka atau rentang untuk setiap oktet\&. Sebagai contoh, 192\&.168\&.0\-255\&.1\-254 akan melewati seluruh alamat dalam rentang yang berakhiran dalam \&.0 atau \&.255, dan 192\&.168\&.3\-5,7\&.1 akan memeriksa empat alamat 192\&.168\&.3\&.1, 192\&.168\&.4\&.1, 192\&.168\&.5\&.1, dan 192\&.168\&.7\&.1\&. Kedua sisi rentang dapat dihilangkan; nilai baku adalah 0 di sisi kiri dan 255 untuk sisi kanan\&. Penggunaan
-\FC\-\F[]
+\-
 sama artinya dengan 0\-255, namun ingat untuk menggunakan 0\- dalam oktet pertama sehingga spesifikasi target tidak terlihat seperti opsi perintah baris\&. Rentang tidak hanya terbatas pada oktet akhir: 0\-255\&.0\-255\&.13\&.37 akan melakukan pemeriksaan Internet\-wide untuk seluruh alamat IP yang berakhiran 13\&.37\&. Sampling luas seperti ini dapat bermanfaat untuk riset dan survei Internet\&.
 .PP
 Alamat IPv6 hanya dapat dispesifikasikan dengan alamat IPv6 lengkap mereka atau nama host\&. CIDR dan rentang oktet tidak didukung untuk IPv6 karena mereka jarang bermanfaat\&.
@@ -431,7 +261,7 @@ Membaca spesifikasi target dari
 \fIinputfilename\fR\&. Memberikan banyak daftar host pada perintah baris seringkali tidak mengasyikkan\&. Sebagai contoh, DHCP server anda mungkin mengekspor daftar 10\&.000 lease saat ini yang ingin anda periksa\&. Atau mungkin anda ingin memeriksa seluruh alamat IP
 \fIkecuali\fR
 bagi mereka untuk mencari host yang menggunakan alamat IP statik tidak terotorisasi\&. Cukup buat daftar host yang ingin diperiksa dan berikan namafilenya ke Nmap sebagai sebuah argumen bagi opsi
-\fB\-iL\fR\&. Entrinya dapat dalam beragam format yang diterima oleh Nmap di perintah baris (alamat IP, nama host, CIDR, IPv6, atau rentang oktet)\&. Setiap entri harus dipisahkan dengan satu atau lebih spasi, tab, atau baris baru\&. Anda dapat menspesifikasikan sebuah tanda hubung (hyphen) (\FC\-\F[]) sebagai nama file jika anda ingin Nmap membaca host dari input standar alih\-alih dari sebuah file\&.
+\fB\-iL\fR\&. Entrinya dapat dalam beragam format yang diterima oleh Nmap di perintah baris (alamat IP, nama host, CIDR, IPv6, atau rentang oktet)\&. Setiap entri harus dipisahkan dengan satu atau lebih spasi, tab, atau baris baru\&. Anda dapat menspesifikasikan sebuah tanda hubung (hyphen) (\-) sebagai nama file jika anda ingin Nmap membaca host dari input standar alih\-alih dari sebuah file\&.
 .RE
 .PP
 \fB\-iR \fR\fB\fInum hosts\fR\fR (Pilih target acak) .\" -iR .\" random targets .\" targets specification: at random
@@ -439,7 +269,7 @@ bagi mereka untuk mencari host yang menggunakan alamat IP statik tidak terotoris
 Untuk survei dan riset lain skala\-Internet, anda mungkin ingin memilih target secara acak\&. Argumen
 \fInum hosts\fR
 memberitahu Nmap berapa banyak IP yang ingin dihasilkan\&. IP yang tidak diinginkan seperti dalam rentang alamat privat, multicast, atau tidak dialokasi secara otomatis akan dilewati\&. Argumen
-\FC0\F[]
+0
 dapat dispesifikasikan untuk pemeriksaan yang tidak pernah berakhir\&. Perhatikan bahwa beberapa administrator jaringan tidak suka terhadap pemeriksaan yang tidak terotorisasi terhadap jaringan mereka dan mungkin mengeluh\&. Gunakan opsi ini dengan risiko anda! Jika anda benar\-benar merasa bosan di sore hari yang hujan, coba perintah
 \fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR
 .\" -sS: example of
@@ -460,7 +290,7 @@ Opsi ini memberikan fungsionalitas yang sama dengan opsi
 \fIexclude_file\fR
 alih\-alih diberikan pada perintah baris\&.
 .RE
-.SH "Pencarian Host (Host Discovery)"
+.SH "PENCARIAN HOST (HOST DISCOVERY)"
 .\" host discovery
 .PP
 Salah satu langkah pertama dalam misi network reconnaissance adalah mengurangi satu rentang IP (biasanya besar) ke sebuah daftar host yang aktif atau menarik\&. Memeriksa setiap port dari setiap alamat IP adalah lambat dan biasanya tidak perlu\&. Tentu saja apa yang membuat sebuah host menarik tergantung pada tujuan pemeriksaan\&. Administrator jaringan mungkin hanya tertarik pada host yang menjalankan layanan tertentu, sementara auditor keamanan ingin mengetahui semua device dalam satu alamat IP\&. Administrator mungkin nyaman cukup dengan menggunakan ping ICMP untuk menemukan host pada jaringan internalnya, sementara penetration tester eksternal mungkin menggunakan beragam probe dalam usahanya menghindari pembatasan firewall\&.
@@ -490,7 +320,7 @@ untuk melewati pencarian host dan melakukan scan port untuk seluruh host\&. Opsi
 \fB\-sL\fR (List Scan) .\" -sL .\" list scan
 .RS 4
 Scan daftar (list scan) merupakan sebuah bentuk pencarian host yang hanya menampilkan setiap host pada jaringan yang dispesifikasikan, tanpa mengirimkan paket ke host target\&. Secara baku, Nmap tetap melakukan resolusi reverse\-DNS pada host untuk mengetahui namanya\&. Seringkali mengejutkan berapa banyak informasi berharga yang diberikan nama host\&. Sebagai contoh,
-\FCfw\&.chi\F[]
+fw\&.chi
 adalah nama firewall satu perusahaan di Chicago\&.
 .\" DNS: records as source of information
 Nmap juga melaporkan jumlah total alamat IP pada bagian akhir\&. Scan daftar merupakan sebuah pemeriksaan untuk memastikan anda memiliki alamat IP yang tepat untuk target anda\&. Jika host menemukan nama domain yang tidak anda kenali, maka anda perlu melakukan penyelidikan lanjutan untuk mencegah pemeriksaan jaringan perusahaan yang tidak tepat\&.
@@ -536,12 +366,12 @@ Opsi ini mengirimkan sebuah paket TCP kosong dengan flag SYN diset\&. Port tujua
 \fIDEFAULT_TCP_PROBE_PORT_SPEC\fR
 .\" DEFAULT_TCP_PROBE_PORT_SPEC
 dalam
-\FCnmap\&.h\F[])\&.
+nmap\&.h)\&.
 .\" nmap.h
 Port\-port alternatif dapat dispesifikasikan sebagai parameter\&. Sintaksnya sama dengan opsi
 \fB\-p\fR
 kecuali specifier jenis port seperti
-\FCT:\F[]
+T:
 tidak diperbolehkan\&. Contohnya adalah
 \fB\-PS22\fR
 dan
@@ -555,7 +385,7 @@ dengan mengirimkan paket SYN/ACK TCP\&. Mesin yang menjalankan Nmap lalu memutus
 Nmap tidak peduli apakah port terbuka atau tertutup\&. Tanggapan RST atau SYN/ACK yang didiskusikan di atas memberitahu Nmap bahwa host tersedia dan menanggapi\&.
 .sp
 Pada mesin Unix, umumnya hanya user privilege
-\FCroot\F[].\" privileged users
+root.\" privileged users
 yang dapat mengirim dan menerima paket\-paket TCP raw\&..\" raw packets
 Untuk user tanpa privilege, secara otomatis sebuah workaround akan dijalankan
 .\" unprivileged users: limitations of
@@ -600,7 +430,7 @@ dan
 \fB\-PA\fR\&. Jika tidak ada port yang dispesifikasikanya, bakunya adalah 31338\&. Port baku ini dapat dikonfigurasi pada waktu kompilasi dengan merubah
 \fIDEFAULT_UDP_PROBE_PORT_SPEC\fR.\" DEFAULT_UDP_PROBE_PORT_SPEC
 dalam
-\FCnmap\&.h\F[]\&..\" nmap.h
+nmap\&.h\&..\" nmap.h
 Port tinggi yang tidak umum, digunakan secara baku karena mengirim ke port terbuka seringkali tidak diharapkan untuk jenis pemeriksaan ini\&.
 .sp
 Ketika menemui port tertutup pada mesin target, probe UDP seharusnya menerima paket ICMP port unreachable\&. Hal ini memberitahu Nmap bahwa mesin up dan tersedia\&. Banyak jenis kesalahan ICMP lainnya, seperti host/network unreachables atau TTL exceeded menandakan host down atau tidak dapat dihubungi\&. Tidak ada respon juga termasuk di dalamnya\&. Jika ditemukan sebuah port terbuka, kebanyakan layanan akan mengabaikan paket kosong dan gagal mengirim tanggapan\&. Inilah alasan mengapa port probe bakunya adalah 31338, yang kemungkinan tidak digunakan\&. Beberapa layanan, seperti protokol Character Generator (chargen), akan menanggapi paket UDP kosong, dan karenanya memberitahu Nmap bahwa mesin tersedia\&.
@@ -629,7 +459,7 @@ and
 Opsi pencarian host terbaru adalah ping protokol IP, yang mengirimkan paket IP dengan nomor port yang dispesifikasikan dalam header IP\-nya\&. Daftar protokol menggunakan format yang sama seperti daftar port dalam opsi pencarian host TCP dan UDP yang telah didiskusikan sebelumnya\&. Jika tidak didefinisikan protokol, secara bakunya adalah mengirimkan banyak paket IP untuk ICMP (protokol 1), IGMP (protokol 2), dan IP\-in\-IP (protokol 4)\&. Protokol baku dapat dikonfigurasi pada waktu kompilasi dengan merubah
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
 dalam
-\FCnmap\&.h\F[]\&. Perhatikan bahwa untuk ICMP, IGMP, TCP (protokol 6), dan UDP (protokol 17), paket dikirim dengan header protokol yang sesuai sementara protokol lainnya dikirim tanpa data tambahan selain header IP (kecuali diberikan opsi
+nmap\&.h\&. Perhatikan bahwa untuk ICMP, IGMP, TCP (protokol 6), dan UDP (protokol 17), paket dikirim dengan header protokol yang sesuai sementara protokol lainnya dikirim tanpa data tambahan selain header IP (kecuali diberikan opsi
 \fB\-\-data\-length\fR)\&.
 .sp
 Metode pencarian host ini melihat respon yang menggunakan protokol yang sama dengan probe, atau protokol ICMP unreachable messages yang memberitahu bahwa protokol dimaksud tidak didukung pada host tujuan\&. Kedua jenis respon di atas menandakan bahwa host target ada\&.
@@ -688,23 +518,23 @@ Opsi ini juga bermanfaat ketika memeriksa jaringan privat\&. Terkadang hanya beb
 hingga anda menemukan yang berfungsi\&.
 .RE
 .\" 
-.SH "Dasar Scanning Port"
+.SH "DASAR SCANNING PORT"
 .PP
 Meskipun selama ini Nmap telah mengalami perkembangan fungsionalitas, namun ia bermula sebagai sebuah scanner port yang efisien, dan hal itu tetap menjadi fungsi utamanya\&. Perintah sederhana
 \fBnmap \fR\fB\fItarget\fR\fR
 akan memeriksa lebih dari 1660 port TCP pada host
 \fItarget\fR\&. Ketika banyak scanner port secara tradisional membagi seluruh port ke dalam status terbuka (open) atau tertutup (closed), Nmap lebih granular\&. Ia membagi port menjadi enam status :
-\FCopen\F[],
-\FCclosed\F[],
-\FCfiltered\F[],
-\FCunfiltered\F[],
-\FCopen|filtered\F[], or
-\FCclosed|filtered\F[]\&.
+open,
+closed,
+filtered,
+unfiltered,
+open|filtered, or
+closed|filtered\&.
 .PP
 Status ini bukan merupakan properti intrinsik dari port itu sendiri, namun menggambarkan bagaimana Nmap memandang mereka\&. Sebagai contoh, scan Nmap dari jaringan yang sama dengan target mungkin menampilkan port
-\FC135/tcp\F[]
+135/tcp
 sebagai terbuka, sementara scan yang sama pada waktu dan opsi yang sama dari Internet mungkin menunjukkan bahwa port tersebut
-\FCfiltered\F[]\&.
+filtered\&.
 .PP
 \fBEnam status port yang dikenali Nmap\fR
 .PP
@@ -737,7 +567,7 @@ Nmap menganggap port dalam status ini bila ia tidak dapat menentukan apakah port
 .RS 4
 Status ini digunakan ketika Nmap tidak dapat menentukan apakah port tertutup atau di\-filter\&. Ia hanya digunakan pada scan idle ID IP\&.
 .RE
-.SH "Teknik Scanning Port"
+.SH "TEKNIK SCANNING PORT"
 .PP
 Sebagai seorang pemula yang melakukan perbaikan otomotif, saya dapat berjuang berjam\-jam untuk menyesuaikan alat sederhana saya (palu, duct tape, dsb\&.) untuk tugas yang ada\&. Ketika saya gagal dan menyerahkannya pada mekanik sebenarnya, ia mencari dalam kotak perangkatnya hingga menemukan alat yang tepat yang membuat pekerjaan tersebut menjadi mudah\&. Seni scanning port juga serupa\&. Para ahli memahami beragam teknik pemindaian dan memilih satu (atau kombinasi) yang sesuai untuk tugas yang ada\&. User tidak berpengalaman dan script kiddies,.\" script kiddies
 di lain pihak, berusaha menyelesaikan semua masalah dengan scan SYN baku\&. Oleh karena Nmap gratis, satu\-satunya penghalang menguasai scanning port adalah pengetahuan\&. Hal itu tentu saja mengalahkan dunia otomotif, setelah membutuhkan keahlian tinggi untuk menentukan bahwa anda butuh kompresor pegas strut, lalu anda mesti harus membayar ribuan dolar untuknya\&.
@@ -756,9 +586,9 @@ merupakan karakter utama dalam nama scan, biasanya yang pertama\&. Satu pengecua
 \fB\-sS\fR (TCP SYN scan) .\" -sS .\" SYN scan
 .RS 4
 SYN scan merupakan opsi scan baku dan terpopuler dengan alasan yang baik\&. Ia dapat dilakukan dengan cepat, memeriksa ribuan port per detik pada jaringan yang cepat tidak dihalangi oleh firewall yang membatasi\&. Scan SYN relatif tidak mengganggu dan tersembunyi, karena ia tidak pernah melengkapi koneksi TCP\&. Ia juga bekerja terhadap stack TCP yang sesuai alih\-alih tergantung pada platform khusus sebagaimana scan FIN/NULL/Xmas, Maimon dan idle\&. Ia juga memungkinkan pembedaan yang tegas dan handal antara status
-\FCopen\F[],
-\FCclosed\F[], dan
-\FCfiltered\F[]\&.
+open,
+closed, dan
+filtered\&.
 .sp
 Teknik ini seringkali diacu sebagai pemeriksaan setengah terbuka (half\-open scanning), karena anda tidak membuka seluruh koneksi TCP\&. Anda mengirim sebuah paket SYN, seperti anda ingin melakukan koneksi sesungguhnya dan kemudian menunggu tanggapan\&. SYN/ACK menandakan port sedang mendengarkan (open), RST (reset) menandakan tidak sedang mendengarkan\&. Jika tidak ada tanggapan setelah beberapa kali pengiriman ulang, port ditandai sebagai tersaring (filtered)\&. Port juga ditandai sebagai tersaring bila diterima kesalahan ICMP unreachable (tipe 3, kode 1, 2, 3, 9, 10, atau 13)\&.
 .RE
@@ -783,15 +613,15 @@ Scan UDP diaktifkan dengan opsi
 \fB\-sU\fR\&. Ia dapat digabungkan dengan jenis scan TCP seperti SYN scan (\fB\-sS\fR) untuk memeriksa kedua buah protokol sekaligus\&.
 .sp
 Scan UDP bekerja dengan mengirimkan header UDP kosong (tanpa data) ke setiap port yang diinginkan\&. Jika diperoleh kesalahan ICMP port unreachable (tipe 3, kode 3), port itu
-\FCclosed\F[]\&. Kesalahan ICMP lainnya (tipe 3, kode 1, 2, 9, 10, atau 13) menandakan port sebagai
-\FCfiltered\F[]\&. Seringkali, sebuah layanan akan menanggapi dengan paket UDP, membuktikan bahwa ia
-\FCopen\F[]\&. Jika tidak ada tanggapan setelah transmisi ulang, port dianggap
-\FCopen|filtered\F[]\&. Hal ini berarti bahwa port dapat berada dalam keadaan open, atau mungkin packet filter memblokir komunikasi\&. Deteksi versi (\fB\-sV\fR) dapat digunakan untuk membantu membedakan antara port yang terbuka dengan yang disaring\&.
+closed\&. Kesalahan ICMP lainnya (tipe 3, kode 1, 2, 9, 10, atau 13) menandakan port sebagai
+filtered\&. Seringkali, sebuah layanan akan menanggapi dengan paket UDP, membuktikan bahwa ia
+open\&. Jika tidak ada tanggapan setelah transmisi ulang, port dianggap
+open|filtered\&. Hal ini berarti bahwa port dapat berada dalam keadaan open, atau mungkin packet filter memblokir komunikasi\&. Deteksi versi (\fB\-sV\fR) dapat digunakan untuk membantu membedakan antara port yang terbuka dengan yang disaring\&.
 .sp
 Tantangan terbesar scanning UDP adalah melakukannya dengan cepat\&. Port terbuka dan tersaring jarang mengirimkan tanggapan, membuat Nmap time out dan kemudian melakukan transmisi ulang bilamana probe atau respon hilang\&. Port tertutup seringkali merupakan masalah yang lebih besar\&. Mereka umumnya mengirimkan ulang kesalahan ICMP port unreachable\&. Namun tidak seperti paket RST yang dikirim oleh port TCP tertutup sebagai respon atas scan SYN atau connect, banyak host secara baku membatasi pesan
 .\" rate limiting
 ICMP port unreachable\&. Linux dan Solaris terutama sangat ketat mengenai hal ini\&. Sebagai contoh, kernel Linux 2\&.4\&.20 membatasi pesan destination unreachable ke satu per detik (dalam
-\FCnet/ipv4/icmp\&.c\F[])\&.
+net/ipv4/icmp\&.c)\&.
 .sp
 Nmap mendeteksi pembatasan ini dan memperlambat kerjanya untuk menghindari pemenuhan jaringan dengan paket\-paket tidak perlu yang akan di\-drop oleh mesin target\&. Sayangnya, pembatasan ala Linux dengan satu paket per detik membuat pemeriksaan 65\&.536 membutuhkan waktu lebih 18 jam\&. Ide untuk mempercepat scan UDP termasuk pemeriksaan lebih banyak host secara paralel, melakukan pemeriksaan atas port\-port populer dulu, pemeriksaan di belakang firewall, dan menggunakan
 \fB\-\-host\-timeout\fR
@@ -805,9 +635,9 @@ Ketiga jenis scan ini (bahkan kemungkinan lebih dengan adanya opsi
 yang dijelaskan pada bagian berikutnya) mengeksploitasi kelemahan dalam
 \m[blue]\fBRFC TCP\fR\m[]\&\s-2\u[7]\d\s+2
 untuk membedakan antara port
-\FCopen\F[]
+open
 dan
-\FCclosed\F[]\&. Halaman 65 RFC 793 mengatakan bawha
+closed\&. Halaman 65 RFC 793 mengatakan bawha
 \(lqif the [destination] port state is CLOSED \&.\&.\&.\&. an incoming segment not containing a RST causes a RST to be sent in response\&.\(rq
 Lalu halaman berikutnya mendiskusikan paket yang dikirim ke port terbuka tanpa bit SYN, RST, atau ACK diset, menyatakan bahwa :
 \(lqyou are unlikely to get here, but if you do, drop the segment, and return\&.\(rq
@@ -830,56 +660,56 @@ Menset flag FIN, PSH, dan URG, menerangi paket seperti sebuah pohon Natal\&.
 .RE
 .sp
 Ketiga jenis scan ini serupa perilakunya kecuali untuk flag TCP yang diset dalam paket probe\&. Jika diterima paket RST, port dianggap
-\FCclosed\F[], tidak ada respon berarti ia
-\FCopen|filtered\F[]\&. Port ditandai
-\FCfiltered\F[]
+closed, tidak ada respon berarti ia
+open|filtered\&. Port ditandai
+filtered
 bila diterima kesalahan ICMP unreachable (tipe 3, kode 1, 2, 3, 9, 10, atau 13)\&.
 .sp
 Keuntungan utama jenis scan ini adalah bahwa mereka dapat menyusup melalui non\-stateful firewall dan router packet filtering tertentu\&. Keunggulan lain adalah bahwa ketiga scan ini lebih tersembunyi bahkan bila dibandingkan dengan SYN scan\&. Jangan mengandalkan hal ini karena produk IDS modern dapat dikonfigurasi untuk mendeteksi mereka\&. Kelemahan utama adalah tidak semua sistem mematuhi RFC 793 secara tepat\&. Sejumlah sistem mengirim respon RST atas probe tanpa perduli apakah port terbuka atau tertutup\&. Hal ini membuat seluruh port dianggap sebagai
-\FCclosed\F[]\&. Sistem operasi utama yang melakukan hal ini adalah Microsoft Windows, banyak device Cisco devices, BSDI, dan IBM OS/400\&. Scan ini tidak bekerja terhadap kebanyakan sistem berbasis Unix\&. Kekurangan lainnya adalah scan ini tidak dapat membedakan antara port
-\FCopen\F[]
+closed\&. Sistem operasi utama yang melakukan hal ini adalah Microsoft Windows, banyak device Cisco devices, BSDI, dan IBM OS/400\&. Scan ini tidak bekerja terhadap kebanyakan sistem berbasis Unix\&. Kekurangan lainnya adalah scan ini tidak dapat membedakan antara port
+open
 dengan port tertentu yang
-\FCfiltered\F[], memberikan anda tanggapan
-\FCopen|filtered\F[]\&.
+filtered, memberikan anda tanggapan
+open|filtered\&.
 .RE
 .PP
 \fB\-sA\fR (TCP ACK scan) .\" -sA .\" ACK scan
 .RS 4
 Scan ini berbeda dengan yang telah didiskusikan sejauh ini yaitu ia tidak pernah menentukan port
-\FCopen\F[]
+open
 (or even
-\FCopen|filtered\F[])\&. Ia digunakan untuk memetakan aturan firewall, menentukan apakah mereka stateful atau tidak dan port mana saja yang disaring\&.
+open|filtered)\&. Ia digunakan untuk memetakan aturan firewall, menentukan apakah mereka stateful atau tidak dan port mana saja yang disaring\&.
 .sp
 Paket probe scan ACK hanya memiliki flag ACK di\-set (kecuali anda menggunakan
 \fB\-\-scanflags\fR)\&. Ketika memeriksa sistem yang tidak disaring, port
-\FCopen\F[]
+open
 dan
-\FCclosed\F[]
+closed
 keduanya akan mengembalikan paket RST\&. Nmap kemudian menandakan mereka sebagai
-\FCunfiltered\F[], yang berarti mereka dapat dicapai oleh paket ACK, namun belum dapat ditentukan apakah mereka
-\FCopen\F[]
+unfiltered, yang berarti mereka dapat dicapai oleh paket ACK, namun belum dapat ditentukan apakah mereka
+open
 atau
-\FCclosed\F[]\&. Port yang tidak menanggapi, atau mengirim kembali pesan kesalahan ICMP (tipe 3, kode 1, 2, 3, 9, 10, atau 13), dianggap sebagai
-\FCfiltered\F[]\&.
+closed\&. Port yang tidak menanggapi, atau mengirim kembali pesan kesalahan ICMP (tipe 3, kode 1, 2, 3, 9, 10, atau 13), dianggap sebagai
+filtered\&.
 .RE
 .PP
 \fB\-sW\fR (TCP Window scan) .\" -sW .\" window scan
 .RS 4
 Window scan serupa dengan ACK scan kecuali bahwa ia mengeksploitasi detil implementasi pada sistem tertentu yang membedakan port terbuka dengan port tertutup, alih\-alih selalu menampilkan
-\FCunfiltered\F[]
+unfiltered
 ketika dikembalikan RST\&. Ia melakukan hal ini dengan memeriksa field TCP Window paket RST yang dikembalikan\&. Pada beberapa sistem, port terbuka menggunakan ukuran jendela positif (bahkan untuk paket RST) sementara port tertutup memiliki jendela nol\&. Sehingga alih\-alih selalu menampilkan port sebagai
-\FCunfiltered\F[]
+unfiltered
 ketika menerima kembali RST, Window scan menampilkan port sebagai
-\FCopen\F[]
+open
 atau
-\FCclosed\F[]
+closed
 jika nilai TCP Window dalam reset tersebut positif atau nol\&.
 .sp
 Scan ini mengandalkan detil implementasi sedikit sistem yang ada di Internet, sehingga anda tidak dapat selalu mempercayainya\&. Sistem yang tidak mendukungnya biasanya akan mengembalikan semua port sebagai
-\FCclosed\F[]\&. Tentu saja, adalah mungkin mesin benar\-benar tidak memiliki port terbuka\&. Jika kebanyakan port yang diperiksa adalah
-\FCclosed\F[]
+closed\&. Tentu saja, adalah mungkin mesin benar\-benar tidak memiliki port terbuka\&. Jika kebanyakan port yang diperiksa adalah
+closed
 namun beberapa angka port umum (seperti 22, 25, 53) adalah
-\FCfiltered\F[], informasi ini kemungkinan benar\&. Seringkali, sistem akan memberitahukan perilaku sebaliknya\&. Jika scan anda menunjukkan bahwa 1000 port terbuka dan tiga port tertutup atau disaring, maka ketiga port tersebut mungkin saja adalah port yang terbuka\&.
+filtered, informasi ini kemungkinan benar\&. Seringkali, sistem akan memberitahukan perilaku sebaliknya\&. Jika scan anda menunjukkan bahwa 1000 port terbuka dan tiga port tertutup atau disaring, maka ketiga port tersebut mungkin saja adalah port yang terbuka\&.
 .RE
 .PP
 \fB\-sM\fR (TCP Maimon scan) .\" -sM .\" Maimon scan
@@ -903,12 +733,12 @@ yang vendornya sekedar membaca man page Nmap menambahkan aturan khusus!
 Argumen
 \fB\-\-scanflags\fR
 dapat berupa nilai flag numerik seperti 9 (PSH dan FIN), namun menggunakan nama simbolik lebih mudah\&. Gabungkan saja sembarang kombinasi
-\FCURG\F[],
-\FCACK\F[],
-\FCPSH\F[],
-\FCRST\F[],
-\FCSYN\F[], dan
-\FCFIN\F[]\&. Sebagai contoh,
+URG,
+ACK,
+PSH,
+RST,
+SYN, dan
+FIN\&. Sebagai contoh,
 \fB\-\-scanflags URGACKPSHRSTSYNFIN\fR
 menset semuanya, meskipun ia tidak terlalu bermanfaat untuk pemeriksaan\&. Urutan spesifikasi tidaklah relevan\&.
 .sp
@@ -916,8 +746,8 @@ Selain dengan menspesifikasikan flag yang diinginkan, anda dapat pula memberikan
 \fB\-sA\fR
 atau
 \fB\-sF\fR)\&. Jenis dasar tersebut memberitahu Nmap bagaimana menginterpretasikan respon\&. Sebagai contoh, SYN scan menganggap no\-response sebagai indikasi port
-\FCfiltered\F[], sementara FIN scan mengganggapnya sebagai
-\FCopen|filtered\F[]\&. Nmap akan berperilaku sama dengan jenis scan dasar, kecuali ia akan menggunakan flag TCP yang anda spesifikasikan Jika anda tidak menspesifikasikan tipe dasar, akan digunakan SYN scan\&.
+filtered, sementara FIN scan mengganggapnya sebagai
+open|filtered\&. Nmap akan berperilaku sama dengan jenis scan dasar, kecuali ia akan menggunakan flag TCP yang anda spesifikasikan Jika anda tidak menspesifikasikan tipe dasar, akan digunakan SYN scan\&.
 .RE
 .PP
 \fB\-sI \fR\fB\fIzombie host\fR\fR\fB[:\fIprobeport\fR]\fR (idle scan) .\" -sI .\" idle scan
@@ -948,13 +778,13 @@ Saya menggabungkan patch tersebut ke Nmap dan merilis versi baru di hari berikut
 Scan protocol bekerja dalam cara yang sama dengan scan UDP\&. Alih\-alih beriterasi atas field nomor port paket UDP, ia mengirim header paket IP dan beriterasi pada field protokol IP delapan\-bit\&. Header biasanya kosong, tidak berisi data dan bahkan tiada header yang sesuai untuk protokol yang diklaim\&. Tiga pengecualian adalah TCP, UDP, dan ICMP\&. Header protokol yang sesuai untuk mereka disertakan karena beberapa sistem tidak akan mengirimnya dan karena Nmap telah memiliki fungsi untuk membuatnya\&. Alih\-alih mengamati pesan ICMP port unreachable, scan protocol mencari pesan ICMP
 \fIprotocol\fR
 unreachable\&. Bila Nmap menerima respon dalam sembarang protokol dari host target, Nmap menandai protokol tersebut sebagai
-\FCopen\F[]\&. Kesalahan ICMP protocol unreachable (tipe 3, kode 2) menyebabkan protokol ditandai sebagai
-\FCclosed\F[]\&. Kesalahan ICMP unreachable lainnya (tipe 3, kode 1, 3, 9, 10, atau 13) menyebabkan protokol ditandai
-\FCfiltered\F[]
+open\&. Kesalahan ICMP protocol unreachable (tipe 3, kode 2) menyebabkan protokol ditandai sebagai
+closed\&. Kesalahan ICMP unreachable lainnya (tipe 3, kode 1, 3, 9, 10, atau 13) menyebabkan protokol ditandai
+filtered
 (meskipun mereka membuktikan bahwa ICMP
-\FCopen\F[]
+open
 di waktu yang sama)\&. Jika tidak menerima respon setelah transmisi ulang, protokol ditandai sebagai
-\FCopen|filtered\F[]
+open|filtered
 .RE
 .PP
 \fB\-b \fR\fB\fIFTP relay host\fR\fR (FTP bounce scan) .\" -b .\" FTP bounce scan
@@ -966,13 +796,13 @@ option\&. Ia mengambil argumen dalam bentuk
 \fIServer\fR
 adalah nama atau alamat IP server FTP yang rentan\&. Sebagaimana dengan URL normal, anda dapat menghilangkan
 \fIusername\fR:\fIpassword\fR, sehingga menggunakan login anonim (user:
-\FCanonymous\F[]
-password:\FC\-wwwuser@\F[]) \&. Nomor port (dan tanda titik dua sebelumnya) dapat dihilangkan juga, sehingga menggunakan port FTP baku (21) pada
+anonymous
+password:\-wwwuser@) \&. Nomor port (dan tanda titik dua sebelumnya) dapat dihilangkan juga, sehingga menggunakan port FTP baku (21) pada
 \fIserver\fR\&.
 .sp
 Kerentanan ini meluas di tahun 1997 ketika Nmap dirilis, namun telah diperbaiki\&. Server\-server yang rentan masih ada, sehingga patut dicoba bila teknik yang lainnya gagal\&. Jika tujuan anda adalah melewati firewall, scan jaringan target untuk port 21 (atau bahkan untuk sembarang layanan FTP jika anda scan seluruh port dengan deteksi versi) yang terbuka, lalu coba scan bounce\&. Nmap akan memberitahu anda apakah host rentan atau tidak\&. Jika anda hanya ingin menutupi jejak anda, anda tidak perlu (dan bahkan tidak seharusnya) membatasi diri anda pada host pada jaringan target\&. Sebelum anda memeriksa alamat Internet acak untuk mencari server FTP yang rentan, pertimbangkan bahwa sysadmin mungkin tidak akan menghargai anda menggunakan server mereka dengan cara ini\&.
 .RE
-.SH "Spesifikasi Port dan Urutan Scan"
+.SH "SPESIFIKASI PORT DAN URUTAN SCAN"
 .\" port specification
 .PP
 Selain menawarkan semua metode scan yang telah dijelaskan sebelumnya, Nmap juga memberikan opsi untuk menspesifikasikan port mana yang ingin diperiksa dan apakah urutan scan secara acak atau berurutan\&. Secara baku, Nmap memeriksa 1\&.000 port untuk setiap protokol yang paling umum\&.
@@ -981,16 +811,16 @@ Selain menawarkan semua metode scan yang telah dijelaskan sebelumnya, Nmap juga 
 \fB\-p \fR\fB\fIport ranges\fR\fR (Hanya memeriksa port yang dispesifikasikan) .\" -p
 .RS 4
 Opsi ini menentukan port yang ingin anda periksa dan meniadakan nilai baku\&. Nomor port individu adalah OK, dan juga rentang yang dipisahkan oleh tanda sambung (misaln
-\FC1\-1023\F[])\&. Nilai awal dan/atau akhir sebuah rentang dapat dihilangkan, Nmap lalu akan menggunakan 1 dan 65535\&. Jadi anda dapat memberikan opsi
+1\-1023)\&. Nilai awal dan/atau akhir sebuah rentang dapat dihilangkan, Nmap lalu akan menggunakan 1 dan 65535\&. Jadi anda dapat memberikan opsi
 \fB\-p\-\fR
 untuk memeriksa port dari 1 hingga 65535\&. Anda diperbolehkan memeriksa port nol
 .\" port zero
 jika anda menspesifikasikannya secara eksplisit\&. Untuk pemeriksaan protokol IP (\fB\-sO\fR), opsi ini menspesifikasikan nomor protokol yang ingin anda periksa (0\(en255)\&.
 .sp
 Ketika memeriksa port TCP dan UDP, anda dapat menentukan protokol tertentu dengan menambahkan
-\FCT:\F[]
+T:
 atau
-\FCU:\F[]
+U:
 di depan nomor port\&. Qualifier ini berlaku hingga anda menspesifikasikan qualifier lain\&. Sebagai contoh, argumen
 \fB\-p U:53,111,137,T:21\-25,80,139,8080\fR
 akan memeriksa port UDP 53, 111,dan 137, dan juga port TCP yang disebutkan\&. Untuk memeriksa UDP dan TCP, anda harus menspesifikasikan
@@ -1002,15 +832,15 @@ dan paling tidak satu jenis scan TCP (seperti
 .\" port specification: wildcards in
 .\" wildcards
 Port dapat juga dispesifikasikan dengan nama sesuai dengan apa yang diacu dalam file
-\FCnmap\-services\F[]\&. Anda bahkan dapat menggunakan wildcard * dan ? dengan nama\&. Sebagai contoh, untuk memeriksa port FTP dan seluruh port yang namanya dimulai dengan
+nmap\-services\&. Anda bahkan dapat menggunakan wildcard * dan ? dengan nama\&. Sebagai contoh, untuk memeriksa port FTP dan seluruh port yang namanya dimulai dengan
 \(lqhttp\(rq, gunakan
 \fB\-p ftp,http*\fR\&. Berhati\-hatilah dengan ekspansi shell dan berilah tanda kutip pada argumen
 \fB\-p\fR
 jika tidak yakin\&.
 .sp
 Rentang port dapat dikelilingi oleh tanda kurung siku (square bracket) untuk mengindikasikan port yang berada di dalam rentang tersebut yang ada dalam
-\FCnmap\-services\F[]\&. Sebagai contoh, opsi berikut ini akan memeriksa seluruh port dalam
-\FCnmap\-services\F[]
+nmap\-services\&. Sebagai contoh, opsi berikut ini akan memeriksa seluruh port dalam
+nmap\-services
 yang kurang dari sama dengan 1024:
 \fB\-p [\-1024]\fR\&. Berhati\-hatilah dengan ekspansi shell dan berilah tanda kutip pada argumen
 \fB\-p\fR
@@ -1023,10 +853,10 @@ Memberitahukan bahwa anda ingin memeriksa lebih sedikit port daripada jumlah bak
 \fB\-F\fR, jumlahnya dikurangi menjadi 100\&.
 .sp
 Nmap membutuhkan file
-\FCnmap\-services\F[]
+nmap\-services
 dengan informasi frekuensi untuk mengetahui port yang paling umum
 \&. Jika informasi frekuensi port tidak tersedia, mungkin karena penggunaan file
-\FCnmap\-services\F[]
+nmap\-services
 kustom,
 \fB\-F\fR
 berarti memeriksa hanya port yang ada di dalam file services (normalnya Nmap memeriksa seluruh port yang memiliki nama dan port 1\(en1024)\&.
@@ -1043,7 +873,7 @@ untuk pemeriksaan port secara berurutan\&.
 .RS 4
 .\" --port-ratio
 Memeriksa seluruh port dalam file
-\FCnmap\-services\F[]
+nmap\-services
 dengan rasio lebih daripada angka yang diberikan sebagai argumen\&.
 .RE
 .PP
@@ -1051,31 +881,31 @@ dengan rasio lebih daripada angka yang diberikan sebagai argumen\&.
 .RS 4
 .\" --top-ports
 Memeriksa port\-port dengan rasio tertinggi N yang ditemukan dalam file
-\FCnmap\-services\F[]\&.
+nmap\-services\&.
 .RE
-.SH "Deteksi Versi dan Layanan"
+.SH "DETEKSI VERSI DAN LAYANAN"
 .\" version detection
 .PP
 Arahkan Nmap ke mesin remote dan ia dapat memberitahu anda bahwa port
-\FC25/tcp\F[],
-\FC80/tcp\F[], dan
-\FC53/udp\F[]
+25/tcp,
+80/tcp, dan
+53/udp
 terbuka\&. Dengan menggunakan database
-\FCnmap\-services\F[].\" nmap-services
+nmap\-services.\" nmap-services
 yang berisi lebih dari 2\&.200 layanan yang dikenal,.\" well-known ports
 Nmap akan melaporkan bahwa port tersebut mungkin adalah server mail (SMTP), server web (HTTP), dan name server (DNS)\&. Pencocokan ini biasanya akurat\- sebagian besar daemon yang mendengarkan TCP port 25 adalah, mail server\&. Namun demikian, anda tidak seharusnya terpaku pada hal ini! Orang\-orang dapat dan menjalankan layanan pada port\-port aneh\&..\" non-standard ports
 .PP
 Bahkan bila Nmap benar, dan server hipotetis di atas menjalankan server SMTP, HTTP, dan DNS, itu bukanlah informasi yang banyak\&. Ketika melakukan vulnerability assessment (atau inventori jaringan) atas perusahaan atau klien anda, anda benar\-benar ingin mengetahui server mail dan DNS mana serta versi apa yang dijalankan\&. Dengan memiliki angka versi yang akurat akan membantu secara dramatis dalam menentukan eksploitasi yang tepat terhadap server tersebut\&. Deteksi versi membantu anda memperoleh informasi ini\&.
 .PP
 Setelah port TCP dan/atau UDP ditemukan dengan menggunakan salah satu metode scan, deteksi versi menginterogasi port tersebut untuk menentukan lebih jauh mengenai apa yang sedang berjalan\&. Database
-\FCnmap\-service\-probes\F[].\" nmap-service-probes
+nmap\-service\-probes.\" nmap-service-probes
 berisikan probe untuk melakukan query ke sejumlah layanan dan ekspresi pencocokan untuk mengenali dan memproses respon\&. Nmap berusaha menentukan protokol layanan (misalnya FTP, SSH, Telnet, HTTP), nama aplikasi (misalnya ISC BIND, Apache httpd, Solaris telnetd), angka versi, nama host, jenis device (misal printer, router), keluarga SO (misal Windows, Linux) dan terkadang detil lainnya seperti apakah X server terbuka untuk koneksi, versi protokol SSH, atau nama user KaZaA)\&. Tentu saja, kebanyakan layanan tidak memberikan informasi ini\&. Jika Nmap dikompilasi dengan dukungan OpenSSL, ia akan koneksi ke server SSL untuk mendapatkan layanan yang berada di belakang lapisan enkripsi\&..\" SSL: in version detection
 Ketika ditemukan layanan RPC, Nmap RPC grinder.\" RPC grinder
 (\fB\-sR\fR).\" -sR
 secara otomatis digunakan untuk menentukan program dan angka versi RPC\&. Beberapa port UDP diinformasikan dalam status
-\FCopen|filtered\F[]
+open|filtered
 setelah scan port UDP tidak dapat menentukan apakah port terbuka atau disaring\&. Deteksi versi akan berusaha memperoleh respon dari port ini (sebagaimana dari port terbuka), dan merubah status port menjadi terbuka bila ia berhasil\&. Port TCP
-\FCopen|filtered\F[]
+open|filtered
 diperlakukan dalam cara yang sama\&. Perhatikan bahwa opsi
 \fB\-A\fR
 di antaranya mengaktifkan deteksi versi\&.
@@ -1094,12 +924,12 @@ Mengaktifkan deteksi versi, seperti yang dijelaskan di atas\&. Anda dapat pula m
 \fB\-\-allports\fR (Sertakan seluruh port dalam deteksi versi) .\" --allports
 .RS 4
 Secara baku, deteksi versi Nmap melewati TCP port 9100 karena beberapa printer akan mencetak segala yang dikirim ke port itu, berakibat puluhan halaman request HTTP GET, sesi biner SSL, dsb\&. Perilaku ini dapat diubah dengan memodifikasi atau menghapus direktif
-\FCExclude\F[]
+Exclude
 dalam
-\FCnmap\-service\-probes\F[], atau anda dapat menspesifikasikan
+nmap\-service\-probes, atau anda dapat menspesifikasikan
 \fB\-\-allports\fR
 untuk memeriksa seluruh port tanpa mengindahkan direktif
-\FCExclude\F[]\&.
+Exclude\&.
 .\" Exclude directive (nmap-service-probes)
 .RE
 .PP
@@ -1110,8 +940,8 @@ Ketika melakukan pemeriksaan versi (\fB\-sV\fR), Nmap mengirim serangkaian probe
 Nilai bakunya adalah 7\&.
 .\" version detection: default intensity
 Ketika sebuah probe didaftarkan ke port target melalui direktif
-\FCnmap\-service\-probes\F[]
-\FCports\F[], probe tersebut akan dicoba tanpa memperdulikan level intensitas\&. Hal ini memastikan bahwa probe DNS akan selalu dicoba terhadap sembarang port terbuka 53, probe SSL akan dilakukan terhadap port 443, dst\&.
+nmap\-service\-probes
+ports, probe tersebut akan dicoba tanpa memperdulikan level intensitas\&. Hal ini memastikan bahwa probe DNS akan selalu dicoba terhadap sembarang port terbuka 53, probe SSL akan dilakukan terhadap port 443, dst\&.
 .RE
 .PP
 \fB\-\-version\-light\fR (Aktifkan mode ringan) .\" --version-light
@@ -1142,11 +972,11 @@ Ia secara otomatis diaktifkan sebagai bagian pemeriksaan versi (\fB\-sV\fR) jika
 jarang dibutuhkan\&.
 .RE
 .\" 
-.SH "Deteksi SO"
+.SH "DETEKSI SO"
 .\" OS detection
 .PP
 Salah satu fitur Nmap yang paling dikenal adalah deteksi SO dengan menggunakan fingerprint stack TCP/IP\&. Nmap mengirimkan serangkaian paket TCP dan UDP ke host remote dan menguji setiap bit paket responnya\&. Setelah melakukan serangkaian test seperti sampling TCP ISN, dukungan dan urutan opsi TCP, sampling ID IP, dan pemeriksaan ukuran jendela awal, Nmap membandingkan hasilnya ke database
-\FCnmap\-os\-db\F[].\" nmap-os-db
+nmap\-os\-db.\" nmap-os-db
 yang berisi lebih dari seribu fingerprint SO yang dikenal dan mencetak detil SO bila terjadi kesesuaian\&. Setiap fingerprint menyertakan deskripsi SO tekstual dalam format bebas, klasifikasi yang memberikan nama vendor (misalnya Sun), SO di bawahnya (misalnya Solaris), generasi OS (misalnya 10), dan jenis device (fungsi umum, router, switch, konsol game, dsb\&.)\&.
 .PP
 Jika Nmap tidak dapat menduga SO mesin, dan kondisinya bagus (misalnya paling tidak ditemukan satu port terbuka dan tertutup), Nmap akan memberikan URL yang dapat anda gunakan untuk menyerahkan fingerprint jika anda tahu (dengan pasti) SO yang berjalan di mesin itu\&. Dengan melakukan hal ini anda berkontribusi ke database sistem operasi yang dikenali Nmap dan karenanya ia akan lebih akurat\&.
@@ -1195,7 +1025,7 @@ Ketika Nmap melakukan deteksi SO terhadap target dan gagal menemukan kecocokan s
 yang lebih rendah (seperti 1) mempercepat Nmap, meski anda kehilangan usaha yang secara potensial dapat mengindentifikasi SO\&. Anda dapat pula menset perulangan yang lebih banyak ketika kondisi lebih baik\&. Hal ini jarang dilakukan, kecuali untuk menghasilkan fingerprint yang lebih baik untuk penyerahan dan integrasi ke database SO Nmap\&.
 .RE
 .\" 
-.SH "Nmap Scripting Engine (NSE)"
+.SH "NMAP SCRIPTING ENGINE (NSE)"
 .\" Nmap Scripting Engine (NSE)
 .PP
 Nmap Scripting Engine (NSE) adalah salah satu fitur Nmap yang paling powerful dan fleksibel\&. Ia memungkinkan user untuk menulis (dan membagi) skrip sederhana (menggunakan
@@ -1205,14 +1035,14 @@ Nmap Scripting Engine (NSE) adalah salah satu fitur Nmap yang paling powerful da
 Tugas\-tugas yang kami pikirkan ketika membuat sistem termasuk penemuan jaringan, deteksi versi yang lebih canggih, deteksi kerentanan\&. NSE bahkan dapat digunakan untuk eksploitasi kerentanan\&.
 .PP
 Untuk mencerminkan penggunaan yang berbeda dan untuk memudahkan pilihan skrip yang diinginkan, setiap skrip berisi field yang mengasosiasikannya dengan satu atau lebih kategori\&. Kategori yang ada saat ini adalah
-\FCsafe\F[],
-\FCintrusive\F[],
-\FCmalware\F[],
-\FCversion\F[],
-\FCdiscovery\F[],
-\FCvuln\F[],
-\FCauth\F[], and
-\FCdefault\F[]\&. These are all described
+safe,
+intrusive,
+malware,
+version,
+discovery,
+vuln,
+auth, and
+default\&. These are all described
 at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Nmap Scripting Engine dijelaskan lebih rinci
@@ -1231,30 +1061,30 @@ Melakukan scan skrip menggunakan sejumlah skrip baku\&. Ia merupakan ekivalen
 Menjalankan scan skrip (seperti
 \fB\-sC\fR) menggunakan daftar kategori skrip, skrip individual, atau direktori berisikan skrip, aih\-alih menggunakan set baku\&. Nmap akan mencoba dulu menginterpretasikan argumen sebagai kategori, kemudian sebagai file atau direktori\&. Skrip atau direktori skrip dapat dispesifikasikan dengan path absolut atau relatif\&. Path absolut digunakan seperti yang diberikan\&. Path relatif akan dicari dalam tempat\-tempat berikut hingga ditemukan :
 .\" file data: urutan pencarian direktori.\" skrip, lokasi
-\FC\-\-datadir/\F[];
-\FC$NMAPDIR/\F[];.\" NMAPDIR environment variable
-\FC~/\&.nmap/\F[]
+\-\-datadir/;
+$NMAPDIR/;.\" NMAPDIR environment variable
+~/\&.nmap/
 (tidak dicari pada Windows);.\" .nmap directory
-\FCNMAPDATADIR\F[]/ or.\" NMAPDATADIR
-\FC\&./\F[]\&. A
-\FCscripts/\F[]
+NMAPDATADIR/ or.\" NMAPDATADIR
+\&./\&. A
+scripts/
 subdirektori juga dicari untuk setiap direktori ini\&.
 .sp
 Jika diberikan sebuah direktori dan ditemukan, Nmap memuat seluruh skrip NSE (semua nama file yang berakhiran dengan
-\FC\&.nse\F[]) dari direktori tersebut\&. Nama file tanpa ekstensi
-\FCnse\F[]
+\&.nse) dari direktori tersebut\&. Nama file tanpa ekstensi
+nse
 akan diabaikan\&. Nmap tidak mencari secara rekursif ke subdirektori untuk mencari skrip\&. Jika diberikan nama file individual, ekstensi file tidak perlu harus
-\FCnse\F[]\&.
+nse\&.
 .sp
 Skrip Nmap secara baku disimpan dalam subdirektori
-\FCscripts\F[]
+scripts
 direktori data Nmap
 (lihat \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
 
 Demi efisiensi, skrip diindeks dalam database yang disimpan dalam
-\FCscripts/script\&.db\F[]\&..\" script.db
+scripts/script\&.db\&..\" script.db
 yang mendaftar kategori atau kategori\-kategori yang dimiliki skrip\&. Berikan argumen
-\FCall\F[]
+all
 untuk menjalankan seluruh skrip dalam database skrip Nmap\&.
 .sp
 Skrip berbahaya tidak dijalankan dalam sandbox dan karenanya dapat merusak sistem anda atau menggangu privasi anda\&. Jangan pernah menjalankan skrip dari pihak ketiga kecuali anda mempercayai penulisnya atau telah mengaudit skrip tersebut dengan cermat\&.
@@ -1263,10 +1093,10 @@ Skrip berbahaya tidak dijalankan dalam sandbox dan karenanya dapat merusak siste
 \fB\-\-script\-args \fR\fB\fIname1\fR\fR\fB=\fR\fB\fIvalue1\fR\fR\fB,\fR\fB\fIname2\fR\fR\fB={\fR\fB\fIname3\fR\fR\fB=\fR\fB\fIvalue3\fR\fR\fB},\fR\fB\fIname4\fR\fR\fB=\fR\fB\fIvalue4\fR\fR .\" --script-args .\" script arguments
 .RS 4
 Membolehkan anda memberik argumen ke skrip NSE\&. Argument diberikan sebagai pasangan
-\FCname=value\F[]\&. Argumen yang diberikan diproses dan disimpan dalam tabel Lua, yang dapat diakses oleh semua skrip\&. Nama\-nama dianggap sebagai string (yang harus berupa nilai alfanumerik) dan digunakan sebagai kunci dalam
-\FCargument\-table\F[]\&. Nilai dapat berupa string atau tabel (dilingkupi oleh \(oq\FC{\F[]\(cq dan \(oq\FC}\F[]\(cq)\&. Sebagai contoh, anda dapat memberikan argumen :
-\FCuser=bar,pass=foo,whois={whodb=nofollow+ripe}\F[]\&. Argumen string secara potensial digunakan oleh beberapa skrip; subtables normalnya hanya digunakan oleh satu skrip\&. Dalam skrip yang menggunakan subtable, ia dinamakan sesuai dengan nama skripnya (seperti
-\FCwhois\F[]
+name=value\&. Argumen yang diberikan diproses dan disimpan dalam tabel Lua, yang dapat diakses oleh semua skrip\&. Nama\-nama dianggap sebagai string (yang harus berupa nilai alfanumerik) dan digunakan sebagai kunci dalam
+argument\-table\&. Nilai dapat berupa string atau tabel (dilingkupi oleh \(oq{\(cq dan \(oq}\(cq)\&. Sebagai contoh, anda dapat memberikan argumen :
+user=bar,pass=foo,whois={whodb=nofollow+ripe}\&. Argumen string secara potensial digunakan oleh beberapa skrip; subtables normalnya hanya digunakan oleh satu skrip\&. Dalam skrip yang menggunakan subtable, ia dinamakan sesuai dengan nama skripnya (seperti
+whois
 dalam contoh ini)\&.
 .RE
 .PP
@@ -1281,14 +1111,14 @@ juga mengaktifkan tracing skrip\&.
 \fB\-\-script\-updatedb\fR .\" --script-updatedb
 .RS 4
 Opsi ini mengupdate database skrip yang ditemukan dalam
-\FCscripts/script\&.db\F[]
+scripts/script\&.db
 yang digunakan Nmap untuk menentukan skrip baku dan kategori yang tersedia\&. Opsi ini digunakan bila anda menambah atau mengurangi skrip NSE dari direktori baku
-\FCscripts\F[]
+scripts
 atau bila anda merubah kategori sembarang skrip\&. Opsi ini biasanya digunakan sendirian:
 \fBnmap \-\-script\-updatedb\fR\&.
 .RE
 .\" 
-.SH "Pewaktuan dan Kinerja"
+.SH "PEWAKTUAN DAN KINERJA"
 .\" timing
 .\" performance
 .PP
@@ -1297,11 +1127,11 @@ Salah satu prioritas pengembangan tertinggi Nmap adalah kinerja\&. Scan baku (\f
 Teknik\-teknik untuk memperbaiki waktu pemeriksaan mencakup menghilangkan tes\-tes yang tidak kritikal, dan mengupgrade ke versi terakhir Nmap (perbaikan kinerja dibuat secara rutin)\&. Optimisasi parameter pewaktuan juga dapat memberikan perbedaan yang substansial\&. Opsi\-opsi tersebut diberikan di bawah ini\&.
 .PP
 Beberapa opsi menerima sebuah parameter
-\FCwaktu\F[]\&. Ia dispesifikasikan secara baku dalam milidetik, meskipun anda dapat menambahkan \(oqs\(cq, \(oqm\(cq, atau \(oqh\(cq ke nilai untuk menspesifikasikan detik, menit, atau jam\&. Sehingga argumen
+waktu\&. Ia dispesifikasikan secara baku dalam milidetik, meskipun anda dapat menambahkan \(oqs\(cq, \(oqm\(cq, atau \(oqh\(cq ke nilai untuk menspesifikasikan detik, menit, atau jam\&. Sehingga argumen
 \fB\-\-host\-timeout\fR
-\FC900000\F[],
-\FC900s\F[], dan
-\FC15m\F[]
+900000,
+900s, dan
+15m
 semuanya melakukan hal yang sama\&.
 .PP
 \fB\-\-min\-hostgroup \fR\fB\fInumhosts\fR\fR; \fB\-\-max\-hostgroup \fR\fB\fInumhosts\fR\fR (Adjust parallel scan group sizes) .\" --min-hostgroup .\" --max-hostgroup
@@ -1383,7 +1213,7 @@ Beberapa host membutuhkan
 waktu untuk diperiksa\&. Hal ini mungkin disebabkan hardware atau software yang tidak berkinerja baik atau tidak handal, adanya pembatasan paket, atau firewall yang terlalu ketat\&. Beberapa persen host paling lambat yang diperiksa dapat menghabiskan sebagian besar waktu pemeriksaan\&. Terkadang adalah hal baik mengurangi kerugian dan melewati host\-host tersebut\&. Berikan
 \fB\-\-host\-timeout\fR
 dengan waktu maksimum anda ingin menunggu\&. Sebagai contoh, berikan
-\FC30m\F[]
+30m
 untuk memastikan bahwa Nmap tidak menghabiskan lebih dari setengah jam pada satu host\&. Perhatikan bahwa Nmap mungkin memeriksa host lain pada waktu yang sama dalam waktu tersebut, sehingga itu bukan kerugian lengkap\&. Host yang timeout akan dilewati\&. Tidak ada hasil tabel port, deteksi SO, atau deteksi versi akan dicetak untuk host tersebut\&.
 .RE
 .PP
@@ -1392,7 +1222,7 @@ untuk memastikan bahwa Nmap tidak menghabiskan lebih dari setengah jam pada satu
 Opsi ini menyebabkan Nmap menunggu selama waktu yang diberikan antara setiap probe yang dikirimkan ke host yang diberikan\&. Hal ini terutama bermanfaat dalam hal pembatasan\&..\" rate limiting
 Mesin\-mesin Solaris (di antara yang lainnya) akan menanggapi paket probe scan UDP dengan hanya satu pesan ICMP per detik\&. Bila dikirimkan oleh Nmap lebih dari itu akan percuma\&. Nilai
 \fB\-\-scan\-delay\fR
-\FC1s\F[]
+1s
 akan membuat Nmap tetap pada rate lambat tersebut\&. Nmap berusaha untuk mendeteksi pembatasan rate dan menyesuaikan delay scan, namun tidaklah rugi untuk menspesifikasikannya secara eksplisit bila anda telah tahu rate terbaik\&.
 .sp
 Ketika Nmap menyesuaikan delay scan lebih tinggi untuk menanggapi pembatasn rate, scan akan melambat secara dramatis\&. Opsi
@@ -1453,17 +1283,17 @@ Banyak host telah lama menggunakan pembatasan rate
 untuk mengurangi jumlah pesan kesalahan ICMP (seperti kesalahan port\-unreachable) yang mereka kirim\&. Saat ini beberapa sistem menggunakan pembatasan limit ke paket RST (reset) yang mereka hasilkan\&. Hal ini akan memperlambat Nmap secara dramatis karena ia akan menyesuaikan pewaktuannya untuk mencerminkan batas rate tersebut\&. Anda dapat memberitahu Nmap untuk mengabaikan limit rate tersebut (untuk scan port seperti SYN scan yang
 \fItidak\fR
 memperlakukan port non\-responsiv sebagai
-\FCopen\F[]) dengan menspesifikasikan
+open) dengan menspesifikasikan
 \fB\-\-defeat\-rst\-ratelimit\fR\&.
 .sp
 Dengan menggunakan opsi ini akan mengurangi akurasi, karena beberapa port akan tampak non\-responsiv karena Nmap tidak menunggu cukup lama untuk respon RST yang rate\-limited\&. Dengan SYN scan, hasil non\-respon dalam port akan ditandai dengan status
-\FCfiltered\F[]
+filtered
 alih\-alih
-\FCclosed\F[]
+closed
 ketika menerima paket RST\&. Tambahan ini berguna ketika anda hanya perlu port terbuka, dan beda antara port
-\FCclosed\F[]
+closed
 dan
-\FCfiltered\F[]
+filtered
 tidak cukup berharga\&.
 .RE
 .PP
@@ -1534,7 +1364,7 @@ dan juga menset delay scan TCP maksimum ke 5\ \&md\&.
 .RE
 .\" 
 .\" 
-.SH "Firewall/IDS Evasion and Spoofing"
+.SH "FIREWALL/IDS EVASION AND SPOOFING"
 .\" firewalls: bypassing
 .\" intrusion detection systems: evading
 .PP
@@ -1580,16 +1410,16 @@ Fragmentasi hanya didukung oleh fitur paket raw Nmap, yang mencakup scan port TC
 Menyebabkan dilakukannya decoy scan, yang membuat host remote menganggap bahwa host\-host yang anda berikan sebagai umpan (decoy) juga melakukan pemeriksaan jaringan target\&. Karenanya IDS mereka mungkin melaporkan scan port sebanyak 5\(en10 dari alamat IP yang unik, tetapi mereka tidak akan tahu IP mana yang memeriksa mereka dan mana yang umpan\&. Meski hal ini dapat dikalahkan dengan router path tracing, response\-dropping, dan mekanisme aktif lainnya, namun ia umumnya merupakan teknik efektif untuk menyembunyikan alamat IP anda\&.
 .sp
 Pisahkan setiap host umpan dengan koma, dan anda dapat secara opsional menggunakan
-\FCME\F[].\" ME (decoy address)
+ME.\" ME (decoy address)
 sebagai salah satu umpan untuk mewakili posisi alamat IP real anda\&. Jika anda menempatkan
-\FCME\F[]
+ME
 pada posisi keenam atau lebih, beberapa detektor scan port umum (seperti Solar Designer\'s.\" Solar Designer
 Scanlogd yang bagus).\" Scanlogd
 tidak akan menampilkan alamat IP anda sama sekali\&. Jika anda tidak menggunakan
-\FCME\F[], Nmap akan menempatkan anda pada posisi acak\&. Anda dapat juga menggunakan
-\FCRND\F[].\" RND (decoy address)
+ME, Nmap akan menempatkan anda pada posisi acak\&. Anda dapat juga menggunakan
+RND.\" RND (decoy address)
 untuk menghasilkan alamat IP acak dan non\-reserved, atau
-\FCRND:\fInumber\fR\F[]
+RND:\fInumber\fR
 untuk menghasilkan alamat
 \fInumber\fR
 .sp
@@ -1651,22 +1481,22 @@ menawarkan beberapa opsi yang dapat ditempatkan pada header paket\&. Tidak seper
 .sp
 Cara paling powerful untuk menspesifikasikan opsi IP adalah cukup dengan memberikan nilainya sebagai argumen ke
 \fB\-\-ip\-options\fR\&. Dahului setiap angka hex dengan
-\FC\ex\F[]
+\ex
 lalu dua digit\&. Anda dapat mengulang karakter tertentu dengan menambahkan tanda bintang dan diikuti jumlah perulangan yang anda inginkan\&. Sebagai contoh,
-\FC\ex01\ex07\ex04\ex00*36\ex01\F[]
+\ex01\ex07\ex04\ex00*36\ex01
 adalah sebuah string hex berisi 36 NUL byte\&.
 .sp
 Nmap juga menawarkan mekanisme shortcut untuk menspesifikasikan opsi\&. Cukup berikan huruf
-\FCR\F[],
-\FCT\F[], atau
-\FCU\F[]
+R,
+T, atau
+U
 untuk meminta record\-route,.\" record route IP option
 record\-timestamp,.\" record timestamp IP option
 atau keduanya, Source routing.\" source routing
 ketat atau longgar dapat dispesifikasikan dengan tanda
-\FCL\F[]
+L
 atau
-\FCS\F[]
+S
 diikuti oleh spasi dan kemudian daftar alamat IP yang dipisah\-spasi\&.
 .sp
 Jika anda ingin melihat opsi dalam paket yang dikirim dan diterima, berikan
@@ -1684,7 +1514,7 @@ Set field time\-to\-live IPv4 dalam paket yang dikirim ke nilai yang diberikan\&
 Beritahu Nmap untuk mengacak setiap kelompok hingga 16384 host sebelum memeriksa merekaa\&. Hal ini dapat membuat scan kurang mencurigakan bagi berbagai sistem monitoring jaringan, terutama bila anda menggabungkannya dengan opsi pewaktuan yang lambat\&. Jika anda ingin mengacak dalam ukuran yang lebih besar, naikkan nilai
 \fIPING_GROUP_SZ\fR.\" PING_GROUP_SZ
 dalam
-\FCnmap\&.h\F[].\" nmap.h
+nmap\&.h.\" nmap.h
 dan kompilasi ulang\&. Solusi alternatif adalah menghasilkan daftar IP target dengan list scan (\fB\-sL \-n \-oN \fR\fB\fIfilename\fR\fR), acaklah dengan skrip Perl, lalu berikan seluruh daftar ke Nmap dengan
 \fB\-iL\fR\&..\" -iL: randomizing hosts with
 .RE
@@ -1696,18 +1526,18 @@ Meminta Nmap untuk menggunakan alamat MAC
 yang diberikan untuk seluruh frame ethernet raw yang dikirimkan\&. Opsi ini mengimplikasikan
 \fB\-\-send\-eth\fR.\" --send-eth: implied by --spoof-mac
 untuk memastikan bahwa Nmap benar\-benar mengirim paket level\-ethernet\&. MAC yang diberikan dapat dalam beragam format\&. Jika berupa angka
-\FC0\F[], Nmap memilih alamat MAC yang acak untuk sesi itu\&. Jika string yang diberikan adalah angka genap digit hex (setiap digit berpasangan dipisahkan oleh tanda titik dua), Nmap akan menggunakannya sebagai MAC\&. Jika diberikan kurang dari 12 digit hex, Nmap mengisi sisa 6 byte\-nya dengan nilai acak\&. Jika argumen bukanlah nol atau string hex, Nmap mencari melalui file
-\FCnmap\-mac\-prefixes\F[]
+0, Nmap memilih alamat MAC yang acak untuk sesi itu\&. Jika string yang diberikan adalah angka genap digit hex (setiap digit berpasangan dipisahkan oleh tanda titik dua), Nmap akan menggunakannya sebagai MAC\&. Jika diberikan kurang dari 12 digit hex, Nmap mengisi sisa 6 byte\-nya dengan nilai acak\&. Jika argumen bukanlah nol atau string hex, Nmap mencari melalui file
+nmap\-mac\-prefixes
 untuk menemukan nama vendor berisikan string yang diberikan (tidak case sensitive)\&. Jika ditemukan kecocokan, Nmap menggunakan OUI (three\-byte prefix).\" organizationally unique identifier (OUI)
 vendor dan mengisi tiga byte sisanya secara random\&. Contoh argumen yang valid
 \fB\-\-spoof\-mac\fR
 adalah
-\FCApple\F[],
-\FC0\F[],
-\FC01:02:03:04:05:06\F[],
-\FCdeadbeefcafe\F[],
-\FC0020F2\F[], dan
-\FCCisco\F[]\&. Opsi ini hanya mempengaruhi scan paket raw seperti SYN scan atau deteksi SO, dan tidak berlaku pada fitur berorientasi\-koneksi seperti deteksi versi atau Nmap Scripting Engine\&.
+Apple,
+0,
+01:02:03:04:05:06,
+deadbeefcafe,
+0020F2, dan
+Cisco\&. Opsi ini hanya mempengaruhi scan paket raw seperti SYN scan atau deteksi SO, dan tidak berlaku pada fitur berorientasi\-koneksi seperti deteksi versi atau Nmap Scripting Engine\&.
 .RE
 .PP
 \fB\-\-badsum\fR (Send packets with bogus TCP/UDP checksums) .\" --badsum .\" TCP checksum .\" checksums
@@ -1717,7 +1547,7 @@ Meminta Nmap untuk menggunakan checksum TCP atau UDP tidak valid untuk paket yan
 .RE
 .\" 
 .\" 
-.SH "Output"
+.SH "OUTPUT"
 .\" output formats
 .PP
 Manfaat tool keamanan ditentukan oleh output yang dihasilkannya\&. Algoritma dan tes yang kompleks tidaklah berguna bila mereka tidak dipresentasikan dalam cara yang terorganisir dan lengkap\&. Dengan beragamnya cara penggunaan Nmap oleh orang dan software lainnya, tidak ada format yang dapat memuaskan semuanya\&. Sehingga Nmap memberikan beberapa format, termasuk mode interaktif agar manusia dapat membaca secara langsung dan XML untuk memudahkan parsing oleh software\&.
@@ -1742,13 +1572,13 @@ bagi user yang mengganggap dirinya sebagai |<\-r4d\&.
 .PP
 Meskipun output interaktif merupakan bakunya dan tidak memiliki opsi command\-line, opsi keempat format lainnya menggunakan sintaks yang sama\&. Mereka mengambil satu argumen, nama file tempat menampung hasil\&. User dapat menspesifikasikan banyak format, namun setiap format hanya boleh dispesifikasikan satu kali\&. Sebagai contoh, anda mungkin ingin menyimpan output normal untuk review anda dan output XML untuk analisis programatik\&. Anda dapat melakukan hal ini dengan opsi
 \fB\-oX myscan\&.xml \-oN myscan\&.nmap\fR\&. Walau bab ini menggunakan nama sederhana seperti
-\FCmyscan\&.xml\F[]
+myscan\&.xml
 untuk singkatnya, disarankan untuk menggunakan nama yang lebih deskriptif\&. Nama yang dipilih merupakan masalah preferensi personal, meski saya menggunakan nama panjang yang menyertakan tanggal scan dan kata yang menjelaskan scan, ditempatkan dalam sebuah direktori dengan nama perusahaan yang saya periksa\&.
 .PP
 Meski opsi\-opsi ini menyimpan hasil ke file, Nmap tetap mencetak output interaktif ke stdout seperti biasa\&. Sebagai contoh, perintah
 \fBnmap \-oX myscan\&.xml target\fR
 mencetak XML ke
-\FCmyscan\&.xml\F[]
+myscan\&.xml
 dan mengisi seluruh output standar dengan hasil interaktif yang sama dengan yang akan dicetaknya bila
 \fB\-oX\fR
 tidak diberikan\&. Anda dapat merubahnya dengan memberikan karakter hyphen sebagai argumen ke salah satu tipe format\&. Hal ini membuat Nmap menonaktifkan output interaktif, dan mencetak hasilnya dalam format yang anda spesifikasikan ke stream output standar\&. Sehingga perintah
@@ -1763,37 +1593,37 @@ or
 \fB\-oXscan\&.xml\fR, fitur kompatibiltas backward Nmap akan menyebabkan pembuatan
 \fInormal format\fR
 file output bernama
-\FCG\-\F[]
+G\-
 dan
-\FCXscan\&.xml\F[]\&.
+Xscan\&.xml\&.
 .PP
 Seluruh argumen ini mendukung konversi
 \fBstrftime\fR\-like.\" strftime conversions in filenames
 dalam namafile\&.
-\FC%H\F[],
-\FC%M\F[],
-\FC%S\F[],
-\FC%m\F[],
-\FC%d\F[],
-\FC%y\F[], dan
-\FC%Y\F[]
+%H,
+%M,
+%S,
+%m,
+%d,
+%y, dan
+%Y
 semuanya serupa seperti dalam
 \fBstrftime\fR\&.
-\FC%T\F[]
+%T
 sama dengan
-\FC%H%M%S\F[],
-\FC%R\F[]
+%H%M%S,
+%R
 sama dengan
-\FC%H%M\F[], dan
-\FC%D\F[]
+%H%M, dan
+%D
 sama dengan
-\FC%m%d%y\F[]\&. Sebuah
-\FC%\F[]
-diikuti dengan sembarang karakter hanya menghasilkan karakter itu (\FC%%\F[]
+%m%d%y\&. Sebuah
+%
+diikuti dengan sembarang karakter hanya menghasilkan karakter itu (%%
 memberikan simbol persentase\&. Sehingga
 \fB\-oX \'scan\-%T\-%D\&.xml\'\fR
 akan menggunakan file XML dalam bentuk
-\FCscan\-144840\-121307\&.xml\F[]\&.
+scan\-144840\-121307\&.xml\&.
 .PP
 Nmap juga menawarkan opsi untuk mengendalikan verbositas scan dan untuk menambah file output daripada menghapusnya\&. Seluruh opsi ini dijelaskan di bawah\&.
 .PP
@@ -1801,14 +1631,14 @@ Nmap juga menawarkan opsi untuk mengendalikan verbositas scan dan untuk menambah
 .PP
 \fB\-oN \fR\fB\fIfilespec\fR\fR (normal output) .\" -oN .\" normal output
 .RS 4
-\FCnormal output\F[]
+normal output
 akan diarahkan ke nama file yang diberikan\&. Seperti yang didiskusikan di atas, opsi ini sedikit berbeda dari
-\FCinteractive output\F[]\&.
+interactive output\&.
 .RE
 .PP
 \fB\-oX \fR\fB\fIfilespec\fR\fR (XML output) .\" -oX .\" XML output
 .RS 4
-\FCXML output\F[]
+XML output
 diarahkan ke namafile yang diberikan\&. Nmap menyertakan document type definition (DTD) yang memungkinkan parser XML memvalidasi output XML Nmap\&. Walau utamanya ditujukan untuk penggunaan programatik, ia dapat juga membantu manusia menginterpretasikan output XML Nmap\&. DTD mendefinisikan elemen legal format, dan seringkali merinci atribut dan nilai yang dapat mereka terima\&. Versi terakhir selalu tersedia di
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]\&.
 .sp
@@ -1821,7 +1651,7 @@ and
 dalam Perl CPAN\&. Dalam kebanyakan kasus bagi interface aplikasi dengan Nmap yang sulit, XML merupakan format yang lebih disukai\&.
 .sp
 Output XML mengacu ke XSL stylesheet yang dapat digunakan untuk memformat hasilnya sebagai HTML\&. Cara termudah menggunakan file ini adalah dengan memuat output XML dalam sebuah browser web seperti Firefox atau IE\&. Secara baku, ini hanya bekerja pada mesin tempat anda menjalankan Nmap (atau yang dikonfigurasi serupa) akibat path sistem file
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 yang di\-hardcoded\&. Gunakan opsi
 \fB\-\-webxml\fR
 atau
@@ -1843,24 +1673,24 @@ Namun demikian, output grepable masih cukup populer\&. Ia merupakan format seder
 .sp
 Output grepable terdiri dari komentar (baris yang dimulai dengan tanda pound (#)).\" grepable output: comments in
 dan baris target\&. Sebuah baris target menyertakan kombinasi enam field berlabel, yang dipisahkan oleh tab dan diikuti oleh tanda titik dua\&. Field\-fieldnya adalah
-\FCHost\F[],
-\FCPorts\F[],
-\FCProtocols\F[],
-\FCIgnored State\F[],
-\FCOS\F[],
-\FCSeq Index\F[],
-\FCIP ID\F[], dan
-\FCStatus\F[]\&.
+Host,
+Ports,
+Protocols,
+Ignored State,
+OS,
+Seq Index,
+IP ID, dan
+Status\&.
 .sp
 Field yang paling penting umumnya adalah
-\FCPorts\F[], yang memberikan detil pada setiap port yang menarik\&. Ia merupakan daftar entri port yang dibatasi koma\&. Setiap entri port mewakili satu port menarik, dan memiliki bentuk subfield yang dibatasi oleh tujuh garis miring (/)\&. Subfieldnya adalah:
-\FCPort number\F[],
-\FCState\F[],
-\FCProtocol\F[],
-\FCOwner\F[],
-\FCService\F[],
-\FCSunRPC info\F[], dan
-\FCVersion info\F[]\&.
+Ports, yang memberikan detil pada setiap port yang menarik\&. Ia merupakan daftar entri port yang dibatasi koma\&. Setiap entri port mewakili satu port menarik, dan memiliki bentuk subfield yang dibatasi oleh tujuh garis miring (/)\&. Subfieldnya adalah:
+Port number,
+State,
+Protocol,
+Owner,
+Service,
+SunRPC info, dan
+Version info\&.
 .sp
 Sebagaimana dengan output XML, man page ini tidak memungkinkan untuk mendokumentasi seluruh format\&. Rincian lebih lanjut mengenai format output grepable Nmap tersedia
 dari \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
@@ -1871,12 +1701,12 @@ dari \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[
 Sebagai kenyamanan, anda dapat menspesifikasikan
 \fB\-oA \fR\fB\fIbasename\fR\fR
 untuk menyimpan hasil scan dalam format normal, XML, dan grepable sekaligus\&. Mereka disimpan dalam
-\FC\fIbasename\fR\&.nmap\F[],
-\FC\fIbasename\fR\&.xml\F[], dan
-\FC\fIbasename\fR\&.gnmap\F[]\&. Seperti kebanyakan program, anda dapat memberi awalan nama file dengan path direktori, seperti
-\FC~/nmaplogs/foocorp/\F[]
+\fIbasename\fR\&.nmap,
+\fIbasename\fR\&.xml, dan
+\fIbasename\fR\&.gnmap\&. Seperti kebanyakan program, anda dapat memberi awalan nama file dengan path direktori, seperti
+~/nmaplogs/foocorp/
 pada Unix atau
-\FCc:\ehacking\esco\F[]
+c:\ehacking\esco
 pada Windows\&.
 .RE
 .PP
@@ -1900,14 +1730,14 @@ Selain itu, anda dapat menset level debug dengan memberikan argumen ke
 menset level sembilan\&. Itu adalah level efektif tertinggi dan akan menghasilkan ribuan baris kecuali anda menjalankan scan yang sangat sederhana dengan sedikit port dan target\&.
 .sp
 Debugging output berguna ketika diduga terdapat bug dalam Nmap, atau anda bingung mengenai apa yang dilakukan Nmap dan alasannya\&. Karena fitur ini lebih ditujukan bagi pengembang, baris debug tidak selalu jelas\&. Anda mungkin akan menemui sesuatu seperti :
-\FCTimeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\F[]\&. Jika anda tidak memahami sebuah baris, anda dapat mengabaikannya, mencarinya dalam kode sumber, atau meminta bantuan dari list pengembangan (nmap\-dev)\&..\" nmap-dev mailing list
+Timeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\&. Jika anda tidak memahami sebuah baris, anda dapat mengabaikannya, mencarinya dalam kode sumber, atau meminta bantuan dari list pengembangan (nmap\-dev)\&..\" nmap-dev mailing list
 Beberapa baris cukup jelas, namun pesannya dapat semakin tidak jelas ketika level debug dinaikkan\&.
 .RE
 .PP
 \fB\-\-reason\fR (Host and port state reasons) .\" --reason .\" reason reporting
 .RS 4
 Tampilkan alasan setiap port diset ke status khusus dan alasan setiap host up atau down\&. Opsi ini menampilkan tipe paket yang menentukan status port atau host\&. Sebagai contoh, sebuah paket
-\FCRST\F[]
+RST
 dari port tertutup atau echo reply dari host yang hidup\&. Informasi yang disediakan Nmap ditentukan oleh jenis scan atau ping\&. Scan SYN dan ping SYN (\fB\-sS\fR
 dan
 \fB\-PS\fR) sangat rinci, namun TCP connect scan (\fB\-sT\fR) dibatasi oleh implementasi system call
@@ -1919,9 +1749,7 @@ dan hasilnya disimpan dalam file log XML bahkan bila opsi ini tidak diberikan\&.
 .RS 4
 Mencetak status waktu secara periodik setelah setiap interval
 \fItime\fR\&. Waktu adalah spesifikasi yang dijelaskan dalam
-the section called \(lq\c
-.SH-xref "Pewaktuan dan Kinerja\c"
-\&\(rq; sehingga sebagai contoh, gunakan
+the section called \(lqPEWAKTUAN DAN KINERJA\(rq; sehingga sebagai contoh, gunakan
 \fB\-\-stats\-every 10s\fR
 untuk memperoleh update status setiap 10 detik\&. Update dicetak ke output interaktif (layar) dan output XML\&.
 .RE
@@ -1937,22 +1765,22 @@ Menyebabkan Nmap untuk mencetak ringkasan seiap paket yang dikirim atau diterima
 .PP
 \fB\-\-open\fR (Show only open (or possibly open) ports) .\" --open
 .RS 4
-Terkadang anda hanya peduli tentang port yang benar\-benar dapat dikoneksi (\FCopen\F[]
+Terkadang anda hanya peduli tentang port yang benar\-benar dapat dikoneksi (open
 ones), dan tidak ingin mengacaukan hasilnya dengan port
-\FCclosed\F[],
-\FCfiltered\F[], dan
-\FCclosed|filtered\F[]\&. Kustomisasi output normalnya dilakukan setelah scan dengan menggunakan tool seperti
+closed,
+filtered, dan
+closed|filtered\&. Kustomisasi output normalnya dilakukan setelah scan dengan menggunakan tool seperti
 grep,
 awk, dan
 Perl, namun fitur ini ditambahkan karena banyaknya permintaan\&. Berikan
 \fB\-\-open\fR
 untuk hanya melihat port
-\FCopen\F[],
-\FCopen|filtered\F[], dan
-\FCunfiltered\F[]\&. Ketiga port ini diperlakukan seperti normalnya, yang berarti bahwa
-\FCopen|filtered\F[]
+open,
+open|filtered, dan
+unfiltered\&. Ketiga port ini diperlakukan seperti normalnya, yang berarti bahwa
+open|filtered
 dan
-\FCunfiltered\F[]
+unfiltered
 dapat digabungkan bila terdapat dalam jumlah banyak\&.
 .RE
 .PP
@@ -1998,23 +1826,23 @@ Nmap menyertakan sebuah stylesheet
 XSL
 .\" XSL
 bernama
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 .\" nmap.xsl
 untuk melihat atau menerjemahkan output XML ke HTML\&.
 .\" HTML from XML output
 Output XML menyertakan sebuah direktif
-\FCxml\-stylesheet\F[]
+xml\-stylesheet
 yang mengarah ke
-\FCnmap\&.xml\F[]
+nmap\&.xml
 tempat awalnya ia diinstalasi oleh Nmap (atau pada direktori kerja saat ini pada Windows)\&. Cukup buka output Nmap pada browser modern dan ia seharusnya mengambil
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 dari filesystem dan menggunakannya untuk merender hasil\&. Jika anda ingin menggunakan stylesheet yang berbeda, berikan ia sebagai argumen bagi
 \fB\-\-stylesheet\fR\&. Anda harus memberikan nama path atau URL lengkap\&. Cara pemanggilan umum adalah
 \fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&. Cara ini memberitahu browser untuk memuat versi terakhir stylesheet dari Nmap\&.Org\&. Opsi
 \fB\-\-webxml\fR
 melakukan hal yang sama dengan cara yang lebih singkat\&. Memuatkan XSL dari Nmap\&.Org memudahkan melihat hasil pada mesin yang tidak memiliki Nmap (dan karenanya tidak memiliki
-\FCnmap\&.xsl\F[])\&. Jadi URL seringkali lebih bermanfaat, namun lokasi filesistem lokal
-\FCnmap\&.xsl\F[]
+nmap\&.xsl)\&. Jadi URL seringkali lebih bermanfaat, namun lokasi filesistem lokal
+nmap\&.xsl
 digunakan secara baku demi alasan privasi\&.
 .RE
 .PP
@@ -2027,11 +1855,11 @@ Opsi kenyamanan ini adalah sekedar alias bagi
 \fB\-\-no\-stylesheet\fR (Omit XSL stylesheet declaration from XML) .\" --no-stylesheet
 .RS 4
 Berikan opsi ini untuk mencegah Nmap dari mengasosiasikan sembarang sytlesheet XSL dengan output XML\-nya\&. Direktif
-\FCxml\-stylesheet\F[]
+xml\-stylesheet
 ditiadakan\&.
 .RE
 .\" 
-.SH "Opsi Lain-lain"
+.SH "OPSI LAIN-LAIN"
 .PP
 Bagian ini menjelaskan beberapa opsi penting (dan tidak begitu penting) yang tidak tercakup di manapun\&.
 .PP
@@ -2039,7 +1867,7 @@ Bagian ini menjelaskan beberapa opsi penting (dan tidak begitu penting) yang tid
 .RS 4
 Sejak tahun 2002, Nmap memberikan dukungan IPv6 untuk fiturnya yang paling populer\&. Terutama, scanning ping (hanya\-TCP), connect scanning, dan deteksi versi semuanya mendukung IPv6\&. Sintaks perintahnya sama dengan yang biasa kecuali anda juga menambahkan opsi
 \fB\-6\fR\&. Tentu saja anda harus menggunakan sintaks IPv6 jika anda menspesifikasikan sebuah alamat alih\-alih nama host\&. Sebuah alamat mungkin terlihat seperti
-\FC3ffe:7501:4819:2000:210:f3ff:fe03:14d0\F[], sehingga disarankan untuk menggunakan nama host\&. Outputnya tampak sama dengan yang biasa, dengan alamat IPv6 pada baris
+3ffe:7501:4819:2000:210:f3ff:fe03:14d0, sehingga disarankan untuk menggunakan nama host\&. Outputnya tampak sama dengan yang biasa, dengan alamat IPv6 pada baris
 \(lqport menarik\(rq\&.
 .sp
 Meskipun IPv6 belum tersebar luas, ia telah digunakan secara signifikan di beberapa negara (biasanya Asia) dan kebanyakan sistem operasi modern mendukungnya\&. Untuk menggunakan Nmap dengan IPv6, sumber dan target scan anda harus dikonfigurasi untuk IPv6\&. Jika ISP anda (seperti kebanyakan) tidak mengalokasikan alamat IPv6 bagi anda, broker tunnel bebas tersedia luas dan bekerja baik dengan Nmap\&. Saya menggunakan layanan broker tunnel IPv6 gratis
@@ -2062,30 +1890,30 @@ terhadap jaringan target tanpa ijin\&. Opsi ini hanya mengaktifkan fitur, dan ti
 \fB\-\-datadir \fR\fB\fIdirectoryname\fR\fR (Specify custom Nmap data file location) .\" --datadir
 .RS 4
 Nmap memperoleh beberapa data khusus pada runtime dalam file bernama
-\FCnmap\-service\-probes\F[],
-\FCnmap\-services\F[],
-\FCnmap\-protocols\F[],
-\FCnmap\-rpc\F[],
-\FCnmap\-mac\-prefixes\F[], dan
-\FCnmap\-os\-db\F[]\&. Jika lokasi file\-file ini telah dispesifikasikan (dengan menggunakan opsi
+nmap\-service\-probes,
+nmap\-services,
+nmap\-protocols,
+nmap\-rpc,
+nmap\-mac\-prefixes, dan
+nmap\-os\-db\&. Jika lokasi file\-file ini telah dispesifikasikan (dengan menggunakan opsi
 \fB\-\-servicedb\fR
 atau
 \fB\-\-versiondb\fR), lokasi tersebut digunakan untuk file itu\&. Setelah itu, Nmap mencari file\-file ini dalam direktori yang dispesifikasikan dengan opsi
 \fB\-\-datadir\fR
 (bila ada)\&. File yang tidak ditemukan di sana, akan dicari pada direktori yang dispesifikasikan oleh variabel lingkungan NMAPDIR
 .\" NMAPDIR environment variable\&. Kemudian
-\FC~/\&.nmap\F[].\" .nmap directory
+~/\&.nmap.\" .nmap directory
 untuk UID ril dan efektif (sistem POSIX) atau lokasi eksekutabel Nmap (Win32), dan kemudian lokasi yang digunakan saat kompilasi seperti
-\FC/usr/local/share/nmap\F[]
+/usr/local/share/nmap
 atau
-\FC/usr/share/nmap\F[]
+/usr/share/nmap
 \&. Dan terakhir, Nmap akan mencari dalam direktori saat ini\&.
 .RE
 .PP
 \fB\-\-servicedb \fR\fB\fIservices file\fR\fR (Specify custom services file) .\" --servicedb
 .RS 4
 Beritahu Nmap untuk menggunakan file service yang diberikan alih\-alih file
-\FCnmap\-services\F[]
+nmap\-services
 yang disertakan dalam Nmap\&. Dengan menggunakan opsi ini juga menyebabkan opsi scan cepat (\fB\-F\fR) digunakan\&. Lihat deskripsi untuk
 \fB\-\-datadir\fR
 untuk informasi lebih lanjut mengenai file data Nmap\&.
@@ -2094,7 +1922,7 @@ untuk informasi lebih lanjut mengenai file data Nmap\&.
 \fB\-\-versiondb \fR\fB\fIservice probes file\fR\fR (Specify custom service probes file) .\" --versiondb
 .RS 4
 Minta Nmap untuk menggunakan file pro be service yang diberikan alih\-alih file
-\FCnmap\-service\-probes\F[]
+nmap\-service\-probes
 yang disertakan dalam Nmap\&. Lihat deskripsi untuk
 \fB\-\-datadir\fR
 untuk informasi lebih lanjut mengenai file data Nmap\&.
@@ -2158,7 +1986,7 @@ Mencetak angka versi Nmap dan keluar\&.
 .RS 4
 Mencetak layar bantuan singkat dengan flag\-flag yang paling umum\&. Menjalankan Nmap tanpa argumen melakukan hal yang sama\&.
 .RE
-.SH "Interaksi Runtime"
+.SH "INTERAKSI RUNTIME"
 .PP
 Selama eksekusi Nmap, seluruh kunci yang ditekan direkam\&. Hal ini memungkinkan anda beriteraksi dengan program tanpa membatalkan dan memulai ulang\&. Beberapa kunci khusus akan merubah opsi, sementara kunci lain akan mencetak pesan status yang memberitahu anda mengenai scan\&. Konvensinya adalah
 \fIhuruf kecil meningkatkan\fR
@@ -2194,22 +2022,22 @@ Stats: 0:00:08 elapsed; 111 hosts completed (5 up), 5 undergoing Service Scan
 .sp
 Service scan Timing: About 28\&.00% done; ETC: 16:18 (0:00:15 remaining)
 .RE
-.SH "Contoh-contoh"
+.SH "CONTOH-CONTOH"
 .PP
 Berikut ini adalah beberapa contoh penggunaan Nmap, dari yang mudah dan rutin hingga yang sedikit kompleks dan canggih\&. Beberapa alamat IP dan nama domain aktual digunakan untuk membuatnya menjadi lebih kongkrit\&. Anda harus merubah alamat/nama dengan
 \fIjaringan anda sendiri\&.\fR\&. Meskipun saya tidak menganggap scanning port jaringan lain adalah atau seharusnya ilegal, beberapa administrator jaringan tidak menghargai scanning jaringan mereka sembarangan dan akan mengajukan keluhan\&. Pendekatan terbaik adalah memperoleh ijin terlebih dulu\&.
 .PP
 Untuk tujuan pengujian, anda memperoleh ijin untuk memeriksa host
-\FCscanme\&.nmap\&.org\F[]\&. Ijin ini hanya mencakup pemeriksaan dengan Nmap dan tidak menguji eksploit atau serangan denial of service\&. Untuk menghemat bandwidth, mohon tidak menggunakan lebih dari selusin scan terhadap host tersebut per hari\&. Jika layanan target scanning gratis ini disalahgunakan, ia akan dinonaktifkan dan Nmap akan melaporkan
-\FCFailed to resolve given hostname/IP: scanme\&.nmap\&.org\F[]\&. Ijin ini juga berlaku untuk host\-host
-\FCscanme2\&.nmap\&.org\F[],
-\FCscanme3\&.nmap\&.org\F[], dan seterusnya, meskipun host\-host ini belum ada\&.
+scanme\&.nmap\&.org\&. Ijin ini hanya mencakup pemeriksaan dengan Nmap dan tidak menguji eksploit atau serangan denial of service\&. Untuk menghemat bandwidth, mohon tidak menggunakan lebih dari selusin scan terhadap host tersebut per hari\&. Jika layanan target scanning gratis ini disalahgunakan, ia akan dinonaktifkan dan Nmap akan melaporkan
+Failed to resolve given hostname/IP: scanme\&.nmap\&.org\&. Ijin ini juga berlaku untuk host\-host
+scanme2\&.nmap\&.org,
+scanme3\&.nmap\&.org, dan seterusnya, meskipun host\-host ini belum ada\&.
 .PP
 .\" -v: example of
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Opsi ini memeriksa seluruh port TCP reserved pada mesin
-\FCscanme\&.nmap\&.org\F[]
+scanme\&.nmap\&.org
 \&. Opsi
 \fB\-v\fR
 mengaktifkan mode verbose\&.
@@ -2240,7 +2068,7 @@ karena mengirim beberapa probe untuk menentukan apakah host hidup adalah sia\-si
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Memeriksa 4096 IP untuk sembarang web server (tanpa mem\-ping mereka) dan menyimpan hasilnya dalam format grepable dan XML\&.
-.SH "Bugs"
+.SH "BUGS"
 .\" bugs, reporting
 .PP
 Seperti penulisnya, Nmap tidaklah sempurna\&. Namun anda dapat membantu membuatnya lebih baik dengan mengirimkan laporan bug atau bahkan menulis patch\&. Jika Nmap tidak berlaku sesuai yang anda harapkan, pertama upgrade ke versi terakhir yang tersedia dari
@@ -2251,8 +2079,8 @@ nmap\-dev
 di
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev mailing list
 Bacalah juga halaman manual ini dengan baik\&. Jika masih belum selesai juga, kirimkan laporan bug ke
-\FCnmap\-dev@insecure\&.org\F[]\&. Mohon sertakan semua yang anda telah pelajari mengenai masalah, dan juga versi Nmap dan sistem operasi yang anda gunakan\&. Laporan kesalahan dan pertanyaan penggunaan Nmap yang dikirim ke
-\FCnmap\-dev@insecure\&.org\F[]
+nmap\-dev@insecure\&.org\&. Mohon sertakan semua yang anda telah pelajari mengenai masalah, dan juga versi Nmap dan sistem operasi yang anda gunakan\&. Laporan kesalahan dan pertanyaan penggunaan Nmap yang dikirim ke
+nmap\-dev@insecure\&.org
 akan lebih mungkin dijawab daripada yang dikirimkan secara langsung ke Fyodor\&. Jika anda berlangganan ke list nmap\-dev sebelum posting, pesan anda akan melewati moderasi dan akan lewat dengan lebih cepat\&. Berlangganan di
 \m[blue]\fB\%http://cgi.insecure.org/mailman/listinfo/nmap-dev\fR\m[]\&.
 .PP
@@ -2260,17 +2088,17 @@ Patch code untuk memperbaiki bug adalah lebih baik daripada laporan kesalahan\&.
 \m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]\&. Patch dapat dikirim ke
 nmap\-dev
 (direkomendasikan) atau langsun ke Fyodor\&.
-.SH "Penulis"
+.SH "PENULIS"
 .PP
 Fyodor
-\FCfyodor@insecure\&.org\F[]
+fyodor@insecure\&.org
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Selama ini, ratusan orang telah memberikan kontribusi berharga ke Nmap\&. Hal ini dirinci dalam file
-\FCCHANGELOG\F[].\" changelog
+CHANGELOG.\" changelog
 yang didistribusikan bersama Nmap dan juga tersedia dari
 \m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]\&.
-.SH "Legal Notices"
+.SH "LEGAL NOTICES"
 .SS "Unofficial Translation Disclaimer / Disklaimer Terjemahan Tidak Resmi"
 .PP
 This is an unnofficial translation of the
@@ -2285,7 +2113,7 @@ ke dalam bahasa Indonesia\&. Ia tidak ditulis oleh Insecure\&.Com LLC, dan tidak
 .\" GNU General Public License
 .PP
 The Nmap Security Scanner is (C) 1996\(en2009 Insecure\&.Com LLC\&. Nmap is also a registered trademark of Insecure\&.Com LLC\&. This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below\&. This guarantees your right to use, modify, and redistribute this software under certain conditions\&. If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact
-\FCsales@insecure\&.com\F[])\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
+sales@insecure\&.com)\&. Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection\&.
 .PP
 Note that the GPL places important restrictions on
 \(lqderived works\(rq, yet it does not provide a detailed definition of that term\&. To avoid misunderstandings, we consider an application to constitute a
@@ -2312,9 +2140,9 @@ Integrates source code from Nmap
 .IP \(bu 2.3
 .\}
 Reads or includes Nmap copyrighted data files, such as
-\FCnmap\-os\-db\F[]
+nmap\-os\-db
 or
-\FCnmap\-service\-probes\F[]\&.
+nmap\-service\-probes\&.
 .RE
 .sp
 .RS 4
@@ -2355,11 +2183,11 @@ The term
 should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\'t speak for other people\'s GPL works\&.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\&. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\&. Please email
-\FCsales@insecure\&.com\F[]
+sales@insecure\&.com
 for further information\&.
 .PP
 As a special exception to the GPL terms, Insecure\&.Com LLC grants permission to link the code of this program with any version of the OpenSSL library which is distributed under a license identical to that listed in the included
-\FCCOPYING\&.OpenSSL\F[]
+COPYING\&.OpenSSL
 file, and distribute linked combinations including the two\&..\" OpenSSL: linking exception
 You must obey the GNU GPL in all respects for all of the code used other than OpenSSL\&. If you modify this file, you may extend this exception to your version of the file, but you are not obligated to do so\&.
 .PP
@@ -2375,14 +2203,14 @@ is (C) 2005\(en2008 Insecure\&.Com LLC\&. It is hereby placed under version 2\&.
 Source is provided to this software because we believe users have a right to know exactly what a program is going to do before they run it\&. This also allows you to audit the software for security holes (none have been found so far)\&.
 .PP
 Source code also allows you to port Nmap to new platforms, fix bugs, and add new features\&. You are highly encouraged to send your changes to
-\FCfyodor@insecure\&.org\F[]
+fyodor@insecure\&.org
 for possible incorporation into the main distribution\&. By sending these changes to Fyodor or one of the Insecure\&.Org development mailing lists, it is assumed that you are offering Fyodor and Insecure\&.Com LLC the unlimited, non\-exclusive right to reuse, modify, and relicense the code\&. Nmap will always be available Open Source,.\" open source
 but this is important because the inability to relicense code has caused devastating problems for other Free Software projects (such as KDE and NASM)\&. We also occasionally relicense the code to third parties as discussed above\&. If you wish to specify special license conditions of your contributions, just say so when you send them\&.
 .SS "No Warranty.\" warranty (lack of)"
 .PP
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE\&. See the GNU General Public License v2\&.0 for more details at
 \m[blue]\fB\%http://www.gnu.org/licenses/gpl-2.0.html\fR\m[], or in the
-\FCCOPYING\F[]
+COPYING
 file included with Nmap\&.
 .PP
 It should also be noted that Nmap has occasionally been known to crash poorly written applications, TCP/IP stacks, and even operating systems\&..\" crashing targets
@@ -2416,7 +2244,7 @@ All of the third\-party software described in this paragraph is freely redistrib
 .PP
 U\&.S\&. Export Control: Insecure\&.Com LLC believes that Nmap falls under U\&.S\&. ECCN (export control classification number) 5D992\&. This category is called
 \(lqInformation Security software not controlled by 5D002\(rq\&. The only restriction of this classification is AT (anti\-terrorism), which applies to almost all goods and denies export to a handful of rogue nations such as Iran and North Korea\&. Thus exporting Nmap does not require any special license, permit, or other governmental authorization\&.
-.SH "Notes"
+.SH "NOTES"
 .IP " 1." 4
 versi Inggris
 .RS 4

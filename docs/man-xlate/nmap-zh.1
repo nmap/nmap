@@ -1,19 +1,27 @@
+'\" t
 .\"     Title: nmap
-.\"    Author: 
-.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
-.\"      Date: 06/15/2008
-.\"    Manual: 
-.\"    Source: 
+.\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
+.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\"      Date: 11/21/2009
+.\"    Manual: [FIXME: manual]
+.\"    Source: [FIXME: source]
+.\"  Language: English
 .\"
-.TH "NMAP" "1" "06/15/2008" "" ""
+.TH "NMAP" "1" "11/21/2009" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
 .ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
 .SH "NAME"
-nmap - 网络探测工具和安全/端口扫描器
+nmap \- 网络探测工具和安全/端口扫描器
 .SH "SYNOPSIS"
-.HP 5
+.HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fI扫描类型\fR...] [\fI选项\fR] {\fI扫描目标说明\fR}
 .SH "描述"
 .PP
@@ -34,30 +42,32 @@ closed|filtered时，那说明Nmap无法确定该端口处于两个状态中的�
 .PP
 除了所感兴趣的端口表，Nmap还能提供关于目标机的进一步信息，包括反向域名，操作系统猜测，设备类型，和MAC地址。
 .PP
-一个典型的Nmap扫描如Example\ 1, \(lq一个典型的Nmap扫描\(rq所示。在这个例子中，唯一的选项是\fB\-A\fR， 用来进行操作系统及其版本的探测，\fB\-T4\fR
+一个典型的Nmap扫描如Example\ \&1, \(lq一个典型的Nmap扫描\(rq所示。在这个例子中，唯一的选项是\fB\-A\fR， 用来进行操作系统及其版本的探测，\fB\-T4\fR
 可以加快执行速度，接着是两个目标主机名。
 .PP
-\fBExample\ 1.\ 一个典型的Nmap扫描\fR
+\fBExample\ \&1.\ \&一个典型的Nmap扫描\fR
 .sp
+.if n \{\
 .RS 4
+.\}
 .nf
-# nmap \-A \-T4 scanme\.nmap\.org playground
+# nmap \-A \-T4 scanme\&.nmap\&.org playground
 
-Starting nmap ( http://www\.insecure\.org/nmap/ )
-Interesting ports on scanme\.nmap\.org (205\.217\.153\.62):
+Starting nmap ( http://www\&.insecure\&.org/nmap/ )
+Interesting ports on scanme\&.nmap\&.org (205\&.217\&.153\&.62):
 (The 1663 ports scanned but not shown below are in state: filtered)
 port    STATE  SERVICE VERSION
-22/tcp  open   ssh     OpenSSH 3\.9p1 (protocol 1\.99)
+22/tcp  open   ssh     OpenSSH 3\&.9p1 (protocol 1\&.99)
 53/tcp  open   domain
 70/tcp  closed gopher
-80/tcp  open   http    Apache httpd 2\.0\.52 ((Fedora))
+80/tcp  open   http    Apache httpd 2\&.0\&.52 ((Fedora))
 113/tcp closed auth
 Device type: general purpose
-Running: Linux 2\.4\.X|2\.5\.X|2\.6\.X
-OS details: Linux 2\.4\.7 \- 2\.6\.11，Linux 2\.6\.0 \- 2\.6\.11
+Running: Linux 2\&.4\&.X|2\&.5\&.X|2\&.6\&.X
+OS details: Linux 2\&.4\&.7 \- 2\&.6\&.11，Linux 2\&.6\&.0 \- 2\&.6\&.11
 Uptime 33。908 days (since Thu Jul 21 03:38:03 2005)
 
-Interesting ports on playground。nmap。或者g (192\.168\.0\.40):
+Interesting ports on playground。nmap。或者g (192\&.168\&.0\&.40):
 (The 1659 ports scanned but not shown below are in state: closed)
 port     STATE SERVICE       VERSION
 135/tcp  open  msrpc         Microsoft Windows RPC
@@ -66,39 +76,43 @@ port     STATE SERVICE       VERSION
 445/tcp  open  microsoft\-ds  Microsoft Windows XP microsoft\-ds
 1002/tcp open  windows\-icfw?
 1025/tcp open  msrpc         Microsoft Windows RPC
-1720/tcp open  H\.323/Q\.931   CompTek AquaGateKeeper
-5800/tcp open  vnc\-http      RealVNC 4\.0 (Resolution 400x250; VNC TCP port: 5900)
-5900/tcp open  vnc           VNC (protocol 3\.8)
+1720/tcp open  H\&.323/Q\&.931   CompTek AquaGateKeeper
+5800/tcp open  vnc\-http      RealVNC 4\&.0 (Resolution 400x250; VNC TCP port: 5900)
+5900/tcp open  vnc           VNC (protocol 3\&.8)
 MAC Address: 00:A0:CC:63:85:4B (Lite\-on Communications)
 Device type: general purpose
 Running: Microsoft Windows NT/2K/XP
 OS details: Microsoft Windows XP Pro RC1+ through final release
 Service Info: OSs: Windows，Windows XP
 
-Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\.392 seconds
+Nmap finished: 2 IP addresses (2 hosts up) scanned in 88\&.392 seconds
 .fi
+.if n \{\
 .RE
+.\}
 .SH "译注"
 .PP
 该Nmap参考指南中文版由Fei Yang
-<fyang1024@gmail\.com>和Lei Li<lilei_721@6611\.org>
-从\fI英文版本\fR\&[1]翻译而来。 我们希望这将使全世界使用中文的人们更了解Nmap，但我们不能保证该译本和官方的 英文版本一样完整，也不能保证同步更新。 它可以在\fICreative Commons Attribution License\fR\&[2]下被修改并重新发布。
+fyang1024@gmail\&.com和Lei Lililei_721@6611\&.org
+从\m[blue]\fB英文版本\fR\m[]\&\s-2\u[1]\d\s+2翻译而来。 我们希望这将使全世界使用中文的人们更了解Nmap，但我们不能保证该译本和官方的 英文版本一样完整，也不能保证同步更新。 它可以在\m[blue]\fBCreative Commons Attribution License\fR\m[]\&\s-2\u[2]\d\s+2下被修改并重新发布。
 .SH "选项概要"
 .PP
 当Nmap不带选项运行时，该选项概要会被输出，最新的版本在这里
-\fI\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR。 它帮助人们记住最常用的选项，但不能替代本手册其余深入的文档，一些晦涩的选项甚至不在这里。
+\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.usage.txt\fR\m[]。 它帮助人们记住最常用的选项，但不能替代本手册其余深入的文档，一些晦涩的选项甚至不在这里。
 .PP
 
 .sp
+.if n \{\
 .RS 4
+.\}
 .nf
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
-  Can pass hostnames, IP addresses, networks, etc\.
-  Ex: scanme\.nmap\.org, microsoft\.com/24, 192\.168\.0\.1; 10\.0\-255\.0\-255\.1\-254
+  Can pass hostnames, IP addresses, networks, etc\&.
+  Ex: scanme\&.nmap\&.org, microsoft\&.com/24, 192\&.168\&.0\&.1; 10\&.0\-255\&.0\-255\&.1\-254
   \-iL <inputfilename>: Input from list of hosts/networks
   \-iR <num hosts>: Choose random targets
-  \-\-exclude <host1[,host2][,host3],\.\.\.>: Exclude hosts/networks
+  \-\-exclude <host1[,host2][,host3],\&.\&.\&.>: Exclude hosts/networks
   \-\-excludefile <exclude_file>: Exclude list from file
 HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
@@ -133,12 +147,12 @@ TIMING AND PERFORMANCE:
   \-\-min\-hostgroup/max\-hostgroup <msec>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <msec>: Probe parallelization
   \-\-min_rtt_timeout/max\-rtt\-timeout/initial\-rtt\-timeout <msec>: Specifies
-      probe round trip time\.
+      probe round trip time\&.
   \-\-host\-timeout <msec>: Give up on target after this long
   \-\-scan\-delay/\-\-max_scan\-delay <msec>: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   \-f; \-\-mtu <val>: fragment packets (optionally w/given MTU)
-  \-D <decoy1,decoy2[,ME],\.\.\.>: Cloak a scan with decoys
+  \-D <decoy1,decoy2[,ME],\&.\&.\&.>: Cloak a scan with decoys
   \-S <IP_Address>: Spoof source address
   \-e <iface>: Use specified interface
   \-g/\-\-source\-port <portnum>: Use given port number
@@ -147,7 +161,7 @@ FIREWALL/IDS EVASION AND SPOOFING:
   \-\-spoof\-mac <mac address, prefix, or vendor name>: Spoof your MAC address
 OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan results in normal, XML, s|<rIpt kIddi3,
-     and Grepable format, respectively, to the given filename\.
+     and Grepable format, respectively, to the given filename\&.
   \-oA <basename>: Output in the three major formats at once
   \-v: Increase verbosity level (use twice for more effect)
   \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
@@ -164,28 +178,30 @@ MISC:
   \-\-send\-eth/\-\-send\-ip: Send packets using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
   \-V: Print version number
-  \-h: Print this help summary page\.
+  \-h: Print this help summary page\&.
 EXAMPLES:
-  nmap \-v \-A scanme\.nmap\.org
-  nmap \-v \-sP 192\.168\.0\.0/16 10\.0\.0\.0/8
+  nmap \-v \-A scanme\&.nmap\&.org
+  nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-P0 \-p 80
 .fi
+.if n \{\
 .RE
+.\}
 .sp
 .SH "目标说明"
 .PP
 除了选项，所有出现在Nmap命令行上的都被视为对目标主机的说明。 最简单的情况是指定一个目标IP地址或主机名。
 .PP
 有时候您希望扫描整个网络的相邻主机。为此，Nmap支持CIDR风格的地址。您可以附加 一个/\fInumbit\fR在一个IP地址或主机名后面， Nmap将会扫描所有和该参考IP地址具有
-\fInumbit\fR相同比特的所有IP地址或主机。 例如，192\.168\.10\.0/24将会扫描192\.168\.10\.0 (二进制格式:
-11000000 10101000 00001010 00000000)和192\.168\.10\.255 (二进制格式:
-11000000 10101000 00001010 11111111)之间的256台主机。 192\.168\.10\.40/24 将会做同样的事情。假设主机 scanme\.nmap\.org的IP地址是205\.217\.153\.62， scanme\.nmap\.org/16 将扫描205\.217\.0\.0和205\.217\.255\.255之间的65,536 个IP地址。 所允许的最小值是/1， 这将会扫描半个互联网。最大值是/32，这将会扫描该主机或IP地址， 因为所有的比特都固定了。
+\fInumbit\fR相同比特的所有IP地址或主机。 例如，192\&.168\&.10\&.0/24将会扫描192\&.168\&.10\&.0 (二进制格式:
+11000000 10101000 00001010 00000000)和192\&.168\&.10\&.255 (二进制格式:
+11000000 10101000 00001010 11111111)之间的256台主机。 192\&.168\&.10\&.40/24 将会做同样的事情。假设主机 scanme\&.nmap\&.org的IP地址是205\&.217\&.153\&.62， scanme\&.nmap\&.org/16 将扫描205\&.217\&.0\&.0和205\&.217\&.255\&.255之间的65,536 个IP地址。 所允许的最小值是/1， 这将会扫描半个互联网。最大值是/32，这将会扫描该主机或IP地址， 因为所有的比特都固定了。
 .PP
-CIDR标志位很简洁但有时候不够灵活。例如，您也许想要扫描 192\.168\.0\.0/16，但略过任何以\.0或者\.255 结束的IP地址，因为它们通常是广播地址。 Nmap通过八位字节地址范围支持这样的扫描 您可以用逗号分开的数字或范围列表为IP地址的每个八位字节指定它的范围。 例如，192\.168\.0\-255\.1\-254 将略过在该范围内以\.0和\.255结束的地址。 范围不必限于最后的8位：0\-255\.0\-255\.13\.37 将在整个互联网范围内扫描所有以13\.37结束的地址。 这种大范围的扫描对互联网调查研究也许有用。
+CIDR标志位很简洁但有时候不够灵活。例如，您也许想要扫描 192\&.168\&.0\&.0/16，但略过任何以\&.0或者\&.255 结束的IP地址，因为它们通常是广播地址。 Nmap通过八位字节地址范围支持这样的扫描 您可以用逗号分开的数字或范围列表为IP地址的每个八位字节指定它的范围。 例如，192\&.168\&.0\-255\&.1\-254 将略过在该范围内以\&.0和\&.255结束的地址。 范围不必限于最后的8位：0\-255\&.0\-255\&.13\&.37 将在整个互联网范围内扫描所有以13\&.37结束的地址。 这种大范围的扫描对互联网调查研究也许有用。
 .PP
 IPv6地址只能用规范的IPv6地址或主机名指定。 CIDR 和八位字节范围不支持IPv6，因为它们对于IPv6几乎没什么用。
 .PP
-Nmap命令行接受多个主机说明，它们不必是相同类型。命令\fBnmap scanme\.nmap\.org 192\.168\.0\.0/8 10\.0\.0，1，3\-7\.0\-255\fR将和您预期的一样执行。
+Nmap命令行接受多个主机说明，它们不必是相同类型。命令\fBnmap scanme\&.nmap\&.org 192\&.168\&.0\&.0/8 10\&.0\&.0，1，3\-7\&.0\-255\fR将和您预期的一样执行。
 .PP
 虽然目标通常在命令行指定，下列选项也可用来控制目标的选择：
 .PP
@@ -205,7 +221,7 @@ Nmap命令行接受多个主机说明，它们不必是相同类型。命令\fBn
 意味着永无休止的扫描。记住，一些网管对于未授权的扫描可能会很感冒并加以抱怨。 使用该选项的后果自负! 如果在某个雨天的下午，您觉得实在无聊， 试试这个命令\fBnmap \-sS \-PS80 \-iR 0 \-p 80\fR随机地找一些网站浏览。
 .RE
 .PP
-\fB\-\-exclude <host1[，host2][，host3]，\.\.\.>\fR (排除主机/网络)
+\fB\-\-exclude <host1[，host2][，host3]，\&.\&.\&.>\fR (排除主机/网络)
 .RS 4
 如果在您指定的扫描范围有一些主机或网络不是您的目标， 那就用该选项加上以逗号分隔的列表排除它们。该列表用正常的Nmap语法， 因此它可以包括主机名，CIDR，八位字节范围等等。 当您希望扫描的网络包含执行关键任务的服务器，已知的对端口扫描反应强烈的 系统或者被其它人看管的子网时，这也许有用。
 .RE
@@ -220,7 +236,7 @@ Nmap命令行接受多个主机说明，它们不必是相同类型。命令\fBn
 .PP
 任何网络探测任务的最初几个步骤之一就是把一组IP范围(有时该范围是巨大的)缩小为 一列活动的或者您感兴趣的主机。扫描每个IP的每个端口很慢，通常也没必要。 当然，什么样的主机令您感兴趣主要依赖于扫描的目的。网管也许只对运行特定服务的 主机感兴趣，而从事安全的人士则可能对一个马桶都感兴趣，只要它有IP地址:\-)。一个系统管理员 也许仅仅使用Ping来定位内网上的主机，而一个外部入侵测试人员则可能绞尽脑汁用各种方法试图 突破防火墙的封锁。
 .PP
-由于主机发现的需求五花八门，Nmap提供了一箩筐的选项来定制您的需求。 主机发现有时候也叫做ping扫描，但它远远超越用世人皆知的ping工具 发送简单的ICMP回声请求报文。用户完全可以通过使用列表扫描(\fB\-sL\fR)或者 通过关闭ping (\fB\-P0\fR)跳过ping的步骤，也可以使用多个端口把TPC SYN/ACK，UDP和ICMP 任意组合起来玩一玩。这些探测的目的是获得响应以显示某个IP地址是否是活动的(正在被某 主机或者网络设备使用)。 在许多网络上，在给定的时间，往往只有小部分的IP地址是活动的。 这种情况在基于RFC1918的私有地址空间如10\.0\.0\.0/8尤其普遍。 那个网络有16,000,000个IP，但我见过一些使用它的公司连1000台机器都没有。 主机发现能够找到零星分布于IP地址海洋上的那些机器。
+由于主机发现的需求五花八门，Nmap提供了一箩筐的选项来定制您的需求。 主机发现有时候也叫做ping扫描，但它远远超越用世人皆知的ping工具 发送简单的ICMP回声请求报文。用户完全可以通过使用列表扫描(\fB\-sL\fR)或者 通过关闭ping (\fB\-P0\fR)跳过ping的步骤，也可以使用多个端口把TPC SYN/ACK，UDP和ICMP 任意组合起来玩一玩。这些探测的目的是获得响应以显示某个IP地址是否是活动的(正在被某 主机或者网络设备使用)。 在许多网络上，在给定的时间，往往只有小部分的IP地址是活动的。 这种情况在基于RFC1918的私有地址空间如10\&.0\&.0\&.0/8尤其普遍。 那个网络有16,000,000个IP，但我见过一些使用它的公司连1000台机器都没有。 主机发现能够找到零星分布于IP地址海洋上的那些机器。
 .PP
 如果没有给出主机发现的选项，Nmap 就发送一个TCP ACK报文到80端口和一个ICMP回声请求到每台目标机器。 一个例外是ARP扫描用于局域网上的任何目标机器。对于非特权UNIX shell用户，使用\fBconnect()\fR系统调用会发送一个SYN报文而不是ACK 这些默认行为和使用\fB\-PA \-PE\fR选项的效果相同。 扫描局域网时，这种主机发现一般够用了，但是对于安全审核，建议进行 更加全面的探测。
 .PP
@@ -232,7 +248,7 @@ Nmap命令行接受多个主机说明，它们不必是相同类型。命令\fBn
 \fB\-sL\fR (列表扫描)
 .RS 4
 列表扫描是主机发现的退化形式，它仅仅列出指定网络上的每台主机， 不发送任何报文到目标主机。默认情况下，Nmap仍然对主机进行反向域名解析以获取 它们的名字。简单的主机名能给出的有用信息常常令人惊讶。例如，
-fw\.chi\.playboy\.com是花花公子芝加哥办公室的 防火墙。Nmap最后还会报告IP地址的总数。列表扫描可以很好的确保您拥有正确的目标IP。 如果主机的域名出乎您的意料，那么就值得进一步检查以防错误地扫描其它组织的网络。
+fw\&.chi\&.playboy\&.com是花花公子芝加哥办公室的 防火墙。Nmap最后还会报告IP地址的总数。列表扫描可以很好的确保您拥有正确的目标IP。 如果主机的域名出乎您的意料，那么就值得进一步检查以防错误地扫描其它组织的网络。
 .sp
 既然只是打印目标主机的列表，像其它一些高级功能如端口扫描，操作系统探测或者Ping扫描 的选项就没有了。如果您希望关闭ping扫描而仍然执行这样的高级功能，请继续阅读关于
 \fB\-P0\fR选项的介绍。
@@ -258,7 +274,7 @@ fw\.chi\.playboy\.com是花花公子芝加哥办公室的 防火墙。Nmap最后
 .PP
 \fB\-PS [portlist]\fR (TCP SYN Ping)
 .RS 4
-该选项发送一个设置了SYN标志位的空TCP报文。 默认目的端口为80 (可以通过改变\fInmap\.h\fR) 文件中的DEFAULT_TCP_PROBE_PORT值进行配置，但不同的端口也可以作为选项指定。 甚至可以指定一个以逗号分隔的端口列表(如
+该选项发送一个设置了SYN标志位的空TCP报文。 默认目的端口为80 (可以通过改变nmap\&.h) 文件中的DEFAULT_TCP_PROBE_PORT值进行配置，但不同的端口也可以作为选项指定。 甚至可以指定一个以逗号分隔的端口列表(如
 \fB\-PS22，23，25，80，113，1050，35000\fR)， 在这种情况下，每个端口会被并发地扫描。
 .sp
 SYN标志位告诉对方您正试图建立一个连接。 通常目标端口是关闭的，一个RST (复位) 包会发回来。 如果碰巧端口是开放的，目标会进行TCP三步握手的第二步，回应 一个SYN/ACK TCP报文。然后运行Nmap的机器则会扼杀这个正在建立的连接， 发送一个RST而非ACK报文，否则，一个完全的连接将会建立。 RST报文是运行Nmap的机器而不是Nmap本身响应的，因为它对收到 的SYN/ACK感到很意外。
@@ -287,7 +303,7 @@ TCP ACK ping和刚才讨论的SYN ping相当类似。 也许您已经猜到了�
 \fB\-PU [portlist]\fR (UDP Ping)
 .RS 4
 还有一个主机发现的选项是UDP ping，它发送一个空的(除非指定了\fB\-\-data\-length\fR
-UDP报文到给定的端口。端口列表的格式和前面讨论过的\fB\-PS\fR和\fB\-PA\fR选项还是一样。 如果不指定端口，默认是31338。该默认值可以通过在编译时改变\fInmap\.h\fR文件中的 DEFAULT_UDP_PROBE_PORT值进行配置。默认使用这样一个奇怪的端口是因为对开放端口 进行这种扫描一般都不受欢迎。
+UDP报文到给定的端口。端口列表的格式和前面讨论过的\fB\-PS\fR和\fB\-PA\fR选项还是一样。 如果不指定端口，默认是31338。该默认值可以通过在编译时改变nmap\&.h文件中的 DEFAULT_UDP_PROBE_PORT值进行配置。默认使用这样一个奇怪的端口是因为对开放端口 进行这种扫描一般都不受欢迎。
 .sp
 如果目标机器的端口是关闭的，UDP探测应该马上得到一个ICMP端口无法到达的回应报文。 这对于Nmap意味着该机器正在运行。 许多其它类型的ICMP错误，像主机/网络无法到达或者TTL超时则表示down掉的或者不可到达的主机。 没有回应也被这样解释。如果到达一个开放的端口，大部分服务仅仅忽略这个 空报文而不做任何回应。这就是为什么默认探测端口是31338这样一个 极不可能被使用的端口。少数服务如chargen会响应一个空的UDP报文， 从而向Nmap表明该机器正在运行。
 .sp
@@ -297,9 +313,9 @@ UDP报文到给定的端口。端口列表的格式和前面讨论过的\fB\-PS\
 \fB\-PE\fR; \fB\-PP\fR; \fB\-PM\fR (ICMP Ping Types)
 .RS 4
 除了前面讨论的这些不常见的TCP和UDP主机发现类型， Nmap也能发送世人皆知的ping
-程序所发送的报文。Nmap发送一个ICMP type 8 (回声请求)报文到目标IP地址， 期待从运行的主机得到一个type 0 (回声响应)报文。 对于网络探索者而言，不幸的是，许多主机和 防火墙现在封锁这些报文，而不是按期望的那样响应， 参见\fIRFC 1122\fR\&[3]。因此，仅仅ICMP扫描对于互联网上的目标通常是不够的。 但对于系统管理员监视一个内部网络，它们可能是实际有效的途径。 使用\fB\-PE\fR选项打开该回声请求功能。
+程序所发送的报文。Nmap发送一个ICMP type 8 (回声请求)报文到目标IP地址， 期待从运行的主机得到一个type 0 (回声响应)报文。 对于网络探索者而言，不幸的是，许多主机和 防火墙现在封锁这些报文，而不是按期望的那样响应， 参见\m[blue]\fBRFC 1122\fR\m[]\&\s-2\u[3]\d\s+2。因此，仅仅ICMP扫描对于互联网上的目标通常是不够的。 但对于系统管理员监视一个内部网络，它们可能是实际有效的途径。 使用\fB\-PE\fR选项打开该回声请求功能。
 .sp
-虽然回声请求是标准的ICMP ping查询， Nmap并不止于此。ICMP标准 (\fIRFC 792\fR\&[4])还规范了时间戳请求，信息请求 request，和地址掩码请求，它们的代码分别是13，15和17。 虽然这些查询的表面目的是获取信息如地址掩码和当前时间， 它们也可以很容易地用于主机发现。 很简单，回应的系统就是在运行的系统。Nmap目前没有实现信息请求报文， 因为它们还没有被广泛支持。RFC 1122 坚持
+虽然回声请求是标准的ICMP ping查询， Nmap并不止于此。ICMP标准 (\m[blue]\fBRFC 792\fR\m[]\&\s-2\u[4]\d\s+2)还规范了时间戳请求，信息请求 request，和地址掩码请求，它们的代码分别是13，15和17。 虽然这些查询的表面目的是获取信息如地址掩码和当前时间， 它们也可以很容易地用于主机发现。 很简单，回应的系统就是在运行的系统。Nmap目前没有实现信息请求报文， 因为它们还没有被广泛支持。RFC 1122 坚持
 \(lq主机不应该实现这些消息\(rq。 时间戳和地址掩码查询可以分别用\fB\-PP\fR和\fB\-PM\fR选项发送。 时间戳响应(ICMP代码14)或者地址掩码响应(代码18)表示主机在运行。 当管理员特别封锁了回声请求报文而忘了其它ICMP查询可能用于 相同目的时，这两个查询可能很有价值。
 .RE
 .PP
@@ -404,14 +420,14 @@ connect()调用比对原始报文控制更少， 所以前者效率较低。 该
 .PP
 \fB\-sU\fR (UDP扫描)
 .RS 4
-虽然互联网上很多流行的服务运行在TCP 协议上，\fIUDP\fR\&[5]服务也不少。 DNS，SNMP，和DHCP (注册的端口是53，161/162，和67/68)是最常见的三个。 因为UDP扫描一般较慢，比TCP更困难，一些安全审核人员忽略这些端口。 这是一个错误，因为可探测的UDP服务相当普遍，攻击者当然不会忽略整个协议。 所幸，Nmap可以帮助记录并报告UDP端口。
+虽然互联网上很多流行的服务运行在TCP 协议上，\m[blue]\fBUDP\fR\m[]\&\s-2\u[5]\d\s+2服务也不少。 DNS，SNMP，和DHCP (注册的端口是53，161/162，和67/68)是最常见的三个。 因为UDP扫描一般较慢，比TCP更困难，一些安全审核人员忽略这些端口。 这是一个错误，因为可探测的UDP服务相当普遍，攻击者当然不会忽略整个协议。 所幸，Nmap可以帮助记录并报告UDP端口。
 .sp
 UDP扫描用\fB\-sU\fR选项激活。它可以和TCP扫描如 SYN扫描 (\fB\-sS\fR)结合使用来同时检查两种协议。
 .sp
 UDP扫描发送空的(没有数据)UDP报头到每个目标端口。 如果返回ICMP端口不可到达错误(类型3，代码3)， 该端口是closed(关闭的)。 其它ICMP不可到达错误(类型3， 代码1，2，9，10，或者13)表明该端口是filtered(被过滤的)。 偶尔地，某服务会响应一个UDP报文，证明该端口是open(开放的)。 如果几次重试后还没有响应，该端口就被认为是
 open|filtered(开放|被过滤的)。 这意味着该端口可能是开放的，也可能包过滤器正在封锁通信。 可以用版本扫描(\fB\-sV\fR)帮助区分真正的开放端口和被过滤的端口。
 .sp
-UDP扫描的巨大挑战是怎样使它更快速。 开放的和被过滤的端口很少响应，让Nmap超时然后再探测，以防探测帧或者 响应丢失。关闭的端口常常是更大的问题。 它们一般发回一个ICMP端口无法到达错误。但是不像关闭的TCP端口响应SYN或者Connect 扫描所发送的RST报文，许多主机在默认情况下限制ICMP端口不可到达消息。 Linux和Solaris对此特别严格。例如， Linux 2\.4\.20内核限制一秒钟只发送一条目标不可到达消息 (见\fInet/ipv4/icmp。c\fR)。
+UDP扫描的巨大挑战是怎样使它更快速。 开放的和被过滤的端口很少响应，让Nmap超时然后再探测，以防探测帧或者 响应丢失。关闭的端口常常是更大的问题。 它们一般发回一个ICMP端口无法到达错误。但是不像关闭的TCP端口响应SYN或者Connect 扫描所发送的RST报文，许多主机在默认情况下限制ICMP端口不可到达消息。 Linux和Solaris对此特别严格。例如， Linux 2\&.4\&.20内核限制一秒钟只发送一条目标不可到达消息 (见net/ipv4/icmp。c)。
 .sp
 Nmap探测速率限制并相应地减慢来避免用那些目标机会丢弃的无用报文来阻塞 网络。不幸的是，Linux式的一秒钟一个报文的限制使65,536个端口的扫描要花 18小时以上。加速UDP扫描的方法包括并发扫描更多的主机，先只对主要端口进行快速 扫描，从防火墙后面扫描，使用\fB\-\-host\-timeout\fR跳过慢速的 主机。
 .RE
@@ -420,9 +436,9 @@ Nmap探测速率限制并相应地减慢来避免用那些目标机会丢弃的�
 .RS 4
 这三种扫描类型 (甚至用下一节描述的
 \fB\-\-scanflags\fR
-选项的更多类型) 在\fITCP RFC\fR\&[6]
+选项的更多类型) 在\m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[6]\d\s+2
 中发掘了一个微妙的方法来区分open(开放的)和
-closed(关闭的)端口。第65页说\(lq如果 [目标]端口状态是关闭的\.\.\.\. 进入的不含RST的报文导致一个RST响应。\(rq
+closed(关闭的)端口。第65页说\(lq如果 [目标]端口状态是关闭的\&.\&.\&.\&. 进入的不含RST的报文导致一个RST响应。\(rq
 接下来的一页 讨论不设置SYN，RST，或者ACK位的报文发送到开放端口:
 \(lq理论上，这不应该发生，如果您确实收到了，丢弃该报文，返回。 \(rq
 .sp
@@ -498,7 +514,7 @@ open|filtered。 除了使用您指定的TCP标记位，Nmap会和基本扫描�
 .PP
 \fB\-sI <zombie host[:probeport]>\fR (Idlescan)
 .RS 4
-这种高级的扫描方法允许对目标进行真正的TCP端口盲扫描 (意味着没有报文从您的真实IP地址发送到目标)。相反，side\-channel攻击 利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。 IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文， 发布在\fI\%http://nmap.org/book/idlescan。html\fR。
+这种高级的扫描方法允许对目标进行真正的TCP端口盲扫描 (意味着没有报文从您的真实IP地址发送到目标)。相反，side\-channel攻击 利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。 IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文， 发布在\m[blue]\fB\%http://nmap.org/book/idlescan。html\fR\m[]。
 .sp
 除了极端隐蔽(由于它不从真实IP地址发送任何报文)， 该扫描类型可以建立机器间的基于IP的信任关系。 端口列表\fI从zombie 主机的角度。\fR显示开放的端口。 因此您可以尝试用您认为(通过路由器/包过滤规则)可能被信任的 zombies扫描目标。
 .sp
@@ -523,7 +539,7 @@ open
 .PP
 \fB\-b <ftp relay host>\fR (FTP弹跳扫描)
 .RS 4
-FTP协议的一个有趣特征(\fIRFC 959\fR\&[7]) 是支持所谓代理ftp连接。它允许用户连接到一台FTP服务器，然后要求文件送到一台第三方服务器。 这个特性在很多层次上被滥用，所以许多服务器已经停止支持它了。其中一种就是导致FTP服务器对其它主机端口扫描。 只要请求FTP服务器轮流发送一个文件到目标主机上的所感兴趣的端口。 错误消息会描述端口是开放还是关闭的。 这是绕过防火墙的好方法，因为FTP服务器常常被置于可以访问比Web主机更多其它内部主机的位置。 Nmap用\fB\-b\fR选项支持ftp弹跳扫描。参数格式是
+FTP协议的一个有趣特征(\m[blue]\fBRFC 959\fR\m[]\&\s-2\u[7]\d\s+2) 是支持所谓代理ftp连接。它允许用户连接到一台FTP服务器，然后要求文件送到一台第三方服务器。 这个特性在很多层次上被滥用，所以许多服务器已经停止支持它了。其中一种就是导致FTP服务器对其它主机端口扫描。 只要请求FTP服务器轮流发送一个文件到目标主机上的所感兴趣的端口。 错误消息会描述端口是开放还是关闭的。 这是绕过防火墙的好方法，因为FTP服务器常常被置于可以访问比Web主机更多其它内部主机的位置。 Nmap用\fB\-b\fR选项支持ftp弹跳扫描。参数格式是
 \fIusername\fR:\fIpassword\fR@\fIserver\fR:\fIport\fR。
 \fIServer\fR
 是某个脆弱的FTP服务器的名字或者IP地址。 您也许可以省略\fIusername\fR:\fIpassword\fR， 如果服务器上开放了匿名用户(user:anonymous
@@ -533,7 +549,7 @@ password:\-wwwuser@)。 端口号(以及前面的冒号) 也可以省略，如�
 .RE
 .SH "端口说明和扫描顺序"
 .PP
-除了所有前面讨论的扫描方法， Nmap提供选项说明那些端口被扫描以及扫描是随机还是顺序进行。 默认情况下，Nmap用指定的协议对端口1到1024以及\fInmap\-services\fR
+除了所有前面讨论的扫描方法， Nmap提供选项说明那些端口被扫描以及扫描是随机还是顺序进行。 默认情况下，Nmap用指定的协议对端口1到1024以及nmap\-services
 文件中列出的更高的端口在扫描。
 .PP
 \fB\-p <port ranges>\fR (只扫描指定的端口)
@@ -553,8 +569,8 @@ password:\-wwwuser@)。 端口号(以及前面的冒号) 也可以省略，如�
 .PP
 \fB\-F\fR (快速 (有限的端口) 扫描)
 .RS 4
-在nmap的\fInmap\-services\fR
-文件中(对于\fB\-sO\fR，是协议文件)指定您想要扫描的端口。 这比扫描所有65535个端口快得多。 因为该列表包含如此多的TCP端口(1200多)，这和默认的TCP扫描 scan (大约1600个端口)速度差别不是很大。如果您用\fB\-\-datadir\fR选项指定您自己的 小小的\fInmap\-services\fR文件 ，差别会很惊人。
+在nmap的nmap\-services
+文件中(对于\fB\-sO\fR，是协议文件)指定您想要扫描的端口。 这比扫描所有65535个端口快得多。 因为该列表包含如此多的TCP端口(1200多)，这和默认的TCP扫描 scan (大约1600个端口)速度差别不是很大。如果您用\fB\-\-datadir\fR选项指定您自己的 小小的nmap\-services文件 ，差别会很惊人。
 .RE
 .PP
 \fB\-r\fR (不要按随机顺序扫描端口)
@@ -564,17 +580,17 @@ password:\-wwwuser@)。 端口号(以及前面的冒号) 也可以省略，如�
 .SH "服务和版本探测"
 .PP
 把Nmap指向一个远程机器，它可能告诉您 端口25/tcp，80/tcp，和53/udp是开放的。使用包含大约2,200个著名的服务的
-\fInmap\-services\fR数据库， Nmap可以报告那些端口可能分别对应于一个邮件服务器 (SMTP)，web服务器(HTTP)，和域名服务器(DNS)。 这种查询通常是正确的 \-\- 事实上，绝大多数在TCP端口25监听的守护进程是邮件 服务器。然而，您不应该把赌注押在这上面! 人们完全可以在一些奇怪的端口上运行服务。
+nmap\-services数据库， Nmap可以报告那些端口可能分别对应于一个邮件服务器 (SMTP)，web服务器(HTTP)，和域名服务器(DNS)。 这种查询通常是正确的 \-\- 事实上，绝大多数在TCP端口25监听的守护进程是邮件 服务器。然而，您不应该把赌注押在这上面! 人们完全可以在一些奇怪的端口上运行服务。
 .PP
 即使Nmap是对的，假设运行服务的确实是 SMTP，HTTP和DNS，那也不是特别多的信息。 当为您的公司或者客户作安全评估(或者甚至简单的网络明细清单)时， 您确实想知道正在运行什么邮件和域名服务器以及它们的版本。 有一个精确的版本号对了解服务器有什么漏洞有巨大帮助。 版本探测可以帮您获得该信息。
 .PP
 在用某种其它类型的扫描方法发现TCP 和/或者UDP端口后， 版本探测会询问这些端口，确定到底什么服务正在运行。
-\fInmap\-service\-probes\fR
+nmap\-service\-probes
 数据库包含查询不同服务的探测报文 和解析识别响应的匹配表达式。 Nmap试图确定服务协议 (如 ftp，ssh，telnet，http)，应用程序名(如ISC Bind，Apache httpd，Solaris telnetd)，版本号， 主机名，设备类型(如 打印机，路由器)，操作系统家族 (如Windows，Linux)以及其它的细节，如 如是否可以连接X server，SSH协议版本 ，或者KaZaA用户名)。当然，并非所有服务都提供所有这些信息。 如果Nmap被编译成支持OpenSSL， 它将连接到SSL服务器，推测什么服务在加密层后面监听。 当发现RPC服务时， Nmap RPC grinder (\fB\-sR\fR)会自动被用于确定RPC程序和它的版本号。 如果在扫描某个UDP端口后仍然无法确定该端口是开放的还是被过滤的，那么该端口状态就 被标记为open|filtered。 版本探测将试图从这些端口引发一个响应(就像它对开放端口做的一样)， 如果成功，就把状态改为开放。
 open|filtered
 TCP端口用同样的方法对待。 注意Nmap
 \fB\-A\fR选项在其它情况下打开版本探测。 有一篇关于版本探测的原理，使用和定制的文章在
-\fI\%http://www.insecure.org/nmap/vscan/\fR。
+\m[blue]\fB\%http://www.insecure.org/nmap/vscan/\fR\m[]。
 .PP
 当Nmap从某个服务收到响应，但不能在数据库中找到匹配时， 它就打印一个特殊的fingerprint和一个URL给您提交，如果您确实知道什么服务运行在端口。 请花两分钟提交您的发现，让每个人受益。由于这些提交， Nmap有350种以上协议如smtp，ftp，http等的大约3，000条模式匹配。
 .PP
@@ -587,13 +603,13 @@ TCP端口用同样的方法对待。 注意Nmap
 .PP
 \fB\-\-allports\fR (不为版本探测排除任何端口)
 .RS 4
-默认情况下，Nmap版本探测会跳过9100 TCP端口，因为一些打印机简单地打印送到该端口的 任何数据，这回导致数十页HTTP get请求，二进制 SSL会话请求等等被打印出来。这一行为可以通过修改或删除\fInmap\-service\-probes\fR
+默认情况下，Nmap版本探测会跳过9100 TCP端口，因为一些打印机简单地打印送到该端口的 任何数据，这回导致数十页HTTP get请求，二进制 SSL会话请求等等被打印出来。这一行为可以通过修改或删除nmap\-service\-probes
 中的Exclude指示符改变， 您也可以不理会任何Exclude指示符，指定\fB\-\-allports\fR扫描所有端口
 .RE
 .PP
 \fB\-\-version\-intensity <intensity>\fR (设置 版本扫描强度)
 .RS 4
-当进行版本扫描(\fB\-sV\fR)时，nmap发送一系列探测报文 ，每个报文都被赋予一个1到9之间的值。 被赋予较低值的探测报文对大范围的常见服务有效，而被赋予较高值的报文 一般没什么用。强度水平说明了应该使用哪些探测报文。数值越高， 服务越有可能被正确识别。 然而，高强度扫描花更多时间。强度值必须在0和9之间。 默认是7。当探测报文通过\fInmap\-service\-probes\fR
+当进行版本扫描(\fB\-sV\fR)时，nmap发送一系列探测报文 ，每个报文都被赋予一个1到9之间的值。 被赋予较低值的探测报文对大范围的常见服务有效，而被赋予较高值的报文 一般没什么用。强度水平说明了应该使用哪些探测报文。数值越高， 服务越有可能被正确识别。 然而，高强度扫描花更多时间。强度值必须在0和9之间。 默认是7。当探测报文通过nmap\-service\-probes
 ports指示符 注册到目标端口时，无论什么强度水平，探测报文都会被尝试。这保证了DNS 探测将永远在任何开放的53端口尝试， SSL探测将在443端口尝试，等等。
 .RE
 .PP
@@ -619,14 +635,14 @@ ports指示符 注册到目标端口时，无论什么强度水平，探测报�
 .RE
 .SH "操作系统探测"
 .PP
-Nmap最著名的功能之一是用TCP/IP协议栈fingerprinting进行远程操作系统探测。 Nmap发送一系列TCP和UDP报文到远程主机，检查响应中的每一个比特。 在进行一打测试如TCP ISN采样，TCP选项支持和排序，IPID采样，和初始窗口大小检查之后， Nmap把结果和数据库\fInmap\-os\-fingerprints\fR中超过 1500个已知的操作系统的fingerprints进行比较，如果有匹配，就打印出操作系统的详细信息。 每个fingerprint包括一个自由格式的关于OS的描述文本， 和一个分类信息，它提供供应商名称(如Sun)，下面的操作系统(如Solaris)，OS版本(如10)， 和设备类型(通用设备，路由器，switch，游戏控制台， 等)。
+Nmap最著名的功能之一是用TCP/IP协议栈fingerprinting进行远程操作系统探测。 Nmap发送一系列TCP和UDP报文到远程主机，检查响应中的每一个比特。 在进行一打测试如TCP ISN采样，TCP选项支持和排序，IPID采样，和初始窗口大小检查之后， Nmap把结果和数据库nmap\-os\-fingerprints中超过 1500个已知的操作系统的fingerprints进行比较，如果有匹配，就打印出操作系统的详细信息。 每个fingerprint包括一个自由格式的关于OS的描述文本， 和一个分类信息，它提供供应商名称(如Sun)，下面的操作系统(如Solaris)，OS版本(如10)， 和设备类型(通用设备，路由器，switch，游戏控制台， 等)。
 .PP
 如果Nmap不能猜出操作系统，并且有些好的已知条件(如 至少发现了一个开放端口和一个关闭端口)，Nmap会提供一个 URL，如果您确知运行的操作系统，您可以把fingerprint提交到那个URL。 这样您就扩大了Nmap的操作系统知识库，从而让每个Nmap用户都受益。
 .PP
 操作系统检测可以进行其它一些测试，这些测试可以利用处理 过程中收集到的信息。例如运行时间检测，使用TCP时间戳选项(RFC 1323) 来估计主机上次重启的时间，这仅适用于提供这类信息的主机。另一种 是TCP序列号预测分类，用于测试针对远程主机建立一个伪造的TCP连接 的可能难度。这对于利用基于源IP地址的可信关系(rlogin，防火墙过滤等) 或者隐含源地址的攻击非常重要。这一类哄骗攻击现在很少见，但一些 主机仍然存在这方面的漏洞。实际的难度值基于统计采样，因此可能会有 一些波动。通常采用英国的分类较好，如\(lqworthy challenge\(rq或者
 \(lqtrivial joke\(rq。在详细模式(\fB\-v\fR)下只以 普通的方式输出，如果同时使用\fB\-O\fR，还报告IPID序列产生号。 很多主机的序列号是\(lq增加\(rq类别，即在每个发送包的IP头中 增加ID域值， 这对一些先进的信息收集和哄骗攻击来说是个漏洞。
 .PP
-\fI\%http://www.insecure.org/nmap/osdetect/\fR
+\m[blue]\fB\%http://www.insecure.org/nmap/osdetect/\fR\m[]
 文档使用多种语言描述了版本检测的方式、使用和定制。
 .PP
 采用下列选项启用和控制操作系统检测:
@@ -714,7 +730,7 @@ Nmap使用一个运行超时值来确定等待探测报文响应的时间，随�
 .sp
 虽然\fB\-T0\fR和\fB\-T1\fR选项可能有助于避免IDS告警，但 在进行上千个主机或端口扫描时，会显著增加时间。对于这种长时间的扫描，宁可设定确切的时间 值，而不要去依赖封装的\fB\-T0\fR和\fB\-T1\fR选项。
 .sp
-\fBT0\fR选项的主要影响是对于连续扫描，在一个时间只能扫描一个端口， 每个探测报文的发送间隔为5分钟。\fBT1\fR和\fBT2\fR选项比较类似， 探测报文间隔分别为15秒和0\.4秒。\fBT3\fR是Nmap的默认选项，包含了并行扫描。
+\fBT0\fR选项的主要影响是对于连续扫描，在一个时间只能扫描一个端口， 每个探测报文的发送间隔为5分钟。\fBT1\fR和\fBT2\fR选项比较类似， 探测报文间隔分别为15秒和0\&.4秒。\fBT3\fR是Nmap的默认选项，包含了并行扫描。
 \fBT4\fR选项与
 \fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500\fR
 等价，最大TCP扫描延迟为10ms。\fBT5\fR等价于
@@ -737,7 +753,7 @@ Nmap不提供检测和破坏防火墙及IDS系统的魔弹(或Nmap选项)，它�
 \fB\-f\fR选项要求扫描时(包挺ping扫描)使用 小的IP包分段。其思路是将TCP头分段在几个包中，使得包过滤器、 IDS以及其它工具的检测更加困难。必须小心使用这个选项，有些系 统在处理这些小包时存在问题，例如旧的网络嗅探器Sniffit在接收 到第一个分段时会立刻出现分段错误。该选项使用一次，Nmap在IP 头后将包分成8个字节或更小。因此，一个20字节的TCP头会被分成3个 包，其中2个包分别有TCP头的8个字节，另1个包有TCP头的剩下4个字 节。当然，每个包都有一个IP头。再次使用\fB\-f\fR可使用 16字节的分段(减少分段数量)。使用\fB\-\-mtu\fR选项可 以自定义偏移的大小，使用时不需要\fB\-f\fR，偏移量必须 是8的倍数。包过滤器和防火墙对所有的IP分段排队，如Linux核心中的 CONFIG_IP_ALWAYS_DEFRAG配置项，分段包不会直接使用。一些网络无法 承受这样所带来的性能冲击，会将这个配置禁止。其它禁止的原因有分段 包会通过不同的路由进入网络。一些源系统在内核中对发送的报文进行 分段，使用iptables连接跟踪模块的Linux就是一个例子。当使用类似Ethereal 的嗅探器时，扫描必须保证发送的报文要分段。如果主机操作系统会产 生问题，尝试使用\fB\-\-send\-eth\fR选项以避开IP层而直接 发送原始的以太网帧。
 .RE
 .PP
-\fB\-D <decoy1 [，decoy2][，ME]，\.\.\.>\fR (使用诱饵隐蔽扫描)
+\fB\-D <decoy1 [，decoy2][，ME]，\&.\&.\&.>\fR (使用诱饵隐蔽扫描)
 .RS 4
 为使诱饵扫描起作用，需要使远程主机认为是诱饵在扫描目标网络。 IDS可能会报个某个IP的5\-10个端口扫描，但并不知道哪个IP在扫描以及 哪些不是诱饵。但这种方式可以通过路由跟踪、响应丢弃以及其它主动 机制在解决。这是一种常用的隐藏自身IP地址的有效技术。
 .sp
@@ -770,7 +786,7 @@ ME选项说明。如果在第6个位置或 更后的位置使用ME选项，一�
 .sp
 对这些问题有安全解决方案，通常是应用级代理或协议分析防火墙模块。 但也存在一些不安全的方案。注意到DNS响应来自于53端口，FTP连接 来自于20端口，很多管理员会掉入一个陷阱，即允许来自于这些端口的数据进入 网络。他们认为这些端口里不会有值得注意的攻击和漏洞利用。此外，管理员 或许认为这是一个短期的措施，直至他们采取更安全的方案。但他们忽视了安全的 升级。
 .sp
-不仅仅是工作量过多的网络管理员掉入这种陷阱，很多产品本身也会有这类 不安全的隐患，甚至是微软的产品。Windows 2000和Windows XP中包含的IPsec过滤 器也包含了一些隐含规则，允许所有来自88端口(Kerberos)的TCP和UDP数据流。另 一个常见的例子是Zone Alarm个人防火墙到2\.1\.25版本仍然允许源端口53(DNS)或 67(DHCP)的UDP包进入。
+不仅仅是工作量过多的网络管理员掉入这种陷阱，很多产品本身也会有这类 不安全的隐患，甚至是微软的产品。Windows 2000和Windows XP中包含的IPsec过滤 器也包含了一些隐含规则，允许所有来自88端口(Kerberos)的TCP和UDP数据流。另 一个常见的例子是Zone Alarm个人防火墙到2\&.1\&.25版本仍然允许源端口53(DNS)或 67(DHCP)的UDP包进入。
 .sp
 Nmap提供了\fB\-g\fR和\fB\-\-source\-port\fR选项(它们是 等价的)，用于利用上述弱点。只需要提供一个端口号，Nmap就可以从这些 端口发送数据。为使特定的操作系统正常工作，Nmap必须使用不同的端口号。 DNS请求会忽略\fB\-\-source\-port\fR选项，这是因为Nmap依靠系 统库来处理。大部分TCP扫描，包括SYN扫描，可以完全支持这些选项，UDP扫 描同样如此。
 .RE
@@ -787,16 +803,16 @@ Nmap提供了\fB\-g\fR和\fB\-\-source\-port\fR选项(它们是 等价的)，用
 .PP
 \fB\-\-randomize\-hosts\fR (对目标主机的顺序随机排列)
 .RS 4
-告诉Nmap在扫描主机前对每个组中的主机随机排列，最多可达 8096个主机。这会使得扫描针对不同的网络监控系统来说变得不是很 明显，特别是配合值较小的时间选项时更有效。如果需要对一个较大 的组进行随机排列，需要增大\fInmap\.h\fR文件中 PING_GROUP_SZ的值，并重新编译。另一种方法是使用列表扫描 (\fB\-sL \-n \-oN \fR\fB\fIfilename\fR\fR)，产生目标IP的列表， 使用Perl脚本进行随机化，然后使用\fB\-iL\fR提供给Nmap。
+告诉Nmap在扫描主机前对每个组中的主机随机排列，最多可达 8096个主机。这会使得扫描针对不同的网络监控系统来说变得不是很 明显，特别是配合值较小的时间选项时更有效。如果需要对一个较大 的组进行随机排列，需要增大nmap\&.h文件中 PING_GROUP_SZ的值，并重新编译。另一种方法是使用列表扫描 (\fB\-sL \-n \-oN \fR\fB\fIfilename\fR\fR)，产生目标IP的列表， 使用Perl脚本进行随机化，然后使用\fB\-iL\fR提供给Nmap。
 .RE
 .PP
 \fB\-\-spoof\-mac <mac address，prefix，or vendor name>\fR (MAC地址哄骗)
 .RS 4
 要求Nmap在发送原以太网帧时使用指定的MAC地址，这个选项隐含了
-\fB\-\-send\-eth\fR选项，以保证Nmap真正发送以太网包。MAC地址有几 种格式。如果简单地使用字符串\(lq0\(rq，Nmap选择一个完全随机的MAC 地址。如果给定的字符品是一个16进制偶数(使用:分隔)，Nmap将使用这个MAC地址。 如果是小于12的16进制数字，Nmap会随机填充剩下的6个字节。如果参数不是0或16进 制字符串，Nmap将通过\fInmap\-mac\-prefixes\fR查找 厂商的名称(大小写区分)，如果找到匹配，Nmap将使用厂商的OUI(3字节前缀)，然后 随机填充剩余的3个节字。正确的\fB\-\-spoof\-mac\fR参数有，
+\fB\-\-send\-eth\fR选项，以保证Nmap真正发送以太网包。MAC地址有几 种格式。如果简单地使用字符串\(lq0\(rq，Nmap选择一个完全随机的MAC 地址。如果给定的字符品是一个16进制偶数(使用:分隔)，Nmap将使用这个MAC地址。 如果是小于12的16进制数字，Nmap会随机填充剩下的6个字节。如果参数不是0或16进 制字符串，Nmap将通过nmap\-mac\-prefixes查找 厂商的名称(大小写区分)，如果找到匹配，Nmap将使用厂商的OUI(3字节前缀)，然后 随机填充剩余的3个节字。正确的\fB\-\-spoof\-mac\fR参数有，
 Apple，
 0，01:02:03:04:05:06，
-deadbeefcafe，0020F2， 和Cisco\.
+deadbeefcafe，0020F2， 和Cisco\&.
 .RE
 .SH "输出"
 .PP
@@ -812,14 +828,14 @@ XML输出是最重要的输出类型，可被转换成HTML，对于程序处理�
 另两种输出类型比较简单，grepable output格式，在一行中包含目标主机最多的信息；sCRiPt KiDDi3 0utPUt
 格式，用于考虑自己的用户 |<\-r4d。
 .PP
-交互式输出是默认方式，没有相应的命令行选项，其它四种格式选项 使用相同的语法，采用一个参数，即存放结果的文件名。多种格式可同时 使用，但一种格式只能使用一次。例如，在标准输出用于查看的同时，可将结 果保存到XML文件用于程序分析，这时可以使用选项\fB\-oX myscan\.xml \-oN myscan\.nmap\fR。 为便于描述的简化，本章使用类似于myscan\.xml的简单文件名， 建议采用更具有描述性的文件名。文件名的选择与个人喜好有关，建议增加 扫描日期以及一到两个单词来描述，并放置于一个目录中。
+交互式输出是默认方式，没有相应的命令行选项，其它四种格式选项 使用相同的语法，采用一个参数，即存放结果的文件名。多种格式可同时 使用，但一种格式只能使用一次。例如，在标准输出用于查看的同时，可将结 果保存到XML文件用于程序分析，这时可以使用选项\fB\-oX myscan\&.xml \-oN myscan\&.nmap\fR。 为便于描述的简化，本章使用类似于myscan\&.xml的简单文件名， 建议采用更具有描述性的文件名。文件名的选择与个人喜好有关，建议增加 扫描日期以及一到两个单词来描述，并放置于一个目录中。
 .PP
-在将结果输出到文件的同时，Nmap仍将结果发送给标准输出。例如， 命令\fBnmap \-oX myscan\.xml target\fR将 输出XML至\fImyscan\.xml\fR，并在stdout 上打印相同的交互式结果，而此时\fB\-oX\fR选项没有采用。可以 使用连字符作为选项来改变，这使得Nmap禁止交互式输出，而是将结果打印到 所指定的标准输出流中。因此，命令\fBnmap \-oX \- target\fR只 输出XML至标准输出stdout。严重错误仍然是输出到标准错误流stderr中。
+在将结果输出到文件的同时，Nmap仍将结果发送给标准输出。例如， 命令\fBnmap \-oX myscan\&.xml target\fR将 输出XML至myscan\&.xml，并在stdout 上打印相同的交互式结果，而此时\fB\-oX\fR选项没有采用。可以 使用连字符作为选项来改变，这使得Nmap禁止交互式输出，而是将结果打印到 所指定的标准输出流中。因此，命令\fBnmap \-oX \- target\fR只 输出XML至标准输出stdout。严重错误仍然是输出到标准错误流stderr中。
 .PP
 与其它Nmap参数不同，日志文件选项的空格(如\fB\-oX\fR)和 文件名或连字符是必需的。如果省略了标记，例如\fB\-oG\-\fR或
-\fB\-oXscan\.xml\fR，Nmap的向后兼容特点将建立
-\fI标准格式\fR的输出文件，相应的文件名为\fIG\-\fR和
-\fIXscan\.xml\fR。
+\fB\-oXscan\&.xml\fR，Nmap的向后兼容特点将建立
+\fI标准格式\fR的输出文件，相应的文件名为G\-和
+Xscan\&.xml。
 .PP
 Nmap还提供了控制扫描细节以及输出文件的添加或覆盖的选项，这些选项 如下所述。
 .PP
@@ -834,12 +850,12 @@ Nmap还提供了控制扫描细节以及输出文件的添加或覆盖的选项�
 \fB\-oX <filespec>\fR (XML输出)
 .RS 4
 要求XML输出直接写入指定 的文件。Nmap包含了一个文档类型定义(DTD)，使XML解析器有效地 进行XML输出。这主要是为了程序应用，同时也可以协助人工解释 Nmap的XML输出。DTD定义了合法的格式元素，列举可使用的属性和 值。最新的版本可在
-\fI\%http://www.insecure.org/nmap/data/nmap.dtd\fR获取。
+\m[blue]\fB\%http://www.insecure.org/nmap/data/nmap.dtd\fR\m[]获取。
 .sp
-XML提供了可供软件解析的稳定格式输出，主要的计算机 语言都提供了免费的XML解析器，如C/C++，Perl，Python和Java。 针对这些语言有一些捆绑代码用于处理Nmap的输出和特定的执行程序。 例如perl CPAN中的\fINmap::Scanner\fR\&[8]
-和\fINmap::Parser\fR\&[9]。 对几乎所有与Nmap有接口的主要应用来说，XML是首选的格式。
+XML提供了可供软件解析的稳定格式输出，主要的计算机 语言都提供了免费的XML解析器，如C/C++，Perl，Python和Java。 针对这些语言有一些捆绑代码用于处理Nmap的输出和特定的执行程序。 例如perl CPAN中的\m[blue]\fBNmap::Scanner\fR\m[]\&\s-2\u[8]\d\s+2
+和\m[blue]\fBNmap::Parser\fR\m[]\&\s-2\u[9]\d\s+2。 对几乎所有与Nmap有接口的主要应用来说，XML是首选的格式。
 .sp
-XML输出引用了一个XSL样式表，用于格式化输出结果，类似于 HTML。最方便的方法是将XML输出加载到一个Web浏览器，如Firefox 或IE。由于\fInmap\.xsl\fR文件的绝对 路径，因此通常只能在运行了Nmap的机器上工作(或类似配置的机器)。 类似于任何支持Web机器的HTML文件，\fB\-\-stylesheet\fR
+XML输出引用了一个XSL样式表，用于格式化输出结果，类似于 HTML。最方便的方法是将XML输出加载到一个Web浏览器，如Firefox 或IE。由于nmap\&.xsl文件的绝对 路径，因此通常只能在运行了Nmap的机器上工作(或类似配置的机器)。 类似于任何支持Web机器的HTML文件，\fB\-\-stylesheet\fR
 选项可用于建立可移植的XML文件。
 .RE
 .PP
@@ -865,14 +881,14 @@ IPID和状态。
 拥有者，服务，
 SunRPCinfo和版本信息。
 .sp
-对于XML输出，本手册无法列举所有的格式，有关Nmap Grep输出的更详细信息可 查阅\fI\%http://www.unspecific.com/nmap-oG-output\fR。
+对于XML输出，本手册无法列举所有的格式，有关Nmap Grep输出的更详细信息可 查阅\m[blue]\fB\%http://www.unspecific.com/nmap-oG-output\fR\m[]。
 .RE
 .PP
 \fB\-oA <basename>\fR (输出至所有格式)
 .RS 4
 为使用方便，利用\fB\-oA\fR\fB\fIbasename\fR\fR选项 可将扫描结果以标准格式、XML格式和Grep格式一次性输出。分别存放在
-\fIbasename\fR\.nmap，\fIbasename\fR\.xml和
-\fIbasename\fR\.gnmap文件中。也可以在文件名前 指定目录名，如在UNIX中，使用\fI~/nmaplogs/foocorp/\fR， 在Window中，使用\fIc:\ehacking\esco\fR
+\fIbasename\fR\&.nmap，\fIbasename\fR\&.xml和
+\fIbasename\fR\&.gnmap文件中。也可以在文件名前 指定目录名，如在UNIX中，使用~/nmaplogs/foocorp/， 在Window中，使用c:\ehacking\esco
 on Windows。
 .RE
 .PP
@@ -919,8 +935,8 @@ on Windows。
 .PP
 \fB\-\-stylesheet <path or URL>\fR (设置XSL样式表，转换XML输出)
 .RS 4
-Nmap提从了XSL样式表\fInmap\.xsl\fR，用于查看 或转换XML输出至HTML。XML输出包含了一个xml\-stylesheet， 直接指向\fInmap\.xml\fR文件， 该文件由Nmap安装(或位于Windows当前工作目录)。在Web浏览器 中打开Nmap的XML输出时，将会在文件系统中寻找\fInmap\.xsl\fR文件， 并使用它输出结果。如果希望使用不同的样式表，将它作为
-\fB\-\-stylesheet\fR的参数，必段指明完整的路 径或URL，常见的调用方式是\fB\-\-stylesheet http://www\.insecure\.org/nmap/data/nmap\.xsl\fR。 这告诉浏览器从Insecire\.Org中加载最新的样式表。这使得 没安装Nmap(和\fInmap\.xsl\fR) 的机器中可以方便地查看结果。因此，URL更方便使用，本地文件系统 的nmap\.xsl用于默认方式。
+Nmap提从了XSL样式表nmap\&.xsl，用于查看 或转换XML输出至HTML。XML输出包含了一个xml\-stylesheet， 直接指向nmap\&.xml文件， 该文件由Nmap安装(或位于Windows当前工作目录)。在Web浏览器 中打开Nmap的XML输出时，将会在文件系统中寻找nmap\&.xsl文件， 并使用它输出结果。如果希望使用不同的样式表，将它作为
+\fB\-\-stylesheet\fR的参数，必段指明完整的路 径或URL，常见的调用方式是\fB\-\-stylesheet http://www\&.insecure\&.org/nmap/data/nmap\&.xsl\fR。 这告诉浏览器从Insecire\&.Org中加载最新的样式表。这使得 没安装Nmap(和nmap\&.xsl) 的机器中可以方便地查看结果。因此，URL更方便使用，本地文件系统 的nmap\&.xsl用于默认方式。
 .RE
 .PP
 \fB\-\-no_stylesheet\fR (忽略XML声明的XSL样式表)
@@ -937,7 +953,7 @@ xml\-stylesheet指示被忽略。
 从2002年起，Nmap提供对IPv6的一些主要特征的支持。ping扫描(TCP\-only)、 连接扫描以及版本检测都支持IPv6。除增加\fB\-6\fR选项外， 其它命令语法相同。当然，必须使用IPv6地址来替换主机名，如
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0。 除\(lq所关注的端口\(rq行的地址部分为IPv6地址。
 .sp
-IPv6目前未在全球广泛采用，目前在一些国家(亚洲)应用较多， 一些高级操作系统支持IPv6。使用Nmap的IPv6功能，扫描的源和目 的都需要配置IPv6。如果ISP(大部分)不分配IPv6地址，Nmap可以采用 免费的隧道代理。一种较好的选择是BT Exact，位于\fI\%https://tb.ipv6.btexact.com/\fR。 此外，还有Hurricane Electric，位于\fI\%http://ipv6tb.he.net/\fR。6to4隧道是 另一种常用的免费方法。
+IPv6目前未在全球广泛采用，目前在一些国家(亚洲)应用较多， 一些高级操作系统支持IPv6。使用Nmap的IPv6功能，扫描的源和目 的都需要配置IPv6。如果ISP(大部分)不分配IPv6地址，Nmap可以采用 免费的隧道代理。一种较好的选择是BT Exact，位于\m[blue]\fB\%https://tb.ipv6.btexact.com/\fR\m[]。 此外，还有Hurricane Electric，位于\m[blue]\fB\%http://ipv6tb.he.net/\fR\m[]。6to4隧道是 另一种常用的免费方法。
 .RE
 .PP
 \fB\-A\fR (激烈扫描模式选项)
@@ -948,14 +964,14 @@ IPv6目前未在全球广泛采用，目前在一些国家(亚洲)应用较多�
 \fB\-\-datadir <directoryname>\fR (说明用户Nmap数据文件位置)
 .RS 4
 Nmap在运行时从文件中获得特殊的数据，这些文件有
-\fInmap\-service\-probes\fR，
-\fInmap\-services\fR，
-\fInmap\-protocols\fR，
-\fInmap\-rpc\fR，
-\fInmap\-mac\-prefixes\fR和
-\fInmap\-os\-fingerprints\fR。Nmap首先 在\fB\-\-datadir\fR选项说明的目录中查找这些文件。 未找到的文件，将在BMAPDIR环境变量说明的目录中查找。 接下来是用于真正和有效UID的\fI~/\.nmap\fR
-或Nmap可执行代码的位置(仅Win32)；然后是是编译位置， 如\fI/usr/local/share/nmap\fR
-或\fI/usr/share/nmap\fR。 Nmap查找的最后一个位置是当前目录。
+nmap\-service\-probes，
+nmap\-services，
+nmap\-protocols，
+nmap\-rpc，
+nmap\-mac\-prefixes和
+nmap\-os\-fingerprints。Nmap首先 在\fB\-\-datadir\fR选项说明的目录中查找这些文件。 未找到的文件，将在BMAPDIR环境变量说明的目录中查找。 接下来是用于真正和有效UID的~/\&.nmap
+或Nmap可执行代码的位置(仅Win32)；然后是是编译位置， 如/usr/local/share/nmap
+或/usr/share/nmap。 Nmap查找的最后一个位置是当前目录。
 .RE
 .PP
 \fB\-\-send\-eth\fR (使用原以太网帧发送)
@@ -991,7 +1007,7 @@ Nmap在运行时从文件中获得特殊的数据，这些文件有
 .RE
 .SH "运行时的交互"
 .PP
-Nmap目前还不具有这个功能，本节内容可能会增加或删除。
+.\" Nmap目前还不具有这个功能，本节内容可能会增加或删除。
 .PP
 在执行Nmap时，所有的键盘敲击都被记录。这使得用户可以与 程序交互而不需要终止或重启。特定的键可改变选项，其它键会输出 一个有关扫描的状态消息。约定如下，\fI小写字母增加\fR
 打印量，\fI大写字母减少\fR打印量。
@@ -1017,31 +1033,31 @@ Nmap目前还不具有这个功能，本节内容可能会增加或删除。
 .sp
 Stats: 0:00:08 elapsed; 111 hosts completed (5 up)， 5 undergoing Service Scan
 .sp
-Service scan Timing: About 28\.00% done; ETC: 16:18 (0:00:15 remaining)
+Service scan Timing: About 28\&.00% done; ETC: 16:18 (0:00:15 remaining)
 .RE
 .SH "实例"
 .PP
 下面给出一些实例，简单的、复杂的到深奥的。为更具体，一 些例子使用了实际的IP地址和域名。在这些位置，可以使用\fI你自己网络\fR
 的地址/域名替换。注意，扫描其它网络不一定合法，一些网络管理员不愿看到 未申请过的扫描，会产生报怨。因此，先获得允许是最好的办法。
 .PP
-如果是为了测试，scanme\.nmap\.org
-允许被扫描。但仅允许使用Nmap扫描并禁止测试漏洞或进行DoS攻击。为 保证带宽，对该主机的扫描每天不要超过12次。如果这个免费扫描服务被 滥用，系统将崩溃而且Nmap将报告解析 指定的主机名/IP地址失败：scanme\.nmap\.org。这些免 费扫描要求也适用于scanme2\.nmap\.org、
-scanme3\.nmap\.org等等，虽然这些 主机目前还不存在。
+如果是为了测试，scanme\&.nmap\&.org
+允许被扫描。但仅允许使用Nmap扫描并禁止测试漏洞或进行DoS攻击。为 保证带宽，对该主机的扫描每天不要超过12次。如果这个免费扫描服务被 滥用，系统将崩溃而且Nmap将报告解析 指定的主机名/IP地址失败：scanme\&.nmap\&.org。这些免 费扫描要求也适用于scanme2\&.nmap\&.org、
+scanme3\&.nmap\&.org等等，虽然这些 主机目前还不存在。
 .PP
 
-\fBnmap \-v scanme\.nmap\.org\fR
+\fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
-这个选项扫描主机scanme\.nmap\.org中 所有的保留TCP端口。选项\fB\-v\fR启用细节模式。
+这个选项扫描主机scanme\&.nmap\&.org中 所有的保留TCP端口。选项\fB\-v\fR启用细节模式。
 .PP
 
-\fBnmap \-sS \-O scanme\.nmap\.org/24\fR
+\fBnmap \-sS \-O scanme\&.nmap\&.org/24\fR
 .PP
 进行秘密SYN扫描，对象为主机Saznme所在的\(lqC类\(rq网段 的255台主机。同时尝试确定每台工作主机的操作系统类型。因为进行SYN扫描 和操作系统检测，这个扫描需要有根权限。
 .PP
 
-\fBnmap \-sV \-p 22，53，110，143，4564 198\.116\.0\-255\.1\-127\fR
+\fBnmap \-sV \-p 22，53，110，143，4564 198\&.116\&.0\-255\&.1\-127\fR
 .PP
-进行主机列举和TCP扫描，对象为B类188\.116网段中255个8位子网。这 个测试用于确定系统是否运行了sshd、DNS、imapd或4564端口。如果这些端口 打开，将使用版本检测来确定哪种应用在运行。
+进行主机列举和TCP扫描，对象为B类188\&.116网段中255个8位子网。这 个测试用于确定系统是否运行了sshd、DNS、imapd或4564端口。如果这些端口 打开，将使用版本检测来确定哪种应用在运行。
 .PP
 
 \fBnmap \-v \-iR 100000 \-P0 \-p 80\fR
@@ -1049,88 +1065,123 @@ scanme3\.nmap\.org等等，虽然这些 主机目前还不存在。
 随机选择100000台主机扫描是否运行Web服务器(80端口)。由起始阶段 发送探测报文来确定主机是否工作非常浪费时间，而且只需探测主机的一个端口，因 此使用\fB\-P0\fR禁止对主机列表。
 .PP
 
-\fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\.xml \-oG logs/pb\-port80scan\.gnmap 216\.163\.128\.20/20\fR
+\fBnmap \-P0 \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 扫描4096个IP地址，查找Web服务器(不ping)，将结果以Grep和XML格式保存。
 .PP
 
-\fBhost \-l company\.com | cut \-d \-f 4 | nmap \-v \-iL \-\fR
+\fBhost \-l company\&.com | cut \-d \-f 4 | nmap \-v \-iL \-\fR
 .PP
-进行DNS区域传输，以发现company\.com中的主机，然后将IP地址提供给 Nmap。上述命令用于GNU/Linux \-\- 其它系统进行区域传输时有不同的命令。
+进行DNS区域传输，以发现company\&.com中的主机，然后将IP地址提供给 Nmap。上述命令用于GNU/Linux \-\- 其它系统进行区域传输时有不同的命令。
 .SH "BUGS"
 .PP
-和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写 补丁使其更加完善。如果Nmap不能满足要求，首先从\fI\%http://www.insecure.org/nmap/\fR
-升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否 已经被解决。在\fI\%http://seclists.org/\fR尝试搜索出错消息或 浏览Nmap\-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送 Bug报告至<nmap\-dev@insecure\.org>。在报告中包含所有 有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及 Nmap的使用问题发送给nmap\-dev@insecure\.org比直接发送给Gyodor能更好回答。
+和作者一样，Nmap也不是完美的，但可以通过发送Bug报告甚至编写 补丁使其更加完善。如果Nmap不能满足要求，首先从\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]
+升级最新版本。如果总问题仍然存在，需要进行调查以确定问题是否 已经被解决。在\m[blue]\fB\%http://seclists.org/\fR\m[]尝试搜索出错消息或 浏览Nmap\-dev档案，以及仔细阅读使用手册。如果问题还是不能解决，发送 Bug报告至nmap\-dev@insecure\&.org。在报告中包含所有 有关问题的信息，以及所使用的Nmap版本、操作系统版本。问题报告以及 Nmap的使用问题发送给nmap\-dev@insecure\&.org比直接发送给Gyodor能更好回答。
 .PP
-解决Bug的代码补丁比Bug报告更受欢迎，在\fI\%http://www.insecure.org/nmap/data/HACKING\fR
+解决Bug的代码补丁比Bug报告更受欢迎，在\m[blue]\fB\%http://www.insecure.org/nmap/data/HACKING\fR\m[]
 可获得建立补丁文件的基本指令。补丁可发送给nmap\-dev(建议) 或直接发给Fyodor。
 .SH "作者"
 .PP
 Fyodor
-<fyodor@insecure\.org>
-(\fI\%http://www.insecure.org\fR)
+fyodor@insecure\&.org
+(\m[blue]\fB\%http://www.insecure.org\fR\m[])
 .PP
 译者：Fei Yang
-<fyang1024@gmail\.com>, Lei Li
-<lilei_721@6611\.org>
+fyang1024@gmail\&.com, Lei Li
+lilei_721@6611\&.org
 .PP
-近年来，上百的人们为Nmap作出了极有价值的贡献，详细信息参见 随Nmap一起发布的\fICHANGELOG\fR文件， 也可查看\fI\%http://www.insecure.org/nmap/nmap_changelog.html\fR。
+近年来，上百的人们为Nmap作出了极有价值的贡献，详细信息参见 随Nmap一起发布的CHANGELOG文件， 也可查看\m[blue]\fB\%http://www.insecure.org/nmap/nmap_changelog.html\fR\m[]。
 .SH "法律事项(版权、许可证、担保(缺)、出口限制)"
 .SS "Unofficial Translation Disclaimer / 非官方翻译声明"
 .PP
 This is an unnofficial translation of the
-\fINmap license details\fR\&[10]
-into [Finnish]\. It was not written by Insecure\.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\. However, we hope that this translation helps [Finish] speakers understand the Nmap license better\.
+\m[blue]\fBNmap license details\fR\m[]\&\s-2\u[10]\d\s+2
+into [Finnish]\&. It was not written by Insecure\&.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\&. However, we hope that this translation helps [Finish] speakers understand the Nmap license better\&.
 .PP
-这是\fINmap许可证明细 \fR\&[10]的非官方的中文译本。它并非由Insecure\.Com LLC编写，不是有法律效力的Nmap发布条款－－ 只有原英文版具有此法律效力。然而，我们希望该译本帮助中文用户更好地理解Nmap许可证。
+这是\m[blue]\fBNmap许可证明细 \fR\m[]\&\s-2\u[10]\d\s+2的非官方的中文译本。它并非由Insecure\&.Com LLC编写，不是有法律效力的Nmap发布条款－－ 只有原英文版具有此法律效力。然而，我们希望该译本帮助中文用户更好地理解Nmap许可证。
 .PP
-在\fI\%http://www.insecure.org/nmap/\fR可获得Nmap的最新版本。
+在\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]可获得Nmap的最新版本。
 .PP
-Nmap安全扫描器(C) 1996\-2005是Insecure\.Com LLC的产品。 Nmap也是 Insecure\.Com LLC的注册商标。这是一个免费软件，按照免费软件联盟V2\.0的 GNU普通公共许可证的规定，可以重新发布和/或修改。这保证用户在一定的条件 下可以使用、修改和重新发布此软件。如果需要将Nmap嵌入专用软件，我们 会销售相应的许可证(联系
-<sales@insecure\.com>)。很多安全 扫描器厂商已经获得了Nmap技术的许可证，如主机发现、端口扫描、OS系统 检测以及服务/版本检测等技术。
+Nmap安全扫描器(C) 1996\-2005是Insecure\&.Com LLC的产品。 Nmap也是 Insecure\&.Com LLC的注册商标。这是一个免费软件，按照免费软件联盟V2\&.0的 GNU普通公共许可证的规定，可以重新发布和/或修改。这保证用户在一定的条件 下可以使用、修改和重新发布此软件。如果需要将Nmap嵌入专用软件，我们 会销售相应的许可证(联系
+sales@insecure\&.com)。很多安全 扫描器厂商已经获得了Nmap技术的许可证，如主机发现、端口扫描、OS系统 检测以及服务/版本检测等技术。
 .PP
 注意，GPL对\(lq衍生工作\(rq有重要的限制，但未给出有关的详细 描述。为避免误解，我们认为如果某个应用进行以下工作时被认为是该许可证的
 \(lq衍生工作\(rq：
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'集成Nmap的源代码
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+集成Nmap的源代码
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'读取或包含Nmap拷贝权的数据文件，如
-\fInmap\-os\-fingerprints\fR或
-\fInmap\-service\-probes\fR\.
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+读取或包含Nmap拷贝权的数据文件，如
+nmap\-os\-fingerprints或
+nmap\-service\-probes\&.
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'执行Nmap并解析结果(与之相反的是，shell执行或执行菜单 应用，仅仅显示原始Nmap输出，则不是衍生工作。)
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+执行Nmap并解析结果(与之相反的是，shell执行或执行菜单 应用，仅仅显示原始Nmap输出，则不是衍生工作。)
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'将Nmap集成/包含/组合至一个专用的可执行安装程序，如由 InstallShield生成的安装程序。
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+将Nmap集成/包含/组合至一个专用的可执行安装程序，如由 InstallShield生成的安装程序。
 .RE
 .sp
 .RS 4
-\h'-04'\(bu\h'+03'将Namp链接到进行上述工作的库或程序中。
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+将Namp链接到进行上述工作的库或程序中。
 .RE
 .PP
-名词\(lqNmap\(rq包含了Nmap的任何部分以及衍生工作，因此不仅限于上述 内容。上述内容使用了一些常见的例子来说明衍生工作。这些限制仅适 用于真正重新发布Nmap时。例如，不禁止开发和销售Nmap的前端，可以任意发布， 但必须说明从\fI\%http://www.insecure.org/nmap/\fR下载Nmap。
+名词\(lqNmap\(rq包含了Nmap的任何部分以及衍生工作，因此不仅限于上述 内容。上述内容使用了一些常见的例子来说明衍生工作。这些限制仅适 用于真正重新发布Nmap时。例如，不禁止开发和销售Nmap的前端，可以任意发布， 但必须说明从\m[blue]\fB\%http://www.insecure.org/nmap/\fR\m[]下载Nmap。
 .PP
 这些条款并不是在GPL之上增加限制，只是为了明确说明与Nmap(有GPL许可证) 产品有关的\(lq衍生工作\(rq。这类似于Linus Torvalds对Linux内核模 块\(lq衍生工作\(rq的解释。我们的解释仅适用于Nmap \- 不适合其它 GPL产品。
 .PP
-如果对有GPL许可证限制的Nmap应用于非GPL工作有任何问题，我们将提供 相关的帮助。如上述条款所述，我们提供了可选的许可证以集成Nmap到专用应用和设备， 这些合同已被销售给多个安全厂商，通常都包含了永久的许可证以及提供优先支 持、更新，并资助可持续的Nmap技术开发。请发送邮件至<sales@insecure\.com>
+如果对有GPL许可证限制的Nmap应用于非GPL工作有任何问题，我们将提供 相关的帮助。如上述条款所述，我们提供了可选的许可证以集成Nmap到专用应用和设备， 这些合同已被销售给多个安全厂商，通常都包含了永久的许可证以及提供优先支 持、更新，并资助可持续的Nmap技术开发。请发送邮件至sales@insecure\&.com
 以获得更多信息。
 .PP
-作为GPL的一个特殊例外，Insecure\.Com LLC授权许可链接该程序的代码 至任何版本的OpenSSL库，这个库的发布符合等同于Copying\.OpenSSL文件中包含 的许可证，它的发布同时包含了两个内容。除OpenSSL外，在任何方面都必须遵 守GNU GPL。如果改变这个文件，就可能超出该文件的版本，但并不对此负责。
+作为GPL的一个特殊例外，Insecure\&.Com LLC授权许可链接该程序的代码 至任何版本的OpenSSL库，这个库的发布符合等同于Copying\&.OpenSSL文件中包含 的许可证，它的发布同时包含了两个内容。除OpenSSL外，在任何方面都必须遵 守GNU GPL。如果改变这个文件，就可能超出该文件的版本，但并不对此负责。
 .PP
 如果收到书面的许可证协定或合同文件，与上述条款不同时，该可选的 许可证协定具有优先权。
 .PP
 Nmap软件提供源代码，这是因为我们认为用户有权在运行之前知道程序的工作 内容，同时也使用户可以检查软件的漏洞(目前还未发现)。
 .PP
-源代码还允许被移植到新的平台、修改Bug以及增加新功能。鼓励用户 向<fyodor@insecure\.org>
-发送更新，以并入正式的发布中。 发送这些更新至Fyodor或Insecure\.Org开发列表，表明允许Fyodor和Insecure\.Com LLC 具有无限止的、非独有的权限来使用、修改和重新定义这些代码的许可证。 Nmap将一直以开放代码的方式提供，由于无法进行代码的许可证重新定义从而可能 导致了对其它开放软件项目的破坏问题(如KDEt NASM)，这一点很重要。 偶尔我们会向第三方提供重新定义的代码许可证。如果希望为自己的贡献说明 一个特定的许可证条件，在发送时指明。
+源代码还允许被移植到新的平台、修改Bug以及增加新功能。鼓励用户 向fyodor@insecure\&.org
+发送更新，以并入正式的发布中。 发送这些更新至Fyodor或Insecure\&.Org开发列表，表明允许Fyodor和Insecure\&.Com LLC 具有无限止的、非独有的权限来使用、修改和重新定义这些代码的许可证。 Nmap将一直以开放代码的方式提供，由于无法进行代码的许可证重新定义从而可能 导致了对其它开放软件项目的破坏问题(如KDEt NASM)，这一点很重要。 偶尔我们会向第三方提供重新定义的代码许可证。如果希望为自己的贡献说明 一个特定的许可证条件，在发送时指明。
 .PP
-本程序的发布只是为了应用，不提供任何担保，也不隐含任何有关 特定目的的商业或适用性担保。在\fI\%http://www.gnu.org/copyleft/gpl.html\fR
+本程序的发布只是为了应用，不提供任何担保，也不隐含任何有关 特定目的的商业或适用性担保。在\m[blue]\fB\%http://www.gnu.org/copyleft/gpl.html\fR\m[]
 的GNU通用公共许可证或Nmap中包含的COPYING文件中可查看更多细节。
 .PP
 还需要注意，Nmap已经导致了一些编写拙劣的应用程序、TCP/IP 栈甚至操作系统的崩溃。\fBNmap不能用于破坏关键系统\fR， 除非准备好系统受到崩溃的影响。Nmap可能会造成系统或网络的崩溃，但 我们不对Nmap可能产生的破坏和问题负任何责任。
@@ -1139,13 +1190,13 @@ Nmap软件提供源代码，这是因为我们认为用户有权在运行之前�
 .PP
 为安全起见，不要将Nmap安装在有特殊权限的环境(如suid root)。
 .PP
-这个产品包含了由\fIApache Software Foundation\fR\&[11]开发的 软件，发布时还包含了\fILibpcap\fR\&[12]
-可移植包捕获器的改进版本。Windows版的Nmap使用了源于\fIWinPcap library\fR\&[13]
-的libpcap。正常的描述支持由\fIPCRE library\fR\&[14]
-提供，这也是一个开放源码软件，由Philip Hazel编写。特定的原网络功能使用 了\fILibdnet\fR\&[15]网络库， 由Dug Song编写，Nmap发布时带有一个改进版本。Nmap可以与
-\fIOpenSSL加密工具库\fR\&[16]链接用于SSL版本检测。 所有本段描述的第三方软件在遵守BSD风格软件许可证下均可以免费发布。
+这个产品包含了由\m[blue]\fBApache Software Foundation\fR\m[]\&\s-2\u[11]\d\s+2开发的 软件，发布时还包含了\m[blue]\fBLibpcap\fR\m[]\&\s-2\u[12]\d\s+2
+可移植包捕获器的改进版本。Windows版的Nmap使用了源于\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[13]\d\s+2
+的libpcap。正常的描述支持由\m[blue]\fBPCRE library\fR\m[]\&\s-2\u[14]\d\s+2
+提供，这也是一个开放源码软件，由Philip Hazel编写。特定的原网络功能使用 了\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[15]\d\s+2网络库， 由Dug Song编写，Nmap发布时带有一个改进版本。Nmap可以与
+\m[blue]\fBOpenSSL加密工具库\fR\m[]\&\s-2\u[16]\d\s+2链接用于SSL版本检测。 所有本段描述的第三方软件在遵守BSD风格软件许可证下均可以免费发布。
 .PP
-美国出口控制：Insecure\.Com LLC认为Nmap归入美国ECCN(出口控制分 类编码) 5D922。这个分类称为\(lq不受5D002控制的信息安全软件\(rq。 这个分类的唯一限制是AT(反恐怖主义)，这个限制几乎适用于所有的产品，禁 止出口到一些国家，如伊朗和朝鲜。因此，出口Nmap不需要任何特殊的许可 证、允许或其它政府授权。
+美国出口控制：Insecure\&.Com LLC认为Nmap归入美国ECCN(出口控制分 类编码) 5D922。这个分类称为\(lq不受5D002控制的信息安全软件\(rq。 这个分类的唯一限制是AT(反恐怖主义)，这个限制几乎适用于所有的产品，禁 止出口到一些国家，如伊朗和朝鲜。因此，出口Nmap不需要任何特殊的许可 证、允许或其它政府授权。
 .SH "NOTES"
 .IP " 1." 4
 英文版本

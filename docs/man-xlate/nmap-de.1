@@ -1,161 +1,13 @@
+'\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.74.0 <http://docbook.sf.net/>
-.\"      Date: 06/23/2009
+.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\"      Date: 11/21/2009
 .\"    Manual: Nmap-Referenz-Handbuch
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "06/23/2009" "Nmap" "Nmap\-Referenz\-Handbuch"
-.\" -----------------------------------------------------------------
-.\" * (re)Define some macros
-.\" -----------------------------------------------------------------
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" toupper - uppercase a string (locale-aware)
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de toupper
-.tr aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ
-\\$*
-.tr aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SH-xref - format a cross-reference to an SH section
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de SH-xref
-.ie n \{\
-.\}
-.toupper \\$*
-.el \{\
-\\$*
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SH - level-one heading that works better for non-TTY output
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de1 SH
-.\" put an extra blank line of space above the head in non-TTY output
-.if t \{\
-.sp 1
-.\}
-.sp \\n[PD]u
-.nr an-level 1
-.set-an-margin
-.nr an-prevailing-indent \\n[IN]
-.fi
-.in \\n[an-margin]u
-.ti 0
-.HTML-TAG ".NH \\n[an-level]"
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-\." make the size of the head bigger
-.ps +3
-.ft B
-.ne (2v + 1u)
-.ie n \{\
-.\" if n (TTY output), use uppercase
-.toupper \\$*
-.\}
-.el \{\
-.nr an-break-flag 0
-.\" if not n (not TTY), use normal case (not uppercase)
-\\$1
-.in \\n[an-margin]u
-.ti 0
-.\" if not n (not TTY), put a border/line under subheading
-.sp -.6
-\l'\n(.lu'
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" SS - level-two heading that works better for non-TTY output
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de1 SS
-.sp \\n[PD]u
-.nr an-level 1
-.set-an-margin
-.nr an-prevailing-indent \\n[IN]
-.fi
-.in \\n[IN]u
-.ti \\n[SN]u
-.it 1 an-trap
-.nr an-no-space-flag 1
-.nr an-break-flag 1
-.ps \\n[PS-SS]u
-\." make the size of the head bigger
-.ps +2
-.ft B
-.ne (2v + 1u)
-.if \\n[.$] \&\\$*
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" BB/BE - put background/screen (filled box) around block of text
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de BB
-.if t \{\
-.sp -.5
-.br
-.in +2n
-.ll -2n
-.gcolor red
-.di BX
-.\}
-..
-.de EB
-.if t \{\
-.if "\\$2"adjust-for-leading-newline" \{\
-.sp -1
-.\}
-.br
-.di
-.in
-.ll
-.gcolor
-.nr BW \\n(.lu-\\n(.i
-.nr BH \\n(dn+.5v
-.ne \\n(BHu+.5v
-.ie "\\$2"adjust-for-leading-newline" \{\
-\M[\\$1]\h'1n'\v'+.5v'\D'P \\n(BWu 0 0 \\n(BHu -\\n(BWu 0 0 -\\n(BHu'\M[]
-.\}
-.el \{\
-\M[\\$1]\h'1n'\v'-.5v'\D'P \\n(BWu 0 0 \\n(BHu -\\n(BWu 0 0 -\\n(BHu'\M[]
-.\}
-.in 0
-.sp -.5v
-.nf
-.BX
-.in
-.sp .5v
-.fi
-.\}
-..
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.\" BM/EM - put colored marker in margin next to block of text
-.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-.de BM
-.if t \{\
-.br
-.ll -2n
-.gcolor red
-.di BX
-.\}
-..
-.de EM
-.if t \{\
-.br
-.di
-.ll
-.gcolor
-.nr BH \\n(dn
-.ne \\n(BHu
-\M[\\$1]\D'P -.75n 0 0 \\n(BHu -(\\n[.i]u - \\n(INu - .75n) 0 0 -\\n(BHu'\M[]
-.in 0
-.nf
-.BX
-.in
-.fi
-.\}
-..
+.TH "NMAP" "1" "11/21/2009" "Nmap" "Nmap\-Referenz\-Handbuch"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -166,14 +18,12 @@
 .\" -----------------------------------------------------------------
 .\" * MAIN CONTENT STARTS HERE *
 .\" -----------------------------------------------------------------
-.SH "Name"
+.SH "NAME"
 nmap \- Netzwerk\-Analysewerkzeug und Sicherheits\-/Portscanner
-.SH "Synopsis"
-.fam C
+.SH "SYNOPSIS"
 .HP \w'\fBnmap\fR\ 'u
 \fBnmap\fR [\fIScan\ Type\fR...] [\fIOptions\fR] {\fItarget\ specification\fR}
-.fam
-.SH "Beschreibung"
+.SH "BESCHREIBUNG"
 .\" Nmap: Beschreibung
 .PP
 Nmap (\(lqNetwork Mapper\(rq) ist ein Open\-Source\-Werkzeug für die Netzwerkanalyse und Sicherheitsüberprüfung\&. Es wurde entworfen, um große Netzwerke schnell zu scannen, auch wenn es bei einzelnen Hosts auch gut funktioniert\&. Nmap benutzt rohe IP\-Pakete auf neuartige Weise, um festzustellen, welche Hosts im Netzwerk verfügbar sind, welche Dienste (Anwendungsname und \-version) diese Hosts bieten, welche Betriebssysteme (und Versionen davon) darauf laufen, welche Art von Paketfiltern/\-Firewalls benutzt werden sowie Dutzende anderer Eigenschaften\&. Auch wenn Nmap üblicherweise für Sicherheitsüberprüfungen verwendet wird, wird es von vielen Systemen und Netzwerkadministratoren für Routineaufgaben benutzt, z\&.B\&. Netzwerkinventarisierung, Verwaltung von Ablaufplänen für Dienstaktualisierungen und die Überwachung von Betriebszeiten von Hosts oder Diensten\&.
@@ -181,25 +31,25 @@ Nmap (\(lqNetwork Mapper\(rq) ist ein Open\-Source\-Werkzeug für die Netzwerkan
 Die Ausgabe von Nmap ist eine Liste gescannter Ziele mit zusätzlicher Information zu jedem, abhängig von den benutzten Optionen\&. Die entscheidende Information dabei steht in der
 \(lqTabelle der interessanten Ports\(rq\&..\" Ports: interessante
 Diese Tabelle listet die Portnummer und das \-protokoll sowie den Dienstnamen und \-zustand auf\&. Der Zustand ist entweder
-\FCoffen\F[],
-\FCgefiltert\F[],
-\FCgeschlossen\F[]
+offen,
+gefiltert,
+geschlossen
 oder
-\FCungefiltert\F[]\&.
-\FCOffen\F[].\" offen Portzustand
+ungefiltert\&.
+Offen.\" offen Portzustand
 bedeutet, dass auf diesem Port des Zielrechners eine Anwendung auf eingehende Verbindungen/Pakete lauscht\&.
-\FCGefiltert\F[].\" gefiltert Portzustand
+Gefiltert.\" gefiltert Portzustand
 bedeutet, dass eine Firewall, ein Filter oder ein anderes Netzwerkhindernis den Port blockiert, so dass Nmap nicht wissen kann, ob er
-\FCoffen\F[]
+offen
 oder
-\FCgeschlossen ist\F[]\&. Für
-\FCgeschlossene\F[].\" geschlossen Portzustand
+geschlossen ist\&. Für
+geschlossene.\" geschlossen Portzustand
 Ports gibt es keine Anwendung, die auf ihnen lauscht, auch wenn sie jederzeit geöffnet werden könnten\&. Als
-\FCungefiltert\F[].\" ungefiltert Portzustand
+ungefiltert.\" ungefiltert Portzustand
 werden Ports dann klassifiziert, wenn sie auf Nmaps Testpakete antworten, Nmap aber nicht feststellen kann, ob sie offen oder gechlossen sind\&. Nmap gibt die Zustandskombinationen
-\FCoffen|gefiltert\F[].\" offen|gefiltert Portzustand
+offen|gefiltert.\" offen|gefiltert Portzustand
 und
-\FCgeschlossen|gefiltert\F[].\" geschlossen|gefiltert Portzustand
+geschlossen|gefiltert.\" geschlossen|gefiltert Portzustand
 an, wenn es nicht feststellen kann, welcher der beiden Zustände für einen Port zutrifft\&. Die Port\-Tabelle enthält eventuell auch Details zur Softwareversion, sofern eine Versionserkennung verlangt wurde\&. Wurde ein IP\-Protokoll\-Scan verlangt (\fB\-sO\fR), dann bietet Nmap Angaben über die unterstützten IP\-Protokolle statt über lauschende Ports\&.
 .PP
 Zusätzlich zur Tabelle der interessanten Ports kann Nmap weitere Angaben über Ziele bieten, darunter Reverse\-DNS\-Namen, Mutmaßungen über das benutzte Betriebssystem, Gerätearten und MAC\-Adressen\&.
@@ -217,15 +67,7 @@ für eine schnellere Ausführung\&. Danach kommen die Namen der Zielhosts\&.
 .if n \{\
 .RS 4
 .\}
-.fam C
-.ps -1
 .nf
-.if t \{\
-.sp -1
-.\}
-.BB lightgray adjust-for-leading-newline
-.sp -1
-
 # nmap \-A \-T4 scanme\&.nmap\&.org
 
 Starting Nmap ( http://nmap\&.org )
@@ -251,13 +93,7 @@ HOP RTT   ADDRESS
 10  9\&.93  scanme\&.nmap\&.org (64\&.13\&.134\&.52)
 
 Nmap done: 1 IP address (1 host up) scanned in 17\&.00 seconds
-.EB lightgray adjust-for-leading-newline
-.if t \{\
-.sp 1
-.\}
 .fi
-.fam
-.ps +1
 .if n \{\
 .RE
 .\}
@@ -266,7 +102,7 @@ Die neueste Version von Nmap erhält man unter
 \m[blue]\fB\%http://nmap.org\fR\m[], und die neueste Version der Manpage ist unter
 \m[blue]\fB\%http://nmap.org/book/man.html\fR\m[]
 verfügbar\&.
-.SH "Übersicht der Optionen"
+.SH "ÜBERSICHT DER OPTIONEN"
 .PP
 Diese Übersicht wird ausgegeben, wenn Nmap ohne Argumente aufgerufen wird; die neueste Version davon ist immer unter
 \m[blue]\fB\%http://nmap.org/data/nmap.usage.txt\fR\m[]
@@ -277,10 +113,7 @@ verfügbar\&. Sie hilft dabei, sich die am häufigsten benutzten Optionen zu mer
 .if n \{\
 .RS 4
 .\}
-.fam C
-.ps -1
 .nf
-.BB lightgray
 Nmap 4\&.85BETA8 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
@@ -387,16 +220,13 @@ EXAMPLES:
   nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
   nmap \-v \-iR 10000 \-PN \-p 80
 SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
-.EB lightgray
 .fi
-.fam
-.ps +1
 .if n \{\
 .RE
 .\}
 .\" 
 .\" 
-.SH "Angabe von Zielen"
+.SH "ANGABE VON ZIELEN"
 .\" Zielangabe
 .PP
 Nmap betrachtet alles in der Kommandozeile, was keine Option (oder ein Argument einer Option) ist, als Bezeichnung eines Zielhosts\&. Der einfachste Fall ist die Beschreibung einer IP\-Zieladresse oder eines Zielhostnamens zum Scannen\&.
@@ -406,14 +236,14 @@ Sie können /\fInumbits\fR
 an eine IPv4\-Adresse oder einen Hostnamen anfügen, und Nmap wird alle IP\-Adressen scannen, bei denen die ersten
 \fInumbits\fR
 mit denen der gegebenen IP oder des gegebenen Hostnamens übereinstimmen\&. Zum Beispiel würde 192\&.168\&.10\&.0/24 die 256 Hosts zwischen 192\&.168\&.10\&.0 (binär:
-\FC11000000 10101000 00001010 00000000\F[]) und 192\&.168\&.10\&.255 (binär:
-\FC11000000 10101000 00001010 11111111\F[], inklusive) scannen\&. 192\&.168\&.10\&.40/24 würde genau dieselben Ziele scannen\&. Dadurch, dass der Host
-\FCscanme\&.nmap\&.org\F[].\" scanme.nmap.org
+11000000 10101000 00001010 00000000) und 192\&.168\&.10\&.255 (binär:
+11000000 10101000 00001010 11111111, inklusive) scannen\&. 192\&.168\&.10\&.40/24 würde genau dieselben Ziele scannen\&. Dadurch, dass der Host
+scanme\&.nmap\&.org.\" scanme.nmap.org
 die IP\-Adresse 64\&.13\&.134\&.52 hat, würde die Angabe scanme\&.nmap\&.org/16 die 65\&.536 IP\-Adressen zwischen 64\&.13\&.0\&.0 und 64\&.13\&.255\&.255 scannen\&. Der kleinste erlaubte Wert ist /0, der das gesamte Internet scannt\&. Der größte Wert ist /32 und scannt lediglich den Host mit angegebenem Namen oder IP\-Adresse, da alle Adressen\-Bits festgelegt sind\&.
 .\" Adressbereiche
 .PP
 Die CIDR\-Notation ist kurz, aber nicht immer flexibel genug\&. Vielleicht möchten Sie z\&.B\&. 192\&.168\&.0\&.0/16 scannen, aber IPs auslassen, die mit \&.0 oder \&.255 enden, weil sie als Unternetzwerk und Broadcast\-Adressen benutzt werden können\&. Nmap unterstützt das in Form einer Oktett\-Bereichsadressierung\&. Statt eine normale IP\-Adresse anzugeben, können Sie eine mit Kommata getrennte Liste von Zahlen oder Bereichen für jedes Oktett angeben\&. Zum Beispiel überspringt 192\&.168\&.0\-255\&.1\-254 alle Adressen im Bereich, die mit \&.0 oder \&.255 enden, und 192\&.168\&.3\-5,7\&.1 scannt die vier Adressen 192\&.168\&.3\&.1, 192\&.168\&.4\&.1, 192\&.168\&.5\&.1 und 192\&.168\&.7\&.1\&. Beide Bereichsgrenzen können weggelassen werden, die Standardwerte sind 0 für die linke und 255 für die rechte Grenze\&. Wenn Sie allein
-\FC\-\F[]
+\-
 benutzen, ist das identisch mit 0\-255, aber denken Sie daran, im ersten Oktett 0\- zu benutzen, damit die Zielangabe nicht wie eine Kommandozeilenoption aussieht\&. Diese Bereiche müssen nicht auf die endgültigen Oktetts beschränkt sein: die Angabe 0\-255\&.0\-255\&.13\&.37 führt einen internetweiten Scan über alle IP\-Adressen aus, die mit 13\&.37 enden\&. Diese Art von breiter Abtastung kann bei Internet\-Umfragen und \-Forschungen hilfreich sein\&.
 .PP
 IPv6\-Adressen können nur durch ihre vollständige IPv6\-Adresse oder ihren Hostnamen angegeben werden\&. CIDR und Oktettbereiche werden für IPv6 nicht unterstützt, weil sie selten nützlich sind\&.
@@ -430,18 +260,16 @@ Eine sehr lange Liste von Hosts in der Kommandozeile anzugeben ist oft sehr umst
 \fIaußer\fR
 denjenigen scannen, um Hosts zu finden, die unautorisierte statische IP\-Adressen benutzen\&. Erzeugen Sie einfach die Liste der zu scannenden Hosts und übergeben Sie deren Dateinamen als Argument zur Option
 \fB\-iL\fR
-an Nmap\&. Die Einträge dürfen alle Formate haben, die Nmap auf der Kommandozeile akzeptiert (IP\-Adresse, Hostname, CIDR, IPv6 oder Oktettbereiche)\&. Alle Einträge müssen durch ein oder mehrere Leerzeichen, Tabulatoren oder Zeilenumbrüche getrennt sein\&. Wenn Sie einen Bindestrich (\FC\-\F[]) als Dateinamen angeben, liest Nmap die Hosts von der Standardeingabe statt aus einer normalen Datei\&.
+an Nmap\&. Die Einträge dürfen alle Formate haben, die Nmap auf der Kommandozeile akzeptiert (IP\-Adresse, Hostname, CIDR, IPv6 oder Oktettbereiche)\&. Alle Einträge müssen durch ein oder mehrere Leerzeichen, Tabulatoren oder Zeilenumbrüche getrennt sein\&. Wenn Sie einen Bindestrich (\-) als Dateinamen angeben, liest Nmap die Hosts von der Standardeingabe statt aus einer normalen Datei\&.
 .RE
 .PP
 \fB\-iR \fR\fB\fInum hosts\fR\fR (zufällige Auswahl von Zielen) .\" -iR .\" randomisierte Ziele .\" Zielangabe: randomisiert
 .RS 4
 Für internetweite Umfragen und andere Forschungsaktivitäten möchten Sie Ziele vielleicht zufällig auswählen\&. Das kann man mit der Option
 \fB\-iR\fR, die als Argument die Anzahl der zu erzeugenden IPs annimmt\&. Nmap lässt automatisch bestimmte unerwünschte IPs aus, wie solche in privaten, Multicast\- oder unbesetzten Adressbereichen\&. Für einen endlosen Scan kann man das Argument
-\FC0\F[]
+0
 angeben\&. Denken Sie aber daran, dass manche Netzwerkadministratoren sich gegen unautorisierte Scans ihrer Netzwerke sträuben\&. Lesen Sie
-the section called \(lq\c
-.SH-xref "\c"
-\&\(rq
+the section called \(lq\(rq
 sorgfältig, bevor Sie \-iR benutzen\&.
 .sp
 Falls Sie mal an einem regnerischen Tag wirklich Langeweile haben, probieren Sie einmal den Befehl
@@ -464,7 +292,7 @@ Das bietet dieselbe Funktionalität wie die Option
 \fIexclude_file\fR
 statt auf der Kommandozeile angegeben werden\&.
 .RE
-.SH "Host-Erkennung"
+.SH "HOST-ERKENNUNG"
 .\" Host-Erkennung
 .PP
 Einer der allerersten Schritte bei jeder Netzwerkerkundung ist die Reduktion einer (manchmal riesigen) Menge von IP\-Bereichen auf eine Liste aktiver oder interessanter Hosts\&. Wenn man für alle einzelnen IP\-Adressen alle Ports scannt, so ist das nicht nur langsam, sondern normalerweise auch unnötig\&. Was einen Host interessant macht, hängt natürlich stark vom Zweck der Untersuchung ab\&. Netzwerkadministratoren interessieren sich vielleicht nur für Hosts, auf denen ein bestimmter Dienst läuft, während Sicherheitsprüfer sich vielleicht für alle Geräte interessieren, die eine IP\-Adresse haben\&. Ein Administrator benötigt vielleicht nur einen ICMP\-Ping, um Hosts in seinem internen Netzwerk zu finden, während ein externer Penetrationstester vielleicht Dutzende ganz verschiedener Tests einsetzen wird, um zu versuchen, die Firewall\-Beschränkungen zu umgehen\&.
@@ -492,7 +320,7 @@ nach, um zu lernen, wie man nur eine Host\-Erkennung durchführt, oder über
 \fB\-sL\fR (List\-Scan) .\" -sL .\" List-Scan
 .RS 4
 Ein List\-Scan ist eine degenerierte Form der Host\-Erkennung, die einfach jeden Host im angegebenen Netzwerk (bzw\&. den Netzwerken) auflistet, ohne Pakete an die Ziel\-Hosts zu senden\&. Standardmäßig führt Nmap immer noch eine Reverse\-DNS\-Auflösung der Hosts durch, um deren Namen zu lernen\&. Es ist oft erstaunlich, wie viel nützliche Informationen einfache Hostnamen verraten\&. Zum Beispiel ist
-\FCfw\&.chi\F[]
+fw\&.chi
 der Name einer Firewall einer Firma in Chicago\&.
 .\" DNS: Einträge als Informationsquelle
 Nmap gibt am Ende auch die gesamte Anzahl der IP\-Adressen aus\&. Ein List\-Scan ist eine gute Plausibilitätsprüfung, um sicherzustellen, dass Sie saubere IP\-Adressen für Ihre Ziele haben\&. Falls die Hosts Domainnamen enthalten, die Ihnen nichts sagen, lohnt sich eine weitere Untersuchung, um zu verhindern, dass Sie das Netzwerk der falschen Firma scannen\&.
@@ -540,11 +368,11 @@ von Protokoll\-Pings (benutzt den Buchstaben O) zu vermeiden\&.
 Diese Option sendet ein leeres TCP\-Paket mit gesetztem SYN\-Flag\&. Der vorgegebene Zielport ist 80 (lässt sich zum Zeitpunkt des Kompilierens durch Ändern von
 \fIDEFAULT_TCP_PROBE_PORT_SPEC\fR.\" DEFAULT_TCP_PROBE_PORT_SPEC
 in
-\FCnmap\&.h\F[]
+nmap\&.h
 konfigurieren),.\" nmap.h
 aber man kann einen alternativen Port als Parameter angeben\&. Die Syntax ist dieselbe wie bei
 \fB\-p\fR, mit dem Unterschied, dass Porttypenbezeichner wie
-\FCT:\F[]
+T:
 nicht erlaubt sind\&. Beispiele hierfür sind
 \fB\-PS22\fR
 und
@@ -559,7 +387,7 @@ durch, indem es mit einem SYN/ACK\-TCP\-Paket antwortet\&. Der Rechner, auf dem 
 Für Nmap ist es egal, ob der Port offen oder geschlossen ist\&. Aus beiden Antworten, ob RST oder SYN/ACK, schließt Nmap, dass der Host verfügbar ist und antwortet\&.
 .sp
 Auf Unix\-Rechnern kann im Allgemeinen nur der mit Sonderrechten ausgestattete Benutzer
-\FCroot\F[].\" Benutzer mit Sonderrechten
+root.\" Benutzer mit Sonderrechten
 rohe TCP\-Pakete senden und empfangen\&..\" rohe Pakete
 Bei normalen Benutzern kommt automatisch eine Umgehungslösung zum Tragen,.\" Benutzer ohne Sonderrechte: Beschränkungen
 bei der für alle Zielports der
@@ -585,7 +413,7 @@ in Linux bietet die komfortable Option
 \fB\-\-syn\fR, um diesen zustandslosen Ansatz zu implementieren\&. Wenn solche Firewall\-Regeln vorhanden sind, werden SYN\-Ping\-Tests (\fB\-PS\fR), die an geschlossene Zielports gesendet werden, sehr wahrscheinlich blockiert\&. In solchen Fällen greift der ACK\-Test, da er diese Regeln einfach kappt\&.
 .sp
 Eine weitere häufige Art von Firewalls verwendet zustandsbehaftete Regeln, die unerwartete Pakete verwerfen\&. Dieses Merkmal konnte man zuerst bei hochwertigen Firewalls finden, es hat sich aber mit der Zeit deutlich verbreitet\&. In Linux unterstützt das Netfilter/iptables\-System das mit der Option
-\FC\-\-state\F[], die Pakete nach einem Verbindungszustand kategorisiert\&. In solchen Fällen hat der SYN\-Test eine wesentlich bessere Chance auf Erfolg, da unerwartete ACK\-Pakete im Allgemeinen als fehlerhaft erkannt und verworfen werden\&. Eine Lösung aus diesem Dilemma besteht darin, mit
+\-\-state, die Pakete nach einem Verbindungszustand kategorisiert\&. In solchen Fällen hat der SYN\-Test eine wesentlich bessere Chance auf Erfolg, da unerwartete ACK\-Pakete im Allgemeinen als fehlerhaft erkannt und verworfen werden\&. Eine Lösung aus diesem Dilemma besteht darin, mit
 \fB\-PS\fR
 und
 \fB\-PA\fR
@@ -601,7 +429,7 @@ und
 \fB\-PA\fR\&. Falls keine Ports angegeben werden, ist die Standardeinstellung 31338\&. Dieser Wert kann zum Zeitpunkt des Kompilierens dürch Änderung von
 \fIDEFAULT_UDP_PROBE_PORT_SPEC\fR.\" DEFAULT_UDP_PROBE_PORT_SPEC
 in
-\FCnmap\&.h\F[]
+nmap\&.h
 konfiguriert werden\&..\" nmap.h
 Es wird absichtlich ein sehr unwahrscheinlicher Port verwendet, weil bei dieser bestimmten Art des Scannens das Senden an offene Ports oft unerwünscht ist\&.
 .sp
@@ -633,7 +461,7 @@ gesendet werden\&. Eine Timestamp\-Antwort (ICMP\-Code 14) oder Address\-Mask\-A
 Die neueste Möglichkeit der Host\-Erkennung ist ein IP\-Protokoll\-Ping, der IP\-Pakete sendet, in deren IP\-Header die angegebene Protokollnummer gesetzt ist\&. Die Protokoll\-Liste hat dasselbe Format wie Portlisten bei den weiter oben vorgestellten Optionen der TCP\- und UDP\-Host\-Erkennung\&. Ohne Angabe von Protokollen werden standardmäßig mehrere IP\-Pakete für ICMP (Protokoll 1), IGMP (Protokoll 2) und IP\-in\-IP (Protokoll 4) gesendet\&. Die Standardprotokolle können zum Zeitpunkt des Kompilierens durch Veränderung von
 \fIDEFAULT_PROTO_PROBE_PORT_SPEC\fR.\" DEFAULT_PROTO_PROBE_PORT_SPEC
 in
-\FCnmap\&.h\F[]
+nmap\&.h
 konfiguriert werden\&. Beachten Sie, dass für ICMP, IGMP, TCP (Protokoll 6) und UDP (Protokoll 17) die Pakete mit den richtigen Protokoll\-Headern gesendet werden, während andere Protokolle ohne weitere Daten über den IP\-Header hinaus gesendet werden (es sei denn, die Option
 \fB\-\-data\-length\fR
 wird angegeben)\&.
@@ -696,25 +524,25 @@ Diese Option ist auch beim Scannen privater Netzwerke praktisch\&. Manchmal biet
 immer nur einen Nameserver angeben, bis Sie einen finden, der funktioniert\&.
 .RE
 .\" 
-.SH "Grundlagen von Port-Scans"
+.SH "GRUNDLAGEN VON PORT-SCANS"
 .PP
 Nmap hat über die Jahre an Funktionalität zugelegt, aber angefangen hat es als effizienter Port\-Scanner, und das ist weiterhin seine Kernfunktion\&. Der einfache Befehl
 \fBnmap \fR\fB\fItarget\fR\fR
 scannt die am häufigsten verwendeten 1000 TCP\-Ports auf dem Host
 \fItarget\fR
 und klassifiziert jeden Port in einen der Zustände
-\FCoffen\F[],
-\FCgeschlossen\F[],
-\FCgefiltert\F[],
-\FCungefiltert\F[],
-\FCoffen|gefiltert\F[]
+offen,
+geschlossen,
+gefiltert,
+ungefiltert,
+offen|gefiltert
 oder
-\FCgeschlossen|gefiltert\F[]\&.
+geschlossen|gefiltert\&.
 .PP
 Diese Zustände sind keine echten Eigenschaften eines Ports selbst, sondern beschreiben, wie Nmap ihn sieht\&. Ein Nmap\-Scan z\&.B\&., bei dem Ausgangs\- und Zielnetzwerk identisch sind, könnte Port
-\FC135/tcp\F[]
+135/tcp
 als offen anzeigen, während ein Scan zur selben Zeit mit denselben Optionen über das Internet diesen Port als
-\FCgefiltert\F[]
+gefiltert
 anzeigen könnte\&.
 .PP
 \fBDie sechs von Nmap erkannten Port\-Zustände\fR
@@ -748,7 +576,7 @@ Nmap klassifiziert einen Port in diesen Zustand, wenn es nicht feststellen kann,
 .RS 4
 Dieser Zustand wird benutzt, wenn Nmap nicht feststellen kann, ob ein Port geschlossen ist oder gefiltert wird\&. Er wird nur vom IP\-ID\-Idle\-Scan benutzt\&.
 .RE
-.SH "Port-Scanning-Methoden"
+.SH "PORT-SCANNING-METHODEN"
 .PP
 Als Hobby\-Automechaniker kann ich mich stundenlang damit herumquälen, meine einfachsten Werkzeuge (Hammer, Klebeband, Schraubenschlüssel etc\&.) an mein Problem anzupassen\&. Wenn ich dann kläglich versage und meine alte Blechkiste zu einem echten Mechaniker schleppe, fischt er immer so lange in einer riesigen Werkzeugkiste herum, bis er das perfekte Ding gefunden hat, mit dem sich die Aufgabe fast von allein löst\&. Bei der Kunst des Port\-Scannings ist es ähnlich\&. Experten kennen Dutzende von Scan\-Methoden und wählen für jede Aufgabe die geeignete (oder eine Kombination von mehreren) aus\&. Auf der anderen Seite versuchen unerfahrene Benutzer und Script\-Kiddies,.\" Script Kiddies
 jedes Problem mit dem standardmäßigen SYN\-Scan zu lösen\&. Da Nmap gratis ist, ist Unwissen das einzige Hindernis auf dem Weg zur Meisterschaft im Port\-Scanning\&. Das ist bestimmt besser als in der Autowelt, wo man eventuell sehr viel Können haben muss, um festzustellen, dass man einen Federbein\-Kompressor benötigt, und dann immer noch Tausende dafür bezahlen muss\&.
@@ -767,10 +595,10 @@ ein bedeutender Buchstabe im Scan\-Namen ist, normalerweise der erste\&. Die ein
 \fB\-sS\fR (TCP\-SYN\-Scan) .\" -sS .\" SYN-Scan
 .RS 4
 Der SYN\-Scan ist aus gutem Grund die Standardeinstellung und die beliebteste Scan\-Methode\&. Er kann schnell durchgeführt werden und scannt dabei Tausende von Ports pro Sekunde, wenn das Netzwerk schnell ist und nicht von einer intrusiven Firewall behindert wird\&. Der SYN\-Scan ist relativ unauffällig, da er TCP\-Verbindungen niemals abschließt\&. Außerdem funktioniert er auch bei allen konformen TCP\-Stacks und ist unabhängig von spezifischen Eigenarten von Plattformen, wie es bei den FIN\-/NULL\-/Xmas\-, Maimon\- und Idle\-Scans in Nmap der Fall ist\&. Er erlaubt auch eine klare, zuverlässige Unterscheidung zwischen den Zuständen
-\FCoffen\F[],
-\FCgeschlossen\F[]
+offen,
+geschlossen
 und
-\FCgefiltert\F[]\&.
+gefiltert\&.
 .sp
 Diese Methode wird oft als halboffenes Scannen bezeichnet, weil keine vollständige TCP\-Verbindung hergestellt wird\&. Sie senden ein SYN\-Paket, als ob Sie eine echte Verbindung herstellen würden, und warten dann auf eine Antwort\&. Ein SYN/ACK zeigt, dass jemand auf dem Port lauscht (dass er offen ist), während ein RST (Reset) anzeigt, dass niemand darauf lauscht\&. Falls nach mehreren erneuten Übertragungen keine Antwort erhalten wird, wird der Port als gefiltert markiert\&. Der Port wird auch dann als gefiltert markiert, wenn ein ICMP Unreachable\-Fehler (Typ 3, Code 1, 2, 3, 9, 10 oder 13) empfangen wird\&.
 .RE
@@ -795,16 +623,16 @@ Ein UDP\-Scan wird mit der Option
 aktiviert\&. Er kann mit einem TCP\-Scan\-Typ wie einem SYN\-Scan (\fB\-sS\fR) kombiniert werden, um beide Protokolle im gleichen Durchlauf zu prüfen\&.
 .sp
 Beim UDP\-Scan wird ein leerer UDP\-Header (ohne Daten) an alle Ziel\-Ports geschickt\&. Falls ein ICMP Port\-unreachable\-Fehler (Typ 3, Code 3) zurückkommt, ist der Port
-\FCgeschlossen\F[]\&. Andere ICMP Unreachable\-Fehler (Typ 3, Codes 1, 2, 9, 10 oder 13) markieren den Port als
-\FCfiltered\F[]\&. Gelegentlich wird ein Dienst mit einem UDP\-Paket antworten, was beweist, das er
-\FCoffen\F[]
+geschlossen\&. Andere ICMP Unreachable\-Fehler (Typ 3, Codes 1, 2, 9, 10 oder 13) markieren den Port als
+filtered\&. Gelegentlich wird ein Dienst mit einem UDP\-Paket antworten, was beweist, das er
+offen
 ist\&. Falls nach einigen erneuten Übertragungen keine Antwort erhalten wird, wird der Port als
-\FCoffen|gefiltert\F[]
+offen|gefiltert
 klassifiziert\&. Das heißt, der Port könnte offen sein, oder aber es gibt Paketfilter, die die Kommunikation blockieren\&. Man kann eine Versionserkennung (\fB\-sV\fR) benutzen, um bei der Unterscheidung der wirklich offenen von den geschlossenen Ports zu helfen\&.
 .sp
 Eine große Herausforderung beim UDP\-Scanning ist Geschwindigkeit\&. Offene und gefilterte Ports antworten nur selten, wodurch Nmap Zeitbeschränkungen überschreitet und seine Anfragen erneut sendet, für den Fall, dass das Testpaket oder die Antwort verloren ging\&. Geschlossene Ports sind oftmals ein noch größeres Problem\&. Sie senden normalerweise eine ICMP Port\-unreachable\-Fehlermeldung zurück\&. Aber anders als die RST\-Pakete, die von geschlossenen TCP\-Ports als Antwort auf einen SYN\- oder Connect\-Scan geschickt werden, beschränken viele Hosts standardmäßig die Rate.\" Ratenbeschränkung
 der ICMP Port\-unreachable\-Nachrichten\&. Linux und Solaris sind dabei besonders streng\&. Der Linux\-Kernel 2\&.4\&.20 z\&.B\&. beschränkt Destination\-unreachable\-Nachrichten auf eine pro Sekunde (in
-\FCnet/ipv4/icmp\&.c\F[])\&.
+net/ipv4/icmp\&.c)\&.
 .sp
 Nmap erkennt eine Ratenbeschränkung und verlangsamt seinen Betrieb entsprechend, um zu vermeiden, dass das Netzwerk mit nutzlosen Paketen überflutet wird, die vom Zielrechner verworfen werden\&. Unglücklicherweise führt eine Beschränkung wie in Linux auf ein Paket pro Sekunde dazu, dass ein Scan von 65\&.536 Ports über 18 Stunden dauert\&. Um Ihre UDP\-Scans zu beschleunigen, können Sie z\&.B\&. mehr Hosts parallel scannen, zuerst nur einen schnellen Scan der beliebten Ports durchführen, von hinter der Firewall scannen und die Option
 \fB\-\-host\-timeout\fR
@@ -818,9 +646,9 @@ Diese drei Scan\-Typen (noch mehr sind mit der im nächsten Abschnitt beschriebe
 möglich) beuten ein subtiles Schlupfloch im
 \m[blue]\fBTCP RFC\fR\m[]\&\s-2\u[5]\d\s+2
 aus, um zwischen
-\FCoffenen\F[]
+offenen
 und
-\FCgeschlossenen\F[]
+geschlossenen
 Ports zu unterscheiden\&. Seite 65 von RFC 793 besagt:
 \(lqFalls der Zustand des [Ziel\-] Ports GESCHLOSSEN ist \&.\&.\&. bewirkt ein eingehendes Segment, in dem sich kein RST befindet, dass ein RST als Antwort gesendet wird\&.\(rq
 Die nächste Seite beschreibt dann Pakete, die ohne gesetztes SYN\-, RST\- oder ACK\-Bit an offene Ports geschickt werden, und dort heißt es weiter:
@@ -844,63 +672,63 @@ Setzt die FIN\-, PSH\- und URG\-Flags und beleuchtet das Paket wie einen Weihnac
 .RE
 .sp
 Diese drei Scan\-Typen haben exakt dasselbe Verhalten und unterscheiden sich nur in den TCP\-Flags ihrer Testpakete\&. Wenn ein RST\-Paket empfangen wird, wird der Port als
-\FCgeschlossen\F[]
+geschlossen
 betrachtet, während keine Antwort bedeutet, dass er
-\FCoffen|gefiltert\F[]
+offen|gefiltert
 ist\&. Der Port wird als
-\FCgefiltert\F[]
+gefiltert
 markiert, falls ein ICMP Unreachable\-Fehler (Type 3, Code 1, 2, 3, 9, 10 oder 13) empfangen wird\&.
 .sp
 Der Schlüsselvorteil dieser Scan\-Arten ist, dass sie sich an bestimmten zustandslosen Firewalls und paketfilternden Routern vorbeschleichen können\&. Ein weiterer Vorteil ist, dass diese Scan\-Arten ncoh ein wenig unauffälliger sind als ein SYN\-Scan\&. Aber verlassen Sie sich nicht darauf \(en die meisten modernen IDS\-Produkte können so konfiguriert werden, dass sie diese Scans erkennen\&. Der große Nachteil ist, dass nicht alle Systeme sich ganz genau an RFC 793 halten\&. Eine Reihe von Systemen sendet RST\-Antworten auf die Testpakete, unabhängig davon, ob der Port offen ist oder nicht\&. Das bewirkt, dass alle Ports als
-\FCgeschlossen\F[]
+geschlossen
 markiert werden\&. Hauptvertreter der Betriebssysteme, die das machen, sind Microsoft Windows, viele Cisco\-Geräte, BSDI und IBM OS/400\&. Aber auf den meisten Unix\-basierten Systemen funktioniert dieser Scan\&. Ein weiterer Nachteil dieser Scans ist, dass sie keine Unterscheidung zwischen
-\FCoffenen\F[]
+offenen
 und bestimmten
-\FCgefilterten\F[]
+gefilterten
 Ports machen, sondern lediglich das Ergebnis
-\FCoffen|gefiltert\F[]
+offen|gefiltert
 ausgeben\&.
 .RE
 .PP
 \fB\-sA\fR (TCP\-ACK\-Scan) .\" -sA .\" ACK-Scan
 .RS 4
 Dieser Scan unterscheidet sich insofern von den bisher hier vorgestellten, als er nie
-\FCoffene\F[]
+offene
 (oder auch nur
-\FCoffene|gefilterte\F[]) Ports bestimmt\&. Er wird dazu benutzt, Firewall\-Regeln zu bestimmen, festzustellen, ob sie zustandsbehaftet sind oder nicht, und welche Ports gefiltert werden\&.
+offene|gefilterte) Ports bestimmt\&. Er wird dazu benutzt, Firewall\-Regeln zu bestimmen, festzustellen, ob sie zustandsbehaftet sind oder nicht, und welche Ports gefiltert werden\&.
 .sp
 Beim Testpaket eines ACK\-Scans wird nur das ACK\-Flag gesetzt (es sei denn, Sie benutzen
 \fB\-\-scanflags\fR)\&. Beim Scannen ungefilterter Systeme werden sowohl
-\FCoffene\F[]
+offene
 als auch
-\FCgeschlossene\F[]
+geschlossene
 Ports ein RST\-Paket zurückgeben\&. Nmap markiert sie dann als
-\FCungefiltert\F[], d\&.h\&. sie werden vom ACK\-Paket erreicht, aber es kann nicht bestimmt werden, ob sie
-\FCoffen\F[]
+ungefiltert, d\&.h\&. sie werden vom ACK\-Paket erreicht, aber es kann nicht bestimmt werden, ob sie
+offen
 oder
-\FCgeschlossen\F[]
+geschlossen
 sind\&. Ports, die nicht antworten oder bestimmte ICMP\-Fehlermeldungen zurückgeben (Type 3, Code 1, 2, 3, 9, 10 oder 13), werden als
-\FCgefiltert\F[]
+gefiltert
 markiert\&.
 .RE
 .PP
 \fB\-sW\fR (TCP\-Window\-Scan) .\" -sW .\" Window-Scan
 .RS 4
 Der Window\-Scan ist genau derselbe wie der ACK\-Scan, nur dass er ein Implementationsdetail bestimmter Systeme zur Unterscheidung zwischen offenen und geschlossenen Ports nutzt, statt bei jedem erhaltenen RST immer nur
-\FCungefiltert\F[]
+ungefiltert
 anzugeben\&. Das geschieht durch Analyse der TCP\-Fenstergröße der zurückgegebenen RST\-Pakete\&. Auf manchen Systemen benutzen offene Ports eine positive Fenstergröße (sogar für RST\-Pakete), während geschlossene eine Fenstergröße von Null haben\&. Statt einen Port immer als
-\FCungefiltert\F[]
+ungefiltert
 aufzulisten, wenn von dort ein RST zurückkommt, listet der Window\-Scan den Port als
-\FCoffen\F[]
+offen
 oder
-\FCgeschlossen\F[]
+geschlossen
 auf, je nachdem, ob die TCP\-Fenstergröße in diesem Reset jeweils positiv oder Null ist\&.
 .sp
 Dieser Scan baut auf einem Implementationsdetail einer Minderheit von Systemen im Internet auf, d\&.h\&. Sie können sich nicht immer darauf verlassen\&. Systeme, die es nicht unterstützen, werden normalerweise alle Ports als
-\FCgeschlossen\F[]
+geschlossen
 zurückgeben\&. Natürlich ist es möglich, dass auf dem Rechner wirklich keine offenen Ports sind\&. Falls die meisten gescannten Ports
-\FCgeschlossen\F[], aber einige Ports mit geläufigen Nummern (wie 22, 25 und 53)
-\FCgefiltert\F[]
+geschlossen, aber einige Ports mit geläufigen Nummern (wie 22, 25 und 53)
+gefiltert
 sind, dann ist das System sehr wahrscheinlich anfällig\&. Gelegentlich zeigen Systeme auch genau das gegenteilige Verhalten\&. Falls Ihr Scan 1000 offene und drei geschlossene oder gefilterte Ports anzeigt, dann könnten jene drei sehr wohl die wirklich wahren offenen Ports sein\&.
 .RE
 .PP
@@ -925,13 +753,13 @@ deren Hersteller einfach die Nmap\-Manpage durchgeblättert und spezifische Rege
 Das Argument für
 \fB\-\-scanflags\fR
 kann ein numerischer Flag\-Wert wie z\&.B\&. 9 (PSH und FIN) sein, aber symbolische Namen sind einfacher zu benutzen\&. Erstellen Sie einfach eine beliebige Kombination von
-\FCURG\F[],
-\FCACK\F[],
-\FCPSH\F[],
-\FCRST\F[],
-\FCSYN\F[]
+URG,
+ACK,
+PSH,
+RST,
+SYN
 und
-\FCFIN\F[]\&. So setzt z\&.B\&.
+FIN\&. So setzt z\&.B\&.
 \fB\-\-scanflags URGACKPSHRSTSYNFIN\fR
 alle Flags, auch wenn das beim Scannen nicht besonders hilfreich ist\&. Die Reihenfolge, in der Sie diese Flags angeben, spielt keine Rolle\&.
 .sp
@@ -939,8 +767,8 @@ Zusätzlich zu den gewünschten Flags können Sie einen TCP\-Scan\-Typen (z\&.B\
 \fB\-sA\fR
 oder
 \fB\-sF\fR) angeben\&. Dieser Basistyp sagt Nmap, wie es die Antworten interpretieren soll\&. Ein SYN\-Scan z\&.B\&. betrachtet das Fehlen einer Antwort als einen Hinweis auf einen
-\FCgefilterten\F[]
-Port, während ein FIN\-Scan das als einen Hinweis auf einen\FCoffen|gefilterten\F[]
+gefilterten
+Port, während ein FIN\-Scan das als einen Hinweis auf einenoffen|gefilterten
 Port ansieht\&. Nmap verhält sich genauso wie beim Scan\-Basistyp, nur mit dem Unterschied, dass es die von Ihnen angegebenen TCP\-Flags benutzt\&. Ohne Angabe eines Basistyps wird ein SYN\-Scan benutzt\&.
 .RE
 .PP
@@ -971,14 +799,14 @@ Diesen Patch habe ich in den Nmap\-Baum aufgenommen und einen Tag später eine n
 Der Protokoll\-Scan funktioniert auf ähnliche Weise wie der UDP\-Scan\&. Statt über das Portnummernfeld eines UDP\-Pakets zu iterieren, sendet er IP\-Paketheader und iteriert über das acht Bit große IP\-Protokollfeld\&. Die Header sind normalerweise leer, enthalten keine Daten und nicht einmal den richtigen Header für das behauptete Protokoll\&. Die drei Ausnahmen davon sind TCP, UDP und ICMP\&. Für diese werden richtige Protokoll\-Header verwendet, da manche Systeme sie sonst nicht versenden und weil Nmap bereits über die Funktionen verfügt, um sie zu erzeugen\&. Statt Nachrichten der Art ICMP Port unreachable sucht der Protokoll\-Scan nach ICMP
 \fIProtocol\fR
 unreachable\&. Falls Nmap zu irgendeinem Protokoll eine Antwort vom Zielhost erhält, markiert es das Protokoll als
-\FCoffen\F[]\&. Bei einem ICMP Protocol\-unreachable\-Fehler (Typ 3, Code 2) wird das Protokoll als
-\FCgeschlossen\F[]
+offen\&. Bei einem ICMP Protocol\-unreachable\-Fehler (Typ 3, Code 2) wird das Protokoll als
+geschlossen
 markiert\&. Bei anderen ICMP Unreachable\-Fehlern (Typ 3, Code 1, 3, 9, 10 oder 13) wird das Protokoll als
-\FCgefiltert\F[]
+gefiltert
 markiert (auch wenn sie gleichzeitig beweisen, dass ICMP
-\FCoffen\F[]
+offen
 ist)\&. Falls nach einigen erneuten Übertragungen keine Antwort erhalten wird, wird das Protokoll als
-\FCoffen|gefiltert\F[]
+offen|gefiltert
 markiert\&.
 .RE
 .PP
@@ -991,14 +819,14 @@ Eine interessante Eigenschaft des FTP\-Protokolls (\m[blue]\fBRFC 959\fR\m[]\&\s
 der Name oder die IP\-Adresse eines anfälligen FTP\-Servers\&. Wie bei einer normalen URL können Sie
 \fIusername\fR:\fIpassword\fR
 auch weglassen, wobei dann eine anonyme Anmeldung erfolgt (username:
-\FCanonymous\F[]
-password:\FC\-wwwuser@\F[])\&. Die Portnummer (samt Doppelpunkt davor) können Sie ebenfalls weglassen, wobei dann auf
+anonymous
+password:\-wwwuser@)\&. Die Portnummer (samt Doppelpunkt davor) können Sie ebenfalls weglassen, wobei dann auf
 \fIserver\fR
 der Standard\-FTP\-Port (21) benutzt wird\&.
 .sp
 Als Nmap 1997 veröffentlicht wurde, war diese Schwachstelle weit verbreitet, wurde seitdem aber größtenteils behoben\&. Aber da es immer noch anfällige Server gibt, lohnt sich ein Versuch, falls alles andere versagt\&. Wenn Sie eine Firewall umgehen möchten, scannen Sie das Zielnetzwerk nach einem offenen Port 21 (oder sogar nach beliebigen FTP\-Diensten, falls Sie alle Ports mit Versionserkennung scannen können), und probieren Sie dann für jeden einen Bounce\-Scan aus\&. Nmap wird Ihnen sagen, ob der Host angreifbar ist oder nicht\&. Versuchen Sie lediglich, Ihre Spuren zu verwischen, dann brauchen Sie sich nicht (und tatsächlich sollten Sie das nicht einmal) auf Hosts im Zielnetzwerk zu beschränken\&. Bevor Sie anfangen, zufällige Internet\-Adressen nach anfälligen FTP\-Servern zu scannen, bedenken Sie, dass Sysadmins keinen Gefallen daran finden werden, dass Sie ihre Server auf diese Weise missbrauchen\&.
 .RE
-.SH "Port-Angabe und Scan-Reihenfolge"
+.SH "PORT-ANGABE UND SCAN-REIHENFOLGE"
 .\" Port-Angabe
 .PP
 Zusätzlich zu all den bisher erläuterten Scan\-Methoden bietet Nmap Optionen, mit denen man angibt, welche Ports gescannt werden und ob die Scan\-Reihenfolge randomisiert oder sequentiell ist\&. Nmap scannt standardmäßig für jedes Protokoll die 1000 meistbenutzten Ports\&.
@@ -1007,15 +835,15 @@ Zusätzlich zu all den bisher erläuterten Scan\-Methoden bietet Nmap Optionen, 
 \fB\-p \fR\fB\fIport ranges\fR\fR (scannt nur angegebene Ports) .\" -p
 .RS 4
 Diese Option gibt an, welche Ports Sie scannen möchten, und überschreibt die Voreinstellung\&. Einzelne Portnummern sind okay, ebenso wie mit einem Bindestrich getrennte Bereiche (z\&.B\&.
-\FC1\-1023\F[])\&. Anfangs\- und/oder Endwerte eines Bereichs können weggelassen werden und werden von Nmap dann mit jeweils 1 bzw\&. 65535 ersetzt\&. So können Sie mit
+1\-1023)\&. Anfangs\- und/oder Endwerte eines Bereichs können weggelassen werden und werden von Nmap dann mit jeweils 1 bzw\&. 65535 ersetzt\&. So können Sie mit
 \fB\-p\-\fR
 alle Ports von 1 bis 65535 scannen\&. Es ist erlaubt, den Port Null.\" Port Null
 zu scannen, wenn Sie ihn explizit angeben\&. Bei IP\-Protokoll\-Scans (\fB\-sO\fR) gibt diese Option die Protokollnummern an, die Sie scannen möchten (0\(en255)\&.
 .sp
 Wenn Sie sowohl TCP\- als auch UDP\-Ports scannen, können Sie ein bestimmtes Protokoll angeben, indem Sie den Portnummern ein
-\FCT:\F[]
+T:
 bzw\&.
-\FCU:\F[]
+U:
 voranstellen\&. Dieser Kennzeichner gilt so lange, bis Sie einen anderen angeben\&. Zum Beispiel werden bei dem Argument
 \fB\-p U:53,111,137,T:21\-25,80,139,8080\fR
 die UDP\-Ports 53, 111 und 137 sowie die angegebenen TCP\-Ports gescannt\&. Beachten Sie, dass Sie
@@ -1028,7 +856,7 @@ oder
 .\" Port-Angabe: Joker in
 .\" Wildcards
 Ports können auch mit dem Namen angegeben werden, der für diesen Port in
-\FCnmap\-services\F[]
+nmap\-services
 definiert ist\&. Sie können bei diesen Namen sogar die Joker * und ? verwenden\&. Um z\&.B\&. FTP und alle Ports zu scannen, deren Namen mit
 \(lqhttp\(rq
 anfangen, benutzen Sie
@@ -1037,9 +865,9 @@ anfangen, benutzen Sie
 in Anführungszeichen, wenn Sie unsicher sind\&.
 .sp
 Port\-Bereiche können in eckigen Klammern angegeben werden, um Ports innerhalb dieses Bereiches anzugeben, die in
-\FCnmap\-services\F[]
+nmap\-services
 vorkommen\&. Zum Beispiel scannt Folgendes alle Ports in
-\FCnmap\-services\F[]
+nmap\-services
 kleiner oder gleich 1024:
 \fB\-p [\-1024]\fR\&. Passen Sie auf eine eventuelle Erweiterung durch die Shell auf und setzen Sie das Argument von
 \fB\-p\fR
@@ -1053,9 +881,9 @@ Gibt an, dass Sie weniger Ports scannen möchten, als standardmäßig vorgesehen
 werden diese auf 100 beschränkt\&.
 .sp
 Nmap benötigt die Datei
-\FCnmap\-services\F[]
+nmap\-services
 mit Informationen zur Häufigkeit, um zu wissen, welche Ports am häufigsten benutzt werden\&. Wenn keine Angaben über die Port\-Häufigkeit verfügbar sind, vielleicht weil eine benutzerdefinierte
-\FCnmap\-services\F[]\-Datei verwendet wird, dann bedeutet
+nmap\-services\-Datei verwendet wird, dann bedeutet
 \fB\-F\fR, dass nur Ports gescannt werden, die in der Dienstedatei mit Namen vorkommen (normalerweise scannt Nmap alle benannten Ports plus die Ports 1\(en1024)\&.
 .RE
 .PP
@@ -1070,7 +898,7 @@ für einen sequentiellen Port\-Scan angeben\&.
 .RS 4
 .\" --port-ratio
 Scannt alle Ports in der Datei
-\FCnmap\-services\F[]
+nmap\-services
 mit einem größeren Bruchteil als die Zahl, die als Argument angegeben wird\&.
 .RE
 .PP
@@ -1078,30 +906,30 @@ mit einem größeren Bruchteil als die Zahl, die als Argument angegeben wird\&.
 .RS 4
 .\" --top-ports
 Scannt die N Ports mit dem höchsten Bruchteil in der Datei
-\FCnmap\-services\F[]\&.
+nmap\-services\&.
 .RE
-.SH "Dienst- und Versionserkennung"
+.SH "DIENST- UND VERSIONSERKENNUNG"
 .\" Versionserkennung
 .PP
 Lassen Sie Nmap auf einen entfernten Rechner los, und Sie erfahren z\&.B\&. dass die Ports
-\FC25/tcp\F[],
-\FC80/tcp\F[]
+25/tcp,
+80/tcp
 und
-\FC53/udp\F[]
+53/udp
 offen sind\&. Dank der über 2200 bekannten Dienste in seiner Datenbank in
-\FCnmap\-services\F[].\" nmap-services
+nmap\-services.\" nmap-services
 würde Nmap noch ausgeben, dass diese Ports wahrscheinlich jeweils zu einem Mailserver (SMTP), Webserver (HTTP) und Nameserver (DNS) gehören\&. Normalerweise sind diese Angaben genau \(em die überwiegende Mehrheit an Daemons, die den TCP\-Port 25 abhören, sind tatsächlich Mailserver\&. Allerdings sollten Sie nicht Ihre Sicherheit darauf verwetten! Manche Leute können nicht nur Dienste auf seltsamen Ports betreiben, sondern tun es auch\&..\" Nicht-Standard-Ports
 .PP
 Selbst wenn Nmap recht hat und auf dem Server im obigen Beispiel SMTP\-, HTTP\- und DNS\-Server laufen, ist das nicht besonders viel an Information\&. Bei der Beurteilung der Angreifbarkeit (oder auch nur beim Erstellen einfacher Netzwerkinventare) Ihrer Firmen oder Kunden möchten Sie auch wissen, welche Mail\- und DNS\-Server und welche Versionen davon laufen\&. Eine genaue Versionsnummer hilft enorm bei der Bestimmung der Exploits, für die ein Server anfällig ist\&. Die Versionserkennung hilft Ihnen, an diese Information heranzukommen\&.
 .PP
 Nachdem TCP\- und/oder UDP\-Ports mit einer der anderen Scan\-Methoden entdeckt wurden, fragt die Versionserkennung diese Ports ab, um mehr darüber zu erfahren, was tatsächlich darauf läuft\&. Die Datenbank in
-\FCnmap\-service\-probes\F[].\" nmap-service-probes
+nmap\-service\-probes.\" nmap-service-probes
 enthält Testpakete für die Abfrage verschiedenster Dienste und Ausdrücke für den Vergleich und das Parsen der Antworten\&. Nmap versucht, das Dienstprotokoll zu bestimmen (z\&.B\&. FTP, SSH, Telnet, HTTP), aber auch Anwendungsnamen (z\&.B\&. ISC BIND, Apache httpd, Solaris telnetd), Versionsnummer, Hostnamen, Gerätetyp (z\&.B\&. Drucker, Router), die Betriebssystemfamilie (z\&.B\&. Windows, Linux) und manchmal verschiedene Details: etwa ob ein X\-Server Verbindungen annimmt, die SSH\-Protokollversion oder der KaZaA\-Benutzername\&. Natürlich bieten die meisten Dienste nicht all diese Information\&. Falls Nmap mit OpenSSL\-Unterstützung kompiliert wurde, verbindet es sich mit SSL\-Servern, um den hinter dieser Verschlüsselungsebene.\" SSL: in Versionserkennung
 lauschenden Dienst zu ermitteln\&. Wenn RPC\-Dienste erkannt werden, wird automatisch Nmaps RPC\-Holzhammer.\" RPC-Holzhammer
 (\fB\-sR\fR).\" -sR
 benutzt, um die RPC\-Programm\- und Versionsnummern zu bestimmen\&. Manche UDP\-Ports bleiben im Zustand
-\FCoffen|gefiltert\F[], nachdem ein UDP\-Port\-Scan nicht bestimmen konnte, ob der Port offen oder gefiltert ist\&. Die Versionserkennung versucht, diesen Ports eine Antwort zu entlocken (genauso wie bei offenen Ports) und den Zustand auf offen zu ändern, wenn das gelingt\&.
-\FCOffene|gefilterte\F[]
+offen|gefiltert, nachdem ein UDP\-Port\-Scan nicht bestimmen konnte, ob der Port offen oder gefiltert ist\&. Die Versionserkennung versucht, diesen Ports eine Antwort zu entlocken (genauso wie bei offenen Ports) und den Zustand auf offen zu ändern, wenn das gelingt\&.
+Offene|gefilterte
 TCP\-Ports werden genauso behandelt\&. Beachten Sie, dass die Nmap\-Option
 \fB\-A\fR
 unter anderem auch die Versionserkennung einschaltet\&.
@@ -1121,12 +949,12 @@ benutzen, was unter anderem auch die Versionserkennung aktiviert\&.
 \fB\-\-allports\fR (keine Ports von der Versionserkennung ausschließen) .\" --allports
 .RS 4
 Standardmäßig schließt Nmaps Versionserkennung den TCP\-Port 9100 aus, weil manche Drucker einfach alles ausdrucken, was an diesen Port gesendet wird, was zu Dutzenden von Seiten mit HTTP\-GET\-Requests, binären SSL\-Session\-Requests usw\&. führen würde\&. Dieses Verhalten kann man ändern, indem man die
-\FCExclude\F[]\-Anweisung in
-\FCnmap\-service\-probes\F[]
+Exclude\-Anweisung in
+nmap\-service\-probes
 verändert oder entfernt, oder Sie geben
 \fB\-\-allports\fR
 an, um alle Port zu scannen, unabhängig von einer
-\FCExclude\F[]\-Anweisung\&.
+Exclude\-Anweisung\&.
 .\" Exclude Anweisung (nmap-service-probes)
 .RE
 .PP
@@ -1137,8 +965,8 @@ Bei einem Versions\-Scan (\fB\-sV\fR) sendet Nmap eine Reihe von Testpaketen, di
 Die Standardeinstellung ist 7\&.
 .\" Versionserkennung: Standardintensität
 Wenn ein Testpaket mit der
-\FCports\F[]\-Anweisung in
-\FCnmap\-service\-probes\F[]
+ports\-Anweisung in
+nmap\-service\-probes
 für den Zielport registriert ist, wird dieses Testpaket ausprobiert, unabhängig von der Intensitätsstufe\&. Das garantiert, dass die DNS\-Testpakete bei jedem offenen Port 53 immer benutzt werden, das SSL\-Testpaket bei Port 443 usw\&.
 .RE
 .PP
@@ -1171,11 +999,11 @@ Das wird automatisch als Teil einer Versionserkennung aktiviert (\fB\-sV\fR), we
 selten benötigt\&.
 .RE
 .\" 
-.SH "Betriebssystem-Erkennung"
+.SH "BETRIEBSSYSTEM-ERKENNUNG"
 .\" Betriebssystemerkennung
 .PP
 Eines der bekanntesten Merkmale von Nmap ist dessen Erkennung entfernter Betriebssysteme mit TCP/IP\-Stack\-Fingerprinting\&. Nmap sendet eine Reihe von TCP\- und UDP\-Paketen an den entfernten Host und untersucht praktisch jedes Bit in der Antwort\&. Nach der Durchführung Dutzender von Tests, wie z\&.B\&. einer TCP\-ISN\-Abtastung, Unterstützung und Reihenfolge von TCP\-Optionen, IP\-ID\-Abtastung und Prüfung der initialen Fenstergröße, vergleicht Nmap die Ergebnisse mit seiner Datenbank in
-\FCnmap\-os\-db\F[].\" nmap-os-db
+nmap\-os\-db.\" nmap-os-db
 von über eintausend bekannten Betriebssystem\-Fingerprints und gibt die Details zum Betriebssystem aus, wenn es eine Übereinstimmung gefunden hat\&. Jeder Fingerprint enthält eine formlose Beschreibung des Betriebssystems und eine Klassifikation, aus der der Herstellername (z\&.B\&. Sun), das eigentliche Betriebssystem (z\&.B\&. Solaris), dessen Generation (z\&.B\&. 10) und der Gerätetyp (allgemein, Router, Switch, Spielkonsole usw\&.) hervorgeht\&.
 .PP
 Falls Nmap das Betriebssystem eines Rechner nicht erraten kann und die Umstände günstig sind (z\&.B\&. wenn mindestens ein offener und ein geschlossener Port gefunden wurde), präsentiert Nmap eine URL, unter der Sie den Fingerprint einsenden können, wenn Sie (ganz sicher) wissen, welches Betriebssystem auf dem Rechner läuft\&. Dadurch erweitern Sie den Pool der Betriebssysteme, die Nmap kennt, wodurch es für alle Benutzer genauer wird\&.
@@ -1227,7 +1055,7 @@ Wenn Nmap eine Betriebssystem\-Erkennung auf einem Ziel durchführt und dafür k
 (z\&.B\&. 1) beschleunigt Nmap, auch wenn Sie Versuche auslassen, bei denen das Betriebssystem möglicherweise erkannt werden könnte\&. Alternativ dazu kann ein hoher Wert gesetzt werden, um bei günstigen Bedinungen noch mehr Versuche zu erlauben\&. Das macht man aber selten, außer um bessere Fingerprints zu erzeugen, die man einsenden kann, um sie in Nmaps Betriebssystem\-Datenbank zu integrieren\&.
 .RE
 .\" 
-.SH "Nmap Scripting Engine (NSE)"
+.SH "NMAP SCRIPTING ENGINE (NSE)"
 .\" Nmap Scripting Engine (NSE)
 .PP
 Die Nmap Scripting Engine (NSE) ist eines der mächtigsten und flexibelsten Merkmale von Nmap\&. Mit ihr können Benutzer einfache Scripts schreiben und weitergeben (geschrieben in der
@@ -1237,15 +1065,15 @@ Die Nmap Scripting Engine (NSE) ist eines der mächtigsten und flexibelsten Merk
 Zu den Aufgaben, die wir bei der Konzeption dieses Systems anvisierten, gehören die Netzwerkerkennung, eine ausgefeiltere Versionserkennung sowie eine Verwundbarkeitserkennung\&. NSE kann aber sogar bei der Ausbeutung von Schwachstellen benutzt werden\&.
 .PP
 Um diese verschiedenen Anwendungen widerzuspiegeln und um die Auswahl des richtigen Scripts zu vereinfachen, verfügen alle Scripts über ein Kategorie\-Feld\&. Im Moment sind folgende Kategorien definiert:
-\FCsafe\F[],
-\FCintrusive\F[],
-\FCmalware\F[],
-\FCversion\F[],
-\FCdiscovery\F[],
-\FCvuln\F[],
-\FCauth\F[]
+safe,
+intrusive,
+malware,
+version,
+discovery,
+vuln,
+auth
 und
-\FCdefault\F[]\&. Sie alle werden
+default\&. Sie alle werden
 at \m[blue]\fB\%http://nmap.org/book/nse-usage.html#nse-categories\fR\m[]\&.
 .PP
 Die Nmap Scripting Engine wird detailliert
@@ -1263,30 +1091,30 @@ Führt einen Script\-Scan mit dem Standardsatz an Scripts durch\&. Das ist äqui
 .RS 4
 Führt einen Script\-Scan (wie z\&.B\&.
 \fB\-sC\fR) durch und benutzt dabei die mit Kommata getrennte Liste von Script\-Kategorien, individuellen Scripts oder Script\-Verzeichnissen statt des Standardsatzes\&. Zuerst versucht Nmap, die Argumente als Kategorien zu interpretieren, dann (wenn das nicht gelingt) als Datei\- oder Verzeichnisnamen\&. Ein Script oder Verzeichnis von Scripts kann als absoluter oder relativer Pfad angegeben werden\&. Absolute Pfade werden unverändert benutzt\&. Relative Pfade werden an den folgenden Orten gesucht, bis sie gefunden werden:.\" Datendateien: Verzeichnis-Suchreihenfolge.\" Scripts, Orte
-\FC\-\-datadir/\F[];
-\FC$NMAPDIR/\F[];.\" NMAPDIR Umgebungsvariable
-\FC~/\&.nmap/\F[]
+\-\-datadir/;
+$NMAPDIR/;.\" NMAPDIR Umgebungsvariable
+~/\&.nmap/
 (wird unter Windows nicht durchsucht);.\" .nmap Verzeichnis
-\FCNMAPDATADIR\F[]/ oder.\" NMAPDATADIR
-\FC\&./\F[]\&. In all diesen Verzeichnissen wird außerdem auch ein
-\FCscripts/\F[]\-Unterverzeichnis ausprobiert\&.
+NMAPDATADIR/ oder.\" NMAPDATADIR
+\&./\&. In all diesen Verzeichnissen wird außerdem auch ein
+scripts/\-Unterverzeichnis ausprobiert\&.
 .sp
 Falls ein Verzeichnis angegeben und gefunden wird, lädt Nmap alle NSE\-Scripts (alle Dateinamen, die mit
-\FC\&.nse\F[]
+\&.nse
 enden) aus diesem Verzeichnis\&. Dateinamen ohne die Endung
-\FCnse\F[]
+nse
 werden ignoriert\&. Nmap sucht keine Unterverzeichnisse rekursiv durch, um Scripts zu finden\&. Wenn individuelle Dateinamen angegeben werden, dann muss deren Dateierweiterung nicht
-\FCnse\F[]
+nse
 lauten\&.
 .sp
 Nmap\-Scripts werden standardmäßig in einem
-\FCscripts\F[]\-Unterverzeichnis des Nmap\-Datenverzeichnisses gespeichert
+scripts\-Unterverzeichnis des Nmap\-Datenverzeichnisses gespeichert
 (see \m[blue]\fB\%http://nmap.org/book/data-files.html\fR\m[])\&.
 
 Aus Effizienzgründen werden Scripts in einer Datenbank indiziert, die in
-\FCscripts/script\&.db\F[]\&..\" script.db
+scripts/script\&.db\&..\" script.db
 gespeichert ist und für jedes Script auflistet, in welche Kategorie bzw\&. Kategorien es gehört\&. Um alle Scripts in der Nmap\-Script\-Datenbank auszuführen, geben Sie das Argument
-\FCall\F[]
+all
 an\&.
 .sp
 Die Scripts werden nicht in einer Sandbox ausgeführt und können Ihr System somit versehentlich oder böswillig beschädigen oder in Ihre Privatsphäre eindringen\&. Sie sollten Scripts von Dritten nur dann ausführen, wenn Sie deren Autoren vertrauen oder sie selbst eingehend studiert haben\&.
@@ -1295,11 +1123,11 @@ Die Scripts werden nicht in einer Sandbox ausgeführt und können Ihr System som
 \fB\-\-script\-args \fR\fB\fIname1\fR\fR\fB=\fR\fB\fIvalue1\fR\fR\fB,\fR\fB\fIname2\fR\fR\fB={\fR\fB\fIname3\fR\fR\fB=\fR\fB\fIvalue3\fR\fR\fB},\fR\fB\fIname4\fR\fR\fB=\fR\fB\fIvalue4\fR\fR .\" --script-args .\" Script-Argumente
 .RS 4
 Hiermit können Sie Argumente für NSE\-Scripts angeben\&. Argumente werden als
-\FCname=value\F[]\-Paare angegeben\&. Die Argumente werden verarbeitet und in einer Lua\-Tabelle gespeichert, auf die alle Scripts Zugriff haben\&. Die Namen werden als Strings (die alphanumerische Werte sein müssen) in
-\FCargument\-table\F[]
-als Schlüssel gespeichert\&. Die Werte sind ihrerseits entweder Strings oder Tabellen (innerhalb von \(oq\FC{\F[]\(cq und \(oq\FC}\F[]\(cq)\&. Sie könnten z\&.B\&. diese mit Kommmata getrennten Argumente angeben:
-\FCuser=bar,pass=foo,whois={whodb=nofollow+ripe}\F[]\&. String\-Argumente werden potenziell von mehreren Scripts benutzt, während Untertabellen normalerweise nur von einem Script benutzt werden\&. In Scripts, die eine Untertabelle annehmen, wird diese Untertabelle normalerweise nach dem Script benannt (in diesem Fall z\&.B\&.
-\FCwhois\F[])\&.
+name=value\-Paare angegeben\&. Die Argumente werden verarbeitet und in einer Lua\-Tabelle gespeichert, auf die alle Scripts Zugriff haben\&. Die Namen werden als Strings (die alphanumerische Werte sein müssen) in
+argument\-table
+als Schlüssel gespeichert\&. Die Werte sind ihrerseits entweder Strings oder Tabellen (innerhalb von \(oq{\(cq und \(oq}\(cq)\&. Sie könnten z\&.B\&. diese mit Kommmata getrennten Argumente angeben:
+user=bar,pass=foo,whois={whodb=nofollow+ripe}\&. String\-Argumente werden potenziell von mehreren Scripts benutzt, während Untertabellen normalerweise nur von einem Script benutzt werden\&. In Scripts, die eine Untertabelle annehmen, wird diese Untertabelle normalerweise nach dem Script benannt (in diesem Fall z\&.B\&.
+whois)\&.
 .RE
 .PP
 \fB\-\-script\-trace\fR .\" --script-trace
@@ -1314,13 +1142,13 @@ schaltet diese Mitverfolgung von Scripts ein\&.
 \fB\-\-script\-updatedb\fR .\" --script-updatedb
 .RS 4
 Diese Option aktualisiert die Script\-Datenbank in
-\FCscripts/script\&.db\F[], die von Nmap benutzt wird, um die verfügbaren Standard\-Scripts und Kategorien zu bestimmen\&. Man muss die Datenbank nur dann aktualisieren, wenn man NSE\-Scripts in das Standardverzeichnis
-\FCscripts\F[]
+scripts/script\&.db, die von Nmap benutzt wird, um die verfügbaren Standard\-Scripts und Kategorien zu bestimmen\&. Man muss die Datenbank nur dann aktualisieren, wenn man NSE\-Scripts in das Standardverzeichnis
+scripts
 hinzufügt oder von dort entfernt, oder wenn man die Kategorie eines Scripts ändert\&. Diese Option wird ohne Argumente benutzt:
 \fBnmap \-\-script\-updatedb\fR\&.
 .RE
 .\" 
-.SH "Timing und Performance"
+.SH "TIMING UND PERFORMANCE"
 .\" Timing
 .\" Performance
 .PP
@@ -1329,13 +1157,13 @@ Bei der Entwicklung von Nmap hatte dessen Performance immer eine der höchsten P
 Um die Scan\-Zeiten zu verbessern, kann man z\&.B\&. nicht\-kritische Tests weglassen und auf die neueste Version von Nmap aktualisieren (Performance\-Verbesserungen werden häufig gemacht)\&. Auch die Optimierung von Timing\-Parametern kann einen großen Unterschied ausmachen\&. Diese Optionen werden im Folgenden beschrieben\&.
 .PP
 Manche Optionen erwarten einen
-\FCtime\F[]\-Parameter\&. Dieser wird standardmäßig in Millisekunden angegeben, aber Sie können \(oqs\(cq, \(oqm\(cq oder \(oqh\(cq an den Wert anhängen, um Sekunden, Minuten oder Stunden anzugeben\&. Das heißt, bei
+time\-Parameter\&. Dieser wird standardmäßig in Millisekunden angegeben, aber Sie können \(oqs\(cq, \(oqm\(cq oder \(oqh\(cq an den Wert anhängen, um Sekunden, Minuten oder Stunden anzugeben\&. Das heißt, bei
 \fB\-\-host\-timeout\fR
 haben die Argumente
-\FC900000\F[],
-\FC900s\F[]
+900000,
+900s
 und
-\FC15m\F[]
+15m
 alle denselben Effekt\&.
 .PP
 \fB\-\-min\-hostgroup \fR\fB\fInumhosts\fR\fR; \fB\-\-max\-hostgroup \fR\fB\fInumhosts\fR\fR (Größe der parallel gescannten Gruppen anpassen) .\" --min-hostgroup .\" --max-hostgroup
@@ -1418,7 +1246,7 @@ Bei manchen Hosts braucht es einfach
 \fIlange\fR, sie zu scannen\&. Das kann an leistungsschwacher oder unzuverlässiger Netzwerk\-Hardware oder \-Software, an einer Paketratenbeschränkung oder einer restriktiven Firewall liegen\&. Die langsamsten paar Prozent der gescannten Hosts können einen Großteil der Scan\-Zeit verbrauchen\&. Dann ist es manchmal das Beste, die Verluste abzuschneiden und diese Hosts erst einmal wegzulassen\&. Geben Sie
 \fB\-\-host\-timeout\fR
 mit der gewünschten maximalen Wartezeit an\&. Sie können z\&.B\&.
-\FC30m\F[]
+30m
 angeben, um sicherzustellen, dass Nmap nicht mehr als eine halbe Stunde verschwendet, indem es auf einen einzelnen Host wartet\&. Beachten Sie, dass Nmap während dieser halben Stunde auch andere Hosts scannen kann, d\&.h\&. es ist keine komplette Zeitverschwendung\&. Ein Host, der das Timeout erreicht, wird übersprungen\&. Für diesen Host werden keine Ergebnisse der Port\-Tabelle, Betriebssystem\- oder Versionserkennung ausgegeben\&.
 .RE
 .PP
@@ -1428,7 +1256,7 @@ Diese Option bewirkt, dass Nmap mindestens die angegebene Zeit zwischen zwei Tes
 sinnvoll\&. Solaris\-Rechner (und viele andere auch) antworten auf UDP\-Scan\-Testpakete normalerweise nur mit einer ICMP\-Nachricht pro Sekunde\&. Wenn Nmap mehr sendet, ist das Verschwendung\&. Mit einem
 \fB\-\-scan\-delay\fR
 von
-\FC1s\F[]
+1s
 bleibt Nmap bei dieser langsamen Rate\&. Nmap versucht eine Ratenbeschränkung zu erkennen und die Scan\-Verzögerung entsprechend anzupassen, aber es schadet nicht, sie explizit anzugeben, falls Sie schon wissen, welche Rate am besten funktioniert\&.
 .sp
 Wenn Nmap die Scan\-Verzögerung nach oben anpasst, um mit der Ratenbeschränkung klarzukommen, verlangsamt sich der Scan dramatisch\&. Die Option
@@ -1489,17 +1317,17 @@ benutzt, um die Anzahl der von ihnen gesendeten ICMP\-Fehlermeldungen (z\&.B\&. 
 können Sie Nmap sagen, dass es diese Ratenbeschränkungen ignorieren soll (z\&.B\&. bei Port\-Scans wie dem SYN\-Scan, die nicht\-antwortende Ports
 \fInicht\fR
 als
-\FCoffen\F[]
+offen
 behandeln)\&.
 .sp
 Diese Option kann die Genauigkeit reduzieren, da einige Ports nicht zu antworten scheinen, weil Nmap nicht lange genug auf eine ratenbeschränkte RST\-Antwort gewartet hat\&. Bei einem SYN\-Scan führt die ausbleibende Antwort dazu, dass für den Port der Zustand
-\FCgefiltert\F[]
+gefiltert
 und
-\FCgeschlossen\F[]
+geschlossen
 markiert wird, den wir sehen, wenn RST\-Pakete empfangen werden\&. Diese Option ist nützlich, wenn Sie sich nur für offene Ports interessieren und eine Unterscheidung zwischen
-\FCgeschlossenen\F[]
+geschlossenen
 und
-\FCgefilterten\F[]
+gefilterten
 Ports die zusätzliche Zeit nicht wert ist\&.
 .RE
 .PP
@@ -1572,7 +1400,7 @@ und setzt die maximale TCP\-Scan\-Verzögerung auf 5\ \&ms\&.
 .RE
 .\" 
 .\" 
-.SH "Firewall-/IDS-Umgehung und -Täuschung"
+.SH "FIREWALL-/IDS-UMGEHUNG UND -TäUSCHUNG"
 .\" Firewalls: umgehen
 .\" Intrusion-Detection-Systeme: umgehen
 .PP
@@ -1617,16 +1445,16 @@ Eine Fragmentierung wird von Nmap nur für rohe Pakete unterstützt, die man mit
 Führt einen Decoy\-Scan durch, was für den entfernten Host den Anschein erweckt, dass der oder die Hosts, die Sie als Köder angeben, das Zielnetzwerk ebenfalls scannen\&. Deren IDS kann also 5\(en10 Port\-Scans von eindeutigen IP\-Adressen verzeichnen, aber es weiß nicht, welche IP sie gescannt hat und welche unschuldige Köder waren\&. Das kann man zwar bekämpfen, indem man Router\-Pfade mitverfolgt, Antworten verwirft oder weitere aktive Mechanismen anwendet, aber im Allgemeinen ist es eine wirksame Methode zum Verbergen Ihrer IP\-Adresse\&.
 .sp
 Trennen Sie alle Köder mit Kommata voneinander, wobei Sie optional
-\FCME\F[].\" ME (Köder-Adresse)
+ME.\" ME (Köder-Adresse)
 als einen der Köder angeben können, um die Position Ihrer echten IP\-Adresse zu bestimmen\&. Falls Sie
-\FCME\F[]
+ME
 an sechster Stelle oder später setzen, zeigen einige verbreitete Port\-Scan\-Detektoren (wie z\&.B\&. der hervorragende Scanlogd.\" Scanlogd
 von Solar Designer.\" Solar Designer) Ihre IP\-Adresse wahrscheinlich überhaupt nicht an\&. Wenn Sie kein
-\FCME\F[]
+ME
 angeben, setzt es Nmap an eine zufällig gewählte Position\&. Sie können auch
-\FCRND\F[].\" RND (Köder-Adresse)
+RND.\" RND (Köder-Adresse)
 benutzen, um eine zufällige, nicht\-reservierte IP\-Adresse zu erzeugen, oder
-\FCRND:\fInumber\fR\F[], um
+RND:\fInumber\fR, um
 \fInumber\fR
 Adressen zu erzeugen\&.
 .sp
@@ -1688,23 +1516,23 @@ können in den Paket\-Headern mehrere Optionen enthalten sein\&. Anders als die 
 Die meisten Möglichkeiten bei der Angabe von IP\-Optionen hat man, wenn man einfach Werte als Argumente für
 \fB\-\-ip\-options\fR
 angibt\&. Stellen Sie vor jede Hex\-Zahl ein
-\FC\ex\F[]
+\ex
 und zwei Ziffern\&. Einzelne Zeichen können Sie wiederholen, indem Sie ihnen ein Sternchen und dann die Anzahl der Wiederholungen nachstellen\&. So ist z\&.B\&.
-\FC\ex01\ex07\ex04\ex00*36\ex01\F[]
+\ex01\ex07\ex04\ex00*36\ex01
 ein Hex\-String mit 36 NUL\-Bytes\&.
 .sp
 Nmap bietet auch einen verkürzten Mechanismus für die Angabe von Optionen\&. Geben Sie einfach die Buchstaben
-\FCR\F[],
-\FCT\F[]
+R,
+T
 oder
-\FCU\F[]
+U
 an, um jeweils Record Route,.\" Record-Route-IP-Option
 Record Timestamp.\" Record-Timestamp-IP-Option
 oder beide Optionen gemeinsam anzugeben\&. Loose oder Strict Source Routing.\" Source Routing
 kann man mit
-\FCL\F[]
+L
 bzw\&.
-\FCS\F[], gefolgt von einem Leerzeichen und einer mit Leerzeichen getrennten Liste von IP\-Adressen angeben\&.
+S, gefolgt von einem Leerzeichen und einer mit Leerzeichen getrennten Liste von IP\-Adressen angeben\&.
 .sp
 Wenn Sie die Optionen in den gesendeten und empfangenen Paketen sehen möchten, geben Sie
 \fB\-\-packet\-trace\fR
@@ -1722,7 +1550,7 @@ Setzt bei IPv4 das Time\-to\-live\-Feld in gesendeten Paketen auf den angegebene
 Verlangt von Nmap, dass es alle Gruppen von bis zu 16\&.384 Hosts durcheinanderwürfelt, bevor es sie scannt\&. Das kann den Scan für verschiedene Netzwerk\-Überwachungssysteme weniger offensichtlich machen, besonders dann, wenn Sie ihn mit einer langsamen Timing\-Option kombinieren\&. Wenn Sie größere Gruppen randomisieren möchten, müssen Sie
 \fIPING_GROUP_SZ\fR.\" PING_GROUP_SZ
 in
-\FCnmap\&.h\F[].\" nmap.h
+nmap\&.h.\" nmap.h
 erhöhen und neu kompilieren\&. Eine alternative Lösung ist es, die Liste der Ziel\-IPs mit einem List\-Scan (\fB\-sL \-n \-oN \fR\fB\fIfilename\fR\fR) zu erzeugen, dann z\&.B\&. mit einem Perl\-Script zu randomisieren, um sie schließlich als Ganzes mit
 \fB\-iL\fR.\" -iL: Hosts randomisieren mit
 an Nmap zu übergeben\&.
@@ -1734,20 +1562,20 @@ Verlangt von Nmap, dass es in allen gesendeten rohen Ethernet\-Rahmen die angege
 benutzt\&. Diese Option impliziert
 \fB\-\-send\-eth\fR,.\" --send-eth: impliziert von --spoof-mac
 um sicherzustellen, dass Nmap tatsächlich Pakete auf Ethernet\-Ebene sendet\&. Die MAC\-Adresse kann in mehreren Formaten angegeben werden\&. Wenn es einfach die Zahl
-\FC0\F[]
+0
 ist, wählt Nmap eine völlig zufällige MAC\-Adresse für diese Sitzung\&. Falls der angegebene String aus einer geraden Anzahl von Hexadezimalziffern besteht (in dem Paare optional mit Doppelpunkten getrennt sein können), benutzt Nmap diese als MAC\&. Werden weniger als 12 Hexadezimalziffern angegeben, dann füllt Nmap die restlichen sechs Bytes mit zufälligen Werten\&. Falls das Argument weder null noch ein Hex\-String ist, schaut Nmap in
-\FCnmap\-mac\-prefixes\F[]
+nmap\-mac\-prefixes
 nach, um einen Herstellernamen zu finden, der den angegebenen String enthält (unabhängig von der Schreibweise)\&. Wird eine Übereinstimmung gefunden, benutzt Nmap die OUI dieses Herstellers (einen drei Byte langen Präfix).\" Organizationally Unique Identifier (OUI)
 und füllt die verbleibenden drei Bytes mit Zufallswerten\&. Gültige Beispiele für Argumente von
 \fB\-\-spoof\-mac\fR
 sind
-\FCApple\F[],
-\FC0\F[],
-\FC01:02:03:04:05:06\F[],
-\FCdeadbeefcafe\F[],
-\FC0020F2\F[]
+Apple,
+0,
+01:02:03:04:05:06,
+deadbeefcafe,
+0020F2
 und
-\FCCisco\F[]\&. Diese Option betrifft nur Scans mit rohen Paketen wie den SYN\-Scan oder die Betriebssystemerkennung, keine verbindungsorientierten Merkmale wie die Versionserkennung oder die Nmap Scripting Engine\&.
+Cisco\&. Diese Option betrifft nur Scans mit rohen Paketen wie den SYN\-Scan oder die Betriebssystemerkennung, keine verbindungsorientierten Merkmale wie die Versionserkennung oder die Nmap Scripting Engine\&.
 .RE
 .PP
 \fB\-\-badsum\fR (sendet Pakete mit falschen TCP/UDP\-Prüfsummen) .\" --badsum .\" TCP-Prüfsumme .\" Prüfsummen
@@ -1757,7 +1585,7 @@ Verlangt von Nmap, bei den an Zielhosts gesendeten Paketen ungültige TCP\- oder
 .RE
 .\" 
 .\" 
-.SH "Ausgabe"
+.SH "AUSGABE"
 .\" Ausgabeformate
 .PP
 Alle Sicherheitswerkzeuge sind nur so gut wie die Ausgabe, die sie erzeugen\&. Komplexe Tests und Algorithmen haben einen geringen Wert, wenn sie nicht auf übersichtliche und verständliche Weise dargestellt werden\&. Da Nmap auf vielfältige Weise von verschiedenen Leuten und anderer Software benutzt wird, kann kein Format allein es allen recht machen\&. Daher bietet Nmap mehrere Formate, darunter den interaktiven Modus, den Menschen direkt lesen können, und XML, das von Software leicht geparst werden kann\&.
@@ -1783,13 +1611,13 @@ für Benutzer, die sich selbst als |<\-r4d sehen\&.
 .PP
 Die interaktive Ausgabe ist standardmäßig vorgegeben und verfügt über keine eigenen Kommandozeilenoptionen, aber die anderen vier Formate benutzen dieselbe Syntax\&. Sie erwarten ein Argument, den Namen der Datei, in der die Ergebnisse gespeichert werden sollen\&. Es können mehrere Formate angegeben werden, aber jedes nur einmal\&. Vielleicht möchten Sie z\&.B\&. eine normale Ausgabe für eine eigene Untersuchung speichern und eine XML\-Ausgabe desselben Scans für eine programmbasierte Analyse\&. Das erreichen Sie mit den Optionen
 \fB\-oX myscan\&.xml \-oN myscan\&.nmap\fR\&. Auch wenn in diesem Kapitel der Kürze wegen einfache Namen wie
-\FCmyscan\&.xml\F[]
+myscan\&.xml
 benutzt werden, empfehlen sich im Allgemeinen aussagekräftigere Namen\&. Welche Namen Sie wählen, ist Geschmackssache, aber ich benutze lange Namen, die das Scandatum und ein oder zwei Worte über den Scan enthalten, in einem Verzeichnis, das den Namen der gescannten Firma enthält\&.
 .PP
 Auch wenn diese Optionen Ergebnisse in Dateien speichern, gibt Nmap weiterhin die interaktive Ausgabe wie üblich auf die Standardausgabe aus\&. Zum Beispiel speichert der Befehl
 \fBnmap \-oX myscan\&.xml target\fR
 XML in
-\FCmyscan\&.xml\F[]
+myscan\&.xml
 und füllt die Standardausgabe mit demselben interaktiven Ergebnis, wie es auch ohne Angabe von
 \fB\-oX\fR
 der Fall wäre\&. Das können Sie ändern, indem Sie ein Minuszeichen als Argument für eines der Formate angeben\&. Dann schaltet Nmap die interaktive Ausgabe ab und gibt stattdessen Ergebnisse im gewünschten Format auf den Standardausgabestrom aus\&. Das heißt, der Befehl
@@ -1805,39 +1633,39 @@ oder
 \fB\-oXscan\&.xml\fR
 angeben, erzeugt Nmap aus Gründen der Rückwärtskompatibilität Ausgabedateien im
 \fInormalen Format\fR, die jeweils die Namen
-\FCG\-\F[]
+G\-
 und
-\FCXscan\&.xml\F[]
+Xscan\&.xml
 haben\&.
 .PP
 All diese Argumente unterstützen
 \fBstrftime\fR\-ähnliche.\" strftime Konvertierungen in Dateinamen
 Umwandlungen im Dateinamen\&.
-\FC%H\F[],
-\FC%M\F[],
-\FC%S\F[],
-\FC%m\F[],
-\FC%d\F[],
-\FC%y\F[]
+%H,
+%M,
+%S,
+%m,
+%d,
+%y
 und
-\FC%Y\F[]
+%Y
 sind alle exakt gleich wie in
 \fBstrftime\fR\&.
-\FC%T\F[]
+%T
 entspricht
-\FC%H%M%S\F[],
-\FC%R\F[]
+%H%M%S,
+%R
 entspricht
-\FC%H%M\F[]
+%H%M
 und
-\FC%D\F[]
+%D
 entspricht
-\FC%m%d%y\F[]\&. Ein
-\FC%\F[], dem ein anderes Zeichen folgt, ergibt nur genau dieses Zeichen (\FC%%\F[]
+%m%d%y\&. Ein
+%, dem ein anderes Zeichen folgt, ergibt nur genau dieses Zeichen (%%
 ergibt ein Prozentzeichen)\&. Also erzeugt
 \fB\-oX \'scan\-%T\-%D\&.xml\'\fR
 eine XML\-Datei in der Form
-\FCscan\-144840\-121307\&.xml\F[]\&.
+scan\-144840\-121307\&.xml\&.
 .PP
 Nmap bietet auch Optionen zur Steuerung der Scan\-Ausführlichkeit und Optionen, um an Ausgabedateien anzuhängen, statt sie zu überschreiben\&. All diese Optionen werden unten beschrieben\&.
 .PP
@@ -1846,15 +1674,15 @@ Nmap bietet auch Optionen zur Steuerung der Scan\-Ausführlichkeit und Optionen,
 \fB\-oN \fR\fB\fIfilespec\fR\fR (normale Ausgabe) .\" -oN .\" normale Ausgabe
 .RS 4
 Verlangt, dass eine
-\FCnormale Ausgabe\F[]
+normale Ausgabe
 in der angegebenen Datei gespeichert wird\&. Wie oben erwähnt, unterscheidet sich das leicht von der
-\FCinteraktiven Ausgabe\F[]\&.
+interaktiven Ausgabe\&.
 .RE
 .PP
 \fB\-oX \fR\fB\fIfilespec\fR\fR (XML\-Ausgabe) .\" -oX .\" XML-Ausgabe
 .RS 4
 Verlangt, dass eine
-\FCXML\-Ausgabe\F[]
+XML\-Ausgabe
 in der angegebenen Datei gespeichert wird\&. Nmap fügt eine DTD (Document Type Definition) hinzu, mit der XML\-Parser Nmaps XML\-Ausgabe validieren können\&. Diese ist vor allem für die Benutzung durch Programme gedacht, kann aber auch Menschen bei der Interpretation von Nmaps XML\-Ausgabe helfen\&. Die DTD definiert die gültigen Elemente des Formats und zählt an vielen Stellen die dafür erlaubten Attribute und Werte auf\&. Die neueste Version ist immer unter
 \m[blue]\fB\%http://nmap.org/data/nmap.dtd\fR\m[]
 verfügbar\&.
@@ -1868,7 +1696,7 @@ und
 für Perl in CPAN\&. In fast allen Fällen, in denen eine nicht\-triviale Anwendung eine Schnittstelle zu Nmap benutzt, ist XML das bevorzugte Format\&.
 .sp
 Die XML\-Ausgabe verweist auf ein XSL\-Stylesheet, mit dem man die Ergebnisse als HTML formatieren kann\&. Am einfachsten benutzt man das, indem man einfach die XML\-Ausgabe in einem Webbrowser wie Firefox oder IE lädt\&. Standardmäßig funktioniert das nur auf dem Rechner, auf dem Sie Nmap ausgeführt haben (oder auf einem, der ähnlich konfiguriert ist), weil der Pfad zu
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 darin festkodiert ist\&. Um portable XML\-Dateien zu erzeugen, die auf allen mit dem Web verbundenen Rechnern als HTML angezeigt werden, können Sie die Optionen
 \fB\-\-webxml\fR
 oder
@@ -1890,26 +1718,26 @@ Dessen ungeachtet ist die grepbare Ausgabe immer noch recht beliebt\&. Es ist ei
 .sp
 Die grepbare Ausgabe besteht aus Kommentaren (Zeilen, die mit einem # anfangen).\" grepbare Ausgabe: Kommentare in
 sowie aus Zielzeilen\&. Eine Zielzeile enthält eine Kombination aus sechs benannten Feldern, durch Tabulatoren getrennt, gefolgt von einem Doppelpunkt\&. Diese Felder lauten
-\FCHost\F[],
-\FCPorts\F[],
-\FCProtocols\F[],
-\FCIgnored State\F[],
-\FCOS\F[],
-\FCSeq Index\F[],
-\FCIP ID\F[]
+Host,
+Ports,
+Protocols,
+Ignored State,
+OS,
+Seq Index,
+IP ID
 und
-\FCStatus\F[]\&.
+Status\&.
 .sp
 Das wichtigste dieser Felder ist im Allgemeinen
-\FCPorts\F[], das Details zu einem interessanten Port enthält\&. Es ist eine mit Kommata getrennte Liste von Port\-Einträgen, wobei jeder Eintrag einen interessanten Port darstellt und aus sieben mit Schrägstrichen (/) getrennten Unterfeldern besteht\&. Diese Unterfelder lauten:
-\FCPort number\F[],
-\FCState\F[],
-\FCProtocol\F[],
-\FCOwner\F[],
-\FCService\F[],
-\FCSunRPC info\F[]
+Ports, das Details zu einem interessanten Port enthält\&. Es ist eine mit Kommata getrennte Liste von Port\-Einträgen, wobei jeder Eintrag einen interessanten Port darstellt und aus sieben mit Schrägstrichen (/) getrennten Unterfeldern besteht\&. Diese Unterfelder lauten:
+Port number,
+State,
+Protocol,
+Owner,
+Service,
+SunRPC info
 und
-\FCVersion info\F[]\&.
+Version info\&.
 .sp
 Wie bei der XML\-Ausgabe kann diese Manpage auch hier nicht das vollständige Format dokumentieren\&. Eine detailliertere Betrachtung des grepbaren Ausgabeformats in Nmap finden Sie
 from \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[]\&.
@@ -1920,13 +1748,13 @@ from \m[blue]\fB\%http://nmap.org/book/output-formats-grepable-output.html\fR\m[
 Aus Gründen der Bequemlichkeit können Sie Scan\-Ergebnisse mit
 \fB\-oA \fR\fB\fIbasename\fR\fR
 gleichzeitig in normalem, in XML\- und in grepbarem Format speichern\&. Sie werden jeweils in
-\FC\fIbasename\fR\&.nmap\F[],
-\FC\fIbasename\fR\&.xml\F[]
+\fIbasename\fR\&.nmap,
+\fIbasename\fR\&.xml
 und
-\FC\fIbasename\fR\&.gnmap\F[], gespeichert\&. Wie in den meisten Programmen können Sie vor den Dateinamen ein Präfix mit einem Verzeichnispfad darin setzen, z\&.B\&.
-\FC~/nmaplogs/foocorp/\F[]
+\fIbasename\fR\&.gnmap, gespeichert\&. Wie in den meisten Programmen können Sie vor den Dateinamen ein Präfix mit einem Verzeichnispfad darin setzen, z\&.B\&.
+~/nmaplogs/foocorp/
 unter Unix oder
-\FCc:\ehacking\esco\F[]
+c:\ehacking\esco
 unter Windows\&.
 .RE
 .PP
@@ -1950,14 +1778,14 @@ Alternativ dazu können Sie eine Debug\-Stufe auch als Argument an
 die Stufe neun\&. Das ist die höchste verfügbare Stufe, die Tausende von Zeilen produziert, sofern Sie keinen sehr einfachen Scan mit sehr wenigen Ports und Zielen ausführen\&.
 .sp
 Eine Debugging\-Ausgabe ist sinnvoll, wenn Sie einen Fehler in Nmap vermuten oder wenn Sie einfach verwirrt darüber sind, was und warum Nmap etwas genau macht\&. Da dieses Merkmal überwiegend für Entwickler gedacht ist, sind Debug\-Zeilen nicht immer selbsterklärend\&. Vielleicht bekommen Sie etwas wie:
-\FCTimeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\F[]\&. Wenn Sie eine Zeile nicht verstehen, ist Ihre einzige Zuflucht, sie zu ignorieren, im Quellcode nachzuschauen oder Hilfe auf der Entwicklerliste (nmap\-dev)\&..\" nmap-dev Mailingliste
+Timeout vals: srtt: \-1 rttvar: \-1 to: 1000000 delta 14987 ==> srtt: 14987 rttvar: 14987 to: 100000\&. Wenn Sie eine Zeile nicht verstehen, ist Ihre einzige Zuflucht, sie zu ignorieren, im Quellcode nachzuschauen oder Hilfe auf der Entwicklerliste (nmap\-dev)\&..\" nmap-dev Mailingliste
 zu erfragen\&. Manche Einträge sind selbsterklärend, aber je höher die Debug\-Stufe ist, desto obskurer werden die Meldungen\&.
 .RE
 .PP
 \fB\-\-reason\fR (Gründe für Host\- und Portzustände) .\" --reason .\" Angabe von Gründen
 .RS 4
 Gibt die Gründe an, warum ein Port auf einen bestimmten Zustand gesetzt wurde und warum ein Host als ein\- oder ausgeschaltet betrachtet wird\&. Diese Option zeigt die Paketart an, die einen Port\- oder Hostzustand ermittelt hat, z\&.B\&. ein
-\FCRST\F[]\-Paket von einem geschlossenen Port oder ein Echo Reply von einem eingeschalteten Host\&. Die Information, die Nmap angeben kann, hängt von der Art des Scans oder Pings ab\&. Der SYN\-Scan und der SYN\-Ping (\fB\-sS\fR
+RST\-Paket von einem geschlossenen Port oder ein Echo Reply von einem eingeschalteten Host\&. Die Information, die Nmap angeben kann, hängt von der Art des Scans oder Pings ab\&. Der SYN\-Scan und der SYN\-Ping (\fB\-sS\fR
 und
 \fB\-PS\fR) sind sehr detailliert, aber der TCP\-Connect\-Scan (\fB\-sT\fR) wird durch die Implementierung des
 \fBconnect\fR\-Systemaufrufs beschränkt\&. Dieses Merkmal wird automatisch von der Debug\-Option (\fB\-d\fR).\" --reason: impliziert von -d
@@ -1969,9 +1797,7 @@ aktiviert, und die Ergebnisse werden auch dann in XML\-Protokolldateien gespeich
 Gibt periodisch eine Timing\-Statusmeldung nach einem Intervall der Länge
 \fItime\fR
 aus\&. Dabei kann diese Zeitangabe beschrieben werden, wie in
-the section called \(lq\c
-.SH-xref "Timing und Performance\c"
-\&\(rq
+the section called \(lqTIMING UND PERFORMANCE\(rq
 dargestellt, d\&.h\&. Sie können z\&.B\&.
 \fB\-\-stats\-every 10s\fR
 benutzen, um alle 10 Sekunden eine Statusaktualisierung zu erhalten\&. Diese erscheint in der interaktiven Ausgabe (auf dem Bildschirm) und in der XML\-Ausgabe\&.
@@ -1990,12 +1816,12 @@ erhalten Sie all das zusammen\&.
 .PP
 \fB\-\-open\fR (zeige nur offene (oder möglicherweise offene) Ports an) .\" --open
 .RS 4
-Manchmal interessieren Sie sich nur für Ports, mit denen Sie tatsächlich eine Verbindung herstellen können (\FCoffene\F[]
+Manchmal interessieren Sie sich nur für Ports, mit denen Sie tatsächlich eine Verbindung herstellen können (offene
 Ports), und wollen Ihre Ergebnisse nicht mit anderen Ports überhäufen, die
-\FCgeschlossen\F[],
-\FCgefiltert\F[]
+geschlossen,
+gefiltert
 und
-\FCgeschlossen|gefiltert\F[]
+geschlossen|gefiltert
 sind\&. Die Ausgabe wird normalerweise nach dem Scan mit Werkzeugen wie
 grep,
 awk
@@ -2004,14 +1830,14 @@ Perl
 angepasst, aber dieses Merkmal wurde auf überwältigend vielfachen Wunsch hinzugefügt\&. Geben Sie
 \fB\-\-open\fR
 an, um nur
-\FCoffene\F[],
-\FCoffene|gefilterte\F[]
+offene,
+offene|gefilterte
 und
-\FCungefilterte\F[]
+ungefilterte
 Ports zu sehen\&. Diese drei Ports werden ganz wie gewöhnlich behandelt, d\&.h\&. dass
-\FCoffen|gefiltert\F[]
+offen|gefiltert
 und
-\FCungefiltert\F[]
+ungefiltert
 in Zählungen zusammengefasst werden, wenn es eine sehr große Anzahl davon gibt\&.
 .RE
 .PP
@@ -2059,15 +1885,15 @@ auf\&. Nmap fügt neue Ergebnisse dann an die Datendateien an, die im vorherigen
 Die Nmap\-Distribution enthält ein XSL\-Stylesheet.\" XSL
 .\" Stylesheet
 namens
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 .\" nmap.xsl
 zum Betrachten oder Übersetzen einer XML\-Ausgabe nach HTML\&.
 .\" HTML aus XML-Ausgabe
 Die XML\-Ausgabe enthält eine
-\FCxml\-stylesheet\F[]\-Anweisung, die auf
-\FCnmap\&.xml\F[]
+xml\-stylesheet\-Anweisung, die auf
+nmap\&.xml
 an der Stelle verweist, wo es von Nmap ursprünglich installiert wurde (oder im aktuellen Arbeitsverzeichnis unter Windows)\&. Laden Sie einfach Nmaps XML\-Ausgabe in einem modernen Webbrowser, und er sollte
-\FCnmap\&.xsl\F[]
+nmap\&.xsl
 im Dateisystem finden und benutzen, um die Ergebnisse darzustellen\&. Wenn Sie ein anderes Stylesheet benutzen möchten, geben Sie es als Argument für
 \fB\-\-stylesheet\fR
 an\&. Dabei müssen Sie den vollständigen Pfadnamen oder die URL angeben\&. Sehr häufig wird
@@ -2075,8 +1901,8 @@ an\&. Dabei müssen Sie den vollständigen Pfadnamen oder die URL angeben\&. Seh
 benutzt\&. Das sagt einem Browser, dass er die neueste Version des Stylesheets von Nmap\&.Org laden soll\&. Die Option
 \fB\-\-webxml\fR
 macht dasselbe, verlangt aber weniger Tipparbeit und Merkfähigkeit\&. Wenn man das XSL von Nmap\&.Org lädt, wird es einfacher, die Ergebnisse auf einem Rechner anzuschauen, auf dem kein Nmap (und folglich auch kein
-\FCnmap\&.xsl\F[]) installiert ist\&. Daher ist die URL oft nützlicher, doch aus Datenschutzgründen wird standardmäßig das
-\FCnmap\&.xsl\F[]
+nmap\&.xsl) installiert ist\&. Daher ist die URL oft nützlicher, doch aus Datenschutzgründen wird standardmäßig das
+nmap\&.xsl
 im lokalen Dateisystem benutzt\&.
 .RE
 .PP
@@ -2089,10 +1915,10 @@ Diese bequeme Option ist nur ein Alias für
 \fB\-\-no\-stylesheet\fR (lasse XSL\-Stylesheet\-Deklaration im XML weg) .\" --no-stylesheet
 .RS 4
 Geben Sie diese Option an, wenn Nmap in seiner XML\-Ausgabe auf keinerlei XSL\-Stylesheet verweisen soll\&. Die
-\FCxml\-stylesheet\F[]\-Anweisung wird dann weggelassen\&.
+xml\-stylesheet\-Anweisung wird dann weggelassen\&.
 .RE
 .\" 
-.SH "Verschiedene Optionen"
+.SH "VERSCHIEDENE OPTIONEN"
 .PP
 Dieser Abschnitt beschreibt einige wichtige (und weniger wichtige) Optionen, für die es keinen anderen richtig passenden Ort gibt\&.
 .PP
@@ -2101,7 +1927,7 @@ Dieser Abschnitt beschreibt einige wichtige (und weniger wichtige) Optionen, fü
 Seit 2002 unterstützt Nmap bei seinen beliebtesten Features IPv6\&. Insbesondere das Ping\-Scanning (nur für TCP), Connect\-Scanning und die Versionserkennung unterstützen IPv6\&. Die Befehlssyntax ist die übliche, nur dass man auch die Option
 \fB\-6\fR
 angibt\&. Natürlich müssen Sie die IPv6\-Syntax angeben, wenn Sie eine Adresse statt eines Hostnamens angeben\&. Eine Adresse könnte wie folgt aussehen:
-\FC3ffe:7501:4819:2000:210:f3ff:fe03:14d0\F[], d\&.h\&. es empfehlen sich Hostnamen\&. Die Ausgabe sieht genauso aus wie üblich\&. Nur die IPv6\-Adresse in der Zeile der
+3ffe:7501:4819:2000:210:f3ff:fe03:14d0, d\&.h\&. es empfehlen sich Hostnamen\&. Die Ausgabe sieht genauso aus wie üblich\&. Nur die IPv6\-Adresse in der Zeile der
 \(lqinteressanten Ports\(rq
 deutet auf IPv6\&.
 .sp
@@ -2123,36 +1949,36 @@ nicht ohne Genehmigung auf Zielnetzwerke loslassen\&. Diese Option aktiviert nur
 \fB\-\-datadir \fR\fB\fIdirectoryname\fR\fR (gibt benutzerdefinierten Ort für Nmap\-Datendateien an) .\" --datadir
 .RS 4
 Nmap erhält einige spezielle Daten zur Laufzeit aus Dateien namens
-\FCnmap\-service\-probes\F[],
-\FCnmap\-services\F[],
-\FCnmap\-protocols\F[],
-\FCnmap\-rpc\F[],
-\FCnmap\-mac\-prefixes\F[]
+nmap\-service\-probes,
+nmap\-services,
+nmap\-protocols,
+nmap\-rpc,
+nmap\-mac\-prefixes
 und
-\FCnmap\-os\-db\F[]\&. Falls der Ort einer dieser Dateien angegeben wurde (mit den Optionen
+nmap\-os\-db\&. Falls der Ort einer dieser Dateien angegeben wurde (mit den Optionen
 \fB\-\-servicedb\fR
 oder
 \fB\-\-versiondb\fR), wird dieser Ort für diese Datei benutzt\&. Danach sucht Nmap diese Dateien im Verzeichnis, das mit der Option
 \fB\-\-datadir\fR
 angegeben wurde (sofern vorhanden)\&. Dateien, die dort nicht gefunden werden, werden in einem Verzeichnis gesucht, das durch die Umgebungsvariable NMAPDIR angegeben wird.\" NMAPDIR Umgebungsvariable\&. Danach kommt
-\FC~/\&.nmap\F[].\" .nmap Verzeichnis
+~/\&.nmap.\" .nmap Verzeichnis
 für echte und effektive UIDs (nur bei POSIX\-Systemen) oder der Ort des ausführbaren Nmap\-Programms (nur unter Win32) und dann ein bei der Kompilierung angegebener Ort wie z\&.B\&.
-\FC/usr/local/share/nmap\F[]
+/usr/local/share/nmap
 oder
-\FC/usr/share/nmap\F[]\&. Als letzte Rettung sucht Nmap im aktuellen Arbeitsverzeichnis\&.
+/usr/share/nmap\&. Als letzte Rettung sucht Nmap im aktuellen Arbeitsverzeichnis\&.
 .RE
 .PP
 \fB\-\-servicedb \fR\fB\fIservices file\fR\fR (gibt benutzerdefinierte Dienstedatei an) .\" --servicedb
 .RS 4
 Verlangt von Nmap, die angegebene Dienstedatei zu benutzen statt der Datendatei
-\FCnmap\-services\F[], die in Nmap enthalten ist\&. Bei dieser Option wird außerdem auch ein schneller Scan (\fB\-F\fR) benutzt\&. Weitere Details zu Nmaps Datendateien finden Sie in der Beschreibung zu
+nmap\-services, die in Nmap enthalten ist\&. Bei dieser Option wird außerdem auch ein schneller Scan (\fB\-F\fR) benutzt\&. Weitere Details zu Nmaps Datendateien finden Sie in der Beschreibung zu
 \fB\-\-datadir\fR\&.
 .RE
 .PP
 \fB\-\-versiondb \fR\fB\fIservice probes file\fR\fR (gibt benutzerdefinierte Dienstepakete an) .\" --versiondb
 .RS 4
 Verlangt von Nmap, die angegebene Dienstepaketedatei zu benutzen statt der Datendatei
-\FCnmap\-service\-probes\F[], die in Nmap enthalten ist\&. Weitere Details zu Nmaps Datendateien finden Sie in der Beschreibung zu
+nmap\-service\-probes, die in Nmap enthalten ist\&. Weitere Details zu Nmaps Datendateien finden Sie in der Beschreibung zu
 \fB\-\-datadir\fR\&.
 .RE
 .PP
@@ -2215,7 +2041,7 @@ Gibt Nmaps Versionsnummer aus und terminiert\&.
 .RS 4
 Gibt eine kurze Hilfeseite mit den am meisten benutzten Optionen aus\&. Sie kommt auch dann, wenn man Nmap ganz ohne Argumente startet\&.
 .RE
-.SH "Laufzeit-Interaktion"
+.SH "LAUFZEIT-INTERAKTION"
 .PP
 Während der Ausführung von Nmap wird jeder Tastendruck abgefangen\&. Das ermöglicht Ihnen, mit dem Programm zu interagieren, ohne es abzubrechen und neu zu starten\&. Bestimmte Spezialtasten ändern Optionen, während alle anderen Tasten eine Statusmeldung über den Scan ausgeben\&. Konvention ist, dass der Ausgabeumfang durch
 \fIKleinbuchstaben vergrößert\fR
@@ -2251,26 +2077,26 @@ Stats: 0:00:08 elapsed; 111 hosts completed (5 up), 5 undergoing Service Scan
 .sp
 Service scan Timing: About 28\&.00% done; ETC: 16:18 (0:00:15 remaining)
 .RE
-.SH "Beispiele"
+.SH "BEISPIELE"
 .PP
 Hier sind einige Anwendungsbeispiele für Nmap, von einfachen und routinemäßigen bis zu etwas komplexeren und esoterischen\&. Um die Sache etwas konkreter zu machen, werden einige echte IP\-Adressen und Domainnamen benutzt\&. Diese sollten Sie mit Adressen/Namen aus
 \fIIhrem eigenen Netzwerk\fR
 ersetzen\&. Auch wenn ich nicht der Meinung bin, dass Port\-Scans anderer Netzwerke illegal sind oder sein sollten, mögen manche Netzwerkadministratoren es nicht, wenn ihre Netzwerke unverlangt gescannt werden, und könnten sich beschweren\&. Der beste Ansatz ist der, sich zuerst eine Genehmigung zu verschaffen\&.
 .PP
 Zu Testzwecken haben Sie die Genehmigung, den Host
-\FCscanme\&.nmap\&.org\F[]
+scanme\&.nmap\&.org
 zu scannen\&. Diese Genehmigung gilt nur für das Scannen mit Nmap und nicht für das Testen von Exploits oder Denial\-of\-Service\-Angriffen\&. Bitte führen Sie nicht mehr als ein Dutzend Scans pro Tag auf diesem Host durch, um die Bandbreite nicht zu erschöpfen\&. Falls diese freie Dienstleistung missbraucht wird, wird sie abgeschaltet, und Nmap wird dann
-\FCFailed to resolve given hostname/IP: scanme\&.nmap\&.org\F[]
+Failed to resolve given hostname/IP: scanme\&.nmap\&.org
 ausgeben\&. Diese Genehmigung gilt auch für die Hosts
-\FCscanme2\&.nmap\&.org\F[],
-\FCscanme3\&.nmap\&.org\F[]
+scanme2\&.nmap\&.org,
+scanme3\&.nmap\&.org
 usw\&., auch wenn diese Hosts noch nicht existieren\&.
 .PP
 .\" -v: Beispiel
 \fBnmap \-v scanme\&.nmap\&.org\fR
 .PP
 Diese Option scannt alle reservierten TCP\-Ports auf dem Rechner
-\FCscanme\&.nmap\&.org\F[]\&. Die Option
+scanme\&.nmap\&.org\&. Die Option
 \fB\-v\fR
 schaltet den ausführlichen Modus an\&.
 .PP
@@ -2299,7 +2125,7 @@ unterbunden, weil es Verschwendung ist, zuerst eine Reihe von Testpaketen zu sen
 \fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 Das scannt 4096 IPs nach Webservern (ohne sie anzupingen) und speichert die Ausgabe im grepbaren und im XML\-Format\&.
-.SH "Das Nmap-Buch"
+.SH "DAS NMAP-BUCH"
 .PP
 Auch wenn dieser Reference Guide alle wesentlichen Nmap\-Optionen genau beschreibt, kann er nicht vollständig zeigen, wie man diese Features anwendet, um Aufgaben der realen Welt zu lösen\&. Zu diesem Zweck haben wir das Buch
 Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning\&.
@@ -2310,7 +2136,7 @@ Die deutsche Übersetzung dieses Buches von Dinu Gherman ist im Mai 2009 unter d
 \m[blue]\fBNmap: Netzwerke scannen, analysieren und absichern\fR\m[]\&\s-2\u[14]\d\s+2
 im
 \m[blue]\fBOpen Source Press\fR\m[]\&\s-2\u[15]\d\s+2\-Verlag erschienen\&.
-.SH "Fehler"
+.SH "FEHLER"
 .\" Fehlerberichte
 .PP
 Wie sein Autor ist auch Nmap selbst nicht perfekt\&. Aber Sie können helfen, es zu verbessern, indem Sie Fehlerberichte schicken oder sogar Patches schreiben\&. Falls Nmap sich nicht wie erwartet verhält, sollten Sie zuerst auf die neueste Version aktualisieren, die unter
@@ -2321,8 +2147,8 @@ oder bei Google\&. Stöbern Sie in den
 nmap\-dev\-Archiven unter
 \m[blue]\fB\%http://seclists.org/\fR\m[]\&..\" nmap-dev Mailingliste
 Lesen Sie auch diese Manpage vollständig\&. Wenn Sie keine Lösung finden, schicken Sie einen Fehlerbericht per E\-Mail an
-\FCnmap\-dev@insecure\&.org\F[]\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
-\FCnmap\-dev@insecure\&.org\F[]
+nmap\-dev@insecure\&.org\&. Beschreiben Sie darin bitte alles, was Sie über das Problem wissen, inklusive der Nmap\-Version und der Betriebssystemversion, unter der Sie Nmap einsetzen\&. Berichte von Problemen und Fragen zur Anwendung von Nmap werden sehr viel wahrscheinlicher beantwortet, wenn sie an
+nmap\-dev@insecure\&.org
 geschickt werden statt direkt an Fyodor\&. Wenn Sie sich erst auf der nmap\-dev\-Liste eintragen, bevor Sie Ihre E\-Mail schicken, entgeht Ihre Nachricht auch der Moderation und kommt schneller an\&. Eintragen können Sie sich unter
 \m[blue]\fB\%http://cgi.insecure.org/mailman/listinfo/nmap-dev\fR\m[]\&.
 .PP
@@ -2331,14 +2157,14 @@ Code\-Patches zur Behebung von Fehlern sind noch besser als Fehlerberichte\&. Ei
 verfügbar\&. Patches können an
 nmap\-dev
 (empfohlen) oder direkt an Fyodor geschickt werden\&.
-.SH "Autor"
+.SH "AUTOR"
 .PP
 Fyodor
-\FCfyodor@insecure\&.org\F[]
+fyodor@insecure\&.org
 (\m[blue]\fB\%http://insecure.org\fR\m[])
 .PP
 Über die Jahre haben hunderte von Menschen wertvolle Beiträge zu Nmap geleistet\&. Sie sind detailliert in der Datei
-\FCCHANGELOG\F[].\" changelog
+CHANGELOG.\" changelog
 aufgeführt, die mit dem Nmap\-Quellcode verbreitet wird und auch unter
 \m[blue]\fB\%http://nmap.org/changelog.html\fR\m[]
 verfügbar ist\&.
@@ -2346,7 +2172,7 @@ verfügbar ist\&.
 .PP
 Sorry, this section has not yet been translated to German\&. Please see the
 \m[blue]\fBEnglish version\fR\m[]\&\s-2\u[16]\d\s+2\&.
-.SH "Notes"
+.SH "NOTES"
 .IP " 1." 4
 RFC 1122
 .RS 4
