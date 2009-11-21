@@ -597,7 +597,8 @@ local function run (threads)
     for co, thread in pairs(waiting) do
       if cnse.timedOut(thread.host) then
         waiting[co] = nil;
-        thread:d("%THREAD target timed out");
+        thread:d("%THREAD %s%s timed out", thread.host.ip,
+            thread.port and ":"..thread.port.number or "");
         thread:close();
       end
     end
