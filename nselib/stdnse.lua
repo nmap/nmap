@@ -314,12 +314,12 @@ end
 -- <code>
 --   Host script results:
 --   |  smb-enum-domains:
---   |  |  Apple pie
---   |  |  DOMAINS
---   |  |  |  Domain 1
---   |  |  |_ Domain 2
---   |  |  NAMES (WARNING: Not all names could be determined!)
---   |_ |_ |_ Name 1
+--   |    Apple pie
+--   |    DOMAINS
+--   |      Domain 1
+--   |      Domain 2
+--   |    NAMES (WARNING: Not all names could be determined!)
+--   |_     Name 1
 -- </code>
 --
 --@param status A boolean value dictating whether or not the script succeeded. 
