@@ -629,10 +629,12 @@ HostOsScanStats::~HostOsScanStats() {
 		free(FPtests[i]);
 	  }
 	}
-	for(i=0; i<6; i++) {
-	  if(TOps_AVs[i]) free(TOps_AVs[i]);
-	  if(TWin_AVs[i]) free(TWin_AVs[i]);
-	}
+  }
+  for (i = 0; i < 6; i++) {
+    if (TOps_AVs[i])
+      free(TOps_AVs[i]);
+    if (TWin_AVs[i])
+      free(TWin_AVs[i]);
   }
   
   while(!probesToSend.empty()) {
@@ -1988,51 +1990,73 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
 
 void HostOsScan::makeTOpsFP(HostOsScanStats *hss) {
   assert(hss);
-  int i;
+  struct AVal *AVs;
+  int i, n;
 
-  if (hss->TOpsReplyNum!=6) return;
-  
-  for (i=0; i<6; i++) {
-    if (!hss->TOps_AVs[i]) break;
-    if (i<5)
-      hss->TOps_AVs[i]->next = hss->TOps_AVs[i+1];
+  if (hss->TOpsReplyNum != 6)
+    return;
+
+  for (n = 0; n < 6; n++) {
+    if (!hss->TOps_AVs[n])
+      break;
   }
-
-  if (i<6) {
+  if (n < 6) {
     if (o.debugging)
       error("We didn't get all the TOps replies from %s", hss->target->targetipstr());
     return;
   }
 
-  hss->TOps_AVs[5]->next = NULL;
+  /* Create the Avals */
+  AVs = (struct AVal *) safe_zalloc(n * sizeof(struct AVal));
+
+  for (i = 0; i < n - 1; i++) {
+    if (!hss->TOps_AVs[i])
+      break;
+    AVs[i] = *hss->TOps_AVs[i];
+    AVs[i].next = &AVs[i + 1];
+  }
+  AVs[i] = *hss->TOps_AVs[i];
+  AVs[i].next = NULL;
 
   hss->FP_TOps= (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-  hss->FP_TOps->results = hss->TOps_AVs[0];
+  hss->FP_TOps->results = AVs;
   hss->FP_TOps->name = "OPS";
 }
 
 void HostOsScan::makeTWinFP(HostOsScanStats *hss) {
   assert(hss);
-  int i;
+  struct AVal *AVs;
+  int i, n;
 
-  if (hss->TWinReplyNum!=6) return;
-  
-  for (i=0; i<6; i++) {
-    if (!hss->TWin_AVs[i]) break;
-    if (i<5)
-      hss->TWin_AVs[i]->next = hss->TWin_AVs[i+1];
+  if (hss->TWinReplyNum != 6)
+    return;
+
+  for (n = 0; n < 6; n++) {
+    if (!hss->TWin_AVs[n])
+      break;
   }
-
-  if (i<6) {
+  if (n < 6) {
     if (o.debugging)
-      error("We didn't get all the TOps replies from %s", hss->target->targetipstr());
+      error("We didn't get all the TWin replies from %s", hss->target->targetipstr());
     return;
   }
 
+  /* Create the Avals */
+  AVs = (struct AVal *) safe_zalloc(n * sizeof(struct AVal));
+
+  for (i = 0; i < n - 1; i++) {
+    if (!hss->TWin_AVs[i])
+      break;
+    AVs[i] = *hss->TWin_AVs[i];
+    AVs[i].next = &AVs[i + 1];
+  }
+  AVs[i] = *hss->TWin_AVs[i];
+  AVs[i].next = NULL;
+  
   hss->TWin_AVs[5]->next = NULL;
 
   hss->FP_TWin = (FingerPrint *) safe_zalloc(sizeof(FingerPrint));
-  hss->FP_TWin->results = hss->TWin_AVs[0];
+  hss->FP_TWin->results = AVs;
   hss->FP_TWin->name = "WIN";
 }
 
