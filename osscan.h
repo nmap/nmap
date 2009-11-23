@@ -110,6 +110,13 @@
 /* moved to global_structures.h */
 
 /**********************  PROTOTYPES  ***********************************/
+
+/* The OS database consists of many small strings, many of which appear
+   thousands of times. It pays to allocate memory only once for each unique
+   string, and have all references point at the one allocated value. */
+const char *string_pool_insert(const char *s);
+const char *string_pool_sprintf(const char *fmt, ...);
+
 const char *fp2ascii(FingerPrint *FP);
 
 /* Parses a single fingerprint from the memory region given.  If a

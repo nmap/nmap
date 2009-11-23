@@ -117,7 +117,7 @@ FingerPrintResults::~FingerPrintResults() {
 
   /* Free OS fingerprints of OS scanning was done */
   for(i=0; i < numFPs; i++) {
-    freeFingerPrint(FPs[i]);
+    delete(FPs[i]);
     FPs[i] = NULL;
   }
   numFPs = 0;
@@ -184,7 +184,8 @@ const char *FingerPrintResults::OmitSubmissionFP() {
 
 /* Goes through fingerprinting results to populate OSR */
 void FingerPrintResults::populateClassification() {
-  int printno, classno;
+  std::vector<OS_Classification>::iterator osclass;
+  int printno;
 
   OSR.OSC_num_perfect_matches = OSR.OSC_num_matches = 0;
   OSR.overall_results = OSSCAN_SUCCESS;
@@ -198,8 +199,10 @@ void FingerPrintResults::populateClassification() {
 
   for(printno = 0; printno < num_matches; printno++) {
     // a single print may have multiple classifications
-    for(classno = 0; classno < prints[printno]->num_OS_Classifications; classno++) {
-      if (!classAlreadyExistsInResults(&(prints[printno]->OS_class[classno]))) {
+    for (osclass = prints[printno]->OS_class.begin();
+         osclass != prints[printno]->OS_class.end();
+         osclass++) {
+      if (!classAlreadyExistsInResults(&*osclass)) {
 	// Then we have to add it ... first ensure we have room
 	if (OSR.OSC_num_matches == MAX_FP_RESULTS) {
 	  // Out of space ... if the accuracy of this one is 100%, we have a problem
@@ -215,7 +218,7 @@ void FingerPrintResults::populateClassification() {
 	}
 
 	// OK, we will add the new class
-	OSR.OSC[OSR.OSC_num_matches] = &(prints[printno]->OS_class[classno]);
+       OSR.OSC[OSR.OSC_num_matches] = &*osclass;
 	OSR.OSC_Accuracy[OSR.OSC_num_matches] = accuracy[printno];
 	if (accuracy[printno] == 1.0) OSR.OSC_num_perfect_matches++;
 	OSR.OSC_num_matches++;

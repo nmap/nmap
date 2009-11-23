@@ -1975,8 +1975,8 @@ void nmap_free_mem() {
   cp_free();
   free_dns_servers();
   free_etchosts();
-  if(o.reference_FPs){
-    free_fingerprint_file(o.reference_FPs);
+  if (o.reference_FPs) {
+    delete o.reference_FPs;
     o.reference_FPs = NULL;
   }
   AllProbes::service_scan_free();

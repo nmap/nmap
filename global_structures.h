@@ -94,6 +94,8 @@
 #ifndef GLOBAL_STRUCTURES_H
 #define GLOBAL_STRUCTURES_H
 
+#include <vector>
+
 class TargetGroup;
 class Target;
 
@@ -155,35 +157,38 @@ struct ftpinfo {
 };
 
 struct AVal {
-  char *attribute;
-  char value[256];
-  struct AVal *next;
+  const char *attribute;
+  const char *value;
 };
 
 struct OS_Classification {
-  char *OS_Vendor;
-  char *OS_Family;
-  char *OS_Generation; /* Can be NULL if unclassified */
-  char *Device_Type;
+  const char *OS_Vendor;
+  const char *OS_Family;
+  const char *OS_Generation; /* Can be NULL if unclassified */
+  const char *Device_Type;
 };
 
-#define MAX_OS_CLASSIFICATIONS_PER_FP 10
-typedef struct FingerTest {
-  char *OS_name;
-  struct OS_Classification OS_class[MAX_OS_CLASSIFICATIONS_PER_FP];
-  int num_OS_Classifications;
-  int line; /* For reference prints, the line # in nmap-os-db */
+struct FingerTest {
   const char *name;
-  struct AVal *results;
-  struct FingerTest *next;
- } FingerPrint;
+  std::vector<struct AVal> results;
+};
+
+struct FingerPrint {
+  int line; /* For reference prints, the line # in nmap-os-db */
+  char *OS_name;
+  std::vector<OS_Classification> OS_class;
+  std::vector<FingerTest> tests;
+};
 
 /* This structure contains the important data from the fingerprint
    database (nmap-os-db) */
-typedef struct FingerPrintDB {
-  FingerPrint **prints;
+struct FingerPrintDB {
   FingerPrint *MatchPoints;
-} FingerPrintDB;
+  std::vector<FingerPrint *> prints;
+
+  FingerPrintDB();
+  ~FingerPrintDB();
+};
 
 struct timeout_info {
   int srtt; /* Smoothed rtt estimate (microseconds) */

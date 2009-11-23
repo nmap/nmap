@@ -1493,8 +1493,8 @@ void write_host_status(Target * currenths, int resolve_all) {
    that only unique entries are added.  Also note that *numentries is
    incremented if the candidate is added.  arrsize is the number of
    char * members that fit into arr */
-static int addtochararrayifnew(char *arr[], int *numentries, int arrsize,
-                               char *candidate) {
+static int addtochararrayifnew(const char *arr[], int *numentries, int arrsize,
+                               const char *candidate) {
   int i;
 
   // First lets see if the member already exists
@@ -1520,7 +1520,7 @@ static void printosclassificationoutput(const struct
                                         bool guess) {
   int classno, i, familyno;
   int overflow = 0;             /* Whether we have too many devices to list */
-  char *types[MAX_OS_CLASSMEMBERS];
+  const char *types[MAX_OS_CLASSMEMBERS];
   char fullfamily[MAX_OS_CLASSMEMBERS][128];    // "[vendor] [os family]"
   double familyaccuracy[MAX_OS_CLASSMEMBERS];   // highest accuracy for this fullfamily
   char familygenerations[MAX_OS_CLASSMEMBERS][48];      // example: "4.X|5.X|6.X"
