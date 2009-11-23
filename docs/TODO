@@ -12,22 +12,6 @@ o Many people may have stale (since removed/renamed) scripts in their
 o Fix assertion failure with certain --exclude arguments (see
   http://seclists.org/nmap-dev/2009/q4/276). [David]
 
-o Update the CHANGELOG for new (5.05BETA1 or whatever) BETA
-  release. [Fyodor]
- o Clean up current Changelog
- o Integreate change list from Nmap proper (note that Nmap 5 was forked from r13887)
- o Integrate updates since the time I ran the svn log command :).
- o Ron spacing change (make it two spaces rather than one)
- o Integrate change list from nsock
- o Integrate change list from nbase
- o Integrate change list from ndiff
- o Integrate change list from ncat
- o Integrate change list from zenmap
- o Reprioritize Changelog entries
- o Spellcheck TODO
-
-o Make the new Nmap beta release (5.05BETA1 or whatever)
-
 o Look into reducing Nmap memory consumption
   o UDP scans with -p- and large hostgroups are a particularly large
     offender.  See if there is a way to prevent them from eating up
@@ -606,6 +590,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Update the CHANGELOG for new 5.10BETA1
+  release. [Fyodor]
+
+o Make the new Nmap 5.10BETA1 release
 
 o Ndiff man page should be built from XML source whenever a release is
   done, as ncat/zenmap/nmap man pages are. [Fyodor]
