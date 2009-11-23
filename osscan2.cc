@@ -3596,7 +3596,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
         hsi->FP_matches[roundNum].num_perfect_matches > 0) {
       memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
       if (roundNum > 0) {
-        if(o.verbose) log_write(LOG_STDOUT, "WARNING:  OS didn't match until try #%d", roundNum + 1);
+        if(o.verbose) log_write(LOG_STDOUT, "WARNING:  OS didn't match until try #%d\n", roundNum + 1);
       }
       match_fingerprint(hsi->target->FPR->FPs[roundNum], hsi->target->FPR, 
                         o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
