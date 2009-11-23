@@ -146,9 +146,6 @@ o We now print output for down hosts, even when doing scanning beyond
   format for printing a down host has changed slightly: "Nmap scan
   report for 1.1.1.1 [host down]" [David]
 
-
-==BIG==
-
 o [NSE] Default socket parallelism has been doubled from 10 to 20,
   which doubles speed in some situations. See
   http://seclists.org/nmap-dev/2009/q3/161. [Patrick]

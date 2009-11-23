@@ -1,32 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-==Must do before next release==
-o We should package the rendered Nroff man page translations (e.g. all
-  16 languages) in the tarball to make it easier for distributors to
-  package them.  For example, see
-  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
-  the translations would add 2.5MB to the (currently 28MB)
-  uncompressed tarball and about 800KB to the (currently 9MB) bz2
-  compressed tarball. [Fyodor]
-
-o The Nmap 5.00 tarball contains:
-  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
-  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
-  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
-  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
-  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
-  If we're going to include the XML source files, we should include
-  refguide too.  But rather than add that, we should probably take
-  these out.  After all, people can easily grab them from svn or our
-  new http svn gateway if desired.  So no need to bloat the tarball
-  with these files which aren't installed. [We're going to take the
-  XML source files out of the tarball] [Fyodor]
-
-o Ndiff man page should be built from XML source whenever a release is
-  done, as ncat/zenmap/nmap man pages are. [Fyodor]
-
-==Try to do before next release==
-
 o Many people may have stale (since removed/renamed) scripts in their
   Nmap scripts directory because our 'make install' does not remove
   them and so they remain and can cause problems (like running twice
@@ -41,6 +14,17 @@ o Fix assertion failure with certain --exclude arguments (see
 
 o Update the CHANGELOG for new (5.05BETA1 or whatever) BETA
   release. [Fyodor]
+ o Clean up current Changelog
+ o Integreate change list from Nmap proper (note that Nmap 5 was forked from r13887)
+ o Integrate updates since the time I ran the svn log command :).
+ o Ron spacing change (make it two spaces rather than one)
+ o Integrate change list from nsock
+ o Integrate change list from nbase
+ o Integrate change list from ndiff
+ o Integrate change list from ncat
+ o Integrate change list from zenmap
+ o Reprioritize Changelog entries
+ o Spellcheck TODO
 
 o Make the new Nmap beta release (5.05BETA1 or whatever)
 
@@ -175,6 +159,9 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
+
+o Maybe the Nmap ASCII art should come after make rather than
+  configure?
 
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
@@ -619,6 +606,30 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Ndiff man page should be built from XML source whenever a release is
+  done, as ncat/zenmap/nmap man pages are. [Fyodor]
+
+o We should package the rendered Nroff man page translations (e.g. all
+  16 languages) in the tarball to make it easier for distributors to
+  package them.  For example, see
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=358336.  Including
+  the translations would add 2.5MB to the (currently 28MB)
+  uncompressed tarball and about 800KB to the (currently 9MB) bz2
+  compressed tarball. [Fyodor]
+
+o The Nmap 5.00 tarball contains:
+  -rw-r--r-- fyodor/fyodor 122943 2009-06-24 14:35 nmap-5.00/docs/scripting.xml
+  -rw-r--r-- fyodor/fyodor    151 2009-06-24 14:35 nmap-5.00/docs/nmap-usage.xml
+  -rw-r--r-- fyodor/fyodor    604 2009-06-24 14:35 nmap-5.00/docs/nmap-man-enclosure.xml
+  -rw-r--r-- fyodor/fyodor  76918 2009-06-24 14:35 nmap-5.00/docs/nmap-install.xml
+  -rw-r--r-- fyodor/fyodor  10179 2009-06-24 14:35 nmap-5.00/docs/legal-notices.xml
+  If we're going to include the XML source files, we should include
+  refguide too.  But rather than add that, we should probably take
+  these out.  After all, people can easily grab them from svn or our
+  new http svn gateway if desired.  So no need to bloat the tarball
+  with these files which aren't installed. [We're going to take the
+  XML source files out of the tarball] [Fyodor]
 
 o Consider converting this file to emacs org-mode
   (http://orgmode.org/) format. [Fyodor]
