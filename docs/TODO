@@ -1,17 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Many people may have stale (since removed/renamed) scripts in their
-  Nmap scripts directory because our 'make install' does not remove
-  them and so they remain and can cause problems (like running twice
-  after being renamed).  We should probably add a line to our 'make
-  install' which removes the scripts/lib names we have previously
-  used.  We're doing this rather than blowing away the old directory
-  just in case someone has custom scripts/libs there (though that is
-  still a bad idea). [David]
-
-o Fix assertion failure with certain --exclude arguments (see
-  http://seclists.org/nmap-dev/2009/q4/276). [David]
-
 o Look into reducing Nmap memory consumption
   o UDP scans with -p- and large hostgroups are a particularly large
     offender.  See if there is a way to prevent them from eating up
@@ -22,6 +10,21 @@ o Look into reducing Nmap memory consumption
     ports (or whatever the default state is) without creating a Port
     object for each one.
   [David]
+
+o [NSE] Attempt to reproduce and fix a deadlock reported by Brandon
+  when he does large-scale scanning with a new favicon script with
+  hostgroups as small as 8,192 (he hasn't seen it with 4096
+  hostgroups). Could be a bug in internal NSE socket lock. Probably
+  not specific to the favicon script, but that is how Brandon
+  reproduces it. At the hang, stack trace is usually the threads stuck
+  in socket_lock function, sometimes lookup_cache mutex in http
+  library. David guesses that it's threads being garbage-collected
+  from the socket lock table. The only thing that can wake up a thread
+  waiting on a socket lock is if a thread that holds a lock is removed
+  from the table. But the table has weak keys, meaning that a thread
+  can be garbage collected and it will be automatically removed from
+  the table by the Lua runtime. Then there is no event that can wake
+  up a thread waiting for a lock. [David]
 
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
@@ -590,6 +593,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix assertion failure with certain --exclude arguments (see
+  http://seclists.org/nmap-dev/2009/q4/276). [David]
+
+o Many people may have stale (since removed/renamed) scripts in their
+  Nmap scripts directory because our 'make install' does not remove
+  them and so they remain and can cause problems (like running twice
+  after being renamed).  We should probably add a line to our 'make
+  install' which removes the scripts/lib names we have previously
+  used.  We're doing this rather than blowing away the old directory
+  just in case someone has custom scripts/libs there (though that is
+  still a bad idea). [David]
 
 o Update the CHANGELOG for new 5.10BETA1
   release. [Fyodor]
