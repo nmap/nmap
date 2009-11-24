@@ -847,7 +847,7 @@ categories = {"default", "discovery", "safe"}
       <title><literal>author</literal> Field </title>
       <indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
       <para>
-	The <literal>author</literal> field contains the script authors' names and contact information. If you are worried about spam, feel free to omit or obscure your email address, or give your home page URL instead.  This optional field is not used by NSE, but gives script authors due credit or blame. 
+	The <literal>author</literal> field contains the script authors' names and can also contain contact information (such as home page URLs).  We no longer recommend including email addresses because spammers might scrape them from the nsedoc web site.  This optional field is not used by NSE, but gives script authors their due credit or blame. 
       </para>
     </sect2>
 
@@ -1907,7 +1907,7 @@ NSEDoc <literal>@output</literal> tag:</para>
 
 <indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
-author = "Diman Todorov &lt;diman.todorov@gmail.com&gt;"
+author = "Diman Todorov"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -2381,7 +2381,7 @@ categories = {"discovery", "external"}
 description = [[
 Detects the Skype version 2 service.
 ]]
-author = "Brandon Enright &lt;bmenrigh@ucsd.edu&gt;" 
+author = "Brandon Enright" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
@@ -2457,7 +2457,7 @@ actually does goes in the <literal>description</literal> field.</para>
 description = [[
 Attempts to get a list of usernames via the finger service.
 ]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
-author = "Eddie Bell &lt;ejlbell@gmail.com&gt;"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
+author = "Eddie Bell"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
