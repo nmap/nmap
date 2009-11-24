@@ -10,7 +10,7 @@ system to send spam or control the machine.
 -- 22/tcp  open   smtp
 -- |_ smtp-strangeport: Mail server on unusual port: possible malware
 
-author = "Diman Todorov <diman.todorov@gmail.com>"
+author = "Diman Todorov"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

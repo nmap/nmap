@@ -37,7 +37,7 @@ web page from www.google.com.
 -- nmap --script http-open-proxy.nse \
 --      --script-args proxy.url=<url>,proxy.pattern=<pattern>
 
-author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
+author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
 require "comm"

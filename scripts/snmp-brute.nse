@@ -8,7 +8,7 @@ Attempts to find an SNMP community string by brute force guessing.
 -- script will not run.
 -- @args snmplist The filename of a list of community strings to try.
 
-author = "Philip Pickering <pgpickering@gmail.com>"
+author = "Philip Pickering"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

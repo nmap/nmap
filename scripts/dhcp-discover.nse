@@ -60,7 +60,7 @@ and <code>dhcp_parse</code>, with their related functions, can easily be abstrac
 --               <code>fake_requests * 1000</code>. Default: 5000. 
 
 
-author = "Ron Bowes <ron@skullsecurity.net>"
+author = "Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

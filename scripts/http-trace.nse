@@ -15,7 +15,7 @@ response.
 
 -- 08/31/2007
 
-author = "Kris Katterjohn <katterjohn@gmail.com>"
+author = "Kris Katterjohn"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

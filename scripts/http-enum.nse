@@ -46,7 +46,7 @@ for 404 Not Found and the status code returned by the random files).
 --@args path          The base path to prepend to each request. Leading/trailing slashes are not required. 
 --@args variations    Set to '1' or 'true' to attempt variations on the files such as .bak, ~, Copy of", etc.
 
-author = "Ron Bowes <ron@skullsecurity.net>, Andrew Orr <andrew@andreworr.ca>, Rob Nicholls <robert@everythingeverything.co.uk>"
+author = "Ron Bowes, Andrew Orr, Rob Nicholls"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

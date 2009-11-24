@@ -12,7 +12,7 @@ server version may be available.
 -- 110/tcp open  pop3
 -- |_ pop3-capabilities: USER CAPA RESP-CODES UIDL PIPELINING STLS TOP SASL(PLAIN)
 
-author = "Philip Pickering <pgpickering@gmail.com>"
+author = "Philip Pickering"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default","discovery","safe"}

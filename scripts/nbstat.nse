@@ -26,7 +26,7 @@ owns.
 -- |_ |_ |_ \x01\x02__MSBROWSE__\x02<01>  Flags: <group><active>
 
 
-author = "Brandon Enright <bmenrigh@ucsd.edu>, Ron Bowes"
+author = "Brandon Enright, Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 -- Current version of this script was based entirly on Implementing CIFS, by 

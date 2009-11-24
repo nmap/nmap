@@ -11,7 +11,7 @@ sent, so the difference includes at least the duration of one RTT.
 -- 80/tcp open  http
 -- |_ http-date: Wed, 17 Jan 2007 09:29:10 GMT; -2y187d13h46m53s from local time.
 
-author = "David Fifield <david@bamsoftware.com>"
+author = "David Fifield"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

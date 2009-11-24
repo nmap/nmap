@@ -1,7 +1,7 @@
 description = [[
 Detects the Skype version 2 service.
 ]]
-author = "Brandon Enright <bmenrigh@ucsd.edu>" 
+author = "Brandon Enright" 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 

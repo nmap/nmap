@@ -16,7 +16,7 @@ authentication.
 -- * bug fixes against base64 encoded strings, more flexible auth/pass check,
 --   corrected sample output
 
-author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
+author = "Thomas Buchanan"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

@@ -3,7 +3,7 @@ Attempts to extract information from Microsoft SQL Server instances.
 ]]
 -- rev 1.0 (2007-06-09)
 
-author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
+author = "Thomas Buchanan"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

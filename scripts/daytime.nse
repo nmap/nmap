@@ -2,7 +2,7 @@ description = [[
 Retrieves the day and time from the UDP Daytime service.
 ]]
 
-author = "Diman Todorov <diman.todorov@gmail.com>"
+author = "Diman Todorov"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

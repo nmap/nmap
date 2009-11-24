@@ -15,7 +15,7 @@ message and changes it to the message given.
 -- nmap --script=pjl-ready-message.nse \
 --   --script-args='pjl_ready_message="your message here"'
 
-author = "Aaron Leininger <rilian4@hotmail.com>" 
+author = "Aaron Leininger" 
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

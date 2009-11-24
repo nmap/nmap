@@ -12,7 +12,7 @@ any site-specific policy.
 -- |_ imap-capabilities: LOGINDISABLED IDLE IMAP4 LITERAL+ STARTTLS NAMESPACE IMAP4rev1
 
 
-author = "Brandon Enright <bmenrigh@ucsd.edu>"
+author = "Brandon Enright"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}

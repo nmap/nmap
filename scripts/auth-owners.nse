@@ -21,7 +21,7 @@ Attempts to find the owner of an open TCP port by querying an auth
 
 -- The protocol is documented in RFC 1413.
 
-author = "Diman Todorov <diman.todorov@gmail.com>"
+author = "Diman Todorov"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

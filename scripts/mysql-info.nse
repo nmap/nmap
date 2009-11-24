@@ -19,7 +19,7 @@ isn't run (see the portrule).
 
 -- Many thanks to jah (jah@zadkiel.plus.com) for testing and enhancements
 
-author = "Kris Katterjohn <katterjohn@gmail.com>"
+author = "Kris Katterjohn"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

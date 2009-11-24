@@ -93,7 +93,7 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 -----------------------------------------------------------------------
 
 
-author = "Ron Bowes <ron@skullsecurity.net>"
+author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- Set the runlevel to <1 to ensure that it runs before other scripts
 runlevel = 0.5

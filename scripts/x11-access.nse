@@ -16,7 +16,7 @@ server access is granted".
 -- Host script results:
 -- |_ x11-access: X server access is granted
 
-author = "vladz <vladz@devzero.fr>"
+author = "vladz"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe", "auth"}
 

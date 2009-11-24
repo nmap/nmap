@@ -1,4 +1,4 @@
-author = "jah <jah@zadkiel.plus.com>"
+author = "jah"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 description = [[

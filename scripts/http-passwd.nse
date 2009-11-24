@@ -12,7 +12,7 @@ requesting <code>../../../../etc/passwd</code>.
 --   * Rewritten to use Sven Klemm's excellent HTTP library and to do some much
 --     needed cleaning up
 
-author = "Kris Katterjohn <katterjohn@gmail.com>"
+author = "Kris Katterjohn"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

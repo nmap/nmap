@@ -3,7 +3,7 @@ Attempts to extract system information from the point-to-point tunneling protoco
 ]]
 -- rev 0.2 (11-14-2007)
 
-author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
+author = "Thomas Buchanan"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

@@ -22,7 +22,7 @@ Performs a GET request for the root folder ("/") of a web server and displays th
 --@args path The path to request, such as '/index.php'. Default: '/'. 
 --@args useget Set to force GET requests instead of HEAD. 
 
-author = "Ron Bowes <ron@skullsecurity.org>"
+author = "Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

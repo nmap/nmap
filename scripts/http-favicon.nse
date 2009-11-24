@@ -16,7 +16,7 @@ Obtains the favicon.ico from the root of a web service (or with the html link re
 --		--script-args favicon.root=<root>,favicon.uri=<uri>
 
 
-author = "Vlatko Kosturjak <kost@linux.hr>"
+author = "Vlatko Kosturjak"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

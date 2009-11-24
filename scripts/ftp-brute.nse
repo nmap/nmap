@@ -24,7 +24,7 @@ Made into an actual bruteforce script (previously, it only tried one username/pa
 -- @args passlimit The number of passwords to try (default: unlimited).
 -- @args limit     Set userlimlt + passlimit at the same time.
 
-author = "Diman Todorov <diman.todorov@gmail.com>, Vlatko Kosturjak <kost@linux.hr>, Ron Bowes <ron@skullsecurity.net>"
+author = "Diman Todorov, Vlatko Kosturjak, Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

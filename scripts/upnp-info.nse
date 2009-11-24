@@ -7,7 +7,7 @@ Attempts to extract system information from the UPnP service.
 -- |  upnp-info:  System/1.0 UPnP/1.0 IGD/1.0
 -- |_ Location: http://192.168.1.1:80/UPnP/IGD.xml
 
-author = "Thomas Buchanan <tbuchanan@thecompassgrp.net>"
+author = "Thomas Buchanan"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

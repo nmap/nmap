@@ -58,7 +58,7 @@ certificate.
 -- |  Not valid before: 2009-05-28 00:00:00
 -- |_ Not valid after:  2010-05-01 23:59:59
 
-author = "David Fifield <david@bamsoftware.com>"
+author = "David Fifield"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

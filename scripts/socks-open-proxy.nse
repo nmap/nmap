@@ -22,7 +22,7 @@ syntax in the example) argument, as described below.
 -- nmap --script=socks-open-proxy \
 --		--script-args proxy.url=<host>,proxy.pattern=<pattern>
 
-author = "Joao Correa <joao@livewire.com.br>"
+author = "Joao Correa"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "external", "intrusive"}
 

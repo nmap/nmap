@@ -2,7 +2,7 @@ description = [[
 Attempts to retrieve a list of usernames using the finger service.
 ]]
 
-author = "Eddie Bell <ejlbell@gmail.com>"
+author = "Eddie Bell"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

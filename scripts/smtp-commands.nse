@@ -46,7 +46,7 @@ SMTP server.
 -- script and from Arturo 'Buanzo' Busleiman's SMTP open relay
 -- detector script.
 
-author = "Jason DePriest <jrdepriest@gmail.com>"
+author = "Jason DePriest"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 

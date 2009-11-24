@@ -14,7 +14,7 @@ supports.
 -- |       SSL2_RC4_128_EXPORT40_WITH_MD5
 -- |_      SSL2_RC2_CBC_128_CBC_WITH_MD5
 
-author = "Matt <mb2263@bristol.ac.uk>"
+author = "Matt"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "safe"}

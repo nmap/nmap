@@ -5,7 +5,7 @@ DB2 EXCSAT (exchange server attributes) command packet and parses the response.
 
 -- rev 1.2 (2010-11-11)
   
-author = "Tom Sellers <nmap@fadedcode.net>"
+author = "Tom Sellers"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

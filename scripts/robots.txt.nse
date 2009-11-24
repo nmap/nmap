@@ -21,7 +21,7 @@ require('shortport')
 require('strbuf')
 require('http')
 
-author = "Eddie Bell <ejlbell@gmail.com>"
+author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 runlevel = 1.0

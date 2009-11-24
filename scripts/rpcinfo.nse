@@ -24,7 +24,7 @@ require "bin"
 require "bit"
 require "tab"
 
-author = "Sven Klemm <sven@c3d2.de>"
+author = "Sven Klemm"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe","discovery"}
 

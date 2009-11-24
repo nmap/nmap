@@ -7,7 +7,7 @@ Tries to log into a POP3 account by guessing usernames and passwords.
 -- (default), <code>"SASL-PLAIN"</code>, <code>"SASL-LOGIN"</code>,
 -- <code>"SASL-CRAM-MD5"</code>, or <code>"APOP"</code>.
 
-author = "Philip Pickering <pgpickering@gmail.com>"
+author = "Philip Pickering"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "auth"}

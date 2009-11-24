@@ -56,7 +56,7 @@ require('bit')
 require('tab')
 require('dns')
 
-author = 'Eddie Bell <ejlbell@gmail.com>'
+author = 'Eddie Bell'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'default', 'intrusive', 'discovery'}
 runlevel = 1.0
