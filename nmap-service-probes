@@ -7427,3 +7427,13 @@ match hp-pjl m|@PJL\x20INFO\x20ID\r?\n\r?\n| d/printer/
 
 # We don't want to send a bunch more probes that will be printed
 softmatch hp-pjl m|^| i/hp-pdl probe got something back/
+
+##############################NEXT PROBE##############################
+# Citrix MetaFrame application discovery service
+# http://sh0dan.org/oldfiles/hackingcitrix.html
+Probe UDP Citrix q|\x1e\0\x01\x30\x02\xfd\xa8\xe3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
+rarity 5
+ports 1604
+
+# Citrix MetaFrame
+match icabrowser m|^\x30\0\x02\x31\x02\xfd\xa8\xe3\x02\0\x06\x44\xc0\xa8| p/Citrix MetaFrame/
