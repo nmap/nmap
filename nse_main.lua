@@ -596,7 +596,7 @@ local function run (threads)
     -- Checked for timed-out hosts.
     for co, thread in pairs(waiting) do
       if cnse.timedOut(thread.host) then
-        waiting[co] = nil;
+        waiting[co], all[co] = nil, nil;
         thread:d("%THREAD %s%s timed out", thread.host.ip,
             thread.port and ":"..thread.port.number or "");
         thread:close();
@@ -609,7 +609,7 @@ local function run (threads)
 
       local s, result = resume(co, unpack(thread.args, 1, thread.args.n));
       if not s then -- script error...
-        hosts[thread.host][co] = nil;
+        hosts[thread.host][co], all[co] = nil, nil;
         thread:d("%THREAD against %s%s threw an error!\n%s\n",
             thread.host.ip, thread.port and ":"..thread.port.number or "",
             traceback(co, tostring(result)));
@@ -623,7 +623,7 @@ local function run (threads)
           thread:close();
         end
       elseif status(co) == "dead" then
-        hosts[thread.host][co] = nil;
+        hosts[thread.host][co], all[co] = nil, nil;
         if type(result) == "string" then
           -- Escape any character outside the range 32-126 except for tab,
           -- carriage return, and line feed. This makes the string safe for
