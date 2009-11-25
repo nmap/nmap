@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a UDP payload and service detection probe for Citrix
+  MetaFrame, which typically runs on 1604/udp. [Thomas Buchanan]
+
 Nmap 5.10BETA1 [2009-11-23]
 
 o Added 14 new NSE scripts for a grand total of 72! You can learn

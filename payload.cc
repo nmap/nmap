@@ -218,6 +218,29 @@ static const char payload_amanda[] =
   "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
   "SERVICE noop\n";
 
+/* Citrix MetaFrame application browser service
+   Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html  
+   Payload contents copied from Wireshark capture of Citrix Program 
+   Neighborhood client application.  The application uses this payload to
+   locate Citrix servers on the local network.  Response to this probe is 
+   a 48 byte UDP payload as shown here:
+
+   0000   30 00 02 31 02 fd a8 e3 02 00 06 44 c0 a8 80 55
+   0010   00 00 00 00 00 00 00 00 00 00 00 00 02 00 06 44
+   0020   c0 a8 80 56 00 00 00 00 00 00 00 00 00 00 00 00
+
+   The first 12 bytes appear to be the same in all responses.
+
+   Bytes 0x00 appears to be a packet length field
+   Bytes 0x0C - 0x0F are the IP address of the server
+   Bytes 0x10 - 0x13 may vary, 0x14 - 0x1F do not appear to
+   Bytes 0x20 - 0x23 are the IP address of the primary system in a server farm
+   configuration 
+   Bytes 0x24 - 0x27 can vary, 0x28 - 0x2F do not appear to  */
+static const char payload_citrix[] =
+  "\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+
 static const char payload_null[] = "";
 
 
@@ -276,6 +299,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       SET_PAYLOAD(payload_Sqlping);
       break;
     */
+    case 1604:
+      SET_PAYLOAD(payload_citrix);
+      break;
     /* RFC 2865: "The early deployment of RADIUS was done using UDP port number
        1645, which conflicts with the "datametrics" service. The officially
        assigned port number for RADIUS is 1812. */
