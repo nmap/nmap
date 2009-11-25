@@ -271,7 +271,6 @@ install-ndiff:
 
 NSE_FILES = scripts/script.db scripts/*.nse
 NSE_LIB_LUA_FILES = nselib/*.lua
-NSE_LIB_DATA_FILES = nselib/data/*
 
 install-nse: $(TARGET)
 	$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/scripts
@@ -288,7 +287,7 @@ install-nse: $(TARGET)
 		$(INSTALL) -d $(DESTDIR)$(nmapdatadir)/$$f; \
 	done
 	for f in `find nselib/data -name .svn -prune -o -type f -print`; do \
-			$(INSTALL) -c -m 644 $$f $(DESTDIR)$(nmapdatadir)/$$f; \
+		$(INSTALL) -c -m 644 $$f $(DESTDIR)$(nmapdatadir)/$$f; \
 	done
 
 install-ncat: $(NCATDIR)/ncat
