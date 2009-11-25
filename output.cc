@@ -500,7 +500,7 @@ static char *formatScriptOutput(ScriptResult sr) {
   char *c_result, *c_output = new char[output.length() + 1];
   strncpy(c_output, output.c_str(), output.length() + 1);
   int line = 0;
-  std::string line_prfx = "|  ";
+  std::string line_prfx = "| ";
 
   char *token = strtok(c_output, "\n");
 
@@ -516,7 +516,7 @@ static char *formatScriptOutput(ScriptResult sr) {
 
   // fix the last line
   pos = result.rfind(line_prfx);
-  result.replace(pos, 3, "|_ ");
+  result.replace(pos, 2, "|_");
 
   // delete the unwanted trailing newline
   pos = result.rfind("\n");
