@@ -31,6 +31,7 @@ Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "pjl-ready-message.nse", categories = { "intrusive", } }
 Entry { filename = "pop3-brute.nse", categories = { "auth", "intrusive", } }
