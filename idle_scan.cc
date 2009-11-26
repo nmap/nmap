@@ -1040,8 +1040,8 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   Snprintf(additional_info, sizeof(additional_info), "%d ports", numports);
   SPM.endTask(NULL, additional_info);
 
-  /* Now we go through the ports which were not determined were scanned
-     but not determined to be open, and add them in the "closed" state */
+  /* Now we go through the ports which were scanned but not determined
+     to be open, and add them in the "closed" state */
   for(portidx = 0; portidx < numports; portidx++) {
     if (target->ports.getPortEntry(portarray[portidx], IPPROTO_TCP) == NULL) {
       target->ports.addPort(portarray[portidx], IPPROTO_TCP, PORT_CLOSEDFILTERED);
