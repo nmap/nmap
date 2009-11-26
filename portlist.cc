@@ -326,7 +326,7 @@ void Port::setServiceProbeResults(enum serviceprobestate sres,
 	if (sname) 
 		serviceprobe_service = strdup(sname);
 	else
-		sname = NULL;
+		serviceprobe_service = NULL;
 
 	if (fingerprint) 
 		serviceprobe_fp = strdup(fingerprint);
