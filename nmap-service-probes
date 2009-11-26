@@ -6896,6 +6896,9 @@ match sip m|^SIP/2\.0 500 Server Internal Error\r\n.*\r\nUser-Agent: BT Home Hub
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX ([\w-_.]+)\r\n|s p/Asterisk PBX/ v/$1/ d/PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
+# OpenSER and SER have joined to become SIP Router
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: SIP Router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Router/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenSIPS \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSIPS SIP Server/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Cisco-SIPGateway/IOS-([-\d\w.]+)\r\n|s p/Cisco SIP Gateway/ i/IOS $1/ o/IOS/ d/router/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sphericall/([\w-_.]+) Build/(\d+)\r\n|s p/Sphericall VoIP Gateway/ v/$1 build $2/ o/Windows/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: CommuniGatePro/([\w-_.]+)\r\n|s p/CommuniGatePro VoIP Gateway/ v/$1/
@@ -6907,6 +6910,21 @@ match sip-proxy m|^SIP/2\.0 503 Remote end of tunnel is not connected\r\n.*\r\nW
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
+##############################NEXT PROBE##############################
+Probe UDP SIPOptions q|OPTIONS sip:nm SIP/2.0\r\nVia: SIP/2.0/UDP nm;branch=foo;rport\r\nFrom: <sip:nm@nm>;tag=root\r\nTo: <sip:nm2@nm2>\r\nCall-ID: 50000\r\nCSeq: 42 OPTIONS\r\nMax-Forwards: 70\r\nContent-Length: 0\r\nContact: <sip:nm@nm>\r\nAccept: application/sdp\r\n\r\n|
+rarity 5
+ports 5060
+# Some VoIP phones take longer to respond
+totalwaitms 7500
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenS[Ee][Rr] \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSER SIP Server/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Express Router/ v/$1/ i/$2/
+# OpenSER and SER have joined to become SIP Router
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: SIP Router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Router/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX\r\n|s p/Asterisk PBX/
+match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenSIPS \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSIPS SIP Server/ v/$1/ i/$2/
+
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 ##############################NEXT PROBE##############################
 Probe TCP LANDesk-RC q|\x54\x4e\x4d\x50\x04\0\0\0\x54\x4e\x4d\x45\0\0\x04\0|

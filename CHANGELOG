@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a UDP SIPOptions probe corresponding to the TCP one thanks to
+  the research and testing of Patrik Karlsson and Matt Selsky.
+
 o Added a UDP payload and service detection probe for Citrix
   MetaFrame, which typically runs on 1604/udp. [Thomas Buchanan]
 
