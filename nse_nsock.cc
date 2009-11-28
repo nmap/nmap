@@ -356,12 +356,13 @@ static void socket_unlock(lua_State * L)
 
       lua_rawgeti(L, LUA_ENVIRONINDEX, CONNECT_WAITING);
       lua_pushnil(L);
-      if (lua_next(L, -2) != 0)
+      while (lua_next(L, -2) != 0)
       {
         lua_pop(L, 1); /* pop garbage boolean */
         nse_restore(lua_tothread(L, -1), 0);
+        lua_pushvalue(L, -1);
         lua_pushnil(L);
-        lua_rawset(L, -3); /* remove thread from waiting */
+        lua_rawset(L, -4); /* remove thread from waiting */
       }
       lua_pop(L, 1); /* CONNECT_WAITING */
     }
