@@ -1291,7 +1291,7 @@ match pop3 m|^\+OK Solid POP3 server ready\r\n| p/Solid pop3d/
 match pop3 m|^\+OK Solid POP3 server ready <\d{3,6}\.1[012]\d{8}@([-.\w]+)>\r\n| p/Solid pop3d/ h/$1/
 # Cyrus POP3 v2.0.16
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w\+]+) server ready ?\r\n| p/Cyrus POP3/ h/$1/ v/$2/
-match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 Murder v(\d[-.\w\+]+) server ready ?\r\n| p/Cyrus POP3 Murder/ h/$1/ v/$2/
+match pop3 m|^\+OK  ?([-.\w]+) Cyrus POP3 Murder v(\d[-.\w\+]+) server ready ?\r\n| p/Cyrus POP3 Murder/ h/$1/ v/$2/
 #  pop3d (GNU Mailutils 0.3) on Linux 2.4
 match pop3 m|^\+OK POP3 Ready <\d{3,6}\.1[012]\d{8}@(\w+)>\r\n| p/GNU Mailutils pop3d/ h/$1/
 # Solid POP3 Server 0.15_1 on FreeBSD
