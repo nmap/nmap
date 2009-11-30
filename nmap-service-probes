@@ -6884,8 +6884,8 @@ totalwaitms 7500
 
 match imsp m|^VIA: BAD IMSP busy\r\nFROM: BAD IMSP busy\r\nTO: BAD IMSP busy\r\n|
 
-match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\w-_.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
-match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\w-_.]+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/
+match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: PolycomSoundStationIP-SSIP_(\d+)-UA/([\d.]+)_(\w+)\r\n|s p/Polycom SoundStation $1/ v/$2/ d/VoIP phone/ i/MAC: $3/
+match sip m|^SIP/2\.0 .*\r\nUser-Agent: PolycomSoundPointIP-SPIP_(\d+)-UA/([\d.]+)_(\w+)\r\n|s p/Polycom SoundPoint $1/ v/$2/ d/VoIP phone/ i/MAC: $3/
 match sip m|^SIP/2\.0 400 Invalid Contact information\r\n.*received=[\d.]+;ms-received-port=\d+;ms-received-cid=\d+\r\n|s p/Microsoft Live SIP client/ o/Windows/
 match sip m|^SIP/2\.0 501 Not Implemented.*\r\nServer: SJphone/([-\w_.]+) \(SJ Labs\)\r\n|s p/SJphone SIP client/ v/$1/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*\r\nUser-Agent: Speedport ([\w-_. ]+) \(|s p/T-Com Speedport/ v/$1/ d/broadband router/
