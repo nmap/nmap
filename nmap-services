@@ -5778,7 +5778,7 @@ unknown	9407/udp	0.000330
 unknown	9409/tcp	0.000152
 unknown	9415/tcp	0.000760
 unknown	9416/udp	0.000661
-unknown	9418/tcp	0.000228
+git	9418/tcp	0.000228	# Git revision control system
 unknown	9420/udp	0.000330
 unknown	9424/udp	0.000330
 unknown	9431/udp	0.000330
