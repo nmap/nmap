@@ -65,7 +65,7 @@ action = function(host, port)
 	if string.match(owner, "ERROR") then 
 		owner = nil
 	else
-		owner = string.match(owner, "USERID : .+ : (.-)\r?\n", 1)
+		owner = string.match(owner, "%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n", 1)
 	end
 
 	try(client_ident:close())
