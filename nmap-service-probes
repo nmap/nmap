@@ -7407,6 +7407,13 @@ ports 1583,3351
 rarity 8
 match psql-btrieve m|^A\0K\0\0\0....\0\0\0\0\0\0\xff\xff\xff\xff\0\0\n\x04\xa0|s p/Pervasive.SQL Server - Btrieve Engine/
 
+# Following probe created by Patrik Karlsson:
+##############################NEXT PROBE##############################
+Probe UDP ibm-db2-das-udp q|DB2GETADDR\0SQL08010\0|
+rarity 8
+ports 523
+
+match ibm-db2 m|^DB2RETADDR\0SQL0(\d)(\d\d)(\d+)\0([^\0]+)\0|s p/IBM DB2 Database Server/ v/$1.$2.$3/ i/Hostname: $4/
 
 ##############################NEXT PROBE##############################
 # Apache JServe Protocol (ajp) v1.3 Ping request
