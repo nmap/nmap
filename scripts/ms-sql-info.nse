@@ -2,6 +2,7 @@ description = [[
 Attempts to extract information from Microsoft SQL Server instances.
 ]]
 -- rev 1.0 (2007-06-09)
+-- rev 1.1 (2009-12-06 - Added SQL 2008 identification T Sellers)
 
 author = "Thomas Buchanan"
 
