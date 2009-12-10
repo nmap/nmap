@@ -43,6 +43,9 @@ o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
 
+o Investigate issue with our Pcap and Wireshark x64, as described in
+  this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
+
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
   files rather than just that exact location.  For example, insecure.org
