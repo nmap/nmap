@@ -1,6 +1,9 @@
 description = [[
 Gets variables from an NTP server by sending a "read variables" (opcode 2)
-control message.
+control message. Without verbosity, the script shows the value of the
+<code>version</code>, <code>processor</code>, <code>system</code>,
+<code>refid</code>, and <code>stratum</code> variables. With verbosity, all
+variables are shown.
 
 See RFC 1035 and the Network Time Protocol Version 4 Reference and
 Implementation Guide
@@ -26,6 +29,7 @@ categories = {"default", "discovery", "safe"}
 
 
 require "bin"
+require "nmap"
 require "stdnse"
 require "comm"
 require "shortport"
@@ -68,7 +72,7 @@ action = function(host, port)
     -- Backslash escapes should be interpreted inside strings and commas should
     -- be allowed inside them.
     for k, q, v in string.gmatch(data, "%s*(%w+)=(\"?)([^,\"]*)%2,?") do
-      if DEFAULT_FIELDS[k] then
+      if DEFAULT_FIELDS[k] or nmap.verbosity() then
         table.insert(output, string.format("%s: %s", k, v))
       end
     end
