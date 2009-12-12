@@ -1,0 +1,83 @@
+description = [[
+Gets variables from an NTP server by sending a "read variables" (opcode 2)
+control message.
+
+See RFC 1035 and the Network Time Protocol Version 4 Reference and
+Implementation Guide
+(http://www.eecis.udel.edu/~mills/database/reports/ntp4/ntp4.pdf) for
+documentation of the protocol.
+]]
+
+---
+-- @output
+-- PORT    STATE SERVICE VERSION
+-- 123/udp open  ntp     NTP v4
+-- | ntp-info:  
+-- |   version: ntpd 4.2.4p4@1.1520-o Wed May 13 21:06:31 UTC 2009 (1)
+-- |   processor: x86_64
+-- |   system: Linux/2.6.24-24-server
+-- |   stratum: 2
+-- |_  refid: 195.145.119.188
+
+
+author = "Richard Sammet"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"default", "discovery", "safe"}
+
+
+require "bin"
+require "stdnse"
+require "comm"
+require "shortport"
+
+portrule = shortport.port_or_service(123, "ntp", {"udp", "tcp"})
+
+-- Transform an array into a table where the array's values all map to true.
+local function make_set(a)
+  local i, v, result
+  result = {}
+  for i, v in ipairs(a) do
+    result[v] = true
+  end
+  return result
+end
+
+-- Only these fields from the response are displayed with default verbosity.
+local DEFAULT_FIELDS = make_set({"version", "processor", "system", "refid", "stratum"})
+
+action = function(host, port)
+  local status
+  local bufrlres
+  local output = {}
+
+  -- This is a ntp v2 mode6 (control) rl (readlist/READVAR(2)) request. See
+  -- appendix B of RFC 1305.
+  local rlreq = string.char(0x16, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+                            0x00, 0x00, 0x00, 0x00)
+
+  status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol})
+
+  if status then
+    local _, data, k, q, v
+
+    -- Skip the first 10 bytes of the header, then get the data which is
+    -- preceded by a 2-byte length.
+    _, p, data = bin.unpack("A10>P", bufrlres)
+
+    -- This parsing is not quite right with respect to quoted strings.
+    -- Backslash escapes should be interpreted inside strings and commas should
+    -- be allowed inside them.
+    for k, q, v in string.gmatch(data, "%s*(%w+)=(\"?)([^,\"]*)%2,?") do
+      if DEFAULT_FIELDS[k] then
+        table.insert(output, string.format("%s: %s", k, v))
+      end
+    end
+  end
+
+  if(#output > 0) then
+    nmap.set_port_state(host, port, "open")
+    return stdnse.format_output(true, output)
+  else
+    return nil
+  end
+end
