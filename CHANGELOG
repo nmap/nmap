@@ -11,8 +11,8 @@ o Added a UDP payload and service detection probe for Citrix
 
 o Added new NSE scripts:
 
-  o ntp-info asks for configuration variables from the NTP service,
-    which may include such interesting information as the operating
+  o ntp-info gets the time and configuration variables from the NTP
+    service. It may get such interesting information as the operating
     system, server build date, and upstream time server IP address.
     [Richard Sammet]
 

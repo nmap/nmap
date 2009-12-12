@@ -1,6 +1,7 @@
 description = [[
-Gets variables from an NTP server by sending a "read variables" (opcode 2)
-control message. Without verbosity, the script shows the value of the
+Gets the time and configuration variables from an NTP server. We send two
+requests: a time request and a "read variables" (opcode 2) control message.
+Without verbosity, the script shows the time and the value of the
 <code>version</code>, <code>processor</code>, <code>system</code>,
 <code>refid</code>, and <code>stratum</code> variables. With verbosity, all
 variables are shown.
@@ -16,6 +17,7 @@ documentation of the protocol.
 -- PORT    STATE SERVICE VERSION
 -- 123/udp open  ntp     NTP v4
 -- | ntp-info:  
+-- |   receive time stamp: Sat Dec 12 16:22:41 2009
 -- |   version: ntpd 4.2.4p4@1.1520-o Wed May 13 21:06:31 UTC 2009 (1)
 -- |   processor: x86_64
 -- |   system: Linux/2.6.24-24-server
@@ -51,22 +53,45 @@ local DEFAULT_FIELDS = make_set({"version", "processor", "system", "refid", "str
 
 action = function(host, port)
   local status
-  local bufrlres
+  local buftres, bufrlres
   local output = {}
+
+  -- This is a ntp v4 mode3 (client) date/time request.
+  local treq = string.char(0xe3, 0x00, 0x04, 0xfa, 0x00, 0x01, 0x00, 0x00, 
+                           0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+                           0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00)
 
   -- This is a ntp v2 mode6 (control) rl (readlist/READVAR(2)) request. See
   -- appendix B of RFC 1305.
   local rlreq = string.char(0x16, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
                             0x00, 0x00, 0x00, 0x00)
 
+  status, buftres = comm.exchange(host, port, treq, {proto=port.protocol})
+  if status then
+    local _, sec, frac, tstamp
+
+    _, sec, frac = bin.unpack(">II", buftres, 33)
+    -- The NTP epoch is 1900-01-01, so subtract 70 years to bring the date into
+    -- the range Lua expects. The number of seconds at 1970-01-01 is taken from
+    -- the NTP4 reference above.
+    tstamp = sec - 2208988800 + frac / 0x10000000
+
+    table.insert(output, string.format("receive time stamp: %s", os.date("%c", tstamp)))
+  end
+
   status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol})
 
   if status then
+    -- This only looks at the first fragment of what can possibly be several
+    -- fragments in the response.
     local _, data, k, q, v
 
     -- Skip the first 10 bytes of the header, then get the data which is
     -- preceded by a 2-byte length.
-    _, p, data = bin.unpack("A10>P", bufrlres)
+    _, data = bin.unpack(">P", bufrlres, 11)
 
     -- This parsing is not quite right with respect to quoted strings.
     -- Backslash escapes should be interpreted inside strings and commas should
