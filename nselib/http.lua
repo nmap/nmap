@@ -419,38 +419,39 @@ end
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
 -- @param cookies A table with cookies
+-- @param postdata A string or a table of data to be posted. If a table, the
+-- keys and values must be strings, and they will be encoded into an
+-- application/x-www-form-encoded form submission.
 -- @return Request String 
 local buildPost = function( host, port, path, options, cookies, postdata)
-  local options = options or {}
-  local content = ""
-
-  if postdata and type(postdata) == "table" then
-    local k, v
-    for k, v in pairs(postdata) do
-      content = content .. k .. "=" .. url.escape(v) .. "&"
-    end
-    content = string.gsub(content, "%%20","+") 
-    content = string.sub(content, 1, string.len(content)-1)
-  elseif postdata and type(postdata) == "string" then
-    content = postdata
-    content = string.gsub(content, " ","+")
-  end
-
   local mod_options = {
     header = {
       Host = get_host_field(host, port),
       Connection = "close",
       ["Content-Type"] = "application/x-www-form-urlencoded",
       ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
-    },
-    content = content
+    }
   }
+
+  -- Build a form submission from a table, like "k1=v1&k2=v2".
+  if type(postdata) == "table" then
+    local parts = {}
+    local k, v
+    for k, v in pairs(postdata) do
+      parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
+    end
+    postdata = table.concat(parts, "&")
+    mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
+  end
+
+  mod_options.content = postdata
+
   if cookies then
     local cookies = buildCookies(cookies, path)
     if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
   end
 
-  table_augment(mod_options, options)
+  table_augment(mod_options, options or {})
 
   local data = "POST " .. path .. " HTTP/1.1\r\n"
 
@@ -804,10 +805,12 @@ end
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
 -- @param cookies A table with cookies
--- @param postada A table of data to be posted
+-- @param postdata A string or a table of data to be posted. If a table, the
+-- keys and values must be strings, and they will be encoded into an
+-- application/x-www-form-encoded form submission.
 -- @return Table as described in the module description.
 -- @see http.parseResult
-post = function( host, port, path, options, cookies , postdata )
+post = function( host, port, path, options, cookies, postdata )
   local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
   data = buildRequest(data, mod_options)
   local response = request(host, port, data)
