@@ -579,7 +579,6 @@ function isChunked( header )
     line = line:lower()
     encoding = line:match("transfer%-encoding: (.*)")
     if encoding then
-      print(encoding)
       if encoding:match("identity") then
         return false
       else
