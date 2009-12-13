@@ -1083,6 +1083,13 @@ function parseResult( response, options )
   if type(response) ~= "string" then return response end
   local result = {status=nil,["status-line"]=nil,header={},rawheader={},body=""}
 
+  -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
+  -- Sometimes a server will tell us to "go ahead" with a POST body before
+  -- sending the real response. If we got one of those, skip over it.
+  if response and response:match("^HTTP/%d.%d 100%s") then
+    response = response:match("\r?\n\r?\n(.*)$")
+  end
+
   -- try and separate the head from the body
   local header, body
   if response and response:match( "\r?\n\r?\n" ) then
