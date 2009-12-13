@@ -1,8 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Added a new script, nfs-showmount by Patrik Karlsson, that shows nfs
-  exports like "showmount -e".
-
 o Added a UDP SIPOptions probe corresponding to the TCP one thanks to
   the research and testing of Patrik Karlsson and Matt Selsky.
 
@@ -10,6 +7,9 @@ o Added a UDP payload and service detection probe for Citrix
   MetaFrame, which typically runs on 1604/udp. [Thomas Buchanan]
 
 o Added new NSE scripts:
+
+  o nfs-showmount shows NFS exports like "showmount -e" does. [Patrik
+    Karlsson]
 
   o ntp-info gets the time and configuration variables from the NTP
     service. It may get such interesting information as the operating
