@@ -49,42 +49,26 @@ end
 
 
 ---
--- Encodes the length part of a ASN.1 encoding triplet.
+-- Encodes the length part of a ASN.1 encoding triplet using the "primitive,
+-- definite-length" method.
 -- @param val Value to be encoded.
 -- @return Encoded length value.
-local function encodeLength(val)
-   if (val >= 128) then
-      local valStr = ""
-      while (val > 0) do
-	 local lsb = math.mod(val, 256)
-	 valStr = valStr .. bin.pack("C", lsb)
-	 val = math.floor(val/256)
+local function encodeLength(len)
+   if len < 128 then
+      return string.char(len)
+   else
+      local parts = {}
+
+      while len > 0 do
+         parts[#parts + 1] = string.char(bit.mod(len, 256))
+         len = bit.rshift(len, 8)
       end
-      return bin.pack("CA", string.len(valStr) + 0x80, string.reverse(valStr))
-      -- count down
-   else 
-      return bin.pack("C", val)
+
+      assert(#parts < 128)
+      return string.char(#parts + 0x80) .. string.reverse(table.concat(parts))
    end
 end
 
-
-local function encode_length_primitive(len)
-  if len < 128 then
-    return string.char(len)
-  else
-    local parts = {}
-
-    while len > 0 do
-      table.insert(parts, 1, string.char(bit.mod(len, 256)))
-      len = bit.rshift(len, 8)
-    end
-
-    assert(#parts < 128)
-    table.insert(parts, 1, string.char(#parts + 0x80))
-
-    return table.concat(parts)
-  end
-end
 
 -- Encode one component of an OID as a byte string. 7 bits of the component are
 -- stored in each octet, most significant first, with the eigth bit set in all
@@ -93,13 +77,14 @@ end
 -- IDENTIFIER.
 local function encode_oid_component(n)
   local parts = {}
-  table.insert(parts, 1, string.char(bit.mod(n, 128)))
+  parts[1] = string.char(bit.mod(n, 128))
   while n >= 128 do
     n = bit.rshift(n, 7)
-    table.insert(parts, 1, string.char(bit.mod(n, 128) + 0x80))
+    parts[#parts + 1] = string.char(bit.mod(n, 128) + 0x80)
   end
-  return table.concat(parts)
+  return string.reverse(table.concat(parts))
 end
+
 
 ---
 -- Encodes a given value according to ASN.1 basic encoding rules for SNMP
@@ -126,7 +111,7 @@ function encode(val)
 	 for i = 3, #val do
 	    oidStr = oidStr .. encode_oid_component(val[i])
 	 end 
-	 return bin.pack("HAA", '06', encode_length_primitive(#oidStr), oidStr) 
+	 return bin.pack("HAA", '06', encodeLength(#oidStr), oidStr) 
       elseif (val._snmp == '40') then -- ipAddress
 	 return bin.pack("HC4", '40 04', unpack(val))
       elseif (val._snmp == '41') then -- counter
