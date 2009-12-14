@@ -16,6 +16,17 @@ o Added new NSE scripts:
     system, server build date, and upstream time server IP address.
     [Richard Sammet]
 
+  o citrix-brute-xml uses the unpwdb library to guess credentials for
+    the Citrix PN Web Agent Service. [Patrik Karlsson]
+
+  o citrix-enum-apps and citrix-enum-apps-xml get a list of published
+    applications from the Citrix ICA Browser or XML service,
+    respectively. [Patrik Karlsson]
+
+  o citrix-enum-servers and citrix-enum-servers-xml.nse get a list of
+    Citrix servers from the Citrix ICA Browser or XML service,
+    respectively. [Patrik Karlsson]
+
 o Removed a limitation of snmp.lua that only allowed it to properly
   encode OID component values up to 127. The bug was reported by
   Victor Rudnev. [David]

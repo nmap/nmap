@@ -2,6 +2,11 @@ Entry { filename = "asn-query.nse", categories = { "discovery", "external", "saf
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
+Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
+Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
+Entry { filename = "citrix-enum-servers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
