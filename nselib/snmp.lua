@@ -8,6 +8,8 @@
 module(... or "snmp",package.seeall)
 
 
+require("bit")
+
 ---
 -- Encodes an Integer according to ASN.1 basic encoding rules.
 -- @param val Value to be encoded.
@@ -66,6 +68,39 @@ local function encodeLength(val)
 end
 
 
+local function encode_length_primitive(len)
+  if len < 128 then
+    return string.char(len)
+  else
+    local parts = {}
+
+    while len > 0 do
+      table.insert(parts, 1, string.char(bit.mod(len, 256)))
+      len = bit.rshift(len, 8)
+    end
+
+    assert(#parts < 128)
+    table.insert(parts, 1, string.char(#parts + 0x80))
+
+    return table.concat(parts)
+  end
+end
+
+-- Encode one component of an OID as a byte string. 7 bits of the component are
+-- stored in each octet, most significant first, with the eigth bit set in all
+-- octets but the last. These encoding rules come from
+-- http://luca.ntop.org/Teaching/Appunti/asn1.html, section 5.9 OBJECT
+-- IDENTIFIER.
+local function encode_oid_component(n)
+  local parts = {}
+  table.insert(parts, 1, string.char(bit.mod(n, 128)))
+  while n >= 128 do
+    n = bit.rshift(n, 7)
+    table.insert(parts, 1, string.char(bit.mod(n, 128) + 0x80))
+  end
+  return table.concat(parts)
+end
+
 ---
 -- Encodes a given value according to ASN.1 basic encoding rules for SNMP
 -- packet creation.
@@ -87,11 +122,11 @@ function encode(val)
    end
    if (vtype == 'table') then -- complex data types
       if val._snmp == '06' then -- OID
-	 local oidStr = bin.pack("C", val[1]*40 + val[2])
+	 local oidStr = string.char(val[1]*40 + val[2])
 	 for i = 3, #val do
-	    oidStr = oidStr .. bin.pack("C", val[i])
+	    oidStr = oidStr .. encode_oid_component(val[i])
 	 end 
-	 return bin.pack("HCA", '06', #val - 1, oidStr) 
+	 return bin.pack("HAA", '06', encode_length_primitive(#oidStr), oidStr) 
       elseif (val._snmp == '40') then -- ipAddress
 	 return bin.pack("HC4", '40 04', unpack(val))
       elseif (val._snmp == '41') then -- counter
