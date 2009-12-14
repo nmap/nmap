@@ -24,7 +24,7 @@ author = "Patrik Karlsson <patrik@cqure.net>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery","intrusive"}
+categories = {"discovery","safe"}
 
 require "comm"
 require "shortport"
