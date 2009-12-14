@@ -588,7 +588,7 @@ local function find_share(host)
 		-- Try and find a share to use. 
 		status, share, path, shares = smb.share_find_writable(host)
 		if(status == false) then
-			return false, share
+			return false, share .. " (May not have an administrator account)"
 		end
 		if(path == nil) then
 			return false, string.format("Couldn't find path to writable share (we probably don't have admin access): '%s'", share)
