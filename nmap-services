@@ -2702,8 +2702,8 @@ x25-svc-port	1998/tcp	0.001731	# cisco X.25 service (XOT)
 x25-svc-port	1998/udp	0.000610	# cisco X.25 service (XOT)
 tcp-id-port	1999/tcp	0.000364	# cisco identification port
 tcp-id-port	1999/udp	0.000923	# cisco identification port
-callbook	2000/tcp	0.010112
-callbook	2000/udp	0.011697
+cisco-sccp	2000/tcp	0.010112	# cisco SCCP (Skinny Client Control Protocol)
+cisco-sccp	2000/udp	0.011697	# cisco SCCP (Skinny Client Control Protocol)
 dc	2001/tcp	0.007339	# or nfr20 web queries
 wizard	2001/udp	0.001186	# curry
 globe	2002/tcp	0.001744
@@ -3870,6 +3870,7 @@ unknown	4173/udp	0.000330
 unknown	4174/tcp	0.000076
 unknown	4175/udp	0.000661
 unknown	4179/udp	0.000330
+sieve	4190/tcp	0.000076	# ManageSieve Protocol
 unknown	4191/udp	0.000330
 unknown	4192/tcp	0.000076
 unknown	4194/udp	0.000330
