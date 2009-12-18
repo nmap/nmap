@@ -3351,7 +3351,7 @@ match zabbix m|^ZBXD\x01\x10\0\0\0\0\0\0\0ZBX_NOTSUPPORTED| p/Zabbix Monitoring 
 ##############################NEXT PROBE##############################
 Probe TCP GetRequest q|GET / HTTP/1.0\r\n\r\n|
 rarity 1
-ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,40193,50000,55555
+ports 1,70,79,80-85,88,113,139,143,280,497,505,514,515,540,554,591,620,631,783,888,898,900,901,993,995,1026,1080,1214,1220,1234,1311,1314,1344,1503,1610,1611,1830,1900,2001,2002,2030,2064,2160,2306,2396,2525,2715,2869,3000,3002,3052,3128,3280,3372,3531,3689,3872,4000,4444,4660,4711,5000,5427,5060,5222,5269,5432,5800-5803,5900,6103,6346,6544,6600,6699,6969,7002,7007,7070,7402,7776,8000-8010,8080-8085,8118,8181,8443,8880-8888,9000,9001,9030,9050,9080,9090,9999,10000,10005,11371,13013,13666,13722,14534,15000,17988,18264,31337,40193,50000,55555
 sslports 443,4443
 
 match ajp13 m|^AB\0\x13\x04\x01\x90\0\x0bBad Request\0\0\0AB\0\x02\x05\x01$| p/Apache Jserv/
@@ -3473,14 +3473,14 @@ match http m|^HTTP/1\.1 200 OK\r\nServer: Agranat-EmWeb/R5_2_6\r\nContent-Type: 
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=ISO-8859-1\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!DOCTYPE html\nPUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=utf-8\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!--  DOCTYPE tag is included to support the XHTML  -->\n<!DOCTYPE html\n   PUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_0_1\r\n-ransfer-Encoding: chunked\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n\n<!DOCTYPE html\nPUBLIC| p/HP JetDirect http config/ i/Embedded webserver: Virata-EmWeb 6.0.1/
-match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 90\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP Color LaserJet 3500 http config/ i/Virata embedded httpd 6.2.1/ d/printer/
-match http m|^HTTP/1\.1 301 Resource Moved\r\nCONTENT-LENGTH: 0\r\nEXPIRES: .*\r\nLocation: /hp/device/this\.LCDispatcher\r\nCACHE-CONTROL: no-cache\r\nSERVER: HP-ChaiSOE/([\d.]+)\r\n-ONNECTION: Keep-Alive\r\n\r\n| p/HP Color LaserJet 4650 http config/ i/HP-ChaiSOE $1/ d/printer/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 90\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP Color LaserJet 3500 http config/ i/Virata-EmWeb httpd 6.2.1/ d/printer/
+match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 88\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP LaserJet P4014 http config/ i/Virata-EmWeb httpd 6.2.1/ d/printer/
+match http m|^HTTP/1\.1 301 Resource Moved\r\nCONTENT-LENGTH: 0\r\nEXPIRES: .*\r\nLocation: /hp/device/this\.LCDispatcher\r\nCACHE-CONTROL: no-cache\r\nSERVER: HP-ChaiSOE/([\d.]+)\r\n-ONNECTION: Keep-Alive\r\n\r\n| p/HP LaserJet http config/ i/HP-ChaiSOE $1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Agranat-EmWeb/R5_2_6\r\nContent-Type: text/html;charset=ISO-8859-1\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<HTML> \n<HEAD>\n<TITLE> | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 5.2.6/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=ISO-8859-1\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!DOCTYPE html\nPUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=utf-8\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!--  DOCTYPE tag is included to support the XHTML  -->\n<!DOCTYPE html\n   PUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_0_1\r\n-ransfer-Encoding: chunked\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n\n<!DOCTYPE html\nPUBLIC| p/HP JetDirect http config/ i/Embedded webserver: Virata-EmWeb 6.0.1/ d/printer/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 90\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP Color LaserJet 3500 http config/ i/Virata embedded httpd 6.2.1/ d/printer/
-match http m|^HTTP/1\.1 301 Resource Moved\r\nCONTENT-LENGTH: 0\r\nEXPIRES: .*\r\nLocation: /hp/device/this\.LCDispatcher\r\nCACHE-CONTROL: no-cache\r\nSERVER: HP-ChaiSOE/([\d.]+)\r\n-ONNECTION: Keep-Alive\r\n\r\n| p/HP Color LaserJet 4650 http config/ i/HP-ChaiSOE $1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\n\n\n<title> HP Color LaserJet 2840  /|s p/HP Color LaserJet 2840 http config/ i/Virata httpd $1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>HP Officejet Pro (\w+)</title>\n|s p/HP OfficeJet Pro $2 http config/ i/Virata httpd $1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*<title>HP Officejet (\w+) series</title>|s p/HP Officejet $2 http config/ i/Virata httpd $1/ d/printer/
@@ -5420,6 +5420,8 @@ match http-proxy m|^HTTP/1\.0 404 Object not found\r\n.*<title>MIMEsweeper for W
 match http-proxy m|^HTTP/1\.1 200 .*<title>Web Filter Block Override</title>.*/XX/YY/ZZ/logo_fguard_wf\.gif|s p/Fortinet FortiGuard http proxy/ d/firewall/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: ziproxy\r\n.*\(ziproxy/([\w-_.]+)\)</ADDRESS>|s p/ziproxy http proxy/ v/$1/
 match http-proxy m|^HTTP/1\.1 400 Bad Request\r\nServer: ziproxy\r\n| p/ziproxy http proxy/
+match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n\r\n\0{872}$| p/Ncat http proxy/ v/0.2/ i/before Nmap 4.85BETA1/
+match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n\r\n$| p/Ncat http proxy/ i/Nmap 4.85BETA1 or later/
 
 match magent m|^Agent Ready\.\.\.\r\nGET / HTTP/1\.0\r\n\r\nGET 501 command not implemented ERROR\r\n| p/MicroWorld magent.exe/ o/Windows/
 
