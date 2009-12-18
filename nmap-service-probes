@@ -389,9 +389,6 @@ match ftp m|^220- .*\n220 ([-.\w]+) FTP server \(Version (.*)\) ready\.\r\n|s p/
 # Xitami FTPd
 match ftp m|^220- \r\n.*www\.imatix\.com --\r\n|s p/Xitami ftpd/
 match ftp m|^220- Welcome to this Xitami FTP server, running version ([\d\w.]+) of Xitami\. \n You are user number (\d+) of a permitted (\d+) users\.| p/Xitami ftpd/ v/$1/ i|$2/$3 users|
-# Xitami FTPd
-match ftp m|^220- \r\n.*www\.imatix\.com --\r\n|s p/Xitami ftpd/
-match ftp m|^220- Welcome to this Xitami FTP server, running version ([\d\w.]+) of Xitami\. \n You are user number (\d+) of a permitted (\d+) users\.| p/Xitami ftpd/ v/$1/ i|$2/$3 users|
 
 # Netware 6 - NWFTPD.NLM FTP Server Version 5.01w
 match ftp m|^220 Service Ready for new User\r\n$| p/Netware NWFTPD/
@@ -3477,8 +3474,6 @@ match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\n
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 88\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP LaserJet P4014 http config/ i/Virata-EmWeb httpd 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 301 Resource Moved\r\nCONTENT-LENGTH: 0\r\nEXPIRES: .*\r\nLocation: /hp/device/this\.LCDispatcher\r\nCACHE-CONTROL: no-cache\r\nSERVER: HP-ChaiSOE/([\d.]+)\r\n-ONNECTION: Keep-Alive\r\n\r\n| p/HP LaserJet http config/ i/HP-ChaiSOE $1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Agranat-EmWeb/R5_2_6\r\nContent-Type: text/html;charset=ISO-8859-1\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<HTML> \n<HEAD>\n<TITLE> | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 5.2.6/ d/printer/
-match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=ISO-8859-1\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!DOCTYPE html\nPUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
-match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_2_1\r\nContent-Type: text/html;charset=utf-8\r\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n<!--  DOCTYPE tag is included to support the XHTML  -->\n<!DOCTYPE html\n   PUBLIC | p/HP LaserJet http config/ i/Embedded webserver: Agranat-EmWeb 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R6_0_1\r\n-ransfer-Encoding: chunked\r\nContent-Type: text/html\r\nExpires: .*\r\nCache-Control: no-cache\r\nPragma: no-cache\r\n\r\n\n\n<!DOCTYPE html\nPUBLIC| p/HP JetDirect http config/ i/Embedded webserver: Virata-EmWeb 6.0.1/ d/printer/
 match http m|^HTTP/1\.1 301 Moved Permanently\r\nServer: Virata-EmWeb/R6_2_1\r\nLocation: https://([\d.]+)/\r\nContent-Type: text/html\r\nContent-Length: 90\r\n\r\n<HEAD><TITLE>Moved</TITLE></HEAD><BODY>| p/HP Color LaserJet 3500 http config/ i/Virata embedded httpd 6.2.1/ d/printer/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\n.*\n\n\n<title> HP Color LaserJet 2840  /|s p/HP Color LaserJet 2840 http config/ i/Virata httpd $1/ d/printer/
@@ -5698,8 +5693,6 @@ match http m|^HTTP/1\.0 200 OK\n\n<HTML>\n<TITLE>VNC desktop \[[\d.]+\]</TITLE>\
 
 match xml-rpc m|^HTTP/1\.0 400 Bad Request\r\nServer: Apache XML-RPC (\d[-.\w ]+)\r\n\r\nMethod GET not implemented \(try POST\)$| p/Apache XML-RPC/ v/$1/
 
-match http m|^HTTP/1\.0\x20250\x20Ok\r\n.*<title>PowerMTA monitoring</title>|s p/Port25 PowerMTA web monitor/
-
 # Kerio MailServer 5.7.9, 5.7.10
 match http m|^HTTP/1\.[01] 302 Redirected\r\nConnection: close\r\nContent-Length: 0\r\nLocation: /login\r\n\r\n$| p/Kerio MailServer Webmail/
 match http m|^HTTP/1\.[01] .*\r\nServer: Kerio MailServer ([\d.]+)\r\n.*X-Powered-By: PHP/([\d.]+)\r\n|s p/Kerio MailServer Webmail/ v/$1/ i/PHP $2/
@@ -5775,7 +5768,6 @@ match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: httpd/1\.00\r\nCache-Cont
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*<H1>501 Not Implemented</H1>\nPOST to non-script is not supported in Boa\.\n</BODY></HTML>\n|s p/Boa httpd/
 
 # HP JetDirect Card in a LaserJet printer
-match http m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
 match http m|^HTTP/1\.1 501 Unknown or unimplemented http action\r\nMIME-Version: 1\.0\r\nServer: HP-ChaiServer/([\d.]+)\r\nContent-length: \d+\r\nContent-Type: text/html\r\n\r\n<TITLE>Request Not Implemented</TITLE><P><B>Cannot process request, not implemented at server\.</B></P><P>Unknown or unimplemented http action| p/HP JetDirect Card in a LaserJet printer/ i/HP-ChaiServer Embedded VM $1/ d/printer/
 
 # Zero One Technology ( http://www.01tech.com/ ) print servers embedded HTTP service
@@ -6091,9 +6083,6 @@ match pafserver m|^\0&\xeb\xefTQM\xee\[B| p/Sun Cobalt Adaptive Firewall/ o/Sun 
 match sdlog m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0\x01\0\0\0\0\0\0$| p/RSA SecureID Ace Server/
 
 match sdlog m|^\xe3\r\n\r\n\0\x01\0.\0vInvalid protocol verification, illegal ORMI request or request performed with an incompatible version of this protocol|s p/Oracle Enterprise Manager/
-
-# Sun Cobalt Adaptive Firewall 1.7-0
-match pafserver m|^\0&\xeb\xefTQM\xee\[B| p/Sun Cobalt Adaptive Firewall/ o/Sun Cobalt Linux/
 
 match freeciv m|^\0\x03\x02\0\.\x01\0\0\0\0Invalid name ''\0\+1\.14\.0 conn_info team\0\0\x03\x03|s p/Freeciv/ v/1.X/
 match freeciv m|^\0\x03X\0.\x01\0\0\0\0Your client is too old\. To use this server please upgrade your client to a CVS version later than 2003-11-28 or Freeciv 1\.15\.0 or later\.\0\0\0\x03\0\0\x03\x01|s p/Freeciv/ v/2.X/
