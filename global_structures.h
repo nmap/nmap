@@ -171,6 +171,7 @@ struct OS_Classification {
 struct FingerTest {
   const char *name;
   std::vector<struct AVal> results;
+  const struct AVal *getattrbyname(const char *name) const;
 };
 
 struct FingerPrint {
@@ -178,6 +179,7 @@ struct FingerPrint {
   char *OS_name;
   std::vector<OS_Classification> OS_class;
   std::vector<FingerTest> tests;
+  const FingerTest *gettestbyname(const char *name) const;
 };
 
 /* This structure contains the important data from the fingerprint

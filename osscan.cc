@@ -188,12 +188,10 @@ FingerPrintDB::~FingerPrintDB() {
     delete *current;
 }
 
-static const struct AVal *getattrbyname(const FingerTest *test, const char *name) {
+const struct AVal *FingerTest::getattrbyname(const char *name) const {
   std::vector<struct AVal>::const_iterator i;
 
-  if (test == NULL)
-    return NULL;
-  for (i = test->results.begin(); i != test->results.end(); i++) {
+  for (i = results.begin(); i != results.end(); i++) {
     if (strcmp(i->attribute, name) == 0)
       return &*i;
   }
@@ -201,11 +199,10 @@ static const struct AVal *getattrbyname(const FingerTest *test, const char *name
   return NULL;
 }
 
-static FingerTest *gettestbyname(FingerPrint *FP, const char *name) {
-  std::vector<FingerTest>::iterator i;
+const FingerTest *FingerPrint::gettestbyname(const char *name) const {
+  std::vector<FingerTest>::const_iterator i;
 
-  if (!FP) return NULL;
-  for (i = FP->tests.begin(); i != FP->tests.end(); i++) {
+  for (i = tests.begin(); i != tests.end(); i++) {
     if (strcmp(i->name, name) == 0)
       return &*i;
   };
@@ -226,11 +223,11 @@ static FingerTest *gettestbyname(FingerPrint *FP, const char *name) {
    case, you may also pass in the group name (SEQ, T1, etc) to have
    that extra info printed.  If you pass 0 for verbose, you might as
    well pass NULL for testGroupName as it won't be used. */
-static int AVal_match(FingerTest *reference, FingerTest *fprint, FingerTest *points,
+static int AVal_match(const FingerTest *reference, const FingerTest *fprint, const FingerTest *points,
 		      unsigned long *num_subtests, 
 		      unsigned long *num_subtests_succeeded, int shortcut,
 		      int verbose, const char *testGroupName) {
-  std::vector<struct AVal>::iterator current_ref;
+  std::vector<struct AVal>::const_iterator current_ref;
   const struct AVal *current_fp;
   const struct AVal *current_points;
   unsigned int number, number1;
@@ -246,7 +243,7 @@ static int AVal_match(FingerTest *reference, FingerTest *fprint, FingerTest *poi
   for (current_ref = reference->results.begin();
        current_ref != reference->results.end();
        current_ref++) {
-    current_fp = getattrbyname(fprint, current_ref->attribute);    
+    current_fp = fprint->getattrbyname(current_ref->attribute);    
     if (!current_fp) continue;
     /* OK, we compare an attribute value in  current_fp->value to a 
        potentially large expression in current_ref->value.  The syntax
@@ -301,7 +298,7 @@ static int AVal_match(FingerTest *reference, FingerTest *fprint, FingerTest *poi
     } while(q);
       if (numtrue == 0) testfailed=1;
       if (points) {
-	 current_points = getattrbyname(points, current_ref->attribute);
+	 current_points = points->getattrbyname(current_ref->attribute);
 	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
 	 errno = 0;
 	 pointsThisTest = strtol(current_points->value, &endptr, 10);
@@ -334,8 +331,8 @@ static int AVal_match(FingerTest *reference, FingerTest *fprint, FingerTest *poi
 double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
 			    FingerPrint *MatchPoints, int verbose) {
   std::vector<FingerTest>::iterator currentReferenceTest;
-  FingerTest *currentObservedTest;
-  FingerTest *currentTestMatchPoints;
+  const FingerTest *currentObservedTest;
+  const FingerTest *currentTestMatchPoints;
   unsigned long num_subtests = 0, num_subtests_succeeded = 0;
   unsigned long  new_subtests, new_subtests_succeeded;
   assert(referenceFP);
@@ -344,11 +341,11 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
   for (currentReferenceTest = referenceFP->tests.begin();
        currentReferenceTest != referenceFP->tests.end();
        currentReferenceTest++) {
-    currentObservedTest = gettestbyname(observedFP, currentReferenceTest->name);
+    currentObservedTest = observedFP->gettestbyname(currentReferenceTest->name);
     if (currentObservedTest) {
       new_subtests = new_subtests_succeeded = 0;
       if (MatchPoints) {
-	currentTestMatchPoints = gettestbyname(MatchPoints, currentReferenceTest->name);
+	currentTestMatchPoints = MatchPoints->gettestbyname(currentReferenceTest->name);
 	if (!currentTestMatchPoints)
 	  fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, currentReferenceTest->name);
       } else currentTestMatchPoints = NULL;
@@ -654,14 +651,14 @@ static bool test_match_literal(const FingerTest *a, const FingerTest *b) {
 
   /* Check that b contains all the AVals in a, with the same values. */
   for (i = a->results.begin(); i != a->results.end(); i++) {
-    av = getattrbyname(b, i->attribute);
+    av = b->getattrbyname(i->attribute);
     if (av == NULL || strcmp(i->value, av->value) != 0)
       return false;
   }
 
   /* Check that a contains all the AVals in b, with the same values. */
   for (i = b->results.begin(); i != b->results.end(); i++) {
-    av = getattrbyname(a, i->attribute);
+    av = a->getattrbyname(i->attribute);
     if (av == NULL || strcmp(i->value, av->value) != 0)
       return false;
   }
