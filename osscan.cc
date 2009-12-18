@@ -188,6 +188,11 @@ FingerPrintDB::~FingerPrintDB() {
     delete *current;
 }
 
+FingerPrint::FingerPrint() {
+  line = 0;
+  OS_name = NULL;
+}
+
 const struct AVal *FingerTest::getattrbyname(const char *name) const {
   std::vector<struct AVal>::const_iterator i;
 

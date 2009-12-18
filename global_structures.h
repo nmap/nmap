@@ -180,6 +180,7 @@ struct FingerPrint {
   std::vector<OS_Classification> OS_class;
   std::vector<FingerTest> tests;
   const FingerTest *gettestbyname(const char *name) const;
+  FingerPrint();
 };
 
 /* This structure contains the important data from the fingerprint
