@@ -124,6 +124,9 @@ struct MatchDetails {
   // The service that was matched (Or NULL) zero-terminated.
   const char *serviceName;
 
+  // The line number of this match in nmap-service-probes.
+  int lineno;
+
   // The product/verson/info for the service that was matched (Or NULL)
   // zero-terminated.
   const char *product;

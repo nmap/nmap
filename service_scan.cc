@@ -484,6 +484,7 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
     if (*devicetype) MD_return.devicetype = devicetype;
   
     MD_return.serviceName = servicename;
+    MD_return.lineno = getLineNo();
   }
 
   return &MD_return;
