@@ -182,7 +182,7 @@ class Port {
 
   u16 portno;
   u8 proto;
-  int state; 
+  u8 state; 
   state_reason_t reason;
 
 #ifndef NOLUA
