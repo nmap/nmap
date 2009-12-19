@@ -868,8 +868,8 @@ match imap m|^\* OK Der Microsoft Exchange Server 2003 IMAP4rev1-Server, Version
 match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[-.\w]+) \(([-.\w]+)\) k\xe9sz\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/Hungarian/
 match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/Czech/
 match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/French/
-match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Chinese/
-match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Chinese/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Korean/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Korean/
 match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w-_.]+) \(([\w-_.]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ h/$2/ i/Spanish/ o/Windows/
 match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/
 match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2008 imapd/ o/Windows/
