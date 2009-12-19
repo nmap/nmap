@@ -279,7 +279,7 @@ class ServiceProbe {
   void addMatch(const char *match, int lineno);
 
   // If the buf (of length buflen) matches one of the regexes in this
-  // ServiceProbe, returns the details of the match (service name,
+  // ServiceProbe, returns the details of the nth match (service name,
   // version number if applicable, and whether this is a "soft" match.
   // If the buf doesn't match, the serviceName field in the structure
   // will be NULL.  The MatchDetails returned is only valid until the
@@ -287,7 +287,7 @@ class ServiceProbe {
   // serviceName field can be saved throughought program execution.  If
   // no version matched, that field will be NULL. This function may
   // return NULL if there are no match lines at all in this probe.
-  const struct MatchDetails *testMatch(const u8 *buf, int buflen);
+  const struct MatchDetails *testMatch(const u8 *buf, int buflen, int n);
 
   char *fallbackStr;
   ServiceProbe *fallbacks[MAXFALLBACKS+1];
