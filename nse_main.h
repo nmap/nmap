@@ -20,9 +20,9 @@ class ScriptResult
     std::string id;
   public:
     void set_output (const char *);
-    std::string get_output (void) const;
+    std::string get_output (void);
     void set_id (const char *);
-    std::string get_id (void) const;
+    std::string get_id (void);
 };
 
 typedef std::vector<ScriptResult> ScriptResults;

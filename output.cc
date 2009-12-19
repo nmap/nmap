@@ -202,7 +202,7 @@ static char *xml_sf_convert(const char *str) {
 // the service name or the service fingerprint is non-null.
 // Returns a pointer to a buffer containing the element,
 // you will have to call free on it.
-static char *getServiceXMLBuf(const struct serviceDeductions *sd) {
+static char *getServiceXMLBuf(struct serviceDeductions *sd) {
   string versionxmlstring = "";
   char rpcbuf[128];
   char confBuf[20];
@@ -466,6 +466,33 @@ int print_iflist(void) {
   return 0;
 }
 
+/* Fills in namebuf (as long as there is space in buflen) with the
+   Name nmap normal output will use to describe the port.  This takes
+   into account to confidence level, any SSL tunneling, etc.  Truncates
+   namebuf to 0 length if there is no room.*/
+static void getNmapServiceName(struct serviceDeductions *sd, int state,
+                               char *namebuf, int buflen) {
+  const char *tunnel_prefix;
+  int len;
+
+  if (sd->service_tunnel == SERVICE_TUNNEL_SSL)
+    tunnel_prefix = "ssl/";
+  else
+    tunnel_prefix = "";
+
+  if (sd->name != NULL && strcmp(sd->name, "unknown") != 0) {
+    /* The port has a name and the name is not "unknown". How confident are we? */
+    if (o.servicescan && state == PORT_OPEN && sd->name_confidence <= 5)
+      len = Snprintf(namebuf, buflen, "%s%s?", tunnel_prefix, sd->name);
+    else
+      len = Snprintf(namebuf, buflen, "%s%s", tunnel_prefix, sd->name);
+  } else {
+    len = Snprintf(namebuf, buflen, "%sunknown", tunnel_prefix);
+  }
+  if (len >= buflen || len < 0)
+    namebuf[0] = '\0';
+}
+
 #ifndef NOLUA
 static char *formatScriptOutput(ScriptResult sr) {
   std::string result = std::string(), output = sr.get_output();
@@ -522,7 +549,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   int first = 1;
   struct protoent *proto;
   Port *current;
-  Port port;
   char hostname[1200];
   struct serviceDeductions sd;
   NmapOutputTable *Tbl = NULL;
@@ -535,7 +561,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   unsigned int rowno;
   int numrows;
   int numignoredports = plist->numIgnoredPorts();
-  int numports = plist->numPorts();
 
   vector<const char *> saved_servicefps;
 
@@ -554,7 +579,7 @@ void printportoutput(Target * currenths, PortList * plist) {
     prevstate = istate;
   }
 
-  if (numignoredports == numports) {
+  if (numignoredports == plist->numports) {
     if (numignoredports == 0) {
       log_write(LOG_PLAIN, "0 ports scanned on %s\n",
                 currenths->NameIP(hostname, sizeof(hostname)));
@@ -641,7 +666,7 @@ void printportoutput(Target * currenths, PortList * plist) {
   if (o.servicescan || o.rpcscan)
     versioncol = colno++;
 
-  numrows = numports - numignoredports;
+  numrows = plist->numports - numignoredports;
 
 #ifndef NOLUA
   int scriptrows = 0;
@@ -672,7 +697,7 @@ void printportoutput(Target * currenths, PortList * plist) {
   rowno = 1;
   if (o.ipprotscan) {
     current = NULL;
-    while ((current = plist->nextPort(current, &port, IPPROTO_IP, 0)) != NULL) {
+    while ((current = plist->nextPort(current, IPPROTO_IP, 0)) != NULL) {
       if (!plist->isIgnoredState(current->state)) {
         if (!first)
           log_write(LOG_MACHINE, ", ");
@@ -705,10 +730,8 @@ void printportoutput(Target * currenths, PortList * plist) {
       }
     }
   } else {
-    char fullversion[160];
-
     current = NULL;
-    while ((current = plist->nextPort(current, &port, TCPANDUDPANDSCTP, 0)) != NULL) {
+    while ((current = plist->nextPort(current, TCPANDUDPANDSCTP, 0)) != NULL) {
       if (!plist->isIgnoredState(current->state)) {
         if (!first)
           log_write(LOG_MACHINE, ", ");
@@ -717,7 +740,7 @@ void printportoutput(Target * currenths, PortList * plist) {
         strcpy(protocol, IPPROTO2STR(current->proto));
         Snprintf(portinfo, sizeof(portinfo), "%d/%s", current->portno, protocol);
         state = statenum2str(current->state);
-        plist->getServiceDeductions(current->portno, current->proto, &sd);
+        current->getServiceDeductions(&sd);
         if (sd.service_fp && saved_servicefps.size() <= 8)
           saved_servicefps.push_back(sd.service_fp);
 
@@ -760,7 +783,7 @@ void printportoutput(Target * currenths, PortList * plist) {
                    (sd.name) ? sd.name : ((*rpcinfo) ? "" : "unknown"),
                    (sd.name) ? " " : "", rpcinfo);
         } else {
-          current->getNmapServiceName(serviceinfo, sizeof(serviceinfo));
+          getNmapServiceName(&sd, current->state, serviceinfo, sizeof(serviceinfo));
           rpcmachineinfo[0] = '\0';
         }
         Tbl->addItem(rowno, portcol, true, portinfo);
@@ -769,9 +792,8 @@ void printportoutput(Target * currenths, PortList * plist) {
         if (o.reason)
           Tbl->addItem(rowno, reasoncol, true, port_reason_str(current->reason));
 
-        sd.populateFullVersionString(fullversion, sizeof(fullversion));
-        if (*fullversion)
-          Tbl->addItem(rowno, versioncol, true, fullversion);
+        if (*sd.fullversion)
+          Tbl->addItem(rowno, versioncol, true, sd.fullversion);
 
         // How should we escape illegal chars in grepable output?
         // Well, a reasonably clean way would be backslash escapes
@@ -779,7 +801,7 @@ void printportoutput(Target * currenths, PortList * plist) {
         // out fields with awk, cut, and such.  So I'm gonna use the
         // ugly hat (fitting to grepable output) or replacing the '/'
         // character with '|' in the version field.
-        Strncpy(grepvers, fullversion, sizeof(grepvers) / sizeof(*grepvers));
+        Strncpy(grepvers, sd.fullversion, sizeof(grepvers) / sizeof(*grepvers));
         p = grepvers;
         while ((p = strchr(p, '/'))) {
           *p = '|';
@@ -818,7 +840,7 @@ void printportoutput(Target * currenths, PortList * plist) {
         rowno++;
 #ifndef NOLUA
         if (o.script) {
-          ScriptResults::const_iterator ssr_iter;
+          ScriptResults::iterator ssr_iter;
 
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
@@ -1885,7 +1907,6 @@ static int hostcmp(const char *a, const char *b) {
    scan (if it was performed) */
 void printserviceinfooutput(Target * currenths) {
   Port *p = NULL;
-  Port port;
   struct serviceDeductions sd;
   int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0;
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
@@ -1896,12 +1917,12 @@ void printserviceinfooutput(Target * currenths) {
   for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++)
     hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
 
-  while ((p = currenths->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
+  while ((p = currenths->ports.nextPort(p, TCPANDUDPANDSCTP, PORT_OPEN))) {
     // The following 2 lines (from portlist.h) tell us that we don't need to
     // worry about free()ing anything in the serviceDeductions struct. pass in
     // an allocated struct serviceDeductions (don't wory about initializing, and
     // you don't have to free any internal ptrs.
-    currenths->ports.getServiceDeductions(p->portno, p->proto, &sd);
+    p->getServiceDeductions(&sd);
 
     if (sd.hostname && !hostcmp(currenths->HostName(), sd.hostname)) {
       for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {

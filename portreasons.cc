@@ -246,7 +246,6 @@ static int update_state_summary(state_reason_summary_t *head, reason_t reason_id
  * state_reason_summary structures using update_state_summary */
 static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Ports, int state) {
 	Port *current = NULL;
-        Port port;
 	state_reason_summary_t *reason;
 	unsigned int total = 0;
 	unsigned short proto = (o.ipprotscan) ? IPPROTO_IP : TCPANDUDPANDSCTP;
@@ -255,7 +254,7 @@ static unsigned int get_state_summary(state_reason_summary_t *head, PortList *Po
 		return 0;
 	reason = head;
 
-	while((current = Ports->nextPort(current, &port, proto, state)) != NULL) {
+	while((current = Ports->nextPort(current, proto, state)) != NULL) {
 		if(Ports->isIgnoredState(current->state)) {
 			total++;
 			update_state_summary(reason, current->reason.reason_id);

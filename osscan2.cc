@@ -640,7 +640,6 @@ HostOsScanStats::~HostOsScanStats() {
 
 void HostOsScanStats::initScanStats() {
   Port *tport = NULL;
-  Port port;
   int i;
 
   /* Lets find an open port to use if we don't already have one */
@@ -651,11 +650,11 @@ void HostOsScanStats::initScanStats() {
   
   if (target->FPR->osscan_opentcpport > 0)
     openTCPPort = target->FPR->osscan_opentcpport;
-  else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_OPEN))) {
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_OPEN))) {
     openTCPPort = tport->portno;
     /* If it is zero, let's try another one if there is one ) */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_OPEN)))
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_OPEN)))
 	openTCPPort = tport->portno;
        
     target->FPR->osscan_opentcpport = openTCPPort;
@@ -664,21 +663,21 @@ void HostOsScanStats::initScanStats() {
   /* Now we should find a closed port */
   if (target->FPR->osscan_closedtcpport > 0)
     closedTCPPort = target->FPR->osscan_closedtcpport;
-  else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_CLOSED))) {
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_CLOSED))) {
     closedTCPPort = tport->portno;
 
     /* If it is zero, let's try another one if there is one ) */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_CLOSED)))
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_CLOSED)))
 	closedTCPPort = tport->portno;
 
     target->FPR->osscan_closedtcpport = closedTCPPort;
-  } else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_UNFILTERED))) {
+  } else if ((tport = target->ports.nextPort(NULL, IPPROTO_TCP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedTCPPort = tport->portno;
     /* But again we'd prefer not to have zero */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_UNFILTERED)))
+      if ((tport = target->ports.nextPort(tport, IPPROTO_TCP, PORT_UNFILTERED)))
 	closedTCPPort = tport->portno;
   } else {
     /* We'll just have to pick one at random :( */
@@ -688,19 +687,19 @@ void HostOsScanStats::initScanStats() {
   /* Now we should find a closed udp port */
   if (target->FPR->osscan_closedudpport > 0)
     closedUDPPort = target->FPR->osscan_closedudpport;
-  else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_CLOSED))) {
+  else if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_CLOSED))) {
     closedUDPPort = tport->portno;
     /* Not zero, if possible */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(tport, &port, IPPROTO_UDP, PORT_CLOSED)))
+      if ((tport = target->ports.nextPort(tport, IPPROTO_UDP, PORT_CLOSED)))
 	closedUDPPort = tport->portno;
     target->FPR->osscan_closedudpport = closedUDPPort;
-  } else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED))) {
+  } else if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
     closedUDPPort = tport->portno;
     /* But not zero, please */
     if (tport->portno == 0)
-      if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED)))
+      if ((tport = target->ports.nextPort(NULL, IPPROTO_UDP, PORT_UNFILTERED)))
 	closedUDPPort = tport->portno;
   } else {
     /* Pick one at random.  Shrug. */

@@ -28,20 +28,20 @@ extern "C" {
 
 extern NmapOps o;
 
-void set_version(lua_State *L, const struct serviceDeductions *sd) {
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->name, "name");
+void set_version(lua_State *L, struct serviceDeductions sd) {
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.name, "name");
 
-  lua_pushnumber(L, sd->name_confidence);
+  lua_pushnumber(L, sd.name_confidence);
   lua_setfield(L, -2, "name_confidence");
 
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->product, "product");
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->version, "version");
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->extrainfo, "extrainfo");
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->hostname, "hostname");
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->ostype, "ostype");
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->devicetype, "devicetype");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.product, "product");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.version, "version");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.extrainfo, "extrainfo");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.hostname, "hostname");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.ostype, "ostype");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.devicetype, "devicetype");
 
-  switch(sd->service_tunnel) {
+  switch(sd.service_tunnel) {
     case(SERVICE_TUNNEL_NONE):
       SCRIPT_ENGINE_PUSHSTRING_NOTNULL("none", "service_tunnel");
       break;
@@ -54,9 +54,9 @@ void set_version(lua_State *L, const struct serviceDeductions *sd) {
       break;
   }
 
-  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd->service_fp, "service_fp");
+  SCRIPT_ENGINE_PUSHSTRING_NOTNULL(sd.service_fp, "service_fp");
 
-  switch(sd->dtype) {
+  switch(sd.dtype) {
     case(SERVICE_DETECTION_TABLE):
       SCRIPT_ENGINE_PUSHSTRING_NOTNULL("table", "service_fp");
       break;
@@ -69,7 +69,7 @@ void set_version(lua_State *L, const struct serviceDeductions *sd) {
       break;
   }
 
-  switch(sd->rpc_status) {
+  switch(sd.rpc_status) {
     case(RPC_STATUS_UNTESTED):
       SCRIPT_ENGINE_PUSHSTRING_NOTNULL("untested", "rpc_status");
       break;
@@ -88,14 +88,14 @@ void set_version(lua_State *L, const struct serviceDeductions *sd) {
       break;
   }
 
-  if(sd->rpc_status == RPC_STATUS_GOOD_PROG) {
-    lua_pushnumber(L, sd->rpc_program);
+  if(sd.rpc_status == RPC_STATUS_GOOD_PROG) {
+    lua_pushnumber(L, sd.rpc_program);
     lua_setfield(L, -2, "rpc_program");
 
-    lua_pushnumber(L, sd->rpc_lowver);
+    lua_pushnumber(L, sd.rpc_lowver);
     lua_setfield(L, -2, "rpc_lowver");
 
-    lua_pushnumber(L, sd->rpc_highver);
+    lua_pushnumber(L, sd.rpc_highver);
     lua_setfield(L, -2, "rpc_highver");
   }
 }
@@ -103,25 +103,23 @@ void set_version(lua_State *L, const struct serviceDeductions *sd) {
 /* set some port state information onto the
  * table which is currently on the stack
  * */
-void set_portinfo(lua_State *L, const Target *target, const Port *port) {
+void set_portinfo(lua_State *L, Port* port) {
   struct serviceDeductions sd;
 
-  target->ports.getServiceDeductions(port->portno, port->proto, &sd);
+  port->getServiceDeductions(&sd);
 
   lua_pushnumber(L, (double) port->portno);
   lua_setfield(L, -2, "number");
 
-  if (sd.name != NULL) {
-    lua_pushstring(L, sd.name);
-    lua_setfield(L, -2, "service");
-  }
-
-  lua_newtable(L);
-  set_version(L, &sd);
-  lua_setfield(L, -2, "version");
+  lua_pushstring(L, sd.name);
+  lua_setfield(L, -2, "service");
 
   lua_pushstring(L, IPPROTO2STR(port->proto));
   lua_setfield(L, -2, "protocol");
+
+  lua_newtable(L);
+  set_version(L, sd);
+  lua_setfield(L, -2, "version");
 
   lua_pushstring(L, statenum2str(port->state));
   lua_setfield(L, -2, "state");
@@ -421,10 +419,9 @@ done:
   return target;
 }
 
-const Port *get_port (lua_State *L, Target *target, int index)
+Port *get_port (lua_State *L, Target *target, int index)
 {
-  Port *p = NULL;
-  Port port;
+  Port *port = NULL;
   int portno, protocol;
   luaL_checktype(L, index, LUA_TTABLE);
   lua_getfield(L, index, "number");
@@ -438,11 +435,11 @@ const Port *get_port (lua_State *L, Target *target, int index)
              strcmp(lua_tostring(L, -1), "udp") == 0 ? IPPROTO_UDP :
              strcmp(lua_tostring(L, -1), "sctp") == 0 ? IPPROTO_SCTP :
              luaL_error(L, "port 'protocol' field must be \"udp\", \"sctp\" or \"tcp\"");
-  while ((p = target->ports.nextPort(p, &port, protocol, PORT_UNKNOWN)) != NULL)
-    if (p->portno == portno)
+  while ((port = target->ports.nextPort(port, protocol, PORT_UNKNOWN)) != NULL)
+    if (port->portno == portno)
       break;
   lua_pop(L, 2);
-  return p;
+  return port;
 }
 
 /* this function can be called from lua to obtain the port state
@@ -458,7 +455,7 @@ const Port *get_port (lua_State *L, Target *target, int index)
 static int l_get_port_state (lua_State *L)
 {
   Target *target;
-  const Port *port;
+  Port *port;
   target = get_target(L, 1);
   port = get_port(L, target, 2);
   if (port == NULL)
@@ -466,7 +463,7 @@ static int l_get_port_state (lua_State *L)
   else
   {
     lua_newtable(L);
-    set_portinfo(L, target, port);
+    set_portinfo(L, port);
   }
   return 1;
 }
@@ -480,7 +477,7 @@ static int l_set_port_state (lua_State *L)
   static const int opstate[] = {PORT_OPEN, PORT_CLOSED};
   static const char *op[] = {"open", "closed", NULL};
   Target *target;
-  const Port *port;
+  Port *port;
   target = get_target(L, 1);
   if ((port = get_port(L, target, 2)) != NULL)
   {
@@ -489,15 +486,17 @@ static int l_set_port_state (lua_State *L)
       case PORT_OPEN:
         if (port->state == PORT_OPEN)
           return 0;
-        target->ports.setPortState(port->portno, port->proto, PORT_OPEN);
+        target->ports.addPort(port->portno, port->proto, PORT_OPEN);
+        port->state = PORT_OPEN;
         break;
       case PORT_CLOSED:
         if (port->state == PORT_CLOSED)
           return 0;
-        target->ports.setPortState(port->portno, port->proto, PORT_CLOSED);
+        target->ports.addPort(port->portno, port->proto, PORT_CLOSED);
+        port->state = PORT_CLOSED;
         break;
     }
-    target->ports.setStateReason(port->portno, port->proto, ER_SCRIPT, 0, 0);
+    port->reason.reason_id = ER_SCRIPT;
   }
   return 0;
 }
@@ -519,7 +518,7 @@ static int l_set_port_version (lua_State *L)
     "incomplete"
   };
   Target *target;
-  const Port *port;
+  Port *port;
   enum service_tunnel_type tunnel = SERVICE_TUNNEL_NONE;
   enum serviceprobestate probestate =
       opversion[luaL_checkoption(L, 3, "hardmatched", ops)];
@@ -550,12 +549,10 @@ static int l_set_port_version (lua_State *L)
     luaL_argerror(L, 2, "invalid value for port.version.service_tunnel");
 
   if (o.servicescan)
-    target->ports.setServiceProbeResults(port->portno, port->proto,
-        probestate, name, tunnel, product,
+    port->setServiceProbeResults(probestate, name, tunnel, product,
         version, extrainfo, hostname, ostype, devicetype, NULL);
   else
-    target->ports.setServiceProbeResults(port->portno, port->proto,
-        probestate, name, tunnel, NULL, NULL,
+    port->setServiceProbeResults(probestate, name, tunnel, NULL, NULL,
         NULL, NULL, NULL, NULL, NULL);
 
   return 0;

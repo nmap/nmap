@@ -140,25 +140,25 @@ enum service_tunnel_type { SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL };
 void random_port_cheat(u16 *ports, int portcount);
 
 struct serviceDeductions {
-  serviceDeductions();
-  void populateFullVersionString(char *buf, size_t n) const;
-
-  char *name; // will be NULL if can't determine
+  const char *name; // will be NULL if can't determine
   // Confidence is a number from 0 (least confident) to 10 (most
   // confident) expressing how accurate the service detection is
   // likely to be.
   int name_confidence;
   // Any of these 6 can be NULL if we weren't able to determine it
-  char *product;
-  char *version;
-  char *extrainfo;
-  char *hostname;
-  char *ostype;
-  char *devicetype;
+  const char *product;
+  const char *version;
+  const char *extrainfo;
+  const char *hostname;
+  const char *ostype;
+  const char *devicetype;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel; 
+  // This is a combined representation of product, version, and extrainfo.
+  // It will be zero length if unavailable.
+  char fullversion[160];
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
-  char *service_fp; 
+  const char *service_fp; 
   enum service_detection_type dtype; // definition above
   int rpc_status; /* RPC_STATUS_UNTESTED means we haven't checked
 		    RPC_STATUS_UNKNOWN means the port appears to be RPC
@@ -173,16 +173,42 @@ struct serviceDeductions {
 };
 
 class Port {
- friend class PortList;
-
  public:
   Port();
   ~Port();
-  void getNmapServiceName(char *namebuf, int buflen) const;
+
+  // pass in an allocated struct serviceDeductions (don't worry about initializing, and
+  // you don't have to free any internal ptrs.  See the serviceDeductions definition for
+  // the fields that are populated.  Returns 0 if at least a name is available.
+  int getServiceDeductions(struct serviceDeductions *sd);
+
+  // sname should be NULL if sres is not
+  // PROBESTATE_FINISHED_MATCHED. product,version, and/or extrainfo
+  // will be NULL if unavailable. Note that this function makes its
+  // own copy of sname and product/version/extrainfo.  This function
+  // also takes care of truncating the version strings to a
+  // 'reasonable' length if neccessary, and cleaning up any unprinable
+  // chars. (these tests are to avoid annoying DOS (or other) attacks
+  // by malicious services).  The fingerprint should be NULL unless
+  // one is available and the user should submit it.  tunnel must be
+  // SERVICE_TUNNEL_NULL (normal) or SERVICE_TUNNEL_SSL (means ssl was
+  // detected and we tried to tunnel through it ).
+  void setServiceProbeResults(enum serviceprobestate sres, const char *sname,
+			      enum service_tunnel_type tunnel, const char *product, 
+			      const char *version, const char *hostname,
+			      const char *ostype, const char *devicetype,
+			      const char *extrainfo, const char *fingerprint);
+
+  /* Sets the results of an RPC scan.  if rpc_status is not
+   RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args. This function
+   takes care of setting the port's service and version
+   appropriately. */
+  void setRPCProbeResults(int rpc_status, unsigned long rpc_program, 
+			  unsigned int rpc_lowver, unsigned int rpc_highver);
 
   u16 portno;
   u8 proto;
-  u8 state; 
+  int state; 
   state_reason_t reason;
 
 #ifndef NOLUA
@@ -190,10 +216,28 @@ class Port {
 #endif
 
  private:
-  /* This is allocated only on demand by PortList::setServiceProbeResults or
-     PortList::setRPCProbeResults, to save memory for the many closed or
-     filtered ports that don't need it. */
-  serviceDeductions *service;
+  int rpc_status; /* RPC_STATUS_UNTESTED means we haven't checked
+		    RPC_STATUS_UNKNOWN means the port appears to be RPC
+		    but we couldn't find a match
+		    RPC_STATUS_GOOD_PROG means rpc_program gives the prog #
+		    RPC_STATUS_NOT_RPC means the port doesn't appear to 
+		    be RPC */
+  unsigned long rpc_program; /* Only valid if rpc_state == RPC_STATUS_GOOD_PROG */
+  unsigned int rpc_lowver;
+  unsigned int rpc_highver;
+  enum serviceprobestate serviceprobe_results; // overall results of service scan
+  char *serviceprobe_service; // If a service was discovered, points to the name
+  // Any of these next three can be NULL if the details are not available
+  char *serviceprobe_product; 
+  char *serviceprobe_version; 
+  char *serviceprobe_extrainfo; 
+  char *serviceprobe_hostname;
+  char *serviceprobe_ostype;
+  char *serviceprobe_devicetype;
+  enum service_tunnel_type serviceprobe_tunnel;
+  // A fingerprint that the user can submit if the service wasn't recognized
+  char *serviceprobe_fp;
+
 };
 
 
@@ -217,10 +261,10 @@ class PortList {
   /* Free memory used by port_map. It should be done somewhere before quitting*/
   static void freePortMap();
   
-  void setDefaultPortState(u8 protocol, int state);
-  void setPortState(u16 portno, u8 protocol, int state);
-  int getPortState(u16 portno, u8 protocol);
-  int forgetPort(u16 portno, u8 protocol);
+  /* Add a new port to this list.  If the state has changed, it is
+     OK to call this function to effect the change */
+  int addPort(u16 portno, u8 protocol, int state);
+  int removePort(u16 portno, u8 protocol);
   /* Saves an identification string for the target containing these
      ports (an IP addrss might be a good example, but set what you
      want).  Only used when printing new port updates.  Optional.  A
@@ -236,49 +280,23 @@ class PortList {
    function returns ports in numeric order from lowest to highest,
    except that if you ask for TCP, UDP & SCTP, all TCP ports will be
    returned before we start returning UDP and finally SCTP ports */
-  Port *nextPort(const Port *cur, Port *next,
-                 int allowed_protocol, int allowed_state);
+   Port *nextPort(Port *afterthisport, 
+  	          int allowed_protocol, int allowed_state);
+
+  /* Get Port structure from PortList structure.*/
+  Port *getPortEntry(u16 portno, u8 protocol);
+  /* Set Port structure to PortList structure.*/
+  void  setPortEntry(u16 portno, u8 protocol, Port *port);
 
   int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr);
 
+  int numports; /* Total number of ports in list in ANY state */
   int numscriptresults; /* Total number of scripts which produced output */
 
   /* Get number of ports in this state. This a sum for protocols. */
   int getStateCounts(int state);
   /* Get number of ports in this state for requested protocol. */
   int getStateCounts(int protocol, int state);
-
-  // sname should be NULL if sres is not
-  // PROBESTATE_FINISHED_MATCHED. product,version, and/or extrainfo
-  // will be NULL if unavailable. Note that this function makes its
-  // own copy of sname and product/version/extrainfo.  This function
-  // also takes care of truncating the version strings to a
-  // 'reasonable' length if neccessary, and cleaning up any unprinable
-  // chars. (these tests are to avoid annoying DOS (or other) attacks
-  // by malicious services).  The fingerprint should be NULL unless
-  // one is available and the user should submit it.  tunnel must be
-  // SERVICE_TUNNEL_NULL (normal) or SERVICE_TUNNEL_SSL (means ssl was
-  // detected and we tried to tunnel through it ).
-  void setServiceProbeResults(u16 portno, int protocol,
-			      enum serviceprobestate sres, const char *sname,
-			      enum service_tunnel_type tunnel, const char *product, 
-			      const char *version, const char *hostname,
-			      const char *ostype, const char *devicetype,
-			      const char *extrainfo, const char *fingerprint);
-
-  // pass in an allocated struct serviceDeductions (don't worry about initializing, and
-  // you don't have to free any internal ptrs.  See the serviceDeductions definition for
-  // the fields that are populated.  Returns 0 if at least a name is available.
-  const void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
-
-  /* Sets the results of an RPC scan.  if rpc_status is not
-   RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args. This function
-   takes care of setting the port's service and version
-   appropriately. */
-  void setRPCProbeResults(u16 portno, int proto, int rpc_status, unsigned long rpc_program, 
-			  unsigned int rpc_lowver, unsigned int rpc_highver);
-
-  void addScriptResult(u16 portno, int protocol, ScriptResult& sr);
 
   /* Cycles through the 0 or more "ignored" ports which should be
    consolidated for Nmap output.  They are returned sorted by the
@@ -295,20 +313,12 @@ class PortList {
 
   int numIgnoredStates();
   int numIgnoredPorts();
-  int numPorts() const;
 
  private:
-  bool mapPort(u16 *portno, u8 *protocol) const;
-  /* Get Port structure from PortList structure.*/
-  const Port *lookupPort(u16 portno, u8 protocol) const;
-  Port *createPort(u16 portno, u8 protocol);
-  /* Set Port structure to PortList structure.*/
-  void  setPortEntry(u16 portno, u8 protocol, Port *port);
-
   /* A string identifying the system these ports are on.  Just used for 
      printing open ports, if it is set with setIdStr() */
   char *idstr;
-  /* Number of ports in each state per each protocol. */
+  /* Number of ports in each state per each protocol */
   int state_counts_proto[PORTLIST_PROTO_MAX][PORT_HIGHEST_STATE];
   Port **port_list[PORTLIST_PROTO_MAX];
  protected:
@@ -316,10 +326,8 @@ class PortList {
    * Only functions: getPortEntry, setPortEntry, initializePortMap and 
    * nextPort should access this structure directly. */
   static u16 *port_map[PORTLIST_PROTO_MAX];
-  static u16 *port_map_rev[PORTLIST_PROTO_MAX];
   /* Number of allocated elements in port_list per each protocol. */
   static int port_list_count[PORTLIST_PROTO_MAX];
-  Port default_port_state[PORTLIST_PROTO_MAX];
 };
 
 #endif
