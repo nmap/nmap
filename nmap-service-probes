@@ -852,9 +852,11 @@ match imap m|^\* OK \[CAPABILITY IMAP4rev1 .*?Courier-IMAP ready\. Copyright 199
 match imap m|^\* OK CommuniGate Pro IMAP Server ([-.\w]+) at ([-.\w]+) ready\r\n$| p/CommuniGate Pro imapd/ h/$1/ v/$2/
 # W-Imapd-SSL v2001adebian-6
 match imap m|^\* OK \[CAPABILITY IMAP4REV1 X-NETSCAPE LOGIN-REFERRALS STARTTLS AUTH=LOGIN\](\S+) IMAP4rev1 ([-.\w]+) at| p/UW-Imapd-SSL/ h/$1/ v/$2/
-match imap m|^\* OK Domino IMAP4 Server Release (\d[-.\w ]+) +ready| p/Lotus Domino imapd/ v/$1/
+match imap m|^\* OK Domino IMAP4 Server Release (\d[-.\w ]+) +ready +(.*)\r\n| p/Lotus Domino imapd/ v/$1/ i/date: $2/
 match imap m|^\* OK Domino IMAP4 Server Build V([\w_]+ Beta \w+) ready .*\r\n| p/Lotus Domino imapd/ v/$1/
 match imap m|^\* BYE Domino IMAP4 Server Unable to authenticate session\.| p/Lotus Domino imapd/ i/Unable to connect/
+match imap m|^\* OK \[CAPABILITY IMAP4rev1 CHILDREN NAMESPACE\] Freemail ready - hit me with your rhythm stick\.\r\n| p/Freemail imapd/
+match imap m|^\* OK AVM KEN!4 IMAP Server ready\r\n| p/AVM KEN! imapd/
 
 # MS Exchange
 match imap m|^\* OK Microsoft Exchange IMAP4rev1 server version ([-.\w]+) | p/Microsoft Exchange imapd/ v/$1/ o/Windows/
@@ -867,19 +869,20 @@ match imap m|^\* OK Microsoft Exchange IMAP4rev1 kiszolg\xe1l\xf3 verzi\xf3 (\d[
 match imap m|^\* OK Server Microsoft Exchange IMAP4rev1 verze ([\d.]+) \(([-\w_.]+)\) je p\xf8ipraven\.\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/Czech/
 match imap m|^\* OK La version ([\d.]+) \(([-\w_.]+)\) du serveur IMAP4rev1 Microsoft Exchange est pr\xeate\r\n| p/Microsoft Exchange Server imapd/ v/$1/ o/Windows/ h/$2/ i/French/
 match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Chinese/
+match imap m|^\* OK Microsoft Exchange Server 2003 IMAP4rev1 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/Microsoft Exchange 2003 imapd/ v/$1/ o/Windows/ h/$2/ i/Chinese/
 match imap m|^\* OK Servidor IMAP4rev1de Microsoft Exchange Server 2003 versi\xf3n ([\w-_.]+) \(([\w-_.]+)\) listo\.\r\n| p/Microsoft Exchange Server 2003 imapd/ v/$1/ h/$2/ i/Spanish/ o/Windows/
 match imap m|^\* OK Microsoft Exchange Server 2007 IMAP4 service ready\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/
-match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007 imapd/ o/Windows/
+match imap m|^\* OK The Microsoft Exchange IMAP4 service is ready\.\r\n| p/Microsoft Exchange 2007-2008 imapd/ o/Windows/
 match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w-_.]+)\) ready\r\n| p/DeskNow imapd/ v/$1/
 
 match imap m|^\* OK \[CAPABILITY (IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW imapd/ v/$2/
+match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/ i/RedHat/ o/Linux/
 match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ h/$1/ v/$2/ o/Linux/ i|Debian/Ubuntu|
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
 match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? Murder v([-.\w]+) server ready\r\n| p/Cyrus Murder imapd/ h/$1/ v/$2/
-match imap m|^\* OK \[.*] ([-.\w]+) Cyrus IMAP4 v([-.\w]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
 
 match imap m|^\* OK Welcome to Binc IMAP v(\d[-.\w]+)| p/Binc imapd/ v/$1/
 match imap m|^\* OK ([-.\w]+) IMAP4rev1 AppleMailServer (\d[-.\w]+) ready\r\n| p/AppleMailServer imapd/ h/$1/ v/$2/
@@ -900,7 +903,7 @@ match imap m|^\* OK IMAP ([-\w_.]+) \(Version ([-\w.]+)\)\r\n| p/SurgeMail imapd
 match imap m|^\* OK Samsung Contact IMAP server ([\d.]+) ready on ([-\w_.]+)\r\n| p/Samsung contact imapd/ v/$1/ h/$2/
 match imap m|^\* OK \[([-\w_.]+)\] IMAP4rev1 Mercury/32 v([\w.]+) server ready\.\r\n| p|Mercury/32 imapd| v/$2/ h/$1/ o/Windows/
 match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN BINARY LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN\] ([-\w_.]+) IMAP4 service \(Sun Java\(tm\) System Messaging Server ([\w. ]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Server imapd/ v/$2/ h/$1/
-match imap m|^\* OK \[CAPABILITY IMAP4 IMAP4rev1 ACL QUOTA LITERAL\+ NAMESPACE UIDPLUS CHILDREN BINARY LANGUAGE XSENDER X-NETSCAPE XSERVERINFO AUTH=PLAIN STARTTLS\] Messaging Multiplexor \(Sun Java\(tm\) System Messaging Server (\d[-\w_.]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Multiplexor imapd/ v/$1/
+match imap m|^\* OK \[CAPABILITY IMAP4[^\]]*\] Messaging Multiplexor \(Sun Java\(tm\) System Messaging Server (\d[-\w_.]+) \(built .*\)\)\r\n| p/Sun Java System Messaging Multiplexor imapd/ v/$1/
 match imap m|^\* OK ([-\w_.]+) IMAP4 service \(iPlanet Messaging Server ([\w. ]+) \(built .*\)\)\r\n| p/Sun iPlanet Messaging Server imapd/ v/$2/ i/HotFix $3/ h/$1/
 match imap m|^\* OK Anonymous Mail Server v([\d.]+) IMAP4rev1 .*\r\n| p/Anonymous Mail Server imapd/ v/$1/
 match imap m|^\* OK ([-\w_.]+) ModusMail IMAP4 Server ([\d.]+) ready\r\n| p/ModusMail imapd/ v/$2/ h/$1/ o/Windows/
@@ -932,6 +935,7 @@ match imap m|^\* OK AXIGEN ([\w-_.]+) \(Linux/i686\) IMAP4rev1 service is ready\
 match imap m|^\* BYE Hi This is the IMAP SSL Redirect\r\n| p/Lotus Domino secure imapd/ i/SSL redirect/
 match imap m|^\* OK Hi This is the IMAP SSL Server .*\r\n| p/Lotus Domino secure imapd/
 match imap m|^\* OK TeamXchange IMAP4rev1 server \(([\w-_.]+)\) ready\.\r\n| p/TeamXchange imapd/ h/$1/
+match imap m|^\* OK \[CAPABILITY IMAP4REV1[^\]]*?\] ([-.\w]+) IMAP4rev1 Citadel ([-.\w]+) ready\r\n| p/Citadel imapd/ h/$1/ v/$2/
 
 # Fairly General
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d\d:\d\d:\d\d \r\n| p/MailEnable Professional imapd/ o/Windows/
@@ -2199,6 +2203,10 @@ match telnet m|^\xff\xfb\x01\r\n\r\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01WinCE/WBT Command Shell Version (\d[-.\w]+)\r\nSerial Number: (\w+)  MAC Address: 0000(\w+)\r\nUUID: [-\w]+\r\nPassword: | p/NCD Thinster terminal command shell/ v/$1/ i/Serial# $2; MAC $3/ d/terminal/
 # Netopia 4542 aDSL router telnetd
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[2J\x1b\[Hname:| p/Netopia aDSL router telnetd/ d/broadband router/
+match telnet m|^\xff\xfb\x01\n\r-> \x08\x08\x08\x08        \*\*\*  EPSON Network Scanner Server \((.*)\)  \*\*\*\n\r\n\r\x08\x08\x08\x08        \n\r| p/Epson Network Scanner Server/ i/$1/
+
+# Telnet WILL/WON'T/DO/DON'T.
+softmatch telnet m/^\xff[\xfb\xfc\xfd\xfe]./
 
 # NetportExpress PRO/100 3 port print server
 match telnet m|^\xff\xfb\x01\r\nNetportExpress\(tm\) ([-/.+\w]+)\r\n.*\r\n\r\nlogin: | p/Intel NetportExpress print server telnetd/ i/Model $1/ d/print server/
@@ -4276,6 +4284,7 @@ match http m|^HTTP/1\.0 302 Redirect\r\nServer: GoAhead-Webs\r\nDate: .*\r\nPrag
 match http m|^HTTP/1\.0 200 OK \r\nCache-Control: max-age=60\r\nContent-type: text/html; charset=ISO-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.01 Frameset//EN\" >\r\n<HTML>\r\n    <HEAD><TITLE>SandvallsangFSK: (\w+)</TITLE>| p/Kirk $1 VoIP gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 200 OK\r\nConnection: close\r\nPragma: no-cache\r\n.*<title>POPFile Control Center</title>\n|s p/POPFile http control center/
 match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat den angegebenen URL \(Uniform Resource Locator\) verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/
+match http m|^HTTP/1\.1 403 Forbidden \( Der Server hat die angegebene URL verweigert\. Wenden Sie sich an den Serveradministrator\.  \)\r\n| p/Microsoft IIS httpd/ i/German/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: fhttpd/([\d.]+)\r\n| p/fhttpd/ v/$1/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: \d+\r\nCache-Control: no-cache\r\n\r\n<html>\r\n<head><meta charset=\"utf-8\">\r\n<title> Home </title>\r\n<script language=\"JavaScript\">\r\n<!--\r\n// the start of Cookie related function\r\nfunction getCookieVal \(offset\) {  \r\n| p/Samsung ML-2251N printer http config/ d/printer/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Agranat-EmWeb/R([\d_]+)\r\nWWW-Authenticate: Basic realm=\"Siemens Web User Interface\"\r\n\r\n401 Unauthorized\r\n| p/Siemens router http config/ i/Agranat embedded httpd $1/ d/router/
@@ -5464,7 +5473,8 @@ match imap m|^\* OK IMAP4rev1\r\nGET BAD  Invalid command\r\n\* BAD  Null comman
 match ssl/imap m|^\* BYE Fatal error: tls_start_servertls\(\) failed\r\n$| p/Cyrus imapd/
 match imap m|^\* OK ([-\w_.]+)\r\nGET BAD Error in IMAP command received by server\.\r\n\* BAD Error in IMAP command received by server\.\r\n| p/Dovecot imapd/ h/$1/
 match imap m|^\* OK .*\r\nGET BAD Error in IMAP command received by server\.\r\n\* BAD Error in IMAP command received by server\.\r\n| p/Dovecot imapd/
-match imap m|^\* OK .*\r\nGET BAD Please login first\r\n| p/Dovecot imapd/ i/auth required/
+# Too general -- also matches Cyrus imapd 2.3.9.
+# match imap m|^\* OK .*\r\nGET BAD Please login first\r\n| p/Dovecot imapd/ i/auth required/
 match imap m|^\* OK IMAP4 IMAP4rev1 Server\r\nGET BAD Unrecognised Command\r\n| p/Floosietek FTgate imapd/
 match imap m|^\* OK IMAP4r1 server \[([-\w_.]+)\] ready\r\nGET BAD Protocol Error: \"Unidentifiable command specified\"\.\r\n\* BAD Protocol Error: \"Tag not found in command\"\.\r\n| p/Microsoft Exchange imapd/ h/$1/ i/Version masked/ o/Windows/
 match imap m|^\* OK IMAP4rev1 server ready at \d\d/\d\d/\d\d \d?\d:\d\d:\d\d\r\nGET BAD UNKNOWN Command\r\n\r\n BAD UNKNOWN Command\r\n| p/MailEnable imapd/ o/Windows/
@@ -5474,6 +5484,8 @@ match imap m|^\* OK .*IMAP4rev1 Server Completed\r\nGET BAD Protocol Error: Inva
 # embyte
 match imap m|^\* OK  MailSite IMAP4 Server ([-.\w]+) ready| p/MailSite imapd/ v/$1/
 match imap m|^\* OK ([\w-_.]+) Welcome \(cimap\)\r\nGET BAD Invalid command \(/\)\r\n\* BAD - command line Insufficient tokens \(\)\r\n| p/SurgeMail imapd/ h/$1/
+match imap m|^GET NO Error in IMAP command received by server\.\r\n| p/cPanel Courier imapd/
+match imap m|^\* OK IMAPrev1\r\nGET BAD Unknown or NULL command\r\n BAD NULL COMMAND\r\n| p/hMailServer imapd/ o/Windows/
 
 # Server: CUPS/1.1
 match ipp m|^HTTP/1\.0 \d\d\d .*<TITLE>Home - CUPS ([\d.]+)</TITLE>.*SUMMARY=\"Common UNIX Printing System|s p/CUPS/ v/$1/
@@ -6622,6 +6634,7 @@ match netbios-ssn m|^\x83\0\0\x01\x8f$| p/Microsoft Windows 98 netbios-ssn/ o/Wi
 match netbios-ssn m|^\0\0\0M\xffSMBr\0\0\0\0\x80\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0\x032\0\x01\0\xff\xff\0\0\0\0\x01\0| p/Netware 6 SMB Services/
 # Network Appliance ONTAP 6.3.3 netbios-ssn
 match netbios-ssn m/^\0\0\0.\xffSMBr\0\0\0\0\x98\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.*([^\0]|([^_A-Z0-9-]\0))(([-\w]\0){2,50})/s p/Network Appliance Ontap smbd/ i/workgroup: $P(3)/
+match netbios-ssn m/^\0\0\0.\xffSMBr\0\0\0\0\x98\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0.*\W([-_.\w]+)\0$/ p/Network Appliance Ontap smbd/ i/workgroup: $1/
 match netbios-ssn m|^\x82\0\0\0\n-> doHttp: Connection timeouted!\n\ntelnetd: This system \*IN USE\* via telnet\.\nshell restarted\.\n\x08\x08\x08\x08        \*\*\*  EPSON Network Print Server \(([^)]+)\)  \*\*\*\n\n\x08\x08\x08\x08        \nPassword: | p/Epson print server smbd/ v/$1/ d/print server/
 match netbios-ssn m|^\0\0\0.\xffSMBr\0\0\0\0\x88\x01.\0\0\0\0\0\0\0\0\0\0\0\0\0\0@\x06\0\0\x01\0\x11\x07\0|
 
