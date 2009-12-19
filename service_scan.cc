@@ -149,7 +149,6 @@ public:
 
   // Note that the next 2 members are for convenience and are not destroyed w/the ServiceNFO
   Target *target; // the port belongs to this target host
-  Port *port; // The Port that this service represents (this copy is taken from inside Target)
   // if a match is found, it is placed here.  Otherwise NULL
   const char *probe_matched;
   // If a match is found, any product/version/info/hostname/ostype/devicetype
@@ -1339,7 +1338,6 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   AP = newAP;
   currentresp = NULL; 
   currentresplen = 0;
-  port = NULL;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
   tunnel = SERVICE_TUNNEL_NONE;
@@ -1633,6 +1631,7 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
   unsigned int targetno;
   ServiceNFO *svc;
   Port *nxtport;
+  Port port;
   int desired_par;
   struct timeval now;
   num_hosts_timedout = 0;
@@ -1644,12 +1643,11 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
       num_hosts_timedout++;
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDPANDSCTP, PORT_OPEN))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;
       svc->proto = nxtport->proto;
-      svc->port = nxtport;
       services_remaining.push_back(svc);
     }
   }
@@ -1662,12 +1660,11 @@ ServiceGroup::ServiceGroup(vector<Target *> &Targets, AllProbes *AP) {
     if (Targets[targetno]->timedOut(&now)) {
       continue;
     }
-    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, TCPANDUDPANDSCTP, PORT_OPENFILTERED))) {
+    while((nxtport = Targets[targetno]->ports.nextPort(nxtport, &port, TCPANDUDPANDSCTP, PORT_OPENFILTERED))) {
       svc = new ServiceNFO(AP);
       svc->target = Targets[targetno];
       svc->portno = nxtport->portno;
       svc->proto = nxtport->proto;
-      svc->port = nxtport;
       services_remaining.push_back(svc);
     }
   }
@@ -1703,8 +1700,8 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
 
   char host[128];
 
-  if (svc->port->state == PORT_OPENFILTERED) {
-    svc->target->ports.addPort(svc->portno, svc->proto, PORT_OPEN);
+  if (svc->target->ports.getPortState(svc->portno, svc->proto) == PORT_OPENFILTERED) {
+    svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
     if (svc->proto == IPPROTO_TCP) 
         svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
     if (svc->proto == IPPROTO_UDP)
@@ -2318,7 +2315,8 @@ list<ServiceNFO *>::iterator svc;
 
  for(svc = SG->services_finished.begin(); svc != SG->services_finished.end(); svc++) {
    if ((*svc)->probe_state != PROBESTATE_FINISHED_NOMATCH) {
-     (*svc)->port->setServiceProbeResults((*svc)->probe_state, 
+     (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
+					  (*svc)->probe_state, 
 					  (*svc)->probe_matched,
 					  (*svc)->tunnel,
 					  *(*svc)->product_matched? (*svc)->product_matched : NULL, 
@@ -2329,7 +2327,8 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
 					  shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
-       (*svc)->port->setServiceProbeResults((*svc)->probe_state, NULL,
+       (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
+					    (*svc)->probe_state, NULL,
 					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
 					    (*svc)->getServiceFingerprint(NULL));
    }
@@ -2372,7 +2371,8 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
       if (o.debugging) log_write(LOG_PLAIN, "EXCLUDING %d/%s\n", svc->portno,
           IPPROTO2STR(svc->proto));
 
-      svc->port->setServiceProbeResults(PROBESTATE_EXCLUDED, NULL, 
+      svc->target->ports.setServiceProbeResults(svc->portno, svc->proto,
+					PROBESTATE_EXCLUDED, NULL, 
 					SERVICE_TUNNEL_NONE,
                                         "Excluded from version scan", NULL,
 					NULL, NULL, NULL, NULL, NULL);

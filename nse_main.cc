@@ -82,13 +82,14 @@ static int ports (lua_State *L)
   Target *target = get_target(L, 1);
   PortList *plist = &(target->ports);
   Port *current = NULL;
+  Port port;
   lua_newtable(L);
   for (int i = 0; states[i] != PORT_HIGHEST_STATE; i++)
-    while ((current = plist->nextPort(current, TCPANDUDPANDSCTP,
+    while ((current = plist->nextPort(current, &port, TCPANDUDPANDSCTP,
             states[i])) != NULL)
     {
       lua_newtable(L);
-      set_portinfo(L, current);
+      set_portinfo(L, target, current);
       lua_pushboolean(L, 1);
       lua_rawset(L, -3);
     }
@@ -112,10 +113,10 @@ static int port_set_output (lua_State *L)
 {
   ScriptResult sr;
   Target *target = get_target(L, 1);
-  Port *port = get_port(L, target, 2);
+  const Port *port = get_port(L, target, 2);
   sr.set_id(luaL_checkstring(L, 3));
   sr.set_output(luaL_checkstring(L, 4));
-  port->scriptResults.push_back(sr);
+  target->ports.addScriptResult(port->portno, port->proto, sr);
   /* increment host port script results*/
   target->ports.numscriptresults++;
   return 0;
@@ -247,7 +248,7 @@ void ScriptResult::set_output (const char *out)
   output = std::string(out);
 }
 
-std::string ScriptResult::get_output (void)
+std::string ScriptResult::get_output (void) const
 {
   return output;
 }
@@ -257,7 +258,7 @@ void ScriptResult::set_id (const char *ident)
   id = std::string(ident);
 }
 
-std::string ScriptResult::get_id (void)
+std::string ScriptResult::get_id (void) const
 {
   return id;
 }
