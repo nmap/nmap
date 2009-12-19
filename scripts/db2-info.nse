@@ -3,7 +3,7 @@ Attempts to extract information from IBM DB2 Server instances.  The script sends
 DB2 EXCSAT (exchange server attributes) command packet and parses the response.
 ]]
 
--- rev 1.2 (2010-11-11)
+-- rev 1.3 (2009-12-16)
   
 author = "Tom Sellers"
 
@@ -163,7 +163,7 @@ action = function(host, port)
 	
 	-- do some exception handling / cleanup
 	local catch = function()
-		stdnse.print_debug("%s", "ERROR communicating with " .. host.ip .. " on port " .. port.number)
+		stdnse.print_debug("%s", "db2-info: ERROR communicating with " .. host.ip .. " on port " .. port.number .. "/" .. port.protocol)
 		socket:close()
 	end
 	
@@ -225,7 +225,7 @@ action = function(host, port)
 	socket:close()
 	
 	if (not status) or (response == "TIMEOUT") or (response == nil) then
-		stdnse.print_debug("%s","ERROR: No data, ending communications with " .. host.ip .. ":" .. port.number)
+		stdnse.print_debug("%s","db2-info: ERROR: No data, ending communications with " .. host.ip .. ":" .. port.number .. "/" .. port.protocol)
 		return
 	end
 	
