@@ -327,7 +327,9 @@ action = function(host, port)
 		
 	-- Set port information
 	port.version.name = "ibm-db2"
+	port.version.product = "IBM DB2 Database Server"
 	port.version.name_confidence = 100
+	nmap.set_port_state(host, port, "open")
 	if server_class ~= nil then port.version.extrainfo = server_class   end
 	
 	nmap.set_port_version(host, port, "hardmatched")
