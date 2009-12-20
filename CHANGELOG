@@ -31,6 +31,14 @@ o Removed a limitation of snmp.lua that only allowed it to properly
   encode OID component values up to 127. The bug was reported by
   Victor Rudnev. [David]
 
+o Reduced memory usage in several areas. The size of the internal
+  representation of nmap-os-db was reduced more than 90%. The size of
+  individual Port structures without service scan results was reduced
+  about 70%. When a port receives no response, Nmap now avoids
+  allocating a Port structure at all, so scans against filtered hosts
+  can be light on memory. Thanks to Pavel Kankovsky for the Post size
+  reduction patch. [David]
+
 Nmap 5.10BETA1 [2009-11-23]
 
 o Added 14 new NSE scripts for a grand total of 72! You can learn
