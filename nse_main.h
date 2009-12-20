@@ -25,7 +25,7 @@ class ScriptResult
     std::string get_id (void) const;
 };
 
-typedef std::vector<ScriptResult> ScriptResults;
+typedef std::list<ScriptResult> ScriptResults;
 
 class Target;
 
