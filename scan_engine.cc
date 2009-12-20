@@ -1103,33 +1103,6 @@ static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
   return false;
 }
 
-/* For the given scan type, this returns the port/host state demonstrated
-   by getting no response back */
-static int scantype_no_response_means(stype scantype) {
-  switch(scantype) {
-  case SYN_SCAN:
-  case ACK_SCAN:
-  case WINDOW_SCAN:
-  case CONNECT_SCAN:
-  case SCTP_INIT_SCAN:
-    return PORT_FILTERED;
-  case UDP_SCAN:
-  case IPPROT_SCAN:
-  case NULL_SCAN:
-  case FIN_SCAN:
-  case MAIMON_SCAN:
-  case XMAS_SCAN:
-  case SCTP_COOKIE_ECHO_SCAN:
-    return PORT_OPENFILTERED;
-  case PING_SCAN:
-  case PING_SCAN_ARP:
-    return HOST_DOWN;
-  default:
-    fatal("Unexpected scan type found in %s()", __func__);
-  }
-  return 0; /* Unreached */
-}
-
 HostScanStats::HostScanStats(Target *t, UltraScanInfo *UltraSI) {
   target = t; 
   USI=UltraSI; 
@@ -1497,6 +1470,46 @@ static void init_perf_values(struct ultra_scan_performance_vars *perf) {
   perf->tryno_cap = o.getMaxRetransmissions();
 }
 
+/* Initialize the state for ports that don't receive a response in all the
+   targets. */
+static void set_default_port_state(vector<Target *> &targets, stype scantype) {
+  vector<Target *>::iterator target;
+
+  for (target = targets.begin(); target != targets.end(); target++) {
+    switch (scantype) {
+    case SYN_SCAN:
+    case ACK_SCAN:
+    case WINDOW_SCAN:
+    case CONNECT_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_TCP, PORT_FILTERED);
+      break;
+    case SCTP_INIT_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_SCTP, PORT_FILTERED);
+      break;
+    case NULL_SCAN:
+    case FIN_SCAN:
+    case MAIMON_SCAN:
+    case XMAS_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_TCP, PORT_OPENFILTERED);
+      break;
+    case UDP_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_UDP, PORT_OPENFILTERED);
+      break;
+    case IPPROT_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_IP, PORT_OPENFILTERED);
+      break;
+    case SCTP_COOKIE_ECHO_SCAN:
+      (*target)->ports.setDefaultPortState(IPPROTO_SCTP, PORT_OPENFILTERED);
+      break;
+    case PING_SCAN:
+    case PING_SCAN_ARP:
+      break;
+    default:
+      fatal("Unexpected scan type found in %s()", __func__);
+    }
+  }
+}
+
 /* Order of initializations in this function CAN BE IMPORTANT, so be careful
  mucking with it. */
 void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, stype scantp) {
@@ -1566,6 +1579,8 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
   default:
     break;
   }
+
+  set_default_port_state(Targets, scantype);
 
   init_perf_values(&perf);
 
@@ -2598,7 +2613,6 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   u16 portno = 0;
   u8 proto = 0;
   int oldstate = PORT_TESTING;
-  Port *currentp;
   /* Whether no response means a port is open */
   bool noresp_open_scan = USI->noresp_open_scan;
 
@@ -2616,13 +2630,11 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
     portno = pspec->pd.sctp.dport;
   } else assert(0);
   
-  /* First figure out the current state */
-  currentp = hss->target->ports.getPortEntry(portno, proto);
-  if (!currentp) {
+  oldstate = hss->target->ports.getPortState(portno, proto);
+  if (oldstate == -1) {
     oldstate = PORT_TESTING;
     hss->ports_finished++;
   }
-  else oldstate = currentp->state;
 
   /*    printf("TCP port %hu has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
   switch(oldstate) {
@@ -2631,25 +2643,25 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
        in a SYN scan, but not neccessarily for UDP scan */
   case PORT_TESTING:
     /* Brand new port -- add it to the list */
-    hss->target->ports.addPort(portno, proto, newstate);
+    hss->target->ports.setPortState(portno, proto, newstate);
     break;
   case PORT_OPEN:
     if (newstate != PORT_OPEN) {
       if (noresp_open_scan) {
-	hss->target->ports.addPort(portno, proto, newstate);
+	hss->target->ports.setPortState(portno, proto, newstate);
       } /* Otherwise The old open takes precendence */
     }
     break;
   case PORT_CLOSED:
     if (newstate != PORT_CLOSED) {
       if (!noresp_open_scan && newstate != PORT_FILTERED)
-	hss->target->ports.addPort(portno, proto, newstate);
+	hss->target->ports.setPortState(portno, proto, newstate);
     }
     break;
   case PORT_FILTERED:
     if (newstate != PORT_FILTERED) {
       if (!noresp_open_scan || newstate != PORT_OPEN) 
-	hss->target->ports.addPort(portno, proto, newstate);
+	hss->target->ports.setPortState(portno, proto, newstate);
     }
     break;
   case PORT_UNFILTERED:
@@ -2658,11 +2670,11 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
        case.  I'll change it if the new state is open or closed,
        though I don't expect that to ever happen */
     if (newstate == PORT_OPEN || newstate == PORT_CLOSED)
-      hss->target->ports.addPort(portno, proto, newstate);
+      hss->target->ports.setPortState(portno, proto, newstate);
     break;
   case PORT_OPENFILTERED:
     if (newstate != PORT_OPENFILTERED) {
-      hss->target->ports.addPort(portno, proto, newstate);
+      hss->target->ports.setPortState(portno, proto, newstate);
     }
     break;
   default:
@@ -2700,18 +2712,16 @@ void HostScanStats::boostScanDelay() {
   sdn.goodRespSinceDelayChanged = 0;
 }
 
-/* Dismiss all probe attempts on bench -- the ports are marked
-     'filtered' or whatever is appropriate for having no response */
+/* Dismiss all probe attempts on bench -- hosts are marked down and ports will
+   be set to whatever the default port state is for the scan. */
 void HostScanStats::dismissBench() {
-  int newstate;
-
   if (probe_bench.empty()) return;
-  newstate = scantype_no_response_means(USI->scantype);
   while(!probe_bench.empty()) {
     if (USI->ping_scan)
-      ultrascan_host_pspec_update(USI, this, &probe_bench.back(), newstate);
-    else
-      ultrascan_port_pspec_update(USI, this, &probe_bench.back(), newstate);
+      ultrascan_host_pspec_update(USI, this, &probe_bench.back(), HOST_DOWN);
+    /* Nothing to do if !USI->ping_scan. ultrascan_port_pspec_update would
+       allocate a Port object but we rely on the default port state to save
+       memory. */
     probe_bench.pop_back();
   }
   bench_tryno = 0;
@@ -2719,7 +2729,6 @@ void HostScanStats::dismissBench() {
 
 /* Move all members of bench to retry_stack for probe retransmission */
 void HostScanStats::retransmitBench() {
-  int newstate;
   if (probe_bench.empty()) return;
 
   /* Move all contents of probe_bench to the end of retry_stack, updating retry_stack_tries accordingly */
@@ -2728,7 +2737,6 @@ void HostScanStats::retransmitBench() {
 			   bench_tryno);
   assert(retry_stack.size() == retry_stack_tries.size());
   probe_bench.erase(probe_bench.begin(), probe_bench.end());
-  newstate = scantype_no_response_means(USI->scantype);
   bench_tryno = 0;
 }
 
@@ -4929,7 +4937,6 @@ static void processData(UltraScanInfo *USI) {
   list<UltraProbe *>::iterator probeI, nextProbeI;
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
-  int newstate;
   unsigned int maxtries = 0;
   bool scanmaybedone = true; /* The whole scan is not yet done */
   int expire_us = 0;
@@ -4995,19 +5002,20 @@ static void processData(UltraScanInfo *USI) {
       
       if (!probe->isPing() && probe->timedout && !probe->retransmitted) {
 	if (!tryno_mayincrease && probe->tryno >= maxtries) {
-	  newstate = scantype_no_response_means(USI->scantype);
-	  if (USI->ping_scan)
-	    ultrascan_host_probe_update(USI, host, probeI, newstate, NULL);
-	  else
-	    ultrascan_port_probe_update(USI, host, probeI, newstate, NULL);
-	  if (host->target->reason.reason_id == ER_UNKNOWN)
-	    host->target->reason.reason_id = ER_NORESPONSE;
 	  if (tryno_capped && !host->retry_capped_warned) {
 	    log_write(LOG_PLAIN, "Warning: %s giving up on port because"
               " retransmission cap hit (%d).\n", host->target->targetipstr(),
               probe->tryno);
             host->retry_capped_warned = true;
 	  }
+	  if (USI->ping_scan) {
+	    ultrascan_host_probe_update(USI, host, probeI, HOST_DOWN, NULL);
+	  } else {
+            /* No ultrascan_port_probe_update because that allocates a Port
+               object; the default port state as set by setDefaultPortState
+               handles these no-response ports. */
+            host->destroyOutstandingProbe(probeI);
+          }
 	  continue;
 	} else if (probe->tryno >= maxtries && 
 		   TIMEVAL_SUBTRACT(USI->now, probe->sent) > expire_us) {
@@ -5258,8 +5266,8 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 	      perror("recv problem from FTP bounce server");
 	    } else if (res == 0) {
 	      if (timedout)
-		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_FILTERED);
-	      else target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_CLOSED);
+		target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_FILTERED);
+	      else target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
 	    } else {
 	      recvbuf[res] = '\0';
 	      if (o.debugging) log_write(LOG_STDOUT, "result of LIST: %s", recvbuf);
@@ -5270,7 +5278,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		res = recvtime(sd, recvbuf, 2048,10, NULL);
 	      }
 	      if (recvbuf[0] == '1' || recvbuf[0] == '2') {
-		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_OPEN);
+		target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_OPEN);
 		if (recvbuf[0] == '1') {
 		  res = recvtime(sd, recvbuf, 2048,5, NULL);
 		  if (res < 0)
@@ -5281,7 +5289,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		      if (o.debugging) log_write(LOG_STDOUT, "nxt line: %s", recvbuf);
 		      if (recvbuf[0] == '4' && recvbuf[1] == '2' && 
 			  recvbuf[2] == '6') {	      	
-		        target->ports.removePort(portarray[i], IPPROTO_TCP);
+		        target->ports.forgetPort(portarray[i], IPPROTO_TCP);
 		        if (o.debugging || o.verbose)
 			  log_write(LOG_STDOUT, "Changed my mind about port %i\n", portarray[i]);
 		      }
@@ -5290,7 +5298,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
 		}
 	      } else {
 		/* This means the port is closed ... */
-		target->ports.addPort(portarray[i], IPPROTO_TCP, PORT_CLOSED);
+		target->ports.setPortState(portarray[i], IPPROTO_TCP, PORT_CLOSED);
 	      }
 	    }
 	  }
@@ -5362,6 +5370,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   unsigned long j;
   struct serviceDeductions sd;
   bool doingOpenFiltered = false;
+  Port port;
 
   ScanProgressMeter *SPM = NULL;
 
@@ -5434,11 +5443,11 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
     while(1) {
       if (doingOpenFiltered) {
 	rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port,
-						      TCPANDUDPANDSCTP,
+						      &port, TCPANDUDPANDSCTP,
 						      PORT_OPENFILTERED);
       } else {
 	rsi.rpc_current_port = target->ports.nextPort(rsi.rpc_current_port,
-						      TCPANDUDPANDSCTP,
+						      &port, TCPANDUDPANDSCTP,
 						      PORT_OPEN);
 	if (!rsi.rpc_current_port && !o.servicescan) {
 	  doingOpenFiltered = true;
@@ -5452,7 +5461,7 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 	break; // We do all open ports if no service scan
       if (!rsi.rpc_current_port) 
 	break; // done!
-      rsi.rpc_current_port->getServiceDeductions(&sd);
+      target->ports.getServiceDeductions(rsi.rpc_current_port->portno, rsi.rpc_current_port->proto, &sd);
       if (sd.name && sd.service_tunnel == SERVICE_TUNNEL_NONE && 
 	  strcmp(sd.name, "rpcbind") == 0)
 	break; // Good - an RPC port for us to scan.
@@ -5594,7 +5603,8 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
 
     /* Now we figure out the results of the port we just RPC scanned */
     
-    rsi.rpc_current_port->setRPCProbeResults(rsi.rpc_status, rsi.rpc_program, 
+    target->ports.setRPCProbeResults(rsi.rpc_current_port->portno, rsi.rpc_current_port->proto,
+                                             rsi.rpc_status, rsi.rpc_program, 
 					     rsi.rpc_lowver, rsi.rpc_highver);
     
     /* Time to put our RPC program scan list back together for the

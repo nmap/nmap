@@ -114,7 +114,6 @@ typedef struct port_reason {
 	reason_t reason_id;
 	struct in_addr ip_addr;
 	unsigned short ttl;
-	int state;
 } state_reason_t;
 
 /* used to calculate state reason summaries.
