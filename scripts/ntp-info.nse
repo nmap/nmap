@@ -38,6 +38,10 @@ require "shortport"
 
 portrule = shortport.port_or_service(123, "ntp", {"udp", "tcp"})
 
+-- This script run against open|filtered ports, so don't wait too long if
+-- there's no response.
+local TIMEOUT = 5000
+
 -- Transform an array into a table where the array's values all map to true.
 local function make_set(a)
   local i, v, result
@@ -69,8 +73,11 @@ action = function(host, port)
   local rlreq = string.char(0x16, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
                             0x00, 0x00, 0x00, 0x00)
 
-  status, buftres = comm.exchange(host, port, treq, {proto=port.protocol})
-  if status then
+  status, buftres = comm.exchange(host, port, treq, {proto=port.protocol, timeout=TIMEOUT})
+  if not status then
+    -- Don't try the second probe if this one didn't work.
+    return nil
+  else
     local _, sec, frac, tstamp
 
     _, sec, frac = bin.unpack(">II", buftres, 33)
@@ -82,7 +89,7 @@ action = function(host, port)
     table.insert(output, string.format("receive time stamp: %s", os.date("%c", tstamp)))
   end
 
-  status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol})
+  status, bufrlres = comm.exchange(host, port, rlreq, {proto=port.protocol, timeout=TIMEOUT})
 
   if status then
     -- This only looks at the first fragment of what can possibly be several
