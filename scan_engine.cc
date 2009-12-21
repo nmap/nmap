@@ -5010,6 +5010,8 @@ static void processData(UltraScanInfo *USI) {
 	  }
 	  if (USI->ping_scan) {
 	    ultrascan_host_probe_update(USI, host, probeI, HOST_DOWN, NULL);
+	    if (host->target->reason.reason_id == ER_UNKNOWN)
+	      host->target->reason.reason_id = ER_NORESPONSE;
 	  } else {
             /* No ultrascan_port_probe_update because that allocates a Port
                object; the default port state as set by setDefaultPortState
