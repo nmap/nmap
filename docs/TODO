@@ -1,33 +1,7 @@
 weTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Look into reducing Nmap memory consumption
-  o UDP scans with -p- and large hostgroups are a particularly large
-    offender.  See if there is a way to prevent them from eating up
-    gigs of RAM. See the message "Port memory bloat" at
-    http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
-    reduces Port memory use by about 50%. 
-  o One idea David has been considering is a way to represent filtered
-    ports (or whatever the default state is) without creating a Port
-    object for each one.
-  [David]
-
 o Integrate latest version detection submissions and corrections.
   This was last done based on submissions until February 9, 2009.
-
-o [NSE] Attempt to reproduce and fix a deadlock reported by Brandon
-  when he does large-scale scanning with a new favicon script with
-  hostgroups as small as 8,192 (he hasn't seen it with 4096
-  hostgroups). Could be a bug in internal NSE socket lock. Probably
-  not specific to the favicon script, but that is how Brandon
-  reproduces it. At the hang, stack trace is usually the threads stuck
-  in socket_lock function, sometimes lookup_cache mutex in http
-  library. David guesses that it's threads being garbage-collected
-  from the socket lock table. The only thing that can wake up a thread
-  waiting on a socket lock is if a thread that holds a lock is removed
-  from the table. But the table has weak keys, meaning that a thread
-  can be garbage collected and it will be automatically removed from
-  the table by the Lua runtime. Then there is no event that can wake
-  up a thread waiting for a lock. [David]
 
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
@@ -39,14 +13,14 @@ o [NSE] Patrick's script dependency patch:
   o I'm not sure if he has gone through and actually set appropriate
     dependencies (and removed runlevels) yet
 
-o [NSE] NFS query script for checking exports, etc.?
+o Investigate issue with our Pcap and Wireshark x64, as described in
+  this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
+
+o Release 4.10BETA2
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
-
-o Investigate issue with our Pcap and Wireshark x64, as described in
-  this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
 
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
@@ -80,6 +54,25 @@ o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
   http://seclists.org/nmap-dev/2009/q4/255, particularly the
   implementation sketch at http://seclists.org/nmap-dev/2009/q4/268 [Venkat,David]
 
+o Add Nmap web board.
+ 
+o Create Nmap wiki
+
+o Do -p- Internet UDP scans.
+
+o Consider moving UDP ping/portscan payloads from payload.cc to a
+  custom data file so that it is cleaner to maintain and users can
+  more easily disable/change probes. [David]
+  Things to think about for an external data file:
+  o Many ports may share the same payload.
+  o A port may want more than one payload, perhaps falling back to a
+    second one if the first one fails.
+  o Some probes may have to come from a specific source port.
+  o Some protocols may require variable payloads, for example IKE
+    benefits from a random initiator cookie so that packets after the
+    first don't get ignored for looking like retransmissions.
+  o TFTP sends its response from an ephemeral port, not port 69.
+
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
   http://seclists.org/nmap-dev/2009/q3/773. [David]
@@ -98,6 +91,8 @@ o Web site HTML improvements
   - The icon on the top-left of the screen should be for (and link
     to) the root URL of current site.  e.g. seclists.org,
     sectools.org, nmap.org rather than always insecure.org.
+
+o Start project to make Nmap a Featured Article on Wikipedia.
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o We should do an audit to ensure that we are in complete compliance for the
@@ -193,10 +188,6 @@ o [NSE] Improve username/password library (the database files
 o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
   http://seclists.org/nmap-dev/2009/q3/0986.html).
 
-o Add Nmap web board.
- 
-o Create Nmap wiki
-
 o After the new -sn and -PN options (added to SVN around 7/20, just
   after the 5.00 release) have been around long enough to be in most
   people's copy of Nmap (e.g. in all the versions we distribute from
@@ -205,19 +196,6 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
   -n, and the main problem with -sP is that we now use it more for
   "disable portscan" than ping only.  For example, you can also use
   NSE, traceroute, etc. [David]
-
-o Consider moving UDP ping/portscan payloads from payload.cc to a
-  custom data file so that it is cleaner to maintain and users can
-  more easily disable/change probes. [David]
-  Things to think about for an external data file:
-  o Many ports may share the same payload.
-  o A port may want more than one payload, perhaps falling back to a
-    second one if the first one fails.
-  o Some probes may have to come from a specific source port.
-  o Some protocols may require variable payloads, for example IKE
-    benefits from a random initiator cookie so that packets after the
-    first don't get ignored for looking like retransmissions.
-  o TFTP sends its response from an ephemeral port, not port 69.
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -273,10 +251,6 @@ o Consider changing Nsock so that it is able to take advantage of more
 o [NSE] Add DNS based service discovery script.  See
   http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
   from David.
-
-o Further investigate SCTP functionality, as some people reported
-  problems (see this thread:
-  http://seclists.org/nmap-dev/2009/q2/0669.html)
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -388,6 +362,24 @@ o Look into whether we should loosen/change the global congestion
   * Related possibility: Fix --nogcc to gracefully handle ping scans.
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
+  * [12/22/09] David says: It still is in one case that I've
+    documented on my wiki. I had an idea to fix it, but on testing it
+    it didn't work. The idea was to treat the global congestion limit
+    differently. Instead of dropping it down to the minimum level on a
+    drop as is done currently, I thought about only dropping it by the
+    amount that the individual host limit drops. For example, if a
+    host had a drop and its limit fell from 25 to 1, then the global
+    limit would change (if it was at 100 to begin with) to 76, not all
+    the way down to 2 or whatever it is.  The idea being that the
+    global limit is most important at the beginning of a scan, when
+    there's no information to set host limits, and every host wants to
+    send all its first probes at once. See
+    http://www.bamsoftware.com/wiki/Nmap/PerformanceNotesArchive2#global-cc. I
+    am convinced, though, that some sort of global control is
+    necessary. There's a reason that a web browser limits the number
+    of connections it will make, and doesn't try to download every
+    image file at once and count on the fairness of TCP to sort it
+    out.
 
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
@@ -403,8 +395,6 @@ o Zenmap should be able to export normal Nmap output
 
 o Zenmanp should perhaps be able to print Nmap output (if not too much
   of a pain to implement.)
-
-o Start project to make Nmap a Featured Article on Wikipedia.
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
@@ -455,9 +445,7 @@ o Improve the "run Zenmap as root" menu item to work on distributions
 o Consider enhancing the new OS Assist system to handle version
   detection too. [SOC task?]
 
-o Do -p- Internet UDP scans.
-
-o Deal with UDP retransmission for version detection ( I think I
+o Deal with UDP retransmission for version detection (I think I
   should just do a second run of all probes for UDP if it fails to
   match anything).  The advantage there is that no retransmissions are
   neccessary if the service is found.  Then again, per-probe
@@ -488,8 +476,7 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
 o Search for nmap on google news, on google web, and add appropriate
   links to press page and the like.
 
-o Nping -- like hping3 but uses Nmap infrastructure and to a
-  large degree the same command-line options as Nmap.
+o Consider integrating Nping.
 
 o Make version detection and NSE timing system more dynamic so that
   the concurrency can change based on network conditions/ability.
@@ -523,13 +510,6 @@ o Add randomizer to configure script so that a random ASCII art from
   them leet-nmap-ascii-art-submittername.txt.
 
 o Add general regression unit testing system to Nmap
-
-o Talk to Libpcap folks about incorporating (at least some of) my
-  changes from libpcap/NMAP_MODIFICATIONS.
-
-o Add --evil to set the RFC3514 evil bit.
-  ftp://ftp.rfc-editor.org/in-notes/rfc3514.txt
-  o We're not going to add this right now.
 
 o The Nmap web page is beginning to show its age.  Ah, who am I
   kidding, it was showing its age 5 years ago :).  It could do with an
@@ -579,8 +559,9 @@ o perhaps each 'match' line in nmap-service-probes should have a
   capable of doing this.  In particular, many of the softmatch lines
   don't offer many chars anchored at the front.
 
-o Add detection of duplicate machines via IP.ID uber-technique.
-   Maybe I should use uptime timestamps too.  Oh, and MAC addresses too.
+o Add detection of duplicate machines via IP.ID technique.
+   Maybe I should use uptime timestamps too.  Oh, and MAC addresses
+   too.  Our SSH host key script is useful for this as well.
 
 o Separate nbase into its own Windows library in the same way as Andy did
    with iphlpapi .
@@ -596,6 +577,53 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add --evil to set the RFC3514 evil bit.
+  ftp://ftp.rfc-editor.org/in-notes/rfc3514.txt
+  o We're not going to add this right now.
+
+o Talk to Libpcap folks about incorporating (at least some of) my
+  changes from libpcap/NMAP_MODIFICATIONS. [marking as done since the
+  upstream-appropriate changes are pretty minor now that we've
+  upgraded to 1.0]
+
+o Nping -- like hping3 but uses Nmap infrastructure and to a
+  large degree the same command-line options as Nmap.
+  [We now have an alpha version at http://nmap.org/nping/]
+
+o Further investigate SCTP functionality, as some people reported
+  problems (see this thread:
+  http://seclists.org/nmap-dev/2009/q2/0669.html)
+
+o [NSE] NFS query script for checking exports, etc.? [Patrik Karlsson]
+
+o [NSE] Attempt to reproduce and fix a deadlock reported by Brandon
+  when he does large-scale scanning with a new favicon script with
+  hostgroups as small as 8,192 (he hasn't seen it with 4096
+  hostgroups). Could be a bug in internal NSE socket lock. Probably
+  not specific to the favicon script, but that is how Brandon
+  reproduces it. At the hang, stack trace is usually the threads stuck
+  in socket_lock function, sometimes lookup_cache mutex in http
+  library. David guesses that it's threads being garbage-collected
+  from the socket lock table. The only thing that can wake up a thread
+  waiting on a socket lock is if a thread that holds a lock is removed
+  from the table. But the table has weak keys, meaning that a thread
+  can be garbage collected and it will be automatically removed from
+  the table by the Lua runtime. Then there is no event that can wake
+  up a thread waiting for a lock. [David and Patrick made some commits
+  at end of November meant to resolve this, and we haven't seen the
+  problem since, so we're marking it as done for now].
+
+o Look into reducing Nmap memory consumption
+  o UDP scans with -p- and large hostgroups are a particularly large
+    offender.  See if there is a way to prevent them from eating up
+    gigs of RAM. See the message "Port memory bloat" at
+    http://seclists.org/nmap-dev/2009/q3/0926.html for a patch that
+    reduces Port memory use by about 50%. 
+  o One idea David has been considering is a way to represent filtered
+    ports (or whatever the default state is) without creating a Port
+    object for each one.
+  [David]
 
 o Fix assertion failure with certain --exclude arguments (see
   http://seclists.org/nmap-dev/2009/q4/276). [David]
