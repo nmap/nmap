@@ -39,6 +39,8 @@ o Reduced memory usage in several areas. The size of the internal
   can be light on memory. Thanks to Pavel Kankovsky for the Post size
   reduction patch. [David]
 
+o Added a service probe for Kerberos on udp/88. [Patrik Karlsson]
+
 Nmap 5.10BETA1 [2009-11-23]
 
 o Added 14 new NSE scripts for a grand total of 72! You can learn
