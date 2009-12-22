@@ -1351,6 +1351,7 @@ match pop3 m|^\+OK Microsoft Exchange POP3 server version ([\d.]+) ready  <[\d.]
 match pop3 m/^\+OK Der Microsoft Exchange POP3-Server \(Version ([\d\.]+)\) ist betriebsbereit\.\r\n/ p/MS Exchange pop3d/ v/$1/ i/German/ o/Windows/
 match pop3 m|^\+OK Der Microsoft Exchange Server 2003 POP3-Server, Version ([\d.]+) \(([-\w_.]+)\), steht zur Verf\xfcgung\.\r\n| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ i/German/ o/Windows/
 match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xb7\xfe\xce\xf1\xc6\xf7\xb0\xe6\xb1\xbe ([\d.]+) \(([-\w_.]+)\)| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ i/Chinese/ o/Windows/
+match pop3 m|^\+OK Microsoft Exchange Server 2003 POP3 \xbc\xad\xb9\xf6 \xb9\xf6\xc0\xfc ([\d.]+) \(([-\w_.]+)\)| p/MS Exchange 2003 pop3d/ v/$1/ h/$2/ i/Korean/ o/Windows/
 match pop3 m/^\+OK Microsoft Exchange POP3-server versie ([\d.]+) is gereed\.\r\n/ p/MS Exchange pop3d/ v/$1/ i/Dutch/
 match pop3 m|^\+OK \xd1\xe5\xf0\xe2\xe5\xf0 Microsoft Exchange POP3 \xe2\xe5\xf0\xf1\xe8\xe8 ([\d.]+)  \xe3\xee\xf2\xee\xe2\r\n| p/MS Exchange pop3d/ v/$1/ i/Unknown language/
 match pop3 m|^\+OK Microsoft Exchange POP3 kiszolg\xe1l\xf3 verzi\xf3 ([\d.]+) k\xe9sz\r\n| p/MS Exchange pop3d/ v/$1/ i/Hungarian/
@@ -1362,6 +1363,7 @@ match pop3 m|^\+OK Servidor POP3 de Microsoft Exchange Server 2003 versi\xf3n ([
 match pop3 m|^\+OK Server POP3 di Microsoft Exchange Server 2003 versione ([\w-_.]+) \(([\w-_.]+)\) pronto\.\r\n| p/MS Exchange 2003 pop3d/ v/%1/ i/Italian/ h/$2/ o/Windows/
 
 match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 service ready\r\n| p/MS Exchange 2007 pop3d/ o/Windows/
+match pop3 m|^\+OK Microsoft Exchange Server 2007 POP3 HIROC service ready\r\n| p/MS Exchange 2007 pop3d/ o/Windows/
 match pop3 m|^\+OK The Microsoft Exchange POP3 service is ready\.\r\n| p/MS Exchange 2007 pop3d/ o/Windows/
 match pop3 m/^\+OK QPOP \(version ([^)]+)\) at .*starting\./ p/Qpop pop3d/ v/$1/
 match pop3 m/^\+OK QPOP Modified by Compaq \(version ([^)]+)\) at .*starting\./ p/QPop pop3d/ v/$1/
@@ -1375,7 +1377,7 @@ match pop3 m|^\+OK ([-\w.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version
 match pop3 m|^\+OK ArGoSoft Mail Server Plus for WinNT/2000, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Plus/ v/$1/ o/Windows/
 match pop3 m/^\+OK ([-.\w]+) Execmail POP3 \((\d[^)]+)\)/ p/Execmail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK MailSite POP3 Server (\S+) Ready </ p/MailSite pop3d/ v/$1/
-match pop3 m/^\+OK ([-.\w]+) POP MDaemon (\S+) ready <MDAEMON/ p/MDaemon pop3d/ h/$1/ v/$2/ o/Windows/
+match pop3 m/^\+OK ([-.\w]+) POP3? MDaemon (\S+) ready <MDAEMON/ p/MDaemon pop3d/ h/$1/ v/$2/ o/Windows/
 match pop3 m|^\+OK ([-.\w]+) POP MDaemon ready using UNREGISTERED SOFTWARE ([\d.]+) <MDAEMON| h/$1/ v/$2/ o/Windows/ i/unregistered/
 match pop3 m|^\+OK ([-\w_.]+) POP MDaemon ([\d.]+) listo <MDAEMON-[\w.]+@[-\w_.]+>\r\n| p/MDaemon pop3d/ v/$2/ i/Spanish/ h/$1/ o/Windows/
 match pop3 m|^\+OK ([-\w_.]+) POP MDaemon ([\d.]+) \xd7\xbc\xb1\xb8\xba\xc3 <MDAEMON-[\w.]+@[-\w_.]+>\r\n| p/MDaemon pop3d/ v/$2/ i/Chinese/ h/$1/ o/Windows/
@@ -1459,6 +1461,11 @@ match pop3 m|^\+OK ([-\w_.]+) POP3 Server Version ([\d.]+) Copyright \d{4} Inter
 match pop3 m|^\+OK MERCUR POP3-Server \(v([-\w_.]+) \w+\) for Windows ready <[\d.]+@([-\w_.]+)>\r\n| p/Atrium Software's Mercur pop3d/ v/$1/ h/$2/ o/Windows/
 match pop3 m|^\+OK 4D Mail ([-\w_.]+) ready <| p/WebSTAR 4D pop3d/ v/$1/ o/Mac OS X/
 match pop3 m|^\+OK ([-\w_.]+) POP3 ([-\w_.()]+) w/IMAP client at| p/SCO pop3d/ o/SCO UNIX/
+match pop3 m|^\+OK Server Ready\r\n| p/Cisco VPN 3000 Concentrator pop3d/ d/security-misc/
+match pop3 m|^\+OK Citadel POP3 server <\d+@([-\w_.]+)>\r\n| h/$1/
+match pop3 m|^\+OK <-?[\d.]+@([-\w_.]+)>, POP3 server ready\.\r\n| p/Mercury Mail Transport System pop3d/ h/$1/
+match pop3 m|^\+OK POP3 server ready <[-0-9a-f]+@([-\w_.]+)>\r\n| p/SmarterMail pop3d/ o/Windows/ h/$1/
+match pop3 m|^\+OK mdpop3 ([\w.]+ \([\w ]+\)) ready\r\n| p/mdpop3/ v/$1/
 
 # These are fairly general
 match pop3 m|^\+OK POP3 Server ready\r\n$| p/zpop3d/
@@ -1495,6 +1502,8 @@ match pop3 m|^\+OK ([-\w_.]+) Zimbra POP3 server ready\r\n| p/Zimbra pop3d/ h/$1
 match pop3 m|^\+OK TMSOFT POP3 Server v([\w-_.]+) ready <\w+>\r\n| p/TMSOFT pop3d/ o/Windows/ v/$1/
 match pop3 m|^\+OK POP3D\(\*\) Server PMDFV([\w-_.]+) at .* <\w+@([\w-_.]+)>\r\n| p/PMDF pop3d/ o/OpenVMS/ v/$1/ h/$2/
 match pop3 m|^\+OK Dovecot POP3 at ([\w-_.]+) ready\.\r\n| p/Dovecot pop3d/ h/$1/
+# Debian lenny 5.0 Dovecot 1.0.rc15
+match pop3 m|^\+OK Pop3 ready\.\r\n| p/Dovecot pop3d/
 # embyte
 match pop3 m|^\+OK E-POST POP3 Server \(([^\)]+)| p/E-Post POP3 Server/ v/$1/
 
@@ -2204,9 +2213,6 @@ match telnet m|^\xff\xfb\x03\xff\xfd\x03\xff\xfb\x01WinCE/WBT Command Shell Vers
 # Netopia 4542 aDSL router telnetd
 match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[2J\x1b\[Hname:| p/Netopia aDSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x01\n\r-> \x08\x08\x08\x08        \*\*\*  EPSON Network Scanner Server \((.*)\)  \*\*\*\n\r\n\r\x08\x08\x08\x08        \n\r| p/Epson Network Scanner Server/ i/$1/
-
-# Telnet WILL/WON'T/DO/DON'T.
-softmatch telnet m/^\xff[\xfb\xfc\xfd\xfe]./
 
 # NetportExpress PRO/100 3 port print server
 match telnet m|^\xff\xfb\x01\r\nNetportExpress\(tm\) ([-/.+\w]+)\r\n.*\r\n\r\nlogin: | p/Intel NetportExpress print server telnetd/ i/Model $1/ d/print server/
@@ -3196,9 +3202,11 @@ match pop3 m|^\+OK POP3 server ready\r\n-ERR invalid command\r\n$| p/IBM OS 400 
 # mailgate v3.5.177 on Win2K
 match pop3 m|^\+OK pop server ready\r\n$| p/MailGate pop3d/ o/Windows/
 match pop3 m|^\+OK POP3 server ready <[-\w]+>\r\n-ERR Invalid command\r\n$| p/SmarterMail pop3d/ o/Windows/
-match pop3 m|^\+OK POP3\r\n-ERR Invalid command in current state\.\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer/ o/Windows/
+match pop3 m|^\+OK POP3\r\n-ERR Invalid command in current state\.\r\n| p/hMailServer pop3d/ o/Windows/
 match pop3 m|^\+OK IMAPD ready\.\r\n-ERR Unknown command\.\r\n-ERR Unknown command\.\r\n| p/Dovecot pop3d/
 match pop3 m|^\+OK ([\w-_.]+) Welcome\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n-ERR Invalid command \(\) \(\) p1=\(\)\r\n| p/SurgeMail pop3d/ h/$1/
+match pop3 m|^-ERR Invalid command\.\r\n-ERR Invalid command\.\r\n| p/cPanel Courier pop3d/
+match pop3 m|^\+OK POP3 ready\r\n-ERR invalid command\r\n| p/Zimbra Collabration Suite pop3d/
 
 # Perdition
 match pop3-proxy m|^\+OK POP3 Ready ([-\w_.]+) \w+\r\n-ERR Null command, mate\r\n| p/Perdition pop3 proxy/ h/$1/
@@ -5815,6 +5823,8 @@ match http-proxy m|^HTTP/1\.1 400 Bad Request\r\n.*This is a WebSEAL error messa
 
 match policy m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Postfix mail policyd/
 
+match pop3 m|^\+OK Citadel POP3 server <\d+@([-\w_.]+)>\r\n-ERR Not logged in\.\r\n-ERR Not logged in\.\r\n| h/$1/
+
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/
 
 ##############################NEXT PROBE##############################
@@ -5871,6 +5881,9 @@ match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/err
 Probe TCP RPCCheck q|\x80\0\0\x28\x72\xFE\x1D\x13\0\0\0\0\0\0\0\x02\0\x01\x86\xA0\0\x01\x97\x7C\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 rarity 4
 ports 81,111,199,514,544,710,711,1433,2049,4045,4999,7000,8307,8333,32750-32810,38978
+
+match afp m|^\x01\x01\x86\xa0\xff\xff\xecj\0\0\0\0\0\0\0\0| p/Mac OS 9 AFP/
+
 # Microsoft SQLServer 6.5 on WinNT 4.0 SP6a
 # Microsoft SQL Server 6.5 on WinNT 4.0
 match ms-sql-s m|^\x04\x01\0C..\0\0\xaa\0\0\0/\x0f\xa2\x01\x0e.. Login failed\r\n\x14Microsoft SQL Server\0\0\0\xfd\0\xfd\0\0\0\0\0\x02$|s p/Microsoft SQLServer/ v/6.5/ o/Windows/
@@ -6501,14 +6514,35 @@ ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8194,9001
 fallback GetRequest
 
 # Apple Filing Protocol (AFP) over TCP on Mac OS X
-match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0\x01.\0\0\0\0\0.\0.\0.\0.\x80\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 2.2; Mac OS X 10.1.*/
-match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0..\0\0\0\0\0.\0.\0.\0.\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/
-match afp m|^\x01\x03\0\0\xff\xff\xecQ\0\0..\0\0\0\0\0.\0.\0.\0.\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/
-match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0.\0.\0..\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i|name: $1; protocol 3.2; Mac OS X 10.4/10.5|
-match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0.\0.\0..\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.5|
+# Sometimes we can get a host name or an IP address; those with come before those without.
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x80\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 2.2; Mac OS X 10.1.*/ o/Mac OS X/
 
-match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0...\0..\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128|s p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/
-match afp m|^\x01\x03\0\0....\0\0..\0\0\0\0\0.\0...\0..\xfb.([^\0\x01]+)[\0\x01].*AirPort.*AFP3\.2|s p|Apple Airport Extreme/Time Capsule AFP| i/name: $1; protocol 3.2 WAP/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x06\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x0eAFPVersion 2\.1\x0eAFPVersion 2\.0\x0eAFPVersion 1\.1.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v20\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.2.*/ o/Mac OS X/ h/$2/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x83\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x03\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i/name: $1; protocol 3.1; Mac OS X 10.3.*/ o/Mac OS X/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver/([-\w_.@]+)\0|s p/Apple AFP/ i|name: $1; afpserver: $3; protocol 3.2; Mac OS X 10.3 - 10.5| o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.2; Mac OS X 10.3 - 10.5| o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p/Apple AFP/ i|name: $1; protocol 3.2; Mac OS X 10.3 - 10.5| o/Mac OS X/ h/$2/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x04\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\x06Recon1\rClient Krb v2\x0fNo User Authent\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([-\w_.@]+)\0|s p/Apple AFP/ i|name: $1; afpserver: $3; protocol 3.2; Mac OS X 10.5 Server| o/Mac OS X/ h/$2/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.5| o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh.\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2.\tDHCAST128|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.5| o/Mac OS X/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\rMacBookPro\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.5; MacBook Pro| o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\nMacBook\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; MacBook| o/Mac OS X/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\nMacmini\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.6; Mac mini| o/Mac OS X/ h/$2/
+
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128|s p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*AirPort.*AFP3\.2|s p|Apple Airport Extreme/Time Capsule AFP| i/name: $1; protocol 3.2 WAP/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule.*AFP3\.3\x06AFP3\.2\x06AFP3\.1\x03\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p|Apple Time Capsule AFP| i/name: $1; protocol 3.3/ h/$2/
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule.*AFP3\.3\x06AFP3\.2\x06AFP3\.1\x03\tDHCAST128|s p|Apple Time Capsule AFP| i/name: $1; protocol 3.3/
 
 match login m|^\0\r\nlogin: \^W\^@\^@\^@\^| p/VxWorks logind/ o/VxWorks/
 
@@ -7171,6 +7205,8 @@ match shivahose m|^\x02\x06$| i/Shiva network modem access/
 #WMS 4.1.0.3927
 match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Service/ v/$1.$2.$3.$4$5$6$7/ o/Windows/
 match wms m|^\x01\0\0.\xce\xfa\x0b\xb0.\0\0\0MMS .\0{7}.{9}\0\0\0\x01\0\x04\0\0\0\0\0\xf0\xf0\xf0\xf0\x0b\0\x04\0\x1c\0\x03\0\0\0\0\0\0\0\xf0\?\x01\0\0\0\x01\0\0\0\0\x80\0\0...\0.\0\0\0\0\0\0\0\0\0\0\0.\0\0\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\0\.\x00(\d)\x00(\d)\x00(\d)\x00(\d)\0\0\0|s p/Microsoft Windows Media Service/ v/$1.$2$3.$4$5.$6$7$8$9/ o/Windows/
+
+match afp m|^\x01\x03\0N........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tMacintosh\x05\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x06AFP2\.2\x05\tDHCAST128.*\x04([\w.]+)\x01.afpserver| p/Apple AFP/ i/name: $1; protocol 3.3; Mac OS X 10.5/ h/$2/ o/Mac OS X/
 
 ##############################NEXT PROBE##############################
 Probe TCP oracle-tns q|\0Z\0\0\x01\0\0\0\x016\x01,\0\0\x08\0\x7F\xFF\x7F\x08\0\0\0\x01\0 \0:\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\04\xE6\0\0\0\x01\0\0\0\0\0\0\0\0(CONNECT_DATA=(COMMAND=version))|
