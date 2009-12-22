@@ -1,4 +1,4 @@
-TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
+weTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Look into reducing Nmap memory consumption
   o UDP scans with -p- and large hostgroups are a particularly large
@@ -10,6 +10,9 @@ o Look into reducing Nmap memory consumption
     ports (or whatever the default state is) without creating a Port
     object for each one.
   [David]
+
+o Integrate latest version detection submissions and corrections.
+  This was last done based on submissions until February 9, 2009.
 
 o [NSE] Attempt to reproduce and fix a deadlock reported by Brandon
   when he does large-scale scanning with a new favicon script with
@@ -36,8 +39,7 @@ o [NSE] Patrick's script dependency patch:
   o I'm not sure if he has gone through and actually set appropriate
     dependencies (and removed runlevels) yet
 
-o Integrate latest version detection submissions and corrections.
-  This was last done based on submissions until February 9, 2009.
+o [NSE] NFS query script for checking exports, etc.?
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -68,6 +70,11 @@ o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
 
+o We should document an official way to compile/test refguide.xml so
+  people can more easily test their changes to it.  This will probably
+  involve moving legal-notices.xml into /nmap/docs, among other
+  things.
+
 o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
   remote shell, etc.  See this thread:
   http://seclists.org/nmap-dev/2009/q4/255, particularly the
@@ -91,6 +98,27 @@ o Web site HTML improvements
   - The icon on the top-left of the screen should be for (and link
     to) the root URL of current site.  e.g. seclists.org,
     sectools.org, nmap.org rather than always insecure.org.
+
+o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o We should do an audit to ensure that we are in complete compliance for the
+ licenses of all the software we ship in any of our downloads, as some
+ licenses have special clauses for things like including their
+ license/copyright file, mentioning them in our documentation, etc.
+ And of course we want to credit them properly even where the license
+ doesn't require it.  We should probably make a list of these in our
+ docs/ directory along with any special information/requirements of
+ their license.  And maybe we should put the current licenses in a
+ subdir too.  In particular, these come to mind:
+ o libpcre
+ o lua
+ o OpenSSL
+ o libpcap
+ o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
+   PyGTK)
+ o SQLite
+ o Python (Win/Mac versions of Zenmap link to Python)
+ o X.org libraries (Mac version links to them)
+ o libdnet
 
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
   lot of places. For example, it's legal to have header fields like
@@ -172,7 +200,7 @@ o Create Nmap wiki
 o After the new -sn and -PN options (added to SVN around 7/20, just
   after the 5.00 release) have been around long enough to be in most
   people's copy of Nmap (e.g. in all the versions we distribute from
-  download page (stable+dev)) for at least a few monts, we'll document
+  download page (stable+dev)) for at least a few months, we'll document
   these as the preferred version rather than -sP and -PN.  These match
   -n, and the main problem with -sP is that we now use it more for
   "disable portscan" than ping only.  For example, you can also use
@@ -322,8 +350,6 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
-o [NSE] NFS query script for checking exports, etc.?
-
 o [NSE] Web application fingerprinting script.  Would be great to be
   able to take a URL and determine things like "this is Joomla" or
   "this is Plone" or "Mediawiki" or whatever. Rather than hard code
@@ -346,27 +372,6 @@ o [NSE] Security Review
    address the known risk of malicious scripts too.
  o Consider that NSE runs scripts as root
 
-o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
- o We should do an audit to ensure that we are in complete compliance for the
- licenses of all the software we ship in any of our downloads, as some
- licenses have special clauses for things like including their
- license/copyright file, mentioning them in our documentation, etc.
- And of course we want to credit them properly even where the license
- doesn't require it.  We should probably make a list of these in our
- docs/ directory along with any special information/requirements of
- their license.  And maybe we should put the current licenses in a
- subdir too.  In particular, these come to mind:
- o libpcre
- o lua
- o OpenSSL
- o libpcap
- o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
-   PyGTK)
- o SQLite
- o Python (Win/Mac versions of Zenmap link to Python)
- o X.org libraries (Mac version links to them)
- o libdnet
-
 o Figure out and document (in at least the Ncat user's guide) the best
   way to use Ncat for chaining through proxies.  One option is this
   sort of thing:
@@ -383,11 +388,6 @@ o Look into whether we should loosen/change the global congestion
   * Related possibility: Fix --nogcc to gracefully handle ping scans.
     Right now it seems to go WAY TOO FAST (e.g. several thousand
     packets per second on my DSL line).
-
-o We should document an official way to compile/test refguide.xml so
-  people can more easily test their changes to it.  This will probably
-  involve moving legal-notices.xml into /nmap/docs, among other
-  things.
 
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
