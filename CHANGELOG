@@ -41,6 +41,9 @@ o Reduced memory usage in several areas. The size of the internal
 
 o Added a service probe for Kerberos on udp/88. [Patrik Karlsson]
 
+o [Zenmap] Fixed a crash when filtering with inroute: in scans without
+  traceroute data. (KeyError: 'hops') [David]
+
 Nmap 5.10BETA1 [2009-11-23]
 
 o Added 14 new NSE scripts for a grand total of 72! You can learn
