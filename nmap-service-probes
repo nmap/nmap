@@ -5543,7 +5543,7 @@ match ipp m|^<HEAD><TITLE>Not Found</TITLE></HEAD><BODY><H1><B>Not Found</B></H1
 match ipp m|^HTTP/1\.0 400 Bad Request\r\nConnection: close\r\nContent-Type: text/html\r\n\r\nContent-Length: \d+\r\nCache-Control: no-cache\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3\.2//EN\">\n<HTML>\n<HEAD>\n<TITLE>Invalid Request</TITLE>\n</HEAD>\n\n<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n<CENTER>\n<FONT SIZE=\"\+2\" COLOR=\"#FFFFFF\" ALIGN=\"Center\">\n</FONT>\n<B>Invalid Request\. Some Error</B>\n</BODY>\n\n</HTML>\n\n| p/Xerox Phaser 3500/ d/printer/
 match ipp m|^HTTP/1\.0 200 OK\r\n.*\r\nServer: ZOT-PS-(\d+)/([\d.]+)\r\n|s p/ZOT-PS-$1 print server/ v/$2/ d/print server/
 match ipp m|^HTTP/1\.0 404 Not found\r\n\r\n404 Not found$| p/Xerox WorkCentre 5225 IPP/ d/printer/
-match ipp m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Language: C\r\nUpgrade: TLS/1\.0,HTTP/1\.1\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 138\r\n\r\n<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD><BODY><H1>Not Found</H1>The requested resource was not found on this server\.</BODY></HTML>\n| p/Thecus N5200 IPP/ d/storage-misc
+match ipp m|^HTTP/1\.0 404 Not Found\r\nDate: .*\r\nContent-Language: C\r\nUpgrade: TLS/1\.0,HTTP/1\.1\r\nConnection: close\r\nContent-Type: text/html\r\nContent-Length: 138\r\n\r\n<HTML><HEAD><TITLE>404 Not Found</TITLE></HEAD><BODY><H1>Not Found</H1>The requested resource was not found on this server\.</BODY></HTML>\n| p/Thecus N5200 IPP/ d/storage-misc/
 
 match irc m|^:Default-Chat-Community 421 \* GET :Unknown command\r\n| p/Microsoft Exchange 2000 Server Chat Service/ o/Windows/
 match irc m|^:([-\w_.]+) 451  :You have not registered your connection\r\n$| p/Wircsrv/ o/Windows/ h/$1/
