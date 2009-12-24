@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the RTSPRequest version probe, which was accidentally modified
+  to say "RTSP/2.0" rather than "RTSP/1.0" in 5.10BETA2. [Matt Selsky]
+
 Nmap 5.10BETA2 [2009-12-24]
 
 o Added 7 new NSE scripts for a grand total of 79! You can learn about

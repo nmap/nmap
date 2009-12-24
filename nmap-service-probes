@@ -5903,7 +5903,7 @@ match pop3 m|^\+OK Citadel POP3 server <\d+@([-\w_.]+)>\r\n-ERR Not logged in\.\
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/
 
 ##############################NEXT PROBE##############################
-Probe TCP RTSPRequest q|OPTIONS / RTSP/2.0\r\n\r\n|
+Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
 rarity 5
 ports 80,554,3052,3372,5000,7070,8080,10000
 fallback GetRequest
