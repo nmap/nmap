@@ -40,6 +40,13 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
 
+o On our NSEDoc pages (e.g. http://nmap.org/nsedoc/), perhaps the link
+  text for scripts should not include the ".nse".  Basides saving
+  horizontal space, this may improve the sorting so that the likes of
+  "citrix-enum-apps" comes before "citrix-enum-apps-xml".  Also, we can
+  probably get away with reducing the width of the NSEDoc left-column,
+  especially if ".nse" is removed.
+
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
   since September 2008. [Fyodor]
