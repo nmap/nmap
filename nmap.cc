@@ -1382,8 +1382,12 @@ int nmap_main(int argc, char *argv[]) {
     if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
       fatal("Unable to properly format time");
     log_write(LOG_STDOUT|LOG_SKID, "\nStarting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
-    if (o.verbose && tm->tm_mon == 8 && tm->tm_mday == 1) {
-      log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
+    if (o.verbose) {
+      if (tm->tm_mon == 8 && tm->tm_mday == 1) {
+	log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
+      } else if (tm->tm_mon == 11 && tm->tm_mday == 25) {
+	log_write(LOG_STDOUT|LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
+      } 
     }
     if (iflist) {
       print_iflist();
