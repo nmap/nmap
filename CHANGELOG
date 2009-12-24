@@ -1,48 +1,130 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Added a UDP SIPOptions probe corresponding to the TCP one thanks to
-  the research and testing of Patrik Karlsson and Matt Selsky.
+Nmap 5.10BETA2 [2009-12-24]
+
+o Added 7 new NSE scripts for a grand total of 79! You can learn about
+  them all at http://nmap.org/nsedoc/.  Here are the new ones:
+
+  * nfs-showmount displays NFS exports like "showmount -e" does. See
+    http://nmap.org/nsedoc/scripts/nfs-showmount.html. [Patrik
+    Karlsson]
+
+  * ntp-info prints the time and configuration variables provided by
+    an NTP service. It may get such interesting information as the
+    operating system, server build date, and upstream time server IP
+    address. See
+    http://nmap.org/nsedoc/scripts/ntp-info.html. [Richard Sammet]
+
+  * citrix-brute-xml uses the unpwdb library to guess credentials for
+    the Citrix PN Web Agent Service. See
+    http://nmap.org/nsedoc/scripts/citrix-brute-xml.html. [Patrik Karlsson]
+
+  * citrix-enum-apps and citrix-enum-apps-xml print a list of published
+    applications from the Citrix ICA Browser or XML service,
+    respectively. See
+    http://nmap.org/nsedoc/scripts/citrix-enum-apps.html and
+    http://nmap.org/nsedoc/scripts/citrix-enum-apps-xml.html. [Patrik Karlsson]
+
+  * citrix-enum-servers and citrix-enum-servers-xml.nse print a list
+    of Citrix servers from the Citrix ICA Browser or XML service,
+    respectively. See
+    http://nmap.org/nsedoc/scripts/citrix-enum-servers.html and
+    http://nmap.org/nsedoc/scripts/citrix-enum-servers-xml.html. [Patrik
+    Karlsson]
+
+o We performed a memory consumption audit and made changes to
+  dramatically reduce Nmap's footprint.  This improves performance on
+  all systems, but is particularly important when running Nmap on
+  small embedded devices such as phones.  Our intensive UDP scan
+  benchmark saw peak memory usage decrease from 34MB to 6MB, while OS
+  detection consumption was reduced from 67MB to 3MB.  Read about the
+  changes at http://seclists.org/nmap-dev/2009/q4/663.  Here are the
+  highlights:
+
+  * The size of the internal representation of nmap-os-db was reduced
+    more than 90%. Peak memory consumption in our OS detection
+    benchmark was reduced from 67MB to 3MB. [David]
+
+  * The size of individual Port structures without service scan
+    results was reduced about 70%. [Pavel Kankovsky]
+
+  * When a port receives no response, Nmap now avoids allocating a
+    Port structure at all, so scans against filtered hosts can be
+    light on memory. [David]
+
+o David started a major service detection submission integration
+  run. So far he has processed submissions since February for the
+  following services: imap, pop3, afp, sip, printer, transmission,
+  svnserve, vmware, domain, backdoor, finger, freeciv, hp, imaps, irc,
+  landesk, netbios-ssn, netsupport, nntp, oracle, radmin, routersetup,
+  rtorrent, serv-u, shoutcast, ssh, tcpmux, torrent, utorrent, vnc and
+  ipp. The rest will come in the next release, along with full stats
+  on the additions.
+
+o Added service detection probe for Kerberos (udp/88) and IBM DB2
+  DAS (523/UDP). [Patrik Karlsson]
 
 o Added a UDP payload and service detection probe for Citrix
   MetaFrame, which typically runs on 1604/udp. [Thomas Buchanan]
 
-o Added new NSE scripts:
+o Added a UDP SIPOptions service detection probe corresponding to the
+  TCP one. [Patrik Karlsson, Matt Selsky, David Fifield]
 
-  o nfs-showmount shows NFS exports like "showmount -e" does. [Patrik
-    Karlsson]
+o Updated service detection signatures for Microsoft SQL Server 2005
+  to detect recent Microsoft security update (MS09-062), and also
+  updated ms-sql-info.nse to support MS SQL Server 2008
+  detection. [Tom]
 
-  o ntp-info gets the time and configuration variables from the NTP
-    service. It may get such interesting information as the operating
-    system, server build date, and upstream time server IP address.
-    [Richard Sammet]
+o Nmap now provides Christmas greetings and a reminder of Xmas scan
+  (-sX) when run in verbose mode on December 25. [Fyodor]
 
-  o citrix-brute-xml uses the unpwdb library to guess credentials for
-    the Citrix PN Web Agent Service. [Patrik Karlsson]
-
-  o citrix-enum-apps and citrix-enum-apps-xml get a list of published
-    applications from the Citrix ICA Browser or XML service,
-    respectively. [Patrik Karlsson]
-
-  o citrix-enum-servers and citrix-enum-servers-xml.nse get a list of
-    Citrix servers from the Citrix ICA Browser or XML service,
-    respectively. [Patrik Karlsson]
-
-o Removed a limitation of snmp.lua that only allowed it to properly
+o Removed a limitation of snmp.lua which only allowed it to properly
   encode OID component values up to 127. The bug was reported by
   Victor Rudnev. [David]
 
-o Reduced memory usage in several areas. The size of the internal
-  representation of nmap-os-db was reduced more than 90%. The size of
-  individual Port structures without service scan results was reduced
-  about 70%. When a port receives no response, Nmap now avoids
-  allocating a Port structure at all, so scans against filtered hosts
-  can be light on memory. Thanks to Pavel Kankovsky for the Post size
-  reduction patch. [David]
+o Nmap script output now uses two spaces of indention rather than
+  three for the first level. This better aligns with the standard set by
+  the stdnse.format_output function added in the last release. Output
+  now looks like:
+  8082/tcp open  http        Apache httpd 2.2.13 ((Fedora))
+  |_http-favicon: Apache Web Server (seen on SuSE, Linux Tux favicon)
+  |_html-title: Nmap - Free Security Scanner For Network Exploration & Securit...
+  ...
+  Host script results:
+  | smb-os-discovery:  
+  |   OS: Unix (Samba 3.4.2-0.42.fc11)
+  |   Name: Unknown\Unknown
+  |_  System time: 2009-11-24 17:19:21 UTC-8
+  |_smbv2-enabled: Server doesn't support SMBv2 protocol
+  [Fyodor]
 
-o Added a service probe for Kerberos on udp/88. [Patrik Karlsson]
+o [NSE] Fixed (we hope) a deadlock we were seeing when doing a
+  favicon.nse survey against millions of hosts. We now restore all
+  threads that are waiting on a socket lock when a thread relinquishes
+  its lock. We expect only one of them to be able to grab the newly
+  freed lock, and the rest to go back to waiting. [David, Patrick]
 
 o [Zenmap] Fixed a crash when filtering with inroute: in scans without
   traceroute data. (KeyError: 'hops') [David]
+
+o [NSE] Use a looser match pattern in auth-owners.nse for retrieving
+  the owner out of an identd response. See
+  http://seclists.org/nmap-dev/2009/q4/549. [Richard Sammet]
+
+o Improved some Cyrus pop3 and Polycom SoundStation sip match
+  lines. [Matt Selsky]
+
+o [Ncat] In the Windows version of netrun, we weren't noticing when a
+  command fails to be executed (when CreateProcess fails). We now see
+  the return value and close the socket to disconnect the
+  client. [David]
+
+o [NSE] Updated http-iis-webdav-vuln to run against SSL-enabled
+  servers [Ron]
+
+o [NSE] Improved db2-info to set port product and state (rather than
+  just port.version.name and confidence) when a DB2 service is
+  positively identified. Error reporting was improved as well. [Tom]
 
 Nmap 5.10BETA1 [2009-11-23]
 
