@@ -34116,8 +34116,10 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # Netopia 3397GPB  VDSL Router OS Version 7.7.1r3
 # Netopia 3347NWG, Software Release        7.6.1r6
 # Netopia 3347NWG Software Version 7.4.2r2
-Fingerprint Netopia 3346N, 3347NWG, or 3397GPB ADSL router
-Class Netopia | embedded || broadband router
+# Netopia 3347W wireless ADSL router; SOC OS 7.3.3 (build r0)
+Fingerprint Netopia 3300-series ADSL router
+Class Netopia | SOC OS | 7.X | broadband router
+Class Netopia | SOC OS | 7.X | WAP
 SEQ(SP=F7-109%GCD=1-6%ISR=FF-10F%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
 WIN(W1=800%W2=800%W3=800%W4=800%W5=800%W6=800)
