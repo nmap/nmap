@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a new oracle-sid-brute script that checks for default Oracle
+  SIDs. The SID list was prepared by Red Database security. [Patrik
+  Karlsson]
+
 o Fixed the RTSPRequest version probe, which was accidentally modified
   to say "RTSP/2.0" rather than "RTSP/1.0" in 5.10BETA2. [Matt Selsky]
 
