@@ -13,11 +13,10 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "safe"}
 
+dependencies = {"snmp-brute"}
+
 require "shortport"
 require "snmp"
-
--- runs after snmp-brute.nse
-runlevel = 2
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 

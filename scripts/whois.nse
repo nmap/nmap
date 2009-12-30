@@ -75,7 +75,6 @@ the RIRs.
 
 author      = "jah <jah at zadkiel.plus.com>"
 license     = "See Nmap License: http://nmap.org/book/man-legal.html"
-runlevel    = 1
 categories  = {"discovery", "external", "safe"}
 
 local url    = require "url"

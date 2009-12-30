@@ -25,7 +25,6 @@ require('nsedebug')
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
-runlevel = 1.0
 
 -- Change this to increase depth of crawl
 local maxdepth = 10

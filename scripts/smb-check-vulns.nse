@@ -79,9 +79,15 @@ author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive","exploit","dos","vuln"}
--- Set the runlevel to >2 so this runs last (so if it DOES crash something, it doesn't
--- till other scans have had a chance to run)
-runlevel = 2
+-- run after all smb-* scripts (so if it DOES crash something, it doesn't till
+-- other scans have had a chance to run)
+dependencies = {
+  "smb-brute", smb-enum-sessions", "smb-security-mode", 
+  "smb-check-vulns", "smb-enum-shares", "smb-server-stats",
+  "smb-enum-domains", "smb-enum-users", "smb-system-info",
+  "smb-enum-groups", "smb-os-discovery", "smb-enum-processes",
+  "smb-psexec",
+};
 
 require 'msrpc'
 require 'smb'

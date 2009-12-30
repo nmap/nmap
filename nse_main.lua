@@ -67,6 +67,8 @@ local yield = coroutine.yield;
 
 local traceback = debug.traceback;
 
+local max = math.max;
+
 local byte = string.byte;
 local find = string.find;
 local format = string.format;
@@ -75,6 +77,7 @@ local lower = string.lower;
 local match = string.match;
 local sub = string.sub;
 
+local concat = table.concat;
 local insert = table.insert;
 local remove = table.remove;
 local sort = table.sort;
@@ -205,7 +208,6 @@ do
     if not self[rule] then return nil end -- No rule for this script?
     local file_closure = self.file_closure;
     local env = setmetatable({
-        runlevel = 1,
         filename = self.filename,
       }, {__index = _G});
     setfenv(file_closure, env);
@@ -227,7 +229,6 @@ do
       local thread = setmetatable({
         co = co,
         env = env,
-        runlevel = tonumber(rawget(env, "runlevel")) or 1,
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
         type = rule == "hostrule" and "host" or "port",
@@ -249,6 +250,7 @@ do
     description = "string",
     action = "function",
     categories = "table",
+    dependencies = "table",
   };
   -- script = Script.new(filename)
   -- Creates a new Script Class for the script.
@@ -267,7 +269,7 @@ do
     -- Give the closure its own environment, with global access
     local env = setmetatable({
       filename = filename,
-      runlevel = 1,
+      dependencies = {},
     }, {__index = _G});
     setfenv(file_closure, env);
     local co = create(file_closure); -- Create a garbage thread
@@ -291,6 +293,11 @@ do
       assert(type(category) == "string", 
         filename.." has non-string entries in the 'categories' array");
     end
+    -- Assert that dependencies is an array of strings
+    for i, dependency in ipairs(rawget(env, "dependencies")) do
+      assert(type(dependency) == "string", 
+        filename.." has non-string entries in the 'dependencies' array");
+    end
     -- Return the script
     return setmetatable({
       filename = filename,
@@ -306,7 +313,7 @@ do
       categories = rawget(env, "categories"),
       author = rawget(env, "author"),
       license = rawget(env, "license"),
-      runlevel = tonumber(rawget(env, "runlevel")) or 1,
+      dependencies = rawget(env, "dependencies"),
       threads = {},
       selected_by_name = false,
     }, {__index = Script, __metatable = Script});
@@ -471,6 +478,38 @@ local function get_chosen_scripts (rules)
       end
     end
   end
+
+  -- calculate runlevels
+  local name_script = {};
+  for i, script in ipairs(chosen_scripts) do
+    assert(name_script[script.short_basename] == nil);
+    name_script[script.short_basename] = script;
+  end
+  local chain = {}; -- chain of script names
+  local function calculate_runlevel (script)
+    chain[#chain+1] = script.short_basename;
+    if script.runlevel == false then -- circular dependency 
+      error("circular dependency in chain `"..concat(chain, "->").."`");
+    else
+      script.runlevel = false; -- placeholder
+    end
+    local runlevel = 1;
+    for i, dependency in ipairs(script.dependencies) do
+      -- yes, use rawget in case we add strong dependencies again
+      local s = rawget(name_script, dependency);
+      if s then
+        local r = tonumber(s.runlevel) or calculate_runlevel(s);
+        runlevel = max(runlevel, r+1);
+      end
+    end
+    chain[#chain] = nil;
+    script.runlevel = runlevel;
+    return runlevel;
+  end
+  for i, script in ipairs(chosen_scripts) do
+    local _ = script.runlevel or calculate_runlevel(script);
+  end
+
   return chosen_scripts;
 end
 
@@ -776,7 +815,8 @@ return function (hosts)
 
   sort(runlevels);
   for i, runlevel in ipairs(runlevels) do
-    print_verbose(1, "Starting runlevel %g scan", runlevel);
+    print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel,
+        #runlevels);
     run(threads[runlevel]);
   end
 

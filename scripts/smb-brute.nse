@@ -33,7 +33,7 @@ When an account is discovered, it's saved in the <code>smb</code> module (which 
 registry). If an account is already saved, the account's privileges are checked; accounts 
 with administrator privileges are kept over accounts without. The specific method for checking
 is by calling GetShareInfo("IPC$"), which requires administrative privileges. Once this script
-is finished (since it's runlevel 0.5, it'll run first), other scripts will use the saved account
+is finished (all other smb scripts depend on it, it'll run first), other scripts will use the saved account
 to perform their checks. 
 
 The blank password is always tried first, followed by "special passwords" (such as the username
@@ -95,8 +95,6 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
--- Set the runlevel to <1 to ensure that it runs before other scripts
-runlevel = 0.5
 
 categories = {"intrusive", "auth"}
 

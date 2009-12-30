@@ -24,7 +24,6 @@ require('http')
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
-runlevel = 1.0
 
 portrule = shortport.port_or_service({80, 8080,443}, {"http","https"})
 local last_len = 0

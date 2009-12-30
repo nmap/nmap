@@ -17,9 +17,6 @@ categories = {"intrusive", "auth"}
 require "shortport"
 require "snmp"
 
--- runs before snmp-sysdescr.nse
-runlevel = 1
-
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
 action = function(host, port)

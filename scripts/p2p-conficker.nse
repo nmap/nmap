@@ -67,9 +67,6 @@ author = "Ron Bowes (with research from Symantec Security Response)"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default","safe"}
--- Set the runlevel to 2. This means this script will run last, but it will also run in parallel with smb-check-vulns.nse, 
--- which will generally be run at the same time. So, by setting this to 2, we increase our parallelism. 
-runlevel = 2
 
 require 'smb'
 require 'stdnse'

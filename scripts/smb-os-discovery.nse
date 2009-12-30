@@ -37,6 +37,7 @@ they likely won't change the outcome in any meaningful way.
 author = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
+dependencies = {"smb-brute"}
 
 require 'smb'
 require 'stdnse'

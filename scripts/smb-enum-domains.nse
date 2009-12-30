@@ -52,6 +52,7 @@ author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive"}
+dependencies = {"smb-brute"}
 
 require 'msrpc'
 require 'smb'
