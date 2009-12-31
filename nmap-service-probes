@@ -6589,6 +6589,8 @@ match policy m|^action=defer_if_permit Policy Rejection: Invalid data\n\n$| p/Po
 
 match pop3 m|^\+OK Citadel POP3 server <\d+@([-\w_.]+)>\r\n-ERR Not logged in\.\r\n-ERR Not logged in\.\r\n| p/Citadel pop3d/ h/$1/
 
+match sand-db m|^\xff\x02\x04\0\x03\0r\n\x08\0@L\x01\0\x01\x01\0\0\0\0[A-Z]{16}$| p/SAND database/
+
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/
 
 ##############################NEXT PROBE##############################
