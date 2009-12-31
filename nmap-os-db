@@ -29524,25 +29524,6 @@ T7(R=N)
 U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=7B-85%TG=80%CD=Z)
 
-# windows vista home basic version 6.0 compilacion 6000
-# 2008 server entreprise edition 64 bits with SP1 installed, french version
-Fingerprint Microsoft Windows Vista SP0 - SP2 or Windows Server 2008 SP1
-Class Microsoft | Windows | Vista | general purpose
-Class Microsoft | Windows | 2008 | general purpose
-SEQ(SP=F8-106%GCD=1-6%ISR=104-110%TI=I%II=I%SS=S%TS=7)
-OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=Y%T=7B-85%TG=80%W=2000%O=M5B4NW8NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=N)
-T5(R=N)
-T6(R=N)
-T7(R=N)
-U1(DF=N%T=7B-85%TG=80%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=N%T=7B-85%TG=80%CD=Z)
-
 # Microsoft Windows Vista English PRE-RC1 Build 5536
 # Vista Beta 2 Build 5472
 # Miscosoft Windows Vista Ultimate RTM (build 6000) (English), x86 running under VMware 5.5
@@ -29598,9 +29579,11 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # version 6.0 (Build 6001:Service Pack 1)
 # Ver 6.0 Build 6001:Service Pack 1, Windows Vista Ultimate
 # Windows Server 2008 Standard Edition SP1 x64
-Fingerprint Microsoft Windows Vista SP0 or SP1 or Server 2008 SP1
+# Windows Seven Ultimate x64
+Fingerprint Microsoft Windows Vista SP0 or SP1, Server 2008 SP1, or Windows 7
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
+Class Microsoft | Windows | 7 | general purpose
 SEQ(SP=E4-10A%GCD=1-6%ISR=F5-111%TI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
