@@ -3264,6 +3264,9 @@ match crossmatchverifier m|^Idle\r\n$| p/Cross Match Technologies Verifier finge
 match clam m|^UNKNOWN COMMAND\n$| p/Clam AV/
 match cmae m|^_err=refused%20by%20workers\r\n$| p/Cloudmark cmae_server antispam/
 match conserver m|^ok\r\nunknown command\r\nunknown command\r\n$| p/conserver serial console daemon/ d/specialized/
+
+match ccso m|^598:\(null\):Command not recognized\.\n| p/Columbia University QIL Gateway/ i/Qi to LDAP/
+
 match datamaxdb m|^X01\r\nX01\r\n$| p/MailMax DataMaxDB/ o/Windows/
 
 # HP Digital Sender Service (dss)
