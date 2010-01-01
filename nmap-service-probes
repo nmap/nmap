@@ -5137,7 +5137,6 @@ match http m|^HTTP/1\.0 200 OK\r\nPragma: no-cache\r\n\r\n<HTML><HEAD><TITLE>Win
 match http m|^HTTP/1\.0 302 Found\r\nCache-Control: no-cache\r\nConnection: Close\r\nContent-Length: 0\r\nContent-Type: application/octet-stream\r\nDate: .*\r\nLocation: /nonauth/login\.php\r\nPragma: no-cache\r\nServer: Kerio WinRoute Firewall Embedded Web Server\r\n\r\n| p/Kerio WinRoute firewall http config/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\ndate: .*\r\nserver: WebSEAL/([\d.]+) \(Build (\d+)\)\r\n| p/Tivoli Access Manager WebSEAL httpd/ v/$1 build $2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Indy/([\d.]+)\r\n.*\r\n<GOTO href=\".*/kiss\.php\"|s p/FreeKiSS DVD player httpd/ i/Indy httpd $1/ o/Windows/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: max-age=0, must-revalidate, no-cache, no-store, post-check=0, pre-check=0\r\n.*<title>Freenet FProxy Homepage|s p/FProxy Freenet http front-end/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: httpd\r\n.*\n<title>SHARED STORAGE DRIVE</title>\n|s p/Maxtor Shared Storage Plus http config/ d/storage-misc/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: VCS-VideoJet-Webserver\r\n.*<title>VCS AG VideoJet 1000</title>|s p/VCS AG VideoJet 1000 http config/ d/media device/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DVSS-HttpServer/([\d.]+)\r\n| p/DVSS Herculese DVR http config/ v/$1/ d/webcam/
@@ -5807,7 +5806,6 @@ match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"DCS-
 match http m|^HTTP/1\.0 400 bad url /\r\nServer: TinyHTTPProxy/([\d.]+) ([^\r\n]+)\r\n| p/TinyHTTPProxy/ v/$1/ i/$2/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html; charset=utf-8\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-store\r\nExpires: -1\r\n.*<script src=\"/dana-na/css/ds\.js\"></script>|s p/Juniper SA2000 or SA4000 VPN gateway http config/ d/proxy server/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html\r\nDate: Tue, 28 Jul 2009 12:43:48 GMT\r\n\r\n<html xml:lang=\"en\" xmlns=\"http://www\.w3\.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\r\n<title>FMS : Freenet Message System</title>| p/Freenet Message System web client/
-match http m%^HTTP/1\.1 200 OK\r\nConnection: close\r\n.*<title>Browse Freenet \(Node id\|(\d+)\) - Freenet</title>%s p/Freenet Fproxy/ d/proxy server/ i/node id $1/
 match http m|^HTTP/1\.1 400 Bad Request\r\n.*Server: Profense\r\n|s p/Profense web application firewall/ d/firewall/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: NET-DK/([\d.]+)\r\n.*<title>Touchstone Status</title>|s p/NET-DK/ v/$1/ i/Arris Touchstone TM702B VoIP modem/ d/VoIP adapter/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: MediaBox HTTPd Server/([\d.]+) \(Unix\)\r\n|s p/MediaBox HTTPd Server/ v/$1/ o/Unix/
@@ -6131,6 +6129,8 @@ match http-proxy m|^HTTP/1\.0 403 Request error by HAVP\r\n| p/HAVP anti-virus w
 match http-proxy m|^HTTP/1\.1 407\r\nProxy-Authenticate: Basic realm=\"Proxy\"\r\nContent-Type: text/plain\r\n\r\nAccess denyed| p/Small HTTP Server http proxy/
 match http-proxy m|^HTTP/1\.0 407 Proxy Authentication required\r\nDate: .*\r\nContent-Type: text/html\r\nProxy-Authenticate: Basic realm=\"Proxy\+ HTTP Proxy service\"\r\n| p/Proxy+ http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.1 503 Freenet is starting up\r\n| p/Freenet FProxy/
+match http-proxy m|^HTTP/1\.1 \d\d\d .*\r\nCache-Control: max-age=0, must-revalidate, no-cache, no-store, post-check=0, pre-check=0\r\n.*<title>Freenet FProxy Homepage|s p/Freenet FProxy/
+match http-proxy m%^HTTP/1\.1 200 OK\r\nConnection: close\r\n.*<title>Browse Freenet \(Node id\|(\d+)\) - Freenet</title>%s p/Freenet FProxy/ i/node id $1/
 match http-proxy m|^HTTP/1\.[01] .*\r\nServer: Mikrotik HttpProxy\r\n|s p/Mikrotik http proxy/
 match http-proxy m|^HTTP/1\.0 500 Internal Server Error\r\nCache-control: no-cache\r\nContent-type: text/html\r\n\r\n<HTML><HEAD><TITLE>SpoonProxy V([\w._-]+) Error</TITLE>| p/Pi-Soft SpoonProxy http proxy/ v/$1/ o/Windows/
 match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: approx/([\w._~+-]+) Ocamlnet/([\w._-]+)\r\n|s p/Approx http proxy/ v/$1/ i/Ocamlnet $2/
