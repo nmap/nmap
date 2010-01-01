@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] The locale setting had been taken from the Windows locale,
+  which inadvertently made setting the locale with the LANG
+  environment variable stop working. Now the LANG variable is examined
+  first, and if that is not present, the system-wide setting is used.
+  [David]
+
 o Added a new oracle-sid-brute script that checks for default Oracle
   SIDs. The SID list was prepared by Red Database security. [Patrik
   Karlsson]
