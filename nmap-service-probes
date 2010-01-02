@@ -6159,6 +6159,8 @@ match http-proxy m|^HTTP/1\.0 200 OK\r\nServer: LastFMProxy/([\w.]+)\r\n| p/Last
 match http-proxy m|^HTTP/1\.0 404 Not Found\r\n.*<title>HINWEIS: Der Zugriff auf die angeforderte URL war nicht erfolgreich</title>|s p/AVM FRITZ!Box Fon WAP http proxy/ d/WAP/
 match http-proxy m|^HTTP/1\.0 407 Proxy access denied\r\nProxy-Authenticate: NTLM\r\nProxy-Connection: keep-alive\r\nContent-Length: 0\r\n\r\n$| p/ScanSafe http proxy/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w._-]+)\r\n.*<head>\n<title>Error response</title>\n</head>\n<body>\n<h1>Error response</h1>\n<p>Error code 400\.\n<p>Message: Bad Request\.\n<p>Error code explanation: 400 = Bad request syntax or unsupported method\.\n</body>\n$|s p/GAppProxy Google App Engine proxy/
+# Etisalat - United Arab Emirates telecom company.
+match http-proxy m|^HTTP/1\.1 501 Not Implemented\r\n.*<title>This site is blocked</title>.*<img border=\"0\" src=\"http://([\w._-]+)/images-ip/ipblocked\.jpg\" \nuseMap=#links2 border=0>.*<area title=\"\" shape=RECT alt=\"\" coords=\"494, 20, 580, 105\" href=\"http://www\.etisalat\.ae\">| p/Etisalat censorship http proxy/ i/site blocked/ h/$1/
 
 match magent m|^Agent Ready\.\.\.\r\nGET / HTTP/1\.0\r\n\r\nGET 501 command not implemented ERROR\r\n| p/MicroWorld magent.exe/ o/Windows/
 
