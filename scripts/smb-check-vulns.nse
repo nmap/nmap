@@ -79,11 +79,11 @@ author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive","exploit","dos","vuln"}
--- run after all smb-* scripts (so if it DOES crash something, it doesn't till
+-- run after all smb-* scripts (so if it DOES crash something, it doesn't kill
 -- other scans have had a chance to run)
 dependencies = {
-  "smb-brute", smb-enum-sessions", "smb-security-mode", 
-  "smb-check-vulns", "smb-enum-shares", "smb-server-stats",
+  "smb-brute", "smb-enum-sessions", "smb-security-mode", 
+  "smb-enum-shares", "smb-server-stats",
   "smb-enum-domains", "smb-enum-users", "smb-system-info",
   "smb-enum-groups", "smb-os-discovery", "smb-enum-processes",
   "smb-psexec",
