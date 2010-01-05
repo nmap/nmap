@@ -1,5 +1,19 @@
 description = [[
-Obtains the favicon.ico from the root of a web service (or with the html link rel attribute if that fails) and tries to identify its source (such as a certain web application) using a database lookup.
+Gets the favicon ("favorites icon") from a web page matches it against a
+database of the icons of known web applications. If there is a match, the name
+of the application is printed; otherwise the MD5 hash of the icon data is
+printed.
+
+If the script arg <code>favicon.uri</code> is given, that relative URI is
+always used to find the favicon. Otherwise, first the page at the root of the
+web server is retrieved and parsed for a <code><link rel="icon"></code>
+element. If that fails, the icon is looked for in <code>/favicon.ico</code>.
+Obtains the favicon.ico from the root of a web service (or with the html link
+rel attribute if that fails) and tries to identify its source (such as a
+certain web application) using a database lookup.
+
+If a <code><link></code> favicon points to a different host or port, it is
+ignored.
 ]]
 
 ---
@@ -56,35 +70,39 @@ action = function(host, port)
   end
 
   if(nmap.registry.args['favicon.uri']) then
+	-- If we got a script arg URI, always use that.
   	answer = http.get( host, port, root .. "/" .. nmap.registry.args['favicon.uri'])
 	stdnse.print_debug( 4, "Using URI %s", nmap.registry.args['favicon.uri'])
   else
-  	answer = http.get( host, port, root .. "/favicon.ico" )
-	stdnse.print_debug( 4, "Using default URI.")
-  end
-
-  -- if we didn't find a correct favicon, let's parse the first page and search for one!
-  if answer.status ~= 200 then
-	stdnse.print_debug( 1, "No favicon found on root of web server, parsing initial page for favicon.")
+	-- Otherwise, first try parsing the home page.
  	index = http.get( host, port, root .. "/" )
-	-- if we get the first page
 	if index.status == 200 or index.status == 503 then
 		-- find the favicon pattern
 		icon = parseIcon( index.body )
 		-- if we find a pattern
 		if icon then
-			-- check if the path is in './' format, what means that we must replace it by the root directory
-			if string.match(icon, "^%.") then
-				icon = string.gsub(icon, "^%.", root, 1)
+			stdnse.print_debug(1, "Got icon URL %s.", icon)
+			local icon_host, icon_port, icon_path = parse_url_relative(icon, host, port, root)
+			if (icon_host == host.ip or
+				icon_host == host.targetname or
+				icon_host == (host.name ~= '' and host.name)) and
+				icon_port == port.number then
+				-- request the favicon
+				answer = http.get( icon_host, icon_port, icon_path )
+			else
+				answer = nil
 			end
-			-- request the favicon
-			answer = http.get( host, port, icon )
 		else 
 			answer = nil
 		end
 	end
+
+	-- If that didn't work, try /favicon.ico.
+	if not answer or answer.status ~= 200 then
+		answer = http.get( host, port, root .. "/favicon.ico" )
+		stdnse.print_debug( 4, "Using default URI.")
+	end
   end
-	
 
   --- check for 200 response code
   if answer and answer.status == 200 then
@@ -104,33 +122,56 @@ action = function(host, port)
   return result
 end
 
-function parseIcon( body )
-  local icon, absolute_icon, parsed_icon
-  local tag_start, tag_end, tag
-  local tags = {}
+-- Return a URL's host, port, and path, filling in the results with the given
+-- host, port, and path if the URL is relative. Return nil if the scheme is not
+-- "http" or "https".
+function parse_url_relative(u, host, port, path)
+	local defaultport, scheme, abspath
+	u = url.parse(u)
+	scheme = u.scheme or "http"
+	if scheme == "http" then
+		defaultport = 80
+	elseif scheme == "https" then
+		defaultport = 443
+	else
+		return nil
+	end
+	abspath = u.path or ""
+	if not string.find(abspath, "^/") then
+		abspath = dirname(path) .. "/" .. abspath
+	end
+	return u.host or host, u.port or defaultport, abspath
+end
 
-  -- separate tags
-  tag_start, tag_end = string.find(body,'(<.->)')
-  while tag_start do
-        tag = string.sub(body, tag_start, tag_end)
-        body = string.sub(body, tag_end)
-        tags[#tags+1] = tag
-        tag_start, tag_end = string.find(body,'(<.->)')
-  end
-        
-  -- check each tag for our favicon tag
-  for k, v in ipairs(tags) do
-        icon = string.match( v, '<(%s-link.-rel%s-=%s-".-icon".-/?)>')
-        if icon then
-                icon = string.match( icon, 'href%s*=%s*"(.-)"')
-                -- if favicon is in absolute format, we need to parse it!
-                absolute_icon = string.match(icon, '^http://')
-                if absolute_icon then
-                        parsed_icon = url.parse(icon)
-                        icon = parsed_icon.path
-                end
-                break
-        end
-  end
-  return icon
+function parseIcon( body )
+	local _, i, j
+	local rel, href, word
+
+	-- Loop through link elements.
+	i = 0
+	while i do
+		_, i = string.find(body, "<%s*[Ll][Ii][Nn][Kk]%s", i + 1)
+		if not i then
+			return nil
+		end
+		-- Loop through attributes.
+		j = i
+		while true do
+			local name, quote, value
+			_, j, name, quote, value = string.find(body, "^%s*(%w+)%s*=%s*([\"'])(.-)%2", j + 1)
+			if not j then
+				break
+			end
+			if string.lower(name) == "rel" then
+				rel = value
+			elseif string.lower(name) == "href" then
+				href = value
+			end
+		end
+		for word in string.gmatch(rel or "", "%S+") do
+			if string.lower(word) == "icon" then
+				return href
+			end
+		end
+	end
 end
