@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nmat] The --ssl, --output, and --hex-dump options now work with
+  --exec and --sh-exec. This is done by forking a separate process to
+  handle network communications and relay the data to the subprocess.
+  [Venkat, David]
+
 o [Zenmap] The locale setting had been taken from the Windows locale,
   which inadvertently made setting the locale with the LANG
   environment variable stop working. Now the LANG variable is examined
