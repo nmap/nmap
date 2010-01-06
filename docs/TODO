@@ -1,20 +1,17 @@
 weTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Integrate latest version detection submissions and corrections.
-  This was last done based on submissions until February 9, 2009.
-
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
   http://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
 
-o [NSE] Patrick's script dependency patch:
-  http://seclists.org/nmap-dev/2009/q4/295
-  o I'm not sure if he has gone through and actually set appropriate
-    dependencies (and removed runlevels) yet
-
 o Investigate issue with our Pcap and Wireshark x64, as described in
   this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
+
+o Add feature to http library to let user set the user agent to be
+  used. The NSEDoc for this feature should probably tell what our
+  current default user agent is ("Mozilla/5.0 (compatible; Nmap
+  Scripting Engine; http://nmap.org/book/nse.html") [David]
 
 o Make new stable release
 
@@ -22,13 +19,6 @@ o Look at new DB2 script by Tom
   Sellers. http://seclists.org/nmap-dev/2009/q4/659
 
 o Look at new Kerberos script from Patrik Karlsson.  http://seclists.org/nmap-dev/2009/q4/715
-
-o On our NSEDoc pages (e.g. http://nmap.org/nsedoc/), perhaps the link
-  text for scripts should not include the ".nse".  Basides saving
-  horizontal space, this may improve the sorting so that the likes of
-  "citrix-enum-apps" comes before "citrix-enum-apps-xml".  Also, we can
-  probably get away with reducing the width of the NSEDoc left-column,
-  especially if ".nse" is removed.
 
 o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
   remote shell, etc.  See this thread:
@@ -41,8 +31,7 @@ Content-type:\r\n
 ___text/html\r\n
 (with spaces in place of _, but http.lua won't parse such a header
 correctly. In other words you can extend them to any number of lines
-as long as each line after the first begins with whitespace. [Joao]
-
+as long as each line after the first begins with whitespace. [David]
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -590,6 +579,21 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o On our NSEDoc pages (e.g. http://nmap.org/nsedoc/), perhaps the link
+  text for scripts should not include the ".nse".  Basides saving
+  horizontal space, this may improve the sorting so that the likes of
+  "citrix-enum-apps" comes before "citrix-enum-apps-xml".  Also, we can
+  probably get away with reducing the width of the NSEDoc left-column,
+  especially if ".nse" is removed.
+
+o [NSE] Patrick's script dependency patch:
+  http://seclists.org/nmap-dev/2009/q4/295
+  o I'm not sure if he has gone through and actually set appropriate
+    dependencies (and removed runlevels) yet
+
+o Integrate latest version detection submissions and corrections.
+  This was last done based on submissions until February 9, 2009.
 
 o Release 5.10BETA2
 
