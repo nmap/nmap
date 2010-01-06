@@ -719,7 +719,7 @@ local function smb_encode_header(smb, command)
 				0,            -- extra (signature)
 				0,            -- extra (unused)
 				smb['tid'],   -- tid
-				0,            -- pid
+				12345,        -- pid
 				smb['uid'],   -- uid
 				0             -- mid
 			)

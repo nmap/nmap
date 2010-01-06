@@ -468,6 +468,10 @@ end
 function cleanup(host, config)
 	local status, err
 
+	-- Add a delay here. For some reason, calling this function too quickly causes SMB to close the connection, 
+	-- but even a tiny delay makes that issue go away.  
+	stdnse.sleep(.01)
+
 	-- If the user doesn't want to clean up, don't
 	if(nmap.registry.args.nocleanup == '1' or nmap.registry.args.nocleanup == "true") then
 		return
