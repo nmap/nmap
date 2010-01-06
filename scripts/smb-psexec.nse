@@ -1024,7 +1024,7 @@ local function get_params(config)
 	table.insert(params, config.path .. "\\" .. config.output_file)
 	table.insert(params, config.path .. "\\" .. config.temp_output_file)
 	table.insert(params, tostring(#config.enabled_modules))
-	table.insert(params, "1") -- TODO: Turn off logging
+	table.insert(params, "0") 
 	table.insert(params, config.key)
 	table.insert(params, config.path)
 	for _, mod in ipairs(config.enabled_modules) do
