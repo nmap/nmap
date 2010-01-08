@@ -16,6 +16,10 @@
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @args http-max-cache-size The maximum memory size (in bytes) of the cache.
 --
+-- @args http.useragent The value of the User-Agent header field sent with
+-- requests. By default it is
+-- <code>"Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"</code>.
+-- A value of the empty string disables sending the User-Agent header field.
 --@arg pipeline If set, it represents the number of HTTP requests that'll be pipelined 
 --              (ie, sent in a single request). This can be set low to make debugging
 --              easier, or it can be set high to test how a server reacts (its chosen
@@ -31,9 +35,22 @@ module(... or "http",package.seeall)
 local url    = require 'url'
 local stdnse = require 'stdnse'
 local comm   = require 'comm'
+local nmap   = require 'nmap'
 
 ---Use ssl if we have it
 local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
+
+local USER_AGENT
+do
+  local arg = nmap.registry.args["http.useragent"]
+  if arg and arg == "" then
+    USER_AGENT = nil
+  elseif arg then
+    USER_AGENT = arg
+  else
+    USER_AGENT = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+  end
+end
 
 -- Recursively copy a table.
 -- Only recurs when a value is a table, other values are copied by assignment.
@@ -358,7 +375,7 @@ local buildGet = function( host, port, path, options, cookies )
   local mod_options = {
     header = {
       Host = get_host_field(host, port),
-      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+      ["User-Agent"]  = USER_AGENT
     }
   }
   if cookies then
@@ -393,7 +410,7 @@ local buildHead = function( host, port, path, options, cookies )
   local mod_options = {
     header = {
       Host = get_host_field(host, port),
-      ["User-Agent"]  = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+      ["User-Agent"]  = USER_AGENT
     }
   }
   if cookies then
@@ -429,7 +446,7 @@ local buildPost = function( host, port, path, options, cookies, postdata)
       Host = get_host_field(host, port),
       Connection = "close",
       ["Content-Type"] = "application/x-www-form-urlencoded",
-      ["User-Agent"] = "Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"
+      ["User-Agent"] = USER_AGENT
     }
   }
 
