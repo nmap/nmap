@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o A new script argument, http.useragent, gives the ability to modify
+  the User-Agent header sent by NSE from its default of "Mozilla/5.0
+  (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)".
+  You can set it to the empty string to disable the User-Agent
+  entirely. [David]
+
 o [Nmat] The --ssl, --output, and --hex-dump options now work with
   --exec and --sh-exec. This is done by forking a separate process to
   handle network communications and relay the data to the subprocess.
