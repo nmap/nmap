@@ -380,7 +380,7 @@ local buildGet = function( host, port, path, options, cookies )
   }
   if cookies then
     local cookies = buildCookies(cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
 
   if options and options.connection 
@@ -415,7 +415,7 @@ local buildHead = function( host, port, path, options, cookies )
   }
   if cookies then
     local cookies = buildCookies(cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
   if options and options.connection 
     then mod_options["header"]["Connection"] = options.connection
@@ -465,7 +465,7 @@ local buildPost = function( host, port, path, options, cookies, postdata)
 
   if cookies then
     local cookies = buildCookies(cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookies"] = cookies end
+    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
 
   table_augment(mod_options, options or {})
