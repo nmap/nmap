@@ -669,7 +669,7 @@ end
 -- record is in the format:
 --   result: The result from http.get or http.head
 --   last_used: The time the record was last accessed or made.
---   get: Was the result received from a request to get or recently wiped?
+--   method: a string, "GET" or "HEAD".
 --   size: The size of the record, equal to #record.result.body.
 --   network_cost: The cost of the request on the network (upload).
 local cache = {size = 0};
@@ -701,7 +701,7 @@ local function lookup_cache (method, host, port, path, options)
   while true do
     mutex "lock";
     local record = cache[key];
-    if bypass_cache or record == nil or method == "GET" and not record.get then
+    if bypass_cache or record == nil or method ~= record.method then
       WORKING[mutex] = coroutine.running();
       cache[key], state.old_record = WORKING, record;
       return nil, state;
@@ -731,14 +731,14 @@ local function insert_cache (state, result, raw_response)
     local record = {
       result = tcopy(result),
       last_used = os.time(),
-      get = state.method == "GET",
+      get = state.method,
       size = type(result.body) == "string" and #result.body or 0,
       network_cost = #raw_response,
     };
     result = record.result; -- only modify copy
     cache[key], cache[#cache+1] = record, record;
     if state.no_cache_body then
-      record.get, result.body = false, "";
+      result.body = "";
     end
     if type(result.body) == "string" then
       cache.size = cache.size + #result.body;
