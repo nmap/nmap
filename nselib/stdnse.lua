@@ -505,8 +505,8 @@ end
 -- * The variable number of arguments to be passed to the worker's main function.
 --
 -- The <code>stdnse.new_thread</code> function will return two results:
---  * The worker thread's base (main) coroutine (useful for tracking status).
---  * A status query function (described below).
+-- * The worker thread's base (main) coroutine (useful for tracking status).
+-- * A status query function (described below).
 --
 -- The status query function shall return two values:
 -- * The result of coroutine.status using the worker thread base coroutine.
