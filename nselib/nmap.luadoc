@@ -201,14 +201,15 @@ function mutex(object)
 -- guarantee your thread will not be awakened when no thread called
 -- <code>"signal"</code> or <code>"broadcast"</code> on the condition variable).
 -- One important check for your worker threads, before and after waiting,
--- should be to check that the master <b>script</b> thread is still alive.
+-- should be to check that the master <em>script</em> thread is still alive.
 -- (To check that the master script thread is alive, obtain the "base" thread
 -- using stdnse.base and use coroutine.status). You do not want your worker
 -- threads to continue when the script has ended for reasons unknown to your
--- worker thread.  <b>You are guaranteed that all threads waiting on a condition
--- variable will be awakened if any thread that has accessed the condition
--- variable via <code>nmap.condvar</code> ends for any reason.</b> This is
--- essential to prevent deadlock with threads waiting for another thread to awaken
+-- worker thread.  <strong>You are guaranteed that all threads waiting on a
+-- condition variable will be awakened if any thread that has accessed
+-- the condition variable via <code>nmap.condvar</code> ends for any
+-- reason.</strong> This is essential to prevent deadlock with threads
+-- waiting for another thread to awaken
 -- them that has ended unexpectedly.
 -- @see stdnse.new_thread
 -- @see stdnse.base

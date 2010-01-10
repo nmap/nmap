@@ -520,13 +520,13 @@ end
 -- and mutex (<code>nmap.mutex</code>) facilities to coordinate with your
 -- worker threads. Keep in mind that Nmap is single threaded so there are
 -- no (memory) issues in synchronization to worry about; however, there
--- <b>is</b> resource contention. Your resources are usually network bandwidth,
--- network sockets, etc. Condition variables are also useful if the work for any
--- single thread is dynamic. For example, a web server spider script with a pool
--- of workers will initially have a single root html document. Following the
--- retrieval of the root document, the set of resources to be retrieved
--- (the worker's work) will become very large (an html document adds many
--- new hyperlinks (resources) to fetch).
+-- <em>is</em> resource contention. Your resources are usually network
+-- bandwidth, network sockets, etc. Condition variables are also useful if the
+-- work for any single thread is dynamic. For example, a web server spider
+-- script with a pool of workers will initially have a single root html
+-- document. Following the retrieval of the root document, the set of
+-- resources to be retrieved (the worker's work) will become very large
+-- (an html document adds many new hyperlinks (resources) to fetch).
 --@name new_thread
 --@class function
 --@param main The main function of the worker thread.
