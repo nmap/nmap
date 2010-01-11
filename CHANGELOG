@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] The -p option now works to set the listening port in listen
+  mode, so that "ncat -l -p 123" is a synonym of "ncat -l 123".
+
 o A new script argument, http.useragent, gives the ability to modify
   the User-Agent header sent by NSE from its default of "Mozilla/5.0
   (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)".
