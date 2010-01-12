@@ -42,7 +42,7 @@ local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
 
 local USER_AGENT
 do
-  local arg = nmap.registry.args["http.useragent"]
+  local arg = nmap.registry.args and nmap.registry.args["http.useragent"]
   if arg and arg == "" then
     USER_AGENT = nil
   elseif arg then
