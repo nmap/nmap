@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe and match lines for the Logitech/SlimDevices
+  SqueezeCenter music server. [Patrik Karlsson]
+
 o [Ncat] The -p option now works to set the listening port in listen
   mode, so that "ncat -l -p 123" is a synonym of "ncat -l 123".
 
