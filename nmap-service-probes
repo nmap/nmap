@@ -781,6 +781,7 @@ match ftp m|^220 ftp server corona \(([\w._-]+)\)\r\n| p/THEOS Corona ftpd/ v/$1
 match ftp m|^220 vxTarget FTP server \(VxWorks ([\d.]+)\) ready\.\r\n| p/vxTarget ftpd/ o/VxWorks/ i/VxWorks $1/
 match ftp m|^220-Welcome to the S60 Dumb FTP Server \(dftpd\)\r\n| p/Dumb FTP Server (dftpd)/ o/SymbianOS/ d/phone/
 match ftp m|^220-Local time is now [\d:]+\r\n220 You will be disconnected after 300 seconds of inactivity\.\r\n| p/DViCO TVIX 6500A set top box ftpd/ d/media device/
+match ftp m|^220 ET(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2}) ([\w-]+) Series FTP Server ready\.\r\n| d/printer/ p/Lexmark $1 series printer ftpd/ i/MAC: $1:$2:$3:$4:$5:$6/
 
 #(insert ftp)
 
@@ -8045,7 +8046,7 @@ match ms-sql-m m|^\x05..ServerName;([\w\-]+);InstanceName;[\w\-]+;IsClustered;\w
 ##############################NEXT PROBE##############################
 Probe UDP NTPRequest q|\xe3\x00\x04\xfa\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xc5\x4f\x23\x4b\x71\xb1\x52\xf3|
 rarity 5
-ports 123,5353
+ports 123,5353,9100
 
 match ca-mq m|^\xfa\xfe\0\x10\0\0\x01\0\0\0\0\0\0\0\0\0$| p/CA Message Queuing Server/
 
@@ -8060,6 +8061,8 @@ match ntp m|^\x64\x03..............................................$|s p/NTP/ v/
 match nameserver m|^help\r\n\r\n\0\0\0\0\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\0\0!\0\x01| p/Solaris Internet Name Server/ i/IEN 116/ o/Solaris/
 
 match mdns m|^\0\0\x84\0\0\0\0\x05\0\0\0\0.Lexmark ([\x20-\x7f]+)\x0c_host-config\x04_udp\x05local\0|s p/Lexmark $1 printer mdns/ d/printer/
+match hbn3 m|^\0\0\x84\0\0\0\0\x05\0\0\0\0\x15S300-S400 Series \(32\).+ET(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})| p/Lexmark S300-S400 series HBN3/ d/printer/ i/MAC: $1:$2:$3:$4:$5:$6/
+match hbn3 m|^\0\0\x84\0\0\0\0\x05\0\0\0\0\x15S300-S400 Series.+ET(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})| p/Lexmark S300-S400 Series HBN3/ d/printer/ i/MAC: $1:$2:$3:$4:$5:$6/
 
 softmatch mdns m|^\0\0\x84\0\0\0\0\x05\0\0\0\0|
 
