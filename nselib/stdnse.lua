@@ -418,7 +418,7 @@ function format_output(status, data, indent)
 	end
 
 	-- Return a single line of output as-is
-	if(#data == 1 and not(data['name']) and not(data['warning'])) then
+	if(indent == nil and #data == 1 and not(data['name']) and not(data['warning'])) then
 		return data[1]
 	end
 
