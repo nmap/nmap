@@ -825,10 +825,18 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 
   assert(proto == IPPROTO_TCP || proto == IPPROTO_UDP);
 
-  if (connectrc == 0)
+  if (connectrc == 0) {
     Strncpy(errbuf, "Connected", sizeof(errbuf));
+  }
+#if WIN32
+  else if (connect_errno == WSAEWOULDBLOCK) {
+    /* Special case for WSAEWOULDBLOCK. socket_strerror returns the unwieldy
+       "A non-blocking socket operation could not be completed immediately." */
+    Strncpy(errbuf, "Operation now in progress", sizeof(errbuf));
+  }
+#endif
   else {
-    Snprintf(errbuf, sizeof(errbuf), "%s", strerror(connect_errno));
+    Snprintf(errbuf, sizeof(errbuf), "%s", socket_strerror(connect_errno));
   }
 
   if (sin->sin_family == AF_INET) {
