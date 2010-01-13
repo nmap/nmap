@@ -49,12 +49,6 @@ end
 
 --- Sends the request to the server using the http lib
 -- 
--- NOTE: 
---   At the time of the development (20091128) the http
---   lib does not properly handle text/xml content. It also doesn't 
---   handle HTTP 100 Continue properly. Workarounds are in place, 
---   please consult comments.
---
 -- @param host string, the ip of the remote server
 -- @param port number, the port of the remote server
 -- @param xmldata string, the HTTP data part of the request as XML
@@ -63,38 +57,7 @@ end
 --
 function send_citrix_xml_request(host, port, xmldata)	
 
-	local header = "POST /scripts/WPnBr.dll HTTP/1.1\r\n"
-	  	  header = header .. "Content-type: text/xml\r\n"
-	  	  header = header .. "Host: " .. host .. ":" .. port .. "\r\n"
-  		  header = header .. "Content-Length: " .. xmldata:len() .. "\r\n"
-	      header = header .. "Connection: Close\r\n"
-	  	  header = header .. "\r\n"
-
-	local request = header .. xmldata
-	
-	-- this would have been really great! Unfortunately buildPost substitutes all spaces for plus'
-	-- this ain't all great when the content-type is text/xml
-	-- local response = http.post( host, port, "/scripts/WPnBr.dll", { header={["Content-Type"]="text/xml"}}, nil, xmldata)
-
-	-- let's build the content ourselves and let the http module do the rest
-	local response = http.request(host, port, request)
- 	local parse_options = {method="post"}
-
-	-- we need to handle another bug within the http module
-	-- it doesn't seem to recognize the HTTP/100 Continue correctly
-	-- So, we need to chop that part of from the response
-  	if response and response:match("^HTTP/1.1 100 Continue") and response:match( "\r?\n\r?\n" ) then
-		response = response:match( "\r?\n\r?\n(.*)$" )
-  	end 
-	
-	-- time for next workaround
-	-- The Citrix XML Service returns the header Transfer-Coding, rather than Transfer-Encoding
-	-- Needless to say, this screws things up for the http library
-	if response and response:match("Transfer[-]Coding") then
-		response = response:gsub("Transfer[-]Coding", "Transfer-Encoding")
-	end	
-	
- 	local response = http.parseResult(response, parse_options)
+	local response = http.post( host, port, "/scripts/WPnBr.dll", { header={["Content-Type"]="text/xml"}}, nil, xmldata)
 
 	-- this is *probably* not the right way to do stuff
 	-- decoding should *probably* only be done on XML-values

@@ -43,15 +43,15 @@ if it is vulnerable
 
 local function check_injection_response(response)
 
-  response = string.lower(response)
+  local body = string.lower(response.body)
 
-  if not (string.find(response, 'http/%d\.%d%s*[25]00')) then
+  if not (response.status == 200 or response.status ~= 500) then
     return false 
   end
 
-  return (string.find(response, "invalid query") or
-	  string.find(response, "sql syntax") or
-	  string.find(response, "odbc drivers error"))
+  return (string.find(body, "invalid query") or
+	  string.find(body, "sql syntax") or
+	  string.find(body, "odbc drivers error"))
 end
 
 --[[
@@ -90,7 +90,6 @@ Creates a pipeline table and returns the result
 local function inject(host, port, injectable)
   local all = {}
   local pOpts = {}
-  pOpts.raw = true
   for k, v in pairs(injectable) do
     all = http.pGet(host, port, v, nil, nil, all)
   end

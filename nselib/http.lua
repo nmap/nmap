@@ -20,10 +20,10 @@
 -- requests. By default it is
 -- <code>"Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)"</code>.
 -- A value of the empty string disables sending the User-Agent header field.
---@arg pipeline If set, it represents the number of HTTP requests that'll be pipelined 
---              (ie, sent in a single request). This can be set low to make debugging
---              easier, or it can be set high to test how a server reacts (its chosen
---              max is ignored). 
+-- @args pipeline If set, it represents the number of HTTP requests that'll be
+-- pipelined (ie, sent in a single request). This can be set low to make
+-- debugging easier, or it can be set high to test how a server reacts (its
+-- chosen max is ignored). 
 
 local MAX_CACHE_SIZE = "http-max-cache-size";
 
@@ -64,6 +64,46 @@ local function tcopy (t)
     end
   end
   return tc;
+end
+
+--- Recursively copy into a table any elements from another table whose key it
+-- doesn't have.
+local function table_augment(to, from)
+  for k, v in pairs(from) do
+    if type( to[k] ) == 'table' then
+      table_augment(to[k], from[k])
+    else
+      to[k] = from[k]
+    end
+  end
+end
+
+--- Get a suitable hostname string from the argument, which may be either a
+-- string or a host table.
+local function get_hostname(host)
+  if type(host) == "table" then
+    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
+  else
+    return host
+  end
+end
+
+--- Get a value suitable for the Host header field.
+local function get_host_field(host, port)
+  local hostname = get_hostname(host)
+  local portno
+  if port == nil then
+    portno = 80
+  elseif type(port) == "table" then
+    portno = port.number
+  else
+    portno = port
+  end
+  if portno == 80 then
+    return hostname
+  else
+    return hostname .. ":" .. tostring(portno)
+  end
 end
 
 -- Skip *( SP | HT ) starting at offset. See RFC 2616, section 2.2.
@@ -145,35 +185,150 @@ local function get_token_or_quoted_string(s, offset, crlf)
   end
 end
 
--- This is an interator that breaks a "chunked"-encoded string into its chunks.
--- Each iteration produces one of the chunks.
-local function get_chunks(s, offset, crlf)
-  local finished_flag = false
+-- Returns the index just past the end of LWS.
+local function skip_lws(s, pos)
+  local _, e
 
-  return function()
-    if finished_flag then
-      -- The previous iteration found the 0 chunk.
-      return nil
+  while true do
+    while string.match(s, "^[ \t]", pos) do
+      pos = pos + 1
+    end
+    _, e = string.find(s, "^\r?\n[ \t]", pos)
+    if not e then
+      return pos
+    end
+    pos = e + 1
+  end
+end
+
+-- The following recv functions, and the function <code>next_response</code>
+-- follow a common pattern. They each take a <code>partial</code> argument
+-- whose value is data that has been read from the socket but not yet used in
+-- parsing, and they return as their second return value a new value for
+-- <code>partial</code>. The idea is that, for example, in reading from the
+-- socket to get the Status-Line, you will probably read too much and read part
+-- of the header. That part (the "partial") has to be retained when you go to
+-- parse the header. The common use pattern is this:
+-- <code>
+-- local partial
+-- status_line, partial = recv_line(socket, partial)
+-- ...
+-- header, partial = recv_header(socket, partial)
+-- ...
+-- </code>
+-- On error, the functions return <code>nil</code> and the second return value
+-- is an error message.
+
+-- Receive a single line (up to <code>\n</code>).
+local function recv_line(s, partial)
+  local _, e
+  local status, data
+  local pos
+
+  partial = partial or ""
+
+  pos = 1
+  while true do
+    _, e = string.find(partial, "\n", pos, true)
+    if e then
+      break
+    end
+    status, data = s:receive()
+    if not status then
+      return status, data
+    end
+    pos = #partial
+    partial = partial .. data
+  end
+
+  return string.sub(partial, 1, e), string.sub(partial, e + 1)
+end
+
+local function line_is_empty(line)
+  return line == "\r\n" or line == "\n"
+end
+
+-- Receive up to and including the first blank line, but return everything up
+-- to and not including the final blank line.
+local function recv_header(s, partial)
+  local lines = {}
+
+  partial = partial or ""
+
+  while true do
+    local line
+    line, partial = recv_line(s, partial)
+    if not line then
+      return line, partial
+    end
+    if line_is_empty(line) then
+      break
+    end
+    lines[#lines + 1] = line
+  end
+
+  return table.concat(lines), partial
+end
+
+-- Receive exactly <code>length</code> bytes.
+local function recv_length(s, length, partial)
+  local parts, last
+
+  partial = partial or ""
+
+  parts = {}
+  last = partial
+  length = length - #last
+  while length > 0 do
+    local status
+
+    parts[#parts + 1] = last
+    status, last = s:receive()
+    length = length - #last
+  end
+
+  -- At this point length is 0 or negative, and indicates the degree to which
+  -- the last read "overshot" the desired length.
+
+  if length == 0 then
+    return table.concat(parts) .. last, ""
+  else
+    return table.concat(parts) .. string.sub(last, 1, length - 1), string.sub(last, length)
+  end
+end
+
+-- Receive until the end of a chunked message body, and return the dechunked
+-- body.
+local function recv_chunked(s, partial)
+  local chunks, chunk
+  local chunk_size
+  local pos
+
+  chunks = {}
+  repeat
+    local line, hex, _, i
+
+    line, partial = recv_line(s, partial)
+    if not line then
+      return nil, partial
     end
 
-    offset = skip_space(s, offset)
+    pos = 1
+    pos = skip_space(line, pos)
 
     -- Get the chunk-size.
-    local _, i, hex
-    _, i, hex = s:find("^([%x]+)", offset)
+    _, i, hex = string.find(line, "^([%x]+)", pos)
     if not i then
-      error(string.format("Chunked encoding didn't find hex at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+      return nil, string.format("Chunked encoding didn't find hex; got %q.", string.sub(line, pos, pos + 10))
     end
-    offset = i + 1
+    pos = i + 1
 
-    local chunk_size = tonumber(hex, 16)
-    if chunk_size == 0 then
-      -- Process this chunk so the caller gets the following offset, but halt
-      -- the iteration on the next round.
-      finished_flag = true
+    chunk_size = tonumber(hex, 16)
+    if not chunk_size or chunk_size < 0 then
+      return nil, string.format("Chunk size %s is not a positive integer.", hex)
     end
 
-    -- Ignore chunk-extensions.
+    -- Ignore chunk-extensions that may follow here.
     -- RFC 2616, section 2.1 ("Implied *LWS") seems to allow *LWS between the
     -- parts of a chunk-extension, but that is ambiguous. Consider this case:
     -- "1234;a\r\n =1\r\n...". It could be an extension with a chunk-ext-name
@@ -181,151 +336,312 @@ local function get_chunks(s, offset, crlf)
     -- be a chunk-ext-name of "a" with a value of "1", and a chunk-data
     -- starting with "...". We don't allow *LWS here, only ( SP | HT ), so the
     -- first interpretation will prevail.
-    offset = skip_space(s, offset)
-    while s:sub(offset, offset) == ";" do
-      local token
-      offset = offset + 1
-      offset = skip_space(s, offset)
-      i, token = get_token(s, offset)
-      if not token then
-        error(string.format("chunk-ext-name missing at position %d; got %q.", offset, s:sub(offset, offset + 10)))
+
+    chunk, partial = recv_length(s, chunk_size, partial)
+    if not chunk then
+      return nil, partial
+    end
+    chunks[#chunks + 1] = chunk
+
+    line, partial = recv_line(s, partial)
+    if not line or not string.match(line, "^\r?\n") then
+      return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
+    end
+  until chunk_size == 0
+
+  return table.concat(chunks), partial
+end
+
+-- Receive a message body, assuming that the header has already been read by
+-- <code>recv_header</code>. The handling is sensitive to the request method
+-- and the status code of the response.
+local function recv_body(s, response, method, partial)
+  local transfer_encoding
+  local content_length
+  local err
+
+  partial = partial or ""
+
+  -- See RFC 2616, section 4.4 "Message Length".
+
+  -- 1. Any response message which "MUST NOT" include a message-body (such as
+  --    the 1xx, 204, and 304 responses and any response to a HEAD request) is
+  --    always terminated by the first empty line after the header fields...
+  if string.upper(method) == "HEAD"
+    or (response.status >= 100 and response.status <= 199)
+    or response.status == 204 or response.status == 304 then
+    return "", partial
+  end
+
+  -- 2. If a Transfer-Encoding header field (section 14.41) is present and has
+  --    any value other than "identity", then the transfer-length is defined by
+  --    use of the "chunked" transfer-coding (section 3.6), unless the message
+  --    is terminated by closing the connection.
+  if response.header["transfer-encoding"]
+    and response.header["transfer-encoding"] ~= "identity" then
+    return recv_chunked(s, partial)
+  end
+  -- The Citrix XML Service sends a wrong "Transfer-Coding" instead of
+  -- "Transfer-Encoding".
+  if response.header["transfer-coding"]
+    and response.header["transfer-coding"] ~= "identity" then
+    return recv_chunked(s, partial)
+  end
+
+  -- 3. If a Content-Length header field (section 14.13) is present, its decimal
+  --    value in OCTETs represents both the entity-length and the
+  --    transfer-length. The Content-Length header field MUST NOT be sent if
+  --    these two lengths are different (i.e., if a Transfer-Encoding header
+  --    field is present). If a message is received with both a
+  --    Transfer-Encoding header field and a Content-Length header field, the
+  --    latter MUST be ignored.
+  if response.header["content-length"]  and not response.header["transfer-encoding"] then
+    content_length = tonumber(response.header["content-length"])
+    if not content_length then
+      return nil, string.format("Content-Length %q is non-numeric", response.header["content-length"])
+    end
+    return recv_length(s, content_length, partial)
+  end
+
+  -- 4. If the message uses the media type "multipart/byteranges", and the
+  --    ransfer-length is not otherwise specified, then this self- elimiting
+  --    media type defines the transfer-length. [sic]
+
+  -- Case 4 is unhandled.
+
+  -- 5. By the server closing the connection.
+  do
+    local parts = {partial}
+    while true do
+      local status, part = s:receive()
+      if not status then
+        break
+      else
+        parts[#parts + 1] = part
       end
-      offset = i
-      offset = skip_space(s, offset)
-      if s:sub(offset, offset) == "=" then
-        offset = offset + 1
-        offset = skip_space(s, offset)
-        i, token = get_token_or_quoted_string(s, offset)
-        if not token then
-          error(string.format("chunk-ext-name missing at position %d; got %q.", offset, s:sub(offset, offset + 10)))
-        end
-      end
-      offset = i
-      offset = skip_space(s, offset)
     end
 
-    _, i = s:find("^" .. crlf, offset)
-    if not i then
-      error(string.format("Didn't find CRLF after chunk-size [ chunk-extension ] at position %d; got %q.", offset, s:sub(offset, offset + 10)))
-    end
-    offset = i + 1
-
-    -- Now get the chunk-data.
-    local chunk = s:sub(offset, offset + chunk_size - 1)
-    if chunk:len() ~= chunk_size then
-      error(string.format("Chunk starting at position %d was only %d bytes, not %d as expected.", offset, chunk:len(), chunk_size))
-    end
-    offset = offset + chunk_size
-
-    if chunk_size > 0 then
-      _, i = s:find("^" .. crlf, offset)
-      if not i then
-        error(string.format("Didn't find CRLF after chunk-data at position %d; got %q.", offset, s:sub(offset, offset + 10)))
-      end
-      offset = i + 1
-    end
-
-    -- print(string.format("chunk %d %d", offset, chunk_size))
-
-    return offset, chunk
+    return table.concat(parts), ""
   end
 end
 
---
--- http.get( host, port, path, options )
--- http.request( host, port, request, options )
--- http.get_url( url, options )
---
--- host may either be a string or table
--- port may either be a number or a table
---
--- the format of the return value is a table with the following structure:
--- {status = 200, status-line = "HTTP/1.1 200 OK", header = {}, body ="<html>...</html>"}
--- the header table has an entry for each received header with the header name being the key
--- the table also has an entry named "status" which contains the http status code of the request
--- in case of an error status is nil
+-- Sets response["status-line"] and response.status.
+local function parse_status_line(status_line, response)
+  local version, status, reason_phrase
 
---- Recursively copy into a table any elements from another table whose key it
--- doesn't have.
-local function table_augment(to, from)
-  for k, v in pairs(from) do
-    if type( to[k] ) == 'table' then
-      table_augment(to[k], from[k])
+  response["status-line"] = status_line
+  version, status, reason_phrase = string.match(status_line,
+    "^HTTP/(%d%.%d) *(%d+) *(.*)\r?\n$")
+  if not version then
+    return nil, string.format("Error parsing status-line %q.", status_line)
+  end
+  -- We don't have a use for the version; ignore it.
+  response.status = tonumber(status)
+  if not response.status then
+    return nil, string.format("Status code is not numeric: %s", status)
+  end
+
+  return true
+end
+
+-- Sets response.header and response.rawheader.
+local function parse_header(header, response)
+  local pos
+  local name, words
+  local s, e
+
+  response.header = {}
+  response.rawheader = stdnse.strsplit("\r?\n", header)
+  pos = 1
+  while pos <= #header do
+    -- Get the field name.
+    e, name = get_token(header, pos)
+    if not name or e > #header or string.sub(header, e, e) ~= ":" then
+      return nil, string.format("Can't get header field name at %q", string.sub(header, pos, pos + 30))
+    end
+    pos = e + 1
+
+    -- Skip initial space.
+    pos = skip_lws(header, pos)
+    -- Get non-space words separated by LWS, then join them with a single space.
+    words = {}
+    while pos <= #header and not string.match(header, "^\r?\n", pos) do
+      s = pos
+      while not string.match(header, "^[ \t]", pos) and
+        not string.match(header, "^\r?\n", pos) do
+        pos = pos + 1
+      end
+      words[#words + 1] = string.sub(header, s, pos - 1)
+      pos = pos + 1
+      pos = skip_lws(header, pos)
+    end
+
+    -- Set it in our table.
+    name = string.lower(name)
+    if response.header[name] then
+      response.header[name] = response.header[name] .. ", " .. table.concat(words, " ")
     else
-      to[k] = from[k]
+      response.header[name] = table.concat(words, " ")
     end
+
+    -- Next field, or end of string. (If not it's an error.)
+    s, e = string.find(header, "^\r?\n", pos)
+    if not e then
+      return nil, string.format("Header field named %q didn't end with CRLF", name)
+    end
+    pos = e + 1
   end
+
+  return true
 end
 
---- Get a suitable hostname string from the argument, which may be either a
--- string or a host table.
-local function get_hostname(host)
-  if type(host) == "table" then
-    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
-  else
-    return host
-  end
-end
+-- Parse the contents of a Set-Cookie header field. The result is an array
+-- containing tables of the form
+--
+-- { name = "NAME", value = "VALUE", Comment = "...", Domain = "...", ... }
+--
+-- Every key except "name" and "value" is optional.
+--
+-- This function attempts to support the cookie syntax defined in RFC 2109
+-- along with the backwards-compatibility suggestions from its section 10,
+-- "HISTORICAL". Values need not be quoted, but if they start with a quote they
+-- will be interpreted as a quoted string.
+local function parse_set_cookie(s)
+  local cookies
+  local name, value
+  local _, pos
 
---- Get a value suitable for the Host header field.
-local function get_host_field(host, port)
-  local hostname = get_hostname(host)
-  local portno
-  if port == nil then
-    portno = 80
-  elseif type(port) == "table" then
-    portno = port.number
-  else
-    portno = port
-  end
-  if portno == 80 then
-    return hostname
-  else
-    return hostname .. ":" .. tostring(portno)
-  end
-end
+  cookies = {}
 
---- Parses a response header and return a table with cookie jar
---
---  The cookie attributes can be accessed by:
---  cookie_table[1]['name']
---  cookie_table[1]['value']  
---  cookie_table[1]['attr']
---
---  Where attr is the attribute name, like expires or path.
---  Attributes without a value, are considered boolean (like http-only)
---
---  @param header The response header
---  @return cookie_table A table with all the cookies
-local function parseCookies(header)
-  local lines = stdnse.strsplit("\r?\n", header)
-  local i = 1
-  local n = table.getn(lines)
-  local cookie_table = {}
-  local cookie_attrs
-  while i <= n do
-    if string.match(lines[i]:lower(), "set%-cookie:") then
-      local cookie = {}
-      local _, cookie_attrs = string.match(lines[i], "(.+): (.*)")
-      cookie_attrs = stdnse.strsplit(";",cookie_attrs)
-      cookie['name'], cookie['value'] = string.match(cookie_attrs[1],"(.*)=(.*)")
-      local j = 2
-      while j <= #cookie_attrs do
-        local attr = string.match(cookie_attrs[j],"^%s-(.*)=")
-        local value = string.match(cookie_attrs[j],"=(.*)$")
-        if attr and value then 
-          local attr = string.gsub(attr, " ", "")
-          cookie[attr] = value
-        else
-          cookie[string.gsub(cookie_attrs[j]:lower()," ","")] = true
-        end
-        j = j + 1
+  pos = 1
+  while true do
+    local cookie = {}
+
+    -- Get the NAME=VALUE part.
+    pos = skip_space(s, pos)
+    pos, cookie.name = get_token(s, pos)
+    if not cookie.name then
+      return nil, "Can't get cookie name."
+    end
+    pos = skip_space(s, pos)
+    if pos > #s or string.sub(s, pos, pos) ~= "=" then
+      return nil, string.format("Expected '=' after cookie name \"%s\".", cookie.name)
+    end
+    pos = pos + 1
+    pos = skip_space(s, pos)
+    if string.sub(s, pos, pos) == "\"" then
+      pos, cookie.value = get_quoted_string(s, pos)
+    else
+      _, pos, cookie.value = string.find(s, "([^;]*)[ \t]*", pos)
+      pos = pos + 1
+    end
+    if not cookie.value then
+      return nil, string.format("Can't get value of cookie named \"%s\".", cookie.name)
+    end
+    pos = skip_space(s, pos)
+
+    -- Loop over the attributes.
+    while pos <= #s and string.sub(s, pos, pos) == ";" do
+      pos = pos + 1
+      pos = skip_space(s, pos)
+      pos, name = get_token(s, pos)
+      if not name then
+        return nil, string.format("Can't get attribute name of cookie \"%s\".", cookie.name)
       end
-    table.insert(cookie_table, cookie)
+      pos = skip_space(s, pos)
+      if pos <= #s and string.sub(s, pos, pos) == "=" then
+        pos = pos + 1
+        pos = skip_space(s, pos)
+        if string.sub(s, pos, pos) == "\"" then
+          pos, value = get_quoted_string(s, pos)
+        else
+          if string.lower(name) == "expires" then
+            -- For version 0 cookies we must allow one comma for "expires".
+            _, pos, value = string.find(s, "([^,]*,[^;,]*)[ \t]*", pos)
+          else
+            _, pos, value = string.find(s, "([^;,]*)[ \t]*", pos)
+          end
+          pos = pos + 1
+        end
+        if not value then
+          return nil, string.format("Can't get value of cookie attribute \"%s\".", name)
+        end
+      else
+        value = true
+      end
+      cookie[name] = value
+      pos = skip_space(s, pos)
     end
-    i = i + 1
+
+    cookies[#cookies + 1] = cookie
+
+    if pos > #s then
+      break
+    end
+
+    if string.sub(s, pos, pos) ~= "," then
+      return nil, string.format("Syntax error after cookie named \"%s\".", cookie.name)
+    end
+
+    pos = pos + 1
+    pos = skip_space(s, pos)
   end
-  return cookie_table
+
+  return cookies
+end
+
+-- Read one response from the socket <code>s</code> and return it after
+-- parsing.
+local function next_response(s, method, partial)
+  local response
+  local status_line, header, body
+  local status, err
+
+  partial = partial or ""
+  response = {
+    status=nil,
+    ["status-line"]=nil,
+    header={},
+    rawheader={},
+    body=""
+  }
+
+  status_line, partial = recv_line(s, partial)
+  if not status_line then
+    return nil, partial
+  end
+  status, err = parse_status_line(status_line, response)
+  if not status then
+    return nil, err
+  end
+
+  header, partial = recv_header(s, partial)
+  if not header then
+    return nil, partial
+  end
+  status, err = parse_header(header, response)
+  if not status then
+    return nil, err
+  end
+
+  body, partial = recv_body(s, response, method, partial)
+  if not body then
+    return nil, partial
+  end
+  response.body = body
+
+  -- We have the Status-Line, header, and body; now do any postprocessing.
+
+  response.cookies = {}
+  if response.header["set-cookie"] then
+    response.cookies, err = parse_set_cookie(response.header["set-cookie"])
+    if not response.cookies then
+      -- Ignore a cookie parsing error.
+      response.cookies = {}
+    end
+  end
+
+  return response, partial
 end
 
 --- Tries to extract the max number of requests that should be made on
@@ -337,23 +653,23 @@ end
 --
 --  @param response The http response - Might be a table or a raw response
 --  @return The max number of requests on a keep-alive connection
-local function getPipelineMax( response, method )
+local function getPipelineMax(response)
   -- Allow users to override this with a script-arg
   if nmap.registry.args.pipeline ~= nil then
     return tonumber(nmap.registry.args.pipeline)
   end
 
-  local parse_opts = {method=method}
   if response then
-    if type(response) ~= "table" then response = parseResult( response, parse_opts ) end
     if response.header and response.header.connection ~= "close" then
       if response.header["keep-alive"] then
         local max = string.match( response.header["keep-alive"], "max\=(%d*)")
         if(max == nil) then
           return 40
         end
-        return max
-      else return 40 end
+        return tonumber(max)
+      else
+        return 40
+      end
     end
   end
   return 1
@@ -500,130 +816,9 @@ local buildRequest = function (data, options)
   return data
 end
 
---- Transforms multiple raw responses from a pipeline request
---  (a single and long string with all the responses) into a table
---  containing one response in each field.
---
---  @param response The raw multiple response
---  @param methods Request method
---  @return Table with one response in each field
-local function splitResults( response, methods )
-  local responses = {}
-  local opt = {method="", dechunk="true"}
-  local parsingOpts = {}
-
-  for k, v in ipairs(methods) do
-    if not response then
-      stdnse.print_debug("Response expected, but not found")
-    end
-    if k == #methods then
-      responses[#responses+1] = response
-    else
-      responses[#responses+1], response = getNextResult( response, v)
-    end
-    opt["method"] = v
-    parsingOpts[#parsingOpts+1] = opt
-  end
-  return responses, parsingOpts
-end
-
---- Tries to get the next response from a string with multiple responses
---
---  @arg full_response The full response (as received by pipeline() function)
---  @arg method The method used for this request
---  @return response The next single response
---  @return left_response The left data on the response string
-function getNextResult( full_response, method )
-  local header = ""
-  local body = ""
-  local response = ""
-  local header_end, body_start
-  local length, size, msg_pointer
-
-  -- Split header from body
-  header_end, body_start = full_response:find("\r?\n\r?\n")
-  if header_end then
-    header = full_response:sub(1, body_start)
-    if not header_end then
-      return full_response, nil
-    end
-  end
-
-  -- If it is a get response, attach body to response
-  if method == "get" then
-    body_start = body_start + 1 -- fixing body start offset
-    if isChunked(header) then
-      full_response = full_response:sub(body_start)
-      local body_delim = ( full_response:match( "\r\n" ) and "\r\n" )  or
-                         ( full_response:match( "\n" )   and "\n" ) or nil
-      local chunk, tmp_size
-      local chunks = {}
-      for tmp_size, chunk in get_chunks(full_response, 1, body_delim) do
-        chunks[#chunks + 1] = chunk
-                size = tmp_size
-      end
-      body = table.concat(chunks)
-    else
-      length = getLength( header )
-      if length then
-        length = length + #header
-        body = full_response:sub(body_start, length)
-      else
-        stdnse.print_debug("Didn't find chunked encoding or content-length field, not splitting response")
-        body = full_response:sub(body_start)
-      end
-    end
-  end
-
-  -- Return response (header + body) and the string with all 
-  -- responses less the one we just grabbed
-  response = header .. body
-  if size then 
-	msg_pointer = size
-  else msg_pointer = #response+1 end
-  full_response = full_response:sub(msg_pointer)
-  return response, full_response
-end
-
---- Checks the header for chunked body encoding
---
---  @arg header The header
---  @return boolean True if the body is chunked, false if not
-function isChunked( header )
-  header = stdnse.strsplit( "\r?\n", header )
-  local encoding = nil
-  for number, line in ipairs( header or {} ) do
-    line = line:lower()
-    encoding = line:match("transfer%-encoding: (.*)")
-    if encoding then
-      if encoding:match("identity") then
-        return false
-      else
-        return true
-      end
-    end
-  end
-  return false
-end
-
---- Get body length
---  
---  @arg header The header
---  @return The body length (nil if not found)
-function getLength( header )
-  header = stdnse.strsplit( "\r?\n", header )
-  local length = nil
-  for number, line in ipairs( header or {} ) do
-    line = line:lower()
-    length = line:match("content%-length:%s*(%d+)")
-    if length then break end
-  end
-  return length
-end
-
 --- Builds a string to be added to the request mod_options table
 -- 
---  @param cookies A cookie jar just like the table returned by parseCookies
+--  @param cookies A cookie jar just like the table returned parse_set_cookie.
 --  @param path If the argument exists, only cookies with this path are included to the request
 --  @return A string to be added to the mod_options table
 function buildCookies(cookies, path)
@@ -637,6 +832,16 @@ function buildCookies(cookies, path)
   end
   return cookie
 end
+
+-- HTTP cache.
+
+-- Cache of GET and HEAD requests. Uses <"host:port:path", record>.
+-- record is in the format:
+--   result: The result from http.get or http.head
+--   last_used: The time the record was last accessed or made.
+--   get: Was the result received from a request to get or recently wiped?
+--   size: The size of the record, equal to #record.result.body.
+local cache = {size = 0};
 
 local function check_size (cache)
   local max_size = tonumber(nmap.registry.args[MAX_CACHE_SIZE] or 1e6);
@@ -664,15 +869,6 @@ local function check_size (cache)
       size, max_size);
   return size;
 end
-
--- Cache of GET and HEAD requests. Uses <"host:port:path", record>.
--- record is in the format:
---   result: The result from http.get or http.head
---   last_used: The time the record was last accessed or made.
---   method: a string, "GET" or "HEAD".
---   size: The size of the record, equal to #record.result.body.
---   network_cost: The cost of the request on the network (upload).
-local cache = {size = 0};
 
 -- Unique value to signal value is being retrieved.
 -- Also holds <mutex, thread> pairs, working thread is value
@@ -720,33 +916,42 @@ local function lookup_cache (method, host, port, path, options)
   end
 end
 
-local function insert_cache (state, result, raw_response)
+local function insert_cache (state, response)
   local key = assert(state.key);
   local mutex = assert(state.mutex);
 
-  if result == nil or state.no_cache or
-      result.status == 206 then -- ignore partial content response
+  if response == nil or state.no_cache or
+      response.status == 206 then -- ignore partial content response
     cache[key] = state.old_record;
   else
     local record = {
-      result = tcopy(result),
+      result = tcopy(response),
       last_used = os.time(),
       get = state.method,
-      size = type(result.body) == "string" and #result.body or 0,
-      network_cost = #raw_response,
+      size = type(response.body) == "string" and #response.body or 0,
     };
-    result = record.result; -- only modify copy
+    response = record.result; -- only modify copy
     cache[key], cache[#cache+1] = record, record;
     if state.no_cache_body then
       result.body = "";
     end
-    if type(result.body) == "string" then
-      cache.size = cache.size + #result.body;
+    if type(response.body) == "string" then
+      cache.size = cache.size + #response.body;
       check_size(cache);
     end
   end
   mutex "done";
 end
+
+-- For each of the following request functions, <code>host</code> may either be
+-- a string or a table, and <code>port</code> may either be a number or a
+-- table.
+--
+-- The format of the return value is a table with the following structure:
+-- {status = 200, status-line = "HTTP/1.1 200 OK", header = {}, rawheader = {}, body ="<html>...</html>"}
+-- The header table has an entry for each received header with the header name
+-- being the key the table also has an entry named "status" which contains the
+-- http status code of the request in case of an error status is nil.
 
 --- Fetches a resource with a GET request.
 --
@@ -755,243 +960,23 @@ end
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
 -- is a table for further options. The fifth argument is a cookie table.
--- The function calls buildGet to build the request, calls request to send it 
--- and than parses the result calling parseResult
+-- The function calls buildGet to build the request, then calls request to send
+-- it and get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
 -- @param cookies A table with cookies
 -- @return Table as described in the module description.
--- @see http.parseResult
 get = function( host, port, path, options, cookies )
-  local result, state = lookup_cache("GET", host, port, path, options);
-  if result == nil then
+  local response, state = lookup_cache("GET", host, port, path, options);
+  if response == nil then
     local data, mod_options = buildGet(host, port, path, options, cookies)
     data = buildRequest(data, mod_options)
-    local response = request(host, port, data)
-    local parse_options = {method="get"}
-    result = parseResult(response, parse_options)
-    insert_cache(state, result, response);
+    response = request(host, port, data)
+    insert_cache(state, response);
   end
-  return result;
-end
-
---- Fetches a resource with a HEAD request.
---
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a cookie table.
--- The function calls buildHead to build the request, calls request to send it 
--- and than parses the result calling parseResult.
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
--- @return Table as described in the module description.
--- @see http.parseResult
-head = function( host, port, path, options, cookies )
-  local result, state = lookup_cache("HEAD", host, port, path, options);
-  if result == nil then
-    local data, mod_options = buildHead(host, port, path, options, cookies)
-    data = buildRequest(data, mod_options)
-    local response = request(host, port, data)
-	local parse_options = {method="head"}
-    result = parseResult(response, parse_options)
-    insert_cache(state, result, response);
-  end
-  return result;
-end
-
---- Fetches a resource with a POST request.
---
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a cookie table. The sixth 
--- argument is a table with data to be posted. 
--- The function calls buildHead to build the request, calls request to send it 
--- and than parses the result calling parseResult.
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
--- @param postdata A string or a table of data to be posted. If a table, the
--- keys and values must be strings, and they will be encoded into an
--- application/x-www-form-encoded form submission.
--- @return Table as described in the module description.
--- @see http.parseResult
-post = function( host, port, path, options, cookies, postdata )
-  local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
-  data = buildRequest(data, mod_options)
-  local response = request(host, port, data)
-  local parse_options = {method="post"}
-  return parseResult(response, parse_options)
-end
-
---- Builds a get request to be used in a pipeline request
---
---  Calls buildGet to build a get request
---
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
--- @param allReqs A table with all the pipeline requests
--- @return Table with the pipeline get requests (plus this new one)
-function pGet( host, port, path, options, cookies, allReqs )
-  local req = {}
-  if not allReqs then allReqs = {} end
-  if not options then options = {} end
-  local object = {data="", opts="", method="get"}
-  options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildGet(host, port, path, options, cookies)
-  allReqs[#allReqs + 1] =  object
-  return allReqs
-end
-
---- Builds a Head request to be used in a pipeline request
---
---  Calls buildHead to build a get request
---
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
--- @param allReqs A table with all the pipeline requests
--- @return Table with the pipeline get requests (plus this new one)
-function pHead( host, port, path, options, cookies, allReqs )
-  local req = {}
-  if not allReqs then allReqs = {} end
-  if not options then options = {} end
-  local object = {data="", opts="", method="head"}
-  options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildHead(host, port, path, options, cookies)
-  allReqs[#allReqs + 1] =  object
-  return allReqs
-end
-
-
---- Performs pipelined that are in allReqs to the resource.
---  After requesting it will call splitResults to split the multiple responses
---  from the server, and than call parseResult to create the http response table
---
---  Possible options are:
---  raw:
---  - false, result is parsed as http response tables.
---  - true, result is only splited in different tables by request.
---
---  @param host The host to query.
---  @param port The port for the host.
---  @param allReqs A table with all the previously built pipeline requests
---  @param options A table with options to configure the pipeline request
---  @return A table with multiple http response tables
-pipeline = function(host, port, allReqs, options)
-  stdnse.print_debug("Total number of pipelined requests: " .. #allReqs)
-  local response = {}
-  local response_tmp = ""
-  local response_tmp_table = {}
-  local parsing_opts = {}
-  local parsing_tmp_opts = {}
-  local requests = ""
-  local response_raw
-  local response_splitted = {}
-  local request_methods = {}
-  local i = 2
-  local j, opts
-  local opts
-  local recv_status = true
-
-  -- Check for an empty request
-  if(#allReqs == 0) then
-    stdnse.print_debug(1, "Warning: empty set of requests passed to http.pipeline()")
-    return {}
-  end
-  
-  opts = {connect_timeout=5000, request_timeout=3000, recv_before=false}
-
-  local socket, bopt
-
-  -- We'll try a first request with keep-alive, just to check if the server
-  -- supports and how many requests we can send into one socket!
-  socket, response_raw, bopt = comm.tryssl(host, port, buildRequest(allReqs[1]["data"], allReqs[1]["opts"]), opts)
-
-  -- we need to make sure that we received the total first response
-  while socket and recv_status do
-    response_raw = response_raw .. response_tmp
-    recv_status, response_tmp = socket:receive()
-  end  
-  if not socket or not response_raw then return response_raw end
-  response_splitted[#response_splitted + 1] = response_raw
-  parsing_opts[1] = {method=allReqs[1]["method"]}
-
-  local limit = tonumber(getPipelineMax(response_raw, allReqs[1]["method"]))
-  stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
-  --request_methods[1] = allReqs[1]["method"]
-
-  while i <= #allReqs do
-    response_raw = ""
-    -- we build a big request with many requests, upper limited by the var "limit"
-
-    j = i
-    while j < i + limit and j <= #allReqs do
-      if j + 1 == i + limit or j == #allReqs then
-        allReqs[j]["opts"]["header"]["Connection"] = "Close"
-      end
-      requests = requests .. buildRequest(allReqs[j]["data"], allReqs[j]["opts"])
-      request_methods[#request_methods+1] = allReqs[j]["method"]
-      j = j + 1
-    end
-
-    -- Connect to host and send all the requests at once!
-    if not socket:get_info() then socket:connect(host.ip, port.number, bopt) end
-    socket:set_timeout(10000)
-    socket:send(requests)
-	recv_status = true
-    while recv_status do
-      recv_status, response_tmp = socket:receive()
-      if recv_status then response_raw = response_raw .. response_tmp end
-    end
-
-    -- Transform the raw response we received in a table of responses and
-    -- count the number of responses for pipeline control
-	response_tmp_table, parsing_tmp_opts = splitResults(response_raw, request_methods)
-    for k, v in ipairs(response_tmp_table) do
-      response_splitted[#response_splitted + 1] = v
-      parsing_opts[#parsing_opts + 1] = parsing_tmp_opts[k]
-    end
-
-    -- We check if we received all the requests we sent
-    -- if we didn't, reduce the number of requests (server might be overloaded)
-
-    i = i + #response_tmp_table
-    if(#response_tmp_table < limit and i <= #allReqs) then
-      limit = #response_tmp_table
-      stdnse.print_debug("Didn't receive all expected responses.\nDecreasing max pipelined requests to " .. limit )
-    end
-    socket:close()
-    requests = ""
-    request_methods = {}
-  end
-
-  -- Prepare responses and return it!
-
-  stdnse.print_debug("Number of received responses: " .. #response_splitted)
-  if options and options.raw then
-    response = response_splitted
-  else
-    for k, value in ipairs(response_splitted) do
-      response[#response + 1] = parseResult(value, parsing_opts[k])
-    end
-  end
-  return(response)
+  return response
 end
 
 --- Parses a URL and calls <code>http.get</code> with the result.
@@ -1023,8 +1008,192 @@ get_url = function( u, options )
   return get( parsed.host, port, path, options )
 end
 
+--- Fetches a resource with a HEAD request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a cookie table.
+-- The function calls buildHead to build the request, then calls request to
+-- send it get the response.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @return Table as described in the module description.
+head = function( host, port, path, options, cookies )
+  local response, state = lookup_cache("HEAD", host, port, path, options);
+  if response == nil then
+    local data, mod_options = buildHead(host, port, path, options, cookies)
+    data = buildRequest(data, mod_options)
+    response = request(host, port, data)
+    insert_cache(state, response);
+  end
+  return response;
+end
 
---- Sends request to host:port and parses the answer.
+--- Fetches a resource with a POST request.
+--
+-- The first argument is either a string with the hostname or a table like the
+-- host table passed to a portrule or hostrule. The second argument is either
+-- the port number or a table like the port table passed to a portrule or
+-- hostrule. The third argument is the path of the resource. The fourth argument
+-- is a table for further options. The fifth argument is a cookie table. The sixth 
+-- argument is a table with data to be posted. 
+-- The function calls buildHead to build the request, then calls request to
+-- send it and get the response.
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param postdata A string or a table of data to be posted. If a table, the
+-- keys and values must be strings, and they will be encoded into an
+-- application/x-www-form-encoded form submission.
+-- @return Table as described in the module description.
+post = function( host, port, path, options, cookies, postdata )
+  local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
+  data = buildRequest(data, mod_options)
+  local response = request(host, port, data)
+  return response
+end
+
+--- Builds a get request to be used in a pipeline request
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param allReqs A table with all the pipeline requests
+-- @return Table with the pipeline get requests (plus this new one)
+function pGet( host, port, path, options, cookies, allReqs )
+  local req = {}
+  if not allReqs then allReqs = {} end
+  if not options then options = {} end
+  local object = {data="", opts="", method="get"}
+  options.connection = "Keep-alive"
+  object["data"], object["opts"] =  buildGet(host, port, path, options, cookies)
+  allReqs[#allReqs + 1] =  object
+  return allReqs
+end
+
+--- Builds a Head request to be used in a pipeline request
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.request</code>.
+-- @param cookies A table with cookies
+-- @param allReqs A table with all the pipeline requests
+-- @return Table with the pipeline get requests (plus this new one)
+function pHead( host, port, path, options, cookies, allReqs )
+  local req = {}
+  if not allReqs then allReqs = {} end
+  if not options then options = {} end
+  local object = {data="", opts="", method="head"}
+  options.connection = "Keep-alive"
+  object["data"], object["opts"] =  buildHead(host, port, path, options, cookies)
+  allReqs[#allReqs + 1] =  object
+  return allReqs
+end
+
+--- Performs pipelined that are in allReqs to the resource. Return an array of
+-- response tables.
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param allReqs A table with all the previously built pipeline requests
+-- @param options A table with options to configure the pipeline request
+-- @return A table with multiple http response tables
+pipeline = function(host, port, allReqs)
+  stdnse.print_debug("Total number of pipelined requests: " .. #allReqs)
+  local responses
+  local response
+  local partial
+  local j, batch_end
+
+  responses = {}
+
+  -- Check for an empty request
+  if (#allReqs == 0) then
+    stdnse.print_debug(1, "Warning: empty set of requests passed to http.pipeline()")
+    return responses
+  end
+
+  local socket, bopt
+
+  -- We'll try a first request with keep-alive, just to check if the server
+  -- supports and how many requests we can send into one socket!
+  socket, partial, bopt = comm.tryssl(host, port, buildRequest(allReqs[1]["data"], allReqs[1]["opts"]), {connect_timeout=5000, request_timeout=3000, recv_before=false})
+  if not socket then
+    return nil
+  end
+
+  response, partial = next_response(socket, allReqs[1].method, partial)
+  if not response then
+    return nil
+  end
+
+  responses[#responses + 1] = response
+
+  local limit = getPipelineMax(response)
+  stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
+
+  while #responses < #allReqs do
+    -- we build a big string with many requests, upper limited by the var "limit"
+    local requests = ""
+
+    if #responses + limit < #allReqs then
+      batch_end = #responses + limit
+    else
+      batch_end = #allReqs
+    end
+
+    j = #responses + 1
+    while j <= batch_end do
+      if j == batch_end then
+        allReqs[j].opts.header["Connection"] = "close"
+      end
+      requests = requests .. buildRequest(allReqs[j].data, allReqs[j].opts)
+      j = j + 1
+    end
+
+    -- Connect to host and send all the requests at once!
+    if not socket:get_info() then
+      socket:connect(host.ip, port.number, bopt)
+      partial = ""
+    end
+    socket:set_timeout(10000)
+    socket:send(requests)
+
+    while #responses < #allReqs do
+      response, partial = next_response(socket, allReqs[#responses + 1].method, partial)
+      if not response then
+        break
+      end
+      responses[#responses + 1] = response
+    end
+
+    socket:close()
+    partial = ""
+
+    if #responses < batch_end then
+      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", limit - (batch_end - #responses), limit, limit - (batch_end - #responses))
+      limit = limit - (batch_end - #responses)
+    end
+  end
+
+  stdnse.print_debug("Number of received responses: " .. #responses)
+
+  return responses
+end
+
+--- Sends request to host:port and parses the answer. This is a common
+-- subroutine used by <code>get</code>, <code>head</code>, and
+-- <code>post</code>. Any 1XX (informational) responses are discarded.
 --
 -- The first argument is either a string with the hostname or a table like the
 -- host table passed to a portrule or hostrule. The second argument is either
@@ -1045,9 +1214,11 @@ end
 -- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
 -- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
 -- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
-
-request = function( host, port, data )
+request = function(host, port, data)
+  local method
   local opts
+  local header, partial
+  local response
   
   if type(host) == 'table' then
     host = host.ip
@@ -1064,131 +1235,29 @@ request = function( host, port, data )
   local result = {status=nil,["status-line"]=nil,header={},body=""}
   local socket
 
-  socket, response[1] = comm.tryssl(host, port, data, opts)
+  method = string.match(data, "^(%S+)")
 
-  if not socket or not response then
+  socket, partial = comm.tryssl(host, port, data, opts)
+
+  if not socket then
     return result
   end
 
-  -- no buffer - we want everything now!
-  while true do
-    local status, part = socket:receive()
-    if not status then
-      break
-    else
-      response[#response+1] = part
+  repeat
+    response, partial = next_response(socket, method, partial)
+    if not response then
+      return nil, partial
     end
-  end
+    -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
+    -- Sometimes a server will tell us to "go ahead" with a POST body before
+    -- sending the real response. If we got one of those, skip over it.
+  until not (response.status >= 100 and response.status <= 199)
 
   socket:close()
-
-  response = table.concat( response )
 
   return response
 end
 
-
---- Parses a simple response and creates a default http response table
---  splitting header, cookies and body.
---
---  @param response A response received from the server for a request
---  @return A table with the values received from the server
-function parseResult( response, options )
-  local chunks_decoded = false
-  local method
-
-  if type(response) ~= "string" then return response end
-  local result = {status=nil,["status-line"]=nil,header={},rawheader={},body=""}
-
-  -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
-  -- Sometimes a server will tell us to "go ahead" with a POST body before
-  -- sending the real response. If we got one of those, skip over it.
-  if response and response:match("^HTTP/%d.%d 100%s") then
-    response = response:match("\r?\n\r?\n(.*)$")
-  end
-
-  -- try and separate the head from the body
-  local header, body
-  if response and response:match( "\r?\n\r?\n" ) then
-    header, body = response:match( "^(.-)\r?\n\r?\n(.*)$" )
-  else
-    header, body = "", response
-  end
-
-  if options then
-    if options["method"] then method = options["method"] end
-    if options["dechunk"] then chunks_decoded = true end
-  end
-
-  if method == "head" and #body > 1 then
-    stdnse.print_debug("Response to HEAD with more than 1 character")
-  end
-
-  result.cookies = parseCookies(header)
-
-  header = stdnse.strsplit( "\r?\n", header )
-
-  local line, _, value
-
-  -- build nicer table for header
-  local last_header, match, key
-  for number, line in ipairs( header or {} ) do
-    -- Keep the raw header too, in case a script wants to access it
-    table.insert(result['rawheader'], line)
-
-    if number == 1 then
-      local code = line:match "HTTP/%d%.%d (%d+)";
-      result.status = tonumber(code)
-      if code then result["status-line"] = line end
-    else
-      match, _, key, value = string.find( line, "(.+): (.*)" )
-      if match and key and value then
-        key = key:lower()
-        if result.header[key] then
-          result.header[key] = result.header[key] .. ',' .. value
-        else
-          result.header[key] = value
-        end
-        last_header = key
-      else
-        match, _, value = string.find( line, " +(.*)" )
-        if match and value and last_header then
-          result.header[last_header] = result.header[last_header] .. ',' .. value
-        end
-      end
-    end
-  end
-
-  local body_delim = ( body:match( "\r\n" ) and "\r\n" )  or
-                     ( body:match( "\n" )   and "\n" ) or nil
-
-  -- handle chunked encoding
-  if method ~= "head" then
-    if result.header['transfer-encoding'] == 'chunked' and not chunks_decoded then
-      local _, chunk
-      local chunks = {}
-      for _, chunk in get_chunks(body, 1, body_delim) do
-        chunks[#chunks + 1] = chunk
-      end
-      body = table.concat(chunks)
-    end
-  end
-
-  -- special case for conjoined header and body
-  if type( result.status ) ~= "number" and type( body ) == "string" then
-    local code, remainder = body:match( "HTTP/%d\.%d (%d+)(.*)") -- The Reason-Phrase will be prepended to the body :(
-    if code then
-      stdnse.print_debug( "Interesting variation on the HTTP standard.  Please submit a --script-trace output for this host to nmap-dev[at]insecure.org.")
-      result.status = tonumber(code)
-      body = remainder or body
-    end
-  end
-
-  result.body = body
-
-  return result
-
-end
 
 local MONTH_MAP = {
   Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
