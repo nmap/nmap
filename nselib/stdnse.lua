@@ -417,8 +417,8 @@ function format_output(status, data, indent)
 		return ""
 	end
 
-	-- Return a single line of output as-is
-	if(indent == nil and #data == 1 and not(data['name']) and not(data['warning'])) then
+	-- Return a single line of output as-is (assuming it's top-level and a string)
+	if(indent == nil and #data == 1 and type(data) == 'string' and not(data['name']) and not(data['warning'])) then
 		return data[1]
 	end
 
