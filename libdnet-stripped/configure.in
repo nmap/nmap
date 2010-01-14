@@ -194,7 +194,8 @@ AC_PROG_GCC_TRADITIONAL
 if test "$GCC" = yes ; then
    	CFLAGS="$CFLAGS -Wall"
 fi
-AC_CHECK_TYPES([socklen_t], [], [], [#include <sys/socket.h>])
+AC_CHECK_TYPES([socklen_t], [], [], [AC_INCLUDES_DEFAULT
+#include <sys/socket.h>])
 
 dnl Checks for library functions.
 AC_FUNC_MEMCMP
