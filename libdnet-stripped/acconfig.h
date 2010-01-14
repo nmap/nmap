@@ -32,5 +32,5 @@ char	*strsep(char **, const char *);
 #endif
 
 #ifndef HAVE_SOCKLEN_T
-typedef int socklen_t
+typedef int socklen_t;
 #endif
