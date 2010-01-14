@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed compilation of libdnet-stripped on platforms that don't have
+  socklen_t. [Michael Pattrick]
+
 o Fixed a bug in traceroute that could lead to a crash:
     terminate called after throwing an instance of 'std::out_of_range'
       what():  bitset::test
