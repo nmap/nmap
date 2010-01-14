@@ -1,5 +1,8 @@
 weTODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Decide what to do about Windows 7/Vista and starting NPF.  See this
+  thread: http://seclists.org/nmap-dev/2010/q1/20
+
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
@@ -8,22 +11,10 @@ o [NSE] Document Patrick's worker thread patch in scripting.xml (see
 o Investigate issue with our Pcap and Wireshark x64, as described in
   this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
 
-o Add feature to http library to let user set the user agent to be
-  used. The NSEDoc for this feature should probably tell what our
-  current default user agent is ("Mozilla/5.0 (compatible; Nmap
-  Scripting Engine; http://nmap.org/book/nse.html") [David]
-
 o Make new stable release
 
 o Look at new DB2 script by Tom
   Sellers. http://seclists.org/nmap-dev/2009/q4/659
-
-o Look at new Kerberos script from Patrik Karlsson.  http://seclists.org/nmap-dev/2009/q4/715
-
-o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
-  remote shell, etc.  See this thread:
-  http://seclists.org/nmap-dev/2009/q4/255, particularly the
-  implementation sketch at http://seclists.org/nmap-dev/2009/q4/268 [Venkat,David]
 
 o [NSE] HTTP header parsing is not very robust, and is duplicated in a
   lot of places. For example, it's legal to have header fields like
@@ -36,17 +27,6 @@ as long as each line after the first begins with whitespace. [David]
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
-
-o [NSE] We should do a favicon survey like the one Brandon did for
-  /favicon.ico files but which uses the favicons specified by the HTML
-  files rather than just that exact location.  For example, insecure.org
-  sites include in the headers:
-  <link REL="SHORTCUT ICON" HREF="http://images.insecure.org/images/tiny-eyeicon.png" TYPE="image/png">
-  Then we should update our favicon database to include the top ones,
-  and we should also improve our favicon script so that it either
-  omits checking /favicon.ico if the HTML-specified one exists, or it
-  should just download, interpret, and display info for both (right
-  now it seems to give prority to the wrong one: /favicon.ico).
 
 o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
   the man page location for ncat and ndiff.
@@ -579,6 +559,33 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] We should do a favicon survey like the one Brandon did for
+  /favicon.ico files but which uses the favicons specified by the HTML
+  files rather than just that exact location.  For example, insecure.org
+  sites include in the headers:
+  <link REL="SHORTCUT ICON" HREF="http://images.insecure.org/images/tiny-eyeicon.png" TYPE="image/png">
+  Then we should update our favicon database to include the top ones,
+  and we should also improve our favicon script so that it either
+  omits checking /favicon.ico if the HTML-specified one exists, or it
+  should just download, interpret, and display info for both (right
+  now it seems to give prority to the wrong one: /favicon.ico).
+
+
+o [Ncat] Add SSL support for --exec so you can use SSL to talk to your
+  remote shell, etc.  See this thread:
+  http://seclists.org/nmap-dev/2009/q4/255, particularly the
+  implementation sketch at http://seclists.org/nmap-dev/2009/q4/268 [Venkat,David]
+
+o Look at new Kerberos script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2009/q4/715 .  [We decided not to merge
+  this one since its usefulness turned out to be limited on Windows and
+  very limited on any other platform. ]
+
+o Add feature to http library to let user set the user agent to be
+  used. The NSEDoc for this feature should probably tell what our
+  current default user agent is ("Mozilla/5.0 (compatible; Nmap
+  Scripting Engine; http://nmap.org/book/nse.html") [David]
 
 o On our NSEDoc pages (e.g. http://nmap.org/nsedoc/), perhaps the link
   text for scripts should not include the ".nse".  Basides saving
