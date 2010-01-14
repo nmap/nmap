@@ -333,7 +333,7 @@ static unsigned int hop_cache_size();
 
 HostState::HostState(Target *target) {
   this->target = target;
-  current_ttl = MAX(1, HostState::distance_guess(target));
+  current_ttl = MIN(MAX(1, HostState::distance_guess(target)), MAX_TTL);
   state = HostState::COUNTING_DOWN;
   reached_target = 0;
   pspec = HostState::get_probe(target);
@@ -1203,7 +1203,7 @@ void TracerouteState::read_replies(long timeout) {
            actual distance is. */
         int distance = get_initial_ttl_guess(reply.ttl) - reply.ttl + 1;
         if (distance > 0 && distance < host->current_ttl)
-          host->current_ttl = distance;
+          host->current_ttl = MIN(distance, MAX_TTL);
       }
       num_active_probes -= host->cancel_probes_above(probe->ttl);
     }

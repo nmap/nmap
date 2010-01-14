@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in traceroute that could lead to a crash:
+    terminate called after throwing an instance of 'std::out_of_range'
+      what():  bitset::test
+  It happened when the preliminary distance guess for a target was
+  greater than 30, the size of an internal data structure. David and
+  Brandon tracked down the problem.
+
 o Added a service probe and match lines for the Logitech/SlimDevices
   SqueezeCenter music server. [Patrik Karlsson]
 
