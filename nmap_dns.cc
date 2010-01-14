@@ -1345,7 +1345,6 @@ void nmap_mass_rdns(Target **targets, int num_targets) {
 // Returns a list of known DNS servers
 std::list<std::string> get_dns_servers() {
   init_servs();
-  char addrStr[INET6_ADDRSTRLEN];
 
   // If the user said --system-dns (!o.mass_dns), we should never return a list
   // of servers.
@@ -1354,8 +1353,7 @@ std::list<std::string> get_dns_servers() {
   std::list<dns_server *>::iterator servI;
   std::list<std::string> serverList;
   for(servI = servs.begin(); servI != servs.end(); servI++) {
-    inet_ntop((*servI)->addr.ss_family, (&(*servI)->addr),addrStr, sizeof(addrStr));  
-    serverList.push_back(addrStr);
+    serverList.push_back(inet_socktop((struct sockaddr_storage *) &(*servI)->addr));
   }
   return serverList;
 }
