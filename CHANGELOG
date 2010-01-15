@@ -70,8 +70,9 @@ o [Zenmap] The locale setting had been taken from the Windows locale,
 o [NSE] The http-favicon script is now better at finding "link
   rel=icon" tags in pages, and uses that icon in preference to
   /favicon.ico if found. If the favicon.uri script arg is given, only
-  that is tried.  Meanwhile, a giant favicon scan allowed us to add
-  about 40 more of the most popular icons to the DB. [David, Brandon]
+  that is tried.  Meanwhile, a giant (10 million web servers) favicon
+  scan by Brandon allowed us to add about 40 more of the most popular
+  icons to the DB. [David, Brandon]
 
 o [NSE] smb-psexec now works against Windows XP (as well as
   already-supported Win2K and Windows 2003). The solution involved
