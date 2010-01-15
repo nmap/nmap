@@ -1,4 +1,8 @@
 ;; Custom winpcap for nmap
+;; Recognizes the options (case sensistive):
+;;   /S              silent install
+;;   /NPFSTARTUP=NO  start NPF now and at startup (only has effect with /S)
+
 ;; Started by Doug Hoyte, April 2006
 
 ;; Eddie Bell
@@ -13,6 +17,7 @@
 ;Include Modern UI 
  
   !include "MUI.nsh" 
+  !include "FileFunc.nsh" 
 
 ;--------------------------------
 ;General
@@ -97,6 +102,9 @@ ReserveFile "final.ini"
 
 ;--------------------------------
 
+!insertmacro GetParameters
+!insertmacro GetOptions
+
 ; This function is called on startup. IfSilent checks
 ; if the flag /S was specified. If so, it sets the installer
 ; to run in "silent mode" which displays no windows and accepts
@@ -113,8 +121,14 @@ Function .onInit
 
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
+  var /GLOBAL npf_startup
   StrCpy $my_ver "4.1.0.1753" 
+  StrCpy $npf_startup "YES"
     
+  ${GetParameters} $R0
+  ClearErrors
+  ${GetOptions} $R0 "/NPFSTARTUP=" $npf_startup
+
   IfSilent do_silent no_silent
 
   do_silent:
@@ -390,8 +404,10 @@ Section "WinPcap" SecWinPcap
     ; this will work on Windows 2000 (that lacks sc.exe) and higher
     Call registerServiceAPI
 
-    ; automatically start the service if performing a silent install
-    IfSilent auto_start skip_auto_start
+    ; automatically start the service if performing a silent install, unless
+    ; /NPFSTARTUP=NO was given.
+    IfSilent 0 skip_auto_start
+    StrCmp $npf_startup "NO" skip_auto_start
     auto_start:
       Call autoStartWinPcap
     skip_auto_start:
