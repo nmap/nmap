@@ -108,6 +108,12 @@ o [NSE] Our http library no longer allows cached responses from a GET
   request to be returned for a HEAD request. This could cause problems
   with at least the http-enum script. [David]
 
+o Fixed a bug in the WinPcap installer: If the "Start the WinPcap
+  service 'NPF' at startup" box was unchecked and the "Start the
+  WinPcap service 'NPF' now" box was checked, the second checkbox
+  would be ignored (the service would not be started now). [Rob
+  Nicholls]
+
 Nmap 5.10BETA2 [2009-12-24]
 
 o Added 7 new NSE scripts for a grand total of 79! You can learn about

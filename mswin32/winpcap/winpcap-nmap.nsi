@@ -266,8 +266,9 @@ FunctionEnd
 
 Function doOptions
   ReadINIStr $0 "$PLUGINSDIR\options.ini" "Field 1" "State"
-  StrCmp $0 "0" do_options_end
+  StrCmp $0 "0" do_options_next
   WriteRegDWORD HKLM "SYSTEM\CurrentControlSet\Services\NPF" "Start" 2
+  do_options_next:
   ReadINIStr $0 "$PLUGINSDIR\options.ini" "Field 2" "State"
   StrCmp $0 "0" do_options_end
   nsExec::Exec "net start npf"
