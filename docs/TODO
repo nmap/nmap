@@ -8,6 +8,9 @@ o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
   http://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
 
+o NSEDoc left sidebar should include a link to
+  http://nmap.org/book/nse.html below "Index".
+
 o Investigate issue with our Pcap and Wireshark x64, as described in
   this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
 
