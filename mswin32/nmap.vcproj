@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib $(NOINHERIT)"
 				OutputFile=".\Debug\nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -165,7 +165,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"

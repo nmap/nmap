@@ -93,6 +93,7 @@
 
 #include <winclude.h>
 #include <sys/timeb.h>
+#include <shellapi.h>
 
 
 #include "..\nmap.h"
@@ -127,6 +128,64 @@ void win_pre_init() {
 	werd = MAKEWORD( 2, 2 );
 	if( (WSAStartup(werd, &data)) !=0 )
 		fatal("failed to start winsock.\n");
+}
+
+/* Check if the NPF service is running on Windows, and try to start it if it's
+   not. Return true if it was running or we were able to start it, false
+   otherwise. */
+static bool start_npf() {
+  SC_HANDLE scm, npf;
+  SERVICE_STATUS service;
+  bool npf_running;
+  int ret;
+
+  scm = NULL;
+  npf = NULL;
+
+  scm = OpenSCManager(NULL, NULL, 0);
+  if (scm == NULL) {
+    error("Error in OpenSCManager");
+    goto quit_error;
+  }
+  npf = OpenService(scm, "npf", SC_MANAGER_CONNECT | SERVICE_QUERY_STATUS);
+  if (npf == NULL) {
+    error("Error in OpenService");
+    goto quit_error;
+  }
+  if (!QueryServiceStatus(npf, &service)) {
+    goto quit_error;
+    error("Error in QueryServiceStatus");
+  }
+  npf_running = (service.dwCurrentState & SERVICE_RUNNING) != 0;
+  CloseServiceHandle(scm);
+  CloseServiceHandle(npf);
+
+  if (npf_running) {
+    if (o.debugging > 1)
+      log_write(LOG_PLAIN, "NPF service is already running.\n");
+    return true;
+  }
+
+  /* NPF is not running. Try to start it. */
+
+  if (o.debugging > 1)
+    log_write(LOG_PLAIN, "NPF service is not running.\n");
+
+  ret = (int) ShellExecute(0, "runas", "net.exe", "start npf", 0, SW_HIDE);
+  if (ret <= 32) {
+    error("Unable to start npf service: error code %d.", ret);
+    return false;
+  }
+
+  return true;
+
+quit_error:
+  if (scm != NULL)
+    CloseHandle(scm);
+  if (npf != NULL)
+    CloseHandle(npf);
+
+  return false;
 }
 
 /* Requires that win_pre_init() has already been called, also that
@@ -175,6 +234,8 @@ void win_init()
 #endif
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
+
+		o.have_pcap = o.have_pcap && start_npf();
 	}
 #ifdef _MSC_VER
 	__except (1) {
