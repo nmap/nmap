@@ -29,7 +29,7 @@ o Nmap now tries start the WinPcap NPF service on Windows if it is not
   requires administrator privileges, a UAC dialog for net.exe may
   appear on Windows Vista and Windows 7 before NPF is loaded.  Once
   NPF is loaded, it generally stays loaded until you reboot or run
-  "net stop npf". [David]
+  "net stop npf". [David, Michael Pattrick]
 
 o The Nmap Windows installer and our WinPcap installer now have an
   option /NPFSTARTUP=NO, which inhibits the installer from setting the
