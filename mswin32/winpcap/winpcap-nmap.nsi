@@ -419,7 +419,6 @@ Section "WinPcap" SecWinPcap
     ; /NPFSTARTUP=NO was given.
     IfSilent 0 skip_auto_start
     StrCmp $npf_startup "NO" skip_auto_start
-    auto_start:
       Call autoStartWinPcap
     skip_auto_start:
 
