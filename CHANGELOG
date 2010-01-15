@@ -1,19 +1,92 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Nmap will try to start the NPF service on Windows if it is not
-  running already. This should only happen on Windows Vista and
-  Windows 7. Because startign NPF requires administrator privileges, a
-  UAC dialog will appear the first time Nmap is run (when NPF is not
-  running) but will not appear after that.
+Nmap 5.20
 
-o The Windows installer now has an option /NPFSTARTUP=NO, which
-  inhibits starting NPF at the time of installation and at system
-  startup, when the installer is run in silent mode (/S). This option
-  corresponds to the NPF checkboxes that appear when running in
-  non-silent mode.
+o Dramatically improved the version detection database, integrating
+  2,596 submissions that users contributed since February 3, 2009!
+  More than a thousand signatures were added, bringing the total to
+  8,501. Many existing signatures were improved as well. Please keep
+  those submissions and corrections coming! Nmap prints a submission
+  URL and fingerprint when it receives responses it can't yet
+  interpret.
 
-o Fixed compilation of libdnet-stripped on platforms that don't have
-  socklen_t. [Michael Pattrick]
+o [NSE] Added a new script, oracle-sid-brute, which queries the Oracle
+  TNS-listener for default instance/sid names. The SID enumeration
+  list was prepared by Red Database security. See
+  http://nmap.org/nsedoc/scripts/oracle-sid-brute.html. [Patrik
+  Karlsson]
+
+o [Ncat] The --ssl, --output, and --hex-dump options now work with
+  --exec and --sh-exec. Among other things, this allows you to make a
+  program's I/O available over the network wrapped in SSL encryption
+  for security.  It is implemented by forking a separate process to
+  handle network communications and relay the data to the
+  sub-process. [Venkat, David]
+
+o Nmap now tries start the WinPcap NPF service on Windows if it is not
+  already running. This is rare, since our WinPcap installer starts
+  NPF running at system boot time by default. Because starting NPF
+  requires administrator privileges, a UAC dialog for net.exe may
+  appear on Windows Vista and Windows 7 before NPF is loaded.  Once
+  NPF is loaded, it generally stays loaded until you reboot or run
+  "net stop npf". [David]
+
+o The Nmap Windows installer and our WinPcap installer now have an
+  option /NPFSTARTUP=NO, which inhibits the installer from setting the
+  WinPcap NPF service to start at system startup and at install-time.
+  This option only affects silent mode (/S) because existing GUI
+  checkboxes allow you to configure this behavior during interactive
+  installation. [David]
+
+o [NSE] Replaced our runlevel system for managing the order of script
+  execution with a much more powerful dependency system. This allows
+  scripts to specify which other scripts they depend on (e.g. a brute
+  force authentication script might depend on username enumeration
+  scripts) and NSE manages the order. Dependencies only enforce
+  ordering, they cannot pull in scripts which the user didn't
+  specify. See
+  http://nmap.org/book/nse-script-format.html#nse-format-dependencies
+  [Patrick]
+
+o [Ncat] For compatibility with Hobbit's original Netcat, The -p
+  option now works to set the listening port number in listen mode.
+  So "ncat -l 123" can now be expressed as "ncat -l -p 123"
+  too. [David]
+
+o A new script argument, http.useragent, lets you modify
+  the User-Agent header sent by NSE from its default of "Mozilla/5.0
+  (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)".
+  Set it to the empty string to disable the User-Agent
+  entirely. [David, Tom Sellers, Jah]
+
+o [Zenmap] The locale setting had been taken from the Windows locale,
+  which inadvertently made setting the locale with the LANG
+  environment variable stop working. Now the LANG variable is examined
+  first, and if that is not present, the system-wide setting is
+  used. This change allows users to keep Zenmap in its original
+  English (or any of Zenmap's other languages) even if their system is
+  set to use a different locale.  [David]
+
+o [NSE] The http-favicon script is now better at finding "link
+  rel=icon" tags in pages, and uses that icon in preference to
+  /favicon.ico if found. If the favicon.uri script arg is given, only
+  that is tried.  Meanwhile, a giant favicon scan allowed us to add
+  about 40 more of the most popular icons to the DB. [David, Brandon]
+
+o [NSE] smb-psexec now works against Windows XP (as well as
+  already-supported Win2K and Windows 2003). The solution involved
+  changing the seemingly irrelevant PID field in the SMB packet. See
+  http://seclists.org/nmap-dev/2010/q1/13. [Ron]
+
+o [NSE] Fixed a bug which kept the nselib/data/psexec subdirectory out
+  of the Windows packages. We needed to add the /s and /e options to
+  xcopy in our Visual C++ project file. [David]
+
+o [NSE] Overhauled our http library to centralize HTTP parsing and
+  make it more robust. The biggest user-visible change is that
+  http.request goes back to returning a parsed result table rather than raw
+  HTTP data. Also the http.pipeline function no longer accepts the
+  no-longer-used "raw" option. [David]
 
 o Fixed a bug in traceroute that could lead to a crash:
     terminate called after throwing an instance of 'std::out_of_range'
@@ -22,36 +95,18 @@ o Fixed a bug in traceroute that could lead to a crash:
   greater than 30, the size of an internal data structure. David and
   Brandon tracked down the problem.
 
+o Fixed compilation of libdnet-stripped on platforms that don't have
+  socklen_t. [Michael Pattrick]
+
 o Added a service probe and match lines for the Logitech/SlimDevices
   SqueezeCenter music server. [Patrik Karlsson]
 
-o [Ncat] The -p option now works to set the listening port in listen
-  mode, so that "ncat -l -p 123" is a synonym of "ncat -l 123".
-
-o A new script argument, http.useragent, gives the ability to modify
-  the User-Agent header sent by NSE from its default of "Mozilla/5.0
-  (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)".
-  You can set it to the empty string to disable the User-Agent
-  entirely. A bug was found and fixed by Tom Sellers and Jah,
-  respectively. [David]
-
-o [Nmat] The --ssl, --output, and --hex-dump options now work with
-  --exec and --sh-exec. This is done by forking a separate process to
-  handle network communications and relay the data to the subprocess.
-  [Venkat, David]
-
-o [Zenmap] The locale setting had been taken from the Windows locale,
-  which inadvertently made setting the locale with the LANG
-  environment variable stop working. Now the LANG variable is examined
-  first, and if that is not present, the system-wide setting is used.
-  [David]
-
-o Added a new oracle-sid-brute script that checks for default Oracle
-  SIDs. The SID list was prepared by Red Database security. [Patrik
-  Karlsson]
-
 o Fixed the RTSPRequest version probe, which was accidentally modified
   to say "RTSP/2.0" rather than "RTSP/1.0" in 5.10BETA2. [Matt Selsky]
+
+o [NSE] Our http library no longer allows cached responses from a GET
+  request to be returned for a HEAD request. This could cause problems
+  with at least the http-enum script. [David]
 
 Nmap 5.10BETA2 [2009-12-24]
 
