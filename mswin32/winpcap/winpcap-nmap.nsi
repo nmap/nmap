@@ -333,6 +333,16 @@ FunctionEnd
 ; The stuff to install
 Section "WinPcap" SecWinPcap
 
+  ; stop the service, in case it's still registered, so files can be
+  ; safely overwritten and the service can be deleted.
+  nsExec::Exec "net stop npf"
+
+  ; NB: We may need to introduce a check here to ensure that NPF 
+  ; has been stopped before we continue, otherwise we Sleep for a 
+  ; while and try the check again. This might help prevent any race
+  ; conditions during a silent install (and potentially during the
+  ; slower GUI installation.
+
   ; These x86 files are automatically redirected to the right place on x64
   SetOutPath $SYSDIR
   File pthreadVC.dll
@@ -398,12 +408,12 @@ Section "WinPcap" SecWinPcap
 
     npfdone:
 
-    ; stop the service, in case it's still registered, so it can be deleted 
-    nsExec::Exec "net stop npf"
-
     ; register the driver as a system service using Windows API calls
     ; this will work on Windows 2000 (that lacks sc.exe) and higher
     Call registerServiceAPI
+
+    ; Create the default NPF startup setting of 3 (SERVICE_DEMAND_START)
+    WriteRegDWORD HKLM "SYSTEM\CurrentControlSet\Services\NPF" "Start" 3
 
     ; automatically start the service if performing a silent install, unless
     ; /NPFSTARTUP=NO was given.
