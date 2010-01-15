@@ -6,6 +6,7 @@
  
   !include "MUI.nsh" 
   !include "AddToPath.nsh" 
+  !include "FileFunc.nsh" 
  
 ;-------------------------------- 
 ;General 
@@ -23,8 +24,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "4.85BETA8"  
-  VIProductVersion "4.85.0.8"
+  !define VERSION "5.10BETA2"  
+  VIProductVersion "5.10.0.2"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -54,6 +55,9 @@
 ;Languages 
   
   !insertmacro MUI_LANGUAGE "English" 
+
+!insertmacro GetParameters
+!insertmacro GetOptions
 
 ;--------------------------------
 ;Variables
@@ -221,6 +225,14 @@ Section "WinPcap 4.1.1" SecWinPcap
   ; If the Nmap installer was launched using /S then pass some arguments to WinPcap
   IfSilent winpcap_silent winpcap_loud
   winpcap_silent:
+    StrCpy $1 ""
+    ${GetParameters} $R0
+    ClearErrors
+    ${GetOptions} $R0 "/NPFSTARTUP=" $2
+    StrCmp $2 "NO" 0 NoSkipNPFStartup
+    StrCpy $1 "/NPFSTARTUP=NO $1"
+    NoSkipNPFStartup:
+
     ; check for x64 so we install files into C:\Program Files on both platforms
     ; as this is consistent with WinPcap 4.1 (even though rpcapd is a 32-bit
     ; executable that probably should be in C:\Program Files (x86)\ (where we've
@@ -229,10 +241,10 @@ Section "WinPcap 4.1.1" SecWinPcap
     System::Call "kernel32::IsWow64Process(i s, *i .r0)"
     StrCmp $0 "0" InstDir32bit InstDir64bit
       InstDir64bit:
-        ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" /S /D=$\""$PROGRAMFILES64\WinPcap\"$\"' 
+        ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S /D=$\""$PROGRAMFILES64\WinPcap\"$\"' 
 	    Goto InstDirDone
       InstDir32bit:
-	    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
+	    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
     InstDirDone:
   Goto delete_winpcap
   winpcap_loud:
