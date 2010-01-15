@@ -199,3 +199,26 @@ void gh_perror(const char *err, ...) {
   fflush(stderr);
   return;
 }
+
+/* Report a failure to open an Ethernet device and exit through fatal. On
+   Windows, shows a hint about privileges. */
+void fatal_eth_open_failure(const char *func, const char *devname) {
+#if WIN32
+  error("\
+On Windows, this problem can be caused by a lack of privileges under\n\
+User Account Control (UAC). Start an elevated command prompt by\n\
+right-clicking on the command prompt shortcut and selecting \"Run as\n\
+Administrator\". Then enter the command\n\
+\n\
+    net start npf\n\
+\n\
+This will load the Netgroup Packet Filter (NPF) service and allow Nmap\n\
+to run. Running Nmap or Zenmap under \"Run as Administrator\" also has\n\
+the side effect of loading NPF.\n\
+\n\
+You should have to do this only once per reboot. If you're not able to\n\
+do any of these things, try the --unprivileged option to avoid the use\n\
+of any raw network operations.\n");
+#endif
+  fatal("%s: Failed to open ethernet device (%s)", func, devname); \
+}

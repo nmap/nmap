@@ -378,7 +378,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     memcpy(proxy->eth.dstmac, proxy->host.NextHopMACAddress(), 6);
     proxy->eth.ethsd = eth_open_cached(proxy->host.deviceName());
     if (proxy->eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, proxy->host.deviceName());
+      fatal_eth_open_failure(__func__, proxy->host.deviceName());
     proxy->rawsd = -1;
     proxy->ethptr = &proxy->eth;
   } else {
@@ -682,7 +682,7 @@ static int idlescan_countopen2(struct idle_proxy_info *proxy,
     memcpy(eth.dstmac, target->NextHopMACAddress(), 6);
     eth.ethsd = eth_open_cached(target->deviceName());
     if (eth.ethsd == NULL)
-      fatal("%s: Failed to open ethernet device (%s)", __func__, target->deviceName());
+      fatal_eth_open_failure(__func__, target->deviceName());
   } else eth.ethsd = NULL;
 
   /* I start by sending out the SYN pr0bez */
