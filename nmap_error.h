@@ -130,8 +130,6 @@ void pfatal(const char *err, ...)
 void gh_perror(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
 
-void fatal_eth_open_failure(const char *func, const char *devname);
-
 #ifdef __cplusplus
 }
 #endif

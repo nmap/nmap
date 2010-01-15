@@ -1616,7 +1616,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
       /* We'll send ethernet packets with dnet */
       ethsd = eth_open_cached(Targets[0]->deviceName());
       if (ethsd == NULL)
-        fatal_eth_open_failure(__func__, Targets[0]->deviceName());
+	fatal("dnet: Failed to open device %s", Targets[0]->deviceName());
       rawsd = -1;
     } else {
       /* Initialize a raw socket */

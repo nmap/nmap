@@ -1459,7 +1459,7 @@ static int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int pack
   if (!eth->ethsd) {
     ethsd = eth_open_cached(eth->devname);
     if (!ethsd)
-      fatal_eth_open_failure(__func__, eth->devname);
+      fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
   } else {
     ethsd = eth->ethsd;
   }
@@ -2717,7 +2717,7 @@ static bool doArp(const char *dev, const u8 *srcmac,
   /* Prepare probe and sending stuff */
   ethsd = eth_open_cached(dev);
   if (!ethsd)
-    fatal_eth_open_failure(__func__, dev);
+    fatal("%s: failed to open device %s", __func__, dev);
   eth_pack_hdr(frame, ETH_ADDR_BROADCAST, *srcmac, ETH_TYPE_ARP);
   arp_pack_hdr_ethip(frame + ETH_HDR_LEN, ARP_OP_REQUEST, *srcmac,
                      srcsin->sin_addr, ETH_ADDR_BROADCAST,

@@ -926,7 +926,7 @@ HostOsScan::HostOsScan(Target *t) {
 
   if ((o.sendpref & PACKET_SEND_ETH) &&  t->ifType() == devt_ethernet) {
     if ((ethsd = eth_open_cached(t->deviceName())) == NULL)
-      fatal_eth_open_failure(__func__, t->deviceName());
+      fatal("%s: Failed to open ethernet device (%s)", __func__, t->deviceName());
     rawsd = -1;
   } else {
     /* Init our raw socket */

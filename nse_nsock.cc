@@ -1980,7 +1980,7 @@ eth_t *ldnet_eth_open_cached(const char *device)
   dem = (dnet_eth_map *) safe_zalloc(sizeof(dnet_eth_map));
   dem->eth = eth_open(device);
   if (!dem->eth)
-    fatal_eth_open_failure(__func__, device);
+    fatal("Unable to open dnet on ethernet interface %s", device);
   dem->references = 1;
   dnet_eth_cache[key] = dem;
   return dem->eth;

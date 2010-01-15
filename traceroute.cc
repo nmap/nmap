@@ -764,7 +764,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   if ((o.sendpref & PACKET_SEND_ETH) && targets[0]->ifType() == devt_ethernet) {
     ethsd = eth_open_cached(targets[0]->deviceName());
     if (ethsd == NULL)
-      fatal_eth_open_failure(__func__, targets[0]->deviceName());
+      fatal("dnet: failed to open device %s", targets[0]->deviceName());
     rawsd = -1;
   } else {
 #ifdef WIN32
