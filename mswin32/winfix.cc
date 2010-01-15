@@ -153,8 +153,8 @@ static bool start_npf() {
     goto quit_error;
   }
   if (!QueryServiceStatus(npf, &service)) {
-    goto quit_error;
     error("Error in QueryServiceStatus");
+    goto quit_error;
   }
   npf_running = (service.dwCurrentState & SERVICE_RUNNING) != 0;
   CloseServiceHandle(scm);
@@ -173,7 +173,8 @@ static bool start_npf() {
 
   ret = (int) ShellExecute(0, "runas", "net.exe", "start npf", 0, SW_HIDE);
   if (ret <= 32) {
-    error("Unable to start npf service: error code %d.", ret);
+    error("Unable to start NPF service: ShellExecute returned %d.\n\
+Resorting to unprivileged (non-administrator) mode.", ret);
     return false;
   }
 

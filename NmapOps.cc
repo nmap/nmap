@@ -337,10 +337,18 @@ bool NmapOps::RawScan() {
 
 
 void NmapOps::ValidateOptions() {
-	const char *privreq = "root privileges";
+	const char *privreq = "root privileges.";
 #ifdef WIN32
 	if (!o.have_pcap)
-		privreq = "that WinPcap version 3.1 or higher and iphlpapi.dll be installed. You seem to be missing one or both of these.  Winpcap is available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and later operating sytems and NT 4.0 with SP4 or greater.  For previous windows versions, you may be able to take iphlpapi.dll from another system and place it in your system32 dir (e.g. c:\\windows\\system32)";
+		privreq = "WinPcap version 3.1 or higher and\n\
+iphlpapi.dll.  You seem to be missing one or both of these.  Winpcap is\n\
+available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and\n\
+later operating sytems and NT 4.0 with SP4 or greater.  For previous windows\n\
+versions, you may be able to take iphlpapi.dll from another system and place\n\
+it in your system32 dir (e.g. c:\\windows\\system32).\n\
+On Windows Vista and Windows 7, The WinPcap NPF service must be started by an\n\
+administrator before WinPcap can be used.  Running nmap.exe will open a UAC\n\
+dialog where you can start NPF if you have administrator privileges.";
 #endif
 
 
@@ -404,19 +412,19 @@ void NmapOps::ValidateOptions() {
   if (!isr00t) {
     
     if (ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan) {
-      fatal("You requested a scan type which requires %s.", privreq);
+      fatal("You requested a scan type which requires %s", privreq);
     }
     
     if (numdecoys > 0) {
-      fatal("Sorry, but decoys (-D) require %s.", privreq);
+      fatal("Sorry, but decoys (-D) require %s", privreq);
     }
     
     if (fragscan) {
-      fatal("Sorry, but fragscan requires %s.", privreq);
+      fatal("Sorry, but fragscan requires %s", privreq);
     }
     
     if (osscan) {
-      fatal("TCP/IP fingerprinting (for OS scan) requires %s.", privreq);
+      fatal("TCP/IP fingerprinting (for OS scan) requires %s", privreq);
     }
   }
   
