@@ -236,7 +236,11 @@ void win_init()
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 
-		o.have_pcap = o.have_pcap && start_npf();
+		/* o.is00t will be false at this point if the used asked for
+		   --unprivileged. In that case don't bother them with a
+		   potential UAC dialog when starting NPF. */
+		if (o.isr00t)
+			o.have_pcap = o.have_pcap && start_npf();
 	}
 #ifdef _MSC_VER
 	__except (1) {
