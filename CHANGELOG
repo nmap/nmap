@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap will try to start the NPF service on Windows if it is not
+  running already. This should only happen on Windows Vista and
+  Windows 7. Because startign NPF requires administrator privileges, a
+  UAC dialog will appear the first time Nmap is run (when NPF is not
+  running) but will not appear after that.
+
+o The Windows installer now has an option /NPFSTARTUP=NO, which
+  inhibits starting NPF at the time of installation and at system
+  startup, when the installer is run in silent mode (/S). This option
+  corresponds to the NPF checkboxes that appear when running in
+  non-silent mode.
+
 o Fixed compilation of libdnet-stripped on platforms that don't have
   socklen_t. [Michael Pattrick]
 
