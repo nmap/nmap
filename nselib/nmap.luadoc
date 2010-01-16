@@ -186,7 +186,7 @@ function mutex(object)
 -- NSE maintains a weak reference to the Condition Variable so other calls to
 -- nmap.condvar with the same object will return the same function (Condition
 -- Variable); however, if you discard your reference to the Condition
--- Variable then it may be collected; and, Subsequent calls to nmap.condvar with
+-- Variable then it may be collected; and, subsequent calls to nmap.condvar with
 -- the object will return a different Condition Variable function!
 --
 -- In NSE, Condition Variables are typically used to coordinate with threads
