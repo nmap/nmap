@@ -29,16 +29,20 @@ PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST_FILES = $(addprefix $(IMAGE_STAGING_DIR)/,COPYING README)
 
-CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
+CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
 UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
+UNIVERSAL_CC = gcc-4.0
+UNIVERSAL_CXX = g++-4.0
 UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 -arch ppc -arch i386
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch ppc -arch i386
 
+CC = $(UNIVERSAL_CC)
+CXX = $(UNIVERSAL_CXX)
 CONFIGURE_ARGS += $(UNIVERSAL_CONFIGURE_ARGS)
 CPPFLAGS += $(UNIVERSAL_CPPFLAGS)
 CFLAGS += $(UNIVERSAL_CFLAGS)
@@ -57,10 +61,6 @@ export-%:
 	rm -rf $*
 # Using @BASE discards local changes.
 	svn export ..@BASE $*
-	svn export ../nbase@BASE $*/nbase
-	svn export ../ncat@BASE $*/ncat
-	svn export ../nsock@BASE $*/nsock
-	svn export ../zenmap@BASE $*/zenmap
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
 	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff $(CONFIGURE_ARGS)
