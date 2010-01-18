@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added an Apple Filing Protocol service probe that detects Netatalk
+  servers. (Apple's AFP servers are coincidentally triggered by the
+  SSLSessionReq probe.) [Patrik Karlsson]
+
 Nmap 5.20
 
 o Dramatically improved the version detection database, integrating

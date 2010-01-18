@@ -7421,6 +7421,8 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\nMacBook\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; MacBook| o/Mac OS X/ h/$2/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\nMacmini\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128.*[\x04\x05]([\w.-]+)\x01.afpserver|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.6; Mac mini| o/Mac OS X/ h/$2/
 
+match afp m|^\x01\x03\0\0Q\xec\xff\xff....\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\nMacBook\d,\d\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03\x04\tDHCAST128.*\x04([\w._-]+)|s p/Apple AFP/ i|name: $1; protocol 3.3; Mac OS X 10.6; MacBook| o/Mac OS X/ h/$2/
+
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfa.([^\0\x01]+)[\0\x01].*\tMacintosh\x01\x06AFP3\.1.\tDHCAST128|s p/Apple Airport Extreme AFP/ i/name: $1; protocol 3.1/ d/WAP/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*AirPort.*AFP3\.2|s p|Apple Airport Extreme/Time Capsule AFP| i/name: $1; protocol 3.2 WAP/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule.*AFP3\.3\x06AFP3\.2\x06AFP3\.1.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p|Apple Time Capsule AFP| i/name: $1; protocol 3.3/ h/$2/
@@ -8515,3 +8517,18 @@ rarity 8
 ports 3483
 
 match squeezecenter m|^ENAME.{1}(.+)JSON.{1}(\d+)VERS.{1}(.+)UUID.{1}(.+)$| p/Logitech SqueezeCenter music server/ i/Server Name: $1, JSON: $2, UUID: $4/ v/$3/
+
+
+##############################NEXT PROBE##############################
+# AFP - Request GetStatus
+Probe TCP afp q|\x00\x03\0\x01\0\0\0\0\0\0\0\x02\0\0\0\0\x0f\0|
+rarity 6
+ports 548
+
+# See other AFP matches in SSLSessionReq.
+
+# Netatalk 2.0.3
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x79.([^\0\x01]+)[\0\x01].*\x08Netatalk\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x01\tDHCAST128|s p/Netatalk/ v/2/ i/name: $1; protocol 3.1/ o/Unix/
+
+# Netatalk 1.6.4
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7d.([^\0\x01]+)[\0\x01].*\x04unix\x04\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x01\tDHCAST1280|s p/Netatalk/ v/1.6/ i/name: $1; protocol 2.2/ o/Unix/
