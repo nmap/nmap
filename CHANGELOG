@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug with the decoding of NMAP OID component values greater
+  than 127. [Patrik Karlsson, David]
+
 o Added an Apple Filing Protocol service probe that detects Netatalk
   servers. (Apple's AFP servers are coincidentally triggered by the
   SSLSessionReq probe.) [Patrik Karlsson]

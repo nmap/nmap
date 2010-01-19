@@ -182,6 +182,53 @@ local function decodeInt(encStr, len, pos)
    return pos, value
 end
 
+-- Decode one component of an OID from a byte string. 7 bits of the component
+-- are stored in each octet, most significant first, with the eigth bit set in
+-- all octets but the last. These encoding rules come from
+-- http://luca.ntop.org/Teaching/Appunti/asn1.html, section 5.9 OBJECT
+-- IDENTIFIER.
+local function decode_oid_component(encStr, pos)
+   local octet
+   local n = 0
+
+   repeat
+      pos, octet = bin.unpack("C", encStr, pos)
+      n = n * 128 + bit.band(0x7F, octet)
+   until octet < 128
+
+   return pos, n
+end
+
+--- Decodes an OID from a sequence of bytes.
+--
+-- @param encStr Encoded string.
+-- @param len Length of sequence in bytes.
+-- @param pos Current position in the string.
+-- @return The position after decoding.
+-- @return The OID as an array.
+local function decodeOID(encStr, len, pos)
+   local last
+   local oid = {}
+   local octet
+
+   last = pos + len - 1
+   if pos <= last then
+      oid._snmp = '06'
+      pos, octet = bin.unpack("C", encStr, pos)
+      oid[2] = math.mod(octet, 40)
+      octet = octet - oid[2]
+      oid[1] = octet/40
+   end
+
+   while pos <= last do
+      local c
+      pos, c = decode_oid_component(encStr, pos)
+      oid[#oid + 1] = c
+   end
+ 
+   return pos, oid
+end
+
 ---
 -- Decodes a sequence according to ASN.1 basic encoding rules.
 -- @param encStr Encoded string.
@@ -225,17 +272,8 @@ function decode(encStr, pos)
       return pos, false
 
    elseif (etype == "06") then -- OID
-      local oid = {}
-      oid._snmp = '06'
-      local octet
-      pos, octet = bin.unpack("C", encStr, pos)
-      oid[2] = math.mod(octet, 40)
-      octet = octet - oid[2]
-      oid[1] = octet/40
-      for i = 2, elen do
-	 pos, oid[i+1] = bin.unpack("C", encStr, pos)
-      end
-      return pos, oid
+      return decodeOID( encStr, elen, pos )
+
    elseif (etype == "30") then -- sequence
       local seq
       pos, seq = decodeSeq(encStr, elen, pos)
