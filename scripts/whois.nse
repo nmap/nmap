@@ -73,9 +73,9 @@ the RIRs.
 -- |  orgid: INSEC
 -- |_ country: US stateprov: CA
 
-author      = "jah <jah at zadkiel.plus.com>"
-license     = "See Nmap License: http://nmap.org/book/man-legal.html"
-categories  = {"discovery", "external", "safe"}
+author = "jah <jah at zadkiel.plus.com>"
+license = "See Nmap License: http://nmap.org/book/man-legal.html"
+categories = {"discovery", "external", "safe"}
 
 local url    = require "url"
 local http   = require "http"

@@ -1,7 +1,7 @@
 description=[[
 Checks to see if an FTP server allows port scanning using the FTP bounce method.
 ]]
-author="Marek Majkowski <majek04<at>gmail.com>"
+author = "Marek Majkowski"
 license="Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "intrusive"}

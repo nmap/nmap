@@ -11,9 +11,9 @@ increase in the level of verbosity requested on the command line.
 -- |_ banner: 220 FTP version 1.0\x0D\x0A
 
 
-author      = "jah <jah at zadkiel.plus.com>"
-license     = "See Nmap License: http://nmap.org/book/man-legal.html"
-categories  = {"discovery", "safe"}
+author = "jah <jah at zadkiel.plus.com>"
+license = "See Nmap License: http://nmap.org/book/man-legal.html"
+categories = {"discovery", "safe"}
 
 
 
