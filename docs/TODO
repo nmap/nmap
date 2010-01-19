@@ -1,8 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Decide what to do about Windows 7/Vista and starting NPF.  See this
-  thread: http://seclists.org/nmap-dev/2010/q1/20
-
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
@@ -11,21 +8,14 @@ o [NSE] Document Patrick's worker thread patch in scripting.xml (see
 o NSEDoc left sidebar should include a link to
   http://nmap.org/book/nse.html below "Index".
 
-o Investigate issue with our Pcap and Wireshark x64, as described in
-  this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
-
 o Make new stable release
 
 o Look at new DB2 script by Tom
   Sellers. http://seclists.org/nmap-dev/2009/q4/659
 
-o [NSE] HTTP header parsing is not very robust, and is duplicated in a
-  lot of places. For example, it's legal to have header fields like
-Content-type:\r\n
-___text/html\r\n
-(with spaces in place of _, but http.lua won't parse such a header
-correctly. In other words you can extend them to any number of lines
-as long as each line after the first begins with whitespace. [David]
+o [NSE] Add DNS based service discovery script.  See
+  http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
+  from David.
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -85,7 +75,13 @@ o Web site HTML improvements
     to) the root URL of current site.  e.g. seclists.org,
     sectools.org, nmap.org rather than always insecure.org.
 
+o [Ncat] This may sound ridiculous, but I'm starting to think that
+  Ncat should offer a very simple built-in http server (e.g. for simply
+  sharing files, etc.)  And maybe a simple client too.
+
 o Start project to make Nmap a Featured Article on Wikipedia.
+
+o Consider integrating Nping.
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o We should do an audit to ensure that we are in complete compliance for the
@@ -185,10 +181,6 @@ o After the new -sn and -PN options (added to SVN around 7/20, just
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
 
-o [Ncat] This may sound ridiculous, but I'm starting to think that
-  Ncat should offer a very simple built-in http server (e.g. for simply
-  sharing files, etc.)
-
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
    introduction to each tool (Nmap, Zenmap, Ncat, Ndiff) on its web
@@ -232,10 +224,6 @@ o Consider changing Nsock so that it is able to take advantage of more
   each. It is the "see if the fd is set" operation that's O(1) with
   select (it's FD_ISSET) and O(n) with poll (it's a traversal of a
   linked list).]
-
-o [NSE] Add DNS based service discovery script.  See
-  http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
-  from David.
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
   could include something simpler.  For example, some developers (such
@@ -427,9 +415,6 @@ o Improve the "run Zenmap as root" menu item to work on distributions
   of those distributions are more likely to contribute a fix.  We also
   might want to look at how the distributions themselves package Zenmap.
 
-o Consider enhancing the new OS Assist system to handle version
-  detection too. [SOC task?]
-
 o Deal with UDP retransmission for version detection (I think I
   should just do a second run of all probes for UDP if it fails to
   match anything).  The advantage there is that no retransmissions are
@@ -460,8 +445,6 @@ o Nmaprc-related - Create a system to store Nmap defaults/preferences
 
 o Search for nmap on google news, on google web, and add appropriate
   links to press page and the like.
-
-o Consider integrating Nping.
 
 o Make version detection and NSE timing system more dynamic so that
   the concurrency can change based on network conditions/ability.
@@ -562,6 +545,25 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Consider enhancing the new OS Assist system to handle version
+  detection too. [We decided not to do this as David noted that Doug's
+  serviceunwrap.lisp does pretty much everything he needs.]
+
+o [NSE] HTTP header parsing is not very robust, and is duplicated in a
+  lot of places. For example, it's legal to have header fields like
+Content-type:\r\n
+___text/html\r\n
+(with spaces in place of _, but http.lua won't parse such a header
+correctly. In other words you can extend them to any number of lines
+as long as each line after the first begins with whitespace. [David]
+
+o Investigate issue with our Pcap and Wireshark x64, as described in
+  this thread: http://seclists.org/nmap-dev/2009/q4/557 [Rob]
+  [Taking this off the list until/unless we get more reports]
+
+o Decide what to do about Windows 7/Vista and starting NPF.  See this
+  thread: http://seclists.org/nmap-dev/2010/q1/20
 
 o [NSE] We should do a favicon survey like the one Brandon did for
   /favicon.ico files but which uses the favicons specified by the HTML
