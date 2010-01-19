@@ -19,7 +19,7 @@ Extract a list of Citrix servers from the ICA Browser service
 -- Revised 11/26/2009 - v0.2 - minor packet documentation
 
 
-author = "Patrik Karlsson <patrik@cqure.net>"
+author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 

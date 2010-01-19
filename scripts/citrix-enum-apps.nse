@@ -20,7 +20,7 @@ Extract published applications from the ICA Browser service
 -- Created 11/24/2009 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 11/25/2009 - v0.2 - fixed multiple packet response bug
 
-author = "Patrik Karlsson <patrik@cqure.net>"
+author = "Patrik Karlsson"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
