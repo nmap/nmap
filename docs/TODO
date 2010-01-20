@@ -10,12 +10,34 @@ o NSEDoc left sidebar should include a link to
 
 o Make new stable release
 
-o Look at new DB2 script by Tom
+o [NSE] Look at new DB2 script by Tom
   Sellers. http://seclists.org/nmap-dev/2009/q4/659
 
-o [NSE] Add DNS based service discovery script.  See
-  http://seclists.org/nmap-dev/2009/q3/0786.html for more of this idea
-  from David.
+o [NSE] Review DNS-SD script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/87
+
+o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
+  http://seclists.org/nmap-dev/2010/q1/76
+
+o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/70
+
+o [NSE] Consider afp-showmount script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/97
+
+o [NSE] Consider SNMP scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/162
+  http://seclists.org/nmap-dev/2010/q1/174
+  http://seclists.org/nmap-dev/2010/q1/178
+
+o [NSE] Consider MySQL scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/163
+
+o [NSE] Consider DAAP script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/164
+
+o [NSE] Consider MongoDB scripts and libraries from Martin Holst Swende.
+  http://seclists.org/nmap-dev/2010/q1/177
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -43,18 +65,8 @@ o Create Nmap wiki
 
 o Do -p- Internet UDP scans.
 
-o Consider moving UDP ping/portscan payloads from payload.cc to a
-  custom data file so that it is cleaner to maintain and users can
-  more easily disable/change probes. [David]
-  Things to think about for an external data file:
-  o Many ports may share the same payload.
-  o A port may want more than one payload, perhaps falling back to a
-    second one if the first one fails.
-  o Some probes may have to come from a specific source port.
-  o Some protocols may require variable payloads, for example IKE
-    benefits from a random initiator cookie so that packets after the
-    first don't get ignored for looking like retransmissions.
-  o TFTP sends its response from an ephemeral port, not port 69.
+o Test Jay Fink's UDP payload prototype.
+  http://seclists.org/nmap-dev/2010/q1/168
 
 o [Ncat] Test, review, and (if appropriate) merge Venkat's HTTP Digest
   proxy authentication patch.  See
