@@ -280,7 +280,11 @@ answerFetcher[types.TXT] = function(dec, retAll)
       return false, "No Answers"   
    else
       for _, v in ipairs(dec.answers) do
-         if v.data then table.insert(answers, string.sub(v.data, 2)) end
+         if v.TXT and v.TXT.text then 
+            for _, v in ipairs( v.TXT.text ) do
+               table.insert(answers, v)
+            end
+         end
       end
    end
    if #answers == 0 then
@@ -373,6 +377,30 @@ answerFetcher[types.MX] = function(dec, retAll)
    return true, answers
 end
 
+-- Answer fetcher for SRV records.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns SRV record or Table of SRV records or String Error message.
+--  Note that the format of a returned SRV answer is "priority:weight:port:target" where zero
+--  or more IP addresses may be present.
+answerFetcher[types.SRV] = function(dec, retAll)
+  local srv, ip, answers = {}, {}, {}
+  for _, ans in ipairs(dec.answers) do
+    if ans.dtype == types.SRV then
+      if not retAll then
+        return true, ("%s:%s:%s:%s"):format( ans.SRV.prio, ans.SRV.weight, ans.SRV.port, ans.SRV.target )
+      end
+      table.insert( answers, ("%s:%s:%s:%s"):format( ans.SRV.prio, ans.SRV.weight, ans.SRV.port, ans.SRV.target ) )
+    end
+  end
+  if #answers == 0 then
+     stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: SRV")
+     return false, "No Answers"
+  end
+ 
+  return true, answers
+end
 
 ---
 -- Answer fetcher for NS records.
@@ -442,6 +470,141 @@ function findNiceAnswer(dtype, dec, retAll)
    end
 end
 
+---
+-- Table for additional fetching functions.
+-- Some servers return their answers in the additional section. The
+-- findNiceAdditional function with its relevant additionalFetcher functions
+-- addresses this. This unfortunately involved some code duplication (because
+-- of current design of the dns library) from the answerFetchers to the
+-- additionalFetchers.
+local additionalFetcher = {}
+
+---
+-- Additional fetcher for TXT records.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns TXT record or Table of TXT records or String Error message.
+additionalFetcher[types.TXT] = function(dec, retAll)
+   local answers = {}
+   if not retAll and dec.add[1].data then
+      return string.sub(dec.add[1].data, 2)
+   elseif not retAll then
+      stdnse.print_debug(1, "dns.aditionalFetcher found no records of the required type: TXT")
+      return false, "No Answers"   
+   else
+      for _, v in ipairs(dec.add) do
+         if v.TXT and v.TXT.text then 
+            for _, v in ipairs( v.TXT.text ) do
+               table.insert(answers, v)
+            end
+         end
+      end
+   end
+   if #answers == 0 then
+      stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: TXT")
+      return false, "No Answers"
+   end
+   return true, answers  
+end
+
+---
+-- Additional fetcher for A records
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns A record or Table of A records or String Error message.
+additionalFetcher[types.A] = function(dec, retAll)
+   local answers = {}
+   for _, ans in ipairs(dec.add) do
+      if ans.dtype == types.A then
+         if not retAll then
+            return true, ans.ip
+         end
+         table.insert(answers, ans.ip)
+      end
+   end
+   if not retAll or #answers == 0 then
+      stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: A")
+      return false, "No Answers"
+   end
+   return true, answers
+end
+
+
+-- Additional fetcher for SRV records.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns SRV record or Table of SRV records or String Error message.
+--  Note that the format of a returned SRV answer is "priority:weight:port:target" where zero
+--  or more IP addresses may be present.
+additionalFetcher[types.SRV] = function(dec, retAll)
+  local srv, ip, answers = {}, {}, {}
+  for _, ans in ipairs(dec.add) do
+    if ans.dtype == types.SRV then
+      if not retAll then
+        return true, ("%s:%s:%s:%s"):format( ans.SRV.prio, ans.SRV.weight, ans.SRV.port, ans.SRV.target )
+      end
+      table.insert( answers, ("%s:%s:%s:%s"):format( ans.SRV.prio, ans.SRV.weight, ans.SRV.port, ans.SRV.target ) )
+    end
+  end
+  if #answers == 0 then
+     stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: SRV")
+     return false, "No Answers"
+  end
+
+  return true, answers
+end
+
+
+---
+-- Additional fetcher for AAAA records.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns AAAA record or Table of AAAA records or String Error message.
+additionalFetcher[types.AAAA] = function(dec, retAll)
+   local answers = {}
+   for _, ans in ipairs(dec.add) do
+      if ans.dtype == types.AAAA then
+         if not retAll then
+            return true, ans.ipv6
+         end
+         table.insert(answers, ans.ipv6)
+      end
+   end
+   if not retAll or #answers == 0 then
+      stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: AAAA")
+      return false, "No Answers"
+   end
+   return true, answers
+end
+
+---
+-- Calls the answer fetcher for <code>dtype</code> or returns an error code in
+-- case of a "no such name" error.
+-- @param dtype DNS resource record type.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return Answer according to the answer fetcher for <code>dtype</code> or an Error message.
+function findNiceAdditional(dtype, dec, retAll) 
+   if (#dec.add > 0) then
+      if additionalFetcher[dtype] then 
+         return additionalFetcher[dtype](dec, retAll)
+      else 
+         stdnse.print_debug(1, "dns.findNiceAdditional() does not have an additionalFetcher for dtype %s",
+            (type(dtype) == 'string' and dtype) or type(dtype) or "nil")
+         return false, "Unable to handle response"
+      end
+   elseif (dec.flags.RC3 and dec.flags.RC4) then
+      return false, "No Such Name"
+   else
+      stdnse.print_debug(1, "dns.findNiceAdditional() found zero answers in a response, but got an unexpected flags.replycode")
+      return false, "No Answers"
+   end
+end
 
 ---
 -- Encodes the question part of a DNS request.
@@ -684,7 +847,27 @@ decoder[types.PTR] = decDomain
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
-decoder[types.TXT] = function () end
+decoder[types.TXT] = 
+  function (entry, data, pos) 
+    
+    local len = entry.data:len()
+    local np = pos - #entry.data
+        local txt_len
+    local txt
+
+    if len > 0 then
+      entry.TXT = {}
+      entry.TXT.text = {}
+    end
+
+    while len > 0 do
+      np, txt_len = bin.unpack("C", data, np)
+      np, txt = bin.unpack("A" .. txt_len, data, np )
+      len = len - txt_len - 1
+      table.insert( entry.TXT.text, txt )
+    end
+
+  end
 
 ---
 -- Decodes MX record, puts it in <code>entry.MX</code>.
@@ -703,6 +886,23 @@ decoder[types.MX] =
       _, entry.MX.server = decStr(data, np)
    end
 
+---
+-- Decodes SRV record, puts it in <code>entry.SRV</code>.
+--
+-- <code>entry.SRV</code> has the fields <code>prio</code>,
+-- <code>weight</code>, <code>port</code> and 
+-- <code>target</code>.
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
+decoder[types.SRV] =
+  function(entry, data, pos)
+    local np = pos - #entry.data
+    local _
+    entry.SRV = {}
+    np, entry.SRV.prio, entry.SRV.weight, entry.SRV.port = bin.unpack(">S>S>S", data, np)
+    np, entry.SRV.target = decStr(data, np)
+  end
 
 ---
 -- Decodes returned resource records (answer, authority, or additional part).
