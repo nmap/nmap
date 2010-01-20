@@ -82,6 +82,16 @@ o Web site HTML improvements
         important enough to matter.
     - The Nmap.Org navigation table should have a background and more
       subtle lines, like we use for our calendars now.
+  - Insecure.Org could use a bit of work.  On the front page:
+    - The first item (table) in featured news has slightly more
+      left/right margin than the later ones on Firefox 3.5.6, and with
+      IE8 it doesn't extend as far when you make the page really wide.
+      Plus the images on the right are problematic (extend through the
+      border below them) when you make the window too wide on IE8.
+      Having a slight margin on the left/right of entries would
+      actually be a bit nice.  And it would be nice if it only took a
+      simple tag or two, controlled by CSS rather than pasting in a
+      whole table with font tags and the like for each entry.
   - Then do the same with seclists.org, insecure.org, sectools.org
   - The icon on the top-left of the screen should be for (and link
     to) the root URL of current site.  e.g. seclists.org,
