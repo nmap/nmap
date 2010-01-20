@@ -17,9 +17,10 @@ description = [[ Shows AFP shares and ACLs ]]
 -- |     User: Search,Read
 -- |_    Options: IsOwner
 
--- Version 0.1
+-- Version 0.3
 -- Created 01/03/2010 - v0.1 - created by Patrik Karlsson
 -- Revised 01/13/2010 - v0.2 - Fixed a bug where a single share wouldn't show due to formatting issues
+-- Revised 01/20/2010 - v0.3 - removed superflous functions
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -30,36 +31,6 @@ require 'stdnse'
 require 'afp'
 
 portrule = shortport.portnumber(548, "tcp")
-
---- Converts a group bitmask of Search, Read and Write to string
--- eg. WRS, -RS, W-S, etc ..
---
--- @param acls number containing bitmasked acls
--- @return string of ACLS
-function acl_group_to_string( acls )
-
-	local acl_string = ""
-
-	if bit.band( acls, afp.ACLS.OwnerSearch ) == afp.ACLS.OwnerSearch then
-		acl_string = "S"
-	else
-		acl_string = "-"
-	end 
-	
-	if bit.band( acls, afp.ACLS.OwnerRead ) == afp.ACLS.OwnerRead then
-		acl_string = "R" .. acl_string
-	else
-		acl_string = "-" .. acl_string
-	end
-	
-	if bit.band( acls, afp.ACLS.OwnerWrite ) == afp.ACLS.OwnerWrite then
-		acl_string = "W" .. acl_string
-	else
-		acl_string = "-" .. acl_string
-	end
-
-	return acl_string
-end
 
 --- Converts a group bitmask of Search, Read and Write to table
 --
@@ -84,23 +55,6 @@ function acl_group_to_long_string(acls)
 	return acl_table
 end
 
---- Converts a numeric acl to string
---
--- @param acls number containig acls as recieved from <code>fp_get_file_dir_parms</code>
--- @return string of ACLs
-function acls_to_string( acls )
-
-	local owner = acl_group_to_string( bit.band( acls, 255 ) )
-	local group = acl_group_to_string( bit.band( bit.rshift(acls, 8), 255 ) )
-	local everyone = acl_group_to_string( bit.band( bit.rshift(acls, 16), 255 ) )
-	local user = acl_group_to_string( bit.band( bit.rshift(acls, 24), 255 ) )
-
-	local blank = bit.band( acls, afp.ACLS.BlankAccess ) == afp.ACLS.BlankAccess and "B" or "-"
-	local isowner = bit.band( acls, afp.ACLS.UserIsOwner ) == afp.ACLS.UserIsOwner and "O" or "-"
-
- 	return string.format("Owner: %s; Group: %s; Everyone: %s; User: %s; Options: %s%s", owner, group, everyone, user, blank, isowner )
-	
-end
 
 --- Converts a numeric acl to string
 --

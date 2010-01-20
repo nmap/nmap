@@ -8,8 +8,9 @@
 --
 --
 
--- Version 0.1
+-- Version 0.2
 -- Created 01/03/2010 - v0.1 - created by Patrik Karlsson
+-- Revised 01/20/2010 - v0.2 - updated all bitmaps to hex for better readability
 
 module(... or "afp",package.seeall)
 
@@ -39,61 +40,61 @@ COMMAND = {
 }
 
 USER_BITMAP = {
-	UserId = 1,
-	PrimaryGroupId = 2,
-	UUID = 4
+	UserId = 0x01,
+	PrimaryGroupId = 0x2,
+	UUID = 0x4
 }
 
 VOL_BITMAP = {
-	Attributes = 1,
-	Signature = 2,
-	CreationDate = 4,
-	ModificationDate = 8,
-	BackupDate = 16,
-	ID = 32,
-	BytesFree = 64,
-	BytesTotal = 128,
-	Name = 256,
-	ExtendedBytesFree = 512,
-	ExtendedBytesTotal = 1024,
-	BlockSize = 2048
+	Attributes = 0x1,
+	Signature = 0x2,
+	CreationDate = 0x4,
+	ModificationDate = 0x8,
+	BackupDate = 0x10,
+	ID = 0x20,
+	BytesFree = 0x40,
+	BytesTotal = 0x80,
+	Name = 0x100,
+	ExtendedBytesFree = 0x200,
+	ExtendedBytesTotal = 0x400,
+	BlockSize = 0x800
 }
 
 FILE_BITMAP = {
-	Attributes = 1,
-	DID = 2,
-	CreationDate = 4,
-	ModificationDate = 8,
-	BackupDate = 16,
-	FinderInfo = 32,
-	LongName = 64,
-	ShortName = 128,
-	FileId = 256,
-	DataForkSize = 512,
-	ResourceForkSize = 1024,
-	ExtendedDataForkSize = 2048,
-	LaunchLimit = 4096,
-	UTF8Name = 8192,
-	ExtendedResourceForkSize = 16384,
-	UnixPrivileges = 32768
+	Attributes = 0x1,
+	DID = 0x2,
+	CreationDate = 0x4,
+	ModificationDate = 0x8,
+	BackupDate = 0x10,
+	FinderInfo = 0x20,
+	LongName = 0x40,
+	ShortName = 0x80,
+	FileId = 0x100,
+	DataForkSize = 0x200,
+	ResourceForkSize = 0x400,
+	ExtendedDataForkSize = 0x800,
+	LaunchLimit = 0x1000,
+	UTF8Name = 0x2000,
+	ExtendedResourceForkSize = 0x4000,
+	UnixPrivileges = 0x8000
 }
 
 DIR_BITMAP = {
-	Attributes = 1,
-	DID = 2,
-	CreationDate = 4,
-	ModificationDate = 8,
-	BackupDate = 16,
-	FinderInfo = 32,
-	LongName = 64,
-	ShortName = 128,
-	FileId = 256,
-	OffspringCount = 512,
-	OwnerId = 1024,
-	GroupId = 2048,
-	AccessRights = 4096,
-	UTF8Name = 8192,
-	UnixPrivileges = 32768	
+	Attributes = 0x1,
+	DID = 0x2,
+	CreationDate = 0x4,
+	ModificationDate = 0x8,
+	BackupDate = 0x10,
+	FinderInfo = 0x20,
+	LongName = 0x40,
+	ShortName = 0x80,
+	FileId = 0x100,
+	OffspringCount = 0x200,
+	OwnerId = 0x400,
+	GroupId = 0x800,
+	AccessRights = 0x1000,
+	UTF8Name = 0x2000,
+	UnixPrivileges = 0x8000	
 }
 
 PATH_TYPE = {
@@ -102,31 +103,31 @@ PATH_TYPE = {
 }
 
 ACCESS_MODE = {
-	Read = 1,
-	Write = 2,
-	DenyRead = 16,
-	DenyWrite = 32
+	Read = 0x1,
+	Write = 0x2,
+	DenyRead = 0x10,
+	DenyWrite = 0x20
 }
 
 ACLS = {
-	OwnerSearch = 1,
-	OwnerRead = 2,
-	OwnerWrite = 4,
+	OwnerSearch = 0x1,
+	OwnerRead = 0x2,
+	OwnerWrite = 0x4,
 	
-	GroupSearch = 256,
-	GroupRead = 512,
-	GroupWrite = 1024,
+	GroupSearch = 0x100,
+	GroupRead = 0x200,
+	GroupWrite = 0x400,
 	
-	EveryoneSearch = 65536,
-	EveryoneRead = 131072,
-	EveryoneWrite = 262144,
+	EveryoneSearch = 0x10000,
+	EveryoneRead = 0x20000,
+	EveryoneWrite = 0x40000,
 	
-	UserSearch = 1048576,
-	UserRead = 2097152,
-	UserWrite = 4194304,
+	UserSearch = 0x100000,
+	UserRead = 0x200000,
+	UserWrite = 0x400000,
 	
-	BlankAccess = 268435456,
-	UserIsOwner = 2147483648
+	BlankAccess = 0x10000000,
+	UserIsOwner = 0x80000000
 }
 
 -- Each packet contains a sequential request id
