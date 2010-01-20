@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new library, afp.lua, and a script that uses it,
+  afp-showmount. The library is for the Apple Filing Protocol and the
+  script shows shares and their permissions. [Patrik Karlsson]
+
 o Fixed a bug with the decoding of NMAP OID component values greater
   than 127. [Patrik Karlsson, David]
 
