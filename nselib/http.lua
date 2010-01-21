@@ -1231,8 +1231,7 @@ request = function(host, port, data)
     end
   end
 
-  local response = {}
-  local result = {status=nil,["status-line"]=nil,header={},body=""}
+  local error_response = {status=nil,["status-line"]=nil,header={},body=""}
   local socket
 
   method = string.match(data, "^(%S+)")
@@ -1240,13 +1239,13 @@ request = function(host, port, data)
   socket, partial = comm.tryssl(host, port, data, opts)
 
   if not socket then
-    return result
+    return error_response
   end
 
   repeat
     response, partial = next_response(socket, method, partial)
     if not response then
-      return nil, partial
+      return error_response
     end
     -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
     -- Sometimes a server will tell us to "go ahead" with a POST body before
