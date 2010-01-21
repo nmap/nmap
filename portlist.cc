@@ -662,6 +662,7 @@ const Port *PortList::lookupPort(u16 portno, u8 protocol) const {
 
 /* Create the port if it doesn't exist; otherwise this is like lookupPort. */
 Port *PortList::createPort(u16 portno, u8 protocol) {
+  Port *p;
   u16 mapped_portno;
   u8 mapped_protocol;
 
@@ -670,10 +671,13 @@ Port *PortList::createPort(u16 portno, u8 protocol) {
   if (!mapPort(&mapped_portno, &mapped_protocol))
     return NULL;
 
-  if (port_list[mapped_protocol][mapped_portno] == NULL) {
-    Port *p = new Port();
+  p = port_list[mapped_protocol][mapped_portno];
+  if (p == NULL) {
+    p = new Port();
     p->portno = portno;
     p->proto = protocol;
+    p->state = default_port_state[mapped_protocol].state;
+    p->reason.reason_id = ER_NORESPONSE;
     port_list[mapped_protocol][mapped_portno] = p;
   }
 
