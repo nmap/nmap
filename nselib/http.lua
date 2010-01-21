@@ -1141,21 +1141,21 @@ pipeline = function(host, port, allReqs)
   responses[#responses + 1] = response
 
   local limit = getPipelineMax(response)
+  local count = 1
   stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
 
   while #responses < #allReqs do
-    local j, batch_begin, batch_end
+    local j, batch_end
     -- we build a big string with many requests, upper limited by the var "limit"
     local requests = ""
 
-    batch_begin = #responses + 1
     if #responses + limit < #allReqs then
       batch_end = #responses + limit
     else
       batch_end = #allReqs
     end
 
-    j = batch_begin
+    j = #responses + 1
     while j <= batch_end do
       if j == batch_end then
         allReqs[j].opts.header["Connection"] = "close"
@@ -1165,9 +1165,10 @@ pipeline = function(host, port, allReqs)
     end
 
     -- Connect to host and send all the requests at once!
-    if not socket:get_info() then
+    if count >= limit or not socket:get_info() then
       socket:connect(host.ip, port.number, bopt)
       partial = ""
+      count = 0
     end
     socket:set_timeout(10000)
     socket:send(requests)
@@ -1177,18 +1178,18 @@ pipeline = function(host, port, allReqs)
       if not response then
         break
       end
+      count = count + 1
       responses[#responses + 1] = response
     end
 
     socket:close()
-    partial = ""
 
-    if #responses + 1 == batch_begin then
+    if count == 0 then
       stdnse.print_debug("Received 0 of %d expected reponses.\nGiving up on pipeline.", limit);
       break
-    elseif #responses < batch_end then
-      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", #responses + 1 - batch_begin, limit, #responses + 1 - batch_begin)
-      limit = #responses + 1 - batch_begin
+    elseif count < limit then
+      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", count, limit, count)
+      limit = count
     end
   end
 
