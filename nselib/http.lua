@@ -270,7 +270,27 @@ local function recv_header(s, partial)
   return table.concat(lines), partial
 end
 
--- Receive exactly <code>length</code> bytes.
+-- Receive until the connection is closed.
+local function recv_all(s, partial)
+  local parts
+
+  partial = partial or ""
+
+  parts = {partial}
+  while true do
+    local status, part = s:receive()
+    if not status then
+      break
+    else
+      parts[#parts + 1] = part
+    end
+  end
+
+  return table.concat(parts), ""
+end
+
+-- Receive exactly <code>length</code> bytes. Returns <code>nil</code> if that
+-- many aren't available.
 local function recv_length(s, length, partial)
   local parts, last
 
@@ -284,6 +304,9 @@ local function recv_length(s, length, partial)
 
     parts[#parts + 1] = last
     status, last = s:receive()
+    if not status then
+      return nil
+    end
     length = length - #last
   end
 
@@ -358,21 +381,55 @@ end
 -- <code>recv_header</code>. The handling is sensitive to the request method
 -- and the status code of the response.
 local function recv_body(s, response, method, partial)
+  local connection_close, connection_keepalive
+  local version_major, version_minor
   local transfer_encoding
   local content_length
   local err
 
   partial = partial or ""
 
+  -- First check for Connection: close and Connection: keep-alive. This is
+  -- necessary to handle some servers that don't follow the protocol.
+  connection_close = false
+  connection_keepalive = false
+  if response.header.connection then
+    local offset, token
+    offset = 0
+    while true do
+      offset, token = get_token(response.header.connection, offset + 1)
+      if not offset then
+        break
+      end
+      if string.lower(token) == "close" then
+        connection_close = true
+      elseif string.lower(token) == "keep-alive" then
+        connection_keepalive = true
+      end
+    end
+  end
+
+  -- The HTTP version may also affect our decisions.
+  version_major, version_minor = string.match(response["status-line"], "^HTTP/(%d+)%.(%d+)")
+
   -- See RFC 2616, section 4.4 "Message Length".
 
   -- 1. Any response message which "MUST NOT" include a message-body (such as
   --    the 1xx, 204, and 304 responses and any response to a HEAD request) is
   --    always terminated by the first empty line after the header fields...
+  --
+  -- Despite the above, some servers return a body with response to a HEAD
+  -- request. So if an HTTP/1.0 server returns a response without Connection:
+  -- keep-alive, or any server returns a response with Connection: close, read
+  -- whatever's left on the socket (should be zero bytes).
   if string.upper(method) == "HEAD"
     or (response.status >= 100 and response.status <= 199)
     or response.status == 204 or response.status == 304 then
-    return "", partial
+    if connection_close or (version_major == "1" and version_minor == "0" and not connection_keepalive) then
+      return recv_all(s, partial)
+    else
+      return "", partial
+    end
   end
 
   -- 2. If a Transfer-Encoding header field (section 14.41) is present and has
@@ -412,19 +469,7 @@ local function recv_body(s, response, method, partial)
   -- Case 4 is unhandled.
 
   -- 5. By the server closing the connection.
-  do
-    local parts = {partial}
-    while true do
-      local status, part = s:receive()
-      if not status then
-        break
-      else
-        parts[#parts + 1] = part
-      end
-    end
-
-    return table.concat(parts), ""
-  end
+  return recv_all(s, partial)
 end
 
 -- Sets response["status-line"] and response.status.
