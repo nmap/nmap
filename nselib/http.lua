@@ -1115,7 +1115,6 @@ pipeline = function(host, port, allReqs)
   local responses
   local response
   local partial
-  local j, batch_end
 
   responses = {}
 
@@ -1145,16 +1144,18 @@ pipeline = function(host, port, allReqs)
   stdnse.print_debug("Number of requests allowed by pipeline: " .. limit)
 
   while #responses < #allReqs do
+    local j, batch_begin, batch_end
     -- we build a big string with many requests, upper limited by the var "limit"
     local requests = ""
 
+    batch_begin = #responses + 1
     if #responses + limit < #allReqs then
       batch_end = #responses + limit
     else
       batch_end = #allReqs
     end
 
-    j = #responses + 1
+    j = batch_begin
     while j <= batch_end do
       if j == batch_end then
         allReqs[j].opts.header["Connection"] = "close"
@@ -1182,9 +1183,12 @@ pipeline = function(host, port, allReqs)
     socket:close()
     partial = ""
 
-    if #responses < batch_end then
-      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", limit - (batch_end - #responses), limit, limit - (batch_end - #responses))
-      limit = limit - (batch_end - #responses)
+    if #responses + 1 == batch_begin then
+      stdnse.print_debug("Received 0 of %d expected reponses.\nGiving up on pipeline.", limit);
+      break
+    elseif #responses < batch_end then
+      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", #responses + 1 - batch_begin, limit, #responses + 1 - batch_begin)
+      limit = #responses + 1 - batch_begin
     end
   end
 

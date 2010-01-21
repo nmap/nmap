@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug in http.lua that could lead to an assertion
+  failure. It happened when there was an error getting the a response
+  at the beginning of a batch in http.pipeline. The symptoms of the
+  bug were:
+    NSE: Received only 0 of 1 expected reponses.
+    Decreasing max pipelined requests to 0.
+    NSOCK (0.1870s) Write request for 0 bytes...
+    nmap: nsock_core.c:516: handle_write_result: Assertion `bytesleft > 0' failed.
+  The error was reported by Brandon Enright and pyllyukko.
+
 o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   to identify services. DNS-SD is one part of automatic configuration
   technologies known by names such as Bonjour, Rendezvous, and
