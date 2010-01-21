@@ -89,7 +89,7 @@ local cnse, rules = ...; -- The NSE C library and Script Rules
 do -- Append the nselib directory to the Lua search path
   local t, path = assert(cnse.fetchfile_absolute("nselib/"));
   assert(t == "directory", "could not locate nselib directory!");
-  package.path = package.path..";"..path.."?.lua";
+  package.path = path.."?.lua;"..package.path;
 end
 
 local stdnse = require "stdnse";
