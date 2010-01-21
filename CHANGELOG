@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the new dns-service-discovery protocol which uses DNS-SD
+  to identify services. DNS-SD is one part of automatic configuration
+  technologies known by names such as Bonjour, Rendezvous, and
+  Zeroconf. This one script can provide as much information as a full
+  port scan in some cases. [Patrik Karlsson]
+
 o [NSE] Added a new library, afp.lua, and a script that uses it,
   afp-showmount. The library is for the Apple Filing Protocol and the
   script shows shares and their permissions. [Patrik Karlsson]
