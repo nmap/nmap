@@ -344,7 +344,9 @@ local function recv_chunked(s, partial)
     chunks[#chunks + 1] = chunk
 
     line, partial = recv_line(s, partial)
-    if not line or not string.match(line, "^\r?\n") then
+    if not line then
+      return nil, string.format("Didn't find CRLF after chunk-data.")
+    elseif not string.match(line, "^\r?\n") then
       return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
     end
   until chunk_size == 0
