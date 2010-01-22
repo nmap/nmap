@@ -67,7 +67,13 @@ end
 local function gotAnswer(rPkt)
    -- have we even got answers?
    if #rPkt.answers > 0 then
-      
+
+      -- some MDNS implementation incorrectly return an empty question section
+      -- if this is the case return true
+      if rPkt.questions[1] == nil then
+        return true
+      end
+
       -- are those answers not just cnames?
       if rPkt.questions[1].dtype == types.A then
          for _, v in ipairs(rPkt.answers) do
