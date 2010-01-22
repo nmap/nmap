@@ -16,6 +16,23 @@
 -- password in <code>"mypass  #!comment: blah"</code> contain a space, two
 -- spaces, or do they just separate the password from the comment?
 --
+-- @usage
+-- require("unpwdb")
+--
+-- local usernames, passwords
+-- local username, password
+-- local try = nmap.new_try()
+--
+-- usernames = try(unpwdb.usernames())
+-- passwords = try(unpwdb.passwords())
+--
+-- for password in passwords do
+--   for username in usernames do
+--     -- Do something with username and password.
+--   end
+--   usernames("reset")
+-- end
+--
 -- @args userdb The filename of an alternate username database.
 -- @args passdb The filename of an alternate password database.
 -- @author Kris Katterjohn 06/2008
