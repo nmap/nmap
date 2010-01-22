@@ -380,6 +380,24 @@ function is_positive_result(hostinfo, result)
 	return true
 end
 
+---Determines whether or not a login was "bad". A bad login is one where an account becomes locked out. 
+--
+--@param hostinfo The hostinfo table. 
+--@param result   The result code. 
+--@return <code>true</code> if the password used for logging in was correct, <code>false</code> otherwise. Keep
+--        in mind that this doesn't imply the login was successful (only results.SUCCESS indicates that), rather
+--        that the password was valid. 
+
+function is_bad_result(hostinfo, result)
+	-- If result is LOCKED, it's always bad. 
+	if(result == results.ACCOUNT_LOCKED or result == results.ACCOUNT_LOCKED_NOW) then
+		return true
+	end
+
+	-- Otherwise, it's good
+	return false
+end
+
 ---Count the number of one bits in a binary representation of the given number. This is used for case-sensitive
 -- checks. 
 --
@@ -937,30 +955,29 @@ local function go(host)
 --io.write(string.format("%s:%s\n", username, password))
 			local result = check_login(hostinfo, username, password, get_type(hostinfo))
 
-			if(is_positive_result(hostinfo, result)) then
+			-- Check if the username was locked out
+			if(is_bad_result(hostinfo, result)) then
+				-- Add it to the list of locked usernames
+				hostinfo['locked_usernames'][username] = true
 
-				-- First, the special case -- a lockout occurred (bad news!)
-				if(result == results.ACCOUNT_LOCKED) then
-					-- Add it to the list of locked usernames
-					hostinfo['locked_usernames'][username] = true
-
-					-- Unless the user requested to keep going, stop the check
-					if(not(nmap.registry.args.smblockout == 1 or nmap.registry.args.smblockout == "true")) then
-						-- Mark it as found, which is technically true
-						status, err = found_account(hostinfo, username, nil, results.ACCOUNT_LOCKED_NOW)
-						if(status == false) then
-							return err
-						end
-
-						-- Let the user know that it went badly
-						stdnse.print_debug(1, "smb-brute: '%s' became locked out; stopping", username)
-
-						return true, hostinfo['accounts'], hostinfo['locked_usernames']
-					else
-						stdnse.print_debug(1, "smb-brute: '%s' became locked out; continuing", username)
+				-- Unless the user requested to keep going, stop the check
+				if(not(nmap.registry.args.smblockout == 1 or nmap.registry.args.smblockout == "true")) then
+					-- Mark it as found, which is technically true
+					status, err = found_account(hostinfo, username, nil, results.ACCOUNT_LOCKED_NOW)
+					if(status == false) then
+						return err
 					end
-				end
 
+					-- Let the user know that it went badly
+					stdnse.print_debug(1, "smb-brute: '%s' became locked out; stopping", username)
+
+					return true, hostinfo['accounts'], hostinfo['locked_usernames']
+				else
+					stdnse.print_debug(1, "smb-brute: '%s' became locked out; continuing", username)
+				end
+			end
+
+			if(is_positive_result(hostinfo, result)) then
 				-- Reset the connection
 				stdnse.print_debug(2, "smb-brute: Found an account; resetting connection")
 				status, err = restart_session(hostinfo)
