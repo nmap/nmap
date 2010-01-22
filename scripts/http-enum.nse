@@ -195,7 +195,7 @@ local function get_fingerprints()
 			stdnse.print_debug(1, "http-enum: Attempting to parse fingerprint file %s", filename)
 
 			local product = nil
-			for line in io.lines(filename) do
+			for line in io.lines(filename_full) do
 				-- Ignore "Pre-Auth", "Post-Auth", and blank lines
 				if(string.sub(line, 1, #PREAUTH) ~= PREAUTH and string.sub(line, 1, #POSTAUTH) ~= POSTAUTH and #line > 0) then
 					-- Commented lines indicate products
