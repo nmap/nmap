@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a function that was missing from http-favicon.nse. Its absence
+  would cause the error
+    http-favicon.nse:141: variable 'dirname' is not declared
+  when a web page specified an relative icon URL through the link
+  element. This bug was reported by Ron Meldau. [David]
+
 o Fixed an error that occurred when UDP scan was combined with version
   scan. UDP ports would appear in the state "unknown" at the end of
   the scan, and in some cases an assertion failure would be raised.

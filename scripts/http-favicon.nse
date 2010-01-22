@@ -81,8 +81,9 @@ action = function(host, port)
 		icon = parseIcon( index.body )
 		-- if we find a pattern
 		if icon then
+			local hostname = host.targetname or (host.name ~= "" and host.name) or host.ip
 			stdnse.print_debug(1, "Got icon URL %s.", icon)
-			local icon_host, icon_port, icon_path = parse_url_relative(icon, host, port, root)
+			local icon_host, icon_port, icon_path = parse_url_relative(icon, hostname, port.number, root)
 			if (icon_host == host.ip or
 				icon_host == host.targetname or
 				icon_host == (host.name ~= '' and host.name)) and
@@ -120,6 +121,12 @@ action = function(host, port)
 	return
   end --- status == 200
   return result
+end
+
+local function dirname(path)
+	local dir
+	dir = string.match(path, "^(.*)/")
+	return dir or ""
 end
 
 -- Return a URL's host, port, and path, filling in the results with the given
