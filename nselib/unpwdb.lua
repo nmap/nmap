@@ -20,7 +20,6 @@
 -- require("unpwdb")
 --
 -- local usernames, passwords
--- local username, password
 -- local try = nmap.new_try()
 --
 -- usernames = try(unpwdb.usernames())
