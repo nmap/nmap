@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an error that occurred when UDP scan was combined with version
+  scan. UDP ports would appear in the state "unknown" at the end of
+  the scan, and in some cases an assertion failure would be raised.
+  This was an unintended side effect of the memory use reduction
+  changes in 5.20. The bug was reported by Jon Kibler. [David]
+
 o [NSE] Fixed a bug in http.lua that could lead to an assertion
   failure. It happened when there was an error getting the a response
   at the beginning of a batch in http.pipeline. The symptoms of the
