@@ -2621,8 +2621,8 @@ function svcctl_openscmanagerw(smbstate, machinename)
 	arguments = arguments .. msrpctypes.marshall_unicode_ptr(nil, true)
 
 --        [in] uint32 access_mask,
-	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
---	arguments = arguments .. msrpctypes.marshall_int32(0x00000002) 
+--	arguments = arguments .. msrpctypes.marshall_int32(0x000f003f) 
+	arguments = arguments .. msrpctypes.marshall_int32(0x02000000) 
 
 --        [out,ref] policy_handle *handle
 
@@ -3662,6 +3662,237 @@ function get_user_list(host)
 	table.sort(names, function(a,b) return a:lower() < b:lower() end )
 
 	return true, response, names
+end
+
+---Retrieve information about a domain. This is done by three seperate calls to samr_querydomaininfo2() to get all
+-- possible information. smbstate has to be in the proper state for this to work. 
+local function get_domain_info(host, domain)
+	local result = {}
+	local status, smbstate, bind_result, connect4_result, lookupdomain_result, opendomain_result, enumdomainusers_result
+
+	-- Create the SMB session
+	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SAMR service
+	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, bind_result
+	end
+
+	-- Call connect4()
+	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, connect4_result
+	end
+
+	-- Call LookupDomain()
+	status, lookupdomain_result = msrpc.samr_lookupdomain(smbstate, connect4_result['connect_handle'], domain)
+	if(status == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, "Couldn't look up the domain: " .. lookupdomain_result
+	end
+
+	-- Call OpenDomain()
+	status, opendomain_result = msrpc.samr_opendomain(smbstate, connect4_result['connect_handle'], lookupdomain_result['sid'])
+	if(status == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, opendomain_result
+	end
+
+	-- Call QueryDomainInfo2() to get domain properties. We call these for three types -- 1, 8, and 12, since those return
+	-- the most useful information. 
+	local status_1,  querydomaininfo2_result_1  = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 1)
+	local status_8,  querydomaininfo2_result_8  = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 8)
+	local status_12, querydomaininfo2_result_12 = msrpc.samr_querydomaininfo2(smbstate, opendomain_result['domain_handle'], 12)
+
+	if(status_1 == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, querydomaininfo2_result_1
+	end
+
+	if(status_8 == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, querydomaininfo2_result_8
+	end
+
+	if(status_12 == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, thenquerydomaininfo2_result_12
+	end
+
+	-- Call EnumDomainUsers() to get users
+	status, enumdomainusers_result = msrpc.samr_enumdomainusers(smbstate, opendomain_result['domain_handle'])
+	if(status == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, enumdomainusers_result
+	end
+
+	-- Call EnumDomainAliases() to get groups
+	local status, enumdomaingroups_result = msrpc.samr_enumdomainaliases(smbstate, opendomain_result['domain_handle'])
+	if(status == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+		return false, enumdomaingroups_result
+	end
+
+	-- Close the domain handle
+	msrpc.samr_close(smbstate, opendomain_result['domain_handle'])
+	-- Close the smb session
+	msrpc.stop_smb(smbstate)
+
+	-- Create a list of groups
+	local groups = {}
+	if(enumdomaingroups_result['sam'] ~= nil and enumdomaingroups_result['sam']['entries'] ~= nil) then
+		for _, group in ipairs(enumdomaingroups_result['sam']['entries']) do
+			table.insert(groups, group.name)
+		end
+	end
+
+	-- Create the list of users
+	local names = {}
+	if(enumdomainusers_result['sam'] ~= nil and enumdomainusers_result['sam']['entries'] ~= nil) then
+		for _, name in ipairs(enumdomainusers_result['sam']['entries']) do
+			table.insert(names, name.name)
+		end
+	end
+
+	-- Our output table
+	local response = {}
+
+	-- Finally, start filling in the response!
+	response['name'] = domain
+	response['sid']  = lookupdomain_result['sid']
+	response['groups'] = groups
+	response['users'] = names
+	if(querydomaininfo2_result_8['info']['domain_create_time'] ~= 0) then
+		response['created'] = os.date("%Y-%m-%d %H:%M:%S", querydomaininfo2_result_8['info']['domain_create_time'])
+	else
+		response['created'] = "unknown"
+	end
+
+	-- Password characteristics
+	response['min_password_length'] = querydomaininfo2_result_1['info']['min_password_length']
+	response['max_password_age']    = querydomaininfo2_result_1['info']['max_password_age'] / 60 / 60 / 24
+	response['min_password_age']    = querydomaininfo2_result_1['info']['min_password_age'] / 60 / 60 / 24
+	response['password_history']    = querydomaininfo2_result_1['info']['password_history_length']
+	response['lockout_duration']    = querydomaininfo2_result_12['info']['lockout_duration'] / 60
+	response['lockout_threshold']   = querydomaininfo2_result_12['info']['lockout_threshold']
+	response['lockout_window']      = querydomaininfo2_result_12['info']['lockout_window'] / 60
+
+	-- Sanity check the different values, and remove them if they don't appear to be set
+	if(response['min_password_length'] <= 0) then
+		response['min_password_length'] = nil
+	end
+
+	if(response['max_password_age'] < 0 or response['max_password_age'] > 5000) then
+		response['max_password_age'] = nil
+	end
+
+	if(response['min_password_age'] <= 0) then
+		response['min_password_age'] = nil
+	end
+
+	if(response['password_history'] <= 0) then
+		response['password_history'] = nil
+	end
+
+	if(response['lockout_duration'] <= 0) then
+		response['lockout_duration'] = nil
+	end
+
+	if(response['lockout_threshold'] <= 0) then
+		response['lockout_threshold'] = nil
+	end
+
+	if(response['lockout_window'] <= 0) then
+		response['lockout_window'] = nil
+	end
+
+	local password_properties = querydomaininfo2_result_1['info']['password_properties']
+	
+	if(#password_properties > 0) then
+		local password_properties_response = {}
+		password_properties_response['name'] = "Password properties:"
+		for j = 1, #password_properties, 1 do
+			table.insert(password_properties_response, msrpc.samr_PasswordProperties_tostr(password_properties[j]))
+		end
+
+		response['password_properties'] = password_properties_response
+	end
+
+	return true, response
+end
+
+function get_domains(host)
+	local result = {}
+	local status, smbstate, bind_result, connect4_result, enumdomains_result
+	local i, j
+
+	-- Create the SMB session
+	status, smbstate  = msrpc.start_smb(host, msrpc.SAMR_PATH)
+	if(status == false) then
+		return false, smbstate
+	end
+
+	-- Bind to SAMR service
+	status, bind_result = msrpc.bind(smbstate, msrpc.SAMR_UUID, msrpc.SAMR_VERSION, nil)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, bind_result
+	end
+
+	-- Call connect4()
+	status, connect4_result = msrpc.samr_connect4(smbstate, host.ip)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		return false, connect4_result
+	end
+
+	-- Call EnumDomains()
+	status, enumdomains_result = msrpc.samr_enumdomains(smbstate, connect4_result['connect_handle'])
+	if(status == false) then
+		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+		msrpc.stop_smb(smbstate)
+
+		return false, enumdomains_result
+	end
+
+	-- Close the connect handle
+	msrpc.samr_close(smbstate, connect4_result['connect_handle'])
+
+	-- Close the SMB session
+	msrpc.stop_smb(smbstate)
+
+	-- If no domains were returned, return an error (not sure that this can ever happen, but who knows?)
+	if(#enumdomains_result['sam']['entries'] == 0) then
+		return false, "No domains could be found"
+	end
+
+	local response = {}
+	for i = 1, #enumdomains_result['sam']['entries'], 1 do
+		local domain = enumdomains_result['sam']['entries'][i]['name']
+		local status, domain_info = get_domain_info(host, domain)
+
+		if(not(status)) then
+			return false, "Couldn't get info for the domain: " .. domain_info
+		else
+			response[domain] = domain_info
+		end
+
+	end
+
+	return true, response
 end
 
 ---Create a "service" on a remote machine. This service is linked to an executable that is already
