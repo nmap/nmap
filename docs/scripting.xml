@@ -1636,100 +1636,6 @@ socket:close()
 	</sect3>
 	</sect2>
 
-    <sect2 id="nse-mutex">
-      <title>Thread Mutexes</title>
-      <indexterm><primary>threads in NSE</primary></indexterm>
-      <indexterm><primary>mutexes in NSE</primary></indexterm>
-      <para>
-        Each script execution thread (e.g. <literal>ftp-anon</literal> running against an FTP server on the target host) yields to other
-        scripts whenever it makes a call on network objects (sending or receiving
-        data). Some scripts require finer concurrency control over thread execution. An
-        example is the <literal>whois</literal> script which queries
-	whois<indexterm><primary>whois</primary></indexterm>
-        servers for each target IP address. Because many concurrent queries often result in
-        getting one's IP banned for abuse, and because a single query may return additional
-        information for targets other threads are running against, it is useful
-        to have other threads pause while one thread performs a query.
-      </para>
-      <para>
-        To solve this problem, NSE includes a
-        <literal>mutex</literal> function which provides a
-        <ulink url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
-        (mutual exclusion object) usable by scripts. The mutex allows
-        for only one thread to be working on an object. Competing threads
-        waiting to work on this object are put in the waiting queue
-        until they can get a "lock" on the mutex. A solution for
-        the <literal>whois</literal> problem above is to have each
-        thread block on a mutex using a common string, thus ensuring
-        that only one thread is querying whois servers at once.  That
-        thread can store the results in the NSE registry before
-        releasing unlocking the mutex.  The next script in the waiting
-        queue can then run.  It will first check the registry and only
-        query whois servers if the previous results were insufficient.
-      </para>
-
-      <para>The first step is to create a mutex object using a statement such as:</para>
-
-      <para><literal>mutexfn = nmap.mutex(object)</literal></para>
-
-      <para>The <literal>mutexfn</literal> returned is a function
-      which works as a mutex for the <literal>object</literal> passed
-      in.  This object can be any
-      <ulink role="hidepdf"
-      url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
-      type</ulink> except <literal>nil</literal>,
-      <literal>booleans</literal>, and <literal>numbers</literal>.
-      The returned function allows you to lock, try to lock, and
-      release the mutex. Its first and only parameter must be one of
-      the following:</para>
-
-
-      <variablelist>
-        <varlistentry>
-          <term><literal>"lock"</literal></term>
-          <listitem><para>Make a blocking lock on the mutex. If the mutex is busy (another thread has a lock on it), then the thread will yield and wait. The function returns with the mutex locked.</para></listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>"trylock"</literal></term>
-          <listitem><para>Makes a non-blocking lock on the mutex. If the mutex is
-           busy then it immediately returns with a return value of
-           <literal>false</literal>. Otherwise the mutex locks the
-           mutex and returns <literal>true</literal>.</para></listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>"done"</literal></term>
-          <listitem><para>Releases the mutex and allows
-          another thread to lock it.  If the thread does not have a lock on the mutex, an
-          error will be raised.</para></listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>"running"</literal></term>
-          <listitem><para>Returns the thread locked
-          on the mutex or <literal>nil</literal> if the mutex is not
-          locked. This should only be used for debugging as it
-          interferes with garbage collection of finished threads.</para></listitem>
-        </varlistentry>
-       </variablelist>
-
-<para>A simple example of using the API is provided in <xref linkend="nse-mutex-handling" xrefstyle="select: label nopage"/>.  For real-life examples, read the <filename>asn-query.nse</filename> and <filename>whois.nse</filename> scripts in the Nmap distribution.</para>
-
-      <example id="nse-mutex-handling">
-        <title>Mutex manipulation</title>
-<programlisting>
-local mutex = nmap.mutex("My Script's Unique ID");
-function action(host, port)
-  mutex "lock";
-  -- Do critical section work - only one thread at a time executes this.
-  mutex "done";
-  return script_output;
-end
-</programlisting>
-      </example>
-    </sect2>
-
     <sect2 id="nse-exceptions">
       <title>Exception Handling</title>
       <indexterm><primary>exceptions in NSE</primary></indexterm>
@@ -2363,6 +2269,547 @@ categories = {"discovery", "external"}
     </sect2>
     <indexterm class="endofrange" startref="nsedoc-indexterm"/>
     <indexterm class="endofrange" startref="nse-nsedoc-indexterm"/>
+  </sect1>
+
+  <sect1 id="nse-parallelism">
+    <title>Script Parallelism in NSE</title>
+    <para>
+      Before now, we have only lightly touched on the steps NSE takes to allow
+      multiple scripts to execute in parallel.  Usually, the author need not
+      concern himself with how any of this is implemented; however, there are a
+      couple cases that warrant discussion that we will cover in this section.
+      As a script writer, you may need to control how multiple scripts interact
+      in a library; you may require multiple threads to work in parallel; or
+      perhaps you need to serialize access to a remote resource. 
+    </para>
+    <para>
+      The standard mechanism for parallel execution is a thread. A thread
+      encapsulates execution flow and data of a script using the Lua
+      <literal>thread</literal> or <literal>coroutine</literal>.  A Lua thread
+      allows us to yield the current script at arbitrary points to continue
+      work on another script. Typically, these yield points are blocking calls
+      to the NSE Socket library. The yield back to NSE is also transparent; the
+      script is unaware of the transition and views each socket method as a
+      blocking call.
+    </para>
+    <para>
+      Let's go over some common terminology. A <emphasis>script</emphasis> is
+      analogous to a binary executable; it holds the information necessary to
+      execute our script. A <emphasis>thread</emphasis> (a Lua coroutine) is
+      analogous to a process; it runs a script against a host and possibly
+      port. We sometimes abuse our terminology throughout the book by referring
+      to a thread as a running script. We are really saying the "instantiation
+      of the script", in the same sense that a process is the instantiation of
+      an executable.
+    </para>
+    <para>
+      NSE provides the bare-bone essentials you need to expand your degree
+      of parallelism beyond the basic script thread: new independent threads,
+      Mutexes, and Condition Variables. We will go into depth on each of
+      these mechanisms in the following sections.
+    </para>
+    <sect2 id="nse-parallelism-threads">
+      <title>Worker Threads</title>
+      <para>
+        There are several instances where a script needs finer control with
+        respect to parallel execution beyond what is offered by default with a
+        generic script. The common reason for this need is the inability for a
+        script to read from multiple sockets concurrently. For example, an HTTP
+        spidering script may want to have multiple Lua threads querying web
+        server resources in parallel.  To solve this problem, NSE offers the
+        function <literal>stdnse.new_thread</literal> to create worker threads.
+        These worker threads have all the power of independent scripts with the
+        only restriction that they may not report Script Output.
+      </para>
+      <para>
+        Each worker thread launched by a script is given a main function and
+        a variable number of arguments to be passed to the main function by
+        NSE:
+      </para>
+      <para>
+        <literal>worker_thread, status_function = stdnse.new_thread(main, ...)</literal>
+      </para>
+      <para>
+        You are given back the Lua thread (coroutine) that uniquely identifies
+        your worker thread and a status query function that queries the status
+        of your new worker. 
+      </para>
+      <para>
+        The status query function returns two values:
+      </para>
+      <para>
+        <literal>status, error_object = status_function()</literal>
+      </para>
+      <para>
+        The first return value, <literal>status</literal>, is simply the return
+        value of <literal>coroutine.status</literal> on the worker thread
+        coroutine (more precisely, the <literal>base</literal> coroutine, read
+        more about <literal>base</literal> coroutine in <xref
+        linkend="nse-parallelism-base"/>). The second return value contains
+        the error object thrown that ended the worker thread or
+        <literal>nil</literal> if no error was thrown. This object is typically
+        a string, like most Lua errors. However, recall that any Lua type can
+        be an error object, even <literal>nil</literal>!  You should
+        inspect the error object, the second return value, only if the status
+        of your worker is <literal>"dead"</literal>.
+      </para>
+      <para>
+        NSE discards all return values from the main function when the worker
+        thread finishes execution. You should communicate with your worker
+        through the use of <literal>main</literal> function parameters,
+        upvalues, or function environments. You will see how to do this in
+        <xref linkend="nse-worker-example" xrefstyle="select: label nopage"/>.
+      </para>
+      <para>
+        Finally, when using worker threads you should always use condition
+        variables and Mutexes to coordinate with your worker threads. Keep in
+        mind that Nmap is single threaded so there are no (memory) issues in
+        synchronization to worry about; however, there is resource
+        contention. Your resources are usually network bandwidth, network
+        sockets, etc. Condition variables are also useful if the work for any
+        single thread is dynamic. For example, a web server spider script with
+        a pool of workers will initially have a single root html document.
+        Following the retrieval of the root document, the set of resources to
+        be retrieved (the worker's work) will become very large (an html
+        document adds many new hyperlinks (resources) to fetch).
+      </para>
+      <example id="nse-worker-example">
+        <title>Worker Thread Example</title>
+<programlisting>
+local requests = {"/", "/index.html", --[[ long list of objects ]]}
+
+function thread_main (host, port, responses, ...)
+  local condvar = nmap.condvar(responses);
+  local what = {n = select("#", ...), ...};
+  local allReqs = nil;
+  for i = 1, what.n do
+    allReqs = http.pGet(host, port, what[i], nil, nil, allReqs);
+  end
+  local p = assert(http.pipeline(host, port, allReqs));
+  for i, response in ipairs(p) do responses[#responses+1] = response end
+  condvar "signal";
+end
+
+function many_requests (host, port)
+  local threads = {};
+  local responses = {};
+  local condvar = nmap.condvar(responses);
+  local i = 1;
+  repeat
+    local j = math.min(i+10, #requests);
+    local co = stdnse.new_thread(thread_main, host, port, responses,
+        unpack(requests, i, j));
+    threads[co] = true;
+    i = j+1;
+  until i > #requests;
+  repeat
+    condvar "wait";
+    for thread in pairs(threads) do
+      if coroutine.status(thread) == "dead" then threads[thread] = nil end
+    end
+  until next(threads) == nil;
+  return responses;
+end
+</programlisting>
+      </example>
+      <para>
+        For brevity, this example omits typical behavior of a traditional web
+        spider. The requests table is assumed to contain a number of objects
+        (hundreds or thousands) to warrant the use of worker threads.  Our
+        example will dispatch a new thread with <literal>11</literal> relative
+        Uniform Resource Identifiers (URI) to request, up to the length of the
+        <literal>requests</literal> table.  Worker threads are very cheap so we
+        are not afraid to create a lot of them.  After we dispatch this large
+        number of threads, we wait on our Condition Variable until every thread
+        has finished then finally return the responses table.
+      </para>
+      <para>
+        You may have noticed that we did not use the status function returned
+        by <literal>stdnse.new_thread</literal>. You will typically use this
+        for debugging or if your program must stop based on the error thrown by
+        one of your worker threads. Our simple example did not require this but
+        a fault tolerant library may.
+      </para>
+    </sect2>
+    <sect2 id="nse-parallelism-mutex">
+      <title>Thread Mutexes</title>
+      <indexterm><primary>threads in NSE</primary></indexterm>
+      <indexterm><primary>mutexes in NSE</primary></indexterm>
+      <para>
+        Recall from the beginning of this section that each script execution
+        thread (e.g. <literal>ftp-anon</literal> running against an FTP server
+        on a target host) yields to other scripts whenever it makes a call
+        on network objects (sending or receiving data). Some scripts require
+        finer concurrency control over thread execution. An example is the
+        <literal>whois</literal> script which queries
+        whois<indexterm><primary>whois</primary></indexterm> servers for each
+        target IP address. Because many concurrent queries often result in
+        getting one's IP banned for abuse, and because a single query may
+        return additional information for targets other threads are running
+        against, it is useful to have other threads pause while one thread
+        performs a query.
+      </para>
+      <para>
+        To solve this problem, NSE includes a <literal>mutex</literal> function
+        which provides a <ulink
+        url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
+        (mutual exclusion object) usable by scripts. The Mutex allows for only
+        one thread to be working on an object. Competing threads waiting to
+        work on this object are put in the waiting queue until they can get a
+        "lock" on the Mutex. A solution for the <literal>whois</literal>
+        problem above is to have each thread block on a Mutex using a common
+        string, thus ensuring that only one thread is querying whois servers at
+        once. When finished querying the remote servers, the thread can store
+        results in the NSE registry and unlock the Mutex. Other scripts waiting
+        to query the remote server can then obtain a lock, check for usable
+        results retrieved from previous queries, make their own queries, and
+        unlock the Mutex.  This is a good example of serializing access to a
+        remote resource.
+      </para>
+
+      <para>
+        The first step in using a Mutex is to create one via a call to the
+        <literal>nmap</literal> library:
+      </para>
+
+      <para><literal>mutexfn = nmap.mutex(object)</literal></para>
+
+      <para>
+        The <literal>mutexfn</literal> returned is a function which works as a
+        Mutex for the <literal>object</literal> passed in.  This object can be
+        any <ulink role="hidepdf"
+        url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
+        type</ulink> except <literal>nil</literal>,
+        <literal>booleans</literal>, and <literal>numbers</literal>.  The
+        returned function allows you to lock, try to lock, and release the
+        Mutex. Its first and only parameter must be one of the
+        following:
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><literal>"lock"</literal></term>
+          <listitem>
+            <para>
+              Make a blocking lock on the Mutex. If the Mutex is busy (another
+              thread has a lock on it), then the thread will yield and
+              wait. The function returns with the Mutex locked.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>"trylock"</literal></term>
+          <listitem>
+            <para>
+              Makes a non-blocking lock on the Mutex. If the Mutex is busy then
+              it immediately returns with a return value of
+              <literal>false</literal>. Otherwise the Mutex locks the Mutex and
+              returns <literal>true</literal>.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>"done"</literal></term>
+          <listitem>
+            <para>
+              Releases the Mutex and allows another thread to lock it.  If the
+              thread does not have a lock on the Mutex, an error will be
+              raised.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>"running"</literal></term>
+          <listitem>
+            <para>
+              Returns the thread locked on the Mutex or <literal>nil</literal>
+              if the Mutex is not locked. This should only be used for
+              debugging as it interferes with garbage collection of finished
+              threads.
+            </para>
+          </listitem>
+        </varlistentry>
+       </variablelist>
+
+      <para>
+        NSE maintains a weak reference to the Mutex so other calls to
+        <literal>nmap.mutex</literal> with the same object will return the same
+        function (Mutex); however, if you discard your reference to the Mutex
+        then it may be collected; and, subsequent calls to
+        <literal>nmap.mutex</literal> with the object will return a different
+        Mutex function! Thus you should save your Mutex to a (local) variable
+        that persists for the entire time you require.
+      </para>
+
+       <para>
+         A simple example of using the API is provided in <xref
+         linkend="nse-mutex-handling" xrefstyle="select: label nopage"/>.  For
+         real-life examples, read the <filename>asn-query.nse</filename> and
+         <filename>whois.nse</filename> scripts in the Nmap
+         distribution.
+       </para>
+
+      <example id="nse-mutex-handling">
+        <title>Mutex manipulation</title>
+<programlisting>
+local mutex = nmap.mutex("My Script's Unique ID");
+function action(host, port)
+  mutex "lock";
+  -- Do critical section work - only one thread at a time executes this.
+  mutex "done";
+  return script_output;
+end
+</programlisting>
+      </example>
+    </sect2>
+    <sect2 id="nse-parallelism-condvar">
+      <title>Condition Variables</title>
+      <para>
+        Condition Variables arose out of a need to coordinate with worker
+        threads created using the <literal>stdnse.new_thread</literal>
+        function.  A Condition Variable allows one or more threads to wait on
+        an object and one or more threads to awaken one or all threads waiting
+        on the object. Said differently, multiple threads may unconditionally
+        <literal>block</literal> on the Condition Variable by
+        <emphasis>waiting</emphasis>. Other threads may wake up one or all of
+        the waiting threads via <emphasis>signalling</emphasis> the Condition
+        Variable.
+      </para>
+
+      <para>
+        As an example, we may dispatch multiple worker threads that will
+        produce results for us to use, like our earlier <xref
+        linkend="nse-worker-example" xrefstyle="select: label"/>.  Until all
+        the workers finish, our master thread must sleep. Note that we cannot
+        <literal>poll</literal> for results like in a traditional Operating
+        System thread because NSE does not preempt Lua threads. Instead,
+        we use a Condition Variable that the master thread
+        <emphasis>waits</emphasis> on until awakened by a worker. The master
+        will continually wait until all workers have terminated.
+      </para>
+
+      <para>
+        The first step in using a Condition Variable is to create one via a
+        call to the <literal>nmap</literal> library:
+      </para>
+
+      <para><literal>condvarfn = nmap.condvar(object)</literal></para>
+
+      <para>
+        The semantics for Condition Variables are similar to Mutexes.  The
+        <literal>condvarfn</literal> returned is a function which works as a
+        Condition Variable for the <literal>object</literal> passed in. This
+        object can be any <ulink role="hidepdf"
+        url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
+        type</ulink> except <literal>nil</literal>,
+        <literal>booleans</literal>, and <literal>numbers</literal>.  The
+        returned function allows you to wait, signal, and broadcast on the
+        Condition Variable.  Its first and only parameter must be one of the
+        following:
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><literal>"wait"</literal></term>
+          <listitem>
+            <para>
+              Wait on the Condition Variable. This adds your thread to the
+              waiting queue for the Condition Variable. You will resume
+              execution when another thread signals or broadcasts on the
+              Condition Variable.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>"signal"</literal></term>
+          <listitem>
+            <para>
+              Signal the Condition Variable. A thread in the Condition
+              Variable's waiting queue will be resumed.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>"broadcast"</literal></term>
+          <listitem>
+            <para>
+              Signal all threads in the Condition Variable's waiting
+              queue.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>
+        Like with Mutexes, NSE maintains a weak reference to the Condition
+        Variable so other calls to <literal>nmap.condvar</literal> with the
+        same object will return the same function (Condition Variable);
+        however, if you discard your reference to the Condition Variable then
+        it may be collected; and, subsequent calls to
+        <literal>nmap.condvar</literal> with the object will return a different
+        Condition Variable function! Thus you should save your Condition
+        Variable to a (local) variable that persists for the entire time you
+        require.
+      </para>
+
+      <para>
+        When using Condition Variables, it is important to check the predicate
+        before and after waiting. A predicate is a test on whether to continue
+        doing work within your worker or master thread. For your worker
+        threads, this will at the very least include a test to see if the
+        master thread is still alive. You do not want to continue doing work
+        when no thread will use your results. A typical test before waiting
+        may be: check whether the master is still running, if not then quit;
+        check that there is work to be done; if not then wait.
+      </para>
+
+      <para>
+        NSE does not guarantee spurious wakeups will not occur; that is, there
+        is no guarantee your thread will not be awakened when no thread called
+        <literal>"signal"</literal> or <literal>"broadcast"</literal> on the
+        Condition Variable. The typical, but not only, reason for a spurious
+        wakeup is the termination of a thread using a Condition Variable. This
+        is an important guarantee NSE makes that allows you to avoid deadlock
+        where a worker or master waits for a thread to wake them up that ended
+        without signaling the Condition Variable.
+      </para>
+    </sect2>
+    <sect2 id="nse-parallelism-cm">
+      <title>Collaborative Multithreading</title>
+      <para>
+        One of Lua's least known features is collaborative multithreading
+        through <emphasis>coroutines</emphasis>. A coroutine provides an
+        independent execution stack that is <emphasis>resumable</emphasis>.
+        The standard <literal>coroutine</literal> provides access to the
+        creation and manipulation of coroutines.      Lua's online first
+        edition of <ulink url="http://www.lua.org/pil/">Programming in
+        Lua</ulink> contains an excellent introduction to
+        <emphasis>coroutines</emphasis>.  We will provide an overview of the
+        use of coroutines here for completeness but this is no replacement for
+        reviewing PiL.
+      </para>
+
+      <para>
+        We have mentioned coroutines throughout this section as
+        <emphasis>threads</emphasis>. This is the <emphasis>type</emphasis>
+        (<literal>thread</literal>) of a coroutine in Lua. Users of NSE that
+        have any parallel programming experience with Operating System threads
+        may be confused by this. As a reminder, Nmap is single threaded.  Lua
+        threads provide the basis for parallel scripting but only one thread is
+        ever running at a time.
+      </para>
+
+      <para>
+        A Lua <literal>function</literal> executes on top of a Lua
+        <literal>thread</literal>. The thread maintains a stack of active
+        functions, local variables, and the current instruction. We can switch
+        between coroutines by explicitly <emphasis>yielding</emphasis> the
+        running thread. The coroutine which <emphasis>resumed</emphasis> the
+        yielded thread resumes operation.
+        <xref linkend="nse-cm-coroutines" xrefstyle="select: label nopage"/>
+        shows a brief use of coroutines to print numbers.
+      </para>
+      <example id="nse-cm-coroutines">
+        <title>Basic Coroutine Use</title>
+<programlisting>
+local function main ()
+  coroutine.yield(1)
+  coroutine.yield(2)
+  coroutine.yield(3)
+end
+local co = coroutine.create(main)
+for i = 1, 3 do
+  print(coroutine.resume(co))
+end
+--> true    1
+--> true    2
+--> true    3
+</programlisting>
+      </example>
+
+      <para>
+        What you should take from this example is the ability to transfer
+        between flows of control extremely easily through the use of
+        <literal>coroutine.yield</literal>. This is an extremely powerful
+        concept that enables NSE to run scripts in parallel. All scripts are
+        run as coroutines that yield whenever they make a blocking socket
+        function call. This enables NSE to run other scripts and later resume
+        the blocked script when its I/O operation has completed.
+      </para>
+
+      <para>
+        As a script writer, there are times when coroutines are the best
+        tool for a job. One common use in socket programming is to filter
+        data. You may produce a function that generates all the links from an
+        HTML document. An iterator using <literal>string.gmatch</literal>
+        only catchs a single pattern. Because some complex matches may take
+        many different Lua patterns, it is more appropriate to use a
+        coroutine.
+        <xref linkend="nse-cm-links" xrefstyle="select: label nopage"/>
+        shows how to do this.
+      </para>
+
+      <example id="nse-cm-links">
+        <title>Link Generator</title>
+<programlisting>
+function links (html_document)
+  local function generate ()
+    for m in string.gmatch(html_document, "url%((.-)%)") do
+      coroutine.yield(m) -- css url
+    end
+    for m in string.gmatch(html_document, "href%s*=%s*\"(.-)\"") do
+      coroutine.yield(m) -- anchor link
+    end
+    for m in string.gmatch(html_document, "src%s*=%s*\"(.-)\"") do
+      coroutine.yield(m) -- img source
+    end
+  end
+  return coroutine.wrap(generate)
+end
+
+function action (host, port)
+  -- ... get HTML document and store in html_document local
+  for link in links(html_document) do
+    links[#links+1] = link; -- store it
+  end
+  -- ...
+end
+</programlisting>
+      </example>
+
+      <para>
+        There are many other instances where coroutines may provide an
+        easier solution to a problem. It takes experience from use to help
+        identify those cases.
+      </para>
+
+      <sect3 id="nse-parallelism-base">
+        <title>The Base Thread</title>
+        <para>
+          Because scripts may use coroutines for their own multithreading,
+          it is important to be able to identify an <emphasis>owner</emphasis>
+          of a resource or to establish whether the script is still alive.
+          NSE provides the function <literal>stdnse.base</literal> for this
+          purpose.
+        </para>
+        <para>
+          Particularly when writing a library that attributes
+          ownership of a cache or socket to a script, you may use the
+          base thread to establish whether the script is still running.
+          <literal>coroutine.status</literal> on the base thread will give
+          the current state of the script. In cases where the script is
+          <literal>"dead"</literal>, you will want to release the resource.
+          Be careful with keeping references to these threads; NSE may
+          discard a script even though it has not finished executing. The
+          thread will still report a status of <literal>"suspended"</literal>.
+          You should keep a weak reference to the thread in these cases
+          so that it may be collected.
+        </para>
+      </sect3>
+    </sect2>
   </sect1>
 
   <sect1 id="nse-vscan">
