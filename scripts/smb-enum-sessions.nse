@@ -293,7 +293,7 @@ action = function(host)
 	sessions_output['name'] = "Active SMB sessions"
 	status2, sessions = srvsvc_enum_sessions(host)
 	if(status2 == false) then
-		sessions['warning'] = "Couldn't enumerate network sessions: " .. sessions
+		sessions_output['warning'] = "Couldn't enumerate network sessions: " .. sessions
 	else
 		if(#sessions == 0) then
 			table.insert(sessions_output, "<none>")
