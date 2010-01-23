@@ -2175,8 +2175,10 @@ end
 --@param share      The share to upload it to (eg, C$). 
 --@param remotefile The remote file on the machine. It is relative to the share's root. 
 --@param overrides  A table of override values that's passed to the smb functions. 
+--@param encoded    Set to 'true' if the file is encoded (xor'ed with 0xFF), It will be decoded before upload. Default: false
 --@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
-function file_upload(host, localfile, share, remotefile, overrides)
+require 'nsedebug'
+function file_upload(host, localfile, share, remotefile, overrides, encoded)
 	local status, err, smbstate
 	local chunk = 1024
 
@@ -2196,6 +2198,14 @@ function file_upload(host, localfile, share, remotefile, overrides)
 
 	local i = 0
 	while(data ~= nil and #data > 0) do
+
+		if(encoded) then
+			local new_data = ""
+			for j = 1, #data, 1 do
+				new_data = new_data .. string.char(bit.bxor(0xFF, string.byte(data, j)))
+			end
+			data = new_data
+		end
 	
 		status, err = smb.write_file(smbstate, data, i)
 		if(status == false) then

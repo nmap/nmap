@@ -943,7 +943,7 @@ local function upload_everything(host, config)
 
 	-- Upload the service file
 	stdnse.print_debug(1, "smb-psexec: Uploading: nselib/data/psexec/nmap_service.exe => \\\\%s\\%s", config.share, config.service_file)
-	status, err = smb.file_upload(host, "nselib/data/psexec/nmap_service.exe", config.share, "\\" .. config.service_file, overrides)
+	status, err = smb.file_upload(host, "nselib/data/psexec/nmap_service.exe", config.share, "\\" .. config.service_file, overrides, true)
 	if(status == false) then
 		cleanup(host, config)
 		return false, string.format("Couldn't upload the service file: %s\n", err)
