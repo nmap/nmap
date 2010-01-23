@@ -624,7 +624,7 @@ function start_netbios(host, port, name)
 		end
 		pos, result, flags, length = bin.unpack(">CCS", result)
 		if(result == nil or length == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [1]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [1]"
 		end
 	
 		-- Check for a position session response (0x82)
@@ -884,7 +884,7 @@ function smb_read(smb, read_data)
 	-- The NetBIOS header is 24 bits, big endian
 	pos, netbios_length   = bin.unpack(">I", result)
 	if(netbios_length == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [2]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [2]"
 	end
 	-- Make the length 24 bits
 	netbios_length = bit.band(netbios_length, 0x00FFFFFF)
@@ -927,32 +927,32 @@ function smb_read(smb, read_data)
 	-- The header is 32 bytes.
 	pos, header   = bin.unpack("<A32", result, pos)
 	if(header == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [3]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [3]"
 	end
 
 	-- The parameters length is a 1-byte value.
 	pos, parameter_length = bin.unpack("<C",     result, pos)
 	if(parameter_length == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [4]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [4]"
 	end
 
 	-- Double the length parameter, since parameters are two-byte values. 
 	pos, parameters       = bin.unpack(string.format("<A%d", parameter_length*2), result, pos)
 	if(parameters == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [5]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [5]"
 	end
 
 	-- The data length is a 2-byte value. 
 	pos, data_length      = bin.unpack("<S",     result, pos)
 	if(data_length == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [6]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [6]"
 	end
 
 	-- Read that many bytes of data.
 	if(read_data == nil or read_data == true) then
 		pos, data             = bin.unpack(string.format("<A%d", data_length),        result, pos)
 		if(data == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [7]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [7]"
 		end
 	else
 		data = nil
@@ -1042,7 +1042,7 @@ function negotiate_protocol(smb, overrides)
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [8]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [8]"
 	end
 
 	-- Since this is the first response seen, check any necessary flags here
@@ -1053,12 +1053,12 @@ function negotiate_protocol(smb, overrides)
 	-- Parse the parameter section
 	pos, smb['dialect'] = bin.unpack("<S", parameters)
 	if(smb['dialect'] == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [9]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [9]"
 	end
 
 	-- Check if we ran off the packet
 	if(smb['dialect'] == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [10]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [10]"
 	end
 	-- Check if the server didn't like our requested protocol
 	if(smb['dialect'] ~= 0) then
@@ -1067,7 +1067,7 @@ function negotiate_protocol(smb, overrides)
 
 	pos, smb['security_mode'], smb['max_mpx'], smb['max_vc'], smb['max_buffer'], smb['max_raw_buffer'], smb['session_key'], smb['capabilities'], smb['time'], smb['timezone'], smb['key_length'] = bin.unpack("<CSSIIIILsC", parameters, pos)
 	if(smb['security_mode'] == nil or smb['capabilities'] == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [11]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [11]"
 	end
 	-- Some broken implementations of SMB don't send these variables
 	if(smb['time'] == nil) then
@@ -1096,17 +1096,17 @@ function negotiate_protocol(smb, overrides)
 	if(smb['extended_security'] == true) then
 		pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
 		if(smb['server_challenge'] == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
 		end
 
 		pos, smb['server_guid'] = bin.unpack("<A16", data, pos)
 		if(smb['server_guid'] == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
 		end
 	else
 		pos, smb['server_challenge'] = bin.unpack(string.format("<A%d", smb['key_length']), data)
 		if(smb['server_challenge'] == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [12]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [12]"
 		end
 	
 		-- Get the domain as a Unicode string
@@ -1116,13 +1116,13 @@ function negotiate_protocol(smb, overrides)
 	
 		pos, ch, dummy = bin.unpack("<CC", data, pos)
 --		if(dummy == nil) then
---			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [13]"
+--			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [13]"
 --		end
 		while ch ~= nil and ch ~= 0 do
 			smb['domain'] = smb['domain'] .. string.char(ch)
 			pos, ch, dummy = bin.unpack("<CC", data, pos)
 			if(ch == nil or dummy == nil) then
-				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [14]"
+				return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [14]"
 			end
 		end
 	
@@ -1210,7 +1210,7 @@ function start_session_basic(smb, log_errors, overrides)
 		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
 		if(header1 == nil or mid == nil) then
-			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [17]"
 		end
 
 		-- Check if we're successful
@@ -1219,13 +1219,13 @@ function start_session_basic(smb, log_errors, overrides)
 			-- Parse the parameters
 			pos, andx_command, andx_reserved, andx_offset, action = bin.unpack("<CCSS", parameters)
 			if(andx_command == nil or action == nil) then
-				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
+				return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
 			end
 
 			-- Parse the data
 			pos, os, lanmanager, domain = bin.unpack("<zzz", data)
 			if(os == nil or domain == nil) then
-				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
+				return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
 			end
 		
 			-- Fill in the smb object and smb string
@@ -1354,7 +1354,7 @@ function start_session_extended(smb, log_errors, overrides)
 			-- Check if we were allowed in
 			pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 			if(header1 == nil or mid == nil) then
-				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
+				return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [17]"
 				end
 			smb['uid'] = uid
 
@@ -1366,14 +1366,14 @@ function start_session_extended(smb, log_errors, overrides)
 				-- Parse the parameters
 				pos, andx_command, andx_reserved, andx_offset, action, security_blob_length = bin.unpack("<CCSSS", parameters)
 				if(andx_command == nil or security_blob_length == nil) then
-					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
+					return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [18]"
 				end
 				smb['is_guest']   = bit.band(action, 1)
 		
 				-- Parse the data
 				pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
 				if(security_blob == nil or lanmanager == nil) then
-					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
+					return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [19]"
 				end
 				smb['os']         = os
 				smb['lanmanager'] = lanmanager
@@ -1514,7 +1514,7 @@ function tree_connect(smb, path, overrides)
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [20]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [20]"
 	end
 
 	if(status ~= 0) then
@@ -1558,7 +1558,7 @@ function tree_disconnect(smb)
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [21]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [21]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1610,7 +1610,7 @@ function logoff(smb)
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [22]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [22]"
 	end
 
 	if(status == 0xc0000022) then
@@ -1682,7 +1682,7 @@ function create_file(smb, path, overrides)
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [23]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [23]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1691,7 +1691,7 @@ function create_file(smb, path, overrides)
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory = bin.unpack("<CCSCSILLLLILLSSC", parameters)
 	if(andx_command == nil or is_directory == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [24]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [24]"
 	end
 
 	-- Fill in the smb table
@@ -1761,7 +1761,7 @@ function read_file(smb, offset, count)
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [25]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [25]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1770,7 +1770,7 @@ function read_file(smb, offset, count)
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3 = bin.unpack("<CCSSSSSSISI", parameters)
 	if(andx_command == nil or reserved_3 == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [26]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [26]"
 	end
 
 	response['remaining']   = remaining
@@ -1851,7 +1851,7 @@ function write_file(smb, write_data, offset)
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [27]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1861,7 +1861,7 @@ function write_file(smb, write_data, offset)
     local count_reserved, count_high, remaining, count_low
 	pos, andx_command, andx_reserved, andx_offset, count_low, remaining, count_high, count_reserved  = bin.unpack("<CCSSSSS", parameters)
 	if(count_reserved == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [28]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [28]"
 	end
 
 	response['count_low']  = count_low
@@ -1908,7 +1908,7 @@ function close_file(smb)
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [27]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -1955,7 +1955,7 @@ function delete_file(smb, path)
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [27]"
 	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
@@ -2063,7 +2063,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [29]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [29]"
 	end
 	if(status ~= 0) then
 		if(status_names[status] == nil) then
@@ -2076,7 +2076,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(total_word_count == nil or reserved2 == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [30]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [30]"
 	end
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
@@ -2149,7 +2149,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [31]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [31]"
 	end
 	if(status ~= 0) then
 		if(status_names[status] == nil) then
@@ -2162,7 +2162,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
 	if(total_word_count == nil or reserved2 == nil) then
-		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [32]"
+		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [32]"
 	end
 
 	return true, response
