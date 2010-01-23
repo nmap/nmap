@@ -533,6 +533,9 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
   return;
 }
 
+/* Return the current port state, if a Port has been allocated for this port.
+   Returns -1 if the port hasn't had anything about it set yet--in particular,
+   this function does not return the default port state by default. */
 int PortList::getPortState(u16 portno, u8 protocol) {
   const Port *port;
 

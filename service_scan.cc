@@ -1693,25 +1693,25 @@ ServiceGroup::~ServiceGroup() {
   delete SPM;
 }
 
-/* Called if data is read for a service or a TCP connection made.  If
-   the port state is currently PORT_UNFILTERED, changes to
-   PORT_OPEN. */
+/* Called if data is read for a service or a TCP connection made. Sets the port
+   state to PORT_OPEN. */
 static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
-
+  int oldstate;
   char host[128];
 
-  if (svc->target->ports.getPortState(svc->portno, svc->proto) == PORT_OPENFILTERED) {
-    svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
-    if (svc->proto == IPPROTO_TCP) 
-        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
-    if (svc->proto == IPPROTO_UDP)
-        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
+  oldstate = svc->target->ports.getPortState(svc->portno, svc->proto);
+  svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
+  if (svc->proto == IPPROTO_TCP) 
+      svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
+  if (svc->proto == IPPROTO_UDP)
+      svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
 
+  if (oldstate != PORT_OPEN) {
     if (o.verbose || o.debugging > 1) {
       svc->target->NameIP(host, sizeof(host));
 
-      log_write(LOG_STDOUT, "Discovered open|filtered port %hu/%s on %s is actually open\n",
-         svc->portno, proto2ascii(svc->proto), host);
+      log_write(LOG_STDOUT, "Discovered %s port %hu/%s on %s is actually open\n",
+         statenum2str(oldstate), svc->portno, proto2ascii(svc->proto), host);
       log_flush(LOG_STDOUT);
     }
   }
