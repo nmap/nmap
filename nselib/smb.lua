@@ -623,7 +623,7 @@ function start_netbios(host, port, name)
 			return false, "SMB: Failed to close socket: " .. result
 		end
 		pos, result, flags, length = bin.unpack(">CCS", result)
-		if(length == nil) then
+		if(result == nil or length == nil) then
 			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [1]"
 		end
 	
@@ -1041,7 +1041,7 @@ function negotiate_protocol(smb, overrides)
 	end
 
 	-- Check if we fell off the packet (if that happened, the last parameter will be nil)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [8]"
 	end
 
@@ -1066,7 +1066,7 @@ function negotiate_protocol(smb, overrides)
 	end
 
 	pos, smb['security_mode'], smb['max_mpx'], smb['max_vc'], smb['max_buffer'], smb['max_raw_buffer'], smb['session_key'], smb['capabilities'], smb['time'], smb['timezone'], smb['key_length'] = bin.unpack("<CSSIIIILsC", parameters, pos)
-	if(smb['capabilities'] == nil) then
+	if(smb['security_mode'] == nil or smb['capabilities'] == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [11]"
 	end
 	-- Some broken implementations of SMB don't send these variables
@@ -1121,7 +1121,7 @@ function negotiate_protocol(smb, overrides)
 		while ch ~= nil and ch ~= 0 do
 			smb['domain'] = smb['domain'] .. string.char(ch)
 			pos, ch, dummy = bin.unpack("<CC", data, pos)
-			if(dummy == nil) then
+			if(ch == nil or dummy == nil) then
 				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [14]"
 			end
 		end
@@ -1209,7 +1209,7 @@ function start_session_basic(smb, log_errors, overrides)
 		-- Check if we were allowed in
 		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 
-		if(mid == nil) then
+		if(header1 == nil or mid == nil) then
 			return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
 		end
 
@@ -1218,13 +1218,13 @@ function start_session_basic(smb, log_errors, overrides)
 
 			-- Parse the parameters
 			pos, andx_command, andx_reserved, andx_offset, action = bin.unpack("<CCSS", parameters)
-			if(action == nil) then
+			if(andx_command == nil or action == nil) then
 				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
 			end
 
 			-- Parse the data
 			pos, os, lanmanager, domain = bin.unpack("<zzz", data)
-			if(domain == nil) then
+			if(os == nil or domain == nil) then
 				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
 			end
 		
@@ -1353,7 +1353,7 @@ function start_session_extended(smb, log_errors, overrides)
 		
 			-- Check if we were allowed in
 			pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-			if(mid == nil) then
+			if(header1 == nil or mid == nil) then
 				return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [17]"
 				end
 			smb['uid'] = uid
@@ -1365,14 +1365,14 @@ function start_session_extended(smb, log_errors, overrides)
 			if(status_name == "NT_STATUS_OK" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
 				-- Parse the parameters
 				pos, andx_command, andx_reserved, andx_offset, action, security_blob_length = bin.unpack("<CCSSS", parameters)
-				if(security_blob_length == nil) then
+				if(andx_command == nil or security_blob_length == nil) then
 					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [18]"
 				end
 				smb['is_guest']   = bit.band(action, 1)
 		
 				-- Parse the data
 				pos, security_blob, os, lanmanager = bin.unpack(string.format("<A%dzz", security_blob_length), data)
-				if(lanmanager == nil) then
+				if(security_blob == nil or lanmanager == nil) then
 					return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [19]"
 				end
 				smb['os']         = os
@@ -1513,7 +1513,7 @@ function tree_connect(smb, path, overrides)
 	-- Check if we were allowed in
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [20]"
 	end
 
@@ -1557,7 +1557,7 @@ function tree_disconnect(smb)
 	-- Check if there was an error
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [21]"
 	end
 	if(status ~= 0) then
@@ -1609,7 +1609,7 @@ function logoff(smb)
 	-- Check if there was an error
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [22]"
 	end
 
@@ -1681,7 +1681,7 @@ function create_file(smb, path, overrides)
 	-- Check if we were allowed in
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [23]"
 	end
 	if(status ~= 0) then
@@ -1690,7 +1690,7 @@ function create_file(smb, path, overrides)
 
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory = bin.unpack("<CCSCSILLLLILLSSC", parameters)
-	if(is_directory == nil) then
+	if(andx_command == nil or is_directory == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [24]"
 	end
 
@@ -1760,7 +1760,7 @@ function read_file(smb, offset, count)
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
 	
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [25]"
 	end
 	if(status ~= 0) then
@@ -1769,7 +1769,7 @@ function read_file(smb, offset, count)
 
 	-- Parse the parameters
 	pos, andx_command, andx_reserved, andx_offset, remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3 = bin.unpack("<CCSSSSSSISI", parameters)
-	if(reserved_3 == nil) then
+	if(andx_command == nil or reserved_3 == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [26]"
 	end
 
@@ -1850,7 +1850,7 @@ function write_file(smb, write_data, offset)
     local uid, tid
 	-- Check if we were allowed in
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
 	end
 	if(status ~= 0) then
@@ -1907,7 +1907,7 @@ function close_file(smb)
 	-- Check if the close was successful
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
 	end
 	if(status ~= 0) then
@@ -1954,7 +1954,7 @@ function delete_file(smb, path)
 	-- Check if the close was successful
     local uid, tid
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [27]"
 	end
 	if(status ~= 0) then
@@ -2062,7 +2062,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	-- Check if it worked
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [29]"
 	end
 	if(status ~= 0) then
@@ -2075,7 +2075,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
-	if(reserved2 == nil) then
+	if(total_word_count == nil or reserved2 == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [30]"
 	end
 
@@ -2148,7 +2148,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 	-- Check if it worked
     local uid, tid, pos
 	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(mid == nil) then
+	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [31]"
 	end
 	if(status ~= 0) then
@@ -2161,7 +2161,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 
 	-- Parse the parameters
 	pos, total_word_count, total_data_count, reserved1, parameter_count, parameter_offset, parameter_displacement, data_count, data_offset, data_displacement, setup_count, reserved2 = bin.unpack("<SSSSSSSSSCC", parameters)
-	if(reserved2 == nil) then
+	if(total_word_count == nil or reserved2 == nil) then
 		return false, "SMB: ERROR: Ran off the end of SMB packet; likely due to server truncation [32]"
 	end
 
