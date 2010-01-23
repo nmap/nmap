@@ -506,13 +506,41 @@ local function find_password_case(hostinfo, username, password)
 	return password
 end
 
+---Unless the user is ok with lockouts, check the lockout policy of the host. Take the most restrictive 
+-- portion among the domains. Returns true if lockouts could happen, false otherwise. 
+local function bad_lockout_policy(host)
+	-- If the user is ok with locking out accounts, just return
+	if(nmap.registry.args.smblockout == "1" or nmap.registry.args.smblockout == "true") then
+		stdnse.print_debug(1, "smb-brute: Not checking server's lockout policy")
+		return true, false
+	end
+
+	local status, result = msrpc.get_domains(host)
+	if(not(status)) then
+		stdnse.print_debug(1, "smb-brute: Couldn't detect lockout policy: %s\n", result)
+		return false, "Couldn't retrieve lockout policy: " .. result
+	end
+
+	for domain, data in pairs(result) do
+		if(data and data.lockout_threshold) then
+			stdnse.print_debug(1, "smb-brute: Server's lockout policy: lock out after %d attempts\n", data.lockout_threshold)
+			return true, true
+		end
+	end
+
+	stdnse.print_debug(1, "smb-brute: Server has no lockout policy")
+	return true, false
+end
+
 ---Initializes and returns the hostinfo table. This includes queuing up the username and password lists, determining
 -- the server's operating system,  and checking the server's response for invalid usernames/invalid passwords. 
 --
 --@param host The host object. 
 local function initialize(host)
 	local os, result
+	local status, bad_lockout_policy_result
 	local hostinfo = {}
+
 	hostinfo['host'] = host
 	hostinfo['invalid_usernames'] = {}
 	hostinfo['locked_usernames'] = {}
@@ -527,6 +555,16 @@ local function initialize(host)
 		hostinfo['os'] = os['os']
 	end
 	stdnse.print_debug(1, "smb-brute: Remote operating system: %s", hostinfo['os'])
+
+	-- Check lockout policy
+	status, bad_lockout_policy_result = bad_lockout_policy(host)
+	if(not(status)) then
+		stdnse.print_debug(1, "smb-brute: WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
+	else
+		if(bad_lockout_policy_result) then
+			return false, "Account lockouts are enabled on the host. To continue (and risk lockouts), add --script-args=smblockout=1 -- for more information, run smb-enum-domains."
+		end
+	end
 
 	-- Attempt to enumerate users
 	stdnse.print_debug(1, "smb-brute: Trying to get user list from server")
@@ -874,6 +912,16 @@ function found_account(hostinfo, username, password, result)
 		-- Add the account
 		smb.add_account(hostinfo['host'], username, '', password, nil, nil, is_admin)
 
+		-- Check lockout policy
+		local status, bad_lockout_policy_result = bad_lockout_policy(hostinfo['host'])
+		if(not(status)) then
+			stdnse.print_debug(1, "smb-brute: WARNING: couldn't determine lockout policy: %s", bad_lockout_policy_result)
+		else
+			if(bad_lockout_policy_result) then
+				return false, "Account lockouts are enabled on the host. To continue (and risk lockouts), add --script-args=smblockout=1 -- for more information, run smb-enum-domains."
+			end
+		end
+
 		-- If we haven't retrieved the real user list yet, do so
 		if(hostinfo['have_user_list'] == false) then
 			-- Attempt to enumerate users
@@ -961,7 +1009,7 @@ local function go(host)
 				hostinfo['locked_usernames'][username] = true
 
 				-- Unless the user requested to keep going, stop the check
-				if(not(nmap.registry.args.smblockout == 1 or nmap.registry.args.smblockout == "true")) then
+				if(not(nmap.registry.args.smblockout == "1" or nmap.registry.args.smblockout == "true")) then
 					-- Mark it as found, which is technically true
 					status, err = found_account(hostinfo, username, nil, results.ACCOUNT_LOCKED_NOW)
 					if(status == false) then
