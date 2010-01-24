@@ -107,6 +107,7 @@
 #include "scan_engine.h"
 
 #include <list>
+#include <string>
 
 #ifndef INET6_ADDRSTRLEN
 #define INET6_ADDRSTRLEN 46

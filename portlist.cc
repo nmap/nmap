@@ -413,6 +413,7 @@ void PortList::setRPCProbeResults(u16 portno, int proto, int rpcs, unsigned long
 }
 
 
+#ifndef NOLUA
 void PortList::addScriptResult(u16 portno, int protocol, ScriptResult& sr) {
   Port *port;
 
@@ -420,6 +421,7 @@ void PortList::addScriptResult(u16 portno, int protocol, ScriptResult& sr) {
 
   port->scriptResults.push_back(sr);
 }
+#endif
 
 /*****************************************************************************/
 /* Convert protocol name from in.h to enum portlist_proto.

@@ -278,7 +278,9 @@ class PortList {
   void setRPCProbeResults(u16 portno, int proto, int rpc_status, unsigned long rpc_program, 
 			  unsigned int rpc_lowver, unsigned int rpc_highver);
 
+#ifndef NOLUA
   void addScriptResult(u16 portno, int protocol, ScriptResult& sr);
+#endif
 
   /* Cycles through the 0 or more "ignored" ports which should be
    consolidated for Nmap output.  They are returned sorted by the
