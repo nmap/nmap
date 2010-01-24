@@ -268,16 +268,19 @@ end
 -- @param len Packet length.
 function Packet:ip_set_len(len)
 	self:set_u16(self.ip_offset + 2, len)
+	self.ip_len = len
 end
 --- Set the TTL.
 -- @param ttl TTL.
 function Packet:ip_set_ttl(ttl)
 	self:set_u8(self.ip_offset + 8, ttl)
+	self.ip_ttl = ttl
 end
 --- Set the checksum.
 -- @param checksum Checksum.
 function Packet:ip_set_checksum(checksum)
 	self:set_u16(self.ip_offset + 10, checksum)
+	self.ip_sum = checksum
 end
 --- Count checksum for packet and save it.
 function Packet:ip_count_checksum()
@@ -483,31 +486,37 @@ end
 -- @param port Source port.
 function Packet:tcp_set_sport(port)
 	self:set_u16(self.tcp_offset + 0, port)
+	self.tcp_sport = port
 end
 --- Set the TCP destination port.
 -- @param port Destination port.
 function Packet:tcp_set_dport(port)
 	self:set_u16(self.tcp_offset + 2, port)
+	self.tcp_dport = port
 end
 --- Set the TCP sequence field.
 -- @param new_seq Sequence.
 function Packet:tcp_set_seq(new_seq)
 	self:set_u32(self.tcp_offset + 4, new_seq)
+	self.tcp_seq = new_seq
 end
 --- Set the TCP flags field (like SYN, ACK, RST).
 -- @param new_flags Flags, represented as an 8-bit number.
 function Packet:tcp_set_flags(new_flags)
 	self:set_u8(self.tcp_offset + 13, new_flags)
+	self.tcp_flags = new_flags
 end
 --- Set the urgent pointer field.
 -- @param urg_ptr Urgent pointer.
 function Packet:tcp_set_urp(urg_ptr)
 	self:set_u16(self.tcp_offset + 18, urg_ptr)
+	self.tcp_urp = urg_ptr
 end
 --- Set the TCP checksum field.
 -- @param checksum Checksum.
 function Packet:tcp_set_checksum(checksum)
 	self:set_u16(self.tcp_offset + 16, checksum)
+	self.tcp_sum = checksum
 end
 --- Count and save the TCP checksum field.
 function Packet:tcp_count_checksum()
