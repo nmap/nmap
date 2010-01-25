@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Show a nicer error message when an input file can't be
+  loaded. Suggested by Derril Lucci, who also contributed a patch.
+
 o Added a function that was missing from http-favicon.nse. Its absence
   would cause the error
     http-favicon.nse:141: variable 'dirname' is not declared

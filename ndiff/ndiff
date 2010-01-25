@@ -1193,10 +1193,14 @@ def main():
     filename_a = input_filenames[0]
     filename_b = input_filenames[1]
 
-    scan_a = Scan()
-    scan_a.load_from_file(filename_a)
-    scan_b = Scan()
-    scan_b.load_from_file(filename_b)
+    try:
+        scan_a = Scan()
+        scan_a.load_from_file(filename_a)
+        scan_b = Scan()
+        scan_b.load_from_file(filename_b)
+    except Exception, e:
+        print >> sys.stderr, u"Can't open file: %s" % str(e)
+        sys.exit(EXIT_ERROR)
 
     diff = ScanDiff(scan_a, scan_b)
 
