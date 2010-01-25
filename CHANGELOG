@@ -39,6 +39,15 @@ o Added an Apple Filing Protocol service probe that detects Netatalk
   servers. (Apple's AFP servers are coincidentally triggered by the
   SSLSessionReq probe.) [Patrik Karlsson]
 
+o [NSE] Fixed http-enum.nse to use the full pathname rather than a
+  relative path for the fingerprint files.  The script would throw an
+  error when, for example, the --datadir option was used.  This was
+  reported by Ron Meldau and Brandon Enright. [Kris]
+
+o [NSE] Fixed packet.lua so that functions used to set packet header
+  fields (e.g. ip_set_ttl) also set the appropriate variables used to
+  access the data (e.g. ip_ttl). [Kris]
+
 o Updated IANA assignment IP list for random IP (-iR) generation.  Now
   even 001/8 has been allocated. [Kris]
 
