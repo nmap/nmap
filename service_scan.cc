@@ -1700,13 +1700,13 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
   char host[128];
 
   oldstate = svc->target->ports.getPortState(svc->portno, svc->proto);
-  svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
-  if (svc->proto == IPPROTO_TCP) 
-      svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
-  if (svc->proto == IPPROTO_UDP)
-      svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
-
   if (oldstate != PORT_OPEN) {
+    svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
+    if (svc->proto == IPPROTO_TCP) 
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
+    if (svc->proto == IPPROTO_UDP)
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
+
     if (o.verbose || o.debugging > 1) {
       svc->target->NameIP(host, sizeof(host));
 
