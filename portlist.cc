@@ -535,17 +535,21 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
   return;
 }
 
-/* Return the current port state, if a Port has been allocated for this port.
-   Returns -1 if the port hasn't had anything about it set yet--in particular,
-   this function does not return the default port state by default. */
 int PortList::getPortState(u16 portno, u8 protocol) {
   const Port *port;
 
   port = lookupPort(portno, protocol);
   if (port == NULL)
-    return -1;
+    return default_port_state[INPROTO2PORTLISTPROTO(protocol)].state;
 
   return port->state;
+}
+
+/* Return true if nothing special is known about this port; i.e., it's in the
+   default state as defiend by setDefaultPortState and every other data field is
+   unset. */
+bool PortList::portIsDefault(u16 portno, u8 protocol) {
+  return lookupPort(portno, protocol) == NULL;
 }
 
   /* Saves an identification string for the target containing these

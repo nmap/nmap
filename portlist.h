@@ -221,6 +221,7 @@ class PortList {
   void setPortState(u16 portno, u8 protocol, int state);
   int getPortState(u16 portno, u8 protocol);
   int forgetPort(u16 portno, u8 protocol);
+  bool portIsDefault(u16 portno, u8 protocol);
   /* Saves an identification string for the target containing these
      ports (an IP addrss might be a good example, but set what you
      want).  Only used when printing new port updates.  Optional.  A
