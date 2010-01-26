@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added better match lines for MIT Kerberos from Matt Selsky.
+
 o [NSE] Added 5 new NSE scripts and a library for use with MySQL. 
   * mysql-brute uses the unpwdb library to guess credentials for MySQL
   * mysql-databases queries MySQL for a list of databases
