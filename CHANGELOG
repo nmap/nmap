@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added 5 new NSE scripts and a library for use with MySQL. 
+  * mysql-brute uses the unpwdb library to guess credentials for MySQL
+  * mysql-databases queries MySQL for a list of databases
+  * mysql-empty-password attempts to authenticate anonymously or as root with
+    an empty password 
+  * mysql-users queries MySQL for a list of database users
+  * mysql-variables queries MySQL for it's variables and their settings
+
 o [NSE] Added the new daap-get-library script which uses the Digital Audio
   Access Protocol to enumerate the contents of a library. The contents
   contain the name of the artist, album and song.
