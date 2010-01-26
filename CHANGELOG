@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the new daap-get-library script which uses the Digital Audio
+  Access Protocol to enumerate the contents of a library. The contents
+  contain the name of the artist, album and song.
+
 o [Ndiff] Show a nicer error message when an input file can't be
   loaded. Suggested by Derril Lucci, who also contributed a patch.
 

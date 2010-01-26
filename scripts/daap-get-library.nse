@@ -1,6 +1,8 @@
 description = [[ Retrieves a list of music from a DAAP server including the name of the artist, album and songs ]]
 
 ---
+-- @args daap_item_limit Changes the output limit from 100 songs. If set to a negative value, no limit is enforced.
+--
 -- @output
 -- | daap-get-library:  
 -- |   BUBBA|TWO
