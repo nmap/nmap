@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added a workaround for a Ubuntu Python packaging idiosyncrasy.
+  As of version python2.6-2.6.4-0ubuntu3, Ubuntu's distutils modifies
+  self.prefix, a variable we use in the setup.py script. This would
+  cause Zenmap to look in the wrong place for its configuration files,
+  and show the dialog "Error creating the per-user configuration
+  directory" with the specific error "[Errno 2] No such file or
+  directory: '/usr/share/zenmap/config'". This problem was reported by
+  Chris Clements, who also helped debug. [David]
+
 o Added better match lines for MIT Kerberos from Matt Selsky.
 
 o [NSE] Added 5 new NSE scripts and a library for use with MySQL. 
