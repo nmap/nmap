@@ -1,3 +1,4 @@
+Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
@@ -7,12 +8,14 @@ Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers.nse", categories = { "discovery", "safe", } }
+Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-recursion.nse", categories = { "default", "intrusive", } }
+Entry { filename = "dns-service-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
@@ -34,7 +37,12 @@ Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "mysql-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "mysql-empty-password.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "mysql-users.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }

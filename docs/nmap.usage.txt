@@ -1,4 +1,4 @@
-Nmap 5.20 ( http://nmap.org )
+Nmap 5.21 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -56,7 +56,7 @@ TIMING AND PERFORMANCE:
   (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
   -T<0-5>: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes
-  --min-parallelism/max-parallelism <time>: Probe parallelization
+  --min-parallelism/max-parallelism <numprobes>: Probe parallelization
   --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout <time>: Specifies
       probe round trip time.
   --max-retries <tries>: Caps number of port scan probe retransmissions.
