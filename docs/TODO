@@ -1,20 +1,14 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Make Nmap 5.21 bugfix-only release
+
 o [NSE] Document Patrick's worker thread patch in scripting.xml (see
   http://seclists.org/nmap-dev/2009/q4/294,
   http://nmap.org/nsedoc/lib/stdnse.html#new_thread,
   http://nmap.org/nsedoc/lib/nmap.html#condvar) [Patrick]
 
-o NSEDoc left sidebar should include a link to
-  http://nmap.org/book/nse.html below "Index".
-
-o Make new stable release
-
 o [NSE] Look at new DB2 script by Tom
   Sellers. http://seclists.org/nmap-dev/2009/q4/659
-
-o [NSE] Review DNS-SD script from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/87
 
 o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
   http://seclists.org/nmap-dev/2010/q1/76
@@ -22,19 +16,10 @@ o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
 o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/70
 
-o [NSE] Consider afp-showmount script from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/97
-
 o [NSE] Consider SNMP scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/162
   http://seclists.org/nmap-dev/2010/q1/174
   http://seclists.org/nmap-dev/2010/q1/178
-
-o [NSE] Consider MySQL scripts from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/163
-
-o [NSE] Consider DAAP script from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/164
 
 o [NSE] Consider MongoDB scripts and libraries from Martin Holst Swende.
   http://seclists.org/nmap-dev/2010/q1/177
@@ -567,6 +552,25 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Consider afp-showmount script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/97
+  [merged to trunk]
+
+o [NSE] Review DNS-SD script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/87
+  [merged to trunk]
+
+o [NSE] Consider MySQL scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/163
+  [merged to trunk]
+
+o [NSE] Consider DAAP script from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/164
+  [merged to trunk]
+
+o NSEDoc left sidebar should include a link to
+  http://nmap.org/book/nse.html below "Index".
 
 o Consider enhancing the new OS Assist system to handle version
   detection too. [We decided not to do this as David noted that Doug's
