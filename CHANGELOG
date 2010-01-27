@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a stack overflow that would happen when a nameserver entry in
+  /etc/resolv.conf contained more than 16 bytes, as could legitimately
+  happen with an IPv6 address. Gunnar Lindberg reported the problem
+  and contributed an initial patch, then Brandon and Kris refined and
+  implemented it.
+
 o [Zenmap] Added a workaround for a Ubuntu Python packaging idiosyncrasy.
   As of version python2.6-2.6.4-0ubuntu3, Ubuntu's distutils modifies
   self.prefix, a variable we use in the setup.py script. This would

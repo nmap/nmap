@@ -937,13 +937,17 @@ void win32_read_registry(char *controlset) {
 static void parse_resolvdotconf() {
   FILE *fp;
   char buf[2048], *tp;
-  char ipaddr[16];
+  char fmt[32];
+  char ipaddr[INET6_ADDRSTRLEN];
 
   fp = fopen("/etc/resolv.conf", "r");
   if (fp == NULL) {
     if (firstrun) error("mass_dns: warning: Unable to open /etc/resolv.conf. Try using --system-dns or specify valid servers with --dns-servers");
     return;
   }
+
+  /* Customize a sscanf format to sizeof(ipaddr). */
+  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", sizeof(ipaddr));
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;
@@ -956,7 +960,7 @@ static void parse_resolvdotconf() {
     // Skip any leading whitespace
     while (*tp == ' ' || *tp == '\t') tp++;
 
-    if (sscanf(tp, "nameserver %65s", ipaddr) == 1) add_dns_server(ipaddr);
+    if (sscanf(tp, fmt, ipaddr) == 1) add_dns_server(ipaddr);
   }
 
   fclose(fp);
