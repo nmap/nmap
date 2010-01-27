@@ -1230,10 +1230,10 @@ pipeline = function(host, port, allReqs)
     socket:close()
 
     if count == 0 then
-      stdnse.print_debug("Received 0 of %d expected reponses.\nGiving up on pipeline.", limit);
+      stdnse.print_debug("Received 0 of %d expected responses.\nGiving up on pipeline.", limit);
       break
     elseif count < limit then
-      stdnse.print_debug("Received only %d of %d expected reponses.\nDecreasing max pipelined requests to %d.", count, limit, count)
+      stdnse.print_debug("Received only %d of %d expected responses.\nDecreasing max pipelined requests to %d.", count, limit, count)
       limit = count
     end
   end

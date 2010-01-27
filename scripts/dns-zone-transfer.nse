@@ -243,7 +243,7 @@ end
 
 -- An iterator that breaks up a concatentation of responses. In DNS over TCP,
 -- each response is prefixed by a two-byte length (RFC 1035 section 4.2.2).
--- Reponses returned by this iterator include the two-byte length prefix.
+-- Responses returned by this iterator include the two-byte length prefix.
 function responses_iter(data)
 	local offset = 1
 
