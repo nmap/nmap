@@ -1,47 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Restored the ability of http.head to return a body if the
-  server returns one. This was lost in the http.lua overhaul from
-  5.20. [David]
-
-o [NSE] Fixed the use of our strict.lua library on distributions that
-  install their own strict.lua. The error message was
-    nse_main.lua:97: attempt to call a boolean value
-  It was reported by Onur K. [Patrick]
-
-o [NSE] Corrected a behavior change in http.request that was
-  accidentally made in 5.20: it could return nil instead of a table
-  indicating failure. [David]
-
-o [NSE] Fixed the use of an undefined variable in smb-enum-sessions,
-  reported by Brandon. [Ron]
-
-o Fixed a compiler error when --without-liblua is used. [Brandon]
-
-o [NSE] Did some simple bit-flipping on the nmap_service.exe program
-  used by the smb-psexec script, to avoid its being falsely detected
-  as malware. [Ron]
-
-o [NSE] Fixed an error with running http-enum.nse along with the
-  --datadir option. The script would report the error
-    http-enum.nse:198: bad argument #1 to 'lines'
-      (nselib/data/http-fingerprints: No such file or directory)
-  The error was reported by Ron Meldau and Brandon. [Kris]
-
-o Fixed a stack overflow that would happen when a nameserver entry in
-  /etc/resolv.conf contained more than 16 bytes, as could legitimately
-  happen with an IPv6 address. Gunnar Lindberg reported the problem
-  and contributed an initial patch, then Brandon and Kris refined and
-  implemented it.
-
-o [Zenmap] Added a workaround for a Ubuntu Python packaging idiosyncrasy.
-  As of version python2.6-2.6.4-0ubuntu3, Ubuntu's distutils modifies
-  self.prefix, a variable we use in the setup.py script. This would
-  cause Zenmap to look in the wrong place for its configuration files,
-  and show the dialog "Error creating the per-user configuration
-  directory" with the specific error "[Errno 2] No such file or
-  directory: '/usr/share/zenmap/config'". This problem was reported by
-  Chris Clements, who also helped debug. [David]
+[NOT YET RELEASED]
 
 o Added better match lines for MIT Kerberos from Matt Selsky.
 
@@ -60,28 +19,6 @@ o [NSE] Added the new daap-get-library script which uses the Digital Audio
 o [Ndiff] Show a nicer error message when an input file can't be
   loaded. Suggested by Derril Lucci, who also contributed a patch.
 
-o Added a function that was missing from http-favicon.nse. Its absence
-  would cause the error
-    http-favicon.nse:141: variable 'dirname' is not declared
-  when a web page specified an relative icon URL through the link
-  element. This bug was reported by Ron Meldau. [David]
-
-o Fixed an error that occurred when UDP scan was combined with version
-  scan. UDP ports would appear in the state "unknown" at the end of
-  the scan, and in some cases an assertion failure would be raised.
-  This was an unintended side effect of the memory use reduction
-  changes in 5.20. The bug was reported by Jon Kibler. [David]
-
-o [NSE] Fixed a bug in http.lua that could lead to an assertion
-  failure. It happened when there was an error getting the a response
-  at the beginning of a batch in http.pipeline. The symptoms of the
-  bug were:
-    NSE: Received only 0 of 1 expected reponses.
-    Decreasing max pipelined requests to 0.
-    NSOCK (0.1870s) Write request for 0 bytes...
-    nmap: nsock_core.c:516: handle_write_result: Assertion `bytesleft > 0' failed.
-  The error was reported by Brandon Enright and pyllyukko.
-
 o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   to identify services. DNS-SD is one part of automatic configuration
   technologies known by names such as Bonjour, Rendezvous, and
@@ -91,9 +28,6 @@ o [NSE] Added the new dns-service-discovery script which uses DNS-SD
 o [NSE] Added a new library, afp.lua, and a script that uses it,
   afp-showmount. The library is for the Apple Filing Protocol and the
   script shows shares and their permissions. [Patrik Karlsson]
-
-o Fixed a bug with the decoding of NMAP OID component values greater
-  than 127. [Patrik Karlsson, David]
 
 o Added an Apple Filing Protocol service probe that detects Netatalk
   servers. (Apple's AFP servers are coincidentally triggered by the
@@ -110,6 +44,76 @@ o [NSE] Fixed packet.lua so that functions used to set packet header
 
 o Updated IANA assignment IP list for random IP (-iR) generation.  Now
   even 001/8 has been allocated. [Kris]
+
+Nmap 5.21 [2010-01-27]
+
+o [Zenmap] Added a workaround for a Ubuntu Python packaging idiosyncrasy.
+  As of version python2.6-2.6.4-0ubuntu3, Ubuntu's distutils modifies
+  self.prefix, a variable we use in the setup.py script. This would
+  cause Zenmap to look in the wrong place for its configuration files,
+  and show the dialog "Error creating the per-user configuration
+  directory" with the specific error "[Errno 2] No such file or
+  directory: '/usr/share/zenmap/config'". This problem was reported by
+  Chris Clements, who also helped debug. [David]
+
+o Fixed an error that occurred when UDP scan was combined with version
+  scan. UDP ports would appear in the state "unknown" at the end of
+  the scan, and in some cases an assertion failure would be raised.
+  This was an unintended side effect of the memory use reduction
+  changes in 5.20. The bug was reported by Jon Kibler. [David]
+
+o [NSE] Did some simple bit-flipping on the nmap_service.exe program
+  used by the smb-psexec script, to avoid its being falsely detected
+  as malware. [Ron]
+
+o [NSE] Fixed a bug in http.lua that could lead to an assertion
+  failure. It happened when there was an error getting the a response
+  at the beginning of a batch in http.pipeline. The symptoms of the
+  bug were:
+    NSE: Received only 0 of 1 expected reponses.
+    Decreasing max pipelined requests to 0.
+    NSOCK (0.1870s) Write request for 0 bytes...
+    nmap: nsock_core.c:516: handle_write_result: Assertion `bytesleft > 0' failed.
+  The error was reported by Brandon Enright and pyllyukko.
+
+o [NSE] Restored the ability of http.head to return a body if the
+  server returns one. This was lost in the http.lua overhaul from
+  5.20. [David]
+
+o [NSE] Fixed the use of our strict.lua library on distributions that
+  install their own strict.lua. The error message was
+    nse_main.lua:97: attempt to call a boolean value
+  It was reported by Onur K. [Patrick]
+
+o Fixed handing of nameserver entries in /etc/resolv.conf so it could
+  handle entries containing more than 16 bytes, which can occur with
+  IPv6 addresses.  Gunnar Lindberg reported the problem and
+  contributed an initial patch, then Brandon and Kris refined and
+  implemented it.
+
+o [NSE] Corrected a behavior change in http.request that was
+  accidentally made in 5.20: it could return nil instead of a table
+  indicating failure. [David]
+
+o [NSE] Fixed the use of an undefined variable in smb-enum-sessions,
+  reported by Brandon. [Ron]
+
+o Fixed a compiler error when --without-liblua is used. [Brandon]
+
+o [NSE] Fixed an error with running http-enum.nse along with the
+  --datadir option. The script would report the error
+    http-enum.nse:198: bad argument #1 to 'lines'
+      (nselib/data/http-fingerprints: No such file or directory)
+  The error was reported by Ron Meldau and Brandon. [Kris]
+
+o Added a function that was missing from http-favicon.nse. Its absence
+  would cause the error
+    http-favicon.nse:141: variable 'dirname' is not declared
+  when a web page specified an relative icon URL through the link
+  element. This bug was reported by Ron Meldau. [David]
+
+o Fixed a bug with the decoding of NMAP OID component values greater
+  than 127. [Patrik Karlsson, David]
 
 Nmap 5.20 [2010-01-20]
 
