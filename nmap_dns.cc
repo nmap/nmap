@@ -947,7 +947,7 @@ static void parse_resolvdotconf() {
   }
 
   /* Customize a sscanf format to sizeof(ipaddr). */
-  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", sizeof(ipaddr));
+  Snprintf(fmt, sizeof(fmt), "nameserver %%%us", (unsigned int) sizeof(ipaddr));
 
   while (fgets(buf, sizeof(buf), fp)) {
     tp = buf;

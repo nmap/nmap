@@ -122,10 +122,12 @@ extern "C" {
 #endif
 
 void fatal(const char *fmt, ...)
+     __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
 void error(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
 void pfatal(const char *err, ...)
+     __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
 void gh_perror(const char *err, ...)
      __attribute__ ((format (printf, 1, 2)));
