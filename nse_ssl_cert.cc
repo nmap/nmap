@@ -243,7 +243,7 @@ static int parse_int(const unsigned char *s, size_t len)
   return (int) v;
 }
 
-/* This is a helper function for asn1_time_to_obj. It parses a tectual ASN1_TIME
+/* This is a helper function for asn1_time_to_obj. It parses a textual ASN1_TIME
    value and stores the time in the given struct tm. It returns 0 on success and
    -1 on a parse error. */
 static int time_to_tm(const ASN1_TIME *t, struct tm *result)
