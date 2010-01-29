@@ -2,23 +2,27 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the new lexmark-config script that lists product information and
+  configuration for Lexmark printers. [Patrik Karlsson]
+
 o [Ncat] Added support for HTTP Digest authentication of proxies, as
   both client and server. Previously only the less secure Basic was
   supported. [Venkat, David]
 
 o Added better match lines for MIT Kerberos from Matt Selsky.
 
-o [NSE] Added 5 new NSE scripts and a library for use with MySQL. 
+o [NSE] Added 5 new NSE scripts and a library by Patrik Karlsson for use with 
+  MySQL.
   * mysql-brute uses the unpwdb library to guess credentials for MySQL
   * mysql-databases queries MySQL for a list of databases
   * mysql-empty-password attempts to authenticate anonymously or as root with
-    an empty password 
+    an empty password
   * mysql-users queries MySQL for a list of database users
   * mysql-variables queries MySQL for it's variables and their settings
 
 o [NSE] Added the new daap-get-library script which uses the Digital Audio
   Access Protocol to enumerate the contents of a library. The contents
-  contain the name of the artist, album and song.
+  contain the name of the artist, album and song. [Patrik]
 
 o [Ndiff] Show a nicer error message when an input file can't be
   loaded. Suggested by Derril Lucci, who also contributed a patch.
