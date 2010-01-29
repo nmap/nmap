@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] Added support for HTTP Digest authentication of proxies, as
+  both client and server. Previously only the less secure Basic was
+  supported. [Venkat, David]
+
 o Added better match lines for MIT Kerberos from Matt Selsky.
 
 o [NSE] Added 5 new NSE scripts and a library for use with MySQL. 
