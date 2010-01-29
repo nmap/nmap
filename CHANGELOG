@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added two new scripts for the MongoDB database from Martin
+  Holst Swende. mongodb-info gets information like the version number,
+  memory use, and operating system. mongodb-databases lists the
+  databases and their size on disk.
+
 o [NSE] Added the new lexmark-config script that lists product information and
   configuration for Lexmark printers. [Patrik Karlsson]
 
