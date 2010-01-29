@@ -46,7 +46,7 @@ Attempts to get build info and server status from a MongoDB
 
 author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 require "mongodb"
 require "shortport"
