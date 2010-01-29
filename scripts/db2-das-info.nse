@@ -6,7 +6,7 @@ The script will also set the port product and version if a version scan is
 requested.
 ]]
 
--- rev 1.0 (2010-01-27)
+-- rev 1.1 (2010-01-28)
   
 author = "Patrik Karlsson, Tom Sellers"
 
@@ -38,7 +38,7 @@ require "shortport"
 --
 --   Details on how to reproduce these steps with the CLI are welcome.
 
-portrule = shortport.port_or_service({523},"ibm-db2", {"tcp","udp"}, {"open", "open|filtered"})
+portrule = shortport.portnumber({523}, {"tcp","udp"}, {"open", "open|filtered"})
 
 --- Extracts the server profile from an already parsed db2 packet
 --
@@ -85,9 +85,12 @@ function parse_db2_packet(packet)
 	_, response.version = bin.unpack("z", packet.data:sub(version_offset) )
 	response.info_length = len - 4
 	response.info = packet.data:sub(info_offset, info_offset + response.info_length - (info_offset-info_length_offset))
-	stdnse.print_debug( string.format("db2-das-info: version: %s", response.version) )
-	stdnse.print_debug( string.format("db2-das-info: info_length: %d", response.info_length) )
-	stdnse.print_debug( string.format("db2-das-info: response.info:len(): %d", response.info:len()))
+	
+	if(nmap.debugging() > 3)  then
+		stdnse.print_debug( string.format("db2-das-info: version: %s", response.version) )
+		stdnse.print_debug( string.format("db2-das-info: info_length: %d", response.info_length) )
+		stdnse.print_debug( string.format("db2-das-info: response.info:len(): %d", response.info:len()))
+	end
 	
 	return response
 	
@@ -141,16 +144,23 @@ function read_db2_packet(socket)
 		end
 		
 		total_len = header_len + packet.header.data_len
-		stdnse.print_debug( string.format("db2-das-info: data_len: %d", packet.header.data_len) )
-		stdnse.print_debug( string.format("db2-das-info: buf_len: %d", buf:len()))
-		stdnse.print_debug( string.format("db2-das-info: total_len: %d", total_len))
+		
+		if(nmap.debugging() > 3) then
+			stdnse.print_debug( string.format("db2-das-info: data_len: %d", packet.header.data_len) )
+			stdnse.print_debug( string.format("db2-das-info: buf_len: %d", buf:len()))
+			stdnse.print_debug( string.format("db2-das-info: total_len: %d", total_len))
+		end
 			
 		-- do we have all data as specified by data_len?
 		while total_len > buf:len() do
 			-- if not read additional bytes
-			stdnse.print_debug( string.format("db2-das-info: Reading %d additional bytes", total_len - buf:len()))
+			if(nmap.debugging() > 3)  then
+				stdnse.print_debug( string.format("db2-das-info: Reading %d additional bytes", total_len - buf:len()))
+			end
 			local tmp = try( socket:receive_bytes( total_len - buf:len() ) )
-			stdnse.print_debug( string.format("db2-das-info: Read %d bytes", tmp:len()))
+			if(nmap.debugging() > 3)  then
+				stdnse.print_debug( string.format("db2-das-info: Read %d bytes", tmp:len()))
+			end
 			buf = buf .. tmp
 		end
 		
