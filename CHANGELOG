@@ -45,6 +45,12 @@ o [NSE] Fixed http-enum.nse to use the full pathname rather than a
 o [NSE] Fixed packet.lua so that functions used to set packet header
   fields (e.g. ip_set_ttl) also set the appropriate variables used to
   access the data (e.g. ip_ttl). [Kris]
+  
+o [NSE] Added a new script, db2-das-info.nse, that connects to the 
+  IBM DB2 Administration Server (DAS) exports the server profile. No 
+  authentication is required for this request. The script will also 
+  set the port product and version if a version scan is requested. 
+  [Patrik Karlsson, Tom Sellers]
 
 o Updated IANA assignment IP list for random IP (-iR) generation.  Now
   even 001/8 has been allocated. [Kris]
