@@ -8543,7 +8543,7 @@ Probe UDP Quake2_status q|\xff\xff\xff\xffstatus|
 rarity 8
 ports 27910-27914
 
-match quake2 m|^\xff\xff\xff\xffprint\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\data1(?=\\).*\\hostname\\([^\\]*)(?=\\)| p/Alien Arena game server/ v/$1/ h/$2/ o/Linux/
+match quake2 m|^\xff\xff\xff\xffprint\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\data1(?=\\)| p/Alien Arena game server/ v/$1/ o/Linux/
 
 ##############################NEXT PROBE##############################
 # Quake3 getstatus
@@ -8551,13 +8551,13 @@ Probe UDP Quake3_getstatus q|\xff\xff\xff\xffgetstatus|
 rarity 8
 ports 26000-26004,27960-27964,30720-30724,44400
 
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\gamename\\Nexuiz(?=\\).*\\gameversion\\([^\\]*)(?=\\).*\\hostname\\([^\\]*)(?=\\)| p/Nexuiz game server/ v/$1/ h/$2/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$2/ h/$1/ o/Linux/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$2/ h/$1/ o/FreeBSD/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\tremulous ([^\\]* linux-[^\\]*)(?=\\)| p/Tremulous game server/ v/$2/ h/$1/ o/Linux/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\tremulous ([^\\]* freebsd-[^\\]*)(?=\\)| p/Tremulous game server/ v/$2/ h/$1/ o/FreeBSD/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$2/ h/$1/ o/Linux/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$2/ h/$1/ o/FreeBSD/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\Warsow(?=\\).*\\sv_hostname\\([^\\]*)(?=\\)| p/Warsow game server/ v/$1/ h/$2/ o/Linux/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\)| p/World of Padman game server/ v/$2/ h/$1/ o/Linux/
-match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\)| p/World of Padman game server/ v/$2/ h/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\gamename\\Nexuiz(?=\\).*\\gameversion\\([^\\]*)(?=\\)| p/Nexuiz game server/ v/$1/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\tremulous ([^\\]* linux-[^\\]*)(?=\\)| p/Tremulous game server/ v/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\tremulous ([^\\]* freebsd-[^\\]*)(?=\\)| p/Tremulous game server/ v/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\Warsow(?=\\)| p/Warsow game server/ v/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* linux-[^\\]*)(?=\\)| p/World of Padman game server/ v/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* freebsd-[^\\]*)(?=\\)| p/World of Padman game server/ v/$1/ o/FreeBSD/
