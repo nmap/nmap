@@ -6749,7 +6749,6 @@ match qotd m/^"(L'art de persuader consiste autant|Le peu que je sais, c'est \x8
 
 match mohaa m|\xff\xff\xff\xff\x01disconnect| p/Medal Of Honor Allied Assault game server/
 match mohaa-gamespy m|^\\final\\\\queryid\\\d+\.1| p/Medal Of Honor Allied Assault gamespy query port/
-match quake3 m|^\xff\xff\xff\xffdisconnect$| p/Quake 3 dedicated server/
 match ericssontimestep m|^.{8}\0\0\0\0\0\0\0\0\x0b\x10\x05\0\0\0\0\0\0\0\0\(\0\0\0\x0c\0\0\0\0\x01\0\0\x1e$|s p/Ericsson Timestep Permit VPN/
 match rtp m|^501 0 Endpoint is not ready - Unrecognized command verb\n|
 
@@ -6769,6 +6768,8 @@ match webmin m|^0\.0\.0\.0:(\d+):1:?$| i/https on TCP port $1/
 match webmin m|^([^:]*):(\d+):1:?$| i/https on TCP $1:$2/
 match webmin m|^0\.0\.0\.0:(\d+):1:(.+)$| i/https on TCP port $1 ($2)/
 match webmin m|^([^:]*):(\d+):1:(.+)$| i/https on $1:$2 ($3)/
+
+softmatch quake3 m|^\xff\xff\xff\xffdisconnect$| p/Quake 3 game server/
 
 # Know the device, but not the service. Port 19541.
 # match unknown m|^\xfer\0\0\0\0\0\x12ERR\(NOT SUPPORTED\)$| p/OKI ES3640e GA printer/ d/printer/
@@ -8535,3 +8536,28 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x79.([^\0\x01]+)[\0\
 
 # Netatalk 1.6.4
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7d.([^\0\x01]+)[\0\x01].*\x04unix\x04\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x01\tDHCAST1280|s p/Netatalk/ v/1.6/ i/name: $1; protocol 2.2/ o/Unix/
+
+##############################NEXT PROBE##############################
+# Quake2 status
+Probe UDP Quake2_status q|\xff\xff\xff\xffstatus|
+rarity 8
+ports 27910-27914
+
+match quake2 m|^\xff\xff\xff\xffprint\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\data1(?=\\).*\\hostname\\([^\\]*)(?=\\)| p/Alien Arena game server/ v/$1/ h/$2/ o/Linux/
+
+##############################NEXT PROBE##############################
+# Quake3 getstatus
+Probe UDP Quake3_getstatus q|\xff\xff\xff\xffgetstatus|
+rarity 8
+ports 26000-26004,27960-27964,30720-30724,44400
+
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\gamename\\Nexuiz(?=\\).*\\gameversion\\([^\\]*)(?=\\).*\\hostname\\([^\\]*)(?=\\)| p/Nexuiz game server/ v/$1/ h/$2/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$2/ h/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\baseoa(?=\\)| p/OpenArena game server/ v/$2/ h/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\tremulous ([^\\]* linux-[^\\]*)(?=\\)| p/Tremulous game server/ v/$2/ h/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\tremulous ([^\\]* freebsd-[^\\]*)(?=\\)| p/Tremulous game server/ v/$2/ h/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$2/ h/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\).*\\gamename\\q3ut4(?=\\)| p/Urban Terror game server/ v/$2/ h/$1/ o/FreeBSD/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* Linux)(?=\\).*\\gamename\\Warsow(?=\\).*\\sv_hostname\\([^\\]*)(?=\\)| p/Warsow game server/ v/$1/ h/$2/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* linux-[^\\]*)(?=\\)| p/World of Padman game server/ v/$2/ h/$1/ o/Linux/
+match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\sv_hostname\\([^\\]*)(?=\\).*\\version\\([^\\]* freebsd-[^\\]*)(?=\\)| p/World of Padman game server/ v/$2/ h/$1/ o/FreeBSD/
