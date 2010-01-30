@@ -2,8 +2,8 @@
 
 [NOT YET RELEASED]
 
-o Added service probes for games based on the Quake 2 and Quake 3
-  engine, submitted by Mak Kolybabi.
+o Added service probes and UDP payloads for games based on the Quake 2
+  and Quake 3 engine, submitted by Mak Kolybabi.
 
 o [NSE] Added two new scripts for the MongoDB database from Martin
   Holst Swende. mongodb-info gets information like the version number,

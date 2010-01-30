@@ -241,6 +241,12 @@ static const char payload_citrix[] =
   "\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
+/* Quake 2 and Quake 3 game servers (and servers of derived games like Nexuiz).
+   Gets game information from the server (see probe responses in
+   nmap-service-probes). */
+static const char payload_quake2[] = "\xff\xff\xff\xffstatus";
+static const char payload_quake3[] = "\xff\xff\xff\xffgetstatus";
+
 static const char payload_null[] = "";
 
 
@@ -317,6 +323,17 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 10080:
       SET_PAYLOAD(payload_amanda);
+      break;
+    /* These servers are commonly run on a base port or a few port numbers
+       higher. */
+    case 27910: case 27911: case 27912: case 27913: case 27914:
+      SET_PAYLOAD(payload_quake2);
+      break;
+    case 26000: case 26001: case 26002: case 26003: case 26004: /* Nexuiz */
+    case 27960: case 27961: case 27962: case 27963: case 27964: /* Several */
+    case 30720: case 30721: case 30722: case 30723: case 30724: /* Tremulous */
+    case 44400: /* Warsow */
+      SET_PAYLOAD(payload_quake3);
       break;
     default:
       SET_PAYLOAD(payload_null);
