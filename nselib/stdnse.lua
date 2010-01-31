@@ -365,55 +365,9 @@ local function format_get_indent(indent, at_end)
 	return str
 end
 
----Takes a table of output on the commandline and formats it for display to the 
--- user. This is basically done by converting an array of nested tables into a 
--- string. In addition to numbered array elements, each table can have a 'name' 
--- and a 'warning' value. The 'name' will be displayed above the table, and 
--- 'warning' will be displayed, with a 'WARNING' tag, if and only if debugging
--- is enabled. 
--- 
--- Here's an example of a table:
--- <code>
---   local domains = {}
---   domains['name'] = "DOMAINS"
---   table.insert(domains, 'Domain 1')
---   table.insert(domains, 'Domain 2')
--- 
---   local names = {}
---   names['name'] = "NAMES"
---   names['warning'] = "Not all names could be determined!"
---   table.insert(names, "Name 1")
--- 
---   local response = {}
---   table.insert(response, "Apple pie")
---   table.insert(response, domains)
---   table.insert(response, names)
--- 
---   return stdnse.format_output(true, response)
--- </code>
---
--- With debugging enabled, this is the output:
--- <code>
---   Host script results:
---   |  smb-enum-domains:
---   |    Apple pie
---   |    DOMAINS
---   |      Domain 1
---   |      Domain 2
---   |    NAMES (WARNING: Not all names could be determined!)
---   |_     Name 1
--- </code>
---
---@param status A boolean value dictating whether or not the script succeeded. 
---              If status is false, and debugging is enabled, 'ERROR' is prepended
---              to every line. If status is false and ebugging is disabled, no output
---              occurs. 
---@param data   The table of output. 
---@param indent Used for indentation on recursive calls; should generally be set to
---              nil when callling from a script. 
-function format_output(status, data, indent)
-	-- Don't bother if we don't have any data
-	if(#data == 0) then
+-- A helper for format_output (see below).
+local function format_output_sub(status, data, indent)
+	if (#data == 0) then
 		return ""
 	end
 
@@ -421,9 +375,6 @@ function format_output(status, data, indent)
 	if(indent == nil and #data == 1 and type(data) == 'string' and not(data['name']) and not(data['warning'])) then
 		return data[1]
 	end
-
-	-- If data is nil, die with an error (I keep doing that by accident)
-	assert(data, "No data was passed to format_output()")
 
 	-- Used to put 'ERROR: ' in front of all lines on error messages
 	local prefix = ""
@@ -472,7 +423,7 @@ function format_output(status, data, indent)
 				insert(new_indent, true)
 			end
 
-			output = output .. format_output(status, value, new_indent)
+			output = output .. format_output_sub(status, value, new_indent)
 				
 		elseif(type(value) == 'string') then
 			if(i ~= #data) then
@@ -484,6 +435,66 @@ function format_output(status, data, indent)
 	end
 
 	return output
+end
+
+---Takes a table of output on the commandline and formats it for display to the 
+-- user. This is basically done by converting an array of nested tables into a 
+-- string. In addition to numbered array elements, each table can have a 'name' 
+-- and a 'warning' value. The 'name' will be displayed above the table, and 
+-- 'warning' will be displayed, with a 'WARNING' tag, if and only if debugging
+-- is enabled. 
+-- 
+-- Here's an example of a table:
+-- <code>
+--   local domains = {}
+--   domains['name'] = "DOMAINS"
+--   table.insert(domains, 'Domain 1')
+--   table.insert(domains, 'Domain 2')
+-- 
+--   local names = {}
+--   names['name'] = "NAMES"
+--   names['warning'] = "Not all names could be determined!"
+--   table.insert(names, "Name 1")
+-- 
+--   local response = {}
+--   table.insert(response, "Apple pie")
+--   table.insert(response, domains)
+--   table.insert(response, names)
+-- 
+--   return stdnse.format_output(true, response)
+-- </code>
+--
+-- With debugging enabled, this is the output:
+-- <code>
+--   Host script results:
+--   |  smb-enum-domains:
+--   |    Apple pie
+--   |    DOMAINS
+--   |      Domain 1
+--   |      Domain 2
+--   |    NAMES (WARNING: Not all names could be determined!)
+--   |_     Name 1
+-- </code>
+--
+--@param status A boolean value dictating whether or not the script succeeded. 
+--              If status is false, and debugging is enabled, 'ERROR' is prepended
+--              to every line. If status is false and ebugging is disabled, no output
+--              occurs. 
+--@param data   The table of output. 
+--@param indent Used for indentation on recursive calls; should generally be set to
+--              nil when callling from a script. 
+-- @return <code>nil</code>, if <code>data</code> is empty, otherwise a
+-- multiline string.
+function format_output(status, data, indent)
+	-- If data is nil, die with an error (I keep doing that by accident)
+	assert(data, "No data was passed to format_output()")
+
+	-- Don't bother if we don't have any data
+	if (#data == 0) then
+		return nil
+	end
+
+	return format_output_sub(status, data, indent)
 end
 
 --- This function allows you to create worker threads that may perform
