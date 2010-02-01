@@ -1,5 +1,5 @@
 description = [[
-Gets the favicon ("favorites icon") from a web page matches it against a
+Gets the favicon ("favorites icon") from a web page and matches it against a
 database of the icons of known web applications. If there is a match, the name
 of the application is printed; otherwise the MD5 hash of the icon data is
 printed.
