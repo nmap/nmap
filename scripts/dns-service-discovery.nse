@@ -33,9 +33,10 @@ get more information.
 -- |_    Address=192.168.0.2 fe80:0:0:0:223:6cff:1234:5678
 
 
--- Version 0.2
+-- Version 0.3
 -- Created 01/06/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/13/2010 - v0.2 - modified to use existing dns library instead of mdns, changed output to be less DNS like
+-- Revised 02/01/2010 - v0.3 - removed incorrect try/catch statements
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -49,11 +50,11 @@ portrule = shortport.portnumber(5353, "udp")
 --- Gets a record from both the Answer and Additional section
 --
 -- @param dtype DNS resource record type.
--- @param dec Decoded DNS response.
+-- @param response Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
 -- @return True if one or more answers of the required type were found - otherwise false.
 -- @return Answer according to the answer fetcher for <code>dtype</code> or an Error message.
-function getRecordType( dtype, dec, retAll )
+function getRecordType( dtype, response, retAll )
 
 	local result = {}
 	local status1, answers = dns.findNiceAnswer( dtype, response, retAll )
@@ -90,27 +91,26 @@ end
 
 action = function(host, port)
 
-	-- do some exception handling / cleanup
-	local catch = function()
-		socket:close()
-	end
-
-	local try = nmap.new_try(catch)
-	
 	local result = {}
-	local deviceinfo = {}
+	local deviceinfo = {}	
+	local status, response = dns.query( "_services._dns-sd._udp.local", { port = 5353, host = host.ip, dtype="PTR", retAll=true} )
 	
-	response = try( dns.query( "_services._dns-sd._udp.local", { port = 5353, host = host.ip, dtype="PTR", retAll=true} ) )
-		
+	if not status then
+		return
+	end
+	
 	-- for each service response in answers, send a service query
 	for _, v in ipairs( response ) do
 
-		stdnse.print_debug( string.format("-> Sending MDNS query for: %s", v ) )
 		local service = {}
 		local txt = {}
-		local status, ip, ipv6, srv, address, port, proto
+		local ip, ipv6, srv, address, port, proto
 		
-		response = try( dns.query( v, { port = 5353, host = host.ip, dtype="PTR", retPkt=true} ) )
+		status, response = dns.query( v, { port = 5353, host = host.ip, dtype="PTR", retPkt=true} )
+
+		if not status then
+			return
+		end
 
 		status, ip = getRecordType( dns.types.A, response, false )
 		

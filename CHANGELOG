@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Replaced incorrect try/catch statements in dns-service-discovery that 
+  would attempt to close a non-existing socket
+
 o [NSE] Added the script http-methods from Bernd Stroessenreuther.
   This script sends an HTTP OPTIONS request to get the methods
   supported by the server, and optionally tests each method to see if
