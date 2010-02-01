@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the script http-methods from Bernd Stroessenreuther.
+  This script sends an HTTP OPTIONS request to get the methods
+  supported by the server, and optionally tests each method to see if
+  they are restricted by IP address or something similar.
+
 o Added service probes and UDP payloads for games based on the Quake 2
   and Quake 3 engine, submitted by Mak Kolybabi.
 
