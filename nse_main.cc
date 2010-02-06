@@ -279,13 +279,13 @@ static void set_nmap_libraries (lua_State *L)
 {
   static const luaL_Reg libs[] = {
     {NSE_PCRELIBNAME, luaopen_pcrelib}, // pcre library
-    {"nmap", luaopen_nmap}, // nmap bindings
+    {NSE_NMAPLIBNAME, luaopen_nmap}, // nmap bindings
     {NSE_BINLIBNAME, luaopen_binlib},
     {BITLIBNAME, luaopen_bit}, // bit library
 #ifdef HAVE_OPENSSL
     {OPENSSLLIBNAME, luaopen_openssl}, // openssl bindings
 #endif
-    {"stdnse.c", luaopen_stdnse_c},
+    {NSE_STDNSELIBNAME, luaopen_stdnse_c},
     {NULL, NULL}
   };
 
