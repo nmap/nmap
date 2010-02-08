@@ -980,7 +980,7 @@ local function insert_cache (state, response)
     response = record.result; -- only modify copy
     cache[key], cache[#cache+1] = record, record;
     if state.no_cache_body then
-      result.body = "";
+      response.body = "";
     end
     if type(response.body) == "string" then
       cache.size = cache.size + #response.body;
