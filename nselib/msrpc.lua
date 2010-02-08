@@ -3727,7 +3727,7 @@ local function get_domain_info(host, domain)
 	if(status_12 == false) then
 		msrpc.samr_close(smbstate, connect4_result['connect_handle'])
 		msrpc.stop_smb(smbstate)
-		return false, thenquerydomaininfo2_result_12
+		return false, querydomaininfo2_result_12
 	end
 
 	-- Call EnumDomainUsers() to get users
