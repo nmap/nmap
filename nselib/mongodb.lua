@@ -100,7 +100,7 @@ function toBson(dict)
 	if dict._id then
 		local status,res = _element_to_bson("_id", dict._id)
 		if not status then return false, res end
-		element = element..res
+		elements = elements..res
 	end
 	--Concatenate binary values
 	for key, value in pairs( dict ) do
@@ -409,7 +409,7 @@ local function createQuery(collectionName, query)
 	local status, error = packet:addBSON(query)
 	
 	if not status then
-		return statuts, error
+		return status, error
 	end
 	
 	return true, packet:data()
