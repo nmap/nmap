@@ -427,6 +427,7 @@ end
 -- (if status is true) or error string (if status is false)
 function fp_enumerate_ext2( socket, volume_id, did, file_bitmap, dir_bitmap, req_count, start_index, reply_size, path )
 	
+	local _
 	local packet
 	local data_offset = 0
 	local pad = 0
@@ -463,6 +464,7 @@ end
 -- error string (if status is false)
 function fp_open_fork( socket, fork, volume_id, did, file_bitmap, access_mode, path )
 
+	local _
 	local packet
 	local data_offset = 0
 	local pad = 0
