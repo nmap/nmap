@@ -1,13 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-
-
 o Deal with AV false positive issue RE nmap_services.exe:
  - For now, David is going to apply Ron's patch which removes this,
    but David will make it print output in verbose mode rather than
    debug and maybe make it a little less verbose. LT plan is for Ron
    to encrypt it with OpenSSL.
-
 
 o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
   http://seclists.org/nmap-dev/2010/q1/76
@@ -19,6 +16,8 @@ o [NSE] Consider SNMP scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/162
   http://seclists.org/nmap-dev/2010/q1/174
   http://seclists.org/nmap-dev/2010/q1/178
+
+o Consider integrating Nping.
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -40,11 +39,51 @@ o We should document an official way to compile/test refguide.xml so
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
 
+o After the new -sn and -PN options (added to SVN around 7/20, just
+  after the 5.00 release) have been around long enough to be in most
+  people's copy of Nmap (e.g. in all the versions we distribute from
+  download page (stable+dev)) for at least a few months, we'll document
+  these as the preferred version rather than -sP and -PN.  These match
+  -n, and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you can also use
+  NSE, traceroute, etc. [David]
+
 o Add Nmap web board.
 
-o Consider integrating Nping.
- 
 o Create Nmap wiki
+
+o Consider rethinking Nmap's -s* syntax for specifing scan types
+  o Current problems with this -s syntax:
+    o We already use like 20 of the 26 letters, so we end up with
+      things like SCTP scan using -sY
+    o Can make Nmap command lines hard to read, particularly given
+      that we often need to improvise to find a letter which isn't
+      taken.
+    o Problematic for scan types -sI and -b which require arguments
+    o Inconsistencies.  For example, -sC and -sV do script scan and
+    version detection, respectively, and yet for OS detection we use
+    -O.  Also, control flow (-sP, -sL) is used with -s, which further
+    overloads the options.
+  o Possible solution:
+    o We are enabling -Pn and -sn as preferred notations for -PN and
+      -sP which mean "no ping" and "no port scan".  Those match the
+      already existing -n for "no DNS".  The problem with -sP is that it
+      implies "ping only", when what it really should mean is "disable
+      port scan" because you may want to do NSE, OS detection,
+      traceroute, etc. still.
+    o We might want to just give them normal option strings, so you
+      could do --maimon instead of -sM, for example.  For extremely
+      common options such as SYN scan, UDP scan, version detection, we
+      could perhaps find good single letter options as an alias to the
+      longer one.
+    o Another idea is to use something like --scantype syn,udp,sctp,
+      which is a lot longer for single-type scans, but shorter when
+      you're combining mulitiple ones.  Doesn't allow for individual
+      scan arguments easily.  I (Fyodor) think I prefer the idea above
+      of just givem them top level arguments.
+    o If we keep -s*, we could just give it one defined function, such
+      as selecting port scan type, or control flow.
+  o Obviously this will take some discussion/brainstorming on nmap-dev.
 
 o Do -p- Internet UDP scans.
 
@@ -55,7 +94,6 @@ o Web site HTML improvements
   - Maybe start with nmap.org.
     - Find and fix HTML validation problems, bad links.  I'm not sure
       what tool is best for this.
-  - Insecure.Org could use a bit of work.  On the front page:
   - Then do the same with seclists.org, insecure.org, sectools.org
   - The icon on the top-left of the screen should be for (and link
     to) the root URL of current site.  e.g. seclists.org,
@@ -87,11 +125,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o Python (Win/Mac versions of Zenmap link to Python)
  o X.org libraries (Mac version links to them)
  o libdnet
-
-o Seclists.org should be fixed so that it doesn't strip quoted text
-  for its summaries from the IP list because that list consists almost
-  entirely of forwarded material which is being stripped.  Look at the
-  summaries at http://seclists.org/interesting-people/.
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -157,15 +190,6 @@ o [NSE] Improve username/password library (the database files
 
 o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
   http://seclists.org/nmap-dev/2009/q3/0986.html).
-
-o After the new -sn and -PN options (added to SVN around 7/20, just
-  after the 5.00 release) have been around long enough to be in most
-  people's copy of Nmap (e.g. in all the versions we distribute from
-  download page (stable+dev)) for at least a few months, we'll document
-  these as the preferred version rather than -sP and -PN.  These match
-  -n, and the main problem with -sP is that we now use it more for
-  "disable portscan" than ping only.  For example, you can also use
-  NSE, traceroute, etc. [David]
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -268,6 +292,11 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
 
+o Seclists.org should maybe be fixed so that it doesn't strip quoted
+  text for its summaries from the IP list because that list consists
+  almost entirely of forwarded material which is being stripped.  Look
+  at the summaries at http://seclists.org/interesting-people/.
+
 o Consider offering a way to link Winpcap DLLs so that they start the
   service as needed rather than requiring explicitly installing
   Winpcap and having it start upon system boot.  CACE has offered such
@@ -294,6 +323,8 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   combination with URL grinder to check for applications at
   default/common locations. See also a script that does favicon
   scanning TODO item.
+
+o [NSE] Script writing contest (something to think about)
 
 o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
@@ -355,41 +386,8 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
 
 o Zenmap should be able to export normal Nmap output
 
-o Zenmanp should perhaps be able to print Nmap output (if not too much
-  of a pain to implement.)
-
-o Consider rethinking Nmap's -s* syntax for specifing scan types
-  o Current problems with this -s syntax:
-    o We already use like 20 of the 26 letters, so we end up with
-      things like SCTP scan using -sY
-    o Can make Nmap command lines hard to read, particularly given
-      that we often need to improvise to find a letter which isn't
-      taken.
-    o Problematic for scan types -sI and -b which require arguments
-    o Inconsistencies.  For example, -sC and -sV do script scan and
-    version detection, respectively, and yet for OS detection we use
-    -O.  Also, control flow (-sP, -sL) is used with -s, which further
-    overloads the options.
-  o Possible solution:
-    o We are enabling -Pn and -sn as preferred notations for -PN and
-      -sP which mean "no ping" and "no port scan".  Those match the
-      already existing -n for "no DNS".  The problem with -sP is that it
-      implies "ping only", when what it really should mean is "disable
-      port scan" because you may want to do NSE, OS detection,
-      traceroute, etc. still.
-    o We might want to just give them normal option strings, so you
-      could do --maimon instead of -sM, for example.  For extremely
-      common options such as SYN scan, UDP scan, version detection, we
-      could perhaps find good single letter options as an alias to the
-      longer one.
-    o Another idea is to use something like --scantype syn,udp,sctp,
-      which is a lot longer for single-type scans, but shorter when
-      you're combining mulitiple ones.  Doesn't allow for individual
-      scan arguments easily.  I (Fyodor) think I prefer the idea above
-      of just givem them top level arguments.
-    o If we keep -s*, we could just give it one defined function, such
-      as selecting port scan type, or control flow.
-  o Obviously this will take some discussion/brainstorming on nmap-dev.
+o Zenmanp should perhaps be able to print Nmap output on a Printer (if
+  not too much of a pain to implement.)
 
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
