@@ -15,7 +15,7 @@
 -- used as a key in DES, while NTLM is converted to unicode and MD4ed. 
 --
 -- The stored hashes can be dumped in a variety of ways (pwdump6, fgdump, metasploit's
--- priv module, smb-pwdump.nse, etc). Generally, two hashes are dumped together 
+-- priv module, smb-psexec.nse, etc). Generally, two hashes are dumped together 
 -- (generally, Lanman:NTLM). Sometimes, Lanman is empty and only NTLM is given. Lanman
 -- is never required. 
 --
