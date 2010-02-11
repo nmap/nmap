@@ -110,7 +110,7 @@ local CLEAN      = 7
 -- you're safe (for now). 
 --
 -- Based on a packet cap of this script, thanks go out to the author:
--- http://labs.portcullis.co.uk/download/ms08-067_check.py 
+-- http://labs.portcullis.co.uk/application/ms08-067-check/
 --
 -- If there's a licensing issue, please let me (Ron Bowes) know so I can 
 --
