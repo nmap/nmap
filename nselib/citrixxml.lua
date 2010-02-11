@@ -19,7 +19,7 @@
 
 require 'http'
 
-module(... or "citrix",package.seeall)
+module(... or "citrixxml",package.seeall)
 
 --- Decodes html-entities to chars eg. &#32; => <space>
 -- 
