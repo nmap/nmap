@@ -7,7 +7,7 @@ This script is based on the Metasploit modules/auxiliary/scanner/http/wmap_dir_w
 
 For more information on this vulnerability and script, see:
 * http://blog.zoller.lu/2009/05/iis-6-webdac-auth-bypass-and-data.html
-* http://seclists.org/fulldisclosure/2009/May/att-0134/IIS_Advisory_pdf
+* http://seclists.org/fulldisclosure/2009/May/att-134/IIS_Advisory_pdf.bin
 * http://www.skullsecurity.org/blog/?p=271
 * http://www.kb.cert.org/vuls/id/787932
 * http://www.microsoft.com/technet/security/advisory/971492.mspx

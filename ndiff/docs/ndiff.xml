@@ -388,7 +388,7 @@ ln -sf scan-$date.xml scan-prev.xml
     in Perl and C++, but the summer ended shortly after it was decided
     to rewrite the program in Python for the sake of Windows (and
     Zenmap) compatibility. This Python version was written by David
-    Fifield.  James Levine <ulink url="http://seclists.org/nmap-hackers/2000/0315.html">released</ulink> a Perl script named Ndiff with
+    Fifield.  James Levine <ulink url="http://seclists.org/nmap-hackers/2000/315">released</ulink> a Perl script named Ndiff with
     similar functionality in 2000.
     </para>
   </refsect1>

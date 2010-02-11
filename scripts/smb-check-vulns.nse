@@ -48,7 +48,7 @@ or higher to work. It is considered <code>unsafe</code>.
 SMBv2 DoS -- performs a denial-of-service against the vulnerability disclosed in
 CVE-2009-3103. Checks if the server went offline. This works agianst Windows Vista
 and some versions of Windows 7, and causes a bluescreen if successful. The proof-
-of-concept code at <http://seclists.org/fulldisclosure/2009/Sep/0039.html> was used, 
+of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used, 
 with one small change. 
 
 (Note: if you have other SMB/MSRPC vulnerability checks you'd like to see added, and
