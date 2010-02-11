@@ -2689,8 +2689,7 @@
             configurate in IPv6. Daca ISPul dumneavoastra nu aloca o adresa
             IPv6 (multi nu o fac), tunele de trecere sunt disponibile gratuit
             si functioneaza bine cu Nmap. Unul dintre cele mai bune este cel
-            rulat de BT Exact la
-            <ulink url="https://tb.ipv6.btexact.com/"></ulink>. Am folosit si
+            rulat de BT Exact. Am folosit si
             cel furnizat de Hurricane Electric la
             <ulink url="http://ipv6tb.he.net/"></ulink>. Tunelele 6la4 sunt de
             asemenea folosite, existand si optiuni gratuite.</para>

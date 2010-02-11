@@ -2146,7 +2146,7 @@ Vacsina TCP scanov vratane SYN scanu ako aj UDP scan podporuju tento parameter u
           <para>Nmap pouzije neplatny kontrolny sucet TCP alebo UDP na odoslanie paketov cielovej stanici.  
 		  Kedze prakticky vsetky hostitelske IP stacky dokladne zahadzuju taketo pakety, ak pride odpoved,
 		  pochadza pravdepodobne od firewallu alebo systemu IDS, ktory neoveroval kontrolny sucet.
-		  Viac podrobnosti o tejto metode najdete na adrese <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+		  Viac podrobnosti o tejto metode najdete na adrese <ulink url="http://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 
@@ -2538,7 +2538,7 @@ Niektore riadku su samovysvetlujuce, no zvysovanim stupna debugovania sa straca 
 		  Nmap s protokolom IPv6, musia byt zdrojovy aj cielovy pocitac scanu nastavene na tento
 		  protokol. Ak vam vas ISP, ako vacsina, nepriradi IPv6 adresy, su zdarma dostupne
 		  tunelovacie programy pre IPv6 a dobre spolupracuju s Nmapom. Jeden z tych lepsich
-		  je BT Exact na adrese <ulink url="https://tb.ipv6.btexact.com/"/>.  Pouzil 
+		  je BT Exact.  Pouzil 
 		  som aj jeden poskytovany spolocnostou na adrese<ulink url="http://ipv6tb.he.net/"/>.  
 		  Dalsou metodou zdarma su tunely IPv6 na IPv4.</para>
         </listitem>

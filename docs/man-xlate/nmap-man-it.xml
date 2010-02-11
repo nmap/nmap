@@ -2501,7 +2501,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
 
         <indexterm significance="normal"><primary>--badsum</primary></indexterm>
 	<para>Richiede a Nmap di usare un checksum TCP o UDP non valido per i pacchetti inviati alla macchina di destinazione. Poiche` teoricamente tutti gli stack IP degli host finiranno per ignorare questi pacchetti, qualunque risposta ricevuta dovra` per forza provenire da un firewall o da un Intrusion Detection System (IDS) che non si preoccupa di verificare il checksum. Per maggiori informazioni su questa tecnica, si consulti 
-   <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+   <ulink url="http://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
           </variablelist>

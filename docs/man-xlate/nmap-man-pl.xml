@@ -2353,7 +2353,7 @@ podobnie jak i UDP.</para>
           odrzuci tego typu pakiety, otrzymana odpowied&#378; najprawdopodobniej
           pochodzi od systemu zaporowego lub IDS, kt&#243;re nie przejmuj&#261; si&#281;
           sumami kontrolnymi. Dok&#322;adniejszy opis tej techniki znajduje si&#281;
-          pod adresem <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+          pod adresem <ulink url="http://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 
@@ -2786,8 +2786,7 @@ podobnie jak i UDP.</para>
           ho&#347;cie skanowanym, jak i skanuj&#261;cym. Je&#347;li dostawca us&#322;ug nie
           umo&#380;liwia uzyskania adres&#243;w IP (najcz&#281;&#347;ciej tak w&#322;a&#347;nie jest),
           jest du&#380;o dostawc&#243;w darmowych tuneli, kt&#243;re dzia&#322;aj&#261; poprawnie z
-          Nmapem. Jednymi z lepszych s&#261; dostarczane przez BT Exact na stronie
-          <ulink url="https://tb.ipv6.btexact.com/"/> i 
+          Nmapem. Jednymi z lepszych s&#261; dostarczane przez BT Exact i
           Hurricane Electric na <ulink url="http://ipv6tb.he.net/"/>. Tunele
           6to4 s&#261; innym popularnym i darmowym rozwi&#261;zaniem.</para>
         </listitem>

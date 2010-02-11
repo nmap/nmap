@@ -1521,7 +1521,7 @@ le temps supplémentaire que cela suppose.</para>
   les paquets envoyés aux hôtes cibles.  Comme virtuellement toutes  
   les piles IP des hôtes rejettent ces paquets, toute réponse recue 
   doivent venir d'un pare-feu ou d'un IDS qui ne se préoccuppe pas de 
-  vérifier les sommes de contrôle.  Pour plus de détails sur cette technique, voir <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt" />
+  vérifier les sommes de contrôle.  Pour plus de détails sur cette technique, voir <ulink url="http://nmap.org/p60-12.txt" />
             </para>
           </listitem>
         </varlistentry>
@@ -1971,8 +1971,8 @@ le temps supplémentaire que cela suppose.</para>
 									des IPv6, la source et la cible du scan doivent être configurées pour l'IPv6.
 									Si votre fournisseur d'accès Internet (comme dans la plupart des cas) ne 
 									vous a pas alloué d'adresse IPv6, des tunnels libres sont disponibles
-									et fonctionnent très bien avec Nmap. L'un des meilleurs
-									est entretenu par BT Exact sur <ulink url="https://tb.ipv6.btexact.com/" />. J'en ai aussi utilisé un
+									et fonctionnent très bien avec Nmap.
+									J'en ai utilisé un
 									que Hurricane Electric fournit sur <ulink url="http://ipv6tb.he.net/" />. Les tunnels 6to4 sont aussi une autre
 									approche libre et populaire.</para>
           </listitem>

@@ -819,8 +819,7 @@ metodom.</para>
         <option>-sU</option> (UDP skenovi)</term>
         <listitem>
 
-<para>Iako većina popularnih servisa na internetu korisiti TCP protokol, <ulink url="http://www.rfc-editor.org/rfc/
-rfc768.txt">UDP</ulink> servisi su isto tako široko zastupljeni. DNS, SNMP i DHCP (registrirani portovi 53, 161/162 i
+<para>Iako većina popularnih servisa na internetu korisiti TCP protokol, <ulink url="http://www.rfc-editor.org/rfc/rfc768.txt">UDP</ulink> servisi su isto tako široko zastupljeni. DNS, SNMP i DHCP (registrirani portovi 53, 161/162 i
 67/68) su tri najpoznatija. Zbog toga što je UDP skeniranje mnogo sporije i teže za izvesti nego TCP, neki sigurnosni
 auditori, ignoriraju UDP portove. To je velika pogreška, jer su exploitabilni UDP servisi česta pojava i napadači ih
 sigurno neće ignorirati. Srećom, Nmap može pomoći u istraživanju UDP portova.</para>
@@ -1830,7 +1829,7 @@ i SYN sken podržava ove opcije u potpunosti isto kao i UDP sken.</para>
           <para>Ova opcija traži od Nmap-a da koristi neispravne TCP i UDP checksume za pakete koje šalje na ciljano
           računalo. Kako skoro svaki IP stack odbacuje takve pakete, svaki odgovor koji dobijete najvjerovatnie
           dolazi od vatrozida ili IDS sustava koji nisu provjeravali checksum. Za više detalja o ovoj tehnici,
-          pogledajte: <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"></ulink>.</para>
+          pogledajte: <ulink url="http://nmap.org/p60-12.txt"></ulink>.</para>
         </listitem>
       </varlistentry>
 
@@ -2173,8 +2172,8 @@ samoobjašnjavajuće, ali poruke postaju sve čudnije što je nivo debugiranja v
           većina modernih OS-ova ima ugrađenu podršku. Da bi mogli koristiti Nmap s IPv6 protokolom i ciljano
           računalo i vaše računalo moraju biti podešeni za korištenje IPv6. Ukoliko vaš ISP (poput većine drugih) ne
           dodjeljuje IPv6 IP adrese, postoje oni koji nude besplatno IPv6 tuneliranje, što poprilično dobro radi s
-          Nmap-om. Jedan od boljih davatelja takvih usluga je BT Exact
-          <ulink url="https://tb.ipv6.btexact.com/"></ulink>. Također sam koristio i usluge tvrtke Hurricane Electric
+          Nmap-om. Jedan od boljih davatelja takvih usluga je BT Exact.
+          Također sam koristio i usluge tvrtke Hurricane Electric
           <ulink url="http://ipv6tb.he.net/"></ulink>. 6to4 tuneli su još jedan popularan besplatan pristup.</para>
         </listitem>
       </varlistentry>

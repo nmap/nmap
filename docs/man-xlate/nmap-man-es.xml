@@ -2739,7 +2739,7 @@ hacen.</para>
 	  o un IDS que no comprobó la suma, dado que la mayoría de las pilas IP
 	  descartan estos paquetes. Para obtener más información de esta
 	  técnica puede consultar <ulink
-	  url="http://www.phrack.org/phrack/60/p60-0x0c.txt"/></para>
+	  url="http://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
 
@@ -3263,12 +3263,9 @@ medida que se incrementa el nivel de depuración.</para>
           utilizar Nmap con IPv6. Si su ISP (como sucede con la
           mayoría) no le da direcciones IPv6, puede encontrar gestores
           de túneles gratuitos en muchos sitios y funciona bien con
-          Nmap. Uno de los mejores lo gestiona BT Exact en <ulink
-          url="https://tb.ipv6.btexact.com/"/>. También he utilizado
-          el que Hurricane Electric ofrece en <ulink
-          url="http://ipv6tb.he.net/"/>.  Los túneles IPv6 a IPv4
-          («6to4») son también otro método muy popular y gratuito
-          .</para>
+          Nmap. Una lista de gestores está
+          <ulink url="http://es.wikipedia.org/wiki/Anexo:Proveedores_de_túneles_IPv6">en Wikipedia</ulink>.  Los túneles IPv6 a IPv4
+          («6to4») son también otro método muy popular y gratuito.</para>
 
         </listitem>
       </varlistentry>

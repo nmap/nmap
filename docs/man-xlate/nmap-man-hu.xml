@@ -2801,7 +2801,7 @@ mértékben támogatja ezt a paramétert.</para>
 	  elküldeni a célpont felé. Mivel elméletileg minden állomás IP verme az 
 	  ilyen csomagokat helyesen eldobja, ezért bármilyen válasz tűzfalra vagy 
 	  IDS rendszerre utal, melyek nem foglalkoznak az ellenőrző összeg 
-	  vizsgálatával. További részletek erről a technikáról a <ulink url="http://www.phrack.org/phrack/60/p60-0x0c.txt"></ulink> 
+	  vizsgálatával. További részletek erről a technikáról a <ulink url="http://nmap.org/p60-12.txt"></ulink> 
 	  címen.</para>
         </listitem>
       </varlistentry>
@@ -3300,7 +3300,7 @@ kapuk csak egy számként jelennek meg, ha túl sok van belőlük.
 	  kell használnia. Ha az Ön szolgáltatója (mint a legtöbb általában) nem 
 	  biztosít Önnek IPv6 címet, igénybe vehet ingyenes alagút szolgáltatókat, 
 	  melyek kiválóan működnek együtt az Nmap programmal. Az egyik legjobb 
-	  ezek közül a BT Exact <ulink url="https://tb.ipv6.btexact.com/"></ulink>. 
+	  ezek közül a BT Exact. 
 	  Szintén jól használható még a Hurricane Electric nevű szolgáltató 
 	  <ulink url="http://ipv6tb.he.net/"></ulink>. Szintén népszerűek az 
 	  Ipv6-ról Ipv4-re alagutat biztosító szolgáltatók is.</para>

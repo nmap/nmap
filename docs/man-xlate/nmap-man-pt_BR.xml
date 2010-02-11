@@ -2881,7 +2881,7 @@ EXAMPLES:
             provavelmente vindas de um firewall ou IDS que nem se incomodou em
             verificar a soma de verificação. Para mais detalhes desta técnica,
             veja <ulink
-            url="http://www.phrack.org/phrack/60/p60-0x0c.txt" /></para>
+            url="http://nmap.org/p60-12.txt" /></para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -3433,8 +3433,8 @@ EXAMPLES:
             IPv6. Se o seu provedor (ISP) (como a maioria) não aloca endereços
             IPv6 para você, alguns intermediários, que fazem o túnel
             gratuitamente, estão amplamente disponíveis e funcionam bem com o
-            Nmap. Um dos melhores é disponibilizado pela BT Exact em <ulink
-            url="https://tb.ipv6.btexact.com/" />. Também tenho utilizado um,
+            Nmap. Um dos melhores é disponibilizado pela BT Exact.
+            Também tenho utilizado um,
             fornecido pela Hurricane Electric em <ulink
             url="http://ipv6tb.he.net/" />. Túneis 6para4 são outra abordagem
             gratuita e popular.</para>
