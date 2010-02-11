@@ -514,7 +514,7 @@ open|filtered。 除了使用您指定的TCP标记位，Nmap会和基本扫描�
 .PP
 \fB\-sI <zombie host[:probeport]>\fR (Idlescan)
 .RS 4
-这种高级的扫描方法允许对目标进行真正的TCP端口盲扫描 (意味着没有报文从您的真实IP地址发送到目标)。相反，side\-channel攻击 利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。 IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文， 发布在\m[blue]\fB\%http://nmap.org/book/idlescan。html\fR\m[]。
+这种高级的扫描方法允许对目标进行真正的TCP端口盲扫描 (意味着没有报文从您的真实IP地址发送到目标)。相反，side\-channel攻击 利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。 IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文， 发布在\m[blue]\fB\%http://nmap.org/book/idlescan.html\fR\m[]。
 .sp
 除了极端隐蔽(由于它不从真实IP地址发送任何报文)， 该扫描类型可以建立机器间的基于IP的信任关系。 端口列表\fI从zombie 主机的角度。\fR显示开放的端口。 因此您可以尝试用您认为(通过路由器/包过滤规则)可能被信任的 zombies扫描目标。
 .sp
