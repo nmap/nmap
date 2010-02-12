@@ -318,7 +318,7 @@ function bind(addr, port)
 -- * <code>"System error"</code> (<code>EAI_SYSTEM</code>)
 -- In addition to these standard system error messages there are two
 -- NSE-specific errors:
--- * <code>"Sorry, you don't have OpenSSL"</code>: The protocol is <code>"ssl"</code> but but Nmap was compiled without OpenSSL support.
+-- * <code>"Sorry, you don't have OpenSSL"</code>: The protocol is <code>"ssl"</code> but Nmap was compiled without OpenSSL support.
 -- * <code>"invalid connection method"</code>: The second parameter is not one of <code>"tcp"</code>, <code>"udp"</code>, and <code>"ssl"</code>.
 -- @param hostid Hostname or IP address.
 -- @param port Port number.
@@ -619,7 +619,7 @@ function ethernet_open(interface_name)
 -- (<code>"dnet is not valid opened ethernet interface"</code>).
 -- @param packet An ethernet frame to send.
 -- @see new_dnet
--- @usage dnet:ethernet_open(packet)
+-- @usage dnet:ethernet_send(packet)
 function ethernet_send(packet)
 
 --- Closes an ethernet interface.
