@@ -17,7 +17,11 @@ o [NSE] Consider SNMP scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/174
   http://seclists.org/nmap-dev/2010/q1/178
 
-o Consider integrating Nping.
+o Integrate Nping.
+
+o The -v and -d arguments should take the same syntax.  Right now you
+  use -vvv vs. -d3. We should probably just make either approach work
+  with either of them.
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
