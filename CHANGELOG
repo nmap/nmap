@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o Removed the nmap_service.exe helper program for smb-psexec, as it
+  was still being flagged by malware detection even after the
+  bit-flipping in the next release. You can now download it from
+  http://nmap.org/psexec/nmap_service.exe. (The script will remind you
+  if it's not installed.)
+
 o [NSE] Replaced incorrect try/catch statements in dns-service-discovery that 
   would attempt to close a non-existing socket
 
