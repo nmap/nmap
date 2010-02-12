@@ -414,6 +414,10 @@ require 'smb'
 require 'stdnse'
 
 
+-- Where we tell the user to get nmap_service.exe if it's not installed.
+local NMAP_SERVICE_EXE_DOWNLOAD = "http://nmap.org/psexec/nmap_service.exe"
+
+
 hostrule = function(host)
 	return smb.get_port(host) ~= nil
 end
@@ -695,6 +699,18 @@ local function get_config(host)
 	-- Initialize the timeout
 	config.timeout = 0
 
+	-- Check if we have 'nmap_service.exe' in the proper location
+	stdnse.print_debug(1, "smb-psexec: Looking for the service file: nmap_service or nmap_service.exe")
+	config.local_service_file = locate_file("nmap_service", "exe")
+	if(config.local_service_file == nil) then
+		return false, {
+"Couldn't find the service file: nmap_service.exe (or nmap_service).",
+"Due to false positives in antivirus software, this module is no",
+"longer included by default. Please download it from",
+NMAP_SERVICE_EXE_DOWNLOAD,
+"and place it in nselib/data/psexec/ under the Nmap DATADIR."}
+	end
+
 	-- Figure out which share we're using (this is the first place in the script where a lot of traffic is generated -- 
 	-- any possible sanity checking should be done before this)
 	status, config.share, config.path, config.all_shares = find_share(host)
@@ -932,6 +948,29 @@ local function get_overrides()
 	return {file_create_attributes=attr}
 end
 
+--- Check if an nmap_service.exe file is the XOR-encoded version from the 5.21
+-- release. It works by checking the first few bytes against a known pattern.
+-- Returns <code>true</code> or <code>false</code>, or else <code>nil</code> and
+-- an error message.
+-- @param filename the name of the file to check.
+-- @return status
+-- @return error message
+local function service_file_is_xor_encoded(filename)
+	local f, bytes, msg
+
+	f, msg = io.open(filename)
+	if not f then
+		return nil, msg
+	end
+	bytes = f:read(2)
+	f:close()
+	if not bytes or #bytes < 2 then
+		return nil, "Can't read from service file"
+	end
+	-- This is the XOR-inverse of "MZ".
+	return bytes == string.char(0xb2, 0xa5)
+end
+
 ---Upload all of the uploadable files to the remote system. 
 --
 --@param host The host table. 
@@ -939,11 +978,25 @@ end
 --@return status true or false
 --@return err    An error message if status is false. 
 local function upload_everything(host, config)
+	local is_xor_encoded, msg
 	local overrides = get_overrides()
 
+	-- In Nmap 5.20, it was discovered that nmap_service.exe file was
+	-- causing false positives in antivirus software. In an effort to avoid
+	-- this, in version 5.21 the file was obfuscated by XORing all its bytes
+	-- with 0xFF. That didn't work, so now the file is not included in the
+	-- distribution. But it means we must check if we are dealing with the
+	-- original or XOR-encoded version of the file.
+	is_xor_encoded, msg = service_file_is_xor_encoded(config.local_service_file)
+	if is_xor_encoded == nil then
+		return nil, msg
+	elseif is_xor_encoded then
+		stdnse.print_debug(2, "%s is the XOR-encoded version from the 5.21 release.", config.local_service_file)
+	end
+
 	-- Upload the service file
-	stdnse.print_debug(1, "smb-psexec: Uploading: nselib/data/psexec/nmap_service.exe => \\\\%s\\%s", config.share, config.service_file)
-	status, err = smb.file_upload(host, "nselib/data/psexec/nmap_service.exe", config.share, "\\" .. config.service_file, overrides, true)
+	stdnse.print_debug(1, "smb-psexec: Uploading: %s => \\\\%s\\%s", config.local_service_file, config.share, config.service_file)
+	status, err = smb.file_upload(host, config.local_service_file, config.share, "\\" .. config.service_file, overrides, is_xor_encoded)
 	if(status == false) then
 		cleanup(host, config)
 		return false, string.format("Couldn't upload the service file: %s\n", err)
