@@ -99,3 +99,8 @@ B25DBE60830705D98BA3AAF0568C456A: iPlanet web server
 639B61409215D770A99667B446C80EA1: IBM Lotus Notes Collaboration Software
 7DBE9ACC2AB6E64D59FA67637B1239DF: IBM Lotus Domino Collaboration Software
 A8FE5B8AE2C445A33AC41B33CCC9A120: Arris Touchstone Device
+
+# Other icons that are good to know but don't have measured frequency data.
+
+# sslstrip 0.7 lock.ico.
+70625A6E60529A85CC51AD7DA2D5580D: sslstrip
