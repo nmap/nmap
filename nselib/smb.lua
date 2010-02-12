@@ -2449,7 +2449,7 @@ function share_anonymous_can_write(host, share)
 			return false, err
 		end
 
-		if(err == "NT_STATUS_ACCESS_DENIED") then
+		if(err == "NT_STATUS_ACCESS_DENIED" or err == "NT_STATUS_INVALID_PARAMETER") then
 			return true, false
 		end
 
@@ -2488,7 +2488,7 @@ function share_user_can_write(host, share)
 			return false, err
 		end
 
-		if(err == "NT_STATUS_ACCESS_DENIED") then
+		if(err == "NT_STATUS_ACCESS_DENIED" or err == "NT_STATUS_INVALID_PARAMETER") then
 			return true, false
 		end
 
