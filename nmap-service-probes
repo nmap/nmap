@@ -7585,7 +7585,6 @@ match omniback m|^\0\0\0.\xff\xfe1\x005\0\0\0 \0\x07\0\x01\0\[\x001\x002\0:\x001
 match omniback m|^\0\0\0.15\0 \x07\x01\[12:1\]\0 \x07\x02\[2003\]\0 \x07\x051\d+\0 INET\0 |s p|HP OpenView Omniback/Data Protector| o/Unix/
 
 # PostgreSQL 7.4
-match postgresql m|^E\0\0\0.S\w+\0C0A000\0Munsupported frontend protocol 65363\.19778: server supports 1\.0 to 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst.{1,2}tztes Frontend-Protokoll 65363\.19778: Server unterst.{1,2}tzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support[e\xe9]e de l'interface 65363\.19778: le serveur supporte de 1\.0 [a\xe0] 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocole non support\xe9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xe0 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French/
@@ -7594,6 +7593,42 @@ match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo 65363\.19778 n\xe3o \xe9 su
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mprotocolo do cliente 65363\.19778 n.{4,6} suportado: servidor suporta 1\.0 a 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/Portugese/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support\xc3\xa9e de l'interface 65363\.19778: le serveur supporte de 1\.0 \xc3\xa0 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/French; Unicode support/
 match postgresql m|^E\0\0\0.S\w+\0C0A000\0Mnicht unterst\xc3\xbctztes Frontend-Protokoll 65363\.19778: Server unterst\xc3\xbctzt 1\.0 bis 3\.0\0Fpostmaster\.c\0L\d+\0|s p/PostgreSQL DB/ i/German; Unicode support/
+
+#### Matches based on sources from http://ftp2.ua.freebsd.org/pub/FreeBSD/distfiles/postgresql/
+#
+
+# FreeBSD 7.4.12 - 7.4.25
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1293\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/7.4.12 - 7.4.25/
+
+# FreeBSD 8.0.0
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1408\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.0.0/
+
+# FreeBSD 8.0.15 - 8.0.21
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1445\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.0.15 - 8.0.21/
+
+# FreeBSD 8.1.11 - 8.1.17
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1454\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.1.11 - 8.1.17/
+
+# FreeBSD 8.2.6 - 8.2.15
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1440\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.2.6 - 8.2.15/
+
+# FreeBSD 8.3.0 - 8.3.7
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1497\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.0 - 8.3.7/
+
+# FreeBSD 8.3.9
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1507\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.3.9/
+
+# Windows 8.3.9
+match postgresql m|^E\0\0\0\x9dSFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1507\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ o/Windows/ v/8.3.9/
+
+# FreeBSD 8.4.0
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1570\0RProcessStartupPacket\0\0$| p/PostgreSQL DB/ v/8.4.0/
+
+# Windows 8.4.1 - 8.4.2
+match postgresql m|^E\0\0\0\x9dSFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0F\.\\src\\backend\\postmaster\\postmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ o/Windows/ v/8.4.1 - 8.4.2/
+
+# FreeBSD 8.4.1 - 8.4.2
+match postgresql m|^E\0\0\0\x84SFATAL\0C0A000\0Munsupported\x20frontend\x20protocol\x2065363\.19778:\x20server\x20supports\x201\.0\x20to\x203\.0\0Fpostmaster\.c\0L1621\0RProcessStartupPacket\0\0| p/PostgreSQL DB/ v/8.4.1 - 8.4.2/
 
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/
 

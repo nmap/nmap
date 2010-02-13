@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Improved PostgreSQL match lines by matching the line of the error to a
+  specific version [Patrik].
+
 o Added a mac_addr_next_hop member to the host tables used in NSE.
   [Michael Pattrick, kx].
 
