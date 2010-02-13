@@ -162,6 +162,10 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_pushlstring (L, (const char*)currenths->MACAddress() , 6);
     lua_setfield(L, -2, "mac_addr");
   }
+  if(currenths->NextHopMACAddress()){  // else nil
+	lua_pushlstring (L, (const char*)currenths->NextHopMACAddress() , 6);
+    lua_setfield(L, -2, "mac_addr_next_hop");
+  }
   if(currenths->SrcMACAddress()){ // else nil
     lua_pushlstring(L, (const char*)currenths->SrcMACAddress(), 6);
     lua_setfield(L, -2, "mac_addr_src");

@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Added a mac_addr_next_hop member to the host tables used in NSE.
+  [Michael Pattrick, kx].
+
 o Removed the nmap_service.exe helper program for smb-psexec, as it
   was still being flagged by malware detection even after the
   bit-flipping in the next release. You can now download it from

@@ -1324,6 +1324,16 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
+	    <term><option>host.mac_addr_next_hop</option>
+	      </term>
+	    <listitem>
+	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
+	      of the first hop in the route to the host, or
+	      <literal>nil</literal> if not available.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
 	    <term><option>host.mac_addr_src</option>
 	      </term>
 	    <listitem>
