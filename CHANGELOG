@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o Qualified an assertion to allow zero-byte sends in Nsock. Without
+  this, an NSE script could cause this assertion failure by doing
+  socket:send(""):
+    nmap: nsock_core.c:516: handle_write_result: Assertion `bytesleft > 0' failed.
+  [David]
+
 o Added a service probe for Logitech SqueezeCenter command line interface
  [Patrik]
 
