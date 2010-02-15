@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Added a service probe for Logitech SqueezeCenter command line interface
+ [Patrik]
+
 o Improved PostgreSQL match lines by matching the line of the error to a
   specific version [Patrik].
 
