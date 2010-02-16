@@ -35,6 +35,7 @@ Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery",
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
