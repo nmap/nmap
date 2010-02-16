@@ -2,6 +2,17 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP library to
+  make use of it. Added 5 scripts that use the new libraries:
+  - snmp-netstat shows listening and connected sockets
+  - snmp-processes shows process information including name, pid, path and 
+    parameters
+  - snmp-win32-services shows the names of running Windows services
+  - snmp-win32-shares shows the names and path of Windows shares
+  - snmp-win32-software shows a list of installed Windows software
+  - snmp-win32-users shows a list of local Windows users
+  [Patrik]
+
 o Qualified an assertion to allow zero-byte sends in Nsock. Without
   this, an NSE script could cause this assertion failure by doing
   socket:send(""):
@@ -9,7 +20,7 @@ o Qualified an assertion to allow zero-byte sends in Nsock. Without
   [David]
 
 o Added a service probe for Logitech SqueezeCenter command line interface
- [Patrik]
+  [Patrik]
 
 o Improved PostgreSQL match lines by matching the line of the error to a
   specific version [Patrik].
