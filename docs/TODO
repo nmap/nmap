@@ -1,23 +1,24 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Deal with AV false positive issue RE nmap_services.exe:
- - For now, David is going to apply Ron's patch which removes this,
-   but David will make it print output in verbose mode rather than
-   debug and maybe make it a little less verbose. LT plan is for Ron
-   to encrypt it with OpenSSL.
+o psexec missing (need to download yourself now) nmap_services.exe
+  output issue: "The function where this is detected returns a value
+  that is passed to stdnse.format_output. format_output takes a
+  parameter to decide whether it's displaying an error message, but it
+  is hard-coded to only display error messages with debugging >= 1. So
+  options are to change format_output and make it mroe flexible, or
+  somehow decouple the sensing of nmap_service.exe from the normal
+  output channel of the script."
 
 o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
-  http://seclists.org/nmap-dev/2010/q1/76
+  http://seclists.org/nmap-dev/2010/q1/76. [integrated, but David is
+  making some improvements].
 
 o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/70
 
-o [NSE] Consider SNMP scripts from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/162
-  http://seclists.org/nmap-dev/2010/q1/174
-  http://seclists.org/nmap-dev/2010/q1/178
-
 o Integrate Nping.
+
+o Zenmap should be able to export normal Nmap output
 
 o The -v and -d arguments should take the same syntax.  Right now you
   use -vvv vs. -d3. We should probably just make either approach work
@@ -93,15 +94,6 @@ o Do -p- Internet UDP scans.
 
 o Test Jay Fink's UDP payload prototype.
   http://seclists.org/nmap-dev/2010/q1/168
-
-o Web site HTML improvements
-  - Maybe start with nmap.org.
-    - Find and fix HTML validation problems, bad links.  I'm not sure
-      what tool is best for this.
-  - Then do the same with seclists.org, insecure.org, sectools.org
-  - The icon on the top-left of the screen should be for (and link
-    to) the root URL of current site.  e.g. seclists.org,
-    sectools.org, nmap.org rather than always insecure.org.
 
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -296,11 +288,6 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
 
-o Seclists.org should maybe be fixed so that it doesn't strip quoted
-  text for its summaries from the IP list because that list consists
-  almost entirely of forwarded material which is being stripped.  Look
-  at the summaries at http://seclists.org/interesting-people/.
-
 o Consider offering a way to link Winpcap DLLs so that they start the
   service as needed rather than requiring explicitly installing
   Winpcap and having it start upon system boot.  CACE has offered such
@@ -388,8 +375,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-o Zenmap should be able to export normal Nmap output
-
 o Zenmanp should perhaps be able to print Nmap output on a Printer (if
   not too much of a pain to implement.)
 
@@ -470,23 +455,6 @@ o Add randomizer to configure script so that a random ASCII art from
 
 o Add general regression unit testing system to Nmap
 
-o The Nmap web page is beginning to show its age.  Ah, who am I
-  kidding, it was showing its age 5 years ago :).  It could do with an
-  upgrade to XHTML+CSS.  It could also do with a whole redesign, but I
-  think that can be done as a second step after converting to
-  XHTML+CSS with roughly the same look.  Though adding a few more
-  modern touches (like hover interaction on the menu bar) wouldn't
-  hurt.  This is a moderatly big project, which will involve: o
-  Designing the new XHTML+CSS to look similar to the current HTML
-  pages, but be extensible enough that it can be redesigned in the
-  (near) future by mostly just changing the CSS and graphics.  
-    o Converting the existing Nmap pages to the new XHTML format.
-      This will likely include using open source programs and likely
-      modifying them or creating your own scripts to help with the
-      process.  To apply for this task, you need to have some web
-      development experience and an example XHTML+CSS web page you
-      have created online.
-
 o Provide an option to send a comment in scan packet data for target
   network.  Examples: --comment "Scan conducted by Marc Reis from
   SecOps, extension 2147" or --comment "pH33r my l3eT
@@ -536,6 +504,51 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o The Nmap web page is beginning to show its age.  Ah, who am I
+  kidding, it was showing its age 5 years ago :).  It could do with an
+  upgrade to XHTML+CSS.  It could also do with a whole redesign, but I
+  think that can be done as a second step after converting to
+  XHTML+CSS with roughly the same look.  Though adding a few more
+  modern touches (like hover interaction on the menu bar) wouldn't
+  hurt.  This is a moderatly big project, which will involve: o
+  Designing the new XHTML+CSS to look similar to the current HTML
+  pages, but be extensible enough that it can be redesigned in the
+  (near) future by mostly just changing the CSS and graphics.  
+    o Converting the existing Nmap pages to the new XHTML format.
+      This will likely include using open source programs and likely
+      modifying them or creating your own scripts to help with the
+      process.  To apply for this task, you need to have some web
+      development experience and an example XHTML+CSS web page you
+      have created online.
+    o We decided not to worry about XHTML for now, and we're
+     integrating CSS in piece by piece -- we already have the section
+    headers, left sidebar links. etc.
+
+o Seclists.org should maybe be fixed so that it doesn't strip quoted
+  text for its summaries from the IP list because that list consists
+  almost entirely of forwarded material which is being stripped.  Look
+  at the summaries at http://seclists.org/interesting-people/.
+
+o Web site HTML improvements
+  - Maybe start with nmap.org.
+    - Find and fix HTML validation problems, bad links.  I'm not sure
+      what tool is best for this.
+  - Then do the same with seclists.org, insecure.org, sectools.org
+  - The icon on the top-left of the screen should be for (and link
+    to) the root URL of current site.  e.g. seclists.org,
+    sectools.org, nmap.org rather than always insecure.org.
+
+o [NSE] Consider SNMP scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/162
+  http://seclists.org/nmap-dev/2010/q1/174
+  http://seclists.org/nmap-dev/2010/q1/178
+
+o Deal with AV false positive issue RE nmap_services.exe:
+ - For now, David is going to apply Ron's patch which removes this,
+   but David will make it print output in verbose mode rather than
+   debug and maybe make it a little less verbose. LT plan is for Ron
+   to encrypt it with OpenSSL.
 
 o Web site improvements
     - Update to use CSS, at least for header bars
