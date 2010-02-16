@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added http-vmware-path-vuln.nse, a script that checks for a
+  path-traversal vulnerability in VMWare (CVE-2009-3733). [Ron]
+
 o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP library to
   make use of it. Added 5 scripts that use the new libraries:
   - snmp-netstat shows listening and connected sockets
