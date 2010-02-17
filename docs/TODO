@@ -24,6 +24,12 @@ o The -v and -d arguments should take the same syntax.  Right now you
   use -vvv vs. -d3. We should probably just make either approach work
   with either of them.
 
+o Review afp-serverinfo.nse from Andrew Orr.
+  http://seclists.org/nmap-dev/2010/q1/470
+
+o Review pgsql-brute.nse from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/455
+
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
