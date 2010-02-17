@@ -24,8 +24,8 @@
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "5.10BETA2"  
-  VIProductVersion "5.10.0.2"
+  !define VERSION "5.21"  
+  VIProductVersion "5.21.0.0"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -287,6 +287,12 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   File ..\nmap-${VERSION}\python26.dll
   File /r ..\nmap-${VERSION}\py2exe
 SectionEnd
+
+Section "Nping (Packet generator)" SecNping
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
+  File ..\nmap-${VERSION}\nping.exe
+SectionEnd
  
 ;-------------------------------- 
 ;Descriptions 
@@ -299,6 +305,7 @@ SectionEnd
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
+  LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
 
   ;Assign language strings to sections 
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN 
@@ -309,6 +316,7 @@ SectionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecZenmap} $(DESC_SecZenmap) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff) 
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping) 
   !insertmacro MUI_FUNCTION_DESCRIPTION_END 
 ;-------------------------------- 
 ;Uninstaller Section 

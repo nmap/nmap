@@ -31,6 +31,11 @@
     starts_enabled="true" starts_hidden="false">
       <pkgref id="org.insecure.nmap.ndiff.pkg" />
     </choice>
+    <choice title="Nping" id="choice96" starts_selected="true"
+    description="Nping packet generator."
+    starts_enabled="true" starts_hidden="false">
+      <pkgref id="org.insecure.nmap.nping.pkg" />
+    </choice>
   </contents>
   <resources bg-scale="none" bg-align="topleft">
     <locale lang="en">
@@ -43,6 +48,7 @@
   <item type="file">02zenmap.xml</item>
   <item type="file">03ncat.xml</item>
   <item type="file">04ndiff.xml</item>
+  <item type="file">05nping.xml</item>
   <mod>properties.customizeOption</mod>
   <mod>properties.title</mod>
   <mod>properties.anywhereDomain</mod>

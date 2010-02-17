@@ -28,6 +28,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncat", "..\ncat\ncat.vcproj
 		{B630C8F7-3138-43E8-89ED-78742FA2AC5F} = {B630C8F7-3138-43E8-89ED-78742FA2AC5F}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nping", "..\nping\nping.vcproj", "{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -62,6 +64,10 @@ Global
 		{C1E04411-E021-468B-83F1-CB624BBA7589}.Debug|Win32.Build.0 = Debug|Win32
 		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.ActiveCfg = Release|Win32
 		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.Build.0 = Release|Win32
+		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Debug|Win32.Build.0 = Debug|Win32
+		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Release|Win32.ActiveCfg = Release|Win32
+		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -669,13 +669,18 @@ PCRE_BUILD
 PCRE_DEPENDS
 LIBPCREDIR
 LIBPCRE_LIBS
-subdirs
 LIBPCAP_LIBS
 PCAP_DIST_CLEAN
 PCAP_CLEAN
 PCAP_BUILD
 PCAP_DEPENDS
 OPENSSL_LIBS
+NPING_DIST_CLEAN
+NPING_CLEAN
+UNINSTALLNPING
+INSTALLNPING
+BUILDNPING
+subdirs
 ZENMAP_DIST_CLEAN
 ZENMAP_CLEAN
 UNINSTALLZENMAP
@@ -769,6 +774,7 @@ enable_nls
 with_localdirs
 with_ndiff
 with_zenmap
+with_nping
 with_openssl
 with_libpcap
 with_libpcre
@@ -790,7 +796,8 @@ CXX
 CXXFLAGS
 CCC
 CPP'
-ac_subdirs_all='libpcap
+ac_subdirs_all='nping
+libpcap
 libpcre
 libdnet-stripped
 nbase
@@ -1427,6 +1434,7 @@ Optional Packages:
                           /usr/local/{include,libs} if they exist
   --without-ndiff         Skip installation of the Ndiff utility
   --without-zenmap        Skip installation of the Zenmap graphical frontend
+  --without-nping         Skip installation of the Nping utility
   --with-openssl=DIR      Use optional openssl libs and includes from
                           DIR/lib/ and DIR/include/openssl/)
   --with-libpcap=DIR      Look for pcap in DIR/include and DIR/libs.
@@ -6351,6 +6359,35 @@ fi
 
 
 
+# Do they want Nping?
+
+# Check whether --with-nping was given.
+if test "${with_nping+set}" = set; then
+  withval=$with_nping;
+else
+  with_nping=check
+fi
+
+
+if test "$with_nping" = "no"; then
+  BUILDNPING=""
+  INSTALLNPING=""
+  UNINSTALLNPING=""
+else
+  BUILDNPING=build-nping
+  INSTALLNPING=install-nping
+  UNINSTALLNPING=uninstall-nping
+
+
+subdirs="$subdirs nping"
+
+fi
+
+
+
+
+
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""
@@ -7243,9 +7280,7 @@ fi
 
 
 if test $have_libpcap != yes ; then
-
-
-subdirs="$subdirs libpcap"
+        subdirs="$subdirs libpcap"
 
 fi
 

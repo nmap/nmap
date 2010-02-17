@@ -32,6 +32,7 @@ winbuild:
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ca-bundle.crt nmap-$(NMAP_VERSION)
+	cp ../nping/Release/nping.exe nmap-$(NMAP_VERSION)
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp ../ndiff/ndiff nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
@@ -48,5 +49,5 @@ winbuild:
 	mv nmap-$(NMAP_VERSION)/NmapInstaller.exe nmap-$(NMAP_VERSION)-setup.exe
 
 clean:
-	$(VCEXPRESS) nmap.sln /clean
+	"$(VCEXPRESS)" nmap.sln /clean
 	rm -rf Debug Release nmapbuild.log

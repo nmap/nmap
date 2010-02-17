@@ -236,6 +236,25 @@ AC_SUBST(UNINSTALLZENMAP)
 AC_SUBST(ZENMAP_CLEAN)
 AC_SUBST(ZENMAP_DIST_CLEAN)
 
+# Do they want Nping?
+AC_ARG_WITH(nping, AC_HELP_STRING([--without-nping], [Skip installation of the Nping utility]), [], [with_nping=check])
+
+if test "$with_nping" = "no"; then
+  BUILDNPING=""
+  INSTALLNPING=""
+  UNINSTALLNPING=""
+else
+  BUILDNPING=build-nping
+  INSTALLNPING=install-nping
+  UNINSTALLNPING=uninstall-nping
+  AC_CONFIG_SUBDIRS(nping)
+fi
+AC_SUBST(BUILDNPING)
+AC_SUBST(INSTALLNPING)
+AC_SUBST(UNINSTALLNPING)
+AC_SUBST(NPING_CLEAN)
+AC_SUBST(NPING_DIST_CLEAN)
+
 # We test whether they specified openssl desires explicitly
 use_openssl="yes"
 specialssldir=""

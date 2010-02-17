@@ -29,6 +29,7 @@ LIBPCREDIR = @LIBPCREDIR@
 export LIBDNETDIR = @LIBDNETDIR@
 ZENMAPDIR = zenmap
 NDIFFDIR = ndiff
+NPINGDIR = nping
 PYTHON = @PYTHON@
 DEFS = @DEFS@ -DNMAP_NAME=\"$(NMAP_NAME)\" -DNMAP_URL=\"$(NMAP_URL)\" -DNMAP_PLATFORM=\"$(NMAP_PLATFORM)\" -DNMAPDATADIR=\"$(nmapdatadir)\"
 # With GCC, add extra security checks to source code.
@@ -72,9 +73,12 @@ TARGET = nmap
 INSTALLNSE=@INSTALLNSE@
 BUILDZENMAP=@BUILDZENMAP@
 BUILDNDIFF=@BUILDNDIFF@
+BUILDNPING=@BUILDNPING@
 INSTALLZENMAP=@INSTALLZENMAP@
 INSTALLNDIFF=@INSTALLNDIFF@
+INSTALLNPING=@INSTALLNPING@
 UNINSTALLZENMAP=@UNINSTALLZENMAP@
+UNINSTALLNPING=@UNINSTALLNPING@
 
 ifneq (@LIBLUA_LIBS@,)
 NSE_SRC=nse_main.cc nse_nsock.cc nse_fs.cc nse_nmaplib.cc nse_debug.cc nse_pcrelib.cc nse_binlib.cc nse_bit.cc
@@ -98,7 +102,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@
-	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF)
+	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
 $(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
 	@echo Compiling nmap
@@ -179,6 +183,8 @@ zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 ndiff_clean:
 	-cd $(NDIFFDIR) && $(PYTHON) setup.py clean --all
+nping_clean:
+	-cd $(NPINGDIR) && $(MAKE) clean
 pcap_dist_clean:
 	-cd $(LIBPCAPDIR) && $(MAKE) distclean
 pcre_dist_clean:
@@ -197,6 +203,8 @@ zenmap_dist_clean: zenmap_clean
 	-cd $(ZENMAPDIR) && rm -rf MANIFEST build/ dist/
 ndiff_dist_clean: ndiff_clean
 	-cd $(NDIFFDIR) && rm -rf build/ dist/
+nping_dist_clean:
+	-cd $(NPINGDIR) && $(MAKE) distclean
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
@@ -266,6 +274,9 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
+build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build
+	@cd $(NPINGDIR) && $(MAKE)
+
 install-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py install --prefix "$(prefix)" $(if $(DESTDIR),--root "$(DESTDIR)")
 
@@ -293,10 +304,13 @@ install-nse: $(TARGET)
 install-ncat: $(NCATDIR)/ncat
 	@cd $(NCATDIR) && $(MAKE) install
 
-install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ $(INSTALLNDIFF)
+install-nping: $(NPINGDIR)/nping
+	@cd $(NPINGDIR) && $(MAKE) install
+
+install: install-nmap $(INSTALLNSE) $(INSTALLZENMAP) @NCAT_INSTALL@ $(INSTALLNDIFF) $(INSTALLNPING)
 	@echo "NMAP SUCCESSFULLY INSTALLED"
 
-uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@
+uninstall: uninstall-nmap $(UNINSTALLZENMAP) @NCAT_UNINSTALL@ $(UNINSTALLNPING)
 
 uninstall-nmap:
 	rm -f $(DESTDIR)$(bindir)/$(TARGET)
@@ -315,6 +329,9 @@ uninstall-zenmap:
 
 uninstall-ncat:
 	@cd $(NCATDIR) && $(MAKE) uninstall
+
+uninstall-nping:
+	@cd $(NPINGDIR) && $(MAKE) uninstall
 
 ${srcdir}/configure: configure.ac 
 	cd ${srcdir} && autoconf
