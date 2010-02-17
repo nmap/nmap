@@ -30,6 +30,16 @@ o Review afp-serverinfo.nse from Andrew Orr.
 o Review pgsql-brute.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/455
 
+o Review sslv3-enum.nse from Mak Kolybabi.
+  http://seclists.org/nmap-dev/2010/q1/563
+
+o Review NSE raw IP from Kris Katterjohn.
+  http://seclists.org/nmap-dev/2010/q1/559
+
+o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
+  nfs-get-dirlist.nse from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/270
+
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
