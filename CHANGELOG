@@ -2,6 +2,13 @@
 
 [NOT YET RELEASED]
 
+o The -v and -d options are now handled in the same way. The three
+  forms are equivalent:
+    -v -v -v    -vvv    -v3
+    -d -d -d    -ddd    -d3
+  Formerly, the -ddd and -v3 forms didn't work. Mak Kolybabi submitted
+  a patch.
+
 o Nping, the packet generation program by Luis MartinGarcia, is now
   included in the Nmap distribution.
 

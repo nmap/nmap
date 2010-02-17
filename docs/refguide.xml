@@ -3602,6 +3602,9 @@ format is available
           <indexterm><primary><option>-v</option></primary></indexterm>
           <indexterm><primary>verbosity</primary></indexterm>
         </term>
+        <term>
+          <option>-v<replaceable>level</replaceable></option> (Set verbosity level)
+        </term>
         <listitem>
 
           <para>Increases the verbosity level, causing Nmap to
@@ -3609,7 +3612,8 @@ format is available
           ports are shown as they are found and completion time
           estimates are provided when Nmap thinks a scan will take
           more than a few minutes. Use it twice or more for even greater
-          verbosity.
+          verbosity: <option>-vv</option>, or give a verbosity level
+          directly, for example <option>-v3</option>.
           <indexterm><primary><option>-v</option></primary><secondary>giving more than once</secondary></indexterm>
           </para>
 
@@ -3629,9 +3633,12 @@ format is available
 
       <varlistentry>
         <term>
-          <option>-d [level]</option> (Increase or set debugging level)
+          <option>-d</option> (Increase debugging level)
         <indexterm><primary><option>-d</option></primary></indexterm>
         <indexterm><primary>debugging</primary></indexterm>
+        </term>
+        <term>
+          <option>-d<replaceable>level</replaceable></option> (Set debugging level)
         </term>
         <listitem>
 
@@ -3641,9 +3648,8 @@ debugging is available to flood you with much more!  As with the
 verbosity option (<option>-v</option>), debugging is enabled with a
 command-line flag (<option>-d</option>) and the debug level can be
 increased by specifying it
-multiple times.<indexterm><primary><option>-d</option></primary><secondary>giving more than once</secondary></indexterm>
-Alternatively, you can set
-a debug level by giving an argument to <option>-d</option>.  For
+multiple times,<indexterm><primary><option>-d</option></primary><secondary>giving more than once</secondary></indexterm>
+as in <option>-dd</option>, or by setting a level directly.  For
 example, <option>-d9</option> sets level nine.  That is the highest
 effective level and will produce thousands of lines unless you run a
 very simple scan with very few ports and targets.</para>

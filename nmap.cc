@@ -287,8 +287,8 @@ printf("%s %s ( %s )\n"
        "  -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,\n"
        "     and Grepable format, respectively, to the given filename.\n"
        "  -oA <basename>: Output in the three major formats at once\n"
-       "  -v: Increase verbosity level (use twice or more for greater effect)\n"
-       "  -d[level]: Set or increase debugging level (Up to 9 is meaningful)\n"
+       "  -v: Increase verbosity level (use -vv or more for greater effect)\n"
+       "  -d: Increase debugging level (use -dd or more for greater effect)\n"
        "  --reason: Display the reason a port is in a particular state\n"
        "  --open: Only show open (or possibly open) ports\n"
        "  --packet-trace: Show all packets sent and received\n"
@@ -740,7 +740,7 @@ int nmap_main(int argc, char *argv[]) {
 
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv", long_options, &option_index)) != EOF) {
+  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
 #ifndef NOLUA
@@ -1057,10 +1057,18 @@ int nmap_main(int argc, char *argv[]) {
       } while(q);
       break;
     case 'd':
-      if (optarg)
+      if (optarg && isdigit(optarg[0])) {
         o.debugging = o.verbose = atoi(optarg);
-      else {
-        o.debugging++; o.verbose++;
+      } else {
+        const char *p;
+        o.debugging++;
+        o.verbose++;
+        for (p = optarg != NULL ? optarg : ""; *p == 'd'; p++) {
+          o.debugging++;
+          o.verbose++;
+        }
+        if (*p != '\0')
+          fatal("Invalid argument to -d: \"%s\".", optarg);
       }
       o.reason = true;
       break;
@@ -1304,7 +1312,16 @@ int nmap_main(int argc, char *argv[]) {
       exit(0);
       break;
     case 'v':
-      o.verbose++;
+      if (optarg && isdigit(optarg[0])) {
+        o.verbose = atoi(optarg);
+      } else {
+        const char *p;
+        o.verbose++;
+        for (p = optarg != NULL ? optarg : ""; *p == 'v'; p++)
+          o.verbose++;
+        if (*p != '\0')
+          fatal("Invalid argument to -v: \"%s\".", optarg);
+      }
       break;
     }
   }
