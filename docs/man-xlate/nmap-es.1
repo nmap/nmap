@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 11/21/2009
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 02/16/2010
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/21/2009" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "02/16/2010" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -1186,7 +1186,7 @@ Cisco\&.
 \fB\-\-badsum\fR (Envía paquetes con sumas de comprobación TCP/UDP erróneas)
 .RS 4
 Esta opción le indica a Nmap que debe generar sumas de comprobación inválidas para los paquetes que se envíen a los equipos objetivos\&. Cualquier respuesta que se reciba vendrá de un cortafuegos o un IDS que no comprobó la suma, dado que la mayoría de las pilas IP descartan estos paquetes\&. Para obtener más información de esta técnica puede consultar
-\m[blue]\fB\%http://www.phrack.org/phrack/60/p60-0x0c.txt\fR\m[]
+\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "SALIDA"
 .PP
@@ -1427,9 +1427,8 @@ Por supuesto, debe utilizarse la sintaxis IPv6 si se indica una dirección en lu
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, por lo que se recomienda utilizar nombres de equipo\&. La salida es igual que en los otros casos\&. Lo único que distingue que esta opción está habilitada es que se muestran las direcciones IPv6 en la línea que indica los
 \(lqpuertos de interés\(rq\&.
 .sp
-Aunque IPv6 no se está utilizando en todo el mundo, sí que se utiliza mucho en algunos países (generalmente asiáticos) y muchos sistemas operativos modernos lo soportan\&. Tanto el origen como el objetivo de su sondeo deben estar configurados para utilizar IPv6 si desea utilizar Nmap con IPv6\&. Si su ISP (como sucede con la mayoría) no le da direcciones IPv6, puede encontrar gestores de túneles gratuitos en muchos sitios y funciona bien con Nmap\&. Uno de los mejores lo gestiona BT Exact en
-\m[blue]\fB\%https://tb.ipv6.btexact.com/\fR\m[]\&. También he utilizado el que Hurricane Electric ofrece en
-\m[blue]\fB\%http://ipv6tb.he.net/\fR\m[]\&. Los túneles IPv6 a IPv4 (\(Fo6to4\(Fc) son también otro método muy popular y gratuito \&.
+Aunque IPv6 no se está utilizando en todo el mundo, sí que se utiliza mucho en algunos países (generalmente asiáticos) y muchos sistemas operativos modernos lo soportan\&. Tanto el origen como el objetivo de su sondeo deben estar configurados para utilizar IPv6 si desea utilizar Nmap con IPv6\&. Si su ISP (como sucede con la mayoría) no le da direcciones IPv6, puede encontrar gestores de túneles gratuitos en muchos sitios y funciona bien con Nmap\&. Una lista de gestores está
+\m[blue]\fBen Wikipedia\fR\m[]\&\s-2\u[11]\d\s+2\&. Los túneles IPv6 a IPv4 (\(Fo6to4\(Fc) son también otro método muy popular y gratuito\&.
 .RE
 .PP
 \fB\-A\fR (Opciones de sondeos agresivos)
@@ -1597,11 +1596,11 @@ que se distribuye conjuntamente con Nmap y que está también disponible en
 .SS "Unofficial Translation Disclaimer / Descargo de traducción no oficial"
 .PP
 This is an unnofficial translation of the
-\m[blue]\fBNmap license details\fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBNmap license details\fR\m[]\&\s-2\u[12]\d\s+2
 into Spanish\&. It was not written by Insecure\&.Com LLC, and does not legally state the distribution terms for Nmap \-\- only the original English text does that\&. However, we hope that this translation helps Spanish speakers understand the Nmap license better\&.
 .PP
 Esta es una traducción no oficial de los
-\m[blue]\fBdetalles de la licencia de Nmap details\fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBdetalles de la licencia de Nmap details\fR\m[]\&\s-2\u[12]\d\s+2
 al español\&. Esta traducción no ha sido escrita por Insecure\&.Com LLC por lo que no refleja legalmente los términos de distribución de Nmap, eso sólo puede hacerlo el texto original en inglés\&. Esperamos, sin embargo, que esta traducción pueda ayudar a aquellas personas que hablan español a entender mejor la licencia de Nmap\&.
 .SS "Licencia y copyright de Nmap"
 .PP
@@ -1722,14 +1721,14 @@ Nunca debería instalar Nmap con privilegios especiales (p\&. ej\&. suid root) p
 .SS "Programas de terceros"
 .PP
 Este producto incluye programas desarrollados por la
-\m[blue]\fBFundación Apache Software Foundation\fR\m[]\&\s-2\u[12]\d\s+2\&. También se distribuye una versión modificada de la
-\m[blue]\fBlibrería portable de captura de paquetes Libpcap\fR\m[]\&\s-2\u[13]\d\s+2
+\m[blue]\fBFundación Apache Software Foundation\fR\m[]\&\s-2\u[13]\d\s+2\&. También se distribuye una versión modificada de la
+\m[blue]\fBlibrería portable de captura de paquetes Libpcap\fR\m[]\&\s-2\u[14]\d\s+2
 conjuntamente con nmap\&. La versión para Windows de Nmap utiliza la librería
-\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[14]\d\s+2
+\m[blue]\fBWinPcap library\fR\m[]\&\s-2\u[15]\d\s+2
 que es una versión derivada de la libcap\&. La
-\m[blue]\fBlibrería PCRE\fR\m[]\&\s-2\u[15]\d\s+2, software libre escrito por Philip Hazel, da el soporte de expresiones regulares\&. Algunas de las funciones de acceso a bajo nivel de la red utiliza la librería de red
-\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[16]\d\s+2, escrita por Dug Song\&. Se distribuye una versión modificada con Nmap\&. Nmap puede, opcionalmente, enlazar con las
-\m[blue]\fBherramientas criptográficas OpenSSL\fR\m[]\&\s-2\u[17]\d\s+2
+\m[blue]\fBlibrería PCRE\fR\m[]\&\s-2\u[16]\d\s+2, software libre escrito por Philip Hazel, da el soporte de expresiones regulares\&. Algunas de las funciones de acceso a bajo nivel de la red utiliza la librería de red
+\m[blue]\fBLibdnet\fR\m[]\&\s-2\u[17]\d\s+2, escrita por Dug Song\&. Se distribuye una versión modificada con Nmap\&. Nmap puede, opcionalmente, enlazar con las
+\m[blue]\fBherramientas criptográficas OpenSSL\fR\m[]\&\s-2\u[18]\d\s+2
 para poder hacer un análisis de versiones SSL\&. Todos los programas de terceros descritos en este párrafo se distribuyen libremente bajo licencias tipo BSD\&.
 .SS "Clasificación de control de exportación de los EEUU"
 .PP
@@ -1787,36 +1786,41 @@ Nmap::Parser
 \%http://www.nmapparser.com
 .RE
 .IP "11." 4
+en Wikipedia
+.RS 4
+\%http://es.wikipedia.org/wiki/Anexo:Proveedores_de_túneles_IPv6
+.RE
+.IP "12." 4
 Nmap license details
 .RS 4
 \%http://www.insecure.org/nmap/man/man-legal.html
 .RE
-.IP "12." 4
+.IP "13." 4
 Fundación Apache Software Foundation
 .RS 4
 \%http://www.apache.org
 .RE
-.IP "13." 4
+.IP "14." 4
 librería portable de captura de paquetes Libpcap
 .RS 4
 \%http://www.tcpdump.org
 .RE
-.IP "14." 4
+.IP "15." 4
 WinPcap library
 .RS 4
 \%http://www.winpcap.org
 .RE
-.IP "15." 4
+.IP "16." 4
 librería PCRE
 .RS 4
 \%http://www.pcre.org
 .RE
-.IP "16." 4
+.IP "17." 4
 Libdnet
 .RS 4
 \%http://libdnet.sourceforge.net
 .RE
-.IP "17." 4
+.IP "18." 4
 herramientas criptográficas OpenSSL
 .RS 4
 \%http://www.openssl.org

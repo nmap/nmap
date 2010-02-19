@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 11/21/2009
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 02/16/2010
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/21/2009" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "02/16/2010" "[FIXME: source]" "[FIXME: manual]"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -1249,7 +1249,7 @@ Cisco\&.
 .RS 4
 .\" --badsum
 Solicita ao Nmap que utilize uma soma de verificação (checksum) TCP ou UDP inválida para os pacotes enviados aos hosts\&. Uma vez que virtualmente todos as pilhas (stack) IP do host irão rejeitar esses pacotes, quaisquer respostas recebidas são provavelmente vindas de um firewall ou IDS que nem se incomodou em verificar a soma de verificação\&. Para mais detalhes desta técnica, veja
-\m[blue]\fB\%http://www.phrack.org/phrack/60/p60-0x0c.txt\fR\m[]
+\m[blue]\fB\%http://nmap.org/p60-12.txt\fR\m[]
 .RE
 .SH "SAíDA (OUTPUT)"
 .PP
@@ -1498,8 +1498,7 @@ Desde 2002, o Nmap oferece suporte a IPv6 na maioria de suas opções mais popul
 \(lqportas interessantes\(rq
 sendo a única dica visível de se tratar realmente de IPv6\&.
 .sp
-Muito embora o IPv6 não ter, exatamente, se alastrado pelo mundo, seu uso se torna mais significativo em alguns países (normalmente asiáticos) e a maioria dos sistemas operacionais modernos passam a suportá\-lo\&. Para usar o Nmap com o IPv6, tanto a origem, quanto o alvo de seu scan devem estar configurados para IPv6\&. Se o seu provedor (ISP) (como a maioria) não aloca endereços IPv6 para você, alguns intermediários, que fazem o túnel gratuitamente, estão amplamente disponíveis e funcionam bem com o Nmap\&. Um dos melhores é disponibilizado pela BT Exact em
-\m[blue]\fB\%https://tb.ipv6.btexact.com/\fR\m[]\&. Também tenho utilizado um, fornecido pela Hurricane Electric em
+Muito embora o IPv6 não ter, exatamente, se alastrado pelo mundo, seu uso se torna mais significativo em alguns países (normalmente asiáticos) e a maioria dos sistemas operacionais modernos passam a suportá\-lo\&. Para usar o Nmap com o IPv6, tanto a origem, quanto o alvo de seu scan devem estar configurados para IPv6\&. Se o seu provedor (ISP) (como a maioria) não aloca endereços IPv6 para você, alguns intermediários, que fazem o túnel gratuitamente, estão amplamente disponíveis e funcionam bem com o Nmap\&. Um dos melhores é disponibilizado pela BT Exact\&. Também tenho utilizado um, fornecido pela Hurricane Electric em
 \m[blue]\fB\%http://ipv6tb.he.net/\fR\m[]\&. Túneis 6para4 são outra abordagem gratuita e popular\&.
 .RE
 .PP
