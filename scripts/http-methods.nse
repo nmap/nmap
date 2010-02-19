@@ -4,6 +4,10 @@ description = [[
 Connects to an HTTP server and sends an OPTIONS request to see which
 HTTP methods are allowed on this server. Optionally tests each method
 individually to see if they are subject to e.g. IP address restrictions.
+
+By default, the script will not report anything if the only methods
+found are GET, HEAD, POST, OPTIONS, or TRACE. If any other methods are
+found, or if Nmap is run in verbose mode, then all of them are reported.
 ]]
 
 ---
@@ -31,10 +35,18 @@ author = "Bernd Stroessenreuther <berny1@users.sourceforge.net>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"safe"}
+categories = {"default", "safe"}
 
 require("http")
+require("nmap")
 require("stdnse")
+
+-- We don't report these methods except with verbosity.
+local UNINTERESTING_METHODS = {
+	"GET", "HEAD", "POST", "OPTIONS", "TRACE"
+}
+
+local filter_out
 
 portrule = function(host, port)
 	if not (port.service == 'http' or port.service == 'https') 
@@ -52,6 +64,7 @@ end
 action = function(host, port)
 	local url_path, retest_http_methods
 	local response, methods, options_status_line, output
+	local uninteresting
 
 	-- default vaules for script-args
 	url_path = nmap.registry.args["http-methods.url-path"] or "/"
@@ -70,11 +83,21 @@ action = function(host, port)
 		return string.format("No Allow header in OPTIONS response (status code %d)", response.status)
 	end
 
+	if nmap.verbosity() == 0 then
+		uninteresting = UNINTERESTING_METHODS
+	else
+		uninteresting = {}
+	end
+
+	methods = stdnse.strsplit(",%s*", response.header["allow"])
+	if #filter_out(methods, uninteresting) == 0 then
+		return
+	end
+
 	output = { response.header["allow"] }
 
 	-- retest http methods if requested
 	if retest_http_methods then
-		local methods = stdnse.strsplit(",%s*", response.header["allow"])
 		local _
 		for _, method in ipairs(methods) do
 			local str
@@ -94,4 +117,25 @@ action = function(host, port)
 	end
 
 	return stdnse.strjoin("\n", output)
+end
+
+local function contains(t, elem)
+	local _, e
+	for _, e in ipairs(t) do
+		if e == elem then
+			return true
+		end
+	end
+	return false
+end
+
+function filter_out(t, filter)
+	local result = {}
+	local _, e, f
+	for _, e in ipairs(t) do
+		if not contains(filter, e) then
+			result[#result + 1] = e
+		end
+	end
+	return result
 end
