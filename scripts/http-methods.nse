@@ -1,21 +1,19 @@
 id = "HTTP allowed methods"
 
 description = [[
-Connects to an HTTP server and sends an OPTIONS request to see which HTTP methods are allowed on this server.
-
-By default, it tells only the Methods returned by an OPTIONS request in the Allow-Header.
-In some cases a method is active, but requests with this method are only allowed e. g. from
-certain IP addresses. 
-If http-methods.retest is set to true we also send one single request with every method found before
-to see if it returns 200 OK or something other, e. g. 403 Forbidden
+Connects to an HTTP server and sends an OPTIONS request to see which
+HTTP methods are allowed on this server. Optionally tests each method
+individually to see if they are subject to e.g. IP address restrictions.
 ]]
 
 ---
--- @usage
--- nmap --script=http-methods.nse [--script-args http-methods.url-path=<URL_Path>,http-methods.retest=true|false] <target>
--- @args http-methods.url-path if You want another URL path than / just give it here (optional, defaults to /)
--- @args http-methods.retest give true if You want to perfom a separat test for each
--- HTTP method found - see @see description (optional, defaults to false)
+-- @args http-methods.url-path The path to request. Defaults to
+-- <code>/</code>.
+-- @args http-methods.retest If defined, do a request using each method
+-- individually and show the response code. Use of this argument can
+-- make this script unsafe; for example <code>DELETE /</code> is
+-- possible.
+--
 -- @output
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.8 ((Ubuntu))
 -- |  HTTP allowed methods: according to OPTIONS request: GET,HEAD,POST,OPTIONS,TRACE
@@ -24,6 +22,10 @@ to see if it returns 200 OK or something other, e. g. 403 Forbidden
 -- |     HTTP Status for POST is 200 OK
 -- |     HTTP Status for OPTIONS is 200 OK
 -- |_    HTTP Status for TRACE is 200 OK
+--
+-- @usage
+-- nmap --script=http-methods.nse --script-args http-methods.retest=1 <target>
+-- nmap --script=http-methods.nse --script-args http-methods.url-path=/website <target>
 
 author = "Bernd Stroessenreuther <berny1@users.sourceforge.net>"
 
@@ -68,24 +70,8 @@ action = function(host, port)
 	local socket, request, result, methods, protocol, output, httpstatus, methodsarray, i, own_httpstatus, url_path, retest_http_methods, try, catch, location
 
 	-- default vaules for script-args
-	url_path = "/"
-	retest_http_methods = false
-
-	-- evaluate script-args
-	if (nmap.registry.args ~= nil)
-	then
-		if (nmap.registry.args["http-methods.url-path"] ~= nil)
-		then
-			url_path = nmap.registry.args["http-methods.url-path"]
-		end
-		if (nmap.registry.args["http-methods.retest"] ~= nil)
-		then
-			if (nmap.registry.args["http-methods.retest"] == "true")
-			then
-				retest_http_methods = true
-			end
-		end
-	end
+	url_path = nmap.registry.args["http-methods.url-path"] or "/"
+	retest_http_methods = nmap.registry.args["http-methods.retest"] ~= nil
 
 	catch = function()
 		socket:close()
