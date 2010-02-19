@@ -940,11 +940,12 @@ end
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
 -- @return A table as described in the module description.
 -- @see generic_request
-request = function(host, port, data)
+request = function(host, port, data, options)
   local method
-  local opts
   local header, partial
   local response
+
+  options = options or {}
 
   if type(host) == 'table' then
     host = host.ip
@@ -962,7 +963,7 @@ request = function(host, port, data)
 
   method = string.match(data, "^(%S+)")
 
-  socket, partial = comm.tryssl(host, port, data, opts)
+  socket, partial = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
     return error_response
