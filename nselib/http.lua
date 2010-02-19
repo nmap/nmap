@@ -23,7 +23,7 @@
 -- @args pipeline If set, it represents the number of HTTP requests that'll be
 -- pipelined (ie, sent in a single request). This can be set low to make
 -- debugging easier, or it can be set high to test how a server reacts (its
--- chosen max is ignored). 
+-- chosen max is ignored).
 
 local MAX_CACHE_SIZE = "http-max-cache-size";
 
@@ -723,13 +723,13 @@ local function getPipelineMax(response)
 end
 
 --- Builds a string to be added to the request mod_options table
--- 
+--
 --  @param cookies A cookie jar just like the table returned parse_set_cookie.
 --  @param path If the argument exists, only cookies with this path are included to the request
 --  @return A string to be added to the mod_options table
 function buildCookies(cookies, path)
   local cookie = ""
-  if type(cookies) == 'string' then return cookies end 
+  if type(cookies) == 'string' then return cookies end
   for i, ck in ipairs(cookies or {}) do
     if not path or string.match(ck["path"],".*" .. path .. ".*") then
       if i ~= 1 then cookie = cookie .. " " end
@@ -1067,8 +1067,8 @@ end
 -- host table passed to a portrule or hostrule. The second argument is either
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is ignored. The sixth 
--- argument is a table with data to be posted. 
+-- is a table for further options. The fifth argument is ignored. The sixth
+-- argument is a table with data to be posted.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
@@ -1321,333 +1321,347 @@ get_default_timeout = function( nmap_timing )
   return timeout
 end
 
----Take the data returned from a HTTP request and return the status string. Useful 
--- for <code>print_debug</code> messaes and even for advanced output. 
+--- Take the data returned from a HTTP request and return the status string.
+-- Useful for <code>print_debug</code> messages and even for advanced output.
 --
---@param data The data returned by a HTTP request (can be nil or empty)
---@return The status string, the status code, or "<unknown status>". 
+-- @param data The data returned by a HTTP request (can be <code>nil</code> or empty)
+-- @return The status string, the status code, or <code>"<unknown status>"</code>.
 function get_status_string(data)
-	-- Make sure we have valid data
-	if(data == nil) then
-		return "<unknown status>"
-	elseif(data['status-line'] == nil) then
-		if(data['status'] ~= nil) then
-			return data['status']
-		end
+  -- Make sure we have valid data
+  if(data == nil) then
+    return "<unknown status>"
+  elseif(data['status-line'] == nil) then
+    if(data['status'] ~= nil) then
+      return data['status']
+    end
 
-		return "<unknown status>"
-	end
+    return "<unknown status>"
+  end
 
-	-- We basically want everything after the space
-	local space = string.find(data['status-line'], ' ')
-	if(space == nil) then
-		return data['status-line']
-	else
-		return string.sub(data['status-line'], space + 1)
-	end
+  -- We basically want everything after the space
+  local space = string.find(data['status-line'], ' ')
+  if(space == nil) then
+    return data['status-line']
+  else
+    return string.sub(data['status-line'], space + 1)
+  end
 end
 
----Determine whether or not the server supports HEAD by requesting '/' and verifying that it returns 
--- 200, and doesn't return data. We implement the check like this because can't always rely on OPTIONS to 
--- tell the truth. 
+--- Determine whether or not the server supports HEAD by requesting / and
+-- verifying that it returns 200, and doesn't return data. We implement the
+-- check like this because can't always rely on OPTIONS to tell the truth.
 --
---Note: If <code>identify_404</code> returns a 200 status, HEAD requests should be disabled. 
+-- Note: If <code>identify_404</code> returns a 200 status, HEAD requests
+-- should be disabled.
 --
---@param host The host object. 
---@param port The port to use -- note that SSL will automatically be used, if necessary. 
---@param result_404 [optional] The result when an unknown page is requested. This is returned by 
---                  <code>identify_404</code>. If the 404 page returns a '200' code, then we 
---                  disable HEAD requests. 
---@param path [optional] The path to request; by default, '/' is used. 
---@return A boolean value: true if HEAD is usable, false otherwise. 
---@return If HEAD is usable, the result of the HEAD request is returned (so potentially, a script can
---        avoid an extra call to HEAD
+-- @param host The host object.
+-- @param port The port to use -- note that SSL will automatically be used, if
+-- necessary.
+-- @param result_404 [optional] The result when an unknown page is requested.
+-- This is returned by <code>identify_404</code>. If the 404 page returns a
+-- 200 code, then we disable HEAD requests.
+-- @param path The path to request; by default, / is used.
+-- @return A boolean value: true if HEAD is usable, false otherwise.
+-- @return If HEAD is usable, the result of the HEAD request is returned (so
+-- potentially, a script can avoid an extra call to HEAD
 function can_use_head(host, port, result_404, path)
-	-- If the 404 result is 200, don't use HEAD. 
-	if(result_404 == 200) then
-		return false
-	end
+  -- If the 404 result is 200, don't use HEAD.
+  if(result_404 == 200) then
+    return false
+  end
 
-	-- Default path
-	if(path == nil) then
-		path = '/'
-	end
+  -- Default path
+  if(path == nil) then
+    path = '/'
+  end
 
-	-- Perform a HEAD request and see what happens. 
-	local data = http.head( host, port, path )
-	if data then
-		if data.status and data.status == 302 and data.header and data.header.location then
-			stdnse.print_debug(1, "HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
-			return false
-		end
+  -- Perform a HEAD request and see what happens.
+  local data = http.head( host, port, path )
+  if data then
+    if data.status and data.status == 302 and data.header and data.header.location then
+      stdnse.print_debug(1, "HTTP: Warning: Host returned 302 and not 200 when performing HEAD.")
+      return false
+    end
 
-		if data.status and data.status == 200 and data.header then
-			-- check that a body wasn't returned
-			if string.len(data.body) > 0 then
-				stdnse.print_debug(1, "HTTP: Warning: Host returned data when performing HEAD.")
-				return false
-			end
+    if data.status and data.status == 200 and data.header then
+      -- check that a body wasn't returned
+      if string.len(data.body) > 0 then
+        stdnse.print_debug(1, "HTTP: Warning: Host returned data when performing HEAD.")
+        return false
+      end
 
-			stdnse.print_debug(1, "HTTP: Host supports HEAD.")
-			return true, data
-		end
+      stdnse.print_debug(1, "HTTP: Host supports HEAD.")
+      return true, data
+    end
 
-		stdnse.print_debug(1, "HTTP: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
-		return false
-	end
+    stdnse.print_debug(1, "HTTP: Didn't receive expected response to HEAD request (got %s).", get_status_string(data))
+    return false
+  end
 
-	stdnse.print_debug(1, "HTTP: HEAD request completely failed.")
-	return false
+  stdnse.print_debug(1, "HTTP: HEAD request completely failed.")
+  return false
 end
 
----Request the root folder, "/", in order to determine if we can use a GET request against this server. If the server returns
--- 301 Moved Permanently or 401 Authentication Required, then tests against this server will most likely fail. 
+--- Request the root folder, /, in order to determine if we can use a GET
+-- request against this server. If the server returns 301 Moved Permanently or
+-- 401 Authentication Required, then tests against this server will most likely
+-- fail.
 --
--- TODO: It's probably worthwhile adding a script-arg that will ignore the output of this function and always scan servers. 
+-- TODO: It's probably worthwhile adding a script-arg that will ignore the
+-- output of this function and always scan servers.
 --
---@param host The host object. 
---@param port The port to use -- note that SSL will automatically be used, if necessary. 
---@return (result, message) result is a boolean: true means we're good to go, false means there's an error.
---        The error is returned in message. 
+-- @param host The host object.
+-- @param port The port to use -- note that SSL will automatically be used, if
+-- necessary.
+-- @return (result, message) result is a boolean: true means we're good to go,
+-- false means there's an error. The error is returned in message.
 function can_use_get(host, port)
-	stdnse.print_debug(1, "Checking if a GET request is going to work out")
+  stdnse.print_debug(1, "Checking if a GET request is going to work out")
 
-	-- Try getting the root directory
-	local data = http.get( host, port, '/' )
-	if(data == nil) then
-		stdnse.print_debug(1, string.format("GET request for '/' returned nil when verifying host %s", host.ip))
-	else
-		-- If the root directory is a permanent redirect, we're going to run into troubles
-		if(data.status == 301 or data.status == 302) then
-			if(data.header and data.header.location) then
-				stdnse.print_debug(1, string.format("GET request for '/' returned a forwarding address (%s) -- try scanning %s instead, if possible", get_status_string(data), data.header.location))
-			end
-		end
-	
-		-- If the root directory requires authentication, we're outta luck
-		if(data.status == 401) then
-			stdnse.print_debug(1, string.format("Root directory requires authentication (%s), scans may not work", get_status_string(data)))
-		end
-	end
+  -- Try getting the root directory
+  local data = http.get( host, port, '/' )
+  if(data == nil) then
+    stdnse.print_debug(1, string.format("GET request for '/' returned nil when verifying host %s", host.ip))
+  else
+    -- If the root directory is a permanent redirect, we're going to run into troubles
+    if(data.status == 301 or data.status == 302) then
+      if(data.header and data.header.location) then
+        stdnse.print_debug(1, string.format("GET request for '/' returned a forwarding address (%s) -- try scanning %s instead, if possible", get_status_string(data), data.header.location))
+      end
+    end
+  
+    -- If the root directory requires authentication, we're outta luck
+    if(data.status == 401) then
+      stdnse.print_debug(1, string.format("Root directory requires authentication (%s), scans may not work", get_status_string(data)))
+    end
+  end
 
-	return true
+  return true
 end
 
----Try and remove anything that might change within a 404. For example:
+--- Try and remove anything that might change within a 404. For example:
 -- * A file path (includes URI)
 -- * A time
 -- * A date
 -- * An execution time (numbers in general, really)
 --
--- The intention is that two 404 pages from different URIs and taken hours apart should, whenever
--- possible, look the same. 
+-- The intention is that two 404 pages from different URIs and taken hours
+-- apart should, whenever possible, look the same.
 --
--- During this function, we're likely going to over-trim things. This is fine -- we want enough to match on that it'll a) be unique, 
--- and b) have the best chance of not changing. Even if we remove bits and pieces from the file, as long as it isn't a significant
--- amount, it'll remain unique. 
+-- During this function, we're likely going to over-trim things. This is fine
+-- -- we want enough to match on that it'll a) be unique, and b) have the best
+-- chance of not changing. Even if we remove bits and pieces from the file, as
+-- long as it isn't a significant amount, it'll remain unique.
 --
--- One case this doesn't cover is if the server generates a random haiku for the user. 
+-- One case this doesn't cover is if the server generates a random haiku for
+-- the user.
 --
---@param body The body of the page. 
---@param uri  The URI that the page came from. 
+-- @param body The body of the page.
+-- @param uri  The URI that the page came from.
 local function clean_404(body)
+  -- Remove anything that looks like time
+  body = string.gsub(body, '%d?%d:%d%d:%d%d', "")
+  body = string.gsub(body, '%d%d:%d%d', "")
+  body = string.gsub(body, 'AM', "")
+  body = string.gsub(body, 'am', "")
+  body = string.gsub(body, 'PM', "")
+  body = string.gsub(body, 'pm', "")
 
-	-- Remove anything that looks like time 
-	body = string.gsub(body, '%d?%d:%d%d:%d%d', "")
-	body = string.gsub(body, '%d%d:%d%d', "")
-	body = string.gsub(body, 'AM', "")
-	body = string.gsub(body, 'am', "")
-	body = string.gsub(body, 'PM', "")
-	body = string.gsub(body, 'pm', "")
+  -- Remove anything that looks like a date (this includes 6 and 8 digit numbers)
+  -- (this is probably unnecessary, but it's getting pretty close to 11:59 right now, so you never know!)
+  body = string.gsub(body, '%d%d%d%d%d%d%d%d', "") -- 4-digit year (has to go first, because it overlaps 2-digit year)
+  body = string.gsub(body, '%d%d%d%d%-%d%d%-%d%d', "")
+  body = string.gsub(body, '%d%d%d%d/%d%d/%d%d', "")
+  body = string.gsub(body, '%d%d%-%d%d%-%d%d%d%d', "")
+  body = string.gsub(body, '%d%d%/%d%d%/%d%d%d%d', "")
 
-	-- Remove anything that looks like a date (this includes 6 and 8 digit numbers)
-	-- (this is probably unnecessary, but it's getting pretty close to 11:59 right now, so you never know!)
-	body = string.gsub(body, '%d%d%d%d%d%d%d%d', "") -- 4-digit year (has to go first, because it overlaps 2-digit year)
-	body = string.gsub(body, '%d%d%d%d%-%d%d%-%d%d', "")
-	body = string.gsub(body, '%d%d%d%d/%d%d/%d%d', "")
-	body = string.gsub(body, '%d%d%-%d%d%-%d%d%d%d', "")
-	body = string.gsub(body, '%d%d%/%d%d%/%d%d%d%d', "")
+  body = string.gsub(body, '%d%d%d%d%d%d', "") -- 2-digit year
+  body = string.gsub(body, '%d%d%-%d%d%-%d%d', "")
+  body = string.gsub(body, '%d%d%/%d%d%/%d%d', "")
 
-	body = string.gsub(body, '%d%d%d%d%d%d', "") -- 2-digit year
-	body = string.gsub(body, '%d%d%-%d%d%-%d%d', "")
-	body = string.gsub(body, '%d%d%/%d%d%/%d%d', "")
+  -- Remove anything that looks like a path (note: this will get the URI too) (note2: this interferes with the date removal above, so it can't be moved up)
+  body = string.gsub(body, "/[^ ]+", "") -- Unix - remove everything from a slash till the next space
+  body = string.gsub(body, "[a-zA-Z]:\\[^ ]+", "") -- Windows - remove everything from a "x:\" pattern till the next space
 
-	-- Remove anything that looks like a path (note: this will get the URI too) (note2: this interferes with the date removal above, so it can't be moved up)
-	body = string.gsub(body, "/[^ ]+", "") -- Unix - remove everything from a slash till the next space
-	body = string.gsub(body, "[a-zA-Z]:\\[^ ]+", "") -- Windows - remove everything from a "x:\" pattern till the next space
+  -- If we have SSL available, save us a lot of memory by hashing the page (if SSL isn't available, this will work fine, but
+  -- take up more memory). If we're debugging, don't hash (it makes things far harder to debug).
+  if(have_ssl and nmap.debugging() == 0) then
+    return openssl.md5(body)
+  end
 
-	-- If we have SSL available, save us a lot of memory by hashing the page (if SSL isn't available, this will work fine, but
-	-- take up more memory). If we're debugging, don't hash (it makes things far harder to debug). 
-	if(have_ssl and nmap.debugging() == 0) then
-		return openssl.md5(body)
-	end
-
-	return body
+  return body
 end
 
----Try requesting a non-existent file to determine how the server responds to unknown pages ("404 pages"), which a) 
--- tells us what to expect when a non-existent page is requested, and b) tells us if the server will be impossible to
--- scan. If the server responds with a 404 status code, as it is supposed to, then this function simply returns 404. If it 
--- contains one of a series of common status codes, including unauthorized, moved, and others, it is returned like a 404. 
+--- Try requesting a non-existent file to determine how the server responds to
+-- unknown pages ("404 pages"), which a) tells us what to expect when a
+-- non-existent page is requested, and b) tells us if the server will be
+-- impossible to scan. If the server responds with a 404 status code, as it is
+-- supposed to, then this function simply returns 404. If it contains one of a
+-- series of common status codes, including unauthorized, moved, and others, it
+-- is returned like a 404.
 --
--- I (Ron Bowes) have observed one host that responds differently for three scenarios:
+-- I (Ron Bowes) have observed one host that responds differently for three
+-- scenarios:
 -- * A non-existent page, all lowercase (a login page)
 -- * A non-existent page, with uppercase (a weird error page that says, "Filesystem is corrupt.")
 -- * A page in a non-existent directory (a login page with different font colours)
 --
--- As a result, I've devised three different 404 tests, one to check each of these conditions. They all have to match, 
--- the tests can proceed; if any of them are different, we can't check 404s properly. 
+-- As a result, I've devised three different 404 tests, one to check each of
+-- these conditions. They all have to match, the tests can proceed; if any of
+-- them are different, we can't check 404s properly.
 --
---@param host The host object.
---@param port The port to which we are establishing the connection. 
---@return (status, result, body) If status is false, result is an error message. Otherwise, result is the code to expect and 
---        body is the cleaned-up body (or a hash of the cleaned-up body). 
+-- @param host The host object.
+-- @param port The port to which we are establishing the connection.
+-- @return (status, result, body) If status is false, result is an error
+-- message. Otherwise, result is the code to expect and body is the cleaned-up
+-- body (or a hash of the cleaned-up body).
 function identify_404(host, port)
-	local data
-	local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
+  local data
+  local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
 
-	-- The URLs used to check 404s
-	local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
-	local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
-	local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
+  -- The URLs used to check 404s
+  local URL_404_1 = '/nmaplowercheck' .. os.time(os.date('*t'))
+  local URL_404_2 = '/NmapUpperCheck' .. os.time(os.date('*t'))
+  local URL_404_3 = '/Nmap/folder/check' .. os.time(os.date('*t'))
 
-	data = http.get(host, port, URL_404_1)
+  data = http.get(host, port, URL_404_1)
 
-	if(data == nil) then
-		stdnse.print_debug(1, "HTTP: Failed while testing for 404 status code")
-		return false, "Failed while testing for 404 error message"
-	end
+  if(data == nil) then
+    stdnse.print_debug(1, "HTTP: Failed while testing for 404 status code")
+    return false, "Failed while testing for 404 error message"
+  end
 
-	if(data.status and data.status == 404) then
-		stdnse.print_debug(1, "HTTP: Host returns proper 404 result.")
-		return true, 404
-	end
+  if(data.status and data.status == 404) then
+    stdnse.print_debug(1, "HTTP: Host returns proper 404 result.")
+    return true, 404
+  end
 
-	if(data.status and data.status == 200) then
-		stdnse.print_debug(1, "HTTP: Host returns 200 instead of 404.")
+  if(data.status and data.status == 200) then
+    stdnse.print_debug(1, "HTTP: Host returns 200 instead of 404.")
 
-		-- Clean up the body (for example, remove the URI). This makes it easier to validate later
-		if(data.body) then
-			-- Obtain a couple more 404 pages to test different conditions
-			local data2 = http.get(host, port, URL_404_2)
-			local data3 = http.get(host, port, URL_404_3)
-			if(data2 == nil or data3 == nil) then
-				stdnse.print_debug(1, "HTTP: Failed while testing for extra 404 error messages")
-				return false, "Failed while testing for extra 404 error messages"
-			end
+    -- Clean up the body (for example, remove the URI). This makes it easier to validate later
+    if(data.body) then
+      -- Obtain a couple more 404 pages to test different conditions
+      local data2 = http.get(host, port, URL_404_2)
+      local data3 = http.get(host, port, URL_404_3)
+      if(data2 == nil or data3 == nil) then
+        stdnse.print_debug(1, "HTTP: Failed while testing for extra 404 error messages")
+        return false, "Failed while testing for extra 404 error messages"
+      end
 
-			-- Check if the return code became something other than 200
-			if(data2.status ~= 200) then
-				if(data2.status == nil) then
-					data2.status = "<unknown>"
-				end
-				stdnse.print_debug(1, "HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
-				return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
-			end
+      -- Check if the return code became something other than 200
+      if(data2.status ~= 200) then
+        if(data2.status == nil) then
+          data2.status = "<unknown>"
+        end
+        stdnse.print_debug(1, "HTTP: HTTP 404 status changed for second request (became %d).", data2.status)
+        return false, string.format("HTTP 404 status changed for second request (became %d).", data2.status)
+      end
 
-			-- Check if the return code became something other than 200
-			if(data3.status ~= 200) then
-				if(data3.status == nil) then
-					data3.status = "<unknown>"
-				end
-				stdnse.print_debug(1, "HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
-				return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
-			end
+      -- Check if the return code became something other than 200
+      if(data3.status ~= 200) then
+        if(data3.status == nil) then
+          data3.status = "<unknown>"
+        end
+        stdnse.print_debug(1, "HTTP: HTTP 404 status changed for third request (became %d).", data3.status)
+        return false, string.format("HTTP 404 status changed for third request (became %d).", data3.status)
+      end
 
-			-- Check if the returned bodies (once cleaned up) matches the first returned body
-			local clean_body  = clean_404(data.body)
-			local clean_body2 = clean_404(data2.body)
-			local clean_body3 = clean_404(data3.body)
-			if(clean_body ~= clean_body2) then
-				stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
-				stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
-			end
+      -- Check if the returned bodies (once cleaned up) matches the first returned body
+      local clean_body  = clean_404(data.body)
+      local clean_body2 = clean_404(data2.body)
+      local clean_body3 = clean_404(data3.body)
+      if(clean_body ~= clean_body2) then
+        stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response.")
+        stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response.")
+      end
 
-			if(clean_body ~= clean_body3) then
-				stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
-				stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
-				return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
-			end
+      if(clean_body ~= clean_body3) then
+        stdnse.print_debug(1, "HTTP: Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+        stdnse.print_debug(1, "HTTP: If you investigate the server and it's possible to clean up the pages, please post to nmap-dev mailing list.")
+        return false, string.format("Two known 404 pages returned valid and different pages; unable to identify valid response (happened when checking a folder).")
+      end
 
-			return true, 200, clean_body
-		end
+      return true, 200, clean_body
+    end
 
-		stdnse.print_debug(1, "HTTP: The 200 response didn't contain a body.")
-		return true, 200
-	end
+    stdnse.print_debug(1, "HTTP: The 200 response didn't contain a body.")
+    return true, 200
+  end
 
-	-- Loop through any expected error codes
-	for _,code in pairs(bad_responses) do
-		if(data.status and data.status == code) then
-			stdnse.print_debug(1, "HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
-			return true, code
-		end
-	end
+  -- Loop through any expected error codes
+  for _,code in pairs(bad_responses) do
+    if(data.status and data.status == code) then
+      stdnse.print_debug(1, "HTTP: Host returns %s instead of 404 File Not Found.", get_status_string(data))
+      return true, code
+    end
+  end
 
-	stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
---	io.write("\n\n" .. nsedebug.tostr(data) .. "\n\n")
+  stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
+--  io.write("\n\n" .. nsedebug.tostr(data) .. "\n\n")
 
-	return true, data.status
+  return true, data.status
 end
 
----Determine whether or not the page that was returned is a 404 page. This is actually a pretty simple function, 
--- but it's best to keep this logic close to <code>identify_404</code>, since they will generally be used 
--- together. 
+--- Determine whether or not the page that was returned is a 404 page. This is
+--actually a pretty simple function, but it's best to keep this logic close to
+--<code>identify_404</code>, since they will generally be used together.
 --
---@param data The data returned by the HTTP request
---@param result_404 The status code to expect for non-existent pages. This is returned by <code>identify_404</code>. 
---@param known_404  The 404 page itself, if <code>result_404</code> is 200. If <code>result_404</code> is something
---                  else, this parameter is ignored and can be set to <code>nil</code>. This is returned by 
---                  <code>identfy_404</code>. 
---@param page       The page being requested (used in error messages). 
---@param displayall [optional] If set to true, "true", or "1", displays all error codes that don't look like a 404 instead
---                  of just 200 OK and 401 Authentication Required. 
---@return A boolean value: true if the page appears to exist, and false if it does not. 
+-- @param data The data returned by the HTTP request
+-- @param result_404 The status code to expect for non-existent pages. This is
+-- returned by <code>identify_404</code>.
+-- @param known_404  The 404 page itself, if <code>result_404</code> is 200. If
+-- <code>result_404</code> is something else, this parameter is ignored and can
+-- be set to <code>nil</code>. This is returned by <code>identfy_404</code>.
+-- @param page       The page being requested (used in error messages).
+-- @param displayall [optional] If set to true, "true", or "1", displays all
+-- error codes that don't look like a 404 instead of just 200 OK and 401
+-- Authentication Required.
+-- @return A boolean value: true if the page appears to exist, and false if it
+-- does not.
 function page_exists(data, result_404, known_404, page, displayall)
-	if(data and data.status) then
-		-- Handle the most complicated case first: the "200 Ok" response
-		if(data.status == 200) then
-			if(result_404 == 200) then
-				-- If the 404 response is also "200", deal with it (check if the body matches)
-				if(string.len(data.body) == 0) then
-					-- I observed one server that returned a blank string instead of an error, on some occasions
-					stdnse.print_debug(1, "HTTP: Page returned a totally empty body; page likely doesn't exist")
-					return false
-				elseif(clean_404(data.body) ~= known_404) then
-					stdnse.print_debug(1, "HTTP: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
-					return true
-				else
-					return false
-				end
-			else
-				-- If 404s return something other than 200, and we got a 200, we're good to go
-				stdnse.print_debug(1, "HTTP: Page was '%s', it exists! (%s)", get_status_string(data), page)
-				return true
-			end
-		else
-			-- If the result isn't a 200, check if it's a 404 or returns the same code as a 404 returned
-			if(data.status ~= 404 and data.status ~= result_404) then
-				-- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
-				-- asks for everything (with a script argument), only display 401 Authentication Required here.
-				stdnse.print_debug(1, "HTTP: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
+  if(data and data.status) then
+    -- Handle the most complicated case first: the "200 Ok" response
+    if(data.status == 200) then
+      if(result_404 == 200) then
+        -- If the 404 response is also "200", deal with it (check if the body matches)
+        if(string.len(data.body) == 0) then
+          -- I observed one server that returned a blank string instead of an error, on some occasions
+          stdnse.print_debug(1, "HTTP: Page returned a totally empty body; page likely doesn't exist")
+          return false
+        elseif(clean_404(data.body) ~= known_404) then
+          stdnse.print_debug(1, "HTTP: Page returned a body that doesn't match known 404 body, therefore it exists (%s)", page)
+          return true
+        else
+          return false
+        end
+      else
+        -- If 404s return something other than 200, and we got a 200, we're good to go
+        stdnse.print_debug(1, "HTTP: Page was '%s', it exists! (%s)", get_status_string(data), page)
+        return true
+      end
+    else
+      -- If the result isn't a 200, check if it's a 404 or returns the same code as a 404 returned
+      if(data.status ~= 404 and data.status ~= result_404) then
+        -- If this check succeeded, then the page isn't a standard 404 -- it could be a redirect, authentication request, etc. Unless the user
+        -- asks for everything (with a script argument), only display 401 Authentication Required here.
+        stdnse.print_debug(1, "HTTP: Page didn't match the 404 response (%s) (%s)", get_status_string(data), page)
 
-				if(data.status == 401) then -- "Authentication Required"
-					return true
-				elseif(displayall == true or displayall == '1' or displayall == "true") then
-					return true
-				end
+        if(data.status == 401) then -- "Authentication Required"
+          return true
+        elseif(displayall == true or displayall == '1' or displayall == "true") then
+          return true
+        end
 
-				return false
-			else
-				-- Page was a 404, or looked like a 404
-				return false
-			end
-		end
-	else
-		stdnse.print_debug(1, "HTTP: HTTP request failed (is the host still up?)")
-		return false
-	end
+        return false
+      else
+        -- Page was a 404, or looked like a 404
+        return false
+      end
+    end
+  else
+    stdnse.print_debug(1, "HTTP: HTTP request failed (is the host still up?)")
+    return false
+  end
 end
-
-
