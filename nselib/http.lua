@@ -722,145 +722,6 @@ local function getPipelineMax(response)
   return 1
 end
 
---- Sets all the values and options for a get request and than calls buildRequest to
---  create a string to be sent to the server as a resquest
---
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @return Request String 
-local buildGet = function(host, port, path, options)
-  options = options or {}
-
-  -- Private copy of the options table, used to add default header fields.
-  local mod_options = {
-    header = {
-      Host = get_host_field(host, port),
-      ["User-Agent"]  = USER_AGENT
-    }
-  }
-  if options.cookies then
-    local cookies = buildCookies(options.cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
-  end
-
-  if options and options.connection 
-    then mod_options["header"]["Connection"] = options.connection
-    else mod_options["header"]["Connection"] = "Close" end
-
-  -- Add any other options into the local copy.
-  table_augment(mod_options, options)
-
-  local data = "GET " .. path .. " HTTP/1.1\r\n"
-  return data, mod_options
-end
-
---- Sets all the values and options for a head request and than calls buildRequest to
---  create a string to be sent to the server as a resquest
---
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @return Request String 
-local buildHead = function(host, port, path, options)
-  local options = options or {}
-
-  -- Private copy of the options table, used to add default header fields.
-  local mod_options = {
-    header = {
-      Host = get_host_field(host, port),
-      ["User-Agent"]  = USER_AGENT
-    }
-  }
-  if options.cookies then
-    local cookies = buildCookies(options.cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
-  end
-  if options and options.connection 
-    then mod_options["header"]["Connection"] = options.connection
-    else mod_options["header"]["Connection"] = "Close" end
-
-  -- Add any other options into the local copy.
-  table_augment(mod_options, options)
-
-  local data = "HEAD " .. path .. " HTTP/1.1\r\n"
-  return data, mod_options
-end
-
---- Sets all the values and options for a post request and than calls buildRequest to
---  create a string to be sent to the server as a resquest
---
--- @param host The host to query.
--- @param port The port for the host.
--- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
--- @param postdata A string or a table of data to be posted. If a table, the
--- keys and values must be strings, and they will be encoded into an
--- application/x-www-form-encoded form submission.
--- @return Request String 
-local buildPost = function( host, port, path, options, postdata)
-  local mod_options = {
-    header = {
-      Host = get_host_field(host, port),
-      Connection = "close",
-      ["Content-Type"] = "application/x-www-form-urlencoded",
-      ["User-Agent"] = USER_AGENT
-    }
-  }
-
-  -- Build a form submission from a table, like "k1=v1&k2=v2".
-  if type(postdata) == "table" then
-    local parts = {}
-    local k, v
-    for k, v in pairs(postdata) do
-      parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
-    end
-    postdata = table.concat(parts, "&")
-    mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
-  end
-
-  mod_options.content = postdata
-
-  if options.cookies then
-    local cookies = buildCookies(options.cookies, path)
-    if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
-  end
-
-  table_augment(mod_options, options or {})
-
-  local data = "POST " .. path .. " HTTP/1.1\r\n"
-
-  return data, mod_options
-end
-
---- Parses all options from a request and creates the string
---  to be sent to the server
---
---  @param data 
---  @param options
---  @return A string ready to be sent to the server
-local buildRequest = function (data, options) 
-  options = options or {} 
-
-  -- Build the header.
-  for key, value in pairs(options.header or {}) do
-    data = data .. key .. ": " .. value .. "\r\n"
-  end
-  if(options.content ~= nil and options.header['Content-Length'] == nil) then
-    data = data .. "Content-Length: " .. string.len(options.content) .. "\r\n"
-  end
-  data = data .. "\r\n"
-
-  if(options.content ~= nil) then
-    data = data .. options.content
-  end
-
-  return data
-end
-
 --- Builds a string to be added to the request mod_options table
 -- 
 --  @param cookies A cookie jar just like the table returned parse_set_cookie.
@@ -998,6 +859,130 @@ end
 -- being the key the table also has an entry named "status" which contains the
 -- http status code of the request in case of an error status is nil.
 
+--- Build an HTTP request from parameters and return it as a string.
+--
+-- @param host The host this request is intended for.
+-- @param port The port this request is intended for.
+-- @param method The method to use.
+-- @param path The path for the request.
+-- @param options A table of options, which may include the keys:
+-- * <code>header</code>: A table containing additional headers to be used for the request.
+-- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
+-- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- @return A request string.
+-- @see generic_request
+local build_request = function(host, port, method, path, options)
+  options = options or {}
+
+  -- Private copy of the options table, used to add default header fields.
+  local mod_options = {
+    header = {
+      Connection = "close",
+      Host = get_host_field(host, port),
+      ["User-Agent"]  = USER_AGENT
+    }
+  }
+  if options.content then
+    mod_options.header["Content-Length"] = #options.content
+  end
+  if options.cookies then
+    local cookies = buildCookies(cookies, path)
+    if #cookies > 0 then
+      mod_options.header["Cookie"] = cookies
+    end
+  end
+
+  -- Add any other options into the local copy.
+  table_augment(mod_options, options)
+
+  local request_line, header, body
+  request_line = string.format("%s %s HTTP/1.1", method, path)
+  header = {}
+  local name, value
+  for name, value in pairs(mod_options.header) do
+    header[#header + 1] = string.format("%s: %s", name, value)
+  end
+  body = mod_options.content and mod_options.content or ""
+
+  return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. body
+end
+
+--- Do a single request with the given parameters and return the response.
+-- Any 1XX (informational) responses are discarded.
+--
+-- @param host The host to connect to.
+-- @param port The port to connect to.
+-- @param method The method to use, a string like <code>"GET"</code> or <code>"HEAD"</code>.
+-- @param path The path to retrieve.
+-- @param options A table of other parameters. It may have any of these fields:
+-- * <code>timeout</code>: A timeout used for socket operations.
+-- * <code>header</code>: A table containing additional headers to be used for the request.
+-- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
+-- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- @return A table as described in the module description.
+-- @see request
+generic_request = function(host, port, method, path, options)
+  return request(host, port, build_request(host, port, method, path, options), options)
+end
+
+--- Send a string to a host and port and return the HTTP result. This function
+-- is like <code>generic_request</code>, to be used when you have a ready-made
+-- request, not a collection of request parameters.
+--
+-- @param host The host to connect to.
+-- @param port The port to connect to.
+-- @param method The method to use, a string like <code>"GET"</code> or <code>"HEAD"</code>.
+-- @param path The path to retrieve.
+-- @param options A table of other parameters. It may have any of these fields:
+-- * <code>timeout</code>: A timeout used for socket operations.
+-- * <code>header</code>: A table containing additional headers to be used for the request.
+-- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
+-- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- @return A table as described in the module description.
+-- @see generic_request
+request = function(host, port, data)
+  local method
+  local opts
+  local header, partial
+  local response
+
+  if type(host) == 'table' then
+    host = host.ip
+  end
+
+  if type(port) == 'table' then
+    if port.protocol and port.protocol ~= 'tcp' then
+      stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
+      return nil
+    end
+  end
+
+  local error_response = {status=nil,["status-line"]=nil,header={},body=""}
+  local socket
+
+  method = string.match(data, "^(%S+)")
+
+  socket, partial = comm.tryssl(host, port, data, opts)
+
+  if not socket then
+    return error_response
+  end
+
+  repeat
+    response, partial = next_response(socket, method, partial)
+    if not response then
+      return error_response
+    end
+    -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
+    -- Sometimes a server will tell us to "go ahead" with a POST body before
+    -- sending the real response. If we got one of those, skip over it.
+  until not (response.status >= 100 and response.status <= 199)
+
+  socket:close()
+
+  return response
+end
+
 --- Fetches a resource with a GET request.
 --
 -- The first argument is either a string with the hostname or a table like the
@@ -1005,19 +990,18 @@ end
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
 -- is a table for further options.
--- The function calls buildGet to build the request, then calls request to send
--- it and get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
+-- @param options A table of options, as with <code>http.generic_request</code>, with the following additional options understood:
+-- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
+-- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
+-- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
 -- @return Table as described in the module description.
 get = function(host, port, path, options)
   local response, state = lookup_cache("GET", host, port, path, options);
   if response == nil then
-    local data, mod_options = buildGet(host, port, path, options)
-    data = buildRequest(data, mod_options)
-    response = request(host, port, data)
+    response = generic_request(host, port, "GET", path, options)
     insert_cache(state, response);
   end
   return response
@@ -1059,19 +1043,18 @@ end
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
 -- is a table for further options.
--- The function calls buildHead to build the request, then calls request to
--- send it get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
+-- @param options A table of options, as with <code>http.generic_request</code>, with the following additional options understood:
+-- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
+-- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
+-- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
 -- @return Table as described in the module description.
 head = function(host, port, path, options)
   local response, state = lookup_cache("HEAD", host, port, path, options);
   if response == nil then
-    local data, mod_options = buildHead(host, port, path, options)
-    data = buildRequest(data, mod_options)
-    response = request(host, port, data)
+    response = generic_request(host, port, "HEAD", path, options)
     insert_cache(state, response);
   end
   return response;
@@ -1085,8 +1068,6 @@ end
 -- hostrule. The third argument is the path of the resource. The fourth argument
 -- is a table for further options. The fifth argument is ignored. The sixth 
 -- argument is a table with data to be posted. 
--- The function calls buildHead to build the request, then calls request to
--- send it and get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
@@ -1097,10 +1078,23 @@ end
 -- application/x-www-form-encoded form submission.
 -- @return Table as described in the module description.
 post = function( host, port, path, options, ignored, postdata )
-  local data, mod_options = buildPost(host, port, path, options, postdata)
-  data = buildRequest(data, mod_options)
-  local response = request(host, port, data)
-  return response
+  local mod_options = {}
+
+  -- Build a form submission from a table, like "k1=v1&k2=v2".
+  if type(postdata) == "table" then
+    local parts = {}
+    local k, v
+    for k, v in pairs(postdata) do
+      parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
+    end
+    postdata = table.concat(parts, "&")
+    mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
+    mod_options.content = postdata
+  end
+
+  table_augment(mod_options, options or {})
+
+  return generic_request(host, port, "POST", path, mod_options)
 end
 
 --- Builds a get request to be used in a pipeline request
@@ -1108,18 +1102,23 @@ end
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
+-- @param options A table of options, as with <code>http.generic_request</code>.
 -- @param ignored Ignored for backwards compatibility.
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
 function pGet( host, port, path, options, ignored, allReqs )
-  local req = {}
-  if not allReqs then allReqs = {} end
-  if not options then options = {} end
-  local object = {data="", opts="", method="get"}
-  options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildGet(host, port, path, options)
-  allReqs[#allReqs + 1] =  object
+  allReqs = allReqs or {}
+  local mod_options = {
+    header = {
+      ["Connection"] = "keep-alive"
+    }
+  }
+  table_augment(mod_options, options or {})
+  -- This value is intended to be unpacked into arguments to build_request.
+  local object = { host, port, "GET", path, mod_options }
+  object.method = object[3]
+  object.options = object[5]
+  allReqs[#allReqs + 1] = object
   return allReqs
 end
 
@@ -1128,18 +1127,23 @@ end
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
--- @param options A table of options, as with <code>http.request</code>.
+-- @param options A table of options, as with <code>http.generic_request</code>.
 -- @param ignored Ignored for backwards compatibility.
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
 function pHead( host, port, path, options, ignored, allReqs )
-  local req = {}
-  if not allReqs then allReqs = {} end
-  if not options then options = {} end
-  local object = {data="", opts="", method="head"}
-  options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildHead(host, port, path, options)
-  allReqs[#allReqs + 1] =  object
+  allReqs = allReqs or {}
+  local mod_options = {
+    header = {
+      ["Connection"] = "keep-alive"
+    }
+  }
+  table_augment(mod_options, options or {})
+  -- This value is intended to be unpacked into arguments to build_request.
+  local object = { host, port, "HEAD", path, mod_options }
+  object.method = object[3]
+  object.options = object[5]
+  allReqs[#allReqs + 1] = object
   return allReqs
 end
 
@@ -1169,7 +1173,10 @@ pipeline = function(host, port, allReqs)
 
   -- We'll try a first request with keep-alive, just to check if the server
   -- supports and how many requests we can send into one socket!
-  socket, partial, bopt = comm.tryssl(host, port, buildRequest(allReqs[1]["data"], allReqs[1]["opts"]), {connect_timeout=5000, request_timeout=3000, recv_before=false})
+  -- Each element in allReqs is an array whose contents can be unpacked into
+  -- arguments to build_request. Each element also has method and options keys
+  -- whose values are the same as that of the corresponding integer index.
+  socket, partial, bopt = comm.tryssl(host, port, build_request(unpack(allReqs[1])), {connect_timeout=5000, request_timeout=3000, recv_before=false})
   if not socket then
     return nil
   end
@@ -1199,9 +1206,9 @@ pipeline = function(host, port, allReqs)
     j = #responses + 1
     while j <= batch_end do
       if j == batch_end then
-        allReqs[j].opts.header["Connection"] = "close"
+        allReqs[j].options.header["Connection"] = "close"
       end
-      requests = requests .. buildRequest(allReqs[j].data, allReqs[j].opts)
+      requests = requests .. build_request(unpack(allReqs[j]))
       j = j + 1
     end
 
@@ -1237,73 +1244,6 @@ pipeline = function(host, port, allReqs)
   stdnse.print_debug("Number of received responses: " .. #responses)
 
   return responses
-end
-
---- Sends request to host:port and parses the answer. This is a common
--- subroutine used by <code>get</code>, <code>head</code>, and
--- <code>post</code>. Any 1XX (informational) responses are discarded.
---
--- The first argument is either a string with the hostname or a table like the
--- host table passed to a portrule or hostrule. The second argument is either
--- the port number or a table like the port table passed to a portrule or
--- hostrule. SSL is used for the request if <code>port.service</code> is
--- <code>"https"</code> or <code>"https-alt"</code> or
--- <code>port.version.service_tunnel</code> is <code>"ssl"</code>.
--- The third argument is the request. The fourth argument is
--- a table for further options.
--- @param host The host to query.
--- @param port The port on the host.
--- @param data Data to send initially to the host, like a <code>GET</code> line.
--- Should end in a single <code>\r\n</code>.
--- @param options A table of options. It may have any of these fields:
--- * <code>timeout</code>: A timeout used for socket operations.
--- * <code>header</code>: A table containing additional headers to be used for the request.
--- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
--- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
--- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
--- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
--- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
-request = function(host, port, data)
-  local method
-  local opts
-  local header, partial
-  local response
-  
-  if type(host) == 'table' then
-    host = host.ip
-  end
-
-  if type(port) == 'table' then
-    if port.protocol and port.protocol ~= 'tcp' then
-      stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
-      return nil
-    end
-  end
-
-  local error_response = {status=nil,["status-line"]=nil,header={},body=""}
-  local socket
-
-  method = string.match(data, "^(%S+)")
-
-  socket, partial = comm.tryssl(host, port, data, opts)
-
-  if not socket then
-    return error_response
-  end
-
-  repeat
-    response, partial = next_response(socket, method, partial)
-    if not response then
-      return error_response
-    end
-    -- See RFC 2616, sections 8.2.3 and 10.1.1, for the 100 Continue status.
-    -- Sometimes a server will tell us to "go ahead" with a POST body before
-    -- sending the real response. If we got one of those, skip over it.
-  until not (response.status >= 100 and response.status <= 199)
-
-  socket:close()
-
-  return response
 end
 
 
