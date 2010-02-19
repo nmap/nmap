@@ -47,7 +47,7 @@ local enum_results =
 local function get_response(host, port, folder)
 	local webdav_req = '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>'
 
-	local mod_options = {
+	local options = {
 		header = {
 			Host = host.ip,
 			Connection = "close",
@@ -57,7 +57,7 @@ local function get_response(host, port, folder)
 		content = webdav_req
 	}
 
-	return http.request(host, port, "PROPFIND " .. folder .. " HTTP/1.1\r\n", mod_options)
+	return http.generic_request(host, port, "PROPFIND", folder, options)
 end
 
 ---Check a single folder on a single host for the vulnerability. Returns one of the enum_results codes. 
