@@ -729,9 +729,8 @@ end
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
 -- @return Request String 
-local buildGet = function( host, port, path, options, cookies )
+local buildGet = function(host, port, path, options)
   options = options or {}
 
   -- Private copy of the options table, used to add default header fields.
@@ -741,8 +740,8 @@ local buildGet = function( host, port, path, options, cookies )
       ["User-Agent"]  = USER_AGENT
     }
   }
-  if cookies then
-    local cookies = buildCookies(cookies, path)
+  if options.cookies then
+    local cookies = buildCookies(options.cookies, path)
     if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
 
@@ -764,9 +763,8 @@ end
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
 -- @return Request String 
-local buildHead = function( host, port, path, options, cookies )
+local buildHead = function(host, port, path, options)
   local options = options or {}
 
   -- Private copy of the options table, used to add default header fields.
@@ -776,8 +774,8 @@ local buildHead = function( host, port, path, options, cookies )
       ["User-Agent"]  = USER_AGENT
     }
   }
-  if cookies then
-    local cookies = buildCookies(cookies, path)
+  if options.cookies then
+    local cookies = buildCookies(options.cookies, path)
     if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
   if options and options.connection 
@@ -803,7 +801,7 @@ end
 -- keys and values must be strings, and they will be encoded into an
 -- application/x-www-form-encoded form submission.
 -- @return Request String 
-local buildPost = function( host, port, path, options, cookies, postdata)
+local buildPost = function( host, port, path, options, postdata)
   local mod_options = {
     header = {
       Host = get_host_field(host, port),
@@ -826,8 +824,8 @@ local buildPost = function( host, port, path, options, cookies, postdata)
 
   mod_options.content = postdata
 
-  if cookies then
-    local cookies = buildCookies(cookies, path)
+  if options.cookies then
+    local cookies = buildCookies(options.cookies, path)
     if #cookies > 0 then mod_options["header"]["Cookie"] = cookies end
   end
 
@@ -1006,19 +1004,18 @@ end
 -- host table passed to a portrule or hostrule. The second argument is either
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a cookie table.
+-- is a table for further options.
 -- The function calls buildGet to build the request, then calls request to send
 -- it and get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
 -- @return Table as described in the module description.
-get = function( host, port, path, options, cookies )
+get = function(host, port, path, options)
   local response, state = lookup_cache("GET", host, port, path, options);
   if response == nil then
-    local data, mod_options = buildGet(host, port, path, options, cookies)
+    local data, mod_options = buildGet(host, port, path, options)
     data = buildRequest(data, mod_options)
     response = request(host, port, data)
     insert_cache(state, response);
@@ -1061,19 +1058,18 @@ end
 -- host table passed to a portrule or hostrule. The second argument is either
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a cookie table.
+-- is a table for further options.
 -- The function calls buildHead to build the request, then calls request to
 -- send it get the response.
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
 -- @return Table as described in the module description.
-head = function( host, port, path, options, cookies )
+head = function(host, port, path, options)
   local response, state = lookup_cache("HEAD", host, port, path, options);
   if response == nil then
-    local data, mod_options = buildHead(host, port, path, options, cookies)
+    local data, mod_options = buildHead(host, port, path, options)
     data = buildRequest(data, mod_options)
     response = request(host, port, data)
     insert_cache(state, response);
@@ -1087,7 +1083,7 @@ end
 -- host table passed to a portrule or hostrule. The second argument is either
 -- the port number or a table like the port table passed to a portrule or
 -- hostrule. The third argument is the path of the resource. The fourth argument
--- is a table for further options. The fifth argument is a cookie table. The sixth 
+-- is a table for further options. The fifth argument is ignored. The sixth 
 -- argument is a table with data to be posted. 
 -- The function calls buildHead to build the request, then calls request to
 -- send it and get the response.
@@ -1095,13 +1091,13 @@ end
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
+-- @param ignored Ignored for backwards compatibility.
 -- @param postdata A string or a table of data to be posted. If a table, the
 -- keys and values must be strings, and they will be encoded into an
 -- application/x-www-form-encoded form submission.
 -- @return Table as described in the module description.
-post = function( host, port, path, options, cookies, postdata )
-  local data, mod_options = buildPost(host, port, path, options, cookies, postdata)
+post = function( host, port, path, options, ignored, postdata )
+  local data, mod_options = buildPost(host, port, path, options, postdata)
   data = buildRequest(data, mod_options)
   local response = request(host, port, data)
   return response
@@ -1113,16 +1109,16 @@ end
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
+-- @param ignored Ignored for backwards compatibility.
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
-function pGet( host, port, path, options, cookies, allReqs )
+function pGet( host, port, path, options, ignored, allReqs )
   local req = {}
   if not allReqs then allReqs = {} end
   if not options then options = {} end
   local object = {data="", opts="", method="get"}
   options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildGet(host, port, path, options, cookies)
+  object["data"], object["opts"] =  buildGet(host, port, path, options)
   allReqs[#allReqs + 1] =  object
   return allReqs
 end
@@ -1133,16 +1129,16 @@ end
 -- @param port The port for the host.
 -- @param path The path of the resource.
 -- @param options A table of options, as with <code>http.request</code>.
--- @param cookies A table with cookies
+-- @param ignored Ignored for backwards compatibility.
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
-function pHead( host, port, path, options, cookies, allReqs )
+function pHead( host, port, path, options, ignored, allReqs )
   local req = {}
   if not allReqs then allReqs = {} end
   if not options then options = {} end
   local object = {data="", opts="", method="head"}
   options.connection = "Keep-alive"
-  object["data"], object["opts"] =  buildHead(host, port, path, options, cookies)
+  object["data"], object["opts"] =  buildHead(host, port, path, options)
   allReqs[#allReqs + 1] =  object
   return allReqs
 end
@@ -1263,6 +1259,7 @@ end
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
+-- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
 -- * <code>bypass_cache</code>: The contents of the cache is ignored for the request (method == "GET" or "HEAD")
 -- * <code>no_cache</code>: The result of the request is not saved in the cache (method == "GET" or "HEAD").
 -- * <code>no_cache_body</code>: The body of the request is not saved in the cache (method == "GET" or "HEAD").
