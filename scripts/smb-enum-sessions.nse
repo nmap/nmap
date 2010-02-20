@@ -271,13 +271,13 @@ action = function(host)
 
 	-- Enumerate the logged in users
 	local logged_in = {}
-	logged_in['name'] = "Users logged in"
 	status1, users = winreg_enum_rids(host)
 	if(status1 == false) then
 		logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
 	else
+		logged_in['name'] = "Users logged in"
 		if(#users == 0) then
-			table.insrt(response, "<nobody>")
+			table.insert(response, "<nobody>")
 		else
 			for i = 1, #users, 1 do
 				if(users[i]['name'] ~= nil) then
@@ -290,11 +290,11 @@ action = function(host)
 
 	-- Get the connected sessions
 	local sessions_output = {}
-	sessions_output['name'] = "Active SMB sessions"
 	status2, sessions = srvsvc_enum_sessions(host)
 	if(status2 == false) then
-		sessions_output['warning'] = "Couldn't enumerate network sessions: " .. sessions
+		sessions_output['warning'] = "Couldn't enumerate SMB sessions: " .. sessions
 	else
+		sessions_output['name'] = "Active SMB sessions"
 		if(#sessions == 0) then
 			table.insert(sessions_output, "<none>")
 		else

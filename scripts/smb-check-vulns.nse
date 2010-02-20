@@ -418,7 +418,7 @@ local function get_response(check, message, description, minimum_verbosity, mini
 			return string.format("%s: %s (%s)", check, message, description)
 		end
 	else
-		return ''
+		return nil
 	end
 end
 

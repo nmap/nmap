@@ -494,7 +494,14 @@ function format_output(status, data, indent)
 		return nil
 	end
 
-	return format_output_sub(status, data, indent)
+	local result = format_output_sub(status, data, indent)
+
+	-- Check for an empty result
+	if(result == nil or #result == "" or result == "\n" or result == " \n") then
+		return nil
+	end
+
+	return result
 end
 
 --- This function allows you to create worker threads that may perform
