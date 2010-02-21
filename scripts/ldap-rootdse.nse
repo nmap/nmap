@@ -86,6 +86,7 @@ author = "Patrik Karlsson"
 copyright = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
+dependencies = {"ldap-brute"}
 
 require "ldap"
 require 'shortport'
