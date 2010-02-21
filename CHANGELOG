@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added a new library for LDAP and two new scripts:
+  - ldap-brute uses the unpwdb library to guess credentials for LDAP
+  - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
+  [Patrik]
+
 o The -v and -d options are now handled in the same way. The three
   forms are equivalent:
     -v -v -v    -vvv    -v3
