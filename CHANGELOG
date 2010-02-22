@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Moved the smtp-open-relay.nse script out of the "demo"
+  category after some improvements by Duarte Silva.
+
 o [NSE] Added a new library for LDAP and two new scripts:
   - ldap-brute uses the unpwdb library to guess credentials for LDAP
   - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
