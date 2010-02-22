@@ -6,8 +6,8 @@ HTTP methods are allowed on this server. Optionally tests each method
 individually to see if they are subject to e.g. IP address restrictions.
 
 By default, the script will not report anything if the only methods
-found are GET, HEAD, POST, OPTIONS, or TRACE. If any other methods are
-found, or if Nmap is run in verbose mode, then all of them are reported.
+found are GET, HEAD, POST, or OPTIONS. If any other methods are found,
+or if Nmap is run in verbose mode, then all of them are reported.
 ]]
 
 ---
@@ -43,7 +43,7 @@ require("stdnse")
 
 -- We don't report these methods except with verbosity.
 local UNINTERESTING_METHODS = {
-	"GET", "HEAD", "POST", "OPTIONS", "TRACE"
+	"GET", "HEAD", "POST", "OPTIONS"
 }
 
 local filter_out
