@@ -9,23 +9,13 @@ o psexec missing (need to download yourself now) nmap_services.exe
   somehow decouple the sensing of nmap_service.exe from the normal
   output channel of the script."
 
-o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
-  http://seclists.org/nmap-dev/2010/q1/76. [integrated, but David is
-  making some improvements].
-
-o More potential improvements to htt-methods:
-   http://seclists.org/nmap-dev/2010/q1/630
+o More potential improvements to http-methods:
+   http://seclists.org/nmap-dev/2010/q1/630 and
+   http://seclists.org/nmap-dev/2010/q1/640
 
 o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/70
-
-o Integrate Nping.
-
-o Zenmap should be able to export normal Nmap output
-
-o The -v and -d arguments should take the same syntax.  Right now you
-  use -vvv vs. -d3. We should probably just make either approach work
-  with either of them.
+  http://seclists.org/nmap-dev/2010/q1/70 [all merged, except David is
+  still reviewing ldap-search]
 
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470
@@ -56,6 +46,16 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Don't break the system for posting html to web site. 
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
+
+o Test Jay Fink's UDP payload prototype.
+  http://seclists.org/nmap-dev/2010/q1/168
+
+o Website: Create shared directory in svn, which will contain
+  directories shared between the Insecure.org network of sites
+  (e.g. templates, error, css).  Then sites such as sectools,
+  nmap.org, insecure.org can just check that out via externals
+  declaration (or, I suppose, symlink).  CSS directives will then use
+  /shared/css/insecdb.css etc. ).
 
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
@@ -113,9 +113,6 @@ o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Obviously this will take some discussion/brainstorming on nmap-dev.
 
 o Do -p- Internet UDP scans.
-
-o Test Jay Fink's UDP payload prototype.
-  http://seclists.org/nmap-dev/2010/q1/168
 
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
@@ -203,9 +200,6 @@ o [NSE] Improve username/password library (the database files
   o perhaps from Solar Designer. (he sent us permission)
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
-
-o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
-  http://seclists.org/nmap-dev/2009/q3/0986.html).
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -447,13 +441,6 @@ o Make version detection and NSE timing system more dynamic so that
   After all, beefy systems on fast connections should be able to handle
   far more parallel connections than slower systems.
 
-o Website: Create shr (shared) directory in svn, which will contain
-  directories shared between the Insecure.org network of sites
-  (e.g. templates, error, css).  Then sites such as sectools,
-  nmap.org, insecure.org can just check that out via externals
-  declaration (or, I suppose, symlink).  CSS directives will then use
-  /shr/css/insecdb.css etc. ). [Fyodor]
-
 o Zenmap script selection interface for deciding which NSE scripts to
   run.
 
@@ -524,6 +511,22 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
+  http://seclists.org/nmap-dev/2009/q3/0986.html). [It got fixed up
+  and we kept it.]
+
+o The -v and -d arguments should take the same syntax.  Right now you
+  use -vvv vs. -d3. We should probably just make either approach work
+  with either of them.
+
+o Zenmap should be able to export normal Nmap output
+
+o Integrate Nping.
+
+o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
+  http://seclists.org/nmap-dev/2010/q1/76. [integrated, but David is
+  making some improvements].
 
 o The Nmap web page is beginning to show its age.  Ah, who am I
   kidding, it was showing its age 5 years ago :).  It could do with an
