@@ -13,6 +13,9 @@ o [NSE] Consider the http-methods script from Bernd Stroessenreuther.
   http://seclists.org/nmap-dev/2010/q1/76. [integrated, but David is
   making some improvements].
 
+o More potential improvements to htt-methods:
+   http://seclists.org/nmap-dev/2010/q1/630
+
 o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/70
 
@@ -39,6 +42,9 @@ o Review NSE raw IP from Kris Katterjohn.
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/270
+
+o Start project to make Nmap a Featured Article on Wikipedia.
+ - See http://seclists.org/nmap-dev/2010/q1/614
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -114,8 +120,6 @@ o Test Jay Fink's UDP payload prototype.
 o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)  And maybe a simple client too.
-
-o Start project to make Nmap a Featured Article on Wikipedia.
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o We should do an audit to ensure that we are in complete compliance for the
