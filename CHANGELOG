@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] Fixed a segmentation fault caused by access to freed memory.
+  It could be triggered by making multiple connections to a server
+  that was constantly sending in SSL mode, as
+    ncat -l -k --ssl < /dev/zero
+  This bug was reported by Mak Kolybabi. [David]
+
 o [NSE] Moved the smtp-open-relay.nse script out of the "demo"
   category after some improvements by Duarte Silva.
 
