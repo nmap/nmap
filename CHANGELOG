@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the ssl-enum-ciphers script from Mak Kolybabi. This
+  script lists the ciphers and compressors supported by an SSL/TLS
+  server.
+
 o [Ncat] Fixed a segmentation fault caused by access to freed memory.
   It could be triggered by making multiple connections to a server
   that was constantly sending in SSL mode, as
