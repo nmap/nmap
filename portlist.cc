@@ -736,6 +736,7 @@ void PortList::freePortMap() {
       free(port_map_rev[proto]);
       port_map_rev[proto] = NULL;
     }
+    port_list_count[proto] = 0;
   }
 }
   
