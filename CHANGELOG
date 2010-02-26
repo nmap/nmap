@@ -2,6 +2,24 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Raw packet sending at the IP layer is now supported, in addition to
+  the Ethernet sending functionality.  Packets to send start with an IPv4
+  header and can be sent to arbitrary hosts. [Kris]
+
+o [NSE] Added the ipidseq script to classify a host's IP ID sequence numbers
+  in the same way Nmap does.  This can be used to test hosts' suitability for
+  Nmap's Idle Scan (-sI), i.e. check if a host is an idle zombie.  This is
+  the first script to use the new raw IP sending functionality in NSE. [Kris]
+
+o [NSE] Added the function nmap.is_privileged() to tell a script if, as far
+  as Nmap's concerned, it can do privileged operations.  For instance, this
+  can be used to see if a script should be able to open a raw socket or
+  Ethernet interface. [Kris]
+
+o [NSE] Added the function nmap.get_ports() to allow a script to iterate
+  over a host's port tables matching a certain protocol and state. [Kris,
+  Patrick]
+
 o [Ncat] Fixed a handle leak with --exec and --sh-exec on Windows,
   found by Jon Greaves. One thread handle was being leaked per child
   process invocation. [David]

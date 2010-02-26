@@ -448,6 +448,34 @@ Port *get_port (lua_State *L, Target *target, Port *port, int index)
   return p;
 }
 
+/* Generates an array of port data for the given host and leaves it on
+ * the top of the stack
+ */
+static int l_get_ports (lua_State *L)
+{
+  static const char *op1[] = {"tcp", "udp", "sctp", NULL};
+  static const int states1[] = {IPPROTO_TCP, IPPROTO_UDP, IPPROTO_SCTP};
+  static const char *op2[] = {"open", "filtered", "unfiltered", "closed",
+      "open|filtered", "closed|filtered", NULL};
+  static const int states2[] = {PORT_OPEN, PORT_FILTERED, PORT_UNFILTERED,
+      PORT_CLOSED, PORT_OPENFILTERED, PORT_CLOSEDFILTERED};
+  Port *p = NULL, port;
+  Target *target = get_target(L, 1);
+  int protocol = states1[luaL_checkoption(L, 3, NULL, op1)];
+  int state = states2[luaL_checkoption(L, 4, NULL, op2)];
+
+  if (!lua_isnil(L, 2))
+    p = get_port(L, target, &port, 2);
+
+  if (!(p = target->ports.nextPort(p, &port, protocol, state))) {
+    lua_pushnil(L);
+  } else {
+    lua_newtable(L);
+    set_portinfo(L, target, p);
+  }
+  return 1;
+}
+
 /* this function can be called from lua to obtain the port state
  * of a port different from the one the script rule is matched
  * against
@@ -658,10 +686,17 @@ static int l_get_dns_servers (lua_State *L)
   return 1;
 }
 
+static int l_is_privileged(lua_State *L)
+{
+  lua_pushboolean(L, o.isr00t);
+  return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_reg nmaplib [] = {
     {"get_port_state", l_get_port_state},
+    {"get_ports", l_get_ports},
     {"set_port_state", l_set_port_state},
     {"set_port_version", l_set_port_version},
     {"new_socket", l_nsock_new},
@@ -676,6 +711,7 @@ int luaopen_nmap (lua_State *L)
     {"fetchfile", l_fetchfile},
     {"timing_level", l_get_timing_level},
     {"get_dns_servers", l_get_dns_servers},
+    {"is_privileged", l_is_privileged},
     {NULL, NULL}
   };
 

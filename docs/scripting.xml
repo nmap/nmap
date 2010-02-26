@@ -1379,7 +1379,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 		The port table is passed to an NSE service script (i.e. only those with a portrule rather than a hostrule) in the same
 		fashion as the host table. It contains information about the port
 		against which the script is running.  While this table is not passed to host scripts, port states on the target can still be requested from Nmap
-		using the <literal>nmap.get_port_state()</literal> call.
+		using the <literal>nmap.get_port_state()</literal> and <literal>nmap.get_ports()</literal> calls.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -1509,8 +1509,8 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 		<literal>port.state</literal> generally contains one
 		of those values. Other values might appear if the port
 		table is a result of the
-		<literal>get_port_state</literal> function.  You can
-		adjust the port state using the
+		<literal>get_port_state</literal> or <literal>get_ports</literal>
+		functions.  You can adjust the port state using the
 		<literal>nmap.set_port_state()</literal> call.  This is
 		normally done when an <literal>open|filtered</literal>
 		port is determined to be <literal>open</literal>.
@@ -1624,24 +1624,33 @@ socket:close()
           with <function>socket_object:close</function>&mdash;just like
           with the connection-based network I/O.</para>
 
-          <para>
-          Receiving raw packets is important, but sending them is a key feature as well.  To accomplish this, NSE can
-          access a wrapper around the
-          <literal>libdnet</literal> library.<indexterm><primary>libdnet</primary></indexterm>  Raw packet writes do not
-          use a standard socket object like reads do. Instead, call the function
-          <function>nmap.new_dnet</function> to create a dnet object
-          with ethernet sending methods. Then open an interface with the
-          <function>ethernet_open</function> method. Raw ethernet
-          frames can then be sent
-          with <function>ethernet_send</function>.  When you're done,
-          close the ethernet handle
-          with <function>ethernet_close</function>.</para>
+          <para>While receiving packets is important, sending them is certainly
+          a key feature as well.  To accomplish this, NSE provides access to
+          sending at the IP and Ethernet layers.  Raw packet writes do not use
+          the same socket object as raw packet reads, so the <function>nmap.new_dnet</function>
+          function is called to create the required object for sending.  After
+          this, a raw socket or Ethernet interface handle can be opened for use.</para>
 
-          <para>Sometimes the easiest ways to understand complex APIs
-          is by example.  The <filename>sniffer-detect.nse</filename>
-          script included with Nmap uses raw packet capture and
-          sending in an attempt to detect promiscuous-mode machines on
-          the network (those running sniffers).</para>
+          <para>Once the dnet object is created, the function <function>ip_open</function>
+          can be called to initialize the object for IP sending.  <function>ip_send</function>
+          sends the actual raw packet, which must start with the IPv4 header.
+          The dnet object places no restrictions on which IP hosts may be sent
+          to, so the same object may be used to send to many different hosts
+          while it is open.  To close the raw socket, call <function>ip_close</function>.</para>
+
+          <para>For sending at a lower level than IP, NSE provides functions for
+          writing Ethernet frames.  <function>ethernet_open</function> initializes
+          the dnet object for sending by opening an Ethernet interface.  The raw
+          frame is sent with <function>ethernet_send</function>.  To close the
+          handle, call <function>ethernet_close</function>.</para>
+
+          <para>Sometimes the easiest ways to understand complex APIs is by
+          example.  The <filename>ipidseq.nse</filename> script included with
+          Nmap uses raw IP packets to test hosts for suitability for Nmap's
+          Idle Scan (<option>-sI</option>).  The <filename>sniffer-detect.nse</filename>
+          script also included with Nmap uses raw Ethernet frames in an attempt
+          to detect promiscuous-mode machines on the network (those running
+          sniffers).</para>
 
 	</sect3>
 	</sect2>

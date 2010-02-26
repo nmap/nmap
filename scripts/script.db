@@ -38,6 +38,7 @@ Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusi
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
+Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ldap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }
@@ -79,7 +80,7 @@ Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusiv
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "smtp-open-relay.nse", categories = { "demo", } }
+Entry { filename = "smtp-open-relay.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "auth", "intrusive", } }
@@ -95,6 +96,7 @@ Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "intrusive", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }

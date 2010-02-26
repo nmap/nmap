@@ -1876,15 +1876,19 @@ int l_get_ssl_certificate(lua_State *L)
 
 /****************** DNET ******************************************************/
 static int l_dnet_open_ethernet(lua_State * L);
-
 static int l_dnet_close_ethernet(lua_State * L);
-
 static int l_dnet_send_ethernet(lua_State * L);
+static int l_dnet_open_ip(lua_State * L);
+static int l_dnet_close_ip(lua_State * L);
+static int l_dnet_send_ip(lua_State * L);
 
 static luaL_reg l_dnet[] = {
   {"ethernet_open", l_dnet_open_ethernet},
   {"ethernet_close", l_dnet_close_ethernet},
   {"ethernet_send", l_dnet_send_ethernet},
+  {"ip_open", l_dnet_open_ip},
+  {"ip_close", l_dnet_close_ip},
+  {"ip_send", l_dnet_send_ip},
   {NULL, NULL}
 };
 
@@ -1903,6 +1907,7 @@ struct l_dnet_udata
 {
   char *interface;
   eth_t *eth;
+  int sock; // raw ip socket
 };
 
 int l_dnet_new(lua_State * L)
@@ -1915,6 +1920,7 @@ int l_dnet_new(lua_State * L)
   lua_setmetatable(L, -2);
   udata->interface = NULL;
   udata->eth = NULL;
+  udata->sock = -1;
 
   return 1;
 }
@@ -2055,3 +2061,147 @@ static int l_dnet_send_ethernet(lua_State * L)
   eth_send(udata->eth, packet, packetsz);
   return 0;
 }
+
+static int l_dnet_open_ip(lua_State * L)
+{
+  l_dnet_udata *udata = (l_dnet_udata *) luaL_checkudata(L, 1, "dnet");
+
+  udata->sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+
+  if (udata->sock == -1) {
+    lua_pushboolean(L, false);
+    lua_pushfstring(L, "Failed to open raw socket: %s (errno %d)", socket_strerror(errno), errno);
+    return 2;
+  }
+
+  broadcast_socket(udata->sock);
+#ifndef WIN32
+  sethdrinclude(udata->sock);
+#endif
+
+  lua_pushboolean(L, true);
+  return 1;
+}
+
+static int l_dnet_close_ip(lua_State * L)
+{
+  l_dnet_udata *udata = (l_dnet_udata *) luaL_checkudata(L, 1, "dnet");
+
+  if (udata->sock == -1) {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Raw socket all ready closed");
+    return 2;
+  }
+
+  close(udata->sock);
+
+  if (udata->eth && udata->interface) {
+    ldnet_eth_close_cached(udata->interface);
+    free(udata->interface);
+    udata->eth = NULL;
+    udata->interface = NULL;
+  }
+
+  lua_pushboolean(L, true);
+  return 1;
+}
+
+static int l_dnet_send_ip(lua_State * L)
+{
+  l_dnet_udata *udata = (l_dnet_udata *) luaL_checkudata(L, 1, "dnet");
+  size_t packetsz = 0;
+  const char *packet = luaL_checklstring(L, 2, &packetsz);
+  char dev[16];
+  int ret;
+
+  if (udata->sock == -1) {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Raw socket not open to send");
+    return 2;
+  }
+
+  if (packetsz < sizeof(struct ip)) {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Won't send: IP packet too short");
+    return 2;
+  }
+
+  *dev = 0;
+
+  if ((o.sendpref & PACKET_SEND_ETH)) {
+    struct route_nfo route;
+    struct sockaddr_storage srcss, dstss, *nexthop;
+    struct sockaddr_in *srcsin = (struct sockaddr_in *) &srcss;
+    struct sockaddr_in *dstsin = (struct sockaddr_in *) &dstss;
+    struct ip *ip = (struct ip *) packet;
+    u8 dstmac[6];
+    eth_nfo eth;
+
+    /* build sockaddr for target from user packet and determine route */
+    memset(&dstss, 0, sizeof(dstss));
+    dstsin->sin_family = AF_INET;
+    dstsin->sin_addr.s_addr = ip->ip_dst.s_addr;
+
+    if (!route_dst(&dstss, &route))
+      goto usesock;
+
+    strncpy(dev, route.ii.devname, sizeof(dev));
+
+    if (route.ii.device_type != devt_ethernet)
+      goto usesock;
+
+    /* above we fallback to using the raw socket if we can't find an (ethernet)
+     * route to the host.  From here on out it's ethernet all the way.
+     */
+
+    /* build sockaddr for source from user packet to determine next hop mac */
+    memset(&srcss, 0, sizeof(srcss));
+    srcsin->sin_family = AF_INET;
+    srcsin->sin_addr.s_addr = ip->ip_src.s_addr;
+
+    if (route.direct_connect)
+      nexthop = &dstss;
+    else
+      nexthop = &route.nexthop;
+
+    if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &srcss, nexthop, dstmac)) {
+      lua_pushboolean(L, false);
+      lua_pushstring(L, "Failed to determine next hop MAC address");
+      return 2;
+    }
+
+    /* Use cached ethernet device, and use udata's eth and interface to keep
+     * track of if we're reusing the same device from the previous packet, and
+     * close the cached device if not.
+     */
+    memset(&eth, 0, sizeof(eth));
+    memcpy(&eth.srcmac, route.ii.mac, sizeof(eth.srcmac));
+    memcpy(&eth.dstmac, dstmac, sizeof(eth.dstmac));
+    eth.ethsd = ldnet_eth_open_cached(dev);
+    if (!udata->eth) {
+      udata->eth = eth.ethsd;
+      udata->interface = strdup(route.ii.devname);
+    } else if (udata->eth != eth.ethsd) {
+      ldnet_eth_close_cached(udata->interface);
+      free(udata->interface);
+      udata->eth = eth.ethsd;
+      udata->interface = strdup(route.ii.devname);
+    }
+    ret = send_ip_packet(udata->sock, &eth, (u8 *) packet, packetsz);
+  } else {
+usesock:
+#ifdef WIN32
+    if (strlen(dev))
+      win32_warn_raw_sockets(dev);
+#endif
+    ret = send_ip_packet(udata->sock, NULL, (u8 *) packet, packetsz);
+  }
+  if (ret == -1) {
+    lua_pushboolean(L, false);
+    lua_pushfstring(L, "Error while sending: %s (errno %d)", socket_strerror(errno), errno);
+    return 2;
+  }
+  lua_pushboolean(L, true);
+  return 1;
+}
+

@@ -2835,6 +2835,37 @@ bool setTargetNextHopMAC(Target *target) {
   return false;
 }
 
+/* Like to getTargetNextHopMAC(), but for arbitrary hosts (not Targets) */
+bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
+		   struct sockaddr_storage *dstss, u8 *dstmac)
+{
+  arp_t *a;
+  struct arp_entry ae;
+
+  /* Nmap's ARP cache */
+  if (NmapArpCache(ARPCACHE_GET, dstss, dstmac))
+    return true;
+
+  /* System ARP cache */
+  a = arp_open();
+  addr_ston((sockaddr *) dstss, &ae.arp_pa);
+  if (arp_get(a, &ae) == 0) {
+    NmapArpCache(ARPCACHE_SET, dstss, ae.arp_ha.addr_eth.data);
+    memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
+    arp_close(a);
+    return true;
+  }
+  arp_close(a);
+
+  /* Send ARP */
+  if (doArp(iface, srcmac, srcss, dstss, dstmac)) {
+    NmapArpCache(ARPCACHE_SET, dstss, dstmac);
+    return true;
+  }
+
+  return false;
+}
+
 /* Set a pcap filter */
 void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
   va_list ap;

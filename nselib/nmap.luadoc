@@ -31,6 +31,11 @@ function have_ssl()
 -- @usage if nmap.verbosity() > 0 then ... end
 function verbosity()
 
+--- Returns whether a script should be able to perform privileged operations
+--
+-- @return True if Nmap is running privileged, false otherwise.
+function is_privileged()
+
 --- Searches for the specified file and returns a string containing its path if
 -- it is found and readable (to the process).
 --
@@ -72,6 +77,25 @@ function timing_level()
 -- @return A new port table holding the status and information for the port, or <code>nil</code>.
 -- @usage p = nmap.get_port_state({ip="127.0.0.1"}, {number="80", protocol="tcp"})
 function get_port_state(host, port)
+
+--- Iterates over port tables matching protocol and state for a given host
+--
+-- This function takes a host table, previous port table, port protocol and
+-- port state to return matching port tables on a host.
+--
+-- The first time you call this function, pass <code>nil</code> for the port
+-- parameter to get the first matching port table.  From then on, pass the
+-- previous port table returned by this function to the port parameter for the
+-- next matching port table.
+--
+-- @param host Host table, containing an <code>ip</code> field
+-- @param port Port table, containing a <code>number</code> field; or <code>nil</code>
+-- for first port
+-- @param proto Port protocol, such as <code>"tcp"</code>
+-- @param state Port state, such as <code>"open"</code>
+-- @return Next port table for host, or <code>nil</code> when exhausted
+-- @usage port = nmap.get_ports(host, port, "tcp", "open")
+function get_ports(host, port, proto, state)
 
 --- Sets the state of a port on a given host.
 --
@@ -629,6 +653,26 @@ function ethernet_send(packet)
 -- @see new_dnet, ethernet_open
 -- @usage dnet:ethernet_close()
 function ethernet_close()
+
+--- Opens a socket for raw IPv4 packet sending.
+-- @see new_dnet
+-- @usage dnet:ip_open()
+function ip_open()
+
+--- Sends a raw IPv4 packet.
+--
+-- The dnet object must be associated with a previously opened socket. The
+-- packet must begin with an IP header. If there was no previous valid call
+-- to <code>ip_open</code> an error is thrown.
+-- @param packet An IP packet to send.
+-- @see new_dnet
+-- @usage dnet:ip_send(packet)
+function ip_send(packet)
+
+--- Closes a raw IPv4 socket.
+-- @see new_dnet, ip_open
+-- @usage dnet:ip_close()
+function ip_close()
 
 --- Writes to a log file.
 --
