@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o [NSE] nbstat.nse can now look up the MAC prefix vendor string. Other
+  scripts can do the same thing using the datafiles.parse_mac_prefixes
+  function. [Thomas Buchanan]
+
 o [NSE] Added the ssl-enum-ciphers script from Mak Kolybabi. This
   script lists the ciphers and compressors supported by an SSL/TLS
   server.

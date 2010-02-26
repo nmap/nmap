@@ -12,11 +12,11 @@ owns.
 --
 -- @output
 -- Host script results:
--- |_ nbstat: NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5
+-- |_ nbstat: NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5 (VMware)
 --
 -- Host script results:
 -- |  nbstat:
--- |  |  NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5
+-- |  |  NetBIOS name: WINDOWS2003, NetBIOS user: <unknown>, NetBIOS MAC: 00:0c:29:c6:da:f5 (VMware)
 -- |  |  Names
 -- |  |  |  WINDOWS2003<00>      Flags: <unique><active>
 -- |  |  |  WINDOWS2003<20>      Flags: <unique><active>
@@ -34,6 +34,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
 require "netbios"
+require "datafiles"
 
 hostrule = function(host)
 
@@ -67,8 +68,11 @@ action = function(host)
 	local status
 	local names, statistics
 	local server_name, user_name
-	local mac
+	local mac, prefix, manuf
 	local response = {}
+	local catch = function() return end
+	local try = nmap.new_try(catch)
+	
 
 	-- Get the list of NetBIOS names
 	status, names, statistics = netbios.do_nbstat(host.ip)
@@ -91,11 +95,24 @@ action = function(host)
 		return stdnse.format_output(false, user_name)
 	end
 
+	-- Build the MAC prefix lookup table
+	if not nmap.registry.nbstat then
+		-- Create the table in the registry so we can share between script instances
+		nmap.registry.nbstat = {}
+		nmap.registry.nbstat.mac_prefixes = try(datafiles.parse_mac_prefixes())
+	end
+	
 	-- Format the Mac address in the standard way
 	if(#statistics >= 6) then
-		mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6))
-		-- Samba doesn't set the Mac address
-		if(mac == "00:00:00:00:00:00") then
+		-- MAC prefixes are matched on the first three bytes, all uppercase
+		prefix = string.upper(string.format("%02x%02x%02x", statistics:byte(1), statistics:byte(2), statistics:byte(3)))
+		manuf = nmap.registry.nbstat.mac_prefixes[prefix]
+		if manuf == nil then
+			manuf = "unknown"
+		end
+		mac = string.format("%02x:%02x:%02x:%02x:%02x:%02x (%s)", statistics:byte(1), statistics:byte(2), statistics:byte(3), statistics:byte(4), statistics:byte(5), statistics:byte(6), manuf)
+		-- Samba doesn't set the Mac address, and nmap-mac-prefixes shows that as Xerox
+		if(mac == "00:00:00:00:00:00 (Xerox)") then
 			mac = "<unknown>"
 		end
 	else
