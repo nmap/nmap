@@ -302,9 +302,11 @@ void NmapOps::Initialize() {
   topportlevel = -1;
 #ifndef NOLUA
   script = 0;
+  scriptargs = NULL;
   scriptversion = 0;
   scripttrace = 0;
   scriptupdatedb = 0;
+  chosenScripts.clear();
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));
   sourcesocklen = 0;
