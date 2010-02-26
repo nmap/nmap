@@ -724,13 +724,14 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
 
 /* Just free memory used by PortList::port_map[]. Should be done somewhere 
  * before closing nmap. */
-void PortList::freePortMap(){
+void PortList::freePortMap() {
   int proto;
-  for(proto=0; proto < PORTLIST_PROTO_MAX; proto++) {
-    if(port_map[proto]){
+
+  for (proto=0; proto < PORTLIST_PROTO_MAX; proto++) {
+    if (port_map[proto]) {
       free(port_map[proto]);
       port_map[proto] = NULL;
-  }
+    }
     if (port_map_rev[proto]) {
       free(port_map_rev[proto]);
       port_map_rev[proto] = NULL;
