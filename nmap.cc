@@ -1993,6 +1993,7 @@ void nmap_free_mem() {
   cp_free();
   free_dns_servers();
   free_etchosts();
+  free_services();
   if (o.reference_FPs) {
     delete o.reference_FPs;
     o.reference_FPs = NULL;

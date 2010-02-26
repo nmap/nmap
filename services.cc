@@ -129,13 +129,13 @@ bool service_node_ratio_compare(const service_node& a, const service_node& b) {
 }
 
 extern NmapOps o;
-static int numtcpports = 0;
-static int numudpports = 0;
-static int numsctpports = 0;
+static int numtcpports;
+static int numudpports;
+static int numsctpports;
 static std::map<port_spec, service_node> service_table;
 static std::list<service_node> services_by_ratio;
-static int services_initialized = 0;
-static int ratio_format = 0; // 0 = /etc/services no-ratio format. 1 = new nmap format
+static int services_initialized;
+static int ratio_format; // 0 = /etc/services no-ratio format. 1 = new nmap format
 
 static int nmap_services_init() {
   if (services_initialized) return 0;
@@ -151,6 +151,13 @@ static int nmap_services_init() {
   double ratio;
   int ratio_n, ratio_d;
   char ratio_str[32];
+
+  numtcpports = 0;
+  numudpports = 0;
+  numsctpports = 0;
+  service_table.clear();
+  services_by_ratio.clear();
+  ratio_format = 0;
 
   if (nmap_fetchfile(filename, sizeof(filename), "nmap-services") != 1) {
 #ifndef WIN32
@@ -277,6 +284,13 @@ static int nmap_services_init() {
   return 0;
 }
 
+void free_services() {
+  /* This doesn't free anything, because the service_table is allocated
+     statically. It just marks the table as needing to be reinitialized because
+     other things have been freed, for example the cp_strdup-allocated members
+     of service_node. */
+  services_initialized = 0;
+}
 
   
 /* Adds ports whose names match mask and one or more protocols

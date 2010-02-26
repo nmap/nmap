@@ -118,4 +118,6 @@ int addportsfromservmask(char *mask, u8 *porttbl, int range_type);
 struct servent *nmap_getservbyport(int port, const char *proto);
 void gettoppts(double level, char *portlist, struct scan_lists * ports);
 
+void free_services();
+
 #endif
