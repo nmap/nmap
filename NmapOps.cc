@@ -292,6 +292,9 @@ void NmapOps::Initialize() {
   log_errors = false;
   resolve_all = 0;
   dns_servers = NULL;
+  numhosts_scanned = 0;
+  numhosts_up = 0;
+  numhosts_scanning = 0;
   noninteractive = false;
   current_scantype = STYPE_UNKNOWN;
   ipoptions = NULL;
