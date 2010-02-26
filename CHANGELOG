@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] Fixed a handle leak with --exec and --sh-exec on Windows,
+  found by Jon Greaves. One thread handle was being leaked per child
+  process invocation. [David]
+
 o [NSE] nbstat.nse can now look up the MAC prefix vendor string. Other
   scripts can do the same thing using the datafiles.parse_mac_prefixes
   function. [Thomas Buchanan]
