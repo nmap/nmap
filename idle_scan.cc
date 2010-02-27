@@ -105,15 +105,6 @@
 
 #include <stdio.h>
 
-/* For unknown reasons, MS VC++ is warning about lines like:
-   proxy->senddelay *= 0.95;
-
-   This is the brute-force way to fix that.
- */ 
-#ifdef _MSC_VER
-#pragma warning(disable: 4244)
-#endif
-
 extern NmapOps o;
 
 struct idle_proxy_info {
