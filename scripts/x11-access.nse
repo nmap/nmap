@@ -22,7 +22,7 @@ categories = {"default", "safe", "auth"}
 
 portrule = function(host, port)
         return ((port.number >= 6000 and port.number <= 6009)
-                or string.match(port.service, "^X11"))
+                or (port.service and string.match(port.service, "^X11")))
                 -- If port.version.product is not equal to nil, version
                 -- detection "-sV" has already done this X server test.
                 and port.version.product == nil
