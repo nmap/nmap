@@ -29,7 +29,7 @@ function tostr(data, indent)
 	if(type(data) == "nil") then
 		str = str .. (" "):rep(indent) .. "nil\n"
 	elseif(type(data) == "string") then
-		str = str .. (" "):rep(indent) .. data .. "\n"
+		str = str .. (" "):rep(indent) .. string.format("%q", data) .. "\n"
 	elseif(type(data) == "number") then
 		str = str .. (" "):rep(indent) .. data .. "\n"
 	elseif(type(data) == "boolean") then
