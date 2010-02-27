@@ -171,7 +171,7 @@ end
 function connectProxy(host, port, proxyType, hostname)
   local socket = nmap.new_socket()
   socket:set_timeout(10000)
-  local try = nmap.new_try(function() socket:close() end)
+  local try = nmap.new_try(function() socket:close() return false end)
   try(socket:connect(host.ip, port.number))
   if proxyType == "http" then return socket end
   if proxyType == "socks4" then return socksHandshake(socket, 4, hostname) end
@@ -187,7 +187,7 @@ end
 function socksHandshake(socket, version, hostname)
   local resolve, sip, paystring, payload
   resolve, sip = hex_resolve(hostname)
-  local try = nmap.new_try(function() socket:close() end)
+  local try = nmap.new_try(function() socket:close() return false end)
   if not resolve then
     stdnse.print_debug("Unable to resolve hostname.")
     return false
