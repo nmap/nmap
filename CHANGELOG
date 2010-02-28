@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o Fixed the parsing of libdnet DLPI interface names that contain more
+  than one string of digits. Joe Dietz reported that an interface with
+  the name e1000g0 was causing the error message
+    Warning: Unable to open interface e1000g0 -- skipping it.
+  on Solaris 9. [David]
+
 o [NSE] Raw packet sending at the IP layer is now supported, in addition to
   the Ethernet sending functionality.  Packets to send start with an IPv4
   header and can be sent to arbitrary hosts. [Kris]

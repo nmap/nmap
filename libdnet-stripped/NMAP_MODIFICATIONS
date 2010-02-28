@@ -214,6 +214,45 @@ Index: libdnet-stripped/src/intf-win32.c
  		} else
  			return (-1);
 
+Changed the PPA extraction from DLPI interface names to use the last
+string of digits, not the first. It was being fooled by the name
+e1000g0, thinking the PPA was 1000.
+
+Index: src/eth-dlpi.c
+===================================================================
+--- src/eth-dlpi.c	(revision 16878)
++++ src/eth-dlpi.c	(working copy)
+@@ -113,6 +113,20 @@
+ 	}
+ 	return (ppa);
+ }
++#else
++static int
++dev_find_ppa(const char *dev)
++{
++	const char *p;
++
++	p = dev + strlen(dev);
++	while (p > dev && strchr("0123456789", *(p - 1)) != NULL)
++		p--;
++	if (*p == '\0')
++		return NULL;
++
++	return p;
++}
+ #endif
+ 
+ eth_t *
+@@ -138,7 +152,7 @@
+ #else
+ 	e->fd = -1;
+ 	snprintf(dev, sizeof(dev), "/dev/%s", device);
+-	if ((p = strpbrk(dev, "0123456789")) == NULL) {
++	if ((p = dev_find_ppa(dev)) == NULL) {
+ 		errno = EINVAL;
+ 		return (eth_close(e));
+ 	}
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 
