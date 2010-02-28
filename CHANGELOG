@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the scripts couchdb-databases and couchdb-stats by
+  Martin Holst Swende, which list CouchDB databases and show access
+  statistics. These scripts use the new json.lua library, also by
+  Martin.
+
 o Fixed the parsing of libdnet DLPI interface names that contain more
   than one string of digits. Joe Dietz reported that an interface with
   the name e1000g0 was causing the error message
