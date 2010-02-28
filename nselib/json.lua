@@ -197,30 +197,29 @@ end
 function Json:errors()
 	return self.error ~= nil
 end
--- This is where the parsing begins. 
+-- Parses a top-level JSON structure (object or array).
 --@return the parsed object or puts error messages in self.error
 function Json:parseStart()
-	return self:parseValue(true)
+	-- The top level of JSON only allows an object or an array. Only inside
+	-- of the outermost container can other types appear.
+	self:eatWhiteSpace()
+	local c = self:peek()
+	if c == '{' then 
+		return self:parseObject()
+	elseif c == '[' then 
+		return self:parseArray()
+	else
+		self:syntaxerror(("JSON must start with object or array (started with %s)"):format(c))
+		return
+	end
 end
 
 -- Parses a value
---@param first if this is the first time the input is read, 
--- the value must be array or object, otherwise a syntax error will 
--- be triggered
 --@return the parsed value
-function Json:parseValue(first)
-	
-	-- If first is set to true, this is the first
-	-- object received. Therefore, this must be
-	-- either an Object or Array ( first chars { or [ )
-	
+function Json:parseValue()
 	self:eatWhiteSpace()
 	local c = self:peek()
 	
-	if(first and c ~= '{' and c ~= '[') then
-		self:syntaxerror(("Json must start with object or array (started with %s)"):format(c))
-		return
-	end
 	local value
 	if c == '{' then 
 		value = self:parseObject()
