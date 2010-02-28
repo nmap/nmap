@@ -55,28 +55,34 @@ end
  -- Javascript null representation, see explanation above
 NULL = {}
 
-local ESCAPE_TABLE={
-	['\\"']='"',
-	['\\/']= '/',
-	['\\b']=string.char(0x08),
-	['\\f']=string.char(0x0C),
-	['\\n']=string.char(0x0A),
-	['\\r']=string.char(0x0D),
-	['\\t']=string.char(0x09),
-}
+-- See section 2.5 for escapes.
+-- For convenience, ESCAPE_TABLE maps to escape sequences complete with
+-- backslash, and REVERSE_ESCAPE_TABLE maps from single escape characters
+-- (no backslash).
+local ESCAPE_TABLE = {}
+local REVERSE_ESCAPE_TABLE = {}
+do
+	local escapes = {
+		[string.char(0x22)] = "\"",
+		[string.char(0x5C)] = "\\",
+		[string.char(0x2F)] = "/",
+		[string.char(0x08)] = "b",
+		[string.char(0x0C)] = "f",
+		[string.char(0x0A)] = "n",
+		[string.char(0x0D)] = "r",
+		[string.char(0x09)] = "t",
+	}
+	for k, v in pairs(escapes) do
+		ESCAPE_TABLE[k] = "\\" .. v
+		REVERSE_ESCAPE_TABLE[v] = k
+	end
+end
+
 -- Escapes a string 
 --@param str the string
 --@return a string where the special chars have been escaped
 local function escape(str)
-
-	--This should be done first, so not in table
-	str = string.gsub(str, '\\\\', '\\')-- Escape \
-
-	for esc,char in pairs(ESCAPE_TABLE) do
-		str =str:gsub(char,esc)
-	end
-	--!TODO : Unicode escape
-	return ('"%s"'):format(str)
+	return "\"" .. string.gsub(str, ".", ESCAPE_TABLE) .. "\""
 end
 
 -- Creates json data from an object
@@ -118,16 +124,6 @@ function generate(obj)
 	end
 end
 
-local esc_chars = 
-{
-	['\\'] = '\\\\',
-	n =string.char(0x0A),
-	f=string.char(0x0C),
-	r=string.char(0x0D),
-	t=string.char(0x09),
-	b=string.char(0x08),
-	['"'] = '\"',
-}
 -- This is the parser, implemented in OO-form to deal with state better
 Json = {}
 -- Constructor
@@ -424,8 +420,8 @@ function Json:parseString()
 			break
 		elseif(c == '\\') then-- Escaped char
 			local d = self:next()
-			if esc_chars[d] ~= nil then 
-				val = val .. esc_chars[d] 
+			if REVERSE_ESCAPE_TABLE[d] ~= nil then 
+				val = val .. REVERSE_ESCAPE_TABLE[d] 
 			elseif d == 'u' then -- Unicode chars
 				local codepoint = self:parseUnicodeEscape()
 				if not codepoint then
@@ -479,7 +475,7 @@ local TESTS = {
         '"abc"',		-- error
         '{a":1}',		-- error
         '{"a" bad :1}',		-- error
-        '["a\\\\t"]',		-- Should become Lua {"a\t"}
+        '["a\\\\t"]',		-- Should become Lua {"a\\t"}
 	'[0.0.0]',	-- error
 	'[-1]',	
 	'[-1.123e-2]',
@@ -487,7 +483,7 @@ local TESTS = {
         '[5e+3]',
         '[5E-3]',
         '[5.5e3]',
-        '["a\\\\"]',		-- Should become Lua {"a\"}
+        '["a\\\\"]',		-- Should become Lua {"a\\"}
         '{"a}": 1}',		-- Should become Lua {"a}" = 1}
         '["key": "value"]',	-- error
 	'["\\u0041"]',		-- Should become Lua {"A"}
