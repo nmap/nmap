@@ -1,8 +1,15 @@
 description = [[
-Checks if an SMTP server is an open relay.
+Attempts to relay mail by issuing a predefined combination of SMTP commands. The goal
+of this script is to tell if a SMTP server is vulnerable to mail relaying.
 
-This script attempts to relay by issuing a predefined combination of SMTP commands. The list
-of commands is hardcoded. The commands used, are fuzzed like MAIL FROM and RCPT TO commands.
+An SMTP server that works as an open relay, is a email server that does not verify if the
+user is authorised to send email from the specified email address. Therefore, users would
+be able to send email originating from any third-party email address that they want.
+
+The checks are done based in combinations of MAIL FROM and RCPT TO commands. The list is
+hardcoded in the source file. The script will output all the working combinations that the
+server allows, or none if the server requires authentication or if there wasn't any working
+combinations.
 ]]
 
 ---
@@ -41,6 +48,10 @@ of commands is hardcoded. The commands used, are fuzzed like MAIL FROM and RCPT 
 --   * Changed from string concatenation to string formatting
 --   + External category
 --   + Now the script will issue the QUIT message as specified in the SMTP RFC
+-- 2010-02-27 Duarte Silva <duarte.silva@myf00.net>
+--   + More information in the script description
+--   + Script will output the reason for failed commands (at the connection level)
+--   * If some combinations were already found before an error, the script will report them
 -----------------------------------------------------------------------
 
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
@@ -73,15 +84,19 @@ function dorequest(socket, request)
 	local status, response = socket:receive_lines(1)
 
 	if not status then
-		-- Don't really care what kind of error happened
-		return false
+		local messages = {
+			["EOF"] = "connection closed",
+			["TIMEOUT"] = "connection timeout",
+			["ERROR"] = "failed to receive data"
+		}
+
+		return false, (messages[response] or "unspecified error, for more information use --script-trace")
 	end
 
 	return true, response
 end
 
 function go(host, port)
-	-- Script default options
 	local domain = "nmap.scanme.org"
 	local ip = host.ip
 	local socket = nmap.new_socket()
@@ -98,7 +113,7 @@ function go(host, port)
 		socket:close()
 	end
 
-	-- Use the user provided options
+	-- Use the user provided options.
 	if (nmap.registry.args["smtp-open-relay.domain"] ~= nil) then
 		domain = nmap.registry.args["smtp-open-relay.domain"]
 	end
@@ -107,33 +122,25 @@ function go(host, port)
 		ip = nmap.registry.args["smtp-open-relay.ip"]
 	end
 	
-	-- Try to connect to server
+	-- Try to connect to server.
 	local response
 
 	socket, response = comm.tryssl(host, port, string.format("EHLO %s\r\n", domain), options)
 
-	-- Failed connection attempt
 	if not socket then
 		return false, string.format("Couldn't establish connection on port %i", port.number)
 	end
 
-	-- Close socket and return if there's an STMP status code != 250
+	-- Close socket and return if EHLO command failed
 	if not string.match(response, "^250") then
 		quit()
 		return false, "Failed to issue EHLO command"
 	end
 
-	-- Find out server name
+	-- Find out server name.
 	local srvname = string.sub(response, string.find(response, '([.%w]+)', 4))
 	
-	local status = true
-
-	-- Read until end of response
-	while status do
-		status, response = socket:receive_lines(1)
-	end
-	
-	-- Antispam tests
+	-- Antispam tests.
 	local tests = {
 		{ from = "MAIL FROM:<>", to = string.format("RCPT TO:<relaytest@%s>", domain) },
 		{ from = string.format("MAIL FROM:<antispam@%s>", domain), to = string.format("RCPT TO:<relaytest@%s>", domain) },
@@ -153,83 +160,81 @@ function go(host, port)
 		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<%s!relaytest@%s>", domain, srvname) },
 	}
 	
-	local combinations = {}
+	local result = {}
 	local index
+	local status
+
+	-- This function is used when something goes wrong with the connection. It makes sure that
+	-- if it found working combinations before the error occurred, they will be returned.
+	local failure = function(message)
+		if #result > 0 then
+			return true, result
+		else
+			return false, message
+		end
+	end
 	
 	for index = 1, table.getn(tests), 1 do
-		local result, response = dorequest(socket, "RSET\r\n")
+		status, response = dorequest(socket, "RSET\r\n")
 
-		if not result then
-			return false, "Failed to issue RSET command"
+		if not status then
+			return failure(string.format("Failed to issue RSET command (%s)", response))
 		end
 
-		-- If reset the envelope, doesn't work for one, wont work for others (critical command)
+		-- If reset the envelope, doesn't work for one, wont work for others (critical command).
 		if not string.match(response, "^250") then
 			quit()
-			-- Check if server needs authentication
+			-- Check if server needs authentication.
 			if string.match(response, "^530") then
-				return false, "Server isnt an open relay, authentication needed"
+				return false, "Server isn't an open relay, authentication needed"
 			else
 				return false, "Unable to clear server envelope"
 			end
 		end
 
-		-- Lets try to issue MAIL FROM command
-		result, response = dorequest(socket, tests[index]["from"] .. "\r\n")
+		-- Lets try to issue MAIL FROM command.
+		status, response = dorequest(socket, string.format("%s\r\n", tests[index]["from"]))
 
-		-- If this command fails to be sent, then something went wrong with the connection
-		if not result then
-			return false, "Failed to issue MAIL FROM command"
+		-- If this command fails to be sent, then something went wrong with the connection.
+		if not status then
+			return failure(string.format("Failed to issue %s command (%s)", tests[index]["from"], response))
 		end
 
 		-- If MAIL FROM failed, check if authentication is needed because all the other attempts will fail
-		-- and server may disconnect because of too many commands issued without authentication (more 
-		-- polite and will raise less red flags)
+		-- and server may disconnect because of too many commands issued without authentication.
 		if string.match(response, "^530") then
 			quit()
-			return false, "Server isnt an open relay, authentication needed"
-		-- The command was accepted (otherwise, the script will step to the next test)
+			return false, "Server isn't an open relay, authentication needed"
+		-- The command was accepted (otherwise, the script will step to the next test).
 		elseif string.match(response, "^250") then
-			-- Lets try to actually relay
-			result, response = dorequest(socket, tests[index]["to"] .. "\r\n")
+			-- Lets try to actually relay.
+			status, response = dorequest(socket, string.format("%s\r\n", tests[index]["to"]))
 
-			if not result then
-				return false, "Failed to issue RCPT TO command"
+			if not status then
+				return failure(string.format("Failed to issue %s command (%s)", tests[index]["to"], response))
 			end
 
 			if string.match(response, "^530") then
 				quit()
-				return false, "Server isnt an open relay, authentication needed"
+				return false, "Server isn't an open relay, authentication needed"
 			elseif string.match(response, "^250") then
-				-- Save the working from and to
-				table.insert(combinations, {from = tests[index]["from"], to = tests[index]["to"]})
+				-- Save the working from and to combination.
+				table.insert(result, string.format("%s - > %s", tests[index]["from"], tests[index]["to"]))
 			end
 		end						
 	end
 
 	quit()
-	return true, combinations
+	return true, result
 end
 
 action = function(host, port)
 	local status, result = go(host, port)
-
-	-- Something went wrong in the process, return the error message
-	if not status then
-		return stdnse.format_output(false, result)
-	end
 
 	-- No combinations found
 	if #result == 0 then
 		return stdnse.format_output(false, "All tests failed, server doesn't seem to be an open relay")
 	end
 
-	local message = {}
-
-	-- Get all the combinations that worked
-	for i, combination in ipairs(result) do
-		table.insert(message, string.format("%s -> %s\n", combination.from, combination.to))
-	end
-
-	return stdnse.format_output(true, message)
+	return stdnse.format_output(status, result)
 end
