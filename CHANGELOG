@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o [Nsock] WSAEACCES was added to the list of known connect error
+  codes. This error can happen on Windows when a port is blocked by
+  Windows Firewall. Thanks to taemun for reporting this and
+  investigating.
+
 o [NSE] Added the scripts couchdb-databases and couchdb-stats by
   Martin Holst Swende, which list CouchDB databases and show access
   statistics. These scripts use the new json.lua library, also by
