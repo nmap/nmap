@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] Fixed a bug that prevented detecting EOF from stdin on
+  Windows. This was reported by Adrian Crenshaw and Andy Zwirko.
+  [David]
+
 o [Nsock] WSAEACCES was added to the list of known connect error
   codes. This error can happen on Windows when a port is blocked by
   Windows Firewall. Thanks to taemun for reporting this and
