@@ -1,13 +1,20 @@
-id = "HTTP allowed methods"
-
 description = [[
-Connects to an HTTP server and sends an OPTIONS request to see which
-HTTP methods are allowed on this server. Optionally tests each method
-individually to see if they are subject to e.g. IP address restrictions.
+Finds out what options are supported by an HTTP server by sending an
+OPTIONS request. Lists potentially risky methods. Optionally tests each
+method individually to see if they are subject to e.g. IP address
+restrictions.
 
-By default, the script will not report anything if the only methods
-found are GET, HEAD, POST, or OPTIONS. If any other methods are found,
-or if Nmap is run in verbose mode, then all of them are reported.
+In this script, "potentially risky" methods are anything except GET,
+HEAD, POST, and OPTIONS. If the script reports potentially risky
+methods, they may not all be security risks, but you should check to
+make sure. This page lists the dangers of some common methods:
+
+http://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_(OWASP-CM-008)
+
+The list of supported methods comes from the contents of the Allow and
+Public header fields. In verbose mode, a list of all methods is printed,
+followed by the list of potentially risky methods. Without verbose mode,
+only the potentially risky methods are shown.
 ]]
 
 ---
@@ -19,8 +26,10 @@ or if Nmap is run in verbose mode, then all of them are reported.
 -- possible.
 --
 -- @output
--- 80/tcp open  http    syn-ack
+-- 80/tcp open  http
 -- | http-methods: GET HEAD POST OPTIONS TRACE
+-- | Potentially risky methods: TRACE
+-- | See http://nmap.org/nsedoc/scripts/http-methods.html
 -- | GET / -> HTTP/1.1 200 OK
 -- | HEAD / -> HTTP/1.1 200 OK
 -- | POST / -> HTTP/1.1 200 OK
@@ -64,7 +73,6 @@ end
 action = function(host, port)
 	local url_path, retest_http_methods
 	local response, methods, options_status_line, output
-	local uninteresting
 
 	-- default vaules for script-args
 	url_path = nmap.registry.args["http-methods.url-path"] or "/"
@@ -83,20 +91,21 @@ action = function(host, port)
 		return string.format("No Allow or Public header in OPTIONS response (status code %d)", response.status)
 	end
 
-	if nmap.verbosity() == 0 then
-		uninteresting = UNINTERESTING_METHODS
-	else
-		uninteresting = {}
-	end
-
 	-- The Public header is defined in RFC 2068, but was removed in its
 	-- successor RFC 2616. It is implemented by at least IIS 6.0.
 	methods = merge_headers(response.header, {"Allow", "Public"})
-	if #filter_out(methods, uninteresting) == 0 then
-		return
+
+	output = {}
+
+	if nmap.verbosity() > 0 then
+		output[#output + 1] = stdnse.strjoin(" ", methods)
 	end
 
-	output = { stdnse.strjoin(" ", methods) }
+	local interesting = filter_out(methods, UNINTERESTING_METHODS)
+	if #interesting > 0 then
+		output[#output + 1] = "Potentially risky methods: " .. stdnse.strjoin(" ", interesting)
+		output[#output + 1] = "See http://nmap.org/nsedoc/scripts/http-methods.html"
+	end
 
 	-- retest http methods if requested
 	if retest_http_methods then
