@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] Fixed an error that could make programs run with --exec exit
+  prematurely on Windows. The problem was related to a program writing
+  too quickly into a non-blocking socket. A symptom was the message:
+    NCAT DEBUG: Subprocess ended with exit code 259.
+  This was reported by David Millis. [David]
+
 o [Ncat] Fixed a bug that prevented detecting EOF from stdin on
   Windows. This was reported by Adrian Crenshaw and Andy Zwirko.
   [David]
