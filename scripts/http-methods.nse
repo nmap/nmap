@@ -127,7 +127,7 @@ action = function(host, port)
 		end
 	end
 
-	return stdnse.strjoin("\n", output)
+	return #output > 0 and stdnse.strjoin("\n", output) or nil
 end
 
 local function contains(t, elem)
