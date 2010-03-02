@@ -2070,7 +2070,7 @@ static int l_dnet_open_ip(lua_State * L)
 
   if (udata->sock == -1) {
     lua_pushboolean(L, false);
-    lua_pushfstring(L, "Failed to open raw socket: %s (errno %d)", socket_strerror(errno), errno);
+    lua_pushfstring(L, "Failed to open raw socket: %s (errno %d)", socket_strerror(socket_errno()), socket_errno());
     return 2;
   }
 
@@ -2198,7 +2198,7 @@ usesock:
   }
   if (ret == -1) {
     lua_pushboolean(L, false);
-    lua_pushfstring(L, "Error while sending: %s (errno %d)", socket_strerror(errno), errno);
+    lua_pushfstring(L, "Error while sending: %s (errno %d)", socket_strerror(socket_errno()), socket_errno());
     return 2;
   }
   lua_pushboolean(L, true);
