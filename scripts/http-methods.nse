@@ -20,7 +20,7 @@ or if Nmap is run in verbose mode, then all of them are reported.
 --
 -- @output
 -- 80/tcp open  http    syn-ack
--- | http-methods: GET,HEAD,POST,OPTIONS,TRACE
+-- | http-methods: GET HEAD POST OPTIONS TRACE
 -- | GET / -> HTTP/1.1 200 OK
 -- | HEAD / -> HTTP/1.1 200 OK
 -- | POST / -> HTTP/1.1 200 OK
@@ -46,7 +46,7 @@ local UNINTERESTING_METHODS = {
 	"GET", "HEAD", "POST", "OPTIONS"
 }
 
-local filter_out
+local filter_out, merge_headers
 
 portrule = function(host, port)
 	if not (port.service == 'http' or port.service == 'https') 
@@ -79,8 +79,8 @@ action = function(host, port)
 	options_status_line = response["status-line"]
 	stdnse.print_debug("http-methods.nse: HTTP Status for OPTIONS is " .. response.status)
 
-	if not response.header["allow"] then
-		return string.format("No Allow header in OPTIONS response (status code %d)", response.status)
+	if not (response.header["allow"] or response.header["public"]) then
+		return string.format("No Allow or Public header in OPTIONS response (status code %d)", response.status)
 	end
 
 	if nmap.verbosity() == 0 then
@@ -89,12 +89,14 @@ action = function(host, port)
 		uninteresting = {}
 	end
 
-	methods = stdnse.strsplit(",%s*", response.header["allow"])
+	-- The Public header is defined in RFC 2068, but was removed in its
+	-- successor RFC 2616. It is implemented by at least IIS 6.0.
+	methods = merge_headers(response.header, {"Allow", "Public"})
 	if #filter_out(methods, uninteresting) == 0 then
 		return
 	end
 
-	output = { response.header["allow"] }
+	output = { stdnse.strjoin(" ", methods) }
 
 	-- retest http methods if requested
 	if retest_http_methods then
@@ -137,5 +139,25 @@ function filter_out(t, filter)
 			result[#result + 1] = e
 		end
 	end
+	return result
+end
+
+-- Split header field contents on commas and return a table without duplicates.
+function merge_headers(headers, names)
+	local seen = {}
+	local result = {}
+
+	for _, name in ipairs(names) do
+		name = string.lower(name)
+		if headers[name] then
+			for _, v in ipairs(stdnse.strsplit(",%s*", headers[name])) do
+				if not seen[v] then
+					result[#result + 1] = v
+				end
+				seen[v] = true
+			end
+		end
+	end
+
 	return result
 end
