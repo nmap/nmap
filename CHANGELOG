@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o The redistributable Visual C++ runtime components installer
+  (vcredist_x86.exe) has been upgraded to version 9.0.30729.4148. Axel
+  Pettinger reported that the previous version 9.0.30729.17, caused a
+  Windows Update on Windows 7 because of Microsoft security advisory
+  MS09-035.
+
 o [Ncat] Fixed an error that could make programs run with --exec exit
   prematurely on Windows. The problem was related to a program writing
   too quickly into a non-blocking socket. A symptom was the message:
