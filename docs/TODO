@@ -10,7 +10,8 @@ o psexec missing (need to download yourself now) nmap_services.exe
   output channel of the script."
 
 o Review afp-serverinfo.nse from Andrew Orr.
-  http://seclists.org/nmap-dev/2010/q1/470
+  http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
+  http://seclists.org/nmap-dev/2010/q1/665
 
 o Review pgsql-brute.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/455
@@ -18,6 +19,13 @@ o Review pgsql-brute.nse from Patrik Karlsson.
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/270
+
+o Add smtp-enum-users from Duarte Silva if testing is favorable.
+  http://seclists.org/nmap-dev/2010/q1/699
+
+o Review snmpenum.nse from William Njuguna.
+  http://seclists.org/nmap-dev/2009/q4/721
+  http://seclists.org/nmap-dev/2010/q1/656
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
