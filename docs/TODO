@@ -9,32 +9,15 @@ o psexec missing (need to download yourself now) nmap_services.exe
   somehow decouple the sensing of nmap_service.exe from the normal
   output channel of the script."
 
-o More potential improvements to http-methods:
-   http://seclists.org/nmap-dev/2010/q1/630 and
-   http://seclists.org/nmap-dev/2010/q1/640
-
-o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/70 [all merged, except David is
-  still reviewing ldap-search]
-
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470
 
 o Review pgsql-brute.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/455
 
-o Review sslv3-enum.nse from Mak Kolybabi.
-  http://seclists.org/nmap-dev/2010/q1/563
-
-o Review NSE raw IP from Kris Katterjohn.
-  http://seclists.org/nmap-dev/2010/q1/559
-
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/270
-
-o Add CouchDB and JSON scripts once the JSON library is finished.
-  http://seclists.org/nmap-dev/2010/q1/641
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
@@ -52,13 +35,6 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
 
 o Test Jay Fink's UDP payload prototype.
   http://seclists.org/nmap-dev/2010/q1/168
-
-o Website: Create shared directory in svn, which will contain
-  directories shared between the Insecure.org network of sites
-  (e.g. templates, error, css).  Then sites such as sectools,
-  nmap.org, insecure.org can just check that out via externals
-  declaration (or, I suppose, symlink).  CSS directives will then use
-  /shared/css/insecdb.css etc. ).
 
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
@@ -514,6 +490,30 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Website: Create shared directory in svn, which will contain
+  directories shared between the Insecure.org network of sites
+  (e.g. templates, error, css).  Then sites such as sectools,
+  nmap.org, insecure.org can just check that out via externals
+  declaration (or, I suppose, symlink).  CSS directives will then use
+  /shared/css/insecdb.css etc. ).
+
+o Add CouchDB and JSON scripts once the JSON library is finished.
+  http://seclists.org/nmap-dev/2010/q1/641
+
+o Review NSE raw IP from Kris Katterjohn.
+  http://seclists.org/nmap-dev/2010/q1/559
+
+o Review sslv3-enum.nse from Mak Kolybabi.
+  http://seclists.org/nmap-dev/2010/q1/563
+
+o [NSE] Consider LDAP library and scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/70 [all merged, except David is
+  still reviewing ldap-search]
+
+o More potential improvements to http-methods:
+   http://seclists.org/nmap-dev/2010/q1/630 and
+   http://seclists.org/nmap-dev/2010/q1/640
 
 o Remove smtp-open-relay.nse sometime after 9/24/09 if nobody adopts it (see
   http://seclists.org/nmap-dev/2009/q3/0986.html). [It got fixed up
