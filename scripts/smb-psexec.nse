@@ -659,12 +659,12 @@ end
 -- default, or the file passed as a parameter). 
 --
 --@param host The host table.
+--@param config A table to fill with configuration values.
 --@return status true or false
 --@return config The configuration table or an error message. 
-local function get_config(host)
+local function get_config(host, config)
 	local status
 	local filename = nmap.registry.args.config
-	local config = {}
 	local settings_file
 	config.enabled_modules  = {}
 	config.disabled_modules = {}
@@ -698,18 +698,6 @@ local function get_config(host)
 
 	-- Initialize the timeout
 	config.timeout = 0
-
-	-- Check if we have 'nmap_service.exe' in the proper location
-	stdnse.print_debug(1, "smb-psexec: Looking for the service file: nmap_service or nmap_service.exe")
-	config.local_service_file = locate_file("nmap_service", "exe")
-	if(config.local_service_file == nil) then
-		return false, {
-"Couldn't find the service file: nmap_service.exe (or nmap_service).",
-"Due to false positives in antivirus software, this module is no",
-"longer included by default. Please download it from",
-NMAP_SERVICE_EXE_DOWNLOAD,
-"and place it in nselib/data/psexec/ under the Nmap DATADIR."}
-	end
 
 	-- Figure out which share we're using (this is the first place in the script where a lot of traffic is generated -- 
 	-- any possible sanity checking should be done before this)
@@ -1336,11 +1324,28 @@ action = function(host)
 
 	local params
 
-	local config
+	local config = {}
 	local files
 
+	-- First check for nmap_service.exe; we can't do anything without it.
+	stdnse.print_debug(1, "smb-psexec: Looking for the service file: nmap_service or nmap_service.exe")
+	config.local_service_file = locate_file("nmap_service", "exe")
+	if (config.local_service_file == nil) then
+		if nmap.verbosity() > 0 then
+			return string.format([[
+Can't find the service file: nmap_service.exe (or nmap_service).
+Due to false positives in antivirus software, this module is no
+longer included by default. Please download it from
+%s
+and place it in nselib/data/psexec/ under the Nmap DATADIR.
+]], NMAP_SERVICE_EXE_DOWNLOAD)
+		else
+			return
+		end
+	end
+
 	-- Parse the configuration file
-	status, config = get_config(host)
+	status, config = get_config(host, config)
 	if(not(status)) then
 		return stdnse.format_output(false, config)
 	end
