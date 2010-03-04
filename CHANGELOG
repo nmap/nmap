@@ -2,8 +2,11 @@
 
 [NOT YET RELEASED]
 
-o [NSE] Added the script ldap-search which queries a LDAP directory
-  for either all, or a number of pre-defined object types. [Patrik]
+o [NSE] Added a new library for PostgreSQL and the script pgsql-brute that uses
+  it to guess credentials. [Patrik]
+
+o [NSE] Added the script ldap-search which queries a LDAP directory for either
+  all, or a number of pre-defined object types. [Patrik]
 
 o The redistributable Visual C++ runtime components installer
   (vcredist_x86.exe) has been upgraded to version 9.0.30729.4148. Axel
