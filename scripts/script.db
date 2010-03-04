@@ -8,6 +8,8 @@ Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe
 Entry { filename = "citrix-enum-apps.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers-xml.nse", categories = { "discovery", "safe", } }
 Entry { filename = "citrix-enum-servers.nse", categories = { "discovery", "safe", } }
+Entry { filename = "couchdb-databases.nse", categories = { "discovery", "safe", } }
+Entry { filename = "couchdb-stats.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
@@ -42,6 +44,7 @@ Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ldap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
