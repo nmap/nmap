@@ -1032,11 +1032,11 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   SPM.endTask(NULL, additional_info);
 
   /* Now we go through the ports which were scanned but not determined
-     to be open, and add them in the "closed" state */
+     to be open, and add them in the "closed|filtered" state */
   for(portidx = 0; portidx < numports; portidx++) {
     if (target->ports.portIsDefault(portarray[portidx], IPPROTO_TCP)) {
       target->ports.setPortState(portarray[portidx], IPPROTO_TCP, PORT_CLOSEDFILTERED);
-	  target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, 0);
+      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, 0);
     } else 
       target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, 0);
   }
