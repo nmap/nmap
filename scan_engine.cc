@@ -2038,22 +2038,9 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
         return 0;
       }
     }
-    if (USI->ptech.rawsctpscan && hss->next_sctpportpingidx < USI->ports->sctp_ping_count) {
-      pspec->type = PS_SCTP;
-      pspec->proto = IPPROTO_SCTP;
-      pspec->pd.sctp.dport = USI->ports->sctp_ping_ports[hss->next_sctpportpingidx++];
-      pspec->pd.sctp.chunktype = SCTP_INIT;
-      return 0;
-    }
     if (USI->ptech.rawicmpscan) {
       pspec->type = PS_ICMP;
       pspec->proto = IPPROTO_ICMP;
-      if ((o.pingtype & PINGTYPE_ICMP_MASK) && !hss->sent_icmp_mask) {
-        hss->sent_icmp_mask = true;
-        pspec->pd.icmp.type = ICMP_MASK;
-        pspec->pd.icmp.code = 0;
-        return 0;
-      }
       if ((o.pingtype & PINGTYPE_ICMP_TS) && !hss->sent_icmp_ts) {
         hss->sent_icmp_ts = true;
         pspec->pd.icmp.type = ICMP_TSTAMP;
@@ -2067,6 +2054,13 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       pspec->pd.udp.dport = USI->ports->udp_ping_ports[hss->next_udpportpingidx++];
       return 0;
     }
+    if (USI->ptech.rawsctpscan && hss->next_sctpportpingidx < USI->ports->sctp_ping_count) {
+      pspec->type = PS_SCTP;
+      pspec->proto = IPPROTO_SCTP;
+      pspec->pd.sctp.dport = USI->ports->sctp_ping_ports[hss->next_sctpportpingidx++];
+      pspec->pd.sctp.chunktype = SCTP_INIT;
+      return 0;
+    }
     if (USI->ptech.rawprotoscan) {
       pspec->type = PS_PROTO;
       pspec->proto = USI->ports->proto_ping_ports[hss->next_protoportpingidx++];
@@ -2078,6 +2072,16 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
       pspec->pd.tcp.dport = USI->ports->syn_ping_ports[hss->next_synportpingidx++];
       pspec->pd.tcp.flags = TH_SYN;
       return 0;
+    }
+    if (USI->ptech.rawicmpscan) {
+      pspec->type = PS_ICMP;
+      pspec->proto = IPPROTO_ICMP;
+      if ((o.pingtype & PINGTYPE_ICMP_MASK) && !hss->sent_icmp_mask) {
+        hss->sent_icmp_mask = true;
+        pspec->pd.icmp.type = ICMP_MASK;
+        pspec->pd.icmp.code = 0;
+        return 0;
+      }
     }
   }
   assert(0); /* TODO: need to handle other protocols */
