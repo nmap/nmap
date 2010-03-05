@@ -69,13 +69,13 @@ To make a unified diff, please follow these instructions:
 
 2. Rename your source tree:
     cd ..
-    mv nmap-2.54BETA4 nmap-2.54BETA4-snazzy-feature
+    mv nmap-5.21 nmap-5.21-snazzy-feature
 
 3. Unpack the original Nmap source alongside it:
-    tar xzf nmap-2.54BETA4.tgz
+    tar xzf nmap-5.21.tgz
 
 4. Generate the diffs:
-   diff -urNb nmap-2.54BETA4 nmap-2.54BETA4-snazzy-feature > nmap.patch
+   diff -urNb nmap-5.21 nmap-5.21-snazzy-feature > nmap.patch
 
 5. Check the patch and remove any unnecessary patches from the file.
 
