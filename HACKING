@@ -14,13 +14,14 @@ Source code also allows you to port Nmap to new platforms, fix bugs,
 and add new features.  You are highly encouraged to send your changes
 to nmap-dev@insecure.org for possible incorporation into the main
 distribution.  By sending these changes to Fyodor or one the
-insecure.org development mailing lists, it is assumed that you are
-offering Fyodor the unlimited, non-exclusive right to reuse, modify,
-and relicense the code.  This is important because the inability to
-relicense code has caused devastating problems for other Free Software
-projects (such as KDE and NASM).  Nmap will always be available Open
-Source.  If you wish to specify special license conditions of your
-contributions, just say so when you send them.
+Insecure.Org development mailing lists, it is assumed that you are
+offering the Nmap Project (Insecure.Com LLC) unlimited, non-exclusive
+right to reuse, modify, and relicense the code.  This is important
+because the inability to relicense code has caused devastating
+problems for other Free Software projects (such as KDE and NASM).
+Nmap will always be available Open Source.  If you wish to specify
+special license conditions of your contributions, just say so when you
+send them.
 
 Nmap is a community project and has already benefitted greatly from
 outside contributors (for examples, see the CHANGELOG at
@@ -36,9 +37,6 @@ might want to subscribe to that mailing list as well -- send a blank
 email to nmap-dev-subscribe@insecure.org .  While you are at it, you
 might also want to subscribe to nmap-hackers via the same mechanism.
 Web archives of those lists are at http://lists.insecure.org .
-
-If you are not ready to send details of your feature to the whole
-list, you can always start by mailing fyodor@insecure.org .
 
 Some ideas of useful contributions/projects
 -------------------------------------------
@@ -62,7 +60,7 @@ How to make code contributions
 
 The preferred mechanism for submitted changes is unified diffs against
 the latest development release version of Nmap.  Please send them to
-fyodor@insecure.org or nmap-dev@insecure.org .  
+nmap-dev@insecure.org .  
 
 To make a unified diff, please follow these instructions:
 
