@@ -2022,7 +2022,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   int filelen;
   char nmap_arg_buffer[1024];
   struct in_addr lastip;
-  char *p, *q, *found; /* I love C! */
+  char *p, *q, *found, *lastipstr; /* I love C! */
   /* We mmap it read/write since we will change the last char to a newline if it is not already */
   filestr = mmapfile(fname, &filelen, O_RDWR);
   if (!filestr) {
@@ -2069,7 +2069,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   /* Now it is time to figure out the last IP that was scanned */
   q = p;
   found = NULL;
-  /* Lets see if its a machine log first */
+  /* Lets see if its a grepable log first (-oG) */
   while((q = strstr(q, "\nHost: ")))
     found = q = q + 7;
 
@@ -2081,33 +2081,31 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
       fatal("Unable to parse supposed log file %s.  Sorry", fname);
     *q = ' ';
   } else {
-    /* OK, I guess (hope) it is a normal log then */
+    /* OK, I guess (hope) it is a normal log then (-oN) */
     q = p;
     found = NULL;
-    while((q = strstr(q, "\nInteresting ports on ")))
-      found = q++;
+    while((q = strstr(q, "\nNmap scan report for ")))
+      found = q = q + 22;
 
-    /* There may be some later IPs of the form 'All [num] scanned ports on  ([ip]) are: state */
-    if (found) q = found;
-    if (q) {    
-      while((q = strstr(q, "\nAll "))) {
-	q+= 5;
-	while(isdigit((int) (unsigned char) *q)) q++;
-	if (strncmp(q, " scanned ports on", 17) == 0)
-	  found = q;
-      }
-    }
-
-    if (found) {    
-      found = strchr(found, '(');
-      if (!found) fatal("Unable to parse supposed log file %s.  Sorry", fname);
-      found++;
-      q = strchr(found, ')');
+    /*  There may be some later IPs of the form :
+        "Nmap scan report for florence (x.x.7.10)" (dns reverse lookup)
+        or "Nmap scan report for x.x.7.10".
+    */
+    if (found) {
+      q = strchr(found, '\n');
       if (!q) fatal("Unable to parse supposed log file %s.  Sorry", fname);
       *q = '\0';
-      if (inet_pton(AF_INET, found, &lastip) == 0)
-	fatal("Unable to parse ip (%s) supposed log file %s.  Sorry", found, fname);
-      *q = ')';
+      p = strchr(found, '(');
+      if (!p) { /* No DNS reverse lookup, found should already contain IP */
+        lastipstr = strdup(found);
+      } else { /* DNS reverse lookup, IP is between parentheses */
+        *q = '\n'; q--; *q = '\0';
+        lastipstr = strdup(p + 1);
+      }
+      *q = p ? ')' : '\n'; /* recover changed chars */
+      if (inet_pton(AF_INET, lastipstr, &lastip) == 0)
+        fatal("Unable to parse ip (%s) in supposed log file %s.  Sorry", lastipstr, fname);
+      free(lastipstr);
     } else {
       error("Warning: You asked for --resume but it doesn't look like any hosts in the log file were successfully scanned.  Starting from the beginning.");
       lastip.s_addr = 0;

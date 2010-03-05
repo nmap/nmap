@@ -2,6 +2,8 @@
 
 [NOT YET RELEASED]
 
+o Made --resume work with recent changes to normal output. [vladz]
+
 o [NSE] Added the new snmp-interfaces script by Thomas Buchanan, which
   enumerates network interfaces over SNMP.
 
