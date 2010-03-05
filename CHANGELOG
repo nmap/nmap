@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the new snmp-interfaces script by Thomas Buchanan, which
+  enumerates network interfaces over SNMP.
+
 o [NSE] Added a new library for PostgreSQL and the script pgsql-brute that uses
   it to guess credentials. [Patrik]
 
