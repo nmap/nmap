@@ -234,7 +234,7 @@ printf("%s %s ( %s )\n"
        "  -b <FTP relay host>: FTP bounce scan\n"
        "PORT SPECIFICATION AND SCAN ORDER:\n"
        "  -p <port ranges>: Only scan specified ports\n"
-       "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080\n"
+       "    Ex: -p22; -p1-65535; -p U:53,111,137,T:21-25,80,139,8080,S:9\n"
        "  -F: Fast mode - Scan fewer ports than the default scan\n"
        "  -r: Scan ports consecutively - don't randomize\n"
        "  --top-ports <number>: Scan <number> most common ports\n"
@@ -1201,7 +1201,7 @@ int nmap_main(int argc, char *argv[]) {
         }
       } else if (*optarg == 'O') {
         if (ports.proto_ping_count > 0)
-          fatal("Only one -PO option is allowed. Combine port ranges with commas.");
+          fatal("Only one -PO option is allowed. Combine protocol ranges with commas.");
         o.pingtype |= PINGTYPE_PROTO;
         if (*(optarg + 1) != '\0') {
           getpts_simple(optarg + 1, SCAN_PROTOCOLS, &ports.proto_ping_ports, &ports.proto_ping_count);
@@ -1212,7 +1212,7 @@ int nmap_main(int argc, char *argv[]) {
           assert(ports.proto_ping_count > 0);
         }
       } else {
-        fatal("Illegal Argument to -P, use -PN, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, or -PT80 (or whatever number you want for the TCP probe destination port)");
+        fatal("Illegal Argument to -P, use -PN, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, -PY, or -PT80 (or whatever number you want for the TCP probe destination port)");
       }
       break;
     case 'p':
