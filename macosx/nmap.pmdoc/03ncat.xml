@@ -1,6 +1,6 @@
 <pkgref spec="1.12" uuid="405DE819-24DC-406C-A9F8-4ED37BA1C1D6">
   <config>
-    <identifier>org.insecure.nmap.ncat.pkg</identifier>
+    <identifier>org.insecure.nmap.Ncat.pkg</identifier>
     <version>1</version>
     <description />
     <post-install type="none" />

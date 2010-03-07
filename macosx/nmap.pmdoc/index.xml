@@ -14,27 +14,27 @@
     <choice title="Nmap" id="choice92" starts_selected="true"
     description="Nmap executables, scripts, and support files."
     starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.nmap.pkg" />
+      <pkgref id="org.insecure.nmap.Nmap.pkg" />
     </choice>
     <choice title="Zenmap" id="choice93" starts_selected="true"
     description="Zenmap graphical frontend."
     starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.zenmap.pkg" />
+      <pkgref id="org.insecure.nmap.Zenmap.pkg" />
     </choice>
     <choice title="Ncat" id="choice94" starts_selected="true"
     description="Ncat general-purpose network sender and receiver (reimplementation of Netcat)."
     starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.ncat.pkg" />
+      <pkgref id="org.insecure.nmap.Ncat.pkg" />
     </choice>
     <choice title="Ndiff" id="choice95" starts_selected="true"
     description="Ndiff scan comparison utility."
     starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.ndiff.pkg" />
+      <pkgref id="org.insecure.nmap.Ndiff.pkg" />
     </choice>
     <choice title="Nping" id="choice96" starts_selected="true"
     description="Nping packet generator."
     starts_enabled="true" starts_hidden="false">
-      <pkgref id="org.insecure.nmap.nping.pkg" />
+      <pkgref id="org.insecure.nmap.Nping.pkg" />
     </choice>
   </contents>
   <resources bg-scale="none" bg-align="topleft">

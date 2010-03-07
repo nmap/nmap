@@ -1,6 +1,6 @@
 <pkgref spec="1.12" uuid="FC648982-1188-47E2-9FA7-5492BAB9EF2D">
   <config>
-    <identifier>org.insecure.nmap.zenmap.pkg</identifier>
+    <identifier>org.insecure.nmap.Zenmap.pkg</identifier>
     <version>1</version>
     <description />
     <post-install type="none" />
