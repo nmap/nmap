@@ -4,12 +4,13 @@ Attempts to enumerate network interfaces through SNMP
 
 ---
 -- @output
--- | snmp-interfaces:  
+-- | snmp-interfaces:
 -- |   eth0
--- |_    IP address: 192.168.128.15
+-- |     IP address: 192.168.221.128
+-- |     MAC address: 00:0c:29:01:e2:74 (VMware)
+-- |     Type: ethernetCsmacd  Speed: 1 Gbps
+-- |_    Traffic stats: 6.45 Mb sent, 15.01 Mb received
 --
--- 
-
 
 author = "Thomas Buchanan"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -18,12 +19,56 @@ dependencies = {"snmp-brute"}
 
 -- code borrowed heavily from Patrik Karlsson's excellent snmp scripts
 -- Created 03/03/2010 - v0.1 - created by Thomas Buchanan <tbuchanan@thecompassgrp.net>
+-- 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
 
 require "shortport"
 require "snmp"
 require "datafiles"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
+
+-- List of IANA-assigned network interface types
+-- Taken from IANAifType-MIB 
+-- Available at http://www.iana.org/assignments/ianaiftype-mib
+-- REVISION     "201002110000Z"
+local iana_types = { "other", "regular1822", "hdh1822", "ddnX25", "rfc877x25", "ethernetCsmacd", 
+	"iso88023Csmacd", "iso88024TokenBus", "iso88025TokenRing", "iso88026Man", "starLan",
+	"proteon10Mbit", "proteon80Mbit", "hyperchannel", "fddi", "lapb", "sdlc", "ds1", "e1", 
+	"basicISDN", "primaryISDN", "propPointToPointSerial", "ppp", "softwareLoopback", "eon", 
+	"ethernet3Mbit", "nsip", "slip", "ultra", "ds3", "sip", "frameRelay", "rs232", "para", 
+	"arcnet", "arcnetPlus", "atm", "miox25", "sonet", "x25ple", "iso88022llc", "localTalk", 
+	"smdsDxi", "frameRelayService", "v35", "hssi", "hippi", "modem", "aal5", "sonetPath", 
+	"sonetVT", "smdsIcip", "propVirtual", "propMultiplexor", "ieee80212", "fibreChannel", 
+	"hippiInterface", "frameRelayInterconnect", "aflane8023", "aflane8025", "cctEmul", 
+	"fastEther", "isdn", "v11", "v36", "g703at64k", "g703at2mb", "qllc", "fastEtherFX", 
+	"channel", "ieee80211", "ibm370parChan", "escon", "dlsw", "isdns", "isdnu", "lapd", 
+	"ipSwitch", "rsrb", "atmLogical", "ds0", "ds0Bundle", "bsc", "async", "cnr", 
+	"iso88025Dtr", "eplrs", "arap", "propCnls", "hostPad", "termPad", "frameRelayMPI", 
+	"x213", "adsl", "radsl", "sdsl", "vdsl", "iso88025CRFPInt", "myrinet", "voiceEM", 
+	"voiceFXO", "voiceFXS", "voiceEncap", "voiceOverIp", "atmDxi", "atmFuni", "atmIma", 
+	"pppMultilinkBundle", "ipOverCdlc", "ipOverClaw", "stackToStack", "virtualIpAddress", 
+	"mpc", "ipOverAtm", "iso88025Fiber", "tdlc", "gigabitEthernet", "hdlc", "lapf", "v37", 
+	"x25mlp", "x25huntGroup", "trasnpHdlc", "interleave", "fast", "ip", "docsCableMaclayer", 
+	"docsCableDownstream", "docsCableUpstream", "a12MppSwitch", "tunnel", "coffee", "ces", 
+	"atmSubInterface", "l2vlan", "l3ipvlan", "l3ipxvlan", "digitalPowerlinev", "mediaMailOverIp", 
+	"dtm", "dcn", "ipForward", "msdsl", "ieee1394", "if-gsn", "dvbRccMacLayer", "dvbRccDownstream", 
+	"dvbRccUpstream", "atmVirtual", "mplsTunnel", "srp", "voiceOverAtm", "voiceOverFrameRelay", 
+	"idsl", "compositeLink", "ss7SigLink", "propWirelessP2P", "frForward", "rfc1483", "usb", 
+	"ieee8023adLag", "bgppolicyaccounting", "frf16MfrBundle", "h323Gatekeeper", "h323Proxy", 
+	"mpls", "mfSigLink", "hdsl2", "shdsl", "ds1FDL", "pos", "dvbAsiIn", "dvbAsiOut", "plc", 
+	"nfas", "tr008", "gr303RDT", "gr303IDT", "isup", "propDocsWirelessMaclayer", 
+	"propDocsWirelessDownstream", "propDocsWirelessUpstream", "hiperlan2", "propBWAp2Mp", 
+	"sonetOverheadChannel", "digitalWrapperOverheadChannel", "aal2", "radioMAC", "atmRadio", 
+	"imt", "mvl", "reachDSL", "frDlciEndPt", "atmVciEndPt", "opticalChannel", "opticalTransport", 
+	"propAtm", "voiceOverCable", "infiniband", "teLink", "q2931", "virtualTg", "sipTg", "sipSig", 
+	"docsCableUpstreamChannel", "econet", "pon155", "pon622", "bridge", "linegroup", "voiceEMFGD", 
+	"voiceFGDEANA", "voiceDID", "mpegTransport", "sixToFour", "gtp", "pdnEtherLoop1", 
+	"pdnEtherLoop2", "opticalChannelGroup", "homepna", "gfp", "ciscoISLvlan", "actelisMetaLOOP", 
+	"fcipLink", "rpr", "qam", "lmp", "cblVectaStar", "docsCableMCmtsDownstream", "adsl2", 
+	"macSecControlledIF", "macSecUncontrolledIF", "aviciOpticalEther", "atmbond", "voiceFGDOS", 
+	"mocaVersion1", "ieee80216WMAN", "adsl2plus", "dvbRcsMacLayer", "dvbTdm", "dvbRcsTdma", 
+	"x86Laps", "wwanPP", "wwanPP2", "voiceEBS", "ifPwType", "ilan", "pip", "aluELP", "gpon", 
+	"vdsl2", "capwapDot11Profile", "capwapDot11Bss", "capwapWtpVirtualRadio" }
 
 --- Walks the MIB Tree
 --
@@ -87,9 +132,6 @@ function get_value_from_table( tbl, oid )
 end
 
 --- Gets the network interface type from a list of IANA approved types
--- Taken from IANAifType-MIB 
--- Available at http://www.iana.org/assignments/ianaiftype-mib
--- REVISION     "201002110000Z"
 --
 -- @param iana integer interface type returned from snmp result
 -- @return string description of interface type, or "Unknown" if type not found
@@ -99,45 +141,6 @@ function get_iana_type( iana )
 	if iana > 254 or iana < 1 then
 		iana = 1
 	end
-	
-	local iana_types = { "other", "regular1822", "hdh1822", "ddnX25", "rfc877x25", "ethernetCsmacd", 
-	"iso88023Csmacd", "iso88024TokenBus", "iso88025TokenRing", "iso88026Man", "starLan",
-	"proteon10Mbit", "proteon80Mbit", "hyperchannel", "fddi", "lapb", "sdlc", "ds1", "e1", 
-	"basicISDN", "primaryISDN", "propPointToPointSerial", "ppp", "softwareLoopback", "eon", 
-	"ethernet3Mbit", "nsip", "slip", "ultra", "ds3", "sip", "frameRelay", "rs232", "para", 
-	"arcnet", "arcnetPlus", "atm", "miox25", "sonet", "x25ple", "iso88022llc", "localTalk", 
-	"smdsDxi", "frameRelayService", "v35", "hssi", "hippi", "modem", "aal5", "sonetPath", 
-	"sonetVT", "smdsIcip", "propVirtual", "propMultiplexor", "ieee80212", "fibreChannel", 
-	"hippiInterface", "frameRelayInterconnect", "aflane8023", "aflane8025", "cctEmul", 
-	"fastEther", "isdn", "v11", "v36", "g703at64k", "g703at2mb", "qllc", "fastEtherFX", 
-	"channel", "ieee80211", "ibm370parChan", "escon", "dlsw", "isdns", "isdnu", "lapd", 
-	"ipSwitch", "rsrb", "atmLogical", "ds0", "ds0Bundle", "bsc", "async", "cnr", 
-	"iso88025Dtr", "eplrs", "arap", "propCnls", "hostPad", "termPad", "frameRelayMPI", 
-	"x213", "adsl", "radsl", "sdsl", "vdsl", "iso88025CRFPInt", "myrinet", "voiceEM", 
-	"voiceFXO", "voiceFXS", "voiceEncap", "voiceOverIp", "atmDxi", "atmFuni", "atmIma", 
-	"pppMultilinkBundle", "ipOverCdlc", "ipOverClaw", "stackToStack", "virtualIpAddress", 
-	"mpc", "ipOverAtm", "iso88025Fiber", "tdlc", "gigabitEthernet", "hdlc", "lapf", "v37", 
-	"x25mlp", "x25huntGroup", "trasnpHdlc", "interleave", "fast", "ip", "docsCableMaclayer", 
-	"docsCableDownstream", "docsCableUpstream", "a12MppSwitch", "tunnel", "coffee", "ces", 
-	"atmSubInterface", "l2vlan", "l3ipvlan", "l3ipxvlan", "digitalPowerlinev", "mediaMailOverIp", 
-	"dtm", "dcn", "ipForward", "msdsl", "ieee1394", "if-gsn", "dvbRccMacLayer", "dvbRccDownstream", 
-	"dvbRccUpstream", "atmVirtual", "mplsTunnel", "srp", "voiceOverAtm", "voiceOverFrameRelay", 
-	"idsl", "compositeLink", "ss7SigLink", "propWirelessP2P", "frForward", "rfc1483", "usb", 
-	"ieee8023adLag", "bgppolicyaccounting", "frf16MfrBundle", "h323Gatekeeper", "h323Proxy", 
-	"mpls", "mfSigLink", "hdsl2", "shdsl", "ds1FDL", "pos", "dvbAsiIn", "dvbAsiOut", "plc", 
-	"nfas", "tr008", "gr303RDT", "gr303IDT", "isup", "propDocsWirelessMaclayer", 
-	"propDocsWirelessDownstream", "propDocsWirelessUpstream", "hiperlan2", "propBWAp2Mp", 
-	"sonetOverheadChannel", "digitalWrapperOverheadChannel", "aal2", "radioMAC", "atmRadio", 
-	"imt", "mvl", "reachDSL", "frDlciEndPt", "atmVciEndPt", "opticalChannel", "opticalTransport", 
-	"propAtm", "voiceOverCable", "infiniband", "teLink", "q2931", "virtualTg", "sipTg", "sipSig", 
-	"docsCableUpstreamChannel", "econet", "pon155", "pon622", "bridge", "linegroup", "voiceEMFGD", 
-	"voiceFGDEANA", "voiceDID", "mpegTransport", "sixToFour", "gtp", "pdnEtherLoop1", 
-	"pdnEtherLoop2", "opticalChannelGroup", "homepna", "gfp", "ciscoISLvlan", "actelisMetaLOOP", 
-	"fcipLink", "rpr", "qam", "lmp", "cblVectaStar", "docsCableMCmtsDownstream", "adsl2", 
-	"macSecControlledIF", "macSecUncontrolledIF", "aviciOpticalEther", "atmbond", "voiceFGDOS", 
-	"mocaVersion1", "ieee80216WMAN", "adsl2plus", "dvbRcsMacLayer", "dvbTdm", "dvbRcsTdma", 
-	"x86Laps", "wwanPP", "wwanPP2", "voiceEBS", "ifPwType", "ilan", "pip", "aluELP", "gpon", 
-	"vdsl2", "capwapDot11Profile", "capwapDot11Bss", "capwapWtpVirtualRadio" }
 	
 	return iana_types[iana]
 end
@@ -348,45 +351,35 @@ function build_results( tbl )
 		local status = interface.status
 		local if_type = interface.type
 		
-		-- If no verbose flags are present, only print interfaces that are active, and don't show too many details
-		-- Also, ignore software loopback interfaces
-		if (verbose < 1) and (status == "up") and ( if_type ~= "softwareLoopback") then
-			if interface.descr then
-				item.name = interface.descr
-			else
-				item.name = string.format("Interface %d", item.index)
-			end
-			if interface.ip_addr then
-				table.insert( item, ("IP address: %s"):format( interface.ip_addr ) )
-			end
-		elseif verbose > 0 then
-			if interface.descr then
-				item.name = interface.descr
-			else
-				item.name = string.format("Interface %d", item.index)
-			end
-			
-			if interface.ip_addr and interface.netmask then
-				table.insert( item, ("IP address: %s/%s"):format( interface.ip_addr, interface.netmask ) )
-			end
-			
-			if interface.phys_addr then
-				table.insert( item, ("MAC address: %s"):format( interface.phys_addr ) )
-			end
-			
-			if interface.type and interface.speed then
-				table.insert( item, ("Type: %s (%s)"):format( interface.type, interface.speed ) )
-			end
-			
-			if interface.status then
-				table.insert( item, ("Status: %s"):format( interface.status ) )
-			end
-			
-			if interface.sent and interface.received then
-				table.insert( item, ("Traffic stats: %s sent, %s received"):format( interface.sent, interface.received ) )
-			end
+		if interface.descr then
+			item.name = interface.descr
+		else
+			item.name = string.format("Interface %d", item.index)
 		end
-		table.insert( new_tbl, item )
+		
+		if interface.ip_addr and interface.netmask then
+			table.insert( item, ("IP address: %s  Netmask: %s"):format( interface.ip_addr, interface.netmask ) )
+		end
+		
+		if interface.phys_addr then
+			table.insert( item, ("MAC address: %s"):format( interface.phys_addr ) )
+		end
+		
+		if interface.type and interface.speed then
+			table.insert( item, ("Type: %s  Speed: %s"):format( interface.type, interface.speed ) )
+		end
+		
+		if ( verbose > 0 ) and interface.status then
+			table.insert( item, ("Status: %s"):format( interface.status ) )
+		end
+		
+		if interface.sent and interface.received then
+			table.insert( item, ("Traffic stats: %s sent, %s received"):format( interface.sent, interface.received ) )
+		end
+		
+		if ( verbose > 0 ) or status == "up" then
+			table.insert( new_tbl, item )
+		end
 	end
 	
 	return new_tbl
