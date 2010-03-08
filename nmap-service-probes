@@ -8606,3 +8606,13 @@ ports 9090
 
 match squeezecli m|^serverstatus.*version%3A([\.\d]+) uuid%3A([-\w]+) info%20total%20albums%3A\d+ info%20total%20artists%3A\d+ info%20total%20genres%3A\d+ info%20total%20songs%3A(\d+) player%20count%3A\d+ sn%20player%20count%3A\d+ other%20player%20count%3A\d+\r\n|s p/SqueezeCenter CLI/ i/UUID: $2, Total songs: $3/ v/$1/
 
+##############################NEXT PROBE##############################
+# Arucer backdoor
+# http://www.kb.cert.org/vuls/id/154421
+# The probe is the UUID for the 'YES' command, which is basically a ping command, encoded by XORing with 0xE5 (the original string is "E2AC5089-3820-43fe-8A4D-A7028FAD8C28"). The response is the string 'YES', encoded the same way.
+Probe TCP Arucer q|\xC2\xE5\xE5\xE5\x9E\xA0\xD7\xA4\xA6\xD0\xD5\xDD\xDC\xC8\xD6\xDD\xD7\xD5\xC8\xD1\xD6\x83\x80\xC8\xDD\xA4\xD1\xA1\xC8\xA4\xD2\xD5\xD7\xDD\xA3\xA4\xA1\xDD\xA6\xD7\xDD\x98\xE5|
+rarity 8
+ports 7777
+
+match arucer m|^\xbc\xa0\xb6$| p/Arucer backdoor/ o/Windows/ i/**BACKDOOR**/
+
