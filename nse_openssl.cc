@@ -107,6 +107,19 @@ static int l_bignum_mod_exp( lua_State *L ) /** bignum_mod_exp( BIGNUM a, BIGNUM
   return 1;
 }
 
+static int l_bignum_add( lua_State *L ) /** bignum_add( BIGNUM a, BIGNUM b ) */
+{
+  bignum_data_t * a = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
+  bignum_data_t * b = (bignum_data_t *) luaL_checkudata(L, 2, "BIGNUM");
+  BIGNUM * result = BN_new();
+  BN_add( result, a->bn, b->bn );
+  bignum_data_t * data = (bignum_data_t *) lua_newuserdata( L, sizeof(bignum_data_t));
+  luaL_getmetatable( L, "BIGNUM" );
+  lua_setmetatable( L, -2 );
+  data->bn = result;
+  return 1;
+}
+
 static int l_bignum_num_bits( lua_State *L ) /** bignum_num_bits( BIGNUM bn ) */
 {
   bignum_data_t * userdata = (bignum_data_t *) luaL_checkudata(L, 1, "BIGNUM");
@@ -466,6 +479,7 @@ static const struct luaL_reg openssllib[] = {
   { "bignum_bn2bin", l_bignum_bn2bin },
   { "bignum_bn2dec", l_bignum_bn2dec },
   { "bignum_bn2hex", l_bignum_bn2hex },
+  { "bignum_add", l_bignum_add },
   { "bignum_mod_exp", l_bignum_mod_exp },
   { "rand_bytes", l_rand_bytes },
   { "rand_pseudo_bytes", l_rand_pseudo_bytes },

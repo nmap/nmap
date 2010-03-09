@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Added the function bignum_add to the nse_openssl library to support BIGNUM
+  addition [Patrik]
+
 o [NSE] Added checks for missing OpenSSL to MySQL scripts and library [Patrik]
 
 o Made --resume work with recent changes to normal output. [jlanthea]

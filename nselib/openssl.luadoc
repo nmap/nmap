@@ -95,6 +95,12 @@ function bignum_pseudo_rand(bits)
 -- @return bignum.
 function bignum_mod_exp(a, p, m)
 
+--- Returns the bignum which is the result of <code>a+b</code>
+-- @param a bignum
+-- @param b bignum
+-- @return bignum
+function bignum_add(a, b)
+
 --- Returns a string containing random data.
 -- @param bytes Length of the returned string in bytes.
 -- @return Random string.
