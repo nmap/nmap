@@ -1,5 +1,13 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Brainstorm for GSoC 2010 ideas and fill out the org application by
+  Friday 3/12 4PM PST.
+
+o Create new default password lists for Nmap NSE and Ncrack.  See this thread:
+  http://seclists.org/nmap-dev/2010/q1/764
+
+o Create new default username list: http://seclists.org/nmap-dev/2010/q1/798
+
 o psexec missing (need to download yourself now) nmap_services.exe
   output issue: "The function where this is detected returns a value
   that is passed to stdnse.format_output. format_output takes a
