@@ -2,27 +2,53 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Brainstorm for GSoC 2010 ideas and fill out the org application by
   Friday 3/12 4PM PST.
+  o NSE scripts
+   o Maybe a whole SoC role for http scripts
+     o Maybe look at other web app scanners for some inspiration
+      (including w3af - http://w3af.sourceforge.net/)
+   o Maybe a non-http developer too
+  o NSE infrastructure manager
+  o Ncrack
+  o Nping
+  o Mobile Devices? N900, iPhone, Android
+  o Zenmap developer 
+    o Must have solid user interface design experience
+    o Zenmap script selector (subset of a Zenmap or NSE SoC role)
+  o Feature Creepers/Bug fixers
 
-o Create new default password lists for Nmap NSE and Ncrack.  See this thread:
-  http://seclists.org/nmap-dev/2010/q1/764
+o [NSE] Improve username/password library (the database files
+  themselves).  We don't have very good lists at the moment.  Maybe
+  work in combination with Ncrack dev.
+  o Now there are some even better lists available (f.e. RockYou)--see
+    this thread: http://seclists.org/nmap-dev/2010/q1/764
+  o We've improved the ncrack files--we should probably either use
+    those for NSE or use a subset of them.
+  o perhaps from Solar Designer. (he sent us permission)
+  o perhaps add phpbb hack data (there is at least a list of 28,635
+    passwords in phpbb_users.sql, and possibly more in other files.
+
+o After the new -sn and -Pn options (added to SVN around 7/20, just
+  after the 5.00 release) have been around long enough to be in most
+  people's copy of Nmap (e.g. in all the versions we distribute from
+  download page (stable+dev)) for at least a few months, we'll document
+  these as the preferred version rather than -sP and -PN.  These match
+  -n, and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you can also use
+  NSE, traceroute, etc. [David]
+
+o Nmap currently selects routes based on the first matching one it
+  finds.  But it should really take the most specific route instead.
+  So it should:
+  1) Keep searching the routing table for the most specific match, and
+  2) Use a stable sort (not qsort) so that routes with identical
+     netmasks aren't rearranged.
+  For more, see http://seclists.org/nmap-dev/2010/q1/685
 
 o Create new default username list: http://seclists.org/nmap-dev/2010/q1/798
-
-o psexec missing (need to download yourself now) nmap_services.exe
-  output issue: "The function where this is detected returns a value
-  that is passed to stdnse.format_output. format_output takes a
-  parameter to decide whether it's displaying an error message, but it
-  is hard-coded to only display error messages with debugging >= 1. So
-  options are to change format_output and make it mroe flexible, or
-  somehow decouple the sensing of nmap_service.exe from the normal
-  output channel of the script."
 
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
-
-o Review pgsql-brute.nse from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/455
 
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
@@ -60,15 +86,6 @@ o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
-
-o After the new -sn and -PN options (added to SVN around 7/20, just
-  after the 5.00 release) have been around long enough to be in most
-  people's copy of Nmap (e.g. in all the versions we distribute from
-  download page (stable+dev)) for at least a few months, we'll document
-  these as the preferred version rather than -sP and -PN.  These match
-  -n, and the main problem with -sP is that we now use it more for
-  "disable portscan" than ping only.  For example, you can also use
-  NSE, traceroute, etc. [David]
 
 o Add Nmap web board.
 
@@ -186,15 +203,6 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
 
 o Maybe the Nmap ASCII art should come after make rather than
   configure?
-
-o [NSE] Improve username/password library (the database files
-  themselves).  We don't have very good lists at the moment.  Maybe
-  work in combination with Ncrack dev.
-  o We've improved the ncrack files--we should probably either use
-    those for NSE or use a subset of them.
-  o perhaps from Solar Designer. (he sent us permission)
-  o perhaps add phpbb hack data (there is at least a list of 28,635
-    passwords in phpbb_users.sql, and possibly more in other files.
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -506,6 +514,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Review pgsql-brute.nse from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/455
+
+o psexec missing (need to download yourself now) nmap_services.exe
+  output issue: "The function where this is detected returns a value
+  that is passed to stdnse.format_output. format_output takes a
+  parameter to decide whether it's displaying an error message, but it
+  is hard-coded to only display error messages with debugging >= 1. So
+  options are to change format_output and make it more flexible, or
+  somehow decouple the sensing of nmap_service.exe from the normal
+  output channel of the script."
 
 o Website: Create shared directory in svn, which will contain
   directories shared between the Insecure.org network of sites
