@@ -10,6 +10,9 @@ The checks are done based in combinations of MAIL FROM and RCPT TO commands. The
 hardcoded in the source file. The script will output all the working combinations that the
 server allows, or none if the server requires authentication or if there wasn't any working
 combinations.
+
+If debug is enabled and an error occurrs while testing the target host, the error will be
+printed with the list of any combinations that were found prior to the error.
 ]]
 
 ---
@@ -23,7 +26,8 @@ combinations.
 -- |   MAIL FROM:<antispam@[10.0.1.2]> -> RCPT TO:<"relaytest%nmap.scanme.org">
 -- |_  MAIL FROM:<antispam@[10.0.1.2]> -> RCPT TO:<nmap.scanme.org!relaytest>
 --
--- @args smtp-open-relay.domain Define the domain to be used in the anti-spam tests (default is nmap.scanme.org)
+-- @args smtp-open-relay.domain Define the domain to be used in the anti-spam tests and EHLO command (default
+-- is nmap.scanme.org)
 -- @args smtp-open-relay.ip Use this to change the IP address to be used (default is the target IP address)
 --
 -- @changelog
@@ -52,6 +56,9 @@ combinations.
 --   + More information in the script description
 --   + Script will output the reason for failed commands (at the connection level)
 --   * If some combinations were already found before an error, the script will report them
+-- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
+--   * Fixed socket left open when receive_lines function call fails
+--   * Minor comments changes
 -----------------------------------------------------------------------
 
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
@@ -71,19 +78,24 @@ portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submi
 --@return False in case of failure
 --@return True and the response in case of success
 function dorequest(socket, request)
-	-- Exception handler
+	-- Exception handler.
 	local catch = function()
 		socket:close()
 	end
-	-- Try function
+
 	local try = nmap.new_try(catch)
 
-	-- Lets send the command
+	-- Lets send the command.
 	try(socket:send(request))
-	-- Receive server response
+
+	-- Receive server response.
 	local status, response = socket:receive_lines(1)
 
 	if not status then
+		-- Close the socket (the call to receive_lines doesn't use try).
+		socket:close()
+
+		-- Supported error messages.
 		local messages = {
 			["EOF"] = "connection closed",
 			["TIMEOUT"] = "connection timeout",
@@ -131,7 +143,7 @@ function go(host, port)
 		return false, string.format("Couldn't establish connection on port %i", port.number)
 	end
 
-	-- Close socket and return if EHLO command failed
+	-- Close socket and return if EHLO command failed.
 	if not string.match(response, "^250") then
 		quit()
 		return false, "Failed to issue EHLO command"
@@ -163,11 +175,16 @@ function go(host, port)
 	local result = {}
 	local index
 	local status
-
+	
 	-- This function is used when something goes wrong with the connection. It makes sure that
-	-- if it found working combinations before the error occurred, they will be returned.
+	-- if it found working combinations before the error occurred, they will be returned. If the
+	-- debug flag is enabled the error message will be appended to the combinations list.
 	local failure = function(message)
 		if #result > 0 then
+			if nmap.debugging() > 0 then
+				table.insert(result, string.format("ERROR: %s", message))
+			end
+
 			return true, result
 		else
 			return false, message
@@ -184,7 +201,7 @@ function go(host, port)
 		-- If reset the envelope, doesn't work for one, wont work for others (critical command).
 		if not string.match(response, "^250") then
 			quit()
-			-- Check if server needs authentication.
+
 			if string.match(response, "^530") then
 				return false, "Server isn't an open relay, authentication needed"
 			else
@@ -221,7 +238,7 @@ function go(host, port)
 				-- Save the working from and to combination.
 				table.insert(result, string.format("%s - > %s", tests[index]["from"], tests[index]["to"]))
 			end
-		end						
+		end
 	end
 
 	quit()
@@ -231,7 +248,7 @@ end
 action = function(host, port)
 	local status, result = go(host, port)
 
-	-- No combinations found
+	-- No combinations found.
 	if #result == 0 then
 		return stdnse.format_output(false, "All tests failed, server doesn't seem to be an open relay")
 	end
