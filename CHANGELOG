@@ -2,6 +2,8 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added checks for missing OpenSSL to MySQL scripts and library [Patrik]
+
 o Made --resume work with recent changes to normal output. [jlanthea]
 
 o [NSE] Added the new snmp-interfaces script by Thomas Buchanan, which

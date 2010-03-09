@@ -13,7 +13,11 @@
 
 module(... or "mysql", package.seeall)
 
-require 'openssl'
+local HAVE_SSL = false
+
+if pcall(require,'openssl') then
+  HAVE_SSL = true
+end
 
 Capabilities = 
 {
@@ -121,30 +125,40 @@ function receiveGreeting( socket )
 	
 end
 
---- Creates a hashed value of the password and salt according to MySQL authentication post version 4.1
---
--- @param pass string containing the users password
--- @param salt string containing the servers salt as obtained from <code>receiveGreeting</code>
--- @return reply string containing the raw hashed value
-local function createLoginHash(pass, salt)
 
-	local hash_stage1 = openssl.sha1( pass )
-	local hash_stage2 = openssl.sha1( hash_stage1 )
-	local hash_stage3 = openssl.sha1( salt .. hash_stage2 )
-	local reply = ""
+if HAVE_SSL then
 
-	local pos, b1, b2, b3, _ = 1, 0, 0, 0
-	
-	for pos=1, hash_stage1:len() do
-		_, b1 = bin.unpack( "C", hash_stage1, pos )
-		_, b2 = bin.unpack( "C", hash_stage3, pos )
-	
-		reply = reply .. string.char( bit.bxor( b2, b1 ) )
+	--- Creates a hashed value of the password and salt according to MySQL authentication post version 4.1
+	--
+	-- @param pass string containing the users password
+	-- @param salt string containing the servers salt as obtained from <code>receiveGreeting</code>
+	-- @return reply string containing the raw hashed value
+	local function createLoginHash(pass, salt)
+
+		local hash_stage1 = openssl.sha1( pass )
+		local hash_stage2 = openssl.sha1( hash_stage1 )
+		local hash_stage3 = openssl.sha1( salt .. hash_stage2 )
+		local reply = ""
+
+		local pos, b1, b2, b3, _ = 1, 0, 0, 0
+
+		for pos=1, hash_stage1:len() do
+			_, b1 = bin.unpack( "C", hash_stage1, pos )
+			_, b2 = bin.unpack( "C", hash_stage3, pos )
+
+			reply = reply .. string.char( bit.bxor( b2, b1 ) )
+		end
+
+		return reply
+
 	end
-	
-	return reply
-	
+
+else
+	local function createLoginHash(pass, salt)
+		return nil
+	end
 end
+
 
 --- Attempts to Login to the remote mysql server
 --
@@ -165,6 +179,10 @@ function loginRequest( socket, params, username, password, salt )
 	local packetno = 1
 	local authversion = params.authversion or "post41"
 	local username = username or ""
+
+	if not(HAVE_SSL) then
+		return false, "No OpenSSL"
+	end	
 
 	if authversion ~= "post41" then
 		return false, "Unsupported authentication version: " .. authversion
