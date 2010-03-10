@@ -2,6 +2,14 @@
 
 [NOT YET RELEASED]
 
+o Fixed an assertion failure:
+    nsock_core.c:199: socket_count_write_dec: Assertion `(iod->writesd_count)
+> 0' failed.
+  that could occur when connecting to an SSL server with Nsock. This
+  was observed when running the http-enum script but could possibly
+  have happened in other situations. Thanks to Brandon for reporting
+  the bug and testing. [David]
+
 o Added the function bignum_add to the nse_openssl library to support BIGNUM
   addition [Patrik]
 
