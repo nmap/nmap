@@ -234,9 +234,8 @@ char *getFinalPacketStats(char *buf, int buflen) {
   return buf;
 }
 
-/* Takes an ARP PACKET (including ethernet header) and prints it if
-   packet tracing is enabled.  'frame' must point to the 14-byte
-   ethernet header (e.g. starting with destination addr). The
+/* Takes an ARP PACKET (not including ethernet header) and
+   prints it if packet tracing is enabled. The
    direction must be PacketTrace::SENT or PacketTrace::RCVD .
    Optional 'now' argument makes this function slightly more
    efficient by avoiding a gettimeofday() call. */
@@ -262,21 +261,21 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
   else
     gettimeofday(&tv, NULL);
 
-  if (len < 42) {
-    error("Packet tracer: Arp packets must be at least 42 bytes long.  Should be exactly that length excl. ethernet padding.");
+  if (len < 28) {
+    error("Packet tracer: Arp packets must be at least 28 bytes long.  Should be exactly that length excl. ethernet padding.");
     return;
   }
 
-  if (frame[21] == 1) { /* arp REQUEST */
-    inet_ntop(AF_INET, frame + 38, who_has, sizeof(who_has));
-    inet_ntop(AF_INET, frame + 28, tell, sizeof(tell));
+  if (frame[7] == 1) { /* arp REQUEST */
+    inet_ntop(AF_INET, frame + 24, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, frame + 14, tell, sizeof(tell));
     Snprintf(arpdesc, sizeof(arpdesc), "who-has %s tell %s", who_has, tell);
   } else { /* ARP REPLY */
-    inet_ntop(AF_INET, frame + 28, who_has, sizeof(who_has));
+    inet_ntop(AF_INET, frame + 14, who_has, sizeof(who_has));
     Snprintf(arpdesc, sizeof(arpdesc),
              "reply %s is-at %02X:%02X:%02X:%02X:%02X:%02X", who_has,
-             frame[22], frame[23], frame[24], frame[25], frame[26],
-             frame[27]);
+             frame[8], frame[9], frame[10], frame[11], frame[12],
+             frame[13]);
   }
 
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) ARP %s\n",
@@ -2632,7 +2631,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     assert(head.ts.tv_sec);
 #endif
   }
-  PacketTrace::traceArp(PacketTrace::RCVD, (u8 *) p, 42, rcvdtime);
+  PacketTrace::traceArp(PacketTrace::RCVD, (u8 *) p + ETH_HDR_LEN, ARP_HDR_LEN + ARP_ETHIP_LEN, rcvdtime);
 
   return 1;
 }
@@ -2731,8 +2730,8 @@ static bool doArp(const char *dev, const u8 *srcmac,
     if (rc != sizeof(frame)) {
       error("WARNING: %s: eth_send of ARP packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
     }
-    PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame, sizeof(frame),
-                          &now);
+    PacketTrace::traceArp(PacketTrace::SENT, (u8 *) frame + ETH_HDR_LEN,
+      ARP_HDR_LEN + ARP_ETHIP_LEN, &now);
     num_sends++;
 
     listenrounds = 0;
