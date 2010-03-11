@@ -3259,8 +3259,16 @@ pcap_if_t *getpcapinterfaces() {
 static int nmaskcmp(const void *a, const void *b) {
   struct sys_route *r1 = (struct sys_route *) a;
   struct sys_route *r2 = (struct sys_route *) b;
-  if (r1->netmask == r2->netmask)
-    return 0;
+  if (r1->netmask == r2->netmask) {
+    /* Compare addresses of equal elements to make the sort stable, as suggested
+       by the Glibc manual. */
+    if (a < b)
+      return -1;
+    else if (a > b)
+      return 1;
+    else
+      return 0;
+  }
   if (ntohl(r1->netmask) > ntohl(r2->netmask))
     return -1;
   else
@@ -3523,7 +3531,6 @@ struct sys_route *getsysroutes(int *howmany) {
   static struct sys_route *routes = NULL;
   static int numroutes = 0;
   FILE *routefp;
-  int i;
 
   if (!howmany)
     fatal("NULL howmany ptr passed to %s()", __func__);
@@ -3546,15 +3553,7 @@ struct sys_route *getsysroutes(int *howmany) {
   numroutes = *howmany;
 
   /* Ensure that the route array is sorted by netmask */
-  for (i = 1; i < numroutes; i++) {
-    if (ntohl(routes[i].netmask) > ntohl(routes[i - 1].netmask))
-      break;
-  }
-
-  if (i < numroutes) {
-    /* they're not sorted ... better take care of that */
-    qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
-  }
+  qsort(routes, numroutes, sizeof(routes[0]), nmaskcmp);
 
   return routes;
 }
