@@ -448,7 +448,7 @@ int print_iflist(void) {
     Tbl->addItem(0, devcol, false, "DEV", 3);
     Tbl->addItem(0, gwcol, false, "GATEWAY", 7);
     for (i = 0; i < numroutes; i++) {
-      mask_nbo = htonl(routes[i].netmask);
+      mask_nbo = routes[i].netmask;
       addr_mtob(&mask_nbo, sizeof(mask_nbo), &nbits);
       assert(nbits <= 32);
       ia.s_addr = routes[i].dest;

@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Fixed the display of route netmask bits in --iflist. Formerly, any
+  mask that was not /32 was shown as /0. [David]
+
 o Fixed an assertion failure:
     nsock_core.c:199: socket_count_write_dec: Assertion `(iod->writesd_count)
 > 0' failed.
