@@ -2,6 +2,22 @@
 
 [NOT YET RELEASED]
 
+o Nmap now honors routing table entries that override interface
+  addresses and netmasks. For example, with this configuration:
+
+  ************************INTERFACES************************
+  DEV  (SHORT) IP/MASK         TYPE     UP MAC
+  eth0 (eth0)  192.168.0.21/24 ethernet up 00:00:00:00:00:00
+  
+  **************************ROUTES**************************
+  DST/MASK       DEV  GATEWAY
+  192.168.0.3/32 eth0 192.168.0.1
+  192.168.0.0/24 eth0
+
+  Nmap will not consider 192.168.0.3 directly connected through eth0,
+  even though it matches the interface's netmask. It won't try to ARP
+  ping 192.168.0.3, but will route traffic through 192.168.0.1.
+
 o Fixed the display of route netmask bits in --iflist. Formerly, any
   mask that was not /32 was shown as /0. [David]
 

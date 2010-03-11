@@ -3558,6 +3558,31 @@ struct sys_route *getsysroutes(int *howmany) {
   return routes;
 }
 
+static bool match_netmask(u32 addr1, u32 addr2, u32 mask) {
+  return (addr1 & mask) == (addr2 & mask);
+}
+
+static bool match_netmask_bits(u32 addr1, u32 addr2, int bits) {
+  return match_netmask(addr1, addr2, htonl((unsigned long) (0 - 1) << (32 - bits)));
+}
+
+static bool match_netmask_bits(const struct sockaddr_in *addr1,
+  const struct sockaddr_in *addr2, int bits) {
+  return match_netmask_bits(addr1->sin_addr.s_addr, addr2->sin_addr.s_addr, bits);
+}
+
+static struct interface_info *find_loopback_iface(struct interface_info *ifaces,
+  int numifaces) {
+  int i;
+
+  for (i = 0; i < numifaces; i++) {
+    if (ifaces[i].device_type == devt_loopback)
+      return &ifaces[i];
+  }
+
+  return NULL;
+}
+
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.
    If no route is found, false is returned and rnfo is undefined.  If
@@ -3567,16 +3592,15 @@ struct sys_route *getsysroutes(int *howmany) {
 bool route_dst(const struct sockaddr_storage * const dst,
                struct route_nfo *rnfo) {
   struct interface_info *ifaces;
-  struct interface_info *iface = NULL;
+  struct interface_info *iface;
   int numifaces = 0;
   struct sys_route *routes;
   struct sockaddr_storage spoofss;
   size_t spoofsslen;
   int numroutes = 0;
-  int ifnum;
   int i;
-  u32 mask;
   struct sockaddr_in *ifsin, *dstsin;
+
   if (!dst)
     fatal("%s passed a NULL dst address", __func__);
   dstsin = (struct sockaddr_in *) dst;
@@ -3592,96 +3616,88 @@ bool route_dst(const struct sockaddr_storage * const dst,
        set elsewhere. */
     assert(o.device[0] != '\0');
   }
-  //first we check to see if the host is directly connected,
-  //if not, we have to check the routing table
-  //also, if the user specified a device we have to check the routing table
-  if (!*o.device) {
-    ifaces = getinterfaces(&numifaces);
-    /* I suppose that I'll first determine whether it is a direct connect
-       instance */
-    for (ifnum = 0; ifnum < numifaces; ifnum++) {
-      ifsin = (struct sockaddr_in *) &ifaces[ifnum].addr;
-      if (ifsin->sin_family != AF_INET)
-        continue;
-      if (dstsin->sin_addr.s_addr == ifsin->sin_addr.s_addr &&
-          ifaces[ifnum].device_type != devt_loopback) {
-        /* Trying to scan one of the machine's own interfaces -- we need to use
-           the localhost device for this */
-        for (i = 0; i < numifaces; i++)
-          if (ifaces[i].device_type == devt_loopback)
-            break;
-        if (i < numifaces) {
-          rnfo->direct_connect = true;
-          memcpy(&rnfo->ii, &ifaces[i], sizeof(rnfo->ii));
-          /* But the source address we want to use is the target addy */
-          if (!o.spoofsource)
-            memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr,
-                   sizeof(rnfo->srcaddr));
-          return true;
-        }
-        /* Hmmm ... no localhost -- I guess I'll just try using the device
-           itself */
-      }
-      mask = htonl((unsigned long) (0 - 1) << (32 - ifaces[ifnum].netmask_bits));
-      if ((ifsin->sin_addr.s_addr & mask) == (dstsin->sin_addr.s_addr & mask)) {
-        rnfo->direct_connect = true;
-        memcpy(&rnfo->ii, &ifaces[ifnum], sizeof(rnfo->ii));
-        if (!o.spoofsource) {
-          memcpy(&rnfo->srcaddr, &ifaces[ifnum].addr, sizeof(rnfo->srcaddr));
-        }
-        return true;
-      }
-    }
-  }
-  //assume the device isnt directly connected until we know it is
-  //the only case it could be is if the user specified an interface
-  rnfo->direct_connect = false;
 
   if (*o.device) {
     iface = getInterfaceByName(o.device);
     if (!iface)
       fatal("Could not find interface %s which was specified by -e", o.device);
-    /* Is it directly connected? */
-    mask = htonl((unsigned long) (0 - 1) << (32 - iface->netmask_bits));
-    ifsin = (struct sockaddr_in *) &(iface->addr);
-    if ((ifsin->sin_addr.s_addr & mask) ==
-        (dstsin->sin_addr.s_addr & mask)) {
-      rnfo->direct_connect = true;
-      memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
-      if (!o.spoofsource)
-        memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
-      return true;
-    }
+  } else {
+    iface = NULL;
   }
 
   routes = getsysroutes(&numroutes);
-  /* Now we simply go through the list and take the first match */
-  for (i = 0; i < numroutes; i++) {
-    if ((routes[i].dest & routes[i].netmask) ==
-        (dstsin->sin_addr.s_addr & routes[i].netmask)) {
-      /* Yay, found a matching route. */
-      if (*o.device) {
-        if (strcmp(routes[i].device->devname, iface->devname) != 0) {
-          //ignore routes that arent on the device we specified!
-          continue;
-        } else {
-          if (!o.spoofsource)
-            memcpy(&rnfo->srcaddr, &(iface->addr), sizeof(rnfo->srcaddr));
-          memcpy(&rnfo->ii, iface, sizeof(rnfo->ii));
-        }
-      } else {
-        memcpy(&rnfo->ii, routes[i].device, sizeof(rnfo->ii));
-        if (!o.spoofsource) {
-          memcpy(&rnfo->srcaddr, &routes[i].device->addr,
-                 sizeof(rnfo->srcaddr));
-        }
-      }
-      ifsin = (struct sockaddr_in *) &rnfo->nexthop;
-      ifsin->sin_family = AF_INET;
-      ifsin->sin_addr.s_addr = routes[i].gw.s_addr;
-      return true;
-    }
+  ifaces = getinterfaces(&numifaces);
+
+  /* First check if dst is one of the localhost's own addresses. We need to use
+     a localhost device for these. */
+  for (i = 0; i < numifaces; i++) {
+    struct interface_info *loopback;
+
+    ifsin = (struct sockaddr_in *) &ifaces[i].addr;
+    if (dstsin->sin_addr.s_addr != ifsin->sin_addr.s_addr)
+      continue;
+    if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
+      continue;
+
+    if (ifaces[i].device_type == devt_loopback)
+      loopback = &ifaces[i];
+    else
+      loopback = find_loopback_iface(ifaces, numifaces);
+    if (loopback == NULL)
+      /* Hmmm ... no localhost -- move on to the routing table. */
+      break;
+
+    rnfo->ii = *loopback;
+    rnfo->direct_connect = true;
+    /* But the source address we want to use is the target address. */
+    if (!o.spoofsource)
+      rnfo->srcaddr = ifaces[i].addr;
+
+    return true;
   }
+
+  /* Go through the routing table and take the first match. getsysroutes sorts
+     so more-specific routes come first. */
+  for (i = 0; i < numroutes; i++) {
+    if (!match_netmask(dstsin->sin_addr.s_addr, routes[i].dest, routes[i].netmask))
+      continue;
+    /* Ignore routes that aren't on the device we specified. */
+    if (iface != NULL && strcmp(routes[i].device->devname, iface->devname) != 0)
+      continue;
+
+    rnfo->ii = *routes[i].device;
+    /* At this point we don't whether this route is direct or indirect ("G" flag
+       in netstat). We guess that a route is direct when the gateway address is
+       0.0.0.0 or it exactly matches the interface address. */
+    rnfo->direct_connect = (routes[i].gw.s_addr == 0) ||
+      (routes[i].gw.s_addr == ((struct sockaddr_in *) &routes[i].device->addr)->sin_addr.s_addr);
+    if (!o.spoofsource)
+      rnfo->srcaddr = routes[i].device->addr;
+    ifsin = (struct sockaddr_in *) &rnfo->nexthop;
+    ifsin->sin_family = AF_INET;
+    ifsin->sin_addr = routes[i].gw;
+
+    return true;
+  }
+
+  /* No match on routes. Try interfaces directly. */
+  for (i = 0; i < numifaces; i++) {
+    if (ifaces[i].addr.ss_family != AF_INET)
+      continue;
+    ifsin = (struct sockaddr_in *) &ifaces[i].addr;
+    if (!match_netmask_bits(dstsin, ifsin, ifaces[i].netmask_bits))
+      continue;
+    if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
+      continue;
+
+    rnfo->ii = ifaces[i];
+    rnfo->direct_connect = true;
+    if (!o.spoofsource)
+      rnfo->srcaddr = ifaces[i].addr;
+
+    return true;
+  }
+
   return false;
 }
 
