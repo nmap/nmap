@@ -362,15 +362,15 @@ dialog where you can start NPF if you have administrator privileges.";
     if (isr00t && af() == AF_INET)
       synscan++;
     else connectscan++;
-    //    if (verbose) error("No TCP, UDP, SCTP or ICMP scantype specified, assuming %s scan. Use -sP if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
+    //    if (verbose) error("No TCP, UDP, SCTP or ICMP scantype specified, assuming %s scan. Use -sn if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
   }
 
   if (pingtype != PINGTYPE_NONE && spoofsource) {
-    error("WARNING:  If -S is being used to fake your source address, you may also have to use -e <interface> and -PN .  If you are using it to specify your real source address, you can ignore this warning.");
+    error("WARNING:  If -S is being used to fake your source address, you may also have to use -e <interface> and -Pn .  If you are using it to specify your real source address, you can ignore this warning.");
   }
 
   if (pingtype != PINGTYPE_NONE && idlescan) {
-    error("WARNING: Many people use -PN w/Idlescan to prevent pings from their true IP.  On the other hand, timing info Nmap gains from pings can allow for faster, more reliable scans.");
+    error("WARNING: Many people use -Pn w/Idlescan to prevent pings from their true IP.  On the other hand, timing info Nmap gains from pings can allow for faster, more reliable scans.");
     sleep(2); /* Give ppl a chance for ^C :) */
   }
 
@@ -399,7 +399,7 @@ dialog where you can start NPF if you have administrator privileges.";
  }
 
  if (noportscan && (TCPScan() || UDPScan() || SCTPScan() || ipprotscan)) {
-   fatal("-sL and -sP (skip port scan) are not valid with any other scan types");
+   fatal("-sL and -sn (skip port scan) are not valid with any other scan types");
  }
 
  if (af() == AF_INET6 && (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))) {
@@ -439,7 +439,7 @@ dialog where you can start NPF if you have administrator privileges.";
   }
   
   if (bouncescan && pingtype != PINGTYPE_NONE) 
-    log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -PN so we don't try and ping them prior to the scan\n");
+    log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -Pn so we don't try and ping them prior to the scan\n");
   
   if (ackscan+bouncescan+connectscan+finscan+idlescan+maimonscan+nullscan+synscan+windowscan+xmasscan > 1)
     fatal("You specified more than one type of TCP scan.  Please choose only one of -sA, -b, -sT, -sF, -sI, -sM, -sN, -sS, -sW, and -sX");
@@ -464,7 +464,7 @@ dialog where you can start NPF if you have administrator privileges.";
 #endif
   
   if (osscan && noportscan) {
-    fatal("WARNING:  OS Scan is unreliable without a port scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sP");
+    fatal("WARNING:  OS Scan is unreliable without a port scan.  You need to use a scan type along with it, such as -sS, -sT, -sF, etc instead of -sn");
   }
 
   if (osscan && ipprotscan) {
@@ -500,7 +500,7 @@ dialog where you can start NPF if you have administrator privileges.";
   }
   
   if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)) {
-    fatal("Sorry -- IPv6 support is currently only available for connect() scan (-sT), ping scan (-sP), and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
+    fatal("Sorry -- IPv6 support is currently only available for connect() scan (-sT), ping scan (-sn), and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
 
   /* Prevent performance values from getting out of whack */

@@ -197,11 +197,11 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
     <para>
     Script scanning is normally done in combination with a port scan,
     because scripts may be run or not run depending on the port states
-    found by the scan. With the <option>-sP</option> option it is
+    found by the scan. With the <option>-sn</option> option it is
     possible to run a script scan without a port scan, only host
     discovery. In this case only host scripts will be eligible to run.
     To run a script scan with neither a host discovery nor a port scan,
-    use the <option>-PN -sP</option> options together with
+    use the <option>-Pn -sn</option> options together with
     <option>-sC</option> or <option>--script</option>. Every host will
     be assumed up and still only host scripts will be run. This
     technique is useful for scripts like
@@ -776,14 +776,14 @@ local username = nmap.registry.args.user
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><command>nmap -sP -sC example.com</command></term>
+          <term><command>nmap -sn -sC example.com</command></term>
           <listitem>
           <para>A script scan without a port scan; only host scripts are
           eligible to run.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
-          <term><command>nmap -PN -sP -sC example.com</command></term>
+          <term><command>nmap -Pn -sn -sC example.com</command></term>
           <listitem>
           <para>A script scan without host discovery or a port scan. All
           hosts are assumed up and only host scripts are eligible to

@@ -1037,7 +1037,7 @@ pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, int to_m
           "LINUX: If you are getting Socket type not supported, try modprobe af_packet or recompile your kernel with SOCK_PACKET enabled.\n"
           "*BSD:  If you are getting device not configured, you need to recompile your kernel with Berkeley Packet Filter support.  If you are getting No such file or directory, try creating the device (eg cd /dev; MAKEDEV <device>; or use mknod).\n"
           "*WINDOWS:  Nmap only supports ethernet interfaces on Windows for most operations because Microsoft disabled raw sockets as of Windows XP SP2.  Depending on the reason for this error, it is possible that the --unprivileged command-line argument will help.\n"
-          "SOLARIS:  If you are trying to scan localhost or the address of an interface and are getting '/dev/lo0: No such file or directory' or 'lo0: No DLPI device found', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-PN -sT localhost\" though.\n\n",
+          "SOLARIS:  If you are trying to scan localhost or the address of an interface and are getting '/dev/lo0: No such file or directory' or 'lo0: No DLPI device found', complain to Sun.  I don't think Solaris can support advanced localhost scans.  You can probably use \"-Pn -sT localhost\" though.\n\n",
              pcapdev, snaplen, promisc, to_ms, err0r);
       } else {
         error("pcap_open_live(%s, %d, %d, %d) FAILED. Reported error: %s.  Will wait %d seconds then retry.", pcapdev, snaplen, promisc, to_ms, err0r, (int) pow(5.0, failed));

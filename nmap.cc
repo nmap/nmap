@@ -214,8 +214,8 @@ printf("%s %s ( %s )\n"
        "  --excludefile <exclude_file>: Exclude list from file\n"
        "HOST DISCOVERY:\n"
        "  -sL: List Scan - simply list targets to scan\n"
-       "  -sP: Ping Scan - go no further than determining if host is online\n"
-       "  -PN: Treat all hosts as online -- skip host discovery\n"
+       "  -sn: Ping Scan - disable port scan\n"
+       "  -Pn: Treat all hosts as online -- skip host discovery\n"
        "  -PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports\n"
        "  -PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes\n"
        "  -PO[protocol list]: IP Protocol Ping\n"
@@ -310,8 +310,8 @@ printf("%s %s ( %s )\n"
        "  -h: Print this help summary page.\n"
        "EXAMPLES:\n"
        "  nmap -v -A scanme.nmap.org\n"
-       "  nmap -v -sP 192.168.0.0/16 10.0.0.0/8\n"
-       "  nmap -v -iR 10000 -PN -p 80\n"
+       "  nmap -v -sn 192.168.0.0/16 10.0.0.0/8\n"
+       "  nmap -v -iR 10000 -Pn -p 80\n"
        "SEE THE MAN PAGE (http://nmap.org/book/man.html) FOR MORE OPTIONS AND EXAMPLES\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
   exit(rc);
 }
@@ -1212,7 +1212,7 @@ int nmap_main(int argc, char *argv[]) {
           assert(ports.proto_ping_count > 0);
         }
       } else {
-        fatal("Illegal Argument to -P, use -PN, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, -PY, or -PT80 (or whatever number you want for the TCP probe destination port)");
+        fatal("Illegal Argument to -P, use -Pn, -PO, -PI, -PB, -PE, -PM, -PP, -PA, -PU, -PT, -PY, or -PT80 (or whatever number you want for the TCP probe destination port)");
       }
       break;
     case 'p':
@@ -1236,7 +1236,7 @@ int nmap_main(int argc, char *argv[]) {
       break;
     case 's':
       if (!*optarg) {
-        error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sP (Ping scan)");
+        error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
         printusage(argv[0], -1);
       }
       p = optarg;

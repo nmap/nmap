@@ -710,13 +710,13 @@ quite as efficient as on Unix.  Here are the known limitations:
 interface</primary></indexterm> IP such as 127.0.0.1 or any of its
 registered IP addresses).  This is a Windows limitation that we
 haven't yet worked around.  If you really want to do this, use a TCP
-connect scan without pinging (<option>-sT -PN</option>) as that uses
+connect scan without pinging (<option>-sT -Pn</option>) as that uses
 the high level socket API rather than sending raw
 packets.</para></listitem>
 
 <listitem><para>Nmap only supports ethernet interfaces (including most
 802.11 wireless cards and many VPN clients) for raw packet scans.
-Unless you use the <option>-sT -PN</option> options, RAS connections
+Unless you use the <option>-sT -Pn</option> options, RAS connections
 (such as PPP dialups) and certain VPN clients are not supported.  This
 support was dropped when Microsoft removed raw TCP/IP socket support
 in Windows XP SP2.  Now Nmap must send lower-level ethernet frames

@@ -325,7 +325,7 @@ you would expect.</para>
     the simple ICMP echo request packets associated with the
     ubiquitous <application>ping</application> tool. Users can skip
     the ping step entirely with a list scan (<option>-sL</option>) or
-    by disabling ping (<option>-PN</option>), or engage the network
+    by disabling ping (<option>-Pn</option>), or engage the network
     with arbitrary combinations of multi-port TCP SYN/ACK, UDP, SCTP
     INIT and ICMP probes. The goal of these probes is to solicit
     responses which demonstrate that an IP address is actually active
@@ -365,8 +365,8 @@ you would expect.</para>
     port scan against each host it determines is online.  This is true
     even if you specify non-default host discovery types such as UDP
     probes (<option>-PU</option>).  Read about the
-    <option>-sP</option> option to learn how to perform
-    only host discovery, or use <option>-PN</option> to skip host
+    <option>-sn</option> option to learn how to perform
+    only host discovery, or use <option>-Pn</option> to skip host
     discovery and port scan all target hosts.  The following options
     control host discovery:</para>
 
@@ -399,16 +399,16 @@ you would expect.</para>
           scanning, OS detection, or ping scanning cannot be combined
           with this.  If you wish to disable ping scanning while still
           performing such higher level functionality, read up on the
-          <option>-PN</option> (skip ping) option.</para>
+          <option>-Pn</option> (skip ping) option.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-        <option>-sP</option> (Skip port scan)
-        <indexterm><primary><option>-sP</option></primary></indexterm>
+        <option>-sn</option> (No port scan)
+        <indexterm><primary><option>-sn</option></primary></indexterm>
         <indexterm><primary>ping scan</primary></indexterm>
-        <indexterm><primary>port scan</primary><secondary>disabling with <option>-sP</option></secondary></indexterm>
+        <indexterm><primary>port scan</primary><secondary>disabling with <option>-sn</option></secondary></indexterm>
         </term>
         <listitem>
            <para>This option tells Nmap not to do a port scan after host
@@ -430,7 +430,7 @@ you would expect.</para>
            pinging the broadcast address because many hosts do not
            reply to broadcast queries.</para>
 
-           <para>The <option>-sP</option> option sends an ICMP echo
+           <para>The default host discovery done with <option>-sn</option> consists of an ICMP echo
            request, TCP SYN to port 443, TCP ACK to port 80, and an ICMP
            timestamp request by default.  When
            executed by an unprivileged user, only SYN packets are sent
@@ -439,9 +439,9 @@ you would expect.</para>
            on a local ethernet network, ARP requests
            are used unless
            <option>--send-ip</option> was specified.
-           The <option>-sP</option> option can be combined with any of the
+           The <option>-sn</option> option can be combined with any of the
            discovery probe types (the <option>-P*</option> options,
-           excluding <option>-PN</option>) for greater flexibility.
+           excluding <option>-Pn</option>) for greater flexibility.
            If any of those probe type and port number options are
            used, the default probes are
            overridden.  When strict firewalls are in place between the
@@ -456,8 +456,8 @@ you would expect.</para>
 
       <varlistentry>
         <term>
-          <option>-PN</option> (No ping)
-          <indexterm><primary><option>-PN</option></primary></indexterm>
+          <option>-Pn</option> (No ping)
+          <indexterm><primary><option>-Pn</option></primary></indexterm>
           <indexterm><primary>host discovery</primary><secondary>disabling</secondary></indexterm>
         </term>
         <listitem>
@@ -466,7 +466,7 @@ you would expect.</para>
           for heavier scanning.  By default, Nmap only performs heavy
           probing such as port scans, version detection, or OS
           detection against hosts that are found to be up.  Disabling
-          host discovery with <option>-PN</option> causes Nmap to
+          host discovery with <option>-Pn</option> causes Nmap to
           attempt the requested scanning functions against
           <emphasis>every</emphasis> target IP address specified.  So
           if a class B sized target address space (/16) is specified
@@ -476,7 +476,7 @@ you would expect.</para>
           continues to perform requested functions as if each target
           IP is active. To skip ping scan <emphasis>and</emphasis> port
           scan, while still allowing NSE to run, use the two options
-          <option>-PN -sP</option> together.</para>
+          <option>-Pn -sn</option> together.</para>
           
           <para>For machines on a local ethernet network, ARP
           scanning will still be performed (unless
@@ -2097,7 +2097,7 @@ way.</para>
           open and one closed TCP port are found. Set this option
           and Nmap will not even try OS detection against hosts
           that do not meet this criteria. This can save substantial
-          time, particularly on <option>-PN</option> scans against many hosts. It
+          time, particularly on <option>-Pn</option> scans against many hosts. It
           only matters when OS detection is requested with <option>-O</option> or <option>-A</option>.</para>
         </listitem>
       </varlistentry>
@@ -2465,7 +2465,7 @@ be set to keep the group size within a specific range, though this is
 rarely desired.</para>
 
 <para>These options do not have an effect during the host discovery
-phase of a scan. This includes plain ping scans (<option>-sP</option>).
+phase of a scan. This includes plain ping scans (<option>-sn</option>).
 Host discovery always works in large groups of hosts to improve speed
 and accuracy.</para>
 
@@ -2541,7 +2541,7 @@ scans unresponsive hosts.</para>
 Specifying a lower <option>--max-rtt-timeout</option> and
 <option>--initial-rtt-timeout</option> than the defaults can cut scan
 times significantly.  This is particularly true for pingless
-(<option>-PN</option>) scans, and those against heavily filtered
+(<option>-Pn</option>) scans, and those against heavily filtered
 networks.  Don't get too aggressive though.  The scan can end up
 taking longer if you specify such a low value that many probes are
 timing out and retransmitting while the response is in transit.</para>
@@ -3075,7 +3075,7 @@ services.</para>
           to make the targets think that <emphasis>someone
           else</emphasis> is scanning them. Imagine a company being
           repeatedly port scanned by a competitor!  The
-          <option>-e</option> option and <option>-PN</option> are
+          <option>-e</option> option and <option>-Pn</option> are
           generally required for this sort of usage.  Note that you
           usually won't receive reply packets back (they will be
           addressed to the IP you are spoofing), so Nmap won't produce
@@ -4327,20 +4327,20 @@ overwhelming requests.  Specify <option>--open</option> to only see
 
     <para>
       <indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm>
-      <indexterm><primary><option>-PN</option></primary><secondary>example of</secondary></indexterm>
-      <command>nmap -v -iR 100000 -PN -p 80</command>
+      <indexterm><primary><option>-Pn</option></primary><secondary>example of</secondary></indexterm>
+      <command>nmap -v -iR 100000 -Pn -p 80</command>
     </para>
 
     <para>Asks Nmap to choose 100,000 hosts at random and scan them
     for web servers (port 80).  Host enumeration is disabled with
-    <option>-PN</option> since first sending a couple probes to
+    <option>-Pn</option> since first sending a couple probes to
     determine whether a host is up is wasteful when you are only
     probing one port on each target host anyway.</para>
 
     <para>
       <indexterm><primary><option>-oX</option></primary><secondary>example of</secondary></indexterm>
       <indexterm><primary><option>-oG</option></primary><secondary>example of</secondary></indexterm>
-      <command>nmap -PN -p80 -oX logs/pb-port80scan.xml -oG
+      <command>nmap -Pn -p80 -oX logs/pb-port80scan.xml -oG
       logs/pb-port80scan.gnmap 216.163.128.20/20</command>
     </para>
     <para>This scans 4096 IPs for any web servers (without pinging
