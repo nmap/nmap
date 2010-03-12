@@ -3760,8 +3760,9 @@ normally done after the scan using tools such as
 <application>grep</application>, <application>awk</application>, and
 <application>Perl</application>, but this feature was added due to
 overwhelming requests.  Specify <option>--open</option> to only see
-<literal>open</literal>, <literal>open|filtered</literal>, and
-<literal>unfiltered</literal> ports.  These three ports are treated just as they normally are, which means that <literal>open|filtered</literal> and <literal>unfiltered</literal> may be condensed into counts if there are an overwhelming number of them.
+hosts with at least one
+<literal>open</literal>, <literal>open|filtered</literal>, or
+<literal>unfiltered</literal> port, and only see ports in those states.  These three states are treated just as they normally are, which means that <literal>open|filtered</literal> and <literal>unfiltered</literal> may be condensed into counts if there are an overwhelming number of them.
 </para>
 
         </listitem>
