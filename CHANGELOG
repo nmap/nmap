@@ -18,8 +18,9 @@ o Nmap now honors routing table entries that override interface
   even though it matches the interface's netmask. It won't try to ARP
   ping 192.168.0.3, but will route traffic through 192.168.0.1.
 
-o Fixed the display of route netmask bits in --iflist. Formerly, any
-  mask that was not /32 was shown as /0. [David]
+o Fixed the display of route netmask bits in --iflist on little-endian
+  architectures. Formerly, any mask less than /24 was shown as /0, and
+  other masks were also wrong. [David]
 
 o Fixed an assertion failure:
     nsock_core.c:199: socket_count_write_dec: Assertion `(iod->writesd_count)
