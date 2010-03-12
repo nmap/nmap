@@ -245,9 +245,9 @@ class PortList {
   int numscriptresults; /* Total number of scripts which produced output */
 
   /* Get number of ports in this state. This a sum for protocols. */
-  int getStateCounts(int state);
+  int getStateCounts(int state) const;
   /* Get number of ports in this state for requested protocol. */
-  int getStateCounts(int protocol, int state);
+  int getStateCounts(int protocol, int state) const;
 
   // sname should be NULL if sres is not
   // PROBESTATE_FINISHED_MATCHED. product,version, and/or extrainfo
@@ -299,6 +299,7 @@ class PortList {
   int numIgnoredStates();
   int numIgnoredPorts();
   int numPorts() const;
+  bool hasOpenPorts() const;
 
  private:
   bool mapPort(u16 *portno, u8 *protocol) const;

@@ -567,11 +567,11 @@ void PortList::setIdStr(const char *id) {
 }
 
 
-int PortList::getStateCounts(int protocol, int state){
+int PortList::getStateCounts(int protocol, int state) const {
   return state_counts_proto[INPROTO2PORTLISTPROTO(protocol)][state];
 }
 
-int PortList::getStateCounts(int state){
+int PortList::getStateCounts(int state) const {
   int sum=0, proto;
   for(proto=0; proto < PORTLIST_PROTO_MAX; proto++)
     sum += getStateCounts(PORTLISTPROTO2INPROTO(proto), state);
@@ -871,6 +871,13 @@ int PortList::numPorts() const {
     num += port_list_count[proto];
 
   return num;
+}
+
+/* Return true if any of the ports are potentially open. */
+bool PortList::hasOpenPorts() const {
+  return getStateCounts(PORT_OPEN) != 0 ||
+    getStateCounts(PORT_OPENFILTERED) != 0 ||
+    getStateCounts(PORT_UNFILTERED) != 0;
 }
 
 int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr) {
