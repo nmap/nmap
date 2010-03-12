@@ -3668,9 +3668,11 @@ bool route_dst(const struct sockaddr_storage * const dst,
     rnfo->ii = *routes[i].device;
     /* At this point we don't whether this route is direct or indirect ("G" flag
        in netstat). We guess that a route is direct when the gateway address is
-       0.0.0.0 or it exactly matches the interface address. */
+       0.0.0.0, when it exactly matches the interface address, or when it
+       exactly matches the destination address. */
     rnfo->direct_connect = (routes[i].gw.s_addr == 0) ||
-      (routes[i].gw.s_addr == ((struct sockaddr_in *) &routes[i].device->addr)->sin_addr.s_addr);
+      (routes[i].gw.s_addr == ((struct sockaddr_in *) &routes[i].device->addr)->sin_addr.s_addr) ||
+      (routes[i].gw.s_addr == dstsin->sin_addr.s_addr);
     if (!o.spoofsource)
       rnfo->srcaddr = routes[i].device->addr;
     ifsin = (struct sockaddr_in *) &rnfo->nexthop;
