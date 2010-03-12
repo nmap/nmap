@@ -95,6 +95,7 @@
 #endif
 #include "portreasons.h"
 #include <dnet.h>
+#include <net/if_arp.h>
 #include "tcpip.h"
 #include "NmapOps.h"
 #include "Target.h"
@@ -2522,6 +2523,20 @@ static bool NmapArpCache(int command, struct sockaddr_storage *ss, u8 *mac) {
   return true;
 }
 
+/* Returns true if the captured frame is ARP. This function understands the
+   datalink types DLT_EN10MB and DLT_LINUX_SLL. */
+static bool frame_is_arp(const u8 *frame, int datalink) {
+  if (datalink == DLT_EN10MB) {
+    return ntohs(*((u16 *) (frame + 12))) == ETH_TYPE_ARP;
+  } else if (datalink == DLT_LINUX_SLL) {
+    return ntohs(*((u16 *) (frame + 2))) == ARPHRD_ETHER && /* sll_hatype */
+      ntohs(*((u16 *) (frame + 4))) == 6 && /* sll_halen */
+      ntohs(*((u16 *) (frame + 14))) == ETH_TYPE_ARP; /* sll_protocol */
+  } else {
+    return false;
+  }
+}
+
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
@@ -2538,6 +2553,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   u8 *p;
   int timedout = 0;
   int badcounter = 0;
+  unsigned int offset;
   struct timeval tv_start, tv_end;
 
   if (!pd)
@@ -2555,8 +2571,14 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   if ((datalink = pcap_datalink(pd)) < 0)
     fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
 
-  if (datalink != DLT_EN10MB)
-    fatal("%s called on interfaces that is datatype %d rather than DLT_EN10MB (%d)", __func__, datalink, DLT_EN10MB);
+  if (datalink == DLT_EN10MB) {
+    offset = ETH_HDR_LEN;
+  } else if (datalink == DLT_LINUX_SLL) {
+    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
+    offset = 16;
+  } else {
+    fatal("%s called on interface that is datatype %d rather than DLT_EN10MB (%d) or DLT_LINUX_SLL (%d)", __func__, datalink, DLT_EN10MB, DLT_LINUX_SLL);
+  }
 
   if (to_usec > 0) {
     gettimeofday(&tv_start, NULL);
@@ -2582,14 +2604,14 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     else
       p = (u8 *) pcap_next(pd, &head);
 
-    if (p && head.caplen >= 42) { /* >= because Ethernet padding makes 60 */
-      /* frame type 0x0806 (arp), hw type eth (0x0001), prot ip (0x0800),
+    if (p && head.caplen >= offset + 28) {
+      /* hw type eth (0x0001), prot ip (0x0800),
          hw size (0x06), prot size (0x04) */
-      if (memcmp(p + 12, "\x08\x06\x00\x01\x08\x00\x06\x04\x00\x02", 10) ==
-          0) {
-        memcpy(sendermac, p + 22, 6);
+      if (frame_is_arp(p, datalink) &&
+        memcmp(p + offset, "\x00\x01\x08\x00\x06\x04\x00\x02", 8) == 0) {
+        memcpy(sendermac, p + offset + 8, 6);
         /* I think alignment should allow this ... */
-        memcpy(&senderIP->s_addr, p + 28, 4);
+        memcpy(&senderIP->s_addr, p + offset + 14, 4);
         break;
       }
     }
@@ -2631,7 +2653,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
     assert(head.ts.tv_sec);
 #endif
   }
-  PacketTrace::traceArp(PacketTrace::RCVD, (u8 *) p + ETH_HDR_LEN, ARP_HDR_LEN + ARP_ETHIP_LEN, rcvdtime);
+  PacketTrace::traceArp(PacketTrace::RCVD, (u8 *) p + offset, ARP_HDR_LEN + ARP_ETHIP_LEN, rcvdtime);
 
   return 1;
 }

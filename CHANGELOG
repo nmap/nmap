@@ -2,6 +2,15 @@
 
 [NOT YET RELEASED]
 
+o ARP requests now work with libpcap Linux "cooked" encapsulation.
+  According to http://wiki.wireshark.org/SLL, this encapsulation is
+  used on devices "where the native link layer header isn't available
+  or can't be used." Before this, attempting any ARP operation on such
+  an interface would fail with the error
+    read_arp_reply_pcap called on interfaces that is datatype 113
+      rather than DLT_EN10MB (1)
+  [David]
+
 o Nmap now honors routing table entries that override interface
   addresses and netmasks. For example, with this configuration:
 
