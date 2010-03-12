@@ -1766,7 +1766,7 @@ int nmap_main(int argc, char *argv[]) {
       /* I used to check that !currenths->weird_responses, but in some
 	 rare cases, such IPs CAN be port successfully scanned and even connected to */
       if (!(currenths->flags & HOST_UP)) {
-	if (o.verbose) {
+	if (o.verbose && (!o.openOnly() || currenths->ports.hasOpenPorts())) {
 	  log_write(LOG_XML, "<host>");
 	  write_host_header(currenths);
 	  log_write(LOG_XML, "</host>\n");
@@ -1914,16 +1914,21 @@ int nmap_main(int argc, char *argv[]) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       currenths = Targets[targetno];
       /* Now I can do the output and such for each host */
-      log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
-		(unsigned long) currenths->StartTime(),
-		(unsigned long) currenths->EndTime());
-      write_host_header(currenths);
       if (currenths->timedOut(NULL)) {
+        write_host_header(currenths);
 	log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n", 
 		  currenths->NameIP(hostname, sizeof(hostname)));
 	log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 
 		  currenths->targetipstr(), currenths->HostName());
       } else {
+        /* --open means don't show any hosts without open ports. */
+        if (o.openOnly() && !currenths->ports.hasOpenPorts())
+          continue;
+
+        log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
+                  (unsigned long) currenths->StartTime(),
+                  (unsigned long) currenths->EndTime());
+        write_host_header(currenths);
 	printportoutput(currenths, &currenths->ports);
 	printmacinfo(currenths);
 	printosscanoutput(currenths);
@@ -1931,15 +1936,12 @@ int nmap_main(int argc, char *argv[]) {
 #ifndef NOLUA
 	printhostscriptresults(currenths);
 #endif
+        if (o.traceroute)
+          printtraceroute(currenths);
+        printtimes(currenths);
+        log_write(LOG_PLAIN|LOG_MACHINE,"\n");
+        log_write(LOG_XML, "</host>\n");
       }
-    
-      if (o.traceroute)
-        printtraceroute(currenths);
-
-      printtimes(currenths);
-
-      log_write(LOG_PLAIN|LOG_MACHINE,"\n");
-      log_write(LOG_XML, "</host>\n");
     }
     log_flush_all();
 
