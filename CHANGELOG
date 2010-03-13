@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the smtp-enum-users script from Duarte Silva, which
+  attempts to find user account names over SMTP.
+
 o ARP requests now work with libpcap Linux "cooked" encapsulation.
   According to http://wiki.wireshark.org/SLL, this encapsulation is
   used on devices "where the native link layer header isn't available
