@@ -242,8 +242,8 @@ o [NSE] Added a new script, db2-das-info.nse, that connects to the
   set the port product and version if a version scan is requested. 
   [Patrik Karlsson, Tom Sellers]
 
-o Updated IANA assignment IP list for random IP (-iR) generation.  Now
-  even 001/8 has been allocated. [Kris]
+o Updated and corrected IANA assignment IP list for random IP (-iR)
+  generation.  Now even 001/8 has been allocated. [Kris]
 
 Nmap 5.21 [2010-01-27]
 

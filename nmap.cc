@@ -362,6 +362,8 @@ static int ip_is_reserved(struct in_addr *ip)
     case 49:        /* 049/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
+    case 176:       /* 176/8 is IANA reserved       */
+    case 177:       /* 177/8 is IANA reserved       */
     case 179:       /* 179/8 is IANA reserved       */
     case 181:       /* 181/8 is IANA reserved       */
     case 185:       /* 185/8 is IANA reserved       */
@@ -379,29 +381,33 @@ static int ip_is_reserved(struct in_addr *ip)
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
     return 1;
 
-  /* 176-177/8 is IANA reserved */
-  if (i1 >= 176 && i1 <= 177)
-    return 1;
-  
-  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
-  /* 192.0.2.0/24 is reserved for documentation and examples */
+  /* 192.0.2.0/24 is reserved for documentation and examples (RFC5737) */
   /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
+  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
   if (i1 == 192) {
-    if (i2 == 168)
-      return 1;
     if (i2 == 0 && i3 == 2)
       return 1;
     if (i2 == 88 && i3 == 99)
       return 1;
+    if (i2 == 168)
+      return 1;
   }
 
   /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
-  if (i1 == 198 && i2 == 18 && i3 >= 1 && i3 <= 64) {
-    return 1;
+  /* 198.51.100.0/24 is reserved for documentation (RFC5737) */
+  if (i1 == 198) {
+    if (i2 == 18 || i2 == 19)
+      return 1;
+    if (i2 == 51 && i3 == 100)
+      return 1;
   }
 
-  /* reserved for DHCP clients seeking addresses, not routable outside LAN */
+  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses */
   if (i1 == 169 && i2 == 254)
+    return 1;
+ 
+  /* 203.0.113.0/24 is reserved for documentation (RFC5737) */
+  if (i1 == 203 && i2 == 0 && i3 == 113)
     return 1;
 
   /* 224-239/8 is all multicast stuff */
