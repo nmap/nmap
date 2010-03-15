@@ -2,6 +2,13 @@
 
 [NOT YET RELEASED]
 
+o [Ncat] The HTTP proxy server now accepts client connections over
+  SSL. That means connections to the proxy can be encrypted and
+  authenticated. We haven't found any HTTP clients that directly
+  support SSL connections to proxies, but you can use Ncat as a tunnel
+  to an SSL-supporting Ncat proxy. This new feature was implemented by
+  Markus Klinik.
+
 o [NSE] Added the smtp-enum-users script from Duarte Silva, which
   attempts to find user account names over SMTP.
 
