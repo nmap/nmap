@@ -361,22 +361,39 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
   const EVP_CIPHER * evp_cipher = EVP_get_cipherbyname( algorithm );
   if (!evp_cipher) return luaL_error( L, "Unknown cipher algorithm: %s", algorithm );
 
-  size_t data_len;
-  const unsigned char *key = (unsigned char *) luaL_checkstring( L, 2 );
-  const unsigned char *iv = (unsigned char *) luaL_optstring( L, 3, "" );
+  size_t key_len, iv_len, data_len;
+  const unsigned char *key = (unsigned char *) luaL_checklstring( L, 2, &key_len );
+  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, "", &iv_len );
   const unsigned char *data = (unsigned char *) luaL_checklstring( L, 4, &data_len );
   int padding = lua_toboolean( L, 5 );
+  if (iv[0] == '\0')
+    iv = NULL;
 
   EVP_CIPHER_CTX cipher_ctx;
   EVP_CIPHER_CTX_init( &cipher_ctx );   
+
+  /* First create the cipher context, then set the key length and padding, and
+     check the iv length. Below we set the key and iv. */
+  if (!(
+      EVP_EncryptInit_ex( &cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
+      EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
+      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
+    unsigned long e = ERR_get_error();
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+                       ERR_func_error_string(e), ERR_reason_error_string(e));
+  }
+
+  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( &cipher_ctx )) {
+    return luaL_error( L, "Length of iv is %d; should be %d",
+      (int) iv_len, EVP_CIPHER_CTX_iv_length( &cipher_ctx ));
+  }
 
   int out_len, final_len;
   unsigned char * out = (unsigned char *) malloc( data_len + EVP_MAX_BLOCK_LENGTH );
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_EncryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, *iv ? iv : NULL ) &&
-      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ) &&
+      EVP_EncryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, iv ) &&
       EVP_EncryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
       EVP_EncryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
@@ -400,22 +417,37 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
   const EVP_CIPHER * evp_cipher = EVP_get_cipherbyname( algorithm );
   if (!evp_cipher) return luaL_error( L, "Unknown cipher algorithm: %s", algorithm );
 
-  size_t data_len;
-  const unsigned char *key = (unsigned char *) luaL_checkstring( L, 2 );
-  const unsigned char *iv = (unsigned char *) luaL_optstring( L, 3, "" );
+  size_t key_len, iv_len, data_len;
+  const unsigned char *key = (unsigned char *) luaL_checklstring( L, 2, &key_len );
+  const unsigned char *iv = (unsigned char *) luaL_optlstring( L, 3, "", &iv_len );
   const unsigned char *data = (unsigned char *) luaL_checklstring( L, 4, &data_len );
   int padding = lua_toboolean( L, 5 );
+  if (iv[0] == '\0')
+    iv = NULL;
 
   EVP_CIPHER_CTX cipher_ctx;
   EVP_CIPHER_CTX_init( &cipher_ctx );   
+
+  if (!(
+      EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, NULL, NULL ) &&
+      EVP_CIPHER_CTX_set_key_length( &cipher_ctx, key_len ) &&
+      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ))) {
+    unsigned long e = ERR_get_error();
+    return luaL_error( L, "OpenSSL error %d in %s: function %s: %s", e, ERR_lib_error_string(e), 
+                       ERR_func_error_string(e), ERR_reason_error_string(e));
+  }
+
+  if (iv != NULL && (int) iv_len != EVP_CIPHER_CTX_iv_length( &cipher_ctx )) {
+    return luaL_error( L, "Length of iv is %d; should be %d",
+      (int) iv_len, EVP_CIPHER_CTX_iv_length( &cipher_ctx ));
+  }
 
   int out_len, final_len;
   unsigned char * out = (unsigned char *) malloc( data_len );
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, *iv ? iv : NULL ) &&
-      EVP_CIPHER_CTX_set_padding( &cipher_ctx, padding ) &&
+      EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, iv ) &&
       EVP_DecryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
       EVP_DecryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
