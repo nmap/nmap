@@ -27,24 +27,9 @@ o [NSE] Improve username/password library (the database files
   o perhaps add phpbb hack data (there is at least a list of 28,635
     passwords in phpbb_users.sql, and possibly more in other files.
 
-o After the new -sn and -Pn options (added to SVN around 7/20, just
-  after the 5.00 release) have been around long enough to be in most
-  people's copy of Nmap (e.g. in all the versions we distribute from
-  download page (stable+dev)) for at least a few months, we'll document
-  these as the preferred version rather than -sP and -PN.  These match
-  -n, and the main problem with -sP is that we now use it more for
-  "disable portscan" than ping only.  For example, you can also use
-  NSE, traceroute, etc. [David]
-
-o Nmap currently selects routes based on the first matching one it
-  finds.  But it should really take the most specific route instead.
-  So it should:
-  1) Keep searching the routing table for the most specific match, and
-  2) Use a stable sort (not qsort) so that routes with identical
-     netmasks aren't rearranged.
-  For more, see http://seclists.org/nmap-dev/2010/q1/685
-
-o Create new default username list: http://seclists.org/nmap-dev/2010/q1/798
+o Test 64-bit pcap installer (e.g. remove old version and install new)
+  before next release, as we've applied a change from Rob which works on
+  his system (http://seclists.org/nmap-dev/2010/q1/796).
 
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
@@ -53,13 +38,6 @@ o Review afp-serverinfo.nse from Andrew Orr.
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/270
-
-o Add smtp-enum-users from Duarte Silva if testing is favorable.
-  http://seclists.org/nmap-dev/2010/q1/699
-
-o Review snmpenum.nse from William Njuguna.
-  http://seclists.org/nmap-dev/2009/q4/721
-  http://seclists.org/nmap-dev/2010/q1/656
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
@@ -75,6 +53,9 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
 
+o Add Nmap web board/forum
+ - First step is looking at the available software for this.
+
 o Test Jay Fink's UDP payload prototype.
   http://seclists.org/nmap-dev/2010/q1/168
 
@@ -86,8 +67,6 @@ o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
-
-o Add Nmap web board.
 
 o Create Nmap wiki
 
@@ -151,6 +130,15 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
+o Create new default username list:
+  http://seclists.org/nmap-dev/2010/q1/798
+  o Could be a SoC Ncrack task, though should prove useful for Nmap
+    too
+  o We probably want to support several lists.  Like an admin/default
+    list like "root", "admin", "administrator", "web", "user", "test",
+    and also a general list which we obtain from spidering from
+    emails, etc.
+
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
@@ -200,9 +188,6 @@ o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
   to migrate theirs there.  Unlike the status directory, /nmap/todo
   would be readible by anyone. [Fyodor]
-
-o Maybe the Nmap ASCII art should come after make rather than
-  configure?
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
@@ -266,9 +251,6 @@ o [NSE] We may want to consider a better exception handling method --
   function will return there whenever there's an unhandled error.
   Something based on that would be better [than the current system], I
   think."
-
-o [NSE] Look into moving packet module to C for better performance
-  [Patrick]
 
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
@@ -514,6 +496,44 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Look into moving packet module to C for better performance
+  [Patrick]
+  o Removing this one because it is stale (has been here for many
+    months with no action seen), but it is something we can consider
+    if/when there is a desire to implement it.  A key is probably to
+    measure current performance and see if it is a material problem.
+
+o Maybe the Nmap ASCII art should come after make rather than
+  configure?
+  - We decided it would probably be annoying for developers to see it
+    every time they 'make'.
+
+o Review snmpenum.nse from William Njuguna.
+  http://seclists.org/nmap-dev/2009/q4/721
+  http://seclists.org/nmap-dev/2010/q1/656
+  o Dropping for now unless original author or someone else picks it
+  up and fixes the bugs.
+
+o Add smtp-enum-users from Duarte Silva if testing is favorable.
+  http://seclists.org/nmap-dev/2010/q1/699
+
+o After the new -sn and -Pn options (added to SVN around 7/20, just
+  after the 5.00 release) have been around long enough to be in most
+  people's copy of Nmap (e.g. in all the versions we distribute from
+  download page (stable+dev)) for at least a few months, we'll document
+  these as the preferred version rather than -sP and -PN.  These match
+  -n, and the main problem with -sP is that we now use it more for
+  "disable portscan" than ping only.  For example, you can also use
+  NSE, traceroute, etc. [David]
+
+o Nmap currently selects routes based on the first matching one it
+  finds.  But it should really take the most specific route instead.
+  So it should:
+  1) Keep searching the routing table for the most specific match, and
+  2) Use a stable sort (not qsort) so that routes with identical
+     netmasks aren't rearranged.
+  For more, see http://seclists.org/nmap-dev/2010/q1/685
 
 o Review pgsql-brute.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/455
