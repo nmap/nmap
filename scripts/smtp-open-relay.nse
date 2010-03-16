@@ -8,8 +8,8 @@ be able to send email originating from any third-party email address that they w
 
 The checks are done based in combinations of MAIL FROM and RCPT TO commands. The list is
 hardcoded in the source file. The script will output all the working combinations that the
-server allows, or none if the server requires authentication or if there wasn't any working
-combinations.
+server allows if nmap is in verbose mode otherwise the script will print the number of
+successful tests. The script will not output if the server requires authentication. 
 
 If debug is enabled and an error occurrs while testing the target host, the error will be
 printed with the list of any combinations that were found prior to the error.
@@ -17,18 +17,20 @@ printed with the list of any combinations that were found prior to the error.
 
 ---
 -- @usage
--- nmap --script smtp-open-relay.nse [--script-args smtp-open-relay.domain=<domain>,smtp-open-relay.ip=<address>] -p 25,465,587 <host>
+-- nmap --script smtp-open-relay.nse [--script-args smtp-open-relay.domain=<domain>,smtp-open-relay.ip=<address>,...] -p 25,465,587 <host>
 --
 -- @output
 -- Host script results:
 -- | smtp-open-relay:  
--- |   MAIL FROM:<antispam@[10.0.1.2]> -> RCPT TO:<"relaytest@nmap.scanme.org">
--- |   MAIL FROM:<antispam@[10.0.1.2]> -> RCPT TO:<"relaytest%nmap.scanme.org">
--- |_  MAIL FROM:<antispam@[10.0.1.2]> -> RCPT TO:<nmap.scanme.org!relaytest>
+-- |_  Server seems to be an open relay, 2 successful test(s)
 --
 -- @args smtp-open-relay.domain Define the domain to be used in the anti-spam tests and EHLO command (default
 -- is nmap.scanme.org)
 -- @args smtp-open-relay.ip Use this to change the IP address to be used (default is the target IP address)
+-- @args smtp-open-relay.from Define the source email address to be used (without the domain, default is
+-- antispam)
+-- @args smtp-open-relay.to Define the destination email address to be used (without the domain, default is
+-- relaytest)
 --
 -- @changelog
 -- 2007-05-16 Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>
@@ -59,6 +61,8 @@ printed with the list of any combinations that were found prior to the error.
 -- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
 --   * Fixed socket left open when receive_lines function call fails
 --   * Minor comments changes
+-- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
+--   * Made the script a little more verbose
 -----------------------------------------------------------------------
 
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
@@ -70,6 +74,12 @@ require "comm"
 
 portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submission" })
 
+ERROR_MESSAGES = {
+	["EOF"] = "connection closed",
+	["TIMEOUT"] = "connection timeout",
+	["ERROR"] = "failed to receive data"
+}
+
 ---Send a command and read the response (this function does exception handling, and if an
 -- exception occurs, it will close the socket).
 --
@@ -77,7 +87,7 @@ portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submi
 --@param request Command to be sent
 --@return False in case of failure
 --@return True and the response in case of success
-function dorequest(socket, request)
+function do_request(socket, request)
 	-- Exception handler.
 	local catch = function()
 		socket:close()
@@ -95,35 +105,18 @@ function dorequest(socket, request)
 		-- Close the socket (the call to receive_lines doesn't use try).
 		socket:close()
 
-		-- Supported error messages.
-		local messages = {
-			["EOF"] = "connection closed",
-			["TIMEOUT"] = "connection timeout",
-			["ERROR"] = "failed to receive data"
-		}
-
-		return false, (messages[response] or "unspecified error, for more information use --script-trace")
+		return false, (ERROR_MESSAGES[response] or "unspecified error")
 	end
 
 	return true, response
 end
 
-function go(host, port)
-	local domain = "nmap.scanme.org"
-	local ip = host.ip
-	local socket = nmap.new_socket()
-	local options = {
-		timeout = 10000,
-		recv_before = true
-	}
-
-	socket:set_timeout(5000)
-
-	-- Be polite and when everything works out send the QUIT message.
-	local quit = function()
-		dorequest(socket, "QUIT\r\n")
-		socket:close()
-	end
+---Gets the user specified parameters to be used in the tests.
+--
+--@param host Target host (used for the ip parameter default value)
+--@return Domain, from, to and ip to be used in the tests
+function get_parameters(host)
+	local domain, from, to, ip = "nmap.scanme.org", "antispam", "relaytest", host.ip
 
 	-- Use the user provided options.
 	if (nmap.registry.args["smtp-open-relay.domain"] ~= nil) then
@@ -134,6 +127,34 @@ function go(host, port)
 		ip = nmap.registry.args["smtp-open-relay.ip"]
 	end
 	
+	if (nmap.registry.args["smtp-open-relay.to"] ~= nil) then
+		to = nmap.registry.args["smtp-open-relay.to"]
+	end
+	
+	if (nmap.registry.args["smtp-open-relay.from"] ~= nil) then
+		from = nmap.registry.args["smtp-open-relay.from"]
+	end
+	
+	return domain, from, to, ip
+end
+
+function go(host, port)
+	local socket = nmap.new_socket()
+	local options = {
+		timeout = 10000,
+		recv_before = true
+	}
+
+	socket:set_timeout(5000)
+
+	-- Be polite and when everything works out send the QUIT message.
+	local quit = function()
+		do_request(socket, "QUIT\r\n")
+		socket:close()
+	end
+	
+	local domain, from, to, ip = get_parameters(host)
+
 	-- Try to connect to server.
 	local response
 
@@ -154,22 +175,22 @@ function go(host, port)
 	
 	-- Antispam tests.
 	local tests = {
-		{ from = "MAIL FROM:<>", to = string.format("RCPT TO:<relaytest@%s>", domain) },
-		{ from = string.format("MAIL FROM:<antispam@%s>", domain), to = string.format("RCPT TO:<relaytest@%s>", domain) },
-		{ from = string.format("MAIL FROM:<antispam@%s>", srvname), to = string.format("RCPT TO:<relaytest@%s>", domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<relaytest@%s>", domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<relaytest%%%s@[%s]>", domain, ip) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<relaytest%%%s@%s>", domain, srvname) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<\"relaytest@%s\">", domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<\"relaytest%%%s\">", domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<relaytest@%s@[%s]>", domain, ip) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<\"relaytest@%s\"@[%s]>", domain, ip) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<relaytest@%s@%s>", domain, srvname) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<@[%s]:relaytest@%s>", ip, domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<@%s:relaytest@%s>", srvname, domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<%s!relaytest>", domain) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<%s!relaytest@[%s]>", domain, ip) },
-		{ from = string.format("MAIL FROM:<antispam@[%s]>", ip), to = string.format("RCPT TO:<%s!relaytest@%s>", domain, srvname) },
+		{ from = "MAIL FROM:<>", to = string.format("RCPT TO:<%s@%s>", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@%s>", from, domain), to = string.format("RCPT TO:<%s@%s>", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@%s>", from, srvname), to = string.format("RCPT TO:<%s@%s>", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s@%s>", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s%%%s@[%s]>", to, domain, ip) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s%%%s@%s>", to, domain, srvname) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<\"%s@%s\">", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<\"%s%%%s\">", to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s@%s@[%s]>", to, domain, ip) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<\"%s@%s\"@[%s]>", to, domain, ip) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s@%s@%s>", to, domain, srvname) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<@[%s]:%s@%s>", ip, to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<@%s:%s@%s>", srvname, to, domain) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s!%s>", domain, to) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s!%s@[%s]>", domain, to, ip) },
+		{ from = string.format("MAIL FROM:<%s@[%s]>", from, ip), to = string.format("RCPT TO:<%s!%s@%s>", domain, to, srvname) },
 	}
 	
 	local result = {}
@@ -181,9 +202,7 @@ function go(host, port)
 	-- debug flag is enabled the error message will be appended to the combinations list.
 	local failure = function(message)
 		if #result > 0 then
-			if nmap.debugging() > 0 then
-				table.insert(result, string.format("ERROR: %s", message))
-			end
+			table.insert(result, message)
 
 			return true, result
 		else
@@ -192,7 +211,7 @@ function go(host, port)
 	end
 	
 	for index = 1, table.getn(tests), 1 do
-		status, response = dorequest(socket, "RSET\r\n")
+		status, response = do_request(socket, "RSET\r\n")
 
 		if not status then
 			return failure(string.format("Failed to issue RSET command (%s)", response))
@@ -205,12 +224,12 @@ function go(host, port)
 			if string.match(response, "^530") then
 				return false, "Server isn't an open relay, authentication needed"
 			else
-				return false, "Unable to clear server envelope"
+				return false, "Unable to clear server envelope, testing stoped"
 			end
 		end
 
 		-- Lets try to issue MAIL FROM command.
-		status, response = dorequest(socket, string.format("%s\r\n", tests[index]["from"]))
+		status, response = do_request(socket, string.format("%s\r\n", tests[index]["from"]))
 
 		-- If this command fails to be sent, then something went wrong with the connection.
 		if not status then
@@ -225,7 +244,7 @@ function go(host, port)
 		-- The command was accepted (otherwise, the script will step to the next test).
 		elseif string.match(response, "^250") then
 			-- Lets try to actually relay.
-			status, response = dorequest(socket, string.format("%s\r\n", tests[index]["to"]))
+			status, response = do_request(socket, string.format("%s\r\n", tests[index]["to"]))
 
 			if not status then
 				return failure(string.format("Failed to issue %s command (%s)", tests[index]["to"], response))
@@ -233,10 +252,10 @@ function go(host, port)
 
 			if string.match(response, "^530") then
 				quit()
-				return false, "Server isn't an open relay, authentication needed"
+				return "Server isn't an open relay, authentication needed"
 			elseif string.match(response, "^250") then
 				-- Save the working from and to combination.
-				table.insert(result, string.format("%s - > %s", tests[index]["from"], tests[index]["to"]))
+				table.insert(result, string.format("%s -> %s", tests[index]["from"], tests[index]["to"]))
 			end
 		end
 	end
@@ -248,10 +267,21 @@ end
 action = function(host, port)
 	local status, result = go(host, port)
 
-	-- No combinations found.
-	if #result == 0 then
-		return stdnse.format_output(false, "All tests failed, server doesn't seem to be an open relay")
+	if not status then
+		return stdnse.format_output(true, result)
+	else
+		-- Combinations were found. If verbosity is active, the script will print all
+		-- the successful tests. Otherwise it will only print the conclusion.
+		if #result > 0 then
+			if nmap.verbosity() > 1 then
+				table.insert(result, "Server seems to be an open relay")
+			else
+				result = string.format("Server seems to be an open relay, %i successful test(s)", (#result))
+			end
+			
+			return stdnse.format_output(true, result)
+		end
+	
+		return stdnse.format_output(true, "All tests failed, server doesn't seem to be an open relay")
 	end
-
-	return stdnse.format_output(status, result)
 end
