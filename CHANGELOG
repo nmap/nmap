@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o Improved the passwords.lst database used by NSE by combining several
+  databases collected by Ron Bowes.
+
 o [Ncat] The HTTP proxy server now accepts client connections over
   SSL. That means connections to the proxy can be encrypted and
   authenticated. We haven't found any HTTP clients that directly
