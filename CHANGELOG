@@ -2,6 +2,10 @@
 
 [NOT YET RELEASED]
 
+o Fixed the packaging of x64 versions of WinPcap drivers in the
+  winpcap-nmap installer. 64-bit applications that used WinPcap (like
+  Wireshark) would fail. [Rob Nicholls]
+
 o Improved the passwords.lst database used by NSE by combining several
   databases collected by Ron Bowes.
 

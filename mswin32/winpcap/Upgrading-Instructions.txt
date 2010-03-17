@@ -1,4 +1,4 @@
-How to upgrade Nmap to a new WinPcap release (2009)
+How to upgrade Nmap to a new WinPcap release (2010)
 ---------------------------------------------------
 
 1) Download the latest version of WinPcap from www.winpcap.org and make
@@ -10,26 +10,49 @@ How to upgrade Nmap to a new WinPcap release (2009)
    the license text from the installer into the LICENSE file which should
    be saved as PC file format (not UNIX) and ANSI encoding (not UTF-8).
 
+3) Extract the required files from the setup file using 7-Zip
+   (http://www.7-zip.org/). The installed files at time of writing are:
 
-3) Extract all the files from the setup file using 7-Zip
-   (http://www.7-zip.org/). Enter the $SYSDIR subdirectory. One by one,
-   extract (you can drag and drop) the different copies of the files.
-   Copy the files into the mswin32/winpcap directory (you may need to 
-   install WinPcap in order to determine the correct files; if you get
-   two similar looking files it's usually the smaller one). The installed
-   files at time of writing are:
-
+   x86:
         C:\Program Files\WinPcap\rpcapd.exe
         C:\Windows\system32\Packet.dll
         C:\Windows\system32\pthreadVC.dll
         C:\Windows\system32\wpcap.dll
         C:\Windows\system32\drivers\npf.sys
-   
-   The Vista version of Packet.dll needs to be extracted into the
-   mswin32/winpcap/vista subdirectory. Right click on each Packet.dll,
+
+   x64:
+        C:\Program Files\WinPcap\rpcapd.exe
+        C:\Windows\SysWOW64\Packet.dll
+        C:\Windows\system32\Packet.dll
+        C:\Windows\SysWOW64\pthreadVC.dll
+        C:\Windows\SysWOW64\wpcap.dll
+        C:\Windows\system32\wpcap.dll
+        C:\Windows\system32\drivers\npf.sys
+
+   Check the Details tab to identify the NT5/NT6/AMD64 files. You will need to
+   extract the files (you can auto rename them to ensure all the files are there)
+   in order to view the descriptions.
+
+   We do not support NT4, so those files are not required.
+
+   The smaller NT5 version of Packet.dll needs to be extracted into the
+   mswin32/winpcap/nt5/x86 subdirectory. The larger NT5 version of
+   Packet.dll needs to be extracted into the mswin32/winpcap/nt5/x64
+   subdirectory.
+
+   The smaller Vista version of Packet.dll needs to be extracted into the
+   mswin32/winpcap/vista/x86 subdirectory. The larger Vista version of
+   Packet.dll needs to be extracted into the mswin32/winpcap/vista/x64
+   subdirectory.
+
+   The smaller version of wpcap.dll needs to be extracted into the
+   mswin32/winpcap subdirectory. The larger version of wpcap.dll
+   needs to be extracted into the mswin32/winpcap/x64 subdirectory.
+
+   The x86 version of npf.sys needs to be extracted into the
+   mswin32/winpcap subdirectory. Right click on each npf.sys,
    click "Properties", then select the "Version" tab. The
-   "Description:" field will have a string containing "NT4", "NT5", or
-   "Vista". We don't support NT4, so those files are not required.
+   "Description:" field will have a string containing "x86".
 
    The AMD64 version of npf.sys needs to be extracted into the
    mswin32/winpcap/x64 subdirectory. Right click on each npf.sys,
@@ -49,16 +72,23 @@ How to upgrade Nmap to a new WinPcap release (2009)
     var /GLOBAL my_ver
     StrCpy $my_ver "X.X.X.X"  <-- file version goes here
 
-6) Generate installer exe by compiling winpcap-nmap.nsi using the
+6) Generate the installer by compiling winpcap-nmap.nsi using the
    running the command
         makensis winpcap-nmap.nsi
+   Alternately, you can right click the script and select "Compile NSIS Script".
    makensis is part of the "Nullsoft Scriptable Install System" at
    http://nsis.sourceforge.net/.
 
 7) Give the installer a test, make sure the correct version appears in
    the installer's name and in Add/Remove Programs. You may also want to
    try installing it when it is already installed or an older version is
-   installed.
+   installed. Ideally this should be tested on as many platforms as possible.
+   The following should be a sufficient minimum, as Windows XP x64 is based
+   on 2003 x64, 2008 is based on Vista and 2008R2 is the same codebase as 7:
+        Windows XP
+        Windows 2003 x64
+        Windows Vista
+        Windows 7 x64
 
 8) Open mswin32/nsis/Nmap.nsi and update the references to the winpcap
    installer's name. You should only have to change the version number.

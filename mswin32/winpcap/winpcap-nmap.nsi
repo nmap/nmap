@@ -354,12 +354,11 @@ Section "WinPcap" SecWinPcap
   StrCpy $R0 $R0 2 
   StrCmp $R0 '6.' vista_files
 
-  File Packet.dll
-  ; WanPacket.dll no longer present as of 4.1.0
+  File nt5\x86\Packet.dll
   Goto install
 
   vista_files:
-    File vista\Packet.dll
+    File vista\x86\Packet.dll
 
   install:
     
@@ -399,6 +398,20 @@ Section "WinPcap" SecWinPcap
       ; disable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
       File x64\npf.sys ; x64 NT5/NT6 version
+      ; The x86 versions of wpcap.dll and packet.dll are 
+      ; installed into the right place further above.
+      ; install the 64-bit version of wpcap.dll into System32
+	  SetOutPath $SYSDIR
+      File x64\wpcap.dll ; x64 NT5/NT6 version
+      ; install the 64-bit version of packet.dll into System32
+      ; check for vista, otherwise install the NT5 version (for XP and 2003)
+      StrCpy $R0 $R0 2 
+      StrCmp $R0 '6.' vista_x64_packet
+      File nt5\x64\Packet.dll ; x64 XP/2003 version
+      Goto nt5_x64_packet_done
+      vista_x64_packet:
+      File vista\x64\Packet.dll ; x64 Vista version
+      nt5_x64_packet_done:
 	  WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES64\WinPcap"
       ; re-enable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
@@ -460,9 +473,9 @@ Section "Uninstall"
   Delete $INSTDIR\LICENSE
   Delete $INSTDIR\uninstall.exe
 
+  ; This deletes the x86 files from SysWOW64 if we're on x64.
   Delete $SYSDIR\Packet.dll
   Delete $SYSDIR\pthreadVC.dll
-  ; No longer need to delete WanPacket.dll as of WinPcap 4.1.0.
   Delete $SYSDIR\wpcap.dll
 
   ; check for x64, delete npf.sys file from system32\drivers
@@ -474,6 +487,9 @@ Section "Uninstall"
   System::Call kernel32::Wow64EnableWow64FsRedirection(i0)
 
   Delete $SYSDIR\drivers\npf.sys
+  ; Also delete the x64 files in System32
+  Delete $SYSDIR\wpcap.dll
+  Delete $SYSDIR\Packet.dll
 
   ; re-enable Wow64FsRedirection
   System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
