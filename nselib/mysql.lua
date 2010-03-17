@@ -126,37 +126,35 @@ function receiveGreeting( socket )
 end
 
 
-if HAVE_SSL then
+--- Creates a hashed value of the password and salt according to MySQL authentication post version 4.1
+--
+-- @param pass string containing the users password
+-- @param salt string containing the servers salt as obtained from <code>receiveGreeting</code>
+-- @return reply string containing the raw hashed value
+local function createLoginHash(pass, salt)
+	local hash_stage1
+	local hash_stage2
+	local hash_stage3
+	local reply = ""
+	local pos, b1, b2, b3, _ = 1, 0, 0, 0
 
-	--- Creates a hashed value of the password and salt according to MySQL authentication post version 4.1
-	--
-	-- @param pass string containing the users password
-	-- @param salt string containing the servers salt as obtained from <code>receiveGreeting</code>
-	-- @return reply string containing the raw hashed value
-	local function createLoginHash(pass, salt)
-
-		local hash_stage1 = openssl.sha1( pass )
-		local hash_stage2 = openssl.sha1( hash_stage1 )
-		local hash_stage3 = openssl.sha1( salt .. hash_stage2 )
-		local reply = ""
-
-		local pos, b1, b2, b3, _ = 1, 0, 0, 0
-
-		for pos=1, hash_stage1:len() do
-			_, b1 = bin.unpack( "C", hash_stage1, pos )
-			_, b2 = bin.unpack( "C", hash_stage3, pos )
-
-			reply = reply .. string.char( bit.bxor( b2, b1 ) )
-		end
-
-		return reply
-
-	end
-
-else
-	local function createLoginHash(pass, salt)
+	if ( not(HAVE_SSL) ) then
 		return nil
 	end
+
+	hash_stage1 = openssl.sha1( pass )
+	hash_stage2 = openssl.sha1( hash_stage1 )
+	hash_stage3 = openssl.sha1( salt .. hash_stage2 )
+
+	for pos=1, hash_stage1:len() do
+		_, b1 = bin.unpack( "C", hash_stage1, pos )
+		_, b2 = bin.unpack( "C", hash_stage3, pos )
+
+		reply = reply .. string.char( bit.bxor( b2, b1 ) )
+	end
+
+	return reply
+
 end
 
 

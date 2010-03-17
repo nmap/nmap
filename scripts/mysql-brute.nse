@@ -63,7 +63,7 @@ action = function( host, port )
 			try( socket:connect(host.ip, port.number, "tcp") )	
 			response = try( mysql.receiveGreeting( socket ) )
 
-			stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
+			stdnse.print_debug( "Trying %s/%s ...", username, password )
 
 			status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt )
 			socket:close()
