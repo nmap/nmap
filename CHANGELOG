@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added jdwp-version.nse, a script from Michael Schierl that
+  finds the version of a Java Debug Wire Protocol server.
+
 o Fixed the packaging of x64 versions of WinPcap drivers in the
   winpcap-nmap installer. 64-bit applications that used WinPcap (like
   Wireshark) would fail. [Rob Nicholls]
