@@ -84,6 +84,7 @@ Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusiv
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "smtp-enum-users.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-open-relay.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
