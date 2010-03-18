@@ -997,6 +997,7 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   /* If this is the first call,  */
   if (!*lastproxy) {
     initialize_idleproxy(&proxy, proxyName, target->v4hostip(), ports);
+    strncpy(lastproxy, proxyName, sizeof(lastproxy));
   }
 
   starttime = time(NULL);
