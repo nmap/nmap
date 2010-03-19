@@ -184,6 +184,16 @@ end
 
 hostrule = function(host)
 	if not nmap.is_privileged() then
+		if not nmap.registry['ipidseq'] then
+			nmap.registry['ipidseq'] = {}
+		end
+		if nmap.registry['ipidseq']['rootfail'] then
+			return false
+		end
+		nmap.registry['ipidseq']['rootfail'] = true
+		if nmap.verbosity() > 0 then
+			nmap.log_write("stdout", "IPIDSEQ: not running for lack of privileges")
+		end
 		return false
 	end
 	if not host.interface then
