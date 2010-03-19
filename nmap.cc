@@ -2152,7 +2152,7 @@ void init_socket(int sd) {
       res=bind(sd, (struct sockaddr*)&ss, sslen);
       if (res<0)
 	{
-	  error("init_socket: Problem binding source address (%s), errno :%d", inet_socktop(&ss), socket_errno());
+	  error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
 	  perror("bind");
 	  bind_failed=1;
 	}
