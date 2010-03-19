@@ -502,7 +502,7 @@ void nse_restore (lua_State *L, int number)
   /* Call WAITING_TO_RUNNING (defined in nse_main.lua) on the thread and any
      other arguments. */
   if (lua_pcall(L, number+1, 0, 0) != 0)
-    fatal("nse_restore: WAITING_TO_RUNNING error!\n%s", lua_tostring(L, -1));
+    fatal("%s: WAITING_TO_RUNNING error!\n%s", __func__, lua_tostring(L, -1));
 }
 
 /* void nse_destructor (lua_State *L, char what)           [-(1|2), +0, e]
@@ -532,7 +532,7 @@ void nse_destructor (lua_State *L, char what)
     lua_pushnil(L); /* no destructor, we are removing */
   }
   if (lua_pcall(L, 4, 0, 0) != 0)
-    fatal("nse_destructor: NSE_DESTRUCTOR error!\n%s", lua_tostring(L, -1));
+    fatal("%s: NSE_DESTRUCTOR error!\n%s", __func__, lua_tostring(L, -1));
   lua_pop(L, what == 'a' ? 2 : 1);
 }
 
