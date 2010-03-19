@@ -2156,7 +2156,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       // WOO HOO!!!!!!  MATCHED!  But might be soft
       if (MD->isSoft && svc->probe_matched) {
 	if (strcmp(svc->probe_matched, MD->serviceName) != 0)
-	  error("WARNING:  service %s:%hu had already soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->NameIP(), svc->portno, svc->probe_matched, MD->serviceName);
+	  error("WARNING: Service %s:%hu had already soft-matched %s, but now soft-matched %s; ignoring second value", svc->target->targetipstr(), svc->portno, svc->probe_matched, MD->serviceName);
 	// No error if its the same - that happens frequently.  For
 	// example, if we read more data for the same probe response
 	// it will probably still match.
@@ -2165,14 +2165,14 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
 	  if (MD->product || MD->version || MD->info)
 	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
+		      svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
 		      MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
 		      (MD->info)? MD->info : "");
 	  else
 	    log_write(LOG_PLAIN, "Service scan %s match (Probe %s matched with %s): %s:%hu is %s%s\n",
                       (MD->isSoft)? "soft" : "hard",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
-		      svc->target->NameIP(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
+		      svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", MD->serviceName);
 	}
 	svc->probe_matched = MD->serviceName;
 	if (MD->product)
