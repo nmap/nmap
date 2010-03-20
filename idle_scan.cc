@@ -260,7 +260,7 @@ static void initialize_proxy_struct(struct idle_proxy_info *proxy) {
   proxy->ethptr = NULL;
 }
 
-/* takes a proxy name/IP, resolves it if neccessary, tests it for IP ID
+/* takes a proxy name/IP, resolves it if necessary, tests it for IP ID
    suitability, and fills out an idle_proxy_info structure.  If the
    proxy is determined to be unsuitable, the function whines and exits
    the program */

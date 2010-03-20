@@ -293,7 +293,7 @@ const void PortList::getServiceDeductions(u16 portno, int protocol, struct servi
 // will be NULL if unavailable. Note that this function makes its
 // own copy of sname and product/version/extrainfo.  This function
 // also takes care of truncating the version strings to a
-// 'reasonable' length if neccessary, and cleaning up any unprintable
+// 'reasonable' length if necessary, and cleaning up any unprintable
 // chars. (these tests are to avoid annoying DOS (or other) attacks
 // by malicious services).  The fingerprint should be NULL unless
 // one is available and the user should submit it.  tunnel must be

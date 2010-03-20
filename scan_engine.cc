@@ -127,7 +127,7 @@ struct ultra_scan_performance_vars {
 		       increments. */
   int initial_ssthresh;
   /* When a successful ping response comes back, it counts as this many
-     "normal" responses, because the fact that pings are neccessary means
+     "normal" responses, because the fact that pings are necessary means
      we aren't getting much input. */
   int ping_magnifier;
 /* Try to send a scanping if no response has been received from a target host
@@ -498,7 +498,7 @@ public:
   unsigned int num_probes_active;
   /* Probes timed out but not yet retransmitted because of congestion
      control limits or because more retransmits may not be
-     neccessary.  Note that probes on probe_bench are not included
+     necessary.  Note that probes on probe_bench are not included
      in this value. */
   unsigned int num_probes_waiting_retransmit;
   unsigned int num_probes_outstanding() { return probes_outstanding.size(); }
@@ -1341,7 +1341,7 @@ unsigned int HostScanStats::allowedTryno(bool *capped, bool *mayincrease) {
   /* Decide if the tryno can possibly increase.  */
   if (tryno_mayincrease && num_probes_active == 0 && freshPortsLeft() == 0) {
     /* If every outstanding probe is timedout and at maxval, then no further
-       retransmits are neccessary. */
+       retransmits are necessary. */
     for(probeI = probes_outstanding.begin(); 
 	probeI != probes_outstanding.end(); probeI++) {
       probe = *probeI;
@@ -2274,7 +2274,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     //    printf("SDELAY: increasing good to %d (bad: %d)\n", hss->sdn.goodRespSinceDelayChanged, hss->sdn.droppedRespSinceDelayChanged);
   }
 
-  /* Now change the send delay if neccessary */
+  /* Now change the send delay if necessary */
   unsigned int oldgood = hss->sdn.goodRespSinceDelayChanged;
   unsigned int oldbad = hss->sdn.droppedRespSinceDelayChanged;
   double threshold = (o.timing_level >= 4)? 0.40 : 0.30;

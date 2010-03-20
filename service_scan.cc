@@ -1695,7 +1695,7 @@ ServiceGroup::~ServiceGroup() {
 
 /* Called if data is read for a service or a TCP connection made. Sets the port
    state to PORT_OPEN. */
-static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
+static void adjustPortStateIfNecessary(ServiceNFO *svc) {
   int oldstate;
   char host[128];
 
@@ -1744,7 +1744,7 @@ static void adjustPortStateIfNeccessary(ServiceNFO *svc) {
 
 // This simple helper function is used to start the next probe.  If
 // the probe exists, execution begins (and the previous one is cleaned
-// up if neccessary) .  Otherwise, the service is listed as finished
+// up if necessary) .  Otherwise, the service is listed as finished
 // and moved to the finished list.  If you pass 'true' for alwaysrestart, a
 // new connection will be made even if the previous probe was the NULL probe.
 // You would do this, for example, if the other side has closed the connection.
@@ -2045,7 +2045,7 @@ static void servicescan_connect_handler(nsock_pool nsp, nsock_event nse, void *m
 
     /* If the port is TCP, it is now known to be open rather than openfiltered */
     if (svc->proto == IPPROTO_TCP)
-      adjustPortStateIfNeccessary(svc);
+      adjustPortStateIfNecessary(svc);
 
     // Yeah!  Connection made to the port.  Send the appropriate probe
     // text (if any is needed -- might be NULL probe)
@@ -2142,7 +2142,7 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
   } else if (status == NSE_STATUS_SUCCESS) {
     // w00p, w00p, we read something back from the port.
     readstr = (u8 *) nse_readbuf(nse, &readstrlen);
-    adjustPortStateIfNeccessary(svc); /* A response means PORT_OPENFILTERED is really PORT_OPEN */
+    adjustPortStateIfNecessary(svc); /* A response means PORT_OPENFILTERED is really PORT_OPEN */
     svc->appendtocurrentproberesponse(readstr, readstrlen);
     // now get the full version
     readstr = svc->getcurrentproberesponse(&readstrlen);
