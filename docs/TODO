@@ -70,6 +70,14 @@ o We should document an official way to compile/test refguide.xml so
 
 o Create Nmap wiki
 
+o [NSE] Maybe we should create a class of scripts which only run one
+  time per scan, similar to auxiliary modules in Metasploit. We
+  already have script classes which run once per port and once per
+  host. For example, the once-per-scan class might be useful for
+  broadcasted scripts such as NetBIOS, DHCP, etc.  We will of course
+  need to have at least one such script to start out with. (suggested
+  by Ron Bowes at http://seclists.org/nmap-dev/2010/q1/883).
+
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
     o We already use like 20 of the 26 letters, so we end up with
@@ -427,7 +435,9 @@ o Make version detection and NSE timing system more dynamic so that
   far more parallel connections than slower systems.
 
 o Zenmap script selection interface for deciding which NSE scripts to
-  run.
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
 
 o Get new Zenmap logo
  o consider putting back on top-right of command constructor wizard
