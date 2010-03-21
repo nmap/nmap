@@ -2,6 +2,13 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Added the qscan script to repeatedly probe ports on a host to
+  gather round-trip times for each port.  The script then uses these
+  times to group together ports with statistically equivalent RTTs.
+  Ports in different groups could be the result of things such as port
+  forwarding to hosts behind a NAT.  This is based on work by Doug
+  Hoyte. [Kris]
+
 o [NSE] Added RPC library and three new NFS scripts. Modified the rpcinfo and
   nfs-showmount scripts to use the new library. The new scripts are:
   - nfs-acls shows the owner and directory mode of NFS exports
