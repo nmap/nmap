@@ -1,17 +1,21 @@
 description = [[
-Shows NFS exports, like the <code>showmount -e</code> command.
+Shows NFS exports and access controls.
 ]]
 
 ---
 -- @output
 -- PORT    STATE SERVICE
 -- 111/tcp open  rpcbind
--- | nfs-showmount:  
--- |   /home/storage/backup 10.46.200.0/255.255.255.0
--- |_  /home 1.2.3.4/255.255.255.255 10.46.200.0/255.255.255.0
+-- | nfs-acls:  
+-- |   /tmp
+-- |     uid: 0; gid: 0; mode: drwxrwxrwx (1777)
+-- |   /home/storage/backup
+-- |     uid: 0; gid: 0; mode: drwxr-xr-x (755)
+-- |   /home
+-- |_    uid: 0; gid: 0; mode: drwxr-xr-x (755)
 --
 
--- Version 0.7
+-- Version 0.6
 
 -- Created 11/23/2009 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 11/24/2009 - v0.2 - added RPC query to find mountd ports
@@ -19,7 +23,6 @@ Shows NFS exports, like the <code>showmount -e</code> command.
 -- Revised 11/26/2009 - v0.4 - reduced packet sizes and documented them
 -- Revised 01/24/2009 - v0.5 - complete rewrite, moved all NFS related code into nselib/nfs.lua
 -- Revised 02/22/2009 - v0.6 - adapted to support new RPC library
--- Revised 03/13/2010 - v0.7 - converted host to port rule
 
 
 author = "Patrik Karlsson"
@@ -33,19 +36,28 @@ portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 
 action = function(host, port)
 
-	local status, mounts, proto 
+	local status, mounts, attribs
 	local result = {}
 	
 	status, mounts = rpc.Helper.ShowMounts( host, port )
 
-	if not status or mounts == nil then
+	if ( not(status) or mounts == nil ) then
 		return "  \n\n  Failed to list mount points"
 	end
 
-	for _, v in ipairs( mounts ) do
-		local entry = v.name
-		entry = entry .. " " .. stdnse.strjoin(" ", v)
-		table.insert( result, entry )
+	for _, mount in ipairs( mounts ) do
+		local item = {}
+		status, attribs = rpc.Helper.GetAttributes( host, port, mount.name )
+
+		item.name = mount.name
+
+		if ( status ) then
+			table.insert(item, ("uid: %d; gid: %d; mode: %s (%d)"):format(attribs.uid, attribs.gid, rpc.Util.ToAclText( attribs.mode ), rpc.Util.ToAclMode( attribs.mode )) )
+		else
+			table.insert(item, "ERROR: Mount failed")
+		end
+		
+		table.insert(result, item)
 	end	
 	
 	return stdnse.format_output( true, result )

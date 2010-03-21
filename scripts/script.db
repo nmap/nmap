@@ -1,3 +1,5 @@
+Entry { filename = "afp-path-exploit.nse", categories = { "safe", "vuln", } }
+Entry { filename = "afp-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
@@ -57,7 +59,10 @@ Entry { filename = "mysql-info.nse", categories = { "default", "discovery", "saf
 Entry { filename = "mysql-users.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "nfs-acls.nse", categories = { "discovery", "safe", } }
+Entry { filename = "nfs-dirlist.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
+Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
@@ -68,7 +73,7 @@ Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "robots.txt.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "rpcinfo.nse", categories = { "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
 Entry { filename = "smb-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "smb-check-vulns.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
