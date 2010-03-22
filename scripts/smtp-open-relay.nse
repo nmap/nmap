@@ -21,8 +21,8 @@ printed with the list of any combinations that were found prior to the error.
 --
 -- @output
 -- Host script results:
--- | smtp-open-relay:  
--- |_  Server seems to be an open relay, 2 successful test(s)
+-- | smtp-open-relay: Server is an open relay (1/16 tests)
+-- |_MAIL FROM:<antispam@insecure.org> -> RCPT TO:<relaytest@insecure.org>
 --
 -- @args smtp-open-relay.domain Define the domain to be used in the anti-spam tests and EHLO command (default
 -- is nmap.scanme.org)
@@ -252,7 +252,7 @@ function go(host, port)
 
 			if string.match(response, "^530") then
 				quit()
-				return "Server isn't an open relay, authentication needed"
+				return false, "Server isn't an open relay, authentication needed"
 			elseif string.match(response, "^250") then
 				-- Save the working from and to combination.
 				table.insert(result, string.format("%s -> %s", tests[index]["from"], tests[index]["to"]))
@@ -267,21 +267,26 @@ end
 action = function(host, port)
 	local status, result = go(host, port)
 
+	-- The go function returned false, this means that the result is a simple error message.
 	if not status then
-		return stdnse.format_output(true, result)
+		return result
 	else
 		-- Combinations were found. If verbosity is active, the script will print all
 		-- the successful tests. Otherwise it will only print the conclusion.
 		if #result > 0 then
+			final = {}
+
+			table.insert(final, string.format("Server is an open relay (%i/16 tests)", (#result)))
+
 			if nmap.verbosity() > 1 then
-				table.insert(result, "Server seems to be an open relay")
-			else
-				result = string.format("Server seems to be an open relay, %i successful test(s)", (#result))
+				for index, test in ipairs(result) do
+					table.insert(final, test)
+				end
 			end
-			
-			return stdnse.format_output(true, result)
+
+			return stdnse.strjoin("\n ", final)
 		end
-	
-		return stdnse.format_output(true, "All tests failed, server doesn't seem to be an open relay")
+
+		return "Server doesn't seem to be an open relay, all tests failed"
 	end
 end
