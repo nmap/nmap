@@ -1,40 +1,41 @@
 description = [[
-Attempts to enumerate the users on a SMTP server by issuing the VRFY and the EXPN
-commands. If those commands aren't implemented the script will try to use the
-RCPT TO command. The goal of this script is to discover all the user accounts in the
-remote system.
+Attempts to enumerate the users on a SMTP server by issuing the VRFY, EXPN or RCPT TO
+commands. The goal of this script is to discover all the user accounts in the remote
+system.
 
 The script will output the list of user names that were found. The script will stop
-querying the SMTP server if authentication is enforced. The script will not repeat
-commands that aren't implemented (VRFY and EXPN).
+querying the SMTP server if authentication is enforced. If an error occurrs while testing
+the target host, the error will be printed with the list of any combinations that were
+found prior to the error.
 
-The user can specify which technique to use. If so the script will not use any other
-techinque. To do that the user must use the smtp-enum-users.method argument with one
-of the following parameters:
- - VFRY
- - EXPN
- - RCPT
+The user can specify which methods to use and in which order. The script will ignore
+repeated methods. If not specified the script will use the RCPT first, then VRFY and EXPN.
+An example of how to specify the methods to use and the order is the following:
 
-If debug is enabled and an error occurrs while testing the target host, the error will be
-printed with the list of any combinations that were found prior to the error.
+smtp-enum-users.methods={EXPN,RCPT,VRFY}
 ]]
 
 ---
 -- @usage
--- nmap --script smtp-user-enum.nse -p 25,465,587 <host>
+-- nmap --script smtp-user-enum.nse [--script-args smtp-open-relay.methods={EXPN,...},...] -p 25,465,587 <host>
 --
 -- @output
 -- Host script results:
--- | smtp-user-enum:  
--- |   root
--- |_  test
+-- | smtp-enum-users:
+-- |_  RCPT, root
 --
--- @args smtp-enum-users.domain Define the domain to be used in the SMTP commands.
--- @args smtp-enum-users.method Define the method to be used by the script
+-- @args smtp-enum-users.domain Define the domain to be used in the SMTP commands
+-- @args smtp-enum-users.methods Define the methods and order to be used by the script (EXPN, VRFY, RCPT)
 --
 -- @changelog
 -- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
 --   * First version ;)
+-- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
+--   * Credits to David Fifield and Ron Bowes for the following changes
+--   * Changed the way the user defines which method is used
+--   + Script now handles 252 and 550 SMTP status codes
+--   + Added the method that was used by the script to discover the users if verbosity is
+--     enabled
 -----------------------------------------------------------------------
 
 author = "Duarte Silva <duarte.silva@myf00.net>"
@@ -43,18 +44,65 @@ categories = {"discovery","external","intrusive"}
 
 require "shortport"
 require "comm"
-require 'unpwdb'
+require "unpwdb"
 
 portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submission" })
+
+ERROR_MESSAGES = {
+	["EOF"] = "connection closed",
+	["TIMEOUT"] = "connection timeout",
+	["ERROR"] = "failed to receive data"
+}
+
+STATUS_CODES = {
+	ERROR = 1,
+	NOTPERMITED = 2,
+	VALID = 3,
+	INVALID = 4
+}
+
+---Counts the number of occurrences in a table. Helper function from LUA documentation
+-- http://lua-users.org/wiki/TableUtils.
+--
+-- @param from Source table
+-- @param what What element to count
+-- @return Number of occurrences
+function table_count(from, what)
+	local result = 0
+
+	for index, item in ipairs(from) do
+		if item == what then
+			result = result + 1
+		end
+	end
+
+	return result
+end
+
+---Creates a new table from a source without the duplicates. Helper function from LUA
+-- documentation http://lua-users.org/wiki/TableUtils.
+--
+-- @param from Source table
+-- @return New table without the duplicates
+function table_unique(from)
+	local result = {}
+
+	for index, item in ipairs(from) do
+		if (table_count(result, item) == 0) then
+			result[#result + 1] = item
+		end
+	end
+
+	return result
+end
 
 ---Send a command and read the response (this function does exception handling, and if an
 -- exception occurs, it will close the socket).
 --
---@param socket Socket used to send the command
---@param request Command to be sent
---@return False in case of failure
---@return True and the response in case of success
-function dorequest(socket, request)
+-- @param socket Socket used to send the command
+-- @param request Command to be sent
+-- @return False in case of failure, true and the response in case of success
+function do_request(socket, request)
 	-- Exception handler.
 	local catch = function()
 		socket:close()
@@ -69,20 +117,21 @@ function dorequest(socket, request)
 	local status, response = socket:receive_lines(1)
 
 	if not status then
-		-- Close the socket, the call to receive_lines doesn't use try.
+		-- Close the socket (the call to receive_lines doesn't use try)
 		socket:close()
 
-		-- Supported error messages.
-		local messages = {
-			["EOF"] = "connection closed",
-			["TIMEOUT"] = "connection timeout",
-			["ERROR"] = "failed to receive data"
-		}
-
-		return false, (messages[response] or "unspecified error, for more information use --script-trace")
+		return false, (ERROR_MESSAGES[response] or "unspecified error")
 	end
 
 	return true, response
+end
+
+---Send a SMTP quit command before closing the socket.
+--
+-- @param socket Socket used to send the command
+function quit(socket)
+	do_request(socket, "QUIT\r\n")
+	socket:close()
 end
 
 ---Get a domain to be used in the SMTP commands that need it. If the user specified one
@@ -90,50 +139,201 @@ end
 -- the domain from the typed hostname and from the rDNS name. If it still can't find one
 -- it will use the nmap.scanme.org by default.
 --
---@param host Current scanned host
---@return The hostname to be used
-function get_hostname(host)
-	local domain = "nmap.scanme.org"
-	
+-- @param host Current scanned host
+-- @return The hostname to be used
+function get_domain(host)
+	local result = "nmap.scanme.org"
+
 	-- Use the user provided options.
 	if (nmap.registry.args["smtp-enum-users.domain"] ~= nil) then
-		domain = nmap.registry.args["smtp-enum-users.domain"]
+		result = nmap.registry.args["smtp-enum-users.domain"]
 	elseif type(host) == "table" then
 		if host.targetname then
-			domain = host.targetname
-		elseif (host.name ~= '' and host.name) then
-			domain = host.name
+			result = host.targetname
+		elseif (host.name ~= "" and host.name) then
+			result = host.name
 		end
 	end
 
-	return domain
+	return result
 end
 
-function go(host, port)
-	local socket = nmap.new_socket()
-	local options = {
-		timeout = 10000,
-		recv_before = true
+---Get the method or methods to be used. If the user didn't specify any methods, the default
+-- order is RCPT, VRFY and then EXPN.
+--
+-- @return A table containing the methods to try
+function get_method()
+	local result = {}
+
+	if (nmap.registry.args["smtp-enum-users.methods"] ~= nil) then
+		local methods = nmap.registry.args["smtp-enum-users.methods"]
+
+		if type(methods) == "table" then
+			-- For each method specified.
+			for index, method in ipairs(methods) do
+				-- Are the elements of the argument valid methods.
+				local upper = string.upper(method)
+				
+				if (upper == "RCPT") or (upper == "EXPN") or (upper == "VRFY") then
+					table.insert(result, upper)
+				else
+					return false, method
+				end
+			end
+		end
+	end
+
+	-- The methods weren't specified.
+	if #result == 0 then
+		result = { "RCPT", "VRFY", "EXPN" }
+	else
+		result = table_unique(result)
+	end
+
+	return true, result
+end
+
+---Generic function to perform user discovery.
+--
+-- @param socket Socket used to send the command
+-- @param command Command to be used in the discovery
+-- @param username User name to test
+-- @param domain Domain to use in the command
+-- @return Status and depending on the code, a error message
+function do_gnrc(socket, command, username, domain)
+	local combinations = {
+		string.format("%s", username),
+		string.format("%s@%s", username, domain)
 	}
 
-	socket:set_timeout(5000)
+	for index, combination in ipairs(combinations) do
+		-- Lets try to issue the command.
+		local status, response = do_request(socket, string.format("%s %s\r\n", command, combination))
 
+		-- If this command fails to be sent, then something went wrong with the connection.
+		if not status then
+			return STATUS_CODES.ERROR, string.format("Failed to issue %s %s command (%s)\n", command, combination, response)
+		end
+
+		if string.match(response, "^530") then
+			-- If the command failed, check if authentication is needed because all the other attempts will fail.
+			return STATUS_CODES.AUTHENTICATION
+		elseif string.match(response, "^502") or string.match(response, "^252") or string.match(response, "^550") then
+			-- The server doesn't implement the command or it is disallowed.
+			return STATUS_CODES.NOTPERMITED
+		elseif string.match(response, "^250") then
+			-- User accepted.
+			if nmap.verbosity() > 1 then
+				return STATUS_CODES.VALID, string.format("%s, %s", command, username)
+			else
+				return STATUS_CODES.VALID, username
+			end
+		end
+	end
+
+	return STATUS_CODES.INVALID
+end
+
+---Verify if a username is valid using the EXPN command (wrapper
+-- function for do_gnrc).
+--
+-- @param socket Socket used to send the command
+-- @param username User name to test
+-- @param domain Domain to use in the command
+-- @return Status and depending on the code, a error message
+function do_expn(socket, username, domain)
+	return do_gnrc(socket, "EXPN", username, domain)
+end
+
+---Verify if a username is valid using the VRFY command (wrapper
+-- function for do_gnrc).
+--
+-- @param socket Socket used to send the command
+-- @param username User name to test
+-- @param domain Domain to use in the command
+-- @return Status and depending on the code, a error message
+function do_vrfy(socket, username, domain)
+	return do_gnrc(socket, "VRFY", username, domain)
+end
+
+---Verify if a username is valid using the RCPT method. It will only issue the MAIL FROM
+-- command if the issued_from flag is false. The MAIL FROM command does not need to
+-- be issued each time an RCPT TO is used. Otherwise it should also be issued a RSET
+-- command, and if there are many RSET commands the server might disconnect.
+--
+-- @param socket Socket used to send the command
+-- @param username User name to test
+-- @param domain Domain to use in the command
+-- @return Status and depending on the code, a error message
+issued_from = false
+
+function do_rcpt(socket, username, domain)
+	if not issued_from then
+		-- Lets try to issue MAIL FROM command.
+		status, response = do_request(socket, string.format("MAIL FROM:<usertest@%s>\r\n", domain))
+
+		if not status then
+			-- If this command fails to be sent, then something went wrong with the connection.
+			return STATUS_CODES.ERROR, string.format("Failed to issue MAIL FROM:<usertest@%s> command (%s)", domain, response)
+		elseif string.match(response, "^530") then
+			-- If the command failed, check if authentication is needed because all the other attempts will fail.
+			return STATUS_CODES.ERROR, "Couldn't perform user enumeration, authentication needed"
+		elseif not string.match(response, "^250") then
+			-- Only accept 250 code as success.
+			return STATUS_CODES.NOTPERMITED, "Server did not accept the MAIL FROM command"
+		end
+	end
+
+	status, response = do_request(socket, string.format("RCPT TO:<%s@%s>\r\n", username, domain))
+
+	if not status then
+		return STATUS_CODES.ERROR, string.format("Failed to issue RCPT TO:<%s@%s> command (%s)", username, domain, response)
+	elseif string.match(response, "^530") then
+		-- If the command failed, check if authentication is needed because all the other attempts will fail.
+		return STATUS_CODES.AUTHENTICATION
+	elseif string.match(response, "^250") then
+		issued_from = true
+		-- User is valid.
+		if nmap.verbosity() > 1 then
+			return STATUS_CODES.VALID, string.format("RCPT, %s", username)
+		else
+			return STATUS_CODES.VALID, username
+		end
+	end
+
+	issued_from = true
+
+	return STATUS_CODES.INVALID
+end
+
+---Script function that does all the work.
+--
+-- @param host Target host
+-- @param port Target port
+-- @return The user accounts or a error message.
+function go(host, port)
 	-- Get the current usernames list from the file.
 	local status, nextuser = unpwdb.usernames()
 
 	if not status then
-		socket:close()
 		return false, "Failed to read the user names database"
 	end
 
-	-- Be polite and when everything works out send the QUIT message.
-	local quit = function()
-		dorequest(socket, "QUIT\r\n")
-		socket:close()
-	end
+	local socket = nmap.new_socket()
+	socket:set_timeout(5000)
 
-	-- Get the domain to use in the commands.
-	local domain = get_hostname(host)	
+	local options = {
+		timeout = 10000,
+		recv_before = true
+	}
+	local domain = get_domain(host)
+	local methods
+
+	status, methods = get_method()
+	
+	if not status then
+		return false, string.format("Invalid method found, %s", methods)
+	end
 
 	-- Try to connect to server.
 	local response
@@ -147,20 +347,17 @@ function go(host, port)
 
 	-- Close socket and return if EHLO command failed.
 	if not string.match(response, "^250") then
-		quit()
+		quit(socket)
 		return false, "Failed to issue EHLO command"
 	end
 
 	local result = {}
 
 	-- This function is used when something goes wrong with the connection. It makes sure that
-	-- if it found users before the error occurred, they will be returned. If the debug flag is
-	-- enabled the error message will be appended to the user list.
+	-- if it found users before the error occurred, they will be returned.
 	local failure = function(message)
 		if #result > 0 then
-			if nmap.debugging() > 0 then
-				table.insert(result, string.format("ERROR: %s", message))
-			end
+			table.insert(result, message)
 
 			return true, result
 		else
@@ -168,154 +365,53 @@ function go(host, port)
 		end
 	end
 
-	local ignore_vrfy, ignore_expn, ignore_rcpt, issued_from = false, false, false, false
-	-- Get the method.
-	if (nmap.registry.args["smtp-enum-users.method"] ~= nil) then
-		local method = nmap.registry.args["smtp-enum-users.method"]
-		
-		if type(method) == "string" then
-			if string.find(method, "^VRFY$", 0) then
-				ignore_vrfy, ignore_expn, ignore_rcpt = false, true, true
-			elseif string.find(method, "^EXPN$", 0) then
-				ignore_vrfy, ignore_expn, ignore_rcpt = true, false, true
-			elseif string.find(method, "^RCPT$", 0) then
-				ignore_vrfy, ignore_expn, ignore_rcpt = true, true, false
-			end
-		end
-	end
-
 	-- Get the first user to be tested.
 	local username = nextuser()
-	
-	while username do
-		-- User name and hostname combinations that can be used.
-		local combinations = {
-			string.format("%s", username),
-			string.format("%s@%s", username, domain)
-		}
-		local index
 
-		if ignore_vrfy and ignore_expn and (not ignore_rcpt) then
-			-- Try to find the user by issuing the MAIL FROM and RCPT TO commands (the MAIL FROM only needs
-			-- to be issued one time)
-			if not issued_from then
-				-- Lets try to issue MAIL FROM command.
-				status, response = dorequest(socket, string.format("MAIL FROM:<usertest@%s>\r\n", domain))
-
-				-- If this command fails to be sent, then something went wrong with the connection.
-				if not status then
-					-- We don't go through the failure function because if the exceution gets here the two commands
-					-- that would have added user names into result aren't implemented.
-					return false, string.format("Failed to issue MAIL FROM:<usertest@%s> command (%s)", domain, response)
-				end
-				
-				-- The command was accepted. There isn't the need to test for authentication enforcing because that
-				-- would be noticeable in the VRFY or EXPN commands.
-				if string.match(response, "^250") then
-					issued_from = true
-				else
-					quit()
-					return false, "Server did not accept the MAIL FROM command"
-				end
+	for index, method in ipairs(methods) do
+		while username do
+			if method == "RCPT" then
+				status, response = do_rcpt(socket, username, domain)
+			elseif method == "VRFY" then
+				status, response = do_vrfy(socket, username, domain)
+			elseif method == "EXPN" then
+				status, response = do_expn(socket, username, domain)
 			end
 
-			-- If the MAIL FROM command was issued with success we can start verying users.
-			if issued_from then
-				for index, combination in ipairs(combinations) do
-					status, response = dorequest(socket, string.format("RCPT TO:<%s>\r\n", combination))
-
-					if not status then
-						return failure(string.format("Failed to issue RCPT TO:<%s> command (%s)", combination, response))
-					end
-
-					if string.match(response, "^250") then
-						-- Save the working from and to combination.
-						table.insert(result, username)
-						-- If we found the user with a combination, don't test the following combinations.
-						break
-					end
-				end
-				-- Get the next user name.
-				username = nextuser()
-			end
-		else
-			if not ignore_vrfy then
-				for index, combination in ipairs(combinations) do
-					-- Lets try to issue the command
-					status, response = dorequest(socket, string.format("VRFY %s\r\n", combination))
-
-					-- If this command fails to be sent, then something went wrong with the connection.
-					if not status then
-						return failure(string.format("Failed to issue VRFY %s command (%s)\n", combination, response))
-					end
-
-					-- If the command failed, check if authentication is needed because all the other attempts will fail
-					-- and server may disconnect because of too many commands issued without authentication.
-					if string.match(response, "^530") then
-						quit()
-						return false, "Couldn't perform user enumeration, authentication needed"
-					elseif string.match(response, "^502") then
-						-- The server doesn't implement the command.
-						ignore_vrfy = true
-						break
-					elseif string.match(response, "^250") then
-						table.insert(result, string.format("%s\n", username))
-						break
-					end
-				end
-				
-				-- If the command is implemented then the user was tested successfully. Otherwise the user needs to
-				-- be tested by the following technique.
-				if not ignore_vrfy then
-					username = nextuser()
-				end
-			elseif not ignore_expn then
-				for index, combination in ipairs(combinations) do
-					-- Lets try to issue the command
-					status, response = dorequest(socket, string.format("EXPN %s\r\n", combination))
-
-					-- If this command fails to be sent, then something went wrong with the connection.
-					if not status then
-						return failure(string.format("Failed to issue EXPN %s command (%s)\n", combination, response))
-					end
-
-					-- If the command failed, check if authentication is needed because all the other attempts will fail
-					-- and server may disconnect because of too many commands issued without authentication.
-					if string.match(response, "^530") then
-						quit()
-						return false, "Couldn't perform user enumeration, authentication needed"
-					elseif string.match(response, "^502") then
-						-- The server doesn't implement the command.
-						ignore_expn = true
-						break
-					elseif string.match(response, "^250") then
-						table.insert(result, string.format("%s\n", username))
-						break
-					end
-				end
-				
-				-- If the command is implemented then the user was tested successfully. Otherwise the user needs to
-				-- be tested by the following technique.
-				if not ignore_expn then
-					username = nextuser()
-				end
-			else
-				-- No more techniques.
+			if status == STATUS_CODES.NOTPERMITED then
+				-- Invalid method. Don't test anymore users with the current method.
 				break
+			elseif status == STATUS_CODES.VALID then
+				-- User found, lets save it.
+				table.insert(result, response)
+			elseif status == STATUS_CODES.ERROR then
+				-- An error occurred with the connection.
+				return failure(response)
+			elseif status == STATUS_CODES.AUTHENTICATION then
+				quit(socket)
+				return false, "Couldn't perform user enumeration, authentication needed"
 			end
+
+			username = nextuser()
+		end
+		
+		if username == nil then
+			-- No more users to test, don't test with other methods.
+			break
 		end
 	end
-	
-	quit()
+
+	quit(socket)
 	return true, result
 end
 
 action = function(host, port)
 	local status, result = go(host, port)
 
-	if #result == 0 then
-		return stdnse.format_output(false, "Couldn't find any account names")
+	-- The go function returned true, lets check if it didn't found any accounts.
+	if status and #result == 0 then
+		return stdnse.format_output(true, "Couldn't find any accounts")
 	end
 
-	return stdnse.format_output(status, result)
+	return stdnse.format_output(true, result)
 end
