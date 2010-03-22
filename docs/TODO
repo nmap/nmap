@@ -31,6 +31,10 @@ o Test 64-bit pcap installer (e.g. remove old version and install new)
   before next release, as we've applied a change from Rob which works on
   his system (http://seclists.org/nmap-dev/2010/q1/796).
 
+o Consider enhancing scan stats--maybe we can add a full-scan
+  completion time estimate? Some ideas here:
+  http://seclists.org/nmap-dev/2010/q1/1007
+
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
@@ -74,9 +78,9 @@ o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
   host. For example, the once-per-scan class might be useful for
-  broadcasted scripts such as NetBIOS, DHCP, etc.  We will of course
-  need to have at least one such script to start out with. (suggested
-  by Ron Bowes at http://seclists.org/nmap-dev/2010/q1/883).
+  broadcast LAN scripts (Ron Bowes, who suggested this
+  (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
+  NetBIOS and DHCP broadcast script).
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
