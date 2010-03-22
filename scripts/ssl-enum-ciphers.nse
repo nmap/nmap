@@ -1,31 +1,20 @@
 description = [[
-This script repeatedly initiates SSL/TLS connections, each time removing
-whichever cipher or compressor was chosen by the server when making the previous
-connection. The end result is a list of all the ciphers and compressors that a
-server accepts.
+This script repeatedly initiates SSL/TLS connections, each time trying a new
+cipher or compressor while recording whether a host accepts or rejects it. The
+end result is a list of all the ciphers and compressors that a server accepts.
 
 SSLv3/TLSv1 requires more effort to determine which ciphers and compression
 methods a server supports than SSLv2. A client lists the ciphers and compressors
 that it is capable of supporting, and the server will respond with a single
 cipher and compressor chosen, or a rejection notice.
 
-By default, the ciphers and compressors are presented in the order the server
-prefers them. Passing <code>ssl-enum-ciphers.sort=name</code> as an argument to
-this script will instead order them alphabetically, which is more useful for
-comparing cipher lists between servers.
-
-This script is intrusive since it must initiate many connections so a server,
-and therefore is quite noisy. For a server that supports 10 ciphers and 2
-compressors, this script will need to initiate 14 connections (10 successful
-ciphers, 1 failed cipher, 2 accepted compressors, and 1 failed compressor).
+This script is intrusive since it must initiate many connections to a server,
+and therefore is quite noisy.
 ]]
 
 ---
 -- @usage
--- nmap --script ssl-enum-algorithms -p 443 <host>
---
--- @args ssl-enum-ciphers.sort If set to <code>name</code>, sort results
--- alphabetically instead of in the order in which they were accepted.
+-- nmap --script ssl-enum-ciphers -p 443 <host>
 --
 -- @output
 -- PORT    STATE SERVICE REASON
@@ -33,46 +22,46 @@ ciphers, 1 failed cipher, 2 accepted compressors, and 1 failed compressor).
 -- | sslv3-enum:
 -- |   SSLv3
 -- |     Ciphers (18)
+-- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
+-- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
+-- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
--- |       TLS_RSA_WITH_RC4_128_MD5
--- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
--- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_RSA_WITH_RC4_128_SHA
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
 -- |       TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
+-- |       TLS_RSA_WITH_DES_CBC_SHA
+-- |       TLS_RSA_WITH_RC4_128_MD5
+-- |       TLS_RSA_WITH_RC4_128_SHA
 -- |     Compressors (1)
 -- |       uncompressed
 -- |   TLSv1.0
 -- |     Ciphers (18)
+-- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
+-- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
+-- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
+-- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
 -- |       TLS_RSA_WITH_AES_128_CBC_SHA
 -- |       TLS_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
--- |       TLS_RSA_WITH_RC4_128_MD5
--- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
--- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_RSA_WITH_RC4_128_SHA
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
 -- |       TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
+-- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
+-- |       TLS_RSA_WITH_DES_CBC_SHA
+-- |       TLS_RSA_WITH_RC4_128_MD5
+-- |       TLS_RSA_WITH_RC4_128_SHA
 -- |     Compressors (1)
 -- |_      uncompressed
 
@@ -118,7 +107,7 @@ local SSL_SERVICES = {
 	"telnets"
 }
 
--- All of the values in the tables below are from:
+-- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
 PROTOCOLS = {
 	["SSLv3"]	= 0x0300,
@@ -286,6 +275,13 @@ CIPHERS = {
 	["TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA"]	= 0x0044,
 	["TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA"]	= 0x0045,
 	["TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA"]	= 0x0046,
+	["TLS_RSA_EXPORT1024_WITH_RC4_56_MD5"]		= 0x0060,
+	["TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5"]	= 0x0061,
+	["TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA"]		= 0x0062,
+	["TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA"]	= 0x0063,
+	["TLS_RSA_EXPORT1024_WITH_RC4_56_SHA"]		= 0x0064,
+	["TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA"]	= 0x0065,
+	["TLS_DHE_DSS_WITH_RC4_128_SHA"]		= 0x0066,
 	["TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"]		= 0x0067,
 	["TLS_DH_DSS_WITH_AES_256_CBC_SHA256"]		= 0x0068,
 	["TLS_DH_RSA_WITH_AES_256_CBC_SHA256"]		= 0x0069,
@@ -406,11 +402,13 @@ CIPHERS = {
 	["TLS_ECDHE_PSK_WITH_AES_256_CBC_SHA384"]	= 0xC038,
 	["TLS_ECDHE_PSK_WITH_NULL_SHA"]			= 0xC039,
 	["TLS_ECDHE_PSK_WITH_NULL_SHA256"]		= 0xC03A,
-	["TLS_ECDHE_PSK_WITH_NULL_SHA384"]		= 0xC03B
+	["TLS_ECDHE_PSK_WITH_NULL_SHA384"]		= 0xC03B,
+	["SSL_RSA_FIPS_WITH_DES_CBC_SHA"]		= 0xFEFE,
+	["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]		= 0xFEFF
 }
 
 local function record_read(buffer, i)
-	local _, b, h, j, len
+	local b, h, j, len
 
 	local function find_key(t, value)
 		local k, v
@@ -440,7 +438,7 @@ local function record_read(buffer, i)
 	j, h["length"] = bin.unpack(">S", buffer, j)
 
 	-- Ensure we have enough data for the body.
-	len = j + h["length"]
+	len = j + h["length"] - 1
 	if #buffer < len then
 		return i, nil
 	end
@@ -488,17 +486,8 @@ local function record_read(buffer, i)
 		end
 	end
 
-	-- Check for overflow beyond length.
-	if j > len then
-		stdnse.print_debug(2, "SSL: Parsing error, body %d bytes larger than header declares.", j - len)
-		j = len
-	end
-
-	-- Consume any unparsed bytes in record body.
-	if j < len then
-		stdnse.print_debug(2, "SSL: Parsing error, ignoring %d unused bytes in body.", len - j)
-		j = len
-	end
+	-- Ignore unparsed bytes.
+	j = len
 
 	return j, h
 end
@@ -529,6 +518,9 @@ local function client_hello(t)
 
 	b = ""
 
+	-- Set the protocol.
+	b = b .. bin.pack(">S", PROTOCOLS[t["protocol"]])
+
 	-- Set the random data.
 	b = b .. bin.pack(">I", os.time())
 
@@ -541,10 +533,12 @@ local function client_hello(t)
 	-- Cipher suites.
 	ciphers = ""
 	if t["ciphers"] ~= nil then
+		-- Add specified ciphers.
 		for _, cipher in pairs(t["ciphers"]) do
 			ciphers = ciphers .. bin.pack(">S", CIPHERS[cipher])
 		end
 	else
+		-- Add all known ciphers.
 		for _, cipher in pairs(CIPHERS) do
 			ciphers = ciphers .. bin.pack(">S", cipher)
 		end
@@ -555,20 +549,18 @@ local function client_hello(t)
 	-- Compression methods.
 	compressors = ""
 	if t["compressors"] ~= nil then
+		-- Add specified compressors.
 		for _, compressor in pairs(t["compressors"]) do
 			compressors = compressors .. bin.pack("C", COMPRESSORS[compressor])
 		end
 	else
-		ciphers = b .. bin.pack("C", #COMPRESSORS)
+		-- Add all known compressors.
 		for _, compressor in pairs(COMPRESSORS) do
 			compressors = compressors .. bin.pack("C", compressor)
 		end
 	end
 	b = b .. bin.pack("C", #compressors)
 	b = b .. compressors
-
-	-- Extensions.
-	b = b .. bin.pack(">S", 0)
 
 	------------
 	-- Header --
@@ -583,14 +575,11 @@ local function client_hello(t)
 	len = bin.pack(">I", #b)
 	h = h .. bin.pack("CCC", len:byte(2), len:byte(3), len:byte(4))
 
-	-- Set the protocol.
-	h = h .. bin.pack(">S", PROTOCOLS[t["protocol"]])
-
 	return record_write("handshake", t["protocol"], h .. b)
 end
 
 local function try_params(host, port, t)
-	local buffer, err, i, kind, length, record, req, resp, sock, status
+	local buffer, err, i, record, req, resp, sock, status
 
 	-- Create socket.
 	sock = nmap.new_socket()
@@ -614,14 +603,15 @@ local function try_params(host, port, t)
 	-- Read response.
 	i = 0
 	buffer = ""
+	record = nil
 	while true do
-		status, chunk = sock:receive()
+		status, resp = sock:receive()
 		if not status then
 			sock:close()
-			return nil
+			return record
 		end
 
-		buffer = buffer .. chunk
+		buffer = buffer .. resp
 
 		-- Parse response.
 		i, record = record_read(buffer, i)
@@ -633,56 +623,45 @@ local function try_params(host, port, t)
 end
 
 local function try_protocol(host, port, protocol)
-	local ciphers, compressors, result
+	local ciphers, compressors, results
 
 	local function find_ciphers()
-		local k, name, record, results, t, v
+		local name, protocol_worked, record, results, t
 
 		results = {}
 
-		-- Create list of ciphers.
-		t = {
-			["ciphers"] = {},
-			["protocol"] = protocol
-		}
-		for name, id in pairs(CIPHERS) do
-			table.insert(t["ciphers"], name)
-		end
+		-- Try every cipher.
+		protocol_worked = false
+		for name, _ in pairs(CIPHERS) do
+			-- Create structure.
+			t = {
+				["ciphers"] = {name},
+				["protocol"] = protocol
+			}
 
-		-- Create connections while removing previously accepted ciphers.
-		while true do
-			-- Try connecting with remaining ciphers.
+			-- Try connecting with cipher.
 			record = try_params(host, port, t)
 			if record == nil then
-				break
-			end
-
-			if record["protocol"] ~= protocol then
-				stdnse.print_debug(1, "Protocol not supported, server using %s.", record["protocol"])
-				break
-			end
-
-			if record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
-				stdnse.print_debug(2, "No ciphers chosen.")
-				break
-			end
-
-			if record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
-				stdnse.print_debug(2, "Unexpected record received.")
-				break
-			end
-
-			-- Add cipher to the list of accepted ciphers.
-			name = record["body"]["cipher"]
-			table.insert(results, name)
-			stdnse.print_debug(2, "Cipher %s chosen.", name)
-
-			-- Remove cipher from list for next attempt.
-			for k, v in pairs(t["ciphers"]) do
-				if v == name then
-					table.remove(t["ciphers"], k)
-					break
+				if protocol_worked then
+					stdnse.print_debug(2, "Cipher %s rejected.", name)
+				else
+					stdnse.print_debug(2, "Cipher %s and/or protocol %s rejected.", name, protocol)
 				end
+			elseif record["protocol"] ~= protocol then
+				stdnse.print_debug(1, "Protocol %s rejected.", protocol)
+				break
+			elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
+				protocol_worked = true
+				stdnse.print_debug(2, "Cipher %s rejected.", name)
+			elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
+				stdnse.print_debug(2, "Unexpected record received.")
+			else
+				protocol_worked = true
+				stdnse.print_debug(2, "Cipher %s chosen.", name)
+
+				-- Add cipher to the list of accepted ciphers.
+				name = record["body"]["cipher"]
+				table.insert(results, name)
 			end
 		end
 
@@ -690,53 +669,42 @@ local function try_protocol(host, port, protocol)
 	end
 
 	local function find_compressors()
-		local compressors, k, name, record, results, t, v
+		local name, protocol_worked, record, results, t
 
 		results = {}
 
-		-- Create list of compressors.
-		t = {
-			["compressors"] = {},
-			["protocol"] = protocol
-		}
-		for name, id in pairs(COMPRESSORS) do
-			table.insert(t["compressors"], name)
-		end
+		-- Try every compressor.
+		protocol_worked = false
+		for name, _ in pairs(COMPRESSORS) do
+			-- Create structure.
+			t = {
+				["compressors"] = {name},
+				["protocol"] = protocol
+			}
 
-		-- Create connections while removing previously accepted compressors.
-		while true do
-			-- Try connecting with remaining ciphers.
+			-- Try connecting with compressor.
 			record = try_params(host, port, t)
 			if record == nil then
-				break
-			end
-
-			if record["protocol"] ~= protocol then
-				stdnse.print_debug(1, "Protocol not supported, server using %s.", record["protocol"])
-				break
-			end
-
-			if record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
-				stdnse.print_debug(2, "No compressors chosen.")
-				break
-			end
-
-			if record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
-				stdnse.print_debug(2, "Unexpected record received.")
-				break
-			end
-
-			-- Add compressor to the list of accepted compressors.
-			name = record["body"]["compressor"]
-			table.insert(results, name)
-			stdnse.print_debug(2, "Compressor %s chosen.", name)
-
-			-- Remove compressor from list for next attempt.
-			for k, v in pairs(t["compressors"]) do
-				if v == name then
-					table.remove(t["compressors"], k)
-					break
+				if protocol_worked then
+					stdnse.print_debug(2, "Compressor %s rejected.", name)
+				else
+					stdnse.print_debug(2, "Compressor %s and/or protocol %s rejected.", name, protocol)
 				end
+			elseif record["protocol"] ~= protocol then
+				stdnse.print_debug(1, "Protocol %s rejected.", protocol)
+				break
+			elseif record["type"] == "alert" and record["body"]["description"] == "handshake_failure" then
+				protocol_worked = true
+				stdnse.print_debug(2, "Compressor %s rejected.", name)
+			elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
+				stdnse.print_debug(2, "Unexpected record received.")
+			else
+				protocol_worked = true
+				stdnse.print_debug(2, "Compressor %s chosen.", name)
+
+				-- Add compressor to the list of accepted compressors.
+				name = record["body"]["compressor"]
+				table.insert(results, name)
 			end
 		end
 
@@ -755,16 +723,12 @@ local function try_protocol(host, port, protocol)
 	compressors = find_compressors()
 
 	-- Format the cipher table.
-	if nmap.registry.args["ssl-enum-ciphers.sort"] == "name" then
-		table.sort(ciphers)
-	end
+	table.sort(ciphers)
 	ciphers["name"] = "Ciphers (" .. #ciphers .. ")"
 	table.insert(results, ciphers)
 
 	-- Format the compressor table.
-	if nmap.registry.args["ssl-enum-ciphers.sort"] == "name" then
-		table.sort(compressors)
-	end
+	table.sort(compressors)
 	compressors["name"] = "Compressors (" .. #compressors .. ")"
 	table.insert(results, compressors)
 
@@ -791,7 +755,7 @@ portrule = function(host, port)
 end
 
 action = function(host, port)
-	local result, results
+	local name, result, results
 
 	results = {}
 
