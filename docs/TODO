@@ -44,10 +44,14 @@ o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   http://seclists.org/nmap-dev/2010/q1/270
 
 o Review IDS detection scripts from Joao Correa.
+  http://seclists.org/nmap-dev/2010/q1/814
 
 o Review mssql library and scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/1000 (files)
+  http://seclists.org/nmap-dev/2010/q1/1014 (sample output)
 
 o Review DNS fuzzer script from Michael Pattrick.
+  http://seclists.org/nmap-dev/2010/q1/1005
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
