@@ -2037,6 +2037,9 @@ static void printtraceroute_normal(Target * currenths) {
     struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
     log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
               probe.proto, proto ? proto->p_name : "unknown");
+  } else {
+    /* "Traces" of directly connected targets don't send any packets. */
+    log_write(LOG_PLAIN, "TRACEROUTE\n");
   }
 
   row = 0;
