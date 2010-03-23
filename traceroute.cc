@@ -1384,19 +1384,39 @@ double TracerouteState::completion_fraction() const {
   return sum / hosts.size();
 }
 
-static int traceroute_direct(std::vector<Target *> targets);
+/* This is a special case of traceroute when all the targets are directly
+   connected. Because the distance to each target is known to be 1, we send no
+   probes at all, only fill in a TracerouteHop structure. */
+static int traceroute_direct(std::vector<Target *> targets) {
+  std::vector<Target *>::iterator it;
 
-int traceroute(std::vector<Target *> &Targets) {
+  for (it = targets.begin(); it != targets.end(); it++) {
+    TracerouteHop hop;
+    const char *hostname;
+    size_t sslen;
+
+    sslen = sizeof(hop.tag);
+    (*it)->TargetSockAddr(&hop.tag, &sslen);
+    hop.timedout = false;
+    hop.rtt = (*it)->to.srtt / 1000.0;
+    hostname = (*it)->HostName();
+    if (hostname != NULL && hostname[0] != '\0')
+      hop.name = hostname;
+    hop.addr = hop.tag;
+    hop.ttl = 1;
+    (*it)->traceroute_hops.push_front(hop);
+  }
+
+  return 1;
+}
+
+static int traceroute_remote(std::vector<Target *> targets) {
   std::vector<Target *>::iterator target_iter;
 
-  if (Targets.empty() || Targets[0]->ifType() == devt_loopback)
+  if (targets.empty())
     return 1;
 
-  if (Targets[0]->directlyConnected())
-    /* Special case for directly connected targets. */
-    return traceroute_direct(Targets);
-
-  TracerouteState global_state(Targets);
+  TracerouteState global_state(targets);
 
   global_id = get_random_u16();
 
@@ -1423,14 +1443,14 @@ int traceroute(std::vector<Target *> &Targets) {
 
   if (!o.noresolve)
     global_state.resolve_hops();
-  /* This puts the hops into the Targets known by the global_state. */
+  /* This puts the hops into the targets known by the global_state. */
   global_state.transfer_hops();
 
   /* Update initial_ttl to be the highest distance seen in this host group, as
      an estimate for the next. */
   initial_ttl = 0;
-  for (target_iter = Targets.begin();
-       target_iter != Targets.end();
+  for (target_iter = targets.begin();
+       target_iter != targets.end();
        target_iter++) {
     initial_ttl = MAX(initial_ttl, (*target_iter)->traceroute_hops.size());
   }
@@ -1446,28 +1466,24 @@ int traceroute(std::vector<Target *> &Targets) {
   return 1;
 }
 
-/* This is a special case of traceroute when all the targets are directly
-   connected. Because the distance to each target is known to be 1, we send no
-   probes at all, only fill in a TracerouteHop structure. */
-static int traceroute_direct(std::vector<Target *> targets) {
-  std::vector<Target *>::iterator it;
+int traceroute(std::vector<Target *> &Targets) {
+  std::vector<Target *> direct, remote;
+  std::vector<Target *>::iterator target_iter;
 
-  for (it = targets.begin(); it != targets.end(); it++) {
-    TracerouteHop hop;
-    const char *hostname;
-    size_t sslen;
-
-    sslen = sizeof(hop.tag);
-    (*it)->TargetSockAddr(&hop.tag, &sslen);
-    hop.timedout = false;
-    hop.rtt = (*it)->to.srtt / 1000.0;
-    hostname = (*it)->HostName();
-    if (hostname != NULL && hostname[0] != '\0')
-      hop.name = hostname;
-    hop.addr = hop.tag;
-    hop.ttl = 1;
-    (*it)->traceroute_hops.push_front(hop);
+  /* Separate directly connected targets from remote targets. */
+  for (target_iter = Targets.begin();
+       target_iter != Targets.end();
+       target_iter++) {
+    if ((*target_iter)->ifType() == devt_loopback)
+      ; /* Ignore */
+    else if ((*target_iter)->directlyConnected())
+      direct.push_back(*target_iter);
+    else
+      remote.push_back(*target_iter);
   }
+
+  traceroute_direct(direct);
+  traceroute_remote(remote);
 
   return 1;
 }

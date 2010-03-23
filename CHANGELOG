@@ -2,6 +2,11 @@
 
 [NOT YET RELEASED]
 
+o Fixed a bug in traceroute that could happen when directly connected
+  and routed targets were in the same hostgroup. If the first target
+  was directly connected, the traceroute for all targets in the group
+  would have a trace of one hop.
+
 o [NSE] Added the qscan script to repeatedly probe ports on a host to
   gather round-trip times for each port.  The script then uses these
   times to group together ports with statistically equivalent RTTs.
