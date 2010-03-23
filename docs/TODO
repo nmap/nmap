@@ -43,6 +43,12 @@ o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
   http://seclists.org/nmap-dev/2010/q1/270
 
+o Review IDS detection scripts from Joao Correa.
+
+o Review mssql library and scripts from Patrik Karlsson.
+
+o Review DNS fuzzer script from Michael Pattrick.
+
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
 
