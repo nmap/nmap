@@ -1,5 +1,21 @@
 o Included this file, renamed directory from libpcap-1.0.0 to libpcap.
 
+o Applied this configure.in patch which removes a useless test which caused configure to
+  fail on Solaris 9 (and other versions).  This was fixed by libpcap in SVN a year and a half
+  ago but they haven't made a release since then. Details: 
+  http://sourceforge.net/tracker/index.php?func=detail&aid=2224954&group_id=53067&atid=469577
+
+--- configure.in        (revision 17039)
++++ configure.in        (working copy)
+@@ -358,7 +358,6 @@
+ #include <net/if.h>
+ #include <linux/types.h>
+        ])
+-       AC_CHECK_HEADERS()
+        AC_LBL_TPACKET_STATS
+        AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI
+        ;;
+
 o Removed these files and directories:
   packaging/
   config.guess
