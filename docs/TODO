@@ -16,6 +16,29 @@ o Brainstorm for GSoC 2010 ideas and fill out the org application by
     o Zenmap script selector (subset of a Zenmap or NSE SoC role)
   o Feature Creepers/Bug fixers
 
+o Create new default username list:
+  http://seclists.org/nmap-dev/2010/q1/798
+  o Could be a SoC Ncrack task, though should prove useful for Nmap
+    too
+  o We probably want to support several lists.  Like an admin/default
+    list like "root", "admin", "administrator", "web", "user", "test",
+    and also a general list which we obtain from spidering from
+    emails, etc.
+
+o [NSE] Maybe we should create a class of scripts which only run one
+  time per scan, similar to auxiliary modules in Metasploit. We
+  already have script classes which run once per port and once per
+  host. For example, the once-per-scan class might be useful for
+  broadcast LAN scripts (Ron Bowes, who suggested this
+  (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
+  NetBIOS and DHCP broadcast script). [Could be a good SoC
+  infrastructure project]
+  o David notes: "I regret saying this before I say it, because I'm
+    imagining implementation difficulties, we should think about
+    having such auxiliary scripts be able to do things like host
+    discovery, and then let the following phases work on the list it
+    discovers."
+
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
   work in combination with Ncrack dev.
@@ -38,10 +61,6 @@ o Consider enhancing scan stats--maybe we can add a full-scan
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
-
-o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
-  nfs-get-dirlist.nse from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/270
 
 o Review IDS detection scripts from Joao Correa.
   http://seclists.org/nmap-dev/2010/q1/814
@@ -83,14 +102,6 @@ o We should document an official way to compile/test refguide.xml so
   things.
 
 o Create Nmap wiki
-
-o [NSE] Maybe we should create a class of scripts which only run one
-  time per scan, similar to auxiliary modules in Metasploit. We
-  already have script classes which run once per port and once per
-  host. For example, the once-per-scan class might be useful for
-  broadcast LAN scripts (Ron Bowes, who suggested this
-  (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
-  NetBIOS and DHCP broadcast script).
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
@@ -152,14 +163,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
-o Create new default username list:
-  http://seclists.org/nmap-dev/2010/q1/798
-  o Could be a SoC Ncrack task, though should prove useful for Nmap
-    too
-  o We probably want to support several lists.  Like an admin/default
-    list like "root", "admin", "administrator", "web", "user", "test",
-    and also a general list which we obtain from spidering from
-    emails, etc.
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -520,6 +523,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
+  nfs-get-dirlist.nse from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/270
 
 o [NSE] Look into moving packet module to C for better performance
   [Patrick]
