@@ -34,6 +34,14 @@
 --
 -- @args userdb The filename of an alternate username database.
 -- @args passdb The filename of an alternate password database.
+-- @args unpwdb.userlimit The maximum number of usernames
+--                        <code>usernames</code> will return
+--                        (default unlimited).
+-- @args unpwdb.passlimit The maximum number of passwords
+--                        <code>passwords</code> will return
+--                        (default unlimited).
+-- @args unpwdb.timelimit The maximum amount of time (in seconds) that any
+--                        iterator will run before stopping.
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
@@ -109,8 +117,9 @@ local closure = function(table)
 end
 
 --- Returns the suggested number of seconds to attempt a brute force attack,
--- based on Nmap's timing values (<code>-T4</code> etc.) and whether or not a
--- user-defined list is used.
+-- based on the <code>unpwdb.timelimit</code> script argument, Nmap's timing
+-- values (<code>-T4</code> etc.) and whether or not a user-defined list is
+-- used.
 --
 -- You can use the script argument <code>notimelimit</code> to make this
 -- function return <code>nil</code>, which means the brute-force should run
@@ -127,6 +136,9 @@ timelimit = function()
 	if args.notimelimit then
 		return nil
 	end
+	if args["unpwdb.timelimit"] then
+		return tonumber(args["unpwdb.timelimit"])
+	end
 
 	if t <= 3 then
 		return (customdata and 900) or 600
@@ -142,7 +154,7 @@ end
 -- <code>nil</code>).
 -- @return boolean Status.
 -- @return function The usernames iterator.
-usernames = function()
+local usernames_raw = function()
 	local path = userfile()
 
 	if not path then
@@ -161,7 +173,7 @@ end
 -- <code>nil</code>).
 -- @return boolean Status.
 -- @return function The passwords iterator.
-passwords = function()
+local passwords_raw = function()
 	local path = passfile()
 
 	if not path then
@@ -175,3 +187,79 @@ passwords = function()
 	return true, closure(passtable)
 end
 
+--- Wraps time and count limits around an iterator. When either limit expires,
+-- starts returning <code>nil</code>. Calling the iterator with an argument of
+-- "reset" resets the count.
+-- @param time_limit Time limit in seconds. Use 0 or <code>nil</code> for no limit.
+-- @param count_limit Count limit in seconds. Use 0 or <code>nil</code> for no limit.
+-- @return boolean Status.
+-- @return function The wrapped iterator.
+local limited_iterator = function(iterator, time_limit, count_limit)
+	local start, count, elem
+
+	time_limit = (time_limit and time_limit > 0) and time_limit
+	count_limit = (count_limit and count_limit > 0) and count_limit
+
+	start = os.time()
+	count = 0
+	return function(cmd)
+		if cmd == "reset" then
+			count = 0
+		else
+			count = count + 1
+		end
+		if count_limit and count > count_limit then
+			return
+		end
+		if time_limit and os.time() - start >= time_limit then
+			return
+		end
+		return iterator(cmd)
+	end
+end
+
+--- Returns a function closure which returns a new password with every call
+-- until the username list is exhausted or either limit expires (in which cases
+-- it returns <code>nil</code>).
+-- @param time_limit Time limit in seconds. Use 0 for no limit.
+-- @param count_limit Count limit in seconds. Use 0 for no limit.
+-- @return boolean Status.
+-- @return function The usernames iterator.
+usernames = function(time_limit, count_limit)
+	local status, iterator
+
+	status, iterator = usernames_raw()
+	if not status then
+		return false, iterator
+	end
+
+	time_limit = time_limit or timelimit()
+	if not count_limit and args["unpwdb.userlimit"] then
+		count_limit = tonumber(args["unpwdb.userlimit"])
+	end
+
+	return true, limited_iterator(iterator, time_limit, count_limit)
+end
+
+--- Returns a function closure which returns a new password with every call
+-- until the password list is exhausted or either limit expires (in which cases
+-- it returns <code>nil</code>).
+-- @param time_limit Time limit in seconds. Use 0 for no limit.
+-- @param count_limit Count limit in seconds. Use 0 for no limit.
+-- @return boolean Status.
+-- @return function The passwords iterator.
+passwords = function(time_limit, count_limit)
+	local status, iterator
+
+	status, iterator = passwords_raw()
+	if not status then
+		return false, iterator
+	end
+
+	time_limit = time_limit or timelimit()
+	if not count_limit and args["unpwdb.passlimit"] then
+		count_limit = tonumber(args["unpwdb.passlimit"])
+	end
+
+	return true, limited_iterator(iterator, time_limit, count_limit)
+end

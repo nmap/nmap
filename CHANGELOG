@@ -2,6 +2,15 @@
 
 [NOT YET RELEASED]
 
+o [NSE] The unpwdb library now has a default time limit on the
+  usernames and passwords iterators. This will prevent brute force
+  scripts from running for a long time when a service is slow. These
+  new script arguments control the limits:
+    unpwdb.userlimit  Limit on number of usernames.
+    unpwdb.passlimit  Limit on number of passwords.
+    unpwdb.timelimit  Time limit in seconds.
+  Pass 0 for any of these limits to disable it. [David]
+
 o Fixed a bug in traceroute that could happen when directly connected
   and routed targets were in the same hostgroup. If the first target
   was directly connected, the traceroute for all targets in the group
