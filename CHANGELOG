@@ -43,7 +43,8 @@ o Fixed the packaging of x64 versions of WinPcap drivers in the
   Wireshark) would fail. [Rob Nicholls]
 
 o Improved the passwords.lst database used by NSE by combining several
-  databases collected by Ron Bowes.
+  databases collected by Ron Bowes. The size of the database has been
+  increased from 200 to 5000.
 
 o [Ncat] The HTTP proxy server now accepts client connections over
   SSL. That means connections to the proxy can be encrypted and
