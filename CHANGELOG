@@ -2,6 +2,12 @@
 
 [NOT YET RELEASED]
 
+o Fixed reading of the interface table on NetBSD. Running nmap
+  --iflist would report "INTERFACES: NONE FOUND(!)" and any scan done
+  as root would fail with "WARNING: Unable to find appropriate
+  interface for system route to...". This was first reported by Jay
+  Fink, and had already been patched in the NetBSD pkgsrc tree.
+
 o [NSE] The unpwdb library now has a default time limit on the
   usernames and passwords iterators. This will prevent brute force
   scripts from running for a long time when a service is slow. These

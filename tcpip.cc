@@ -3105,12 +3105,12 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany) {
     int rc;
     char *p;
 
-    /* On some platforms (such as FreeBSD), the length of each ifr changes
-       based on the sockaddr type used, so we get the next length now. */
-#if HAVE_SOCKADDR_SA_LEN
-    len = ifr->ifr_addr.sa_len + sizeof(ifr->ifr_name);
-#else
     len = sizeof(struct ifreq);
+#if HAVE_SOCKADDR_SA_LEN
+    /* Some platforms (such as FreeBSD) have an sa_len member that may make the
+       ifr longer than sizeof(struct ifreq). */
+    if (ifr->ifr_addr.sa_len > sizeof(ifr->ifr_ifru))
+      len += ifr->ifr_addr.sa_len - sizeof(ifr->ifr_ifru);
 #endif
 
     /* skip any device with no name */
