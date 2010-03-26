@@ -1230,7 +1230,7 @@ chapter referenced above.</para></listitem>
 
 <sect2 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
 <indexterm><primary>NetBSD, installing on</primary></indexterm>
-<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to PlayStation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  Unfortunately they are not very up-to-date.  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://netbsd.org/Documentation/pkgsrc/using.html" />.</para>
+<para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to PlayStation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://netbsd.org/Documentation/pkgsrc/using.html" />.</para>
 </sect2>
 </sect1>
 
