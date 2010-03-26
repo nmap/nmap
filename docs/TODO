@@ -39,6 +39,12 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
+o [Zenmap] Investigate getting new OS icon art. See
+  http://seclists.org/nmap-dev/2010/q1/1090
+
+o [NPING] Fix compilation on Solaris.  See
+  http://seclists.org/nmap-dev/2010/q1/870.
+
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
   work in combination with Ncrack dev.
