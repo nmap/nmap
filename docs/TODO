@@ -462,6 +462,9 @@ o Zenmap script selection interface for deciding which NSE scripts to
   know the scripts/categories available, display NSEdoc info, and even
   know what arguments each can take.
 
+o Zenmap should actually parse and use script results. See
+  http://seclists.org/nmap-dev/2010/q1/1108
+
 o Get new Zenmap logo
  o consider putting back on top-right of command constructor wizard
  (there used to be umit logo there).
