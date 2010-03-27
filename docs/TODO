@@ -42,6 +42,10 @@ o [NSE] Maybe we should create a class of scripts which only run one
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
 
+o [Zenmap] Consider a memory usage audit. This thread includes a claim
+  that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
+  http://seclists.org/nmap-dev/2010/q1/1127
+
 o [NPING] Fix compilation on Solaris.  See
   http://seclists.org/nmap-dev/2010/q1/870.
 
