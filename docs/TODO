@@ -46,6 +46,11 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
 
+o [NSE] Consider pros and cons of splitting information retrieval
+  scripts into a bunch of small single-purpose script vs. one larger
+  argument-controlled script.  See
+  http://seclists.org/nmap-dev/2010/q1/1023
+
 o [NPING] Fix compilation on Solaris.  See
   http://seclists.org/nmap-dev/2010/q1/870.
 
