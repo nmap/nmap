@@ -2,6 +2,9 @@
 
 [NOT YET RELEASED]
 
+o [NSE] Changed and documented the name of the maxfiles argument used
+  to limit output in the nfs-dirlist script.
+
 o Fixed reading of the interface table on NetBSD. Running nmap
   --iflist would report "INTERFACES: NONE FOUND(!)" and any scan done
   as root would fail with "WARNING: Unable to find appropriate
