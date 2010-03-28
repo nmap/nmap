@@ -393,7 +393,7 @@ static int l_encrypt(lua_State *L) /** encrypt( string algorithm, string key, st
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_EncryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, iv ) &&
+      EVP_EncryptInit_ex( &cipher_ctx, NULL, NULL, key, iv ) &&
       EVP_EncryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
       EVP_EncryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
@@ -447,7 +447,7 @@ static int l_decrypt(lua_State *L) /** decrypt( string algorithm, string key, st
   if (!out) return luaL_error( L, "Couldn't allocate memory.");
 
   if (!(
-      EVP_DecryptInit_ex( &cipher_ctx, evp_cipher, NULL, key, iv ) &&
+      EVP_DecryptInit_ex( &cipher_ctx, NULL, NULL, key, iv ) &&
       EVP_DecryptUpdate( &cipher_ctx, out, &out_len, data, data_len ) &&
       EVP_DecryptFinal_ex( &cipher_ctx, out + out_len, &final_len ) )) {
     EVP_CIPHER_CTX_cleanup( &cipher_ctx );
