@@ -54,9 +54,6 @@ o [NSE] Consider pros and cons of splitting information retrieval
   argument-controlled script.  See
   http://seclists.org/nmap-dev/2010/q1/1023
 
-o [NPING] Fix compilation on Solaris.  See
-  http://seclists.org/nmap-dev/2010/q1/870.
-
 o [NSE] Improve username/password library (the database files
   themselves).  We don't have very good lists at the moment.  Maybe
   work in combination with Ncrack dev.
@@ -2299,4 +2296,7 @@ o Consider making the TODO list public
     reviewing them.
   o Might as well add to insecure.org/nmap/data/
   o Maybe a bug tracker is a better approach.
+
+o [NPING] Fix compilation on Solaris.  See
+  http://seclists.org/nmap-dev/2010/q1/870.
 
