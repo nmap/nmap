@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 02/16/2010
+.\"      Date: 03/28/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "02/16/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "03/28/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -111,7 +111,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.21 ( http://nmap\&.org )
+Nmap 5\&.22TEST ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -122,8 +122,8 @@ TARGET SPECIFICATION:
   \-\-excludefile <exclude_file>: Exclude list from file
 HOST DISCOVERY:
   \-sL: List Scan \- simply list targets to scan
-  \-sP: Ping Scan \- go no further than determining if host is online
-  \-PN: Treat all hosts as online \-\- skip host discovery
+  \-sn: Ping Scan \- disable port scan
+  \-Pn: Treat all hosts as online \-\- skip host discovery
   \-PS/PA/PU/PY[portlist]: TCP SYN/ACK, UDP or SCTP discovery to given ports
   \-PE/PP/PM: ICMP echo, timestamp, and netmask request discovery probes
   \-PO[protocol list]: IP Protocol Ping
@@ -142,7 +142,7 @@ SCAN TECHNIQUES:
   \-b <FTP relay host>: FTP bounce scan
 PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
-    Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
+    Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080,S:9
   \-F: Fast mode \- Scan fewer ports than the default scan
   \-r: Scan ports consecutively \- don\'t randomize
   \-\-top\-ports <number>: Scan <number> most common ports
@@ -193,8 +193,8 @@ OUTPUT:
   \-oN/\-oX/\-oS/\-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename\&.
   \-oA <basename>: Output in the three major formats at once
-  \-v: Increase verbosity level (use twice or more for greater effect)
-  \-d[level]: Set or increase debugging level (Up to 9 is meaningful)
+  \-v: Increase verbosity level (use \-vv or more for greater effect)
+  \-d: Increase debugging level (use \-dd or more for greater effect)
   \-\-reason: Display the reason a port is in a particular state
   \-\-open: Only show open (or possibly open) ports
   \-\-packet\-trace: Show all packets sent and received
@@ -216,8 +216,8 @@ MISC:
   \-h: Print this help summary page\&.
 EXAMPLES:
   nmap \-v \-A scanme\&.nmap\&.org
-  nmap \-v \-sP 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
-  nmap \-v \-iR 10000 \-PN \-p 80
+  nmap \-v \-sn 192\&.168\&.0\&.0/16 10\&.0\&.0\&.0/8
+  nmap \-v \-iR 10000 \-Pn \-p 80
 SEE THE MAN PAGE (http://nmap\&.org/book/man\&.html) FOR MORE OPTIONS AND EXAMPLES
 .fi
 .if n \{\
@@ -305,7 +305,7 @@ One of the very first steps in any network reconnaissance mission is to reduce a
 .PP
 Because host discovery needs are so diverse, Nmap offers a wide variety of options for customizing the techniques used\&. Host discovery is sometimes called ping scan, but it goes well beyond the simple ICMP echo request packets associated with the ubiquitous
 ping
-tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-PN\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
+tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-Pn\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
 .PP
 If no host discovery options are given, Nmap sends an ICMP echo request, a TCP SYN packet to port 443, and TCP ACK packet to port 80, and an ICMP timestamp request\&. These defaults are equivalent to the
 \fB\-PE \-PS443 \-PA80 \-PP\fR
@@ -322,9 +322,9 @@ is done by default against targets on a local ethernet network even if you speci
 options, because it is almost always faster and more effective\&.
 .PP
 By default, Nmap does host discovery and then performs a port scan against each host it determines is online\&. This is true even if you specify non\-default host discovery types such as UDP probes (\fB\-PU\fR)\&. Read about the
-\fB\-sP\fR
+\fB\-sn\fR
 option to learn how to perform only host discovery, or use
-\fB\-PN\fR
+\fB\-Pn\fR
 to skip host discovery and port scan all target hosts\&. The following options control host discovery:
 .PP
 \fB\-sL\fR (List Scan) .\" -sL .\" list scan
@@ -336,50 +336,56 @@ is the name of one company\'s Chicago firewall\&.
 Nmap also reports the total number of IP addresses at the end\&. The list scan is a good sanity check to ensure that you have proper IP addresses for your targets\&. If the hosts sport domain names you do not recognize, it is worth investigating further to prevent scanning the wrong company\'s network\&.
 .sp
 Since the idea is to simply print a list of target hosts, options for higher level functionality such as port scanning, OS detection, or ping scanning cannot be combined with this\&. If you wish to disable ping scanning while still performing such higher level functionality, read up on the
-\fB\-PN\fR
+\fB\-Pn\fR
 (skip ping) option\&.
 .RE
 .PP
-\fB\-sP\fR (Skip port scan) .\" -sP .\" ping scan .\" port scan: disabling with -sP
+\fB\-sn\fR (No port scan) .\" -sn .\" ping scan .\" port scan: disabling with -sn
 .RS 4
 This option tells Nmap not to do a port scan after host discovery, and only print out the available hosts that responded to the scan\&. This is often known as a
 \(lqping scan\(rq, but you can also request that traceroute and NSE host scripts be run\&. This is by default one step more intrusive than the list scan, and can often be used for the same purposes\&. It allows light reconnaissance of a target network without attracting much attention\&. Knowing how many hosts are up is more valuable to attackers than the list provided by list scan of every single IP and host name\&.
 .sp
 Systems administrators often find this option valuable as well\&. It can easily be used to count available machines on a network or monitor server availability\&. This is often called a ping sweep, and is more reliable than pinging the broadcast address because many hosts do not reply to broadcast queries\&.
 .sp
-The
-\fB\-sP\fR
-option sends an ICMP echo request, TCP SYN to port 443, TCP ACK to port 80, and an ICMP timestamp request by default\&. When executed by an unprivileged user, only SYN packets are sent (using a
+The default host discovery done with
+\fB\-sn\fR
+consists of an ICMP echo request, TCP SYN to port 443, TCP ACK to port 80, and an ICMP timestamp request by default\&. When executed by an unprivileged user, only SYN packets are sent (using a
 \fBconnect\fR
 call) to ports 80 and 443 on the target\&. When a privileged user tries to scan targets on a local ethernet network, ARP requests are used unless
 \fB\-\-send\-ip\fR
 was specified\&. The
-\fB\-sP\fR
+\fB\-sn\fR
 option can be combined with any of the discovery probe types (the
 \fB\-P*\fR
 options, excluding
-\fB\-PN\fR) for greater flexibility\&. If any of those probe type and port number options are used, the default probes are overridden\&. When strict firewalls are in place between the source host running Nmap and the target network, using those advanced techniques is recommended\&. Otherwise hosts could be missed when the firewall drops probes or their responses\&.
+\fB\-Pn\fR) for greater flexibility\&. If any of those probe type and port number options are used, the default probes are overridden\&. When strict firewalls are in place between the source host running Nmap and the target network, using those advanced techniques is recommended\&. Otherwise hosts could be missed when the firewall drops probes or their responses\&.
+.sp
+In previous releases of Nmap,
+\fB\-sn\fR
+was known as
+\fB\-sP\fR\&..\" -sP
 .RE
 .PP
-\fB\-PN\fR (No ping) .\" -PN .\" host discovery: disabling
+\fB\-Pn\fR (No ping) .\" -Pn .\" host discovery: disabling
 .RS 4
 This option skips the Nmap discovery stage altogether\&. Normally, Nmap uses this stage to determine active machines for heavier scanning\&. By default, Nmap only performs heavy probing such as port scans, version detection, or OS detection against hosts that are found to be up\&. Disabling host discovery with
-\fB\-PN\fR
+\fB\-Pn\fR
 causes Nmap to attempt the requested scanning functions against
 \fIevery\fR
 target IP address specified\&. So if a class B sized target address space (/16) is specified on the command line, all 65,536 IP addresses are scanned\&. Proper host discovery is skipped as with the list scan, but instead of stopping and printing the target list, Nmap continues to perform requested functions as if each target IP is active\&. To skip ping scan
 \fIand\fR
 port scan, while still allowing NSE to run, use the two options
-\fB\-PN \-sP\fR
+\fB\-Pn \-sn\fR
 together\&.
 .sp
 For machines on a local ethernet network, ARP scanning will still be performed (unless
 \fB\-\-send\-ip\fR
-is specified) because Nmap needs MAC addresses to further scan target hosts\&. This option flag used to be
-\fBP0\fR
-(uses zero), but was renamed to avoid confusion with protocol ping\'s
-\fBPO\fR
-(uses the letter O) flag\&.
+is specified) because Nmap needs MAC addresses to further scan target hosts\&. In previous versions of Nmap,
+\fB\-Pn\fR
+was
+\fB\-P0\fR.\" -P0
+and
+\fB\-PN\fR\&..\" -PN
 .RE
 .PP
 \fB\-PS \fR\fB\fIport list\fR\fR (TCP SYN Ping) .\" -PS .\" SYN ping
@@ -1111,7 +1117,7 @@ to enable OS detection along with other things\&.
 \fB\-\-osscan\-limit\fR (Limit OS detection to promising targets) .\" --osscan-limit
 .RS 4
 OS detection is far more effective if at least one open and one closed TCP port are found\&. Set this option and Nmap will not even try OS detection against hosts that do not meet this criteria\&. This can save substantial time, particularly on
-\fB\-PN\fR
+\fB\-Pn\fR
 scans against many hosts\&. It only matters when OS detection is requested with
 \fB\-O\fR
 or
@@ -1334,7 +1340,7 @@ When a maximum group size is specified with
 \fB\-\-min\-hostgroup\fR
 and Nmap will try to keep group sizes above that level\&. Nmap may have to use smaller groups than you specify if there are not enough target hosts left on a given interface to fulfill the specified minimum\&. Both may be set to keep the group size within a specific range, though this is rarely desired\&.
 .sp
-These options do not have an effect during the host discovery phase of a scan\&. This includes plain ping scans (\fB\-sP\fR)\&. Host discovery always works in large groups of hosts to improve speed and accuracy\&.
+These options do not have an effect during the host discovery phase of a scan\&. This includes plain ping scans (\fB\-sn\fR)\&. Host discovery always works in large groups of hosts to improve speed and accuracy\&.
 .sp
 The primary use of these options is to specify a large minimum group size so that the full scan runs more quickly\&. A common choice is 256 to scan a network in Class C sized chunks\&. For a scan with many ports, exceeding that number is unlikely to help much\&. For scans of just a few port numbers, host group sizes of 2048 or more may be helpful\&.
 .RE
@@ -1364,7 +1370,7 @@ Specifying a lower
 \fB\-\-max\-rtt\-timeout\fR
 and
 \fB\-\-initial\-rtt\-timeout\fR
-than the defaults can cut scan times significantly\&. This is particularly true for pingless (\fB\-PN\fR) scans, and those against heavily filtered networks\&. Don\'t get too aggressive though\&. The scan can end up taking longer if you specify such a low value that many probes are timing out and retransmitting while the response is in transit\&.
+than the defaults can cut scan times significantly\&. This is particularly true for pingless (\fB\-Pn\fR) scans, and those against heavily filtered networks\&. Don\'t get too aggressive though\&. The scan can end up taking longer if you specify such a low value that many probes are timing out and retransmitting while the response is in transit\&.
 .sp
 If all the hosts are on a local network, 100 milliseconds is a reasonable aggressive
 \fB\-\-max\-rtt\-timeout\fR
@@ -1632,7 +1638,7 @@ Another possible use of this flag is to spoof the scan to make the targets think
 is scanning them\&. Imagine a company being repeatedly port scanned by a competitor! The
 \fB\-e\fR
 option and
-\fB\-PN\fR
+\fB\-Pn\fR
 are generally required for this sort of usage\&. Note that you usually won\'t receive reply packets back (they will be addressed to the IP you are spoofing), so Nmap won\'t produce useful reports\&.
 .RE
 .PP
@@ -1922,19 +1928,21 @@ on Windows\&.
 .PP
 \fBVerbosity and debugging options\fR
 .PP
-\fB\-v\fR (Increase verbosity level) .\" -v .\" verbosity
+\fB\-v\fR (Increase verbosity level) .\" -v .\" verbosity, \fB\-v\fR\fB\fIlevel\fR\fR (Set verbosity level)
 .RS 4
-Increases the verbosity level, causing Nmap to print more information about the scan in progress\&. Open ports are shown as they are found and completion time estimates are provided when Nmap thinks a scan will take more than a few minutes\&. Use it twice or more for even greater verbosity\&.
+Increases the verbosity level, causing Nmap to print more information about the scan in progress\&. Open ports are shown as they are found and completion time estimates are provided when Nmap thinks a scan will take more than a few minutes\&. Use it twice or more for even greater verbosity:
+\fB\-vv\fR, or give a verbosity level directly, for example
+\fB\-v3\fR\&.
 .\" -v: giving more than once
 .sp
 Most changes only affect interactive output, and some also affect normal and script kiddie output\&. The other output types are meant to be processed by machines, so Nmap can give substantial detail by default in those formats without fatiguing a human user\&. However, there are a few changes in other modes where output size can be reduced substantially by omitting some detail\&. For example, a comment line in the grepable output that provides a list of all ports scanned is only printed in verbose mode because it can be quite long\&.
 .RE
 .PP
-\fB\-d [level]\fR (Increase or set debugging level) .\" -d .\" debugging
+\fB\-d\fR (Increase debugging level) .\" -d .\" debugging, \fB\-d\fR\fB\fIlevel\fR\fR (Set debugging level)
 .RS 4
-When even verbose mode doesn\'t provide sufficient data for you, debugging is available to flood you with much more! As with the verbosity option (\fB\-v\fR), debugging is enabled with a command\-line flag (\fB\-d\fR) and the debug level can be increased by specifying it multiple times\&..\" -d: giving more than once
-Alternatively, you can set a debug level by giving an argument to
-\fB\-d\fR\&. For example,
+When even verbose mode doesn\'t provide sufficient data for you, debugging is available to flood you with much more! As with the verbosity option (\fB\-v\fR), debugging is enabled with a command\-line flag (\fB\-d\fR) and the debug level can be increased by specifying it multiple times,.\" -d: giving more than once
+as in
+\fB\-dd\fR, or by setting a level directly\&. For example,
 \fB\-d9\fR
 sets level nine\&. That is the highest effective level and will produce thousands of lines unless you run a very simple scan with very few ports and targets\&.
 .sp
@@ -1986,11 +1994,11 @@ grep,
 awk, and
 Perl, but this feature was added due to overwhelming requests\&. Specify
 \fB\-\-open\fR
-to only see
+to only see hosts with at least one
 open,
-open|filtered, and
+open|filtered, or
 unfiltered
-ports\&. These three ports are treated just as they normally are, which means that
+port, and only see ports in those states\&. These three states are treated just as they normally are, which means that
 open|filtered
 and
 unfiltered
@@ -2271,16 +2279,16 @@ sized network where Scanme resides\&. It also tries to determine what operating 
 Launches host enumeration and a TCP scan at the first half of each of the 255 possible eight\-bit subnets in the 198\&.116 class B address space\&. This tests whether the systems run SSH, DNS, POP3, or IMAP on their standard ports, or anything on port 4564\&. For any of these ports found open, version detection is used to determine what application is running\&.
 .PP
 .\" -iR: example of
-.\" -PN: example of
-\fBnmap \-v \-iR 100000 \-PN \-p 80\fR
+.\" -Pn: example of
+\fBnmap \-v \-iR 100000 \-Pn \-p 80\fR
 .PP
 Asks Nmap to choose 100,000 hosts at random and scan them for web servers (port 80)\&. Host enumeration is disabled with
-\fB\-PN\fR
+\fB\-Pn\fR
 since first sending a couple probes to determine whether a host is up is wasteful when you are only probing one port on each target host anyway\&.
 .PP
 .\" -oX: example of
 .\" -oG: example of
-\fBnmap \-PN \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
+\fBnmap \-Pn \-p80 \-oX logs/pb\-port80scan\&.xml \-oG logs/pb\-port80scan\&.gnmap 216\&.163\&.128\&.20/20\fR
 .PP
 This scans 4096 IPs for any web servers (without pinging them) and saves the output in grepable and XML formats\&.
 .SH "NMAP BOOK"
