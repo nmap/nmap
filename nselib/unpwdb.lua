@@ -8,6 +8,18 @@
 -- The closures can take an argument of <code>"reset"</code> to rewind the list
 -- to the beginning.
 --
+-- To avoid taking a long time against slow services, the closures will
+-- stop returning values (start returning <code>nil</code>) after a
+-- certain time. The time depends on the timing template level, and is
+-- * <code>-T3</code> or less: 10 minutes
+-- * <code>-T4</code>: 5 minutes
+-- * <code>-T5</code>: 3 minutes
+-- Time limits are increased by 50% if a custom username or password
+-- database is used with the <code>userdb</code> or <code>passdb</code>
+-- script arguments. You can control the time limit directly with the
+-- <code>unpwdb.timelimit</code> script argument. Use
+-- <code>unpwdb.timelimit=0</code> to disable the time limit.
+--
 -- You can select your own username and/or password database to read from with
 -- the script arguments <code>userdb</code> and <code>passdb</code>,
 -- respectively.  Comments are allowed in these files, prefixed with
@@ -32,6 +44,10 @@
 --   usernames("reset")
 -- end
 --
+-- @usage
+-- nmap --script-args userdb=/tmp/user.lst
+-- nmap --script-args unpwdb.timelimit=500
+--
 -- @args userdb The filename of an alternate username database.
 -- @args passdb The filename of an alternate password database.
 -- @args unpwdb.userlimit The maximum number of usernames
@@ -41,7 +57,10 @@
 --                        <code>passwords</code> will return
 --                        (default unlimited).
 -- @args unpwdb.timelimit The maximum amount of time (in seconds) that any
---                        iterator will run before stopping.
+--                        iterator will run before stopping. The default
+--                        depends on the timing template level (see the module
+--                        description). Use the value <code>0</code> to disable
+--                        the time limit.
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
