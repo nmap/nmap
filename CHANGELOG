@@ -2,13 +2,14 @@
 
 Nmap 5.22TEST [2010-03-29]
 
-o [NSE] Updated the AFP library to support several new AFP functions and added
-  authentication support. Updated the afp-showmount script and added two new
-  scripts:
-  - afp-brute attempts to guess passwords against the AFP service
-  - afp-path-vuln detects the AFP directory traversal vulnerability 
-    CVE-2010-0533
-  [Patrik]
+o [NSE] New script afp-path-vuln detects and can exploit major Mac OS
+  X AFP directory traversal vulnerability (CVE-2010-0533) discovered
+  by Nmap developer Patrik Karlsson.
+
+o [NSE] Updated the AFP library to support several new AFP functions
+  and added authentication support. Updated the afp-showmount script
+  and added afp-brute script which attempts to guess AFP service
+  passwords.  [Patrik]
 
 o An ALPHA TEST VERSION of Nping, a packet generater written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
