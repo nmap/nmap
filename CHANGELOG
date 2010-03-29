@@ -17,17 +17,25 @@ o Improved the passwords.lst database used by NSE by combining several
 o [NSE] Added RPC library and three new NFS scripts. Modified the rpcinfo and
   nfs-showmount scripts to use the new library. The new scripts are:
   - nfs-acls shows the owner and directory mode of NFS exports
+    (http://nmap.org/nsedoc/scripts/nfs-acls.html).
   - nfs-dirlist lists the contents of NFS exports
-  - nfs-statfs shows file system statistics for NFS exports 
+    (http://nmap.org/nsedoc/scripts/nfs-dirlist.html)
+  - nfs-statfs shows file system statistics for NFS exports
+    (http://nmap.org/nsedoc/scripts/nfs-statfs.html).
   [Patrik]
 
 o [NSE] Added the qscan script to repeatedly probe ports on a host to
-  gather round-trip times for each port.  The script then uses these
+  gather round-trip times for each port. The script then uses these
   times to group together ports with statistically equivalent RTTs.
   Ports in different groups could be the result of things such as port
-  forwarding to hosts behind a NAT.  This is based on work by Doug
-  Hoyte.  This script also utilizes the new NSE raw IP sending
-  functionality. [Kris]
+  forwarding to hosts behind a NAT. It is based on work by Doug
+  Hoyte. This script also utilizes the new NSE raw IP sending
+  functionality. See http://nmap.org/nsedoc/scripts/qscan.html. [Kris]
+
+o Fixed a libpcap compilation error on Solaris. This was actually
+  fixed in libpcap's source control back in 2008, but they haven't made
+  a release since then :(. They still seem to be actively developing
+  though, so let's hope for a release soon. [Fyodor]
 
 o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   to identify services. DNS-SD is one part of automatic configuration
@@ -51,7 +59,8 @@ o [NSE] The unpwdb library now has a default time limit on the
     unpwdb.userlimit  Limit on number of usernames.
     unpwdb.passlimit  Limit on number of passwords.
     unpwdb.timelimit  Time limit in seconds.
-  Pass 0 for any of these limits to disable it. [David]
+  Pass 0 for any of these limits to disable it. For more details, see
+  http://nmap.org/nsedoc/lib/unpwdb.html. [David]
 
 o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP library to
   make use of it. Added 5 scripts that use the new libraries:
@@ -140,12 +149,33 @@ o Fixed the Idle Scan (-sI) so that scanning multiple hosts doesn't
   retest the zombie proxy and reinitialize all of the associated data
   at the beginning of each run. [Kris]
 
-o [NSE] Added jdwp-version.nse, a script from Michael Schierl that
-  finds the version of a Java Debug Wire Protocol server.
+o [NSE] Added jdwp-version.nse, a script by Michael Schierl that finds
+  the version of a Java Debug Wire Protocol server. This is a
+  dangerous service to find running as it does not provide any
+  security against malicious attackers who can inject their own
+  bytecode into the debugged process. See
+  http://nmap.org/nsedoc/scripts/jdwp-version.html.
 
 o Fixed the packaging of x64 versions of WinPcap drivers in the
   winpcap-nmap installer to ensure that 64-bit applications (such as
   64-bit Wireshark) work properly. [Rob Nicholls]
+
+o Added version detection matchline for the Arucer backdoor, which was
+  found packaged with drivers for the Energizer USB recharger product
+  (see http://www.kb.cert.org/vuls/id/154421). [Ron]
+
+o Switched to -Pn and -sn and as the preferred syntax for skipping
+  ping scan and skipping port scan, respectively. Previously the -PN
+  and -sP options were recommended. This establishes a more regular
+  syntax for some options that disable phases of a scan:
+	-n  no reverse DNS
+	-Pn no host discovery
+	-sn no port scan
+  We also felt that the old -sP ("ping scan") option was a bit
+  misleading because current versions of Nmap can go much further
+  (including -sC and --traceroute) even with port scans disabled. We
+  will retain support for the previous option names for the forseeable
+  future.
 
 o [Ncat] The HTTP proxy server now accepts client connections over
   SSL. That means connections to the proxy can be encrypted and
@@ -183,7 +213,7 @@ o Added the function bignum_add to the nse_openssl library to support BIGNUM
 
 o Made --resume work with recent changes to normal output. [jlanthea]
 
-o [NSE] Added the new snmp-interfaces script by Thomas Buchanan, which
+o [NSE] Added the snmp-interfaces script by Thomas Buchanan, which
   enumerates network interfaces over SNMP. See
   http://nmap.org/nsedoc/scripts/snmp-interfaces.html.
 
@@ -215,12 +245,37 @@ o [Nsock] WSAEACCES was added to the list of known connect error
   Windows Firewall. Thanks to taemun for reporting this and
   investigating.
 
+o When --open is used, Nmap no longer prints output for hosts which
+  don't have any open ports. All output formats are treated the same
+  way, so if a host isn't shown in normal output, it won't be shown in
+  XML output either.
+
+o XML output now only includes host elements for down hosts in verbose
+  mode. This makes it consistent with the other output formats.
+
 o [NSE] Added the scripts couchdb-databases and couchdb-stats, which
   list CouchDB databases and show access statistics, and a new
   json.lua library they depend on. See
   http://nmap.org/nsedoc/scripts/couchdb-databases.html and
   http://nmap.org/nsedoc/scripts/couchdb-stats.html [Martin Holst
   Swende]
+
+o [NSE] Fixed http-enum so it uses the full pathname for the
+  fingerprints file. This prevents it from quitting with an error like
+  this:
+    NSE: http-enum: Attempting to parse fingerprint file
+    nselib/data/http-fingerprints NSE: http-enum against
+    10.99.24.140:443 threw an error! C:\Program
+    Files\Nmap\scripts\http-enum.nse:198: bad argument #1 to 'lines'
+    (nselib/data/h ttp-fingerprints: No such file or directory) stack
+    traceback:
+  [Kris, Brandon, Ron Meldau]
+
+o [NSE] Added a missing dirname function to http-favicon. Its absense
+  was causing this error message when a web page specified a relative
+  icon URL in a link element:
+   http-favicon.nse:141: variable 'dirname' is not declared
+  [David, Ron Meldau]
 
 o Fixed the parsing of libdnet DLPI interface names that contain more
   than one string of digits. Joe Dietz reported that an interface with
@@ -231,7 +286,8 @@ o Fixed the parsing of libdnet DLPI interface names that contain more
 o [NSE] Raw packet sending at the IP layer is now supported, in
   addition to the existing Ethernet sending functionality.  Packets to
   send start with an IPv4 header and can be sent to arbitrary
-  hosts. [Kris]
+  hosts. For details, see
+  http://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
 
 o [NSE] Added the ipidseq script to classify a host's IP ID sequence numbers
   in the same way Nmap does.  This can be used to test hosts' suitability for
@@ -283,6 +339,17 @@ o The -v and -d options are now handled in the same way. These three
   Formerly, the -ddd and -v3 forms didn't work. Mak Kolybabi submitted
   a patch.
 
+o [NSE] Fixed a bug which prevented smb-brute from properly detecting
+  account lockouts, which could lead to lockouts of many accounts on
+  the target machine. Now smb-brute tries to check the lockout policy
+  before starting and refuses to run (unless you force it to with the
+  smblockout variable) if lockouts are enabled or if it locks out an
+  account. [Ron]
+
+o [NSE] Rewrote smb-enum-domains to be more generalized and rely on
+  library functions which will eventually be shared with
+  smb-brute. [Ron]
+
 o [NSE] Added http-vmware-path-vuln.nse, which checks for a dangerous
   path-traversal vulnerability in VMWare (CVE-2009-3733). See
   http://nmap.org/nsedoc/scripts/http-vmware-path-vuln.html. [Ron]
@@ -310,9 +377,6 @@ o Removed the nmap_service.exe helper program for smb-psexec, as it
   http://nmap.org/psexec/nmap_service.exe. (The script will remind you
   if it's not installed.)
 
-o [NSE] Replaced incorrect try/catch statements in dns-service-discovery that 
-  would attempt to close a non-existing socket
-
 o Added service probes and UDP payloads for games based on the Quake 2
   and Quake 3 engine, submitted by Mak Kolybabi.
 
@@ -327,7 +391,8 @@ o [Ndiff] Show a nicer error message when an input file can't be
 
 o [NSE] Added a new library, afp.lua, and a script that uses it,
   afp-showmount. The library is for the Apple Filing Protocol and the
-  script shows shares and their permissions. [Patrik Karlsson]
+  script (http://nmap.org/nsedoc/scripts/afp-showmount.html) displays
+  shares and their permissions. [Patrik Karlsson]
 
 o Added an Apple Filing Protocol service probe that detects Netatalk
   servers. (Apple's AFP servers are coincidentally triggered by the
