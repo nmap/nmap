@@ -241,6 +241,11 @@ $(NCATDIR)/ncat.h: nmap.h
 	sed -e 's/^#[ \t]*define[ \t]\+NCAT_VERSION[ \t]\+\(".*"\)/#define NCAT_VERSION "$(NMAP_VERSION)"/' $@ > $@.tmp
 	mv -f $@.tmp $@
 
+# Update the Nping version number. This is "0.NMAP_VERSION".
+$(NPINGDIR)/nping.h: nmap.h
+	sed -e 's/^#[ \t]*define[ \t]\+NPING_VERSION[ \t]\+\(".*"\)/#define NPING_VERSION "0.$(NMAP_VERSION)"/' $@ > $@.tmp
+	mv -f $@.tmp $@
+
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
@@ -274,7 +279,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
-build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build
+build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build $(NPINGDIR)/nping.h
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:
