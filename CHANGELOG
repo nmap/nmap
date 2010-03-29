@@ -21,14 +21,15 @@ o [NSE] New script afp-path-vuln detects and can exploit a major Mac
   discovered by Nmap developer Patrik Karlsson. See
   http://nmap.org/nsedoc/scripts/afp-path-vuln.html.
 
-o An ALPHA TEST VERSION of Nping, a packet generater written by Luis
+o An ALPHA TEST VERSION of Nping, a packet generator written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
   distribution. While it works, we consider the application unfinished
   and we hope to improve it greatly as a Summer of Code project this
   summer and then do an official release. See http://nmap.org/nping/.
 
-o [NSE] Added RPC library and three new NFS scripts. Modified the rpcinfo and
-  nfs-showmount scripts to use the new library. The new scripts are:
+o [NSE] Added RPC library and three new NFS scripts. Modified the
+  rpcinfo and nfs-showmount scripts to use the new library. The new
+  scripts are:
   - nfs-acls shows the owner and directory mode of NFS exports
     (http://nmap.org/nsedoc/scripts/nfs-acls.html).
   - nfs-dirlist lists the contents of NFS exports
@@ -55,10 +56,10 @@ o [NSE] Added a new script afp-showmount which displays Apple AFP
 
 o [NSE] Added the qscan script to repeatedly probe ports on a host to
   gather round-trip times for each port. The script then uses these
-  times to group together ports with statistically equivalent RTTs.
-  Ports in different groups could be the result of things such as port
-  forwarding to hosts behind a NAT. It is based on work by Doug
-  Hoyte. This script also utilizes the new NSE raw IP sending
+  times to group together ports with statistically equivalent round
+  trip times.  Ports in different groups could be the result of things
+  such as port forwarding to hosts behind a NAT. It is based on work
+  by Doug Hoyte. This script also utilizes the new NSE raw IP sending
   functionality. See http://nmap.org/nsedoc/scripts/qscan.html. [Kris]
 
 o [NSE] Added a new script, db2-das-info.nse, that connects to the IBM
@@ -141,14 +142,15 @@ o Switched to -Pn and -sn and as the preferred syntax for skipping
   We also felt that the old -sP ("ping scan") option was a bit
   misleading because current versions of Nmap can go much further
   (including -sC and --traceroute) even with port scans disabled. We
-  will retain support for the previous option names for the forseeable
+  will retain support for the previous option names for the foreseeable
   future.
 
-o [NSE] Added the ipidseq script to classify a host's IP ID sequence numbers
-  in the same way Nmap does.  This can be used to test hosts' suitability for
-  Nmap's Idle Scan (-sI), i.e. check if a host is an idle zombie.  This is
-  the first script to use the new raw IP sending functionality in
-  NSE. See http://nmap.org/nsedoc/scripts/ipidseq.html. [Kris]
+o [NSE] Added the ipidseq script to classify a host's IP ID sequence
+  numbers in the same way Nmap does.  This can be used to test hosts'
+  suitability for Nmap's Idle Scan (-sI), i.e. check if a host is an
+  idle zombie.  This is the first script to use the new raw IP sending
+  functionality in NSE. See
+  http://nmap.org/nsedoc/scripts/ipidseq.html. [Kris]
 
 o [NSE] Added the ssl-enum-ciphers script by Mak Kolybabi. It lists
   the ciphers and compressors supported by SSL/TLS servers. See
@@ -174,9 +176,9 @@ o [NSE] Added the new lexmark-config script that lists product
   http://nmap.org/nsedoc/scripts/lexmark-config.html. [Patrik
   Karlsson]
 
-o [NSE] Added the new daap-get-library script which uses the Digital Audio
-  Access Protocol to enumerate the contents of a library. The contents
-  contain the name of the artist, album and song. See
+o [NSE] Added the new daap-get-library script which uses the Digital
+  Audio Access Protocol to enumerate the contents of a library. The
+  contents contain the name of the artist, album and song. See
   http://nmap.org/nsedoc/scripts/daap-get-library.html. [Patrik]
 
 o [NSE] Added jdwp-version.nse, a script by Michael Schierl that finds
@@ -245,7 +247,7 @@ o [NSE] Raw packet sending at the IP layer is now supported, in
   hosts. For details, see
   http://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
 
-o Added version detection matchline for the Arucer backdoor, which was
+o Added version detection match line for the Arucer backdoor, which was
   found packaged with drivers for the Energizer USB recharger product
   (see http://www.kb.cert.org/vuls/id/154421). [Ron]
 
@@ -260,7 +262,7 @@ o [Zenmap] Localized most of the remaining strings in the GUI
 o [Zenmap] Updated the localization files for the French
   translation. [Gutek]
 
-o [Zenmap] Fixed an interface bug which could cause hostsnames with
+o [Zenmap] Fixed an interface bug which could cause hostnames with
   underscores like "host_a" to be rendered like "hosta" with the "a"
   underlined. Thanks to Toralf F. for the report, and David for the
   fix.
@@ -344,24 +346,24 @@ o [Ncat] Fixed a bug that prevented detection of EOF from stdin on
 
 o [Nsock] WSAEACCES was added to the list of known connect error
   codes. This error can happen on Windows when a port is blocked by
-  Windows Firewall. Thanks to taemun for reporting this and
+  Windows Firewall. Thanks to Taemun for reporting this and
   investigating.
 
 o XML output now only includes host elements for down hosts in verbose
   mode. This makes it consistent with the other output formats.
 
-o [NSE] Fixed http-enum so it uses the full pathname for the
+o [NSE] Fixed http-enum so it uses the full path name for the
   fingerprints file. This prevents it from quitting with an error like
   this:
     NSE: http-enum: Attempting to parse fingerprint file
     nselib/data/http-fingerprints NSE: http-enum against
     10.99.24.140:443 threw an error! C:\Program
     Files\Nmap\scripts\http-enum.nse:198: bad argument #1 to 'lines'
-    (nselib/data/h ttp-fingerprints: No such file or directory) stack
+    (nselib/data/http-fingerprints: No such file or directory) stack
     traceback:
   [Kris, Brandon, Ron Meldau]
 
-o [NSE] Added a missing dirname function to http-favicon. Its absense
+o [NSE] Added a missing dirname function to http-favicon. Its absence
   was causing this error message when a web page specified a relative
   icon URL in a link element:
    http-favicon.nse:141: variable 'dirname' is not declared
@@ -369,7 +371,7 @@ o [NSE] Added a missing dirname function to http-favicon. Its absense
 
 o Fixed the parsing of libdnet DLPI interface names that contain more
   than one string of digits. Joe Dietz reported that an interface with
-  the name e1000g0 was causing this error message on Solris 9:
+  the name e1000g0 was causing this error message on Solaris 9:
     Warning: Unable to open interface e1000g0 -- skipping it.
   [David]
 
@@ -391,7 +393,7 @@ o [NSE] nbstat.nse can now look up the MAC prefix vendor string. Other
   datafiles.parse_mac_prefixes function. [Thomas Buchanan]
 
 o Remove the PYTHONPATH and PYTHONHOME variables from the environment
-  before executing a sub-ndiff if they exist and if Zenamp is running
+  before executing a sub-ndiff if they exist and if Zenmap is running
   in a py2app bundle. These variables are set by py2app to point
   inside our application bundle. Having them set in the environment
   makes Ndiff use the same settings because it is also a Python
@@ -436,7 +438,7 @@ o Improved PostgreSQL match lines by matching the line of the error to a
 
 o Added a mac_addr_next_hop member to the host tables used in NSE for
   scripts which need to know the MAC address of the next hop router
-  for reaching a target host. [Michael Pattrick, kx].
+  for reaching a target host. [Michael Pattrick, KX].
 
 o Removed the nmap_service.exe helper program for smb-psexec, as it
   was still being flagged by malware detection even after the
