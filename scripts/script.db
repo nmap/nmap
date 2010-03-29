@@ -1,5 +1,4 @@
 Entry { filename = "afp-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "afp-path-exploit.nse", categories = { "safe", "vuln", } }
 Entry { filename = "afp-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
