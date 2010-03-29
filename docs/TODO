@@ -1,5 +1,8 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o [Nping] Should take the version number 0.[nmap version], such as
+  0.5.22TEST
+
 o Brainstorm for GSoC 2010 ideas and fill out the org application by
   Friday 3/12 4PM PST.
   o NSE scripts
