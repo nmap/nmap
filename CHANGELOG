@@ -2,7 +2,13 @@
 
 Nmap 5.22TEST [2010-03-29]
 
-o Placeholder for new NSE scripts count/info
+o [NSE] Updated the AFP library to support several new AFP functions and added
+  authentication support. Updated the afp-showmount script and added two new
+  scripts:
+  - afp-brute attempts to guess passwords against the AFP service
+  - afp-path-vuln detects the AFP directory traversal vulnerability 
+    CVE-2010-0533
+  [Patrik]
 
 o An ALPHA TEST VERSION of Nping, a packet generater written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
