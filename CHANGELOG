@@ -99,7 +99,7 @@ o Zenmap now lets you save scan results in normal Nmap text out format
 
 o Zenmap's "slow comprehensive scan profile" has been modified to use
   the best 7-probe host discovery combination we were able to find in
-  extensive empirical testing.  That is "PE -PP
+  extensive empirical testing.  That is "-PE -PP
   -PS21,22,23,25,80,113,31339 -PA80,113,443,10042 -PO". [David]
 
 o [Zenmap] Localized most of the remaining strings in the GUI
