@@ -80,6 +80,10 @@ o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
 
+o Our nsedoc generator should probably give a warning if a script is
+  missing any important fields. @output and the user summary are two
+  which come to mind.
+
 o Review IDS detection scripts from Joao Correa.
   http://seclists.org/nmap-dev/2010/q1/814
 
