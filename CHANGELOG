@@ -92,6 +92,29 @@ o [NSE] Added 5 new NSE scripts and a library by Patrik Karlsson for
   * mysql-variables queries MySQL for it's variables and their
     settings (http://nmap.org/nsedoc/scripts/mysql-variables.html).
 
+o Zenmap now lets you save scan results in normal Nmap text out format
+  or as XML (the XML still has the text version embedded inside
+  it). The "Save to Directory" mode for saving multiple aggregated
+  scans at once still always saves XML results. [David]
+
+o Zenmap's "slow comprehensive scan profile" has been modified to use
+  the best 7-probe host discovery combination we were able to find in
+  extensive empirical testing.  That is "PE -PP
+  -PS21,22,23,25,80,113,31339 -PA80,113,443,10042 -PO". [David]
+
+o [Zenmap] Localized most of the remaining strings in the GUI
+  interface which were English-only. Note that the Nmap results text
+  itself is still English, but the GUI is now almost fully
+  localized. [David]
+
+o [Zenmap] Updated the localization files for the French
+  translation. [Gutek]
+
+o [Zenmap] Fixed an interface bug which could cause hostsnames with
+  underscores like host_a to be rendered like hosta with the "a"
+  underlined. Thanks to Toralf F. for the report, and David for the
+  fix.
+
 o Nmap now honors routing table entries that override interface
   addresses and netmasks. For example, with this configuration:
 
@@ -107,6 +130,9 @@ o Nmap now honors routing table entries that override interface
   Nmap will not consider 192.168.0.3 directly connected through eth0,
   even though it matches the interface's netmask. It won't try to ARP
   ping 192.168.0.3, but will route traffic through 192.168.0.1.
+
+o Updated our Mac OS X build system so that our binary packages are
+  built on Mac OS X 10.6 with MacPorts 1.8.2. [David]
 
 o [NSE] Added the script http-methods from Bernd Stroessenreuther.
   This script sends an HTTP OPTIONS request to get the methods
@@ -311,6 +337,17 @@ o [Ncat] Fixed a handle leak with --exec and --sh-exec on Windows,
 o [NSE] nbstat.nse can now look up the MAC prefix vendor string. Other
   scripts can now do the same thing using the
   datafiles.parse_mac_prefixes function. [Thomas Buchanan]
+
+o Remove the PYTHONPATH and PYTHONHOME variables from the environment
+  before executing a sub-ndiff if they exist and if Zenamp is running
+  in a py2app bundle. These variables are set by py2app to point
+  inside our application bundle. Having them set in the environment
+  makes Ndiff use the same settings because it is also a Python
+  application. Deleting the variables is somewhat wrong, because the
+  user may have set those outside of Zenmap expecting them to be used
+  with their system-installed Python programs. But this is at least no
+  worse than before our build system update, because previously py2app
+  was stomping on the variables anyway. [David]
 
 o [NSE] Added the ssl-enum-ciphers script by Mak Kolybabi. It lists
   the ciphers and compressors supported by SSL/TLS servers. See
