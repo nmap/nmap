@@ -4,11 +4,11 @@ Attempts to get tables from a MongoDB
 
 ---
 -- @usage
--- nmap -p 27017 --script mongodb-get-tables-query <host>
+-- nmap -p 27017 --script mongodb-databases <host>
 -- @output
 -- PORT      STATE SERVICE REASON
 -- 27017/tcp open  unknown syn-ack
--- | mongodb-get-tables-query:  
+-- | mongodb-databases:  
 -- |   ok = 1
 -- |   databases
 -- |     1
