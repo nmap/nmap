@@ -76,6 +76,9 @@ o Consider enhancing scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
+o [NSE] Consider modifying our brute force scripts to take advantage
+  of the new NSE multiple-thread parallelism features.
+
 o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
@@ -96,6 +99,8 @@ o Review DNS fuzzer script from Michael Pattrick.
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
+
+o Consider removing --interactive
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
