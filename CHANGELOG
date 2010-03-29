@@ -414,6 +414,15 @@ o Removed the nmap_service.exe helper program for smb-psexec, as it
   http://nmap.org/psexec/nmap_service.exe. (The script will remind you
   if it's not installed.)
 
+o [Ncat] Don't call SSL_accept in the listen mode, rather use the
+  implicit SSL_accept in SSL_read. The problem was that SSL_accept was
+  blocking until the handshake was complete. You could block the whole
+  server by making a TCP connection and not completing the handshake,
+  for example by connecting with Ncat in non-SSL mode, or by using a
+  browser and not clicking through the certificate verification
+  screen. Our calls to SSL_read come though select so they don't
+  block.
+
 o Added service probes and UDP payloads for games based on the Quake 2
   and Quake 3 engine, submitted by Mak Kolybabi.
 
