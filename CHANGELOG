@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added the ability to print Nmap output to a printer. [David]
+
 Nmap 5.30BETA1 [2010-03-29]
 
 o [NSE] Added 37 scripts, bringing the total to 117! They are
