@@ -1,25 +1,31 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 5.22TEST [2010-03-29]
+Nmap 5.30BETA1 [2010-03-29]
 
-o [NSE] New script afp-path-vuln detects and can exploit major Mac OS
-  X AFP directory traversal vulnerability (CVE-2010-0533) discovered
-  by Nmap developer Patrik Karlsson.
+o [NSE] Added 37 scripts, bringing the total to 117! They are
+  described individually in the CHANGELOG, but here is the list of new
+  ones:
+    afp-brute afp-path-vuln afp-showmount couchdb-databases
+    couchdb-stats daap-get-library db2-das-info dns-service-discovery
+    http-methods http-vmware-path-vuln ipidseq jdwp-version ldap-brute
+    ldap-rootdse ldap-search lexmark-config mongodb-databases
+    mongodb-info mysql-brute mysql-databases mysql-empty-password
+    mysql-users mysql-variables nfs-acls nfs-dirlist nfs-statfs
+    pgsql-brute qscan smtp-enum-users snmp-interfaces snmp-netstat
+    snmp-processes snmp-win32-services snmp-win32-shares
+    snmp-win32-software snmp-win32-users ssl-enum-ciphers
+  Learn more about any of these at: http://nmap.org/nsedoc/
 
-o [NSE] Updated the AFP library to support several new AFP functions
-  and added authentication support. Updated the afp-showmount script
-  and added afp-brute script which attempts to guess AFP service
-  passwords.  [Patrik]
+o [NSE] New script afp-path-vuln detects and can exploit a major Mac
+  OS X AFP directory traversal vulnerability (CVE-2010-0533)
+  discovered by Nmap developer Patrik Karlsson. See
+  http://nmap.org/nsedoc/scripts/afp-path-vuln.html.
 
 o An ALPHA TEST VERSION of Nping, a packet generater written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
   distribution. While it works, we consider the application unfinished
   and we hope to improve it greatly as a Summer of Code project this
   summer and then do an official release. See http://nmap.org/nping/.
-
-o Improved the passwords.lst database used by NSE by combining several
-  databases collected by Ron Bowes. The size of the database has been
-  increased from 200 to 5000.
 
 o [NSE] Added RPC library and three new NFS scripts. Modified the rpcinfo and
   nfs-showmount scripts to use the new library. The new scripts are:
@@ -31,19 +37,6 @@ o [NSE] Added RPC library and three new NFS scripts. Modified the rpcinfo and
     (http://nmap.org/nsedoc/scripts/nfs-statfs.html).
   [Patrik]
 
-o [NSE] Added the qscan script to repeatedly probe ports on a host to
-  gather round-trip times for each port. The script then uses these
-  times to group together ports with statistically equivalent RTTs.
-  Ports in different groups could be the result of things such as port
-  forwarding to hosts behind a NAT. It is based on work by Doug
-  Hoyte. This script also utilizes the new NSE raw IP sending
-  functionality. See http://nmap.org/nsedoc/scripts/qscan.html. [Kris]
-
-o Fixed a libpcap compilation error on Solaris. This was actually
-  fixed in libpcap's source control back in 2008, but they haven't made
-  a release since then :(. They still seem to be actively developing
-  though, so let's hope for a release soon. [Fyodor]
-
 o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   to identify services. DNS-SD is one part of automatic configuration
   technologies known by names such as Bonjour, Rendezvous, and
@@ -52,6 +45,22 @@ o [NSE] Added the new dns-service-discovery script which uses DNS-SD
   http://nmap.org/nsedoc/scripts/dns-service-discovery.html. [Patrik
   Karlsson]
 
+o [NSE] New script afp-brute for brute force authentication attempts
+  against the Apple AFP filesharing protocol. See
+  http://nmap.org/nsedoc/scripts/afp-brute.html. [Patrik]
+
+o [NSE] Added a new script afp-showmount which displays Apple AFP
+  shares and their permissions.  See
+  http://nmap.org/nsedoc/scripts/afp-showmount.html. [Patrik]
+
+o [NSE] Added the qscan script to repeatedly probe ports on a host to
+  gather round-trip times for each port. The script then uses these
+  times to group together ports with statistically equivalent RTTs.
+  Ports in different groups could be the result of things such as port
+  forwarding to hosts behind a NAT. It is based on work by Doug
+  Hoyte. This script also utilizes the new NSE raw IP sending
+  functionality. See http://nmap.org/nsedoc/scripts/qscan.html. [Kris]
+
 o [NSE] Added a new script, db2-das-info.nse, that connects to the IBM
   DB2 Administration Server (DAS) exports the server profile. No
   authentication is required for this request. The script will also
@@ -59,18 +68,9 @@ o [NSE] Added a new script, db2-das-info.nse, that connects to the IBM
   http://nmap.org/nsedoc/scripts/db2-das-info.html. [Patrik Karlsson,
   Tom Sellers]
 
-o [NSE] The unpwdb library now has a default time limit on the
-  usernames and passwords iterators. This will prevent brute force
-  scripts from running for a long time when a service is slow. These
-  new script arguments control the limits:
-    unpwdb.userlimit  Limit on number of usernames.
-    unpwdb.passlimit  Limit on number of passwords.
-    unpwdb.timelimit  Time limit in seconds.
-  Pass 0 for any of these limits to disable it. For more details, see
-  http://nmap.org/nsedoc/lib/unpwdb.html. [David]
-
-o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP library to
-  make use of it. Added 5 scripts that use the new libraries:
+o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP
+  library to make use of it. Added 5 SNMP scripts that use the new
+  libraries:
   - snmp-netstat shows listening and connected
     sockets (http://nmap.org/nsedoc/scripts/snmp-netstat.html).
   - snmp-processes shows process information including name, pid, path
@@ -85,40 +85,183 @@ o [NSE] Added a new library for ASN.1 parsing and adapted the SNMP library to
     (http://nmap.org/nsedoc/scripts/snmp-win32-users.html).
   [Patrik]
 
-o [NSE] Added 5 new NSE scripts and a library by Patrik Karlsson for
-  use with MySQL.
-  * mysql-brute uses the unpwdb library to guess credentials for MySQL
+o [NSE] Added the snmp-interfaces script by Thomas Buchanan, which
+  enumerates network interfaces over SNMP. See
+  http://nmap.org/nsedoc/scripts/snmp-interfaces.html.
+
+o [NSE] Added http-vmware-path-vuln.nse, which checks for a critical
+  and easy to exploit path-traversal vulnerability in VMWare
+  (CVE-2009-3733). See
+  http://nmap.org/nsedoc/scripts/http-vmware-path-vuln.html. [Ron]
+
+o [NSE] Added a new library for LDAP and three new scripts by Patrik:
+  - ldap-brute uses the unpwdb library to guess credentials for LDAP
+    (http://nmap.org/nsedoc/scripts/ldap-brute.html). 
+  - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
+    (http://nmap.org/nsedoc/scripts/ldap-rootdse.html).
+  - ldap-search queries a LDAP directory for either
+    all, or a number of pre-defined object types
+    (http://nmap.org/nsedoc/scripts/ldap-search.html).
+
+o [NSE] Added a new library for PostgreSQL and the script pgsql-brute
+  that uses it to guess credentials. See
+  http://nmap.org/nsedoc/scripts/pgsql-brute.html. [Patrik]
+
+o [NSE] Added 5 new MySQL NSE scripts and a MySQL library by Patrik Karlsson:
+  - mysql-brute uses the unpwdb library to guess credentials for MySQL
     (http://nmap.org/nsedoc/scripts/mysql-brute.html).
-  * mysql-databases queries MySQL for a list of databases
+  - mysql-databases queries MySQL for a list of databases
     (http://nmap.org/nsedoc/scripts/mysql-databases.html).
-  * mysql-empty-password attempts to authenticate anonymously or as
+  - mysql-empty-password attempts to authenticate anonymously or as
     root with an empty password
     (http://nmap.org/nsedoc/scripts/mysql-empty-password.html).
-  * mysql-users queries MySQL for a list of database users
+  - mysql-users queries MySQL for a list of database users
     (http://nmap.org/nsedoc/scripts/mysql-users.html).
-  * mysql-variables queries MySQL for it's variables and their
+  - mysql-variables queries MySQL for it's variables and their
     settings (http://nmap.org/nsedoc/scripts/mysql-variables.html).
 
-o Zenmap now lets you save scan results in normal Nmap text out format
-  or as XML (the XML still has the text version embedded inside
-  it). The "Save to Directory" mode for saving multiple aggregated
-  scans at once still always saves XML results. [David]
+o Improved the passwords.lst database used by NSE by combining several
+  leaked password databases collected by Ron Bowes. The size of the
+  database has been increased from 200 to 5000.
 
 o Zenmap's "slow comprehensive scan profile" has been modified to use
   the best 7-probe host discovery combination we were able to find in
-  extensive empirical testing.  That is "-PE -PP
-  -PS21,22,23,25,80,113,31339 -PA80,113,443,10042 -PO". [David]
+  extensive empirical testing
+  (http://www.bamsoftware.com/wiki/nmap/EffectivenessOfPingProbes).
+  That combination is "-PE -PP -PS21,22,23,25,80,113,31339
+  -PA80,113,443,10042 -PO". [David]
+
+o Switched to -Pn and -sn and as the preferred syntax for skipping
+  ping scan and skipping port scan, respectively. Previously the -PN
+  and -sP options were recommended. This establishes a more regular
+  syntax for some options that disable phases of a scan:
+	-n  no reverse DNS
+	-Pn no host discovery
+	-sn no port scan
+  We also felt that the old -sP ("ping scan") option was a bit
+  misleading because current versions of Nmap can go much further
+  (including -sC and --traceroute) even with port scans disabled. We
+  will retain support for the previous option names for the forseeable
+  future.
+
+o [NSE] Added the ipidseq script to classify a host's IP ID sequence numbers
+  in the same way Nmap does.  This can be used to test hosts' suitability for
+  Nmap's Idle Scan (-sI), i.e. check if a host is an idle zombie.  This is
+  the first script to use the new raw IP sending functionality in
+  NSE. See http://nmap.org/nsedoc/scripts/ipidseq.html. [Kris]
+
+o [NSE] Added the ssl-enum-ciphers script by Mak Kolybabi. It lists
+  the ciphers and compressors supported by SSL/TLS servers. See
+  http://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html.
+
+o [NSE] Added two new scripts for the MongoDB database from Martin
+  Holst Swende. mongodb-info
+  (http://nmap.org/nsedoc/scripts/mongodb-info.html) gets information
+  like the version number, memory use, and operating system, while
+  mongodb-databases
+  (http://nmap.org/nsedoc/scripts/mongodb-databases.html) lists the
+  databases and their size on disk.
+
+o [NSE] Added the scripts couchdb-databases and couchdb-stats, which
+  list CouchDB databases and show access statistics, and a new
+  json.lua library they depend on. See
+  http://nmap.org/nsedoc/scripts/couchdb-databases.html and
+  http://nmap.org/nsedoc/scripts/couchdb-stats.html [Martin Holst
+  Swende]
+
+o [NSE] Added the new lexmark-config script that lists product
+  information and configuration for Lexmark printers. See
+  http://nmap.org/nsedoc/scripts/lexmark-config.html. [Patrik
+  Karlsson]
+
+o [NSE] Added the new daap-get-library script which uses the Digital Audio
+  Access Protocol to enumerate the contents of a library. The contents
+  contain the name of the artist, album and song. See
+  http://nmap.org/nsedoc/scripts/daap-get-library.html. [Patrik]
+
+o [NSE] Added jdwp-version.nse, a script by Michael Schierl that finds
+  the version of a Java Debug Wire Protocol server. This is a
+  dangerous service to find running as it does not provide any
+  security against malicious attackers who can inject their own
+  bytecode into the debugged process. See
+  http://nmap.org/nsedoc/scripts/jdwp-version.html.
+
+o [NSE] Added the smtp-enum-users script from Duarte Silva, which
+  attempts to find user account names over SMTP by brute force testing
+  using RCPT, VRFY, and EXPN tests.
+
+o [NSE] The unpwdb library now has a default time limit on the
+  usernames and passwords iterators. This will prevent brute force
+  scripts from running for a long time when a service is slow. These
+  new script arguments control the limits:
+    unpwdb.userlimit  Limit on number of usernames.
+    unpwdb.passlimit  Limit on number of passwords.
+    unpwdb.timelimit  Time limit in seconds.
+  Pass 0 for any of these limits to disable it. For more details, see
+  http://nmap.org/nsedoc/lib/unpwdb.html. [David]
+
+o When --open is used, Nmap no longer prints output for hosts which
+  don't have any open ports. All output formats are treated the same
+  way, so if a host isn't shown in normal output, it won't be shown in
+  XML output either.
+
+o [NSE] Added the script http-methods from Bernd Stroessenreuther.
+  This script sends an HTTP OPTIONS request to get the methods
+  supported by the server, highlights potentially risky methods, and
+  optionally tests each method to see if they are restricted by IP
+  address or something similar. See
+  http://nmap.org/nsedoc/scripts/http-methods.html.
+
+o The -v and -d options are now handled in the same way. These three
+  forms are equivalent:
+    -v -v -v    -vvv    -v3
+    -d -d -d    -ddd    -d3
+  Formerly, the -ddd and -v3 forms didn't work. Mak Kolybabi submitted
+  a patch.
+
+o Fixed a libpcap compilation error on Solaris. This was actually
+  fixed in libpcap's source control back in 2008, but they haven't made
+  a release since then :(. They still seem to be actively developing
+  though, so let's hope for a release soon. Solaris compilation fixes
+  were made to Ncat and Nping as well.
+
+o Zenmap now lets you save scan results in normal Nmap text output
+  format or (as before) as XML. The XML format still has the text
+  version embedded inside it, and is still the only format Zenmap can
+  load again. The "Save to Directory" mode for saving multiple
+  aggregated scans at once still always saves XML results. [David]
+
+o Fixed the packaging of x64 versions of WinPcap drivers in the
+  winpcap-nmap installer to ensure that 64-bit applications (such as
+  64-bit Wireshark) work properly. [Rob Nicholls]
+
+o Fixed the Idle Scan (-sI) so that scanning multiple hosts doesn't
+  retest the zombie proxy and reinitialize all of the associated data
+  at the beginning of each run. [Kris]
+
+o [NSE] Raw packet sending at the IP layer is now supported, in
+  addition to the existing Ethernet sending functionality.  Packets to
+  send start with an IPv4 header and can be sent to arbitrary
+  hosts. For details, see
+  http://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
+
+o Added version detection matchline for the Arucer backdoor, which was
+  found packaged with drivers for the Energizer USB recharger product
+  (see http://www.kb.cert.org/vuls/id/154421). [Ron]
+
+o Fixed --resume to work again despite our recent changes to the Nmap
+  output format. [jlanthea]
 
 o [Zenmap] Localized most of the remaining strings in the GUI
-  interface which were English-only. Note that the Nmap results text
-  itself is still English, but the GUI is now almost fully
+  interface which were English-only. The actual textual Nmap results
+  are still in English since Nmap, but the GUI is now almost fully
   localized. [David]
 
 o [Zenmap] Updated the localization files for the French
   translation. [Gutek]
 
 o [Zenmap] Fixed an interface bug which could cause hostsnames with
-  underscores like host_a to be rendered like hosta with the "a"
+  underscores like "host_a" to be rendered like "hosta" with the "a"
   underlined. Thanks to Toralf F. for the report, and David for the
   fix.
 
@@ -138,28 +281,15 @@ o Nmap now honors routing table entries that override interface
   even though it matches the interface's netmask. It won't try to ARP
   ping 192.168.0.3, but will route traffic through 192.168.0.1.
 
+o [Ncat] The HTTP proxy server now accepts client connections over
+  SSL. That means connections to the proxy can be encrypted and
+  authenticated. We haven't found any HTTP clients that directly
+  support SSL connections to proxies, but you can use Ncat as a tunnel
+  to an SSL-supporting Ncat proxy. This new feature was implemented by
+  Markus Klinik.
+
 o Updated our Mac OS X build system so that our binary packages are
-  built on Mac OS X 10.6 with MacPorts 1.8.2. [David]
-
-o [NSE] Added the script http-methods from Bernd Stroessenreuther.
-  This script sends an HTTP OPTIONS request to get the methods
-  supported by the server, highlights potentially risky methods, and
-  optionally tests each method to see if they are restricted by IP
-  address or something similar. See
-  http://nmap.org/nsedoc/scripts/http-methods.html.
-
-o [NSE] Added two new scripts for the MongoDB database from Martin
-  Holst Swende. mongodb-info
-  (http://nmap.org/nsedoc/scripts/mongodb-info.html) gets information
-  like the version number, memory use, and operating system, while
-  mongodb-databases
-  (http://nmap.org/nsedoc/scripts/mongodb-databases.html) lists the
-  databases and their size on disk.
-
-o [NSE] Added the new lexmark-config script that lists product
-  information and configuration for Lexmark printers. See
-  http://nmap.org/nsedoc/scripts/lexmark-config.html. [Patrik
-  Karlsson]
+  built on Mac OS X 10.6 rather than 10.5. [David]
 
 o Fixed reading of the interface table on NetBSD. Running nmap
   --iflist would report "INTERFACES: NONE FOUND(!)" and any scan done
@@ -168,57 +298,10 @@ o Fixed reading of the interface table on NetBSD. Running nmap
   Fink, and had already been patched in the NetBSD pkgsrc
   tree. [David]
 
-o [NSE] Added the new daap-get-library script which uses the Digital Audio
-  Access Protocol to enumerate the contents of a library. The contents
-  contain the name of the artist, album and song. See
-  http://nmap.org/nsedoc/scripts/daap-get-library.html. [Patrik]
-
 o Fixed a bug in traceroute that could happen when directly connected
   and routed targets were in the same hostgroup. If the first target
   was directly connected, the traceroute for all targets in the group
   would have a trace of one hop.
-
-o Fixed the Idle Scan (-sI) so that scanning multiple hosts doesn't
-  retest the zombie proxy and reinitialize all of the associated data
-  at the beginning of each run. [Kris]
-
-o [NSE] Added jdwp-version.nse, a script by Michael Schierl that finds
-  the version of a Java Debug Wire Protocol server. This is a
-  dangerous service to find running as it does not provide any
-  security against malicious attackers who can inject their own
-  bytecode into the debugged process. See
-  http://nmap.org/nsedoc/scripts/jdwp-version.html.
-
-o Fixed the packaging of x64 versions of WinPcap drivers in the
-  winpcap-nmap installer to ensure that 64-bit applications (such as
-  64-bit Wireshark) work properly. [Rob Nicholls]
-
-o Added version detection matchline for the Arucer backdoor, which was
-  found packaged with drivers for the Energizer USB recharger product
-  (see http://www.kb.cert.org/vuls/id/154421). [Ron]
-
-o Switched to -Pn and -sn and as the preferred syntax for skipping
-  ping scan and skipping port scan, respectively. Previously the -PN
-  and -sP options were recommended. This establishes a more regular
-  syntax for some options that disable phases of a scan:
-	-n  no reverse DNS
-	-Pn no host discovery
-	-sn no port scan
-  We also felt that the old -sP ("ping scan") option was a bit
-  misleading because current versions of Nmap can go much further
-  (including -sC and --traceroute) even with port scans disabled. We
-  will retain support for the previous option names for the forseeable
-  future.
-
-o [Ncat] The HTTP proxy server now accepts client connections over
-  SSL. That means connections to the proxy can be encrypted and
-  authenticated. We haven't found any HTTP clients that directly
-  support SSL connections to proxies, but you can use Ncat as a tunnel
-  to an SSL-supporting Ncat proxy. This new feature was implemented by
-  Markus Klinik.
-
-o [NSE] Added the smtp-enum-users script from Duarte Silva, which
-  attempts to find user account names over SMTP.
 
 o ARP requests now work with libpcap Linux "cooked" encapsulation.
   According to http://wiki.wireshark.org/SLL, this encapsulation is
@@ -241,22 +324,8 @@ o Fixed an assertion failure which could occur when connecting to an
   possibly have happened in other situations. Thanks to Brandon for
   reporting the bug and testing. [David]
 
-o Added the function bignum_add to the nse_openssl library to support BIGNUM
-  addition [Patrik]
-
-o Made --resume work with recent changes to normal output. [jlanthea]
-
-o [NSE] Added the snmp-interfaces script by Thomas Buchanan, which
-  enumerates network interfaces over SNMP. See
-  http://nmap.org/nsedoc/scripts/snmp-interfaces.html.
-
-o [NSE] Added a new library for PostgreSQL and the script pgsql-brute
-  that uses it to guess credentials. See
-  http://nmap.org/nsedoc/scripts/pgsql-brute.html. [Patrik]
-
-o [NSE] Added the script ldap-search which queries a LDAP directory for either
-  all, or a number of pre-defined object types. See
-  http://nmap.org/nsedoc/scripts/ldap-search.html. [Patrik]
+o Added the function bignum_add to the nse_openssl library to support
+  BIGNUM addition [Patrik]
 
 o The redistributable Visual C++ runtime components installer
   (vcredist_x86.exe) has been upgraded to version 9.0.30729.4148. Axel
@@ -278,20 +347,8 @@ o [Nsock] WSAEACCES was added to the list of known connect error
   Windows Firewall. Thanks to taemun for reporting this and
   investigating.
 
-o When --open is used, Nmap no longer prints output for hosts which
-  don't have any open ports. All output formats are treated the same
-  way, so if a host isn't shown in normal output, it won't be shown in
-  XML output either.
-
 o XML output now only includes host elements for down hosts in verbose
   mode. This makes it consistent with the other output formats.
-
-o [NSE] Added the scripts couchdb-databases and couchdb-stats, which
-  list CouchDB databases and show access statistics, and a new
-  json.lua library they depend on. See
-  http://nmap.org/nsedoc/scripts/couchdb-databases.html and
-  http://nmap.org/nsedoc/scripts/couchdb-stats.html [Martin Holst
-  Swende]
 
 o [NSE] Fixed http-enum so it uses the full pathname for the
   fingerprints file. This prevents it from quitting with an error like
@@ -315,18 +372,6 @@ o Fixed the parsing of libdnet DLPI interface names that contain more
   the name e1000g0 was causing this error message on Solris 9:
     Warning: Unable to open interface e1000g0 -- skipping it.
   [David]
-
-o [NSE] Raw packet sending at the IP layer is now supported, in
-  addition to the existing Ethernet sending functionality.  Packets to
-  send start with an IPv4 header and can be sent to arbitrary
-  hosts. For details, see
-  http://nmap.org/book/nse-api.html#nse-api-networkio-raw [Kris]
-
-o [NSE] Added the ipidseq script to classify a host's IP ID sequence numbers
-  in the same way Nmap does.  This can be used to test hosts' suitability for
-  Nmap's Idle Scan (-sI), i.e. check if a host is an idle zombie.  This is
-  the first script to use the new raw IP sending functionality in
-  NSE. See http://nmap.org/nsedoc/scripts/ipidseq.html. [Kris]
 
 o [NSE] Added the function nmap.is_privileged() to tell a script if,
   as far as Nmap's concerned, it can do privileged operations. For
@@ -356,10 +401,6 @@ o Remove the PYTHONPATH and PYTHONHOME variables from the environment
   worse than before our build system update, because previously py2app
   was stomping on the variables anyway. [David]
 
-o [NSE] Added the ssl-enum-ciphers script by Mak Kolybabi. It lists
-  the ciphers and compressors supported by SSL/TLS servers. See
-  http://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html.
-
 o [Ncat] Fixed a segmentation fault caused by access to freed memory.
   It could be triggered by making multiple connections to a server
   that was constantly sending in SSL mode, such as:
@@ -369,19 +410,6 @@ o [Ncat] Fixed a segmentation fault caused by access to freed memory.
 o [NSE] Moved the smtp-open-relay.nse script out of the "demo"
   category after improvements by Duarte Silva. We have now met the
   goal of removing all scripts from that category.
-
-o [NSE] Added a new library for LDAP and two new scripts by Patrik:
-  - ldap-brute uses the unpwdb library to guess credentials for LDAP
-    (http://nmap.org/nsedoc/scripts/ldap-brute.html). 
-  - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
-    (http://nmap.org/nsedoc/scripts/ldap-rootdse.html).
-
-o The -v and -d options are now handled in the same way. These three
-  forms are equivalent:
-    -v -v -v    -vvv    -v3
-    -d -d -d    -ddd    -d3
-  Formerly, the -ddd and -v3 forms didn't work. Mak Kolybabi submitted
-  a patch.
 
 o [NSE] Fixed a bug which prevented smb-brute from properly detecting
   account lockouts, which could lead to lockouts of many accounts on
@@ -393,10 +421,6 @@ o [NSE] Fixed a bug which prevented smb-brute from properly detecting
 o [NSE] Rewrote smb-enum-domains to be more generalized and rely on
   library functions which will eventually be shared with
   smb-brute. [Ron]
-
-o [NSE] Added http-vmware-path-vuln.nse, which checks for a dangerous
-  path-traversal vulnerability in VMWare (CVE-2009-3733). See
-  http://nmap.org/nsedoc/scripts/http-vmware-path-vuln.html. [Ron]
 
 o Qualified an assertion to allow zero-byte sends in Nsock. Without
   this, an NSE script could cause this assertion failure by doing
@@ -419,22 +443,13 @@ o Removed the nmap_service.exe helper program for smb-psexec, as it
   bit-flipping in the next release. In fact, the obfuscation backfired
   and caused more false positives! You can now download it from
   http://nmap.org/psexec/nmap_service.exe. (The script will remind you
-  if it's not installed.)
-
-o [Ncat] Don't call SSL_accept in the listen mode, rather use the
-  implicit SSL_accept in SSL_read. The problem was that SSL_accept was
-  blocking until the handshake was complete. You could block the whole
-  server by making a TCP connection and not completing the handshake,
-  for example by connecting with Ncat in non-SSL mode, or by using a
-  browser and not clicking through the certificate verification
-  screen. Our calls to SSL_read come though select so they don't
-  block.
+  if you run the script and it's not installed.)
 
 o Added service probes and UDP payloads for games based on the Quake 2
   and Quake 3 engine, submitted by Mak Kolybabi.
 
-o [Ncat] Added support for HTTP Digest authentication of proxies, as
-  both client and server. Previously only the less secure Basic
+o [Ncat] Added support for HTTP digest authentication of proxies, as
+  both client and server. Previously only the less secure basic
   authentication method was supported. [Venkat, David]
 
 o Improved the MIT Kerberos version detection signatures. [Matt Selsky]
@@ -442,10 +457,10 @@ o Improved the MIT Kerberos version detection signatures. [Matt Selsky]
 o [Ndiff] Show a nicer error message when an input file can't be
   loaded. Suggested by Derril Lucci, who also contributed a patch.
 
-o [NSE] Added a new library, afp.lua, and a script that uses it,
-  afp-showmount. The library is for the Apple Filing Protocol and the
-  script (http://nmap.org/nsedoc/scripts/afp-showmount.html) displays
-  shares and their permissions. [Patrik Karlsson]
+o [NSE] Added a new library afp.lua which handles the Apple Filing
+  Protocol (AFP) filesharing system. The library handles
+  authentication and many other protocol features, and enables the new
+  afp-path-vuln, afp-brute, and afp-showmount scripts. [Patrik]
 
 o Added an Apple Filing Protocol service probe that detects Netatalk
   servers. (Apple's AFP servers are coincidentally triggered by the
