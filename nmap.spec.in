@@ -110,6 +110,8 @@ uses.
 # Nping subpackage
 %if "%{buildnping}" != "0"
 %package -n nping
+# If this 0. prefix is removed it must also be removed from Makefile.in.
+Version: 0.%{version}
 Summary: Nping packet generator
 Group: Applications/System
 
