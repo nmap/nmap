@@ -19,7 +19,8 @@ o [NSE] Added 37 scripts, bringing the total to 117! They are
 o [NSE] New script afp-path-vuln detects and can exploit a major Mac
   OS X AFP directory traversal vulnerability (CVE-2010-0533)
   discovered by Nmap developer Patrik Karlsson. See
-  http://nmap.org/nsedoc/scripts/afp-path-vuln.html.
+  http://nmap.org/nsedoc/scripts/afp-path-vuln.html and
+  http://bit.ly/nmapafp.
 
 o An ALPHA TEST VERSION of Nping, a packet generator written by Luis
   MartinGarcia and Fyodor last summer, is now included in the Nmap
