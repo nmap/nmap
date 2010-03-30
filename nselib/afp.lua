@@ -307,6 +307,23 @@ MAP_NAME =
 	UTF8NameToGroupUUID = 6
 }
 
+
+SERVERFLAGS =
+{
+	CopyFile = 0x01,
+	ChangeablePasswords = 0x02,
+	NoPasswordSaving = 0x04,
+	ServerMessages = 0x08,
+	ServerSignature = 0x10,
+	TCPoverIP = 0x20,
+	ServerNotifications = 0x40,
+	Reconnect = 0x80,
+	OpenDirectory = 0x100,
+	UTF8ServerName = 0x200,
+	UUIDs = 0x400,
+	SuperClient = 0x8000
+}
+
 local ERROR_MSG = { 
 	[ERROR.FPAccessDenied]="Access Denied",
 	[ERROR.FPAuthContinue]="Authentication is not yet complete",
@@ -324,6 +341,11 @@ local ERROR_MSG = {
 	[ERROR.FPItemNotFound] = "Specified APPL mapping, comment, or icon was not found in the Desktop database; specified ID is unknown.",
 	[ERROR.FPCallNotSupported] = "Server does not support this command.",
 }
+
+-- Check if all the bits in flag are set in bitmap.
+local function flag_is_set(bitmap, flag)
+	return bit.band(bitmap, flag) == flag
+end
 
 -- Response class returned by all functions in Proto
 Response = {
@@ -562,6 +584,213 @@ Proto = {
 		self:send_fp_packet( packet )
 		return self:read_fp_packet()
 	end,
+
+	--- Sends an GetStatus DSI request (which is basically a FPGetSrvrInfo
+	-- AFP request) to the server and handles the response
+	--
+	-- @param socket already connected to the server
+	-- @return status (true or false)
+	-- @return table with server information (if status is true) or error string
+	-- (if status is false) 
+	fp_get_server_info = function(self)
+		local packet
+		local data_offset = 0
+	  	local pad = 0
+		local response, result = {}, {}
+		local offsets = {}
+		local pos
+		local _
+		local status
+
+		local data = bin.pack("CC", COMMAND.FPGetSrvrInfo, 0)
+		packet = self:create_fp_packet(REQUEST.GetStatus, data_offset, data)
+		self:send_fp_packet(packet)
+		response = self:read_fp_packet()
+
+		if response:getErrorCode() ~= ERROR.FPNoErr then
+			return response
+		end
+
+		packet = response.packet
+
+		-- parse and store the offsets in the 'header'
+		pos, offsets.machine_type, offsets.afp_version_count,
+			offsets.uam_count, offsets.volume_icon_and_mask
+			= bin.unpack(">SSSS", packet.data, pos)
+
+		-- the flags are directly in the 'header'
+		result.flags = {}
+		pos, result.flags.raw = bin.unpack(">S", packet.data, pos)
+
+		-- the short server name is stored directly in the 'header' as
+		-- well
+		pos, result.server_name = bin.unpack("p", packet.data, pos)
+
+		-- Server offset should begin at an even boundary see link below
+		-- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDIEGED
+		if pos % 2 + 1 ~= 0 then
+			pos = pos + 1
+		end
+
+		-- and some more offsets
+		pos, offsets.server_signature, offsets.network_addresses_count,
+			offsets.directory_names_count, offsets.utf8_server_name
+			= bin.unpack(">SSSS", packet.data, pos)
+
+		-- this sets up all the server flaqs in the response table as booleans
+		result.flags.SuperClient = flag_is_set(result.flags.raw, SERVERFLAGS.SuperClient)
+		result.flags.UUIDs = flag_is_set(result.flags.raw, SERVERFLAGS.UUIDs)
+		result.flags.UTF8ServerName = flag_is_set(result.flags.raw, SERVERFLAGS.UTF8ServerName)
+		result.flags.OpenDirectory = flag_is_set(result.flags.raw, SERVERFLAGS.OpenDirectory)
+		result.flags.Reconnect = flag_is_set(result.flags.raw, SERVERFLAGS.Reconnect)
+		result.flags.ServerNotifications = flag_is_set(result.flags.raw, SERVERFLAGS.ServerNotifications)
+		result.flags.TCPoverIP = flag_is_set(result.flags.raw, SERVERFLAGS.TCPoverIP)
+		result.flags.ServerSignature = flag_is_set(result.flags.raw, SERVERFLAGS.ServerSignature)
+		result.flags.ServerMessages = flag_is_set(result.flags.raw, SERVERFLAGS.ServerMessages)
+		result.flags.NoPasswordSaving = flag_is_set(result.flags.raw, SERVERFLAGS.NoPasswordSaving)
+		result.flags.ChangeablePasswords = flag_is_set(result.flags.raw, SERVERFLAGS.ChangeablePasswords)
+		result.flags.CopyFile = flag_is_set(result.flags.raw, SERVERFLAGS.CopyFile)
+
+		-- store the machine type
+		_, result.machine_type = bin.unpack("p", packet.data, offsets.machine_type + 1)
+
+		-- this tells us the number of afp versions supported
+		pos, result.afp_version_count = bin.unpack("C", packet.data, offsets.afp_version_count + 1)
+
+		-- now we loop through them all, storing for the response
+		result.afp_versions = {}
+		for i = 1,result.afp_version_count do
+			pos, _ = bin.unpack("p", packet.data, pos)
+			table.insert(result.afp_versions, _)
+		end
+
+		-- same idea as the afp versions here
+		pos, result.uam_count = bin.unpack("C", packet.data, offsets.uam_count + 1)
+
+		result.uams = {}
+		for i = 1,result.uam_count do
+			pos, _ = bin.unpack("p", packet.data, pos)
+			table.insert(result.uams, _)
+		end
+
+		-- volume_icon_and_mask would normally be parsed out here,
+		-- however the apple docs say it is deprecated in Mac OS X, so
+		-- we don't bother with it
+
+		-- server signature is 16 bytes
+		result.server_signature = string.sub(packet.data, offsets.server_signature + 1, offsets.server_signature + 16)
+
+		-- this is the same idea as afp_version and uam above
+		pos, result.network_addresses_count = bin.unpack("C", packet.data, offsets.network_addresses_count + 1)
+
+		result.network_addresses = {}
+
+		-- gets a little complicated in here, basically each entry has
+		-- a length byte, a tag byte, and then the data. We parse
+		-- differently based on the tag
+		for i = 1, result.network_addresses_count do
+			local length
+			local tag
+
+			pos, length = bin.unpack("C", packet.data, pos)
+			pos, tag = bin.unpack("C", packet.data, pos)
+
+			if tag == 0x00 then
+			-- reserved, shouldn't ever come up, maybe this should
+			-- return an error? maybe not, lets just ignore this
+			elseif tag == 0x01 then
+				-- four byte ip
+				local octet = {}
+				pos, octet[1], octet[2], octet[3], octet[4] = bin.unpack("CCCC", packet.data, pos)
+				table.insert(result.network_addresses, string.format("%d.%d.%d.%d", octet[1], octet[2], octet[3], octet[4]))
+			elseif tag == 0x02 then
+				-- four byte ip and two byte port
+				local octet = {}
+				local port
+				pos, octet[1], octet[2], octet[3], octet[4], port = bin.unpack(">CCCCS", packet.data, pos)
+				table.insert(result.network_addresses, string.format("%d.%d.%d.%d:%d", octet[1], octet[2], octet[3], octet[4], port))
+			elseif tag == 0x03 then
+				-- ddp address (two byte network, one byte
+				-- node, one byte socket) not tested, anyone
+				-- use ddp anymore?
+				local network
+				local node
+				local socket
+				pos, network = bin.unpack(">S", packet.data, pos)
+				pos, node = bin.unpack("C", packet.data, pos)
+				pos, socket = bin.unpack("C", packet.data, pos)
+				table.insert(result.network_addresses, string.format("ddp %d.%d:%d", network, node, socket))
+			elseif tag == 0x04 then
+				-- dns name (string)
+				local temp
+				pos, temp = bin.unpack("z", packet.data:sub(1,pos+length-3), pos)
+				table.insert(result.network_addresses, temp)
+			elseif tag == 0x05 then
+				-- four byte ip and two byte port, client
+				-- should use ssh. not tested, should work as it
+				-- is the same as tag 0x02
+				local octet = {}
+				local port
+				pos, octet[1], octet[2], octet[3], octet[4], port = bin.unpack(">CCCCS", packet.data, pos)
+				table.insert(result.network_addresses, string.format("ssh://%d.%d.%d.%d:%d", octet[1], octet[2], octet[3], octet[4], port))
+			elseif tag == 0x06 then
+				-- 16 byte ipv6
+				-- not tested, but should work (next tag is
+				-- tested)
+				local octet = {}
+				local j
+				local addr
+
+				for j = 1, 8 do
+					pos, octet[j] = bin.unpack(">S", packet.data, pos)
+				end
+
+				for j = 1, 7 do
+					addr = addr .. string.format("%04x:", octet[j])
+				end
+				addr = addr .. string.format("%04x", octet[8], port)
+
+				table.insert(result.network_addresses, temp)
+			elseif tag == 0x07 then
+				-- 16 byte ipv6 and two byte port
+				local octet = {}
+				local port
+				local j
+				local addr
+
+				for j = 1, 8 do
+					pos, octet[j] = bin.unpack(">S", packet.data, pos)
+				end
+				pos, port = bin.unpack(">S", packet.data, pos)
+
+				addr = "["
+
+				for j = 1, 7 do
+					addr = addr .. string.format("%04x:", octet[j])
+				end
+				addr = addr .. string.format("%04x]:%d", octet[8], port)
+
+				table.insert(result.network_addresses, addr)
+			end
+		end
+
+		-- same idea as the others here
+	  	pos, result.directory_names_count = bin.unpack("C", packet.data, offsets.directory_names_count + 1)
+
+	  	result.directory_names = {}
+	  	for i = 1, result.directory_names_count do
+	    	local dirname
+	    	pos, dirname = bin.unpack("p", packet.data, pos)
+	    	table.insert(result.directory_names, dirname)
+	  	end
+
+	  	-- only one utf8 server name. note this string has a two-byte length.
+	  	_, result.utf8_server_name = bin.unpack(">P", packet.data, offsets.utf8_server_name + 1)
+		response.result = result
+
+	  	return response
+	end,
+
 
 	--- Sends an FPGetUserInfo AFP request to the server and handles the response
 	--
