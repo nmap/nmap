@@ -628,7 +628,7 @@ Proto = {
 
 		-- Server offset should begin at an even boundary see link below
 		-- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html#//apple_ref/doc/uid/TP40003548-CH3-CHDIEGED
-		if pos % 2 + 1 ~= 0 then
+		if (pos + 1) % 2 ~= 0 then
 			pos = pos + 1
 		end
 
