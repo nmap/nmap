@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the afp-serverinfo script that gets a hostname, IP
+  addresses, and other configuration information from an AFP server.
+  The script, and a patch to the afp library, were originally
+  contributed by Andrew Orr and were subsequently enhanced by Patrik
+  and David.
+
 o [Zenmap] Added the ability to print Nmap output to a printer. [David]
 
 Nmap 5.30BETA1 [2010-03-29]
