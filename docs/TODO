@@ -48,6 +48,9 @@ o [Zenmap] Investigate getting new OS icon art. See
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
+  The reporter mentioned Guppy/Heapy to debug memory use:
+  http://guppy-pe.sourceforge.net/
+  http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
 o [NSE] Consider pros and cons of splitting information retrieval
   scripts into a bunch of small single-purpose script vs. one larger
