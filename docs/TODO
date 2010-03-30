@@ -80,6 +80,18 @@ o Review afp-serverinfo.nse from Andrew Orr.
   http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
   http://seclists.org/nmap-dev/2010/q1/665
 
+o We may want to consider offering partial results when a host
+  timeouts. I (Fyodor) have been against this in the past, but maybe
+  the value is sufficient to be worth the maintenance headaches.  Many
+  users have asked for this.  If we do implement this, we may want to
+  only print results for the COMPLETED phases (e.g. host discovery,
+  port scanning, version detection, traceroute, NSE, etc.)  Trying to
+  print partial results of a port scan or NSE or the like might be a
+  pain.  And if we print some results for a host which timeouts, we
+  should give a very clear warning that the results for that host are
+  incomplete. As an example, here is someone who hacked Nmap source
+  code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
+
 o Our nsedoc generator should probably give a warning if a script is
   missing any important fields. @output and the user summary are two
   which come to mind.
