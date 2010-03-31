@@ -22,9 +22,9 @@ Ref: CVE-2001-1013 http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013
 -- @args
 -- users=path/to/custom/usernames.list or
 -- userdir.users=path/to/custom/usernames.list
---@args limit      Limit the number of users to check. This option is useful if using a list from, for example, 
---                 the DirBuster projects which can have 80,000+ entries. 
-
+-- limit=max number of users to check. This option is useful if using a list from,
+--       for example, the DirBuster projects which can have 80,000+ entries. 
+--
 --
 -- @output
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
