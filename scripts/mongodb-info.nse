@@ -40,7 +40,7 @@ Attempts to get build info and server status from a MongoDB
 -- |       heap_usage_bytes = 117120
 -- |       note = fields vary by platform
 -- |_      page_faults = 0
---@version 0.2
+-- version 0.2
 -- Created 01/12/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 
 

@@ -871,7 +871,7 @@ NFS = {
 	-- @return status true on success, false on failure
 	-- @return statfs table with the fields <code>transfer_size</code>, <code>block_size</code>, 
 	-- 	<code>total_blocks</code>, <code>free_blocks</code> and <code>available_blocks</code>
-	-- @returns errormsg if status is false
+	-- @return errormsg if status is false
 	StatFs = function( self, file_handle )
 
 		local status, packet
@@ -1283,7 +1283,7 @@ Helper = {
 	-- @param host table
 	-- @param port table
 	-- @param program_id number containing the RPC program ID
-	-- @param protcol string containing either "tcp" or "udp"
+	-- @param protocol string containing either "tcp" or "udp"
 	-- @return status true on success, false on failure
 	-- @return table containing the portmapper information as returned by 
 	-- <code>Portmap.Dump</code>

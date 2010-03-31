@@ -32,7 +32,7 @@ printed with the list of any combinations that were found prior to the error.
 -- @args smtp-open-relay.to Define the destination email address to be used (without the domain, default is
 -- relaytest)
 --
--- @changelog
+-- changelog
 -- 2007-05-16 Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>
 --   + Added some strings to return in different places
 --   * Changed "HELO www.[ourdomain]" to "EHLO [ourdomain]"

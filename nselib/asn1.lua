@@ -80,7 +80,7 @@ ASN1Decoder = {
 
 	--- Allows for registration of additional tag decoders
 	--
-	-- @param table containing decoding functions @see tagDecoders
+	-- @param tagDecoders table containing decoding functions @see tagDecoders
 	registerTagDecoders = function(self, tagDecoders)
 		self:registerBaseDecoders()
 		for k, v in pairs(tagDecoders) do
@@ -293,7 +293,7 @@ ASN1Encoder = {
 	
 	--- Allows for registration of additional tag encoders
 	--
-	-- @param table containing encoding functions @see tagEncoders
+	-- @param tagEncoders table containing encoding functions @see tagEncoders
 	registerTagEncoders = function(self, tagEncoders)
 		self:registerBaseEncoders()
 		for k, v in pairs(tagEncoders) do
@@ -389,7 +389,7 @@ ASN1Encoder = {
 	---
 	-- Encodes the length part of a ASN.1 encoding triplet using the "primitive,
 	-- definite-length" method.
-	-- @param val Value to be encoded.
+	-- @param len Length to be encoded.
 	-- @return Encoded length value.
 	encodeLength = function(len)
 	   if len < 128 then

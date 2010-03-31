@@ -392,7 +392,7 @@ Response = {
 	
 	--- Sets the result
 	--
-	-- @param result
+	-- @param result result to set
 	setResult = function(self, result)
 		self.result = result
 	end,
@@ -588,7 +588,6 @@ Proto = {
 	--- Sends an GetStatus DSI request (which is basically a FPGetSrvrInfo
 	-- AFP request) to the server and handles the response
 	--
-	-- @param socket already connected to the server
 	-- @return status (true or false)
 	-- @return table with server information (if status is true) or error string
 	-- (if status is false) 
@@ -1449,7 +1448,7 @@ Helper = {
 	
 	--- Reads a file on the AFP server
 	--
-	-- @param str_patch string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
+	-- @param str_path string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
 	-- @return status boolean true on success, false on failure
 	-- @return content string containing the file contents
     ReadFile = function( self, str_path )
@@ -1495,7 +1494,7 @@ Helper = {
 	
 	--- Writes a file to the AFP server
 	--
-	-- @param str_patch string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
+	-- @param str_path string containing the AFP sharepoint, path and filename eg. HR/Documents/File.doc
 	-- @param fdata string containing the data to write to the file
 	-- @return status boolean true on success, false on failure
 	-- @return error string containing error message if status is false

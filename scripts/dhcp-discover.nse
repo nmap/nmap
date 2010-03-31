@@ -435,7 +435,7 @@ actions[61] = {name="Client Identifier (client)",      func=read_string,        
 --@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
 --                       packet (see rfc2131 section 2 for a list of possible fields. Or, just look at the
 --                       code.
---@param leasetime       [optional] The lease time for which to request an IP. Default: 1 second. 
+--@param lease_time      [optional] The lease time for which to request an IP. Default: 1 second. 
 --@return The packet, as a string. It should be sent to the server on UDP/67. 
 local function dhcp_build(request_type, ip_address, mac_address, request_options, overrides, lease_time)
 	local packet = ''

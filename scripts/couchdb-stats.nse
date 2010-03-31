@@ -30,7 +30,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API
 -- |       current = 5
 -- |       count = 1617
 -- |_  Authentication : NOT enabled ('admin party')
---@version 0.3
+-- version 0.3
 --
 -- Created 01/20/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Modified 07/02/2010 - v0.2 - added test if auth is enabled, compacted output a bit (mhs)

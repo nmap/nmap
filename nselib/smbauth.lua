@@ -444,8 +444,8 @@ end
 ---Create the LM mac key, which is used for message signing. For basic authentication, it's the first 8 bytes 
 -- of the lanman hash, followed by 8 null bytes, followed by the lanman response; for extended authentication, 
 -- this is just the first 8 bytes of the lanman hash followed by 8 null bytes. 
---@param ntlm_hash The NTLM hash. 
---@param ntlm_response The NTLM response. 
+--@param lm_hash The NTLM hash. 
+--@param lm_response The NTLM response. 
 --@param is_extended Should be set if extended security negotiations are being used. 
 function lm_create_mac_key(lm_hash, lm_response, is_extended)
 	if(have_ssl ~= true) then

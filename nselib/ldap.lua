@@ -194,7 +194,7 @@ end
 -- that were received prior to the error. In order to achieve this and not terminating the script
 -- by returning a false status a true status is returned together with a table containing all searchentries.
 -- This table has the <code>errorMessage</code> and <code>resultCode</code> entries set with the error information.
--- As a <code>try</code> won't catch this error it's up to the script to do so. @see ldap-search.nse for an example.
+-- As a <code>try</code> won't catch this error it's up to the script to do so. See ldap-search.nse for an example.
 --
 -- @param socket socket already connected to the ldap server
 -- @param params table containing at least <code>scope</code>, <code>derefPolicy</code>, <code>baseObject</code>

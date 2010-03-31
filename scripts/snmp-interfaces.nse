@@ -73,7 +73,7 @@ local iana_types = { "other", "regular1822", "hdh1822", "ddnX25", "rfc877x25", "
 --- Walks the MIB Tree
 --
 -- @param socket socket already connected to the server
--- @base_oid string containing the base object ID to walk
+-- @param base_oid string containing the base object ID to walk
 -- @return table containing <code>oid</code> and <code>value</code>
 function snmp_walk( socket, base_oid )
 	

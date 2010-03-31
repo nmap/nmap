@@ -441,8 +441,8 @@ end
 --- Parses json data into an object form
 -- This is the method you probably want to use if you 
 -- use this library from a script.
---@param input : a json string
---@return status : true if ok, false if bad
+--@param data a json string
+--@return status true if ok, false if bad
 --@return an object representing the json, or error message
 function parse(data)
 	local parser = Json:new(data)

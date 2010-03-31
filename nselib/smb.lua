@@ -309,7 +309,6 @@ end
 --  SMB). 
 --
 -- @param host The host object
--- @param overrides [optional] Overrides for various fields
 -- @return (status, smb) if the status is true, result is the newly crated smb object; 
 --         otherwise, socket is the error message. 
 function start(host)
@@ -2177,7 +2176,6 @@ end
 --@param overrides  A table of override values that's passed to the smb functions. 
 --@param encoded    Set to 'true' if the file is encoded (xor'ed with 0xFF), It will be decoded before upload. Default: false
 --@return (status, err) If status is false, err is an error message. Otherwise, err is undefined. 
-require 'nsedebug'
 function file_upload(host, localfile, share, remotefile, overrides, encoded)
 	local status, err, smbstate
 	local chunk = 1024
@@ -2340,7 +2338,7 @@ end
 --
 --@param host          The host object
 --@param share         The share to read it from (eg, C$). 
---@param fo;es         A list of files to look for; it is relative to the share's root.
+--@param files         A list of files to look for; it is relative to the share's root.
 --@param overrides     [optional] Override various fields in the SMB packets. 
 --@return status: A true/false value indicating success
 --@return count:  The number of files that existed, or an error message if status is 'false'
@@ -2611,7 +2609,6 @@ end
 -- bad, because it means we cannot tell whether or not a share exists). 
 --
 --@param host     The host object
---@param share    The share to test
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
 --        true if the file was successfully written, false if it was not. 
 function share_host_returns_proper_error(host)
@@ -2665,7 +2662,7 @@ end
 ---Get all the details we can about the share. These details are stored in a table and returned. 
 --
 --@param host   The host object.
---@param shares An array of shares to check.
+--@param share An array of shares to check.
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a boolean value: 
 --        true if the file was successfully written, false if it was not. 
 function share_get_details(host, share)

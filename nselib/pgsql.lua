@@ -581,9 +581,9 @@ end
 
 --- Creates a cryptographic hash to be used for login
 --
--- @param string username
--- @param string password
--- @param string salt
+-- @param username username
+-- @param password password
+-- @param salt salt
 -- @return string suitable for login request
 function createMD5LoginHash(username, password, salt)
 	local md5_1 = select( 2, bin.unpack( "H16", openssl.md5(password..username) ) ):lower()

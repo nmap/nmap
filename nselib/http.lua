@@ -931,8 +931,6 @@ end
 --
 -- @param host The host to connect to.
 -- @param port The port to connect to.
--- @param method The method to use, a string like <code>"GET"</code> or <code>"HEAD"</code>.
--- @param path The path to retrieve.
 -- @param options A table of other parameters. It may have any of these fields:
 -- * <code>timeout</code>: A timeout used for socket operations.
 -- * <code>header</code>: A table containing additional headers to be used for the request.
@@ -1154,7 +1152,6 @@ end
 -- @param host The host to query.
 -- @param port The port for the host.
 -- @param allReqs A table with all the previously built pipeline requests
--- @param options A table with options to configure the pipeline request
 -- @return A table with multiple http response tables
 pipeline = function(host, port, allReqs)
   stdnse.print_debug("Total number of pipelined requests: " .. #allReqs)
@@ -1457,7 +1454,6 @@ end
 -- the user.
 --
 -- @param body The body of the page.
--- @param uri  The URI that the page came from.
 local function clean_404(body)
   -- Remove anything that looks like time
   body = string.gsub(body, '%d?%d:%d%d:%d%d', "")

@@ -33,7 +33,7 @@ portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 --- Walks the MIB Tree
 --
 -- @param socket socket already connected to the server
--- @base_oid string containing the base object ID to walk
+-- @param base_oid string containing the base object ID to walk
 -- @return table containing <code>oid</code> and <code>value</code>
 function snmp_walk( socket, base_oid )
 	

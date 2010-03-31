@@ -170,7 +170,6 @@ end
 
 --- Create a TCP Packet object
 -- @param host Host object
--- @param port Port number
 -- @return TCP Packet object
 local genericpkt = function(host)
 	local pkt = bin.pack("H",

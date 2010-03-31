@@ -27,7 +27,7 @@ smtp-enum-users.methods={EXPN,RCPT,VRFY}
 -- @args smtp-enum-users.domain Define the domain to be used in the SMTP commands
 -- @args smtp-enum-users.methods Define the methods and order to be used by the script (EXPN, VRFY, RCPT)
 --
--- @changelog
+-- changelog
 -- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
 --   * First version ;)
 -- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
@@ -256,6 +256,8 @@ function do_vrfy(socket, username, domain)
 	return do_gnrc(socket, "VRFY", username, domain)
 end
 
+issued_from = false
+
 ---Verify if a username is valid using the RCPT method. It will only issue the MAIL FROM
 -- command if the issued_from flag is false. The MAIL FROM command does not need to
 -- be issued each time an RCPT TO is used. Otherwise it should also be issued a RSET
@@ -265,8 +267,6 @@ end
 -- @param username User name to test
 -- @param domain Domain to use in the command
 -- @return Status and depending on the code, a error message
-issued_from = false
-
 function do_rcpt(socket, username, domain)
 	if not issued_from then
 		-- Lets try to issue MAIL FROM command.

@@ -28,7 +28,7 @@ Attempts to get tables from a MongoDB
 -- |       sizeOnDisk = 1
 -- |       name = admin
 -- |_  totalSize = 167772160
---@version 0.1
+-- version 0.1
 -- Created 01/12/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 
 

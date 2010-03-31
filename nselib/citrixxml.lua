@@ -23,7 +23,7 @@ module(... or "citrixxml",package.seeall)
 
 --- Decodes html-entities to chars eg. &#32; => <space>
 -- 
--- @param str string to convert
+-- @param xmldata string to convert
 -- @return string an e
 function decode_xml_document(xmldata)
 	
@@ -72,7 +72,8 @@ end
 -- This function implements all the supported parameters described in: 
 -- Version 5.0 (draft 1)   24 January 2008
 --
--- @param socket socket, connected to the remote web server
+-- @param host string, the ip of the remote server
+-- @param port number, the port of the remote server
 -- @return string HTTP response data
 --
 function request_server_farm_data( host, port )
@@ -379,7 +380,6 @@ end
 --
 -- @param host string the host which is to be queried
 -- @param port number the port number of the XML service
--- @param params table with parameters
 -- @return string HTTP response data
 --
 function request_capabilities( host, port )

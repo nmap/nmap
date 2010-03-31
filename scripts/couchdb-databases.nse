@@ -18,7 +18,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API
 -- |   5 = creditcards
 -- |   6 = test_suite_users
 -- |_  7 = test_suite_db_b
---@version 0.2
+-- version 0.2
 -- Created 01/12/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 
 -- TODO : Authentication not implemented

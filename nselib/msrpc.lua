@@ -1600,7 +1600,7 @@ function samr_getmembersinalias(smbstate, alias_handle)
 	return true, result
 end
 
----Call the <code>LookupRids</code> function, which converts a list of RIDs to 
+-- Call the <code>LookupRids</code> function, which converts a list of RIDs to 
 -- names. 
 --
 --NOTE: This doesn't appear to work (it generates a fault, despite the packet being properly formatted). 
