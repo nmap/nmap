@@ -5,6 +5,12 @@ Checks if a DNS server allows queries for third-party names.
 It is expected that recursion will be enabled on your own internal nameservers.
 ]]
 
+---
+-- @output
+-- PORT   STATE SERVICE REASON
+-- 53/udp open  domain  udp-response
+-- |_dns-recursion: Recursion appears to be enabled
+
 author = "Felix Groebert"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

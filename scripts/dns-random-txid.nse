@@ -20,6 +20,12 @@ Script: Brandon Enright <bmenrigh@ucsd.edu>\n
 txidtest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 ]]
 
+---
+-- @output
+-- PORT   STATE SERVICE REASON
+-- 53/udp open  domain  udp-response
+-- |_dns-random-txid: X.X.X.X is GREAT: 27 queries in 61.5 seconds from 27 txids with std dev 20509
+
 -- This script uses (with permission) Duane Wessels' txidtest.dns-oarc.net
 -- service.  Duane/OARC believe the service is valuable to the community
 -- and have no plans to ever turn the service off.

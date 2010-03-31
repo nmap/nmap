@@ -1,6 +1,12 @@
 description = [[
-Retrieves the day and time from the UDP Daytime service.
+Retrieves the day and time from the Daytime service.
 ]]
+
+---
+-- @output
+-- PORT   STATE SERVICE
+-- 13/tcp open  daytime
+-- |_daytime: Wed Mar 31 14:48:58 MDT 2010
 
 author = "Diman Todorov"
 

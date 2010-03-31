@@ -20,6 +20,12 @@ Script: Brandon Enright <bmenrigh@ucsd.edu>\n
 porttest.dns-oarc.net: Duane Wessels <wessels@dns-oarc.net>
 ]]
 
+---
+-- @output
+-- PORT   STATE SERVICE REASON
+-- 53/udp open  domain  udp-response
+-- |_dns-random-srcport: X.X.X.X is GREAT: 26 queries in 1.2 seconds from 26 ports with std dev 17905
+
 -- This script uses (with permission) Duane Wessels' porttest.dns-oarc.net
 -- service.  Duane/OARC believe the service is valuable to the community
 -- and have no plans to ever turn the service off.

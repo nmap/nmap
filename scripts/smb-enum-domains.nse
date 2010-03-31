@@ -26,11 +26,11 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 ]]
 
 ---
---@usage
+-- @usage
 -- nmap --script smb-enum-domains.nse -p445 <host>
 -- sudo nmap -sU -sS --script smb-enum-domains.nse -p U:137,T:139 <host>
 --
---@output
+-- @output
 -- Host script results:
 -- | smb-enum-domains:
 -- |   WINDOWS2000
@@ -46,8 +46,6 @@ After the initial <code>bind</code> to SAMR, the sequence of calls is:
 -- |     Creation time: 2009-10-17 12:45:46
 -- |     Passwords: min length: n/a; min age: n/a days; max age: 42 days; history: n/a passwords
 -- |_    Account lockout disabled
---
-
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

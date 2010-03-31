@@ -7,6 +7,11 @@ Attempts to find an SNMP community string by brute force guessing.
 -- @args snmpcommunity The SNMP community string to use. If not supplied, this
 -- script will not run.
 -- @args snmplist The filename of a list of community strings to try.
+--
+-- @output
+-- PORT    STATE SERVICE
+-- 161/udp open  snmp
+-- |_snmp-brute: public
 
 author = "Philip Pickering"
 

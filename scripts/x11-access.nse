@@ -12,6 +12,7 @@ the "xhost +" list. In this case, script will display the message: "X
 server access is granted".
 ]]
 
+---
 -- @output
 -- Host script results:
 -- |_ x11-access: X server access is granted

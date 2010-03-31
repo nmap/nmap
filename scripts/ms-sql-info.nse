@@ -10,6 +10,17 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"default", "discovery", "intrusive"}
 
+---
+-- @output
+-- PORT     STATE SERVICE  REASON
+-- 1434/udp open  ms-sql-m script-set
+-- | ms-sql-info: Discovered Microsoft SQL Server 2008 Express Edition
+-- |   Server name: MAC-MINI
+-- |   Server version: 10.0.2531.0 (SP1)
+-- |   Instance name: SQLEXPRESS
+-- |   TCP Port: 1433
+-- |_    Could not retrieve actual version information
+
 require('stdnse')
 require "shortport"
 require("strbuf")

@@ -24,7 +24,7 @@ from public sources (most notably the port blacklisting was found by David Fifie
 out to everybody who contributed! 
 ]]
 
---       <pre>nmap -p445 -T4 -vv --script=p2p-conficker --script-args=realip=\"192.168.1.65\" x.x.x.x</pre>
+---
 -- @args checkconficker If set to '1' or 'true', the script will always run on active hosts, 
 --       it doesn't matter if any open ports were detected. 
 --

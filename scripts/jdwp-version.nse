@@ -11,6 +11,11 @@ author = "Michael Schierl <schierlm@gmx.de>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
+---
+-- @output
+-- PORT     STATE SERVICE VERSION
+-- 9999/tcp open  jdwp    Java Debug Wire Protocol (Reference Implementation) version 1.6 1.6.0_17
+
 require "comm"
 
 portrule = function(host, port)
