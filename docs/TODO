@@ -1,8 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [Nping] Should take the version number 0.[nmap version], such as
-  0.5.22TEST
-
 o Brainstorm for GSoC 2010 ideas and fill out the org application by
   Friday 3/12 4PM PST.
   o NSE scripts
@@ -27,6 +24,13 @@ o Create new default username list:
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
+
+o Remove --interactive.  It was broken for a long time and nobody
+  seemed to notice, and we put a call out on nmap-dev for
+  --interactive users and didn't get any good reasons to keep it.  We
+  should kill it to remove the code complexity it adds and to avoid
+  the documentation complexity of people having to read and learn
+  about a feature they are unlikely to ever use.
 
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
@@ -57,33 +61,17 @@ o [NSE] Consider pros and cons of splitting information retrieval
   argument-controlled script.  See
   http://seclists.org/nmap-dev/2010/q1/1023
 
-o [NSE] Improve username/password library (the database files
-  themselves).  We don't have very good lists at the moment.  Maybe
-  work in combination with Ncrack dev.
-  o Now there are some even better lists available (f.e. RockYou)--see
-    this thread: http://seclists.org/nmap-dev/2010/q1/764
-  o We've improved the ncrack files--we should probably either use
-    those for NSE or use a subset of them.
-  o perhaps from Solar Designer. (he sent us permission)
-  o perhaps add phpbb hack data (there is at least a list of 28,635
-    passwords in phpbb_users.sql, and possibly more in other files.
+o [Ncrack] User our new password lists (now used by NSE) for Ncrack as
+  well.  Ncrack can probably handle a larger list than NSE uses.
 
-o Test 64-bit pcap installer (e.g. remove old version and install new)
-  before next release, as we've applied a change from Rob which works on
-  his system (http://seclists.org/nmap-dev/2010/q1/796).
-
-o Consider enhancing scan stats--maybe we can add a full-scan
+o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
 
-o Review afp-serverinfo.nse from Andrew Orr.
-  http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
-  http://seclists.org/nmap-dev/2010/q1/665
-
-o We may want to consider offering partial results when a host
+o We should offer partial results when a host
   timeouts. I (Fyodor) have been against this in the past, but maybe
   the value is sufficient to be worth the maintenance headaches.  Many
   users have asked for this.  If we do implement this, we may want to
@@ -94,10 +82,17 @@ o We may want to consider offering partial results when a host
   should give a very clear warning that the results for that host are
   incomplete. As an example, here is someone who hacked Nmap source
   code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
+  o Another benefit would be that it would allow us to clean
+    up/regularize the host output code. Right now there are I think
+    three places where a host's final output can be printed. If,
+    instead, that code just looked at what information was available and
+    printed that out only, we could potentially isolate it in just one
+    place.
 
 o Our nsedoc generator should probably give a warning if a script is
-  missing any important fields. @output and the user summary are two
-  which come to mind.
+  missing any important fields. @output comes to mind.  @usage can be
+  nice too, though we could consider auto-generating that for trivial
+  scripts.
 
 o Review IDS detection scripts from Joao Correa.
   http://seclists.org/nmap-dev/2010/q1/814
@@ -109,10 +104,14 @@ o Review mssql library and scripts from Patrik Karlsson.
 o Review DNS fuzzer script from Michael Pattrick.
   http://seclists.org/nmap-dev/2010/q1/1005
 
+o Integrate new OS fingerprints (we have more than 1,300 since
+  November 10, 2009).
+
+o Integrate new service detection fingerprint submissions (we have
+  more than 730 since Dec. 17, 2009.
+
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
-
-o Consider removing --interactive
 
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
@@ -438,9 +437,6 @@ o Make Zenmap settings get upgraded when the Zenmap executable is
   users (like highlighting) or updating the per-user files at startup
   (only those parts that haven't been changed by the user).
 
-o Zenmanp should perhaps be able to print Nmap output on a Printer (if
-  not too much of a pain to implement.)
-
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
   o It is interesting to look at: http://www.gnupg.org/gpgme.html
@@ -565,6 +561,31 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Zenmanp should perhaps be able to print Nmap output on a Printer (if
+  not too much of a pain to implement.)
+
+o Review afp-serverinfo.nse from Andrew Orr.
+  http://seclists.org/nmap-dev/2010/q1/470 Just waiting on some bug fixes:
+  http://seclists.org/nmap-dev/2010/q1/665
+
+o Test 64-bit pcap installer (e.g. remove old version and install new)
+  before next release, as we've applied a change from Rob which works on
+  his system (http://seclists.org/nmap-dev/2010/q1/796).
+
+o [NSE] Improve username/password library (the database files
+  themselves).  We don't have very good lists at the moment.  Maybe
+  work in combination with Ncrack dev.
+  o Now there are some even better lists available (f.e. RockYou)--see
+    this thread: http://seclists.org/nmap-dev/2010/q1/764
+  o We've improved the ncrack files--we should probably either use
+    those for NSE or use a subset of them.
+  o perhaps from Solar Designer. (he sent us permission)
+  o perhaps add phpbb hack data (there is at least a list of 28,635
+    passwords in phpbb_users.sql, and possibly more in other files.
+
+o [Nping] Should take the version number 0.[nmap version], such as
+  0.5.22TEST
 
 o Review rpc.lua, nfs-showmount.nse, nfs-get-stats.nse, and
   nfs-get-dirlist.nse from Patrik Karlsson.
