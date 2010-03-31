@@ -8,6 +8,12 @@ author = 'Eddie Bell, Ron Bowes'
 license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
 categories = {'auth', 'intrusive'}
 
+---
+-- @output
+-- PORT   STATE SERVICE
+-- 23/tcp open  telnet
+-- |_telnet-brute: root - 1234
+
 require('shortport')
 require('stdnse')
 require('strbuf')
