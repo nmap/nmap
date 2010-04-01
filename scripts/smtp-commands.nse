@@ -54,7 +54,7 @@ require "shortport"
 require "stdnse"
 require "comm"
 
-portrule = shortport.port_or_service({25, 587, 465}, "smtp")
+portrule = shortport.port_or_service({ 25, 465, 587 }, { "smtp", "smtps", "submission" })
 
 action = function(host, port)
 	
