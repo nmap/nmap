@@ -582,6 +582,7 @@ int nmap_main(int argc, char *argv[]) {
   const char *spoofmac = NULL;
   time_t timep;
   char mytime[128];
+  char tbuf[128];
   struct sockaddr_storage ss;
   size_t sslen;
   int option_index;
@@ -1396,23 +1397,20 @@ int nmap_main(int argc, char *argv[]) {
     free(xmlfilename);
   }
 
-  if (!o.interactivemode) {
-    char tbuf[128];
-    // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-    if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
-      fatal("Unable to properly format time");
-    log_write(LOG_STDOUT|LOG_SKID, "\nStarting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
-    if (o.verbose) {
-      if (tm->tm_mon == 8 && tm->tm_mday == 1) {
-	log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
-      } else if (tm->tm_mon == 11 && tm->tm_mday == 25) {
-	log_write(LOG_STDOUT|LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
-      } 
-    }
-    if (iflist) {
-      print_iflist();
-      exit(0);
-    }
+  // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
+  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
+    fatal("Unable to properly format time");
+  log_write(LOG_STDOUT|LOG_SKID, "\nStarting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
+  if (o.verbose) {
+    if (tm->tm_mon == 8 && tm->tm_mday == 1) {
+      log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
+    } else if (tm->tm_mon == 11 && tm->tm_mday == 25) {
+      log_write(LOG_STDOUT|LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
+    } 
+  }
+  if (iflist) {
+    print_iflist();
+    exit(0);
   }
 
 #if HAVE_IPV6
@@ -1978,7 +1976,7 @@ int nmap_main(int argc, char *argv[]) {
 
   eth_close_cached();
 
-  if(o.release_memory || o.interactivemode) {
+  if (o.release_memory) {
     /* Free fake argv */
     for(i=0; i < argc; i++)
       free(fakeargv[i]);

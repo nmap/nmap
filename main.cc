@@ -130,25 +130,16 @@ extern NmapOps o;  /* option structure */
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
      beginning to do the following:
-     1) Check if Nmap was called with --interactive.
-     2) Start interactive mode or just call nmap_main
+     3) Check the environment variable NMAP_ARGS.
+     2) Check if Nmap was called with --resume.
+     3) Resume a previous scan or just call nmap_main.
   */
   char command[2048];
-  int myargc, fakeargc;
-  char **myargv = NULL, **fakeargv = NULL;
+  int myargc;
+  char **myargv = NULL;
   char *cptr;
   int ret;
   int i;
-  char nmapargs[1024];
-  char fakeargs[1024];
-  char nmappath[MAXPATHLEN];
-  char *pptr;
-  char path[4096];
-  struct stat st;
-  char *endptr;
-  int interactivemode = 0;
-  int fd;
-  int arglen = 0;
 
 #ifdef __amigaos__
 	if(!OpenLibs()) {
@@ -188,185 +179,14 @@ int main(int argc, char *argv[]) {
     return ret;
   }
 
-  if (interactivemode == 0 &&
-      argc == 2 && strcmp("--interactive", argv[1]) == 0) {
-    interactivemode = 1;
+  if (argc == 3 && strcmp("--resume", argv[1]) == 0) {
+    /* OK, they want to resume an aborted scan given the log file specified.
+       Lets gather our state from the log file */
+    if (gather_logfile_resumption_state(argv[2], &myargc, &myargv) == -1) {
+      fatal("Cannot resume from (supposed) log file %s", argv[2]);
+    }
+    return nmap_main(myargc, myargv);
   }
 
-  if (!interactivemode) {
-    if (argc == 3 && strcmp("--resume", argv[1]) == 0) {
-      /* OK, they want to resume an aborted scan given the log file specified.
-	 Lets gather our state from the log file */
-      if (gather_logfile_resumption_state(argv[2], &myargc, &myargv) == -1) {
-	fatal("Cannot resume from (supposed) log file %s", argv[2]);
-      }
-      return nmap_main(myargc, myargv);
-    }
-    return nmap_main(argc, argv);
-  }
-
-  printf("\nStarting %s V. %s ( %s )\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
-
-  printf("Welcome to Interactive Mode -- press h <enter> for help\n");
-
-  while(1) {
-    printf("nmap> ");
-    fflush(stdout);
-    if (fgets(command, sizeof(command), stdin) == NULL && feof(stdin)) {
-      fatal("EOF reached -- quitting");
-    }
-    myargc = arg_parse(command, &myargv);
-    if (myargc < 1) {
-      printf("Bogus command -- press h <enter> for help\n");
-      continue;
-    }
-    if (strcasecmp(myargv[0], "h") == 0 ||
-	strcasecmp(myargv[0], "help") == 0) {
-      printinteractiveusage();
-      continue;
-    } else if (strcasecmp(myargv[0], "x") == 0 ||
-	       strcasecmp(myargv[0], "q") == 0 ||
-	       strcasecmp(myargv[0], "e") == 0 ||
-	       strcasecmp(myargv[0], ".") == 0 ||
-	       strcasecmp(myargv[0], "exit") == 0 ||
-	       strcasecmp(myargv[0], "quit") == 0) {
-      printf("Quitting by request.\n");
-      exit(0);
-    } else if (strcasecmp(myargv[0], "n") == 0 ||
-	       strcasecmp(myargv[0], "nmap") == 0) {
-      o.ReInit();
-      o.interactivemode = 1;
-      nmap_main(myargc, myargv);
-    } else if (*myargv[0] == '!') {
-      cptr = strchr(command, '!');
-      int rc = system(cptr + 1);
-      if (rc < 1) printf("system() execution of command failed\n");
-    } else if (*myargv[0] == 'd') {
-      o.debugging++;
-    } else if (strcasecmp(myargv[0], "f") == 0) {
-      switch((ret = fork())) {
-      case 0: /* Child */
-	/* My job is as follows:
-	   1) Go through arguments for the following 3 purposes:
-	   A.  Build env variable nmap execution will read args from
-	   B.  Find spoof and realpath variables
-	   C.  If realpath var was not set, find an Nmap to use
-	   2) Exec the sucka!@#$! 
-	*/
-	fakeargs[0] = nmappath[0] = '\0';
-	strcpy(nmapargs, "NMAP_ARGS=");
-	for(i=1; i < myargc; i++) {
-	  if (strcasecmp(myargv[i], "--spoof") == 0) {
-	    if (++i > myargc -1) {
-	      fatal("Bad arguments to f!");
-	    }	    
-	    strncpy(fakeargs, myargv[i], sizeof(fakeargs));
-	  } else if (optcmp(myargv[i], "--nmap-path") == 0) {
-	    if (++i > myargc -1) {
-	      fatal("Bad arguments to f!");
-	    }	    
-	    strncpy(nmappath, myargv[i], sizeof(nmappath));
-	  } else {
-	    arglen = strlen(nmapargs);
-	    if (arglen + strlen(myargv[i]) + 1 < sizeof(nmapargs)) {
-	      strcat(nmapargs, " ");
-	      strncat(nmapargs, myargv[i], arglen - 1);
-	    } else fatal("Arguments too long.");
-	  }	 
-	}
-
-	if (o.debugging) {
-	  error("Adding to environment: %s", nmapargs);
-	}
-	if (putenv(nmapargs) == -1) {
-	  pfatal("Failed to add NMAP_ARGS to environment");
-	}
-	/* Now we figure out where the #@$#@ Nmap is located */
-	if (!*nmappath) {
-	  if (stat(argv[0], &st) != -1 && !S_ISDIR(st.st_mode)) {
-	    strncpy(nmappath, argv[0], sizeof(nmappath));
-	  } else {
-	    nmappath[0] = '\0';
-	    /* Doh!  We must find it in path */
-	    if ((pptr = getenv("PATH"))) {
-	      Strncpy(path, pptr, sizeof(path));
-	      pptr = path;
-	      /* Get the name Nmap was called as. */
-	      char *nmapcalledas = path_get_basename(argv[0]);
-	      if (nmapcalledas == NULL)
-		pfatal("Could not get nmap executable basename");
-	      while(pptr && *pptr) {
-		endptr = strchr(pptr, ':');
-		if (endptr) { 
-		  *endptr = '\0';
-		}
-		Snprintf(nmappath, sizeof(nmappath), "%s/%s", pptr, nmapcalledas);
-		if (stat(nmappath, &st) != -1)
-		  break;
-		nmappath[0] = '\0';
-		if (endptr) pptr = endptr + 1;
-		else pptr = NULL;
-	      }
-	      free(nmapcalledas);
-	    }
-	  }
-	}
-	if (!*nmappath) {
-	  fatal("Could not find Nmap -- you must add --nmap-path argument");
-	}       
-
-	/* We should be courteous and give Nmap reasonable signal defaults */
-#if HAVE_SIGNAL
-	signal(SIGINT, SIG_DFL);
-	signal(SIGTERM, SIG_DFL);
-#ifndef WIN32
-	signal(SIGHUP, SIG_DFL);
-#endif
-	signal(SIGSEGV, SIG_DFL);
-#endif
-
-	/* Now I must handle spoofery */
-	if (*fakeargs) {
-	  fakeargc = arg_parse(fakeargs, &fakeargv);
-	  if (fakeargc < 1) {
-	    fatal("Bogus --spoof parameter");
-	  }
-	} else {
-	  fakeargc = 1;
-	  fakeargv = (char **) safe_malloc(sizeof(char *) * 2);
-	  fakeargv[0] = nmappath;
-	  fakeargv[1] = NULL;
-	}
-
-	if (o.debugging) error("About to exec %s", nmappath);
-	/* Kill stdout & stderr */
-	if (!o.debugging) {
-	  fd = open(DEVNULL, O_WRONLY);
-	  if (fd != -1) {
-	    dup2(fd, STDOUT_FILENO);
-	    dup2(fd, STDERR_FILENO);
-	  }
-	}
-
-	/* OK, I think we are finally ready for the big exec() */
-	ret = execv(nmappath, fakeargv);
-	if (ret == -1) {
-	  pfatal("Could not exec %s", nmappath);
-	}
-	break;
-      case -1:
-	gh_perror("fork() failed");
-	break;
-      default: /* Parent */
-	printf("[PID: %d]\n", ret);
-	break;
-      }
-    } else {
-      printf("Unknown command (%s) -- press h <enter> for help\n", myargv[0]);
-      continue;
-    }
-    arg_parse_free(myargv);
-  }
-  return 0;
-
+  return nmap_main(argc, argv);
 }

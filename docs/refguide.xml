@@ -4169,31 +4169,6 @@ hosts with at least one
 
       <varlistentry>
         <term>
-          <option>--interactive</option> (Start in interactive mode)
-          <indexterm><primary><option>--interactive</option></primary></indexterm>
-          <indexterm><primary><option>interactive mode</option></primary></indexterm>
-        </term>
-        <listitem>
-
-          <para>Starts Nmap in interactive mode, which offers an
-          interactive Nmap prompt allowing easy launching of
-          multiple scans (either synchronously or in the
-          background). This is useful for people who scan from
-          multi-user systems as they often want to test their
-          security without letting everyone else on the system know
-          exactly which systems they are scanning. Use
-          <option>--interactive</option> to activate this mode and then type <keycap>h</keycap> for
-          help. This option is rarely used because proper shells
-          are usually more familiar and feature-complete.  This option
-          includes a bang (!) operator for executing shell commands,
-          which is one of many reasons not to install Nmap
-	  setuid root.<indexterm><primary>setuid, why Nmap shouldn't be</primary></indexterm>
-          </para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
           <option>-V</option>; <option>--version</option> (Print version number)
           <indexterm><primary><option>-V</option></primary></indexterm>
           <indexterm><primary><option>--version</option></primary></indexterm>

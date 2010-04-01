@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed --interactive mode, a miniature shell whose primary purpose
+  was to hide command line arguments from the process list. It had
+  been broken (would segfault during the second scan) since before May
+  2009 until February 2010 and was rarely used. The fact that it was
+  broken was reported by Juan Carlos Castro y Castro.
+
 o [NSE] Added the afp-serverinfo script that gets a hostname, IP
   addresses, and other configuration information from an AFP server.
   The script, and a patch to the afp library, were originally

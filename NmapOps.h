@@ -182,7 +182,6 @@ class NmapOps {
   int spoofsource; /* -S used */
   int fastscan;
   char device[64];
-  int interactivemode;
   int ping_group_sz;
   int nogcc; /* Turn off group congestion control with --nogcc */
   int generate_random_ips; /* -iR option */

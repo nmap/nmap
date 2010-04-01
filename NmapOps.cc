@@ -219,7 +219,6 @@ void NmapOps::Initialize() {
   spoofsource = 0;
   fastscan = 0;
   device[0] = '\0';
-  interactivemode = 0;
   ping_group_sz = PING_GROUP_SZ;
   nogcc = 0;
   generate_random_ips = 0;
