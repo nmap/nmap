@@ -961,6 +961,7 @@ request = function(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
+--io.write(data)
   socket, partial = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
@@ -1087,9 +1088,15 @@ post = function( host, port, path, options, ignored, postdata )
       parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
     end
     postdata = table.concat(parts, "&")
-    mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
+    mod_options.content = postdata
+  else
     mod_options.content = postdata
   end
+
+  if(not(mod_options.header)) then
+    mod_options.header = {}
+  end
+  mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
 
   table_augment(mod_options, options or {})
 
