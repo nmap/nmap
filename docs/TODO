@@ -32,6 +32,14 @@ o Remove --interactive.  It was broken for a long time and nobody
   the documentation complexity of people having to read and learn
   about a feature they are unlikely to ever use.
 
+o Nmap should probably always produce a well-formed XML file, even if
+  it exits with a fatal() error.  In that case, the error should be
+  included in the XML.  Right now, for example, if the network is
+  down, the XML output will just stop (no closing tags) and Nmap will
+  print something to STDERR like:
+  nexthost: failed to determine route to 9.48.184.164
+  QUITTING!
+
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
