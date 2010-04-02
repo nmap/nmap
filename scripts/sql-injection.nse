@@ -26,6 +26,18 @@ author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "vuln"}
 
+---
+-- @args sql-injection.start The path at which to start spidering; default <code>/</code>.
+-- @args sql-injection.maxdepth The maximum depth to spider; default 10.
+--
+-- @output
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- | sql-injection: Host might be vulnerable
+-- | /a_index.php?id_str=1'%20OR%20sqlspider
+-- | /a_index.php?id_str=1'%20OR%20sqlspider
+-- | /a_index.php?id_str=2'%20OR%20sqlspider
+
 -- Change this to increase depth of crawl
 local maxdepth = 10
 local get_page_from_host

@@ -5,6 +5,12 @@ Checks if a VNC server is vulnerable to the RealVNC authentication bypass
 author = "Brandon Enright"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
+---
+-- @output
+-- PORT     STATE SERVICE VERSION
+-- 5900/tcp open  vnc     VNC (protocol 3.8)
+-- |_realvnc-auth-bypass: Vulnerable
+
 categories = {"default", "vuln", "safe"}
 
 require "shortport"
