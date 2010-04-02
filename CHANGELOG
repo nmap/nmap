@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed bug in rpc.lua library that incorrectly required file handles
+  to be 32 octects when calling the ReadDir function. The bug was reported by
+  Djalal Harouni. [Patrik]
+
 o Removed --interactive mode, a miniature shell whose primary purpose
   was to hide command line arguments from the process list. It had
   been broken (would segfault during the second scan) since before May

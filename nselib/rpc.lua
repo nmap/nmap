@@ -836,8 +836,8 @@ NFS = {
 		local pos, data, _ = 1, "", ""
 		local header, response = {}, {}
 
-		if not file_handle or file_handle:len() ~= 32 then
-			return false, "Incorrect filehandle received"
+		if ( not(file_handle) ) then
+			return false, "No filehandle received"
 		end
 
 		if ( self.version == 3 ) then
@@ -882,7 +882,7 @@ NFS = {
 			return false, ("Version %d not supported"):format(self.version)
 		end
 
-		if not file_handle or file_handle:len() ~= 32 then
+		if ( not(file_handle) or file_handle:len() ~= 32 ) then
 			return false, "Incorrect filehandle received"
 		end
 
