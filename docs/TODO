@@ -80,6 +80,12 @@ o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
+o [NSE] We should probably have a standard function which takes time
+  arguments in the same format as Nmap does (e.g. 60s, 1m, etc.) and
+  the scripts which take time arguments should be modified to use
+  it. David suggests this here:
+  http://seclists.org/nmap-dev/2010/q2/35
+
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
 
