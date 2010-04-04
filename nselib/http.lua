@@ -1012,6 +1012,7 @@ end
 -- The second argument is a table for further options.
 -- @param u The URL of the host.
 -- @param options A table of options, as with <code>http.request</code>.
+-- @return Table as described in the module description.
 -- @see http.get
 get_url = function( u, options )
   local parsed = url.parse( u )
