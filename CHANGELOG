@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a library for Microsoft SQL Server and 7 new scripts. The new
+  scripts are:
+  - ms-sql-brute.nse uses the unpwdb library to guess credentials for MSSQL
+  - ms-sql-config retrieves various configuration details from the server		
+  - ms-sql-empty-password checks if the sa account has an empty password
+  - ms-sql-hasdbaccess lists database access per user
+  - ms-sql-query add support for running custom queries against the database
+  - ms-sql-tables lists databases, tables, columns and datatypes with optional
+    keyword filtering
+  - ms-sql-xp-cmdshell adds support for OS command execution to privileged
+    users
+  [Patrik]
+
 o [NSE] Fixed bug in rpc.lua library that incorrectly required file handles
   to be 32 octects when calling the ReadDir function. The bug was reported by
   Djalal Harouni. [Patrik]

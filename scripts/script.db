@@ -52,7 +52,14 @@ Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ms-sql-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ms-sql-config.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ms-sql-empty-password.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ms-sql-hasdbaccess.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
+Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
 Entry { filename = "mysql-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mysql-empty-password.nse", categories = { "auth", "intrusive", } }
