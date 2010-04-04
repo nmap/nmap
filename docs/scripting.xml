@@ -222,7 +222,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
 
     <para>NSE scripts define a list of categories they belong to.
           Currently defined categories
-          are <literal>auth</literal>, <literal>default</literal>, <literal>discovery</literal>, <literal>external</literal>,
+          are <literal>auth</literal>, <literal>default</literal>, <literal>discovery</literal>, <literal>external</literal>, <literal>fuzzer</literal>,
 <literal>intrusive</literal>, <literal>malware</literal>, <literal>safe</literal>, <literal>version</literal>,
 and <literal>vuln</literal>.  Category names are not case sensitive.  The following list describes each category.</para>
 
@@ -332,6 +332,17 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
             the target. Most scripts involve traffic strictly between
             the scanning computer and the client; any that do not are
             placed in this category.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="fuzzer script category">&ldquo;<literal>fuzzer</literal>&rdquo; script category</primary></indexterm>
+            <option>fuzzer</option>
+          </term>
+          <listitem>
+            <para>This category contains scripts which are designed to send server software unexpected or randomized fields in each packet. While this technique can useful for finding undiscovered bugs and vulnerabilities in software, it is both a slow process and bandwidth intensive.
+            An example of a script in this category is <literal>dns-fuzz</literal>, which bombards a DNS server with slightly flawed domain requests until either the server crashes or a user specified time limit elapses.</para>
           </listitem>
         </varlistentry>
 
