@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Fixed the --crlf option not to insert an extra \r byte in the
+  case that one system read ends with \r and the next begins with \n
+  (should be rare). [David]
+
 o [NSE] Added a library for Microsoft SQL Server and 7 new scripts. The new
   scripts are:
   - ms-sql-brute.nse uses the unpwdb library to guess credentials for MSSQL
