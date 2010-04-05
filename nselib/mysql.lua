@@ -172,7 +172,7 @@ end
 -- @return response table or error message on failure
 function loginRequest( socket, params, username, password, salt )
 
-	local catch = function() socket:close() stdnse.print_debug("receiveGreeting(): failed")	end	
+	local catch = function() socket:close() stdnse.print_debug("loginRequest(): failed") end	
 	local try = nmap.new_try(catch)
 	local packetno = 1
 	local authversion = params.authversion or "post41"
@@ -303,7 +303,7 @@ end
 -- @return table containing the following <code>header</code>, <code>fields</code> and <code>data</code>
 function decodeQueryResponse( socket )
 
-	local catch = function() socket:close() stdnse.print_debug("sqlQuery(): failed") end	
+	local catch = function() socket:close() stdnse.print_debug("decodeQueryResponse(): failed") end	
 	local try = nmap.new_try(catch)
 	local data, header, pos
 	local rs, blocks = {}, {}
