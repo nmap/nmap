@@ -43,7 +43,7 @@ local setup_connect = function(host, port, opts)
 		host = {ip = host}
 	end
 
-	local target = host.targetname or host.ip or host.name
+	local target = host.ip
 
 	if type(port) ~= "table" then
 		port = {number = port}
