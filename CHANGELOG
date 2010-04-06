@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Correct misspelled "Capabilities.IgnoreSpaceBeforeParanthesis"
+  name in the MySQL library. [Kris]
+
 o [Ncat] Fixed the --crlf option not to insert an extra \r byte in the
   case that one system read ends with \r and the next begins with \n
   (should be rare). [David]
