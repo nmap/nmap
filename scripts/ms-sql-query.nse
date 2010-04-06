@@ -12,7 +12,7 @@ require 'mssql'
 
 dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 
---
+---
 -- @args mssql-query.query specifies the query to run against the server.
 --       (default SELECT @@version version)
 --

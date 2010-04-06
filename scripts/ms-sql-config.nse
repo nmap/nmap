@@ -15,7 +15,7 @@ require 'mssql'
 
 dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 
---
+---
 -- @args mssql.username specifies the username to use to connect to
 --       the server. This option overrides any accounts found by
 --       the mssql-brute and mssql-empty-password scripts.
