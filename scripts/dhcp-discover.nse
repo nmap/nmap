@@ -50,7 +50,7 @@ and <code>dhcp_parse</code>, with their related functions, can easily be abstrac
 --               or DHCPINFORM. Not all types will evoke a response from all servers. 
 --@args randomize_mac Set to 'true' or '1' to send a random MAC address with the request (keep in mind
 --               that you may not see the response). This should cause the router to reserve a new IP
---               adderss each time. 
+--               address each time. 
 --@args requests Set to an integer to make up to that many requests (and display the results). 
 --@args fake_requests Set to an integer to make that many fake requests before the real one(s). This could
 --               be useful, for example, if you also use <code>randomize_mac</code> and you want to try
