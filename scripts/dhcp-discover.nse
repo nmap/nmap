@@ -112,7 +112,7 @@ end
 local function read_ip(data, pos, length)
 	if(length ~= 4) then
 		if((length % 4) ~= 0) then
-			stdnse.print_debug("dhcp-discover: Invalid length for an ip address (%d)", length)
+			stdnse.print_debug(1, "dhcp-discover: Invalid length for an ip address (%d)", length)
 			pos = pos + length
 	
 			return pos, nil
@@ -154,7 +154,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_1_byte(data, pos, length)
 	if(length ~= 1) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be %d)", length, 1)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 1)
 		pos = pos + length
 		return pos, nil
 	end
@@ -174,6 +174,7 @@ local function read_message_type(data, pos, length)
 
 	pos, value = read_1_byte(data, pos, length)
 	if(value == nil) then
+		stdnse.print_debug(1, "dhcp-discover: Couldn't read the 1-byte message type")
 		return pos, nil
 	end
 
@@ -193,6 +194,7 @@ local function read_boolean(data, pos, length)
 	pos, result = read_1_byte(data, pos, length)
 
 	if(result == nil) then
+		stdnse.print_debug(1, "dhcp-discover: Couldn't read the 1-byte boolean")
 		return nil
 	elseif(result == 0) then
 		return "false"
@@ -210,7 +212,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_2_bytes(data, pos, length)
 	if(length ~= 2) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be %d)", length, 2)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 2)
 		pos = pos + length
 		return pos, nil
 	end
@@ -228,7 +230,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_2_bytes_list(data, pos, length)
 	if((length % 2) ~= 0) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 2)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 2)
 		pos = pos + length
 
 		return pos, nil
@@ -254,7 +256,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_4_bytes(data, pos, length)
 	if(length ~= 4) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be %d)", length, 4)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 4)
 		pos = pos + length
 		return pos, nil
 	end
@@ -272,7 +274,7 @@ end
 local function read_time(data, pos, length)
 	local result
 	if(length ~= 4) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be %d)", length, 4)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be %d)", length, 4)
 		pos = pos + length
 		return pos, nil
 	end
@@ -308,7 +310,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_static_route(data, pos, length)
 	if((length % 8) ~= 0) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
 		pos = pos + length
 
 		return pos, nil
@@ -335,7 +337,7 @@ end
 --@return The value of the field, or nil if the field length was wrong. 
 local function read_policy_filter(data, pos, length)
 	if((length % 8) ~= 0) then
-		stdnse.print_debug("dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
+		stdnse.print_debug(1, "dhcp-discover: Invalid length for data (%d; should be multiple of %d)", length, 8)
 		pos = pos + length
 
 		return pos, nil
@@ -544,7 +546,7 @@ local function dhcp_parse(data)
 
 		-- Verify we got a valid code (if we didn't, we're probably in big trouble)
 		if(action == nil) then
-			stdnse.print_debug("dhcp-discover: Unknown option: %d", option)
+			stdnse.print_debug(1, "dhcp-discover: Unknown option: %d", option)
 			pos = pos + length
 		else
 			-- Call the function to parse the option, and insert the result into our results table
@@ -554,7 +556,11 @@ local function dhcp_parse(data)
 				stdnse.print_debug(1, "dhcp-discover: Server returned unrequested option (%s => %s)", action['name'], value)
 
 			else
-				table.insert(result['options'], {name=action['name'], value=value})
+				if(value) then
+					table.insert(result['options'], {name=action['name'], value=value})
+				else
+					stdnse.print_debug(1, "dhcp-discover: Couldn't determine value for %s", action['name']);
+				end
 			end
 		end
 
@@ -605,7 +611,7 @@ local function go(host, port)
 	-- Create a pcap socket to listen for the response (this is a HUGE hack. TODO: Fix once I can set the source port)
 	pcap = nmap.new_socket()
 	pcap:pcap_open(host.interface, 590, 0, callback, "udp port 68")
-	stdnse.print_debug("dhcp-discover: Setting socket timeout to %ds", timeout)
+	stdnse.print_debug(1, "dhcp-discover: Setting socket timeout to %ds", timeout)
 	pcap:set_timeout(timeout)
 
 	-- Create the UDP socket
