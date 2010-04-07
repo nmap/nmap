@@ -195,11 +195,11 @@ local function read_boolean(data, pos, length)
 
 	if(result == nil) then
 		stdnse.print_debug(1, "dhcp-discover: Couldn't read the 1-byte boolean")
-		return nil
+		return pos, nil
 	elseif(result == 0) then
-		return "false"
+		return pos, "false"
 	else
-		return "true"
+		return pos, "true"
 	end
 end
 
@@ -499,7 +499,7 @@ local function dhcp_parse(data)
 	-- Receive the first bit and make sure we got the correct operation back
 	pos, result['op'], result['htype'], result['hlen'], result['hops'] = bin.unpack(">CCCC", data, pos)
 	if(result['op'] ~= 2) then
-		return false, string.format("DHCP server returned invalid reply ('op' wasn't BOOTREPLY (0x%02x))", result['op'])
+		return false, string.format("DHCP server returned invalid reply ('op' wasn't BOOTREPLY (it was 0x%02x))", result['op'])
 	end
 
 	-- Confirm the transaction id
@@ -550,6 +550,9 @@ local function dhcp_parse(data)
 			pos = pos + length
 		else
 			-- Call the function to parse the option, and insert the result into our results table
+			local value
+
+			stdnse.print_debug(2, "dhcp-discover: Attempting to parse %s", action['name'])
 			pos, value = action['func'](data, pos, length)
 
 			if(nmap.verbosity() == 0 and action.default == false) then
@@ -714,6 +717,7 @@ end
 
 action = function(host, port)
 	local status, results = go(host, port)
+
 
 	if(status == false) then
 		return stdnse.format_output(false, results)
