@@ -758,9 +758,6 @@
         </xsl:when>
       </xsl:choose>
       <li>proto: <xsl:value-of select="@proto" /></li>
-       <xsl:for-each select="error">
-        <li>error: <xsl:value-of select="@errorstr"/></li>
-       </xsl:for-each>
   </ul>
   <table cellspacing="1">
     <tr class="head">

@@ -287,7 +287,7 @@
 			values		CDATA		#IMPLIED
 >
 
-<!ELEMENT trace (hop*, error?) >
+<!ELEMENT trace (hop*) >
 <!ATTLIST trace
       proto   CDATA   #IMPLIED
       port    CDATA   #IMPLIED
@@ -299,11 +299,6 @@
       rtt     CDATA   #IMPLIED
       ipaddr  CDATA   #IMPLIED
       host    CDATA   #IMPLIED
->
-
-<!ELEMENT error EMPTY>
-<!ATTLIST error
-     errorstr   CDATA #IMPLIED
 >
 
 <!ELEMENT times EMPTY>
