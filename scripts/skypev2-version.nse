@@ -1,6 +1,12 @@
 description = [[
 Detects the Skype version 2 service.
 ]]
+
+---
+-- @output
+-- PORT   STATE SERVICE VERSION
+-- 80/tcp open  skype2  Skype
+ 
 author = "Brandon Enright"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}

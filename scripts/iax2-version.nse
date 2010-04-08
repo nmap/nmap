@@ -4,6 +4,11 @@ Detects the UDP IAX2 service.
 The script sends an Inter-Asterisk eXchange (IAX) Revision 2 Control Frame POKE request and checks for a proper response.  This protocol is used to enable VoIP connections between servers as well as client-server communication.
 ]]
 
+---
+-- @output
+-- PORT     STATE  SERVICE VERSION
+-- 4569/udp closed iax2
+
 author = "Ferdy Riphagen"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

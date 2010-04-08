@@ -2,7 +2,7 @@ description = [[
 Guesses Oracle instance/sid names against the TNS-listener
 ]]
 
---
+---
 -- @usage
 -- nmap --script=oracle-sid-brute --script-args=oraclesids=/path/to/sidfile -p 1521-1560 <host>
 -- nmap --script=oracle-sid-brute -p 1521-1560 <host>
@@ -18,8 +18,6 @@ Guesses Oracle instance/sid names against the TNS-listener
 -- |   orcl
 -- |   prod
 -- |_  devel
---
----
 
 -- Version 0.3
 

@@ -26,6 +26,28 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --
 -- @args mssql-config.showall if set shows all configuration options.
 --
+-- @output
+-- PORT     STATE SERVICE
+-- 1433/tcp open  ms-sql-s
+-- | ms-sql-config:
+-- |   Databases
+-- |     name      db_size owner
+-- |     ====      ======= =====
+-- |     nmap            2.74 MB   MAC-MINI\david
+-- |   Configuration
+-- |     name      value   inuse   description
+-- |     ====      =====   =====   ===========
+-- |     SQL Mail XPs      0       0       Enable or disable SQL Mail XPs
+-- |     Database Mail XPs 0       0       Enable or disable Database Mail XPs
+-- |     SMO and DMO XPs   1       1       Enable or disable SMO and DMO XPs
+-- |     Ole Automation Procedures 0       0       Enable or disable Ole Automation Procedures
+-- |     xp_cmdshell       0       0       Enable or disable command shell
+-- |     Ad Hoc Distributed Queries        0       0       Enable or disable Ad Hoc Distributed Queries
+-- |     Replication XPs   0       0       Enable or disable Replication XPs
+-- |   Linked Servers
+-- |     srvname   srvproduct      providername
+-- |     =======   ==========      ============
+-- |_    MAC-MINI  SQL Server      SQLOLEDB
 
 -- Version 0.1
 -- Created 04/02/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
