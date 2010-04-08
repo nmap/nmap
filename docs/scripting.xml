@@ -2211,10 +2211,13 @@ categories = {"discovery", "external"}
           <term><option>@usage</option></term>
           <listitem>
             <para>
-              Provides a usage example of a function or script. In
+              Provides a usage example of a function, script, or module. In
               the case of a function, the example is Lua code; for a
-              script it is an Nmap command line.
-              <literal>@usage</literal> may be given more than once.
+              script it is an Nmap command line; and for a module it is usually
+              a code sample.
+              <literal>@usage</literal> may be given more than once. If it is
+              omitted in a script, NSEDoc generates a default standardized
+              usage example.
             </para>
           </listitem>
         </varlistentry>
