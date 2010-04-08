@@ -36,10 +36,12 @@ o Create new default username list:
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
-  host. For example, the once-per-scan class might be useful for
-  broadcast LAN scripts (Ron Bowes, who suggested this
+  host. For example, the once-per-scan ("network script"?) class might
+  be useful for broadcast LAN scripts (Ron Bowes, who suggested this
   (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
-  NetBIOS and DHCP broadcast script). [Could be a good SoC
+  NetBIOS and DHCP broadcast script). Another idea would be an AS to
+  IP ranges script, as discussed in this thread
+  http://seclists.org/nmap-dev/2010/q2/101 [Could be a good SoC
   infrastructure project]
   o David notes: "I regret saying this before I say it, because I'm
     imagining implementation difficulties, we should think about
