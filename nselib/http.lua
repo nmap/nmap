@@ -886,7 +886,7 @@ local build_request = function(host, port, method, path, options)
     mod_options.header["Content-Length"] = #options.content
   end
   if options.cookies then
-    local cookies = buildCookies(cookies, path)
+    local cookies = buildCookies(options.cookies, path)
     if #cookies > 0 then
       mod_options.header["Cookie"] = cookies
     end

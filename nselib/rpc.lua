@@ -375,7 +375,7 @@ Mount = {
 	-- @return entries table containing a list of share names (strings)
 	Export = function( self )
 
-		local catch = function() socket:close()	end
+		local catch = function() self.socket:close()	end
 		local try = nmap.new_try(catch)
 		local msg_type = 0
 		local prg_mount = Util.ProgNameToNumber("mountd")
@@ -490,7 +490,7 @@ Mount = {
 	-- @return fhandle string containing the filehandle of the remote export
 	Mount = function( self, path )
 
-		local catch = function() socket:close()	end
+		local catch = function() self.socket:close()	end
 		local try = nmap.new_try(catch)
 		local packet, data
 		local prog_id = Util.ProgNameToNumber("mountd")
@@ -564,7 +564,7 @@ Mount = {
 	-- @return error string containing error if status is false
 	Unmount = function( self, path )
 
-		local catch = function() socket:close()	end
+		local catch = function() self.socket:close()	end
 		local try = nmap.new_try(catch)
 		local packet, data
 		local prog_id = Util.ProgNameToNumber("mountd")
@@ -924,7 +924,7 @@ NFS = {
 	--
 	GetAttrDecode = function( self, data, pos )
 		local attrib = {}
-		local catch = function() socket:close()	end
+		local catch = function() self.socket:close()	end
 		local try = nmap.new_try(catch)
 		local NFS_OK = 0
 		local status
@@ -1012,7 +1012,7 @@ NFS = {
 		-- 	<code>total_blocks</code>, <code>free_blocks</code> and <code>available_blocks</code>
 		--
 		StatFsDecode = function( self, data, pos )
-			local catch = function() socket:close()	end
+			local catch = function() self.socket:close()	end
 			local try = nmap.new_try(catch)
 			local statfs = {}
 			local NFS_OK, NSFERR_ACCESS = 0, 13
