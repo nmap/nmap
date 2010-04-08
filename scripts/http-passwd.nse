@@ -4,6 +4,21 @@ retrieve <code>/etc/passwd</code> using various traversal methods such as
 requesting <code>../../../../etc/passwd</code>.
 ]]
 
+---
+-- @output
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- | http-passwd: Found with "//etc/passwd"
+-- | Printing first 250 bytes:
+-- | root:x:0:0:root:/root:/bin/bash
+-- | daemon:x:1:1:daemon:/usr/sbin:/bin/sh
+-- | bin:x:2:2:bin:/bin:/bin/sh
+-- | sys:x:3:3:sys:/dev:/bin/sh
+-- | sync:x:4:65534:sync:/bin:/bin/sync
+-- | games:x:5:60:games:/usr/games:/bin/sh
+-- | man:x:6:12:man:/var/cache/man:/bin/sh
+-- |_lp:x:7:7:lp:/va
+
 -- 07/20/2007:
 --   * Used Thomas Buchanan's HTTPAuth script as a starting point
 --   * Applied some great suggestions from Brandon Enright, thanks a lot man!

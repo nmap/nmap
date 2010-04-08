@@ -4,6 +4,15 @@ DB2 EXCSAT (exchange server attributes) command packet and parses the response.
 ]]
 
 -- rev 1.3 (2009-12-16)
+
+---
+-- @output
+-- PORT      STATE SERVICE
+-- 50000/tcp open  ibm-db2
+-- |  db2-info: DB2 Version: 8.02.9
+-- |  Server Platform: QDB2/SUN
+-- |  Instance Name:   db2inst1
+-- |_ External Name:   db2inst1db2agent00002B430
   
 author = "Tom Sellers"
 

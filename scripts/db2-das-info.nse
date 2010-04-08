@@ -7,7 +7,54 @@ requested.
 ]]
 
 -- rev 1.1 (2010-01-28)
-  
+
+---
+-- @output
+-- PORT    STATE SERVICE VERSION
+-- 523/tcp open  ibm-db2 IBM DB2 Database Server 9.07.0
+-- | db2-das-info: DB2 Administration Server Settings
+-- | ;DB2 Server Database Access Profile
+-- | ;Use BINARY file transfer
+-- | ;Comment lines start with a ";"
+-- | ;Other lines must be one of the following two types:
+-- | ;Type A: [section_name]
+-- | ;Type B: keyword=value
+-- |
+-- | [File_Description]
+-- | Application=DB2/LINUX 9.7.0
+-- | Platform=18
+-- | File_Content=DB2 Server Definitions
+-- | File_Type=CommonServer
+-- | File_Format_Version=1.0
+-- | DB2System=MYBIGDATABASESERVER
+-- | ServerType=DB2LINUX
+-- |
+-- | [adminst>dasusr1]
+-- | NodeType=1
+-- | DB2Comm=TCPIP
+-- | Authentication=SERVER
+-- | HostName=MYBIGDATABASESERVER
+-- | PortNumber=523
+-- | IpAddress=127.0.1.1
+-- |
+-- | [inst>db2inst1]
+-- | NodeType=1
+-- | DB2Comm=TCPIP
+-- | Authentication=SERVER
+-- | HostName=MYBIGDATABASESERVER
+-- | ServiceName=db2c_db2inst1
+-- | PortNumber=50000
+-- | IpAddress=127.0.1.1
+-- | QuietMode=No
+-- | TMDatabase=1ST_CONN
+-- |
+-- | [db>db2inst1:TOOLSDB]
+-- | DBAlias=TOOLSDB
+-- | DBName=TOOLSDB
+-- | Drive=/home/db2inst1
+-- | Dir_entry_type=INDIRECT
+-- |_Authentication=NOTSPEC
+
 author = "Patrik Karlsson, Tom Sellers"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
