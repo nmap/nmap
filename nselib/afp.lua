@@ -747,9 +747,9 @@ Proto = {
 				for j = 1, 7 do
 					addr = addr .. string.format("%04x:", octet[j])
 				end
-				addr = addr .. string.format("%04x", octet[8], port)
+				addr = addr .. string.format("%04x", octet[8])
 
-				table.insert(result.network_addresses, temp)
+				table.insert(result.network_addresses, addr)
 			elseif tag == 0x07 then
 				-- 16 byte ipv6 and two byte port
 				local octet = {}

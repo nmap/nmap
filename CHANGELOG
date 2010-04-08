@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Correct global access errors in afp.lua reported by Patrick Donnelly
+  [Patrik]
+
 o [NSE] Correct misspelled "Capabilities.IgnoreSpaceBeforeParanthesis"
   name in the MySQL library. [Kris]
 
@@ -23,7 +26,6 @@ o [NSE] Added a library for Microsoft SQL Server and 7 new scripts. The new
 o [NSE] New script dns-fuzz launches a fuzzing attack against DNS
   servers. Added a new category - fuzzer - for scripts like this.
   [Michael Pattrick]
-
 
 o [NSE] Fixed bug in rpc.lua library that incorrectly required file handles
   to be 32 octects when calling the ReadDir function. The bug was reported by
