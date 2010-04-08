@@ -76,7 +76,7 @@ local function _element_to_bson(key, value)
 		local op = bin.pack('H','02')
 		return true, op .. name .. length .. cstring
 	elseif type(value) =='table' then
-		return true, bin.pack('H','02') .. name .. _dict_to_bson(value)
+		return true, bin.pack('H','02') .. name .. toBson(value)
 	elseif type(value)== 'boolean' then
 	      return true, bin.pack('H','08') + name + bin.pack('H',value and '01' or '00')
 	elseif type(value) == 'number' then
