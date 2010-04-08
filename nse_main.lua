@@ -799,8 +799,7 @@ return function (hosts)
     -- Check portrules for this host.
     for port in cnse.ports(host) do
       for i, script in ipairs(chosen_scripts) do
-        local thread = script:new_thread("portrule", tcopy(host),
-            tcopy(port));
+        local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
         if thread then
           local runlevel = thread.runlevel;
           if threads[runlevel] == nil then insert(runlevels, runlevel); end
