@@ -33,13 +33,6 @@ o Create new default username list:
     and also a general list which we obtain from spidering from
     emails, etc.
 
-o Remove --interactive.  It was broken for a long time and nobody
-  seemed to notice, and we put a call out on nmap-dev for
-  --interactive users and didn't get any good reasons to keep it.  We
-  should kill it to remove the code complexity it adds and to avoid
-  the documentation complexity of people having to read and learn
-  about a feature they are unlikely to ever use.
-
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
@@ -59,7 +52,9 @@ o [Zenmap] Investigate getting new OS icon art. See
 
 o [Zenmap] Maybe it should sort IPs in an octet-aware way. And maybe
   you should be able to sort by IP address (perhaps that should be the
-  default).  See http://seclists.org/nmap-dev/2010/q2/27
+  default).  Current plan is to just sort by IP by default, and maybe
+  we'll offer other sort techniques later if desired.  See
+  http://seclists.org/nmap-dev/2010/q2/27 [possible SoC student task]
 
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
@@ -68,19 +63,14 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
-o [NSE] Consider pros and cons of splitting information retrieval
-  scripts into a bunch of small single-purpose script vs. one larger
-  argument-controlled script.  See
-  http://seclists.org/nmap-dev/2010/q1/1023
-
-o [Ncrack] User our new password lists (now used by NSE) for Ncrack as
+o [Ncrack] Use our new password lists (now used by NSE) for Ncrack as
   well.  Ncrack can probably handle a larger list than NSE uses.
 
 o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
-o [NSE] We should probably have a standard function which takes time
+o [NSE] We should have a standard function which takes time
   arguments in the same format as Nmap does (e.g. 60s, 1m, etc.) and
   the scripts which take time arguments should be modified to use
   it. David suggests this here:
@@ -107,20 +97,18 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
-o Our nsedoc generator should probably give a warning if a script is
-  missing any important fields. @output comes to mind.  @usage can be
-  nice too, though we could consider auto-generating that for trivial
-  scripts.
-
-o Review IDS detection scripts from Joao Correa.
-  http://seclists.org/nmap-dev/2010/q1/814
-
-o Review mssql library and scripts from Patrik Karlsson.
-  http://seclists.org/nmap-dev/2010/q1/1000 (files)
-  http://seclists.org/nmap-dev/2010/q1/1014 (sample output)
-
-o Review DNS fuzzer script from Michael Pattrick.
-  http://seclists.org/nmap-dev/2010/q1/1005
+o Get @output sections for the last remaining scripts w/o them:
+  [WARN] script auth-spoof missing @output
+  [WARN] script db2-das-info missing @output
+  [WARN] script db2-info missing @output
+  [WARN] script http-passwd missing @output
+  [WARN] script iax2-version missing @output
+  [WARN] script ms-sql-config missing @output
+  [WARN] script ms-sql-query missing @output
+  [WARN] script oracle-sid-brute missing @output
+  [WARN] script pop3-brute missing @output
+  [WARN] script pptp-version missing @output
+  [WARN] script skypev2-version missing @output
 
 o Integrate new OS fingerprints (we have more than 1,300 since
   November 10, 2009).
@@ -579,6 +567,36 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Review IDS detection scripts from Joao Correa.
+  http://seclists.org/nmap-dev/2010/q1/814
+
+o Review mssql library and scripts from Patrik Karlsson.
+  http://seclists.org/nmap-dev/2010/q1/1000 (files)
+  http://seclists.org/nmap-dev/2010/q1/1014 (sample output)
+
+o Review DNS fuzzer script from Michael Pattrick.
+  http://seclists.org/nmap-dev/2010/q1/1005
+
+o Our nsedoc generator should probably give a warning if a script is
+  missing any important fields. @output comes to mind.  @usage can be
+  nice too, though we could consider auto-generating that for trivial
+  scripts.
+
+o [NSE] Consider pros and cons of splitting information retrieval
+  scripts into a bunch of small single-purpose script vs. one larger
+  argument-controlled script.  See
+  http://seclists.org/nmap-dev/2010/q1/1023
+  [we ended up combining three of the ms-sql scripts. If we combine
+  future scripts, we need to remember to add them to the deprecation
+  list in the Makefile]
+
+o Remove --interactive.  It was broken for a long time and nobody
+  seemed to notice, and we put a call out on nmap-dev for
+  --interactive users and didn't get any good reasons to keep it.  We
+  should kill it to remove the code complexity it adds and to avoid
+  the documentation complexity of people having to read and learn
+  about a feature they are unlikely to ever use.
 
 o Zenmanp should perhaps be able to print Nmap output on a Printer (if
   not too much of a pain to implement.)
