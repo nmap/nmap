@@ -107,7 +107,7 @@ local function getAuthDns(rPkt)
       if #rPkt.answers == 0 then
          return false 
       else
-         if #rPkt.answers[1].dtype == types.CNAME then
+         if rPkt.answers[1].dtype == types.CNAME then
             return {cname = rPkt.answers[1].domain}
          end
       end
