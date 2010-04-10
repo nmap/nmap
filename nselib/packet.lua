@@ -106,7 +106,7 @@ IPPROTO_IDP  = 22             	--  XNS IDP protocol
 IPPROTO_DCCP = 33            	--  Datagram Congestion Control Protocol
 IPPROTO_RSVP = 46            	--  RSVP protocol
 IPPROTO_GRE  = 47             	--  Cisco GRE tunnels (rfc 1701,1702)
-IPPROTO_IPV6 = 41          	--  IPv6-in-IPv4 tunnelling
+IPPROTO_IPV6 = 41             	--  IPv6-in-IPv4 tunnelling
 
 IPPROTO_ESP  = 50            	--  Encapsulation Security Payload protocol
 IPPROTO_AH   = 51             	--  Authentication Header protocol
@@ -141,6 +141,10 @@ function Packet:new(packet, packet_len, force_continue)
 	if o.ip_p == IPPROTO_TCP then
 		if not o:tcp_parse(force_continue) then
 			io.write("Error while parsing TCP packet\n")
+		end
+	elseif o.ip_p == IPPROTO_UDP then
+		if not o:udp_parse(force_continue) then
+			io.write("Error while parsing UDP packet\n")
 		end
 	elseif o.ip_p == IPPROTO_ICMP then
 		if not o:icmp_parse(force_continue) then
@@ -368,6 +372,8 @@ end
 function Packet:tostring()
 	if self.tcp then
 		return self:tcp_tostring()
+	elseif self.udp then
+		return self:udp_tostring()
 	elseif self.icmp then
 		return self:icmp_tostring()
 	elseif self.ip then
@@ -451,7 +457,7 @@ function Packet:tcp_parse(force_continue)
 end
 
 --- Get a short string representation of the TCP packet.
--- @return A string representation of the ICMP header.
+-- @return A string representation of the TCP header.
 function Packet:tcp_tostring()
 	return string.format(
 		"TCP %s:%i -> %s:%i",
@@ -592,3 +598,83 @@ function Packet:tcp_lookup_link()
         end
         return string.format("unknown-%i", self.tcp_opt_mtu)
 end
+
+----------------------------------------------------------------------------------------------------------------
+-- Parse a UDP packet header.
+-- @param force_continue Whether a short packet causes parsing to fail.
+-- @return Whether the parsing succeeded.
+function Packet:udp_parse(force_continue)
+	self.udp = true
+	self.udp_offset		= self.ip_data_offset
+	if string.len(self.buf) < self.udp_offset + 4 then
+		return false
+	end
+	self.udp_sport		= self:u16(self.udp_offset + 0)
+	self.udp_dport		= self:u16(self.udp_offset + 2)
+	if string.len(self.buf) < self.udp_offset + 8 then
+		if force_continue then
+			return true
+		else
+			return false
+		end
+	end
+	self.udp_len		= self:u16(self.udp_offset + 4)
+	self.udp_sum		= self:u16(self.udp_offset + 6)
+	
+	return true
+end
+
+--- Get a short string representation of the UDP packet.
+-- @return A string representation of the UDP header.
+function Packet:udp_tostring()
+	return string.format(
+		"UDP %s:%i -> %s:%i",
+		self.ip_src, self.udp_sport,
+		self.ip_dst, self.udp_dport
+	)
+end
+
+---
+-- Set the UDP source port.
+-- @param port Source port.
+function Packet:udp_set_sport(port)
+	self:set_u16(self.udp_offset + 0, port)
+	self.udp_sport = port
+end
+---
+-- Set the UDP destination port.
+-- @param port Destination port.
+function Packet:udp_set_dport(port)
+	self:set_u16(self.udp_offset + 2, port)
+	self.udp_dport = port
+end
+---
+-- Set the UDP payload length.
+-- @param len UDP payload length.
+function Packet:udp_set_length(len)
+	self:set_u16(self.udp_offset + 4, len)
+	self.udp_len = len
+end
+---
+-- Set the UDP checksum field.
+-- @param checksum Checksum.
+function Packet:udp_set_checksum(checksum)
+	self:set_u16(self.udp_offset + 6, checksum)
+	self.udp_sum = checksum
+end
+---
+-- Count and save the UDP checksum field.
+function Packet:udp_count_checksum()
+	self:udp_set_checksum(0)
+	local proto	= self.ip_p
+	local length	= self.buf:len() - self.udp_offset
+	local b = self.ip_bin_src ..
+		self.ip_bin_dst ..
+		string.char(0) ..
+		string.char(proto) ..
+		set_u16("..", 0, length) ..
+		self.buf:sub(self.udp_offset+1)
+
+	self:udp_set_checksum(in_cksum(b))
+end
+
