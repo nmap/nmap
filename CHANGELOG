@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added UDP header parsing support to packet.lua. [jah]
+
 o [NSE] Correct global access errors in afp.lua reported by Patrick Donnelly
   [Patrik]
 
