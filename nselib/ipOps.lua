@@ -37,7 +37,7 @@ isPrivate = function( ip )
   ip, err = expand_ip( ip )
   if err then return nil, err end
 
-  local ipv4_private = { "10/8", "127/8", "169.254/16", "172.15/12", "192.168/16" }
+  local ipv4_private = { "10/8", "127/8", "169.254/16", "172.16/12", "192.168/16" }
   local ipv6_private = { "::/127", "FC00::/7", "FE80::/10" }
   local t, is_private = {}
   if ip:match( ":" ) then
