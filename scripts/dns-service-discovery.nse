@@ -89,6 +89,21 @@ function getRecordType( dtype, response, retAll )
 	
 end
 
+--- Function used to compare discovered DNS services so they can be sorted
+--
+-- @param a table containing first item
+-- @param b table containing second item
+-- @return true if the port of a is less than the port of b
+local function serviceCompare(a, b)
+	local port_a = a.name:match("^(%d+)")
+	local port_b = b.name:match("^(%d+)")
+		
+	if ( tonumber(port_a) < tonumber(port_b) ) then
+		return true
+	end
+	return false
+end
+
 action = function(host, port)
 
 	local result = {}
@@ -170,6 +185,9 @@ action = function(host, port)
 		end
 		
 	end
+	
+	-- sort the tables per port
+	table.sort( result, serviceCompare )
 	
 	-- we want the device information at the end
 	table.insert( result, deviceinfo )
