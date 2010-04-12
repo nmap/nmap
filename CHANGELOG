@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added snmpWalk function to SNMP library and updated scripts to use it
+  [Patrik] 
+
 o Updated IANA IP address space assignment list for random IP (-iR)
   generation. [Kris]
 

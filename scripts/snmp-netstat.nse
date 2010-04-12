@@ -22,49 +22,31 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"snmp-brute"}
 
--- Version 0.1
+-- Version 0.2
 -- Created 01/19/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 
 require "shortport"
 require "snmp"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
---- Walks the MIB Tree
+--- Processes the table and creates the script output
 --
--- @param socket socket already connected to the server
--- @param base_oid string containing the base object ID to walk
--- @return table containing <code>oid</code> and <code>value</code>
-function snmp_walk( socket, base_oid )
-	
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)	
+-- @param tbl table containing <code>oid</code> and <code>value</code>
+-- @param prefix string containing either "UDP" or "TCP"
+-- @param base_oid string containing the value of the base_oid of the walk
+-- @return table suitable for <code>stdnse.format_output</code>
+function process_answer( tbl, prefix, base_oid )
 
-	local snmp_table = {}
-	local oid = base_oid
-	
-	while ( true ) do
-		
-		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
-		options.reqId = 28428 -- unnecessary?
-		payload = snmp.encode( snmp.buildPacket( snmp.buildGetNextRequest(options, oid) ) )
+	local new_tab = {}
 
-		try(socket:send(payload))
-		response = try( socket:receive_bytes(1) )
-	
-		snmpdata = snmp.fetchResponseValues( response )
-		
-		value = snmpdata[1][1]
-		oid  = snmpdata[1][2]
-						
-		if not oid:match( base_oid ) or base_oid == oid then
-			break
-		end
-		
-		local lip = oid:match( "^" .. base_oid .. "%.(%d+%.%d+%.%d+%.%d+)") or ""
-		local lport = oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.(%d+)")
-		local fip = oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+%.%d+%.%d+%.%d+)") or "*:*"
-		local fport = oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+)")
+	for _, v in ipairs( tbl ) do
+		local lip = v.oid:match( "^" .. base_oid .. "%.(%d+%.%d+%.%d+%.%d+)") or ""
+		local lport = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.(%d+)")
+		local fip = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+%.%d+%.%d+%.%d+)") or "*:*"
+		local fport = v.oid:match( "^" .. base_oid .. "%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.%d+%.(%d+)")
+		local value
 		
 		if lport and lport ~= "0" then
 			lip = lip .. ":" .. lport
@@ -76,30 +58,7 @@ function snmp_walk( socket, base_oid )
 		
 		
 		value = string.format("%-20s %s", lip, fip )
-		
-		item.oid = oid
-		item.value = value
-
-		table.insert( snmp_table, item )
-		
-	end
-
-	snmp_table.baseoid = base_oid
-	
-	return snmp_table
-	
-end
-
---- Processes the table and creates the script output
---
--- @param tbl table containing <code>oid</code> and <code>value</code>
--- @return table suitable for <code>stdnse.format_output</code>
-function process_answer( tbl, prefix )
-
-	local new_tab = {}
-
-	for _, v in ipairs( tbl ) do
-		table.insert( new_tab, string.format( "%-4s %s", prefix, v.value ) )
+		table.insert( new_tab, string.format( "%-4s %s", prefix, value ) )
 	end
 		
 	return new_tab
@@ -122,19 +81,21 @@ action = function(host, port)
 	local tcp_oid = "1.3.6.1.2.1.6.13.1.1"
 	local udp_oid = "1.3.6.1.2.1.7.5.1.1"
 	local netstat = {}
+	local status, tcp, udp
 
 	socket:set_timeout(5000)
 	try(socket:connect(host.ip, port.number, "udp"))
 	
-	local tcp = snmp_walk( socket, tcp_oid )
-	local udp = snmp_walk( socket, udp_oid )
-
+	status, tcp = snmp.snmpWalk( socket, tcp_oid )
+	status, udp = snmp.snmpWalk( socket, udp_oid )
+	socket:close()
+	
 	if ( tcp == nil ) or ( #tcp == 0 ) or ( udp==nil ) or ( #udp == 0 ) then
 		return
 	end
 	
-	tcp = process_answer(tcp, "TCP")
-	udp = process_answer(udp, "UDP")
+	tcp = process_answer(tcp, "TCP", tcp_oid)
+	udp = process_answer(udp, "UDP", udp_oid)
 	netstat = table_merge( tcp, udp )
 	
 	nmap.set_port_state(host, port, "open")

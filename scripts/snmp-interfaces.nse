@@ -19,7 +19,8 @@ dependencies = {"snmp-brute"}
 
 -- code borrowed heavily from Patrik Karlsson's excellent snmp scripts
 -- Created 03/03/2010 - v0.1 - created by Thomas Buchanan <tbuchanan@thecompassgrp.net>
--- 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
+-- Revised 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
+-- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 
 require "shortport"
 require "snmp"
@@ -69,51 +70,6 @@ local iana_types = { "other", "regular1822", "hdh1822", "ddnX25", "rfc877x25", "
 	"mocaVersion1", "ieee80216WMAN", "adsl2plus", "dvbRcsMacLayer", "dvbTdm", "dvbRcsTdma", 
 	"x86Laps", "wwanPP", "wwanPP2", "voiceEBS", "ifPwType", "ilan", "pip", "aluELP", "gpon", 
 	"vdsl2", "capwapDot11Profile", "capwapDot11Bss", "capwapWtpVirtualRadio" }
-
---- Walks the MIB Tree
---
--- @param socket socket already connected to the server
--- @param base_oid string containing the base object ID to walk
--- @return table containing <code>oid</code> and <code>value</code>
-function snmp_walk( socket, base_oid )
-	
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)	
-
-	local snmp_table = {}
-	local oid = base_oid
-	
-	while ( true ) do
-		
-		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
-		options.reqId = 28428 -- unnecessary?
-		payload = snmp.encode( snmp.buildPacket( snmp.buildGetNextRequest(options, oid) ) )
-
-		try(socket:send(payload))
-		response = try( socket:receive_bytes(1) )
-	
-		snmpdata = snmp.fetchResponseValues( response )
-		
-		value = snmpdata[1][1]
-		oid  = snmpdata[1][2]
-		
-		if not oid:match( base_oid ) or base_oid == oid then
-			break
-		end
-		
-		item.oid = oid
-		item.value = value
-		
-		table.insert( snmp_table, item )
-				
-	end
-
-	socket:close()
-	snmp_table.baseoid = base_oid
-
-	return snmp_table
-	
-end
 
 --- Gets a value for the specified oid
 --
@@ -396,14 +352,16 @@ action = function(host, port)
 	local ip_oid = "1.3.6.1.2.1.4.20"
 	local interfaces = {}
 	local ips = {}
+	local status
 
 	socket:set_timeout(5000)
 	try(socket:connect(host.ip, port.number, "udp"))
 	
 	-- retreive network interface information from IF-MIB
-	interfaces = snmp_walk( socket, if_oid )
-
-	if ( interfaces == nil ) or ( #interfaces == 0 ) then
+	status, interfaces = snmp.snmpWalk( socket, if_oid )
+	socket:close()
+	
+	if (not(status)) or ( interfaces == nil ) or ( #interfaces == 0 ) then
 		return
 	end
 	
@@ -414,10 +372,10 @@ action = function(host, port)
 	
 	-- retreive IP address information from IP-MIB
 	try(socket:connect(host.ip, port.number, "udp"))
-	ips = snmp_walk( socket, ip_oid )
+	status, ips = snmp.snmpWalk( socket, ip_oid )
 	
 	-- associate that IP address information with the correct interface
-	if ( ips ~= nil ) and ( #ips ~= 0 ) then
+	if (not(status)) or ( ips ~= nil ) and ( #ips ~= 0 ) then
 		interfaces = process_ips( interfaces, ips )
 	end
 

@@ -489,3 +489,60 @@ function fetchFirst(response)
 		return nil
 	end
 end
+
+
+--- Walks the MIB Tree
+--
+-- @param socket socket already connected to the server
+-- @param base_oid string containing the base object ID to walk
+-- @return status true on success, false on failure
+-- @return table containing <code>oid</code> and <code>value</code>
+function snmpWalk( socket, base_oid )
+	
+	local snmp_table = {}
+	local oid = base_oid
+	local status, err, payload
+	
+	while ( true ) do
+		
+		local value, response, snmpdata, options, item = nil, nil, nil, {}, {}
+		options.reqId = 28428 -- unnecessary?
+		payload = snmp.encode( snmp.buildPacket( snmp.buildGetNextRequest(options, oid) ) )
+
+		status, err = socket:send(payload)
+		if ( not( status ) ) then
+			stdnse.print_debug("snmp.snmpWalk: Send failed")
+			return false, err
+		end
+		
+		status, response = socket:receive_bytes(1) 
+		if ( not( status ) ) then
+			-- Unless we don't have a usefull error message, don't report it
+			if ( response ~= "ERROR" ) then
+				stdnse.print_debug("snmp.snmpWalk: Received no answer (%s)", response)
+				return false, response
+			end
+			return false, nil
+		end
+	
+		snmpdata = snmp.fetchResponseValues( response )
+		
+		value = snmpdata[1][1]
+		oid  = snmpdata[1][2]
+		
+		if not oid:match( base_oid ) or base_oid == oid then
+			break
+		end
+		
+		item.oid = oid
+		item.value = value
+		
+		table.insert( snmp_table, item )
+		
+	end
+
+	snmp_table.baseoid = base_oid
+
+	return true, snmp_table
+	
+end
