@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Made IP addresses be sorted by octet, not by their string
+  representation. For example, 10.1.1.2 is now sorted before
+  10.1.1.10, when it was the opposite before. This was reported by
+  Norris Carden. [David]
+
 o [NSE] Added sorting on port number to dns-service-discovery script. [Patrik]
 
 o [NSE] Added snmpWalk function to SNMP library and updated scripts to use it.
