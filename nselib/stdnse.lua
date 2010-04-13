@@ -265,6 +265,50 @@ function string_or_blank(string, blank)
   end
 end
 
+---
+-- Parses a time duration specification, which is a number followed by a
+-- unit, and returns a number of seconds. The unit is optional and
+-- defaults to seconds. The possible units (case-insensitive) are
+-- * <code>ms</code>: milliseconds,
+-- * <code>s</code>: seconds,
+-- * <code>m</code>: minutes,
+-- * <code>h</code>: hours.
+-- In case of a parsing error, the function returns <code>nil</code>
+-- followed by an error message.
+--
+-- @usage
+-- parse_timespec("10") --> 10
+-- parse_timespec("10ms") --> 0.01
+-- parse_timespec("10s") --> 10
+-- parse_timespec("10m") --> 600
+-- parse_timespec("10h") --> 36000
+-- parse_timespec("10z") --> nil, "Can't parse time specification \"10z\" (bad unit \"z\")"
+--
+-- @param timespec A time specification string.
+-- @return A number of seconds, or <code>nil</code> followed by an error
+-- message.
+function parse_timespec(timespec)
+  local n, unit, t, m
+  local multipliers = {[""] = 1, s = 1, m = 60, h = 60 * 60, ms = 0.001}
+
+  n, unit = string.match(timespec, "^([%d.]+)(.*)$")
+  if not n then
+    return nil, string.format("Can't parse time specification \"%s\"", timespec)
+  end
+
+  t = tonumber(n)
+  if not t then
+    return nil, string.format("Can't parse time specification \"%s\" (bad number \"%s\")", timespec, n)
+  end
+
+  m = multipliers[unit]
+  if not m then
+    return nil, string.format("Can't parse time specification \"%s\" (bad unit \"%s\")", timespec, unit)
+  end
+
+  return t * m
+end
+
 --- Format the difference between times <code>t2</code> and <code>t1</code>
 -- into a string in one of the forms (signs may vary):
 -- * 0s
