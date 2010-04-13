@@ -9,6 +9,14 @@ license="Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
 -- |_ftp-bounce: bounce working!
+--
+-- PORT   STATE SERVICE
+-- 21/tcp open  ftp
+-- |_ftp-bounce: server forbids bouncing to low ports <1025
+-- 
+-- PORT   STATE SERVICE
+-- 21/tcp open  ftp
+-- |_ftp-bounce: no banner
 
 categories = {"default", "intrusive"}
 
