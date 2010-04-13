@@ -46,21 +46,21 @@
 --
 -- @usage
 -- nmap --script-args userdb=/tmp/user.lst
--- nmap --script-args unpwdb.timelimit=500
+-- nmap --script-args unpwdb.timelimit=10m
 --
 -- @args userdb The filename of an alternate username database.
 -- @args passdb The filename of an alternate password database.
 -- @args unpwdb.userlimit The maximum number of usernames
---                        <code>usernames</code> will return
---                        (default unlimited).
+-- <code>usernames</code> will return (default unlimited).
 -- @args unpwdb.passlimit The maximum number of passwords
---                        <code>passwords</code> will return
---                        (default unlimited).
--- @args unpwdb.timelimit The maximum amount of time (in seconds) that any
---                        iterator will run before stopping. The default
---                        depends on the timing template level (see the module
---                        description). Use the value <code>0</code> to disable
---                        the time limit.
+-- <code>passwords</code> will return (default unlimited).
+-- @args unpwdb.timelimit The maximum amount of time that any iterator will run
+-- before stopping. The value is in seconds by default and you can follow it
+-- with <code>ms</code>, <code>s</code>, <code>m</code>, or <code>h</code> for
+-- milliseconds, seconds, minutes, or hours. For example,
+-- <code>unpwdb.timelimit=30m</code> or <code>unpwdb.timelimit=.5h</code> for
+-- 30 minutes. The default depends on the timing template level (see the module
+-- description). Use the value <code>0</code> to disable the time limit.
 -- @author Kris Katterjohn 06/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
@@ -156,7 +156,10 @@ timelimit = function()
 		return nil
 	end
 	if args["unpwdb.timelimit"] then
-		return tonumber(args["unpwdb.timelimit"])
+		local limit, err = stdnse.parse_timespec(args["unpwdb.timelimit"])
+		if not limit then
+			error(err)
+		end
 	end
 
 	if t <= 3 then
