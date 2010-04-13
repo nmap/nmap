@@ -2585,7 +2585,7 @@ unknown	1796/udp	0.000330
 unknown	1799/tcp	0.000076
 unknown	1800/tcp	0.000076
 unknown	1800/udp	0.000330
-unknown	1801/tcp	0.002585
+msmq	1801/tcp	0.002585	# Microsoft Message Queuing
 unknown	1803/udp	0.000661
 unknown	1804/udp	0.001652
 unknown	1805/tcp	0.000152
@@ -2841,7 +2841,7 @@ eklogin	2105/tcp	0.002120	# Kerberos (v4) encrypted rlogin
 eklogin	2105/udp	0.000544	# Kerberos (v4) encrypted rlogin
 ekshell	2106/tcp	0.000238	# Kerberos (v4) encrypted rshell
 ekshell	2106/udp	0.000972	# Kerberos (v4) encrypted rshell
-unknown	2107/tcp	0.002737
+msmq-mgmt	2107/tcp	0.002737	# Microsoft Message Queuing (IANA calls this bintec-admin)
 rkinit	2108/tcp	0.000013	# Kerberos (v4) remote initialization
 rkinit	2108/udp	0.000593	# Kerberos (v4) remote initialization
 kx	2111/tcp	0.000263	# X over kerberos
@@ -2990,15 +2990,15 @@ unknown	2377/udp	0.000330
 unknown	2379/udp	0.000330
 unknown	2380/udp	0.000330
 unknown	2381/tcp	0.000380
-unknown	2382/tcp	0.000152
+ms-olap3	2382/tcp	0.000152
 unknown	2382/udp	0.000661
 ms-olap4	2383/tcp	0.001369	# MS OLAP 4
 unknown	2386/udp	0.000330
 unknown	2387/udp	0.000661
 unknown	2391/tcp	0.000076
 unknown	2392/udp	0.000330
-unknown	2393/tcp	0.000228
-unknown	2394/tcp	0.000228
+ms-olap1	2393/tcp	0.000228	# SQL Server Downlevel OLAP Client Support
+ms-olap2	2394/tcp	0.000228	# SQL Server Downlevel OLAP Client Support
 unknown	2395/udp	0.000330
 unknown	2398/udp	0.000661
 unknown	2399/tcp	0.000380
@@ -3136,7 +3136,7 @@ unknown	2718/tcp	0.000380
 unknown	2719/udp	0.000330
 unknown	2720/udp	0.000330
 unknown	2723/tcp	0.000076
-unknown	2725/tcp	0.000228
+msolap-ptp2	2725/tcp	0.000228	# SQL Analysis Server
 unknown	2726/udp	0.000330
 unknown	2728/tcp	0.000076
 unknown	2734/tcp	0.000076
@@ -3179,7 +3179,7 @@ unknown	2860/udp	0.000330
 unknown	2863/udp	0.000991
 unknown	2864/udp	0.000330
 unknown	2865/udp	0.000330
-unknown	2869/tcp	0.002129
+icslap	2869/tcp	0.002129	# Universal Plug and Play Device Host, SSDP Discovery Service
 unknown	2869/udp	0.000330
 unknown	2873/udp	0.000330
 unknown	2874/udp	0.000330
