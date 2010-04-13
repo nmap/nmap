@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Scripts that take an argument for a time duration can now have
+  the duration be a number followed by a unit, like other times in
+  Nmap. For example, 10m for 10 minutes. The units understood are ms
+  for milliseconds, s for seconds, m for minutes, and h for hours.
+  Seconds are the default if no unit is specified. The new function
+  stdnse.parse_timespec does the parsing of these formats. The
+  qscan.delay script argument, which formerly interpreted its argument
+  as being in milliseconds, now defaults to seconds; append "ms" to
+  continue using the same numbers. [David]
+
 o [NSE] Added script arguments "username" and "password" to ftp-bounce
   to override the default anonymous:IEUser@ login combination. [Kris]
 
