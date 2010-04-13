@@ -5,6 +5,9 @@ author = "Marek Majkowski"
 license="Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 ---
+-- @args ftp-bounce.username Username to login with instead of "anonymous"
+-- @args ftp-bounce.password Password to login with instead of "IEUser@"
+--
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
@@ -72,6 +75,27 @@ get_ftp_code = function(socket)
 	return fcode
 end
 
+local get_login = function()
+	local user, pass
+	local k
+
+	for _, k in ipairs({"ftp-bounce.username", "username"}) do
+		if nmap.registry.args[k] then
+			user = nmap.registry.args[k]
+			break
+		end
+	end
+
+	for _, k in ipairs({"ftp-bounce.password", "password"}) do
+		if nmap.registry.args[k] then
+			pass = nmap.registry.args[k]
+			break
+		end
+	end
+
+	return user or "anonymous", pass or "IEUser@"
+end
+
 action = function(host, port)
 	local socket = nmap.new_socket()
 	local result;
@@ -79,6 +103,7 @@ action = function(host, port)
 	local isAnon = false
 	local isOk   = false
 	local sendPass = true
+	local user, pass = get_login()
 	local fc
 	
 	socket:set_timeout(10000)
@@ -105,7 +130,7 @@ action = function(host, port)
 	
 	socket:set_timeout(5000)
 	-- USER
-	socket:send("USER anonymous\r\n")
+	socket:send("USER " .. user .. "\r\n")
 	fc = get_ftp_code(socket)
 	if (fc >= 400 and fc <= 499) or (fc >= 500 and fc <= 599) then
 		socket:close()
@@ -130,7 +155,7 @@ action = function(host, port)
 
 	-- PASS
 	if sendPass then
-		socket:send("PASS IEUser@\r\n")
+		socket:send("PASS " .. pass .. "\r\n")
 		fc = get_ftp_code(socket)
 		if (fc >= 500 and fc <= 599) or (fc >= 400 and fc <= 499) then
 			socket:close()
