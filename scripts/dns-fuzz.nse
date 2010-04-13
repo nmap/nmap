@@ -1,10 +1,10 @@
 description = [[
 This script launches a DNS fuzzing attack against any DNS server. 
-\n
+
 Originally designed to test bind10, this script induces several errors
 into otherwise valid - randomly generated - DNS packets. The packet
 template that we use includes one standard name and one compressed name.
-\n
+
 This script should be run for a long time(TM). It will send a very
 large quantity of packets and thus it's pretty invasive, so it
 should only be used against private DNS servers as part of a
@@ -13,8 +13,11 @@ software development lifecycle.
 
 ---
 -- @usage 
--- nmap --script dns-fuzz [--script-args timelimit=t] target
--- @args timelimit The number of seconds to run the fuzz attack for, -1 for an unlimited amount of time. Defaults to 10 minutes if no argument is specified
+-- nmap --script dns-fuzz [--script-args timelimit=2h] target
+-- @args timelimit How long to run the fuzz attack. This is a number followed
+-- by a suffix: <code>s</code> for seconds, <code>m</code> for minutes, and
+-- <code>h</code> for hours. Use <code>0</code> for an unlimited amount of time.
+-- Default: <code>10m</code>.
 -- @output
 -- Host script results:
 -- |_dns-fuzz: Server stopped responding... He's dead, Jim.
@@ -274,21 +277,26 @@ end
 
 action = function(host, port)
      math.randomseed(os.time())
-     local endT = 0
+     local endT
+     local timelimit, err
      local retStr
      local query
      
      for _, k in ipairs({"dns-fuzz.timelimit", "timelimit"}) do
           if nmap.registry.args[k] then
-               endT = tonumber(nmap.registry.args[k])
+               timelimit, err = stdnse.parse_timespec(nmap.registry.args[k])
+               if not timelimit then
+                    error(err)
+               end
+               break
           end
      end
-     if endT>0 then
+     if timelimit and timelimit > 0 then
           -- seconds to milliseconds plus the current time
-          endT=endT*1000 + nmap.clock_ms()
-     elseif endT==0 then
+          endT = timelimit*1000 + nmap.clock_ms()
+     elseif not timelimit then
           -- 10 minutes
-          endT=10*60*1000 + nmap.clock_ms()
+          endT = 10*60*1000 + nmap.clock_ms()
      end
      
      
@@ -304,7 +312,7 @@ action = function(host, port)
 
      -- If the user specified that we should run for n seconds, then don't run for too much longer
      -- If 0 seconds, then run forever
-     while (endT==-1 or nmap.clock_ms()<endT) do
+     while not endT or nmap.clock_ms()<endT do
           -- Forge an initial packet
           -- We start off with an only slightly corrupted packet, then add more and more corruption
           -- if we corrupt the packet too much then the server will just drop it, so we only recorrupt several times

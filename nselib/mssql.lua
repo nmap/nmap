@@ -94,8 +94,10 @@
 --
 --
 -- 
--- @args mssql.timeout Specifies the amount of seconds to wait for SQL
---       responses (default 30)
+-- @args mssql.timeout How long to wait for SQL responses. This is a number
+-- followed by <code>ms</code> for milliseconds, <code>s</code> for seconds,
+-- <code>m</code> for minutes, or <code>h</code> for hours. Default:
+-- <code>30s</code>.
 
 --
 -- Version 0.2
@@ -108,8 +110,18 @@ module(... or "mssql", package.seeall)
 
 require("bit")
 require("bin")
+require("stdnse")
 
-MSSQL_TIMEOUT = ( nmap.registry.args and nmap.registry.args['mssql.timeout'] and tonumber(nmap.registry.args['mssql.timeout']) ) and tonumber(nmap.registry.args['mssql.timeout']) or 30
+do
+  local arg = nmap.registry.args and nmap.registry.args["mssql.timeout"] or "30s"
+  local timeout, err
+
+  timeout, err = stdnse.parse_timespec(arg)
+  if not timeout then
+    error(err)
+  end
+  MSSQL_TIMEOUT = timeout
+end
 
 -- TDS packet types
 PacketType =

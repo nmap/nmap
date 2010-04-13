@@ -21,10 +21,10 @@ description = [[
 
 ---
 -- @usage
--- nmap --script qscan --script-args qscan.confidence=<c>,qscan.delay=<d>,qscan.numtrips=<n> target
+-- nmap --script qscan --script-args qscan.confidence=0.95,qscan.delay=200ms,qscan.numtrips=10 target
 --
 -- @args confidence Confidence level: 0.75, 0.9, 0.95, 0.975, 0.99, 0.995, 0.9995
--- @args delay Average delay between packet sends (milliseconds): between 0.5d and 1.5d
+-- @args delay Average delay between packet sends. This is a number followed by <code>ms</code> for milliseconds or <code>s</code> for seconds. (<code>m</code> and <code>h</code> are also supported but are too long for timeouts.) The actual delay will randomly vary between 50% and 150% of the time specified. Default: 200ms.
 -- @args numtrips Number of round-trip times to try to get
 --
 -- @output
@@ -51,7 +51,7 @@ require 'packet'
 require 'tab'
 
 -- defaults
-local DELAY = 200
+local DELAY = 0.200
 local NUMTRIPS = 10
 local CONF = 0.95
 
@@ -267,7 +267,7 @@ local getopts = function()
 
 	for _, k in ipairs({"qscan.delay", "delay"}) do
 		if nmap.registry.args[k] then
-			delay = tonumber(nmap.registry.args[k])
+			delay = stdnse.parse_timespec(nmap.registry.args[k])
 			break
 		end
 	end
@@ -288,9 +288,9 @@ local getopts = function()
 		err = "Invalid confidence level"
 	end
 
-	if delay < 0 then
+	if not delay then
 		bool = false
-		err = "Invalid (negative) delay"
+		err = "Invalid delay"
 	end
 
 	if numtrips < 3 then
@@ -434,7 +434,7 @@ action = function(host)
 					k = math.random((3 * delay) / 2 - rtt)
 				end
 
-				stdnse.sleep(k / 1000)
+				stdnse.sleep(k)
 			end
 		end
 
