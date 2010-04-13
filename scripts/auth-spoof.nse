@@ -7,6 +7,12 @@ malware infection though it can also be used for legitimate privacy
 reasons.
 ]]
 
+---
+-- @output
+-- PORT    STATE SERVICE REASON
+-- 113/tcp open  auth    syn-ack
+-- |_auth-spoof: Spoofed reply: 0, 0 : USERID : UNIX : OGJdvM
+
 author = "Diman Todorov"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
