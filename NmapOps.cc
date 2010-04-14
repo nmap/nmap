@@ -157,7 +157,7 @@ const struct in_addr *NmapOps::v4sourceip() {
 
 // Number of milliseconds since getStartTime().  The current time is an
 // optional argument to avoid an extra gettimeofday() call.
-int NmapOps::TimeSinceStartMS(struct timeval *now) {
+int NmapOps::TimeSinceStartMS(const struct timeval *now) {
   struct timeval tv;
   if (!now)
     gettimeofday(&tv, NULL);

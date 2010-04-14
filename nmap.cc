@@ -109,6 +109,7 @@
 #include "charpool.h"
 #include "nmap_error.h"
 #include "utils.h"
+#include "xml.h"
 
 #ifndef NOLUA
 #include "nse_main.h"
@@ -1565,39 +1566,53 @@ int nmap_main(int argc, char *argv[]) {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
   char *xslfname = o.XSLStyleSheet();
-  char xslline[1024];
+  xml_start_document();
   if (xslfname) {
-    char *p = xml_convert(xslfname);
-    Snprintf(xslline, sizeof(xslline), "<?xml-stylesheet href=\"%s\" type=\"text/xsl\"?>\n", p);
-    free(p);
-  }  else xslline[0] = '\0';
-  log_write(LOG_XML, "<?xml version=\"1.0\" ?>\n%s<!-- ", xslline);
+    xml_open_pi("xml-stylesheet");
+    xml_attribute("href", "%s", xslfname);
+    xml_attribute("type", "test/xsl");
+    xml_close_pi();
+    xml_newline();
+  }
+
+  std::string command;
+  if (argc > 0)
+    command += fakeargv[0];
+  for (i = 1; i < argc; i++) {
+    command += " ";
+    command += fakeargv[i];
+  }
+
+  xml_start_comment();
+  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, command.c_str());
+  xml_end_comment();
+  xml_newline();
+
   log_write(LOG_NORMAL|LOG_MACHINE, "# ");
-  log_write(LOG_NORMAL|LOG_MACHINE|LOG_XML, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
+  log_write(LOG_NORMAL|LOG_MACHINE, "%s %s scan initiated %s as: ", NMAP_NAME, NMAP_VERSION, mytime);
+  log_write(LOG_NORMAL|LOG_MACHINE, "%s", command.c_str());
+  log_write(LOG_NORMAL|LOG_MACHINE, "\n");
 
-  for(i=0; i < argc; i++) {
-    char *p = xml_convert(fakeargv[i]);
-    log_write(LOG_XML,"%s ", p);
-    free(p);
-    log_write(LOG_NORMAL|LOG_MACHINE,"%s ", fakeargv[i]);
-  }
-  log_write(LOG_XML, "-->");
-  log_write(LOG_NORMAL|LOG_MACHINE|LOG_XML,"\n");
-
-  log_write(LOG_XML, "<nmaprun scanner=\"nmap\" args=\"");
-  for(i=0; i < argc; i++) {
-    char *p = xml_convert(fakeargv[i]);
-    log_write(LOG_XML, (i == argc-1)? "%s\" " : "%s ", p);
-    free(p);
-  }
-
-  log_write(LOG_XML, "start=\"%lu\" startstr=\"%s\" version=\"%s\" xmloutputversion=\"1.03\">\n",
-            (unsigned long) timep, mytime, NMAP_VERSION);
+  xml_open_start_tag("nmaprun");
+  xml_attribute("scanner", "nmap");
+  xml_attribute("args", "%s", command.c_str());
+  xml_attribute("start", "%lu", (unsigned long) timep);
+  xml_attribute("startstr", "%s", mytime);
+  xml_attribute("version", "%s", NMAP_VERSION);
+  xml_attribute("xmloutputversion", "1.03");
+  xml_close_start_tag();
+  xml_newline();
 
   output_xml_scaninfo_records(&ports);
 
-  log_write(LOG_XML, "<verbose level=\"%d\" />\n<debugging level=\"%d\" />\n",
-            o.verbose, o.debugging);
+  xml_open_start_tag("verbose");
+  xml_attribute("level", "%d", o.verbose);
+  xml_close_empty_tag();
+  xml_newline();
+  xml_open_start_tag("debugging");
+  xml_attribute("level", "%d", o.debugging);
+  xml_close_empty_tag();
+  xml_newline();
 
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
@@ -1740,13 +1755,14 @@ int nmap_main(int argc, char *argv[]) {
 #endif
           ) || o.listscan) {
 	/* We're done with the hosts */
-	log_write(LOG_XML, "<host>");
+	xml_start_tag("host");
 	write_host_header(currenths);
 	printmacinfo(currenths);
 	//	if (currenths->flags & HOST_UP)
 	//  log_write(LOG_PLAIN,"\n");
 	printtimes(currenths);
-	log_write(LOG_XML, "</host>\n");
+	xml_end_tag();
+	xml_newline();
 	log_flush_all();
 	delete currenths;
 	o.numhosts_scanned++;
@@ -1762,9 +1778,10 @@ int nmap_main(int argc, char *argv[]) {
 	 rare cases, such IPs CAN be port successfully scanned and even connected to */
       if (!(currenths->flags & HOST_UP)) {
 	if (o.verbose && (!o.openOnly() || currenths->ports.hasOpenPorts())) {
-	  log_write(LOG_XML, "<host>");
+	  xml_start_tag("host");
 	  write_host_header(currenths);
-	  log_write(LOG_XML, "</host>\n");
+	  xml_end_tag();
+	  xml_newline();
 	}
 	delete currenths;
 	o.numhosts_scanned++;
@@ -1920,9 +1937,10 @@ int nmap_main(int argc, char *argv[]) {
         if (o.openOnly() && !currenths->ports.hasOpenPorts())
           continue;
 
-        log_write(LOG_XML, "<host starttime=\"%lu\" endtime=\"%lu\">",
-                  (unsigned long) currenths->StartTime(),
-                  (unsigned long) currenths->EndTime());
+        xml_open_start_tag("host");
+        xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
+        xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
+        xml_close_start_tag();
         write_host_header(currenths);
 	printportoutput(currenths, &currenths->ports);
 	printmacinfo(currenths);
@@ -1935,7 +1953,8 @@ int nmap_main(int argc, char *argv[]) {
           printtraceroute(currenths);
         printtimes(currenths);
         log_write(LOG_PLAIN|LOG_MACHINE,"\n");
-        log_write(LOG_XML, "</host>\n");
+        xml_end_tag(); /* host */
+        xml_newline();
       }
     }
     log_flush_all();

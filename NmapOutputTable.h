@@ -95,10 +95,6 @@
 
 #include "nmap.h"
 
-#ifndef __attribute__
-#define __attribute__(args)
-#endif
-
 /**********************  DEFINES/ENUMS ***********************************/
 
 /**********************  STRUCTURES  ***********************************/
@@ -131,7 +127,7 @@ class NmapOutputTable {
 
   // Like addItem except this version takes a printf-style format string followed by varargs
   void addItemFormatted(unsigned int row, unsigned int column, bool fullrow, const char *fmt, ...)
-	  __attribute__ ((format (printf, 4, 5)));
+	  __attribute__ ((format (printf, 5, 6))); // Offset by 1 to account for implicit "this" parameter.
 
   // This function sticks the entire table into a character buffer.
   // Note that the buffer is likely to be reused if you call the

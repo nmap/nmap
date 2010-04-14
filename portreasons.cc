@@ -96,6 +96,7 @@
 #include "NmapOps.h"
 #include "portreasons.h"
 #include "Target.h"
+#include "xml.h"
 #ifdef WIN32
 #include "winfix.h"
 #endif
@@ -345,9 +346,13 @@ void print_xml_state_summary(PortList *Ports, int state) {
 		return;
 	
 	while(currentr != NULL) {
-		if(currentr->count > 0)
-			log_write(LOG_XML, "<extrareasons reason=\"%s\" count=\"%d\"/>\n",
-			  reason_str(currentr->reason_id, currentr->count), currentr->count);
+		if(currentr->count > 0) {
+			xml_open_start_tag("extrareasons");
+			xml_attribute("reason", "%s", reason_str(currentr->reason_id, currentr->count));
+			xml_attribute("count", "%d", currentr->count);
+			xml_close_empty_tag();
+			xml_newline();
+		}
 		currentr = currentr->next;
 	}
     state_reason_summary_dinit(reason_head);

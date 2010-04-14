@@ -104,6 +104,7 @@
 #include "nmap_rpc.h"
 #include "Target.h"
 #include "utils.h"
+#include "xml.h"
 
 #include <math.h>
 
@@ -171,7 +172,7 @@ static void skid_output(char *s) {
 }
 
 /* Remove all "\nSF:" from fingerprints */
-static char *xml_sf_convert(const char *str) {
+static char *servicefp_sf_remove(const char *str) {
   char *temp = (char *) safe_malloc(strlen(str) + 1);
   char *dst = temp, *src = (char *) str;
   char *ampptr = 0;
@@ -197,106 +198,44 @@ static char *xml_sf_convert(const char *str) {
   return temp;
 }
 
-// Creates an XML <service> element for the information given in
+// Prints an XML <service> element for the information given in
 // serviceDeduction.  This function should only be called if ether
 // the service name or the service fingerprint is non-null.
-// Returns a pointer to a buffer containing the element,
-// you will have to call free on it.
-static char *getServiceXMLBuf(const struct serviceDeductions *sd) {
-  string versionxmlstring = "";
-  char rpcbuf[128];
-  char confBuf[20];
-  char *xml_product = NULL, *xml_version = NULL, *xml_extrainfo = NULL;
-  char *xml_hostname = NULL, *xml_ostype = NULL, *xml_devicetype = NULL;
-  char *xml_servicefp = NULL, *xml_servicefp_temp = NULL;
+static void print_xml_service(const struct serviceDeductions *sd) {
+  xml_open_start_tag("service");
 
-  versionxmlstring = "<service name=\"";
-  versionxmlstring += sd->name ? sd->name : "unknown";
-  versionxmlstring += "\"";
-  if (sd->product) {
-    xml_product = xml_convert(sd->product);
-    versionxmlstring += " product=\"";
-    versionxmlstring += xml_product;
-    free(xml_product);
-    xml_product = NULL;
-    versionxmlstring += '\"';
-  }
-
-  if (sd->version) {
-    xml_version = xml_convert(sd->version);
-    versionxmlstring += " version=\"";
-    versionxmlstring += xml_version;
-    free(xml_version);
-    xml_version = NULL;
-    versionxmlstring += '\"';
-  }
-
-  if (sd->extrainfo) {
-    xml_extrainfo = xml_convert(sd->extrainfo);
-    versionxmlstring += " extrainfo=\"";
-    versionxmlstring += xml_extrainfo;
-    free(xml_extrainfo);
-    xml_extrainfo = NULL;
-    versionxmlstring += '\"';
-  }
-
-  if (sd->hostname) {
-    xml_hostname = xml_convert(sd->hostname);
-    versionxmlstring += " hostname=\"";
-    versionxmlstring += xml_hostname;
-    free(xml_hostname);
-    xml_hostname = NULL;
-    versionxmlstring += '\"';
-  }
-
-  if (sd->ostype) {
-    xml_ostype = xml_convert(sd->ostype);
-    versionxmlstring += " ostype=\"";
-    versionxmlstring += xml_ostype;
-    free(xml_ostype);
-    xml_ostype = NULL;
-    versionxmlstring += '\"';
-  }
-
-  if (sd->devicetype) {
-    xml_devicetype = xml_convert(sd->devicetype);
-    versionxmlstring += " devicetype=\"";
-    versionxmlstring += xml_devicetype;
-    free(xml_devicetype);
-    xml_devicetype = NULL;
-    versionxmlstring += '\"';
-  }
-
+  xml_attribute("name", "%s", sd->name ? sd->name : "unknown");
+  if (sd->product)
+    xml_attribute("product", "%s", sd->product);
+  if (sd->version)
+    xml_attribute("version", "%s", sd->version);
+  if (sd->extrainfo)
+    xml_attribute("extrainfo", "%s", sd->extrainfo);
+  if (sd->hostname)
+    xml_attribute("hostname", "%s", sd->hostname);
+  if (sd->ostype)
+    xml_attribute("ostype", "%s", sd->ostype);
+  if (sd->devicetype)
+    xml_attribute("devicetype", "%s", sd->devicetype);
   if (sd->service_fp) {
-    xml_servicefp_temp = xml_convert(sd->service_fp);
-    xml_servicefp = xml_sf_convert(xml_servicefp_temp);
-    versionxmlstring += " servicefp=\"";
-    versionxmlstring += xml_servicefp;
-    free(xml_servicefp_temp);
-    xml_servicefp_temp = NULL;
-    free(xml_servicefp);
-    xml_servicefp = NULL;
-    versionxmlstring += '\"';
+    char *servicefp = servicefp_sf_remove(sd->service_fp);
+    xml_attribute("servicefp", "%s", servicefp);
+    free(servicefp);
   }
+
+  if (sd->service_tunnel == SERVICE_TUNNEL_SSL)
+    xml_attribute("tunnel", "ssl");
+  xml_attribute("method", "%s", (sd->dtype == SERVICE_DETECTION_TABLE) ? "table" : "probed");
+  xml_attribute("conf", "%i", sd->name_confidence);
 
   if (o.rpcscan && sd->rpc_status == RPC_STATUS_GOOD_PROG) {
-    Snprintf(rpcbuf, sizeof(rpcbuf),
-             " rpcnum=\"%li\" lowver=\"%i\" highver=\"%i\" proto=\"rpc\"",
-             sd->rpc_program, sd->rpc_lowver, sd->rpc_highver);
-  } else
-    rpcbuf[0] = '\0';
+    xml_attribute("rpcnum", "%li", sd->rpc_program);
+    xml_attribute("lowver", "%i", sd->rpc_lowver);
+    xml_attribute("highver", "%i", sd->rpc_highver);
+    xml_attribute("proto", "rpc");
+  }
 
-  versionxmlstring += " ";
-  versionxmlstring += (sd->service_tunnel == SERVICE_TUNNEL_SSL) ? "tunnel=\"ssl\" " : "";
-  versionxmlstring += "method=\"";
-  versionxmlstring += (sd->dtype == SERVICE_DETECTION_TABLE) ? "table" : "probed";
-  versionxmlstring += "\" conf=\"";
-  Snprintf(confBuf, 20, "%i", sd->name_confidence);
-  versionxmlstring += confBuf;
-  versionxmlstring += "\"";
-  versionxmlstring += rpcbuf;
-  versionxmlstring += " />";
-  return strdup(versionxmlstring.c_str());
+  xml_close_empty_tag();
 }
 
 #ifdef WIN32
@@ -514,7 +453,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   char portinfo[64];
   char grepvers[256];
   char *p;
-  char *xmlBuf = NULL;
   const char *state;
   char serviceinfo[64];
   char *name = NULL;
@@ -542,15 +480,19 @@ void printportoutput(Target * currenths, PortList * plist) {
   if (o.noportscan)
     return;
 
-  log_write(LOG_XML, "<ports>");
+  xml_start_tag("ports");
   int prevstate = PORT_UNKNOWN;
   int istate;
 
   while ((istate = plist->nextIgnoredState(prevstate)) != PORT_UNKNOWN) {
-    log_write(LOG_XML, "<extraports state=\"%s\" count=\"%d\">\n",
-              statenum2str(istate), plist->getStateCounts(istate));
+    xml_open_start_tag("extraports");
+    xml_attribute("state", "%s", statenum2str(istate));
+    xml_attribute("count", "%d", plist->getStateCounts(istate));
+    xml_close_start_tag();
+    xml_newline();
     print_xml_state_summary(plist, istate);
-    log_write(LOG_XML, "</extraports>\n");
+    xml_end_tag();
+    xml_newline();
     prevstate = istate;
   }
 
@@ -583,7 +525,8 @@ void printportoutput(Target * currenths, PortList * plist) {
 
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Up",
               currenths->targetipstr(), currenths->HostName());
-    log_write(LOG_XML, "</ports>\n");
+    xml_end_tag(); /* ports */
+    xml_newline();
     return;
   }
 
@@ -688,19 +631,28 @@ void printportoutput(Target * currenths, PortList * plist) {
         Tbl->addItem(rowno, servicecol, true, portinfo);
         log_write(LOG_MACHINE, "%d/%s/%s/", current->portno, state,
                   (proto) ? proto->p_name : "");
-        log_write(LOG_XML, "<port protocol=\"ip\" portid=\"%d\">"
-                  "<state state=\"%s\" reason=\"%s\" reason_ttl=\"%d\"",
-                  current->portno, state,
-                  reason_str(current->reason.reason_id, SINGULAR),
-                  current->reason.ttl);
-
+        xml_open_start_tag("port");
+        xml_attribute("protocol", "ip");
+        xml_attribute("portid", "%d", current->portno);
+        xml_close_start_tag();
+        xml_open_start_tag("state");
+        xml_attribute("state", "%s", state);
+        xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
+        xml_attribute("reason_ttl", "%d", current->reason.ttl);
         if (current->reason.ip_addr.s_addr)
-          log_write(LOG_XML, " reason_ip=\"%s\"", inet_ntoa(current->reason.ip_addr));
-        log_write(LOG_XML, "/>");
+          xml_attribute("reason_ip", "%s", inet_ntoa(current->reason.ip_addr));
+        xml_close_empty_tag();
 
-        if (proto && proto->p_name && *proto->p_name)
-          log_write(LOG_XML, "\n<service name=\"%s\" conf=\"8\" method=\"table\" />", proto->p_name);
-        log_write(LOG_XML, "</port>\n");
+        if (proto && proto->p_name && *proto->p_name) {
+          xml_newline();
+          xml_open_start_tag("service");
+          xml_attribute("name", "%s", proto->p_name);
+          xml_attribute("conf", "8");
+          xml_attribute("method", "table");
+          xml_close_empty_tag();
+        }
+        xml_end_tag(); /* port */
+        xml_newline();
         rowno++;
       }
     }
@@ -797,23 +749,20 @@ void printportoutput(Target * currenths, PortList * plist) {
         log_write(LOG_MACHINE, "%d/%s/%s//%s/%s/%s/", current->portno,
                   state, protocol, serviceinfo, rpcmachineinfo, grepvers);
 
-        log_write(LOG_XML, "<port protocol=\"%s\" portid=\"%d\">",
-                  protocol, current->portno);
-        log_write(LOG_XML, "<state state=\"%s\" reason=\"%s\" reason_ttl=\"%d\"",
-                  state, reason_str(current->reason.reason_id, SINGULAR),
-                  current->reason.ttl);
+        xml_open_start_tag("port");
+        xml_attribute("protocol", "%s", protocol);
+        xml_attribute("portid", "%d", current->portno);
+        xml_close_start_tag();
+        xml_open_start_tag("state");
+        xml_attribute("state", "%s", state);
+        xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
+        xml_attribute("reason_ttl", "%d", current->reason.ttl);
         if (current->reason.ip_addr.s_addr)
-          log_write(LOG_XML, " reason_ip=\"%s\"", inet_ntoa(current->reason.ip_addr));
-        log_write(LOG_XML, "/>");
+          xml_attribute("reason_ip", "%s", inet_ntoa(current->reason.ip_addr));
+        xml_close_empty_tag();
 
-        if (sd.name || sd.service_fp) {
-          xmlBuf = getServiceXMLBuf(&sd);
-          if (xmlBuf) {
-            log_write(LOG_XML, "%s", xmlBuf);
-            free(xmlBuf);
-            xmlBuf = NULL;
-          }
-        }
+        if (sd.name || sd.service_fp)
+          print_xml_service(&sd);
 
         rowno++;
 #ifndef NOLUA
@@ -822,13 +771,10 @@ void printportoutput(Target * currenths, PortList * plist) {
 
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
-            char *xml_id = xml_convert(ssr_iter->get_id().c_str());
-            char *xml_scriptoutput =
-                xml_convert(ssr_iter->get_output().c_str());
-            log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />",
-                      xml_id, xml_scriptoutput);
-            free(xml_id);
-            free(xml_scriptoutput);
+            xml_open_start_tag("script");
+            xml_attribute("id", "%s", ssr_iter->get_id().c_str());
+            xml_attribute("output", "%s", ssr_iter->get_output().c_str());
+            xml_close_empty_tag();
 
             char *script_output = formatScriptOutput((*ssr_iter));
             Tbl->addItem(rowno, 0, true, true, script_output);
@@ -839,7 +785,8 @@ void printportoutput(Target * currenths, PortList * plist) {
         }
 #endif
 
-        log_write(LOG_XML, "</port>\n");
+        xml_end_tag(); /* port */
+        xml_newline();
       }
     }
 
@@ -852,7 +799,8 @@ void printportoutput(Target * currenths, PortList * plist) {
       log_write(LOG_MACHINE, "\tIgnored State: %s (%d)",
                 statenum2str(istate), plist->getStateCounts(istate));
   }
-  log_write(LOG_XML, "</ports>\n");
+  xml_end_tag(); /* ports */
+  xml_newline();
 
   // Now we write the table for the user
   log_write(LOG_PLAIN, "%s", Tbl->printableTable(NULL));
@@ -875,65 +823,6 @@ void printportoutput(Target * currenths, PortList * plist) {
   log_flush_all();
 }
 
-
-/* Escape a string for inclusion in XML. This gets <>&, "' for attribute values,
-   -- for inside comments, and characters with value > 0x7F. It also gets
-   control characters with value < 0x20 to avoid parser normalization of \r\n\t
-   in attribute values. If this is not desired in some cases, we'll have to add
-   a parameter to control this. */
-char *xml_convert(const char *str) {
-  /* result is the result buffer; n + 1 is the allocated size. Double the
-     allocation when space runs out. */
-  char *result = NULL;
-  size_t n = 0, len;
-  const char *p;
-  int i;
-
-  i = 0;
-  for (p = str; *p != '\0'; p++) {
-    const char *repl;
-    char buf[32];
-
-    if (*p == '<')
-      repl = "&lt;";
-    else if (*p == '>')
-      repl = "&gt;";
-    else if (*p == '&')
-      repl = "&amp;";
-    else if (*p == '"')
-      repl = "&quot;";
-    else if (*p == '\'')
-      repl = "&apos;";
-    else if (*p == '-' && p > str && *(p - 1) == '-') {
-      /* Escape -- for comments. */
-      repl = "&#45;";
-    } else if (*p < 0x20 || (unsigned char) *p > 0x7F) {
-      /* Escape control characters and anything outside of ASCII. We have to
-         emit UTF-8 and an easy way to do that is to emit ASCII. */
-      Snprintf(buf, sizeof(buf), "&#x%x;", (unsigned char) *p);
-      repl = buf;
-    } else {
-      /* Unescaped character. */
-      buf[0] = *p;
-      buf[1] = '\0';
-      repl = buf;
-    }
-
-    len = strlen(repl);
-    /* Double the size of the result buffer if necessary. */
-    if (i == 0 || i + len > n) {
-      n = (i + len) * 2;
-      result = (char *) safe_realloc(result, n + 1);
-    }
-    memcpy(result + i, repl, len);
-    i += len;
-  }
-  /* Trim to length. (Also does initial allocation when str is empty.) */
-  result = (char *) safe_realloc(result, i + 1);
-  result[i] = '\0';
-
-  return result;
-}
 
 char *logfilename(const char *str, struct tm *tm) {
   char *ret, *end, *p;
@@ -1257,28 +1146,33 @@ static void doscanflags() {
     { TH_ECE, "ECE" },
     { TH_CWR, "CWR" }
   };
+
   if (o.scanflags != -1) {
-    log_write(LOG_XML, "scanflags=\"");
+    string flagstring;
+
     for (unsigned int i = 0; i < sizeof(flags) / sizeof(flags[0]); i++) {
-      if (o.scanflags & flags[i].flag) {
-        log_write(LOG_XML, "%s", flags[i].name);
-      }
+      if (o.scanflags & flags[i].flag)
+        flagstring += flags[i].name;
     }
-    log_write(LOG_XML, "\"");
+    xml_attribute("scanflags", "%s", flagstring.c_str());
   }
 }
 
 /* Simple helper function for output_xml_scaninfo_records */
 static void doscaninfo(const char *type, const char *proto,
                        unsigned short *ports, int numports) {
-  log_write(LOG_XML, "<scaninfo type=\"%s\" ", type);
+  xml_open_start_tag("scaninfo");
+  xml_attribute("type", "%s", type);
   if (strncmp(proto, "tcp", 3) == 0) {
     doscanflags();
   }
-  log_write(LOG_XML, " protocol=\"%s\" numservices=\"%d\" services=\"",
-            proto, numports);
+  xml_attribute("protocol", "%s", proto);
+  xml_attribute("numservices", "%d", numports);
+  xml_write_raw(" services=\"");
   output_rangelist_given_ports(LOG_XML, ports, numports);
-  log_write(LOG_XML, "\" />\n");
+  xml_write_raw("\"");
+  xml_close_empty_tag();
+  xml_newline();
 }
 
 /* Similar to output_ports_to_machine_parseable_output, this function
@@ -1318,21 +1212,18 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
 static void print_MAC_XML_Info(Target * currenths) {
   const u8 *mac = currenths->MACAddress();
   char macascii[32];
-  char vendorstr[128];
-  char *xml_mac = NULL;
 
   if (mac) {
     const char *macvendor = MACPrefix2Corp(mac);
     Snprintf(macascii, sizeof(macascii), "%02X:%02X:%02X:%02X:%02X:%02X",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-    if (macvendor) {
-      xml_mac = xml_convert(macvendor);
-      Snprintf(vendorstr, sizeof(vendorstr), " vendor=\"%s\"", xml_mac);
-      free(xml_mac);
-    } else
-      vendorstr[0] = '\0';
-    log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"mac\"%s />\n",
-              macascii, vendorstr);
+    xml_open_start_tag("address");
+    xml_attribute("addr", "%s", macascii);
+    xml_attribute("addrtype", "mac");
+    if (macvendor)
+      xml_attribute("vendor", "%s", macvendor);
+    xml_close_empty_tag();
+    xml_newline();
   }
 }
 
@@ -1340,24 +1231,38 @@ static void print_MAC_XML_Info(Target * currenths) {
    into the XML log */
 static void write_xml_initial_hostinfo(Target *currenths,
                                        const char *status) {
-  log_write(LOG_XML, "<status state=\"%s\" reason=\"%s\"/>\n", status,
-            reason_str(currenths->reason.reason_id, SINGULAR));
-  log_write(LOG_XML, "<address addr=\"%s\" addrtype=\"%s\" />\n",
-            currenths->targetipstr(), (o.af() == AF_INET) ? "ipv4" : "ipv6");
+  xml_open_start_tag("status");
+  xml_attribute("state", "%s", status);
+  xml_attribute("reason", "%s", reason_str(currenths->reason.reason_id, SINGULAR));
+  xml_close_empty_tag();
+  xml_newline();
+  xml_open_start_tag("address");
+  xml_attribute("addr", "%s", currenths->targetipstr());
+  xml_attribute("addrtype", "%s", (o.af() == AF_INET) ? "ipv4" : "ipv6");
+  xml_close_empty_tag();
+  xml_newline();
   print_MAC_XML_Info(currenths);
   /* Output a hostnames element whenever we have a name to write or the target
      is up. */
   if (currenths->TargetName() != NULL || *currenths->HostName() || strcmp(status, "up") == 0) {
-    log_write(LOG_XML, "<hostnames>\n");
+    xml_start_tag("hostnames");
+    xml_newline();
     if (currenths->TargetName() != NULL) {
-      log_write(LOG_XML, "<hostname name=\"%s\" type=\"user\"/>\n",
-                currenths->TargetName());
+      xml_open_start_tag("hostname");
+      xml_attribute("name", "%s", currenths->TargetName());
+      xml_attribute("type", "user");
+      xml_close_empty_tag();
+      xml_newline();
     }
     if (*currenths->HostName()) {
-      log_write(LOG_XML, "<hostname name=\"%s\" type=\"PTR\"/>\n",
-                currenths->HostName());
+      xml_open_start_tag("hostname");
+      xml_attribute("name", "%s", currenths->HostName());
+      xml_attribute("type", "PTR");
+      xml_close_empty_tag();
+      xml_newline();
     }
-    log_write(LOG_XML, "</hostnames>\n");
+    xml_end_tag();
+    xml_newline();
   }
   log_flush_all();
 }
@@ -1429,8 +1334,10 @@ void write_host_status(Target * currenths, int resolve_all) {
     write_xml_initial_hostinfo(currenths,
                                (currenths->
                                 flags & HOST_UP) ? "up" : "down");
-    log_write(LOG_XML, "<smurf responses=\"%d\" />\n",
-              currenths->weird_responses);
+    xml_open_start_tag("smurf");
+    xml_attribute("responses", "%d", currenths->weird_responses);
+    xml_close_empty_tag();
+    xml_newline();
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Smurf (%d responses)\n",
               currenths->targetipstr(), currenths->HostName(),
               currenths->weird_responses);
@@ -1514,26 +1421,16 @@ static void printosclassificationoutput(const struct
 
     /* Print the OS Classification results to XML output */
     for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
+      xml_open_start_tag("osclass");
+      xml_attribute("type", "%s", OSR->OSC[classno]->Device_Type);
+      xml_attribute("vendor", "%s", OSR->OSC[classno]->OS_Vendor);
+      xml_attribute("osfamily", "%s", OSR->OSC[classno]->OS_Family);
       // Because the OS_Generation filed is optional
-      if (OSR->OSC[classno]->OS_Generation) {
-        Snprintf(tmpbuf, sizeof(tmpbuf), " osgen=\"%s\"",
-                 OSR->OSC[classno]->OS_Generation);
-      } else {
-        tmpbuf[0] = '\0';
-      }
-      {
-        char *xml_type, *xml_vendor, *xml_class;
-        xml_type = xml_convert(OSR->OSC[classno]->Device_Type);
-        xml_vendor = xml_convert(OSR->OSC[classno]->OS_Vendor);
-        xml_class = xml_convert(OSR->OSC[classno]->OS_Family);
-        log_write(LOG_XML,
-                  "<osclass type=\"%s\" vendor=\"%s\" osfamily=\"%s\"%s accuracy=\"%d\" />\n",
-                  xml_type, xml_vendor, xml_class, tmpbuf,
-                  (int) (OSR->OSC_Accuracy[classno] * 100));
-        free(xml_type);
-        free(xml_vendor);
-        free(xml_class);
-      }
+      if (OSR->OSC[classno]->OS_Generation)
+        xml_attribute("osgen", "%s", OSR->OSC[classno]->OS_Generation);
+      xml_attribute("accuracy", "%d", (int) (OSR->OSC_Accuracy[classno] * 100));
+      xml_close_empty_tag();
+      xml_newline();
     }
 
     // Now to create the fodder for normal output
@@ -1656,9 +1553,10 @@ static void write_merged_fpr(const FingerPrintResults * FPR,
 
   /* Added code here to print fingerprint to XML file any time it would be
      printed to any other output format  */
-  char *xml_osfp = xml_convert(merge_fpr(FPR, currenths, isGoodFP, wrapit));
-  log_write(LOG_XML, "<osfingerprint fingerprint=\"%s\" />\n", xml_osfp);
-  free(xml_osfp);
+  xml_open_start_tag("osfingerprint");
+  xml_attribute("fingerprint", "%s", merge_fpr(FPR, currenths, isGoodFP, wrapit));
+  xml_close_empty_tag();
+  xml_newline();
 }
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
@@ -1677,21 +1575,30 @@ void printosscanoutput(Target * currenths) {
     return;
   FPR = currenths->FPR;
 
-  log_write(LOG_XML, "<os>");
+  xml_start_tag("os");
   if (FPR->osscan_opentcpport > 0) {
-    log_write(LOG_XML,
-              "<portused state=\"open\" proto=\"tcp\" portid=\"%hu\" />\n",
-              FPR->osscan_opentcpport);
+    xml_open_start_tag("portused");
+    xml_attribute("state", "open");
+    xml_attribute("proto", "tcp");
+    xml_attribute("portid", "%hu", FPR->osscan_opentcpport);
+    xml_close_empty_tag();
+    xml_newline();
   }
   if (FPR->osscan_closedtcpport > 0) {
-    log_write(LOG_XML,
-              "<portused state=\"closed\" proto=\"tcp\" portid=\"%hu\" />\n",
-              FPR->osscan_closedtcpport);
+    xml_open_start_tag("portused");
+    xml_attribute("state", "closed");
+    xml_attribute("proto", "tcp");
+    xml_attribute("portid", "%hu", FPR->osscan_closedtcpport);
+    xml_close_empty_tag();
+    xml_newline();
   }
   if (FPR->osscan_closedudpport > 0) {
-    log_write(LOG_XML,
-              "<portused state=\"closed\" proto=\"udp\" portid=\"%hu\" />\n",
-              FPR->osscan_closedudpport);
+    xml_open_start_tag("portused");
+    xml_attribute("state", "closed");
+    xml_attribute("proto", "udp");
+    xml_attribute("portid", "%hu", FPR->osscan_closedudpport);
+    xml_close_empty_tag();
+    xml_newline();
   }
 
   if (osscan_flag == OS_PERF_UNREL &&
@@ -1709,12 +1616,12 @@ void printosscanoutput(Target * currenths) {
     if (FPR->num_perfect_matches > 0) {
       /* Some perfect matches. */
       for (i = 0; FPR->accuracy[i] == 1; i++) {
-        char *p;
-        log_write(LOG_XML,
-                  "<osmatch name=\"%s\" accuracy=\"100\" line=\"%d\" />\n",
-                  p = xml_convert(FPR->prints[i]->OS_name),
-                  FPR->prints[i]->line);
-        free(p);
+        xml_open_start_tag("osmatch");
+        xml_attribute("name", "%s", FPR->prints[i]->OS_name);
+        xml_attribute("accuracy", "100");
+        xml_attribute("line", "%d", FPR->prints[i]->line);
+        xml_close_empty_tag();
+        xml_newline();
       }
 
       log_write(LOG_MACHINE, "\tOS: %s", FPR->prints[0]->OS_name);
@@ -1737,12 +1644,12 @@ void printosscanoutput(Target * currenths) {
       if ((o.osscan_guess || reason) && FPR->num_matches > 0) {
         /* Print the best guesses available */
         for (i = 0; i < 10 && i < FPR->num_matches && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
-          char *p;
-          log_write(LOG_XML,
-                    "<osmatch name=\"%s\" accuracy=\"%d\" line=\"%d\"/>\n",
-                    p = xml_convert(FPR->prints[i]->OS_name),
-                    (int) (FPR->accuracy[i] * 100), FPR->prints[i]->line);
-          free(p);
+          xml_open_start_tag("osmatch");
+          xml_attribute("name", "%s", FPR->prints[i]->OS_name);
+          xml_attribute("accuracy", "%d", (int) (FPR->accuracy[i] * 100));
+          xml_attribute("line", "%d", FPR->prints[i]->line);
+          xml_close_empty_tag();
+          xml_newline();
         }
 
         log_write(LOG_PLAIN, "Aggressive OS guesses: %s (%.f%%)",
@@ -1789,7 +1696,8 @@ void printosscanoutput(Target * currenths) {
     assert(0);
   }
 
-  log_write(LOG_XML, "</os>\n");
+  xml_end_tag(); /* os */
+  xml_newline();
 
   if (currenths->seq.lastboot) {
     char tmbuf[128];
@@ -1803,14 +1711,20 @@ void printosscanoutput(Target * currenths) {
       log_write(LOG_PLAIN, "Uptime guess: %.3f days (since %s)\n",
                 (double) (tv.tv_sec - currenths->seq.lastboot) / 86400,
                 tmbuf);
-    log_write(LOG_XML, "<uptime seconds=\"%li\" lastboot=\"%s\" />\n",
-              tv.tv_sec - currenths->seq.lastboot, tmbuf);
+    xml_open_start_tag("uptime");
+    xml_attribute("seconds", "%li", tv.tv_sec - currenths->seq.lastboot);
+    xml_attribute("lastboot", "%s", tmbuf);
+    xml_close_empty_tag();
+    xml_newline();
   }
 
   if (currenths->distance != -1) {
     log_write(LOG_PLAIN, "Network Distance: %d hop%s\n",
               currenths->distance, (currenths->distance == 1) ? "" : "s");
-    log_write(LOG_XML, "<distance value=\"%d\" />\n", currenths->distance);
+    xml_open_start_tag("distance");
+    xml_attribute("value", "%d", currenths->distance);
+    xml_close_empty_tag();
+    xml_newline();
   }
 
   if (currenths->seq.responses > 3) {
@@ -1825,10 +1739,12 @@ void printosscanoutput(Target * currenths) {
         p++;
     }
 
-    log_write(LOG_XML,
-              "<tcpsequence index=\"%li\" difficulty=\"%s\" values=\"%s\" />\n",
-              (long) currenths->seq.index,
-              seqidx2difficultystr(currenths->seq.index), numlst);
+    xml_open_start_tag("tcpsequence");
+    xml_attribute("index", "%li", (long) currenths->seq.index);
+    xml_attribute("difficulty", "%s", seqidx2difficultystr(currenths->seq.index));
+    xml_attribute("values", "%s", numlst);
+    xml_close_empty_tag();
+    xml_newline();
     if (o.verbose)
       log_write(LOG_PLAIN, "%s", seqreport(&(currenths->seq)));
 
@@ -1846,8 +1762,11 @@ void printosscanoutput(Target * currenths) {
       while (*p)
         p++;
     }
-    log_write(LOG_XML, "<ipidsequence class=\"%s\" values=\"%s\" />\n",
-              ipidclass2ascii(currenths->seq.ipid_seqclass), numlst);
+    xml_open_start_tag("ipidsequence");
+    xml_attribute("class", "%s", ipidclass2ascii(currenths->seq.ipid_seqclass));
+    xml_attribute("values", "%s", numlst);
+    xml_close_empty_tag();
+    xml_newline();
     if (o.verbose)
       log_write(LOG_PLAIN, "IP ID Sequence Generation: %s\n",
                 ipidclass2ascii(currenths->seq.ipid_seqclass));
@@ -1865,12 +1784,13 @@ void printosscanoutput(Target * currenths) {
         p++;
     }
 
-    log_write(LOG_XML, "<tcptssequence class=\"%s\"",
-              tsseqclass2ascii(currenths->seq.ts_seqclass));
+    xml_open_start_tag("tcptssequence");
+    xml_attribute("class", "%s", tsseqclass2ascii(currenths->seq.ts_seqclass));
     if (currenths->seq.ts_seqclass != TS_SEQ_UNSUPPORTED) {
-      log_write(LOG_XML, " values=\"%s\"", numlst);
+      xml_attribute("values", "%s", numlst);
     }
-    log_write(LOG_XML, " />\n");
+    xml_close_empty_tag();
+    xml_newline();
   }
   log_flush_all();
 }
@@ -1986,25 +1906,23 @@ void printserviceinfooutput(Target * currenths) {
 #ifndef NOLUA
 void printhostscriptresults(Target * currenths) {
   ScriptResults::iterator iter;
-  char *script_output, *xml_id, *xml_scriptoutput;
+  char *script_output;
 
   if (currenths->scriptResults.size() > 0) {
-    log_write(LOG_XML, "<hostscript>");
+    xml_start_tag("hostscript");
     log_write(LOG_PLAIN, "\nHost script results:\n");
     for (iter = currenths->scriptResults.begin();
          iter != currenths->scriptResults.end();
          iter++) {
-      xml_id = xml_convert(iter->get_id().c_str());
-      xml_scriptoutput = xml_convert(iter->get_output().c_str());
-      log_write(LOG_XML, "<script id=\"%s\" output=\"%s\" />",
-                xml_id, xml_scriptoutput);
+      xml_open_start_tag("script");
+      xml_attribute("id", "%s", iter->get_id().c_str());
+      xml_attribute("output", "%s", iter->get_output().c_str());
+      xml_close_empty_tag();
       script_output = formatScriptOutput((*iter));
       log_write(LOG_PLAIN, "%s\n", script_output);
       free(script_output);
-      free(xml_id);
-      free(xml_scriptoutput);
     }
-    log_write(LOG_XML, "</hostscript>");
+    xml_end_tag();
   }
 }
 #endif
@@ -2126,44 +2044,49 @@ static void printtraceroute_xml(Target * currenths) {
     return;
 
   /* XML traceroute header */
-  log_write(LOG_XML, "<trace ");
+  xml_open_start_tag("trace");
+
   probe = currenths->traceroute_probespec;
   if (probe.type == PS_TCP) {
-    log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
-              probe.pd.tcp.dport, proto2ascii(probe.proto));
+    xml_attribute("port", "%d", probe.pd.tcp.dport);
+    xml_attribute("proto", "%s", proto2ascii(probe.proto));
   } else if (probe.type == PS_UDP) {
-    log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
-              probe.pd.udp.dport, proto2ascii(probe.proto));
+    xml_attribute("port", "%d", probe.pd.udp.dport);
+    xml_attribute("proto", "%s", proto2ascii(probe.proto));
   } else if (probe.type == PS_SCTP) {
-    log_write(LOG_XML, "port=\"%d\" proto=\"%s\"",
-              probe.pd.sctp.dport, proto2ascii(probe.proto));
+    xml_attribute("port", "%d", probe.pd.sctp.dport);
+    xml_attribute("proto", "%s", proto2ascii(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
     struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
     if (proto == NULL)
-      log_write(LOG_XML, "proto=\"%d\"", probe.proto);
+      xml_attribute("proto", "%d", probe.proto);
     else
-      log_write(LOG_XML, "proto=\"%s\"", proto->p_name);
+      xml_attribute("proto", "%s", proto->p_name);
   }
-  log_write(LOG_XML, ">\n");
+  xml_close_start_tag();
+  xml_newline();
 
   for (it = currenths->traceroute_hops.begin();
        it != currenths->traceroute_hops.end();
        it++) {
     if (it->timedout)
       continue;
-    log_write(LOG_XML, "<hop ttl=\"%d\" ipaddr=\"%s\"",
-              it->ttl, inet_ntop_ez(&it->addr, sizeof(it->addr)));
+    xml_open_start_tag("hop");
+    xml_attribute("ttl", "%d", it->ttl);
+    xml_attribute("ipaddr", "%s", inet_ntop_ez(&it->addr, sizeof(it->addr)));
     if (it->rtt < 0)
-      log_write(LOG_XML, " rtt=\"--\"");
+      xml_attribute("rtt", "--");
     else
-      log_write(LOG_XML, " rtt=\"%.2f\"", it->rtt);
+      xml_attribute("rtt", "%.2f", it->rtt);
     if (!it->name.empty())
-      log_write(LOG_XML, " host=\"%s\"", it->name.c_str());
-    log_write(LOG_XML, "/>\n");
+      xml_attribute("host", "%s", it->name.c_str());
+    xml_close_empty_tag();
+    xml_newline();
   }
 
   /* traceroute XML footer */
-  log_write(LOG_XML, "</trace>\n");
+  xml_end_tag();
+  xml_newline();
   log_flush(LOG_XML);
 }
 
@@ -2178,8 +2101,12 @@ void printtimes(Target *currenths) {
       log_write(LOG_STDOUT, "Final times for host: srtt: %d rttvar: %d  to: %d\n",
         currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
     }
-    log_write(LOG_XML, "<times srtt=\"%d\" rttvar=\"%d\" to=\"%d\" />\n",
-      currenths->to.srtt, currenths->to.rttvar, currenths->to.timeout);
+    xml_open_start_tag("times");
+    xml_attribute("srtt", "%d", currenths->to.srtt);
+    xml_attribute("rttvar", "%d", currenths->to.rttvar);
+    xml_attribute("to", "%d", currenths->to.timeout);
+    xml_close_empty_tag();
+    xml_newline();
   }
 }
 
@@ -2196,6 +2123,34 @@ void printStatusMessage() {
             scantype2str(o.current_scantype));
 }
 
+/* Prints the beginning of a "finished" start tag, with time, timestr, and
+   elapsed attributes. Leaves the start tag open so you can add more attributes.
+   You have to close the tag with xml_close_empty_tag. */
+void print_xml_finished_open(time_t timep, const struct timeval *tv) {
+  char mytime[128];
+
+  Strncpy(mytime, ctime(&timep), sizeof(mytime));
+  chomp(mytime);
+
+  xml_open_start_tag("finished");
+  xml_attribute("time", "%lu", (unsigned long) timep);
+  xml_attribute("timestr", "%s", mytime);
+  xml_attribute("elapsed", "%.2f", o.TimeSinceStartMS(tv) / 1000.0);
+  xml_attribute("summary",
+    "Nmap done at %s; %d %s (%d %s up) scanned in %.2f seconds",
+    mytime, o.numhosts_scanned,
+    (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
+    o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
+    o.TimeSinceStartMS(tv) / 1000.0);
+}
+
+void print_xml_hosts() {
+  xml_open_start_tag("hosts");
+  xml_attribute("up", "%d", o.numhosts_up);
+  xml_attribute("down", "%d", o.numhosts_scanned - o.numhosts_up);
+  xml_attribute("total", "%d", o.numhosts_scanned);
+  xml_close_empty_tag();
+}
 
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
@@ -2239,18 +2194,15 @@ void printfinaloutput() {
   Strncpy(mytime, ctime(&timep), sizeof(mytime));
   chomp(mytime);
 
-  log_write(LOG_XML,
-            "<runstats><finished time=\"%lu\" timestr=\"%s\" elapsed=\"%.2f\"/><hosts up=\"%d\" down=\"%d\" total=\"%d\" />\n",
-            (unsigned long) timep, mytime,
-            o.TimeSinceStartMS(&tv) / 1000.0, o.numhosts_up,
-            o.numhosts_scanned - o.numhosts_up, o.numhosts_scanned);
+  xml_start_tag("runstats");
+  print_xml_finished_open(timep, &tv);
+  xml_attribute("exit", "success");
+  xml_close_empty_tag();
+  print_xml_hosts();
+  xml_newline();
+  xml_end_tag();
+  xml_newline();
 
-  log_write(LOG_XML,
-            "<!-- Nmap done at %s; %d %s (%d %s up) scanned in %.2f seconds -->\n",
-            mytime, o.numhosts_scanned,
-            (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
-            o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-            o.TimeSinceStartMS(&tv) / 1000.0);
   log_write(LOG_NORMAL | LOG_MACHINE,
             "# Nmap done at %s -- %d %s (%d %s up) scanned in %.2f seconds\n",
             mytime, o.numhosts_scanned,
@@ -2258,7 +2210,8 @@ void printfinaloutput() {
             o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
             o.TimeSinceStartMS(&tv) / 1000.0);
 
-  log_write(LOG_XML, "</runstats></nmaprun>\n");
+  xml_end_tag(); /* nmaprun */
+  xml_newline();
   log_flush_all();
 }
 

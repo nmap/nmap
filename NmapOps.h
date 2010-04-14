@@ -115,7 +115,7 @@ class NmapOps {
   const struct timeval *getStartTime() { return &start_time; }
   // Number of milliseconds since getStartTime().  The current time is an
   // optional argument to avoid an extra gettimeofday() call.
-  int TimeSinceStartMS(struct timeval *now=NULL); 
+  int TimeSinceStartMS(const struct timeval *now=NULL); 
   struct in_addr v4source();
   const struct in_addr *v4sourceip();
 

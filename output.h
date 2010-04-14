@@ -211,6 +211,10 @@ int print_iflist(void);
 /* Prints a status message while the program is running */
 void printStatusMessage();
 
+void print_xml_finished_open(time_t timep, const struct timeval *tv);
+
+void print_xml_hosts();
+
 /* Prints the statistics and other information that goes at the very end
    of an Nmap run */
 void printfinaloutput();
@@ -219,5 +223,4 @@ void printfinaloutput();
    were found. */
 void printdatafilepaths();
 
-char* xml_convert (const char* str);
 #endif /* OUTPUT_H */

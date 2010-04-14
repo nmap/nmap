@@ -1,7 +1,5 @@
-
 /***************************************************************************
- * nmap_error.cc -- Some simple error handling routines.                   *
- *                                                                         *
+ * xml.h                                                                   *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2009 Insecure.Com LLC. Nmap is    *
@@ -26,7 +24,7 @@
  *   nmap-os-db or nmap-service-probes.                                    *
  * o Executes Nmap and parses the results (as opposed to typical shell or  *
  *   execution-menu apps, which simply display raw Nmap output and so are  *
- *   not derivative works.)                                                * 
+ *   not derivative works.)                                                *
  * o Integrates/includes/aggregates Nmap into a proprietary executable     *
  *   installer, such as those produced by InstallShield.                   *
  * o Links to a library or executes a program that does any of the above   *
@@ -87,175 +85,36 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id$ */
+/* $Id: xml.h 15135 2009-08-19 21:05:21Z david $ */
 
-#include "nmap_error.h"
-#include "output.h"
-#include "NmapOps.h"
-#include "xml.h"
+#ifndef _XML_H
+#define _XML_H
 
-extern NmapOps o;
+#include <stdarg.h>
 
-#ifdef WIN32
-#include <windows.h>
-#endif /* WIN32 */
+int xml_write_raw(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int xml_write_escaped(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+int xml_write_escaped_v(const char *fmt, va_list va) __attribute__ ((format (printf, 1, 0)));
 
+int xml_start_document();
 
-void fatal(const char *fmt, ...) {
-  time_t timep;
-  struct timeval tv;
-  va_list  ap;
+int xml_start_comment();
+int xml_end_comment();
 
-  gettimeofday(&tv, NULL);
-  timep = time(NULL);
+int xml_open_pi(const char *name);
+int xml_close_pi();
 
-  va_start(ap, fmt);
-  log_vwrite(LOG_STDERR, fmt, ap);
-  va_end(ap);
-  if (o.log_errors) {
-    va_start(ap, fmt);
-    log_vwrite(LOG_NORMAL, fmt, ap);
-    va_end(ap);
-  }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\nQUITTING!\n");
+int xml_open_start_tag(const char *name);
+int xml_close_start_tag();
+int xml_close_empty_tag();
+int xml_start_tag(const char *name);
+int xml_end_tag();
 
-  if (!xml_root_written())
-    xml_start_tag("nmaprun");
-  /* Close all open XML elements but one. */
-  while (xml_depth() > 1) {
-    xml_end_tag();
-    xml_newline();
-  }
-  if (xml_depth() == 1) {
-    char errbuf[1024];
+int xml_attribute(const char *name, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 
-    va_start(ap, fmt);
-    Vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
-    va_end(ap);
+int xml_newline();
 
-    xml_start_tag("runstats");
-    print_xml_finished_open(timep, &tv);
-    xml_attribute("exit", "error");
-    xml_attribute("errormsg", "%s", errbuf);
-    xml_close_empty_tag();
+int xml_depth();
+bool xml_root_written();
 
-    print_xml_hosts();
-    xml_newline();
-
-    xml_end_tag(); /* runstats */
-    xml_newline();
-
-    xml_end_tag(); /* nmaprun */
-    xml_newline();
-  }
-
-  exit(1);
-}
-
-void error(const char *fmt, ...) {
-  va_list  ap;
-
-  va_start(ap, fmt);
-  log_vwrite(LOG_STDERR, fmt, ap);
-  va_end(ap);
-  
-  if (o.log_errors) {
-    va_start(ap, fmt);
-    log_vwrite(LOG_NORMAL, fmt, ap);
-    va_end(ap);
-  }
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "\n");
-  return;
-}
-
-void pfatal(const char *fmt, ...) {
-  time_t timep;
-  struct timeval tv;
-  va_list ap;
-  int error_number;
-  char errbuf[1024], *strerror_s;
-
-#ifdef WIN32
-  error_number = GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-		NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR) &strerror_s,  0, NULL);
-#else
-  error_number = errno;
-  strerror_s = strerror(error_number);
 #endif
-
-  gettimeofday(&tv, NULL);
-  timep = time(NULL);
-
-  va_start(ap, fmt);
-  Vsnprintf(errbuf, sizeof(errbuf), fmt, ap);
-  va_end(ap);
-
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, "%s: %s (%d)\n", 
-	    errbuf, strerror_s, error_number);
-
-  if (!xml_root_written())
-    xml_start_tag("nmaprun");
-  /* Close all open XML elements but one. */
-  while (xml_depth() > 1) {
-    xml_end_tag();
-    xml_newline();
-  }
-  if (xml_depth() == 1) {
-    xml_start_tag("runstats");
-    print_xml_finished_open(timep, &tv);
-    xml_attribute("exit", "error");
-    xml_attribute("errormsg", "%s: %s (%d)", errbuf, strerror_s, error_number);
-    xml_close_empty_tag();
-
-    print_xml_hosts();
-    xml_newline();
-
-    xml_end_tag(); /* runstats */
-    xml_newline();
-
-    xml_end_tag(); /* nmaprun */
-    xml_newline();
-  }
-
-#ifdef WIN32
-  HeapFree(GetProcessHeap(), 0, strerror_s);
-#endif
-
-  if (o.log_errors) log_flush(LOG_NORMAL);
-  fflush(stderr);
-  exit(1);
-}
-
-/* This function is the Nmap version of perror. It is like pfatal, but it
-   doesn't write to XML and it only returns, doesn't exit. */
-void gh_perror(const char *fmt, ...) {
-  va_list ap;
-  int error_number;
-  char *strerror_s;
-
-#ifdef WIN32
-  error_number = GetLastError();
-  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM, 
-		NULL, error_number, MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR) &strerror_s,  0, NULL);
-#else
-  error_number = errno;
-  strerror_s = strerror(error_number);
-#endif
-  
-  va_start(ap, fmt);
-  log_vwrite(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, fmt, ap);
-  va_end(ap);
-  log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n",
-    strerror_s, error_number);
-
-#ifdef WIN32
-  HeapFree(GetProcessHeap(), 0, strerror_s);
-#endif
-
-  if (o.log_errors) log_flush(LOG_NORMAL);
-  fflush(stderr);
-  return;
-}

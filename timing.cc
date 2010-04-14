@@ -95,6 +95,7 @@
 #include "timing.h"
 #include "NmapOps.h"
 #include "utils.h"
+#include "xml.h"
 
 extern NmapOps o;
 
@@ -590,9 +591,14 @@ bool ScanProgressMeter::printStats(double perc_done,
       floor(time_left_s / 60.0 / 60.0),
       floor(fmod(time_left_s / 60.0, 60.0)),
       floor(fmod(time_left_s, 60.0)));
-  log_write(LOG_XML, "<taskprogress task=\"%s\" time=\"%lu\" percent=\"%.2f\" remaining=\"%.f\" etc=\"%lu\" />\n",
-      scantypestr, (unsigned long) now->tv_sec,
-      perc_done * 100, time_left_s, (unsigned long) last_est.tv_sec);
+  xml_open_start_tag("taskprogress");
+  xml_attribute("task", "%s", scantypestr);
+  xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
+  xml_attribute("percent", "%.2f", perc_done * 100);
+  xml_attribute("remaining", "%.f", time_left_s);
+  xml_attribute("etc", "%lu", (unsigned long) last_est.tv_sec);
+  xml_close_empty_tag();
+  xml_newline();
   log_flush(LOG_STDOUT|LOG_XML);
  
   return true;
@@ -620,22 +626,28 @@ bool ScanProgressMeter::beginOrEndTask(const struct timeval *now, const char *ad
   tm = localtime(&tv_sec);
   if (beginning) {
     log_write(LOG_STDOUT, "Initiating %s at %02d:%02d", scantypestr, tm->tm_hour, tm->tm_min);
-    log_write(LOG_XML, "<taskbegin task=\"%s\" time=\"%lu\"", scantypestr, (unsigned long) now->tv_sec);
+    xml_open_start_tag("taskbegin");
+    xml_attribute("task", "%s", scantypestr);
+    xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
     if (additional_info) {
       log_write(LOG_STDOUT, " (%s)", additional_info);
-      log_write(LOG_XML, " extrainfo=\"%s\"", additional_info);
+      xml_attribute("extrainfo", "%s", additional_info);
     }
     log_write(LOG_STDOUT, "\n");
-    log_write(LOG_XML, " />\n");
+    xml_close_empty_tag();
+    xml_newline();
   } else {
     log_write(LOG_STDOUT, "Completed %s at %02d:%02d, %.2fs elapsed", scantypestr, tm->tm_hour, tm->tm_min, TIMEVAL_MSEC_SUBTRACT(*now, begin) / 1000.0);
-    log_write(LOG_XML, "<taskend task=\"%s\" time=\"%lu\"", scantypestr, (unsigned long) now->tv_sec);
+    xml_open_start_tag("taskend");
+    xml_attribute("task", "%s", scantypestr);
+    xml_attribute("time", "%lu", (unsigned long) now->tv_sec);
     if (additional_info) {
       log_write(LOG_STDOUT, " (%s)", additional_info);
-      log_write(LOG_XML, " extrainfo=\"%s\"", additional_info);
+      xml_attribute("extrainfo", "%s", additional_info);
     }
     log_write(LOG_STDOUT, "\n");
-    log_write(LOG_XML, " />\n");
+    xml_close_empty_tag();
+    xml_newline();
   }
   log_flush(LOG_STDOUT|LOG_XML);
   return true;

@@ -313,12 +313,15 @@
 <!ATTLIST output type  (interactive)  #IMPLIED>
 
 <!-- these elements are generated in output.c:printfinaloutput() -->
-<!ELEMENT runstats	(finished, hosts) >
+<!ELEMENT runstats	(finished, hosts)>
 
 <!ELEMENT finished	EMPTY >
 <!ATTLIST finished	time		%attr_numeric;	#REQUIRED 
                         timestr		CDATA	        #IMPLIED
 			elapsed		%attr_numeric;	#REQUIRED
+                        summary		CDATA	        #IMPLIED
+                        exit		(error|success) #IMPLIED
+                        errormsg	CDATA	        #IMPLIED
 >
 
 <!ELEMENT hosts		EMPTY >

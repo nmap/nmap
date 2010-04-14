@@ -366,6 +366,10 @@
 				RelativePath="..\utils.cc"
 				>
 			</File>
+			<File
+				RelativePath="..\xml.cc"
+				>
+			</File>
 			<Filter
 				Name="Windows"
 				>
@@ -557,6 +561,10 @@
 			</File>
 			<File
 				RelativePath="..\utils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\xml.h"
 				>
 			</File>
 			<Filter
