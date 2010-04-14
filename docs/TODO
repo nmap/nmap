@@ -8,21 +8,7 @@ o Nmap should probably always produce a well-formed XML file, even if
   nexthost: failed to determine route to 9.48.184.164
   QUITTING!
 
-o Brainstorm for GSoC 2010 ideas and fill out the org application by
-  Friday 3/12 4PM PST.
-  o NSE scripts
-   o Maybe a whole SoC role for http scripts
-     o Maybe look at other web app scanners for some inspiration
-      (including w3af - http://w3af.sourceforge.net/)
-   o Maybe a non-http developer too
-  o NSE infrastructure manager
-  o Ncrack
-  o Nping
-  o Mobile Devices? N900, iPhone, Android
-  o Zenmap developer 
-    o Must have solid user interface design experience
-    o Zenmap script selector (subset of a Zenmap or NSE SoC role)
-  o Feature Creepers/Bug fixers
+o Finish selecting GSoC 2010 projects
 
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
@@ -52,12 +38,6 @@ o [NSE] Maybe we should create a class of scripts which only run one
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
 
-o [Zenmap] Maybe it should sort IPs in an octet-aware way. And maybe
-  you should be able to sort by IP address (perhaps that should be the
-  default).  Current plan is to just sort by IP by default, and maybe
-  we'll offer other sort techniques later if desired.  See
-  http://seclists.org/nmap-dev/2010/q2/27 [possible SoC student task]
-
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
@@ -72,11 +52,12 @@ o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
-o [NSE] We should have a standard function which takes time
-  arguments in the same format as Nmap does (e.g. 60s, 1m, etc.) and
-  the scripts which take time arguments should be modified to use
-  it. David suggests this here:
-  http://seclists.org/nmap-dev/2010/q2/35
+o We should have a standard function which takes time arguments in the
+  same format as Nmap does (e.g. 60s, 1m, etc.) and the scripts which
+  take time arguments should be modified to use it. David suggests
+  this here: http://seclists.org/nmap-dev/2010/q2/35. We are also
+  going to update the normal Nmap timing functions to take seconds by
+  default, as described here: http://seclists.org/nmap-dev/2010/q2/159
 
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
@@ -99,19 +80,6 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
-o Get @output sections for the last remaining scripts w/o them:
-  [WARN] script auth-spoof missing @output
-  [WARN] script db2-das-info missing @output
-  [WARN] script db2-info missing @output
-  [WARN] script http-passwd missing @output
-  [WARN] script iax2-version missing @output
-  [WARN] script ms-sql-config missing @output
-  [WARN] script ms-sql-query missing @output
-  [WARN] script oracle-sid-brute missing @output
-  [WARN] script pop3-brute missing @output
-  [WARN] script pptp-version missing @output
-  [WARN] script skypev2-version missing @output
-
 o Integrate new OS fingerprints (we have more than 1,300 since
   November 10, 2009).
 
@@ -131,6 +99,8 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Don't break the system for posting html to web site. 
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
+
+o Book work [placeholder]
 
 o Add Nmap web board/forum
  - First step is looking at the available software for this.
@@ -208,7 +178,6 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o Python (Win/Mac versions of Zenmap link to Python)
  o X.org libraries (Mac version links to them)
  o libdnet
-
 
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
@@ -569,6 +538,41 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Get @output sections for the last remaining scripts w/o them:
+  [WARN] script auth-spoof missing @output
+  [WARN] script db2-das-info missing @output
+  [WARN] script db2-info missing @output
+  [WARN] script http-passwd missing @output
+  [WARN] script iax2-version missing @output
+  [WARN] script ms-sql-config missing @output
+  [WARN] script ms-sql-query missing @output
+  [WARN] script oracle-sid-brute missing @output
+  [WARN] script pop3-brute missing @output
+  [WARN] script pptp-version missing @output
+  [WARN] script skypev2-version missing @output
+
+o [Zenmap] Maybe it should sort IPs in an octet-aware way. And maybe
+  you should be able to sort by IP address (perhaps that should be the
+  default).  Current plan is to just sort by IP by default, and maybe
+  we'll offer other sort techniques later if desired.  See
+  http://seclists.org/nmap-dev/2010/q2/27 [possible SoC student task]
+
+o Brainstorm for GSoC 2010 ideas and fill out the org application by
+  Friday 3/12 4PM PST.
+  o NSE scripts
+   o Maybe a whole SoC role for http scripts
+     o Maybe look at other web app scanners for some inspiration
+      (including w3af - http://w3af.sourceforge.net/)
+   o Maybe a non-http developer too
+  o NSE infrastructure manager
+  o Ncrack
+  o Nping
+  o Mobile Devices? N900, iPhone, Android
+  o Zenmap developer 
+    o Must have solid user interface design experience
+    o Zenmap script selector (subset of a Zenmap or NSE SoC role)
+  o Feature Creepers/Bug fixers
 
 o Review IDS detection scripts from Joao Correa.
   http://seclists.org/nmap-dev/2010/q1/814
