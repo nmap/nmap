@@ -178,7 +178,7 @@ static char *alloc_vsprintf(const char *fmt, va_list va) {
   s = NULL;
   size = 32;
   for (;;) {
-    p = (char *) realloc(s, size);
+    p = (char *) safe_realloc(s, size);
     if (p == NULL)
       return NULL;
     s = p;
