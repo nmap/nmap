@@ -1,17 +1,17 @@
---- Simple MySQL Library supporting a very limited subset of operations
+---
+-- Simple MySQL Library supporting a very limited subset of operations
+-- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
---
--- @author = "Patrik Karlsson <patrik@cqure.net>"
---
+-- @author "Patrik Karlsson <patrik@cqure.net>"
+
+module(... or "mysql", package.seeall)
+
 -- Version 0.2
 --
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
 -- Revised 01/23/2010 - v0.2 - added query support, cleanup, documentation
-
--- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
-
-module(... or "mysql", package.seeall)
 
 local HAVE_SSL = false
 

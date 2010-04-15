@@ -1,7 +1,5 @@
---- RPC Library supporting a very limited subset of operations
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
---
--- @author = "Patrik Karlsson <patrik@cqure.net>"
+---
+-- RPC Library supporting a very limited subset of operations
 --
 -- Summary
 -- -------
@@ -77,12 +75,18 @@
 -- When multiple versions exists for a specific RPC program the library
 -- always attempts to connect using the highest available version.
 --
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+--
+-- @author "Patrik Karlsson <patrik@cqure.net>"
+--
 -- @args nfs.version number If set overrides the detected version of nfs
 -- @args mount.version number If set overrides the detected version of mountd
 -- @args rpc.protocol table If set overrides the preferred order in which
 --       protocols are tested. (ie. "tcp", "udp")
 
---
+module(... or "rpc", package.seeall)
+require("datafiles")
+
 -- Version 0.3
 --
 -- Created 01/24/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
@@ -90,9 +94,6 @@
 --                             encoding an decoding
 -- Revised 03/13/2010 - v0.3 - re-worked library to be OO
 --
-
-module(... or "rpc", package.seeall)
-require("datafiles")
 
 
 -- Defines the order in which to try to connect to the RPC programs

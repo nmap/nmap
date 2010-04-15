@@ -1,7 +1,4 @@
 ---
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
--- @author = "Patrik Karlsson <patrik@cqure.net>"
---
 -- PostgreSQL library supporting both version 2 and version 3 of the protocol
 -- The library currently contains the bare minimum to perform authentication
 -- Authentication is supported with or without SSL enabled and using the
@@ -12,13 +9,16 @@
 -- ref: http://developer.postgresql.org/pgdocs/postgres/protocol-flow.html
 -- ref: http://developer.postgresql.org/pgdocs/postgres/protocol-message-formats.html
 --
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @author "Patrik Karlsson <patrik@cqure.net>"
+
+module(... or "pgsql",package.seeall)
+
 -- Version 0.3
 -- Created 02/05/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
 -- Revised 02/20/2010 - v0.2 - added detectVersion to automaticaly detect and return 
 --                             the correct version class
 -- Revised 03/04/2010 - v0.3 - added support for trust authentication method
-
-module(... or "pgsql",package.seeall)
 
 require("openssl")
 require("bit")

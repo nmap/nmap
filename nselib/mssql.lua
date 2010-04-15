@@ -1,7 +1,5 @@
---- MSSQL Library supporting a very limited subset of operations
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
---
--- @author = "Patrik Karlsson <patrik@cqure.net>"
+---
+-- MSSQL Library supporting a very limited subset of operations
 --
 -- Summary
 -- -------
@@ -92,21 +90,20 @@
 -- o Queries using SELECT, INSERT, DELETE and EXEC of procedures have been
 --   tested while developing scripts.
 --
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --
+-- @author "Patrik Karlsson <patrik@cqure.net>"
 -- 
 -- @args mssql.timeout How long to wait for SQL responses. This is a number
 -- followed by <code>ms</code> for milliseconds, <code>s</code> for seconds,
 -- <code>m</code> for minutes, or <code>h</code> for hours. Default:
 -- <code>30s</code>.
 
---
+module(... or "mssql", package.seeall)
+
 -- Version 0.2
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 03/28/2010 - v0.2 - fixed incorrect token types. added 30 seconds timeout
---
---
-
-module(... or "mssql", package.seeall)
 
 require("bit")
 require("bin")
