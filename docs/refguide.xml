@@ -2430,11 +2430,11 @@ parameters can also make a substantial difference.  Those options are
 listed below.</para>
 
 <para>Some options accept a <literal>time</literal> parameter.  This
-is specified in milliseconds by default, though you can append
-&lsquo;s&rsquo;, &lsquo;m&rsquo;, or &lsquo;h&rsquo; to the value to
-specify seconds, minutes, or hours. So the
-<option>--host-timeout</option> arguments <literal>900000</literal>,
-<literal>900s</literal>, and <literal>15m</literal> all do the same thing.</para>
+is specified in seconds by default, though you can append
+&lsquo;ms&rsquo;, &lsquo;s&rsquo;, &lsquo;m&rsquo;, or &lsquo;h&rsquo; to the value to
+specify milliseconds, seconds, minutes, or hours. So the
+<option>--host-timeout</option> arguments <literal>900000ms</literal>,
+<literal>900</literal>, <literal>900s</literal>, and <literal>15m</literal> all do the same thing.</para>
 
 
     <variablelist>
@@ -2555,8 +2555,9 @@ networks.  Don't get too aggressive though.  The scan can end up
 taking longer if you specify such a low value that many probes are
 timing out and retransmitting while the response is in transit.</para>
 
-<para>If all the hosts are on a local network, 100 milliseconds is a
-reasonable aggressive <option>--max-rtt-timeout</option> value.  If
+<para>If all the hosts are on a local network, 100 milliseconds
+(<option>--max-rtt-timeout 100ms</option>) is a
+reasonable aggressive value.  If
 routing is involved, ping a host on the network first with the ICMP
 ping utility, or with a custom packet crafter such as
 <command>hping2</command><indexterm><primary><command>hping2</command></primary></indexterm>
@@ -2870,12 +2871,12 @@ seconds, respectively, between probes.  <option>T3</option> is Nmap's
 default behavior, which includes
 parallelization.<indexterm><primary><literal>normal</literal> (<option>-T3</option>) timing template</primary></indexterm>
 <option>-T4</option>
-does the equivalent of <option>--max-rtt-timeout 1250
---initial-rtt-timeout 500 --max-retries 6</option> and sets the maximum TCP scan delay
+does the equivalent of <option>--max-rtt-timeout 1250ms
+--initial-rtt-timeout 500ms --max-retries 6</option> and sets the maximum TCP scan delay
 to 10 milliseconds.  <option>T5</option>
 does the equivalent of
-<option>--max-rtt-timeout 300 --min-rtt-timeout 50
---initial-rtt-timeout 250 --max-retries 2 --host-timeout 15m</option> as well as
+<option>--max-rtt-timeout 300ms --min-rtt-timeout 50ms
+--initial-rtt-timeout 250ms --max-retries 2 --host-timeout 15m</option> as well as
 setting the maximum TCP scan delay to 5&nbsp;ms.</para>
 
         </listitem>

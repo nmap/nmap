@@ -1,5 +1,31 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nmap, Ncat, Nping] The default unit for time specifications is now
+  seconds, not milliseconds, and times may have a decimal point. 1000
+  now means 1000 seconds, or about 17 minutes, not 1000 milliseconds.
+  This affects the following options:
+  Nmap:
+    --host-timeout
+    --max-rtt-timeout --min-rtt-timeout --initial-rtt-timeout
+    --scan-delay --max-scan-delay
+    --stats-every
+  Ncat:
+    -d --delay
+    -i --idle-timeout
+    -w --wait
+  Nping:
+    --delay
+    --host-timeout
+    --icmp-orig-time --icmp-recv-time --icmp-trans-time
+  Some sanity checks have been added to catch what looks like an
+  attempt to use the old millisecond defaults. For example,
+  --host-timeout 10000 yields
+    The default unit for --host-timeout is seconds (since April 2010),
+    so your time of "10000" is 2.8 hours. If this is what you want,
+    use "10000s".
+    QUITTING!
+  You can always disable the warning by giving an explicit unit.
+
 o [NSE] Scripts that take an argument for a time duration can now have
   the duration be a number followed by a unit, like other times in
   Nmap. For example, 10m for 10 minutes. The units understood are ms

@@ -545,6 +545,7 @@ int nmap_main(int argc, char *argv[]) {
   char *p, *q;
   int i, arg;
   long l;
+  double d;
   unsigned int targetno;
   FILE *inputfd = NULL, *excludefd = NULL;
   char *host_spec = NULL, *exclude_spec = NULL;
@@ -769,21 +770,25 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "max-rtt-timeout") == 0) {
         l = tval2msecs(optarg);
         if (l < 5)
-          fatal("Bogus --max-rtt-timeout argument specified, must be at least 5");
-        if (l < 20) {
+          fatal("Bogus --max-rtt-timeout argument specified, must be at least 5ms");
+        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
+          fatal("The default unit for --max-rtt-timeout is seconds (since April 2010), so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
+        if (l < 20)
           error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
-        }
         pre_max_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
         l = tval2msecs(optarg);
-        if (l < 0) fatal("Bogus --min-rtt-timeout argument specified");
-        if (l > 50000) {
-          error("Warning:  min-rtt-timeout is given in milliseconds, your value seems pretty large.");
-        }
+        if (l < 0)
+          fatal("Bogus --min-rtt-timeout argument specified");
+        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
+          fatal("The default unit for --min-rtt-timeout is seconds (since April 2010), so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
         pre_min_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
         l = tval2msecs(optarg);
-        if (l <= 0) fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
+        if (l <= 0)
+          fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
+        if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
+          fatal("The default unit for --initial-rtt-timeout is seconds (since April 2010), so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
         pre_init_rtt_timeout = l;
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
         if (exclude_spec)
@@ -823,11 +828,11 @@ int nmap_main(int argc, char *argv[]) {
         }
       } else if (optcmp(long_options[option_index].name, "host-timeout") == 0) {
         l = tval2msecs(optarg);
-        if (l <= 1500) fatal("--host-timeout is specified in milliseconds unless you qualify it by appending 's', 'm', or 'h'. The value must be greater than 1500 milliseconds");
+        if (l <= 0)
+          fatal("Bogus --host-timeout argument specified");
+        if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
+          fatal("The default unit for --host-timeout is seconds (since April 2010), so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
         pre_host_timeout = l;
-        if (l < 15000) {
-          error("host-timeout is given in milliseconds, so you specified less than 15 seconds (%lims). This is allowed but not recommended.", l);
-        }
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
         o.ttl = atoi(optarg);
         if (o.ttl < 0 || o.ttl > 255) {
@@ -860,13 +865,19 @@ int nmap_main(int argc, char *argv[]) {
         o.version_intensity = 9;
       } else if (optcmp(long_options[option_index].name, "scan-delay") == 0) {
         l = tval2msecs(optarg);
-        if (l < 0) fatal("Bogus --scan-delay argument specified.");
+        if (l < 0)
+          fatal("Bogus --scan-delay argument specified.");
+        if (l >= 100 * 1000)
+          fatal("The default unit for --scan-delay is seconds (since April 2010), so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
         pre_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
         o.defeat_rst_ratelimit = 1;
       } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
         l = tval2msecs(optarg);
-        if (l < 0) fatal("--max-scan-delay cannot be negative.");
+        if (l < 0)
+          fatal("Bogus --max-scan-delay argument specified.");
+        if (l >= 100 * 1000)
+          fatal("The default unit for --max-scan-delay is seconds (since April 2010), so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
         pre_max_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
         pre_max_retries = atoi(optarg);
@@ -989,9 +1000,10 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "adler32") == 0) {
         o.adler32 = true;
       } else if(optcmp(long_options[option_index].name, "stats-every") == 0) {
-        l = tval2msecs(optarg);
-        if (l < 0) fatal("Argument to --stats-every cannot be negative.");
-        o.stats_interval = (double) l / 1000.0;
+        d = tval2secs(optarg);
+        if (d < 0)
+          fatal("Argument to --stats-every cannot be negative.");
+        o.stats_interval = d;
       } else {
         fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
