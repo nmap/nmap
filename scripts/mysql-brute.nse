@@ -39,12 +39,10 @@ action = function( host, port )
 	local socket = nmap.new_socket()
 	local catch = function() socket:close()	end
 	local try = nmap.new_try(catch)
-	local result, response, status, aborted = {}, nil, nil, false	
+	local result, response, status = {}, nil, nil
 	local valid_accounts = {}	
 	local usernames, passwords
 	local username, password
-	local max_time = unpwdb.timelimit() ~= nil and unpwdb.timelimit() * 1000 or -1
-	local clock_start = nmap.clock_ms()
 
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
@@ -55,11 +53,6 @@ action = function( host, port )
 	for username in usernames do
 		for password in passwords do
 				
-			if max_time>0 and nmap.clock_ms() - clock_start >  max_time then
-				aborted=true
-				break
-			end
-			
 			try( socket:connect(host.ip, port.number, "tcp") )	
 			response = try( mysql.receiveGreeting( socket ) )
 
@@ -85,10 +78,6 @@ action = function( host, port )
 
 	local output = stdnse.format_output(true, valid_accounts)	
 
-	if max_time > 0 and aborted then
-		output = output .. string.format(" \n\nscript aborted execution after %d seconds", max_time/1000 )
-	end
-	
 	return output
 
 end

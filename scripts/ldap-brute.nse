@@ -116,9 +116,7 @@ action = function( host, port )
 	local result, response, status, context, valid_accounts = {}, nil, nil, nil, {}	
 	local usernames, passwords, username, password, fq_username
 	local user_cnt, invalid_account_cnt, tot_tries = 0, 0, 0
-	local aborted
 	
-	local max_time = unpwdb.timelimit() ~= nil and unpwdb.timelimit() * 1000 or -1
 	local clock_start = nmap.clock_ms()
 	
 	local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
@@ -158,11 +156,6 @@ action = function( host, port )
 	end
 	
 	for username in usernames do
-		-- is the aborted flag set
-		if ( aborted ) then
-			break
-		end
-			
 		-- if a base DN was set append our username (CN) to the base
 		if base_dn then
 			fq_username = ("cn=%s,%s"):format(username, base_dn)
@@ -171,13 +164,6 @@ action = function( host, port )
 		end
 		user_cnt = user_cnt + 1
 		for password in passwords do			
-
-			-- Should we abort?
-			if max_time>0 and nmap.clock_ms() - clock_start >  max_time then
-				aborted=true
-				break
-			end
-			
 			tot_tries = tot_tries + 1
 
 			-- handle special case where we want to guess the username as password
@@ -246,10 +232,6 @@ action = function( host, port )
 
 	local output = stdnse.format_output(true, valid_accounts) or ""
 
-	if ( max_time > 0 and aborted ) then
-		output = output .. string.format(" \n\nNOTE: script aborted execution after %d seconds", max_time/1000 )
-	end
-	
 	return output
 
 end

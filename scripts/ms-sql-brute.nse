@@ -30,12 +30,10 @@ portrule = shortport.port_or_service(1433, "ms-sql-s")
 
 action = function( host, port )
 
-	local result, response, status, aborted = {}, nil, nil, false	
+	local result, response, status = {}, nil, nil
 	local valid_accounts = {}	
 	local usernames, passwords
 	local username, password
-	local max_time = unpwdb.timelimit() ~= nil and unpwdb.timelimit() * 1000 or -1
-	local clock_start = nmap.clock_ms()
 	local helper = mssql.Helper:new()
 	
  	status, usernames = unpwdb.usernames()
@@ -49,11 +47,6 @@ action = function( host, port )
 		
 	for username in usernames do
 		for password in passwords do
-				
-			if max_time>0 and nmap.clock_ms() - clock_start >  max_time then
-				aborted=true
-				break
-			end
 	
 			status, result = helper:Connect(host, port)
 			if( not(status) ) then
@@ -85,9 +78,5 @@ action = function( host, port )
 
 	local output = stdnse.format_output(true, valid_accounts)	
 
-	if max_time > 0 and aborted then
-		output = output .. string.format(" \n\nscript aborted execution after %d seconds", max_time/1000 )
-	end
-	
 	return output
 end

@@ -43,9 +43,7 @@ portrule = shortport.port_or_service(548, "afp")
 
 action = function( host, port )
 
-	local max_time = unpwdb.timelimit() ~= nil and unpwdb.timelimit() * 1000 or -1
-	local clock_start = nmap.clock_ms()
-	local result, response, status, aborted = {}, nil, nil, false	
+	local result, response, status = {}, nil, nil
 	local valid_accounts, found_users = {}, {}
 	local helper
 	
@@ -58,10 +56,6 @@ action = function( host, port )
 	for password in passwords do
 		for username in usernames do
 			if ( not(found_users[username]) ) then
-				if max_time>0 and nmap.clock_ms() - clock_start >  max_time then
-					aborted=true
-					break
-				end
 
 				helper = afp.Helper:new()
 				status, response = helper:OpenSession( host, port )
@@ -102,10 +96,6 @@ action = function( host, port )
 	end
 	
 	local output = stdnse.format_output(true, valid_accounts)
-
-	if max_time > 0 and aborted then
-		output = ( output or "" ) .. string.format(" \n\nscript aborted execution after %d seconds", max_time/1000 )
-	end
 	
 	return output
 	

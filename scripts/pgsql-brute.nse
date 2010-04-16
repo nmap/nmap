@@ -76,9 +76,7 @@ end
 action = function( host, port )
 
 	local status, response, ssl_enable, output
-	local max_time = unpwdb.timelimit() ~= nil and unpwdb.timelimit() * 1000 or -1
-	local clock_start = nmap.clock_ms()
-	local result, response, status, aborted, nossl = {}, nil, nil, false, false
+	local result, response, status, nossl = {}, nil, nil, false
 	local valid_accounts = {}
 	local pg
 	
@@ -110,11 +108,6 @@ action = function( host, port )
 	for username in usernames do
 		ssl_enable = not(nossl)
 		for password in passwords do
-			if max_time>0 and nmap.clock_ms() - clock_start >  max_time then
-				aborted=true
-				break
-			end
-
 			stdnse.print_debug( string.format("Trying %s/%s ...", username, password ) )
 			socket = connectSocket( host, port, ssl_enable )
 			status, response = pg.sendStartup(socket, username, username)
@@ -169,9 +162,6 @@ action = function( host, port )
 	end
 	
 	output = stdnse.format_output(true, valid_accounts)	
-	if max_time > 0 and aborted then
-		output = output .. string.format(" \n\nscript aborted execution after %d seconds", max_time/1000 )
-	end
 	
 	return output
 	
