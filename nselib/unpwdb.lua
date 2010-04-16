@@ -160,6 +160,7 @@ timelimit = function()
 		if not limit then
 			error(err)
 		end
+		return limit
 	end
 
 	if t <= 3 then
