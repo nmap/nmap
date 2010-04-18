@@ -1274,7 +1274,7 @@ function start_session_basic(smb, log_errors, overrides)
 		stdnse.print_debug(1, "SMB: ERROR: %s", username)
 	end
 
-	return false, get_status_name(status)
+	return false, username
 end
 
 function start_session_extended(smb, log_errors, overrides)

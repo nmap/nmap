@@ -93,6 +93,7 @@ end
 local function get_info_registry(host)
 
 	local result = {}
+	local status, smbstate, bind_result, openhklm_result
 
 	-- Create the SMB session
 	status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
