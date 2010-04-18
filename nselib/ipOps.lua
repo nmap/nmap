@@ -22,6 +22,11 @@ module ( "ipOps" )
 -- * IPv4 Loopback (RFC3330)
 -- * IPv4 Private Use (RFC1918)
 -- * IPv4 Link Local (RFC3330)
+-- * IPv4 IETF Protocol Assignments (RFC 5736)
+-- * IPv4 TEST-NET-1, TEST-NET-2, TEST-NET-3 (RFC 5737)
+-- * IPv4 Network Interconnect Device Benchmark Testing (RFC 2544)
+-- * IPv4 Reserved for Future Use (RFC 1112, Section 4)
+-- * IPv4 Multicast Local Network Control Block (RFC 3171, Section 3)
 -- * IPv6 Unspecified and Loopback (RFC3513)
 -- * IPv6 Unique Local Unicast (RFC4193)
 -- * IPv6 Link Local Unicast (RFC4291)
@@ -30,29 +35,83 @@ module ( "ipOps" )
 -- @usage
 -- local is_private = ipOps.isPrivate( "192.168.1.1" )
 -- @return True or false (or <code>nil</code> in case of an error).
--- @return String error message in case of an error.
+-- @return String error message in case of an error or
+--         String non-routable address containing the supplied IP address.
 isPrivate = function( ip )
   local err
 
   ip, err = expand_ip( ip )
   if err then return nil, err end
 
-  local ipv4_private = { "10/8", "127/8", "169.254/16", "172.16/12", "192.168/16" }
-  local ipv6_private = { "::/127", "FC00::/7", "FE80::/10" }
-  local t, is_private = {}
   if ip:match( ":" ) then
-    t = ipv6_private
-  else
-    t = ipv4_private
+
+    local is_private
+    local ipv6_private = { "::/127", "FC00::/7", "FE80::/10" }
+
+    for _, range in ipairs( ipv6_private ) do
+      is_private, err = ip_in_range( ip, range )
+      if is_private == true then
+        return true, range
+      end
+      if err then
+        return nil, err
+      end
+    end
+
+  elseif ip:sub(1,3) == '10.' then
+
+    return true, '10/8'
+
+  elseif ip:sub(1,4) == '127.' then
+
+    return true, '127/8'
+
+  elseif ip:sub(1,8) == '169.254.' then
+
+    return true, '169.254/16'
+
+  elseif ip:sub(1,4) == '172.' then
+
+    local p, e = ip_in_range(ip, '172.16/12')
+    if p == true then
+      return true, '172.16/12'
+    else
+      return p, e
+    end
+
+  elseif ip:sub(1,4) == '192.' then
+
+    if ip:sub(5,8) == '168.' then
+      return true, '192.168/16'
+    elseif ip:match('^192%.[0][0]?[0]?%.[0][0]?[0]?%.') then
+      return true, '192.0.0/24'
+    elseif ip:match('^192%.[0][0]?[0]?%.[0]?[0]?2') then
+      return true, '192.0.2/24'
+    end
+
+  elseif ip:sub(1,4) == '198.' then
+
+    if ip:match('^198%.[0]?18%.') or ip:match('^198%.[0]?19%.') then
+      return true, '198.18/15'
+    elseif ip:match('^198%.[0]?51%.100%.') then
+      return true, '198.51.100/24'
+    end
+
+  elseif ip:match('^203%.[0][0]?[0]?%.113%.') then
+
+    return true, '203.0.113/24'
+
+  elseif ip:match('^224%.[0][0]?[0]?%.[0][0]?[0]?%.') then
+
+    return true, '224.0.0/24'
+
+  elseif ip:match('^24[0-9]%.') or ip:match('^25[0-5]%.') then
+
+    return true, '240.0.0/4'
+
   end
 
-  for _, range in ipairs( t ) do
-    is_private, err = ip_in_range( ip, range )
-    -- return as soon as is_private is true or err
-    if is_private then return true end
-    if err then return nil, err end
-  end
-  return false
+  return false, nil
 
 end
 

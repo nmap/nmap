@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add some special use IPv4 addresses to isPrivate which are described in
+  RFC 5736 and RFC 5737, published in Jan 2010. Improve performance of isPrivate
+  for IPv4 addresses by using ip_in_range less frequently. Add an extra return
+  value to isPrivate - when the first return value is true, the second return
+  value will now be a string representing the special use assignment in which
+  the supplied address is located. [jah]
+
 o [Nmap, Ncat, Nping] The default unit for time specifications is now
   seconds, not milliseconds, and times may have a decimal point. 1000
   now means 1000 seconds, or about 17 minutes, not 1000 milliseconds.
