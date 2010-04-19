@@ -7249,28 +7249,29 @@ fi
 LIBS="$LIBS_OLD"
 fi
 
-LIBPCAP_LIBS="-lpcap"
-if test $have_libpcap = yes; then
-  PCAP_DEPENDS=""
-  PCAP_BUILD=""
-  PCAP_CLEAN=""
-  PCAP_DIST_CLEAN=""
-  cat >>confdefs.h <<\_ACEOF
-#define HAVE_LIBPCAP 1
-_ACEOF
+if test $have_libpcap != yes; then
+  subdirs="$subdirs libpcap"
 
-else
   if test "${LIBPCAP_INC+set}" = "set"; then
-    LDFLAGS="-L$libpcapdir $_ldflags"
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
   else
-    LDFLAGS="-L$libpcapdir $LDFLAGS"
     CPPFLAGS="$CPPFLAGS -I$libpcapdir"
   fi
+  LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
+else
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_LIBPCAP 1
+_ACEOF
+
+  LIBPCAP_LIBS="-lpcap"
+  PCAP_DEPENDS=""
+  PCAP_BUILD=""
+  PCAP_CLEAN=""
+  PCAP_DIST_CLEAN=""
 fi
 
 
@@ -7278,11 +7279,6 @@ fi
 
 
 
-
-if test $have_libpcap != yes ; then
-        subdirs="$subdirs libpcap"
-
-fi
 
 have_pcre=no
 requested_included_pcre=no

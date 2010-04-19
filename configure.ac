@@ -390,25 +390,25 @@ int main() {
 LIBS="$LIBS_OLD"
 fi
 
-LIBPCAP_LIBS="-lpcap"
-if test $have_libpcap = yes; then
-  PCAP_DEPENDS=""
-  PCAP_BUILD=""
-  PCAP_CLEAN=""
-  PCAP_DIST_CLEAN=""
-  AC_DEFINE(HAVE_LIBPCAP)
-else
+if test $have_libpcap != yes; then
+  AC_CONFIG_SUBDIRS(libpcap)
   if test "${LIBPCAP_INC+set}" = "set"; then
-    LDFLAGS="-L$libpcapdir $_ldflags"
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
   else
-    LDFLAGS="-L$libpcapdir $LDFLAGS"
     CPPFLAGS="$CPPFLAGS -I$libpcapdir"
   fi
+  LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
+else
+  AC_DEFINE(HAVE_LIBPCAP)
+  LIBPCAP_LIBS="-lpcap"
+  PCAP_DEPENDS=""
+  PCAP_BUILD=""
+  PCAP_CLEAN=""
+  PCAP_DIST_CLEAN=""
 fi
 
 AC_SUBST(PCAP_DEPENDS)
@@ -416,10 +416,6 @@ AC_SUBST(PCAP_BUILD)
 AC_SUBST(PCAP_CLEAN)
 AC_SUBST(PCAP_DIST_CLEAN)
 AC_SUBST(LIBPCAP_LIBS)
-
-if test $have_libpcap != yes ; then
-        AC_CONFIG_SUBDIRS(libpcap)
-fi
 
 have_pcre=no
 requested_included_pcre=no
