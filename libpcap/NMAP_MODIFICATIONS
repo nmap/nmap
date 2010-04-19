@@ -180,4 +180,106 @@ o The following patch removes some code that apparently causes libpcap
  }
  #endif /* HAVE_SYS_BUFMOD_H */
 
+o Merged commit 43acbb77a8e0b3346b574b3e28793de2d6985e69 from 
+  git://bpf.tcpdump.org/libpcap, whose log message is "Work around an
+  annoying Snow Leopard BPF bug that causes sub-second timeouts not to
+  work in 64-bit userland code (Snow Leopard's GCC builds 64-bit by
+  default on 64-bit machines)."
+
+Index: configure.in
+===================================================================
+--- configure.in	(revision 17348)
++++ configure.in	(revision 17349)
+@@ -381,6 +381,19 @@
+ 		[define if the system supports zerocopy BPF])
+ 	    ],
+ 	    AC_MSG_RESULT(no))
++
++	    #
++	    # Check whether we have struct BPF_TIMEVAL.
++	    #
++	    AC_CHECK_TYPES(struct BPF_TIMEVAL,,,
++		[
++#include <sys/types.h>
++#include <sys/ioctl.h>
++#ifdef HAVE_SYS_IOCCOM_H
++#include <sys/ioccom.h>
++#endif
++#include <net/bpf.h>
++		    ])
+ 	;;
+ 
+ dag)
+Index: config.h.in
+===================================================================
+--- config.h.in	(revision 17348)
++++ config.h.in	(revision 17349)
+@@ -128,6 +128,9 @@
+ /* Define to 1 if you have the `strlcpy' function. */
+ #undef HAVE_STRLCPY
+ 
++/* Define to 1 if the system has the type `struct BPF_TIMEVAL'. */
++#undef HAVE_STRUCT_BPF_TIMEVAL
++
+ /* Define to 1 if the system has the type `struct ether_addr'. */
+ #undef HAVE_STRUCT_ETHER_ADDR
+ 
+Index: pcap-bpf.c
+===================================================================
+--- pcap-bpf.c	(revision 17348)
++++ pcap-bpf.c	(revision 17349)
+@@ -1859,16 +1859,45 @@
+ 		 * XXX - is this seconds/nanoseconds in AIX?
+ 		 * (Treating it as such doesn't fix the timeout
+ 		 * problem described below.)
++		 *
++		 * XXX - Mac OS X 10.6 mishandles BIOCSRTIMEOUT in
++		 * 64-bit userland - it takes, as an argument, a
++		 * "struct BPF_TIMEVAL", which has 32-bit tv_sec
++		 * and tv_usec, rather than a "struct timeval".
++		 *
++		 * If this platform defines "struct BPF_TIMEVAL",
++		 * we check whether the structure size in BIOCSRTIMEOUT
++		 * is that of a "struct timeval" and, if not, we use
++		 * a "struct BPF_TIMEVAL" rather than a "struct timeval".
++		 * (That way, if the bug is fixed in a future release,
++		 * we will still do the right thing.)
+ 		 */
+ 		struct timeval to;
+-		to.tv_sec = p->md.timeout / 1000;
+-		to.tv_usec = (p->md.timeout * 1000) % 1000000;
+-		if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&to) < 0) {
+-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "BIOCSRTIMEOUT: %s",
+-			    pcap_strerror(errno));
+-			status = PCAP_ERROR;
+-			goto bad;
++#ifdef HAVE_STRUCT_BPF_TIMEVAL
++		struct BPF_TIMEVAL bpf_to;
++
++		if (IOCPARM_LEN(BIOCSRTIMEOUT) != sizeof(struct timeval)) {
++			bpf_to.tv_sec = p->md.timeout / 1000;
++			bpf_to.tv_usec = (p->md.timeout * 1000) % 1000000;
++			if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&bpf_to) < 0) {
++				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
++				    "BIOCSRTIMEOUT: %s", pcap_strerror(errno));
++				status = PCAP_ERROR;
++				goto bad;
++			}
++		} else {
++#endif
++			to.tv_sec = p->md.timeout / 1000;
++			to.tv_usec = (p->md.timeout * 1000) % 1000000;
++			if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&to) < 0) {
++				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
++				    "BIOCSRTIMEOUT: %s", pcap_strerror(errno));
++				status = PCAP_ERROR;
++				goto bad;
++			}
++#ifdef HAVE_STRUCT_BPF_TIMEVAL
+ 		}
++#endif
+ 	}
+ 
+ #ifdef _AIX
+
 o Regenerated configure.
