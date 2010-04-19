@@ -1859,16 +1859,45 @@ pcap_activate_bpf(pcap_t *p)
 		 * XXX - is this seconds/nanoseconds in AIX?
 		 * (Treating it as such doesn't fix the timeout
 		 * problem described below.)
+		 *
+		 * XXX - Mac OS X 10.6 mishandles BIOCSRTIMEOUT in
+		 * 64-bit userland - it takes, as an argument, a
+		 * "struct BPF_TIMEVAL", which has 32-bit tv_sec
+		 * and tv_usec, rather than a "struct timeval".
+		 *
+		 * If this platform defines "struct BPF_TIMEVAL",
+		 * we check whether the structure size in BIOCSRTIMEOUT
+		 * is that of a "struct timeval" and, if not, we use
+		 * a "struct BPF_TIMEVAL" rather than a "struct timeval".
+		 * (That way, if the bug is fixed in a future release,
+		 * we will still do the right thing.)
 		 */
 		struct timeval to;
-		to.tv_sec = p->md.timeout / 1000;
-		to.tv_usec = (p->md.timeout * 1000) % 1000000;
-		if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&to) < 0) {
-			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "BIOCSRTIMEOUT: %s",
-			    pcap_strerror(errno));
-			status = PCAP_ERROR;
-			goto bad;
+#ifdef HAVE_STRUCT_BPF_TIMEVAL
+		struct BPF_TIMEVAL bpf_to;
+
+		if (IOCPARM_LEN(BIOCSRTIMEOUT) != sizeof(struct timeval)) {
+			bpf_to.tv_sec = p->md.timeout / 1000;
+			bpf_to.tv_usec = (p->md.timeout * 1000) % 1000000;
+			if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&bpf_to) < 0) {
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "BIOCSRTIMEOUT: %s", pcap_strerror(errno));
+				status = PCAP_ERROR;
+				goto bad;
+			}
+		} else {
+#endif
+			to.tv_sec = p->md.timeout / 1000;
+			to.tv_usec = (p->md.timeout * 1000) % 1000000;
+			if (ioctl(p->fd, BIOCSRTIMEOUT, (caddr_t)&to) < 0) {
+				snprintf(p->errbuf, PCAP_ERRBUF_SIZE,
+				    "BIOCSRTIMEOUT: %s", pcap_strerror(errno));
+				status = PCAP_ERROR;
+				goto bad;
+			}
+#ifdef HAVE_STRUCT_BPF_TIMEVAL
 		}
+#endif
 	}
 
 #ifdef _AIX

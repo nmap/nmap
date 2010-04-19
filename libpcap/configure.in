@@ -381,6 +381,19 @@ bpf)
 		[define if the system supports zerocopy BPF])
 	    ],
 	    AC_MSG_RESULT(no))
+
+	    #
+	    # Check whether we have struct BPF_TIMEVAL.
+	    #
+	    AC_CHECK_TYPES(struct BPF_TIMEVAL,,,
+		[
+#include <sys/types.h>
+#include <sys/ioctl.h>
+#ifdef HAVE_SYS_IOCCOM_H
+#include <sys/ioccom.h>
+#endif
+#include <net/bpf.h>
+		    ])
 	;;
 
 dag)
