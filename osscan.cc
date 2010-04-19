@@ -974,7 +974,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
       test.results = str2AVal(p);
       FP->tests.push_back(test);
     } else {
-      fatal("Parse error line line #%d of fingerprint", lineno);
+      fatal("Parse error line #%d of fingerprint: %s", lineno, thisline);
     }
 
     thisline = nextline; /* Time to handle the next line, if there is one */
