@@ -26,3 +26,26 @@ recvfrom (0, NULL, 0, 0, NULL, &arg);],[
      [Type of 6th argument to recvfrom()])
    AC_LANG_POP(C++)
 ])
+
+AC_DEFUN([PCAP_IS_SUITABLE],
+[
+  AC_MSG_CHECKING(if libpcap version is suitable)
+  AC_TRY_RUN([
+#include <stdio.h>
+extern char pcap_version[];
+int main() {
+  int major, minor1, minor2;
+  sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
+  if (major > 0) 
+    exit(0);
+  if (minor1 < 9)
+    exit(1);
+  if (minor2 < 4)
+    exit(1);
+  exit(0);
+}
+  ],
+  [AC_MSG_RESULT(yes); $1],
+  [AC_MSG_RESULT(no); $2],
+  [AC_MSG_RESULT(cross-compiling -- assuming yes); $3])
+])

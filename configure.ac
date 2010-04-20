@@ -369,25 +369,8 @@ if test $have_libpcap = yes; then
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
   LIBS="$LIBS -lpcap"
-  AC_MSG_CHECKING(if libpcap version is recent enough)
-  AC_TRY_RUN([
-#include <stdio.h>
-extern char pcap_version[];
-int main() {
-  int major, minor1, minor2;
-  sscanf(pcap_version,"%d.%d.%d", &major, &minor1, &minor2);
-  if (major > 0) 
-    exit(0);
-  if (minor1 < 9)
-    exit(1);
-  if (minor2 < 4)
-    exit(1);
-  exit(0);
-}],
-[AC_MSG_RESULT(yes); have_libpcap=yes],
-[AC_MSG_RESULT(no); have_libpcap=no],
-[AC_MSG_RESULT(cross-compiling -- assuming yes); have_libpcap=yes])
-LIBS="$LIBS_OLD"
+  PCAP_IS_SUITABLE([have_libpcap=yes], [have_libpcap=no], [have_libpcap=yes])
+  LIBS="$LIBS_OLD"
 fi
 
 if test $have_libpcap != yes; then

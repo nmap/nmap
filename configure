@@ -7181,8 +7181,9 @@ if test $have_libpcap = yes; then
   # link with -lpcap for the purposes of this test
   LIBS_OLD="$LIBS"
   LIBS="$LIBS -lpcap"
-  { $as_echo "$as_me:$LINENO: checking if libpcap version is recent enough" >&5
-$as_echo_n "checking if libpcap version is recent enough... " >&6; }
+
+  { $as_echo "$as_me:$LINENO: checking if libpcap version is suitable" >&5
+$as_echo_n "checking if libpcap version is suitable... " >&6; }
   if test "$cross_compiling" = yes; then
   { $as_echo "$as_me:$LINENO: result: cross-compiling -- assuming yes" >&5
 $as_echo "cross-compiling -- assuming yes" >&6; }; have_libpcap=yes
@@ -7207,6 +7208,7 @@ int main() {
     exit(1);
   exit(0);
 }
+
 _ACEOF
 rm -f conftest$ac_exeext
 if { (ac_try="$ac_link"
@@ -7246,7 +7248,8 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-LIBS="$LIBS_OLD"
+
+  LIBS="$LIBS_OLD"
 fi
 
 if test $have_libpcap != yes; then
