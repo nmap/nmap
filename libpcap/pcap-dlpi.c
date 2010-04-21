@@ -70,7 +70,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-dlpi.c,v 1.116.2.11 2008-04-14 20:41:51 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-dlpi.c,v 1.128 2008-12-02 16:20:23 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -179,6 +179,12 @@ static struct strbuf ctl = {
 	0,
 	(char *)ctlbuf
 };
+
+/*
+ * Cast a buffer to "union DL_primitives" without provoking warnings
+ * from the compiler.
+ */
+#define MAKE_DL_PRIMITIVES(ptr)	((union DL_primitives *)(void *)(ptr))
 
 static int
 pcap_read_dlpi(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
@@ -498,7 +504,7 @@ pcap_activate_dlpi(pcap_t *p)
 	if (dlinforeq(p->fd, p->errbuf) < 0 ||
 	    dlinfoack(p->fd, (char *)buf, p->errbuf) < 0)
 		goto bad;
-	infop = &((union DL_primitives *)buf)->info_ack;
+	infop = &(MAKE_DL_PRIMITIVES(buf))->info_ack;
 #ifdef HAVE_SOLARIS
 	if (infop->dl_mac_type == DL_IPATM)
 		isatm = 1;
@@ -674,7 +680,7 @@ pcap_activate_dlpi(pcap_t *p)
 	    dlinfoack(p->fd, (char *)buf, p->errbuf) < 0)
 		goto bad;
 
-	infop = &((union DL_primitives *)buf)->info_ack;
+	infop = &(MAKE_DL_PRIMITIVES(buf))->info_ack;
 	if (pcap_process_mactype(p, infop->dl_mac_type) != 0)
 		goto bad;
 
@@ -690,6 +696,7 @@ pcap_activate_dlpi(pcap_t *p)
 	}
 #endif
 
+#ifdef HAVE_SYS_BUFMOD_H
 	ss = p->snapshot;
 
 	/*
@@ -712,7 +719,6 @@ pcap_activate_dlpi(pcap_t *p)
 	}
 #endif
 
-#ifdef HAVE_SYS_BUFMOD_H
 	/* Push and configure bufmod. */
 	if (pcap_conf_bufmod(p, ss, p->md.timeout) != 0)
 		goto bad;
@@ -959,7 +965,7 @@ recv_ack(int fd, int size, const char *what, char *bufp, char *ebuf, int *uerror
 		return (PCAP_ERROR);
 	}
 
-	dlp = (union DL_primitives *) ctl.buf;
+	dlp = MAKE_DL_PRIMITIVES(ctl.buf);
 	switch (dlp->dl_primitive) {
 
 	case DL_INFO_ACK:
@@ -1319,7 +1325,7 @@ dlrawdatareq(int fd, const u_char *datap, int datalen)
 	union DL_primitives *dlp;
 	int dlen;
 
-	dlp = (union DL_primitives*) buf;
+	dlp = MAKE_DL_PRIMITIVES(buf);
 
 	dlp->dl_primitive = DL_HP_RAWDATA_REQ;
 	dlen = DL_HP_RAWDATA_REQ_SIZE;
@@ -1491,8 +1497,8 @@ get_dlpi_ppa(register int fd, register const char *device, register int unit,
 	}
 	if (ctl.len < dlp->dl_length) {
 		snprintf(ebuf, PCAP_ERRBUF_SIZE,
-		    "get_dlpi_ppa: hpppa ack too small (%d < %d)",
-		    ctl.len, dlp->dl_length);
+		    "get_dlpi_ppa: hpppa ack too small (%d < %lu)",
+		    ctl.len, (unsigned long)dlp->dl_length);
 		free(ppa_data_buf);
 		return (PCAP_ERROR);
 	}

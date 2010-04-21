@@ -1,19 +1,17 @@
-@(#) $Header: /tcpdump/master/libpcap/README,v 1.30.4.3 2008-10-17 10:39:20 ken Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/README,v 1.34 2008-12-14 19:44:14 guy Exp $ (LBL)
 
-LIBPCAP 1.0.0
+LIBPCAP 1.x.y
 
 www.tcpdump.org
 
 Please send inquiries/comments/reports to:
 	tcpdump-workers@lists.tcpdump.org
 
-Anonymous CVS is available via:
-	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master login
-	(password "anoncvs")
-	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout libpcap
+Anonymous Git is available via:
+	git clone git://bpf.tcpdump.org/libpcap
 
-Version 1.0.0 of LIBPCAP can be retrieved with the CVS tag "libpcap_1_0":
-	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout -r libpcap_1_0 libpcap
+Version 1.x.y of LIBPCAP can be retrieved with the CVS tag "libpcap_1_{x}rel{y}":
+	cvs -d :pserver:tcpdump@cvs.tcpdump.org:/tcpdump/master checkout -r libpcap_1_{x}rel{y} libpcap
 
 Please submit patches against the master copy to the libpcap project on
 sourceforge.net.
@@ -80,10 +78,10 @@ information on configuring that option.
 Note to Linux distributions and *BSD systems that include libpcap:
 
 There's now a rule to make a shared library, which should work on Linux 
-and *BSD (and OS X).
+and *BSD, among other platforms.
 
 It sets the soname of the library to "libpcap.so.1"; this is what it 
-should be, *NOT* libpcap.so.1.0 or libpcap.so.1.0.0 or something such as 
+should be, *NOT* libpcap.so.1.x or libpcap.so.1.x.y or something such as 
 that.
 
 We've been maintaining binary compatibility between libpcap releases for 

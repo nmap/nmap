@@ -21,14 +21,26 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/etherent.c,v 1.23 2006/10/04 18:09:22 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/etherent.c,v 1.23 2006-10-04 18:09:22 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
+#ifdef WIN32
+#include <pcap-stdinc.h>
+#else /* WIN32 */
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#elif HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#ifdef HAVE_SYS_BITYPES_H
+#include <sys/bitypes.h>
+#endif
 #include <sys/types.h>
+#endif /* WIN32 */
 
 #include <ctype.h>
 #include <memory.h>

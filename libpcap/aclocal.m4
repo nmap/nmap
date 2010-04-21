@@ -1,4 +1,4 @@
-dnl @(#) $Header: /tcpdump/master/libpcap/aclocal.m4,v 1.86.2.6 2008-09-28 17:13:37 guy Exp $ (LBL)
+dnl @(#) $Header: /tcpdump/master/libpcap/aclocal.m4,v 1.93 2008-11-18 07:29:48 guy Exp $ (LBL)
 dnl
 dnl Copyright (c) 1995, 1996, 1997, 1998
 dnl	The Regents of the University of California.  All rights reserved.
@@ -23,27 +23,23 @@ dnl LBL autoconf macros
 dnl
 
 dnl
-dnl Determine which compiler we're using (cc or gcc)
-dnl If using gcc, determine the version number
-dnl If using cc, require that it support ansi prototypes
-dnl If using gcc, use -O2 (otherwise use -O)
-dnl If using cc, explicitly specify /usr/local/include
+dnl Do whatever AC_LBL_C_INIT work is necessary before using AC_PROG_CC.
 dnl
-dnl usage:
+dnl It appears that newer versions of autoconf (2.64 and later) will,
+dnl if you use AC_TRY_COMPILE in a macro, stick AC_PROG_CC at the
+dnl beginning of the macro, even if the macro itself calls AC_PROG_CC.
+dnl See the "Prerequisite Macros" and "Expanded Before Required" sections
+dnl in the Autoconf documentation.
 dnl
-dnl	AC_LBL_C_INIT(copt, incls)
+dnl This causes a steaming heap of fail in our case, as we were, in
+dnl AC_LBL_C_INIT, doing the tests we now do in AC_LBL_C_INIT_BEFORE_CC,
+dnl calling AC_PROG_CC, and then doing the tests we now do in
+dnl AC_LBL_C_INIT.  Now, we run AC_LBL_C_INIT_BEFORE_CC, AC_PROG_CC,
+dnl and AC_LBL_C_INIT at the top level.
 dnl
-dnl results:
-dnl
-dnl	$1 (copt set)
-dnl	$2 (incls set)
-dnl	CC
-dnl	LDFLAGS
-dnl	ac_cv_lbl_gcc_vers
-dnl	LBL_CFLAGS
-dnl
-AC_DEFUN(AC_LBL_C_INIT,
-    [AC_PREREQ(2.12)
+AC_DEFUN(AC_LBL_C_INIT_BEFORE_CC,
+    [AC_PREREQ(2.50)
+    AC_BEFORE([$0], [AC_LBL_C_INIT])
     AC_BEFORE([$0], [AC_PROG_CC])
     AC_BEFORE([$0], [AC_LBL_FIXINCLUDES])
     AC_BEFORE([$0], [AC_LBL_DEVEL])
@@ -72,7 +68,33 @@ AC_DEFUN(AC_LBL_C_INIT,
 	    CC=cc
 	    export CC
     fi
-    AC_PROG_CC
+])
+
+dnl
+dnl Determine which compiler we're using (cc or gcc)
+dnl If using gcc, determine the version number
+dnl If using cc, require that it support ansi prototypes
+dnl If using gcc, use -O2 (otherwise use -O)
+dnl If using cc, explicitly specify /usr/local/include
+dnl
+dnl usage:
+dnl
+dnl	AC_LBL_C_INIT(copt, incls)
+dnl
+dnl results:
+dnl
+dnl	$1 (copt set)
+dnl	$2 (incls set)
+dnl	CC
+dnl	LDFLAGS
+dnl	ac_cv_lbl_gcc_vers
+dnl	LBL_CFLAGS
+dnl
+AC_DEFUN(AC_LBL_C_INIT,
+    [AC_PREREQ(2.50)
+    AC_BEFORE([$0], [AC_LBL_FIXINCLUDES])
+    AC_BEFORE([$0], [AC_LBL_DEVEL])
+    AC_BEFORE([$0], [AC_LBL_SHLIBS_INIT])
     if test "$GCC" = yes ; then
 	    if test "$SHLICC2" = yes ; then
 		    ac_cv_lbl_gcc_vers=2
@@ -117,8 +139,26 @@ AC_DEFUN(AC_LBL_C_INIT,
 				    AC_MSG_ERROR(see the INSTALL doc for more info)
 			    fi
 			    CFLAGS="$savedcflags"
-			    V_CCOPT="-Aa $V_CCOPT"
+			    $1="-Aa $$1"
 			    AC_DEFINE(_HPUX_SOURCE,1,[needed on HP-UX])
+			    ;;
+
+		    osf*)
+			    AC_MSG_CHECKING(for ansi mode in DEC compiler ($CC -std1))
+			    savedcflags="$CFLAGS"
+			    CFLAGS="-std1"
+			    AC_CACHE_VAL(ac_cv_lbl_cc_osf1_cc_std1,
+				AC_TRY_COMPILE(
+				    [#include <sys/types.h>],
+				    [int frob(int, char *)],
+				    ac_cv_lbl_cc_osf1_cc_std1=yes,
+				    ac_cv_lbl_cc_osf1_cc_std1=no))
+			    AC_MSG_RESULT($ac_cv_lbl_cc_osf1_cc_std1)
+			    if test $ac_cv_lbl_cc_osf1_cc_std1 = no ; then
+				    AC_MSG_ERROR(see the INSTALL doc for more info)
+			    fi
+			    CFLAGS="$savedcflags"
+			    $1="-std1 $$1"
 			    ;;
 
 		    *)
@@ -132,11 +172,15 @@ AC_DEFUN(AC_LBL_C_INIT,
 	    case "$host_os" in
 
 	    irix*)
-		    V_CCOPT="$V_CCOPT -xansi -signed -g3"
+		    $1="$$1 -xansi -signed -g3"
 		    ;;
 
 	    osf*)
-		    V_CCOPT="$V_CCOPT -std1 -g3"
+	    	    #
+		    # Presumed to be DEC OSF/1, Digital UNIX, or
+		    # Tru64 UNIX.
+		    #
+		    $1="$$1 -g3"
 		    ;;
 
 	    ultrix*)
@@ -150,8 +194,156 @@ AC_DEFUN(AC_LBL_C_INIT,
 			    ac_cv_lbl_cc_const_proto=no))
 		    AC_MSG_RESULT($ac_cv_lbl_cc_const_proto)
 		    if test $ac_cv_lbl_cc_const_proto = no ; then
-			    AC_DEFINE(const,)
+			    AC_DEFINE(const,[],
+			        [to handle Ultrix compilers that don't support const in prototypes])
 		    fi
+		    ;;
+	    esac
+    fi
+])
+
+dnl
+dnl Determine what options are needed to build a shared library
+dnl
+dnl usage:
+dnl
+dnl	AC_LBL_SHLIBS_INIT
+dnl
+dnl results:
+dnl
+dnl	V_CCOPT (modified to build position-independent code)
+dnl	V_SHLIB_CMD
+dnl	V_SHLIB_OPT
+dnl	V_SONAME_OPT
+dnl	V_RPATH_OPT
+dnl
+AC_DEFUN(AC_LBL_SHLIBS_INIT,
+    [AC_PREREQ(2.50)
+    if test "$GCC" = yes ; then
+	    #
+	    # On platforms where we build a shared library:
+	    #
+	    #	add options to generate position-independent code,
+	    #	if necessary (it's the default in AIX and Darwin/OS X);
+	    #
+	    #	define option to set the soname of the shared library,
+	    #	if the OS supports that;
+	    #
+	    #	add options to specify, at link time, a directory to
+	    #	add to the run-time search path, if that's necessary.
+	    #
+	    V_SHLIB_CMD="\$(CC)"
+	    V_SHLIB_OPT="-shared"
+	    case "$host_os" in
+
+	    aix*)
+		    ;;
+
+	    freebsd*|netbsd*|openbsd*|dragonfly*|linux*|osf*)
+	    	    #
+		    # Platforms where the linker is the GNU linker
+		    # or accepts command-line arguments like
+		    # those the GNU linker accepts.
+		    #
+		    V_CCOPT="$V_CCOPT -fpic"
+		    V_SONAME_OPT="-Wl,-soname,"
+		    V_RPATH_OPT="-Wl,-rpath,"
+		    ;;
+
+	    hpux*)
+		    V_CCOPT="$V_CCOPT -fpic"
+	    	    #
+		    # XXX - this assumes GCC is using the HP linker,
+		    # rather than the GNU linker, and that the "+h"
+		    # option is used on all HP-UX platforms, both .sl
+		    # and .so.
+		    #
+		    V_SONAME_OPT="-Wl,+h,"
+		    #
+		    # By default, directories specifed with -L
+		    # are added to the run-time search path, so
+		    # we don't add them in pcap-config.
+		    #
+		    ;;
+
+	    solaris*)
+		    V_CCOPT="$V_CCOPT -fpic"
+		    #
+		    # XXX - this assumes GCC is using the Sun linker,
+		    # rather than the GNU linker.
+		    #
+		    V_SONAME_OPT="-Wl,-h,"
+		    V_RPATH_OPT="-Wl,-R,"
+		    ;;
+	    esac
+    else
+	    #
+	    # Set the appropriate compiler flags and, on platforms
+	    # where we build a shared library:
+	    #
+	    #	add options to generate position-independent code,
+	    #	if necessary (it's the default in Darwin/OS X);
+	    #
+	    #	if we generate ".so" shared libraries, define the
+	    #	appropriate options for building the shared library;
+	    #
+	    #	add options to specify, at link time, a directory to
+	    #	add to the run-time search path, if that's necessary.
+	    #
+	    # Note: spaces after V_SONAME_OPT are significant; on
+	    # some platforms the soname is passed with a GCC-like
+	    # "-Wl,-soname,{soname}" option, with the soname part
+	    # of the option, while on other platforms the C compiler
+	    # driver takes it as a regular option with the soname
+	    # following the option.  The same applies to V_RPATH_OPT.
+	    #
+	    case "$host_os" in
+
+	    aix*)
+		    V_SHLIB_CMD="\$(CC)"
+		    V_SHLIB_OPT="-G -bnoentry -bexpall"
+		    ;;
+
+	    freebsd*|netbsd*|openbsd*|dragonfly*|linux*)
+		    #
+		    # "cc" is GCC.
+		    #
+		    V_CCOPT="$V_CCOPT -fpic"
+		    V_SHLIB_CMD="\$(CC)"
+		    V_SHLIB_OPT="-shared"
+		    V_SONAME_OPT="-Wl,-soname,"
+		    V_RPATH_OPT="-Wl,-rpath,"
+		    ;;
+
+	    hpux*)
+		    V_CCOPT="$V_CCOPT +z"
+		    V_SHLIB_CMD="\$(LD)"
+		    V_SHLIB_OPT="-b"
+		    V_SONAME_OPT="+h "
+		    #
+		    # By default, directories specifed with -L
+		    # are added to the run-time search path, so
+		    # we don't add them in pcap-config.
+		    #
+		    ;;
+
+	    osf*)
+	    	    #
+		    # Presumed to be DEC OSF/1, Digital UNIX, or
+		    # Tru64 UNIX.
+		    #
+		    V_SHLIB_CMD="\$(CC)"
+		    V_SHLIB_OPT="-shared"
+		    V_SONAME_OPT="-soname "
+		    V_RPATH_OPT="-rpath "
+		    ;;
+
+	    solaris*)
+		    V_CCOPT="$V_CCOPT -Kpic"
+		    V_SHLIB_CMD="\$(CC)"
+		    V_SHLIB_OPT="-G"
+		    V_SONAME_OPT="-h "
+		    V_RPATH_OPT="-R"
 		    ;;
 	    esac
     fi
@@ -207,114 +399,6 @@ AC_DEFUN(AC_LBL_C_INLINE,
 	AC_MSG_RESULT(no)
     fi
     AC_DEFINE_UNQUOTED(inline, $ac_cv_lbl_inline, [Define as token for inline if inlining supported])])
-
-dnl
-dnl Use pfopen.c if available and pfopen() not in standard libraries
-dnl Require libpcap
-dnl Look for libpcap in ..
-dnl Use the installed libpcap if there is no local version
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_LIBPCAP(pcapdep, incls)
-dnl
-dnl results:
-dnl
-dnl	$1 (pcapdep set)
-dnl	$2 (incls appended)
-dnl	LIBS
-dnl	LBL_LIBS
-dnl
-AC_DEFUN(AC_LBL_LIBPCAP,
-    [AC_REQUIRE([AC_LBL_LIBRARY_NET])
-    dnl
-    dnl save a copy before locating libpcap.a
-    dnl
-    LBL_LIBS="$LIBS"
-    pfopen=/usr/examples/packetfilter/pfopen.c
-    if test -f $pfopen ; then
-	    AC_CHECK_FUNCS(pfopen)
-	    if test $ac_cv_func_pfopen = "no" ; then
-		    AC_MSG_RESULT(Using $pfopen)
-		    LIBS="$LIBS $pfopen"
-	    fi
-    fi
-    AC_MSG_CHECKING(for local pcap library)
-    libpcap=FAIL
-    lastdir=FAIL
-    places=`ls .. | sed -e 's,/$,,' -e 's,^,../,' | \
-	egrep '/libpcap-[[0-9]]*\.[[0-9]]*(\.[[0-9]]*)?([[ab]][[0-9]]*)?$'`
-    for dir in $places ../libpcap libpcap ; do
-	    basedir=`echo $dir | sed -e 's/[[ab]][[0-9]]*$//'`
-	    if test $lastdir = $basedir ; then
-		    dnl skip alphas when an actual release is present
-		    continue;
-	    fi
-	    lastdir=$dir
-	    if test -r $dir/pcap.c ; then
-		    libpcap=$dir/libpcap.a
-		    d=$dir
-		    dnl continue and select the last one that exists
-	    fi
-    done
-    if test $libpcap = FAIL ; then
-	    AC_MSG_RESULT(not found)
-	    AC_CHECK_LIB(pcap, main, libpcap="-lpcap")
-	    if test $libpcap = FAIL ; then
-		    AC_MSG_ERROR(see the INSTALL doc for more info)
-	    fi
-    else
-	    $1=$libpcap
-	    $2="-I$d $$2"
-	    AC_MSG_RESULT($libpcap)
-    fi
-    LIBS="$libpcap $LIBS"
-    case "$host_os" in
-
-    aix*)
-	    pseexe="/lib/pse.exp"
-	    AC_MSG_CHECKING(for $pseexe)
-	    if test -f $pseexe ; then
-		    AC_MSG_RESULT(yes)
-		    LIBS="$LIBS -I:$pseexe"
-	    fi
-	    ;;
-    esac])
-
-dnl
-dnl Define RETSIGTYPE and RETSIGVAL
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_TYPE_SIGNAL
-dnl
-dnl results:
-dnl
-dnl	RETSIGTYPE (defined)
-dnl	RETSIGVAL (defined)
-dnl
-AC_DEFUN(AC_LBL_TYPE_SIGNAL,
-    [AC_BEFORE([$0], [AC_LBL_LIBPCAP])
-    AC_TYPE_SIGNAL
-    if test "$ac_cv_type_signal" = void ; then
-	    AC_DEFINE(RETSIGVAL,[],[return value of signal handlers])
-    else
-	    AC_DEFINE(RETSIGVAL,(0),[return value of signal handlers])
-    fi
-    case "$host_os" in
-
-    irix*)
-	    AC_DEFINE(_BSD_SIGNALS,1,[get BSD semantics on Irix])
-	    ;;
-
-    *)
-	    dnl prefer sigset() to sigaction()
-	    AC_CHECK_FUNCS(sigset)
-	    if test $ac_cv_func_sigset = no ; then
-		    AC_CHECK_FUNCS(sigaction)
-	    fi
-	    ;;
-    esac])
 
 dnl
 dnl If using gcc, make sure we have ANSI ioctl definitions
@@ -452,7 +536,7 @@ dnl
 dnl	HAVE_SOCKADDR_SA_LEN (defined)
 dnl
 AC_DEFUN(AC_LBL_SOCKADDR_SA_LEN,
-    [AC_MSG_CHECKING(if sockaddr struct has sa_len member)
+    [AC_MSG_CHECKING(if sockaddr struct has the sa_len member)
     AC_CACHE_VAL(ac_cv_lbl_sockaddr_has_sa_len,
 	AC_TRY_COMPILE([
 #	include <sys/types.h>
@@ -462,7 +546,7 @@ AC_DEFUN(AC_LBL_SOCKADDR_SA_LEN,
 	ac_cv_lbl_sockaddr_has_sa_len=no))
     AC_MSG_RESULT($ac_cv_lbl_sockaddr_has_sa_len)
     if test $ac_cv_lbl_sockaddr_has_sa_len = yes ; then
-	    AC_DEFINE(HAVE_SOCKADDR_SA_LEN,1,[if struct sockaddr has sa_len])
+	    AC_DEFINE(HAVE_SOCKADDR_SA_LEN,1,[if struct sockaddr has the sa_len member])
     fi])
 
 dnl
@@ -545,39 +629,9 @@ AC_DEFUN(AC_LBL_HAVE_RUN_PATH,
 	else
 		ac_cv_lbl_have_run_path=no
 	fi
-	rm -f conftest*])
+	rm -f -r conftest*])
     AC_MSG_RESULT($ac_cv_lbl_have_run_path)
     ])
-
-dnl
-dnl Due to the stupid way it's implemented, AC_CHECK_TYPE is nearly useless.
-dnl
-dnl usage:
-dnl
-dnl	AC_LBL_CHECK_TYPE
-dnl
-dnl results:
-dnl
-dnl	int32_t (defined)
-dnl	u_int32_t (defined)
-dnl
-AC_DEFUN(AC_LBL_CHECK_TYPE,
-    [AC_MSG_CHECKING(for $1 using $CC)
-    AC_CACHE_VAL(ac_cv_lbl_have_$1,
-	AC_TRY_COMPILE([
-#	include "confdefs.h"
-#	include <sys/types.h>
-#	if STDC_HEADERS
-#	include <stdlib.h>
-#	include <stddef.h>
-#	endif],
-	[$1 i],
-	ac_cv_lbl_have_$1=yes,
-	ac_cv_lbl_have_$1=no))
-    AC_MSG_RESULT($ac_cv_lbl_have_$1)
-    if test $ac_cv_lbl_have_$1 = no ; then
-	    AC_DEFINE($1, $2, [if we have $1])
-    fi])
 
 dnl
 dnl Checks to see if unaligned memory accesses fail
@@ -671,7 +725,7 @@ EOF
 				ac_cv_lbl_unaligned_fail=no
 			fi
 		fi
-		rm -f conftest* core core.conftest
+		rm -f -r conftest* core core.conftest
 		;;
 	esac])
     AC_MSG_RESULT($ac_cv_lbl_unaligned_fail)
@@ -726,7 +780,8 @@ AC_DEFUN(AC_LBL_DEVEL,
 	    name="lbl/os-$os.h"
 	    if test -f $name ; then
 		    ln -s $name os-proto.h
-		    AC_DEFINE(HAVE_OS_PROTO_H,1,[if there's an os_proto.h])
+		    AC_DEFINE(HAVE_OS_PROTO_H, 1,
+			[if there's an os_proto.h for this platform, to use additional prototypes])
 	    else
 		    AC_MSG_WARN(can't find $name)
 	    fi
@@ -754,10 +809,11 @@ dnl
 
 define(AC_LBL_CHECK_LIB,
 [AC_MSG_CHECKING([for $2 in -l$1])
-dnl Use a cache variable name containing both the library and function name,
-dnl because the test really is for library $1 defining function $2, not
-dnl just for library $1.  Separate tests with the same $1 and different $2's
-dnl may have different results.
+dnl Use a cache variable name containing the library, function
+dnl name, and extra libraries to link with, because the test really is
+dnl for library $1 defining function $2, when linked with potinal
+dnl library $5, not just for library $1.  Separate tests with the same
+dnl $1 and different $2's or $5's may have different results.
 ac_lib_var=`echo $1['_']$2['_']$5 | sed 'y%./+- %__p__%'`
 AC_CACHE_VAL(ac_cv_lbl_lib_$ac_lib_var,
 [ac_save_LIBS="$LIBS"
@@ -930,6 +986,8 @@ AC_DEFUN(AC_LBL_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,
 	ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci=no))
     AC_MSG_RESULT($ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci)
     if test $ac_cv_lbl_linux_tpacket_auxdata_tp_vlan_tci = yes ; then
+	    HAVE_LINUX_TPACKET_AUXDATA=tp_vlan_tci
+	    AC_SUBST(HAVE_LINUX_TPACKET_AUXDATA)
 	    AC_DEFINE(HAVE_LINUX_TPACKET_AUXDATA_TP_VLAN_TCI,1,[if tp_vlan_tci exists])
     fi])
 

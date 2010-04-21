@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap.3pcap.in,v 1.1.2.2 2008-10-21 07:44:57 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap.3pcap.in,v 1.1 2008-10-21 07:33:01 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.

@@ -1,4 +1,77 @@
-@(#) $Header: /tcpdump/master/libpcap/CHANGES,v 1.67.2.4 2008-10-28 00:27:42 ken Exp $ (LBL)
+Thu.    April 1, 2010.  guy@alum.mit.edu.
+Summary for 1.1.1 libpcap release
+	Update CHANGES to reflect more of the changes in 1.1.0.
+	Fix build on RHEL5.
+	Fix shared library build on AIX.
+
+Thu.	March 11, 2010.  ken@netfunctional.ca/guy@alum.mit.edu.
+Summary for 1.1.0 libpcap release
+	Add SocketCAN capture support
+	Add Myricom SNF API support
+	Update Endace DAG and ERF support
+	Add support for shared libraries on Solaris, HP-UX, and AIX
+	Build, install, and un-install shared libraries by default;
+	  don't build/install shared libraries on platforms we don't support
+	Fix building from a directory other than the source directory
+	Fix compiler warnings and builds on some platforms
+	Update config.guess and config.sub
+	Support monitor mode on mac80211 devices on Linux
+	Fix USB memory-mapped capturing on Linux; it requires a new DLT_
+	  value
+	On Linux, scan /sys/class/net for devices if we have it; scan
+	  it, or /proc/net/dev if we don't have /sys/class/net, even if
+	  we have getifaddrs(), as it'll find interfaces with no
+	  addresses
+	Add limited support for reading pcap-ng files
+	Fix BPF driver-loading error handling on AIX
+	Support getting the full-length interface description on FreeBSD
+	In the lexical analyzer, free up any addrinfo structure we got back
+	  from getaddrinfo().
+	Add support for BPF and libdlpi in OpenSolaris (and SXCE)
+	Hyphenate "link-layer" everywhere
+	Add /sys/kernel/debug/usb/usbmon to the list of usbmon locations
+	In pcap_read_linux_mmap(), if there are no frames available, call
+	  poll() even if we're in non-blocking mode, so we pick up
+	  errors, and check for the errors in question.
+	Note that poll() works on BPF devices is Snow Leopard
+	If an ENXIO or ENETDOWN is received, it may mean the device has
+	  gone away.  Deal with it.
+	For BPF, raise the default capture buffer size to from 32k to 512k
+	Support ps_ifdrop on Linux
+	Added a bunch of #ifdef directives to make wpcap.dll (WinPcap) compile
+	 under cygwin.
+	Changes to Linux mmapped captures.
+	Fix bug where create_ring would fail for particular snaplen and
+	  buffer size combinations
+	Update pcap-config so that it handles libpcap requiring
+	  additional libraries
+	Add workaround for threadsafeness on Windows
+	Add missing mapping for DLT_ENC <-> LINKTYPE_ENC
+	DLT: Add DLT_CAN_SOCKETCAN
+	DLT: Add Solaris ipnet
+	Don't check for DLT_IPNET if it's not defined
+	Add link-layer types for Fibre Channel FC-2
+	Add link-layer types for Wireless HART
+	Add link-layer types for AOS
+	Add link-layer types for DECT
+	Autoconf fixes (AIX, HP-UX, OSF/1, Tru64 cleanups)
+	Install headers unconditionally, and include vlan.h/bluetooth.h if
+	  enabled
+	Autoconf fixes+cleanup
+	Support enabling/disabling bluetooth (--{en,dis}able-bluetooth)
+	Support disabling SITA support (--without-sita)
+	Return -1 on failure to create packet ring (if supported but
+	  creation failed)
+	Fix handling of 'any' device, so that it can be opened, and no longer
+	  attempt to open it in Monitor mode
+	Add support for snapshot length for USB Memory-Mapped Interface
+	Fix configure and build on recent Linux kernels
+	Fix memory-mapped Linux capture to support pcap_next() and
+	  pcap_next_ex()
+	Fixes for Linux USB capture
+	DLT: Add DLT_LINUX_EVDEV
+	DLT: Add DLT_GSMTAP_UM
+	DLT: Add DLT_GSMTAP_ABIS
 
 Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap release
 	Compile with IPv6 support by default
@@ -12,7 +85,10 @@ Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap rele
 	Variable length 802.11 header support
 	X2E data type support 
 	SITA ACN Interface support - see README.sita
+	Support for memory-mapped capture on Linux
 	Support for zerocopy BPF on platforms that support it
+	Support for setting buffer size when opening devices
+	Support for setting monitor mode when opening 802.11 devices
 	Better support for dealing with VLAN tagging/stripping on Linux
 	Fix dynamic library support on OSX
 	Return PCAP_ERROR_IFACE_NOT_UP if the interface isn't 'UP', so applications
@@ -22,7 +98,7 @@ Mon.    October 27, 2008.  ken@netfunctional.ca.  Summary for 1.0.0 libpcap rele
 	On Linux, ignore ENETDOWN so we can continue to capture packets if the 
 	 interface goes down and comes back up again.
 	On Linux, support new tpacket frame headers (2.6.27+)
-	On Mac OS X, add scripts for changing permissions on /dev/pbf* and launchd plist
+	On Mac OS X, add scripts for changing permissions on /dev/bpf* and launchd plist
 	On Solaris, support 'passive mode' on systems that support it
 	Fixes to autoconf and general build environment
 	Man page reorganization + cleanup

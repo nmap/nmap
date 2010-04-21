@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_compile.3pcap.in,v 1.1.2.2 2008-10-21 07:44:57 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_compile.3pcap.in,v 1.1 2008-10-21 07:33:02 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -54,9 +54,9 @@ captured; it is used only when checking for IPv4 broadcast addresses in
 the filter program.  If the netmask of the network on which packets are
 being captured isn't known to the program, or if packets are being
 captured on the Linux "any" pseudo-interface that can capture on more
-than one network, a value of 0 can be supplied; tests for IPv4 broadcast
-addreses won't be done correctly, but all other tests in the filter
-program will be OK.
+than one network, a value of PCAP_NETMASK_UNKNOWN can be supplied; tests
+for IPv4 broadcast addreses will fail to compile, but all other tests in
+the filter program will be OK.
 .SH RETURN VALUE
 .B pcap_compile()
 returns 0 on success and \-1 on failure.

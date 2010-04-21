@@ -12,11 +12,15 @@
  */
 #ifndef lint
 static const char rcsid[] _U_ =
-	"@(#) $Header: /tcpdump/master/libpcap/dlpisubs.c,v 1.1.2.2 2008-04-04 19:39:05 guy Exp $ (LBL)";
+	"@(#) $Header: /tcpdump/master/libpcap/dlpisubs.c,v 1.3 2008-12-02 16:40:19 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#ifndef DL_IPATM
+#define DL_IPATM	0x12	/* ATM Classical IP interface */
 #endif
 
 #ifdef HAVE_SYS_BUFMOD_H
@@ -41,6 +45,7 @@ static const char rcsid[] _U_ =
 	 * what the value used to be - there's no particular reason why it
 	 * should be tied to MAXDLBUF, but we'll leave it as this for now.
 	 */
+#define	MAXDLBUF	8192
 #define	PKTBUFSIZE	(MAXDLBUF * sizeof(bpf_u_int32))
 
 #endif
@@ -64,7 +69,9 @@ static const char rcsid[] _U_ =
 #include "pcap-int.h"
 #include "dlpisubs.h"
 
+#ifdef HAVE_SYS_BUFMOD_H
 static void pcap_stream_err(const char *, int, char *);
+#endif
 
 /*
  * Get the packet statistics.
@@ -291,6 +298,14 @@ pcap_conf_bufmod(pcap_t *p, int snaplen, int timeout)
 		}
 	}
 
+	/* Set the chunk length. */
+	chunksize = CHUNKSIZE;
+	if (strioctl(p->fd, SBIOCSCHUNK, sizeof(chunksize), (char *)&chunksize)
+	    != 0) {
+		pcap_stream_err("SBIOCSCHUNKP", errno, p->errbuf);
+		retv = -1;
+	}
+
 	return (retv);
 }
 #endif /* HAVE_SYS_BUFMOD_H */
@@ -331,6 +346,7 @@ strioctl(int fd, int cmd, int len, char *dp)
 	return (str.ic_len);
 }
 
+#ifdef HAVE_SYS_BUFMOD_H
 /*
  * Write stream error message to errbuf.
  */
@@ -339,3 +355,4 @@ pcap_stream_err(const char *func, int err, char *errbuf)
 {
 	snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", func, pcap_strerror(err));
 }
+#endif

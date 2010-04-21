@@ -22,12 +22,26 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.110.2.2 2008/02/06 10:21:47 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.112 2008-02-06 10:21:30 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef WIN32
+#include <pcap-stdinc.h>
+#else /* WIN32 */
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#elif HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#ifdef HAVE_SYS_BITYPES_H
+#include <sys/bitypes.h>
+#endif
+#include <sys/types.h>
+#endif /* WIN32 */
 
 #include <ctype.h>
 #include <string.h>
@@ -66,7 +80,7 @@ static inline int xdtoi(int);
 #define YY_NO_UNPUT
 static YY_BUFFER_STATE in_buffer;
 #else
-static char *in_buffer;
+static const char *in_buffer;
 
 #undef getc
 #define getc(fp)  (*in_buffer == 0 ? EOF : *in_buffer++)
@@ -334,6 +348,7 @@ ${B}			{ yylval.e = pcap_ether_aton(((char *)yytext)+1);
 			  if (getaddrinfo(yytext, NULL, &hints, &res))
 				bpf_error("bogus IPv6 address %s", yytext);
 			  else {
+				freeaddrinfo(res);
 				yylval.s = sdup((char *)yytext); return HID6;
 			  }
 #else

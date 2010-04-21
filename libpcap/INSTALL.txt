@@ -1,4 +1,4 @@
-@(#) $Header: /tcpdump/master/libpcap/INSTALL.txt,v 1.21.2.8 2008-06-12 20:25:38 guy Exp $ (LBL)
+@(#) $Header: /tcpdump/master/libpcap/INSTALL.txt,v 1.29 2008-06-12 20:21:51 guy Exp $ (LBL)
 
 To build libpcap, run "./configure" (a shell script). The configure
 script will determine your system attributes and generate an

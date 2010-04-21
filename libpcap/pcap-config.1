@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap-config.1,v 1.1.2.2 2008-09-23 18:06:01 guy Exp $ (LBL)
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap-config.1,v 1.1 2008-09-23 18:04:01 guy Exp $ (LBL)
 .\"
 .\" Copyright (c) 1987, 1988, 1989, 1990, 1991, 1992, 1994, 1995, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -20,14 +20,17 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP-CONFIG 1 "23 September 2008"
+.TH PCAP-CONFIG 1 "26 March 2009"
 .SH NAME
 pcap-config \- write libpcap compiler and linker flags to standard output
 .SH SYNOPSIS
 .na
 .B pcap-config
 [
-.B \-\-cflags | \-\-libs
+.B \-\-static
+]
+[
+.B \-\-cflags | \-\-libs | \-\-additional-libs
 ]
 .ad
 .SH DESCRIPTION
@@ -47,8 +50,25 @@ writes to the standard output the
 .B \-L
 and
 .B \-l
-linker required to link with libpcap, including
+linker flags required to link with libpcap, including
 .B \-l
 flags for libraries required by libpcap.
+When run with the
+.B \-\-additional-libs
+option,
+.I pcap-config
+writes to the standard output the
+.B \-L
+and
+.B \-l
+flags for libraries required by libpcap, but not the
+.B \-lpcap
+flag to link with libpcap itself.
+.LP
+By default, it writes flags appropriate for compiling with a
+dynamically-linked version of libpcap; the
+.B \-\-static
+flag causes it to write flags appropriate for compiling with a
+statically-linked version of libpcap.
 .SH "SEE ALSO"
 pcap(3PCAP)

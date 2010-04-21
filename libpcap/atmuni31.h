@@ -29,7 +29,7 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/atmuni31.h,v 1.1.6.2 2007/10/22 19:30:14 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/atmuni31.h,v 1.3 2007-10-22 19:28:58 guy Exp $ (LBL)
  */
 
 /* Based on UNI3.1 standard by ATM Forum */

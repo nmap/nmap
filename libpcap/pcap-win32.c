@@ -33,7 +33,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-win32.c,v 1.34.2.8 2008-05-21 22:11:26 gianluca Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-win32.c,v 1.42 2008-05-21 22:15:25 gianluca Exp $ (LBL)";
 #endif
 
 #include <pcap-int.h>
@@ -77,6 +77,22 @@ struct bpf_hdr {
 	u_short		bh_hdrlen;	/* length of bpf header (this struct
 					   plus alignment padding) */
 };
+
+CRITICAL_SECTION g_PcapCompileCriticalSection;
+
+BOOL WINAPI DllMain(
+  HANDLE hinstDLL,
+  DWORD dwReason,
+  LPVOID lpvReserved
+)
+{
+	if (dwReason == DLL_PROCESS_ATTACH)
+	{
+		InitializeCriticalSection(&g_PcapCompileCriticalSection);
+	}
+
+	return TRUE;
+}
 
 /* Start winsock */
 int 

@@ -18,7 +18,7 @@
  * WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/lbl/os-osf5.h,v 1.2 2002/08/02 03:24:15 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/lbl/os-osf5.h,v 1.2 2002-08-02 03:24:15 guy Exp $ (LBL)
  */
 
 /*

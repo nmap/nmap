@@ -267,7 +267,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1676 of yacc.c  */
-#line 241 "grammar.y"
+#line 242 "grammar.y"
 
 	int i;
 	bpf_u_int32 h;

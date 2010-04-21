@@ -6,7 +6,7 @@ Important stuff (to be done before the next release)
 
 General
 
-- configure should not be in the CVS. Most open source projects have an 
+- configure should not be in Git. Most open source projects have an 
   autogen.sh script to run autoconf etc. after checkout. I think we 
   should stick to the standard. 
 

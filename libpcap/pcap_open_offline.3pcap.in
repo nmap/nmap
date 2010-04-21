@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_open_offline.3pcap.in,v 1.1.2.2 2008-10-23 05:59:43 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_open_offline.3pcap.in,v 1.1 2008-10-23 05:56:59 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -43,11 +43,15 @@ pcap_t *pcap_fopen_offline(FILE *fp, char *errbuf);
 is called to open a ``savefile'' for reading.
 .PP
 .I fname
-specifies the name of the file to open. The file has
-the same format as those used by
+specifies the name of the file to open. The file can have the pcap file
+format as described in
+.BR pcap-savefile (@MAN_FILE_FORMATS@),
+which is the file format used by, among other programs,
 .BR tcpdump (1)
 and
-.BR tcpslice (1).
+.BR tcpslice (1),
+or can have the pcap-ng file format, although not all pcap-ng files can
+be read.
 The name "-" in a synonym for
 .BR stdin .
 .PP

@@ -31,7 +31,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap/pcap.h,v 1.4.2.11 2008-10-06 15:38:39 gianluca Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap/pcap.h,v 1.15 2008-10-06 15:27:32 gianluca Exp $ (LBL)
  */
 
 #ifndef lib_pcap_pcap_h
@@ -57,6 +57,13 @@
 extern "C" {
 #endif
 
+/*
+ * Version number of the current version of the pcap file format.
+ *
+ * NOTE: this is *NOT* the version number of the libpcap library.
+ * To fetch the version information for the version of libpcap
+ * you're using, use pcap_lib_version().
+ */
 #define PCAP_VERSION_MAJOR 2
 #define PCAP_VERSION_MINOR 4
 
@@ -163,7 +170,7 @@ struct pcap_pkthdr {
 struct pcap_stat {
 	u_int ps_recv;		/* number of packets received */
 	u_int ps_drop;		/* number of packets dropped */
-	u_int ps_ifdrop;	/* drops by interface XXX not yet supported */
+	u_int ps_ifdrop;	/* drops by interface -- only supported on some platforms */
 #ifdef WIN32
 	u_int bs_capt;		/* number of packets that reach the application */
 #endif /* WIN32 */
@@ -252,6 +259,12 @@ typedef void (*pcap_handler)(u_char *, const struct pcap_pkthdr *,
  */
 #define PCAP_WARNING			1	/* generic warning code */
 #define PCAP_WARNING_PROMISC_NOTSUP	2	/* this device doesn't support promiscuous mode */
+
+/*
+ * Value to pass to pcap_compile() as the netmask if you don't know what
+ * the netmask is.
+ */
+#define PCAP_NETMASK_UNKNOWN	0xffffffff
 
 char	*pcap_lookupdev(char *);
 int	pcap_lookupnet(const char *, bpf_u_int32 *, bpf_u_int32 *, char *);

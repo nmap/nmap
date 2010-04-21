@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap-linktype.manmisc.in,v 1.1.2.4 2008-10-27 22:52:05 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap-linktype.manmisc.in,v 1.3 2008-10-27 22:52:30 guy Exp $
 .\"
 .\" Copyright (c) 1987, 1988, 1989, 1990, 1991, 1992, 1994, 1995, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -56,7 +56,7 @@ values by name.
 .RS 5
 .TP 5
 .BR DLT_NULL "; " LINKTYPE_NULL = 0
-BSD loopback encapsulation; the link layer header is a 4-byte field, in
+BSD loopback encapsulation; the link-layer header is a 4-byte field, in
 .I host
 byte order, containing a PF_ value from
 .B socket.h
@@ -90,7 +90,7 @@ name is historical.
 ARCNET
 .TP 5
 .BR DLT_SLIP "; " LINKTYPE_SLIP = 8
-SLIP; the link layer header contains, in order:
+SLIP; the link-layer header contains, in order:
 .RS 10
 .LP
 a 1-byte flag, which is 0 for packets received by the machine and 1 for
@@ -155,7 +155,7 @@ IEEE 802.11 wireless LAN
 Frame Relay
 .TP 5
 .BR DLT_LOOP "; " LINKTYPE_LOOP = 108
-OpenBSD loopback encapsulation; the link layer header is a 4-byte field, in
+OpenBSD loopback encapsulation; the link-layer header is a 4-byte field, in
 .I network
 byte order, containing a PF_ value from OpenBSD's
 .B socket.h
@@ -166,7 +166,7 @@ Note that, if a ``savefile'' is being read, those PF_ values are
 necessarily those of the machine reading the capture file.
 .TP 5
 .BR DLT_LINUX_SLL "; " LINKTYPE_LINUX_SLL = 113
-Linux "cooked" capture encapsulation; the link layer header contains, in
+Linux "cooked" capture encapsulation; the link-layer header contains, in
 order:
 .RS 10
 .LP
@@ -190,13 +190,15 @@ packet was sent by us
 .RE
 .LP
 a 2-byte field, in network byte order, containing a Linux ARPHRD_ value
-for the link layer device type;
+for the link-layer device type;
 .LP
 a 2-byte field, in network byte order, containing the length of the
-link layer address of the sender of the packet (which could be 0);
+link-layer address of the sender of the packet (which could be 0);
 .LP
-an 8-byte field containing that number of bytes of the link layer header
-(if there are more than 8 bytes, only the first 8 are present);
+an 8-byte field containing that number of bytes of the link-layer
+address of the sender (if there are more than 8 bytes, only the first
+8 are present, and if there are fewer than 8 bytes, there are padding
+bytes after the address to pad the field to 8 bytes);
 .LP
 a 2-byte field containing an Ethernet protocol type, in network byte
 order, or containing 1 for Novell 802.3 frames without an 802.2 LLC
@@ -207,7 +209,7 @@ header or 4 for frames beginning with an 802.2 LLC header.
 Apple LocalTalk; the packet begins with an AppleTalk LLAP header.
 .TP 5
 .BR DLT_PFLOG "; " LINKTYPE_PFLOG = 117
-OpenBSD pflog; the link layer header contains a
+OpenBSD pflog; the link-layer header contains a
 .B "struct pfloghdr"
 structure, as defined by the host on which the file was saved.  (This
 differs from operating system to operating system and release to
@@ -222,7 +224,7 @@ RFC 2625 IP-over-Fibre Channel, with the link-layer header being the
 Network_Header as described in that RFC.
 .TP 5
 .BR DLT_SUNATM "; " LINKTYPE_SUNATM = 123
-SunATM devices; the link layer header contains, in order:
+SunATM devices; the link-layer header contains, in order:
 .RS 10
 .LP
 a 1-byte flag field, containing a direction flag in the uppermost bit,

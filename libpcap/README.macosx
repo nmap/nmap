@@ -67,3 +67,8 @@ give the administrative users permission to read but not write the BPF
 devices, you can have the script change the owner to that user, the
 group to "admin", and the permissions to rw-r-----.  Other possibilities
 are left as an exercise for the reader.
+
+(NOTE: due to a bug in Snow Leopard, if you change the permissions not
+to grant write permission to everybody who should be allowed to capture
+traffic, non-root users who cannot open the BPF devices for writing will
+not be able to capture outgoing packets.)

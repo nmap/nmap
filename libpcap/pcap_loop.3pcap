@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_loop.3pcap,v 1.1.2.3 2008-04-06 03:21:56 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_loop.3pcap,v 1.4 2008-12-25 02:01:32 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -19,7 +19,7 @@
 .\" WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
 .\" MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 .\"
-.TH PCAP_LOOP 3PCAP "5 April 2008"
+.TH PCAP_LOOP 3PCAP "24 December 2008"
 .SH NAME
 pcap_loop, pcap_dispatch \- process packets from a live capture or savefile
 .SH SYNOPSIS
@@ -89,7 +89,9 @@ should use \-1, nor 0, as the value of
 .ft R
 .PP
 .I callback
-specifies a routine to be called with three arguments:
+specifies a
+.I pcap_handler
+routine to be called with three arguments:
 a
 .I u_char
 pointer which is passed in the

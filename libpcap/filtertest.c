@@ -24,7 +24,7 @@ static const char copyright[] _U_ =
     "@(#) Copyright (c) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 2000\n\
 The Regents of the University of California.  All rights reserved.\n";
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/filtertest.c,v 1.2 2005/08/08 17:50:13 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/filtertest.c,v 1.2 2005-08-08 17:50:13 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -39,6 +39,7 @@ static const char rcsid[] _U_ =
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -165,6 +166,7 @@ main(int argc, char **argv)
 	int Oflag;
 	long snaplen;
 	int dlt;
+	bpf_u_int32 netmask = PCAP_NETMASK_UNKNOWN;
 	char *cmdbuf;
 	pcap_t *pd;
 	struct bpf_program fcode;
@@ -184,7 +186,7 @@ main(int argc, char **argv)
 		program_name = argv[0];
 
 	opterr = 0;
-	while ((op = getopt(argc, argv, "dF:Os:")) != -1) {
+	while ((op = getopt(argc, argv, "dF:m:Os:")) != -1) {
 		switch (op) {
 
 		case 'd':
@@ -198,6 +200,16 @@ main(int argc, char **argv)
 		case 'O':
 			Oflag = 0;
 			break;
+
+		case 'm': {
+			in_addr_t addr;
+
+			addr = inet_addr(optarg);
+			if (addr == INADDR_NONE)
+				error("invalid netmask %s", optarg);
+			netmask = addr;
+			break;
+		}
 
 		case 's': {
 			char *end;
@@ -235,7 +247,7 @@ main(int argc, char **argv)
 	if (pd == NULL)
 		error("Can't open fake pcap_t");
 
-	if (pcap_compile(pd, &fcode, cmdbuf, Oflag, 0) < 0)
+	if (pcap_compile(pd, &fcode, cmdbuf, Oflag, netmask) < 0)
 		error("%s", pcap_geterr(pd));
 	bpf_dump(&fcode, dflag);
 	pcap_close(pd);
@@ -248,7 +260,7 @@ usage(void)
 	(void)fprintf(stderr, "%s, with %s\n", program_name,
 	    pcap_lib_version());
 	(void)fprintf(stderr,
-	    "Usage: %s [-dO] [ -F file ] [ -s snaplen ] dlt [ expression ]\n",
+	    "Usage: %s [-dO] [ -F file ] [ -m netmask] [ -s snaplen ] dlt [ expression ]\n",
 	    program_name);
 	exit(1);
 }

@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded the included libpcap to version 1.1.1. [David]
+
 o [NSE] Add some special use IPv4 addresses to isPrivate which are described in
   RFC 5736 and RFC 5737, published in Jan 2010. Improve performance of isPrivate
   for IPv4 addresses by using ip_in_range less frequently. Add an extra return

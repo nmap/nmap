@@ -26,7 +26,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-	"@(#) $Header: /tcpdump/master/libpcap/pcap-libdlpi.c,v 1.1.2.6 2008-04-14 20:41:52 guy Exp $ (LBL)";
+	"@(#) $Header: /tcpdump/master/libpcap/pcap-libdlpi.c,v 1.6 2008-04-14 20:40:58 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -53,6 +53,7 @@ static int pcap_read_libdlpi(pcap_t *, int, pcap_handler, u_char *);
 static int pcap_inject_libdlpi(pcap_t *, const void *, size_t);
 static void pcap_close_libdlpi(pcap_t *);
 static void pcap_libdlpi_err(const char *, const char *, int, char *);
+static void pcap_cleanup_libdlpi(pcap_t *);
 
 /*
  * list_interfaces() will list all the network links that are
@@ -113,7 +114,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	if (retv != DLPI_SUCCESS) {
 		if (retv == DLPI_ELINKNAMEINVAL || retv == DLPI_ENOLINK)
 			err = PCAP_ERROR_NO_SUCH_DEVICE;
-		else if (retv == DLPI_SYSERR && errno == EACCES)
+		else if (retv == DL_SYSERR && errno == EACCES)
 			err = PCAP_ERROR_PERM_DENIED;
 		pcap_libdlpi_err(p->opt.source, "dlpi_open", retv,
 		    p->errbuf);
@@ -155,8 +156,9 @@ pcap_activate_libdlpi(pcap_t *p)
 	}
 
 	/* Try to enable SAP promiscuity. */
-	if ((retv = dlpi_promiscon(p->dlpi_hd, DL_PROMISC_SAP)) != DLPI_SUCCESS) {
-		if (!promisc) {
+	retv = dlpi_promiscon(p->dlpi_hd, DL_PROMISC_SAP);
+	if (retv != DLPI_SUCCESS) {
+		if (p->opt.promisc) {
 			pcap_libdlpi_err(p->opt.source, "dlpi_promisc(SAP)",
 			    retv, p->errbuf);
 			goto bad;
@@ -179,7 +181,7 @@ pcap_activate_libdlpi(pcap_t *p)
 	p->fd = dlpi_fd(p->dlpi_hd);
 
 	/* Push and configure bufmod. */
-	if (pcap_conf_bufmod(p, snaplen, p->md.timeout) != 0)
+	if (pcap_conf_bufmod(p, p->snapshot, p->md.timeout) != 0)
 		goto bad;
 
 	/*

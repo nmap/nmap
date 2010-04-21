@@ -21,7 +21,7 @@ The WinPcap source code already contains a recent (usually the latest
 stable) version of libpcap. If you need to compile a different one, 
 simply download it from www.tcpdump.org and copy the sources in the 
 winpcap\wpcap\libpcap folder of the WinPcap distribution. If you want to
-compile a libpcap source retrieved from the tcpdump.org CVS, you will 
+compile a libpcap source retrieved from the tcpdump.org Git, you will 
 have to create the scanner and the grammar by hand (with lex and yacc) 
 or with the cygnus makefile, since The Visual Studio project is not able
 to build them.

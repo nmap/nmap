@@ -69,6 +69,26 @@ file says:
 	  file linux/Documentation/networking/filter.txt for more information.
 	  If unsure, say N.
 
+Note that, by default, libpcap will, if libnl is present, build with it;
+it uses libnl to support monitor mode on mac80211 devices.  There is a
+configuration option to disable building with libnl, but, if that option
+is chosen, the monitor-mode APIs (as used by tcpdump's "-I" flag, and as
+will probably be used by other applications in the future) won't work
+properly on mac80211 devices.
+
+Linux's run-time linker allows shared libraries to be linked with other
+shared libraries, which means that if an older version of a shared
+library doesn't require routines from some other shared library, and a
+later version of the shared library does require those routines, the
+later version of the shared library can be linked with that other shared
+library and, if it's otherwise binary-compatible with the older version,
+can replace that older version without breaking applications built with
+the older version, and without breaking configure scripts or the build
+procedure for applications whose configure script doesn't use the
+pcap-config script if they build with the shared library.  (The build
+procedure for applications whose configure scripts use the pcap-config
+script if present will not break even if they build with the static
+library.)
 
 Statistics:
 Statistics reported by pcap are platform specific.  The statistics

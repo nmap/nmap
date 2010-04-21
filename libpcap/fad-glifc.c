@@ -34,7 +34,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/fad-glifc.c,v 1.6.2.1 2008/01/30 09:36:09 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/fad-glifc.c,v 1.7 2008-01-30 09:35:48 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H

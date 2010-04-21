@@ -25,7 +25,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap-snit.c,v 1.73.2.4 2008-04-14 20:41:52 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap-snit.c,v 1.77 2008-04-14 20:40:58 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -402,6 +402,7 @@ pcap_activate_snit(pcap_t *p)
 
 	return (0);
  bad:
+	pcap_cleanup_live_common(p);
 	return (PCAP_ERROR);
 }
 

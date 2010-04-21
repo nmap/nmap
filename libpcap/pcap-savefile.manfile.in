@@ -1,5 +1,5 @@
 '\" t
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap-savefile.manfile.in,v 1.1.2.3 2008-10-24 07:34:06 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap-savefile.manfile.in,v 1.2 2008-10-24 07:33:50 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.

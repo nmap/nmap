@@ -34,7 +34,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/fad-getad.c,v 1.12 2007/09/14 00:44:55 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/fad-getad.c,v 1.12 2007-09-14 00:44:55 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -62,9 +62,12 @@ static const char rcsid[] _U_ =
 
 #ifdef AF_PACKET
 # ifdef __Lynx__
-#  include <netpacket/if_packet.h>	/* LynxOS */
+/* LynxOS */
+#  include <netpacket/if_packet.h>
 # else
-#  include <linux/if_packet.h>		/* Linux */
+/* Linux */
+#  include <linux/types.h>
+#  include <linux/if_packet.h>
 # endif
 #endif
 

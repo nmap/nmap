@@ -33,7 +33,7 @@
 
 #ifndef lint
 static const char rcsid[] _U_ =
-    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.112.2.12 2008-09-22 20:16:01 guy Exp $ (LBL)";
+    "@(#) $Header: /tcpdump/master/libpcap/pcap.c,v 1.128 2008-12-23 20:13:29 guy Exp $ (LBL)";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -43,6 +43,14 @@ static const char rcsid[] _U_ =
 #ifdef WIN32
 #include <pcap-stdinc.h>
 #else /* WIN32 */
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#elif HAVE_STDINT_H
+#include <stdint.h>
+#endif
+#ifdef HAVE_SYS_BITYPES_H
+#include <sys/bitypes.h>
+#endif
 #include <sys/types.h>
 #endif /* WIN32 */
 
@@ -96,41 +104,90 @@ pcap_cant_set_rfmon(pcap_t *p _U_)
 	return (0);
 }
 
-pcap_t *
-pcap_create_common(const char *source, char *ebuf)
+/*
+ * Default one-shot callback; overridden for capture types where the
+ * packet data cannot be guaranteed to be available after the callback
+ * returns, so that a copy must be made.
+ */
+static void
+pcap_oneshot(u_char *user, const struct pcap_pkthdr *h, const u_char *pkt)
 {
-	pcap_t *p;
+	struct oneshot_userdata *sp = (struct oneshot_userdata *)user;
 
-	p = malloc(sizeof(*p));
-	if (p == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
-		    pcap_strerror(errno));
-		return (NULL);
-	}
-	memset(p, 0, sizeof(*p));
-#ifndef WIN32
-	p->fd = -1;	/* not opened yet */
-#endif 
+	*sp->hdr = *h;
+	*sp->pkt = pkt;
+}
 
-	p->opt.source = strdup(source);
-	if (p->opt.source == NULL) {
-		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
-		    pcap_strerror(errno));
-		free(p);
-		return (NULL);
+const u_char *
+pcap_next(pcap_t *p, struct pcap_pkthdr *h)
+{
+	struct oneshot_userdata s;
+	const u_char *pkt;
+
+	s.hdr = h;
+	s.pkt = &pkt;
+	s.pd = p;
+	if (pcap_dispatch(p, 1, p->oneshot_callback, (u_char *)&s) <= 0)
+		return (0);
+	return (pkt);
+}
+
+int 
+pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
+    const u_char **pkt_data)
+{
+	struct oneshot_userdata s;
+
+	s.hdr = &p->pcap_header;
+	s.pkt = pkt_data;
+	s.pd = p;
+
+	/* Saves a pointer to the packet headers */
+	*pkt_header= &p->pcap_header;
+
+	if (p->sf.rfile != NULL) {
+		int status;
+
+		/* We are on an offline capture */
+		status = pcap_offline_read(p, 1, pcap_oneshot, (u_char *)&s);
+
+		/*
+		 * Return codes for pcap_offline_read() are:
+		 *   -  0: EOF
+		 *   - -1: error
+		 *   - >1: OK
+		 * The first one ('0') conflicts with the return code of
+		 * 0 from pcap_read() meaning "no packets arrived before
+		 * the timeout expired", so we map it to -2 so you can
+		 * distinguish between an EOF from a savefile and a
+		 * "no packets arrived before the timeout expired, try
+		 * again" from a live capture.
+		 */
+		if (status == 0)
+			return (-2);
+		else
+			return (status);
 	}
 
 	/*
-	 * Default to "can't set rfmon mode"; if it's supported by
-	 * a platform, it can set the op to its routine to check
-	 * whether a particular device supports it.
-	 */
-	p->can_set_rfmon_op = pcap_cant_set_rfmon;
+	 * Return codes for pcap_read() are:
+	 *   -  0: timeout
+	 *   - -1: error
+	 *   - -2: loop was broken out of with pcap_breakloop()
+	 *   - >1: OK
+	 * The first one ('0') conflicts with the return code of 0 from
+	 * pcap_offline_read() meaning "end of file".
+	*/
+	return (p->read_op(p, 1, pcap_oneshot, (u_char *)&s));
+}
 
+static void
+initialize_ops(pcap_t *p)
+{
 	/*
-	 * Some operations can be performed only on activated pcap_t's;
-	 * have those operations handled by a "not supported" handler
-	 * until the pcap_t is activated.
+	 * Set operation pointers for operations that only work on
+	 * an activated pcap_t to point to a routine that returns
+	 * a "this isn't activated" error.
 	 */
 	p->read_op = (read_op_t)pcap_not_initialized;
 	p->inject_op = (inject_op_t)pcap_not_initialized;
@@ -145,7 +202,56 @@ pcap_create_common(const char *source, char *ebuf)
 	p->setmode_op = (setmode_op_t)pcap_not_initialized;
 	p->setmintocopy_op = (setmintocopy_op_t)pcap_not_initialized;
 #endif
+
+	/*
+	 * Default cleanup operation - implementations can override
+	 * this, but should call pcap_cleanup_live_common() after
+	 * doing their own additional cleanup.
+	 */
 	p->cleanup_op = pcap_cleanup_live_common;
+
+	/*
+	 * In most cases, the standard one-short callback can
+	 * be used for pcap_next()/pcap_next_ex().
+	 */
+	p->oneshot_callback = pcap_oneshot;
+}
+
+pcap_t *
+pcap_create_common(const char *source, char *ebuf)
+{
+	pcap_t *p;
+
+	p = malloc(sizeof(*p));
+	if (p == NULL) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		    pcap_strerror(errno));
+		return (NULL);
+	}
+	memset(p, 0, sizeof(*p));
+#ifndef WIN32
+	p->fd = -1;	/* not opened yet */
+	p->selectable_fd = -1;
+	p->send_fd = -1;
+#endif 
+
+	p->opt.source = strdup(source);
+	if (p->opt.source == NULL) {
+		snprintf(ebuf, PCAP_ERRBUF_SIZE, "malloc: %s",
+		    pcap_strerror(errno));
+		free(p);
+		return (NULL);
+	}
+
+	/*
+	 * Default to "can't set rfmon mode"; if it's supported by
+	 * a platform, the create routine that called us can set
+	 * the op to its routine to check whether a particular
+	 * device supports it.
+	 */
+	p->can_set_rfmon_op = pcap_cant_set_rfmon;
+
+	initialize_ops(p);
 
 	/* put in some defaults*/
 	pcap_set_timeout(p, 0);
@@ -219,6 +325,24 @@ pcap_activate(pcap_t *p)
 	status = p->activate_op(p);
 	if (status >= 0)
 		p->activated = 1;
+	else {
+		if (p->errbuf[0] == '\0') {
+			/*
+			 * No error message supplied by the activate routine;
+			 * for the benefit of programs that don't specially
+			 * handle errors other than PCAP_ERROR, return the
+			 * error message corresponding to the status.
+			 */
+			snprintf(p->errbuf, PCAP_ERRBUF_SIZE, "%s",
+			    pcap_statustostr(status));
+		}
+
+		/*
+		 * Undo any operation pointer setting, etc. done by
+		 * the activate operation.
+		 */
+		initialize_ops(p);
+	}
 	return (status);
 }
 
@@ -256,9 +380,13 @@ pcap_open_live(const char *source, int snaplen, int promisc, int to_ms, char *er
 		goto fail;
 	return (p);
 fail:
-	if (status == PCAP_ERROR || status == PCAP_ERROR_NO_SUCH_DEVICE ||
+	if (status == PCAP_ERROR)
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", source,
+		    p->errbuf);
+	else if (status == PCAP_ERROR_NO_SUCH_DEVICE ||
 	    status == PCAP_ERROR_PERM_DENIED)
-		strlcpy(errbuf, p->errbuf, PCAP_ERRBUF_SIZE);
+		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s (%s)", source,
+		    pcap_statustostr(status), p->errbuf);
 	else
 		snprintf(errbuf, PCAP_ERRBUF_SIZE, "%s: %s", source,
 		    pcap_statustostr(status));
@@ -310,95 +438,6 @@ pcap_loop(pcap_t *p, int cnt, pcap_handler callback, u_char *user)
 				return (0);
 		}
 	}
-}
-
-struct singleton {
-	struct pcap_pkthdr *hdr;
-	const u_char *pkt;
-};
-
-
-static void
-pcap_oneshot(u_char *userData, const struct pcap_pkthdr *h, const u_char *pkt)
-{
-	struct singleton *sp = (struct singleton *)userData;
-	*sp->hdr = *h;
-	sp->pkt = pkt;
-}
-
-const u_char *
-pcap_next(pcap_t *p, struct pcap_pkthdr *h)
-{
-	struct singleton s;
-
-	s.hdr = h;
-	if (pcap_dispatch(p, 1, pcap_oneshot, (u_char*)&s) <= 0)
-		return (0);
-	return (s.pkt);
-}
-
-struct pkt_for_fakecallback {
-	struct pcap_pkthdr *hdr;
-	const u_char **pkt;
-};
-
-static void
-pcap_fakecallback(u_char *userData, const struct pcap_pkthdr *h,
-    const u_char *pkt)
-{
-	struct pkt_for_fakecallback *sp = (struct pkt_for_fakecallback *)userData;
-
-	*sp->hdr = *h;
-	*sp->pkt = pkt;
-}
-
-int 
-pcap_next_ex(pcap_t *p, struct pcap_pkthdr **pkt_header,
-    const u_char **pkt_data)
-{
-	struct pkt_for_fakecallback s;
-
-	s.hdr = &p->pcap_header;
-	s.pkt = pkt_data;
-
-	/* Saves a pointer to the packet headers */
-	*pkt_header= &p->pcap_header;
-
-	if (p->sf.rfile != NULL) {
-		int status;
-
-		/* We are on an offline capture */
-		status = pcap_offline_read(p, 1, pcap_fakecallback,
-		    (u_char *)&s);
-
-		/*
-		 * Return codes for pcap_offline_read() are:
-		 *   -  0: EOF
-		 *   - -1: error
-		 *   - >1: OK
-		 * The first one ('0') conflicts with the return code of
-		 * 0 from pcap_read() meaning "no packets arrived before
-		 * the timeout expired", so we map it to -2 so you can
-		 * distinguish between an EOF from a savefile and a
-		 * "no packets arrived before the timeout expired, try
-		 * again" from a live capture.
-		 */
-		if (status == 0)
-			return (-2);
-		else
-			return (status);
-	}
-
-	/*
-	 * Return codes for pcap_read() are:
-	 *   -  0: timeout
-	 *   - -1: error
-	 *   - -2: loop was broken out of with pcap_breakloop()
-	 *   - >1: OK
-	 * The first one ('0') conflicts with the return code of 0 from
-	 * pcap_offline_read() meaning "end of file".
-	*/
-	return (p->read_op(p, 1, pcap_fakecallback, (u_char *)&s));
 }
 
 /*
@@ -623,6 +662,17 @@ static struct dlt_choice dlt_choices[] = {
 	DLT_CHOICE(DLT_BLUETOOTH_HCI_H4_WITH_PHDR, "Bluetooth HCI UART transport layer plus pseudo-header"),
 	DLT_CHOICE(DLT_AX25_KISS, "AX.25 with KISS header"),
 	DLT_CHOICE(DLT_IEEE802_15_4_NONASK_PHY, "IEEE 802.15.4 with non-ASK PHY data"),
+	DLT_CHOICE(DLT_MPLS, "MPLS with label as link-layer header"),
+	DLT_CHOICE(DLT_USB_LINUX_MMAPPED, "USB with padded Linux header"),
+	DLT_CHOICE(DLT_DECT, "DECT"),
+	DLT_CHOICE(DLT_AOS, "AOS Space Data Link protocol"),
+	DLT_CHOICE(DLT_WIHART, "Wireless HART"),
+	DLT_CHOICE(DLT_FC_2, "Fibre Channel FC-2"),
+	DLT_CHOICE(DLT_FC_2_WITH_FRAME_DELIMS, "Fibre Channel FC-2 with frame delimiters"),
+	DLT_CHOICE(DLT_IPNET, "Solaris ipnet"),
+	DLT_CHOICE(DLT_CAN_SOCKETCAN, "CAN-bus with SocketCAN headers"),
+	DLT_CHOICE(DLT_IPV4, "Raw IPv4"),
+	DLT_CHOICE(DLT_IPV6, "Raw IPv6"),
 	DLT_CHOICE_SENTINEL
 };
 
@@ -1168,6 +1218,8 @@ pcap_cleanup_live_common(pcap_t *p)
 		close(p->fd);
 		p->fd = -1;
 	}
+	p->selectable_fd = -1;
+	p->send_fd = -1;
 #endif
 }
 
@@ -1265,7 +1317,7 @@ pcap_offline_filter(struct bpf_program *fp, const struct pcap_pkthdr *h,
 #ifdef HAVE_VERSION_H
 #include "version.h"
 #else
-static const char pcap_version_string[] = "libpcap version 0.9[.x]";
+static const char pcap_version_string[] = "libpcap version 1.x.y";
 #endif
 
 #ifdef WIN32

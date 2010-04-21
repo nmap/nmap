@@ -30,7 +30,7 @@
  * Basic USB data struct
  * By Paolo Abeni <paolo.abeni@email.it>
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap/usb.h,v 1.6 2007/09/22 02:06:08 guy Exp $
+ * @(#) $Header: /tcpdump/master/libpcap/pcap/usb.h,v 1.9 2008-12-23 20:13:29 guy Exp $
  */
  
 #ifndef _PCAP_USB_STRUCTS_H__
@@ -54,7 +54,7 @@
 
 /*
  * USB setup header as defined in USB specification.
- * Appears at the front of each packet in DLT_USB captures.
+ * Appears at the front of each Control S-type packet in DLT_USB captures.
  */
 typedef struct _usb_setup {
 	u_int8_t bmRequestType;
@@ -64,6 +64,13 @@ typedef struct _usb_setup {
 	u_int16_t wLength;
 } pcap_usb_setup;
 
+/*
+ * Information from the URB for Isochronous transfers.
+ */
+typedef struct _iso_rec {
+	int32_t	error_count;
+	int32_t	numdesc;
+} iso_rec;
 
 /*
  * Header prepended by linux kernel to each event.
@@ -86,5 +93,51 @@ typedef struct _usb_header {
 	pcap_usb_setup setup;
 } pcap_usb_header;
 
+/*
+ * Header prepended by linux kernel to each event for the 2.6.31
+ * and later kernels; for the 2.6.21 through 2.6.30 kernels, the
+ * "iso_rec" information, and the fields starting with "interval"
+ * are zeroed-out padding fields.
+ *
+ * Appears at the front of each packet in DLT_USB_LINUX_MMAPPED captures.
+ */
+typedef struct _usb_header_mmapped {
+	u_int64_t id;
+	u_int8_t event_type;
+	u_int8_t transfer_type;
+	u_int8_t endpoint_number;
+	u_int8_t device_address;
+	u_int16_t bus_id;
+	char setup_flag;/*if !=0 the urb setup header is not present*/
+	char data_flag; /*if !=0 no urb data is present*/
+	int64_t ts_sec;
+	int32_t ts_usec;
+	int32_t status;
+	u_int32_t urb_len;
+	u_int32_t data_len; /* amount of urb data really present in this event*/
+	union {
+		pcap_usb_setup setup;
+		iso_rec iso;
+	} s;
+	int32_t	interval;	/* for Interrupt and Isochronous events */
+	int32_t start_frame;	/* for Isochronous events */
+	u_int32_t xfer_flags;	/* copy of URB's transfer flags */
+	u_int32_t ndesc;	/* number of isochronous descriptors */
+} pcap_usb_header_mmapped;
+
+/*
+ * Isochronous descriptors; for isochronous transfers there might be
+ * one or more of these at the beginning of the packet data.  The
+ * number of descriptors is given by the "ndesc" field in the header;
+ * as indicated, in older kernels that don't put the descriptors at
+ * the beginning of the packet, that field is zeroed out, so that field
+ * can be trusted even in captures from older kernels.
+ */
+typedef struct _usb_isodesc {
+	int32_t		status;
+	u_int32_t	offset;
+	u_int32_t	len;
+	u_int8_t	pad[4];
+} usb_isodesc;
 
 #endif

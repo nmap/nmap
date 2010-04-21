@@ -1,4 +1,4 @@
-.\" @(#) $Header: /tcpdump/master/libpcap/pcap_fileno.3pcap,v 1.1.2.3 2008-04-06 03:21:55 guy Exp $
+.\" @(#) $Header: /tcpdump/master/libpcap/pcap_fileno.3pcap,v 1.3 2008-04-06 02:53:22 guy Exp $
 .\"
 .\" Copyright (c) 1994, 1996, 1997
 .\"	The Regents of the University of California.  All rights reserved.
@@ -33,15 +33,36 @@ int pcap_fileno(pcap_t *p);
 .ft
 .fi
 .SH DESCRIPTION
-.B pcap_fileno()
-returns the file descriptor number from which captured packets are read,
-if a network device was opened with
+If
+.I p
+refers to a network device that was opened for a live capture using
+a combination of
 .B pcap_create()
 and
-.B pcap_activate()
-or with
+.BR pcap_activate() ,
+or using
 .BR pcap_open_live() ,
-or \-1, if a ``savefile'' was opened with
-.BR pcap_open_offline() .
+.B pcap_fileno()
+returns the file descriptor from which captured packets are read.
+.LP
+If
+.I p
+refers to a ``savefile'' that was opened using fuctions such as
+.BR pcap_open_offline()
+or
+.BR pcap_fopen_offline() ,
+a ``dead''
+.B pcap_t
+opened using
+.BR pcap_open_dead() ,
+or a
+.B pcap_t
+that was created with
+.B pcap_create()
+but that has not yet been activated with
+.BR pcap_activate() ,
+it returns \-1.
 .SH SEE ALSO
-pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP)
+pcap(3PCAP), pcap_create(3PCAP), pcap_activate(3PCAP),
+pcap_open_live(3PCAP), pcap_open_offline(3PCAP),
+pcap_fopen_offline(3PCAP), pcap_open_dead(3PCAP)
