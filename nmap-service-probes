@@ -4234,6 +4234,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Aut
 
 # This might be too general, but this is probably the most common device
 # this will match. I'm leaving it -Doug
+# Also matches Mapower KC31N NAS device http config.
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"([^"]+)\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Linksys wireless-G WAP http config/ i/Name $1/ d/WAP/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Insight Manager (\d)\r\n\r\n|s p/Compaq Insight Manager/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nConnection: close\r\nPragma: no-cache\r\nCache-Control: no-cache, no-store, must-revalidate\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n| p/GNU Httptunnel/
