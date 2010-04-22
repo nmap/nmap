@@ -40,26 +40,22 @@ action = function(host, port)
 	local status, mounts = rpc.Helper.ShowMounts( host, port )
 
 	if ( not(status) ) then
-		return "  \n\n  Failed to list mount points"
+		return stdnse.format_output(false, mounts)
 	end
 
 	for _, v in ipairs( mounts ) do
 		local entry = {}
 		local status, stats = rpc.Helper.ExportStats(host, port, v.name)
 
-		if ( not(status) and stats:match("Version %d not supported") ) then
-			return "  \n\n  " .. stats
-		end
-				
 		entry.name = v.name
-		
-		if status and stats then
+
+		if (not(status)) then
+			table.insert(entry, string.format("ERROR: %s", stats))
+		else
 			table.insert( entry, string.format("Block size: %d", stats.block_size) )
 			table.insert( entry, string.format("Total blocks: %d", stats.total_blocks) )
 			table.insert( entry, string.format("Free blocks: %d", stats.free_blocks) )
 			table.insert( entry, string.format("Available blocks: %d", stats.available_blocks) )
-		else
-			table.insert( entry, "ERROR: Mount failed")
 		end
 		table.insert( result, entry )
 	end	

@@ -31,7 +31,7 @@ action = function(host, port)
 	local status, rpcinfo = rpc.Helper.RpcInfo( host, port )    
 	
 	if ( not(status) ) then
-		return
+		return stdnse.format_output(false, rpcinfo)
 	end
 		
 	for progid, v in pairs(rpcinfo) do

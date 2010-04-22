@@ -42,7 +42,7 @@ action = function(host, port)
 	status, mounts = rpc.Helper.ShowMounts( host, port )
 
 	if ( not(status) or mounts == nil ) then
-		return "  \n\n  Failed to list mount points"
+		return stdnse.format_output(false, mounts)
 	end
 
 	for _, mount in ipairs( mounts ) do
@@ -54,7 +54,7 @@ action = function(host, port)
 		if ( status ) then
 			table.insert(item, ("uid: %d; gid: %d; mode: %s (%d)"):format(attribs.uid, attribs.gid, rpc.Util.ToAclText( attribs.mode ), rpc.Util.ToAclMode( attribs.mode )) )
 		else
-			table.insert(item, "ERROR: Mount failed")
+			table.insert(item, string.format("ERROR: %s", attribs))
 		end
 		
 		table.insert(result, item)

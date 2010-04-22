@@ -47,7 +47,7 @@ action = function(host, port)
 	status, mounts = rpc.Helper.ShowMounts( host, port )
 
 	if ( not(status) ) then
-		return "  \n\n  Failed to list mount points"
+		return stdnse.format_output(false, mounts)
 	end
 
 	for _, v in ipairs( mounts ) do
@@ -72,7 +72,7 @@ action = function(host, port)
 			table.sort(files)
 			
 			if hasmore then
-				files.name = v.name .. string.format(" (Output limited to %d files)", max_files )
+				files.name = v.name .. string.format(" (Output limited to %d files, see nfs-dirlist.maxfiles)", max_files )
 			else
 				files.name = v.name
 			end
@@ -80,7 +80,7 @@ action = function(host, port)
 			table.insert( result, files )
 		else
 			files.name = v.name
-			table.insert(files, "ERROR: Mount failed")
+			table.insert(files, string.format("ERROR: %s",dirlist))
 			table.insert( result, files )
 		end
 		

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Improved error handling and reporting and re-designed communication
+  class in RPC library with patch from Djalal Harouni. [Patrik]
+
 o Upgraded the included libpcap to version 1.1.1. [David]
 
 o [NSE] Add some special use IPv4 addresses to isPrivate which are described in
