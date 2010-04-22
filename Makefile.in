@@ -40,8 +40,8 @@ DEFS += -D_FORTIFY_SOURCE=2
 # For mtrace debugging -- see MTRACE define in main.cc for instructions
 # Should only be enabled during debugging and not in any real release.
 # DEFS += -DMTRACE=1
-CXXFLAGS = @CXXFLAGS@ $(DBGFLAGS) $(CCOPT) $(DEFS)
-CPPFLAGS = @CPPFLAGS@
+CXXFLAGS = @CXXFLAGS@ $(DBGFLAGS) $(CCOPT)
+CPPFLAGS = @CPPFLAGS@ $(DEFS)
 export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
