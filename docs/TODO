@@ -1,5 +1,17 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Improve the NSI installer by adding command-line options for unsetting
+   each of these GUI checkboxes individually (particularly useful for
+   silent mode):
+   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
+   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
+   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)"
+   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
+   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
+   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
+   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
+   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
+
 o Upgrade libpcap to the new 1.1.1 version.
 
 o Finish selecting GSoC 2010 projects
@@ -28,18 +40,6 @@ o [NSE] Maybe we should create a class of scripts which only run one
     having such auxiliary scripts be able to do things like host
     discovery, and then let the following phases work on the list it
     discovers."
-
-o Improve the NSI installer by adding command-line options for unsetting
-   each of these GUI checkboxes individually (particularly useful for
-   silent mode):
-   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
-   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)"
-   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
-   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
-   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
-   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
-   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
 
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
