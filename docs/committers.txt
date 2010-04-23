@@ -1,0 +1,47 @@
+This is a list of fine folks who help bring you Nmap! But not an
+exclusive list, as many people who contribute greatly to Nmap are not
+committers.  See the CHANGELOG (http://nmap.org/changelog.html) for a
+broader list of contributions.
+
+These people have earned commit access to the Nmap SVN repository and
+can check changes directly into the Nmap trunk.  Significant
+changes/patches are generally discussed on nmap-dev first to catch
+problems and improve the implementation with new ideas.  These people
+can also create /nmap-exp branches to pursue larger/experimental ideas
+without destabilizing the Nmap trunk in the process.
+
+Most people are added as a committer after they establish a history of
+writing so much code that it is easier for the existing committers to
+add them to the group than continue manually applying their patches
+:). So the best way to become one is to keep sending good patches to
+nmap-dev. But if you want to expedite the process, and you already
+have a track record of many patches integrated into Nmap, feel free to
+mail Fyodor.
+
+Committers added temporarily for a project (such as Summer of Code
+students) are not included in this list.  Committers who are inactive
+for years will have their accounts disabled for security reasons, but
+they will be happily re-enabled upon request.
+
+Committers should feel free to fill in their
+bio/description/interests/links on this list:
+
+fyodor - Nmap author Fyodor
+david - Nmap co-maintainer David Fifield
+ron - Ron Bowes (http://www.skullsecurity.org)
+patrik - Patrik Karlsson (wrote tons of great NSE scripts)
+bmenrigh - Brandon Enright
+batrick - Patrick Donnelly
+ithilgore - Ithilgore wrote Ncrack with Fyodor as a SoC project
+luis - Luis MartinGarcia wrote Nping with Fyodor as a SoC project
+majek04 - Marek Majkowski
+doug - Doug Hoyte
+diman - Diman Todorov, wrote the first version of NSE as a SoC project
+        with Fyodor
+ejlbell - Eddie Bell
+jah - Jah
+kris - Kris Katterjohn
+daniel - Daniel Roethlisberger
+tomsellers - Tom Sellers
+robert - Rob Nicholls
+sven - Sven Kelmm
