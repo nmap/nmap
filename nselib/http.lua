@@ -30,12 +30,12 @@ local MAX_CACHE_SIZE = "http-max-cache-size";
 local coroutine = require "coroutine";
 local table = require "table";
 
-module(... or "http",package.seeall)
+local nmap = require "nmap";
+local url = require "url";
+local stdnse = require "stdnse";
+local comm = require "comm";
 
-local url    = require 'url'
-local stdnse = require 'stdnse'
-local comm   = require 'comm'
-local nmap   = require 'nmap'
+module(... or "http",package.seeall)
 
 ---Use ssl if we have it
 local have_ssl = (nmap.have_ssl() and pcall(require, "openssl"))
