@@ -232,21 +232,8 @@ Section "WinPcap 4.1.1" SecWinPcap
     StrCmp $2 "NO" 0 NoSkipNPFStartup
     StrCpy $1 "/NPFSTARTUP=NO $1"
     NoSkipNPFStartup:
-
-    ; check for x64 so we install files into C:\Program Files on both platforms
-    ; as this is consistent with WinPcap 4.1 (even though rpcapd is a 32-bit
-    ; executable that probably should be in C:\Program Files (x86)\ (where we've
-    ; installed it in the past). Otherwise install in the normal x86 location.
-    System::Call "kernel32::GetCurrentProcess() i .s"
-    System::Call "kernel32::IsWow64Process(i s, *i .r0)"
-    StrCmp $0 "0" InstDir32bit InstDir64bit
-      InstDir64bit:
-        ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S /D=$\""$PROGRAMFILES64\WinPcap\"$\"' 
-	    Goto InstDirDone
-      InstDir32bit:
-	    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S /D=$\""$PROGRAMFILES\WinPcap\"$\"' 
-    InstDirDone:
-  Goto delete_winpcap
+    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S' 
+    Goto delete_winpcap
   winpcap_loud:
     ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe"' 
   delete_winpcap:
