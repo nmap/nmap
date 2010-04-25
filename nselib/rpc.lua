@@ -260,12 +260,14 @@ Comm = {
 		if not(xid) then
 			xid = math.random(1234567890)
 		end
-		if not auth or auth.type ~= RPC.AuthType.Null then
-			return false, "Comm.CreateHeader: No or invalid authentication type specified"
+		if not auth then
+			return false, "Comm.CreateHeader: No authentication specified"
+		elseif auth.type ~= RPC.AuthType.NULL then
+			return false, "Comm.CreateHeader: invalid authentication type specified"
 		end
 
-		packet = bin.pack( ">IIIIII", xid, RPC.MessageType.Call, RPC_VERSION, self.program_id, self.version, procedure )
-		if auth.type == RPC.AuthType.Null then
+		packet = bin.pack( ">IIIIII", xid, RPC.MessageType.CALL, RPC_VERSION, self.program_id, self.version, procedure )
+		if auth.type == RPC.AuthType.NULL then
 			packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
 		end		
 		return true, packet
@@ -298,7 +300,7 @@ Comm = {
 
 		pos, header.xid, header.type, header.state = bin.unpack(">III", data, pos)
 
-		if ( header.state == RPC.State.Denied ) then
+		if ( header.state == RPC.State.MSG_DENIED ) then
 			pos, header.denied_state = bin.unpack(">I", data, pos )
 			return pos, header
 		end
@@ -484,7 +486,7 @@ Mount = {
 		if comm.proto ~= "tcp" and comm.proto ~= "udp" then
 			return false, "Mount.Export: Protocol should be either udp or tcp"
 		end
-		packet = comm:EncodePacket(nil, Mount.Procedure.EXPORT, { type=RPC.AuthType.Null }, nil )
+		packet = comm:EncodePacket(nil, Mount.Procedure.EXPORT, { type=RPC.AuthType.NULL }, nil )
 		if (not(comm:SendPacket( packet ))) then
 			return false, "Mount.Export: Failed to send data"
 		end
@@ -504,20 +506,27 @@ Mount = {
 			return false, "Mount.Export: Failed to decode header"
 		end
 
-		if header.type ~= RPC.MessageType.Reply then
+		if header.type ~= RPC.MessageType.REPLY then
 			return false, "Mount.Export: packet was not a reply"
 		end
 
-		if header.state ~= RPC.State.Accepted then
-			if ( header.denied_state == RPC.RejectState.AUTH_ERROR ) then
-				return false, "Mount.Export: RPC Authentication Failed"
+		if header.state ~= RPC.State.MSG_ACCEPTED then
+			if (RPC.RejectMsg[header.denied_state]) then
+				return false, string.format("Mount.Export: RPC call failed: %s",
+							RPC.RejectMsg[header.denied_state])
 			else
-				return false, "Mount.Export: Reply state was not Accepted(0) as expected"
+				return false, string.format("Mount.Export: RPC call failed: code %d", header.state)
 			end
 		end
 
 		if header.accept_state ~= RPC.AcceptState.SUCCESS then
-			return false, "Mount.Export: Accept State was not Successful"
+			if (RPC.AcceptMsg[header.accept_state]) then
+				return false, string.format("Mount.Export: RPC accepted state: %s",
+							RPC.AcceptMsg[header.accept_state])
+			else
+				return false, string.format("Mount.Export: RPC accepted state code %d",
+							header.accept_state)
+			end
 		end
 
 		---
@@ -619,7 +628,7 @@ Mount = {
 			data = data .. string.char( 0x00 )
 		end
 
-		packet = comm:EncodePacket( nil, Mount.Procedure.MOUNT, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, Mount.Procedure.MOUNT, { type=RPC.AuthType.NULL }, data )
 		if (not(comm:SendPacket(packet))) then
 			return false, "Mount: Failed to send data"
 		end
@@ -634,20 +643,28 @@ Mount = {
 			return false, "Mount: Failed to decode header"
 		end
 
-		if header.type ~= RPC.MessageType.Reply then
+		if header.type ~= RPC.MessageType.REPLY then
 			return false, "Mount: Packet was not a reply"
 		end
 
-		if header.state ~= RPC.State.Accepted then
-			if ( header.denied_state == RPC.RejectState.AUTH_ERROR ) then
-				return false, "Mount: RPC Authentication Failed"
+		if header.state ~= RPC.State.MSG_ACCEPTED then
+			if (RPC.RejectMsg[header.denied_state]) then
+				return false, string.format("Mount: RPC call failed: %s",
+							RPC.RejectMsg[header.denied_state])
 			else
-				return false, "Mount: Reply state was not Accepted(0) as expected"
+				return false, string.format("Mount: RPC call failed: code %d",
+							header.state)
 			end
 		end
 
 		if header.accept_state ~= RPC.AcceptState.SUCCESS then
-			return false, string.format(3, "Mount: Accept State was not Successful", path)
+			if (RPC.AcceptMsg[header.accept_state]) then
+				return false, string.format("Mount (%s): RPC accepted state: %s",
+							path, RPC.AcceptMsg[header.accept_state])
+			else
+				return false, string.format("Mount (%s): RPC accepted state code %d",
+							path, header.accept_state)
+			end
 		end
 
 		status, data = comm:GetAdditionalBytes( data, pos, 4 )
@@ -705,7 +722,7 @@ Mount = {
 			data = data .. string.char( 0x00 )
 		end
 
-		packet = comm:EncodePacket( nil, Mount.Procedure.UMNT, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, Mount.Procedure.UMNT, { type=RPC.AuthType.NULL }, data )
 		if (not(comm:SendPacket(packet))) then
 			return false, "Unmount: Failed to send data"
 		end
@@ -720,16 +737,28 @@ Mount = {
 			return false, "Unmount: Failed to decode header"
 		end
 
-		if header.type ~= RPC.MessageType.Reply then
+		if header.type ~= RPC.MessageType.REPLY then
 			return false, "Unmount: Packet was not a reply"
 		end
 
-		if header.state ~= RPC.State.Accepted then
-			return false, "Unmount: Reply state was not Accepted(0) as expected"
+		if header.state ~= RPC.State.MSG_ACCEPTED then
+			if (RPC.RejectMsg[header.denied_state]) then
+				return false, string.format("Unmount: RPC call failed: %s",
+							RPC.RejectMsg[header.denied_state])
+			else
+				return false, string.format("Unmount: RPC call failed: code %d",
+							header.state)
+			end
 		end
 
 		if header.accept_state ~= RPC.AcceptState.SUCCESS then
-			return false, string.format(3, "Unmount: Accept State was not Successful", path)
+			if (RPC.AcceptMsg[header.accept_state]) then
+				return false, string.format("Unmount (%s): RPC accepted state: %s",
+							path, RPC.AcceptMsg[header.accept_state])
+			else
+				return false, string.format("Unmount (%s): RPC accepted state code %d",
+							path, header.accept_state)
+			end
 		end
 
 		return true, ""
@@ -1061,7 +1090,7 @@ NFS = {
 		else
 			data = bin.pack("A>I>I", file_handle, cookie, count)
 		end		
-		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].READDIR, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].READDIR, { type=RPC.AuthType.NULL }, data )
 		if(not(comm:SendPacket( packet ))) then
 			return false, "ReadDir: Failed to send data"
 		end
@@ -1106,7 +1135,7 @@ NFS = {
 		end
 
 		data = bin.pack("A", file_handle )
-		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].STATFS, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].STATFS, { type=RPC.AuthType.NULL }, data )
 		if (not(comm:SendPacket( packet ))) then
 			return false, "StatFS: Failed to send data"
 		end
@@ -1208,7 +1237,7 @@ NFS = {
 		local data, packet, status, attribs, pos, header
 
 		data = bin.pack("A", file_handle)
-		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].GETATTR, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].GETATTR, { type=RPC.AuthType.NULL }, data )
 		if(not(comm:SendPacket(packet))) then
 			return false, "GetAttr: Failed to send data"
 		end
@@ -1341,7 +1370,8 @@ Helper = {
 		if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
 			stdnse.print_debug("rpc.Helper.ExportStats: versions mismatch, nfs v%d - mount v%d",
 						nfs_comm.version, mnt_comm.version)
-			return false, string.format("versions mismatch, nfs v%d - mount v%d",	nfs_comm.version, mnt_comm.version)
+			return false, string.format("versions mismatch, nfs v%d - mount v%d",
+						nfs_comm.version, mnt_comm.version)
 		end
 		status, result = mnt_comm:Connect(host, mountd.port)
 		if ( not(status) ) then
@@ -1650,15 +1680,41 @@ Helper = {
 --- Container class for RPC constants
 RPC = 
 {
+	-- TODO: add more Authentication Protocols
 	AuthType =
 	{
-		Null = 0
+		NULL = 0
 	},	
+
+	-- TODO: complete Authentication stats and error messages
+	AuthState =
+	{
+		AUTH_OK = 0,
+		AUTH_BADCRED = 1,
+		AUTH_REJECTEDCRED = 2,
+		AUTH_BADVERF = 3,
+		AUTH_REJECTEDVERF = 4,
+		AUTH_TOOWEAK = 5,
+		AUTH_INVALIDRESP = 6,
+		AUTH_FAILED = 7,
+	},
+
+	AuthMsg =
+	{
+		[0] = "Success.",
+		[1] = "bad credential (seal broken).",
+		[2] = "client must begin new session.",
+		[3] = "bad verifier (seal broken).",
+		[4] = "verifier expired or replayed.",
+		[5] = "rejected for security reasons.",
+		[6] = "bogus response verifier.",
+		[7] = "reason unknown.",
+	},
 
 	MessageType =
 	{
-		Call = 0,
-		Reply = 1
+		CALL = 0,
+		REPLY = 1
 	},
 
 	Procedure =
@@ -1673,8 +1729,8 @@ RPC =
 	
 	State =
 	{
-		Accepted = 0,
-		Denied = 1,
+		MSG_ACCEPTED = 0,
+		MSG_DENIED = 1,
 	},
 	
 	AcceptState =
@@ -1684,14 +1740,30 @@ RPC =
 		PROG_MISMATCH = 2,
 		PROC_UNAVAIL = 3,
 		GARBAGE_ARGS = 4,
+		SYSTEM_ERR = 5,
 	},
-	
+
+	AcceptMsg =
+	{
+		[0] = "RPC executed successfully.",
+		[1] = "remote hasn't exported program.",
+		[2] = "remote can't support version.",
+		[3] = "program can't support procedure.",
+		[4] = "procedure can't decode params.",
+		[5] = "errors like memory allocation failure.",
+	},
+
 	RejectState =
 	{
 		RPC_MISMATCH = 0,
 		AUTH_ERROR = 1, 
-	}
-	
+	},
+
+	RejectMsg =
+	{
+		[0] = "RPC version number != 2.",
+		[1] = "remote can't authenticate caller.",
+	},
 }
 
 --- Portmap class
@@ -1732,7 +1804,7 @@ Portmap =
 			return true, self.program_table
 		end
 
-		packet = comm:EncodePacket( nil, RPC.Procedure[comm.version].DUMP, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( nil, RPC.Procedure[comm.version].DUMP, { type=RPC.AuthType.NULL }, data )
 		if (not(comm:SendPacket(packet))) then
 			return false, "Portmap.Dump: Failed to send data"
 		end
@@ -1745,8 +1817,29 @@ Portmap =
 		if ( not(header) ) then
 			return false, "Portmap.Dump: Failed to decode RPC header"
 		end
-		if header.accept_state ~= 0 then
-			return false, "Portmap.Dump: RPC Accept State was not Successful"
+
+		if header.type ~= RPC.MessageType.REPLY then
+			return false, "Portmap.Dump: Packet was not a reply"
+		end
+
+		if header.state ~= RPC.State.MSG_ACCEPTED then
+			if (RPC.RejectMsg[header.denied_state]) then
+				return false, string.format("Portmap.Dump: RPC call failed: %s",
+							RPC.RejectMsg[header.denied_state])
+			else
+				return false, string.format("Portmap.Dump: RPC call failed: code %d",
+							header.state)
+			end
+		end
+
+		if header.accept_state ~= RPC.AcceptState.SUCCESS then
+			if (RPC.AcceptMsg[header.accept_state]) then
+				return false, string.format("Portmap.Dump: RPC accepted state: %s",
+							RPC.AcceptMsg[header.accept_state])
+			else
+				return false, string.format("Portmap.Dump: RPC accepted state code %d",
+							header.accept_state)
+			end
 		end
 
 		self.program_table = {}
@@ -1807,7 +1900,7 @@ Portmap =
 		end
 						
 		data = bin.pack( ">I>I>I>I", Util.ProgNameToNumber(program), version, Portmap.PROTOCOLS[protocol], 0 )
-		packet = comm:EncodePacket( xid, RPC.Procedure[comm.version].GETPORT, { type=RPC.AuthType.Null }, data )
+		packet = comm:EncodePacket( xid, RPC.Procedure[comm.version].GETPORT, { type=RPC.AuthType.NULL }, data )
 		
 		if (not(comm:SendPacket(packet))) then
 			return false, "Portmap.GetPort: Failed to send data"
@@ -1824,14 +1917,36 @@ Portmap =
 		if ( not(header) ) then
 			return false, "Portmap.GetPort: Failed to decode RPC header"
 		end
-		
-		if header.accept_state ~= 0 then
-			return false, "Portmap.GetPort: RPC Accept State was not Successful"
+
+		if header.type ~= RPC.MessageType.REPLY then
+			return false, "Portmap.GetPort: Packet was not a reply"
 		end
+
+		if header.state ~= RPC.State.MSG_ACCEPTED then
+			if (RPC.RejectMsg[header.denied_state]) then
+				return false, string.format("Portmap.GetPort: RPC call failed: %s",
+							RPC.RejectMsg[header.denied_state])
+			else
+				return false, string.format("Portmap.GetPort: RPC call failed: code %d",
+							header.state)
+			end
+		end
+
+		if header.accept_state ~= RPC.AcceptState.SUCCESS then
+			if (RPC.AcceptMsg[header.accept_state]) then
+				return false, string.format("Portmap.GetPort: RPC accepted state: %s",
+							RPC.AcceptMsg[header.accept_state])
+			else
+				return false, string.format("Portmap.GetPort: RPC accepted state code %d",
+							header.accept_state)
+			end
+		end
+
 		status, data = comm:GetAdditionalBytes( data, pos, 4 )
 		if ( not(status) ) then
 			return false, "Portmap.GetPort: Failed to call GetAdditionalBytes"
 		end
+
 		return true, select(2, bin.unpack(">I", data, pos ) )	
 	end,
 
