@@ -7309,9 +7309,9 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 
 # Cisco IOS Software, C3750 Software (C3750-IPSERVICESK9-M), Version 12.2(46)SE, RELEASE SOFTWARE (fc2)
 # Cisco IOS Software, C880 Software (C880DATA-UNIVERSALK9-M), Version 15.0(1)XA2, RELEASE SOFTWARE (fc2)
-Fingerprint Cisco 880 or 3750 switch (IOS 12.2 - 15.0)
+Fingerprint Cisco 880 router (IOS 15.0) or 3750 switch (IOS 12.2)
 Class Cisco | IOS | 12.X | switch
-Class Cisco | IOS | 15.X | switch
+Class Cisco | IOS | 15.X | router
 SEQ(SP=FF-109%GCD=1-6%ISR=FC-10E%TI=RD%II=RI%TS=U)
 OPS(O1=M564%O2=M564%O3=M280%O4=M218%O5=M218%O6=M109)
 WIN(W1=1020%W2=1020%W3=1020%W4=1020%W5=1020%W6=1020)
