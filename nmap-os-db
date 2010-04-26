@@ -39161,7 +39161,7 @@ IE(DFI=Y%T=3B-45%TG=40%CD=S)
 # aastra 480i
 Fingerprint Aastra 480i IP Phone or Sun Remote System Control (RSC)
 Class Aastra | embedded || VoIP phone
-Class Sun | embedded || remote managements
+Class Sun | embedded || remote management
 SEQ(CI=I%II=I)
 OPS(R=N)
 WIN(R=N)
@@ -44560,7 +44560,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # Cisco Communications Manager 7.1.1
 Fingerprint Cisco Unified Communications Manager VoIP gateway
-Class Cisco | embedded || VoIP gateway
+Class Cisco | embedded || VoIP adapter
 SEQ(SP=FE-10A%GCD=1-6%ISR=104-112%TI=Z%CI=RD%II=I%TS=A)
 OPS(O1=M564ST11NW2%O2=M564ST11NW2%O3=M564NNT11NW2%O4=M564ST11NW2%O5=M564ST11NW2%O6=M564ST11)
 WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
