@@ -1,5 +1,5 @@
 ;; Custom winpcap for nmap
-;; Recognizes the options (case sensistive):
+;; Recognizes the options (case sensitive):
 ;;   /S              silent install
 ;;   /NPFSTARTUP=NO  start NPF now and at startup (only has effect with /S)
 
