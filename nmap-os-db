@@ -1294,12 +1294,13 @@ IE(DFI=S%T=3B-45%TG=40%CD=Z)
 # Dell Blade chassis switch module: Powerconnect 5316M
 # PowerConnect 5324, Software Version 2.0.0.40, Boot Version 1.0.2.02
 # TP-LINK TL-SL3428 switch
-Fingerprint Allied Telesis AT-8000S; Dell PowerConnect 3448, 5316M, or 5324; Linksys SFE2000P, SRW2024, SRW2048, or SRW224G4; or TP-Link TL-SL3428 switch
+# DELL POWECONNECT 2824 Switch
+Fingerprint Allied Telesis AT-8000S; Dell PowerConnect 2824, 3448, 5316M, or 5324; Linksys SFE2000P, SRW2024, SRW2048, or SRW224G4; or TP-Link TL-SL3428 switch
 Class Allied Telesis | embedded || switch
 Class Dell | embedded || switch
 Class Linksys | embedded || switch
 Class TP-Link | embedded || switch
-SEQ(SP=F4-10A%GCD=1-6%ISR=100-10E%TI=RD%II=RI%TS=U)
+SEQ(SP=F4-10A%GCD=1-6%ISR=FA-10E%TI=RD%CI=RD%II=RI%TS=U)
 OPS(O1=%O2=%O3=%O4=%O5=%O6=)
 WIN(W1=200%W2=200%W3=200%W4=200%W5=200%W6=200)
 ECN(R=Y%DF=N%T=3B-45%TG=40%W=200%O=%CC=N%Q=)
@@ -1418,7 +1419,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # AlliedTelesyn AT-8326GB Switch. It has embedded "AT-S41 Switch OS" V 1.1.6 with boot loader 1.01L
 # AT - 8326GB Fast Ethernet Switch
 # Allied Telesyn AT-8326GB switch.
-Fingerprint Allied Telesyn AT-8326GB switch.
+# AT-8350GB switch, management system version 1.1.8
+Fingerprint Allied Telesyn AT-8326GB or AT8350GB switch.
 Class Allied Telesyn | embedded || switch
 SEQ(SP=0-5%GCD=0%ISR=0-5%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -2380,7 +2382,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Apple iPhone OS 3.0 Beta
 # Apple iPhone 3G S, MC134B, iPhone OS 3.0 (7A341), Released: Friday 19 June 2009 in the UK
 # iPhone 2G, Unlocked and Jailbroken
-Fingerprint Apple iPhone mobile phone (iPhone OS 3.0 - 3.0.1)
+# Darwin 10.0.0d3 Darwin Kernel Version 10.0.0d3: Fri Sep 25 23:35:35 PDT 2009; root:xnu-1357.5.30~3/RELEASE_ARM_S5L8920X iPhone2,1 arm N88AP Darwin, iPhone 3GS 32MB running iPhone OS 3.1.2 (Build 7D11)
+Fingerprint Apple iPhone mobile phone (iPhone OS 3.0 - 3.1.2)
 Class Apple | iPhone OS | 3.X | phone
 SEQ(SP=F9-10B%GCD=1-6%ISR=FF-111%TI=RD%CI=RD%II=RI%TS=4)
 OPS(O1=M5B4NW2NNT11SLL%O2=M5B4NW2NNT11SLL%O3=M5B4NW2NNT11%O4=M5B4NW2NNT11SLL%O5=M5B4NW2NNT11SLL%O6=M5B4NNT11SLL)
@@ -3075,7 +3078,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # 9.8.0 Darwin Kernel Version 9.8.0: Wed Jul 15 16:55:01 PDT 2009; root:xnu-1228.15.4~1/RELEASE_I386 i386
 # Darwin 10.0.0 Darwin Kernel Version 10.0.0: Fri Jul 31 22:47:34 PDT 2009; root:xnu-1456.1.25~1/RELEASE_I386 i386
 # Darwin 10.2.0 Darwin Kernel Version 10.2.0: Tue Nov  3 10:37:10 PST 2009; root:xnu-1486.2.11~1/RELEASE_I386 i386
-Fingerprint Apple Mac OS X 10.5 - 10.6.2 (Leopard - Snow Leopard) (Darwin 9.0.0 - 10.2.0)
+# Darwin 10.3.0 Darwin Kernel Version 10.3.0: Fri Feb 26 11:58:09 PST 2010; root:xnu-1504.3.12~1/RELEASE_I386 i386, 10.6.3
+Fingerprint Apple Mac OS X 10.5 - 10.6.3 (Leopard - Snow Leopard) (Darwin 9.0.0 - 10.3.0)
 Class Apple | Mac OS X | 10.5.X | general purpose
 Class Apple | Mac OS X | 10.6.X | general purpose
 SEQ(SP=F1-107%GCD=1-6%ISR=FB-10C%TI=RD%II=RI%TS=3)
@@ -5148,6 +5152,7 @@ U1(DF=N%T=70%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUD=G)
 IE(DFI=N%T=70%TG=80%CD=Z)
 
 # Brother MFC-640CW (via 802.11g)
+# Sony Bravia KDL 40W5800 LDC-TV
 Fingerprint Brother MFC-640CW multifunction printer
 Class Brother | embedded || printer
 SEQ(SP=CF-D9%GCD=1-6%ISR=D7-E1%TI=I%II=I%SS=S%TS=U)
@@ -5238,16 +5243,16 @@ Class Brother | embedded || printer
 SEQ(SP=C8-D8%GCD=1-6%ISR=D3-DD%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M200%O5=M218%O6=M109)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
-ECN(R=Y%DF=N%T=74-7E%TG=80%W=1000%O=M5B4%CC=N%Q=)
-T1(R=Y%DF=N%T=74-7E%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+ECN(R=Y%DF=N%T=79%TG=80%W=1000%O=M5B4%CC=N%Q=)
+T1(R=Y%DF=N%T=79%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
 T2(R=N)
-T3(R=Y%DF=N%T=74-7E%TG=80%W=1000%S=O%A=S+%F=AS%O=M109%RD=0%Q=)
-T4(R=Y%DF=N%T=74-7E%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=74-7E%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=74-7E%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=74-7E%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=74-7E%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUD=G)
-IE(DFI=N%T=74-7E%TG=80%CD=Z)
+T3(R=Y%DF=N%T=79%TG=80%W=1000%S=O%A=S+%F=AS%O=M109%RD=0%Q=)
+T4(R=Y%DF=N%T=79%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=79%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=79%TG=80%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=79%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=79%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUD=G)
+IE(DFI=N%T=79%TG=80%CD=Z)
 
 # Brother MFC-7820N
 # Brother MFC9420CN printer/fax/scanner
@@ -6911,7 +6916,8 @@ IE(DFI=S%T=FA-105%TG=FF%CD=S)
 # IOS (tm) 2500 Software (C2500-IS-L), Version 12.3(23), RELEASE SOFTWARE (fc5)
 # Cisco 1721 router running IOS version 12.3(6c)
 # Cisco 1751 router with IOS 12.3(14)T6.
-Fingerprint Cisco 820, 1721, 1751, or 2514 router (IOS 12.3)
+# Cisco 1750 router (IOS 12.3)
+Fingerprint Cisco 820, 1721, 1750, 1751, or 2514 router (IOS 12.3)
 Class Cisco | IOS | 12.X | router
 SEQ(SP=E2-107%GCD=1-6%ISR=108-10C%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -7644,7 +7650,9 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Cisco Aironet 1200 Air-AP1220
-Fingerprint Cisco Aironet 350 or 1200 WAP
+# Cisco IOS Software, C831 Software (C831-K9O3Y6-M), Version 12.3(2)XE3, RELEASE SOFTWARE (fc1)
+Fingerprint Cisco Aironet 350 or 1200 WAP or 831 router (IOS 12.3)
+Class Cisco | IOS | 12.X | router
 Class Cisco | IOS | 12.X | WAP
 SEQ(SP=102-10E%GCD=1-6%ISR=103-10D%TI=Z%II=RI%TS=U)
 OPS(O1=M218%O2=M218%O3=M218%O4=M218%O5=M218%O6=M109)
@@ -7666,7 +7674,7 @@ IE(DFI=S%T=FA-104%TG=FF%CD=S)
 # Cisco Aironet 1100
 # C2600 Software (C2600-I-M), Version 12.3(20)
 # Model: AIR-AP-1131AG-A-K9, Firmware Version:12.3(7) IOS
-Fingerprint Cisco Aironet 350, 1100, 1200, or 1131AG WAP; or Cisco Catalyst 2600 router (IOS 12.3)
+Fingerprint Cisco Aironet 350, 1100, 1200, or 1131AG WAP; or Cisco 2600 router (IOS 12.3)
 Class Cisco | IOS | 12.X | WAP
 Class Cisco | IOS | 12.X | router
 SEQ(SP=DF-10D%GCD=1-6%ISR=107-10F%TI=Z%II=RI%TS=U)
@@ -8311,7 +8319,7 @@ IE(DFI=N%T=FA-104%TG=FF%CD=Z)
 # DGL-4300 - Wireless 108G Gaming Router, Firmware version: 1.8,    2007/03/01
 # DLINK DIR-615 wireless access router Firmware Version: 2.25RU
 # D-LINK DIR-855 Wireless N Quadband Gigabit Router
-Fingerprint D-Link DPR-1260 print server; or DGL-4300, DIR-625, DIR-655, or DIR-855 WAP
+Fingerprint D-Link DPR-1260 print server; or DGL-4300, DIR-615, DIR-625, DIR-655, or DIR-855 WAP
 Class D-Link | embedded || print server
 Class D-Link | embedded || WAP
 SEQ(SP=95-B5%GCD=1-6%ISR=A9-BB%TI=I%II=I%SS=S%TS=U)
@@ -8401,7 +8409,9 @@ U1(DF=N%T=19-23%TG=20%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # D-Link Model:DES-3226L
-Fingerprint D-Link DES-3226L switch
+# Allied Telesyn AT-GS950/8 switch.
+Fingerprint Allied Telesyn AT-GS950 or D-Link DES-3226L switch
+Class Allied Telesyn | embedded || switch
 Class D-Link | embedded || switch
 SEQ(SP=0-DA%GCD=1-6|80|100|180|200|280|C581|18B02|25083|31604|3DB85%ISR=93-A5%TI=I%II=RI%SS=O%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -8418,9 +8428,10 @@ U1(DF=N%T=19-23%TG=20%IPL=38%UN=0|128%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=19-23%TG=20%CD=S)
 
 # DES-3526 Fast-Ethernet Switch, Firmware Version  : Build 5.01-B21
-Fingerprint D-Link DES-3526 switch
+# DES-3550 Fast Ethernet Switch Command Line Interface Firmware: Build 5.01.B65
+Fingerprint D-Link DES-3526 or DES-3550 switch
 Class D-Link | embedded || switch
-SEQ(SP=8C-96%GCD=1-6%ISR=92-9C%TI=I%II=RI%SS=O|S%TS=1)
+SEQ(SP=8D-97%GCD=1-6%ISR=92-9C%TI=I%CI=I%II=RI%SS=O|S%TS=1)
 OPS(O1=M5A4NW0NNT11%O2=M5A4NW0NNT11%O3=M5A4NW0NNT11%O4=M5A4NW0NNT11%O5=M5A4NW0NNT11%O6=M5A4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
 ECN(R=Y%DF=N%T=19-23%TG=20%W=2000%O=M5A4NW0%CC=N%Q=)
@@ -8504,7 +8515,7 @@ U1(DF=N%T=1A-24%TG=20%IPL=38%UN=128%RIPL=G%RID=G%RIPCK=G%RUCK=61F5%RUD=G)
 IE(DFI=S%T=100%TG=FF%CD=S)
 
 # D-Link DES-3326 Switch
-Fingerprint D-Linux DES-3326 switch
+Fingerprint D-Link DES-3326 switch
 Class D-Link | embedded || switch
 SEQ(SP=8D-97%GCD=1-6%ISR=91-9B%TI=I%II=RI%SS=S%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -9391,9 +9402,11 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(R=N)
 
 # Dell MD3000i
-Fingerprint Dell PowerVault MD3000i NAS appliance
+# TP-Link TL-WR340GD router 4.3.3 Build 090812 Rel.61475n
+Fingerprint Dell PowerVault MD3000i NAS appliance or TP-Link TL-WR340GD WAP
 Class Dell | embedded || storage-misc
-SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%TS=1)
+Class TP-Link | embedded || WAP
+SEQ(SP=94-9E%GCD=1-6%ISR=9B-A5%TI=I%CI=I%TS=1)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N%Q=)
@@ -10418,7 +10431,8 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=15C%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # Fortinet 100A
-Fingerprint Fortinet FortiGate-100A firewall
+# FortiGate 60B, firmware: v4.0,build0192,091222 (MR1 Patch 2)
+Fingerprint Fortinet FortiGate-60B or -100A firewall
 Class Fortinet | embedded || firewall
 SEQ(SP=102-10C%GCD=1-6%ISR=105-10F%TI=BI%TS=7)
 OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)
@@ -13330,7 +13344,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP LaserJet P3005, Firmware Version   : V.33.55, HP JetDirect       : J7979E
 # LaserJet 2420
 # HP LaserJet P4014, Model:CB507A, Firmware: 20080528 04.045.2
-Fingerprint HP LaserJet 2420, P3005, CP4005, or P4014 printer
+# HP LaserJet 2055dn printer
+Fingerprint HP LaserJet 2055dn, 2420, P3005, CP4005, or P4014 printer
 Class HP | embedded || printer
 SEQ(SP=FB-10B%GCD=1-6%ISR=102-110%TI=I%CI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
@@ -13935,7 +13950,8 @@ IE(DFI=N%T=FA-104%TG=FF%CD=S)
 # HP Officejet 6500 E709n (Wireless)
 # HP Photosmart C8100 (C8180) series
 # Photosmart C6200 wired connected printer
-Fingerprint HP Photosmart printer
+# HP OfficeJet J6450
+Fingerprint HP printer: Photosmart 4300-, 7200-, or 8100-series, or Officejet 6000-series
 Class HP | embedded || printer
 SEQ(SP=A3-E2%GCD=1-6%ISR=A9-D9%TI=I%CI=I%II=I%SS=S%TS=A)
 OPS(O1=M5B4NW0NNSNNT11%O2=M578NW0NNSNNT11%O3=M280NW0NNT11%O4=M5B4NW0NNSNNT11%O5=M218NW0NNSNNT11%O6=M109NNSNNT11)
@@ -14260,6 +14276,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # HP Procurve 2524 (firmware F.05.34)
 # HP Procurve 2524 (firmware F.05.17)
 # HP Jetdirect 175x Model J6035A, Firmware version M.21.21
+# Brocade Switch Explorer
 Fingerprint HP ProCurve 2524 switch or JetDirect 175x print server (J6035A)
 Class HP | embedded || switch
 Class HP | embedded || printer
@@ -18847,7 +18864,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # Cobalt Qube 2 (default config, Cobalt OS Release 4.0, security updates 3.0.1-6453 and 3.0.2-6750)
 # Linux 2.0.35 #1 Mon Dec 7 16:24:46 WET 1998 i686
-Fingerprint Linux 2.0.35
+# Linux 2.0.36 #1 Tue Oct 13 22:17:11 EDT 1998 i686 unknown Red Hat Linux 5.2
+Fingerprint Linux 2.0.35 - 2.0.36
 Class Linux | Linux | 2.0.X | general purpose
 SEQ(SP=101-10B%GCD=1-6%ISR=103-10D%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4%O2=M578%O3=M280%O4=M218%O5=M218%O6=M109)
@@ -19789,7 +19807,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # WRT54GL, Linux 2.4.34 #2 Tue Oct 16 13:41:23 CEST 2007 mips unknown, OpenWRT Kamikaze 7.09, r9494
 # Buffalo WHR-G54S running the OpenWRT White Russian 0.9 distribution
 # OpenWRT Kamikaze 7.09 on an Asus wl500gP
-Fingerprint OpenWrt 0.9 - 7.09 (Linux 2.4.30 - 2.4.34)
+# OpenWrt KAMIKAZE (8.09.2, r18961), running Linux kernel 2.4.35.4.
+Fingerprint OpenWrt 0.9 - 8.09.2 (Linux 2.4.30 - 2.4.35)
 Class Linux | Linux | 2.4.X | WAP
 SEQ(SP=B3-D2%GCD=1-6%ISR=C0-D7%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
@@ -19900,7 +19919,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Linux OpenWrt 2.6.21.5 #2 Sun Sep 30 20:16:16 CEST 2007 mips unknown
 # Linux 2.6.21.6 #1 Fri Dec 28 11:04:49 UTC 2007 armv5teb unknown / OpenWrt KAMIKAZE (7.09)
 # Linux OpenWrt 2.6.32.8 #1 Sat Feb 20 11:01:32 UTC 2010 mips GNU/Linux
-Fingerprint OpenWrt (Linux 2.6.19 - 2.6.32)
+# OpenWrt Backfire (10.03, r20728) running Linux 2.6.32.10
+Fingerprint OpenWrt Kamikaze - Backfre 10.03 (Linux 2.6.19 - 2.6.32)
 Class Linux | Linux | 2.6.X | broadband router
 SEQ(SP=B8-CE%GCD=1-6%ISR=BB-D3%TI=Z%CI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW1%O2=M5B4NNSNW1%O3=M5B4NW1%O4=M5B4NNSNW1%O5=M5B4NNSNW1%O6=M5B4NNS)
@@ -20144,7 +20164,7 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # U.S. Robotics Wireless MAXg ADSL Gateway 9108a
 # Gentoo Linux 2.6.28-gentoo-r5 #4 SMP Sun May 3 01:36:42 EEST 2009 x86_64 AMD Athlon(tm) 64 X2 Dual Core Processor 5200+ AuthenticAMD GNU/Linux
 # Slim Devices Squeezebox Controller, runs Linux
-Fingerprint Linux 2.6.13 - 2.6.28
+Fingerprint Linux 2.6.13 - 2.6.31
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=AE-E2%GCD=1-6%ISR=B8-DB%TI=Z%II=I%TS=8)
 OPS(O1=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O2=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O3=M5B4NNT11NW1|M5B4NNT11NW2|M5B4NNT11NW3|M5B4NNT11NW4|M5B4NNT11NW5|M5B4NNT11NW6|M5B4NNT11NW7|M5B4NNT11NW8|M5B4NNT11NW9%O4=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O5=M5B4ST11NW1|M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9%O6=M5B4ST11)
@@ -25170,7 +25190,8 @@ IE(DFI=N%T=3B-45%TG=40%CD=S)
 # Blue Coat Director, SG-ME 5.2.2.1 #31532 2007.11.16-161943, Linux version 2.6.10-1.14_FC2.progeny.1.permeo.10 (builder@cantona.bcstx.cacheflow.com) (gcc version 3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 Thu Oct 12 18:17:34 EDT 2006
 # Linux 2.6.28-gentoo-gh0st #1 SMP Thu Jan 8 20:13:38 EET 2009 i686 Intel(R) Pentium(R) 4 CPU 2.00GHz GenuineIntel GNU/Linux
 # Symantec Web Gateway Version 4.5.1.44 (use to be Mi5)
-Fingerprint Linux 2.6.9 - 2.6.28
+# 2.6.30.9-102.fc11.i586
+Fingerprint Linux 2.6.9 - 2.6.30
 Class Linux | Linux | 2.6.X | general purpose
 SEQ(SP=AF-DA%GCD=1-6%ISR=B9-D9%TI=Z%II=I%TS=A)
 OPS(O1=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9|M5B4ST11NWA%O2=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9|M5B4ST11NWA%O3=M5B4NNT11NW2|M5B4NNT11NW3|M5B4NNT11NW4|M5B4NNT11NW5|M5B4NNT11NW6|M5B4NNT11NW7|M5B4NNT11NW8|M5B4NNT11NW9|M5B4NNT11NWA%O4=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9|M5B4ST11NWA%O5=M5B4ST11NW2|M5B4ST11NW3|M5B4ST11NW4|M5B4ST11NW5|M5B4ST11NW6|M5B4ST11NW7|M5B4ST11NW8|M5B4ST11NW9|M5B4ST11NWA%O6=M5B4ST11)
@@ -27442,7 +27463,9 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows Server 2003 Enterprise Edition SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447: Service Pack 1)
 # Version 5.2 R2 (Build 3790.srv03_sp2_gdr.070304_2240:Service Pack 2)
 # Windows 7 beta 32 bit
-Fingerprint Microsoft Windows Server 2003 SP1 or SP2
+# Windows XP Professional Version 2002 SP2
+Fingerprint Microsoft Windows XP SP2 or Server 2003 SP1 or SP2
+Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F0-10A%GCD=1-6%ISR=F7-111%TI=I%CI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -28337,8 +28360,11 @@ IE(DFI=S%T=1D-27%TG=20%CD=Z)
 # Windows 95 on Compaq Deskpro EN 6350
 # Windows for Workgroups version 3.11
 # Windows for Workgroups 3.11, using Microsoft TCP/IP-32 3.11b.
-Fingerprint Microsoft Windows for Workgroups 3.11 or Windows 95
+# Windows NT 3.51 Build 1057, no service pack
+# Windows NT 3.51 build 1057 SP5
+Fingerprint Microsoft Windows for Workgroups 3.11, NT 3.51 SP0 - SP5, or Windows 95
 Class Microsoft | Windows | 3.X | general purpose
+Class Microsoft | Windows | NT | general purpose
 Class Microsoft | Windows | 95 | general purpose
 SEQ(SP=0-DF%GCD=1-6|68|D0|138|1A0|208%ISR=4B-89%TI=BI%II=BI%SS=S%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
@@ -29389,9 +29415,11 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Version 6.0 (num\303\251ro 6000: Service Pack 1)
 # Windows Vista (TM) Home Premium 6001 Service Pack 1
 # Version 6.1 Build 7100, RC install.
-Fingerprint Microsoft Windows Vista Home Premium SP1 or Windows 7
+# windows server 2008 standard
+Fingerprint Microsoft Windows Vista Home Premium SP1, Windows 7, or Server 2008
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 7 | general purpose
+Class Microsoft | Windows | 2008 | general purpose
 SEQ(SP=FC-108%GCD=1-6%ISR=FB-111%TI=I%CI=I%II=I%SS=S%TS=7)
 OPS(O1=M5B4NW8ST11%O2=M5B4NW8ST11%O3=M5B4NW8NNT11%O4=M5B4NW8ST11%O5=M5B4NW8ST11%O6=M5B4ST11)
 WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
@@ -29419,7 +29447,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Ultimate (Build 7000)
 # Windows 7 RC1
 # Windows 6.0 (build 6002: Service Pack 2)
-Fingerprint Microsoft Windows Vista SP0 - SP2, Server 2008, or Windows 7 Ultimate (build 7000)
+Fingerprint Microsoft Windows Vista SP0 - SP2, Server 2008, or Windows 7 Ultimate
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
 Class Microsoft | Windows | 7 | general purpose
@@ -29462,6 +29490,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Ver 6.0 Build 6001:Service Pack 1, Windows Vista Ultimate
 # Windows Server 2008 Standard Edition SP1 x64
 # Windows Seven Ultimate x64
+# Windows 7 Professional x64
 Fingerprint Microsoft Windows Vista SP0 or SP1, Server 2008 SP1, or Windows 7
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
@@ -38524,7 +38553,9 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # SonicWALL SOHO3 CPU: Toshiba 3927 H2 / 133 Mhz Firmware version: 6.5.0.4 ROM version: 6.2.0.0
-Fingerprint SonicWALL SOHO3 firewall
+# HP Network Storage Router, model E1200. Firmware 5.4.25, BIOS "BIOS 4.23", Booter "BOOTER 4.11"
+Fingerprint HP E1200 Network Storage Router NAS device or SonicWALL SOHO3 firewall
+Class HP | embedded || storage-misc
 Class SonicWALL | embedded || firewall
 SEQ(SP=87-9F%GCD=1-6%ISR=97-A1%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0%O2=M5B4NW0%O3=M5B4NW0%O4=M5B4NW0%O5=M5B4NW0%O6=M5B4)
@@ -46577,3 +46608,54 @@ T6(R=Y%DF=N%T=FA-104%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=FA-104%TG=FF%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FA-104%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
+
+# Linksys WRV54G wireless router, firmware 2.39.2 (Probably Linux --Ed.)
+Fingerprint Linksys WRV54G WAP
+Class Linksys | embedded || WAP
+SEQ(SP=B5-BF%GCD=1-6%ISR=BF-C9%TI=Z%CI=Z%II=I%TS=7)
+OPS(R=N)
+WIN(R=N)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=O|S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=16A0%S=O%A=O|S+%F=AS%O=M5B4NNT11NW0%RD=0%Q=)
+T4(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Cisco IP Phone 7911
+Fingerprint Cisco IP Phone 7911
+Class Cisco | embedded || VoIP phone
+SEQ(SP=E5-EF%GCD=C|18|24|30|3C%ISR=105-10F%TI=I%CI=I%II=I%SS=S%TS=U)
+OPS(O1=M578%O2=M578%O3=M578%O4=M578%O5=M578%O6=M578)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=N)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=S%F=AR%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=S%F=AR%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Linux 2.6.18.8.xs5.5.0.13.442 #1 SMP Wed Nov 11 12:01:55 UTC 2009 i686
+Fingerprint Linux 2.6.18
+Class Linux | Linux | 2.6.X | general purpose
+SEQ(SP=C0-CA%GCD=1-6%ISR=C6-D0%TI=Z%TS=7)
+OPS(O1=M5ACST11NW7%O2=M5ACST11NW7%O3=M5ACNNT11NW7%O4=M5ACST11NW7%O5=M5ACST11NW7%O6=M5ACST11)
+WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=16D0%O=M5ACNNSNW7%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=N)
+T5(R=Y%DF=Y%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=N)
+T7(R=N)
+U1(R=N)
+IE(R=N)
