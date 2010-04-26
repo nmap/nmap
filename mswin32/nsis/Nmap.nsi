@@ -1,5 +1,9 @@
 ;Nmap Installer 
 ;Started by Bo Jiang @ 08/26/2005 06:07PM 
+;;
+;; Recognizes the options (case sensitive):
+;;   /S              silent install
+;;   /NPFSTARTUP=NO  start NPF now and at startup
  
 ;-------------------------------- 
 ;Include Modern UI 
