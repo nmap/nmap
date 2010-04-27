@@ -779,7 +779,7 @@ self-installer named
 <filename>nmap-<replaceable>version</replaceable>-setup.exe</filename>
 (where <replaceable>version</replaceable> is the version number of the
 specific release).  Most Nmap users choose this option since it is so
-easy.  Another advantage of the self-installer is that it provides the option to install the Zenmap GUI.  Simply run the installer file and let it walk you through
+easy.  Another advantage of the self-installer is that it provides the option to install the Zenmap GUI and other tools.  Simply run the installer file and let it walk you through
 panels for choosing an install path and installing WinPcap.  The
 installer was created with the open-source <ulink
 url="http://nsis.sourceforge.net/Main_Page">Nullsoft Scriptable
