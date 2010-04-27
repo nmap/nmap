@@ -253,6 +253,41 @@ Index: src/eth-dlpi.c
  		return (eth_close(e));
  	}
 
+o Made the Autoconf check for PF_PACKET Linux-specific. Recent versions
+  of OpenSolaris also support PF_PACKET, but the code in eth-linux.c
+  only works under Linux.
+
+Index: config/acinclude.m4
+===================================================================
+--- config/acinclude.m4	(revision 17391)
++++ config/acinclude.m4	(working copy)
+@@ -135,14 +135,18 @@
+ dnl usage:	AC_DNET_LINUX_PF_PACKET
+ dnl results:	HAVE_LINUX_PF_PACKET
+ dnl
++dnl This is a Linux-specific check, even though other operating systems
++dnl (OpenSolaris) may have the PF_PACKET interface. The eth-linux.c code
++dnl activated by this check is specific to Linux.
+ AC_DEFUN(AC_DNET_LINUX_PF_PACKET,
+-    [AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+-    AC_CACHE_VAL(ac_cv_dnet_linux_pf_packet,
+-	if test -f /usr/include/netpacket/packet.h ; then
+-	    ac_cv_dnet_linux_pf_packet=yes
+-	else
+-	    ac_cv_dnet_linux_pf_packet=no
+-	fi)
++    [AC_CHECK_DECL([ETH_P_ALL],
++	ac_cv_dnet_linux_pf_packet=yes,
++	ac_cv_dnet_linux_pf_packet=no,
++        [
++#include <netpacket/packet.h>
++#include <linux/if_ether.h>
++])
++    AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+     AC_MSG_RESULT($ac_cv_dnet_linux_pf_packet)
+     if test $ac_cv_dnet_linux_pf_packet = yes ; then
+ 	AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 
