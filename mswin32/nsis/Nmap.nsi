@@ -2,8 +2,16 @@
 ;Started by Bo Jiang @ 08/26/2005 06:07PM 
 ;;
 ;; Recognizes the options (case sensitive):
-;;   /S              silent install
-;;   /NPFSTARTUP=NO  start NPF now and at startup
+;;   /S                silent install
+;;   /NPFSTARTUP=NO    start NPF now and at startup (ignored with /WINPCAP=NO)
+;;   /NMAP=NO          don't install Nmap
+;;   /REGISTERPATH=NO  don't add the installation directory to PATH
+;;   /WINPCAP=NO       don't install WinPcap
+;;   /REGISTRYMODS=NO  don't install performance-related registry mods
+;;   /ZENMAP=NO        don't install Zenmap
+;;   /NCAT=NO          don't install Ncat
+;;   /NDIFF=NO         don't install Ndiff
+;;   /NPING=NO         don't install Nping
  
 ;-------------------------------- 
 ;Include Modern UI 
@@ -11,6 +19,7 @@
   !include "MUI.nsh" 
   !include "AddToPath.nsh" 
   !include "FileFunc.nsh" 
+  !include "Sections.nsh"
  
 ;-------------------------------- 
 ;General 
@@ -78,11 +87,8 @@ ReserveFile "final.ini"
 ;--------------------------------
 ;Functions
 
-Function .onInit
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
-  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
-FunctionEnd
-
+;The .onInit function is below the Sections because it needs to refer to
+;the Section IDs which are not defined yet.
 
 Function shortcutsPage
   StrCmp $zenmapset "" skip
@@ -285,6 +291,37 @@ Section "Nping (Packet generator)" SecNping
   File ..\nmap-${VERSION}\nping.exe
 SectionEnd
  
+
+;Disable a named section if the command line option Opt has the value "NO".
+;See http://nsis.sourceforge.net/Macro_vs_Function for the ID label technique.
+!macro OptionDisableSection Params Opt Sec
+  !define ID ${__LINE__}
+  ${GetOptions} ${Params} ${Opt} $1
+  StrCmp $1 "NO" "" OptionDisableSection_keep_${ID}
+  SectionGetFlags ${Sec} $2
+  IntOp $2 $2 & ${SECTION_OFF}
+  SectionSetFlags ${Sec} $2
+OptionDisableSection_keep_${ID}:
+  !undef ID
+!macroend
+
+Function .onInit
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "shortcuts.ini"
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "final.ini"
+
+  ;Disable section checkboxes based on options. For example /ZENMAP=NO to avoid
+  ;installing Zenmap.
+  ${GetParameters} $0
+  !insertmacro OptionDisableSection $0 "/NMAP=" ${SecCore}
+  !insertmacro OptionDisableSection $0 "/REGISTERPATH=" ${SecRegisterPath}
+  !insertmacro OptionDisableSection $0 "/WINPCAP=" ${SecWinPcap}
+  !insertmacro OptionDisableSection $0 "/REGISTRYMODS=" ${SecPerfRegistryMods}
+  !insertmacro OptionDisableSection $0 "/ZENMAP=" ${SecZenmap}
+  !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
+  !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
+  !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
+FunctionEnd
+
 ;-------------------------------- 
 ;Descriptions 
  
