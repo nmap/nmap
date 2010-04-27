@@ -290,11 +290,10 @@ o Consider changing Nsock so that it is able to take advantage of more
   linked list).]
 
 o [NSE] Consider whether we should include some sort of NSE debugger.  Or we
-  could include something simpler.  For example, some developers (such
-  as Ron) already make use of Patrick's traceback.nse in their
-  experimental trees.  For some inspiration/ideas, look at Diman's NSE
-  debugger (http://seclists.org/nmap-dev/2008/q1/0228.html) and also
-  Patrick's traceback.nse 
+  could include something simpler.  For example, Nmap now provides a
+  traceback (with sufficient debugging/verbosity) when a script ends
+  in error.  For some inspiration/ideas, look at Diman's NSE
+  debugger (http://seclists.org/nmap-dev/2008/q1/0228.html).
 
 o [NSE] We may want to consider a better exception handling method --
   one which doesn't require wrapping every I/O line in its own try
