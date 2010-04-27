@@ -85,6 +85,15 @@ o Integrate new OS fingerprints (we have more than 1,300 since
 o Integrate new service detection fingerprint submissions (we have
   more than 730 since Dec. 17, 2009.
 
+o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
+  http://seclists.org/nmap-dev/2010/q2/195
+  Better attachment at: http://seclists.org/nmap-dev/2010/q2/200
+  Need to decide on a domain list: http://seclists.org/nmap-dev/2010/q2/199
+
+o [NSE] Add one of, or combine, ntp-peers and ntp-monlist.
+  http://seclists.org/nmap-dev/2010/q2/190
+  http://seclists.org/nmap-dev/2010/q2/191
+  
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
 
