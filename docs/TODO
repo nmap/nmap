@@ -1,21 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Improve the NSI installer by adding command-line options for unsetting
-   each of these GUI checkboxes individually (particularly useful for
-   silent mode):
-   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
-   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
-   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)"
-   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
-   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
-   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
-   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
-   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
-
-o Upgrade libpcap to the new 1.1.1 version.
-
-o Finish selecting GSoC 2010 projects
-
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -79,11 +63,14 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
-o Integrate new OS fingerprints (we have more than 1,300 since
-  November 10, 2009).
-
 o Integrate new service detection fingerprint submissions (we have
   more than 730 since Dec. 17, 2009.
+
+o Fix bug where multiple targets with the same IP can end up in a
+  hostgroup and cause port scanning and probably OS detection to
+  misbehave.  An example is "nmap -F scanme2.nmap.org
+  scanme3.nmap.org". See this thread for details:
+  http://seclists.org/nmap-dev/2010/q2/322
 
 o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
   http://seclists.org/nmap-dev/2010/q2/195
@@ -550,6 +537,25 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Integrate new OS fingerprints (we have more than 1,300 since
+  November 10, 2009).
+
+o Finish selecting GSoC 2010 projects
+
+o Upgrade libpcap to the new 1.1.1 version.
+
+o Improve the NSI installer by adding command-line options for unsetting
+   each of these GUI checkboxes individually (particularly useful for
+   silent mode):
+   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
+   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory"
+   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)"
+   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended."
+   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended."
+   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement."
+   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
+   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
 
 o We should have a standard function which takes time arguments in the
   same format as Nmap does (e.g. 60s, 1m, etc.) and the scripts which
