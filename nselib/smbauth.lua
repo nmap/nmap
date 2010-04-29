@@ -77,6 +77,7 @@
 --                   protocol altogether!). If you're using an extremely old system, you might need to set 
 --                   this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible.  
 --                   For information, see <code>smbauth.lua</code>. 
+--@args smbnoguest   Set to 'true' or '1' to disable usage of the 'guest' account. 
 
 module(... or "smbauth", package.seeall)
 
@@ -257,7 +258,10 @@ function init_account(host)
 
 	-- Add the anonymous/guest accounts
 	add_account(host, '',      '', '', nil, 'none')
-	add_account(host, 'guest', '', '', nil, 'ntlm')
+
+	if(nmap.registry.args.smbnoguest == nil) then
+		add_account(host, 'guest', '', '', nil, 'ntlm')
+	end
 
 	-- Add the account given on the commandline (TODO: allow more than one?)
 	local args = nmap.registry.args
