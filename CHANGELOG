@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Improved smtp-commands.nse to work against more mail servers,
+  made it take an smtp-commands.domain script argument, and rewrote it
+  in the style of other smtp scripts. [Jason DePriest]
+
 o [NSE] Improved error handling and reporting and re-designed communication
   class in RPC library with patch from Djalal Harouni. [Patrik]
 
