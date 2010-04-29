@@ -556,7 +556,8 @@ match ftp m|^220-Welcome to Xerver Free FTP Server ([\d.]+)\.\r\n220-\r\n220-You
 match ftp m|^220 ([-\w_.]+) FTP server \(tnftpd (\d+)\) ready\.\r\n| p/tnftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-\w_.]+) FTP server \(LundFTPD ([\d.]+) .*\) ready\.\r\n| p/LundFTPd/ v/$2/ h/$1/
 match ftp m|^220 HD316\r FTP server\(Version([\d.]+)\) ready\.\r\n| p/Panasonic HD316 Digital Disk Recorder/ v/$1/ d/storage-misc/
-match ftp m=^220 \w+ IBM Infoprint (Color |)(\d+) FTP Server ([\w.]+) ready\.\r\n= p/IBM Inforprint $1$2 ftpd/ v/$3/ d/printer/
+match ftp m=^220 (\w+) IBM Infoprint (Color |)(\d+) FTP Server ([\w.]+) ready\.\r\n= p/IBM Infoprint $2$3 ftpd/ h/$1/ v/$4/ d/printer/
+match ftp m=^220 ([\w._-]+) IBM Infoprint (\w+) FTP Server ([\w.]+) ready\.\r\n= p/IBM Infoprint $2 ftpd/ h/$1/ v/$3/ d/printer/
 match ftp m|^220 ShareIt FTP Server ([\d.]+) \(WINCE\) Ready\.\r\n| p/ShareIt ftpd/ v/$1/ d/PDA/
 match ftp m|^220 ShareIt FTP Pro ([\d.]+) \(WINCE\) Ready\.\r\n| p/ShareIt Pro ftpd/ v/$1/ d/PDA/
 match ftp m|^220 ISOS FTP Server for Upgrade Purpose \(([\d.]+)\) ready\r\n| p/Billion 741GE ADSL router/ v/$1/ d/router/
@@ -631,9 +632,10 @@ match ftp m|^220 .* Server \(vftpd ([\d.]+)\) ready\.\r\n| p/vftpd/ v/$1/ o/Wind
 match ftp m|^220 Welcome to Network Camera FTP Server\r\n| p/Vivotek 3102 Camera ftpd/ d/webcam/
 match ftp m|^220-TwoFTPd server ready\.\r\n220 Authenticate first\.\r\n| p/TwoFTPd/ o/Unix/
 match ftp m|^220  WEB TLC FTP SERVER READY TYPE HELP FOR HELP \r\n| p/Overland Storage Neo2000 ftpd/ d/storage-misc/
-match ftp m|^220 ([-\w_.]+) Lexmark (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/
-match ftp m|^220 ([-\w_.]+) MarkNet (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/
-match ftp m|^220 ([-\w_.]+) Dell Laser Printer (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Dell $2 laser printer ftpd/ h/$1/ v/$3/
+match ftp m|^220 ([-\w_.]+) Lexmark (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/ d/printer/
+match ftp m|^220 ([-\w_.]+) MarkNet (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/ d/printer/
+match ftp m|^220 ([-\w_.]+) Dell Laser Printer (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Dell $2 laser printer ftpd/ h/$1/ v/$3/ d/printer/
+match ftp m|^220 ([-\w_.]+) Dell (\w+) Laser Printer FTP Server ([\w.]+) ready\.\r\n| p/Dell $2 laser printer ftpd/ h/$1/ v/$3/ d/printer/
 match ftp m|^500 newmedia\.sheridanc\.on\.ca FTP server shut down -- please try again later\.\r\n| p/Mac OS X Server ftpd/ i/disabled/ o/Mac OS X/
 match ftp m|^220  \(Ver\. ([^)]+)\) [A-Z][a-z]{2} \d+ 20\d+ ready\.\r\n| p|Canon VB-C10/VB-C10R webcam ftpd| v/$1/ d/webcam/
 match ftp m|^220 Cisco \(([\d.]+)\) FTP server ready\r\n| p/Cisco ftpd/ v/$1/ o/IOS/
@@ -752,7 +754,7 @@ match ftp m|^220 TDS400 FTP Service \(Version ([\w._-]+)\)\.\r\n| p/TDS400 print
 match ftp m|^220 ---freeFTPd 1\.0---warFTPd 1\.65---\r\n| p/Nepenthes HoneyTrap fake vulnerable ftpd/
 match ftp m|^Can't exec \"/usr/sbin/pure-ftpd\": No such file or directory| p/Pure-FTPd under inetd/ i/Broken/ o/Unix/
 match ftp m|^220- \w+\r\n220 FTP Server powered by: Quick 'n Easy FTP Server\r\n| p/Quick 'n Easy FTP Server/ o/Windows/
-match ftp m|^220-National Instruments FTP\r\n220 Service Ready \r\n| p/National Instruments CompactRIO data acquisition ftpd/ d/specialized/
+match ftp m|^220-National Instruments FTP\r\n220 Service Ready \r\n| p/National Instruments LabVIEW ftpd/ d/specialized/
 # The ASCII spells "FREETZ".
 match ftp m#^220-   __  _   __  __ ___ __\r\n220-  \|__ \|_\) \|__ \|__  \|   /\r\n220-  \|   \|\\  \|__ \|__  \|  /_\r\n220-\r\n220-   The fun has just begun\.\.\.\r\n220 \r\n# p/vsftpd/ d/WAP/ i/Freetz firmware for AVM Fritz!Box/
 match ftp m|Permission denied\.\(Please check access control list\)\r\nPermission denied\.\(Please check access control list\)\r\n\n\rSystem administrator is connecting from [\d.]+\n\rReject the connection request !!!\n\r\n\rSystem administrator is connecting from [\d.]+\n\rReject the connection request !!!\n\r| p/DrayTek Vigor 2820 ADSL router ftpd/ i/access denied/ d/broadband router/
@@ -782,6 +784,11 @@ match ftp m|^220 vxTarget FTP server \(VxWorks ([\d.]+)\) ready\.\r\n| p/vxTarge
 match ftp m|^220-Welcome to the S60 Dumb FTP Server \(dftpd\)\r\n| p/Dumb FTP Server (dftpd)/ o/SymbianOS/ d/phone/
 match ftp m|^220-Local time is now [\d:]+\r\n220 You will be disconnected after 300 seconds of inactivity\.\r\n| p/DViCO TVIX 6500A set top box ftpd/ d/media device/
 match ftp m|^220 ET(\w{2})(\w{2})(\w{2})(\w{2})(\w{2})(\w{2}) ([\w-]+) Series FTP Server ready\.\r\n| d/printer/ p/Lexmark $1 series printer ftpd/ i/MAC: $1:$2:$3:$4:$5:$6/
+match ftp m|^220 aFTPServer ready \(cwd is /\)\r\n$| p/FTPServer/ o/Linux/ d/phone/
+match ftp m|^220 BCB1COOL Server \(Proftpd FTP Server\) \[([\w._-]+)\]\r\n| p/Proftpd FTP Server/ h/$1/
+match ftp m|^220 FTP version ([\w.]+)\r\n331 Enter PASS command\r\n$| p/DrayTek Vigor 2820 ADSL router ftpd/ v/$1/ d/broadband router/
+match ftp m|^220 Core FTP Server Version ([\w._-]+, build \d+), installed (\d+ days ago) Registered\r\n| p/Core FTP Server/ v/$1/ i/installed $2/
+match ftp m|^220-.*\r\n220 ([\w._-]+) FTP Server \(Apache/([\w._-]+) \(Linux/SUSE\)\) ready\.\r\n| p/Apache mod_ftpd/ v/$2/ h/$1/ o/Linux/
 
 #(insert ftp)
 
@@ -818,6 +825,7 @@ match ftp-proxy m|^220 FTP proxy \(v([\d.]+)\) ready\r\n530 Login incorrect\. Ex
 match ftp-proxy m|^220-Welcome to SpoonProxy V([\w._-]+) by Pi-Soft Consulting, LLC\r\n| p/Pi-Soft SpoonProxy ftp proxy/ v/$1/ o/Windows/
 match ftp-proxy m|^220-CCProxy FTP Service\(Unregistered\)\r\n| p/CCProxy ftp proxy/ i/unregistered/ o/Windows/
 match ftp-proxy m|^220 kingate\(([\w._-]+)-win32\) ftp proxy ready\r\n| p/kingate ftp proxy/ v/$1/ o/Windows/
+match ftp-proxy m|^220 FileCatalyst Server Enterprise v([^\r\n]*)\r\n$| p/FileCatalyst FTP proxy/ v/$1/
 
 # TODO kerio?
 #match ftp m|^421 Service not available \(The FTP server is not responding\.\)\n$| v/unknown FTP server//service not responding/
@@ -2147,6 +2155,7 @@ match smtp m|^220 ([\w_.-]+) ESMTP OpenSMTPD\r\n| p/OpenSMTPD/ h/$1/
 match smtp m|^220 Merak MAILSRV\r\n| p/Merak Mail Server smptd/
 match smtp m|^220 ([\w_.-]+) ESMTP Citadel server ready\.\r\n| p/Citadel smtpd/ h/$1/
 match smtp m|^220 ([\w_.-]+) Epiphany CME SMTP Server Version ([\d.]+) ready at [^\r\n]*\r\n| p/Epiphany Campaign Manager for Email (CME) smtpd/ v/$2/ h/$1/
+match smtp m|^220 ([\w_.-]+) \(\w+\) Welcome to Nemesis ESMTP server\r\n| p/Nemesis smtpd/ h/$1/
 
 match smtp-proxy m|^220 ([-\w_.]+) SMTP/DeleGate/([\d.]+) ready at .*\r\n| p/DeleGate smtpd/ v/$2/ h/$1/
 match smtp-proxy m|^220 ([-/.+\w]+) SMTP AnalogX Proxy (\d[-.\w]+) \(Release\) ready\r\n| p/AnalogX SMTP proxy/ h/$1/ v/$2/
@@ -2341,7 +2350,6 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.]+)-(CERN\d+)\r?\n| p/OpenSSH/ v/$2-$3/ i
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+)\.cern-hpn| p/OpenSSH/ v/$2-cern-hpn/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-hpn)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w.]+-pwexp\d+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/AIX/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([p\d.]+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-Nortel\r?\n| p/Nortel SSH/ d/switch/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) DragonFly-\d+\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/DragonFlyBSD/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) FIPS\n| p/OpenSSH/ v/$2/ i/protocol $1; Imperva SecureSphere firewall/ d/firewall/
@@ -3418,6 +3426,7 @@ match http m|^\(null\) 302 Found\r\nServer: \r\nDate: .*\r\nLocation: /index\.cg
 match http m|^HTTP/1\.1 505 Server Error\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<HTML><BODY>\n<TITLE>505 Internal Server Error</TITLE><H1>Internal Server Error: Invalid request</H1>\n<BR><BR>Internal Error\.\n</BODY></HTML>\n| p/Google Desktop Search for Linux Beta httpd/ o/Linux/
 match http m|^<HTML><HEAD><TITLE>400 Malformed request line</TITLE></HEAD><BODY.*http://tjws\.sourceforge\.net\">Rogatkin's JWS based on Acme\.Serve Version ([-\w_.]+), .Revision: ([-\w_.]+)|s p/TJWS httpd/ v/$2/ i/Based on Acme.Server $1/
 match http m|^HTTP/1\.1 500 Internal Server Error\r\nContent-Length: \d+\r\n\r\nTraceback \(most recent call last\):\n  File \"/usr/share/deluge/plugins/WebUi/gtk_cherrypy_wsgiserver\.py\"| p/Deluge bittorrent http interface/ i/CherryPy httpd/
+match http m|^HTTP/1\.0 400 Invalid Request\r\nContent-Type: text/html\r\nContent-Length: 31\r\n\r\n<title>Invalid Request</title>\n$| p/opentracker BitTorrent tracker/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP Web Jetadmin (\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/
 match http m|^HTTP/1\.1 404 \r\n.*<ns1:stackTrace xmlns:ns1=\"http://xml\.apache\.org/axis/\">java\.io\.IOException: Cannot handle non-GET, non-POST, non-HEAD request\n\tat org\.globus\.wsrf\.container\.ServiceThread\.parseHeaders\(ServiceThread\.java:855\)|s p/Globus Web Service httpd/
 match http m|^HTTP/1\.1 511 Not Implemented\r\n\r\n$| p|SMC Barricade/Netgear http config| d/broadband router/
@@ -3437,6 +3446,7 @@ match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: Dorgem/([\w._-]+)\r\n| p/
 match http m|^HTTP/1\.0 400 Bad request version \(crypto mismatch\?\)\r\nServer: ShadowBot/([\d.]+)\r\n| p/ShadowBot/ v/$1/ i/HP Opsware/
 match http m|^\(null\) 400 Bad Request\r\nServer: \r\n.*<HTML>\n            <HEAD><TITLE>400 Bad Request</TITLE></HEAD>\n            <BODY BGCOLOR=\"#cc9999\" TEXT=\"#000000\" LINK=\"#2020ff\" VLINK=\"#4040cc\">\n            <H4>400 Bad Request</H4>\nCan't parse request\.\n            <HR>\n            <ADDRESS><A HREF=\"\"></A></ADDRESS>\n            </BODY>\n            </HTML>\n$|s p/Linksys SVR4000 router/ d/router/
 match http m|^HTTP/1\.0 400 Bad Request\r\nServer: Extent/([\d.]+)\r\n\r\n<HTML><HEAD>\n<TITLE>Error</TITLE>\n</HEAD>\n<BODY>\n<H2>400 Bad Request</H2></BODY>\n</HTML>\n$| p/Alepo Extent/ v/$1/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"esecsrva\"\r\n\r\n\0{829,}| p/IBM Director wmicimserver httpd/
 
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\nPragma: no-cache\r\nConnection: close\r\nContent-Type: text/html; charset=utf-8\r\n\r\n<html><body>Invalid request<P><HR><i>This message was created by WinRoute Proxy</i></body></html>| p/WinRoute http proxy/ o/Windows/
 match http-proxy m|^HTTP/1\.0 400 Bad Request\r\n.*<html><body>\t\t<i><h2>Invalid request:</h2></i><p><pre>Bad request format\.\n</pre><b>\t\t</b><p>Please, check URL\.<p>\t\t<hr>\t\tGenerated by Oops\.\t\t</body>\t\t</html>$|s p/Oops! http proxy/ d/proxy server/
@@ -5962,6 +5972,11 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: WYM/([\d\.]+)\r\n| p/WYM httpd/ v/$1
 match http m|^HTTP/1.0 401 Unauthorized\r\nDate: .*\r\nConnection: close\r\nServer: Microsoft-WinCE/5.0\r\nSet-Cookie: .*\r\nWWW-Authenticate: Basic Realm="Kesseltronics"| p/Kesseltronics car wash tunnel http config/ d/specialized/ o/Windows/
 match http m|^HTTP/1.0 200\r\nContent-type: text/html\r\nConnection: close\r\nContent-Length: \d+\r\n\r\n<html>\r\n<head><title>BARIX Instreamer| p/Barix Instreamer audio encoder http config/ d/media device/ 
 match http m|^HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm="PortServer (TS \w+)"| p/Digi Portserver $1 terminal server http config/ d/terminal server/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: Mbedthis-Appweb/([\w.-]+)\r\n.*\r\n\r\n\n<HTML>\n<HEAD>\n  <META HTTP-EQUIV=\"Refresh\" CONTENT=\"0; URL=/esp/login\.esp\">\n</HEAD>\n<BODY>\n</BODY>\n</HTML>\n\n$|s p/Mbedthis-Appweb/ v/$1/ i/PA-4050 firewall http config/ d/firewall/
+match http m|^HTTP/1\.0 400 Bad Request\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Bad Request</TITLE></HEAD><BODY><h3>Error: Bad HTTP Request</h3></BODY></HTML>$| p/ZoneAlarm Z100G firewall http config/ d/firewall/
+match http m|^HTTP/1\.1 200 OK\r\n.*Server:  \r\n.*\r\n\r\n<html>\n<head>\n<title>ZyWALL ([\w -]+)</title>\n|s p/ZyXEL ZyWALL $1 firewall http config/ d/firewall/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: ALPHA-WebServer/([\w.]+)\r\n| p/ALPHA-WebServer/ v/$1/
+match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w.]+)\r\n.*<title>vmgrp1 Group Manager</title>\n|s p/RapidLogic/ v/$1/ i/EqualLogic PeerStorage PS100E NAS device/ d/storage-misc/
 
 #(insert http)
 
@@ -6721,6 +6736,12 @@ rarity 1
 ports 17,88,111,407,500,517,518,1419,2427,4045,10000,10080,12203,27960,32750-32810,38978
 
 match amanda m|^Amanda ([\d.]+) NAK HANDLE  SEQ 0\nERROR expected \"Amanda\", got \"r\xfe\x1d\x13\"\n| p/Amanda backup service/ v/$1/ o/Unix/
+
+# http://bittorrent.org/beps/bep_0029.html
+match bittorrent-utp m|^r\xfe\x1d\x13\0\0\0\0\0\0\0\0\0\0\0\0\xff\0\x03....$|s p/uTorrent uTP/ o/Windows/
+# Seems to be a bug here, with a time_t timestamp (0x4B......, ca. Dec 2009) instead of a microsecond count.
+match bittorrent-utp m|^r\xfe\x1d\x13........\x7f\xff\xff\xff\xff\x02\x02..\0\x01\0\x08\0\0\0\0\0\0\0\0$|s
+
 match domain m=^r\xfe\x9d\x04\0\0\0\0\0\0\0\x02\0\x01\x86\xa0\0\x01\x97\|\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$= p/Zoom X5 ADSL modem DNS/ d/broadband router/
 match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x01|
 match rpcbind m|^\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02|
@@ -7118,6 +7139,7 @@ match smtp m|^220 ([\w_.-]+) ESMTP SonicWALL \(([\d.]+)\)\r\n| p/SonicWALL Email
 match smtp m|^220 ([\w_.-]+) ready\r\n250-[\w_.-]+\r\n250 AUTH LOGIN PLAIN \r\n$| p/Freemail smtpd/
 match smtp m|^554 SMTP synchronization error\r\n| p/Exim/
 match smtp m|^220 ([\w._-]+)  ESMTP\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/ h/$1/
+match smtp m|^220 ESMTP Postfix\r\n501 Syntax: EHLO hostname\r\n| p/Postfix/
 
 match smtp m|^220 $| p/OpenBSD spamd/
 
@@ -7201,7 +7223,7 @@ match ftp m|^220[ -].*\r\n550 SSL/TLS required on the control channel\r\n|s p/Pr
 match ftp m|^220 FTP server ready\r\n214-The following commands are recognized:\r\nHELP\tUSER\tPASS\tQUIT\tLIST\tNLST\r\nRETR\tSTOR\tCWD\tTYPE\tPORT\tPWD\r\nSTRU\tMODE\tALLO\tACCT\tPASV\tNOOP\r\nDELE\tEPRT\tEPSV\r\n214 End of command list\.\r\n| p|TopLayer/Alcatel ftpd|
 match ftp m|^220.*This site is running NcFTPd Server software|s p/NcFTPd/
 match ftp m|^220 Connection established\.\r\n214-The following commands are supported:\r\n\tUSER\tPORT\tTYPE\tABOR\tCWD \tLIST\r\n\tPASS\tPASV\tSTRU\tPWD \tXCWD\tNLST\r\n\tQUIT\tSTOR\tRETR\tMODE\tXPWD\tNOOP\r\n\tHELP\r\n214 \r\n| p/Canon iR3570 priter ftpd/ d/printer/
-match ftp m|^220 (\w\w-\w+) FTP server\.\r\n214- FTPD supported commands\(RFC959 subset\):\r\n| p/Kyocera $1 printer ftpd/ d/printer/
+match ftp m|^220 ([\w._-]+) (?:Ver )([\w._-]+) FTP server\.\r\n214- FTPD supported commands\(RFC959 subset\):\r\n| p/Kyocera $1 printer ftpd/ v/$2/ d/printer/
 match ftp m|^220.Welcome to ([-\w_.]+)\r\n214-The following SITE commands are recognized\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/PureFTPd/ h/$1/
 match ftp m|^214-The following SITE commands are recognized\r\n.*214 Pure-FTPd - http://pureftpd\.org/\r\n|s p/PureFTPd/
 match ftp m|^220.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/Pure-FTPd/
@@ -7285,6 +7307,7 @@ match smtp m|^220 ([-\w_.]+) ESMTP\r\n402 Error: command not implemented\r\n$| p
 match smtp m|^220 smtpd\r\n502 [\d.]+ Error: command not recognized\r\n| p/Postfix smtpd/
 match smtp m|^220 ([-\w_.]+)\r\n502 [\d.]+ Error: command not recognized\r\n| p/Postfix smtpd/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/
+match smtp m|^220 ([-\w_.]+) ESMTP \(Ubuntu\)\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ o/Linux/
 match smtp m|^220 ([-\w_.]+) ESMTP [-\w_.]+\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) SMTP READY\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/
 match smtp m|^220 ESMTP service ready\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/
