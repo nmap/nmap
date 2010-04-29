@@ -40,7 +40,11 @@ diman - Diman Todorov, wrote the first version of NSE as a SoC project
         with Fyodor
 ejlbell - Eddie Bell
 jah - Jah
-kris - Kris Katterjohn
+kris - Kris Katterjohn, works on random things; has implemented many
+       features and bug fixes in Nmap (including scripts, libraries
+       and various functionalities in NSE) and was also the lead Ncat
+       developer until its initial release with Nmap.  Entries in the
+       Nmap and Ncat changelogs are typically denoted by just "Kris"
 daniel - Daniel Roethlisberger, wrote SCTP protocol support
 tomsellers - Tom Sellers
 robert - Rob Nicholls
