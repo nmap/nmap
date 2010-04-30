@@ -35,6 +35,9 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
+o Fix XML inconsistency described at
+  http://seclists.org/nmap-dev/2010/q2/326
+
 o [Ncrack] Use our new password lists (now used by NSE) for Ncrack as
   well.  Ncrack can probably handle a larger list than NSE uses.
 
