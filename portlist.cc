@@ -346,7 +346,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
         sname = service->s_name;
     }
     port->service->dtype = SERVICE_DETECTION_TABLE;
-    port->service->name_confidence = 2;  // Since we didn't even check it, we aren't very confident
+    port->service->name_confidence = 3;  // Since we didn't even check it, we aren't very confident
   }
 
   // port->serviceprobe_results = sres;
