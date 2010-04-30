@@ -2541,9 +2541,9 @@ static bool frame_is_arp(const u8 *frame, int datalink) {
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
    and returns 1.  If it times out and reads no arp requests, returns
-   0.  to_usec is the timeout periaod in microseconds.  Use 0 to avoid
+   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
    blocking to the extent possible.  Returns
-   -1 or exits if ther is an error. */
+   -1 or exits if there is an error. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct in_addr *senderIP, long to_usec,
                         struct timeval *rcvdtime) {
