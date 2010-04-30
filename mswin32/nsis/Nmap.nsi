@@ -12,6 +12,13 @@
 ;;   /NCAT=NO          don't install Ncat
 ;;   /NDIFF=NO         don't install Ndiff
 ;;   /NPING=NO         don't install Nping
+;;   /D=C:\dir\...     install to C:\dir\... (overrides InstallDir)
+;;
+;;/D is a built-in NSIS option and has these restrictions:
+;;(http://nsis.sourceforge.net/Docs/Chapter3.html)
+;;  It must be the last parameter used in the command line and must not
+;;  contain any quotes, even if the path contains spaces. Only absolute
+;;  paths are supported.
  
 ;-------------------------------- 
 ;Include Modern UI 
