@@ -1102,7 +1102,6 @@ static int l_nsock_receive_buf(lua_State * L)
     }
     return 2;
   }
-  /* yielding with 3 arguments since we need them when the callback arrives */
   set_thread(L, 1, udata);
   return nse_yield(L);
 }
