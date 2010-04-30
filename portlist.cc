@@ -330,7 +330,15 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
       || sres == PROBESTATE_FINISHED_SOFTMATCHED) {
     port->service->dtype = SERVICE_DETECTION_PROBED;
     port->service->name_confidence = 10;
-  } else if (sres == PROBESTATE_EXCLUDED) {
+  } else if (sres == PROBESTATE_FINISHED_TCPWRAPPED) {
+    port->service->dtype = SERVICE_DETECTION_PROBED;
+    if (sname == NULL)
+      sname = "tcpwrapped";
+    port->service->dtype = SERVICE_DETECTION_TABLE;
+    port->service->name_confidence = 8;
+  } else {
+    /* PROBESTATE_FINISHED_NOMATCH, PROBESTATE_EXCLUDED, PROBESTATE_INCOMPLETE.
+       Just look up the service name if none is provided. */
     if (sname == NULL) {
       struct servent *service;
       service = nmap_getservbyport(htons(portno), IPPROTO2STR(protocol));
@@ -339,12 +347,6 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
     }
     port->service->dtype = SERVICE_DETECTION_TABLE;
     port->service->name_confidence = 2;  // Since we didn't even check it, we aren't very confident
-  } else if (sres == PROBESTATE_FINISHED_TCPWRAPPED) {
-    port->service->dtype = SERVICE_DETECTION_PROBED;
-    if (sname == NULL)
-      sname = "tcpwrapped";
-    port->service->dtype = SERVICE_DETECTION_TABLE;
-    port->service->name_confidence = 8;
   }
 
   // port->serviceprobe_results = sres;
