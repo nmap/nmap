@@ -820,5 +820,4 @@ return function (hosts)
   end
 
   collectgarbage "collect";
-  print_verbose(1, "Script Scanning completed.");
 end
