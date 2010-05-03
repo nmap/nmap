@@ -4168,7 +4168,7 @@ match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server v(\d[-.
 # D-Link DWL-1000AP Wireless Access Point
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PSIWBL/(\d[-.\w]+)\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Enter Password \(Leave User Name Empty\)\"\r\n| i/D-Link http config/ p/PSIWBL/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: WhatsUp_Gold/(\d[-.\w]+)\r\n| p/IPswitch Whats Up Gold/ v/$1/
-match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(MR[-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| i/Netgear $1 WAP/router http config/ p/ZyXEL-RomPager/ v/$2/ d/WAP/
+match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(MR[-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| i|Netgear $1 WAP/router http config| p/ZyXEL-RomPager/ v/$2/ d/WAP/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(R[PT][-.\w]+)\"\r\nContent-Type: text/html\r\nServer: ZyXEL-RomPager/(\d[-.\w]+)\r\n\r\n| i/Netgear $1 router http config/ p/ZyXEL-RomPager/ v/$2/ d/router/
 # Netgear MR814 wireless router remote administration, Firmware 4.13 Aug 20 2003
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"(MR[-.+\w]+)\"\r\nServer: Embedded HTTPD v(\d[-.\w]+), (.*)\r\n| p/Netgear MR-series WAP http config/ i/$1; Embedded HTTPD $2, $3/ d/WAP/
