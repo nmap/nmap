@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The dns-recursion script now marks the port when it gets a
+  response. This is a patch from Olivier M.
+
 o [NSE] Improved smtp-commands.nse to work against more mail servers,
   made it take an smtp-commands.domain script argument, and rewrote it
   in the style of other smtp scripts. [Jason DePriest]

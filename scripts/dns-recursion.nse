@@ -33,6 +33,8 @@ action = function(host, port)
         return
     end
 
+    nmap.set_port_state(host, port, "open")
+
     -- parse response for dns flags
     if (bit.band(string.byte(result,3), 0x80) == 0x80
         and bit.band(string.byte(result,4), 0x85) == 0x80)
