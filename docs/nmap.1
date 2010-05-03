@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 03/29/2010
+.\"      Date: 04/13/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "03/29/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "04/13/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -2189,15 +2189,6 @@ environmental variable may be set as an equivalent alternative to
 \fB\-\-release\-memory\fR (Release memory before quitting) .\" --release-memory
 .RS 4
 This option is only useful for memory\-leak debugging\&. It causes Nmap to release allocated memory just before it quits so that actual memory leaks are easier to spot\&. Normally Nmap skips this as the OS does this anyway upon process termination\&.
-.RE
-.PP
-\fB\-\-interactive\fR (Start in interactive mode) .\" --interactive .\" interactive mode
-.RS 4
-Starts Nmap in interactive mode, which offers an interactive Nmap prompt allowing easy launching of multiple scans (either synchronously or in the background)\&. This is useful for people who scan from multi\-user systems as they often want to test their security without letting everyone else on the system know exactly which systems they are scanning\&. Use
-\fB\-\-interactive\fR
-to activate this mode and then type
-h
-for help\&. This option is rarely used because proper shells are usually more familiar and feature\-complete\&. This option includes a bang (!) operator for executing shell commands, which is one of many reasons not to install Nmap setuid root\&..\" setuid, why Nmap shouldn't be
 .RE
 .PP
 \fB\-V\fR; \fB\-\-version\fR (Print version number) .\" -V .\" --version
