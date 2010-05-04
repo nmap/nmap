@@ -2644,8 +2644,8 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   /*    printf("TCP port %hu has changed from state %s to %s!\n", portno, statenum2str(oldstate), statenum2str(newstate)); */
   switch(oldstate) {
     /* TODO: I need more code here to determine when a state should
-       be overridden, for example PORT_OPEN trumps PORT_FIREWALLED
-       in a SYN scan, but not neccessarily for UDP scan */
+       be overridden, for example PORT_OPEN trumps PORT_FILTERED
+       in a SYN scan, but not necessarily for UDP scan */
   case PORT_TESTING:
     /* Brand new port -- add it to the list */
     hss->target->ports.setPortState(portno, proto, newstate);
