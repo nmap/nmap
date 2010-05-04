@@ -35,9 +35,6 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
-o Fix XML inconsistency described at
-  http://seclists.org/nmap-dev/2010/q2/326
-
 o [Ncrack] Use our new password lists (now used by NSE) for Ncrack as
   well.  Ncrack can probably handle a larger list than NSE uses.
 
@@ -67,8 +64,9 @@ o We should offer partial results when a host
     place.
 
 o Nmap should at least print (and maybe scan) all IP addresses for
-  hostnames specified on the command line.  Here is a thread on the
-  topic: http://seclists.org/nmap-dev/2010/q2/302
+  hostnames specified on the command line.  We will start with just
+  printing all the addresses. Here is a thread on the topic:
+  http://seclists.org/nmap-dev/2010/q2/302
 
 o Integrate new service detection fingerprint submissions (we have
   more than 730 since Dec. 17, 2009.
@@ -544,6 +542,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix XML inconsistency described at
+  http://seclists.org/nmap-dev/2010/q2/326
 
 o Integrate new OS fingerprints (we have more than 1,300 since
   November 10, 2009).
