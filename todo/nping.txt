@@ -1,0 +1,379 @@
+/*****************************************************************************
+ *                                                                           *
+ *                                             o                             *
+ *                                              o                            *
+ *                                               o                           *
+ *                                        o       o                          *
+ *                                         o       o                         *
+ *                                          o       o                        *
+ *                                    o      o       o                       *
+ *                                     o      o      o                       *
+ *                         888b    888  o     o      o                       *
+ *                         8888b   888  o     o      o                       *
+ *                         888Y88b 888  o     o      o                       *
+ *                         888Y88b 888               o                       *
+ *                         888 Y88b888               o                       *
+ *                         888  Y88888                                       *
+ *                         888   Y8888                                       *
+ *                         888    Y888                                       *
+ *                                                                           *
+ *                     --[NPING TO-DO LIST]--                                *
+ *                                                                           *
+ *****************************************************************************/
+
+ This file contains Nping's to-do list. Items are listed in order of priority
+ (high priority items are listed first). Feel free to work on any of the items
+ on the list. However, if you'd like to work on something that is not trivial
+ to implement you may want to send a message to the nmap-dev list before you
+ start so other developers can see what you are planning to do. Make sure you
+ explain exactly what you are trying to fix/implement and how you are planning 
+ to do it. It's always better to discuss bugfixes and new feature additions in
+ advance because they may actually have bigger implications than you think and
+ you may not get your patch accepted.
+
+ Please keep in mind that contributed code must:
+  * Be written in C++.
+  * Include comments so anyone can understand immediately what it does.
+  * Work on Linux, Mac OS and MS Windows. It's OK if you have not tested
+    the code in all those platforms, but at least keep portability in mind when
+    you write it and include a list of systems you've tested it on along with
+    your patch.
+
+  Questions, comments and patches should be sent to the Nmap development
+  mailing list (nmap-dev). To suscribe:
+  <http://insecure.org/mailman/listinfo/nmap-dev>
+
+
+/*****************************************************************************
+ * Things that have NOT been done yet                                        *
+ *****************************************************************************/
+
+* Fix possible bug in BPF filter specification. More details in 
+  http://seclists.org/nmap-dev/2010/q2/252
+
+* Fix Windows rtt values.  Right now Nsock does not seem to be giving
+  the callback at the proper time, or something.
+
+* Set up automatic conversion from nping XML man page to HTML for
+  http://nmap.org/nping/man.html [Fyodor working on this]
+
+* Stats for ARP packets.
+
+* Include signature files in new releases. [Requested by Henri Salo]
+
+* Do more testing on Mac OS & MS Windows.
+
+* Make privileged and unprivileged TCP/UDP mode specification consistent.
+
+>  - User is unprivileged and did not supply mode:  --> Use TCP-Connect
+>  - User is unprivileged and supplied --tcp --> Use TCP-Connect
+>  - User is unprivileged and supplied --upd --> User UDP unprivileged
+>  - User is root and did not supply mode --> Use ICMP Echo
+>  - User is root and supplied --tcp --> Use raw sockets TCP
+>  - User is root and supplied --udp --> User raw sockets UDP
+>  - User is root and wants to use TCP-Connect --> User needs to either
+>    pass --tcp-connect or --unprivileged
+>  - User is root and want unprivileged UDP --> User needs to pass
+>    --unprivileged or --udp-XXXXX (any suggestions?. --udp-sendto() may not
+>    be the best idea because when we use raw sockets we also use sendto() to
+>    transmit the data).
+
+* Test out Nping IPv6 on working IPv6 network (even if just between
+  two machines, or localhost, or with a VMWare guest).
+
+* Decide more on rDNS
+ - Do we want to rDNS resolve all target IPs?  If so, where should we
+   show the name?  At the final report (even when just one host
+   scanned, which omits that line now)?  In the individual packet
+   trace lines?  When a CNAME (or a name which forward resolves but
+   does the IP doesn't reverse resolve) is specified on the command
+   line, should we use that version, or the official rDNS, if any?
+ - Some more discussion on this topic on nmap-dev may be warranted.
+
+* Include new proc-ipv6-related functions into libdnet
+
+* Implement TCP options
+
+* The "Register Nping path" in the windows installer does not work and needs
+  to be fixed.
+
+* Work on nping&nmap code merge.
+
+* Improve IPv6 support. We need to test it in many platforms to see how it
+  behaves.
+
+* Do some performance testing.  
+   Fyodor:
+   <<Nping should be able to send packets quickly, at least comparable to
+   "ping -f" and hping. If it can't send as many packets per second as those,
+   then it warrants looking into whym figuring out what the bottlenecks are.
+   It would be good to compare nping with other tools such as hping in
+   terms of how high the values of packets per second can get and still
+   work reliably.>>
+
+* Implement hping-like ability to change the port/ttl using the keyboard
+  during a scan.
+
+* Support reverse DNS resolution in --traceroute
+
+* Support pre defined probe rates: --fast, --faster, --flood, --slow,
+   --slower, --paranoid...
+
+* Do small fix in nmap's send_ip_packet_sd()
+  -   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
+  +   res = Sendto("send_ip_packet_sd", sd, packet, packetlen, 0,
+
+* Consider using David's proto-dependant payloads for UDP packets. According
+  to his tests, better results are obtained when sending UDP probes with a
+  payload specific to the protocol.
+  
+* For options that take numbers we need to allow users to specify them 
+  also in hex with the format 0xNNNN...
+
+* Disable ARP resolution when --source-mac is specified.
+
+* Implement --data-file option. What should we do if file is big? Read the
+  first X bytes? Send consecutive chunks?
+
+* Implement ICMP address mask
+
+* Implement entire ICMP Traceroute message opts.
+
+* Research on default IP Identification value. Kernel does not seem to like
+  value 0 because when set to zero, kernel changes it to some other value. When
+  we set it to something !=0, the kernel leaves our value untouched.
+
+* At some point in the future, implement weird ICMP Types. I think this would
+  let us make a difference to the rest of pings and packet creation tools 
+  because anyone wanting to send weirds packes would have to download our
+  Nping ;-)
+ ( http://www.iana.org/assignments/icmp-parameters ) 
+ 6     Alternate Host Address                            [JBP] 
+ 31     Datagram Conversion Error                         [RFC1475]
+ 32     Mobile Host Redirect                              [David Johnson] 
+ 33     IPv6 Where-Are-You                                [Bill Simpson]
+ 34     IPv6 I-Am-Here                                    [Bill Simpson]
+ 35     Mobile Registration Request                       [Bill Simpson]
+ 36     Mobile Registration Reply                         [Bill Simpson]
+ 39     SKIP                                              [Markson]
+ 40     Photuris                                          [RFC2521]
+
+* Implement checks in function that handles received packets:
+    Fyodor: 
+    <<You can't assume that the filter always works right, so you do need to
+    validate the information anyway. For example, on windows in some cases
+    we have to change the filter to "" because it doesn't work otherwise
+    so, in actuality, I often end up with rather broad pcap filters and then
+    do the checking by hand, but tightening the pcap filter can improve
+    performance a bit.>>
+
+* Implement "-iL inputfilename (Input from list) " and the case where "-" is
+  supplied and target specs need to be read from stdin.  
+  
+* Add option to allow sending NO packets but act as a simple sniffer. Users
+  could use --bpf-filter to specify a tcpdump-like filter and get every 
+  receive packet printed to stdout. Maybe with "-c 0"? "-c none"? We need to
+  have some flag in NpingOps so we don't terminate Nping but wait undefinitely.
+  
+* At some point we should support nmap-like MAC specification. 
+
+* When implementing IPv6, check MAX_TCP_PAYLOAD_LEN constant and method 
+  TCPHeader::setSum(). Because with IPv6 the max payload length should be 20
+  bytes less than with the IPv4 header.
+
+* When using payloads, take into account that the IP and TCP headers may 
+  contain options and therefore, the maximum payload len should be
+  65535 - 20(ip header) - 40 (ip options) -20(tcp header) -20(tcp options);
+
+* Make sure randomnly generated checksums are in fact invalid and don't match
+  the correct checksum. There is a 1/65535 chance of this happening. 
+
+* Fyodor:
+  <<in some cases it might be nice to have an option which sends all 
+  probes (all ports to all hosts) at the same time.>>
+
+* It would be nice to have Bzip2 packages. [Requested by Henri Salo]
+
+
+/*****************************************************************************
+ * Things that have been solved already                                      *
+ *****************************************************************************/
+
+[DONE] Add default target port for TCP-Connect and TCP modes :: Port 80
+
+[DONE] Add default target port for UDP mode :: Port 40125
+
+[DONE] Add default UDP Source port: 53
+    JUSTIFICATION: From David's EffectivenessOfPingProbes
+     http://www.bamsoftware.com/wiki/Nmap/EffectivenessOfPingProbes  
+     "The best individual UDP probes are still those to a random high port, 
+      with a source port of 53 and a non-empty payload. Even without the source 
+      port and payload, the ports 40125 and 40126 that I picked out of the air 
+      are better choices than the current default of 31338, finding around 400 
+      additional hosts." 
+
+[DONE] Change resolution for the inter-ping delay. (Fyodor: btw, usleep() will 
+  probably do the trick for you as it let's you sleep with microsecond 
+  precision)
+
+[DONE] Use int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, unsigned int 
+  packetlen) instead of ip_open();
+
+[DONE] Add protocol to BPF filterstring because It is possible that when in TCP mode
+  a UDP packet destined to the TCP source, arrives to the net iface and gets
+  printed. 
+
+[DONE] Implement multiple port specification.
+
+[DONE] Implement ICMP router advertisement entries
+
+[DONE] Default probe mode: ICMP echo
+
+[DONE] Test ICMPv4Header::addRouterAdEntry() and check entries are being added
+  correctly.
+  
+[DONE] Determine source IP address automatically
+
+[DONE] Determine network interface to be used for packet capture automatically  
+
+[DONE] Add support for cached DNS requests 
+
+[DONE] Start user documentation (mainly man page)
+
+[DONE] Change output to include timing information 
+
+[DONE] Implement controls in payload options parsing to prevent specifying lengths
+  that cannot be carried by a single TCP/UDP packet. 
+
+[DONE] Start implementing unprivileged UDP pings.
+
+[DONE] When sending ICMP packets, checksum is not being computed correcly if 
+  --data-length, and options like that, are specified.
+
+[DONE] Find a bug that under some circumstances produces a segfault. It is probably
+  related to the way option -e is being handled.
+
+[DONE] Fix a bug in option "-e iface" that results on IP 2.0.0.0 being used as a 
+  source address.
+
+[DONE] Update --help display to include new ICMP flags. Check also commandline syntax
+  docs.
+
+[DONE] Use nsock approach instead of threads.
+
+[DONE] Finish ARP/RARP support.
+
+[DONE] Change doc for option --count. We don't stop after N probes, we stop after
+  N rounds.
+  
+[DONE] Ask Fyodor what tool is used to convert from nmap-man.xml to nmap.1
+
+[DONE] Check all outPrint()s and outError()s to ensure they specify the correct 
+  verbosity/debug level.
+
+[DONE] Document format specified in ArgParser::atoICMPType().
+
+[DONE] Document format specified in ArgParser::atoICMPCode().
+
+[DONE] Finish implementing unprivileged UDP pings.
+
+[DONE] Finish Ethernet frame creation.
+
+[DONE] Find a way to convert the nping.xml into man page.
+
+[DONE] Check what happens if payload is specified and we are not sending TCP/UDP 
+  but ICMP or other proto packets. [Sometimes it may not make sense to include
+  payloads (e.g. ARP) but we still allow it just in case users want to play 
+  around].
+
+[DONE] Ask Fyodor whether we want to display elapsed time (like nmap) or we prefer to
+  display rtt time as other ping utilities do. [This is probably fine for now]
+
+[DONE] Fix the warnings produced by Fyodor's gcc.
+   +---------------+
+    NpingTargets.cc: In member function ‘int NpingTargets::processSpecs()’:
+    NpingTargets.cc:315: warning: comparison between signed and unsigned integer expressions
+    NpingTargets.cc: In member function ‘NpingTarget* NpingTargets::getNextTarget()’:
+    NpingTargets.cc:333: warning: comparison between signed and unsigned integer expressions
+   +---------------+
+    In file included from /usr/include/string.h:640,
+                     from nbase/nbase.h:158,
+                     from nping.h:107,
+                     from utils.cc:95:
+    In function ‘void* memset(void*, int, size_t)’,
+        inlined from ‘int getNetworkInterfaceName(sockaddr_storage*, char*)’ at utils.cc:689:
+    /usr/include/bits/string3.h:85: warning: call to void* __builtin___memset_chk(void*, int, long unsigned int, long unsigned int) will always overflow destination buffer
+   +---------------+
+
+
+[DONE] Redesign verbosity levels: 
+    * Put verbosity levels 2 into level 1
+    * Use level 2 for error.
+    * Use level 3 to print everything but not sent/rcv packets.
+    * Level 4 the usual
+
+[DONE] Add stats at the end of nping execution.
+
+[DONE] Add options to disable viewing of sent packets.
+
+[DONE] Add option to to disable packet capture.
+
+[DONE] Add a section to the man page explaining how we iterate over targets,
+       ports, etc.
+
+[DONE] Beta-testing email to the list.
+
+[DONE] Change default round count to 5.
+
+[DONE] Fix a segfault detected by Fyodor in trg=o.targets.findTarget(...).
+
+[DONE] Send an email to the list telling about the nping.exe file.
+
+[DONE] Support CTRL-C statistics.
+
+[DONE] Change "solution" file in mswin32/nmap.sln to nping.sln
+
+[DONE] In man page and -h: move Ethernet section so it appears after network
+  layer info.
+
+[DONE] Make rx time more accurate taking into account that we wait for a bit after
+  the last probe is sent.
+
+[DONE] Fix bug: add ICMP dest unreachable, etc to the BPF filter so we can get
+  icmp error messages when TTLs expire, etc.
+
+[DONE] Disable all ethernet related code when sendEth is false.
+
+[DONE] Finish porting Nping to Windows.
+
+[DONE] Find an OS X box to test Nping.
+
+[DONE] Reorganize verbosity levels (again ;-) [-3, +3].
+
+[DONE] Finish documentation for options --source-mac and --dest-mac
+
+[DONE] Make sure --ether-type supports specifying types in hex.
+
+[DONE] Implement verbosity level 3: in this level, sent and recv packets are
+  hexdumped to stdout.
+
+[DONE] Write and check in nping/index.html web site
+ - Include SVN checkout/install instructions
+ - include tarballs when available
+
+[DONE] Create Windows installer (maybe can copy a lot of stuff from what
+  Ithilgore has done with Ncrack)
+
+[DONE] Create Nping release tarball for UNIX systems
+
+[DONE] Release Nping 0.1BETA2
+
+[DONE] Man page should say Nping is currently in Alpha stage.
+
+[DONE] Support -vvv, -qqq and -ddd syntax. [Requested by Dirk Loss]
+
+[DONE] Create Mac OS X installer (also can probably copy a lot of stuff
+  from what Ithilgore has done with Ncrack.  David can usually help
+  with installer building).
+
+[DONE] Move nping to /nping in SVN rather than being in nmap-exp
