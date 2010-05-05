@@ -31,7 +31,7 @@ david - Nmap co-maintainer David Fifield
 ron - Ron Bowes (http://www.skullsecurity.org)
 patrik - Patrik Karlsson (wrote tons of great NSE scripts)
 bmenrigh - Brandon Enright
-batrick - Patrick Donnelly
+batrick - Patrick Donnelly wrote the current version of NSE.
 ithilgore - Ithilgore wrote the Ncrack authentication cracker
             (http://nmap.org/ncrack/)
 luis - Luis MartinGarcia wrote the Nping tool for packet generation,
