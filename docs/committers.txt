@@ -32,12 +32,15 @@ ron - Ron Bowes (http://www.skullsecurity.org)
 patrik - Patrik Karlsson (wrote tons of great NSE scripts)
 bmenrigh - Brandon Enright
 batrick - Patrick Donnelly
-ithilgore - Ithilgore wrote Ncrack with Fyodor as a SoC project
-luis - Luis MartinGarcia wrote Nping with Fyodor as a SoC project
+ithilgore - Ithilgore wrote the Ncrack authentication cracker
+            (http://nmap.org/ncrack/)
+luis - Luis MartinGarcia wrote the Nping tool for packet generation,
+       response analysis, and response time measurement
+       (http://nmap.org/nping/)
 majek04 - Marek Majkowski
 doug - Doug Hoyte
-diman - Diman Todorov, wrote the first version of NSE as a SoC project
-        with Fyodor
+diman - Diman Todorov, wrote the initial version of the Nmap Scripting
+        Engine.
 ejlbell - Eddie Bell
 jah - Jah
 kris - Kris Katterjohn, works on random things; has implemented many
