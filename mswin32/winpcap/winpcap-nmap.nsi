@@ -30,9 +30,15 @@ OutFile "winpcap-nmap-4.11.exe"
 
 RequestExecutionLevel admin
 
-; The default installation directory
-InstallDir $PROGRAMFILES\WinPcap
-;No longer check registry for the location, let installer handle everything.
+; These leave either "1" or "0" in $0.
+Function is64bit
+  System::Call "kernel32::GetCurrentProcess() i .s"
+  System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+FunctionEnd
+Function un.is64bit
+  System::Call "kernel32::GetCurrentProcess() i .s"
+  System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+FunctionEnd
 
 VIProductVersion "4.1.0.1753"
 VIAddVersionKey /LANG=1033 "FileVersion" "4.1.0.1753"
@@ -124,6 +130,17 @@ Function .onInit
   var /GLOBAL npf_startup
   StrCpy $my_ver "4.1.0.1753"
   StrCpy $npf_startup "YES"
+
+  ; Always use the requested /D= $INSTDIR if given.
+  StrCmp $INSTDIR "" "" instdir_nochange
+  ; On 64-bit Windows, $PROGRAMFILES is "C:\Program Files (x86)" and
+  ; $PROGRAMFILES64 is "C:\Program Files". We want "C:\Program Files"
+  ; on 32-bit or 64-bit.
+  StrCpy $INSTDIR "$PROGRAMFILES\WinPcap"
+  Call is64bit
+  StrCmp $0 "0" instdir_nochange
+  StrCpy $INSTDIR "$PROGRAMFILES64\WinPcap"
+  instdir_nochange:
 
   ${GetParameters} $R0
   ClearErrors
@@ -361,11 +378,8 @@ Section "WinPcap" SecWinPcap
     File vista\x86\Packet.dll
 
   install:
-
-    ; check for x64, install the correct npf.sys file into system32\drivers
-    System::Call "kernel32::GetCurrentProcess() i .s"
-    System::Call "kernel32::IsWow64Process(i s, *i .r0)"
-    StrCmp $0 "0" is32bit is64bit
+    Call is64bit
+    StrCmp $0 "0" install_32bit install_64bit
 
     ; Note, NSIS states: "You should always quote the path to make sure spaces
     ; in the path will not disrupt Windows to find the uninstaller."
@@ -374,25 +388,25 @@ Section "WinPcap" SecWinPcap
     ; DisplayIcon doesn't usually have quotes (even on Microsoft installations) and
     ; HKLM Software\PackageName doesn't usually have quotes either.
 
-    is32bit:
-      SetOutPath "$PROGRAMFILES\WinPcap"
+    install_32bit:
+      SetOutPath $INSTDIR
       File rpcapd.exe
       File LICENSE
-      WriteUninstaller "$PROGRAMFILES\WinPcap\uninstall.exe"
+      WriteUninstaller "$INSTDIR\uninstall.exe"
       DetailPrint "Installing x86 driver"
       SetOutPath $SYSDIR\drivers
       File npf.sys ; x86 NT5/NT6 version
-      WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES\WinPcap"
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$PROGRAMFILES\WinPcap\uninstall.exe$\""
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$PROGRAMFILES\WinPcap\uninstall.exe$\" /S"
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$PROGRAMFILES\WinPcap\uninstall.exe"
+      WriteRegStr HKLM "Software\WinPcap" "" "$INSTDIR"
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$INSTDIR\uninstall.exe"
       Goto npfdone
 
-    is64bit:
-      SetOutPath "$PROGRAMFILES64\WinPcap"
+    install_64bit:
+      SetOutPath $INSTDIR
       File rpcapd.exe
       File LICENSE
-      WriteUninstaller "$PROGRAMFILES64\WinPcap\uninstall.exe"
+      WriteUninstaller "$INSTDIR\uninstall.exe"
       DetailPrint "Installing x64 driver"
       SetOutPath $SYSDIR\drivers
       ; disable Wow64FsRedirection
@@ -412,12 +426,12 @@ Section "WinPcap" SecWinPcap
       vista_x64_packet:
       File vista\x64\Packet.dll ; x64 Vista version
       nt5_x64_packet_done:
-      WriteRegStr HKLM "Software\WinPcap" "" "$PROGRAMFILES64\WinPcap"
+      WriteRegStr HKLM "Software\WinPcap" "" "$INSTDIR"
       ; re-enable Wow64FsRedirection
       System::Call kernel32::Wow64EnableWow64FsRedirection(i1)
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$PROGRAMFILES64\WinPcap\uninstall.exe$\""
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$PROGRAMFILES64\WinPcap\uninstall.exe$\" /S"
-      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$PROGRAMFILES64\WinPcap\uninstall.exe"
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString" "$\"$INSTDIR\uninstall.exe$\""
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "QuietUninstallString" "$\"$INSTDIR\uninstall.exe$\" /S"
+      WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayIcon" "$INSTDIR\uninstall.exe"
 
     npfdone:
 
@@ -479,8 +493,7 @@ Section "Uninstall"
   Delete $SYSDIR\wpcap.dll
 
   ; check for x64, delete npf.sys file from system32\drivers
-  System::Call "kernel32::GetCurrentProcess() i .s"
-  System::Call "kernel32::IsWow64Process(i s, *i .r0)"
+  Call un.is64bit
   StrCmp $0 "0" del32bitnpf del64bitnpf
   del64bitnpf:
   ; disable Wow64FsRedirection
