@@ -17,29 +17,33 @@ Currently working on:
        could cause problems in the future.
      o Get rid of the static nsock_pool and use a dynamically allocated
        structure on a per-host-group basis.
+     o Prepare for Lua 5.2 --> Change to real errors.
 
--- NSE Debugger. Look at Diman's implementation:
-   http://seclists.org/nmap-dev/2008/q1/0228.html
-   http://www.keplerproject.org/remdebug/
+-- HTTP Library in LPeg.
 
 -- Merge utility functions into a single source file (e.g. table_length
    and all debug functions). Is there a simple way to define a DEBUG flag
    during compilation for the inclusion of the debug functions?
 
--- Look into moving Packet Module to C.
-
 ===
 
 Maybe:
 
--- [MAYBE] Review NSE Nsock Socket Allocation:
+-- NSE Debugger. Look at Diman's implementation:
+   http://seclists.org/nmap-dev/2008/q1/0228.html
+   http://www.keplerproject.org/remdebug/
+
+-- Review NSE Nsock Socket Allocation:
     o Dynamically increase socket slots if nothing has been done
       in the last ~5 seconds. Also decrease once traffic is working again.
       This resolves any sort of socket deadlock.
 
--- [MAYBE] Deadlock identification and correction:
+-- Deadlock identification and correction:
     o Add detection for deadlocks and print which threads are involved.
     o use above results to make a strategy for automatic deadlock resolution.
+
+-- Look into moving Packet Module to C.
+
 
 ===
 
