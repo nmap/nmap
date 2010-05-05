@@ -26,29 +26,32 @@ they will be happily re-enabled upon request.
 Committers should feel free to fill in their
 bio/description/interests/links on this list:
 
-fyodor - Nmap author Fyodor
-david - Nmap co-maintainer David Fifield
-ron - Ron Bowes (http://www.skullsecurity.org)
-patrik - Patrik Karlsson (wrote tons of great NSE scripts)
-bmenrigh - Brandon Enright
-batrick - Patrick Donnelly wrote the current version of NSE.
-ithilgore - Ithilgore wrote the Ncrack authentication cracker
-            (http://nmap.org/ncrack/)
-luis - Luis MartinGarcia wrote the Nping tool for packet generation,
-       response analysis, and response time measurement
-       (http://nmap.org/nping/)
-majek04 - Marek Majkowski
-doug - Doug Hoyte
-diman - Diman Todorov, wrote the initial version of the Nmap Scripting
-        Engine.
-ejlbell - Eddie Bell
-jah - Jah
-kris - Kris Katterjohn, works on random things; has implemented many
-       features and bug fixes in Nmap (including scripts, libraries
-       and various functionalities in NSE) and was also the lead Ncat
-       developer until its initial release with Nmap.  Entries in the
-       Nmap and Ncat changelogs are typically denoted by just "Kris"
-daniel - Daniel Roethlisberger, wrote SCTP protocol support
+fyodor     - Nmap author Fyodor
+david      - Nmap co-maintainer David Fifield
+ron        - Ron Bowes (http://www.skullsecurity.org)
+patrik     - Patrik Karlsson (wrote tons of great NSE scripts)
+bmenrigh   - Brandon Enright
+batrick    - Patrick Donnelly wrote the current version of NSE.
+ithilgore  - Ithilgore wrote the Ncrack authentication cracker
+             (http://nmap.org/ncrack/)
+luis       - Luis MartinGarcia wrote the Nping tool for packet
+             generation, response analysis, and response time
+             measurement (http://nmap.org/nping/)
+majek04    - Marek Majkowski
+doug       - Doug Hoyte
+diman      - Diman Todorov, wrote the initial version of the Nmap
+             Scripting Engine.
+ejlbell    - Eddie Bell
+jah        - John A. Hickinbottom enjoys hacking with the Nmap family
+             of tools and has contributed bug fixes, NSE scripts and
+             various small improvements in NSE scripts and libraries.
+kris       - Kris Katterjohn, works on random things; has implemented
+             many features and bug fixes in Nmap (including scripts,
+             libraries and various functionalities in NSE) and was
+             also the lead Ncat developer until its initial release
+             with Nmap.  Entries in the Nmap and Ncat changelogs are
+             typically denoted by just "Kris"
+daniel     - Daniel Roethlisberger, wrote SCTP protocol support
 tomsellers - Tom Sellers
-robert - Rob Nicholls
-sven - Sven Klemm
+robert     - Rob Nicholls
+sven       - Sven Klemm
