@@ -16407,7 +16407,7 @@ unknown	49990/udp	0.001004
 unknown	49996/udp	0.000502
 unknown	49998/udp	0.001004
 unknown	49999/tcp	0.000684
-iiimsf	50000/tcp	0.001317	# Internet/Intranet Input Method Server Framework
+ibm-db2	50000/tcp	0.001317	# (also Internet/Intranet Input Method Server Framework?)
 unknown	50001/tcp	0.000836
 iiimsf	50002/tcp	0.000351	# Internet/Intranet Input Method Server Framework
 unknown	50003/tcp	0.000380
