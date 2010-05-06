@@ -1021,7 +1021,7 @@ int nmap_main(int argc, char *argv[]) {
       o.script = 1;
 #endif
       if (o.isr00t) {
-        o.osscan = OS_SCAN_DEFAULT;
+        o.osscan++;
         o.traceroute = true;
       }
       break;
@@ -1131,7 +1131,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'n': o.noresolve++; break;
     case 'O':
       if (!optarg || *optarg == '2')
-        o.osscan = OS_SCAN_DEFAULT;
+        o.osscan++;
       else if (*optarg == '1')
         fatal("First-generation OS detection (-O1) is no longer supported. Use -O instead.");
       else
@@ -1373,7 +1373,7 @@ int nmap_main(int argc, char *argv[]) {
   if (pre_host_timeout != -1) o.host_timeout = pre_host_timeout;
 
 
-  if (o.osscan == OS_SCAN_DEFAULT)
+  if (o.osscan)
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
 
   validate_scan_lists(ports,o);
@@ -1923,7 +1923,7 @@ int nmap_main(int argc, char *argv[]) {
       }
     }
 
-    if (o.osscan == OS_SCAN_DEFAULT)
+    if (o.osscan)
       os_scan2(Targets);
 
     if (o.traceroute)

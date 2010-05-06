@@ -366,9 +366,6 @@ void *realloc();
 /* For nonroot. */
 #define DEFAULT_PING_CONNECT_PORT_SPEC "80,443"
 
-/* OS scan */
-#define OS_SCAN_DEFAULT 9
-
 /* How many syn packets do we send to TCP sequence a host? */
 #define NUM_SEQ_SAMPLES 6
 
