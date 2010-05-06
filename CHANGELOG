@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added EPROTO to the list of known error codes in service scan. Daniel
+  Miller reported that an EPROTO was causing Nmap to exit after sending
+  the Sqlping probe during service scan. The error message was
+  "Unexpected error in NSE_TYPE_READ callback. Error code: 71 (Protocol
+  error)". We suspect this was caused by a forged ICMP packet sent by an
+  active firewall.
+
 o [NSE] The dns-recursion script now marks the port when it gets a
   response. This is a patch from Olivier M.
 
