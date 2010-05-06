@@ -8158,7 +8158,7 @@ match ldap m|^0%\x02\x01\x01a \n\x010\x04\0\x04\x19anonymous bind disallowed$| p
 # OpenLDAP 2.1.22 - doesn't by default allow LDAPv2 request
 match ldap m|^02\x02\x01\x01a-\n\x01\x02\x04\0\x04&requested protocol version not allowed$| p/OpenLDAP/ v/2.1.X/
 # OpenLDAP 2.2.8
-match ldap m|^0E\x02\x01\x01a@\n\x01\x02\x04\0\x049historical protocol version requested, use LDAPv3 instead| p/OpenLDAP/ v/2.2.X/
+match ldap m|^0E\x02\x01\x01a@\n\x01\x02\x04\0\x049historical protocol version requested, use LDAPv3 instead| p/OpenLDAP/ v/2.2.X - 2.3.X/
 match ldap m|^0\x84\0\0\0I\x02\x01\x01a\x84\0\0\0@\n\x01\x02\x04\0\x049historical protocol version requested, use LDAPv3 instead$| p/OpenLDAP/ v/2.4.X/
 
 match ldap m|^0\x1a\x02\x01\x01a\x15\n\x01\0\x04\0\x04\x0eanonymous bind| p/Nortel CallPilot LDAP/
@@ -8840,8 +8840,10 @@ match ajp13 m|^\x41\x42\x00\x01\x09$| p/Apache Jserv/ i/Protocol v1.3/
 Probe UDP DNS-SD q|\0\0\0\0\0\x01\0\0\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|
 rarity 4
 ports 5353
+
 # mDNSResponder-176.3
-match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01| p/Apple mDNSResponder/
+# Avahi under Ubuntu
+match mdns m|^\0\0\x84\0\0\x01..\0\0\0\0\x09_services\x07_dns-sd\x04_udp\x05local\0\0\x0c\0\x01|s p/DNS-based service discovery/
 
 
 ##############################NEXT PROBE##############################
