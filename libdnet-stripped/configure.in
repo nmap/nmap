@@ -32,6 +32,7 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_LIBTOOL_DLOPEN
+AC_DISABLE_SHARED
 AM_PROG_LIBTOOL
 
 dnl Checks for Python.

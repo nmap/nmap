@@ -288,6 +288,22 @@ Index: config/acinclude.m4
      if test $ac_cv_dnet_linux_pf_packet = yes ; then
  	AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
 
+o Disabled shared library building by default. We always link directly
+  against the static library.
+
+Index: configure.in
+===================================================================
+--- configure.in	(revision 17500)
++++ configure.in	(working copy)
+@@ -32,6 +32,7 @@
+ AC_PROG_CC
+ AC_PROG_INSTALL
+ AC_LIBTOOL_DLOPEN
++AC_DISABLE_SHARED
+ AM_PROG_LIBTOOL
+ 
+ dnl Checks for Python.
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 
