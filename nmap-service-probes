@@ -84,7 +84,7 @@ match autosys m|^([\w._-]+)\nListener for [\w._-]+ AutoSysAdapter\nEOS\nExit Cod
 match avg m|^220-AVG7 Anti-Virus daemon mode scanner\r\n220-Program version ([\d.]+), engine (\d+)\r\n220-Virus Database: Version ([\d/.]+)  [-\d]+\r\n| p/AVG daemon mode/ v/$1 engine $2/ i/Virus DB $3/
 
 match afbackup m|^afbackup ([\d.]+)\n\nAF's backup server ready\.\n| p/afbackup/ v/$1/
-match afbackup m|^.*, Warning on encryption key file `/etc/afbackup/cryptkey': File not readable\.\n.*, Warning: Ignoring file `/etc/afbackup/cryptkey', using compiled-in key\.\nafbackup 3\.4\n\nAF's backup server ready\.\n\x9d\x84\x0bZ$| p/afbackup/
+match afbackup m|^.*, Warning on encryption key file `/etc/afbackup/cryptkey': File not readable\.\n.*, Warning: Ignoring file `/etc/afbackup/cryptkey', using compiled-in key\.\nafbackup 3\.4\n\nAF's backup server ready\.\n\x9d\x84\x0bZ$| p/afbackup/ i/using compiled-in key/
 
 match backdoor m|^220 jeem\.mail\.pv ESMTP\r\n| p/Jeem backdoor/ i/**BACKDOOR**/ o/Windows/
 match backdoor m|^\r\nUser Access Verification\r\n\r\nYour PassWord:| p/Jeem backdoor/ i/**BACKDOOR**/ o/Windows/
@@ -1324,7 +1324,7 @@ match loginserver m|^\x0b\0\0......\0\0$|s p/L2J loginserver/
 match loginserver m|^\x9b\0\0\xfd\x8a\"\0Zx\0.{129}\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$|s p/L2J loginserver/
 match loginserver m|^\xba\0.{184}$|s p/L2J loginserver/
 
-match meterpreter m|^\0.\x0b\0MZ\xe8\0\0\0\0\x5b\x52\x45\x55\x89\xe5\x81\xc3..\0\0\xff\xd3\x89\xc3Wh\x04\0\0\0P\xff\xd0h\xf0\xb5\xa2Vh\x05\0\0\0P\xff\xd3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xe0\0\0\0\x0e\x1f\xba\x0e\0\xb4\t\xcd!\xb8\x01L\xcd!This program cannot be run in DOS mode\.\r\r\n\$\0\0\0\0\0\0\0| p/Metasploit meterpreter/ i/**BACKDOOR**/
+match meterpreter m|^\0.\x0b\0MZ\xe8\0\0\0\0\x5b\x52\x45\x55\x89\xe5\x81\xc3..\0\0\xff\xd3\x89\xc3Wh\x04\0\0\0P\xff\xd0h\xf0\xb5\xa2Vh\x05\0\0\0P\xff\xd3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\xe0\0\0\0\x0e\x1f\xba\x0e\0\xb4\t\xcd!\xb8\x01L\xcd!This program cannot be run in DOS mode\.\r\r\n\$\0\0\0\0\0\0\0|s p/Metasploit meterpreter/ i/**BACKDOOR**/
 
 match millennium-ils m|^\"Thread-15\"  prio=5 \(RUNNABLE\)\r\n------------------------------\r\njava\.lang\.ProcessImpl\.waitFor\(Native Method\)\r\ncom\.iii\.miltoolbarpanel\$ToolbarProcess\$1\.run\(miltoolbarpanel\.java:1168\)\r\n\r\n| p/III Millennium Integrated Library System/
 
@@ -7819,7 +7819,7 @@ Probe TCP SMBProgNeg q|\0\0\0\xa4\xff\x53\x4d\x42\x72\0\0\0\0\x08\x01\x40\0\0\0\
 rarity 4
 ports 42,88,135,139,445,660,1025,1027,1031,1112,3006,3900,5000,5009,5432,5555,5600,7461,9102,9103,18182,27000-27010
 
-match blah m|^...................................................................................................\x00\x00\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x84\x8e\x7f\x00\x00......\x00\x00......\x00\x00......\x00\x00......\x00\x00...\x00\x00\x00\x00\x00....\x8e\x7f\x00\x00......\x00\x00......\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00....\x00\x00\x00\x00......\x00\x00...\x84\x8e\x7f\x00\x00......\x00\x00......\x00\x00....\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00.....\x7f\x00\x00......\x00\x00.\xfe\x7c\x17..\x00\x00......\x00\x00...\x00\x00\x00\x00\x00......\x00\x00......\x00\x00....\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00......\x00\x00\x40.....\x00\x00......\x00\x00......\x00\x00......\x00\x00.....\x7f\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00....\x8e\x7f\x00\x00......\x00\x00...| p/NX NoMachine remote administration/
+match nomachine-nx m|^...................................................................................................\x00\x00\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x84\x8e\x7f\x00\x00......\x00\x00......\x00\x00......\x00\x00......\x00\x00...\x00\x00\x00\x00\x00....\x8e\x7f\x00\x00......\x00\x00......\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00....\x00\x00\x00\x00......\x00\x00...\x84\x8e\x7f\x00\x00......\x00\x00......\x00\x00....\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00.....\x7f\x00\x00......\x00\x00.\xfe\x7c\x17..\x00\x00......\x00\x00...\x00\x00\x00\x00\x00......\x00\x00......\x00\x00....\x00\x00\x00\x00......\x00\x00...\x00\x00\x00\x00\x00......\x00\x00\x40.....\x00\x00......\x00\x00......\x00\x00......\x00\x00.....\x7f\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00...\x00\x00\x00\x00\x00....\x8e\x7f\x00\x00......\x00\x00...| p/NoMachine NX remote administration/
 
 match airport-admin m|^acpp\0.\0.....\0\0\0\x01| p/Apple AirPort or Time Capsule admin/
 
