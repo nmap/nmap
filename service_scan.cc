@@ -2268,10 +2268,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
 #ifndef WIN32
     case EPIPE:
 #endif
+#ifdef EPROTO
     case EPROTO:
       // EPROTO is suspected to be caused by an active IDS/IPS that forges ICMP
       // type-12 errors ("Parameter problem"). It's been seen in response to the
       // Sqlping probe.
+#endif
     case EIO:
       // Usually an SSL error of some sort (those are presently
       // hardcoded to EIO).  I'll just try the next probe.
