@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Moved the parse_long function from ncat to nbase for better reuse,
+  and used it to simplify netmask parsing code. This patch was
+  contributed by William Pursell.
+
 o Added EPROTO to the list of known error codes in service scan. Daniel
   Miller reported that an EPROTO was causing Nmap to exit after sending
   the Sqlping probe during service scan. The error message was

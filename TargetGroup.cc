@@ -187,17 +187,12 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       
       *s = '\0';  /* Make sure target_net is terminated before the /## */
       s++;        /* Point s at the netmask */
-      if (!isdigit((int) (unsigned char) *s)) {
+      netmask_long = parse_long(s, (char**) &tail);
+      if (*tail != '\0' || tail == s || netmask_long < 0 || netmask_long > 32) {
         error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
-        netmask = 32;
-      } else {
-        netmask_long = strtol(s, (char**) &tail, 10);
-        if (*tail != '\0' || tail == s || netmask_long < 0 || netmask_long > 32) {
-          error("Illegal netmask value, must be /0 - /32 .  Assuming /32 (one host)");
           netmask = 32;
-        } else
+      } else
           netmask = (u32) netmask_long;
-      }
     } else
       netmask = 32;
     resolvedname = hostexp;
