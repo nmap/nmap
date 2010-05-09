@@ -4508,6 +4508,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Twisted/([-\w_.+]+) TwistedWeb/\
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/\[OPSI\.web\d+, version ([^]]+)\]\r\n|s p/TwistedWeb httpd/ v/$2/ i/Twisted $1/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nContent-Length: 141\r\nServer: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\nDAV: 1, access-control\r\nDate: .*\r\nContent-Type: text/html\r\nWWW-Authenticate: digest nonce=\"\d+\", realm=\"/Search\", algorithm=\"md5\"\r\nConnection: close\r\n\r\n<html><head><title>Unauthorized</title></head><body><h1>Unauthorized</h1><p>You are not authorized to access this resource\.</p></body></html>$| p/TwistedWeb/ v/$2/ i/Twisted $1/ i/Mac OS X teamsserver/ o/Mac OS X/
 match http m|^HTTP/1\.1 404 Not Found\r\n.*Server: Twisted/([\w._-]+) TwistedWeb/([\w._-]+)\r\n.*<meta name=\"generator\" content=\"\">\n<meta name=\"apple_required_ui_revision\" content=\"\">\n<meta name=\"apple_collab_uid\" content=\"\">\n|s p/TwistedWeb/ v/$2/ i/Twisted $1/ i/Mac OS X teamsserver/ o/Mac OS X/
+match http m|^HTTP/1\.[01].*\r\nServer: Twisted/([\.\d]+) TwistedWeb/([\.\d]+)|s p/TwistedWeb httpd/ p/TwistedWeb/ v/$2/ i/Twisted $1/ o/Mac OS X/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nConnection: close\r\nContent-Length: \d+\r\nContent-Type: text/html.*\r\n\r\n<!DOCTYPE html\nPUBLIC.*\n<title>MikroTik RouterOS Managing Webpage</title>\n|s p/MikroTik router config httpd/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Azureus ([\d.]+)\r\n|s p/Azureus Bittorrent tracker httpd/ v/$1/
 match http m|^HTTP/1\.1 401 BAD\r\nWWW-Authenticate: Basic realm=\"Azureus - Swing Web Interface\"\r\n\r\nAccess Denied\r\n| p/Azureus Bittorrent webui plugin/ i/Access denied/
@@ -5626,6 +5627,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\w._-]+)\r\n.*<meta
 match http m|^HTTP/1\.0 303 Redirecting\r\nServer: httpd/[\d.]+ Python/([\d.]+)\r\n.*Cache-Control: no-store,no-cache,must-revalidate,max-age=0,post-check=0,pre-check=0\r\n.*<title>: Redirecting\n</title>\n<meta http-equiv=\"Refresh\" content=\"0; URL=http://([\w._-]+):\d+/login\"|s p/Ironport Mailflow http config/ d/specialized/ i/Python $1/ h/$2/
 match http m|^<html><head><title>Task Manager Server Report</title></head>| p/Dolbey Fusion Focus Task Manager httpd/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: XGATE-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"NB(\w+) Wireless Router\"\r\n| p/NetComm NB$1 WAP http config/ d/WAP/ i/XGATE-Webs/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: XGATE-Webs\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"XG6546p2 Wireless Router\"\r\n| p/XAVi XG6546p Wireless Gateway/ d/WAP/ i/XGATE-Webs/
 match http m%^HTTP/1\.0 200 Ok\r\nServer: micro_httpd\r\n.*\r\nvar isRouter\t='1' \? '1' : '0';\r\nvar\tisPS\t\t='' \? '' : '0';\r\nvar isAPmode\r\nif\('[\w-]*' =='' \|\| '1'=='0'\)\r\n\tisAPmode='1';\r\nelse\tisAPmode='0';\r\nvar bssid = '([\w:]+)';%s p/Belkin WAP http config/ d/WAP/ i/micro_httpd; BSSID $1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Close\r\nDate: .*\r\nServer: Eye-Fi Agent/([\w._-]+) \(Windows| p/Eye-Fi Manager httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: micro_httpd\r\nCache-Control: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"U\.S\. Robotics ADSL Gateway\"\r\n| p/US Robotics aDSL router http config/ d/broadband router/ i/micro_httpd/
@@ -5876,6 +5878,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\w._-]+)\r\nServer:
 match http m|^HTTP/1\.1 \d\d\d .*\r\n.*X-Powered-By: Servlet/([\d.]+)\r\nServer: GlassFish v([\w._-]+)\r\n| p/Sun GlassFish/ v/$2/ i/Servlet $1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\n.*X-Powered-By: Servlet/([\d.]+)\r\nServer: Sun GlassFish Enterprise Server v([\d.]+)\r\n.*X-Powered-By: JSF/([\d.]+)\r\n|s p/Sun GlassFish/ v/$2/ i/Servlet $1; JSF $3/
 match http m|^HTTP/1\.1 \d\d\d .*\r\n.*X-Powered-By: Servlet/([\d.]+)\r\nServer: Sun GlassFish Enterprise Server v([\d.]+)\r\n|s p/Sun GlassFish/ v/$2/ i/Servlet $1/
+match http m|^HTTP/1\.1 \d\d\d .*\r\n.*X-Powered-By: Servlet/([\d.]+)\r\nServer: Sun GlassFish Communications Server ([\d.]+)\r\n|s p/Sun GlassFish Communications Server/ v/$2/ i/Servlet $1/
 match http m|^HTTP/1\.[01] 200 OK\r\n.*Server: IndigoWebServer/([\w_.-]+)\r\n|s p/Perceptive Automation Indigo http config/ v/$1/ d/specialized/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: llink-daemon/([\w._-]+) \(build (\d+)\)\r\n| p/llink media streamer httpd/ v/$1 build $2/
 match http m|^HTTP/1\.0 200 OK\r\nContent-type: text/html\r\n\r\n<html xmlns:o=\"urn:schemas-microsoft-com:office:office\"\r\n.*<title>Now SMS</title>|s p/Now SMS http config/ o/Windows/
@@ -7060,6 +7063,8 @@ softmatch quake3 m|^\xff\xff\xff\xffdisconnect$| p/Quake 3 game server/
 # Know the device, but not the service. Port 19541.
 # match unknown m|^\xfer\0\0\0\0\0\x12ERR\(NOT SUPPORTED\)$| p/OKI ES3640e GA printer/ d/printer/
 
+match apple-sasl m|How was your weekend\?;[0-9A-F]*\0| p/Mac OS X Server Password Server/
+
 ##############################NEXT PROBE##############################
 Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 1
@@ -7735,6 +7740,8 @@ match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule.*AFP3\.3\x06AFP3\.2\x06AFP3\.1.\tDHCAST128.*[\x04\x05]([\w.-]+)\0|s p|Apple Time Capsule AFP| i/name: $1; protocol 3.3/ h/$2/
 match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*TimeCapsule.*AFP3\.3\x06AFP3\.2\x06AFP3\.1.\tDHCAST128|s p|Apple Time Capsule AFP| i/name: $1; protocol 3.3/
 
+match afp m|^\x01\x03\0\0........\0\0\0\0........\x8f\xfb.([^\0\x01]+)[\0\x01].*\tVMware7,1\x04\x06AFP3\.3\x06AFP3\.2\x06AFP3\.1\x06AFPX03.\tDHCAST128\x04DHX2\x06Recon1\rClient\x20Krb\x20v2\0\0.*[\x04\x05]([\w.-]+)\x01.afpserver/([\w.@-]+)\0|s p/Apple AFP/ i/name: $1; afpserver: $3; protocol 3.1; Mac OS X 10.6.3/ o/Mac OS X/ h/$2/
+
 match ajp13 m|^AB\0N\x04\x01\x94\0\x06/cccb/\0\0\x02\0\x0cContent-Type\0\0\x17text/html;charset=utf-8\0\0\x0eContent-Length\0\0\x03970\0AB\x03| p/Apache Jserv/
 
 match login m|^\0\r\nlogin: \^W\^@\^@\^@\^| p/VxWorks logind/ o/VxWorks/
@@ -8225,6 +8232,7 @@ match sip m|^SIP/2\.0 200 OK\r\n.*\r\nAccept: application/sdp\r\nAccept-Language
 match sip m|^SIP/2\.0 405 Method Not Allowed\r\n.*\r\nUser-Agent: ABS ECC\r\n|s p/Alcatel-Lucent OmniTouch Unified Communication VoIP gateway/ d/PBX/
 match sip m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: Zoiper (rev\.\d+)\r\n|s p/Zoiper VoIP software/ v/$1/
 match sip m|^SIP/2\.0 404 Not Found\r\n.*Server: Asterisk PBX ([\w._-]+)\r\n.*Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY, INFO\r\n|s p/Asterix/ d/PBX/
+match sip m|^SIP/2\.0 .*\r\nServer: Glassfish_SIP_([\w._-]+)\r\n|s p/Glassfish SIP Server/ v/$1/
 match sip m|^SIP/2\.0 200 OK\r\n.*To: <sip:nm2@nm2>;tag=[0-9a-f-]+\r\n.*Allow: INVITE,ACK,CANCEL,BYE,OPTIONS,REFER,INFO,NOTIFY,PRACK,MESSAGE\r\n.*Supported: replaces,timer,100rel\r\nAccept: application/sdp\r\n|s p/Cisco 7940 IP Phone/ d/VoIP phone/
 match sip m|^SIP/2\.0 200 OK\r\n.*User-Agent: Telepathy-SofiaSIP/([\w._-]+) sofia-sip/([\w._-]+)\r\n|s p/Telepathy-SofiaSIP/ v/$1/ i/sofia-sip $2/
 match sip m|^SIP/2\.0 503 Service Unavailable\r\n.*Warning: 399 \"Routing failed: ccbid=997 tcpindex=2 socket=nm:\d+'\r\n.*To: <sip:nm2@nm2>;tag=\d+\r\n|s p/Cisco CallManager 6/
@@ -8242,6 +8250,8 @@ match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w._-]+) OpenIM
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: FreeSWITCH-mod_sofia/([\w._-]+)\r\n|s p/FreeSWITCH mod_sofia/ v/$1/
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: 3CXPhoneSystem ([\w._-]+)\r\n|s p/3CX PhoneSystem PBX/ v/$1/ o/Windows/
 match sip-proxy m|^SIP/2\.0 503 Remote end of tunnel is not connected\r\n.*\r\nWarning: \d+ \w+ \"Remote end of the bridge is not connected\"\r\n|s p/3CX PhoneSystem PBX/ o/Windows/ i/misconfigured/ d/PBX/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: ComdasysB2BUA([\w._-]+)\r\n|s p/Comdasys SIP Server/ v/$1/
+match sip-proxy m|^SIP/2\.0 405 Method Not Allowed\r\n.*\r\nServer: SIParator/([\w._-]+)\r\n|s p/Ingate SIParator/ v/$1/
 
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
@@ -8261,6 +8271,7 @@ match sip-proxy m|^SIP/2\.0 .*\r\nServer: Sip EXpress router \(([\w\d\.-]+) \(([
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: SIP Router \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/SIP Router/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX\r\n|s p/Asterisk PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenSIPS \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSIPS SIP Server/ v/$1/ i/$2/
+match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: ComdasysB2BUA([\w._-]+)\r\n|s p/Comdasys SIP Server/ v/$1/
 
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
