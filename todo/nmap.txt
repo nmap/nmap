@@ -25,6 +25,9 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
+o Consider MSRPC ideas from Ron--we might want to add some as TODO
+  tasks: http://seclists.org/nmap-dev/2010/q2/389
+
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
 
