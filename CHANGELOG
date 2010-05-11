@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat in listen mode now prints the source port with the IP
+  address when verbosity is turned on. This patch is from rebellis.
+
 o Fixed where the time variable used in port scanning for comparison
   to other times (for probe timeouts, etc) could result in different
   behavior based on the debugging level. [Kris]
