@@ -217,7 +217,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
             struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
 
             sin->sin_family = AF_INET;
-            sin->sin_addr = addr;
+            memcpy(&sin->sin_addr, target->h_addr_list[count], sizeof(sin->sin_addr));
             resolvedaddrs.push_back(ss);
             count++;
           }

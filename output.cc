@@ -1305,9 +1305,15 @@ void write_host_header(Target *currenths) {
   write_host_status(currenths, o.resolve_all);
   if (currenths->TargetName() != NULL
       && currenths->resolved_addrs.size() > 1) {
-    log_write(LOG_PLAIN, "Hostname %s resolves to %u IPs. Only scanned %s\n",
-      currenths->TargetName(), (unsigned int) currenths->resolved_addrs.size(),
-      currenths->targetipstr());
+    std::list<struct sockaddr_storage>::iterator it;
+
+    log_write(LOG_PLAIN, "Other addresses for %s (not scanned):",
+      currenths->TargetName());
+    it = currenths->resolved_addrs.begin();
+    it++;
+    for (; it != currenths->resolved_addrs.end(); it++)
+      log_write(LOG_PLAIN, " %s", inet_ntop_ez(&*it, sizeof(*it)));
+    log_write(LOG_PLAIN, "\n");
   }
   /* Print reverse DNS if it differs. */
   if (currenths->TargetName() != NULL
