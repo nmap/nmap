@@ -261,8 +261,7 @@ end
 --  which port is best to use. This is how it decides:
 --
 -- * If port tcp/445 is open, use it for a raw connection
--- * Otherwise, if ports tcp/139 and udp/137 are open, do a NetBIOS connection. Since
---   UDP scanning isn't default, we're also ok with udp/137 in an unknown state. 
+-- * Otherwise, if ports tcp/139 and udp/137 are open, do a NetBIOS connection. Since UDP scanning isn't default, we're also ok with udp/137 in an unknown state. 
 --
 --@param host The host object. 
 --@return The port number to use, or nil if we don't have an SMB port
