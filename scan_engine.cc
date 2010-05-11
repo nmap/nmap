@@ -3575,12 +3575,11 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
   unsigned int maxtries;
 
   struct timeval tv_start = {0};
-  if (o.debugging) {
-    gettimeofday(&USI->now, NULL);
-    tv_start = USI->now;
-  }
 
   gettimeofday(&USI->now, NULL);
+
+  if (o.debugging)
+    tv_start = USI->now;
 
   /* Loop until we get through all the hosts without a retransmit or we're not
      OK to send any more. */
@@ -3634,10 +3633,9 @@ static void doAnyOutstandingRetransmits(UltraScanInfo *USI) {
     }
   } while (USI->gstats->sendOK(NULL) && retrans != 0);
 
+  gettimeofday(&USI->now, NULL);
   if (o.debugging) {
-    long tv_diff;
-    gettimeofday(&USI->now, NULL);
-    tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
+    long tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
     if (tv_diff > 30) log_write(LOG_PLAIN, "%s took %lims\n", __func__, tv_diff);
   }
 }
@@ -4948,11 +4946,12 @@ static void processData(UltraScanInfo *USI) {
 
   bool tryno_capped = false, tryno_mayincrease = false;
   struct timeval tv_start = {0};
-  if (o.debugging) {
-    gettimeofday(&USI->now, NULL);
+
+  gettimeofday(&USI->now, NULL);
+
+  if (o.debugging)
     tv_start = USI->now;
-  }
-    
+
   /* First go through hosts and remove any completed ones from incompleteHosts */
   USI->removeCompletedHosts();
   if (USI->incompleteHostsEmpty())
@@ -5065,10 +5064,9 @@ static void processData(UltraScanInfo *USI) {
     }
   }
 
+  gettimeofday(&USI->now, NULL);
   if (o.debugging) {
-    long tv_diff;
-    gettimeofday(&USI->now, NULL);
-    tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
+    long tv_diff = TIMEVAL_MSEC_SUBTRACT(USI->now, tv_start);
     if (tv_diff > 30) log_write(LOG_PLAIN, "%s took %lims\n", __func__, tv_diff);
   }
 }

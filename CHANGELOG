@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed where the time variable used in port scanning for comparison
+  to other times (for probe timeouts, etc) could result in different
+  behavior based on the debugging level. [Kris]
+
 o Moved the parse_long function from ncat to nbase for better reuse,
   and used it to simplify netmask parsing code. This patch was
   contributed by William Pursell.
