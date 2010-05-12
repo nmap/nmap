@@ -25,8 +25,33 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
-o Consider MSRPC ideas from Ron--we might want to add some as TODO
-  tasks: http://seclists.org/nmap-dev/2010/q2/389
+o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
+  o Windows system logs (like sysinternals' psloglist)
+  o Services (like sysinternals' psservice)
+  [Drazen]
+
+o [NSE] Consider using .idl files rather than manually coding all the
+  MSRPC stuff.  The current idea, if we do this, is to have an
+  application in nmap-private-dev which converts .idl files to LUA
+  code for nmap/nselib. Consider adapting the pidl utility from Samba.
+
+o [NSE] MSRPC - Improve domain support all around -- in particular,
+  let the user give the domain in the format DOMAIN\username or
+  username@DOMAIN anywhere that usernames are accepted. Suggested
+  at http://seclists.org/nmap-dev/2010/q2/389
+
+o [NSE] Combine similar MSRPC scripts, especially the "get info"
+  stuff.  See this thread on combining
+  (http://seclists.org/nmap-dev/2010/q1/1023).  This was suggested by
+  Ron at http://seclists.org/nmap-dev/2010/q2/389.
+
+o [NSE] Reorganize nselib to allow libraries in subdirectories.
+  Currently, to avoid expanding the number top-level libraries, code
+  that is only used by one library is built into that library's file,
+  even if it is logically separate. For example, the mongodb library
+  contains a BSON-parsing library. Instead, that library could go in
+  mongodb/bson.lua. The msrpc and smb libraries could potentially be
+  broken up in this way.
 
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
@@ -37,9 +62,6 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   The reporter mentioned Guppy/Heapy to debug memory use:
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
-
-o [Ncrack] Use our new password lists (now used by NSE) for Ncrack as
-  well.  Ncrack can probably handle a larger list than NSE uses.
 
 o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
@@ -70,9 +92,6 @@ o Nmap should at least print (and maybe scan) all IP addresses for
   hostnames specified on the command line.  We will start with just
   printing all the addresses. Here is a thread on the topic:
   http://seclists.org/nmap-dev/2010/q2/302
-
-o Integrate new service detection fingerprint submissions (we have
-  more than 730 since Dec. 17, 2009.
 
 o Fix bug where multiple targets with the same IP can end up in a
   hostgroup and cause port scanning and probably OS detection to
@@ -545,6 +564,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Integrate new service detection fingerprint submissions (we have
+  more than 730 since Dec. 17, 2009.
+
+o [Ncrack] Use our new password lists (now used by NSE) for Ncrack as
+  well.  Ncrack can probably handle a larger list than NSE uses.
+
+o Consider MSRPC ideas from Ron--we might want to add some as TODO
+  tasks: http://seclists.org/nmap-dev/2010/q2/389
 
 o Fix XML inconsistency described at
   http://seclists.org/nmap-dev/2010/q2/326
