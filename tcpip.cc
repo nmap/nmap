@@ -2994,11 +2994,12 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
     /* Make sure we have room for the new route */
     if (dcrn->numifaces >= dcrn->capacity) {
       dcrn->capacity <<= 2;
-      dcrn->ifaces = (struct interface_info *) safe_realloc(dcrn->ifaces, dcrn-> capacity * sizeof(struct interface_info));
+      dcrn->ifaces = (struct interface_info *) safe_realloc(dcrn->ifaces,
+        dcrn->capacity * sizeof(struct interface_info));
     }
 
-    /* The first time through the loop we add the primary interface record. After
-       that we add the aliases one at a time. */
+    /* The first time through the loop we add the primary interface record.
+       After that we add the aliases one at a time. */
     if (!primary_done) {
       if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
         addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr);
@@ -3015,30 +3016,30 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
 
     /* OK, address/netmask found.  Let's get the name */
     Strncpy(dcrn->ifaces[dcrn->numifaces].devname, entry->intf_name,
-            sizeof(dcrn->ifaces[dcrn->numifaces].devname));
+      sizeof(dcrn->ifaces[dcrn->numifaces].devname));
     Strncpy(dcrn->ifaces[dcrn->numifaces].devfullname, entry->intf_name,
-            sizeof(dcrn->ifaces[dcrn->numifaces].devfullname));
+      sizeof(dcrn->ifaces[dcrn->numifaces].devfullname));
 
     /* Interface type */
     if (entry->intf_type == INTF_TYPE_ETH) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_ethernet;
       /* Collect the MAC address since this is ethernet */
-      memcpy(dcrn->ifaces[dcrn->numifaces].mac,
-             &entry->intf_link_addr.addr_eth.data, 6);
-    } else if (entry->intf_type == INTF_TYPE_LOOPBACK)
+      memcpy(dcrn->ifaces[dcrn->numifaces].mac, &entry->intf_link_addr.addr_eth.data, 6);
+    } else if (entry->intf_type == INTF_TYPE_LOOPBACK) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_loopback;
-    else if (entry->intf_type == INTF_TYPE_TUN)
+    } else if (entry->intf_type == INTF_TYPE_TUN) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_p2p;
-    else
+    } else {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_other;
+    }
 
     /* Is the interface up and running? */
-    dcrn->ifaces[dcrn->numifaces].device_up =
-        (entry->intf_flags & INTF_FLAG_UP) ? true : false;
+    dcrn->ifaces[dcrn->numifaces].device_up = (entry->intf_flags & INTF_FLAG_UP) ? true : false;
 
     /* For the rest of the information, we must open the interface directly ... */
     dcrn->numifaces++;
   }
+
   return 0;
 }
 
