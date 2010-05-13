@@ -21,6 +21,9 @@
 #include <string.h>
 
 #include "dnet.h"
+#include "pcap.h"
+#include <Packet32.h>
+#include <Ntddndis.h>
 
 struct ifcombo {
 	DWORD		*idx;
@@ -383,4 +386,90 @@ intf_close(intf_t *intf)
 		free(intf);
 	}
 	return (NULL);
+}
+
+/* Converts a libdnet interface name to its pcap equivalent. The pcap name is
+   stored in pcapdev up to a length of pcapdevlen, including the terminating
+   '\0'. Returns -1 on error. */
+int
+intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
+{
+	wchar_t descr_wc[512];
+	pcap_if_t *pcapdevs;
+	pcap_if_t *pdev;
+	intf_t *intf;
+	MIB_IFROW ifrow;
+
+	if ((intf = intf_open()) == NULL)
+		return (-1);
+	if (_refresh_tables(intf) < 0) {
+		intf_close(intf);
+		return (-1);
+	}
+	ifrow.dwIndex = _find_ifindex(intf, intf_name);
+	intf_close(intf);
+
+	if (GetIfEntry(&ifrow) != NO_ERROR)
+		return (-1);
+
+	/* OID_GEN_FRIENDLY_NAME returns a wide-character string, so convert
+	   the description to wide characters for string comparison. */
+	mbstowcs(descr_wc, ifrow.bDescr, sizeof(descr_wc) / sizeof(descr_wc[0]) - 1);
+	descr_wc[sizeof(descr_wc) / sizeof(descr_wc[0]) - 1] = L'\0';
+
+	if (pcap_findalldevs(&pcapdevs, NULL) == -1)
+		return (-1);
+
+	/* Loop through all the pcap devices until we find a match. pcap gets
+	   its interface list from the registry; dnet gets it from GetIfList.
+	   We must match them up using values common to both data sets. We do
+	   it by comparing hardware addresses and interface descriptions. */
+	for (pdev = pcapdevs; pdev != NULL; pdev = pdev->next) {
+		PACKET_OID_DATA *data;
+		u_char buf[512];
+		LPADAPTER lpa;
+
+		lpa = PacketOpenAdapter(pdev->name);
+		if (lpa == NULL)
+			continue;
+		if (lpa->hFile == INVALID_HANDLE_VALUE)
+			goto close_adapter;
+
+		data = (PACKET_OID_DATA *) buf;
+
+		/* Check the MAC address if available. */
+		data->Oid = OID_802_3_CURRENT_ADDRESS;
+		data->Length = sizeof(buf) - sizeof(*data);
+		if (PacketRequest(lpa, FALSE, data) == TRUE) {
+			if (data->Length != ifrow.dwPhysAddrLen)
+				goto close_adapter;
+			if (memcmp(ifrow.bPhysAddr, data->Data, data->Length) != 0)
+				goto close_adapter;
+		}
+
+		/* Distinct interfaces can have the same MAC address in the
+		   case of "teamed" interfaces. Additionally check the
+		   description string. */
+		data->Oid = OID_GEN_FRIENDLY_NAME;
+		data->Length = sizeof(buf) - sizeof(*data);
+		if (PacketRequest(lpa, FALSE, data) != TRUE)
+			goto close_adapter;
+		if (wcscmp(descr_wc, (wchar_t *) data->Data) != 0)
+			goto close_adapter;
+
+		/* Found it. */
+		PacketCloseAdapter(lpa);
+		break;
+
+close_adapter:
+		PacketCloseAdapter(lpa);
+	}
+
+	if (pdev != NULL)
+		strlcpy(pcapdev, pdev->name, pcapdevlen);
+	pcap_freealldevs(pcapdevs);
+	if (pdev == NULL)
+		return -1;
+	else
+		return 0;
 }
