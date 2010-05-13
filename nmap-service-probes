@@ -6974,7 +6974,6 @@ match rpcbind m|^\x80\0\0\x20\x72\xFE\x1D\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\
 match rpcbind m|^\x80\0\0\x14r\xfe\x1d\x13\0\0\0\x01\0\0\0\x01\0\0\0\x01\0\0\0\x05|
 match rpcbind m|^\x80\0\0\x18r\xfe\x1d\x13\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|
 
-match raid-mgt m|^\x15\x03\x01\0\x02\x02\n$| p/Promise Array Manager RAID management/
 match raid-mon m|^\0 \0.{5}\x04\0\0\0\x02\\@|s p/Promise RAID message agent/
 match raid-mon m|^\x02 \0.{5}\x04\0\0\0\x02\\@|s p/Promise RAID message agent/
 
