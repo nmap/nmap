@@ -109,6 +109,13 @@ o Fix bug where multiple targets with the same IP can end up in a
   scanme3.nmap.org". See this thread for details:
   http://seclists.org/nmap-dev/2010/q2/322
 
+o Resolve Ncat broadcast support issue (see this thread:
+  http://seclists.org/nmap-dev/2010/q2/422).
+
+o [NSE] Review and test the DB2 library and
+  scripts. http://seclists.org/nmap-dev/2010/q2/395 (but updated
+  versions may be available).
+
 o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
   http://seclists.org/nmap-dev/2010/q2/195
   Better attachment at: http://seclists.org/nmap-dev/2010/q2/200
