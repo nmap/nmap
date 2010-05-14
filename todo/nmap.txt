@@ -70,6 +70,14 @@ o We should probably enhance scan stats--maybe we can add a full-scan
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
 
+o [Zenmap] script selection interface for deciding which NSE scripts to
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
+
+o [Zenmap] should actually parse and use script results. See
+  http://seclists.org/nmap-dev/2010/q1/1108
+
 o We should offer partial results when a host
   timeouts. I (Fyodor) have been against this in the past, but maybe
   the value is sufficient to be worth the maintenance headaches.  Many
@@ -88,10 +96,12 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
-o Nmap should at least print (and maybe scan) all IP addresses for
-  hostnames specified on the command line.  We will start with just
-  printing all the addresses. Here is a thread on the topic:
-  http://seclists.org/nmap-dev/2010/q2/302
+o Consider providing an option which causes Nmap to scan ALL IP
+  addresses returned for a given name.  So if "google.com" returns 4
+  names, scan them all (right now we print them all but only scan
+  the one which happens to be the first on the current list).  We then
+  might want to make -A imply that option.  Here is a thread on the
+  topic: http://seclists.org/nmap-dev/2010/q2/302
 
 o Fix bug where multiple targets with the same IP can end up in a
   hostgroup and cause port scanning and probably OS detection to
@@ -251,13 +261,10 @@ o Scanning through proxies
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
 
-o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
-  and then encourage maintainers of /status/ TODOs and any other TODOs
-  to migrate theirs there.  Unlike the status directory, /nmap/todo
-  would be readible by anyone. [Fyodor]
-
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
+
+o [Web] Add a page with the Nmap related videos we do have already
 
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
@@ -489,14 +496,6 @@ o Make version detection and NSE timing system more dynamic so that
   After all, beefy systems on fast connections should be able to handle
   far more parallel connections than slower systems.
 
-o Zenmap script selection interface for deciding which NSE scripts to
-  run.  Ideally it would have a great, intuitive UI, the smarts to
-  know the scripts/categories available, display NSEdoc info, and even
-  know what arguments each can take.
-
-o Zenmap should actually parse and use script results. See
-  http://seclists.org/nmap-dev/2010/q1/1108
-
 o Get new Zenmap logo
  o consider putting back on top-right of command constructor wizard
  (there used to be umit logo there).
@@ -505,7 +504,8 @@ o Get new Zenmap logo
 o Make Zenmap splash screen
 
 o nmap.cgi web interface for Nmap
-  -- Should have "demo" mode that only allows users to scan their own addy
+ - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
+ - Should have "demo" mode that only allows users to scan their own addy
 
 o Create or collect some great ./configure ascii art.
 
@@ -564,6 +564,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
+  and then encourage maintainers of /status/ TODOs and any other TODOs
+  to migrate theirs there.  Unlike the status directory, /nmap/todo
+  would be readible by anyone. [Fyodor]
+
+o Nmap should at least print (and maybe scan) all IP addresses for
+  hostnames specified on the command line.  We will start with just
+  printing all the addresses. Here is a thread on the topic:
+  http://seclists.org/nmap-dev/2010/q2/302
+  [David made it do the printing, adding a different task related to
+  scanning them all]
 
 o Integrate new service detection fingerprint submissions (we have
   more than 730 since Dec. 17, 2009.
