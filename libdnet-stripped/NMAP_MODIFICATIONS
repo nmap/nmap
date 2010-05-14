@@ -304,6 +304,268 @@ Index: configure.in
  
  dnl Checks for Python.
 
+o Made eth_get_pcap_devname compare interface descriptions as well as
+  MAC addresses when assigning interface names like eth0 on Windows.
+  Only comparing MAC addresses failed in the case of "teamed"
+  interfaces, when three interfaces (two physical, one virtual) could
+  have the same hardware address.
+
+Index: include/dnet/intf.h
+===================================================================
+--- include/dnet/intf.h	(revision 17541)
++++ include/dnet/intf.h	(revision 17542)
+@@ -60,6 +60,7 @@
+ int	 intf_get(intf_t *i, struct intf_entry *entry);
+ int	 intf_get_src(intf_t *i, struct intf_entry *entry, struct addr *src);
+ int	 intf_get_dst(intf_t *i, struct intf_entry *entry, struct addr *dst);
++int	 intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen);
+ int	 intf_set(intf_t *i, const struct intf_entry *entry);
+ int	 intf_loop(intf_t *i, intf_handler callback, void *arg);
+ intf_t	*intf_close(intf_t *i);
+Index: src/eth-win32.c
+===================================================================
+--- src/eth-win32.c	(revision 17541)
++++ src/eth-win32.c	(revision 17542)
+@@ -34,56 +34,25 @@
+ eth_open(const char *device)
+ {
+ 	eth_t *eth;
+-	intf_t *intf;
+-	struct intf_entry ifent;
+-	eth_addr_t ea;
+-	char *p, *buf;
+-	ULONG len;
++	char pcapdev[128];
+ 
+-	/* Get interface entry. */
+-	memset(&ifent, 0, sizeof(ifent));
+-	if ((intf = intf_open()) != NULL) {
+-		strlcpy(ifent.intf_name, device, sizeof(ifent.intf_name));
+-		intf_get(intf, &ifent);
+-		intf_close(intf);
+-	}
+-	if (ifent.intf_link_addr.addr_type != ADDR_TYPE_ETH)
++	if (eth_get_pcap_devname(device, pcapdev, sizeof(pcapdev)) != 0)
+ 		return (NULL);
+ 
+-	/* Get Packet driver adapter name/desc lists. */
+-	buf = NULL;
+-	PacketGetAdapterNames(buf, &len);
+-	if (len > 0 && (buf = malloc(len)) != NULL) {
+-		if (!PacketGetAdapterNames(buf, &len)) {
+-			free(buf);
+-			buf = NULL;
+-		}
+-	}
+-	if (buf == NULL)
++	if ((eth = calloc(1, sizeof(*eth))) == NULL)
+ 		return (NULL);
+-	
+-	/* XXX - find adapter with matching interface MAC address. */
+-	if ((eth = calloc(1, sizeof(*eth))) == NULL) {
+-		free(buf);
++	eth->lpa = PacketOpenAdapter(pcapdev);
++	if (eth->lpa == NULL) {
++		eth_close(eth);
+ 		return (NULL);
+ 	}
+-	for (p = buf; *p != '\0'; p += strlen(p) + 1) {
+-		if ((eth->lpa = PacketOpenAdapter(p)) != NULL) {
+-			if (eth->lpa->hFile != INVALID_HANDLE_VALUE &&
+-			    eth_get(eth, &ea) == 0 &&
+-			    memcmp(&ea, &ifent.intf_link_addr.addr_eth,
+-				ETH_ADDR_LEN) == 0) {
+-				PacketSetBuff(eth->lpa, 512000);
+-				eth->pkt = PacketAllocatePacket();
+-				break;
+-			}
+-			PacketCloseAdapter(eth->lpa);
+-		}
++	PacketSetBuff(eth->lpa, 512000);
++	eth->pkt = PacketAllocatePacket();
++	if (eth->pkt == NULL) {
++		eth_close(eth);
++		return NULL;
+ 	}
+-	free(buf);
+-	if (eth->pkt == NULL)
+-		eth = eth_close(eth);
+-	
++
+ 	return (eth);
+ }
+ 
+@@ -142,61 +111,8 @@
+ 	return (-1);
+ }
+ 
+-
+-/* Converts a dnet interface name (ifname) to its pcap equivalent, which is stored in
+-pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if successful. */
+-int eth_get_pcap_devname(const char *ifname, char *pcapdev, int pcapdevlen) {
+-	intf_t *intf;
+-	struct intf_entry ie;
+-	pcap_if_t *pcapdevs;
+-	pcap_if_t *pdev;
+-	char pname[128];
+-
+-	if ((intf = intf_open()) == NULL)
+-		return -1;
+-	
+-	pname[0] = '\0';
+-	memset(&ie, 0, sizeof(ie));
+-	strlcpy(ie.intf_name, ifname, sizeof(ie.intf_name));
+-	if (intf_get(intf, &ie) != 0) {
+-		intf_close(intf);
+-		return -1;
+-	}
+-	intf_close(intf);
+-	
+-	/* Next we must find the pcap device name corresponding to the device.
+-	   The device description used to be compared with those from PacketGetAdapterNames(), but
+-	   that was unrelaible because dnet and pcap sometimes give different descriptions.  For example, 
+-	   dnet gave me "AMD PCNET Family PCI Ethernet Adapter - Packet Scheduler Miniport" for one of my 
+-	   adapters (in vmware), while pcap described it as "VMware Accelerated AMD PCNet Adapter (Microsoft's
+-	   Packet Scheduler)". Then IP addresses used to be compared, but that proved to be unreliable
+-           as well.  Now we compare hardware addresses much like eth_open() does */
+-	if (pcap_findalldevs(&pcapdevs, NULL) == -1)
+-		return -1;
+-
+-	if (pname[0] == '\0' && ie.intf_link_addr.addr_type == ADDR_TYPE_ETH) {
+-		for(pdev=pcapdevs; pdev && !pname[0]; pdev = pdev->next) {
+-			eth_t eth;
+-			eth_addr_t ea;
+-
+-			eth.lpa = PacketOpenAdapter(pdev->name);
+-			if (eth.lpa == NULL)
+-				continue;
+-			if (eth.lpa->hFile != INVALID_HANDLE_VALUE &&
+-			    eth_get(&eth, &ea) == 0 &&
+-			    memcmp(&ea, &ie.intf_link_addr.addr_eth,
+-			        ETH_ADDR_LEN) == 0) {
+-				/* Found it -- Yay! */
+-				strlcpy(pname, pdev->name, sizeof(pname));
+-			}
+-			PacketCloseAdapter(eth.lpa);
+-		}
+-	}
+-
+-	pcap_freealldevs(pcapdevs);
+-	if (pname[0]) {
+-		strlcpy(pcapdev, pname, pcapdevlen);
+-		return 0;
+-	}
+-	return -1;
++int
++eth_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
++{
++	return intf_get_pcap_devname(intf_name, pcapdev, pcapdevlen);
+ }
+Index: src/intf-win32.c
+===================================================================
+--- src/intf-win32.c	(revision 17541)
++++ src/intf-win32.c	(revision 17542)
+@@ -21,6 +21,9 @@
+ #include <string.h>
+ 
+ #include "dnet.h"
++#include "pcap.h"
++#include <Packet32.h>
++#include <Ntddndis.h>
+ 
+ struct ifcombo {
+ 	DWORD		*idx;
+@@ -384,3 +387,89 @@
+ 	}
+ 	return (NULL);
+ }
++
++/* Converts a libdnet interface name to its pcap equivalent. The pcap name is
++   stored in pcapdev up to a length of pcapdevlen, including the terminating
++   '\0'. Returns -1 on error. */
++int
++intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
++{
++	wchar_t descr_wc[512];
++	pcap_if_t *pcapdevs;
++	pcap_if_t *pdev;
++	intf_t *intf;
++	MIB_IFROW ifrow;
++
++	if ((intf = intf_open()) == NULL)
++		return (-1);
++	if (_refresh_tables(intf) < 0) {
++		intf_close(intf);
++		return (-1);
++	}
++	ifrow.dwIndex = _find_ifindex(intf, intf_name);
++	intf_close(intf);
++
++	if (GetIfEntry(&ifrow) != NO_ERROR)
++		return (-1);
++
++	/* OID_GEN_FRIENDLY_NAME returns a wide-character string, so convert
++	   the description to wide characters for string comparison. */
++	mbstowcs(descr_wc, ifrow.bDescr, sizeof(descr_wc) / sizeof(descr_wc[0]) - 1);
++	descr_wc[sizeof(descr_wc) / sizeof(descr_wc[0]) - 1] = L'\0';
++
++	if (pcap_findalldevs(&pcapdevs, NULL) == -1)
++		return (-1);
++
++	/* Loop through all the pcap devices until we find a match. pcap gets
++	   its interface list from the registry; dnet gets it from GetIfList.
++	   We must match them up using values common to both data sets. We do
++	   it by comparing hardware addresses and interface descriptions. */
++	for (pdev = pcapdevs; pdev != NULL; pdev = pdev->next) {
++		PACKET_OID_DATA *data;
++		u_char buf[512];
++		LPADAPTER lpa;
++
++		lpa = PacketOpenAdapter(pdev->name);
++		if (lpa == NULL)
++			continue;
++		if (lpa->hFile == INVALID_HANDLE_VALUE)
++			goto close_adapter;
++
++		data = (PACKET_OID_DATA *) buf;
++
++		/* Check the MAC address if available. */
++		data->Oid = OID_802_3_CURRENT_ADDRESS;
++		data->Length = sizeof(buf) - sizeof(*data);
++		if (PacketRequest(lpa, FALSE, data) == TRUE) {
++			if (data->Length != ifrow.dwPhysAddrLen)
++				goto close_adapter;
++			if (memcmp(ifrow.bPhysAddr, data->Data, data->Length) != 0)
++				goto close_adapter;
++		}
++
++		/* Distinct interfaces can have the same MAC address in the
++		   case of "teamed" interfaces. Additionally check the
++		   description string. */
++		data->Oid = OID_GEN_FRIENDLY_NAME;
++		data->Length = sizeof(buf) - sizeof(*data);
++		if (PacketRequest(lpa, FALSE, data) != TRUE)
++			goto close_adapter;
++		if (wcscmp(descr_wc, (wchar_t *) data->Data) != 0)
++			goto close_adapter;
++
++		/* Found it. */
++		PacketCloseAdapter(lpa);
++		break;
++
++close_adapter:
++		PacketCloseAdapter(lpa);
++	}
++
++	if (pdev != NULL)
++		strlcpy(pcapdev, pdev->name, pcapdevlen);
++	pcap_freealldevs(pcapdevs);
++	if (pdev == NULL)
++		return -1;
++	else
++		return 0;
++}
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 
