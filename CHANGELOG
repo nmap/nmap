@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now works with "teamed" network interfaces on Windows. In order
+  to distinguish the interfaces, their textual descriptions are now
+  compared in addition to their MAC addresses. Without this, Nmap
+  would send on the wrong interface and not receive any replies. A
+  symptom of this problem was all scans failing except when
+  --unprivileged was used. Norris Carden reported this bug. [David]
+
 o [Ncat] Ncat in listen mode now prints the source port with the IP
   address when verbosity is turned on. This patch is from rebellis.
 
