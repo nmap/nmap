@@ -677,8 +677,11 @@ end
 --
 --@param smb     The smb state table. 
 --@param command The command to use.
+--@param overrides The overrides table. Keep in mind that overriding things like flags is generally a very bad idea, unless you know what you're doing. 
 --@return A binary string containing the packed packet header. 
-local function smb_encode_header(smb, command)
+local function smb_encode_header(smb, command, overrides)
+	-- Make sure we have an overrides array
+	overrides = overrides or {}
 
 	-- Used for the header
 	local sig = string.char(0xFF) .. "SMB"
@@ -693,7 +696,7 @@ local function smb_encode_header(smb, command)
 	if(nmap.registry.args.smbsign ~= "disable") then
 		flags2 = bit.bor(flags2, 0x0004) -- SMB_FLAGS2_SECURITY_SIGNATURE
 	end
-		
+	
 
 	if(smb['extended_security'] == true) then
 		flags2 = bit.bor(flags2, 0x0800) -- SMB_EXTENDED_SECURITY
@@ -710,16 +713,16 @@ local function smb_encode_header(smb, command)
 				sig:byte(3),  -- Header
 				sig:byte(4),  -- Header
 				command,      -- Command
-				0,            -- status
-				flags,        -- flags
-				flags2,       -- flags2
-				0,            -- extra (pid_high)
-				0,            -- extra (signature)
-				0,            -- extra (unused)
-				smb['tid'],   -- tid
-				12345,        -- pid
-				smb['uid'],   -- uid
-				0             -- mid
+				(overrides['status'] or 0),        -- status
+				(overrides['flags'] or flags),     -- flags
+				(overrides['flags2'] or flags2),   -- flags2
+				(overrides['pid_high'] or 0),      -- extra (pid_high)
+				(overrides['signature'] or 0),     -- extra (signature)
+				(overrides['extra'] or 0),         -- extra (unused)
+				(overrides['tid'] or smb['tid']),  -- tid
+				(overrides['pid'] or 12345),       -- pid
+				(overrides['uid'] or smb['uid']),  -- uid
+				(overrides['uid'] or 0)            -- mid
 			)
 
 	return header
@@ -732,9 +735,13 @@ end
 -- This is automatically done by <code>smb_send</code>. 
 -- 
 -- @param parameters The parameters section. 
+-- @param overrides The overrides table. The only thing possible to override here is the length. 
 -- @return The encoded parameters. 
-local function smb_encode_parameters(parameters)
-	return bin.pack("<CA", string.len(parameters) / 2, parameters)
+local function smb_encode_parameters(parameters, overrides)
+	-- Make sure we have an overrides array
+	overrides = overrides or {}
+	
+	return bin.pack("<CA", (overrides['parameters_length'] or (string.len(parameters) / 2)), parameters)
 end
 
 --- Converts a string containing the data section into the encoded data string. 
@@ -744,9 +751,13 @@ end
 -- This is automatically done by <code>smb_send</code>. 
 --
 -- @param data The data section. 
+-- @param overrides The overrides table. The only thing possible to override here is the length. 
 -- @return The encoded data.
-local function smb_encode_data(data)
-	return bin.pack("<SA", string.len(data), data)
+local function smb_encode_data(data, overrides)
+	-- Make sure we have an overrides array
+	overrides = overrides or {}
+
+	return bin.pack("<SA", (overrides['data_length'] or string.len(data)), data)
 end
 
 ---Sign the message, if possible. This is done by replacing the signature with the sequence
@@ -819,11 +830,14 @@ end
 --@param header     The header, encoded with <code>smb_get_header</code>.
 --@param parameters The parameters.
 --@param data       The data.
+--@param overrides  Overrides table. 
 --@return (result, err) If result is false, err is the error message. Otherwise, err is
 --        undefined
-function smb_send(smb, header, parameters, data)
-    local encoded_parameters = smb_encode_parameters(parameters)
-    local encoded_data       = smb_encode_data(data)
+function smb_send(smb, header, parameters, data, overrides)
+	overrides = overrides or {}
+
+    local encoded_parameters = smb_encode_parameters(parameters, overrides)
+    local encoded_data       = smb_encode_data(data, overrides)
 	local body               = header .. encoded_parameters .. encoded_data
 	local attempts           = 5
 	local status, err
@@ -996,7 +1010,7 @@ function negotiate_protocol(smb, overrides)
 	local pos
 	local header1, header2, header3, ehader4, command, status, flags, flags2, pid_high, signature, unused, pid, mid
 
-	header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'])
+	header     = smb_encode_header(smb, command_codes['SMB_COM_NEGOTIATE'], overrides)
 
 	-- Make sure we have overrides
 	overrides = overrides or {}
@@ -1017,7 +1031,7 @@ function negotiate_protocol(smb, overrides)
 
 	-- Send the negotiate request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NEGOTIATE")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(status == false) then
 		return false, err
 	end
@@ -1147,7 +1161,7 @@ function start_session_basic(smb, log_errors, overrides)
 	local os, lanmanager
 	local username, domain, password, password_hash, hash_type
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
 
 	-- Get the first account, unless they overrode it
 	if(overrides ~= nil and overrides['username'] ~= nil) then
@@ -1193,7 +1207,7 @@ function start_session_basic(smb, log_errors, overrides)
 
 		-- Send the session setup request
 		stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
-		result, err = smb_send(smb, header, parameters, data)
+		result, err = smb_send(smb, header, parameters, data, overrides)
 		if(result == false) then
 			return false, err
 		end
@@ -1313,7 +1327,7 @@ function start_session_extended(smb, log_errors, overrides)
 				return false, string.format("SMB: ERROR: Security blob: %s", security_blob)
 			end
 	
-			header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'])
+			header     = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
 			-- Parameters
 			parameters = bin.pack("<CCSSSSISII", 
 						0xFF,               -- ANDX -- no further commands
@@ -1338,7 +1352,7 @@ function start_session_extended(smb, log_errors, overrides)
 	
 			-- Send the session setup request
 			stdnse.print_debug(2, "SMB: Sending SMB_COM_SESSION_SETUP_ANDX")
-			result, err = smb_send(smb, header, parameters, data)
+			result, err = smb_send(smb, header, parameters, data, overrides)
 			if(result == false) then
 				return false, err
 			end
@@ -1481,7 +1495,7 @@ function tree_connect(smb, path, overrides)
 	-- Make sure we have overrides
 	overrides = overrides or {}
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_TREE_CONNECT_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_TREE_CONNECT_ANDX'], overrides)
 	parameters = bin.pack("<CCSSS", 
 					0xFF,   -- ANDX no further commands
 					0x00,   -- ANDX reserved
@@ -1497,7 +1511,7 @@ function tree_connect(smb, path, overrides)
 
 	-- Send the tree connect request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TREE_CONNECT_ANDX")
-	result, err = smb_send(smb, header, parameters, data)
+	result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1531,17 +1545,19 @@ end
 
 --- Disconnects a tree session. Should be called before logging off and disconnecting. 
 --@param smb    The SMB object associated with the connection
+--@param overrides THe overrides table
 --@return (status, result) If status is false, result is an error message. If status is true, 
 --              the disconnect was successful. 
-function tree_disconnect(smb)
+function tree_disconnect(smb, overrides)
+	overrides = overrides or {}
 	local header
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_TREE_DISCONNECT'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_TREE_DISCONNECT'], overrides)
 
 	-- Send the tree disconnect request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TREE_DISCONNECT")
-	local result, err = smb_send(smb, header, "", "")
+	local result, err = smb_send(smb, header, "", "", overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1571,13 +1587,15 @@ end
 ---Logs off the current user. Strictly speaking this isn't necessary, but it's the polite thing to do. 
 --
 --@param smb    The SMB object associated with the connection
+--@param overrides THe overrides table
 --@return (status, result) If statis is false, result is an error message. If status is true, 
 --              the logoff was successful. 
-function logoff(smb)
+function logoff(smb, overrides)
+	overrides = overrides or {}
 	local header, parameters, data
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_LOGOFF_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_LOGOFF_ANDX'], overrides)
 
 	-- Parameters are a blank ANDX block
 	parameters = bin.pack("<CCS", 
@@ -1588,7 +1606,7 @@ function logoff(smb)
 
 	-- Send the tree disconnect request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_LOGOFF_ANDX")
-	local result, err = smb_send(smb, header, parameters, "")
+	local result, err = smb_send(smb, header, parameters, "", overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1642,7 +1660,7 @@ function create_file(smb, path, overrides)
 	-- Make sure we have overrides
 	overrides = overrides or {}
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_NT_CREATE_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_NT_CREATE_ANDX'], overrides)
 	parameters = bin.pack("<CCSCSIIILIIIIIC", 
 					0xFF,   -- ANDX no further commands
 					0x00,   -- ANDX reserved
@@ -1665,7 +1683,7 @@ function create_file(smb, path, overrides)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_NT_CREATE_ANDX")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1715,9 +1733,11 @@ end
 --@param smb    The SMB object associated with the connection
 --@param offset The offset to read from (ignored if it's a pipe)
 --@param count  The maximum number of bytes to read
+--@param overrides The overrides table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table
 --        containing a lot of different elements. 
-function read_file(smb, offset, count)
+function read_file(smb, offset, count, overrides)
+	overrides = overrides or {}
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
@@ -1725,7 +1745,7 @@ function read_file(smb, offset, count)
 	local remaining, data_compaction_mode, reserved_1, data_length_low, data_offset, data_length_high, reserved_2, reserved_3
 	local response = {}
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_READ_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_READ_ANDX'], overrides)
 	parameters = bin.pack("<CCSSISSISI",
 					0xFF,   -- ANDX no further commands
 					0x00,   -- ANDX reserved
@@ -1743,7 +1763,7 @@ function read_file(smb, offset, count)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_READ_ANDX")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1804,16 +1824,18 @@ end
 --@param smb        The SMB object associated with the connection
 --@param write_data The data to write
 --@param offset     The offset to write it to (ignored for pipes)
+--@param overrides  The overrides table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table
 --        containing a lot of different elements, the most important one being 'fid', the handle to the opened file. 
-function write_file(smb, write_data, offset)
+function write_file(smb, write_data, offset, overrides)
+	overrides = overrides or {}
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset
 	local response = {}
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_WRITE_ANDX'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_WRITE_ANDX'], overrides)
 	parameters = bin.pack("<CCSSIISSSSSI",
 					0xFF,   -- ANDX no further commands
 					0x00,   -- ANDX reserved
@@ -1833,7 +1855,7 @@ function write_file(smb, write_data, offset)
 
 	-- Send the create file
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_WRITE_ANDX")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1873,15 +1895,17 @@ end
 --- This sends a SMB request to close a file (or a pipe). 
 --
 --@param smb        The SMB object associated with the connection
+--@param overrides  The overrides table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is undefined. 
-function close_file(smb)
+function close_file(smb, overrides)
+	overrides = overrides or {}
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset
 	local response = {}
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_CLOSE'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_CLOSE'], overrides)
 	parameters = bin.pack("<SI",
 					smb['fid'], -- FID
 					0xFFFFFFFF  -- Last write (unspecified)
@@ -1891,7 +1915,7 @@ function close_file(smb)
 
 	-- Send the close file
 	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1920,14 +1944,16 @@ end
 --
 --@param smb    The SMB object associated with the connection
 --@param path   The path of the file to delete
+--@param overrides The overrides table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is undefined. 
-function delete_file(smb, path)
+function delete_file(smb, path, overrides)
+	overrides = overrides or {}
 	local header, parameters, data
 	local pos
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_DELETE'])
+	header = smb_encode_header(smb, command_codes['SMB_COM_DELETE'], overrides)
 	parameters = bin.pack("<S",
 					0x0027 -- Search attributes (0x27 = include read only, hidden, system, and archive)
 				)
@@ -1938,7 +1964,7 @@ function delete_file(smb, path)
 
 	-- Send the close file
 	stdnse.print_debug(2, "SMB: Sending SMB_CLOSE")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -1977,9 +2003,11 @@ end
 --@param pipe [optional]      The pipe to transact on. Default: "\PIPE\". 
 --@param no_setup [optional]  If set, the 'setup' is set to 0 and some parameters are left off. This occurs while
 --                            using the LANMAN Remote API. Default: false. 
+--@param overrides            The overrides table
 --@return (status, result) If status is false, result is an error message. Otherwise, result is a table 
 --        containing 'parameters' and 'data', representing the parameters and data returned by the server. 
-function send_transaction_named_pipe(smb, function_parameters, function_data, pipe, no_setup)
+function send_transaction_named_pipe(smb, function_parameters, function_data, pipe, no_setup, overrides)
+	overrides = overrides or {}
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local header, parameters, data
 	local parameter_offset = 0
@@ -1994,7 +2022,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	end
 
 	-- Header is 0x20 bytes long (not counting NetBIOS header).
-	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION']) -- 0x25 = SMB_COM_TRANSACTION
+	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION'], overrides) -- 0x25 = SMB_COM_TRANSACTION
 
 	-- 0x20 for SMB header, 0x01 for parameters header, 0x20 for parameters length, 0x02 for data header, 0x07 for "\PIPE\"
 	if(function_parameters) then
@@ -2046,7 +2074,7 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 
 	-- Send the transaction request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
@@ -2093,7 +2121,8 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 	return true, response
 end
 
-function send_transaction_waitnamedpipe(smb, priority, pipe)
+function send_transaction_waitnamedpipe(smb, priority, pipe, overrides)
+	overrides = overrides or {}
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local header, parameters, data
 	local parameter_offset, data_offset
@@ -2102,7 +2131,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 	local padding = ""
 
 	-- Header is 0x20 bytes long (not counting NetBIOS header).
-	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION']) -- 0x25 = SMB_COM_TRANSACTION
+	header = smb_encode_header(smb, command_codes['SMB_COM_TRANSACTION'], overrides) -- 0x25 = SMB_COM_TRANSACTION
 
 	-- Parameters are 0x20 bytes long. 
 	parameters = bin.pack("<SSSSCCSISSSSSCCSS",
@@ -2132,7 +2161,7 @@ function send_transaction_waitnamedpipe(smb, priority, pipe)
 
 	-- Send the transaction request
 	stdnse.print_debug(2, "SMB: Sending SMB_COM_TRANSACTION (WaitNamedPipe)")
-	local result, err = smb_send(smb, header, parameters, data)
+	local result, err = smb_send(smb, header, parameters, data, overrides)
 	if(result == false) then
 		return false, err
 	end
