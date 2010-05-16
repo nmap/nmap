@@ -194,6 +194,9 @@
 
 * It would be nice to have Bzip2 packages. [Requested by Henri Salo]
 
+* Think about --establish feature, which uses raw packets to establish
+  a connection and can then send data on the connected stream (Luis
+  already has a proof-of-concept implementation).
 
 /*****************************************************************************
  * Things that have been solved already                                      *
