@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 04/13/2010
+.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
+.\"      Date: 05/17/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "04/13/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/17/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -1321,10 +1321,11 @@ Techniques for improving scan times include omitting non\-critical tests, and up
 .PP
 Some options accept a
 time
-parameter\&. This is specified in milliseconds by default, though you can append \(oqs\(cq, \(oqm\(cq, or \(oqh\(cq to the value to specify seconds, minutes, or hours\&. So the
+parameter\&. This is specified in seconds by default, though you can append \(oqms\(cq, \(oqs\(cq, \(oqm\(cq, or \(oqh\(cq to the value to specify milliseconds, seconds, minutes, or hours\&. So the
 \fB\-\-host\-timeout\fR
 arguments
-900000,
+900000ms,
+900,
 900s, and
 15m
 all do the same thing\&.
@@ -1372,9 +1373,7 @@ and
 \fB\-\-initial\-rtt\-timeout\fR
 than the defaults can cut scan times significantly\&. This is particularly true for pingless (\fB\-Pn\fR) scans, and those against heavily filtered networks\&. Don\'t get too aggressive though\&. The scan can end up taking longer if you specify such a low value that many probes are timing out and retransmitting while the response is in transit\&.
 .sp
-If all the hosts are on a local network, 100 milliseconds is a reasonable aggressive
-\fB\-\-max\-rtt\-timeout\fR
-value\&. If routing is involved, ping a host on the network first with the ICMP ping utility, or with a custom packet crafter such as
+If all the hosts are on a local network, 100 milliseconds (\fB\-\-max\-rtt\-timeout 100ms\fR) is a reasonable aggressive value\&. If routing is involved, ping a host on the network first with the ICMP ping utility, or with a custom packet crafter such as
 \fBhping2\fR.\" hping2
 that is more likely to get through a firewall\&. Look at the maximum round trip time out of ten packets or so\&. You might want to double that for the
 \fB\-\-initial\-rtt\-timeout\fR
@@ -1551,11 +1550,11 @@ are similar but they only wait 15 seconds and 0\&.4 seconds, respectively, betwe
 is Nmap\'s default behavior, which includes parallelization\&..\" normal (-T3) timing template
 \fB\-T4\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 1250 \-\-initial\-rtt\-timeout 500 \-\-max\-retries 6\fR
+\fB\-\-max\-rtt\-timeout 1250ms \-\-initial\-rtt\-timeout 500ms \-\-max\-retries 6\fR
 and sets the maximum TCP scan delay to 10 milliseconds\&.
 \fBT5\fR
 does the equivalent of
-\fB\-\-max\-rtt\-timeout 300 \-\-min\-rtt\-timeout 50 \-\-initial\-rtt\-timeout 250 \-\-max\-retries 2 \-\-host\-timeout 15m\fR
+\fB\-\-max\-rtt\-timeout 300ms \-\-min\-rtt\-timeout 50ms \-\-initial\-rtt\-timeout 250ms \-\-max\-retries 2 \-\-host\-timeout 15m\fR
 as well as setting the maximum TCP scan delay to 5\ \&ms\&.
 .RE
 .\" 
