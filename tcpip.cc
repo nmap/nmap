@@ -1510,7 +1510,7 @@ static int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen) {
   ip->ip_off = ntohs(ip->ip_off);
 #endif
 
-  res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
+  res = Sendto("send_ip_packet_sd", sd, packet, packetlen, 0,
                (struct sockaddr *) &sock,
                (int) sizeof(struct sockaddr_in));
 
