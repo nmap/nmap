@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] In listen mode, the --exec and --sh-exec options now accept a
+  single connection and then exit, just like in normal listen mode.
+  Use the --keep-open option to get the old default inetd-like
+  behavior. This was suggested by David Millis. [David]
+
 o Nmap now works with "teamed" network interfaces on Windows. In order
   to distinguish the interfaces, their textual descriptions are now
   compared in addition to their MAC addresses. Without this, Nmap
