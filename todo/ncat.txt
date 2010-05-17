@@ -1,0 +1,11 @@
+WISHLIST (this is going to get pretty long, methinks)
+
+* SOCKS4a/SOCKSv5 implementations
+* a -daemonize option. might be handy for socks4/socks5/other_stuff
+  --would need an improved --stfu option to make this sane, most likely.
+* connect to a unix domain socket
+* option to change socket blocking options.
+* some be able to --append to socket/file/whatever and vice-versa.
+* option to redirect debug (which needs more intelligent levels, might I add, such as: info, debug, warning, notice, etc)
+  to syslog and not to stderr.
+* possible --setsid to reassign session leader
