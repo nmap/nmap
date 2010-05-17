@@ -54,12 +54,7 @@
 * Fix Windows rtt values.  Right now Nsock does not seem to be giving
   the callback at the proper time, or something.
 
-* Set up automatic conversion from nping XML man page to HTML for
-  http://nmap.org/nping/man.html [Fyodor working on this]
-
 * Stats for ARP packets.
-
-* Include signature files in new releases. [Requested by Henri Salo]
 
 * Do more testing on Mac OS & MS Windows.
 
@@ -118,10 +113,6 @@
 
 * Support pre defined probe rates: --fast, --faster, --flood, --slow,
    --slower, --paranoid...
-
-* Do small fix in nmap's send_ip_packet_sd()
-  -   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
-  +   res = Sendto("send_ip_packet_sd", sd, packet, packetlen, 0,
 
 * Consider using David's proto-dependant payloads for UDP packets. According
   to his tests, better results are obtained when sending UDP probes with a
@@ -192,11 +183,13 @@
   <<in some cases it might be nice to have an option which sends all 
   probes (all ports to all hosts) at the same time.>>
 
-* It would be nice to have Bzip2 packages. [Requested by Henri Salo]
-
 * Think about --establish feature, which uses raw packets to establish
   a connection and can then send data on the connected stream (Luis
   already has a proof-of-concept implementation).
+
+* In the Nping code cleanup phase, apart from focusing in common.cc and
+  common_modified.cc, keep in mind that we may want to share David's UDP
+  payload code between Nping and Nmap.
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -380,3 +373,15 @@
   with installer building).
 
 [DONE] Move nping to /nping in SVN rather than being in nmap-exp
+
+[DONE] Set up automatic conversion from nping XML man page to HTML for
+       http://nmap.org/nping/man.html [Fyodor working on this]
+
+[DONE] Include signature files in new releases. [Requested by Henri Salo]
+[DONE] It would be nice to have Bzip2 packages. [Requested by Henri Salo]
+       (These last two don't make sense anymore as Nping is now distributed 
+        with Nmap).
+
+[DONE] Do small fix in nmap's send_ip_packet_sd()
+    -   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
+    +   res = Sendto("send_ip_packet_sd", sd, packet, packetlen, 0,
