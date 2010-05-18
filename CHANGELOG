@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add new DB2 library and two scripts
+  - db2-brute.nse uses the unpwdb library to guess credentials for DB2
+  - db2-info.nse re-write of Tom Sellers script to use the new library
+  [Patrik]
+
 o [Ncat] In listen mode, the --exec and --sh-exec options now accept a
   single connection and then exit, just like in normal listen mode.
   Use the --keep-open option to get the old default inetd-like
