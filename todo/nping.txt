@@ -191,6 +191,12 @@
   common_modified.cc, keep in mind that we may want to share David's UDP
   payload code between Nping and Nmap.
 
+* Change info about TODO file in http://nmap.org/nping web page.
+    - If you wish to contribute code to Nping there is a TO-DO list you can have 
+    - a look at (file "TODO" in the source package).
+    + If you wish to contribute code to Nping there is a TO-DO list you can have 
+    + a look at (file "todo/nping.txt" in nmap's source package).
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
