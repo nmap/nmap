@@ -96,8 +96,8 @@ require("datafiles")
 --                             encoding an decoding
 -- Revised 03/13/2010 - v0.3 - re-worked library to be OO
 -- Revised 04/18/2010 - v0.4 - Applied patch from Djalal Harouni with improved 
---							   error checking and re-designed Comm class. see:
---							   http://seclists.org/nmap-dev/2010/q2/232
+--                             error checking and re-designed Comm class. see:
+--                             http://seclists.org/nmap-dev/2010/q2/232
 --
 
 
@@ -108,7 +108,6 @@ RPC_args = {
 	["mountd"] = { ver = 'mount.version' },
 }
 
-
 -- Defines the order in which to try to connect to the RPC programs
 -- TCP appears to be more stable than UDP in most cases, so try it first
 local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbind'].proto] and 
@@ -117,6 +116,9 @@ local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbi
 
 -- used to cache the contents of the rpc datafile
 local RPC_PROGRAMS
+
+-- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmap']
+local mutex = nmap.mutex("rpc")
 
 -- Supported protocol versions
 RPC_version = {
@@ -1581,7 +1583,9 @@ Helper = {
 			stdnse.print_debug("rpc.Helper.RpcInfo: %s", result)
 			return status, result
 		end
+		mutex "lock"
 		status, result = portmap:Dump(comm)
+		mutex "done"
 		comm:Disconnect()
 		if (not(status)) then
 			stdnse.print_debug("rpc.Helper.RpcInfo: %s", result)
@@ -1800,8 +1804,15 @@ Portmap =
 	--
 	Dump = function(self, comm)
 		local status, data, packet, response, pos, header
-		if ( self.program_table ) then
-			return true, self.program_table
+		local program_table = setmetatable({}, { __mode = 'v' })
+
+		if nmap.registry[comm.ip] == nil then
+			nmap.registry[comm.ip] = {}
+		end
+		if nmap.registry[comm.ip]['portmap'] == nil then
+			nmap.registry[comm.ip]['portmap'] = {}
+		elseif next(nmap.registry[comm.ip]['portmap']) ~= nil then
+			return true, nmap.registry[comm.ip]['portmap']
 		end
 
 		packet = comm:EncodePacket( nil, RPC.Procedure[comm.version].DUMP, { type=RPC.AuthType.NULL }, data )
@@ -1842,8 +1853,6 @@ Portmap =
 			end
 		end
 
-		self.program_table = {}
-
 		while true do
 			local vfollows
 			local program, version, protocol, port
@@ -1864,18 +1873,18 @@ Portmap =
 				protocol = "udp"
 			end
 						
-			self.program_table[program] = self.program_table[program] or {}
-			self.program_table[program][protocol] = self.program_table[program][protocol] or {}
-			self.program_table[program][protocol]["port"] = port
-			self.program_table[program][protocol]["version"] = self.program_table[program][protocol]["version"] or {}
-			table.insert( self.program_table[program][protocol]["version"], version )
+			program_table[program] = program_table[program] or {}
+			program_table[program][protocol] = program_table[program][protocol] or {}
+			program_table[program][protocol]["port"] = port
+			program_table[program][protocol]["version"] = program_table[program][protocol]["version"] or {}
+			table.insert( program_table[program][protocol]["version"], version )
 			-- parts of the code rely on versions being in order
 			-- this way the highest version can be chosen by choosing the last element
-			table.sort( self.program_table[program][protocol]["version"] )
+			table.sort( program_table[program][protocol]["version"] )
 		end
 
-		return true, self.program_table
-	
+		nmap.registry[comm.ip]['portmap'] = program_table
+		return true, nmap.registry[comm.ip]['portmap']  	
 	end,
 	
 	--- Queries the portmapper for the port of the selected program, 
