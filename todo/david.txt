@@ -1,0 +1,29 @@
+* Handle multiple targets with the same address.
+* Brandon says: "Sometime -sV goes just a little too fast and gets a connect
+  error.  It should back off and try again a few times before giving up trying
+  to fingerprint the service." It looks like
+    Got nsock CONNECT response with status ERROR - aborting this service
+  Add a delay of 500 ms?
+Summer of coder:
+* Add a library function to test the randomness of a string. Use it to make
+  version scripts for services that send random or encrypted data, for example
+  cccam on port 12000 which sends 16 bytes.
+
+Zenmap:
+* Figure out what licensing notices are required in the Mac package for GTK+,
+  Glib, Python, and anything else we use.
+Summer of Coder:
+* Merge a scan aggregation into one XML file.
+* Synthesize text Nmap output from an XML file.
+
+Ncat:
+* Make Ncat send one line at a time when --delay is in effect. This is
+  cumbersome to do until Nsock supports buffered reading.
+* Make the HTTP proxy support the chunked transfer encoding, then change it to
+  be HTTP/1.1 and support pipelining.
+* See if we can make Ncat drop privileges on startup.
+
+Nsock:
+* Add a buffer to each iod, so that you can ask for a certain number of bytes
+  or lines and get exactly that many, no more. Venkat wrote a proposal at
+  http://seclists.org/nmap-dev/2009/q3/0600.html.
