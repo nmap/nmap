@@ -1593,24 +1593,24 @@ function script_init( )
   nmap.registry.whois.remote_assignments_files = {}
     nmap.registry.whois.remote_assignments_files.ipv4 = {
       {
-        remote_resource = "http://www.iana.org/assignments/ipv4-address-space/",
+        remote_resource = "http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt",
         local_resource = "ipv4-address-space",
-        match_assignment = "^([\.%d]+/%d+)",
+        match_assignment = "^%s*([\.%d]+/%d+)",
         match_service = "whois\.(%w+)\.net"
       }
     }
     nmap.registry.whois.remote_assignments_files.ipv6 = {
       --[[{
-        remote_resource = "http://www.iana.org/assignments/ipv6-address-space",
+        remote_resource = "http://www.iana.org/assignments/ipv6-address-space/ipv6-address-space.txt",
         local_resource = "ipv6-address-space",
         match_assignment = "^([:%x]+/%d+)",
         match_service = "^[:%x]+/%d+%s*(%w+)"
       },--]]
       {
-        remote_resource = "http://www.iana.org/assignments/ipv6-unicast-address-assignments",
+        remote_resource = "http://www.iana.org/assignments/ipv6-unicast-address-assignments/ipv6-unicast-address-assignments.txt",
         local_resource = "ipv6-unicast-address-assignments",
-        match_assignment = "^([:%x]+/%d+)",
-        match_service = "^[:%x]+/%d+%s*(%w+)"
+        match_assignment = "^%s*([:%x]+/%d+)",
+        match_service = "whois\.(%w+)\.net"
       }
   }
 
