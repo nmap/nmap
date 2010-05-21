@@ -197,6 +197,15 @@
     + If you wish to contribute code to Nping there is a TO-DO list you can have 
     + a look at (file "todo/nping.txt" in nmap's source package).
 
+* Replace this pattern:
+	if ( isNumber_u32(optarg) ){
+		u32 aux32 = strtoul( optarg, NULL, 10);
+		...
+	}
+  with a function that checks for syntax and returns the value (i.e., a wrapper
+  around strtoul). There is nowhere that isNumber_u* is called without it being
+  immediately followed by a strtoul, outside of utils.cc.
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
