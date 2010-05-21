@@ -326,14 +326,13 @@ printf("%s %s ( %s )\n"
  * We try to optimize speed when ordering the tests. This optimization
  * assumes that all byte values are equally likely in the input.
  *
- * Warning: This function could easily become outdated if the IANA
- * starts to assign some more IPv4 ranges to RIPE, etc. as they have
- * started doing this year (2001), for example 80.0.0.0/4 used to be
- * completely unassigned until they gave 80.0.0.0/7 to RIPE in April
- * 2001 (www.junk.org is an example of a new address in this range).
+ * Warning: This function needs frequent attention because IANA has been
+ * allocating address blocks many times per year (although it's questionable
+ * how much longer this trend can be kept up).
  *
- * Check <http://www.iana.org/assignments/ipv4-address-space> for
- * the most recent assigments and
+ * Check
+ * <http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt>
+ * for the most recent assigments and
  * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
  * netblocks.
  */
