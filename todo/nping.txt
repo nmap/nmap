@@ -206,31 +206,14 @@
   around strtoul). There is nowhere that isNumber_u* is called without it being
   immediately followed by a strtoul, outside of utils.cc.
 
-* Investigate and fix a bug: nsi_pcap_linktype(), nping.cc:1717, returns 
-  something different than DLT_EN10MB when sending UDP packets with the same
-  source and destination port number. If(dport==sport) it breaks; 
-  This happens also in TCP mode, and even in ICMP mode. This is weird. It might 
-  have something to do with the BPF filter. Some examples:
-
-    luis@Aberdeen:~$ sudo nping --udp 163.117.131.31 -p53
-    Starting Nping 0.5.30BETA1 ( http://nmap.org/nping ) at 2010-05-21 11:36 CEST
-    SENT (0.1140s) UDP 163.117.203.225:53 > 163.117.131.31:53 ttl=64 id=23488 iplen=28 
-    Currently only Ethernet is supported.
-    -----
-    luis@Aberdeen:~$ sudo nping --udp 163.117.131.31 -p59 -g 59
-    Starting Nping 0.5.30BETA1 ( http://nmap.org/nping ) at 2010-05-21 11:36 CEST
-    SENT (0.1060s) UDP 163.117.203.225:59 > 163.117.131.31:59 ttl=64 id=57091 iplen=28 
-    Currently only Ethernet is supported.
-    -----
-    luis@Aberdeen:~$ sudo nping --tcp 163.117.131.31 -p53 -g53
-    Starting Nping 0.5.30BETA1 ( http://nmap.org/nping ) at 2010-05-21 11:37 CEST
-    SENT (0.1070s) TCP 163.117.203.225:53 > 163.117.131.31:53 S ttl=64 id=29612 iplen=40  seq=4244174393 win=1480 
-    Currently only Ethernet is supported.
-    -----
-    luis@Aberdeen:~$ sudo nping 163.117.131.31 -p53 -g53 --icmp
-    Starting Nping 0.5.30BETA1 ( http://nmap.org/nping ) at 2010-05-21 11:37 CEST
-    SENT (0.1060s) ICMP 163.117.203.225 > 163.117.131.31 Echo request (type=8/code=0) ttl=64 id=23394 iplen=28 
-    Currently only Ethernet is supported.
+* In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
+  returns something different to DLT_EN10MB, and Nping fatals. Investigate
+  why this happens to nping and is not a problem for Nmap. Also, determine
+  why this doesn't happen all the time. What does it change between these
+  two?: sudo nping --udp 1.1.1.1 -g 999 -p998
+        sudo nping --udp 1.1.1.1 -g 999 -p999
+  The first one works, and the other one fatals with the "Currently only
+  Ethernet is supported." (error message @ nping.cc:1717).
     
 
 /*****************************************************************************
