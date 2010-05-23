@@ -103,6 +103,14 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
+o [NSE] Consider a script which uses Nmap's detected OS and open port
+  information to print out _possible_ (unverified) vulnerabilities.
+  Of course it is better to have scripts which actually check for
+  vulnerability, but we don't have comprehensive vuln detection yet,
+  so this could still be quite useful.
+  o Marc Ruef is working on a vulnscan.nse script which uses CVE to do
+    this. See this thread: http://seclists.org/nmap-dev/2010/q2/527
+
 o Consider providing an option which causes Nmap to scan ALL IP
   addresses returned for a given name.  So if "google.com" returns 4
   names, scan them all (right now we print them all but only scan
