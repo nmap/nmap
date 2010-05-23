@@ -13,7 +13,7 @@ it.  This also allows you to audit the software for security holes
 Source code also allows you to port Nmap to new platforms, fix bugs,
 and add new features.  You are highly encouraged to send your changes
 to nmap-dev@insecure.org for possible incorporation into the main
-distribution.  By sending these changes to Fyodor or one the
+distribution.  By sending these changes to Fyodor or one of the
 Insecure.Org development mailing lists, it is assumed that you are
 offering the Nmap Project (Insecure.Com LLC) unlimited, non-exclusive
 right to reuse, modify, and relicense the code.  This is important
@@ -23,7 +23,7 @@ Nmap will always be available Open Source.  If you wish to specify
 special license conditions of your contributions, just say so when you
 send them.
 
-Nmap is a community project and has already benefitted greatly from
+Nmap is a community project and has already benefited greatly from
 outside contributors (for examples, see the CHANGELOG at
 http://nmap.org/changelog.html).  Bugfixes, and portability changes
 will almost always be accepted.  Even if you do not have time to track
