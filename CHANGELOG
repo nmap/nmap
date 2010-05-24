@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a version probe, match line, and UDP payload for the
+  serialnumberd service of Mac OS X Server. This service overrides
+  firewall settings to make itself visible, so it's useful for host
+  discovery. [Patrik]
+
 o Open XML elements are now closed in case of a fatal error, so the
   output should at least be well-formed. There are new attributes
   "exit" and "errormsg" in the finished element. "exit" is "success"

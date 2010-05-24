@@ -123,6 +123,7 @@ static const char payload_SNMPv3GetRequest[] =
   "\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0E\x04\x00\x02\x01\x00\x02"
   "\x01\x00\x04\x00\x04\x00\x04\x00\x30\x12\x04\x00\x04\x00\xA0\x0C"
   "\x02\x02\x37\xF0\x02\x01\x00\x02\x01\x00\x30\x00";
+static const char payload_serialnumberd[] = "SNQUERY: 127.0.0.1:AAAAAA:xsvr";
 
 /* X Display Manager Control Protocol. Version 1, packet type Query (2), no
    authorization names. We expect a Willing or Unwilling packet in reply.
@@ -299,6 +300,9 @@ const char *udp_port2payload(u16 dport, size_t *length){
       break;
     case 520:
       SET_PAYLOAD(payload_rip);
+      break;
+    case 626:
+      SET_PAYLOAD(payload_serialnumberd);
       break;
     /*
     case 1434:
