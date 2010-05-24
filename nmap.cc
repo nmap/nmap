@@ -1579,7 +1579,7 @@ int nmap_main(int argc, char *argv[]) {
   if (xslfname) {
     xml_open_pi("xml-stylesheet");
     xml_attribute("href", "%s", xslfname);
-    xml_attribute("type", "test/xsl");
+    xml_attribute("type", "text/xsl");
     xml_close_pi();
     xml_newline();
   }
