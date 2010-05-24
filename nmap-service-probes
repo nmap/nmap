@@ -8971,3 +8971,11 @@ ports 7777
 
 match arucer m|^\xbc\xa0\xb6$| p/Arucer backdoor/ o/Windows/ i/**BACKDOOR**/
 
+##############################NEXT PROBE##############################
+# Mac OS X Server serialnumberd; checks for other servers with the same serial
+# number on the local network. AAAAAA is a dummy value.
+Probe UDP serialnumberd q|SNQUERY: 127.0.0.1:AAAAAA:xsvr|
+rarity 8
+ports 626
+
+match serialnumber m|^SNRESPS:127\.0\.0\.1:(0x[0-9A-F]{40}):xsvr:(0x[0-9A-F]{40}):(0x[0-9a-f]{8}):(0x[0-9A-F]{40}):127\.0\.0\.1\0$| p/Mac OS X Server serialnumberd/ o/Mac OS X/ i/numbers: $1 $2 $3 $4/
