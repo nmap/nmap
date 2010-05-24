@@ -18,16 +18,20 @@
 # license conditions of your contributions, just say so when you send
 # them.
 #
-# This collection of probe data is (C) 2003-2006 by Insecure.Com LLC
-# It is available for free use by open source software under the terms
-# of the GNU General Public License.  We also license the data to
-# selected commercial/proprietary vendors under less restrictive
-# terms.  Contact sales@insecure.com for more information.
+# This collection of probe data is (C) 1998-2010 by Insecure.Com
+# LLC.  It is distributed under the Nmap Open Source license as
+# provided in the COPYING file of the source distribution or at
+# http://nmap.org/data/COPYING .  Note that this license
+# requires you to license your own work under a compatable open source
+# license.  If you wish to embed Nmap technology into proprietary
+# software, we sell alternative licenses (contact sales@insecure.com).
+# Dozens of software vendors already license Nmap technology such as
+# host discovery, port scanning, OS detection, and version detection.
+# For more details, see http://nmap.org/book/man-legal.html
 #
 # For details on how Nmap version detection works, why it was added,
 # the grammar of this file, and how to detect and contribute new
-# services, see our paper at
-# http://nmap.org/vscan/ .
+# services, see http://nmap.org/book/vscan.html.
 
 # The Exclude directive takes a comma separated list of ports.
 # The format is exactly the same as the -p switch.
