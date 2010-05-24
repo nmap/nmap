@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Open XML elements are now closed in case of a fatal error, so the
+  output should at least be well-formed. There are new attributes
+  "exit" and "errormsg" in the finished element. "exit" is "success"
+  or "error". When it is "error", the "errormsg" attribute contains
+  the error message. Thanks to Grant Bartlett, who found a typo in the
+  new output. [David]
+
 o Fixed some errors in nmap-os-db, probably caused by incorrect string
   replacement during integration. This patch is from James Cook.
 
