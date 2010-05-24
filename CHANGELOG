@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed some errors in nmap-os-db, probably caused by incorrect string
+  replacement during integration. This patch is from James Cook.
+
 o [Nsock, Ncat] Nsock has a new function, nsp_setbroadcast, that
   allows setting the SO_BROADCAST option on sockets. Ncat now sets
   this option unconditionally in connect mode to allow connections to
