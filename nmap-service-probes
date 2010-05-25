@@ -8983,3 +8983,4 @@ rarity 8
 ports 626
 
 match serialnumber m|^SNRESPS:127\.0\.0\.1:(0x[0-9A-F]{40}):xsvr:(0x[0-9A-F]{40}):(0x[0-9a-f]{8}):(0x[0-9A-F]{40}):127\.0\.0\.1\0$| p/Mac OS X Server serialnumberd/ o/Mac OS X/ i/numbers: $1 $2 $3 $4/
+match serialnumber m|^SNRESPS:([\w._-]+):(0x[0-9A-F]{40}):xsvr:(0x[0-9A-F]{40}):(0x[0-9a-f]{8}):(0x[0-9A-F]{40}):[\w._-]+\0$| p/Mac OS X Server serialnumberd/ o/Mac OS X/ i/numbers: $2 $3 $4 $5/ h/$1/
