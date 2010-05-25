@@ -1,24 +1,37 @@
-
 # Nmap nmap payload database -*- mode: fundamental; -*-
-# $Id: db,v 1.1 2009/12/30 20:51:57 jayrfink Exp $ 
-
-# XXX jrf - Not sure on the verbage here... we may need to
-#           put in something similar to the probes file
-
-# These payloads are sent with every host discovery or port scan probe. Only
-# include payloads that are unlikely to crash services, trip IDS alerts, or
-# change state on the server. The idea behind these is to evoke a response
-# using a payload.
+# $Id$ 
 #
+# These payloads are sent with every host discovery or port scan probe
+# by default. This database should only include payloads that are
+# unlikely to crash services, trip IDS alerts, or change state on the
+# server. The idea behind these is to evoke a response using a payload.
 # Some of them are taken from nmap-service-probes.
 #
-# Format is:
-#   protocol <tcp or udp currently> dport1,dport2,... "payload" [source port]
+# This collection of data is (C) 1996-2010 by Insecure.Com
+# LLC.  It is distributed under the Nmap Open Source license as
+# provided in the COPYING file of the source distribution or at
+# http://nmap.org/data/COPYING .  Note that this license
+# requires you to license your own work under a compatable open source
+# license.  If you wish to embed Nmap technology into proprietary
+# software, we sell alternative licenses (contact sales@insecure.com).
+# Dozens of software vendors already license Nmap technology such as
+# host discovery, port scanning, OS detection, and version detection.
+# For more details, see http://nmap.org/book/man-legal.html
 #
-# Notes: If there are spaces in a payload it is best to keep the payload in one
-#        contigous string
-# Note: currently we only send off UDP payloads but we should
-#       keep our options open
+# Each entry begins with a protocol (only "udp" is supported) followed
+# by a comma-separated list of ports, followed by one or more quoted
+# strings containing the payload. These elements may be broken across
+# several lines. For future expansion, additional keywords may follow
+# the payload data. Any data following one of these keywords must be on
+# the same line as the keyword so that unknown keywords can be ignored
+# by the parser. Currently this file contains some entries with the
+# "source" keyword to specify a desired source port, but it is not
+# honored by Nmap.
+#
+# Example:
+# udp 1234 "payloaddatapayloaddata"
+#   "payloaddatapayloaddata"
+# source 5678
 
 # Generic (this was GenericLines in old payload.cc file 
 udp 7 "\x0D\x0A\x0D\x0A"
