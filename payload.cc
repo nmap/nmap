@@ -88,6 +88,7 @@
  ***************************************************************************/
 
 /* $Id$ */
+
 #include <errno.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -98,19 +99,12 @@
 #include <map>
 
 #include "NmapOps.h"
-
 #include "nbase.h"
 #include "payload.h"
 #include "utils.h"
 
 extern NmapOps o;
 
-
-extern char *cstring_unescape(char *str, unsigned int *newlen);
-
-static bool payloads_loaded = false;
-static const char *payload_null = "";
-    
 struct payload {
   std::string data;
   /* Extra data such as source port goes here. */
@@ -120,12 +114,12 @@ struct payload {
 struct proto_dport {
   u8 proto;
   u16 dport;
-  
+
   proto_dport(u8 proto, u16 dport) {
     this->proto = proto;
     this->dport = dport;
   }
-  
+
   bool operator<(const proto_dport& other) const {
     if (proto == other.proto)
       return dport < other.dport;
@@ -134,23 +128,22 @@ struct proto_dport {
   }
 };
 
+static std::map<struct proto_dport, struct payload> payloads;
+
 /* Newlines are significant because keyword directives (like "source") that
    follow the payload string are significant to the end of the line. */
 enum token_type {
   TOKEN_EOF = 0,
-  TOKEN_NEWLINE, 
-  TOKEN_SYMBOL, 
-  TOKEN_STRING, 
+  TOKEN_NEWLINE,
+  TOKEN_SYMBOL,
+  TOKEN_STRING,
 };
-  
+
 struct token {
   char text[1024];
   size_t len;
-};    
-      
-static std::map<struct proto_dport, struct payload> payloads;
+};
 
-static unsigned long line_no;
 /* Returns a malloc-allocated list of the ports in portlist. portlist must
    contain one or more integers 0 <= p < 65536, separated by commas. */
 static unsigned short *parse_portlist(const char *portlist, unsigned int *count) {
@@ -158,17 +151,17 @@ static unsigned short *parse_portlist(const char *portlist, unsigned int *count)
   unsigned short *result;
   unsigned short i;
   unsigned int p;
-      
+
   memset(bitmap, 0, sizeof(bitmap));
   *count = 0;
   for (;;) {
     long l;
     char *tail;
-  
+
     errno = 0;
     l = strtol(portlist, &tail, 10);
     if (portlist == tail || errno != 0 || l < 0 || l > 65535)
-      return NULL;    
+      return NULL;
       if (!(bitmap[l / 32] & (1 << (l % 32)))) {
         bitmap[l / 32] |= (1 << (l % 32));
         (*count)++;
@@ -185,13 +178,16 @@ static unsigned short *parse_portlist(const char *portlist, unsigned int *count)
   if (result == NULL)
     return NULL;
   i = 0;
-  for (p = 0; p < 65536 && i < *count; p++) { 
+  for (p = 0; p < 65536 && i < *count; p++) {
     if (bitmap[p / 32] & (1 << (p % 32)))
       result[i++] = p;
-  }   
-    
-  return result; 
-}   
+  }
+
+  return result;
+}
+
+static unsigned long line_no;
+
 /* Get the next token from fp. The return value is the token type, or -1 on
    error. The token type is also stored in token->type. For TOKEN_SYMBOL and
    TOKEN_STRING, the text is stored in token->text and token->len. The text is
@@ -227,20 +223,20 @@ static int next_token(FILE *fp, struct token *token) {
         return -1;
       if (c == '\\') {
         token->text[i++] = '\\';
-        if (i + 1 >= sizeof(token->text)) 
+        if (i + 1 >= sizeof(token->text))
           return -1;
         c = fgetc(fp);
         if (c == EOF)
           return -1;
       }
       token->text[i++] = c;
-    } 
-    if (c != '"') 
+    }
+    if (c != '"')
       return -1;
-    token->text[i] = '\0'; 
+    token->text[i] = '\0';
     if (cstring_unescape(token->text, &tmplen) == NULL)
       return -1;
-	token->len = tmplen;
+    token->len = tmplen;
     return TOKEN_STRING;
   } else {
     i = 0;
@@ -256,10 +252,10 @@ static int next_token(FILE *fp, struct token *token) {
     token->text[i] = '\0';
     token->len = i;
     return TOKEN_SYMBOL;
-  } 
-  
+  }
+
   return -1;
-}    
+}
 
 /* Loop over fp, reading tokens and adding payloads to the global payloads map
    as they are completed. Returns -1 on error. */
@@ -316,24 +312,26 @@ static int load_payloads_from_file(FILE *fp) {
       payload.data = payload_data;
       payloads[key] = payload;
     }
-        
+
     free(ports);
   }
 
   return 0;
 }
 
-/* Initialize the payloads map. Read in the nmap-payloads contents and insert
-   into the global map for use later. */
+/* Ensure that the payloads map is initialized from the nmap-payloads file. This
+   function keeps track of whether it has been called and does nothing after it
+   is called the first time. */
 int init_payloads(void) {
+  static bool payloads_loaded = false;
+  char filename[256];
   FILE *fp;
   int ret;
-  char filename[256];
 
-  if (!payloads_loaded)
-	payloads_loaded = true;
-  else 
-    return 0; // we already loaded these
+  if (payloads_loaded)
+    return 0;
+
+  payloads_loaded = true;
 
   if (nmap_fetchfile(filename, sizeof(filename), PAYLOAD_FILENAME) != 1){
     fatal("Service scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", PAYLOAD_FILENAME, NMAPDATADIR);
@@ -346,7 +344,7 @@ int init_payloads(void) {
   if (fp == NULL) {
     fprintf(stderr, "Can't open %s for reading.\n", filename);
     return -1;
-  } 
+  }
 
   ret = load_payloads_from_file(fp);
   fclose(fp);
@@ -358,6 +356,7 @@ int init_payloads(void) {
    a payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
 const char *udp_port2payload(u16 dport, size_t *length) {
+  static const char *payload_null = "";
   std::map<struct proto_dport, struct payload>::iterator it;
   proto_dport pp(IPPROTO_UDP, dport);
 
@@ -365,10 +364,10 @@ const char *udp_port2payload(u16 dport, size_t *length) {
   if (it != payloads.end()) {
     *length = it->second.data.size();
     return it->second.data.data();
-  } 
-
-  *length = 0;
-  return payload_null; 
+  } else {
+    *length = 0;
+    return payload_null;
+  }
 }
 
 /* Get a payload appropriate for the given UDP port. If --data-length was used,
@@ -376,7 +375,6 @@ const char *udp_port2payload(u16 dport, size_t *length) {
    payload is returned, and for others a zero-length payload is returned. The
    length is returned through the length pointer. */
 const char *get_udp_payload(u16 dport, size_t *length) {
-
   if (o.extra_payload != NULL) {
     *length = o.extra_payload_length;
     return o.extra_payload;
@@ -384,4 +382,3 @@ const char *get_udp_payload(u16 dport, size_t *length) {
     return udp_port2payload(dport, length);
   }
 }
-
