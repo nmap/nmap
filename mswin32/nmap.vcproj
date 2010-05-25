@@ -745,6 +745,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\nmap-payloads"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying $(InputName) to output directory..."
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						Outputs="$(TargetDir)$(InputName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying $(InputName) to output directory..."
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(TargetDir)$(InputName)&quot; &gt; nul&#x0D;&#x0A;"
+						Outputs="$(TargetDir)$(InputName)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\nmap-protocols"
 				>
 				<FileConfiguration
