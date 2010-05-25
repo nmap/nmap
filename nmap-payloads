@@ -1,5 +1,5 @@
 # Nmap nmap payload database -*- mode: fundamental; -*-
-# $Id$ 
+# $Id$
 #
 # These payloads are sent with every host discovery or port scan probe
 # by default. This database should only include payloads that are
@@ -33,45 +33,39 @@
 #   "payloaddatapayloaddata"
 # source 5678
 
-# Generic (this was GenericLines in old payload.cc file 
+# GenericLines. Use for the echo service.
 udp 7 "\x0D\x0A\x0D\x0A"
-# DNSStatusRequest 
-udp 53 "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00" 
-# RPCCheck 
-udp 111 
+# DNSStatusRequest
+udp 53 "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+# RPCCheck
+udp 111
   "\x72\xFE\x1D\x13\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA0"
   "\x00\x01\x97\x7C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
-# NTPRequest 
+# NTPRequest
 udp 123
   "\xE3\x00\x04\xFA\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00\xC5\x4F\x23\x4B\x71\xB1\x52\xF3"
-# NBTStat 
-udp 137 "\x80\xF0\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00"
-  "\x20" 
-  "CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x00\x00\x21\x00\x01"
-# SNMPv3GetRequest 
-udp 161 
+# NBTStat
+udp 137
+  "\x80\xF0\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00"
+  "\x20CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x00\x00\x21\x00\x01"
+# SNMPv3GetRequest
+udp 161
   "\x30\x3A\x02\x01\x03\x30\x0F\x02\x02\x4A\x69\x02\x03\x00\xFF\xE3"
   "\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0E\x04\x00\x02\x01\x00\x02"
   "\x01\x00\x04\x00\x04\x00\x04\x00\x30\x12\x04\x00\x04\x00\xA0\x0C"
   "\x02\x02\x37\xF0\x02\x01\x00\x02\x01\x00\x30\x00"
-# serialnumberd. This service runs on Mac OS X Server. This probes
-# requests the serial number of another server. In response we expect a
-# packet starting with "SNRESPS:", followed by some data whose purpose
-# is not known.
-udp 626 "SNQUERY: 127.0.0.1:AAAAAA:xsvr"
+# Sqlping - disabled because it trips a Snort rule with SID 2049
+# ("MS-SQL ping attempt").
+# udp 1434 "\x02"
 
-# X Display Manager Control Protocol. Version 1, packet type Query (2), no
-#  authorization names. We expect a Willing or Unwilling packet in reply.
-#  http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz 
-# xdmcp 
+# xdmcp - X Display Manager Control Protocol. Version 1, packet type
+# Query (2), no authorization names. We expect a Willing or Unwilling
+# packet in reply.
+# http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz
 udp 177 "\x00\x01\x00\x02\x00\x01\x00"
-
-# This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
-# Sqlping
-# mssql udp 1434 "\x02"
 
 # Internet Key Exchange version 1, phase 1 Main Mode. We offer every
 # combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
@@ -80,40 +74,69 @@ udp 177 "\x00\x01\x00\x02\x00\x01\x00"
 # retransmissions (and therefore not get a response). This payload comes from
 #   ike-scan --lifetime 1 --cookie 0011223344556677 --trans=5,2,1,2 --trans=5,1,1,2 --trans=1,2,1,2 --trans=1,1,1,2
 # We expect another phase 1 message in response. This payload works better with
-# a source port of 500 or a randomized initiator cookie. 
-# Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000. 
-udp 500 
+# a source port of 500 or a randomized initiator cookie.
+udp 500
+  # Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000.
   "\x00\x11\x22\x33\x44\x55\x66\x77\x00\x00\x00\x00\x00\x00\x00\x00"
-  # Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192. 
+  # Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192.
   "\x01\x10\x02\x00\x00\x00\x00\x00\x00\x00\x00\xC0"
-  # Security Association payload, length 164, IPSEC, IDENTITY. 
+  # Security Association payload, length 164, IPSEC, IDENTITY.
   "\x00\x00\x00\xA4\x00\x00\x00\x01\x00\x00\x00\x01"
-  # Proposal 1, length 152, ISAKMP, 4 transforms. 
+  # Proposal 1, length 152, ISAKMP, 4 transforms.
   "\x00\x00\x00\x98\x01\x01\x00\x04"
-  # Transform 1, 3DES-CBC, SHA, PSK, group 2. 
+  # Transform 1, 3DES-CBC, SHA, PSK, group 2.
   "\x03\x00\x00\x24\x01\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x02"
   "\x80\x03\x00\x01\x80\x04\x00\x02"
   "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  # Transform 2, 3DES-CBC, MD5, PSK, group 2. 
+  # Transform 2, 3DES-CBC, MD5, PSK, group 2.
   "\x03\x00\x00\x24\x02\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x01"
   "\x80\x03\x00\x01\x80\x04\x00\x02"
   "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  # Transform 3, DES-CBC, SHA, PSK, group 2. 
+  # Transform 3, DES-CBC, SHA, PSK, group 2.
   "\x03\x00\x00\x24\x03\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x02"
   "\x80\x03\x00\x01\x80\x04\x00\x02"
   "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  # Transform 4, DES-CBC, MD5, PSK, group 2. 
+  # Transform 4, DES-CBC, MD5, PSK, group 2.
   "\x00\x00\x00\x24\x04\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x01"
   "\x80\x03\x00\x01\x80\x04\x00\x02"
   "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
- source 500
+source 500
 
 # Routing Information Protocol version 1. Special-case request for the entire
 # routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
-# section 3.4.1. 
+# section 3.4.1.
 udp 520,222
   "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x10"
+
+# serialnumberd. This service runs on Mac OS X Server. This probe
+# requests the serial number of another server. In response we expect a
+# packet starting with "SNRESPS:", followed by some data whose purpose
+# is not known.
+udp 626 "SNQUERY: 127.0.0.1:AAAAAA:xsvr"
+
+# Citrix MetaFrame application browser service
+# Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html
+# Payload contents copied from Wireshark capture of Citrix Program
+# Neighborhood client application.  The application uses this payload to
+# locate Citrix servers on the local network.  Response to this probe is
+# a 48 byte UDP payload as shown here:
+#
+# 0000   30 00 02 31 02 fd a8 e3 02 00 06 44 c0 a8 80 55
+# 0010   00 00 00 00 00 00 00 00 00 00 00 00 02 00 06 44
+# 0020   c0 a8 80 56 00 00 00 00 00 00 00 00 00 00 00 00
+#
+# The first 12 bytes appear to be the same in all responses.
+#
+# Bytes 0x00 appears to be a packet length field
+# Bytes 0x0C - 0x0F are the IP address of the server
+# Bytes 0x10 - 0x13 may vary, 0x14 - 0x1F do not appear to
+# Bytes 0x20 - 0x23 are the IP address of the primary system in a server farm
+#                   configuration
+# Bytes 0x24 - 0x27 can vary, 0x28 - 0x2F do not appear to
+udp 1604
+  "\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 # RADIUS Access-Request. This is a degenerate packet with no username or
 # password; we expect an Access-Reject in response. The Identifier and Request
@@ -121,19 +144,22 @@ udp 520,222
 #   echo 'User-Password = ""' | radclient <ip> auth ""
 # and then manually stripping out the password.
 #
-# Section 2 of the RFC says "A request from a client for which the RADIUS
-# server does not have a shared secret MUST be silently discarded." So this
-# payload only works when the server is configured (or misconfigured) to know
-# the scanning machine as a client. 
-# payload_radius 
-udp 1645,1812 "\x01\x00\x00\x14"
+# Section 2 of the RFC says "A request from a client for which the
+# RADIUS server does not have a shared secret MUST be silently
+# discarded." So this payload only works when the server is configured
+# (or misconfigured) to know the scanning machine as a client.
+#
+# RFC 2865: "The early deployment of RADIUS was done using UDP port
+# number 1645, which conflicts with the "datametrics" service. The
+# officially assigned port number for RADIUS is 1812.
+udp 1645,1812
+  "\x01\x00\x00\x14"
   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
 # NFS version 2, RFC 1831. XID 0x00000000, program 100003 (NFS), procedure
 # NFSPROC_NULL (does nothing, see section 2.2.1), null authentication (see
-# section 9.1). 
-# payload_nfs 
-udp 2049 
+# section 9.1).
+udp 2049
   "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA3"
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -144,52 +170,30 @@ udp 2049
 # back a list of all its services. This is the same as a packet capture of
 #   dns-sd -B _services._dns-sd._udp .
 # See section 9 of
-# http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt. 
-# payload_dns_sd 
-udp 5353 "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
-   "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01"
+# http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt.
+udp 5353
+  "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
+  "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01"
 
 # Amanda backup service noop request. I think that this does nothing on the
 # server but only asks it to send back its feature list. In reply we expect an
 # ACK or (more likely) an ERROR. I couldn't find good online documentation of
 # the Amanda network protocol. There is parsing code in the Amanda source at
 # common-src/security-util.c. This is based on a packet capture of
-#   amcheck <config> <host> 
-# payload_amanda 
-udp 10080 "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
-   "SERVICE noop\n"
-
-# Citrix MetaFrame application browser service
-#  Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html  
-#  Payload contents copied from Wireshark capture of Citrix Program 
-#  Neighborhood client application.  The application uses this payload to
-#  locate Citrix servers on the local network.  Response to this probe is 
-#  a 48 byte UDP payload as shown here:
-#
-#  0000   30 00 02 31 02 fd a8 e3 02 00 06 44 c0 a8 80 55
-#  0010   00 00 00 00 00 00 00 00 00 00 00 00 02 00 06 44
-#  0020   c0 a8 80 56 00 00 00 00 00 00 00 00 00 00 00 00
-#
-#  The first 12 bytes appear to be the same in all responses.
-#
-#  Bytes 0x00 appears to be a packet length field
-#  Bytes 0x0C - 0x0F are the IP address of the server
-#  Bytes 0x10 - 0x13 may vary, 0x14 - 0x1F do not appear to
-#  Bytes 0x20 - 0x23 are the IP address of the primary system in a server farm
-#  configuration 
-#  Bytes 0x24 - 0x27 can vary, 0x28 - 0x2F do not appear to  
-# payload_citrix 
-udp  1604
-  "\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+#   amcheck <config> <host>
+udp 10080
+  "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
+  "SERVICE noop\n"
 
 # Quake 2 and Quake 3 game servers (and servers of derived games like Nexuiz).
 # Gets game information from the server (see probe responses in
-# nmap-service-probes)
-# quake2
+# nmap-service-probes). These services typically run on a base port or a
+# few numbers higher.
+# Quake 2. Typical ports: 27910-97914.
 udp 27910,27911,27912,27913,27914 "\xff\xff\xff\xffstatus"
-
-# quake3
-udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724 
-   "\xff\xff\xff\xffgetstatus"
-
+# Quake 3. Typical ports:
+# 26000-26004: Nexuiz
+# 27960-27964: Various games
+# 30720-30724: Tremulous
+# 44400: Warsow
+udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724 "\xff\xff\xff\xffgetstatus"
