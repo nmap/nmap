@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o UDP payloads are now stored in an external data file, nmap-payloads,
+  instead of being hard-coded in the executable. This makes it easier
+  to add your own payloads or disable those you find problematic. Jay
+  Fink took up this task, doing the design and several iterations of
+  prototypes. David helped with the coding.
+
 o Added a version probe, match line, and UDP payload for the
   serialnumberd service of Mac OS X Server. This service overrides
   firewall settings to make itself visible, so it's useful for host

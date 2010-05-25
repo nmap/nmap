@@ -5094,6 +5094,8 @@ void ultra_scan(vector<Target *> &Targets, struct scan_lists *ports,
   UltraScanInfo *USI = NULL;
   o.current_scantype = scantype;
 
+  init_payloads(); /* Load up _all_ payloads into a mapped table */
+
   if (Targets.size() == 0) {
     return;
   }

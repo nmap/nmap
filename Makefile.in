@@ -230,6 +230,7 @@ install-nmap: $(TARGET)
 	$(INSTALL) -c -m 644 docs/nmap.xsl $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 docs/nmap.dtd $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-services $(DESTDIR)$(nmapdatadir)/
+	$(INSTALL) -c -m 644 nmap-payloads $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-rpc $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-os-db $(DESTDIR)$(nmapdatadir)/
 	$(INSTALL) -c -m 644 nmap-service-probes $(DESTDIR)$(nmapdatadir)/

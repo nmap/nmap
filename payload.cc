@@ -88,168 +88,288 @@
  ***************************************************************************/
 
 /* $Id$ */
+#include <errno.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <string>
+#include <map>
 
 #include "NmapOps.h"
 
 #include "nbase.h"
 #include "payload.h"
+#include "utils.h"
 
 extern NmapOps o;
 
-/*
-  These payloads are sent with every host discovery or port scan probe. Only
-  include payloads that are unlikely to crash services, trip IDS alerts, or
-  change state on the server.
 
-  Some of them are taken from nmap-service-probes.
-*/
+extern char *cstring_unescape(char *str, unsigned int *newlen);
 
-static const char payload_GenericLines[] = "\x0D\x0A\x0D\x0A";
-static const char payload_DNSStatusRequest[] =
-  "\x00\x00\x10\x00\x00\x00\x00\x00\x00\x00\x00\x00";
-static const char payload_RPCCheck[] =
-  "\x72\xFE\x1D\x13\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA0"
-  "\x00\x01\x97\x7C\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00";
-static const char payload_NTPRequest[] =
-  "\xE3\x00\x04\xFA\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00\xC5\x4F\x23\x4B\x71\xB1\x52\xF3";
-static const char payload_NBTStat[] =
-  "\x80\xF0\x00\x10\x00\x01\x00\x00\x00\x00\x00\x00"
-  "\x20" "CKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\x00\x00\x21\x00\x01";
-static const char payload_SNMPv3GetRequest[] =
-  "\x30\x3A\x02\x01\x03\x30\x0F\x02\x02\x4A\x69\x02\x03\x00\xFF\xE3"
-  "\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0E\x04\x00\x02\x01\x00\x02"
-  "\x01\x00\x04\x00\x04\x00\x04\x00\x30\x12\x04\x00\x04\x00\xA0\x0C"
-  "\x02\x02\x37\xF0\x02\x01\x00\x02\x01\x00\x30\x00";
-static const char payload_serialnumberd[] = "SNQUERY: 127.0.0.1:AAAAAA:xsvr";
+static bool payloads_loaded = false;
+static const char *payload_null = "";
+    
+struct payload {
+  std::string data;
+  /* Extra data such as source port goes here. */
+};
 
-/* X Display Manager Control Protocol. Version 1, packet type Query (2), no
-   authorization names. We expect a Willing or Unwilling packet in reply.
-   http://cgit.freedesktop.org/xorg/doc/xorg-docs/plain/hardcopy/XDMCP/xdmcp.PS.gz */
-static const char payload_xdmcp[] = "\x00\x01\x00\x02\x00\x01\x00";
+/* The key for the payload lookup map is a (proto, port) pair. */
+struct proto_dport {
+  u8 proto;
+  u16 dport;
+  
+  proto_dport(u8 proto, u16 dport) {
+    this->proto = proto;
+    this->dport = dport;
+  }
+  
+  bool operator<(const proto_dport& other) const {
+    if (proto == other.proto)
+      return dport < other.dport;
+    else
+      return proto < other.proto;
+  }
+};
 
-/*
-This one trips a Snort rule with SID 2049 ("MS-SQL ping attempt").
-static const char payload_Sqlping[] = "\x02";
-*/
+/* Newlines are significant because keyword directives (like "source") that
+   follow the payload string are significant to the end of the line. */
+enum token_type {
+  TOKEN_EOF = 0,
+  TOKEN_NEWLINE, 
+  TOKEN_SYMBOL, 
+  TOKEN_STRING, 
+};
+  
+struct token {
+  char text[1024];
+  size_t len;
+};    
+      
+static std::map<struct proto_dport, struct payload> payloads;
 
-/* Internet Key Exchange version 1, phase 1 Main Mode. We offer every
-   combination of (DES, 3DES) and (MD5, SHA) in the hope that one of them will
-   be acceptable. Because we use a fixed cookie, we set the association lifetime
-   to 1 second to reduce the chance that repeated probes will look like
-   retransmissions (and therefore not get a response). This payload comes from
-     ike-scan --lifetime 1 --cookie 0011223344556677 --trans=5,2,1,2 --trans=5,1,1,2 --trans=1,2,1,2 --trans=1,1,1,2
-   We expect another phase 1 message in response. This payload works better with
-   a source port of 500 or a randomized initiator cookie. */
-static const char payload_ike[] =
-  /* Initiator cookie 0x0011223344556677, responder cookie 0x0000000000000000. */
-  "\x00\x11\x22\x33\x44\x55\x66\x77\x00\x00\x00\x00\x00\x00\x00\x00"
-  /* Version 1, Main Mode, flags 0x00, message ID 0x00000000, length 192. */
-  "\x01\x10\x02\x00\x00\x00\x00\x00\x00\x00\x00\xC0"
-  /* Security Association payload, length 164, IPSEC, IDENTITY. */
-  "\x00\x00\x00\xA4\x00\x00\x00\x01\x00\x00\x00\x01"
-  /* Proposal 1, length 152, ISAKMP, 4 transforms. */
-  "\x00\x00\x00\x98\x01\x01\x00\x04"
-  /* Transform 1, 3DES-CBC, SHA, PSK, group 2. */
-  "\x03\x00\x00\x24\x01\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x02"
-  "\x80\x03\x00\x01\x80\x04\x00\x02"
-  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  /* Transform 2, 3DES-CBC, MD5, PSK, group 2. */
-  "\x03\x00\x00\x24\x02\x01\x00\x00\x80\x01\x00\x05\x80\x02\x00\x01"
-  "\x80\x03\x00\x01\x80\x04\x00\x02"
-  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  /* Transform 3, DES-CBC, SHA, PSK, group 2. */
-  "\x03\x00\x00\x24\x03\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x02"
-  "\x80\x03\x00\x01\x80\x04\x00\x02"
-  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01"
-  /* Transform 4, DES-CBC, MD5, PSK, group 2. */
-  "\x00\x00\x00\x24\x04\x01\x00\x00\x80\x01\x00\x01\x80\x02\x00\x01"
-  "\x80\x03\x00\x01\x80\x04\x00\x02"
-  "\x80\x0B\x00\x01\x00\x0C\x00\x04\x00\x00\x00\x01";
+static unsigned long line_no;
+/* Returns a malloc-allocated list of the ports in portlist. portlist must
+   contain one or more integers 0 <= p < 65536, separated by commas. */
+static unsigned short *parse_portlist(const char *portlist, unsigned int *count) {
+  uint32_t bitmap[65536 / 32];
+  unsigned short *result;
+  unsigned short i;
+  unsigned int p;
+      
+  memset(bitmap, 0, sizeof(bitmap));
+  *count = 0;
+  for (;;) {
+    long l;
+    char *tail;
+  
+    errno = 0;
+    l = strtol(portlist, &tail, 10);
+    if (portlist == tail || errno != 0 || l < 0 || l > 65535)
+      return NULL;    
+      if (!(bitmap[l / 32] & (1 << (l % 32)))) {
+        bitmap[l / 32] |= (1 << (l % 32));
+        (*count)++;
+      }
+    if (*tail == '\0')
+      break;
+    else if (*tail == ',')
+      portlist = tail + 1;
+    else
+      return NULL;
+  }
 
-/* Routing Information Protocol version 1. Special-case request for the entire
-   routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
-   section 3.4.1. */
-static const char payload_rip[] =
-  "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x10";
+  result = (unsigned short *) malloc(sizeof(*result) * *count);
+  if (result == NULL)
+    return NULL;
+  i = 0;
+  for (p = 0; p < 65536 && i < *count; p++) { 
+    if (bitmap[p / 32] & (1 << (p % 32)))
+      result[i++] = p;
+  }   
+    
+  return result; 
+}   
+/* Get the next token from fp. The return value is the token type, or -1 on
+   error. The token type is also stored in token->type. For TOKEN_SYMBOL and
+   TOKEN_STRING, the text is stored in token->text and token->len. The text is
+   null terminated. */
+static int next_token(FILE *fp, struct token *token) {
+  unsigned int i, tmplen;
+  int c;
 
-/* RADIUS Access-Request. This is a degenerate packet with no username or
-   password; we expect an Access-Reject in response. The Identifier and Request
-   Authenticator are both 0. It was generated by running
-     echo 'User-Password = ""' | radclient <ip> auth ""
-   and then manually stripping out the password.
+  token->len = 0;
 
-   Section 2 of the RFC says "A request from a client for which the RADIUS
-   server does not have a shared secret MUST be silently discarded." So this
-   payload only works when the server is configured (or misconfigured) to know
-   the scanning machine as a client. */
-static const char payload_radius[] =
-  "\x01\x00\x00\x14"
-  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+  /* Skip whitespace and comments. */
+  while (isspace(c = fgetc(fp)) && c != '\n')
+    ;
 
-/* NFS version 2, RFC 1831. XID 0x00000000, program 100003 (NFS), procedure
-   NFSPROC_NULL (does nothing, see section 2.2.1), null authentication (see
-   section 9.1). */
-static const char payload_nfs[] =
-  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x01\x86\xA3"
-  "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00";
+  if (c == EOF) {
+    return TOKEN_EOF;
+  } else if (c == '\n') {
+    line_no++;
+    return TOKEN_NEWLINE;
+  } else if (c == '#') {
+    while ((c = fgetc(fp)) != EOF && c != '\n')
+      ;
+    if (c == EOF) {
+      return TOKEN_EOF;
+    } else {
+      line_no++;
+      return TOKEN_NEWLINE;
+    }
+  } else if (c == '"') {
+    i = 0;
+    while ((c = fgetc(fp)) != EOF && c != '\n' && c != '"') {
+      if (i + 1 >= sizeof(token->text))
+        return -1;
+      if (c == '\\') {
+        token->text[i++] = '\\';
+        if (i + 1 >= sizeof(token->text)) 
+          return -1;
+        c = fgetc(fp);
+        if (c == EOF)
+          return -1;
+      }
+      token->text[i++] = c;
+    } 
+    if (c != '"') 
+      return -1;
+    token->text[i] = '\0'; 
+    if (cstring_unescape(token->text, &tmplen) == NULL)
+      return -1;
+	token->len = tmplen;
+    return TOKEN_STRING;
+  } else {
+    i = 0;
+    if (i + 1 >= sizeof(token->text))
+      return -1;
+    token->text[i++] = c;
+    while ((c = fgetc(fp)) != EOF && (isalnum(c) || c == ',')) {
+      if (i + 1 >= sizeof(token->text))
+        return -1;
+      token->text[i++] = c;
+    }
+    ungetc(c, fp);
+    token->text[i] = '\0';
+    token->len = i;
+    return TOKEN_SYMBOL;
+  } 
+  
+  return -1;
+}    
 
-/* DNS Service Discovery (DNS-SD) service query, as used in Zeroconf.
-   Transaction ID 0x0000, flags 0x0000, 1 question: PTR query for
-   _services._dns-sd._udp.local. If the remote host supports DNS-SD it will send
-   back a list of all its services. This is the same as a packet capture of
-     dns-sd -B _services._dns-sd._udp .
-   See section 9 of
-   http://files.dns-sd.org/draft-cheshire-dnsext-dns-sd.txt. */
-static const char payload_dns_sd[] =
-  "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00"
-  "\x09_services\x07_dns-sd\x04_udp\x05local\x00\x00\x0C\x00\x01";
+/* Loop over fp, reading tokens and adding payloads to the global payloads map
+   as they are completed. Returns -1 on error. */
+static int load_payloads_from_file(FILE *fp) {
+  struct token token;
+  int type;
 
-/* Amanda backup service noop request. I think that this does nothing on the
-   server but only asks it to send back its feature list. In reply we expect an
-   ACK or (more likely) an ERROR. I couldn't find good online documentation of
-   the Amanda network protocol. There is parsing code in the Amanda source at
-   common-src/security-util.c. This is based on a packet capture of
-     amcheck <config> <host> */
-static const char payload_amanda[] =
-  "Amanda 2.6 REQ HANDLE 000-00000000 SEQ 0\n"
-  "SERVICE noop\n";
+  line_no = 1;
+  type = next_token(fp, &token);
+  for (;;) {
+    unsigned short *ports;
+    unsigned int count, p;
+    std::string payload_data;
 
-/* Citrix MetaFrame application browser service
-   Original idea from http://sh0dan.org/oldfiles/hackingcitrix.html  
-   Payload contents copied from Wireshark capture of Citrix Program 
-   Neighborhood client application.  The application uses this payload to
-   locate Citrix servers on the local network.  Response to this probe is 
-   a 48 byte UDP payload as shown here:
+    while (type == TOKEN_NEWLINE)
+      type = next_token(fp, &token);
+    if (type == TOKEN_EOF)
+      break;
+    if (type != TOKEN_SYMBOL || strcmp(token.text, "udp") != 0) {      fprintf(stderr, "Expected \"udp\" at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
+      return -1;
+    }
 
-   0000   30 00 02 31 02 fd a8 e3 02 00 06 44 c0 a8 80 55
-   0010   00 00 00 00 00 00 00 00 00 00 00 00 02 00 06 44
-   0020   c0 a8 80 56 00 00 00 00 00 00 00 00 00 00 00 00
+    type = next_token(fp, &token);
+    if (type != TOKEN_SYMBOL) {      fprintf(stderr, "Expected a port list at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
+      return -1;
+    }
+    ports = parse_portlist(token.text, &count);
+    if (ports == NULL) {
+      fprintf(stderr, "Can't parse port list \"%s\" at line %lu of %s.\n", token.text, line_no, PAYLOAD_FILENAME);
+      return -1;
+    }
 
-   The first 12 bytes appear to be the same in all responses.
+    payload_data.clear();
+    for (;;) {
+      type = next_token(fp, &token);
+      if (type == TOKEN_STRING)
+        payload_data.append(token.text, token.len);
+      else if (type == TOKEN_NEWLINE)
+        ; /* Nothing. */
+      else
+        break;
+    }
 
-   Bytes 0x00 appears to be a packet length field
-   Bytes 0x0C - 0x0F are the IP address of the server
-   Bytes 0x10 - 0x13 may vary, 0x14 - 0x1F do not appear to
-   Bytes 0x20 - 0x23 are the IP address of the primary system in a server farm
-   configuration 
-   Bytes 0x24 - 0x27 can vary, 0x28 - 0x2F do not appear to  */
-static const char payload_citrix[] =
-  "\x1e\x00\x01\x30\x02\xfd\xa8\xe3\x00\x00\x00\x00\x00\x00\x00\x00"
-  "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    /* Ignore keywords like "source" to the end of the line. */
+    if (type == TOKEN_SYMBOL && strcmp(token.text, "udp") != 0) {
+      while (type != -1 && type != TOKEN_EOF && type != TOKEN_NEWLINE)
+        type = next_token(fp, &token);
+    }
 
-/* Quake 2 and Quake 3 game servers (and servers of derived games like Nexuiz).
-   Gets game information from the server (see probe responses in
-   nmap-service-probes). */
-static const char payload_quake2[] = "\xff\xff\xff\xffstatus";
-static const char payload_quake3[] = "\xff\xff\xff\xffgetstatus";
+    for (p = 0; p < count; p++) {
+      struct proto_dport key(IPPROTO_UDP, ports[p]);
+      struct payload payload;
 
-static const char payload_null[] = "";
+      payload.data = payload_data;
+      payloads[key] = payload;
+    }
+        
+    free(ports);
+  }
 
+  return 0;
+}
+
+/* Initialize the payloads map. Read in the nmap-payloads contents and insert
+   into the global map for use later. */
+int init_payloads(void) {
+  FILE *fp;
+  int ret;
+  char filename[256];
+
+  if (!payloads_loaded)
+	payloads_loaded = true;
+  else 
+    return 0; // we already loaded these
+
+  if (nmap_fetchfile(filename, sizeof(filename), PAYLOAD_FILENAME) != 1){
+    fatal("Service scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", PAYLOAD_FILENAME, NMAPDATADIR);
+  }
+
+  /* Record where this data file was found. */
+  o.loaded_data_files[PAYLOAD_FILENAME] = filename;
+
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    fprintf(stderr, "Can't open %s for reading.\n", filename);
+    return -1;
+  } 
+
+  ret = load_payloads_from_file(fp);
+  fclose(fp);
+
+  return ret;
+}
+
+/* Get a payload appropriate for the given UDP port. For certain selected ports
+   a payload is returned, and for others a zero-length payload is returned. The
+   length is returned through the length pointer. */
+const char *udp_port2payload(u16 dport, size_t *length) {
+  std::map<struct proto_dport, struct payload>::iterator it;
+  proto_dport pp(IPPROTO_UDP, dport);
+
+  it = payloads.find(pp);
+  if (it != payloads.end()) {
+    *length = it->second.data.size();
+    return it->second.data.data();
+  } 
+
+  *length = 0;
+  return payload_null; 
+}
 
 /* Get a payload appropriate for the given UDP port. If --data-length was used,
    returns the global random payload. Otherwise, for certain selected ports a
@@ -265,84 +385,3 @@ const char *get_udp_payload(u16 dport, size_t *length) {
   }
 }
 
-/* Get a payload appropriate for the given UDP port. For certain selected ports
-   a payload is returned, and for others a zero-length payload is returned. The
-   length is returned through the length pointer. */
-const char *udp_port2payload(u16 dport, size_t *length){
-  const char *payload;
-
-#define SET_PAYLOAD(p) do { *length = sizeof(p) - 1; payload = (p); } while (0)
-
-  switch (dport) {
-    case 7:
-      SET_PAYLOAD(payload_GenericLines);
-      break;
-    case 53:
-      SET_PAYLOAD(payload_DNSStatusRequest);
-      break;
-    case 111:
-      SET_PAYLOAD(payload_RPCCheck);
-      break;
-    case 123:
-      SET_PAYLOAD(payload_NTPRequest);
-      break;
-    case 137:
-      SET_PAYLOAD(payload_NBTStat);
-      break;
-    case 161:
-      SET_PAYLOAD(payload_SNMPv3GetRequest);
-      break;
-    case 177:
-      SET_PAYLOAD(payload_xdmcp);
-      break;
-    case 500:
-      SET_PAYLOAD(payload_ike);
-      break;
-    case 520:
-      SET_PAYLOAD(payload_rip);
-      break;
-    case 626:
-      SET_PAYLOAD(payload_serialnumberd);
-      break;
-    /*
-    case 1434:
-      SET_PAYLOAD(payload_Sqlping);
-      break;
-    */
-    case 1604:
-      SET_PAYLOAD(payload_citrix);
-      break;
-    /* RFC 2865: "The early deployment of RADIUS was done using UDP port number
-       1645, which conflicts with the "datametrics" service. The officially
-       assigned port number for RADIUS is 1812. */
-    case 1645:
-    case 1812:
-      SET_PAYLOAD(payload_radius);
-      break;
-    case 2049:
-      SET_PAYLOAD(payload_nfs);
-      break;
-    case 5353:
-      SET_PAYLOAD(payload_dns_sd);
-      break;
-    case 10080:
-      SET_PAYLOAD(payload_amanda);
-      break;
-    /* These servers are commonly run on a base port or a few port numbers
-       higher. */
-    case 27910: case 27911: case 27912: case 27913: case 27914:
-      SET_PAYLOAD(payload_quake2);
-      break;
-    case 26000: case 26001: case 26002: case 26003: case 26004: /* Nexuiz */
-    case 27960: case 27961: case 27962: case 27963: case 27964: /* Several */
-    case 30720: case 30721: case 30722: case 30723: case 30724: /* Tremulous */
-    case 44400: /* Warsow */
-      SET_PAYLOAD(payload_quake3);
-      break;
-    default:
-      SET_PAYLOAD(payload_null);
-      break;
-  }
-
-  return payload;
-}
