@@ -44,6 +44,11 @@ udp 161
   "\x04\x01\x04\x02\x01\x03\x04\x10\x30\x0E\x04\x00\x02\x01\x00\x02"
   "\x01\x00\x04\x00\x04\x00\x04\x00\x30\x12\x04\x00\x04\x00\xA0\x0C"
   "\x02\x02\x37\xF0\x02\x01\x00\x02\x01\x00\x30\x00"
+# serialnumberd. This service runs on Mac OS X Server. This probes
+# requests the serial number of another server. In response we expect a
+# packet starting with "SNRESPS:", followed by some data whose purpose
+# is not known.
+udp 626 "SNQUERY: 127.0.0.1:AAAAAA:xsvr"
 
 # X Display Manager Control Protocol. Version 1, packet type Query (2), no
 #  authorization names. We expect a Willing or Unwilling packet in reply.
