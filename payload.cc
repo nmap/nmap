@@ -333,18 +333,18 @@ int init_payloads(void) {
 
   payloads_loaded = true;
 
-  if (nmap_fetchfile(filename, sizeof(filename), PAYLOAD_FILENAME) != 1){
-    fatal("Service scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", PAYLOAD_FILENAME, NMAPDATADIR);
+  if (nmap_fetchfile(filename, sizeof(filename), PAYLOAD_FILENAME) != 1) {
+    error("Cannot find %s. UDP payloads are disabled.", PAYLOAD_FILENAME);
+    return 0;
   }
-
-  /* Record where this data file was found. */
-  o.loaded_data_files[PAYLOAD_FILENAME] = filename;
 
   fp = fopen(filename, "r");
   if (fp == NULL) {
     fprintf(stderr, "Can't open %s for reading.\n", filename);
     return -1;
   }
+  /* Record where this data file was found. */
+  o.loaded_data_files[PAYLOAD_FILENAME] = filename;
 
   ret = load_payloads_from_file(fp);
   fclose(fp);
