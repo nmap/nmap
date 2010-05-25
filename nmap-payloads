@@ -105,7 +105,7 @@ source 500
 # Routing Information Protocol version 1. Special-case request for the entire
 # routing table (address family 0, address 0.0.0.0, metric 16). RFC 1058,
 # section 3.4.1.
-udp 520,222
+udp 520
   "\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x10"
 
@@ -196,4 +196,4 @@ udp 27910,27911,27912,27913,27914 "\xff\xff\xff\xffstatus"
 # 27960-27964: Various games
 # 30720-30724: Tremulous
 # 44400: Warsow
-udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724 "\xff\xff\xff\xffgetstatus"
+udp 26000,26001,26002,26003,26004,27960,27961,27962,27963,27964,30720,30721,30722,30723,30724,44400 "\xff\xff\xff\xffgetstatus"
