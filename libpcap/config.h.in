@@ -217,6 +217,9 @@
 /* target host supports CAN sniffing */
 #undef PCAP_SUPPORT_CAN
 
+/* use Linux packet ring capture if available */
+#undef PCAP_SUPPORT_PACKET_RING
+
 /* target host supports USB sniffing */
 #undef PCAP_SUPPORT_USB
 

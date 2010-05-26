@@ -232,17 +232,19 @@ static const char rcsid[] _U_ =
 # endif /* PACKET_HOST */
 
 
- /* check for memory mapped access avaibility. We assume every needed 
-  * struct is defined if the macro TPACKET_HDRLEN is defined, because it
-  * uses many ring related structs and macros */
-# ifdef TPACKET_HDRLEN
-#  define HAVE_PACKET_RING
-#  ifdef TPACKET2_HDRLEN
-#   define HAVE_TPACKET2
-#  else
-#   define TPACKET_V1	0
-#  endif /* TPACKET2_HDRLEN */
-# endif /* TPACKET_HDRLEN */
+# ifdef PCAP_SUPPORT_PACKET_RING
+  /* check for memory mapped access avaibility. We assume every needed 
+   * struct is defined if the macro TPACKET_HDRLEN is defined, because it
+   * uses many ring related structs and macros */
+#  ifdef TPACKET_HDRLEN
+#   define HAVE_PACKET_RING
+#   ifdef TPACKET2_HDRLEN
+#    define HAVE_TPACKET2
+#   else
+#    define TPACKET_V1	0
+#   endif /* TPACKET2_HDRLEN */
+#  endif /* TPACKET_HDRLEN */
+# endif /* PCAP_SUPPORT_PACKET_RING */
 #endif /* PF_PACKET */
 
 #ifdef SO_ATTACH_FILTER

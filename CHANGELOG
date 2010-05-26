@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [libpcap] Added a --disable-packet-ring option to force the use of
+  an older, slower packet capture mechanism on Linux. Before Linux
+  2.6.27, the packet ring mechanism uses different-sized kernel
+  structures on 32- and 64-bit architectures, so a 32-bit program will
+  not run correctly on a 64-bit kernel. The older mechanism does not
+  have this flaw.
+
 o UDP payloads are now stored in an external data file, nmap-payloads,
   instead of being hard-coded in the executable. This makes it easier
   to add your own payloads or disable those you find problematic. Jay

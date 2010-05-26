@@ -133,4 +133,72 @@ o Eliminated Lex/Yacc requirement and added the generated files:
  AC_SUBST(DYEXT)
  AC_SUBST(DAGLIBS)
 
+o Added a --disable-packet-ring configure option to allow the creation
+  of 32-bit binaries compatible with 64-bit Linux kernels before 2.6.27.
+
+Index: configure.in
+===================================================================
+--- configure.in	(revision 17694)
++++ configure.in	(working copy)
+@@ -1396,6 +1396,24 @@
+ 	AC_SUBST(CAN_SRC)
+ fi
+ 
++dnl The packet ring capture facility of Linux, described in
++dnl Documentation/networking/packet_mmap.txt, is not 32/64-bit compatible before
++dnl version 2.6.27. A 32-bit kernel requires a 32-bit userland, and likewise for
++dnl 64-bit. The effect of this is that a 32-bit libpcap binary will not run
++dnl correctly on a 64-bit kernel (the binary will use the wrong offsets into a
++dnl kernel struct). This problem was solved in Linux 2.6.27. Use
++dnl --disable-packet-ring whenever a 32-bit application must run on a 64-bit
++dnl target host, and either the build host or the target host run Linux 2.6.26
++dnl or earlier.
++AC_ARG_ENABLE([packet-ring],
++[AC_HELP_STRING([--enable-packet-ring],[enable Linux packet ring support @<:@default=yes@:>@])],
++,enable_packet_ring=yes)
++
++if test "x$enable_packet_ring" != "xno" ; then
++	AC_DEFINE(PCAP_SUPPORT_PACKET_RING, 1, [use Linux packet ring capture if available])
++	AC_SUBST(PCAP_SUPPORT_PACKET_RING)
++fi
++
+ AC_PROG_INSTALL
+ 
+ AC_CONFIG_HEADER(config.h)
+Index: pcap-linux.c
+===================================================================
+--- pcap-linux.c	(revision 17694)
++++ pcap-linux.c	(working copy)
+@@ -232,17 +232,19 @@
+ # endif /* PACKET_HOST */
+ 
+ 
+- /* check for memory mapped access avaibility. We assume every needed 
+-  * struct is defined if the macro TPACKET_HDRLEN is defined, because it
+-  * uses many ring related structs and macros */
+-# ifdef TPACKET_HDRLEN
+-#  define HAVE_PACKET_RING
+-#  ifdef TPACKET2_HDRLEN
+-#   define HAVE_TPACKET2
+-#  else
+-#   define TPACKET_V1	0
+-#  endif /* TPACKET2_HDRLEN */
+-# endif /* TPACKET_HDRLEN */
++# ifdef PCAP_SUPPORT_PACKET_RING
++  /* check for memory mapped access avaibility. We assume every needed 
++   * struct is defined if the macro TPACKET_HDRLEN is defined, because it
++   * uses many ring related structs and macros */
++#  ifdef TPACKET_HDRLEN
++#   define HAVE_PACKET_RING
++#   ifdef TPACKET2_HDRLEN
++#    define HAVE_TPACKET2
++#   else
++#    define TPACKET_V1	0
++#   endif /* TPACKET2_HDRLEN */
++#  endif /* TPACKET_HDRLEN */
++# endif /* PCAP_SUPPORT_PACKET_RING */
+ #endif /* PF_PACKET */
+ 
+ #ifdef SO_ATTACH_FILTER
+
 o Regenerated configure.
