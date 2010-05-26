@@ -76,6 +76,9 @@ o We should probably enhance scan stats--maybe we can add a full-scan
 
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
+ - We've done this with db2-brute, but the DB may have been a
+   bottleneck there, so we should probably do more testing after
+   modifying another script for this sort of parallel cracking.
 
 o [Zenmap] script selection interface for deciding which NSE scripts to
   run.  Ideally it would have a great, intuitive UI, the smarts to
@@ -103,12 +106,13 @@ o We should offer partial results when a host
     printed that out only, we could potentially isolate it in just one
     place.
 
-o [NSE] Consider a script which uses Nmap's detected OS and open port
-  information to print out _possible_ (unverified) vulnerabilities.
-  Of course it is better to have scripts which actually check for
-  vulnerability, but we don't have comprehensive vuln detection yet,
-  so this could still be quite useful.
-  o Marc Ruef is working on a vulnscan.nse script which uses CVE to do
+o [NSE] Consider a script which uses Nmap's detected OS and version
+  detection information for open ports to print out _possible_ (unverified)
+  vulnerabilities.  Of course it is better to have scripts which
+  actually check for vulnerabilities, but we don't have comprehensive
+  vuln detection yet, so this could still be quite useful to see what
+  vulns _might_ exist on the software running on a remote machine.
+  o Marc Ruef is working on a vulnscan.nse script which uses OSVDB to do
     this. See this thread: http://seclists.org/nmap-dev/2010/q2/527
 
 o Consider providing an option which causes Nmap to scan ALL IP
@@ -123,13 +127,6 @@ o Fix bug where multiple targets with the same IP can end up in a
   misbehave.  An example is "nmap -F scanme2.nmap.org
   scanme3.nmap.org". See this thread for details:
   http://seclists.org/nmap-dev/2010/q2/322
-
-o Resolve Ncat broadcast support issue (see this thread:
-  http://seclists.org/nmap-dev/2010/q2/422).
-
-o [NSE] Review and test the DB2 library and
-  scripts. http://seclists.org/nmap-dev/2010/q2/395 (but updated
-  versions may be available).
 
 o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
   http://seclists.org/nmap-dev/2010/q2/195
@@ -158,9 +155,6 @@ o Book work [placeholder]
 
 o Add Nmap web board/forum
  - First step is looking at the available software for this.
-
-o Test Jay Fink's UDP payload prototype.
-  http://seclists.org/nmap-dev/2010/q1/168
 
 o Update "History and Future of Nmap"
   (http://nmap.org/book/history-future.html) to include all the news
@@ -586,6 +580,17 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Test Jay Fink's UDP payload prototype.
+  http://seclists.org/nmap-dev/2010/q1/168
+  [ tested, improved, merged by David]
+
+o Resolve Ncat broadcast support issue (see this thread:
+  http://seclists.org/nmap-dev/2010/q2/422).
+
+o [NSE] Review and test the DB2 library and
+  scripts. http://seclists.org/nmap-dev/2010/q2/395 (but updated
+  versions may be available).
 
 o Move nmap/docs/TODO into its own todo directory (probably nmap/todo)
   and then encourage maintainers of /status/ TODOs and any other TODOs
