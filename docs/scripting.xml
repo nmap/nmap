@@ -1209,7 +1209,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
       <para>
       After a compiled module is written, it must be added to NSE by including
       it in the list of standard libraries in
-      <filename>nse_init.cc</filename>.  Then the module's
+      <filename>nse_main.cc</filename>.  Then the module's
       source file names must be added to
       <filename>Makefile.in</filename> in the appropriate places. For both these tasks you can
       simply follow the example of the other C modules. For the
