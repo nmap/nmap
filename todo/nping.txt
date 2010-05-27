@@ -224,6 +224,13 @@
   on the internet. What should be the default behaviour? Stick with the
   default round count of 5 or increment it when --traceroute is set?
 
+* ARP mode does not support payload specification. However, users may
+  want to do things like appending null bytes at the end of an ARP
+  packet to test some device behaviour, etc. Adding support for
+  payload to this mode is really trivial, would make the payload spec
+  more consistent with the rest of the modes, and may be a nice to have
+  feature.
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
