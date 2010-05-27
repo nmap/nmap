@@ -70,6 +70,12 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
+o The -g (set source port) option doesn't seem to be working (at least
+  in Fyodor's quick tests) for version detection or connect() scan,
+  and apparently doesn't work for NSE either.  We should fix this
+  where we can, and document the limitation in the refguide where it
+  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
+
 o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
