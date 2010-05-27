@@ -215,6 +215,9 @@
   The first one works, and the other one fatals with the "Currently only
   Ethernet is supported." (error message @ nping.cc:1717).
     
+* Update documentation for option --delay, including that now, time
+  specification as float numbers is supported (eg: --delay 0.1 meaning 100ms)
+
 
 /*****************************************************************************
  * Things that have been solved already                                      *
