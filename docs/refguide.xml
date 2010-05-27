@@ -3891,7 +3891,7 @@ hosts with at least one
           <option>--stylesheet</option>.  You must pass the full
           pathname or URL.  One common invocation is
           <option>--stylesheet
-          http://nmap.org/data/nmap.xsl</option>.  This
+          http://nmap.org/svn/docs/nmap.xsl</option>.  This
           tells a browser to load the latest version of the stylesheet
           from Nmap.Org.  The <option>--webxml</option> option
           does the same thing with less typing and memorization.
@@ -3911,7 +3911,7 @@ hosts with at least one
         <listitem>
 
           <para>This convenience option is simply an alias for
-          <option significance="preferred">--stylesheet http://nmap.org/data/nmap.xsl</option>.</para>
+          <option significance="preferred">--stylesheet http://nmap.org/svn/docs/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
 

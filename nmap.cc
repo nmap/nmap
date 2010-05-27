@@ -920,7 +920,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "log-errors") == 0) {
         o.log_errors = 1;
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
-        o.setXSLStyleSheet("http://nmap.org/data/nmap.xsl");
+        o.setXSLStyleSheet("http://nmap.org/svn/docs/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
         normalfilename = logfilename(optarg, tm);
       } else if (strcmp(long_options[option_index].name, "oG") == 0 ||
