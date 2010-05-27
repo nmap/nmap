@@ -218,6 +218,11 @@
 * Update documentation for option --delay, including that now, time
   specification as float numbers is supported (eg: --delay 0.1 meaning 100ms)
 
+* When doing ICMP echo traceroute (with --traceroute), unless the user
+  supplies a custom round count (-c/--count), Nping only sends 5 packets
+  (default round count). This is usually not enough to reach hosts
+  on the internet. What should be the default behaviour? Stick with the
+  default round count of 5 or increment it when --traceroute is set?
 
 /*****************************************************************************
  * Things that have been solved already                                      *
