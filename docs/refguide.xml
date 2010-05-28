@@ -630,9 +630,9 @@ you would expect.</para>
           packet will be empty, though for a few a protocol-specific
           payload will be sent that is more likely to get a
           response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
-          See <xref linkend="nmap-payloads"/>
-          for a description of the database of payloads. The
-          <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
+<man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
+<notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
+ The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
           option sends a fixed-length random payload for all ports.</para>
 
           <para>The port list
