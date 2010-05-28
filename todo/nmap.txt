@@ -42,6 +42,17 @@ o [NSE] Consider using .idl files rather than manually coding all the
   application in nmap-private-dev which converts .idl files to LUA
   code for nmap/nselib. Consider adapting the pidl utility from Samba.
 
+o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
+  This file is not included in the official WinPcap 4.1.1 developers'
+  pack
+  (http://www.winpcap.org/install/bin/WpdPack_4_1_1.zip). Presumably
+  it covers internal functions and structures which we aren't really
+  supposed to access it.  If we can get rid of it, that would be
+  great.  If we need it, we should probably upgrade to the
+  4.1.1. version (presumably from the Winpcap source code
+  distribution). Right now it is included in tcpip.h,
+  nsock/src/nsock_pcap.h, and nping/common_modified.cc:
+
 o [NSE] MSRPC - Improve domain support all around -- in particular,
   let the user give the domain in the format DOMAIN\username or
   username@DOMAIN anywhere that usernames are accepted. Suggested
