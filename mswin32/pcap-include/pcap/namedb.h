@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1993, 1994, 1995, 1996, 1997
+ * Copyright (c) 1994, 1996
  *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,60 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap.h,v 1.59 2006/10/04 18:09:22 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap/namedb.h,v 1.1 2006/10/04 18:09:22 guy Exp $ (LBL)
  */
 
+#ifndef lib_pcap_namedb_h
+#define lib_pcap_namedb_h
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
- * For backwards compatibility.
- *
- * Note to OS vendors: do NOT get rid of this file!  Many applications
- * expect to be able to include <pcap.h>, and at least some of them
- * go through contortions in their configure scripts to try to detect
- * OSes that have "helpfully" moved pcap.h to <pcap/pcap.h> without
- * leaving behind a <pcap.h> file.
+ * As returned by the pcap_next_etherent()
+ * XXX this stuff doesn't belong in this interface, but this
+ * library already must do name to address translation, so
+ * on systems that don't have support for /etc/ethers, we
+ * export these hooks since they'll
  */
-#include <pcap/pcap.h>
+struct pcap_etherent {
+	u_char addr[6];
+	char name[122];
+};
+#ifndef PCAP_ETHERS_FILE
+#define PCAP_ETHERS_FILE "/etc/ethers"
+#endif
+struct	pcap_etherent *pcap_next_etherent(FILE *);
+u_char *pcap_ether_hostton(const char*);
+u_char *pcap_ether_aton(const char *);
+
+bpf_u_int32 **pcap_nametoaddr(const char *);
+#ifdef INET6
+struct addrinfo *pcap_nametoaddrinfo(const char *);
+#endif
+bpf_u_int32 pcap_nametonetaddr(const char *);
+
+int	pcap_nametoport(const char *, int *, int *);
+int	pcap_nametoportrange(const char *, int *, int *, int *);
+int	pcap_nametoproto(const char *);
+int	pcap_nametoeproto(const char *);
+int	pcap_nametollc(const char *);
+/*
+ * If a protocol is unknown, PROTO_UNDEF is returned.
+ * Also, pcap_nametoport() returns the protocol along with the port number.
+ * If there are ambiguous entried in /etc/services (i.e. domain
+ * can be either tcp or udp) PROTO_UNDEF is returned.
+ */
+#define PROTO_UNDEF		-1
+
+/* XXX move these to pcap-int.h? */
+int __pcap_atodn(const char *, bpf_u_int32 *);
+int __pcap_atoin(const char *, bpf_u_int32 *);
+u_short	__pcap_nametodnaddr(const char *);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

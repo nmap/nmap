@@ -35,6 +35,9 @@
 #define __REMOTE_EXT_H__
 
 
+#ifndef HAVE_REMOTE
+#error Please do not include this file directly. Just define HAVE_REMOTE and then include pcap.h
+#endif
 
 // Definition for Microsoft Visual Studio
 #if _MSC_VER > 1000
@@ -187,7 +190,7 @@ extern "C" {
 */
 
 /*!
-	\brief It defines if the adapter has to go in promiscuous mode.
+	\brief Defines if the adapter has to go in promiscuous mode.
 
 	It is '1' if you have to open the adapter in promiscuous mode, '0' otherwise.
 	Note that even if this parameter is false, the interface could well be in promiscuous
@@ -200,7 +203,7 @@ extern "C" {
 #define PCAP_OPENFLAG_PROMISCUOUS		1
 
 /*!
-	\brief It defines if the data trasfer (in case of a remote
+	\brief Defines if the data trasfer (in case of a remote
 	capture) has to be done with UDP protocol.
 
 	If it is '1' if you want a UDP data connection, '0' if you want
@@ -215,7 +218,7 @@ extern "C" {
 
 
 /*!
-	\brief It defines if the remote probe has to capture its own generated traffic.
+	\brief Defines if the remote probe will capture its own generated traffic.
 
 	In case the remote probe uses the same interface to capture traffic and to send
 	data back to the caller, the captured traffic includes the RPCAP traffic as well.
@@ -223,6 +226,27 @@ extern "C" {
 	the trace returned back to the collector is does not include this traffic.
 */
 #define PCAP_OPENFLAG_NOCAPTURE_RPCAP	4
+
+/*!
+	\brief Defines if the local adapter will capture its own generated traffic.
+
+	This flag tells the underlying capture driver to drop the packets that were sent by itself. 
+	This is usefult when building applications like bridges, that should ignore the traffic
+	they just sent.
+*/
+#define PCAP_OPENFLAG_NOCAPTURE_LOCAL	8
+
+/*!
+	\brief This flag configures the adapter for maximum responsiveness.
+
+	In presence of a large value for nbytes, WinPcap waits for the arrival of several packets before 
+	copying the data to the user. This guarantees a low number of system calls, i.e. lower processor usage, 
+	i.e. better performance, which is good for applications like sniffers. If the user sets the 
+	PCAP_OPENFLAG_MAX_RESPONSIVENESS flag, the capture driver will copy the packets as soon as the application 
+	is ready to receive them. This is suggested for real time applications (like, for example, a bridge) 
+	that need the best responsiveness.*/
+#define PCAP_OPENFLAG_MAX_RESPONSIVENESS	16
+
 /*!
 	\}
 */

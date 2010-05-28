@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2001 - 2003
- * NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2006 Paolo Abeni (Italy)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,9 +11,9 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ * 3. The name of the author may not be used to endorse or promote 
+ * products derived from this software without specific prior written 
+ * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -28,35 +27,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * bluetooth data struct
+ * By Paolo Abeni <paolo.abeni@email.it>
+ *
+ * @(#) $Header: /tcpdump/master/libpcap/pcap/bluetooth.h,v 1.1 2007/09/22 02:10:17 guy Exp $
  */
+ 
+#ifndef _PCAP_BLUETOOTH_STRUCTS_H__
+#define _PCAP_BLUETOOTH_STRUCTS_H__
 
-#ifndef __count_packets
-#define __count_packets
+/*
+ * Header prepended libpcap to each bluetooth h:4 frame.
+ * fields are in network byte order
+ */
+typedef struct _pcap_bluetooth_h4_header {
+	u_int32_t direction; /* if first bit is set direction is incoming */
+} pcap_bluetooth_h4_header;
 
-#ifdef WIN32
-#include "tme.h"
-#endif
-
-#ifdef __FreeBSD__
-
-#ifdef _KERNEL
-#include <net/tme/tme.h>
-#else
-#include <tme/tme.h>
-#endif
 
 #endif
-
-typedef struct __c_p_data
-{
-	struct timeval timestamp;
-	uint64 packets;
-	uint64 bytes;
-}
-	c_p_data;
-
-#define COUNT_PACKETS					0x00000000
-uint32 count_packets(uint8 *block, uint32 pkt_size, TME_DATA *data, MEM_TYPE *mem_ex, uint8 *mem_data);
-
-#endif
-

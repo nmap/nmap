@@ -2,11 +2,6 @@
  * Copyright (c) 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997
  *	The Regents of the University of California.  All rights reserved.
  *
- * This code is derived from the Stanford/CMU enet packet filter,
- * (net/enet.c) distributed as part of 4.3BSD, and code contributed
- * to Berkeley by Steven McCanne and Van Jacobson both of Lawrence 
- * Berkeley Laboratory.
- *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -35,13 +30,17 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * @(#) $Header: /tcpdump/master/libpcap/pcap-bpf.h,v 1.50 2007/04/01 21:43:55 guy Exp $ (LBL)
+ * @(#) $Header: /tcpdump/master/libpcap/pcap/vlan.h,v 1.1.2.2 2008-08-06 07:45:59 guy Exp $
  */
 
-/*
- * For backwards compatibility.
- *
- * Note to OS vendors: do NOT get rid of this file!  Some applications
- * might expect to be able to include <pcap-bpf.h>.
- */
-#include <pcap/bpf.h>
+#ifndef lib_pcap_vlan_h
+#define lib_pcap_vlan_h
+
+struct vlan_tag {
+	u_int16_t	vlan_tpid;		/* ETH_P_8021Q */
+	u_int16_t	vlan_tci;		/* VLAN TCI */
+};
+
+#define VLAN_TAG_LEN	4
+
+#endif

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 1999 - 2003
- * NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2005 - 2006 CACE Technologies, Davis (California)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,9 +12,10 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Politecnico di Torino nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ * 3. Neither the name of the Politecnico di Torino, CACE Technologies 
+ * nor the names of its contributors may be used to endorse or promote 
+ * products derived from this software without specific prior written 
+ * permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -30,18 +31,34 @@
  *
  */
 
+#ifndef __WIN32_EXTENSIONS_H__
+#define __WIN32_EXTENSIONS_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Definitions */
 
 /*!
   \brief A queue of raw packets that will be sent to the network with pcap_sendqueue_transmit().
 */
-struct pcap_send_queue{
+struct pcap_send_queue
+{
 	u_int maxlen;		///< Maximum size of the the queue, in bytes. This variable contains the size of the buffer field.
 	u_int len;			///< Current size of the queue, in bytes.
 	char *buffer;		///< Buffer containing the packets to be sent.
 };
 
 typedef struct pcap_send_queue pcap_send_queue;
+
+/*!
+  \brief This typedef is a support for the pcap_get_airpcap_handle() function
+*/
+#if !defined(AIRPCAP_HANDLE__EAE405F5_0171_9592_B3C2_C19EC426AD34__DEFINED_)
+#define AIRPCAP_HANDLE__EAE405F5_0171_9592_B3C2_C19EC426AD34__DEFINED_
+typedef struct _AirpcapHandle *PAirpcapHandle;
+#endif
 
 #define		BPF_MEM_EX_IMM	0xc0
 #define		BPF_MEM_EX_IND	0xe0
@@ -84,3 +101,13 @@ int pcap_live_dump(pcap_t *p, char *filename, int maxsize, int maxpacks);
 int pcap_live_dump_ended(pcap_t *p, int sync);
 
 int pcap_offline_filter(struct bpf_program *prog, const struct pcap_pkthdr *header, const u_char *pkt_data);
+
+int pcap_start_oem(char* err_str, int flags);
+
+PAirpcapHandle pcap_get_airpcap_handle(pcap_t *p);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //__WIN32_EXTENSIONS_H__

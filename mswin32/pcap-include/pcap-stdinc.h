@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2002 - 2003
- * NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2002 - 2005 NetGroup, Politecnico di Torino (Italy)
+ * Copyright (c) 2005 - 2009 CACE Technologies, Inc. Davis (California)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
+ * @(#) $Header: /tcpdump/master/libpcap/pcap-stdinc.h,v 1.10.2.1 2008-10-06 15:38:39 gianluca Exp $ (LBL)
  */
 
 #define SIZEOF_CHAR 1
@@ -36,7 +37,6 @@
 #ifndef _MSC_EXTENSIONS
 #define SIZEOF_LONG_LONG 8
 #endif
-
 
 /*
  * Avoids a compiler warning in case this was already defined      
@@ -60,5 +60,34 @@
 
 #define caddr_t char*
 
+#if _MSC_VER < 1500
 #define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#define strdup _strdup
+#endif
+
 #define inline __inline 
+
+#ifdef __MINGW32__
+#include <stdint.h>
+#else /*__MINGW32__*/
+/* MSVC compiler */
+#ifndef _UINTPTR_T_DEFINED
+#ifdef  _WIN64
+typedef unsigned __int64    uintptr_t;
+#else
+typedef _W64 unsigned int   uintptr_t;
+#endif
+#define _UINTPTR_T_DEFINED
+#endif
+
+#ifndef _INTPTR_T_DEFINED
+#ifdef  _WIN64
+typedef __int64    intptr_t;
+#else
+typedef _W64 int   intptr_t;
+#endif
+#define _INTPTR_T_DEFINED
+#endif 
+
+#endif /*__MINGW32__*/
