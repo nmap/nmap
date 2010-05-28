@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 05/17/2010
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 05/28/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "05/17/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "05/28/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -452,9 +452,9 @@ and
 .RS 4
 .\" payloads, protocol-specific
 Another host discovery option is the UDP ping, which sends a UDP packet to the given ports\&. For most ports, the packet will be empty, though for a few a protocol\-specific payload will be sent that is more likely to get a response\&..\" protocol-specific payloads: UDP
-See the file
-payload\&.cc.\" payload.cc
-for exactly which ports have payloads\&. The
+The payload database is described at \m[blue]\fB\%http://nmap.org/book/nmap-payloads.html\fR\m[]\&.
+
+The
 \fB\-\-data\-length\fR.\" --data-length
 option sends a fixed\-length random payload for all ports\&.
 .sp
@@ -2059,7 +2059,7 @@ where it was initially installed by Nmap (or in the current working directory on
 nmap\&.xsl
 from the filesystem and use it to render results\&. If you wish to use a different stylesheet, specify it as the argument to
 \fB\-\-stylesheet\fR\&. You must pass the full pathname or URL\&. One common invocation is
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&. This tells a browser to load the latest version of the stylesheet from Nmap\&.Org\&. The
+\fB\-\-stylesheet http://nmap\&.org/svn/docs/nmap\&.xsl\fR\&. This tells a browser to load the latest version of the stylesheet from Nmap\&.Org\&. The
 \fB\-\-webxml\fR
 option does the same thing with less typing and memorization\&. Loading the XSL from Nmap\&.Org makes it easier to view results on a machine that doesn\'t have Nmap (and thus
 nmap\&.xsl) installed\&. So the URL is often more useful, but the local filesystem location of
@@ -2070,7 +2070,7 @@ is used by default for privacy reasons\&.
 \fB\-\-webxml\fR (Load stylesheet from Nmap\&.Org) .\" --webxml
 .RS 4
 This convenience option is simply an alias for
-\fB\-\-stylesheet http://nmap\&.org/data/nmap\&.xsl\fR\&.
+\fB\-\-stylesheet http://nmap\&.org/svn/docs/nmap\&.xsl\fR\&.
 .RE
 .PP
 \fB\-\-no\-stylesheet\fR (Omit XSL stylesheet declaration from XML) .\" --no-stylesheet
