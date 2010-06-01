@@ -36,7 +36,7 @@ action = function(host, port)
 		
 	for progid, v in pairs(rpcinfo) do
 		for proto, v2 in pairs(v) do
-			table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) ) )
+			table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
 		end
 	end
 	
