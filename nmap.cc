@@ -360,9 +360,7 @@ static int ip_is_reserved(struct in_addr *ip)
     case 49:        /* 049/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
-    case 177:       /* 177/8 is IANA reserved       */
     case 179:       /* 179/8 is IANA reserved       */
-    case 181:       /* 181/8 is IANA reserved       */
     case 185:       /* 185/8 is IANA reserved       */
       return 1;
     default:
