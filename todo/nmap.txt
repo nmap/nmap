@@ -25,13 +25,6 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
-o Add a configure option to our libpcap which enables an older Linux
-  packet capture system (David's noring patch).  This is needed in
-  some cases for 32-bit static binaries to work on 64-bit Linux
-  systems.  Note that it is unneccessary if both the build system and
-  the target system use Linux 2.6.27, as that has an architecture
-  independent tpacket_hdr (called tpacket2_hdr).
-
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)
   o Services (like sysinternals' psservice)
@@ -597,6 +590,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add a configure option to our libpcap which enables an older Linux
+  packet capture system (David's noring patch).  This is needed in
+  some cases for 32-bit static binaries to work on 64-bit Linux
+  systems.  Note that it is unneccessary if both the build system and
+  the target system use Linux 2.6.27, as that has an architecture
+  independent tpacket_hdr (called tpacket2_hdr).  [Added by David as
+  --disable-packet-ring]
 
 o Test Jay Fink's UDP payload prototype.
   http://seclists.org/nmap-dev/2010/q1/168
