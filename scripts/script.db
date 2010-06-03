@@ -74,6 +74,7 @@ Entry { filename = "nfs-dirlist.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "pgsql-brute.nse", categories = { "auth", "intrusive", } }
