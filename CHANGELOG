@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ntp-monlist.nse which discovers NTP server, peer and
+  client hosts associated with a scanned target by sending NTPv2
+  Private Mode 'monitor' and 'peers' commands to the target. [jah]
+
 o [libpcap] Added a --disable-packet-ring option to force the use of
   an older, slower packet capture mechanism on Linux. Before Linux
   2.6.27, the packet ring mechanism uses different-sized kernel
