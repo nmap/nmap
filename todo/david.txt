@@ -1,4 +1,5 @@
 * Handle multiple targets with the same address.
+* Check necessity of mswin32 pcap includes.
 * Brandon says: "Sometime -sV goes just a little too fast and gets a connect
   error.  It should back off and try again a few times before giving up trying
   to fingerprint the service." It looks like
