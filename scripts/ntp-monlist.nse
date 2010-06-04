@@ -258,25 +258,26 @@ end
 --
 function getPrivateMode(impl, requestCode)
   local pay
-  -- udp payload
+  -- udp payload is 48 bytes.
+  -- For a description of Mode 7 packets see NTP source file:
   -- include/ntp_request.h
   --
-  -- flags 0x17 (Response Bit: 0, More Bit: 0, Version Number 3bits: 2, Mode
-  -- 3bits: 7)
+  -- Flags 8bits: 0x17
+  --   (Response Bit: 0, More Bit: 0, Version Number 3bits: 2, Mode 3bits: 7)
   -- Authenticated Bit: 0, Sequence Number 7bits: 0
-  -- Implementation Number: e.g. 0x03 (IMPL_XNTPD)
-  local imp = ('00%x'):format(impl or 0x03):sub(-2,-1)
-  -- Request Code: e.g. 0x2a (MON_GETLIST_1)
-  local rc = ('00%x'):format(requestCode or 0x2a):sub(-2,-1)
-  -- Err 4bits: 0
-  -- Number of Data Items 12bits: 0
-  -- MBZ 4bits: 0
-  -- Size of Data Items 12bits: 0
-  pay = bin.pack('H', ('17 00 %s %s 00 00 00 00'):format(imp, rc))
-  -- Data 40 Octets (exactly!): 0
+  -- Implementation Number 8bits: e.g. 0x03 (IMPL_XNTPD)
+  -- Request Code 8bits: e.g. 0x2a (MON_GETLIST_1)
+  -- Err 4bits: 0, Number of Data Items 12bits: 0
+  -- MBZ 4bits: 0, Size of Data Items 12bits: 0
+  pay = string.char(
+    0x17, 0x00, impl or 0x03, requestCode or 0x2a,
+    0x00, 0x00, 0x00, 0x00
+  )
+  -- Data 40 Octets: 0
   pay = pay .. string.char(0x00):rep(40)
-  -- Encryption Keyid 4 Octets:             - optional if A bit set
-  -- Message Authentication Code 16 Octets: - optional if A bit set
+  -- The following are optional if the Authenticated bit is set:
+  -- Encryption Keyid 4 Octets: 0
+  -- Message Authentication Code 16 Octets (MD5): 0
   return pay
 end
 
@@ -316,7 +317,7 @@ function check(status, response, track)
   track.rcv_again = false
 
   -- create a packet object
-  local pkt = obj_from_response(response)
+  local pkt = make_udp_packet(response)
   if pkt == nil then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
@@ -326,9 +327,11 @@ function check(status, response, track)
     return nil
   end
 
+  -- off is the start of udp payload i.e. NTP
   local off = 28
 
-  -- checks
+  -- NTP sanity checks
+
   local val
 
   -- NTP data must be at least 8 bytes
@@ -432,8 +435,13 @@ function check(status, response, track)
     return nil
   end
 
-  -- length checks
+  -- length checks - the data (number of items * size of an item) should be
+  -- 8 <= data <= 500 and each data item should be of correct length for the
+  -- implementation and request type.
+
+  -- Err 4 bits, Number of Data Items 12 bits
   local icount = bit.band(pkt:u16(off+4), 0xFFF)
+  -- MBZ 4 bits, Size of Data Items: 12 bits
   local isize  = bit.band(pkt:u16(off+6), 0xFFF)
   if icount < 1 then
     track.errcond = true
@@ -468,27 +476,11 @@ function check(status, response, track)
       isize, track.target
     )
     return nil
-  elseif track.c == 42 and track.i == 2 and isize ~= 32 then
-    track.errcond = true
-    track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Expected item size of 32 bytes (got %d) for request code 42 implementation number 2 in response from %s.',
-      isize, track.target
-    )
-    return nil
   elseif track.c == 0 and track.i == 3 and isize ~= 32 then
     track.errcond = true
     track.evil_pkts = track.evil_pkts+1
     stdnse.print_debug(1,
       'Expected item size of 32 bytes (got %d) for request code 0 implementation number 3 in response from %s.',
-      isize, track.target
-    )
-    return nil
-  elseif track.c == 0 and track.i == 2 and isize ~= 8 then
-    track.errcond = true
-    track.evil_pkts = track.evil_pkts+1
-    stdnse.print_debug(1,
-      'Expected item size of 8 bytes (got %d) for request code 0 implementation number 2 in response from %s.',
       isize, track.target
     )
     return nil
@@ -538,33 +530,34 @@ end
 
 ---
 -- Returns a Packet Object generated with dummy IP and UDP headers and the
--- supplied UDP payload.
+-- supplied UDP payload so that the payload may be conveniently parsed using
+-- packet library methods. The dummy headers contain the barest information
+-- needed to appear valid to packet.lua
 --
--- @param  r String UDP payload (e.g. a UDP response read from a socket object).
+-- @param  response String UDP payload.
 -- @return Packet object or nil in case of an error.
 --
-function obj_from_response(r)
+function make_udp_packet(response)
 
-  local dummy_headers
-    =  '45 00 %s %s 00 00 40 00 '
-    .. '40 11 00 00 00 00 00 00 '
-    .. '00 00 00 00 00 00 00 00 '
-    .. '%s %s 00 00'
+  -- udp len
+  local udplen = 8 + response:len()
+  -- ip len
+  local iplen  = 20 + udplen
 
-  -- calc udp len
-  local ulen = 8 + r:len()
-  -- calc ip+udp len
-  local len  = 20 + ulen
+  -- dummy headers
+  -- ip
+  local dh = string.char(0x45, 0x00)
+  dh = dh .. bin.pack('S', iplen)
+  dh = dh .. string.char(
+    0x00, 0x00, 0x40, 0x00, 0x40, 0x11, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  -- udp
+    0x00, 0x00, 0x00, 0x00
+  )
+  dh = dh .. bin.pack('S', udplen)
+  dh = dh .. string.char(0x00, 0x00)
 
-  ulen = ('0000%x'):format(tostring(ulen)):sub(-4,-1)
-  local ul1, ul2 = ulen:sub(1,2), ulen:sub(3,4)
-
-  len = ('0000%x'):format(tostring(len)):sub(-4,-1)
-  local l1, l2 = len:sub(1,2), len:sub(3,4)
-
-  dummy_headers = bin.pack('H', dummy_headers:format(l1, l2, ul1, ul2))
-
-  return packet.Packet:new(dummy_headers .. r, r:len()+28, false)
+  return packet.Packet:new(dh .. response, iplen)
 
 end
 
@@ -648,9 +641,11 @@ function parse_monlist_1(pkt, recs)
 
     t.count   = pkt:u32(pos+12)
     t.flags   = pkt:u32(pos+24)
-    -- flags may be wrong-endian. why? I really don't know. Some implementations not doing htonl?
+    -- I've seen flags be wrong-endian just once. why? I really don't know.
+    -- Some implementations are not doing htonl for this field?
     if t.flags > 0xFFFFFF then
-      t.flags = t.flags - 0xFFFFFF
+      -- only concerned with the high order byte
+      t.flags = bit.rshift(t.flags, 24)
     end
     t.mode    = pkt:u8(pos+30)
     t.version = pkt:u8(pos+31)
