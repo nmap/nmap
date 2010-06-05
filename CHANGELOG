@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug in qscan.nse which gave an error if a confidence
+  level of 0.9995 was used.  Thanks to Marcin Hoffmann for noticing
+  the problem. [Kris]
+
 o [NSE] Added ntp-monlist.nse which discovers NTP server, peer and
   client hosts associated with a scanned target by sending NTPv2
   Private Mode 'monitor' and 'peers' commands to the target. [jah]

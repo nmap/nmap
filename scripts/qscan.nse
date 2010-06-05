@@ -283,7 +283,7 @@ local getopts = function()
 
 	if conf ~= 0.75 and conf ~= 0.9 and
 	   conf ~= 0.95 and conf ~= 0.975 and
-	   conf ~= 0.99 and conf ~= 0.995 and conf ~= 0.995 then
+	   conf ~= 0.99 and conf ~= 0.995 and conf ~= 0.9995 then
 	   	bool = false
 		err = "Invalid confidence level"
 	end
