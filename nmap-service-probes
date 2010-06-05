@@ -7957,6 +7957,11 @@ match postgresql m|^E\0\0\0\x94SFATAL\0C0A000\0MProtocole non support\?e de l'in
 
 match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/
 
+# PostgreSQL softmatch entries, put all hard matches above this line.
+softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/
+softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support\?e de l'interface 65363| p/PostgreSQL DB/ i/French/
+softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Mel protocolo 65363|  p/PostgreSQL DB/ i/Spanish/
+
 match tng-dts m|^\0\0\0\$sequence_number=\[0\] result=\[-2005\] \0$| p/CA DTS Agent/
 
 # SAP Release: SAP ECC (Enterprise Core Component) 6.0 on Windows 2003
