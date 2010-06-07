@@ -132,12 +132,6 @@ extern NmapOps o;
 
 #ifdef WIN32
 #include "pcap-int.h"
-
-void nmapwin_init();
-void nmapwin_cleanup();
-void nmapwin_list_interfaces();
-
-int if2nameindex(int ifi);
 #endif
 
 static PacketCounter PktCt;
