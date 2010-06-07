@@ -128,23 +128,23 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   int targetno;
   targets.reserve(num_hosts);
 
-  for(targetno = 0; targetno < num_hosts; targetno++) {
+  for (targetno = 0; targetno < num_hosts; targetno++) {
     initialize_timeout_info(&hostbatch[targetno]->to);
     /* Default timout should be much lower for arp */
     hostbatch[targetno]->to.timeout = MIN(o.initialRttTimeout(), 100) * 1000;
     if (!hostbatch[targetno]->SrcMACAddress()) {
       bool islocal = islocalhost(hostbatch[targetno]->v4hostip());
       if (islocal) {
-	log_write(LOG_STDOUT|LOG_NORMAL, 
-		  "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
-		  hostbatch[targetno]->NameIP(), hostbatch[targetno]->deviceName());
-	hostbatch[targetno]->flags = HOST_UP;
+        log_write(LOG_STDOUT|LOG_NORMAL, 
+                  "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
+                  hostbatch[targetno]->NameIP(), hostbatch[targetno]->deviceName());
+        hostbatch[targetno]->flags = HOST_UP;
       } else {
-	log_write(LOG_STDOUT|LOG_NORMAL, 
-		  "ARP ping: Considering %s DOWN because no MAC address found for device %s.\n",
-		  hostbatch[targetno]->NameIP(), 
-		  hostbatch[targetno]->deviceName());
-	hostbatch[targetno]->flags = HOST_DOWN;
+        log_write(LOG_STDOUT|LOG_NORMAL, 
+                  "ARP ping: Considering %s DOWN because no MAC address found for device %s.\n",
+                  hostbatch[targetno]->NameIP(), 
+                  hostbatch[targetno]->deviceName());
+        hostbatch[targetno]->flags = HOST_DOWN;
       }
       continue;
     }
@@ -167,10 +167,10 @@ void returnhost(HostGroupState *hs) {
   hs->next_batch_no--;
 }
 
-/* Is the host passed as Target to be excluded, much of this logic had  (mdmcl)
- * to be rewritten from wam's original code to allow for the objects */
+/* Is the host passed as Target to be excluded? Much of this logic had
+   to be rewritten from wam's original code to allow for the objects */
 static int hostInExclude(struct sockaddr *checksock, size_t checksocklen, 
-		  TargetGroup *exclude_group) {
+                  TargetGroup *exclude_group) {
   unsigned long tmpTarget; /* ip we examine */
   int i=0;                 /* a simple index */
   char targets_type;       /* what is the address type of the Target Group */
@@ -193,8 +193,7 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
   targets_type = exclude_group[i].get_targets_type();
 
   /* Lets go through the targets until we reach our uninitialized placeholder */
-  while (exclude_group[i].get_targets_type() != TargetGroup::TYPE_NONE)
-  { 
+  while (exclude_group[i].get_targets_type() != TargetGroup::TYPE_NONE) { 
     /* while there are still hosts in the target group */
     while (exclude_group[i].get_next_host(&ss, &slen) == 0) {
       tmpTarget = sin->sin_addr.s_addr; 
@@ -206,12 +205,11 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
           break;
         mask = htonl((unsigned long) (0-1) << (32-exclude_group[i].get_mask()));
         if ((tmpTarget & mask) == (checkhost_in->sin_addr.s_addr & mask)) {
-	  exclude_group[i].rewind();
-	  return 1;
+          exclude_group[i].rewind();
+          return 1;
+        } else {
+          break;
         }
-	else {
-	  break;
-	}
       } 
       /* For ranges we need to be a little more slick, if we don't find a match
        * we should skip the rest of the addrs in the octet, thank wam for this
@@ -222,13 +220,13 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
         if (tmpTarget == checkhost_in->sin_addr.s_addr) {
           exclude_group[i].rewind();
           return 1;
-        }
-        else { /* note these are in network byte order */
-	  if ((tmpTarget & 0x000000ff) != (checkhost_in->sin_addr.s_addr & 0x000000ff))
+        } else {
+          /* note these are in network byte order */
+          if ((tmpTarget & 0x000000ff) != (checkhost_in->sin_addr.s_addr & 0x000000ff))
             exclude_group[i].skip_range(TargetGroup::FIRST_OCTET); 
-	  else if ((tmpTarget & 0x0000ff00) != (checkhost_in->sin_addr.s_addr & 0x0000ff00))
+          else if ((tmpTarget & 0x0000ff00) != (checkhost_in->sin_addr.s_addr & 0x0000ff00))
             exclude_group[i].skip_range(TargetGroup::SECOND_OCTET); 
-	  else if ((tmpTarget & 0x00ff0000) != (checkhost_in->sin_addr.s_addr & 0x00ff0000))
+          else if ((tmpTarget & 0x00ff0000) != (checkhost_in->sin_addr.s_addr & 0x00ff0000))
             exclude_group[i].skip_range(TargetGroup::THIRD_OCTET); 
 
           continue;
@@ -342,14 +340,12 @@ size_t read_host_from_file(FILE *fp, char *buf, size_t n)
   return i;
 }
 
-/* A debug routine to dump some information to stdout.                  (mdmcl)
- * Invoked if debugging is set to 3 or higher
- * I had to make signigicant changes from wam's code. Although wam
- * displayed much more detail, alot of this is now hidden inside
- * of the Target Group Object. Rather than writing a bunch of methods
- * to return private attributes, which would only be used for 
- * debugging, I went for the method below.
- */
+/* A debug routine to dump some information to stdout. Invoked if debugging is
+   set to 3 or higher. I had to make significant changes from wam's code.
+   Although wam displayed much more detail, alot of this is now hidden inside of
+   the Target Group Object. Rather than writing a bunch of methods to return
+   private attributes, which would only be used for debugging, I went for the
+   method below. */
 int dumpExclude(TargetGroup *exclude_group) {
   int i=0, debug_save=0, type=TargetGroup::TYPE_NONE;
   unsigned int mask = 0;
@@ -357,31 +353,30 @@ int dumpExclude(TargetGroup *exclude_group) {
   struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
   size_t slen;
 
-  /* shut off debugging for now, this is a debug routine in itself,
-   * we don't want to see all the debug messages inside of the object */
+  /* shut off debugging for now, this is a debug routine in itself, we don't
+     want to see all the debug messages inside of the object */
   debug_save = o.debugging;
   o.debugging = 0;
 
-  while ((type = exclude_group[i].get_targets_type()) != TargetGroup::TYPE_NONE)
-  {
+  while ((type = exclude_group[i].get_targets_type()) != TargetGroup::TYPE_NONE) {
     switch (type) {
-       case TargetGroup::IPV4_NETMASK:
-         exclude_group[i].get_next_host(&ss, &slen);
-         mask = exclude_group[i].get_mask();
-         error("exclude host group %d is %s/%d", i, inet_ntoa(sin->sin_addr), mask);
-         break;
+      case TargetGroup::IPV4_NETMASK:
+        exclude_group[i].get_next_host(&ss, &slen);
+        mask = exclude_group[i].get_mask();
+        error("exclude host group %d is %s/%d", i, inet_ntoa(sin->sin_addr), mask);
+        break;
 
-       case TargetGroup::IPV4_RANGES:
-         while (exclude_group[i].get_next_host(&ss, &slen) == 0) 
-           error("exclude host group %d is %s", i, inet_ntoa(sin->sin_addr));
-         break;
+      case TargetGroup::IPV4_RANGES:
+        while (exclude_group[i].get_next_host(&ss, &slen) == 0) 
+          error("exclude host group %d is %s", i, inet_ntoa(sin->sin_addr));
+        break;
 
-       case TargetGroup::IPV6_ADDRESS:
-	 fatal("IPV6 addresses are not supported in the exclude file\n");
-         break;
+      case TargetGroup::IPV6_ADDRESS:
+        fatal("IPV6 addresses are not supported in the exclude file\n");
+        break;
 
-       default:
-	 fatal("Unknown target type in exclude file.\n");
+      default:
+        fatal("Unknown target type in exclude file.\n");
     }
     exclude_group[i++].rewind();
   }
@@ -425,34 +420,33 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
 }
 
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
-			    struct scan_lists *ports, int pingtype) {
-int hidx = 0;
-int i;
-struct sockaddr_storage ss;
-size_t sslen;
-struct intf_entry *ifentry;
- u32 ifbuf[200] ;
- struct route_nfo rnfo;
- bool arpping_done = false;
- struct timeval now;
+                 struct scan_lists *ports, int pingtype) {
+  int hidx = 0;
+  int i;
+  struct sockaddr_storage ss;
+  size_t sslen;
+  struct intf_entry *ifentry;
+  u32 ifbuf[200] ;
+  struct route_nfo rnfo;
+  bool arpping_done = false;
+  struct timeval now;
 
- ifentry = (struct intf_entry *) ifbuf; 
- ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
-if (hs->next_batch_no < hs->current_batch_sz) {
-  /* Woop!  This is easy -- we just pass back the next host struct */
-  return hs->hostbatch[hs->next_batch_no++];
-}
-/* Doh, we need to refresh our array */
-/* for(i=0; i < hs->max_batch_sz; i++) hs->hostbatch[i] = new Target(); */
+  ifentry = (struct intf_entry *) ifbuf; 
+  ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
+  if (hs->next_batch_no < hs->current_batch_sz) {
+    /* Woop!  This is easy -- we just pass back the next host struct */
+    return hs->hostbatch[hs->next_batch_no++];
+  }
+  /* Doh, we need to refresh our array */
+  /* for (i=0; i < hs->max_batch_sz; i++) hs->hostbatch[i] = new Target(); */
 
-hs->current_batch_sz = hs->next_batch_no = 0;
-do {
-  /* Grab anything we have in our current_expression */
-  while (hs->current_batch_sz < hs->max_batch_sz && 
-	 hs->current_expression.get_next_host(&ss, &sslen) == 0)
-    {
+  hs->current_batch_sz = hs->next_batch_no = 0;
+  do {
+    /* Grab anything we have in our current_expression */
+    while (hs->current_batch_sz < hs->max_batch_sz && 
+        hs->current_expression.get_next_host(&ss, &sslen) == 0) {
       if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
-	continue; /* Skip any hosts the user asked to exclude */
+        continue; /* Skip any hosts the user asked to exclude */
       }
       hidx = hs->current_batch_sz;
       hs->hostbatch[hidx] = new Target();
@@ -467,119 +461,123 @@ do {
       }
 
       /* We figure out the source IP/device IFF
-	 1) We are r00t AND
-	 2) We are doing tcp or udp pingscan OR
-	 3) We are doing a raw-mode portscan or osscan or traceroute OR
-	 4) We are on windows and doing ICMP ping */
+         1) We are r00t AND
+         2) We are doing tcp or udp pingscan OR
+         3) We are doing a raw-mode portscan or osscan or traceroute OR
+         4) We are on windows and doing ICMP ping */
       if (o.isr00t && o.af() == AF_INET && 
-	  ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
+          ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
-	   || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
+           || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
-	   )) {
-	hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
-	if (!route_dst(&ss, &rnfo)) {
-	  fatal("%s: failed to determine route to %s", __func__, hs->hostbatch[hidx]->NameIP());
-	}
-	if (rnfo.direct_connect) {
-	  hs->hostbatch[hidx]->setDirectlyConnected(true);
-	} else {
-	  hs->hostbatch[hidx]->setDirectlyConnected(false);
-	  hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
-					  sizeof(rnfo.nexthop));
-	}
-	hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
-	if (rnfo.ii.device_type == devt_ethernet) {
-	  if (o.spoofMACAddress())
-	    hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
-	  else hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
-	}
-	hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
-	if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
-	  o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
-	hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
-	//	  printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
+          )) {
+        hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
+        if (!route_dst(&ss, &rnfo)) {
+          fatal("%s: failed to determine route to %s", __func__, hs->hostbatch[hidx]->NameIP());
+        }
+        if (rnfo.direct_connect) {
+          hs->hostbatch[hidx]->setDirectlyConnected(true);
+        } else {
+          hs->hostbatch[hidx]->setDirectlyConnected(false);
+          hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
+              sizeof(rnfo.nexthop));
+        }
+        hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
+        if (rnfo.ii.device_type == devt_ethernet) {
+          if (o.spoofMACAddress())
+            hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
+          else
+            hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+        }
+        hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
+        if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
+          o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
+        hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+        // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
       }
-      
 
-      /* In some cases, we can only allow hosts that use the same
-	 device in a group.  Similarly, we don't mix
-	 directly-connected boxes with those that aren't */
+      /* In some cases, we can only allow hosts that use the same device in a
+         group. Similarly, we don't mix directly-connected boxes with those that
+         aren't */
       if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
-	  hs->hostbatch[hidx]->deviceName() && 
-	  (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
-	   strcmp(hs->hostbatch[0]->deviceName(), 
-		  hs->hostbatch[hidx]->deviceName()) != 0 
-	  || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
-	/* Cancel everything!  This guy must go in the next group and we are
-	   out of here */
-	hs->current_expression.return_last_host();
-	delete hs->hostbatch[hidx];
-	goto batchfull;
+          hs->hostbatch[hidx]->deviceName() && 
+          (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
+           strcmp(hs->hostbatch[0]->deviceName(), 
+             hs->hostbatch[hidx]->deviceName()) != 0 
+           || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
+        /* Cancel everything!  This guy must go in the next group and we are
+           out of here */
+        hs->current_expression.return_last_host();
+        delete hs->hostbatch[hidx];
+        goto batchfull;
       }
       hs->current_batch_sz++;
-}
+    }
 
-  if (hs->current_batch_sz < hs->max_batch_sz &&
-      hs->next_expression < hs->num_expressions) {
-    /* We are going to have to pop in another expression. */
-    while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
-      if (hs->next_expression >= hs->num_expressions)
-	break;
-  } else break;
-} while(1);
+    if (hs->current_batch_sz < hs->max_batch_sz &&
+        hs->next_expression < hs->num_expressions) {
+      /* We are going to have to pop in another expression. */
+      while(hs->current_expression.parse_expr(hs->target_expressions[hs->next_expression++], o.af()) != 0) 
+        if (hs->next_expression >= hs->num_expressions)
+          break;
+    } else break;
+  } while(1);
 
- batchfull:
- 
-if (hs->current_batch_sz == 0)
-  return NULL;
+batchfull:
 
-/* OK, now we have our complete batch of entries.  The next step is to
-   randomize them (if requested) */
-if (hs->randomize) {
-  hoststructfry(hs->hostbatch, hs->current_batch_sz);
-}
+  if (hs->current_batch_sz == 0)
+    return NULL;
 
-/* First I'll do the ARP ping if all of the machines in the group are
-   directly connected over ethernet.  I may need the MAC addresses
-   later anyway. */
- if (hs->hostbatch[0]->ifType() == devt_ethernet && 
-     hs->hostbatch[0]->directlyConnected() && 
-     o.sendpref != PACKET_SEND_IP_STRONG) {
-   arpping(hs->hostbatch, hs->current_batch_sz);
-   arpping_done = true;
- }
- 
- gettimeofday(&now, NULL);
- if ((o.sendpref & PACKET_SEND_ETH) && 
-     hs->hostbatch[0]->ifType() == devt_ethernet) {
-   for(i=0; i < hs->current_batch_sz; i++)
-     if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
-	 !hs->hostbatch[i]->timedOut(&now))
-       if (!setTargetNextHopMAC(hs->hostbatch[i]))
-	 fatal("%s: Failed to determine dst MAC address for target %s", 
-	       __func__, hs->hostbatch[i]->NameIP());
- }
+  /* OK, now we have our complete batch of entries.  The next step is to
+     randomize them (if requested) */
+  if (hs->randomize) {
+    hoststructfry(hs->hostbatch, hs->current_batch_sz);
+  }
 
- /* TODO: Maybe I should allow real ping scan of directly connected
-    ethernet hosts? */
- /* Then we do the mass ping (if required - IP-level pings) */
- if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
-   for(i=0; i < hs->current_batch_sz; i++)  {
-     if (!hs->hostbatch[i]->timedOut(&now)) {
-       initialize_timeout_info(&hs->hostbatch[i]->to);
-       hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
-       if(pingtype == PINGTYPE_NONE && !arpping_done)
-         hs->hostbatch[i]->reason.reason_id = ER_USER;
-       else
-         hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
-     }
-   }
- } else if (!arpping_done) {
-   massping(hs->hostbatch, hs->current_batch_sz, ports);
- }
- 
- if (!o.noresolve) nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
- 
- return hs->hostbatch[hs->next_batch_no++];
+  /* First I'll do the ARP ping if all of the machines in the group are
+     directly connected over ethernet.  I may need the MAC addresses
+     later anyway. */
+  if (hs->hostbatch[0]->ifType() == devt_ethernet && 
+      hs->hostbatch[0]->directlyConnected() && 
+      o.sendpref != PACKET_SEND_IP_STRONG) {
+    arpping(hs->hostbatch, hs->current_batch_sz);
+    arpping_done = true;
+  }
+
+  gettimeofday(&now, NULL);
+  if ((o.sendpref & PACKET_SEND_ETH) && 
+      hs->hostbatch[0]->ifType() == devt_ethernet) {
+    for (i=0; i < hs->current_batch_sz; i++) {
+      if (!(hs->hostbatch[i]->flags & HOST_DOWN) && 
+          !hs->hostbatch[i]->timedOut(&now)) {
+        if (!setTargetNextHopMAC(hs->hostbatch[i])) {
+          fatal("%s: Failed to determine dst MAC address for target %s", 
+              __func__, hs->hostbatch[i]->NameIP());
+        }
+      }
+    }
+  }
+
+  /* TODO: Maybe I should allow real ping scan of directly connected
+     ethernet hosts? */
+  /* Then we do the mass ping (if required - IP-level pings) */
+  if ((pingtype == PINGTYPE_NONE && !arpping_done) || hs->hostbatch[0]->ifType() == devt_loopback) {
+    for (i=0; i < hs->current_batch_sz; i++) {
+      if (!hs->hostbatch[i]->timedOut(&now)) {
+        initialize_timeout_info(&hs->hostbatch[i]->to);
+        hs->hostbatch[i]->flags |= HOST_UP; /*hostbatch[i].up = 1;*/
+        if (pingtype == PINGTYPE_NONE && !arpping_done)
+          hs->hostbatch[i]->reason.reason_id = ER_USER;
+        else
+          hs->hostbatch[i]->reason.reason_id = ER_LOCALHOST;
+      }
+    }
+  } else if (!arpping_done) {
+    massping(hs->hostbatch, hs->current_batch_sz, ports);
+  }
+
+  if (!o.noresolve)
+    nmap_mass_rdns(hs->hostbatch, hs->current_batch_sz);
+
+  return hs->hostbatch[hs->next_batch_no++];
 }
