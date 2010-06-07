@@ -405,9 +405,22 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
   ultra_scan(targets, ports, PING_SCAN, &group_to);
 }
 
+/* Returns true iff this target is incompatible with the other hosts in the host
+   group. This happens when:
+     1. it uses a different interface, or
+     2. it uses a different source address, or
+     3. it is directly connected when the other hosts are not, or vice versa.
+   These restrictions only apply for raw scans. */
+static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *target) {
+  return o.af() == AF_INET && o.isr00t && hs->current_batch_sz > 0 && 
+    target->deviceName() && 
+    (target->v4source().s_addr != target->v4source().s_addr || 
+     strcmp(hs->hostbatch[0]->deviceName(), target->deviceName()) != 0 ||
+     target->directlyConnected() != target->directlyConnected());
+}
+
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
                  struct scan_lists *ports, int pingtype) {
-  int hidx = 0;
   int i;
   struct sockaddr_storage ss;
   size_t sslen;
@@ -431,19 +444,20 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
     /* Grab anything we have in our current_expression */
     while (hs->current_batch_sz < hs->max_batch_sz && 
         hs->current_expression.get_next_host(&ss, &sslen) == 0) {
+      Target *t;
+
       if (hostInExclude((struct sockaddr *)&ss, sslen, exclude_group)) {
         continue; /* Skip any hosts the user asked to exclude */
       }
-      hidx = hs->current_batch_sz;
-      hs->hostbatch[hidx] = new Target();
-      hs->hostbatch[hidx]->setTargetSockAddr(&ss, sslen);
+      t = new Target();
+      t->setTargetSockAddr(&ss, sslen);
 
       /* Special handling for the resolved address (for example whatever
          scanme.nmap.org resolves to in scanme.nmap.org/24). */
       if (hs->current_expression.is_resolved_address(&ss)) {
         if (hs->current_expression.get_namedhost())
-          hs->hostbatch[hidx]->setTargetName(hs->current_expression.get_resolved_name());
-        hs->hostbatch[hidx]->resolved_addrs = hs->current_expression.get_resolved_addrs();
+          t->setTargetName(hs->current_expression.get_resolved_name());
+        t->resolved_addrs = hs->current_expression.get_resolved_addrs();
       }
 
       /* We figure out the source IP/device IFF
@@ -457,47 +471,40 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
            || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
 #endif // WIN32
           )) {
-        hs->hostbatch[hidx]->TargetSockAddr(&ss, &sslen);
+        t->TargetSockAddr(&ss, &sslen);
         if (!route_dst(&ss, &rnfo)) {
-          fatal("%s: failed to determine route to %s", __func__, hs->hostbatch[hidx]->NameIP());
+          fatal("%s: failed to determine route to %s", __func__, t->NameIP());
         }
         if (rnfo.direct_connect) {
-          hs->hostbatch[hidx]->setDirectlyConnected(true);
+          t->setDirectlyConnected(true);
         } else {
-          hs->hostbatch[hidx]->setDirectlyConnected(false);
-          hs->hostbatch[hidx]->setNextHop(&rnfo.nexthop, 
-              sizeof(rnfo.nexthop));
+          t->setDirectlyConnected(false);
+          t->setNextHop(&rnfo.nexthop, sizeof(rnfo.nexthop));
         }
-        hs->hostbatch[hidx]->setIfType(rnfo.ii.device_type);
+        t->setIfType(rnfo.ii.device_type);
         if (rnfo.ii.device_type == devt_ethernet) {
           if (o.spoofMACAddress())
-            hs->hostbatch[hidx]->setSrcMACAddress(o.spoofMACAddress());
+            t->setSrcMACAddress(o.spoofMACAddress());
           else
-            hs->hostbatch[hidx]->setSrcMACAddress(rnfo.ii.mac);
+            t->setSrcMACAddress(rnfo.ii.mac);
         }
-        hs->hostbatch[hidx]->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
-        if (hidx == 0) /* Because later ones can have different src addy and be cut off group */
-          o.decoys[o.decoyturn] = hs->hostbatch[hidx]->v4source();
-        hs->hostbatch[hidx]->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
-        // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", hs->hostbatch[hidx]->NameIP(), hs->hostbatch[hidx]->directlyConnected()? "IS" : "IS NOT", hs->hostbatch[hidx]->deviceName(), (hs->hostbatch[hidx]->ifType() == devt_ethernet)? "IS" : "IS NOT");
+        t->setSourceSockAddr(&rnfo.srcaddr, sizeof(rnfo.srcaddr));
+        if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
+          o.decoys[o.decoyturn] = t->v4source();
+        t->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+        // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", t->NameIP(), t->directlyConnected()? "IS" : "IS NOT", t->deviceName(), (t->ifType() == devt_ethernet)? "IS" : "IS NOT");
       }
 
-      /* In some cases, we can only allow hosts that use the same device in a
-         group. Similarly, we don't mix directly-connected boxes with those that
-         aren't */
-      if (o.af() == AF_INET && o.isr00t && hidx > 0 && 
-          hs->hostbatch[hidx]->deviceName() && 
-          (hs->hostbatch[hidx]->v4source().s_addr != hs->hostbatch[0]->v4source().s_addr || 
-           strcmp(hs->hostbatch[0]->deviceName(), 
-             hs->hostbatch[hidx]->deviceName()) != 0 
-           || hs->hostbatch[hidx]->directlyConnected() != hs->hostbatch[0]->directlyConnected())) {
+      /* Does this target need to go in a separate host group? */
+      if (target_needs_new_hostgroup(hs, t)) {
         /* Cancel everything!  This guy must go in the next group and we are
            out of here */
         hs->current_expression.return_last_host();
-        delete hs->hostbatch[hidx];
+        delete t;
         goto batchfull;
       }
-      hs->current_batch_sz++;
+
+      hs->hostbatch[hs->current_batch_sz++] = t;
     }
 
     if (hs->current_batch_sz < hs->max_batch_sz &&
