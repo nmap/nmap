@@ -409,9 +409,12 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
    group. This happens when:
      1. it uses a different interface, or
      2. it uses a different source address, or
-     3. it is directly connected when the other hosts are not, or vice versa.
+     3. it is directly connected when the other hosts are not, or vice versa, or
+     4. it has the same IP address as another target already in the group.
    These restrictions only apply for raw scans. */
 static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *target) {
+  int i;
+
   /* We've just started a new hostgroup, so any target is acceptable. */
   if (hs->current_batch_sz == 0)
     return false;
@@ -434,6 +437,15 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   /* Different direct connectedness? */
   if (hs->hostbatch[0]->directlyConnected() != target->directlyConnected())
     return true;
+
+  /* Is there already a target with this same IP address? ultra_scan doesn't
+     cope with that, because it uses IP addresses to look up targets from
+     replies. What happens is one target gets the replies for all probes
+     referring to the same IP address. */
+  for (i = 0; i < hs->current_batch_sz; i++) {
+    if (hs->hostbatch[0]->v4host().s_addr == target->v4host().s_addr)
+      return true;
+  }
 
   return false;
 }
