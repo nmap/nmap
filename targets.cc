@@ -412,11 +412,30 @@ static void massping(Target *hostbatch[], int num_hosts, struct scan_lists *port
      3. it is directly connected when the other hosts are not, or vice versa.
    These restrictions only apply for raw scans. */
 static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *target) {
-  return o.af() == AF_INET && o.isr00t && hs->current_batch_sz > 0 && 
-    target->deviceName() && 
-    (target->v4source().s_addr != target->v4source().s_addr || 
-     strcmp(hs->hostbatch[0]->deviceName(), target->deviceName()) != 0 ||
-     target->directlyConnected() != target->directlyConnected());
+  /* We've just started a new hostgroup, so any target is acceptable. */
+  if (hs->current_batch_sz == 0)
+    return false;
+
+  /* There are no restrictions on non-root scans. */
+  if (!(o.af() == AF_INET && o.isr00t))
+    return false;
+
+  /* Different interface name? */
+  if (hs->hostbatch[0]->deviceName() != NULL &&
+      target->deviceName() != NULL &&
+      strcmp(hs->hostbatch[0]->deviceName(), target->deviceName()) != 0) {
+    return true;
+  }
+
+  /* Different source address? */
+  if (hs->hostbatch[0]->v4source().s_addr != target->v4source().s_addr)
+    return true;
+
+  /* Different direct connectedness? */
+  if (hs->hostbatch[0]->directlyConnected() != target->directlyConnected())
+    return true;
+
+  return false;
 }
 
 Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
