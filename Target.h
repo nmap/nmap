@@ -212,8 +212,8 @@ class Target {
      that information here.  directlyConnected() will abort if it hasn't
      been set yet.  */
   void setDirectlyConnected(bool connected);
-  bool directlyConnected();
-  int directlyConnectedOrUnset(); /* 1-directly connected, 0-no, -1-we don't know*/
+  bool directlyConnected() const;
+  int directlyConnectedOrUnset() const; /* 1-directly connected, 0-no, -1-we don't know*/
 
   /* If the host is NOT directly connected, you can set the next hop
      value here. It is OK to pass in a sockaddr_in or sockaddr_in6
@@ -263,8 +263,8 @@ class Target {
    qualifier, while the full name may include it (e.g. "eth1:1").  If
    these are non-null, they will overwrite the stored version */
   void setDeviceNames(const char *name, const char *fullname);
-  const char *deviceName();
-  const char *deviceFullName();
+  const char *deviceName() const;
+  const char *deviceFullName() const;
 
   int osscanPerformed(void);
   void osscanSetFlag(int flag);

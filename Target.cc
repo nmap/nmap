@@ -141,11 +141,11 @@ void Target::Initialize() {
 }
 
 
-const char * Target::deviceName() { 
+const char * Target::deviceName() const {
 	return (devname[0] != '\0')? devname : NULL;
 }
 
-const char * Target::deviceFullName() { 
+const char * Target::deviceFullName() const {
 	return (devfullname[0] != '\0')? devfullname : NULL; 
 }
 
@@ -361,11 +361,11 @@ void Target::setDirectlyConnected(bool connected) {
   directly_connected = connected? 1 : 0;
 }
 
-int Target::directlyConnectedOrUnset(){
+int Target::directlyConnectedOrUnset() const {
     return directly_connected;
 }
 
-bool Target::directlyConnected() {
+bool Target::directlyConnected() const {
   assert(directly_connected == 0 || directly_connected == 1);
   return directly_connected;
 }
