@@ -105,20 +105,6 @@
 using namespace std;
 extern NmapOps o;
 
-/* Gets the host number (index) of target in the hostbatch array of
- pointers.  Note that the target MUST EXIST in the array or all
- heck will break loose. */
-static inline int gethostnum(Target *hostbatch[], Target *target) {
-  int i = 0;
-  do {
-    if (hostbatch[i] == target)
-      return i;
-  } while(++i);
-
-  fatal("fluxx0red");
-  return 0; // Unreached
-}
-
 /* Conducts an ARP ping sweep of the given hosts to determine which ones
    are up on a local ethernet network */
 static void arpping(Target *hostbatch[], int num_hosts) {
