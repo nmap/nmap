@@ -100,8 +100,6 @@
 
 #include "nbase.h"
 
-#include <gnuc.h>
-
 #include <pcap.h>
 #include <packet32.h>
 
