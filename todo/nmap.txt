@@ -9,6 +9,10 @@ o Create new default username list:
     and also a general list which we obtain from spidering from
     emails, etc.
 
+o Need to fix our current win32.zip distribution so that .svn files
+  aren't included (currently they are in nselib/data).  Will probably
+  be a simple adjustment to mswin32/Makefile.
+
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
@@ -24,6 +28,14 @@ o [NSE] Maybe we should create a class of scripts which only run one
     having such auxiliary scripts be able to do things like host
     discovery, and then let the following phases work on the list it
     discovers."
+
+o [Zenmap] Consider a memory usage audit. This thread includes a claim
+  that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
+  http://seclists.org/nmap-dev/2010/q1/1127
+  The reporter mentioned Guppy/Heapy to debug memory use:
+  http://guppy-pe.sourceforge.net/
+  http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
+  Nmap survey respondants complained about this too.
 
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)
@@ -44,7 +56,25 @@ o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   great.  If we need it, we should probably upgrade to the
   4.1.1. version (presumably from the Winpcap source code
   distribution). Right now it is included in tcpip.h,
-  nsock/src/nsock_pcap.h, and nping/common_modified.cc:
+  nsock/src/nsock_pcap.h, and nping/common_modified.cc: o David looked
+  into it.  He says it isn't distributed with the WinPcap developer's
+  pack. You have to extract it from the source file. He updated to the
+  4.1.1 version.  He says The entire reason we need it is so we can
+  peek at the definition of struct pcap, so we can access the
+  pcap.adapter member on Windows.  In order to pass it to
+  PacketSetReadTimeout. Usually struct pcap is an opaque type and you
+  are only supposed to access it through a pcap_t *. Unfortunately I
+  don't think there's an easy way to manipulate the timeouts in
+  WInPcap like we do on other platforms. You can specify a timeout
+  when you do pcap_open, but we like to set a timeout on every
+  read. So we sort of sneak in and call PacketSetReadTimeout. In the
+  code there's even a comment: "BUGBUG: This is cheating." libdnet
+  also uses the Packet* functions, but in a more innocuous
+  way. libdnet also uses the Packet* functions, but in a more
+  innocuous way. It doesn't access them through a struct pcap, so it
+  doesn't need pcap-int.h.  David is going to test whether this makes
+  any signficiant difference--we might be able to just remove the
+  PcapSetReadTimeout().
 
 o [NSE] MSRPC - Improve domain support all around -- in particular,
   let the user give the domain in the format DOMAIN\username or
@@ -56,23 +86,8 @@ o [NSE] Combine similar MSRPC scripts, especially the "get info"
   (http://seclists.org/nmap-dev/2010/q1/1023).  This was suggested by
   Ron at http://seclists.org/nmap-dev/2010/q2/389.
 
-o [NSE] Reorganize nselib to allow libraries in subdirectories.
-  Currently, to avoid expanding the number top-level libraries, code
-  that is only used by one library is built into that library's file,
-  even if it is logically separate. For example, the mongodb library
-  contains a BSON-parsing library. Instead, that library could go in
-  mongodb/bson.lua. The msrpc and smb libraries could potentially be
-  broken up in this way.
-
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
-
-o [Zenmap] Consider a memory usage audit. This thread includes a claim
-  that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
-  http://seclists.org/nmap-dev/2010/q1/1127
-  The reporter mentioned Guppy/Heapy to debug memory use:
-  http://guppy-pe.sourceforge.net/
-  http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst
 
 o The -g (set source port) option doesn't seem to be working (at least
   in Fyodor's quick tests) for version detection or connect() scan,
@@ -115,6 +130,9 @@ o We should offer partial results when a host
     instead, that code just looked at what information was available and
     printed that out only, we could potentially isolate it in just one
     place.
+  o This also might let us provide a feature for skipping the rest of
+    an Nmap phase which is going too slowly (I think that has its own
+    Nmap TODO item).
 
 o [NSE] Consider a script which uses Nmap's detected OS and version
   detection information for open ports to print out _possible_ (unverified)
@@ -143,10 +161,6 @@ o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
   Better attachment at: http://seclists.org/nmap-dev/2010/q2/200
   Need to decide on a domain list: http://seclists.org/nmap-dev/2010/q2/199
 
-o [NSE] Add one of, or combine, ntp-peers and ntp-monlist.
-  http://seclists.org/nmap-dev/2010/q2/190
-  http://seclists.org/nmap-dev/2010/q2/191
-  
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
 
@@ -527,8 +541,6 @@ o Get new Zenmap logo
  (there used to be umit logo there).
  o Maybe that can be done after the release by soliciting ideas.
 
-o Make Zenmap splash screen
-
 o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
@@ -590,6 +602,24 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Make Zenmap splash screen
+
+o [NSE] Add one of, or combine, ntp-peers and ntp-monlist.
+  http://seclists.org/nmap-dev/2010/q2/190
+  http://seclists.org/nmap-dev/2010/q2/191
+  
+o [NSE] Reorganize nselib to allow libraries in subdirectories.
+  Currently, to avoid expanding the number top-level libraries, code
+  that is only used by one library is built into that library's file,
+  even if it is logically separate. For example, the mongodb library
+  contains a BSON-parsing library. Instead, that library could go in
+  mongodb/bson.lua. The msrpc and smb libraries could potentially be
+  broken up in this way.
+  UPDATE: We decided not to do this for now, given complications in
+  nsedoc, packaging, etc. to support the new hierarchy.  Instead, we
+  can use prefixes like we do with scripts (e.g. mongodb-bson.lua,
+  msrpc-types.lua).
 
 o Add a configure option to our libpcap which enables an older Linux
   packet capture system (David's noring patch).  This is needed in
