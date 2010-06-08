@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ports are now considered open during a SYN scan if a SYN packet
+  (without the ACK flag) is received in response. This can be due to
+  an extremely rare TCP feature known as a simultaneous open or split
+  handshake connection. see http://nmap.org/misc/split-handshake.pdf
+  Added a reason code: ER_SYN and associated reason string:
+  "split-handshake-syn".
+
 o [NSE] Fixed a bug in qscan.nse which gave an error if a confidence
   level of 0.9995 was used.  Thanks to Marcin Hoffmann for noticing
   the problem. [Kris]

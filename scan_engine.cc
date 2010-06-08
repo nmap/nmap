@@ -4102,6 +4102,10 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    /* Yeah!  An open port */
 	    newstate = PORT_OPEN;
 	    current_reason = ER_SYNACK;
+	  } else if (USI->scantype == SYN_SCAN && tcp->th_flags == TH_SYN) {
+	    /* A SYN from a TCP Split Handshake - open port */
+	    newstate = PORT_OPEN;
+	    current_reason = ER_SYN;
 	  } else if (tcp->th_flags & TH_RST) {
 	    current_reason = ER_RESETPEER;
 	    if (USI->scantype == WINDOW_SCAN ) {

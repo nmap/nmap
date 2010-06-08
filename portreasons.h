@@ -127,19 +127,19 @@ typedef struct port_reason_summary {
 /* portreasons.h:reason_codes and portreasons.cc:reason_str must stay in sync */
 enum reason_codes {
 	ER_RESETPEER=0, ER_CONREFUSED, ER_CONACCEPT, 
-	ER_SYNACK, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, /* 7 */
+	ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, /* 8 */
 
 	ER_NETUNREACH, ER_HOSTUNREACH, ER_PROTOUNREACH,
-	ER_PORTUNREACH, ER_ECHOREPLY,  /* 11 */
+	ER_PORTUNREACH, ER_ECHOREPLY,  /* 12 */
 
 	ER_DESTUNREACH=14, ER_SOURCEQUENCH, ER_NETPROHIBITED,
 	ER_HOSTPROHIBITED, ER_ADMINPROHIBITED=20,
 	ER_TIMEEXCEEDED=22, ER_TIMESTAMPREPLY=25,
 
-	ER_ADDRESSMASKREPLY=29, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
+	ER_ADDRESSMASKREPLY=30, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
 	ER_ARPRESPONSE, ER_TCPRESPONSE, ER_NORESPONSE,
 	ER_INITACK, ER_ABORT,
-	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER, ER_MAX=ER_USER   /* 41 */
+	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER, ER_MAX=ER_USER   /* 42 */
 };
 
 /* Be careful to update these values if any ICMP
@@ -147,8 +147,8 @@ enum reason_codes {
  *
  * ICMP ER_* codes are calculated by adding the 
  * offsets below to an ICMP packets code/type value */
-#define ER_ICMPCODE_MOD 7  
-#define ER_ICMPTYPE_MOD 11  
+#define ER_ICMPCODE_MOD 8  
+#define ER_ICMPTYPE_MOD 12  
 
 /* passed to the print_state_summary.
  * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"
