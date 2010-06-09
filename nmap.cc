@@ -126,6 +126,9 @@ extern char *optarg;
 extern int optind;
 extern NmapOps o;  /* option structure */
 
+static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
+  const Target *target);
+
 /* parse the --scanflags argument.  It can be a number >=0 or a string consisting of TCP flag names like "URGPSHFIN".  Returns -1 if the argument is invalid. */
 static int parse_scanflags(char *arg) {
   int flagval = 0;
@@ -1816,13 +1819,10 @@ int nmap_main(int argc, char *argv[]) {
 	if (!currenths->deviceName())
 	  fatal("Do not have appropriate device name for target");
 	
-	/* Groups should generally use the same device as properties
-	   change quite a bit between devices.  Plus dealing with a
-	   multi-device group can be a pain programmatically. So if
-	   this Target has a different device the rest, we give it
-	   back. */
-	if (Targets.size() > 0 && 
-	    strcmp(Targets[Targets.size() - 1]->deviceName(), currenths->deviceName())) {
+        /* Hosts in a group need to be somewhat homogeneous. Put this host in
+           the next group if necessary. See target_needs_new_hostgroup for the
+           details of when we need to split. */
+	if (target_needs_new_hostgroup(Targets, currenths)) {
 	  returnhost(hstate);
 	  o.numhosts_up--;
 	  break;
@@ -2010,6 +2010,42 @@ int nmap_main(int argc, char *argv[]) {
   }
   return 0;
 }      
+
+/* Returns true iff this target is incompatible with the other hosts in the host
+   group. This happens when:
+     1. it uses a different interface, or
+     2. it has the same IP address as another target already in the group.
+   These restrictions only apply for raw scans. This function is similar to one
+   of the same name in targets.cc. That one is for ping scanning, this one is
+   for port scanning. */
+static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
+  const Target *target) {
+  std::vector<Target *>::iterator it;
+
+  /* We've just started a new hostgroup, so any target is acceptable. */
+  if (targets.empty())
+    return false;
+
+  /* Different interface name? */
+  if (targets[0]->deviceName() != NULL &&
+      target->deviceName() != NULL &&
+      strcmp(targets[0]->deviceName(), target->deviceName()) != 0) {
+    return true;
+  }
+
+  /* Is there already a target with this same IP address? ultra_scan doesn't
+     cope with that, because it uses IP addresses to look up targets from
+     replies. What happens is one target gets the replies for all probes
+     referring to the same IP address. */
+  if (o.af() == AF_INET) {
+    for (it = targets.begin(); it != targets.end(); it++) {
+      if ((*it)->v4host().s_addr == target->v4host().s_addr)
+        return true;
+    }
+  }
+
+  return false;
+}
       
 // Free some global memory allocations.
 // This is used for detecting memory leaks.
