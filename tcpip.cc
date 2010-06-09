@@ -172,6 +172,7 @@ void set_ttl(int sd, int ttl) {
 // parameter to use lowercase.
 const char *proto2ascii(u8 proto, bool uppercase) {
   switch (proto) {
+
   case IPPROTO_TCP:
     return uppercase ? "TCP" : "tcp";
     break;
@@ -184,6 +185,36 @@ const char *proto2ascii(u8 proto, bool uppercase) {
   case IPPROTO_IP:
     return uppercase ? "IP" : "ip";
     break;
+#ifdef IPPROTO_ICMP
+  case IPPROTO_ICMP:
+    return uppercase ? "ICMP" : "icmp";
+    break;
+#endif
+#ifdef IPPROTO_IPV6
+  case IPPROTO_IPV6:
+    return uppercase ? "IPv6" : "ipv6";
+    break;
+#endif
+#ifdef IPPROTO_ICMPV6
+  case IPPROTO_ICMPV6:
+    return uppercase ? "ICMPv6" : "icmpv6";
+    break;
+#endif
+#ifdef IPPROTO_GRE
+  case IPPROTO_GRE: // Generic Routing Encapsulation
+    return uppercase ? "GRE" : "gre";
+    break;
+#endif
+#ifdef IPPROTO_ESP
+  case IPPROTO_ESP: // Encapsulating Security Payload (IPSec)
+    return uppercase ? "IPSec/ESP" : "ipsec/esp";
+    break;
+#endif
+#ifdef IPPROTO_AH
+  case IPPROTO_AH: // Authentication Header (IPSec)
+    return uppercase ? "IPSec/AH" : "ipsec/ah";
+    break;
+#endif
   default:
     return uppercase ? "UNKNOWN" : "unknown";
   }
