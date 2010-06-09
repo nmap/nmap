@@ -70,8 +70,7 @@ o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   read. So we sort of sneak in and call PacketSetReadTimeout. In the
   code there's even a comment: "BUGBUG: This is cheating." libdnet
   also uses the Packet* functions, but in a more innocuous
-  way. libdnet also uses the Packet* functions, but in a more
-  innocuous way. It doesn't access them through a struct pcap, so it
+  way. It doesn't access them through a struct pcap, so it
   doesn't need pcap-int.h.  David is going to test whether this makes
   any signficiant difference--we might be able to just remove the
   PcapSetReadTimeout().
