@@ -8886,8 +8886,12 @@ match hp-pjl m|^@PJL INFO ID\r?\n([\w\d _-]+)\r?\n| p/$1/ d/printer/
 # Some respond with blank info
 match hp-pjl m|@PJL\x20INFO\x20ID\r?\n\r?\n| d/printer/
 
-# We don't want to send a bunch more probes that will be printed
-softmatch hp-pjl m|^| i/hp-pjl probe got something back/
+# COMMENTING THIS SOFTMATCH OUT. It is meant to stop causing a bunch
+# of extra printing of probes against PJL ports (those port numbers
+# are excluded by default anyway), but it caused problems described in
+# this thread: http://seclists.org/nmap-dev/2010/q2/753
+# But it might be useful for people doing pjl testing specifically.
+# softmatch hp-pjl m|^| i/hp-pjl probe got something back/
 
 ##############################NEXT PROBE##############################
 # Citrix MetaFrame application discovery service
