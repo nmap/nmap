@@ -311,7 +311,7 @@ local function call_function(smbstate, opnum, arguments)
 				0x18 + string.len(arguments), -- Frag length (0x18 = the size of this data)
 				0x0000,      -- Auth length
 				0x41414141,  -- Call ID (I use 'AAAA' because it's easy to recognize)
-				0x00000038,  -- Alloc hint
+				0x0 + string.len(arguments),  -- Alloc hint
 				0x0000,      -- Context ID
 				opnum,       -- Opnum
 				arguments
