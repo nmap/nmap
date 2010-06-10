@@ -9,7 +9,7 @@ HEAD, POST, and OPTIONS. If the script reports potentially risky
 methods, they may not all be security risks, but you should check to
 make sure. This page lists the dangers of some common methods:
 
-http://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_(OWASP-CM-008)
+http://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29
 
 The list of supported methods comes from the contents of the Allow and
 Public header fields. In verbose mode, a list of all methods is printed,
