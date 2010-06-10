@@ -243,10 +243,14 @@ if test "$with_nping" = "no"; then
   BUILDNPING=""
   INSTALLNPING=""
   UNINSTALLNPING=""
+  NPING_CLEAN=""
+  NPING_DIST_CLEAN=""
 else
   BUILDNPING=build-nping
   INSTALLNPING=install-nping
   UNINSTALLNPING=uninstall-nping
+  NPING_CLEAN=nping_clean
+  NPING_DIST_CLEAN=nping_dist_clean
   AC_CONFIG_SUBDIRS(nping)
 fi
 AC_SUBST(BUILDNPING)
