@@ -1,5 +1,3 @@
-* Handle multiple targets with the same address.
-* Check necessity of mswin32 pcap includes.
 * Try removing the call to PacketSetReadTimeout in readip_pcap, so that Windows
   uses the short 2 ms timeout like some other platforms without selectable pcap
   fds do. Measure difference in time and CPU time.
@@ -32,3 +30,7 @@ Nsock:
 * Add a buffer to each iod, so that you can ask for a certain number of bytes
   or lines and get exactly that many, no more. Venkat wrote a proposal at
   http://seclists.org/nmap-dev/2009/q3/0600.html.
+
+Done:
+* Handle multiple targets with the same address.
+* Check necessity of mswin32 pcap includes.
