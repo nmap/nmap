@@ -75,6 +75,9 @@ o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   any signficiant difference--we might be able to just remove the
   PcapSetReadTimeout().
 
+o Fix the IPv6 name resolution problem described in this thread:
+  http://seclists.org/nmap-dev/2010/q2/787
+
 o [NSE] MSRPC - Improve domain support all around -- in particular,
   let the user give the domain in the format DOMAIN\username or
   username@DOMAIN anywhere that usernames are accepted. Suggested
