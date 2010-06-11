@@ -26,8 +26,12 @@ winbuild:
 	cp -f OpenSSL/bin/*.dll ./nmap-$(NMAP_VERSION)/
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
-	mkdir nmap-$(NMAP_VERSION)/nselib
-	cp -a Release/nselib nmap-$(NMAP_VERSION)
+	cd Release && for f in `find nselib -name .svn -prune -o -type d -print`; do \
+		mkdir -p ../nmap-$(NMAP_VERSION)/$$f; \
+	done
+	cd Release && for f in `find nselib -name .svn -prune -o -type f -print`; do \
+		cp -f $$f ../nmap-$(NMAP_VERSION)/$$f; \
+	done
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
