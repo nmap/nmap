@@ -74,7 +74,7 @@ the RIRs.
 -- |_ country: US stateprov: CA
 
 author = "jah <jah at zadkiel.plus.com>"
-license = "See Nmap License: http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
 local url    = require "url"

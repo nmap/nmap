@@ -4,8 +4,8 @@ Tries to get Telnet login credentials by guessing usernames and passwords.
 Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
 ]]
 
-author = 'Eddie Bell, Ron Bowes'
-license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
+author = "Eddie Bell, Ron Bowes"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'auth', 'intrusive'}
 
 ---

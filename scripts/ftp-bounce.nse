@@ -2,7 +2,7 @@ description=[[
 Checks to see if an FTP server allows port scanning using the FTP bounce method.
 ]]
 author = "Marek Majkowski"
-license="Same as Nmap--See http://nmap.org/book/man-legal.html"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 ---
 -- @args ftp-bounce.username Username to login with instead of "anonymous"

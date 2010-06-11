@@ -57,7 +57,7 @@ require('tab')
 require('dns')
 
 author = "Eddie Bell"
-license = 'Same as Nmap--See http://nmap.org/book/man-legal.html'
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'default', 'intrusive', 'discovery'}
 
 portrule = shortport.portnumber(53, 'tcp') 
