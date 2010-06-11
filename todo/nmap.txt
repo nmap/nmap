@@ -898,8 +898,13 @@ o The Nmap web page is beginning to show its age.  Ah, who am I
       development experience and an example XHTML+CSS web page you
       have created online.
     o We decided not to worry about XHTML for now, and we're
-     integrating CSS in piece by piece -- we already have the section
-    headers, left sidebar links. etc.
+      integrating CSS in piece by piece -- we already have the section
+      headers, left sidebar links. etc.
+    o Should not use SSI like the current pages -- should do all its
+      magic through CSS. That way it will work on seclists too (which
+      can't do SSI for security reasons).
+    o Maybe alpha transparency for menus, gradiants, curves, etc.  But
+      the main goal isn't flashiness.
 
 o Seclists.org should maybe be fixed so that it doesn't strip quoted
   text for its summaries from the IP list because that list consists
