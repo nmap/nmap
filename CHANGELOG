@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added dns-cache-snoop.nse by Eugene Alexeev. This script does
+  cache snooping by either sending non-recursive queries or by measuring
+  response times.
+
 o Ports are now considered open during a SYN scan if a SYN packet
   (without the ACK flag) is received in response. This can be due to
   an extremely rare TCP feature known as a simultaneous open or split
