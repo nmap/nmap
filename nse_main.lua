@@ -469,8 +469,9 @@ local function get_chosen_scripts (rules)
         print_debug(2, "Script %s was selected by name.", script.filename);
         files_loaded[path] = true;
       elseif t == "directory" then
-        for i, file in ipairs(cnse.dump_dir(path)) do
-          if not files_loaded[file] then
+        for f in cnse.dir(path) do
+          local file = path .."/".. f
+          if find(f, "%.nse$") and not files_loaded[file] then
             chosen_scripts[#chosen_scripts+1] = Script.new(file);
             files_loaded[file] = true;
           end

@@ -31,7 +31,9 @@
 #define NSE_SELECTED_BY_NAME "NSE_SELECTED_BY_NAME"
 #define NSE_CURRENT_HOSTS "NSE_CURRENT_HOSTS"
 
-#define MAX_FILENAME_LEN 4096
+#ifndef MAXPATHLEN
+#  define MAXPATHLEN 2048
+#endif
 
 extern NmapOps o;
 
@@ -123,39 +125,6 @@ static int port_set_output (lua_State *L)
   return 0;
 }
 
-static int fetchfile_absolute (lua_State *L)
-{
-  char path[MAX_FILENAME_LEN];
-  switch (nse_fetchfile_absolute(path, sizeof(path), luaL_checkstring(L, 1)))
-  {
-    case 0: // no such path
-      lua_pushnil(L);
-      lua_pushfstring(L, "no path to file/directory: %s", lua_tostring(L, 1));
-      break;
-    case 1: // file returned
-      lua_pushliteral(L, "file");
-      lua_pushstring(L, path);
-      break;
-    case 2: // directory returned
-      lua_pushliteral(L, "directory");
-      lua_pushstring(L, path);
-      break;
-    default:
-      return luaL_error(L, "nse_fetchfile_absolute returned bad code");
-  }
-  return 2;
-}
-
-static int dump_dir (lua_State *L)
-{
-  luaL_checkstring(L, 1);
-  lua_pushcclosure(L, nse_scandir, 0);
-  lua_pushvalue(L, 1);
-  lua_pushinteger(L, NSE_FILES);
-  lua_call(L, 2, 1);
-  return 1;
-}
-
 /* This must call the l_nsock_loop function defined in nse_nsock.cc.
  * That closure is created in luaopen_nsock in order to allow
  * l_nsock_loop to have access to the nsock library environment.
@@ -217,7 +186,7 @@ static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
     {"fetchfile_absolute", fetchfile_absolute},
-    {"dump_dir", dump_dir},
+    {"dir", nse_readdir},
     {"nsock_loop", nsock_loop},
     {"key_was_pressed", key_was_pressed},
     {"updatedb", updatedb},
@@ -230,6 +199,9 @@ static void open_cnse (lua_State *L)
     {"port_set_output", port_set_output},
     {NULL, NULL}
   };
+
+  /* create dir metatable */
+  luaopen_fs(L);
 
   lua_newtable(L);
   luaL_register(L, NULL, nse);
@@ -325,7 +297,13 @@ int script_updatedb (void)
     "local db = assert(open(path..'script.db', 'w'),\n"
     "  'could not open database for writing')\n"
     /* dump the scripts/categories */
-    "local scripts = nse.dump_dir(path)\n"
+    "local scripts = {}\n"
+    "for f in nse.dir(path) do\n"
+    "  if match(f, '%.nse$') then\n"
+    "    local file = path ..\"/\".. f\n"
+    "    table.insert(scripts, file)\n"
+    "  end\n"
+    "end\n"
     "table.sort(scripts)\n"
     "for i, script in ipairs(scripts) do\n"
     "  local env = setmetatable({}, {__index = _G})\n"
@@ -377,7 +355,7 @@ int script_updatedb (void)
 
 static int init_main (lua_State *L)
 {
-  char path[MAX_FILENAME_LEN];
+  char path[MAXPATHLEN];
   std::vector<std::string> *rules = (std::vector<std::string> *)
       lua_touserdata(L, 1);
 
@@ -397,7 +375,7 @@ static int init_main (lua_State *L)
   lua_setfield(L, LUA_REGISTRYINDEX, NSE_TRACEBACK); /* save copy */
 
   /* Load main Lua code, stack position 2 */
-  if (nmap_fetchfile(path, MAX_FILENAME_LEN, "nse_main.lua") != 1)
+  if (nmap_fetchfile(path, sizeof(path), "nse_main.lua") != 1)
     luaL_error(L, "could not locate nse_main.lua");
   if (luaL_loadfile(L, path) != 0)
     luaL_error(L, "could not load nse_main.lua: %s", lua_tostring(L, -1));

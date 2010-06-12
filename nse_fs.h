@@ -1,15 +1,10 @@
 #ifndef NSE_FS
 #define NSE_FS
 
-int nse_check_extension (const char* ext, const char* path);
+int fetchfile_absolute (lua_State *L);
 
-int nse_fetchfile(char *path, size_t path_len, const char *file);
+int nse_readdir (lua_State *L);
 
-int nse_fetchfile_absolute(char *path, size_t path_len, const char *file);
-
-int nse_scandir (lua_State *L);
-
-#define NSE_FILES 1
-#define NSE_DIRS  2
+int luaopen_fs (lua_State *L);
 
 #endif

@@ -4,7 +4,6 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-#include <vector>
 #include <string>
 #include <string.h>
 
@@ -18,7 +17,25 @@ extern "C" {
 #include "nmap_error.h"
 #include "NmapOps.h"
 
-#define MAX_FILENAME_LEN 4096
+#define DIR_METATABLE "dir"
+
+#ifndef MAXPATHLEN
+#   define MAXPATHLEN 2048
+#endif
+
+#ifndef MAX_DIR_LENGTH
+#   define MAX_DIR_LENGTH 1024
+#endif
+
+typedef struct dir_data {
+  int  closed;
+#ifdef WIN32
+  long hFile;
+  char pattern[MAX_DIR_LENGTH+1];
+#else
+  DIR *dir;
+#endif
+} dir_data;
 
 extern NmapOps o;
 
@@ -32,22 +49,7 @@ static bool filename_is_absolute(const char *file) {
   return false;
 }
 
-/* This is simply the most portable way to check
- * if a file has a given extension.
- * The portability comes at the price of reduced
- * flexibility.
- */
-int nse_check_extension (const char* ext, const char* path)
-{
-  int pathlen = strlen(path);
-  int extlen = strlen(ext);
-  if (extlen > pathlen || pathlen > MAX_FILENAME_LEN)
-    return 0;
-  else
-    return strcmp(path + pathlen - extlen, ext) == 0;
-}
-
-int nse_fetchfile(char *path, size_t path_len, const char *file) {
+static int nse_fetchfile(char *path, size_t path_len, const char *file) {
   int type = nmap_fetchfile(path, path_len, file);
 
   // lets look in <nmap>/scripts too
@@ -62,7 +64,7 @@ int nse_fetchfile(char *path, size_t path_len, const char *file) {
 /* This is a modification of nse_fetchfile that first looks for an
  * absolute file name.
  */
-int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
+static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
   if (filename_is_absolute(file)) {
     if (o.debugging > 1)
       log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
@@ -73,124 +75,159 @@ int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
   return nse_fetchfile(path, path_len, file);
 }
 
-#ifdef WIN32
-
-int nse_scandir (lua_State *L) {
-  HANDLE dir;
-  WIN32_FIND_DATA entry;
-  std::string path;
-  BOOL morefiles = FALSE;
-  const char *dirname = luaL_checkstring(L, 1);
-  int files_or_dirs = luaL_checkint(L, 2);
-
-  lua_createtable(L, 100, 0); // 100 files average
-
-  dir = FindFirstFile((std::string(dirname) + "\\*").c_str(), &entry);
-
-  if (dir == INVALID_HANDLE_VALUE)
+int fetchfile_absolute (lua_State *L)
+{
+  char path[MAXPATHLEN];
+  switch (nse_fetchfile_absolute(path, sizeof(path), luaL_checkstring(L, 1)))
   {
-    error("%s: No files in '%s\\*'", SCRIPT_ENGINE, dirname);
-    return 0;
+    case 0: // no such path
+      lua_pushnil(L);
+      lua_pushfstring(L, "no path to file/directory: %s", lua_tostring(L, 1));
+      break;
+    case 1: // file returned
+      lua_pushliteral(L, "file");
+      lua_pushstring(L, path);
+      break;
+    case 2: // directory returned
+      lua_pushliteral(L, "directory");
+      lua_pushstring(L, path);
+      break;
+    default:
+      return luaL_error(L, "nse_fetchfile_absolute returned bad code");
   }
-
-  while(!(morefiles == FALSE && GetLastError() == ERROR_NO_MORE_FILES)) {
-    // if we are looking for files and this file doesn't end with .nse or
-    // is a directory, then we don't look further at it
-    if(files_or_dirs == NSE_FILES) {
-      if(!((nse_check_extension(SCRIPT_ENGINE_EXTENSION, entry.cFileName))
-            && !(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-          )) {
-        morefiles = FindNextFile(dir, &entry);
-        continue;
-      }
-
-      // if we are looking for dirs and this dir
-      // isn't a directory, then we don't look further at it
-    } else if(files_or_dirs == NSE_DIRS) {
-      if(!(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-        morefiles = FindNextFile(dir, &entry);
-        continue;
-      }
-
-      // they have passed an invalid value for files_or_dirs
-    } else {
-      fatal("%s: In: %s:%i This should never happen.",
-        SCRIPT_ENGINE, __FILE__, __LINE__);
-    }
-
-    // otherwise we add it to the results
-    // we assume that dirname ends with a directory separator of some kind
-    path = std::string(dirname) + "\\" + std::string(entry.cFileName);
-    lua_pushstring(L, path.c_str());
-    lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
-    morefiles = FindNextFile(dir, &entry);
-  }
-
-
-  return 1;
+  return 2;
 }
 
+
+/* LuaFileSystem directory iterator port.
+ * 
+ * LuaFileSystem library:
+ * by Roberto Ierusalimschy, Andre Carregal and Tomas Guisasola
+ * as part of the Kepler Project.
+ * LuaFileSystem is currently maintained by Fabio Mascarenhas.
+ * 
+ * LuaFileSystem is a Lua library developed to complement the set
+ * of functions related to file systems offered by the standard
+ * Lua distribution.
+ * LuaFileSystem offers a portable way to access the underlying
+ * directory structure and file attributes.
+ *
+ * LuaFileSystem is free software and uses the same license as Lua 5.1.
+ * 
+ * the most recent copy can be found at
+ * http://www.keplerproject.org/luafilesystem/
+ *
+ * Note: this is a port of the LuaFileSystem directory iterator for the
+ * Nmap project http://nmap.org
+ **/
+
+/*
+** Directory iterator
+*/
+static int dir_iter (lua_State *L) {
+#ifdef WIN32
+  struct _finddata_t c_file;
 #else
-
-int nse_scandir (lua_State *L) {
-  DIR* dir;
-  struct dirent* entry;
-  struct stat stat_entry;
-  const char *dirname = luaL_checkstring(L, 1);
-  int files_or_dirs = luaL_checkint(L, 2);
-
-    lua_createtable(L, 100, 0); // 100 files average
-
-  dir = opendir(dirname);
-  if(dir == NULL) {
-    error("%s: Could not open directory '%s'.", SCRIPT_ENGINE, dirname);
+  struct dirent *entry;
+#endif
+  dir_data *d = (dir_data *)luaL_checkudata(L, 1, DIR_METATABLE);
+  luaL_argcheck(L, !d->closed, 1, "closed directory");
+#ifdef WIN32
+  if (d->hFile == 0L) { /* first entry */
+    if ((d->hFile = _findfirst(d->pattern, &c_file)) == -1L) {
+        lua_pushnil(L);
+        lua_pushstring(L, strerror (errno));
+        return 2;
+    } else {
+	lua_pushstring(L, c_file.name);
+	return 1;
+    }
+  } else { /* next entry */
+    if (_findnext(d->hFile, &c_file) == -1L) {
+      /* no more entries => close directory */
+      _findclose(d->hFile);
+      d->closed = 1;
+      return 0;
+    } else {
+        lua_pushstring(L, c_file.name);
+        return 1;
+    }
+  }
+#else
+  if ((entry = readdir(d->dir)) != NULL) {
+    lua_pushstring(L, entry->d_name);
+    return 1;
+  } else {
+    /* no more entries => close directory */
+    closedir(d->dir);
+    d->closed = 1;
     return 0;
   }
-
-  // note that if there is a symlink in the dir, we have to rely on
-  // the .nse extension
-  // if they provide a symlink to a dir which ends with .nse, things
-  // break :/
-  while((entry = readdir(dir)) != NULL) {
-    std::string path = std::string(dirname) + "/" + std::string(entry->d_name);
-
-    if(stat(path.c_str(), &stat_entry) != 0)
-      fatal("%s: In: %s:%i This should never happen.",
-        SCRIPT_ENGINE, __FILE__, __LINE__);
-
-    // if we are looking for files and this file doesn't end with .nse and
-    // isn't a file or a link, then we don't look further at it
-    if(files_or_dirs == NSE_FILES) {
-      if(!(nse_check_extension(SCRIPT_ENGINE_EXTENSION, entry->d_name)
-           && (S_ISREG(stat_entry.st_mode)
-               || S_ISLNK(stat_entry.st_mode))
-          )) {
-        continue;
-      }
-
-      // if we are looking for dirs and this dir
-      // isn't a dir or a link, then we don't look further at it
-    } else if(files_or_dirs == NSE_DIRS) {
-      if(!(S_ISDIR(stat_entry.st_mode)
-           || S_ISLNK(stat_entry.st_mode)
-          )) {
-        continue;
-      }
-
-      // they have passed an invalid value for files_or_dirs
-    } else {
-      fatal("%s: In: %s:%i This should never happen.",
-        SCRIPT_ENGINE, __FILE__, __LINE__);
-    }
-
-    // otherwise we add it to the results
-    lua_pushstring(L, path.c_str());
-    lua_rawseti(L, -2, lua_objlen(L, -2) + 1);
-  }
-
-  closedir(dir);
-
-  return 1;
+#endif
 }
 
+/*
+** Closes directory iterators
+*/
+static int dir_close (lua_State *L) {
+  dir_data *d = (dir_data *)lua_touserdata(L, 1);
+#ifdef WIN32
+  if (!d->closed && d->hFile) {
+    _findclose(d->hFile);
+    d->closed = 1;
+  }
+#else
+  if (!d->closed && d->dir) {
+    closedir(d->dir);
+    d->closed = 1;
+  }
 #endif
+  return 0;
+}
+
+/*
+** Factory of directory iterators
+*/
+int nse_readdir (lua_State *L) {
+  const char *dirname = luaL_checkstring(L, 1);
+  dir_data *d;
+  lua_pushcfunction(L, dir_iter);
+  d = (dir_data *)lua_newuserdata(L, sizeof(dir_data));
+  d->closed = 0;
+#ifdef  WIN32
+  d->hFile = 0L;
+  luaL_getmetatable(L, DIR_METATABLE);
+  lua_setmetatable(L, -2);
+  if (strlen(dirname) > MAX_DIR_LENGTH)
+    luaL_error(L, "%s: Path too long '%s'.", SCRIPT_ENGINE, dirname);
+  else
+    Snprintf(d->pattern, MAX_DIR_LENGTH, "%s/*", dirname);
+#else
+  luaL_getmetatable(L, DIR_METATABLE);
+  lua_setmetatable(L, -2);
+  d->dir = opendir(dirname);
+  if (d->dir == NULL)
+    luaL_error(L, "%s: Could not open directory '%s'.", SCRIPT_ENGINE, dirname);
+#endif
+  return 2;
+}
+
+int luaopen_fs(lua_State *L)
+{
+  /* create the dir metatable */
+  luaL_newmetatable(L, DIR_METATABLE);
+  lua_pushstring(L, "__index");
+  lua_newtable(L);
+  lua_pushstring(L, "next"); 
+  lua_pushcfunction(L, dir_iter);
+  lua_settable(L, -3);
+  lua_pushstring (L, "close");
+  lua_pushcfunction (L, dir_close);
+  lua_settable(L, -3);
+  lua_settable(L, -3);
+  lua_pushstring(L, "__gc");
+  lua_pushcfunction (L, dir_close);
+  lua_settable(L, -3);
+  lua_pop(L, 1);
+  return 0;
+}
