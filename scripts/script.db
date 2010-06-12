@@ -72,6 +72,7 @@ Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nfs-acls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-dirlist.nse", categories = { "discovery", "safe", } }
+Entry { filename = "nfs-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
