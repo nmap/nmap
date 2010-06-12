@@ -104,6 +104,7 @@ local NOTRUN     = 4
 local INFECTED   = 5
 local INFECTED2  = 6
 local CLEAN      = 7
+local NOTUP		 = 8
 
 ---Check if the server is patched for MS08-067. This is done by calling NetPathCompare with an 
 -- illegal string. If the string is accepted, then the server is vulnerable; if it's rejected, then
@@ -403,7 +404,7 @@ end
 --@param host Host object.
 --@return (status, result) If status is false, result is an error code; otherwise, result is either 
 --        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. If the check
---        was skipped, <code>NOTRUN</code> is returned. 
+--        was skipped, <code>NOTRUN</code> is returned. If the service is not active then <code>NOTUP</code>
 function check_ms06_025(host)
     --check for safety flag  
     if(nmap.registry.args.safe ~= nil) then
@@ -419,7 +420,7 @@ function check_ms06_025(host)
         err_msg = smb_result
         status, smb_result = msrpc.start_smb(host, msrpc.SRVSVC_PATH) --rras is accessible across SRVSVC pipe
         if(status == false) then
-        	return false, err_msg
+        	return false, NOTUP
         end
     end
     smbstate = smb_result
@@ -428,7 +429,7 @@ function check_ms06_025(host)
     status, bind_result = msrpc.bind(smbstate, msrpc.RASRPC_UUID, msrpc.RASRPC_VERSION, nil)
     if(status == false) then 
         msrpc.stop_smb(smbstate)
-        return false, bind_result
+        return false, NOTUP
     end
 	local req, buff, sr_result
 	req = msrpc.RRAS_marshall_RequestBuffer(
@@ -554,6 +555,8 @@ action = function(host)
 			table.insert(response, get_response("MS06-025", "VULNERABLE", nil, 0))
         elseif(result == NOTRUN) then
 			table.insert(response, get_response("MS06-025", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
+        elseif(result == NOTUP) then
+			table.insert(response, get_response("MS06-025", "NO SERVICE", "the vulnerable service is inactive", 1))
         else
 			table.insert(response, get_response("MS06-025", "NOT VULNERABLE", nil, 1))
         end
