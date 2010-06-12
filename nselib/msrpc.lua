@@ -311,7 +311,7 @@ local function call_function(smbstate, opnum, arguments)
 				0x18 + string.len(arguments), -- Frag length (0x18 = the size of this data)
 				0x0000,      -- Auth length
 				0x41414141,  -- Call ID (I use 'AAAA' because it's easy to recognize)
-				0x0 + string.len(arguments),  -- Alloc hint
+				0x00000038,  -- Alloc hint
 				0x0000,      -- Context ID
 				opnum,       -- Opnum
 				arguments
@@ -4347,4 +4347,173 @@ function get_share_info(host, name)
 	return true, netsharegetinfo_result
 end
 
+--####################################################################--
+--#		1) RRAS RASRPC INTERFACE
+--####################################################################--
+ROUTER_PATH = "\\router" --also can be reached across "\\srvsvc" pipe in WinXP
+RASRPC_UUID = string.char(0x36, 0x00, 0x61, 0x20, 0x22, 0xfa, 0xcf, 0x11, 0x98, 0x23, 0x00, 0xa0, 0xc9, 0x11, 0xe5, 0xdf)
+RASRPC_VERSION = 1
 
+--####################################################################--
+--#		2) RRAS RASRPC TYPES
+--####################################################################--
+
+--####################################################################--
+--typedef enum _ReqTypes{
+--	REQTYPE_PORTENUM = 21,//Request to enumerate all the port information on the RRAS.
+--	REQTYPE_GETINFO = 22,//Request to get information about a specific port on the RRAS.
+--	REQTYPE_GETDEVCONFIG = 73,//Request to get device information on the RRAS.
+--	REQTYPE_SETDEVICECONFIGINFO = 94,//Request to set device configuration information on RRAS.
+--	REQTYPE_GETDEVICECONFIGINFO = 95,//Request to get device configuration information on RRAS.
+--	REQTYPE_GETCALLEDID = 105,//Request to get CalledId information for a specific device on RRAS.
+--	REQTYPE_SETCALLEDID = 106,//Request to set CalledId information for a specific device on RRAS.
+--	REQTYPE_GETNDISWANDRIVERCAPS = 111//Request to get the encryption capabilities of the RRAS.
+--} ReqTypes;
+--- The <code>ReqTypes</code> enumerations indicate the different types of message requests that can be passed in
+--the <code>RB_ReqType</code> field of <code>RequestBuffer</code> structure.
+-- @see [MS-RRASM] <code>2.2.1.1.18 ReqTypes</code>
+--####################################################################--
+RRAS_RegTypes = {}
+RRAS_RegTypes['PORTENUM'] = 21
+RRAS_RegTypes['GETINFO'] = 22
+RRAS_RegTypes['GETDEVCONFIG'] = 73 --this method is vulnerable to ms06-025
+RRAS_RegTypes['SETDEVICECONFIGINFO'] = 94
+RRAS_RegTypes['GETDEVICECONFIGINFO'] = 95
+RRAS_RegTypes['GETCALLEDID'] = 105
+RRAS_RegTypes['SETCALLEDID'] = 106
+RRAS_RegTypes['GETNDISWANDRIVERCAPS'] = 111
+
+--####################################################################--
+--typedef struct _RequestBuffer {
+--	DWORD       RB_PCBIndex;//A unique identifier for the port.
+--	ReqTypes    RB_Reqtype;//A ReqTypes enumeration value indicating the request type sent to the server.
+--	DWORD       RB_Dummy;//MUST be set to the size of the ULONG_PTR on the client.
+--	DWORD       RB_Done;//MBZ
+--	LONGLONG    Alignment;//MBZ
+--	BYTE        RB_Buffer[1];//variable size
+--} RequestBuffer;
+--- The <code>RequestBuffer</code> is a generic information container used by the <code>RasRpcSubmitRequest</code>
+--method to set or retrieve information on RRAS server. This method performs
+--serialization of <code>RequestBuffer</code> structure.
+-- @return Returns a blob of <code>RequestBuffer</code> structure.
+-- @note This structure is not an IDL specification and as such is not translated into NDR.
+-- @see [MS-RRASM] <code>2.2.1.2.218 RequestBuffer</code>
+--####################################################################--
+function RRAS_marshall_RequestBuffer(RB_PCBIndex, RB_ReqType, RB_Buffer)
+	local rb_blob, RB_Dummy, RB_Done, Alignment
+	RB_Dummy = 4
+	RB_Done = 0
+	Alignment = 0
+	rb_blob = bin.pack("<IIIILA",
+		RB_PCBIndex,
+		RB_ReqType,
+		RB_Dummy,
+		RB_Done,
+		Alignment,
+		RB_Buffer)
+	return rb_blob
+end
+
+--####################################################################--
+--#		3) RRAS RASRPC OPERATIONS
+--####################################################################--
+local RRAS_DEBUG_LVL = 3 --debug level for rras operations when calling stdnse.print_debug
+
+--####################################################################--
+--- RRAS operation numbers.
+-- @see [MS-RRASM] <code>3.3.4 Message Processing Events and Sequencing Rules</code>
+--####################################################################--
+RRAS_Opnums = {}
+RRAS_Opnums["RasRpcDeleteEntry"] = 5
+RRAS_Opnums["RasRpcGetUserPreferences"] = 9
+RRAS_Opnums["RasRpcSetUserPreferences"] = 10
+RRAS_Opnums["RasRpcGetSystemDirectory"] = 11
+RRAS_Opnums["RasRpcSubmitRequest"] = 12
+RRAS_Opnums["RasRpcGetInstalledProtocolsEx"] = 14
+RRAS_Opnums["RasRpcGetVersion"] = 15
+
+--####################################################################--
+--DWORD RasRpcSubmitRequest(
+--	[in] handle_t hServer,//An RPC binding handle. (not send)
+--	[in, out, unique, size_is(dwcbBufSize)] PBYTE pReqBuffer,//A pointer to a buffer of size dwcbBufSize.
+--	[in] DWORD dwcbBufSize//Size in byte of pReqBuffer.
+--);
+---The RasRpcSubmitRequest method retrieves or sets the configuration data on RRAS server.
+-- @param smbstate The smb object.
+-- @param pReqBuffer The buffer MUST be large enough to hold the <code>RequestBuffer</code>
+--structure and <code>RequestBuffer.RB_Buffer</code> data. <code>RequestBuffer.RB_Reqtype</code>
+--specifies the request type which will be processed by the server and
+--<code>RequestBuffer.RB_Buffer</code> specifies the structure specific to <code>RB_Reqtype</code>
+--to be processed. <code>RequestBuffer.RB_PCBIndex<code> MUST be set to the unique port identifier
+--whose information is sought for <code>ReqTypes REQTYPE_GETINFO</code> and <code>REQTYPE_GETDEVCONFIG</code>.
+--For other valid <code>ReqTypes</code>, <code>RequestBuffer.RB_PCBIndex</code> MUST be set to zero.
+-- @param dwcbBufSize Integer representing the size of <code>pRegBuffer</code> in bytes.
+-- @return (status, result)
+--* <code>status == true</code> -> <code>result</code> is a blob that represent a <code>pRegBuffer</code> .
+--* <code>status == false</code> -> <code>result</code> is a error message that caused the fuzz.
+-- @see [MS-RRASM] <code>3.3.4.5 RasRpcSubmitRequest (Opnum 12)</code>
+--####################################################################--
+function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
+	--sanity check
+	if(dwcbBufSize == nil) then
+		dwcbBufSize = string.len(pReqBuffer)
+	end
+	--pack the request
+	local req_blob
+	--[in, out, unique, size_is(dwcbBufSize) PBYTE pReqBuffer,
+	req_blob = bin.pack("<IIAA", 0x20000, dwcbBufSize, pReqBuffer, get_pad(pReqBuffer,4)) --unique pointer see samba:ndr_push_unique_ptr
+	--[in] DWORD dwcbBufSize
+	req_blob = req_blob .. msrpctypes.marshall_int32(dwcbBufSize)
+	--call the function
+	local status, result
+	status, result = call_function(
+		smbstate,
+		RRAS_Opnums["RasRpcSubmitRequest"],
+		req_blob)
+	--sanity check
+	if(status == false) then
+		stdnse.print_debug(
+			RRAS_DEBUG_LVL,
+			"RRAS_SubmitRequest: Call function failed: %s",
+			result)
+		return false, result
+	end
+	--dissect the reply
+	local rep_blob
+	rep_blob = result
+	return true, rep_blob
+end
+
+
+--####################################################################--
+--#		UTILITY
+--###################################################################--
+
+--####################################################################--
+---Makes a pad for alignment
+-- @param data Data which needs to be padded for the sake of alignment.
+-- @param align Integer representing the alignment boundary.
+-- @param pad_byte The value for pad byte. 
+-- @return Returns the amount of pad calculated by <code>(align-datalen%align)%align</code>.
+--####################################################################--
+function get_pad(data, align, pad_byte)
+	pad_byte = pad_byte or "\00"
+	return string.rep(pad_byte, (align-string.len(data)%align)%align)
+end
+
+--####################################################################--
+---Generates a random string of the requested length.
+--@param length The length of the string to return.
+--@param set    The set of letters to choose from. Default: ASCII letters and numbers
+--@return The random string. 
+--####################################################################--
+function random_crap(length, charset)
+	charset = charset or "0123456789abcdefghijklmnoprstuvzxwyABCDEFGHIJKLMNOPRSTUVZXWY"
+	local random_str = ""
+	for i = 1, length, 1 do
+                local random = math.random(#charset)
+                random_str = random_str .. string.sub(charset, random, random)
+        end
+	return random_str
+end
+	

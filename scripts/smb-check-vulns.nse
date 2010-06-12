@@ -397,6 +397,61 @@ local function check_smbv2_dos(host)
 	return true, PATCHED
 end
 
+---Check the existence of ms06_025 vulnerability in Microsoft Remote Routing
+--and Access Service. This check is not safe as it crashes the RRAS service and
+--its dependencies.
+--@param host Host object.
+--@return (status, result) If status is false, result is an error code; otherwise, result is either 
+--        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. If the check
+--        was skipped, <code>NOTRUN</code> is returned. 
+function check_ms06_025(host)
+    --check for safety flag  
+    if(nmap.registry.args.safe ~= nil) then
+		return true, NOTRUN
+    end
+    if(nmap.registry.args.unsafe == nil) then
+        return true, NOTRUN
+    end
+    --create the SMB session
+    local status, smb_result, smbstate, err_msg
+    status, smb_result = msrpc.start_smb(host, msrpc.ROUTER_PATH)
+    if(status == false) then
+        err_msg = smb_result
+        status, smb_result = msrpc.start_smb(host, msrpc.SRVSVC_PATH) --rras is accessible across SRVSVC pipe
+        if(status == false) then
+        	return false, err_msg
+        end
+    end
+    smbstate = smb_result
+    --bind to RRAS service
+    local bind_result
+    status, bind_result = msrpc.bind(smbstate, msrpc.RASRPC_UUID, msrpc.RASRPC_VERSION, nil)
+    if(status == false) then 
+        msrpc.stop_smb(smbstate)
+        return false, bind_result
+    end
+	local req, buff, sr_result
+	req = msrpc.RRAS_marshall_RequestBuffer(
+		0x01, 
+		msrpc.RRAS_RegTypes['GETDEVCONFIG'], 
+		msrpc.random_crap(3000))
+	status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
+	--sanity check
+	if(status == false) then
+		stdnse.print_debug(
+			3,
+			"check_ms06_025: RRAS_SubmitRequest failed")
+		msrpc.stop_smb(smbstate)
+		if(sr_result == "NT_STATUS_PIPE_BROKEN") then
+			return true, VULNERABLE
+		else
+			return true, PATCHED
+		end
+	else
+		return true, PATHED
+	end
+end
+
 ---Returns the appropriate text to display, if any. 
 --
 --@param check The name of the check; for example, 'ms08-067'.
@@ -489,6 +544,20 @@ action = function(host)
 			table.insert(response, get_response("SMBv2 DoS (CVE-2009-3103)", "NOT VULNERABLE", nil, 1))
 		end
 	end
+
+    -- Check for ms06-025
+    status, result = check_ms06_025(host)
+    if(status == false) then
+		table.insert(response, get_response("MS06-025", "ERROR", result, 0, 1))
+    else
+        if(result == VULNERABLE) then
+			table.insert(response, get_response("MS06-025", "VULNERABLE", nil, 0))
+        elseif(result == NOTRUN) then
+			table.insert(response, get_response("MS06-025", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
+        else
+			table.insert(response, get_response("MS06-025", "NOT VULNERABLE", nil, 1))
+        end
+    end
 
 	return stdnse.format_output(true, response)
 end
