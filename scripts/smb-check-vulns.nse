@@ -441,13 +441,13 @@ function check_ms06_025(host)
 		stdnse.print_debug(
 			3,
 			"check_ms06_025: RRAS_SubmitRequest failed")
-		msrpc.stop_smb(smbstate)
 		if(sr_result == "NT_STATUS_PIPE_BROKEN") then
 			return true, VULNERABLE
 		else
 			return true, PATCHED
 		end
 	else
+		msrpc.stop_smb(smbstate)
 		return true, PATHED
 	end
 end
