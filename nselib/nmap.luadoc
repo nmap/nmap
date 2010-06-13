@@ -618,7 +618,7 @@ function pcap_close()
 -- local status, error = s:connect(host.ip, port.number, "ssl")
 -- if status then
 --     local cert = s:get_ssl_certificate()
---     local digest = s:digest("md5")
+--     local digest = cert:digest("md5")
 -- end
 function get_ssl_certificate()
 
