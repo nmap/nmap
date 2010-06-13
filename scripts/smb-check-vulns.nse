@@ -398,13 +398,18 @@ local function check_smbv2_dos(host)
 	return true, PATCHED
 end
 
+
 ---Check the existence of ms06_025 vulnerability in Microsoft Remote Routing
 --and Access Service. This check is not safe as it crashes the RRAS service and
 --its dependencies.
 --@param host Host object.
---@return (status, result) If status is false, result is an error code; otherwise, result is either 
---        <code>VULNERABLE</code> for vulnerable or <code>PATCHED</code> for not vulnerable. If the check
---        was skipped, <code>NOTRUN</code> is returned. If the service is not active then <code>NOTUP</code>
+--@return (status, result) 
+--*	<code>status == false</code> -> <code>result == NOTUP</code> which designates 
+--that the targeted Ras RPC service is not active.
+--*	<code>status == true</code> -> 
+--	** <code>result == VULNERABLE</code> for vulnerable.
+--	** <code>result == PATCHED</code> for not vulnerable.
+--	** <code>result == NOTRUN</code> if check skipped.
 function check_ms06_025(host)
     --check for safety flag  
     if(nmap.registry.args.safe ~= nil) then
@@ -437,6 +442,7 @@ function check_ms06_025(host)
 		msrpc.RRAS_RegTypes['GETDEVCONFIG'], 
 		msrpc.random_crap(3000))
 	status, sr_result = msrpc.RRAS_SubmitRequest(smbstate, req)
+	msrpc.stop_smb(smbstate)
 	--sanity check
 	if(status == false) then
 		stdnse.print_debug(
@@ -448,8 +454,58 @@ function check_ms06_025(host)
 			return true, PATCHED
 		end
 	else
-		msrpc.stop_smb(smbstate)
 		return true, PATHED
+	end
+end
+
+---Check the existence of ms07_029 vulnerability in Microsoft Dns Server service.
+--This check is not safe as it crashes the Dns Server RPC service its dependencies.
+--@param host Host object.
+--@return (status, result) 
+--*	<code>status == false</code> -> <code>result == NOTUP</code> which designates 
+--that the targeted Dns Server RPC service is not active.
+--*	<code>status == true</code> -> 
+--	** <code>result == VULNERABLE</code> for vulnerable.
+--	** <code>result == PATCHED</code> for not vulnerable.
+--	** <code>result == NOTRUN</code> if check skipped.
+function check_ms07_029(host)
+	--create the SMB session
+	local status, smbstate
+	status, smbstate = msrpc.start_smb(host, msrpc.DNSSERVER_PATH)
+	if(status == false) then
+		return false, NOTUP
+	end
+	--bind to DNSSERVER service
+	local bind_result
+	status, bind_result = msrpc.bind(smbstate, msrpc.DNSSERVER_UUID, msrpc.DNSSERVER_VERSION)
+	if(status == false) then
+		msrpc.stop_smb(smbstate)
+		stdnse.print_debug(
+			msrpc.DNSSERVER_DEBUG_LVL,
+			"DNSSERVER_Query: Bind failed: %s",
+			bind_result)
+		return false, NOTUP
+	end
+	--call
+	local req_blob, q_result
+	status, q_result = msrpc.DNSSERVER_Query(
+		smbstate, 
+		"VULNSRV", 
+		string.rep("\\\13", 1000), 
+		1)--any op num will do
+	--sanity check
+	msrpc.stop_smb(smbstate)
+	if(status == false) then
+		stdnse.print_debug(
+			3,
+			"check_ms07_029: DNSSERVER_Query failed")
+		if(q_result == "NT_STATUS_PIPE_BROKEN") then
+			return true, VULNERABLE
+		else
+			return true, PATCHED
+		end
+	else
+		return true, PATCHED
 	end
 end
 
@@ -548,17 +604,39 @@ action = function(host)
 
     -- Check for ms06-025
     status, result = check_ms06_025(host)
-    if(status == false) then
-		table.insert(response, get_response("MS06-025", "ERROR", result, 0, 1))
+  	if(status == false) then
+    	if(result == NOTUP) then
+			table.insert(response, get_response("MS06-025", "NO SERVICE", "the Ras RPC service is inactive", 1))
+		else
+			table.insert(response, get_response("MS06-025", "ERROR", result, 0, 1))
+		end
     else
         if(result == VULNERABLE) then
 			table.insert(response, get_response("MS06-025", "VULNERABLE", nil, 0))
         elseif(result == NOTRUN) then
 			table.insert(response, get_response("MS06-025", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
         elseif(result == NOTUP) then
-			table.insert(response, get_response("MS06-025", "NO SERVICE", "the vulnerable service is inactive", 1))
+			table.insert(response, get_response("MS06-025", "NO SERVICE", "the Ras RPC service is inactive", 1))
         else
 			table.insert(response, get_response("MS06-025", "NOT VULNERABLE", nil, 1))
+        end
+    end
+    
+    -- Check for ms07-029
+    status, result = check_ms07_029(host)
+    if(status == false) then
+    	if(result == NOTUP) then
+			table.insert(response, get_response("MS07-029", "NO SERVICE", "the Dns Server RPC service is inactive", 1))
+		else
+			table.insert(response, get_response("MS07-029", "ERROR", result, 0, 1))
+		end
+    else
+        if(result == VULNERABLE) then
+			table.insert(response, get_response("MS07-029", "VULNERABLE", nil, 0))
+        elseif(result == NOTRUN) then
+			table.insert(response, get_response("MS07-029", "CHECK DISABLED", "remove 'safe=1' argument to run", 1))
+        else
+			table.insert(response, get_response("MS07-029", "NOT VULNERABLE", nil, 1))
         end
     end
 

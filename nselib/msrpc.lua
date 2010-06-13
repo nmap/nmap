@@ -4417,7 +4417,7 @@ end
 --####################################################################--
 --#		3) RRAS RASRPC OPERATIONS
 --####################################################################--
-local RRAS_DEBUG_LVL = 3 --debug level for rras operations when calling stdnse.print_debug
+local RRAS_DEBUG_LVL = 2 --debug level for rras operations when calling stdnse.print_debug
 
 --####################################################################--
 --- RRAS operation numbers.
@@ -4466,6 +4466,9 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
 	req_blob = req_blob .. msrpctypes.marshall_int32(dwcbBufSize)
 	--call the function
 	local status, result
+	stdnse.print_debug(
+		RRAS_DEBUG_LVL,
+		"RRAS_SubmitRequest: Calling...")
 	status, result = call_function(
 		smbstate,
 		RRAS_Opnums["RasRpcSubmitRequest"],
@@ -4478,12 +4481,157 @@ function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
 			result)
 		return false, result
 	end
+	stdnse.print_debug(
+		RRAS_DEBUG_LVL,
+		"RRAS_SubmitRequest: Returned successfully")
 	--dissect the reply
 	local rep_blob
 	rep_blob = result
 	return true, rep_blob
 end
 
+--####################################################################--
+--#		1) DNS SERVER MANAGEMENT SERVICE INTERFACE
+--####################################################################--
+DNSSERVER_UUID_STR = "50abc2a4-574d-40b3-9d66-ee4fd5fba076"
+DNSSERVER_UUID = string.char(0xa4, 0xc2,0xab, 0x50, 0x4d, 0x57, 0xb3, 0x40, 0x9d, 0x66, 0xee, 0x4f, 0xd5, 0xfb, 0xa0, 0x76)
+DNSSERVER_PATH = "\\DNSSERVER"
+DNSSERVER_VERSION = 5
+
+--####################################################################--
+--#		2) DNS SERVER MANAGEMENT SERVICE TYPES
+--####################################################################--
+---The list of names that are used in (name, value) pairs in DNS Server
+--Configuration information is given below.
+-- @see [MS-DNSP] <code>3.1.1.1 DNS Server Configuration Information</code>
+DNSSERVER_ConfInfo =
+	{
+	DNSSERVER_IntProp = {},
+	DNSSERVER_AddrArrProp = {},
+	DNSSERVER_StrProp = {},
+	DNSSERVER_StrLstProp = {}
+	}
+
+--####################################################################--
+--#		3) DNS SERVER MANAGEMENT SERVICE OPERATIONS
+--####################################################################--
+local DNSSERVER_DEBUG_LVL = 2 --debug level for dnsserver operations when calling stdnse.print_debug
+
+--####################################################################--
+--- DNSSERVER operation numbers.
+-- @see [MS-DNSP] <code>3.1.4 Message Processing Events and Sequencing Rules</code>
+--####################################################################--
+DNSSERVER_Opnums = {}
+DNSSERVER_Opnums['R_DnssrvOperation'] = 0
+DNSSERVER_Opnums['R_DnssrvQuery'] = 1
+DNSSERVER_Opnums['R_DnssrvComplexOperation'] = 2
+DNSSERVER_Opnums['R_DnssrvEnumRecords'] = 3
+DNSSERVER_Opnums['R_DnssrvUpdateRecord'] = 4
+DNSSERVER_Opnums['R_DnssrvOperation2'] = 5
+DNSSERVER_Opnums['R_DnssrvQuery2'] = 6
+DNSSERVER_Opnums['R_DnssrvComplexOperation2'] = 7
+DNSSERVER_Opnums['R_DnssrvEnumRecords2'] = 8
+DNSSERVER_Opnums['R_DnssrvUpdateRecord2'] = 9
+
+--####################################################################--
+--[[
+LONG R_DnssrvQuery(
+  [in, unique, string] LPCWSTR pwszServerName,
+  [in, unique, string] LPCSTR pszZone,
+  [in, unique, string] LPCSTR pszOperation,
+  [out] PDWORD pdwTypeId,
+  [out, switch_is(*pdwTypeId)] DNSSRV_RPC_UNION* ppData);
+--]]
+---Issues type specific information queries to server. This method is
+--obsoleted by R_DnssrvQuery2.
+-- @param smbstate The smb object.
+-- @param server_name String that designates a fully qualified domain
+--name of the target server. The server MUST ignore this value.
+-- @param zone String that designates the name of the zone to be queried.
+--For operations specific to a particular zone, this field MUST contain
+--the name of the zone. For all other operations, this field MUST be nil.
+-- @param operation String that designates the name of the operation to
+--be performed on the server. These are two sets of allowed values for
+--pszOperation:
+--* <code>zone == nil</code> -> see DNSSERVER_ConfInfo table.
+--* <code>zone == "some_zone"</code> -> see DNSSERVER_ZoneInfo table.
+-- @return (status, result)
+--* <code>status == true</code> ->
+--that indicates the type of <code>result['data']</code>.
+--** <code>result['data']</code> - A DNSSRV_RPC_UNION blob that contains a
+--** <code>result['type_id']</code> - Integer that on success contains a value of type DNS_RPC_TYPEID
+--data-structure as indicated by <code>result['type_id']</code>.
+--* <code>status == false</code> ->
+--** <code>result</code> - Is a error message that caused the fuzz.
+-- @see [MS-DNSP] <code>3.1.4.2 R_DnssrvQuery (Opnum 1)</code>
+--####################################################################--
+function DNSSERVER_Query(smbstate, server_name, zone, operation)
+	local status
+	--call
+	local req_blob, srv_name_utf16, zone_ascii, operation_ascii
+	--[in, unique, string] LPCWSTR pwszServerName,
+	local unique_ptr
+  	unique_ptr = 0x00020000
+	srv_name_utf16 = msrpctypes.string_to_unicode(server_name, true)
+	req_blob = bin.pack("<IIIIAA",
+		unique_ptr,
+		string.len(srv_name_utf16)/2,
+		0,
+		string.len(srv_name_utf16)/2,
+		srv_name_utf16,
+		get_pad(srv_name_utf16, 4))
+	--[in, unique, string] LPCSTR pszZone,
+  	if(zone == nil) then
+		req_blob = bin.pack("<I", 0x00000000)
+	else
+		zone_ascii = zone .. string.char(0x00)
+		req_blob = req_blob .. bin.pack("<IIIIAA",
+			unique_ptr + 1,
+			string.len(zone_ascii),
+			0,
+			string.len(zone_ascii),
+			zone_ascii,
+			get_pad(zone_ascii, 4))
+	end
+	--[in, unique, string] LPCSTR pszOperation,
+  	operation_ascii = operation .. string.char(0x00)
+	req_blob = req_blob .. bin.pack("<IIIIAA",
+		unique_ptr+2,
+		string.len(operation_ascii),
+		0,
+		string.len(operation_ascii),
+		operation_ascii,
+		get_pad(operation_ascii, 4))
+
+	local call_result
+	stdnse.print_debug(
+		DNSSERVER_DEBUG_LVL,
+		"DNSSERVER_Query: Calling...")
+	status, call_result = call_function(
+		smbstate,
+		DNSSERVER_Opnums['R_DnssrvQuery'],
+		req_blob)
+	--sanity check
+	if(status == false) then
+		stdnse.print_debug(
+			DNSSERVER_DEBUG_LVL,
+			"DNSSERVER_Query: Call function failed: %s",
+			call_result)
+		return false, call_result
+	end
+	stdnse.print_debug(
+		DNSSERVER_DEBUG_LVL,
+		"DNSSERVER_Query: Returned successfully")
+	--dissect the reply
+	local rep_blob, pos, ptr, result
+	rep_blob = call_result['arguments']
+	--[out] PDWORD pdwTypeId,
+	result = {}
+	pos, result['type_id'] = msrpctypes.unmarshall_int32_ptr(rep_blob)
+	--[out, switch_is(*pdwTypeId)] DNSSRV_RPC_UNION* ppData) -- pointer_default(unique)
+	pos, ptr, result['data']= bin.unpack("<IA", rep_blob, pos)
+	return result
+end
 
 --####################################################################--
 --#		UTILITY
