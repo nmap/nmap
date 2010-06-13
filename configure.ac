@@ -549,6 +549,9 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
 # OpenSSL and NSE C modules can require dlopen
 AC_SEARCH_LIBS(dlopen, dl)
 
+# libpcap can require libnl
+AC_SEARCH_LIBS(nl_handle_alloc, nl)
+
 # They don't want lua
 if test "$no_lua" = "yes"; then
   CPPFLAGS="-DNOLUA $CPPFLAGS"
