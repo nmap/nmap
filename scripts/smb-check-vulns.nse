@@ -4,6 +4,8 @@ Check for vulnerabilities:
 * Conficker, an infection by the Conficker worm
 * Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2000
 * SMBv2 exploit (CVE-2009-3103, Microsoft Security Advisory 975497)
+* MS06-025, a Windows Ras RPC service vulnerablity
+* MS07-029, a Windows Dns Server RPC service vulnerability
 
 WARNING: These checks are dangerous, and are very likely to bring down a server. 
 These should not be run in a production environment unless you (and, more importantly,
@@ -51,6 +53,25 @@ and some versions of Windows 7, and causes a bluescreen if successful. The proof
 of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used, 
 with one small change. 
 
+MS06-025 -- vulnerability targets the RasRpcSumbitRequest() RPC method which is
+a part of RASRPC interface that serves as a RPC service for configuring and 
+getting information from the Remote Access and Routing service. RASRPC can be
+accessed using either "\ROUTER" SMB pipe or the "\SRVSVC" SMB pipe (usually on WinXP machines).
+This is in RPC world known as "ncan_np" RPC transport. RasRpcSumbitRequest()
+method is a generic method which provides different functionalities according
+to the RequestBuffer structure and particulary the RegType field within that 
+structure. RegType field is of enum ReqTypes type. This enum type lists all
+the different available operation that can be performed using the RasRpcSubmitRequest()
+RPC method. The one particular operation that this vuln targets is the REQTYPE_GETDEVCONFIG 
+request to get device information on the RRAS.
+
+MS07-029 -- vulnerability targets the R_DnssrvQuery() and R_DnssrvQuery2() RPC method which is
+a part of Dns Server RPC interface that serves as a RPC service for configuring and 
+getting information from the Dns Server service. Dns Server RPC service can be
+accessed using "\dnsserver" SMB named pipe. The vulnerability is triggered when
+a long string is send as the "zone" parameter which causes the buffer overflow which
+crashes the service.
+
 (Note: if you have other SMB/MSRPC vulnerability checks you'd like to see added, and
 you can show me a tool with a license that is compatible with Nmap's, post a request 
 on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]). 
@@ -62,11 +83,13 @@ on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]).
 --
 --@output
 -- Host script results:
--- |  smb-check-vulns:
--- |  |  MS08-067: NOT VULNERABLE
--- |  |  Conficker: Likely CLEAN
--- |  |  regsvc DoS: NOT VULNERABLE
--- |_ |_ SMBv2 DoS (CVE-2009-3103): NOT VULNERABLE
+-- | smb-check-vulns:  
+-- |   MS08-067: NOT VULNERABLE
+-- |   Conficker: Likely CLEAN
+-- |   regsvc DoS: regsvc DoS: NOT VULNERABLE
+-- |   SMBv2 DoS (CVE-2009-3103): NOT VULNERABLE
+-- |   MS06-025: NO SERVICE (the Ras RPC service is inactive)
+-- |_  MS07-029: NO SERVICE (the Dns Server RPC service is inactive)
 --
 -- @args unsafe If set, this script will run checks that, if the system isn't
 --       patched, are basically guaranteed to crash something. Remember that
@@ -419,13 +442,14 @@ function check_ms06_025(host)
         return true, NOTRUN
     end
     --create the SMB session
+    --first we try with the "\router" pipe, then the "\srvsvc" pipe.
     local status, smb_result, smbstate, err_msg
     status, smb_result = msrpc.start_smb(host, msrpc.ROUTER_PATH)
     if(status == false) then
         err_msg = smb_result
-        status, smb_result = msrpc.start_smb(host, msrpc.SRVSVC_PATH) --rras is accessible across SRVSVC pipe
+        status, smb_result = msrpc.start_smb(host, msrpc.SRVSVC_PATH) --rras is also accessible across SRVSVC pipe
         if(status == false) then
-        	return false, NOTUP
+        	return false, NOTUP --if not accessible across both pipes then service is inactive
         end
     end
     smbstate = smb_result
@@ -434,7 +458,11 @@ function check_ms06_025(host)
     status, bind_result = msrpc.bind(smbstate, msrpc.RASRPC_UUID, msrpc.RASRPC_VERSION, nil)
     if(status == false) then 
         msrpc.stop_smb(smbstate)
-        return false, NOTUP
+        return false, UNKNOWN --if bind operation results with a false status we can't conclude anything.
+    end
+    if(bind_result['ack_result'] == 0x02) then --0x02 == PROVIDER_REJECTION
+		msrpc.stop_smb(smbstate)
+        return false, NOTUP --if bind operation results with true but PROVIDER_REJECTION, then the service is inactive.
     end
 	local req, buff, sr_result
 	req = msrpc.RRAS_marshall_RequestBuffer(
@@ -454,7 +482,7 @@ function check_ms06_025(host)
 			return true, PATCHED
 		end
 	else
-		return true, PATHED
+		return true, PATCHED
 	end
 end
 
@@ -469,22 +497,25 @@ end
 --	** <code>result == PATCHED</code> for not vulnerable.
 --	** <code>result == NOTRUN</code> if check skipped.
 function check_ms07_029(host)
+ 	--check for safety flag  
+    if(nmap.registry.args.safe ~= nil) then
+		return true, NOTRUN
+    end
+    if(nmap.registry.args.unsafe == nil) then
+        return true, NOTRUN
+    end
 	--create the SMB session
 	local status, smbstate
 	status, smbstate = msrpc.start_smb(host, msrpc.DNSSERVER_PATH)
 	if(status == false) then
-		return false, NOTUP
+		return false, NOTUP --if not accessible across pipe then the service is inactive
 	end
 	--bind to DNSSERVER service
 	local bind_result
 	status, bind_result = msrpc.bind(smbstate, msrpc.DNSSERVER_UUID, msrpc.DNSSERVER_VERSION)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
-		stdnse.print_debug(
-			msrpc.DNSSERVER_DEBUG_LVL,
-			"DNSSERVER_Query: Bind failed: %s",
-			bind_result)
-		return false, NOTUP
+		return false, UNKNOWN --if bind operation results with a false status we can't conclude anything.
 	end
 	--call
 	local req_blob, q_result
