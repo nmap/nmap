@@ -9,10 +9,6 @@ o Create new default username list:
     and also a general list which we obtain from spidering from
     emails, etc.
 
-o Need to fix our current win32.zip distribution so that .svn files
-  aren't included (currently they are in nselib/data).  Will probably
-  be a simple adjustment to mswin32/Makefile.
-
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
   already have script classes which run once per port and once per
@@ -151,17 +147,6 @@ o Consider providing an option which causes Nmap to scan ALL IP
   the one which happens to be the first on the current list).  We then
   might want to make -A imply that option.  Here is a thread on the
   topic: http://seclists.org/nmap-dev/2010/q2/302
-
-o Fix bug where multiple targets with the same IP can end up in a
-  hostgroup and cause port scanning and probably OS detection to
-  misbehave.  An example is "nmap -F scanme2.nmap.org
-  scanme3.nmap.org". See this thread for details:
-  http://seclists.org/nmap-dev/2010/q2/322
-
-o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
-  http://seclists.org/nmap-dev/2010/q2/195
-  Better attachment at: http://seclists.org/nmap-dev/2010/q2/200
-  Need to decide on a domain list: http://seclists.org/nmap-dev/2010/q2/199
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
@@ -604,6 +589,21 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
+  http://seclists.org/nmap-dev/2010/q2/195
+  Better attachment at: http://seclists.org/nmap-dev/2010/q2/200
+  Need to decide on a domain list: http://seclists.org/nmap-dev/2010/q2/199
+
+o Fix bug where multiple targets with the same IP can end up in a
+  hostgroup and cause port scanning and probably OS detection to
+  misbehave.  An example is "nmap -F scanme2.nmap.org
+  scanme3.nmap.org". See this thread for details:
+  http://seclists.org/nmap-dev/2010/q2/322
+
+o Need to fix our current win32.zip distribution so that .svn files
+  aren't included (currently they are in nselib/data).  Will probably
+  be a simple adjustment to mswin32/Makefile.
 
 o Make Zenmap splash screen
 
