@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added additional vulnerability checks to smb-check-vulns.nse. These checks
+  are intrusive and have MS06-025, MS07-029 designations.
+  
 o [NSE] Added dns-cache-snoop.nse by Eugene Alexeev. This script does
   cache snooping by either sending non-recursive queries or by measuring
   response times.
