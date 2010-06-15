@@ -52,7 +52,7 @@ cyphers = function(cypher_list, len)
 
 	local ssl_cyphers = {
 -- (cut down) table of codes with their corresponding cyphers.
--- stolen from wireshark's 'epan/dissectors/packet-ssl-utils.h'
+-- inspired by Wireshark's 'epan/dissectors/packet-ssl-utils.h'
 		[0x010080] = "SSL2_RC4_128_WITH_MD5",
 		[0x020080] = "SSL2_RC4_128_EXPORT40_WITH_MD5",
 		[0x030080] = "SSL2_RC2_CBC_128_CBC_WITH_MD5",
@@ -133,7 +133,7 @@ action = function(host, port)
 	local cypher_list;
 	local connection_ID;
 
--- build client hello packet (contents stolen from
+-- build client hello packet (contents inspired by
 -- http://mail.nessus.org/pipermail/plugins-writers/2004-October/msg00041.html )
 	local t = {};
 	table.insert(t, string.char(0x80, 0x31));
