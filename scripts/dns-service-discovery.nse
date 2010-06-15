@@ -95,8 +95,8 @@ end
 -- @param b table containing second item
 -- @return true if the port of a is less than the port of b
 local function serviceCompare(a, b)
-	local port_a = a.name:match("^(%d+)")
-	local port_b = b.name:match("^(%d+)")
+	local port_a = a.name:match("^(%d+)") or 0
+	local port_b = b.name:match("^(%d+)") or 0
 		
 	if ( tonumber(port_a) < tonumber(port_b) ) then
 		return true
