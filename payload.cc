@@ -273,12 +273,14 @@ static int load_payloads_from_file(FILE *fp) {
       type = next_token(fp, &token);
     if (type == TOKEN_EOF)
       break;
-    if (type != TOKEN_SYMBOL || strcmp(token.text, "udp") != 0) {      fprintf(stderr, "Expected \"udp\" at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
+    if (type != TOKEN_SYMBOL || strcmp(token.text, "udp") != 0) {
+      fprintf(stderr, "Expected \"udp\" at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
       return -1;
     }
 
     type = next_token(fp, &token);
-    if (type != TOKEN_SYMBOL) {      fprintf(stderr, "Expected a port list at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
+    if (type != TOKEN_SYMBOL) {
+      fprintf(stderr, "Expected a port list at line %lu of %s.\n", line_no, PAYLOAD_FILENAME);
       return -1;
     }
     ports = parse_portlist(token.text, &count);
