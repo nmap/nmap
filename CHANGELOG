@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed captures in the mupdate service probe matches. This patch is
+  from Matt Selsky.
+
 o [NSE] Added additional vulnerability checks to smb-check-vulns.nse. These checks
   are intrusive and have MS06-025, MS07-029 designations.
   

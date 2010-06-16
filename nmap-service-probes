@@ -1283,10 +1283,10 @@ match multiplicity m|^MULTIPLICITYP$| p/Stardock Multiplicity KVM daemon/ o/Wind
 match mu-connect m|^\x7f\xba\xbe\xbf$| p/Webzen MU Online role-playing game connect/
 match mu-game m|^\x7f\xb2O\xbe\xbf\xad.\x8f\x8e\x8e\x8f\x88$| p/Webzen MU Online role-playing game server/
 
-# The "^(\* [^\r\n]+\r\n)*?" construct on these matches is much faster
+# The "^(?:\* [^\r\n]+\r\n)*?" construct on these matches is much faster
 # than just using the matches without an anchor.  -- Brandon
-match mupdate m|^(\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"\(master\)\"\r\n| p/Cyrus Murder Master/ h/$1/ v/$2/
-match mupdate m|^(\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mupdate://([-.\w]+)\"\r\n| p/Cyrus Murder Slave/ h/$1/ v/$2/ i/Master: $3/
+match mupdate m|^(?:\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"\(master\)\"\r\n| p/Cyrus Murder Master/ h/$1/ v/$2/
+match mupdate m|^(?:\* [^\r\n]+\r\n)*?\* OK MUPDATE \"([-.\w]+)\" \"Cyrus Murder\" \"v([-.\w]+)\" \"mupdate://([-.\w]+)\"\r\n| p/Cyrus Murder Slave/ h/$1/ v/$2/ i/Master: $3/
 
 softmatch napster m|^1$|
 
