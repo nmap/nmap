@@ -231,6 +231,9 @@
   more consistent with the rest of the modes, and may be a nice to have
   feature.
 
+* Bug in --icmp-advert-entry. Specified IPs are being set in host byte
+  order instead if in network byte order.
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
