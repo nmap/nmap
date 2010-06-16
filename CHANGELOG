@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Combined service match lines for Oracle Enterprise Manager Agent
+  into one more effective line. This patch is from Matt Selsky.
+
 o Fixed captures in the mupdate service probe matches. This patch is
   from Matt Selsky.
 

@@ -4988,7 +4988,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 3ware/([\d.]+)\r\n.*<title>3ware 3D
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: unknown\r\nLocation: https://xweb-ext/__extraweb__/\r\nSet-Cookie: EXTRAWEB_REFERER=| p/Aventail SSL VPN Concentrator http config/ d/security-misc/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nAccept: application/vnd\.syncml\+xml, application/vnd\.syncml\+wbxml\r\nCache-Control: no-store\r\nServer: MultiSync Plugin\r\n\r\nNo such file or directory\.|s p/SyncML PIM sync server for MultiSync/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: C4D/([\d.]+)\r\n| p/Cinema 4D Renderer http interface/ v/$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nX-ORCL-EMSV: [\d.]+\r\n.*<title>EMDAEMON</title>.*<H1>EMDAEMON</H1>|s p/Oracle Enterprise Management Agent httpd/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Close\r\nX-ORCL-EMSV: ([\d.]+)\r\n| p/Oracle Enterprise Manager Agent httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nServer: servermgrd\r\nWWW-Authenticate: Basic realm = \"Server Admin\"\r\n.*The server could not verify that you are authorized to access the requested content\.<P>\r\n<HR>\r\n</BODY></HTML>\r\n\r\n|s p/Apple Server Monitor http interface/ o/Mac OS X/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: BBC ([\d.]+) ; /Hewlett-Packard/OpenView/AutoDiscovery/com\.hp\.openview\.OvAgency\.OvAgencyCommand ([\d.]+)\r\n\r\n|s p/HP OpenView AutoDiscovery http interface/ v/$1/ i/BBC httpd $1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\d.]+)\r\n.*Server: Sun-Java-System/Application-Server\r\n|s p/Sun Java System Application Server httpd/ i/Servlet $1/
@@ -6758,8 +6758,6 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: CordaServer \(PopChartServer compati
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: WebSTAR/([\d.]+) ID/\d+\r\n|s p/WebSTAR/ v/$1/
 
 match honeypot m|^HTTP/1\.0 401 Unauthorized\r\n\r\n<BODY><HTML><H1>401 - Authorization Failed</H1></HTML></BODY>\0| p/Network Flight Recorder BackOfficer Friendly http honeypot/
-
-match oem-agent m|^HTTP/1\.1 400 Bad Request\r\nConnection: Close\r\nX-ORCL-EMSV: ([\d.]+)\r\n| p/Oracle Enterprise Manager Agent/ v/$1/
 
 # Maybe too specific?
 match hpilo-virtual-media m|^#\0\x04\0$| p/HP Integrated Lights Out Virtual Media/
