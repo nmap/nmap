@@ -234,6 +234,79 @@
 * Bug in --icmp-advert-entry. Specified IPs are being set in host byte
   order instead if in network byte order.
 
+* Decide if we want to allow things like "1074628148" or "0x400d8634" to
+  be treated as valid IP addresses.
+
+* Document that badsum-ip may not always work because the kernel may
+  correct the sum.
+
+* Control the case when user passes "--mtu 0". An assertion fails but
+  Nping should print a nicer message.
+
+* Improve error message for --mtu. We should probably allow mtu's bigger
+  than 2^16 but take that as a "dont fragment" request. Also, make
+  "rand" produce only valid MTUs (multiple of 8, etc).
+
+* Check out if --ip-options "RTUS 1.1.1.1 2.2.2.2" makes sense. It now
+  fails.
+
+* Make nping issue a warning when user supplies a payload in TCP-Connect
+  mode.
+
+* Check if there is any problem with -e "". Maybe we shouldn't let users
+  supply a NULL name, but make them use the "any" specifier. Add doc
+  about this and update the test description (MISC_12).
+
+* Fix little problem in TIMING_5. We need to detect the bogus time
+  before we actually pass the value to NpingOps. Nping is giving an
+  error but the bogus input is getting to far.
+
+* It may be nice to let users set the IP header lenght field. Maybe they
+  want to stress tcp/stacks with this.
+
+* Document what happens with the IP header length when user wants to
+  add uneven bytes of IP options. We are truncating the result, because
+  the header length is expressed in 32 bit words.
+
+* When passing "--tcp-flags 0x100" the error is not very accurate.
+  This is because parser_u8() fails and then Nping tries to resolve the
+  value letter by letter. Maybe we can parse_u32() it, and then check
+  if n<255 and print a better error message.
+
+* Fix division by zero exception:
+  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type echo --rate 0
+  ./test_nping.sh: line 83: 11690 Floating point exception"$@"
+
+* Investigate on ICMP preference levels. It's not clear whether there is
+  a standard encoding or not. The logic that parses this in Nping needs
+  to be reviewed.
+
+* Investigate into this:
+  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type ra --icmp-advert-entry 256.257.258.259,222
+  Invalid Router Advertising Entry specification: Unable to resolve 6628128
+  Apparently the call to outFatal() is specifying %d instead of %s, but
+  that's not being detected properly by the compiler, because we don't
+  get a warning. We have to do something like this:
+  void fatal(const char *fmt, ...)
+     __attribute__ ((noreturn))
+     __attribute__ ((format (printf, 1, 2)));
+  TODO: Look at the documentation to see what the numbers mean.
+  Probably one of the is the index of the format argument, and the
+  other is where the varargs start.
+
+* Split up libnetutil.cc into different source files.
+
+* Change overloaded functions in libnetutil that were refactored to
+  make them compile in C. Go back to the overloaded version if possible.
+
+* Correct BPF filter specs, to make the condition about the source
+  address apply everywhere.
+
+* Move grab_next_host_spec() and pals to netutil.
+
+* Investigate on nping's version if devname2ipaddr. Think about side
+  effects on using that in Nmap.
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
