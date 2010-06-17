@@ -299,13 +299,14 @@
 * Change overloaded functions in libnetutil that were refactored to
   make them compile in C. Go back to the overloaded version if possible.
 
-* Correct BPF filter specs, to make the condition about the source
-  address apply everywhere.
-
 * Move grab_next_host_spec() and pals to netutil.
 
 * Investigate on nping's version if devname2ipaddr. Think about side
   effects on using that in Nmap.
+
+* Investigate why ARP replies are not being received. Wireshark shows
+  replies but they don't get captured by Nping. The bpf filter looks
+  ok: "arp and arp[6]==0x00 and arp[7]==0x02"
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -501,3 +502,6 @@
 [DONE] Do small fix in nmap's send_ip_packet_sd()
     -   res = Sendto("send_ip_packet", sd, packet, packetlen, 0,
     +   res = Sendto("send_ip_packet_sd", sd, packet, packetlen, 0,
+
+[DONE] Correct BPF filter specs, to make the condition about the source
+  address apply everywhere.
