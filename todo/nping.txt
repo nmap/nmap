@@ -215,9 +215,6 @@
 * Decide if we want to allow things like "1074628148" or "0x400d8634" to
   be treated as valid IP addresses.
 
-* Document that badsum-ip may not always work because the kernel may
-  correct the sum.
-
 * Control the case when user passes "--mtu 0". An assertion fails but
   Nping should print a nicer message.
 
@@ -235,10 +232,6 @@
   supply a NULL name, but make them use the "any" specifier. Add doc
   about this and update the test description (MISC_12).
 
-* Fix little problem in TIMING_5. We need to detect the bogus time
-  before we actually pass the value to NpingOps. Nping is giving an
-  error but the bogus input is getting to far.
-
 * It may be nice to let users set the IP header lenght field. Maybe they
   want to stress tcp/stacks with this.
 
@@ -251,26 +244,9 @@
   value letter by letter. Maybe we can parse_u32() it, and then check
   if n<255 and print a better error message.
 
-* Fix division by zero exception:
-  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type echo --rate 0
-  ./test_nping.sh: line 83: 11690 Floating point exception"$@"
-
 * Investigate on ICMP preference levels. It's not clear whether there is
   a standard encoding or not. The logic that parses this in Nping needs
   to be reviewed.
-
-* Investigate into this:
-  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type ra --icmp-advert-entry 256.257.258.259,222
-  Invalid Router Advertising Entry specification: Unable to resolve 6628128
-  Apparently the call to outFatal() is specifying %d instead of %s, but
-  that's not being detected properly by the compiler, because we don't
-  get a warning. We have to do something like this:
-  void fatal(const char *fmt, ...)
-     __attribute__ ((noreturn))
-     __attribute__ ((format (printf, 1, 2)));
-  TODO: Look at the documentation to see what the numbers mean.
-  Probably one of the is the index of the format argument, and the
-  other is where the varargs start.
 
 * Split up libnetutil.cc into different source files.
 
@@ -281,10 +257,6 @@
 
 * Investigate on nping's version if devname2ipaddr. Think about side
   effects on using that in Nmap.
-
-* Investigate why ARP replies are not being received. Wireshark shows
-  replies but they don't get captured by Nping. The bpf filter looks
-  ok: "arp and arp[6]==0x00 and arp[7]==0x02"
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -503,3 +475,31 @@
 
 [DONE] Bug in --icmp-advert-entry. Specified IPs are being set in host byte
   order instead if in network byte order.
+
+[DONE] Investigate why ARP replies are not being received. Wireshark shows
+  replies but they don't get captured by Nping. The bpf filter looks
+  ok: "arp and arp[6]==0x00 and arp[7]==0x02"
+
+[DONE] Investigate into this:
+  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type ra --icmp-advert-entry 256.257.258.259,222
+  Invalid Router Advertising Entry specification: Unable to resolve 6628128
+  Apparently the call to outFatal() is specifying %d instead of %s, but
+  that's not being detected properly by the compiler, because we don't
+  get a warning. We have to do something like this:
+  void fatal(const char *fmt, ...)
+     __attribute__ ((noreturn))
+     __attribute__ ((format (printf, 1, 2)));
+  TODO: Look at the documentation to see what the numbers mean.
+  Probably one of the is the index of the format argument, and the
+  other is where the varargs start.
+
+[DONE] Fix division by zero exception:
+  sudo nping --icmp scanme.nmap.org -vvv -d1 --icmp-type echo --rate 0
+  ./test_nping.sh: line 83: 11690 Floating point exception"$@"
+
+[DONE] Fix little problem in TIMING_5. We need to detect the bogus time
+  before we actually pass the value to NpingOps. Nping is giving an
+  error but the bogus input is getting to far.
+
+[DONE] Document that badsum-ip may not always work because the kernel may
+  correct the sum.
