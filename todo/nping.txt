@@ -48,9 +48,6 @@
  * Things that have NOT been done yet                                        *
  *****************************************************************************/
 
-* Fix possible bug in BPF filter specification. More details in 
-  http://seclists.org/nmap-dev/2010/q2/252
-
 * Fix Windows rtt values.  Right now Nsock does not seem to be giving
   the callback at the proper time, or something.
 
@@ -85,14 +82,10 @@
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
 
-* Include new proc-ipv6-related functions into libdnet
-
 * Implement TCP options
 
 * The "Register Nping path" in the windows installer does not work and needs
   to be fixed.
-
-* Work on nping&nmap code merge.
 
 * Improve IPv6 support. We need to test it in many platforms to see how it
   behaves.
@@ -118,9 +111,6 @@
   to his tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
   
-* For options that take numbers we need to allow users to specify them 
-  also in hex with the format 0xNNNN...
-
 * Disable ARP resolution when --source-mac is specified.
 
 * Implement --data-file option. What should we do if file is big? Read the
@@ -197,15 +187,6 @@
     + If you wish to contribute code to Nping there is a TO-DO list you can have 
     + a look at (file "todo/nping.txt" in nmap's source package).
 
-* Replace this pattern:
-	if ( isNumber_u32(optarg) ){
-		u32 aux32 = strtoul( optarg, NULL, 10);
-		...
-	}
-  with a function that checks for syntax and returns the value (i.e., a wrapper
-  around strtoul). There is nowhere that isNumber_u* is called without it being
-  immediately followed by a strtoul, outside of utils.cc.
-
 * In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
   returns something different to DLT_EN10MB, and Nping fatals. Investigate
   why this happens to nping and is not a problem for Nmap. Also, determine
@@ -230,9 +211,6 @@
   payload to this mode is really trivial, would make the payload spec
   more consistent with the rest of the modes, and may be a nice to have
   feature.
-
-* Bug in --icmp-advert-entry. Specified IPs are being set in host byte
-  order instead if in network byte order.
 
 * Decide if we want to allow things like "1074628148" or "0x400d8634" to
   be treated as valid IP addresses.
@@ -505,3 +483,23 @@
 
 [DONE] Correct BPF filter specs, to make the condition about the source
   address apply everywhere.
+
+[DONE] Fix possible bug in BPF filter specification. More details in 
+  http://seclists.org/nmap-dev/2010/q2/252
+
+[DONE] Work on nping&nmap code merge.
+
+[DONE] For options that take numbers we need to allow users to specify them 
+  also in hex with the format 0xNNNN...
+
+[DONE] Replace this pattern:
+	if ( isNumber_u32(optarg) ){
+		u32 aux32 = strtoul( optarg, NULL, 10);
+		...
+	}
+  with a function that checks for syntax and returns the value (i.e., a wrapper
+  around strtoul). There is nowhere that isNumber_u* is called without it being
+  immediately followed by a strtoul, outside of utils.cc.
+
+[DONE] Bug in --icmp-advert-entry. Specified IPs are being set in host byte
+  order instead if in network byte order.
