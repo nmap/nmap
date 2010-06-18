@@ -228,15 +228,6 @@
 * It may be nice to let users set the IP header lenght field. Maybe they
   want to stress tcp/stacks with this.
 
-* Document what happens with the IP header length when user wants to
-  add uneven bytes of IP options. We are truncating the result, because
-  the header length is expressed in 32 bit words.
-
-* When passing "--tcp-flags 0x100" the error is not very accurate.
-  This is because parser_u8() fails and then Nping tries to resolve the
-  value letter by letter. Maybe we can parse_u32() it, and then check
-  if n<255 and print a better error message.
-
 * Investigate on ICMP preference levels. It's not clear whether there is
   a standard encoding or not. The logic that parses this in Nping needs
   to be reviewed.
@@ -506,3 +497,13 @@
 [DONE] Improve error message for --mtu. We should probably allow mtu's bigger
   than 2^16 but take that as a "dont fragment" request. Also, make
   "rand" produce only valid MTUs (multiple of 8, etc).
+
+[DONE] When passing "--tcp-flags 0x100" the error is not very accurate.
+  This is because parser_u8() fails and then Nping tries to resolve the
+  value letter by letter. Maybe we can parse_u32() it, and then check
+  if n<255 and print a better error message.
+
+[DONE] Document what happens with the IP header length when user wants to
+  add uneven bytes of IP options. We are truncating the result, because
+  the header length is expressed in 32 bit words.
+
