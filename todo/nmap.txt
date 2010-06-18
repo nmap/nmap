@@ -45,6 +45,8 @@ o [NSE] Review Gutek's PHP version disclosure script.
 o [Zenmap] Investigate failure to start on some installations of OS X
   10.6.3.
   http://seclists.org/nmap-dev/2010/q2/587
+  http://seclists.org/nmap-dev/2010/q2/859 (He responded to David
+  privately and said that it was not an I7 processor.)
   Nmap seems to be having problems too:
   http://seclists.org/nmap-dev/2010/q2/747
 
