@@ -1,6 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o [NSE] Review UnrealIRCd backdoor detection script
+  http://seclists.org/nmap-dev/2010/q2/854
 
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
@@ -35,15 +36,24 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
   Nmap survey respondants complained about this too.
 
-o [NSE] Review Gutek's web server directory traversal script
+o [NSE] Review Gutek's web server directory traversal script.
+  http://seclists.org/nmap-dev/2010/q2/595
+
+o [NSE] Review Gutek's PHP version disclosure script.
+  http://seclists.org/nmap-dev/2010/q2/569
 
 o [Zenmap] Investigate failure to start on some installations of OS X
   10.6.3.
+  http://seclists.org/nmap-dev/2010/q2/587
+  Nmap seems to be having problems too:
+  http://seclists.org/nmap-dev/2010/q2/747
 
 o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
+  http://seclists.org/nmap-dev/2010/q2/754
 
-o [NSE] Review Gutek's libopei detection/DOS script
+o [NSE] Review Gutek's libopie detection/DOS script.
+  http://seclists.org/nmap-dev/2010/q2/635
 
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)
