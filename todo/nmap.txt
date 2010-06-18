@@ -43,6 +43,14 @@ o [NSE] Consider using .idl files rather than manually coding all the
   application in nmap-private-dev which converts .idl files to LUA
   code for nmap/nselib. Consider adapting the pidl utility from Samba.
 
+o The latest IANA services file
+  (http://www.iana.org/assignments/port-numbers) has many identified
+  services which are still "unknown" in our files because ours is
+  based on a much older version of that file.  We should probably take
+  that file and add names and comments to our nmap-services-all where
+  they are "unknown" in our file.  An example of such a port is 3872,
+  oem-agent.
+
 o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   This file is not included in the official WinPcap 4.1.1 developers'
   pack
