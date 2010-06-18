@@ -215,13 +215,6 @@
 * Decide if we want to allow things like "1074628148" or "0x400d8634" to
   be treated as valid IP addresses.
 
-* Control the case when user passes "--mtu 0". An assertion fails but
-  Nping should print a nicer message.
-
-* Improve error message for --mtu. We should probably allow mtu's bigger
-  than 2^16 but take that as a "dont fragment" request. Also, make
-  "rand" produce only valid MTUs (multiple of 8, etc).
-
 * Check out if --ip-options "RTUS 1.1.1.1 2.2.2.2" makes sense. It now
   fails.
 
@@ -252,6 +245,9 @@
 
 * Investigate on nping's version if devname2ipaddr. Think about side
   effects on using that in Nmap.
+
+* After merging nmap-dedup, change send_frag_ip_packet() to take "u32 mtu"
+  and fix the printf below to use "%u" instead of "%i".
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -503,3 +499,10 @@
   make them compile in C. Go back to the overloaded version if possible.
 
 [DONE] Move grab_next_host_spec() and pals to netutil.
+
+[DONE] Control the case when user passes "--mtu 0". An assertion fails but
+  Nping should print a nicer message.
+
+[DONE] Improve error message for --mtu. We should probably allow mtu's bigger
+  than 2^16 but take that as a "dont fragment" request. Also, make
+  "rand" produce only valid MTUs (multiple of 8, etc).
