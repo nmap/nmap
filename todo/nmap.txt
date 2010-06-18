@@ -1,5 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o [NSE] Review UnrealIRCd backdoor detection script
+
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -32,6 +34,16 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
   Nmap survey respondants complained about this too.
+
+o [NSE] Review Gutek's web server directory traversal script
+
+o [Zenmap] Investigate failure to start on some installations of OS X
+  10.6.3.
+
+o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
+  supported.
+
+o [NSE] Review Gutek's libopei detection/DOS script
 
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)
@@ -190,6 +202,9 @@ o [Zenmap] Consider a couple ideas from Norris Carden
   (http://seclists.org/nmap-dev/2010/q2/228):
  - remember last save and/or open location for new saves and/or opens
  - default save location option
+
+o Revive the Nmap Public Source License project (need to find an open
+  source attorney to review it).  http://nmap.org/npsl/
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
