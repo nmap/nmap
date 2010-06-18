@@ -41,6 +41,7 @@ Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } 
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }

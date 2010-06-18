@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added http-php-version.nse from Gutek. This script retrieves
+  version-specific pages through a couple of magic PHP queries, which
+  can identify the PHP version even when a server doesn't advertise
+  it.
+
 o Combined service match lines for Oracle Enterprise Manager Agent
   into one more effective line. This patch is from Matt Selsky.
 
