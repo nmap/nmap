@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed name resolution in environments where gethostbyname can return
+  IPv6 (or other non-IPv4 addresses). In such an environment, Nmap
+  would wrongly use the first four bytes of the IPv6 address as an
+  IPv4 address. You could force this, at least on Debian, by adding
+  the line "options inet6" to /etc/resolv.conf or by running with
+  RES_OPTIONS=inet6 in the environment. This was reported by Mats Erik
+  Andersson, who also suggested the fix. [David]
+
 o Added http-php-version.nse from Gutek. This script retrieves
   version-specific pages through a couple of magic PHP queries, which
   can identify the PHP version even when a server doesn't advertise
