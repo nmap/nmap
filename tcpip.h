@@ -436,6 +436,11 @@ struct icmp
 */
 const char *inet_socktop(struct sockaddr_storage *ss);
 /* Tries to resolve the given name (or literal IP) into a sockaddr
+   structure. This function calls getaddrinfo and returns the same
+   addrinfo linked list that getaddrinfo produces. Returns NULL for any
+   error or failure to resolve. */
+struct addrinfo *resolve_all(char *hostname, int pf);
+/* Tries to resolve the given name (or literal IP) into a sockaddr
    structure.  The af should be PF_INET (for IPv4) or PF_INET6.  Returns 0
    if hostname cannot be resolved.  It is OK to pass in a sockaddr_in or 
    sockaddr_in6 casted to a sockaddr_storage as long as you use the matching 

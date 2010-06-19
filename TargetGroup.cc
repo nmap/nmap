@@ -92,6 +92,7 @@
 
 /* $Id$ */
 
+#include "tcpip.h"
 #include "TargetGroup.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
@@ -159,7 +160,6 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
   char *r,*s, *target_net;
   char *addy[5];
   char *hostexp = strdup(target_expr);
-  struct hostent *target;
   namedhost = 0;
 
   if (targets_type != TYPE_NONE)
@@ -203,35 +203,37 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         break;
       }
     if (netmask != 32 || namedhost) {
-      struct in_addr addr;
+      struct addrinfo *addrs, *addr;
+      struct sockaddr_storage ss;
+      size_t sslen;
 
       targets_type = IPV4_NETMASK;
-      if (!inet_pton(AF_INET, target_net, &(addr))) {
-        if ((target = gethostbyname(target_net))) {
-          int count=0;
-
-          memcpy(&(addr), target->h_addr_list[0], sizeof(addr));
-
-          while (target->h_addr_list[count]) {
-            struct sockaddr_storage ss;
-            struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
-
-            sin->sin_family = AF_INET;
-            memcpy(&sin->sin_addr, target->h_addr_list[count], sizeof(sin->sin_addr));
-            resolvedaddrs.push_back(ss);
-            count++;
-          }
-
-          if (count > 1 && o.verbose > 1)
-             error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, count, inet_ntoa(*((struct in_addr *)target->h_addr_list[0])));
-        } else {
-          error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
-          free(hostexp);
-          return 1;
+      addrs = resolve_all(target_net, AF_INET);
+      for (addr = addrs; addr != NULL; addr = addr->ai_next) {
+        if (addr->ai_family != AF_INET)
+          continue;
+        if (addr->ai_addrlen < sizeof(ss)) {
+          memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
+          resolvedaddrs.push_back(ss);
         }
-      } 
+      }
+      freeaddrinfo(addrs);
+
+      if (resolvedaddrs.empty()) {
+        error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
+        free(hostexp);
+        return 1;
+      } else {
+        ss = *resolvedaddrs.begin();
+        sslen = sizeof(ss);
+      }
+
+      if (resolvedaddrs.size() > 1 && o.verbose > 1)
+        error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
+
       if (netmask) {
-        unsigned long longtmp = ntohl(addr.s_addr);
+        struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
+        unsigned long longtmp = ntohl(sin->sin_addr.s_addr);
         startaddr.s_addr = longtmp & (unsigned long) (0 - (1<<(32 - netmask)));
         endaddr.s_addr = longtmp | (unsigned long)  ((1<<(32 - netmask)) - 1);
       } else {
