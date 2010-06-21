@@ -30,6 +30,7 @@ Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", 
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }

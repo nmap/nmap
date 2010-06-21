@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ftp-libopie.nse by Gutek. This script checks for an
+  off-by-one stack overflow vulnerability in libopie by giving the FTP
+  service an overlong name. See
+  http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc for
+  details.
+
 o Fixed name resolution in environments where gethostbyname can return
   IPv6 (or other non-IPv4 addresses). In such an environment, Nmap
   would wrongly use the first four bytes of the IPv6 address as an
