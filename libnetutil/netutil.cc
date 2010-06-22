@@ -3188,10 +3188,10 @@ int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned i
  * which gives us a right to cut TCP header after 8th byte
  * (shouldn't we inflate the header to 60 bytes too?) */
 int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
-                        unsigned int packetlen, unsigned int mtu) {
+                        unsigned int packetlen, u32 mtu) {
   struct ip *ip = (struct ip *) packet;
   int headerlen = ip->ip_hl * 4; // better than sizeof(struct ip)
-  unsigned int datalen = packetlen - headerlen;
+  u32 datalen = packetlen - headerlen;
   int fdatalen = 0, res = 0;
   int fragment=0;
 
@@ -3200,7 +3200,7 @@ int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
   assert(mtu > 0 && mtu % 8 == 0); // otherwise, we couldn't set Fragment offset (ip->ip_off) correctly
 
   if (datalen <= mtu) {
-    netutil_error("Warning: fragmentation (mtu=%i) requested but the payload is too small already (%i)", mtu, datalen);
+    netutil_error("Warning: fragmentation (mtu=%lu) requested but the payload is too small already (%lu)", (unsigned long)mtu, (unsigned long)datalen);
     return send_ip_packet_eth_or_sd(sd, eth, packet, packetlen);
   }
 

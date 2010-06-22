@@ -406,7 +406,7 @@ int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned i
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte */
 int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
-                        unsigned int packetlen, unsigned int mtu);
+                        unsigned int packetlen, u32 mtu);
 
 /* Wrapper for system function sendto(), which retries a few times when
  * the call fails. It also prints informational messages about the
