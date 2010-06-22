@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a brand new library, libnetutil, which contains networking related
+  code that was being used by Nmap and Nping but was duplicated, stored
+  in two different places. With the creation of this library, around 2,700 
+  lines of code are now shared by Nmap and Nping and kept in a single location.
+
 o [NSE] Added ftp-libopie.nse by Gutek. This script checks for an
   off-by-one stack overflow vulnerability in libopie by giving the FTP
   service an overlong name. See
