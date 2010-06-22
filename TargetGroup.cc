@@ -229,7 +229,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
       }
 
       if (resolvedaddrs.size() > 1 && o.verbose > 1)
-        error("Warning: Hostname %s resolves to %d IPs. Using %s.", target_net, resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
+        error("Warning: Hostname %s resolves to %lu IPs. Using %s.", target_net, (unsigned long)resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
 
       if (netmask) {
         struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
