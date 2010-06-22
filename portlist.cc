@@ -98,6 +98,7 @@
 #include "protocols.h"
 #include "nmap_rpc.h"
 #include "tcpip.h"
+#include "libnetutil/netutil.h"
 
 using namespace std;
 
@@ -503,7 +504,7 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
   if ((state == PORT_OPEN && o.verbose) || (o.debugging > 1)) {
     log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s\n",
 	      statenum2str(state), portno, 
-	      proto2ascii(protocol), idstr? idstr : "");
+	      proto2ascii_lowercase(protocol), idstr? idstr : "");
     log_flush(LOG_STDOUT);
   }
 
@@ -521,7 +522,7 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
     /* We must discount our statistics from the old values.  Also warn
        if a complete duplicate */
     if (o.debugging && oldport->state == state) {
-      error("Duplicate port (%hu/%s)", portno, proto2ascii(protocol));
+      error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
     } 
     state_counts_proto[proto][oldport->state]--;
   } else {
@@ -716,7 +717,7 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
 
   if (o.verbose) {  
     log_write(LOG_STDOUT, "Deleting port %hu/%s, which we thought was %s\n",
-	      portno, proto2ascii(answer->proto),
+	      portno, proto2ascii_lowercase(answer->proto),
 	      statenum2str(answer->state));
     log_flush(LOG_STDOUT);
   }    

@@ -105,6 +105,8 @@
 #include "Target.h"
 #include "utils.h"
 #include "xml.h"
+#include "nbase.h"
+#include "libnetutil/netutil.h"
 
 #include <math.h>
 
@@ -251,9 +253,6 @@ void win32_warn_raw_sockets(const char *devname) {
   }
 }
 
-/* From tcpip.cc. */
-bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
-
 /* Display the mapping from libdnet interface names (like "eth0") to WinPcap
    interface names (like "\Device\NPF_{...}"). This is the same mapping used by
    eth_open and so can help diagnose connection problems.  Additionally display
@@ -325,11 +324,17 @@ int print_iflist(void) {
   struct interface_info *iflist;
   struct sys_route *routes;
   NmapOutputTable *Tbl = NULL;
-  iflist = getinterfaces(&numifs);
+  char errstr[256];
+  errstr[0]='\0';
+  
+  iflist = getinterfaces(&numifs, errstr, sizeof(errstr));
+ 
   int i;
   /* First let's handle interfaces ... */
-  if (numifs == 0) {
+  if (iflist==NULL || numifs<=0) {
     log_write(LOG_PLAIN, "INTERFACES: NONE FOUND(!)\n");
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Reason: %s\n", errstr);
   } else {
     int devcol = 0, shortdevcol = 1, ipcol = 2, typecol = 3, upcol = 4, maccol = 5;
     Tbl = new NmapOutputTable(numifs + 1, 6);
@@ -374,12 +379,15 @@ int print_iflist(void) {
 #endif
 
   /* OK -- time to handle routes */
-  routes = getsysroutes(&numroutes);
+  errstr[0]='\0';
+  routes = getsysroutes(&numroutes, errstr, sizeof(errstr));
   u32 mask_nbo;
   u16 nbits;
   struct in_addr ia;
-  if (numroutes == 0) {
+  if (routes==NULL || numroutes<= 0) {
     log_write(LOG_PLAIN, "ROUTES: NONE FOUND(!)\n");
+    if (o.debugging)
+      log_write(LOG_STDOUT, "Reason: %s\n", errstr);
   } else {
     int dstcol = 0, devcol = 1, gwcol = 2;
     Tbl = new NmapOutputTable(numroutes + 1, 3);
@@ -1950,13 +1958,13 @@ static void printtraceroute_normal(Target * currenths) {
   probe = currenths->traceroute_probespec;
   if (probe.type == PS_TCP) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
-              probe.pd.tcp.dport, proto2ascii(probe.proto));
+              probe.pd.tcp.dport, proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_UDP) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
-              probe.pd.udp.dport, proto2ascii(probe.proto));
+              probe.pd.udp.dport, proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_SCTP) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
-              probe.pd.sctp.dport, proto2ascii(probe.proto));
+              probe.pd.sctp.dport, proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
     struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
     log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
@@ -2055,13 +2063,13 @@ static void printtraceroute_xml(Target * currenths) {
   probe = currenths->traceroute_probespec;
   if (probe.type == PS_TCP) {
     xml_attribute("port", "%d", probe.pd.tcp.dport);
-    xml_attribute("proto", "%s", proto2ascii(probe.proto));
+    xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_UDP) {
     xml_attribute("port", "%d", probe.pd.udp.dport);
-    xml_attribute("proto", "%s", proto2ascii(probe.proto));
+    xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_SCTP) {
     xml_attribute("port", "%d", probe.pd.sctp.dport);
-    xml_attribute("proto", "%s", proto2ascii(probe.proto));
+    xml_attribute("proto", "%s", proto2ascii_lowercase(probe.proto));
   } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
     struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
     if (proto == NULL)

@@ -21,6 +21,7 @@ extern "C"
 #include "utils.h"
 #include "tcpip.h"
 #include "protocols.h"
+#include "libnetutil/netutil.h"
 
 #if HAVE_OPENSSL
 #  include <openssl/ssl.h>
@@ -1324,10 +1325,6 @@ int l_nsock_sleep(lua_State * L)
 }
 
 /****************** NCAP_SOCKET ***********************************************/
-#ifdef WIN32
-/* From tcpip.cc. Gets pcap device name from dnet name. */
-bool DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
-#endif
 
 /* fuckin' C++ maps stuff */
 /* here we store ncap_sockets */
@@ -2144,7 +2141,7 @@ static int l_dnet_send_ip(lua_State * L)
     dstsin->sin_family = AF_INET;
     dstsin->sin_addr.s_addr = ip->ip_dst.s_addr;
 
-    if (!route_dst(&dstss, &route))
+    if (!nmap_route_dst(&dstss, &route))
       goto usesock;
 
     strncpy(dev, route.ii.devname, sizeof(dev));

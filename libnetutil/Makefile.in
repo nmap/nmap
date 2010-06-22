@@ -1,0 +1,40 @@
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+
+CXX = @CXX@
+AR = ar
+RANLIB = @RANLIB@
+DEFS = @DEFS@
+DEFS += -D_FORTIFY_SOURCE=2
+CPPFLAGS = @CPPFLAGS@
+
+LIBDNETDIR = @LIBDNETDIR@
+LIBPCAPDIR = @libpcapdir@
+
+TARGET = libnetutil.a
+
+SRCS = $(srcdir)/netutil.cc
+OBJS = netutil.o
+
+all: $(TARGET) 
+
+$(TARGET): $(OBJS)
+	rm -f $@
+	$(AR) cr $@ $(OBJS)
+	$(RANLIB) $@
+
+clean:
+	rm -f $(OBJS) $(TARGET) 
+
+distclean: clean
+	rm -rf Makefile
+
+Makefile: Makefile.in $(top_srcdir)/config.status
+	cd $(top_srcdir) && ./config.status
+
+.cc.o:
+	$(CXX) -c $(CPPFLAGS) $(DEFS) $*.cc
+
+makefile.dep:
+	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
+include makefile.dep

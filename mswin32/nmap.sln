@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcproj", "{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31FB0767-A71F-4575-8379-002D72B8AF86} = {31FB0767-A71F-4575-8379-002D72B8AF86}
@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncat", "..\ncat\ncat.vcproj
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nping", "..\nping\nping.vcproj", "{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnetutil", "..\libnetutil\libnetutil.vcproj", "{99157C3F-39F6-4663-99D7-1D9C1484494E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Debug|Win32.Build.0 = Debug|Win32
 		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Release|Win32.ActiveCfg = Release|Win32
 		{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}.Release|Win32.Build.0 = Release|Win32
+		{99157C3F-39F6-4663-99D7-1D9C1484494E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{99157C3F-39F6-4663-99D7-1D9C1484494E}.Debug|Win32.Build.0 = Debug|Win32
+		{99157C3F-39F6-4663-99D7-1D9C1484494E}.Release|Win32.ActiveCfg = Release|Win32
+		{99157C3F-39F6-4663-99D7-1D9C1484494E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

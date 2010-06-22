@@ -781,14 +781,16 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
   }
 
   /* Assume that all the targets share the same device. */
-  pd = my_pcap_open_live(targets[0]->deviceName(), 128, o.spoofsource, 2);
+  if((pd=my_pcap_open_live(targets[0]->deviceName(), 128, o.spoofsource, 2))==NULL)
+    fatal("%s", PCAP_OPEN_ERRMSG);
   sslen = sizeof(srcaddr);
   targets[0]->SourceSockAddr(&srcaddr, &sslen);
   n = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
     ss_to_string(&srcaddr));
   assert(n < (int) sizeof(pcap_filter));
   set_pcap_filter(targets[0]->deviceFullName(), pd, pcap_filter);
-
+ if (o.debugging)
+   log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", targets[0]->deviceFullName(), pcap_filter);
   for (it = targets.begin(); it != targets.end(); it++) {
     HostState *state = new HostState(*it);
     hosts.push_back(state);

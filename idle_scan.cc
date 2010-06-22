@@ -102,6 +102,7 @@
 #include "services.h"
 #include "Target.h"
 #include "utils.h"
+#include "output.h"
 
 #include <stdio.h>
 
@@ -329,7 +330,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   }
 
   proxy->host.setHostName(name);
-  if (resolve(name, &ss, &sslen, o.pf()) == 0) {
+  if (resolve(name, 0, 0, &ss, &sslen, o.pf()) == 0) {
     fatal("Could not resolve idle scan zombie host: %s", name);
   }
   proxy->host.setTargetSockAddr(&ss, sslen);
@@ -337,7 +338,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
   /* Lets figure out the appropriate source address to use when sending
      the pr0bez */
   proxy->host.TargetSockAddr(&ss, &sslen);
-  if (!route_dst(&ss, &rnfo))
+  if (!nmap_route_dst(&ss, &rnfo))
     fatal("Unable to find appropriate source address and device interface to use when sending packets to %s", proxyName);
   
   if (o.spoofsource) {
@@ -390,7 +391,9 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
 /* Now for the pcap opening nonsense ... */
  /* Note that the snaplen is 152 = 64 byte max IPhdr + 24 byte max link_layer
   * header + 64 byte max TCP header. */
-  proxy->pd = my_pcap_open_live(proxy->host.deviceName(), 152,  (o.spoofsource)? 1 : 0, 50);
+  if((proxy->pd=my_pcap_open_live(proxy->host.deviceName(), 152,  (o.spoofsource)? 1 : 0, 50))==NULL)
+    fatal("%s", PCAP_OPEN_ERRMSG);
+
 
   p = strdup(proxy->host.targetipstr());
   q = strdup(inet_ntoa(proxy->host.v4source()));
@@ -398,6 +401,8 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
  free(p); 
  free(q);
  set_pcap_filter(proxy->host.deviceFullName(), proxy->pd,  filter);
+ if (o.debugging)
+   log_write(LOG_STDOUT, "Packet capture filter (device %s): %s\n", proxy->host.deviceFullName(), filter);
 /* Windows nonsense -- I am not sure why this is needed, but I should
    get rid of it at sometime */
 

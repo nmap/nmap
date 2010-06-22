@@ -1420,7 +1420,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   if (servicefplen == 0) {
     timep = time(NULL);
     ltime = localtime(&timep);
-    servicefplen = Snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii(proto, true), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    servicefplen = Snprintf(servicefp, spaceleft, "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
   }
 
   // Note that we give the total length of the response, even though we 
@@ -1711,7 +1711,7 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
       svc->target->NameIP(host, sizeof(host));
 
       log_write(LOG_STDOUT, "Discovered %s port %hu/%s on %s is actually open\n",
-         statenum2str(oldstate), svc->portno, proto2ascii(svc->proto), host);
+         statenum2str(oldstate), svc->portno, proto2ascii_lowercase(svc->proto), host);
       log_flush(LOG_STDOUT);
     }
   }
@@ -1728,7 +1728,7 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
 
     // Report data as probes are sent if --version-trace has been requested 
     if (o.debugging > 1 || o.versionTrace()) {
-      log_write(LOG_PLAIN, "Service scan sending probe %s to %s:%hu (%s)\n", probe->getName(), svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+      log_write(LOG_PLAIN, "Service scan sending probe %s to %s:%hu (%s)\n", probe->getName(), svc->target->targetipstr(), svc->portno, proto2ascii_lowercase(svc->proto));
     }	
 
     assert(probe);
@@ -1984,7 +1984,7 @@ static int launchSomeServiceProbes(nsock_pool nsp, ServiceGroup *SG) {
       fatal("Failed to allocate Nsock I/O descriptor in %s()", __func__);
     }
     if (o.debugging > 1) {
-      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hu (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii(svc->proto));
+      log_write(LOG_PLAIN, "Starting probes against new service: %s:%hu (%s)\n", svc->target->targetipstr(), svc->portno, proto2ascii_lowercase(svc->proto));
     }
     if (o.spoofsource) {
       o.SourceSockAddr(&ss, &ss_len);

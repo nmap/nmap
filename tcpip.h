@@ -212,7 +212,7 @@ extern "C" {
 #include <netinet/ip_icmp.h>
 #endif
 
-typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
+
 
 #include "nmap.h"
 #include "global_structures.h"
@@ -224,11 +224,12 @@ typedef enum { devt_ethernet, devt_loopback, devt_p2p, devt_other  } devtype;
 
 /* Used for tracing all packets sent or received (eg the
    --packet-trace option) */
+
 class PacketTrace {
  public:
-  /*  static const int SEND=1;
-      static const int RCV=2; */
-  enum pdirection { SENT=1, RCVD=2 };
+  static const int SENT=1; /* These two values must not be changed */
+  static const int RCVD=2;
+  typedef int pdirection;
   /* Takes an IP PACKET and prints it if packet tracing is enabled.
      'packet' must point to the IPv4 header. The direction must be
      PacketTrace::SENT or PacketTrace::RCVD .  Optional 'now' argument
@@ -265,54 +266,6 @@ class PacketCounter {
 	  sendPackets, sendBytes, recvPackets, recvBytes;
 };
 
-#define MAX_LINK_HEADERSZ 24
-struct link_header {
-  int datalinktype; /* pcap_datalink(), such as DLT_EN10MB */
-  int headerlen; /* 0 if header was too big or unavailaable */
-  u8 header[MAX_LINK_HEADERSZ];
-};
-
-/* Relevant (to Nmap) information about an interface */
-struct interface_info {
-  char devname[16];
-  char devfullname[16]; /* can include alias info, such as eth0:2. */
-  struct sockaddr_storage addr;
-  u16 netmask_bits; /* CIDR-style.  So 24 means class C (255.255.255.0)*/
-  devtype device_type; /* devt_ethernet, devt_loopback, devt_p2p, devt_other */
-  bool device_up; /* True if the device is up (enabled) */
-  u8 mac[6]; /* Interface MAC address if device_type is devt_ethernet */
-};
-
-struct route_nfo {
-  struct interface_info ii;
-
-/* true if the target is directly connected on the network (no routing
-   required). */
-  bool direct_connect; 
-
-/* This is the source address that should be used by the packets.  It
-   may be different than ii.addr if you are using localhost interface
-   to scan the IP of another interface on the machine */
-  struct sockaddr_storage srcaddr; 
-
-  /* If direct_connect is 0, this is filled in with the next hop
-     required to route to the target */
-  struct sockaddr_storage nexthop;
-};
-
-struct sys_route {
-  struct interface_info *device;
-  u32 dest;
-  u32 netmask;
-  struct in_addr gw; /* gateway - 0 if none */
-};
-
-struct eth_nfo {
-  char srcmac[6];
-  char dstmac[6];
-  eth_t *ethsd; // Optional, but improves performance.  Set to NULL if unavail
-  char devname[16]; // Only needed if ethsd is NULL.
-};
 
 #ifndef HAVE_STRUCT_IP
 #define HAVE_STRUCT_IP
@@ -435,23 +388,12 @@ struct icmp
    not thread-safe and can only be used once in calls like printf() 
 */
 const char *inet_socktop(struct sockaddr_storage *ss);
+
 /* Tries to resolve the given name (or literal IP) into a sockaddr
    structure. This function calls getaddrinfo and returns the same
    addrinfo linked list that getaddrinfo produces. Returns NULL for any
    error or failure to resolve. */
 struct addrinfo *resolve_all(char *hostname, int pf);
-/* Tries to resolve the given name (or literal IP) into a sockaddr
-   structure.  The af should be PF_INET (for IPv4) or PF_INET6.  Returns 0
-   if hostname cannot be resolved.  It is OK to pass in a sockaddr_in or 
-   sockaddr_in6 casted to a sockaddr_storage as long as you use the matching 
-   pf.*/
-int resolve(char *hostname, struct sockaddr_storage *ss, size_t *sslen,
-	    int pf);
-/* LEGACY resolve() function that only supports IPv4 -- see IPv6 version
-   above.  Tries to resolve given hostname and stores
-   result in ip .  returns 0 if hostname cannot
-   be resolved */
-int resolve(char *hostname, struct in_addr *ip);
 
 /* Takes a destination address (dst) and tries to determine the
    source address and interface necessary to route to this address.
@@ -459,7 +401,7 @@ int resolve(char *hostname, struct in_addr *ip);
    a route is found, true is returned and rnfo is filled in with all
    of the routing details.  This function takes into account -S and -e
    options set by user (o.spoofsource, o.device) */
-bool route_dst(const struct sockaddr_storage *const dst, struct route_nfo *rnfo);
+int nmap_route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo);
 
 /* Determines what interface packets destined to 'dest' should be
    routed through.  It can also discover the appropriate next hop (if
@@ -475,9 +417,6 @@ bool routethrough(const struct sockaddr_storage * const dest,
 
 unsigned short in_cksum(u16 *ptr,int nbytes);
 
-unsigned short magic_tcpudp_cksum(const struct in_addr *src,
-				  const struct in_addr *dst,
-				  u8 proto, u16 len, const void *hstart);
 
 /* Build and send a raw tcp packet.  If TTL is -1, a partially random
    (but likely large enough) one is chosen */
@@ -606,22 +545,6 @@ int send_udp_raw_decoys( int sd, struct eth_nfo *eth,
 			 char *data, u16 datalen);
 
 
-/* Calls pcap_open_live and spits out an error (and quits) if the call fails.
-   So a valid pcap_t will always be returned. */
-pcap_t *my_pcap_open_live(const char *device, int snaplen, int promisc, 
-			  int to_ms);
-
-// Returns whether the system supports pcap_get_selectable_fd() properly
-bool pcap_selectable_fd_valid();
-
-/* Call this instead of pcap_get_selectable_fd directly (or your code
-   won't compile on Windows).  On systems which don't seem to support
-   the pcap_get_selectable_fd() function properly, returns -1,
-   otherwise simply calls pcap_selectable_fd and returns the
-   results.  If you just want to test whether the function is supported,
-   use pcap_selectable_fd_valid() instead. */
-int my_pcap_get_selectable_fd(pcap_t *p);
-
 // Returns whether the packet receive time value obtaned from libpcap
 // (and thus by readip_pcap()) should be considered valid.  When
 // invalid (Windows and Amiga), readip_pcap returns the time you called it.
@@ -631,51 +554,20 @@ bool pcap_recv_timeval_valid();
    packets). */
 void pcap_print_stats(int logt, pcap_t *pd);
 
-/* A simple function that caches the eth_t from dnet for one device,
-   to avoid opening, closing, and re-opening it thousands of tims.  If
-   you give a different device, this function will close the first
-   one.  Thus this should never be used by programs that need to deal
-   with multiple devices at once.  In addition, you MUST NEVER
-   eth_close() A DEVICE OBTAINED FROM THIS FUNCTION.  Instead, you can
-   call eth_close_cached() to close whichever device (if any) is
-   cached.  Returns NULL if it fails to open the device. */
-eth_t *eth_open_cached(const char *device);
 
-/* See the description for eth_open_cached */
-void eth_close_cached();
 
 /* A simple function I wrote to help in debugging, shows the important fields
    of a TCP packet*/
 int readtcppacket(const u8 *packet, int readdata);
 int readudppacket(const u8 *packet, int readdata);
-/* Convert an IP address to the device (IE ppp0 eth0) using that address.  Dev passed in must be at least 
-    32 bytes long */
-int ipaddr2devname( char *dev, const struct in_addr *addr );
-/* And vice versa */
-int devname2ipaddr(char *dev, struct in_addr *addr);
+
 /* Looks for an interface assigned to the given IP (ss), and returns
    the interface_info for the first one found.  If non found, returns NULL */
 struct interface_info *getInterfaceByIP(struct sockaddr_storage *ss);
-/* Looks for an interface with the given name (iname), and returns the
-   corresponding interface_info if found.  Will accept a match of
-   devname or devfullname.  Returns NULL if none found */
-struct interface_info *getInterfaceByName(char *iname);
-/* Where the above 4 functions get their info */
-struct interface_info *getinterfaces(int *howmany);
+
+
 pcap_if_t *getpcapinterfaces();
 
-/* Parse the system routing table, converting each route into a
-   sys_route entry.  Returns an array of sys_routes.  numroutes is set
-   to the number of routes in the array.  The routing table is only
-   read the first time this is called -- later results are cached.
-   The returned route array is sorted by netmask with the most
-   specific matches first. */
-struct sys_route *getsysroutes(int *howmany);
-void sethdrinclude(int sd);
-
-void set_ipoptions(int sd, void *opts, size_t optslen);
-
-void set_ttl(int sd, int ttl);
 
 /* Fill buf (up to buflen -- truncate if necessary but always
    terminate) with a short representation of the packet stats.
@@ -711,15 +603,8 @@ bool setTargetNextHopMAC(Target *target);
 bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
 		   struct sockaddr_storage *dstss, u8 *dstmac);
 
-int islocalhost(const struct in_addr * const addr);
-int isipprivate(const struct in_addr * const addr);
 
-// Takes a protocol number like IPPROTO_TCP, IPPROTO_UDP, or
-// IPPROTO_IP and returns a ascii representation (or "unknown" if it
-// doesn't recognize the number).  If uppercase is true, the returned
-// value will be in all uppercase letters.  You can skip this
-// parameter to use lowercase.
-const char *proto2ascii(u8 proto, bool uppercase=false);
+
 /* Hex dump */
 int get_link_offset(char *device);
 /* If rcvdtime is non-null and a packet is returned, rcvd will be

@@ -285,46 +285,6 @@ TargetGroup* load_exclude_string(const char *s) {
   return specs_to_targetgroups(specs);
 }
 
-static inline bool is_host_separator(int c) {
-  return c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\0';
-}
-
-/* Read a single host specification from a file, as for -iL and --excludefile.
-   It returns the length of the string read; an overflow is indicated when the
-   return value is >= n. Returns 0 if there was no specification to be read. The
-   buffer is always null-terminated. */
-size_t read_host_from_file(FILE *fp, char *buf, size_t n)
-{
-  int ch;
-  size_t i;
-
-  i = 0;
-  ch = getc(fp);
-  while (is_host_separator(ch) || ch == '#') {
-    if (ch == '#') {
-      /* Skip comments to the end of the line. */
-      while ((ch = getc(fp)) != EOF && ch != '\n')
-        ;
-    } else {
-      ch = getc(fp);
-    }
-  }
-  while (ch != EOF && !(is_host_separator(ch) || ch == '#')) {
-    if (i < n)
-      buf[i] = ch;
-    i++;
-    ch = getc(fp);
-  }
-  if (ch != EOF)
-    ungetc(ch, fp);
-  if (i < n)
-    buf[i] = '\0';
-  else if (n > 0)
-    /* Null-terminate even though it was too long. */
-    buf[n - 1] = '\0';
-
-  return i;
-}
 
 /* A debug routine to dump some information to stdout. Invoked if debugging is
    set to 3 or higher. I had to make significant changes from wam's code.
@@ -505,7 +465,7 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
 #endif // WIN32
           )) {
         t->TargetSockAddr(&ss, &sslen);
-        if (!route_dst(&ss, &rnfo)) {
+        if (!nmap_route_dst(&ss, &rnfo)) {
           fatal("%s: failed to determine route to %s", __func__, t->NameIP());
         }
         if (rnfo.direct_connect) {

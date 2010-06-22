@@ -47,6 +47,7 @@ AC_C_INLINE
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_RANLIB
 AC_PROG_INSTALL
 
 if test -n "$GXX"; then
@@ -172,6 +173,23 @@ AC_SUBST(LUA_CFLAGS)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
+dnl A special check required for <net/if.h> on Darwin. See
+dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.
+AC_CHECK_HEADERS([sys/socket.h])
+AC_CHECK_HEADERS([net/if.h], [], [],
+[#include <stdio.h>
+#ifdef STDC_HEADERS
+# include <stdlib.h>
+# include <stddef.h>
+#else
+# ifdef HAVE_STDLIB_H
+#  include <stdlib.h>
+# endif
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+])
 
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
@@ -382,7 +400,7 @@ if test $have_libpcap != yes; then
   if test "${LIBPCAP_INC+set}" = "set"; then
     CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
   else
-    CPPFLAGS="$CPPFLAGS -I$libpcapdir"
+    CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$libpcapdir"
   fi
   LIBPCAP_LIBS='$(LIBPCAPDIR)/libpcap.a'
   PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
@@ -439,7 +457,7 @@ fi
 # If we still don't have it, we use our own
 if test $have_pcre != yes ; then
   AC_CONFIG_SUBDIRS( libpcre )
-  CPPFLAGS="-I$LIBPCREDIR $CPPFLAGS"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBPCREDIR $CPPFLAGS"
   LIBPCRE_LIBS="$LIBPCREDIR/libpcre.a"
   PCRE_DEPENDS="$LIBPCREDIR/libpcre.a"
   PCRE_BUILD="pcre_build"
@@ -491,9 +509,9 @@ AC_HELP_STRING([--with-libdnet=included], [Use the libdnet version included with
 # If they didn't provide location, we use the included one
 if test $have_dnet != yes ; then
   AC_CONFIG_SUBDIRS( libdnet-stripped )
-  CPPFLAGS="-I$LIBDNETDIR/include $CPPFLAGS"
-  LIBDNET_LIBS="$LIBDNETDIR/src/.libs/libdnet.a"
-  DNET_DEPENDS="$LIBDNETDIR/src/.libs/libdnet.a"
+  CPPFLAGS="-I\$(top_srcdir)/$LIBDNETDIR/include $CPPFLAGS"
+  LIBDNET_LIBS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
+  DNET_DEPENDS="\$(top_srcdir)/$LIBDNETDIR/src/.libs/libdnet.a"
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
@@ -527,9 +545,9 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
   yes)
   ;;
   included)
-    CPPFLAGS="-I$LIBLUADIR $CPPFLAGS"
-    LIBLUA_LIBS="$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
+    LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
@@ -588,9 +606,9 @@ else
   # if we didn't find we use our own
   if test $have_lua != yes; then
     AC_MSG_RESULT(no) 
-    CPPFLAGS="-I$LIBLUADIR $CPPFLAGS"
-    LIBLUA_LIBS="$LIBLUADIR/liblua.a"
-    LUA_DEPENDS="$LIBLUADIR/liblua.a"
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLUADIR $CPPFLAGS"
+    LIBLUA_LIBS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
+    LUA_DEPENDS="\$(top_srcdir)/$LIBLUADIR/liblua.a"
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
@@ -712,7 +730,7 @@ NBASEDIR="nbase"
 )
 
 LDFLAGS="$LDFLAGS -L$NBASEDIR"
-CPPFLAGS="$CPPFLAGS -I$NBASEDIR"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NBASEDIR"
 LIBNBASE_LIBS="-lnbase"
 
 AC_SUBST(NBASEDIR)
@@ -736,7 +754,7 @@ AC_HELP_STRING([--with-libnsock=DIR], [Compile and link to libnsock in DIR]),
 )
 
 LDFLAGS="$LDFLAGS -L$NSOCKDIR/src/"
-CPPFLAGS="$CPPFLAGS -I$NSOCKDIR/include"
+CPPFLAGS="$CPPFLAGS -I\$(top_srcdir)/$NSOCKDIR/include"
 LIBNSOCK_LIBS="-lnsock"
 
 AC_SUBST(NSOCKDIR)
@@ -772,7 +790,7 @@ AC_SUBST(NCAT_UNINSTALL)
 AC_SUBST(NCAT_CLEAN)
 AC_SUBST(NCAT_DIST_CLEAN)
 
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile libnetutil/Makefile)
 # Krad ASCII ART#!#@$!@#$
 if test -f docs/leet-nmap-ascii-art.txt; then
 	cat docs/leet-nmap-ascii-art.txt

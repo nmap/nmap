@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="nmap"
 	ProjectGUID="{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	RootNamespace="nmap"
@@ -72,11 +72,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib libnetutil.lib $(NOINHERIT)"
 				OutputFile=".\Debug\nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;OpenSSL\lib;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;../libnetutil;OpenSSL\lib"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				GenerateDebugInformation="true"
@@ -165,11 +165,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib $(NOINHERIT)"
+				AdditionalDependencies="liblua.lib nsock.lib libpcre.lib nbase.lib libdnet-stripped.lib ws2_32.lib IPHlpAPI.Lib wpcap.lib packet.lib advapi32.lib libeay32.lib ssleay32.lib shell32.lib libnetutil.lib $(NOINHERIT)"
 				OutputFile=".\Release/nmap.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;OpenSSL\lib;"
+				AdditionalLibraryDirectories="lib;..\liblua;..\libpcre;..\nsock;..\nbase;&quot;..\libdnet-stripped&quot;;../libnetutil;OpenSSL\lib"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="packet.dll,wpcap.dll,iphlpapi.dll"
 				ProgramDatabaseFile=".\Release/nmap.pdb"

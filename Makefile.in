@@ -8,6 +8,7 @@ exec_prefix = @exec_prefix@
 bindir = @bindir@
 sbindir = @sbindir@
 mandir = @mandir@
+top_srcdir = @top_srcdir@
 srcdir = @srcdir@
 nmapdatadir = @datadir@/nmap
 deskdir = $(prefix)/share/applications
@@ -46,7 +47,7 @@ export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@ 
+LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ @OPENSSL_LIBS@ libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
 INSTALL = @INSTALL@
@@ -101,10 +102,10 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@
+all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
-$(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a $(OBJS)
+$(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
 	@echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -125,6 +126,10 @@ nbase_build: $(NBASEDIR)/Makefile
 nsock_build: $(NSOCKDIR)/src/Makefile nbase_build
 	@echo Compiling libnsock;
 	cd $(NSOCKDIR)/src && $(MAKE)
+
+netutil_build: libnetutil/Makefile
+	@echo Compiling libnetutil;
+	cd libnetutil && $(MAKE)
 
 ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h
 	cd $(NCATDIR) && $(MAKE)
@@ -160,7 +165,7 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk makefile.dep
@@ -175,6 +180,8 @@ nbase_clean:
 	-cd $(NBASEDIR) && $(MAKE) clean
 nsock_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) clean
+netutil_clean:
+	-cd libnetutil && $(MAKE) clean
 ncat_clean:
 	-cd $(NCATDIR) && $(MAKE) clean
 lua_clean:
@@ -197,6 +204,8 @@ nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
 	-cd $(NSOCKDIR)/src && $(MAKE) distclean
+netutil_dist_clean:
+	-cd libnetutil && $(MAKE) distclean
 ncat_dist_clean:
 	-cd $(NCATDIR) && $(MAKE) distclean
 zenmap_dist_clean: zenmap_clean
@@ -208,7 +217,7 @@ nping_dist_clean:
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean netutil_dist_clean
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \
@@ -281,7 +290,7 @@ install-zenmap: $(ZENMAPDIR)/setup.py
 build-ndiff:
 	cd $(NDIFFDIR) && $(PYTHON) setup.py build $(if $(DESTDIR),--executable "$(DEFAULT_PYTHON_PATH)")
 
-build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build $(NPINGDIR)/nping.h
+build-nping: $(NPINGDIR)/Makefile nbase_build nsock_build netutil_build $(NPINGDIR)/nping.h
 	@cd $(NPINGDIR) && $(MAKE)
 
 install-ndiff:

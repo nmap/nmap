@@ -100,6 +100,7 @@
 #include "timing.h"
 #include "nmap_error.h"
 #include "utils.h"
+#include "nbase.h"
 
 extern NmapOps o;
 static struct rpc_info ri;
@@ -230,7 +231,7 @@ int send_rpc_query(Target *target_host, unsigned short portno,
     rpc_xid_base = (unsigned long) get_random_uint();
   
   if (o.debugging > 1) {
-    log_write(LOG_PLAIN, "Sending RPC probe for program %li to %hu/%s -- scan_offset=%d trynum=%d xid=%lX\n", program, portno, proto2ascii(ipproto), scan_offset, trynum, rpc_xid_base + ((portno & 0x3FFF) << 16) + (trynum << 30) +  scan_offset);
+    log_write(LOG_PLAIN, "Sending RPC probe for program %li to %hu/%s -- scan_offset=%d trynum=%d xid=%lX\n", program, portno, proto2ascii_lowercase(ipproto), scan_offset, trynum, rpc_xid_base + ((portno & 0x3FFF) << 16) + (trynum << 30) +  scan_offset);
   }
 
   memset(&sock, 0, sizeof(sock));
@@ -372,7 +373,7 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
     if (o.debugging > 1) {
       log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because of invalid sized message (%d)\n", 
 		rsi->rpc_current_port->portno, 
-		proto2ascii(rsi->rpc_current_port->proto, true), msg_len);
+		proto2ascii_uppercase(rsi->rpc_current_port->proto), msg_len);
     }
     rsi->rpc_status = RPC_STATUS_NOT_RPC;
     ss->numqueries_outstanding = 0;
@@ -385,7 +386,7 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
   if (((scan_offset >> 16) & 0x3FFF) != (unsigned long) (rsi->rpc_current_port->portno & 0x3FFF)) {
     /* Doh -- this doesn't seem right */
     if (o.debugging > 1) {
-      log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because ((scan_offset >> 16) & 0x3FFF) is %li\n", rsi->rpc_current_port->portno, proto2ascii(rsi->rpc_current_port->proto, true), ((scan_offset >> 16) & 0x3FFF));
+      log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because ((scan_offset >> 16) & 0x3FFF) is %li\n", rsi->rpc_current_port->portno, proto2ascii_uppercase(rsi->rpc_current_port->proto), ((scan_offset >> 16) & 0x3FFF));
     }
     rsi->rpc_status = RPC_STATUS_NOT_RPC;
     ss->numqueries_outstanding = 0;
@@ -465,13 +466,13 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
     if (o.debugging > 1) {
       error("Port %hu/%s claims that it is not RPC service %li", 
 	    rsi->rpc_current_port->portno, 
-	    proto2ascii(rsi->rpc_current_port->proto, true),  current->portno);
+	    proto2ascii_uppercase(rsi->rpc_current_port->proto),  current->portno);
     }
     rsi->valid_responses_this_port++;
     return 0;
   } else if (ntohl(rpc_pack->accept_stat) == PROG_MISMATCH) {
     if (o.debugging > 1) {
-      error("Port %hu/%s claims IT IS RPC service %li", rsi->rpc_current_port->portno, proto2ascii(rsi->rpc_current_port->proto, true),  current->portno);
+      error("Port %hu/%s claims IT IS RPC service %li", rsi->rpc_current_port->portno, proto2ascii_uppercase(rsi->rpc_current_port->proto),  current->portno);
     }
     current->state = PORT_OPEN;
     rsi->rpc_status = RPC_STATUS_GOOD_PROG;
@@ -589,7 +590,7 @@ void get_rpc_results(Target *target, struct portinfo *scan,
         if (o.debugging > 1) {
           log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because tcp_readlen is %d (should be at least 28)\n", 
               rsi->rpc_current_port->portno, 
-              proto2ascii(rsi->rpc_current_port->proto, true), 
+              proto2ascii_uppercase(rsi->rpc_current_port->proto), 
               (int) tcp_readlen);
         }
         ss->numqueries_outstanding = 0;
@@ -603,7 +604,7 @@ void get_rpc_results(Target *target, struct portinfo *scan,
         if (o.debugging > 1) {
           log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because current_msg_len is %li while tcp_readlen is %d\n",
               rsi->rpc_current_port->portno, 
-              proto2ascii(rsi->rpc_current_port->proto, true), 
+              proto2ascii_uppercase(rsi->rpc_current_port->proto), 
               current_msg_len, (int) tcp_readlen);
         }
         ss->numqueries_outstanding = 0;
@@ -634,7 +635,7 @@ void get_rpc_results(Target *target, struct portinfo *scan,
           if (o.debugging > 1) {
             log_write(LOG_PLAIN, "Port %hu/%s labelled NON_RPC because current_msg_len is %li\n", 
                 rsi->rpc_current_port->portno, 
-                proto2ascii(rsi->rpc_current_port->proto, true), 
+                proto2ascii_uppercase(rsi->rpc_current_port->proto), 
                 current_msg_len);
           }
           rsi->rpc_status = RPC_STATUS_NOT_RPC;

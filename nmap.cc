@@ -320,123 +320,6 @@ printf("%s %s ( %s )\n"
   exit(rc);
 }
 
-/**
- * Returns 1 if this is a reserved IP address, where "reserved" means
- * either a private address, non-routable address, or even a non-reserved
- * but unassigned address which has an extremely high probability of being
- * black-holed.
- *
- * We try to optimize speed when ordering the tests. This optimization
- * assumes that all byte values are equally likely in the input.
- *
- * Warning: This function needs frequent attention because IANA has been
- * allocating address blocks many times per year (although it's questionable
- * how much longer this trend can be kept up).
- *
- * Check
- * <http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt>
- * for the most recent assigments and
- * <http://www.cymru.com/Documents/bogon-bn-nonagg.txt> for bogon
- * netblocks.
- */
-static int ip_is_reserved(struct in_addr *ip)
-{
-  char *ipc = (char *) &(ip->s_addr);
-  unsigned char i1 = ipc[0], i2 = ipc[1], i3 = ipc[2]; /* i4 not currently used - , i4 = ipc[3]; */
-
-  /* do all the /7's and /8's with a big switch statement, hopefully the
-   * compiler will be able to optimize this a little better using a jump table
-   * or what have you
-   */
-  switch (i1)
-    {
-    case 0:         /* 000/8 is IANA reserved       */
-    case 5:         /* 005/8 is IANA reserved       */
-    case 6:         /* USA Army ISC                 */
-    case 7:         /* used for BGP protocol        */
-    case 10:        /* the infamous 10.0.0.0/8      */
-    case 23:        /* 023/8 is IANA reserved       */
-    case 36:        /* 036/8 is IANA reserved       */
-    case 37:        /* 037/8 is IANA reserved       */
-    case 39:        /* 039/8 is IANA reserved       */
-    case 42:        /* 042/8 is IANA reserved       */
-    case 49:        /* 049/8 is IANA reserved       */
-    case 55:        /* misc. U.S.A. Armed forces    */
-    case 127:       /* 127/8 is reserved for loopback */
-    case 179:       /* 179/8 is IANA reserved       */
-    case 185:       /* 185/8 is IANA reserved       */
-      return 1;
-    default:
-      break;
-    }
-
-  /* 100-106/8 is IANA reserved */
-  if (i1 >= 100 && i1 <= 106)
-    return 1;
-
-  /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
-  if (i1 == 172 && i2 >= 16 && i2 <= 31)
-    return 1;
-
-  /* 192.0.2.0/24 is reserved for documentation and examples (RFC5737) */
-  /* 192.88.99.0/24 is used as 6to4 Relay anycast prefix by RFC3068 */
-  /* 192.168.0.0/16 is reserved for private nets by RFC1819 */
-  if (i1 == 192) {
-    if (i2 == 0 && i3 == 2)
-      return 1;
-    if (i2 == 88 && i3 == 99)
-      return 1;
-    if (i2 == 168)
-      return 1;
-  }
-
-  /* 198.18.0.0/15 is used for benchmark tests by RFC2544 */
-  /* 198.51.100.0/24 is reserved for documentation (RFC5737) */
-  if (i1 == 198) {
-    if (i2 == 18 || i2 == 19)
-      return 1;
-    if (i2 == 51 && i3 == 100)
-      return 1;
-  }
-
-  /* 169.254.0.0/16 is reserved for DHCP clients seeking addresses */
-  if (i1 == 169 && i2 == 254)
-    return 1;
- 
-  /* 203.0.113.0/24 is reserved for documentation (RFC5737) */
-  if (i1 == 203 && i2 == 0 && i3 == 113)
-    return 1;
-
-  /* 224-239/8 is all multicast stuff */
-  /* 240-255/8 is IANA reserved */
-  if (i1 >= 224)
-    return 1;
-
-  return 0;
-}
-
-static char *grab_next_host_spec(FILE *inputfd, int argc, char **fakeargv) {
-  static char host_spec[1024];
-  struct in_addr ip;
-  size_t n;
-
-  if (o.generate_random_ips) {
-    do {
-      ip.s_addr = get_random_unique_u32();
-    } while (ip_is_reserved(&ip));
-    Strncpy(host_spec, inet_ntoa(ip), sizeof(host_spec));
-  } else if (!inputfd) {
-    return( (optind < argc)?  fakeargv[optind++] : NULL);
-  } else { 
-    n = read_host_from_file(inputfd, host_spec, sizeof(host_spec));
-    if (n == 0)
-      return NULL;
-    else if (n >= sizeof(host_spec))
-      fatal("One of the host specifications from your input file is too long (>= %u chars)", (unsigned int) sizeof(host_spec));
-  }
-  return host_spec;
-}
-
 static void insert_port_into_merge_list(unsigned short *mlist,
 						int *merged_port_count,
 						unsigned short p) {
@@ -581,6 +464,7 @@ int nmap_main(int argc, char *argv[]) {
   time_t timep;
   char mytime[128];
   char tbuf[128];
+  char errstr[256];
   struct sockaddr_storage ss;
   size_t sslen;
   int option_index;
@@ -980,7 +864,8 @@ int nmap_main(int argc, char *argv[]) {
           fatal("--top-ports should be an integer 1 or greater");
       } else if (optcmp(long_options[option_index].name, "ip-options") == 0){
         o.ipoptions    = (u8*) safe_malloc(4*10+1);
-        o.ipoptionslen = parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop);
+        if( (o.ipoptionslen=parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr)))==OP_FAILURE )
+            fatal("%s", errstr);
         if(o.ipoptionslen > 4*10)
           fatal("Ip options can't be more than 40 bytes long");
         if(o.ipoptionslen %4 != 0)
@@ -1060,7 +945,12 @@ int nmap_main(int argc, char *argv[]) {
         } else {
           if (o.numdecoys >= MAX_DECOYS -1)
             fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-          if (resolve(p, &o.decoys[o.numdecoys])) {
+            
+          /* Try to resolve it */
+          struct sockaddr_in decoytemp;
+          size_t decoytemplen=sizeof(struct sockaddr_in);          
+          if( resolve(p, 0, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET) == 1 ){
+            o.decoys[o.numdecoys]=decoytemp.sin_addr;
             o.numdecoys++;
           } else {
             fatal("Failed to resolve decoy host: %s (must be hostname or IP address)", p);
@@ -1244,7 +1134,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'S':
       if (o.spoofsource)
         fatal("You can only use the source option once!  Use -D <decoy1> -D <decoy2> etc. for decoys\n");
-      if (resolve(optarg, &ss, &sslen, o.af()) == 0) {
+      if (resolve(optarg, 0, 0, &ss, &sslen, o.af()) == 0) {
         fatal("Failed to resolve/decode supposed %s source address %s. Note that if you are using IPv6, the -6 argument must come before -S", (o.af() == AF_INET)? "IPv4" : "IPv6", optarg);
       }
       o.setSourceSockAddr(&ss, sslen);
@@ -1384,7 +1274,7 @@ int nmap_main(int argc, char *argv[]) {
     if (o.ipoptionslen >= 8)       // at least one ip address
       log_write(LOG_STDOUT, "Binary ip options to be send:\n%s", buf);
       log_write(LOG_STDOUT, "Parsed ip options to be send:\n%s\n",
-        print_ip_options(o.ipoptions, o.ipoptionslen));
+        format_ip_options(o.ipoptions, o.ipoptionslen));
   }
 
   /* Open the log files, now that we know whether the user wants them appended
@@ -1740,7 +1630,7 @@ int nmap_main(int argc, char *argv[]) {
 	/* Now grab any new expressions */
 	while(num_host_exp_groups < o.ping_group_sz && 
 	      (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
-	      (host_spec = grab_next_host_spec(inputfd, argc, fakeargv))) {
+	      (host_spec = grab_next_host_spec(inputfd, o.generate_random_ips, argc, fakeargv))) {
 	  // For purposes of random scan
 	  host_exp_group[num_host_exp_groups++] = strdup(host_spec);
 	}
@@ -1804,7 +1694,7 @@ int nmap_main(int argc, char *argv[]) {
 	    currenths->setSourceSockAddr(&ss, sslen);
 	  } else {
 	    if (gethostname(myname, MAXHOSTNAMELEN) || 
-		resolve(myname, &ss, &sslen, o.af()) == 0)
+		resolve(myname, 0, 0, &ss, &sslen, o.af()) == 0)
 	      fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n"); 
 	    
 	    o.setSourceSockAddr(&ss, sslen);
@@ -2782,36 +2672,7 @@ int ftp_anon_connect(struct ftpinfo *ftp) {
   return sd;
 }
 
-/* Returns one if the file pathname given exists, is not a directory and
- * is readable by the executing process.  Returns two if it is readable
- * and is a directory.  Otherwise returns 0.
- */
 
-int fileexistsandisreadable(const char *pathname) {
-	char *pathname_buf = strdup(pathname);
-	int status = 0;
-
-#ifdef WIN32
-	// stat on windows only works for "dir_name" not for "dir_name/" or "dir_name\\"
-	int pathname_len = strlen(pathname_buf);
-	char last_char = pathname_buf[pathname_len - 1];
-
-	if(	last_char == '/'
-		|| last_char == '\\')
-		pathname_buf[pathname_len - 1] = '\0';
-
-#endif
-
-  struct stat st;
-
-  if (stat(pathname_buf, &st) == -1)
-    status = 0;
-  else if (access(pathname_buf, R_OK) != -1)
-    status = S_ISDIR(st.st_mode) ? 2 : 1;
-
-  free(pathname_buf);
-  return status;
-}
 
 int nmap_fileexistsandisreadable(const char* pathname) {
 	return fileexistsandisreadable(pathname);

@@ -799,7 +799,7 @@ static void add_dns_server(char *ipaddrs) {
 
   for (hostname = strtok(ipaddrs, " ,"); hostname != NULL; hostname = strtok(NULL, " ,")) {
 
-    if (!resolve(hostname, (struct sockaddr_storage *) &addr, &addr_len, PF_UNSPEC)) continue;
+    if (!resolve(hostname, 0, 0, (struct sockaddr_storage *) &addr, &addr_len, PF_UNSPEC)) continue;
 
     for(servI = servs.begin(); servI != servs.end(); servI++) {
       tpserv = *servI;

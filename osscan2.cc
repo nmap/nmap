@@ -2992,7 +2992,7 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
     udp->uh_ulen = htons(8 + datalen);
 
     /* OK, now we should be able to compute a valid checksum */
-    realcheck = magic_tcpudp_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
+    realcheck = tcpudp_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
 				   sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
     udp->uh_sum = sizeof(struct udp_hdr) + datalen;
@@ -3207,7 +3207,8 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   }
   filterlen = 0;
 
-  HOS->pd = my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
+  if((HOS->pd=my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2))==NULL)
+    fatal("%s", PCAP_OPEN_ERRMSG);
 
   if (doIndividual)
     len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s", 
@@ -3219,9 +3220,9 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
     fatal("ran out of space in pcap filter");
   filterlen = len;
     
-  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter);
+  if (o.debugging) log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
   set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
-  
+   
   return;
 }
 

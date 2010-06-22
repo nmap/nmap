@@ -96,6 +96,7 @@
 
 #include "nmap.h"
 #include "FingerPrintResults.h"
+#include "libnetutil/netutil.h"
 
 #ifndef NOLUA
 #include "nse_main.h"

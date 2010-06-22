@@ -132,6 +132,8 @@
 
 #undef HAVE_SYS_STAT_H
 
+#undef HAVE_NET_IF_H
+
 #undef HAVE_FCNTL_H
 
 #undef HAVE_TERMIOS_H

@@ -3933,7 +3933,7 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000) to_usec = 2000;
-    rc = read_arp_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime);
+    rc = read_arp_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, PacketTrace::traceArp);
     gettimeofday(&USI->now, NULL);
     if (rc == -1) fatal("Received -1 response from readarp_reply_pcap");
     if (rc == 0) {
@@ -4884,7 +4884,9 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     }
   }
 
-  USI->pd = my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2);
+  if((USI->pd=my_pcap_open_live(Targets[0]->deviceName(), 100,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2))==NULL)
+    fatal("%s", PCAP_OPEN_ERRMSG);
+    
   if (USI->ping_scan_arp){
     /* Some OSs including Windows 7 and Solaris 10 have been seen to send their
        ARP replies to the broadcast address, not to the (unicast) address that
@@ -4931,7 +4933,7 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
       pcap_filter+=" and (icmp or tcp or udp or sctp)";
     }
   }else assert(0);
-  if (o.debugging > 2) log_write(LOG_PLAIN, "Pcap filter: %s\n", pcap_filter.c_str());
+  if (o.debugging) log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter.c_str());
   set_pcap_filter(Targets[0]->deviceFullName(), USI->pd, pcap_filter.c_str());
   /* pcap_setnonblock(USI->pd, 1, NULL); */
   return;
