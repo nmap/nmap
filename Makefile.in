@@ -160,7 +160,7 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @ZENMAP_CLEAN@ @NCAT_CLEAN@
+clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk makefile.dep
@@ -208,7 +208,7 @@ nping_dist_clean:
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nbase_dist_clean nsock_dist_clean
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \
