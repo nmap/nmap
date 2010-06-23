@@ -36,26 +36,12 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
   Nmap survey respondants complained about this too.
 
-o [NSE] Review Gutek's web server directory traversal script.
-  http://seclists.org/nmap-dev/2010/q2/595
-
-o [NSE] Review Gutek's PHP version disclosure script.
-  http://seclists.org/nmap-dev/2010/q2/569
-
-o [Zenmap] Investigate failure to start on some installations of OS X
-  10.6.3.
+o [Zenmap] Investigate segfault on some installs of OS X 10.6.3:
   http://seclists.org/nmap-dev/2010/q2/587
-  http://seclists.org/nmap-dev/2010/q2/859 (He responded to David
-  privately and said that it was not an I7 processor.)
-  Nmap seems to be having problems too:
-  http://seclists.org/nmap-dev/2010/q2/747
 
 o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
   http://seclists.org/nmap-dev/2010/q2/754
-
-o [NSE] Review Gutek's libopie detection/DOS script.
-  http://seclists.org/nmap-dev/2010/q2/635
 
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)
@@ -102,9 +88,6 @@ o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   doesn't need pcap-int.h.  David is going to test whether this makes
   any signficiant difference--we might be able to just remove the
   PcapSetReadTimeout().
-
-o Fix the IPv6 name resolution problem described in this thread:
-  http://seclists.org/nmap-dev/2010/q2/787
 
 o [NSE] MSRPC - Improve domain support all around -- in particular,
   let the user give the domain in the format DOMAIN\username or
@@ -624,6 +607,30 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Zenmap] Investigate failure to start on some installations of OS X
+  10.6.3.
+  [ We think one may just not have waited long enough as he said it
+  started working, and another case (the 587) seems to be a
+  segfault--we added a new task for that ]
+  http://seclists.org/nmap-dev/2010/q2/587
+  http://seclists.org/nmap-dev/2010/q2/859 (He responded to David
+  privately and said that it was not an I7 processor.)
+  Nmap seems to be having problems too:
+  http://seclists.org/nmap-dev/2010/q2/747
+
+o [NSE] Review Gutek's PHP version disclosure script.
+  http://seclists.org/nmap-dev/2010/q2/569
+
+o Fix the IPv6 name resolution problem described in this thread:
+  http://seclists.org/nmap-dev/2010/q2/787
+
+o [NSE] Review Gutek's libopie detection/DOS script.
+  http://seclists.org/nmap-dev/2010/q2/635
+
+o [NSE] Review Gutek's web server directory traversal script.
+  http://seclists.org/nmap-dev/2010/q2/595
+  - It became modifications to http-passwd
 
 o [NSE] Review dns-cache-snoop.nse from Eugene Alexeev.
   http://seclists.org/nmap-dev/2010/q2/195
