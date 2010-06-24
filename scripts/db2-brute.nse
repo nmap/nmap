@@ -56,7 +56,7 @@ end
 -- @param host table with information as recieved by <code>action</code>
 -- @param port table with information as recieved by <code>action</code>
 -- @param database string containing the database name
--- @param username string containing the username against which to guess
+-- @param creds an iterator producing username, password pairs
 -- @param valid_accounts table in which to store found accounts
 doLogin = function( host, port, database, creds, valid_accounts )
 	local helper, status, response, passwords

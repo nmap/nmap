@@ -15,7 +15,7 @@ SMTP server.
 --
 -- @args smtp-commands.domain Define the domain to be used in the SMTP commands
 --
--- @changelog
+-- changelog
 -- 1.1.0.0 - 2007-10-12
 -- + added HELP command in addition to EHLO
 -- 1.2.0.0 - 2008-05-19

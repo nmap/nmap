@@ -193,7 +193,7 @@ DRDA = {
 	
 	--- Sends the DRDA over the db2socket
 	--
-	-- @param socket DB2Socket over which to send the data
+	-- @param db2socket DB2Socket over which to send the data
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
 	send = function( self, db2socket )
@@ -820,7 +820,7 @@ StringUtil =
 	--
 	-- @param str string to pad
 	-- @param chr char to pad with
-	-- @len the total length of the finnished string
+	-- @param len the total length of the finnished string
 	-- @return str string containing the padded string
 	padWithChar = function( str, chr, len )
 		if ( len < #str ) then

@@ -396,7 +396,7 @@ Comm = {
 	--- Encodes a RPC packet
 	--
 	-- @param xid number containing the transaction ID
-	-- @param procedure number containing the procedure to call
+	-- @param proc number containing the procedure to call
 	-- @param auth table containing authentication information
 	-- @param data string containing the packet data
 	-- @return packet string containing the encoded packet data
@@ -525,7 +525,7 @@ Portmap =
 		
 	--- Dumps a list of RCP programs from the portmapper
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @return status boolean true on success, false on failure
 	-- @return result table containing RPC program information or error message
@@ -628,7 +628,7 @@ Portmap =
 	--- Queries the portmapper for the port of the selected program, 
 	--  protocol and version
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param program string name of the program
 	-- @param protocol string containing either "tcp" or "udp"
@@ -749,7 +749,7 @@ Mount = {
 		
 	--- Requests a list of NFS export from the remote server
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @return status success or failure
 	-- @return entries table containing a list of share names (strings)
@@ -892,7 +892,7 @@ Mount = {
 
 	--- Attempts to mount a remote export in order to get the filehandle
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param path string containing the path to mount
 	-- @return status success or failure
@@ -987,7 +987,7 @@ Mount = {
 
 	--- Attempts to unmount a remote export in order to get the filehandle
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param path string containing the path to mount
 	-- @return status success or failure
@@ -1216,7 +1216,7 @@ NFS = {
 
     	--- Decodes the READDIR section of a NFS ReadDir response
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param data string containing the buffer of bytes read so far
 	-- @param pos number containing the current offset into data
@@ -1346,7 +1346,7 @@ NFS = {
 	
 	--- Reads the contents inside a NFS directory
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param file_handle string containing the filehandle to query
 	-- @return status true on success, false on failure
@@ -1573,7 +1573,7 @@ NFS = {
 
 	--- Gets filesystem stats (Total Blocks, Free Blocks and Available block) on a remote NFS share
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param file_handle string containing the filehandle to query
 	-- @return status true on success, false on failure
@@ -1621,7 +1621,7 @@ NFS = {
 
 	--- Attempts to decode the attributes section of the reply
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param data string containing the full statfs reply
 	-- @param pos number pointing to the statfs section of the reply
@@ -1667,7 +1667,7 @@ NFS = {
 
 	--- Gets mount attributes (uid, gid, mode, etc ..) from a remote NFS share
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param file_handle string containing the filehandle to query
 	-- @return status true on success, false on failure
@@ -1705,7 +1705,7 @@ NFS = {
 
 	--- Attempts to decode the StatFS section of the reply
 	--
-	-- @param Comm object handles rpc program information and
+	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
 	-- @param data string containing the full statfs reply
 	-- @param pos number pointing to the statfs section of the reply
@@ -1828,7 +1828,7 @@ Helper = {
         -- This function must be used to unmount a NFS point
         -- mounted by MountPath()
         --
-        -- @param Comm object returned from a previous call to
+        -- @param mnt_comm object returned from a previous call to
         --        MountPath()
         -- @param path string containing the path to unmount
         -- @return true on success or nil on failure
@@ -1881,7 +1881,7 @@ Helper = {
         -- This function must be used close a NFS connection opened
         -- by NfsOpen() call
         --
-        -- @param Comm object returned by NfsOpen()
+        -- @param nfs_comm object returned by NfsOpen()
         -- @return true on success or nil on failure
         -- @return error message on failure
 	NfsClose = function(nfs_comm)
@@ -2375,7 +2375,7 @@ Util =
         --
         -- An optional second argument is the mactime to use
         --
-        -- @param attributes table returned by NFS GETATTR or ACCESS
+        -- @param attr table returned by NFS GETATTR or ACCESS
         -- @param mactime to use, the default value is atime
         --        Possible values: mtime, atime, ctime
         -- @return String that represent the file attributes

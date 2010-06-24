@@ -4371,7 +4371,7 @@ RASRPC_VERSION = 1
 --} ReqTypes;
 --- The <code>ReqTypes</code> enumerations indicate the different types of message requests that can be passed in
 --the <code>RB_ReqType</code> field of <code>RequestBuffer</code> structure.
--- @see [MS-RRASM] <code>2.2.1.1.18 ReqTypes</code>
+-- * [MS-RRASM] <code>2.2.1.1.18 ReqTypes</code>
 --####################################################################--
 RRAS_RegTypes = {}
 RRAS_RegTypes['PORTENUM'] = 21
@@ -4395,9 +4395,9 @@ RRAS_RegTypes['GETNDISWANDRIVERCAPS'] = 111
 --- The <code>RequestBuffer</code> is a generic information container used by the <code>RasRpcSubmitRequest</code>
 --method to set or retrieve information on RRAS server. This method performs
 --serialization of <code>RequestBuffer</code> structure.
+-- Note: This structure is not an IDL specification and as such is not translated into NDR.
 -- @return Returns a blob of <code>RequestBuffer</code> structure.
--- @note This structure is not an IDL specification and as such is not translated into NDR.
--- @see [MS-RRASM] <code>2.2.1.2.218 RequestBuffer</code>
+-- * [MS-RRASM] <code>2.2.1.2.218 RequestBuffer</code>
 --####################################################################--
 function RRAS_marshall_RequestBuffer(RB_PCBIndex, RB_ReqType, RB_Buffer)
 	local rb_blob, RB_Dummy, RB_Done, Alignment
@@ -4421,7 +4421,7 @@ local RRAS_DEBUG_LVL = 2 --debug level for rras operations when calling stdnse.p
 
 --####################################################################--
 --- RRAS operation numbers.
--- @see [MS-RRASM] <code>3.3.4 Message Processing Events and Sequencing Rules</code>
+-- * [MS-RRASM] <code>3.3.4 Message Processing Events and Sequencing Rules</code>
 --####################################################################--
 RRAS_Opnums = {}
 RRAS_Opnums["RasRpcDeleteEntry"] = 5
@@ -4451,7 +4451,7 @@ RRAS_Opnums["RasRpcGetVersion"] = 15
 -- @return (status, result)
 --* <code>status == true</code> -> <code>result</code> is a blob that represent a <code>pRegBuffer</code> .
 --* <code>status == false</code> -> <code>result</code> is a error message that caused the fuzz.
--- @see [MS-RRASM] <code>3.3.4.5 RasRpcSubmitRequest (Opnum 12)</code>
+-- * [MS-RRASM] <code>3.3.4.5 RasRpcSubmitRequest (Opnum 12)</code>
 --####################################################################--
 function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
 	--sanity check
@@ -4503,7 +4503,7 @@ DNSSERVER_VERSION = 5
 --####################################################################--
 ---The list of names that are used in (name, value) pairs in DNS Server
 --Configuration information is given below.
--- @see [MS-DNSP] <code>3.1.1.1 DNS Server Configuration Information</code>
+-- * [MS-DNSP] <code>3.1.1.1 DNS Server Configuration Information</code>
 DNSSERVER_ConfInfo =
 	{
 	DNSSERVER_IntProp = {},
@@ -4519,7 +4519,7 @@ local DNSSERVER_DEBUG_LVL = 2 --debug level for dnsserver operations when callin
 
 --####################################################################--
 --- DNSSERVER operation numbers.
--- @see [MS-DNSP] <code>3.1.4 Message Processing Events and Sequencing Rules</code>
+-- * [MS-DNSP] <code>3.1.4 Message Processing Events and Sequencing Rules</code>
 --####################################################################--
 DNSSERVER_Opnums = {}
 DNSSERVER_Opnums['R_DnssrvOperation'] = 0
@@ -4563,7 +4563,7 @@ LONG R_DnssrvQuery(
 --data-structure as indicated by <code>result['type_id']</code>.
 --* <code>status == false</code> ->
 --** <code>result</code> - Is a error message that caused the fuzz.
--- @see [MS-DNSP] <code>3.1.4.2 R_DnssrvQuery (Opnum 1)</code>
+-- * [MS-DNSP] <code>3.1.4.2 R_DnssrvQuery (Opnum 1)</code>
 --####################################################################--
 function DNSSERVER_Query(smbstate, server_name, zone, operation)
 	local status
@@ -4652,7 +4652,7 @@ end
 --####################################################################--
 ---Generates a random string of the requested length.
 --@param length The length of the string to return.
---@param set    The set of letters to choose from. Default: ASCII letters and numbers
+--@param charset    The set of letters to choose from. Default: ASCII letters and numbers
 --@return The random string. 
 --####################################################################--
 function random_crap(length, charset)
