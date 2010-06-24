@@ -97,10 +97,11 @@
 #else
 #include <sys/ioctl.h>
 #endif
-#include <net/if_arp.h>
 
 #include <assert.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <net/if_arp.h>
 
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* why doesn't OpenBSD do this? */
