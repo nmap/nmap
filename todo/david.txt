@@ -1,4 +1,3 @@
-* Do JavaScript magic to expand/contract NSEDoc sidebar.
 * Brandon says: "Sometime -sV goes just a little too fast and gets a connect
   error.  It should back off and try again a few times before giving up trying
   to fingerprint the service." It looks like
@@ -34,3 +33,4 @@ Done:
 * Try removing the call to PacketSetReadTimeout in readip_pcap, so that Windows
   uses the short 2 ms timeout like some other platforms without selectable pcap
   fds do. Measure difference in time and CPU time.
+* Do JavaScript magic to expand/contract NSEDoc sidebar.
