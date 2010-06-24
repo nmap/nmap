@@ -2,11 +2,12 @@ top_srcdir = @top_srcdir@
 srcdir = @srcdir@
 
 CXX = @CXX@
-AR = ar
-RANLIB = @RANLIB@
+CXXFLAGS = @CXXFLAGS@
+CPPFLAGS = @CPPFLAGS@ $(DEFS)
 DEFS = @DEFS@
 DEFS += -D_FORTIFY_SOURCE=2
-CPPFLAGS = @CPPFLAGS@
+AR = ar
+RANLIB = @RANLIB@
 
 LIBDNETDIR = @LIBDNETDIR@
 LIBPCAPDIR = @libpcapdir@
@@ -33,7 +34,7 @@ Makefile: Makefile.in $(top_srcdir)/config.status
 	cd $(top_srcdir) && ./config.status
 
 .cc.o:
-	$(CXX) -c $(CPPFLAGS) $(DEFS) $*.cc
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
 makefile.dep:
 	$(CXX) -MM $(CPPFLAGS) $(SRCS) > $@
