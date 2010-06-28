@@ -48,6 +48,33 @@
  * Things that have NOT been done yet                                        *
  *****************************************************************************/
 
+* [EM] Some things to keep in mind for the implementation and to update
+  our design docs accordingly:
+  o multi-client support
+  o delaying RECV message printing so the CAPT messages are shown in
+    order. 
+  o send NEP_QUIT only if necessary, just close connection if possible
+  o Implement different "modes" for the server: complete access, one-time-access, and restricted
+
+o [EM] Things to decide on:
+  o Make a mockup of the desired standard output in a regular echo mode
+    execution, like nping -c 2 --tcp --flags SYN -p 80 scanme.nmap.org
+    (let's assume there are some differences found, like a NAT is in
+    place)
+     o A key aspect of this task is determining what diffs are going
+       to look like.
+  o Decide on packet specifiers that can be passed to the server so it
+    can recognize packets sent by the client even if a number of headers
+    have changed and pass them back. (see Fyodor/Luis IM discussion logs
+    from 6/28/10).
+
+* [EM] Pick a default port number
+
+* [EM] Update EchoProtoRFC.txt and any of the other design files as
+  appropriate and send to nmap-dev for comments
+
+* [EM] Begin coding the echo mode system
+
 * Fix Windows rtt values.  Right now Nsock does not seem to be giving
   the callback at the proper time, or something.
 
