@@ -3414,7 +3414,7 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   u8 *p;
   int timedout = 0;
   int badcounter = 0;
-  unsigned int offset;
+  unsigned int offset=0;
   struct timeval tv_start, tv_end;
 
   if (!pd)
