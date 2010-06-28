@@ -337,7 +337,7 @@ int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *
   struct addrinfo hints;
   struct addrinfo *result;
   char portbuf[16];
-  int rc;
+  size_t rc=0;
 
   assert(hostname);
   assert(ss);
@@ -3293,7 +3293,7 @@ pcapdev (up to a length of pcapdevlen).  Returns 0 and fills in pcapdev if succe
 /* Compute exponential sleep time for my_pcap_open_live(). Returned
  * value is 5 to the times-th power (5^times) */
 static unsigned int compute_sleep_time(unsigned int times){
-    int i=0;
+    unsigned int i=0;
     unsigned int result=1;
     for(i=0; i<times; i++)
         result*=5;
