@@ -101,6 +101,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/socket.h> /* OpenBSD sockaddr is here */
+#include <netinet/in.h> /* OpenBSD in_addr is here */
 #include <net/if_arp.h>
 
 #if HAVE_NET_IF_H
@@ -110,6 +112,7 @@
 #endif
 #endif
 #ifndef NETINET_IP_H  /* why does OpenBSD not do this? */
+typedef u_int32_t n_time; /* defined somewhere else, a PITA to include */
 #include <netinet/ip.h> 
 #define NETINET_IP_H
 #endif
