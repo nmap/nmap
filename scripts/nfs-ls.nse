@@ -12,8 +12,15 @@ Since the file attributes shown in the results are the result of the
 GETATTR, READDIRPLUS procedures and all the like then these attributes
 are the attributes of the local files system.
 
-Additional Info: The current version of the script supports only NFSv3
-when doing file listing.
+The following access permissions are only shown for the NFSv3:
+o Read:     Read data from file or read a directory.
+o Lookup:   Look up a name in a directory
+            (no meaning for on-directory objects).
+o Modify:   Rewrite existing file data or modify existing
+            directory entries.
+o Extend:   Write new data or add directory entries.
+o Delete:   Delete an existing directory entry.
+o Execute:  Execute file (no meaning for a directory).
 ]]
 
 ---
@@ -24,17 +31,23 @@ when doing file listing.
 -- |   Arguments:
 -- |     maxfiles: 10 (file listing output limited)  time: mtime
 -- |
--- |      PERMISSION  UID   GID   SIZE     DATE              FILENAME
+-- |   NFS Export: /mnt/nfs/files
+-- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
 -- |
--- | NFS: drwxrwxrwx  0     0     4096     2010-06-12 12:55  /tmp
--- |      srwxr-xr-x  0     0     0        2010-06-12 11:34  wpa_ctrl_22880-1
+-- |     PERMISSION  UID   GID   SIZE     DATE              FILENAME
+-- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28  /mnt/nfs/files
+-- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58  sources
+-- |     -rw-------  1000  1002  23606    2010-06-17 12:28  notes
 -- |
--- | NFS: drwxr-xr-x  1000  100   4096     2010-06-11 22:31  /home/storage/backup
--- |      -rw-r--r--  1000  1002  0        2010-06-10 08:34  filetest
--- |      drwx------  1000  100   16384    2010-02-05 17:05  lost+found
--- |      drwxrwxr-x  1000  100   4096     2010-06-11 19:08  net_packet
--- |      -rw-r--r--  0     0     5        2010-06-10 11:32  rootfile
--- |_     lrwxrwxrwx  1000  1002  8        2010-06-10 08:34  symlink
+-- |   NFS Export: /home/storage/backup
+-- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
+-- |
+-- |     PERMISSION  UID   GID   SIZE     DATE              FILENAME
+-- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31  /home/storage/backup
+-- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34  filetest
+-- |     drwx------  1000  100   16384    2010-02-05 17:05  lost+found
+-- |     -rw-r--r--  0     0     5        2010-06-10 11:32  rootfile
+-- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34  symlink
 --
 -- @args nfs-ls.maxfiles If set limits the amount of files returned by
 --       the script when using nfs-ls.dirlist argument. If set to zero
@@ -57,7 +70,9 @@ when doing file listing.
 -- Revised 06/11/2010 - v0.5 - make the mtime the default time to show.
 -- Revised 06/12/2010 - v0.6 - reworked the output to use the tab
 --                             library.
---
+-- Revised 06/27/2010 - v0.7 - added NFSv3 ACCESS support.
+-- Revised 06/28/2010 - v0.8 - added NFSv2 support.
+-- 
 
 author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -87,11 +102,11 @@ local function table_attributes(nfs, mount, attr)
   return file
 end
 
-local function table_dirlist(nfs, mount, dirs)
+local function table_dirlist(nfs, mount, dirlist)
   local ret, files, attrs = {}, {}, {}
   local idx = 1
 
-  for _, v in ipairs(dirs.entries) do
+  for _, v in ipairs(dirlist) do
     if ((0 < nfs.maxfiles) and (#files >= nfs.maxfiles)) then
       break
     end
@@ -115,8 +130,8 @@ local function table_dirlist(nfs, mount, dirs)
   return ret
 end
 
-local function nfs_ls(nfs, mount, results)
-  local dirs, attr = {}, {}
+local function nfs_ls(nfs, mount, results, access)
+  local dirs, attr, acs = {}, {}, {}
   local nfsobj = rpc.NFS:new()
   local mnt_comm, nfs_comm, fhandle
 
@@ -131,6 +146,13 @@ local function nfs_ls(nfs, mount, results)
     return false, status
   end 
 
+  -- use simple chack since NFSv1 is not used anymore.
+  if (mnt_comm.version ~= nfs_comm.version) then
+    rpc.Helper.UnmountPath(mnt_comm, mount)
+    return false, string.format("versions mismatch, nfs v%d - mount v%d",
+                                nfs_comm.version, mnt_comm.version)
+  end
+
   status, attr = nfsobj:GetAttr(nfs_comm, fhandle)
   if not status then
     rpc.Helper.NfsClose(nfs_comm)
@@ -140,10 +162,39 @@ local function nfs_ls(nfs, mount, results)
 
   table.insert(results, table_attributes(nfs, mount, attr))
 
-  status, dirs = nfsobj:ReadDirPlus(nfs_comm, fhandle)
-  if status then
-    for _,v in pairs(table_dirlist(nfs, mount, dirs)) do
-      table.insert(results, v)
+  if nfs_comm.version == 3 then
+    status, acs = nfsobj:Access(nfs_comm, fhandle, 0x0000003F)
+    if status then
+      acs.str = rpc.Util.format_access(acs.mask, nfs_comm.version)
+      table.insert(access, acs.str)
+    end
+
+    status, dirs = nfsobj:ReadDirPlus(nfs_comm, fhandle)
+    if status then
+      for _,v in ipairs(table_dirlist(nfs, mount, dirs.entries)) do
+        table.insert(results, v)
+      end
+    end
+  elseif nfs_comm.version == 2 then
+    status, dirs = nfsobj:ReadDir(nfs_comm, fhandle)
+    if status then
+      local lookup = {}
+      for _, v in ipairs(dirs.entries) do
+        if ((0 < nfs.maxfiles) and (#lookup >= nfs.maxfiles)) then
+           break
+        end
+
+        if v.name ~= ".." and v.name ~= "." then
+          local f = {}
+          status, f = nfsobj:LookUp(nfs_comm, fhandle, v.name)
+          f.name = v.name
+          table.insert(lookup, f)
+        end
+      end
+
+      for _, v in ipairs(table_dirlist(nfs, mount, lookup)) do
+        table.insert(results, v)
+      end
     end
   end
 
@@ -156,7 +207,7 @@ local function report(table)
   local outtab = tab.new(6)
 
   tab.nextrow(outtab)
-  tab.add(outtab, 1, "     PERMISSION")
+  tab.add(outtab, 1, "    PERMISSION")
   tab.add(outtab, 2, "UID")
   tab.add(outtab, 3, "GID")
   tab.add(outtab, 4, "SIZE")
@@ -164,17 +215,10 @@ local function report(table)
   tab.add(outtab, 6, "FILENAME")
 
   for _,f in pairs(table) do
-    local perm = f.type .. f.mode
+    local perm = "    " .. f.type .. f.mode
     tab.nextrow(outtab)
-    if string.find(f.filename,"^/") then
-      tab.add(outtab, 1, "\n")
-      tab.nextrow(outtab)
-      perm = "NFS: " .. perm
-    else
-      perm = "     " .. perm
-    end
-      tab.addrow(outtab, perm, f.uid, f.gid,
-                         f.size, f.time, f.filename)
+    tab.addrow(outtab, perm, f.uid, f.gid,
+               f.size, f.time, f.filename)
   end
   return tab.dump(outtab)
 end
@@ -202,15 +246,14 @@ action = function(host, port)
     nfs_info.time = "mtime"
   end
 
-  if vbs > 0 then
+  if vbs > 1 then
     local args, str = {}, ""
     args['name'] = 'Arguments:'
     if nfs_info.maxfiles > 0 then
       str = str .. string.format("maxfiles: %d (file listing output limited) ",
                                  nfs_info.maxfiles)
     end
-    str = str .. " time: " .. nfs_info.time
-    table.insert(args, str)
+    table.insert(args, string.format("%s time: %s", str, nfs_info.time))
     table.insert(o, args)
   end
 
@@ -220,15 +263,18 @@ action = function(host, port)
   end
 
   for _, v in ipairs(mounts) do
-    local err
-    status, err = nfs_ls(nfs_info, v.name, results)
+    local results, access, str, err = {}, {}, ""
+    status, err = nfs_ls(nfs_info, v.name, results, access)
     if not status then
-      stdnse.print_debug(1, "ERROR: %s", err)
+      table.insert(o, string.format("ERROR: %s", err))
+    else
+      str = "\n  NFS Export: " .. results[1].filename
+      if #access ~= 0 then
+      	str = str .. "\n  NFS Access: " .. access[1]
+      end
+      table.insert(o, str)
+      table.insert(o, report(results))
     end
-  end
-
-  if #results then
-    table.insert(o, report(results))
   end
 
   return stdnse.format_output(true, o)
