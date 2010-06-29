@@ -833,7 +833,7 @@ Mount = {
 			end
 
 			local data_follows
-			pos, data_follows = bin.unpack( ">I", data, pos )
+			pos, data_follows = Util.unmarshall_uint32(data, pos)
 
 			if data_follows ~= 1 then
 				break
@@ -848,14 +848,13 @@ Mount = {
 			if (not(status)) then
 				return false, "Mount.Export: Failed to call GetAdditionalBytes"
 			end
-			pos, len = bin.unpack(">I", data, pos )
+			pos, len = Util.unmarshall_uint32(data, pos)
 
 			status, data = comm:GetAdditionalBytes( data, pos, len )
 			if (not(status)) then
 				return false, "Mount.Export: Failed to call GetAdditionalBytes"
 			end
-			pos, entry.name = bin.unpack("A" .. len, data, pos )
-			pos = pos + Util.CalcFillBytes( len )
+			pos, entry.name = Util.unmarshall_vopaque(len, data, pos)
 
 			-- decode groups
 			while true do
@@ -865,7 +864,7 @@ Mount = {
 				if (not(status)) then
 					return false, "Mount.Export: Failed to call GetAdditionalBytes"
 				end
-				pos, data_follows = bin.unpack( ">I", data, pos )
+			        pos, data_follows = Util.unmarshall_uint32(data, pos)
 
 				if data_follows ~= 1 then
 					break
@@ -875,15 +874,13 @@ Mount = {
 				if (not(status)) then
 					return false, "Mount.Export: Failed to call GetAdditionalBytes"
 				end
-				pos, len = bin.unpack( ">I", data, pos )
+			        pos, len = Util.unmarshall_uint32(data, pos)
 				status, data = comm:GetAdditionalBytes( data, pos, len )
 				if (not(status)) then
 					return false, "Mount.Export: Failed to call GetAdditionalBytes"
 				end
-				pos, group = bin.unpack( "A" .. len, data, pos )
-
+				pos, group = Util.unmarshall_vopaque(len, data, pos)
 				table.insert( entry, group )
-				pos = pos + Util.CalcFillBytes( len )
 			end		
 			table.insert(entries, entry)
 		end
@@ -902,11 +899,7 @@ Mount = {
 		local _, pos, data, header, fhandle = "", 1, "", "", {}
 		local status, len
 
-		data = bin.pack(">IA", path:len(), path)
-
-		for i=1, Util.CalcFillBytes( path:len() ) do
-			data = data .. string.char( 0x00 )
-		end
+                data = Util.marshall_vopaque(path)
 
 		packet = comm:EncodePacket( nil, Mount.Procedure.MOUNT, { type=Portmap.AuthType.NULL }, data )
 		if (not(comm:SendPacket(packet))) then
@@ -951,7 +944,7 @@ Mount = {
 		if (not(status)) then
 			return false, "Mount: Failed to call GetAdditionalBytes"
 		end
-		pos, mount_status = bin.unpack(">I", data, pos )
+		pos, mount_status = Util.unmarshall_uint32(data, pos)
 
 		if (mount_status ~= Mount.StatCode.MNT_OK) then
 			if (Mount.StatMsg[mount_status]) then
@@ -996,11 +989,7 @@ Mount = {
 		local packet, status
 		local _, pos, data, header, fhandle = "", 1, "", "", {}
 
-		data = bin.pack(">IA", path:len(), path)
-
-		for i=1, Util.CalcFillBytes( path:len() ) do
-			data = data .. string.char( 0x00 )
-		end
+                data = Util.marshall_vopaque(path)
 
 		packet = comm:EncodePacket( nil, Mount.Procedure.UMNT, { type=Portmap.AuthType.NULL }, data )
 		if (not(comm:SendPacket(packet))) then
@@ -1207,12 +1196,92 @@ NFS = {
 		},
 	},
 
+        -- ACCESS values used to check the bit mask.
+        AccessBits =
+        {
+          [3] =
+          {
+            ACCESS_READ    = 0x0001,
+            ACCESS_LOOKUP  = 0x0002,
+            ACCESS_MODIFY  = 0x0004,
+            ACCESS_EXTEND  = 0x0008,
+            ACCESS_DELETE  = 0x0010,
+            ACCESS_EXECUTE = 0x0020,
+          },
+        },
+
+        FSinfoBits =
+        {
+          [3] =
+          {
+            FSF_LINK         = 0x0001,
+            FSF_SYMLINK      = 0x0002,
+            FSF_HOMOGENEOUS  = 0x0008,
+            FSF_CANSETTIME   = 0x0010,
+          },
+        },
+
 	new = function(self,o)
 		o = o or {}
         setmetatable(o, self)
         self.__index = self
 		return o
     	end,
+
+        CheckStat = function (self, procedurename, version, status)
+          if (status ~= NFS.StatCode[version].NFS_OK) then
+	    if (NFS.StatMsg[status]) then
+	      stdnse.print_debug(string.format("%s failed: %s",
+	                                       procedurename, NFS.StatMsg[status])) 
+	    else
+	      stdnse.print_debug(string.format("%s failed: code %d",
+	                                       procedurename, status))
+	    end
+	    return false
+          end
+
+	  return true
+	end,
+
+        AccessRead = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_READ)
+        end,
+
+        AccessLookup = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_LOOKUP)
+        end,
+
+        AccessModify = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_MODIFY)
+        end,
+
+        AccessExtend = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_EXTEND)
+        end,
+
+        AccessDelete = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_DELETE)
+        end,
+
+        AccessExecute = function (self, mask, version)
+          return bit.band(mask, NFS.AccessBits[version].ACCESS_EXECUTE)
+        end,
+
+        FSinfoLink = function(self, mask, version)
+          return bit.band(mask, NFS.FSinfoBits[version].FSF_LINK)
+        end,
+
+        FSinfoSymlink = function(self, mask, version)
+          return bit.band(mask, NFS.FSinfoBits[version].FSF_SYMLINK)
+        end,
+
+        FSinfoHomogeneous = function(self, mask, version)
+          return bit.band(mask, NFS.FSinfoBits[version].FSF_HOMOGENEOUS)
+        end,
+
+        FSinfoCansettime = function(self, mask, version)
+          return bit.band(mask, NFS.FSinfoBits[version].FSF_CANSETTIME)
+        end,
 
     	--- Decodes the READDIR section of a NFS ReadDir response
 	--
@@ -1238,14 +1307,9 @@ NFS = {
 			return -1, nil
 		end
 		
-		pos, status = bin.unpack(">I", data, pos)
-		if (status ~= NFS.StatCode[comm.version].NFS_OK) then
-			if (NFS.StatMsg[status]) then
-				stdnse.print_debug(string.format("READDIR query failed: %s", NFS.StatMsg[status])) 
-			else
-				stdnse.print_debug(string.format("READDIR query failed: code %d", status))
-			end
-			return -1, nil
+		pos, status = Util.unmarshall_uint32(data, pos)
+		if (not self:CheckStat("READDIR", comm.version, status)) then
+		  return -1, nil
 		end
 
 		if ( 3 == comm.version ) then
@@ -1257,7 +1321,7 @@ NFS = {
 				return -1, nil
 			end
 
-			pos, value_follows = bin.unpack(">I", data, pos)
+			pos, value_follows = Util.unmarshall_uint32(data, pos)
 			if value_follows == 0 then
 				return -1, nil
 			end
@@ -1286,8 +1350,7 @@ NFS = {
 				return -1, nil
 			end
 	
-			pos, value_follows = bin.unpack(">I", data, pos)
-
+			pos, value_follows = Util.unmarshall_uint32(data, pos)
 			if ( value_follows == 0 ) then
 				break
 			end
@@ -1298,14 +1361,14 @@ NFS = {
 					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
-				pos, entry.fileid = bin.unpack(">L", data, pos )
+				pos, entry.fileid = Util.unmarshall_uint64(data, pos )
 			else
 				status, data = comm:GetAdditionalBytes( data, pos, 4 )
 				if (not(status)) then
 					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
-				pos, entry.fileid = bin.unpack(">I", data, pos )
+				pos, entry.fileid = Util.unmarshall_uint32(data, pos)
 			end
 
 			status, data = comm:GetAdditionalBytes( data, pos, 4 )
@@ -1314,30 +1377,28 @@ NFS = {
 				return -1, nil
 			end
 			
-			pos, entry.length = bin.unpack(">I", data, pos)
+			pos, entry.length = Util.unmarshall_uint32(data, pos)
 			status, data = comm:GetAdditionalBytes( data, pos, entry.length )
 			if (not(status)) then
 				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
-			
-			pos, entry.name = bin.unpack("A" .. entry.length, data, pos)
-			pos = pos + Util.CalcFillBytes( entry.length )
 
+		        pos, entry.name = Util.unmarshall_vopaque(entry.length, data, pos)
 			if ( 3 == comm.version ) then
 				status, data = comm:GetAdditionalBytes( data, pos, 8 )
 				if (not(status)) then
 					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
-				pos, entry.cookie = bin.unpack(">L", data, pos)
+				pos, entry.cookie = Util.unmarshall_uint64(data, pos)
 			else
 				status, data = comm:GetAdditionalBytes(  data, pos, 4 )
 				if (not(status)) then
 					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
-				pos, entry.cookie = bin.unpack(">I", data, pos)
+				pos, entry.cookie = Util.unmarshall_uint32(data, pos)
 			end
 			table.insert( response.entries, entry )
 		end
@@ -1389,7 +1450,128 @@ NFS = {
 		return true, response
 	end,
 
-        ReadDirPlusDecode =  function(self, comm, data, pos)
+        LookUpDecode = function(self, comm, data, pos)
+          local lookup, status, len, _ = {}
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("LOOKUP", comm.version, status)) then
+	    return -1, nil
+	  end
+          
+          if (comm.version == 3) then
+            status, data = comm:GetAdditionalBytes( data, pos, 4)
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+            _, len = Util.unmarshall_uint32(data, pos)
+            status, data = comm:GetAdditionalBytes( data, pos, len + 4)
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+            pos, lookup.fhandle = bin.unpack( "A" .. len + 4, data, pos)
+
+            status, data = comm:GetAdditionalBytes( data, pos, 4)
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+
+            lookup.attributes = {}
+            pos, value_follows = Util.unmarshall_uint32(data, pos)
+            if (value_follows ~= 0) then
+              status, data = comm:GetAdditionalBytes(data, pos, 84)
+              if (not(status)) then
+                stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+                return -1, nil
+              end
+              pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+            else
+              stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
+            end
+
+            status, data = comm:GetAdditionalBytes( data, pos, 4)
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+
+            lookup.dir_attributes = {}
+            pos, value_follows = Util.unmarshall_uint32(data, pos)
+            if (value_follows ~= 0) then
+              status, data = comm:GetAdditionalBytes(data, pos, 84)
+              if (not(status)) then
+                stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+                return -1, nil
+              end
+              pos, lookup.dir_attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+            else
+              stdnse.print_debug(4, "NFS.LookUpDecode: File Attributes follow failed")
+            end
+
+          elseif (comm.version < 3) then
+            status, data = comm:GetAdditionalBytes( data, pos, 32)
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+            pos, lookup.fhandle = bin.unpack("A32", data, pos)
+            status, data = comm:GetAdditionalBytes( data, pos, 64 )
+            if (not(status)) then
+              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              return -1, nil
+            end
+            pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+
+          else
+            stdnse.pritn_debug("NFS.LookUpDecode: NFS unsupported version %d", comm.version)
+            return -1, nil
+          end
+
+          return pos, lookup
+        end,
+
+        LookUp = function(self, comm, dir_handle, file)
+          local status, packet
+          local pos, data = 1, ""
+          local header, response = {}, {}
+
+          if (not(dir_handle)) then
+            return false, "LookUp: No dirhandle received"
+          end
+
+          data = Util.marshall_opaque(dir_handle) .. Util.marshall_vopaque(file)
+	  packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].LOOKUP,
+	                             {type=Portmap.AuthType.NULL}, data)
+	  if(not(comm:SendPacket(packet))) then
+	    return false, "LookUp: Failed to send data"
+	  end
+
+	  status, data = comm:ReceivePacket()
+	  if ( not(status) ) then
+	    return false, "LookUp: Failed to read data from socket"
+	  end
+
+	  pos, header = comm:DecodeHeader(data, pos)
+	  if not header then
+	    return false, "LookUp: Failed to decode header"
+	  end
+	  pos, response = self:LookUpDecode(comm, data, pos)
+	  if (not(response)) then
+	    return false, "LookUp: Failed to decode the LOOKUP section"
+	  end
+
+	  return true, response
+        end,
+
+        ReadDirPlusDecode = function(self, comm, data, pos)
           local response, status, value_follows, _ = {}
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
@@ -1398,13 +1580,8 @@ NFS = {
             return -1, nil
           end
 
-          pos, status = bin.unpack(">I", data, pos)
-	  if (status ~= NFS.StatCode[comm.version].NFS_OK) then
-	    if (NFS.StatMsg[status]) then
-	      stdnse.print_debug(string.format("READDIRPLUS query failed: %s", NFS.StatMsg[status])) 
-	    else
-	      stdnse.print_debug(string.format("READDIRPLUS query failed: code %d", status))
-	    end
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("READDIRPLUS", comm.version, status)) then
 	    return -1, nil
 	  end
           
@@ -1472,9 +1649,8 @@ NFS = {
 	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
-			
-	    pos, entry.name = bin.unpack("A" .. entry.length, data, pos)
-	    pos = pos + Util.CalcFillBytes(entry.length)
+		
+	    pos, entry.name = Util.unmarshall_vopaque(entry.length, data, pos)
 	    status, data = comm:GetAdditionalBytes(data, pos, 8)
 	    if not status then
 	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
@@ -1490,6 +1666,11 @@ NFS = {
             entry.attributes = {}
 	    pos, value_follows = bin.unpack(">I", data, pos)
 	    if (value_follows ~= 0) then
+	      status, data = comm:GetAdditionalBytes(data, pos, 84)
+	      if not status then
+	        stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	        return -1, nil
+	      end
 	      pos, entry.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
             else
 	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: %s Attributes follow failed",
@@ -1571,6 +1752,324 @@ NFS = {
 	  return true, response
         end,
 
+        FsStatDecode = function(self, comm, data, pos)
+          local fsstat, status, value_follows = {}
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("FSSTAT", comm.version, status)) then
+	    return -1, nil
+	  end
+
+	  fsstat.attributes = {}
+	  pos, value_follows = Util.unmarshall_uint32(data, pos)
+	  if (value_follows ~= 0) then
+	    status, data = comm:GetAdditionalBytes(data, pos, 84)
+	    if not status then
+	      stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	      return -1, nil
+	    end
+	    pos, fsstat.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+          else
+	    stdnse.print_debug(4, "NFS.FsStatDecode: Attributes follow failed")
+	  end
+
+	  status, data = comm:GetAdditionalBytes( data, pos, 52)
+	  if not status then
+	    stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	    return -1, nil
+	  end
+
+          pos, fsstat.tbytes, fsstat.fbytes, fsstat.abytes, fsstat.tfiles,
+          fsstat.ffiles, fsstat.afiles = Util.unmarshall_nfssize3(data, pos, 6)
+	  pos, fsstat.invarsec = Util.unmarshall_uint32(data, pos)
+
+	  return pos, fsstat
+        end,
+
+        FsStat = function(self, comm, file_handle)
+          local status, packet
+          local pos, data = 1, ""
+          local reponse = {}
+
+          if (comm.version < 3) then
+            return false, string.format("NFS version: %d does not support FSSTAT",
+                                        comm.version)
+          end
+
+          if not file_handle then
+            return false, "FsStat: No filehandle received"
+          end
+
+          data = bin.pack("A", file_handle)
+          packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSSTAT,
+                                    {type = Portmap.AuthType.NULL}, data)
+
+          if (not(comm:SendPacket(packet))) then
+            return false, "FsStat: Failed to send data"
+          end
+
+          status, data = comm:ReceivePacket()
+          if not status then
+	    return false, "FsStat: Failed to read data from socket"
+          end
+
+	  pos, header = comm:DecodeHeader(data, pos)
+	  if not header then
+	    return false, "FsStat: Failed to decode header"
+	  end
+
+	  pos, response = self:FsStatDecode(comm, data, pos)
+	  if not response then
+	    return false, "FsStat: Failed to decode the FSSTAT section"
+	  end
+	  return true, response
+        end,
+
+        FsInfoDecode = function(self, comm, data, pos)
+          local fsinfo, status, value_follows = {}
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("FSINFO", comm.version, status)) then
+	    return -1, nil
+	  end
+
+	  fsinfo.attributes = {}
+	  pos, value_follows = Util.unmarshall_uint32(data, pos)
+	  if (value_follows ~= 0) then
+	    status, data = comm:GetAdditionalBytes(data, pos, 84)
+	    if not status then
+	      stdnse.print_debug("NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
+	      return -1, nil
+	    end
+	    pos, fsinfo.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+          else
+	    stdnse.print_debug(4, "NFS.FsInfoDecode: Attributes follow failed")
+	  end
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 48)
+	  if not status then
+	    stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	    return -1, nil
+	  end
+  
+          pos, fsinfo.rtmax, fsinfo.rtpref, fsinfo.rtmult,
+          fsinfo.wtmax, fsinfo.wtpref, fsinfo.wtmult,
+          fsinfo.dtpref = Util.unmarshall_uint32(data, pos, 7)
+          pos, fsinfo.maxfilesize = Util.unmarshall_size3(data, pos)
+          pos, fsinfo.time_delta = Util.unmarshall_nfstime(data, pos)
+          pos, fsinfo.properties = Util.unmarshall_uint32(data, pos)
+
+          return pos, fsinfo
+        end,
+
+        FsInfo = function(self, comm, file_handle)
+          local status, packet
+          local pos, data = 1, ""
+          local reponse = {}
+
+          if (comm.version < 3) then
+            return false, string.format("NFS version: %d does not support FSINFO",
+                                        comm.version)
+          end
+
+          if not file_handle then
+            return false, "FsInfo: No filehandle received"
+          end
+
+          data = Util.marshall_opaque(file_handle)
+          packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].FSINFO,
+                                    {type = Portmap.AuthType.NULL}, data)
+
+          if (not(comm:SendPacket(packet))) then
+            return false, "FsInfo: Failed to send data"
+          end
+
+          status, data = comm:ReceivePacket()
+          if not status then
+	    return false, "FsInfo: Failed to read data from socket"
+          end
+
+	  pos, header = comm:DecodeHeader(data, pos)
+	  if not header then
+	    return false, "FsInfo: Failed to decode header"
+	  end
+
+	  pos, response = self:FsInfoDecode(comm, data, pos)
+	  if not response then
+	    return false, "FsInfo: Failed to decode the FSINFO section"
+	  end
+	  return true, response
+        end,
+
+        PathConfDecode = function(self, comm, file_handle)
+          local pconf, status, value_follows = {}
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("PATHCONF", comm.version, status)) then
+	    return -1, nil
+	  end
+
+	  pconf.attributes = {}
+	  pos, value_follows = Util.unmarshall_uint32(data, pos)
+	  if (value_follows ~= 0) then
+	    status, data = comm:GetAdditionalBytes(data, pos, 84)
+	    if not status then
+	      stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+	      return -1, nil
+	    end
+	    pos, pconf.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+          else
+	    stdnse.print_debug(4, "NFS.PathConfDecode: Attributes follow failed")
+	  end
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 24)
+	  if not status then
+	    stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+	    return -1, nil
+	  end
+
+	  pos, pconf.linkmax, pconf.name_max, pconf.no_trunc,
+	  pconf.chown_restricted, pconf.case_insensitive,
+	  pconf.case_preserving = Util.unmarshall_uint32(data, pos, 6)
+
+	  return pos, pconf
+        end,
+
+        PathConf = function(self, comm, file_handle)
+          local status, packet
+          local pos, data = 1, ""
+          local reponse = {}
+
+          if (comm.version < 3) then
+            return false, string.format("NFS version: %d does not support PATHCONF",
+                                        comm.version)
+          end
+
+          if not file_handle then
+            return false, "PathConf: No filehandle received"
+          end
+
+          data = Util.marshall_opaque(file_handle)
+          packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].PATHCONF,
+                                    {type = Portmap.AuthType.NULL}, data)
+
+          if (not(comm:SendPacket(packet))) then
+            return false, "PathConf: Failed to send data"
+          end
+
+          status, data = comm:ReceivePacket()
+          if not status then
+	    return false, "PathConf: Failed to read data from socket"
+          end
+
+	  pos, header = comm:DecodeHeader(data, pos)
+	  if not header then
+	    return false, "PathConf: Failed to decode header"
+	  end
+
+	  pos, response = self:PathConfDecode(comm, data, pos)
+	  if not response then
+	    return false, "PathConf: Failed to decode the PATHCONF section"
+	  end
+	  return true, response
+        end,
+
+        AccessDecode = function(self, comm, data, pos)
+          local access, status, value_follows = {}
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, status = Util.unmarshall_uint32(data, pos)
+	  if (not self:CheckStat("ACCESS", comm.version, status)) then
+	    return -1, nil
+	  end
+
+	  access.attributes = {}
+	  pos, value_follows = Util.unmarshall_uint32(data, pos)
+	  if (value_follows ~= 0) then
+	    status, data = comm:GetAdditionalBytes(data, pos, 84)
+	    if not status then
+	      stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+	      return -1, nil
+	    end
+	    pos, access.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
+          else
+	    stdnse.print_debug(4, "NFS.AccessDecode: Attributes follow failed")
+	  end
+
+	  status, data = comm:GetAdditionalBytes(data, pos, 4)
+          if not status then
+            stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+            return -1, nil
+          end
+
+          pos, access.mask = Util.unmarshall_uint32(data, pos)
+
+          return pos, access
+        end,
+
+        Access = function(self, comm, file_handle, access)
+	  local status, packet
+	  local pos, data = 1, ""
+	  local header, response = {}, {}
+
+          if (comm.version < 3) then
+            return false, string.format("NFS version: %d does not support ACCESS",
+                                        comm.version)
+          end
+
+          if not file_handle then
+            return false, "Access: No filehandle received"
+          end
+
+          data = Util.marshall_opaque(file_handle) .. Util.marshall_uint32(access)
+          packet = comm:EncodePacket(nil, NFS.Procedure[comm.version].ACCESS,
+                                    {type = Portmap.AuthType.NULL}, data)
+
+          if (not(comm:SendPacket(packet))) then
+            return false, "Access: Failed to send data"
+          end
+
+          status, data = comm:ReceivePacket()
+          if not status then
+	    return false, "Access: Failed to read data from socket"
+          end
+
+	  pos, header = comm:DecodeHeader(data, pos)
+	  if not header then
+	    return false, "Access: Failed to decode header"
+	  end
+
+	  pos, response = self:AccessDecode(comm, data, pos)
+	  if not response then
+	    return false, "Access: Failed to decode the FSSTAT section"
+	  end
+
+	  return true, response
+        end,
+
 	--- Gets filesystem stats (Total Blocks, Free Blocks and Available block) on a remote NFS share
 	--
 	-- @param comm object handles rpc program information and
@@ -1594,7 +2093,7 @@ NFS = {
 			return false, "StatFs: Incorrect filehandle received"
 		end
 
-		data = bin.pack("A", file_handle )
+		data = Util.marshall_opaque(file_handle)
 		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].STATFS, { type=Portmap.AuthType.NULL }, data )
 		if (not(comm:SendPacket( packet ))) then
 			return false, "StatFS: Failed to send data"
@@ -1639,15 +2138,10 @@ NFS = {
 			stdnse.print_debug("GetAttrDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
-		pos, status = bin.unpack(">I", data, pos)
 
-		if (status ~= NFS.StatCode[comm.version].NFS_OK) then
-			if (NFS.StatMsg[status]) then
-				stdnse.print_debug(string.format("GETATTR query failed: %s", NFS.StatMsg[status])) 
-			else
-				stdnse.print_debug(string.format("GETATTR query failed: code %d", status))
-			end
-			return -1, nil
+		pos, status = Util.unmarshall_uint32(data, pos)
+		if (not self:CheckStat("GETATTR", comm.version, status)) then
+		  return -1, nil
 		end
 
 		if ( comm.version < 3 ) then
@@ -1679,7 +2173,7 @@ NFS = {
 	GetAttr = function( self, comm, file_handle )
 		local data, packet, status, attribs, pos, header
 
-		data = bin.pack("A", file_handle)
+		data = Util.marshall_opaque(file_handle)
 		packet = comm:EncodePacket( nil, NFS.Procedure[comm.version].GETATTR, { type=Portmap.AuthType.NULL }, data )
 		if(not(comm:SendPacket(packet))) then
 			return false, "GetAttr: Failed to send data"
@@ -1721,15 +2215,10 @@ NFS = {
 			stdnse.print_debug("StatFsDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
-		pos, statfs.status = bin.unpack(">I", data, pos)
 
-		if (statfs.status ~= NFS.StatCode[comm.version].NFS_OK) then
-			if (NFS.StatMsg[statfs.status]) then
-				stdnse.print_debug(string.format("STATFS query failed: %s", NFS.StatMsg[statfs.status]))
-			else
-				stdnse.print_debug(string.format("STATFS query failed: code %d", statfs.status))
-			end
-			return -1, nil
+		pos, status = Util.unmarshall_uint32(data, pos)
+		if (not self:CheckStat("STATFS", comm.version, status)) then
+		  return -1, nil
 		end
 
 		status, data = comm:GetAdditionalBytes( data, pos, 20 )
@@ -1739,7 +2228,7 @@ NFS = {
 		end
 		pos, statfs.transfer_size, statfs.block_size, 
 		statfs.total_blocks, statfs.free_blocks, 
-		statfs.available_blocks = bin.unpack(">IIIII", data, pos )
+		statfs.available_blocks = Util.unmarshall_uint32(data, pos, 5)
 		return pos, statfs
 	end,
 }
@@ -2312,7 +2801,6 @@ Util =
           end
         end,
 
-
         --- Returns the file type as a string
         FtypeToString = function(mode)
           local code = bit.band(mode, Util.S_IFMT)
@@ -2394,72 +2882,174 @@ Util =
                                 rpc.Util.TimeToString(attr[time].seconds))
         end,
 
-        unmarshall_nfsftype = function(pos, data)
-          local ftype
-          pos, ftype = bin.unpack(">I", data, pos)
-          return pos, ftype
+        marshall_int32 = function(int32, count)
+          if count then
+            return bin.pack(">i" .. count, int32)
+          end
+          return bin.pack(">i", int32)
         end,
 
-        unmarshall_nfsfmode = function(pos, data)
-          local fmode
-          pos, fmode = bin.unpack(">I", data, pos)
-          return pos, fmode
+        unmarshall_int32 = function(data, pos, count)
+          if count then
+            return bin.unpack(">i" .. count, data, pos)
+          end
+          return bin.unpack(">i", data, pos)
         end,
 
-        unmarshall_nfssize3 = function(pos, data)
-          local size3
-          pos, size3 = bin.unpack(">L", data, pos)
-          return pos, size3
+        marshall_uint32 = function(uint32, count)
+          if count then
+            return bin.pack(">I" .. count, uint32)
+          end
+          return bin.pack(">I", uint32)
         end,
 
-        unmarshall_nfsspecdata3 = function(pos, data)
+        unmarshall_uint32 = function(data, pos, count)
+          if count then
+            return bin.unpack(">I" .. count, data, pos)
+          end
+          return bin.unpack(">I", data, pos)
+        end,
+
+        marshall_int64 = function(int64, count)
+          if count then
+            return bin.pack(">l" .. count, int64)
+          end
+          return bin.pack(">l", int64)
+        end,
+
+        unmarshall_int64 = function(data, pos, count)
+          if count then
+            return bin.unpack(">l" .. count, data, pos)
+          end
+          return bin.unpack(">l", data, pos)
+        end,
+
+        marshall_uint64 = function(uint64, count)
+          if count then
+            return bin.pack(">L" .. count, uint64)
+          end
+          return bin.pack(">L", uint64)
+        end,
+
+        unmarshall_uint64 = function(data, pos, count)
+          if count then
+            return bin.unpack(">L" .. count, data, pos)
+          end
+          return bin.unpack(">L", data, pos)
+        end,
+
+        marshall_opaque = function(data)
+          local opaque = bin.pack(">A", data)
+          for i = 1, Util.CalcFillBytes(data:len()) do
+            opaque = opaque .. string.char(0x00)
+          end
+          return opaque
+        end,
+
+        unmarshall_opaque = function(len, data, pos)
+          return bin.unpack(">A" .. len, data, pos)
+        end,
+
+        marshall_vopaque = function(data)
+          local opaque, l
+          l = data:len()
+          opaque = Util.marshall_uint32(l) .. bin.pack(">A", data)
+          for i = 1, Util.CalcFillBytes(l) do
+            opaque = opaque .. string.char(0x00)
+          end
+          return opaque
+        end,
+
+        unmarshall_vopaque = function(len, data, pos)
+          local opaque, pad
+          pad = Util.CalcFillBytes(len)
+          pos, opaque = bin.unpack(">A" .. len, data, pos)
+          return pos + pad, opaque
+        end,
+
+        unmarshall_nfsftype = function(data, pos, count)
+          return Util.unmarshall_uint32(data, pos, count)
+        end,
+
+        unmarshall_nfsfmode = function(data, pos, count)
+          return Util.unmarshall_uint32(data, pos, count)
+        end,
+
+        unmarshall_nfssize3 = function(data, pos, count)
+          return Util.unmarshall_uint64(data, pos, count)
+        end,
+
+        unmarshall_nfsspecdata3 = function(data, pos)
           local specdata3 = {}
-          pos, specdata3['specdata1'], specdata3['specdata2'] = bin.unpack(">II", data, pos)
+          pos, specdata3.specdata1,
+          specdata3.specdata2 = Util.unmarshall_uint32(data, pos, 2)
           return pos, specdata3
         end,
 
-        unmarshall_nfsfileid3 = function(pos, data)
-          local fileid3
-          pos, fileid3 = bin.unpack(">L", data, pos)
-          return pos, fileid3
+        --- Unmarshall NFSv3 fileid field of the NFS attributes
+        --
+        -- @param data   The data being processed.
+        -- @param pos    The position within <code>data</code>
+        -- @return pos   The new position
+        -- @return uint64 The decoded fileid
+        unmarshall_nfsfileid3 = function(data, pos)
+          return Util.unmarshall_uint64(data, pos)
         end,
 
-        unmarshall_nfstime = function(pos, data)
+        --- Unmarshall NFS time
+        --
+        -- @param data   The data being processed.
+        -- @param pos    The position within <code>data</code>
+        -- @return pos   The new position
+        -- @return table The decoded NFS time table.
+        unmarshall_nfstime = function(data, pos)
           local nfstime = {}
-
-          pos, nfstime['seconds'], nfstime['nseconds'] = bin.unpack(">II", data, pos)
+          pos, nfstime.seconds,
+          nfstime.nseconds = Util.unmarshall_uint32(data, pos, 2)
           return pos, nfstime
         end,
 
+        --- Unmarshall NFS file attributes
+        --
+        -- @param data   The data being processed.
+        -- @param pos    The position within <code>data</code>
+        -- @param number The NFS version.
+        -- @return pos   The new position
+        -- @return table The decoded file attributes table.
         unmarshall_nfsattr = function(data, pos, nfsversion)
           local attr = {}
-          pos, attr.type = Util.unmarshall_nfsftype(pos, data)
-          pos, attr.mode = Util.unmarshall_nfsfmode(pos, data)
-          pos, attr.nlink, attr.uid, attr.gid = bin.unpack(">III", data, pos)
+          pos, attr.type = Util.unmarshall_nfsftype(data, pos)
+          pos, attr.mode = Util.unmarshall_nfsfmode(data, pos)
+          pos, attr.nlink, attr.uid,
+          attr.gid = Util.unmarshall_uint32(data, pos, 3)
 
           if (nfsversion < 3) then
             pos, attr.size, attr.blocksize, attr.rdev, attr.blocks,
-            attr.fsid, attr.fileid = bin.unpack(">IIIIII", data, pos)
+            attr.fsid, attr.fileid = Util.unmarshall_uint32(data, pos, 6)
           elseif (nfsversion == 3) then
-            pos, attr.size = Util.unmarshall_nfssize3(pos, data)
-            pos, attr.used = Util.unmarshall_nfssize3(pos, data)
-            pos, attr.rdev = Util.unmarshall_nfsspecdata3(pos, data)
-            pos, attr.fsid = bin.unpack(">L",data, pos)
-            pos, attr.fileid = Util.unmarshall_nfsfileid3(pos, data)
+            pos, attr.size = Util.unmarshall_nfssize3(data, pos)
+            pos, attr.used = Util.unmarshall_nfssize3(data, pos)
+            pos, attr.rdev = Util.unmarshall_nfsspecdata3(data, pos)
+            pos, attr.fsid = Util.unmarshall_uint64(data, pos)
+            pos, attr.fileid = Util.unmarshall_nfsfileid3(data, pos)
           else
-            stdnse.print_debug("unmarshall_nfsattr: Unsupported version %d",
+            stdnse.print_debug("unmarshall_nfsattr: unsupported NFS version %d",
                               nfsversion)
             return -1, nil
           end
 
-          pos, attr.atime = Util.unmarshall_nfstime(pos, data)
-          pos, attr.mtime = Util.unmarshall_nfstime(pos, data)
-          pos, attr.ctime = Util.unmarshall_nfstime(pos, data)
+          pos, attr.atime = Util.unmarshall_nfstime(data, pos)
+          pos, attr.mtime = Util.unmarshall_nfstime(data, pos)
+          pos, attr.ctime = Util.unmarshall_nfstime(data, pos)
 
           return pos, attr
         end,
 
         --- Returns a string containing date and time
+        --
+        -- @param number of seconds since some given start time
+        --        (the "epoch")
+        -- @return string that represents time.
         TimeToString = function(time) 
             return os.date("!%F %H:%M", time)
         end,
@@ -2477,7 +3067,7 @@ Util =
         -- @param blocksize represents the number of bytes per block
         --        Possible values are: 1024 or 1000
         --        Default value is: 1024
-        -- @return String that represent the size in the human
+        -- @return String that represents the size in the human
         --         readable format
         SizeToHuman = function(size, blocksize)
           local bs, idx = 1024, 1
@@ -2494,6 +3084,48 @@ Util =
           return string.format("%.1f%s", size, unit[idx])
         end,
 	
+        format_access = function(mask, version)
+          local ret, nfsobj = "", NFS:new()
+
+          if nfsobj:AccessRead(mask, version) ~= 0 then
+            ret = "Read "
+          else
+            ret = "NoRead "
+          end
+
+          if nfsobj:AccessLookup(mask, version) ~= 0 then
+            ret = ret .. "Lookup "
+          else
+            ret = ret .. "NoLookup "
+          end
+
+          if nfsobj:AccessModify(mask, version) ~= 0 then
+            ret = ret .. "Modify "
+          else
+            ret = ret .. "NoModify "
+          end
+
+          if nfsobj:AccessExtend(mask, version) ~= 0 then
+            ret = ret .. "Extend "
+          else
+            ret = ret .. "NoExtend "
+          end
+
+          if nfsobj:AccessDelete(mask, version) ~= 0 then
+            ret = ret .. "Delete "
+          else
+            ret = ret .. "NoDelete "
+          end
+
+          if nfsobj:AccessExecute(mask, version) ~= 0 then
+            ret = ret .. "Execute"
+          else
+            ret = ret .. "NoExecute"
+          end
+
+          return ret
+        end,
+
 	--- Converts a RPC program name to it's equivalent number
 	--
 	-- @param prog_name string containing the name of the RPC program
