@@ -754,10 +754,12 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
 <informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <literallayout>
-<command>nmap -sC --script-args user=foo,pass=',{}=bar',whois={whodb=nofollow+ripe},userdb=C:\Some\Path\To\File</command>
+<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=C:\Some\Path\To\File'</command>
 </literallayout>
 </informalexample>
-      That command results in this Lua table:
+      Notice that the script arguments are surrounded in single quotes. This
+      prevents the shell from interpreting the double quotes and doing
+      automatic string concatenation. The command results in this Lua table:
 <programlisting>
 {user="foo",pass=",{}=bar",whois={whodb="nofollow+ripe"},userdb="C:\\Some\\Path\\To\\File"}
 </programlisting>
