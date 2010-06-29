@@ -29,7 +29,9 @@ require "db2"
 -- parseVersion was ripped from the old db2-info.nse written by Tom Sellers
 --
 
-portrule = shortport.port_or_service({50000,60000},"ibm-db2", "tcp", {"open", "open|filtered"})
+portrule = shortport.version_port_or_service({50000,60000},
+                                            "ibm-db2", "tcp",
+                                            {"open", "open|filtered"})
 
 --- Converts the prodrel server string to a version string
 --

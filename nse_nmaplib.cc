@@ -11,6 +11,7 @@ extern "C" {
 #include "NmapOps.h"
 #include "Target.h"
 #include "portlist.h"
+#include "service_scan.h"
 #include "nmap_rpc.h"
 #include "nmap_dns.h"
 #include "osscan.h"
@@ -502,6 +503,29 @@ static int l_get_port_state (lua_State *L)
   return 1;
 }
 
+/* this function must be used by version category scripts or any other
+ * lua code to check if a given port with it's protocol are in the
+ * exclude directive found in the nmap-service-probes file.
+ * */
+static int l_port_is_excluded (lua_State *L)
+{
+  unsigned short portno;
+  int protocol;
+
+  if (!lua_isnumber(L, 1))
+    luaL_error(L, "port 'number' field must be a number");
+  if (!lua_isstring(L, 2))
+    luaL_error(L, "port 'protocol' field must be a string");
+
+  portno = (unsigned short) lua_tointeger(L, 1);
+  protocol = strcmp(lua_tostring(L, 2), "tcp") == 0 ? IPPROTO_TCP :
+             strcmp(lua_tostring(L, 2), "udp") == 0 ? IPPROTO_UDP :
+             luaL_error(L, "port 'protocol' field must be \"tcp\" or \"udp\"");
+
+  lua_pushboolean(L,AllProbes::check_excluded_port(portno, protocol)); 
+  return 1;
+}
+
 /* unlike set_portinfo() this function sets the port state in nmap.
  * if for example a udp port was seen by the script as open instead of
  * filtered, the script is free to say so.
@@ -699,6 +723,7 @@ int luaopen_nmap (lua_State *L)
     {"get_ports", l_get_ports},
     {"set_port_state", l_set_port_state},
     {"set_port_version", l_set_port_version},
+    {"port_is_excluded", l_port_is_excluded},
     {"new_socket", l_nsock_new},
     {"new_dnet", l_dnet_new},
     {"get_interface_link", l_dnet_get_interface_link},

@@ -332,6 +332,7 @@ public:
   
   static AllProbes *service_scan_init(void);
   static void service_scan_free(void);
+  static int check_excluded_port(unsigned short port, int proto);
 protected:
   static AllProbes *global_AP;
 };

@@ -18,7 +18,7 @@ categories = {"version"}
 require "comm"
 require "shortport"
 
-portrule = shortport.portnumber(1723)
+portrule = shortport.version_port_or_service(1723)
 
 action = function(host, port)
 	-- build a PPTP Start-Control-Connection-Request packet

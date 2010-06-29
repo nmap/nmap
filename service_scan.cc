@@ -1172,6 +1172,28 @@ void AllProbes::service_scan_free(void)
   }
 }
 
+// Function that calls isExcluded() function to check if the port
+// is in the excludedports list.
+int AllProbes::check_excluded_port(unsigned short portno, int proto)
+{
+  int excluded;
+
+  // Check if the -sV version scan option was specified
+  // or if the --allports option was used
+  if (!o.servicescan || o.override_excludeports)
+    return 0;
+
+  if (global_AP == NULL)
+    fatal("Failed to check the list of excluded ports: %s", __func__);
+
+  if (excluded = global_AP->isExcluded(portno, proto)) {
+    if (o.debugging)
+      log_write(LOG_PLAIN, "EXCLUDING %d/%s\n",
+                           portno, IPPROTO2STR(proto));
+  }
+
+  return excluded;
+}
 
 // If the buf (of length buflen) matches one of the regexes in this
 // ServiceProbe, returns the details of nth match (service name,

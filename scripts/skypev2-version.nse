@@ -12,6 +12,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"version"}
 
 require "comm"
+require "shortport"
 
 portrule = function(host, port)
         return (port.number == 80 or port.number == 443 or
@@ -19,6 +20,7 @@ portrule = function(host, port)
                 port.service == "unknown")
                and port.protocol == "tcp" and port.state == "open"
                and port.service ~= "http" and port.service ~= "ssl/http"
+               and not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
 action = function(host, port)

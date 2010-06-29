@@ -18,7 +18,7 @@ categories = {"version"}
 require "comm"
 require "shortport"
 
-portrule = shortport.portnumber(4569, "udp")
+portrule = shortport.version_port_or_service(4569, nil, "udp")
 
 action = function(host, port)
  	-- see http://www.cornfed.com/iax.pdf for all options.

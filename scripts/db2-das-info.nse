@@ -85,7 +85,9 @@ require "shortport"
 --
 --   Details on how to reproduce these steps with the CLI are welcome.
 
-portrule = shortport.portnumber({523}, {"tcp","udp"}, {"open", "open|filtered"})
+portrule = shortport.version_port_or_service({523}, nil,
+                                            {"tcp","udp"},
+                                            {"open", "open|filtered"})
 
 --- Extracts the server profile from an already parsed db2 packet
 --

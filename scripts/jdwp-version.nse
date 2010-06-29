@@ -17,12 +17,14 @@ categories = {"version"}
 -- 9999/tcp open  jdwp    Java Debug Wire Protocol (Reference Implementation) version 1.6 1.6.0_17
 
 require "comm"
+require "shortport"
 
 portrule = function(host, port)
         -- JDWP will close the port if there is no valid handshake within 2
 	-- seconds, Service detection's NULL probe detects it as tcpwrapped.
         return port.service == "tcpwrapped"
                and port.protocol == "tcp" and port.state == "open"
+               and not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
 action = function(host, port)
