@@ -51,27 +51,16 @@
 * [EM] Some things to keep in mind for the implementation and to update
   our design docs accordingly:
   o multi-client support
-  o delaying RECV message printing so the CAPT messages are shown in
-    order. 
-  o send NEP_QUIT only if necessary, just close connection if possible
-  o Implement different "modes" for the server: complete access, one-time-access, and restricted
+  o delaying RECV message printing so the CAPT messages are shown in order. 
+  o send NEP_QUIT only if necessary, just close connection if possible.
+  o Implement different "modes" for the server: complete access,
+    one-time-access, and restricted.
 
 o [EM] Things to decide on:
-  o Make a mockup of the desired standard output in a regular echo mode
-    execution, like nping -c 2 --tcp --flags SYN -p 80 scanme.nmap.org
-    (let's assume there are some differences found, like a NAT is in
-    place)
-     o A key aspect of this task is determining what diffs are going
-       to look like.
   o Decide on packet specifiers that can be passed to the server so it
     can recognize packets sent by the client even if a number of headers
     have changed and pass them back. (see Fyodor/Luis IM discussion logs
     from 6/28/10).
-
-* [EM] Pick a default port number
-
-* [EM] Update EchoProtoRFC.txt and any of the other design files as
-  appropriate and send to nmap-dev for comments
 
 * [EM] Begin coding the echo mode system
 
@@ -251,8 +240,9 @@ o [EM] Things to decide on:
 * Investigate on nping's version if devname2ipaddr. Think about side
   effects on using that in Nmap.
 
-* After merging nmap-dedup, change send_frag_ip_packet() to take "u32 mtu"
-  and fix the printf below to use "%u" instead of "%i".
+* Consider adding multi-packet support.
+
+* Consider adding RFC-style output for send/recv packets.
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -536,3 +526,17 @@ o [EM] Things to decide on:
 
 [DONE] Make sure randomnly generated checksums are in fact invalid and don't match
   the correct checksum. There is a 1/65535 chance of this happening. 
+
+[DONE] After merging nmap-dedup, change send_frag_ip_packet() to take "u32 mtu"
+  and fix the printf below to use "%u" instead of "%i".
+
+[DONE] [EM] Update EchoProtoRFC.txt and any of the other design files as
+  appropriate and send to nmap-dev for comments
+
+[DONE] [EM] Pick a default port number
+
+[DONE] [EM] Make a mockup of the desired standard output in a regular echo mode
+    execution, like nping -c 2 --tcp --flags SYN -p 80 scanme.nmap.org (let's
+    assume there are some differences found, like a NAT is in place)
+     o A key aspect of this task is determining what diffs are going
+       to look like.
