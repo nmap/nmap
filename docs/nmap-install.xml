@@ -520,7 +520,7 @@ paths and such.  These packages also allow for consistent management
 in terms of upgrading, removing, or surveying software on the system.
 A downside is that packages created by the distributions are
 necessarily behind the Nmap.Org source releases.  Most Linux
-distributions (particularly Debian and Gentoo) keep their Nmap package
+distributions keep their Nmap package
 relatively current, though a few are way out of date.  Choosing the
 source install allows for more flexibility in determining how Nmap is
 built and optimized for your system.  To build Nmap from source, see
@@ -666,7 +666,7 @@ Complete!
 <indexterm><primary>Ubuntu, installing on</primary></indexterm>
 <para>LaMont Jones
 <indexterm><primary>Jones, LaMont</primary></indexterm>
-does a fabulous job maintaining the Nmap .deb
+maintaining the Nmap <literal>deb</literal>
 packages, including keeping them reasonably up-to-date.  The proper
 upgrade/install command is <command>apt-get install nmap</command>.
 <indexterm><primary><application>apt-get</application></primary></indexterm>
@@ -675,6 +675,19 @@ the latest Debian <quote>stable</quote> Nmap package is available at <ulink
 url="http://packages.debian.org/stable/nmap" /> and the
 development (<quote>unstable</quote>) Nmap and Zenmap packages are available from <ulink
 url="http://packages.debian.org/unstable/nmap" /> and <ulink url="http://packages.debian.org/unstable/zenmap"/>.</para>
+
+<para>Sometimes Debian's Nmap releases are a year or more behind the current Nmap version.  One option for obtaining the latest release is to compile from source code, as described in <xref linkend="inst-source"/>.  Another option is to download the RPM-format binaries from the Nmap download page, convert them to <literal>deb</literal> packages using the <application>alien</application> command, and then install them using <application>dpkg</application>, as described in the following list:</para>
+
+<orderedlist id="install-list-deb">
+<title>Steps for converting Nmap RPM files to Debian/Ubuntu <filename>deb</filename> format for installation on Debian/Ubuntu</title>
+<listitem><para>If you don't have the <application>alien</application> command, install it with a command such as <command>sudo apt-get install alien lintian</command></para></listitem>
+<listitem><para>Download the Nmap RPMs for your platform (x86 or x86-64) from <ulink url="http://nmap.org/download.html"/>.  This description will use <filename>nmap-5.21-1.x86_64.rpm</filename></para></listitem>
+<listitem><para>Verify the download integrity as described in <xref linkend="inst-integrity"/>.</para></listitem>
+<listitem><para>Generate a Debian package with a command such as <command>sudo alien nmap-5.21-1.x86_64.rpm</command></para></listitem>
+<listitem><para>Install the Debian package with a command such as <command>sudo dpkg --install nmap_5.21-2_amd64.deb</command></para></listitem>
+<listitem><para>Steps 2&ndash;5 can be repeated for the other Nmap RPMs such as Zenmap, Ncat, and Nping.</para></listitem>
+</orderedlist>
+
 </sect2>
 
 <sect2 id="inst-linux-other"><title>Other Linux Distributions</title>
@@ -832,7 +845,7 @@ the latest version from <ulink url="http://www.winpcap.org" />.  You
 must install version 4.0 or later.</para></listitem>
 
 <listitem><para>Due to the way Nmap is compiled, it requires the
-<ulink role="hidepdf" url="http://www.microsoft.com/downloads/details.aspx?familyid=2051a0c1-c9b5-4b0a-a8f5-770a549fd78c&displaylang=en">Microsoft Visual C++ 2008 Redistributable Package</ulink> of runtime
+<ulink role="hidepdf" url="http://www.microsoft.com/downloads/details.aspx?familyid=2051a0c1-c9b5-4b0a-a8f5-770a549fd78c&amp;displaylang=en">Microsoft Visual C++ 2008 Redistributable Package</ulink> of runtime
 components. Many systems already have this installed from other
 packages, but you should run <filename>vcredist_x86.exe</filename>
 from the zip file just in case you need it. Pass the <option>/q</option> option to run that installer in quiet (non interactive) mode.</para></listitem>
