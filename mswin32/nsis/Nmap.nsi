@@ -20,6 +20,10 @@
 ;;  contain any quotes, even if the path contains spaces. Only absolute
 ;;  paths are supported.
  
+; The default compressor is zlib; lzma gives about 15% better compression.
+; http://nsis.sourceforge.net/Docs/Chapter4.html#4.8.2.4
+SetCompressor /SOLID /FINAL lzma
+
 ;-------------------------------- 
 ;Include Modern UI 
  
