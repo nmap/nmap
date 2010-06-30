@@ -1,3 +1,4 @@
+* Make improvements to the irc-unrealircd-backdoor script.
 * Brandon says: "Sometime -sV goes just a little too fast and gets a connect
   error.  It should back off and try again a few times before giving up trying
   to fingerprint the service." It looks like
@@ -9,6 +10,7 @@ Summer of coder:
   cccam on port 12000 which sends 16 bytes.
 
 Zenmap:
+* Do a memory audit of loading a large scan file.
 * Figure out what licensing notices are required in the Mac package for GTK+,
   Glib, Python, and anything else we use.
 Summer of Coder:
@@ -27,6 +29,9 @@ Nsock:
   or lines and get exactly that many, no more. Venkat wrote a proposal at
   http://seclists.org/nmap-dev/2009/q3/0600.html.
 
+Web site:
+* Look for a good online respository viewer.
+
 Done:
 * Handle multiple targets with the same address.
 * Check necessity of mswin32 pcap includes.
@@ -34,3 +39,4 @@ Done:
   uses the short 2 ms timeout like some other platforms without selectable pcap
   fds do. Measure difference in time and CPU time.
 * Do JavaScript magic to expand/contract NSEDoc sidebar.
+* Check out compression options for the NSIS installer.
