@@ -36,9 +36,6 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
   Nmap survey respondants complained about this too.
 
-o [Zenmap] Investigate segfault on some installs of OS X 10.6.3:
-  http://seclists.org/nmap-dev/2010/q2/587
-
 o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
   http://seclists.org/nmap-dev/2010/q2/754
@@ -607,6 +604,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Zenmap] Investigate segfault on some installs of OS X 10.6.3:
+  http://seclists.org/nmap-dev/2010/q2/587
+  o David rebuilt with MacPorts 1.9.1 rather than 1.8.2 and the
+    problem went away.
 
 o [Zenmap] Investigate failure to start on some installations of OS X
   10.6.3.
