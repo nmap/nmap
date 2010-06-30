@@ -13,6 +13,8 @@
 ;; Rob Nicholls
 ;; Updated to 4.1.1, October 2009
 
+SetCompressor /SOLID /FINAL lzma
+
 ;--------------------------------
 ;Include Modern UI
 
