@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The Windows executable installer now uses LZMA compression instead
+  of zlib, making it about 15% smaller. See
+  http://seclists.org/nmap-dev/2010/q2/1011 for test results. [David]
+
 o [NSE] Added checking for boot.ini to http-passwd.nse. [Gutek]
 
 o Added a brand new library, libnetutil, which contains networking related
