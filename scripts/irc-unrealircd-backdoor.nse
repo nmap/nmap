@@ -51,21 +51,31 @@ require "comm"
 require "stdnse"
 
 portrule = shortport.port_or_service({6666,6667,6697,6679,8067},{"irc","ircs"})
-mutex = nmap.mutex(nmap)
 
 
 action = function(host, port)
 	local socket = nmap.new_socket()
 	local code, message
 	local status, err
-	local data = ""
-	local delay = 25
-	local timeout = 35000
+	local data
+        -- Wait up to this long for the server to send its startup messages and
+        -- a response to our noop_command. After this, send the full_command.
+        -- Usually we don't have to wait the full time because we can detect
+        -- the response to noop_command.
+	local banner_timeout = 60
+        -- Send a command to sleep this long. This just has to be long enough
+        -- to remove confusion from network delay.
+	local delay = 8
 
 	-- If the command takes (delay - delay_fudge) or more seconds, the server is vulnerable.
 	-- I defined the furdge as 1 second, for now, just because of rounding issues. In practice,
 	-- the actual delay should never be shorter than the given delay, only longer. 
 	local delay_fudge = 1
+
+	-- We send this command on connection because comm.tryssl needs to send
+	-- something; it also allows us to detect the end of server
+	-- initialization.
+	local noop_command = "TIME"
 
 	-- The 'AB' sequence triggers the backdoor to run a command. 
 	local trigger = "AB"
@@ -105,50 +115,63 @@ action = function(host, port)
 		stdnse.sleep(waittime)
 	end
 
-	-- Get a lock on the mutex (this script can't run in parallel because it requires timings)
-	mutex "lock"
---	stdnse.print_debug(1, "irc-unrealircd-backdoor: Mutex locked")
-
-	-- Send out our command
-	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", full_command);
-	local socket, response = comm.tryssl(host, port, full_command .. "\n", {timeout=timeout, recv_before=false})
+	-- Send an innocuous command as fodder for tryssl.
+	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", noop_command);
+	local socket, response = comm.tryssl(host, port, noop_command .. "\n", {recv_before=false})
 
 	-- Make sure the socket worked
 	if(not(socket) or not(response)) then
 		stdnse.print_debug(1, "irc-unrealircd-backdoor: Couldn't connect to remote host")
---		stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
-		mutex "done"
+		return nil
+	end
+
+	socket:set_timeout(banner_timeout * 1000)
+
+	-- Look for the end of initial server messages. This allows reverse DNS
+	-- resolution and ident lookups to time out and not interfere with our
+	-- timing measurement.
+	status = true
+	data = response
+	while status and not (string.find(data, noop_command) or string.find(data, " 451 ")) do
+		status, response = socket:receive_bytes(0)
+		if status then
+			data = data .. response
+		end
+	end
+
+	if not status then
+		stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed after %s: %s", noop_command, response)
+		return nil
+	end
+
+	-- Send the backdoor command.
+	stdnse.print_debug(1, "irc-unrealircd-backdoor: Sending command: %s", full_command);
+	status, err = socket:send(full_command .. "\n")
+	if not status then
+		stdnse.print_debug(1, "irc-unrealircd-backdoor: Send failed: %s", err)
 		return nil
 	end
 
 	-- Get the current time so we can measure the delay
-	-- Note: This has to be AFTER comm.tryssl(), otherwise we run into false positives. 
-	-- See http://seclists.org/nmap-dev/2010/q2/923
-	local time = os.time(os.date('*t'))
+	time = os.time(os.date('*t'))
+	socket:set_timeout((delay + 5) * 1000)
 
 	-- Accumulate the response in the 'data' string
-	data = data .. response
-	while(not(string.find(data, unique))) do
---io.write("Response: " .. response)
-		status, response = socket:receive()
-
-		if(status) then
-			-- Keep adding to the 'data' string
+	status = true
+	data = ""
+	while not string.find(data, unique) do
+		status, response = socket:receive_bytes(0)
+		if status then
 			data = data .. response
 		else
-			-- If the server unexpectedly closes the connection, it is usually related to throttling.
-			-- Therefore, we print a throttling warning. 
+			-- If the server unexpectedly closes the connection, it
+			-- is usually related to throttling. Therefore, we
+			-- print a throttling warning. 
 			stdnse.print_debug(1, "irc-unrealircd-backdoor: Receive failed: %s", response)
 			socket:close()
---			stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
-			mutex "done"
 			return "Server closed connection, possibly due to too many reconnects. Try again with argument irc-unrealircd-backdoor.wait set to 100 (or higher if you get this message again)."
 		end
 	end
-
-	-- Free the mutex so other scripts can get going
---	stdnse.print_debug(1, "irc-unrealircd-backdoor: Freeing mutex")
-	mutex "done"
 
 	-- Determine the elapsed time
 	local elapsed = os.time(os.date('*t')) - time
