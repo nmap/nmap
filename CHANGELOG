@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added irc-unrealircd-backdoor.nse, which detects a backdoor
+  that was in UnrealIRCd source code distributions between November
+  2009 and June 2010. See
+  http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt.
+  [Vlatko Kosturjak, Ron, David]
+
 o The Windows executable installer now uses LZMA compression instead
   of zlib, making it about 15% smaller. See
   http://seclists.org/nmap-dev/2010/q2/1011 for test results. [David]
