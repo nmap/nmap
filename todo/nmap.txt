@@ -58,6 +58,9 @@ o The latest IANA services file
   they are "unknown" in our file.  An example of such a port is 3872,
   oem-agent.
 
+o July Nmap releases (at least a beta version, and maybe a stable
+  too).  Last release was 5.30BETA1 on March 29
+
 o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   This file is not included in the official WinPcap 4.1.1 developers'
   pack
@@ -173,6 +176,8 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Don't break the system for posting html to web site. 
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
+
+o Nmap should have a better way to handle XML script output.
 
 o Book work [placeholder]
 
