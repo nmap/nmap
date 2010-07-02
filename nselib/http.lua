@@ -1348,7 +1348,7 @@ function get_status_string(data)
   if(space == nil) then
     return data['status-line']
   else
-    return string.sub(data['status-line'], space + 1)
+    return (string.sub(data['status-line'], space + 1)):gsub('\r?\n', '')
   end
 end
 
