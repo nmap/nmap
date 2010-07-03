@@ -99,6 +99,9 @@ o [NSE] Combine similar MSRPC scripts, especially the "get info"
   (http://seclists.org/nmap-dev/2010/q1/1023).  This was suggested by
   Ron at http://seclists.org/nmap-dev/2010/q2/389.
 
+o Look into implementing security technologies such as DEP and ASL on
+  Windows: http://seclists.org/nmap-dev/2010/q3/12.
+
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
 
