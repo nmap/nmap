@@ -1298,7 +1298,7 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany, char *er
   char iface[16];
   char *p, *endptr;
   struct interface_info *ii;
-  u32 mask;
+  u32 routeaddr, mask;
   struct sockaddr_in *sin;
   int numifaces = 0, numroutes = 0;
   int i;
@@ -1395,21 +1395,24 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany, char *er
     /* Now to deal with some alias nonsense ... at least on Linux
        this file will just list the short name, even though IP
        information (such as source address) from an alias must be
-       used.  So if the purported device can't reach the gateway,
+       used.  So if the purported device can't reach the gateway
+       (or destination address for directly connected routes),
        try to find a device that starts with the same short
        devname, but can (e.g. eth0 -> eth0:3) */
+    if (routes[numroutes].gw.s_addr != 0)
+        routeaddr = routes[numroutes].gw.s_addr;
+    else
+        routeaddr = routes[numroutes].dest;
     ii = &ifaces[i];
     mask = htonl((unsigned long) (0 - 1) << (32 - ii->netmask_bits));
     sin = (struct sockaddr_in *) &ii->addr;
-    if (routes[numroutes].gw.s_addr && (sin->sin_addr.s_addr & mask) !=
-        (routes[numroutes].gw.s_addr & mask)) {
+    if ((sin->sin_addr.s_addr & mask) != (routeaddr & mask)) {
       for (i = 0; i < numifaces; i++) {
         if (ii == &ifaces[i])
           continue;
         if (strcmp(ii->devname, ifaces[i].devname) == 0) {
           sin = (struct sockaddr_in *) &ifaces[i].addr;
-          if ((sin->sin_addr.s_addr & mask) ==
-              (routes[numroutes].gw.s_addr & mask)) {
+          if ((sin->sin_addr.s_addr & mask) == (routeaddr & mask)) {
             routes[numroutes].device = &ifaces[i];
           }
         }
