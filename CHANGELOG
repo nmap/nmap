@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the assignment of interface aliases to directly connected
+  routes on Linux, which was broken in 5.30BETA1 (it always assigned
+  the base interface instead of the alias). This was visible in the
+  host.interface variable passed to NSE scripts. The bug was reported
+  Victor Rudnev. [David]
+
 o [NSE] Added irc-unrealircd-backdoor.nse, which detects a backdoor
   that was in UnrealIRCd source code distributions between November
   2009 and June 2010. See
