@@ -206,9 +206,10 @@ o Revive the Nmap Public Source License project (need to find an open
 o [Nsock] Consider adding server support so that Ncat can accept
   multiple connections and multiplex the SD's like it does for
   clients.  This could potentially be used by Ncat and Nping echo
-  mode, which currently accept themselves then pass the FDs to Nsock
-  to manage.  This means they need to do short nsock_loops so they can
-  interchange them with accept attempts.
+  mode.  Currently Ncat server doesn't use Nsock at all, while Ncat
+  echo mode basically polls, repeating a loop of 1s in nsock_loop
+  followed by a nonblocking accept().  Then Nsock gives the SD's to
+  Nsock to manage.
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
