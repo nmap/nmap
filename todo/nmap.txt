@@ -203,12 +203,12 @@ o [Zenmap] Consider a couple ideas from Norris Carden
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
 
-o [Nsock] Consider adding server support so that Ncat can accept
-  multiple connections and multiplex the SD's like it does for
+o [Nsock] Consider adding server support to Nsock so it can accept
+  multiple connections and multiplex the SD's, like it does for
   clients.  This could potentially be used by Ncat and Nping echo
-  mode.  Currently Ncat server doesn't use Nsock at all, while Ncat
+  mode.  Currently Ncat server doesn't use Nsock at all, while Nping
   echo mode basically polls, repeating a loop of 1s in nsock_loop
-  followed by a nonblocking accept().  Then Nsock gives the SD's to
+  followed by a nonblocking accept().  Then Nping gives the SD's to
   Nsock to manage.
 
 o Consider rethinking Nmap's -s* syntax for specifing scan types
