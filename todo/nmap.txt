@@ -207,7 +207,7 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
 
 o [Nsock] Consider adding server support so that Ncat can accept
-  multiple connections and multiplex the FD's like it does for
+  multiple connections and multiplex the SD's like it does for
   clients.  This could potentially be used by Ncat and Nping echo
   mode, which currently accept themselves then pass the FDs to Nsock
   to manage.  This means they need to do short nsock_loops so they can
