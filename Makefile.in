@@ -382,9 +382,9 @@ anonFTP ASN brutePOP3 bruteTelnet chargenTest daytimeTest \
 dns-safe-recursion-port dns-safe-recursion-txid dns-test-open-recursion \
 echoTest ftpbounce HTTPAuth HTTP_open_proxy HTTPpasswd HTTPtrace \
 iax2Detect ircServerInfo ircZombieTest MSSQLm MySQLinfo \
-netbios-smb-os-discovery popcapa PPTPversion promiscuous \
-RealVNC_auth_bypass ripeQuery robots showHTMLTitle showHTTPVersion \
-showOwner showSMTPVersion showSSHVersion skype_v2-version \
+netbios-smb-os-discovery nfs-acls nfs-dirlist popcapa PPTPversion \
+promiscuous RealVNC_auth_bypass ripeQuery robots showHTMLTitle \
+showHTTPVersion showOwner showSMTPVersion showSSHVersion skype_v2-version \
 smb-enumdomains smb-enumsessions smb-enumshares smb-enumusers \
 smb-serverstats smb-systeminfo SMTPcommands SMTP_openrelay_test \
 SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey SSHv1-support \

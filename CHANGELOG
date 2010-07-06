@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nfs-ls.nse, which lists NFS exported files with their
+  attributes. The nfs-acls and nfs-dirlist scripts were deleted 
+  because all their features are supported by this script. [Djalal]
+
 o Fixed the assignment of interface aliases to directly connected
   routes on Linux, which was broken in 5.30BETA1 (it always assigned
   the base interface instead of the alias). This was visible in the
