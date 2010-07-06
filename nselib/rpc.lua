@@ -1795,7 +1795,7 @@ NFS = {
         FsStat = function(self, comm, file_handle)
           local status, packet
           local pos, data = 1, ""
-          local reponse = {}
+          local header, response = {}, {}
 
           if (comm.version < 3) then
             return false, string.format("NFS version: %d does not support FSSTAT",
@@ -1867,7 +1867,7 @@ NFS = {
           pos, fsinfo.rtmax, fsinfo.rtpref, fsinfo.rtmult,
           fsinfo.wtmax, fsinfo.wtpref, fsinfo.wtmult,
           fsinfo.dtpref = Util.unmarshall_uint32(data, pos, 7)
-          pos, fsinfo.maxfilesize = Util.unmarshall_size3(data, pos)
+          pos, fsinfo.maxfilesize = Util.unmarshall_nfssize3(data, pos)
           pos, fsinfo.time_delta = Util.unmarshall_nfstime(data, pos)
           pos, fsinfo.properties = Util.unmarshall_uint32(data, pos)
 
@@ -1877,7 +1877,7 @@ NFS = {
         FsInfo = function(self, comm, file_handle)
           local status, packet
           local pos, data = 1, ""
-          local reponse = {}
+          local header, response = {}
 
           if (comm.version < 3) then
             return false, string.format("NFS version: %d does not support FSINFO",
@@ -1913,7 +1913,7 @@ NFS = {
 	  return true, response
         end,
 
-        PathConfDecode = function(self, comm, file_handle)
+        PathConfDecode = function(self, comm, data, pos)
           local pconf, status, value_follows = {}
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
@@ -1956,7 +1956,7 @@ NFS = {
         PathConf = function(self, comm, file_handle)
           local status, packet
           local pos, data = 1, ""
-          local reponse = {}
+          local header, response = {}
 
           if (comm.version < 3) then
             return false, string.format("NFS version: %d does not support PATHCONF",
@@ -3071,12 +3071,12 @@ Util =
         --         readable format
         SizeToHuman = function(size, blocksize)
           local bs, idx = 1024, 1
-          local unit = { "B", "K", "M", "G" }
+          local unit = { "B", "K", "M", "G" , "T"}
 	  if blocksize and blocksize == 1000 then
 	    bs = blocksize
 	  end
           for i=1, #unit do
-            if (size > bs) then
+            if (size > bs and idx < #unit) then
               size = size / bs
               idx = idx + 1
             end
@@ -3124,6 +3124,111 @@ Util =
           end
 
           return ret
+        end,
+
+        --- Return the pathconf filesystem table
+        --
+        -- @param pconf table returned by the NFSv3 PATHCONF call
+        -- @param nfsversion the version of the remote NFS server
+        -- @return fs table that contains the remote filesystem 
+        --         pathconf information.
+        calc_pathconf_table = function(pconf, nfsversion)
+          local fs = {}
+          if nfsversion ~= 3 then
+            return nil, "ERROR: unsupported NFS version."
+          end
+
+          fs.linkmax = pconf.linkmax
+          fs.name_max = pconf.name_max
+
+          if pconf.chown_restricted then
+            fs.chown_restricted = "True"
+          else
+            fs.chown_restricted = "False"
+          end
+         
+          return fs, nil
+        end,
+
+        --- Calculate and return the fsinfo filesystem table
+        --
+        -- @param fsinfo table returned by the NFSv3 FSINFO call
+        -- @param nfsversion the version of the remote NFS server
+        -- @param human if set show the size in the human 
+        --        readable format.
+        -- @return fs table that contains the remote filesystem 
+        --         information.
+        calc_fsinfo_table = function(fsinfo, nfsversion, human)
+          local fs = {}
+          local nfsobj = NFS:new()
+          if nfsversion ~= 3 then
+            return nil, "ERROR: unsupported NFS version."
+          end
+
+          fs.maxfilesize = Util.SizeToHuman(fsinfo.maxfilesize)
+
+          if nfsobj:FSinfoLink(fsinfo.properties, nfsversion) ~= 0 then
+            fs.link = "True"
+          else
+            fs.link = "False"
+          end
+
+          if nfsobj:FSinfoSymlink(fsinfo.properties, nfsversion) ~= 0 then
+            fs.symlink = "True"
+          else
+            fs.symlink = "False"
+          end
+
+          return fs, nil
+        end,
+
+        --- Calculate and return the fsstat filesystem table
+        --
+        -- @param stats table returned by the NFSv3 FSSTAT or 
+        --        NFSv2 STATFS calls
+        -- @param nfsversion the version of the remote NFS server
+        -- @param human if set show the size in the human 
+        --        readable format.
+        -- @return df table that contains the remote filesystem 
+        --         attributes.
+        calc_fsstat_table = function(stats, nfsversion, human)
+          local df, base = {}, 1024 
+          local size, free, total, avail, used, use
+          if (nfsversion == 3) then
+            free = stats.fbytes
+            size = stats.tbytes
+            avail = stats.abytes
+          elseif (nfsversion == 2) then
+            df.bsize = stats.block_size
+            free = stats.free_blocks * df.bsize
+            size = stats.total_blocks * df.bsize
+            avail = stats.available_blocks * df.bsize
+          else
+            return nil, "ERROR: unsupported NFS version."
+          end
+
+          if (human) then
+            if (df.bsize) then
+              df.bsize = Util.SizeToHuman(df.bsize)
+            end
+            df.size = Util.SizeToHuman(size)
+            df.available = Util.SizeToHuman(avail)
+            used = size - free
+            avail = avail
+            df.used = Util.SizeToHuman(used)
+            total = used + avail
+          else
+            free = free / base
+            df.size = size / base
+            df.available = avail / base
+            used = df.size - free
+            df.used = used
+            total = df.used + df.available
+          end
+
+          use = math.ceil(used * 100 / total)
+          df.use = string.format("%.0f%%", use)
+          return df, nil
         end,
 
 	--- Converts a RPC program name to it's equivalent number
