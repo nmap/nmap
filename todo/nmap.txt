@@ -1,8 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [NSE] Review UnrealIRCd backdoor detection script
-  http://seclists.org/nmap-dev/2010/q2/854
-
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -619,6 +616,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Review UnrealIRCd backdoor detection script
+  http://seclists.org/nmap-dev/2010/q2/854
 
 o [Zenmap] Investigate segfault on some installs of OS X 10.6.3:
   http://seclists.org/nmap-dev/2010/q2/587
