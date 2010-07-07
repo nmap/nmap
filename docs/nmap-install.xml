@@ -680,7 +680,7 @@ url="http://packages.debian.org/unstable/nmap" /> and <ulink url="http://package
 
 <orderedlist id="install-list-deb">
 <title>Steps for converting Nmap RPM files to Debian/Ubuntu <filename>deb</filename> format for installation on Debian/Ubuntu</title>
-<listitem><para>If you don't have the <application>alien</application> command, install it with a command such as <command>sudo apt-get install alien lintian</command></para></listitem>
+<listitem><para>If you don't have the <application>alien</application> command, install it with a command such as <command>sudo apt-get install alien</command></para></listitem>
 <listitem><para>Download the Nmap RPMs for your platform (x86 or x86-64) from <ulink url="http://nmap.org/download.html"/>.  This description will use <filename>nmap-5.21-1.x86_64.rpm</filename></para></listitem>
 <listitem><para>Verify the download integrity as described in <xref linkend="inst-integrity"/>.</para></listitem>
 <listitem><para>Generate a Debian package with a command such as <command>sudo alien nmap-5.21-1.x86_64.rpm</command></para></listitem>
