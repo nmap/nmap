@@ -27,10 +27,6 @@ extern "C"
 #  include <openssl/ssl.h>
 #endif
 
-#ifndef SCRIPT_ENGINE
-#  define SCRIPT_ENGINE      "NSE"
-#endif
-
 #define NSOCK_WRAPPER      "NSOCK WRAPPER"
 #define NSOCK_WRAPPER_SUCCESS    0
 #define NSOCK_WRAPPER_ERROR    2
