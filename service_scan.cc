@@ -1186,7 +1186,7 @@ int AllProbes::check_excluded_port(unsigned short portno, int proto)
   if (global_AP == NULL)
     fatal("Failed to check the list of excluded ports: %s", __func__);
 
-  if (excluded = global_AP->isExcluded(portno, proto)) {
+  if ((excluded = global_AP->isExcluded(portno, proto))) {
     if (o.debugging)
       log_write(LOG_PLAIN, "EXCLUDING %d/%s\n",
                            portno, IPPROTO2STR(proto));
