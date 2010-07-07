@@ -42,8 +42,6 @@ void open_nse (void);
 void script_scan (std::vector<Target *> &targets);
 void close_nse (void);
 
-int script_updatedb (void);
-
 #define SCRIPT_ENGINE "NSE"
 
 #ifdef WIN32

@@ -1597,13 +1597,11 @@ int nmap_main(int argc, char *argv[]) {
 
 #ifndef NOLUA
   if (o.scriptupdatedb) {
-    script_updatedb();
-    // disable warnings
-    o.max_ips_to_scan = o.numhosts_scanned;
+    o.max_ips_to_scan = o.numhosts_scanned; // disable warnings?
   }
   if (o.servicescan)
     o.scriptversion = 1;
-  if (o.scriptversion || o.script)
+  if (o.scriptversion || o.script || o.scriptupdatedb)
     open_nse();
 #endif
 

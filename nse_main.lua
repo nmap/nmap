@@ -67,6 +67,8 @@ local yield = coroutine.yield;
 
 local traceback = debug.traceback;
 
+local open = io.open;
+
 local max = math.max;
 
 local byte = string.byte;
@@ -91,6 +93,10 @@ do -- Append the nselib directory to the Lua search path
   assert(t == "directory", "could not locate nselib directory!");
   package.path = path.."?.lua;"..package.path;
 end
+
+local script_database_type, script_database_path =
+    cnse.fetchfile_absolute(cnse.script_dbpath);
+local script_database_update = cnse.scriptupdatedb;
 
 local stdnse = require "stdnse";
 
@@ -340,14 +346,7 @@ end
 local function get_chosen_scripts (rules)
   check_rules(rules);
 
-  local script_dbpath = cnse.script_dbpath;
-  local t, path = cnse.fetchfile_absolute(script_dbpath);
-  if not t then
-    print_verbose(1, "Creating non-existent script database.");
-    assert(cnse.updatedb(), "could not update script database!");
-    t, path = assert(cnse.fetchfile_absolute(script_dbpath));
-  end
-  local db_closure = assert(loadfile(path),
+  local db_closure = assert(loadfile(script_database_path),
     "database appears to be corrupt or out of date;\n"..
     "\tplease update using: nmap --script-updatedb");
 
@@ -761,6 +760,39 @@ do -- Load script arguments (--script-args)
     end
   end
   nmap.registry.args = parse_table("{"..args.."}", 1);
+end
+
+-- Update Missing Script Database?
+if script_database_type ~= "file" then
+  print_verbose(1, "Script Database missing, will create new one.");
+  script_database_update = true; -- force update
+end
+
+if script_database_update then
+  log_write("stdout", "Updating rule database.");
+  local t, path = cnse.fetchfile_absolute('scripts/'); -- fetch script directory
+  assert(t == 'directory', 'could not locate scripts directory');
+  script_database_path = path.."script.db";
+  local db = assert(open(script_database_path, 'w'));
+  local scripts = {};
+  for f in cnse.dir(path) do
+    if match(f, '%.nse$') then
+      scripts[#scripts+1] = path.."/"..f;
+    end
+  end
+  sort(scripts);
+  for i, script in ipairs(scripts) do
+    script = Script.new(script);
+    sort(script.categories);
+    db:write('Entry { filename = "', script.basename, '", ');
+    db:write('categories = {');
+    for j, category in ipairs(script.categories) do
+      db:write(' "', lower(category), '",');
+    end
+    db:write(' } }\n');
+  end
+  db:close();
+  log_write("stdout", "Script Database updated successfully.");
 end
 
 -- Load all user chosen scripts

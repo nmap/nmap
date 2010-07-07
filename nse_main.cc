@@ -144,12 +144,6 @@ static int key_was_pressed (lua_State *L)
   return 1;
 }
 
-static int updatedb (lua_State *L)
-{
-  lua_pushboolean(L, script_updatedb());
-  return 1;
-}
-
 static int scp (lua_State *L)
 {
   static const char * const ops[] = {"printStats", "printStatsIfNecessary",
@@ -189,7 +183,6 @@ static void open_cnse (lua_State *L)
     {"dir", nse_readdir},
     {"nsock_loop", nsock_loop},
     {"key_was_pressed", key_was_pressed},
-    {"updatedb", updatedb},
     {"scan_progress_meter", scan_progress_meter},
     {"timedOut", timedOut},
     {"startTimeOutClock", startTimeOutClock},
@@ -210,6 +203,8 @@ static void open_cnse (lua_State *L)
   lua_setfield(L, -2, "default");
   lua_pushboolean(L, o.scriptversion == 1);
   lua_setfield(L, -2, "scriptversion");
+  lua_pushboolean(L, o.scriptupdatedb == 1);
+  lua_setfield(L, -2, "scriptupdatedb");
   lua_pushliteral(L, SCRIPT_ENGINE_LUA_DIR SCRIPT_ENGINE_DATABASE);
   lua_setfield(L, -2, "script_dbpath");
   lua_pushstring(L, o.scriptargs);
@@ -276,81 +271,6 @@ static void set_nmap_libraries (lua_State *L)
     lua_call(L, 1, 0); /* explicitly require it */
   }
   lua_pop(L, 3); /* require, package, package.preload */
-}
-
-int script_updatedb (void)
-{
-  static const char load_db[] = 
-    "local nse = ...\n"
-    "local _G, assert, ipairs, loadfile, setfenv, setmetatable, rawget, type ="
-    "      _G, assert, ipairs, loadfile, setfenv, setmetatable, rawget, type\n"
-    "local lower, match, create, resume, open = \n"
-    "  string.lower, string.match, coroutine.create, coroutine.resume,"
-    "  io.open\n"
-    /* set the package.path */
-    "local t, path = assert(nse.fetchfile_absolute('nselib/'))\n"
-    "assert(t == 'directory', 'could not locate nselib directory!')\n"
-    "package.path = package.path..';'..path..'?.lua'\n"
-    /* fetch the scripts directory */
-    "local t, path = nse.fetchfile_absolute('scripts/')\n"
-    "assert(t == 'directory', 'could not locate scripts directory')\n"
-    "local db = assert(open(path..'script.db', 'w'),\n"
-    "  'could not open database for writing')\n"
-    /* dump the scripts/categories */
-    "local scripts = {}\n"
-    "for f in nse.dir(path) do\n"
-    "  if match(f, '%.nse$') then\n"
-    "    local file = path ..\"/\".. f\n"
-    "    table.insert(scripts, file)\n"
-    "  end\n"
-    "end\n"
-    "table.sort(scripts)\n"
-    "for i, script in ipairs(scripts) do\n"
-    "  local env = setmetatable({}, {__index = _G})\n"
-    "  local thread = create(setfenv(assert(loadfile(script)), env))\n"
-    "  assert(resume(thread))\n"
-    "  local categories = rawget(env, 'categories')\n"
-    "  assert(type(categories) == 'table', script.."
-    "    ' categories field is not a table')\n"
-    "  local basename = assert(match(script, '[/\\\\]?([^/\\\\]-%.nse)$'))\n"
-    "  table.sort(categories)\n"
-    "  db:write('Entry { filename = \"', basename, '\", categories = {')\n"
-    "  for j, category in ipairs(categories) do\n"
-    "    db:write(' \"', lower(category), '\",')\n"
-    "  end\n"
-    "  db:write(' } }\\n')\n"
-    "end\n"
-    "db:close()\n";
-  int status = 1;
-  lua_State *L;
-
-  log_write(LOG_STDOUT, "%s: Updating rule database.\n", SCRIPT_ENGINE);
-
-  L = luaL_newstate();
-  if (L == NULL)
-    fatal("%s: error opening lua for database update\n", SCRIPT_ENGINE);
-  lua_atpanic(L, panic); /* we let Lua panic if memory error */
-  luaL_openlibs(L);
-  set_nmap_libraries(L);
-  
-  lua_settop(L, 0); // safety, is 0 anyway
-  lua_getglobal(L, "debug");
-  lua_getfield(L, -1, "traceback");
-  lua_replace(L, -2);
-
-  if (luaL_loadstring(L, load_db) != 0)
-    fatal("%s: loading load_db failed %s", SCRIPT_ENGINE, lua_tostring(L, -1));
-  open_cnse(L);
-  if (lua_pcall(L, 1, 0, 1) != 0)
-  {
-    error("%s: error while updating Script Database:\n%s\n",
-        SCRIPT_ENGINE, lua_tostring(L, -1));
-    status = 0;
-  }
-  else
-    log_write(LOG_STDOUT, "NSE script database updated successfully.\n");
-  lua_close(L);
-  return status;
 }
 
 static int init_main (lua_State *L)
