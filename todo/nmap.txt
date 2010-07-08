@@ -123,6 +123,10 @@ o [Zenmap] script selection interface for deciding which NSE scripts to
   know the scripts/categories available, display NSEdoc info, and even
   know what arguments each can take.
 
+o Since Libdnet files (such as ltmain.sh) are apparently only used by
+  libdnet (they used to be used by shared library NSE C scripts), we
+  should move them to the libdnet directory.
+
 o [Zenmap] should actually parse and use script results. See
   http://seclists.org/nmap-dev/2010/q1/1108
 
