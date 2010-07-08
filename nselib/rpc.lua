@@ -1451,7 +1451,7 @@ NFS = {
 	end,
 
         LookUpDecode = function(self, comm, data, pos)
-          local lookup, status, len, _ = {}
+          local lookup, status, len, value_follows, _ = {}
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
