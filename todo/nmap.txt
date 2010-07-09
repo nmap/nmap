@@ -1,6 +1,6 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Create new default username list:
+o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
     too
@@ -24,6 +24,10 @@ o [NSE] Maybe we should create a class of scripts which only run one
     having such auxiliary scripts be able to do things like host
     discovery, and then let the following phases work on the list it
     discovers."
+
+o Fix Win7 networking issue reported by Luis which seems to have been
+  triggered by r17542. See this thread:
+  http://seclists.org/nmap-dev/2010/q3/40
 
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
