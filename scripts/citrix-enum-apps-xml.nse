@@ -1,8 +1,8 @@
 description = [[ 
-Extracts a list of applications, acls and settings from Citrix XML service
+Extracts a list of applications, acls, and settings from the Citrix XML
+service.
 
-The script returns the shorter, comma separated output per default. 
-Running nmap with the verbose flag (-v) triggers the detailed output. 
+The script returns more output with higher verbosity.
 ]]
 
 ---
@@ -10,6 +10,13 @@ Running nmap with the verbose flag (-v) triggers the detailed output.
 -- nmap --script=citrix-enum-apps-xml -p 80,443,8080 <host>
 --
 -- @output
+-- PORT     STATE SERVICE
+-- 8080/tcp open  http-proxy
+-- | citrix-enum-apps-xml:  
+-- |   Application: Notepad; Users: Anonymous
+-- |   Application: iexplorer; Users: Anonymous
+-- |_  Application: registry editor; Users: WIN-B4RL0SUCJ29\Joe; Groups: WIN-B4RL0SUCJ29\HR, *CITRIX_BUILTIN*\*CITRIX_ADMINISTRATORS*
+--
 -- PORT     STATE SERVICE
 -- 8080/tcp open  http-proxy
 -- | citrix-enum-apps-xml:  
@@ -44,16 +51,6 @@ Running nmap with the verbose flag (-v) triggers the detailed output.
 -- |     Remote Access: false
 -- |     Users: WIN-B4RL0SUCJ29\Joe
 -- |_    Groups: WIN-B4RL0SUCJ29\HR, *CITRIX_BUILTIN*\*CITRIX_ADMINISTRATORS*
--- 
---
--- PORT     STATE SERVICE
--- 8080/tcp open  http-proxy
--- | citrix-enum-apps-xml:  
--- |   Application: Notepad; Users: Anonymous
--- |   Application: iexplorer; Users: Anonymous
--- |_  Application: registry editor; Users: WIN-B4RL0SUCJ29\Joe; Groups: WIN-B4RL0SUCJ29\HR, *CITRIX_BUILTIN*\*CITRIX_ADMINISTRATORS*
---
----
 
 -- Version 0.2
 -- Created 11/26/2009 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

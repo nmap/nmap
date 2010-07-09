@@ -1,4 +1,15 @@
-description = [[ Retrieves a list of music from a DAAP server including the name of the artist, album and songs ]]
+description = [[
+Retrieves a list of music from a DAAP server. The list includes artist
+names and album and song titles.
+
+Output will be capped to 100 items if not otherwise specified in the
+<code>daap_item_limit</code> script argument. A
+<code>daap_item_limit</code> below zero outputs the complete contents of
+the DAAP library.
+
+Based on documentation found here:
+http://www.tapjam.net/daap/.
+]]
 
 ---
 -- @args daap_item_limit Changes the output limit from 100 songs. If set to a negative value, no limit is enforced.
@@ -20,15 +31,6 @@ description = [[ Retrieves a list of music from a DAAP server including the name
 -- |         Seven
 -- |         When I Grow Up
 -- |_        Coconut
---
---
--- Output will be capped to 100 items if not otherwise specified in the daap_item_limit script argument
--- A daap_item_limit below zero outputs the complete contents of the DAAP library
---
---
--- Based on documentation found here:
--- http://www.tapjam.net/daap/
---
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

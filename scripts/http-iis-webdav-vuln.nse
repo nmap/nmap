@@ -21,9 +21,9 @@ For more information on this vulnerability and script, see:
 -- 80/tcp open  http    syn-ack
 -- |_ http-iis-webdav-vuln: WebDAV is ENABLED. Vulnerable folders discovered: /secret, /webdav
 --
--- @args webdavfolder Selects a single folder to use, instead of using a built-in list
+-- @args webdavfolder Selects a single folder to use, instead of using a built-in list.
 -- @args folderdb The filename of an alternate list of folders.
--- @args basefolder The folder to start in; eg, "/web" will try "/web/xxx"
+-- @args basefolder The folder to start in; eg, <code>"/web"</code> will try <code>"/web/xxx"</code>.
 -----------------------------------------------------------------------
 
 author = "Ron Bowes and Andrew Orr"

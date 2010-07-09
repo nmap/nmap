@@ -1,10 +1,10 @@
 description = [[
 Enumerates directories used by popular web applications and servers.
 
-This parses fingerprint files that are properly formatted. Multiple files are included
-with Nmap, including:
-* http-fingerprints: These attempt to find common files and folders. For the most part, they were in the original http-enum.nse. 
-* yokoso-fingerprints: These are application-specific fingerprints, designed for finding the presense of specific applications/hardware, including Sharepoint, Forigate's Web interface, Arcsight SmartCollector appliances, Outlook Web Access, etc. These are from the Yokoso project, by InGuardians, and included with permission from Kevin Johnson <http://seclists.org/nmap-dev/2009/q3/0685.html>. 
+This parses fingerprint files that are properly formatted. Multiple
+files are included with Nmap, including:
+* <code>http-fingerprints</code>: These attempt to find common files and folders.
+* <code>yokoso-fingerprints</code>: These are application-specific fingerprints, designed for finding the presense of specific applications/hardware, including Sharepoint, Forigate's Web interface, Arcsight SmartCollector appliances, Outlook Web Access, etc. These are from the Yokoso project, by InGuardians, and included with permission from Kevin Johnson (http://seclists.org/nmap-dev/2009/q3/0685.html). 
 
 Initially, this script attempts to access two different random files in order to detect servers
 that don't return a proper 404 Not Found status. In the event that they return 200 OK, the body
@@ -17,12 +17,27 @@ this script will also abort. If the root folder has disappeared or requires auth
 is little hope of finding anything inside it. 
 
 By default, only pages that return 200 OK or 401 Authentication Required are displayed. If the
-script-arg <code>displayall</code> is set, however, then all results will be displayed (except
+<code>displayall</code> script argument is set, however, then all results will be displayed (except
 for 404 Not Found and the status code returned by the random files). 
 ]]
 
 ---
---@output
+-- @args displayall Set to <code>1</code> or <code>true</code> to display all status codes
+-- that may indicate a valid page, not just 200 OK and 401
+-- Authentication Required pages. Although this is more likely to find
+-- certain hidden folders, it also generates far more false positives. 
+-- @args limit Limit the number of folders to check. This option is
+-- useful if using a list from, for example, the DirBuster projects
+-- which can have more than 80,000 entries. 
+-- @args fingerprints Specify a different file to read fingerprints
+-- from. This will be read instead of the default files. 
+-- @args path The base path to prepend to each request. Leading/trailing
+-- slashes are not required. 
+-- @args variations Set to <code>1</code> or <code>true</code> to
+-- attempt variations on the files, adding prefixes and suffixes such as
+-- <code>.bak</code>, <code>~</code>, and <code>Copy of </code>.
+--
+-- @output
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
@@ -34,17 +49,6 @@ for 404 Not Found and the status code returned by the random files).
 -- |  |  /images/outlook.jpg: Outlook Web Access
 -- |  |  /nfservlets/servlet/SPSRouterServlet/: netForensics
 -- |_ |_ /nfservlets/servlet/SPSRouterServlet/: netForensics
--- 
---
---@args displayall    Set to '1' or 'true' to display all status codes that may indicate a valid page, not just
---                    "200 OK" and "401 Authentication Required" pages. Although this is more likely to find certain
---                    hidden folders, it also generates far more false positives. 
---@args limit         Limit the number of folders to check. This option is useful if using a list from, for example, 
---                    the DirBuster projects which can have 80,000+ entries. 
---@args fingerprints  Specify a different file to read fingerprints from. This will be read instead of the default
---                    files. 
---@args path          The base path to prepend to each request. Leading/trailing slashes are not required. 
---@args variations    Set to '1' or 'true' to attempt variations on the files such as .bak, ~, Copy of", etc.
 
 author = "Ron Bowes, Andrew Orr, Rob Nicholls"
 

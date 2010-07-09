@@ -5,10 +5,8 @@ The script works by sending DNS TXT queries to a DNS server which in
 turn queries a third-party service provided by Team Cymru
 (team-cymru.org) using an in-addr.arpa style zone set up especially for
 use by Nmap.
-
 The responses to these queries contain both Origin and Peer ASNs and
 their descriptions, displayed along with the BGP Prefix and Country Code.
-
 The script caches results to reduce the number of queries and should
 perform a single query for all scanned targets in a BGP Prefix present in
 Team Cymru's database.

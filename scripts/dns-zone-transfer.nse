@@ -11,7 +11,7 @@ type specific data (SOA/MX/NS/PTR/A).
 If we don't have the "true" hostname for the DNS server we cannot
 determine a likely zone to perform the transfer on.
 
-Useful resources
+Useful resources:
 * DNS for rocket scientists: http://www.zytrax.com/books/dns/
 * How the AXFR protocol works: http://cr.yp.to/djbdns/axfr-notes.html
 ]]

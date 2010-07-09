@@ -1,10 +1,11 @@
 description = [[
-Classifies a host's IP ID sequence (e.g. test for Idle Scan suitability).
+Classifies a host's IP ID sequence (test for susceptability to idle
+scan).
 
 Sends six probes to obtain IP IDs from the target and classifies them
 similiarly to Nmap's method.  This is useful for finding suitable zombies
-for Nmap's Idle Scan (-sI) as Nmap itself doesn't provide a way to scan
-*for* these hosts.
+for Nmap's idle scan (-sI) as Nmap itself doesn't provide a way to scan
+for these hosts.
 ]]
 
 ---

@@ -31,7 +31,7 @@ printed with the list of any combinations that were found prior to the error.
 -- antispam)
 -- @args smtp-open-relay.to Define the destination email address to be used (without the domain, default is
 -- relaytest)
---
+
 -- changelog
 -- 2007-05-16 Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>
 --   + Added some strings to return in different places
@@ -63,7 +63,6 @@ printed with the list of any combinations that were found prior to the error.
 --   * Minor comments changes
 -- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
 --   * Made the script a little more verbose
------------------------------------------------------------------------
 
 author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

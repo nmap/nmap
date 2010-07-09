@@ -2,9 +2,9 @@ description = [[
 Checks if an IRC server is backdoored by running a time-based command (ping)
 and checking how long it takes to respond. 
 
-The script-arg <code>irc-unrealircd-backdoor.command</code> can be used to 
+The <code>irc-unrealircd-backdoor.command</code> script argument can be used to 
 run an arbitrary command on the remote system. Because of the nature of
-this vulnerability -- the output is never returned -- we have no way of
+this vulnerability (the output is never returned) we have no way of
 getting the output of the command. It can, however, be used to start a
 netcat listener as demonstrated here:
 <code>
@@ -21,19 +21,19 @@ netcat listener as demonstrated here:
 Metasploit can also be used to exploit this vulnerability. 
 
 In addition to running arbitrary commands, the
-<code>irc-unrealircd-backdoor.kill</code> script-arg can be passed, which
+<code>irc-unrealircd-backdoor.kill</code> script argument can be passed, which
 simply kills the UnrealIRCd process. 
 
 
 Reference:
-http://seclists.org/fulldisclosure/2010/Jun/277
-http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt
-http://www.metasploit.com/modules/exploit/unix/irc/unreal_ircd_3281_backdoor
+* http://seclists.org/fulldisclosure/2010/Jun/277
+* http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt
+* http://www.metasploit.com/modules/exploit/unix/irc/unreal_ircd_3281_backdoor
 ]]
 
 ---
--- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern %IP% will be replaced with the ip address of the target host. 
--- @args irc-unrealircd-backdoor.kill If set to '1' or 'true', kill the backdoored UnrealIRCd running. 
+-- @args irc-unrealircd-backdoor.command An arbitrary command to run on the remote system (note, however, that you won't see the output of your command). This will always be attempted, even if the host isn't vulnerable. The pattern <code>%IP%</code> will be replaced with the ip address of the target host. 
+-- @args irc-unrealircd-backdoor.kill If set to <code>1</code> or <code>true</code>, kill the backdoored UnrealIRCd running. 
 -- @args irc-unrealircd-backdoor.wait Wait time in seconds before executing the check. This is recommended to set for more reliable check (100 is good value). 
 --
 -- @output

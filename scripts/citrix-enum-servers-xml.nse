@@ -1,4 +1,6 @@
-description = [[ Extracts the name of the server farm and member severs from Citrix XML service
+description = [[
+Extracts the name of the server farm and member servers from Citrix XML
+service.
 ]]
 
 ---
@@ -11,8 +13,6 @@ description = [[ Extracts the name of the server farm and member severs from Cit
 -- | citrix-enum-servers-xml:  
 -- |   CITRIX-SRV01
 -- |_  CITRIX-SRV01
---
----
 
 -- Version 0.2
 

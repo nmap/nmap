@@ -1,7 +1,7 @@
 description = [[
 Shows AFP server information. This information includes the server's
 hostname, IPv4 and IPv6 addresses, and hardware type (for example
-Macmini or MacBookPro).
+<code>Macmini</code> or <code>MacBookPro</code>).
 ]]
 
 ---

@@ -1,7 +1,7 @@
 description = [[
-Checks if a DNS server allows queries for third-party names.
-
-It is expected that recursion will be enabled on your own internal nameservers.
+Checks if a DNS server allows queries for third-party names. It is
+expected that recursion will be enabled on your own internal
+nameservers.
 ]]
 
 ---

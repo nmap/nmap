@@ -1,5 +1,5 @@
 description = [[
-Runs a Query against Microsoft SQL Server (MSSQL).
+Runs a query against Microsoft SQL Server (ms-sql).
 ]]
 
 author = "Patrik Karlsson"
@@ -17,17 +17,14 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --       (default SELECT @@version version)
 --
 -- @output
---
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | mssql-query:  
+-- | ms-sql-query:  
 -- |   
 -- |   Microsoft SQL Server 2005 - 9.00.3068.00 (Intel X86) 
 -- | 	Feb 26 2008 18:15:01 
 -- | 	Copyright (c) 1988-2005 Microsoft Corporation
 -- |_	Express Edition on Windows NT 5.2 (Build 3790: Service Pack 2)
---
---
 
 -- Version 0.1
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

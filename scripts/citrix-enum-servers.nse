@@ -1,5 +1,5 @@
 description = [[ 
-Extract a list of Citrix servers from the ICA Browser service
+Extracts a list of Citrix servers from the ICA Browser service.
 ]]
 
 ---

@@ -3,7 +3,7 @@ Checks for an identd (auth) server which is spoofing its replies.
 
 Tests whether an identd (auth) server responds with an answer before
 we even send the query.  This sort of identd spoofing can be a sign of
-malware infection though it can also be used for legitimate privacy
+malware infection, though it can also be used for legitimate privacy
 reasons.
 ]]
 

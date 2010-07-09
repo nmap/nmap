@@ -5,8 +5,10 @@ author = "Marek Majkowski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 ---
--- @args ftp-bounce.username Username to login with instead of "anonymous"
--- @args ftp-bounce.password Password to login with instead of "IEUser@"
+-- @args ftp-bounce.username Username to log in with. Default
+-- <code>"anonymous"</code>.
+-- @args ftp-bounce.password Password to log in with. Default
+-- <code>"IEUser@"</code>.
 --
 -- @output
 -- PORT   STATE SERVICE

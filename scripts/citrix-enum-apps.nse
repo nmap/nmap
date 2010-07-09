@@ -1,5 +1,5 @@
 description = [[ 
-Extract published applications from the ICA Browser service
+Extracts a list of published applications from the ICA Browser service.
 ]]
 
 ---

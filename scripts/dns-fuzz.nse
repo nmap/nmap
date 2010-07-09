@@ -1,23 +1,27 @@
 description = [[
 This script launches a DNS fuzzing attack against any DNS server. 
 
-Originally designed to test bind10, this script induces several errors
-into otherwise valid - randomly generated - DNS packets. The packet
-template that we use includes one standard name and one compressed name.
+The script induces errors into randomly generated but valid DNS packets.
+The packet template that we use includes one uncompressed and one
+compressed name.
 
-This script should be run for a long time(TM). It will send a very
-large quantity of packets and thus it's pretty invasive, so it
-should only be used against private DNS servers as part of a
-software development lifecycle.
+Use the <code>dns-fuzz.timelimit</code> argument to control how long the
+fuzzing lasts. This script should be run for a long time. It will send a
+very large quantity of packets and thus it's pretty invasive, so it
+should only be used against private DNS servers as part of a software
+development lifecycle.
 ]]
 
 ---
--- @usage 
--- nmap --script dns-fuzz [--script-args timelimit=2h] target
--- @args timelimit How long to run the fuzz attack. This is a number followed
--- by a suffix: <code>s</code> for seconds, <code>m</code> for minutes, and
--- <code>h</code> for hours. Use <code>0</code> for an unlimited amount of time.
--- Default: <code>10m</code>.
+-- @usage
+-- nmap --script dns-fuzz --script-args timelimit=2h <target>
+--
+-- @args dns-fuzz.timelimit How long to run the fuzz attack. This is a
+-- number followed by a suffix: <code>s</code> for seconds,
+-- <code>m</code> for minutes, and <code>h</code> for hours. Use
+-- <code>0</code> for an unlimited amount of time. Default:
+-- <code>10m</code>.
+--
 -- @output
 -- Host script results:
 -- |_dns-fuzz: Server stopped responding... He's dead, Jim.

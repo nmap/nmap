@@ -1,20 +1,20 @@
 description = [[
-Performs password guessing against IBM DB2
+Performs password guessing against IBM DB2.
 ]]
 
 ---
+-- @args db2-brute.threads the amount of accounts to attempt to brute
+-- force in parallell (default 10).
+-- @args db2-brute.dbname the database name against which to guess
+-- passwords (default <code>"SAMPLE"</code>).
+--
 -- @usage
--- nmap -p 50000 --script db2-brute <host>
+-- nmap -p 50000 --script db2-brute <target>
 --
 -- @output
 -- 50000/tcp open  ibm-db2
 -- | db2-brute:  
 -- |_  db2admin:db2admin => Login Correct
---
---
--- @args db2-brute.threads the amount of accounts to attempt to brute force in parallell (default 10)
--- @args db2-brute.dbname the database name against which to guess passwords (default SAMPLE)
---
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

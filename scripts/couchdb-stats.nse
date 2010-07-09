@@ -1,11 +1,11 @@
 description = [[
-Gets database statistics from a CouchDB database
-For more info about the CouchDB HTTP Api, see 
+Gets database statistics from a CouchDB database.
+For more info about the CouchDB HTTP API, see 
 http://wiki.apache.org/couchdb/Runtime_Statistics
 and
-http://wiki.apache.org/couchdb/HTTP_database_API
-
+http://wiki.apache.org/couchdb/HTTP_database_API.
 ]]
+
 ---
 -- @usage
 -- nmap -p 5984 --script "couchdb-stats.nse" <host>
@@ -30,6 +30,7 @@ http://wiki.apache.org/couchdb/HTTP_database_API
 -- |       current = 5
 -- |       count = 1617
 -- |_  Authentication : NOT enabled ('admin party')
+
 -- version 0.3
 --
 -- Created 01/20/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>

@@ -1,8 +1,23 @@
 description = [[
 Attempts to perform an LDAP search and returns all matches.
+
+If no username and password is supplied to the script the Nmap registry
+is consulted. If the <code>ldap-brute</code> script has been selected
+and it found a valid account, this account will be used. If not
+anonymous bind will be used as a last attempt.
 ]]
 
 ---
+-- @args ldap.username If set, the script will attempt to perform an LDAP bind using the username and password
+-- @args ldap.password If set, used together with the username to authenticate to the LDAP server
+-- @args ldap.qfilter If set, specifies a quick filter. The library does not support parsing real LDAP filters.
+--       The following values are valid for the filter parameter: computer, users or all. If no value is specified it defaults to all.
+-- @args ldap.base If set, the script will use it as a base for the search. By default the defaultNamingContext is retrieved and used.
+--       If no defaultNamingContext is available the script iterates over the available namingContexts
+-- @args ldap.attrib If set, the search will include only the attributes specified. For a single attribute a string value can be used, if
+--       multiple attributes need to be supplied a table should be used instead.
+-- @args ldap.maxobjects If set, overrides the number of objects returned by the script (default 20). 
+--       The value -1 removes the limit completely.
 -- @usage
 -- nmap -p 389 --script ldap-search --script-args ldap.username="'cn=ldaptest,cn=users,dc=cqure,dc=net'",ldap.password=ldaptest,
 -- ldap.qfilter=users,ldap.attrib=sAMAccountName <host>
@@ -28,30 +43,10 @@ Attempts to perform an LDAP search and returns all matches.
 -- |         sAMAccountName: VMABUSEXP008$
 -- |     dn: CN=ldaptest,CN=Users,DC=cqure,DC=net
 -- |_        sAMAccountName: ldaptest
---
---
--- @args ldap.username If set, the script will attempt to perform an LDAP bind using the username and password
--- @args ldap.password If set, used together with the username to authenticate to the LDAP server
--- @args ldap.qfilter If set, specifies a quick filter. The library does not support parsing real LDAP filters.
---       The following values are valid for the filter parameter: computer, users or all. If no value is specified it defaults to all.
--- @args ldap.base If set, the script will use it as a base for the search. By default the defaultNamingContext is retrieved and used.
---       If no defaultNamingContext is available the script iterates over the available namingContexts
--- @args ldap.attrib If set, the search will include only the attributes specified. For a single attribute a string value can be used, if
---       multiple attributes need to be supplied a table should be used instead.
--- @args ldap.maxobjects If set, overrides the number of objects returned by the script (default 20). 
---       The value -1 removes the limit completely.
---
---
--- Authentication
--- --------------
--- If no username and password is supplied to the script the Nmap registry is consulted.
--- If the ldap-brute script has been selected and it found a valid account, this account will be used.
--- If not anonymous bind will be used as a last attempt.
--- 
+
 -- Credit 
 -- ------
 -- o Martin Swende who provided me with the initial code that got me started writing this.
---
 
 -- Version 0.4
 -- Created 01/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

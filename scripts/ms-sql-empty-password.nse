@@ -15,7 +15,7 @@ require 'mssql'
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | mssql-empty-password:  
+-- | ms-sql-empty-password:  
 -- |_  sa:<empty> => Login Correct
 --
 --

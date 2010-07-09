@@ -9,7 +9,7 @@ get more information.
 
 ---
 -- @usage
--- nmap --script=dns-service-discovery -p 5353 <host>
+-- nmap --script=dns-service-discovery -p 5353 <target>
 --
 -- @output
 -- PORT     STATE SERVICE  REASON

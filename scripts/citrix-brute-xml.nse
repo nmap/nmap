@@ -1,9 +1,11 @@
-description = [[ Attempts to guess valid credentials for the Citrix PN Web Agent XML Service.
-The XML service authenticates against the local Windows server or the Active Directory.
+description = [[
+Attempts to guess valid credentials for the Citrix PN Web Agent XML
+Service. The XML service authenticates against the local Windows server
+or the Active Directory.
 
-CAUTION: This script makes no attempt of preventing account lockout. 
-	     If the password list contains more passwords than the lockout-threshold
-		 accounts WILL be locked.
+This script makes no attempt of preventing account lockout. If the
+password list contains more passwords than the lockout-threshold
+accounts will be locked.
 ]]
 
 ---

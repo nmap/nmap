@@ -8,7 +8,8 @@ module or similar enabled.
 The Apache mod_userdir module allows user-specific directories to be accessed
 using the http://example.com/~user/ syntax.  This script makes http requests in
 order to discover valid user-specific directories and infer valid usernames.  By
-default, the script will use Nmaps nselib/data/usernames.lst  An http response
+default, the script will use Nmap's
+<code>nselib/data/usernames.lst</code>.  An HTTP response
 status of 200 or 403 means the username is likely a valid one and the username
 will be output in the script results along with the status code (in parentheses).
 
@@ -16,21 +17,16 @@ This script makes an attempt to avoid false positives by requesting a directory
 which is unlikely to exist.  If the server responds with 200 or 403 then the
 script will not continue testing it.
 
-Ref: CVE-2001-1013 http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013
+CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 ]]
+
 ---
--- @args
--- users=path/to/custom/usernames.list or
--- userdir.users=path/to/custom/usernames.list
--- limit=max number of users to check. This option is useful if using a list from,
---       for example, the DirBuster projects which can have 80,000+ entries. 
---
+-- @args userdir.users The filename of a username list.
+-- @args limit The maximum number of users to check.
 --
 -- @output
 -- 80/tcp open  http    syn-ack Apache httpd 2.2.9
 -- |_ apache-userdir-enum: Potential Users: root (403), user (200), test (200)
-
-
 
 local http      = require 'http'
 local stdnse    = require 'stdnse'

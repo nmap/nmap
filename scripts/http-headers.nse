@@ -3,7 +3,7 @@ Performs a GET request for the root folder ("/") of a web server and displays th
 ]]
 
 ---
---@output
+-- @output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT   STATE SERVICE
 -- 80/tcp open  http    syn-ack
@@ -19,7 +19,7 @@ Performs a GET request for the root folder ("/") of a web server and displays th
 -- |  |  Content-Type: text/html
 -- |_ |_ (Request type: HEAD)
 -- 
---@args path The path to request, such as '/index.php'. Default: '/'. 
+--@args path The path to request, such as <code>/index.php</code>. Default <code>/</code>. 
 --@args useget Set to force GET requests instead of HEAD. 
 
 author = "Ron Bowes"

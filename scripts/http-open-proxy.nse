@@ -1,13 +1,10 @@
 description=[[
 Checks if an HTTP proxy is open.
 
-The script attempts to connect to www.google.com through the (possible) proxy and checks
-for a valid HTTP response code.
-
-Valid HTTP response codes are actually: 200, 301, 302.
-
-If the target is an open proxy, this script causes the target to retrieve a
-web page from www.google.com.
+The script attempts to connect to www.google.com through the proxy and
+checks for a valid HTTP response code. Valid HTTP response codes are
+200, 301, and 302. If the target is an open proxy, this script causes
+the target to retrieve a web page from www.google.com.
 ]]
 
 ---

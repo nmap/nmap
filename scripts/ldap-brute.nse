@@ -1,10 +1,28 @@
 description = [[
-Performs password guessing against LDAP
+This script makes attempts to brute force LDAP authentication. By default
+it uses the builtin username and password lists to do so. In order to use your
+own lists use the <code>userdb</code> and <code>passdb</code> script arguments.
+
+This script does not make any attempt to prevent account lockout!
+If the number of passwords in the dictionary exceed the amount of
+allowed tries, accounts will be locked out. This usually happens 
+very quickly.
+
+Authenticating against Active Directory using LDAP does not use the
+Windows user name but the user accounts distinguished name. LDAP on Windows
+2003 allows authentication using a simple user name rather than using the
+fully distinguished name. E.g., "Patrik Karlsson" vs.
+"cn=Patrik Karlsson,cn=Users,dc=cqure,dc=net"
+This type of authentication is not supported on e.g. OpenLDAP.
+
+This script uses some AD-specific support and optimizations:
+* LDAP on Windows 2003 reports different error messages depending on whether an account exists or not. If the script recieves an error indicating that the username does not exist it simply stops guessing passwords for this account and moves on to the next.
+* The script attempts to authenticate with the username only if no LDAP base is specified. The benefit of authenticating this way is that the LDAP path of each account does not need to be known in advance as it's looked up by the server.
 ]]
 
 ---
 -- @usage
--- nmap -p 389 --script ldap-brute --script-args 
+-- nmap -p 389 --script ldap-brute --script-args \
 --  ldap.base='"cn=users,dc=cqure,dc=net"' <host>
 --
 -- @output
@@ -15,44 +33,7 @@ Performs password guessing against LDAP
 -- @args ldap.base If set, the script will use it as a base for the password
 --       guessing attempts. If unset the user list must either contain the
 --       distinguished name of each user or the server must support
---       authentication using a simple user name. See AD discussion below.
---
--- Additional information
--- ----------------------
--- This script makes attempts to brute force LDAP authentication. By default
--- it uses the builtin user- and password-list to do so. In order to use your
--- own lists use the userdb and passdb script arguments.
---
--- WARNING: This script does not make ANY attempt to prevent account lockout!
---          If the number of passwords in the dictionary exceed the amount of
---          allowed tries, accounts will be locked out. This usually happens 
---          *VERY* quickly.
---
--- Active Directory and LDAP
--- -------------------------
--- Note: Authenticating against Active Directory using LDAP does not use the
--- Windows user name but the user accounts distinguished name. LDAP on Windows
--- 2003 allows authentication using a simple user name rather than using the
--- fully distinguished name. Eg:
---  - Patrik Karlsson vs. cn=Patrik Karlsson,cn=Users,dc=cqure,dc=net
--- This type of authentication is not supported on eg. OpenLDAP
---
--- This script uses some AD specific support and optimizations:
---
--- o LDAP on Windows 2003 reports different error messages depending on whether
---   an account exists or not. If the script recieves an error indicating that
---   the username does not exist it simply stops guessing passwords for this
---   account and moves on to the next.
---
--- o The script attempts to authenticate with the username only if no LDAP base
---   is specified. The benefit of authenticating this way is that the LDAP path
---   of each account does not need to be known in advance as it's looked up by
---   the server.
---
--- Credits
--- -------
---   o The get_random_string function was borrowed from the smb-psexec script.
---
+--       authentication using a simple user name. See the AD discussion in the description.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

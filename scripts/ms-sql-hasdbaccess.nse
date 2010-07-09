@@ -1,5 +1,14 @@
 description = [[
-Queries Microsoft SQL Server (MSSQL) for a list of databases a user has access to.
+Queries Microsoft SQL Server (ms-sql) for a list of databases a user has
+access to.
+
+The script needs an account with the sysadmin server role to work.
+It needs to be fed credentials through the script arguments or from
+the scripts <code>mssql-brute</code> or <code>mssql-empty-password</code>.
+
+When run, the script iterates over the credentials and attempts to run
+the command until either all credentials are exhausted or until the
+command is executed.
 ]]
 
 author = "Patrik Karlsson"
@@ -14,11 +23,11 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 ---
 -- @args mssql.username specifies the username to use to connect to
 --       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
+--       the <code>mssql-brute</code> and <code>mssql-empty-password</code> scripts.
 --
 -- @args mssql.password specifies the password to use to connect to
 --       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
+--       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
 -- @args mssql-hasdbaccess.limit limits the amount of databases per-user
 --       that are returned (default 5). If set to zero or less all 
@@ -27,7 +36,7 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | mssql-hasdbaccess:  
+-- | ms-sql-hasdbaccess:  
 -- |   webshop_reader
 -- |     dbname	owner
 -- |     hr	sa
@@ -37,16 +46,6 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 -- |     dbname	owner
 -- |     testdb	CQURE-NET\Administr
 -- |_    webshop	sa
-
---
--- The script needs an account with the sysadmin server role to work.
--- It needs to be fed credentials through the script arguments or from
--- the scripts mssq-brute or mssq-empty-password.
---
--- When run, the script iterates over the credentials and attempts to run
--- the command until either all credentials are exhausted or until the
--- command is executed.
---
 
 -- Version 0.1
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

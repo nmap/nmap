@@ -1,5 +1,5 @@
 description = [[
-Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2009-3733), originally released by Justin Morehouse (justin.morehouse[at)gmail.com) and Tony Flick (tony.flick(at]fyrmassociates.com), and presented at Shmoocon 2010 (http://fyrmassociates.com/tools.html).
+Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2009-3733), originally released by Justin Morehouse and Tony Flick, presented at Shmoocon 2010 (http://fyrmassociates.com/tools.html).
 ]]
 
 ---
@@ -7,15 +7,15 @@ Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2
 -- nmap --script http-vmware-path-vuln -p80,443,8222,8333 <host>
 --
 -- @output
---| http-vmware-path-vuln:  
---|   VMWare path traversal (CVE-2009-3733): VULNERABLE
---|     /vmware/Windows 2003/Windows 2003.vmx
---|     /vmware/Pentest/Pentest - Linux/Linux Pentest Bravo.vmx
---|     /vmware/Pentest/Pentest - Windows/Windows 2003.vmx
---|     /mnt/vmware/vmware/FreeBSD 7.2/FreeBSD 7.2.vmx
---|     /mnt/vmware/vmware/FreeBSD 8.0/FreeBSD 8.0.vmx
---|     /mnt/vmware/vmware/FreeBSD 8.0 64-bit/FreeBSD 8.0 64-bit.vmx
---|_    /mnt/vmware/vmware/Slackware 13 32-bit/Slackware 13 32-bit.vmx
+-- | http-vmware-path-vuln:  
+-- |   VMWare path traversal (CVE-2009-3733): VULNERABLE
+-- |     /vmware/Windows 2003/Windows 2003.vmx
+-- |     /vmware/Pentest/Pentest - Linux/Linux Pentest Bravo.vmx
+-- |     /vmware/Pentest/Pentest - Windows/Windows 2003.vmx
+-- |     /mnt/vmware/vmware/FreeBSD 7.2/FreeBSD 7.2.vmx
+-- |     /mnt/vmware/vmware/FreeBSD 8.0/FreeBSD 8.0.vmx
+-- |     /mnt/vmware/vmware/FreeBSD 8.0 64-bit/FreeBSD 8.0 64-bit.vmx
+-- |_    /mnt/vmware/vmware/Slackware 13 32-bit/Slackware 13 32-bit.vmx
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"

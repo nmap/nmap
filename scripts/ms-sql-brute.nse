@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Microsoft SQL Server (mssql)
+Performs password guessing against Microsoft SQL Server (ms-sql).
 ]]
 
 author = "Patrik Karlsson"
@@ -12,16 +12,13 @@ require 'mssql'
 require 'unpwdb'
 
 ---
---
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | mssql-brute:  
+-- | ms-sql-brute:  
 -- |   webshop_reader:secret => Login Success
 -- |   testuser:secret1234 => Must change password at next logon
 -- |_  lordvader:secret1234 => Login Success
---
---
 
 -- Version 0.1
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

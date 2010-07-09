@@ -1,7 +1,7 @@
 description = [[ 
-Detects the Mac OS X AFP directory traversal vulnerability CVE-2010-0533.
+Detects the Mac OS X AFP directory traversal vulnerability, CVE-2010-0533.
 
-This script attempt to iterate over all AFP shares on the remote
+This script attempts to iterate over all AFP shares on the remote
 host. For each share it attempts to access the parent directory by
 exploiting the directory traversal vulnerability as described in
 CVE-2010-0533.
@@ -9,10 +9,8 @@ CVE-2010-0533.
 The script reports whether the system is vulnerable or not. In
 addition it lists the contents of the parent and child directories to
 a max depth of 2.
-
 When running in verbose mode, all items in the listed directories are
 shown.  In non verbose mode, output is limited to the first 5 items.
-
 If the server is not vulnerable, the script will not return any
 information.
 

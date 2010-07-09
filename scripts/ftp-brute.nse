@@ -3,13 +3,7 @@ Tries to get FTP login credentials by guessing usernames and passwords.
 
 This uses the standard unpwdb username/password list. However, in tests FTP servers are 
 significantly slower than other servers when responding, so the number of usernames/passwords
-can be artificially limited using script-args.
-
-2008-11-06 Vlatko Kosturjak <kost@linux.hr>
-Modified xampp-default-auth script to generic ftp-brute script
-
-2009-09-18 Ron Bowes <ron@skullsecurity.net>
-Made into an actual bruteforce script (previously, it only tried one username/password). 
+can be artificially limited using script arguments.
 ]]
 
 ---
@@ -22,7 +16,13 @@ Made into an actual bruteforce script (previously, it only tried one username/pa
 --
 -- @args userlimit The number of user accounts to try (default: unlimited).
 -- @args passlimit The number of passwords to try (default: unlimited).
--- @args limit     Set userlimlt + passlimit at the same time.
+-- @args limit     Set <code>userlimlt</code> and <code>passlimit</code> at the same time.
+
+-- 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
+-- Modified xampp-default-auth script to generic ftp-brute script
+--
+-- 2009-09-18 Ron Bowes <ron@skullsecurity.net>
+-- Made into an actual bruteforce script (previously, it only tried one username/password). 
 
 author = "Diman Todorov, Vlatko Kosturjak, Ron Bowes"
 

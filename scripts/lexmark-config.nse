@@ -1,9 +1,14 @@
-description = [[ Retrieve Lexmark S300-S400 Configuration ]]
+description = [[
+Retrieves configuration information from a Lexmark S300-S400 printer.
 
--- The Lexmark S302 was found to respond with it's configuration to the NTPRequest probe
--- As the response decodes as MDNS the request was modified to resemble a MDNS request as close as possible
--- However, the port (9100/udp) is listed as something completely different (HBN3) in documentation from Lexmark
--- http://www.lexmark.com/vgn/images/portal/Security%20Features%20of%20Lexmark%20MFPs%20v1_1.pdf
+The Lexmark S302 responds to the NTPRequest version probe with its
+configuration. The response decodes as mDNS, so the request was modified
+to resemble an mDNS request as close as possible. However, the port
+(9100/udp) is listed as something completely different (HBN3) in
+documentation from Lexmark. See
+http://www.lexmark.com/vgn/images/portal/Security%20Features%20of%20Lexmark%20MFPs%20v1_1.pdf.
+]]
+
 
 ---
 --@output

@@ -1,6 +1,7 @@
 description = [[
-Sends a DHCPDISCOVER request to a host on UDP port 67. The response come back to UDP port 68, and
-is read using PCAP (due to the inability for a script to choose its source port at the moment). 
+Sends a DHCPDISCOVER request to a host on UDP port 67. The response
+comes back to UDP port 68, and
+is read using pcap (due to the inability for a script to choose its source port at the moment). 
 
 DHCPDISCOVER is a DHCP request that returns useful information from a DHCP server. The request sends 
 a list of which fields it wants to know (a handful by default, every field if verbosity is turned on), and
@@ -9,10 +10,9 @@ to return every field, nor does it have to return them in the same order, or hon
 all. A Linksys WRT54g, for example, completely ignores the list of requested fields and returns a few 
 standard ones. This script displays every field it receives. 
 
-Using various script-args, the type of DHCP request can be changed, which can lead to interesting results. 
+With script arguments, the type of DHCP request can be changed, which can lead to interesting results. 
 Additionally, the MAC address can be randomized, which should override the cache on the DHCP server and
 assign a new IP address. Extra requests can also be sent to exhaust the IP address range more quickly. 
-See the 'args' section for more information. 
 
 DHCPINFORM is another type of DHCP request that requests the same information, but doesn't reserve
 an address. Unfortunately, because many home routers simply ignore DHCPINFORM requests, we opted
@@ -24,14 +24,28 @@ Some of the more useful fields:
 * Router
 * DNS Servers
 * Hostname
-
-The functions for creating and parsing DHCP requests are general, and should be able to create and
-parse any DHCP request and response. If other scripts require DHCP support, <code>dhcp_build</code>
-and <code>dhcp_parse</code>, with their related functions, can easily be abstracted into a NSELib. 
 ]]
 
 ---
---@output
+-- @args dhcptype The type of DHCP request to make. By default,
+-- DHCPDISCOVER is sent, but this argument can change it to DHCPOFFER,
+-- DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, DHCPRELEASE or
+-- DHCPINFORM. Not all types will evoke a response from all servers. 
+-- @args randomize_mac Set to <code>true</code> or <code>1</code> to
+-- send a random MAC address with the request (keep in mind that you may
+-- not see the response). This should cause the router to reserve a new
+-- IP address each time. @args requests Set to an integer to make up to
+-- that many requests (and display the results). 
+-- @args fake_requests Set to an integer to make that many fake requests
+-- before the real one(s). This could be useful, for example, if you
+-- also use <code>randomize_mac</code> and you want to try exhausting
+-- all addresses. 
+-- @args timeout  Set to an integer to use it for a timeout. My router
+-- responds to <code>fake_requests</code> rate limited, at about 1
+-- response/second. Therefore, timeout has to be at least
+-- <code>fake_requests * 1000</code>. Default: 5000. 
+--
+-- @output
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE
 -- 67/udp open  dhcps
@@ -44,21 +58,12 @@ and <code>dhcp_parse</code>, with their related functions, can easily be abstrac
 -- |  |  Router: 192.168.1.1
 -- |_ |_ Domain Name Server: 208.81.7.10, 208.81.7.14
 -- 
---
---@args dhcptype The type of DHCP request to make. By default, DHCPDISCOVER is sent, but this argument
---               can change it to DHCPOFFER, DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, DHCPRELEASE
---               or DHCPINFORM. Not all types will evoke a response from all servers. 
---@args randomize_mac Set to 'true' or '1' to send a random MAC address with the request (keep in mind
---               that you may not see the response). This should cause the router to reserve a new IP
---               address each time. 
---@args requests Set to an integer to make up to that many requests (and display the results). 
---@args fake_requests Set to an integer to make that many fake requests before the real one(s). This could
---               be useful, for example, if you also use <code>randomize_mac</code> and you want to try
---               exhausting all addresses. 
---@args timeout  Set to an integer to use it for a timeout. My router responds to <code>fake_requests</code>
---               rate limited, at about 1 response/second. Therefore, timeout has to be at least 
---               <code>fake_requests * 1000</code>. Default: 5000. 
 
+
+-- The functions for creating and parsing DHCP requests are general, and
+-- should be able to create and parse any DHCP request and response. If
+-- other scripts require DHCP support, dhcp_build and dhcp_parse, with
+-- their related functions, can easily be abstracted into a NSELib. 
 
 author = "Ron Bowes"
 

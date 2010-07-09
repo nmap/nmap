@@ -21,11 +21,16 @@ different list.
 
 ---
 -- @args dns-cache-snoop.mode which of two supported snooping methods to
--- use:
--- * <code>nonrecursive</code> (default): checks if the server returns results for non-recursive queries. Some servers may disable this.
--- * <code>timed</code>: measures the difference in time taken to resolve cached and non-cached hosts. This mode will pollute the DNS cache and can only be used once reliably.
+-- use. <code>nonrecursive</code>, the default, checks if the server
+-- returns results for non-recursive queries. Some servers may disable
+-- this. <code>timed</code> measures the difference in time taken to
+-- resolve cached and non-cached hosts. This mode will pollute the DNS
+-- cache and can only be used once reliably.
 -- @args dns-cache-snoop.domains an array of domain to check in place of
 -- the default list.
+--
+-- @usage
+-- nmap -sU -p 53 --script dns-cache-snoop.nse --script-args 'dns-cache-snoop.mode=timed,dns-cache-snoop.domains={host1,host2,host3}' <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
@@ -41,9 +46,6 @@ different list.
 -- | www.google.com.hk
 -- | www.google.co.uk
 -- |_www.linkedin.com
---
--- @usage
--- nmap -sU -p 53 --script dns-cache-snoop.nse --script-args 'dns-cache-snoop.mode=timed,dns-cache-snoop.domains={host1,host2,host3}' <target>
 
 require("shortport")
 require("dns")

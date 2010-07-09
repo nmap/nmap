@@ -1,5 +1,19 @@
 description = [[
-Queries Microsoft SQL Server (MSSQL) for a list of tables per database.
+Queries Microsoft SQL Server (ms-sql) for a list of tables per database.
+
+The sysdatabase table should be accessible by more or less everyone
+The script attempts to use the sa account over any other if it has
+the password in the registry. If not the first account in the
+registry is used.
+
+Once we have a list of databases we iterate over it and attempt to extract
+table names. In order for this to succeed we need to have either
+sysadmin privileges or an account with access to the db. So, each
+database we successfully enumerate tables from we mark as finished, then
+iterate over known user accounts until either we have exhausted the users
+or found all tables in all the databases.
+
+Tables installed by default are excluded.
 ]]
 
 author = "Patrik Karlsson"
@@ -15,11 +29,11 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 ---
 -- @args mssql.username specifies the username to use to connect to
 --       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
+--       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
 -- @args mssql.password specifies the password to use to connect to
 --       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
+--       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
 -- @args mssql-tables.maxdb Limits the amount of databases that are
 --       processed and returned (default 5). If set to zero or less 
@@ -34,7 +48,7 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 -- @output
 -- PORT     STATE SERVICE
 -- 1433/tcp open  ms-sql-s
--- | mssql-tables:  
+-- | ms-sql-tables:  
 -- |   webshop
 -- |     table	column	type	length
 -- |     payments	user_id	int	4
@@ -57,22 +71,6 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 -- |     users	username	varchar	50
 -- |     users	password	varchar	50
 -- |_    users	fullname	varchar	100
---
---
--- The sysdatabase table should be accessible by more or less everyone
--- The script attempts to use the sa account over some n00b if it has
--- the password in the registry. If not the first account in the
--- registry is used.
---
--- Once we have a list of DBs we iterate over it and attempt to extract
--- table names. In order for this to succeed we need to have either
--- sysadmin privileges or an account with access to the db. So, for each
--- db we successfully enumerate tables from we mark as finnished, we then
--- iterate over our know user accounts until either we exhausted our users
--- or we found all tables in all dbs.
---
--- Oh, and exclude all MS default dbs from this excercise.
--- 
 
 -- Version 0.1
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

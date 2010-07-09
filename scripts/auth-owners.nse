@@ -1,6 +1,7 @@
 description = [[
 Attempts to find the owner of an open TCP port by querying an auth
-(identd - port 113) daemon which must also be open on the target system.
+daemon which must also be open on the target system. The auth service,
+also known as identd, normally runs on port 113.
 ]]
 ---
 --@output

@@ -1,8 +1,6 @@
 description = [[
-Queries Microsoft SQL Server (MSSQL) for a list of:
-* Databases
-* Linked Servers
-* Configuration settings
+Queries Microsoft SQL Server (ms-sql) for a list of databases, linked
+servers, and configuration settings.
 ]]
 
 author = "Patrik Karlsson"
