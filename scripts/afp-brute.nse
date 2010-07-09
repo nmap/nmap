@@ -11,8 +11,7 @@ Performs password guessing against Apple Filing Protocol (AFP)
 -- 548/tcp open  afp
 -- | afp-brute:  
 -- |_  admin:KenSentMe => Login Correct
---
---
+
 -- Information on AFP implementations
 --
 -- Snow Leopard
