@@ -3035,7 +3035,16 @@ end
     <sect2 id="nse-implementation-init">
       <title>Initialization Phase</title>
       <para>
-      During its initialization stage, Nmap loads the Lua interpreter and its provided libraries. These libraries are fully documented in the <ulink url="http://www.lua.org/manual/5.1/manual.html">Lua Reference Manual</ulink>.  Here is a summary of the libraries, listed alphabetically by their namespace name:</para>
+      NSE is initialized before any scanning when Nmap first starts.  We start
+      this initialization through a call to <literal>open_nse</literal>.  This
+      procedure starts by creating a fresh Lua state that will persist for the
+      scans against all host groups. We next load the standard Lua libraries
+      and all statically compiled NSE libraries. The standard Lua libraries are
+      fully documented in the <ulink
+      url="http://www.lua.org/manual/5.1/manual.html">Lua Reference
+      Manual</ulink>.  Here is a summary of the libraries, listed
+      alphabetically by their namespace name:
+      </para>
  
       <variablelist>
         <varlistentry>
@@ -3103,89 +3112,151 @@ end
           </listitem>
         </varlistentry>
       </variablelist>
+      <para>
+        The libraries included with NSE are documented in NSEDoc. They include:
+        <literal>nmap</literal>,
+        <literal>pcre</literal>,
+        <literal>bin</literal>,
+        <literal>bit</literal>,
+        <literal>ssl</literal> (if available), and
+        <literal>stdnse.c</literal> (C functions for the
+                                     <literal>stdnse</literal> library).
+      </para>
 
+      <para>
+        Following loading basic libraries, NSE loads the file
+        <literal>nse_main.lua</literal>. The majority of NSE is written in
+        Lua -- Lua code manages scripts and sets up the appropriate
+        environment. In this situation Lua really shines as a glue language.
+        We use C to provide our network framework and low-level libraries.
+        We use Lua to structure our data, determine which scripts to load,
+        and, of course, schedule and execute our scripts.
+      </para>
 
-<para>In addition to loading the libraries provided by Lua,
-the <literal>nmap</literal> namespace functions are loaded. The
-search paths are the same directories that Nmap searches for its data
-files, except that the <literal>nselib</literal> directory
-is appended to each. At this stage any provided script arguments are
-stored inside the registry.<indexterm><primary>registry
-(NSE)</primary></indexterm></para>
+      <para>
+        A key feature of Lua we use in NSE is coroutines. Coroutines allow for
+        collaborative multi-threading so that scripts can suspend themselves at
+        defined points and allow other coroutines to execute. Network I/O,
+        particularly waiting for responses from remote hosts, often involves
+        long wait times, so this is when scripts yield to others. Key functions
+        of the Nsock wrapper cause scripts to yield (pause). When Nsock
+        finishes processing such a request, it makes a callback which causes
+        the script to be pushed from the waiting queue back into the running
+        queue so it can resume operations when its turn comes up again. Keep
+        in mind that scripts must explicitly yield (usually within a network
+        function) to relinquish control. Yielding is never asynchronous.
+      </para>
 
+      <para>
+        When <literal>nse_main.lua</literal> is loaded, it sets up the Lua
+        environment to be ready for script scanning later on. Ultimately,
+        it will load all scripts the user has chosen and return a function
+        to <literal>nse_main.cc</literal> that can be executed to script
+        scan a host group.
+      </para>
 
-		<para>
-		The next phase of NSE initialization is loading the selected
-		scripts, based on the defaults or arguments provided to the
-		<option>--script</option><indexterm><primary><option>--script</option></primary></indexterm>
-                option.  The
-		<literal>version</literal><indexterm><primary><varname>version</varname> script category</primary></indexterm>
-		category scripts are loaded as well if version detection was enabled.
-		NSE first tries to interpret each <option>--script</option> argument as a category.
-		This is done with a Lua C function
-		in <filename>nse_init.cc</filename> named <literal>entry</literal> based on data from
-                the <filename>script.db</filename> script categorization database.<indexterm><primary><filename>script.db</filename></primary><seealso><option>--script-updatedb</option></seealso></indexterm>
-                If the category is found, those scripts are loaded.
-                Otherwise Nmap tries to interpret <option>--script</option> arguments as
-                files or directories. If no files or directories with a given name are found in Nmap's search path,
-                an error is raised and the Script Engine aborts.
-                </para>
-        
-		<para>
-        If a directory is specified, all of the <literal>.nse</literal> files inside it are
-        loaded. Each loaded file is executed by Lua. If a
-        <emphasis>portrule</emphasis> is present, it is saved in the
-        <emphasis>porttests</emphasis> table with a portrule key and file
-        closure value. Otherwise, if the script has a
-        <emphasis>hostrule</emphasis>, it is saved in the <emphasis>hosttests</emphasis> table
-        in the same manner.
+      <para>
+        We prepare the Lua environment by adding the <literal>nselib</literal>
+        directory the Lua path. This allows NSE Libraries to be required
+        by scripts. Next NSE loads replacements for the standard
+        coroutine functions so yields initiated by NSE are caught and
+        <emphasis>propagated</emphasis> back to the NSE scheduler.
+      </para>
+
+      <para>
+        <literal>nse_main.lua</literal> next defines classes and functions
+        to be used during setup (we go over these later). Next, the script
+        arguments (<literal>--script-args</literal>) are loaded into
+        <literal>nmap.registry.args</literal>. This includes a custom parser
+        as Lua's patterns are currently insufficient for the task. After
+        arguments are loaded, we create a new script database if a
+        pre-existing script database does not exist or a new one was requested.
+        Our final task during initialization is to load Scripts chosen on
+        the command line.
+      </para>
+
+      <para>
+        Our <literal>get_chosen_scripts</literal> function works to find
+        the scripts a user chose via categories, file names, and directories.
+        These scripts will be loaded into memory for later use. The
+        <literal>--script</literal> argument is changed to valid Lua code
+        that is executed. The code generated will dynamically check whether
+        a script in the database satisfies the boolean equation given on the
+        command line (recall that <literal>--script</literal> may take a
+        boolean expression). Simple categories and filenames will match
+        immediately causing the script to be "chosen". Other complex expressions
+        will be determined using Lua's boolean operators. Specifications
+        given using <literal>--script</literal> that do not match in this
+        way are instead checked to be a regular file or directory. If
+        the specification is a regular file, we load it. If the specification
+        is a directory, we load all the <literal>*.nse</literal> files it
+        contains. Otherwise, we throw an error.
+      </para>
+
+      <para>
+        <literal>get_chosen_scripts</literal> finishes by arranging the
+        scripts to run in an ordered way. We do this by sorting the scripts
+        into runlevels. These runlevels are determined by the dependencies
+        a script has. Script that have no dependency will run at level
+        <literal>1</literal> while a script that depends on a runlevel
+        <literal>1</literal> script will run at level <literal>2</literal>.
+        When a script scan is run, each runlevel is run separately and in
+        order.
+      </para>
+
+      <para>
+        <literal>nse_main.lua</literal> defines two classes:
+        <literal>Script</literal> and <literal>Thread</literal>. These classes
+        are the objects that represent NSE scripts and the script threads we
+        run. When a script is loaded, we call <literal>Script.new</literal>
+        that creates a new Script object.  The script file is loaded into Lua
+        and saved for later use. These classes and their methods are intended
+        for encapsulating the data needed for each script and its threads. The
+        <literal>Script.new</literal> also contains sanity checks to ensure the
+        script has required fields such as the <literal>action</literal>
+        function.
+      </para>
+
+      <sect2 id="nse-implementation-scan">
+        <title>Scanning a Host Group</title>
+        <para>
+          When NSE runs a script scan, <literal>script_scan</literal> is called
+          in <literal>nse_main.cc</literal> with a Vector of targets to scan.
+          These targets will be passed to our <literal>nse_main.lua</literal>
+          main function for scanning.
         </para>
-    </sect2>
-    
-	<sect2 id="nse-implementation-match">
-      <title>Matching Scripts with Targets</title>
-      <para>
-	  After initialization is finished, the
-	  <literal>hostrules</literal><indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
-          and <literal>portrules</literal><indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
-          are evaluated for each host in the current
-	  target group. 
-          The rules of every chosen script is tested against every host and (in the case of service scripts) each <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>
-and <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>
-port on the hosts.  The combination can grow quite large, so portrules should be kept as simple as possible.  Save any heavy computation for the script's <literal>action</literal>.</para>
 
-<para>Next, a Lua thread is created for each of the matching script-target combinations.  Each thread
-is stored with pertinent information such as its dependencies, target, target port (if applicable), host and port tables
-(passed to the <literal>action</literal>), and the script type (service or host script).
-The <function>mainloop</function> function then processes each runlevel<indexterm><primary>runlevel</primary></indexterm>
-grouping of threads in order.
-</para>
+        <para>
+          The main function for a script scan will generate a number of script
+          threads based on whether a <literal>hostrule</literal> or
+          <literal>portrule</literal> return true for a given host and port.
+          The threads generated are stored in a list of runlevel lists. Each
+          runlevel list of threads (starting with runlevel <literal>1</literal>)
+          will be passed to the <literal>run</literal> function. The
+          <literal>run</literal> function is the main worker function for
+          NSE where all the magic happens.
+        </para>
 
-    </sect2>
+        <para>
+          The <literal>run</literal> function's purpose is run all the threads
+          in a runlevel until all finish executing. Before doing this however,
+          the function starts by redefining some Lua Registry values that
+          help C code function. One such function,
+          <literal>_R[WAITING_TO_RUNNING]</literal>, allows the network library
+          binding written in C to move a thread from the waiting queue to the
+          running queue. After these functions are defined we begin running
+          script threads. This involves running script threads until the
+          running and waiting queues are both empty. Threads that yield are
+          moved to the waiting queue; threads that are ready to continue
+          are moved back to the running queue. We continue this cycle of
+          moving a thread between the running and waiting queues until
+          the thread quits or ends in error. Note that a pending queue exists
+          as well. It serves as a temporary location for threads moving from
+          the waiting queue to the running queue before a new iteration of
+          the running queue begins.
+        </para>
 
-	<sect2 id="nse-implementation-execute">
-      <title>Script Execution</title>
-
-      <para>
-        Nmap performs NSE script scanning in
-	parallel<indexterm><primary>parallelism</primary><secondary>in NSE</secondary></indexterm>
-        by taking advantage of Nmap's Nsock parallel I/O library and the Lua
-	  <ulink url="http://www.lua.org/manual/5.1/manual.html#2.11">coroutines
-	  </ulink> language feature.  Coroutines offer collaborative multi-threading so that scripts can suspend themselves at defined points and allow other coroutines to execute. Network I/O, particularly waiting for responses from
-	  remote hosts, often involves long wait times, so
-	  this is when scripts yield to others.
-	  Key functions of the Nsock wrapper 
-	  cause scripts to yield (pause). When Nsock finishes processing such a request, it makes a callback
-	  which causes the script to be pushed from the waiting queue back into the
-	  running queue so it can resume operations when its turn comes up again.</para>
-      <para>
-      The <function>mainloop</function> function moves threads between the waiting and running queues as needed.
-      A thread which yields is moved from the running queue into the waiting list.  Running threads execute until they either
-      yield, complete, or fail with an error.  Threads are made ready to run (placed in the running queue) by calling 
-      <literal>process_waiting2running</literal>. This process of scheduling running
-      threads and moving threads between queues continues
-      until no threads exist in either queue.</para>
-    </sect2>
+      </sect2>
   </sect1>
 <indexterm class="endofrange" startref="nse-indexterm"/>
 </chapter>
