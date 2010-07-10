@@ -227,6 +227,7 @@ do
     -- same Lua thread the action and rule functions will execute in.
     local co = create(main);
     local s, value, rule_return = resume(co, ...);
+    setfenv(file_closure, _G); -- reset the environment
     if s and value ~= unique_value then
       print_debug(1,
     "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
