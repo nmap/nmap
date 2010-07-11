@@ -3216,6 +3216,7 @@ end
         script has required fields such as the <literal>action</literal>
         function.
       </para>
+      </sect2>
 
       <sect2 id="nse-implementation-scan">
         <title>Scanning a Host Group</title>
