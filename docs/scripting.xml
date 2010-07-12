@@ -481,9 +481,9 @@ until found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <simplelist>
 <member><option>--datadir</option></member>
-<member><envar>$NMAPDIR</envar></member><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
-<member><filename>~/.nmap</filename> (not searched on Windows)</member><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
-<member><varname>NMAPDATADIR</varname></member><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm>
+<member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
+<member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
+<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm></member>
 <member>the current directory</member>
 </simplelist>
 A <filename>scripts</filename> subdirectory is also tried in each of
@@ -806,15 +806,17 @@ local username = nmap.registry.args.user
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term>
           <indexterm><primary><option>--script-trace</option></primary><secondary>example of</secondary></indexterm>
-          <term><command>nmap --script smb-os-discovery --script-trace example.com</command></term>
+          <command>nmap --script smb-os-discovery --script-trace example.com</command></term>
           <listitem>
           <para>Execute a specific script with script tracing.</para>
           </listitem>
         </varlistentry>
         <varlistentry>
+          <term>
           <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
-          <term><command>nmap --script snmp-sysdescr --script-args snmpcommunity=admin example.com</command></term>
+          <command>nmap --script snmp-sysdescr --script-args snmpcommunity=admin example.com</command></term>
           <listitem>
           <para>Run an individual script that takes a script
           argument.</para>
