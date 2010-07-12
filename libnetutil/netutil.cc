@@ -101,7 +101,15 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <net/if_arp.h>
+
+#include <netinet/in.h>
+
+#ifndef NETINET_IN_SYSTEM_H  /* why the HELL does OpenBSD not do this? */
+#include <netinet/in_systm.h>
+#define NETINET_IN_SYSTEM_H
+#endif
 
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* why doesn't OpenBSD do this? */
