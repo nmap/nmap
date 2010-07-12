@@ -141,6 +141,15 @@ o Since Libdnet files (such as ltmain.sh) are apparently only used by
 o [Zenmap] should actually parse and use script results. See
   http://seclists.org/nmap-dev/2010/q1/1108
 
+o Do a serious analysis if and how we should use the NIST CPE standard
+  (http://cpe.mitre.org/) for OS detection and (maybe in a different
+  phase) version detection results.  Here are some
+  discussions threads on that:
+  http://seclists.org/nmap-dev/2008/q4/627 and
+  http://seclists.org/nmap-dev/2010/q2/788.  Nessus has described
+  their integration of CPE at
+  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
+
 o We should offer partial results when a host
   timeouts. I (Fyodor) have been against this in the past, but maybe
   the value is sufficient to be worth the maintenance headaches.  Many
