@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate running processes through SNMP
+Attempts to enumerate running processes through SNMP.
 ]]
 
 ---

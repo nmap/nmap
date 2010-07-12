@@ -1,5 +1,5 @@
 description = [[
-Attempts to query SNMP for a netstat like output
+Attempts to query SNMP for a netstat like output.
 ]]
 
 ---

@@ -3,14 +3,14 @@ Attempts to guess username/password combinations over SMB, storing discovered co
 for use in other scripts. Every attempt will be made to get a valid list of users and to 
 verify each username before actually using them. When a username is discovered, besides 
 being printed, it is also saved in the Nmap registry so other Nmap scripts can use it. That
-means that if you're going to run smb-brute.nse, you should run other smb scripts you want. 
+means that if you're going to run <code>smb-brute.nse</code>, you should run other <code>smb</code> scripts you want. 
 This checks passwords in a case-insensitive way, determining case after a password is found, 
 for Windows versions before Vista. 
 
 This script is specifically targeted towards security auditors or penetration testers. 
-One example of its use, suggested by Brandon Enright, was hooking up smb-brute.nse to the
+One example of its use, suggested by Brandon Enright, was hooking up <code>smb-brute.nse</code> to the
 database of usernames and passwords used by the Conficker worm (the password list can be
-found here, among other places <http://www.skullsecurity.org/wiki/index.php/Passwords>. 
+found at http://www.skullsecurity.org/wiki/index.php/Passwords, among other places.
 Then, the network is scanned and all systems that would be infected by Conficker are 
 discovered. 
 
@@ -20,10 +20,10 @@ Further, passwords discovered against Windows with SMB might also be used on Lin
 or custom Web applications. Discovering a password greatly beneficial for a pen-tester. 
 
 This script uses a lot of little tricks that I (Ron Bowes) describe in detail in a blog 
-posting <http://www.skullsecurity.org/blog/?p=164>. The tricks will be summarized here, but
+posting, http://www.skullsecurity.org/blog/?p=164. The tricks will be summarized here, but
 that blog is the best place to learn more. 
 
-Usernames and passwords are initially taken from the unpw library. If possible, the usernames
+Usernames and passwords are initially taken from the unpwdb library. If possible, the usernames
 are verified as existing by taking advantage of Windows' odd behaviour with invalid username
 and invalid password responses. As soon as it is able, this script will download a full list 
 of usernames from the server and replace the unpw usernames with those. This enables the 
@@ -32,18 +32,18 @@ script to restrict itself to actual accounts only.
 When an account is discovered, it's saved in the <code>smb</code> module (which uses the Nmap
 registry). If an account is already saved, the account's privileges are checked; accounts 
 with administrator privileges are kept over accounts without. The specific method for checking
-is by calling GetShareInfo("IPC$"), which requires administrative privileges. Once this script
+is by calling <code>GetShareInfo("IPC$")</code>, which requires administrative privileges. Once this script
 is finished (all other smb scripts depend on it, it'll run first), other scripts will use the saved account
 to perform their checks. 
 
 The blank password is always tried first, followed by "special passwords" (such as the username
-and the username reversed). Once those are exhausted, the unpw password list is used. 
+and the username reversed). Once those are exhausted, the unpwdb password list is used. 
 
 One major goal of this script is to avoid accout lockouts. This is done in a few ways. First, 
 when a lockout is detected, unless you user specifically overrides it with the <code>smblockout</code>
 argument, the scan stops. Second, all usernames are checked with the most common passwords first, 
 so with not-too-strict lockouts (10 invalid attempts), the 10 most common passwords will still 
-be tried. Third, one account, called the canary, 'goes out ahead' -- that is, three invalid 
+be tried. Third, one account, called the canary, "goes out ahead"; that is, three invalid 
 attempts are made (by default) to ensure that it's locked out before others are. 
 
 In addition to active accounts, this script will identify valid passwords for accounts that
@@ -56,7 +56,7 @@ information.
 
 When possible, checks are done using a case-insensitive password, then proper case is
 determined with a fairly efficient bruteforce. For example, if the actual password is 
-'PassWord', then 'password' will work and 'PassWord' will be found afterwards (on the
+"PassWord", then "password" will work and "PassWord" will be found afterwards (on the
 14th attempt out of a possible 256 attempts, with the current algorithm). 
 ]]
 ---
@@ -78,11 +78,11 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 -- |  |  thisisaverylongnamev:password => Login was successful
 -- |_ |_ web:TeSt => Password was correct, but user's account is disabled
 -- 
--- @args smblockout Unless this is set to '1' or 'true', the script won't continue if it 
+-- @args smblockout Unless this is set to <code>1</code> or <code>true</code>, the script won't continue if it 
 --       locks out an account or thinks it will lock out an account. 
 -- @args brutelimit Limits the number of usernames checked in the script. In some domains, 
 --       it's possible to end up with 10,000+ usernames on each server. By default, this
---       will be 5000, which should be higher than most servers and also prevent infinite
+--       will be <code>5000</code>, which should be higher than most servers and also prevent infinite
 --       loops or other weird things. This will only affect the user list pulled from the
 --       server, not the username list. 
 -- @args canaries Sets the number of tests to do to attempt to lock out the first account. 

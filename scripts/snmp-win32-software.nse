@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate installed software through SNMP
+Attempts to enumerate installed software through SNMP.
 ]]
 
 ---

@@ -9,7 +9,7 @@ tester what types of policies to expect. For example, if passwords have a minimu
 the tester can trim his database to match; if the minimum length is 14, the tester will
 probably start looking for sticky notes on people's monitors. 
 
-Another useful piece of information is the password lockouts -- a penetration tester often wants
+Another useful piece of information is the password lockouts. A penetration tester often wants
 to know whether or not there's a risk of negatively impacting a network, and this will 
 indicate it. The SID is displayed, which may be useful in other tools; the users are listed, 
 which uses different functions than <code>smb-enum-users.nse</code> (though likely won't 

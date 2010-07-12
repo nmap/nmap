@@ -1,9 +1,9 @@
 description = [[
 Obtains a list of groups from the remote Windows system, as well as a list of the group's users. 
-This works similarly to enum.exe with the /G switch. 
+This works similarly to <code>enum.exe</code> with the <code>/G</code> switch. 
 
 The following MSRPC functions in SAMR are used to find a list of groups and the RIDs of their users. Keep
-in mind thatMSRPC refers to groups as 'Aliases'. 
+in mind that MSRPC refers to groups as "Aliases". 
 
 * <code>Bind</code>: bind to the SAMR service.
 * <code>Connect4</code>: get a connect_handle.

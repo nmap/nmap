@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate Windows Shares through SNMP
+Attempts to enumerate Windows Shares through SNMP.
 ]]
 
 ---

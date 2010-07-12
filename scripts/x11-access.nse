@@ -1,15 +1,15 @@
 -- NSE x11-access v1.3
 
 description = [[
-Checks if you're allowed to connect to the X server
+Checks if you're allowed to connect to the X server.
 
 If the X server is listening on TCP port 6000+n (where n is the display
 number), it is possible to check if you're able to get connected to the
 remote display by sending a X11 initial connection request.
 
 In reply, the success byte (0x00 or 0x01) will determine if you are in
-the "xhost +" list. In this case, script will display the message: "X
-server access is granted".
+the <code>xhost +</code> list. In this case, script will display the message:
+<code>X server access is granted</code>.
 ]]
 
 ---

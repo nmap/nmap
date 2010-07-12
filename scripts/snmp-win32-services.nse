@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate Windows Services through SNMP
+Attempts to enumerate Windows services through SNMP.
 ]]
 
 ---

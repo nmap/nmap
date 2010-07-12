@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate network interfaces through SNMP
+Attempts to enumerate network interfaces through SNMP.
 ]]
 
 ---

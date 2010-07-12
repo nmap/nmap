@@ -13,7 +13,7 @@ SMTP server.
 -- | smtp-commands: SMTP.domain.com Hello [172.x.x.x], TURN, SIZE, ETRN, PIPELINING, DSN, ENHANCEDSTATUSCODES, 8bitmime, BINARYMIME, CHUNKING, VRFY, X-EXPS GSSAPI NTLM LOGIN, X-EXPS=LOGIN, AUTH GSSAPI NTLM LOGIN, AUTH=LOGIN, X-LINK2STATE, XEXCH50, OK
 -- |_ This server supports the following commands: HELO EHLO STARTTLS RCPT DATA RSET MAIL QUIT HELP AUTH TURN ETRN BDAT VRFY
 --
--- @args smtp-commands.domain Define the domain to be used in the SMTP commands
+-- @args smtp-commands.domain Define the domain to be used in the SMTP commands.
 
 -- changelog
 -- 1.1.0.0 - 2007-10-12

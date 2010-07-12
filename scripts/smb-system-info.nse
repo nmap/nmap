@@ -11,7 +11,7 @@ If you know of more information stored in the Windows registry that could be int
 post a message to the nmap-dev mailing list and I (Ron Bowes) will add it to my todo list. 
 Adding new checks to this is extremely easy. 
 
-WARNING: I have experienced crashes in regsvc.exe while making registry calls
+WARNING: I have experienced crashes in <code>regsvc.exe</code> while making registry calls
 against a fully patched Windows 2000 system; I've fixed the issue that caused it,
 but there's no guarantee that it (or a similar vuln in the same code) won't show
 up again. Since the process automatically restarts, it doesn't negatively impact

@@ -87,8 +87,8 @@ doesn't hurt to add more.
 The names and details from both of these techniques are merged and displayed.
 If the output is verbose, then extra details are shown. The output is ordered alphabetically. 
 
-Credit goes out to the enum.exe, sid2user.exe, and user2sid.exe programs, 
-the code I wrote for this is largely based on the techniques used by them.
+Credit goes out to the <code>enum.exe</code>, <code>sid2user.exe</code>, and <code>user2sid.exe</code> programs.
+The code I wrote for this is largely based on the techniques used by them.
 ]]
 
 ---

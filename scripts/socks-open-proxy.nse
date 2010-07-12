@@ -6,12 +6,12 @@ socks5 payloads. It is considered an open proxy if the script receives
 a Request Granted response from the target port.
 
 The payloads try to open a connection to www.google.com port 80.  A
-different test host can be passed as openproxy.host (note the table
-syntax in the example) argument, as described below.
+different test host can be passed as <code>proxy.url</code>
+argument.
 ]]
 ---
---@args proxy.url Url that will be requested to the proxy
---@args proxy.pattern Pattern that will be searched inside the request results
+--@args proxy.url URL that will be requested to the proxy.
+--@args proxy.pattern Pattern that will be searched inside the request results.
 --@output
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT     STATE  SERVICE

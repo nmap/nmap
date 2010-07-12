@@ -28,7 +28,7 @@ for. The level of access required for this varies between Windows versions, but 
 2000 anybody (including the anonymous account) can access this, and in Windows 2003 a user 
 or administrator account is required.
 
-I learned the idea and technique for this from sysinternals' tool, PsLoggedOn.exe. I (Ron 
+I learned the idea and technique for this from sysinternals' tool, <code>PsLoggedOn.exe</code>. I (Ron 
 Bowes) use similar function calls to what they use (although I didn't use their source), 
 so thanks go out to them. Thanks also to Matt Gardenghi, for requesting this script.  
 

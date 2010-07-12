@@ -1,7 +1,5 @@
 description = [[
 Tries to get Telnet login credentials by guessing usernames and passwords.
-
-Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
 ]]
 
 author = "Eddie Bell, Ron Bowes"
@@ -13,6 +11,8 @@ categories = {'auth', 'intrusive'}
 -- PORT   STATE SERVICE
 -- 23/tcp open  telnet
 -- |_telnet-brute: root - 1234
+
+-- Update (Ron Bowes, November, 2009): Now uses unpwdb database. 
 
 require('shortport')
 require('stdnse')

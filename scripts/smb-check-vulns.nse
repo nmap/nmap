@@ -1,5 +1,5 @@
 description = [[
-Check for vulnerabilities:
+Checks for vulnerabilities:
 * MS08-067, a Windows RPC vulnerability
 * Conficker, an infection by the Conficker worm
 * Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2000
@@ -17,29 +17,27 @@ by a scanner. Penetration testers, on the other hand, might not want to use this
 script -- crashing services is not generally a good way of sneaking through a 
 network. 
 
-If you set the script parameter 'unsafe', then scripts will run that are almost 
+If you set the script parameter <code>unsafe</code>, then scripts will run that are almost 
 (or totally) guaranteed to crash a vulnerable system; do NOT specify <code>unsafe</code>
 in a production environment! And that isn't to say that non-unsafe scripts will 
 not crash a system, they're just less likely to. 
 
-If you set the script parameter 'safe', then script will run that rarely or never
+If you set the script parameter <code>safe</code>, then script will run that rarely or never
 crash a vulnerable system. No promises, though. 
 
-MS08-067 -- Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
+MS08-067. Checks if a host is vulnerable to MS08-067, a Windows RPC vulnerability that
 can allow remote code execution.  Checking for MS08-067 is very dangerous, as the check 
 is likely to crash systems. On a fairly wide scan conducted by Brandon Enright, we determined
 that on average, a vulnerable system is more likely to crash than to survive
 the check. Out of 82 vulnerable systems, 52 crashed. 
-
 At the same time, MS08-067 is extremely critical to fix. Metasploit has a working and
 stable exploit for it, and any system vulnerable can very easily be compromised. 
-
-Conficker -- Checks if a host is infected with a known Conficker strain. This check
+Conficker. Checks if a host is infected with a known Conficker strain. This check
 is based on the simple conficker scanner found on this page:
-http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker
+http://iv.cs.uni-bonn.de/wg/cs/applications/containing-conficker.
 Thanks to the folks who wrote that scanner!
 
-regsvc DoS -- Checks if a host is vulnerable to a crash in regsvc, caused 
+regsvc DoS. Checks if a host is vulnerable to a crash in regsvc, caused 
 by a null pointer dereference. I inadvertently discovered this crash while working
 on <code>smb-enum-sessions</code>, and discovered that it was repeatable. It's been 
 reported to Microsoft (case #MSRC8742). 
@@ -47,34 +45,34 @@ reported to Microsoft (case #MSRC8742).
 This check WILL crash the service, if it's vulnerable, and requires a guest account
 or higher to work. It is considered <code>unsafe</code>. 
 
-SMBv2 DoS -- performs a denial-of-service against the vulnerability disclosed in
+SMBv2 DoS. Performs a denial-of-service against the vulnerability disclosed in
 CVE-2009-3103. Checks if the server went offline. This works agianst Windows Vista
-and some versions of Windows 7, and causes a bluescreen if successful. The proof-
-of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used, 
+and some versions of Windows 7, and causes a bluescreen if successful. The
+proof-of-concept code at http://seclists.org/fulldisclosure/2009/Sep/39 was used, 
 with one small change. 
 
-MS06-025 -- vulnerability targets the RasRpcSumbitRequest() RPC method which is
+MS06-025. Vulnerability targets the <code>RasRpcSumbitRequest()</code> RPC method which is
 a part of RASRPC interface that serves as a RPC service for configuring and 
 getting information from the Remote Access and Routing service. RASRPC can be
-accessed using either "\ROUTER" SMB pipe or the "\SRVSVC" SMB pipe (usually on WinXP machines).
-This is in RPC world known as "ncan_np" RPC transport. RasRpcSumbitRequest()
+accessed using either "\ROUTER" SMB pipe or the "\SRVSVC" SMB pipe (usually on Windows XP machines).
+This is in RPC world known as "ncan_np" RPC transport. <code>RasRpcSumbitRequest()</code>
 method is a generic method which provides different functionalities according
-to the RequestBuffer structure and particulary the RegType field within that 
-structure. RegType field is of enum ReqTypes type. This enum type lists all
-the different available operation that can be performed using the RasRpcSubmitRequest()
-RPC method. The one particular operation that this vuln targets is the REQTYPE_GETDEVCONFIG 
+to the <code>RequestBuffer</code> structure and particulary the <code>RegType</code> field within that 
+structure. <code>RegType</code> field is of <code>enum ReqTypes</code> type. This enum type lists all
+the different available operation that can be performed using the <code>RasRpcSubmitRequest()</code>
+RPC method. The one particular operation that this vuln targets is the <code>REQTYPE_GETDEVCONFIG</code> 
 request to get device information on the RRAS.
 
-MS07-029 -- vulnerability targets the R_DnssrvQuery() and R_DnssrvQuery2() RPC method which is
-a part of Dns Server RPC interface that serves as a RPC service for configuring and 
-getting information from the Dns Server service. Dns Server RPC service can be
+MS07-029. Vulnerability targets the <code>R_DnssrvQuery()</code> and <code>R_DnssrvQuery2()</code> RPC method which is
+a part of DNS Server RPC interface that serves as a RPC service for configuring and 
+getting information from the DNS Server service. DNS Server RPC service can be
 accessed using "\dnsserver" SMB named pipe. The vulnerability is triggered when
 a long string is send as the "zone" parameter which causes the buffer overflow which
 crashes the service.
 
 (Note: if you have other SMB/MSRPC vulnerability checks you'd like to see added, and
 you can show me a tool with a license that is compatible with Nmap's, post a request 
-on the Nmap-dev mailing list and I'll add it to my list [Ron Bowes]). 
+on the nmap-dev mailing list and I'll add it to my list [Ron Bowes].) 
 ]]
 ---
 --@usage

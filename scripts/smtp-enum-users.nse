@@ -12,7 +12,7 @@ The user can specify which methods to use and in which order. The script will ig
 repeated methods. If not specified the script will use the RCPT first, then VRFY and EXPN.
 An example of how to specify the methods to use and the order is the following:
 
-smtp-enum-users.methods={EXPN,RCPT,VRFY}
+<code>smtp-enum-users.methods={EXPN,RCPT,VRFY}</code>
 ]]
 
 ---

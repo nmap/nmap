@@ -1,21 +1,21 @@
 description = [[
 Attempts to determine the operating system, computer name, domain, and current
-time over the SMB protocol (ports 445 or 139 -- for more information, see 
-<code>smb.lua</code>). This is done by starting a session with the anonymous 
-account (or with a proper user account, if one is given -- likely doesn't make
+time over the SMB protocol (ports 445 or 139).
+This is done by starting a session with the anonymous 
+account (or with a proper user account, if one is given; it likely doesn't make
 a difference); in response to a session starting, the server will send back all this
 information. 
 
 Some systems, like Samba, will blank out their name (and only send their domain). 
 Other systems (like embedded printers) will simply leave out the information. Other
-systems will blank out various pieces (some will send back '0' for the current
+systems will blank out various pieces (some will send back 0 for the current
 time, for example). 
 
 Retrieving the name and operating system of a server is a vital step in targeting
 an attack against it, and this script makes that retrieval easy. Additionally, if
 a penetration tester is choosing between multiple targets, the time can help identify
 servers that are being poorly maintained (for more information/random thoughts on
-using the time, see <http://www.skullsecurity.org/blog/?p=76>. 
+using the time, see http://www.skullsecurity.org/blog/?p=76. 
 
 Although the standard <code>smb*</code> script arguments can be used, 
 they likely won't change the outcome in any meaningful way. 
