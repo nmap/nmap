@@ -1052,10 +1052,12 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     <para>This section lists (alphabetically) all NSE scripts packaged
     with Nmap at the time of this writing.  It comes straight from the
     script source code thanks to the NSEDoc documentation system
-    described in <xref linkend="nsedoc"/>. Of course no
-    paper documentation can stay current with software developed as
-    actively as NSE is.  For the most comprehensive and up-to-date
-    documentation, see the online NSE Documentation Portal at
+    described in <xref linkend="nsedoc"/>. Because of space limitations,
+    only script names, categories, and brief summaries of operation are
+    shown.  Of course no paper documentation can stay current with
+    software developed as actively as NSE is.  For complete and
+    up-to-date documentation, including script arguments and output
+    samples, see the online NSE Documentation Portal at
     <ulink url="http://nmap.org/nsedoc/"/>.
     </para>
 
