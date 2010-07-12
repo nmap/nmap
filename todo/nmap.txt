@@ -100,6 +100,13 @@ o [NSE] Combine similar MSRPC scripts, especially the "get info"
   (http://seclists.org/nmap-dev/2010/q1/1023).  This was suggested by
   Ron at http://seclists.org/nmap-dev/2010/q2/389.
 
+o [NSE] The NSEDoc for some scripts includes large "Functions"
+  sections which aren't really useful to script users.  For example,
+  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
+  should hide these behind an expander like "Developer documentation
+  (show)".  I don't think we need to do this for libraries, since
+  developers are the primary audience for those documents.
+
 o Look into implementing security technologies such as DEP and ASL on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
