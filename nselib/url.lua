@@ -1,4 +1,6 @@
---- URI parsing, composition, and relative URL resolution.
+---
+-- URI parsing, composition, and relative URL resolution.
+--
 -- @author Diego Nehab
 -- @author Eddie Bell <ejlbell@gmail.com>
 

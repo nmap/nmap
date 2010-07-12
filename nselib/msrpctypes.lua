@@ -1,10 +1,11 @@
----This module was written to marshall parameters for Microsoft RPC (MSRPC) calls. The values passed in and out are based
+---
+-- This module was written to marshall parameters for Microsoft RPC (MSRPC) calls. The values passed in and out are based
 -- on structs defined by the protocol, and documented by Samba developers. For detailed breakdowns of the types, take a 
--- look at Samba 4.0's .idl files. 
+-- look at Samba 4.0's <code>.idl</code> files. 
 --
 -- There is nothing simple about how this all comes together, so I'll take some time to explain how it's done. This
 -- is fairly technical and, when it comes right down to it, unnecessary for how to use these functions (although if you
--- want to WRITE one of these, you best understand it). 
+-- want to write one of these, you best understand it). 
 --
 -- There are base types, like int32 and int16. These are marshalled the way you'd expect (converted to a 4- or
 -- 2-byte little endian string). The only trick with these is that they have to end up aligned on 4-byte boundaries. 
@@ -12,7 +13,7 @@
 -- <code>marshall_int32</code>, <code>marshall_int16</code>, etc. will marshall the base types, and <code>unmarshall_int32</code>, 
 -- <code>unmarshall_int16</code>, etc. will unmarshall them. 
 --
--- Strings are a little bit tricker. A string is preceded by three 32-bit values: the max length, the offset, and
+-- Strings are a little bit trickier. A string is preceded by three 32-bit values: the max length, the offset, and
 -- the length. Additionally, strings may or may not be null terminated, depending on where they're being used. For
 -- more information on strings, see the comments on <code>marshall_unicode</code>. The functions <code>marshall_unicode</code>
 -- and <code>unmarshall_unicode</code> can be used to mashall/unmarshall strings. 
@@ -24,7 +25,7 @@
 -- itself is 0x00000004). If the integer is nil, then it's marshalled as <code>00 00 00 00</code>, which is simply 
 -- a referent_id of 0. 
 --
--- From the perspective of the program, pointers can be marshalled by using the "_ptr" versions of normal functions
+-- From the perspective of the program, pointers can be marshalled by using the "<code>_ptr</code>" versions of normal functions
 -- (for example, <code>marshall_int32_ptr</code> and <code>unmarshall_unicode_ptr</code>. From the perspective
 -- of functions within this module, especially functions for marshalling structs and arrays, the <code>marshall_ptr</code>
 -- and <code>unmarshall_ptr</code> functions should be used. These can marshall any data type; the marshalling function
@@ -64,10 +65,10 @@
 -- left up to functions within this module. Functions within this module should use <code>marshall_array</code> and 
 -- <code>unmarshall_array</code> to interact with arrays. These take callback functions for the datatype being stored
 -- in the array; these callback functions have to be in a particular format, so care should be taken when writing them. 
--- In particular, the first parameter has to be 'location', which is used to separate the header (the part with the 
+-- In particular, the first parameter has to be <code>location</code>, which is used to separate the header (the part with the 
 -- referent_ids) and the body (the part with the pointer data). These are explained more thoroughly in the function headers. 
 --
--- Structs are handled the same as arrays -- the referent_ids and base types go at the top, and the values being pointed to
+-- Structs are handled the same as arrays. The referent_ids and base types go at the top, and the values being pointed to
 -- go at the bottom. An array of struct, as has already been shown, will have all the base types and referent_ids for all the
 -- members at the top, and all the values for all the pointers at the bottom. 
 --
@@ -82,8 +83,8 @@
 -- function the same way <code>unmarshall_array</code> would. This is a bit of a kludge, but it's the best I could come up 
 -- with. 
 --
--- There are different sections in here, which correspond to "families" of types. I modelled these after Samba's .idl files. 
--- MISC corresponds to misc.idl, LSA to lsa.idl, etc. Each of these sections has possible dependencies; for example, SAMR
+-- There are different sections in here, which correspond to "families" of types. I modelled these after Samba's <code>.idl</code> files. 
+-- MISC corresponds to <code>misc.idl</code>, LSA to <code>lsa.idl</code>, etc. Each of these sections has possible dependencies; for example, SAMR
 -- functions use LSA strings, and everything uses SECURITY and MISC. So the order is important -- dependencies have to go 
 -- above the module. 
 --

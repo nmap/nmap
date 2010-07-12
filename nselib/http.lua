@@ -1,4 +1,5 @@
---- Client-side HTTP library.
+---
+-- Client-side HTTP library.
 --
 -- The return value of each function in this module is a table with the
 -- following keys: <code>status</code>, <code>status-line</code>,

@@ -1,13 +1,13 @@
 ---
--- PostgreSQL library supporting both version 2 and version 3 of the protocol
--- The library currently contains the bare minimum to perform authentication
+-- PostgreSQL library supporting both version 2 and version 3 of the protocol.
+-- The library currently contains the bare minimum to perform authentication.
 -- Authentication is supported with or without SSL enabled and using the
--- plain-text or MD5 authentication mechanisms
+-- plain-text or MD5 authentication mechanisms.
 --
--- The PGSQL protocol is explained in detail in the following reference
--- ref: http://developer.postgresql.org/pgdocs/postgres/protocol.html
--- ref: http://developer.postgresql.org/pgdocs/postgres/protocol-flow.html
--- ref: http://developer.postgresql.org/pgdocs/postgres/protocol-message-formats.html
+-- The PGSQL protocol is explained in detail in the following references.
+-- * http://developer.postgresql.org/pgdocs/postgres/protocol.html
+-- * http://developer.postgresql.org/pgdocs/postgres/protocol-flow.html
+-- * http://developer.postgresql.org/pgdocs/postgres/protocol-message-formats.html
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"

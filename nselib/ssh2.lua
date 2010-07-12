@@ -1,4 +1,6 @@
---- Functions for the SSH-2 protocol.
+---
+-- Functions for the SSH-2 protocol.
+--
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 

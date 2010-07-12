@@ -1,13 +1,14 @@
---- Strict Declared Global library.
+---
+-- Strict declared global library. Checks for undeclared global variables
+-- during runtime execution.
 --
--- Checks for undeclared global variables during runtime execution. This module
--- places the 'strict' function in the global environment. The strict function
--- allows a script to add runtime checking so that undeclared globals cause
--- an error to be raised. This is useful for finding accidental use of globals
--- when local was intended.
+-- This module places the <code>strict</code> function in the global
+-- environment. The strict function allows a script to add runtime checking so
+-- that undeclared globals cause an error to be raised. This is useful for
+-- finding accidental use of globals when local was intended.
 --
--- A global variable is considered 'declared' if the script makes an assignment
--- to the global name (even nil) in the file scope.
+-- A global variable is considered "declared" if the script makes an assignment
+-- to the global name (even <code>nil</code>) in the file scope.
 --
 -- @class module
 -- @name strict

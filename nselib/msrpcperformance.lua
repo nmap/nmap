@@ -1,16 +1,17 @@
----This module is designed to parse the <code>PERF_DATA_BLOCK</code> structure, which is
+---
+-- This module is designed to parse the <code>PERF_DATA_BLOCK</code> structure, which is
 -- stored in the registry under HKEY_PERFORMANCE_DATA. By querying this structure, you can
 -- get a whole lot of information about what's going on. 
 --
 -- To use this from a script, see <code>get_performance_data</code>, it is the only 
--- 'public' function in this module. 
+-- "public" function in this module. 
 --
 -- My primary sources of information were:
 -- * This 1996 journal by Matt Pietrek: <http://www.microsoft.com/msj/archive/S271.aspx>
 -- * The followup article: <http://www.microsoft.com/msj/archive/S2A9.aspx>
 -- * The WinPerf.h header file
 --
--- And my primary inspiration was PsTools, specifically, pstasklist.exe. 
+-- And my primary inspiration was PsTools, specifically, <code>pstasklist.exe</code>. 
 --
 --@author Ron Bowes <ron@skullsecurity.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html

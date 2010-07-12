@@ -1,4 +1,5 @@
---- Library methods for handling MongoDB, creating and parsing packets
+---
+-- Library methods for handling MongoDB, creating and parsing packets.
 --
 -- @author Martin Holst Swende
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html

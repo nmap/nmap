@@ -1,4 +1,5 @@
----Implements functionality related to Server Message Block (SMB, also known 
+---
+-- Implements functionality related to Server Message Block (SMB, also known 
 -- as CIFS) traffic, which is a Windows protocol.
 --
 -- SMB traffic is normally sent to/from ports 139 or 445 of Windows systems. Other systems
@@ -21,7 +22,7 @@
 -- although a lot isn't necessary. You can pick up a lot by looking at the code. The basic
 -- login/logoff is this:
 --
---<code>
+-- <code>
 -- [connect]
 -- C->S SMB_COM_NEGOTIATE
 -- S->C SMB_COM_NEGOTIATE
@@ -35,11 +36,11 @@
 -- C->S SMB_COM_LOGOFF_ANDX
 -- S->C SMB_COM_LOGOFF_ANDX
 -- [disconnect]
---</code>
+-- </code>
 --
 -- In terms of functions here, the protocol is:
 --
---<code>
+-- <code>
 -- status, smbstate = smb.start(host)
 -- status, err      = smb.negotiate_protocol(smbstate, {})
 -- status, err      = smb.start_session(smbstate, {})
@@ -48,7 +49,7 @@
 -- status, err      = smb.tree_disconnect(smbstate)
 -- status, err      = smb.logoff(smbstate)
 -- status, err      = smb.stop(smbstate)
---</code>
+-- </code>
 --
 -- The <code>stop</code> function will automatically call tree_disconnect and logoff, 
 -- cleaning up the session, if it hasn't been done already.
@@ -96,11 +97,11 @@
 -- nmap --script=smb-<script>.nse --script-args=smbuser=ron,smbpass=iagotest2k3,smbbasic=1,smbsign=force <host>
 -- </code>
 -- 
---@args  smbbasic    Forces the authentication to use basic security, as opposed to "extended security". 
+-- @args  smbbasic    Forces the authentication to use basic security, as opposed to "extended security". 
 --                   Against most modern systems, extended security should work, but there may be cases
 --                   where you want to force basic. There's a chance that you'll get better results for 
 --                   enumerating users if you turn on basic authentication. 
---@args smbsign      Controls whether or not server signatures are checked in SMB packets. By default, on Windows,
+-- @args smbsign      Controls whether or not server signatures are checked in SMB packets. By default, on Windows,
 --                   server signatures aren't enabled or required. By default, this library will always sign 
 --                   packets if it knows how, and will check signatures if the server says to. Possible values are:
 -- * <code>force</code>:      Always check server signatures, even if server says it doesn't support them (will 
@@ -109,13 +110,13 @@
 -- * <code>ignore</code>:    Never check server signatures. Not recommended. 
 -- * <code>disable</code>:   Don't send signatures, at all, and don't check the server's. not recommended. 
 --                   More information on signatures can be found in <code>smbauth.lua</code>.
---@args smbport      Override the default port choice. If <code>smbport</code> is open, it's used. It's assumed
+-- @args smbport      Override the default port choice. If <code>smbport</code> is open, it's used. It's assumed
 --                   to be the same protocol as port 445, not port 139. Since it probably isn't possible to change
 --                   Windows' ports normally, this is mostly useful if you're bouncing through a relay or something. 
---@args randomseed   Set to a value to change the filenames/service names that are randomly generated. 
+-- @args randomseed   Set to a value to change the filenames/service names that are randomly generated. 
 --                   
---@author Ron Bowes <ron@skullsecurity.net>
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+-- @author Ron Bowes <ron@skullsecurity.net>
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -----------------------------------------------------------------------
 module(... or "smb", package.seeall)
 

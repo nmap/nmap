@@ -1,4 +1,5 @@
---- Read and parse some of Nmap's data files: <code>nmap-protocols</code>,
+---
+-- Read and parse some of Nmap's data files: <code>nmap-protocols</code>,
 -- <code>nmap-rpc</code>, <code>nmap-services</code>, and 
 -- <code>nmap-mac-prefixes</code>.
 --

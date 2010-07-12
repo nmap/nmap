@@ -1,5 +1,7 @@
---- Simple DNS library supporting packet creation, encoding, decoding,
+---
+-- Simple DNS library supporting packet creation, encoding, decoding,
 -- and querying.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "dns", package.seeall)

@@ -1,6 +1,7 @@
---- Functions for the SSH-1 protocol.
+---
+-- Functions for the SSH-1 protocol. This module also contains functions for
+-- formatting key fingerprints.
 --
--- This module also contains functions for formatting key fingerprints.
 -- @author Sven Klemm <sven@c3d2.de>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 

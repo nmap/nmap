@@ -1,9 +1,9 @@
---- Creates and parses NetBIOS traffic. The primary use for this is to send
---  NetBIOS name requests. 
+---
+-- Creates and parses NetBIOS traffic. The primary use for this is to send
+-- NetBIOS name requests. 
 --
---@author Ron Bowes <ron@skullsecurity.net>
---@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
------------------------------------------------------------------------
+-- @author Ron Bowes <ron@skullsecurity.net>
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "netbios", package.seeall)
 

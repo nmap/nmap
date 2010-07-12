@@ -1,4 +1,5 @@
---- Interface with Nmap internals.
+---
+-- Interface with Nmap internals.
 --
 -- The <code>nmap</code> module is an interface with Nmap's internal functions
 -- and data structures. The API provides target host details such as port

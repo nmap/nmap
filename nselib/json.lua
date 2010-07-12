@@ -1,31 +1,22 @@
---- Library methods for handling Json data. It handles 
--- json encoding and decoding
+---
+-- Library methods for handling JSON data. It handles JSON encoding and
+-- decoding according to RFC 4627.
 --
--- There is a test-section at the bottom which shows some example 
--- parsing. If you want to parse json, you can test it by pasting sample json
--- into the TESTS table and run the test() method
-
--- More info about Json at http://www.ietf.org/rfc/rfc4627.txt
-
--- !NOTE! Due to some differences between javascript and lua, there are some
--- conversion problems for null-values. Null-values in javascript are not equal to 
--- nil values in lua. Nil is more corresponding to javascript 'undefined'.
-
--- As an example : 
--- Executing the following javascript : var a= {b:null}; alert(a.b + " != " + a.c);
--- yields the string "null != undefined". Assigning a table a nil value in lua basically
--- removes it from the table, without leaving the key in place. I.e, 
--- >a ={b=nil}
--- >print(a.b, a.c)
--- nil	nil
-
--- !!!Therefore, javascript null values are represented by  json.NULL.!!!
+-- There is a test section at the bottom which shows some example 
+-- parsing. If you want to parse JSON, you can test it by pasting sample JSON
+-- into the <code>TESTS</code> table and run the <code>test</code> method
+--
+-- There is a straightforward mapping between JSON and Lua data types. One
+-- exception is JSON <code>NULL</code>, which is not the same as Lua
+-- <code>nil</code>. (A better match for Lua <code>nil</code> is JavaScript
+-- <code>undefined</code>.) <code>NULL</code> values in JSON are represented by
+-- the special value <code>json.NULL</code>.
 --
 -- @author Martin Holst Swende
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+
 -- TODO: Unescape/escape unicode
 -- Version 0.4
-
 -- Created 01/25/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
 -- Heavily modified 02/22/2010 - v0.3. Rewrote the parser into an OO-form, to not have to handle
 -- all kinds of state with parameters and return values. 

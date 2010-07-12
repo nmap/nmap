@@ -1,8 +1,6 @@
 ---
--- MSSQL Library supporting a very limited subset of operations
+-- MSSQL Library supporting a very limited subset of operations.
 --
--- Summary
--- -------
 -- The library was designed and tested against Microsoft SQL Server 2005.
 -- However, it should work with versions 7.0, 2000, 2005 and 2008. 
 -- Only a minimal amount of parsers have been added for tokens, column types
@@ -10,45 +8,18 @@
 -- 
 -- The code has been implemented based on traffic analysis and the following
 -- documentation:
--- o TDS Protocol Documentation
---   http://www.freetds.org/tds.html
+-- * TDS Protocol Documentation: http://www.freetds.org/tds.html.
+-- * The JTDS source code: http://jtds.sourceforge.net/index.html.
 --
--- o The JTDS source code
---   http://jtds.sourceforge.net/index.html
+-- * ColumnInfo: Class containing parsers for column types which are present before the row data in all query response packets. The column information contains information relevant to the data type used to hold the data eg. precision, character sets, size etc.
+-- * ColumnData: Class containing parsers for the actual column information.
+-- * Token: Class containing parsers for tokens returned in all TDS responses. A server response may hold one or more tokens with information from the server. Each token has a type which has a number of type specific fields.
+-- * QueryPacket: Class used to hold a query and convert it to a string suitable for transmission over a socket.
+-- * LoginPacket: Class used to hold login specific data which can easily be converted to a string suitable for transmission over a socket.
+-- * TDSStream: Class that handles communication over the Tabular Data Stream protocol used by SQL serve. It is used to transmit the the Query- and Login-packets to the server.
+-- * Helper: Class which facilitates the use of the library by through action oriented functions with descriptive names.
+-- * Util: A "static" class containing mostly character and type conversion functions.
 --
--- Overview
--- --------
--- o ColumInfo - Class containing parsers for column types which are present
---               before the row data in all query response packets. The column
---               information contains information relevant to the data type
---               used to hold the data eg. precision, character sets, size etc.
---
--- o ColumnData - Class containing parsers for the actual column information
---
--- o Token - Class containing parsers for tokens returned in all TDS responses.
---           A server response may hold one or more tokens with information
---           from the server. Each token has a type which has a number of
---           type specific fields.
---
--- o QueryPacket - Class used to hold a query and convert it to a string
---                 suitable for transmission over a socket.
---
--- o LoginPacket - Class used to hold login specific data which can easily
---                 be converted to a string suitable for transmission over
---                 a socket.
---
--- o TDSStream - Class that handles communication over the Tabular Data Stream
---               protocol used by SQL serve. It is used to transmit the the
---			     Query- and Login-packets to the server.
---
--- o Helper	- Class which facilitates the use of the library by through action
---            oriented functions with descriptive names.
---
--- o Util - "static" class containing mostly character and type conversion
---          functions.
---
--- Example
--- -------
 -- The following sample code illustrates how scripts can use the Helper class
 -- to interface the library:
 --
@@ -59,36 +30,14 @@
 -- helper:Disconnect()
 -- <code>
 --
--- Known limitations
--- -----------------
--- o The library does not support SSL. The foremost reason being the akward
---   choice of implementation where the SSL handshake is performed within
---   the TDS data block. By default, servers support connections over non
---   SSL connections though. 
---
--- o Version 7 and ONLY version 7 of the protocol is supported. This should 
---   cover Microsoft SQL Server 7.0 and later.
---
--- o TDS Responses contain one or more response tokens which are parsed based
---   on their type. The supported tokens are listed in the TokenType table and
---   their respective parsers can be found in the Token class. Note that some
---   token parsers are not fully implemented and simply move the offset the 
---   right number of bytes to continue processing of the response.
---
--- o The library only supports a limited subsets of datatypes and will abort
---   execution and return an error if it detects an unsupported type. The
---   supported data types are listed in the DataTypes table. In order to add
---   additional data types a parser function has to be added to both the
---   ColumnInfo and ColumnData class.
---
--- o No functionality for languages, localization or characted codepages has
---   been considered or implemented.
---
--- o The library does database authentication only. No OS authentication or
---   use of the integrated security model is supported.
---
--- o Queries using SELECT, INSERT, DELETE and EXEC of procedures have been
---   tested while developing scripts.
+-- Known limitations:
+-- * The library does not support SSL. The foremost reason being the akward choice of implementation where the SSL handshake is performed within the TDS data block. By default, servers support connections over non SSL connections though. 
+-- * Version 7 and ONLY version 7 of the protocol is supported. This should cover Microsoft SQL Server 7.0 and later.
+-- * TDS Responses contain one or more response tokens which are parsed based on their type. The supported tokens are listed in the <code>TokenType</code> table and their respective parsers can be found in the <code>Token</code> class. Note that some token parsers are not fully implemented and simply move the offset the right number of bytes to continue processing of the response.
+-- * The library only supports a limited subsets of datatypes and will abort execution and return an error if it detects an unsupported type. The supported data types are listed in the <code>DataTypes</code> table. In order to add additional data types a parser function has to be added to both the <code>ColumnInfo</code> and <code>ColumnData</code> class.
+-- * No functionality for languages, localization or characted codepages has been considered or implemented.
+-- * The library does database authentication only. No OS authentication or use of the integrated security model is supported.
+-- * Queries using SELECT, INSERT, DELETE and EXEC of procedures have been tested while developing scripts.
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --

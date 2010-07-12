@@ -1,4 +1,6 @@
---- IMAP functions.
+---
+-- IMAP functions.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "imap", package.seeall)

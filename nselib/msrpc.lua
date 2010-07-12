@@ -1,4 +1,5 @@
---- By making heavy use of the 'smb' library, this library will call various MSRPC 
+---
+-- By making heavy use of the <code>smb</code> library, this library will call various MSRPC 
 --  functions. The functions used here can be accessed over TCP ports 445 and 139, 
 --  with an established session. A NULL session (the default) will work for some 
 --  functions and operating systems (or configurations), but not for others. 
@@ -8,11 +9,11 @@
 -- <code>start_smb</code> can be called. A session has to be created, then the IPC$ 
 -- tree opened. 
 --
--- Next, the interface has to be bound. The bind() function will take care of that. 
+-- Next, the interface has to be bound. The <code>bind()</code> function will take care of that. 
 --
 -- After that, you're free to call any function that's part of that interface. In
--- other words, if you bind to the SAMR interface, you can only call the samr_
--- functions, for lsa_ functions, bind to the LSA interface, etc.  Although functions 
+-- other words, if you bind to the SAMR interface, you can only call the <code>samr_</code>
+-- functions, for <code>lsa_</code> functions, bind to the LSA interface, etc.  Although functions 
 -- can technically be called in any order, many functions depend on the
 -- value returned by other functions. I indicate those in the function comments, 
 -- so keep an eye out. SAMR functions, for example, require a call to 
@@ -21,8 +22,8 @@
 -- Something to note is that these functions, for the most part, return a whole ton
 -- of stuff in a table; basically, everything that is returned by the function. 
 -- Generally, if you want to know exactly what you have access to, either display the
--- returned data with a print_table-type function, or check the documentation (Samba 4.0's
--- .idl files (in samba_4.0/source/librpc/idl; see below for link) are what I based 
+-- returned data with a <code>print_table</code>-type function, or check the documentation (Samba 4.0's
+-- <code>.idl</code> files (in <code>samba_4.0/source/librpc/idl</code>; see below for link) are what I based 
 -- the names on). 
 --
 -- The parameters for each function are converted to a string of bytes in a process
@@ -37,8 +38,8 @@
 -- deal with the returned values. 
 --
 -- When implementing this, I used Wireshark's output significantly, as well as Samba's
--- "idl" files for reference:
---  http://websvn.samba.org/cgi-bin/viewcvs.cgi/branches/SAMBA_4_0/source/librpc/idl/ 
+-- <code>.idl</code> files for reference:
+--  http://websvn.samba.org/cgi-bin/viewcvs.cgi/branches/SAMBA_4_0/source/librpc/idl/.
 -- I'm not a lawyer, but I don't expect that this is a breach of Samba's copyright -- 
 -- if it is, please talk to me and I'll make arrangements to re-license this or to 
 -- remove references to Samba. 

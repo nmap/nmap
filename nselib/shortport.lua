@@ -1,7 +1,9 @@
---- Functions for building short portrules.
+---
+-- Functions for building short portrules.
 --
 -- Since portrules are mostly the same for many scripts, this
 -- module provides functions for the most common tests.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "shortport", package.seeall)

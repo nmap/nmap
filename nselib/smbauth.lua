@@ -1,7 +1,8 @@
----This module takes care of the authentication used in SMB (LM, NTLM, LMv2, NTLMv2). 
+---
+-- This module takes care of the authentication used in SMB (LM, NTLM, LMv2, NTLMv2). 
+--
 -- There is a lot to this functionality, so if you're interested in how it works, read
 -- on. 
---
 -- In SMB authentication, there are two distinct concepts. Each will be dealt with
 -- separately. There are:
 -- * Stored hashes
@@ -9,13 +10,13 @@
 --
 -- What's confusing is that the same names are used for each of those. 
 --
--- Stored Hashes
+-- Stored Hashes:
 -- Windows stores two types of hashes: Lanman and NT Lanman (or NTLM). Vista and later
 -- store NTLM only. Lanman passwords are divided into two 7-character passwords and 
 -- used as a key in DES, while NTLM is converted to unicode and MD4ed. 
 --
--- The stored hashes can be dumped in a variety of ways (pwdump6, fgdump, metasploit's
--- priv module, smb-psexec.nse, etc). Generally, two hashes are dumped together 
+-- The stored hashes can be dumped in a variety of ways (pwdump6, fgdump, Metasploit's
+-- <code>priv</code> module, <code>smb-psexec.nse</code>, etc). Generally, two hashes are dumped together 
 -- (generally, Lanman:NTLM). Sometimes, Lanman is empty and only NTLM is given. Lanman
 -- is never required. 
 --
@@ -24,7 +25,7 @@
 -- can be passed, in the form of Lanman:NTLM, or a single hash, which is assumed to
 -- be NTLM. 
 --
--- Authentication
+-- Authentication:
 -- There are four types of authentication. Confusingly, these have the same names as
 -- stored hashes, but only slight relationships. The four types are Lanmanv1, NTLMv1, 
 -- Lanmanv2, and NTLMv2. By default, Lanmanv1 and NTLMv1 are used together in most 
@@ -77,7 +78,7 @@
 --                   protocol altogether!). If you're using an extremely old system, you might need to set 
 --                   this to <code>v1</code> or <code>lm</code>, which are less secure but more compatible.  
 --                   For information, see <code>smbauth.lua</code>. 
---@args smbnoguest   Set to 'true' or '1' to disable usage of the 'guest' account. 
+--@args smbnoguest   Set to <code>true</code> or <code>1</code> to disable usage of the 'guest' account. 
 
 module(... or "smbauth", package.seeall)
 

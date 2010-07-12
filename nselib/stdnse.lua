@@ -1,7 +1,7 @@
---- Standard Nmap Scripting Engine functions.
+---
+-- Standard Nmap Scripting Engine functions. This module contains various handy
+-- functions that are too small to justify modules of their own.
 --
--- This module contains various handy functions that are too small to justify
--- modules of their own.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local assert = assert;

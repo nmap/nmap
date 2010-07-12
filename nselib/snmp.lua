@@ -1,11 +1,9 @@
---- SNMP functions.
+---
+-- SNMP functions.
 --
 -- @args snmpcommunity The community string to use. If not given, it is
 -- <code>"public"</code>, or whatever is passed to <code>buildPacket</code>.
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
---
---
--- 
 
 module(... or "snmp",package.seeall)
 

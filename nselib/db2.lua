@@ -1,61 +1,44 @@
 ---
--- DB2 Library supporting a very limited subset of operations
+-- DB2 Library supporting a very limited subset of operations.
 --
 -- Summary
--- -------
--- 	o The library currently provides functionality to:
---		1. Query the server for basic settings using the 
---		   <code>getServerInfo</code> function of the helper class
---		2. Authenticate to a DB2 server using a plain-text username and
---		   password.
+-- * The library currently provides functionality to: (1) Query the server for
+-- basic settings using the code>getServerInfo</code> function of the helper
+-- class. (2) Authenticate to a DB2 server using a plain-text username and
+-- password.
 --
--- Overview
--- --------
 -- The library contains the following classes:
+-- * <code>DRDA</code>
+-- ** Implements the Distributed Relational Database Architecture class .
+-- * <code>DRDAParameter</code>
+-- ** Implements a number of functions to handle DRDA parameters.
+-- * <code>DDM</code>
+-- ** Implements the DDM portion of the DRDA structure
+-- * <code>Command</code>
+-- ** Provides functions for easy creation of the most common DRDAs.
+-- ** Implemented as a static class that returns an instance of the DRDA.
+-- * <code>Helper</code>
+-- ** A helper class that provides easy access to the rest of the library
+-- * <code>DB2Socket</code>
+-- ** A smallish socket wrapper that provides fundamental buffering
+-- * <code>StringUtil</code>
+-- ** Provides EBCDIC/ASCII conversion functions
 --
---	 o DRDA
---		- Implements the Distributed Relational Database Architecture class 
---
---   o DRDAParameter
---		- Implements a number of functions to handle DRDA parameters
---
---   o DDM
--- 		- Implements the DDM portion of the DRDA structure
---
---	 o Command
---		- Provides functions for easy creation of the most common DRDA's
---		- Implemented as a static class that returns an instance of the DRDA
---
---   o Helper
---		- A helper class that provides easy access to the rest of the library
---
---	 o DB2Socket
---		- A smallish socket wrapper that provides fundamental buffering
---
---   o StringUtil
---		- Provides EBCDIC/ASCII conversion functions
---
---
--- Example
--- -------
 -- The following sample code illustrates how scripts can use the Helper class
--- to interface the library:
+-- to interface with the library:
 --
 -- <code>
---	db2helper 	= db2.Helper:new()
+--	db2helper = db2.Helper:new()
 --	status, err = db2helper:connect(host, port)
 --	status, res = db2helper:getServerInfo()
 --	status, err = db2helper:close()
 -- </code>
 --
--- Additional information
--- ----------------------
 -- The implementation is based on packet dumps and the excellent decoding
 -- provided by Wireshark. 
 --
--- There is some documentation over at:
--- 	o http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/topic/
--- com.ibm.db29.doc.drda/db2z_drda.htm [link spans two lines]
+-- There is some documentation at
+-- http://publib.boulder.ibm.com/infocenter/dzichelp/v2r2/topic/com.ibm.db29.doc.drda/db2z_drda.htm.
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"

@@ -4,11 +4,11 @@
 -- still missing several functions.
 --
 -- The library currently supports
---  o Authentication using the DHX UAM (CAST128)
---  o File reading and writing
---  o Listing sharepoints
---  o Listing directory contents
---  o Querying ACLs and mapping user identities (UIDs)
+-- * Authentication using the DHX UAM (CAST128)
+-- * File reading and writing
+-- * Listing sharepoints
+-- * Listing directory contents
+-- * Querying ACLs and mapping user identities (UIDs)
 --
 -- The library was built based on the following reference:
 -- http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html
@@ -17,20 +17,20 @@
 -- Most functions have been tested against both Mac OS X 10.6.2 and Netatalk 2.0.3
 --
 -- The library contains the following four classes
---  o Response 
---    - A class used as return value by functions in the Proto class
---    - The response class acts as a wrapper and holds the response data and any error information
---  o Proto 
---    - This class contains all the AFP specific functions and calls
---    - The functions can be accessed directly but the preferred method is through the Helper class
---    - The function names closely resemble those described in the Apple documentation
---    - Some functions may lack some of the options outlined in Apple's documentation
---  o Helper
---    - The helper class wraps the Proto class using functions with a more descriptive name
---    - Functions are task oriented eg. ReadFile and usually call several functions in the Proto class
---    - The purpose of this class is to give developers easy access to some of the common AFP tasks
---  o Util
---    - The util class contains a number of static functions mainly used to convert data
+-- * <code>Response</code>
+-- ** A class used as return value by functions in the <code>Proto</code> class.
+-- ** The response class acts as a wrapper and holds the response data and any error information.
+-- * <code>Proto</code>
+-- ** This class contains all the AFP specific functions and calls.
+-- ** The functions can be accessed directly but the preferred method is through the <code>Helper</code> class.
+-- ** The function names closely resemble those described in the Apple documentation.
+-- ** Some functions may lack some of the options outlined in Apple's documentation.
+-- * <code>Helper</code>
+-- ** The helper class wraps the <code>Proto</code> class using functions with a more descriptive name.
+-- ** Functions are task-oriented. For example, <code>ReadFile</code> and usually call several functions in the <code>Proto</code> class.
+-- ** The purpose of this class is to give developers easy access to some of the common AFP tasks.
+-- * <code>Util</code>
+-- ** The <code>Util</code> class contains a number of static functions mainly used to convert data.
 --
 -- The following information will describe how to use the AFP Helper class to communicate with an AFP server.
 --

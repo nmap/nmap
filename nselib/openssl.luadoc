@@ -1,4 +1,5 @@
---- OpenSSL bindings.
+---
+-- OpenSSL bindings.
 --
 -- This module is a wrapper for OpenSSL functions that provide encryption and
 -- decryption, hashing, and multiprecision integers.

@@ -1,4 +1,5 @@
---- String buffer facilities.
+---
+-- String buffer facilities.
 --
 -- Lua's string operations are very flexible and offer an easy-to-use way to
 -- manipulate strings. Concatenation using the <code>..</code> operator is such

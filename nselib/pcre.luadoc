@@ -1,4 +1,5 @@
---- Perl Compatible Regular Expressions.
+---
+-- Perl Compatible Regular Expressions.
 --
 -- One of Lua's quirks is its string patterns. While they have great performance
 -- and are tightly integrated into the Lua interpreter, they are very different

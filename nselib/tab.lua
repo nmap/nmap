@@ -1,4 +1,5 @@
---- Arrange output into tables.
+---
+-- Arrange output into tables.
 --
 -- This module provides NSE scripts with a way to output structured tables
 -- similar to what <code>NmapOutputTable.cc</code> provides.

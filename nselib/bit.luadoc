@@ -1,4 +1,5 @@
---- Bitwise operations on integers.
+---
+-- Bitwise operations on integers.
 --
 -- Lua does not provide bitwise logical operations. Since they are often useful
 -- for low-level network communication, Reuben Thomas' BitLib

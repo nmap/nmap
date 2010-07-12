@@ -1,4 +1,5 @@
---- Username/password database library.
+---
+-- Username/password database library.
 --
 -- The <code>usernames</code> and <code>passwords</code> functions return
 -- multiple values for use with exception handling via

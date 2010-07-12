@@ -1,4 +1,6 @@
---- POP3 functions.
+---
+-- POP3 functions.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "pop3",package.seeall)

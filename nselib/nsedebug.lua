@@ -1,3 +1,4 @@
+---
 -- Debugging functions for Nmap scripts. 
 --
 -- This module contains various handy functions for debugging. These should
@@ -11,7 +12,8 @@ local EMPTY = {}; -- Empty constant table
 
 module(... or "nsedebug", package.seeall);
 
----Converts an arbitrary data type into a string. Will recursively convert 
+---
+-- Converts an arbitrary data type into a string. Will recursively convert 
 -- tables. This can be very useful for debugging. 
 --
 --@param data   The data to convert. 

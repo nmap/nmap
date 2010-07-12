@@ -1,6 +1,8 @@
---- Functions for proxy testing
---  @author Joao Correa <joao@livewire.com.br>
---  @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
+---
+-- Functions for proxy testing.
+--
+-- @author Joao Correa <joao@livewire.com.br>
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "proxy",package.seeall)
 

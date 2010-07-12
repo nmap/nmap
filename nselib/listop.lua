@@ -1,4 +1,5 @@
---- Functional-style list operations.
+---
+-- Functional-style list operations.
 --
 -- People used to programming in functional languages, such as Lisp
 -- or Haskell, appreciate their handling of lists very much. The

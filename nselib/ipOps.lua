@@ -1,4 +1,6 @@
---- Utility functions for manipulating and comparing IP addresses.
+---
+-- Utility functions for manipulating and comparing IP addresses.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 local type     = type

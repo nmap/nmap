@@ -1,6 +1,7 @@
---- ASN1 functions.
+---
+-- ASN.1 functions.
 --
--- Large chunks of this code have been ripped right out from snmp.lua
+-- Large chunks of this code have been ripped right out from <code>snmp.lua</code>.
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 --

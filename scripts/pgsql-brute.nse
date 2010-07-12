@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Postgresql.
+Performs password guessing against PostgreSQL.
 ]]
 
 ---

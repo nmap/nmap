@@ -1,4 +1,5 @@
---- Pack and unpack binary data.
+---
+-- Pack and unpack binary data.
 --
 -- A problem script authors often face is the necessity of encoding values
 -- into binary data. For example after analyzing a protocol the starting 

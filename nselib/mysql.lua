@@ -1,5 +1,6 @@
 ---
--- Simple MySQL Library supporting a very limited subset of operations
+-- Simple MySQL Library supporting a very limited subset of operations.
+--
 -- http://forge.mysql.com/wiki/MySQL_Internals_ClientServer_Protocol
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html

@@ -1,41 +1,35 @@
 ---
--- RPC Library supporting a very limited subset of operations
+-- RPC Library supporting a very limited subset of operations.
 --
--- Summary
--- -------
--- 	o The library works over both the UDP and TCP protocols
---	o A subset of nfs and mountd procedures are supported
---  o The versions 1 through 3 are supported for the nfs and mountd program
---  o Authentication is supported using the NULL RPC Authentication protocol
+-- The library works over both the UDP and TCP protocols. A subset of nfs and
+-- mountd procedures are supported. The nfs and mountd programs support
+-- versions 1 through 3. Authentication is supported using the NULL RPC
+-- Authentication protocol
 --
--- Overview
--- --------
 -- The library contains the following classes:
---   o Comm 
---   		- Handles network connections
---		- Handles low-level packet sending, recieving, decoding and encoding
---		- Stores rpc programs info: socket, protocol, program name, id and version
---		- Used by Mount, NFS, RPC and Portmap
---   o Portmap
---		- Containes RPC constants
---		- Handles communication with the portmap RPC program
---   o Mount 
---		- Handles communication with the mount RPC program
---   o NFS 
---		- Handles communication with the nfs RPC program
---   o Helper 
---		- Provides easy access to common RPC functions
---		- Implemented as a static class where most functions accept host 
---                and port parameters
---   o Util
---	 	- Mostly static conversion routines
+-- * <code>Comm </code>
+-- ** Handles network connections.
+-- ** Handles low-level packet sending, recieving, decoding and encoding.
+-- ** Stores rpc programs info: socket, protocol, program name, id and version.
+-- ** Used by Mount, NFS, RPC and Portmap.
+-- * <code>Portmap</code>
+-- ** Contains RPC constants.
+-- ** Handles communication with the portmap RPC program.
+-- * <code>Mount</code>
+-- ** Handles communication with the mount RPC program.
+-- * <code>NFS</code>
+-- ** Handles communication with the nfs RPC program.
+-- * <code>Helper</code>
+-- ** Provides easy access to common RPC functions.
+-- ** Implemented as a static class where most functions accept host and port parameters.
+-- * <code>Util</code>
+-- ** Mostly static conversion routines.
 --
--- The portmapper dynamically allocates tcp/udp ports to RPC programs. So in
+-- The portmapper dynamically allocates TCP/UDP ports to RPC programs. So in
 -- in order to request a list of NFS shares from the server we need to:
---  o Make sure that we can talk to the portmapper on port 111 tcp or udp
---  o Query the portmapper for the ports allocated to the NFS program
---  o Query the NFS program for a list of shares on the ports returned by the
---    portmap program.
+-- * Make sure that we can talk to the portmapper on port 111 TCP or UDP.
+-- * Query the portmapper for the ports allocated to the NFS program.
+-- * Query the NFS program for a list of shares on the ports returned by the portmap program.
 --
 -- The Helper class contains functions that facilitate access to common
 -- RPC program procedures through static class methods. Most functions accept
@@ -43,9 +37,7 @@
 -- get the correct RPC program port, the port supplied to these functions
 -- should be the rpcbind port 111/tcp or 111/udp.
 --
--- Example
--- -------
--- The following sample code illustrates how scripts can use the Helper class
+-- The following sample code illustrates how scripts can use the <code>Helper</code> class
 -- to interface the library:
 --
 -- <code>
@@ -58,12 +50,10 @@
 -- 	-- get the NFS attributes for the share
 --	status, attribs = rpc.Helper.GetAttributes( host, port, mount.name )
 --		.... process NFS attributes here ....
---  end
+-- end
 -- </code>
 --
--- Additional information
--- ----------------------
--- RPC transaction ID's (XID) are not properly implemented as a random ID is
+-- RPC transaction IDs (XID) are not properly implemented as a random ID is
 -- generated for each client call. The library makes no attempt to verify
 -- whether the returned XID is valid or not.
 --

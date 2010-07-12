@@ -1,4 +1,5 @@
---- Common communication functions for network discovery tasks like
+---
+-- Common communication functions for network discovery tasks like
 -- banner grabbing and data exchange.
 --
 -- The functions in this module return values appropriate for use with
