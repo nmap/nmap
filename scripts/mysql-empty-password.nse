@@ -1,5 +1,6 @@
 description = [[
-Checks for MySQL servers with an empty root and/or anonymous password
+Checks for MySQL servers with an empty password for <code>root</code> or
+<code>anonymous</code>.
 ]]
 
 ---

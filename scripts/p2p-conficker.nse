@@ -1,20 +1,20 @@
 description = [[
-Check if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication. 
+Checks if a host is infected with Conficker.C or higher, based on Conficker's peer to peer communication. 
 
-When Conficker.C and higher infect a system, it opens four ports: two TCP and two UDP. The ports are 
+When Conficker.C or higher infects a system, it opens four ports: two TCP and two UDP. The ports are 
 random, but are seeded with the current week and the IP of the infected host. By determining the algorithm, 
 one can check if these four ports are open, and can probe them for more data. 
 
 Once the open ports are found, communication can be initiated using Conficker's custom peer to peer protocol. 
 If a valid response is received, then a valid Conficker infection has been found. 
 
-This check won't work properly on a multihomed or NATed system -- the open ports will be based on a nonpublic IP. 
+This check won't work properly on a multihomed or NATed system because the open ports will be based on a nonpublic IP. 
 The argument <code>checkall</code> tells Nmap to attempt communication with every open port (much like a version
-check) and the argument <code>realip</code> tells Nmap to base its port generation on the given ip address instead
-of the actual ip. See the args section for more information. 
+check) and the argument <code>realip</code> tells Nmap to base its port generation on the given IP address instead
+of the actual IP.
 
 By default, this will run against a system that has a standard Windows port open (445, 139, 137). The arguments
-checkall and checkconficker will both perform checks regardless of which port is open, see the args section for
+<code>checkall</code> and <code>checkconficker</code> will both perform checks regardless of which port is open, see the args section for
 more information. 
 
 Note: Ensure your clock is correct (within a week) before using this script!
@@ -25,8 +25,11 @@ out to everybody who contributed!
 ]]
 
 ---
--- @args checkconficker If set to '1' or 'true', the script will always run on active hosts, 
+-- @args checkall If set to <code>1</code> or <code>true</code>, attempt
+-- to communicate with every open port.
+-- @args checkconficker If set to <code>1</code> or <code>true</code>, the script will always run on active hosts, 
 --       it doesn't matter if any open ports were detected. 
+-- @args realip An IP address to use in place of the one known by Nmap.
 --
 -- @usage
 -- # Run the scripts against host(s) that appear to be Windows

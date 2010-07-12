@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Postgresql
+Performs password guessing against Postgresql.
 ]]
 
 ---
@@ -12,16 +12,15 @@ Performs password guessing against Postgresql
 -- |   root:<empty> => Login Correct
 -- |_  test:test => Login Correct
 --
--- @args pgsql.nossl If set to 1 or true disables SSL.
--- @args pgsql.version Force protocol version 2 or 3
---
+-- @args pgsql.nossl If set to <code>1</code> or <code>true</code>, disables SSL.
+-- @args pgsql.version Force protocol version 2 or 3.
+
 -- SSL Encryption
 -- --------------
 -- We need to handle several cases of SSL support
 --  o SSL can be supported on a server level
 --  o SSL can be enforced per host or network level
 --  o SSL can be denied per host or network level
---
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

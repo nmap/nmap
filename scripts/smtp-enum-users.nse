@@ -26,7 +26,7 @@ smtp-enum-users.methods={EXPN,RCPT,VRFY}
 --
 -- @args smtp-enum-users.domain Define the domain to be used in the SMTP commands
 -- @args smtp-enum-users.methods Define the methods and order to be used by the script (EXPN, VRFY, RCPT)
---
+
 -- changelog
 -- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
 --   * First version ;)

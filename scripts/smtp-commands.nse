@@ -14,7 +14,7 @@ SMTP server.
 -- |_ This server supports the following commands: HELO EHLO STARTTLS RCPT DATA RSET MAIL QUIT HELP AUTH TURN ETRN BDAT VRFY
 --
 -- @args smtp-commands.domain Define the domain to be used in the SMTP commands
---
+
 -- changelog
 -- 1.1.0.0 - 2007-10-12
 -- + added HELP command in addition to EHLO

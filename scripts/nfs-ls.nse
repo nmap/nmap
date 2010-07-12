@@ -1,26 +1,26 @@
 description = [[
 Attempts to get useful informations about files from NFS exports.
-This script try to emulate some features of the old "ls" unix tool.
+The output is intended to resemble the output of <code>ls</code>.
 
-This starts by enumerating and mounting the remote NFS exports, after 
-that it performs NFS GETATTR procedure call for each mounted point
-in order to get it's acls.
-For each mounted directory the script will try to list it's file entries
+The script starts by enumerating and mounting the remote NFS exports. After 
+that it performs an NFS GETATTR procedure call for each mounted point
+in order to get its ACLs.
+For each mounted directory the script will try to list its file entries
 with their attributes.
 
-Since the file attributes shown in the results are the result of the
-GETATTR, READDIRPLUS procedures and all the like then these attributes
-are the attributes of the local files system.
+Since the file attributes shown in the results are the result of
+GETATTR, READDIRPLUS, and similar procedures, the attributes
+are the attributes of the local filesystem.
 
-The following access permissions are only shown for the NFSv3:
-o Read:     Read data from file or read a directory.
-o Lookup:   Look up a name in a directory
-            (no meaning for on-directory objects).
-o Modify:   Rewrite existing file data or modify existing
+These access permissions are shown only with NFSv3:
+* Read:     Read data from file or read a directory.
+* Lookup:   Look up a name in a directory
+            (no meaning for non-directory objects).
+* Modify:   Rewrite existing file data or modify existing
             directory entries.
-o Extend:   Write new data or add directory entries.
-o Delete:   Delete an existing directory entry.
-o Execute:  Execute file (no meaning for a directory).
+* Extend:   Write new data or add directory entries.
+* Delete:   Delete an existing directory entry.
+* Execute:  Execute file (no meaning for a directory).
 ]]
 
 ---
@@ -49,17 +49,19 @@ o Execute:  Execute file (no meaning for a directory).
 -- |     -rw-r--r--  0     0     5        2010-06-10 11:32  rootfile
 -- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34  symlink
 --
--- @args nfs-ls.maxfiles If set limits the amount of files returned by
---       the script when using nfs-ls.dirlist argument. If set to zero
---       or less all files are shown. (default 10)
--- @args nfs-ls.human If set to '1' or 'true' shows the files size in
---       the human readable format.
+-- @args nfs-ls.maxfiles If set, limits the amount of files returned by
+--       the script when using the <code>nfs-ls.dirlist</code> argument.
+--       If set to 0
+--       or less, all files are shown. The default value is 10.
+-- @args nfs-ls.human If set to <code>1</code> or <code>true</code>,
+--       shows file sizes in a human readable format with suffixes like
+--       <code>KB</code> and <code>MB</code>.
 -- @args nfs-ls.time Specifies which one of the mac times to use in the
 --       files attributes output. Possible values are:
---       m    :Modification time (mtime)
---       a    :Access time (atime)
---       c    :Change time (ctime)
---       Default value is "m" mtime.
+-- * <code>m</code>: modification time (mtime)
+-- * <code>a</code>: access time (atime)
+-- * <code>c</code>: change time (ctime)
+-- The default value is <code>m</code> (mtime).
  
 -- Created 05/28/2010 - v0.1 - combined nfs-dirlist and nfs-acls scripts
 -- Revised 06/04/2010 - v0.2 - make NFS exports listing with their acls

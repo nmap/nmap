@@ -1,6 +1,6 @@
 description = [[
-Retrieves disk space statistics and information from the remote NFS
-share. This script will try to emulate the behaviour of the "df" tool.
+Retrieves disk space statistics and information from a remote NFS share.
+The output is intended to resemble the output of <code>df</code>.
 
 The script will provide pathconf information of the remote NFS if
 the version used is NFSv3.
@@ -15,9 +15,9 @@ the version used is NFSv3.
 -- |   /mnt/nfs/files       5542276    2732012  2528728    52%   4096
 -- |_  /mnt/nfs/opensource  5534416    620640   4632644    12%   4096
 --
--- @args nfs-statfs.human If set to '1' or 'true' shows the filesystem
---       size in the human readable format.
---
+-- @args nfs-statfs.human If set to <code>1</code> or <code>true</code>,
+--       shows file sizes in a human readable format with suffixes like
+--       <code>KB</code> and <code>MB</code>.
 
 -- Version 0.3
 

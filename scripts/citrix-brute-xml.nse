@@ -19,8 +19,6 @@ accounts will be locked.
 -- |   Joe:password => Must change password at next logon
 -- |   Luke:summer => Login was successful
 -- |_  Jane:secret => Account is disabled
---
----
 
 -- Version 0.2
 

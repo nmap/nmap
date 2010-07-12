@@ -2,25 +2,26 @@ author = "jah"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 description = [[
-Obtain and print an NTP server's monitor data.
+Obtains and prints an NTP server's monitor data.
 
-Monitor data is a most recently used list (MRU) of hosts with NTP associations
+Monitor data is a list of the most recently used (MRU) having NTP associations
 with the target. Each record contains information about the most recent NTP
 packet sent by a host to the target including the source and destination
 addresses and the NTP version and mode of the packet. With this information it
-is possible to classify associated hosts as Servers, Peers and Clients.
+is possible to classify associated hosts as Servers, Peers, and Clients.
 
 A Peers command is also sent to the target and the peers list in the response
 allows differentiation between configured Mode 1 Peers and clients which act
 like Peers (such as the Windows W32Time service).
 
-Associated hosts are further classified as either public or private - the latter
-having IP addresses which are not routable on the public internet and thus can
+Associated hosts are further classified as either public or private.
+Private hosts are those
+having IP addresses which are not routable on the public Internet and thus can
 help to form a picture about the topology of the private network on which the
 target resides.
 
 Other information revealed by the monlist and peers commands are the host with
-which the target clock is synchronised and hosts which send Control Mode (6)
+which the target clock is synchronized and hosts which send Control Mode (6)
 and Private Mode (7) commands to the target and which may be used by admins for
 the NTP service.
 
@@ -29,17 +30,13 @@ Mode 7 commands sent by this script are recorded by the target (and will often
 appear in these results). Since the monitor data is a MRU list, it is probable
 that you can overwrite the record of the Mode 7 command by sending an innoccuous
 looking Client Mode request. This can be acheived easily using Nmap:
-nmap -sU -pU:123 -Pn -n --max-retries=0 <target>
+<code>nmap -sU -pU:123 -Pn -n --max-retries=0 <target></code>
 
 Notes:
-o The monitor list in response to the monlist command is limited to 600
-  associations.
-o The monitor capability may not be enabled on the target in which case you may
-  receive an error number 4 (No Data Available).
-o There may be a restriction on who can perform Mode 7 commands (e.g. 'restrict
-  noquery' in ntp.conf) in which case you may not receive a reply.
-o This script does not handle authenticating and targets expecting auth info may
-  respond with error number 3 (Format Error).
+* The monitor list in response to the monlist command is limited to 600 associations.
+* The monitor capability may not be enabled on the target in which case you may receive an error number 4 (No Data Available).
+* There may be a restriction on who can perform Mode 7 commands (e.g. "restrict noquery" in <code>ntp.conf</code>) in which case you may not receive a reply.
+* This script does not handle authenticating and targets expecting auth info may respond with error number 3 (Format Error).
 ]]
 
 ---

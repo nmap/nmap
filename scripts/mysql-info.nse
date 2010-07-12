@@ -8,7 +8,7 @@ isn't run (see the portrule).
 ]]
 
 ---
---@output
+-- @output
 -- 3306/tcp open  mysql
 -- |  mysql-info: Protocol: 10
 -- |  Version: 5.0.51a-3ubuntu5.1

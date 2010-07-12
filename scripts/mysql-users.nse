@@ -1,10 +1,14 @@
 description = [[
-Attempts to list all users on the MySQL server
+Attempts to list all users on a MySQL server.
 ]]
 
 ---
--- @args mysqluser The username to use for authentication. (If unset it attempts to use credentials found by mysql-brute or mysql-empty-password)
--- @args mysqlpass The password to use for authentication. (If unset it attempts to use credentials found by mysql-brute or mysql-empty-password)
+-- @args mysqluser The username to use for authentication. If unset it
+-- attempts to use credentials found by <code>mysql-brute</code> or
+-- <code>mysql-empty-password</code>.
+-- @args mysqlpass The password to use for authentication. If unset it
+-- attempts to use credentials found by <code>mysql-brute</code> or
+-- <code>mysql-empty-password</code>.
 --
 -- @output
 -- 3306/tcp open  mysql
