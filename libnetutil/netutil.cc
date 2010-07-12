@@ -91,6 +91,8 @@
 #include "../nmap_config.h"
 #endif
 
+#include "nbase.h"
+
 #ifdef WIN32
 #include "mswin32/winclude.h"
 #include "pcap-int.h"
@@ -101,10 +103,14 @@
 #include <assert.h>
 #include <errno.h>
 #include <sys/types.h>
+#if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
 #include <net/if_arp.h>
 
+#if HAVE_NETINET_IN_H
 #include <netinet/in.h>
+#endif
 
 #ifndef NETINET_IN_SYSTEM_H  /* why the HELL does OpenBSD not do this? */
 #include <netinet/in_systm.h>
@@ -122,7 +128,6 @@
 #define NETINET_IP_H
 #endif
 
-#include "nbase.h"
 #include "netutil.h"
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
