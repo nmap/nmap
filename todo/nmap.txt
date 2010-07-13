@@ -1,5 +1,17 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Fix Win7 networking issue reported by Luis which seems to have been
+  triggered by r17542. See this thread:
+  http://seclists.org/nmap-dev/2010/q3/40
+
+o Update CHANGELOG for new release.
+
+==^^^TASKS WHICH WE MUST COMPLETE BEFORE NEXT NMAP RELEASE^^^===
+
+o Update "History and Future of Nmap"
+  (http://nmap.org/book/history-future.html) to include all the news
+  since September 2008. [Fyodor]
+
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -25,10 +37,6 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
-o Fix Win7 networking issue reported by Luis which seems to have been
-  triggered by r17542. See this thread:
-  http://seclists.org/nmap-dev/2010/q3/40
-
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
@@ -50,6 +58,107 @@ o [NSE] Consider using .idl files rather than manually coding all the
   MSRPC stuff.  The current idea, if we do this, is to have an
   application in nmap-private-dev which converts .idl files to LUA
   code for nmap/nselib. Consider adapting the pidl utility from Samba.
+
+o [NSE] The NSEDoc for some scripts includes large "Functions"
+  sections which aren't really useful to script users.  For example,
+  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
+  should hide these behind an expander like "Developer documentation
+  (show)".  I don't think we need to do this for libraries, since
+  developers are the primary audience for those documents.
+
+o nmap.cgi web interface for Nmap
+ - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
+ - Should have "demo" mode that only allows users to scan their own addy
+
+o Look into implementing security technologies such as DEP and ASL on
+  Windows: http://seclists.org/nmap-dev/2010/q3/12.
+
+o Investigate and document how easy it is to drop Ncat.exe by itself
+  on other systems and have it work.  We should also look into the
+  dependencies of Nmap and Zenmap.  It may be instructive to look at
+  "Portable Firefox"
+  (http://portableapps.com/apps/internet/firefox_portable) which is
+  built using open source technology from portableapps.com, or look at
+  "The Network Toolkit" by Cace
+  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
+  and Nping, we may want to improve our Winpcap to load as a DLL
+  without requiring installation.  There is a separate TODO item for that.
+
+o [Web] Add a page with the Nmap related videos we do have already
+
+o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o We should do an audit to ensure that we are in complete compliance for the
+ licenses of all the software we ship in any of our downloads, as some
+ licenses have special clauses for things like including their
+ license/copyright file, mentioning them in our documentation, etc.
+ And of course we want to credit them properly even where the license
+ doesn't require it.  We should probably make a list of these in our
+ docs/ directory along with any special information/requirements of
+ their license.  And maybe we should put the current licenses in a
+ subdir too.  In particular, these come to mind:
+ o libpcre
+ o lua
+ o OpenSSL
+ o libpcap
+ o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
+   PyGTK)
+ o SQLite
+ o Python (Win/Mac versions of Zenmap link to Python)
+ o X.org libraries (Mac version links to them)
+ o libdnet
+
+o Revive the Nmap Public Source License project (need to find an open
+  source attorney to review it).  http://nmap.org/npsl/
+
+o We should document an official way to compile/test refguide.xml so
+  people can more easily test their changes to it.  This will probably
+  involve moving legal-notices.xml into /nmap/docs, among other
+  things.
+
+o Create Nmap wiki
+
+o Nmap book work [placeholder]
+
+o Make the nmap.header.tmpl wording a little more generic so it more
+  clearly applies to Ncat, Zenmap, Nping, etc. Then use
+  templatereplace.pl to apply those changes to the code. [Fyodor]
+
+o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
+  the man page location for ncat and ndiff.
+ o Don't break packaging/build system
+ o Don't break the system for posting html to web site. 
+ o Consider standardizing names for nping and ncrack man pages as well.
+ [Fyodor]
+
+o [Zenmap] script selection interface for deciding which NSE scripts to
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
+
+o Since Libdnet files (such as ltmain.sh) are apparently only used by
+  libdnet (they used to be used by shared library NSE C scripts), we
+  should move them to the libdnet directory.
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET/HEAD brute force cracking.
+
+o [Zenmap] should actually parse and use script results. See
+  http://seclists.org/nmap-dev/2010/q1/1108
+
+o Do a serious analysis if and how we should use the NIST CPE standard
+  (http://cpe.mitre.org/) for OS detection and (maybe in a different
+  phase) version detection results.  Here are some
+  discussions threads on that:
+  http://seclists.org/nmap-dev/2008/q4/627 and
+  http://seclists.org/nmap-dev/2010/q2/788.  Nessus has described
+  their integration of CPE at
+  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
+
+o The -g (set source port) option doesn't seem to be working (at least
+  in Fyodor's quick tests) for version detection or connect() scan,
+  and apparently doesn't work for NSE either.  We should fix this
+  where we can, and document the limitation in the refguide where it
+  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
 
 o The latest IANA services file
   (http://www.iana.org/assignments/port-numbers) has many identified
@@ -100,24 +209,8 @@ o [NSE] Combine similar MSRPC scripts, especially the "get info"
   (http://seclists.org/nmap-dev/2010/q1/1023).  This was suggested by
   Ron at http://seclists.org/nmap-dev/2010/q2/389.
 
-o [NSE] The NSEDoc for some scripts includes large "Functions"
-  sections which aren't really useful to script users.  For example,
-  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
-  should hide these behind an expander like "Developer documentation
-  (show)".  I don't think we need to do this for libraries, since
-  developers are the primary audience for those documents.
-
-o Look into implementing security technologies such as DEP and ASL on
-  Windows: http://seclists.org/nmap-dev/2010/q3/12.
-
 o [Zenmap] Investigate getting new OS icon art. See
   http://seclists.org/nmap-dev/2010/q1/1090
-
-o The -g (set source port) option doesn't seem to be working (at least
-  in Fyodor's quick tests) for version detection or connect() scan,
-  and apparently doesn't work for NSE either.  We should fix this
-  where we can, and document the limitation in the refguide where it
-  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
 
 o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
@@ -128,27 +221,6 @@ o [NSE] Consider modifying our brute force scripts to take advantage
  - We've done this with db2-brute, but the DB may have been a
    bottleneck there, so we should probably do more testing after
    modifying another script for this sort of parallel cracking.
-
-o [Zenmap] script selection interface for deciding which NSE scripts to
-  run.  Ideally it would have a great, intuitive UI, the smarts to
-  know the scripts/categories available, display NSEdoc info, and even
-  know what arguments each can take.
-
-o Since Libdnet files (such as ltmain.sh) are apparently only used by
-  libdnet (they used to be used by shared library NSE C scripts), we
-  should move them to the libdnet directory.
-
-o [Zenmap] should actually parse and use script results. See
-  http://seclists.org/nmap-dev/2010/q1/1108
-
-o Do a serious analysis if and how we should use the NIST CPE standard
-  (http://cpe.mitre.org/) for OS detection and (maybe in a different
-  phase) version detection results.  Here are some
-  discussions threads on that:
-  http://seclists.org/nmap-dev/2008/q4/627 and
-  http://seclists.org/nmap-dev/2010/q2/788.  Nessus has described
-  their integration of CPE at
-  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
 
 o We should offer partial results when a host
   timeouts. I (Fyodor) have been against this in the past, but maybe
@@ -190,42 +262,16 @@ o Consider providing an option which causes Nmap to scan ALL IP
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
 
-o Make the nmap.header.tmpl wording a little more generic so it more
-  clearly applies to Ncat, Zenmap, Nping, etc. Then use
-  templatereplace.pl to apply those changes to the code. [Fyodor]
-
-o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
-  the man page location for ncat and ndiff.
- o Don't break packaging/build system
- o Don't break the system for posting html to web site. 
- o Consider standardizing names for nping and ncrack man pages as well.
- [Fyodor]
-
 o Nmap should have a better way to handle XML script output.
-
-o Book work [placeholder]
+ o We currently just stick the current script output text into an XML tag.
 
 o Add Nmap web board/forum
  - First step is looking at the available software for this.
-
-o Update "History and Future of Nmap"
-  (http://nmap.org/book/history-future.html) to include all the news
-  since September 2008. [Fyodor]
-
-o We should document an official way to compile/test refguide.xml so
-  people can more easily test their changes to it.  This will probably
-  involve moving legal-notices.xml into /nmap/docs, among other
-  things.
-
-o Create Nmap wiki
 
 o [Zenmap] Consider a couple ideas from Norris Carden
   (http://seclists.org/nmap-dev/2010/q2/228):
  - remember last save and/or open location for new saves and/or opens
  - default save location option
-
-o Revive the Nmap Public Source License project (need to find an open
-  source attorney to review it).  http://nmap.org/npsl/
 
 o [Nsock] Consider adding server support to Nsock so it can accept
   multiple connections and multiplex the SD's, like it does for
@@ -274,27 +320,6 @@ o [Ncat] This may sound ridiculous, but I'm starting to think that
   Ncat should offer a very simple built-in http server (e.g. for simply
   sharing files, etc.)  And maybe a simple client too.
 
-o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
- o We should do an audit to ensure that we are in complete compliance for the
- licenses of all the software we ship in any of our downloads, as some
- licenses have special clauses for things like including their
- license/copyright file, mentioning them in our documentation, etc.
- And of course we want to credit them properly even where the license
- doesn't require it.  We should probably make a list of these in our
- docs/ directory along with any special information/requirements of
- their license.  And maybe we should put the current licenses in a
- subdir too.  In particular, these come to mind:
- o libpcre
- o lua
- o OpenSSL
- o libpcap
- o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
-   PyGTK)
- o SQLite
- o Python (Win/Mac versions of Zenmap link to Python)
- o X.org libraries (Mac version links to them)
- o libdnet
-
 o Scanning through proxies
  o Nmap should be able to scan through proxy servers, particularly now
    that we have an NSE script for detectiong open proxies and now that
@@ -342,8 +367,6 @@ o Scanning through proxies
 
 o [Ncat] Drop privileges once it has started up, bound the ports it
   needs to, etc.
-
-o [Web] Add a page with the Nmap related videos we do have already
 
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
@@ -424,20 +447,6 @@ o [NSE] http improvements
  o HTTP persistant connections/keepalive? May make
    spidering/grinding/auth cracking more efficient
  o Pipeliing? May make spidering/grinding/auth cracking more efficient
-
-o [NSE] High speed brute force HTTP authentication.  Possibly POST and
-   GET/HEAD brute force cracking.
-
-o Investigate and document how easy it is to drop Ncat.exe by itself
-  on other systems and have it work.  We should also look into the
-  dependencies of Nmap and Zenmap.  It may be instructive to look at
-  "Portable Firefox"
-  (http://portableapps.com/apps/internet/firefox_portable) which is
-  built using open source technology from portableapps.com, or look at
-  "The Network Toolkit" by Cace
-  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
-  and Nping, we may want to improve our Winpcap to load as a DLL
-  without requiring installation.  There is a separate TODO item for that.
 
 o Consider offering a way to link Winpcap DLLs so that they start the
   service as needed rather than requiring explicitly installing
@@ -580,10 +589,6 @@ o Get new Zenmap logo
  (there used to be umit logo there).
  o Maybe that can be done after the release by soliciting ideas.
 
-o nmap.cgi web interface for Nmap
- - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
- - Should have "demo" mode that only allows users to scan their own addy
-
 o Create or collect some great ./configure ascii art.
 
 o Add randomizer to configure script so that a random ASCII art from
@@ -591,6 +596,8 @@ o Add randomizer to configure script so that a random ASCII art from
   them leet-nmap-ascii-art-submittername.txt.
 
 o Add general regression unit testing system to Nmap
+ o David has created a great system for Ncat which could serve as a
+   model.
 
 o Provide an option to send a comment in scan packet data for target
   network.  Examples: --comment "Scan conducted by Marc Reis from
