@@ -4,6 +4,9 @@ o Fix Win7 networking issue reported by Luis which seems to have been
   triggered by r17542. See this thread:
   http://seclists.org/nmap-dev/2010/q3/40
 
+o Upgrade to WinPcap 4.1.2 - Rob has a patch - See this thread:
+  http://seclists.org/nmap-dev/2010/q3/18
+
 o Update CHANGELOG for new release.
 
 ==^^^TASKS WHICH WE MUST COMPLETE BEFORE NEXT NMAP RELEASE^^^===
