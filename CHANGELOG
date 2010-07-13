@@ -117,7 +117,7 @@ o [Nmap, Ncat, Nping] The default unit for time specifications is now
   Some sanity checks have been added to catch what looks like an
   attempt to use the old millisecond defaults. For example,
   --host-timeout 10000 yields
-    The default unit for --host-timeout is seconds (since April 2010),
+    Since April 2010, the default unit for --host-timeout is seconds,
     so your time of "10000" is 2.8 hours. If this is what you want,
     use "10000s".
     QUITTING!
