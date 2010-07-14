@@ -55,6 +55,10 @@
   o send NEP_QUIT only if necessary, just close connection if possible.
   o Implement different "modes" for the server: complete access,
     one-time-access, and restricted.
+  o Make sure nping does not allow generating packets with tcp src port or
+    tcp dst port 9929 (or --echo-port N, if that is set), because 1) the
+    echo server does not capture those packets and 2) to avoid messing up the
+    established side-channel tcp connection.
 
 o [EM] Things to decide on:
   o Decide on packet specifiers that can be passed to the server so it
