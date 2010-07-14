@@ -165,11 +165,11 @@ void *realloc();
 #endif
 
 #include <arpa/inet.h>
-#ifndef NETINET_IN_SYSTEM_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_IN_SYSTM_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/in_systm.h> /* defines n_long needed for netinet/ip.h */
-#define NETINET_IN_SYSTEM_H
+#define NETINET_IN_SYSTM_H
 #endif
-#ifndef NETINET_IP_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/ip.h>
 #define NETINET_IP_H
 #endif

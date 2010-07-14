@@ -112,18 +112,18 @@
 #include <netinet/in.h>
 #endif
 
-#ifndef NETINET_IN_SYSTEM_H  /* why the HELL does OpenBSD not do this? */
+#ifndef NETINET_IN_SYSTM_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/in_systm.h>
-#define NETINET_IN_SYSTEM_H
+#define NETINET_IN_SYSTM_H
 #endif
 
 #if HAVE_NET_IF_H
-#ifndef NET_IF_H /* why doesn't OpenBSD do this? */
+#ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
 #include <net/if.h>
 #define NET_IF_H
 #endif
 #endif
-#ifndef NETINET_IP_H  /* why does OpenBSD not do this? */
+#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/ip.h> 
 #define NETINET_IP_H
 #endif
