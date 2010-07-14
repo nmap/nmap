@@ -281,7 +281,7 @@ o [Nping] Fixed some bugs in the BPF filter creation to avoid capture
   and printing of packets Nping sent or which are destined for another
   process. [Luis]
 
-o [Nping] Fixed a bug which preented ARP replies from being displayed
+o [Nping] Fixed a bug which prevented ARP replies from being displayed
   properly. [Luis]
 
 o [Nping] Fixed a bug that caused ICMP Router Advertisment entries to
