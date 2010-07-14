@@ -84,7 +84,7 @@ o [NSE] Added additional vulnerability checks to smb-check-vulns.nse:
   and the Windows DNS Server RPC vuln MS07-029
   (http://www.microsoft.com/technet/security/bulletin/ms07-029.mspx).
   Note that these are only run if you specify the "unsafe" script arg
-  because the implemented test crashes vulnerable services.
+  because the implemented test crashes vulnerable services. [Drazen]
 
 o Ports are now considered open during a SYN scan if a SYN packet
   (without the ACK flag) is received in response. This can be due to
@@ -161,6 +161,12 @@ o Fixed the assignment of interface aliases to directly connected
 
 o [Zenmap] Added the ability to print Nmap output to a printer. [David]
 
+o Nmap now works if you specify several target host names which
+  resolve to the same IP address.  This can be useful when you are
+  scanning virtual-hosted web servers and want to see NSE results
+  specific to each site name even though they reside on the same
+  machine. [David]
+
 o David made many improvements to the NSEDoc for individual scripts,
   including adding @output sections to scripts which didn't have them.
   He also improved the generated HTML with features like
@@ -184,13 +190,14 @@ o Removed --interactive mode, a miniature shell whose primary purpose
   months and was rarely used. The fact that it was broken was reported
   by Juan Carlos Castro y Castro. [David]
 
-o Improved service detection match lines for Oracle Enterprise Manager
-  Agent and mupdate. [Matt Selsky]
-
-o Improved service detection match lines for Twisted web server, Apple
-  Filing Protocol, Apple Mac OS X Password Server, XAVi XG6546p
-  Wireless Gateway, Sun GlassFish Communications Server, and Comdasys,
-  SIParator and Glassfish SIP services [Patrik]
+o Improved service detection match lines for:
+  o Oracle Enterprise Manager Agent and mupdate by Matt Selsky
+  o Twisted web server, Apple Filing Protocol, Apple Mac OS X Password
+    Server, XAVi XG6546p Wireless Gateway, Sun GlassFish
+    Communications Server, and Comdasys, SIParator and Glassfish SIP
+    services by Patrik
+  o PostgreSQL, Cisco Site Selector ftpd, and LanSafe UPS monitoring
+    HTTPd by Tom Sellers
 
 o [NSE] Fixed a bug in qscan.nse which gave an error if a confidence
   level of 0.9995 was used.  Thanks to Marcin Hoffmann for noticing
@@ -250,6 +257,48 @@ o Made a list of Nmap SVN commiters:
 o [NSE] The dns-recursion script now marks the port as open when it
   gets a response. [Olivier M]
 
+o [Nping] A big correctness and code cleanliness audit was performed
+  which resulted in many bugs being fixed and much more code being
+  shared with Nmap rather than duplicated. A structured testing
+  script system was also created. [Luis, David]
+
+o [Nping] Now allows a --count value of zero to run almost
+  indefinitely (2^32 rounds). Suggested by Andreas Hubert. [Luis]
+
+o [Nping] Fixed --data argument parsing. The value passed was not
+  actually making it into outgoing packets. Reported by Tim
+  Poth. [Luis]
+
+o [Nping] When a RST packet is received in response to a connection
+  attempt in TCP-Connect mode, Nping now properly prints "Connection
+  refused" rather than "Operation now in progress". [Luis]
+
+o [Nping] Fixed a bug which caused failure when the first supplied
+  target was not resolvable (eg: nping bogushost.fkz scanme.insecure.com
+  tcpdump.com). [Luis]
+
+o [Nping] Fixed some bugs in the BPF filter creation to avoid capture
+  and printing of packets Nping sent or which are destined for another
+  process. [Luis]
+
+o [Nping] Fixed a bug which preented ARP replies from being displayed
+  properly. [Luis]
+
+o [Nping] Fixed a bug that caused ICMP Router Advertisment entries to
+  be set in host byte order rather than proper network byte
+  order. [Luis]
+
+o The Mac OS X installer is now built with MacPorts 1.9.1 rather than
+  1.8.2. Among other changes, this fixes a segmentation fault reported
+  by some OS X 10.6.3 users.
+
+o Nsock now supports an option to remove its Pcap support.  This
+  allows the same Nsock to be shared with Nmap (which needs that
+  support) and Ncrack (which doesn't.) Pcap support can be disabled by
+  specifying --disable-pcap at configure time on UNIX, or by selecting
+  the DebugNoPcap or ReleaseNoPcap configurations in Visual C++ on
+  Windows.
+
 o [NSE] Improved smtp-commands.nse to work against more mail servers,
   made it take an smtp-commands.domain script argument, and rewrote it
   in the style of other smtp scripts. [Jason DePriest]
@@ -275,7 +324,8 @@ o [NSE] Add some special use IPv4 addresses to isPrivate which are
 o Fix compilation on Opensolaris by making the Autoconf check for
   PF_PACKET in our libdnet Linux-specific.  Recent versions of
   OpenSolaris support PF_PACKET, but not in an entirely compatible way
-  with the Linux approach. Problem reported by Darren Reed. [David]
+  with the Linux approach. Problem reported by Darren Reed. A few
+  other minor compatibility changes were needed as well. [David]
 
 o Improved our brute force password guessing list with some data sent
   in by Solar Designer of John the Ripper fame.
@@ -320,6 +370,18 @@ o [NSE] Correct global access errors in afp.lua reported by Patrick Donnelly
 
 o [NSE] Correct misspelled "Capabilities.IgnoreSpaceBeforeParanthesis"
   name in the MySQL library. [Kris]
+
+o Cleaned up our Winpcap header file directory, and also updated to
+  the latest files from the official developer pack
+  (WpdPack_4_1_1.zip). [Fyodor]
+
+o [NSE] Fixed a bug which would prevent rpcinfo.nse from returning any
+  results for RPC programs which could not be matched to a
+  name. [Patrik]
+
+o [NSE] The ftp-anon script is now much smarter about parsing server
+responses and detecting successful (or not) logins.  It now knows how
+to send the ACCT command where appropriate as well. [Rob Nicholls]
 
 o Normalized a bunch of version detection entries with "webserver" in
   the description.  In most cases this was changed to "httpd".
