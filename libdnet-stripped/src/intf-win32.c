@@ -396,7 +396,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 {
 	wchar_t descr_wc[512];
 	pcap_if_t *pcapdevs;
-	pcap_if_t *pdev;
+	pcap_if_t *pdev, *selected;
 	intf_t *intf;
 	MIB_IFROW ifrow;
 
@@ -424,6 +424,7 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 	   its interface list from the registry; dnet gets it from GetIfList.
 	   We must match them up using values common to both data sets. We do
 	   it by comparing hardware addresses and interface descriptions. */
+	selected = NULL;
 	for (pdev = pcapdevs; pdev != NULL; pdev = pdev->next) {
 		PACKET_OID_DATA *data;
 		u_char buf[512];
@@ -447,6 +448,11 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 				goto close_adapter;
 		}
 
+		/* A hardware address match is good enough, but we will prefer
+		   an additional match with the description if available. */
+		if (selected == NULL)
+			selected = pdev;
+
 		/* Distinct interfaces can have the same MAC address in the
 		   case of "teamed" interfaces. Additionally check the
 		   description string. */
@@ -457,7 +463,9 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 		if (wcscmp(descr_wc, (wchar_t *) data->Data) != 0)
 			goto close_adapter;
 
-		/* Found it. */
+		/* This matches both the hardware address and description, so
+		   it's the best candidate. */
+		selected = pdev;
 		PacketCloseAdapter(lpa);
 		break;
 
@@ -465,10 +473,10 @@ close_adapter:
 		PacketCloseAdapter(lpa);
 	}
 
-	if (pdev != NULL)
-		strlcpy(pcapdev, pdev->name, pcapdevlen);
+	if (selected != NULL)
+		strlcpy(pcapdev, selected->name, pcapdevlen);
 	pcap_freealldevs(pcapdevs);
-	if (pdev == NULL)
+	if (selected == NULL)
 		return -1;
 	else
 		return 0;
