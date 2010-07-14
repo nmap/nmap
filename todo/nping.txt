@@ -248,6 +248,10 @@ o [EM] Things to decide on:
 
 * Consider adding RFC-style output for send/recv packets.
 
+* Add support for custom IP binding: if user supplies -S then
+  the echo side-channel (and also in TCP-Connect mode) then the TCP
+  connection is established from that IP. 
+
 /*****************************************************************************
  * Things that have been solved already                                      *
  *****************************************************************************/
