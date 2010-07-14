@@ -28,7 +28,7 @@
     </cmdsynopsis>
   </refsynopsisdiv>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-description">
     <title>Description</title>
 
     <para>
@@ -60,7 +60,7 @@
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-options">
     <title>Options Summary</title>
 
     <variablelist>
@@ -109,7 +109,7 @@
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-example">
     <title>Example</title>
 
     <para>
@@ -160,7 +160,7 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-output">
     <title>Output</title>
 
     <para>
@@ -314,7 +314,7 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     </example>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-periodic">
     <title>Periodic Diffs</title>
 
     <para>
@@ -355,7 +355,7 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-exit-code">
     <title>Exit Code</title>
 
     <para>
@@ -370,7 +370,7 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-bugs">
     <title>Bugs</title>
     <para>
     Report bugs to the <citetitle>nmap-dev</citetitle> mailing list at
@@ -378,7 +378,7 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-history">
     <title>History</title>
 
     <para>
@@ -393,7 +393,7 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-authors">
     <title>Authors</title>
 
     <para>
@@ -404,7 +404,7 @@ ln -sf scan-$date.xml scan-prev.xml
     </para>
   </refsect1>
 
-  <refsect1>
+  <refsect1 id="ndiff-man-web">
     <title>Web site</title>
 
     <para>
