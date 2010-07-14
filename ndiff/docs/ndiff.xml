@@ -297,20 +297,20 @@ $ ndiff -v scanme-1.xml scanme-2.xml
             <extraports count="98" state="filtered"/>
             <port portid="80" protocol="tcp">
               <state state="open"/>
-              <service name="http" product="Apache httpd" version="1.3.41.fb1"/>
+              <service name="http" product="Apache httpd"
+                       version="1.3.41.fb1"/>
             </port>
             <port portid="443" protocol="tcp">
               <state state="open"/>
-              <service name="http" product="Apache httpd" tunnel="ssl" version="1.3.41.fb1"/>
+              <service name="http" product="Apache httpd" tunnel="ssl"
+                       version="1.3.41.fb1"/>
             </port>
           </ports>
         </host>
       </b>
     </hostdiff>
   </scandiff>
-</nmapdiff>
-]]>
-</screen>
+</nmapdiff>]]></screen>
     </example>
   </refsect1>
 
