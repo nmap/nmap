@@ -240,10 +240,10 @@ Section "Register Nmap Path" SecRegisterPath
   Call AddToPath 
 SectionEnd 
  
-Section "WinPcap 4.1.1" SecWinPcap 
+Section "WinPcap 4.1.2" SecWinPcap 
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
-  File ..\winpcap\winpcap-nmap-4.11.exe 
+  File ..\winpcap\winpcap-nmap-4.12.exe 
   ; If the Nmap installer was launched using /S then pass some arguments to WinPcap
   IfSilent winpcap_silent winpcap_loud
   winpcap_silent:
@@ -254,12 +254,12 @@ Section "WinPcap 4.1.1" SecWinPcap
     StrCmp $2 "NO" 0 NoSkipNPFStartup
     StrCpy $1 "/NPFSTARTUP=NO $1"
     NoSkipNPFStartup:
-    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe" $1 /S' 
+    ExecWait '"$INSTDIR\winpcap-nmap-4.12.exe" $1 /S' 
     Goto delete_winpcap
   winpcap_loud:
-    ExecWait '"$INSTDIR\winpcap-nmap-4.11.exe"' 
+    ExecWait '"$INSTDIR\winpcap-nmap-4.12.exe"' 
   delete_winpcap:
-  Delete "$INSTDIR\winpcap-nmap-4.11.exe" 
+  Delete "$INSTDIR\winpcap-nmap-4.12.exe" 
 SectionEnd 
 
 Section "Network Performance Improvements" SecPerfRegistryMods 

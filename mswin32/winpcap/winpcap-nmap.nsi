@@ -12,6 +12,7 @@
 
 ;; Rob Nicholls
 ;; Updated to 4.1.1, October 2009
+;; Updated to 4.1.2, July 2010
 
 SetCompressor /SOLID /FINAL lzma
 
@@ -25,10 +26,10 @@ SetCompressor /SOLID /FINAL lzma
 ;General
 
 ; The name of the installer
-Name "WinPcap (Nmap) 4.1.1"
+Name "WinPcap (Nmap) 4.1.2"
 
 ; The file to write
-OutFile "winpcap-nmap-4.11.exe"
+OutFile "winpcap-nmap-4.12.exe"
 
 RequestExecutionLevel admin
 
@@ -42,10 +43,10 @@ Function un.is64bit
   System::Call "kernel32::IsWow64Process(i s, *i .r0)"
 FunctionEnd
 
-VIProductVersion "4.1.0.1753"
-VIAddVersionKey /LANG=1033 "FileVersion" "4.1.0.1753"
+VIProductVersion "4.1.0.2001"
+VIAddVersionKey /LANG=1033 "FileVersion" "4.1.0.2001"
 VIAddVersionKey /LANG=1033 "ProductName" "WinPcap"
-VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.1.1 installer"
+VIAddVersionKey /LANG=1033 "FileDescription" "WinPcap 4.1.2 installer"
 VIAddVersionKey /LANG=1033 "LegalCopyright" ""
 
 ;--------------------------------
@@ -130,7 +131,7 @@ Function .onInit
   var /GLOBAL inst_ver
   var /GLOBAL my_ver
   var /GLOBAL npf_startup
-  StrCpy $my_ver "4.1.0.1753"
+  StrCpy $my_ver "4.1.0.2001"
   StrCpy $npf_startup "YES"
 
   ; Always use the requested /D= $INSTDIR if given.
@@ -453,8 +454,8 @@ Section "WinPcap" SecWinPcap
 
     ; Write the rest of the uninstall keys for Windows
 
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName" "WinPcap 4.1.1"
-    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion" "4.1.0.1753"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName" "WinPcap 4.1.2"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion" "4.1.0.2001"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "Publisher" "CACE Technologies"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "URLInfoAbout" "http://www.cacetech.com"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "URLUpdateInfo" "http://www.winpcap.org"
