@@ -326,6 +326,8 @@ o [Nping] Fixed a bug that caused ICMP Router Advertisement entries to
   be set in host byte order rather than proper network byte
   order. [Luis]
 
+o [Nping] Fixed a segfault caused by bad --data values. [Greg Skoczek]
+
 o The Mac OS X installer is now built with MacPorts 1.9.1 rather than
   1.8.2. Among other changes, this fixes a segmentation fault reported
   by some OS X 10.6.3 users.
