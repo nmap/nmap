@@ -48,12 +48,13 @@ anonymous bind will be used as a last attempt.
 -- ------
 -- o Martin Swende who provided me with the initial code that got me started writing this.
 
--- Version 0.4
+-- Version 0.5
 -- Created 01/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/20/2010 - v0.2 - added SSL support
 -- Revised 01/26/2010 - v0.3 - Changed SSL support to comm.tryssl, prefixed arguments with ldap, changes in determination of namingContexts
 -- Revised 02/17/2010 - v0.4 - Added dependencie to ldap-brute and the abilitity to check for ldap accounts (credentials) stored in nmap registry
 --                             Capped output to 20 entries, use ldap.maxObjects to override
+-- Revised 07/16/2010 - v0.5 - Fixed bug with empty contexts, added objectClass person to qfilter users, add error msg for invalid credentials
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -125,8 +126,9 @@ function action(host,port)
 		table.insert(contexts, base)
 	end
 
-	if #contexts == 0 then
+	if ( not(contexts) or #contexts == 0 ) then
 		stdnse.print_debug( "Failed to retrieve namingContexts" )
+		contexts = {""}
 	end
 
 	-- perform a bind only if we have valid credentials
@@ -136,7 +138,7 @@ function action(host,port)
 		
 		if not status then
 			stdnse.print_debug( string.format("ldap-search failed to bind: %s", errmsg) )
-			return
+			return "  \n  ERROR: Authentication failed"
 		end
 	-- or if ldap-brute found us something
 	elseif ( accounts ) then
@@ -154,7 +156,8 @@ function action(host,port)
 		filter = { op=ldap.FILTER._or, val= 
 						{ 
 							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='user' }, 
-							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='posixAccount' } 
+							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='posixAccount' },
+							{ op=ldap.FILTER.equalityMatch, obj='objectClass', val='person' } 
 						}
 				   }
 	elseif qfilter == "computers" or qfilter == "computer" then
@@ -196,7 +199,7 @@ function action(host,port)
 		result_part.name = ""
 
 		if ( context ) then
-			result_part.name = ("Context: %s"):format(context)
+			result_part.name = ("Context: %s"):format(#context > 0 and context or "<empty>")
 		end
 		if ( qfilter ) then
 			result_part.name = result_part.name .. ("; QFilter: %s"):format(qfilter)
@@ -230,7 +233,7 @@ function action(host,port)
 	local output = stdnse.format_output(true, result )
 	
 	if ( maxObjects ~= -1 and objCount == maxObjects ) then
-		output = output .. (" \n\nResult limited to %d objects"):format(maxObjects)
+		output = output .. (" \n\nResult limited to %d objects (see ldap.maxobjects)"):format(maxObjects)
 	end
 	
 	return output
