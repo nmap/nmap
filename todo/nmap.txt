@@ -49,6 +49,12 @@ o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Services (like sysinternals' psservice)
   [Drazen]
 
+o [NSE] Review new brute, vnc, and svn scripts by Patrik.  This guy is
+  a coding machine :).  http://seclists.org/nmap-dev/2010/q3/111
+
+o Ncat should probably support SSL Server Name Indication (SNI). See
+  this thread: http://seclists.org/nmap-dev/2010/q3/112
+
 o [NSE] Consider using .idl files rather than manually coding all the
   MSRPC stuff.  The current idea, if we do this, is to have an
   application in nmap-private-dev which converts .idl files to LUA
