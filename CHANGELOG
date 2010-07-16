@@ -1,33 +1,35 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.35DC1 [2010-07-16]
+
+o [NSE] Added 17 scripts, bringing the total to 131! They are
+  described individually in the CHANGELOG, but here is the list of new
+  ones:
+   afp-serverinfo, db2-brute, dns-cache-snoop, dns-fuzz, ftp-libopie
+   http-php-version, irc-unrealircd-backdoor, ms-sql-brute,
+   ms-sql-config, ms-sql-empty-password, ms-sql-hasdbaccess,
+   ms-sql-query, ms-sql-tables ms-sql-xp-cmdshell, nfs-ls ntp-monlist
+  Learn more about any of these at: http://nmap.org/nsedoc/
+
+o Performed a major OS detection integration run. The database has
+  grown to 2,608 fingerprints (an increase of 262) and many of the
+  existing fingerprints were improved. These include the Apple iPad
+  and Cisco IOS 15.X devices. We also received many fingerprints for
+  ancient Microsoft systems including MS DOS with MS Networking Client
+  3.0, Windows 3.1, and Windows NT 3.1. David posted highlights of his
+  integration work at http://seclists.org/nmap-dev/2010/q2/283.
+
+o Performed a large version detection integration run. The number of
+  signatures has grown to 6,622 (an increase of 279). New signatures
+  include a remote administrative backdoor that a school famously used
+  to spy on students, an open source digital currency scheme named
+  Bitcoin, and game servers for EVE Online, l2emurt Lineage II, and Frozen
+  Bubble. You can read David's highlights at
+  http://seclists.org/nmap-dev/2010/q2/385.
+
 o [NSE] Added nfs-ls.nse, which lists NFS exported files and their
   attributes. The nfs-acls and nfs-dirlist scripts were deleted 
   because all their features are supported by this script. [Djalal]
-
-o [NSE] Added irc-unrealircd-backdoor.nse, which detects a backdoor
-  that was in UnrealIRCd source code distributions between November
-  2009 and June 2010. See
-  http://www.unrealircd.com/txt/unrealsecadvisory.20100612.txt.
-  [Vlatko Kosturjak, Ron, David]
-
-o [NSE] Added ftp-libopie.nse by Gutek. This script checks for an
-  off-by-one stack overflow vulnerability in libopie by giving the FTP
-  service an overly long name. See
-  http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc for
-  details.
-
-o [NSE] Added dns-cache-snoop.nse by Eugene Alexeev. This script does
-  cache snooping by either sending non-recursive queries or by measuring
-  response times.
-
-o Added http-php-version.nse from Gutek. This script retrieves
-  version-specific pages through a couple of magic PHP queries, which
-  can identify the PHP version even when a server doesn't advertise
-  it.
-
-o [NSE] Added ntp-monlist.nse which discovers NTP server, peer and
-  client hosts associated with a scanned target by sending NTPv2
-  Private Mode 'monitor' and 'peers' commands to the target. [jah]
 
 o [NSE] Add new DB2 library and two scripts
   - db2-brute.nse uses the unpwdb library to guess credentials for DB2
@@ -47,36 +49,10 @@ o [NSE] Added a library for Microsoft SQL Server and 7 new scripts. The new
     users
   [Patrik]
 
-o [NSE] New script dns-fuzz launches a fuzzing attack against DNS
-  servers. Added a new category - fuzzer - for scripts like this.
-  [Michael Pattrick]
-
 o [NSE] Added the afp-serverinfo script that gets a hostname, IP
   addresses, and other configuration information from an AFP server.
-  The script, and a patch to the afp library, were originally
-  contributed by Andrew Orr and were subsequently enhanced by Patrik
-  and David.
-
-o Performed a large OS detection integration run. The database has
-  grown to 2,608 fingerprints (an increase of 262) and many of the
-  existing fingerprints were improved. These include the Apple iPad
-  and Cisco IOS 15.X devices. We also received many fingerprints for
-  ancient Microsoft systems including MS DOS with MS Networking Client
-  3.0, Windows 3.1, and Windows NT 3.1. David posted highlights of his
-  integration work at http://seclists.org/nmap-dev/2010/q2/283.
-
-o Performed a large version detection integration run. The number of
-  signatures has grown to 6,622 (an increase of 279). New signatures
-  include a remote administrative backdoor that a school famously used
-  to spy on students, an open source digital currency scheme named
-  bitcoin, and game servers for EVE Online, l2emurt Lineage II, and Frozen
-  Bubble. You can read David's highlights at
-  http://seclists.org/nmap-dev/2010/q2/385.
-
-o UDP payloads are now stored in an external data file, nmap-payloads,
-  instead of being hard-coded in the executable. This makes it easier
-  to add your own payloads or disable those you find problematic. [Jay
-  Fink, David]
+  The script, and a patch to the afp library, were contributed by
+  Andrew Orr and subsequently enhanced by Patrik and David.
 
 o [NSE] Added additional vulnerability checks to smb-check-vulns.nse:
   The Windows RAS RPC service vulnerability MS06-025
@@ -86,15 +62,12 @@ o [NSE] Added additional vulnerability checks to smb-check-vulns.nse:
   Note that these are only run if you specify the "unsafe" script arg
   because the implemented test crashes vulnerable services. [Drazen]
 
-o Ports are now considered open during a SYN scan if a SYN packet
-  (without the ACK flag) is received in response. This can be due to
-  an extremely rare TCP feature known as a simultaneous open or split
-  handshake connection. see http://bit.ly/tcp-sh and
-  http://seclists.org/nmap-dev/2010/q2/723. [Jah]
+o [NSE] Added dns-cache-snoop.nse by Eugene Alexeev. This script performs
+  cache snooping by either sending non-recursive queries or by measuring
+  response times.
 
-o The Windows executable installer now uses LZMA compression instead
-  of zlib, making it about 15% smaller. See
-  http://seclists.org/nmap-dev/2010/q2/1011 for test results. [David]
+o [Zenmap] Added the ability to print Nmap output to a
+  printer. [David]
 
 o [Nmap, Ncat, Nping] The default unit for time specifications is now
   seconds, not milliseconds, and times may have a decimal point. 1000
@@ -133,10 +106,63 @@ o [NSE] Scripts which take an argument for a time duration can now
   its argument as being in milliseconds, now defaults to seconds;
   append "ms" to continue using the same numbers. [David]
 
+o [NSE] Added irc-unrealircd-backdoor.nse, which detects a backdoor
+  that was in UnrealIRCd source code distributions between November
+  2009 and June 2010. See http://seclists.org/nmap-dev/2010/q2/826.
+  [Vlatko Kosturjak, Ron, David]
+
+o Ports are now considered open during a SYN scan if a SYN packet
+  (without the ACK flag) is received in response. This can be due to
+  an extremely rare TCP feature known as a simultaneous open or split
+  handshake connection. see http://bit.ly/tcp-sh and
+  http://seclists.org/nmap-dev/2010/q2/723. [Jah]
+
 o [Ncat] In listen mode, the --exec and --sh-exec options now accept a
   single connection and then exit, just like in normal listen mode.
   Use the --keep-open option to get the old default inetd-like
   behavior. This was suggested by David Millis. [David]
+
+o [NSE] Added ftp-libopie.nse by Gutek. This script checks for an
+  off-by-one stack overflow vulnerability in libopie by giving the FTP
+  service an overly long name. See
+  http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc for
+  details.
+
+o [NSE] Added ntp-monlist.nse which discovers NTP server, peer and
+  client hosts associated with a scanned target by sending NTPv2
+  Private Mode 'monitor' and 'peers' commands to the target. [Jah]
+
+o [NSE] Added http-php-version.nse from Gutek. This script retrieves
+  version-specific pages through a couple of magic PHP queries, which
+  can identify the PHP version even when a server doesn't advertise
+  it.
+
+o [NSE] New script dns-fuzz launches a fuzzing attack against DNS
+  servers. Added a new category - fuzzer - for scripts like this.
+  [Michael Pattrick]
+
+o David made many improvements to the NSEDoc for individual scripts,
+  including adding @output sections to scripts which didn't have them.
+  He also improved the generated HTML with features like
+  auto-generating usage strings if the scripts don't include their own
+  and allowing the giant sidebar lists of scripts/libraries to expand
+  and contract.  See http://nmap.org/nsedoc/.
+
+o UDP payloads are now stored in an external data file, nmap-payloads,
+  instead of being hard-coded in the executable. This makes it easier
+  to add your own payloads or disable those you find problematic. [Jay
+  Fink, David]
+
+o The Windows executable installer now uses LZMA compression instead
+  of zlib, making it about 15% smaller. See
+  http://seclists.org/nmap-dev/2010/q2/1011 for test results. [David]
+
+o Open XML elements are now closed in case of a fatal error, so the
+  output should at least be well-formed. There are new attributes
+  "exit" and "errormsg" in the finished element. "exit" is "success"
+  or "error". When it is "error", the "errormsg" attribute contains
+  the error message. Thanks to Grant Bartlett, who found a typo in the
+  new output. [David]
 
 o Fixed name resolution in environments where gethostbyname can return
   IPv6 (or other non-IPv4 addresses). In such an environment, Nmap
@@ -146,20 +172,15 @@ o Fixed name resolution in environments where gethostbyname can return
   RES_OPTIONS=inet6 in the environment. This was reported by Mats Erik
   Andersson, who also suggested the fix. [David]
 
-o Open XML elements are now closed in case of a fatal error, so the
-  output should at least be well-formed. There are new attributes
-  "exit" and "errormsg" in the finished element. "exit" is "success"
-  or "error". When it is "error", the "errormsg" attribute contains
-  the error message. Thanks to Grant Bartlett, who found a typo in the
-  new output. [David]
-
 o Fixed the assignment of interface aliases to directly connected
   routes on Linux, which was broken in 5.30BETA1 (it always assigned
   the base interface instead of the alias). This was visible in the
   host.interface variable passed to NSE scripts. The bug was reported
   Victor Rudnev. [David]
 
-o [Zenmap] Added the ability to print Nmap output to a printer. [David]
+o When Nmap is passed a hostname such as google.com which resolves to
+  several IP addresses, Nmap now prints each IP address.  It still
+  only scans the first one in the returned list. [David]
 
 o Nmap now works if you specify several target host names which
   resolve to the same IP address.  This can be useful when you are
@@ -167,37 +188,52 @@ o Nmap now works if you specify several target host names which
   specific to each site name even though they reside on the same
   machine. [David]
 
-o David made many improvements to the NSEDoc for individual scripts,
-  including adding @output sections to scripts which didn't have them.
-  He also improved the generated HTML with features like
-  auto-generating usage strings if the scripts don't include their own
-  and allowing the giant sidebar lists of scripts/libraries to expand
-  and contract.  See http://nmap.org/nsedoc/.
-
-o [NSE] Added checking for boot.ini to http-passwd.nse. [Gutek]
+o Made a list of current Nmap SVN committers:
+  http://nmap.org/svn/docs/committers.txt
 
 o Added a new library, libnetutil, which contains about 2,700 lines of
-  networking related code which is now shared between Nman and Nping
+  networking related code which is now shared between Nmap and Nping
   (it was previously duplicated by each tool). [Luis, David]
 
-o When Nmap is passed a hostname such as google.com which resolves to
-  several IP addresses, Nmap now prints each IP.  It still only scans
-  the first one in the returned list. [David]
+o [NSE] http-passwd.nse now also checks for boot.ini to support
+  Windows targets. [Gutek]
 
 o Removed --interactive mode, a miniature shell whose primary purpose
   was to hide command line arguments from the process list. It had
   been broken (would segfault during the second scan) for at least 9
   months and was rarely used. The fact that it was broken was reported
-  by Juan Carlos Castro y Castro. [David]
+  by Juan Carlos Castro. [David]
+
+o Added a version probe, match line, and UDP payload for the
+  serialnumberd service of Mac OS X Server. This service overrides
+  firewall settings to make itself visible, so it's useful for host
+  discovery. [Patrik]
 
 o Improved service detection match lines for:
   o Oracle Enterprise Manager Agent and mupdate by Matt Selsky
   o Twisted web server, Apple Filing Protocol, Apple Mac OS X Password
     Server, XAVi XG6546p Wireless Gateway, Sun GlassFish
     Communications Server, and Comdasys, SIParator and Glassfish SIP
-    services by Patrik
+    by Patrik
   o PostgreSQL, Cisco Site Selector ftpd, and LanSafe UPS monitoring
     HTTPd by Tom Sellers
+
+o Improved our brute force password guessing list by mixing in some
+  data sent in by Solar Designer of John the Ripper fame.
+
+o [Zenmap] IP addresses are now sorted by octet rather than their
+  string representation. For example, 10.1.1.2 is now sorted before
+  10.1.1.10. This problem was reported by Norris Carden. [David]
+
+o [NSE] Added UDP header parsing support to packet.lua. [jah]
+
+o Fixed a bug in Libpcap which lead to Nmap hanging forever in some
+  cases on 64-bit Mac OS X 10.6, 10.6.1, and 10.6.3.  The fix was
+  actually already available in upstream Libpcap, just not released.
+  We also had to make Nmap build with its own Libpcap on 64-bit OS X
+  if an already-installed system Libpcap has this bug. [David]
+
+o Updated our Winpcap to the new 4.1.2 release [Rob Nicholls]
 
 o [NSE] Fixed a bug in qscan.nse which gave an error if a confidence
   level of 0.9995 was used.  Thanks to Marcin Hoffmann for noticing
@@ -209,11 +245,6 @@ o [libpcap] Added a --disable-packet-ring option to force the use of
   structures on 32- and 64-bit architectures, so a 32-bit program will
   not run correctly on a 64-bit kernel. The older mechanism does not
   have this flaw.
-
-o Added a version probe, match line, and UDP payload for the
-  serialnumberd service of Mac OS X Server. This service overrides
-  firewall settings to make itself visible, so it's useful for host
-  discovery. [Patrik]
 
 o Fixed some errors in nmap-os-db, probably caused by incorrect string
   replacement during integration. This patch is from James Cook.
@@ -230,12 +261,13 @@ o Nmap now works with "teamed" network interfaces on Windows. In order
   symptom of this problem was all scans failing except when
   --unprivileged was used. Norris Carden reported this bug. [David]
 
-o [Ncat] Now prints the connecting source port with the IP address in
-  listen mode when verbosity is turned on. [Rebellis]
+o [Ncat] When receiving a connection/datagram in listen mode, Ncat now
+  prints the connecting source port along with the IP address (when
+  verbosity is enabled). [Rebellis]
 
-o Fixed a problem where the time variable used in port scanning for
-  comparison to other times (for probe timeouts, etc) could vary based
-  on the debugging level. [Kris]
+o Fixed a problem where the time variable used in some port scanning
+  algorithms (for probe timeouts, etc) could vary based on the
+  debugging level. [Kris]
 
 o Moved the parse_long function from ncat to nbase for better reuse,
   and used it to simplify netmask parsing code. [William Pursell]
@@ -247,15 +279,21 @@ o Added EPROTO to the list of known error codes in service scan. Daniel
   error)". We suspect this was caused by a forged ICMP packet sent by an
   active firewall. [David]
 
+o [NSE] Improved smtp-commands.nse to work against more mail servers,
+  made it take an smtp-commands.domain script argument, and rewrote it
+  in the style of other smtp scripts. [Jason DePriest]
+
 o [NSE] Made smtp-commands run for the services smtp, smtps,
   submission rather than just smtp.  The other smtp scripts already do
   this. [David]
 
-o Made a list of Nmap SVN commiters:
-  http://nmap.org/svn/docs/committers.txt
-
 o [NSE] The dns-recursion script now marks the port as open when it
   gets a response. [Olivier M]
+
+o [Nping] A big correctness and code cleanliness audit was performed
+  which resulted in many bugs being fixed and much more code being
+  shared with Nmap rather than duplicated. A structured testing
+  script system was also created. [Luis, David]
 
 o [Nping] A big correctness and code cleanliness audit was performed
   which resulted in many bugs being fixed and much more code being
@@ -274,7 +312,7 @@ o [Nping] When a RST packet is received in response to a connection
   refused" rather than "Operation now in progress". [Luis]
 
 o [Nping] Fixed a bug which caused failure when the first supplied
-  target was not resolvable (eg: nping bogushost.fkz scanme.insecure.com
+  target was not resolvable (e.g.: nping bogushost.fkz scanme.insecure.com
   tcpdump.com). [Luis]
 
 o [Nping] Fixed some bugs in the BPF filter creation to avoid capture
@@ -284,7 +322,7 @@ o [Nping] Fixed some bugs in the BPF filter creation to avoid capture
 o [Nping] Fixed a bug which prevented ARP replies from being displayed
   properly. [Luis]
 
-o [Nping] Fixed a bug that caused ICMP Router Advertisment entries to
+o [Nping] Fixed a bug that caused ICMP Router Advertisement entries to
   be set in host byte order rather than proper network byte
   order. [Luis]
 
@@ -299,10 +337,6 @@ o Nsock now supports an option to remove its Pcap support.  This
   the DebugNoPcap or ReleaseNoPcap configurations in Visual C++ on
   Windows.
 
-o [NSE] Improved smtp-commands.nse to work against more mail servers,
-  made it take an smtp-commands.domain script argument, and rewrote it
-  in the style of other smtp scripts. [Jason DePriest]
-
 o Sped up compilation by not building both shared and static libdnet
   libraries--we only use the static one. [David]
 
@@ -311,9 +345,7 @@ o [NSE] Improved error handling and reporting and re-designed communication
 
 o Upgraded the included libpcap to version 1.1.1. [David]
 
-o Updated nmap-mac-prefixes to the latest IEEE data as of 2010-07-13.
-
-o [NSE] Add some special use IPv4 addresses to isPrivate which are
+o [NSE] Add some special-use IPv4 addresses to isPrivate which are
   described in RFC 5736 and RFC 5737, published in Jan 2010. Improve
   performance of isPrivate for IPv4 addresses by using ip_in_range
   less frequently. Add an extra return value to isPrivate - when the
@@ -321,21 +353,14 @@ o [NSE] Add some special use IPv4 addresses to isPrivate which are
   string representing the special use assignment in which the supplied
   address is located. [jah]
 
-o Fix compilation on Opensolaris by making the Autoconf check for
-  PF_PACKET in our libdnet Linux-specific.  Recent versions of
-  OpenSolaris support PF_PACKET, but not in an entirely compatible way
-  with the Linux approach. Problem reported by Darren Reed. A few
-  other minor compatibility changes were needed as well. [David]
-
-o Improved our brute force password guessing list with some data sent
-  in by Solar Designer of John the Ripper fame.
+o Fix compilation on OpenSolaris.  We had to make the libdnet autoconf
+  check for PF_PACKET Linux-specific.  Recent versions of OpenSolaris
+  support PF_PACKET, but not in a way which is entirely compatible
+  with the Linux approach. This problem was reported by Darren Reed. A
+  few other minor compatibility changes were made as well. [David]
 
 o [NSE] Added script arguments "username" and "password" to ftp-bounce
   to override the default anonymous:IEUser@ login combination. [Kris]
-
-o [Zenmap] IP addresses are now sorted by octet rather than their
-  string representation. For example, 10.1.1.2 is now sorted before
-  10.1.1.10. This problem was reported by Norris Carden. [David]
 
 o [NSE] Added port number sorting to dns-service-discovery.nse. [Patrik]
 
@@ -346,6 +371,8 @@ o [NSE] Fixed this dns.lua error reported by Eugene Alexeev:
   nselib/dns.lua:110: attempt to get length of field 'dtype' (a number value)
   [Jah]
 
+o Updated nmap-mac-prefixes to the latest IEEE data as of 2010-07-13.
+
 o Updated IANA IP address space assignment list for random IP (-iR)
   generation. [Kris]
 
@@ -353,17 +380,9 @@ o Created a new directory for storing todo lists for Nmap and related
   projects.  You can see what we're working on and planning by
   visiting http://nmap.org/svn/todo/.
 
-o [NSE] Removed explicit timelimit checking from ms-sql-brute,
+o [NSE] Removed explicit time limit checking from ms-sql-brute,
   pgsql-brute, mysql-brute, ldap-brute, and afp-brute. The unpwdb
   library does this automatically now. [David]
-
-o [NSE] Added UDP header parsing support to packet.lua. [jah]
-
-o Fixed a bug in libpcap which lead to Nmap hanging forever in some
-  cases on 64-bit Mac OS X 10.6, 10.6.1, and 10.6.3.  The fix was
-  actually already available in upstream libpcap, just not released.
-  We also had to make Nmap build with its own libpcap on 64-bit OS X
-  if an already-installed system libpcap has this bug. [David]
 
 o [NSE] Correct global access errors in afp.lua reported by Patrick Donnelly
   [Patrik]
@@ -380,8 +399,9 @@ o [NSE] Fixed a bug which would prevent rpcinfo.nse from returning any
   name. [Patrik]
 
 o [NSE] The ftp-anon script is now much smarter about parsing server
-responses and detecting successful (or not) logins.  It now knows how
-to send the ACCT command where appropriate as well. [Rob Nicholls]
+  responses and detecting successful (or not) logins.  It now knows
+  how to send the ACCT command where appropriate as well. [Rob
+  Nicholls]
 
 o Normalized a bunch of version detection entries with "webserver" in
   the description.  In most cases this was changed to "httpd".
@@ -391,7 +411,7 @@ o [Ncat] Fixed the --crlf option not to insert an extra \r byte in the
   (should be rare). [David]
 
 o [NSE] Fixed bug in rpc.lua library that incorrectly required file handles
-  to be 32 octects when calling the ReadDir function. The bug was reported by
+  to be 32 octets when calling the ReadDir function. The bug was reported by
   Djalal Harouni. [Patrik]
 
 Nmap 5.30BETA1 [2010-03-29]
