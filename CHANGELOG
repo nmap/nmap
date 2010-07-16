@@ -15,16 +15,16 @@ o Performed a major OS detection integration run. The database has
   grown to 2,608 fingerprints (an increase of 262) and many of the
   existing fingerprints were improved. These include the Apple iPad
   and Cisco IOS 15.X devices. We also received many fingerprints for
-  ancient Microsoft systems including MS DOS with MS Networking Client
+  ancient Microsoft systems including MS-DOS with MS Networking Client
   3.0, Windows 3.1, and Windows NT 3.1. David posted highlights of his
   integration work at http://seclists.org/nmap-dev/2010/q2/283.
 
 o Performed a large version detection integration run. The number of
   signatures has grown to 6,622 (an increase of 279). New signatures
   include a remote administrative backdoor that a school famously used
-  to spy on students, an open source digital currency scheme named
-  Bitcoin, and game servers for EVE Online, l2emurt Lineage II, and Frozen
-  Bubble. You can read David's highlights at
+  to spy on its students, an open source digital currency scheme named
+  Bitcoin, and game servers for EVE Online, l2emurt Lineage II, and
+  Frozen Bubble. You can read David's highlights at
   http://seclists.org/nmap-dev/2010/q2/385.
 
 o [NSE] Added nfs-ls.nse, which lists NFS exported files and their
