@@ -8,7 +8,8 @@ o [NSE] Added 17 scripts, bringing the total to 131! They are
    afp-serverinfo, db2-brute, dns-cache-snoop, dns-fuzz, ftp-libopie
    http-php-version, irc-unrealircd-backdoor, ms-sql-brute,
    ms-sql-config, ms-sql-empty-password, ms-sql-hasdbaccess,
-   ms-sql-query, ms-sql-tables ms-sql-xp-cmdshell, nfs-ls ntp-monlist
+   ms-sql-query, ms-sql-tables, ms-sql-xp-cmdshell, nfs-ls,
+   ntp-monlist
   Learn more about any of these at: http://nmap.org/nsedoc/
 
 o Performed a major OS detection integration run. The database has
@@ -233,7 +234,7 @@ o Fixed a bug in Libpcap which lead to Nmap hanging forever in some
   We also had to make Nmap build with its own Libpcap on 64-bit OS X
   if an already-installed system Libpcap has this bug. [David]
 
-o Updated our Winpcap to the new 4.1.2 release [Rob Nicholls]
+o Updated our WinPcap to the new 4.1.2 release. [Rob Nicholls]
 
 o [NSE] Fixed a bug in qscan.nse which gave an error if a confidence
   level of 0.9995 was used.  Thanks to Marcin Hoffmann for noticing
