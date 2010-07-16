@@ -2559,7 +2559,7 @@ timing out and retransmitting while the response is in transit.</para>
 reasonable aggressive value.  If
 routing is involved, ping a host on the network first with the ICMP
 ping utility, or with a custom packet crafter such as
-<command>hping2</command><indexterm><primary><command>hping2</command></primary></indexterm>
+Nping<indexterm><primary>Nping</primary></indexterm>
 that is
 more likely to get through a firewall.  Look at the maximum round trip
 time out of ten packets or so.  You might want to double that for the
