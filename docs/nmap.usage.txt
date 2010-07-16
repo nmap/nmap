@@ -94,7 +94,7 @@ OUTPUT:
   --no-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   -6: Enable IPv6 scanning
-  -A: Enables OS detection and Version detection, Script scanning and Traceroute
+  -A: Enable OS detection, version detection, script scanning, and traceroute
   --datadir <dirname>: Specify custom Nmap data file location
   --send-eth/--send-ip: Send using raw ethernet frames or IP packets
   --privileged: Assume that the user is fully privileged
