@@ -1,4 +1,4 @@
-Nmap 5.30BETA1 ( http://nmap.org )
+Nmap 5.35DC1 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.

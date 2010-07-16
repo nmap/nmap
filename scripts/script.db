@@ -50,6 +50,7 @@ Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "safe", "vuln", } }
 Entry { filename = "jdwp-version.nse", categories = { "version", } }
 Entry { filename = "ldap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }

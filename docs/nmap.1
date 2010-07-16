@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 06/07/2010
+.\"      Date: 07/15/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "06/07/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/15/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -111,7 +111,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.30BETA1 ( http://nmap\&.org )
+Nmap 5\&.35DC1 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1184,13 +1184,13 @@ File and directory names may be relative or absolute\&. Absolute names are used 
 \fB\-\-datadir\fR
 .RE
 .RS 4
-\fB$NMAPDIR\fR
+\fB$NMAPDIR\fR.\" NMAPDIR environment variable
 .RE
 .RS 4
-~/\&.nmap (not searched on Windows)
+~/\&.nmap (not searched on Windows).\" .nmap directory
 .RE
 .RS 4
-\fINMAPDATADIR\fR
+\fINMAPDATADIR\fR.\" NMAPDATADIR
 .RE
 .RS 4
 the current directory
