@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate User Accounts through SNMP
+Attempts to enumerate Windows user accounts through SNMP
 ]]
 
 ---
