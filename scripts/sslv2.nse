@@ -1,5 +1,5 @@
 description = [[
-Determines whether the server supports obsolete and less secure SSL-v2, and discovers which ciphers it
+Determines whether the server supports obsolete and less secure SSLv2, and discovers which ciphers it
 supports.
 ]]
 

@@ -1,9 +1,10 @@
 description = [[
 Gets database tables from a CouchDB database.
+
 For more info about the CouchDB HTTP API, see 
 http://wiki.apache.org/couchdb/HTTP_database_API.
-
 ]]
+
 ---
 -- @usage
 -- nmap -p 5984 --script "couchdb-databases.nse" <host>

@@ -1,6 +1,7 @@
 description = [[
 Gets database statistics from a CouchDB database.
-For more info about the CouchDB HTTP API, see 
+
+For more info about the CouchDB HTTP API and the statistics, see 
 http://wiki.apache.org/couchdb/Runtime_Statistics
 and
 http://wiki.apache.org/couchdb/HTTP_database_API.

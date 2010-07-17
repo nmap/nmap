@@ -1,12 +1,11 @@
 description = [[
 Attempts to retrieve the PHP version from a web server. PHP has a number
 of magic queries that return images or text that can vary with the PHP
-version. A list of these is at http://www.0php.com/php_easter_egg.php.
-This script uses the following queries:
-
+version. This script uses the following queries:
 * <code>/?=PHPE9568F36-D428-11d2-A769-00AA001ACF42</code>: gets a GIF logo, which changes on April Fool's Day.
 * <code>/?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000</code>: gets an HTML credits page.
 
+A list of magic queries is at http://www.0php.com/php_easter_egg.php.
 The script also checks if any header field value starts with
 <code>"PHP"</code> and reports that value if found.
 ]]

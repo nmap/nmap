@@ -1,5 +1,7 @@
 description = [[
-Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2009-3733), originally released by Justin Morehouse and Tony Flick, presented at Shmoocon 2010 (http://fyrmassociates.com/tools.html).
+Checks for a path-traversal vulnerability in VMWare ESX, ESXi, and Server (CVE-2009-3733).
+
+The vulnerability was originally released by Justin Morehouse and Tony Flick, who presented at Shmoocon 2010 (http://fyrmassociates.com/tools.html).
 ]]
 
 ---

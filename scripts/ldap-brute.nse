@@ -1,6 +1,6 @@
 description = [[
-This script makes attempts to brute force LDAP authentication. By default
-it uses the builtin username and password lists to do so. In order to use your
+Attempts to brute-force LDAP authentication. By default
+it uses the built-in username and password lists. In order to use your
 own lists use the <code>userdb</code> and <code>passdb</code> script arguments.
 
 This script does not make any attempt to prevent account lockout!

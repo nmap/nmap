@@ -1,7 +1,7 @@
 description = [[
-Checks if an FTPd is prone to CVE-2010-1938 (OPIE off-by-one stack overflow).
-Vulnerability discovered by Maksymilian Arciemowicz and Adam "pi3" Zabrocki.
-See also http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc.
+Checks if an FTPd is prone to CVE-2010-1938 (OPIE off-by-one stack overflow),
+a vulnerability discovered by Maksymilian Arciemowicz and Adam "pi3" Zabrocki.
+See the advisory at http://nmap.org/r/fbsd-sa-opie.
 Be advised that, if launched against a vulnerable host, this script will crash the FTPd.
 ]]
 
