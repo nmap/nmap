@@ -7,6 +7,9 @@ o Update "History and Future of Nmap"
 o Make sure the long output lines in Nping's man page are OK for the book.
   See r18829 and r18864.
 
+o Add this patch for compilation on OpenSolaris.
+  http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on
+
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
