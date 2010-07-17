@@ -17,8 +17,6 @@ extern "C" {
 #include "osscan.h"
 #include "protocols.h"
 
-/* #include "output.h"  UNNECESSARY?? */
-
 #include "nse_nmaplib.h"
 #include "nse_nsock.h"
 
