@@ -153,7 +153,7 @@ The reference manual is also
 # nmap -sC -p22,111,139 -T4 localhost
 
 Starting Nmap ( http://nmap.org )
-Interesting ports on flog (127.0.0.1):
+Nmap scan report for flog (127.0.0.1)
 PORT     STATE SERVICE
 22/tcp   open  ssh
 | ssh-hostkey: 1024 b1:36:0d:3f:50:dc:13:96:b2:6e:34:39:0d:9b:1a:38 (DSA)
