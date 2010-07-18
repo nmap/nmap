@@ -48,7 +48,8 @@ c = nil
 
 -- sleep is a C function defined in nse_nmaplib.cc.
 
---- Prints a formatted debug message if the current verbosity level is greater
+---
+-- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.
 -- 
 -- This is a convenience wrapper around
