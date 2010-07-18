@@ -2197,7 +2197,7 @@ way.</para>
     <literal>malware</literal>,
     <literal>safe</literal>,
     <literal>version</literal>, and
-    <literal>vuln</literal>,
+    <literal>vuln</literal>.
     These are all described
     <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
