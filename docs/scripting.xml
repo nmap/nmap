@@ -156,19 +156,19 @@ Starting Nmap ( http://nmap.org )
 Interesting ports on flog (127.0.0.1):
 PORT     STATE SERVICE
 22/tcp   open  ssh
-|  ssh-hostkey: 1024 b1:36:0d:3f:50:dc:13:96:b2:6e:34:39:0d:9b:1a:38 (DSA)
-|_ 2048 77:d0:20:1c:44:1f:87:a0:30:aa:85:cf:e8:ca:4c:11 (RSA)
+| ssh-hostkey: 1024 b1:36:0d:3f:50:dc:13:96:b2:6e:34:39:0d:9b:1a:38 (DSA)
+|_2048 77:d0:20:1c:44:1f:87:a0:30:aa:85:cf:e8:ca:4c:11 (RSA)
 111/tcp  open  rpcbind
-|  rpcinfo:  
-|  100000  2,3,4    111/udp  rpcbind  
-|  100024  1      56454/udp  status   
-|_ 100000  2,3,4    111/tcp  rpcbind  
+| rpcinfo:  
+| 100000  2,3,4    111/udp  rpcbind  
+| 100024  1      56454/udp  status   
+|_100000  2,3,4    111/tcp  rpcbind  
 139/tcp  open  netbios-ssn
 
 Host script results:
-|  smb-os-discovery: Unix
-|  LAN Manager: Samba 3.0.31-0.fc8
-|_ Name: WORKGROUP
+| smb-os-discovery: Unix
+| LAN Manager: Samba 3.0.31-0.fc8
+|_Name: WORKGROUP
 
 Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
 </screen>
