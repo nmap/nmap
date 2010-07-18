@@ -221,10 +221,20 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
     <indexterm><primary>script categories</primary></indexterm>
 
     <para>NSE scripts define a list of categories they belong to.
-          Currently defined categories
-          are <literal>auth</literal>, <literal>default</literal>, <literal>discovery</literal>, <literal>external</literal>, <literal>fuzzer</literal>,
-<literal>intrusive</literal>, <literal>malware</literal>, <literal>safe</literal>, <literal>version</literal>,
-and <literal>vuln</literal>.  Category names are not case sensitive.  The following list describes each category.</para>
+    Currently defined categories are
+    <literal>auth</literal>,
+    <literal>default</literal>.
+    <literal>discovery</literal>,
+    <literal>dos</literal>,
+    <literal>exploit</literal>,
+    <literal>external</literal>,
+    <literal>fuzzer</literal>,
+    <literal>intrusive</literal>,
+    <literal>malware</literal>,
+    <literal>safe</literal>,
+    <literal>version</literal>, and
+    <literal>vuln</literal>.
+    Category names are not case sensitive.  The following list describes each category.</para>
 
      <variablelist>
 
@@ -311,6 +321,28 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
             <para>These scripts try to actively discover more about the
             network by querying public registries, SNMP-enabled
             devices, directory services, and the like.  Examples include <literal>html-title</literal> (obtains the title of the root path of web sites), <literal>smb-enum-shares</literal> (enumerates Windows shares), and <literal>snmp-sysdescr</literal> (extracts system details via SNMP).</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="dos script category">&ldquo;<literal>dos</literal>&rdquo; script category</primary></indexterm>
+            <option>dos</option>
+          </term>
+          <listitem>
+            <para>Scripts in this category may cause denial of service, usually
+            because they crash a service as a side effect of testing it for a
+            vulnerability.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="exploit script category">&ldquo;<literal>exploit</literal>&rdquo; script category</primary></indexterm>
+            <option>exploit</option>
+          </term>
+          <listitem>
+            <para>These scripts aim to actively exploit some vulnerability.</para>
           </listitem>
         </varlistentry>
 
@@ -431,7 +463,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
           </term>
           <listitem>
             <para>These scripts check for specific known vulnerabilities and
-            generally only report results if they are found.  Examples include <literal>realvnc-auth-bypass</literal> and <literal>xampp-default-auth</literal>.</para>
+            generally only report results if they are found.  Examples include <literal>realvnc-auth-bypass</literal> and <literal>afp-path-vuln</literal>.</para>
           </listitem>
         </varlistentry>
 
@@ -441,7 +473,7 @@ and <literal>vuln</literal>.  Category names are not case sensitive.  The follow
     <sect2 id="nse-cmd-line-args">
       <title>Command-line Arguments</title>
       <para>
-	These are the five command line arguments specific to script-scanning:
+	These are the five command-line arguments specific to script scanning:
       </para>
       <variablelist>
         <varlistentry>
@@ -754,7 +786,7 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
 <informalexample>
 <indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
 <literallayout>
-<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=C:\Some\Path\To\File'</command>
+<command>nmap -sC --script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=custom'</command>
 </literallayout>
 </informalexample>
       Notice that the script arguments are surrounded in single quotes. For the
@@ -763,13 +795,32 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
       require you to escape quotes or to use different quotes.  See your
       relevant manual. The command results in this Lua table:
 <programlisting>
-{user="foo",pass=",{}=bar",whois={whodb="nofollow+ripe"},userdb="C:\\Some\\Path\\To\\File"}
+nmap.registry.args = {
+	user = "foo",
+	pass = ",{}=bar",
+	whois = {
+		whodb = "nofollow+ripe"
+	},
+	userdb="custom"
+}
 </programlisting>
       You could then access the username <literal>"foo"</literal> inside
       your script with this statement:
 <programlisting>
 local username = nmap.registry.args.user
 </programlisting>
+      </para>
+      <para>
+      All script arguments share a global namespace, the
+      <literal>nmap.registry.args</literal> table. For this reason, short or
+      ambiguous names like <literal>user</literal> are not recommended. Some
+      scripts prefix their arguments with their script name, like
+      <literal>smtp-open-relay.domain</literal>. Others, like
+      <literal>whois</literal> in the example above, take their arguments in a
+      table named after the script. Arguments used by libraries, which can
+      affect many scripts, usually have names beginning with the name of the
+      library, like <literal>smbuser</literal> and
+      <literal>snmpcommunity</literal>.
       </para>
       <para>
       The online NSE Documentation Portal at <ulink
@@ -836,13 +887,13 @@ local username = nmap.registry.args.user
 
   <sect1 id="nse-script-format">
     <title>Script Format</title>
-    <para>NSE scripts consist of two&ndash;five descriptive fields along with either a port or host rule defining when the script should be executed and an action block containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
+    <para>NSE scripts consist of a handful of descriptive fields, either a <literal>portrule</literal> or a <literal>hostrule</literal> defining when the script should be executed, and an <literal>action</literal> function containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
 
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
       <indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
       <para>The <literal>description</literal> field describes what a script is testing
-      for and any important notes the user should be aware of. Depending on script complexity, the description may vary from a few sentences to a few paragraphs.  The first paragraph should be a brief synopsis of the script function suitable for stand-alone presentation to the user.  Further paragraphs may provide much more script detail.
+      for and any important notes the user should be aware of. Depending on script complexity, descriptions may vary in length from a few sentences to a few paragraphs.  The first paragraph should be a brief synopsis of the script function suitable for stand-alone presentation to the user.  Further paragraphs may provide much more script detail.
       </para>
     </sect2>
 
@@ -864,7 +915,7 @@ categories = {"default", "discovery", "safe"}
       <title><literal>author</literal> Field </title>
       <indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
       <para>
-	The <literal>author</literal> field contains the script authors' names and can also contain contact information (such as home page URLs).  We no longer recommend including email addresses because spammers might scrape them from the nsedoc web site.  This optional field is not used by NSE, but gives script authors their due credit or blame. 
+	The <literal>author</literal> field contains the script authors' names and can also contain contact information (such as home page URLs).  We no longer recommend including email addresses because spammers might scrape them from the NSEDoc web site.  This optional field is not used by NSE, but gives script authors their due credit or blame. 
       </para>
     </sect2>
 
@@ -898,20 +949,18 @@ that.</para>
       <indexterm><primary>script dependencies</primary></indexterm>
        <para>
         The <literal>dependencies</literal> field is an array containing the
-        names of scripts that should run before this script. This is used when
+        names of scripts that should run before this script, if they are also selected. This is used when
         one script can make use of the results of another. For example, most of
         the <filename>smb-*</filename> scripts depend on
         <filename>smb-brute</filename>,<indexterm><primary><filename>smb-brute.nse</filename></primary></indexterm>
         because the accounts found by <filename>smb-brute</filename> may allow
-        the other scripts to get more information.
-       </para>
-       <para>
-         When we say <quote>depend on</quote>, we mean it in a loose sense. That is, a
-         script will still run despite missing dependencies.  Given the
-         dependencies, the script will run after all the scripts listed in the
-         dependencies array. This is an example of the
-         <literal>dependencies</literal> table from
-         <filename>smb-os-discovery</filename>:<indexterm><primary><filename>smb-os-discovery.nse</filename></primary></indexterm>
+        the other scripts to get more information. Listing a script in
+        <literal>dependencies</literal> doesn't cause that script to be run; it
+        still has to be selected through the <option>--script</option> option
+        or otherwise. <literal>dependencies</literal> merely forces an ordering
+        among the scripts that <emphasis>are</emphasis> selected. This is an
+        example of a <literal>dependencies</literal> table, from
+        <filename>smb-os-discovery</filename>:<indexterm><primary><filename>smb-os-discovery.nse</filename></primary></indexterm>
 <programlisting>
 dependencies = {"smb-brute"}
 </programlisting>
@@ -950,16 +999,16 @@ NSE: Script Scanning completed.
       <para>
 
 Nmap uses the script rules to determine whether a script should be run
-against a target.  A script contains either a <emphasis>port
-rule</emphasis>, which governs which ports of a target the scripts may
-run against, or a <emphasis>host rule</emphasis>, which specifies that
+against a target.  A script contains either a <literal>portrule</literal>
+function, which governs which ports of a target the scripts may
+run against, or a <literal>hostrule</literal> function, which specifies that
 the script should be run only once against a target IP and only if
 the given conditions are met.  A rule is a Lua function that returns
 either <literal>true</literal> or <literal>false</literal>. The
-script <emphasis>action</emphasis> is only performed if its rule
-evaluates to <literal>true</literal>.  Host rules accept a host
+script <literal>action</literal> function is only performed if the rule
+evaluates to <literal>true</literal>.  Hostrules accept a host
 table as their argument and may test, for example, the IP address or
-hostname of the target.  A port rule accepts both host and port tables
+hostname of the target.  Portrules accept both host and port tables
 as arguments for any TCP or UDP port in the
 <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
 <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
@@ -971,7 +1020,7 @@ or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal
 
       <para>
 The action is the heart of an NSE script. It contains all of the
-instructions to be executed when the script's port or host rule
+instructions to be executed when the script's portrule or hostrule
 triggers. It is a Lua function which accepts the same arguments as the
 rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script's filename are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
 script returns <literal>nil</literal>.  For an example of an NSE
@@ -987,7 +1036,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
     <para>
       The core of the Nmap Scripting Engine is an embeddable Lua
       interpreter. Lua is a lightweight language designed for
-      extensibility.  It offers a powerful and well documented API for
+      extensibility.  It offers a powerful and well-documented API for
       interfacing with other software such as Nmap.
     </para>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>library</secondary></indexterm>
@@ -1005,7 +1054,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <para>
 
 	The Nmap scripting language is an embedded <ulink
-	url="http://www.lua.org/">Lua</ulink> interpreter which was
+	url="http://www.lua.org/">Lua</ulink> interpreter which is
 	extended with libraries for interfacing with Nmap.  The Nmap
 	API is in the Lua namespace <literal>nmap</literal>.  This
 	means that all calls to resources provided by Nmap have an
@@ -1081,9 +1130,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       script writing more powerful and convenient. These libraries (sometimes called modules) are compiled if necessary and installed along with 
 	  Nmap. They have their own directory, <filename>nselib</filename>, which
 	  is installed in the configured Nmap data directory. Scripts need only 
-      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require">
-      <literal>require</literal>
-      </ulink> the default libraries in order to use them.
+      <ulink url="http://www.lua.org/manual/5.1/manual.html#pdf-require"><literal>require</literal></ulink> the default libraries in order to use them.
 	  </para>
 
       <sect2 id="nse-library-list">
@@ -1100,26 +1147,15 @@ action refer to <xref linkend="nse-tutorial-action"/>.
       <sect2 id="hacking-nse-libraries">
         <title>Hacking NSE Libraries</title>
         <para>
-          Libraries often accidentally make use of globals variables when local
-          scope was intended. Two or more scripts that make use of library
-          functions which unintentionally use the same global variable will
-          find that variable constantly rewritten. This is a serious bug that
-          can cause NSE to stall or a correct script to spectacularly fail,
-          and, because Lua uses global-by-default scope assignment when it
-          encounters a variable, this is also a common bug.
+          A common mistake when editing libraries is to accidentally use a
+          global variable instead of a local one. Different libraries using the
+          same global variable can be the cause of mysterious bugs. Lua's scope
+          assignment is global by default, so this mistake is easy to make.
         </para>
         <para>
-          Consider a global variable being used by two different scripts,
-          within the library, to hold sockets or data. When one script is
-          yielded after storing data in the variable, another script awakens
-          only to replace that data. In contrast, a local variable would store
-          the information on the stack of the running script separate from
-          others.
-        </para>
-        <para>
-          To help correct this problem, NSE now uses an adapted library from
+          To help correct this problem, NSE uses a library adapted from
           the standard Lua distribution called
-          <filename>strict.lua</filename>.<indexterm><primary><filename>strict.lua</filename></primary></indexterm>
+          <filename>strict.lua</filename>.<indexterm><primary><filename>strict</filename> NSE library</primary></indexterm>
           The library will
           raise a runtime error on any access or modification of a global
           variable which was undeclared in the file scope. A global variable is
@@ -1237,7 +1273,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
       NSE scripts have access to several Nmap facilities for writing
       flexible and elegant scripts. The API provides target host
       details such as port states and version detection results.  It
-      also offers an interface to the Nsock<indexterm><primary>Nsock</primary></indexterm>
+      also offers an interface to the Nsock<indexterm><primary>Nsock</primary><secondary>in NSE</secondary></indexterm>
       library
       for efficient network I/O.
     </para>
@@ -1296,8 +1332,8 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	      </term>
 	    <listitem>
 	      <para>Contains a string representation of the IP address of the
-		target host. If the scan was run against a host name and the
-		reverse DNS query returned more than one IP addresses then the
+		target host. If the scan was run against a host name and its
+		DNS lookup returned more than one IP addresses, then the
 		same IP address is used as the one chosen for the scan.
 	      </para>
 	    </listitem>
@@ -1465,35 +1501,35 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
    </row></thead>
    <tbody>
    <row>
-    <entry><literal>name</literal></entry>
+    <entry align="left"><literal>name</literal></entry>
     <entry>Contains the service name Nmap decided on for the port.</entry>
    </row>
 
    <row>
-    <entry><literal>name_confidence</literal></entry>
+    <entry align="left"><literal>name_confidence</literal></entry>
     <entry>Evaluates how confident Nmap is about the accuracy of <literal>name</literal>, from 1 (least confident) to 10.</entry>
    </row>
 
    <row>
-    <entry><literal>product</literal>, <literal>version</literal>, <literal>extrainfo</literal>, <literal>hostname</literal>, <literal>ostype</literal>, <literal>devicetype</literal></entry>
+    <entry align="left"><literal>product</literal>, <literal>version</literal>, <literal>extrainfo</literal>, <literal>hostname</literal>, <literal>ostype</literal>, <literal>devicetype</literal></entry>
     <entry>These five variables are the same as those described under <replaceable>versioninfo</replaceable> in <xref linkend="vscan-db-match"/>.
    </entry>
    </row>
 
    <row>
-    <entry><literal>service_tunnel</literal></entry>
+    <entry align="left"><literal>service_tunnel</literal></entry>
     <entry>Contains the string <literal>"none"</literal> or <literal>"ssl"</literal> based on whether or not Nmap used SSL tunneling to detect the service.</entry>
    </row>
 
    <row>
-    <entry><literal>service_fp</literal></entry>
+    <entry align="left"><literal>service_fp</literal></entry>
     <entry>The service fingerprint, if any, is provided in this value.  This is described in 
 <xref linkend="vscan-community"/>.
 </entry>
    </row>
 
    <row>
-    <entry><literal>rpc_status</literal></entry>
+    <entry align="left"><literal>rpc_status</literal></entry>
 
     <entry>Contains a string value of <literal>good_prog</literal> if
     we were able to determine the program number of an RPC service
@@ -1505,7 +1541,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
    </row>
 
    <row>
-    <entry><literal>rpc_program</literal>, <literal>rpc_lowver</literal>, <literal>rpc_highver</literal></entry>
+    <entry align="left"><literal>rpc_program</literal>, <literal>rpc_lowver</literal>, <literal>rpc_highver</literal></entry>
     <entry>The detected RPC program number and the range of version
     numbers supported by that program.  These will be
     <literal>nil</literal> if <literal>rpc_status</literal> is
@@ -1682,7 +1718,7 @@ socket:close()
 	  the base Lua language. It is tailored
 	  specifically for network I/O operations, and
 	  follows a functional programming paradigm rather than an
-	  object oriented one. The <function>nmap.new_try</function> API method is used to
+	  object-oriented one. The <function>nmap.new_try</function> API method is used to
           create an exception handler.  This method returns a function which takes a variable
           number of arguments that are assumed to be the return values of
           another function. If an exception is detected in the return
@@ -1703,7 +1739,7 @@ socket:close()
 	  script aborts without further ado&mdash;open sockets will
 	  remain open until the next run of Lua's garbage
 	  collector. If the verbosity level is at least one or if the
-	  scan is performed in debugging mode a description of the
+	  scan is performed in debugging mode, a description of the
 	  uncaught error condition is printed on standard output.
 	  Note that it is currently not easily possible to group
 	  several statements in one try block.
@@ -1733,7 +1769,7 @@ try(socket:send(result))
 	  try/catch mechanism is straightforward. The function should
 	  return multiple values.  The first value should be a Boolean
 	  which is <literal>true</literal> upon successful completion of the function and
-	  <literal>false</literal> otherwise. If the function completed successfully, the try
+	  <literal>false</literal> (or <literal>nil</literal>) otherwise. If the function completed successfully, the try
 	  construct consumes the indicator value and returns the
 	  remaining values.  If the function failed then the second
 	  returned value must be a string describing the error
@@ -1918,19 +1954,13 @@ categories = {"default", "safe"}
 <indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
 <programlisting>
 portrule = function(host, port)
-        local auth_port = { number=113, protocol="tcp" }
-        local identd = nmap.get_port_state(host, auth_port)
+	local auth_port = { number=113, protocol="tcp" }
+	local identd = nmap.get_port_state(host, auth_port)
 
-        if
-                identd ~= nil
-                and identd.state == "open"
-                and port.protocol == "tcp"
-                and port.state == "open"
-        then
-                return true
-        else
-                return false
-        end
+	return identd ~= nil
+		and identd.state == "open"
+		and port.protocol == "tcp"
+		and port.state == "open"
 end
 </programlisting>
       </para>
@@ -1938,7 +1968,7 @@ end
     </sect2>
 
     <sect2 id="nse-tutorial-action">
-      <title>The Mechanism</title>
+      <title>The Action</title>
       <para>
 	At last we implement the actual functionality! The script 
 	first connects to the port on which we expect to find the
@@ -1977,7 +2007,7 @@ action = function(host, port)
         local localip, localport, remoteip, remoteport =
                 try(client_service:get_info())
 
-        local request = port.number .. ", " .. localport .. "\n"
+        local request = port.number .. ", " .. localport .. "\r\n"
 
         try(client_ident:send(request))
 
@@ -1986,7 +2016,8 @@ action = function(host, port)
         if string.match(owner, "ERROR") then 
                 owner = nil
         else
-                owner = string.match(owner, "USERID : .+ : (.+)\n", 1)
+                owner = string.match(owner,
+                        "%d+%s*,%s*%d+%s*:%s*USERID%s*:%s*.+%s*:%s*(.+)\r?\n")
         end
 
         try(client_ident:close())
@@ -2045,15 +2076,16 @@ local localip, localport = try(client_service:get_info())
     <example id="nsedoc-comment">
       <title>An NSEDoc comment for a function</title>
 <programlisting>
---- Prints a formatted debug message if the current verbosity level is greater
+---
+-- Prints a formatted debug message if the current verbosity level is greater
 -- than or equal to a given level.
 -- 
 -- This is a convenience wrapper around
--- &lt;code&gt;nmap.print_debug_unformatted()&lt;/code&gt;. The first optional numeric
--- argument, &lt;code&gt;verbosity&lt;/code&gt;, is used as the verbosity level necessary
+-- &lt;code&gt;nmap.log_write&lt;/code&gt;. The first optional numeric
+-- argument, &lt;code&gt;level&lt;/code&gt;, is used as the debugging level necessary
 -- to print the message (it defaults to 1 if omitted). All remaining arguments
--- are processed with Lua's &lt;code&gt;string.format()&lt;/code&gt; function.
--- @param level Optional verbosity level.
+-- are processed with Lua's &lt;code&gt;string.format&lt;/code&gt; function.
+-- @param level Optional debugging level.
 -- @param fmt Format string.
 -- @param ... Arguments to format.
 </programlisting>
@@ -2077,7 +2109,8 @@ local localip, localport = try(client_service:get_info())
     monospace font. This should be used for variable and function names,
     as well as multi-line code examples. When a sequence of lines start
     with the characters <quote><literal>* </literal></quote>, they will
-    be rendered as a bulleted list.
+    be rendered as a bulleted list. Each list item must be entirely on
+    one pysical line.
     </para>
 
     <para>
@@ -2097,7 +2130,8 @@ local localip, localport = try(client_service:get_info())
     <example id="nsedoc-module">
       <title>An NSEDoc comment for a module</title>
 <programlisting>
---- Common communication functions for network discovery tasks like
+---
+-- Common communication functions for network discovery tasks like
 -- banner grabbing and data exchange.
 --
 -- These functions may be passed a table of options, but it's not required. The
@@ -2106,8 +2140,9 @@ local localip, localport = try(client_service:get_info())
 -- a minimum number of bytes to read. &lt;code&gt;"lines"&lt;/code&gt; does the same for
 -- lines. &lt;code&gt;"proto"&lt;/code&gt; sets the protocol to communicate with,
 -- defaulting to &lt;code&gt;"tcp"&lt;/code&gt; if not provided. &lt;code&gt;"timeout"&lt;/code&gt;
--- sets the socket timeout (see the socket function &lt;code&gt;set_timeout()&lt;/code&gt;
+-- sets the socket timeout (see the socket function &lt;code&gt;set_timeout&lt;/code&gt;
 -- for details). 
+--
 -- @author Kris Katterjohn 04/2008
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 </programlisting>
@@ -2141,7 +2176,17 @@ Maps IP addresses to autonomous system (AS) numbers.
 The script works by sending DNS TXT queries to a DNS server which in
 turn queries a third-party service provided by Team Cymru
 (team-cymru.org) using an in-addr.arpa style zone set up especially for
-use by Nmap.
+use by Nmap. The responses to these queries contain both Origin and Peer
+ASNs and their descriptions, displayed along with the BGP Prefix and
+Country Code. The script caches results to reduce the number of queries
+and should perform a single query for all scanned targets in a BGP
+Prefix present in Team Cymru's database.
+
+Be aware that any targets against which this script is run will be sent
+to and potentially recorded by one or more DNS servers and Team Cymru.
+In addition your IP address will be sent along with the ASN to a DNS
+server (your default DNS server, or whichever one you specified with the
+&lt;code&gt;dns&lt;/code&gt; script argument).
 ]]
 
 ---
@@ -2150,7 +2195,7 @@ use by Nmap.
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
--- |  AS Numbers:
+-- |  asn-query:
 -- |  BGP: 64.13.128.0/21 | Country: US
 -- |    Origin AS: 10565 SVCOLO-AS - Silicon Valley Colocation, Inc.
 -- |      Peer AS: 3561 6461
@@ -2160,7 +2205,7 @@ use by Nmap.
 
 author = "jah, Michael"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "external"}
+categories = {"discovery", "external", "safe"}
 </programlisting>
     </example>
 
@@ -2315,52 +2360,51 @@ categories = {"discovery", "external"}
   <sect1 id="nse-parallelism">
     <title>Script Parallelism in NSE</title>
     <para>
-      Before now, we have only lightly touched on the steps NSE takes to allow
-      multiple scripts to execute in parallel.  Usually, the author need not
-      concern himself with how any of this is implemented; however, there are a
-      couple cases that warrant discussion that we will cover in this section.
-      As a script writer, you may need to control how multiple scripts interact
-      in a library; you may require multiple threads to work in parallel; or
-      perhaps you need to serialize access to a remote resource. 
+      In <xref linkend="nse-api-networkio"/>, it was mentioned that NSE
+      automatically parallelizes network operations. Usually this process is
+      transparent to a script author, but there are some advanced techniques
+      that require knowledge of how it works. The techniques covered in this
+      section are controlling how multiple scripts interact in a library, using
+      multiple threads in parallel, and disabling parallelism for special
+      cases.
     </para>
     <para>
       The standard mechanism for parallel execution is a thread. A thread
-      encapsulates execution flow and data of a script using the Lua
-      <literal>thread</literal> or <literal>coroutine</literal>.  A Lua thread
-      allows us to yield the current script at arbitrary points to continue
-      work on another script. Typically, these yield points are blocking calls
-      to the NSE Socket library. The yield back to NSE is also transparent; the
-      script is unaware of the transition and views each socket method as a
-      blocking call.
+      encapsulates the execution flow and data of a script.
+      Lua thread may be yielded at arbitrary locations to continue
+      work on another script. Typically, these yield locations are blocking
+      socket operations in the
+      <literal>nmap</literal><indexterm><primary><literal>nmap</literal> NSE library</primary></indexterm>
+      library. The yield back to the script is also transparent, a side effect
+      of the socket operation.
     </para>
     <para>
       Let's go over some common terminology. A <emphasis>script</emphasis> is
       analogous to a binary executable; it holds the information necessary to
-      execute our script. A <emphasis>thread</emphasis> (a Lua coroutine) is
+      execute a script. A <emphasis>thread</emphasis> (a Lua coroutine) is
       analogous to a process; it runs a script against a host and possibly
-      port. We sometimes abuse our terminology throughout the book by referring
-      to a thread as a running script. We are really saying the "instantiation
-      of the script", in the same sense that a process is the instantiation of
-      an executable.
+      port. Sometimes we abuse terminology and refer to a running thread
+      as a running <quote>script</quote>, but what this really means is an
+      instantiation of a script, in the same way that a process is the
+      instantiation of an executable.
     </para>
     <para>
-      NSE provides the bare-bone essentials you need to expand your degree
-      of parallelism beyond the basic script thread: new independent threads,
-      Mutexes, and Condition Variables. We will go into depth on each of
-      these mechanisms in the following sections.
+      NSE provides the bare-bone essentials needed to expand parallelism
+      basic model of one thread per script: new independent threads,
+      mutexes, and condition variables.
     </para>
     <sect2 id="nse-parallelism-threads">
       <title>Worker Threads</title>
       <para>
         There are several instances where a script needs finer control with
         respect to parallel execution beyond what is offered by default with a
-        generic script. The common reason for this need is the inability for a
-        script to read from multiple sockets concurrently. For example, an HTTP
+        generic script. A common need is to read from multiple sockets
+        concurrently. For example, an HTTP
         spidering script may want to have multiple Lua threads querying web
-        server resources in parallel.  To solve this problem, NSE offers the
+        server resources in parallel.  To answer this need, NSE offers the
         function <literal>stdnse.new_thread</literal> to create worker threads.
         These worker threads have all the power of independent scripts with the
-        only restriction that they may not report Script Output.
+        only restriction that they may not report script output.
       </para>
       <para>
         Each worker thread launched by a script is given a main function and
@@ -2371,51 +2415,50 @@ categories = {"discovery", "external"}
         <literal>worker_thread, status_function = stdnse.new_thread(main, ...)</literal>
       </para>
       <para>
-        You are given back the Lua thread (coroutine) that uniquely identifies
-        your worker thread and a status query function that queries the status
-        of your new worker. 
-      </para>
-      <para>
+        <literal>stdnse.new_thread</literal> returns two values: the Lua thread
+        (coroutine) that uniquely identifies your worker thread, and a status
+        query function that queries the status of your new worker.
         The status query function returns two values:
       </para>
       <para>
         <literal>status, error_object = status_function()</literal>
       </para>
       <para>
-        The first return value, <literal>status</literal>, is simply the return
-        value of <literal>coroutine.status</literal> on the worker thread
-        coroutine (more precisely, the <literal>base</literal> coroutine, read
+        The first return value is simply the return
+        value of <literal>coroutine.status</literal> run on the worker thread
+        coroutine. (More precisely, the <literal>base</literal> coroutine. Read
         more about <literal>base</literal> coroutine in <xref
-        linkend="nse-parallelism-base"/>). The second return value contains
-        the error object thrown that ended the worker thread or
+        linkend="nse-parallelism-base"/>.) The second return value contains
+        an error object that caused the termination of the worker thread, or
         <literal>nil</literal> if no error was thrown. This object is typically
-        a string, like most Lua errors. However, recall that any Lua type can
-        be an error object, even <literal>nil</literal>!  You should
+        a string, like most Lua errors. However, any Lua type can
+        be an error object, even <literal>nil</literal>.  Therefore
         inspect the error object, the second return value, only if the status
-        of your worker is <literal>"dead"</literal>.
+        of the worker is <literal>"dead"</literal>.
       </para>
       <para>
         NSE discards all return values from the main function when the worker
         thread finishes execution. You should communicate with your worker
         through the use of <literal>main</literal> function parameters,
-        upvalues, or function environments. You will see how to do this in
-        <xref linkend="nse-worker-example" xrefstyle="select: label nopage"/>.
+        upvalues, or function environments. See
+        <xref linkend="nse-worker-example" xrefstyle="select: label nopage"/>
+        for an example.
       </para>
       <para>
         Finally, when using worker threads you should always use condition
-        variables and Mutexes to coordinate with your worker threads. Keep in
-        mind that Nmap is single threaded so there are no (memory) issues in
-        synchronization to worry about; however, there is resource
-        contention. Your resources are usually network bandwidth, network
-        sockets, etc. Condition variables are also useful if the work for any
+        variables or mutexes to coordinate them. Nmap is single-threaded so
+        there are no memory synchronization issues to worry about; but there
+        <emphasis>is</emphasis> is contention for resources.
+        These resources include usually network bandwidth and sockets.
+        Condition variables are also useful if the work for any
         single thread is dynamic. For example, a web server spider script with
-        a pool of workers will initially have a single root html document.
+        a pool of workers will initially have a single root HTML document.
         Following the retrieval of the root document, the set of resources to
-        be retrieved (the worker's work) will become very large (an html
-        document adds many new hyperlinks (resources) to fetch).
+        be retrieved (the worker's work) may become very large as each new
+        document adds new URLs to fetch.
       </para>
       <example id="nse-worker-example">
-        <title>Worker Thread Example</title>
+        <title>Worker threads</title>
 <programlisting>
 local requests = {"/", "/index.html", --[[ long list of objects ]]}
 
@@ -2455,25 +2498,24 @@ end
       </example>
       <para>
         For brevity, this example omits typical behavior of a traditional web
-        spider. The requests table is assumed to contain a number of objects
-        (hundreds or thousands) to warrant the use of worker threads.  Our
-        example will dispatch a new thread with <literal>11</literal> relative
-        Uniform Resource Identifiers (URI) to request, up to the length of the
-        <literal>requests</literal> table.  Worker threads are very cheap so we
-        are not afraid to create a lot of them.  After we dispatch this large
-        number of threads, we wait on our Condition Variable until every thread
-        has finished then finally return the responses table.
+        spider. The requests table is assumed to contain enough objects
+        to warrant the use of worker threads.  The code in this example
+        example dispatches a new thread with as many as 11 relative URLs.
+        Worker threads are cheap, so don't be afraid to create a lot of them.
+        After dispatching all these threads, the code waits on a
+        condition variable until every thread
+        has finished, then finally return the responses table.
       </para>
       <para>
         You may have noticed that we did not use the status function returned
         by <literal>stdnse.new_thread</literal>. You will typically use this
         for debugging or if your program must stop based on the error thrown by
         one of your worker threads. Our simple example did not require this but
-        a fault tolerant library may.
+        a more fault-tolerant library may.
       </para>
     </sect2>
     <sect2 id="nse-parallelism-mutex">
-      <title>Thread Mutexes</title>
+      <title>Mutexes</title>
       <indexterm><primary>threads in NSE</primary></indexterm>
       <indexterm><primary>mutexes in NSE</primary></indexterm>
       <para>
@@ -2482,48 +2524,51 @@ end
         on a target host) yields to other scripts whenever it makes a call
         on network objects (sending or receiving data). Some scripts require
         finer concurrency control over thread execution. An example is the
-        <literal>whois</literal> script which queries
+        <literal>whois</literal><indexterm><literal>whois</literal> script</indexterm>
+        script which queries
         whois<indexterm><primary>whois</primary></indexterm> servers for each
-        target IP address. Because many concurrent queries often result in
-        getting one's IP banned for abuse, and because a single query may
-        return additional information for targets other threads are running
-        against, it is useful to have other threads pause while one thread
+        target IP address. Because many concurrent queries can get your
+        IP banned for abuse, and because a single query may
+        return the same information another instance of the script is about to
+        request, it is useful to have other threads pause while one thread
         performs a query.
       </para>
       <para>
         To solve this problem, NSE includes a <literal>mutex</literal> function
         which provides a <ulink
         url="http://en.wikipedia.org/wiki/Mutual_exclusion">mutex</ulink>
-        (mutual exclusion object) usable by scripts. The Mutex allows for only
-        one thread to be working on an object. Competing threads waiting to
+        (mutual exclusion object) usable by scripts. The mutex allows for only
+        one thread to be working on an object at a time. Competing threads
+        waiting to
         work on this object are put in the waiting queue until they can get a
-        "lock" on the Mutex. A solution for the <literal>whois</literal>
-        problem above is to have each thread block on a Mutex using a common
-        string, thus ensuring that only one thread is querying whois servers at
-        once. When finished querying the remote servers, the thread can store
-        results in the NSE registry and unlock the Mutex. Other scripts waiting
-        to query the remote server can then obtain a lock, check for usable
-        results retrieved from previous queries, make their own queries, and
-        unlock the Mutex.  This is a good example of serializing access to a
+        <quote>lock</quote> on the mutex. A solution for the <literal>whois</literal>
+        problem above is to have each thread block on a mutex using a common
+        string, ensuring that only one thread at a time is querying a server.
+        When finished querying the remote servers, the thread can store
+        results in the NSE registry and unlock the mutex. Other scripts waiting
+        to query the remote server can then obtain a lock, check for the cache
+        for a usable result from a previous query, make their own queries, and
+        unlock the mutex.  This is a good example of serializing access to a
         remote resource.
       </para>
 
       <para>
-        The first step in using a Mutex is to create one via a call to the
-        <literal>nmap</literal> library:
+        The first step in using a mutex is to create one with a call to
+        <literal>nmap.mutex</literal>.
       </para>
-
-      <para><literal>mutexfn = nmap.mutex(object)</literal></para>
+<programlisting>
+mutexfn = nmap.mutex(object)
+</programlisting>
 
       <para>
         The <literal>mutexfn</literal> returned is a function which works as a
-        Mutex for the <literal>object</literal> passed in.  This object can be
+        mutex for the <literal>object</literal> passed in.  This object can be
         any <ulink role="hidepdf"
         url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
         type</ulink> except <literal>nil</literal>,
-        <literal>booleans</literal>, and <literal>numbers</literal>.  The
+        Boolean, and number.  The
         returned function allows you to lock, try to lock, and release the
-        Mutex. Its first and only parameter must be one of the
+        mutex. Its sole argument must be one of the
         following:
       </para>
 
@@ -2532,9 +2577,9 @@ end
           <term><literal>"lock"</literal></term>
           <listitem>
             <para>
-              Make a blocking lock on the Mutex. If the Mutex is busy (another
+              Makes a blocking lock on the mutex. If the mutex is busy (another
               thread has a lock on it), then the thread will yield and
-              wait. The function returns with the Mutex locked.
+              wait. The function returns with the mutex locked.
             </para>
           </listitem>
         </varlistentry>
@@ -2543,9 +2588,9 @@ end
           <term><literal>"trylock"</literal></term>
           <listitem>
             <para>
-              Makes a non-blocking lock on the Mutex. If the Mutex is busy then
+              Makes a non-blocking lock on the mutex. If the mutex is busy then
               it immediately returns with a return value of
-              <literal>false</literal>. Otherwise the Mutex locks the Mutex and
+              <literal>false</literal>. Otherwise, locks the mutex and
               returns <literal>true</literal>.
             </para>
           </listitem>
@@ -2555,8 +2600,8 @@ end
           <term><literal>"done"</literal></term>
           <listitem>
             <para>
-              Releases the Mutex and allows another thread to lock it.  If the
-              thread does not have a lock on the Mutex, an error will be
+              Releases the mutex and allows another thread to lock it.  If the
+              thread does not have a lock on the mutex, an error will be
               raised.
             </para>
           </listitem>
@@ -2566,8 +2611,8 @@ end
           <term><literal>"running"</literal></term>
           <listitem>
             <para>
-              Returns the thread locked on the Mutex or <literal>nil</literal>
-              if the Mutex is not locked. This should only be used for
+              Returns the thread locked on the mutex or <literal>nil</literal>
+              if the mutex is not locked. This should only be used for
               debugging as it interferes with garbage collection of finished
               threads.
             </para>
@@ -2576,13 +2621,13 @@ end
        </variablelist>
 
       <para>
-        NSE maintains a weak reference to the Mutex so other calls to
+        NSE maintains a weak reference to the mutex so other calls to
         <literal>nmap.mutex</literal> with the same object will return the same
-        function (Mutex); however, if you discard your reference to the Mutex
-        then it may be collected; and, subsequent calls to
+        mutex function. However, if you discard your reference to the mutex
+        then it may be collected and subsequent calls to
         <literal>nmap.mutex</literal> with the object will return a different
-        Mutex function! Thus you should save your Mutex to a (local) variable
-        that persists for the entire time you require.
+        function. Therefore save your mutex to a (local) variable
+        that persists as long as you need it.
       </para>
 
        <para>
@@ -2609,46 +2654,44 @@ end
     <sect2 id="nse-parallelism-condvar">
       <title>Condition Variables</title>
       <para>
-        Condition Variables arose out of a need to coordinate with worker
-        threads created using the <literal>stdnse.new_thread</literal>
-        function.  A Condition Variable allows one or more threads to wait on
-        an object and one or more threads to awaken one or all threads waiting
-        on the object. Said differently, multiple threads may unconditionally
-        <literal>block</literal> on the Condition Variable by
-        <emphasis>waiting</emphasis>. Other threads may wake up one or all of
-        the waiting threads via <emphasis>signalling</emphasis> the Condition
-        Variable.
+        Condition variables arose out of a need to coordinate with worker
+        threads created by the <literal>stdnse.new_thread</literal>
+        function.  A condition variable allows many threads to wait on
+        one object, and one or all of them to be awakened when some condition
+        is met. Said differently, multiple threads may unconditionally
+        <literal>block</literal> on the condition variable by
+        <emphasis>waiting</emphasis>. Other threads may use the condition
+        variable to wake up the waiting threads.
       </para>
 
       <para>
-        As an example, we may dispatch multiple worker threads that will
-        produce results for us to use, like our earlier <xref
-        linkend="nse-worker-example" xrefstyle="select: label"/>.  Until all
-        the workers finish, our master thread must sleep. Note that we cannot
-        <literal>poll</literal> for results like in a traditional Operating
-        System thread because NSE does not preempt Lua threads. Instead,
-        we use a Condition Variable that the master thread
+        For example, consider the earlier <xref
+        linkend="nse-worker-example"/>.  Until all
+        the workers finish, the master thread must sleep. Note that we cannot
+        <literal>poll</literal> for results like in a traditional operating
+        system thread because NSE does not preempt Lua threads. Instead,
+        we use a condition variable that the master thread
         <emphasis>waits</emphasis> on until awakened by a worker. The master
         will continually wait until all workers have terminated.
       </para>
 
       <para>
-        The first step in using a Condition Variable is to create one via a
-        call to the <literal>nmap</literal> library:
+        The first step in using a condition variable is to create one
+        with a call to <literal>nmap.condvar</literal>.
       </para>
 
       <para><literal>condvarfn = nmap.condvar(object)</literal></para>
 
       <para>
-        The semantics for Condition Variables are similar to Mutexes.  The
+        The semantics for condition variables are similar to those of mutexes.  The
         <literal>condvarfn</literal> returned is a function which works as a
-        Condition Variable for the <literal>object</literal> passed in. This
+        condition variable for the <literal>object</literal> passed in. This
         object can be any <ulink role="hidepdf"
         url="http://www.lua.org/manual/5.1/manual.html#2.2">Lua data
         type</ulink> except <literal>nil</literal>,
-        <literal>booleans</literal>, and <literal>numbers</literal>.  The
+        Boolean, and number.  The
         returned function allows you to wait, signal, and broadcast on the
-        Condition Variable.  Its first and only parameter must be one of the
+        condition variable.  Its sole argument must be one of the
         following:
       </para>
 
@@ -2657,10 +2700,10 @@ end
           <term><literal>"wait"</literal></term>
           <listitem>
             <para>
-              Wait on the Condition Variable. This adds your thread to the
-              waiting queue for the Condition Variable. You will resume
+              Wait on the condition variable. This adds the current thread to the
+              waiting queue for the condition variable. It will resume
               execution when another thread signals or broadcasts on the
-              Condition Variable.
+              condition variable.
             </para>
           </listitem>
         </varlistentry>
@@ -2668,8 +2711,8 @@ end
           <term><literal>"signal"</literal></term>
           <listitem>
             <para>
-              Signal the Condition Variable. A thread in the Condition
-              Variable's waiting queue will be resumed.
+              Signal the condition variable. One of the threads in the condition
+              variable's waiting queue will be resumed.
             </para>
           </listitem>
         </varlistentry>
@@ -2677,78 +2720,75 @@ end
           <term><literal>"broadcast"</literal></term>
           <listitem>
             <para>
-              Signal all threads in the Condition Variable's waiting
-              queue.
+              Resume all the threads in the condition variable's waiting queue.
             </para>
           </listitem>
         </varlistentry>
       </variablelist>
 
       <para>
-        Like with Mutexes, NSE maintains a weak reference to the Condition
-        Variable so other calls to <literal>nmap.condvar</literal> with the
-        same object will return the same function (Condition Variable);
-        however, if you discard your reference to the Condition Variable then
-        it may be collected; and, subsequent calls to
+        Like with mutexes, NSE maintains a weak reference to the condition
+        variable so other calls to <literal>nmap.condvar</literal> with the
+        same object will return the same function. However, if you discard your reference to the condition variable then
+        it may be collected and subsequent calls to
         <literal>nmap.condvar</literal> with the object will return a different
-        Condition Variable function! Thus you should save your Condition
-        Variable to a (local) variable that persists for the entire time you
-        require.
+        function. Therefore save your condition
+        variable to a (local) variable that persists as long as you need it.
       </para>
 
       <para>
-        When using Condition Variables, it is important to check the predicate
+        When using condition variables, it is important to check the predicate
         before and after waiting. A predicate is a test on whether to continue
-        doing work within your worker or master thread. For your worker
+        doing work within a worker or master thread. For worker
         threads, this will at the very least include a test to see if the
         master thread is still alive. You do not want to continue doing work
-        when no thread will use your results. A typical test before waiting
-        may be: check whether the master is still running, if not then quit;
-        check that there is work to be done; if not then wait.
+        when there's no thread to use your results. A typical test before waiting
+        may be: Check whether the master is still running; if not, then quit.
+        Check if is work to be done; if not, then wait.
       </para>
 
       <para>
-        NSE does not guarantee spurious wakeups will not occur; that is, there
-        is no guarantee your thread will not be awakened when no thread called
-        <literal>"signal"</literal> or <literal>"broadcast"</literal> on the
-        Condition Variable. The typical, but not only, reason for a spurious
-        wakeup is the termination of a thread using a Condition Variable. This
+        A thread waiting on a condition variable may be resumed without any
+        other thread having called <literal>"signal"</literal> or
+        <literal>"broadcast"</literal> on the condition variable (a spurious
+        wakeup).
+        The usual, but not only, reason that this may happen
+        is the termination of one of the threads using the condition variable. This
         is an important guarantee NSE makes that allows you to avoid deadlock
         where a worker or master waits for a thread to wake them up that ended
-        without signaling the Condition Variable.
+        without signaling the condition variable.
       </para>
     </sect2>
     <sect2 id="nse-parallelism-cm">
       <title>Collaborative Multithreading</title>
       <para>
-        One of Lua's least known features is collaborative multithreading
+        One of Lua's least-known features is collaborative multithreading
         through <emphasis>coroutines</emphasis>. A coroutine provides an
-        independent execution stack that is <emphasis>resumable</emphasis>.
-        The standard <literal>coroutine</literal> provides access to the
+        independent execution stack that can be yielded and resumed.
+        The standard <literal>coroutine</literal> table provides access to the
         creation and manipulation of coroutines.      Lua's online first
-        edition of <ulink url="http://www.lua.org/pil/">Programming in
-        Lua</ulink> contains an excellent introduction to
-        <emphasis>coroutines</emphasis>.  We will provide an overview of the
-        use of coroutines here for completeness but this is no replacement for
-        reviewing PiL.
+        edition of <ulink url="http://www.lua.org/pil/"><citetitle>Programming in
+        Lua</citetitle></ulink> contains an excellent introduction to
+        coroutines. What follows is an overview of the
+        use of coroutines here for completeness, but this is no replacement for
+        the definitive reference.
       </para>
 
       <para>
         We have mentioned coroutines throughout this section as
         <emphasis>threads</emphasis>. This is the <emphasis>type</emphasis>
-        (<literal>thread</literal>) of a coroutine in Lua. Users of NSE that
-        have any parallel programming experience with Operating System threads
-        may be confused by this. As a reminder, Nmap is single threaded.  Lua
-        threads provide the basis for parallel scripting but only one thread is
-        ever running at a time.
+        (<literal>"thread"</literal>) of a coroutine in Lua. They are not the
+        preemptive threads that programmers may be expecting. Lua threads
+        provide the basis for parallel scripting but only one thread is ever
+        running at a time.
       </para>
 
       <para>
-        A Lua <literal>function</literal> executes on top of a Lua
-        <literal>thread</literal>. The thread maintains a stack of active
-        functions, local variables, and the current instruction. We can switch
-        between coroutines by explicitly <emphasis>yielding</emphasis> the
-        running thread. The coroutine which <emphasis>resumed</emphasis> the
+        A Lua function executes on top of a Lua
+        thread. The thread maintains a stack of active
+        functions, local variables, and the current instruction pointer. We can switch
+        between coroutines by explicitly yielding the
+        running thread. The coroutine which resumed the
         yielded thread resumes operation.
         <xref linkend="nse-cm-coroutines" xrefstyle="select: label nopage"/>
         shows a brief use of coroutines to print numbers.
@@ -2772,21 +2812,19 @@ end
       </example>
 
       <para>
-        What you should take from this example is the ability to transfer
-        between flows of control extremely easily through the use of
-        <literal>coroutine.yield</literal>. This is an extremely powerful
-        concept that enables NSE to run scripts in parallel. All scripts are
+        Coroutines are the facility
+        that enables NSE to run scripts in parallel. All scripts are
         run as coroutines that yield whenever they make a blocking socket
         function call. This enables NSE to run other scripts and later resume
         the blocked script when its I/O operation has completed.
       </para>
 
       <para>
-        As a script writer, there are times when coroutines are the best
-        tool for a job. One common use in socket programming is to filter
-        data. You may produce a function that generates all the links from an
+        Sometimes coroutines are the best
+        tool for a job within a single script. One common use in socket programming is filtering
+        data. You may write a function that generates all the links from an
         HTML document. An iterator using <literal>string.gmatch</literal>
-        only catchs a single pattern. Because some complex matches may take
+        can catches only a single pattern. Because some complex matches may take
         many different Lua patterns, it is more appropriate to use a
         coroutine.
         <xref linkend="nse-cm-links" xrefstyle="select: label nopage"/>
@@ -2821,24 +2859,18 @@ end
 </programlisting>
       </example>
 
-      <para>
-        There are many other instances where coroutines may provide an
-        easier solution to a problem. It takes experience from use to help
-        identify those cases.
-      </para>
-
       <sect3 id="nse-parallelism-base">
-        <title>The Base Thread</title>
+        <title>The base thread</title>
         <para>
           Because scripts may use coroutines for their own multithreading,
-          it is important to be able to identify an <emphasis>owner</emphasis>
+          it is important to be able to identify the <emphasis>owner</emphasis>
           of a resource or to establish whether the script is still alive.
           NSE provides the function <literal>stdnse.base</literal> for this
           purpose.
         </para>
         <para>
           Particularly when writing a library that attributes
-          ownership of a cache or socket to a script, you may use the
+          ownership of a cache or socket to a script, you can use the
           base thread to establish whether the script is still running.
           <literal>coroutine.status</literal> on the base thread will give
           the current state of the script. In cases where the script is
@@ -2880,7 +2912,8 @@ end
 
     <para>
     One protocol which we were unable to detect with normal version
-    detection is Skype version 2.  The protocol was likely designed to
+    detection is Skype<indexterm><primary>Skype</primary></indexterm>
+    version 2.  The protocol was likely designed to
     frustrate detection out of a fear that telecom-affiliated Internet
     service providers might consider Skype competition and interfere
     with the traffic.  Yet we did find one way to detect it.  If Skype
@@ -2898,12 +2931,19 @@ end
 <programlisting>
 description = [[
 Detects the Skype version 2 service.
-]]
-author = "Brandon Enright" 
-license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
+
+---
+-- @output
+-- PORT   STATE SERVICE VERSION
+-- 80/tcp open  skype2  Skype
+ 
+author = "Brandon Enright"<indexterm><primary>Enright, Brandon</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 categories = {"version"}
 
 require "comm"
+require "shortport"
 
 portrule = function(host, port)
         return (port.number == 80 or port.number == 443 or
@@ -2911,6 +2951,7 @@ portrule = function(host, port)
                 port.service == "unknown")
                and port.protocol == "tcp" and port.state == "open"
                and port.service ~= "http" and port.service ~= "ssl/http"
+               and not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
 action = function(host, port)
@@ -2975,16 +3016,38 @@ actually does goes in the <literal>description</literal> field.</para>
 description = [[
 Attempts to get a list of usernames via the finger service.
 ]]<indexterm><primary sortas="description script variable">&ldquo;<varname>description</varname>&rdquo; script variable</primary></indexterm>
+
 author = "Eddie Bell"<indexterm><primary>Bell, Eddie</primary></indexterm><indexterm><primary sortas="author script variable">&ldquo;<varname>author</varname>&rdquo; script variable</primary></indexterm>
+
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"<indexterm><primary sortas="license script variable">&ldquo;<varname>license</varname>&rdquo; script variable</primary></indexterm>
 </programlisting>
 
 <para>The <literal>categories</literal> field is a table
-containing all the categories the script belongs to&mdash;These are used for
+containing all the categories the script belongs to. These are used for
 script selection with the <option>--script</option> option:</para>
 
 <programlisting>
-categories = {"default", "discovery"}
+categories = {"default", "discovery", "safe"}<indexterm><primary sortas="categories script variable">&ldquo;<varname>categories</varname>&rdquo; script variable</primary></indexterm>
+</programlisting>
+
+<para>
+Every good script comes with a sample of its output in an NSEDoc comment.
+</para>
+
+<programlisting>
+---
+-- @output
+-- PORT   STATE SERVICE
+-- 79/tcp open  finger
+-- | finger:
+-- | Welcome to Linux version 2.6.31.12-0.2-default at linux-pb94.site !
+-- |  01:14am  up  18:54,  4 users,  load average: 0.14, 0.08, 0.01
+-- |
+-- | Login      Name                  Tty      Idle  Login Time   Where
+-- | Gutek      Ange Gutek           *:0          -     Wed 06:19 console
+-- | Gutek      Ange Gutek            pts/1   18:54     Wed 06:20
+-- | Gutek      Ange Gutek           *pts/0       -     Thu 00:41
+-- |_Gutek      Ange Gutek           *pts/4       3     Thu 01:06
 </programlisting>
 
 <para>You can use the facilities provided by the nselib (<xref
@@ -3033,177 +3096,98 @@ end
 	the NSE implementation is the source code, but this section
 	provides an overview of key details.  It should be valuable to
 	folks trying to understand and extend the NSE source code, as
-	well as to script authors who want to better-understand how
+	well as to script authors who want to better understand how
 	their scripts are executed.
 	</para>
     <sect2 id="nse-implementation-init">
       <title>Initialization Phase</title>
       <para>
-      NSE is initialized before any scanning when Nmap first starts.  We start
-      this initialization through a call to <literal>open_nse</literal>.  This
-      procedure starts by creating a fresh Lua state that will persist for the
-      scans against all host groups. We next load the standard Lua libraries
-      and all statically compiled NSE libraries. The standard Lua libraries are
-      fully documented in the <ulink
+      NSE is initialized before any scanning when Nmap first starts, by the
+      <literal>open_nse</literal> function. <literal>open_nse</literal>
+      creates a fresh Lua state that will persist across
+      host groups,<indexterm><primary>host groups</primary><secondary>persistence of NSE through</secondary></indexterm>
+      until the program exits.
+      It then loads the standard Lua libraries and compiled NSE libraries.
+      The standard Lua libraries are
+      documented in the <ulink
       url="http://www.lua.org/manual/5.1/manual.html">Lua Reference
-      Manual</ulink>.  Here is a summary of the libraries, listed
-      alphabetically by their namespace name:
+      Manual</ulink>. The standard Lua libraries available to NSE are
+      <literal>debug</literal>,
+      <literal>io</literal>,
+      <literal>math</literal>,
+      <literal>os</literal>,
+      <literal>package</literal>,
+      <literal>string</literal>, and
+      <literal>table</literal>.
+      Compiled NSE libraries are those that are defiend in a C++ file instead
+      of a Lua file. They include
+      <literal>nmap</literal>,
+      <literal>pcre</literal>,
+      <literal>bin</literal>,
+      <literal>bit</literal>,
+      <literal>openssl</literal> (if available), and
+      <literal>stdnse.c</literal> (C functions for the <literal>stdnse</literal> library).
       </para>
  
-      <variablelist>
-        <varlistentry>
-          <term><literal>debug</literal></term>
-          <listitem>
-            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.9">debug library</ulink> provides a low-level API to the Lua interpreter, allowing you to access functions along 
-	     the execution stack, retrieve function closures and object metatables,
-	     and more. 
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>io</literal></term>
-          <listitem>
-            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.7">Input/Output library</ulink> offers functions such as reading from files or from the output from programs you execute.
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>math</literal></term>
-          <listitem>
-            <para>Numbers in Lua usually correspond to the <literal>double</literal> C type, so the <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.6">math library</ulink> provides access to rounding functions, trigonometric functions, random number generation, and more.
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>os</literal></term>
-          <listitem>
-            <para>The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.8">Operating System library</ulink> provides system facilities such as filesystem operations (including file renaming or removal and temporary file creation) and system environment access.
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>package</literal></term>
-          <listitem>
-            <para>Among the functions provided by Lua's 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.3">package-lib</ulink> is <literal>require</literal>, which is used to load nselib modules.
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>string</literal></term>
-          <listitem>
-            <para>The <ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.4">
-	     string library</ulink> provides functions for manipulating
-	     Lua strings, including printf-style 
-	     string formatting, pattern matching using Lua-style patterns, 
-	     substring extraction, and more.
-            </para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term><literal>table</literal></term>
-          <listitem>
-            <para>The 
-			<ulink role="hidepdf" url="http://www.lua.org/manual/5.1/manual.html#5.5">table manipulation library</ulink> is essential for operating on Lua's central data structure (tables).
-            </para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
       <para>
-        The libraries included with NSE are documented in NSEDoc. They include:
-        <literal>nmap</literal>,
-        <literal>pcre</literal>,
-        <literal>bin</literal>,
-        <literal>bit</literal>,
-        <literal>ssl</literal> (if available), and
-        <literal>stdnse.c</literal> (C functions for the
-                                     <literal>stdnse</literal> library).
-      </para>
-
-      <para>
-        Following loading basic libraries, NSE loads the file
-        <literal>nse_main.lua</literal>. The majority of NSE is written in
-        Lua -- Lua code manages scripts and sets up the appropriate
+        After loading the basic libraries, <literal>open_nse</literal> loads
+        the file
+        <literal>nse_main.lua</literal>. The NSE core is in this
+        file&mdash;Lua code manages scripts and sets up the appropriate
         environment. In this situation Lua really shines as a glue language.
-        We use C to provide our network framework and low-level libraries.
-        We use Lua to structure our data, determine which scripts to load,
-        and, of course, schedule and execute our scripts.
+        C++ is used to provide the network framework and low-level libraries.
+        Lua is used to structure data, determine which scripts to load,
+        and schedule and execute scripts.
       </para>
 
       <para>
-        A key feature of Lua we use in NSE is coroutines. Coroutines allow for
-        collaborative multi-threading so that scripts can suspend themselves at
-        defined points and allow other coroutines to execute. Network I/O,
-        particularly waiting for responses from remote hosts, often involves
-        long wait times, so this is when scripts yield to others. Key functions
-        of the Nsock wrapper cause scripts to yield (pause). When Nsock
-        finishes processing such a request, it makes a callback which causes
-        the script to be pushed from the waiting queue back into the running
-        queue so it can resume operations when its turn comes up again. Keep
-        in mind that scripts must explicitly yield (usually within a network
-        function) to relinquish control. Yielding is never asynchronous.
+        <literal>nse_main.lua</literal> sets up the Lua
+        environment to be ready for script scanning later on. It
+        loads all the scripts the user has chosen and returns a function
+        that does the actual script scanning to
+        to <literal>open_nse</literal>.
       </para>
 
       <para>
-        When <literal>nse_main.lua</literal> is loaded, it sets up the Lua
-        environment to be ready for script scanning later on. Ultimately,
-        it will load all scripts the user has chosen and return a function
-        to <literal>nse_main.cc</literal> that can be executed to script
-        scan a host group.
-      </para>
-
-      <para>
-        We prepare the Lua environment by adding the <literal>nselib</literal>
-        directory the Lua path. This allows NSE Libraries to be required
-        by scripts. Next NSE loads replacements for the standard
-        coroutine functions so yields initiated by NSE are caught and
-        <emphasis>propagated</emphasis> back to the NSE scheduler.
+        The <literal>nselib</literal> directory is added to the Lua path to
+        give scripts access to the standard NSE library. NSE loads replacements
+        for the standard coroutine functions so that yields initiated by NSE are
+        caught and propagated back to the NSE scheduler.
       </para>
 
       <para>
         <literal>nse_main.lua</literal> next defines classes and functions
-        to be used during setup (we go over these later). Next, the script
-        arguments (<literal>--script-args</literal>) are loaded into
-        <literal>nmap.registry.args</literal>. This includes a custom parser
-        as Lua's patterns are currently insufficient for the task. After
-        arguments are loaded, we create a new script database if a
-        pre-existing script database does not exist or a new one was requested.
-        Our final task during initialization is to load Scripts chosen on
-        the command line.
+        to be used during setup. The script arguments
+        (<literal>--script-args</literal>) are loaded into
+        <literal>nmap.registry.args</literal>.
+        A script database is created if one doesn't already exist or if this
+        was requested with <option>--script-updatedb</option>.
       </para>
 
       <para>
-        Our <literal>get_chosen_scripts</literal> function works to find
-        the scripts a user chose via categories, file names, and directories.
-        These scripts will be loaded into memory for later use. The
-        <literal>--script</literal> argument is changed to valid Lua code
-        that is executed. The code generated will dynamically check whether
-        a script in the database satisfies the boolean equation given on the
-        command line (recall that <literal>--script</literal> may take a
-        boolean expression). Simple categories and filenames will match
-        immediately causing the script to be "chosen". Other complex expressions
-        will be determined using Lua's boolean operators. Specifications
-        given using <literal>--script</literal> that do not match in this
-        way are instead checked to be a regular file or directory. If
-        the specification is a regular file, we load it. If the specification
-        is a directory, we load all the <literal>*.nse</literal> files it
-        contains. Otherwise, we throw an error.
+        Finally, the scripts listed on the command line are loaded.
+        The <literal>get_chosen_scripts</literal> function works to find
+        chosen scripts by comparing categories, filenames, and directoriy names.
+        The scripts are loaded into memory for later use.
+        <literal>get_chosen_scripts</literal> works by transforming the
+        argument to <literal>--script</literal> into a block of Lua code and
+        then executing it. (This is how the <literal>and</literal>,
+        <literal>or</literal>, and <literal>not</literal> operators are
+        supported.) Any specifications that don't directly match a category or
+        a filename from
+        <filename>script.db</filename><indexterm><primary><filename>script.db</filename></primary></indexterm>
+        are checked against file and directory names. If the specification is a
+        regular file, it's loaded. If a directory, all the
+        <literal>*.nse</literal> files within it are loaded. Otherwise, the
+        engine raises an error.
       </para>
 
       <para>
         <literal>get_chosen_scripts</literal> finishes by arranging the
-        scripts to run in an ordered way. We do this by sorting the scripts
-        into runlevels. These runlevels are determined by the dependencies
-        a script has. Script that have no dependency will run at level
-        <literal>1</literal> while a script that depends on a runlevel
-        <literal>1</literal> script will run at level <literal>2</literal>.
+        selected scripts according to their dependencies (see
+        <xref linkend="nse-format-dependencies"/>).
+        Scripts that have no dependencies are in runlevel 1. Scripts that
+        directly depend on these are in runlevel 2, and so on.
         When a script scan is run, each runlevel is run separately and in
         order.
       </para>
@@ -3211,12 +3195,12 @@ end
       <para>
         <literal>nse_main.lua</literal> defines two classes:
         <literal>Script</literal> and <literal>Thread</literal>. These classes
-        are the objects that represent NSE scripts and the script threads we
-        run. When a script is loaded, we call <literal>Script.new</literal>
-        that creates a new Script object.  The script file is loaded into Lua
+        are the objects that represent NSE scripts and their script threads.
+        When a script is loaded, <literal>Script.new</literal>
+        creates a new Script object.  The script file is loaded into Lua
         and saved for later use. These classes and their methods are intended
-        for encapsulating the data needed for each script and its threads. The
-        <literal>Script.new</literal> also contains sanity checks to ensure the
+        to encapsulate the data needed for each script and its threads.
+        <literal>Script.new</literal> also contains sanity checks to ensure that the
         script has required fields such as the <literal>action</literal>
         function.
       </para>
@@ -3226,39 +3210,36 @@ end
         <title>Scanning a Host Group</title>
         <para>
           When NSE runs a script scan, <literal>script_scan</literal> is called
-          in <literal>nse_main.cc</literal> with a Vector of targets to scan.
-          These targets will be passed to our <literal>nse_main.lua</literal>
+          in <literal>nse_main.cc</literal> with a list of targets to scan.
+          These targets will be passed to the <literal>nse_main.lua</literal>
           main function for scanning.
         </para>
 
         <para>
-          The main function for a script scan will generate a number of script
-          threads based on whether a <literal>hostrule</literal> or
-          <literal>portrule</literal> return true for a given host and port.
-          The threads generated are stored in a list of runlevel lists. Each
-          runlevel list of threads (starting with runlevel <literal>1</literal>)
-          will be passed to the <literal>run</literal> function. The
-          <literal>run</literal> function is the main worker function for
-          NSE where all the magic happens.
+          The main function for a script scan generates a number of script
+          threads based on whether the <literal>hostrule</literal> or
+          <literal>portrule</literal> returns true for a given host and port.
+          The generated threads are stored in a list of runlevel lists. Each
+          runlevel list of threads is passed separately to the
+          <literal>run</literal> function. The <literal>run</literal> function
+          is the main worker function for NSE where all the magic happens.
         </para>
 
         <para>
           The <literal>run</literal> function's purpose is run all the threads
-          in a runlevel until all finish executing. Before doing this however,
-          the function starts by redefining some Lua Registry values that
+          in a runlevel until they all finish. Before doing this however,
+          <literal>run</literal> redefines some Lua registry values that
           help C code function. One such function,
           <literal>_R[WAITING_TO_RUNNING]</literal>, allows the network library
           binding written in C to move a thread from the waiting queue to the
-          running queue. After these functions are defined we begin running
-          script threads. This involves running script threads until the
+          running queue. Scripts are run until the
           running and waiting queues are both empty. Threads that yield are
           moved to the waiting queue; threads that are ready to continue
-          are moved back to the running queue. We continue this cycle of
-          moving a thread between the running and waiting queues until
-          the thread quits or ends in error. Note that a pending queue exists
-          as well. It serves as a temporary location for threads moving from
-          the waiting queue to the running queue before a new iteration of
-          the running queue begins.
+          are moved back to the running queue. The cycle continues until
+          the thread quits or ends in error. Along with the waiting and running
+          queues, there is a pending queue. It serves as a temporary location
+          for threads moving from the waiting queue to the running queue before
+          a new iteration of the running queue begins.
         </para>
 
       </sect2>
