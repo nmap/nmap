@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed a crash that would happen after opening the search
+  window, entering a relative date criterion such as "after:-7", and
+  then clicking the "Expressions" button. The error message was
+    AttributeError: 'tuple' object has no attribute 'strftime'
+  [David]
+
 Nmap 5.35DC1 [2010-07-16]
 
 o [NSE] Added 17 scripts, bringing the total to 131! They are
