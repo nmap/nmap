@@ -205,7 +205,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
     <option>-sC</option> or <option>--script</option>. Every host will
     be assumed up and still only host scripts will be run. This
     technique is useful for scripts like
-    <filename>whois.nse</filename><indexterm><primary><filename>whois.nse</filename></primary></indexterm>
+    <filename>whois</filename><indexterm><primary><filename>whois</filename> script</primary></indexterm>
     that only use the remote system's address and don't require it to be
     up.
     </para>
@@ -647,7 +647,7 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
         <varlistentry>
           <term><command>nmap --script smb-os-discovery</command></term>
           <listitem>
-          <para>Loads only the <filename>smb-os-discovery.nse</filename>
+          <para>Loads only the <filename>smb-os-discovery</filename>
           script. Note that the <filename>.nse</filename> extension is
           optional.</para>
           </listitem>
@@ -656,7 +656,7 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
           <term><command>nmap --script default,banner,/home/user/customscripts</command></term>
           <listitem>
           <para>Loads the script in the <literal>default</literal>
-          category, the <filename>banner.nse</filename> script, and all
+          category, the <filename>banner</filename> script, and all
           <filename>.nse</filename> files in the directory
           <filename>/home/user/customscripts</filename>.</para>
           </listitem>
@@ -676,8 +676,8 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
           <listitem>
           <para>Loads all scripts whose name starts with
           <filename>http-</filename>, such as
-          <filename>http-auth.nse</filename> and
-          <filename>http-open-proxy.nse</filename>. The argument to
+          <filename>http-auth</filename> and
+          <filename>http-open-proxy</filename>. The argument to
           <option>--script</option> had to be in quotes to protect the
           wildcard from the shell.</para>
           </listitem>
@@ -952,7 +952,7 @@ that.</para>
         names of scripts that should run before this script, if they are also selected. This is used when
         one script can make use of the results of another. For example, most of
         the <filename>smb-*</filename> scripts depend on
-        <filename>smb-brute</filename>,<indexterm><primary><filename>smb-brute.nse</filename></primary></indexterm>
+        <filename>smb-brute</filename>,<indexterm><primary><filename>smb-brute</filename> script</primary></indexterm>
         because the accounts found by <filename>smb-brute</filename> may allow
         the other scripts to get more information. Listing a script in
         <literal>dependencies</literal> doesn't cause that script to be run; it
@@ -960,7 +960,7 @@ that.</para>
         or otherwise. <literal>dependencies</literal> merely forces an ordering
         among the scripts that <emphasis>are</emphasis> selected. This is an
         example of a <literal>dependencies</literal> table, from
-        <filename>smb-os-discovery</filename>:<indexterm><primary><filename>smb-os-discovery.nse</filename></primary></indexterm>
+        <filename>smb-os-discovery</filename>:<indexterm><primary><filename>smb-os-discovery</filename> script</primary></indexterm>
 <programlisting>
 dependencies = {"smb-brute"}
 </programlisting>
@@ -1058,7 +1058,7 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 	extended with libraries for interfacing with Nmap.  The Nmap
 	API is in the Lua namespace <literal>nmap</literal>.  This
 	means that all calls to resources provided by Nmap have an
-	<literal>nmap</literal> prefix.<indexterm><primary><varname>nmap</varname> NSE module</primary></indexterm>
+	<literal>nmap</literal> prefix.<indexterm><primary><varname>nmap</varname> NSE library</primary></indexterm>
 	<literal>nmap.new_socket()</literal>, for example, returns a
 	new socket wrapper object. The Nmap library layer also takes
 	care of initializing the Lua context, scheduling parallel
@@ -1197,9 +1197,9 @@ action refer to <xref linkend="nse-tutorial-action"/>.
 
       <para>
       The smallest compiled module that comes with NSE is
-      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE module</primary></indexterm>
+      <literal>bit</literal>,<indexterm><primary><varname>bit</varname> NSE library</primary></indexterm>
       and one of the most straightforward is
-      <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE module</primary></indexterm>
+      <literal>openssl</literal>.<indexterm><primary><varname>openssl</varname> NSE library</primary></indexterm>
       These modules serve as good examples for a beginning module
       writer. The
       source code for <literal>bit</literal> is found in
@@ -1267,7 +1267,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 
   <sect1 id="nse-api">
     <title>Nmap API</title>
-    <indexterm class="startofrange" id="nse-nmap-indexterm"><primary><varname>nmap</varname> NSE module</primary></indexterm>
+    <indexterm class="startofrange" id="nse-nmap-indexterm"><primary><varname>nmap</varname> NSE library</primary></indexterm>
     <indexterm><primary>Nmap Scripting Engine (NSE)</primary><secondary>API</secondary></indexterm>
     <para>
       NSE scripts have access to several Nmap facilities for writing
@@ -1700,9 +1700,12 @@ socket:close()
           handle, call <function>ethernet_close</function>.</para>
 
           <para>Sometimes the easiest ways to understand complex APIs is by
-          example.  The <filename>ipidseq.nse</filename> script included with
+          example.  The
+          <filename>ipidseq</filename><indexterm><primary><filename>ipidseq</filename> script</primary></indexterm>
+          script included with
           Nmap uses raw IP packets to test hosts for suitability for Nmap's
-          Idle Scan (<option>-sI</option>).  The <filename>sniffer-detect.nse</filename>
+          Idle Scan (<option>-sI</option>).  The
+          <filename>sniffer-detect</filename><indexterm><primary><filename>sniffer-detect</filename> script</primary></indexterm>
           script also included with Nmap uses raw Ethernet frames in an attempt
           to detect promiscuous-mode machines on the network (those running
           sniffers).</para>
@@ -2191,7 +2194,7 @@ server (your default DNS server, or whichever one you specified with the
 
 ---
 -- @usage
--- nmap --script asn-query.nse [--script-args dns=&lt;DNS server&gt;] &lt;target&gt;
+-- nmap --script asn-query [--script-args dns=&lt;DNS server&gt;] &lt;target&gt;
 -- @args dns The address of a recursive nameserver to use (optional).
 -- @output
 -- Host script results:
@@ -2633,8 +2636,11 @@ mutexfn = nmap.mutex(object)
        <para>
          A simple example of using the API is provided in <xref
          linkend="nse-mutex-handling" xrefstyle="select: label nopage"/>.  For
-         real-life examples, read the <filename>asn-query.nse</filename> and
-         <filename>whois.nse</filename> scripts in the Nmap
+         real-life examples, read the
+         <filename>asn-query</filename><indexterm><primary><filename>asn-query</filename> script</primary></indexterm>
+         and
+         <filename>whois</filename><indexterm><primary><filename>whois</filename> script</primary></indexterm>
+         scripts in the Nmap
          distribution.
        </para>
 
@@ -2928,6 +2934,7 @@ end
 
 <example id="nse-skypev2-script">
       <title>A typical version detection script (Skype version 2 detection)</title>
+<indexterm><primary><filename>skypev2-version</filename> script</primary></indexterm>
 <programlisting>
 description = [[
 Detects the Skype version 2 service.
@@ -3002,10 +3009,10 @@ end
   </sect1>
 
   <sect1 id="nse-example-scripts">
-    <title>Example Script: <filename>finger.nse</filename></title>
+    <title>Example Script: <filename>finger</filename></title>
       <indexterm><primary><literal>finger</literal> script</primary></indexterm>
 
-	  <para>The finger script (<filename>finger.nse</filename>) is a perfect
+	  <para>The <filename>finger</filename> script is a perfect
       example of a short and simple NSE script.
 	  </para>
 
