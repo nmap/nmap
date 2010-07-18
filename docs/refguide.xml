@@ -98,29 +98,35 @@
 <screen>
 # nmap -A -T4 scanme.nmap.org
 
-Starting Nmap ( http://nmap.org )
-Interesting ports on scanme.nmap.org (64.13.134.52):
-Not shown: 994 filtered ports
-PORT    STATE  SERVICE VERSION
-22/tcp  open   ssh     OpenSSH 4.3 (protocol 2.0)
-25/tcp  closed smtp
-53/tcp  open   domain  ISC BIND 9.3.4
-70/tcp  closed gopher
-80/tcp  open   http    Apache httpd 2.2.2 ((Fedora))
-|_ HTML title: Go ahead and ScanMe!
-113/tcp closed auth
+Nmap scan report for scanme.nmap.org (64.13.134.52)
+Host is up (0.045s latency).
+Not shown: 993 filtered ports
+PORT      STATE  SERVICE VERSION
+22/tcp    open   ssh     OpenSSH 4.3 (protocol 2.0)
+| ssh-hostkey: 1024 60:ac:4d:51:b1:cd:85:09:12:16:92:76:1d:5d:27:6e (DSA)
+|_2048 2c:22:75:60:4b:c3:3b:18:a2:97:2c:96:7e:28:dc:dd (RSA)
+25/tcp    closed smtp
+53/tcp    open   domain
+70/tcp    closed gopher
+80/tcp    open   http    Apache httpd 2.2.3 ((CentOS))
+|_html-title: Go ahead and ScanMe!
+| http-methods: Potentially risky methods: TRACE
+|_See http://nmap.org/nsedoc/scripts/http-methods.html
+113/tcp   closed auth
+31337/tcp closed Elite
 Device type: general purpose
 Running: Linux 2.6.X
-OS details: Linux 2.6.20-1 (Fedora Core 5)
+OS details: Linux 2.6.13 - 2.6.31, Linux 2.6.18
+Network Distance: 13 hops
 
 TRACEROUTE (using port 80/tcp)
-HOP RTT   ADDRESS
-[Cut first seven hops for brevity]
-8   10.59 so-4-2-0.mpr3.pao1.us.above.net (64.125.28.142)
-9   11.00 metro0.sv.svcolo.com (208.185.168.173)
-10  9.93  scanme.nmap.org (64.13.134.52)
+HOP RTT       ADDRESS
+[Cut first 10 hops for brevity]
+11  80.33 ms  layer42.car2.sanjose2.level3.net (4.59.4.78)
+12  137.52 ms xe6-2.core1.svk.layer42.net (69.36.239.221)
+13  44.15 ms  scanme.nmap.org (64.13.134.52)
 
-Nmap done: 1 IP address (1 host up) scanned in 17.00 seconds
+Nmap done: 1 IP address (1 host up) scanned in 22.19 seconds
 </screen>
 </example>
 
@@ -161,24 +167,27 @@ manual.  Some obscure options aren't even included here.</para>
 option argument) is treated as a target host specification.  The
 simplest case is to specify a target IP address or hostname for scanning.</para>
 
-<para>Sometimes you wish to scan a whole network of adjacent hosts.
-For this, Nmap supports
-CIDR-style<indexterm><primary>CIDR (Classless Inter-Domain Routing)</primary></indexterm>
-addressing.  You can append
-/<replaceable>numbits</replaceable> to an IPv4 address or hostname and
-Nmap will scan every IP address for which the first
-<replaceable>numbits</replaceable> are the same as for the reference
-IP or hostname given.  For example, 192.168.10.0/24 would scan the 256
-hosts between 192.168.10.0 (binary: <literal>11000000 10101000
-00001010 00000000</literal>) and 192.168.10.255 (binary: <literal>11000000 10101000
-00001010 11111111</literal>), inclusive.
-192.168.10.40/24 would scan exactly the same targets.  Given that the host
-<literal>scanme.nmap.org</literal><indexterm><primary><literal>scanme.nmap.org</literal></primary></indexterm>
+<para>Sometimes you wish to scan a whole network of adjacent hosts. For
+this, Nmap supports CIDR-style<indexterm><primary>CIDR (Classless
+Inter-Domain Routing)</primary></indexterm> addressing.  You can append
+<literal>/<replaceable>numbits</replaceable></literal> to an IPv4
+address or hostname and Nmap will scan every IP address for which the
+first <replaceable>numbits</replaceable> are the same as for the
+reference IP or hostname given. For example,
+<literal>192.168.10.0/24</literal> would would scan the 256 hosts
+between 192.168.10.0
+(binary: <literal>11000000 10101000 00001010 00000000</literal>)
+and 192.168.10.255
+(binary: <literal>11000000 10101000 00001010 11111111</literal>),
+inclusive. 192.168.10.40/24 would scan exactly the same targets. Given
+that the host
+scanme.nmap.org<indexterm><primary>scanme.nmap.org</primary></indexterm>
 is at the IP address 64.13.134.52, the specification
-scanme.nmap.org/16 would scan the 65,536 IP addresses between
-64.13.0.0 and 64.13.255.255.  The smallest allowed value is /0,
-which scans the whole Internet.  The largest value is /32, which scans
-just the named host or IP address because all address bits are fixed.</para>
+<literal>scanme.nmap.org/16</literal> would scan the 65,536 IP addresses
+between 64.13.0.0 and 64.13.255.255. The smallest allowed value is
+<literal>/0</literal>, which targets the whole Internet. The largest
+value is <literal>/32</literal>, which scans just the named host or IP
+address because all address bits are fixed.</para>
 
 <indexterm><primary>address ranges</primary></indexterm>
 <para>CIDR notation is short but not always flexible enough.  For example, you
@@ -186,15 +195,16 @@ might want to scan 192.168.0.0/16 but skip any IPs ending with .0 or
 .255 because they may be used as subnet network and broadcast addresses.  Nmap supports
 this through octet range addressing.  Rather than specify a normal IP
 address, you can specify a comma-separated list of numbers or ranges
-for each octet.  For example, 192.168.0-255.1-254 will skip all
-addresses in the range that end in .0 or .255, and 192.168.3-5,7.1 will
+for each octet.  For example, <literal>192.168.0-255.1-254</literal> will skip all
+addresses in the range that end in .0 or .255, and <literal>192.168.3-5,7.1</literal> will
 scan the four addresses 192.168.3.1, 192.168.4.1, 192.168.5.1, and
 192.168.7.1. Either side of a range may be omitted; the default values
 are 0 on the left and 255 on the right. Using <literal>-</literal> by
-itself is the same as 0-255, but remember to use 0- in the first octet
+itself is the same as <literal>0-255</literal>, but remember to use
+<literal>0-</literal> in the first octet
 so the target specification doesn't look like a command-line option.
 Ranges need not be limited to the final octets: the specifier
-0-255.0-255.13.37 will perform an Internet-wide scan for all IP
+<literal>0-255.0-255.13.37</literal> will perform an Internet-wide scan for all IP
 addresses ending in 13.37.  This sort of broad sampling can be useful
 for Internet surveys and research.</para>
 
@@ -257,10 +267,7 @@ you would expect.</para>
           their networks and may complain.  Use this option at your
           own risk!  If you find yourself really bored one rainy
           afternoon, try the command
-          <command>nmap -sS -PS80 -iR 0 -p 80</command>
-          <indexterm><primary><option>-sS</option></primary><secondary>example of</secondary></indexterm>
-          <indexterm><primary><option>-PS</option></primary><secondary>example of</secondary></indexterm>
-          <indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm>
+          <command>nmap -Pn -sS -p 80 -iR 0 --open</command><indexterm><primary><option>-sS</option></primary><secondary>example of</secondary></indexterm><indexterm><primary><option>-PS</option></primary><secondary>example of</secondary></indexterm><indexterm><primary><option>-iR</option></primary><secondary>example of</secondary></indexterm><indexterm><primary><option>--open</option></primary><secondary>example of</secondary></indexterm>
           to locate random web servers for browsing.</para>
         </listitem>
       </varlistentry>
@@ -292,7 +299,7 @@ you would expect.</para>
         <listitem>
           <para>This offers the same functionality as the <option>--exclude</option>
           option, except that the excluded targets are provided in a
-          newline, space, or tab delimited
+          newline-, space-, or tab-delimited
           <replaceable>exclude_file</replaceable> rather than on the
           command line.</para>
           <para>The exclude file may contain comments that start with
@@ -473,7 +480,7 @@ you would expect.</para>
           host discovery with <option>-Pn</option> causes Nmap to
           attempt the requested scanning functions against
           <emphasis>every</emphasis> target IP address specified.  So
-          if a class B sized target address space (/16) is specified
+          if a class B target address space (/16) is specified
           on the command line, all 65,536 IP addresses are scanned.
           Proper host discovery is skipped as with the list scan, but
           instead of stopping and printing the target list, Nmap
@@ -504,10 +511,8 @@ you would expect.</para>
 
           <para>This option sends an empty TCP packet with the SYN
           flag set.  The default destination port is 80 (configurable
-          at compile time by changing <varname>DEFAULT_TCP_PROBE_PORT_SPEC</varname>
-          <indexterm><primary><varname>DEFAULT_TCP_PROBE_PORT_SPEC</varname></primary></indexterm>
-          in <filename>nmap.h</filename>).
-          <indexterm><primary><filename>nmap.h</filename></primary></indexterm>
+          at compile time by changing <varname>DEFAULT_TCP_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_TCP_PROBE_PORT_SPEC</varname></primary></indexterm>
+          in <filename>nmap.h</filename>).<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
           Alternate ports can be
           specified as a parameter. The syntax is the same as for the
           <option>-p</option> except that port type specifiers like
@@ -638,7 +643,9 @@ you would expect.</para>
           <para>The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
-          no ports are specified, the default is 40125.  This default
+          no ports are specified, the default is
+          40125.<indexterm><primary>UDP scan</primary><secondary>default port of</secondary></indexterm>
+          This default
           can be configured at compile-time by changing
           <varname>DEFAULT_UDP_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_UDP_PROBE_PORT_SPEC</varname></primary></indexterm>
           in <filename>nmap.h</filename>.<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
@@ -680,10 +687,8 @@ you would expect.</para>
           <para>This option sends an SCTP packet containing a minimal
           INIT chunk.  The default destination port is 80 (configurable
           at compile time by changing
-          <varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname>
-          <indexterm><primary><varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname></primary></indexterm>
-          in <filename>nmap.h</filename>).
-          <indexterm><primary><filename>nmap.h</filename></primary></indexterm>
+          <varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname></primary></indexterm>
+          in <filename>nmap.h</filename>).<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
           Alternate ports can be specified as a parameter. The syntax
           is the same as for the
           <option>-p</option> except that port type specifiers like
@@ -749,7 +754,8 @@ you would expect.</para>
           firewalls now block these packets, rather than responding as
           required by <ulink
           role="hidepdf" url="http://www.rfc-editor.org/rfc/rfc1122.txt">RFC
-          1122</ulink>.  For this reason, ICMP-only scans are rarely
+          1122</ulink>.<indexterm><primary>RFC 1122</primary></indexterm>
+          For this reason, ICMP-only scans are rarely
           reliable enough against unknown targets over the Internet.
           But for system administrators monitoring an internal
           network, they can be a practical and efficient approach.
@@ -789,7 +795,7 @@ you would expect.</para>
         </term>
         <listitem>
 
-          <para>The newest host discovery option is the IP protocol ping,
+          <para>One of the newer host discovery options is the IP protocol ping,
           which sends IP packets with the specified protocol number
           set in their IP header.  The protocol list
           takes the same format as do port lists in the
@@ -867,7 +873,7 @@ Traceroutes are performed post-scan using information from the scan results to d
 </para>
 
 <para>
-Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches zero. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts. On average Nmap sends 5&ndash;10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) Nmap may only have to send a single packet to most hosts.
+Traceroute works by sending packets with a low TTL (time-to-live) in an attempt to elicit ICMP Time Exceeded messages from intermediate hops between the scanner and the target host. Standard traceroute implementations start with a TTL of 1 and increment the TTL until the destination host is reached. Nmap's traceroute starts with a high TTL and then decrements the TTL until it reaches zero. Doing it backwards lets Nmap employ clever caching algorithms to speed up traces over multiple hosts. On average Nmap sends 5&ndash;10 fewer packets per host, depending on network conditions. If a single subnet is being scanned (i.e. 192.168.0.0/24) Nmap may only have to send two packets to most hosts.
 </para>
 </listitem>
 </varlistentry>
@@ -963,8 +969,8 @@ Traceroute works by sending packets with a low TTL (time-to-live) in an attempt 
           <para>While Nmap has grown in functionality over the years,
           it began as an efficient port scanner, and that remains its
           core function.  The simple command <command>nmap
-          <replaceable>target</replaceable></command> scans more than
-          1660 TCP ports on the host
+          <replaceable>target</replaceable></command> scans
+          1,000 TCP ports on the host
           <replaceable>target</replaceable>.  While many port scanners
           have traditionally lumped all ports into the open or closed
           states, Nmap is much more granular.  It divides ports into
@@ -1416,7 +1422,7 @@ really has no open ports.  If most scanned ports are
 <literal>closed</literal> but a few common port numbers (such as 22,
 25, 53) are <literal>filtered</literal>, the system is most likely
 susceptible.  Occasionally, systems will even show the exact opposite
-behavior.  If your scan shows 1000 open ports and three closed or filtered
+behavior.  If your scan shows 1,000 open ports and three closed or filtered
 ports, then those three may very well be the truly open ones.</para>
 
         </listitem>
@@ -1647,9 +1653,11 @@ well, in which case the default FTP port (21) on
 <para>This vulnerability was widespread in 1997 when Nmap was
 released, but has largely been fixed.  Vulnerable servers are still
 around, so it is worth trying when all else fails.  If bypassing a
-firewall is your goal, scan the target network for open port 21 (or
+firewall is your goal, scan the target network for port 21 (or
 even for any FTP services if you scan all ports with version
-detection), then try a bounce scan using each.  Nmap will tell you
+detection) and use the
+<filename>ftp-bounce</filename><indexterm><filename>ftp-bounce</filename> script</indexterm>
+NSE script.  Nmap will tell you
 whether the host is vulnerable or not.  If you are just trying to
 cover your tracks, you don't need to (and, in fact, shouldn't) limit
 yourself to hosts on the target network.  Before you go scanning
@@ -1712,7 +1720,8 @@ way.</para>
           <para>
           Ports can also be specified by name according to what the
           port is referred to in the <filename>nmap-services</filename>. You
-          can even use the wildcards * and ? with the names. For example, to scan
+          can even use the wildcards <literal>*</literal> and
+          <literal>?</literal> with the names. For example, to scan
           FTP and all ports whose names begin with <quote>http</quote>, use <option>-p ftp,http*</option>.
           Be careful about shell expansions and quote the argument to <option>-p</option> if unsure.</para>
 
@@ -1767,21 +1776,25 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>--port-ratio &lt;decimal number between 0 and 1&gt;</option>
+          <option>--port-ratio <replaceable>ratio</replaceable>&lt;decimal number between 0 and 1&gt;</option>
         </term>
         <listitem>
         <indexterm><primary>--port-ratio</primary></indexterm>
-        <para>Scans all ports in <filename>nmap-services</filename> file with a ratio greater than the number specified as the argument.</para>
+        <para>Scans all ports in <filename>nmap-services</filename> file
+        with a ratio greater than the one given.
+        <replaceable>ratio</replaceable> must be between 0.0 and 1.1.</para>
         </listitem>
       </varlistentry>
 
       <varlistentry>
         <term>
-          <option>--top-ports &lt;integer of 1 or greater&gt;</option>
+          <option>--top-ports <replaceable>n</replaceable></option>
         </term>
         <listitem>
         <indexterm><primary>--top-ports</primary></indexterm>
-        <para>Scans the N highest-ratio ports found in <filename>nmap-services</filename> file.</para>
+        <para>Scans the <replaceable>n</replaceable> highest-ratio ports
+        found in <filename>nmap-services</filename> file.
+        <replaceable>n</replaceable> must be 1 or greater.</para>
         </listitem>
       </varlistentry>
 
@@ -1862,8 +1875,8 @@ way.</para>
     a URL for you to submit if to if you know for sure what is running
     on the port.  Please take a couple minutes to make the submission
     so that your find can benefit everyone.  Thanks to these
-    submissions, Nmap has about 3,000 pattern matches for more than
-    350 protocols such as SMTP, FTP, HTTP, etc.<indexterm><primary>submission of service fingerprints</primary></indexterm>
+    submissions, Nmap has about 6,500 pattern matches for more than
+    650 protocols such as SMTP, FTP, HTTP, etc.<indexterm><primary>submission of service fingerprints</primary></indexterm>
     </para>
 
     <para>Version detection is enabled and controlled with the
@@ -1920,15 +1933,13 @@ way.</para>
           <para>When performing a version scan (<option>-sV</option>), Nmap sends a
           series of probes, each of which is assigned a rarity value
           between one and nine. The lower-numbered probes are effective
-          against a wide variety of common services, while the higher
-          numbered ones are rarely useful. The intensity level
+          against a wide variety of common services, while the higher-numbered
+          ones are rarely useful. The intensity level
           specifies which probes should be applied. The higher the
           number, the more likely it is the service will be correctly
           identified. However, high intensity scans take longer.  The
-          intensity must be between 0 and 9.
-          <indexterm><primary>version detection</primary><secondary>intensity</secondary></indexterm>
-          The default is 7.
-          <indexterm><primary>version detection</primary><secondary>default intensity</secondary></indexterm>
+          intensity must be between 0 and 9.<indexterm><primary>version detection</primary><secondary>intensity</secondary></indexterm>
+          The default is 7.<indexterm><primary>version detection</primary><secondary>default intensity</secondary></indexterm>
           When a probe is registered to the target port via the
           <filename>nmap-service-probes</filename> <literal>ports</literal> directive, that probe is tried
           regardless of intensity level.  This ensures that the DNS
@@ -2018,7 +2029,7 @@ way.</para>
     ISN sampling, TCP options support and ordering, IP ID sampling, and
     the initial window size check, Nmap compares the results to its
     <filename>nmap-os-db</filename><indexterm><primary><filename>nmap-os-db</filename></primary></indexterm>
-    database of more than a thousand known
+    database of more than 2,600 known
     OS fingerprints and prints out the OS details if there is a match.
     Each fingerprint includes a freeform textual description of the
     OS, and a classification which provides the vendor name
@@ -2175,7 +2186,19 @@ way.</para>
     <para> 
     To reflect those different uses and to simplify the choice of which
     scripts to run, each script contains a field associating it with one or more categories.  Currently defined categories are
-<literal>safe</literal>, <literal>intrusive</literal>, <literal>malware</literal>, <literal>version</literal>, <literal>discovery</literal>, <literal>vuln</literal>, <literal>auth</literal>, and <literal>default</literal>.  These are all described
+    <literal>auth</literal>,
+    <literal>default</literal>.
+    <literal>discovery</literal>,
+    <literal>dos</literal>,
+    <literal>exploit</literal>,
+    <literal>external</literal>,
+    <literal>fuzzer</literal>,
+    <literal>intrusive</literal>,
+    <literal>malware</literal>,
+    <literal>safe</literal>,
+    <literal>version</literal>, and
+    <literal>vuln</literal>,
+    These are all described
     <man>at <ulink url="http://nmap.org/book/nse-usage.html#nse-categories" />.</man>
     <notman>in <xref linkend="nse-categories"/>.</notman></para>
 
@@ -2336,7 +2359,7 @@ which lists the category or categories in which each script belongs.</para>
 </varlistentry>
       
 	  <varlistentry>
-        <term><option>--script-args <replaceable>name1</replaceable>=<replaceable>value1</replaceable>,<replaceable>name2</replaceable>={<replaceable>name3</replaceable>=<replaceable>value3</replaceable>},<replaceable>name4</replaceable>={<replaceable>value4</replaceable>,<replaceable>value5</replaceable>}</option>
+        <term><option>--script-args <replaceable>n1</replaceable>=<replaceable>v1</replaceable>,<replaceable>n2</replaceable>={<replaceable>n3</replaceable>=<replaceable>v3</replaceable>},<replaceable>n4</replaceable>={<replaceable>v4</replaceable>,<replaceable>v5</replaceable>}</option>
         <indexterm significance="preferred"><primary><option>--script-args</option></primary></indexterm>
         <indexterm><primary>script arguments</primary><seealso><option>--script-args</option></seealso></indexterm></term>
 
@@ -2355,8 +2378,13 @@ escapes a quote. A backslash is only used to escape quotation marks in this
 special case; in all other cases a backslash is interpreted literally. Values
 may also be tables enclosed in <literal>{}</literal>, just as in Lua. A table
 may contain simple string values or more name-value pairs, including nested
-tables. An example of script arguments:
-<option>--script-args auth={user=foo,pass=',{}=bar'},userdb=C:\Path\To\File</option>.
+tables. A complex example of script arguments is
+<informalexample>
+<indexterm><primary><option>--script-args</option></primary><secondary>example of</secondary></indexterm>
+<literallayout>
+<command>--script-args 'user=foo,pass=",{}=bar",whois={whodb=nofollow+ripe},userdb=custom'</command>
+</literallayout>
+</informalexample>
 The online NSE Documentation Portal at <ulink url="http://nmap.org/nsedoc/"/>
 lists the arguments that each script accepts.
 </para>
@@ -2512,7 +2540,7 @@ and rise to several hundred in perfect conditions.</para>
 speed up scans of poorly performing hosts or networks.  This is a
 risky option to play with, as setting it too high may affect accuracy.
 Setting this also reduces Nmap's ability to control parallelism
-dynamically based on network conditions.  A value of ten might be
+dynamically based on network conditions.  A value of 10 might be
 reasonable, though I only adjust this value as a last resort.</para>
 
 <para>The <option>--max-parallelism</option> option is sometimes set to one
@@ -3448,7 +3476,7 @@ as <literal>%H%M%S</literal>, <literal>%R</literal> is the same as
 <literal>%m%d%y</literal>.  A <literal>%</literal> followed by any other
 character just yields that character (<literal>%%</literal> gives you a
 percent symbol).  So <option>-oX 'scan-%T-%D.xml'</option> will use an XML
-file in the form of <filename>scan-144840-121307.xml</filename>.</para>
+file with a name in the form of <filename>scan-144840-121307.xml</filename>.</para>
 
 <para>Nmap also offers options to control scan verbosity and to append
 to output files rather than clobbering them.  All of these options are
@@ -3462,7 +3490,7 @@ described below.</para>
           <indexterm><primary>normal output</primary></indexterm></term>
         <listitem>
 
-          <para>Requests that <literal>normal output</literal> be
+          <para>Requests that normal output be
           directed to the given filename.  As discussed above, this
           differs slightly from <literal>interactive output</literal>.</para>
         </listitem>
@@ -3476,7 +3504,7 @@ described below.</para>
         <listitem>
 
 
-          <para>Requests that <literal>XML output</literal> be
+          <para>Requests that XML output be
           directed to the given filename.  Nmap includes a document
           type definition (DTD) which allows XML parsers to validate
           Nmap XML output.  While it is primarily intended for
@@ -3491,12 +3519,10 @@ described below.</para>
           computer languages, including C/C++, Perl, Python, and
           Java. People have even written bindings for most of these
           languages to handle Nmap output and execution specifically.
-          Examples are <ulink
-          url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink>
-          <indexterm><primary>Nmap::Scanner</primary></indexterm>
-          and <ulink
-          url="http://nmapparser.wordpress.com/">Nmap::Parser</ulink>
-          <indexterm><primary>Nmap::Parser</primary></indexterm>
+          Examples are
+          <ulink url="http://sourceforge.net/projects/nmap-scanner/">Nmap::Scanner</ulink><indexterm><primary>Nmap::Scanner</primary></indexterm>
+          and
+          <ulink url="http://nmapparser.wordpress.com/">Nmap::Parser</ulink><indexterm><primary>Nmap::Parser</primary></indexterm>
           in Perl
           CPAN.  In almost all cases that a non-trivial application
           interfaces with Nmap, XML is the preferred format.</para>
@@ -3622,8 +3648,7 @@ format is available
           estimates are provided when Nmap thinks a scan will take
           more than a few minutes. Use it twice or more for even greater
           verbosity: <option>-vv</option>, or give a verbosity level
-          directly, for example <option>-v3</option>.
-          <indexterm><primary><option>-v</option></primary><secondary>giving more than once</secondary></indexterm>
+          directly, for example <option>-v3</option>.<indexterm><primary><option>-v</option></primary><secondary>giving more than once</secondary></indexterm>
           </para>
 
           <para>Most changes only affect interactive output, and some
@@ -3716,7 +3741,7 @@ even if this option is not specified.
           interval of <replaceable>time</replaceable>. The time is a
           specification of the kind described in
           <xref linkend="man-performance"/>; so for example, use
-          <command>--stats-every 10s</command> to get a status update
+          <option>--stats-every 10s</option> to get a status update
           every 10 seconds. Updates are printed to interactive output
           (the screen) and XML output.
           </para>
@@ -3872,27 +3897,25 @@ hosts with at least one
         </term>
         <listitem>
 
-          <para>Nmap ships with an XSL
-          <indexterm><primary>XSL</primary></indexterm>
-          stylesheet
-          <indexterm><primary>stylesheet</primary></indexterm>
-          named <filename>nmap.xsl</filename>
-          <indexterm><primary><filename>nmap.xsl</filename></primary></indexterm>
-          for viewing or translating XML output to HTML.
-          <indexterm><primary>HTML from XML output</primary></indexterm>
+          <para>Nmap ships with an XSL<indexterm><primary>XSL</primary></indexterm>
+          stylesheet<indexterm><primary>stylesheet</primary></indexterm>
+          named <filename>nmap.xsl</filename><indexterm><primary><filename>nmap.xsl</filename></primary></indexterm>
+          for viewing or translating XML output to HTML.<indexterm><primary>HTML from XML output</primary></indexterm>
           The XML output includes an <literal>xml-stylesheet</literal>
           directive which points to <filename>nmap.xml</filename>
-          where it was initially installed by Nmap (or in the current
-          working directory on Windows).  Simply load Nmap's XML
-          output in a modern web browser and it should retrieve
-          <filename>nmap.xsl</filename> from the filesystem and use it
-          to render results.  If you wish to use a different
+          where it was initially installed by Nmap. Run the XML file
+          through an XSLT processor such as
+          <ulink url="http://xmlsoft.org/XSLT/">xsltproc</ulink><indexterm><primary>xsltproc</primary></indexterm>
+          to produce an HTML file. Directly opening the XML file in a
+          browser no longer works well because modern browsers limit the
+          locations a stylesheet may be loaded from.
+          If you wish to use a different
           stylesheet, specify it as the argument to
           <option>--stylesheet</option>.  You must pass the full
           pathname or URL.  One common invocation is
           <option>--stylesheet
           http://nmap.org/svn/docs/nmap.xsl</option>.  This
-          tells a browser to load the latest version of the stylesheet
+          tells an XSLT processor to load the latest version of the stylesheet
           from Nmap.Org.  The <option>--webxml</option> option
           does the same thing with less typing and memorization.
           Loading the XSL from Nmap.Org makes it easier to view results on
@@ -3910,7 +3933,7 @@ hosts with at least one
         </term>
         <listitem>
 
-          <para>This convenience option is simply an alias for
+          <para>This is a convenience option, nothing more than an alias for
           <option significance="preferred">--stylesheet http://nmap.org/svn/docs/nmap.xsl</option>.</para>
         </listitem>
       </varlistentry>
@@ -3958,7 +3981,7 @@ hosts with at least one
           <literal>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>,
           so hostnames are recommended.  The output looks the same as
           usual, with the IPv6 address on the <quote>interesting
-          ports</quote> line being the only IPv6 give away.</para>
+          ports</quote> line being the only IPv6 giveaway.</para>
 
           <para>While IPv6 hasn't exactly taken the world by storm, it
           gets significant use in some (usually Asian) countries and
@@ -3989,8 +4012,7 @@ hosts with at least one
           stands for yet. Presently this enables OS detection
           (<option>-O</option>), version scanning (<option>-sV</option>),
 	  script scanning (<option>-sC</option>) and 
-	  traceroute (<option>--traceroute</option>).
-          <indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
+	  traceroute (<option>--traceroute</option>).<indexterm><primary><option>-A</option></primary><secondary>features enabled by</secondary></indexterm>
           More features may be
           added in the future. The point is to enable a
           comprehensive set of scan options without people having
@@ -4023,7 +4045,9 @@ hosts with at least one
           searches these files in the directory specified with the
           <option>--datadir</option> option (if any). Any files not
           found there, are searched for in the directory specified by
-          the NMAPDIR environmental variable<indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>.
+          the
+          <envar>NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm>
+          environment variable.
           Next comes
 	  <filename>~/.nmap</filename><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
           for real and effective UIDs (POSIX systems only) or location of
@@ -4121,7 +4145,7 @@ hosts with at least one
           for options that require privileges (SYN scan, OS detection,
           etc.). The
 	  <envar>NMAP_PRIVILEGED</envar><indexterm><primary><envar>NMAP_PRIVILEGED</envar> environment variable</primary></indexterm>
-	  environmental variable
+	  environment variable
           may be set as an equivalent alternative to
           <option>--privileged</option>.</para>
         </listitem>
@@ -4143,7 +4167,7 @@ hosts with at least one
           network functionality of your operating system is somehow
           broken. The
 	  <envar>NMAP_UNPRIVILEGED</envar><indexterm><primary><envar>NMAP_UNPRIVILEGED</envar> environment variable</primary></indexterm>
-	  environmental variable
+	  environment variable
           may be set as an equivalent alternative to
           <option>--unprivileged</option>.</para>
 
@@ -4246,10 +4270,10 @@ hosts with at least one
         </term>
         <listitem>
           <para>Print out a status message like this:</para>
-          <para>Stats: 0:00:08 elapsed; 111 hosts completed (5 up),
-          5 undergoing Service Scan</para>
-          <para>Service scan Timing: About 28.00% done; ETC: 16:18
-          (0:00:15 remaining)</para>
+<screen>
+Stats: 0:00:07 elapsed; 20 hosts completed (1 up), 1 undergoing Service Scan
+Service scan Timing: About 33.33% done; ETC: 20:57 (0:00:12 remaining)
+</screen>
         </listitem>
       </varlistentry>
     </variablelist>
@@ -4262,21 +4286,22 @@ hosts with at least one
     IP addresses and domain names are used to make things
     more concrete. In their place you should substitute
     addresses/names from 
-    <emphasis>your own network.</emphasis>.  While I don't think
+    <emphasis>your own network</emphasis>.  While I don't think
     port scanning other networks is or should be illegal, some network
     administrators don't appreciate unsolicited scanning of their networks and may
     complain.  Getting permission first is the best approach.</para>
 
     <para>For testing purposes, you have permission to scan the host
-    <literal>scanme.nmap.org</literal>.  This permission only includes
+    scanme.nmap.org.<indexterm><primary>scanme.nmap.org</primary></indexterm>
+    This permission only includes
     scanning via Nmap and not testing exploits or denial of service
     attacks.  To conserve bandwidth, please do not initiate more than
     a dozen scans against that host per day.  If this free scanning
     target service is abused, it will be taken down and Nmap will
     report <computeroutput>Failed to resolve given hostname/IP:
     scanme.nmap.org</computeroutput>.  These permissions also apply to
-    the hosts <literal>scanme2.nmap.org</literal>,
-    <literal>scanme3.nmap.org</literal>, and so on, though those hosts
+    the hosts scanme2.nmap.org,
+    scanme3.nmap.org, and so on, though those hosts
     do not currently exist.</para>
 
     <para>
@@ -4292,7 +4317,7 @@ hosts with at least one
       <command>nmap -sS -O scanme.nmap.org/24</command>
     </para>
     <para>Launches a stealth SYN scan against each machine that is
-    up out of the 256 IPs on <quote>class C</quote> sized network where
+    up out of the 256 IPs on the class C sized network where
     Scanme resides. It also tries to determine what
     operating system is running on each host that is up and
     running. This requires root privileges because of the SYN scan
