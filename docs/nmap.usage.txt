@@ -1,4 +1,4 @@
-Nmap 5.35DC1 ( http://nmap.org )
+Nmap 5.35DC18 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -52,8 +52,8 @@ OS DETECTION:
   --osscan-limit: Limit OS detection to promising targets
   --osscan-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
-  Options which take <time> are in milliseconds, unless you append 's'
-  (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
+  Options which take <time> are in seconds, or append 'ms' (milliseconds),
+  's' (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m).
   -T<0-5>: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup <size>: Parallel host scan group sizes
   --min-parallelism/max-parallelism <numprobes>: Probe parallelization

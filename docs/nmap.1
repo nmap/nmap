@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 07/15/2010
+.\"      Date: 07/17/2010
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "07/15/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "07/17/2010" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -111,7 +111,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.35DC1 ( http://nmap\&.org )
+Nmap 5\&.35DC18 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -165,8 +165,8 @@ OS DETECTION:
   \-\-osscan\-limit: Limit OS detection to promising targets
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
-  Options which take <time> are in milliseconds, unless you append \'s\'
-  (seconds), \'m\' (minutes), or \'h\' (hours) to the value (e\&.g\&. 30m)\&.
+  Options which take <time> are in seconds, or append \'ms\' (milliseconds),
+  \'s\' (seconds), \'m\' (minutes), or \'h\' (hours) to the value (e\&.g\&. 30m)\&.
   \-T<0\-5>: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <numprobes>: Probe parallelization
@@ -207,7 +207,7 @@ OUTPUT:
   \-\-no\-stylesheet: Prevent associating of XSL stylesheet w/XML output
 MISC:
   \-6: Enable IPv6 scanning
-  \-A: Enables OS detection and Version detection, Script scanning and Traceroute
+  \-A: Enable OS detection, version detection, script scanning, and traceroute
   \-\-datadir <dirname>: Specify custom Nmap data file location
   \-\-send\-eth/\-\-send\-ip: Send using raw ethernet frames or IP packets
   \-\-privileged: Assume that the user is fully privileged
@@ -1374,8 +1374,7 @@ and
 \fB\-\-initial\-rtt\-timeout\fR
 than the defaults can cut scan times significantly\&. This is particularly true for pingless (\fB\-Pn\fR) scans, and those against heavily filtered networks\&. Don\'t get too aggressive though\&. The scan can end up taking longer if you specify such a low value that many probes are timing out and retransmitting while the response is in transit\&.
 .sp
-If all the hosts are on a local network, 100 milliseconds (\fB\-\-max\-rtt\-timeout 100ms\fR) is a reasonable aggressive value\&. If routing is involved, ping a host on the network first with the ICMP ping utility, or with a custom packet crafter such as
-\fBhping2\fR.\" hping2
+If all the hosts are on a local network, 100 milliseconds (\fB\-\-max\-rtt\-timeout 100ms\fR) is a reasonable aggressive value\&. If routing is involved, ping a host on the network first with the ICMP ping utility, or with a custom packet crafter such as Nping.\" Nping
 that is more likely to get through a firewall\&. Look at the maximum round trip time out of ten packets or so\&. You might want to double that for the
 \fB\-\-initial\-rtt\-timeout\fR
 and triple or quadruple it for the

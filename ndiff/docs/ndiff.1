@@ -2,12 +2,12 @@
 .\"     Title: ndiff
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 07/15/2010
+.\"      Date: 07/17/2010
 .\"    Manual: User Commands
 .\"    Source: Ndiff
 .\"  Language: English
 .\"
-.TH "NDIFF" "1" "07/15/2010" "Ndiff" "User Commands"
+.TH "NDIFF" "1" "07/17/2010" "Ndiff" "User Commands"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -125,8 +125,8 @@ Let\'s use Ndiff to compare the output of two Nmap scans that use different opti
 # nmap \-F scanme\&.nmap\&.org \-oX scanme\-1\&.xml
 # nmap \-\-script=html\-title scanme\&.nmap\&.org \-oX scanme\-2\&.xml
 $ ndiff \-v scanme\-1\&.xml scanme\-2\&.xml
-\-Nmap 4\&.90RC2 at 2009\-07\-16 13:29
-+Nmap 4\&.90RC2 at 2009\-07\-16 13:33
+\-Nmap 5\&.35DC1 at 2010\-07\-16 12:09
++Nmap 5\&.35DC1 at 2010\-07\-16 12:13
 
  scanme\&.nmap\&.org (64\&.13\&.134\&.52):
  Host is up\&.
@@ -153,7 +153,7 @@ or
 at the beginning of a line\&. We can see from the output that the scan without the
 \fB\-F\fR
 fast scan option found two additional ports: 70 and 31337\&. The
-html\-title\&.nse
+html\-title
 script produced some additional output for port 80\&. From the port counts, we may infer that the fast scan scanned 100 ports (95 filtered, 3 open, and 2 closed), while the normal scan scanned 1000 (993 filtered, 3 open, and 4 closed)\&.
 .PP
 The
@@ -163,7 +163,7 @@ The
 \fB\-v\fR, they would not have been shown\&.
 .SH "OUTPUT"
 .PP
-There are two output modes: text and XML\&. Text output is the default, and is also selected with the
+There are two output modes: text and XML\&. Text output is the default, and can also be selected with the
 \fB\-\-text\fR
 option\&. Text output resembles a unified diff of Nmap\'s normal terminal output\&. Each line is preceded by a character indicating whether and how it changed\&.
 \-
