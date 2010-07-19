@@ -536,7 +536,6 @@ explanation of the <option>--script</option> option.
 </para>
 
 <indexterm><primary>script database</primary><see><filename>script.db</filename></see></indexterm>
-<indexterm><primary>scripts, location of</primary></indexterm>
 <para>Nmap scripts are stored in a <filename>scripts</filename>
 subdirectory of the Nmap data directory by default (see
 <xref linkend="data-files"/>). For efficiency, scripts are indexed in
@@ -1373,7 +1372,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	      </term>
 	    <listitem>
 	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
-                  of the destination host (six-byte long binary
+                  of the destination host (six-byte-long binary
 		  string) or <literal>nil</literal>, if the host is not directly connected. 
 		  </para>
 	    </listitem>
@@ -1382,7 +1381,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    <term><option>host.mac_addr_next_hop</option>
 	      </term>
 	    <listitem>
-	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
+	      <para>MAC address
 	      of the first hop in the route to the host, or
 	      <literal>nil</literal> if not available.
 	      </para>
@@ -2928,8 +2927,8 @@ end
     a chunk of random-looking data. Proper identification requires
     sending two probes and comparing the two responses&mdash;an ideal
     task for NSE.  The simple NSE script which accomplishes this is
-    shown in <xref linkend="nse-skypev2-script" xrefstyle="select:
-    label nopage"/>.
+    shown in
+    <xref linkend="nse-skypev2-script" xrefstyle="select: label nopage"/>.
     </para>
 
 <example id="nse-skypev2-script">

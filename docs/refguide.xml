@@ -688,7 +688,7 @@ you would expect.</para>
           INIT chunk.  The default destination port is 80 (configurable
           at compile time by changing
           <varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname><indexterm><primary><varname>DEFAULT_SCTP_PROBE_PORT_SPEC</varname></primary></indexterm>
-          in <filename>nmap.h</filename>).<indexterm><primary><filename>nmap.h</filename></primary></indexterm>
+          in <filename>nmap.h</filename>).
           Alternate ports can be specified as a parameter. The syntax
           is the same as for the
           <option>-p</option> except that port type specifiers like
@@ -3362,7 +3362,6 @@ support the option completely, as does UDP scan.</para>
         <indexterm><primary>CRC32C checksum</primary></indexterm>
         <indexterm><primary>Adler32 checksum</primary></indexterm>
         <indexterm><primary>SCTP checksum</primary></indexterm>
-        <indexterm><primary>checksums</primary></indexterm>
         </term>
         <listitem>
 
