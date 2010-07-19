@@ -3376,7 +3376,7 @@ support the option completely, as does UDP scan.</para>
   later redefined the SCTP checksums to use CRC-32C.  Current SCTP
   implementations should be using CRC-32C, but in order to elicit
   responses from old, legacy SCTP implementations, it may be
-  preferrable to use Adler32.</para>
+  preferable to use Adler32.</para>
         </listitem>
       </varlistentry>
 

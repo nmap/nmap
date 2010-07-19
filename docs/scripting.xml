@@ -2113,7 +2113,7 @@ local localip, localport = try(client_service:get_info())
     as well as multi-line code examples. When a sequence of lines start
     with the characters <quote><literal>* </literal></quote>, they will
     be rendered as a bulleted list. Each list item must be entirely on
-    one pysical line.
+    one physical line.
     </para>
 
     <para>
@@ -3126,7 +3126,7 @@ end
       <literal>package</literal>,
       <literal>string</literal>, and
       <literal>table</literal>.
-      Compiled NSE libraries are those that are defiend in a C++ file instead
+      Compiled NSE libraries are those that are defined in a C++ file instead
       of a Lua file. They include
       <literal>nmap</literal>,
       <literal>pcre</literal>,
@@ -3174,7 +3174,7 @@ end
       <para>
         Finally, the scripts listed on the command line are loaded.
         The <literal>get_chosen_scripts</literal> function works to find
-        chosen scripts by comparing categories, filenames, and directoriy names.
+        chosen scripts by comparing categories, filenames, and directory names.
         The scripts are loaded into memory for later use.
         <literal>get_chosen_scripts</literal> works by transforming the
         argument to <literal>--script</literal> into a block of Lua code and
