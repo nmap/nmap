@@ -208,6 +208,7 @@ Ranges need not be limited to the final octets: the specifier
 addresses ending in 13.37.  This sort of broad sampling can be useful
 for Internet surveys and research.</para>
 
+<indexterm><primary>IPv6</primary></indexterm>
 <para>IPv6 addresses can only be specified by their fully qualified IPv6
 address or hostname.  CIDR and octet ranges aren't supported for
 IPv6 because they are rarely useful.</para>
