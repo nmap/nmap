@@ -150,7 +150,7 @@ The reference manual is also
 
 <example id="nse-ex1"><title>Typical NSE output</title><indexterm><primary><option>-sC</option></primary><secondary>example of</secondary></indexterm>
 <screen>
-# nmap -sC -p22,111,139 -T4 localhost
+# <userinput>nmap -sC -p22,111,139 -T4 localhost</userinput>
 
 Starting Nmap ( http://nmap.org )
 Nmap scan report for flog (127.0.0.1)

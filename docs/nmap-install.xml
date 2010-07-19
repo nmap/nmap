@@ -32,7 +32,7 @@ you should see output similar to that in <xref linkend="ex-checking-for-nmap" xr
 <!--REMEMBER TO UPDATE TEXT BELOW THE SCREENSHOT WHEN I UPDATE THE SCREENSHOT
     TO LATEST VERSION -->
 <screen>
-felix~&gt;nmap --version
+felix~&gt; <userinput>nmap --version</userinput>
 
 Nmap version 4.76 ( http://nmap.org )
 felix~&gt;
@@ -139,7 +139,7 @@ linkend="ex-check-gpg-keys" xrefstyle="select: label nopage"/>.</para>
 <example id="ex-check-gpg-keys">
 <title>Verifying the Nmap and Fyodor PGP Key Fingerprints</title>
 <screen>
-flog~&gt; gpg --fingerprint nmap fyodor
+flog~&gt; <userinput>gpg --fingerprint nmap fyodor</userinput>
 pub 1024D/33599B5F 2005-04-24
     Key fingerprint = BB61 D057 C0D7 DCEF E730 996C 1AF6 EC50 3359 9B5F
 uid                Fyodor &lt;fyodor@insecure.org&gt;
@@ -168,7 +168,7 @@ linkend="ex-gpg-verify-nmap-release-bad" xrefstyle="select: label nopage"/>.</pa
 <example id="ex-gpg-verify-nmap-release-good">
 <title>Verifying PGP key fingerprints (Successful)</title>
 <screen>
-flog&gt; gpg --verify nmap-4.76.tar.bz2.asc 
+flog&gt; <userinput>gpg --verify nmap-4.76.tar.bz2.asc </userinput>
 gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: Good signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
@@ -176,7 +176,7 @@ gpg: Good signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 <example id="ex-gpg-verify-nmap-release-bad">
 <title>Detecting a bogus file</title>
 <screen>
-flog&gt; gpg --verify nmap-4.76.tar.bz2.asc nmap-4.76-hacked.tar.bz2
+flog&gt; <userinput>gpg --verify nmap-4.76.tar.bz2.asc nmap-4.76-hacked.tar.bz2</userinput>
 gpg: Signature made Fri 12 Sep 2008 02:03:59 AM PDT using DSA key ID 6B9355D0
 gpg: BAD signature from "Nmap Project Signing Key (http://www.insecure.org/)"
 </screen></example>
@@ -202,7 +202,7 @@ linkend="ex-digest-file-verify" />.</para>
 <example id="ex-digest-file">
 <title>A typical Nmap release digest file</title>
 <screen>
-flog&gt; cat sigs/nmap-4.76.tgz.digest.txt 
+flog&gt; <userinput>cat sigs/nmap-4.76.tgz.digest.txt </userinput>
 nmap-4.76.tgz:    MD5 = 54 B5 C9 E3 F4 4C 1A DD  E1 7D F6 81 70 EB 7C FE
 nmap-4.76.tgz:   SHA1 = 4374 CF9C A882 2C28 5DE9  D00E 8F67 06D0 BCFA A403
 nmap-4.76.tgz: RMD160 = AE7B 80EF 4CE6 DBAA 6E65  76F9 CA38 4A22 3B89 BD3A
@@ -220,12 +220,12 @@ nmap-4.76.tgz: SHA512 = 826CD89F 7930A765 C9FE9B41 1DAFD113 2C883857 2A3A9503
 <example id="ex-digest-file-verify">
 <title>Verifying Nmap hashes</title>
 <screen>
-flog&gt; gpg --print-md sha256 nmap-4.76.tgz 
+flog&gt; <userinput>gpg --print-md sha256 nmap-4.76.tgz </userinput>
 nmap-4.76.tgz: 0E960E05 53EB7647 0C8517A0 038092A3 969DB65C BE23C03F D6DAEF1A
                CDCC9658
-flog&gt; sha1sum nmap-4.76.tgz 
+flog&gt; <userinput>sha1sum nmap-4.76.tgz </userinput>
 4374cf9ca8822c285de9d00e8f6706d0bcfaa403  nmap-4.76.tgz
-flog&gt; md5sum nmap-4.76.tgz
+flog&gt; <userinput>md5sum nmap-4.76.tgz</userinput>
 54b5c9e3f44c1adde17df68170eb7cfe  nmap-4.76.tgz
 </screen></example>
 
@@ -324,9 +324,9 @@ in the decompression command.</para></listitem>
 
 <example id="ex-configure-success">
 <title>Successful configuration screen</title>
-<screen><![CDATA[
-flog~/nmap> ./configure
-checking build system type... x86_64-unknown-linux-gnu
+<screen>
+flog~/nmap> <userinput>./configure</userinput>
+<![CDATA[checking build system type... x86_64-unknown-linux-gnu
 [hundreds of lines cut]
 configure: creating ./config.status
 config.status: creating Makefile
@@ -556,11 +556,11 @@ upgraded. <xref linkend="ex-nmap-install-from-rpms" xrefstyle="select: label nop
 
 <example id="ex-nmap-install-from-rpms"><title>Installing Nmap from binary RPMs</title>
 <screen>
-# rpm -vhU http://nmap.org/dist/nmap-4.68-1.i386.rpm
+# <userinput>rpm -vhU http://nmap.org/dist/nmap-4.68-1.i386.rpm</userinput>
 Retrieving http://nmap.org/dist/nmap-4.68-1.i386.rpm
 Preparing...                ########################################### [100%]
    1:nmap                   ########################################### [100%]
-# rpm -vhU http://nmap.org/dist/zenmap-4.68-1.noarch.rpm
+# <userinput>rpm -vhU http://nmap.org/dist/zenmap-4.68-1.noarch.rpm</userinput>
 Retrieving http://nmap.org/dist/zenmap-4.68-1.noarch.rpm
 Preparing...                ########################################### [100%]
    1:zenmap                 ########################################### [100%]
@@ -571,13 +571,13 @@ Preparing...                ########################################### [100%]
 
 <example id="ex-nmap-install-from-srpms"><title>Building and installing Nmap from source RPMs</title>
 <screen>
-&gt; rpmbuild --rebuild http://nmap.org/dist/nmap-4.68-1.src.rpm
+&gt; <userinput>rpmbuild --rebuild http://nmap.org/dist/nmap-4.68-1.src.rpm</userinput>
 [ hundreds of lines cut ]
 Wrote: /home/fyodor/rpmdir/RPMS/i386/nmap-4.68-1.i386.rpm
 [ cut ]
-&gt; su
+&gt; <userinput>su</userinput>
 Password: 
-# rpm -vhU /home/fyodor/rpmdir/RPMS/i386/nmap-4.68-1.i386.rpm
+# <userinput>rpm -vhU /home/fyodor/rpmdir/RPMS/i386/nmap-4.68-1.i386.rpm</userinput>
 Preparing...                ########################################### [100%]
    1:nmap                   ########################################### [100%]
 #
@@ -626,9 +626,9 @@ linkend="ex-nmap-install-from-yum" xrefstyle="select: label nopage" />.  You can
 packages in the repository.</para>
 
 <example id="ex-nmap-install-from-yum"><title>Installing Nmap from a system Yum repository</title>
-<screen><![CDATA[
-flog~#yum install nmap
-Setting up Install Process
+<screen>
+flog~# <userinput>yum install nmap</userinput>
+<![CDATA[Setting up Install Process
 Parsing package install arguments
 Resolving Dependencies
 --> Running transaction check
@@ -925,10 +925,10 @@ on the computer (user should be a member of the <literal>administrators</literal
 the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
 -> <guimenuitem>Run</guimenuitem> and type <command>cmd&lt;enter&gt;</command>.  Opening a Cygwin window (if you installed it) by clicking on the Cygwin icon on the desktop works too, although the necessary commands differ slightly from those shown here.</para></listitem>
 <listitem><para>Change to the directory you installed Nmap into.  Assuming you used the default path, type the following commands.</para>
-<programlisting>
-c:
-cd "\Program Files\Nmap"
-</programlisting>
+<screen>
+<userinput>c:</userinput>
+<userinput>cd "\Program Files\Nmap"</userinput>
+</screen>
 </listitem>
 <listitem><para>Execute <command>nmap.exe</command>.  <xref linkend="fig-windows-cmdshell-exec" xrefstyle="select: label nopage" /> is a screen shot showing a simple example.</para>
 </listitem>
@@ -1319,11 +1319,11 @@ uninstall</command>.  Alternatively, you can simply delete all the
 Nmap-related files.  If you used a default source install of Nmap
 versions 4.50 or higher, the following commands remove it.</para>
 <screen>
-# cd /usr/local
-# rm -f bin/nmap bin/nmapfe bin/xnmap
-# rm -f man/man1/nmap.1 man/man1/zenmap.1
-# rm -rf share/nmap
-# ./bin/uninstall_zenmap
+# <userinput>cd /usr/local</userinput>
+# <userinput>rm -f bin/nmap bin/nmapfe bin/xnmap</userinput>
+# <userinput>rm -f man/man1/nmap.1 man/man1/zenmap.1</userinput>
+# <userinput>rm -rf share/nmap</userinput>
+# <userinput>./bin/uninstall_zenmap</userinput>
 </screen>
 <para>You may have to adjust the above commands slightly if you
 specified <option>--prefix</option> or other install-path option when

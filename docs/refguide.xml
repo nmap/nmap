@@ -96,7 +96,7 @@
 <example id="man-ex-repscan"><title>A representative Nmap scan</title>
 <indexterm><primary><option>-A</option></primary><secondary>example of</secondary></indexterm>
 <screen>
-# nmap -A -T4 scanme.nmap.org
+# <userinput>nmap -A -T4 scanme.nmap.org</userinput>
 
 Nmap scan report for scanme.nmap.org (64.13.134.52)
 Host is up (0.045s latency).
@@ -179,7 +179,8 @@ between 192.168.10.0
 (binary: <literal>11000000 10101000 00001010 00000000</literal>)
 and 192.168.10.255
 (binary: <literal>11000000 10101000 00001010 11111111</literal>),
-inclusive. 192.168.10.40/24 would scan exactly the same targets. Given
+inclusive.
+<literal>192.168.10.40/24</literal> would scan exactly the same targets. Given
 that the host
 scanme.nmap.org<indexterm><primary>scanme.nmap.org</primary></indexterm>
 is at the IP address 64.13.134.52, the specification
