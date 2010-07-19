@@ -121,9 +121,9 @@
     </para>
 
 <screen>
-# nmap -F scanme.nmap.org -oX scanme-1.xml
-# nmap --script=html-title scanme.nmap.org -oX scanme-2.xml
-$ ndiff -v scanme-1.xml scanme-2.xml
+# <userinput>nmap -F scanme.nmap.org -oX scanme-1.xml</userinput>
+# <userinput>nmap --script=html-title scanme.nmap.org -oX scanme-2.xml</userinput>
+$ <userinput>ndiff -v scanme-1.xml scanme-2.xml</userinput>
 -Nmap 5.35DC1 at 2010-07-16 12:09
 +Nmap 5.35DC1 at 2010-07-16 12:13
 
@@ -177,9 +177,9 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     </para>
 
     <para>
-    <xref linkend="ndiff-man-ex-text-output"/> is an example of text
-    output. Here, port 80 on the host
-    <literal>photos-cache-snc1.facebook.com</literal> gained a service
+    <xref linkend="ndiff-man-ex-text-output" xrefstyle="select: label nopage"/>
+    is an example of text output. Here, port 80 on the host
+    photos-cache-snc1.facebook.com gained a service
     version (<computeroutput>lighttpd 1.5.0</computeroutput>). The host
     at 69.63.179.25 changed its reverse DNS name. The host at
     69.63.184.145 was completely absent in the first scan but came up in
@@ -228,11 +228,11 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     </para>
 
     <para>
-    <xref linkend="ndiff-man-ex-xml-output"/> shows the XML diff of the
-    same scans shown above in
+    <xref linkend="ndiff-man-ex-xml-output" xrefstyle="select: label nopage"/>
+    shows the XML diff of the same scans shown above in
     <xref linkend="ndiff-man-ex-text-output" xrefstyle="select: label"/>.
     Notice how port 80 of
-    <literal>photos-cache-snc1.facebook.com</literal> is enclosed in
+    photos-cache-snc1.facebook.com is enclosed in
     <varname>portdiff</varname> tags. For 69.63.179.25, the old hostname
     is in <varname>a</varname> tags and the new is in
     <varname>b</varname>. For the new host 69.63.184.145, there is a
@@ -244,8 +244,7 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     <example id="ndiff-man-ex-xml-output">
       <title>Ndiff XML output</title>
 <screen>
-<![CDATA[
-<?xml version="1.0" encoding="UTF-8"?>
+<![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <nmapdiff version="1">
   <scandiff>
     <hostdiff>
@@ -321,8 +320,8 @@ $ ndiff -v scanme-1.xml scanme-2.xml
     Using Nmap, Ndiff, cron, and a shell script, it's possible to scan a
     network daily and get email reports of the state of the network and
     changes since the previous scan.
-    <xref linkend="ndiff-man-ex-cron"/> shows the script that ties it
-    together.
+    <xref linkend="ndiff-man-ex-cron" xrefstyle="select: label nopage"/>
+    shows the script that ties it together.
     </para>
 
     <example id="ndiff-man-ex-cron">
