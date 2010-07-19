@@ -74,6 +74,10 @@ o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
 
+o Now that we've put the ndiff, ncat, and nping man pages under the
+  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
+  to add a redirect from the old locations and also update our links.
+
 o Look into implementing security technologies such as DEP and ASL on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
@@ -113,6 +117,8 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
 
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
+  o Also take close look at Mozilla's license modernization project:
+    http://mpl.mozilla.org/scope/
 
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
