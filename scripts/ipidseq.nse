@@ -1,5 +1,5 @@
 description = [[
-Classifies a host's IP ID sequence (test for susceptability to idle
+Classifies a host's IP ID sequence (test for susceptibility to idle
 scan).
 
 Sends six probes to obtain IP IDs from the target and classifies them

@@ -1,5 +1,5 @@
 description = [[
-Attempts to get useful informations about files from NFS exports.
+Attempts to get useful information about files from NFS exports.
 The output is intended to resemble the output of <code>ls</code>.
 
 The script starts by enumerating and mounting the remote NFS exports. After 

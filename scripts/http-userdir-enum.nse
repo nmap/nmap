@@ -2,7 +2,7 @@ author = "jah"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 description = [[
-Attempts to enumerate valid usernames on webservers running with the mod_userdir
+Attempts to enumerate valid usernames on web servers running with the mod_userdir
 module or similar enabled.
 
 The Apache mod_userdir module allows user-specific directories to be accessed

@@ -1,5 +1,5 @@
 description = [[ 
-Extracts a list of applications, acls, and settings from the Citrix XML
+Extracts a list of applications, ACLs, and settings from the Citrix XML
 service.
 
 The script returns more output with higher verbosity.

@@ -2,9 +2,9 @@ description = [[
 Checks for vulnerabilities:
 * MS08-067, a Windows RPC vulnerability
 * Conficker, an infection by the Conficker worm
-* Unnamed regsvc DoS, a denial-of-service vulnerability I accidentically found in Windows 2000
+* Unnamed regsvc DoS, a denial-of-service vulnerability I accidentally found in Windows 2000
 * SMBv2 exploit (CVE-2009-3103, Microsoft Security Advisory 975497)
-* MS06-025, a Windows Ras RPC service vulnerablity
+* MS06-025, a Windows Ras RPC service vulnerability
 * MS07-029, a Windows Dns Server RPC service vulnerability
 
 WARNING: These checks are dangerous, and are very likely to bring down a server. 

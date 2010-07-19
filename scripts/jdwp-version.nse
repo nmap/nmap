@@ -1,6 +1,6 @@
 description = [[
 Detects the Java Debug Wire Protocol. This protocol is used by Java programs
-to be debugged via the network. It should not be open to the public internet,
+to be debugged via the network. It should not be open to the public Internet,
 as it does not provide any security against malicious attackers who can inject
 their own bytecode into the debugged process.
 
