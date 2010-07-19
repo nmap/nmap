@@ -22,6 +22,9 @@ extern "C" {
 
 extern NmapOps o;
 
+static const char *NSE_PROTOCOL_OP[] = {"tcp", "udp", "sctp", NULL};
+static const int NSE_PROTOCOL[] = {IPPROTO_TCP, IPPROTO_UDP, IPPROTO_SCTP};
+
 static void setsfield (lua_State *L, int idx, const char *field, const char *what)
 {
   lua_pushvalue(L, idx);
@@ -407,16 +410,14 @@ Port *get_port (lua_State *L, Target *target, Port *port, int index)
  */
 static int l_get_ports (lua_State *L)
 {
-  static const char *op1[] = {"tcp", "udp", "sctp", NULL};
-  static const int states1[] = {IPPROTO_TCP, IPPROTO_UDP, IPPROTO_SCTP};
-  static const char *op2[] = {"open", "filtered", "unfiltered", "closed",
+  static const char *state_op[] = {"open", "filtered", "unfiltered", "closed",
       "open|filtered", "closed|filtered", NULL};
-  static const int states2[] = {PORT_OPEN, PORT_FILTERED, PORT_UNFILTERED,
+  static const int states[] = {PORT_OPEN, PORT_FILTERED, PORT_UNFILTERED,
       PORT_CLOSED, PORT_OPENFILTERED, PORT_CLOSEDFILTERED};
   Port *p = NULL, port;
   Target *target = get_target(L, 1);
-  int protocol = states1[luaL_checkoption(L, 3, NULL, op1)];
-  int state = states2[luaL_checkoption(L, 4, NULL, op2)];
+  int protocol = NSE_PROTOCOL[luaL_checkoption(L, 3, NULL, NSE_PROTOCOL_OP)];
+  int state = states[luaL_checkoption(L, 4, NULL, state_op)];
 
   if (!lua_isnil(L, 2))
     p = get_port(L, target, &port, 2);
@@ -462,20 +463,10 @@ static int l_get_port_state (lua_State *L)
  * */
 static int l_port_is_excluded (lua_State *L)
 {
-  unsigned short portno;
-  int protocol;
+  unsigned short portno = (unsigned short) luaL_checkint(L, 1);
+  int protocol = NSE_PROTOCOL[luaL_checkoption(L, 2, NULL, NSE_PROTOCOL_OP)];
 
-  if (!lua_isnumber(L, 1))
-    luaL_error(L, "port 'number' field must be a number");
-  if (!lua_isstring(L, 2))
-    luaL_error(L, "port 'protocol' field must be a string");
-
-  portno = (unsigned short) lua_tointeger(L, 1);
-  protocol = strcmp(lua_tostring(L, 2), "tcp") == 0 ? IPPROTO_TCP :
-             strcmp(lua_tostring(L, 2), "udp") == 0 ? IPPROTO_UDP :
-             luaL_error(L, "port 'protocol' field must be \"tcp\" or \"udp\"");
-
-  lua_pushboolean(L,AllProbes::check_excluded_port(portno, protocol)); 
+  lua_pushboolean(L, AllProbes::check_excluded_port(portno, protocol)); 
   return 1;
 }
 
