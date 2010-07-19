@@ -174,7 +174,7 @@ Inter-Domain Routing)</primary></indexterm> addressing.  You can append
 address or hostname and Nmap will scan every IP address for which the
 first <replaceable>numbits</replaceable> are the same as for the
 reference IP or hostname given. For example,
-<literal>192.168.10.0/24</literal> would would scan the 256 hosts
+<literal>192.168.10.0/24</literal> would scan the 256 hosts
 between 192.168.10.0
 (binary: <literal>11000000 10101000 00001010 00000000</literal>)
 and 192.168.10.255

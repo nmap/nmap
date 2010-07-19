@@ -2451,7 +2451,7 @@ categories = {"discovery", "external", "safe"}
         Finally, when using worker threads you should always use condition
         variables or mutexes to coordinate them. Nmap is single-threaded so
         there are no memory synchronization issues to worry about; but there
-        <emphasis>is</emphasis> is contention for resources.
+        <emphasis>is</emphasis> contention for resources.
         These resources include usually network bandwidth and sockets.
         Condition variables are also useful if the work for any
         single thread is dynamic. For example, a web server spider script with
@@ -2503,7 +2503,7 @@ end
         For brevity, this example omits typical behavior of a traditional web
         spider. The requests table is assumed to contain enough objects
         to warrant the use of worker threads.  The code in this example
-        example dispatches a new thread with as many as 11 relative URLs.
+        dispatches a new thread with as many as 11 relative URLs.
         Worker threads are cheap, so don't be afraid to create a lot of them.
         After dispatching all these threads, the code waits on a
         condition variable until every thread
@@ -3152,7 +3152,7 @@ end
         environment to be ready for script scanning later on. It
         loads all the scripts the user has chosen and returns a function
         that does the actual script scanning to
-        to <literal>open_nse</literal>.
+        <literal>open_nse</literal>.
       </para>
 
       <para>
