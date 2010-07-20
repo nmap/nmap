@@ -157,11 +157,14 @@ o [Zenmap] should actually parse and use script results. See
 
 o Do a serious analysis if and how we should use the NIST CPE standard
   (http://cpe.mitre.org/) for OS detection and (maybe in a different
-  phase) version detection results.  Here are some
-  discussions threads on that:
+  phase) version detection results.  One thing to note is that they
+  may not have entries for many vendors we have.  For example, one
+  person told me they couldn't find SonicWall or D-Link in the CPE
+  dictionary.  Here are some
+  discussions threads on adding CPE to Nmap:
   http://seclists.org/nmap-dev/2008/q4/627 and
-  http://seclists.org/nmap-dev/2010/q2/788.  Nessus has described
-  their integration of CPE at
+  http://seclists.org/nmap-dev/2010/q2/788.
+  Nessus has described their integration of CPE at
   http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
 
 o The -g (set source port) option doesn't seem to be working (at least
