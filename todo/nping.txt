@@ -66,7 +66,7 @@ o [EM] Things to decide on:
     have changed and pass them back. (see Fyodor/Luis IM discussion logs
     from 6/28/10).
 
-* [EM] Begin coding the echo mode system
+* [EM] Make sure -h and the man page have info about the echo mode.
 
 * Fix Windows rtt values.  Right now Nsock does not seem to be giving
   the callback at the proper time, or something.
