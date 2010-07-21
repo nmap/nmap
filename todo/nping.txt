@@ -59,12 +59,27 @@
     tcp dst port 9929 (or --echo-port N, if that is set), because 1) the
     echo server does not capture those packets and 2) to avoid messing up the
     established side-channel tcp connection.
+    
+* [EM] Implement crypto
 
-o [EM] Things to decide on:
-  o Decide on packet specifiers that can be passed to the server so it
-    can recognize packets sent by the client even if a number of headers
-    have changed and pass them back. (see Fyodor/Luis IM discussion logs
-    from 6/28/10).
+* [EM] Try to delay output for RCVD packets. Let's see how difficult this gets.
+
+* [EM] Add received echoed packet to the final statistics.
+
+* [EM] Get rid of some messages that are currently displayed in the client.
+  Print them only if debugging level is high enough.
+
+* [EM] Improve client error handling. Currently it doesn't behave well when
+  the server crashes.
+
+* [EM] Make the server detect when a client disconnects and delete its context
+  data.
+
+* [EM] For CAPT packets, decide if we want to print the full info or just
+  the fields that have changed in transit.
+
+* [EM] Make the client timeout if the server does not send data during
+  handshake. Currently the client waits forever.
 
 * [EM] Make sure -h and the man page have info about the echo mode.
 
@@ -249,8 +264,8 @@ o [EM] Things to decide on:
 * Consider adding RFC-style output for send/recv packets.
 
 * Add support for custom IP binding: if user supplies -S then
-  the echo side-channel (and also in TCP-Connect mode) then the TCP
-  connection is established from that IP. 
+  the echo side-channel connection and connections in TCP-Connect mode should be
+  established from that IP. This includes the echo server binding to that IP. 
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -548,3 +563,9 @@ o [EM] Things to decide on:
     assume there are some differences found, like a NAT is in place)
      o A key aspect of this task is determining what diffs are going
        to look like.
+
+[DONE] [EM] Things to decide on:
+  o Decide on packet specifiers that can be passed to the server so it
+    can recognize packets sent by the client even if a number of headers
+    have changed and pass them back. (see Fyodor/Luis IM discussion logs
+    from 6/28/10).
