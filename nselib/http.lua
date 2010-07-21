@@ -834,7 +834,7 @@ local function insert_cache (state, response)
     local record = {
       result = tcopy(response),
       last_used = os.time(),
-      get = state.method,
+      method = state.method,
       size = type(response.body) == "string" and #response.body or 0,
     };
     response = record.result; -- only modify copy
