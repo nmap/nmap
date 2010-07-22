@@ -1,11 +1,8 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Update "History and Future of Nmap"
-  (http://nmap.org/book/history-future.html) to include all the news
-  since September 2008. [Fyodor]
-
-o Make sure the long output lines in Nping's man page are OK for the book.
-  See r18829 and r18864.
+o Now that we've put the ndiff, ncat, and nping man pages under the
+  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
+  to add a redirect from the old locations and also update our links.
 
 o Add this patch for compilation on OpenSolaris.
   http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on
@@ -74,10 +71,6 @@ o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
 
-o Now that we've put the ndiff, ncat, and nping man pages under the
-  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
-  to add a redirect from the old locations and also update our links.
-
 o Look into implementing security technologies such as DEP and ASL on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
@@ -124,6 +117,8 @@ o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
   things.
+  o Note that nping has its own /nmap/nping/docs/genmanpage.sh - we
+  could look at how that could apply to Nmap.
 
 o Create Nmap wiki
 
@@ -172,6 +167,25 @@ o The -g (set source port) option doesn't seem to be working (at least
   and apparently doesn't work for NSE either.  We should fix this
   where we can, and document the limitation in the refguide where it
   is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
+
+o Further brainstorm and consider implementing more prerule/postrule
+  scripts:
+   o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
+   o IPv6 Neighbor Discovery Protocol:
+     http://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol
+   o DNS service discovery (Bonjour): http://en.wikipedia.org/wiki/Bonjour_%28software%29
+   o Broadcast ping (could ping broadcast address and either report
+     IPs+Mac addresses that it sees, or even add them to the scan queue
+     if requested).
+   o Netbios Name Service
+   o DHCP broadcast requests
+   o Postrules could be created which give final reports/statistics or
+     other useful output.  Like a reverse-index, which shows all the open
+     port numbers individually and the hosts which had that port open
+     (e.g. so you can see all the ssh servers at once, etc.)
+     Admittedly you can do that pretty easy with Zenmap instead.
+   o [Implemented] dns-zone-transfer
+   o [Implemented, but a joke] http-california-plates
 
 o The latest IANA services file
   (http://www.iana.org/assignments/port-numbers) has many identified
@@ -661,6 +675,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Make sure the long output lines in Nping's man page are OK for the book.
+  See r18829 and r18864.
+
+o Update "History and Future of Nmap"
+  (http://nmap.org/book/history-future.html) to include all the news
+  since September 2008. [Fyodor]
 
 o Fix Win7 networking issue reported by Luis which seems to have been
   triggered by r17542. See this thread:
