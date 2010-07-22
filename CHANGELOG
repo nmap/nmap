@@ -302,11 +302,6 @@ o [Nping] A big correctness and code cleanliness audit was performed
   shared with Nmap rather than duplicated. A structured testing
   script system was also created. [Luis, David]
 
-o [Nping] A big correctness and code cleanliness audit was performed
-  which resulted in many bugs being fixed and much more code being
-  shared with Nmap rather than duplicated. A structured testing
-  script system was also created. [Luis, David]
-
 o [Nping] Now allows a --count value of zero to run almost
   indefinitely (2^32 rounds). Suggested by Andreas Hubert. [Luis]
 
