@@ -52,6 +52,10 @@ o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
 o [NSE] Review new brute, vnc, and svn scripts by Patrik.  This guy is
   a coding machine :).  http://seclists.org/nmap-dev/2010/q3/111
 
+o Let Nsock log to stdout, so its messages don't get mixed up with the
+  output stream when Ncat is run with -vvv.
+  http://seclists.org/nmap-dev/2010/q3/113
+
 o Ncat should probably support SSL Server Name Indication (SNI). See
   this thread: http://seclists.org/nmap-dev/2010/q3/112
 
