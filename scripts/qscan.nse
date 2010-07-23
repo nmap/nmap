@@ -367,7 +367,7 @@ action = function(host)
 	local saddr = packet.toip(host.bin_ip_src)
 	local daddr = packet.toip(host.bin_ip)
 	local port
-	local start, stop
+	local start
 	local rtt
 	local stats = {}
 	local try = nmap.new_try()
@@ -410,9 +410,15 @@ action = function(host)
 
 			stats[j].sent = stats[j].sent + 1
 
-			local status, len, _, pkt = pcap:pcap_receive()
+			local status, len, _, pkt, stop = pcap:pcap_receive()
 
-			stop = nmap.clock_ms()
+			if not stop then
+				-- probably a timeout, just grab current time
+				stop = nmap.clock_ms()
+			else
+				-- we gotta use msecs
+				stop = stop * 1000
+			end
 
 			rtt = stop - start
 

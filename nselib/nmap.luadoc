@@ -564,15 +564,16 @@ function pcap_register(packet_hash)
 --
 -- If an error or timeout occurs, the function returns false and an error
 -- message. Otherwise, the function returns true followed by the packet length,
--- the layer two header, and the layer three header.
+-- layer two header, layer three header and packet capture time.
 -- @return Status (true or false).
 -- @return The length of the captured packet (this may be smaller than the
 -- actual packet length since packets are truncated when the Libpcap snaplen
 -- parameter is smaller than the total packet length).
 -- @return Data from the second OSI layer (e.g. ethernet headers).
 -- @return Data from the third OSI layer (e.g. IPv4 headers).
+-- @return Packet capture time, as floating point seconds since the epoch
 -- @see pcap_open, pcap_register
--- @usage status, plen, l2_data, l3_data = socket:pcap_receive()
+-- @usage status, plen, l2_data, l3_data, time = socket:pcap_receive()
 function pcap_receive()
 
 --- Closes a pcap device.

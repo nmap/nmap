@@ -135,6 +135,8 @@ struct ncap_request
                                                   * statusstring contains error 
                                                   * description */
   char *r_status;                                /* errorstring */
+  struct timeval recvtime;                       /* Time packet was received,
+                                                  * if r_success is true */
 
   unsigned char *r_layer2;
   size_t r_layer2_len;
@@ -1767,9 +1769,10 @@ void ncap_request_set_result(nsock_event nse, struct ncap_request *nr)
       const unsigned char *l2_data, *l3_data;
 
       size_t l2_len, l3_len, packet_len;
+      struct timeval tv;
 
       nse_readpcap(nse, &l2_data, &l2_len, &l3_data, &l3_len,
-          &packet_len, NULL);
+          &packet_len, &tv);
       char *packet = (char *) safe_malloc(l2_len + l3_len);
 
       nr->r_layer2 = (unsigned char *) packet;
@@ -1779,6 +1782,7 @@ void ncap_request_set_result(nsock_event nse, struct ncap_request *nr)
       nr->r_layer2_len = l2_len;
       nr->r_layer3_len = l3_len;
       nr->packetsz = packet_len;
+      nr->recvtime = tv;
       break;
     }
     case NSE_STATUS_ERROR:
@@ -1819,10 +1823,12 @@ int ncap_restore_lua(ncap_request * nr)
     lua_pushnumber(L, nr->packetsz);
     lua_pushlstring(L, (char *) nr->r_layer2, nr->r_layer2_len);
     lua_pushlstring(L, (char *) nr->r_layer3, nr->r_layer3_len);
+    lua_pushnumber(L, (double) nr->recvtime.tv_sec + (double) nr->recvtime.tv_usec / 1000000);
   } else
   {
     lua_pushnil(L);
     lua_pushstring(L, nr->r_status);
+    lua_pushnil(L);
     lua_pushnil(L);
     lua_pushnil(L);
   }
@@ -1842,9 +1848,9 @@ int ncap_restore_lua(ncap_request * nr)
   free(nr);
 
   if (suspended)                       /* lua process is suspended */
-    nse_restore(L, 4);
+    nse_restore(L, 5);
   else                                 /* not suspended, just pass output */
-    return 4;
+    return 5;
   return 0;
 }
 

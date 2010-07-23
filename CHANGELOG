@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] When receiving raw packets from Pcap, the packet capture time
+  is now available to scripts as an additional return value from
+  pcap_receive().  It is returned as the floating point number of
+  seconds since the epoch.  The qscan.nse script was updated to use
+  this more accurate data instead of using the clock_ms() function
+  (which returns the current time). [Kris]
+
 o [Zenmap] Fixed a crash that would happen after opening the search
   window, entering a relative date criterion such as "after:-7", and
   then clicking the "Expressions" button. The error message was
