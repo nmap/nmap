@@ -29,13 +29,14 @@ description = [[
 --
 -- @output
 -- | qscan:
--- | PORT  FAMILY  MEAN (ms)  STDDEV  LOSS (%)
--- | 21    0       2.70       1.25    0.0%
--- | 22    0       2.50       0.53    0.0%
--- | 23    1       4.80       0.63    0.0%
--- | 25    0       2.40       0.52    0.0%
--- | 80    0       2.40       0.70    0.0%
--- |_443   0       2.40       0.52    0.0%
+-- | PORT  FAMILY  MEAN (us)  STDDEV  LOSS (%)
+-- | 21    0       2082.70    460.72  0.0%
+-- | 22    0       2211.70    886.69  0.0%
+-- | 23    1       4631.90    606.67  0.0%
+-- | 24    0       1922.40    336.90  0.0%
+-- | 25    0       2017.30    404.31  0.0%
+-- | 80    1       4180.80    856.98  0.0%
+-- |_443   0       2013.30    368.91  0.0%
 -- 
 
 -- 03/17/2010
@@ -46,6 +47,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"safe", "discovery"}
 
+require 'stdnse'
 require 'bin'
 require 'packet'
 require 'tab'
@@ -229,7 +231,7 @@ local report = function(stats)
 
 	tab.add(outtab, 1, "PORT")
 	tab.add(outtab, 2, "FAMILY")
-	tab.add(outtab, 3, "MEAN (ms)")
+	tab.add(outtab, 3, "MEAN (us)")
 	tab.add(outtab, 4, "STDDEV")
 	tab.add(outtab, 5, "LOSS (%)")
 
@@ -404,7 +406,7 @@ action = function(host)
 
 			pcap:pcap_register(bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport))
 
-			start = nmap.clock_ms()
+			start = stdnse.clock_us()
 
 			try(sock:ip_send(tcp.buf))
 
@@ -414,10 +416,10 @@ action = function(host)
 
 			if not stop then
 				-- probably a timeout, just grab current time
-				stop = nmap.clock_ms()
+				stop = stdnse.clock_us()
 			else
-				-- we gotta use msecs
-				stop = stop * 1000
+				-- we use usecs
+				stop = stop * 1000000
 			end
 
 			rtt = stop - start

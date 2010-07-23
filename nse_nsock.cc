@@ -1823,7 +1823,7 @@ int ncap_restore_lua(ncap_request * nr)
     lua_pushnumber(L, nr->packetsz);
     lua_pushlstring(L, (char *) nr->r_layer2, nr->r_layer2_len);
     lua_pushlstring(L, (char *) nr->r_layer3, nr->r_layer3_len);
-    lua_pushnumber(L, (double) nr->recvtime.tv_sec + (double) nr->recvtime.tv_usec / 1000000);
+    lua_pushnumber(L, TIMEVAL_SECS(nr->recvtime));
   } else
   {
     lua_pushnil(L);

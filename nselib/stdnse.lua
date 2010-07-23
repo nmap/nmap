@@ -389,6 +389,18 @@ function format_difftime(t2, t1)
   return sign .. s
 end
 
+--- Returns the current time in milliseconds since the epoch
+-- @return The current time in milliseconds since the epoch
+function clock_ms()
+	return nmap.clock() * 1000
+end
+
+--- Returns the current time in microseconds since the epoch
+-- @return The current time in microseconds since the epoch
+function clock_us()
+	return nmap.clock() * 1000000
+end
+
 ---Get the indentation symbols at a given level. 
 local function format_get_indent(indent, at_end)
 	local str = ""

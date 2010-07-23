@@ -177,6 +177,15 @@ static int l_clock_ms (lua_State *L)
   return 1;
 }
 
+static int l_clock (lua_State *L)
+{
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  /* floating point seconds since Epoch */
+  lua_pushnumber(L, TIMEVAL_SECS(tv));
+  return 1;
+}
+
 /* The actual mutex returned by the nmap.mutex function.
  * This function has 4 upvalues:
  * (1) Table (array) of waiting threads.
@@ -672,6 +681,7 @@ int luaopen_nmap (lua_State *L)
     {"new_dnet", l_dnet_new},
     {"get_interface_link", l_dnet_get_interface_link},
     {"clock_ms", l_clock_ms},
+    {"clock", l_clock},
     {"log_write", l_log_write},
     {"new_try", l_new_try},
     {"verbosity", l_get_verbosity},

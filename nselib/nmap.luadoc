@@ -146,6 +146,12 @@ function set_port_state(host, port, state)
 -- <code>"tcpwrapped"</code>, or <code>"incomplete"</code>.
 function set_port_version(host, port, probestate)
 
+--- Returns the current date and time in seconds.
+-- @return The number of seconds since the epoch (on most systems this is
+-- 01/01/1970) as a floating point value.
+-- @usage local now = nmap.clock()
+function clock()
+
 --- Returns the current date and time in milliseconds.
 -- @return The number of milliseconds since the epoch (on most systems this is
 -- 01/01/1970).

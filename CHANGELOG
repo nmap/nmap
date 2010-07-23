@@ -3,9 +3,16 @@
 o [NSE] When receiving raw packets from Pcap, the packet capture time
   is now available to scripts as an additional return value from
   pcap_receive().  It is returned as the floating point number of
-  seconds since the epoch.  The qscan.nse script was updated to use
-  this more accurate data instead of using the clock_ms() function
-  (which returns the current time). [Kris]
+  seconds since the epoch. [Kris]
+
+o [NSE] Added the nmap.clock() function which returns the current time
+  as floating point seconds since the epoch.  Convenience functions
+  clock_ms() and clock_us() were added to stdnse to return the current
+  time in milliseconds and microseconds, respectively. [Kris]
+
+o [NSE] The qscan.nse script was updated to use the more accurate
+  timing data from pcap_receive() and clock() to provide microsecond
+  resolution for round-trip times. [Kris]
 
 o [Zenmap] Fixed a crash that would happen after opening the search
   window, entering a relative date criterion such as "after:-7", and
