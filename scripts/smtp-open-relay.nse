@@ -64,7 +64,7 @@ printed with the list of any combinations that were found prior to the error.
 -- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
 --   * Made the script a little more verbose
 
-author = "Arturo 'Buanzo' Busleiman <buanzo@buanzo.com.ar>"
+author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","intrusive","external"}
 
