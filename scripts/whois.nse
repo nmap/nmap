@@ -73,7 +73,7 @@ the RIRs.
 -- |  orgid: INSEC
 -- |_ country: US stateprov: CA
 
-author = "jah <jah at zadkiel.plus.com>"
+author = "jah"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "external", "safe"}
 
