@@ -41,7 +41,7 @@ description = [[
 
 -- 03/17/2010
 
-author = "Kris Katterjohn <katterjohn[at]gmail.com>"
+author = "Kris Katterjohn"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

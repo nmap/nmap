@@ -22,7 +22,7 @@ for these hosts.
 --
 -- Originally written 05/24/2008; revived 01/24/2010
 
-author = "Kris Katterjohn <katterjohn[at]gmail.com>"
+author = "Kris Katterjohn"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
