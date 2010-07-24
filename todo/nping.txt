@@ -60,21 +60,7 @@
     echo server does not capture those packets and 2) to avoid messing up the
     established side-channel tcp connection.
 
-* [EM] Improve client error handling. Currently it doesn't behave well when
-  the server crashes.
-
-* [EM] Make the client timeout if the server does not send data during
-  handshake. Currently the client waits forever.
-
 * [EM] Do more testing.
-
-* [EM] Make the server detect when a client disconnects and delete its context
-  data.
-
-* [EM] Get rid of some messages that are currently displayed in the client.
-  Print them only if debugging level is high enough.
-
-* [EM] Make sure -h help screen includes info about the echo mode.
 
 * Do more testing on MS Windows.
 
@@ -93,9 +79,15 @@
 * [EM] For CAPT packets, decide if we want to print the full info or just
   the fields that have changed in transit.
 
+* [EM] Make the server stop capturing packets when all connection clients
+  finished their
+
+* [EM] Handle DLT types. Currently the server always sets the null DLT value
+  that indicates that no data link header is included.
+
 * Stats for ARP packets.
 
-* Add echo mode to the man page
+* [EM] Add echo mode to the man page
 
 * [EM] Do some extensive testing of the Echo mode once it is working
   to try and flesh out any bugs before merging.
@@ -600,3 +592,18 @@ o [EM] Consider whether we should delay RCVD packet printing
     can recognize packets sent by the client even if a number of headers
     have changed and pass them back. (see Fyodor/Luis IM discussion logs
     from 6/28/10).
+
+[DONE] [EM] Improve client error handling. Currently it doesn't behave well when
+  the server crashes.
+
+[DONE] [EM] Make the client timeout if the server does not send data during
+  handshake. Currently the client waits forever.
+
+[DONE] [EM] Make the server detect when a client disconnects and delete its context
+  data.
+
+[DONE] [EM] Get rid of some messages that are currently displayed in the client.
+  Print them only if debugging level is high enough.
+
+[DONE] [EM] Make sure -h help screen includes info about the echo mode.
+
