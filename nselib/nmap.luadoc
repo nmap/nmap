@@ -167,7 +167,7 @@ function clock_ms()
 -- @param interface_name The name of the interface.
 -- @return <code>"ethernet"</code>, <code>"loopback"</code>,
 -- <code>"p2p"</code>, or <code>nil</code>.
--- @usage iface_type = nmap.get_interface_list("eth0")
+-- @usage iface_type = nmap.get_interface_link("eth0")
 function get_interface_link(interface_name)
 
 --- Create a mutex on an object.
