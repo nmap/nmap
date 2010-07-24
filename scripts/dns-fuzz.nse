@@ -26,7 +26,7 @@ development lifecycle.
 -- Host script results:
 -- |_dns-fuzz: Server stopped responding... He's dead, Jim.
 
-author = "Michael Pattrick <mpattrick@rhinovirus.org>"
+author = "Michael Pattrick"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"fuzzer", "intrusive"}
 
