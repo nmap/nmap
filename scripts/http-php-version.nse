@@ -18,7 +18,7 @@ The script also checks if any header field value starts with
 -- | Versions from credits query (more accurate): 5.0.5
 -- |_Version from header x-powered-by: PHP/5.0.5
 
-author = "Ange Gutek <ange.gutek@gmail.com>"
+author = "Ange Gutek"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
