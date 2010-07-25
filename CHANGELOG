@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The http library's request functions now accept an additional
+  "auth" table within the option table, which if provided causes Basic
+  authentication credentials to be sent. [David]
+
 o [NSE] When receiving raw packets from Pcap, the packet capture time
   is now available to scripts as an additional return value from
   pcap_receive().  It is returned as the floating point number of
