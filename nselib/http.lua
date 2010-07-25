@@ -1415,16 +1415,16 @@ function parse_date(s)
 end
 
 -- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
--- and "namevals".
+-- and "params".
 local read_auth_challenge = function(s, pos)
-  local _, pos, scheme, namevals
+  local _, pos, scheme, params
 
   pos, scheme = read_token(s, pos)
   if not scheme then
     return nil
   end
 
-  namevals = {}
+  params = {}
   pos = skip_space(s, pos)
   while pos < string.len(s) do
     local name, val
@@ -1436,10 +1436,10 @@ local read_auth_challenge = function(s, pos)
     end
     pos = pos + 1
     pos, val = read_token_or_quoted_string(s, pos)
-    if namevals[name] then
+    if params[name] then
       return nil
     end
-    namevals[name] = val
+    params[name] = val
     pos = skip_space(s, pos)
     if string.sub(s, pos, pos) == "," then
       pos = skip_space(s, pos + 1)
@@ -1449,14 +1449,14 @@ local read_auth_challenge = function(s, pos)
     end
   end
 
-  return pos, { scheme = scheme, namevals = namevals }
+  return pos, { scheme = scheme, param = param }
 end
 
 ---
 -- Parses the WWW-Authenticate header as described in RFC 2616, section 14.47
 -- and RFC 2617, section 1.2. The return value is an array of challenges. Each
 -- challenge is a table with the keys <code>scheme</code> and
--- <code>namevals</code>.
+-- <code>params</code>.
 -- @param s The header value text.
 -- @return An array of challenges, or <code>nil</code> on error.
 parse_www_authenticate = function(s)

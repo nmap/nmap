@@ -64,7 +64,7 @@ action = function(host, port)
       basic_challenge = challenge
     end
     local line = challenge.scheme
-    for name, value in pairs(challenge.namevals) do
+    for name, value in pairs(challenge.params) do
       line = line .. string.format(" %s=%s", name, value)
     end
     result[#result + 1] = line
