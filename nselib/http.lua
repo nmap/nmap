@@ -1414,22 +1414,6 @@ function parse_date(s)
   return { year = year, month = month, day = day, hour = hour, min = min, sec = sec, isdst = false }
 end
 
-get_default_timeout = function( nmap_timing )
-  local timeout = {}
-  if nmap_timing >= 0 and nmap_timing <= 3 then
-    timeout.connect = 10000
-    timeout.request = 15000
-  end
-  if nmap_timing >= 4 then
-    timeout.connect = 5000
-    timeout.request = 10000
-  end
-  if nmap_timing >= 5 then
-    timeout.request = 7000
-  end
-  return timeout
-end
-
 -- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
 -- and "namevals".
 local read_auth_challenge = function(s, pos)
@@ -1836,4 +1820,20 @@ function page_exists(data, result_404, known_404, page, displayall)
     stdnse.print_debug(1, "HTTP: HTTP request failed (is the host still up?)")
     return false
   end
+end
+
+get_default_timeout = function( nmap_timing )
+  local timeout = {}
+  if nmap_timing >= 0 and nmap_timing <= 3 then
+    timeout.connect = 10000
+    timeout.request = 15000
+  end
+  if nmap_timing >= 4 then
+    timeout.connect = 5000
+    timeout.request = 10000
+  end
+  if nmap_timing >= 5 then
+    timeout.request = 7000
+  end
+  return timeout
 end
