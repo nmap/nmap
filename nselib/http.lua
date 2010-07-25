@@ -1288,8 +1288,11 @@ pipeline = function(host, port, allReqs)
 end
 
 
--- Parsing of specific headers.
+-- Parsing of specific headers. skip_space and the read_* functions return the
+-- byte index following whatever they have just read, or nil on error.
 
+-- Skip whitespace (that has already been folded from LWS). See RFC 2616,
+-- section 2.2, definition of LWS.
 local skip_space = function(s, pos)
 	local _
 
@@ -1298,10 +1301,12 @@ local skip_space = function(s, pos)
 	return pos + 1
 end
 
+-- See RFC 2616, section 2.2.
 local read_token = function(s, pos)
 	local _, token
 
 	pos = skip_space(s, pos)
+	-- 1*<any CHAR except CTLs or separators>. CHAR is only byte values 0-127.
 	_, pos, token = string.find(s, "^([^%z\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
 
 	if token then
@@ -1311,6 +1316,8 @@ local read_token = function(s, pos)
 	end
 end
 
+-- See RFC 2616, section 2.2. Here we relax the restriction that TEXT may not
+-- contain CTLs.
 local read_quoted_string = function(s, pos)
 	local chars = {}
 
@@ -1368,7 +1375,6 @@ local MONTH_MAP = {
 -- <code>os.time</code>.
 function parse_date(s)
   local day, month, year, hour, min, sec, tz, month_name
-  -- RFC 2616, section 3.3.1:
 
   -- Handle RFC 1123 and 1036 at once.
   day, month_name, year, hour, min, sec, tz = s:match("^%w+, (%d+)[- ](%w+)[- ](%d+) (%d+):(%d+):(%d+) (%w+)$")
@@ -1424,6 +1430,8 @@ get_default_timeout = function( nmap_timing )
   return timeout
 end
 
+-- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
+-- and "namevals".
 local read_auth_challenge = function(s, pos)
 	local _, pos, scheme, namevals
 
@@ -1460,6 +1468,13 @@ local read_auth_challenge = function(s, pos)
 	return pos, { scheme = scheme, namevals = namevals }
 end
 
+---
+-- Parses the WWW-Authenticate header as described in RFC 2616, section 14.47
+-- and RFC 2617, section 1.2. The return value is an array of challenges. Each
+-- challenge is a table with the keys <code>scheme</code> and
+-- <code>namevals</code>.
+-- @param s The header value text.
+-- @return An array of challenges, or <code>nil</code> on error.
 parse_www_authenticate = function(s)
 	local challenges = {}
 	local pos
