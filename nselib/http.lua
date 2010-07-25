@@ -31,6 +31,7 @@ local MAX_CACHE_SIZE = "http-max-cache-size";
 local coroutine = require "coroutine";
 local table = require "table";
 
+local base64 = require "base64";
 local nmap = require "nmap";
 local url = require "url";
 local stdnse = require "stdnse";
@@ -823,12 +824,35 @@ local function lookup_cache (method, host, port, path, options)
   end
 end
 
+local function response_is_cacheable(response)
+  -- 206 Partial Content. RFC 2616, 1.34: "...a cache that does not support the
+  -- Range and Content-Range headers MUST NOT cache 206 (Partial Content)
+  -- responses."
+  if response.status == 206 then
+    return false
+  end
+
+  -- RFC 2616, 13.4. "A response received with any [status code other than 200,
+  -- 203, 206, 300, 301 or 410] (e.g. status codes 302 and 307) MUST NOT be
+  -- returned in a reply to a subsequent request unless there are cache-control
+  -- directives or another header(s) that explicitly allow it."
+  -- We violate the standard here and allow these other codes to be cached,
+  -- with the exceptions listed below.
+
+  -- 401 Unauthorized. Caching this would prevent us from retrieving it later
+  -- with the correct credentials.
+  if response.status == 401 then
+    return false
+  end
+
+  return true
+end
+
 local function insert_cache (state, response)
   local key = assert(state.key);
   local mutex = assert(state.mutex);
 
-  if response == nil or state.no_cache or
-      response.status == 206 then -- ignore partial content response
+  if response == nil or state.no_cache or not response_is_cacheable(response) then
     cache[key] = state.old_record;
   else
     local record = {
@@ -870,6 +894,7 @@ end
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
 -- @return A request string.
 -- @see generic_request
 local build_request = function(host, port, method, path, options)
@@ -891,6 +916,13 @@ local build_request = function(host, port, method, path, options)
     if #cookies > 0 then
       mod_options.header["Cookie"] = cookies
     end
+  end
+  -- Only Basic authentication is supported.
+  if options.auth then
+    local username = options.auth.username
+    local password = options.auth.password
+    local credentials = "Basic " .. base64.enc(username .. ":" .. password)
+    mod_options.header["Authorization"] = credentials
   end
 
   -- Add any other options into the local copy.
@@ -920,6 +952,7 @@ end
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
 -- @return A table as described in the module description.
 -- @see request
 generic_request = function(host, port, method, path, options)
@@ -937,6 +970,7 @@ end
 -- * <code>header</code>: A table containing additional headers to be used for the request.
 -- * <code>content</code>: The content of the message (content-length will be added -- set header['Content-Length'] to override)
 -- * <code>cookies</code>: A table of cookies in the form returned by <code>parse_set_cookie</code>.
+-- * <code>auth</code>: A table containing the keys <code>username</code> and <code>password</code>.
 -- @return A table as described in the module description.
 -- @see generic_request
 request = function(host, port, data, options)
@@ -1254,6 +1288,69 @@ pipeline = function(host, port, allReqs)
 end
 
 
+-- Parsing of specific headers.
+
+local skip_space = function(s, pos)
+	local _
+
+	_, pos = string.find(s, "^[ \t]*", pos)
+
+	return pos + 1
+end
+
+local read_token = function(s, pos)
+	local _, token
+
+	pos = skip_space(s, pos)
+	_, pos, token = string.find(s, "^([^%z\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
+
+	if token then
+		return pos + 1, token
+	else
+		return nil
+	end
+end
+
+local read_quoted_string = function(s, pos)
+	local chars = {}
+
+	if string.sub(s, pos, pos) ~= "\"" then
+		return nil
+	end
+	pos = pos + 1
+	pos = skip_space(s, pos)
+	while pos <= string.len(s) and string.sub(s, pos, pos) ~= "\"" do
+		local c
+
+		c = string.sub(s, pos, pos)
+		if c == "\\" then
+			if pos < string.len(s) then
+				pos = pos + 1
+				c = string.sub(s, pos, pos)
+			else
+				return nil
+			end
+		end
+
+		chars[#chars + 1] = c
+		pos = pos + 1
+	end
+	if pos > string.len(s) or string.sub(s, pos, pos) ~= "\"" then
+		return nil
+	end
+
+	return pos + 1, table.concat(chars)
+end
+
+local read_token_or_quoted_string = function(s, pos)
+	pos = skip_space(s, pos)
+	if string.sub(s, pos, pos) == "\"" then
+		return read_quoted_string(s, pos)
+	else
+		return read_token(s, pos)
+	end
+end
+
 local MONTH_MAP = {
   Jan = 1, Feb = 2, Mar = 3, Apr = 4, May = 5, Jun = 6,
   Jul = 7, Aug = 8, Sep = 9, Oct = 10, Nov = 11, Dec = 12
@@ -1326,6 +1423,61 @@ get_default_timeout = function( nmap_timing )
   end
   return timeout
 end
+
+local read_auth_challenge = function(s, pos)
+	local _, pos, scheme, namevals
+
+	pos, scheme = read_token(s, pos)
+	if not scheme then
+		return nil
+	end
+
+	namevals = {}
+	pos = skip_space(s, pos)
+	while pos < string.len(s) do
+		local name, val
+
+		pos, name = read_token(s, pos)
+		pos = skip_space(s, pos)
+		if string.sub(s, pos, pos) ~= "=" then
+			break
+		end
+		pos = pos + 1
+		pos, val = read_token_or_quoted_string(s, pos)
+		if namevals[name] then
+			return nil
+		end
+		namevals[name] = val
+		pos = skip_space(s, pos)
+		if string.sub(s, pos, pos) == "," then
+			pos = skip_space(s, pos + 1)
+			if pos > string.len(s) then
+				return nil
+			end
+		end
+	end
+
+	return pos, { scheme = scheme, namevals = namevals }
+end
+
+parse_www_authenticate = function(s)
+	local challenges = {}
+	local pos
+
+	pos = 1
+	while pos <= string.len(s) do
+		local challenge
+
+		pos, challenge = read_auth_challenge(s, pos)
+		if not challenge then
+			return nil
+		end
+		challenges[#challenges + 1] = challenge
+	end
+
+	return challenges
+end
+
 
 --- Take the data returned from a HTTP request and return the status string.
 -- Useful for <code>print_debug</code> messages and even for advanced output.

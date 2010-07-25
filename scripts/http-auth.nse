@@ -5,10 +5,11 @@ authentication.
 
 ---
 -- @output
--- 80/tcp open  http
--- |  http-auth: HTTP Service requires authentication
--- |    Auth type: Basic, realm = Password Required
--- |_   HTTP server may accept admin:admin combination for Basic authentication
+-- PORT   STATE SERVICE REASON
+-- 80/tcp open  http    syn-ack
+-- | http-auth: HTTP/1.1 401 Unauthorized
+-- | Basic realm=WebAdmin
+-- |_HTTP server may accept admin:admin combination for Basic authentication.
 
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)
@@ -24,51 +25,58 @@ categories = {"default", "auth", "intrusive"}
 
 require "shortport"
 require "http"
-require "base64"
 
 portrule = shortport.port_or_service({80, 443, 8080}, {"http","https"})
 
 action = function(host, port)
-  local realm,scheme,result,authheader
-  local basic = false
-  local authcombinations= {"admin:", "admin:admin"}
+  local www_authenticate
+  local challenges, basic_challenge
+  local authcombinations= {
+    { username = "admin", password = ""},
+    { username = "admin", password = "admin"},
+  }
 
-  local answer = http.get( host, port, "/" )
+  local result = {}
+  local answer = http.get(host, port, "/")
 
   --- check for 401 response code
-  if answer.status == 401 then
-    result = "HTTP Service requires authentication\n"
+  if answer.status ~= 401 then
+    return
+  end
 
-    -- split www-authenticate header
-    local auth_headers = {}
-    local pcre = pcre.new('\\w+( (\\w+=("[^"]+"|\\w+), *)*(\\w+=("[^"]+"|\\w+)))?',0,"C")
-    local match = function( match ) table.insert(auth_headers, match) end
-    pcre:gmatch( answer.header['www-authenticate'], match )
+  result[#result + 1] = answer["status-line"]
 
-    for _, value in pairs( auth_headers ) do
-      result = result .. "  Auth type: "
-      scheme, realm = string.match(value, "(%a+).-[Rr]ealm=\"(.-)\"")
-      if scheme == "Basic" then
-        basic = true
-      end
-      if realm ~= nil then
-        result = result .. scheme .. ", realm = " .. realm .. "\n"
-      else
-        result = result .. string.match(value, "(%a+)") .. "\n"
+  www_authenticate = answer.header["www-authenticate"]
+  if not www_authenticate then
+    result[#result + 1] = string.format("Server returned status %d but no WWW-Authenticate header.", answer.status)
+    return table.concat(result, "\n")
+  end
+  challenges = http.parse_www_authenticate(www_authenticate)
+  if not challenges then
+    result[#result + 1] = string.format("Server returned status %d but the WWW-Authenticate header could not be parsed.", answer.status)
+    result[#result + 1] = string.format("WWW-Authenticate: %s", www_authenticate)
+    return table.concat(result, "\n")
+  end
+
+  basic_challenge = nil
+  for _, challenge in ipairs(challenges) do
+    if challenge.scheme == "Basic" then
+      basic_challenge = challenge
+    end
+    local line = challenge.scheme
+    for name, value in pairs(challenge.namevals) do
+      line = line .. string.format(" %s=%s", name, value)
+    end
+    result[#result + 1] = line
+  end
+  if basic_challenge then
+    for _, auth in ipairs(authcombinations) do 
+      answer = http.get(host, port, '/', {auth = auth})
+      if answer.status ~= 401 and answer.status ~= 403 then
+        result[#result + 1] = string.format("HTTP server may accept %s:%s combination for Basic authentication.", auth.username, auth.password)
       end
     end
   end
 
-  if basic then
-    for _, combination in pairs (authcombinations) do 
-	    authheader = "Basic " .. base64.enc(combination)
-	    answer = http.get(host, port, '/', {header={Authorization=authheader}})
-	    if answer.status ~= 401 and answer.status ~= 403 then
-	      result = result .. "  HTTP server may accept " .. combination .. " combination for Basic authentication\n"
-	    end
-    end
-  end
-
-  return result
+  return table.concat(result, "\n")
 end
-
