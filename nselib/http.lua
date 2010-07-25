@@ -1294,68 +1294,68 @@ end
 -- Skip whitespace (that has already been folded from LWS). See RFC 2616,
 -- section 2.2, definition of LWS.
 local skip_space = function(s, pos)
-	local _
+  local _
 
-	_, pos = string.find(s, "^[ \t]*", pos)
+  _, pos = string.find(s, "^[ \t]*", pos)
 
-	return pos + 1
+  return pos + 1
 end
 
 -- See RFC 2616, section 2.2.
 local read_token = function(s, pos)
-	local _, token
+  local _, token
 
-	pos = skip_space(s, pos)
-	-- 1*<any CHAR except CTLs or separators>. CHAR is only byte values 0-127.
-	_, pos, token = string.find(s, "^([^%z\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
+  pos = skip_space(s, pos)
+  -- 1*<any CHAR except CTLs or separators>. CHAR is only byte values 0-127.
+  _, pos, token = string.find(s, "^([^%z\001-\031()<>@,;:\\\"/?={} \t%[%]\127-\255]+)", pos)
 
-	if token then
-		return pos + 1, token
-	else
-		return nil
-	end
+  if token then
+    return pos + 1, token
+  else
+    return nil
+  end
 end
 
 -- See RFC 2616, section 2.2. Here we relax the restriction that TEXT may not
 -- contain CTLs.
 local read_quoted_string = function(s, pos)
-	local chars = {}
+  local chars = {}
 
-	if string.sub(s, pos, pos) ~= "\"" then
-		return nil
-	end
-	pos = pos + 1
-	pos = skip_space(s, pos)
-	while pos <= string.len(s) and string.sub(s, pos, pos) ~= "\"" do
-		local c
+  if string.sub(s, pos, pos) ~= "\"" then
+    return nil
+  end
+  pos = pos + 1
+  pos = skip_space(s, pos)
+  while pos <= string.len(s) and string.sub(s, pos, pos) ~= "\"" do
+    local c
 
-		c = string.sub(s, pos, pos)
-		if c == "\\" then
-			if pos < string.len(s) then
-				pos = pos + 1
-				c = string.sub(s, pos, pos)
-			else
-				return nil
-			end
-		end
+    c = string.sub(s, pos, pos)
+    if c == "\\" then
+      if pos < string.len(s) then
+        pos = pos + 1
+        c = string.sub(s, pos, pos)
+      else
+        return nil
+      end
+    end
 
-		chars[#chars + 1] = c
-		pos = pos + 1
-	end
-	if pos > string.len(s) or string.sub(s, pos, pos) ~= "\"" then
-		return nil
-	end
+    chars[#chars + 1] = c
+    pos = pos + 1
+  end
+  if pos > string.len(s) or string.sub(s, pos, pos) ~= "\"" then
+    return nil
+  end
 
-	return pos + 1, table.concat(chars)
+  return pos + 1, table.concat(chars)
 end
 
 local read_token_or_quoted_string = function(s, pos)
-	pos = skip_space(s, pos)
-	if string.sub(s, pos, pos) == "\"" then
-		return read_quoted_string(s, pos)
-	else
-		return read_token(s, pos)
-	end
+  pos = skip_space(s, pos)
+  if string.sub(s, pos, pos) == "\"" then
+    return read_quoted_string(s, pos)
+  else
+    return read_token(s, pos)
+  end
 end
 
 local MONTH_MAP = {
@@ -1417,39 +1417,39 @@ end
 -- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
 -- and "namevals".
 local read_auth_challenge = function(s, pos)
-	local _, pos, scheme, namevals
+  local _, pos, scheme, namevals
 
-	pos, scheme = read_token(s, pos)
-	if not scheme then
-		return nil
-	end
+  pos, scheme = read_token(s, pos)
+  if not scheme then
+    return nil
+  end
 
-	namevals = {}
-	pos = skip_space(s, pos)
-	while pos < string.len(s) do
-		local name, val
+  namevals = {}
+  pos = skip_space(s, pos)
+  while pos < string.len(s) do
+    local name, val
 
-		pos, name = read_token(s, pos)
-		pos = skip_space(s, pos)
-		if string.sub(s, pos, pos) ~= "=" then
-			break
-		end
-		pos = pos + 1
-		pos, val = read_token_or_quoted_string(s, pos)
-		if namevals[name] then
-			return nil
-		end
-		namevals[name] = val
-		pos = skip_space(s, pos)
-		if string.sub(s, pos, pos) == "," then
-			pos = skip_space(s, pos + 1)
-			if pos > string.len(s) then
-				return nil
-			end
-		end
-	end
+    pos, name = read_token(s, pos)
+    pos = skip_space(s, pos)
+    if string.sub(s, pos, pos) ~= "=" then
+      break
+    end
+    pos = pos + 1
+    pos, val = read_token_or_quoted_string(s, pos)
+    if namevals[name] then
+      return nil
+    end
+    namevals[name] = val
+    pos = skip_space(s, pos)
+    if string.sub(s, pos, pos) == "," then
+      pos = skip_space(s, pos + 1)
+      if pos > string.len(s) then
+        return nil
+      end
+    end
+  end
 
-	return pos, { scheme = scheme, namevals = namevals }
+  return pos, { scheme = scheme, namevals = namevals }
 end
 
 ---
@@ -1460,21 +1460,21 @@ end
 -- @param s The header value text.
 -- @return An array of challenges, or <code>nil</code> on error.
 parse_www_authenticate = function(s)
-	local challenges = {}
-	local pos
+  local challenges = {}
+  local pos
 
-	pos = 1
-	while pos <= string.len(s) do
-		local challenge
+  pos = 1
+  while pos <= string.len(s) do
+    local challenge
 
-		pos, challenge = read_auth_challenge(s, pos)
-		if not challenge then
-			return nil
-		end
-		challenges[#challenges + 1] = challenge
-	end
+    pos, challenge = read_auth_challenge(s, pos)
+    if not challenge then
+      return nil
+    end
+    challenges[#challenges + 1] = challenge
+  end
 
-	return challenges
+  return challenges
 end
 
 
