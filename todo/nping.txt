@@ -74,8 +74,6 @@
 
 * Do more testing on Mac
 
-* [EM] Add received echoed packet to the final statistics.
-
 * [EM] For CAPT packets, decide if we want to print the full info or just
   the fields that have changed in transit.
 
@@ -289,6 +287,8 @@ o [EM] Consider whether we should delay RCVD packet printing
 * Add support for custom IP binding: if user supplies -S then
   the echo side-channel connection and connections in TCP-Connect mode should be
   established from that IP. This includes the echo server binding to that IP. 
+
+* Consider adding more detailed stats for the Echo Mode.
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -607,3 +607,6 @@ o [EM] Consider whether we should delay RCVD packet printing
 
 [DONE] [EM] Make sure -h help screen includes info about the echo mode.
 
+[DONE] [EM] Add echo mode to the man page.
+
+[DONE] [EM] Add received echoed packet to the final statistics.
