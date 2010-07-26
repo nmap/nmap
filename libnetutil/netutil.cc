@@ -106,6 +106,9 @@
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+#if HAVE_SYS_SOCKIO_H
+#include <sys/sockio.h>  /* SIOCGIFCONF for Solaris */
+#endif
 #include <net/if_arp.h>
 
 #if HAVE_NETINET_IN_H
