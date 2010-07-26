@@ -416,14 +416,10 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
   int i;
   struct sockaddr_storage ss;
   size_t sslen;
-  struct intf_entry *ifentry;
-  u32 ifbuf[200] ;
   struct route_nfo rnfo;
   bool arpping_done = false;
   struct timeval now;
 
-  ifentry = (struct intf_entry *) ifbuf; 
-  ifentry->intf_len = sizeof(ifbuf); // TODO: May want to use a larger buffer if interface aliases prove important.
   if (hs->next_batch_no < hs->current_batch_sz) {
     /* Woop!  This is easy -- we just pass back the next host struct */
     return hs->hostbatch[hs->next_batch_no++];
