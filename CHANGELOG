@@ -24,6 +24,13 @@ o [Zenmap] Fixed a crash that would happen after opening the search
     AttributeError: 'tuple' object has no attribute 'strftime'
   [David]
 
+o [zenmap] Added a new Script selection Interface. This interface is 
+  present under the "Scripting" tab of profile editor. Besides selecting 
+  script,argument values can also be given. Description and categories 
+  of script is also shown.
+  [kirubakaran]
+
+
 Nmap 5.35DC1 [2010-07-16]
 
 o [NSE] Added 17 scripts, bringing the total to 131! They are
