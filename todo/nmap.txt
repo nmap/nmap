@@ -39,6 +39,10 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   http://guppy-pe.sourceforge.net/
   http://www.pkgcore.org/trac/pkgcore/doc/dev-notes/heapy.rst.  Many
   Nmap survey respondants complained about this too.
+  Note: Fyodor has a 50MB scan log file named ms-vscan.xml which
+  demonstrates this problem.  When trying to load the file, Zenmap
+  grows to 1150MB of RAM, pegs the CPU usage at 100% for 5+
+  minutes (still hasn't opened the file yet).
 
 o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
