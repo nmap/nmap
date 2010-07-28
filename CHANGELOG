@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed the fragmentation options (-f, --mtu) which broke in 5.35DC1.
+  Instead of sending multiple fragments, Nmap would just send the
+  original whole packet instead.  In some circumstances, Nmap would
+  fail to send on interfaces with low MTUs (such as SLIP lines) with
+  no way to bump down packet sizes for transport. [Kris]
+
 o [NSE] The http library's request functions now accept an additional
   "auth" table within the option table, which if provided causes Basic
   authentication credentials to be sent. [David]
