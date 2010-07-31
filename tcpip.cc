@@ -576,7 +576,8 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
   }else{
     res = send_ip_packet_eth_or_sd(sd, eth, packet, packetlen);
   }
-  PacketTrace::trace(PacketTrace::SENT, packet, packetlen);
+  if (res != -1)
+    PacketTrace::trace(PacketTrace::SENT, packet, packetlen);
 
   return res;
 }
