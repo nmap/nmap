@@ -66,6 +66,19 @@ o Let Nsock log to stdout, so its messages don't get mixed up with the
 o Ncat should probably support SSL Server Name Indication (SNI). See
   this thread: http://seclists.org/nmap-dev/2010/q3/112
 
+o [NSE] In the same way as our -brute scripts limit their runtime by
+  default, I think qscan should be less intense by default.  For
+  example, perhaps it could run by default on no more than 8 open
+  ports, plus up to 1 closed port.  Right now it does things like
+  running on 65,000+ closed ports and bloats scan time (and output).
+  Of course there could (probably should) still be options to enable
+  more intense qscanning.
+
+o [Web] We should see if we can easily put the Insecure chrome around
+  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
+  and http://nmap.org/404).  I think we may have had this working
+  before the move to Linode, so maybe check conf/httpd.conf.syn.
+
 o [NSE] Consider using .idl files rather than manually coding all the
   MSRPC stuff.  The current idea, if we do this, is to have an
   application in nmap-private-dev which converts .idl files to LUA
