@@ -184,7 +184,7 @@ static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
       strncpy(ftp->pass, s, 255);
     } else { /* we ONLY have user */
       log_write(LOG_STDOUT, "Assuming %s is a username, and using the default password: %s\n",
-		p, ftp->pass);
+          p, ftp->pass);
     }
 
     strncpy(ftp->user, p, 63);
@@ -253,8 +253,8 @@ printf("%s %s ( %s )\n"
        "SCRIPT SCAN:\n"
        "  -sC: equivalent to --script=default\n"
        "  --script=<Lua scripts>: <Lua scripts> is a comma separated list of \n"
-	   "           directories, script-files or script-categories\n"
-	   "  --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts\n"
+       "           directories, script-files or script-categories\n"
+       "  --script-args=<n1=v1,[n2=v2,...]>: provide arguments to scripts\n"
        "  --script-trace: Show all data sent and received\n"
        "  --script-updatedb: Update the script database.\n"
 #endif
@@ -321,16 +321,16 @@ printf("%s %s ( %s )\n"
 }
 
 static void insert_port_into_merge_list(unsigned short *mlist,
-						int *merged_port_count,
-						unsigned short p) {
-	int i;
-	// make sure the port isn't already in the list
-	for (i = 0; i < *merged_port_count; i++) {
-		if (mlist[i] == p) {
-			return;
-		}
-	}
-	mlist[*merged_port_count] = p;
+                                        int *merged_port_count,
+                                        unsigned short p) {
+    int i;
+    // make sure the port isn't already in the list
+    for (i = 0; i < *merged_port_count; i++) {
+        if (mlist[i] == p) {
+            return;
+        }
+    }
+    mlist[*merged_port_count] = p;
     (*merged_port_count)++;
 }
 
@@ -457,7 +457,7 @@ int nmap_main(int argc, char *argv[]) {
   vector<Target *> Targets;
   char *portlist = NULL; /* Ports list specified by user */
   int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
-				source addresses? */
+                                source addresses? */
   unsigned int ideal_scan_group_sz = 0;
   char hostname[MAXHOSTNAMELEN + 1] = "";
   const char *spoofmac = NULL;
@@ -1321,7 +1321,6 @@ int nmap_main(int argc, char *argv[]) {
   if (o.traceroute && (o.idlescan || o.connectscan))
     fatal("Traceroute does not support idle or connect scan");
 
-
   if ((o.noportscan) && (portlist || o.fastscan))
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) when not doing a port scan");
 
@@ -1612,7 +1611,7 @@ int nmap_main(int argc, char *argv[]) {
   num_host_exp_groups = 0;
 
   hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
-			      host_exp_group, num_host_exp_groups);
+                  host_exp_group, num_host_exp_groups);
 
   do {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
@@ -1620,102 +1619,104 @@ int nmap_main(int argc, char *argv[]) {
       o.current_scantype = HOST_DISCOVERY;
       currenths = nexthost(hstate, exclude_group, &ports, o.pingtype);
       if (!currenths) {
-	/* Try to refill with any remaining expressions */
-	/* First free the old ones */
-	for(i=0; i < num_host_exp_groups; i++)
-	  free(host_exp_group[i]);
-	num_host_exp_groups = 0;
-	/* Now grab any new expressions */
-	while(num_host_exp_groups < o.ping_group_sz && 
-	      (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
-	      (host_spec = grab_next_host_spec(inputfd, o.generate_random_ips, argc, fakeargv))) {
-	  // For purposes of random scan
-	  host_exp_group[num_host_exp_groups++] = strdup(host_spec);
-	}
-	if (num_host_exp_groups == 0)
-	  break;
-	delete hstate;
-	hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,
-				    host_exp_group, num_host_exp_groups);
+        /* Try to refill with any remaining expressions */
+        /* First free the old ones */
+        for(i=0; i < num_host_exp_groups; i++)
+          free(host_exp_group[i]);
+        num_host_exp_groups = 0;
+        /* Now grab any new expressions */
+        while(num_host_exp_groups < o.ping_group_sz && 
+          (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
+          (host_spec = grab_next_host_spec(inputfd, o.generate_random_ips, argc, fakeargv))) {
+            // For purposes of random scan
+            host_exp_group[num_host_exp_groups++] = strdup(host_spec);
+        }
+        if (num_host_exp_groups == 0)
+          break;
+        delete hstate;
+        hstate = new HostGroupState(o.ping_group_sz, o.randomize_hosts,host_exp_group,
+                        num_host_exp_groups);
       
-	/* Try one last time -- with new expressions */
-	currenths = nexthost(hstate, exclude_group, &ports, o.pingtype);
-	if (!currenths)
-	  break;
+        /* Try one last time -- with new expressions */
+        currenths = nexthost(hstate, exclude_group, &ports, o.pingtype);
+        if (!currenths)
+          break;
       }
     
       if (currenths->flags & HOST_UP && !o.listscan) 
-	o.numhosts_up++;
+        o.numhosts_up++;
     
       if ((o.noportscan && !o.traceroute
 #ifndef NOLUA
-	   && !o.script
+      && !o.script
 #endif
           ) || o.listscan) {
-	/* We're done with the hosts */
-	xml_start_tag("host");
-	write_host_header(currenths);
-	printmacinfo(currenths);
-	//	if (currenths->flags & HOST_UP)
-	//  log_write(LOG_PLAIN,"\n");
-	printtimes(currenths);
-	xml_end_tag();
-	xml_newline();
-	log_flush_all();
-	delete currenths;
-	o.numhosts_scanned++;
-	continue;
+        /* We're done with the hosts */
+        xml_start_tag("host");
+        write_host_header(currenths);
+        printmacinfo(currenths);
+        //  if (currenths->flags & HOST_UP)
+        //  log_write(LOG_PLAIN,"\n");
+        printtimes(currenths);
+        xml_end_tag();
+        xml_newline();
+        log_flush_all();
+        delete currenths;
+        o.numhosts_scanned++;
+        continue;
       }
     
       if (o.spoofsource) {
-	o.SourceSockAddr(&ss, &sslen);
-	currenths->setSourceSockAddr(&ss, sslen);
+        o.SourceSockAddr(&ss, &sslen);
+        currenths->setSourceSockAddr(&ss, sslen);
       }
     
       /* I used to check that !currenths->weird_responses, but in some
-	 rare cases, such IPs CAN be port successfully scanned and even connected to */
+         rare cases, such IPs CAN be port successfully scanned and even
+         connected to */
       if (!(currenths->flags & HOST_UP)) {
-	if (o.verbose && (!o.openOnly() || currenths->ports.hasOpenPorts())) {
-	  xml_start_tag("host");
-	  write_host_header(currenths);
-	  xml_end_tag();
-	  xml_newline();
-	}
-	delete currenths;
-	o.numhosts_scanned++;
-	continue;
+        if (o.verbose && (!o.openOnly() || currenths->ports.hasOpenPorts())) {
+          xml_start_tag("host");
+          write_host_header(currenths);
+          xml_end_tag();
+          xml_newline();
+        }
+        delete currenths;
+        o.numhosts_scanned++;
+        continue;
       }
 
       if (o.af() == AF_INET && o.RawScan()) { 
-	if (currenths->SourceSockAddr(NULL, NULL) != 0) {
-	  if (o.SourceSockAddr(&ss, &sslen) == 0) {
-	    currenths->setSourceSockAddr(&ss, sslen);
-	  } else {
-	    if (gethostname(myname, MAXHOSTNAMELEN) || 
-		resolve(myname, 0, 0, &ss, &sslen, o.af()) == 0)
-	      fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n"); 
-	    
-	    o.setSourceSockAddr(&ss, sslen);
-	    currenths->setSourceSockAddr(&ss, sslen);
-	    if (! sourceaddrwarning) {
-	      error("WARNING:  We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.", inet_socktop(&ss));
-	      sourceaddrwarning = 1;
-	    }
-	  }
-	}
+        if (currenths->SourceSockAddr(NULL, NULL) != 0) {
+          if (o.SourceSockAddr(&ss, &sslen) == 0) {
+            currenths->setSourceSockAddr(&ss, sslen);
+          } else {
+            if (gethostname(myname, MAXHOSTNAMELEN) ||
+                resolve(myname, 0, 0, &ss, &sslen, o.af()) == 0)
+              fatal("Cannot get hostname!  Try using -S <my_IP_address> or -e <interface to scan through>\n"); 
+        
+            o.setSourceSockAddr(&ss, sslen);
+            currenths->setSourceSockAddr(&ss, sslen);
+            if (! sourceaddrwarning) {
+              error("WARNING:  We could not determine for sure which interface to use, so we are guessing %s .  If this is wrong, use -S <my_IP_address>.",
+                  inet_socktop(&ss));
+                sourceaddrwarning = 1;
+            }
+          }
+        }
 
-	if (!currenths->deviceName())
-	  fatal("Do not have appropriate device name for target");
-	
+        if (!currenths->deviceName())
+          fatal("Do not have appropriate device name for target");
+
         /* Hosts in a group need to be somewhat homogeneous. Put this host in
            the next group if necessary. See target_needs_new_hostgroup for the
            details of when we need to split. */
-	if (target_needs_new_hostgroup(Targets, currenths)) {
-	  returnhost(hstate);
-	  o.numhosts_up--;
-	  break;
-	}
-	o.decoys[o.decoyturn] = currenths->v4source();
+        if (target_needs_new_hostgroup(Targets, currenths)) {
+          returnhost(hstate);
+          o.numhosts_up--;
+          break;
+        }
+        o.decoys[o.decoyturn] = currenths->v4source();
       }
       Targets.push_back(currenths);
     }
@@ -1823,10 +1824,10 @@ int nmap_main(int argc, char *argv[]) {
       /* Now I can do the output and such for each host */
       if (currenths->timedOut(NULL)) {
         write_host_header(currenths);
-	log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n", 
-		  currenths->NameIP(hostname, sizeof(hostname)));
-	log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 
-		  currenths->targetipstr(), currenths->HostName());
+        log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n",
+            currenths->NameIP(hostname, sizeof(hostname)));
+        log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 
+            currenths->targetipstr(), currenths->HostName());
       } else {
         /* --open means don't show any hosts without open ports. */
         if (o.openOnly() && !currenths->ports.hasOpenPorts())
@@ -1837,12 +1838,12 @@ int nmap_main(int argc, char *argv[]) {
         xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
         xml_close_start_tag();
         write_host_header(currenths);
-	printportoutput(currenths, &currenths->ports);
-	printmacinfo(currenths);
-	printosscanoutput(currenths);
-	printserviceinfooutput(currenths);
+        printportoutput(currenths, &currenths->ports);
+        printmacinfo(currenths);
+        printosscanoutput(currenths);
+        printserviceinfooutput(currenths);
 #ifndef NOLUA
-	printhostscriptresults(currenths);
+        printhostscriptresults(currenths);
 #endif
         if (o.traceroute)
           printtraceroute(currenths);
