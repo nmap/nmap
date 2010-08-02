@@ -3095,7 +3095,7 @@ int Sendto(const char *functionname, int sd,
 #if WIN32
       return -1;
 #else
-      if (retries > 2 || err == EPERM || err == EACCES
+      if (retries > 2 || err == EPERM || err == EACCES || err == EMSGSIZE
           || err == EADDRNOTAVAIL || err == EINVAL)
         return -1;
       sleeptime = 15 * (1 << (2 * retries));
