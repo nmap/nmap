@@ -29,25 +29,25 @@ These access permissions are shown only with NFSv3:
 -- 111/tcp open  rpcbind
 -- | nfs-ls:
 -- |   Arguments:
--- |     maxfiles: 10 (file listing output limited)  time: mtime
+-- |     maxfiles: 10 (file listing output limited)
 -- |
 -- |   NFS Export: /mnt/nfs/files
 -- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
 -- |
--- |     PERMISSION  UID   GID   SIZE     DATE              FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28  /mnt/nfs/files
--- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58  sources
--- |     -rw-------  1000  1002  23606    2010-06-17 12:28  notes
+-- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
+-- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
+-- |     -rw-------  1000  1002  23606    2010-06-17 12:28   notes
 -- |
 -- |   NFS Export: /home/storage/backup
 -- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
 -- |
--- |     PERMISSION  UID   GID   SIZE     DATE              FILENAME
--- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31  /home/storage/backup
--- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34  filetest
--- |     drwx------  1000  100   16384    2010-02-05 17:05  lost+found
--- |     -rw-r--r--  0     0     5        2010-06-10 11:32  rootfile
--- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34  symlink
+-- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
+-- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
+-- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
+-- |     drwx------  1000  100   16384    2010-02-05 17:05   lost+found
+-- |     -rw-r--r--  0     0     5        2010-06-10 11:32   rootfile
+-- |_    lrwxrwxrwx  1000  1002  8        2010-06-10 08:34   symlink
 --
 -- @args nfs-ls.maxfiles If set, limits the amount of files returned by
 --       the script when using the <code>nfs-ls.dirlist</code> argument.
@@ -56,11 +56,11 @@ These access permissions are shown only with NFSv3:
 -- @args nfs-ls.human If set to <code>1</code> or <code>true</code>,
 --       shows file sizes in a human readable format with suffixes like
 --       <code>KB</code> and <code>MB</code>.
--- @args nfs-ls.time Specifies which one of the mac times to use in the
---       files attributes output. Possible values are:
--- * <code>m</code>: modification time (mtime)
--- * <code>a</code>: access time (atime)
--- * <code>c</code>: change time (ctime)
+-- @args nfs-ls.time Specifies which one of the last mac times to use in
+--       the files attributes output. Possible values are:
+-- * <code>m</code>: last modification time (mtime)
+-- * <code>a</code>: last access time (atime)
+-- * <code>c</code>: last change time (ctime)
 -- The default value is <code>m</code> (mtime).
  
 -- Created 05/28/2010 - v0.1 - combined nfs-dirlist and nfs-acls scripts
@@ -115,8 +115,8 @@ local function table_dirlist(nfs, mount, dirlist)
 
     if v.name ~= ".." and v.name ~= "." then
       if v.attributes then
-      	table.insert(files, v.name)
-      	attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
+        table.insert(files, v.name)
+        attrs[files[idx]] = table_attributes(nfs, v.name, v.attributes)
         idx = idx + 1
       else
         stdnse.print_debug(1, "ERROR attributes:  %s", v.name)
@@ -205,15 +205,23 @@ local function nfs_ls(nfs, mount, results, access)
   return status, dirs
 end
 
-local function report(table)
-  local outtab = tab.new(6)
+local function report(nfs, table)
+  local outtab, time = tab.new(6), ""
+
+  if nfs.time == "mtime" then
+    time = "MODIFICATION TIME"
+  elseif nfs.time == "atime" then
+    time = "ACCESS TIME"
+  elseif nfs.time == "ctime" then
+    time = "CHANGE TIME"
+  end
 
   tab.nextrow(outtab)
   tab.add(outtab, 1, "    PERMISSION")
   tab.add(outtab, 2, "UID")
   tab.add(outtab, 3, "GID")
   tab.add(outtab, 4, "SIZE")
-  tab.add(outtab, 5, "DATE")
+  tab.add(outtab, 5, time)
   tab.add(outtab, 6, "FILENAME")
 
   for _,f in pairs(table) do
@@ -227,7 +235,6 @@ end
 
 action = function(host, port)
   local o, results, mounts, status = {}, {}, {}
-  local vbs = nmap.verbosity()
   local nfs_info =
   {
     host      = host,
@@ -236,7 +243,6 @@ action = function(host, port)
     maxfiles  = tonumber(nmap.registry.args['nfs-ls.maxfiles']) or 10,
     time      = nmap.registry.args['nfs-ls.time'] or "",
     human     = nmap.registry.args['nfs-ls.human'] or nil,
-    --dirs      = nmap.registry.args['nfs-ls.dirs'] or nil,
     --recurs    = tonumber(nmap.registry.args['nfs-ls.recurs']) or 1,
   }
 
@@ -248,14 +254,12 @@ action = function(host, port)
     nfs_info.time = "mtime"
   end
 
-  if vbs > 1 then
+  if nfs_info.maxfiles > 0 then
     local args, str = {}, ""
     args['name'] = 'Arguments:'
-    if nfs_info.maxfiles > 0 then
-      str = str .. string.format("maxfiles: %d (file listing output limited) ",
-                                 nfs_info.maxfiles)
-    end
-    table.insert(args, string.format("%s time: %s", str, nfs_info.time))
+    str = string.format("maxfiles: %d (file listing output limited) ",
+              nfs_info.maxfiles)
+    table.insert(args, str)
     table.insert(o, args)
   end
 
@@ -272,10 +276,10 @@ action = function(host, port)
     else
       str = "\n  NFS Export: " .. results[1].filename
       if #access ~= 0 then
-      	str = str .. "\n  NFS Access: " .. access[1]
+        str = str .. "\n  NFS Access: " .. access[1]
       end
       table.insert(o, str)
-      table.insert(o, report(results))
+      table.insert(o, report(nfs_info, results))
     end
   end
 
