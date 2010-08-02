@@ -571,7 +571,8 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
   assert((int) packetlen > 0);
 
   /* Fragmentation requested && packet is bigger than MTU */
-  if(o.fragscan && (packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan)){
+  if(o.fragscan && !(ntohs(ip->ip_off) & IP_DF) &&
+     (packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan)){
     res = send_frag_ip_packet(sd, eth, packet, packetlen, o.fragscan);
   }else{
     res = send_ip_packet_eth_or_sd(sd, eth, packet, packetlen);
