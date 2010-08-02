@@ -2002,7 +2002,7 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
     fatal("Unable to parse supposed log file %s.  Perhaps the Nmap execution had not finished at least one host?  In that case there is no use \"resuming\"", fname);
 
 
-  strcpy(nmap_arg_buffer, "nmap --append-output ");
+  strncpy(nmap_arg_buffer, "nmap --append-output ", sizeof(nmap_arg_buffer));
   if ((q-p) + 21 + 1 >= (int) sizeof(nmap_arg_buffer)) fatal("0verfl0w");
   memcpy(nmap_arg_buffer + 21, p, q-p);
   nmap_arg_buffer[21 + q-p] = '\0';

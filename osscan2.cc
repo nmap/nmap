@@ -2702,7 +2702,7 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
         break; /* Window Scale option has 3 bytes */
       *p++ = 'W';
       q++;
-      sprintf(p, "%hX", *((u8*)q));
+      snprintf(p, length, "%hX", *((u8*)q));
       p += strlen(p); /* max movement of p is 2 (max WScale value is 0xFF) */
       q++;
       length -= 3;

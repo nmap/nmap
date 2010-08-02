@@ -549,7 +549,7 @@ void printportoutput(Target * currenths, PortList * plist) {
       fatal("Unable to properly format host start time");
 
     log_write(LOG_PLAIN, "Scanned at %s for %lds\n",
-              tbufs, tm_sece - tm_secs);
+              tbufs, (long) (tm_sece - tm_secs));
   }
   log_write(LOG_MACHINE, "Host: %s (%s)", currenths->targetipstr(),
             currenths->HostName());
