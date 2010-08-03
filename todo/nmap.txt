@@ -56,6 +56,19 @@ o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Services (like sysinternals' psservice)
   [Drazen]
 
+o Investigate ways to limit Winpcap privileges so that only
+  administrative users or a certain accounts can sniff.
+
+o Create NSE scripts to scan for and/or exploit these VXWorks issues:
+  http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html
+
+o [NSE] Maybe we should create a script which checks once a day
+  whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
+  new modules, and then mails out a list of them with the description
+  fields.  The mail could go to just interested parties, or maybe
+  nmap-dev.  This may help prevent important vulnerabilities from
+  falling through the cracks.
+
 o [NSE] Review new brute, vnc, and svn scripts by Patrik.  This guy is
   a coding machine :).  http://seclists.org/nmap-dev/2010/q3/111
 
