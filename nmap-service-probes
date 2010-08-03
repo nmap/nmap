@@ -7513,7 +7513,7 @@ match ftp m|^220 Please enter your login name now\.\r\n502 help is not implement
 match ftp m|^220[ -].*\r\n550 SSL/TLS required on the control channel\r\n|s p/ProFTPd/ i/requires SSL/
 match ftp m|^220 FTP server ready\r\n214-The following commands are recognized:\r\nHELP\tUSER\tPASS\tQUIT\tLIST\tNLST\r\nRETR\tSTOR\tCWD\tTYPE\tPORT\tPWD\r\nSTRU\tMODE\tALLO\tACCT\tPASV\tNOOP\r\nDELE\tEPRT\tEPSV\r\n214 End of command list\.\r\n| p|TopLayer/Alcatel ftpd|
 match ftp m|^220.*This site is running NcFTPd Server software|s p/NcFTPd/
-match ftp m|^220 Connection established\.\r\n214-The following commands are supported:\r\n\tUSER\tPORT\tTYPE\tABOR\tCWD \tLIST\r\n\tPASS\tPASV\tSTRU\tPWD \tXCWD\tNLST\r\n\tQUIT\tSTOR\tRETR\tMODE\tXPWD\tNOOP\r\n\tHELP\r\n214 \r\n| p/Canon iR3570 priter ftpd/ d/printer/
+match ftp m|^220 Connection established\.\r\n214-The following commands are supported:\r\n\tUSER\tPORT\tTYPE\tABOR\tCWD \tLIST\r\n\tPASS\tPASV\tSTRU\tPWD \tXCWD\tNLST\r\n\tQUIT\tSTOR\tRETR\tMODE\tXPWD\tNOOP\r\n\tHELP\r\n214 \r\n| p/Canon iR3570 printer ftpd/ d/printer/
 match ftp m|^220 ([\w._-]+) (?:Ver )([\w._-]+) FTP server\.\r\n214- FTPD supported commands\(RFC959 subset\):\r\n| p/Kyocera $1 printer ftpd/ v/$2/ d/printer/
 match ftp m|^220.Welcome to ([-\w_.]+)\r\n214-The following SITE commands are recognized\r\n.*214 Pure-FTPd - http://pureftpd\.org/?\r\n|s p/PureFTPd/ h/$1/
 match ftp m|^214-The following SITE commands are recognized\r\n.*214 Pure-FTPd - http://pureftpd\.org/\r\n|s p/PureFTPd/
