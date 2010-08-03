@@ -16,7 +16,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
 -- okay, we're interested only in hosts that are on our ethernet lan
-hostrule = function(host, port)
+hostrule = function(host)
 	return host.directly_connected == true and
 		host.mac_addr ~= nil and
 		host.mac_addr_src ~= nil and
@@ -63,7 +63,7 @@ do_test = function(dnet, pcap, host, test)
 	return('_')
 end
 
-action = function(host, port)
+action = function(host)
 	local dnet = nmap.new_dnet()
 	local pcap = nmap.new_socket()
 	local _

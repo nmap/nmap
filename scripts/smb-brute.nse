@@ -1060,7 +1060,7 @@ local function go(host)
 end
 
 --_G.TRACEBACK = TRACEBACK or {}
-action = function(host, port)
+action = function(host)
 --	TRACEBACK[coroutine.running()] = true;
 
 	local status, result
