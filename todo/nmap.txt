@@ -137,6 +137,10 @@ o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
   http://seclists.org/nmap-dev/2010/q2/754
 
+o Process Nmap survey and send out results
+
+o Make new SecTools.Org site with the 2010 survey results
+
 o Further brainstorm and consider implementing more prerule/postrule
   scripts:
    o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
