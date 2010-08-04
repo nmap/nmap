@@ -14,14 +14,6 @@ o [NSE] Create NSE scripts to scan for and/or exploit these VXWorks issues:
   http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html [Ron
   may be able to do this.  Or others are welcome to take a shot at it.]
 
-o [NSE] Maybe we should create a script which checks once a day
-  whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
-  new modules, and then mails out a list of them with the description
-  fields.  The mail could go to just interested parties, or maybe
-  nmap-dev.  This may help prevent important vulnerabilities from
-  falling through the cracks.  Perhaps we would include new NSEs in
-  there too, especially if we open it up as a public list.
-
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -30,9 +22,6 @@ o Create new default username list: [Ithilgore working on this]
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
-
-o [NSE] High speed brute force HTTP authentication.  Possibly POST and
-   GET/HEAD brute force cracking.
 
 o Do a serious analysis if and how we should use the NIST CPE standard
   (http://cpe.mitre.org/) for OS detection and (maybe in a different
@@ -113,6 +102,21 @@ o [NSE] The NSEDoc for some scripts includes large "Functions"
   developers are the primary audience for those documents.
   o Talked to David.  We should just remove the function entries.
 
+o [NSE] Maybe we should create a script which checks once a day
+  whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
+  new modules, and then mails out a list of them with the description
+  fields.  The mail could go to just interested parties, or maybe
+  nmap-dev.  This may help prevent important vulnerabilities from
+  falling through the cracks.  Perhaps we would include new NSEs in
+  there too, especially if we open it up as a public list.
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET/HEAD brute force cracking.
+
+o Since Libdnet files (such as ltmain.sh) are apparently only used by
+  libdnet (they used to be used by shared library NSE C scripts), we
+  should move them to the libdnet directory.
+
 o Ncat and Nmap should probably support SSL Server Name Indication
   (SNI). See this thread: http://seclists.org/nmap-dev/2010/q3/112.
   We need this to talk to web servers which share one SSL IP and port
@@ -120,10 +124,6 @@ o Ncat and Nmap should probably support SSL Server Name Indication
 
 o Look into implementing security technologies such as DEP and ASLR on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
-
-o Since Libdnet files (such as ltmain.sh) are apparently only used by
-  libdnet (they used to be used by shared library NSE C scripts), we
-  should move them to the libdnet directory.
 
 o The -g (set source port) option doesn't seem to be working (at least
   in Fyodor's quick tests) for version detection or connect() scan,
