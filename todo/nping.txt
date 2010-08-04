@@ -50,9 +50,6 @@
 
 * [EM] Some things to keep in mind for the implementation and to update
   our design docs accordingly:
-  o multi-client support
-  o delaying RECV message printing so the CAPT messages are shown in order. 
-  o send NEP_QUIT only if necessary, just close connection if possible.
   o Implement different "modes" for the server: complete access,
     one-time-access, and restricted.
   o Make sure nping does not allow generating packets with tcp src port or
@@ -66,22 +63,14 @@
 
 * Fix Windows rtt values.  Right now Nsock does not seem to be giving
   the callback at the proper time, or something.
-    
-* [EM] Implement crypto
-
-* [EM] Add precision timestamp in NEP_ECHO noting when server received
-  the packet.
 
 * Do more testing on Mac
 
 * [EM] For CAPT packets, decide if we want to print the full info or just
   the fields that have changed in transit.
 
-* [EM] Make the server stop capturing packets when all connection clients
-  finished their
-
-* [EM] Handle DLT types. Currently the server always sets the null DLT value
-  that indicates that no data link header is included.
+* [EM] Make the server stop capturing packets when all connected clients
+  finish their session.
 
 * Stats for ARP packets.
 
@@ -108,27 +97,6 @@
 * Test out Nping IPv6 on working IPv6 network (even if just between
   two machines, or localhost, or with a VMWare guest).
 
-* [EM] Consider whether the CAPT line should (or should have an
-  option to) display the time based on capture time from the server.
-  Obviously this can be problematic because not all machines run
-  ntpd.  One option is to just make it an option so that people should
-  only use it if both the client and server are running ntpd.  Luis is
-  adding a precision timestamp to NEP_ECHO packets so we could easily
-  add it in the future.  Another approach would be to do NTP-style
-  handshaking to compute time offsets between the two machines during
-  the echo side-channel handshaking.  Then the client could remember
-  how far off it is.  A third approach is to guess about the CAPT time
-  that it was 1/2 the time between packet send and when we received
-  the NEP_ECHO back notifying us of receipt.
-
-o [EM] Consider whether we should delay RCVD packet printing
-  slightly so that CAPT packets received just slightly afterward could
-  be printed before the RCVD.  This might make the most sense if we do
-  the previous feature where we show the time that a packet was
-  actually captured by echo server.  If we did it in normal cases, it
-  might make it easier to compare SENT and CAPT packets, but would
-  also be a bit strange to see the timeline out-of-order.
-
 * Decide more on rDNS
  - Do we want to rDNS resolve all target IPs?  If so, where should we
    show the name?  At the final report (even when just one host
@@ -139,9 +107,6 @@ o [EM] Consider whether we should delay RCVD packet printing
  - Some more discussion on this topic on nmap-dev may be warranted.
 
 * Implement TCP options
-
-* The "Register Nping path" in the windows installer does not work and needs
-  to be fixed.
 
 * Improve IPv6 support. We need to test it in many platforms to see how it
   behaves.
@@ -233,9 +198,7 @@ o [EM] Consider whether we should delay RCVD packet printing
   a connection and can then send data on the connected stream (Luis
   already has a proof-of-concept implementation).
 
-* In the Nping code cleanup phase, apart from focusing in common.cc and
-  common_modified.cc, keep in mind that we may want to share David's UDP
-  payload code between Nping and Nmap.
+* Consider using David's UDP payloads for UDP mode.
 
 * In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
   returns something different to DLT_EN10MB, and Nping fatals. Investigate
@@ -289,6 +252,9 @@ o [EM] Consider whether we should delay RCVD packet printing
   established from that IP. This includes the echo server binding to that IP. 
 
 * Consider adding more detailed stats for the Echo Mode.
+
+* [EM] Handle DLT types. Currently the server always sets the null DLT value
+  that indicates that no data link header is included.
 
 /*****************************************************************************
  * Things that have been solved already                                      *
@@ -610,3 +576,33 @@ o [EM] Consider whether we should delay RCVD packet printing
 [DONE] [EM] Add echo mode to the man page.
 
 [DONE] [EM] Add received echoed packet to the final statistics.
+
+[DONE] [EM] Multi-client support
+
+[DONE] [EM] Delay RECV message printing so the CAPT messages are shown in order. 
+
+[DONE] [EM] Use NEP_QUIT only if necessary, just close connection if possible.
+
+[DONE] [EM] Implement crypto
+
+[DONE] [EM] Consider whether the CAPT line should (or should have an
+  option to) display the time based on capture time from the server.
+  Obviously this can be problematic because not all machines run
+  ntpd.  One option is to just make it an option so that people should
+  only use it if both the client and server are running ntpd.  Luis is
+  adding a precision timestamp to NEP_ECHO packets so we could easily
+  add it in the future.  Another approach would be to do NTP-style
+  handshaking to compute time offsets between the two machines during
+  the echo side-channel handshaking.  Then the client could remember
+  how far off it is.  A third approach is to guess about the CAPT time
+  that it was 1/2 the time between packet send and when we received
+  the NEP_ECHO back notifying us of receipt.
+  NOTE: We finally decided to take the third approach. CAPT_time=RTT/2.
+
+[DONE] [EM] Consider whether we should delay RCVD packet printing
+  slightly so that CAPT packets received just slightly afterward could
+  be printed before the RCVD.  This might make the most sense if we do
+  the previous feature where we show the time that a packet was
+  actually captured by echo server.  If we did it in normal cases, it
+  might make it easier to compare SENT and CAPT packets, but would
+  also be a bit strange to see the timeline out-of-order.
