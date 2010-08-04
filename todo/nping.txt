@@ -76,6 +76,12 @@
 
 * [EM] Add echo mode to the man page
 
+* [EM] Echo server should print which interface is using to capture packets.
+
+* [EM] Investigate why the echo server does not send NEP_ECHO messages when the
+  client sends probes at a very high rate, like in :
+  ./nping -c 1000 --rate 1000 --echo-client "pass" --icmp -v echo.nmap.org
+
 * [EM] Do some extensive testing of the Echo mode once it is working
   to try and flesh out any bugs before merging.
 
