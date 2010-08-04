@@ -2240,7 +2240,7 @@ struct data_file_record {
 
   /* Compares this record to another. First compare the directory names, then
      compare the file names. */
-  bool operator<(const struct data_file_record &other) {
+  bool operator<(const struct data_file_record &other) const {
     int cmp;
 
     cmp = dir.compare(other.dir);
