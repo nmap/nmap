@@ -48,6 +48,9 @@
  * Things that have NOT been done yet                                        *
  *****************************************************************************/
 
+* Fix Windows rtt values.  Right now Nsock does not seem to be giving
+  the callback at the proper time, or something.
+
 * [EM] Some things to keep in mind for the implementation and to update
   our design docs accordingly:
   o Implement different "modes" for the server: complete access,
@@ -57,33 +60,87 @@
     echo server does not capture those packets and 2) to avoid messing up the
     established side-channel tcp connection.
 
-* [EM] Do more testing.
-
-* Do more testing on MS Windows.
-
-* Fix Windows rtt values.  Right now Nsock does not seem to be giving
-  the callback at the proper time, or something.
-
-* Do more testing on Mac
-
-* [EM] For CAPT packets, decide if we want to print the full info or just
-  the fields that have changed in transit.
-
-* [EM] Make the server stop capturing packets when all connected clients
-  finish their session.
-
-* Stats for ARP packets.
-
-* [EM] Add echo mode to the man page
-
-* [EM] Echo server should print which interface is using to capture packets.
-
 * [EM] Investigate why the echo server does not send NEP_ECHO messages when the
   client sends probes at a very high rate, like in :
   ./nping -c 1000 --rate 1000 --echo-client "pass" --icmp -v echo.nmap.org
 
+* [EM] Add echo mode to the man page
+
+* In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
+  returns something different to DLT_EN10MB, and Nping fatals. Investigate
+  why this happens to nping and is not a problem for Nmap. Also, determine
+  why this doesn't happen all the time. What does it change between these
+  two?: sudo nping --udp 1.1.1.1 -g 999 -p998
+        sudo nping --udp 1.1.1.1 -g 999 -p999
+  The first one works, and the other one fatals with the "Currently only
+  Ethernet is supported." (error message @ nping.cc:1717).
+  - Note this also happens when Fyodor uses Nping tethering through
+    his cell phone (ppp0)
+
+* Add support for custom IP binding: if user supplies -S then
+  the echo side-channel connection and connections in TCP-Connect mode should be
+  established from that IP. This includes the echo server binding to that IP. 
+
+* [EM] Make the server stop capturing packets when all connected clients
+  finish their session.
+
+* [EM] Echo server should print which interface is using to capture packets.
+
+* Do more testing on MS Windows.
+
 * [EM] Do some extensive testing of the Echo mode once it is working
   to try and flesh out any bugs before merging.
+
+* Make nping issue a warning when user supplies a payload in TCP-Connect
+  mode.
+
+/*****************************************************************************
+ * ^^^^ Things we should try to finish by end of GSoC (August 16)            *
+ *****************************************************************************/
+
+* Consider using Nmap's proto-dependant payloads for UDP packets. According
+  to his tests, better results are obtained when sending UDP probes with a
+  payload specific to the protocol.
+  
+* When doing ICMP echo traceroute (with --traceroute), unless the user
+  supplies a custom round count (-c/--count), Nping only sends 5 packets
+  (default round count). This is usually not enough to reach hosts
+  on the internet. What should be the default behaviour? Stick with the
+  default round count of 5 or increment it when --traceroute is set?
+  - We should probably set -c 32 when --traceroute is specified,
+    unless user specifies their own -c explicitly.
+
+* Decide more on rDNS
+ - Do we want to rDNS resolve all target IPs?  If so, where should we
+   show the name?  At the final report (even when just one host
+   scanned, which omits that line now)?  In the individual packet
+   trace lines?  When a CNAME (or a name which forward resolves but
+   does the IP doesn't reverse resolve) is specified on the command
+   line, should we use that version, or the official rDNS, if any?
+ - Some more discussion on this topic on nmap-dev may be warranted.
+
+* Improve IPv6 support. We need to test it in many platforms to see how it
+  behaves.
+
+* Do some performance testing.  
+   Fyodor:
+   <<Nping should be able to send packets quickly, at least comparable to
+   "ping -f" and hping. If it can't send as many packets per second as those,
+   then it warrants looking into whym figuring out what the bottlenecks are.
+   It would be good to compare nping with other tools such as hping in
+   terms of how high the values of packets per second can get and still
+   work reliably.>>
+
+* Stats for ARP packets.
+
+* Do more testing on Mac
+
+* Support pre defined probe rates: --fast, --faster, --flood, --slow,
+   --slower, --paranoid...
+
+* Think about --establish feature, which uses raw packets to establish
+  a connection and can then send data on the connected stream (Luis
+  already has a proof-of-concept implementation).
 
 * Make privileged and unprivileged TCP/UDP mode specification consistent.
 
@@ -103,41 +160,13 @@
 * Test out Nping IPv6 on working IPv6 network (even if just between
   two machines, or localhost, or with a VMWare guest).
 
-* Decide more on rDNS
- - Do we want to rDNS resolve all target IPs?  If so, where should we
-   show the name?  At the final report (even when just one host
-   scanned, which omits that line now)?  In the individual packet
-   trace lines?  When a CNAME (or a name which forward resolves but
-   does the IP doesn't reverse resolve) is specified on the command
-   line, should we use that version, or the official rDNS, if any?
- - Some more discussion on this topic on nmap-dev may be warranted.
+* Support reverse DNS resolution in --traceroute
 
 * Implement TCP options
-
-* Improve IPv6 support. We need to test it in many platforms to see how it
-  behaves.
-
-* Do some performance testing.  
-   Fyodor:
-   <<Nping should be able to send packets quickly, at least comparable to
-   "ping -f" and hping. If it can't send as many packets per second as those,
-   then it warrants looking into whym figuring out what the bottlenecks are.
-   It would be good to compare nping with other tools such as hping in
-   terms of how high the values of packets per second can get and still
-   work reliably.>>
 
 * Implement hping-like ability to change the port/ttl using the keyboard
   during a scan.
 
-* Support reverse DNS resolution in --traceroute
-
-* Support pre defined probe rates: --fast, --faster, --flood, --slow,
-   --slower, --paranoid...
-
-* Consider using David's proto-dependant payloads for UDP packets. According
-  to his tests, better results are obtained when sending UDP probes with a
-  payload specific to the protocol.
-  
 * Disable ARP resolution when --source-mac is specified.
 
 * Implement --data-file option. What should we do if file is big? Read the
@@ -178,10 +207,11 @@
 * Implement "-iL inputfilename (Input from list) " and the case where "-" is
   supplied and target specs need to be read from stdin.  
   
-* Add option to allow sending NO packets but act as a simple sniffer. Users
-  could use --bpf-filter to specify a tcpdump-like filter and get every 
-  receive packet printed to stdout. Maybe with "-c 0"? "-c none"? We need to
-  have some flag in NpingOps so we don't terminate Nping but wait undefinitely.
+* Consider adding option to allow sending NO packets but act as a
+  simple sniffer. Users could use --bpf-filter to specify a
+  tcpdump-like filter and get every receive packet printed to
+  stdout. Maybe with "-c 0"? "-c none"? We need to have some flag in
+  NpingOps so we don't terminate Nping but wait undefinitely.
   
 * At some point we should support nmap-like MAC specification. 
 
@@ -200,27 +230,6 @@
   <<in some cases it might be nice to have an option which sends all 
   probes (all ports to all hosts) at the same time.>>
 
-* Think about --establish feature, which uses raw packets to establish
-  a connection and can then send data on the connected stream (Luis
-  already has a proof-of-concept implementation).
-
-* Consider using David's UDP payloads for UDP mode.
-
-* In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
-  returns something different to DLT_EN10MB, and Nping fatals. Investigate
-  why this happens to nping and is not a problem for Nmap. Also, determine
-  why this doesn't happen all the time. What does it change between these
-  two?: sudo nping --udp 1.1.1.1 -g 999 -p998
-        sudo nping --udp 1.1.1.1 -g 999 -p999
-  The first one works, and the other one fatals with the "Currently only
-  Ethernet is supported." (error message @ nping.cc:1717).
-    
-* When doing ICMP echo traceroute (with --traceroute), unless the user
-  supplies a custom round count (-c/--count), Nping only sends 5 packets
-  (default round count). This is usually not enough to reach hosts
-  on the internet. What should be the default behaviour? Stick with the
-  default round count of 5 or increment it when --traceroute is set?
-
 * ARP mode does not support payload specification. However, users may
   want to do things like appending null bytes at the end of an ARP
   packet to test some device behaviour, etc. Adding support for
@@ -228,14 +237,16 @@
   more consistent with the rest of the modes, and may be a nice to have
   feature.
 
+* [EM] For CAPT packets, decide if we want to print the full info or
+  just the fields that have changed in transit (or both).  Note that
+  printing differences would be complicated by the fact that nping
+  doesn't currently associate captured packets with the original send.
+
 * Decide if we want to allow things like "1074628148" or "0x400d8634" to
   be treated as valid IP addresses.
 
 * Check out if --ip-options "RTUS 1.1.1.1 2.2.2.2" makes sense. It now
   fails.
-
-* Make nping issue a warning when user supplies a payload in TCP-Connect
-  mode.
 
 * It may be nice to let users set the IP header lenght field. Maybe they
   want to stress tcp/stacks with this.
@@ -246,16 +257,13 @@
 
 * Split up libnetutil.cc into different source files.
 
-* Investigate on nping's version if devname2ipaddr. Think about side
+* Investigate on nping's version of devname2ipaddr. Think about side
   effects on using that in Nmap.
 
 * Consider adding multi-packet support.
+  o Example: tell nping to send 4 tcp packets, 5 icmp packets and 3 udp packets
 
 * Consider adding RFC-style output for send/recv packets.
-
-* Add support for custom IP binding: if user supplies -S then
-  the echo side-channel connection and connections in TCP-Connect mode should be
-  established from that IP. This includes the echo server binding to that IP. 
 
 * Consider adding more detailed stats for the Echo Mode.
 
