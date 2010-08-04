@@ -1,11 +1,26 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Now that we've put the ndiff, ncat, and nping man pages under the
-  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
-  to add a redirect from the old locations and also update our links.
+o Analyze what sort of work would likely be required for Nmap to
+  support OS detection over IPv6 to a target.
+  o Would probably start with a way to send raw IPv6 packets
+    o There is a raw IPv6 patch here:
+      http://seclists.org/nmap-dev/2008/q1/458
+    o Also it looks like Nping may be doing this already.
+  o Then we need to figure out if we can use our current DB and
+    techniques, or if we'd likely thave to have an IPv6-specific
+    DB. [David]
 
-o Add this patch for compilation on OpenSolaris.
-  http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on
+o [NSE] Create NSE scripts to scan for and/or exploit these VXWorks issues:
+  http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html [Ron
+  may be able to do this.  Or others are welcome to take a shot at it.]
+
+o [NSE] Maybe we should create a script which checks once a day
+  whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
+  new modules, and then mails out a list of them with the description
+  fields.  The mail could go to just interested parties, or maybe
+  nmap-dev.  This may help prevent important vulnerabilities from
+  falling through the cracks.  Perhaps we would include new NSEs in
+  there too, especially if we open it up as a public list.
 
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
@@ -15,6 +30,21 @@ o Create new default username list: [Ithilgore working on this]
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET/HEAD brute force cracking.
+
+o Do a serious analysis if and how we should use the NIST CPE standard
+  (http://cpe.mitre.org/) for OS detection and (maybe in a different
+  phase) version detection results.  One thing to note is that they
+  may not have entries for many vendors we have.  For example, one
+  person told me they couldn't find SonicWall or D-Link in the CPE
+  dictionary.  Here are some
+  discussions threads on adding CPE to Nmap:
+  http://seclists.org/nmap-dev/2008/q4/627 and
+  http://seclists.org/nmap-dev/2010/q2/788.
+  Nessus has described their integration of CPE at
+  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
 
 o [NSE] Maybe we should create a class of scripts which only run one
   time per scan, similar to auxiliary modules in Metasploit. We
@@ -32,6 +62,16 @@ o [NSE] Maybe we should create a class of scripts which only run one
     discovery, and then let the following phases work on the list it
     discovers."
 
+o [NSE] Review scripts:
+   o New brute, vnc, and svn scripts by Patrik.  This guy is a coding
+     machine :).  http://seclists.org/nmap-dev/2010/q3/111
+   o rmi-dumpregistry by Martin
+     Swende. http://seclists.org/nmap-dev/2010/q2/904
+   o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
+   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
+   o http-xst (Eduardo Garcia Melia) -
+     http://seclists.org/nmap-dev/2010/q3/159
+
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
@@ -47,37 +87,15 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   hosts/services functionality seemed to work, although it would take
   a minute or so to switch from say "ftp" port to view "ssh" ports.
 
-o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
-  supported.
-  http://seclists.org/nmap-dev/2010/q2/754
+o [Zenmap] script selection interface for deciding which NSE scripts to
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
 
-o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
-  o Windows system logs (like sysinternals' psloglist)
-  o Services (like sysinternals' psservice)
-  [Drazen]
-
-o Investigate ways to limit Winpcap privileges so that only
-  administrative users or a certain accounts can sniff.
-
-o Create NSE scripts to scan for and/or exploit these VXWorks issues:
-  http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html
-
-o [NSE] Maybe we should create a script which checks once a day
-  whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
-  new modules, and then mails out a list of them with the description
-  fields.  The mail could go to just interested parties, or maybe
-  nmap-dev.  This may help prevent important vulnerabilities from
-  falling through the cracks.
-
-o [NSE] Review new brute, vnc, and svn scripts by Patrik.  This guy is
-  a coding machine :).  http://seclists.org/nmap-dev/2010/q3/111
-
-o Let Nsock log to stdout, so its messages don't get mixed up with the
-  output stream when Ncat is run with -vvv.
-  http://seclists.org/nmap-dev/2010/q3/113
-
-o Ncat should probably support SSL Server Name Indication (SNI). See
-  this thread: http://seclists.org/nmap-dev/2010/q3/112
+o [Web] We should see if we can easily put the Insecure chrome around
+  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
+  and http://nmap.org/404).  I think we may have had this working
+  before the move to Linode, so maybe check conf/httpd.conf.syn.
 
 o [NSE] In the same way as our -brute scripts limit their runtime by
   default, I think qscan should be less intense by default.  For
@@ -87,29 +105,79 @@ o [NSE] In the same way as our -brute scripts limit their runtime by
   Of course there could (probably should) still be options to enable
   more intense qscanning.
 
-o [Web] We should see if we can easily put the Insecure chrome around
-  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
-  and http://nmap.org/404).  I think we may have had this working
-  before the move to Linode, so maybe check conf/httpd.conf.syn.
-
-o [NSE] Consider using .idl files rather than manually coding all the
-  MSRPC stuff.  The current idea, if we do this, is to have an
-  application in nmap-private-dev which converts .idl files to LUA
-  code for nmap/nselib. Consider adapting the pidl utility from Samba.
-
 o [NSE] The NSEDoc for some scripts includes large "Functions"
   sections which aren't really useful to script users.  For example,
   see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
   should hide these behind an expander like "Developer documentation
   (show)".  I don't think we need to do this for libraries, since
   developers are the primary audience for those documents.
+  o Talked to David.  We should just remove the function entries.
+
+o Ncat and Nmap should probably support SSL Server Name Indication
+  (SNI). See this thread: http://seclists.org/nmap-dev/2010/q3/112.
+  We need this to talk to web servers which share one SSL IP and port
+  because we need to ask for the right SSL key.
+
+o Look into implementing security technologies such as DEP and ASLR on
+  Windows: http://seclists.org/nmap-dev/2010/q3/12.
+
+o Since Libdnet files (such as ltmain.sh) are apparently only used by
+  libdnet (they used to be used by shared library NSE C scripts), we
+  should move them to the libdnet directory.
+
+o The -g (set source port) option doesn't seem to be working (at least
+  in Fyodor's quick tests) for version detection or connect() scan,
+  and apparently doesn't work for NSE either.  We should fix this
+  where we can, and document the limitation in the refguide where it
+  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
+
+o [Web] Add a page with the Nmap related videos we do have already
+
+o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
+  supported.
+  http://seclists.org/nmap-dev/2010/q2/754
+
+o Further brainstorm and consider implementing more prerule/postrule
+  scripts:
+   o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
+   o IPv6 Neighbor Discovery Protocol:
+     http://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol
+   o DNS service discovery (Bonjour): http://en.wikipedia.org/wiki/Bonjour_%28software%29
+   o Broadcast ping (could ping broadcast address and either report
+     IPs+Mac addresses that it sees, or even add them to the scan queue
+     if requested).
+   o Netbios Name Service
+   o DHCP broadcast requests
+   o Postrules could be created which give final reports/statistics or
+     other useful output.  Like a reverse-index, which shows all the open
+     port numbers individually and the hosts which had that port open
+     (e.g. so you can see all the ssh servers at once, etc.)
+     Admittedly you can do that pretty easy with Zenmap instead.
+   o [Implemented] dns-zone-transfer
+   o [Implemented, but a joke] http-california-plates
+
+o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
+  o Windows system logs (like sysinternals' psloglist)
+  o Services (like sysinternals' psservice)
+  [Drazen]
+
+o Investigate ways to limit Winpcap privileges so that only
+  administrative users or a certain accounts can sniff.  Maybe there
+  is a solution people use for Wireshark or does it always cause this
+  issue (allowing any user to sniff the network) when it is installed?
+
+o Let Nsock log to stdout, so its messages don't get mixed up with the
+  output stream when Ncat is run with -vvv.
+  http://seclists.org/nmap-dev/2010/q3/113
+
+o [NSE] Consider using .idl files rather than manually coding all the
+  MSRPC stuff.  The current idea, if we do this, is to have an
+  application in nmap-private-dev which converts .idl files to LUA
+  code for nmap/nselib. Consider adapting the pidl utility from Samba.
 
 o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
-
-o Look into implementing security technologies such as DEP and ASL on
-  Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
@@ -121,8 +189,6 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
-
-o [Web] Add a page with the Nmap related videos we do have already
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o We should do an audit to ensure that we are in complete compliance for the
@@ -150,6 +216,9 @@ o Revive the Nmap Public Source License project (need to find an open
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
 
+o [Zenmap] should actually parse and use script results. See
+  http://seclists.org/nmap-dev/2010/q1/1108
+
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
   involve moving legal-notices.xml into /nmap/docs, among other
@@ -172,57 +241,18 @@ o Move Zenmap man page from nmap/docs/ to nmap/zenmap/docs to match
  o Consider standardizing names for nping and ncrack man pages as well.
  [Fyodor]
 
-o [Zenmap] script selection interface for deciding which NSE scripts to
-  run.  Ideally it would have a great, intuitive UI, the smarts to
-  know the scripts/categories available, display NSEdoc info, and even
-  know what arguments each can take.
-
-o Since Libdnet files (such as ltmain.sh) are apparently only used by
-  libdnet (they used to be used by shared library NSE C scripts), we
-  should move them to the libdnet directory.
-
-o [NSE] High speed brute force HTTP authentication.  Possibly POST and
-   GET/HEAD brute force cracking.
-
-o [Zenmap] should actually parse and use script results. See
-  http://seclists.org/nmap-dev/2010/q1/1108
-
-o Do a serious analysis if and how we should use the NIST CPE standard
-  (http://cpe.mitre.org/) for OS detection and (maybe in a different
-  phase) version detection results.  One thing to note is that they
-  may not have entries for many vendors we have.  For example, one
-  person told me they couldn't find SonicWall or D-Link in the CPE
-  dictionary.  Here are some
-  discussions threads on adding CPE to Nmap:
-  http://seclists.org/nmap-dev/2008/q4/627 and
-  http://seclists.org/nmap-dev/2010/q2/788.
-  Nessus has described their integration of CPE at
-  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
-
-o The -g (set source port) option doesn't seem to be working (at least
-  in Fyodor's quick tests) for version detection or connect() scan,
-  and apparently doesn't work for NSE either.  We should fix this
-  where we can, and document the limitation in the refguide where it
-  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
-
-o Further brainstorm and consider implementing more prerule/postrule
-  scripts:
-   o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
-   o IPv6 Neighbor Discovery Protocol:
-     http://en.wikipedia.org/wiki/Neighbor_Discovery_Protocol
-   o DNS service discovery (Bonjour): http://en.wikipedia.org/wiki/Bonjour_%28software%29
-   o Broadcast ping (could ping broadcast address and either report
-     IPs+Mac addresses that it sees, or even add them to the scan queue
-     if requested).
-   o Netbios Name Service
-   o DHCP broadcast requests
-   o Postrules could be created which give final reports/statistics or
-     other useful output.  Like a reverse-index, which shows all the open
-     port numbers individually and the hosts which had that port open
-     (e.g. so you can see all the ssh servers at once, etc.)
-     Admittedly you can do that pretty easy with Zenmap instead.
-   o [Implemented] dns-zone-transfer
-   o [Implemented, but a joke] http-california-plates
+o Consider an update feed system for Nmap which let's people obtain
+  the latest Nmap data files, such as NSE scripts/libs, nmap-os-db,
+  nmap-service-probes, etc.
+  o Note that some scripts require updated compiled libraries.  We
+    will need some sort of compatability system.
+  o One approach is "svn up".  Note that Metasploit uses that approach
+    even for Windows by shipping .svn directories and an svn executable
+    with the Windows installer.  In taht case we might need to have a
+    separate branch for each release that gets updated version/OS
+    databases and scripts.
+  o Another approach is a special feed system as is used by Nessus and
+    OpenVAS.  I haven't looked in detail at how those work.
 
 o The latest IANA services file
   (http://www.iana.org/assignments/port-numbers) has many identified
@@ -231,9 +261,6 @@ o The latest IANA services file
   that file and add names and comments to our nmap-services-all where
   they are "unknown" in our file.  An example of such a port is 3872,
   oem-agent.
-
-o July Nmap releases (at least a beta version, and maybe a stable
-  too).  Last release was 5.30BETA1 on March 29
 
 o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   This file is not included in the official WinPcap 4.1.1 developers'
@@ -712,6 +739,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o July Nmap releases (at least a beta version, and maybe a stable
+  too).  Last release was 5.30BETA1 on March 29
+
+o Add this patch for compilation on OpenSolaris.
+  http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on
+
+o Now that we've put the ndiff, ncat, and nping man pages under the
+  scope of the book (e.g. http://nmap.org/book/ncat-man.html), we need
+  to add a redirect from the old locations and also update our links.
 
 o Make sure the long output lines in Nping's man page are OK for the book.
   See r18829 and r18864.
