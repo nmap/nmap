@@ -382,7 +382,13 @@ action = function(host)
 
 	try = nmap.new_try(function() sock:ip_close() end)
 
-	pcap:set_timeout(3000)
+	-- Simply double the calculated host timeout to account for possible
+	-- extra time due to port forwarding or whathaveyou.  Nmap has all
+	-- ready scanned this host, so the timing should have taken into
+	-- account some of the RTT differences, but I think it really depends
+	-- on how many ports were scanned and how many were forwarded where.
+	-- Play it safer here.
+	pcap:set_timeout(2 * host.times.timeout * 1000)
 
 	local tcp = genericpkt(host)
 

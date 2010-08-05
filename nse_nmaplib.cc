@@ -145,6 +145,12 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_setfield(L, -2, "bin_ip_src");
   }
 
+  lua_newtable(L);
+  setnfield(L, -1, "srtt", (lua_Number) currenths->to.srtt / 1000000.0);
+  setnfield(L, -1, "rttvar", (lua_Number) currenths->to.rttvar / 1000000.0);
+  setnfield(L, -1, "timeout", (lua_Number) currenths->to.timeout / 1000000.0);
+  lua_setfield(L, -2, "times");
+
   FingerPrintResults *FPR = currenths->FPR;
 
   /* if there has been an os scan which returned a pretty certain

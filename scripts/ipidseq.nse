@@ -224,7 +224,7 @@ action = function(host)
 
 	pcap:pcap_open(host.interface, 104, 0, callback, "tcp and dst host " .. saddr .. " and src host " .. daddr .. " and src port " .. port)
 
-	pcap:set_timeout(3000)
+	pcap:set_timeout(host.times.timeout * 1000)
 
 	local tcp = genericpkt(host, port)
 

@@ -1425,6 +1425,19 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 		  </para>
 	    </listitem>
 	  </varlistentry>
+
+	  <varlistentry>
+	    <term><option>host.times</option>
+	      </term>
+	    <listitem>
+	      <para>This table contains Nmap's timing data for the host (see
+		<xref linkend="scan-methods-rtt"/>).  This includes "srtt" (smoothed
+		round trip time), "rttvar" (round trip time variance), and "timeout"
+		(the probe timeout), all given in floating-point seconds.
+		  </para>
+	    </listitem>
+	  </varlistentry>
+
 	  <varlistentry>
 	    <term><option>port</option>
 	      </term>

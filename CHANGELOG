@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a "times" table to the host table passed to scripts.
+  This table contains Nmap's timing data (srtt, the smoothed round
+  trip time; rttvar, the rtt variance; and timeout), all represented
+  as floating-point seconds.  The ipidseq and qscan scripts were
+  updated to utilize the host's timeout value instead of the very
+  conservative guess of 3 seconds for read timeouts. [Kris]
+
 o [Nmap, Nping] Fixed the fragmentation options (-f in Nmap, --mtu in
   both) which broke in 5.35DC1. Instead of sending multiple fragments,
   the original packet was sent whole. In some circumstances, sending
