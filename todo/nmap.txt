@@ -160,6 +160,7 @@ o Further brainstorm and consider implementing more prerule/postrule
    o We could have a prerule sniffer script which uses pcap to sniff
      traffic for some short configurable amount of time and then adds the
      discovered hosts to the target list.
+   o We could have a script which takes traceroute results and adds them to the target list.
    o [Implemented] dns-zone-transfer
    o [Implemented, but a joke] http-california-plates
 
