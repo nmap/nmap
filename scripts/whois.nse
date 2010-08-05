@@ -94,7 +94,7 @@ local stdnse = require "stdnse"
 hostrule = function( host )
 
     local is_private, err = ipOps.isPrivate( host.ip )
-    if err then
+    if is_private == nil then
       stdnse.print_debug( "%s Error in Hostrule: %s.", filename, err )
       return false
     end
