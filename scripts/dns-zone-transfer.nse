@@ -8,16 +8,30 @@ server's hostname, or it can be specified with the
 successful all domains and domain types are returned along with common
 type specific data (SOA/MX/NS/PTR/A).
 
-If we don't have the "true" hostname for the DNS server we cannot
-determine a likely zone to perform the transfer on.
+This script can run at different phases of an Nmap scan:
+* Script Pre-scanning: in this phase the script will run before any
+Nmap scan and use the defined DNS server in the arguments. The script
+arguments in this phase are: <code>dnszonetransfer.server</code> the
+DNS server to use, can be a hostname or an IP address and must be
+specified. The <code>dnszonetransfer.port</code> argument is optional
+and can be used to specify the DNS server port.
+* Script scanning: in this phase the script will run after the other
+Nmap phases and against an Nmap discovered DNS server. If we don't
+have the "true" hostname for the DNS server we cannot determine a
+likely zone to perform the transfer on.
 
-Useful resources:
+Useful resources
 * DNS for rocket scientists: http://www.zytrax.com/books/dns/
 * How the AXFR protocol works: http://cr.yp.to/djbdns/axfr-notes.html
 ]]
 
 ---
 -- @args dnszonetransfer.domain Domain to transfer.
+-- @args dnszonetransfer.server DNS server. If set, this argument will
+--       enable the script for the "Script Pre-scanning phase".
+-- @args dnszonetransfer.port DNS server port, this argument concerns
+--       the "Script Pre-scanning phase" and it's optional, the default
+--       value is <code>53</code>.
 -- @output
 -- 53/tcp   open     domain
 -- |  dns-zone-transfer:
@@ -60,6 +74,7 @@ author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'default', 'intrusive', 'discovery'}
 
+prerule = function() return true end
 portrule = shortport.portnumber(53, 'tcp') 
 
 --- DNS query and response types.
@@ -301,33 +316,66 @@ function dump_zone_info(table, data)
 end
 
 action = function(host, port)
-	local soc, status, data
-	local catch = function() soc:close() end
-	local try = nmap.new_try(catch)
-	
-	local domain = nil
-	local args = nmap.registry.args
+    local soc, status, data
+    local dns_server, dns_port
+    local catch = function() soc:close() end
+    local try = nmap.new_try(catch)
+    
+    local domain = nil
+    local args = nmap.registry.args
 
-	if args.dnszonetransfer and args.dnszonetransfer.domain then
-		domain = args.dnszonetransfer.domain
-	elseif args['dnszonetransfer.domain'] then
-		domain = args['dnszonetransfer.domain']
-	elseif args.domain then
-		domain = args.domain
-	elseif host.targetname then
-		domain = host.targetname
-	elseif host.name ~= "" then
-		domain = host.name
-	else
-		-- can't do anything without a hostname
-		return
-	end
+    if args.dnszonetransfer and args.dnszonetransfer.domain then
+      domain = args.dnszonetransfer.domain
+    elseif args['dnszonetransfer.domain'] then
+      domain = args['dnszonetransfer.domain']
+    elseif args.domain then
+      domain = args.domain
+    end
+
+    -- script running at the Script Pre-scanning phase.
+    if SCRIPT_TYPE == "prerule" then
+      if not domain then
+      	stdnse.print_debug(3,
+      	  "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
+      	  SCRIPT_NAME, SCRIPT_TYPE)
+        return
+      end
+      if args['dnszonetransfer.server'] then
+        dns_server = args['dnszonetransfer.server']
+      else
+      	stdnse.print_debug(3,
+      	  "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
+      	  SCRIPT_NAME, SCRIPT_TYPE)
+        return
+      end
+      if args['dnszonetransfer.port'] then
+        dns_port = args['dnszonetransfer.port']
+      else
+        dns_port = 53
+      end
+    -- script running at the Script Scan phase.
+    elseif SCRIPT_TYPE == "portrule" then
+      if not domain then
+        if host.targetname then
+          domain = host.targetname
+        elseif host.name ~= "" then
+          domain = host.name
+        else
+          -- can't do anything without a hostname
+          return stdnse.format_output(false,
+              string.format("'%s' script needs a dnszonetransfer.domain argument.",
+                  SCRIPT_TYPE))
+        end
+      end
+      dns_server = host.ip
+      dns_port = port.number
+    end
 
 	assert(domain)
 
 	soc = nmap.new_socket()
 	soc:set_timeout(4000)
-	try(soc:connect(host.ip, port.number))
+	try(soc:connect(dns_server, dns_port))
 
 	local req_id = '\222\173'
 	local table = tab.new(3)
