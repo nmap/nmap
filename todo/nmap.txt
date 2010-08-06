@@ -384,6 +384,16 @@ o [Nsock] Consider adding server support to Nsock so it can accept
   followed by a nonblocking accept().  Then Nping gives the SD's to
   Nsock to manage.
 
+o [Nsock] Consider implementing a nsock_pcap_close() function or making
+  nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
+  warns about a socket descriptor left opened (at least in Nping).
+  ==10526==    at 0x62F77A7: socket (syscall-template.S:82)
+  ==10526==    by 0x4E348A5: ??? (in /usr/lib/libpcap.so.1.0.0)
+  ==10526==    by 0x4E36819: pcap_activate (in /usr/lib/libpcap.so.1.0.0)
+  ==10526==    by 0x4E375FC: pcap_open_live (in /usr/lib/libpcap.so.1.0.0)
+  ==10526==    by 0x4311A9: nsock_pcap_open (nsock_pcap.c:64)
+  ==10526==    by 0x428078: ProbeMode::start() (ProbeMode.cc:329)
+
 o Consider rethinking Nmap's -s* syntax for specifing scan types
   o Current problems with this -s syntax:
     o We already use like 20 of the 26 letters, so we end up with
