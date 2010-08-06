@@ -638,6 +638,31 @@ o Look into whether we should loosen/change the global congestion
     image file at once and count on the fairness of TCP to sort it
     out.
 
+o [libnetutil] Study route_dst(), getinterfaces() and getsysroutes() because
+  they don't seem to be freeing memory they aquire thorugh safe_zalloc().
+  Currently valgrind reports this:
+  ==12849== 2,944 bytes in 1 blocks are still reachable in loss record 8 of 9
+  ==12849==    at 0x4C277CC: calloc (vg_replace_malloc.c:467)
+  ==12849==    by 0x42AEE5: safe_zalloc (nbase_memalloc.c:140)
+  ==12849==    by 0x438809: getinterfaces(int*, char*, unsigned long) (netuti
+  ==12849==    by 0x438ED2: getsysroutes_proc(_IO_FILE*, int*, char*, unsigne
+  ==12849==    by 0x4394A7: getsysroutes(int*, char*, unsigned long) (netutil
+  ==12849==    by 0x4398EC: route_dst(sockaddr_storage const*, route_nfo*, ch
+  ==12849==    by 0x413939: getNetworkInterfaceName(sockaddr_storage*, char*) 
+  ==12849==    by 0x40F64A: NpingOps::validateOptions() (NpingOps.cc:2489)
+  ==12849==    by 0x40B2B1: main (nping.cc:156)
+  ==12849== 
+  ==12849== 3,072 bytes in 1 blocks are still reachable in loss record 9 of 9
+  ==12849==    at 0x4C277CC: calloc (vg_replace_malloc.c:467)
+  ==12849==    by 0x42AEE5: safe_zalloc (nbase_memalloc.c:140)
+  ==12849==    by 0x438EEF: getsysroutes_proc(_IO_FILE*, int*, char*, unsigne
+  ==12849==    by 0x4394A7: getsysroutes(int*, char*, unsigned long) (netutil
+  ==12849==    by 0x4398EC: route_dst(sockaddr_storage const*, route_nfo*, ch
+  ==12849==    by 0x413939: getNetworkInterfaceName(sockaddr_storage*, char*) 
+  ==12849==    by 0x40F64A: NpingOps::validateOptions() (NpingOps.cc:2489)
+  ==12849==    by 0x40B2B1: main (nping.cc:156)
+
+
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
