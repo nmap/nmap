@@ -94,6 +94,8 @@
 * Make nping issue a warning when user supplies a payload in TCP-Connect
   mode.
 
+* Add --no-crypto to -h output.
+
 /*****************************************************************************
  * ^^^^ Things we should try to finish by end of GSoC (August 16)            *
  *****************************************************************************/
@@ -121,6 +123,12 @@
 
 * Improve IPv6 support. We need to test it in many platforms to see how it
   behaves.
+
+* Try to reduce the size of the internal buffer in the EchoHeader class.
+  Currenltly it allocates a big buffer that is able to hold the theoretical
+  maximum size of a NEP message (normal use does not require so much space).
+  When this is done, check if we still need to increase the stack size
+  in the project properties in Visual Studio.
 
 * Do some performance testing.  
    Fyodor:
