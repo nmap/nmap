@@ -3992,6 +3992,9 @@ match hp-logic-analyzer m|^\r\n\r0\.1/PTTH / TEG.\r\n$| p/HP 1662C logic analyze
 
 # Needs to go before the Apache match lines -Doug
 match http-proxy m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache\r\n.*X-orenosp-filt:|s p/Orenosp reverse http proxy/
+# Needs to go before BaseHTTP match lines.
+match ovs-agent m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<title>Python: OVSAgentServer Document</title>|s p/Oracle OVSAgentServer/ v/22/ i/BaseHTTP $1; Python SimpleXMLRPCServer; Python $2/
+match http m|^HTTP/1\.0 200 OK\r\n.*Server: BaseHTTP/([\d.]+) Python/([\w.]+)\r\n.*<tt>This&nbsp;server&nbsp;exports&nbsp;the&nbsp;following&nbsp;methods&nbsp;through&nbsp;the&nbsp;XML-RPC&nbsp;protocol.</tt>|s p/BaseHTTP/ v/$1/ i/Python SimpleXMLRPCServer; Python $2/
 
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(.*\r\n)?Server: MochiWeb/(\d[-.\w]+) \([-.'\w\s]+\)\r\n| p/MochiWeb Erlang HTTP library/ v/$2/
 match http m|^HTTP/1\.0 200 OK\r\nServer: Apache/([\d.]+)\r\nPragma: no-cache\r\nDate: .*<title></title>\r\n.*\r\nvar my_upnp = 1;\r\n// backup log and config\r\nvar PM = \"7004ABR\";|s p/SMC Broadband router 7004ABR http config/ i/Identifies as Apache $1/ d/broadband router/
