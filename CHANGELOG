@@ -43,6 +43,8 @@ o [zenmap] Added a new Script selection Interface. This interface is
   of script is also shown.
   [kirubakaran]
 
+o Updated IANA IP address space assignment list for random IP (-iR)
+  generation. [Kris]
 
 Nmap 5.35DC1 [2010-07-16]
 

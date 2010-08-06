@@ -416,8 +416,8 @@ int ip_is_reserved(struct in_addr *ip)
     case 37:        /* 037/8 is IANA reserved       */
     case 39:        /* 039/8 is IANA reserved       */
     case 42:        /* 042/8 is IANA reserved       */
-    case 49:        /* 049/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
+    case 100:       /* 100/8 is IANA reserved       */
     case 127:       /* 127/8 is reserved for loopback */
     case 179:       /* 179/8 is IANA reserved       */
     case 185:       /* 185/8 is IANA reserved       */
@@ -426,8 +426,8 @@ int ip_is_reserved(struct in_addr *ip)
       break;
     }
 
-  /* 100-106/8 is IANA reserved */
-  if (i1 >= 100 && i1 <= 106)
+  /* 102-106/8 is IANA reserved */
+  if (i1 >= 102 && i1 <= 106)
     return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
