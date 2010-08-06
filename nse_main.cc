@@ -22,6 +22,11 @@
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 #define NSE_TRACEBACK "NSE_TRACEBACK"
 
+/* Script Scan phases */
+#define NSE_PRE_SCAN  "NSE_PRE_SCAN"
+#define NSE_SCAN      "NSE_SCAN"
+#define NSE_POST_SCAN "NSE_POST_SCAN"
+
 /* These are indices into the registry, for data shared with nse_main.lua. The
    definitions here must match those in nse_main.lua. */
 #define NSE_YIELD "NSE_YIELD"
@@ -36,6 +41,9 @@
 #endif
 
 extern NmapOps o;
+
+/* global object to store Pre-Scan and Post-Scan script results */
+static ScriptResults script_scan_results;
 
 static int timedOut (lua_State *L)
 {
@@ -99,6 +107,15 @@ static int ports (lua_State *L)
   lua_pushnil(L);
   lua_pushnil(L);
   return 3;
+}
+
+static int script_set_output (lua_State *L)
+{
+  ScriptResult sr;
+  sr.set_id(luaL_checkstring(L, 1));
+  sr.set_output(luaL_checkstring(L, 2));
+  script_scan_results.push_back(sr);
+  return 0;
 }
 
 static int host_set_output (lua_State *L)
@@ -188,6 +205,7 @@ static void open_cnse (lua_State *L)
     {"startTimeOutClock", startTimeOutClock},
     {"stopTimeOutClock", stopTimeOutClock},
     {"ports", ports},
+    {"script_set_output", script_set_output},
     {"host_set_output", host_set_output},
     {"port_set_output", port_set_output},
     {NULL, NULL}
@@ -229,6 +247,11 @@ void ScriptResult::set_id (const char *ident)
 std::string ScriptResult::get_id (void) const
 {
   return id;
+}
+
+ScriptResults *get_script_scan_results_obj (void)
+{
+  return &script_scan_results;
 }
 
 /* int panic (lua_State *L)
@@ -333,6 +356,7 @@ static int run_main (lua_State *L)
 
   /* New host group */
   lua_newtable(L);
+
   lua_setfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
 
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TRACEBACK); /* index 1 */
@@ -363,8 +387,23 @@ static int run_main (lua_State *L)
   }
   lua_pop(L, 1); /* pop NSE_CURRENT_HOSTS */
 
-  if (lua_pcall(L, 1, 0, 1) != 0) lua_error(L); /* we wanted a traceback */
+  /* push script scan type phase */
+  switch (o.current_scantype)
+  {
+    case SCRIPT_PRE_SCAN:
+      lua_pushstring(L, NSE_PRE_SCAN);
+      break;
+    case SCRIPT_SCAN:
+      lua_pushstring(L, NSE_SCAN);
+      break;
+    case SCRIPT_POST_SCAN:
+      lua_pushstring(L, NSE_POST_SCAN);
+      break;
+    default:
+      fatal("%s: failed to set the script scan phase.\n", SCRIPT_ENGINE);
+  }
 
+  if (lua_pcall(L, 2, 0, 1) != 0) lua_error(L); /* we wanted a traceback */
   return 0;
 }
 
@@ -495,18 +534,16 @@ void open_nse (void)
   }
 }
 
-void script_scan (std::vector<Target *> &targets)
+void script_scan (std::vector<Target *> &targets, stype scantype)
 {
-  o.current_scantype = SCRIPT_SCAN;
+  o.current_scantype = scantype;
 
   assert(L_NSE != NULL);
   lua_settop(L_NSE, 0); /* clear the stack */
 
   if (lua_cpcall(L_NSE, run_main, (void *) &targets) != 0)
-  {
     error("%s: Script Engine Scan Aborted.\nAn error was thrown by the "
           "engine: %s", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
-  }
 }
 
 void close_nse (void)

@@ -56,7 +56,7 @@ function grab_banner(host, port)
   if not status then
     local errlvl = { ["EOF"]=3,["TIMEOUT"]=3,["ERROR"]=2 }
     stdnse.print_debug(errlvl[response] or 1, "%s failed for %s on %s port %s. Message: %s",
-               filename, host.ip, port.protocol, port.number, response or "No Message." )
+               SCRIPT_NAME, host.ip, port.protocol, port.number, response or "No Message." )
     return nil
   end
 
@@ -87,8 +87,7 @@ function output( out )
 
   if type(out) ~= "string" or out == "" then return nil end
 
-  -- convert filename from full filepath to filename -extn
-  local filename = filename:match( "[\\/]([^\\/]+)\.nse$" )
+  local filename = SCRIPT_NAME
   local line_len = 75    -- The character width of command/shell prompt window.
   local fline_offset = 5 -- number of chars excluding script id not available to the script on the first line
 

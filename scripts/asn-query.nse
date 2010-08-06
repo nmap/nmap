@@ -209,7 +209,7 @@ function ip_to_asn( query )
   local status, decoded_response = dns.query( query, options)
 
   if not status then
-    stdnse.print_debug( "%s Error from dns.query(): %s", filename, decoded_response )
+    stdnse.print_debug( "%s Error from dns.query(): %s", SCRIPT_NAME, decoded_response )
   end
 
   return status, decoded_response

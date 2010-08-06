@@ -57,7 +57,8 @@ action = function(host, port)
   end
 
   if not pcall(require,'openssl') then
-	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", filename )
+	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
+	    SCRIPT_NAME)
 	return
   end
 

@@ -34,7 +34,7 @@ action = function(host, port)
      end
      return stdnse.strjoin(" ", capstrings)
   elseif type(err) == "string" then
-     stdnse.print_debug(1, "%s: '%s' for %s", filename, err, host.ip)
+     stdnse.print_debug(1, "%s: '%s' for %s", SCRIPT_NAME, err, host.ip)
      return
   else
      return "server doesn't support CAPABILITIES"

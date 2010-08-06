@@ -35,7 +35,8 @@ dependencies = {"mysql-brute", "mysql-empty-password"}
 if not pcall(require,"openssl") then
 	portrule = function() return false end
   	action = function() end
-  	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.", filename )
+  	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
+  	    SCRIPT_NAME)
   	return;
 end
 

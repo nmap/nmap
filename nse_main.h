@@ -13,6 +13,9 @@ extern "C" {
   #include "lauxlib.h"
 }
 
+#include "nmap.h"
+#include "global_structures.h"
+
 class ScriptResult
 {
   private:
@@ -27,6 +30,10 @@ class ScriptResult
 
 typedef std::list<ScriptResult> ScriptResults;
 
+/* Call this to get a ScriptResults object which can be
+ * used to store Pre-Scan and Post-Scan script Results */
+ScriptResults *get_script_scan_results_obj (void);
+
 class Target;
 
 
@@ -39,7 +46,7 @@ void nse_selectedbyname (lua_State *);
 void nse_gettarget (lua_State *, int);
 
 void open_nse (void);
-void script_scan (std::vector<Target *> &targets);
+void script_scan (std::vector<Target *> &targets, stype scantype);
 void close_nse (void);
 
 #define SCRIPT_ENGINE "NSE"

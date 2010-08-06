@@ -150,13 +150,12 @@ end
 -- @return nil
 
 function init()
-  local filename = filename and filename:match( "[\\/]([^\\/]+)\.nse$" ) or ""
   local customlist = nmap.registry.args.users or
     (nmap.registry.args.userdir and nmap.registry.args.userdir.users) or
     nmap.registry.args['userdir.users']
   local read, usernames = datafiles.parse_file(customlist or "nselib/data/usernames.lst", {})
   if not read then
-    stdnse.print_debug(1, "%s %s", filename,
+    stdnse.print_debug(1, "%s %s", SCRIPT_NAME,
       usernames or "Unknown Error reading usernames list.")
     nmap.registry.userdir = {}
     return nil
@@ -164,7 +163,7 @@ function init()
   -- random dummy username to catch false positives (not necessary)
 --  if #usernames > 0 then table.insert(usernames, 1, randomstring()) end
   nmap.registry.userdir = usernames
-  stdnse.print_debug(1, "%s Testing %d usernames.", filename, #usernames)
+  stdnse.print_debug(1, "%s Testing %d usernames.", SCRIPT_NAME, #usernames)
   return nil
 end
 

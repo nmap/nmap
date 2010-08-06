@@ -32,6 +32,11 @@
 
 local NAME = "NSE";
 
+-- Script Scan phases.
+local NSE_PRE_SCAN  = "NSE_PRE_SCAN";
+local NSE_SCAN      = "NSE_SCAN";
+local NSE_POST_SCAN = "NSE_POST_SCAN";
+
 -- String keys into the registry (_R), for data shared with nse_main.cc.
 local YIELD = "NSE_YIELD";
 local BASE = "NSE_BASE";
@@ -106,6 +111,14 @@ local stdnse = require "stdnse";
 -- This is the table C uses to yield a thread with a unique value to
 -- differentiate between yields initiated by NSE or regular coroutine yields.
 local NSE_YIELD_VALUE = {};
+
+-- Table of different supported rules.
+local NSE_SCRIPT_RULES = {
+  prerule = "prerule",
+  hostrule = "hostrule",
+  portrule = "portrule",
+  postrule = "postrule",
+};
 
 do
   -- This is the method by which we allow a script to have nested
@@ -187,14 +200,79 @@ do
   -- Outputs debug information at level 1 or higher.
   -- Changes "%THREAD" with an appropriate identifier for the debug level
   function Thread:d (fmt, ...)
-    if debugging() > 1 then
-      print_debug(1, gsub(fmt, "%%THREAD", self.info), ...);
+    local against;
+    if self.host and self.port then
+      against = " against "..self.host.ip..":"..self.port.number;
+    elseif self.host then
+      against = " against "..self.host.ip;
     else
-      print_debug(1, gsub(fmt, "%%THREAD", self.short_basename), ...);
+      against = "";
+    end
+    if debugging() > 1 then
+      fmt = gsub(fmt, "%%THREAD_AGAINST", self.info..against);
+      fmt = gsub(fmt, "%%THREAD", self.info);
+    else
+      fmt = gsub(fmt, "%%THREAD_AGAINST", self.short_basename..against);
+      fmt = gsub(fmt, "%%THREAD", self.short_basename);
+    end
+    print_debug(1, fmt, ...);
+  end
+
+  -- Sets scripts output. Variable result is a string.
+  function Thread:set_output(result)
+    if self.type == "prerule" or self.type == "postrule" then
+      cnse.script_set_output(self.id, result);
+    elseif self.type == "hostrule" then
+      cnse.host_set_output(self.host, self.id, result);
+    elseif self.type == "portrule" then
+      cnse.port_set_output(self.host, self.port, self.id, result);
     end
   end
 
-  function Thread:close ()
+  -- prerule/postrule scripts may be timed out in the future
+  -- based on start time and script lifetime?
+  function Thread:timed_out ()
+    if self.type == "hostrule" or self.type == "portrule" then
+      return cnse.timedOut(self.host);
+    end
+    return nil;
+  end
+
+  function Thread:start_time_out_clock ()
+    if self.type == "hostrule" or self.type == "portrule" then
+      return cnse.startTimeOutClock(self.host);
+    end
+    return nil;
+  end
+
+  function Thread:stop_time_out_clock ()
+    if self.type == "hostrule" or self.type == "portrule" then
+      return cnse.stopTimeOutClock(self.host);
+    end
+    return nil;
+  end
+
+  -- Register scripts in the timeouts list to track their timeouts.
+  function Thread:start (timeouts)
+    self:d("Starting %THREAD_AGAINST.");
+    if self.host then
+      timeouts[self.host] = timeouts[self.host] or {};
+      timeouts[self.host][self.co] = true;
+    end
+  end
+
+  -- Remove scripts from the timeouts list and call their
+  -- destructor handles.
+  function Thread:close (timeouts, result)
+    self.error = result;
+    if self.host then
+      timeouts[self.host][self.co] = nil;
+      -- Any more threads running for this script/host?
+      if not next(timeouts[self.host]) then
+        self:stop_time_out_clock();
+        timeouts[self.host] = nil;
+      end
+    end
     local ch = self.close_handlers;
     for key, destructor_t in pairs(ch) do
       destructor_t.destructor(destructor_t.thread, key);
@@ -210,11 +288,13 @@ do
   -- Returns:
   --   thread  The thread (class) is returned, or nil.
   function Script:new_thread (rule, ...)
-    assert(rule == "hostrule" or rule == "portrule");
+    local script_type = assert(NSE_SCRIPT_RULES[rule]);
     if not self[rule] then return nil end -- No rule for this script?
     local file_closure = self.file_closure;
     local env = setmetatable({
-        filename = self.filename,
+        SCRIPT_PATH = self.filename,
+        SCRIPT_NAME = self.short_basename,
+        SCRIPT_TYPE = script_type,
       }, {__index = _G});
     setfenv(file_closure, env);
     local unique_value = {}; -- to test valid yield
@@ -238,7 +318,7 @@ do
         env = env,
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
-        type = rule == "hostrule" and "host" or "port",
+        type = script_type,
         close_handlers = {},
       }, {
         __metatable = Thread,
@@ -291,10 +371,19 @@ do
             type(field).."', expected type '"..t.."'");
       end
     end
-    -- Check one of two required rule functions exists
-    local hostrule, portrule = rawget(env, "hostrule"), rawget(env, "portrule");
-    assert(type(hostrule) == "function" or type(portrule) == "function",
-        filename.." is missing a required function: 'hostrule' or 'portrule'");
+    -- Check the required rule functions
+    local rules = {}
+    for rule in pairs(NSE_SCRIPT_RULES) do
+      local rulef = rawget(env, rule);
+      assert(type(rulef) == "function" or rulef == nil,
+          rule.." must be a function!");
+      rules[rule] = rulef;
+    end
+    assert(next(rules), filename.." is missing required function: 'rule'");
+    local prerule = rules.prerule;
+    local hostrule = rules.hostrule;
+    local portrule = rules.portrule;
+    local postrule = rules.postrule;
     -- Assert that categories is an array of strings
     for i, category in ipairs(rawget(env, "categories")) do
       assert(type(category) == "string", 
@@ -314,8 +403,10 @@ do
                        filename,
       id = match(filename, "^.-[/\\]([^\\/]-)%.nse$") or filename,
       file_closure = file_closure,
-      hostrule = type(hostrule) == "function" and hostrule or nil,
-      portrule = type(portrule) == "function" and portrule or nil,
+      prerule = prerule,
+      hostrule = hostrule,
+      portrule = portrule,
+      postrule = postrule,
       args = {n = 0};
       categories = rawget(env, "categories"),
       author = rawget(env, "author"),
@@ -518,26 +609,24 @@ end
 -- The main loop function for NSE. It handles running all the script threads.
 -- Arguments:
 --   threads  An array of threads (a runlevel) to run.
-local function run (threads)
+--   scantype  A string that indicates the current script scan phase.
+local function run (threads, scantype)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
   -- at once back to running.
   local running, waiting, pending = {}, {}, {};
   local all = setmetatable({}, {__mode = "kv"}); -- base coroutine to Thread
-  -- hosts maps a host to a list of threads for that host.
-  local hosts, total = {}, 0;
-  local current;
+  local current; -- The currently running Thread.
+  local total = 0; -- Number of threads, for record keeping.
+  local timeouts = {}; -- A list to save and to track scripts timeout.
   local progress = cnse.scan_progress_meter(NAME);
 
   print_debug(1, "NSE Script Threads (%d) running:", #threads);
   while #threads > 0 do
     local thread = remove(threads);
-    thread:d("Starting %THREAD against %s%s.", thread.host.ip,
-        thread.port and ":"..thread.port.number or "");
     all[thread.co], running[thread.co], total = thread, thread, total+1;
-    hosts[thread.host] = hosts[thread.host] or {};
-    hosts[thread.host][thread.co] = true;
+    thread:start(timeouts);
   end
 
   -- Map of yielded threads to the base Thread
@@ -586,9 +675,11 @@ local function run (threads)
         current.parent.info, tostring(co));
     local thread = {
       co = co,
+      id = current.id,
       args = {n = select("#", ...), ...},
       host = current.host,
       port = current.port,
+      type = current.type,
       parent = current.parent,
       info = format("'%s' worker (%s)", current.short_basename, tostring(co));
       -- d = function(...) end, -- output no debug information
@@ -633,28 +724,28 @@ local function run (threads)
       end
     end
 
-    -- Checked for timed-out hosts.
+    -- Checked for timed-out scripts and hosts.
     for co, thread in pairs(waiting) do
-      if cnse.timedOut(thread.host) then
+      if thread:timed_out() then
         waiting[co], all[co] = nil, nil;
-        thread:d("%THREAD %s%s timed out", thread.host.ip,
-            thread.port and ":"..thread.port.number or "");
-        thread:close();
+        thread:d("%THREAD %stimed out", thread.host
+            and format("%s%s ", thread.host.ip,
+                    thread.port and ":"..thread.port.number or "")
+            or "");
+        thread:close(timeouts, "timed out");
       end
     end
 
     for co, thread in pairs(running) do
       current, running[co] = thread, nil;
-      cnse.startTimeOutClock(thread.host);
+      thread:start_time_out_clock();
 
       local s, result = resume(co, unpack(thread.args, 1, thread.args.n));
       if not s then -- script error...
-        hosts[thread.host][co], all[co] = nil, nil;
-        thread:d("%THREAD against %s%s threw an error!\n%s\n",
-            thread.host.ip, thread.port and ":"..thread.port.number or "",
+        all[co] = nil;
+        thread:d("%THREAD_AGAINST threw an error!\n%s\n",
             traceback(co, tostring(result)));
-        thread.error = result;
-        thread:close();
+        thread:close(timeouts, result);
       elseif status(co) == "suspended" then
         if result == NSE_YIELD_VALUE then
           waiting[co] = thread;
@@ -663,7 +754,7 @@ local function run (threads)
           thread:close();
         end
       elseif status(co) == "dead" then
-        hosts[thread.host][co], all[co] = nil, nil;
+        all[co] = nil;
         if type(result) == "string" then
           -- Escape any character outside the range 32-126 except for tab,
           -- carriage return, and line feed. This makes the string safe for
@@ -671,20 +762,10 @@ local function run (threads)
           result = gsub(result, "[^\t\r\n\032-\126]", function(a)
             return format("\\x%02X", byte(a));
           end);
-          if thread.type == "host" then
-            cnse.host_set_output(thread.host, thread.id, result);
-          else
-            cnse.port_set_output(thread.host, thread.port, thread.id, result);
-          end
+          thread:set_output(result);
         end
-        thread:d("Finished %THREAD against %s%s.", thread.host.ip,
-            thread.port and ":"..thread.port.number or "");
-        thread:close();
-      end
-
-      -- Any more threads running for this host?
-      if not next(hosts[thread.host]) then
-        cnse.stopTimeOutClock(thread.host);
+        thread:d("Finished %THREAD_AGAINST.");
+        thread:close(timeouts);
       end
     end
 
@@ -804,44 +885,103 @@ for i, script in ipairs(chosen_scripts) do
 end
 
 -- main(hosts)
--- This is the main function we return to NSE (on the C side) which actually
--- runs a scan against an array of hosts. nse_main.cc gets this function
--- by loading and executing nse_main.lua.
+-- This is the main function we return to NSE (on the C side), nse_main.cc
+-- gets this function by loading and executing nse_main.lua. This
+-- function runs a script scan phase according to its arguments.
 -- Arguments:
 --   hosts  An array of hosts to scan.
-return function (hosts)
-  if #hosts > 1 then
-    print_verbose(1, "Script scanning %d hosts.", #hosts);
-  elseif #hosts == 1 then
-    print_verbose(1, "Script scanning %s.", hosts[1].ip);
-  end
-
-  -- Set up the runlevels.
+--   scantype A string that indicates the current script scan phase.
+--    Possible string values are:
+--      "SCRIPT_PRE_SCAN"
+--      "SCRIPT_SCAN"
+--      "SCRIPT_POST_SCAN"
+return function (hosts, scantype)
+  -- Used to set up the runlevels.
   local threads, runlevels = {}, {};
-  for j, host in ipairs(hosts) do
-    -- Check hostrules for this host.
+
+  -- Every script thread has a table that is used in the run function
+  -- (the main loop of NSE).
+  -- This is the list of the thread table key/value pairs:
+  --  Key     Value
+  --  type    A string that indicates the rule type of the script.
+  --  co      A thread object to identify the coroutine.
+  --  parent  A table that contains the parent thread table (it self).
+  --  close_handlers
+  --          A table that contains the thread destructor handlers.
+  --  info    A string that contains the script name and the thread 
+  --            debug information.
+  --  args    A table that contains the arguments passed to scripts, 
+  --            arguments can be host and port tables.
+  --  env     A table that contains the global script environment:
+  --            categories, description, author, license, nmap table,
+  --            action function, rule functions, SCRIPT_PATH, 
+  --            SCRIPT_NAME, SCRIPT_TYPE (pre|host|port|post rule).
+  --  identifier
+  --          A string to identify the thread address.
+  --  host    A table that contains the target host information. This
+  --          will be nil for Pre-scanning and Post-scanning scripts.
+  --  port    A table that contains the target port information. This
+  --          will be nil for Pre-scanning and Post-scanning scripts.
+
+  -- activate prerule scripts
+  if (scantype == NSE_PRE_SCAN) then
+    print_verbose(1, "Script Pre-scanning.");
     for i, script in ipairs(chosen_scripts) do
-      local thread = script:new_thread("hostrule", tcopy(host));
+      local thread = script:new_thread("prerule");
       if thread then
         local runlevel = thread.runlevel;
         if threads[runlevel] == nil then insert(runlevels, runlevel); end
         threads[runlevel] = threads[runlevel] or {};
         insert(threads[runlevel], thread);
-        thread.args, thread.host = {n = 1, tcopy(host)}, host;
+        thread.args = {n = 0};
       end
     end
-    -- Check portrules for this host.
-    for port in cnse.ports(host) do
+  -- activate hostrule and portrule scripts
+  elseif (scantype == NSE_SCAN) then
+    if #hosts > 1 then
+      print_verbose(1, "Script scanning %d hosts.", #hosts);
+    elseif #hosts == 1 then
+      print_verbose(1, "Script scanning %s.", hosts[1].ip);
+    end
+
+    -- Check hostrules for this host.
+    for j, host in ipairs(hosts) do
       for i, script in ipairs(chosen_scripts) do
-        local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
+        local thread = script:new_thread("hostrule", tcopy(host));
         if thread then
           local runlevel = thread.runlevel;
           if threads[runlevel] == nil then insert(runlevels, runlevel); end
           threads[runlevel] = threads[runlevel] or {};
           insert(threads[runlevel], thread);
-          thread.args, thread.host, thread.port =
-              {n = 2, tcopy(host), tcopy(port)}, host, port;
+          thread.args, thread.host = {n = 1, tcopy(host)}, host;
         end
+      end
+      -- Check portrules for this host.
+      for port in cnse.ports(host) do
+        for i, script in ipairs(chosen_scripts) do
+          local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
+          if thread then
+            local runlevel = thread.runlevel;
+            if threads[runlevel] == nil then insert(runlevels, runlevel); end
+            threads[runlevel] = threads[runlevel] or {};
+            insert(threads[runlevel], thread);
+            thread.args, thread.host, thread.port =
+                {n = 2, tcopy(host), tcopy(port)}, host, port;
+          end
+        end
+      end
+    end
+  -- activate postrule scripts
+  elseif (scantype == NSE_POST_SCAN) then
+    print_verbose(1, "Script Post-scanning.");
+    for i, script in ipairs(chosen_scripts) do
+      local thread = script:new_thread("postrule");
+      if thread then
+        local runlevel = thread.runlevel;
+        if threads[runlevel] == nil then insert(runlevels, runlevel); end
+        threads[runlevel] = threads[runlevel] or {};
+        insert(threads[runlevel], thread);
+        thread.args = {n = 0};
       end
     end
   end
@@ -850,7 +990,7 @@ return function (hosts)
   for i, runlevel in ipairs(runlevels) do
     print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel,
         #runlevels);
-    run(threads[runlevel]);
+    run(threads[runlevel], scantype);
   end
 
   collectgarbage "collect";

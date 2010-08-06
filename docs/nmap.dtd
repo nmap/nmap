@@ -73,8 +73,9 @@
      It represents to the topmost element of the output document.
 -->
 <!ELEMENT nmaprun      (scaninfo*, verbose, debugging,
-                        ((taskbegin, taskprogress*, taskend) | host | output)*,
-                        runstats) >
+                        ((taskbegin, taskprogress*, taskend) |
+                            prescripts | postscripts | host | output)*,
+                            runstats) >
 <!ATTLIST nmaprun
 			scanner		(nmap)		#REQUIRED
 			args		CDATA		#IMPLIED
@@ -332,3 +333,5 @@
 >
 
 <!ELEMENT hostscript ( script+ )>
+<!ELEMENT prescript ( script+ )>
+<!ELEMENT postscript ( script+ )>

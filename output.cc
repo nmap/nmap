@@ -1918,6 +1918,35 @@ void printserviceinfooutput(Target * currenths) {
 }
 
 #ifndef NOLUA
+void printscriptresults(ScriptResults * scriptResults, stype scantype) {
+  ScriptResults::iterator iter;
+  char *script_output;
+
+  if (scriptResults->size() > 0) {
+    if (scantype == SCRIPT_PRE_SCAN) {
+      xml_start_tag("prescript");
+      log_write(LOG_PLAIN, "Pre-scan script results:\n");
+    }
+    else {
+      xml_start_tag("postscript");
+      log_write(LOG_PLAIN, "Post-scan script results:\n");
+    }               
+
+    for (iter = scriptResults->begin();
+         iter != scriptResults->end();
+         iter++) {
+      xml_open_start_tag("script");
+      xml_attribute("id", "%s", iter->get_id().c_str());
+      xml_attribute("output", "%s", iter->get_output().c_str());
+      xml_close_empty_tag();
+      script_output = formatScriptOutput((*iter));
+      log_write(LOG_PLAIN, "%s\n", script_output);
+      free(script_output);
+    }
+    xml_end_tag();
+  }
+}
+
 void printhostscriptresults(Target * currenths) {
   ScriptResults::iterator iter;
   char *script_output;

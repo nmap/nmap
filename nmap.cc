@@ -442,6 +442,10 @@ int nmap_main(int argc, char *argv[]) {
   HostGroupState *hstate = NULL;
   char *endptr = NULL;
   struct scan_lists ports = { 0 };
+#ifndef NOLUA
+  /* Pre-Scan and Post-Scan script results datastructure */
+  ScriptResults *script_scan_results = NULL;
+#endif
   TargetGroup *exclude_group = NULL;
   char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
@@ -1602,6 +1606,13 @@ int nmap_main(int argc, char *argv[]) {
     o.scriptversion = 1;
   if (o.scriptversion || o.script || o.scriptupdatedb)
     open_nse();
+
+  if (o.script) {
+    script_scan_results = get_script_scan_results_obj();
+    script_scan(Targets, SCRIPT_PRE_SCAN);
+    printscriptresults(script_scan_results, SCRIPT_PRE_SCAN);
+    script_scan_results->clear();
+  }
 #endif
 
   /* Time to create a hostgroup state object filled with all the requested
@@ -1815,7 +1826,7 @@ int nmap_main(int argc, char *argv[]) {
 
 #ifndef NOLUA
     if(o.script || o.scriptversion) {
-      script_scan(Targets);
+      script_scan(Targets, SCRIPT_SCAN);
     }
 #endif
 
@@ -1866,6 +1877,14 @@ int nmap_main(int argc, char *argv[]) {
     o.numhosts_scanning = 0;
   } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
   
+#ifndef NOLUA
+  if (o.script) {
+    script_scan(Targets, SCRIPT_POST_SCAN);
+    printscriptresults(script_scan_results, SCRIPT_POST_SCAN);
+    script_scan_results->clear();
+  }
+#endif
+
   delete hstate;
   if (exclude_group)
     delete[] exclude_group;
@@ -2573,7 +2592,9 @@ const char *scantype2str(stype scantype) {
   case BOUNCE_SCAN: return "Bounce Scan"; break;
   case SERVICE_SCAN: return "Service Scan"; break;
   case OS_SCAN: return "OS Scan"; break;
+  case SCRIPT_PRE_SCAN: return "Script Pre-Scan"; break;
   case SCRIPT_SCAN: return "Script Scan"; break;
+  case SCRIPT_POST_SCAN: return "Script Post-Scan"; break;
   case TRACEROUTE: return "Traceroute" ; break;
   default: assert(0); break;
   }
@@ -2795,5 +2816,3 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   return foundsomething;
 
 }
-
-
