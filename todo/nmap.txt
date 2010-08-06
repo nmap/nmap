@@ -137,6 +137,10 @@ o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
   http://seclists.org/nmap-dev/2010/q2/754
 
+o Add raw packet IPv6 support, initially for SYN scan
+ o After that can add UDP scan, and sometime OS detection (David did
+   some research on what IPv6 OS detection might require).
+
 o Process Nmap survey and send out results
 
 o Make new SecTools.Org site with the 2010 survey results
