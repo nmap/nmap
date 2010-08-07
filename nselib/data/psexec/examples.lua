@@ -1,4 +1,3 @@
-module(... or "default", package.seeall)
 ---This configuration file contains the examples given in smb-psexec.nse. 
 
 -- Any variable in the 'config' table in smb-psexec.nse can be overriden in the 

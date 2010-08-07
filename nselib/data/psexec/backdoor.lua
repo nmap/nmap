@@ -1,4 +1,3 @@
-module(... or "backdoor", package.seeall)
 ---This config file is designed for adding a backdoor to the system. It has a few
 -- options by default, only one enabled by default. I suggest 
 --

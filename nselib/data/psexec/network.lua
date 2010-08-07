@@ -1,4 +1,3 @@
-module(... or "default", package.seeall)
 ---More verbose network scripts
 
 -- Any variable in the 'config' table in smb-psexec.nse can be overriden in the 

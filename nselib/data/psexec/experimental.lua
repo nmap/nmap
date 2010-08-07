@@ -1,4 +1,3 @@
-module(... or "experimental", package.seeall)
 ---This is the configuration file for modules that aren't quite ready for prime
 -- time yet. 
 

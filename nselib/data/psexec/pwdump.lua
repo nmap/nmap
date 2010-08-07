@@ -1,4 +1,3 @@
-module(... or "pwdump", package.seeall)
 ---This config file is designed for running password-dumping scripts. So far, 
 -- it supports pwdump6 2.0.0 and fgdump.
 --

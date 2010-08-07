@@ -661,10 +661,10 @@ end
 --@param config A table to fill with configuration values.
 --@return status true or false
 --@return config The configuration table or an error message. 
+--require 'nsedebug'
 local function get_config(host, config)
 	local status
 	local filename = nmap.registry.args.config
-	local settings_file
 	config.enabled_modules  = {}
 	config.disabled_modules = {}
 
@@ -676,10 +676,16 @@ local function get_config(host, config)
 
 	-- Load the config file
 	stdnse.print_debug(1, "smb-psexec: Attempting to load config file: %s", filename)
-	settings_file = require(string.sub(filename, 1, #filename - 4))
-	if(not(settings_file)) then
-		return false, "Couldn't load the configuration file"
+	local file = loadfile(filename)
+	if(not(file)) then
+		return false, "Couldn't load module file:\n" .. filename
 	end
+
+	-- Run the config file
+	setfenv(file, setmetatable({modules = {}; overrides = {}; module = function() stdnse.print_debug(1, "WARNING: Selected config file contains an unnecessary call to module()") end}, {__index = _G}))
+	file()
+	local modules = getfenv(file)["modules"]
+	local overrides = getfenv(file)["overrides"]
 
 	-- Generate a cipher key
 	if(nmap.registry.args.nocipher == "1" or nmap.registry.args.nocipher == "true") then
@@ -717,14 +723,21 @@ local function get_config(host, config)
 		return false, service_name
 	end
 
+	-- Make sure the modules loaded properly
+	-- NOTE: If you're here because of an error that 'modules' is undefined, it's likely because your configuration file doesn't have a 
+	-- proper modules table, or your configuration file has a module() declaration at the top. 
+	if(not(modules) or #modules == 0) then
+		return false, string.format("Configuration file (%s) doesn't have a proper 'modules' table.", filename)
+	end
+
 	-- Make sure we got a proper modules array
-	if(type(settings_file.modules) ~= "table") then
+	if(type(modules) ~= "table") then
 		return false, string.format("The chosen configuration file, %s.lua, doesn't have a proper 'modules' table. If possible, it should be modified to have a public array called 'modules' that contains a list of all modules that will be run.", filename)
 	end
 
 	-- Loop through the modules for some pre-processing
 	stdnse.print_debug(1, "smb-psexec: Verifying uploadable executables exist")
-	for i, mod in ipairs(settings_file.modules) do
+	for i, mod in ipairs(modules) do
 		local enabled = true
 		-- Do some sanity checking
 		if(mod.program == nil) then
@@ -877,8 +890,8 @@ local function get_config(host, config)
 	stdnse.print_debug(1, "smb-psexec: Timeout waiting for a response is %d seconds", config.timeout)
 
 	-- Do config overrides
-	if(settings_file.overrides) then
-		config = do_overrides(config, settings_file.overrides)
+	if(overrides) then
+		config = do_overrides(config, overrides)
 	end
 
 	-- Replace variable values in the configuration (this has to go last)

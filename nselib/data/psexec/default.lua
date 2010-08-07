@@ -1,4 +1,3 @@
-module(... or "network", package.seeall)
 ---This is the default configuration file. It simply runs some built-in Window
 -- programs to gather information about the remote system. It's intended to be 
 -- simple, demonstrate some of the concepts, and not break/alte anything. 

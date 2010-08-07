@@ -2209,9 +2209,19 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 	local status, err, smbstate
 	local chunk = 1024
 
-	local filename = nmap.fetchfile(localfile)
-	if(filename == nil) then
-		return false, "Couldn't find the file"
+	-- Attempt to open a handle to the file without adding a path to it
+	local handle = io.open(localfile, "r")
+
+	-- If the open failed, try to search for the file
+	if(not(handle)) then
+		stdnse.print_debug(1, "Couldn't open %s directly, searching Nmap's paths...", localfile)
+		local filename = nmap.fetchfile(localfile)
+
+		-- Check if it was found
+		if(filename == nil) then
+			return false, string.format("Couldn't find the file to upload (%s)", localfile)
+		end
+		handle = io.open(filename, "r")
 	end
 
 	-- Create the SMB session
@@ -2220,10 +2230,9 @@ function file_upload(host, localfile, share, remotefile, overrides, encoded)
 		return false, smbstate
 	end
 
-	local handle = io.open(filename, "r")
-	local data = handle:read(chunk)
 
 	local i = 0
+	local data = handle:read(chunk)
 	while(data ~= nil and #data > 0) do
 
 		if(encoded) then
