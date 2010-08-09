@@ -63,7 +63,7 @@ cyphers = function(cypher_list, len)
 		[0x080080] = "SSL2_RC4_64_WITH_MD5",
 	};
 
-	if (len == 0) then return "\tthe server didn't offer any cyphers"; end
+	if (len == 0) then return "none"; end
 -- something's got broken along the way if these aren't equal
 	if (len ~= string.len(cypher_list)) then
 		return "";
@@ -215,20 +215,20 @@ action = function(host, port)
 		return;
 	end
 
+-- get a list of cyphers offered
+	available_cyphers = cyphers(cypher_list, cyphers_len);
+
 -- actually run some tests:
 	if (ssl_version == string.char(0x00, 0x02)) then
-		return_string = "server still supports SSLv2\n";
+		if (available_cyphers == "none") then
+			return_string = "server supports SSLv2 protocol, but no SSLv2 cyphers\n";
+		else
+			return_string = "server still supports SSLv2\n";
+			if (nmap.verbosity() > 1 or nmap.debugging() > 0) then
+				return_string = return_string .. available_cyphers;
+			end
+		end
 	end
 
-	if (nmap.verbosity() > 1 or nmap.debugging() > 0) then
-		available_cyphers = cyphers(cypher_list, cyphers_len);
-	end
-
-	if (	string.len(return_string) > 0
-	or	string.len(available_cyphers) > 0) then
-			return return_string .. available_cyphers;
-	else
-			return;
-	end
-
+	return return_string;
 end

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made sslv2.nse give special output when SSLv2 is supported,
+  but no SSLv2 ciphers are offered. This happened with a specific
+  Sendmail configuration. [Matt Selsky]
+
 o [NSE] Added a "times" table to the host table passed to scripts.
   This table contains Nmap's timing data (srtt, the smoothed round
   trip time; rttvar, the rtt variance; and timeout), all represented
