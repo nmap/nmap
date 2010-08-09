@@ -4994,7 +4994,6 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: 3ware/([\d.]+)\r\n.*<title>3ware 3D
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: unknown\r\nLocation: https://xweb-ext/__extraweb__/\r\nSet-Cookie: EXTRAWEB_REFERER=| p/Aventail SSL VPN Concentrator http config/ d/security-misc/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nAccept: application/vnd\.syncml\+xml, application/vnd\.syncml\+wbxml\r\nCache-Control: no-store\r\nServer: MultiSync Plugin\r\n\r\nNo such file or directory\.|s p/SyncML PIM sync server for MultiSync/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: C4D/([\d.]+)\r\n| p/Cinema 4D Renderer http interface/ v/$1/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Close\r\nX-ORCL-EMSV: ([\d.]+)\r\n|s p/Oracle Enterprise Manager Agent httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nServer: servermgrd\r\nWWW-Authenticate: Basic realm = \"Server Admin\"\r\n.*The server could not verify that you are authorized to access the requested content\.<P>\r\n<HR>\r\n</BODY></HTML>\r\n\r\n|s p/Apple Server Monitor http interface/ o/Mac OS X/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: BBC ([\d.]+) ; /Hewlett-Packard/OpenView/AutoDiscovery/com\.hp\.openview\.OvAgency\.OvAgencyCommand ([\d.]+)\r\n\r\n|s p/HP OpenView AutoDiscovery http interface/ v/$1/ i/BBC httpd $1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nX-Powered-By: Servlet/([\d.]+)\r\n.*Server: Sun-Java-System/Application-Server\r\n|s p/Sun Java System Application Server httpd/ i/Servlet $1/
@@ -6565,6 +6564,8 @@ match netbios-ssn m/^\x83\0\0\x01\x82|\x8f$/
 match netwareip m|^\xfb\xff\xfe\xff\xfb\xff\xfe\xff\xfb\xff\xfe\xff$| p|Novell Netware/IP| o|NetWare|
 
 match giop m|^GIOP\x01\0\x01\x06\0\0\0\0$| p/omniORB omniNames/ i/Corba naming service/
+
+match oem-agent m|^HTTP/1\.1 \d\d\d .*\r\nConnection: Close\r\nX-ORCL-EMSV: ([\d.]+)\r\n|s p/Oracle Enterprise Manager Agent httpd/ v/$1/
 # Oracle MTS Recovery Service 9.2.0.1 on Windows 2000 Professional
 match oracle-mts m|^HTTP/1\.0 200 OK\r\nContent-length: 7\r\n\r\nunknown$| p/Oracle MTS Recovery Service/
 # Windows 2003
