@@ -3132,6 +3132,7 @@ match telnet m|^\xff\xfb\"\xff\xfb\x03\xff\xfb\x01\xff\xfb\x1f\xff\xfb\x18Login:
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\n\r\0\*\*\* Siemens (\w+) \*\*\*\n\r\0\r\0\nSerial Number (\d+)  MAC address ([0-9A-F]{12})\n\r\0Software version ([^\r]+)\r\0\nPassword :| p/Siemens $1 remote management telnetd/ d/remote management/ i/serial $2; MAC $3/
 match telnet m|^\xff\xfc\x01\xff\xfb\x01\xff\xfb\x03\xff\xfd\x18\xff\xfb\x18\xff\xfd\x1f\xff\xfb\x1f\xff\xfb\"\xff\xfb\x05PTLDOR69SH3HT4000HG6 Hatteras (\w+)\r\nLogin: | p/Hatteras $1 PBX telnetd/ d/PBX/
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03                        =======================\r\n                               ([\w._-]+) +\r\n                        =======================\r\nLogin: | p/D-Link $1 ADSL router/ d/broadband router/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nCopyright \(c\) 2005 - 2008 Enterasys, Inc\. All rights reserved\.\r\n\n\r\n\r\n\r\0Username: | p/Enterasys RBT-8200 switch/ d/switch/
 
 #(insert telnet)
 
@@ -3733,6 +3734,7 @@ match telemecanique m|^220 Service ready on ([\w._-]+) system Version:([\w._:-]+
 # Removed because of too many conflicts!
 #match telnet m|^\xff\xfb\x03\xff\xfb\x01$| p/Nokia M1112 router telnetd/ d/router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nUser:\r\n\r\nUser:\r\n\r\nUser:| p/Dell PowerConnect M6220-series switch telnetd/ d/switch/
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\r\r\nUsername:\r\r\nError: Username must be non-NULL\r\r\nUsername:\r\r\nError: Username must be non-NULL\r\r\nUsername:| p/Enterasys 1H582-25 switch telnetd/ d/switch/
 
 match tor-control m|^514 Authentication required\.\r\n$| p/Tor control port/ i/Authentication required/
 
@@ -6216,6 +6218,8 @@ match http m|^HTTP/1\.1 401 BAD\r\nWWW-Authenticate: Basic realm=\"Vuze - Vuze W
 match http m|^HTTP/1\.0 405 Method Not Allowed\r\nContent-Type: text/html\r\nCache-Control: public\r\nPragma: cache\r\n.*Last-Modified: Thu, 01 Jan 1970 00:00:00 GMT\r\nAccept-Ranges: bytes\r\nConnection: close\r\n|s p/ActionTec TR-069 remote access/
 match http m|^HTTP/1\.1 202 Accepted\r\nContent-Type: text/html;charset=UTF-8\r\n.*<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Strict//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-strict\.dtd\">\r\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n<title>GlassFish Administration Console - Installation in Progress\.\.\.</title>|s p/Sun GlassFish Administration Console/ i/installation in progress/
 match http m|^<html>\r\n<META HTTP-EQUIV=\"Refresh\" CONTENT=\"10\">\r\n<head>\r\n<title>([\w\d.-]+) LanSafe: ([\w\d\s]+)</title>\r\n| p/LanSafe Status@aGlance/ i/Server: $1, Status: $2/ 
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Server: IdeaWebServer/v([\w._-]+)\r\n|s p/IdeaWebServer/ v/$1/
+match http m|^HTTP/1\.1 302 OK\r\nDate: \w\w\w \d\d, \d\d:\d\d:\d\d\.\d\d\d\r\nServer: TreeNeWS/([\w._-]+)\r\nMime-Version: 1\.0\r\nLocation: https://index\.html\r\nContent-Length: 67\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Redirect</TITLE></HEAD>\n<BODY></BODY></HTML>\r\r\n\n$| p/TreeNeWS httpd/ v/$1/ i/Enterasys RBT-8200 switch/ d/switch/
 
 #(insert http)
 
@@ -7284,6 +7288,8 @@ match qmqp m|^58:Dnetstring format error while receiving QMQP packet header,| p/
 
 match telecom-misc m|^\0\x1e\x02\x06\x01\0\0\0\0\0\0\xf1\0| p/Radio IP MTG gateway/ d/telecom-misc/
 
+match upnp m|^HTTP/1\.0 414 Request-URI Too Long\r\nServer: Linux/([\w._-]+) UPnP/([\w._-]+) fbxigdd/([\w._-]+)\r\nConnection: close\r\n\r\n$| p/AliceBox PM203 UPnP/ o/Linux $1/ i/UPnP $2; fbxigdd $3/ d/WAP/
+
 match xtunnels m|^\0\x03\x04\0\x04$| p/XTunnels proxy server/
 
 # DNS Server status request: http://www.rfc-editor.org/rfc/rfc1035.txt
@@ -7607,7 +7613,7 @@ match smtp m|^220 ([-\w_.]+) ESMTP\r\n502 5\.5\.2 Error: command not recognized\
 match smtp m|^220 ([-\w_.]+) ESMTP \(Ubuntu\)\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/ o/Linux/
 match smtp m|^220 ([-\w_.]+) ESMTP [-\w_.]+\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/
 match smtp m|^220 ([-\w_.]+) SMTP READY\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/ h/$1/
-match smtp m|^220 ESMTP service ready\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/
+match smtp m|^220 E?SMTP [^\r\n]*\r\n502 5\.5\.2 Error: command not recognized\r\n| p/Postfix smtpd/
 match smtp m|^220 .*\r\n502 Error: command not implemented\r\n$| p/Postfix smtpd/
 match smtp m|^220 ([-\w_.]+) ESMTP \w+\r\n$| p/Postfix smtpd/
 # Courier ESMTP courier-0.42.0-1.7.3
@@ -7673,6 +7679,7 @@ match smtp m|^220 ([\w_.-]+) Welcome\r\n214-ESMTP Mail Server\r\n214-Available c
 match smtp m|^220 ([\w_.-]+) ESMTP\r\n214-Run 'info anubis' or visit http://www\.gnu\.org/software/anubis/manual/\r\n214 End of HELP info\r\n$| p/GNU Anubis/ h/$1/
 # hMailServer 4.4.1-B273
 match smtp m|^220 ([\w_.-]+)\r\n211 DATA HELO EHLO MAIL NOOP QUIT RCPT RSET SAML TURN VRFY\r\n| p/hMailServer/ h/$1/
+match smtp m|^220 ([\w._-]+) -=- ESMTP\r\n502 unknown command\.\r\n| p/PineApp SeCure SoHo smtpd/ h/$1/
 
 match smtp-proxy m|^220 SMTP service ready\r\n214-Commands:\r\n214-\tDATA\tRCPT\tMAIL\tQUIT\tRSET\r\n214 \tHELO\tVRFY\tEXPN\tHELP\tNOOP\r\n| p/WatchGuard smtp proxy/ d/firewall/
 match smtp-proxy m|^220 ready\r\n214-Commands:\r\n214-    HELO    MAIL    RCPT    DATA\r\n214-    RSET    NOOP    QUIT    HELP\r\n214-    VRFY    EXPN\r\n214-For more info use HELP <topic>\r\n214 End of HELP info\r\n| p/602LAN Suite smtpd/ o/Windows/
