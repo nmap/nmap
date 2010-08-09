@@ -94,6 +94,10 @@ o [NSE] In the same way as our -brute scripts limit their runtime by
   Of course there could (probably should) still be options to enable
   more intense qscanning.
 
+o We should add a shortport.http or similar function because numerous
+  services use this protocol and many of our scripts already try to
+  detect http in their portrule in inconsistent ways.
+
 o [NSE] The NSEDoc for some scripts includes large "Functions"
   sections which aren't really useful to script users.  For example,
   see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
