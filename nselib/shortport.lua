@@ -150,3 +150,17 @@ version_port_or_service = function(ports, services, protos, states)
                        and not(port_is_excluded(port.number, port.protocol))
         end
 end
+
+---
+-- A portrule that matches likely HTTP services.
+--
+-- @name http
+-- @class function
+-- @param host The host table to match against.
+-- @param port The port table to match against.
+-- @return <code>true</code> if the port is likely to be HTTP,
+-- <code>false</code> otherwise.
+-- @usage
+-- portrule = shortport.http
+http = shortport.port_or_service({80, 443, 631, 3872, 8080},
+	{"http", "https", "ipp", "http-alt", "oem-agent"})
