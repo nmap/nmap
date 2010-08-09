@@ -25,7 +25,7 @@ author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 
-portrule = shortport.port_or_service({80, 8080,443}, {"http","https"})
+portrule = shortport.http
 local last_len = 0
 
 -- split the output in 50 character length lines 

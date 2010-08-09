@@ -33,7 +33,7 @@ categories = {"vuln", "intrusive"}
 require "http"
 require "shortport"
 
-portrule = shortport.port_or_service({80, 443, 8080}, {"http", "https"})
+portrule = shortport.http
 
 ---Enumeration for results
 local enum_results = 

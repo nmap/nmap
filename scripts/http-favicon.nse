@@ -38,8 +38,7 @@ require "stdnse"
 require "datafiles"
 require "nsedebug"
 
-portrule = shortport.port_or_service({80, 443, 8080, 8443},
-	{"http", "https", "http-alt", "https-alt"})
+portrule = shortport.http
 
 action = function(host, port)
   local md5sum,answer

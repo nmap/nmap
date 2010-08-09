@@ -85,7 +85,7 @@ local validate = function(response, original)
 	return
 end
 
-portrule = shortport.port_or_service({80, 8080, 443}, {"http", "https"})
+portrule = shortport.http
 
 action = function(host, port)
 	local cmd = "TRACE / HTTP/1.0\r\n\r\n"

@@ -48,6 +48,7 @@ categories = {"default", "safe"}
 
 require("http")
 require("nmap")
+require("shortport")
 require("stdnse")
 
 -- We don't report these methods except with verbosity.
@@ -57,18 +58,7 @@ local UNINTERESTING_METHODS = {
 
 local filter_out, merge_headers
 
-portrule = function(host, port)
-	if not (port.service == 'http' or port.service == 'https') 
-	then
-		return(false)
-	end
-	-- Don't bother running on SSL ports if we don't have SSL.
-	if ((port.service == 'https' or port.version.service_tunnel == 'ssl') and not nmap.have_ssl()) 
-	then
-		return(false)
-	end
-	return(true)
-end
+portrule = shortport.http
 
 action = function(host, port)
 	local url_path, retest_http_methods

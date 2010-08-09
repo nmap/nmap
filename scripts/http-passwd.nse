@@ -103,7 +103,7 @@ local output = function(passwd, dir)
 	return out
 end
 
-portrule = shortport.port_or_service({80, 443, 8080}, {"http", "https"})
+portrule = shortport.http
 
 action = function(host, port)
 	local dirs = {

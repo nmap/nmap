@@ -29,27 +29,13 @@ CVE-2001-1013: http://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2001-1013.
 -- |_ apache-userdir-enum: Potential Users: root (403), user (200), test (200)
 
 local http      = require 'http'
+local shortport = require 'shortport'
 local stdnse    = require 'stdnse'
 local datafiles = require 'datafiles'
 
 
 
----
--- The script will run against http[s] and http[s]-alt tcp ports.
-portrule = function(host, port)
-  local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
-                ssl = { ["https"] = 1, ["https-alt"] = 1 } }
-  if port.protocol ~= 'tcp' or not
-  ( svc.std[port.service] or svc.ssl[port.service] ) then
-    return false
-  end
-  -- Don't bother running on SSL ports if we don't have SSL.
-  if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl') and not
-  nmap.have_ssl() then
-    return false
-  end
-  return true
-end
+portrule = shortport.http
 
 
 

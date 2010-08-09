@@ -57,6 +57,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive", "vuln"}
 
 require 'http'
+require 'shortport'
 require 'stdnse'
 
 -- List of fingerprint files
@@ -70,20 +71,7 @@ if(nmap and nmap.registry and nmap.registry.args and nmap.registry.args.fingerpr
 	end
 end
 
-portrule = function(host, port)
-	local svc = { std = { ["http"] = 1, ["http-alt"] = 1 },
-				ssl = { ["https"] = 1, ["https-alt"] = 1 } }
-	if port.protocol ~= 'tcp'
-	or not ( svc.std[port.service] or svc.ssl[port.service] ) then
-		return false
-	end
-	-- Don't bother running on SSL ports if we don't have SSL.
-	if (svc.ssl[port.service] or port.version.service_tunnel == 'ssl')
-	and not nmap.have_ssl() then
-		return false
-	end
-	return true
-end
+portrule = shortport.http
 
 ---Convert the filename to backup variations. These can be valuable for a number of reasons. 
 -- First, because they may not have the same access restrictions as the main version (file.php 

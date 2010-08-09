@@ -26,7 +26,7 @@ categories = {"default", "auth", "intrusive"}
 require "shortport"
 require "http"
 
-portrule = shortport.port_or_service({80, 443, 8080}, {"http","https"})
+portrule = shortport.http
 
 action = function(host, port)
   local www_authenticate
