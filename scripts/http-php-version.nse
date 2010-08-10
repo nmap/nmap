@@ -18,6 +18,10 @@ The script also checks if any header field value starts with
 -- | Versions from credits query (more accurate): 5.0.5
 -- |_Version from header x-powered-by: PHP/5.0.5
 
+-- 08/10/2010:
+--   * Added a check on the http status when querying the server:
+--     if the http code is 200 (ok), proceed. (thanks to Tom Sellers who has reported this lack of check)
+
 author = "Ange Gutek"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
@@ -81,14 +85,14 @@ action = function(host, port)
 
 	-- 1st pass : the "special" PHP-logo test
 	response = http.get(host, port, LOGO_QUERY)
-	if response.body then
+	if response.body and response.status == 200 then
 		logo_hash = stdnse.tohex(openssl.md5(response.body))
 		logo_versions = LOGO_HASHES[logo_hash]
 	end
 
 	-- 2nd pass : the PHP-credits test
 	response = http.get(host, port, CREDITS_QUERY)
-	if response.body then
+	if response.body and response.status == 200 then
 		credits_hash = stdnse.tohex(openssl.md5(response.body))
 		credits_versions = CREDITS_HASHES[credits_hash]
 	end
