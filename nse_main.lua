@@ -881,7 +881,7 @@ end
 local chosen_scripts = get_chosen_scripts(rules);
 print_verbose(1, "Loaded %d scripts for scanning.", #chosen_scripts);
 for i, script in ipairs(chosen_scripts) do
-  print_debug(2, "Loaded '%s'.", script.basename);
+  print_debug(2, "Loaded '%s'.", script.filename);
 end
 
 -- main(hosts)
