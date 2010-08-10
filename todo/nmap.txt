@@ -1,14 +1,26 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Analyze what sort of work would likely be required for Nmap to
-  support OS detection over IPv6 to a target.
-  o Would probably start with a way to send raw IPv6 packets
-    o There is a raw IPv6 patch here:
-      http://seclists.org/nmap-dev/2008/q1/458
-    o Also it looks like Nping may be doing this already.
-  o Then we need to figure out if we can use our current DB and
-    techniques, or if we'd likely thave to have an IPv6-specific
-    DB. [David]
+o [NSE] Review scripts:
+   o New brute, vnc, and svn scripts by Patrik.  This guy is a coding
+     machine :).  http://seclists.org/nmap-dev/2010/q3/111
+   o rmi-dumpregistry by Martin
+     Swende. http://seclists.org/nmap-dev/2010/q2/904
+   o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
+   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
+   o http-xst (Eduardo Garcia Melia) -
+     http://seclists.org/nmap-dev/2010/q3/159
+   o 15 more from Patrik :).  http://seclists.org/nmap-dev/2010/q3/284
+
+o [Zenmap] script selection interface for deciding which NSE scripts to
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
+
+o The -g (set source port) option doesn't seem to be working (at least
+  in Fyodor's quick tests) for version detection or connect() scan,
+  and apparently doesn't work for NSE either.  We should fix this
+  where we can, and document the limitation in the refguide where it
+  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
 
 o [NSE] Create NSE scripts to scan for and/or exploit these VXWorks issues:
   http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html [Ron
@@ -35,32 +47,6 @@ o Do a serious analysis if and how we should use the NIST CPE standard
   Nessus has described their integration of CPE at
   http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
 
-o [NSE] Maybe we should create a class of scripts which only run one
-  time per scan, similar to auxiliary modules in Metasploit. We
-  already have script classes which run once per port and once per
-  host. For example, the once-per-scan ("network script"?) class might
-  be useful for broadcast LAN scripts (Ron Bowes, who suggested this
-  (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
-  NetBIOS and DHCP broadcast script). Another idea would be an AS to
-  IP ranges script, as discussed in this thread
-  http://seclists.org/nmap-dev/2010/q2/101 [Could be a good SoC
-  infrastructure project]
-  o David notes: "I regret saying this before I say it, because I'm
-    imagining implementation difficulties, we should think about
-    having such auxiliary scripts be able to do things like host
-    discovery, and then let the following phases work on the list it
-    discovers."
-
-o [NSE] Review scripts:
-   o New brute, vnc, and svn scripts by Patrik.  This guy is a coding
-     machine :).  http://seclists.org/nmap-dev/2010/q3/111
-   o rmi-dumpregistry by Martin
-     Swende. http://seclists.org/nmap-dev/2010/q2/904
-   o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
-   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
-   o http-xst (Eduardo Garcia Melia) -
-     http://seclists.org/nmap-dev/2010/q3/159
-
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
   http://seclists.org/nmap-dev/2010/q1/1127
@@ -76,11 +62,6 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   hosts/services functionality seemed to work, although it would take
   a minute or so to switch from say "ftp" port to view "ssh" ports.
 
-o [Zenmap] script selection interface for deciding which NSE scripts to
-  run.  Ideally it would have a great, intuitive UI, the smarts to
-  know the scripts/categories available, display NSEdoc info, and even
-  know what arguments each can take.
-
 o [Web] We should see if we can easily put the Insecure chrome around
   Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
   and http://nmap.org/404).  I think we may have had this working
@@ -93,18 +74,6 @@ o [NSE] In the same way as our -brute scripts limit their runtime by
   running on 65,000+ closed ports and bloats scan time (and output).
   Of course there could (probably should) still be options to enable
   more intense qscanning.
-
-o We should add a shortport.http or similar function because numerous
-  services use this protocol and many of our scripts already try to
-  detect http in their portrule in inconsistent ways.
-
-o [NSE] The NSEDoc for some scripts includes large "Functions"
-  sections which aren't really useful to script users.  For example,
-  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
-  should hide these behind an expander like "Developer documentation
-  (show)".  I don't think we need to do this for libraries, since
-  developers are the primary audience for those documents.
-  o Talked to David.  We should just remove the function entries.
 
 o [NSE] Maybe we should create a script which checks once a day
   whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
@@ -129,17 +98,7 @@ o Ncat and Nmap should probably support SSL Server Name Indication
 o Look into implementing security technologies such as DEP and ASLR on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
-o The -g (set source port) option doesn't seem to be working (at least
-  in Fyodor's quick tests) for version detection or connect() scan,
-  and apparently doesn't work for NSE either.  We should fix this
-  where we can, and document the limitation in the refguide where it
-  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
-
 o [Web] Add a page with the Nmap related videos we do have already
-
-o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
-  supported.
-  http://seclists.org/nmap-dev/2010/q2/754
 
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
@@ -790,6 +749,48 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
+  supported.
+  http://seclists.org/nmap-dev/2010/q2/754
+
+o [NSE] The NSEDoc for some scripts includes large "Functions"
+  sections which aren't really useful to script users.  For example,
+  see http://nmap.org/nsedoc/scripts/snmp-interfaces.html.  Perhaps we
+  should hide these behind an expander like "Developer documentation
+  (show)".  I don't think we need to do this for libraries, since
+  developers are the primary audience for those documents.
+  o Talked to David.  We should just remove the function entries.
+
+o We should add a shortport.http or similar function because numerous
+  services use this protocol and many of our scripts already try to
+  detect http in their portrule in inconsistent ways.
+
+o [NSE] Maybe we should create a class of scripts which only run one
+  time per scan, similar to auxiliary modules in Metasploit. We
+  already have script classes which run once per port and once per
+  host. For example, the once-per-scan ("network script"?) class might
+  be useful for broadcast LAN scripts (Ron Bowes, who suggested this
+  (http://seclists.org/nmap-dev/2010/q1/883) offered to write a
+  NetBIOS and DHCP broadcast script). Another idea would be an AS to
+  IP ranges script, as discussed in this thread
+  http://seclists.org/nmap-dev/2010/q2/101 [Could be a good SoC
+  infrastructure project]
+  o David notes: "I regret saying this before I say it, because I'm
+    imagining implementation difficulties, we should think about
+    having such auxiliary scripts be able to do things like host
+    discovery, and then let the following phases work on the list it
+    discovers."
+
+o Analyze what sort of work would likely be required for Nmap to
+  support OS detection over IPv6 to a target.
+  o Would probably start with a way to send raw IPv6 packets
+    o There is a raw IPv6 patch here:
+      http://seclists.org/nmap-dev/2008/q1/458
+    o Also it looks like Nping may be doing this already.
+  o Then we need to figure out if we can use our current DB and
+    techniques, or if we'd likely thave to have an IPv6-specific
+    DB. [David]
 
 o July Nmap releases (at least a beta version, and maybe a stable
   too).  Last release was 5.30BETA1 on March 29
