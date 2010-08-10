@@ -1449,7 +1449,7 @@ local read_auth_challenge = function(s, pos)
     end
   end
 
-  return pos, { scheme = scheme, param = param }
+  return pos, { scheme = scheme, params = params }
 end
 
 ---
