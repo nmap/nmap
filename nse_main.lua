@@ -44,7 +44,6 @@ local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
 local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 
-local _R = debug.getregistry(); -- The registry
 local _G = _G;
 
 local assert = assert;
@@ -65,17 +64,23 @@ local tostring = tostring;
 local type = type;
 local unpack = unpack;
 
+local coroutine = require "coroutine";
 local create = coroutine.create;
 local resume = coroutine.resume;
 local status = coroutine.status;
 local yield = coroutine.yield;
 
+local debug = require "debug";
 local traceback = debug.traceback;
+local _R = debug.getregistry();
 
+local io = require "io";
 local open = io.open;
 
+local math = require "math";
 local max = math.max;
 
+local string = require "string";
 local byte = string.byte;
 local find = string.find;
 local format = string.format;
@@ -84,6 +89,7 @@ local lower = string.lower;
 local match = string.match;
 local sub = string.sub;
 
+local table = require "table";
 local concat = table.concat;
 local insert = table.insert;
 local remove = table.remove;
