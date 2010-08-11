@@ -2951,6 +2951,35 @@ static void ultrascan_port_probe_update(UltraScanInfo *USI, HostScanStats *hss,
 
 
 
+/* We set the socket lingering so we will RST connection instead of wasting
+   bandwidth with the four step close  */
+static void init_socket(int sd) {
+  struct linger l;
+  int res;
+  static int bind_failed=0;
+  struct sockaddr_storage ss;
+  size_t sslen;
+
+  l.l_onoff = 1;
+  l.l_linger = 0;
+
+  if (setsockopt(sd, SOL_SOCKET, SO_LINGER,  (const char *) &l, sizeof(struct linger)))
+    {
+      error("Problem setting socket SO_LINGER, errno: %d", socket_errno());
+      perror("setsockopt");
+    }
+  if (o.spoofsource && !bind_failed)
+    {
+      o.SourceSockAddr(&ss, &sslen);
+      res=bind(sd, (struct sockaddr*)&ss, sslen);
+      if (res<0)
+	{
+	  error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
+	  perror("bind");
+	  bind_failed=1;
+	}
+    }
+}
 
 /* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
    ping sequence number (they start at 1).  The probe sent is returned. */

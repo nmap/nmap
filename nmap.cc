@@ -2088,36 +2088,6 @@ int gather_logfile_resumption_state(char *fname, int *myargc, char ***myargv) {
   return 0;
 }
 
-/* We set the socket lingering so we will RST connection instead of wasting
-   bandwidth with the four step close  */
-void init_socket(int sd) {
-  struct linger l;
-  int res;
-  static int bind_failed=0;
-  struct sockaddr_storage ss;
-  size_t sslen;
-
-  l.l_onoff = 1;
-  l.l_linger = 0;
-
-  if (setsockopt(sd, SOL_SOCKET, SO_LINGER,  (const char *) &l, sizeof(struct linger)))
-    {
-      error("Problem setting socket SO_LINGER, errno: %d", socket_errno());
-      perror("setsockopt");
-    }
-  if (o.spoofsource && !bind_failed)
-    {
-      o.SourceSockAddr(&ss, &sslen);
-      res=bind(sd, (struct sockaddr*)&ss, sslen);
-      if (res<0)
-	{
-	  error("%s: Problem binding source address (%s), errno: %d", __func__, inet_socktop(&ss), socket_errno());
-	  perror("bind");
-	  bind_failed=1;
-	}
-    }
-}
-
 
 
 /* Convert a string like "-100,n*tp,200-1024,3000-4000,[60000-]" into an array

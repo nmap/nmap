@@ -425,9 +425,6 @@ void getpts_simple(const char *origexpr, int range_type,
                    unsigned short **list, int *count);
 void free_scan_lists(struct scan_lists *ports);
 
-/* socket manipulation functions */
-void init_socket(int sd);
-
 /* Renamed main so that interactive mode could preprocess when necessary */
 int nmap_main(int argc, char *argv[]);
 
