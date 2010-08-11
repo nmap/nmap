@@ -9008,3 +9008,42 @@ ports 626
 
 match serialnumber m|^SNRESPS:127\.0\.0\.1:(0x[0-9A-F]{40}):xsvr:(0x[0-9A-F]{40}):(0x[0-9a-f]{8}):(0x[0-9A-F]{40}):127\.0\.0\.1\0$| p/Mac OS X Server serialnumberd/ o/Mac OS X/ i/numbers: $1 $2 $3 $4/
 match serialnumber m|^SNRESPS:([\w._-]+):(0x[0-9A-F]{40}):xsvr:(0x[0-9A-F]{40}):(0x[0-9a-f]{8}):(0x[0-9A-F]{40}):[\w._-]+\0$| p/Mac OS X Server serialnumberd/ o/Mac OS X/ i/numbers: $2 $3 $4 $5/ h/$1/
+
+##############################NEXT PROBE##############################
+# Lotus Domino Console
+#
+Probe TCP dominoconsole q|\#ST\n|
+rarity 8
+sslports 2050
+
+match dominoconsole m|^([^:]*):([^:]*):[^:]+:.*$| p/Lotus Domino Console/ o/$2/ i/Server name: $1/
+
+##############################NEXT PROBE##############################
+# Informix probe
+#
+Probe TCP informix q|\0\x94\x01\x3c\0\0\0\x64\0\x65\0\0\0\x3d\0\x06IEEEM\0\0lsqlexec\0\0\0\0\0\0\x069.280\0\0\x0cRDS\#R000000\0\0\x05sqli\0\0\0\x01\x33\0\0\0\0\0\0\0\0\0\x01\0\x05nmap\0\0\x05nmap\0ol\0\0\0\0\0\0\0\0\0=tlitcp\0\0\0\0\0\x01\0\x68\0\x0b\0\0\0\x03\0\x05nmap\0\0\0\0\0\0\0\0\0\0\0\0\x6a\0\0\0\x7f|
+rarity 8
+ports 1526,9088-9100
+
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ o/Windows/ i/Hostname: $1, Path: $3/
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ i/Hostname: $1, Path: $3/
+
+##############################NEXT PROBE##############################
+# The DRDA protocol is used by both Informix and DB2
+#
+Probe TCP drda q|\0\x32\xd0\x01\0\x01\0\x2c\x10\x41\0\x04\x11\x5e\0\x04\x11\x6d\0\x04\x11\x5a\0\x18\x14\x04\x14\x03\x00\x07\x24\x07\0\x08\x24\x0f\x00\x08\x14\x40\0\x08\x14\x74\0\x08\0\x04\x11\x47|
+rarity 8
+ports 50000,60000,1526,1527,9088-9100
+
+softmatch drda m|^\0.......\x14\x43..\x11\x5e.*\x11\x47|
+
+##############################NEXT PROBE##############################
+# MQ Initial Packet Queue-manager=nmap-probe; channel=SYSTEM.ADMIN.SRVCONN
+#
+Probe TCP ibm-mqseries q|TSH\x20\x00\x00\x00\xEC\x01\x01\x31\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x11\x04\xB8\x00\x00\x49\x44\x20\x20\x0A\x26\x00\x00\x00\x00\x00\x00\x00\x00\x7F\xF6\x06\x40\x00\x00\x00\x00\x00\x00SYSTEM\.ADMIN\.SVRCONN\x51\x00\x04\xB8nmap-probe\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x00\x00\x00\x01\x00\x6A\x00\x00\x00\xFF\x00\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0A\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02MQJB00000000CANNED_DATA\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20|
+rarity 8
+ports 1414-1420
+
+match ibm-mqseries m|^TSH\x20\0\0\0\xec\x02\x01\x02\0\0\0\0\0\0\0\0\0\x11\x01\0\0\xb5\x01\0\0ID\x20\x20\n&\0\x90\0\0\0\0\xf6\x7f\0\0\0\0@\0\0\0\0\0([^\s]*)\s*Q\0\xb5\x01([^\s]*)\s*,\x01\0\0\0\0\0\0\0\xff\0\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\0\0\0\n\0\0\0\0\0\0\0..\0\0.\0\0\0.\0\0\0[^\s]*\s*$| p/IBM Websphere MQ/ i/Queue manager: $2, Channel: $1/ v/7.0/
+
+softmatch ibm-mqseries m|^TSH\x20\0\0\0| p/IBM Websphere MQ/
