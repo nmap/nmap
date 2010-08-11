@@ -48,53 +48,11 @@
  * Things that have NOT been done yet                                        *
  *****************************************************************************/
 
-* Fix Windows rtt values.  Right now Nsock does not seem to be giving
-  the callback at the proper time, or something.
-
-* [EM] Some things to keep in mind for the implementation and to update
-  our design docs accordingly:
-  o Implement different "modes" for the server: complete access,
-    one-time-access, and restricted.
-  o Make sure nping does not allow generating packets with tcp src port or
-    tcp dst port 9929 (or --echo-port N, if that is set), because 1) the
-    echo server does not capture those packets and 2) to avoid messing up the
-    established side-channel tcp connection.
-
-* [EM] Investigate why the echo server does not send NEP_ECHO messages when the
-  client sends probes at a very high rate, like in :
-  ./nping -c 1000 --rate 1000 --echo-client "pass" --icmp -v echo.nmap.org
-
 * [EM] Add echo mode to the man page
-
-* In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
-  returns something different to DLT_EN10MB, and Nping fatals. Investigate
-  why this happens to nping and is not a problem for Nmap. Also, determine
-  why this doesn't happen all the time. What does it change between these
-  two?: sudo nping --udp 1.1.1.1 -g 999 -p998
-        sudo nping --udp 1.1.1.1 -g 999 -p999
-  The first one works, and the other one fatals with the "Currently only
-  Ethernet is supported." (error message @ nping.cc:1717).
-  - Note this also happens when Fyodor uses Nping tethering through
-    his cell phone (ppp0)
-
-* Add support for custom IP binding: if user supplies -S then
-  the echo side-channel connection and connections in TCP-Connect mode should be
-  established from that IP. This includes the echo server binding to that IP. 
-
-* [EM] Make the server stop capturing packets when all connected clients
-  finish their session.
-
-* [EM] Echo server should print which interface is using to capture packets.
-
-* Do more testing on MS Windows.
 
 * [EM] Do some extensive testing of the Echo mode once it is working
   to try and flesh out any bugs before merging.
 
-* Make nping issue a warning when user supplies a payload in TCP-Connect
-  mode.
-
-* Add --no-crypto to -h output.
 
 /*****************************************************************************
  * ^^^^ Things we should try to finish by end of GSoC (August 16)            *
@@ -628,3 +586,47 @@
   actually captured by echo server.  If we did it in normal cases, it
   might make it easier to compare SENT and CAPT packets, but would
   also be a bit strange to see the timeline out-of-order.
+
+[DONE] Fix Windows rtt values.  Right now Nsock does not seem to be giving
+  the callback at the proper time, or something.
+
+[DONE] Add --no-crypto to -h output.
+
+[DONE] Make sure nping does not allow generating packets with tcp src port or
+    tcp dst port 9929 (or --echo-port N, if that is set), because 1) the
+    echo server does not capture those packets and 2) to avoid messing up the
+    established side-channel tcp connection.
+
+[DONE] Add support for custom IP binding: if user supplies -S then
+  the echo side-channel connection and connections in TCP-Connect mode should be
+  established from that IP. This includes the echo server binding to that IP.
+
+[DONE] Make nping issue a warning when user supplies a payload in TCP-Connect
+  mode.
+
+[DONE] [EM] Echo server should print which interface is using to capture packets.
+
+[DONE] In some cases, when using nping through a VPN connection, nsi_pcap_linktype()
+  returns something different to DLT_EN10MB, and Nping fatals. Investigate
+  why this happens to nping and is not a problem for Nmap. Also, determine
+  why this doesn't happen all the time. What does it change between these
+  two?: sudo nping --udp 1.1.1.1 -g 999 -p998
+        sudo nping --udp 1.1.1.1 -g 999 -p999
+  The first one works, and the other one fatals with the "Currently only
+  Ethernet is supported." (error message @ nping.cc:1717).
+  - Note this also happens when Fyodor uses Nping tethering through
+    his cell phone (ppp0)
+
+[DONE] [EM] Make the server stop capturing packets when all connected clients
+  finish their session.
+
+[DONE] [EM] Some things to keep in mind for the implementation and to update
+  our design docs accordingly:
+  o Implement different "modes" for the server: complete access,
+    one-time-access, and restricted.
+
+[DONE] Do more testing on MS Windows.
+
+[DONE] [EM] Investigate why the echo server does not send NEP_ECHO messages when the
+  client sends probes at a very high rate, like in :
+  ./nping -c 1000 --rate 1000 --echo-client "pass" --icmp -v echo.nmap.org
