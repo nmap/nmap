@@ -3181,11 +3181,14 @@ allowed any incoming UDP packets with the source port 53 (DNS) or 67
 <para>Nmap offers the <option>-g</option> and
 <option>--source-port</option> options (they are equivalent) to exploit these
 weaknesses.  Simply provide a port number and Nmap will send packets
-from that port where possible.  Nmap must use different port numbers
-for certain OS detection tests to work properly, and DNS requests
-ignore the <option>--source-port</option> flag because Nmap relies on system
-libraries to handle those.  Most TCP scans, including SYN scan,
-support the option completely, as does UDP scan.</para>
+from that port where possible.  Most scanning operations that use raw sockets,
+including SYN and UDP scans, support the option completely.  The option notably
+doesn't have an effect for any operations that use normal operating system
+sockets, including DNS requests, TCP <function>connect</function>
+scan,<indexterm><primary>connect scan</primary></indexterm> version detection,
+and script scanning. Setting the source port also doesn't work for OS detection,
+because Nmap must use different port numbers for certain OS detection tests to
+work properly.</para>
 
         </listitem>
       </varlistentry>
