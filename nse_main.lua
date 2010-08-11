@@ -773,6 +773,7 @@ local function run (threads, scantype)
         thread:d("Finished %THREAD_AGAINST.");
         thread:close(timeouts);
       end
+      current = nil;
     end
 
     cnse.nsock_loop(50); -- Allow nsock to perform any pending callbacks
