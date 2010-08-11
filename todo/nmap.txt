@@ -62,6 +62,11 @@ o [Zenmap] Consider a memory usage audit. This thread includes a claim
   hosts/services functionality seemed to work, although it would take
   a minute or so to switch from say "ftp" port to view "ssh" ports.
 
+o Consider implementing a nsock_pcap_close() function or making
+  nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
+  warns about a socket descriptor left opened (at least in Nping).
+  See http://seclists.org/nmap-dev/2010/q3/305.
+
 o [Web] We should see if we can easily put the Insecure chrome around
   Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
   and http://nmap.org/404).  I think we may have had this working
