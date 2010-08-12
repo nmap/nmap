@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="nmap"
 	ProjectGUID="{361719F0-AB42-4C93-9DE8-7D2144B96625}"
 	RootNamespace="nmap"
@@ -175,8 +175,8 @@
 				ProgramDatabaseFile=".\Release/nmap.pdb"
 				SubSystem="1"
 				OptimizeForWindows98="0"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
