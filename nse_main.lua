@@ -888,9 +888,8 @@ end
 local chosen_scripts = get_chosen_scripts(rules);
 print_verbose(1, "Loaded %d scripts for scanning.", #chosen_scripts);
 for i, script in ipairs(chosen_scripts) do
--- PLEASE DO NOT CHANGE THIS FORMAT. IT IS USED BY ZENMAP TO SELECT SCRIPTS
+  -- PLEASE DO NOT CHANGE THIS FORMAT. IT IS USED BY ZENMAP TO SELECT SCRIPTS
   print_debug(2, "Loaded '%s'.", script.filename);
-  
 end
 
 -- main(hosts)
