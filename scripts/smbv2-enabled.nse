@@ -33,7 +33,7 @@ local function go(host)
 
 	status, smbstate = smb.start(host)
 	if(not(status)) then
-		return false, "Couldn't start SMB session: " .. smb
+		return false, "Couldn't start SMB session: " .. smbstatus
 	end
 
 	status, result = smb.negotiate_protocol(smbstate, overrides)
