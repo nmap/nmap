@@ -1810,6 +1810,10 @@ static void startNextProbe(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
 	}
 	if (o.ipoptionslen)
 	  nsi_set_ipoptions(svc->niod, o.ipoptions, o.ipoptionslen);
+        if (svc->target->TargetName()) {
+          if (nsi_set_hostname(svc->niod, svc->target->TargetName()) == -1)
+	    fatal("nsi_set_hostname(\"%s\" failed in %s()", svc->target->TargetName(), __func__);
+        }
 	svc->target->TargetSockAddr(&ss, &ss_len);
 	if (svc->tunnel == SERVICE_TUNNEL_NONE) {
 	  nsock_connect_tcp(nsp, svc->niod, servicescan_connect_handler, 
