@@ -2,12 +2,12 @@
 .\"     Title: ndiff
 .\"    Author: [see the "Authors" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 07/17/2010
+.\"      Date: 08/13/2010
 .\"    Manual: User Commands
 .\"    Source: Ndiff
 .\"  Language: English
 .\"
-.TH "NDIFF" "1" "07/17/2010" "Ndiff" "User Commands"
+.TH "NDIFF" "1" "08/13/2010" "Ndiff" "User Commands"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -122,9 +122,9 @@ Let\'s use Ndiff to compare the output of two Nmap scans that use different opti
 .RS 4
 .\}
 .nf
-# nmap \-F scanme\&.nmap\&.org \-oX scanme\-1\&.xml
-# nmap \-\-script=html\-title scanme\&.nmap\&.org \-oX scanme\-2\&.xml
-$ ndiff \-v scanme\-1\&.xml scanme\-2\&.xml
+# \fBnmap \-F scanme\&.nmap\&.org \-oX scanme\-1\&.xml\fR
+# \fBnmap \-\-script=html\-title scanme\&.nmap\&.org \-oX scanme\-2\&.xml\fR
+$ \fBndiff \-v scanme\-1\&.xml scanme\-2\&.xml\fR
 \-Nmap 5\&.35DC1 at 2010\-07\-16 12:09
 +Nmap 5\&.35DC1 at 2010\-07\-16 12:13
 
@@ -176,10 +176,8 @@ line followed by a
 line\&. Lines that did not change are preceded by a blank space\&.
 .PP
 
-Example\ \&1, \(lqNdiff text output\(rq
-is an example of text output\&. Here, port 80 on the host
-photos\-cache\-snc1\&.facebook\&.com
-gained a service version (lighttpd 1\&.5\&.0)\&. The host at 69\&.63\&.179\&.25 changed its reverse DNS name\&. The host at 69\&.63\&.184\&.145 was completely absent in the first scan but came up in the second\&.
+Example\ \&1
+is an example of text output\&. Here, port 80 on the host photos\-cache\-snc1\&.facebook\&.com gained a service version (lighttpd 1\&.5\&.0)\&. The host at 69\&.63\&.179\&.25 changed its reverse DNS name\&. The host at 69\&.63\&.184\&.145 was completely absent in the first scan but came up in the second\&.
 .PP
 \fBExample\ \&1.\ \&Ndiff text output\fR
 .sp
@@ -233,11 +231,9 @@ and
 tags show the state of the host or port in the first scan (\fIa\fR) or the second scan (\fIb\fR)\&.
 .PP
 
-Example\ \&2, \(lqNdiff XML output\(rq
+Example\ \&2
 shows the XML diff of the same scans shown above in
-Example\ \&1\&. Notice how port 80 of
-photos\-cache\-snc1\&.facebook\&.com
-is enclosed in
+Example\ \&1\&. Notice how port 80 of photos\-cache\-snc1\&.facebook\&.com is enclosed in
 \fIportdiff\fR
 tags\&. For 69\&.63\&.179\&.25, the old hostname is in
 \fIa\fR
@@ -255,7 +251,6 @@ without a corresponding
 .RS 4
 .\}
 .nf
-
 <?xml version="1\&.0" encoding="UTF\-8"?>
 <nmapdiff version="1">
   <scandiff>
@@ -329,7 +324,7 @@ without a corresponding
 .SH "PERIODIC DIFFS"
 .PP
 Using Nmap, Ndiff, cron, and a shell script, it\'s possible to scan a network daily and get email reports of the state of the network and changes since the previous scan\&.
-Example\ \&3, \(lqScanning a network periodically with Ndiff and cron\(rq
+Example\ \&3
 shows the script that ties it together\&.
 .PP
 \fBExample\ \&3.\ \&Scanning a network periodically with Ndiff and cron\fR
