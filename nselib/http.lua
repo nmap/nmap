@@ -928,14 +928,12 @@ local build_request = function(host, port, method, path, options)
   -- Add any other options into the local copy.
   table_augment(mod_options, options)
 
-  local request_line, header, body
-  request_line = string.format("%s %s HTTP/1.1", method, path)
-  header = {}
-  local name, value
+  local request_line = string.format("%s %s HTTP/1.1", method, path)
+  local header = {}
   for name, value in pairs(mod_options.header) do
     header[#header + 1] = string.format("%s: %s", name, value)
   end
-  body = mod_options.content and mod_options.content or ""
+  local body = mod_options.content and mod_options.content or ""
 
   return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. body
 end
