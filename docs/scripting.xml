@@ -132,15 +132,54 @@ The reference manual is also
       scripts) and results are integrated into Nmap
       normal<indexterm><primary>normal output</primary></indexterm>
       and XML output.<indexterm><primary>XML output</primary></indexterm>
-      Two types of scripts are supported: service and host
-      scripts.  Service scripts relate to a certain open port
-      (service) on the target host, and any results they produce are included
-      next to that port in the Nmap output port table.  Host scripts,
-      on the other hand, run no more than once against each target IP
-      and produce results below the port table.  <xref
-      linkend="nse-ex1" xrefstyle="select: label nopage"/> shows a
-      typical script scan.  Service scripts producing
-      output in this example are
+    </para>
+
+    <para>Three phases of NSE scans are supported:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Script Pre-scanning phase</term>
+        <listitem>
+          <para>This phase will run before all other Nmap scan phases,
+            and can be used by scripts for host discovery or to
+            perform any network operation which do not depends on Nmap
+            targets. Scripts that run in this phase are not related to
+            Nmap targets, and they run only once per Nmap scan and when
+            the necessary script arguments are present.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <temr>Script Scanning phase</term>
+        <listitem>
+          <para>This phase is related to Nmap host group targets, and
+            scripts on this phase depend and run against these targets,
+            and can be invoked multiple times, they are called service
+            and host scripts.  Service scripts relate to a certain open
+            port (service) on the target host, and any results they
+            produce are included next to that port in the Nmap output
+            port table.  Host scripts, on the other hand, run no more
+            than once against each target IP and produce results below
+            the port table.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <temr>Script Post-scanning phase</term>
+        <listitem>
+          <para>This phase will run at the end of an Nmap scan, and can
+            be used to report script results and to perform statistics
+            gathering. Scripts in this phase run only once per Nmap
+            scan and when the necessary script arguments are present.
+          </para>
+        </listitem>
+      </varlistentry>
+    <variablelist>
+
+      <para>
+        NSE typical script scan is shown in the  
+      <xref linkend="nse-ex1" xrefstyle="select: label nopage"/>.
+        Service scripts producing output in this example are
       <literal>ssh-hostkey</literal>, which provides the system's RSA and DSA SSH keys, and <literal>rpcinfo</literal>, which queries
       portmapper to enumerate available services.  The only host
       script producing output in this example
@@ -195,7 +234,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
     </para>
 
     <para>
-    Script scanning is normally done in combination with a port scan,
+    Script scanning phase is normally done in combination with a port scan,
     because scripts may be run or not run depending on the port states
     found by the scan. With the <option>-sn</option> option it is
     possible to run a script scan without a port scan, only host
@@ -886,7 +925,7 @@ local username = nmap.registry.args.user
 
   <sect1 id="nse-script-format">
     <title>Script Format</title>
-    <para>NSE scripts consist of a handful of descriptive fields, either a <literal>portrule</literal> or a <literal>hostrule</literal> defining when the script should be executed, and an <literal>action</literal> function containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
+    <para>NSE scripts consist of a handful of descriptive fields, a <literal>rule</literal> defining when the script should be executed, and an <literal>action</literal> function containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
 
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
@@ -991,39 +1030,104 @@ NSE: Script Scanning completed.
     </sect2>
 
     <sect2 id="nse-format-rules">
-      <title>Port and Host Rules</title>
+      <title>Rules</title>
+      <indexterm><primary sortas="prerule script variable">&ldquo;<varname>prerule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
-      <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>portrule</varname>&rdquo; and &ldquo;<varname>hostrule</varname>&rdquo;</see></indexterm>
+      <indexterm><primary sortas="portrule script variable">&ldquo;<varname>postrule</varname>&rdquo; script variable</primary></indexterm>
+      <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>prerule</varname>&rdquo;, &ldquo;<varname>portrule</varname>&rdquo;, &ldquo;<varname>hostrule</varname>&rdquo; and &ldquo;<varname>postrule</varname>&rdquo;</see></indexterm>
       <para>
 
 Nmap uses the script rules to determine whether a script should be run
-against a target.  A script contains either a <literal>portrule</literal>
-function, which governs which ports of a target the scripts may
-run against, or a <literal>hostrule</literal> function, which specifies that
-the script should be run only once against a target IP and only if
-the given conditions are met.  A rule is a Lua function that returns
-either <literal>true</literal> or <literal>false</literal>. The
-script <literal>action</literal> function is only performed if the rule
-evaluates to <literal>true</literal>.  Hostrules accept a host
-table as their argument and may test, for example, the IP address or
-hostname of the target.  Portrules accept both host and port tables
-as arguments for any TCP or UDP port in the
+against a target.  A script contains either a <literal>prerule</literal>
+function, which lets the script to be run during the Script Pre-scanning
+phase, or a <literal>portrule</literal> function, which governs which
+ports of a target the scripts may run against, or a
+<literal>hostrule</literal> function, which specifies that the script
+should be run only once against a target IP and only if
+the given conditions are met, or a <literal>postrule</literal> function,
+which lets the script to be run during the Script Post-scanning phase.  
+A rule is a Lua function that returns either <literal>true</literal>
+or <literal>false</literal>.  A script can have multiple rules functions in
+order to run at different script scan phases, and to share the same code.
+The script <literal>action</literal> function is only performed if the rule
+evaluates to <literal>true</literal>.  Prerules and postrules do not accept
+arguments.  Hostrules accept a host table as their argument and may
+test, for example, the IP address or hostname of the target.  Portrules
+accept both host and port tables as arguments for any TCP or UDP port in the
 <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
 <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
-or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port. Example rules are shown in <xref linkend="nse-tutorial-rule"/>.</para> 
-</sect2>
+or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port.  Example rules are shown in <xref linkend="nse-tutorial-rule"/>.  
+The current standard to choose between a <literal>prerule</literal>
+or a <literal>postrule<literal> is: if the script is doing host discovery
+or any other network operation then the <literal>prerule</literal>
+should be used. The <literal>postrule</literal> is reserved for data
+reporting and statistics gathering that were generated during the scan.
+      </para> 
+    </sect2>
 
      <sect2 id="nse-format-action"><title>Action</title>
       <indexterm><primary sortas="action script variable">&ldquo;<varname>action</varname>&rdquo; script variable</primary></indexterm>
 
       <para>
 The action is the heart of an NSE script. It contains all of the
-instructions to be executed when the script's portrule or hostrule
+instructions to be executed when the script's prerule, portrule, hostrule or postrule
 triggers. It is a Lua function which accepts the same arguments as the
 rule and can return either <literal>nil</literal> or a string. If a string is returned by a service script, the string and script's filename are printed in the Nmap port table output.  A string returned by a host script is printed below the port table.  No output is produced if the
 script returns <literal>nil</literal>.  For an example of an NSE
 action refer to <xref linkend="nse-tutorial-action"/>.
+      </para>
+    </sect2>
+
+     <sect2 id="nse-format-environment"><title>Environment Variables</title>
+      <indexterm><primary sortas="environment script variable">&ldquo;<varname>environment</varname>&rdquo; script variable</primary></indexterm>
+
+      <para>Each script has its own set of environment variables:</para>
+      <variablelist>
+        <varlistentry>
+          <term><literal>SCRIPT_PATH</literal></term>
+          <listitem>
+            <para>
+              The script path.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>SCRIPT_NAME</literal></term>
+          <listitem>
+            <para>
+              The script name. This variable can be used in debug output.
+            </para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term><literal>SCRIPT_TYPE</literal></term>
+          <listitem>
+            <para>
+              Since a script can have multiple rule functions, this
+              environment variable will show which rule has activated
+              the script, this would be useful if the script wants to
+              share some code between different Script Scan phases.
+              It will take one of these four string values:
+              <literal>"prerule"</literal>, <literal>"hostrule"</literal>, 
+              <literal>"portrule"</literal> or 
+              <literal>"postrule"</literal>.
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+      <para>
+        This is an example of a debug code that uses the previous
+        environment variables, followed by the output message, from dns-zone-transfer:
+        <programlisting>
+          stdnse.print_debug(3, "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.", SCRIPT_NAME, SCRIPT_TYPE)
+        </programlisting>
+        <screen>
+          Initiating NSE at 15:31
+          NSE: Skipping 'dns-zone-transfer' prerule, 'dnszonetransfer.server' argument is missing.
+        </screen>
       </para>
     </sect2>
 
@@ -1944,12 +2048,13 @@ categories = {"default", "safe"}
       <title>The Rule</title>
       <para>
 	The rule section is a Lua method which decides whether to skip
-	or execute the script's action method against a particular service or host.
-	This decision is usually based on the host and port
-	information passed to the rule function. In the case of the
-	identification script, it is slightly more complicated than
-	that. To decide whether to run the identification script against a
-	given port we need to know if there is an auth
+    or execute the script's action.  This decision is usually based on
+    the type of the rule and the host and port information passed to
+    it.  A <literal>prerule</literal> or a
+    <litreal>postrule</literal> will always evaluate to true.  In the
+    case of the identification script, it is slightly more complicated
+	than that. To decide whether to run the identification script
+	against a given port we need to know if there is an auth
 	server running on the target machine. In other words, the
 	script should be run only if the currently scanned TCP port is open and
 	TCP port 113 is also open. For now we will rely on the fact that
@@ -3226,20 +3331,26 @@ end
       </sect2>
 
       <sect2 id="nse-implementation-scan">
-        <title>Scanning a Host Group</title>
+        <title>Script Scanning</title>
         <para>
           When NSE runs a script scan, <literal>script_scan</literal> is called
-          in <literal>nse_main.cc</literal> with a list of targets to scan.
+          in <literal>nse_main.cc</literal>.  Since there are three script scan
+          phases, <literal>script_scan</literal> accepts two arguments, a 
+          script scan type which can be one of these values:
+          <literal>SCRIPT_PRE_SCAN</literal> (Script Pre-scanning phase) or
+          <literal>SCRIPT_SCAN</literal> (Script scanning phase) or
+          <literal>SCRIPT_POST_SCAN</literal> (Script Post-scanning phase),
+          and a second argument which is a list of targets to scan if
+          the script scan phase is <literal>SCRIPT_SCAN</literal>.
           These targets will be passed to the <literal>nse_main.lua</literal>
           main function for scanning.
         </para>
 
         <para>
           The main function for a script scan generates a number of script
-          threads based on whether the <literal>hostrule</literal> or
-          <literal>portrule</literal> returns true for a given host and port.
-          The generated threads are stored in a list of runlevel lists. Each
-          runlevel list of threads is passed separately to the
+          threads based on whether the <literal>rule</literal> function 
+          returns true. The generated threads are stored in a list of runlevel
+          lists. Each runlevel list of threads is passed separately to the
           <literal>run</literal> function. The <literal>run</literal> function
           is the main worker function for NSE where all the magic happens.
         </para>
