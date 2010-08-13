@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nsock] Added a new function, nsi_set_hostname, to set the intended
+  hostname of the target. This allows the use of Server Name
+  Indication in SSL connections. This was suggested by Nuno Goncalves.
+  [David]
+
 o [NSE] Added default limits on the number of ports that qscan will
   scan. By default, it will do upt o 8 open ports and up to 1 closed
   port. These limits can be controlled with the qscan.numopen and
