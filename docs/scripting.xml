@@ -150,7 +150,7 @@ The reference manual is also
         </listitem>
       </varlistentry>
       <varlistentry>
-        <temr>Script Scanning phase</term>
+        <term>Script Scanning phase</term>
         <listitem>
           <para>This phase is related to Nmap host group targets, and
             scripts on this phase depend and run against these targets,
@@ -165,7 +165,7 @@ The reference manual is also
         </listitem>
       </varlistentry>
       <varlistentry>
-        <temr>Script Post-scanning phase</term>
+        <term>Script Post-scanning phase</term>
         <listitem>
           <para>This phase will run at the end of an Nmap scan, and can
             be used to report script results and to perform statistics
@@ -174,7 +174,7 @@ The reference manual is also
           </para>
         </listitem>
       </varlistentry>
-    <variablelist>
+    </variablelist>
 
       <para>
         NSE typical script scan is shown in the  
@@ -1059,7 +1059,7 @@ accept both host and port tables as arguments for any TCP or UDP port in the
 <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
 or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port.  Example rules are shown in <xref linkend="nse-tutorial-rule"/>.  
 The current standard to choose between a <literal>prerule</literal>
-or a <literal>postrule<literal> is: if the script is doing host discovery
+or a <literal>postrule</literal> is: if the script is doing host discovery
 or any other network operation then the <literal>prerule</literal>
 should be used. The <literal>postrule</literal> is reserved for data
 reporting and statistics gathering that were generated during the scan.
@@ -2051,7 +2051,7 @@ categories = {"default", "safe"}
     or execute the script's action.  This decision is usually based on
     the type of the rule and the host and port information passed to
     it.  A <literal>prerule</literal> or a
-    <litreal>postrule</literal> will always evaluate to true.  In the
+    <literal>postrule</literal> will always evaluate to true.  In the
     case of the identification script, it is slightly more complicated
 	than that. To decide whether to run the identification script
 	against a given port we need to know if there is an auth
