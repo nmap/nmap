@@ -103,6 +103,9 @@ o Ncat and Nmap should probably support SSL Server Name Indication
 o Look into implementing security technologies such as DEP and ASLR on
   Windows: http://seclists.org/nmap-dev/2010/q3/12.
 
+o Upgrade our Windows OpenSSL binaries from version 0.9.8j to the
+  newest version (1.0.0a as of Aug 12, 2010).
+
 o [Web] Add a page with the Nmap related videos we do have already
 
 o Add raw packet IPv6 support, initially for SYN scan
