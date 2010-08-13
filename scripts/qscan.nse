@@ -26,6 +26,8 @@ description = [[
 -- @args confidence Confidence level: <code>0.75</code>, <code>0.9</code>, <code>0.95</code>, <code>0.975</code>, <code>0.99</code>, <code>0.995</code>, or <code>0.9995</code>.
 -- @args delay Average delay between packet sends. This is a number followed by <code>ms</code> for milliseconds or <code>s</code> for seconds. (<code>m</code> and <code>h</code> are also supported but are too long for timeouts.) The actual delay will randomly vary between 50% and 150% of the time specified. Default: <code>200ms</code>.
 -- @args numtrips Number of round-trip times to try to get.
+-- @args numopen Maximum number of open ports to probe (default 8). A negative number disables the limit.
+-- @args numclosed Maximum number of closed ports to probe (default 1). A negative number disables the limit.
 --
 -- @output
 -- | qscan:
@@ -56,6 +58,8 @@ require 'tab'
 local DELAY = 0.200
 local NUMTRIPS = 10
 local CONF = 0.95
+local NUMOPEN = 8
+local NUMCLOSED = 1
 
 -- The following tdist{} and tinv() are based off of
 -- http://www.owlnet.rice.edu/~elec428/projects/tinv.c
@@ -307,23 +311,44 @@ local getopts = function()
 	end
 end
 
---- Get ports to probe
--- @param host Host object
-local getports = function(host)
-	local states = { "closed", "open" }
-	local ports = {}
-	local port = nil
+local table_extend = function(a, b)
+	local t = {}
 
-	for _, s in ipairs(states) do
-		repeat
-			port = nmap.get_ports(host, port, "tcp", s)
-			if port then
-				table.insert(ports, port.number)
-			end
-		until not port
+	for _, v in ipairs(a) do
+		t[#t + 1] = v
+	end
+	for _, v in ipairs(b) do
+		t[#t + 1] = v
 	end
 
-	return ports
+	return t
+end
+
+--- Get ports to probe
+-- @param host Host object
+local getports = function(host, numopen, numclosed)
+	local open = {}
+	local closed = {}
+	local port
+
+	port = nil
+	while numopen < 0 or #open < numopen do
+		port = nmap.get_ports(host, port, "tcp", "open")
+		if not port then
+			break
+		end
+		open[#open + 1] = port.number
+	end
+	port = nil
+	while numclosed < 0 or #closed < numclosed do
+		port = nmap.get_ports(host, port, "tcp", "closed")
+		if not port then
+			break
+		end
+		closed[#closed + 1] = port.number
+	end
+
+	return table_extend(open, closed)
 end
 
 --- Sets probe port list in registry
@@ -337,6 +362,8 @@ local setreg = function(host, ports)
 end
 
 hostrule = function(host)
+	local numopen, numclosed = NUMOPEN, NUMCLOSED
+
 	if not nmap.is_privileged() then
 		if not nmap.registry['qscan'] then
 			nmap.registry['qscan'] = {}
@@ -353,7 +380,22 @@ hostrule = function(host)
 	if not host.interface then
 		return false
 	end
-	local ports = getports(host)
+
+	for _, k in ipairs({"qscan.numopen", "numopen"}) do
+		if nmap.registry.args[k] then
+			numopen = tonumber(nmap.registry.args[k])
+			break
+		end
+	end
+
+	for _, k in ipairs({"qscan.numclosed", "numclosed"}) do
+		if nmap.registry.args[k] then
+			numclosed = tonumber(nmap.registry.args[k])
+			break
+		end
+	end
+
+	local ports = getports(host, numopen, numclosed)
 	if #ports <= 1 then
 		return false
 	end

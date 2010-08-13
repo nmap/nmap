@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added default limits on the number of ports that qscan will
+  scan. By default, it will do upt o 8 open ports and up to 1 closed
+  port. These limits can be controlled with the qscan.numopen and
+  qscan.numclosed script arguments. [David]
+
 o [NSE] Made sslv2.nse give special output when SSLv2 is supported,
   but no SSLv2 ciphers are offered. This happened with a specific
   Sendmail configuration. [Matt Selsky]
