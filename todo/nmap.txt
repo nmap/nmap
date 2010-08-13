@@ -158,6 +158,10 @@ o [NSE] Consider using .idl files rather than manually coding all the
   application in nmap-private-dev which converts .idl files to LUA
   code for nmap/nselib. Consider adapting the pidl utility from Samba.
 
+o [NSE] Consider a script (or modification to smb-check-vulns) to
+  detect this MSRPC vulnerability:
+  http://seclists.org/fulldisclosure/2010/Aug/122
+
 o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
