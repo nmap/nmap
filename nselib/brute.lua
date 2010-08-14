@@ -479,6 +479,7 @@ Engine =
 			else
 				if ( response and response:isAbort() ) then
 					Engine.terminate_all = true
+					self.error = response:getMessage()
 					break
 				elseif( response and response:isThreadDone() ) then
 					break
