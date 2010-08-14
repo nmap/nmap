@@ -31,7 +31,7 @@ require "drda"
 --
 
 portrule = shortport.version_port_or_service({50000,60000,9090,1526,1527},
-                                            {"drda"}, "tcp",
+                                            {"drda","ibm-db2"}, "tcp",
                                             {"open", "open|filtered"})
 
 --- Converts the prodrel server string to a version string

@@ -31,7 +31,7 @@ require "unpwdb"
 -- Revised 05/10/2010 - v0.3 - revised parallellised design <patrik@cqure.net>
 -- Revised 08/14/2010 - v0.4 - renamed script and library from db2* to drda* <patrik@cqure.net>
 
-portrule = shortport.port_or_service({50000,60000}, "drda", "tcp", {"open", "open|filtered"})
+portrule = shortport.port_or_service({50000,60000}, {"drda","ibm-db2"}, "tcp", {"open", "open|filtered"})
 
 --- Credential iterator
 --
@@ -100,10 +100,10 @@ isValidDb = function( host, port, database )
 	status, response = helper:login( database, "dbnameprobe1234", "dbnameprobe1234" )
 	helper:close()
 
-	if ( not(status) and response:match("Database not found") ) then
-		return false
+	if ( not(status) and response:match("Login failed") ) then
+		return true
 	end
-	return true
+	return false
 end
 
 --- Returns the amount of currenlty active threads

@@ -610,7 +610,7 @@ Helper = {
 		local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
 				
 		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
-		if( not(status) ) then return false, "ERROR: Login failed" end
+		if( not(status) ) then return false, packet end
 		
 		if ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
 			 packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
