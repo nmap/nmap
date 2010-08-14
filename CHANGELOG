@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added one script (vnc-brute) that performs password guessing against
+  VNC using the new brute library and another (vnc-info) that lists supported
+  security mechanisms. [Patrik]
+
 o [NSE] Added a new brute library that provides a basic framework and logic
   for password guessing scripts. [Patrik]
 
