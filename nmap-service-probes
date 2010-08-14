@@ -9025,8 +9025,8 @@ Probe TCP informix q|\0\x94\x01\x3c\0\0\0\x64\0\x65\0\0\0\x3d\0\x06IEEEM\0\0lsql
 rarity 8
 ports 1526,9088-9100
 
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ o/Windows/ i/Hostname: $1, Path: $3/
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ i/Hostname: $1, Path: $3/
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ o/Windows/ h/$1/ i/Path: $3/
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ h/$1/ i/Path: $3/
 
 ##############################NEXT PROBE##############################
 # The DRDA protocol is used by both Informix and DB2
