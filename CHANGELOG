@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new brute library that provides a basic framework and logic
+  for password guessing scripts. [Patrik]
+
 o [NSE] Renamed db2-info and db2-brute scripts to drda-*. Updated script
   and library to reflect name change. Added support other DRDA based
   databases such as IBM Informix Dynamic Server and Apache Derby.
