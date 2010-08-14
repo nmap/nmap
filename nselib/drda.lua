@@ -1,9 +1,9 @@
 ---
--- DB2 Library supporting a very limited subset of operations.
+-- DRDA Library supporting a very limited subset of operations.
 --
 -- Summary
 -- * The library currently provides functionality to: (1) Query the server for
--- basic settings using the code>getServerInfo</code> function of the helper
+-- basic settings using the <code>getServerInfo</code> function of the helper
 -- class. (2) Authenticate to a DB2 server using a plain-text username and
 -- password.
 --
@@ -23,12 +23,16 @@
 -- ** A smallish socket wrapper that provides fundamental buffering
 -- * <code>StringUtil</code>
 -- ** Provides EBCDIC/ASCII conversion functions
+-- * <code>Comm</code>
+-- ** Provides fundamental communication support (send/receive DRDAPacket)
+-- * <code>DRDAPacket</code>
+-- ** A class holding one or more DRDA's and provides some basic access methods
 --
 -- The following sample code illustrates how scripts can use the Helper class
 -- to interface with the library:
 --
 -- <code>
---	db2helper = db2.Helper:new()
+--	db2helper = drda.Helper:new()
 --	status, err = db2helper:connect(host, port)
 --	status, res = db2helper:getServerInfo()
 --	status, err = db2helper:close()
@@ -45,16 +49,22 @@
 --
 
 --
--- Version 0.1
+-- Version 0.2
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
---
+-- Revised 07/27/2010 - v0.2 - Added the comm class and made a few improvements
+--							   to sending and receiving packets. Changed the
+--							   helper login method to support:
+--								x IBM DB2
+--								x Apache Derby
+--								x IBM Informix Dynamic Server
 
-module(... or "db2", package.seeall)
+module(... or "drda", package.seeall)
 
 require "bin"
 
 -- CodePoint constants
 CodePoint = {
+	CODEPNT		= 0x000c,
 	TYPDEFNAM	= 0x002f,
 	TYPDEFOVR	= 0x0035,
 	ACCSEC		= 0x106d,
@@ -62,6 +72,8 @@ CodePoint = {
 	EXCSAT 		= 0x1041,
 	PRDID		= 0x112e,
 	SRVCLSNM 	= 0x1147,
+	SVRCOD		= 0x1149,
+	SYNERRCD	= 0x114a,
 	SRVRLSLV 	= 0x115a,
 	EXTNAM 		= 0x115e,
 	SRVNAM 		= 0x116d,
@@ -69,14 +81,20 @@ CodePoint = {
 	PASSWORD	= 0x11a1,
 	SECMEC		= 0x11a2,
 	SECCHKCD	= 0x11a4,
+	SECCHKRM	= 0x1219,
+	SYNTAXRM	= 0x124c,
 	MGRLVLLS 	= 0x1404,
 	EXCSATRD	= 0x1443,
+	ACCSECRD	= 0x14ac,
 	ACCRDB		= 0x2001,
 	PRDDATA		= 0x2104,
 	RDBACCL		= 0x210f,
 	RDBNAM		= 0x2110,
+	CRRTKN		= 0x2135,
+	ACCRDBRM	= 0x2201,
 	RDBNFNRM	= 0x2211,
 	RDBAFLRM	= 0x221a,
+	RDBATHRM	= 0x22cb,
 }
 
 -- Security Mechanism
@@ -93,6 +111,46 @@ SecMec =
 	ENC_USER_DATA = 0x000C,
 	ENC_USER_ENC_PASS_ENC_DATA = 0x000D,
 	ENC_USER_ENC_PASS_ENC_NEWPASS_ENC_DATA = 0x000E,
+}
+
+DRDAPacket = {
+	
+	new = function(self, drda_array)
+		local o = {}
+       	setmetatable(o, self)
+        self.__index = self
+		o.drda_array = drda_array
+		o.count = #drda_array
+		return o
+	end,
+
+	getDRDAByCodePoint = function( self, codepoint )
+		for i=1, #self.drda_array do
+			if ( self.drda_array[i].DDM.CodePoint == codepoint ) then
+				return self.drda_array[i]
+			end
+		end
+	end,
+	
+	getDRDA = function( self, n )
+		return ( #self.drda_array >= n ) and self.drda_array[n] or nil
+	end,
+	
+	__tostring = function( self )
+		local data = ""
+		-- do some DDM fixup in here
+		for i=1, #self.drda_array do
+			if ( i == 1 and #self.drda_array > 1 ) then
+				self.drda_array[1].DDM.Format = 0x41
+			else
+				self.drda_array[i].DDM.Format = 0x01
+			end
+			self.drda_array[i].DDM.CorelId = i
+			data = data .. tostring(self.drda_array[i])
+		end
+		return data
+	end
+	
 }
 
 -- Distributed Relational Database Architecture (DRDA) Class
@@ -126,11 +184,11 @@ DRDA = {
 	-- @return err string containing the error message if status is false
 	addParameter = function( self, param )
 		if ( not(self.DDM) ) then
-			stdnse.print_debug("db2.DRDA.addParameter: DDM must be set prior to adding parameters")
+			stdnse.print_debug("drda.DRDA.addParameter: DDM must be set prior to adding parameters")
 			return false, "DDM must be set prior to adding parameters"
 		end
 		if ( not(param) ) then
-			stdnse.print_debug("db2.DRDA.addParameter: Param cannot be nil")
+			stdnse.print_debug("drda.DRDA.addParameter: Param cannot be nil")
 			return false, "Param cannot be nil"
 		end
 		
@@ -159,17 +217,17 @@ DRDA = {
 	--- Converts the DRDA class to a string
 	--
 	-- @return data containing the object instance		
-	toString = function(self)
+	__tostring = function(self)
 		local data
 		
 		if ( not(self.DDM) ) then
-			stdnse.print_debug("db2.DRDA.toString: DDM cannot be nil")
+			stdnse.print_debug("drda.DRDA.toString: DDM cannot be nil")
 			return nil
 		end
 		
 		data = bin.pack(">SCCSSS", self.DDM.Length, self.DDM.Magic, self.DDM.Format, self.DDM.CorelId, self.DDM.Length2, self.DDM.CodePoint )
 		for k,v in ipairs(self.Parameters) do
-			data = data .. v:toString()
+			data = data .. tostring(v)
 		end
 		return data
 	end,
@@ -180,7 +238,7 @@ DRDA = {
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
 	send = function( self, db2socket )
-		return db2socket:send( self:toString() )
+		return db2socket:send( tostring(self) )
 	end,
 	
 	--- Receives data from the db2socket and builds a DRDA object
@@ -196,7 +254,7 @@ DRDA = {
 		-- first read atleast enough so that we can populate the DDM
 		status, data = db2socket:recv( DDM_SIZE )
 		if ( not(status) ) then
-			stdnse.print_debug("db2.DRDA.receive: %s", data)
+			stdnse.print_debug("drda.DRDA.receive: %s", data)
 			return false, ("Failed to read at least %d bytes from socket"):format(DDM_SIZE)
 		end
 		
@@ -246,7 +304,7 @@ DRDAParameter = {
 	--- Converts the DRDA Parameter object to a string
 	--
 	-- @return data string containing the DRDA Parameter
-	toString = function( self )
+	__tostring = function( self )
 		local data = bin.pack(">SS", self.Length, self.CodePoint )
 		
 		if ( self.Data ) then
@@ -330,7 +388,7 @@ DDM = {
 	end,
 
 	--- Converts the DDM object to a string
-	toString = function( self )
+	__tostring = function( self )
 		return bin.pack(">SCCSSS", self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint)
 	end,
 	
@@ -342,7 +400,7 @@ DDM = {
 		local pos = 1
 		
 		if ( #str < DDM_SIZE ) then
-			return -1, ("db2.DDM.fromString: str was less than DDM_SIZE (%d)"):format( DDM_SIZE )
+			return -1, ("drda.DDM.fromString: str was less than DDM_SIZE (%d)"):format( DDM_SIZE )
 		end
 		
 		pos, self.Length, self.Magic, self.Format, self.CorelId, self.Length2, self.CodePoint = bin.unpack( ">SCCSSS", str )
@@ -433,7 +491,7 @@ Command =
 	-- @param typdefnam string containing the data type definition name
 	-- @param typdefovr string containing the data type definition override
 	-- @return drda DRDA instance		
-	ACCRDB = function( database, rdbaccl, prdid, prddata, typdefnam, typdefovr )
+	ACCRDB = function( database, rdbaccl, prdid, prddata, typdefnam, crrtkn, typdefovr )
 		local drda = DRDA:new( DDM:new( CodePoint.ACCRDB ) )
 		drda:addParameter( DRDAParameter:new( CodePoint.RDBNAM, StringUtil.toEBCDIC(StringUtil.padWithChar(database,' ', 18)) ) )
 
@@ -448,6 +506,9 @@ Command =
 		end
 		if( typdefnam ) then
 			drda:addParameter( DRDAParameter:new( CodePoint.TYPDEFNAM, StringUtil.toEBCDIC( typdefnam ) ) )
+		end
+		if( crrtkn ) then
+			drda:addParameter( DRDAParameter:new( CodePoint.CRRTKN, crrtkn ) )
 		end
 		if( typdefovr ) then
 			drda:addParameter( DRDAParameter:new( CodePoint.TYPDEFOVR, typdefovr ) )
@@ -477,6 +538,7 @@ Helper = {
 	-- @return Error code (if status is false).	
 	connect = function( self, host, port )
 		self.db2socket = DB2Socket:new()
+		self.comm = Comm:new( self.db2socket )
 		return self.db2socket:connect(host.ip, port.number, port.protocol)
 	end,
 
@@ -495,33 +557,27 @@ Helper = {
 	getServerInfo = function( self )
 		local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
 		local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
-		local drda, response, param, status, err
+		local drda, response, param, status, err, packet
 	
-		status, err = self.db2socket:sendDRDA( { drda_excsat } )
-		if ( not(status) ) then
-			return false, err
-		end
-		
-		status, drda = self.db2socket:recvDRDA()
-		if( not(status) ) then
-			return false, drda
-		end
+		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat } ) )
+		if ( not(status) ) then	return false, err end
 	
-		if ( #drda > 0 and drda[1].DDM.CodePoint == CodePoint.EXCSATRD ) then
+		drda = packet:getDRDAByCodePoint( CodePoint.EXCSATRD )
+		if ( drda ) then
 			response = {}
-			param = drda[1]:getParameter( CodePoint.EXTNAM )
+			param = drda:getParameter( CodePoint.EXTNAM )
 			if ( param ) then
 				response.extname = param:getDataAsASCII()
 			end
-			param = drda[1]:getParameter( CodePoint.SRVCLSNM )
+			param = drda:getParameter( CodePoint.SRVCLSNM )
 			if ( param ) then
 				response.srvclass = param:getDataAsASCII()
 			end
-			param = drda[1]:getParameter( CodePoint.SRVNAM )
+			param = drda:getParameter( CodePoint.SRVNAM )
 			if ( param ) then
 				response.srvname = param:getDataAsASCII()
 			end
-			param = drda[1]:getParameter( CodePoint.SRVRLSLV )
+			param = drda:getParameter( CodePoint.SRVRLSLV )
 			if ( param ) then
 				response.prodrel = param:getDataAsASCII()
 			end
@@ -541,79 +597,112 @@ Helper = {
 	-- @return err message (if status if false)
 	login = function( self, database, username, password )
 		local drda = {}
-		local data, param, status, err, _
+		local packet, data, param, status, err, _
 		
 		local mgrlvlls = bin.pack("H", "1403000724070008240f00081440000814740008")
 		local secmec, prdid = "\00\03", "JCC03010"
+		local tdovr = bin.pack("H", "0006119c04b80006119d04b00006119e04b8")
+		local crrtkn= bin.pack("H", "d5c6f0f0f0f0f0f14bc3c6f4c4012a11168414")
 		
 		local drda_excsat = Command.EXCSAT( "", "", "", mgrlvlls, "" )
 		local drda_accsec = Command.ACCSEC( secmec, database )
 		local drda_secchk = Command.SECCHK( secmec, database, username, password )
-		local drda_accrdb = Command.ACCRDB( database )
+		local drda_accrdb = Command.ACCRDB( database, string.char(0x24,0x07), "DNC10060", nil, "QTDSQLASC",  crrtkn, tdovr)
+				
+		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_excsat, drda_accsec } ) )
+		if( not(status) ) then return false, "ERROR: Login failed" end
 		
-		status, err = self.db2socket:sendDRDA( { drda_excsat, drda_accsec } )
-		if ( not(status) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: DB2Socket error: %s", err )
-			return false, ("ERROR: DB2Socket error: %s"):format( err )
+		if ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
+			 packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
+			stdnse.print_debug("drda.Helper.login: ERROR: RDB not found")
+			return false, "ERROR: Database not found"
 		end
 		
-		status, drda = self.db2socket:recvDRDA()
-		if( not(status) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: DB2Socket error: %s", drda )
-			return false, ("ERROR: DB2Socket error: %s"):format( drda )
+		drda = packet:getDRDAByCodePoint( CodePoint.ACCSECRD )
+		if ( not(drda) ) then
+			return false, "ERROR: Response did not contain any valid security mechanisms"
 		end
 		
-		if ( 2 > #drda ) then
-			stdnse.print_debug("db2.Helper.login: db2.Helper.login: ERROR: Expected two DRDA records")
-			return false, "ERROR: Expected two DRDA records"
-		end
-		
-		-- Check if the DB is accessible
-		for i=1, #drda do
-			if ( drda[i].DDM.CodePoint == CodePoint.RDBNFNRM or
-			 	drda[i].DDM.CodePoint == CodePoint.RDBAFLRM ) then
-				stdnse.print_debug("db2.Helper.login: ERROR: RDB not found")
-				return false, "ERROR: Database not found"
-			end
-		end
-		
-		param = drda[2]:getParameter( CodePoint.SECMEC )
+		param = drda:getParameter( CodePoint.SECMEC )
 		if ( not(param) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: Response did not contain any valid security mechanisms")
+			stdnse.print_debug("drda.Helper.login: ERROR: Response did not contain any valid security mechanisms")
 			return false, "ERROR: Response did not contain any valid security mechanisms"
 		end
 		
 		if ( select(2, bin.unpack(">S", param:getData())) ~= SecMec.USER_PASSWORD ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: Securite Mechanism not supported")
+			stdnse.print_debug("drda.Helper.login: ERROR: Securite Mechanism not supported")
 			return false, "ERROR: Security mechanism not supported"
 		end
 		
-		status, err = self.db2socket:sendDRDA( { drda_secchk, drda_accrdb } )	
+		status, packet = self.comm:exchDRDAPacket( DRDAPacket:new( { drda_secchk, drda_accrdb } ) )
+		if( not(status) ) then return false, "ERROR: Login failed" end
+
+		--
+		-- At this point we have a few differences in behaviour
+		--  * DB2 has told us earlier if the DB does not exist
+		--  * Apache Derby will do so here, regardless of the login was
+		--    successfull or not
+		--  * Informix will tell us that the DB does not exist IF the
+		--    login was successfull
+		--
+		-- Therefore the order of these checks are important!!
+		if ( packet:getDRDAByCodePoint( CodePoint.ACCRDBRM ) ) then
+			return true
+		-- Apache Derby responds differently with usernames containing spaces
+		elseif ( packet:getDRDAByCodePoint( CodePoint.RDBATHRM ) ) then
+			return false, "ERROR: Login failed"
+		-- Informix responds with a SECCHKRM DDM response
+		elseif ( packet:getDRDAByCodePoint( CodePoint.SECCHKRM ) ) then
+			drda = packet:getDRDAByCodePoint( CodePoint.SECCHKRM )
+			param= drda:getParameter( CodePoint.SECCHKCD )
+			if ( param and param:getData() == "\0" ) then
+				return true
+			end
+		elseif ( packet:getDRDAByCodePoint( CodePoint.RDBNFNRM ) or
+			 packet:getDRDAByCodePoint( CodePoint.RDBAFLRM ) ) then
+			return false, "ERROR: Database not found"
+		end
+
+		return false, "ERROR: Login failed"
+		
+	end,
+	
+}
+
+-- The communication class
+Comm = {
+	
+	new = function(self, socket)
+		local o = {}
+       	setmetatable(o, self)
+        self.__index = self
+		o.socket = socket
+		return o
+	end,
+	
+	--- Sends a packet to the server and receives the response
+	--
+	-- @param DRDAPacket
+	-- @return status true on success, false on failure
+	-- @return packet an instance of DRDAPacket
+	exchDRDAPacket = function( self, packet )
+		local drda, err
+		local status, err = self.socket:sendDRDA( packet )
+		
 		if ( not(status) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: DB2Socket error: %s", err )
+			stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", err )
 			return false, ("ERROR: DB2Socket error: %s"):format( err )
 		end
-	
-		status, drda = self.db2socket:recvDRDA()
+		
+		status, drda = self.socket:recvDRDA()
 		if( not(status) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: DB2Socket error: %s", drda )
+			stdnse.print_debug("drda.Helper.login: ERROR: DB2Socket error: %s", drda )
 			return false, ("ERROR: DB2Socket error: %s"):format( drda )
 		end
 		
-		param = drda[1]:getParameter( CodePoint.SECCHKCD )
-		if ( not(param) ) then
-			stdnse.print_debug("db2.Helper.login: ERROR: Authentication failed")
-			return false, "ERROR: Authentication failed"
-		end
-		
-		local secchkcd = select( 2, bin.unpack( "C", param:getData() ) )
-		if ( 0 ~= secchkcd ) then
-			stdnse.print_debug( "db2.Helper.login: ERROR: Authentication failed, error code: %d", secchkcd )
-			return false, ("ERROR: Authentication failed, error code: %d"):format(secchkcd)
-		end
-				
-		return true
-	end,
+		return true, DRDAPacket:new( drda )
+	
+	end
 	
 }
 
@@ -704,24 +793,7 @@ DB2Socket = {
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
 	sendDRDA = function( self, drda )
-		local data = ""
-				
-		if ( 0 == #drda ) then
-			data = drda:toString()
-		else
-			-- do some DDM fixup in here
-			for i=1, #drda do
-				if ( i == 1 and #drda > 1 ) then
-					drda[1].DDM.Format = 0x41
-				else
-					drda[i].DDM.Format = 0x01
-				end
-				drda[i].DDM.CorelId = i
-				data = data .. drda[i]:toString()
-			end
-		end
-		
-		return self:send(data)
+		return self:send(tostring(drda))
 	end,
 	
 	--- Reads a single or multiple DRDA's of the socket

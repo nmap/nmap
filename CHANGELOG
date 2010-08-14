@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Renamed db2-info and db2-brute scripts to drda-*. Updated script
+  and library to reflect name change. Added support other DRDA based
+  databases such as IBM Informix Dynamic Server and Apache Derby.
+  [Patrik]
+
 o [Nsock] Added a new function, nsi_set_hostname, to set the intended
   hostname of the target. This allows the use of Server Name
   Indication in SSL connections. This was suggested by Nuno Goncalves.

@@ -1,19 +1,19 @@
 description = [[
-Performs password guessing against IBM DB2.
+Performs password guessing against databases supporting the IBM DB2 protocol such as Informix, DB2 and Derby
 ]]
 
 ---
--- @args db2-brute.threads the amount of accounts to attempt to brute
+-- @args drda-brute.threads the amount of accounts to attempt to brute
 -- force in parallell (default 10).
--- @args db2-brute.dbname the database name against which to guess
+-- @args drda-brute.dbname the database name against which to guess
 -- passwords (default <code>"SAMPLE"</code>).
 --
 -- @usage
--- nmap -p 50000 --script db2-brute <target>
+-- nmap -p 50000 --script drda-brute <target>
 --
 -- @output
--- 50000/tcp open  ibm-db2
--- | db2-brute:  
+-- 50000/tcp open  drda
+-- | drda-brute:  
 -- |_  db2admin:db2admin => Login Correct
 
 author = "Patrik Karlsson"
@@ -22,15 +22,16 @@ categories={"intrusive", "auth"}
 
 require "stdnse"
 require "shortport"
-require "db2"
+require "drda"
 require "unpwdb"
 
 -- Version 0.3
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 05/09/2010 - v0.2 - re-wrote as multi-threaded <patrik@cqure.net>
 -- Revised 05/10/2010 - v0.3 - revised parallellised design <patrik@cqure.net>
+-- Revised 08/14/2010 - v0.4 - renamed script and library from db2* to drda* <patrik@cqure.net>
 
-portrule = shortport.port_or_service({50000,60000},"ibm-db2", "tcp", {"open", "open|filtered"})
+portrule = shortport.port_or_service({50000,60000}, "drda", "tcp", {"open", "open|filtered"})
 
 --- Credential iterator
 --
@@ -65,14 +66,14 @@ doLogin = function( host, port, database, creds, valid_accounts )
 	for username, password in creds do
 		-- Checks if a password was already discovered for this account
 		if ( nmap.registry.db2users == nil or nmap.registry.db2users[username] == nil ) then
-			helper = db2.Helper:new()
+			helper = drda.Helper:new()
 			helper:connect( host, port )		
 			stdnse.print_debug( "Trying %s/%s against %s...", username, password, host.ip )
 			status, response = helper:login( database, username, password )
 			helper:close()
 	
 			if ( status ) then
-				-- Add credentials for future db2 scripts to use
+				-- Add credentials for future drda scripts to use
 				if nmap.registry.db2users == nil then
 					nmap.registry.db2users = {}
 				end	
@@ -92,7 +93,7 @@ end
 -- @return status true on success, false on failure
 isValidDb = function( host, port, database )
 	local status, response
-	local helper = db2.Helper:new()
+	local helper = drda.Helper:new()
 	
 	helper:connect( host, port )
 	-- Authenticate with a static probe account to see if the db is valid		
@@ -127,13 +128,13 @@ action = function( host, port )
 	local result, response, status = {}, nil, nil
 	local valid_accounts, threads = {}, {}	
 	local usernames, passwords, creds
-	local database = nmap.registry.args['db2-brute.dbname'] or "SAMPLE"
+	local database = nmap.registry.args['drda-brute.dbname'] or "SAMPLE"
 	local condvar = nmap.condvar( valid_accounts )
-	local max_threads = nmap.registry.args['db2-brute.threads'] and tonumber( nmap.registry.args['db2-brute.threads'] ) or 10
+	local max_threads = nmap.registry.args['drda-brute.threads'] and tonumber( nmap.registry.args['drda-brute.threads'] ) or 10
 
 	-- Check if the DB specified is valid
 	if( not(isValidDb(host, port, database)) ) then
-		return ("The databases %s was not found. (Use --script-args db2-brute.dbname=<dbname> to specify database)"):format(database)
+		return ("The databases %s was not found. (Use --script-args drda-brute.dbname=<dbname> to specify database)"):format(database)
 	end
 
  	status, usernames = unpwdb.usernames()
