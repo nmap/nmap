@@ -709,3 +709,4 @@ rdb		1145324612	# Wind River Systems' VxWorks debug stub
 dtcm		1289637086
 ttsession	1289637087	# Sun Solaris 7 (2.7) and up.
 ttsession	1342177279	# Sun Solaris upto 2.6
+wdb		1431655765	# Wind River Debugger (VxWorks)
