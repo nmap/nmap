@@ -140,7 +140,6 @@ individually.
 #include <dnet.h>
 
 #include <algorithm>
-#include <bitset>
 #include <list>
 #include <map>
 #include <set>
@@ -233,7 +232,7 @@ public:
   Target *target;
   /* A bitmap of TTLs that have been sent, to avoid duplicates when we switch
      around the order counting up or down. */
-  std::bitset<MAX_TTL + 1> sent_ttls;
+  std::vector<bool> sent_ttls;
   u8 current_ttl;
   enum counting_state state;
   /* If nonzero, the known hop distance to the target. */
@@ -331,7 +330,7 @@ static Hop *hop_cache_lookup(u8 ttl, const struct sockaddr_storage *addr);
 static void hop_cache_insert(Hop *hop);
 static unsigned int hop_cache_size();
 
-HostState::HostState(Target *target) {
+HostState::HostState(Target *target) : sent_ttls(MAX_TTL + 1, false) {
   this->target = target;
   current_ttl = MIN(MAX(1, HostState::distance_guess(target)), MAX_TTL);
   state = HostState::COUNTING_DOWN;
@@ -388,7 +387,7 @@ bool HostState::send_next_probe(int rawsd, eth_t *ethsd) {
   unanswered_probes.push_back(probe);
   active_probes.push_back(probe);
   probe->send(rawsd, ethsd);
-  sent_ttls.set(current_ttl);
+  sent_ttls[current_ttl] = true;
 
   return true;
 }
@@ -397,14 +396,14 @@ bool HostState::send_next_probe(int rawsd, eth_t *ethsd) {
 void HostState::next_ttl() {
   assert(current_ttl > 0);
   if (state == HostState::COUNTING_DOWN) {
-    while (current_ttl > 1 && sent_ttls.test(current_ttl))
+    while (current_ttl > 1 && sent_ttls[current_ttl])
       current_ttl--;
     if (current_ttl == 1)
       state = HostState::COUNTING_UP;
   }
   /* Note no "else". */
   if (state == HostState::COUNTING_UP) {
-    while (current_ttl <= MAX_TTL && sent_ttls.test(current_ttl))
+    while (current_ttl <= MAX_TTL && sent_ttls[current_ttl])
       current_ttl++;
   }
 }
@@ -511,10 +510,19 @@ void HostState::link_to(Hop *hop) {
 }
 
 double HostState::completion_fraction() const {
+  std::vector<bool>::iterator it;
+  unsigned int i, n;
+
   if (this->is_finished())
     return 1.0;
-  else
-    return (double) sent_ttls.count() / MAX_TTL;
+
+  n = 0;
+  for (i = 0; i < sent_ttls.size(); i++) {
+    if (sent_ttls[i])
+      n++;
+  }
+
+  return (double) n / sent_ttls.size();
 }
 
 void HostState::child_parent_ttl(u8 ttl, Hop **child, Hop **parent) {
@@ -985,7 +993,7 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
       while (hop->parent != NULL) {
         hop = hop->parent;
         /* No need to re-probe any merged hops. */
-        host->sent_ttls.set(hop->ttl);
+        host->sent_ttls[hop->ttl] = true;
       }
       sslen = sizeof(addr);
       host->target->TargetSockAddr(&addr, &sslen);
