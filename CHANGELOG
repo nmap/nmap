@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added wdb-version, which discovers information from a VxWorks
+  debug service that is often left open. [Daniel Miller]
+
 o [NSE] Added one script (vnc-brute) that performs password guessing against
   VNC using the new brute library and another (vnc-info) that lists supported
   security mechanisms. [Patrik]
