@@ -978,10 +978,6 @@ request = function(host, port, data, options)
 
   options = options or {}
 
-  if type(host) == 'table' then
-    host = host.ip
-  end
-
   if type(port) == 'table' then
     if port.protocol and port.protocol ~= 'tcp' then
       stdnse.print_debug(1, "http.request() supports the TCP protocol only, your request to %s cannot be completed.", host)
@@ -1253,7 +1249,7 @@ pipeline = function(host, port, allReqs)
 
     -- Connect to host and send all the requests at once!
     if count >= limit or not socket:get_info() then
-      socket:connect(host.ip, port.number, bopt)
+      socket:connect(host, port, bopt)
       partial = ""
       count = 0
     end

@@ -40,23 +40,13 @@ end
 
 -- Sets up the socket and connects to host:port
 local setup_connect = function(host, port, opts)
-	if type(host) ~= "table" then
-		host = {ip = host}
-	end
-
-	local target = host.ip
-
-	if type(port) ~= "table" then
-		port = {number = port}
-	end
-
 	local sock = nmap.new_socket()
 
 	if opts.timeout then
 		sock:set_timeout(opts.timeout)
 	end
 
-	local status, err = sock:connect(target, port.number, opts.proto)
+	local status, err = sock:connect(host, port, opts.proto)
 
 	if not status then
 		return status, err
@@ -187,7 +177,7 @@ end
 --
 -- Default timeout is set to 8000.
 --
--- @param ip The destination host IP
+-- @param host The destination host IP
 -- @param port The destination host port
 -- @param protocol The protocol for the connection
 -- @param data The first data payload of the connection
@@ -195,7 +185,7 @@ end
 -- @return response The response received for the payload
 -- @return early_resp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
-local function opencon(ip, port, protocol, data, opts)
+local function opencon(host, port, protocol, data, opts)
 	local sd = nmap.new_socket()
 
 	-- check for connect_timeout or timeout option
@@ -208,7 +198,7 @@ local function opencon(ip, port, protocol, data, opts)
 		sd:set_timeout(8000)
 	end
 
-	local status = sd:connect(ip, port, protocol)
+	local status = sd:connect(host, port, protocol)
 	if not status then 
           sd:close()
           return nil, nil, nil 
@@ -263,8 +253,6 @@ end
 -- of the first receive (before sending data)
 function tryssl(host, port, data, opts)
 	local opt1, opt2 = bestoption(port)
-	if type(port) == 'table' then port = port.number end	
-	if type(host) == 'table' then host = host.ip end
 	local best = opt1
 	local sd, response, early_resp = opencon(host, port, opt1, data, opts)
 	if not sd then
