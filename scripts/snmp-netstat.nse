@@ -84,7 +84,7 @@ action = function(host, port)
 	local status, tcp, udp
 
 	socket:set_timeout(5000)
-	try(socket:connect(host.ip, port.number, "udp"))
+	try(socket:connect(host, port))
 	
 	status, tcp = snmp.snmpWalk( socket, tcp_oid )
 	status, udp = snmp.snmpWalk( socket, udp_oid )

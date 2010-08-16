@@ -492,7 +492,7 @@ function start_raw(host, port)
 	local socket = nmap.new_socket()
 
 	socket:set_timeout(TIMEOUT)
-	status, err = socket:connect(host.ip, port, "tcp")
+	status, err = socket:connect(host, port, "tcp")
 
 	if(status == false) then
 		return false, "SMB: Failed to connect to host: " .. err
@@ -599,7 +599,7 @@ function start_netbios(host, port, name)
 
 		stdnse.print_debug(3, "SMB: Connecting to %s", host.ip)
 		socket:set_timeout(TIMEOUT)
-		status, err = socket:connect(host.ip, port, "tcp")
+		status, err = socket:connect(host, port, "tcp")
 		if(status == false) then
 			socket:close()
 			return false, "SMB: Failed to connect: " .. err

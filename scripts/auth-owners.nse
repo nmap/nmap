@@ -51,8 +51,8 @@ action = function(host, port)
 
 	local try = nmap.new_try(catch)
 
-	try(client_ident:connect(host.ip, 113))
-	try(client_service:connect(host.ip, port.number))
+	try(client_ident:connect(host, 113))
+	try(client_service:connect(host, port))
 
 	local localip, localport, remoteip, remoteport =
         	try(client_service:get_info())

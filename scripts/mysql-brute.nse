@@ -54,7 +54,7 @@ action = function( host, port )
 	for username in usernames do
 		for password in passwords do
 				
-			try( socket:connect(host.ip, port.number, "tcp") )	
+			try( socket:connect(host, port) )	
 			response = try( mysql.receiveGreeting( socket ) )
 
 			stdnse.print_debug( "Trying %s/%s ...", username, password )

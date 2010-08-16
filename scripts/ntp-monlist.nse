@@ -167,7 +167,7 @@ function doquery(sock, host, port, inum, rcode, records)
   if not sock then
     sock = nmap.new_socket()
     sock:set_timeout(TIMEOUT)
-    local constatus, conerr = sock:connect(host.ip, port.number, port.protocol)
+    local constatus, conerr = sock:connect(host, port)
     if not constatus then
       stdnse.print_debug(1,
         'Error establishing a UDP connection for %s - %s', target, conerr

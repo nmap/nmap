@@ -93,7 +93,7 @@ action = function( host, port )
 	--
 	for username, password in pairs(users) do
 				
-		try( socket:connect(host.ip, port.number, "tcp") )
+		try( socket:connect(host, port) )
 	
 		response = try( mysql.receiveGreeting( socket ) )
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, username, password, response.salt ) 

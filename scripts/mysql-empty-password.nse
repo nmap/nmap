@@ -37,7 +37,7 @@ action = function( host, port )
 	socket:set_timeout(5000)
 	
 	for _, v in ipairs( users ) do
-		try( socket:connect(host.ip, port.number, "tcp") )	
+		try( socket:connect(host, port) )	
 		response = try( mysql.receiveGreeting( socket ) )
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )	
 		if response.errorcode == 0 then

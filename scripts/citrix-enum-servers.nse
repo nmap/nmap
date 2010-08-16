@@ -104,7 +104,7 @@ action = function(host, port)
 	socket:set_timeout(5000)
 
 	try = nmap.new_try(function() socket:close() end)
-	try(socket:connect(host.ip, port.number, port.protocol))
+	try(socket:connect(host, port))
 
 	-- send the two first packets and never look back
 	repeat

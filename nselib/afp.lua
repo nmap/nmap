@@ -1348,7 +1348,7 @@ Helper = {
 	
 		self.socket = nmap.new_socket()
 		self.socket:set_timeout( 5000 )
-		status = self.socket:connect(host.ip, port.number, port.protocol)
+		status = self.socket:connect(host, port)
 		if not status then
 			return false, "Socket connection failed"
 		end

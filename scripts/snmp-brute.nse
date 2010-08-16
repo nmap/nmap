@@ -42,7 +42,7 @@ action = function(host, port)
   local try = nmap.new_try(catch)
 	
 	-- connect to the potential SNMP system
-  try(socket:connect(host.ip, port.number, "udp"))
+  try(socket:connect(host, port))
 
 	
   local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")

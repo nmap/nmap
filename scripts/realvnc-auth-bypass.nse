@@ -22,7 +22,7 @@ action = function(host, port)
 	local result
 	local status = true
 
-	socket:connect(host.ip, port.number, port.protocol)
+	socket:connect(host, port)
 	
 	status, result = socket:receive_lines(1)
 

@@ -294,7 +294,7 @@ action = function(host, port)
 	local try = nmap.new_try(catch)
 
 
-	try(socket:connect(host.ip, port.number, "tcp"))
+	try(socket:connect(host, port))
 	
 	local query
 	

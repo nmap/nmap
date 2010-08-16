@@ -54,7 +54,7 @@ function action(host,port)
 	
 	local try = nmap.new_try(catch)
 
-	try( socket:connect(host.ip, port.number, "tcp") )
+	try( socket:connect(host, port) )
 	
 	local req, result, packet, err, status
 	--Build packet

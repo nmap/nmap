@@ -91,7 +91,7 @@ action = function(host, port)
             return nil
         end
     else
-        local status, error = s:connect(host.ip, port.number, "ssl")
+        local status, error = s:connect(host, port, "ssl")
         
         if not status then
             if nmap.verbosity() > 0 then
@@ -188,7 +188,7 @@ function starttls_negotiate(host, port)
     -- Works for SMTP (25) and SMTP Submission (587)
 
     -- Open a standard TCP socket
-    local status, error = s:connect(host.ip, port.number, "tcp")  
+    local status, error = s:connect(host, port, "tcp")  
         
     if not status then   
         return nil

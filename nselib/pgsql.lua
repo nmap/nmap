@@ -611,7 +611,7 @@ function detectVersion(host, port)
 	local status, response
 	local socket = nmap.new_socket()
 
-	socket:connect(host.ip, port.number, "tcp")
+	socket:connect(host, port)
 	status, response = v3.sendStartup(socket, "versionprobe", "versionprobe")
 	socket:close()
 	

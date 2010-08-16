@@ -355,7 +355,7 @@ action = function(host, port)
 	local status
 
 	socket:set_timeout(5000)
-	try(socket:connect(host.ip, port.number, "udp"))
+	try(socket:connect(host, port))
 	
 	-- retreive network interface information from IF-MIB
 	status, interfaces = snmp.snmpWalk( socket, if_oid )
@@ -371,7 +371,7 @@ action = function(host, port)
 	interfaces = process_interfaces( interfaces )
 	
 	-- retreive IP address information from IP-MIB
-	try(socket:connect(host.ip, port.number, "udp"))
+	try(socket:connect(host, port))
 	status, ips = snmp.snmpWalk( socket, ip_oid )
 	
 	-- associate that IP address information with the correct interface

@@ -58,7 +58,7 @@ fetch_host_key = function(host, port)
   local socket = nmap.new_socket()
   local status, _
 
-  status = socket:connect(host.ip, port.number)
+  status = socket:connect(host, port)
   if not status then return end
   -- fetch banner
   status = socket:receive_lines(1)

@@ -65,7 +65,7 @@ action = function(host, port)
   
   local try = nmap.new_try(catch)
 
-  try( socket:connect(host.ip, port.number, "tcp") )
+  try( socket:connect(host, port) )
 
   -- get our data
   afp_proto = afp.Proto:new( { socket=socket } )

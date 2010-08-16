@@ -200,7 +200,7 @@ action = function(host, port)
 		end
 
 		if status == 3 or status == 4 then
-			try(soc:connect(host.ip, port.number, best_opt))
+			try(soc:connect(host, port, best_opt))
 		end
 
 		status, pair = brute_cred(user, pass, soc)

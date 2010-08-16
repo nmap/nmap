@@ -67,7 +67,7 @@
 --		end,
 --		connect = function( self )
 --			self.socket = nmap.new_socket()
---			return self.socket:connect( self.host.ip, self.port.number, "tcp" )
+--			return self.socket:connect( self.host, self.port )
 --		end,
 --		disconnect = function( self )
 --			return self.socket:close()

@@ -113,7 +113,7 @@ action = function( host, port )
 	socket:close()
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
-	status = socket:connect(host.ip, port.number, opt)
+	status = socket:connect(host, port, opt)
 	if not status then
 		return
 	end

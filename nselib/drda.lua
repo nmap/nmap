@@ -539,7 +539,7 @@ Helper = {
 	connect = function( self, host, port )
 		self.db2socket = DB2Socket:new()
 		self.comm = Comm:new( self.db2socket )
-		return self.db2socket:connect(host.ip, port.number, port.protocol)
+		return self.db2socket:connect(host, port)
 	end,
 
 	--- Closes an open connection.
@@ -736,8 +736,8 @@ DB2Socket = {
 
 	--- Establishes a connection.
 	--
-	-- @param hostid Hostname or IP address.
-	-- @param port Port number.
+	-- @param hostid Host table, hostname, or IP address.
+	-- @param port Port table or number.
 	-- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).

@@ -110,7 +110,7 @@ function action(host,port)
 
 	-- We close and re-open the socket so that the anonymous bind does not distract us
 	socket:close()
-	status = socket:connect(host.ip, port.number, opt)
+	status = socket:connect(host, port, opt)
 	socket:set_timeout(10000)
 	
 	-- Searching for an empty argument list against LDAP on W2K3 returns all attributes

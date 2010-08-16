@@ -61,7 +61,7 @@ local function connectSocket(host, port, ssl)
 	
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
-	socket:connect(host.ip, port.number, "tcp")
+	socket:connect(host, port)
 
 	-- let's be responsible and avoid sending communication in the clear
 	if ( ssl ) then

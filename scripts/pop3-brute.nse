@@ -90,7 +90,7 @@ action = function(host, port)
 	 elseif (perror == pop3.err.userError) then
 	    currPw = nil
 	 else
-            local socstatus = socket:connect(host.ip, port.number, bopt)
+            local socstatus = socket:connect(host, port, bopt)
 	    if not socstatus 
 	       then return
                else _, line = socket:receive()

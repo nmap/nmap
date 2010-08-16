@@ -109,7 +109,7 @@ action = function(host, port)
 	local fc
 	
 	socket:set_timeout(10000)
-	socket:connect(host.ip, port.number)
+	socket:connect(host, port)
 
 	-- BANNER
 	fc = get_ftp_code(socket)

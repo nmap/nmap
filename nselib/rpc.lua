@@ -157,7 +157,7 @@ Comm = {
 			return status, err
 		end
 		socket = nmap.new_socket()
-		status, err = socket:connect(host.ip, port.number, port.protocol)
+		status, err = socket:connect(host, port)
 		if (not(status)) then
 			return status, string.format("%s connect error: %s", self.program, err)
 		else

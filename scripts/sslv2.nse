@@ -156,7 +156,7 @@ action = function(host, port)
 	table.insert(t, string.char(0x44, 0xc0, 0x3d, 0xc0));
 	ssl_v2_hello = table.concat(t, "")
 
-	socket:connect(host.ip, port.number, "tcp");
+	socket:connect(host, port, "tcp");
 	socket:send(ssl_v2_hello);
 
 	status, server_hello = socket:receive_bytes(2);

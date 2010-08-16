@@ -38,7 +38,7 @@ action = function(host, port)
         end
 
         try = nmap.new_try(catch)
-        try(socket:connect(host.ip, port.number))
+        try(socket:connect(host, port))
 
         -- Sending the network dump of a x11 connection request (captured
         -- from the XOpenDisplay() function):

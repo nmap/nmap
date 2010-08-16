@@ -62,7 +62,7 @@ local function login(host, port, user, pass)
 
 	-- Create a new socket
 	local socket = nmap.new_socket()
-	status, err = socket:connect(host.ip, port.number)
+	status, err = socket:connect(host, port)
 	if(not(status)) then
 		socket:close()
 		return false, "Couldn't connect to host: " .. err

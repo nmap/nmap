@@ -654,7 +654,7 @@ TDSStream = {
 		-- the end of the input buffer. So the only time the timeout is
 		-- triggered is when waiting for a response to a query.
 		self.socket:set_timeout( MSSQL_TIMEOUT * 1000 )
-		status, result = self.socket:connect(host.ip, port.number, port.protocol)		
+		status, result = self.socket:connect(host, port)
 		status, _, lport, _, _ = self.socket:get_info()
 		if ( status ) then
 			math.randomseed(os.time() * lport )

@@ -36,7 +36,7 @@ action = function(host, port)
 	local try = nmap.new_try(err_catch)
 
 	socket:set_timeout(10000)
-	try(socket:connect(host.ip, port.number, port.protocol))
+	try(socket:connect(host, port))
 
 	-- First, try a safe User so that we are sure that everything is ok
 	local payload = "USER opie\r\n"

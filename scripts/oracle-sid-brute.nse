@@ -144,7 +144,7 @@ action = function(host, port)
 		-- check for comments
 		if not sid:match("#!comment:") then
 
-			try(socket:connect(host.ip, port.number))
+			try(socket:connect(host, port))
 			request = create_connect_packet( host.ip, port.number, sid )
 			try(socket:send(request))
 			response = try(socket:receive_bytes(1))

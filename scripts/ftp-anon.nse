@@ -71,7 +71,7 @@ action = function(host, port)
 
 	local try = nmap.new_try(err_catch)
 
-	try(socket:connect(host.ip, port.number, port.protocol))
+	try(socket:connect(host, port))
 	buffer = stdnse.make_buffer(socket, "\r?\n")
 
 	-- Read banner.

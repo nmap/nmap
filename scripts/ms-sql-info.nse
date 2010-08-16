@@ -137,7 +137,7 @@ action = function(host, port)
 	end -- get_real_version(dst, dstPort)
 	
 	-- connect to the potential SQL server
-	try(socket:connect(host.ip, port.number, "udp"))
+	try(socket:connect(host, port))
 	
 	-- send a magic packet
 	-- details here:  http://www.codeproject.com/cs/database/locate_sql_servers.asp

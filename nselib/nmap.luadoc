@@ -632,7 +632,7 @@ function pcap_close()
 -- @return A table as described above.
 -- @usage
 -- local s = nmap.new_socket()
--- local status, error = s:connect(host.ip, port.number, "ssl")
+-- local status, error = s:connect(host, port, "ssl")
 -- if status then
 --     local cert = s:get_ssl_certificate()
 --     local digest = cert:digest("md5")

@@ -624,7 +624,7 @@ local function go(host, port)
 
 	-- Create the UDP socket
 	socket = nmap.new_socket()
-	status, err = socket:connect(host.ip, port.number, "udp")
+	status, err = socket:connect(host, port)
 	if(status == false) then
 		return false, "Couldn't create socket: " .. err
 	end

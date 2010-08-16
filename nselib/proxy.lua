@@ -174,7 +174,7 @@ function connectProxy(host, port, proxyType, hostname)
   local socket = nmap.new_socket()
   socket:set_timeout(10000)
   local try = nmap.new_try(function() socket:close() return false end)
-  try(socket:connect(host.ip, port.number))
+  try(socket:connect(host, port))
   if proxyType == "http" then return socket end
   if proxyType == "socks4" then return socksHandshake(socket, 4, hostname) end
   if proxyType == "socks5" then return socksHandshake(socket, 5, hostname) end
