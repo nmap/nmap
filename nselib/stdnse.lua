@@ -10,6 +10,8 @@ local pairs = pairs
 local ipairs = ipairs
 local tonumber = tonumber;
 local type = type
+local select = select
+local unpack = unpack
 
 local ceil = math.ceil
 local max = math.max
@@ -559,6 +561,49 @@ function format_output(status, data, indent)
 	end
 
 	return result
+end
+
+--- Parses the script arguments passed to the --script-args option.
+--
+-- @usage
+-- --script-args 'script.arg1=value,script.arg3,script-x.arg=value'
+-- local arg1, arg2, arg3 = get_script_args('script.arg1','script.arg2','script.arg3')
+--      => arg1 = value
+--      => arg2 = nil
+--      => arg3 = 1
+--
+-- --script-args 'displayall,unsafe,script-x.arg=value,script-y.arg=value'
+-- local displayall, unsafe = get_script_args('displayall','unsafe')
+--      => displayall = 1
+--      => unsafe     = 1
+--
+-- --script-args 'dns-cache-snoop.mode=timed,dns-cache-snoop.domains={host1,host2}'
+-- local mode, domains = get_script_args('dns-cache-snoop.mode',
+--                                       'dns-cache-snoop.domains')
+--      => mode    = 'timed'
+--      => domains = {host1,host2}
+--
+-- @param Arguments  Script arguments to check.
+-- @return Arguments values.
+function get_script_args (...)
+  local args, args_num = {}, select("#", ...)
+
+  for i = 1, args_num do
+    local option = select(i, ...)
+
+    if nmap.registry.args[option] then
+      args[i] = nmap.registry.args[option]
+    else
+      for _, v in ipairs(nmap.registry.args) do
+        if v == option then
+          args[i] = 1
+        end
+      end
+    end
+
+  end
+
+  return unpack(args, 1, args_num)
 end
 
 --- This function allows you to create worker threads that may perform
