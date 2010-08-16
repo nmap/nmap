@@ -30,7 +30,7 @@ require 'shortport'
 require 'rpc'
 require 'stdnse'
 
-portrule = shortport.port_or_service(0x54321, "wdbrpc", {"udp"} )
+portrule = shortport.port_or_service(17185, "wdbrpc", {"udp"} )
 
 rpc.RPC_version["wdb"] = { min=1, max=1 }
 
