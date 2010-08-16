@@ -652,6 +652,7 @@ static int l_nsock_connect(lua_State * L)
 {
   enum type {TCP, UDP, SSL};
   static const char * const op[] = {"tcp", "udp", "ssl", NULL};
+  const char *default_proto = "tcp";
 
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
   const char *addr, *targetname;
@@ -696,12 +697,18 @@ static int l_nsock_connect(lua_State * L)
       luaL_error(L, "port.number is not numeric");
     port = lua_tointeger(L, -1);
     lua_pop(L, 1);
+
+    lua_getfield(L, 3, "protocol");
+    /* Make this the default if the "proto" argument isn't given. */
+    if (lua_isstring(L, -1))
+      default_proto = lua_tostring(L, -1);
+    lua_pop(L, 1);
   } else {
     port = (unsigned short) luaL_checkint(L, 3);
   }
 
   /* proto argument. */
-  what = luaL_checkoption(L, 4, "tcp", op);
+  what = luaL_checkoption(L, 4, default_proto, op);
 
   const char *error;
   struct addrinfo *dest;

@@ -281,7 +281,7 @@ function condvar(object)
 --   socket:close()
 -- end
 -- try = nmap.new_try(catch)
--- try(socket:connect(host.ip, port.number))
+-- try(socket:connect(host, port))
 -- result = try(socket:receive_lines(1))
 -- try(socket:send(result))
 function new_try(handler)
@@ -329,9 +329,10 @@ function bind(addr, port)
 -- This method puts a socket in a state ready for communication. It takes as
 -- arguments a host descriptor (a host table, IP address, or hostname), a port
 -- descriptor (a port table or number), and optionally a protocol. If given, the
--- protocol must be one of
--- <code>"tcp"</code>, <code>"udp"</code> or <code>"ssl"</code>;
--- <code>"tcp"</code> is the default.
+-- protocol must be one of <code>"tcp"</code>, <code>"udp"</code> or
+-- <code>"ssl"</code>. The default value for the protocol is
+-- <code>port.protocol</code> if <code>port</code> is a port table, otherwise
+-- <code>"tcp"</code>.
 --
 -- If <code>host</code> is a host table, it must contain at least one of the
 -- keys <code>addr</code> or <code>targetname</code>. If <code>targetname</code>
@@ -367,7 +368,7 @@ function bind(addr, port)
 -- @return Error code (if status is false).
 -- @see new_socket
 -- @usage
--- local status, err = socket:connect(host.ip, port, "udp")
+-- local status, err = socket:connect(host, port)
 -- if not status then
 --     return string.format("Can't connect: %s", err)
 -- end
