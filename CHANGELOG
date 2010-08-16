@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The nmap.connect function can now accept host and port tables
+  (like those provided to the action function) in place of a string
+  and a number. The motivation behind this is to easily support Server
+  Name Indication for SSL sockets by reading host.targetname. [David
+  Fifield]
+
 o [NSE] Added wdb-version, which discovers information from a VxWorks
   debug service that is often left open. [Daniel Miller]
 

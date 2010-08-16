@@ -654,9 +654,54 @@ static int l_nsock_connect(lua_State * L)
   static const char * const op[] = {"tcp", "udp", "ssl", NULL};
 
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
-  const char *addr = luaL_checkstring(L, 2);
-  unsigned short port = (unsigned short) luaL_checkint(L, 3);
-  int what = luaL_checkoption(L, 4, "tcp", op);
+  const char *addr, *targetname;
+  unsigned short port;
+  int what;
+
+  addr = NULL;
+  targetname = NULL;
+
+  /* host argument. */
+  if (lua_istable(L, 2)) {
+    const char *ip;
+
+    ip = NULL;
+    targetname = NULL;
+
+    lua_getfield(L, 2, "ip");
+    ip = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    lua_getfield(L, 2, "targetname");
+    targetname = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    if (ip != NULL)
+      addr = ip;
+    else if (targetname != NULL)
+      addr = targetname;
+    else
+      luaL_error(L, "host table does not have a 'ip' or 'targetname' field");
+  } else {
+    addr = luaL_checkstring(L, 2);
+    targetname = addr;
+  }
+
+  /* port argument. */
+  if (lua_istable(L, 3)) {
+    lua_getfield(L, 3, "number");
+    if (lua_isnil(L, -1))
+      luaL_error(L, "port table does not have a 'number' field");
+    else if (!lua_isnumber(L, -1))
+      luaL_error(L, "port.number is not numeric");
+    port = lua_tointeger(L, -1);
+    lua_pop(L, 1);
+  } else {
+    port = (unsigned short) luaL_checkint(L, 3);
+  }
+
+  /* proto argument. */
+  what = luaL_checkoption(L, 4, "tcp", op);
 
   const char *error;
   struct addrinfo *dest;
@@ -697,6 +742,10 @@ static int l_nsock_connect(lua_State * L)
 
     o.SourceSockAddr(&ss, &sslen);
     nsi_set_localaddr(udata->nsiod, &ss, sslen);
+  }
+  if (targetname != NULL) {
+    if (nsi_set_hostname(udata->nsiod, targetname) == -1)
+      fatal("nsi_set_hostname(\"%s\" failed in %s()", targetname, __func__);
   }
   if (o.ipoptionslen)
     nsi_set_ipoptions(udata->nsiod, o.ipoptions, o.ipoptionslen);

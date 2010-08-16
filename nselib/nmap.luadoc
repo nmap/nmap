@@ -327,10 +327,18 @@ function bind(addr, port)
 --- Establishes a connection.
 --
 -- This method puts a socket in a state ready for communication. It takes as
--- arguments a host descriptor (either an IP address or a hostname), a port
--- number and optionally a protocol. The protocol must be one of
--- <code>"tcp"</code>, <code>"udp"</code> or <code>"ssl"</code>; it is
--- <code>"tcp"</code> if not specified.
+-- arguments a host descriptor (a host table, IP address, or hostname), a port
+-- descriptor (a port table or number), and optionally a protocol. If given, the
+-- protocol must be one of
+-- <code>"tcp"</code>, <code>"udp"</code> or <code>"ssl"</code>;
+-- <code>"tcp"</code> is the default.
+--
+-- If <code>host</code> is a host table, it must contain at least one of the
+-- keys <code>addr</code> or <code>targetname</code>. If <code>targetname</code>
+-- is given, it is used to request the correct certificate in SSL connections.
+-- Passing a string instead of a host table acts like <code>host.addr</code> and
+-- <code>host.targetname</code> were set to the same value. If <code>port</code>
+-- is a table, it must contain the <code>number</code> key.
 --
 -- On success the function returns a true value. On failure it returns a false
 -- value (<code>false</code> or <code>nil</code>) and an error string. Those
@@ -351,8 +359,8 @@ function bind(addr, port)
 -- NSE-specific errors:
 -- * <code>"Sorry, you don't have OpenSSL"</code>: The protocol is <code>"ssl"</code> but Nmap was compiled without OpenSSL support.
 -- * <code>"invalid connection method"</code>: The second parameter is not one of <code>"tcp"</code>, <code>"udp"</code>, and <code>"ssl"</code>.
--- @param hostid Hostname or IP address.
--- @param port Port number.
+-- @param host Host table, hostname or IP address.
+-- @param port Port table or number.
 -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
 -- <code>"ssl"</code> (default <code>"tcp"</code>).
 -- @return Status (true or false).
@@ -363,7 +371,7 @@ function bind(addr, port)
 -- if not status then
 --     return string.format("Can't connect: %s", err)
 -- end
-function connect(hostid, port, protocol)
+function connect(host, port, protocol)
 
 --- Reconnect the open (connected) socket with SSL.
 --
