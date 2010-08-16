@@ -80,6 +80,14 @@ o [NSE] In the same way as our -brute scripts limit their runtime by
   Of course there could (probably should) still be options to enable
   more intense qscanning.
 
+o [NSE] We should probably enable broadcast scripts to work better by
+  (initial thoughts):
+  1) Change NSE to always set nsp_setbroadcast() on new sockets
+  2) Change nsock to create real sockets at time of nsi_new so you can
+     bind to them.
+  See this thread (only some of the messages involve broadcast
+  support): http://seclists.org/nmap-dev/2010/q3/357
+
 o [NSE] Maybe we should create a script which checks once a day
   whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
   new modules, and then mails out a list of them with the description
