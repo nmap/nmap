@@ -30,6 +30,11 @@ require 'shortport'
 require 'rpc'
 require 'stdnse'
 
+-- WDB protocol information
+-- http://www-kryo.desy.de/documents/vxWorks/V5.5/tornado-api/wdbpcl/wdb.html
+-- Metasploit scanner module
+-- http://www.metasploit.com/redmine/projects/framework/repository/entry/lib/msf/core/exploit/wdbrpc.rb
+
 portrule = shortport.port_or_service(17185, "wdbrpc", {"udp"} )
 
 rpc.RPC_version["wdb"] = { min=1, max=1 }
