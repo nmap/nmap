@@ -108,12 +108,12 @@ action = function(host, port)
 	lines = {}
 	if logo_versions then
 		lines[#lines + 1] = "Versions from logo query (less accurate): " .. stdnse.strjoin(", ", logo_versions)
-	elseif logo_hash then
+	elseif logo_hash and nmap.verbosity() >= 2 then
 		lines[#lines + 1] = "Logo query returned unknown hash " .. logo_hash
 	end
 	if credits_versions then
 		lines[#lines + 1] = "Versions from credits query (more accurate): " .. stdnse.strjoin(", ", credits_versions)
-	elseif credits_hash then
+	elseif credits_hash and nmap.verbosity() >= 2 then
 		lines[#lines + 1] = "Credits query returned unknown hash " .. credits_hash
 	end
 	if header_name and header_value then
