@@ -16,6 +16,7 @@ http://www.kb.cert.org/vuls/id/362332
 -- @output
 -- 17185/udp open  wdb  Wind DeBug Agent 2.0
 -- | wdb-version:
+-- |   VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332
 -- |   Agent version: 2.0
 -- |   VxWorks version: VxWorks5.4.2
 -- |   Board Support Package: PCD ARM940T REV 1
@@ -180,7 +181,7 @@ action = function(host, port)
 	end
 	nmap.set_port_version(host, port, "hardmatched")
 	local o = {}
-	o.name = "WDB Dump info"
+	table.insert(o, "VULNERABLE: Wind River Systems VxWorks debug service enabled. See http://www.kb.cert.org/vuls/id/362332")
 	if (info.agent_ver) then
 		table.insert(o, "Agent version: " .. info.agent_ver)
 	end
