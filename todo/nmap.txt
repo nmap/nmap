@@ -7,24 +7,16 @@ o [NSE] Review scripts:
      Swende. http://seclists.org/nmap-dev/2010/q2/904
    o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
    o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
-   o http-xst (Eduardo Garcia Melia) -
-     http://seclists.org/nmap-dev/2010/q3/159
    o 15 more from Patrik :).  http://seclists.org/nmap-dev/2010/q3/284
 
-o [Zenmap] script selection interface for deciding which NSE scripts to
-  run.  Ideally it would have a great, intuitive UI, the smarts to
-  know the scripts/categories available, display NSEdoc info, and even
-  know what arguments each can take.
+o [Zenmap] Add a button to select script files from the filesystem. 
 
-o The -g (set source port) option doesn't seem to be working (at least
-  in Fyodor's quick tests) for version detection or connect() scan,
-  and apparently doesn't work for NSE either.  We should fix this
-  where we can, and document the limitation in the refguide where it
-  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
+o [Zenmap] Show help for individual script arguments in the Help pane,
+  not for all arguments at once.
 
-o [NSE] Create NSE scripts to scan for and/or exploit these VXWorks issues:
-  http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html [Ron
-  may be able to do this.  Or others are welcome to take a shot at it.]
+o Process Nmap survey and send out results [Fyodor]
+
+o Make new SecTools.Org site with the 2010 survey results.
 
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
@@ -34,18 +26,6 @@ o Create new default username list: [Ithilgore working on this]
     list like "root", "admin", "administrator", "web", "user", "test",
     and also a general list which we obtain from spidering from
     emails, etc.
-
-o Do a serious analysis if and how we should use the NIST CPE standard
-  (http://cpe.mitre.org/) for OS detection and (maybe in a different
-  phase) version detection results.  One thing to note is that they
-  may not have entries for many vendors we have.  For example, one
-  person told me they couldn't find SonicWall or D-Link in the CPE
-  dictionary.  Here are some
-  discussions threads on adding CPE to Nmap:
-  http://seclists.org/nmap-dev/2008/q4/627 and
-  http://seclists.org/nmap-dev/2010/q2/788.
-  Nessus has described their integration of CPE at
-  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
 
 o [Zenmap] Consider a memory usage audit. This thread includes a claim
   that a 4,094 host scan can take up 800MB+ of memory in Zenmap:
@@ -66,19 +46,6 @@ o Consider implementing a nsock_pcap_close() function or making
   nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
   warns about a socket descriptor left opened (at least in Nping).
   See http://seclists.org/nmap-dev/2010/q3/305.
-
-o [Web] We should see if we can easily put the Insecure chrome around
-  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
-  and http://nmap.org/404).  I think we may have had this working
-  before the move to Linode, so maybe check conf/httpd.conf.syn.
-
-o [NSE] In the same way as our -brute scripts limit their runtime by
-  default, I think qscan should be less intense by default.  For
-  example, perhaps it could run by default on no more than 8 open
-  ports, plus up to 1 closed port.  Right now it does things like
-  running on 65,000+ closed ports and bloats scan time (and output).
-  Of course there could (probably should) still be options to enable
-  more intense qscanning.
 
 o [NSE] We should probably enable broadcast scripts to work better by
   (initial thoughts):
@@ -103,14 +70,6 @@ o Since Libdnet files (such as ltmain.sh) are apparently only used by
   libdnet (they used to be used by shared library NSE C scripts), we
   should move them to the libdnet directory.
 
-o Ncat and Nmap should probably support SSL Server Name Indication
-  (SNI). See this thread: http://seclists.org/nmap-dev/2010/q3/112.
-  We need this to talk to web servers which share one SSL IP and port
-  because we need to ask for the right SSL key.
-
-o Look into implementing security technologies such as DEP and ASLR on
-  Windows: http://seclists.org/nmap-dev/2010/q3/12.
-
 o Upgrade our Windows OpenSSL binaries from version 0.9.8j to the
   newest version (1.0.0a as of Aug 12, 2010).
 
@@ -119,10 +78,6 @@ o [Web] Add a page with the Nmap related videos we do have already
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
    some research on what IPv6 OS detection might require).
-
-o Process Nmap survey and send out results
-
-o Make new SecTools.Org site with the 2010 survey results
 
 o Further brainstorm and consider implementing more prerule/postrule
   scripts:
@@ -160,6 +115,9 @@ o Investigate ways to limit Winpcap privileges so that only
 o Let Nsock log to stdout, so its messages don't get mixed up with the
   output stream when Ncat is run with -vvv.
   http://seclists.org/nmap-dev/2010/q3/113
+
+o [NSE] Script writing contest (something to think about)
+
 
 o [NSE] Consider using .idl files rather than manually coding all the
   MSRPC stuff.  The current idea, if we do this, is to have an
@@ -302,11 +260,14 @@ o We should probably enhance scan stats--maybe we can add a full-scan
   completion time estimate? Some ideas here:
   http://seclists.org/nmap-dev/2010/q1/1007
 
-o [NSE] Consider modifying our brute force scripts to take advantage
-  of the new NSE multiple-thread parallelism features.
- - We've done this with db2-brute, but the DB may have been a
-   bottleneck there, so we should probably do more testing after
-   modifying another script for this sort of parallel cracking.
+o [NSE] Do some benchmarking of our brute.nse.  We should check the
+  performance with different levels of thread parallelism.  Our
+  initial results show that it isn't helping much for vnc-brute or for
+  drda-brute (which is currently using the multi-thread feature
+  directly rather than through brute.nse library).  We should figure
+  out why the threads aren't helping more, and whether there is
+  something we can do to fix it.  It would also be interesting to
+  compare speed with Ncrack for services we have in common.
 
 o We should offer partial results when a host
   timeouts. I (Fyodor) have been against this in the past, but maybe
@@ -571,8 +532,6 @@ o [NSE] Web application fingerprinting script.  Would be great to be
   default/common locations. See also a script that does favicon
   scanning TODO item.
 
-o [NSE] Script writing contest (something to think about)
-
 o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
   (http://blog.tenablesecurity.com/2009/06/enhanced-web-application-attacks-added-to-nessus.html).
@@ -769,6 +728,63 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Consider modifying our brute force scripts to take advantage
+  of the new NSE multiple-thread parallelism features.
+ - We've done this with db2-brute, but the DB may have been a
+   bottleneck there, so we should probably do more testing after
+   modifying another script for this sort of parallel cracking.
+
+o Look into implementing security technologies such as DEP and ASLR on
+  Windows: http://seclists.org/nmap-dev/2010/q3/12.
+
+o Ncat and Nmap should probably support SSL Server Name Indication
+  (SNI). See this thread: http://seclists.org/nmap-dev/2010/q3/112.
+  We need this to talk to web servers which share one SSL IP and port
+  because we need to ask for the right SSL key.
+
+o [NSE] In the same way as our -brute scripts limit their runtime by
+  default, I think qscan should be less intense by default.  For
+  example, perhaps it could run by default on no more than 8 open
+  ports, plus up to 1 closed port.  Right now it does things like
+  running on 65,000+ closed ports and bloats scan time (and output).
+  Of course there could (probably should) still be options to enable
+  more intense qscanning.
+
+o [Web] We should see if we can easily put the Insecure chrome around
+  Apache directory listings and 404 pages (e.g. http://nmap.org/dist/
+  and http://nmap.org/404).  I think we may have had this working
+  before the move to Linode, so maybe check conf/httpd.conf.syn.
+
+o Do a serious analysis if and how we should use the NIST CPE standard
+  (http://cpe.mitre.org/) for OS detection and (maybe in a different
+  phase) version detection results.  One thing to note is that they
+  may not have entries for many vendors we have.  For example, one
+  person told me they couldn't find SonicWall or D-Link in the CPE
+  dictionary.  Here are some
+  discussions threads on adding CPE to Nmap:
+  http://seclists.org/nmap-dev/2008/q4/627 and
+  http://seclists.org/nmap-dev/2010/q2/788.
+  Nessus has described their integration of CPE at
+  http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
+
+o [NSE] Create NSE scripts to scan for and/or exploit these VXWorks issues:
+  http://blog.metasploit.com/2010/08/vxworks-vulnerabilities.html [Ron
+  may be able to do this.  Or others are welcome to take a shot at it.]
+
+o The -g (set source port) option doesn't seem to be working (at least
+  in Fyodor's quick tests) for version detection or connect() scan,
+  and apparently doesn't work for NSE either.  We should fix this
+  where we can, and document the limitation in the refguide where it
+  is impractical. Also see http://seclists.org/nmap-dev/2010/q2/576.
+
+o [Zenmap] script selection interface for deciding which NSE scripts to
+  run.  Ideally it would have a great, intuitive UI, the smarts to
+  know the scripts/categories available, display NSEdoc info, and even
+  know what arguments each can take.
+
+o Review http-xst (Eduardo Garcia Melia) -
+  http://seclists.org/nmap-dev/2010/q3/159
 
 o [NSE] Investigate sslv2.nse falsely reporting SSLv2 as being
   supported.
