@@ -115,7 +115,7 @@
 #define PCAP_OPEN_ERRMSG "Call to pcap_open_live() failed three times. "\
 "There are several possible reasons for this, depending on your operating "\
 "system:\nLINUX: If you are getting Socket type not supported, try "\
-"modprobe af_packet or recompile your kernel with SOCK_PACKET enabled.\n "\
+"modprobe af_packet or recompile your kernel with PACKET enabled.\n "\
  "*BSD:  If you are getting device not configured, you need to recompile "\
  "your kernel with Berkeley Packet Filter support.  If you are getting "\
  "No such file or directory, try creating the device (eg cd /dev; "\
