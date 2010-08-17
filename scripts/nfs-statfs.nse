@@ -31,6 +31,7 @@ author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
+require("stdnse")
 require("shortport")
 require("rpc")
 require("tab")
@@ -143,29 +144,29 @@ local function nfs_filesystem_info(nfs, mount, filesystem)
     status, res = table_fsstat(nfs, mount, res)
     if status then
       for k, v in pairs(res) do
-      	results[k] = v
+        results[k] = v
       end
     end
 
     if nfs_comm.version == 3 then
       status, res = nfsobj:FsInfo(nfs_comm, fhandle)
       if status then
-      	status, res = table_fsinfo(nfs, res)
-      	if status then
-      	  for k, v in pairs(res) do
-      	    results[k] = v
-      	  end
-      	end
+        status, res = table_fsinfo(nfs, res)
+        if status then
+          for k, v in pairs(res) do
+            results[k] = v
+          end
+        end
       end
 
       status, res = nfsobj:PathConf(nfs_comm, fhandle)
       if status then
         status, res = table_pathconf(nfs, res)
-      	if status then
-      	  for k, v in pairs(res) do
-      	    results[k] = v
-      	  end
-      	end
+        if status then
+          for k, v in pairs(res) do
+            results[k] = v
+          end
+        end
       end
 
     end
@@ -187,8 +188,8 @@ action = function(host, port)
   {
     host    = host,
     port    = port,
-    human   = nmap.registry.args['nfs-statfs.human'] or nil,
   }
+  nfs_info.human = stdnse.get_script_args('nfs-statfs.human')
 
   status, mounts = rpc.Helper.ShowMounts( host, port )
   if (not(status)) then
@@ -204,5 +205,5 @@ action = function(host, port)
   end
   table.insert(o, report(nfs_info, fs_info))
   
-  return stdnse.format_output(true, o)	
+  return stdnse.format_output(true, o)
 end

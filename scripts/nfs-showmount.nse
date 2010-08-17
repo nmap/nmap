@@ -26,6 +26,7 @@ author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
+require("stdnse")
 require("shortport")
 require("rpc")
 
@@ -33,21 +34,21 @@ portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 
 action = function(host, port)
 
-	local status, mounts, proto 
-	local result = {}
-	
-	status, mounts = rpc.Helper.ShowMounts( host, port )
+    local status, mounts, proto 
+    local result = {}
+    
+    status, mounts = rpc.Helper.ShowMounts( host, port )
 
-	if not status or mounts == nil then
-                return stdnse.format_output(false, mounts)
-	end
+    if not status or mounts == nil then
+        return stdnse.format_output(false, mounts)
+    end
 
-	for _, v in ipairs( mounts ) do
-		local entry = v.name
-		entry = entry .. " " .. stdnse.strjoin(" ", v)
-		table.insert( result, entry )
-	end	
-	
-	return stdnse.format_output( true, result )
-	
+    for _, v in ipairs( mounts ) do
+        local entry = v.name
+        entry = entry .. " " .. stdnse.strjoin(" ", v)
+        table.insert( result, entry )
+    end
+    
+    return stdnse.format_output( true, result )
+    
 end

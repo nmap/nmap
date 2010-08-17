@@ -28,20 +28,20 @@ portrule = shortport.port_or_service(111, "rpcbind", {"tcp", "udp"} )
 
 action = function(host, port)
 
-	local result = {}
-	local status, rpcinfo = rpc.Helper.RpcInfo( host, port )    
-	
-	if ( not(status) ) then
-		return stdnse.format_output(false, rpcinfo)
-	end
-		
-	for progid, v in pairs(rpcinfo) do
-		for proto, v2 in pairs(v) do
-			table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
-		end
-	end
-	
-	table.sort(result)
-	return stdnse.format_output( true, result )
-	
+    local result = {}
+    local status, rpcinfo = rpc.Helper.RpcInfo( host, port )    
+    
+    if ( not(status) ) then
+        return stdnse.format_output(false, rpcinfo)
+    end
+    
+    for progid, v in pairs(rpcinfo) do
+        for proto, v2 in pairs(v) do
+            table.insert( result, ("%-7d %-10s %5d/%s  %s"):format(progid, stdnse.strjoin(",", v2.version), v2.port, proto, rpc.Util.ProgNumberToName(progid) or "") )
+        end
+    end
+    
+    table.sort(result)
+    return stdnse.format_output( true, result )
+    
 end

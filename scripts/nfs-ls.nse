@@ -80,6 +80,7 @@ author = "Patrik Karlsson, Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
 
+require 'stdnse'
 require 'shortport'
 require 'rpc'
 require 'tab'
@@ -239,12 +240,14 @@ action = function(host, port)
   {
     host      = host,
     port      = port,
-    version   = nmap.registry.args['nfs.version'] or nil,
-    maxfiles  = tonumber(nmap.registry.args['nfs-ls.maxfiles']) or 10,
-    time      = nmap.registry.args['nfs-ls.time'] or "",
-    human     = nmap.registry.args['nfs-ls.human'] or nil,
     --recurs    = tonumber(nmap.registry.args['nfs-ls.recurs']) or 1,
   }
+
+  nfs_info.version, nfs_info.maxfiles, nfs_info.time,
+  nfs_info.human = stdnse.get_script_args('nfs.version',
+                      'nfs-ls.maxfiles','nfs-ls.time','nfs-ls.human')
+
+  nfs_info.maxfiles = tonumber(nfs_info.maxfiles) or 10
 
   if nfs_info.time == "a" or nfs_info.time == "A" then
     nfs_info.time = "atime"
