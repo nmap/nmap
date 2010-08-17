@@ -246,8 +246,13 @@ void gh_perror(const char *fmt, ...) {
 #endif
   
   va_start(ap, fmt);
-  log_vwrite(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, fmt, ap);
+  log_vwrite(LOG_STDERR, fmt, ap);
   va_end(ap);
+  if (o.log_errors) {
+      va_start(ap, fmt);
+      log_vwrite(LOG_NORMAL, fmt, ap);
+      va_end(ap);
+  }
   log_write(o.log_errors? LOG_NORMAL|LOG_STDERR : LOG_STDERR, ": %s (%d)\n",
     strerror_s, error_number);
 
