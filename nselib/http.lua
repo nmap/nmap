@@ -1410,7 +1410,7 @@ end
 -- See RFC 2617, section 1.2. This function returns a table with keys "scheme"
 -- and "params".
 local read_auth_challenge = function(s, pos)
-  local _, pos, scheme, params
+  local _, scheme, params
 
   pos, scheme = read_token(s, pos)
   if not scheme then
@@ -1421,13 +1421,24 @@ local read_auth_challenge = function(s, pos)
   pos = skip_space(s, pos)
   while pos < string.len(s) do
     local name, val
+    local tmp_pos
 
-    pos, name = read_token(s, pos)
-    pos = skip_space(s, pos)
-    if string.sub(s, pos, pos) ~= "=" then
+    -- We need to peek ahead at this point. It's possible that we've hit the
+    -- end of one challenge and the beginning of another. Section 14.33 says
+    -- that the header value can be 1#challenge, in other words several
+    -- challenges separated by commas. Because the auth-params are also
+    -- separated by commas, the only way we can tell is if we find a token not
+    -- followed by an equals sign.
+    tmp_pos = pos
+    tmp_pos, name = read_token(s, tmp_pos)
+    tmp_pos = skip_space(s, tmp_pos)
+    if string.sub(s, tmp_pos, tmp_pos) ~= "=" then
+      -- No equals sign, must be the beginning of another challenge.
       break
     end
-    pos = pos + 1
+    tmp_pos = tmp_pos + 1
+
+    pos = tmp_pos
     pos, val = read_token_or_quoted_string(s, pos)
     if params[name] then
       return nil
