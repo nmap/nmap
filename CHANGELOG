@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added svn-brute, which attempts to perform password guessing against
+  the subversion service. [Patrik]
+
 o [NSE] The nmap.connect function can now accept host and port tables
   (like those provided to the action function) in place of a string
   and a number. The motivation behind this is to easily support Server
