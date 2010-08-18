@@ -48,15 +48,10 @@
  * Things that have NOT been done yet                                        *
  *****************************************************************************/
 
-* [EM] Add echo mode to the man page
-
-* [EM] Do some extensive testing of the Echo mode once it is working
-  to try and flesh out any bugs before merging.
-
-
-/*****************************************************************************
- * ^^^^ Things we should try to finish by end of GSoC (August 16)            *
- *****************************************************************************/
+* Improve IPv6 support. Currently it doesn't work well. The situation should be
+  analyzed in detail because right now Nping has code to send packets at raw
+  transport level (letting the OS craft the IPv6 header), and at raw ethernet
+  level. None of them seems to work well, though.
 
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
   to his tests, better results are obtained when sending UDP probes with a
@@ -70,6 +65,15 @@
   - We should probably set -c 32 when --traceroute is specified,
     unless user specifies their own -c explicitly.
 
+* Investigate about warning on old version of gcc like g++ 4.1.2 20080704
+  (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
+  nice to get rid of them if possible. There are some of them:
+
+    ARPHeader.h:169: warning: ‘class ARPHeader’ has virtual functions but
+      non-virtual destructor
+    RawData.h:99: warning: ‘class RawData’ has virtual functions but
+      non-virtual destructor
+
 * Decide more on rDNS
  - Do we want to rDNS resolve all target IPs?  If so, where should we
    show the name?  At the final report (even when just one host
@@ -78,9 +82,6 @@
    does the IP doesn't reverse resolve) is specified on the command
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
-
-* Improve IPv6 support. We need to test it in many platforms to see how it
-  behaves.
 
 * Try to reduce the size of the internal buffer in the EchoHeader class.
   Currenltly it allocates a big buffer that is able to hold the theoretical
@@ -122,9 +123,6 @@
 >    --unprivileged or --udp-XXXXX (any suggestions?. --udp-sendto() may not
 >    be the best idea because when we use raw sockets we also use sendto() to
 >    transmit the data).
-
-* Test out Nping IPv6 on working IPv6 network (even if just between
-  two machines, or localhost, or with a VMWare guest).
 
 * Support reverse DNS resolution in --traceroute
 
@@ -630,3 +628,9 @@
 [DONE] [EM] Investigate why the echo server does not send NEP_ECHO messages when the
   client sends probes at a very high rate, like in :
   ./nping -c 1000 --rate 1000 --echo-client "pass" --icmp -v echo.nmap.org
+
+[DONE] [EM] Add echo mode to the man page
+
+
+[DONE] [EM] Do some extensive testing of the Echo mode once it is working
+  to try and flesh out any bugs before merging.
