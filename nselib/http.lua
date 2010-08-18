@@ -1431,6 +1431,9 @@ local read_auth_challenge = function(s, pos)
     -- followed by an equals sign.
     tmp_pos = pos
     tmp_pos, name = read_token(s, tmp_pos)
+    if not name then
+      return nil
+    end
     tmp_pos = skip_space(s, tmp_pos)
     if string.sub(s, tmp_pos, tmp_pos) ~= "=" then
       -- No equals sign, must be the beginning of another challenge.
@@ -1440,6 +1443,9 @@ local read_auth_challenge = function(s, pos)
 
     pos = tmp_pos
     pos, val = read_token_or_quoted_string(s, pos)
+    if not val then
+      return nil
+    end
     if params[name] then
       return nil
     end
