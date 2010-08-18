@@ -2,57 +2,49 @@
 -- The brute library is an attempt to create a common framework for performing
 -- password guessing against remote services. 
 --
---
--- Summary
--- -------
 -- The library currently attempts to parallellize the guessing by starting
 -- a number of working threads. The number of threads can be defined using
 -- the brute.threads argument, it defaults to 10.
 --
--- Overview
--- --------
 -- The library contains the following classes:
---
---	 o Account
---		- Implmements a simple account class, that converts account "states"
---		  to common text representation.
---
---	 o Engine
---		- The actual engine doing the brute-forcing 
---
---	 o Error
---		- Class used to return errors back to the engine
---
---   o Options
---		- Stores any options that should be used during brute-forcing
+-- * <code>Account</code>
+-- ** Implements a simple account class, that converts account "states" to common text representation.
+-- * <code>Engine</code>
+-- ** The actual engine doing the brute-forcing .
+-- * <code>Error</code>
+-- ** Class used to return errors back to the engine.
+-- * <code>Options</code>
+-- ** Stores any options that should be used during brute-forcing.
 --
 -- In order to make use of the framework a script needs to implement a Driver 
 -- class. The Driver class is then to be passed as a parameter to the Engine 
 -- constructor, which creates a new instance for each guess. The Driver class 
 -- SHOULD implement the following four methods:
 --
--- - Driver:login = function( self, username, password )
--- - Driver:check = function( self )
--- - Driver:connect = function( self )
--- - Driver:disconnect = function( self )
+-- <code>
+-- Driver:login = function( self, username, password )
+-- Driver:check = function( self )
+-- Driver:connect = function( self )
+-- Driver:disconnect = function( self )
+-- </code>
 --
--- The login method does not need a lot of explanation. The purpose of the
--- check method is to be able to determine whether the script has all the
--- information it needs, before starting the brute force. It's the method
--- where you should check eg. if the correct database or repository URL was
--- specified or not. On success, the check method returns true, on failure
--- it returns false and the brute force engine aborts.
+-- The <code>login</code> method does not need a lot of explanation.
 --
--- The connect method provides the framework with the ability to ensure that
--- the thread can run once it has been dispatched a set of credentials. As
--- the sockets in NSE are limited we want to limit the risk of a thread 
--- blocking, due to insufficient free sockets, AFTER it has aquired a username
--- and password pair.
+-- The purpose of the <code>check</code> method is to be able to determine
+-- whether the script has all the information it needs, before starting the
+-- brute force. It's the method where you should check, e.g., if the correct
+-- database or repository URL was specified or not. On success, the
+-- <code>check</code> method returns true, on failure it returns false and the
+-- brute force engine aborts.
 --
--- Example
--- -------
--- The following sample code illustrates how to implement a sample Driver that 
--- sends each username and password over a socket.
+-- The <code>connect</code> method provides the framework with the ability to
+-- ensure that the thread can run once it has been dispatched a set of
+-- credentials. As the sockets in NSE are limited we want to limit the risk of
+-- a thread blocking, due to insufficient free sockets, after it has aquired a
+-- username and password pair.
+--
+-- The following sample code illustrates how to implement a sample
+-- <code>Driver</code> that sends each username and password over a socket.
 --
 -- <code>
 --   Driver = {
@@ -88,8 +80,8 @@
 --   }
 -- </code>
 --
--- The following sample code illustrates how to pass the Driver off to the
--- brute engine.
+-- The following sample code illustrates how to pass the <code>Driver</code>
+-- off to the brute engine.
 --
 -- <code>
 --   action = function(host, port)
@@ -103,7 +95,7 @@
 -- </code>
 --
 -- For a complete example of a brute implementation consult the 
--- svn-brute.nse or vnc-brute.nse scripts
+-- <code>svn-brute.nse</code> or <code>vnc-brute.nse</code> scripts
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
