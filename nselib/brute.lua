@@ -101,7 +101,6 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 --
 --
--- @args brute.emptypass guess an empty password for each user (default: true)
 -- @args brute.useraspass guess the username as password for each user
 --	     (default: true)
 -- @args brute.unique make sure that each password is only guessed once
@@ -143,7 +142,6 @@ Options = {
 		local o = {}
        	setmetatable(o, self)
         self.__index = self
-		o.empty_password = self.checkBoolArg("brute.emptypass", true)
 		o.user_as_password = self.checkBoolArg("brute.useraspass", true)
 		o.check_unique = self.checkBoolArg("brute.unique", true)
 		o.firstonly = self.checkBoolArg("brute.firstonly", false)
@@ -612,20 +610,6 @@ Engine =
 		local function next_password_username ()
 			local tested_creds = {}
 
-			-- should we check for empty passwords?
-			if ( self.options.empty_password ) then
-				for username in usernames do
-					if ( not(tested_creds[username]) ) then
-						tested_creds[username] = {}
-					end
-					tested_creds[username][""] = true
-					if ( not(self.found_accounts) or not(self.found_accounts[username]) ) then
-						coroutine.yield(username, "")
-					end
-				end
-			end
-			usernames("reset")
-			
 			-- should we check for same password as username
 			if ( self.options.user_as_password ) then
 				for username in usernames do
@@ -673,14 +657,6 @@ Engine =
 			for username in usernames do
 				-- set's up a table to track tested credentials
 				tested_creds[username] = {}
-				
-				-- should we check for empty passwords?
-				if ( self.options.empty_password ) then
-					tested_creds[username][""] = true
-					if ( not(self.found_accounts) or not(self.found_accounts[username]) ) then
-						coroutine.yield(username, "")
-					end
-				end
 				
 				-- should we check for same password as username
 				if ( self.options.user_as_password and not(self.options.passonly) ) then
