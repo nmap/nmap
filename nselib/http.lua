@@ -521,7 +521,6 @@ local function parse_header(header, response)
         pos = pos + 1
       end
       words[#words + 1] = string.sub(header, s, pos - 1)
-      pos = pos + 1
       pos = skip_lws(header, pos)
     end
 
