@@ -411,7 +411,7 @@ Engine =
 					msg = "Trying"
 				end
 			
-				stdnse.print_debug( "%s %s against %s:%d", msg, creds, self.host.ip, self.port.number )
+				stdnse.print_debug(2, "%s %s against %s:%d", msg, creds, self.host.ip, self.port.number )
 				status, response = driver:login( username, password )
 
 				driver:disconnect()
@@ -488,7 +488,7 @@ Engine =
 				interval_start = os.time()
 				local tps = self.counter / ( os.time() - self.starttime )
 				table.insert(self.tps, tps )
-				stdnse.print_debug("threads=%d,tps=%d", self:activeThreads(), tps )
+				stdnse.print_debug(2, "threads=%d,tps=%d", self:activeThreads(), tps )
 			end
 
 			-- if delay was speciefied, do sleep
