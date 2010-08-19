@@ -9,6 +9,7 @@
 -- The library contains the following classes:
 -- * <code>Account</code>
 -- ** Implements a simple account class, that converts account "states" to common text representation.
+-- ** The state can be either of the following: OPEN, LOCKED or DISABLED
 -- * <code>Engine</code>
 -- ** The actual engine doing the brute-forcing .
 -- * <code>Error</code>
@@ -28,7 +29,13 @@
 -- Driver:disconnect = function( self )
 -- </code>
 --
--- The <code>login</code> method does not need a lot of explanation.
+-- The <code>login</code> method does not need a lot of explanation. The login
+-- function should return two parameters. If the login was successful it should
+-- return true and an <code>Account</code>. If the login was a failure it
+-- should return false and an <code>Error</code>. The driver can signal the
+-- Engine to retry a set of credentials by calling the Error objects
+-- <code>setRetry</code> method. It may also signal the Engine to abort all
+-- password guessing by calling the Error objects <code>setAbort</code> method.
 --
 -- The purpose of the <code>check</code> method is to be able to determine
 -- whether the script has all the information it needs, before starting the
@@ -198,6 +205,13 @@ Options = {
 -- The account object which is to be reported back from each driver
 Account =
 {
+	--- Creates a new instance of the Account class
+	--
+	-- @param username containing the user's name
+	-- @param password containing the user's password
+	-- @param state containing the account state and should be one of the
+	--        following <code>OPEN</code>, <code>LOCKED</code>,
+	--        <code>DISABLED</code>.
 	new = function(self, username, password, state)
 		local o = {}
        	setmetatable(o, self)
