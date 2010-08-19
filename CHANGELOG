@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a smallish Lotus Domino rpc library (nrpc.lua) and some Lotus
+  Domino oriented scripts:
+  - domino-enum-users.nse guesses users and attempts to download ID files by
+                          exploiting (CVE-2006-5835).
+  - domino-enum-passwords attempts to download Internet passwords and ID files
+                          from the web server.
+  - domcon-brute performs password guessing against the remote console.
+  - domcon-cmd adds support for running custom remote console commands.
+  [Patrik]
+
 o [NSE] Added an Informix library and three scripts that make use of it:
   - informix-brute uses the brute framework to perform password guessing
   - informix-query add support for running SQL queries against Informix

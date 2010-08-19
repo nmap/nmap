@@ -24,6 +24,10 @@ Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive"
 Entry { filename = "dns-recursion.nse", categories = { "default", "intrusive", } }
 Entry { filename = "dns-service-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "domcon-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
