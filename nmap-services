@@ -5672,7 +5672,7 @@ unknown	9099/tcp	0.000228
 jetdirect	9100/tcp	0.003287	# HP JetDirect card
 jetdirect	9101/tcp	0.000602	# HP JetDirect card
 unknown	9101/udp	0.000330
-jetdirect	9102/tcp	0.002133	# HP JetDirect card
+jetdirect	9102/tcp	0.002133	# HP JetDirect card. Also used (and officially registered for) Bacula File Daemon (an open source backup system)
 jetdirect	9103/tcp	0.000188	# HP JetDirect card
 unknown	9103/udp	0.002313
 jetdirect	9104/tcp	0.000050	# HP JetDirect card
