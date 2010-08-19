@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added an Informix library and three scripts that make use of it:
+  - informix-brute uses the brute framework to perform password guessing
+  - informix-query add support for running SQL queries against Informix
+  - informix-tables lists table- and column-names for a given database
+  [Patrik]
+
 o [NSE] Added two new scripts http-brute.nse and http-form-brute that attempt
   to perform password guessing against web servers and applications. [Patrik]
 
