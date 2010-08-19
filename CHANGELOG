@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added GIOP library and a small script that makes use of it:
+  - giop-info Queries the CORBA naming server for a list of objects
+  [Patrik]
+
 o [NSE] Added a Oracle TNS library and two new scripts that make use of it.
   The scripts are:
   - oracle-brute uses the brute and tns library to perform password guessing
