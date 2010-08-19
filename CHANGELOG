@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added two new scripts http-brute.nse and http-form-brute that attempt
+  to perform password guessing against web servers and applications. [Patrik]
+
 o [NSE] Added svn-brute, which attempts to perform password guessing against
   the subversion service. [Patrik]
 

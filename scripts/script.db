@@ -33,9 +33,11 @@ Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
+Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-form-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
@@ -125,6 +127,7 @@ Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
+Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "auth", "intrusive", } }
