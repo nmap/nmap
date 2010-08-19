@@ -1,9 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a Oracle TNS library and two new scripts that make use of it.
+  The scripts are:
+  - oracle-brute uses the brute and tns library to perform password guessing
+  - oracle-enum-users attempts to determine valid Oracle user names
+  [Patrik]
+
 o [NSE] Added a smallish Lotus Domino rpc library (nrpc.lua) and some Lotus
   Domino oriented scripts:
-  - domino-enum-users.nse guesses users and attempts to download ID files by
-                          exploiting (CVE-2006-5835).
+  - domino-enum-users guesses users and attempts to download ID files by
+                      exploiting (CVE-2006-5835).
   - domino-enum-passwords attempts to download Internet passwords and ID files
                           from the web server.
   - domcon-brute performs password guessing against the remote console.
