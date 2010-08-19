@@ -195,6 +195,8 @@ dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
 AC_SEARCH_LIBS(gethostbyname, nsl)
 
+NDIFFDIR=ndiff
+
 # Do they want Ndiff?
 AC_ARG_WITH(ndiff, AC_HELP_STRING([--without-ndiff], [Skip installation of the Ndiff utility]), [], [with_ndiff=check])
 
@@ -218,10 +220,13 @@ else
   NDIFF_CLEAN=ndiff_clean
   NDIFF_DIST_CLEAN=ndiff_dist_clean
 fi
+AC_SUBST(NDIFFDIR)
 AC_SUBST(BUILDNDIFF)
 AC_SUBST(INSTALLNDIFF)
 AC_SUBST(NDIFF_CLEAN)
 AC_SUBST(NDIFF_DIST_CLEAN)
+
+ZENMAPDIR=zenmap
 
 # Do they want Zenmap?
 AC_ARG_WITH(zenmap, AC_HELP_STRING([--without-zenmap], [Skip installation of the Zenmap graphical frontend]), [], [with_zenmap=check])
@@ -248,11 +253,14 @@ else
   ZENMAP_CLEAN=zenmap_clean
   ZENMAP_DIST_CLEAN=zenmap_dist_clean
 fi
+AC_SUBST(ZENMAPDIR)
 AC_SUBST(BUILDZENMAP)
 AC_SUBST(INSTALLZENMAP)
 AC_SUBST(UNINSTALLZENMAP)
 AC_SUBST(ZENMAP_CLEAN)
 AC_SUBST(ZENMAP_DIST_CLEAN)
+
+NPINGDIR=nping
 
 # Do they want Nping?
 AC_ARG_WITH(nping, AC_HELP_STRING([--without-nping], [Skip installation of the Nping utility]), [], [with_nping=check])
@@ -271,6 +279,7 @@ else
   NPING_DIST_CLEAN=nping_dist_clean
   AC_CONFIG_SUBDIRS(nping)
 fi
+AC_SUBST(NPINGDIR)
 AC_SUBST(BUILDNPING)
 AC_SUBST(INSTALLNPING)
 AC_SUBST(UNINSTALLNPING)
