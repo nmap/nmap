@@ -37,6 +37,28 @@
 -- <code>setRetry</code> method. It may also signal the Engine to abort all
 -- password guessing by calling the Error objects <code>setAbort</code> method.
 --
+-- The following example code demonstrates how the Error object can be used.
+-- 
+-- <code>
+-- 		-- After a number of incorrect attempts VNC blocks us, so we abort
+-- 		if ( not(status) and x:match("Too many authentication failures") ) then
+-- 			local err = brute.Error:new( data )
+--			-- signal the engine to abort
+-- 			err:setAbort( true )
+-- 			return false, err			
+-- 		elseif ( not(status) ) then
+-- 			local err = brute.Error:new( "VNC handshake failed" )
+-- 			-- This might be temporary, signal the engine to retry
+-- 			err:setRetry( true )
+-- 			return false, err
+-- 		end
+-- 		.
+-- 		.
+-- 		.
+-- 		-- Return a simple error, no retry needed
+-- 		return false, brute.Error:new( "Incorrect password" ) 
+-- </code>
+--
 -- The purpose of the <code>check</code> method is to be able to determine
 -- whether the script has all the information it needs, before starting the
 -- brute force. It's the method where you should check, e.g., if the correct
