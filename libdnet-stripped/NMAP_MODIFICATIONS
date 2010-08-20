@@ -566,6 +566,42 @@ Index: src/intf-win32.c
 +		return 0;
 +}
 
+o Added some missing #ifdef AF_LINK guards to enable compiling on
+  Android. http://seclists.org/nmap-dev/2010/q2/1021. [Vlatko Kosturjak]
+
+Index: src/addr.c
+===================================================================
+--- src/addr.c	(revision 19860)
++++ src/addr.c	(working copy)
+@@ -253,7 +253,11 @@
+ # ifdef HAVE_SOCKADDR_SA_LEN
+ 		so->sdl.sdl_len = sizeof(so->sdl);
+ # endif
++# ifdef AF_LINK
+ 		so->sdl.sdl_family = AF_LINK;
++# else
++		so->sdl.sdl_family = AF_UNSPEC;
++# endif
+ 		so->sdl.sdl_alen = ETH_ADDR_LEN;
+ 		memcpy(LLADDR(&so->sdl), &a->addr_eth, ETH_ADDR_LEN);
+ #else
+@@ -300,6 +304,7 @@
+ 	
+ 	switch (sa->sa_family) {
+ #ifdef HAVE_NET_IF_DL_H
++# ifdef AF_LINK
+ 	case AF_LINK:
+ 		if (so->sdl.sdl_alen != ETH_ADDR_LEN) {
+ 			errno = EINVAL;
+@@ -309,6 +314,7 @@
+ 		a->addr_bits = ETH_ADDR_BITS;
+ 		memcpy(&a->addr_eth, LLADDR(&so->sdl), ETH_ADDR_LEN);
+ 		break;
++# endif
+ #endif
+ 	case AF_UNSPEC:
+ 	case ARP_HRD_ETH:	/* XXX- Linux arp(7) */
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 

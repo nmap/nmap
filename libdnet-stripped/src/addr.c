@@ -253,7 +253,11 @@ addr_ntos(const struct addr *a, struct sockaddr *sa)
 # ifdef HAVE_SOCKADDR_SA_LEN
 		so->sdl.sdl_len = sizeof(so->sdl);
 # endif
+# ifdef AF_LINK
 		so->sdl.sdl_family = AF_LINK;
+# else
+		so->sdl.sdl_family = AF_UNSPEC;
+# endif
 		so->sdl.sdl_alen = ETH_ADDR_LEN;
 		memcpy(LLADDR(&so->sdl), &a->addr_eth, ETH_ADDR_LEN);
 #else
@@ -300,6 +304,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 	
 	switch (sa->sa_family) {
 #ifdef HAVE_NET_IF_DL_H
+# ifdef AF_LINK
 	case AF_LINK:
 		if (so->sdl.sdl_alen != ETH_ADDR_LEN) {
 			errno = EINVAL;
@@ -309,6 +314,7 @@ addr_ston(const struct sockaddr *sa, struct addr *a)
 		a->addr_bits = ETH_ADDR_BITS;
 		memcpy(&a->addr_eth, LLADDR(&so->sdl), ETH_ADDR_LEN);
 		break;
+# endif
 #endif
 	case AF_UNSPEC:
 	case ARP_HRD_ETH:	/* XXX- Linux arp(7) */
