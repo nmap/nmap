@@ -213,10 +213,12 @@ void printosscanoutput(Target *currenths);
    service scan (if it was performed) */
 void printserviceinfooutput(Target *currenths);
 
+#ifndef NOLUA
 /* Use this function to report NSE_PRE_SCAN and NSE_POST_SCAN results */
 void printscriptresults(ScriptResults *scriptResults, stype scantype);
 
 void printhostscriptresults(Target *currenths);
+#endif
 
 /* Print a table with traceroute hops. */
 void printtraceroute(Target *currenths);
