@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed references to MD2, as OpenSSL 1.x.x doesn't support it anymore
+  [alexandru]
+
 o [NSE] Added GIOP library and a small script that makes use of it:
   - giop-info Queries the CORBA naming server for a list of objects
   [Patrik]

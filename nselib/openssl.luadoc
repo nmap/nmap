@@ -112,11 +112,6 @@ function rand_bytes(bytes)
 -- @return Pseudorandom string.
 function rand_pseudo_bytes(bytes)
 
---- Returns the MD2 digest of a string.
--- @param message String to digest.
--- @return MD2 digest.
-function md2(message)
-
 --- Returns the MD4 digest of a string.
 -- @param message String to digest.
 -- @return MD4 digest.
