@@ -47,6 +47,10 @@ o Consider implementing a nsock_pcap_close() function or making
   warns about a socket descriptor left opened (at least in Nping).
   See http://seclists.org/nmap-dev/2010/q3/305.
 
+o Do new Nmap release with the stuff merged from SoC students and
+  other new developments.
+  - Need to have our SoC successes writeup for 2010 posted first.
+
 o [NSE] We should probably enable broadcast scripts to work better by
   (initial thoughts):
   1) Change NSE to always set nsp_setbroadcast() on new sockets
@@ -54,6 +58,10 @@ o [NSE] We should probably enable broadcast scripts to work better by
      bind to them.
   See this thread (only some of the messages involve broadcast
   support): http://seclists.org/nmap-dev/2010/q3/357
+
+o Now that NSE has more script phases (prerule, postrule, hostrule,
+  portrule, and versionrule soon to come), the NSEDoc should specify
+  which phases a script belongs to.
 
 o [NSE] Maybe we should create a script which checks once a day
   whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
@@ -117,7 +125,6 @@ o Let Nsock log to stdout, so its messages don't get mixed up with the
   http://seclists.org/nmap-dev/2010/q3/113
 
 o [NSE] Script writing contest (something to think about)
-
 
 o [NSE] Consider using .idl files rather than manually coding all the
   MSRPC stuff.  The current idea, if we do this, is to have an
