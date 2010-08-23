@@ -63,7 +63,7 @@ Driver =
 		return true
 	end,
 	
-	--- Attempts to login to the Oracle server
+	--- Attempts to login to the Informix server
 	--
 	-- @param username string containing the login username
 	-- @param password string containing the login password
@@ -88,12 +88,12 @@ Driver =
 
 	end,
 	
-	--- Disconnects and terminates the Oracle TNS communication
+	--- Disconnects and terminates the Informix communication
 	disconnect = function( self )
 		self.helper:Close()
 	end,
 	
-	--- Perform a connection with the helper, this makes sure that the Oracle
+	--- Perform a connection with the helper, this makes sure that the Informix
 	-- instance is correct.
 	--
 	-- @return status true on success false on failure
