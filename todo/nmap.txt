@@ -1,13 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o [NSE] Review scripts:
-   o New brute, vnc, and svn scripts by Patrik.  This guy is a coding
-     machine :).  http://seclists.org/nmap-dev/2010/q3/111
-   o rmi-dumpregistry by Martin
-     Swende. http://seclists.org/nmap-dev/2010/q2/904
-   o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
    o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
-   o 15 more from Patrik :).  http://seclists.org/nmap-dev/2010/q3/284
 
 o [Zenmap] Add a button to select script files from the filesystem. 
 
@@ -71,8 +65,8 @@ o [NSE] Maybe we should create a script which checks once a day
   falling through the cracks.  Perhaps we would include new NSEs in
   there too, especially if we open it up as a public list.
 
-o [NSE] High speed brute force HTTP authentication.  Possibly POST and
-   GET/HEAD brute force cracking.
+o [NSE] Our http-brute should probably support form POST method rather
+  than just GET because some forms require that.
 
 o Since Libdnet files (such as ltmain.sh) are apparently only used by
   libdnet (they used to be used by shared library NSE C scripts), we
@@ -735,6 +729,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] High speed brute force HTTP authentication.  Possibly POST and
+   GET/HEAD brute force cracking. [done except for form POST, adding
+   separate TODO item for that]
+
+o [NSE] Review scripts:
+   o New brute, vnc, and svn scripts by Patrik.  This guy is a coding
+     machine :).  http://seclists.org/nmap-dev/2010/q3/111
+   o rmi-dumpregistry by Martin
+     Swende. http://seclists.org/nmap-dev/2010/q2/904
+   o path-mtu.nse - http://seclists.org/nmap-dev/2010/q3/222
+   o 15 more from Patrik :).  http://seclists.org/nmap-dev/2010/q3/284
 
 o [NSE] Consider modifying our brute force scripts to take advantage
   of the new NSE multiple-thread parallelism features.
