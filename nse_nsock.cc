@@ -65,11 +65,11 @@ static int l_nsock_set_timeout(lua_State * L);
 
 static int l_nsock_receive_buf(lua_State * L);
 
-static int l_nsock_ncap_open(lua_State * L);
+static int l_nsock_pcap_open(lua_State * L);
 
-static int l_nsock_ncap_close(lua_State * L);
+static int l_nsock_pcap_close(lua_State * L);
 
-static int l_nsock_ncap_register(lua_State * L);
+static int l_nsock_pcap_register(lua_State * L);
 
 static int l_nsock_pcap_receive(lua_State * L);
 
@@ -446,9 +446,9 @@ int luaopen_nsock(lua_State * L)
     {"get_info", l_nsock_get_info},
     {"close", l_nsock_close},
     {"set_timeout", l_nsock_set_timeout},
-    {"pcap_open", l_nsock_ncap_open},
-    {"pcap_close", l_nsock_ncap_close},
-    {"pcap_register", l_nsock_ncap_register},
+    {"pcap_open", l_nsock_pcap_open},
+    {"pcap_close", l_nsock_pcap_close},
+    {"pcap_register", l_nsock_pcap_register},
     {"pcap_receive", l_nsock_pcap_receive},
     {"get_ssl_certificate", l_get_ssl_certificate},
     {"reconnect_ssl", l_nsock_reconnect_ssl},
@@ -1437,7 +1437,7 @@ char *dnet_to_pcap_device_name(const char *device)
  * 4)  callback- callback function, that will create hash string from packet
  * 5)  bpf  - berkeley packet filter, see tcpdump(8)  
  * */
-static int l_nsock_ncap_open(lua_State * L)
+static int l_nsock_pcap_open(lua_State * L)
 {
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
 
@@ -1504,7 +1504,7 @@ static int l_nsock_ncap_open(lua_State * L)
 
 /* (LUA) Close nsock-pcap socket. 
  * */
-static int l_nsock_ncap_close(lua_State * L)
+static int l_nsock_pcap_close(lua_State * L)
 {
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
 
@@ -1620,7 +1620,7 @@ void ncap_request_map_add(char *key, struct ncap_request *nr)
  * 1)  hash  - hash for packet that should be matched. or empty string if you 
  *       want to receive first packet   
  * */
-static int l_nsock_ncap_register(lua_State * L)
+static int l_nsock_pcap_register(lua_State * L)
 {
   l_nsock_udata *udata = (l_nsock_udata *) luaL_checkudata(L, 1, "nsock");
 
