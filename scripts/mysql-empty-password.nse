@@ -28,17 +28,23 @@ portrule = shortport.port_or_service(3306, "mysql")
 action = function( host, port )
 
 	local socket = nmap.new_socket()
-	local catch = function() socket:close()	end
-	local try = nmap.new_try(catch)
-	local result, response = {}, nil
+	local result = {}
 	local users = {"", "root"}
-	
+
 	-- set a reasonable timeout value
 	socket:set_timeout(5000)
 	
 	for _, v in ipairs( users ) do
-		try( socket:connect(host, port) )	
-		response = try( mysql.receiveGreeting( socket ) )
+		local status, response = socket:connect(host, port)
+		if( not(status) ) then return "  \n  ERROR: Failed to connect to mysql server" end
+		
+		status, response = mysql.receiveGreeting( socket )
+		if ( not(status) ) then
+			stdnse.print_debug(3, SCRIPT_NAME)
+			socket:close()
+			return response
+		end
+		
 		status, response = mysql.loginRequest( socket, { authversion = "post41", charset = response.charset }, v, nil, response.salt )	
 		if response.errorcode == 0 then
 			table.insert(result, string.format("%s account has empty password", ( v=="" and "anonymous" or v ) ) )

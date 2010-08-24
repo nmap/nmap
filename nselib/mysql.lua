@@ -9,10 +9,13 @@
 
 module(... or "mysql", package.seeall)
 
--- Version 0.2
+-- Version 0.3
 --
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net> 
 -- Revised 01/23/2010 - v0.2 - added query support, cleanup, documentation
+-- Revised 08/24/2010 - v0.3 - added error handling for recieveGreeting
+--                             fixed a number of incorrect receives and changed
+--                             them to receive_bytes instead.
 
 local HAVE_SSL = false
 
@@ -101,13 +104,25 @@ function receiveGreeting( socket )
 
 	local catch = function() socket:close() stdnse.print_debug("receiveGreeting(): failed")	end	
 	local try = nmap.new_try(catch)
-	local data = try( socket:receive(4) )
+	local data = try( socket:receive_bytes(HEADER_SIZE) )
 	local pos, response, tmp, _
 	
 	pos, response = decodeHeader( data, 1 ) 
-	
-	if response.len > data:len() then
-		stdnse.print_debug( "Missing %d bytes of data, receiving ... ", response.len - data:len() )
+
+	-- do we need to read the remainder
+	if ( #data - HEADER_SIZE < response.len ) then
+		local tmp = try( socket:receive_bytes( response.len - #data + HEADER_SIZE ) )
+		data = data .. tmp
+	end
+				
+	local is_error
+	pos, is_error = bin.unpack( "C", data, pos ) 
+
+	if ( is_error == 0xff ) then
+		pos, response.errorcode = bin.unpack( "S", data, pos )
+		pos, response.errormsg = bin.unpack("A" .. (#data - pos + 1), data, pos )
+
+		return false, response.errormsg
 	end
 	
 	pos, response.proto = bin.unpack( "C", data, pos )
@@ -121,6 +136,7 @@ function receiveGreeting( socket )
 	pos, tmp = bin.unpack( "A12", data, pos )
 	
 	response.salt = response.salt .. tmp
+	response.errorcode = 0
 	
 	return true, response
 	
@@ -217,9 +233,15 @@ function loginRequest( socket, params, username, password, salt )
 	packet = bin.pack( "I", tmp ) .. packet
 	
 	try( socket:send(packet) )
-	packet = try( socket:receive(packet) )
-	
+	packet = try( socket:receive_bytes(HEADER_SIZE) )
 	local pos, response = decodeHeader( packet )
+	
+	-- do we need to read the remainder
+	if ( #packet - HEADER_SIZE < response.len ) then
+		local tmp = try( socket:receive_bytes( response.len - #packet + HEADER_SIZE ) )
+		packet = packet .. tmp
+	end
+	
 	local is_error
 	
 	pos, is_error = bin.unpack( "C", packet, pos ) 
@@ -311,14 +333,14 @@ function decodeQueryResponse( socket )
 	local block_start, block_end
 	local EOF_MARKER = 254
 	
-	data = try( socket:receive(HEADER_SIZE) )
+	data = try( socket:receive_bytes(HEADER_SIZE) )
 	pos, header = decodeHeader( data, pos )
 
 	--
 	-- First, Let's attempt to read the "Result Set Header Packet"
 	--
 	if data:len() < header.len then
-		data = data .. try( socket:receive( header.len - data:len() ) )
+		data = data .. try( socket:receive_bytes( header.len - #data + HEADER_SIZE ) )
 	end
 	
 	rs.header = data:sub( 1, HEADER_SIZE + header.len )
@@ -345,13 +367,13 @@ function decodeQueryResponse( socket )
 		while true do
 				
 			if data:len() - pos < HEADER_SIZE then
-				data = data .. try( socket:receive( HEADER_SIZE - ( data:len() - pos ) ) )			
+				data = data .. try( socket:receive_bytes( HEADER_SIZE - ( data:len() - pos ) ) )			
 			end
 		
 			pos, header = decodeHeader( data, pos )
 	
 			if data:len() - pos < header.len - 1 then
-				data = data .. try( socket:receive( header.len - ( data:len() - pos ) ) )
+				data = data .. try( socket:receive_bytes( header.len - ( data:len() - pos ) ) )
 			end
 						
 			if header.len > 0 then
