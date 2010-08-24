@@ -308,7 +308,13 @@ action = function(host)
 
 	pcap:pcap_open(host.interface, 104, 0, callback, "dst host " .. saddr .. " and (icmp or (" .. proto .. " and src host " .. daddr .. " and src port " .. port .. "))")
 
-	pcap:set_timeout(3000)
+	-- Since we're sending potentially large amounts of data per packet,
+	-- simply bump up the host's calculated timeout value.  Most replies
+	-- should come from routers along the path, fragmentation reassembly
+	-- times isn't an issue and the large amount of data is only travelling
+	-- in one direction; still, we want a response from the target so call
+	-- it 1.5*timeout to play it safer.
+	pcap:set_timeout(1.5 * host.times.timeout * 1000)
 
 	m = searchmtu(1, host.interface_mtu)
 
