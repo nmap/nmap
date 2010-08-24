@@ -995,6 +995,8 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_other;
     }
 
+    dcrn->ifaces[dcrn->numifaces].mtu = entry->intf_mtu;
+
     /* Is the interface up and running? */
     dcrn->ifaces[dcrn->numifaces].device_up = (entry->intf_flags & INTF_FLAG_UP) ? true : false;
 
@@ -1196,6 +1198,27 @@ static struct interface_info *getinterfaces_siocgifconf(int *howmany, char *errs
       devs[count].device_up = 1;
     else
       devs[count].device_up = 0;
+
+#ifdef SIOCGIFMTU
+    memcpy(&tmpifr.ifr_addr, sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
+    rc = ioctl(sd, SIOCGIFMTU, &tmpifr);
+    if (rc < 0) {
+      if(errstr) Snprintf(errstr, errstrlen, "Failed to determine the mtu of %s!", tmpifr.ifr_name);
+      *howmany=-1;
+      return NULL;
+    } else {
+#ifdef ifr_mtu
+      devs[count].mtu = tmpifr.ifr_mtu;
+#else
+      /* Some systems lack ifr_mtu and a common solution (see pcap, dnet and
+       * others) is using ifr_metric instead
+       */
+      devs[count].mtu = tmpifr.ifr_metric;
+#endif
+    }
+#else
+    devs[count].mtu = 0;
+#endif
 
     /* All done with this interface. Increase the count. */
     count++;

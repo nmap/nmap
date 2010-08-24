@@ -336,13 +336,14 @@ int print_iflist(void) {
     if (o.debugging)
       log_write(LOG_STDOUT, "Reason: %s\n", errstr);
   } else {
-    int devcol = 0, shortdevcol = 1, ipcol = 2, typecol = 3, upcol = 4, maccol = 5;
-    Tbl = new NmapOutputTable(numifs + 1, 6);
+    int devcol = 0, shortdevcol = 1, ipcol = 2, typecol = 3, upcol = 4, mtucol = 5, maccol = 6;
+    Tbl = new NmapOutputTable(numifs + 1, 7);
     Tbl->addItem(0, devcol, false, "DEV", 3);
     Tbl->addItem(0, shortdevcol, false, "(SHORT)", 7);
     Tbl->addItem(0, ipcol, false, "IP/MASK", 7);
     Tbl->addItem(0, typecol, false, "TYPE", 4);
     Tbl->addItem(0, upcol, false, "UP", 2);
+    Tbl->addItem(0, mtucol, false, "MTU", 3);
     Tbl->addItem(0, maccol, false, "MAC", 3);
     for (i = 0; i < numifs; i++) {
       Tbl->addItem(i + 1, devcol, false, iflist[i].devfullname);
@@ -366,6 +367,7 @@ int print_iflist(void) {
         Tbl->addItem(i + 1, typecol, false, "other");
       Tbl->addItem(i + 1, upcol, false,
                    (iflist[i].device_up ? "up" : "down"));
+      Tbl->addItemFormatted(i + 1, mtucol, false, "%d", iflist[i].mtu);
     }
     log_write(LOG_PLAIN, "************************INTERFACES************************\n");
     log_write(LOG_PLAIN, "%s\n", Tbl->printableTable(NULL));

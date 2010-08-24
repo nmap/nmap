@@ -132,6 +132,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_setfield(L, -2, "mac_addr_src");
   }
   setsfield(L, -1, "interface", currenths->deviceName());
+  setnfield(L, -1, "interface_mtu", currenths->MTU());
   if ((u32)(currenths->v4host().s_addr))
   {
     struct in_addr adr = currenths->v4host();

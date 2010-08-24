@@ -225,6 +225,9 @@ class Target {
      next_hop has never been set */
   bool nextHop(struct sockaddr_storage *next_hop, size_t *next_hop_len);
 
+  void setMTU(int devmtu);
+  int MTU(void);
+
   /* Sets the interface type to one of: 
      devt_ethernet, devt_loopback, devt_p2p, devt_other
    */
@@ -318,7 +321,8 @@ class Target {
   struct host_timeout_nfo htn;
   devtype interface_type;
   char devname[32];
-	char devfullname[32];
+  char devfullname[32];
+  int mtu;
   /* 0 (OS_NOTPERF) if os detection not performed
    * 1 (OS_PERF) if os detection performed 
    * 2 (OS_PERF_UNREL) if an unreliable os detection has been performed */

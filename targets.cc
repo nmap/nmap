@@ -480,6 +480,7 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
         if (hs->current_batch_sz == 0) /* Because later ones can have different src addy and be cut off group */
           o.decoys[o.decoyturn] = t->v4source();
         t->setDeviceNames(rnfo.ii.devname, rnfo.ii.devfullname);
+        t->setMTU(rnfo.ii.mtu);
         // printf("Target %s %s directly connected, goes through local iface %s, which %s ethernet\n", t->NameIP(), t->directlyConnected()? "IS" : "IS NOT", t->deviceName(), (t->ifType() == devt_ethernet)? "IS" : "IS NOT");
       }
 

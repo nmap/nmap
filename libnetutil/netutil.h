@@ -228,6 +228,7 @@ struct interface_info {
   u16 netmask_bits; /* CIDR-style.  So 24 means class C (255.255.255.0)*/
   devtype device_type; /* devt_ethernet, devt_loopback, devt_p2p, devt_other */
   int device_up; /* True if the device is up (enabled) */
+  int mtu; /* Interface's MTU size */
   u8 mac[6]; /* Interface MAC address if device_type is devt_ethernet */
 };
 

@@ -1514,6 +1514,15 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
+	    <term><option>host.interface_mtu</option>
+	      </term>
+	    <listitem>
+	      <para>The MTU (maximum transmission unit) for <literal>host.interface</literal>,
+		or 0 if not known.
+		  </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry>
 	    <term><option>host.bin_ip</option>
 	      </term>
 	    <listitem>

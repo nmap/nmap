@@ -133,8 +133,9 @@ void Target::Initialize() {
   htn.toclock_running = false;
   htn.host_start = htn.host_end = 0;
   interface_type = devt_other;
-	devname[0] = '\0';
-	devfullname[0] = '\0';
+  devname[0] = '\0';
+  devfullname[0] = '\0';
+  mtu = 0;
   state_reason_init(&reason);
   memset(&pingprobe, 0, sizeof(pingprobe));
   pingprobe_state = PORT_UNKNOWN;
@@ -378,6 +379,15 @@ void Target::setNextHop(struct sockaddr_storage *next_hop, size_t next_hop_len) 
   nexthopsocklen = next_hop_len;
 }
 
+/* Set MTU (to correspond with devname) */
+void Target::setMTU(int devmtu) {
+  mtu = devmtu;
+}
+
+/* Get MTU (to correspond with devname) */
+int Target::MTU(void) {
+  return mtu;
+}
 
   /* Starts the timeout clock for the host running (e.g. you are
      beginning a scan).  If you do not have the current time handy,
