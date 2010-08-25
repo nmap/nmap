@@ -117,7 +117,7 @@ local function get_info_registry(host)
 
 	-- Processor information
 	result['status-number_of_processors'], result['number_of_processors']   = reg_get_value(smbstate, openhklm_result['handle'], "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", "NUMBER_OF_PROCESSORS")
-	if(status == false) then
+	if(result['status-number_of_processors'] == false) then
 		result['number_of_processors'] = 0
 	end
 	result['status-os'], result['os']                                         = reg_get_value(smbstate, openhklm_result['handle'], "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment", "OS")
