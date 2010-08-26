@@ -154,23 +154,6 @@ void set_hostinfo(lua_State *L, Target *currenths) {
 
   FingerPrintResults *FPR = currenths->FPR;
 
-  /* add distance (in hops) if traceroute has been performed */
-  if (currenths->traceroute_hops.size() > 0) {
-    int i;
-    std::list<TracerouteHop>::iterator it;
-
-    lua_newtable(L);
-
-    for (i=0, it=currenths->traceroute_hops.begin(); 
-        it!=currenths->traceroute_hops.end(); i++, it++) {
-
-      lua_pushstring(L, inet_ntop_ez(&(*it).addr, sizeof((*it).addr)));
-      lua_rawseti(L, -2, i+1);
-    }
-    lua_setfield(L, -2, "traceroute");
-  }
-  
-
   /* if there has been an os scan which returned a pretty certain
    * result, we will use it in the scripts
    * matches which aren't perfect are not needed in the scripts
