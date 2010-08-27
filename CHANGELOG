@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made the ftp-anon script return a directory listing when
+  anonymous login is allowed. [Gutek, David]
+
 o [NSE] Added the nmap.resolve() function which takes a host name and
   optionally an address family (such as "inet") and returns a table
   containing all of its matching addresses.  If no address family is
