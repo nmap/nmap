@@ -1,8 +1,5 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added the firewalk script, which maps firewall rules in a way
-  similar to the firewalk tool. [Henri Doreau]
-
 o [NSE] Made the ftp-anon script return a directory listing when
   anonymous login is allowed. [Gutek, David]
 
