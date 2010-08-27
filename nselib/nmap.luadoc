@@ -37,6 +37,28 @@ function verbosity()
 -- @return True if Nmap is running privileged, false otherwise.
 function is_privileged()
 
+--- Resolves the specified host name using the optional address family and
+-- returns a table containing all of the matching addresses.
+--
+-- If no address family is given, resolve() will return all addresses for the
+-- name.
+--
+-- @param host Host name to resolve
+-- @param family Address family string (such as "inet") to specify the type
+-- of addresses returned
+-- @see address_family
+-- @return Table containing addresses resolved from the host name
+-- @usage local t = nmap.resolve("www.kame.net", nmap.address_family())
+function resolve(host, family)
+
+--- Returns the address family Nmap is using.
+--
+-- For example, if Nmap is run with the -6 option, then "inet6" is returned.
+--
+-- @return The address family as a string ("inet" or "inet6")
+-- @usage local family = nmap.address_family()
+function address_family()
+
 --- Searches for the specified file and returns a string containing its path if
 -- it is found and readable (to the process).
 --

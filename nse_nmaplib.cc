@@ -676,6 +676,59 @@ static int l_is_privileged(lua_State *L)
   return 1;
 }
 
+/* Takes a host and optional address family and returns a table of
+ * addresses
+ */
+static int l_resolve(lua_State *L)
+{
+  static const char *fam_op[] = { "inet", "inet6", "unspec", NULL };
+  static const int fams[] = { AF_INET, AF_INET6, AF_UNSPEC };
+  struct sockaddr_storage ss;
+  struct addrinfo *addr, *addrs;
+  int i;
+  char *host;
+  int af = fams[luaL_checkoption(L, 2, "unspec", fam_op)];
+
+  if (!lua_isstring(L, 1))
+    luaL_error(L, "Host to resolve must be a string");
+  host = (char *) lua_tostring(L, 1);
+
+  addrs = resolve_all(host, af);
+
+  if (!addrs) {
+    lua_pushboolean(L, false);
+    lua_pushstring(L, "Failed to resolve");
+    return 2;
+  }
+
+  lua_pushboolean(L, true);
+
+  lua_newtable(L);
+
+  for (addr = addrs, i = 1; addr != NULL; addr = addr->ai_next) {
+    if (af != AF_UNSPEC && addr->ai_family != af)
+      continue;
+    if (addr->ai_addrlen > sizeof(ss))
+      continue;
+    memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
+    lua_pushstring(L, inet_socktop(&ss));
+    lua_rawseti(L, -2, i++);
+  }
+
+  freeaddrinfo(addrs);
+
+  return 2;
+}
+
+static int l_address_family(lua_State *L)
+{
+  if (o.af() == AF_INET)
+    lua_pushstring(L, "inet");
+  else
+    lua_pushstring(L, "inet6");
+  return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_reg nmaplib [] = {
@@ -698,6 +751,8 @@ int luaopen_nmap (lua_State *L)
     {"timing_level", l_get_timing_level},
     {"get_dns_servers", l_get_dns_servers},
     {"is_privileged", l_is_privileged},
+    {"resolve", l_resolve},
+    {"address_family", l_address_family},
     {NULL, NULL}
   };
 

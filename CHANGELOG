@@ -1,5 +1,14 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the nmap.resolve() function which takes a host name and
+  optionally an address family (such as "inet") and returns a table
+  containing all of its matching addresses.  If no address family is
+  specified, then all of the addresses are returned for the name. [Kris]
+
+o [NSE] Added the nmap.address_family() function which returns the address
+  family Nmap is using as a string (e.g., "inet6" is returned if Nmap is
+  called with the -6 option). [Kris]
+
 o [NSE] Added the path-mtu script to perform Path MTU Discovery to the
   target host using TCP or UDP. The script tries to conserve bandwidth and
   time by starting with the outgoing interface's MTU and properly handling
