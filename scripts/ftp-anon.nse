@@ -8,7 +8,8 @@ and highlights writeable files.
 ---
 -- @args ftp-anon.maxlist The maximum number of files to return in the
 -- directory listing. By default it is 20, or unlimited if verbosity is
--- enabled. Use a negative number to disable the limit.
+-- enabled. Use a negative number to disable the limit, or
+-- <code>0</code> to disable the listing entirely.
 --
 -- @output
 -- PORT   STATE SERVICE
