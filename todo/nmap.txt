@@ -206,7 +206,8 @@ o Consider an update feed system for Nmap which let's people obtain
     separate branch for each release that gets updated version/OS
     databases and scripts.
   o Another approach is a special feed system as is used by Nessus and
-    OpenVAS.  I haven't looked in detail at how those work.
+    OpenVAS.  OpenVAS uses a script wrapper around rsync, or an HTTP
+    download if that fails.
 
 o The latest IANA services file
   (http://www.iana.org/assignments/port-numbers) has many identified
