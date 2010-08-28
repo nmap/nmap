@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Host tables now have a host.traceroute member when --traceroute
+  is used. This array contains the IP address, reverse DNS name, and RTT
+  for each traceroute hop. [Henri Doreau]
+
 o [NSE] Made the ftp-anon script return a directory listing when
   anonymous login is allowed. [Gutek, David]
 

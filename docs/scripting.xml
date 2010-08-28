@@ -1552,6 +1552,21 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	  </varlistentry>
 
 	  <varlistentry>
+	    <term><option>host.traceroute</option>
+	      </term>
+	    <listitem>
+	      <para>
+                This is an array of traceroute hops, present when the
+                <option>--traceroute</option> option was used. Each entry is a
+                host table with fields <literal>name</literal>,
+                <literal>ip</literal> and <literal>times.srtt</literal> (round
+                trip time). The TTL for an entry is implicit given its position
+                in the table. An empty table represents a timed-out hop.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+
+	  <varlistentry>
 	    <term><option>port</option>
 	      </term>
 	    <listitem>
