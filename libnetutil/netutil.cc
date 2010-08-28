@@ -1310,7 +1310,7 @@ int devname2ipaddr(char *dev, struct in_addr *addr) {
 /* Looks for an interface with the given name (iname), and returns the
    corresponding interface_info if found.  Will accept a match of
    devname or devfullname.  Returns NULL if none found */
-struct interface_info *getInterfaceByName(char *iname) {
+struct interface_info *getInterfaceByName(const char *iname) {
   struct interface_info *ifaces;
   int numifaces = 0;
   int ifnum;
