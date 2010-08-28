@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the firewalk script, which tries to find whether a
+  firewall blocks or forwards ports like the firewall tool does. [Henri
+  Doreau]
+
 o [NSE] Host tables now have a host.traceroute member when --traceroute
   is used. This array contains the IP address, reverse DNS name, and RTT
   for each traceroute hop. [Henri Doreau]
