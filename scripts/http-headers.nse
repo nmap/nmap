@@ -46,7 +46,7 @@ action = function(host, port)
 	-- Check if the user didn't want HEAD to be used
 	if(nmap.registry.args.useget == nil) then
 		-- Try using HEAD first
-		status, result = http.can_use_head(host, port, path)
+		status, result = http.can_use_head(host, port, nil, path)
 	end
 
 	-- If head failed, try using GET
