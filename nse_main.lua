@@ -892,6 +892,14 @@ for i, script in ipairs(chosen_scripts) do
   print_debug(2, "Loaded '%s'.", script.filename);
 end
 
+-- Insert new created threads in the threads table
+local function insert_threads(threads, runlevels, new_thread)
+  local runlevel = new_thread.runlevel;
+  if threads[runlevel] == nil then insert(runlevels, runlevel); end
+  threads[runlevel] = threads[runlevel] or {};
+  insert(threads[runlevel], new_thread);
+end
+
 -- main(hosts)
 -- This is the main function we return to NSE (on the C side), nse_main.cc
 -- gets this function by loading and executing nse_main.lua. This
@@ -937,10 +945,7 @@ return function (hosts, scantype)
     for i, script in ipairs(chosen_scripts) do
       local thread = script:new_thread("prerule");
       if thread then
-        local runlevel = thread.runlevel;
-        if threads[runlevel] == nil then insert(runlevels, runlevel); end
-        threads[runlevel] = threads[runlevel] or {};
-        insert(threads[runlevel], thread);
+        insert_threads(threads, runlevels, thread);
         thread.args = {n = 0};
       end
     end
@@ -957,10 +962,7 @@ return function (hosts, scantype)
       for i, script in ipairs(chosen_scripts) do
         local thread = script:new_thread("hostrule", tcopy(host));
         if thread then
-          local runlevel = thread.runlevel;
-          if threads[runlevel] == nil then insert(runlevels, runlevel); end
-          threads[runlevel] = threads[runlevel] or {};
-          insert(threads[runlevel], thread);
+          insert_threads(threads, runlevels, thread);
           thread.args, thread.host = {n = 1, tcopy(host)}, host;
         end
       end
@@ -969,10 +971,7 @@ return function (hosts, scantype)
         for i, script in ipairs(chosen_scripts) do
           local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
           if thread then
-            local runlevel = thread.runlevel;
-            if threads[runlevel] == nil then insert(runlevels, runlevel); end
-            threads[runlevel] = threads[runlevel] or {};
-            insert(threads[runlevel], thread);
+            insert_threads(threads, runlevels, thread);
             thread.args, thread.host, thread.port =
                 {n = 2, tcopy(host), tcopy(port)}, host, port;
           end
@@ -985,10 +984,7 @@ return function (hosts, scantype)
     for i, script in ipairs(chosen_scripts) do
       local thread = script:new_thread("postrule");
       if thread then
-        local runlevel = thread.runlevel;
-        if threads[runlevel] == nil then insert(runlevels, runlevel); end
-        threads[runlevel] = threads[runlevel] or {};
-        insert(threads[runlevel], thread);
+        insert_threads(threads, runlevels, thread);
         thread.args = {n = 0};
       end
     end
