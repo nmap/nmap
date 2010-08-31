@@ -1,21 +1,21 @@
 description = [[
-Try to discover firewall rules by using IP TTL expiration technique (method
-also known as firewalking").
+Try to discover firewall rules with an IP TTL expiration technique known
+as "firewalking".
 
 The scan requires a firewall (or "gateway") and a metric (or "target").
-
 For each filtered port on the target, send a probe with an IP TTL one greater
-than the number of hops to the gateway. The TTL can be supplied directly or
-retrieved by the script from traceroute results. In this second case, the
-script requires both the gateway IP address and the Nmap --traceroute flag.
+than the number of hops to the gateway. The TTL can be given in two ways:
+directly with the <code>firewalk.ttl</code> script argument, or indirectly with
+the <code>firewalk.gateway</code> script argument. For
+<code>firewalk.gateway</code>, Nmap must be run with the
+<code>--traceroute</code> option and the gateway must appear as one of the
+traceroute hops.
 
 If the probe is forwarded by the gateway, then we can expect to receive an
 ICMP_TIME_EXCEEDED reply from the gateway next hop router, or eventually the
 target if it is directly connected to the gateway. Otherwise, the probe will
-timeout.
-
-As for UDP scans, this process can be quite slow if lots of ports are blocked
-by the gateway.
+timeout.  As for UDP scans, this process can be quite slow if lots of ports are
+blocked by the gateway.
 
 From an original idea of M. Schiffman and D. Goldsmith, authors of the
 firewalk tool.
