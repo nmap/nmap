@@ -87,7 +87,10 @@ action = function(host, port)
 	try(socket:connect(host, port))
 	
 	status, tcp = snmp.snmpWalk( socket, tcp_oid )
+	if ( not(status) ) then return end
+
 	status, udp = snmp.snmpWalk( socket, udp_oid )
+	if ( not(status) ) then return end
 	socket:close()
 	
 	if ( tcp == nil ) or ( #tcp == 0 ) or ( udp==nil ) or ( #udp == 0 ) then
