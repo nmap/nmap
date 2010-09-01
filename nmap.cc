@@ -445,6 +445,8 @@ int nmap_main(int argc, char *argv[]) {
 #ifndef NOLUA
   /* Pre-Scan and Post-Scan script results datastructure */
   ScriptResults *script_scan_results = NULL;
+  /* Only NSE scripts can add targets */
+  NewTargets *new_targets = NULL;
 #endif
   TargetGroup *exclude_group = NULL;
   char myname[MAXHOSTNAMELEN + 1];
@@ -1608,6 +1610,7 @@ int nmap_main(int argc, char *argv[]) {
     open_nse();
 
   if (o.script) {
+    new_targets = NewTargets::get();
     script_scan_results = get_script_scan_results_obj();
     script_scan(Targets, SCRIPT_PRE_SCAN);
     printscriptresults(script_scan_results, SCRIPT_PRE_SCAN);
@@ -1642,6 +1645,23 @@ int nmap_main(int argc, char *argv[]) {
             // For purposes of random scan
             host_exp_group[num_host_exp_groups++] = strdup(host_spec);
         }
+#ifndef NOLUA
+        /* Add the new NSE discovered targets to the scan queue */
+        if (o.script) {
+          if (new_targets != NULL) {
+            while (new_targets->get_queued() > 0 && num_host_exp_groups < o.ping_group_sz) {
+              std::string target_spec = new_targets->read();
+              if (target_spec.length())
+                host_exp_group[num_host_exp_groups++] = strdup(target_spec.c_str());
+            }
+
+            if (o.debugging > 3)
+              log_write(LOG_PLAIN,
+                  "New targets in the scanned cache: %ld, pending ones: %ld.\n",
+                  new_targets->get_scanned(), new_targets->get_queued());
+          }
+        }
+#endif
         if (num_host_exp_groups == 0)
           break;
         delete hstate;
@@ -1876,12 +1896,14 @@ int nmap_main(int argc, char *argv[]) {
     }
     o.numhosts_scanning = 0;
   } while(!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned);
-  
+
 #ifndef NOLUA
   if (o.script) {
     script_scan(Targets, SCRIPT_POST_SCAN);
     printscriptresults(script_scan_results, SCRIPT_POST_SCAN);
     script_scan_results->clear();
+    delete new_targets;
+    new_targets = NULL;
   }
 #endif
 

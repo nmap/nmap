@@ -10,6 +10,7 @@ extern "C" {
 #include "nmap_error.h"
 #include "NmapOps.h"
 #include "Target.h"
+#include "TargetGroup.h"
 #include "portlist.h"
 #include "service_scan.h"
 #include "nmap_rpc.h"
@@ -681,6 +682,58 @@ static int l_get_timing_level (lua_State *L)
   return 1;
 }
 
+/* Save new discovered targets.
+ *
+ * This function can take a Vararg expression:
+ *  A vararg expression that represents targets (IPs or Hostnames).
+ *
+ * Returns two values if it receives target arguments:
+ *   The number of targets that were added, or 0 on failures.
+ *   An error message on failures.
+ *
+ * If this function was called without an argument then it
+ * will simply return the number of pending targets that are
+ * in the queue (waiting to be passed to Nmap).
+ * 
+ * If the function was only able to add a one target, then we
+ * consider this success. */
+static int l_add_targets (lua_State *L)
+{
+  int n;
+  unsigned long ntarget = 0;
+
+  if (lua_gettop(L) > 0) {
+    for (n = 1; n <= lua_gettop(L); n++) {
+      if (!NewTargets::insert(luaL_checkstring(L, n)))
+        break;
+      ntarget++;
+    }
+    /* was able to add some targets */
+    if (ntarget) {
+      lua_pushnumber(L, ntarget);
+      return 1;
+    /* errors */
+    } else {
+      lua_pushnumber(L, ntarget);
+      lua_pushstring(L,
+          "Error: failed to add targets, post-scanning phase or no resources.");
+      return 2;
+    }
+  } else {
+      /* function called without arguments */ 
+      /* push the number of pending targets that are in the queue */
+      lua_pushnumber(L, NewTargets::insert(""));
+      return 1;
+  }
+}
+
+/* Return the number of added targets */
+static int l_get_new_targets_num (lua_State *L)
+{
+  lua_pushnumber(L, NewTargets::get_number());
+  return 1;
+}
+
 // returns a table with DNS servers known to nmap
 static int l_get_dns_servers (lua_State *L)
 {
@@ -775,6 +828,8 @@ int luaopen_nmap (lua_State *L)
     {"have_ssl", l_get_have_ssl},
     {"fetchfile", l_fetchfile},
     {"timing_level", l_get_timing_level},
+    {"add_targets", l_add_targets},
+    {"new_targets_num",l_get_new_targets_num},
     {"get_dns_servers", l_get_dns_servers},
     {"is_privileged", l_is_privileged},
     {"resolve", l_resolve},

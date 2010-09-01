@@ -96,6 +96,8 @@
 #define TARGETGROUP_H
 
 #include <list>
+#include <queue>
+#include <set>
 #include <string>
 
 #include "nmap.h"
@@ -171,6 +173,52 @@ class TargetGroup {
   // is the current target expression a named host
   int namedhost;
 };
+
+/* Adding new targets is for NSE scripts */
+#ifndef NOLUA
+class NewTargets {
+ public:
+  NewTargets();
+
+  /* return a previous inserted target */
+  static std::string read (void);
+
+  /* clear the scanned_targets_cache */
+  static void clear (void);
+
+  /* get the number of all new added targets */
+  static unsigned long get_number (void);
+
+  /* get the number that have been scanned */
+  static unsigned long get_scanned (void);
+
+  /* get the number of queued targets left to scan */
+  static unsigned long get_queued (void);
+
+  /* get the new_targets object */
+  static NewTargets *get (void);
+
+  /* insert targets to the new_targets_queue */
+  static unsigned long insert (const char *target);
+ private:
+  /* unsigned long mex_new_targets; */
+
+  /* A queue to push new targets that were discovered by NSE scripts.
+   * Nmap will pop future targets from this queue. */
+  std::queue<std::string> queue;
+
+  /* A cache to save scanned targets specifiactions.
+   * (These are targets that were pushed to Nmap scan queue) */
+  std::set<std::string> history;
+
+  void Initialize();
+
+  /* Save new targets onto the queue */
+  unsigned long push (const char *target);
+ protected:
+  static NewTargets *new_targets;
+};
+#endif
 
 class HostGroupState {
  public:

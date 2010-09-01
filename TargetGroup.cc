@@ -96,8 +96,13 @@
 #include "TargetGroup.h"
 #include "NmapOps.h"
 #include "nmap_error.h"
+#include "global_structures.h"
 
 extern NmapOps o;
+
+#ifndef NOLUA
+NewTargets *NewTargets::new_targets;
+#endif
 
 TargetGroup::TargetGroup() {
   Initialize();
@@ -561,6 +566,97 @@ const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void)
 {
   return resolvedaddrs;
 }
+
+#ifndef NOLUA
+NewTargets *NewTargets::get (void) {
+  if (new_targets)
+    return new_targets;
+  new_targets = new NewTargets();
+  return new_targets;
+}
+
+NewTargets::NewTargets (void) {
+  Initialize();
+}
+
+void NewTargets::Initialize (void) {
+  history.clear();
+  while(!queue.empty())
+    queue.pop();
+}
+
+/* This private method is used to push new targets to the
+ * queue. It returns the number of targets in the queue. */
+unsigned long NewTargets::push (const char *target) {
+  std::pair<std::set<std::string>::iterator, bool> pair_iter;
+  std::string tg(target);
+
+  if (tg.length() > 0) {
+    /* save targets in the scanned history here (NSE side). */
+    pair_iter = history.insert(tg);
+
+    /* A new target */
+    if (pair_iter.second == true) {
+      /* push target onto the queue for future scans */
+      queue.push(tg);
+
+      if (o.debugging > 3)
+        log_write(LOG_PLAIN, "New target %s pushed onto the queue.\n", tg.c_str());
+    }
+  }
+
+  return queue.size();
+}
+
+/* Reads a target from the queue and return it to be pushed
+ * onto Nmap scan queue */
+std::string NewTargets::read (void) {
+  std::string str;
+
+  /* check to see it there are targets in the queue */
+  if (!new_targets->queue.empty()) {
+    str = new_targets->queue.front();
+    new_targets->queue.pop();
+  }
+
+  return str;
+}
+
+void NewTargets::clear (void) {
+  new_targets->history.clear();
+}
+
+unsigned long NewTargets::get_number (void) {
+  return new_targets->history.size();
+}
+
+unsigned long NewTargets::get_scanned (void) {
+  return new_targets->history.size() - new_targets->queue.size();
+}
+
+unsigned long NewTargets::get_queued (void) {
+  return new_targets->queue.size();
+}
+
+/* This is the function that is used by nse_nmaplib.cc to add
+ * new targets.
+ * Returns the number of targets in the queue on success, or 0 on
+ * failures or when the queue is empty. */
+unsigned long NewTargets::insert (const char *target) {
+  if (*target) {
+    if (new_targets == NULL) {
+      error("Error: to add targets run with -sC or --script options.");
+      return 0;
+    }
+    if (o.current_scantype == SCRIPT_POST_SCAN) {
+      error("Error: adding targets is disabled in the Post-scanning phase.");
+      return 0;
+    }
+  }
+
+  return new_targets->push(target);
+}
+#endif
 
 /* Lookahead is the number of hosts that can be
    checked (such as ping scanned) in advance.  Randomize causes each
