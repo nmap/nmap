@@ -83,16 +83,16 @@ add = function (...)
   -- Force the check here, but it would be better if scripts
   -- check ALLOW_NEW_TARGETS before calling target.add()
   if not ALLOW_NEW_TARGETS then
-    stdnse.print_debug(3,
-        "Error: to add targets run with --script-args 'newtargets'")
-    return false, "Error: to add targets run with --script-args 'newtargets'"
+    stdnse.print_debug(1,
+        "ERROR: to add targets run with --script-args 'newtargets'")
+    return false, "to add targets run with --script-args 'newtargets'"
   end
 
   local new_targets = {count = select("#", ...), ...}
 
   -- function called without arguments
   if new_targets.count == 0 then
-  	return true, nmap.add_targets()
+    return true, nmap.add_targets()
   end
 
   new_targets.count = calc_max_targets(new_targets.count)
@@ -100,7 +100,7 @@ add = function (...)
   if new_targets.count == 0 then
     stdnse.print_debug(3,
         "Warning: Maximum new targets reached, no more new targets.")
-    return false, "Warning: Maximum new targets reached, no more new targets."
+    return false, "Maximum new targets reached, no more new targets."
   end
 
   local hosts, err = nmap.add_targets(unpack(new_targets,1,new_targets.count))

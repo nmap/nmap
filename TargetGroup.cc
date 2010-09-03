@@ -568,6 +568,7 @@ const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void)
 }
 
 #ifndef NOLUA
+/* debug level for the adding target is: 3 */
 NewTargets *NewTargets::get (void) {
   if (new_targets)
     return new_targets;
@@ -600,8 +601,11 @@ unsigned long NewTargets::push (const char *target) {
       /* push target onto the queue for future scans */
       queue.push(tg);
 
-      if (o.debugging > 3)
+      if (o.debugging > 2)
         log_write(LOG_PLAIN, "New target %s pushed onto the queue.\n", tg.c_str());
+    } else {
+      if (o.debugging > 2)
+        log_write(LOG_PLAIN, "Target %s is already in the queue.\n", tg.c_str());
     }
   }
 
@@ -645,11 +649,11 @@ unsigned long NewTargets::get_queued (void) {
 unsigned long NewTargets::insert (const char *target) {
   if (*target) {
     if (new_targets == NULL) {
-      error("Error: to add targets run with -sC or --script options.");
+      error("ERROR: to add targets run with -sC or --script options.");
       return 0;
     }
     if (o.current_scantype == SCRIPT_POST_SCAN) {
-      error("Error: adding targets is disabled in the Post-scanning phase.");
+      error("ERROR: adding targets is disabled in the Post-scanning phase.");
       return 0;
     }
   }

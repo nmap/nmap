@@ -715,8 +715,7 @@ static int l_add_targets (lua_State *L)
     /* errors */
     } else {
       lua_pushnumber(L, ntarget);
-      lua_pushstring(L,
-          "Error: failed to add targets, post-scanning phase or no resources.");
+      lua_pushstring(L, "failed to add new targets.");
       return 2;
     }
   } else {
