@@ -356,7 +356,6 @@ static int run_main (lua_State *L)
 
   /* New host group */
   lua_newtable(L);
-
   lua_setfield(L, LUA_REGISTRYINDEX, NSE_CURRENT_HOSTS);
 
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_TRACEBACK); /* index 1 */
