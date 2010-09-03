@@ -755,7 +755,7 @@ int nmap_main(int argc, char *argv[]) {
         l = tval2msecs(optarg);
         if (l < 0)
           fatal("Bogus --scan-delay argument specified.");
-        if (l >= 100 * 1000)
+        if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
         pre_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
@@ -764,7 +764,7 @@ int nmap_main(int argc, char *argv[]) {
         l = tval2msecs(optarg);
         if (l < 0)
           fatal("Bogus --max-scan-delay argument specified.");
-        if (l >= 100 * 1000)
+        if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
         pre_max_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
