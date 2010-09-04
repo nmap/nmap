@@ -236,7 +236,7 @@ void win_init()
 		if(o.debugging)
 			printf("Winpcap present, dynamic linked to: %s\n", pcap_lib_version());
 
-		/* o.is00t will be false at this point if the used asked for
+		/* o.isr00t will be false at this point if the user asked for
 		   --unprivileged. In that case don't bother them with a
 		   potential UAC dialog when starting NPF. */
 		if (o.isr00t)
