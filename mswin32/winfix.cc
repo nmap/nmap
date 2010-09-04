@@ -189,6 +189,30 @@ quit_error:
   return false;
 }
 
+/* Restrict where we're willing to load DLLs from to prevent DLL hijacking. */
+static void init_dll_path()
+{
+	BOOL (WINAPI *SetDllDirectory)(LPCTSTR);
+
+	SetDllDirectory = (BOOL (WINAPI *)(LPCTSTR)) GetProcAddress(GetModuleHandle("kernel32.dll"), "SetDllDirectoryA");
+	if (SetDllDirectory == NULL) {
+		char nmapdir[MAX_PATH];
+
+		/* SetDllDirectory is not available before XP SP1. Instead, set
+		   the current directory to the home of the executable (instead
+		   of where a malicious DLL may be). */
+		if (GetModuleFileName(NULL, nmapdir, sizeof(nmapdir)) == 0 ||
+		    GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+			pfatal("Error in GetModuleFileName");
+		}
+		if (SetCurrentDirectory(nmapdir))
+			pfatal("Error in SetCurrentDirectory");
+	} else {
+		if (SetDllDirectory("") == 0)
+			pfatal("Error in SetDllDirectory(\"\")");
+	}
+}
+
 /* Requires that win_pre_init() has already been called, also that
    options processing has been done so that o.debugging is
    available */
@@ -202,6 +226,7 @@ void win_init()
 	int i;
 	int numipsleft;
 
+	init_dll_path();
 
 	ver.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 	if(!GetVersionEx((LPOSVERSIONINFO)&ver))
