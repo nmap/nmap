@@ -6,7 +6,7 @@ o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
   SCTP support. [Olli Hauer, Daniel Roethlisberger]
 
 o [NSE] Added the firewalk script, which tries to find whether a
-  firewall blocks or forwards ports like the firewall tool does. [Henri
+  firewall blocks or forwards ports like the firewalk tool does. [Henri
   Doreau]
 
 o [NSE] Host tables now have a host.traceroute member when --traceroute
