@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
+  a struct of the same name in <netinet/sctp.h>. This caused a
+  compiliation error when Nmap was compiled with an OpenSSL that had
+  SCTP support. [Olli Hauer, Daniel Roethlisberger]
+
 o [NSE] Added the firewalk script, which tries to find whether a
   firewall blocks or forwards ports like the firewall tool does. [Henri
   Doreau]
