@@ -602,10 +602,12 @@ unsigned long NewTargets::push (const char *target) {
       queue.push(tg);
 
       if (o.debugging > 2)
-        log_write(LOG_PLAIN, "New target %s pushed onto the queue.\n", tg.c_str());
+        log_write(LOG_PLAIN, "New Targets: target %s pushed onto the queue.\n",
+          tg.c_str());
     } else {
       if (o.debugging > 2)
-        log_write(LOG_PLAIN, "Target %s is already in the queue.\n", tg.c_str());
+        log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n",
+          tg.c_str());
     }
   }
 
