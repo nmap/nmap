@@ -288,6 +288,9 @@ function do_rcpt(socket, username, domain)
 
 	if not status then
 		return STATUS_CODES.ERROR, string.format("Failed to issue RCPT TO:<%s@%s> command (%s)", username, domain, response)
+	elseif string.match(response, "^553") then
+		-- 553 Relaying Denied
+		return STATUS_CODES.NOTPERMITTED
 	elseif string.match(response, "^530") then
 		-- If the command failed, check if authentication is needed because all the other attempts will fail.
 		return STATUS_CODES.AUTHENTICATION
