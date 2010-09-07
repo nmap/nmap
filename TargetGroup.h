@@ -175,7 +175,6 @@ class TargetGroup {
 };
 
 /* Adding new targets is for NSE scripts */
-#ifndef NOLUA
 class NewTargets {
  public:
   NewTargets();
@@ -218,7 +217,6 @@ class NewTargets {
  protected:
   static NewTargets *new_targets;
 };
-#endif
 
 class HostGroupState {
  public:

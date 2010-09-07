@@ -100,9 +100,7 @@
 
 extern NmapOps o;
 
-#ifndef NOLUA
 NewTargets *NewTargets::new_targets;
-#endif
 
 TargetGroup::TargetGroup() {
   Initialize();
@@ -567,7 +565,6 @@ const std::list<struct sockaddr_storage> &TargetGroup::get_resolved_addrs(void)
   return resolvedaddrs;
 }
 
-#ifndef NOLUA
 /* debug level for the adding target is: 3 */
 NewTargets *NewTargets::get (void) {
   if (new_targets)
@@ -662,7 +659,6 @@ unsigned long NewTargets::insert (const char *target) {
 
   return new_targets->push(target);
 }
-#endif
 
 /* Lookahead is the number of hosts that can be
    checked (such as ping scanned) in advance.  Randomize causes each
