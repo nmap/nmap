@@ -390,6 +390,9 @@ function go(host, port)
 			elseif status == STATUS_CODES.AUTHENTICATION then
 				quit(socket)
 				return false, "Couldn't perform user enumeration, authentication needed"
+			else -- STATUS_CODES.INVALID
+				table.insert(result, string.format("Method %s returned a unhandled status code.", method))
+				break
 			end
 
 			username = nextuser()
