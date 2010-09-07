@@ -1112,6 +1112,7 @@ match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| p/Cyrus IMSPd/ v/
 match infopark m|^\d+{infopark tcl-Interface-Server} {CM ([\w._-]+)| p/Infopark Fiona TCL interface/ v/$1/
 
 match intermapper m|^<KU_goodbye>Access not allowed for [\d.]+\. Check the InterMapper server&apos;s access restrictions\.</KU_goodbye>$| p/InterMapper network monitor/
+match intermapper m|^<KU_goodbye>Protocol Error: XML data is not well-formed\.</KU_goodbye>$| p/InterMapper network monitor/
 
 match intertel-ctl m|^\x1f\x19\x0e\x01\0\x01\x01\x01\x02\x02\x03\x02\x01\x04\x11\x05| p/InterTel IPRC VoIP management card control channel/ d/PBX/
 
@@ -2019,7 +2020,7 @@ match smtp m|^220 ([-\w.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version 
 match smtp m|^220 ([-\w.]+) ArGoSoft Mail Server, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 ([-\w_.]+) ArGoSoft Mail Server Freeware, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server Freeware/ v/$2/ h/$1/ o/Windows/
 match smtp m|^220 ArGoSoft Mail Server Plus for WinNT/2000, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Mail Server Plus/ v/$1/ o/Windows/
-match smtp m|^220 ([-.\w]+) ESMTP server \(Post.Office v([-.\w]+) release ([-.\w]+) ID# | p/Post.Office/ h/$1/ v/$2 release $3/
+match smtp m|^220 ([-.\w]+) ESMTP server \([Pp]ost.[Oo]ffice v([-.\w]+) release ([-.\w]+) ID# | p/Post.Office/ h/$1/ v/$2 release $3/
 match smtp m|^220 ([-.\w]+) ESMTP VisNetic.MailServer.v([-.\w]+); | p/VisNetic MailServer/ h/$1/ v/$2/
 # CommuniGate Pro 4.0.5
 match smtp m|^220 ([-.\w]+) ESMTP Service. Welcome.\r\n$| p/CommuniGate Pro smtpd/ h/$1/
@@ -2857,6 +2858,7 @@ match telnet m|^\xff\xfb\x01\xff\xfd\x03\xff\xfb\x03\x1b\[0m\x1b\[2J\x1b\[01;00H
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nSportster Pro ([\d.]+) Image Sagem D-BOX2 - Kernel ([-\w_.]+) | p/Sagem D-BOX2 Sportster Pro telnetd/ v/$1/ i/linux kernel $2/ o/Linux/ d/media device/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\n.*Sagem D-BOX2 - Kernel ([-\w_.]+) |s p/Sagem D-BOX2 telnetd/ i/linux kernel $1/ o/Linux/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\r\n\*\*\* Lantronix Universal Device Server \*\*\*\r\n\r\0Serial Number (\d+)  MAC address ([\w:]+)\r\n\r\0Software Version V([\d.]+) \((\d+)\)\r\0\r\n\r\n\r\0Press Enter to go into Setup Mode \r\n\r\0| p/Lantronix Universal Device Server telnetd/ v/$3.$4/ i/Serial $1; MAC $2/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\0\n\*\*\* Lantronix Universal Device Server \*\*\*\r\0\nSerial Number (\d+)  MAC address ([\w:]+)\n\r\0Software version 0*([\d.]+) \((\d+)\)\r\0\n\r\0\nPress Enter to go into Setup Mode \r\0\n| p/Lantronix Universal Device Server telnetd/ v/$3.$4/ i/Serial $1; MAC $2/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03Fritz!Box web password: | p/AVM FRITZ!Box 7170 telnetd/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nFritz!Box web password: | p/AVM FRITZ!Box telnetd/ d/WAP/
 match telnet m|^\xff\xfd\x01\xff\xfd\x1f\xff\xfd!\xff\xfb\x01\xff\xfb\x03\r\r\nDD-WRT v([-\w_+. ]+) Date:| p/DD-WRT telnetd/ v/$1/ d/WAP/ o/Linux/
@@ -7720,7 +7722,7 @@ match webster m/^DICTIONARY server protocol:\r\n\r\nContact name is/ p/Webster d
 Probe TCP SSLSessionReq q|\x16\x03\0\0S\x01\0\0O\x03\0?G\xd7\xf7\xba,\xee\xea\xb2`~\xf3\0\xfd\x82{\xb9\xd5\x96\xc8w\x9b\xe6\xc4\xdb<=\xdbo\xef\x10n\0\0(\0\x16\0\x13\0\x0a\0f\0\x05\0\x04\0e\0d\0c\0b\0a\0`\0\x15\0\x12\0\x09\0\x14\0\x11\0\x08\0\x06\0\x03\x01\0|
 
 rarity 3
-ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8194,9001
+ports 443,444,548,636,993,1241,1311,2000,4444,5550,7210,7272,8009,8181,8194,9001
 fallback GetRequest
 
 match adabas m|^,\0,\0\x03\x02\0\0G\xd7\xf7\xbaO\x03\0\?\x05\0\0\0\0\x02\x18\0\xfd\x0b\0\0<=\xdbo\xef\x10n \xd5\x96\xc8w\x9b\xe6\xc4\xdb$| p/ADABAS database/
@@ -8957,6 +8959,10 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x79.([^\0\x01]+)[\0\
 
 # Netatalk 1.6.4
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7d.([^\0\x01]+)[\0\x01].*\x04unix\x04\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x01\tDHCAST1280|s p/Netatalk/ v/1.6/ i/name: $1; protocol 2.2/ o/Unix/
+
+# Novell NetWare AFP
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\0\xbf.([^\0]+)\0.*\x16Novell NetWare ([0-9.]+)\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x02\x10([^\x16]+)\x16|s p/Novell NetWare AFP/ v/$2/ i/name: $3/ o/Novell NetWare/
+
 
 ##############################NEXT PROBE##############################
 # Quake2 status
