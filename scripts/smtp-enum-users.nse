@@ -56,7 +56,7 @@ ERROR_MESSAGES = {
 
 STATUS_CODES = {
 	ERROR = 1,
-	NOTPERMITED = 2,
+	NOTPERMITTED = 2,
 	VALID = 3,
 	INVALID = 4
 }
@@ -220,7 +220,7 @@ function do_gnrc(socket, command, username, domain)
 			return STATUS_CODES.AUTHENTICATION
 		elseif string.match(response, "^502") or string.match(response, "^252") or string.match(response, "^550") then
 			-- The server doesn't implement the command or it is disallowed.
-			return STATUS_CODES.NOTPERMITED
+			return STATUS_CODES.NOTPERMITTED
 		elseif string.match(response, "^250") then
 			-- User accepted.
 			if nmap.verbosity() > 1 then
@@ -280,7 +280,7 @@ function do_rcpt(socket, username, domain)
 			return STATUS_CODES.ERROR, "Couldn't perform user enumeration, authentication needed"
 		elseif not string.match(response, "^250") then
 			-- Only accept 250 code as success.
-			return STATUS_CODES.NOTPERMITED, "Server did not accept the MAIL FROM command"
+			return STATUS_CODES.NOTPERMITTED, "Server did not accept the MAIL FROM command"
 		end
 	end
 
@@ -378,7 +378,7 @@ function go(host, port)
 				status, response = do_expn(socket, username, domain)
 			end
 
-			if status == STATUS_CODES.NOTPERMITED then
+			if status == STATUS_CODES.NOTPERMITTED then
 				-- Invalid method. Don't test anymore users with the current method.
 				break
 			elseif status == STATUS_CODES.VALID then
