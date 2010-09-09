@@ -605,6 +605,10 @@ unsigned long NewTargets::push (const char *target) {
       if (o.debugging > 2)
         log_write(LOG_PLAIN, "New Targets: target %s is already in the queue.\n",
           tg.c_str());
+      /* Return 1 when the target is already in the queue,
+       * this will prevent returning 0 when the target queue
+       * is empty since no target was added. */
+      return 1;
     }
   }
 
