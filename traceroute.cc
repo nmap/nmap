@@ -106,7 +106,7 @@ necessary to send two probes per target: one at the distance of the target to
 get a response, and one at distance - 1 to get a cache hit. When the distance
 isn't known in advance, the algorithm arbitrarily starts at a TTL of 10 and
 counts downward, then counts upward from 11 until it reaches the target. So a
-typeical trace may look like
+typical trace may look like
 
 TTL 10 -> TTL_EXCEEDED
 TTL  9 -> TTL_EXCEEDED
