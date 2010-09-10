@@ -140,6 +140,7 @@ Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "targets-traceroute.nse", categories = { "safe", "discovery", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "auth", "intrusive", } }

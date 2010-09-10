@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the targets-traceroute script, which inserts traceroute
+  hops onto Nmap scanning queue. [Henri Doreau]
+
 o [NSE] Added the target NSE library to let scripts to add new
   discovered targets onto Nmap scanning queue. This feature, coupled
   with the new prerule is well suited for NSE host discovery. [Djalal]
