@@ -1034,7 +1034,7 @@ NSE: Script Scanning completed.
       <indexterm><primary sortas="prerule script variable">&ldquo;<varname>prerule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary sortas="portrule script variable">&ldquo;<varname>portrule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary sortas="hostrule script variable">&ldquo;<varname>hostrule</varname>&rdquo; script variable</primary></indexterm>
-      <indexterm><primary sortas="portrule script variable">&ldquo;<varname>postrule</varname>&rdquo; script variable</primary></indexterm>
+      <indexterm><primary sortas="postrule script variable">&ldquo;<varname>postrule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>prerule</varname>&rdquo;, &ldquo;<varname>portrule</varname>&rdquo;, &ldquo;<varname>hostrule</varname>&rdquo; and &ldquo;<varname>postrule</varname>&rdquo;</see></indexterm>
       <para>
 
