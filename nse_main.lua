@@ -297,11 +297,12 @@ do
     local script_type = assert(NSE_SCRIPT_RULES[rule]);
     if not self[rule] then return nil end -- No rule for this script?
     local file_closure = self.file_closure;
-    local env = setmetatable({
+    local env = {
         SCRIPT_PATH = self.filename,
         SCRIPT_NAME = self.short_basename,
         SCRIPT_TYPE = script_type,
-      }, {__index = _G});
+    };
+    setmetatable(env, {__index = _G});
     setfenv(file_closure, env);
     local unique_value = {}; -- to test valid yield
     local function main (...)
@@ -319,14 +320,15 @@ do
     "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
           self.filename, rule, traceback(co));
     elseif s and rule_return then
-      local thread = setmetatable({
+      local thread = {
         co = co,
         env = env,
         identifier = tostring(co),
         info = format("'%s' (%s)", self.short_basename, tostring(co));
         type = script_type,
         close_handlers = {},
-      }, {
+      };
+      setmetatable(thread, {
         __metatable = Thread,
         __index = function (thread, k) return Thread[k] or self[k] end
       }); -- Access to the parent Script
@@ -360,10 +362,11 @@ do
     end
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
-    local env = setmetatable({
+    local env = {
       filename = filename,
       dependencies = {},
-    }, {__index = _G});
+    };
+    setmetatable(env, {__index = _G});
     setfenv(file_closure, env);
     local co = create(file_closure); -- Create a garbage thread
     assert(resume(co)); -- Get the globals it loads in env
@@ -401,7 +404,7 @@ do
         filename.." has non-string entries in the 'dependencies' array");
     end
     -- Return the script
-    return setmetatable({
+    local script = {
       filename = filename,
       basename = match(filename, "[/\\]([^/\\]-)$") or filename,
       short_basename = match(filename, "[/\\]([^/\\]-)%.nse$") or
@@ -420,7 +423,8 @@ do
       dependencies = rawget(env, "dependencies"),
       threads = {},
       selected_by_name = false,
-    }, {__index = Script, __metatable = Script});
+    };
+    return setmetatable(script, {__index = Script, __metatable = Script});
   end
 end
 
@@ -911,7 +915,7 @@ end
 --      "SCRIPT_PRE_SCAN"
 --      "SCRIPT_SCAN"
 --      "SCRIPT_POST_SCAN"
-return function (hosts, scantype)
+local function main (hosts, scantype)
   -- Used to set up the runlevels.
   local threads, runlevels = {}, {};
 
@@ -999,3 +1003,5 @@ return function (hosts, scantype)
 
   collectgarbage "collect";
 end
+
+return main;
