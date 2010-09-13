@@ -760,7 +760,7 @@ local function run (threads, scantype)
         if result == NSE_YIELD_VALUE then
           waiting[co] = thread;
         else
-          thread:d("%THREAD yielded unexpectedly and cannot be rerun.");
+          thread:d("%THREAD yielded unexpectedly and cannot be resumed.");
           thread:close();
         end
       elseif status(co) == "dead" then
