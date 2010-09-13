@@ -283,7 +283,7 @@ local function read_policy_filter(data, pos, length)
 	else
 		local results = {}
 		for i=1, length, 8 do
-			local address, router
+			local address, router, mask
 			pos, address = read_ip(data, pos, 4)
 			pos, mask    = read_ip(data, pos, 4)
 			table.insert(results, {address=address, mask=mask})
@@ -515,12 +515,12 @@ local function dhcp_parse(data, transaction_id)
 		local action = actions[option]
 
 		-- Verify we got a valid code (if we didn't, we're probably in big trouble)
+		local value
 		if(action == nil) then
 			stdnse.print_debug(1, "dhcp-discover: Unknown option: %d", option)
 			pos = pos + length
 		else
 			-- Call the function to parse the option, and insert the result into our results table
-			local value
 
 			stdnse.print_debug(2, "dhcp-discover: Attempting to parse %s", action['name'])
 			pos, value = action['func'](data, pos, length)
