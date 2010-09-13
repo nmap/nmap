@@ -214,7 +214,7 @@ VNC = {
 	--- Creates the password bit-flip needed before DES encryption
 	--
 	-- @param password string containing the password to process
-	-- @retun password string containing the processed password
+	-- @return password string containing the processed password
 	createVNCDESKey = function( self, password )
 		local _, bitstr
 		local newpass = ""
