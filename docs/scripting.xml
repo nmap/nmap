@@ -234,7 +234,7 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
     </para>
 
     <para>
-    Script scanning phase is normally done in combination with a port scan,
+    Script scanning is normally done in combination with a port scan,
     because scripts may be run or not run depending on the port states
     found by the scan. With the <option>-sn</option> option it is
     possible to run a script scan without a port scan, only host
@@ -925,7 +925,7 @@ local username = nmap.registry.args.user
 
   <sect1 id="nse-script-format">
     <title>Script Format</title>
-    <para>NSE scripts consist of a handful of descriptive fields, a <literal>rule</literal> defining when the script should be executed, and an <literal>action</literal> function containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
+    <para>NSE scripts consist of a handful of descriptive fields, a rule defining when the script should be executed, and an <literal>action</literal> function containing the actual script instructions. Values can be assigned to the descriptive fields just as you would assign any other Lua variables.  Their names must be lowercase as shown in this section.</para>
 
     <sect2 id="nse-format-description">
       <title><literal>description</literal> Field</title>
@@ -1037,32 +1037,53 @@ NSE: Script Scanning completed.
       <indexterm><primary sortas="postrule script variable">&ldquo;<varname>postrule</varname>&rdquo; script variable</primary></indexterm>
       <indexterm><primary>rules in NSE</primary><see>&ldquo;<varname>prerule</varname>&rdquo;, &ldquo;<varname>portrule</varname>&rdquo;, &ldquo;<varname>hostrule</varname>&rdquo; and &ldquo;<varname>postrule</varname>&rdquo;</see></indexterm>
       <para>
-
-Nmap uses the script rules to determine whether a script should be run
-against a target.  A script contains either a <literal>prerule</literal>
-function, which lets the script to be run during the Script Pre-scanning
-phase, or a <literal>portrule</literal> function, which governs which
-ports of a target the scripts may run against, or a
-<literal>hostrule</literal> function, which specifies that the script
-should be run only once against a target IP and only if
-the given conditions are met, or a <literal>postrule</literal> function,
-which lets the script to be run during the Script Post-scanning phase.  
-A rule is a Lua function that returns either <literal>true</literal>
-or <literal>false</literal>.  A script can have multiple rules functions in
-order to run at different script scan phases, and to share the same code.
-The script <literal>action</literal> function is only performed if the rule
-evaluates to <literal>true</literal>.  Prerules and postrules do not accept
-arguments.  Hostrules accept a host table as their argument and may
-test, for example, the IP address or hostname of the target.  Portrules
-accept both host and port tables as arguments for any TCP or UDP port in the
-<literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
-<literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
-or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm> port states.  Port rules generally test factors such as the port number, port state, or listening service name in deciding whether to run against a port.  Example rules are shown in <xref linkend="nse-tutorial-rule"/>.  
-The current standard to choose between a <literal>prerule</literal>
-or a <literal>postrule</literal> is: if the script is doing host discovery
-or any other network operation then the <literal>prerule</literal>
-should be used. The <literal>postrule</literal> is reserved for data
-reporting and statistics gathering that were generated during the scan.
+      Nmap uses the script rules to determine whether a script should be
+      run against a target. A rule is a Lua function that returns either
+      <literal>true</literal> or <literal>false</literal>. The script
+      <literal>action</literal> function is only performed if the rule
+      evaluates to <literal>true</literal>.
+      </para>
+      <para>
+      A script must contain one or more of the following functions that
+      determine when the script will be run:
+      <simplelist>
+      <member><literal>prerule()</literal></member>
+      <member><literal>hostrule(host)</literal></member>
+      <member><literal>portrule(host, port)</literal></member>
+      <member><literal>postrule()</literal></member>
+      </simplelist>
+      <literal>prerule</literal> scripts run once, before any hosts are
+      scanned, during the script pre-scanning
+      phase.<indexterm><primary>script
+      pre-scanning</primary></indexterm> <literal>hostrule</literal> and
+      <literal>portrule</literal> scripts run after each batch of hosts
+      is scanned. <literal>postrule</literal> scripts run once after all
+      hosts have been scanned, in the script post-scanning
+      phase.<indexterm><primary>script post-scanning
+      phase</primary></indexterm> A script may run in more than one
+      phase if it has several rules.
+      </para>
+      <para>
+      <literal>prerule</literal> and <literal>postrule</literal> do not
+      accept arguments. <literal>hostrule</literal> accepts a host table
+      and may test, for example, the IP address or hostname of the
+      target. <literal>portrule</literal> accepts both a host table and
+      a port table for any port in the
+      <literal>open</literal><indexterm><primary><literal>open</literal> port state</primary></indexterm>, 
+      <literal>open|filtered</literal><indexterm><primary><literal>open|filtered</literal> port state</primary></indexterm>,
+      or <literal>unfiltered</literal><indexterm><primary><literal>unfiltered</literal> port state</primary></indexterm>
+      port states.  Port rules generally test factors such as the port
+      number, port state, or listening service name in deciding whether
+      to run against a port.  Example rules are shown in <xref
+      linkend="nse-tutorial-rule"/>.  
+      </para>
+      <para>
+      The current standard to choose between a
+      <literal>prerule</literal> or a <literal>postrule</literal> is
+      this: if the script is doing host discovery or any other network
+      operation then the <literal>prerule</literal> should be used.
+      <literal>postrule</literal> is reserved for reporting of data and
+      statistics that were gathered during the scan.
       </para> 
     </sect2>
 
