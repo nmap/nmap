@@ -1,9 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Now that NSE has more script phases (prerule, postrule, hostrule,
-  portrule, and versionrule soon to come), the NSEDoc should specify
-  which phases a script belongs to.
-
 o [NSE] Maybe we should create a script which checks once a day
   whether similar tools (Metasploit, Nessus, OpenVAS, etc.) have any
   new modules, and then mails out a list of them with the description
@@ -733,6 +729,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Now that NSE has more script phases (prerule, postrule, hostrule,
+  portrule, and versionrule soon to come), the NSEDoc should specify
+  which phases a script belongs to.
 
 o Consider implementing a nsock_pcap_close() function or making
   nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
