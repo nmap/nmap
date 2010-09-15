@@ -48,8 +48,8 @@ SetCompressor /SOLID /FINAL lzma
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "5.30BETA1"  
-  VIProductVersion "5.30.0.0"
+  !define VERSION "5.35DC18"  
+  VIProductVersion "5.35.0.18"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
