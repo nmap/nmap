@@ -30,7 +30,7 @@ clean:
 distclean: clean
 	rm -rf Makefile
 
-Makefile: Makefile.in $(top_srcdir)/config.status
+Makefile: Makefile.in
 	cd $(top_srcdir) && ./config.status
 
 .cc.o:
