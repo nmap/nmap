@@ -89,6 +89,12 @@
 
 /* $Id:$ */
 
+#ifdef WIN32
+/* <openssl/x509.h> expects <windows.h> to have been loaded for definitions of
+   X509_NAME and some other symbols. */
+#include <windows.h>
+#endif
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>

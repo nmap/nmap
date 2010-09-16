@@ -47,7 +47,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;&quot;pcap-include&quot;;&quot;..\libdnet-stripped\include&quot;;OpenSSL\include;"
 				PreprocessorDefinitions="WIN32;_CONSOLE"
-				GeneratePreprocessedFile="0"
+				GeneratePreprocessedFile="1"
 				KeepComments="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"

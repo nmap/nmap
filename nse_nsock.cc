@@ -24,6 +24,8 @@ extern "C"
 #include "libnetutil/netutil.h"
 
 #if HAVE_OPENSSL
+/* See the comments in service_scan.cc for the reason for _WINSOCKAPI_. */
+#  define _WINSOCKAPI_
 #  include <openssl/ssl.h>
 #endif
 

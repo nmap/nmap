@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Upgraded the OpenSSL binaries shipped in our Windows installer to
+  version 1.0.0a. [David]
+
 o [NSE] Added the targets-traceroute script, which inserts traceroute
   hops onto Nmap scanning queue. [Henri Doreau]
 

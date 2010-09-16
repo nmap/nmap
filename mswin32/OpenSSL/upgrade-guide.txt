@@ -7,6 +7,11 @@ I. Additional Requirements
 
   http://www.activestate.com/store/activeperl/download/
 
+  Alternatively use Cygwin Perl; add the bin directory to end of %PATH%.
+  It has to be at the end so that link.exe comes before /usr/bin/link.
+
+  PATH=%PATH%;C:\cygwin\bin
+
 
 II. Compiling OpenSSL from source
 

@@ -103,6 +103,13 @@
 #include "nmap_tty.h"
 
 #if HAVE_OPENSSL
+/* OpenSSL 1.0.0 needs _WINSOCKAPI_ to be defined, otherwise it loads
+   <windows.h> (through openssl/dtls1.h), which is incompatible with the
+   <winsock2.h> that we use. (It creates errors with the redefinition of struct
+   timeval, for example.) _WINSOCKAPI_ should be defined by our inclusion of
+   <winsock2.h>, but it appears to be undefined somewhere, possibly in
+   libpcap. */
+#define _WINSOCKAPI_
 #include <openssl/ssl.h>
 #endif
 
