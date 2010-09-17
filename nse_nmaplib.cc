@@ -153,8 +153,6 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   setnfield(L, -1, "timeout", (lua_Number) currenths->to.timeout / 1000000.0);
   lua_setfield(L, -2, "times");
 
-  FingerPrintResults *FPR = currenths->FPR;
-
   /* add distance (in hops) if traceroute has been performed */
   if (currenths->traceroute_hops.size() > 0)
   {
@@ -180,6 +178,8 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     }
     lua_setfield(L, -2, "traceroute");
   }
+
+  FingerPrintResults *FPR = currenths->FPR;
 
   /* if there has been an os scan which returned a pretty certain
    * result, we will use it in the scripts
