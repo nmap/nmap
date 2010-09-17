@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Increased the initial RTT timeout for ARP scans from 100 ms to
+  200 ms. Some wireless and VPN links were taking around 300 ms to
+  respond. The default of one retransmit gives them 400 ms to be
+  detected.
+
 o Upgraded the OpenSSL binaries shipped in our Windows installer to
   version 1.0.0a. [David]
 

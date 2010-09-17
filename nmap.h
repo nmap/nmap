@@ -320,7 +320,7 @@ void *realloc();
 #endif
 
 #define INITIAL_RTT_TIMEOUT 1000 /* Allow 1 second initially for packet responses */
-#define INITIAL_ARP_RTT_TIMEOUT 100 /* The initial timeout for ARP is lower */
+#define INITIAL_ARP_RTT_TIMEOUT 200 /* The initial timeout for ARP is lower */
 
 #ifndef MAX_RETRANSMISSIONS
 #define MAX_RETRANSMISSIONS 10    /* 11 probes to port at maximum */
