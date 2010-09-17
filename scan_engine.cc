@@ -924,7 +924,7 @@ GroupScanStats::GroupScanStats(UltraScanInfo *UltraSI) {
   initialize_timeout_info(&to);
   /* Default timout should be much lower for arp */
   if (USI->ping_scan_arp)
-    to.timeout = MIN(o.initialRttTimeout(), 100) * 1000;
+    to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), 100)) * 1000;
   num_probes_active = 0;
   numtargets = USI->numIncompleteHosts(); // They are all incomplete at the beginning
   numprobes = USI->numProbesPerHost();

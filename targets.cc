@@ -117,7 +117,7 @@ static void arpping(Target *hostbatch[], int num_hosts) {
   for (targetno = 0; targetno < num_hosts; targetno++) {
     initialize_timeout_info(&hostbatch[targetno]->to);
     /* Default timout should be much lower for arp */
-    hostbatch[targetno]->to.timeout = MIN(o.initialRttTimeout(), 100) * 1000;
+    hostbatch[targetno]->to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), 100)) * 1000;
     if (!hostbatch[targetno]->SrcMACAddress()) {
       bool islocal = islocalhost(hostbatch[targetno]->v4hostip());
       if (islocal) {
