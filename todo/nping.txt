@@ -56,6 +56,9 @@
 * Make Nping call nsi_delete() on pcap IODs, IODs in TCP-Connect mode and maybe
   in IODs of other modes. See http://seclists.org/nmap-dev/2010/q3/587
 
+* Fix bug that causes Nping to fail when sending UDP packets to a broadcast
+  address. More info: <http://seclists.org/nmap-dev/2010/q3/752>
+
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
   to his tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
