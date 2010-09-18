@@ -33,9 +33,9 @@ require 'packet'
 
 local NUMPROBES = 6
 
---- Pcap callback
+--- Pcap check function
 -- @return Destination and source IP addresses and TCP ports
-local callback = function(size, layer2, layer3)
+local function check (size, layer2, layer3)
 	local ip = packet.Packet:new(layer3, layer3:len())
 	return bin.pack('AA=S=S', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
@@ -222,7 +222,7 @@ action = function(host)
 
 	try = nmap.new_try(function() sock:ip_close() end)
 
-	pcap:pcap_open(host.interface, 104, 0, callback, "tcp and dst host " .. saddr .. " and src host " .. daddr .. " and src port " .. port)
+	pcap:pcap_open(host.interface, 104, false, "tcp and dst host " .. saddr .. " and src host " .. daddr .. " and src port " .. port)
 
 	pcap:set_timeout(host.times.timeout * 1000)
 
@@ -231,12 +231,14 @@ action = function(host)
 	while i <= NUMPROBES do
 		try(sock:ip_send(tcp.buf))
 
-		pcap:pcap_register(bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport))
-
-		local status, len, _, pkt = pcap:pcap_receive()
+		local status, len, layer2, layer3 = pcap:pcap_receive()
+		local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+		while status and test ~= check(len, layer2, layer3) do
+			status, len, layer2, layer3 = pcap:pcap_receive()
+		end
 
 		if status then
-			table.insert(ipids, packet.u16(pkt, 4))
+			table.insert(ipids, packet.u16(layer3, 4))
 		end
 
 		updatepkt(tcp)

@@ -483,8 +483,7 @@ function receive_bytes(n)
 -- delimiter string (or matches the function passed in). This function
 -- continues to read from the network until the delimiter is found or the
 -- function times out.  If data is read beyond the delimiter, that data is
--- saved in a buffer for the next call to <code>receive_buf</code>.  This
--- buffer is cleared on subsequent calls to other Network I/O API functions.
+-- saved in a buffer for the next call to <code>receive_buf</code>.
 --
 -- The first argument may be either a pattern or a function. If a pattern, that
 -- pattern is used to separate the data. If a function, it must take exactly
@@ -501,12 +500,7 @@ function receive_bytes(n)
 --
 -- On success the function returns true along with the received data. On failure
 -- the function returns <code>false</code> or <code>nil</code> along with an
--- error string. Possible error messages are the same as those that the other
--- receive functions can return, with the addition of
--- * <code>"Error inside splitting-function"</code>: The first argument was a function which caused an error while being called.
--- * <code>"Error in string.find (nsockobj:receive_buf)!"</code>: A string was provided as the first argument, and string.find() yielded an error while being called.
--- * <code>"Expected either a function or a string!"</code>: The first argument was neither a function nor a string.
--- * <code>"Delimiter has negative size!"</code>: The returned start offset is greater than the end offset.
+-- receive error string. This function may also throw errors for incorrect usage.
 -- @param delimiter A Lua pattern or a function with return values like those of
 -- <code>string.find</code>.
 -- @param keeppattern Whether to return the delimiter string with any returned
@@ -565,37 +559,19 @@ function set_timeout(t)
 
 --- Opens a socket for raw packet capture.
 --
--- The callback function is a function that receives a packet with headers and
--- computes a "packet hash", some value derived from the packet. For example,
--- the callback function could extract the source IP address from a packet. The
--- hash of each packet received is compared against all the strings registered
--- with the <code>pcap_register</code> function.
 -- @param device The dnet-style interface name of the device you want to capture
 -- from.
 -- @param snaplen The length of each packet you want to capture (similar to the
 -- <code>-s</code> option to tcpdump)
 -- @param promisc Set to 1 if the interface should activate promiscuous mode,
 -- and 0 otherwise.
--- @param test_function Callback function used to compute the packet hash.
 -- @param bpf A string describing a Berkeley Packet Filter expression (like
 -- those provided to tcpdump).
--- @see new_socket, pcap_register, pcap_receive
+-- @see new_socket, pcap_receive
 -- @usage
 -- local socket = nmap.new_socket()
--- socket:pcap_open("eth0", 64, 0, callback, "tcp")
-function pcap_open(device, snaplen, promisc, test_function, bpf)
-
---- Starts listening for incoming packets.
---
--- The provided <code>packet_hash</code> is a binary string which has to match
--- the hash returned by the <code>test_function</code> parameter provided to
--- <code>pcap_open</code>. If you want to receive all packets, just provide
--- the empty string (<code>""</code>). There has to be a call to
--- <code>pcap_register</code> before a call to <code>pcap_receive</code>.
--- @param packet_hash A binary string that is compared against packet hashes.
--- @see pcap_open, pcap_receive
--- @usage socket:pcap_register("")
-function pcap_register(packet_hash)
+-- socket:pcap_open("eth0", 64, false, "tcp")
+function pcap_open(device, snaplen, promisc, bpf)
 
 --- Receives a captured packet.
 --
@@ -609,7 +585,7 @@ function pcap_register(packet_hash)
 -- @return Data from the second OSI layer (e.g. ethernet headers).
 -- @return Data from the third OSI layer (e.g. IPv4 headers).
 -- @return Packet capture time, as floating point seconds since the epoch
--- @see pcap_open, pcap_register
+-- @see pcap_open
 -- @usage status, plen, l2_data, l3_data, time = socket:pcap_receive()
 function pcap_receive()
 

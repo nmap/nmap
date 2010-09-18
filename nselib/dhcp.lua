@@ -35,12 +35,6 @@ request_types_str[6] = "DHCPNAK"
 request_types_str[7] = "DHCPRELEASE"
 request_types_str[8] = "DHCPINFORM"
 
--- This pulls back 4 bytes in the packet that correspond to the transaction id. This should be randomly
--- generated and different for every instance of a script (to prevent collisions)
-pcap_callback = function(packetsz, layer2, layer3)
-	return string.sub(layer3, 33, 36)
-end
-
 ---Read an IP address or a list of IP addresses. Print an error if the length isn't a multiple of 4. 
 --
 --@param data The packet.
@@ -369,9 +363,8 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	-- Create a pcap socket to listen for the response. I used to consider this a hack, but 
 	-- it really isn't -- it's kinda how this has to be done. 
 	local pcap = nmap.new_socket()
-	pcap:pcap_open(interface, 590, 0, pcap_callback, "udp port 68")
+	pcap:pcap_open(interface, 590, false, "udp port 68")
 	pcap:set_timeout(5000)
-	pcap:pcap_register(transaction_id)
 	stdnse.print_debug(1, "dhcp: Starting listener")
 
 	-- Create the UDP socket (TODO: enable SO_BROADCAST if we need to)
@@ -386,7 +379,12 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	socket:send(packet)
 
 	-- Read the response
-	local status, err, _, data = pcap:pcap_receive()
+	local status, length, layer2, layer3 = pcap:pcap_receive();
+	-- This pulls back 4 bytes in the packet that correspond to the transaction id. This should be randomly
+	-- generated and different for every instance of a script (to prevent collisions)
+    while status and layer3:sub(33, 36) ~= transaction_id do
+	  status, length, layer2, layer3 = pcap:pcap_receive();
+    end
 	if(status == false) then
 		stdnse.print_debug(1, "dhcp: Error calling pcap_receive(): %s", err)
 		return false, "Error calling pcap_receive(): " .. err

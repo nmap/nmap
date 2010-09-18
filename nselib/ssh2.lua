@@ -29,11 +29,12 @@ local SSH2
 --  @return packet_length, packet_length or nil
 --  the return is similar to the lua function string:find()
 check_packet_length = function( buffer )
+  if #buffer < 4 then return nil end -- not enough data in buffer for int
   local packet_length, offset
   offset, packet_length = bin.unpack( ">I", buffer )
   assert(packet_length)
   if packet_length + 4 > buffer:len() then return nil end
-  return packet_length, packet_length
+  return packet_length+4, packet_length+4
 end
 
 --- Receives a complete SSH packet, even if fragmented
@@ -45,7 +46,7 @@ end
 --  @return status True or false
 --  @return packet The packet received
 transport.receive_packet = function( socket )
-  local status, packet = socket:receive_buf(check_packet_length)
+  local status, packet = socket:receive_buf(check_packet_length, true)
   return status, packet
 end
 
@@ -78,7 +79,9 @@ end
 -- @return Payload of the SSH-2 packet.
 transport.payload = function( packet )
   local packet_length, padding_length, payload_length, payload, offset
-  offset, packet_length, padding_length = bin.unpack( ">Ic", packet )
+  offset, packet_length = bin.unpack( ">I", packet )
+  packet = packet:sub(offset);
+  offset, padding_length = bin.unpack( ">c", packet )
   assert(packet_length and padding_length)
   payload_length = packet_length - padding_length - 1
   if packet_length ~= packet:len() then

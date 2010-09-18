@@ -157,9 +157,9 @@ local tstat = function(n1, n2, u1, u2, v1, v2)
 	return math.abs(u1 - u2) / math.sqrt(a * (b / dof))
 end
 
---- Pcap callback
+--- Pcap check
 -- @return Destination and source IP addresses and TCP ports
-local callback = function(size, layer2, layer3)
+local function check (size, layer2, layer3)
 	local ip = packet.Packet:new(layer3, layer3:len())
 	return bin.pack('AA=S=S', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
@@ -418,7 +418,7 @@ action = function(host)
 
 	local conf, delay, numtrips = try(getopts())
 
-	pcap:pcap_open(host.interface, 104, 0, callback, "tcp and dst host " .. saddr .. " and src host " .. daddr)
+	pcap:pcap_open(host.interface, 104, false, "tcp and dst host " .. saddr .. " and src host " .. daddr)
 
 	try(sock:ip_open())
 
@@ -452,15 +452,17 @@ action = function(host)
 				stats[j].fam = -1
 			end
 
-			pcap:pcap_register(bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport))
-
 			start = stdnse.clock_us()
 
 			try(sock:ip_send(tcp.buf))
 
 			stats[j].sent = stats[j].sent + 1
 
-			local status, len, _, pkt, stop = pcap:pcap_receive()
+			local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
+			local status, length, layer2, layer3, stop = pcap:pcap_receive()
+			while status and test ~= check(length, layer2, layer3) do
+				status, length, layer2, layer3, stop = pcap:pcap_receive()
+			end
 
 			if not stop then
 				-- probably a timeout, just grab current time

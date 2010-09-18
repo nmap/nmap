@@ -1,15 +1,3 @@
-
-#include "nse_main.h"
-
-#include "nse_fs.h"
-#include "nse_nsock.h"
-#include "nse_nmaplib.h"
-#include "nse_bit.h"
-#include "nse_binlib.h"
-#include "nse_pcrelib.h"
-#include "nse_openssl.h"
-#include "nse_debug.h"
-
 #include "nmap.h"
 #include "nmap_error.h"
 #include "portlist.h"
@@ -18,6 +6,17 @@
 #include "timing.h"
 #include "Target.h"
 #include "nmap_tty.h"
+
+#include "nse_main.h"
+#include "nse_utility.h"
+#include "nse_fs.h"
+#include "nse_nsock.h"
+#include "nse_nmaplib.h"
+#include "nse_bit.h"
+#include "nse_binlib.h"
+#include "nse_pcrelib.h"
+#include "nse_openssl.h"
+#include "nse_debug.h"
 
 #define NSE_MAIN "NSE_MAIN" /* the main function */
 #define NSE_TRACEBACK "NSE_TRACEBACK"
@@ -130,7 +129,8 @@ static int host_set_output (lua_State *L)
 
 static int port_set_output (lua_State *L)
 {
-  Port port, *p;
+  Port *p;
+  Port port;
   ScriptResult sr;
   Target *target = get_target(L, 1);
   p = get_port(L, target, &port, 2);
@@ -406,6 +406,9 @@ static int run_main (lua_State *L)
   return 0;
 }
 
+/* Lua 5.2 compatibility macro */
+#define lua_yieldk(L,n,ctx,k)  lua_yield(L,n)
+
 /* int nse_yield (lua_State *L)                            [-?, +?, e]
  *
  * This function will yield the running thread back to NSE, even across script
@@ -413,12 +416,12 @@ static int run_main (lua_State *L)
  * correct and only way to call is as a tail call:
  *   return nse_yield(L);
  */
-int nse_yield (lua_State *L)
+int nse_yield (lua_State *L, int ctx, lua_CFunction k)
 {
   lua_getfield(L, LUA_REGISTRYINDEX, NSE_YIELD);
   lua_pushthread(L);
   lua_call(L, 1, 1); /* returns NSE_YIELD_VALUE */
-  return lua_yield(L, 1); /* yield with NSE_YIELD_VALUE */
+  return lua_yieldk(L, 1, ctx, k); /* yield with NSE_YIELD_VALUE */
 }
 
 /* void nse_restore (lua_State *L, int number)             [-, -, e]
@@ -527,7 +530,14 @@ void open_nse (void)
       fatal("%s: failed to open a Lua state!", SCRIPT_ENGINE);
     lua_atpanic(L_NSE, panic);
 
-    if (lua_cpcall(L_NSE, init_main, (void *) &o.chosenScripts) != 0)
+#if 0
+    /* Lua 5.2 */
+    lua_pushcfunction(L_NSE, init_main);
+    lua_pushlightuserdata(L_NSE, &o.chosenScripts);
+    if (lua_pcall(L_NSE, 1, 0, 0))
+#else
+    if (lua_cpcall(L_NSE, init_main, &o.chosenScripts))
+#endif
       fatal("%s: failed to initialize the script engine:\n%s\n", SCRIPT_ENGINE, 
           lua_tostring(L_NSE, -1));
   }
@@ -540,7 +550,14 @@ void script_scan (std::vector<Target *> &targets, stype scantype)
   assert(L_NSE != NULL);
   lua_settop(L_NSE, 0); /* clear the stack */
 
-  if (lua_cpcall(L_NSE, run_main, (void *) &targets) != 0)
+#if 0
+  /* Lua 5.2 */
+  lua_pushcfunction(L_NSE, run_main);
+  lua_pushlightuserdata(L_NSE, &targets);
+  if (lua_pcall(L_NSE, 1, 0, 0))
+#else
+  if (lua_cpcall(L_NSE, run_main, &targets))
+#endif
     error("%s: Script Engine Scan Aborted.\nAn error was thrown by the "
           "engine: %s", SCRIPT_ENGINE, lua_tostring(L_NSE, -1));
 }

@@ -145,7 +145,7 @@ end
 
 -- This is all we can use since we can get various protocols back from
 -- different hosts
-local callback = function(size, layer2, layer3)
+local function check (size, layer2, layer3)
 	local ip = packet.Packet:new(layer3, layer3:len())
 	return bin.pack('A', ip.ip_bin_dst)
 end
@@ -306,7 +306,7 @@ action = function(host)
 
 	try = nmap.new_try(function() sock:ip_close() end)
 
-	pcap:pcap_open(host.interface, 104, 0, callback, "dst host " .. saddr .. " and (icmp or (" .. proto .. " and src host " .. daddr .. " and src port " .. port .. "))")
+	pcap:pcap_open(host.interface, 104, false, "dst host " .. saddr .. " and (icmp or (" .. proto .. " and src host " .. daddr .. " and src port " .. port .. "))")
 
 	-- Since we're sending potentially large amounts of data per packet,
 	-- simply bump up the host's calculated timeout value.  Most replies
@@ -337,12 +337,14 @@ action = function(host)
 				end
 			end
 
-			pcap:pcap_register(bin.pack('A', pkt.ip_bin_src))
-
-			status, _, _, ip = pcap:pcap_receive()
+			local test = bin.pack('A', pkt.ip_bin_src)
+			local status, length, layer2, layer3 = pcap:pcap_receive()
+			while status and test ~= check(length, layer2, layer3) do
+				status, length, layer2, layer3 = pcap:pcap_receive()
+			end
 
 			if status then
-				local t, v = checkpkt(ip, pkt)
+				local t, v = checkpkt(layer3, pkt)
 				if t == "gotreply" then
 					gotit = true
 					break

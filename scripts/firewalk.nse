@@ -84,13 +84,6 @@ local checkpkt = function(reply, orig)
   return true
 end
 
---- pcap callback
--- @return destination ip address, the ip protocol and icmp type
-local callback = function(size, layer2, layer3)
-  local ip = packet.Packet:new(layer3, layer3:len())
-  return bin.pack('ACC', ip.ip_bin_dst, ip.ip_p, ip.icmp_type)
-end
-
 --- set destination port and ip ttl to a generic tcp packet
 -- @param ip the ip object
 -- @param dport the layer 4 destination port
@@ -274,6 +267,13 @@ local portrange = function(ports)
   return stdnse.strjoin(",", strrange)
 end
 
+--- pcap check function
+-- @return destination ip address, the ip protocol and icmp type
+local function check (size, layer2, layer3)
+  local ip = packet.Packet:new(layer3, layer3:len())
+  return bin.pack('ACC', ip.ip_bin_dst, ip.ip_p, ip.icmp_type)
+end
+
 -- main firewalking logic
 action = function(host)
   local sock = nmap.new_dnet()
@@ -290,7 +290,7 @@ action = function(host)
   end
 
   -- filter for incoming icmp time exceeded replies
-  pcap:pcap_open(host.interface, 104, 0, callback, "icmp and dst host " .. saddr)
+  pcap:pcap_open(host.interface, 104, false, "icmp and dst host " .. saddr)
 
   try(sock:ip_open())
 
@@ -309,11 +309,14 @@ action = function(host)
     while retry < MAX_RETRIES do
       try(sock:ip_send(pkt.buf))
 
-      pcap:pcap_register(bin.pack('ACC', pkt.ip_bin_src, packet.IPPROTO_ICMP, ICMP_TIME_EXCEEDED))
-      local status, _, _, rep = pcap:pcap_receive()
+      local status, length, layer2, layer3 = pcap:pcap_receive();
+      local test = bin.pack('ACC', pkt.ip_bin_src, packet.IPPROTO_ICMP, ICMP_TIME_EXCEEDED);
+      while status and test ~= check(length, layer2, layer3) do
+        status, length, layer2, layer3 = pcap:pcap_receive();
+      end
 
       if status then
-        if checkpkt(rep, pkt) then
+        if checkpkt(layer3, pkt) then
           stdnse.print_debug(1, "Firewalk: discovered fwd port " .. port)
           table.insert(fwdports, port)
           break

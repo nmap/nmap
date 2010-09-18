@@ -25,13 +25,14 @@ require "openssl"
 --  @return packet_length, packet_length or nil
 --  the return is similar to the lua function string:find()
 check_packet_length = function( buffer )
+  if #buffer < 4 then return nil end
   local payload_length, packet_length, offset
   offset, payload_length = bin.unpack( ">I", buffer )
   local padding = 8 - payload_length % 8
   assert(payload_length)
-  packet_length = buffer:len()
-  if payload_length + 4 + padding > packet_length then return nil end
-  return packet_length, packet_length
+  local total = 4+payload_length+padding;
+  if total > #buffer then return nil end
+  return total, total;
 end
 
 --- Receives a complete SSH packet, even if fragmented
@@ -43,7 +44,7 @@ end
 --  @return status True or false
 --  @return packet The packet received
 receive_ssh_packet = function( socket )
-  local status, packet = socket:receive_buf(check_packet_length)
+  local status, packet = socket:receive_buf(check_packet_length, true)
   return status, packet
 end
 
@@ -76,7 +77,7 @@ fetch_host_key = function(host, port)
   padding = 8 - packet_length % 8
   offset = offset + padding
 
-  if padding + packet_length + 4 == data:len() then
+  if padding + packet_length + 4 == #data then
     -- seems to be a proper SSH1 packet
     local msg_code,host_key_bits,exp,mod,length,fp_input
     offset, msg_code = bin.unpack( ">c", data, offset )

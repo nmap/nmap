@@ -279,11 +279,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_utility.cc"
+				>
+			</File>
+			<File
 				RelativePath="..\nse_nmaplib.cc"
 				>
 			</File>
 			<File
 				RelativePath="..\nse_nsock.cc"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_dnet.cc"
 				>
 			</File>
 			<File
@@ -480,11 +488,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\nse_utility.h"
+				>
+			</File>
+			<File
 				RelativePath="..\nse_nmaplib.h"
 				>
 			</File>
 			<File
 				RelativePath="..\nse_nsock.h"
+				>
+			</File>
+			<File
+				RelativePath="..\nse_dnet.h"
 				>
 			</File>
 			<File

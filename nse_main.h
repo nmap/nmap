@@ -9,8 +9,8 @@
 
 extern "C" {
   #include "lua.h"
-  #include "lualib.h"
   #include "lauxlib.h"
+  #include "lualib.h"
 }
 
 #include "nmap.h"
@@ -38,7 +38,7 @@ class Target;
 
 
 /* API */
-int nse_yield (lua_State *);
+int nse_yield (lua_State *, int, lua_CFunction);
 void nse_restore (lua_State *, int);
 void nse_destructor (lua_State *, char);
 void nse_base (lua_State *);
