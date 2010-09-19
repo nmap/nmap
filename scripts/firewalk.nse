@@ -269,7 +269,7 @@ end
 
 --- pcap check function
 -- @return destination ip address, the ip protocol and icmp type
-local function check (size, layer2, layer3)
+local function check (layer3)
   local ip = packet.Packet:new(layer3, layer3:len())
   return bin.pack('ACC', ip.ip_bin_dst, ip.ip_p, ip.icmp_type)
 end
@@ -309,10 +309,10 @@ action = function(host)
     while retry < MAX_RETRIES do
       try(sock:ip_send(pkt.buf))
 
-      local status, length, layer2, layer3 = pcap:pcap_receive();
+      local status, length, _, layer3 = pcap:pcap_receive();
       local test = bin.pack('ACC', pkt.ip_bin_src, packet.IPPROTO_ICMP, ICMP_TIME_EXCEEDED);
-      while status and test ~= check(length, layer2, layer3) do
-        status, length, layer2, layer3 = pcap:pcap_receive();
+      while status and test ~= check(layer3) do
+        status, length, _, layer3 = pcap:pcap_receive();
       end
 
       if status then

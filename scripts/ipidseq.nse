@@ -35,7 +35,7 @@ local NUMPROBES = 6
 
 --- Pcap check function
 -- @return Destination and source IP addresses and TCP ports
-local function check (size, layer2, layer3)
+local check = function(layer3)
 	local ip = packet.Packet:new(layer3, layer3:len())
 	return bin.pack('AA=S=S', ip.ip_bin_dst, ip.ip_bin_src, ip.tcp_dport, ip.tcp_sport)
 end
@@ -231,10 +231,10 @@ action = function(host)
 	while i <= NUMPROBES do
 		try(sock:ip_send(tcp.buf))
 
-		local status, len, layer2, layer3 = pcap:pcap_receive()
+		local status, len, _, layer3 = pcap:pcap_receive()
 		local test = bin.pack('AA=S=S', tcp.ip_bin_src, tcp.ip_bin_dst, tcp.tcp_sport, tcp.tcp_dport)
-		while status and test ~= check(len, layer2, layer3) do
-			status, len, layer2, layer3 = pcap:pcap_receive()
+		while status and test ~= check(layer3) do
+			status, len, _, layer3 = pcap:pcap_receive()
 		end
 
 		if status then

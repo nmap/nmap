@@ -145,7 +145,7 @@ end
 
 -- This is all we can use since we can get various protocols back from
 -- different hosts
-local function check (size, layer2, layer3)
+local check = function(layer3)
 	local ip = packet.Packet:new(layer3, layer3:len())
 	return bin.pack('A', ip.ip_bin_dst)
 end
@@ -338,9 +338,9 @@ action = function(host)
 			end
 
 			local test = bin.pack('A', pkt.ip_bin_src)
-			local status, length, layer2, layer3 = pcap:pcap_receive()
-			while status and test ~= check(length, layer2, layer3) do
-				status, length, layer2, layer3 = pcap:pcap_receive()
+			local status, length, _, layer3 = pcap:pcap_receive()
+			while status and test ~= check(layer3) do
+				status, length, _, layer3 = pcap:pcap_receive()
 			end
 
 			if status then

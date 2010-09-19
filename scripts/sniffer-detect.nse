@@ -24,7 +24,7 @@ hostrule = function(host)
 		nmap.get_interface_link(host.interface) == 'ethernet'
 end
 
-local function check (packetsz, layer2, layer3)
+local function check (layer2)
 	return string.sub(layer2, 0, 12)
 end
 
@@ -42,7 +42,7 @@ do_test = function(dnet, pcap, host, test)
 			pcap:set_timeout(100)
 			local test = host.mac_addr_src .. host.mac_addr
 			status, length, layer2, layer3 = pcap:pcap_receive()
-			while status and test ~= check(length, layer2, layer3) do
+			while status and test ~= check(layer2) do
 				status, length, layer2, layer3 = pcap:pcap_receive()
 			end
 		until status ~= true
@@ -52,7 +52,7 @@ do_test = function(dnet, pcap, host, test)
 
 		local test = host.mac_addr_src .. host.mac_addr
 		status, length, layer2, layer3 = pcap:pcap_receive()
-		while status and test ~= check(length, layer2, layer3) do
+		while status and test ~= check(layer2) do
 			status, length, layer2, layer3 = pcap:pcap_receive()
 		end
 		if status == true then
