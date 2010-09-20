@@ -217,16 +217,11 @@ static void open_cnse (lua_State *L)
   lua_newtable(L);
   luaL_register(L, NULL, nse);
   /* Add some other fields */
-  lua_pushboolean(L, o.script == 1); /* default scripts if none enumerated? */
-  lua_setfield(L, -2, "default");
-  lua_pushboolean(L, o.scriptversion == 1);
-  lua_setfield(L, -2, "scriptversion");
-  lua_pushboolean(L, o.scriptupdatedb == 1);
-  lua_setfield(L, -2, "scriptupdatedb");
-  lua_pushliteral(L, SCRIPT_ENGINE_LUA_DIR SCRIPT_ENGINE_DATABASE);
-  lua_setfield(L, -2, "script_dbpath");
-  lua_pushstring(L, o.scriptargs);
-  lua_setfield(L, -2, "scriptargs");
+  setbfield(L, -1, "default", o.script == 1);
+  setbfield(L, -1, "scriptversion", o.scriptversion == 1);
+  setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb == 1);
+  setsfield(L, -1, "script_dbpath", SCRIPT_ENGINE_DATABASE);
+  setsfield(L, -1, "scriptargs", o.scriptargs);
 }
 
 void ScriptResult::set_output (const char *out)
