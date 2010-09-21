@@ -587,35 +587,6 @@ static int l_receive_bytes (lua_State *L)
   return yield(L, nu, "RECEIVE BYTES", FROM, 0, NULL);
 }
 
-static int l_get_info (lua_State *L)
-{
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
-  int status;
-  int protocol;                                  // tcp or udp
-  int af;                                        // address family
-  struct sockaddr local;
-  struct sockaddr remote;
-  char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
-  char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
-
-  status = nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
-      &local, &remote, sizeof(sockaddr));
-
-  lua_pushboolean(L, true);
-  lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
-  lua_pushnumber(L, inet_port_both(af, &local));
-  lua_pushstring(L, inet_ntop_both(af, &remote, ipstring_remote));
-  lua_pushnumber(L, inet_port_both(af, &remote));
-  return 5;
-}
-
-static int l_set_timeout (lua_State *L)
-{
-  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
-  nu->timeout = luaL_checkint(L, 2);
-  return success(L);
-}
-
 #if 0
 /* Lua 5.2 */
 static int l_receive_buf (lua_State *L)
@@ -685,6 +656,35 @@ static int l_receive_buf (lua_State *L)
   }
 }
 #endif
+
+static int l_get_info (lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  int status;
+  int protocol;                                  // tcp or udp
+  int af;                                        // address family
+  struct sockaddr local;
+  struct sockaddr remote;
+  char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
+  char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
+
+  status = nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
+      &local, &remote, sizeof(sockaddr));
+
+  lua_pushboolean(L, true);
+  lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
+  lua_pushnumber(L, inet_port_both(af, &local));
+  lua_pushstring(L, inet_ntop_both(af, &remote, ipstring_remote));
+  lua_pushnumber(L, inet_port_both(af, &remote));
+  return 5;
+}
+
+static int l_set_timeout (lua_State *L)
+{
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
+  nu->timeout = luaL_checkint(L, 2);
+  return success(L);
+}
 
 static void sleep_callback (nsock_pool nsp, nsock_event nse, void *ud)
 {
