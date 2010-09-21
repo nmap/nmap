@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Made the topology node radiuses grow logarithmically
+  instead of linearly, so that hosts with thousands of open ports
+  don't overwhelm the diagram. Also only open ports (not
+  open|filtered) are considered when calculating node sizes. [Daniel
+  Miller]
+
 o Increased the initial RTT timeout for ARP scans from 100 ms to
   200 ms. Some wireless and VPN links were taking around 300 ms to
   respond. The default of one retransmit gives them 400 ms to be
