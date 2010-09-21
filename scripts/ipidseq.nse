@@ -4,7 +4,7 @@ scan).
 
 Sends six probes to obtain IP IDs from the target and classifies them
 similiarly to Nmap's method.  This is useful for finding suitable zombies
-for Nmap's idle scan (-sI) as Nmap itself doesn't provide a way to scan
+for Nmap's idle scan (<code>-sI</code>) as Nmap itself doesn't provide a way to scan
 for these hosts.
 ]]
 
