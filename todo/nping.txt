@@ -53,24 +53,10 @@
   transport level (letting the OS craft the IPv6 header), and at raw ethernet
   level. None of them seems to work well, though.
 
-* Make Nping call nsi_delete() on pcap IODs, IODs in TCP-Connect mode and maybe
-  in IODs of other modes. See http://seclists.org/nmap-dev/2010/q3/587
-
-* Fix bug that causes Nping to fail when sending UDP packets to a broadcast
-  address. More info: <http://seclists.org/nmap-dev/2010/q3/752>
-
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
   to his tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
   
-* When doing ICMP echo traceroute (with --traceroute), unless the user
-  supplies a custom round count (-c/--count), Nping only sends 5 packets
-  (default round count). This is usually not enough to reach hosts
-  on the internet. What should be the default behaviour? Stick with the
-  default round count of 5 or increment it when --traceroute is set?
-  - We should probably set -c 32 when --traceroute is specified,
-    unless user specifies their own -c explicitly.
-
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
   nice to get rid of them if possible. There are some of them:
@@ -640,3 +626,19 @@
 
 [DONE] [EM] Do some extensive testing of the Echo mode once it is working
   to try and flesh out any bugs before merging.
+
+[DONE] Make Nping call nsi_delete() on pcap IODs, IODs in TCP-Connect mode and maybe
+  in IODs of other modes. See http://seclists.org/nmap-dev/2010/q3/587
+
+[DONE] Fix bug that causes Nping to fail when sending UDP packets to a broadcast
+  address. More info: <http://seclists.org/nmap-dev/2010/q3/752>
+
+[DONE] When doing ICMP echo traceroute (with --traceroute), unless the user
+  supplies a custom round count (-c/--count), Nping only sends 5 packets
+  (default round count). This is usually not enough to reach hosts
+  on the internet. What should be the default behaviour? Stick with the
+  default round count of 5 or increment it when --traceroute is set?
+  - We should probably set -c 32 when --traceroute is specified,
+    unless user specifies their own -c explicitly.
+
+
