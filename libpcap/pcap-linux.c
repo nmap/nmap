@@ -2148,6 +2148,7 @@ pcap_setfilter_linux_common(pcap_t *handle, struct bpf_program *filter,
 	struct sock_fprog	fcode;
 	int			can_filter_in_kernel;
 	int			err = 0;
+    memset(&fcode, 0, sizeof(struct sock_fprog));
 #endif
 
 	if (!handle)
