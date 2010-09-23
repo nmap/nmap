@@ -2750,7 +2750,7 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
   target = t;
   OSI = OsSI;
 
-  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint));
+  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
   FP_matches = (FingerPrintResults *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResults));
   timedOut = false;
   isCompleted = false;
