@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed some inconsistencies in nmap-os-db and a small memory leak
+  that would happen where there was more than one round of OS
+  detection. These were reported by Xavier Sudre from netVigilance,
+  Inc.
+
 o [NSE] Fixed a bug with worker threads calling the wrong destructors.
   Fixing this allows better parallelism in http-brute.nse. The problem
   was reported by Patrik Karlsson. [David, Patrick]
