@@ -708,8 +708,11 @@ void HostOsScanStats::initScanStats() {
   }
 
   FP = NULL;
-  for (i=0; i<NUM_FPTESTS; i++)
+  for (i=0; i<NUM_FPTESTS; i++) {
+	if (FPtests[i] != NULL)
+	  delete FPtests[i];
 	FPtests[i] = NULL;
+  }
   for (i=0; i<6; i++) {
 	TOps_AVs[i] = NULL;
 	TWin_AVs[i] = NULL;
