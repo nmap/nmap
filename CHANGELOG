@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug with worker threads calling the wrong destructors.
+  Fixing this allows better parallelism in http-brute.nse. The problem
+  was reported by Patrik Karlsson. [David, Patrick]
+
 o [Zenmap] Made the topology node radiuses grow logarithmically
   instead of linearly, so that hosts with thousands of open ports
   don't overwhelm the diagram. Also only open ports (not

@@ -692,6 +692,7 @@ local function run (threads, scantype)
       type = current.type,
       parent = current.parent,
       info = format("'%s' worker (%s)", current.short_basename, tostring(co));
+      close_handlers = {},
       -- d = function(...) end, -- output no debug information
     };
     local thread_mt = {
