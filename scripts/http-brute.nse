@@ -116,9 +116,6 @@ action = function( host, port )
 	end
 	
 
-	-- there's a bug in http.lua that does not allow it to be called by
-	-- multiple threads
-	engine:setMaxThreads(1)
 	status, result = engine:start()
 	
 	return result
