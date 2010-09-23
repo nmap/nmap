@@ -136,12 +136,10 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   if (currenths->traceroute_hops.size() > 0)
   {
     std::list<TracerouteHop>::iterator it;
-    int i = 1;
 
     lua_newtable(L);
     for (it = currenths->traceroute_hops.begin(); it != currenths->traceroute_hops.end(); it++)
     {
-      lua_pushinteger(L, i++);
       lua_newtable(L);
       /* fill the table if the hop has not timed out, otherwise an empty table
        * is inserted */
@@ -153,7 +151,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
         setnfield(L, -1, "srtt", it->rtt / 1000.0);
         lua_setfield(L, -2, "times");
       }
-      lua_settable(L, -3);
+      lua_rawseti(L, -2, lua_objlen(L, -2)+1);
     }
     lua_setfield(L, -2, "traceroute");
   }
