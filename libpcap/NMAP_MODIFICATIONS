@@ -202,3 +202,20 @@ Index: pcap-linux.c
  #ifdef SO_ATTACH_FILTER
 
 o Regenerated configure.
+
+o Added a memset() call that removes a Valgrind error. More info at:
+  <http://seclists.org/nmap-dev/2010/q3/796>
+
+Index: pcap-linux.c
+===================================================================
+--- pcap-linux.c	(revision 20314)
++++ pcap-linux.c	(working copy)
+@@ -2148,6 +2148,7 @@
+ 	struct sock_fprog	fcode;
+ 	int			can_filter_in_kernel;
+ 	int			err = 0;
++ 	memset(&fcode, 0, sizeof(struct sock_fprog));
+ #endif
+ 
+ 	if (!handle)
+
