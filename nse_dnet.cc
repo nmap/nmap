@@ -182,7 +182,7 @@ static int ip_send (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
   const char *packet = luaL_checkstring(L, 2);
-
+  char dev[16];
   int ret;
 
   if (udata->sock == -1)
@@ -190,6 +190,8 @@ static int ip_send (lua_State *L)
 
   if (lua_objlen(L, 2) < sizeof(struct ip))
     return luaL_error(L, "ip packet too short");
+
+  *dev = '\0';
 
   if (o.sendpref & PACKET_SEND_ETH)
   {
@@ -208,6 +210,8 @@ static int ip_send (lua_State *L)
 
     if (!nmap_route_dst(&dstss, &route))
       goto usesock;
+
+    Strncpy(dev, route.ii.devname, sizeof(dev));
 
     if (route.ii.device_type != devt_ethernet)
       goto usesock;
