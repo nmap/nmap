@@ -3340,7 +3340,7 @@ function samr_enum_groups(host)
 		end
 
 		-- If it returned a nil array
-		if(enumaliases_result['sam'] == nil or enumeliases_result['sam']['entries'] == nil) then
+		if(enumaliases_result['sam'] == nil or enumaliases_result['sam']['entries'] == nil) then
 			return false, "ERROR: No groups returned by samr_EnumDomainAliases()"
 		end
 
