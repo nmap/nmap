@@ -68,21 +68,20 @@ end
 --@return Status (true or false).
 --@return The value (if status is true) or an error string (if status is false).
 local function reg_get_value(smbstate, handle, key, value)
-
 	-- Open the key
-	status, openkey_result = msrpc.winreg_openkey(smbstate, handle, key)
+	local status, openkey_result = msrpc.winreg_openkey(smbstate, handle, key)
     if(status == false) then
         return false, openkey_result
     end
 
 	-- Query the value
-	status, queryvalue_result = msrpc.winreg_queryvalue(smbstate, openkey_result['handle'], value)
+	local status, queryvalue_result = msrpc.winreg_queryvalue(smbstate, openkey_result['handle'], value)
     if(status == false) then
         return false, queryvalue_result
     end
 
 	-- Close the key
-	status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'], value)
+	local status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'], value)
     if(status == false) then
         return false, closekey_result
     end
@@ -93,23 +92,22 @@ end
 local function get_info_registry(host)
 
 	local result = {}
-	local status, smbstate, bind_result, openhklm_result
 
 	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
+	local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
     -- Bind to WINREG service
-    status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
+    local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
     if(status == false) then
         msrpc.stop_smb(smbstate)
         return false, bind_result
     end
 
 	-- Open HKEY_LOCAL_MACHINE
-    status, openhklm_result = msrpc.winreg_openhklm(smbstate)
+    local status, openhklm_result = msrpc.winreg_openhklm(smbstate)
     if(status == false) then
         msrpc.stop_smb(smbstate)
         return false, openhklm_result
@@ -178,7 +176,7 @@ end
 
 action = function(host)
 
-	status, result = get_info_registry(host)
+	local status, result = get_info_registry(host)
 
 	if(status == false) then
 		return stdnse.format_output(false, result)

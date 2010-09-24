@@ -119,19 +119,19 @@ local function winreg_enum_rids(host)
 	local elements = {}
 
 	-- Create the SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
+	local status, smbstate = msrpc.start_smb(host, msrpc.WINREG_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to WINREG service
-	status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
+	local status, bind_result = msrpc.bind(smbstate, msrpc.WINREG_UUID, msrpc.WINREG_VERSION, nil)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, bind_result
 	end
 
-	status, openhku_result = msrpc.winreg_openhku(smbstate)
+	local status, openhku_result = msrpc.winreg_openhku(smbstate)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, openhku_result
@@ -140,7 +140,7 @@ local function winreg_enum_rids(host)
 	-- Loop through the keys under HKEY_USERS and grab the names
 	i = 0
 	repeat 
-		status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
+		local status, enumkey_result = msrpc.winreg_enumkey(smbstate, openhku_result['handle'], i, "")
 
 		if(status == true) then
 			local status, openkey_result
@@ -150,18 +150,18 @@ local function winreg_enum_rids(host)
 
 			-- To get the time the user logged in, we check the 'Volatile Environment' key
 			-- This can fail with the 'guest' account due to access restrictions
-			status, openkey_result = msrpc.winreg_openkey(smbstate, openhku_result['handle'], element['name'] .. "\\Volatile Environment")
+			local status, openkey_result = msrpc.winreg_openkey(smbstate, openhku_result['handle'], element['name'] .. "\\Volatile Environment")
 			if(status ~= false) then
 				local queryinfokey_result, closekey_result
 
 				-- Query the info about this key. The response will tell us when the user logged into the server. 
-				status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
+				local status, queryinfokey_result = msrpc.winreg_queryinfokey(smbstate, openkey_result['handle'])
 				if(status == false) then
 					msrpc.stop_smb(smbstate)
 					return false, queryinfokey_result
 				end
 
-				status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'])
+				local status, closekey_result = msrpc.winreg_closekey(smbstate, openkey_result['handle'])
 				if(status == false) then
 					msrpc.stop_smb(smbstate)
 					return false, closekey_result
@@ -178,7 +178,7 @@ local function winreg_enum_rids(host)
 		i = i + 1
 	until status ~= true
 
-	status, closekey_result = msrpc.winreg_closekey(smbstate, openhku_result['handle'])
+	local status, closekey_result = msrpc.winreg_closekey(smbstate, openhku_result['handle'])
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, closekey_result
@@ -187,20 +187,20 @@ local function winreg_enum_rids(host)
 	msrpc.stop_smb(smbstate)
 
 	-- Start a new SMB session
-	status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
+	local status, smbstate = msrpc.start_smb(host, msrpc.LSA_PATH)
 	if(status == false) then
 		return false, smbstate
 	end
 
 	-- Bind to LSA service
-	status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
+	local status, bind_result = msrpc.bind(smbstate, msrpc.LSA_UUID, msrpc.LSA_VERSION, nil)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, bind_result
 	end
 
 	-- Get a policy handle
-	status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
+	local status, openpolicy2_result = msrpc.lsa_openpolicy2(smbstate, host.ip)
 	if(status == false) then
 		msrpc.stop_smb(smbstate)
 		return false, openpolicy2_result
@@ -216,7 +216,7 @@ local function winreg_enum_rids(host)
 				-- The rid is the last digits before the end of the string
 				local rid = string.sub(sid, string.find(sid, "%d+$"))
 
-				status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
+				local status, lookupsids2_result = msrpc.lsa_lookupsids2(smbstate, openpolicy2_result['policy_handle'], {elements[i]['name']})
 
 				if(status == false) then
 					-- It may not succeed, if it doesn't that's ok
@@ -267,11 +267,9 @@ action = function(host)
 
 	local response = {}
 
-	local status1, status2
-
 	-- Enumerate the logged in users
 	local logged_in = {}
-	status1, users = winreg_enum_rids(host)
+	local status1, users = winreg_enum_rids(host)
 	if(status1 == false) then
 		logged_in['warning'] = "Couldn't enumerate login sessions: " .. users
 	else
@@ -290,7 +288,7 @@ action = function(host)
 
 	-- Get the connected sessions
 	local sessions_output = {}
-	status2, sessions = srvsvc_enum_sessions(host)
+	local status2, sessions = srvsvc_enum_sessions(host)
 	if(status2 == false) then
 		sessions_output['warning'] = "Couldn't enumerate SMB sessions: " .. sessions
 	else

@@ -203,10 +203,8 @@ hostrule = function(host)
 end
 
 action = function(host)
-	local process, response, result, status
-
 	-- Get the process list
-	status, result = msrpcperformance.get_performance_data(host, "230")
+	local status, result = msrpcperformance.get_performance_data(host, "230")
 	if status == false then
 		if nmap.debugging() > 0 then
 			return "ERROR: " .. result
@@ -216,7 +214,7 @@ action = function(host)
 	end
 
 	-- Get the process table
-	process = result["Process"]
+	local process = result["Process"]
 
 	-- Put the processes into an array, and sort them by pid.
 	local names = {}
@@ -281,6 +279,7 @@ action = function(host)
 	end
 
 	-- Produce final output.
+	local response
 	if nmap.verbosity() == 0 then
 		response = "|_ " .. stdnse.strjoin(", ", names)
 	else
