@@ -8176,6 +8176,7 @@ IE(DFI=S%T=100%TG=FF%CD=S)
 # IOS (tm) C2600 Software (C2600-I-M), Version 11.3(11b)T5,  RELEASE SOFTWARE (fc1)
 # IOS (tm) C2950 Software (C2950-C3H2S-M), Version 12.0(5.3)WC(1)
 Fingerprint Cisco Catalyst 2600-, 2900- or 3500 XL-series switch (IOS 11.3 - 12.0)
+Class Cisco | IOS | 11.X | switch
 Class Cisco | IOS | 12.X | switch
 SEQ(SP=ED-10B%GCD=1-6%ISR=102-10E%TI=Z%II=RI%TS=U)
 OPS(O1=M5B4%O2=M5B4%O3=M5B4%O4=M5B4%O5=M5B4%O6=M5B4)
