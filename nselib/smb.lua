@@ -1301,6 +1301,9 @@ function start_session_extended(smb, log_errors, overrides)
 	local os, lanmanager
 	local username, domain, password, password_hash, hash_type
 
+	-- Set a default status_name, in case everything fails
+	status_name = "An unknown error has occurred"
+
 	-- Get the first account, unless they overrode it
 	if(overrides ~= nil and overrides['username'] ~= nil) then
 		result = true
@@ -1311,6 +1314,9 @@ function start_session_extended(smb, log_errors, overrides)
 		hash_type     = overrides['hash_type']
 	else
 		result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+		if(not(result)) then
+			return result, username
+		end
 	end
 
 	while result ~= false do
@@ -1429,6 +1435,9 @@ function start_session_extended(smb, log_errors, overrides)
 		if(overrides == nil or overrides['username'] == nil) then
 			smbauth.next_account(smb['host'])
 			result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+			if(not(result)) then
+				return false, username
+			end
 		else
 			result = false
 		end
