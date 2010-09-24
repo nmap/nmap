@@ -90,11 +90,16 @@ action = function(host)
 				table.insert(piece, string.format("Users: n/a"))
 			end
 
+			-- Floor data.max_password_age, if possible
+			if(data.max_password_age) then
+				data.max_password_age = math.floor(data.max_password_age)
+			end
+
 			table.insert(piece, string.format("Creation time: %s", data.created))
 			table.insert(piece, string.format("Passwords: min length: %s; min age: %s days; max age: %s days; history: %s passwords", 
 			                                   data.min_password_length or "n/a",
 			                                   data.min_password_age or "n/a",
-			                                   math.floor(data.max_password_age) or "n/a",
+			                                   data.max_password_age or "n/a",
 			                                   data.password_history or "n/a"))
 			if(data.password_properties and #data.password_properties) then
 				table.insert(piece, string.format("Properties: %s", stdnse.strjoin(", ", data.password_properties)))
