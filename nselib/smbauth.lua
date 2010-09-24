@@ -658,7 +658,7 @@ end
 function get_security_blob(security_blob, ip, username, domain, password, password_hash, hash_type)
 	local pos = 1
 	local new_blob
-	local flags = 0x00008211 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | NEGOTIATE_UNICODE)
+	local flags = 0x00008215 -- (NEGOTIATE_SIGN_ALWAYS | NEGOTIATE_NTLM | NEGOTIATE_SIGN | REQUEST_TARGET | NEGOTIATE_UNICODE)
 
 	if(security_blob == nil) then
 		-- If security_blob is nil, this is the initial packet
