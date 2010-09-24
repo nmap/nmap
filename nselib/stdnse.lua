@@ -589,14 +589,29 @@ function get_script_args (...)
   local args, args_num = {}, select("#", ...)
 
   for i = 1, args_num do
-    local option = select(i, ...)
+    local options = select(i, ...)
 
-    if nmap.registry.args[option] then
-      args[i] = nmap.registry.args[option]
-    else
-      for _, v in ipairs(nmap.registry.args) do
-        if v == option then
-          args[i] = 1
+    if(type(options) == 'string') then
+      options = {options}
+    end
+
+    -- Save the first option (which will be the primary, non-deprecated one)
+    local first_option = options[1]
+
+    for _, option in ipairs(options) do
+      if nmap.registry.args[option] then
+        if(option ~= first_option) then
+          print_debug(1, "WARNING: Option '%s' is deprecated; use '%s' instead.", option, first_option)
+        end
+        args[i] = nmap.registry.args[option]
+      else
+        for _, v in ipairs(nmap.registry.args) do
+          if v == option then
+            if(option ~= first_option) then
+              print_debug(1, "WARNING: Option '%s' is deprecated; use '%s' instead.", option, first_option)
+            end
+            args[i] = 1
+          end
         end
       end
     end
