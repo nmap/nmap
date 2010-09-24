@@ -3339,6 +3339,11 @@ function samr_enum_groups(host)
 			return false, "Couldn't enumerate groups: " .. enumaliases_result
 		end
 
+		-- If it returned a nil array
+		if(enumaliases_result['sam'] == nil or enumeliases_result['sam']['entries'] == nil) then
+			return false, "ERROR: No groups returned by samr_EnumDomainAliases()"
+		end
+
 		-- Print some output
 		stdnse.print_debug(1, "MSRPC: Found %d groups in %s", #enumaliases_result['sam']['entries'], domain)
 
