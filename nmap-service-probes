@@ -6225,6 +6225,7 @@ match http m|^<html>\r\n<META HTTP-EQUIV=\"Refresh\" CONTENT=\"10\">\r\n<head>\r
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\n.*Server: IdeaWebServer/v([\w._-]+)\r\n|s p/IdeaWebServer/ v/$1/
 match http m|^HTTP/1\.1 302 OK\r\nDate: \w\w\w \d\d, \d\d:\d\d:\d\d\.\d\d\d\r\nServer: TreeNeWS/([\w._-]+)\r\nMime-Version: 1\.0\r\nLocation: https://index\.html\r\nContent-Length: 67\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>Redirect</TITLE></HEAD>\n<BODY></BODY></HTML>\r\r\n\n$| p/TreeNeWS httpd/ v/$1/ i/Enterasys RBT-8200 switch http config/ d/switch/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: CANON HTTP Server\r\nContent-Type: text/html\r\n| p/Canon printer web interface/
+
 #(insert http)
 
 
