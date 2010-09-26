@@ -47,9 +47,9 @@
 -- -- iterate over every share
 -- for _, mount in ipairs( mounts ) do
 --
--- 	-- get the NFS attributes for the share
---	status, attribs = rpc.Helper.GetAttributes( host, port, mount.name )
---		.... process NFS attributes here ....
+--    -- get the NFS attributes for the share
+--    status, attribs = rpc.Helper.GetAttributes( host, port, mount.name )
+--    .... process NFS attributes here ....
 -- end
 -- </code>
 --
@@ -96,28 +96,28 @@ require("datafiles")
 
 -- RPC args using the nmap.registry.args
 RPC_args = {
-	["rpcbind"] = { proto = 'rpc.protocol' },
-	["nfs"] = { ver = 'nfs.version' },
-	["mountd"] = { ver = 'mount.version' },
+  ["rpcbind"] = { proto = 'rpc.protocol' },
+  ["nfs"] = { ver = 'nfs.version' },
+  ["mountd"] = { ver = 'mount.version' },
 }
 
 -- Defines the order in which to try to connect to the RPC programs
 -- TCP appears to be more stable than UDP in most cases, so try it first
 local RPC_PROTOCOLS = (nmap.registry.args and nmap.registry.args[RPC_args['rpcbind'].proto] and 
-			type(nmap.registry.args[RPC_args['rpcbind'].proto]) == 'table') and
-			nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
+    type(nmap.registry.args[RPC_args['rpcbind'].proto]) == 'table') and
+    nmap.registry.args[RPC_args['rpcbind'].proto] or { "tcp", "udp" }
 
 -- used to cache the contents of the rpc datafile
 local RPC_PROGRAMS
 
--- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmap']
+-- local mutex to synchronize I/O operations on nmap.registry[host.ip]['portmapper']
 local mutex = nmap.mutex("rpc")
 
 -- Supported protocol versions
 RPC_version = {
-	["rpcbind"] = { min=2, max=2 },
-	["nfs"] = { min=1, max=3 },
-	["mountd"] = { min=1, max=3 },
+    ["rpcbind"] = { min=2, max=2 },
+    ["nfs"] = { min=1, max=3 },
+    ["mountd"] = { min=1, max=3 },
 }
 
 math.randomseed( os.time() )
@@ -125,264 +125,270 @@ math.randomseed( os.time() )
 -- Low-level communication class
 Comm = {
 
-	--- Creats a new rpc Comm object
-	--
-	-- @param program name string
-	-- @param version number containing the program version to use
-	-- @return a new Comm object
-	new = function(self, program, version)
-		local o = {}
-       	setmetatable(o, self)
-        self.__index = self
-		o.program = program
-		o.program_id = Util.ProgNameToNumber(program)
-		o:SetVersion(version)
-		return o
-	end,
+    --- Creats a new rpc Comm object
+    --
+    -- @param program name string
+    -- @param version number containing the program version to use
+    -- @return a new Comm object
+    new = function(self, program, version)
+      local o = {}
+      setmetatable(o, self)
+      self.__index = self
+      o.program = program
+      o.program_id = Util.ProgNameToNumber(program)
+      o:SetVersion(version)
+      return o
+    end,
 
-	--- Connects to the remote program
-	--
-	-- @param host table
-	-- @param port table
-	-- @return status boolean true on success, false on failure
-	-- @return string containing error message (if status is false)
-	Connect = function(self, host, port)
-		local status, err, socket
-		status, err = self:ChkProgram()
-		if (not(status)) then
-			return status, err
-		end
-		status, err = self:ChkVersion()
-		if (not(status)) then
-			return status, err
-		end
-		socket = nmap.new_socket()
-		status, err = socket:connect(host, port)
-		if (not(status)) then
-			return status, string.format("%s connect error: %s", self.program, err)
-		else
-			self.socket = socket
-			self.ip = host.ip
-			self.port = port.number
-			self.proto = port.protocol
-			return status, nil
-		end
-	end,
+    --- Connects to the remote program
+    --
+    -- @param host table
+    -- @param port table
+    -- @return status boolean true on success, false on failure
+    -- @return string containing error message (if status is false)
+    Connect = function(self, host, port)
+      local status, err, socket
+      status, err = self:ChkProgram()
+      if (not(status)) then
+        return status, err
+      end
+      status, err = self:ChkVersion()
+      if (not(status)) then
+        return status, err
+      end
+      socket = nmap.new_socket()
+      status, err = socket:connect(host, port)
+      if (not(status)) then
+        return status, string.format("%s connect error: %s",
+                          self.program, err)
+      else
+        self.socket = socket
+        self.ip = host.ip
+        self.port = port.number
+        self.proto = port.protocol
+        return status, nil
+      end
+    end,
 
-	--- Disconnects from the remote program
-	--
-	-- @return status boolean true on success, false on failure
-	-- @return string containing error message (if status is false)
-	Disconnect = function(self)
-		local status, err = self.socket:close()
-		if (not(status)) then
-			return status, string.format("%s disconnect error: %s", self.program, err)
-		end
-		self.socket=nil
-		return status, nil
-	end,
+    --- Disconnects from the remote program
+    --
+    -- @return status boolean true on success, false on failure
+    -- @return string containing error message (if status is false)
+    Disconnect = function(self)
+      local status, err = self.socket:close()
+      if (not(status)) then
+        return status, string.format("%s disconnect error: %s",
+                          self.program, err)
+      end
+      self.socket=nil
+      return status, nil
+    end,
 
-	--- Checks if the rpc program is supported
-	--
-	-- @return status boolean true on success, false on failure
-	-- @return string containing error message (if status is false)
-	ChkProgram = function(self)
-		if (not(RPC_version[self.program])) then
-			return false, string.format("RPC library does not support: %s protocol", self.program)
-		end
-		return true, nil
-	end,
+    --- Checks if the rpc program is supported
+    --
+    -- @return status boolean true on success, false on failure
+    -- @return string containing error message (if status is false)
+    ChkProgram = function(self)
+      if (not(RPC_version[self.program])) then
+        return false, string.format("RPC library does not support: %s protocol",
+                          self.program)
+      end
+      return true, nil
+    end,
 
-	--- Checks if the rpc program version is supported
-	--
-	-- @return status boolean true on success, false on failure
-	-- @return string containing error message (if status is false)
-	ChkVersion = function(self)
-		if ( self.version > RPC_version[self.program].max or self.version < RPC_version[self.program].min ) then
-			return false, string.format("RPC library does not support: %s version %d",self.program,self.version)
-		end
-		return true, nil
-	end,
+    --- Checks if the rpc program version is supported
+    --
+    -- @return status boolean true on success, false on failure
+    -- @return string containing error message (if status is false)
+    ChkVersion = function(self)
+      if ( self.version > RPC_version[self.program].max or
+      self.version < RPC_version[self.program].min ) then
+        return false, string.format("RPC library does not support: %s version %d",
+                          self.program,self.version)
+      end
+      return true, nil
+    end,
 
-	--- Sets the rpc program version
-	--
-	-- @return status boolean true
-	SetVersion = function(self, version)
-		if (RPC_version[self.program] and RPC_args[self.program] and 
-		nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
-		self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
-		elseif (not(self.version) and version) then
-			self.version = version
-		end
-		return true, nil
-	end,
+    --- Sets the rpc program version
+    --
+    -- @return status boolean true
+    SetVersion = function(self, version)
+      if (RPC_version[self.program] and RPC_args[self.program] and 
+      nmap.registry.args and nmap.registry.args[RPC_args[self.program].ver]) then
+        self.version = tonumber(nmap.registry.args[RPC_args[self.program].ver])
+      elseif (not(self.version) and version) then
+        self.version = version
+      end
+      return true, nil
+    end,
 
-	--- Checks if data contains enough bytes to read the <code>needed</code> amount
-	--  If it doesn't it attempts to read the remaining amount of bytes from the socket
-	--
-	-- @param data string containing the current buffer
-	-- @param pos number containing the current offset into the buffer
-	-- @param needed number containing the number of bytes needed to be available
-	-- @return status success or failure
-	-- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
-	GetAdditionalBytes = function( self, data, pos, needed )
+    --- Checks if data contains enough bytes to read the <code>needed</code> amount
+    --  If it doesn't it attempts to read the remaining amount of bytes from the socket
+    --
+    -- @param data string containing the current buffer
+    -- @param pos number containing the current offset into the buffer
+    -- @param needed number containing the number of bytes needed to be available
+    -- @return status success or failure
+    -- @return data string containing the data passed to the function and the additional data appended to it or error message on failure
+    GetAdditionalBytes = function( self, data, pos, needed )
+      local status, tmp
 
-		local status, tmp
+      if data:len() - pos + 1 < needed then
+        local toread =  needed - ( data:len() - pos + 1 )
+        status, tmp = self.socket:receive_bytes( toread )
+        if status then
+          data = data .. tmp
+        else
+          return false, string.format("getAdditionalBytes() failed to read: %d bytes from the socket",
+                            needed - ( data:len() - pos ) )
+        end
+      end
+      return true, data
+    end,
 
-		if data:len() - pos + 1 < needed then
-			local toread =  needed - ( data:len() - pos + 1 )
-			status, tmp = self.socket:receive_bytes( toread )
-			if status then
-				data = data .. tmp
-			else
-				return false, string.format("getAdditionalBytes() failed to read: %d bytes from the socket", needed - ( data:len() - pos ) )
-			end
-		end
-		return true, data
-	end,
+    --- Creates a RPC header
+    --
+    -- @param xid number
+    -- @param procedure number containing the procedure to call
+    -- @param auth table containing the authentication data to use
+    -- @return status boolean true on success, false on failure
+    -- @return string of bytes on success, error message on failure
+    CreateHeader = function( self, xid, procedure, auth )
+      local RPC_VERSION = 2
+      local packet
 
-	--- Creates a RPC header
-	--
-	-- @param xid number
-	-- @param procedure number containing the procedure to call
-	-- @param auth table containing the authentication data to use
-	-- @return status boolean true on success, false on failure
-	-- @return string of bytes on success, error message on failure
-	CreateHeader = function( self, xid, procedure, auth )
-		local RPC_VERSION = 2
-		local packet
+      if not(xid) then
+        xid = math.random(1234567890)
+      end
+      if not auth then
+        return false, "Comm.CreateHeader: No authentication specified"
+      elseif auth.type ~= Portmap.AuthType.NULL then
+        return false, "Comm.CreateHeader: invalid authentication type specified"
+      end
 
-		if not(xid) then
-			xid = math.random(1234567890)
-		end
-		if not auth then
-			return false, "Comm.CreateHeader: No authentication specified"
-		elseif auth.type ~= Portmap.AuthType.NULL then
-			return false, "Comm.CreateHeader: invalid authentication type specified"
-		end
+      packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION, self.program_id, self.version, procedure )
+      if auth.type == Portmap.AuthType.NULL then
+        packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
+      end
+      return true, packet
+    end,
 
-		packet = bin.pack( ">IIIIII", xid, Portmap.MessageType.CALL, RPC_VERSION, self.program_id, self.version, procedure )
-		if auth.type == Portmap.AuthType.NULL then
-			packet = packet .. bin.pack( "IIII", 0, 0, 0, 0 )
-		end		
-		return true, packet
-	end,
+  --- Decodes the RPC header (without the leading 4 bytes as received over TCP)
+  --
+  -- @param data string containing the buffer of bytes read so far
+  -- @param pos number containing the current offset into data
+  -- @return pos number containing the offset after the decoding
+  -- @return header table containing <code>xid</code>, <code>type</code>, <code>state</code>,
+  -- <code>verifier</code> and ( <code>accept_state</code> or <code>denied_state</code> )
+  DecodeHeader = function( self, data, pos )
+    local header = {}
+    local status
 
-	--- Decodes the RPC header (without the leading 4 bytes as received over TCP)
-	--
-	-- @param data string containing the buffer of bytes read so far
-	-- @param pos number containing the current offset into data
-	-- @return pos number containing the offset after the decoding
-	-- @return header table containing <code>xid</code>, <code>type</code>, <code>state</code>,
-	-- <code>verifier</code> and ( <code>accept_state</code> or <code>denied_state</code> )
-	DecodeHeader = function( self, data, pos )
-		local header = {}
-		local status
+    local HEADER_LEN = 20
 
-		local HEADER_LEN = 20
+    header.verifier = {}
 
-		header.verifier = {}
+    if ( data:len() - pos < HEADER_LEN ) then
+      local tmp
+      status, tmp = self:GetAdditionalBytes( data, pos, HEADER_LEN - ( data:len() - pos ) )
+      if not status then
+        stdnse.print_debug(4,
+            string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
+        return -1, nil
+      end
+      data = data .. tmp
+    end
 
-		if ( data:len() - pos < HEADER_LEN ) then
-			local tmp
-			status, tmp = self:GetAdditionalBytes( data, pos, HEADER_LEN - ( data:len() - pos ) )
-			if not status then
-				stdnse.print_debug(string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
-				return -1, nil
-			end
-			data = data .. tmp
-		end
+    pos, header.xid, header.type, header.state = bin.unpack(">III", data, pos)
 
-		pos, header.xid, header.type, header.state = bin.unpack(">III", data, pos)
+    if ( header.state == Portmap.State.MSG_DENIED ) then
+      pos, header.denied_state = bin.unpack(">I", data, pos )
+      return pos, header
+    end
 
-		if ( header.state == Portmap.State.MSG_DENIED ) then
-			pos, header.denied_state = bin.unpack(">I", data, pos )
-			return pos, header
-		end
+    pos, header.verifier.flavor = bin.unpack(">I", data, pos)
+    pos, header.verifier.length = bin.unpack(">I", data, pos) 
 
-		pos, header.verifier.flavor = bin.unpack(">I", data, pos)
-		pos, header.verifier.length = bin.unpack(">I", data, pos) 
+    if header.verifier.length - 8 > 0 then
+      status, data = self:GetAdditionalBytes( data, pos, header.verifier.length - 8 )
+      if not status then
+        stdnse.print_debug(4,
+            string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
+        return -1, nil
+      end
+      pos, header.verifier.data = bin.unpack("A" .. header.verifier.length - 8, data, pos )
+    end
+    pos, header.accept_state = bin.unpack(">I", data, pos )
 
-		if header.verifier.length - 8 > 0 then
-			status, data = self:GetAdditionalBytes( data, pos, header.verifier.length - 8 )
-			if not status then
-				stdnse.print_debug(string.format("Comm.ReceivePacket: failed to call GetAdditionalBytes"))
-				return -1, nil
-			end
-			pos, header.verifier.data = bin.unpack("A" .. header.verifier.length - 8, data, pos )
-		end
-		pos, header.accept_state = bin.unpack(">I", data, pos )
+    return pos, header
+  end,
 
+  --- Reads the response from the socket
+  --
+  -- @return status true on success, false on failure
+  -- @return data string containing the raw response or error message on failure
+  ReceivePacket = function( self )
+    local status
 
-		return pos, header
-	end,
+    if ( self.proto == "udp" ) then
+      -- There's not much we can do in here to check if we received all data
+      -- as the packet contains no length field. It's up to each decoding function
+      -- to do appropriate checks
+      return self.socket:receive_bytes(1)
+    else 
+      local tmp, lastfragment, length
+      local data, pos = "", 1
 
-	--- Reads the response from the socket
-	--
-	-- @return status true on success, false on failure
-	-- @return data string containing the raw response or error message on failure
-	ReceivePacket = function( self )
-		local status
+      repeat
+        lastfragment = false
+        status, data = self:GetAdditionalBytes( data, pos, 4 )
+        if ( not(status) ) then
+          return false, "Comm.ReceivePacket: failed to call GetAdditionalBytes"
+        end
 
-		if ( self.proto == "udp" ) then
-			-- There's not much we can do in here to check if we received all data
-			-- as the packet contains no length field. It's up to each decoding function
-			-- to do appropriate checks
-			return self.socket:receive_bytes(1)
-		else 
-			local tmp, lastfragment, length
-			local data, pos = "", 1
+        pos, tmp = bin.unpack(">i", data, pos )
+        length = bit.band( tmp, 0x7FFFFFFF )
 
-			repeat
-				lastfragment = false
-				status, data = self:GetAdditionalBytes( data, pos, 4 )
-				if ( not(status) ) then
-					return false, "Comm.ReceivePacket: failed to call GetAdditionalBytes"
-				end
+        if ( bit.band( tmp, 0x80000000 ) == 0x80000000 ) then
+          lastfragment = true
+        end
 
-				pos, tmp = bin.unpack(">i", data, pos )
-				length = bit.band( tmp, 0x7FFFFFFF )
+        status, data = self:GetAdditionalBytes( data, pos, length )
+        if ( not(status) ) then
+          return false, "Comm.ReceivePacket: failed to call GetAdditionalBytes"
+        end
 
-				if ( bit.band( tmp, 0x80000000 ) == 0x80000000 ) then
-					lastfragment = true
-				end
+        --
+        -- When multiple packets are received they look like this
+        -- H = Header data
+        -- D = Data
+        -- 
+        -- We don't want the Header
+        --
+        -- HHHHDDDDDDDDDDDDDDHHHHDDDDDDDDDDD
+        -- ^   ^             ^   ^
+        -- 1   5             18  22
+        --
+        -- eg. we want
+        -- data:sub(5, 18) and data:sub(22)
+        -- 
 
-				status, data = self:GetAdditionalBytes( data, pos, length )
-				if ( not(status) ) then
-					return false, "Comm.ReceivePacket: failed to call GetAdditionalBytes"
-				end
+        local bufcopy = data:sub(pos)
 
-				--
-				-- When multiple packets are received they look like this
-				-- H = Header data
-				-- D = Data
-				-- 
-				-- We don't want the Header
-				--
-				-- HHHHDDDDDDDDDDDDDDHHHHDDDDDDDDDDD
-				-- ^   ^             ^   ^
-				-- 1   5             18  22
-				--
-				-- eg. we want
-				-- data:sub(5, 18) and data:sub(22)
-				-- 
+        if 1 ~= pos - 4 then
+          bufcopy = data:sub(1, pos - 5) .. bufcopy
+          pos = pos - 4
+        else
+          pos = 1
+        end
 
-				local bufcopy = data:sub(pos)
+        pos = pos + length
+        data = bufcopy
+      until lastfragment == true
+      return true, data
+    end
+  end,
 
-				if 1 ~= pos - 4 then
-					bufcopy = data:sub(1, pos - 5) .. bufcopy
-					pos = pos - 4
-				else
-					pos = 1
-				end
-
-				pos = pos + length
-				data = bufcopy
-			until lastfragment == true	
-			return true, data
-		end
-	end,
-	
 	--- Encodes a RPC packet
 	--
 	-- @param xid number containing the transaction ID
@@ -416,205 +422,200 @@ Comm = {
 --- Portmap (rpcbind) class
 Portmap = 
 {
-	PROTOCOLS = { 
-		['tcp'] = 6, 
-		['udp'] = 17, 
-	},
-	
-	-- TODO: add more Authentication Protocols
-	AuthType =
-	{
-		NULL = 0
-	},	
+  PROTOCOLS = { 
+    ['tcp'] = 6, 
+    ['udp'] = 17, 
+  },
 
-	-- TODO: complete Authentication stats and error messages
-	AuthState =
-	{
-		AUTH_OK = 0,
-		AUTH_BADCRED = 1,
-		AUTH_REJECTEDCRED = 2,
-		AUTH_BADVERF = 3,
-		AUTH_REJECTEDVERF = 4,
-		AUTH_TOOWEAK = 5,
-		AUTH_INVALIDRESP = 6,
-		AUTH_FAILED = 7,
-	},
+  -- TODO: add more Authentication Protocols
+  AuthType =
+  {
+    NULL = 0
+  },
 
-	AuthMsg =
-	{
-		[0] = "Success.",
-		[1] = "bad credential (seal broken).",
-		[2] = "client must begin new session.",
-		[3] = "bad verifier (seal broken).",
-		[4] = "verifier expired or replayed.",
-		[5] = "rejected for security reasons.",
-		[6] = "bogus response verifier.",
-		[7] = "reason unknown.",
-	},
+  -- TODO: complete Authentication stats and error messages
+  AuthState =
+  {
+    AUTH_OK = 0,
+    AUTH_BADCRED = 1,
+    AUTH_REJECTEDCRED = 2,
+    AUTH_BADVERF = 3,
+    AUTH_REJECTEDVERF = 4,
+    AUTH_TOOWEAK = 5,
+    AUTH_INVALIDRESP = 6,
+    AUTH_FAILED = 7,
+  },
 
-	MessageType =
-	{
-		CALL = 0,
-		REPLY = 1
-	},
+  AuthMsg =
+  {
+    [0] = "Success.",
+    [1] = "bad credential (seal broken).",
+    [2] = "client must begin new session.",
+    [3] = "bad verifier (seal broken).",
+    [4] = "verifier expired or replayed.",
+    [5] = "rejected for security reasons.",
+    [6] = "bogus response verifier.",
+    [7] = "reason unknown.",
+  },
 
-	Procedure =
-	{
-		[2] = 
-		{
-			GETPORT = 3,
-			DUMP = 4,
-		},
-	
-	},
-	
-	State =
-	{
-		MSG_ACCEPTED = 0,
-		MSG_DENIED = 1,
-	},
-	
-	AcceptState =
-	{
-		SUCCESS = 0,
-		PROG_UNAVAIL = 1,
-		PROG_MISMATCH = 2,
-		PROC_UNAVAIL = 3,
-		GARBAGE_ARGS = 4,
-		SYSTEM_ERR = 5,
-	},
+  MessageType =
+  {
+    CALL = 0,
+    REPLY = 1
+  },
 
-	AcceptMsg =
-	{
-		[0] = "RPC executed successfully.",
-		[1] = "remote hasn't exported program.",
-		[2] = "remote can't support version.",
-		[3] = "program can't support procedure.",
-		[4] = "procedure can't decode params.",
-		[5] = "errors like memory allocation failure.",
-	},
+  Procedure =
+  {
+    [2] = 
+    {
+      GETPORT = 3,
+      DUMP = 4,
+    },
 
-	RejectState =
-	{
-		RPC_MISMATCH = 0,
-		AUTH_ERROR = 1, 
-	},
+  },
+  
+  State =
+  {
+    MSG_ACCEPTED = 0,
+    MSG_DENIED = 1,
+  },
+  
+  AcceptState =
+  {
+    SUCCESS = 0,
+    PROG_UNAVAIL = 1,
+    PROG_MISMATCH = 2,
+    PROC_UNAVAIL = 3,
+    GARBAGE_ARGS = 4,
+    SYSTEM_ERR = 5,
+  },
 
-	RejectMsg =
-	{
-		[0] = "RPC version number != 2.",
-		[1] = "remote can't authenticate caller.",
-	},
+  AcceptMsg =
+  {
+    [0] = "RPC executed successfully.",
+    [1] = "remote hasn't exported program.",
+    [2] = "remote can't support version.",
+    [3] = "program can't support procedure.",
+    [4] = "procedure can't decode params.",
+    [5] = "errors like memory allocation failure.",
+  },
 
-        new = function(self,o)
-		o = o or {}
-        setmetatable(o, self)
-        self.__index = self
-		return o
-	end,
-		
-	--- Dumps a list of RCP programs from the portmapper
-	--
-	-- @param comm object handles rpc program information and
-	-- 	low-level packet manipulation
-	-- @return status boolean true on success, false on failure
-	-- @return result table containing RPC program information or error message
-	--         on failure. The table has the following format:
-	--
-	-- <code>
-	-- table[program_id][protocol]["port"] = <port number>
-	-- table[program_id][protocol]["version"] = <table of versions>
-	-- </code>
-	--
-	-- Where
-	--  o program_id is the number associated with the program
-	--  o protocol is either "tcp" or "udp"
-	--
-	Dump = function(self, comm)
-		local status, data, packet, response, pos, header
-		local program_table = setmetatable({}, { __mode = 'v' })
+  RejectState =
+  {
+    RPC_MISMATCH = 0,
+    AUTH_ERROR = 1, 
+  },
 
-		if nmap.registry[comm.ip] == nil then
-			nmap.registry[comm.ip] = {}
-		end
-		if nmap.registry[comm.ip]['portmap'] == nil then
-			nmap.registry[comm.ip]['portmap'] = {}
-		elseif next(nmap.registry[comm.ip]['portmap']) ~= nil then
-			return true, nmap.registry[comm.ip]['portmap']
-		end
+  RejectMsg =
+  {
+    [0] = "RPC version number != 2.",
+    [1] = "remote can't authenticate caller.",
+  },
 
-		packet = comm:EncodePacket( nil, Portmap.Procedure[comm.version].DUMP, { type=Portmap.AuthType.NULL }, data )
-		if (not(comm:SendPacket(packet))) then
-			return false, "Portmap.Dump: Failed to send data"
-		end
-		status, data = comm:ReceivePacket()
-		if ( not(status) ) then
-			return false, "Portmap.Dump: Failed to read data from socket"
-		end
+  new = function(self,o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-		pos, header = comm:DecodeHeader( data, 1 )
-		if ( not(header) ) then
-			return false, "Portmap.Dump: Failed to decode RPC header"
-		end
+  --- Dumps a list of RCP programs from the portmapper
+  --
+  -- @param comm object handles rpc program information and
+  --  low-level packet manipulation
+  -- @return status boolean true on success, false on failure
+  -- @return result table containing RPC program information or error message
+  --         on failure. The table has the following format:
+  --
+  -- <code>
+  -- table[program_id][protocol]["port"] = <port number>
+  -- table[program_id][protocol]["version"] = <table of versions>
+  -- </code>
+  --
+  -- Where
+  --  o program_id is the number associated with the program
+  --  o protocol is either "tcp" or "udp"
+  --
+  Dump = function(self, comm)
+    local status, data, packet, response, pos, header
+    local program_table = setmetatable({}, { __mode = 'v' })
 
-		if header.type ~= Portmap.MessageType.REPLY then
-			return false, "Portmap.Dump: Packet was not a reply"
-		end
+    packet = comm:EncodePacket( nil, Portmap.Procedure[comm.version].DUMP, { type=Portmap.AuthType.NULL }, data )
+    if (not(comm:SendPacket(packet))) then
+      return false, "Portmap.Dump: Failed to send data"
+    end
+    status, data = comm:ReceivePacket()
+    if ( not(status) ) then
+      return false, "Portmap.Dump: Failed to read data from socket"
+    end
 
-		if header.state ~= Portmap.State.MSG_ACCEPTED then
-			if (Portmap.RejectMsg[header.denied_state]) then
-				return false, string.format("Portmap.Dump: RPC call failed: %s",
-							Portmap.RejectMsg[header.denied_state])
-			else
-				return false, string.format("Portmap.Dump: RPC call failed: code %d",
-							header.state)
-			end
-		end
+    pos, header = comm:DecodeHeader( data, 1 )
+    if ( not(header) ) then
+      return false, "Portmap.Dump: Failed to decode RPC header"
+    end
 
-		if header.accept_state ~= Portmap.AcceptState.SUCCESS then
-			if (Portmap.AcceptMsg[header.accept_state]) then
-				return false, string.format("Portmap.Dump: RPC accepted state: %s",
-							Portmap.AcceptMsg[header.accept_state])
-			else
-				return false, string.format("Portmap.Dump: RPC accepted state code %d",
-							header.accept_state)
-			end
-		end
+    if header.type ~= Portmap.MessageType.REPLY then
+      return false, "Portmap.Dump: Packet was not a reply"
+    end
 
-		while true do
-			local vfollows
-			local program, version, protocol, port
+    if header.state ~= Portmap.State.MSG_ACCEPTED then
+      if (Portmap.RejectMsg[header.denied_state]) then
+        return false,
+          string.format("Portmap.Dump: RPC call failed: %s",
+                Portmap.RejectMsg[header.denied_state])
+      else
+        return false,
+          string.format("Portmap.Dump: RPC call failed: code %d",
+                header.state)
+      end
+    end
 
-			status, data = comm:GetAdditionalBytes( data, pos, 4 )
-			if ( not(status) ) then
-				return false, "Portmap.Dump: Failed to call GetAdditionalBytes"
-			end
-			pos, vfollows = bin.unpack( ">I", data, pos )		
-			if ( vfollows == 0 ) then
-				break
-			end
-			
-			pos, program, version, protocol, port = bin.unpack(">IIII", data, pos)
-			if ( protocol == Portmap.PROTOCOLS.tcp ) then
-				protocol = "tcp"
-			elseif ( protocol == Portmap.PROTOCOLS.udp ) then
-				protocol = "udp"
-			end
-						
-			program_table[program] = program_table[program] or {}
-			program_table[program][protocol] = program_table[program][protocol] or {}
-			program_table[program][protocol]["port"] = port
-			program_table[program][protocol]["version"] = program_table[program][protocol]["version"] or {}
-			table.insert( program_table[program][protocol]["version"], version )
-			-- parts of the code rely on versions being in order
-			-- this way the highest version can be chosen by choosing the last element
-			table.sort( program_table[program][protocol]["version"] )
-		end
+    if header.accept_state ~= Portmap.AcceptState.SUCCESS then
+      if (Portmap.AcceptMsg[header.accept_state]) then
+        return false,
+          string.format("Portmap.Dump: RPC accepted state: %s",
+                Portmap.AcceptMsg[header.accept_state])
+      else
+        return false,
+          string.format("Portmap.Dump: RPC accepted state code %d",
+                header.accept_state)
+      end
+    end
 
-		nmap.registry[comm.ip]['portmap'] = program_table
-		return true, nmap.registry[comm.ip]['portmap']  	
-	end,
-	
+    while true do
+      local vfollows
+      local program, version, protocol, port
+
+      status, data = comm:GetAdditionalBytes( data, pos, 4 )
+      if ( not(status) ) then
+        return false, "Portmap.Dump: Failed to call GetAdditionalBytes"
+      end
+      pos, vfollows = bin.unpack( ">I", data, pos )
+      if ( vfollows == 0 ) then
+        break
+      end
+      
+      pos, program, version, protocol, port = bin.unpack(">IIII", data, pos)
+      if ( protocol == Portmap.PROTOCOLS.tcp ) then
+        protocol = "tcp"
+      elseif ( protocol == Portmap.PROTOCOLS.udp ) then
+        protocol = "udp"
+      end
+
+      program_table[program] = program_table[program] or {}
+      program_table[program][protocol] = program_table[program][protocol] or {}
+      program_table[program][protocol]["port"] = port
+      program_table[program][protocol]["version"] = program_table[program][protocol]["version"] or {}
+      table.insert( program_table[program][protocol]["version"], version )
+      -- parts of the code rely on versions being in order
+      -- this way the highest version can be chosen by choosing the last element
+      table.sort( program_table[program][protocol]["version"] )
+    end
+
+    nmap.registry[comm.ip]['portmapper'] = program_table
+    return true, nmap.registry[comm.ip]['portmapper']  	
+  end,
+
 	--- Queries the portmapper for the port of the selected program, 
 	--  protocol and version
 	--
@@ -1032,206 +1033,207 @@ Mount = {
 --
 NFS = {
 
-	-- NFS error msg v2 and v3
-	StatMsg = {
-		[1] = "Not owner.",
-		[2] = "No such file or directory.",
-		[5] = "I/O error.",
-		[6] = "I/O error. No such device or address.",
-		[13] = "Permission denied.",
-		[17] = "File exists.",
-		[18] = "Attempt to do a cross-device hard link.",
-		[19] = "No such device.",
-		[20] = "Not a directory.",
-		[21] = "Is a directory.",
-		[22] = "Invalid argument or unsupported argument for an operation.",
-		[27] = "File too large.",
-		[28] = "No space left on device.",
-		[30] = "Read-only file system.",
-		[31] = "Too many hard links.",
-		[63] = "The filename in an operation was too long.",
-		[66] = "An attempt was made to remove a directory that was not empty.",
-		[69] = "Resource (quota) hard limit exceeded.",
-		[70] = "Invalid file handle.",
-		[71] = "Too many levels of remote in path.",
-		[99] = "The server's write cache used in the \"WRITECACHE\" call got flushed to disk.",
-		[10001] = "Illegal NFS file handle.",
-		[10002] = "Update synchronization mismatch was detected during a SETATTR operation.",
-		[10003] = "READDIR or READDIRPLUS cookie is stale.",
-		[10004] = "Operation is not supported.",
-		[10005] = "Buffer or request is too small.",
-		[10006] = "An error occurred on the server which does not map to any of the legal NFS version 3 protocol error values.",
-		[10007] = "An attempt was made to create an object of a type not supported by the server.",
-		[10008] = "The server initiated the request, but was not able to complete it in a timely fashion.",
-	},
+  -- NFS error msg v2 and v3
+  StatMsg = {
+    [1] = "Not owner.",
+    [2] = "No such file or directory.",
+    [5] = "I/O error.",
+    [6] = "I/O error. No such device or address.",
+    [13] = "Permission denied.",
+    [17] = "File exists.",
+    [18] = "Attempt to do a cross-device hard link.",
+    [19] = "No such device.",
+    [20] = "Not a directory.",
+    [21] = "Is a directory.",
+    [22] = "Invalid argument or unsupported argument for an operation.",
+    [27] = "File too large.",
+    [28] = "No space left on device.",
+    [30] = "Read-only file system.",
+    [31] = "Too many hard links.",
+    [63] = "The filename in an operation was too long.",
+    [66] = "An attempt was made to remove a directory that was not empty.",
+    [69] = "Resource (quota) hard limit exceeded.",
+    [70] = "Invalid file handle.",
+    [71] = "Too many levels of remote in path.",
+    [99] = "The server's write cache used in the \"WRITECACHE\" call got flushed to disk.",
+    [10001] = "Illegal NFS file handle.",
+    [10002] = "Update synchronization mismatch was detected during a SETATTR operation.",
+    [10003] = "READDIR or READDIRPLUS cookie is stale.",
+    [10004] = "Operation is not supported.",
+    [10005] = "Buffer or request is too small.",
+    [10006] = "An error occurred on the server which does not map to any of the legal NFS version 3 protocol error values.",
+    [10007] = "An attempt was made to create an object of a type not supported by the server.",
+    [10008] = "The server initiated the request, but was not able to complete it in a timely fashion.",
+  },
 
-	StatCode = {
-		-- NFS Version 1
-		[1] = {
-			NFS_OK		= 0,
-			NFSERR_PERM	= 1,
-			NFSERR_NOENT	= 2,
-			NFSERR_IO	= 5,
-			NFSERR_NXIO	= 6,
-			NFSERR_ACCES	= 13,
-			NFSERR_EXIST	= 17,
-			NFSERR_NODEV	= 19,
-			NFSERR_NOTDIR	= 20,
-			NFSERR_ISDIR	= 21,
-			NFSERR_FBIG	= 27,
-			NFSERR_NOSPC	= 28,
-			NFSERR_ROFS	= 30,
-			NFSERR_NAMETOOLONG = 63,
-			NFSERR_NOTEMPTY	= 66,
-			NFSERR_DQUOT	= 69,
-			NFSERR_STALE	= 70,
-			NFSERR_WFLUSH	= 99,
-		},
+  StatCode = {
+    -- NFS Version 1
+    [1] = {
+      NFS_OK        = 0,
+      NFSERR_PERM   = 1,
+      NFSERR_NOENT  = 2,
+      NFSERR_IO     = 5,
+      NFSERR_NXIO   = 6,
+      NFSERR_ACCES  = 13,
+      NFSERR_EXIST  = 17,
+      NFSERR_NODEV  = 19,
+      NFSERR_NOTDIR = 20,
+      NFSERR_ISDIR  = 21,
+      NFSERR_FBIG   = 27,
+      NFSERR_NOSPC  = 28,
+      NFSERR_ROFS   = 30,
+      NFSERR_NAMETOOLONG = 63,
+      NFSERR_NOTEMPTY = 66,
+      NFSERR_DQUOT  = 69,
+      NFSERR_STALE  = 70,
+      NFSERR_WFLUSH = 99,
+    },
 
-		-- NFS Version 2
-		[2] = {
-			NFS_OK		= 0,
-			NFSERR_PERM	= 1,
-			NFSERR_NOENT	= 2,
-			NFSERR_IO	= 5,
-			NFSERR_NXIO	= 6,
-			NFSERR_ACCES	= 13,
-			NFSERR_EXIST	= 17,
-			NFSERR_NODEV	= 19,
-			NFSERR_NOTDIR	= 20,
-			NFSERR_ISDIR	= 21,
-			NFSERR_FBIG	= 27,
-			NFSERR_NOSPC	= 28,
-			NFSERR_ROFS	= 30,
-			NFSERR_NAMETOOLONG = 63,
-			NFSERR_NOTEMPTY	= 66,
-			NFSERR_DQUOT	= 69,
-			NFSERR_STALE	= 70,
-			NFSERR_WFLUSH	= 99,
-		},
+    -- NFS Version 2
+    [2] = {
+      NFS_OK        = 0,
+      NFSERR_PERM   = 1,
+      NFSERR_NOENT  = 2,
+      NFSERR_IO     = 5,
+      NFSERR_NXIO   = 6,
+      NFSERR_ACCES  = 13,
+      NFSERR_EXIST  = 17,
+      NFSERR_NODEV  = 19,
+      NFSERR_NOTDIR = 20,
+      NFSERR_ISDIR  = 21,
+      NFSERR_FBIG   = 27,
+      NFSERR_NOSPC  = 28,
+      NFSERR_ROFS   = 30,
+      NFSERR_NAMETOOLONG = 63,
+      NFSERR_NOTEMPTY = 66,
+      NFSERR_DQUOT  = 69,
+      NFSERR_STALE  = 70,
+      NFSERR_WFLUSH = 99,
+    },
 
-		-- NFS Version 3
-		[3] = {
-			NFS_OK		= 0,
-			NFSERR_PERM	= 1,
-			NFSERR_NOENT	= 2,
-			NFSERR_IO	= 5,
-			NFSERR_NXIO	= 6,
-			NFSERR_ACCES	= 13,
-			NFSERR_EXIST	= 17,
-			NFSERR_XDEV	= 18,
-			NFSERR_NODEV	= 19,
-			NFSERR_NOTDIR	= 20,
-			NFSERR_ISDIR	= 21,
-			NFSERR_INVAL	= 22,
-			NFSERR_FBIG	= 27,
-			NFSERR_NOSPC	= 28,
-			NFSERR_ROFS	= 30,
-			NFSERR_MLINK	= 31,
-			NFSERR_NAMETOOLONG = 63,
-			NFSERR_NOTEMPTY = 66,
-			NFSERR_DQUOT	= 69,
-			NFSERR_STALE	= 70,
-			NFSERR_REMOTE	= 71,
-			NFSERR_BADHANDLE = 10001,
-			NFSERR_NOT_SYNC = 10002,
-			NFSERR_BAD_COOKIE = 10003,
-			NFSERR_NOTSUPP = 10004,
-			NFSERR_TOOSMALL = 10005,
-			NFSERR_SERVERFAULT = 10006,
-			NFSERR_BADTYPE = 10007,
-			NFSERR_JUKEBOX = 10008,
-		},
-	},
+    -- NFS Version 3
+    [3] = {
+      NFS_OK          = 0,
+      NFSERR_PERM     = 1,
+      NFSERR_NOENT    = 2,
+      NFSERR_IO       = 5,
+      NFSERR_NXIO     = 6,
+      NFSERR_ACCES    = 13,
+      NFSERR_EXIST    = 17,
+      NFSERR_XDEV     = 18,
+      NFSERR_NODEV    = 19,
+      NFSERR_NOTDIR   = 20,
+      NFSERR_ISDIR    = 21,
+      NFSERR_INVAL    = 22,
+      NFSERR_FBIG     = 27,
+      NFSERR_NOSPC    = 28,
+      NFSERR_ROFS     = 30,
+      NFSERR_MLINK    = 31,
+      NFSERR_NAMETOOLONG = 63,
+      NFSERR_NOTEMPTY = 66,
+      NFSERR_DQUOT    = 69,
+      NFSERR_STALE    = 70,
+      NFSERR_REMOTE   = 71,
+      NFSERR_BADHANDLE = 10001,
+      NFSERR_NOT_SYNC = 10002,
+      NFSERR_BAD_COOKIE = 10003,
+      NFSERR_NOTSUPP = 10004,
+      NFSERR_TOOSMALL = 10005,
+      NFSERR_SERVERFAULT = 10006,
+      NFSERR_BADTYPE = 10007,
+      NFSERR_JUKEBOX = 10008,
+    },
+  },
 
-	-- Unfortunately the NFS procedure numbers differ in between versions
-	Procedure = 
-	{
-		-- NFS Version 1
-		[1] =
-		{
-			GETATTR = 1,
-			ROOT = 3,
-			LOOKUP = 4,
-			EXPORT = 5,
-			READDIR = 16,
-			STATFS = 17,
-		},
+  -- Unfortunately the NFS procedure numbers differ in between versions
+  Procedure = 
+  {
+    -- NFS Version 1
+    [1] =
+    {
+      GETATTR = 1,
+      ROOT = 3,
+      LOOKUP = 4,
+      EXPORT = 5,
+      READDIR = 16,
+      STATFS = 17,
+    },
 
-		-- NFS Version 2
-		[2] = 
-		{
-			GETATTR = 1,
-			ROOT = 3,
-			LOOKUP = 4,
-			EXPORT = 5,
-			READDIR = 16,
-			STATFS = 17,
-		},
+    -- NFS Version 2
+    [2] = 
+    {
+      GETATTR = 1,
+      ROOT = 3,
+      LOOKUP = 4,
+      EXPORT = 5,
+      READDIR = 16,
+      STATFS = 17,
+    },
 
-		-- NFS Version 3
-		[3] = 
-		{
-			GETATTR = 1,
-			SETATTR = 2,
-			LOOKUP = 3,
-			ACCESS = 4,
-			EXPORT = 5,
-			READDIR = 16,
-			READDIRPLUS = 17,
-			FSSTAT = 18,
-			FSINFO = 19,
-			PATHCONF = 20,
-			COMMIT = 21,
-		},
-	},
+    -- NFS Version 3
+    [3] = 
+    {
+      GETATTR = 1,
+      SETATTR = 2,
+      LOOKUP = 3,
+      ACCESS = 4,
+      EXPORT = 5,
+      READDIR = 16,
+      READDIRPLUS = 17,
+      FSSTAT = 18,
+      FSINFO = 19,
+      PATHCONF = 20,
+      COMMIT = 21,
+    },
+  },
 
-        -- ACCESS values used to check the bit mask.
-        AccessBits =
-        {
-          [3] =
-          {
-            ACCESS_READ    = 0x0001,
-            ACCESS_LOOKUP  = 0x0002,
-            ACCESS_MODIFY  = 0x0004,
-            ACCESS_EXTEND  = 0x0008,
-            ACCESS_DELETE  = 0x0010,
-            ACCESS_EXECUTE = 0x0020,
-          },
-        },
+  -- ACCESS values used to check the bit mask.
+  AccessBits =
+  {
+    [3] =
+    {
+      ACCESS_READ    = 0x0001,
+      ACCESS_LOOKUP  = 0x0002,
+      ACCESS_MODIFY  = 0x0004,
+      ACCESS_EXTEND  = 0x0008,
+      ACCESS_DELETE  = 0x0010,
+      ACCESS_EXECUTE = 0x0020,
+    },
+  },
 
-        FSinfoBits =
-        {
-          [3] =
-          {
-            FSF_LINK         = 0x0001,
-            FSF_SYMLINK      = 0x0002,
-            FSF_HOMOGENEOUS  = 0x0008,
-            FSF_CANSETTIME   = 0x0010,
-          },
-        },
+  FSinfoBits =
+  {
+    [3] =
+    {
+      FSF_LINK        = 0x0001,
+      FSF_SYMLINK     = 0x0002,
+      FSF_HOMOGENEOUS = 0x0008,
+      FSF_CANSETTIME  = 0x0010,
+    },
+  },
 
-	new = function(self,o)
-		o = o or {}
-        setmetatable(o, self)
-        self.__index = self
-		return o
-    	end,
+  new = function(self,o)
+    o = o or {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
+  end,
 
-        CheckStat = function (self, procedurename, version, status)
-          if (status ~= NFS.StatCode[version].NFS_OK) then
-	    if (NFS.StatMsg[status]) then
-	      stdnse.print_debug(string.format("%s failed: %s",
-	                                       procedurename, NFS.StatMsg[status])) 
-	    else
-	      stdnse.print_debug(string.format("%s failed: code %d",
-	                                       procedurename, status))
-	    end
-	    return false
-          end
+  CheckStat = function (self, procedurename, version, status)
+    if (status ~= NFS.StatCode[version].NFS_OK) then
+      if (NFS.StatMsg[status]) then
+        stdnse.print_debug(4,
+            string.format("%s failed: %s", procedurename, NFS.StatMsg[status])) 
+      else
+        stdnse.print_debug(4,
+            string.format("%s failed: code %d", procedurename, status))
+      end
 
-	  return true
-	end,
+      return false
+    end
+
+    return true
+  end,
 
         AccessRead = function (self, mask, version)
           return bit.band(mask, NFS.AccessBits[version].ACCESS_READ)
@@ -1273,7 +1275,7 @@ NFS = {
           return bit.band(mask, NFS.FSinfoBits[version].FSF_CANSETTIME)
         end,
 
-    	--- Decodes the READDIR section of a NFS ReadDir response
+  --- Decodes the READDIR section of a NFS ReadDir response
 	--
 	-- @param comm object handles rpc program information and
 	-- 	low-level packet manipulation
@@ -1293,7 +1295,7 @@ NFS = {
 
 		status, data = comm:GetAdditionalBytes( data, pos, 4 )
 		if (not(status)) then
-			stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+			stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
 		
@@ -1307,7 +1309,7 @@ NFS = {
 			response.attributes = {}
 			status, data = comm:GetAdditionalBytes( data, pos, 4 )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 
@@ -1317,7 +1319,7 @@ NFS = {
 			end
 			status, data = comm:GetAdditionalBytes( data, pos, 84 )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 			pos, attrib = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1325,7 +1327,7 @@ NFS = {
 			-- opaque data
 			status, data = comm:GetAdditionalBytes( data, pos, 8 )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 			pos, _ = bin.unpack(">L", data, pos)
@@ -1336,7 +1338,7 @@ NFS = {
 			entry = {}
 			status, data = comm:GetAdditionalBytes( data, pos, 4 )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 	
@@ -1348,14 +1350,14 @@ NFS = {
 			if ( 3 == comm.version ) then
 				status, data = comm:GetAdditionalBytes( data, pos, 8 )
 				if (not(status)) then
-					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+					stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
 				pos, entry.fileid = Util.unmarshall_uint64(data, pos )
 			else
 				status, data = comm:GetAdditionalBytes( data, pos, 4 )
 				if (not(status)) then
-					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+					stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
 				pos, entry.fileid = Util.unmarshall_uint32(data, pos)
@@ -1363,14 +1365,14 @@ NFS = {
 
 			status, data = comm:GetAdditionalBytes( data, pos, 4 )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 			
 			pos, entry.length = Util.unmarshall_uint32(data, pos)
 			status, data = comm:GetAdditionalBytes( data, pos, entry.length )
 			if (not(status)) then
-				stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+				stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 				return -1, nil
 			end
 
@@ -1378,14 +1380,14 @@ NFS = {
 			if ( 3 == comm.version ) then
 				status, data = comm:GetAdditionalBytes( data, pos, 8 )
 				if (not(status)) then
-					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+					stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
 				pos, entry.cookie = Util.unmarshall_uint64(data, pos)
 			else
 				status, data = comm:GetAdditionalBytes(  data, pos, 4 )
 				if (not(status)) then
-					stdnse.print_debug("NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
+					stdnse.print_debug(4, "NFS.ReadDirDecode: Failed to call GetAdditionalBytes")
 					return -1, nil
 				end
 				pos, entry.cookie = Util.unmarshall_uint32(data, pos)
@@ -1445,7 +1447,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -1457,20 +1459,20 @@ NFS = {
           if (comm.version == 3) then
             status, data = comm:GetAdditionalBytes( data, pos, 4)
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
             _, len = Util.unmarshall_uint32(data, pos)
             status, data = comm:GetAdditionalBytes( data, pos, len + 4)
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
             pos, lookup.fhandle = bin.unpack( "A" .. len + 4, data, pos)
 
             status, data = comm:GetAdditionalBytes( data, pos, 4)
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
 
@@ -1479,7 +1481,7 @@ NFS = {
             if (value_follows ~= 0) then
               status, data = comm:GetAdditionalBytes(data, pos, 84)
               if (not(status)) then
-                stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+                stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
                 return -1, nil
               end
               pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1489,7 +1491,7 @@ NFS = {
 
             status, data = comm:GetAdditionalBytes( data, pos, 4)
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
 
@@ -1498,7 +1500,7 @@ NFS = {
             if (value_follows ~= 0) then
               status, data = comm:GetAdditionalBytes(data, pos, 84)
               if (not(status)) then
-                stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+                stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
                 return -1, nil
               end
               pos, lookup.dir_attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1509,13 +1511,13 @@ NFS = {
           elseif (comm.version < 3) then
             status, data = comm:GetAdditionalBytes( data, pos, 32)
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
             pos, lookup.fhandle = bin.unpack("A32", data, pos)
             status, data = comm:GetAdditionalBytes( data, pos, 64 )
             if (not(status)) then
-              stdnse.print_debug("NFS.LookUpDecode: Failed to call GetAdditionalBytes")
+              stdnse.print_debug(4, "NFS.LookUpDecode: Failed to call GetAdditionalBytes")
               return -1, nil
             end
             pos, lookup.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1566,7 +1568,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -1577,19 +1579,19 @@ NFS = {
           
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
 	  if not status then
-	    stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
 
           pos, value_follows = bin.unpack(">I", data, pos)
           if value_follows == 0 then
-	    stdnse.print_debug("NFS.ReadDirPlusDecode: Attributes follow failed")
+	    stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Attributes follow failed")
             return -1, nil
           end
 
 	  status, data = comm:GetAdditionalBytes( data, pos, 84 )
 	  if not status then
-	    stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
 
@@ -1599,7 +1601,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 8)
 	  if not status then
-	    stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
 	  pos, _ = bin.unpack(">L", data, pos)
@@ -1610,7 +1612,7 @@ NFS = {
             local entry, len = {}
             status, data = comm:GetAdditionalBytes(data, pos, 4)
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	
@@ -1621,7 +1623,7 @@ NFS = {
 	    end
 	    status, data = comm:GetAdditionalBytes(data, pos, 8)
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, entry.fileid = bin.unpack(">L", data, pos)
@@ -1629,27 +1631,27 @@ NFS = {
 	    status, data = comm:GetAdditionalBytes(data, pos, 4)
 
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 
 	    pos, entry.length = bin.unpack(">I", data, pos)
 	    status, data = comm:GetAdditionalBytes( data, pos, entry.length )
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 		
 	    pos, entry.name = Util.unmarshall_vopaque(entry.length, data, pos)
 	    status, data = comm:GetAdditionalBytes(data, pos, 8)
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, entry.cookie = bin.unpack(">L", data, pos)
             status, data = comm:GetAdditionalBytes(data, pos, 4)
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 
@@ -1658,7 +1660,7 @@ NFS = {
 	    if (value_follows ~= 0) then
 	      status, data = comm:GetAdditionalBytes(data, pos, 84)
 	      if not status then
-	        stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	        stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	        return -1, nil
 	      end
 	      pos, entry.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1669,7 +1671,7 @@ NFS = {
 
             status, data = comm:GetAdditionalBytes(data, pos, 4)
 	    if not status then
-	      stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 
@@ -1678,14 +1680,14 @@ NFS = {
 	    if (value_follows ~= 0) then
 	      status, data = comm:GetAdditionalBytes(data, pos, 4)
 	      if not status then
-	        stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	        stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	        return -1, nil
 	      end
 	    
 	      _, len = bin.unpack(">I", data, pos)
 	      status, data = comm:GetAdditionalBytes(data, pos, len + 4)
 	      if not status then
-	        stdnse.print_debug("NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
+	        stdnse.print_debug(4, "NFS.ReadDirPlusDecode: Failed to call GetAdditionalBytes")
 	        return -1, nil
 	      end
 	      pos, entry.fhandle = bin.unpack( "A" .. len + 4, data, pos )
@@ -1747,7 +1749,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.FsStatDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -1761,7 +1763,7 @@ NFS = {
 	  if (value_follows ~= 0) then
 	    status, data = comm:GetAdditionalBytes(data, pos, 84)
 	    if not status then
-	      stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.FsStatDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, fsstat.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1771,7 +1773,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes( data, pos, 52)
 	  if not status then
-	    stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.FsStatDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
 
@@ -1826,7 +1828,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -1840,7 +1842,7 @@ NFS = {
 	  if (value_follows ~= 0) then
 	    status, data = comm:GetAdditionalBytes(data, pos, 84)
 	    if not status then
-	      stdnse.print_debug("NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.FsInfoDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, fsinfo.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1850,7 +1852,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 48)
 	  if not status then
-	    stdnse.print_debug("NFS.FsStatDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.FsStatDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
   
@@ -1908,7 +1910,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.PathConfDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -1922,7 +1924,7 @@ NFS = {
 	  if (value_follows ~= 0) then
 	    status, data = comm:GetAdditionalBytes(data, pos, 84)
 	    if not status then
-	      stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.PathConfDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, pconf.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -1932,7 +1934,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 24)
 	  if not status then
-	    stdnse.print_debug("NFS.PathConfDecode: Failed to call GetAdditionalBytes")
+	    stdnse.print_debug(4, "NFS.PathConfDecode: Failed to call GetAdditionalBytes")
 	    return -1, nil
 	  end
 
@@ -1987,7 +1989,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.AccessDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -2001,7 +2003,7 @@ NFS = {
 	  if (value_follows ~= 0) then
 	    status, data = comm:GetAdditionalBytes(data, pos, 84)
 	    if not status then
-	      stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+	      stdnse.print_debug(4, "NFS.AccessDecode: Failed to call GetAdditionalBytes")
 	      return -1, nil
 	    end
 	    pos, access.attributes = Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -2011,7 +2013,7 @@ NFS = {
 
 	  status, data = comm:GetAdditionalBytes(data, pos, 4)
           if not status then
-            stdnse.print_debug("NFS.AccessDecode: Failed to call GetAdditionalBytes")
+            stdnse.print_debug(4, "NFS.AccessDecode: Failed to call GetAdditionalBytes")
             return -1, nil
           end
 
@@ -2125,7 +2127,7 @@ NFS = {
 
 		status, data = comm:GetAdditionalBytes( data, pos, 4 )
 		if (not(status)) then
-			stdnse.print_debug("GetAttrDecode: Failed to call GetAdditionalBytes")
+			stdnse.print_debug(4, "GetAttrDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
 
@@ -2139,11 +2141,11 @@ NFS = {
 		elseif (comm.version == 3) then
 			status, data = comm:GetAdditionalBytes( data, pos, 84 )
 		else
-			stdnse.print_debug("GetAttrDecode: Unsupported version")
+			stdnse.print_debug(4, "GetAttrDecode: Unsupported version")
 			return -1, nil
 		end
 		if ( not(status) ) then
-			stdnse.print_debug("GetAttrDecode: Failed to call GetAdditionalBytes")
+			stdnse.print_debug(4, "GetAttrDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
 		return Util.unmarshall_nfsattr(data, pos, comm.version)
@@ -2202,7 +2204,7 @@ NFS = {
 
 		status, data = comm:GetAdditionalBytes( data, pos, 4 )
 		if (not(status)) then
-			stdnse.print_debug("StatFsDecode: Failed to call GetAdditionalBytes")
+			stdnse.print_debug(4, "StatFsDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
 
@@ -2213,7 +2215,7 @@ NFS = {
 
 		status, data = comm:GetAdditionalBytes( data, pos, 20 )
 		if (not(status)) then
-			stdnse.print_debug("StatFsDecode: Failed to call GetAdditionalBytes")
+			stdnse.print_debug(4, "StatFsDecode: Failed to call GetAdditionalBytes")
 			return -1, nil
 		end
 		pos, statfs.transfer_size, statfs.block_size, 
@@ -2241,20 +2243,20 @@ Helper = {
 
 		status, mountd = Helper.GetProgramInfo( host, port, "mountd")
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ShowMounts: GetProgramInfo failed")
+			stdnse.print_debug(4, "rpc.Helper.ShowMounts: GetProgramInfo failed")
 			return status, "rpc.Helper.ShowMounts: GetProgramInfo failed"
 		end
 
 		mnt_comm = Comm:new('mountd', mountd.version)
 		status, result = mnt_comm:Connect(host, mountd.port)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ShowMounts: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.ShowMounts: %s", result)
 			return false, result
 		end
 		status, mounts = mnt:Export(mnt_comm)
 		mnt_comm:Disconnect()
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ShowMounts: %s", mounts)
+			stdnse.print_debug(4, "rpc.Helper.ShowMounts: %s", mounts)
 		end
 		return status, mounts
 	end,
@@ -2279,7 +2281,7 @@ Helper = {
 
 	  status, mountd = Helper.GetProgramInfo( host, port, "mountd")
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.MountPath: %s", mountd)
+	    stdnse.print_debug(1, "rpc.Helper.MountPath: %s", mountd)
 	    return nil, mountd
 	  end
 
@@ -2287,14 +2289,14 @@ Helper = {
 
 	  status, err = mnt_comm:Connect(host, mountd.port)
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.MountPath: %s", err)
+	    stdnse.print_debug(4, "rpc.Helper.MountPath: %s", err)
 	    return nil, err
 	  end
 
 	  status, fhandle = mnt:Mount(mnt_comm, path)
 	  if not status then
 	    mnt_comm:Disconnect()
-	    stdnse.print_debug("rpc.Helper.MountPath: %s", fhandle)
+	    stdnse.print_debug(4, "rpc.Helper.MountPath: %s", fhandle)
 	    return nil, fhandle
 	  end
 
@@ -2317,7 +2319,7 @@ Helper = {
 	  local status, ret = mnt:Unmount(mnt_comm, path)	
 	  mnt_comm:Disconnect()
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.UnmountPath: %s", ret)
+	    stdnse.print_debug(4, "rpc.Helper.UnmountPath: %s", ret)
 	    return nil, ret
 	  end
 
@@ -2340,14 +2342,14 @@ Helper = {
 
 	  status, nfsd = Helper.GetProgramInfo(host, port, "nfs")
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.NfsProc: %s", nfsd)
+	    stdnse.print_debug(4, "rpc.Helper.NfsProc: %s", nfsd)
 	    return nil, nfsd
 	  end
 
 	  nfs_comm = Comm:new('nfs', nfsd.version)
 	  status, err = nfs_comm:Connect(host, nfsd.port)
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.NfsProc: %s", err)
+	    stdnse.print_debug(4, "rpc.Helper.NfsProc: %s", err)
 	    return nil, err
 	  end
 
@@ -2366,7 +2368,7 @@ Helper = {
 	NfsClose = function(nfs_comm)
 	  local status, ret = nfs_comm:Disconnect()
 	  if not status then
-	    stdnse.print_debug("rpc.Helper.NfsClose: %s", ret)
+	    stdnse.print_debug(4, "rpc.Helper.NfsClose: %s", ret)
 	    return nil, ret
 	  end
 
@@ -2390,13 +2392,13 @@ Helper = {
 	
 		status, mountd = Helper.GetProgramInfo( host, port, "mountd", 2)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", mountd)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", mountd)
 			return status, mountd
 		end
 
 		status, nfsd = Helper.GetProgramInfo( host, port, "nfs", 2)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", nfsd)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", nfsd)
 			return status, nfsd
 		end
 		mnt_comm = Comm:new('mountd', mountd.version)
@@ -2404,20 +2406,20 @@ Helper = {
 
 		-- TODO: recheck the version mismatch when adding NFSv4
 		if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
-			stdnse.print_debug("rpc.Helper.ExportStats: versions mismatch, nfs v%d - mount v%d",
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: versions mismatch, nfs v%d - mount v%d",
 						nfs_comm.version, mnt_comm.version)
 			return false, string.format("versions mismatch, nfs v%d - mount v%d",
 						nfs_comm.version, mnt_comm.version)
 		end
 		status, result = mnt_comm:Connect(host, mountd.port)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", result)
 			return status, result
 		end
 		status, result = nfs_comm:Connect(host, nfsd.port)
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", result)
 			return status, result
 		end
 
@@ -2425,14 +2427,14 @@ Helper = {
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", fhandle)
 			return status, fhandle
 		end
 		status, stats = nfs:StatFs(nfs_comm, fhandle)
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", stats)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", stats)
 			return status, stats
 		end
 		
@@ -2440,7 +2442,7 @@ Helper = {
 		mnt_comm:Disconnect()
 		nfs_comm:Disconnect()
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.ExportStats: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", fhandle)
 			return status, fhandle
 		end
 		return true, stats
@@ -2462,13 +2464,13 @@ Helper = {
 
 		status, mountd = Helper.GetProgramInfo( host, port, "mountd")
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.Dir: %s", mountd)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", mountd)
 			return status, mountd
 		end
 
 		status, nfsd = Helper.GetProgramInfo( host, port, "nfs")
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.Dir: %s", nfsd)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", nfsd)
 			return status, nfsd
 		end
 
@@ -2477,21 +2479,21 @@ Helper = {
 
 		-- TODO: recheck the version mismatch when adding NFSv4
 		if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
-			stdnse.print_debug("rpc.Helper.Dir: versions mismatch, nfs v%d - mount v%d",
+			stdnse.print_debug(4, "rpc.Helper.Dir: versions mismatch, nfs v%d - mount v%d",
 					nfs_comm.version, mnt_comm.version)
 			return false, string.format("versions mismatch, nfs v%d - mount v%d",
 					nfs_comm.version, mnt_comm.version)
 		end
 		status, result = mnt_comm:Connect(host, mountd.port)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.Dir: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", result)
 			return status, result
 		end
 
 		status, result = nfs_comm:Connect(host, nfsd.port)
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.Dir: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", result)
 			return status, result
 		end
 
@@ -2499,7 +2501,7 @@ Helper = {
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.Dir: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", fhandle)
 			return status, fhandle
 		end
 
@@ -2507,7 +2509,7 @@ Helper = {
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.Dir: %s", dirs)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", dirs)
 			return status, dirs
 		end
 		
@@ -2515,7 +2517,7 @@ Helper = {
 		mnt_comm:Disconnect()
 		nfs_comm:Disconnect()	
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.Dir: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.Dir: %s", fhandle)
 			return status, fhandle
 		end
 		return true, dirs
@@ -2538,13 +2540,13 @@ Helper = {
 
 		status, mountd = Helper.GetProgramInfo( host, port, "mountd")
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", mountd)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", mountd)
 			return status, mountd
 		end
 
 		status, nfsd = Helper.GetProgramInfo( host, port, "nfs")
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", nfsd)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", nfsd)
 			return status, nfsd
 		end
 		
@@ -2553,7 +2555,7 @@ Helper = {
 
 		-- TODO: recheck the version mismatch when adding NFSv4
 		if (nfs_comm.version <= 2  and mnt_comm.version > 2) then
-			stdnse.print_debug("rpc.Helper.GetAttributes: versions mismatch, nfs v%d - mount v%d",
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: versions mismatch, nfs v%d - mount v%d",
 					nfs_comm.version, mnt_comm.version)
 			return false, string.format("versions mismatch, nfs v%d - mount v%d",
 					nfs_comm.version, mnt_comm.version)
@@ -2561,14 +2563,14 @@ Helper = {
 
 		status, result = mnt_comm:Connect(host, mountd.port)
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", result)
 			return status, result
 		end
 
 		status, result = nfs_comm:Connect(host, nfsd.port)
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", result)
 			return status, result
 		end
 
@@ -2576,7 +2578,7 @@ Helper = {
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", fhandle)
 			return status, fhandle
 		end
 
@@ -2584,7 +2586,7 @@ Helper = {
 		if ( not(status) ) then
 			mnt_comm:Disconnect()
 			nfs_comm:Disconnect()
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", attribs)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", attribs)
 			return status, attribs
 		end
 
@@ -2593,40 +2595,54 @@ Helper = {
 		mnt_comm:Disconnect()
 		nfs_comm:Disconnect()	
 		if ( not(status) ) then
-			stdnse.print_debug("rpc.Helper.GetAttributes: %s", fhandle)
+			stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", fhandle)
 			return status, fhandle
 		end
 
 		return true, attribs
 	end,
 	
-	--- Queries the portmapper for a list of programs
-	--
-	-- @param host table
-	-- @param port table
-	-- @return status true on success, false on failure
-	-- @return table containing the portmapper information as returned by 
-	-- <code>Portmap.Dump</code>
-	RpcInfo = function( host, port )
-		local status, result
-		local portmap = Portmap:new()
-		local comm = Comm:new('rpcbind', 2)
+    --- Queries the portmapper for a list of programs
+    --
+    -- @param host table
+    -- @param port table
+    -- @return status true on success, false on failure
+    -- @return table containing the portmapper information as returned by 
+    -- <code>Portmap.Dump</code>
+    RpcInfo = function( host, port )
+      local status, result
+      local portmap = Portmap:new()
+      local comm = Comm:new('rpcbind', 2)
 
-		status, result = comm:Connect(host, port)
-		if (not(status)) then
-			stdnse.print_debug("rpc.Helper.RpcInfo: %s", result)
-			return status, result
-		end
-		mutex "lock"
-		status, result = portmap:Dump(comm)
-		mutex "done"
-		comm:Disconnect()
-		if (not(status)) then
-			stdnse.print_debug("rpc.Helper.RpcInfo: %s", result)
-		end
+      mutex "lock"
+      
+      if nmap.registry[host.ip] == nil then
+        nmap.registry[host.ip] = {}
+      end
+      if nmap.registry[host.ip]['portmapper'] == nil then
+        nmap.registry[host.ip]['portmapper'] = {}
+      elseif next(nmap.registry[host.ip]['portmapper']) ~= nil then
+        mutex "done"
+        return true, nmap.registry[host.ip]['portmapper']
+      end
 
-		return status, result
-	end,
+      status, result = comm:Connect(host, port)
+      if (not(status)) then
+        mutex "done"
+        stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
+        return status, result
+      end
+
+      status, result = portmap:Dump(comm)
+      comm:Disconnect()
+
+      mutex "done"
+      if (not(status)) then
+        stdnse.print_debug(4, "rpc.Helper.RpcInfo: %s", result)
+      end
+
+      return status, result
+    end,
 
 	--- Queries the portmapper for a port for the specified RPC program
 	--
@@ -2644,14 +2660,14 @@ Helper = {
 		
 		status, result = comm:Connect(host, port)
 		if (not(status)) then
-			stdnse.print_debug("rpc.Helper.GetPortForProgram: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.GetPortForProgram: %s", result)
 			return status, result
 		end
 
 		status, result = portmap:GetPort(comm, program_id, protocol, 1 )
 		comm:Disconnect()
 		if (not(status)) then
-			stdnse.print_debug("rpc.Helper.GetPortForProgram: %s", result)
+			stdnse.print_debug(4, "rpc.Helper.GetPortForProgram: %s", result)
 		end
 		
 		return status, result
@@ -3023,7 +3039,7 @@ Util =
             pos, attr.fsid = Util.unmarshall_uint64(data, pos)
             pos, attr.fileid = Util.unmarshall_nfsfileid3(data, pos)
           else
-            stdnse.print_debug("unmarshall_nfsattr: unsupported NFS version %d",
+            stdnse.print_debug(4, "unmarshall_nfsattr: unsupported NFS version %d",
                               nfsversion)
             return -1, nil
           end
