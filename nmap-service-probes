@@ -3286,7 +3286,10 @@ match osiris m|^\x16\x03\x01\0.\x01\0\0|s p/osiris host IDS agent/
 match svnserve m|^\( success \( \d \d \( (ANONYMOUS )?\) \( | p/Subversion/
 
 match icecream m|^[\x14-\x1f]\0\0\0$| p/icecreamd/
-match apc-agent m|^\xac\xed\0\x05$| p/APC PowerChute agent/ d/power-device/
+
+#commenting out - not APC, likely java-rmi - TomS - 2010.09.26
+#match apc-agent m|^\xac\xed\0\x05$| p/APC PowerChute agent/ d/power-device/
+
 # OpenH323 Gatekeeper 2.0.3
 match afs3-fileserver m|^\xff\xfd\x03\xff\xfb\x05.*Version:\r\nGatekeeper\(GNU\) Version\(([\d.]+)\) Ext\(.*\) Build\(.*\) Sys\(Linux .*\)\r\n| p/OpenH323 Gatekeeper/ v/$1/ o/Linux/
 match afs3-fileserver m|^load1:[\d.]+###load2:[\d.]+###load3:[\d.]+###MemTotal:(\d+) kB###MemFree:(\d+) kB| p/AFS fileserver/ i|$2/$1 kB free|
@@ -6958,7 +6961,7 @@ match rtsp-proxy m|^RTSP/1\.0 403 Forbidden: Proxy not licensed\r\nSession: \w+\
 
 match sonicmq m|^\x1a\xff\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x08\xff\xff\xff\xf1\0\0\0O$| p/Novell Sentinel SonicMQ broker/
 
-match powerchute m|^RTSP/1\.0 400 Bad request\r\nContent-type: text/html\r\n\r\n| p/APC PowerChute Agent/ v/6.X/ d/power-device/
+match powerchute m|^RTSP/1\.0 400 Bad request\r\nContent-type: text/html\r\n\r\n| p/APC PowerChute Agent/ v/6.x|7.x/ d/power-device/
 match powerchute m|^RTSP/1\.0 400 Bad request\nContent-type: text/html\n\n| p/APC PowerChute Agent/ v/7.X/ d/power-device/
 match msdtc m|^ERROR\n$|s p/Microsoft Distributed Transaction Coordinator/ i/error/ o/Windows/
 
