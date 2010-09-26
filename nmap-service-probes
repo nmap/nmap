@@ -4256,6 +4256,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) +(Apache/)?(\d[-.\w]+)\r\n|i p/IBM HTTP Server/ v/$1/ i/Derived from Apache $3/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) DAV/([\d.]+)\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; DAV $3/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) PHP/([\d.]+)\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; PHP $3/ o/Unix/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) mod_jk\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; using mod_jk/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*)\r\n| p/IBM HTTP Server/ v/$1/ i/Based on $2/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*) \(Win32\)\r\n|s p/IBM HTTP Server/ v/$1/ i/Based on $2/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server\r\n| p/IBM HTTP Server/ i/Based on Apache/
@@ -5200,6 +5201,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nContent-Type: text/html\r\nConnection: clos
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<!---CAS:0003--><HTML><HEAD>\n<TITLE>Wireless Broadband NAT Router Web-Console| p/Safecom SWBR 54000 WAP http config/ d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n<!---CAS:0003--><HTML><HEAD>\n<TITLE>(FBR-\w+)  Broadband NAT Router Web-Console</TITLE>| p/LevelOne FBR-$1 router http config/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Rapidsite/Apa/([\d.]+) \(Unix\) (.*)\r\n| p|Rapidsite/Apa httpd| v/$1/ i/$2/ o/Unix/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: Rapidsite/Apa\r\n| p|Rapidsite/Apa httpd|
 match http m|^HTTP/1\.1 401 Unauthorized\r\nWWW-Authenticate: Digest realm=\"Sip Utility Set\", nonce=| p/Avaya 4602 VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nDate: .*\r\nCache-Control: no-cache,no-store\r\nWWW-Authenticate: Basic realm=\"\.\"\r\nContent-Type: text/html; charset=%s\r\nConnection: close\r\n\r\n<html>\n<head><title>401 Unauthorized</title></head>\n<body>\n<h3>401 Unauthorized</h3>\nAuthorization required\. HuaCheng Technologies\n</body>\n</html>\n| p/HuaCheng firewall http config/ d/firewall/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Sun-ILOM-Web-Server/([\d.]+)\r\n| p/Sun Integrated Lights-Out httpd/ v/$1/ d/remote management/
@@ -5228,6 +5230,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: IISGuard\r\n| p/Troxo IISGuard/ 
 match http m|^HTTP/1\.0 \d\d\d .*<title>Smart VoIP IAD Web Configuration Pages</title>|s p/Patton SmartLink 4020 VoIP adapter http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DesktopAuthority/([\d.]+)\r\n|s p/ScriptLogic DesktopAuthority httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 302 Please login\.\nDate: .*\nServer: (P560\.GSI\.[\d.]+)\n| p/Gemtek P560 WAP http config/ v/$1/ d/WAP/
+match http m|^HTTP/1\.0 302 Please login\.\nDate: .*\nServer: RG4000\.CMC\.([.\d]+)\n| p/RG4000 Access Control Gateway/ v/$1/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\n\r\n<HTML>\r\r\n<BODY>\r\r\n\r\r\n<APPLET CODE=\"SimpleCamApplet2\.class\" CODEBASE=\"http://([-\w_.]+)/.*\" WIDTH=\"(\d+)\" HEIGHT=\"(\d+)\">| p/SimpleCam httpd/ i/Webcam resolution: $2x$3/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: LogMeIn/([\d.]+)\r\n|s p/LogMeIn httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: MacroMaker\r\n| p/MacroMaker httpd/ o/Windows/
