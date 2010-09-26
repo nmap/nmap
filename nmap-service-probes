@@ -6622,7 +6622,7 @@ match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/So
 match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/FreeBSD.v([\d.]+).*icy-name:(.*?)\r\n|s p/SHOUTcast server/ v/$1/ i/Name: $2/ o/FreeBSD/
 match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/posix.v([\d.]+).*icy-name:(.*?)\r\n|s p/SHOUTcast server/ v/$1/ i/Name: $2/ o/Unix/
 match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/MacOS_X.v([\d.]+).*icy-name:(.*?)\r\n|s p/SHOUTcast server/ v/$1/ i/Name: $2/ o/Mac OS X/
-match shoutcase m|^ICY 401 Service Unavailable\r\n.*SHOUTcast Distributed Network Audio Server/UNIX OS-3 v([\d.]+)| p/SHOUTcast server/ v/$1/ o/Unix/
+match shoutcast m|^ICY 401 Service Unavailable\r\n.*SHOUTcast Distributed Network Audio Server/UNIX OS-3 v([\d.]+)| p/SHOUTcast server/ v/$1/ o/Unix/
 
 match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/Linux.v([\d.]+)|s p/SHOUTcast server/ v/$1/ o/Linux/
 match shoutcast m|^ICY 200 OK\r\n.*SHOUTcast Distributed Network Audio Server/win32.v([\d.]+)|s p/SHOUTcast server/ v/$1/ o/Windows/
