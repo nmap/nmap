@@ -721,9 +721,9 @@ SSL *nse_nsock_get_ssl (lua_State *L)
 }
 #else
 /* If HAVE_OPENSSL is defined, this comes from nse_ssl_cert.cc. */
-int get_ssl_certificate (lua_State *L)
+int l_get_ssl_certificate (lua_State *L)
 {
-  return luaL_error("SSL is not available");
+  return luaL_error(L, "SSL is not available");
 }
 #endif
 
