@@ -46,8 +46,9 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"intrusive", "vuln"}
 
-require "shortport"
 require "http"
+require "shortport"
+require "stdnse"
 
 --- Validates the HTTP response code and checks for a <code>valid</code> passwd
 -- or Windows Boot Loader format in the body.
@@ -142,6 +143,28 @@ action = function(host, port)
 
 		if validate(response) then
 			return output(response.body, dir)
+		end
+	end
+
+	-- Check for something that looks like a query referring to a file name, like
+	-- "index.php?page=next.php". Replace the query value with each of the test
+	-- vectors. Add an encoded null byte at the end to bypass some checks; see
+	-- http://insecure.ogr/news/P55-01.txt.
+	local ROOT = "/"
+  local response = http.get(host, port, ROOT)
+	if response.body then
+		local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
+		if page_var then
+			local query_base = ROOT .. "?" .. page_var .. "="
+			stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
+
+			for _, dir in ipairs(dirs) do
+				local response = http.get(host, port, query_base .. dir .. "%00")
+
+				if validate(response) then
+					return output(response.body, dir)
+				end
+			end
 		end
 	end
 end
