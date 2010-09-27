@@ -577,9 +577,9 @@ Engine =
 		
 		-- Only run the check method if it exist. We should phase this out
 		-- in favor of a check in the action function of the script
-		if ( self.driver:new( self.host, self.port ).check ) then
+		if ( self.driver:new( self.host, self.port, self.driver_options ).check ) then
 			-- check if the driver is ready!
-			local status, response = self.driver:new( self.host, self.port ):check()
+			local status, response = self.driver:new( self.host, self.port, self.driver_options ):check()
 			if( not(status) ) then return false, response end
 		end
 		
