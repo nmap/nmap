@@ -772,7 +772,7 @@ local function check_size (cache)
     end
     cache.size = size;
   end
-  stdnse.print_debug(1, "Final http cache size (%d bytes) of max size of %d",
+  stdnse.print_debug(2, "Final http cache size (%d bytes) of max size of %d",
       size, max_size);
   return size;
 end
