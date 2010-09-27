@@ -873,6 +873,12 @@ local function insert_cache (state, response)
   mutex "done";
 end
 
+-- Return true if the given method requires a body in the request. In case no
+-- body was supplied we must send "Content-Length: 0".
+local function request_method_needs_content_length(method)
+	return method == "POST"
+end
+
 -- For each of the following request functions, <code>host</code> may either be
 -- a string or a table, and <code>port</code> may either be a number or a
 -- table.
@@ -907,9 +913,7 @@ local build_request = function(host, port, method, path, options)
       ["User-Agent"]  = USER_AGENT
     }
   }
-  if options.content then
-    mod_options.header["Content-Length"] = #options.content
-  end
+
   if options.cookies then
     local cookies = buildCookies(options.cookies, path)
     if #cookies > 0 then
@@ -924,7 +928,26 @@ local build_request = function(host, port, method, path, options)
     mod_options.header["Authorization"] = credentials
   end
 
-  -- Add any other options into the local copy.
+  local body
+  -- Build a form submission from a table, like "k1=v1&k2=v2".
+  if type(options.content) == "table" then
+    local parts = {}
+    local k, v
+    for k, v in pairs(options.content) do
+      parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
+    end
+    body = table.concat(parts, "&")
+    mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
+  elseif options.content then
+    body = options.content
+	elseif request_method_needs_content_length(method) then
+		body = ""
+  end
+  if body then
+    mod_options.header["Content-Length"] = #body
+  end
+
+  -- Add any other header fields into the local copy.
   table_augment(mod_options, options)
 
   local request_line = string.format("%s %s HTTP/1.1", method, path)
@@ -932,9 +955,8 @@ local build_request = function(host, port, method, path, options)
   for name, value in pairs(mod_options.header) do
     header[#header + 1] = string.format("%s: %s", name, value)
   end
-  local body = mod_options.content and mod_options.content or ""
 
-  return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. body
+  return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. (body or "")
 end
 
 --- Do a single request with the given parameters and return the response.
@@ -1107,28 +1129,10 @@ end
 -- application/x-www-form-encoded form submission.
 -- @return Table as described in the module description.
 post = function( host, port, path, options, ignored, postdata )
-  local mod_options = {}
-
-  -- Build a form submission from a table, like "k1=v1&k2=v2".
-  if type(postdata) == "table" then
-    local parts = {}
-    local k, v
-    for k, v in pairs(postdata) do
-      parts[#parts + 1] = url.escape(k) .. "=" .. url.escape(v)
-    end
-    postdata = table.concat(parts, "&")
-    mod_options.content = postdata
-  else
-    mod_options.content = postdata
-  end
-
-  if(not(mod_options.header)) then
-    mod_options.header = {}
-  end
-  mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
-
+  local mod_options = {
+    content = postdata,
+  }
   table_augment(mod_options, options or {})
-
   return generic_request(host, port, "POST", path, mod_options)
 end
 
