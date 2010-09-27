@@ -26,6 +26,7 @@ Performs password guessing against http basic authentication
 --
 -- @args http-brute.path points to the path protected by authentication
 -- @args http-brute.hostname sets the host header in case of virtual hosting
+-- @args http-brute.method sets the HTTP method to use (default <code>GET</code>)
 
 --
 -- Version 0.1
@@ -44,13 +45,14 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 
 Driver = {
 	
-	new = function(self, host, port)
+	new = function(self, host, port, method)
 		local o = {}
        	setmetatable(o, self)
         self.__index = self
 		o.host = nmap.registry.args['http-brute.hostname'] or host
 		o.port = port
 		o.path = nmap.registry.args['http-brute.path']
+		o.method = method
 		return o
 	end,
 	
@@ -64,7 +66,7 @@ Driver = {
 	login = function( self, username, password )
 		-- we need to supply the no_cache directive, or else the http library
 		-- incorrectly tells us that the authentication was successfull
-		local response = http.get( self.host, self.port, self.path, { auth = { username = username, password = password }, no_cache = true })
+		local response = http.generic_request( self.host, self.port, self.method, self.path, { auth = { username = username, password = password }, no_cache = true })
 
 		-- We should probably do more tests here, 500 error and redirects
 		-- should be possible candidates. checking for ~= 401 *should* work to
@@ -89,7 +91,7 @@ Driver = {
 	end,
 	
 	check = function( self )
-		local response = http.get( self.host, self.port, self.path )
+		local response = http.generic_request( self.host, self.port, self.method, self.path, { no_cache = true } )
 		
 		if ( response.status == 401 ) then
 			return true
@@ -102,14 +104,15 @@ Driver = {
 
 action = function( host, port )
 	local status, result 
-	local engine = brute.Engine:new(Driver, host, port )
-   	local path = nmap.registry.args['http-brute.path']
+	local path = nmap.registry.args['http-brute.path']
+	local method = string.upper(nmap.registry.args['http-brute.method'] or "GET")
+	local engine = brute.Engine:new(Driver, host, port, method )
 
 	if ( not(path) ) then
 		return "  \n  ERROR: No path was specified (see http-brute.path)"
 	end
 	
-	local response = http.get( host, port, path )
+	local response = http.generic_request( host, port, method, path, { no_cache = true } )
 	
 	if ( response.status ~= 401 ) then
 		return ("  \n  Path \"%s\" does not require autentication"):format(path)
