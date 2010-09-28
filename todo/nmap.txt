@@ -1,7 +1,7 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o [NSE] Review scripts:
-   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/60
+   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/159
 
 o [Zenmap] Add a button to select script files from the filesystem. 
 
