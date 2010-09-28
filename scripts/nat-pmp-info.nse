@@ -24,12 +24,12 @@ Queries the NAT-PMP service for the external address
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe", "discovery"}
+categories = {"default", "safe", "discovery"}
 
 require "stdnse"
 require "shortport"
 
-portrule = shortport.portnumber(5351, "udp", {"open", "open|filtered"})
+portrule = shortport.port_or_service(5351, "nat-pmp", "udp")
 
 process_response = function( data )
 
@@ -96,6 +96,7 @@ action = function( host, port )
 	
 	-- set port to open
     nmap.set_port_state(host, port, "open")
+	port.version.name = "nat-pmp"
 	nmap.set_port_version(host, port, "hardmatched")
 	
 	return ("  \n  External ip: %s"):format( external_ip )
