@@ -1,8 +1,21 @@
 description = [[
 Attempts to enumerate network interfaces through SNMP.
+
+This script can also be run during Nmap's pre-scanning phase and can
+attempt to add the SNMP server's interface addresses to the target
+list.  The script argument <code>snmp-interfaces.host</code> is
+required to know what host to probe.  To specify a port for the SNMP
+server other than 161, use <code>snmp-interfaces.port</code>.  When
+run in this way, the script's output tells how many new targets were
+successfully added.
 ]]
 
 ---
+-- @args snmp-interfaces.host  Specifies the SNMP server to probe when
+--       running in the "pre-scanning phase".
+-- @args snmp-interfaces.port  The optional port number corresponding
+--       to the host script argument.  Defaults to 161.
+--
 -- @output
 -- | snmp-interfaces:
 -- |   eth0
@@ -12,7 +25,7 @@ Attempts to enumerate network interfaces through SNMP.
 -- |_    Traffic stats: 6.45 Mb sent, 15.01 Mb received
 --
 
-author = "Thomas Buchanan"
+author = "Thomas Buchanan, Kris Katterjohn"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "discovery", "safe"}
 dependencies = {"snmp-brute"}
@@ -21,11 +34,14 @@ dependencies = {"snmp-brute"}
 -- Created 03/03/2010 - v0.1 - created by Thomas Buchanan <tbuchanan@thecompassgrp.net>
 -- Revised 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
+-- Revised 08/10/2010 - v0.3 - prerule; add interface addresses to Nmap's target list (Kris Katterjohn)
 
 require "shortport"
 require "snmp"
 require "datafiles"
+require "target"
 
+prerule = function() return true end
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
 -- List of IANA-assigned network interface types
@@ -292,6 +308,23 @@ function process_ips( if_tbl, ip_tbl )
 	return if_tbl
 end
 
+--- Creates a table of IP addresses from the table of network interfaces
+--
+-- @param tbl table containing network interfaces
+-- @return table containing only IP addresses
+function list_addrs( tbl )
+	local new_tbl = {}
+
+	for _, index in ipairs( tbl.index_list ) do
+		local interface = tbl[index]
+		if interface.ip_addr then
+			table.insert( new_tbl, interface.ip_addr )
+		end
+	end
+
+	return new_tbl
+end
+
 --- Process the table of network interfaces for reporting
 --
 -- @param tbl table containing network interfaces
@@ -353,9 +386,38 @@ action = function(host, port)
 	local interfaces = {}
 	local ips = {}
 	local status
+	local srvhost, srvport
+
+	if SCRIPT_TYPE == "prerule" then
+		for _, k in ipairs({"snmp-interfaces.host", "host"}) do
+			if nmap.registry.args[k] then
+				srvhost = nmap.registry.args[k]
+			end
+		end
+
+		if not srvhost then
+			stdnse.print_debug(3,
+				"Skipping '%s' %s, 'snmp-interfaces.host' argument is missing.",
+				SCRIPT_NAME, SCRIPT_TYPE)
+			return
+		end
+
+		for _, k in ipairs({"snmp-interfaces.port", "port"}) do
+			if nmap.registry.args[k] then
+				srvport = tonumber(nmap.registry.args[k])
+			end
+		end
+
+		if not srvport then
+			srvport = 161
+		end
+	else
+		srvhost = host.ip
+		srvport = port.number
+	end
 
 	socket:set_timeout(5000)
-	try(socket:connect(host, port))
+	try(socket:connect(srvhost, srvport, "udp"))
 	
 	-- retreive network interface information from IF-MIB
 	status, interfaces = snmp.snmpWalk( socket, if_oid )
@@ -371,7 +433,7 @@ action = function(host, port)
 	interfaces = process_interfaces( interfaces )
 	
 	-- retreive IP address information from IP-MIB
-	try(socket:connect(host, port))
+	try(socket:connect(srvhost, srvport, "udp"))
 	status, ips = snmp.snmpWalk( socket, ip_oid )
 	
 	-- associate that IP address information with the correct interface
@@ -379,9 +441,31 @@ action = function(host, port)
 		interfaces = process_ips( interfaces, ips )
 	end
 
-	nmap.set_port_state(host, port, "open")
-	
-	interfaces = build_results( interfaces )
-	
-	return stdnse.format_output( true, interfaces )
+	local output = stdnse.format_output( true, build_results(interfaces) )
+
+	if SCRIPT_TYPE == "prerule" and target.ALLOW_NEW_TARGETS then
+		local sum = 0
+
+		ips = list_addrs(interfaces)
+
+		-- Could add all of the addresses at once, but count
+		-- successful additions instead for script output
+		for _, i in ipairs(ips) do
+			local st, err = target.add(i)
+			if st then
+				sum = sum + 1
+			else
+				stdnse.print_debug("Couldn't add target " .. i .. ": " .. err)
+			end
+		end
+
+		if sum ~= 0 then
+			output = output .. "\nSuccessfully added " .. tostring(sum) .. " new targets"
+		end
+	elseif SCRIPT_TYPE == "portrule" then
+		nmap.set_port_state(host, port, "open")
+	end
+
+	return output
 end
+

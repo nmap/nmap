@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added prerule support to snmp-interfaces and the ability to
+  add the host's interface addresses to the scanning queue.  The new
+  script arguments used for this functionality are "host" (required)
+  and "port" (optional). [Kris]
+
 o [NSE] Added the resolveall prerule script which takes a table of
   target names as a "hosts" argument and adds all of the resolved
   addresses (IPv4 or IPv6, depending on Nmap's -6 option) for all of
