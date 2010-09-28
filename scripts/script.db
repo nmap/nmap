@@ -101,6 +101,7 @@ Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "safe", "vuln", } }
+Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
@@ -140,7 +141,7 @@ Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "targets-traceroute.nse", categories = { "safe", "discovery", } }
+Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "auth", "intrusive", } }

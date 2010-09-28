@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the resolveall prerule script which takes a table of
+  target names as a "hosts" argument and adds all of the resolved
+  addresses (IPv4 or IPv6, depending on Nmap's -6 option) for all of
+  the hosts to the scanning queue. [Kris]
+
 o Fixed some inconsistencies in nmap-os-db and a small memory leak
   that would happen where there was more than one round of OS
   detection. These were reported by Xavier Sudre from netVigilance,
