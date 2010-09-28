@@ -164,6 +164,10 @@ udp 2049
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+# NAT-PMP external IP address request. See section 3.2 of
+# http://files.dns-sd.org/draft-cheshire-nat-pmp.txt.
+udp 5351 "\x00\x00"
+
 # DNS Service Discovery (DNS-SD) service query, as used in Zeroconf.
 # Transaction ID 0x0000, flags 0x0000, 1 question: PTR query for
 # _services._dns-sd._udp.local. If the remote host supports DNS-SD it will send
