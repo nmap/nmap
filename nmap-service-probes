@@ -7094,6 +7094,9 @@ softmatch quake3 m|^\xff\xff\xff\xffdisconnect$| p/Quake 3 game server/
 
 match apple-sasl m|How was your weekend\?;[0-9A-F]*\0| p/Mac OS X Server Password Server/
 
+match nat-pmp m|^\0\xfe\0\x01\0\0..$|s p/natpmp daemon/ d/router/
+match nat-pmp m|^\0\0\0\x01...\0$|s p/Apple Time Capsule/ d/router/
+
 ##############################NEXT PROBE##############################
 Probe UDP DNSVersionBindReq q|\0\x06\x01\0\0\x01\0\0\0\0\0\0\x07version\x04bind\0\0\x10\0\x03|
 rarity 1

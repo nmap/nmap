@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nat-pmp-info script that uses the nat-pmp service to
+  discover the external IP address of a router. [Patrik]
+
 o [NSE] Added prerule support to snmp-interfaces and the ability to
   add the host's interface addresses to the scanning queue.  The new
   script arguments used for this functionality are "host" (required)
