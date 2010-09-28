@@ -75,7 +75,7 @@ action = function( host, port )
 	--
 	-- Layout of the query for external IP packet
 	--
-    local packet = string.char( 0, 0 )
+	local packet = string.char( 0, 0 )
 	
 	status = socket:send( packet )
 	if( not(status) ) then 
@@ -95,7 +95,7 @@ action = function( host, port )
 	if ( not(status) ) then	stdnse.print_debug(3, external_ip) end
 	
 	-- set port to open
-    nmap.set_port_state(host, port, "open")
+	nmap.set_port_state(host, port, "open")
 	port.version.name = "nat-pmp"
 	nmap.set_port_version(host, port, "hardmatched")
 	
