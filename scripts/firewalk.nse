@@ -14,7 +14,7 @@ traceroute hops.
 If the probe is forwarded by the gateway, then we can expect to receive an
 ICMP_TIME_EXCEEDED reply from the gateway next hop router, or eventually the
 target if it is directly connected to the gateway. Otherwise, the probe will
-timeout.  As for UDP scans, this process can be quite slow if lots of ports are
+timeout. As for UDP scans, this process can be quite slow if lots of ports are
 blocked by the gateway.
 
 From an original idea of M. Schiffman and D. Goldsmith, authors of the
@@ -35,7 +35,10 @@ firewalk tool.
 -- supplied, <code>firewalk.gateway</code> is ignored.
 --
 -- @output
--- |_firewalk:  forwarded ports (tcp): 21-80,443
+-- | firewalk:
+-- | PROTOCOL  FORWARDED PORTS
+-- | udp       123,137,161
+-- |_tcp       21-80,443
 --
 
 
@@ -53,15 +56,19 @@ require('tab')
 
 
 local ICMP_TIME_EXCEEDED = 11
+local IPPROTO_TCP = packet.IPPROTO_TCP
+local IPPROTO_UDP = packet.IPPROTO_UDP
 
 
 -- number of retries for unanswered probes
 local MAX_RETRIES = 2
 
 
---- ensure that the catched reply is a valid icmp time exceeded and return
--- wether the reply appears to be valid or not
-local checkpkt = function(reply, orig)
+--- ensure that the catched reply is a valid icmp time exceeded
+-- @param reply the packet from the probed target
+-- @param orig the sent probe
+-- @return wether the reply appears to be valid or not
+local function checkpkt(reply, orig)
   local ip = packet.Packet:new(reply, reply:len())
 
   if ip.ip_p ~= packet.IPPROTO_ICMP or ip.icmp_type ~= ICMP_TIME_EXCEEDED then
@@ -72,64 +79,127 @@ local checkpkt = function(reply, orig)
   local ip2 = packet.Packet:new(is, is:len(), true)
 
   -- Check sent packet against ICMP payload
-  if ip2.ip_p ~= packet.IPPROTO_TCP or
-    ip2.ip_bin_src ~= orig.ip_bin_src or
-    ip2.ip_bin_dst ~= orig.ip_bin_dst or
-    ip2.tcp_sport ~= orig.tcp_sport or
-    ip2.tcp_dport ~= orig.tcp_dport then
+  if ip2.ip_p == orig.ip_p and
+    ip2.ip_bin_src == orig.ip_bin_src and
+    ip2.ip_bin_dst == orig.ip_bin_dst then
 
-    return false
+    -- TCP ports
+    if orig.ip_p == IPPROTO_TCP then
+      return ip2.tcp_sport == orig.tcp_sport and
+        ip2.tcp_dport == orig.tcp_dport
+    -- UDP ports
+    elseif orig.ip_p == IPPROTO_UDP then
+      return ip2.udp_sport == orig.udp_sport and
+        ip2.udp_dport == orig.udp_dport
+    end
   end
-
-  return true
+  return false
 end
 
---- set destination port and ip ttl to a generic tcp packet
+--- set destination port and ip ttl to a generic probe packet
 -- @param ip the ip object
 -- @param dport the layer 4 destination port
 -- @param ttl the ip ttl to set
-local updatepkt = function(ip, dport, ttl)
+local function updatepkt(ip, dport, ttl)
+
   ip:ip_set_ttl(ttl)
-  ip:tcp_set_sport(math.random(0x401, 0xffff))
-  ip:tcp_set_dport(dport)
-  ip:tcp_set_seq(math.random(1, 0x7fffffff))
-  ip:tcp_count_checksum(ip.ip_len)
+
+  if ip.ip_p == IPPROTO_TCP then
+    ip:tcp_set_sport(math.random(0x401, 0xffff))
+    ip:tcp_set_dport(dport)
+    ip:tcp_set_seq(math.random(1, 0x7fffffff))
+    ip:tcp_count_checksum()
+  elseif ip.ip_p == IPPROTO_UDP then
+    ip:udp_set_sport(math.random(0x401, 0xffff))
+    ip:udp_set_dport(dport)
+    ip:udp_set_length(ip.ip_len - ip.ip_hl * 4)
+    ip:udp_count_checksum()
+  end
+
   ip:ip_count_checksum()
+
 end
 
---- create a generic tcp packet, with ip ttl and destination port set to zero
+--- build a generic probe packet
+-- @param proto the desired layer 4 protocol
+-- @return the desired packet as a raw buffer
+local function basepkt(proto)
+  local ibin = bin.pack("H",
+    "4500 0014 0000 4000 8000 0000 0000 0000 0000 0000"
+  )
+  local tbin = bin.pack("H",
+    "0000 0000 0000 0000 0000 0000 6002 0c00 0000 0000 0204 05b4"
+  )
+  local ubin = bin.pack("H",
+    "0000 0000 0800 0000"
+  )
+
+  if proto == IPPROTO_TCP then
+    return ibin .. tbin
+  elseif proto == IPPROTO_UDP then
+    return ibin .. ubin
+  end
+end
+
+--- create a generic probe packet, with ip ttl and destination port set to zero
 -- @param host Host object that represents the destination
--- @return the ip packet object
-local genericpkt = function(host)
-    local pkt = bin.pack("H",
-        "4500 002c 55d1 0000 8006 0000 0000 0000" ..
-        "0000 0000 0000 0000 0000 0000 0000 0000" ..
-        "6002 0c00 0000 0000 0204 05b4"
-    )
+-- @param protostr the layer 4 protocol of the desired packet ("tcp" or "udp")
+-- @return the ip packet object or nil on error
+local function genericpkt(host, protostr)
+  local proto
 
-    local tcp = packet.Packet:new(pkt, pkt:len())
+  if protostr == "tcp" then
+    proto = IPPROTO_TCP
+  elseif protostr == "udp" then
+    proto = IPPROTO_UDP
+  else
+    return nil
+  end
 
-    tcp:ip_set_bin_src(host.bin_ip_src)
-    tcp:ip_set_bin_dst(host.bin_ip)
+  local pkt = basepkt(proto)
+  local ip = packet.Packet:new(pkt, pkt:len())
 
-    updatepkt(tcp, 0, 0)
+  if proto == IPPROTO_TCP then
+    ip:tcp_parse(false)
+  elseif proto == IPPROTO_UDP then
+    ip:udp_parse(false)
+  end
 
-    return tcp
+  ip:ip_set_bin_src(host.bin_ip_src)
+  ip:ip_set_bin_dst(host.bin_ip)
+
+  ip:set_u8(ip.ip_offset + 9, proto)
+  ip.ip_p = proto
+
+  ip:ip_set_len(pkt:len())
+
+  return ip
 end
 
 --- get the list of ports to probe
 -- @param host Host object that represents the targetted host
--- @return list of ports to probe
-local getports = function(host)
+-- @return array of ports to probe, sorted per protocol
+local function getports(host)
   local ports = {}
-  local port = nil
+  local protocols = {
+    {"tcp", "filtered"},
+    {"udp", "open|filtered"}
+  }
 
-  repeat
-    port = nmap.get_ports(host, port, "tcp", "filtered")
-    if port then
-      table.insert(ports, port.number)
-    end
-  until not port
+  for _, combo in ipairs(protocols) do
+    local port = nil
+    local proto = combo[1]
+    local state = combo[2]
+
+    ports[proto] = {}
+
+    repeat
+      port = nmap.get_ports(host, port, proto, state)
+      if port then
+        table.insert(ports[proto], port.number)
+      end
+    until not port
+  end
 
   return ports
 end
@@ -137,7 +207,7 @@ end
 --- store the firewalk ports into the registry
 -- @param host Host object that represents the targetted host
 -- @param ports list of ports to firewalk
-local setregs = function(host, ports)
+local function setregs(host, ports)
   if not nmap.registry[host.ip] then
     nmap.registry[host.ip] = {}
   end
@@ -163,20 +233,26 @@ hostrule = function(host)
   if not host.interface then
     return false
   end
+  -- get the list of ports to probe
   local ports = getports(host)
-  if #ports < 1 then
+  local nb_ports = 0
+  for proto in pairs(ports) do
+    nb_ports = nb_ports + #ports[proto]
+  end
+  -- nothing to probe: cancel the execution
+  if nb_ports < 1 then
     return false
   end
   setregs(host, ports)
   return true
 end
 
---- bind the scan to gateway(ttl) + 1
+--- bind the scan to the supplied ttl if given or to gateway(ttl) + 1
 -- @param host Host object that represents the targetted host
 -- @return the value of the ttl to use in our probes (or nil on error)
-local ttlmetric = function(host)
+local function ttlmetric(host)
   local ttl = stdnse.get_script_args("firewalk.ttl")
-  if ttl ~= nil then
+  if ttl then
     return ttl
   end
 
@@ -221,9 +297,14 @@ end
 --- convert an array of ports into a port ranges string like "x,y-z"
 -- @param ports an array of numbers
 -- @return a string representing the ports as folded ranges
-local portrange = function(ports)
+local function portrange(ports)
   table.sort(ports)
   local numranges = {}
+
+  if #ports == 0 then
+    return "(none found)"
+  end
+
   for _, p in ipairs(ports) do
     local stored = false
 
@@ -274,6 +355,28 @@ local function check (layer3)
   return bin.pack('ACC', ip.ip_bin_dst, ip.ip_p, ip.icmp_type)
 end
 
+--- fill a table with the results and dump it to generate the scan report
+-- @param tested array of probed ports, one row per protocol
+-- @param forwarded array of ports we discovered as forwarded, one row per protocol
+-- @return the report string
+local function report(tested, forwarded)
+  local output = tab.new(2)
+
+  tab.add(output, 1, "PROTOCOL")
+  tab.add(output, 2, "FORWARDED PORTS")
+
+  -- script output: one line per protocol
+  for proto in pairs(tested) do
+    if #tested[proto] ~= 0 then
+      tab.nextrow(output)
+      tab.add(output, 1, proto)
+      tab.add(output, 2, portrange(forwarded[proto]))
+    end
+  end
+
+  return tab.dump(output)
+end
+
 -- main firewalking logic
 action = function(host)
   local sock = nmap.new_dnet()
@@ -298,42 +401,47 @@ action = function(host)
 
   pcap:set_timeout(3000)
 
-  local pkt = genericpkt(host)
+  -- ports are sorted by protocol
+  for proto in pairs(ports) do
 
-  -- iterate over the list of ports
-  for _, port in ipairs(ports) do
-    updatepkt(pkt, port, ttl)
-    local retry = 0
+    fwdports[proto] = {}
 
-    -- resend on timeout to increase reliability
-    while retry < MAX_RETRIES do
-      try(sock:ip_send(pkt.buf))
+    local pkt = genericpkt(host, proto)
 
-      local status, length, _, layer3 = pcap:pcap_receive();
-      local test = bin.pack('ACC', pkt.ip_bin_src, packet.IPPROTO_ICMP, ICMP_TIME_EXCEEDED);
-      while status and test ~= check(layer3) do
-        status, length, _, layer3 = pcap:pcap_receive();
-      end
+    -- iterate over the list of ports for the current protocol
+    for _, port in ipairs(ports[proto]) do
 
-      if status then
-        if checkpkt(layer3, pkt) then
-          stdnse.print_debug(1, "Firewalk: discovered fwd port " .. port)
-          table.insert(fwdports, port)
-          break
+      updatepkt(pkt, port, ttl)
+
+      local retry = 0
+
+      -- resend on timeout to increase reliability
+      while retry < MAX_RETRIES do
+
+        try(sock:ip_send(pkt.buf))
+        stdnse.print_debug(1, "Firewalk: trying port " .. port .. "/" .. proto)
+
+        local status, _, _, rep = pcap:pcap_receive()
+				local test = bin.pack('ACC', pkt.ip_bin_src, packet.IPPROTO_ICMP, ICMP_TIME_EXCEEDED);
+				while status and test ~= check(rep) do
+					status, length, _, layer3 = pcap:pcap_receive();
+				end
+
+        if status and checkpkt(rep, pkt) then
+            stdnse.print_debug(1, "Firewalk: discovered forwarded port " .. port .. "/" .. proto)
+            table.insert(fwdports[proto], port)
+            break
+        else
+          retry = retry + 1
         end
-      else
-        retry = retry + 1
-      end
-    end
-  end
+
+      end -- retry
+    end -- port
+  end -- proto
 
   sock:ip_close()
   pcap:pcap_close()
 
-  if #fwdports < 1 then
-    return "\n no forwarded ports found"
-  else
-    return "\n forwarded ports (tcp): " .. portrange(fwdports)
-  end
+  return " \n" .. report(ports, fwdports)
 end
 
