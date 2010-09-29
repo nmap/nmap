@@ -563,6 +563,20 @@ function format_output(status, data, indent)
 	return result
 end
 
+-- Get the value of a script argument, or nil if the script argument was not
+-- given. This works also for arguments given as top-level array values, like
+-- --script-args=unsafe; for these it returns the value 1.
+local function arg_value(argname)
+  if nmap.registry.args[argname] then
+    return nmap.registry.args[argname]
+  end
+  for _, v in ipairs(nmap.registry.args) do
+    if v == argname then
+      return 1
+    end
+  end
+end
+
 --- Parses the script arguments passed to the --script-args option.
 --
 -- @usage
@@ -586,39 +600,22 @@ end
 -- @param Arguments  Script arguments to check.
 -- @return Arguments values.
 function get_script_args (...)
-  local args, args_num = {}, select("#", ...)
+  local args = {}
 
-  for i = 1, args_num do
-    local options = select(i, ...)
-
-    if(type(options) == 'string') then
-      options = {options}
+  for i, set in ipairs({...}) do 
+    if type(set) == "string" then
+      set = {set}
     end
-
-    -- Save the first option (which will be the primary, non-deprecated one)
-    local first_option = options[1]
-
-    for _, option in ipairs(options) do
-      if nmap.registry.args[option] then
-        if(option ~= first_option) then
-          print_debug(1, "WARNING: Option '%s' is deprecated; use '%s' instead.", option, first_option)
-        end
-        args[i] = nmap.registry.args[option]
-      else
-        for _, v in ipairs(nmap.registry.args) do
-          if v == option then
-            if(option ~= first_option) then
-              print_debug(1, "WARNING: Option '%s' is deprecated; use '%s' instead.", option, first_option)
-            end
-            args[i] = 1
-          end
-        end
+    for _, test in ipairs(set) do
+      local v = arg_value(test)
+      if v then
+        args[i] = v
+        break
       end
     end
-
   end
 
-  return unpack(args, 1, args_num)
+  return unpack(args, 1, select("#", ...))
 end
 
 --- This function allows you to create worker threads that may perform
