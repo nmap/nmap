@@ -53,12 +53,6 @@ Some of the more useful fields:
 -- |_ |_ Domain Name Server: 208.81.7.10, 208.81.7.14
 -- 
 
-
--- The functions for creating and parsing DHCP requests are general, and
--- should be able to create and parse any DHCP request and response. If
--- other scripts require DHCP support, dhcp_build and dhcp_parse, with
--- their related functions, can easily be abstracted into a NSELib. 
-
 author = "Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
