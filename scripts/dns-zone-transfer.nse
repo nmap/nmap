@@ -4,16 +4,16 @@ Requests a zone transfer (AXFR) from a DNS server.
 The script sends an AXFR query to a DNS server. The domain to query is
 determined by examining the name given on the command line, the DNS
 server's hostname, or it can be specified with the
-<code>dnszonetransfer.domain</code> script argument. If the query is
+<code>dns-zone-transfer.domain</code> script argument. If the query is
 successful all domains and domain types are returned along with common
 type specific data (SOA/MX/NS/PTR/A).
 
 This script can run at different phases of an Nmap scan:
 * Script Pre-scanning: in this phase the script will run before any
 Nmap scan and use the defined DNS server in the arguments. The script
-arguments in this phase are: <code>dnszonetransfer.server</code> the
+arguments in this phase are: <code>dns-zone-transfer.server</code> the
 DNS server to use, can be a hostname or an IP address and must be
-specified. The <code>dnszonetransfer.port</code> argument is optional
+specified. The <code>dns-zone-transfer.port</code> argument is optional
 and can be used to specify the DNS server port.
 * Script scanning: in this phase the script will run after the other
 Nmap phases and against an Nmap discovered DNS server. If we don't
@@ -26,10 +26,10 @@ Useful resources
 ]]
 
 ---
--- @args dnszonetransfer.domain Domain to transfer.
--- @args dnszonetransfer.server DNS server. If set, this argument will
+-- @args dns-zone-transfer.domain Domain to transfer.
+-- @args dns-zone-transfer.server DNS server. If set, this argument will
 --       enable the script for the "Script Pre-scanning phase".
--- @args dnszonetransfer.port DNS server port, this argument concerns
+-- @args dns-zone-transfer.port DNS server port, this argument concerns
 --       the "Script Pre-scanning phase" and it's optional, the default
 --       value is <code>53</code>.
 -- @output
@@ -60,7 +60,7 @@ Useful resources
 -- |_ foo.com.            SOA     ns2.foo.com. piou.foo.com.
 -- @usage
 -- nmap --script dns-zone-transfer.nse \
---      --script-args dnszonetransfer.domain=<domain>
+--      --script-args dns-zone-transfer.domain=<domain>
 
 require('shortport')
 require('strbuf')
@@ -317,19 +317,18 @@ end
 
 action = function(host, port)
     local soc, status, data
-    local dns_server, dns_port
     local catch = function() soc:close() end
     local try = nmap.new_try(catch)
     
-    local domain = nil
     local args = nmap.registry.args
 
-    if args.dnszonetransfer and args.dnszonetransfer.domain then
-      domain = args.dnszonetransfer.domain
-    elseif args['dnszonetransfer.domain'] then
-      domain = args['dnszonetransfer.domain']
-    elseif args.domain then
-      domain = args.domain
+    local domain, dns_server, dns_port = stdnse.get_script_args(
+        {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
+        {"dns-zone-transfer.server", "dnszonetransfer.server"},
+        {"dns-zone-transfer.port", "dnszonetransfer.port"}
+    )
+    if not dns_port then
+        dns_port = 53
     end
 
     -- script running at the Script Pre-scanning phase.
@@ -340,18 +339,11 @@ action = function(host, port)
       	  SCRIPT_NAME, SCRIPT_TYPE)
         return
       end
-      if args['dnszonetransfer.server'] then
-        dns_server = args['dnszonetransfer.server']
-      else
+      if not dns_server then
       	stdnse.print_debug(3,
       	  "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
       	  SCRIPT_NAME, SCRIPT_TYPE)
         return
-      end
-      if args['dnszonetransfer.port'] then
-        dns_port = args['dnszonetransfer.port']
-      else
-        dns_port = 53
       end
     -- script running at the Script Scan phase.
     elseif SCRIPT_TYPE == "portrule" then
