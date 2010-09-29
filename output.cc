@@ -417,38 +417,46 @@ int print_iflist(void) {
 
 #ifndef NOLUA
 static char *formatScriptOutput(ScriptResult sr) {
-  std::string result = std::string(), output = sr.get_output();
-  string::size_type pos;
-  char *c_result, *c_output = new char[output.length() + 1];
-  strncpy(c_output, output.c_str(), output.length() + 1);
-  int line = 0;
-  std::string line_prfx = "| ";
+  std::vector<std::string> lines;
 
-  char *token = strtok(c_output, "\n");
+  const char *c_output;
+  const char *p, *q;
+  std::string result;
+  unsigned int i;
 
-  result += line_prfx + sr.get_id() + ": ";
+  c_output = sr.get_output().c_str();
+  p = c_output;
 
-  while (token != NULL) {
-    if (line > 0)
-      result += line_prfx;
-    result += std::string(token) + "\n";
-    token = strtok(NULL, "\n");
-    line++;
+  /* Skip initial newlines. */
+  while (*p == '\n')
+    p++;
+
+  while (*p != '\0') {
+    q = strchr(p, '\n');
+    if (q == NULL) {
+      lines.push_back(std::string(p));
+      break;
+    } else {
+      lines.push_back(std::string(p, q - p));
+      p = q + 1;
+    }
   }
 
-  // fix the last line
-  pos = result.rfind(line_prfx);
-  result.replace(pos, 2, "|_");
-
-  // delete the unwanted trailing newline
-  pos = result.rfind("\n");
-  if (pos != std::string::npos) {
-    result.erase(pos, strlen("\n"));
+  if (lines.empty())
+    lines[0] = "";
+  for (i = 0; i < lines.size(); i++) {
+    if (i < lines.size() - 1)
+      result += "| ";
+    else
+      result += "|_";
+    if (i == 0)
+      result += sr.get_id() + ": ";
+    result += lines[i];
+    if (i < lines.size() - 1)
+      result += "\n";
   }
-  c_result = strdup(result.c_str());
 
-  delete[]c_output;
-  return c_result;
+  return strdup(result.c_str());
 }
 #endif /* NOLUA */
 
