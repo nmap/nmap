@@ -603,7 +603,7 @@ else
     AC_RUN_IFELSE([ AC_LANG_PROGRAM(
     	[[#include <lua.h>]], 
     	[[if(LUA_VERSION_NUM < 501) return 1;]])], 
-    	have_lua=yes, have_lua=no)
+    	have_lua=yes, have_lua=no, AC_MSG_RESULT(cross-compiling -- assuming yes); have_lua=yes)
     AC_LANG_POP(C++)
   
     LUA_DEPENDS=""
