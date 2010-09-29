@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated to the latest config.guess and config.sub. Thanks to Ty
+  Miller for a reminder. [David]
+
 o [NSE] Added nat-pmp-info script that uses the nat-pmp service to
   discover the external IP address of a router. [Patrik]
 
