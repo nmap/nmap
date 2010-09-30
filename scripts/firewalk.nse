@@ -442,6 +442,6 @@ action = function(host)
   sock:ip_close()
   pcap:pcap_close()
 
-  return " \n" .. report(ports, fwdports)
+  return "\n" .. report(ports, fwdports)
 end
 

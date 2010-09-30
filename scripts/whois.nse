@@ -1281,14 +1281,14 @@ function format_data_for_output( data )
       for _, field_name in ipairs( fields ) do
         if type( field_name ) == "string" and data[object_name][field_name] then
 
-          output[#output+1] = " \n"
+          output[#output+1] = "\n"
           output[#output+1] = field_name
           output[#output+1] = ": "
           output[#output+1] = data[object_name][field_name]
 
         elseif type( field_name ) == "table" then
 
-          output[#output+1] = " \n"
+          output[#output+1] = "\n"
 
           for _, field_name_sameline in ipairs( field_name ) do
             if type( field_name_sameline ) == "string" and data[object_name][field_name_sameline] then

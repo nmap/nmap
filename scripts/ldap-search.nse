@@ -213,7 +213,7 @@ function action(host,port)
 		-- catch any softerrors
 		if searchResEntries.resultCode ~= 0 then
 			local output = stdnse.format_output(true, result )
-			output = output .. string.format(" \n\n\n=========== %s ===========", searchResEntries.errorMessage )
+			output = output .. string.format("\n\n\n=========== %s ===========", searchResEntries.errorMessage )
 			
 			return output
 		end
@@ -233,7 +233,7 @@ function action(host,port)
 	local output = stdnse.format_output(true, result )
 	
 	if ( maxObjects ~= -1 and objCount == maxObjects ) then
-		output = output .. (" \n\nResult limited to %d objects (see ldap.maxobjects)"):format(maxObjects)
+		output = output .. ("\n\nResult limited to %d objects (see ldap.maxobjects)"):format(maxObjects)
 	end
 	
 	return output

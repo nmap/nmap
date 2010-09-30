@@ -440,7 +440,7 @@ local function format_output_sub(status, data, indent)
 	-- Initialize the output string to blank (or, if we're at the top, add a newline)
 	local output = ""
 	if(not(indent)) then
-		output = ' \n'
+		output = '\n'
 	end
 
 	if(not(status)) then
@@ -556,7 +556,7 @@ function format_output(status, data, indent)
 	local result = format_output_sub(status, data, indent)
 
 	-- Check for an empty result
-	if(result == nil or #result == "" or result == "\n" or result == " \n") then
+	if(result == nil or #result == "" or result == "\n" or result == "\n") then
 		return nil
 	end
 

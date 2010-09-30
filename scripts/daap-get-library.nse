@@ -326,7 +326,7 @@ action = function(host, port)
 	local output = stdnse.format_output( true, results )
 	
 	if limit > 0 then
-		output = output .. string.format(" \n\nOutput limited to %d items", limit )
+		output = output .. string.format("\n\nOutput limited to %d items", limit )
 	end
 	
 	return output

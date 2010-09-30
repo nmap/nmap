@@ -99,7 +99,7 @@ function create_result_from_table(accounts)
 		result = result .. "  " .. account.username .. ":" .. account.password .. " => " .. account.message .. "\n"
 	end
 	
-	return " \n" .. result
+	return "\n" .. result
 end
 
 action = function(host, port)

@@ -406,5 +406,5 @@ action = function(host, port)
 	end
 
 	soc:close()
-	return ' \n' .. tab.dump(table)
+	return '\n' .. tab.dump(table)
 end

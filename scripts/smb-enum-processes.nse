@@ -283,7 +283,7 @@ action = function(host)
 	if nmap.verbosity() == 0 then
 		response = "|_ " .. stdnse.strjoin(", ", names)
 	else
-		response = " \n" .. psl_print(psl, nmap.verbosity())
+		response = "\n" .. psl_print(psl, nmap.verbosity())
 	end
 
 	return response

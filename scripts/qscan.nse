@@ -507,6 +507,6 @@ action = function(host)
 
 	calcfamilies(stats, conf)
 
-	return " \n" .. report(stats)
+	return "\n" .. report(stats)
 end
 

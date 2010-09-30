@@ -457,6 +457,6 @@ function nice_output( output, combined_records )
   end
 
   -- return combined and formatted answers
-  return (" \n%s"):format( table.concat( output, "\n" ) )
+  return "\n" .. table.concat( output, "\n" )
 
 end
