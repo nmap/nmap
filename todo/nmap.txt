@@ -141,6 +141,18 @@ o Create Nmap wiki
 
 o Nmap book work [placeholder]
 
+o Implement a solution for people who want NIST CPE OS detection
+  results (we'll save version detection for a 2nd phase).  Notes:
+  David report on CPE for OS Detection: 
+    http://seclists.org/nmap-dev/2010/q3/278
+  David report on CPE for version detection: 
+    http://seclists.org/nmap-dev/2010/q3/303
+  Nessus has described their integration of CPE:
+    http://blog.tenablesecurity.com/2010/05/common-platform-enumeration-cpe-with-nessus.html.
+  Older messages about it:
+    http://seclists.org/nmap-dev/2008/q4/627
+    http://seclists.org/nmap-dev/2010/q2/788
+
 o Make the nmap.header.tmpl wording a little more generic so it more
   clearly applies to Ncat, Zenmap, Nping, etc. Then use
   templatereplace.pl to apply those changes to the code. [Fyodor]
