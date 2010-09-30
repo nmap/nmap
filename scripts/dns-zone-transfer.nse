@@ -320,8 +320,6 @@ action = function(host, port)
     local catch = function() soc:close() end
     local try = nmap.new_try(catch)
 
-    local args = nmap.registry.args
-
     local domain, dns_server, dns_port = stdnse.get_script_args(
         {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
         {"dns-zone-transfer.server", "dnszonetransfer.server"},
