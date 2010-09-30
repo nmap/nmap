@@ -427,10 +427,6 @@ static char *formatScriptOutput(ScriptResult sr) {
   c_output = sr.get_output().c_str();
   p = c_output;
 
-  /* Skip initial newlines. */
-  while (*p == '\n')
-    p++;
-
   while (*p != '\0') {
     q = strchr(p, '\n');
     if (q == NULL) {
