@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <article id="man">
 <artheader>
   <title>Nmap参考指南(Man Page)</title>
@@ -161,10 +161,10 @@ TIMING AND PERFORMANCE:
   -T[0-6]: Set timing template (higher is faster)
   --min-hostgroup/max-hostgroup &lt;msec&gt;: Parallel host scan group sizes
   --min-parallelism/max-parallelism &lt;msec&gt;: Probe parallelization
-  --min_rtt_timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
+  --min-rtt-timeout/max-rtt-timeout/initial-rtt-timeout &lt;msec&gt;: Specifies
       probe round trip time.
   --host-timeout &lt;msec&gt;: Give up on target after this long
-  --scan-delay/--max_scan-delay &lt;msec&gt;: Adjust delay between probes
+  --scan-delay/--max-scan-delay &lt;msec&gt;: Adjust delay between probes
 FIREWALL/IDS EVASION AND SPOOFING:
   -f; --mtu &lt;val&gt;: fragment packets (optionally w/given MTU)
   -D &lt;decoy1,decoy2[,ME],...&gt;: Cloak a scan with decoys
@@ -185,7 +185,7 @@ OUTPUT:
   --append-output: Append to rather than clobber specified output files
   --resume &lt;filename&gt;: Resume an aborted scan
   --stylesheet &lt;path/URL&gt;: XSL stylesheet to transform XML output to HTML
-  --no_stylesheet: Prevent Nmap from associating XSL stylesheet w/XML output
+  --no-stylesheet: Prevent Nmap from associating XSL stylesheet w/XML output
 MISC:
   -6: Enable IPv6 scanning
   -A: Enables OS detection and Version detection
@@ -413,7 +413,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
 
           <para>该选项发送一个设置了SYN标志位的空TCP报文。
           默认目的端口为80 (可以通过改变<filename moreinfo="none">nmap.h</filename>)
-          文件中的DEFAULT_TCP_PROBE_PORT值进行配置，但不同的端口也可以作为选项指定。
+          文件中的DEFAULT-TCP-PROBE-PORT值进行配置，但不同的端口也可以作为选项指定。
           甚至可以指定一个以逗号分隔的端口列表(如 <option>-PS22，23，25，80，113，1050，35000</option>)，
           在这种情况下，每个端口会被并发地扫描。</para>
 
@@ -488,7 +488,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
           <para>还有一个主机发现的选项是UDP ping，它发送一个空的(除非指定了<option>--data-length</option>
           UDP报文到给定的端口。端口列表的格式和前面讨论过的<option>-PS</option>和<option>-PA</option>选项还是一样。
           如果不指定端口，默认是31338。该默认值可以通过在编译时改变<filename moreinfo="none">nmap.h</filename>文件中的
-          DEFAULT_UDP_PROBE_PORT值进行配置。默认使用这样一个奇怪的端口是因为对开放端口
+          DEFAULT-UDP-PROBE-PORT值进行配置。默认使用这样一个奇怪的端口是因为对开放端口
           进行这种扫描一般都不受欢迎。</para>
 
           <para>如果目标机器的端口是关闭的，UDP探测应该马上得到一个ICMP端口无法到达的回应报文。
@@ -599,7 +599,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
 
       <varlistentry>
         <term>
-          <option>--system_dns</option> (使用系统域名解析器)
+          <option>--system-dns</option> (使用系统域名解析器)
         </term>
         <listitem>
           <para>默认情况下，Nmap通过直接发送查询到您的主机上配置的域名服务器
@@ -626,7 +626,7 @@ scanme.nmap.org 192.168.0.0/8 10.0.0，1，3-7.0-255</command>将和您预期的
           <literal moreinfo="none">closed</literal>(关闭的)，<literal moreinfo="none">filtered</literal>(被过滤的)，
           <literal moreinfo="none">unfiltered</literal>(未被过滤的)，
           <literal moreinfo="none">open|filtered(开放或者被过滤的)</literal>，或者
-          <literal moreinfo="none">closed|filtered(关闭或者未被过滤的)</literal>。</para>
+          <literal moreinfo="none">closed|filtered(关闭或者被过滤的)</literal>。</para>
 
 <para>这些状态并非端口本身的性质，而是描述Nmap怎样看待它们。例如，
 对于同样的目标机器的135/tcp端口，从同网络扫描显示它是开放的，而跨网络作完全相同的扫描则可能显示它是
@@ -985,7 +985,7 @@ SYN扫描认为没有响应意味着
           利用zombie主机上已知的IP分段ID序列生成算法来窥探目标上开放端口的信息。
           IDS系统将显示扫描来自您指定的zombie机(必须运行并且符合一定的标准)。 
           这种奇妙的扫描类型太复杂了，不能在此完全描述，所以我写一篇非正式的论文，
-          发布在<ulink url="http://nmap.org/book/idlescan。html"/>。</para>
+          发布在<ulink url="http://nmap.org/book/idlescan.html"/>。</para>
 
           <para>除了极端隐蔽(由于它不从真实IP地址发送任何报文)，
           该扫描类型可以建立机器间的基于IP的信任关系。
@@ -1325,7 +1325,7 @@ Nmap用<option>-b</option>选项支持ftp弹跳扫描。参数格式是
     很多主机的序列号是<quote>增加</quote>类别，即在每个发送包的IP头中
     增加ID域值， 这对一些先进的信息收集和哄骗攻击来说是个漏洞。</para>
 
-    <para><ulink url="http://www.insecure.org/nmap/osdetect/"/>
+    <para><ulink url="http://nmap.org/book/osdetect.html"/>
     文档使用多种语言描述了版本检测的方式、使用和定制。</para>
 
     <para>采用下列选项启用和控制操作系统检测:</para>
@@ -1438,7 +1438,7 @@ Nmap降低速度，探测报文数量减少。随着网络性能的改善，理�
 
       <varlistentry>
         <term>
-        <option>--min_rtt_timeout &lt;milliseconds&gt;</option>，
+        <option>--min-rtt-timeout &lt;milliseconds&gt;</option>，
         <option>--max-rtt-timeout &lt;milliseconds&gt;</option>，
         <option>--initial-rtt-timeout
         &lt;milliseconds&gt;</option> (调整探测报文超时)</term>
@@ -1462,7 +1462,7 @@ Nmap降低速度，探测报文数量减少。随着网络性能的改善，理�
 可设成这个时间值的3倍或4倍。通常，不管ping的时间是多少，最大的rtt值不得小于100ms，
 不能超过1000ms。</para>
 
-<para><option>--min_rtt_timeout</option>这个选项很少使用，当网络不可靠时，
+<para><option>--min-rtt-timeout</option>这个选项很少使用，当网络不可靠时，
 Nmap的默认值也显得过于强烈，这时这个选项可起作用。当网络看起来不可靠时，Nmap仅将
 超时时间降至最小值，这个情况是不正常的，需要向namp-dev邮件列表报告bug。</para>
 
@@ -1490,7 +1490,7 @@ Nmap的默认值也显得过于强烈，这时这个选项可起作用。当网�
       <varlistentry>
         <term>
         <option>--scan-delay &lt;milliseconds&gt;</option>;
-        <option>--max_scan-delay
+        <option>--max-scan-delay
         &lt;milliseconds&gt;</option> (调整探测报文的时间间隔)</term>
         <listitem>
 
@@ -1547,7 +1547,7 @@ Polite</option>选项是如何的慢，这种模式的扫描比默认方式实�
 探测报文间隔分别为15秒和0.4秒。<option>T3</option>是Nmap的默认选项，包含了并行扫描。
 <option>T4</option>选项与 <option>--max-rtt-timeout 1250 --initial-rtt-timeout 500</option>
 等价，最大TCP扫描延迟为10ms。<option>T5</option>等价于
-<option>--max-rtt-timeout 300 --min_rtt_timeout 50
+<option>--max-rtt-timeout 300 --min-rtt-timeout 50
 --initial-rtt-timeout 250 --host-timeout 900000</option>，最大TCP扫描延迟为5ms。</para>
 
         </listitem>
@@ -1611,7 +1611,7 @@ bounce扫描、Idle扫描、分片攻击或尝试穿透自己的代理。</para>
           16字节的分段(减少分段数量)。使用<option>--mtu</option>选项可
           以自定义偏移的大小，使用时不需要<option>-f</option>，偏移量必须
           是8的倍数。包过滤器和防火墙对所有的IP分段排队，如Linux核心中的
-          CONFIG_IP_ALWAYS_DEFRAG配置项，分段包不会直接使用。一些网络无法
+          CONFIG-IP-ALWAYS-DEFRAG配置项，分段包不会直接使用。一些网络无法
           承受这样所带来的性能冲击，会将这个配置禁止。其它禁止的原因有分段
           包会通过不同的路由进入网络。一些源系统在内核中对发送的报文进行
           分段，使用iptables连接跟踪模块的Linux就是一个例子。当使用类似Ethereal
@@ -1745,7 +1745,7 @@ DNS请求会忽略<option>--source-port</option>选项，这是因为Nmap依靠�
           8096个主机。这会使得扫描针对不同的网络监控系统来说变得不是很
           明显，特别是配合值较小的时间选项时更有效。如果需要对一个较大
           的组进行随机排列，需要增大<filename moreinfo="none">nmap.h</filename>文件中
-          PING_GROUP_SZ的值，并重新编译。另一种方法是使用列表扫描
+          PING-GROUP-SZ的值，并重新编译。另一种方法是使用列表扫描
            (<option>-sL -n -oN
           <replaceable>filename</replaceable></option>)，产生目标IP的列表，
           使用Perl脚本进行随机化，然后使用<option>-iL</option>提供给Nmap。</para>
@@ -2049,7 +2049,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
 
       <varlistentry>
         <term>
-          <option>--no_stylesheet</option> (忽略XML声明的XSL样式表)
+          <option>--no-stylesheet</option> (忽略XML声明的XSL样式表)
         </term>
         <listitem>
           <para>使用该选项禁止Nmap的XML输出关联任何XSL样式表。
@@ -2162,7 +2162,7 @@ rttvar: 14987 to: 100000</computeroutput>。如果对某行输出不明白，
           <option>--privileged</option>在具有Linux内核性能的类似
           系统中使用非常有效，这些系统配置允许非特权用户可以进行
           原报文扫描。需要明确的是，在其它选项之前使用这些需要权
-          限的选项(SYN扫描、操作系统检测等)。Nmap_PRIVILEGED变量
+          限的选项(SYN扫描、操作系统检测等)。Nmap-PRIVILEGED变量
           设置等价于<option>--privileged</option>选项。</para>
         </listitem>
       </varlistentry>
