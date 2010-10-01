@@ -1062,7 +1062,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 
   nsock_pool nsp = new_pool(L);
   if (o.scriptTrace())
-    nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
+    nsp_settrace(nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
 #if HAVE_OPENSSL
   /* Value speed over security in SSL connections. */
   nsp_ssl_init_max_speed(nsp);

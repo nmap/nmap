@@ -2481,7 +2481,7 @@ int service_scan(vector<Target *> &Targets) {
   }
 
   if (o.versionTrace()) {
-    nsp_settrace(nsp, NSOCK_TRACE_LEVEL, o.getStartTime());
+    nsp_settrace(nsp, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
   }
 
 #if HAVE_OPENSSL

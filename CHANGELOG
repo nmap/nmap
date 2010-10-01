@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ncat now logs Nsock debug output to stderr instead of stdout, like
+  its other debug messages. [David]
+
 o Updated to the latest config.guess and config.sub. Thanks to Ty
   Miller for a reminder. [David]
 
