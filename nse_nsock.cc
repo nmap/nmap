@@ -727,42 +727,6 @@ int l_get_ssl_certificate (lua_State *L)
 }
 #endif
 
-static int l_setup (lua_State *L)
-{
-  static const int families[] = { AF_INET, AF_INET6 };
-  static const char *const fam_op[] = {"ipv4", "ipv6", NULL};
-  nsock_pool nsp;
-  nse_nsock_udata *nu;
-  const char *proto;
-  int af;
-
-  af = families[luaL_checkoption(L, 2, NULL, fam_op)];
-  proto = luaL_checkstring(L, 3);
-
-  if (strcmp(proto, "udp") != 0)
-    return luaL_argerror(L, 2, "must be \"udp\"");
-
-  nsp = get_pool(L);
-  nu = check_nsock_udata(L, 1, 0);
-
-  nu->nsiod = nsi_new(nsp, NULL);
-  if (nu->source_addr.ss_family != AF_UNSPEC) {
-    nsi_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
-  } else if (o.spoofsource) {
-    struct sockaddr_storage ss;
-    size_t sslen;
-
-    o.SourceSockAddr(&ss, &sslen);
-    nsi_set_localaddr(nu->nsiod, &ss, sslen);
-  }
-  if (o.ipoptionslen)
-    nsi_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
-
-  nsock_setup_udp(nsp, nu->nsiod, callback, nu->timeout, nu, af);
-
-  return yield(L, nu, "SETUP", TO, 0, NULL);
-}
-
 /* Set the local address for socket operations. The two optional parameters
    after the first (which is the socket object) are a string representing a
    numeric address, and a port number. If either optional parameter is omitted
@@ -1023,7 +987,6 @@ LUALIB_API int luaopen_nsock (lua_State *L)
 "return receive_buf;\n";
 
   static const luaL_Reg l_nsock[] = {
-    {"setup", l_setup},
     {"bind", l_bind},
     {"send", l_send},
     {"receive", l_receive},
