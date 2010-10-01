@@ -76,7 +76,7 @@ o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Services (like sysinternals' psservice)
   [Drazen]
 
-o Let Nsock log to stdout, so its messages don't get mixed up with the
+o Let Nsock log to stderr, so its messages don't get mixed up with the
   output stream when Ncat is run with -vvv.
   http://seclists.org/nmap-dev/2010/q3/113
 
