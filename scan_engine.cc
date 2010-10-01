@@ -3160,6 +3160,8 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   u32 vtag = 0;
   char *chunk = NULL;
   int chunklen = 0;
+  /* Some hosts do not respond to ICMP requests if the identifier is 0. */
+  u16 icmp_ident = (get_random_u16() % 0xffff) + 1;
 
   if (USI->ethsd) {
     memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
@@ -3286,13 +3288,6 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 			       &packetlen);
 	break;
       case IPPROTO_ICMP:
-    u16 icmp_ident;
-
-    /* Some hosts do not respond to ICMP requests if the identifier is 0. */
-    do {
-      icmp_ident = get_random_u16();
-    } while (icmp_ident == 0);
-
 	packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
 				o.ttl, ipid, IP_TOS_DEFAULT, false,
 				o.ipoptions, o.ipoptionslen,
@@ -3353,13 +3348,6 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       free(packet);
     }
   } else if (pspec->type == PS_ICMP) {
-    u16 icmp_ident;
-
-    /* Some hosts do not respond to ICMP requests if the identifier is 0. */
-    do {
-      icmp_ident = get_random_u16();
-    } while (icmp_ident == 0);
-
     for(decoy = 0; decoy < o.numdecoys; decoy++) {
       packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
                               o.ttl, ipid, IP_TOS_DEFAULT, false,
