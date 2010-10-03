@@ -132,9 +132,6 @@ command_names = {}
 status_codes = {}
 status_names = {}
 
-local mutexes = setmetatable({}, {__mode = "k"});
---local debug_mutex = nmap.mutex("SMB-DEBUG")
-
 local TIMEOUT = 10000
 
 ---Wrapper around <code>smbauth.add_account</code>.
@@ -172,68 +169,6 @@ function get_overrides_anonymous(overrides)
 		overrides['password_hash'] = ''
 		overrides['hash_type'] = 'none'
 	end
-end
-
-
----Returns the mutex that should be used by the current connection. This mutex attempts
--- to use the name, first, then falls back to the IP if no name was returned. 
---
---@param smbstate The SMB object associated with the connection
---@return A mutex
-local function get_mutex(smbstate)
-	local mutex_name = "SMB-"
-	local mutex
-
---	if(nmap.debugging() > 0) then
---		return debug_mutex
---	end
-
-	-- Decide whether to use the name or the ip address as the unique identifier
-	if(smbstate['name'] ~= nil) then
-		mutex_name = mutex_name .. smbstate['name']
-	else
-		mutex_name = mutex_name .. smbstate['ip']
-	end
-
-	if(mutexes[smbstate] == nil) then
-		mutex = nmap.mutex(mutex_name)
-		mutexes[smbstate] = mutex
-	else
-		mutex = mutexes[smbstate]
-	end
-
-	stdnse.print_debug(3, "SMB: Using mutex named '%s'", mutex_name)
-
-	return mutex
-end
-
----Locks the mutex being used by this host. Doesn't return until it successfully 
--- obtains a lock. 
---
---@param smbstate The SMB object associated with the connection
---@param func     A name to associate with this call (used purely for debugging
---                and logging)
-local function lock_mutex(smbstate, func)
-	local mutex
-
-	stdnse.print_debug(3, "SMB: Attempting to lock mutex [%s]", func)
-	mutex = get_mutex(smbstate)
-	mutex "lock"
-	stdnse.print_debug(3, "SMB: Mutex lock obtained [%s]", func)
-end
-
----Unlocks the mutex being used by this host.
---
---@param smbstate The SMB object associated with the connection
---@param func     A name to associate with this call (used purely for debugging
---                and logging)
-local function unlock_mutex(smbstate, func)
-	local mutex
-
-	stdnse.print_debug(3, "SMB: Attempting to release mutex [%s]", func)
-	mutex = get_mutex(smbstate)
-	mutex "done"
-	stdnse.print_debug(3, "SMB: Mutex released [%s]", func)
 end
 
 ---Convert a status number from the SMB header into a status name, returning an error message (not nil) if 
@@ -304,9 +239,7 @@ function disable_extended(smb)
 	smb['extended_security'] = false
 end
 
---- Begins a SMB session, automatically determining the best way to connect. Also starts a mutex
---  with mutex_id. This prevents multiple threads from making queries at the same time (which breaks
---  SMB). 
+--- Begins a SMB session, automatically determining the best way to connect. 
 --
 -- @param host The host object
 -- @return (status, smb) if the status is true, result is the newly crated smb object; 
@@ -318,6 +251,8 @@ function start(host)
 
 	state['uid']      = 0
 	state['tid']      = 0
+	state['mid']      = 1
+	state['pid']      = math.random(32766) + 1
 	state['host']     = host
 	state['ip']       = host.ip
 	state['sequence'] = -1
@@ -341,17 +276,14 @@ function start(host)
 		return false, "SMB: Couldn't find a valid port to check"
 	end
 
-	-- Initialize the accounts for logging on (note: this has to be outside the mutex, or things break)
+	-- Initialize the accounts for logging on
 	smbauth.init_account(host)
-
-	lock_mutex(state, "start(1)")
 
 	if(port ~= 139) then
 		status, state['socket'] = start_raw(host, port)
 		state['port'] = port
 
 		if(status == false) then
-			unlock_mutex(state, "start(1)")
 			return false, state['socket']
 		end
 		return true, state
@@ -360,14 +292,11 @@ function start(host)
 		status, state['socket'] = start_netbios(host, port)
 		state['port'] = port
 		if(status == false) then
-			unlock_mutex(state, "start(2)")
 			return false, state['socket']
 		end
 		return true, state
 
 	end
-
-	unlock_mutex(state, "start(3)")
 
 	return false, "SMB: Couldn't find a valid port to check"
 end
@@ -447,8 +376,7 @@ function start_ex(host, negotiate_protocol, start_session, tree_connect, create_
 	return true, smbstate
 end
 
---- Kills the SMB connection, closes the socket, and releases the mutex. Because of the mutex 
---  being released, a script HAS to call <code>stop</code> before it exits, no matter why it's exiting! 
+--- Kills the SMB connection and closes the socket. 
 --
 --  In addition to killing the connection, this function will log off the user and disconnect
 --  the connected tree, if possible.
@@ -465,8 +393,6 @@ function stop(smb)
 	if(smb['uid'] ~= 0) then
 		logoff(smb)
 	end
-
-	unlock_mutex(smb, "stop()")
 
 	stdnse.print_debug(2, "SMB: Closing socket")
 	if(smb['socket'] ~= nil) then
@@ -721,9 +647,9 @@ local function smb_encode_header(smb, command, overrides)
 				(overrides['signature'] or 0),     -- extra (signature)
 				(overrides['extra'] or 0),         -- extra (unused)
 				(overrides['tid'] or smb['tid']),  -- tid
-				(overrides['pid'] or 12345),       -- pid
+				(overrides['pid'] or smb['pid']),  -- pid
 				(overrides['uid'] or smb['uid']),  -- uid
-				(overrides['uid'] or 0)            -- mid
+				(overrides['mid'] or smb['mid'])   -- mid
 			)
 
 	return header
@@ -1152,7 +1078,7 @@ function negotiate_protocol(smb, overrides)
 end
 
 
-function start_session_basic(smb, log_errors, overrides)
+local function start_session_basic(smb, log_errors, overrides)
 	local i, err
 	local status, result
 	local header, parameters, data, domain
@@ -1161,6 +1087,7 @@ function start_session_basic(smb, log_errors, overrides)
 	local andx_command, andx_reserved, andx_offset, action
 	local os, lanmanager
 	local username, domain, password, password_hash, hash_type
+	local busy_count = 0
 
 	header = smb_encode_header(smb, command_codes['SMB_COM_SESSION_SETUP_ANDX'], overrides)
 
@@ -1188,7 +1115,7 @@ function start_session_basic(smb, log_errors, overrides)
 					0x0000,             -- ANDX -- next offset
 					0xFFFF,             -- Max buffer size
 					0x0001,             -- Max multiplexes
-					0x0000,             -- Virtual circuit num
+					0x0001,             -- Virtual circuit num
 					smb['session_key'], -- The session key
 					#lanman,            -- ANSI/Lanman password length
 					#ntlm,              -- Unicode/NTLM password length
@@ -1269,17 +1196,30 @@ function start_session_basic(smb, log_errors, overrides)
 			return true
 
 		else
-			-- This username failed, print a warning and keep going
-			if(log_errors == nil or log_errors == true) then
-				stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
-			end
+			-- Check if we got the error NT_STATUS_REQUEST_NOT_ACCEPTED
+			if(status == 0xc00000d0) then
+				busy_count = busy_count + 1
 
-			-- Go to the next account
-			if(overrides == nil or overrides['username'] == nil) then
-				smbauth.next_account(smb['host'])
-				result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+				if(busy_count > 9) then
+					return false, "SMB: ERROR: Server has too many active connections; giving up."
+				end
+
+				local backoff = math.random() * 10
+				stdnse.print_debug(1, "SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
+				stdnse.sleep(backoff)
 			else
-				result = false
+				-- This username failed, print a warning and keep going
+				if(log_errors == nil or log_errors == true) then
+					stdnse.print_debug(1, "SMB: Login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), get_status_name(status))
+				end
+
+				-- Go to the next account
+				if(overrides == nil or overrides['username'] == nil) then
+					smbauth.next_account(smb['host'])
+					result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+				else
+					result = false
+				end
 			end
 		end
 	end
@@ -1291,7 +1231,7 @@ function start_session_basic(smb, log_errors, overrides)
 	return false, username
 end
 
-function start_session_extended(smb, log_errors, overrides)
+local function start_session_extended(smb, log_errors, overrides)
 	local i
 	local status, status_name, result, err
 	local header, parameters, data
@@ -1300,6 +1240,7 @@ function start_session_extended(smb, log_errors, overrides)
 	local andx_command, andx_reserved, andx_offset, action, security_blob_length
 	local os, lanmanager
 	local username, domain, password, password_hash, hash_type
+	local busy_count = 0
 
 	-- Set a default status_name, in case everything fails
 	status_name = "An unknown error has occurred"
@@ -1342,7 +1283,7 @@ function start_session_extended(smb, log_errors, overrides)
 						0x0000,             -- ANDX -- next offset
 						0xFFFF,             -- Max buffer size
 						0x0001,             -- Max multiplexes
-						0x0000,             -- Virtual circuit num
+						0x0001,             -- Virtual circuit num
 						smb['session_key'], -- The session key
 						#security_blob,     -- Security blob length
 						0x00000000,         -- Reserved
@@ -1423,24 +1364,38 @@ function start_session_extended(smb, log_errors, overrides)
 			end -- Should we parse the parameters/data?
 		until status_name ~= "NT_STATUS_MORE_PROCESSING_REQUIRED"
 
-		-- Display a message to the user, and try the next account
-		if(log_errors == nil or log_errors == true) then
-			stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), status_name)
+		-- Check if we got the error NT_STATUS_REQUEST_NOT_ACCEPTED
+		if(status == 0xc00000d0) then
+			busy_count = busy_count + 1
+
+			if(busy_count > 9) then
+				return false, "SMB: ERROR: Server has too many active connections; giving up."
+			end
+
+			local backoff = math.random() * 10
+			stdnse.print_debug(1, "SMB: Server has too many active connections; pausing for %s seconds.", math.floor(backoff * 100) / 100)
+			stdnse.sleep(backoff)
+		else
+			-- Display a message to the user, and try the next account
+			if(log_errors == nil or log_errors == true) then
+				stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), status_name)
+			end
+
+			-- Go to the next account
+			if(overrides == nil or overrides['username'] == nil) then
+				smbauth.next_account(smb['host'])
+				result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
+				if(not(result)) then
+					return false, username
+				end
+			else
+				result = false
+			end
 		end
 
-		-- Reset the user id and security_blob
+		-- Reset the user id
 		smb['uid'] = 0
 
-		-- Go to the next account
-		if(overrides == nil or overrides['username'] == nil) then
-			smbauth.next_account(smb['host'])
-			result, username, domain, password, password_hash, hash_type = smbauth.get_account(smb['host'])
-			if(not(result)) then
-				return false, username
-			end
-		else
-			result = false
-		end
 	end -- Loop over the accounts
 	
 	if(log_errors == nil or log_errors == true) then
@@ -1666,50 +1621,67 @@ function create_file(smb, path, overrides)
 	local header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, pid, mid 
 	local andx_command, andx_reserved, andx_offset
 	local oplock_level, fid, create_action, created, last_access, last_write, last_change, attributes, allocation_size, end_of_file, filetype, ipc_state, is_directory
+	local error_count = 0
 
-	-- Make sure we have overrides
-	overrides = overrides or {}
+	repeat
+		local mutex = nmap.mutex(smb['host'])
+		mutex "lock"
+	
+		-- Make sure we have overrides
+		overrides = overrides or {}
+	
+		header = smb_encode_header(smb, command_codes['SMB_COM_NT_CREATE_ANDX'], overrides)
+		parameters = bin.pack("<CCSCSIIILIIIIIC", 
+						0xFF,   -- ANDX no further commands
+						0x00,   -- ANDX reserved
+						0x0000, -- ANDX offset
+						0x00,   -- Reserved
+						string.len(path), -- Path length
+						(overrides['file_create_flags']            or 0x00000016),         -- Create flags
+						(overrides['file_create_root_fid']         or 0x00000000),         -- Root FID
+						(overrides['file_create_access_mask']      or 0x02000000),         -- Access mask
+						(overrides['file_create_allocation_size']  or 0x0000000000000000), -- Allocation size
+						(overrides['file_create_attributes']       or 0x00000000),         -- File attributes
+						(overrides['file_create_share_attributes'] or 0x00000007),         -- Share attributes
+						(overrides['file_create_disposition']      or 0x00000000),         -- Disposition
+						(overrides['file_create_options']          or 0x00000000),         -- Create options
+						(overrides['file_create_impersonation']    or 0x00000002),         -- Impersonation
+						(overrides['file_create_security_flags']   or 0x01)                -- Security flags
+					)
+	
+		data = bin.pack("z", path)
+	
+		-- Send the create file
+		stdnse.print_debug(2, "SMB: Sending SMB_COM_NT_CREATE_ANDX")
+		local result, err = smb_send(smb, header, parameters, data, overrides)
+		if(result == false) then
+			mutex "done"
+			return false, err
+		end
+	
+		-- Read the result
+		status, header, parameters, data = smb_read(smb, false)
+		mutex "done"
+		if(status ~= true) then
+			return false, header
+		end
 
-	header = smb_encode_header(smb, command_codes['SMB_COM_NT_CREATE_ANDX'], overrides)
-	parameters = bin.pack("<CCSCSIIILIIIIIC", 
-					0xFF,   -- ANDX no further commands
-					0x00,   -- ANDX reserved
-					0x0000, -- ANDX offset
-					0x00,   -- Reserved
-					string.len(path), -- Path length
-					(overrides['file_create_flags']            or 0x00000016),         -- Create flags
-					(overrides['file_create_root_fid']         or 0x00000000),         -- Root FID
-					(overrides['file_create_access_mask']      or 0x02000000),         -- Access mask
-					(overrides['file_create_allocation_size']  or 0x0000000000000000), -- Allocation size
-					(overrides['file_create_attributes']       or 0x00000000),         -- File attributes
-					(overrides['file_create_share_attributes'] or 0x00000007),         -- Share attributes
-					(overrides['file_create_disposition']      or 0x00000000),         -- Disposition
-					(overrides['file_create_options']          or 0x00000000),         -- Create options
-					(overrides['file_create_impersonation']    or 0x00000002),         -- Impersonation
-					(overrides['file_create_security_flags']   or 0x01)                -- Security flags
-				)
+		-- Check if we were allowed in
+	    local uid, tid
+		pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
+		if(header1 == nil or mid == nil) then
+			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [23]"
+		end
+		if(status == 0xc00000ac) then
+			error_count = error_count + 1
+			if(error_count > 10) then
+				return false, "SMB: ERROR: Server returned NT_STATUS_PIPE_NOT_AVAILABLE too many times; giving up."
+			end
+			stdnse.print_debug(1, "WARNING: Server refused connection with NT_STATUS_PIPE_NOT_AVAILABLE; trying again")
+			stdnse.sleep(.2)
+		end
+	until (status ~= 0xc00000ac)
 
-	data = bin.pack("z", path)
-
-	-- Send the create file
-	stdnse.print_debug(2, "SMB: Sending SMB_COM_NT_CREATE_ANDX")
-	local result, err = smb_send(smb, header, parameters, data, overrides)
-	if(result == false) then
-		return false, err
-	end
-
-	-- Read the result
-	status, header, parameters, data = smb_read(smb, false)
-	if(status ~= true) then
-		return false, header
-	end
-
-	-- Check if we were allowed in
-    local uid, tid
-	pos, header1, header2, header3, header4, command, status, flags, flags2, pid_high, signature, unused, tid, pid, uid, mid = bin.unpack("<CCCCCICSSlSSSSS", header)
-	if(header1 == nil or mid == nil) then
-		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [23]"
-	end
 	if(status ~= 0) then
 		return false, get_status_name(status)
 	end
