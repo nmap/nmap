@@ -21,7 +21,36 @@ o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
   is a solution people use for Wireshark or does it always cause this
   issue (allowing any user to sniff the network) when it is installed?
+  - CACE says they will add a feature to do this.  See this thread:
+  http://seclists.org/nmap-dev/2010/q3/826
 
+o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o We should do an audit to ensure that we are in complete compliance for the
+ licenses of all the software we ship in any of our downloads, as some
+ licenses have special clauses for things like including their
+ license/copyright file, mentioning them in our documentation, etc.
+ And of course we want to credit them properly even where the license
+ doesn't require it.  We should probably make a list of these in our
+ docs/ directory along with any special information/requirements of
+ their license.  And maybe we should put the current licenses in a
+ subdir too.  In particular, these come to mind:
+ o libpcre
+ o lua
+ o OpenSSL
+ o libpcap
+ o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
+   PyGTK)
+ o SQLite
+ o Python (Win/Mac versions of Zenmap link to Python)
+ o X.org libraries (Mac version links to them)
+ o libdnet
+
+o Create Nmap wiki
+ o Decide on domain name
+ o Include insecure Chrome
+ o Decide on wiki software, probably just use mediawiki
+ o install it on a Linode, probably Web
+ 
 o Create new default username list: [Ithilgore working on this]
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -76,10 +105,6 @@ o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Services (like sysinternals' psservice)
   [Drazen]
 
-o Let Nsock log to stderr, so its messages don't get mixed up with the
-  output stream when Ncat is run with -vvv.
-  http://seclists.org/nmap-dev/2010/q3/113
-
 o [NSE] Script writing contest (something to think about)
 
 o [NSE] Consider using .idl files rather than manually coding all the
@@ -106,27 +131,6 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
 
-o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
- o We should do an audit to ensure that we are in complete compliance for the
- licenses of all the software we ship in any of our downloads, as some
- licenses have special clauses for things like including their
- license/copyright file, mentioning them in our documentation, etc.
- And of course we want to credit them properly even where the license
- doesn't require it.  We should probably make a list of these in our
- docs/ directory along with any special information/requirements of
- their license.  And maybe we should put the current licenses in a
- subdir too.  In particular, these come to mind:
- o libpcre
- o lua
- o OpenSSL
- o libpcap
- o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
-   PyGTK)
- o SQLite
- o Python (Win/Mac versions of Zenmap link to Python)
- o X.org libraries (Mac version links to them)
- o libdnet
-
 o [Zenmap] should actually parse and use script results. See
   http://seclists.org/nmap-dev/2010/q1/1108
 
@@ -136,8 +140,6 @@ o We should document an official way to compile/test refguide.xml so
   things.
   o Note that nping has its own /nmap/nping/docs/genmanpage.sh - we
   could look at how that could apply to Nmap.
-
-o Create Nmap wiki
 
 o Nmap book work [placeholder]
 
@@ -699,6 +701,10 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Let Nsock log to stderr, so its messages don't get mixed up with the
+  output stream when Ncat is run with -vvv.
+  http://seclists.org/nmap-dev/2010/q3/113
 
 o [NSE] Our http-brute should probably support form POST method rather
   than just GET because some forms require that.
