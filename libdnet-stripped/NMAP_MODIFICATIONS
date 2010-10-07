@@ -674,6 +674,25 @@ Index: include/dnet/sctp.h
  	/* empty */
  } __attribute__((__packed__));
 
+o Fixed the ip6_pack_hdr macro with respect to traffic class and flow
+  label.
+
+Index: include/dnet/ip6.h
+===================================================================
+--- include/dnet/ip6.h	(revision 20527)
++++ include/dnet/ip6.h	(revision 20528)
+@@ -164,8 +164,8 @@
+ 
+ #define ip6_pack_hdr(hdr, fc, fl, plen, nxt, hlim, src, dst) do {	\
+ 	struct ip6_hdr *ip6 = (struct ip6_hdr *)(hdr);			\
+-	ip6->ip6_flow = htonl(((uint32_t)(fc) << 28) &			\
+-	    (IP6_FLOWLABEL_MASK | (fl)));				\
++	ip6->ip6_flow = htonl(((uint32_t)(fc) << 20) |			\
++	    (0x000fffff & (fl)));					\
+ 	ip6->ip6_vfc = (IP6_VERSION | ((fc) >> 4));			\
+ 	ip6->ip6_plen = htons((plen));					\
+ 	ip6->ip6_nxt = (nxt); ip6->ip6_hlim = (hlim);			\
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 o Made some code changes to intf.c (the patch below).  This does the following:
 
