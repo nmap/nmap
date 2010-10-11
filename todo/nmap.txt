@@ -753,6 +753,12 @@ o Now that NSE has more script phases (prerule, postrule, hostrule,
   portrule, and versionrule soon to come), the NSEDoc should specify
   which phases a script belongs to.
 
+o Small NSEDoc bug:
+  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
+  \222\173' near the bottom.  This is presumably due to misparsing this
+  line from the script: local req_id = '\222\173'.  Given that we don't
+  use IDs any more, maybe we can just get rid of the functionality.
+
 o Consider implementing a nsock_pcap_close() function or making
   nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
   warns about a socket descriptor left opened (at least in Nping).
