@@ -214,83 +214,6 @@ Index: libdnet-stripped/src/intf-win32.c
  		} else
  			return (-1);
 
-Changed the PPA extraction from DLPI interface names to use the last
-string of digits, not the first. It was being fooled by the name
-e1000g0, thinking the PPA was 1000.
-
-Index: src/eth-dlpi.c
-===================================================================
---- src/eth-dlpi.c	(revision 16878)
-+++ src/eth-dlpi.c	(working copy)
-@@ -113,6 +113,20 @@
- 	}
- 	return (ppa);
- }
-+#else
-+static int
-+dev_find_ppa(const char *dev)
-+{
-+	const char *p;
-+
-+	p = dev + strlen(dev);
-+	while (p > dev && strchr("0123456789", *(p - 1)) != NULL)
-+		p--;
-+	if (*p == '\0')
-+		return NULL;
-+
-+	return p;
-+}
- #endif
- 
- eth_t *
-@@ -138,7 +152,7 @@
- #else
- 	e->fd = -1;
- 	snprintf(dev, sizeof(dev), "/dev/%s", device);
--	if ((p = strpbrk(dev, "0123456789")) == NULL) {
-+	if ((p = dev_find_ppa(dev)) == NULL) {
- 		errno = EINVAL;
- 		return (eth_close(e));
- 	}
-
-o Made the Autoconf check for PF_PACKET Linux-specific. Recent versions
-  of OpenSolaris also support PF_PACKET, but the code in eth-linux.c
-  only works under Linux.
-
-Index: config/acinclude.m4
-===================================================================
---- config/acinclude.m4	(revision 17391)
-+++ config/acinclude.m4	(working copy)
-@@ -135,14 +135,18 @@
- dnl usage:	AC_DNET_LINUX_PF_PACKET
- dnl results:	HAVE_LINUX_PF_PACKET
- dnl
-+dnl This is a Linux-specific check, even though other operating systems
-+dnl (OpenSolaris) may have the PF_PACKET interface. The eth-linux.c code
-+dnl activated by this check is specific to Linux.
- AC_DEFUN(AC_DNET_LINUX_PF_PACKET,
--    [AC_MSG_CHECKING(for Linux PF_PACKET sockets)
--    AC_CACHE_VAL(ac_cv_dnet_linux_pf_packet,
--	if test -f /usr/include/netpacket/packet.h ; then
--	    ac_cv_dnet_linux_pf_packet=yes
--	else
--	    ac_cv_dnet_linux_pf_packet=no
--	fi)
-+    [AC_CHECK_DECL([ETH_P_ALL],
-+	ac_cv_dnet_linux_pf_packet=yes,
-+	ac_cv_dnet_linux_pf_packet=no,
-+        [
-+#include <netpacket/packet.h>
-+#include <linux/if_ether.h>
-+])
-+    AC_MSG_CHECKING(for Linux PF_PACKET sockets)
-     AC_MSG_RESULT($ac_cv_dnet_linux_pf_packet)
-     if test $ac_cv_dnet_linux_pf_packet = yes ; then
- 	AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
-
-o Disabled shared library building by default. We always link directly
-  against the static library.
-
 Index: configure.in
 ===================================================================
 --- configure.in	(revision 17500)
@@ -566,42 +489,6 @@ Index: src/intf-win32.c
 +		return 0;
 +}
 
-o Added some missing #ifdef AF_LINK guards to enable compiling on
-  Android. http://seclists.org/nmap-dev/2010/q2/1021. [Vlatko Kosturjak]
-
-Index: src/addr.c
-===================================================================
---- src/addr.c	(revision 19860)
-+++ src/addr.c	(working copy)
-@@ -253,7 +253,11 @@
- # ifdef HAVE_SOCKADDR_SA_LEN
- 		so->sdl.sdl_len = sizeof(so->sdl);
- # endif
-+# ifdef AF_LINK
- 		so->sdl.sdl_family = AF_LINK;
-+# else
-+		so->sdl.sdl_family = AF_UNSPEC;
-+# endif
- 		so->sdl.sdl_alen = ETH_ADDR_LEN;
- 		memcpy(LLADDR(&so->sdl), &a->addr_eth, ETH_ADDR_LEN);
- #else
-@@ -300,6 +304,7 @@
- 	
- 	switch (sa->sa_family) {
- #ifdef HAVE_NET_IF_DL_H
-+# ifdef AF_LINK
- 	case AF_LINK:
- 		if (so->sdl.sdl_alen != ETH_ADDR_LEN) {
- 			errno = EINVAL;
-@@ -309,6 +314,7 @@
- 		a->addr_bits = ETH_ADDR_BITS;
- 		memcpy(&a->addr_eth, LLADDR(&so->sdl), ETH_ADDR_LEN);
- 		break;
-+# endif
- #endif
- 	case AF_UNSPEC:
- 	case ARP_HRD_ETH:	/* XXX- Linux arp(7) */
-
 o Changed the name of sctp_chunkhdr to dnet_sctp_chunkhdr to avoid a
   conflict with a struct of the same name in <netinet/sctp.h> in FreeBSD
   and Linux.
@@ -674,26 +561,135 @@ Index: include/dnet/sctp.h
  	/* empty */
  } __attribute__((__packed__));
 
+===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
+
 o Fixed the ip6_pack_hdr macro with respect to traffic class and flow
   label.
 
 Index: include/dnet/ip6.h
 ===================================================================
---- include/dnet/ip6.h	(revision 20527)
-+++ include/dnet/ip6.h	(revision 20528)
+--- include/dnet/ip6.h  (revision 20527)
++++ include/dnet/ip6.h  (revision 20528)
 @@ -164,8 +164,8 @@
- 
- #define ip6_pack_hdr(hdr, fc, fl, plen, nxt, hlim, src, dst) do {	\
- 	struct ip6_hdr *ip6 = (struct ip6_hdr *)(hdr);			\
--	ip6->ip6_flow = htonl(((uint32_t)(fc) << 28) &			\
--	    (IP6_FLOWLABEL_MASK | (fl)));				\
-+	ip6->ip6_flow = htonl(((uint32_t)(fc) << 20) |			\
-+	    (0x000fffff & (fl)));					\
- 	ip6->ip6_vfc = (IP6_VERSION | ((fc) >> 4));			\
- 	ip6->ip6_plen = htons((plen));					\
- 	ip6->ip6_nxt = (nxt); ip6->ip6_hlim = (hlim);			\
 
-===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
+ #define ip6_pack_hdr(hdr, fc, fl, plen, nxt, hlim, src, dst) do {  \
+    struct ip6_hdr *ip6 = (struct ip6_hdr *)(hdr);          \
+-   ip6->ip6_flow = htonl(((uint32_t)(fc) << 28) &          \
+-       (IP6_FLOWLABEL_MASK | (fl)));               \
++   ip6->ip6_flow = htonl(((uint32_t)(fc) << 20) |          \
++       (0x000fffff & (fl)));                   \
+    ip6->ip6_vfc = (IP6_VERSION | ((fc) >> 4));         \
+    ip6->ip6_plen = htons((plen));                  \
+    ip6->ip6_nxt = (nxt); ip6->ip6_hlim = (hlim);           \
+
+
+o Added some missing #ifdef AF_LINK guards to enable compiling on
+  Android. http://seclists.org/nmap-dev/2010/q2/1021. [Vlatko Kosturjak]
+
+Index: src/addr.c
+===================================================================
+--- src/addr.c  (revision 19860)
++++ src/addr.c  (working copy)
+@@ -253,7 +253,11 @@
+ # ifdef HAVE_SOCKADDR_SA_LEN
+        so->sdl.sdl_len = sizeof(so->sdl);
+ # endif
++# ifdef AF_LINK
+        so->sdl.sdl_family = AF_LINK;
++# else
++       so->sdl.sdl_family = AF_UNSPEC;
++# endif
+        so->sdl.sdl_alen = ETH_ADDR_LEN;
+        memcpy(LLADDR(&so->sdl), &a->addr_eth, ETH_ADDR_LEN);
+ #else
+@@ -300,6 +304,7 @@
+
+    switch (sa->sa_family) {
+ #ifdef HAVE_NET_IF_DL_H
++# ifdef AF_LINK
+    case AF_LINK:
+        if (so->sdl.sdl_alen != ETH_ADDR_LEN) {
+            errno = EINVAL;
+@@ -309,6 +314,7 @@
+        a->addr_bits = ETH_ADDR_BITS;
+        memcpy(&a->addr_eth, LLADDR(&so->sdl), ETH_ADDR_LEN);
+        break;
++# endif
+ #endif
+    case AF_UNSPEC:
+    case ARP_HRD_ETH:   /* XXX- Linux arp(7) */
+
+
+Index: config/acinclude.m4
+===================================================================
+--- config/acinclude.m4 (revision 17391)
++++ config/acinclude.m4 (working copy)
+@@ -135,14 +135,18 @@
+ dnl usage: AC_DNET_LINUX_PF_PACKET
+ dnl results:   HAVE_LINUX_PF_PACKET
+ dnl
++dnl This is a Linux-specific check, even though other operating systems
++dnl (OpenSolaris) may have the PF_PACKET interface. The eth-linux.c code
++dnl activated by this check is specific to Linux.
+ AC_DEFUN(AC_DNET_LINUX_PF_PACKET,
+-    [AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+-    AC_CACHE_VAL(ac_cv_dnet_linux_pf_packet,
+-   if test -f /usr/include/netpacket/packet.h ; then
+-       ac_cv_dnet_linux_pf_packet=yes
+-   else
+-       ac_cv_dnet_linux_pf_packet=no
+-   fi)
++    [AC_CHECK_DECL([ETH_P_ALL],
++   ac_cv_dnet_linux_pf_packet=yes,
++   ac_cv_dnet_linux_pf_packet=no,
++        [
++#include <netpacket/packet.h>
++#include <linux/if_ether.h>
++])
++    AC_MSG_CHECKING(for Linux PF_PACKET sockets)
+     AC_MSG_RESULT($ac_cv_dnet_linux_pf_packet)
+     if test $ac_cv_dnet_linux_pf_packet = yes ; then
+    AC_DEFINE(HAVE_LINUX_PF_PACKET, 1,
+
+o Changed the PPA extraction from DLPI interface names to use the last
+  string of digits, not the first. It was being fooled by the name
+  e1000g0, thinking the PPA was 1000.
+
+Index: src/eth-dlpi.c
+===================================================================
+--- src/eth-dlpi.c  (revision 16878)
++++ src/eth-dlpi.c  (working copy)
+@@ -113,6 +113,20 @@
+    }
+    return (ppa);
+ }
++#else
++static int
++dev_find_ppa(const char *dev)
++{
++   const char *p;
++
++   p = dev + strlen(dev);
++   while (p > dev && strchr("0123456789", *(p - 1)) != NULL)
++       p--;
++   if (*p == '\0')
++       return NULL;
++
++   return p;
++}
+ #endif
+
+ eth_t *
+@@ -138,7 +152,7 @@
+ #else
+    e->fd = -1;
+    snprintf(dev, sizeof(dev), "/dev/%s", device);
+-   if ((p = strpbrk(dev, "0123456789")) == NULL) {
++   if ((p = dev_find_ppa(dev)) == NULL) {
+        errno = EINVAL;
+        return (eth_close(e));
+    }
+
 o Made some code changes to intf.c (the patch below).  This does the following:
 
   o Preserve the alias qualifier from interface name in more cases
