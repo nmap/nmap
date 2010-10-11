@@ -134,50 +134,8 @@ The reference manual is also
       and XML output.<indexterm><primary>XML output</primary></indexterm>
     </para>
 
-    <para>Three phases of NSE scans are supported:</para>
-
-    <variablelist>
-      <varlistentry>
-        <term>Script Pre-scanning phase</term>
-        <listitem>
-          <para>This phase will run before all other Nmap scan phases,
-            and can be used by scripts for host discovery or to
-            perform any network operation which do not depends on Nmap
-            targets. Scripts that run in this phase are not related to
-            Nmap targets, and they run only once per Nmap scan and when
-            the necessary script arguments are present.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Script Scanning phase</term>
-        <listitem>
-          <para>This phase is related to Nmap host group targets, and
-            scripts on this phase depend and run against these targets,
-            and can be invoked multiple times, they are called service
-            and host scripts.  Service scripts relate to a certain open
-            port (service) on the target host, and any results they
-            produce are included next to that port in the Nmap output
-            port table.  Host scripts, on the other hand, run no more
-            than once against each target IP and produce results below
-            the port table.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Script Post-scanning phase</term>
-        <listitem>
-          <para>This phase will run at the end of an Nmap scan, and can
-            be used to report script results and to perform statistics
-            gathering. Scripts in this phase run only once per Nmap
-            scan and when the necessary script arguments are present.
-          </para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-
       <para>
-        NSE typical script scan is shown in the  
+        A typical script scan is shown in the  
       <xref linkend="nse-ex1" xrefstyle="select: label nopage"/>.
         Service scripts producing output in this example are
       <literal>ssh-hostkey</literal>, which provides the system's RSA and DSA SSH keys, and <literal>rpcinfo</literal>, which queries
@@ -212,6 +170,13 @@ Host script results:
 Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
 </screen>
 </example>
+
+<para>A 38-minute video introduction to NSE is available at
+<ulink url="http://nmap.org/presentations/BHDC10/"/>.  This
+presentation was given by Fyodor and David Fifield at Defcon and the
+Black Hat Briefings in 2010.</para>
+
+
 
   </sect1>
   <sect1 id="nse-usage">
@@ -506,6 +471,93 @@ Nmap done: 1 IP address (1 host up) scanned in 0.33 seconds
           </listitem>
         </varlistentry>
 
+    </variablelist>
+    </sect2>
+
+    <sect2 id="nse-script-types">
+      <title>Script Types and Phases</title>
+   <para>
+   NSE supports four types of scripts, which are distinguished by the kind of targets they take and the scanning phase in which they are run.  Individual scripts may support multiple types of operation.
+   </para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Prerule scripts</term>
+        <listitem>
+          <para>These scripts run before any of Nmap's scan phases, so
+          Nmap has not collected any information about its targets
+          yet.  They can be useful for tasks which don't depend on
+          specific scan targets, such as performing network broadcast
+          requests to query DHCP and DNS SD servers.  Some of these
+          scripts can generate new targets for Nmap to scan (only if
+          you specify
+          the <ulink url="http://nmap.org/nsedoc/lib/target.html">newtargets</ulink>
+          NSE argument).  For example, <ulink role="hidepdf"
+          url="http://nmap.org/nsedoc/scripts/dns-zone-transfer.html">dns-zone-transfer</ulink>
+          can obtain a list of IPs in a domain using a zone transfer
+          request and then automatically add them to Nmap's scan
+          target list.  Prerule scripts can be identified by containing a <literal>prerule</literal> function (see <xref linkend="nse-format-rules"/>).
+          </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>Host scripts</term>
+        <listitem>
+          <para>Scripts in this phase run during Nmap's normal
+          scanning process after Nmap has performed host discovery,
+          port scanning, version detection, and OS detection against
+          the target host.  This type of script is invoked once
+          against each target host which matches
+          its <literal>hostrule</literal> function.  Examples
+          are <ulink role="hidepdf"
+          url="http://nmap.org/nsedoc/scripts/whois.html">whois</ulink>,
+          which looks up ownership information for a target IP,
+          and <ulink role="hidepdf"
+          url="http://nmap.org/nsedoc/scripts/path-mtu.html">path-mtu</ulink>
+          which tries to determine the maximum IP packet size which
+          can reach the target without requiring fragmentation.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Service scripts</term>
+        <listitem>
+          <para>These scripts run against specific services listening
+          on a target host.  For example, Nmap includes more than 15
+          http service scripts to run against web servers.  If a host
+          has web servers running on multiple ports, those scripts may
+          run multiple times (one for each port).  These are the most
+          commong Nmap script type, and they are distinguished by
+          containing a <literal>portrule</literal> function for
+          deciding which detected services a script should run
+          against.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Postrule scripts</term>
+        <listitem>
+
+          <para>These scripts run after Nmap has scanned all of its
+            targets.  They can be useful for formatting and presenting
+            Nmap output.  For example, a postrule script could print a
+            reverse-index of the Nmap output&mdash;showing which hosts
+            run a particular service rather than just listing the
+            services on each host.  They are distinguished from other
+            script types by containing a <literal>postrule</literal>
+            function.
+          </para>
+
+          <para>Many scripts could potentially run as either a prerule
+          or postrule script.  In those cases, we recommend using a
+          prerule for consistency.</para>
+
+        </listitem>
+      </varlistentry>
     </variablelist>
     </sect2>
 
