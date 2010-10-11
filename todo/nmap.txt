@@ -120,6 +120,12 @@ o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
 
+o Small NSEDoc bug:
+  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
+  \222\173' near the bottom.  This is presumably due to misparsing this
+  line from the script: local req_id = '\222\173'.  Given that we don't
+  use IDs any more, maybe we can just get rid of the functionality.
+
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
   dependencies of Nmap and Zenmap.  It may be instructive to look at
@@ -752,12 +758,6 @@ o [NSE] Maybe we should create a script which checks once a day
 o Now that NSE has more script phases (prerule, postrule, hostrule,
   portrule, and versionrule soon to come), the NSEDoc should specify
   which phases a script belongs to.
-
-o Small NSEDoc bug:
-  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
-  \222\173' near the bottom.  This is presumably due to misparsing this
-  line from the script: local req_id = '\222\173'.  Given that we don't
-  use IDs any more, maybe we can just get rid of the functionality.
 
 o Consider implementing a nsock_pcap_close() function or making
   nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
