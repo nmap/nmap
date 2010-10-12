@@ -46,8 +46,10 @@ Zenmap and Ndiff require:
 The Windows and Mac OS X binary packages include bundled versions of:
  o GLib, GTK+, ATK, Pango: These libraries are licensed under the GNU
    LGPL 2, a copy of which is in this directory in the file LGPL-2.
+   http://www.gtk.org/
  o PyGTK: GTK+ bindings for Python. Licensed under the GNU LGPL 2.1, a
    copy of which is in this directory in the file LGPL-2.1.
+   http://www.pygtk.org/
 
 The Mac OS binary packages also include:
  o Various X.org libraries. These were built using MacPorts.
