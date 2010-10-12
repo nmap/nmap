@@ -42,6 +42,9 @@ UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
 UNIVERSAL_CC = gcc-4.0
 UNIVERSAL_CXX = g++-4.0
 UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+# Nping uses EVP_sha256, which is not included in the 10.4u SDK unless you
+# define this.
+UNIVERSAL_CPPFLAGS += -DOPENSSL_FIPS=1
 UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 -arch ppc -arch i386
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
 UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch ppc -arch i386
