@@ -924,11 +924,14 @@ on the computer (user should be a member of the <literal>administrators</literal
 <listitem><para>Open a command/DOS Window.  Though it can be found in
 the program menu tree, the simplest approach is to choose <guimenu>Start</guimenu> 
 -> <guimenuitem>Run</guimenuitem> and type <command>cmd&lt;enter&gt;</command>.  Opening a Cygwin window (if you installed it) by clicking on the Cygwin icon on the desktop works too, although the necessary commands differ slightly from those shown here.</para></listitem>
-<listitem><para>Change to the directory you installed Nmap into.  Assuming you used the default path, type the following commands.</para>
+<listitem><para>Change to the directory you installed Nmap into.  You can skip this step if Nmap is already in your command path (the Zenmap isntaller adds it there by default).  Otherwise, type the following commands.</para>
 <screen>
 <userinput>c:</userinput>
-<userinput>cd "\Program Files\Nmap"</userinput>
+<userinput>cd "\Program Files (x86)\Nmap"</userinput>
 </screen>
+
+<para>On Windows releases prior to Windows 7, specify <filename>\Program Files\Nmap</filename> instead. The directory will also be different if you chose to install Nmap in a non-default location.</para>
+
 </listitem>
 <listitem><para>Execute <command>nmap.exe</command>.  <xref linkend="fig-windows-cmdshell-exec" xrefstyle="select: label nopage" /> is a screen shot showing a simple example.</para>
 </listitem>
@@ -948,9 +951,11 @@ the program menu tree, the simplest approach is to choose <guimenu>Start</guimen
 </figure>
 
 <para>If you execute Nmap frequently, you can add the Nmap directory
-(<filename>c:\Program Files\Nmap</filename> by default) to
-your command execution path.  The exact place to set this varies by
-Windows platform.  On my Windows XP box, I do the following:</para>
+(<filename>c:\Program Files (x86)\Nmap</filename> by default on
+Windows 7) to your command execution path.  The exact place
+to set this varies by Windows platform.  On my Windows XP box, which
+installs Nmap in <filename>c:\Program Files\Nmap</filename>, I do the
+following:</para>
 
 <orderedlist>
 <listitem><para>From the desktop, right click on <literal>My
@@ -969,7 +974,7 @@ Choose <literal>Path</literal> from the
 <literal>System variables</literal> section, then hit
 edit.</para></listitem>
 
-<listitem><para>Add a semi-colon and then your Nmap directory (<filename>c:\Program Files\Nmap</filename> by default) to the end of the value.</para></listitem>
+<listitem><para>Add a semi-colon and then your Nmap directory (e.g. <filename>c:\Program Files\Nmap</filename>) to the end of the value.</para></listitem>
 
 <listitem><para>Open a new DOS window and you should be able to execute a
 command such as <command>nmap scanme.nmap.org</command> from any directory.</para></listitem>
