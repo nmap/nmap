@@ -19,7 +19,7 @@ and therefore is quite noisy.
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
--- | sslv3-enum:
+-- | ssl-enum-ciphers:
 -- |   SSLv3
 -- |     Ciphers (18)
 -- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
