@@ -98,14 +98,15 @@ transport.kexdh_init = function( e )
 end
 
 --- Build a <code>kex_init</code> packet.
-transport.kex_init = function( cookie, options )
+transport.kex_init = function( options )
   options = options or {}
-  local kex_algorithms = "diffie-hellman-group1-sha1"
+  local cookie = options['cookie'] or openssl.rand_bytes( 16 )
+  local kex_algorithms = options['kex_algorithms'] or "diffie-hellman-group1-sha1"
   local host_key_algorithms = options['host_key_algorithms'] or "ssh-dss,ssh-rsa"
-  local encryption_algorithms = "aes128-cbc,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr"
-  local mac_algorithms = "hmac-md5,hmac-sha1,hmac-ripemd160"
-  local compression_algorithms = "none"
-  local languages = ""
+  local encryption_algorithms = options['encryption_algorithms'] or "aes128-cbc,3des-cbc,blowfish-cbc,aes192-cbc,aes256-cbc,aes128-ctr,aes192-ctr,aes256-ctr"
+  local mac_algorithms = options['mac_algorithms'] or "hmac-md5,hmac-sha1,hmac-ripemd160"
+  local compression_algorithms = options['compression_algorithms'] or "none"
+  local languages = options['languages'] or ""
 
   local payload = bin.pack( ">cAaa", SSH2.SSH_MSG_KEXINIT, cookie, kex_algorithms, host_key_algorithms )
   payload = payload .. bin.pack( ">aa", encryption_algorithms, encryption_algorithms )
@@ -166,8 +167,7 @@ fetch_host_key = function( host, port, key_type )
   status = socket:send("SSH-2.0-Nmap-SSH2-Hostkey\r\n")
   if not status then socket:close(); return end
 
-  local cookie = openssl.rand_bytes( 16 )
-  local packet = transport.build( transport.kex_init( cookie, {host_key_algorithms=key_type} ) )
+  local packet = transport.build( transport.kex_init( {host_key_algorithms=key_type} ) )
   status = socket:send( packet )
   if not status then socket:close(); return end
 

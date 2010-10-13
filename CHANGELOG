@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Improved ssh2's kex_init() parameters: all of the algorithm
+  and language lists can be set using new keys in the "options" table
+  argument. These all default to the same value used before. Also, the
+  required "cookie" argument is now replaced by an optional "cookie"
+  key in the "options" table, defaulting to random bytes as the RFC
+  says the value should be. [Kris]
+
 o Ncat now logs Nsock debug output to stderr instead of stdout, like
   its other debug messages. [David]
 
