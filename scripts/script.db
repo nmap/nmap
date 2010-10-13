@@ -114,6 +114,7 @@ Entry { filename = "smb-enum-processes.nse", categories = { "discovery", "intrus
 Entry { filename = "smb-enum-sessions.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-shares.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-users.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "smb-flood.nse", categories = { "dos", "intrusive", } }
 Entry { filename = "smb-os-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-psexec.nse", categories = { "intrusive", } }
 Entry { filename = "smb-security-mode.nse", categories = { "discovery", "safe", } }
