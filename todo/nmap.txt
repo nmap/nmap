@@ -7,8 +7,6 @@ o Process Nmap survey and send out results [Fyodor]
 
 o [Web] Add a page with the Nmap related videos we do have already
 
-o Post BH/Defcon Nmap videos
-
 o Do new Nmap release with the stuff merged from SoC students and
   other new developments.
   - Need to have our SoC successes writeup for 2010 posted first.
@@ -707,6 +705,8 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Post BH/Defcon Nmap videos
 
 o Let Nsock log to stderr, so its messages don't get mixed up with the
   output stream when Ncat is run with -vvv.
