@@ -282,6 +282,8 @@ o Consider providing an option which causes Nmap to scan ALL IP
   the one which happens to be the first on the current list).  We then
   might want to make -A imply that option.  Here is a thread on the
   topic: http://seclists.org/nmap-dev/2010/q2/302
+  - Note that we now have a script which does something similar
+    this--resolveall.nse
 
 o Start project to make Nmap a Featured Article on Wikipedia.
  - See http://seclists.org/nmap-dev/2010/q1/614
