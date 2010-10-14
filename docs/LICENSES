@@ -50,6 +50,7 @@ The Windows and Mac OS X binary packages include bundled versions of:
  o Cairo: graphics library. Dual-licensed under the GNU LGPL 2.1 and the
    MPL 1.1. See the file MPL-1.1 in this directory.
    http://www.cairographics.org/
+ o libgailutil: Accessibility support for GTK+.
  o libpng, jpeg, LibTIFF: Image file format libraries used by GTK+.
    http://www.libpng.org/ http://www.ijg.org/ http://www.libtiff.org/
  o zlib and bzip2: compression libraries.
@@ -61,9 +62,13 @@ The Windows and Mac OS X binary packages include bundled versions of:
  o FreeType: font rendering library.
    http://www.freetype.org/
  o libiconv. Under the GNU LGPL 2.
+   http://www.gnu.org/software/libiconv/
  o libintl: gettext translation facilities. Under the GNU LGPL 2 and 2.1.
+   http://www.gnu.org/software/gettext/
  o libxml2: XML parsing library.
+   http://xmlsoft.org/
  o SQLite. 
+   http://www.sqlite.org/
  o PyGTK, PyGObject: bindings for Python. Licensed under the GNU LGPL
    2.1.
    http://www.pygtk.org/
@@ -626,6 +631,29 @@ in using cairo itself. Other files might be available under the GNU
 General Public License (GPL), for example. Again, please see the COPYING
 file under each directory and the opening comment of each file for copyright
 and licensing information.
+
+========
+
+License of libgailutil
+
+/* GAIL - The GNOME Accessibility Implementation Library
+ * Copyright 2001 Sun Microsystems Inc.
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Library General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Library General Public License for more details.
+ *
+ * You should have received a copy of the GNU Library General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
 
 ========
 
