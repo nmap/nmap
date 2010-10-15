@@ -127,7 +127,7 @@ action = function( host, port )
 		
 		helper:Disconnect()
 
-		if ( status ) then
+		if ( status and rs) then
 			result = mssql.Util.FormatOutputTable( rs, true )
 			result.name = username
 			if ( RS_LIMIT > 0 ) then

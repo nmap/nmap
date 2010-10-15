@@ -54,7 +54,7 @@ action = function( host, port )
 			status, result = helper:Login( username, password, "tempdb", host.ip )			
 			helper:Disconnect()
 			
-			if status then				
+			if ( status ) or ( "Must change password at next logon" == result ) then				
 				-- Add credentials for other mysql scripts to use
 				table.insert( valid_accounts, string.format("%s:%s => %s", username, password:len()>0 and password or "<empty>", result ) )
 				-- don't add accounts that need to change passwords to the registry

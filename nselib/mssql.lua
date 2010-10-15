@@ -619,7 +619,7 @@ LoginPacket =
 			local c = bit.bxor( string.byte( password:sub( i, i ) ), xormask )
 			local m1= bit.band( bit.rshift( c, 4 ), 0x0F0F )
 			local m2= bit.band( bit.lshift( c, 4 ), 0xF0F0 )
-			result = result .. bin.pack("s", bit.bor( m1, m2 ) )
+			result = result .. bin.pack("S", bit.bor( m1, m2 ) )
 		end
 		return result
 	end,
@@ -831,7 +831,7 @@ Helper =
 			-- Let's check for user must change password, it appears as if this is
 			-- reported as ERROR 18488		
 			if ( token.type == TokenType.ErrorMessage and token.errno == 18488 ) then
-				return true, "Must change password at next logon"
+				return false, "Must change password at next logon"
 			elseif ( token.type == TokenType.LoginAcknowledgement ) then
 				return true, "Login Success"
 			end
