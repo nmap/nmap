@@ -1,5 +1,5 @@
 description = [[
-Attempts do discover DB2 servers on the network using UDP
+Attempts to discover DB2 servers on the network using UDP.
 ]]
 
 ---
