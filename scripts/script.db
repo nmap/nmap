@@ -147,7 +147,7 @@ Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "upnp-info.nse", categories = { "default", "safe", } }
+Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "version", } }
