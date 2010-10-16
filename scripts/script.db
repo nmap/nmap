@@ -16,6 +16,7 @@ Entry { filename = "couchdb-stats.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
+Entry { filename = "db2-discover.nse", categories = { "discovery", "safe", } }
 Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
