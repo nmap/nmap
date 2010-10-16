@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the db2-discover script. This can find DB2 servers by
+  sending a UDP broadcast. [Patrik]
+
 o [NSE] Added the hostmap script by Ange Gutek. This uses a third-party
   database to look up other hostnames mapping to the target.
 
