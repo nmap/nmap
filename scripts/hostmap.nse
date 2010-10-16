@@ -60,7 +60,7 @@ action = function(host)
 
   response = http.get(HOSTMAP_SERVER, 80, query)
   if not response.status then
-    return string.format("Error: ould not GET http://%s%s", HOSTMAP_SERVER, query)
+    return string.format("Error: could not GET http://%s%s", HOSTMAP_SERVER, query)
   end
 
   local hostnames = {}
