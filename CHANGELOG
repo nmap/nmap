@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the hostmap script by Ange Gutek. This uses a third-party
+  database to look up other hostnames mapping to the target.
+
 o [NSE] Added the ability to send and receive on unconnected sockets.
   This can be used, for example, to receive UDP broadcasts without
   using pcap. A number of scripts have been changed so that they can
