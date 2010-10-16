@@ -47,6 +47,9 @@ typedef struct nse_nsock_udata
 
   lua_State *thread;
 
+  int proto;
+  int af;
+
   const char *direction;
   const char *action;
 
@@ -77,6 +80,7 @@ static nsock_pool new_pool (lua_State *L)
 {
   nsock_pool nsp = nsp_new(NULL);
   nsock_pool *nspp;
+  nsp_setbroadcast(nsp, true);
   lua_pushlightuserdata(L, &NSOCK_POOL);
   nspp = (nsock_pool *) lua_newuserdata(L, sizeof(nsock_pool));
   *nspp = nsp;
@@ -426,8 +430,35 @@ static nse_nsock_udata *check_nsock_udata (lua_State *L, int idx, int open)
 {
   nse_nsock_udata *nu =
       (nse_nsock_udata *) luaL_checkudata(L, idx, NMAP_NSOCK_SOCKET);
-  if (open && nu->nsiod == NULL)
-    luaL_error(L, "socket must be connected\n");
+
+  if (open && nu->nsiod == NULL) {
+    /* The socket hasn't been connected or setup yet. Try doing a setup, or
+       throw and error if that's not possible. */
+    if (nu->proto == IPPROTO_UDP) {
+      nsock_pool nsp;
+
+      nsp = get_pool(L);
+      nu->nsiod = nsi_new(nsp, NULL);
+      if (nu->source_addr.ss_family != AF_UNSPEC) {
+        nsi_set_localaddr(nu->nsiod, &nu->source_addr, nu->source_addrlen);
+      } else if (o.spoofsource) {
+        struct sockaddr_storage ss;
+        size_t sslen;
+        o.SourceSockAddr(&ss, &sslen);
+        nsi_set_localaddr(nu->nsiod, &ss, sslen);
+      }
+      if (o.ipoptionslen)
+        nsi_set_ipoptions(nu->nsiod, o.ipoptions, o.ipoptionslen);
+
+      if (nsock_setup_udp(nsp, nu->nsiod, nu->af) == -1) {
+        luaL_error(L, "Error in setup of iod with proto %d and af %d: %s (%d)",
+          nu->proto, nu->af, socket_strerror(socket_errno()), socket_errno());
+      }
+    } else {
+      luaL_error(L, "socket must be connected\n");
+    }
+  }
+
   return nu;
 }
 
@@ -470,7 +501,19 @@ static int l_connect (lua_State *L)
   const char *addr, *targetname; check_target(L, 2, &addr, &targetname);
   const char *default_proto = NULL;
   unsigned short port = check_port(L, 3, &default_proto);
-  if (default_proto == NULL) default_proto = "tcp";
+  if (default_proto == NULL) {
+    switch (nu->proto) {
+    case IPPROTO_TCP:
+      default_proto = "tcp";
+      break;
+    case IPPROTO_UDP:
+      default_proto = "udp";
+      break;
+    default:
+      default_proto = "tcp";
+      break;
+    }
+  }
   int what = luaL_checkoption(L, 4, default_proto, op);
   struct addrinfo *dest;
   int error_id;
@@ -512,17 +555,22 @@ static int l_connect (lua_State *L)
       fatal("nsi_set_hostname(\"%s\" failed in %s()", targetname, __func__);
   }
 
+  nu->af = dest->ai_addr->sa_family;
+
   switch (what)
   {
     case TCP:
+      nu->proto = IPPROTO_TCP;
       nsock_connect_tcp(nsp, nu->nsiod, callback, nu->timeout, nu,
           dest->ai_addr, dest->ai_addrlen, port);
       break;
     case UDP:
+      nu->proto = IPPROTO_UDP;
       nsock_connect_udp(nsp, nu->nsiod, callback, nu, dest->ai_addr,
           dest->ai_addrlen, port);
       break;
     case SSL:
+      nu->proto = IPPROTO_TCP;
       nsock_connect_ssl(nsp, nu->nsiod, callback, nu->timeout, nu,
           dest->ai_addr, dest->ai_addrlen, IPPROTO_TCP, port, nu->ssl_session);
       break;
@@ -541,6 +589,31 @@ static int l_send (lua_State *L)
   trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
   nsock_write(nsp, nu->nsiod, callback, nu->timeout, nu, string, size);
   return yield(L, nu, "SEND", TO, 0, NULL);
+}
+
+static int l_sendto (lua_State *L)
+{
+  nsock_pool nsp = get_pool(L);
+  nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
+  size_t size;
+  const char *addr, *targetname; check_target(L, 2, &addr, &targetname);
+  const char *default_proto = NULL;
+  unsigned short port = check_port(L, 3, &default_proto);
+  const char *string = luaL_checklstring(L, 4, &size);
+  int error_id;
+  struct addrinfo *dest;
+
+  error_id = getaddrinfo(addr, NULL, NULL, &dest);
+  if (error_id)
+    return safe_error(L, gai_strerror(error_id));
+
+  if (dest == NULL)
+    return safe_error(L, "getaddrinfo returned success but no addresses");
+
+  nsock_sendto(nsp, nu->nsiod, callback, nu->timeout, nu, dest->ai_addr, dest->ai_addrlen, port, string, size);
+  trace(nu->nsiod, hexify((unsigned char *) string, size).c_str(), TO);
+  return yield(L, nu, "SEND", TO, 0, NULL);
+	
 }
 
 static void receive_callback (nsock_pool nsp, nsock_event nse, void *udata)
@@ -771,13 +844,25 @@ static int l_bind (lua_State *L)
   return success(L);
 }
 
-static void initialize (lua_State *L, int idx, nse_nsock_udata *nu)
+static const char *default_af_string(int af)
 {
+  if (af == AF_INET)
+    return "inet";
+  else
+    return "inet6";
+}
+
+static void initialize (lua_State *L, int idx, nse_nsock_udata *nu,
+  int proto, int af)
+{
+
   lua_createtable(L, 2, 0); /* room for thread in array */
   lua_pushliteral(L, "");
   lua_rawseti(L, -2, BUFFER_I);
   lua_setfenv(L, idx);
   nu->nsiod = NULL;
+  nu->proto = proto;
+  nu->af = af;
   nu->ssl_session = NULL;
   nu->source_addr.ss_family = AF_UNSPEC;
   nu->source_addrlen = sizeof(nu->source_addr);
@@ -789,13 +874,22 @@ static void initialize (lua_State *L, int idx, nse_nsock_udata *nu)
 
 LUALIB_API int l_nsock_new (lua_State *L)
 {
+  static const char *proto_strings[] = { "tcp", "udp", NULL };
+  int proto_map[] = { IPPROTO_TCP, IPPROTO_UDP };
+  static const char *af_strings[] = { "inet", "inet6", NULL };
+  int af_map[] = { AF_INET, AF_INET6 };
+  int proto, af;
   nse_nsock_udata *nu;
+
+  proto = proto_map[luaL_checkoption(L, 1, "tcp", proto_strings)];
+  af = af_map[luaL_checkoption(L, 2, default_af_string(o.af()), af_strings)];
+
   lua_settop(L, 0);
 
   nu = (nse_nsock_udata *) lua_newuserdata(L, sizeof(nse_nsock_udata));
   luaL_getmetatable(L, NMAP_NSOCK_SOCKET);
   lua_setmetatable(L, -2);
-  initialize(L, 1, nu);
+  initialize(L, 1, nu, proto, af);
 
   return 1;
 }
@@ -812,7 +906,7 @@ static int l_close (lua_State *L)
 #endif
   if (!nu->is_pcap) /* pcap sockets are closed by pcap_gc */
     nsi_delete(nu->nsiod, NSOCK_PENDING_NOTIFY);
-  initialize(L, 1, nu);
+  initialize(L, 1, nu, nu->proto, nu->af);
   return success(L);
 }
 
@@ -989,6 +1083,7 @@ LUALIB_API int luaopen_nsock (lua_State *L)
   static const luaL_Reg l_nsock[] = {
     {"bind", l_bind},
     {"send", l_send},
+    {"sendto", l_sendto},
     {"receive", l_receive},
     {"receive_lines", l_receive_lines},
     {"receive_bytes", l_receive_bytes},

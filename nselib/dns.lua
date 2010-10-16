@@ -40,21 +40,51 @@ types = {
 -- @param port Port to connect to.
 -- @param timeout Number of ms to wait for a response.
 -- @param cnt Number of tries.
+-- @param multiple If true, keep reading multiple responses until timeout.
 -- @return Status (true or false).
 -- @return Response (if status is true).
-local function sendPackets(data, host, port, timeout, cnt)
-   local socket = nmap.new_socket()
-   socket:set_timeout(timeout)
-   socket:connect(host, port, "udp")
+local function sendPackets(data, host, port, timeout, cnt, multiple)
+   local socket = nmap.new_socket("udp")
+   local responses = {}
 
-   for i = 1, cnt do 
-      socket:send(data)
+   socket:set_timeout(timeout)
+
+   if ( not(multiple) ) then
+      socket:connect( host, port, "udp" )
+   end
+
+   for i = 1, cnt do
+      local status, err
+
+      if ( multiple ) then
+         status, err = socket:sendto(host, port, data)
+      else
+         status, err = socket:send(data)
+      end
+
+      if (not(status)) then return false, err end
+
       local response
-      local status, response = socket:receive_bytes(1)
-      
-      if (status) then
+
+      if ( multiple ) then
+         while(true) do
+            status, response = socket:receive()
+            if( not(status) ) then break end
+
+            local status, _, _, ip, _ = socket:get_info()
+            table.insert(responses, { data = response, peer = ip } )
+         end
+      else     
+         status, response = socket:receive()
+         if ( status ) then
+            local status, _, _, ip, _ = socket:get_info()
+            table.insert(responses, { data = response, peer = ip } )	
+         end
+      end
+
+      if (#responses>0) then
          socket:close()
-         return true, response
+         return true, responses
       end
    end
    socket:close()
@@ -130,6 +160,42 @@ local function getAuthDns(rPkt)
    return false
 end
 
+local function processResponse( response, dname, dtype, options )
+
+    local rPkt = decode(response)
+    -- is it a real answer?
+    if gotAnswer(rPkt) then
+       if (options.retPkt) then 
+          return true, rPkt
+       else
+          return findNiceAnswer(dtype, rPkt, options.retAll)
+       end
+    else -- if not, ask the next server in authority
+
+       local next_server = getAuthDns(rPkt)
+       
+       -- if we got a CNAME, ask for the CNAME
+       if type(next_server) == 'table' and next_server.cname then
+          options.tries = option.tries - 1
+          return query(next_server.cname, options)
+       end
+
+       -- only ask next server in authority, if 
+       -- we got an auth dns and
+       -- it isn't the one we just asked
+       if next_server and next_server ~= host and options.tries > 1 then 
+          options.host = next_server
+          options.tries = option.tries - 1
+          return query(dname, options) 
+       end
+    end
+    
+    -- nothing worked
+    stdnse.print_debug(1, "dns.query() failed to resolve the requested query%s%s", dname and ": " or ".", dname or "")
+    return false, "No Answers" 
+    
+end
+
 ---
 -- Query DNS servers for a DNS record.
 -- @param dname Desired domain name entry.
@@ -141,6 +207,7 @@ end
 -- * <code>retAll</code>: Return all answers, not just the first.
 -- * <code>retPkt</code>: Return the packet instead of using the answer-fetching mechanism.
 -- * <code>norecurse</code> If true, do not set the recursion (RD) flag.
+-- * <code>multiple</code> If true, expects multiple hosts to respond to multicast request
 -- @return True if a dns response was received and contained an answer of the requested type,
 --  or the decoded dns response was requested (retPkt) and is being returned - or False otherwise.
 -- @return String answer of the requested type, Table of answers or a String error message of one of the following:
@@ -148,9 +215,9 @@ end
 function query(dname, options)
    if not options then options = {} end
 
-   local dtype, host, port, tries = options.dtype, options.host, options.port, options.tries
+   local dtype, host, port = options.dtype, options.host, options.port
 
-   if not tries then tries = 10 end -- don't get into an infinite loop
+   if not options.tries then options.tries = 10 end -- don't get into an infinite loop
 
    if not options.sendCount then options.sendCount = 2 end
    
@@ -182,7 +249,7 @@ function query(dname, options)
 
    local data = encode(pkt)
 
-   local status, response = sendPackets(data, host, port, options.timeout, options.sendCount)
+   local status, response = sendPackets(data, host, port, options.timeout, options.sendCount, options.multiple)
 
 
    -- if working with know nameservers, try the others
@@ -194,37 +261,18 @@ function query(dname, options)
 
    -- if we got any response:
    if status then
-      local rPkt = decode(response)
-      -- is it a real answer?
-      if gotAnswer(rPkt) then
-         if (options.retPkt) then 
-            return true, rPkt
-         else
-            return findNiceAnswer(dtype, rPkt, options.retAll)
-         end
-      else -- if not, ask the next server in authority
-
-         local next_server = getAuthDns(rPkt)
-         
-         -- if we got a CNAME, ask for the CNAME
-         if type(next_server) == 'table' and next_server.cname then
-            options.tries = tries - 1
-            return query(next_server.cname, options)
-         end
-
-         -- only ask next server in authority, if 
-         -- we got an auth dns and
-         -- it isn't the one we just asked
-         if next_server and next_server ~= host and tries > 1 then 
-            options.host = next_server
-            options.tries = tries - 1
-            return query(dname, options) 
-         end
-      end
-      
-      -- nothing worked
-      stdnse.print_debug(1, "dns.query() failed to resolve the requested query%s%s", dname and ": " or ".", dname or "")
-      return false, "No Answers" 
+    if ( options.multiple ) then
+        local multiresponse = {}
+        for _, r in ipairs( response ) do
+            local status, presponse = processResponse( r.data, dname, dtype, options )
+            if( status ) then
+                table.insert( multiresponse, { ['output']=presponse, ['peer']=r.peer } )
+            end
+        end
+        return true, multiresponse
+    else
+      return processResponse( response[1].data, dname, dtype, options)
+    end
    else
       stdnse.print_debug(1, "dns.query() got zero responses attempting to resolve query%s%s", dname and ": " or ".", dname or "")
       return false, "No Answers"
@@ -348,7 +396,7 @@ answerFetcher[types.CNAME] = function(dec, retAll)
       stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: NS, PTR or CNAME")
       return false, "No Answers"
    end
-   return true, answers   	
+   return true, answers
 end
 
 -- Answer fetcher for MX records.

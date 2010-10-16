@@ -360,11 +360,9 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	local results = {}
 
 
-	-- Create a pcap socket to listen for the response. I used to consider this a hack, but 
-	-- it really isn't -- it's kinda how this has to be done. 
-	local pcap = nmap.new_socket()
-	pcap:pcap_open(interface, 590, false, "udp port 68")
-	pcap:set_timeout(5000)
+	local bind_socket = nmap.new_socket("udp")
+	bind_socket:bind(nil, 68)
+	bind_socket:set_timeout(5000)
 	stdnse.print_debug(1, "dhcp: Starting listener")
 
 	-- Create the UDP socket (TODO: enable SO_BROADCAST if we need to)
@@ -379,15 +377,15 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	socket:send(packet)
 
 	-- Read the response
-	local status, length, layer2, layer3 = pcap:pcap_receive();
+	local status, data = bind_socket:receive()
 	-- This pulls back 4 bytes in the packet that correspond to the transaction id. This should be randomly
 	-- generated and different for every instance of a script (to prevent collisions)
-    while status and layer3:sub(33, 36) ~= transaction_id do
-	  status, length, layer2, layer3 = pcap:pcap_receive();
-    end
+		while status and data:sub(5, 8) ~= transaction_id do
+			local status, data = bind_socket:receive()
+		end
 	if(status == false) then
-		stdnse.print_debug(1, "dhcp: Error calling pcap_receive(): %s", err)
-		return false, "Error calling pcap_receive(): " .. err
+		stdnse.print_debug(1, "dhcp: Error calling bind_socket:receive(): %s", err)
+		return false, "Error calling bind_socket:receive(): " .. err
 	end
 
 	-- If no data was captured (ie, a timeout), return an error
@@ -396,12 +394,9 @@ local function dhcp_send(interface, host, packet, transaction_id)
 		return false, "TIMEOUT"
 	end
 
-	-- Cut off the address/transport headers
-	data = string.sub(data, 29) -- I doubt this is the right way to do this, but since we're only supporting IPv4 + UDP, maybe it'll work
-
 	-- Close our sockets
 	socket:close()
-	pcap:close()
+	bind_socket:close()
 
 	-- Finally, return the data
 	return true, data

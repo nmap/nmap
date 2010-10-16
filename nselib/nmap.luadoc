@@ -323,10 +323,12 @@ function new_try(handler)
 -- NSE sockets are the recommended way to do network I/O. They support
 -- <code>connect</code>-style sending and receiving over TCP and UDP (and SSL),
 -- as well as raw socket receiving.
+-- @param protocol a protocol string (optional, defaults to <code>"tcp"</code>).
+-- @param af an address family string (optional, defaults to <code>"inet"</code>).
 -- @return A new NSE socket.
 -- @see pcap_open
 -- @usage local socket = nmap.new_socket()
-function new_socket()
+function new_socket(protocol, af)
 
 --- Sets the local address of a socket.
 --
@@ -385,7 +387,8 @@ function bind(addr, port)
 -- @param host Host table, hostname or IP address.
 -- @param port Port table or number.
 -- @param protocol <code>"tcp"</code>, <code>"udp"</code>, or
--- <code>"ssl"</code> (default <code>"tcp"</code>).
+-- <code>"ssl"</code> (default <code>"tcp"</code>, or whatever was set in
+-- <code>new_socket</code>).
 -- @return Status (true or false).
 -- @return Error code (if status is false).
 -- @see new_socket
@@ -427,6 +430,30 @@ function reconnect_ssl()
 -- @see new_socket
 -- @usage local status, err = socket:send(data)
 function send(data)
+
+--- Sends data on an unconnected socket to a given destination.
+--
+-- Sockets that have not been connected do not have an implicit
+-- destination address, so the <code>send</code> function doesn't work. Instead
+-- the destination must be given with each send using this function. The
+-- protocol and address family of the socket must have been set in
+-- <code>new_socket</code>. On
+-- success the function returns a true value. If the send operation fails, the
+-- function returns a false value (<code>false</code> or <code>nil</code>) along
+-- with an error string. The error strings are
+-- * <code>"Trying to send through a closed socket"</code>: There was no call to <code>socket:connect</code> before the send operation.
+-- * <code>"TIMEOUT"</code>: The operation took longer than the specified timeout for the socket.
+-- * <code>"ERROR"</code>: An error occurred inside the underlying Nsock library.
+-- * <code>"CANCELLED"</code>: The operation was cancelled.
+-- * <code>"KILL"</code>: For example the script scan is aborted due to a faulty script.
+-- * <code>"EOF"</code>: An EOF was read (probably will not occur for a send operation).
+-- @param host The hostname or IP address to send to. 
+-- @param port The port number to send to.
+-- @param data The data to send.
+-- @return Status (true or false).
+-- @return Error code (if status is false).
+-- @usage local status, err = socket:send(data)
+function sendto(host, port, data)
 
 --- Receives data from an open socket.
 --

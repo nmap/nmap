@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the ability to send and receive on unconnected sockets.
+  This can be used, for example, to receive UDP broadcasts without
+  using pcap. A number of scripts have been changed so that they can
+  work as prerule scripts to discover services by UDP broadcasting,
+  optionally add the discovered targets to the scanning queue:
+    - ms-sql-info
+    - upnp-info
+    - dns-service-discovery
+  The nmap.new_socket function can now optionally take a default
+  protocol and address family, which will be used if the socket is not
+  connected. There is a new nmap.sendto function to be used with
+  unconnected UDP sockets. [David, Patrik]
+
 o [NSE] Improved ssh2's kex_init() parameters: all of the algorithm
   and language lists can be set using new keys in the "options" table
   argument. These all default to the same value used before. Also, the
