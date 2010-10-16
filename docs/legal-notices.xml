@@ -158,6 +158,14 @@ language</ulink>.<indexterm><primary>Lua programming language</primary></indexte
 All of the third-party software described in this paragraph is freely
 redistributable under BSD-style software licenses.</para>
 
+<para>
+Binary packages for Windows and Mac OS X include support libraries
+necessary to run Zenmap and Ndiff with Python and PyGTK. (Unix platforms
+commonly make these libraries easy to install, so they are not part of
+the packages.) A listing of these support libraries and their licenses
+is included in the <filename>LICENSES</filename> files.
+</para>
+
 </refsect2>
 
 <refsect2 id="us-export"><title>United States Export Control<indexterm><primary>export control</primary></indexterm></title>
