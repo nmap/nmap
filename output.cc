@@ -439,7 +439,7 @@ static char *formatScriptOutput(ScriptResult sr) {
   }
 
   if (lines.empty())
-    lines[0] = "";
+    lines.push_back("");
   for (i = 0; i < lines.size(); i++) {
     if (i < lines.size() - 1)
       result += "| ";
