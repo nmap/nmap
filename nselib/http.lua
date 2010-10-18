@@ -80,19 +80,9 @@ local function table_augment(to, from)
   end
 end
 
---- Get a suitable hostname string from the argument, which may be either a
--- string or a host table.
-local function get_hostname(host)
-  if type(host) == "table" then
-    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
-  else
-    return host
-  end
-end
-
 --- Get a value suitable for the Host header field.
 local function get_host_field(host, port)
-  local hostname = get_hostname(host)
+  local hostname = stdnse.get_hostname(host)
   local portno
   if port == nil then
     portno = 80
@@ -789,7 +779,7 @@ local function lookup_cache (method, host, port, path, options)
 
   if type(port) == "table" then port = port.number end
 
-  local key = get_hostname(host)..":"..port..":"..path;
+  local key = stdnse.get_hostname(host)..":"..port..":"..path;
   local mutex = nmap.mutex(tostring(lookup_cache)..key);
 
   local state = {
@@ -876,7 +866,7 @@ end
 -- Return true if the given method requires a body in the request. In case no
 -- body was supplied we must send "Content-Length: 0".
 local function request_method_needs_content_length(method)
-	return method == "POST"
+  return method == "POST"
 end
 
 -- For each of the following request functions, <code>host</code> may either be
@@ -940,8 +930,8 @@ local build_request = function(host, port, method, path, options)
     mod_options.header["Content-Type"] = "application/x-www-form-urlencoded"
   elseif options.content then
     body = options.content
-	elseif request_method_needs_content_length(method) then
-		body = ""
+  elseif request_method_needs_content_length(method) then
+    body = ""
   end
   if body then
     mod_options.header["Content-Length"] = #body
@@ -1136,6 +1126,32 @@ post = function( host, port, path, options, ignored, postdata )
   return generic_request(host, port, "POST", path, mod_options)
 end
 
+--- Builds a request to be used in a pipeline
+--
+-- @param host The host to query.
+-- @param port The port for the host.
+-- @param path The path of the resource.
+-- @param options A table of options, as with <code>http.generic_request</code>.
+-- @param ignored Ignored for backwards compatibility.
+-- @param allReqs A table with all the pipeline requests
+-- @param verb The HTTP verb (GET, POST, HEAD, etc)
+-- @return Table with the pipeline get requests (plus this new one)
+function addPipeline(host, port, path, options, ignored, allReqs, verb)
+  allReqs = allReqs or {}
+  local mod_options = {
+    header = {
+      ["Connection"] = "keep-alive"
+    }
+  }
+  table_augment(mod_options, options or {})
+  -- This value is intended to be unpacked into arguments to build_request.
+  local object = { host, port, verb, path, mod_options }
+  object.method = object[3]
+  object.options = object[5]
+  allReqs[#allReqs + 1] = object
+  return allReqs
+end
+
 --- Builds a get request to be used in a pipeline request
 --
 -- @param host The host to query.
@@ -1146,19 +1162,7 @@ end
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
 function pGet( host, port, path, options, ignored, allReqs )
-  allReqs = allReqs or {}
-  local mod_options = {
-    header = {
-      ["Connection"] = "keep-alive"
-    }
-  }
-  table_augment(mod_options, options or {})
-  -- This value is intended to be unpacked into arguments to build_request.
-  local object = { host, port, "GET", path, mod_options }
-  object.method = object[3]
-  object.options = object[5]
-  allReqs[#allReqs + 1] = object
-  return allReqs
+  return addPipeline(host, port, path, options, ignored, allReqs, 'GET')
 end
 
 --- Builds a Head request to be used in a pipeline request
@@ -1171,22 +1175,10 @@ end
 -- @param allReqs A table with all the pipeline requests
 -- @return Table with the pipeline get requests (plus this new one)
 function pHead( host, port, path, options, ignored, allReqs )
-  allReqs = allReqs or {}
-  local mod_options = {
-    header = {
-      ["Connection"] = "keep-alive"
-    }
-  }
-  table_augment(mod_options, options or {})
-  -- This value is intended to be unpacked into arguments to build_request.
-  local object = { host, port, "HEAD", path, mod_options }
-  object.method = object[3]
-  object.options = object[5]
-  allReqs[#allReqs + 1] = object
-  return allReqs
+  return addPipeline(host, port, path, options, ignored, allReqs, 'HEAD')
 end
 
---- Performs pipelined that are in allReqs to the resource. Return an array of
+---Performs pipelined that are in allReqs to the resource. Return an array of
 -- response tables.
 --
 -- @param host The host to query.
@@ -1518,7 +1510,7 @@ function get_status_string(data)
   end
 end
 
---- Determine whether or not the server supports HEAD by requesting / and
+---Determine whether or not the server supports HEAD by requesting / and
 -- verifying that it returns 200, and doesn't return data. We implement the
 -- check like this because can't always rely on OPTIONS to tell the truth.
 --
@@ -1662,7 +1654,7 @@ local function clean_404(body)
   return body
 end
 
---- Try requesting a non-existent file to determine how the server responds to
+---Try requesting a non-existent file to determine how the server responds to
 -- unknown pages ("404 pages"), which a) tells us what to expect when a
 -- non-existent page is requested, and b) tells us if the server will be
 -- impossible to scan. If the server responds with a 404 status code, as it is
@@ -1682,9 +1674,9 @@ end
 --
 -- @param host The host object.
 -- @param port The port to which we are establishing the connection.
--- @return (status, result, body) If status is false, result is an error
--- message. Otherwise, result is the code to expect and body is the cleaned-up
--- body (or a hash of the cleaned-up body).
+-- @return status Did we succeed?
+-- @return result If status is false, result is an error message. Otherwise, it's the code to expect (typically, but not necessarily, '404').
+-- @return body Body is a hash of the cleaned-up body that can be used when detecting a 404 page that doesn't return a 404 error code.
 function identify_404(host, port)
   local data
   local bad_responses = { 301, 302, 400, 401, 403, 499, 501, 503 }
@@ -1769,7 +1761,6 @@ function identify_404(host, port)
   end
 
   stdnse.print_debug(1,  "Unexpected response returned for 404 check: %s", get_status_string(data))
---  io.write("\n\n" .. nsedebug.tostr(data) .. "\n\n")
 
   return true, data.status
 end
@@ -1820,7 +1811,7 @@ function page_exists(data, result_404, known_404, page, displayall)
 
         if(data.status == 401) then -- "Authentication Required"
           return true
-        elseif(displayall == true or displayall == '1' or displayall == "true") then
+        elseif(displayall) then
           return true
         end
 
@@ -1835,6 +1826,210 @@ function page_exists(data, result_404, known_404, page, displayall)
     return false
   end
 end
+
+---Check if the response variable, which could be a return from a http.get, http.post, http.pipeline, 
+-- etc, contains the given text. The text can be:
+-- * Part of a header ('content-type', 'text/html', '200 OK', etc)
+-- * An entire header ('Content-type: text/html', 'Content-length: 123', etc)
+-- * Part of the body
+--
+-- The search text is treated as a Lua pattern. 
+--
+--@param response The full response table from a HTTP request.
+--@param pattern The pattern we're searching for. Don't forget to escape '-', for example, 'Content%-type'.
+--       the pattern can also contain captures, like 'abc(.*)def', which will be returned if successful. 
+--@param case_sensitive [optional] Set to true for case-sensitive searches. Default: not case sensitive.
+--@return result True if the string matched, false otherwise
+--@return matches An array of captures from the match, if any
+function response_contains(response, pattern, case_sensitive)
+
+  local result, _
+  local m = {}
+  
+  -- If they're searching for the empty string or nil, it's true
+  if(pattern == '' or pattern == nil) then
+    return true
+  end
+
+  -- Create a function that either lowercases everything or doesn't, depending on case sensitivity
+  local case = function(pattern) return string.lower(pattern or '') end
+  if(case_sensitive == true) then
+    case = function(pattern) return (pattern or '') end
+  end
+
+  -- Set the case of the pattern
+  pattern = case(pattern)
+
+  -- Check the status line (eg, 'HTTP/1.1 200 OK')
+  result, _, m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9] = string.find(case(response['status-line']), pattern)
+  if(result) then
+    return true, m
+  end
+
+  -- Check the headers
+  for _, header in pairs(response['rawheader']) do
+    result, _, m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9] = string.find(case(header), pattern)
+    if(result) then
+      return true, m
+    end
+  end
+
+  -- Check the body
+  result, _, m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8], m[9] = string.find(case(response['body']), pattern)
+  if(result) then
+    return true, m
+  end
+
+  return false
+end
+
+---Take a URI or URL in any form and convert it to its component parts. The URL can optionally
+-- have a protocol definition ('http://'), a server ('scanme.insecure.org'), a port (':80'), a
+-- URI ('/test/file.php'), and a query string ('?username=ron&password=turtle'). At the minimum,
+-- a path or protocol and url are required. 
+--
+--@param url The incoming URL to parse
+--@return result      A table containing the result, which can have the following fields: protocol, 
+--                    hostname, port, uri, querystring. All fields are strings except querystring, 
+--                    which is a table containing name=value pairs.
+function parse_url(url)
+  local result = {}
+
+  -- Split the protocol off, if it exists
+  local colonslashslash = string.find(url, '://')
+  if(colonslashslash) then
+    result['protocol'] = string.sub(url, 1, colonslashslash - 1)
+    url = string.sub(url, colonslashslash + 3)
+  end
+
+  -- Split the host:port from the path
+  local slash, host_port
+  slash = string.find(url, '/')
+  if(slash) then
+    host_port      = string.sub(url, 1, slash - 1)
+    result['path_query'] = string.sub(url, slash)
+  else
+    -- If there's no slash, then it's just a URL (if it has a http://) or a path (if it doesn't)
+    if(result['protocol']) then
+      result['host_port'] = url
+    else
+      result['path_query'] = url
+    end
+  end
+  if(host_port == '') then
+    host_port = nil
+  end
+
+  -- Split the host and port apart, if possible
+  if(host_port) then
+    local colon = string.find(host_port, ':')
+    if(colon) then
+      result['host'] = string.sub(host_port, 1, colon - 1)
+      result['port'] = tonumber(string.sub(host_port, colon + 1))
+    else
+      result['host'] = host_port
+    end
+  end
+
+  -- Split the path and querystring apart
+  if(result['path_query']) then
+    local question = string.find(result['path_query'], '?')
+    if(question) then
+      result['path']      = string.sub(result['path_query'], 1, question - 1)
+      result['raw_querystring'] = string.sub(result['path_query'], question + 1)
+    else
+      result['path'] = result['path_query']
+    end
+
+    -- Split up the query, if necessary
+    if(result['raw_querystring']) then
+      result['querystring'] = {}
+      local values = stdnse.strsplit('&', result['raw_querystring'])
+      for i, v in ipairs(values) do
+        local name, value = unpack(stdnse.strsplit('=', v))
+        result['querystring'][name] = value
+      end
+    end
+
+    -- Get the extension of the file, if any, or set that it's a folder
+    if(string.match(result['path'], "/$")) then
+      result['is_folder'] = true
+    else
+      result['is_folder'] = false
+      local split_str = stdnse.strsplit('%.', result['path'])
+      if(split_str and #split_str > 0) then
+        result['extension'] = split_str[#split_str]
+      end
+    end
+  end
+
+  return result
+end
+
+---This function should be called whenever a valid path (a path that doesn't contain a known
+-- 404 page) is discovered. It will add the path to the registry in several ways, allowing
+-- other scripts to take advantage of it in interesting ways. 
+function save_path(host, port, path, status)
+  -- Make sure we have a proper hostname and port
+  host = stdnse.get_hostname(host)
+  if(type(port) == 'table') then
+    port = port.number
+  end
+
+  -- Parse the path
+  local parsed = parse_url(path)
+
+  -- Check if we already have the page saved with these arguments
+  local old_queries = stdnse.registry_get({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages_full_query'})
+  if(old_queries) then
+    for _, query in ipairs(old_queries) do
+      if(query == parsed['path_query']) then
+        return
+      end
+    end
+  end
+
+  -- Add to the 'all_pages' key
+  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages'}, parsed['path'])
+
+  -- Add the URL with querystring to all_pages_full_query
+  stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'all_pages_full_query'}, parsed['path_query'])
+
+  -- Add the URL to a key matching the response code
+  if(status) then
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'status_codes', status}, parsed['path'])
+  end
+
+  -- If it's a directory, add it to the directories list; otherwise, add it to the files list
+  if(parsed['is_folder']) then
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'directories'}, parsed['path'])
+  else
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'files'}, parsed['path'])
+  end
+
+
+  -- If we have an extension, add it to the extensions key
+  if(parsed['extension']) then
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'extensions', parsed['extension']}, parsed['path'])
+  end
+
+  -- Add an entry for the page and its arguments
+  if(parsed['querystring']) then
+    -- Add all scripts with a querystring to the 'cgi' and 'cgi_full_query' keys
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi'}, parsed['path'])
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_full_query'}, parsed['path_query'])
+
+    -- Add the query string alone to the registry (probably not necessary)
+    stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_querystring', parsed['path'] }, parsed['raw_querystring'])
+
+    -- Add the individual arguments for the page, along with their values
+    for key, value in pairs(parsed['querystring']) do
+      stdnse.registry_add_array({parsed['host'] or host, 'www', parsed['port'] or port, 'cgi_args', parsed['path']}, parsed['querystring'])
+    end
+  end
+end
+
+
 
 get_default_timeout = function( nmap_timing )
   local timeout = {}
@@ -1851,3 +2046,4 @@ get_default_timeout = function( nmap_timing )
   end
   return timeout
 end
+

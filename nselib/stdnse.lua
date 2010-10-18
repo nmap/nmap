@@ -618,6 +618,82 @@ function get_script_args (...)
   return unpack(args, 1, select("#", ...))
 end
 
+---Get the best possible hostname for the given host. This can be the target as given on 
+-- the commandline, the reverse dns name, or simply the ip address. 
+--@param host The host table (or a string that'll simply be returned). 
+--@return The best possible hostname, as a string. 
+function get_hostname(host)
+  if type(host) == "table" then
+    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
+  else
+    return host
+  end
+end
+
+---Retrieve an item from the registry, checking if each sub-key exists. If any key doesn't
+-- exist, return nil. 
+function registry_get(subkeys)
+  local registry = nmap.registry
+  local i = 1
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      return nil
+    end
+
+    registry = registry[subkeys[i]]
+
+    i = i + 1
+  end
+
+  return registry
+end
+
+---Add an item to an array in the registry, creating all sub-keys if necessary. 
+-- For example, calling:
+-- <code>registry_add_array({'192.168.1.100', 'www', '80', 'pages'}, 'index.html')</code>
+-- Will create nmap.registry['192.168.1.100'] as a table, if necessary, then add a table
+-- under the 'www' key, and so on. 'pages', finally, is treated as an array and the value
+-- given is added to the end. 
+function registry_add_array(subkeys, value)
+  local registry = nmap.registry
+  local i = 1
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      registry[subkeys[i]] = {}
+    end
+    registry = registry[subkeys[i]]
+    i = i + 1
+  end
+
+  -- Make sure the value isn't already in the table
+  for _, v in pairs(registry) do
+    if(v == value) then
+      return
+    end
+  end
+  insert(registry, value)
+end
+
+---Similar to <code>registry_add_array</code>, except instead of adding a value to the
+-- end of an array, it adds a key:value pair to the table. 
+function registry_add_table(subkeys, key, value)
+  local registry = nmap.registry
+  local i = 1
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      registry[subkeys[i]] = {}
+    end
+    registry = registry[subkeys[i]]
+    i = i + 1
+  end
+
+  registry[key] = value
+end
+
+
 --- This function allows you to create worker threads that may perform
 -- network tasks in parallel with your script thread.
 --

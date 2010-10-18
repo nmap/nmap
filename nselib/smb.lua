@@ -2780,7 +2780,7 @@ function share_get_list(host)
 		extra = string.format("ERROR: Enumerating shares failed, guessing at common ones (%s)", shares)
 
 		-- Take some common share names I've seen (thanks to Brandon Enright for most of these, except the last few)
-		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$", "PUBLIC", "PRINT", "PRINT$", "GROUPS", "USERS", "MEDIA", "SOFTWARE", "XSERVE", "NETLOGON", "INFO", "PROGRAMS", "FILES", "WWW", "STMP", "TMP", "DATA", "BACKUP", "DOCS", "HD", "WEBSERVER", "WEB DOCUMENTS", "SHARED", "DESKTOP", "MY DOCUMENTS", "PORN", "PRON", "PR0N"}
+		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$", "PUBLIC", "PRINT", "PRINT$", "GROUPS", "USERS", "MEDIA", "SOFTWARE", "XSERVE", "NETLOGON", "INFO", "PROGRAMS", "FILES", "WWW", "STMP", "TMP", "DATA", "BACKUP", "DOCS", "HD", "WEBSERVER", "WEB DOCUMENTS", "SHARED", "DESKTOP", "MY DOCUMENTS", "PORN", "PRON", "PR0N", "PICTURES", "BACKUP" }
 
 		-- Try every alphabetic share, with and without a trailing '$'
 		for i = string.byte("A", 1), string.byte("Z", 1), 1 do
