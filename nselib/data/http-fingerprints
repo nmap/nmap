@@ -1,0 +1,141 @@
+# Apache configuration file
+/.htaccess
+/.htpasswd
+
+# Subversion data
+/.svn/
+/.svn/text-base/Web.config.svn-base
+/.svn/text-base/.htaccess.svn-base
+/.svn/text-base/.htpasswd.svn-base
+
+# FrontPage directory
+/_vti_bin/
+/_vti_cnf/
+/_vti_log/
+/_vti_pvt/
+/_vti_txt/
+
+# Admin directory
+/admin/
+
+# Backup
+/backup/
+/bak/
+/backup.sql
+
+# Beta directory
+/beta/
+
+# Bin directory
+/bin/
+
+# CSS directory
+/css/
+
+# Data directory
+/data/
+
+# Database directory
+/db/
+
+# Demo directory
+/demo/
+
+# Development directory
+/dev/
+
+# Downloads directory
+/downloads/
+
+# Password file
+/etc/passwd
+
+# Forum software
+/forum/
+/forums/
+
+# Icons and images
+/icons/
+/images/
+
+# IIS sample scripts
+/iissamples/
+
+# Includes directory
+/includes/
+
+# Inicoming files directory
+/incoming/
+
+# Install directory
+/install/
+
+# Intranet directory
+/intranet/
+
+# Logs
+/logs/
+/log.htm
+
+# Login
+/login/
+/login.htm
+/login.html
+/login.php
+/login.aspx
+/login.asp
+
+# Mail directory
+/mail/
+/webmail/
+
+# Manual directory (apache)
+/manual/
+
+# phpMyAdmin
+/phpmyadmin/
+/phpMyAdmin/
+
+# Test
+/test.htm
+/test.html
+/test.asp
+/test.php
+/test.txt
+/test.class
+/test/
+
+# RSS
+/rss/
+/rss.php
+/rss.xml
+/rss.aspx
+/atom/
+/atom.php
+/atom.xml
+/atom.aspx
+
+# Robots file
+/robots.txt
+
+# Ruby on Rails
+/images/rails.png
+
+# Private
+/private/
+/_private/
+
+# Public
+/public/
+/_public/
+/pub/
+
+# Classes
+/classes/
+
+# Blog
+/blog/
+
+# Wiki
+/wiki/
+
