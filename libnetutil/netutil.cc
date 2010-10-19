@@ -412,10 +412,8 @@ int ip_is_reserved(struct in_addr *ip)
     case 7:         /* used for BGP protocol        */
     case 10:        /* the infamous 10.0.0.0/8      */
     case 23:        /* 023/8 is IANA reserved       */
-    case 36:        /* 036/8 is IANA reserved       */
     case 37:        /* 037/8 is IANA reserved       */
     case 39:        /* 039/8 is IANA reserved       */
-    case 42:        /* 042/8 is IANA reserved       */
     case 55:        /* misc. U.S.A. Armed forces    */
     case 100:       /* 100/8 is IANA reserved       */
     case 127:       /* 127/8 is reserved for loopback */
