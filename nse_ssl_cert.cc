@@ -322,7 +322,7 @@ static void tm_to_table(lua_State *L, const struct tm *tm)
   /* Omit tm_wday and tm_yday. */
 }
 
-/* This is a helper functino for x509_validity_to_table. It takes teh given
+/* This is a helper function for x509_validity_to_table. It takes teh given
    ASN1_TIME and covnerts it to a value on the stack, which is one of
      nil, if the time is NULL;
      a date table, if the date can be parsed; and
