@@ -1,8 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [NSE] Review scripts:
-   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/159
-
 o Process Nmap survey and send out results [Fyodor]
 
 o [Web] Add a page with the Nmap related videos we do have already
@@ -23,6 +20,7 @@ o Investigate ways to limit Winpcap privileges so that only
   http://seclists.org/nmap-dev/2010/q3/826
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o Almost done!  We just have some file renaming/organizing left to do.
  o We should do an audit to ensure that we are in complete compliance for the
  licenses of all the software we ship in any of our downloads, as some
  licenses have special clauses for things like including their
@@ -62,14 +60,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o [NSE] We should probably enable broadcast scripts to work better by
-  (initial thoughts):
-  1) Change NSE to always set nsp_setbroadcast() on new sockets
-  2) Change nsock to create real sockets at time of nsi_new so you can
-     bind to them.
-  See this thread (only some of the messages involve broadcast
-  support): http://seclists.org/nmap-dev/2010/q3/357
 
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
@@ -707,6 +697,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] We should probably enable broadcast scripts to work better by
+  (initial thoughts):
+  o Done and merged by David!
+  1) Change NSE to always set nsp_setbroadcast() on new sockets
+  2) Change nsock to create real sockets at time of nsi_new so you can
+     bind to them.
+  See this thread (only some of the messages involve broadcast
+  support): http://seclists.org/nmap-dev/2010/q3/357
+
+o [NSE] Review scripts:
+   o Hostmap (Ange Gutek) - http://seclists.org/nmap-dev/2010/q3/159
 
 o Post BH/Defcon Nmap videos
 
