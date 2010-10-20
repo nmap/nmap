@@ -379,19 +379,14 @@ static const char *pkey_type_to_string(lua_State *L, int type)
   switch (type) {
   case EVP_PKEY_RSA:
     return "rsa";
-    break;
   case EVP_PKEY_DSA:
-    return "rsa";
-    break;
+    return "dsa";
   case EVP_PKEY_DH:
     return "dh";
-    break;
   case EVP_PKEY_EC:
     return "ec";
-    break;
   default:
     return "unknown";
-    break;
   }
 }
 
