@@ -2797,8 +2797,10 @@ Util =
           [0x00001000] = { char = "p", str = "named pipe" },
         },
 
-        --- Returns the file type as a char to be used as
-        --  a first letter of the mode string
+        --- Converts a numeric ACL mode to a file type char
+        --
+        -- @param mode number containing the ACL mode
+        -- @return char containing the file type
         FtypeToChar = function(mode)
           local code = bit.band(mode, Util.S_IFMT)
           if Util.FileType[code] then
@@ -2809,7 +2811,10 @@ Util =
           end
         end,
 
-        --- Returns the file type as a string
+        --- Converts a numeric ACL mode to a file type string
+        --
+        -- @param mode number containing the ACL mode
+        -- @return string containing the file type name
         FtypeToString = function(mode)
           local code = bit.band(mode, Util.S_IFMT)
           if Util.FileType[code] then
@@ -2820,6 +2825,11 @@ Util =
           end
         end,
 
+        --- Converts a numeric ACL mode to a string in an octal
+        -- number format.
+        --
+        -- @param mode number containing the ACL mode
+        -- @return string containing the octal ACL mode
         FmodeToOctalString = function(mode)
           local code = bit.band(mode, Util.S_IFMT)
           if Util.FileType[code] then
@@ -2831,6 +2841,10 @@ Util =
           return stdnse.tooctal(code)
         end,
 
+        --- Converts a numeric ACL to it's character equivalent eg. (rwxr-xr-x)
+        --
+        -- @param mode number containing the ACL mode
+        -- @return string containing the ACL characters
         FpermToString = function(mode)
           local tmpacl, acl = {}, ""
           for i = 1, 9 do
@@ -2872,11 +2886,11 @@ Util =
         -- An optional second argument is the mactime to use
         --
         -- @param attr table returned by NFS GETATTR or ACCESS
-        -- @param mactime to use, the default value is atime
+        -- @param mactime to use, the default value is mtime
         --        Possible values: mtime, atime, ctime
-        -- @return String that represent the file attributes
+        -- @return string containing the file attributes
         format_nfsfattr = function(attr, mactime)
-          local time = "atime"
+          local time = "mtime"
           if mactime then
             time = mactime
           end
@@ -3075,8 +3089,8 @@ Util =
         -- @param blocksize represents the number of bytes per block
         --        Possible values are: 1024 or 1000
         --        Default value is: 1024
-        -- @return String that represents the size in the human
-        --         readable format
+        -- @return string containing the size in the human readable
+        --        format
         SizeToHuman = function(size, blocksize)
           local bs, idx = 1024, 1
           local unit = { "B", "K", "M", "G" , "T"}
@@ -3275,59 +3289,6 @@ Util =
       end
     end
     return RPC_PROGRAMS[num]
-  end,
-  
-  --- Converts a numeric ACL mode as returned from <code>mnt.GetAttr</code>
-  --  to octal
-  --
-  -- @param num number containing the ACL mode
-  -- @return num containing the octal ACL mode
-  ToAclMode = function( num )
-    return ( ("%o"):format(bit.bxor(num, 0x4000)) )
-  end,
-  
-  --- Converts a numeric ACL to it's character equivalent eg. (rwxr-xr-x)
-  --
-  -- @param num number containing the ACL mode
-  -- @return string which represents the ACL mode
-  ToAclText = function( num )
-    local mode = num
-    local txtmode = ""
-
-    for i=0,2 do
-      if ( bit.band( mode, bit.lshift(0x01, i*3) ) == bit.lshift(0x01, i*3) ) then
-        -- Check for SUID or SGID
-        if ( i>0 and bit.band( mode, 0x400 * i ) == 0x400 * i ) then
-          txtmode = "s" .. txtmode
-        else
-          txtmode = "x" .. txtmode
-        end
-      else
-        if ( i>0 and bit.band( mode, 0x400 * i ) == 0x400 * i ) then
-          txtmode = "S" .. txtmode
-        else
-          txtmode = "-" .. txtmode
-        end
-      end
-      if ( bit.band( mode, bit.lshift(0x02, i*3) ) == bit.lshift(0x02, i*3) ) then
-        txtmode = "w" .. txtmode
-      else
-        txtmode = "-" .. txtmode
-      end
-      if ( bit.band( mode, bit.lshift(0x04, i*3) ) == bit.lshift(0x04, i*3) ) then
-        txtmode = "r" .. txtmode
-      else
-        txtmode = "-" .. txtmode
-      end
-    end
-  
-    if ( bit.band(mode, 0x4000) == 0x4000 ) then
-      txtmode = "d" .. txtmode
-    else
-      txtmode = "-" .. txtmode
-    end
-  
-    return txtmode
   end,
   
   --
