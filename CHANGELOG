@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made dns-zone-transfer script able to add new discovered DNS
+  records onto Nmap scanning queue. [Djalal]
+
 o [NSE] Added reporting of the type and bit size of certificate public
   keys to ssl-cert.nse. [Matt Selsky]
 
