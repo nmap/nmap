@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added reporting of the type and bit size of certificate public
+  keys to ssl-cert.nse. [Matt Selsky]
+
 o [NSE] Added the db2-discover script. This can find DB2 servers by
   sending a UDP broadcast. [Patrik]
 

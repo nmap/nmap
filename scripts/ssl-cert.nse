@@ -113,6 +113,11 @@ action = function(host, port)
         lines[#lines + 1] = "Issuer: " .. stringify_name(cert.issuer)
     end
 
+    if nmap.verbosity() > 0 then
+        lines[#lines + 1] = "Public Key type: " .. cert.pubkey.type
+        lines[#lines + 1] = "Public Key bits: " .. cert.pubkey.bits
+    end
+
     lines[#lines + 1] = "Not valid before: " ..
         date_to_string(cert.validity.notBefore)
     lines[#lines + 1] = "Not valid after:  " ..

@@ -629,6 +629,7 @@ function pcap_close()
 -- subject = { commonName = "...", countryName = "...",
 --             { "2", "5", "4", "15" } = "...", ... },
 -- issuer = { commonName = "...", ... },
+-- pubkey = { type = "rsa", bits = 1024 },
 -- validity = { notBefore = { year = 2020, month = 5, day = 5,
 --                            hour = 0, min = 0, sec = 0 },
 --              notAfter = { year = 2021, month = 5, day = 5,

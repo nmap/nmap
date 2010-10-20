@@ -372,12 +372,36 @@ static void cert_pem_to_string(lua_State *L, X509 *cert)
   BIO_vfree(bio);
 }
 
+/* This is a helper function for l_get_ssl_certificate. It converts the
+   public-key type to a string on the stack. */
+static const char *pkey_type_to_string(lua_State *L, int type)
+{
+  switch (type) {
+  case EVP_PKEY_RSA:
+    return "rsa";
+    break;
+  case EVP_PKEY_DSA:
+    return "rsa";
+    break;
+  case EVP_PKEY_DH:
+    return "dh";
+    break;
+  case EVP_PKEY_EC:
+    return "ec";
+    break;
+  default:
+    return "unknown";
+    break;
+  }
+}
+
 int l_get_ssl_certificate(lua_State *L)
 {
   SSL *ssl;
   struct cert_userdata *udata;
   X509 *cert;
   X509_NAME *subject, *issuer;
+  EVP_PKEY *pubkey;
 
   ssl = nse_nsock_get_ssl(L);
   cert = SSL_get_peer_certificate(ssl);
@@ -408,6 +432,15 @@ int l_get_ssl_certificate(lua_State *L)
 
   cert_pem_to_string(L, cert);
   lua_setfield(L, -2, "pem");
+
+  pubkey = X509_get_pubkey(cert);
+  lua_newtable(L);
+  lua_pushstring(L, pkey_type_to_string(L, pubkey->type));
+  lua_setfield(L, -2, "type");
+  lua_pushnumber(L, EVP_PKEY_bits(pubkey));
+  lua_setfield(L, -2, "bits");
+  lua_setfield(L, -2, "pubkey");
+  EVP_PKEY_free(pubkey);
 
   /* At this point the certificate-specific table of attributes is at the top of
      the stack. We give it a metatable with an __index entry that points into
