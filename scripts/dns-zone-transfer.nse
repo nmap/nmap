@@ -32,6 +32,12 @@ Useful resources
 -- @args dns-zone-transfer.port DNS server port, this argument concerns
 --       the "Script Pre-scanning phase" and it's optional, the default
 --       value is <code>53</code>.
+-- @args newtargets  If specified, adds returned DNS records onto Nmap
+--       scanning queue.
+-- @args dns-zone-transfer.addall  If specified, adds all IP addresses
+--       including private ones onto Nmap scanning queue when the
+--       script argument <code>newtargets</code> is given. The default
+--       behavior is to skip private IPs (non-routable).
 -- @output
 -- 53/tcp   open     domain
 -- |  dns-zone-transfer:
@@ -69,6 +75,8 @@ require('listop')
 require('bit')
 require('tab')
 require('dns')
+require('target')
+require('ipOps')
 
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -76,6 +84,9 @@ categories = {'default', 'intrusive', 'discovery'}
 
 prerule = function() return true end
 portrule = shortport.portnumber(53, 'tcp')
+
+-- DNS arguments which are used to filter results.
+local dns_filter = {}
 
 --- DNS query and response types.
 --@class table
@@ -209,8 +220,8 @@ function get_rdata(data, offset, ttype)
         string.byte(data, offset+3)
         offset = offset + 4
 
-    elseif typetab[ttype] == 'PTR' or
-               typetab[ttype] == 'NS' then
+    elseif typetab[ttype] == 'PTR' or typetab[ttype] == 'NS' or
+            typetab[ttype] == 'CNAME' then
         -- domain/domain server name
         offset, field = parse_domain(data, offset)
         info = info .. field;
@@ -225,12 +236,12 @@ function get_answer_record(table, data, offset)
 
     -- answer domain
     offset, line = parse_domain(data, offset)
-    tab.add(table, 1, line)
+    table.domain = line
 
     -- answer record type
     ttype = bto16(data, offset)
     if not(typetab[ttype] == nil) then
-        tab.add(table, 2, typetab[ttype])
+        table.ttype = typetab[ttype]
     end
 
     -- length of type specific data
@@ -240,17 +251,63 @@ function get_answer_record(table, data, offset)
     offset, line =  get_rdata(data, offset+10, ttype)
     if(line == '') then
         offset = offset + rdlen
+        return false, offset
     else
-        tab.add(table, 3, line)
+        table.rdata = line
     end
 
-    return offset, tab
+    return true, offset
 end
 
-function parse_records(number, data, table, offset)
+-- parse and save uniq records in the results table
+function parse_uniq_records(results, record)
+  if record.domain and not results['Node Names'][record.domain] then
+    local str = string.gsub(record.domain, "^%s*(.-)%s*$", "%1")
+    if not results['Node Names'][str] then
+      results['Node Names'][str] = 1
+    end
+  end
+  if record.ttype and record.rdata then
+    if not results[record.ttype] then
+      results[record.ttype] = {}
+    end
+    local str = string.gsub(record.rdata, "^%s*(.-)%s*$", "%1")
+    if not results[record.ttype][str] then
+      results[record.ttype][str] = 1
+    end
+  end
+end
+
+-- parse and save only valid records
+function parse_records(number, data, results, offset)
     while number > 0 do
-        tab.nextrow(table)
-        offset = get_answer_record(table, data, offset)
+        local answer, st = {}
+        st, offset = get_answer_record(answer, data, offset)
+        if st then
+          parse_uniq_records(results, answer)
+        end
+        number = number - 1
+    end
+    return offset
+end
+
+-- parse and save all records in order to dump them to output
+function parse_records_table(number, data, table, offset)
+    while number > 0 do
+        local answer, st = {}
+        st, offset = get_answer_record(answer, data, offset)
+        if st then
+            tab.nextrow(table)
+            if answer.domain then
+                tab.add(table, 1, answer.domain)
+            end
+            if answer.ttype then
+                tab.add(table, 2, answer.ttype)
+            end
+            if answer.rdata then
+                tab.add(table, 3, answer.rdata)
+            end
+        end
         number = number - 1
     end
     return offset
@@ -280,26 +337,130 @@ function responses_iter(data)
     end
 end
 
-function dump_zone_info(table, data)
-    local answers, line, offset
-    local questions, auth_answers, add_answers
+-- add axfr results to Nmap scan queue
+function add_zone_info(response)
+  local RR = {}
+  for data in responses_iter(response) do
 
-    offset = 1
-    -- number of available records
-    questions = bto16(data, offset+4)
-    answers = bto16(data, offset+6)
-    auth_answers = bto16(data, offset+8)
-    add_answers = bto16(data, offset+10)
+    local offset, line = 1
+    local questions = bto16(data, offset+4)
+    local answers = bto16(data, offset+6)
+    local auth_answers = bto16(data, offset+8)
+    local add_answers = bto16(data, offset+10)
 
     -- move to beginning of first section
     offset = offset + 12
 
     if questions > 1 then
-        return 'More then 1 question record, something has gone wrong'
+        return false, 'More then 1 question record, something has gone wrong'
     end
 
     if answers == 0 then
-        return 'transfer successful but no records'
+      return false, 'transfer successful but no records'
+    end
+
+    -- skip over the question section, we don't need it
+    if questions == 1 then
+      offset, line = parse_domain(data, offset)
+      offset = offset + 4
+    end
+
+    -- parse all available resource records
+    stdnse.print_debug(3,
+        "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
+        SCRIPT_NAME, answers, auth_answers, add_answers)
+    RR['Node Names'] = {}
+    offset = parse_records(answers, data, RR, offset)
+    offset = parse_records(auth_answers, data, RR, offset)
+    offset = parse_records(add_answers, data, RR, offset)
+  end
+
+  local outtab, nhosts = tab.new(2), 0
+  local newhosts_count, status, ret = 0, false
+
+  tab.nextrow(outtab)
+  tab.addrow(outtab, "  Domains", "Added Targets")
+  for rdata in pairs(RR['Node Names']) do
+    status, ret = target.add(rdata)
+    if not status then
+      stdnse.print_debug(3, "Error: failed to add all Node Names.")
+      break
+    end
+    newhosts_count = newhosts_count + ret
+  end
+  if newhosts_count == 0 then
+    return false, ret and ret or "Error: failed to add DNS records."
+  end
+  tab.addrow(outtab, "  Node Names", newhosts_count)
+  nhosts = newhosts_count 
+
+  tab.nextrow(outtab)
+  tab.addrow(outtab, "  DNS Records", "Added Targets")
+  for rectype in pairs(RR) do
+    newhosts_count = 0
+    -- filter Private IPs
+    if rectype == 'A' then
+      for rdata in pairs(RR[rectype]) do
+        if dns_filter.addall or not ipOps.isPrivate(rdata) then
+          status, ret = target.add(rdata) 
+          if not status then
+            stdnse.print_debug(3,
+                "Error: failed to add all 'A' records.")
+            break
+          end
+          newhosts_count = newhosts_count + ret
+        end
+      end
+    elseif rectype ~= 'Node Names' then
+      for rdata in pairs(RR[rectype]) do
+        status, ret = target.add(rdata)
+        if not status then
+          stdnse.print_debug(3,
+              "Error: failed to add all '%s' records.", rectype)
+          break
+        end
+        newhosts_count = newhosts_count + ret
+      end
+    end
+
+    if newhosts_count ~= 0 then
+      tab.addrow(outtab, "  "..rectype, newhosts_count)
+      nhosts = nhosts + newhosts_count
+    elseif nhosts == 0 then
+      -- error: we can't add new targets
+      return false, ret and ret or "Error: failed to add DNS records."
+    end
+  end
+
+  -- error: no *valid records* or we can't add new targets
+  if nhosts == 0 then
+    return false, "Error: failed to add valid DNS records."
+  end
+
+  return true, tab.dump(outtab) ..
+      string.format("Total new targets added to Nmap scan queue: %d.",
+          nhosts)
+end
+
+function dump_zone_info(table, response)
+  for data in responses_iter(response) do
+    local offset, line = 1
+
+    -- number of available records
+    local questions = bto16(data, offset+4)
+    local answers = bto16(data, offset+6)
+    local auth_answers = bto16(data, offset+8)
+    local add_answers = bto16(data, offset+10)
+
+    -- move to beginning of first section
+    offset = offset + 12
+
+    if questions > 1 then
+        return false, 'More then 1 question record, something has gone wrong'
+    end
+
+    if answers == 0 then
+        return false, 'transfer successful but no records'
     end
 
     -- skip over the question section, we don't need it
@@ -309,22 +470,27 @@ function dump_zone_info(table, data)
     end
 
     -- parse all available resource records
-    offset = parse_records(answers, data, table, offset)
-    offset = parse_records(auth_answers, data, table, offset)
-    offset = parse_records(add_answers, data, table, offset)
-    return offset
+    stdnse.print_debug(3,
+        "Script %s: parsing ANCOUNT == %d, NSCOUNT == %d, ARCOUNT == %d",
+        SCRIPT_NAME, answers, auth_answers, add_answers)
+    offset = parse_records_table(answers, data, table, offset)
+    offset = parse_records_table(auth_answers, data, table, offset)
+    offset = parse_records_table(add_answers, data, table, offset)
+  end
+
+  return true
 end
 
 action = function(host, port)
-    local soc, status, data
-    local catch = function() soc:close() end
-    local try = nmap.new_try(catch)
+    local domain, dns_server, dns_port
 
-    local domain, dns_server, dns_port = stdnse.get_script_args(
+    domain, dns_server, dns_port, dns_filter.addall = stdnse.get_script_args(
         {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
         {"dns-zone-transfer.server", "dnszonetransfer.server"},
-        {"dns-zone-transfer.port", "dnszonetransfer.port"}
+        {"dns-zone-transfer.port", "dnszonetransfer.port"},
+        {"dns-zone-transfer.addall", "dnszonetransfer.addall"}
     )
+
     if not dns_port then
         dns_port = 53
     end
@@ -362,12 +528,13 @@ action = function(host, port)
 
     assert(domain)
 
-    soc = nmap.new_socket()
+    local soc = nmap.new_socket()
+    local catch = function() soc:close() end
+    local try = nmap.new_try(catch)
     soc:set_timeout(4000)
     try(soc:connect(dns_server, dns_port))
 
     local req_id = '\222\173'
-    local table = tab.new(3)
     local offset = 1
     local name = build_domain(string.lower(domain))
     local pkt_len = string.len(name) + 16
@@ -383,10 +550,11 @@ action = function(host, port)
     -- multiple packets from a single request
     local response = strbuf.new()
     while true do
-        status, data = soc:receive_bytes(1)
+        local status, data = soc:receive_bytes(1)
         if not status then break end
         response = response .. data
     end
+    soc:close()
 
     local response_str = strbuf.dump(response)
     local length = string.len(response_str)
@@ -397,11 +565,20 @@ action = function(host, port)
         return nil
     end
 
-    -- parse zone information from all returned packets
-    for r in responses_iter(response_str) do
-        dump_zone_info(table, r)
+    -- add axfr results to Nmap scanning queue
+    if target.ALLOW_NEW_TARGETS then
+        local status, ret = add_zone_info(response_str)
+        if not status then
+            return stdnse.format_output(false, ret)
+        end
+        return stdnse.format_output(true, ret)
+    -- dump axfr results
+    else
+        local table = tab.new(3)
+        local status, ret = dump_zone_info(table, response_str)
+        if not status then
+            return stdnse.format_output(false, ret)
+        end
+        return '\n' .. tab.dump(table)
     end
-
-    soc:close()
-    return '\n' .. tab.dump(table)
 end
