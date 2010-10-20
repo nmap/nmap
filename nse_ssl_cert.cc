@@ -373,8 +373,8 @@ static void cert_pem_to_string(lua_State *L, X509 *cert)
 }
 
 /* This is a helper function for l_get_ssl_certificate. It converts the
-   public-key type to a string on the stack. */
-static const char *pkey_type_to_string(lua_State *L, int type)
+   public-key type to a string. */
+static const char *pkey_type_to_string(int type)
 {
   switch (type) {
   case EVP_PKEY_RSA:
@@ -430,7 +430,7 @@ int l_get_ssl_certificate(lua_State *L)
 
   pubkey = X509_get_pubkey(cert);
   lua_newtable(L);
-  lua_pushstring(L, pkey_type_to_string(L, pubkey->type));
+  lua_pushstring(L, pkey_type_to_string(pubkey->type));
   lua_setfield(L, -2, "type");
   lua_pushnumber(L, EVP_PKEY_bits(pubkey));
   lua_setfield(L, -2, "bits");
