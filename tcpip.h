@@ -639,10 +639,6 @@ int gettcpopt_ts(struct tcp_hdr *tcp, u32 *timestamp, u32 *echots);
 /* Maximize the receive buffer of a socket descriptor (up to 500K) */
 void max_rcvbuf(int sd);
 
-/* Maximize the open file descriptor limit for this process go up to the
-   max allowed  */
-int max_sd();
-
 /* Give broadcast permission to a socket */
 void broadcast_socket(int sd);
 

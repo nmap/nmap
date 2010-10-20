@@ -474,4 +474,22 @@ char *grab_next_host_spec(FILE *inputfd, bool random, int argc, char **fakeargv)
 int DnetName2PcapName(const char *dnetdev, char *pcapdev, int pcapdevlen);
 #endif
 
+/** Tries to increase the open file descriptor limit for this process.
+  * @param "desired" is the number of desired max open descriptors. Pass a
+  * negative value to set the maximum allowed.
+  * @return the number of max open descriptors that could be set, or 0 in case
+  * of failure.
+  * @warning if "desired" is less than the current limit, no action is
+  * performed. This function may only be used to increase the limit, not to
+  * decrease it. */
+int set_max_open_descriptors(int desired_max);
+
+/** Returns the open file descriptor limit for this process.
+  * @return the number of max open descriptors or 0 in case of failure. */
+int get_max_open_descriptors();
+
+/* Maximize the open file descriptor limit for this process go up to the
+   max allowed  */
+int max_sd();
+
 #endif /* _NETUTIL_H_ */

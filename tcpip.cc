@@ -108,10 +108,6 @@
 #include <sys/time.h>
 #endif
 
-#if HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>
-#endif
-
 #if HAVE_UNISTD_H
 /* #include <sys/unistd.h> */
 #include <unistd.h>
@@ -1665,45 +1661,6 @@ void max_rcvbuf(int sd) {
 #endif /* WIN32 */
 }
 
-/* Maximize the open file descriptor limit for this process go up to the
-   max allowed  */
-int max_sd() {
-#ifndef WIN32
-  struct rlimit r;
-  static int maxfds = -1;
-
-  if (maxfds > 0)
-    return maxfds;
-
-#if(defined(RLIMIT_NOFILE))
-  if (!getrlimit(RLIMIT_NOFILE, &r)) {
-    r.rlim_cur = r.rlim_max;
-    if (setrlimit(RLIMIT_NOFILE, &r))
-      if (o.debugging)
-        perror("setrlimit RLIMIT_NOFILE failed");
-    if (!getrlimit(RLIMIT_NOFILE, &r)) {
-      maxfds = r.rlim_cur;
-      return maxfds;
-    } else
-      return 0;
-  }
-#endif
-#if(defined(RLIMIT_OFILE) && !defined(RLIMIT_NOFILE))
-  if (!getrlimit(RLIMIT_OFILE, &r)) {
-    r.rlim_cur = r.rlim_max;
-    if (setrlimit(RLIMIT_OFILE, &r))
-      if (o.debugging)
-        perror("setrlimit RLIMIT_OFILE failed");
-    if (!getrlimit(RLIMIT_OFILE, &r)) {
-      maxfds = r.rlim_cur;
-      return maxfds;
-    } else
-      return 0;
-  }
-#endif
-#endif /* WIN32 */
-  return 0;
-}
 
 /* Give broadcast permission to a socket */
 void broadcast_socket(int sd) {

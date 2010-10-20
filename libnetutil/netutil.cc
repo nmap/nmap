@@ -131,6 +131,10 @@
 #define NETINET_IP_H
 #endif
 
+#if HAVE_SYS_RESOURCE_H
+#include <sys/resource.h>
+#endif
+
 #include "netutil.h"
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
@@ -3725,3 +3729,82 @@ char *grab_next_host_spec(FILE *inputfd, bool random, int argc, char **fakeargv)
   return host_spec;
 }
 
+
+
+/** Tries to increase the open file descriptor limit for this process.
+  * @param "desired" is the number of desired max open descriptors. Pass a
+  * negative value to set the maximum allowed.
+  * @return the number of max open descriptors that could be set, or 0 in case
+  * of failure.
+  * @warning if "desired" is less than the current limit, no action is
+  * performed. This function may only be used to increase the limit, not to
+  * decrease it. */
+int set_max_open_descriptors(int desired_max) {
+ #ifndef WIN32
+  struct rlimit r;
+  int maxfds=-1;
+  int flag=0;
+
+  #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
+    
+    #ifdef RLIMIT_NOFILE
+        flag=RLIMIT_NOFILE; /* Linux  */
+    #else
+        flag=RLIMIT_OFILE;  /* BSD    */
+    #endif
+
+    if (!getrlimit(flag, &r)) {
+        /* If current limit is less than the desired, try to increase it */
+        if(r.rlim_cur < (rlim_t)desired_max){
+            if(desired_max<0){
+                r.rlim_cur=r.rlim_max; /* Set maximum */
+            }else{
+                r.rlim_cur = MIN( (int)r.rlim_max, desired_max );
+            }
+            if (setrlimit(flag, &r))
+               ; // netutil_debug("setrlimit(%d, %p) failed", flag, r);
+            if (!getrlimit(flag, &r)) {
+                maxfds = r.rlim_cur;
+                return maxfds;
+            }else {
+                return 0;
+            }
+        }
+    }
+
+  #endif /* (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE)) */
+ #endif /* !WIN32 */
+ return 0;
+}
+
+
+/** Returns the open file descriptor limit for this process.
+  * @return the number of max open descriptors or 0 in case of failure. */
+int get_max_open_descriptors() {
+ #ifndef WIN32
+  struct rlimit r;
+  int flag=0;
+
+  #if (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE))
+    
+    #ifdef RLIMIT_NOFILE
+        flag=RLIMIT_NOFILE; /* Linux  */
+    #else
+        flag=RLIMIT_OFILE;  /* BSD    */
+    #endif
+
+    if (!getrlimit(flag, &r)) {
+        return (int)r.rlim_cur;
+    }
+
+  #endif /* (defined(RLIMIT_OFILE) || defined(RLIMIT_NOFILE)) */
+ #endif /* !WIN32 */
+ return 0;
+}
+
+
+/* Maximize the open file descriptor limit for this process go up to the
+   max allowed  */
+int max_sd() {
+  return set_max_open_descriptors(-1);
+}
