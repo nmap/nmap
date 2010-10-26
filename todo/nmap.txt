@@ -2,8 +2,6 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Process Nmap survey and send out results [Fyodor]
 
-o [Web] Add a page with the Nmap related videos we do have already
-
 o Do new Nmap release with the stuff merged from SoC students and
   other new developments.
   - Need to have our SoC successes writeup for 2010 posted first.
@@ -108,12 +106,6 @@ o nmap.cgi web interface for Nmap
  - We're working on Rainmap hosted scanning system -- see /nmap-exp/rainmap
  - Should have "demo" mode that only allows users to scan their own addy
 
-o Small NSEDoc bug:
-  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
-  \222\173' near the bottom.  This is presumably due to misparsing this
-  line from the script: local req_id = '\222\173'.  Given that we don't
-  use IDs any more, maybe we can just get rid of the functionality.
-
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
   dependencies of Nmap and Zenmap.  It may be instructive to look at
@@ -209,6 +201,8 @@ o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   doesn't need pcap-int.h.  David is going to test whether this makes
   any signficiant difference--we might be able to just remove the
   PcapSetReadTimeout().
+
+o [Web] Add a page with the Nmap related videos we do have already
 
 o [NSE] MSRPC - Improve domain support all around -- in particular,
   let the user give the domain in the format DOMAIN\username or
@@ -697,6 +691,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Small NSEDoc bug:
+  http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
+  \222\173' near the bottom.  This is presumably due to misparsing this
+  line from the script: local req_id = '\222\173'.  Given that we don't
+  use IDs any more, maybe we can just get rid of the functionality.
 
 o [NSE] We should probably enable broadcast scripts to work better by
   (initial thoughts):
