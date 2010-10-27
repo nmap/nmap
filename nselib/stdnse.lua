@@ -23,6 +23,8 @@ local os = os
 local math = math
 local string = string
 
+local io = require 'io'; -- TODO: Remove
+
 local nmap = require "nmap";
 
 local c_funcs = require "stdnse.c";
@@ -394,106 +396,106 @@ end
 --- Returns the current time in milliseconds since the epoch
 -- @return The current time in milliseconds since the epoch
 function clock_ms()
-	return nmap.clock() * 1000
+  return nmap.clock() * 1000
 end
 
 --- Returns the current time in microseconds since the epoch
 -- @return The current time in microseconds since the epoch
 function clock_us()
-	return nmap.clock() * 1000000
+  return nmap.clock() * 1000000
 end
 
 ---Get the indentation symbols at a given level. 
 local function format_get_indent(indent, at_end)
-	local str = ""
-	local had_continue = false
+  local str = ""
+  local had_continue = false
 
-	if(not(at_end)) then
-		str = rep('  ', #indent) -- Was: "|  "
-	else
-		for i = #indent, 1, -1 do
-			if(indent[i] and not(had_continue)) then
-				str = str .. "  " -- Was: "|_ "
-			else
-				had_continue = true
-				str = str .. "  " -- Was: "|  "
-			end
-		end
-	end
+  if(not(at_end)) then
+    str = rep('  ', #indent) -- Was: "|  "
+  else
+    for i = #indent, 1, -1 do
+      if(indent[i] and not(had_continue)) then
+        str = str .. "  " -- Was: "|_ "
+      else
+        had_continue = true
+        str = str .. "  " -- Was: "|  "
+      end
+    end
+  end
 
-	return str
+  return str
 end
 
 -- A helper for format_output (see below).
 local function format_output_sub(status, data, indent)
-	if (#data == 0) then
-		return ""
-	end
+  if (#data == 0) then
+    return ""
+  end
 
-	-- Return a single line of output as-is (assuming it's top-level and a string)
-	if(indent == nil and #data == 1 and type(data) == 'string' and not(data['name']) and not(data['warning'])) then
-		return data[1]
-	end
+  -- Return a single line of output as-is (assuming it's top-level and a string)
+  if(indent == nil and #data == 1 and type(data) == 'string' and not(data['name']) and not(data['warning'])) then
+    return data[1]
+  end
 
-	-- Used to put 'ERROR: ' in front of all lines on error messages
-	local prefix = ""
-	-- Initialize the output string to blank (or, if we're at the top, add a newline)
-	local output = ""
-	if(not(indent)) then
-		output = '\n'
-	end
+  -- Used to put 'ERROR: ' in front of all lines on error messages
+  local prefix = ""
+  -- Initialize the output string to blank (or, if we're at the top, add a newline)
+  local output = ""
+  if(not(indent)) then
+    output = '\n'
+  end
 
-	if(not(status)) then
-		if(nmap.debugging() < 1) then
-			return nil
-		end
-		prefix = "ERROR: "
-	end
+  if(not(status)) then
+    if(nmap.debugging() < 1) then
+      return nil
+    end
+    prefix = "ERROR: "
+  end
 
-	-- If a string was passed, turn it into a table
-	if(type(data) == 'string') then
-		data = {data}
-	end
+  -- If a string was passed, turn it into a table
+  if(type(data) == 'string') then
+    data = {data}
+  end
 
-	-- Make sure we have an indent value
-	indent = indent or {}
+  -- Make sure we have an indent value
+  indent = indent or {}
 
-	for i, value in ipairs(data) do
-		if(type(value) == 'table') then
-			if(value['name']) then
-				if(value['warning'] and nmap.debugging() > 0) then
-					output = output .. format("%s  %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
-				else
-					output = output .. format("%s  %s%s\n", format_get_indent(indent), prefix, value['name'])
-				end
-			elseif(value['warning'] and nmap.debugging() > 0) then
-					output = output .. format("%s  %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
-			end
+  for i, value in ipairs(data) do
+    if(type(value) == 'table') then
+      if(value['name']) then
+        if(value['warning'] and nmap.debugging() > 0) then
+          output = output .. format("%s  %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
+        else
+          output = output .. format("%s  %s%s\n", format_get_indent(indent), prefix, value['name'])
+        end
+      elseif(value['warning'] and nmap.debugging() > 0) then
+          output = output .. format("%s  %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
+      end
 
-			-- Do a shallow copy of indent
-			local new_indent = {}
-			for _, v in ipairs(indent) do
-				insert(new_indent, v)
-			end
+      -- Do a shallow copy of indent
+      local new_indent = {}
+      for _, v in ipairs(indent) do
+        insert(new_indent, v)
+      end
 
-			if(i ~= #data) then
-				insert(new_indent, false)
-			else
-				insert(new_indent, true)
-			end
+      if(i ~= #data) then
+        insert(new_indent, false)
+      else
+        insert(new_indent, true)
+      end
 
-			output = output .. format_output_sub(status, value, new_indent)
-				
-		elseif(type(value) == 'string') then
-			if(i ~= #data) then
-				output = output .. format("%s  %s%s\n", format_get_indent(indent, false), prefix, value)
-			else
-				output = output .. format("%s  %s%s\n", format_get_indent(indent, true), prefix, value)
-			end
-		end
-	end
+      output = output .. format_output_sub(status, value, new_indent)
+        
+    elseif(type(value) == 'string') then
+      if(i ~= #data) then
+        output = output .. format("%s  %s%s\n", format_get_indent(indent, false), prefix, value)
+      else
+        output = output .. format("%s  %s%s\n", format_get_indent(indent, true), prefix, value)
+      end
+    end
+  end
 
-	return output
+  return output
 end
 
 ---Takes a table of output on the commandline and formats it for display to the 
@@ -545,22 +547,22 @@ end
 -- @return <code>nil</code>, if <code>data</code> is empty, otherwise a
 -- multiline string.
 function format_output(status, data, indent)
-	-- If data is nil, die with an error (I keep doing that by accident)
-	assert(data, "No data was passed to format_output()")
+  -- If data is nil, die with an error (I keep doing that by accident)
+  assert(data, "No data was passed to format_output()")
 
-	-- Don't bother if we don't have any data
-	if (#data == 0) then
-		return nil
-	end
+  -- Don't bother if we don't have any data
+  if (#data == 0) then
+    return nil
+  end
 
-	local result = format_output_sub(status, data, indent)
+  local result = format_output_sub(status, data, indent)
 
-	-- Check for an empty result
-	if(result == nil or #result == "" or result == "\n" or result == "\n") then
-		return nil
-	end
+  -- Check for an empty result
+  if(result == nil or #result == "" or result == "\n" or result == "\n") then
+    return nil
+  end
 
-	return result
+  return result
 end
 
 -- Get the value of a script argument, or nil if the script argument was not
@@ -617,6 +619,113 @@ function get_script_args (...)
 
   return unpack(args, 1, select("#", ...))
 end
+
+---Get the best possible hostname for the given host. This can be the target as given on 
+-- the commandline, the reverse dns name, or simply the ip address. 
+--@param host The host table (or a string that'll simply be returned). 
+--@return The best possible hostname, as a string. 
+function get_hostname(host)
+  if type(host) == "table" then
+    return host.targetname or ( host.name ~= '' and host.name ) or host.ip
+  else
+    return host
+  end
+end
+
+---Retrieve an item from the registry, checking if each sub-key exists. If any key doesn't
+-- exist, return nil. 
+function registry_get(subkeys)
+  local registry = nmap.registry
+  local i = 1
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      return nil
+    end
+
+    registry = registry[subkeys[i]]
+
+    i = i + 1
+  end
+
+  return registry
+end
+
+--Check if the given element exists in the registry. If 'key' is nil, it isn't checked. 
+function registry_exists(subkeys, key, value)
+  local subkey = registry_get(subkeys)
+
+  if(not(subkey)) then
+    return false
+  end
+
+  for k, v in pairs(subkey) do
+    if((key == nil or key == k) and (v == value)) then -- TODO: if 'value' is a table, this fails
+      return true
+    end
+  end
+
+  return false
+end
+
+---Add an item to an array in the registry, creating all sub-keys if necessary. 
+-- For example, calling:
+-- <code>registry_add_array({'192.168.1.100', 'www', '80', 'pages'}, 'index.html')</code>
+-- Will create nmap.registry['192.168.1.100'] as a table, if necessary, then add a table
+-- under the 'www' key, and so on. 'pages', finally, is treated as an array and the value
+-- given is added to the end. 
+function registry_add_array(subkeys, value, allow_duplicates)
+  local registry = nmap.registry
+  local i = 1
+
+  -- Unless the user wants duplicates, make sure there aren't any
+  if(allow_duplicates ~= true) then
+    if(registry_exists(subkeys, nil, value)) then
+      return
+    end
+  end
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      registry[subkeys[i]] = {}
+    end
+    registry = registry[subkeys[i]]
+    i = i + 1
+  end
+
+  -- Make sure the value isn't already in the table
+  for _, v in pairs(registry) do
+    if(v == value) then
+      return
+    end
+  end
+  insert(registry, value)
+end
+
+---Similar to <code>registry_add_array</code>, except instead of adding a value to the
+-- end of an array, it adds a key:value pair to the table. 
+function registry_add_table(subkeys, key, value)
+  local registry = nmap.registry
+  local i = 1
+
+  -- Unless the user wants duplicates, make sure there aren't any
+  if(allow_duplicates ~= true) then
+    if(registry_exists(subkeys, key, value)) then
+      return
+    end
+  end
+
+  while(subkeys[i]) do
+    if(not(registry[subkeys[i]])) then
+      registry[subkeys[i]] = {}
+    end
+    registry = registry[subkeys[i]]
+    i = i + 1
+  end
+
+  registry[key] = value
+end
+
 
 --- This function allows you to create worker threads that may perform
 -- network tasks in parallel with your script thread.

@@ -1,10 +1,15 @@
 description = [[
 Enumerates directories used by popular web applications and servers.
 
-This parses fingerprint files that are properly formatted. Multiple
-files are included with Nmap, including:
-* <code>http-fingerprints</code>: These attempt to find common files and folders.
-* <code>yokoso-fingerprints</code>: These are application-specific fingerprints, designed for finding the presense of specific applications/hardware, including Sharepoint, Forigate's Web interface, Arcsight SmartCollector appliances, Outlook Web Access, etc. These are from the Yokoso project, by InGuardians, and included with permission from Kevin Johnson (http://seclists.org/nmap-dev/2009/q3/0685.html). 
+This parses a fingerprint file that's formatted in a way that's compatible with the Nikto Web application
+scanner. This script, however, takes it one step further by building in advanced pattern matching as well
+as having the ability to identify specific versions of Web applications. 
+
+Currently, the database can be found under Nmap's directory in the nselib/data folder. The file is called
+http-fingerprints and has a long description of its functionality in the file header. 
+
+Many of the finger prints were discovered by me (Ron Bowes), and a number of them are from the Yokoso
+project, used with permission from Kevin Johnson (http://seclists.org/nmap-dev/2009/q3/0685.html). 
 
 Initially, this script attempts to access two different random files in order to detect servers
 that don't return a proper 404 Not Found status. In the event that they return 200 OK, the body
@@ -17,25 +22,18 @@ this script will also abort. If the root folder has disappeared or requires auth
 is little hope of finding anything inside it. 
 
 By default, only pages that return 200 OK or 401 Authentication Required are displayed. If the
-<code>displayall</code> script argument is set, however, then all results will be displayed (except
-for 404 Not Found and the status code returned by the random files). 
+<code>http-enum.displayall</code> script argument is set, however, then all results will be displayed (except
+for 404 Not Found and the status code returned by the random files). Entries in the http-fingerprints
+database can specify their own criteria for accepting a page as valid. 
+
 ]]
 
 ---
--- @args displayall Set to <code>1</code> or <code>true</code> to display all status codes
--- that may indicate a valid page, not just 200 OK and 401
--- Authentication Required pages. Although this is more likely to find
--- certain hidden folders, it also generates far more false positives. 
--- @args limit Limit the number of folders to check. This option is
--- useful if using a list from, for example, the DirBuster projects
--- which can have more than 80,000 entries. 
--- @args fingerprints Specify a different file to read fingerprints
--- from. This will be read instead of the default files. 
--- @args path The base path to prepend to each request. Leading/trailing
--- slashes are not required. 
--- @args variations Set to <code>1</code> or <code>true</code> to
--- attempt variations on the files, adding prefixes and suffixes such as
--- <code>.bak</code>, <code>~</code>, and <code>Copy of </code>.
+-- @args http-enum.basepath         The base path to prepend to each request. Leading/trailing slashes are ignored. 
+-- @args http-enum.displayall       Set this argument to display all status codes that may indicate a valid page, not
+--                                  just 200 OK and 401 Authentication Required pages. Although this is more likely
+--                                  to find certain hidden folders, it also generates far more false positives. 
+-- @args http-enum.fingerprintfile  Specify a different file to read fingerprints from. 
 --
 -- @output
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
@@ -60,18 +58,16 @@ require 'http'
 require 'shortport'
 require 'stdnse'
 
--- List of fingerprint files
-local fingerprint_files = { "http-fingerprints", "yokoso-fingerprints" }
-if(nmap and nmap.registry and nmap.registry.args and nmap.registry.args.fingerprints ~= nil) then
-	-- Specifying multiple entries in a table doesn't seem to work
-	if(type(nmap.registry.args.fingerprints) == "table") then
-		fingerprint_files = nmap.registry.args.fingerprints
-	else
-		fingerprint_files = { nmap.registry.args.fingerprints }
-	end
-end
-
 portrule = shortport.http
+
+-- TODO
+-- o Automatically convert HEAD -> GET if the server doesn't support HEAD
+-- o Add variables for common extensions, common CGI extensions, etc that expand the probes
+
+-- File extensions (TODO: Implement this)
+local cgi_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi' }
+
+local common_ext = { 'php', 'asp', 'aspx', 'jsp', 'pl', 'cgi', 'css', 'js', 'htm', 'html' }
 
 ---Convert the filename to backup variations. These can be valuable for a number of reasons. 
 -- First, because they may not have the same access restrictions as the main version (file.php 
@@ -109,13 +105,6 @@ local function get_variations(filename)
 		table.insert(variations, bare .. "2" .. extension)
 	end
 
-	-- Some compressed formats
-	table.insert(variations, filename .. ".zip")
-	table.insert(variations, filename .. ".tar")
-	table.insert(variations, filename .. ".tar.gz")
-	table.insert(variations, filename .. ".tgz")
-	table.insert(variations, filename .. ".tar.bz2")
-
 
 	-- Some Windowsy things
 	local onlyname = string.sub(filename, 2)
@@ -146,18 +135,25 @@ local function get_variations(filename)
 		end
 	end
 
+	-- Some compressed formats (we don't want a trailing '/' on these, so they go after the loop)
+	table.insert(variations, filename .. ".zip")
+	table.insert(variations, filename .. ".tar")
+	table.insert(variations, filename .. ".tar.gz")
+	table.insert(variations, filename .. ".tgz")
+	table.insert(variations, filename .. ".tar.bz2")
+
+
+
 	return variations
 end
 
 ---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. 
 --
 --@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>. 
-local function get_fingerprints()
+local function get_fingerprints(fingerprint_file)
 	local entries  = {}
-	local PREAUTH  = "# Pre-Auth"
-	local POSTAUTH = "# Post-Auth"
-
 	local i
+	local total_count = 0 -- Used for 'limit'
 
 	-- Check if we've already read the file
 	-- There might be a race condition here, where multiple scripts will read the file and set this variable, but the impact
@@ -167,62 +163,165 @@ local function get_fingerprints()
 		return nmap.registry.http_fingerprints
 	end
 
-	for i = 1, #fingerprint_files, 1 do
-		local count = 0
+	-- Try and find the file; if it isn't in Nmap's directories, take it as a direct path
+	local filename_full = nmap.fetchfile('nselib/data/' .. fingerprint_file)
+	if(not(filename_full)) then
+		filename_full = fingerprint_file
+	end
 
-		-- Try using the root path, if possible
-		local filename = fingerprint_files[i]
-		local filename_full = nmap.fetchfile(filename)
+	stdnse.print_debug("http-enum: Loading fingerprint database: %s", filename_full)
+	local file = loadfile(filename_full)
+	if(not(file)) then
+		stdnse.print_debug("http-enum: Couldn't load configuration file: %s", filename_full)
+		return false, "Couldn't load fingerprint file: " .. filename_full
+	end
 
-		if(filename_full == nil) then
-			-- If the root path fails, try looking in the nselib/data directory
-			filename = "nselib/data/" .. fingerprint_files[i]
-			filename_full = nmap.fetchfile(filename)
+	setfenv(file, setmetatable({fingerprints = {}; }, {__index = _G}))
+	file()
+
+	local fingerprints = getfenv(file)["fingerprints"]
+
+	-- Sanity check our file to ensure that all the fields were good. If any are bad, we 
+	-- stop and don't load the file. 
+	for i, fingerprint in pairs(fingerprints) do
+		-- Make sure we have a valid index
+		if(type(i) ~= 'number') then
+			return false, "The 'fingerprints' table is an array, not a table; all indexes should be numeric"
 		end
-	
-		if(filename_full == nil) then
-			stdnse.print_debug(1, "http-enum: Couldn't find fingerprints file: %s", filename)
-		else
-			stdnse.print_debug(1, "http-enum: Attempting to parse fingerprint file %s", filename)
 
-			local product = nil
-			for line in io.lines(filename_full) do
-				-- Ignore "Pre-Auth", "Post-Auth", and blank lines
-				if(string.sub(line, 1, #PREAUTH) ~= PREAUTH and string.sub(line, 1, #POSTAUTH) ~= POSTAUTH and #line > 0) then
-					-- Commented lines indicate products
-					if(string.sub(line, 1, 1) == "#") then
-						product = string.sub(line, 3)
-					else
-						table.insert(entries, {checkdir=line, checkdesc=product})
-						count = count + 1
+		-- Make sure they have either a string or a table of probes
+		if(not(fingerprint.probes) or
+			(type(fingerprint.probes) ~= 'table' and type(fingerprint.probes) ~= 'string') or
+			(type(fingerprint.probes) == 'table' and #fingerprint.probes == 0)) then
+			return false, "Invalid path found for fingerprint " .. i
+		end
 
-						-- If the user requested variations, add those as well
-						if(nmap.registry.args.variations == '1' or nmap.registry.args.variations == 'true') then
-							local variations = get_variations(line)
-							for _, variation in ipairs(variations) do
-								table.insert(entries, {checkdir=variation, checkdesc=product .. " (variation)"})
-							end
-						end
-					end
-				end
+		-- Make sure fingerprint.path is a table
+		if(type(fingerprint.probes) == 'string') then
+			fingerprint.probes = {fingerprint.probes}
+		end
+
+		-- Make sure the elements in the probes array are strings or arrays
+		for i, probe in pairs(fingerprint.probes) do
+			-- Make sure we have a valid index
+			if(type(i) ~= 'number') then
+				return false, "The 'probes' table is an array, not a table; all indexes should be numeric"
 			end
-		
-			stdnse.print_debug(1, "http-enum: Added %d entries from file %s", count, filename)
+
+			-- Convert the probe to a table if it's a string
+			if(type(probe) == 'string') then
+				fingerprint.probes[i] = {path=fingerprint.probes[i]}
+				probe = fingerprint.probes[i]
+			end
+
+			-- Make sure the probes table has a 'path'
+			if(not(probe['path'])) then
+				return false, "The 'probes' table requires each element to have a 'path'."
+			end
+
+			-- If they didn't set a method, set it to 'GET'
+			if(not(probe['method'])) then
+				probe['method'] = 'GET'
+			end
+
+			-- Make sure the method's a string
+			if(type(probe['method']) ~= 'string') then
+				return false, "The 'method' in the probes file has to be a string"
+			end
+		end
+
+		-- Ensure that there's a 'matches' field
+		if(not(fingerprint.matches)) then
+			return false, "'matches' field has to be an array for path " .. path
+		end
+
+		-- Ensure that matches is an array
+		if(type(fingerprint.matches) ~= 'table') then
+			return false, "'matches' field has to be a table for path " .. path
+		end
+
+		-- Loop through the matches
+		for i, match in pairs(fingerprint.matches) do
+			-- Make sure we have a valid index
+			if(type(i) ~= 'number') then
+				return false, "The 'path' table is an array, not a table; all indexes should be numeric"
+			end
+
+			-- Check that every element in the table is an array
+			if(type(match) ~= 'table') then
+				return false, "Every element of 'matches' field has to be a table for path " .. path
+			end
+
+			-- Check the output field
+			if(match['output'] == nil or type(match['output']) ~= 'string') then
+				return false, "The 'output' field in 'matches' has to be present and a string"
+			end
+
+			-- Check the 'match' and 'dontmatch' fields, if present
+			if((match['match'] and type(match['match']) ~= 'string') or (match['dontmatch'] and type(match['dontmatch']) ~= 'string')) then
+				return false, "The 'match' and 'dontmatch' fields in 'matches' have to be strings, if they exist"
+			end
+
+			-- Change blank 'match' strings to '.*' so they match everything
+			if(not(match['match']) or match['match'] == '') then
+				match['match'] = '(.*)'
+			end
+		end
+
+		-- Make sure the severity is an integer between 1 and 4. Default it to 1. 
+		if(fingerprint.severity and (type(fingerprint.severity) ~= 'number' or fingerprint.severity < 1 or fingerprint.severity > 4)) then
+			return false, "The 'severity' field has to be an integer between 1 and 4 for path " .. path
+		else
+			fingerprint.severity = 1
+		end
+
+		-- Make sure ignore_404 is a boolean. Default it to false. 
+		if(fingerprint.ignore_404 and type(fingerprint.ignore_404) ~= 'boolean') then
+			return false, "The 'ignore_404' field has to be a boolean for path " .. path
+		else
+			fingerprint.ignore_404 = false
 		end
 	end
 
+--	-- If the user wants to try variations, add them
+--	if(try_variations) then
+--		-- Get a list of all variations for this directory
+--		local variations = get_variations(entry['checkdir'])
+--
+--		-- Make a copy of the entry for each of them
+--		for _, variation in ipairs(variations) do
+--			new_entry = {}
+--			for k, v in pairs(entry) do
+--				new_entry[k] = v
+--			end
+--			new_entry['checkdesc'] = new_entry['checkdesc'] .. " (variation)"
+--			new_entry['checkdir'] = variation
+--			table.insert(entries, new_entry)
+--			count = count + 1
+--		end
+--	end
+
 	-- Cache the fingerprints for other scripts, so we aren't reading the files every time
-	nmap.registry.http_fingerprints = entries
-	
-	return entries
+--	nmap.registry.http_fingerprints = fingerprints
+
+	return true, fingerprints
 end
 
 action = function(host, port)
-
 	local response = {}
 
+	-- Read the script-args, keeping the old ones for reverse compatibility
+	local basepath         = stdnse.get_script_args({'http-enum.basepath',        'path'})         or '/'
+	local displayall       = stdnse.get_script_args({'http-enum.displayall',      'displayall'})   or false
+	local fingerprint_file = stdnse.get_script_args({'http-enum.fingerprintfile', 'fingerprints'}) or 'http-fingerprints.lua'
+--	local try_variations   = stdnse.get_script_args({'http-enum.tryvariations',   'variations'})   or false
+--	local limit            = tonumber(stdnse.get_script_args({'http-enum.limit', 'limit'})) or -1
+
 	-- Add URLs from external files
-	local URLs = get_fingerprints()
+	local status, fingerprints = get_fingerprints(fingerprint_file)
+	if(not(status)) then
+		return stdnse.format_output(false, fingerprints)
+	end
 
 	-- Check what response we get for a 404
 	local result, result_404, known_404 = http.identify_404(host, port)
@@ -230,90 +329,111 @@ action = function(host, port)
 		return stdnse.format_output(false, result_404)
 	end
 
-	-- Check if we can use HEAD requests
-	local use_head = http.can_use_head(host, port, result_404)
-
-	-- If we can't use HEAD, make sure we can use GET requests
-	if(use_head == false) then
-		local result, err = http.can_use_get(host, port)
-		if(result == false) then
-			return stdnse.format_output(false, err)
-		end
-	end
-
-	-- Get the base path, if the user entered one
-	local paths = {''}
-	if(nmap.registry.args.path ~= nil) then
-		if(type(nmap.registry.args.path) == 'table') then
-			paths = nmap.registry.args.path
-		else
-			paths = { nmap.registry.args.path }
-		end
-	end
-
 	-- Queue up the checks
+	local all = {}
 
-	for j = 1, #paths, 1 do
-		local all = {}
-		local path = paths[j]
+	-- Remove trailing slash, if it exists
+	if(#basepath > 1 and string.sub(basepath, #basepath, #basepath) == '/') then
+		basepath = string.sub(basepath, 1, #basepath - 1)
+	end
 
-		-- Remove trailing slash, if it exists
-		if(#path > 1 and string.sub(path, #path, #path) == '/') then
-			path = string.sub(path, 1, #path - 1)
+	-- Add a leading slash, if it doesn't exist
+	if(#basepath <= 1) then
+		basepath = ''
+	else
+		if(string.sub(basepath, 1, 1) ~= '/') then
+			basepath = '/' .. basepath
 		end
+	end
 
-		-- Add a leading slash, if it doesn't exist
-		if(#path <= 1) then
-			path = ''
-		else
-			if(string.sub(path, 1, 1) ~= '/') then
-				path = '/' .. path
-			end
+	-- Loop through the fingerprints
+	stdnse.print_debug(1, "http-enum: Searching for entries under path '%s' (change with 'http-enum.basepath' argument)", basepath)
+	for i = 1, #fingerprints, 1 do
+		-- Add each path. The order very much matters here. 
+		for j = 1, #fingerprints[i].probes, 1 do
+			all = http.addPipeline(host, port, basepath .. fingerprints[i].probes[j].path, nil, nil, all, fingerprints[i].probes[j].method or 'GET')
 		end
+	end
 
-		-- Loop through the URLs
-		stdnse.print_debug(1, "http-enum.nse: Searching for entries under path '%s' (change with 'path' argument)", path)
-		for i = 1, #URLs, 1 do
-			if(nmap.registry.args.limit and i > tonumber(nmap.registry.args.limit)) then
-				stdnse.print_debug(1, "http-enum.nse: Reached the limit (%d), stopping", nmap.registry.args.limit)
-				break;
-			end
+	-- Perform all the requests. 
+	local results = http.pipeline(host, port, all, nil)
 
-			if(use_head) then
-				all = http.pHead(host, port, path .. URLs[i].checkdir, nil, nil, all)
-			else
-				all = http.pGet(host, port, path .. URLs[i].checkdir, nil, nil, all)
-			end
-		end
+	-- Check for http.pipeline error
+	if(results == nil) then
+		stdnse.print_debug(1, "http-enum: http.pipeline encountered an error")
+		return stdnse.format_output(false, "http.pipeline encountered an error")
+	end
 
-		local results = http.pipeline(host, port, all, nil)
-	
-		-- Check for http.pipeline error
-		if(results == nil) then
-			stdnse.print_debug(1, "http-enum.nse: http.pipeline returned nil")
-			return stdnse.format_output(false, "http.pipeline returned nil")
-		end
-	
-		for i, data in pairs(results) do
-			if(http.page_exists(data, result_404, known_404, path .. URLs[i].checkdir, nmap.registry.args.displayall)) then
-				-- Build the description
-				local description = string.format("%s", path .. URLs[i].checkdir)
-				if(URLs[i].checkdesc) then
-					description = string.format("%s: %s", path .. URLs[i].checkdir, URLs[i].checkdesc)
+	-- Loop through the fingerprints. Note that for each fingerprint, we may have multiple results
+	local j = 1
+	for i, fingerprint in ipairs(fingerprints) do
+
+		-- Loop through the paths for each fingerprint in the same order we did the requests. Each of these will
+		-- have one result, so increment the result value at each iteration
+		for _, probe in ipairs(fingerprint.probes) do
+			local result = results[j]
+			j = j + 1
+
+			if(result) then
+				local path = basepath .. probe['path']
+				local good = true
+				local output = nil
+				-- Unless this check said to ignore 404 messages, check if we got a valid page back using a known 404 message. 
+				if(fingerprint.ignore_404 ~= true and not(http.page_exists(result, result_404, known_404, path, displayall))) then
+					good = false
+				else
+					-- Loop through our matches table and see if anything matches our result
+					for _, match in ipairs(fingerprint.matches) do
+						if(match.match) then
+							local result, matches = http.response_contains(result, match.match)
+							if(result) then
+								output = match.output
+								good = true
+								for k, value in ipairs(matches) do
+									output = string.gsub(output, '\\' .. k, matches[k])
+									end
+							end
+						else
+							output = match.output
+						end
+
+						-- If nothing matched, turn off the match
+						if(not(output)) then
+							good = false
+						end
+
+						-- If we match the 'dontmatch' line, we're not getting a match
+						if(match.dontmatch and match.dontmatch ~= '' and http.response_contains(result, match.dontmatch)) then
+							output = nil
+							good = false
+						end
+
+						-- Break the loop if we found it
+						if(output) then
+							break
+						end
+					end
 				end
-	
-				-- Build the status code, if it isn't a 200
-				local status = ""
-				if(data.status ~= 200) then
-					status = " (" .. http.get_status_string(data) .. ")"
-				end
-	
-				stdnse.print_debug("Found a valid page! (%s)%s", description, status)
 
-				table.insert(response, string.format("%s%s", description, status))	
+				if(good) then
+					-- Save the path in the registry
+					http.save_path(stdnse.get_hostname(host), port.number, path, result.status)
+
+					-- Add the path to the output
+					output = string.format("%s: %s", path, output)
+
+					-- Build the status code, if it isn't a 200
+					if(result.status ~= 200) then
+						output = output .. " (" .. http.get_status_string(result) .. ")"
+					end
+
+					stdnse.print_debug(1, "Found a valid page! %s", output)
+
+					table.insert(response, output)	
+				end
 			end
 		end
 	end
-		
+
 	return stdnse.format_output(true, response)
 end

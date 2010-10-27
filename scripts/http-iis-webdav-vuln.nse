@@ -105,16 +105,16 @@ local function go(host, port)
 	if(nmap.registry.args.folderdb ~= nil) then
 		folder_file = nmap.fetchfile(nmap.registry.args.folderdb)
 	else
-		folder_file = nmap.fetchfile('nselib/data/folders.lst')
+		folder_file = nmap.fetchfile('nselib/data/http-folders.txt')
 	end
 
 	if(folder_file == nil) then
-		return false, "Couldn't find folders.lst (should be in nselib/data)"
+		return false, "Couldn't find http-folders.txt (should be in nselib/data)"
 	end
 
 	local file = io.open(folder_file, "r")
 	if not file then
-		return false, "Couldn't find folders.lst (should be in nselib/data)"
+		return false, "Couldn't find http-folders.txt (should be in nselib/data)"
 	end
 
 	while true do
