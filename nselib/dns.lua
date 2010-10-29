@@ -176,7 +176,7 @@ local function processResponse( response, dname, dtype, options )
        
        -- if we got a CNAME, ask for the CNAME
        if type(next_server) == 'table' and next_server.cname then
-          options.tries = option.tries - 1
+          options.tries = options.tries - 1
           return query(next_server.cname, options)
        end
 
@@ -185,7 +185,7 @@ local function processResponse( response, dname, dtype, options )
        -- it isn't the one we just asked
        if next_server and next_server ~= options.host and options.tries > 1 then 
           options.host = next_server
-          options.tries = option.tries - 1
+          options.tries = options.tries - 1
           return query(dname, options) 
        end
     end
