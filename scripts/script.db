@@ -140,6 +140,7 @@ Entry { filename = "snmp-win32-users.nse", categories = { "default", "discovery"
 Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }
 Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }

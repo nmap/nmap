@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the ssh2-enum-algos script which reports the number of
+  algorithms the target SSH2 server supports, by type. If verbosity
+  is set, then the offered algorithms are listed. Output is reduced
+  for identical "client to server" and "server to client" lists by
+  using a single combined list. [Kris]
+
 o [NSE] Made dns-zone-transfer script able to add new discovered DNS
   records onto Nmap scanning queue. [Djalal]
 
