@@ -183,7 +183,7 @@ local function processResponse( response, dname, dtype, options )
        -- only ask next server in authority, if 
        -- we got an auth dns and
        -- it isn't the one we just asked
-       if next_server and next_server ~= host and options.tries > 1 then 
+       if next_server and next_server ~= options.host and options.tries > 1 then 
           options.host = next_server
           options.tries = option.tries - 1
           return query(dname, options) 
