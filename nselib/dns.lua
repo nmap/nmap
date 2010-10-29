@@ -154,7 +154,7 @@ local function getAuthDns(rPkt)
          end
          if #hosts > 0 then return hosts end
       end
-      local next = query(rPkt.auth[1].domain, {dtype = "A" })
+      local status, next = query(rPkt.auth[1].domain, {dtype = "A" })
       return next
    end
    return false
