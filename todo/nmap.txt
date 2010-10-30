@@ -39,6 +39,10 @@ o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o X.org libraries (Mac version links to them)
  o libdnet
 
+o Update our distribution build systems and documentation to use
+  Visual C++ 2010 Express rather than the 2008 version.  See
+  http://www.microsoft.com/express/Windows/
+
 o Create Nmap wiki
  o Decide on domain name
  o Include insecure Chrome
