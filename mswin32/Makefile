@@ -22,7 +22,7 @@ winbuild:
 	rm -rf nmap-$(NMAP_VERSION)
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
 	mkdir nmap-$(NMAP_VERSION)
-	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-db nmap-payloads nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl nse_main.lua ../nmap_performance.reg ../../README-WIN32 ../../docs/LICENSES ../nmap-$(NMAP_VERSION)/
+	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-db nmap-payloads nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl nse_main.lua ../nmap_performance.reg ../../README-WIN32 ../../docs/3rd-party-licenses.txt ../nmap-$(NMAP_VERSION)/
 	cp -f OpenSSL/bin/*.dll ./nmap-$(NMAP_VERSION)/
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
@@ -32,7 +32,7 @@ winbuild:
 	cd Release && for f in `find nselib -name .svn -prune -o -type f -print`; do \
 		cp -f $$f ../nmap-$(NMAP_VERSION)/$$f; \
 	done
-	cd Release && cp -r ../../docs/LGPL-2 ../../docs/LGPL-2.1 ../../docs/MPL-1.1 ../nmap-$(NMAP_VERSION)/
+	cd Release && cp -r ../../docs/licenses ../nmap-$(NMAP_VERSION)/
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)

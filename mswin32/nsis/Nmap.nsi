@@ -191,10 +191,8 @@ Section "Nmap Core Files" SecCore
   File ..\..\docs\nmap.xsl 
   File ..\nmap_performance.reg 
   File ..\..\README-WIN32 
-  File ..\..\docs\LICENSES
-  File ..\..\docs\LGPL-2
-  File ..\..\docs\LGPL-2.1
-  File ..\..\docs\MPL-1.1
+  File ..\..\docs\3rd-party-licenses.txt
+  File /r ..\..\docs\licenses
   File libeay32.dll
   File ssleay32.dll
   File /r /x mswin32 /x .svn /x ncat ..\..\scripts

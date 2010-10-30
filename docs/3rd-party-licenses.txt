@@ -45,10 +45,10 @@ Zenmap and Ndiff require:
 
 The Windows and Mac OS X binary packages include bundled versions of:
  o GLib, GTK+, ATK, Pango: These libraries are licensed under the GNU
-   LGPL 2, a copy of which is in this directory in the file LGPL-2.
+   LGPL 2, a copy of which is in the file licenses/LGPL-2.
    http://www.gtk.org/
  o Cairo: graphics library. Dual-licensed under the GNU LGPL 2.1 and the
-   MPL 1.1. See the file MPL-1.1 in this directory.
+   MPL 1.1. See the files licenses/LGPL-2.1 and licenses/MPL-1.1.
    http://www.cairographics.org/
  o libgailutil: Accessibility support for GTK+.
  o libpng, jpeg, LibTIFF: Image file format libraries used by GTK+.
