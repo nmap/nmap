@@ -30,8 +30,7 @@ PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
-EXTRA_DIST_FILES = $(addprefix $(IMAGE_STAGING_DIR)/,README LICENSES)
-LICENSES_FILES = ../COPYING ../docs/LICENSES ../docs/LGPL-2 ../docs/LGPL-2.1
+EXTRA_DIST = README ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
 CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 
@@ -58,12 +57,13 @@ CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
 
-$(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME) $(EXTRA_DIST_FILES)
+$(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@
 	hdiutil create -imagekey zlib-level=9 -srcfolder $(IMAGE_STAGING_DIR) $@
 
-$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-ndiff stage-zenmap stage-nping README COPYING.formatted
+$(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-ndiff stage-zenmap stage-nping COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
+	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
 	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
 
 export-%:
@@ -103,14 +103,6 @@ stage-ndiff: export-$(NDIFF_BUILD_DIR)
 	make -C $(NDIFF_BUILD_DIR) build-ndiff
 	rm -rf $(NDIFF_STAGING_DIR)
 	make -C $(NDIFF_BUILD_DIR) install-ndiff DESTDIR="`pwd`/$(NDIFF_STAGING_DIR)"
-
-$(IMAGE_STAGING_DIR)/README:
-	mkdir -p $(IMAGE_STAGING_DIR)
-	cp -f README $(IMAGE_STAGING_DIR)/
-
-$(IMAGE_STAGING_DIR)/LICENSES:
-	mkdir -p $@
-	cp -f $(LICENSES_FILES) $@/
 
 COPYING.formatted:
 # Use the license formatter from the Windows installer.
