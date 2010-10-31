@@ -2285,8 +2285,8 @@ Helper = {
 
     status, mountd = Helper.GetProgramInfo( host, port, "mountd")
     if not status then
-      stdnse.print_debug(1, "rpc.Helper.MountPath: %s", mountd)
-      return nil, mountd
+      stdnse.print_debug(4, "rpc.Helper.MountPath: GetProgramInfo failed")
+      return nil, "rpc.Helper.MountPath: GetProgramInfo failed"
     end
 
     mnt_comm = Comm:new("mountd", mountd.version)
@@ -2346,8 +2346,8 @@ Helper = {
 
     status, nfsd = Helper.GetProgramInfo(host, port, "nfs")
     if not status then
-      stdnse.print_debug(4, "rpc.Helper.NfsProc: %s", nfsd)
-      return nil, nfsd
+      stdnse.print_debug(4, "rpc.Helper.NfsOpen: GetProgramInfo failed")
+      return nil, "rpc.Helper.NfsOpen: GetProgramInfo failed"
     end
 
     nfs_comm = Comm:new('nfs', nfsd.version)
@@ -2396,14 +2396,14 @@ Helper = {
   
     status, mountd = Helper.GetProgramInfo( host, port, "mountd", 2)
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", mountd)
-      return status, mountd
+      stdnse.print_debug(4, "rpc.Helper.ExportStats: GetProgramInfo failed")
+      return status, "rpc.Helper.ExportStats: GetProgramInfo failed"
     end
 
     status, nfsd = Helper.GetProgramInfo( host, port, "nfs", 2)
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.ExportStats: %s", nfsd)
-      return status, nfsd
+      stdnse.print_debug(4, "rpc.Helper.ExportStats: GetProgramInfo failed")
+      return status, "rpc.Helper.ExportStats: GetProgramInfo failed"
     end
     mnt_comm = Comm:new('mountd', mountd.version)
     nfs_comm = Comm:new('nfs', nfsd.version)
@@ -2468,14 +2468,14 @@ Helper = {
 
     status, mountd = Helper.GetProgramInfo( host, port, "mountd")
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.Dir: %s", mountd)
-      return status, mountd
+      stdnse.print_debug(4, "rpc.Helper.Dir: GetProgramInfo failed")
+      return status, "rpc.Helper.Dir: GetProgramInfo failed"
     end
 
     status, nfsd = Helper.GetProgramInfo( host, port, "nfs")
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.Dir: %s", nfsd)
-      return status, nfsd
+      stdnse.print_debug(4, "rpc.Helper.Dir: GetProgramInfo failed")
+      return status, "rpc.Helper.Dir: GetProgramInfo failed"
     end
 
     mnt_comm = Comm:new('mountd', mountd.version)
@@ -2544,14 +2544,14 @@ Helper = {
 
     status, mountd = Helper.GetProgramInfo( host, port, "mountd")
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", mountd)
-      return status, mountd
+      stdnse.print_debug(4, "rpc.Helper.GetAttributes: GetProgramInfo failed")
+      return status, "rpc.Helper.GetAttributes: GetProgramInfo failed"
     end
 
     status, nfsd = Helper.GetProgramInfo( host, port, "nfs")
     if ( not(status) ) then
-      stdnse.print_debug(4, "rpc.Helper.GetAttributes: %s", nfsd)
-      return status, nfsd
+      stdnse.print_debug(4, "rpc.Helper.GetAttributes: GetProgramInfo failed")
+      return status, "rpc.Helper.GetAttributes: GetProgramInfo failed"
     end
   
     mnt_comm, result = Comm:new('mountd', mountd.version)
