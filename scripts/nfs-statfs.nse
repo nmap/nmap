@@ -90,7 +90,7 @@ local function report(nfs, tables)
                        tab_avail, tab_use, tab_bs)
     for _, t in ipairs(tables) do
       tab.nextrow(outtab)
-      tab.addrow(outtab, ("  %s"):format(t.filesystem), t.size,
+      tab.addrow(outtab, "  "..t.filesystem, t.size,
                          t.used, t.available, t.use, t.bsize)
     end
   elseif nfs.version == 3 then
@@ -100,9 +100,8 @@ local function report(nfs, tables)
                        tab_avail, tab_use, tab_maxfs, tab_linkmax)
     for _, t in ipairs(tables) do
       tab.nextrow(outtab)
-      tab.addrow(outtab, ("  %s"):format(t.filesystem), t.size,
-                         t.used, t.available, t.use, t.maxfilesize,
-                         t.linkmax)
+      tab.addrow(outtab, "  "..t.filesystem, t.size, t.used,
+                        t.available, t.use, t.maxfilesize, t.linkmax)
     end
   end
 
@@ -183,7 +182,7 @@ local function nfs_filesystem_info(nfs, mount, filesystem)
 end
 
 action = function(host, port)
-  local o, fs_info, mounts, status = {}, {}, {}, {}
+  local fs_info, mounts, status = {}, {}, {}
   local nfs_info =
   {
     host    = host,
@@ -200,10 +199,10 @@ action = function(host, port)
     local err
     status, err = nfs_filesystem_info(nfs_info, v.name, fs_info)
     if (not(status)) then
-      return stdnse.format_output(false, err)
+      return stdnse.format_output(false,
+                  string.format("%s: %s", v.name, err))
     end
   end
-  table.insert(o, report(nfs_info, fs_info))
-  
-  return stdnse.format_output(true, o)
+ 
+  return stdnse.format_output(true, report(nfs_info, fs_info))
 end

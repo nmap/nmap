@@ -258,11 +258,11 @@ action = function(host, port)
   end
 
   if nfs_info.maxfiles > 0 then
-    local args, str = {}, ""
+    local args = {}
     args['name'] = 'Arguments:'
-    str = string.format("maxfiles: %d (file listing output limited) ",
-              nfs_info.maxfiles)
-    table.insert(args, str)
+    table.insert(args, 
+          string.format("maxfiles: %d (file listing output limited)\n",
+                nfs_info.maxfiles))
     table.insert(o, args)
   end
 
@@ -272,16 +272,17 @@ action = function(host, port)
   end
 
   for _, v in ipairs(mounts) do
-    local results, access, str, err = {}, {}, ""
+    local results, access, err = {}, {}
     status, err = nfs_ls(nfs_info, v.name, results, access)
     if not status then
+      table.insert(o, string.format("NFS Export %s", v.name))
       table.insert(o, string.format("ERROR: %s", err))
     else
-      str = "\n  NFS Export: " .. results[1].filename
+      table.insert(o,
+            string.format("NFS Export: %s", results[1].filename))
       if #access ~= 0 then
-        str = str .. "\n  NFS Access: " .. access[1]
+        table.insert(o, string.format("NFS Access: %s", access[1]))
       end
-      table.insert(o, str)
       table.insert(o, report(nfs_info, results))
     end
   end
