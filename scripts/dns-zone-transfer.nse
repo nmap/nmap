@@ -82,11 +82,62 @@ author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {'default', 'intrusive', 'discovery'}
 
-prerule = function() return true end
-portrule = shortport.portnumber(53, 'tcp')
+-- DNS options
+local dns_opts = {}
 
--- DNS arguments which are used to filter results.
-local dns_filter = {}
+prerule = function()
+  dns_opts.domain, dns_opts.server,
+  dns_opts.port, dns_opts.addall = stdnse.get_script_args(
+    {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
+    {"dns-zone-transfer.server", "dnszonetransfer.server"},
+    {"dns-zone-transfer.port", "dnszonetransfer.port"},
+    {"dns-zone-transfer.addall","dnszonetransfer.addall"}
+  )
+
+  if not dns_opts.domain then
+    stdnse.print_debug(3,
+        "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
+        SCRIPT_NAME, SCRIPT_TYPE)
+    return false
+  end
+
+  if not dns_opts.server then
+    stdnse.print_debug(3,
+        "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
+        SCRIPT_NAME, SCRIPT_TYPE)
+    return false
+  end
+
+  return true
+end
+
+portrule = function(host, port)
+  if shortport.portnumber(53, 'tcp') then
+    dns_opts.domain, dns_opts.addall = stdnse.get_script_args(
+      {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
+      {"dns-zone-transfer.addall","dnszonetransfer.addall"}
+    )
+
+    if not dns_opts.domain then
+      if host.targetname then
+        dns_opts.domain = host.targetname
+      elseif host.name ~= "" then
+        dns_opts.domain = host.name
+      else
+        -- can't do anything without a hostname
+        stdnse.print_debug(3,
+            "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
+            SCRIPT_NAME, SCRIPT_TYPE)
+        return false
+      end
+    end
+    dns_opts.server = host.ip
+    dns_opts.port = port.number
+    return true
+  end
+
+  return false
+end
 
 --- DNS query and response types.
 --@class table
@@ -401,7 +452,7 @@ function add_zone_info(response)
     -- filter Private IPs
     if rectype == 'A' then
       for rdata in pairs(RR[rectype]) do
-        if dns_filter.addall or not ipOps.isPrivate(rdata) then
+        if dns_opts.addall or not ipOps.isPrivate(rdata) then
           status, ret = target.add(rdata) 
           if not status then
             stdnse.print_debug(3,
@@ -482,61 +533,24 @@ function dump_zone_info(table, response)
 end
 
 action = function(host, port)
-    local domain, dns_server, dns_port
-
-    domain, dns_server, dns_port, dns_filter.addall = stdnse.get_script_args(
-        {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
-        {"dns-zone-transfer.server", "dnszonetransfer.server"},
-        {"dns-zone-transfer.port", "dnszonetransfer.port"},
-        {"dns-zone-transfer.addall", "dnszonetransfer.addall"}
-    )
-
-    if not dns_port then
-        dns_port = 53
+    if not dns_opts.domain then
+      return stdnse.format_output(false,
+                string.format("'%s' script needs a dnszonetransfer.domain argument.",
+                    SCRIPT_TYPE))
     end
-
-    -- script running at the Script Pre-scanning phase.
-    if SCRIPT_TYPE == "prerule" then
-        if not domain then
-            stdnse.print_debug(3,
-                "Skipping '%s' %s, 'dnszonetransfer.domain' argument is missing.",
-                SCRIPT_NAME, SCRIPT_TYPE)
-            return
-        end
-        if not dns_server then
-            stdnse.print_debug(3,
-                "Skipping '%s' %s, 'dnszonetransfer.server' argument is missing.",
-                SCRIPT_NAME, SCRIPT_TYPE)
-            return
-        end
-        -- script running at the Script Scan phase.
-    elseif SCRIPT_TYPE == "portrule" then
-        if not domain then
-            if host.targetname then
-                domain = host.targetname
-            elseif host.name ~= "" then
-                domain = host.name
-            else
-                -- can't do anything without a hostname
-                return stdnse.format_output(false,
-                string.format("'%s' script needs a dnszonetransfer.domain argument.", SCRIPT_TYPE))
-            end
-        end
-        dns_server = host.ip
-        dns_port = port.number
+    if not dns_opts.port then
+        dns_opts.port = 53
     end
-
-    assert(domain)
 
     local soc = nmap.new_socket()
     local catch = function() soc:close() end
     local try = nmap.new_try(catch)
     soc:set_timeout(4000)
-    try(soc:connect(dns_server, dns_port))
+    try(soc:connect(dns_opts.server, dns_opts.port))
 
     local req_id = '\222\173'
     local offset = 1
-    local name = build_domain(string.lower(domain))
+    local name = build_domain(string.lower(dns_opts.domain))
     local pkt_len = string.len(name) + 16
 
     -- build axfr request
