@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the rmi-dumpregistry script, which shows the contents of
+  Java RMI registry. [Martin Holst Swende]
+
 o [NSE] Added the ssh2-enum-algos script which reports the number of
   algorithms the target SSH2 server supports, by type. If verbosity
   is set, then the offered algorithms are listed. Output is reduced
