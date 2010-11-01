@@ -1,3 +1,8 @@
+-- -*- mode: lua -*-
+-- vim: set filetype=lua :
+-- The preceding lines should be left intact to help vim/emacs do syntax
+-- highlighting
+
 description = [[
 This is an example script for the Nmap Scripting Engine. It is intended to be a
 quick way to get started on developing a script without having to find and
@@ -214,9 +219,5 @@ end
 --
 -- function action (...) return actions[SCRIPT_TYPE](...) end
 --
-
-
--- Leave these lines intact to help vim/emacs determine the filetype for syntax highlighting
--- vim: set filetype=lua :
--- -*- mode: lua -*-
+--
 
