@@ -19,11 +19,28 @@ Additionally, you can use:
 ]]
 
 ---
+-- @usage
+-- This section should simply be the Nmap command to run the script. eg:
+-- nmap -p139,445 --script sample-script <host>
+--
 -- @output
 -- This section should contain the output of your script, commented. The output
 -- should be from the 'Host script results:' or port line to the bottom of the
 -- output. If it's important to show the output from more than one run, put
--- them one after the other. 
+-- them one after the other. eg:
+-- PORT      STATE SERVICE REASON
+-- 445/tcp   open  unknown syn-ack
+-- | sample-script: 
+-- |   This is some output
+-- |_    Some more output
+--
+-- @args sample-script.arg1 Here, we document each argument, how it's used, and
+--                          necessary, the default value.
+-- @args sample-script.arg2 All arguments should start with the name of the script,
+--                          a period, and the name of the argument. 
+-- @args sample-script.arg3 This is a convention, not a requirement, but should be
+--                          done. 
+--
 
 -- Change the 'author' field to your name and handle. We no longer include email
 -- addresses. 
@@ -106,7 +123,9 @@ require 'stdnse'
 -- prerule then a hostrule), scroll past this function. 
 action = function( host, port )
   -- To read script arguments from the user, use stdnse.get_script_args().
-  local arg1, arg2 = stdnse.get_script_args("scriptname.arg1", "scriptname.arg2")
+  -- All arguments should start with 'script-name.' - this is a convention
+  -- that isn't enforced by the libraries. 
+  local arg1, arg2, arg3 = stdnse.get_script_args("sample-script.arg1", "sample-script.arg2", "sample-script.arg3")
 
   -- To display debug output, use stdnse.print_debug(). All output should be
   -- prefixed with the name of your script.
@@ -128,7 +147,7 @@ action = function( host, port )
 
   -- Most socket functions, and many other library functions, return two
   -- values: a status and a result. The status should always be checked:
-  local status, err = s1:connect(host or 'localhost', port or '80')
+  local status, err = s1:connect(host, port)
   if(not(status)) then
     return stdnse.format_output(false, "Couldn't connect socket: " .. err)
   end
@@ -194,3 +213,10 @@ end
 -- }
 --
 -- function action (...) return actions[SCRIPT_TYPE](...) end
+--
+
+
+-- Leave these lines intact to help vim/emacs determine the filetype for syntax highlighting
+-- vim: set filetype=lua :
+-- -*- mode: lua -*-
+
