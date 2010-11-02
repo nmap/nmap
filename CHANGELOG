@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new library upnp that provides UPnP support to the scripts
+  upnp-info and broadcast-upnp-info. The library is largely based on code
+  taken from Thomas Buchanan's upnp-info script. [Patrik]
+
 o [NSE] Added a new library dnssd with supporting functions for DNS Service
   Discovery. Moved multicast prerule from dns-service-discovery to a new
   script called broadcast-dns-service-discovery. [Patrik]
