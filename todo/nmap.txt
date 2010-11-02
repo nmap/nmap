@@ -17,28 +17,6 @@ o Investigate ways to limit Winpcap privileges so that only
   - CACE says they will add a feature to do this.  See this thread:
   http://seclists.org/nmap-dev/2010/q3/826
 
-o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
- o Almost done!  We just have some file renaming/organizing left to do.
- o We should do an audit to ensure that we are in complete compliance for the
- licenses of all the software we ship in any of our downloads, as some
- licenses have special clauses for things like including their
- license/copyright file, mentioning them in our documentation, etc.
- And of course we want to credit them properly even where the license
- doesn't require it.  We should probably make a list of these in our
- docs/ directory along with any special information/requirements of
- their license.  And maybe we should put the current licenses in a
- subdir too.  In particular, these come to mind:
- o libpcre
- o lua
- o OpenSSL
- o libpcap
- o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
-   PyGTK)
- o SQLite
- o Python (Win/Mac versions of Zenmap link to Python)
- o X.org libraries (Mac version links to them)
- o libdnet
-
 o Update our distribution build systems and documentation to use
   Visual C++ 2010 Express rather than the 2008 version.  See
   http://www.microsoft.com/express/Windows/
@@ -695,6 +673,28 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
+ o Almost done!  We just have some file renaming/organizing left to do.
+ o We should do an audit to ensure that we are in complete compliance for the
+ licenses of all the software we ship in any of our downloads, as some
+ licenses have special clauses for things like including their
+ license/copyright file, mentioning them in our documentation, etc.
+ And of course we want to credit them properly even where the license
+ doesn't require it.  We should probably make a list of these in our
+ docs/ directory along with any special information/requirements of
+ their license.  And maybe we should put the current licenses in a
+ subdir too.  In particular, these come to mind:
+ o libpcre
+ o lua
+ o OpenSSL
+ o libpcap
+ o GTK+/Glib/ATK/Pango/PyGTK (Win/Mac versions of Zenmap link to
+   PyGTK)
+ o SQLite
+ o Python (Win/Mac versions of Zenmap link to Python)
+ o X.org libraries (Mac version links to them)
+ o libdnet
 
 o Small NSEDoc bug:
   http://nmap.org/nsedoc/scripts/dns-zone-transfer.html contains 'id
