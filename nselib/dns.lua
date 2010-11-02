@@ -2,6 +2,31 @@
 -- Simple DNS library supporting packet creation, encoding, decoding,
 -- and querying.
 --
+-- The most common interface to this module are the <code>query</code> and
+-- <code>reverse</code> functions. <code>query</code> performs a DNS query,
+-- and <code>reverse</code> prepares an ip address to have a reverse query
+-- performed. 
+--
+-- <code>query</code> takes two options - a domain name to look up and an
+-- optional table of options. For more information on the options table, 
+-- see the documentation for <code>query</code>. 
+--
+-- Example usage:
+-- <code>
+--  -- After this call, <code>status</code> is <code>true</code> and <code>result</code> is <code>"72.14.204.104"</code>
+--  local status, result = dns.query('www.google.ca')
+--
+--  -- After this call, <code>status</code> is <code>false</code> and <code>result</code> is <code>"No such name"</code>
+--  local status, result = dns.query('www.google.abc')
+--
+--  -- After this call, <code>status</code> is <code>true</code> and <code>result</code> is the table <code>{"72.14.204.103", "72.14.204.104", "72.14.204.147", "72.14.204.99"}</code>
+--  local status, result = dns.query('www.google.ca', {retAll=true})
+--
+--  -- After this call, <code>status</code> is <code>true</code> and <code>result</code> is the <code>"2001:19f0:0:0:0:dead:beef:cafe"</code>
+--  local status, result = dns.query('irc.ipv6.efnet.org', {dtype='AAAA'})
+--</code>
+--
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 module(... or "dns", package.seeall)
@@ -78,7 +103,7 @@ local function sendPackets(data, host, port, timeout, cnt, multiple)
          status, response = socket:receive()
          if ( status ) then
             local status, _, _, ip, _ = socket:get_info()
-            table.insert(responses, { data = response, peer = ip } )	
+            table.insert(responses, { data = response, peer = ip } )
          end
       end
 
@@ -208,9 +233,9 @@ end
 -- * <code>retPkt</code>: Return the packet instead of using the answer-fetching mechanism.
 -- * <code>norecurse</code> If true, do not set the recursion (RD) flag.
 -- * <code>multiple</code> If true, expects multiple hosts to respond to multicast request
--- @return True if a dns response was received and contained an answer of the requested type,
---  or the decoded dns response was requested (retPkt) and is being returned - or False otherwise.
--- @return String answer of the requested type, Table of answers or a String error message of one of the following:
+-- @return <code>true</code> if a dns response was received and contained an answer of the requested type,
+--  or the decoded dns response was requested (retPkt) and is being returned - or <code>false</code> otherwise.
+-- @return String answer of the requested type, table of answers or a String error message of one of the following:
 --  "No Such Name", "No Servers", "No Answers", "Unable to handle response"
 function query(dname, options)
    if not options then options = {} end
@@ -317,11 +342,9 @@ function reverse(ip)
    return table.concat(ipReverse, ".") .. arpa
 end
 
----
 -- Table for answer fetching functions.
 local answerFetcher = {}
 
----
 -- Answer fetcher for TXT records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -350,7 +373,6 @@ answerFetcher[types.TXT] = function(dec, retAll)
    return true, answers  
 end
 
----
 -- Answer fetcher for A records
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -374,7 +396,6 @@ answerFetcher[types.A] = function(dec, retAll)
 end
 
 
----
 -- Answer fetcher for CNAME records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -458,7 +479,6 @@ answerFetcher[types.SRV] = function(dec, retAll)
   return true, answers
 end
 
----
 -- Answer fetcher for NS records.
 -- @name answerFetcher[types.NS]
 -- @class function
@@ -467,7 +487,6 @@ end
 -- @return String first Domain entry or Table of domain entries or String Error message.
 answerFetcher[types.NS] = answerFetcher[types.CNAME]
 
----
 -- Answer fetcher for PTR records.
 -- @name answerFetcher[types.PTR]
 -- @class function
@@ -477,7 +496,6 @@ answerFetcher[types.NS] = answerFetcher[types.CNAME]
 -- @return String first Domain entry or Table of domain entries or String Error message.
 answerFetcher[types.PTR] = answerFetcher[types.CNAME]
 
----
 -- Answer fetcher for AAAA records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -501,9 +519,9 @@ answerFetcher[types.AAAA] = function(dec, retAll)
 end
 
 
----
--- Calls the answer fetcher for <code>dtype</code> or returns an error code in
+---Calls the answer fetcher for <code>dtype</code> or returns an error code in
 -- case of a "no such name" error.
+--
 -- @param dtype DNS resource record type.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -526,7 +544,6 @@ function findNiceAnswer(dtype, dec, retAll)
    end
 end
 
----
 -- Table for additional fetching functions.
 -- Some servers return their answers in the additional section. The
 -- findNiceAdditional function with its relevant additionalFetcher functions
@@ -535,7 +552,6 @@ end
 -- additionalFetchers.
 local additionalFetcher = {}
 
----
 -- Additional fetcher for TXT records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -564,7 +580,6 @@ additionalFetcher[types.TXT] = function(dec, retAll)
    return true, answers  
 end
 
----
 -- Additional fetcher for A records
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -614,7 +629,6 @@ additionalFetcher[types.SRV] = function(dec, retAll)
 end
 
 
----
 -- Additional fetcher for AAAA records.
 -- @param dec Decoded DNS response.
 -- @param retAll If true, return all entries, not just the first.
@@ -789,7 +803,6 @@ end
 -- Table of functions to decode resource records
 local decoder = {}
 
----
 -- Decodes IP of A record, puts it in <code>entry.ip</code>.
 -- @param entry RR in packet.
 decoder[types.A] = function(entry)
@@ -799,7 +812,6 @@ decoder[types.A] = function(entry)
    entry.ip = table.concat(ip, ".")
 end
 
----
 -- Decodes IP of AAAA record, puts it in <code>entry.ipv6</code>.
 -- @param entry RR in packet.
 decoder[types.AAAA] = function(entry)
@@ -813,7 +825,6 @@ decoder[types.AAAA] = function(entry)
    entry.ipv6 = table.concat(ip, ":")
 end
 
----
 -- Decodes SSH fingerprint record, puts it in <code>entry.SSHFP</code> as
 -- defined in RFC 4255.
 --
@@ -828,7 +839,6 @@ decoder[types.SSHFP] = function(entry)
 end
 
 
----
 -- Decodes SOA record, puts it in <code>entry.SOA</code>.
 --
 -- <code>entry.SOA</code> has the fields <code>mname</code>, <code>rname</code>,
@@ -853,7 +863,6 @@ decoder[types.SOA] = function(entry, data, pos)
       = bin.unpack(">I5", data, np)
 end
 
----
 -- Decodes records that consist only of one domain, for example CNAME, NS, PTR.
 -- Puts result in <code>entry.domain</code>.
 -- @param entry RR in packet.
@@ -865,7 +874,6 @@ local function decDomain(entry, data, pos)
       _, entry.domain = decStr(data, np)
    end
 
----
 -- Decodes CNAME records.
 -- Puts result in <code>entry.domain</code>.
 -- @name decoder[types.CNAME]
@@ -875,7 +883,6 @@ local function decDomain(entry, data, pos)
 -- @param pos Position in packet after RR.
 decoder[types.CNAME] = decDomain
 
----
 -- Decodes NS records.
 -- Puts result in <code>entry.domain</code>.
 -- @name decoder[types.NS]
@@ -885,7 +892,6 @@ decoder[types.CNAME] = decDomain
 -- @param pos Position in packet after RR.
 decoder[types.NS] = decDomain
 
----
 -- Decodes PTR records.
 -- Puts result in <code>entry.domain</code>.
 -- @name decoder[types.PTR]
@@ -895,7 +901,6 @@ decoder[types.NS] = decDomain
 -- @param pos Position in packet after RR.
 decoder[types.PTR] = decDomain
 
----
 -- Decodes TXT records.
 -- Puts result in <code>entry.domain</code>.
 -- @name decoder[types.TXT]
@@ -925,7 +930,6 @@ decoder[types.TXT] =
 
   end
 
----
 -- Decodes MX record, puts it in <code>entry.MX</code>.
 --
 -- <code>entry.MX</code> has the fields <code>pref</code> and
@@ -942,7 +946,6 @@ decoder[types.MX] =
       _, entry.MX.server = decStr(data, np)
    end
 
----
 -- Decodes SRV record, puts it in <code>entry.SRV</code>.
 --
 -- <code>entry.SRV</code> has the fields <code>prio</code>,
