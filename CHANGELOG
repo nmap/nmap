@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new library dnssd with supporting functions for DNS Service
+  Discovery. Moved multicast prerule from dns-service-discovery to a new
+  script called broadcast-dns-service-discovery. [Patrik]
+
 o [NSE] Added the rmi-dumpregistry script, which shows the contents of
   Java RMI registry. [Martin Holst Swende]
 
