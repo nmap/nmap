@@ -259,6 +259,13 @@ local function ttlmetric(host)
   -- if no ttl is supplied, the script requires the gateway IP address and the
   -- nmap traceroute resutls to find out the tt value to use
   local gateway = stdnse.get_script_args("firewalk.gateway")
+  if not gateway then
+    if nmap.verbosity() > 0 then
+      nmap.log_write("stdout", "FIREWALK: can't run without one of the script args firewalk.gateway or firewalk.ttl")
+      return nil
+    end
+  end
+
   if not host.traceroute then
     if not nmap.registry['firewalk'] then
       nmap.registry['firewalk'] = {}
