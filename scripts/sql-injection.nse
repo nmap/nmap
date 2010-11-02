@@ -101,11 +101,10 @@ Creates a pipeline table and returns the result
 ]]--
 local function inject(host, port, injectable)
   local all = {}
-  local pOpts = {}
   for k, v in pairs(injectable) do
-    all = http.pGet(host, port, v, nil, nil, all)
+    all = http.pipeline_add(v, nil, all, 'GET')
   end
-  return http.pipeline(host, port, all, pOpts)
+  return http.pipeline_go(host, port, all)
 end
 
 --[[

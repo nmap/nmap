@@ -68,18 +68,6 @@ action = function(host, port)
   -- Check if we can use HEAD requests
   local use_head = http.can_use_head(host, port, result_404)
 
-  -- If we can't use HEAD, make sure we can use GET requests
-  if(use_head == false) then
-    local result, err = http.can_use_get(host, port)
-    if(result == false) then
-      if(nmap.debugging() > 0) then
-        return "ERROR: " .. err
-      else
-        return nil
-      end
-    end
-  end
-
   -- Queue up the checks
   local all = {}
   local i
@@ -90,13 +78,13 @@ action = function(host, port)
     end
 
     if(use_head) then
-      all = http.pHead(host, port, "/~" .. usernames[i], nil, nil, all)
+      all = http.pipeline_add("/~" .. usernames[i], nil, 'HEAD')
     else
-      all = http.pGet(host, port, "/~" .. usernames[i], nil, nil, all)
+      all = http.pipeline_add("/~" .. usernames[i], nil, 'GET')
     end
   end
 
-  local results = http.pipeline(host, port, all, nil)
+  local results = http.pipeline_go(host, port, all)
 
   -- Check for http.pipeline error
   if(results == nil) then

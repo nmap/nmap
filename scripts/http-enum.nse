@@ -351,17 +351,17 @@ action = function(host, port)
 	for i = 1, #fingerprints, 1 do
 		-- Add each path. The order very much matters here. 
 		for j = 1, #fingerprints[i].probes, 1 do
-			all = http.addPipeline(host, port, basepath .. fingerprints[i].probes[j].path, nil, nil, all, fingerprints[i].probes[j].method or 'GET')
+			all = http.pipeline_add(basepath .. fingerprints[i].probes[j].path, nil, all, fingerprints[i].probes[j].method or 'GET')
 		end
 	end
 
 	-- Perform all the requests. 
-	local results = http.pipeline(host, port, all, nil)
+	local results = http.pipeline_go(host, port, all, nil)
 
 	-- Check for http.pipeline error
 	if(results == nil) then
-		stdnse.print_debug(1, "http-enum: http.pipeline encountered an error")
-		return stdnse.format_output(false, "http.pipeline encountered an error")
+		stdnse.print_debug(1, "http-enum: http.pipeline_go encountered an error")
+		return stdnse.format_output(false, "http.pipeline_go encountered an error")
 	end
 
 	-- Loop through the fingerprints. Note that for each fingerprint, we may have multiple results
