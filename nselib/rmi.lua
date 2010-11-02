@@ -195,7 +195,7 @@ BufferedReader = {
 	--@return bytevalue
 	peekByte = function(self)
 		if self:canRead(1) then
-			return true, peekUnpack('C')
+			return true, self:peekUnpack('C')
 		end
 		return false
 	end,
