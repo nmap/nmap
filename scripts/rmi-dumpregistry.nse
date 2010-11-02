@@ -135,7 +135,7 @@ Some apps give away the classpath, which this scripts catches in so called "Cust
 
 author = "Martin Holst Swende"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 require "shortport"
 require "rmi"
