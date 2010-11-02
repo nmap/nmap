@@ -138,6 +138,7 @@ Comm = {
 	receiveResponse = function( self )
 		local status, response
 		local result = {}
+		local host_responses = {}
 		
 		repeat
 		 	status, response = self.socket:receive()
@@ -148,15 +149,21 @@ Comm = {
 			end
 
 			local status, _, _, ip, _ = self.socket:get_info()
+			if ( not(status) ) then
+				return false, "Failed to retrieve socket information"
+			end
 			if target.ALLOW_NEW_TARGETS then target.add(ip) end
 
-			local status, output = self.decodeResponse( response )
-			if ( not(status) ) then
-				return false, "Failed to decode UPNP response"
+			if ( not(host_responses[ip]) ) then
+				local status, output = self.decodeResponse( response )
+				if ( not(status) ) then
+					return false, "Failed to decode UPNP response"
+				end
+				output = { output }
+				output.name = ip
+				table.insert( result, output )
+				host_responses[ip] = true			
 			end
-			output = { output }
-			output.name = ip
-			table.insert( result, output )				
 		until ( not( self.mcast ) )
 	
 		if ( self.mcast ) then 
