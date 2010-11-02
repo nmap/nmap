@@ -75,12 +75,6 @@
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
 
-* Try to reduce the size of the internal buffer in the EchoHeader class.
-  Currenltly it allocates a big buffer that is able to hold the theoretical
-  maximum size of a NEP message (normal use does not require so much space).
-  When this is done, check if we still need to increase the stack size
-  in the project properties in Visual Studio.
-
 * Do some performance testing.  
    Fyodor:
    <<Nping should be able to send packets quickly, at least comparable to
@@ -640,5 +634,11 @@
   default round count of 5 or increment it when --traceroute is set?
   - We should probably set -c 32 when --traceroute is specified,
     unless user specifies their own -c explicitly.
+
+[DONE] Try to reduce the size of the internal buffer in the EchoHeader class.
+  Currenltly it allocates a big buffer that is able to hold the theoretical
+  maximum size of a NEP message (normal use does not require so much space).
+  When this is done, check if we still need to increase the stack size
+  in the project properties in Visual Studio.
 
 
