@@ -217,7 +217,7 @@ BufferedReader = {
 -- The JavaDOS / JavaDIS classes 
 ----------------------------------------------------------------------------------------------------------
 -- The JavaDOS class is an approximation of a java DataOutputStream, and 
--- JavaDIS close to java DataOutputStream. They provide convenience functions 
+-- JavaDIS close to java DataInputStream. They provide convenience functions 
 -- for reading and writing java types to/from an underlying BufferedReader/BufferedWriter
 
 -- When used in conjunction with the BufferedX- classes, they handle the availability-
