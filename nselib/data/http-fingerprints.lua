@@ -412,9 +412,30 @@ table.insert(fingerprints, {
 	probes={
 		{path='/theme/images/en/login1.gif', method='HEAD'},
 	},
-	matches= {
+	matches={
 		{match='', output='Fortinet VPN/Firewall'}
 	}
+})
+
+table.insert(fingerprints, {
+  category='security',
+  probes={
+    {path='/', method='GET'},
+  },
+  matches={
+    {match='id="NessusClient"', output='Nessus'},
+    {match='NessusClient.swf', output='Nessus'}
+  }
+})
+
+table.insert(fingerprints, {
+  category='security',
+  probes={
+    {path='/NessusClient.swf', method='HEAD'},
+  },
+  matches={
+    {match='', output='Nessus'}
+  }
 })
 
 ------------------------------------------------
