@@ -134,7 +134,7 @@ action = function(host)
 		for i = 1, #names, 1 do
 			local padding = string.rep(" ", 17 - string.len(names[i]['name']))
 			local flags_str = netbios.flags_to_string(names[i]['flags'])
-			table.insert(names_output, string.format("%s<%02x>%sFlags: %s\n", names[i]['name'], names[i]['suffix'], padding, flags_str))
+			table.insert(names_output, string.format("%s<%02x>%sFlags: %s", names[i]['name'], names[i]['suffix'], padding, flags_str))
 		end
 
 		table.insert(response, names_output)
