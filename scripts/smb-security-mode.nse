@@ -63,7 +63,7 @@ action = function(host)
 
 	local result, username, domain = smb.get_account(host)
 	if(result ~= false) then
-		table.insert(response, string.format("Account that was used for smb scripts: %s\%s\n", domain, stdnse.string_or_blank(username, '<blank>')))
+		table.insert(response, string.format("Account that was used for smb scripts: %s\%s", domain, stdnse.string_or_blank(username, '<blank>')))
 	end
 	
 	-- User-level authentication or share-level authentication

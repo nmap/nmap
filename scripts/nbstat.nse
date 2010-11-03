@@ -8,7 +8,7 @@ owns.
 
 ---
 -- @usage
--- sudo nmap -sU --script nbstat.nse -p137 <host>\n
+-- sudo nmap -sU --script nbstat.nse -p137 <host>
 --
 -- @output
 -- Host script results:
@@ -127,7 +127,7 @@ action = function(host)
 
 	-- If verbosity is set, dump the whole list of names
 	if(nmap.verbosity() >= 1) then
-		table.insert(response, string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac))
+		table.insert(response, string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", server_name, user_name, mac))
 
 		local names_output = {}
 		names_output['name'] = "Names"
@@ -157,7 +157,7 @@ action = function(host)
 
 		return stdnse.format_output(true, response)
 	else
-		return string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s\n", server_name, user_name, mac)
+		return string.format("NetBIOS name: %s, NetBIOS user: %s, NetBIOS MAC: %s", server_name, user_name, mac)
 	end
 
 end
