@@ -1,6 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nmap", "nmap.vcxproj", "{361719F0-AB42-4C93-9DE8-7D2144B96625}"
+	ProjectSection(ProjectDependencies) = postProject
+		{99157C3F-39F6-4663-99D7-1D9C1484494E} = {99157C3F-39F6-4663-99D7-1D9C1484494E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsock", "..\nsock\nsock.vcxproj", "{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}"
 EndProject
