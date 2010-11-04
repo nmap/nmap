@@ -4,18 +4,19 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-#include <string>
+#include "nmap.h"
+#include "nse_fs.h"
+#include "nmap_error.h"
+#include "NmapOps.h"
+
+#include <errno.h>
 #include <string.h>
+
+#include <string>
 
 #ifndef WIN32
 #include "dirent.h"
 #endif
-
-#include "errno.h"
-#include "nse_fs.h"
-#include "nmap.h"
-#include "nmap_error.h"
-#include "NmapOps.h"
 
 #define DIR_METATABLE "dir"
 

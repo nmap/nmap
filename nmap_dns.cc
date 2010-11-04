@@ -148,12 +148,6 @@
 #include "nmap_winconfig.h"
 #endif
 
-#include <stdlib.h>
-#include <limits.h>
-#include <list>
-#include <vector>
-#include <algorithm>
-
 #include "nmap.h"
 #include "NmapOps.h"
 #include "nmap_dns.h"
@@ -162,6 +156,12 @@
 #include "nmap_tty.h"
 #include "timing.h"
 #include "Target.h"
+
+#include <stdlib.h>
+#include <limits.h>
+#include <list>
+#include <vector>
+#include <algorithm>
 
 extern NmapOps o;
 

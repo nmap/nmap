@@ -91,6 +91,8 @@
 #include "nmap_config.h"
 #endif
 
+#include "nmap.h"
+
 #include <sys/types.h>
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>

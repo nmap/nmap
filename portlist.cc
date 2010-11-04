@@ -90,9 +90,9 @@
 /* $Id$ */
 
 
+#include "nmap.h"
 #include "portlist.h"
 #include "nmap_error.h"
-#include "nmap.h"
 #include "NmapOps.h"
 #include "services.h"
 #include "protocols.h"

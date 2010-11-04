@@ -91,12 +91,13 @@
 
 /* $Id$ */
 
+#include "nmap.h"
+
 #include <map>
 
 /* Character pool memory allocation */
 #include "MACLookup.h"
 #include "NmapOps.h"
-#include "nmap.h"
 #include "nmap_error.h"
 #include "charpool.h"
 

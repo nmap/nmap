@@ -4,6 +4,7 @@ extern "C" {
   #include "lauxlib.h"
 }
 
+#include "nmap.h"
 #include "nse_debug.h"
 #include "output.h"
 

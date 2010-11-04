@@ -145,13 +145,14 @@ All writing is done with log_write(LOG_XML), so if LOG_XML hasn't been
 opened, calling these functions has no effect.
 */
 
+#include "nmap.h"
+#include "output.h"
+#include "xml.h"
+
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <list>
-
-#include "output.h"
-#include "xml.h"
 
 struct xml_writer {
   /* Sanity checking: Don't open a new tag while still defining

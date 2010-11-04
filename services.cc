@@ -90,14 +90,15 @@
 
 /* $Id$ */
 
-#include <list>
-#include <map>
-
+#include "nmap.h"
 #include "services.h"
 #include "NmapOps.h"
 #include "charpool.h"
 #include "nmap_error.h"
 #include "utils.h"
+
+#include <list>
+#include <map>
 
 /* This structure is the key for looking up services in the
    port/proto -> service map. */

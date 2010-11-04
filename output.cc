@@ -94,6 +94,7 @@
 
 /* $Id$ */
 
+#include "nmap.h"
 #include "output.h"
 #include "osscan.h"
 #include "NmapOps.h"

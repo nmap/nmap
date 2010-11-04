@@ -90,7 +90,6 @@
  * Written by Eddie Bell <ejlbell@gmail.com> 2007
  */
 
-#include <iostream>
 #include "nmap.h"
 #include "portlist.h"
 #include "NmapOps.h"
@@ -100,6 +99,8 @@
 #ifdef WIN32
 #include "winfix.h"
 #endif
+
+#include <iostream>
 
 extern NmapOps o;
 class PortList;
