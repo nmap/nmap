@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>dnet</ProjectName>
+    <ProjectName>libdnet-stripped</ProjectName>
     <ProjectGuid>{5328E0BE-BC0A-4C2A-8CB9-CE00B61B9C4C}</ProjectGuid>
     <RootNamespace>dnet</RootNamespace>
     <Keyword>Win32Proj</Keyword>
