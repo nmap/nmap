@@ -465,7 +465,7 @@ function extractAttribute( searchEntries, attributeName )
 			for _, attrib in ipairs( v.attributes ) do
 				local attribType = attrib[1]
 				for i=2, #attrib do								
-					if attribType == attributeName then
+					if ( attribType:upper() == attributeName:upper() ) then
 						table.insert( attributeTbl, attrib[i])
 					end
 				end
