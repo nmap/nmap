@@ -58,8 +58,8 @@ gtk-theme-name = "MS-Windows"
 
 II. OTHER REQUIREMENTS
 
-You'll need Microsoft Visual C++ 2008 for compilation.
-Directions for obtaining those are at:
+You'll need Microsoft Visual C++ 2010 for compilation.
+Directions for obtaining that are at:
 http://nmap.org/install/inst-windows.html#inst-win-source
 
 You'll also need Cygwin installed in order to build the Nmap installer (not
