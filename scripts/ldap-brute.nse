@@ -72,7 +72,7 @@ function get_naming_context( socket )
 		contexts = ldap.extractAttribute( searchResEntries, "namingContexts" )
 	end
 
-	if #contexts > 0 then
+	if contexts and #contexts > 0 then
 		return contexts[1]
 	end
 	
