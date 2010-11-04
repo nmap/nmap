@@ -1,0 +1,365 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{361719F0-AB42-4C93-9DE8-7D2144B96625}</ProjectGuid>
+    <RootNamespace>nmap</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/nmap.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\liblua;.;..;../nbase;../libpcre;winip;..\nsock\include;pcap-include;..\libdnet-stripped\include;OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Debug/nmap.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <WarningLevel>Level2</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <OutputFile>.\Debug\nmap.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/nmap.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy "$(SolutionDir)\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Release/nmap.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..;../liblua;../nbase;../libpcre;winip;..\nsock\include;pcap-include;..\libdnet-stripped\include;OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Release/nmap.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>liblua.lib;nsock.lib;libpcre.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <OutputFile>.\Release/nmap.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>lib;..\liblua;..\libpcre;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>packet.dll;wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <ProgramDatabaseFile>.\Release/nmap.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)..\scripts" ".\$(Configuration)\scripts\" /e /y &amp;&amp; xcopy "$(SolutionDir)..\nselib\*.lua" "$(SolutionDir)\$(Configuration)\nselib\" /y &amp;&amp; xcopy /s /e "$(SolutionDir)..\nselib\data\*.*" "$(SolutionDir)\$(Configuration)\nselib\data\" /y &amp;&amp; xcopy "$(SolutionDir)\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y &amp;&amp; xcopy "$(SolutionDir)..\nse_main.lua" "$(SolutionDir)\$(Configuration)\" /y</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\charpool.cc" />
+    <ClCompile Include="..\FingerPrintResults.cc" />
+    <ClCompile Include="..\idle_scan.cc" />
+    <ClCompile Include="..\MACLookup.cc" />
+    <ClCompile Include="..\main.cc" />
+    <ClCompile Include="..\nmap.cc" />
+    <ClCompile Include="..\nmap_dns.cc" />
+    <ClCompile Include="..\nmap_error.cc" />
+    <ClCompile Include="..\nmap_rpc.cc" />
+    <ClCompile Include="..\nmap_tty.cc" />
+    <ClCompile Include="..\NmapOps.cc" />
+    <ClCompile Include="..\NmapOutputTable.cc" />
+    <ClCompile Include="..\nse_binlib.cc" />
+    <ClCompile Include="..\nse_bit.cc" />
+    <ClCompile Include="..\nse_debug.cc" />
+    <ClCompile Include="..\nse_fs.cc" />
+    <ClCompile Include="..\nse_main.cc" />
+    <ClCompile Include="..\nse_utility.cc" />
+    <ClCompile Include="..\nse_nmaplib.cc" />
+    <ClCompile Include="..\nse_nsock.cc" />
+    <ClCompile Include="..\nse_dnet.cc" />
+    <ClCompile Include="..\nse_openssl.cc" />
+    <ClCompile Include="..\nse_pcrelib.cc" />
+    <ClCompile Include="..\nse_ssl_cert.cc" />
+    <ClCompile Include="..\osscan.cc" />
+    <ClCompile Include="..\osscan2.cc" />
+    <ClCompile Include="..\output.cc" />
+    <ClCompile Include="..\payload.cc" />
+    <ClCompile Include="..\portlist.cc" />
+    <ClCompile Include="..\portreasons.cc" />
+    <ClCompile Include="..\protocols.cc" />
+    <ClCompile Include="..\scan_engine.cc" />
+    <ClCompile Include="..\service_scan.cc" />
+    <ClCompile Include="..\services.cc" />
+    <ClCompile Include="..\Target.cc" />
+    <ClCompile Include="..\TargetGroup.cc" />
+    <ClCompile Include="..\targets.cc" />
+    <ClCompile Include="..\tcpip.cc" />
+    <ClCompile Include="..\timing.cc" />
+    <ClCompile Include="..\traceroute.cc" />
+    <ClCompile Include="..\utils.cc" />
+    <ClCompile Include="..\xml.cc" />
+    <ClCompile Include="winfix.cc">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Sync</ExceptionHandling>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="nmap.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\charpool.h" />
+    <ClInclude Include="..\FingerPrintResults.h" />
+    <ClInclude Include="..\global_structures.h" />
+    <ClInclude Include="..\idle_scan.h" />
+    <ClInclude Include="NETINET\IP.H" />
+    <ClInclude Include="..\MACLookup.h" />
+    <ClInclude Include="..\nmap.h" />
+    <ClInclude Include="..\nmap_dns.h" />
+    <ClInclude Include="..\nmap_error.h" />
+    <ClInclude Include="..\nmap_rpc.h" />
+    <ClInclude Include="..\nmap_tty.h" />
+    <ClInclude Include="..\nmap_winconfig.h" />
+    <ClInclude Include="..\NmapOps.h" />
+    <ClInclude Include="..\NmapOutputTable.h" />
+    <ClInclude Include="..\nse_binlib.h" />
+    <ClInclude Include="..\nse_bit.h" />
+    <ClInclude Include="..\nse_debug.h" />
+    <ClInclude Include="..\nse_fs.h" />
+    <ClInclude Include="..\nse_main.h" />
+    <ClInclude Include="..\nse_utility.h" />
+    <ClInclude Include="..\nse_nmaplib.h" />
+    <ClInclude Include="..\nse_nsock.h" />
+    <ClInclude Include="..\nse_dnet.h" />
+    <ClInclude Include="..\nse_openssl.h" />
+    <ClInclude Include="..\nse_pcrelib.h" />
+    <ClInclude Include="..\nse_ssl_cert.h" />
+    <ClInclude Include="..\osscan.h" />
+    <ClInclude Include="..\osscan2.h" />
+    <ClInclude Include="..\output.h" />
+    <ClInclude Include="..\payload.h" />
+    <ClInclude Include="..\portlist.h" />
+    <ClInclude Include="..\portreasons.h" />
+    <ClInclude Include="..\protocols.h" />
+    <ClInclude Include="..\scan_engine.h" />
+    <ClInclude Include="..\service_scan.h" />
+    <ClInclude Include="..\services.h" />
+    <ClInclude Include="..\targets.h" />
+    <ClInclude Include="NETINET\TCP.H" />
+    <ClInclude Include="..\tcpip.h" />
+    <ClInclude Include="..\timing.h" />
+    <ClInclude Include="..\traceroute.h" />
+    <ClInclude Include="..\utils.h" />
+    <ClInclude Include="..\xml.h" />
+    <ClInclude Include="NET\Bpf.h" />
+    <ClInclude Include="winip\iphlpapi.h" />
+    <ClInclude Include="winclude.h" />
+    <ClInclude Include="winfix.h" />
+    <ClInclude Include="pcap-include\bittypes.h" />
+    <ClInclude Include="pcap-include\bucket_lookup.h" />
+    <ClInclude Include="pcap-include\count_packets.h" />
+    <ClInclude Include="pcap-include\Devioctl.h" />
+    <ClInclude Include="pcap-include\Gnuc.h" />
+    <ClInclude Include="pcap-include\ip6_misc.h" />
+    <ClInclude Include="pcap-include\memory_t.h" />
+    <ClInclude Include="pcap-include\normal_lookup.h" />
+    <ClInclude Include="pcap-include\Ntddndis.h" />
+    <ClInclude Include="pcap-include\Ntddpack.h" />
+    <ClInclude Include="pcap-include\Packet32.h" />
+    <ClInclude Include="pcap-include\pcap-bpf.h" />
+    <ClInclude Include="pcap-include\pcap-int.h" />
+    <ClInclude Include="pcap-include\pcap-stdinc.h" />
+    <ClInclude Include="pcap-include\pcap.h" />
+    <ClInclude Include="pcap-include\pthread.h" />
+    <ClInclude Include="pcap-include\remote-ext.h" />
+    <ClInclude Include="pcap-include\sched.h" />
+    <ClInclude Include="pcap-include\semaphore.h" />
+    <ClInclude Include="pcap-include\tcp_session.h" />
+    <ClInclude Include="pcap-include\time_calls.h" />
+    <ClInclude Include="pcap-include\tme.h" />
+    <ClInclude Include="pcap-include\Win32-Extensions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icon1.ico" />
+    <CustomBuild Include="..\nmap-mac-prefixes">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-os-db">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-payloads">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-protocols">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-rpc">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-service-probes">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\nmap-services">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename) to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename)" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename);%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\docs\nmap.xsl">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Copying %(Filename).xsl to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename).xsl" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Copying %(Filename).xsl to output directory...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy /y "%(FullPath)" "$(TargetDir)%(Filename).xsl" &gt; nul
+</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(TargetDir)%(Filename).xsl;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libdnet-stripped\libdnet-stripped.vcxproj">
+      <Project>{5328e0be-bc0a-4c2a-8cb9-ce00b61b9c4c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\liblua\liblua.vcxproj">
+      <Project>{31fb0767-a71f-4575-8379-002d72b8af86}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\libpcre\libpcre.vcxproj">
+      <Project>{5de86c7a-de72-4265-8807-4ca38f94f22a}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\nbase\nbase.vcxproj">
+      <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\nsock\nsock.vcxproj">
+      <Project>{f8d6d1e3-d4ea-402c-98aa-168e5309baf4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
