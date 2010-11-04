@@ -63,7 +63,7 @@
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Lib>
-      <OutputFile>"$(OutDir)liblua.lib"</OutputFile>
+      <OutputFile>$(OutDir)liblua.lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
