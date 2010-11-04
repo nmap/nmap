@@ -87,7 +87,7 @@
       <CompileAs>CompileAsC</CompileAs>
     </ClCompile>
     <Lib>
-      <OutputFile>"$(OutDir)liblua.lib"</OutputFile>
+      <OutputFile>$(OutDir)liblua.lib</OutputFile>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
