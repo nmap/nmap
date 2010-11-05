@@ -1264,7 +1264,7 @@ end
 
 -- Deprecated pipeline functions
 function pGet( host, port, path, options, ignored, allReqs )
-  stdnse.print_debug(1, "WARNING: pGet() is deprecated. Use pipeline_add() intead.")
+  stdnse.print_debug(1, "WARNING: pGet() is deprecated. Use pipeline_add() instead.")
   return pipeline_add(path, options, allReqs, 'GET')
 end
 function pHead( host, port, path, options, ignored, allReqs )
