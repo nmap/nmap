@@ -202,28 +202,28 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
 
-  ;Check if VC++ 2008 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
+  ;Check if VC++ 2010 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
   ;whenever the Redistributable package is upgraded:
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1F1C2DFC-2D24-3E06-BCB8-725134ADF989}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.4148" create_uninstaller vcredist_silent_install
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" create_uninstaller vcredist_silent_install
 
-  ;If VC++ 2008 runtimes are not installed...
+  ;If VC++ 2010 runtimes are not installed...
   vcredist_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
+    DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
     File ..\vcredist_x86.exe
     ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
     ;Check for successful installation of our vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1F1C2DFC-2D24-3E06-BCB8-725134ADF989}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.4148" vcredist_success vcredist_not_present
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_success vcredist_not_present
     vcredist_not_present:
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
+      DetailPrint "Microsoft Visual C++ 2010 Redistributable failed to install"
       IfSilent create_uninstaller vcredist_messagebox
       vcredist_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        MessageBox MB_OK "Microsoft Visual C++ 2010 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
         Goto create_uninstaller
     vcredist_success:
       Delete "$INSTDIR\vcredist_x86.exe" 
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
+      DetailPrint "Microsoft Visual C++ 2010 Redistributable was successfully installed"
 
   create_uninstaller:
   ;Create uninstaller 
