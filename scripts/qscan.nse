@@ -404,13 +404,11 @@ hostrule = function(host)
 end
 
 action = function(host)
-	local i, j, k
 	local sock = nmap.new_dnet()
 	local pcap = nmap.new_socket()
 	local ports = nmap.registry[host.ip]['qscanports']
 	local saddr = packet.toip(host.bin_ip_src)
 	local daddr = packet.toip(host.bin_ip)
-	local port
 	local start
 	local rtt
 	local stats = {}
@@ -434,11 +432,8 @@ action = function(host)
 
 	local tcp = genericpkt(host)
 
-	i = 1
-
-	while i <= numtrips do
-		for j, _ in ipairs(ports) do
-			port = ports[j]
+	for i = 1, numtrips do
+		for j, port in ipairs(ports) do
 
 			updatepkt(tcp, port)
 
@@ -487,16 +482,12 @@ action = function(host)
 			-- the delay, I just sleep here (depending on rtt)
 			if rtt < (3 * delay) / 2 then
 				if rtt < (delay / 2) then
-					k = ((delay / 2) + math.random(0, delay) - rtt)
+					stdnse.sleep(((delay / 2) + math.random(0, delay) - rtt))
 				else
-					k = math.random((3 * delay) / 2 - rtt)
+					stdnse.sleep(math.random((3 * delay) / 2 - rtt))
 				end
-
-				stdnse.sleep(k)
 			end
 		end
-
-		i = i + 1
 	end
 
 	sock:ip_close()
