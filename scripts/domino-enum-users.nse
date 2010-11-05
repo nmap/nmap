@@ -110,9 +110,9 @@ action = function(host, port)
 				table.insert(result, ("Failed to store \"%s\" to %s"):format(username, filename) )
 			end
 		elseif( status and data ) then
-			table.insert(result, ("Succesfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username, filename) )			
+			table.insert(result, ("Succesfully retrieved ID for \"%s\" (to store set the domino-enum-users.path argument)"):format(username) )			
 		elseif ( status ) then
-			table.insert(result, ("User \"%s\" found, but not ID file could be downloaded"):format(username) )						
+			table.insert(result, ("User \"%s\" found, but no ID file could be downloaded"):format(username) )						
 		end
 		
 		counter = counter + 1
