@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made everything build with Visual C++ 2010. Thanks to KX for
+  providing instructions.
+
 o [NSE] Added a new library upnp that provides UPnP support to the scripts
   upnp-info and broadcast-upnp-info. The library is largely based on code
   taken from Thomas Buchanan's upnp-info script. [Patrik]
