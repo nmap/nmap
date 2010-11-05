@@ -1,10 +1,22 @@
 description = [[
 Checks if a web server is vulnerable to directory traversal by attempting to
-retrieve <code>/etc/passwd</code> or <code>\boot.ini</code> using various traversal methods such as
-requesting <code>../../../../etc/passwd</code>.
+retrieve <code>/etc/passwd</code> or <code>\boot.ini</code>.
+
+The script uses several technique:
+* Generic directory traversal by requesting paths like <code>../../../../etc/passwd</code>.
+* Known specific traversals of several web servers.
+* Query string traversal. This sends traversals as query string parameters to paths that look like they refer to a local file name. The potential query is searched for in at the path controlled by the script argument <code>http-passwd.root</code>.
 ]]
 
 ---
+-- @usage
+-- nmap --script http-passwd --script-args http-passwd.root=/test/ <target>
+--
+-- @args http-passwd.root Query string tests will be done relative to this path.
+-- The default value is <code>/</code>. Normally the value should contain a
+-- leading slash. The queries will be sent with a trailing encoded null byte to
+-- evade certain checks; see http://insecure.org/news/P55-01.txt.
+--
 -- @output
 -- 80/tcp open  http
 -- | http-passwd: Directory traversal found.
@@ -39,6 +51,9 @@ requesting <code>../../../../etc/passwd</code>.
 --     \boot.ini
 --   * Added specific payloads according to vulnerabilities published against
 --     various specific products.
+--
+-- 08/2010:
+--   * Added Poison NULL Byte tests
 
 author = "Kris Katterjohn, Ange Gutek"
 
@@ -146,16 +161,17 @@ action = function(host, port)
 		end
 	end
 
+	local root = stdnse.get_script_args("http-passwd.root") or "/"
+
 	-- Check for something that looks like a query referring to a file name, like
 	-- "index.php?page=next.php". Replace the query value with each of the test
 	-- vectors. Add an encoded null byte at the end to bypass some checks; see
-	-- http://insecure.ogr/news/P55-01.txt.
-	local ROOT = "/"
-  local response = http.get(host, port, ROOT)
+	-- http://insecure.org/news/P55-01.txt.
+	local response = http.get(host, port, root)
 	if response.body then
 		local page_var = response.body:match ("[%?%&](%a-)=%a-%.%a")
 		if page_var then
-			local query_base = ROOT .. "?" .. page_var .. "="
+			local query_base = root .. "?" .. page_var .. "="
 			stdnse.print_debug(1, "%s: testing with query %s.", SCRIPT_NAME, query_base .. "...")
 
 			for _, dir in ipairs(dirs) do
