@@ -587,13 +587,13 @@ function set_timeout(t)
 --- Opens a socket for raw packet capture.
 --
 -- @param device The dnet-style interface name of the device you want to capture
--- from.
+--               from.
 -- @param snaplen The length of each packet you want to capture (similar to the
--- <code>-s</code> option to tcpdump)
--- @param promisc Set to 1 if the interface should activate promiscuous mode,
--- and 0 otherwise.
+--                <code>-s</code> option to tcpdump)
+-- @param promisc Boolean value for whether the interface should activate
+--                promiscuous mode.
 -- @param bpf A string describing a Berkeley Packet Filter expression (like
--- those provided to tcpdump).
+--            those provided to tcpdump).
 -- @see new_socket, pcap_receive
 -- @usage
 -- local socket = nmap.new_socket()
@@ -607,8 +607,8 @@ function pcap_open(device, snaplen, promisc, bpf)
 -- layer two header, layer three header and packet capture time.
 -- @return Status (true or false).
 -- @return The length of the captured packet (this may be smaller than the
--- actual packet length since packets are truncated when the Libpcap snaplen
--- parameter is smaller than the total packet length).
+--         actual packet length since packets are truncated when the
+--         libpcap snaplen parameter is smaller than the total packet length).
 -- @return Data from the second OSI layer (e.g. ethernet headers).
 -- @return Data from the third OSI layer (e.g. IPv4 headers).
 -- @return Packet capture time, as floating point seconds since the epoch
