@@ -340,7 +340,7 @@ FunctionEnd
 ;Descriptions 
  
   ;Component strings 
-  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2008 runtime components"
+  LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2010 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
