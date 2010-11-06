@@ -951,7 +951,6 @@ table.insert(fingerprints, {
 		{path='/webadmin.nsf', method='HEAD'},
 		{path='/web.nsf', method='HEAD'},
 		{path='/.nsf/../winnt/win.ini', method='HEAD'},
-		{path='/?Open', method='HEAD'},
 	},
 	matches= {
 		{match='', output='Lotus Domino'}
