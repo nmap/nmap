@@ -21,6 +21,14 @@ o Update our distribution build systems and documentation to use
   Visual C++ 2010 Express rather than the 2008 version.  See
   http://www.microsoft.com/express/Windows/
 
+o We should probably update our Windows build systems to use Python
+  2.7.  As of 11/8, it looks like all our dependency libraries are
+  available for 2.7:
+  PyGTK: 2.22.0 IS available for 2.7
+  PyCairo: 1.8.10 IS available for 2.7
+  PyGObject: 2.26.0 IS available for 2.7
+  Py2exe: 0.6.9 IS available for 2.7
+
 o Create Nmap wiki
  o Decide on domain name
  o Include insecure Chrome
