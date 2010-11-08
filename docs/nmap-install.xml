@@ -863,13 +863,14 @@ given in <xref linkend="inst-win-exec"/>.</para></listitem>
 <sect2 id="inst-win-source"><title>Compile from Source Code</title>
 <indexterm><primary>Windows</primary><secondary>compiling on</secondary></indexterm>
 
-
 <para>Most Windows users prefer to use the Nmap binary self-installer,
 but compilation from source code is an option, particularly if you plan to help with Nmap development.  Compilation requires
-Microsoft Visual C++, which is part of their commercial Visual Studio suite.  Any of the Visual Studio editions should work, including the free <ulink
+Microsoft Visual C++ 2010, which is part of their commercial Visual Studio suite.  Any of the Visual Studio 2010 editions should work, including the free <ulink
 url="http://www.microsoft.com/express/Windows/">Visual C++ 2010 Express SP1</ulink>.</para>
 
 <orderedlist id="nmap-install-windows-compile-from-source"><title>Compiling Nmap on Windows from Source</title>
+
+<listitem><para>Decide whether to obtain the Nmap source code by downloading the latest release from nmap.org, or using a Subversion client to retrieve even newer (but less tested) code from our repository.  These instructions are for the web download approach, but using Subversion instead is straightforward (see <xref linkend="inst-svn"/>).</para></listitem>
 
 <listitem><para>Download the latest Nmap source distribution from <ulink url="http://nmap.org/download.html" />.  It has the name
 <filename>nmap-<replaceable>version</replaceable>.tar.bz2</filename> or
@@ -878,7 +879,14 @@ url="http://www.microsoft.com/express/Windows/">Visual C++ 2010 Express SP1</uli
 <listitem><para>Uncompress the source code file you just downloaded.  Recent releases of the free <ulink url="http://www.cygwin.com/">Cygwin distribution</ulink><indexterm><primary>Cygwin</primary></indexterm> can handle both the <filename>.tar.bz2</filename> and <literal>.tgz</literal> formats.  Use the command <command>tar xvjf nmap-version.tar.bz2</command> or <command>tar xvzf nmap-version.tgz</command>, respectively.  Alternatively, the common <application>WinZip</application> application can decompress these files.</para></listitem>
 
 <listitem><para>Open Visual Studio and the Nmap solution file (<filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
-<listitem><para>Choose <guimenuitem>Build Solution</guimenuitem> from the <guimenu>Build Menu</guimenu>.  Nmap should begin compiling, and end with the line <quote><literal>-- Done --</literal></quote> saying that all projects built successfully and there were zero failures.</para></listitem>
+
+<listitem><para>Right click on <literal>Solution 'nmap'</literal> in the Solution Explorer sidebar and choose <guimenuitem>Configuration Manager</guimenuitem>.  Ensure that the active solution configuration is <literal>Releae</literal> and then close the Configuration Manager.</para></listitem>
+
+<listitem><para>Build Nmap by pressing F7 or choosing <guimenuitem>Build
+Solution</guimenuitem> from the GUI.  Nmap should begin compiling, and
+end with the line <quote><literal>-- Done --</literal></quote> saying
+that all projects built successfully and there were zero
+failures.</para></listitem>
 
 <listitem><para>The executable and data files can be found in <filename>nmap-<replaceable>version</replaceable>/mswin32/Release/</filename>.  You can copy them to a preferred directory as long as they are all kept together.</para></listitem>
 
