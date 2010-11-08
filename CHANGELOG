@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
+  messages about gtk.Tooltip. [Rob Nicholls]
+
 o Made everything build with Visual C++ 2010. Thanks to KX for
   providing instructions.
 
