@@ -880,9 +880,9 @@ url="http://www.microsoft.com/express/Windows/">Visual C++ 2010 Express SP1</uli
 
 <listitem><para>Open Visual Studio and the Nmap solution file (<filename>nmap-<replaceable>version</replaceable>/mswin32/nmap.sln</filename>).</para></listitem>
 
-<listitem><para>Right click on <literal>Solution 'nmap'</literal> in the Solution Explorer sidebar and choose <guimenuitem>Configuration Manager</guimenuitem>.  Ensure that the active solution configuration is <literal>Releae</literal> and then close the Configuration Manager.</para></listitem>
+<listitem><para>Right click on <literal>Solution 'nmap'</literal> in the Solution Explorer sidebar and choose <guimenuitem>Configuration Manager</guimenuitem>.  Ensure that the active solution configuration is <literal>Release</literal> and then close the Configuration Manager.</para></listitem>
 
-<listitem><para>Build Nmap by pressing F7 or choosing <guimenuitem>Build
+<listitem><para>Build Nmap by pressing <keycap>F7</keycap> or choosing <guimenuitem>Build
 Solution</guimenuitem> from the GUI.  Nmap should begin compiling, and
 end with the line <quote><literal>-- Done --</literal></quote> saying
 that all projects built successfully and there were zero
