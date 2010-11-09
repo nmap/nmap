@@ -17,10 +17,6 @@ o Investigate ways to limit Winpcap privileges so that only
   - CACE says they will add a feature to do this.  See this thread:
   http://seclists.org/nmap-dev/2010/q3/826
 
-o Update our distribution build systems and documentation to use
-  Visual C++ 2010 Express rather than the 2008 version.  See
-  http://www.microsoft.com/express/Windows/
-
 o We should probably update our Windows build systems to use Python
   2.7.  As of 11/8, it looks like all our dependency libraries are
   available for 2.7:
@@ -476,14 +472,6 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
-o [NSE] Web application fingerprinting script.  Would be great to be
-  able to take a URL and determine things like "this is Joomla" or
-  "this is Plone" or "Mediawiki" or whatever. Rather than hard code
-  regular expressions or other tests in a script, it should use a
-  signature file like Nmap OS and version detection do.  Might work in
-  combination with URL grinder to check for applications at
-  default/common locations. See also a script that does favicon
-  scanning TODO item.
 
 o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
@@ -681,6 +669,20 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [NSE] Web application fingerprinting script.  Would be great to be
+  able to take a URL and determine things like "this is Joomla" or
+  "this is Plone" or "Mediawiki" or whatever. Rather than hard code
+  regular expressions or other tests in a script, it should use a
+  signature file like Nmap OS and version detection do.  Might work in
+  combination with URL grinder to check for applications at
+  default/common locations. See also a script that does favicon
+  scanning TODO item.
+  - http-enum pretty much does this now.
+
+o Update our distribution build systems and documentation to use
+  Visual C++ 2010 Express rather than the 2008 version.  See
+  http://www.microsoft.com/express/Windows/
 
 o Dependency licensing issues (OpenSSL, Python, GTK+, etc.)
  o Almost done!  We just have some file renaming/organizing left to do.
