@@ -269,7 +269,7 @@ static void print_iflist_pcap_mapping(const struct interface_info *iflist,
   /* Build a list of "leftover" libpcap interfaces. Initially it contains all
      the interfaces. */
   pcap_ifs = getpcapinterfaces();
-  for (const pcap_if_t * p = pcap_ifs; p != NULL; p = p->next)
+  for (const pcap_if_t *p = pcap_ifs; p != NULL; p = p->next)
     leftover_pcap_ifs.push_front(p);
 
   if (numifs > 0 || !leftover_pcap_ifs.empty()) {
@@ -461,7 +461,7 @@ static char *formatScriptOutput(ScriptResult sr) {
    ports found on the machine.  It also handles the Machine/Greppable
    output and the XML output.  It is pretty ugly -- in particular I
    should write helper functions to handle the table creation */
-void printportoutput(Target * currenths, PortList * plist) {
+void printportoutput(Target *currenths, PortList *plist) {
   char protocol[MAX_IPPROTOSTRLEN + 1];
   char rpcinfo[64];
   char rpcmachineinfo[64];
@@ -1224,7 +1224,7 @@ void output_xml_scaninfo_records(struct scan_lists *scanlist) {
 }
 
 /* Prints the MAC address (if discovered) to XML output */
-static void print_MAC_XML_Info(Target * currenths) {
+static void print_MAC_XML_Info(Target *currenths) {
   const u8 *mac = currenths->MACAddress();
   char macascii[32];
 
@@ -1343,7 +1343,7 @@ void write_host_header(Target *currenths) {
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to
    machine log.  resolve_all should be passed nonzero if the user asked
    for all hosts (even down ones) to be resolved */
-void write_host_status(Target * currenths, int resolve_all) {
+void write_host_status(Target *currenths, int resolve_all) {
   if (o.listscan) {
     /* write "unknown" to machine and xml */
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
@@ -1538,7 +1538,7 @@ static void printosclassificationoutput(const struct
    network.  This only prints to human output -- XML is handled by a
    separate call ( print_MAC_XML_Info ) because it needs to be printed
    in a certain place to conform to DTD. */
-void printmacinfo(Target * currenths) {
+void printmacinfo(Target *currenths) {
   const u8 *mac = currenths->MACAddress();
   char macascii[32];
 
@@ -1554,8 +1554,8 @@ void printmacinfo(Target * currenths) {
 
 
 /* A convenience wrapper around mergeFPs. */
-static const char *merge_fpr(const FingerPrintResults * FPR,
-                             const Target * currenths,
+static const char *merge_fpr(const FingerPrintResults *FPR,
+                             const Target *currenths,
                              bool isGoodFP, bool wrapit) {
   return mergeFPs(FPR->FPs, FPR->numFPs, isGoodFP, currenths->v4hostip(),
                   currenths->distance,
@@ -1565,8 +1565,8 @@ static const char *merge_fpr(const FingerPrintResults * FPR,
                   wrapit);
 }
 
-static void write_merged_fpr(const FingerPrintResults * FPR,
-                             const Target * currenths,
+static void write_merged_fpr(const FingerPrintResults *FPR,
+                             const Target *currenths,
                              bool isGoodFP, bool wrapit) {
   log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
             "TCP/IP fingerprint:\n%s\n",
@@ -1582,7 +1582,7 @@ static void write_merged_fpr(const FingerPrintResults * FPR,
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed).*/
-void printosscanoutput(Target * currenths) {
+void printosscanoutput(Target *currenths) {
   int i;
   char numlst[512];             /* For creating lists of numbers */
   char *p;                      /* Used in manipulating numlst above */
@@ -1824,7 +1824,7 @@ static int hostcmp(const char *a, const char *b) {
 
 /* Prints the alternate hostname/OS/device information we got from the service
    scan (if it was performed) */
-void printserviceinfooutput(Target * currenths) {
+void printserviceinfooutput(Target *currenths) {
   Port *p = NULL;
   Port port;
   struct serviceDeductions sd;
@@ -1925,7 +1925,7 @@ void printserviceinfooutput(Target * currenths) {
 }
 
 #ifndef NOLUA
-void printscriptresults(ScriptResults * scriptResults, stype scantype) {
+void printscriptresults(ScriptResults *scriptResults, stype scantype) {
   ScriptResults::iterator iter;
   char *script_output;
 
@@ -1954,7 +1954,7 @@ void printscriptresults(ScriptResults * scriptResults, stype scantype) {
   }
 }
 
-void printhostscriptresults(Target * currenths) {
+void printhostscriptresults(Target *currenths) {
   ScriptResults::iterator iter;
   char *script_output;
 
@@ -1978,7 +1978,7 @@ void printhostscriptresults(Target * currenths) {
 #endif
 
 /* Print a table with traceroute hops. */
-static void printtraceroute_normal(Target * currenths) {
+static void printtraceroute_normal(Target *currenths) {
   static const int HOP_COL = 0, RTT_COL = 1, HOST_COL = 2;
   NmapOutputTable Tbl(currenths->traceroute_hops.size() + 1, 3);
   struct probespec probe;
@@ -2085,7 +2085,7 @@ static void printtraceroute_normal(Target * currenths) {
   log_flush(LOG_PLAIN);
 }
 
-static void printtraceroute_xml(Target * currenths) {
+static void printtraceroute_xml(Target *currenths) {
   struct probespec probe;
   list<TracerouteHop>::iterator it;
 
@@ -2140,7 +2140,7 @@ static void printtraceroute_xml(Target * currenths) {
   log_flush(LOG_XML);
 }
 
-void printtraceroute(Target * currenths) {
+void printtraceroute(Target *currenths) {
   printtraceroute_normal(currenths);
   printtraceroute_xml(currenths);
 }
