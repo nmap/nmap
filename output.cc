@@ -425,7 +425,7 @@ static char *formatScriptOutput(ScriptResult sr) {
   std::string result;
   unsigned int i;
 
-  c_output = sr.get_output().c_str();
+  c_output = sr.get_output();
   p = c_output;
 
   while (*p != '\0') {
@@ -447,7 +447,7 @@ static char *formatScriptOutput(ScriptResult sr) {
     else
       result += "|_";
     if (i == 0)
-      result += sr.get_id() + ": ";
+      result += std::string(sr.get_id()) + ": ";
     result += lines[i];
     if (i < lines.size() - 1)
       result += "\n";
@@ -787,8 +787,8 @@ void printportoutput(Target *currenths, PortList *plist) {
           for (ssr_iter = current->scriptResults.begin();
                ssr_iter != current->scriptResults.end(); ssr_iter++) {
             xml_open_start_tag("script");
-            xml_attribute("id", "%s", ssr_iter->get_id().c_str());
-            xml_attribute("output", "%s", ssr_iter->get_output().c_str());
+            xml_attribute("id", "%s", ssr_iter->get_id());
+            xml_attribute("output", "%s", ssr_iter->get_output());
             xml_close_empty_tag();
 
             char *script_output = formatScriptOutput((*ssr_iter));
@@ -1943,8 +1943,8 @@ void printscriptresults(ScriptResults *scriptResults, stype scantype) {
          iter != scriptResults->end();
          iter++) {
       xml_open_start_tag("script");
-      xml_attribute("id", "%s", iter->get_id().c_str());
-      xml_attribute("output", "%s", iter->get_output().c_str());
+      xml_attribute("id", "%s", iter->get_id());
+      xml_attribute("output", "%s", iter->get_output());
       xml_close_empty_tag();
       script_output = formatScriptOutput((*iter));
       log_write(LOG_PLAIN, "%s\n", script_output);
@@ -1965,8 +1965,8 @@ void printhostscriptresults(Target *currenths) {
          iter != currenths->scriptResults.end();
          iter++) {
       xml_open_start_tag("script");
-      xml_attribute("id", "%s", iter->get_id().c_str());
-      xml_attribute("output", "%s", iter->get_output().c_str());
+      xml_attribute("id", "%s", iter->get_id());
+      xml_attribute("output", "%s", iter->get_output());
       xml_close_empty_tag();
       script_output = formatScriptOutput((*iter));
       log_write(LOG_PLAIN, "%s\n", script_output);

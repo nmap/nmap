@@ -23,9 +23,9 @@ class ScriptResult
     std::string id;
   public:
     void set_output (const char *);
-    std::string get_output (void) const;
+    const char *get_output (void) const;
     void set_id (const char *);
-    std::string get_id (void) const;
+    const char *get_id (void) const;
 };
 
 typedef std::list<ScriptResult> ScriptResults;

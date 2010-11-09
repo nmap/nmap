@@ -229,9 +229,9 @@ void ScriptResult::set_output (const char *out)
   output = std::string(out);
 }
 
-std::string ScriptResult::get_output (void) const
+const char *ScriptResult::get_output (void) const
 {
-  return output;
+  return output.c_str();
 }
 
 void ScriptResult::set_id (const char *ident)
@@ -239,9 +239,9 @@ void ScriptResult::set_id (const char *ident)
   id = std::string(ident);
 }
 
-std::string ScriptResult::get_id (void) const
+const char *ScriptResult::get_id (void) const
 {
-  return id;
+  return id.c_str();
 }
 
 ScriptResults *get_script_scan_results_obj (void)
