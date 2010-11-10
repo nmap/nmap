@@ -3,8 +3,12 @@
 o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
   messages about gtk.Tooltip. [Rob Nicholls]
 
-o Made everything build with Visual C++ 2010. Thanks to KX for
-  providing instructions.
+o Updated the Windows build to work with (and require):
+  o Visual C++ 2010 (was 2008)
+  o Python 2.7
+  o GTK+ 2.22
+  See docs/win32-zenmap-build-guide.txt for details. Thanks to KX for
+  Visual C++ instructions. [David, Rob Nicholls]
 
 o [NSE] Added a new library upnp that provides UPnP support to the scripts
   upnp-info and broadcast-upnp-info. The library is largely based on code
