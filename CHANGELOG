@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new Web Service Dynamic Discovery library (wsdd) and the two 
+  scripts broadcast-wsdd-discover and wsdd-discover. [Patrik]
+
 o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
   messages about gtk.Tooltip. [Rob Nicholls]
 
