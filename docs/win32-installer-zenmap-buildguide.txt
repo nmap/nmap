@@ -23,9 +23,9 @@ PyCairo
   o Tested: pycairo-1.8.10.win32-py2.7.exe
 PyGObject
   o http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
-  o pygobject-2.26.0.win32-py2.7.exe
+  o Tested: pygobject-2.26.0.win32-py2.7.exe
 Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe/files/
-  o py2exe-0.6.9.win32-py2.7.exe
+  o Tested: py2exe-0.6.9.win32-py2.7.exe
 Be sure to grab the PyGTK, PyCairo, etc. for Python 2.7!
 
 The GTK all-in-one bundle is a zip file.  Unzip it into the directory
