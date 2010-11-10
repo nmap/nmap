@@ -277,7 +277,7 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File ..\nmap-${VERSION}\zenmap.exe
   File ..\nmap-${VERSION}\ZENMAP_README
   File ..\nmap-${VERSION}\COPYING_HIGWIDGETS
-  File ..\nmap-${VERSION}\python26.dll
+  File ..\nmap-${VERSION}\python27.dll
   File /r ..\nmap-${VERSION}\share
   File /r ..\nmap-${VERSION}\py2exe
   StrCpy $zenmapset "true"
@@ -295,7 +295,7 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   SetOverwrite on 
   File ..\nmap-${VERSION}\ndiff.exe
   File ..\nmap-${VERSION}\NDIFF_README
-  File ..\nmap-${VERSION}\python26.dll
+  File ..\nmap-${VERSION}\python27.dll
   File /r ..\nmap-${VERSION}\py2exe
 SectionEnd
 
@@ -415,7 +415,7 @@ Section "Uninstall"
   Delete "$INSTDIR\winpcap-nmap*.exe"
   Delete "$INSTDIR\zenmap.exe"
   Delete "$INSTDIR\ndiff.exe"
-  Delete "$INSTDIR\python26.dll"
+  Delete "$INSTDIR\python27.dll"
   Delete "$INSTDIR\NDIFF_README"
   Delete "$INSTDIR\ZENMAP_README"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
