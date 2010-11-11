@@ -2478,28 +2478,6 @@ void free_scan_lists(struct scan_lists *ports) {
   if (ports->proto_ping_ports) free(ports->proto_ping_ports);
 }
 
-void printinteractiveusage() {
-  printf(
-	 "Nmap Interactive Commands:\n\
-n <nmap args> -- executes an nmap scan using the arguments given and\n\
-waits for nmap to finish.  Results are printed to the\n\
-screen (of course you can still use file output commands).\n\
-! <command>   -- runs shell command given in the foreground\n\
-x             -- Exit Nmap\n\
-f [--spoof <fakeargs>] [--nmap-path <path>] <nmap args>\n\
--- Executes nmap in the background (results are NOT\n\
-printed to the screen).  You should generally specify a\n\
-file for results (with -oX, -oG, or -oN).  If you specify\n\
-fakeargs with --spoof, Nmap will try to make those\n\
-appear in ps listings.  If you wish to execute a special\n\
-version of Nmap, specify --nmap-path.\n\
-n -h          -- Obtain help with Nmap syntax\n\
-h             -- Prints this help screen.\n\
-Examples:\n\
-n -sS -O -v example.com/24\n\
-f --spoof \"/usr/local/bin/pico -z hello.c\" -sS -oN e.log example.com/24\n\n");
-}
-
 char *seqreport(struct seq_info *seq) {
   static char report[512];
 
