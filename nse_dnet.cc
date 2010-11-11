@@ -260,7 +260,7 @@ usesock:
     ret = send_ip_packet(udata->sock, NULL, (u8 *) packet, lua_objlen(L, 2));
   }
   if (ret == -1)
-    return luaL_error(L, "error while sending: %s (errno %d)",
+    return safe_error(L, "error while sending: %s (errno %d)",
         socket_strerror(socket_errno()), socket_errno());
 
   return success(L);

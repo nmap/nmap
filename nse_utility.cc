@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "Target.h"
 #include "portlist.h"
@@ -57,10 +58,13 @@ int success (lua_State *L)
   return 1;
 }
 
-int safe_error (lua_State *L, const char *message)
+int safe_error (lua_State *L, const char *fmt, ...)
 {
+  va_list va;
   lua_pushboolean(L, false);
-  lua_pushstring(L, message);
+  va_start(va, fmt);
+  lua_pushvfstring(L, fmt, va);
+  va_end(va);
   return 2;
 }
 

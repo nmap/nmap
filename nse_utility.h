@@ -8,7 +8,7 @@ void setbfield (lua_State *, int, const char *, int);
 void weak_table (lua_State *, int, int, const char *);
 
 int success (lua_State *);
-int safe_error (lua_State *, const char *);
+int safe_error (lua_State *, const char *, ...);
 
 void check_target (lua_State *, int, const char **, const char **);
 unsigned short check_port (lua_State *, int, const char **);
