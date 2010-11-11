@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o XML output now excludes output for down hosts when doing host
+  discovery only, except in verbose mode. This is how it already
+  worked for normal scans, but the ping-only case was overlooked.
+  [David]
+
 o [NSE] Added a new Web Service Dynamic Discovery library (wsdd) and the two 
   scripts broadcast-wsdd-discover and wsdd-discover. [Patrik]
 

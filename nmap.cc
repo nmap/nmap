@@ -1682,15 +1682,17 @@ int nmap_main(int argc, char *argv[]) {
 #endif
           ) || o.listscan) {
         /* We're done with the hosts */
-        xml_start_tag("host");
-        write_host_header(currenths);
-        printmacinfo(currenths);
-        //  if (currenths->flags & HOST_UP)
-        //  log_write(LOG_PLAIN,"\n");
-        printtimes(currenths);
-        xml_end_tag();
-        xml_newline();
-        log_flush_all();
+        if (currenths->flags & HOST_UP || o.verbose) {
+          xml_start_tag("host");
+          write_host_header(currenths);
+          printmacinfo(currenths);
+          //  if (currenths->flags & HOST_UP)
+          //  log_write(LOG_PLAIN,"\n");
+          printtimes(currenths);
+          xml_end_tag();
+          xml_newline();
+          log_flush_all();
+        }
         delete currenths;
         o.numhosts_scanned++;
         continue;
