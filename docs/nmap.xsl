@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- =========================================================================
-            nmap.xsl stylesheet version 0.9b
-            last change: 2006-03-04
+            nmap.xsl stylesheet version 0.9c
+            last change: 2010-11-14
             Benjamin Erb, http://www.benjamin-erb.de
 ==============================================================================
     Copyright (c) 2004-2006 Benjamin Erb
@@ -34,7 +34,7 @@
 
 <!-- global variables      -->
 <!-- ............................................................ -->
-<xsl:variable name="nmap_xsl_version">0.9b</xsl:variable>
+<xsl:variable name="nmap_xsl_version">0.9c</xsl:variable>
 <!-- ............................................................ -->
 <xsl:variable name="start"><xsl:value-of select="/nmaprun/@startstr" /></xsl:variable>
 <xsl:variable name="end"><xsl:value-of select="/nmaprun/runstats/finished/@timestr" /> </xsl:variable>
@@ -294,6 +294,12 @@
         background-color: #CCFFCC;
         color: #000000;
     }
+	
+	tr.script
+    {
+        background-color: #DDFFEE;
+        color: #000000;
+    }
 
     tr.filtered
     {
@@ -337,6 +343,11 @@
     
     <ul id="menu">
     	<li><a href="#scansummary">scan summary</a><xsl:text> | </xsl:text></li>
+		
+		<xsl:if test="prescript/script/@id">
+    	<li><a href="#prescript">pre-scan script output</a><xsl:text> | </xsl:text></li>
+		</xsl:if>
+			
     	<li><a href="#scaninfo">scan info</a><xsl:text> | </xsl:text></li>
 
           <xsl:for-each select="host">
@@ -377,12 +388,14 @@
         <xsl:otherwise>Debugging was enabled, </xsl:otherwise>
     </xsl:choose>
     the verbosity level was <xsl:value-of select="verbose/@level" />.
-
     </p>
+	<xsl:apply-templates select="prescript"/>
+
     <xsl:apply-templates select="host">
         <xsl:sort select="substring ( address/@addr, 1, string-length ( substring-before ( address/@addr, '.' ) ) )* (256*256*256) + substring ( substring-after ( address/@addr, '.' ), 1, string-length ( substring-before ( substring-after ( address/@addr, '.' ), '.' ) ) )* (256*256) + substring ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), 1, string-length ( substring-before ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), '.' ) ) ) * 256 + substring ( substring-after ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), '.' ), 1 )" order="ascending" data-type="number"/>
     </xsl:apply-templates>	
     <xsl:apply-templates select="runstats"/>
+	<xsl:apply-templates select="scaninfo"/>
     </div>
     
 </body>
@@ -471,7 +484,13 @@
         <h3>address</h3>
         <ul>
             <xsl:for-each select="address">
-                <li><xsl:value-of select="@addr"/> (<xsl:value-of select="@addrtype"/>)</li>                
+                <li><xsl:value-of select="@addr"/> 
+				 <xsl:if test="@vendor">
+                      <xsl:text> - </xsl:text>
+                      <xsl:value-of select="@vendor"/>
+					  <xsl:text> </xsl:text>
+                 </xsl:if>
+				 (<xsl:value-of select="@addrtype"/>)</li>                
 				
             </xsl:for-each>
         </ul>
@@ -554,13 +573,15 @@
                 <td><xsl:value-of select="service/@extrainfo" /><xsl:text>&#xA0;</xsl:text></td>
             </tr>
 	    <xsl:for-each select="script">
-		    <tr class="open">
+		    <tr class="script">
 			    <td></td>
 			    <td>
 				    <xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
 			    </td>
-			    <td colspan="5">
+			    <td colspan="6">
+				<pre>
 				    <xsl:value-of select="@output"/> <xsl:text>&#xA0;</xsl:text>
+				</pre>
 			    </td>
 			    </tr>
 
@@ -646,7 +667,7 @@
 <!-- ............................................................ -->
 <xsl:template match="osmatch">
 <li>os match: <b><xsl:value-of select="@name" /> </b></li>
-<li>accuracy: <xsl:value-of select="@accuracy" />%</li>
+<li>accuracy: <b><xsl:value-of select="@accuracy" />%</b></li>
 <li>reference fingerprint line number: <xsl:value-of select="@line" /></li>
 </xsl:template>
 <!-- ............................................................ -->
@@ -662,7 +683,7 @@
                </xsl:when>
                <xsl:otherwise>
                        <br /><br />
-                       <li>OS Fingerprint requested at scan time and provided below.</li>
+                       <li>OS identified but the fingerprint was requested at scan time and provided below.</li>
                </xsl:otherwise>
        </xsl:choose>
 
@@ -679,17 +700,54 @@
 </xsl:template>
 <!-- ............................................................ -->
 
-<!-- Host Script Scan -->
+<!-- Pre-Scan script -->
 <!-- ............................................................ -->
-<xsl:template match="hostscript">
+<xsl:template match="prescript">
+	<xsl:element name="a">
+		<xsl:attribute name="name">prescript</xsl:attribute>
+	</xsl:element>
+	<h2>pre-scan script output</h2>
+	
 	<table>
+	    <tr class="head">
+			<td>script Name</td>
+			<td>output</td>
+        </tr>
 	<xsl:for-each select="script">
-		<tr class="open">
+		<tr class="script">
 			<td>
 				<xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
 			</td>
 			<td>
+			<pre>
+				<xsl:value-of select="@output"/> <xsl:text></xsl:text>
+			</pre>
+			</td>
+		</tr>
+
+	</xsl:for-each>
+	</table>
+</xsl:template>
+<!-- ............................................................ -->
+
+<!-- Host Script Scan -->
+<!-- ............................................................ -->
+<xsl:template match="hostscript">
+<h3>host script output</h3>
+	<table>
+		 <tr class="head">
+			<td>script Name</td>
+			<td>output</td>
+        </tr>
+	<xsl:for-each select="script">
+		<tr class="script">
+			<td>
+				<xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
+			</td>
+			<td>
+			<pre>
 				<xsl:value-of select="@output"/> <xsl:text>&#xA0;</xsl:text>
+			</pre>
 			</td>
 		</tr>
 
@@ -823,5 +881,4 @@
 </xsl:if>
 </xsl:template>
 <!-- ............................................................ -->
-
 </xsl:stylesheet>
