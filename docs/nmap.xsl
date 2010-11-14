@@ -372,6 +372,10 @@
                <xsl:text> | </xsl:text></li>
           </xsl:for-each>
 
+		<xsl:if test="postscript/script/@id">
+    	<li><a href="#postscript">post-scan script output</a><xsl:text> | </xsl:text></li>
+		</xsl:if>
+		  
         <li><a href="#runstats">runstats</a></li>
     </ul>
   
@@ -394,6 +398,8 @@
     <xsl:apply-templates select="host">
         <xsl:sort select="substring ( address/@addr, 1, string-length ( substring-before ( address/@addr, '.' ) ) )* (256*256*256) + substring ( substring-after ( address/@addr, '.' ), 1, string-length ( substring-before ( substring-after ( address/@addr, '.' ), '.' ) ) )* (256*256) + substring ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), 1, string-length ( substring-before ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), '.' ) ) ) * 256 + substring ( substring-after ( substring-after ( substring-after ( address/@addr, '.' ), '.' ), '.' ), 1 )" order="ascending" data-type="number"/>
     </xsl:apply-templates>	
+	
+	<xsl:apply-templates select="postscript"/>
     <xsl:apply-templates select="runstats"/>
 	<xsl:apply-templates select="scaninfo"/>
     </div>
@@ -729,6 +735,37 @@
 	</table>
 </xsl:template>
 <!-- ............................................................ -->
+
+<!-- Post-Scan script -->
+<!-- ............................................................ -->
+<xsl:template match="postscript">
+	<xsl:element name="a">
+		<xsl:attribute name="name">postscript</xsl:attribute>
+	</xsl:element>
+	<h2>post-scan script output</h2>
+	
+	<table>
+	    <tr class="head">
+			<td>script Name</td>
+			<td>output</td>
+        </tr>
+	<xsl:for-each select="script">
+		<tr class="script">
+			<td>
+				<xsl:value-of select="@id"/> <xsl:text>&#xA0;</xsl:text>
+			</td>
+			<td>
+			<pre>
+				<xsl:value-of select="@output"/> <xsl:text></xsl:text>
+			</pre>
+			</td>
+		</tr>
+
+	</xsl:for-each>
+	</table>
+</xsl:template>
+<!-- ............................................................ -->
+
 
 <!-- Host Script Scan -->
 <!-- ............................................................ -->
