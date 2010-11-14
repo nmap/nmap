@@ -190,6 +190,10 @@ void output_ports_to_machine_parseable_output(struct scan_lists *ports,
 					      int tcpscan, int udpscan,
 					      int sctpscan, int protscan);
 
+/* Return a std::string containing all n strings separated by whitespace, and
+   individually quoted if needed. */
+std::string join_quoted(const char * const strings[], unsigned int n);
+
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan
    requested and the ports which it will scan for */

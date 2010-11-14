@@ -1190,6 +1190,41 @@ static void doscaninfo(const char *type, const char *proto,
   xml_newline();
 }
 
+static std::string quote(const char *s) {
+  std::string result("");
+  const char *p;
+  bool space;
+
+  space = false;
+  for (p = s; *p != '\0'; p++) {
+    if (isspace(*p))
+      space = true;
+    if (*p == '"' || *p == '\\')
+      result += "\\";
+    result += *p;
+  }
+
+  if (space)
+    result = "\"" + result + "\"";
+
+  return result;
+}
+
+/* Return a std::string containing all n strings separated by whitespace, and
+   individually quoted if needed. */
+std::string join_quoted(const char * const strings[], unsigned int n) {
+  std::string result("");
+  unsigned int i;
+
+  for (i = 0; i < n; i++) {
+    if (i > 0)
+      result += " ";
+    result += quote(strings[i]);
+  }
+
+  return result;
+}
+
 /* Similar to output_ports_to_machine_parseable_output, this function
    outputs the XML version, which is scaninfo records of each scan
    requested and the ports which it will scan for */

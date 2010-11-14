@@ -1488,7 +1488,7 @@ int nmap_main(int argc, char *argv[]) {
   }
 
   xml_start_comment();
-  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, command.c_str());
+  xml_write_escaped(" %s %s scan initiated %s as: %s ", NMAP_NAME, NMAP_VERSION, mytime, join_quoted(fakeargv, argc).c_str());
   xml_end_comment();
   xml_newline();
 
@@ -1499,7 +1499,7 @@ int nmap_main(int argc, char *argv[]) {
 
   xml_open_start_tag("nmaprun");
   xml_attribute("scanner", "nmap");
-  xml_attribute("args", "%s", command.c_str());
+  xml_attribute("args", "%s", join_quoted(fakeargv, argc).c_str());
   xml_attribute("start", "%lu", (unsigned long) timep);
   xml_attribute("startstr", "%s", mytime);
   xml_attribute("version", "%s", NMAP_VERSION);

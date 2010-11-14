@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The command line in XML output (/nmaprun/@args attribute) now does
+  quoting of whitespace using double quotes and backslashes. This
+  allows recovering the original command line array even when
+  arguments contain whitespace. [David]
+
 o XML output now excludes output for down hosts when doing host
   discovery only, except in verbose mode. This is how it already
   worked for normal scans, but the ping-only case was overlooked.
