@@ -20,6 +20,9 @@ o Investigate ways to limit Winpcap privileges so that only
 o We should probably update our Windows build systems to use Python
   2.7.  As of 11/8, it looks like all our dependency libraries are
   available for 2.7:
+  o David upgraded and it worked, though Rob found a potential problem
+  and added vcredist 2008.  Fyodor will test on the official Win7 Nmap
+  build system.
   PyGTK: 2.22.0 IS available for 2.7
   PyCairo: 1.8.10 IS available for 2.7
   PyGObject: 2.26.0 IS available for 2.7
@@ -31,7 +34,7 @@ o Create Nmap wiki
  o Decide on wiki software, probably just use mediawiki
  o install it on a Linode, probably Web
  
-o Create new default username list: [Ithilgore working on this]
+o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
     too
