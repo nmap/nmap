@@ -272,6 +272,32 @@ Section "Network Performance Improvements" SecPerfRegistryMods
 SectionEnd 
 
 Section "Zenmap (GUI Frontend)" SecZenmap
+
+  ;Check if VC++ 2008 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
+  ;whenever the Redistributable package is upgraded:
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E503B4BF-F7BB-3D5F-8BC8-F694B1CFF942}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022.218" vcredist2008_done vcredist2008_silent_install
+
+  ;If VC++ 2008 runtimes are not installed...
+  vcredist2008_silent_install:
+    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
+    File ..\vcredist2008_x86.exe
+    ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
+    ;Check for successful installation of our 2008 version of vcredist_x86.exe...
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E503B4BF-F7BB-3D5F-8BC8-F694B1CFF942}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022.218" vcredist2008_success vcredist2008_not_present
+    vcredist2008_not_present:
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
+      IfSilent vcredist2008_done vcredist2008_messagebox
+      vcredist2008_messagebox:
+        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist2008_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        Goto vcredist2008_done
+    vcredist2008_success:
+      Delete "$INSTDIR\vcredist2008_x86.exe" 
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
+
+  vcredist2008_done:
+
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\zenmap.exe
@@ -344,7 +370,7 @@ FunctionEnd
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
   LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
-  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface.  Recommended." 
+  LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface, and Visual C++ 2008 runtime components.  Recommended." 
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
