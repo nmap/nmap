@@ -47,6 +47,7 @@ winbuild:
 	cd ../zenmap && install_scripts/windows/copy_and_compile.bat
 	cp -R ../zenmap/dist/* nmap-$(NMAP_VERSION)/
 	cp ../zenmap/README nmap-$(NMAP_VERSION)/ZENMAP_README
+	cp vcredist2008_x86.exe nmap-$(NMAP_VERSION)
 	cp ../zenmap/COPYING_HIGWIDGETS nmap-$(NMAP_VERSION)
 	cp ../ndiff/README nmap-$(NMAP_VERSION)/NDIFF_README
 	cp nsis/AddToPath.nsh nsis/Nmap.nsi nsis/shortcuts.ini nsis/final.ini nmap-$(NMAP_VERSION)
