@@ -252,16 +252,14 @@ do
 
   function Thread:start_time_out_clock ()
     if self.type == "hostrule" or self.type == "portrule" then
-      return cnse.startTimeOutClock(self.host);
+      cnse.startTimeOutClock(self.host);
     end
-    return nil;
   end
 
   function Thread:stop_time_out_clock ()
     if self.type == "hostrule" or self.type == "portrule" then
-      return cnse.stopTimeOutClock(self.host);
+      cnse.stopTimeOutClock(self.host);
     end
-    return nil;
   end
 
   -- Register scripts in the timeouts list to track their timeouts.
