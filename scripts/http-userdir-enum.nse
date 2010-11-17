@@ -78,9 +78,9 @@ action = function(host, port)
     end
 
     if(use_head) then
-      all = http.pipeline_add("/~" .. usernames[i], nil, 'HEAD')
+      all = http.pipeline_add("/~" .. usernames[i], nil, all, 'HEAD')
     else
-      all = http.pipeline_add("/~" .. usernames[i], nil, 'GET')
+      all = http.pipeline_add("/~" .. usernames[i], nil, all, 'GET')
     end
   end
 
