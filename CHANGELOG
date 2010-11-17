@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] There is now a limit of 1,000 concurrent running scripts,
+  instituted to keep memory under control when there are many open
+  ports. Nathan reported 3 GB of memory use (with an out-of-memory NSE
+  crash) for one host with tens of thousands of open ports. This limit
+  can be controlled with the variable CONCURRENCY_LIMIT in
+  nse_main.lua. [David]
+
 o The command line in XML output (/nmaprun/@args attribute) now does
   quoting of whitespace using double quotes and backslashes. This
   allows recovering the original command line array even when

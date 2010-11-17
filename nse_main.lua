@@ -44,6 +44,11 @@ local WAITING_TO_RUNNING = "NSE_WAITING_TO_RUNNING";
 local DESTRUCTOR = "NSE_DESTRUCTOR";
 local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 
+-- This is a limit on the number of script instance threads running at once. It
+-- exists only to limit memory use when there are many open ports. It doesn't
+-- count worker threads started by scripts.
+local CONCURRENCY_LIMIT = 1000;
+
 local _G = _G;
 
 local assert = assert;
@@ -69,6 +74,7 @@ local create = coroutine.create;
 local resume = coroutine.resume;
 local status = coroutine.status;
 local yield = coroutine.yield;
+local wrap = coroutine.wrap;
 
 local debug = require "debug";
 local traceback = debug.traceback;
@@ -620,7 +626,7 @@ end
 -- Arguments:
 --   threads  An array of threads (a runlevel) to run.
 --   scantype  A string that indicates the current script scan phase.
-local function run (threads, scantype)
+local function run (threads_iter, scantype)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
@@ -631,13 +637,7 @@ local function run (threads, scantype)
   local total = 0; -- Number of threads, for record keeping.
   local timeouts = {}; -- A list to save and to track scripts timeout.
   local progress = cnse.scan_progress_meter(NAME);
-
-  print_debug(1, "NSE Script Threads (%d) running:", #threads);
-  while #threads > 0 do
-    local thread = remove(threads);
-    all[thread.co], running[thread.co], total = thread, thread, total+1;
-    thread:start(timeouts);
-  end
+  local num_threads = 0; -- Number of script instances currently running.
 
   -- Map of yielded threads to the base Thread
   local yielded_base = setmetatable({}, {__mode = "kv"});
@@ -711,7 +711,19 @@ local function run (threads, scantype)
   end);
 
   -- Loop while any thread is running or waiting.
-  while next(running) or next(waiting) do
+  while next(running) or next(waiting) or threads_iter do
+    -- Start as many new threads as possible.
+    while threads_iter and num_threads < CONCURRENCY_LIMIT do
+      local thread = threads_iter()
+      if not thread then
+	threads_iter = nil
+	break
+      end
+      all[thread.co], running[thread.co], total = thread, thread, total+1;
+      num_threads = num_threads + 1
+      thread:start(timeouts);
+    end
+
     local nr, nw = table_size(running), table_size(waiting);
     if cnse.key_was_pressed() then
       print_verbose(1, "Active NSE Script Threads: %d (%d waiting)\n",
@@ -744,6 +756,7 @@ local function run (threads, scantype)
                     thread.port and ":"..thread.port.number or "")
             or "");
         thread:close(timeouts, "timed out");
+        num_threads = num_threads - 1;
       end
     end
 
@@ -757,12 +770,14 @@ local function run (threads, scantype)
         thread:d("%THREAD_AGAINST threw an error!\n%s\n",
             traceback(co, tostring(result)));
         thread:close(timeouts, result);
+        num_threads = num_threads - 1;
       elseif status(co) == "suspended" then
         if result == NSE_YIELD_VALUE then
           waiting[co] = thread;
         else
           thread:d("%THREAD yielded unexpectedly and cannot be resumed.");
           thread:close();
+          num_threads = num_threads - 1;
         end
       elseif status(co) == "dead" then
         all[co] = nil;
@@ -777,6 +792,7 @@ local function run (threads, scantype)
         end
         thread:d("Finished %THREAD_AGAINST.");
         thread:close(timeouts);
+        num_threads = num_threads - 1;
       end
       current = nil;
     end
@@ -897,14 +913,6 @@ for i, script in ipairs(chosen_scripts) do
   print_debug(2, "Loaded '%s'.", script.filename);
 end
 
--- Insert new created threads in the threads table
-local function insert_threads(threads, runlevels, new_thread)
-  local runlevel = new_thread.runlevel;
-  if threads[runlevel] == nil then insert(runlevels, runlevel); end
-  threads[runlevel] = threads[runlevel] or {};
-  insert(threads[runlevel], new_thread);
-end
-
 -- main(hosts)
 -- This is the main function we return to NSE (on the C side), nse_main.cc
 -- gets this function by loading and executing nse_main.lua. This
@@ -944,63 +952,84 @@ local function main (hosts, scantype)
   --  port    A table that contains the target port information. This
   --          will be nil for Pre-scanning and Post-scanning scripts.
 
-  -- activate prerule scripts
-  if (scantype == NSE_PRE_SCAN) then
-    print_verbose(1, "Script Pre-scanning.");
-    for i, script in ipairs(chosen_scripts) do
-      local thread = script:new_thread("prerule");
-      if thread then
-        insert_threads(threads, runlevels, thread);
-        thread.args = {n = 0};
-      end
-    end
-  -- activate hostrule and portrule scripts
-  elseif (scantype == NSE_SCAN) then
-    if #hosts > 1 then
-      print_verbose(1, "Script scanning %d hosts.", #hosts);
-    elseif #hosts == 1 then
-      print_verbose(1, "Script scanning %s.", hosts[1].ip);
-    end
-
-    -- Check hostrules for this host.
-    for j, host in ipairs(hosts) do
-      for i, script in ipairs(chosen_scripts) do
-        local thread = script:new_thread("hostrule", tcopy(host));
-        if thread then
-          insert_threads(threads, runlevels, thread);
-          thread.args, thread.host = {n = 1, tcopy(host)}, host;
-        end
-      end
-      -- Check portrules for this host.
-      for port in cnse.ports(host) do
-        for i, script in ipairs(chosen_scripts) do
-          local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
-          if thread then
-            insert_threads(threads, runlevels, thread);
-            thread.args, thread.host, thread.port =
-                {n = 2, tcopy(host), tcopy(port)}, host, port;
-          end
-        end
-      end
-    end
-  -- activate postrule scripts
-  elseif (scantype == NSE_POST_SCAN) then
-    print_verbose(1, "Script Post-scanning.");
-    for i, script in ipairs(chosen_scripts) do
-      local thread = script:new_thread("postrule");
-      if thread then
-        insert_threads(threads, runlevels, thread);
-        thread.args = {n = 0};
-      end
+  local runlevels = {};
+  for i, script in ipairs(chosen_scripts) do
+    if not runlevels[script.runlevel] then
+      runlevels[script.runlevel] = script.runlevel;
     end
   end
-
   sort(runlevels);
-  for i, runlevel in ipairs(runlevels) do
-    print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel,
-        #runlevels);
-    run(threads[runlevel], scantype);
+
+  -- Yield only scripts in the given runlevel.
+  local function runlevel_scripts(chosen_scripts, runlevel)
+    return wrap(function ()
+      for i, script in ipairs(chosen_scripts) do
+        if script.runlevel == runlevel then
+          yield(script)
+        end
+      end
+    end)
   end
+
+  -- This iterator is passed to the run function. It returns one new script
+  -- thread on demand until exhausted.
+  local function threads_iter()
+    -- activate prerule scripts
+    for _, runlevel in ipairs(runlevels) do
+      print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
+      if (scantype == NSE_PRE_SCAN) then
+	print_verbose(1, "Script Pre-scanning.");
+	for script in runlevel_scripts(chosen_scripts, runlevel) do
+	  local thread = script:new_thread("prerule");
+	  if thread then
+	    thread.args = {n = 0};
+	    yield(thread);
+	  end
+	end
+      -- activate hostrule and portrule scripts
+      elseif (scantype == NSE_SCAN) then
+	if #hosts > 1 then
+	  print_verbose(1, "Script scanning %d hosts.", #hosts);
+	elseif #hosts == 1 then
+	  print_verbose(1, "Script scanning %s.", hosts[1].ip);
+	end
+
+	-- Check hostrules for this host.
+	for j, host in ipairs(hosts) do
+	  for script in runlevel_scripts(chosen_scripts, runlevel) do
+	    local thread = script:new_thread("hostrule", tcopy(host));
+	    if thread then
+	      thread.args, thread.host = {n = 1, tcopy(host)}, host;
+	      yield(thread);
+	    end
+	  end
+	  -- Check portrules for this host.
+	  for port in cnse.ports(host) do
+	    for script in runlevel_scripts(chosen_scripts, runlevel) do
+	      local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
+	      if thread then
+		thread.args, thread.host, thread.port =
+		    {n = 2, tcopy(host), tcopy(port)}, host, port;
+		yield(thread);
+	      end
+	    end
+	  end
+	end
+      -- activate postrule scripts
+      elseif (scantype == NSE_POST_SCAN) then
+	print_verbose(1, "Script Post-scanning.");
+	for script in runlevel_scripts(chosen_scripts, runlevel) do
+	  local thread = script:new_thread("postrule");
+	  if thread then
+	    thread.args = {n = 0};
+	    yield(thread);
+	  end
+	end
+      end
+    end
+  end
+
+  run(wrap(threads_iter), scantype)
 
   collectgarbage "collect";
 end
