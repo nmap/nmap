@@ -71,7 +71,7 @@ local CREDITS_HASHES = {
 	["d3894e19233d979db07d623f608b6ece"] = {"5.2.1"},
 	["55bc081f2d460b8e6eb326a953c0e71e"] = {"4.4.1"},
 	["3422eded2fcceb3c89cabb5156b5d4e2"] = {"4.2.3"},
-	["82fa2d6aa15f971f7dadefe4f2ac20e3"] = {"5.1.5"},
+	["82fa2d6aa15f971f7dadefe4f2ac20e3"] = {"5.1.5", "5.1.6"},
 	["692a87ca2c51523c17f597253653c777"] = {"4.4.6-0.dotdeb.2"},
 	["bed7ceff09e9666d96fdf3518af78e0e"] = {"4.4.2 to 4.4.4"},
 }
