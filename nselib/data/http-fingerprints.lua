@@ -3,6 +3,7 @@
 --   http://yokoso.inguardians.com
 -- o Jason H. (@jhaddix) for helping out with a whole pile of fingerprints he's
 --   collected
+-- o Bob Dooling
 --
 -- This file is released under the Nmap license; see:
 --  http://nmap.org/book/man-legal.html
