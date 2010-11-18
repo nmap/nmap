@@ -87,6 +87,9 @@ SetCompressor /SOLID /FINAL lzma
 ;Variables
 
 Var zenmapset
+Var addremoveset
+Var vcredist2010set
+Var vcredist2008set
 
 ;--------------------------------
 ;Reserves
@@ -202,39 +205,9 @@ Section "Nmap Core Files" SecCore
   ;Store installation folder 
   WriteRegStr HKCU "Software\Nmap" "" $INSTDIR 
 
-  ;Check if VC++ 2010 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
-  ;whenever the Redistributable package is upgraded:
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" create_uninstaller vcredist_silent_install
-
-  ;If VC++ 2010 runtimes are not installed...
-  vcredist_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
-    File ..\vcredist_x86.exe
-    ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
-    ;Check for successful installation of our vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_success vcredist_not_present
-    vcredist_not_present:
-      DetailPrint "Microsoft Visual C++ 2010 Redistributable failed to install"
-      IfSilent create_uninstaller vcredist_messagebox
-      vcredist_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2010 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
-        Goto create_uninstaller
-    vcredist_success:
-      Delete "$INSTDIR\vcredist_x86.exe" 
-      DetailPrint "Microsoft Visual C++ 2010 Redistributable was successfully installed"
-
-  create_uninstaller:
-  ;Create uninstaller 
-  WriteUninstaller "$INSTDIR\Uninstall.exe" 
+  Call vcredist2010installer
+  Call create_uninstaller
    
-  ; Register Nmap with add/remove programs 
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap ${VERSION}" 
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString" '"$INSTDIR\uninstall.exe"' 
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"' 
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1 
-  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1 
 SectionEnd 
  
 Section "Register Nmap Path" SecRegisterPath 
@@ -272,32 +245,6 @@ Section "Network Performance Improvements" SecPerfRegistryMods
 SectionEnd 
 
 Section "Zenmap (GUI Frontend)" SecZenmap
-
-  ;Check if VC++ 2008 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
-  ;whenever the Redistributable package is upgraded:
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E503B4BF-F7BB-3D5F-8BC8-F694B1CFF942}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022.218" vcredist2008_done vcredist2008_silent_install
-
-  ;If VC++ 2008 runtimes are not installed...
-  vcredist2008_silent_install:
-    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
-    File ..\vcredist2008_x86.exe
-    ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
-    ;Check for successful installation of our 2008 version of vcredist_x86.exe...
-    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{E503B4BF-F7BB-3D5F-8BC8-F694B1CFF942}" "DisplayName"
-    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022.218" vcredist2008_success vcredist2008_not_present
-    vcredist2008_not_present:
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
-      IfSilent vcredist2008_done vcredist2008_messagebox
-      vcredist2008_messagebox:
-        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist2008_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
-        Goto vcredist2008_done
-    vcredist2008_success:
-      Delete "$INSTDIR\vcredist2008_x86.exe" 
-      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
-
-  vcredist2008_done:
-
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\zenmap.exe
@@ -307,6 +254,8 @@ Section "Zenmap (GUI Frontend)" SecZenmap
   File /r ..\nmap-${VERSION}\share
   File /r ..\nmap-${VERSION}\py2exe
   StrCpy $zenmapset "true"
+  Call vcredist2008installer
+  Call create_uninstaller
 SectionEnd
 
 Section "Ncat (Modern Netcat reincarnation)" SecNcat
@@ -314,6 +263,8 @@ Section "Ncat (Modern Netcat reincarnation)" SecNcat
   SetOverwrite on
   File ..\nmap-${VERSION}\ncat.exe
   File ..\nmap-${VERSION}\ca-bundle.crt
+  Call vcredist2010installer
+  Call create_uninstaller
 SectionEnd
 
 Section "Ndiff (Scan comparison tool)" SecNdiff
@@ -323,14 +274,85 @@ Section "Ndiff (Scan comparison tool)" SecNdiff
   File ..\nmap-${VERSION}\NDIFF_README
   File ..\nmap-${VERSION}\python27.dll
   File /r ..\nmap-${VERSION}\py2exe
+  Call vcredist2008installer
+  Call create_uninstaller
 SectionEnd
 
 Section "Nping (Packet generator)" SecNping
   SetOutPath "$INSTDIR" 
   SetOverwrite on 
   File ..\nmap-${VERSION}\nping.exe
+  Call vcredist2010installer
+  Call create_uninstaller
 SectionEnd
- 
+
+Function vcredist2010installer
+  StrCmp $vcredist2010set "" 0 vcredist_done
+  StrCpy $vcredist2010set "true"
+  ;Check if VC++ 2010 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
+  ;whenever the Redistributable package is upgraded:
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_done vcredist_silent_install
+  ;If VC++ 2010 runtimes are not installed...
+  vcredist_silent_install:
+    DetailPrint "Installing Microsoft Visual C++ 2010 Redistributable"
+    File ..\vcredist_x86.exe
+    ExecWait '"$INSTDIR\vcredist_x86.exe" /q' $0
+    ;Check for successful installation of our vcredist_x86.exe...
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{196BB40D-1578-3D01-B289-BEFC77A11A1E}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2010  x86 Redistributable - 10.0.30319" vcredist_success vcredist_not_present
+    vcredist_not_present:
+      DetailPrint "Microsoft Visual C++ 2010 Redistributable failed to install"
+      IfSilent vcredist_done vcredist_messagebox
+      vcredist_messagebox:
+        MessageBox MB_OK "Microsoft Visual C++ 2010 Redistributable Package (x86) failed to install ($INSTDIR\vcredist_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        Goto vcredist_done
+    vcredist_success:
+      Delete "$INSTDIR\vcredist_x86.exe" 
+      DetailPrint "Microsoft Visual C++ 2010 Redistributable was successfully installed"
+  vcredist_done:
+FunctionEnd
+
+Function vcredist2008installer
+  StrCmp $vcredist2008set "" 0 vcredist2008_done
+  StrCpy $vcredist2008set "true"
+  ;Check if VC++ 2008 runtimes are already installed - NOTE Both the UID in the registry key and the DisplayName string must be updated here (and below)
+  ;whenever the Redistributable package is upgraded:
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1F1C2DFC-2D24-3E06-BCB8-725134ADF989}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.4148" vcredist2008_done vcredist2008_silent_install
+  ;If VC++ 2008 runtimes are not installed...
+  vcredist2008_silent_install:
+    DetailPrint "Installing Microsoft Visual C++ 2008 Redistributable"
+    File ..\vcredist2008_x86.exe
+    ExecWait '"$INSTDIR\vcredist2008_x86.exe" /q' $0
+    ;Check for successful installation of our 2008 version of vcredist_x86.exe...
+    ReadRegStr $0 HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{1F1C2DFC-2D24-3E06-BCB8-725134ADF989}" "DisplayName"
+    StrCmp $0 "Microsoft Visual C++ 2008 Redistributable - x86 9.0.30729.4148" vcredist2008_success vcredist2008_not_present
+    vcredist2008_not_present:
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable failed to install"
+      IfSilent vcredist2008_done vcredist2008_messagebox
+      vcredist2008_messagebox:
+        MessageBox MB_OK "Microsoft Visual C++ 2008 Redistributable Package (x86) failed to install ($INSTDIR\vcredist2008_x86.exe). Please ensure your system meets the minimum requirements before running the installer again."
+        Goto vcredist2008_done
+    vcredist2008_success:
+      Delete "$INSTDIR\vcredist2008_x86.exe" 
+      DetailPrint "Microsoft Visual C++ 2008 Redistributable was successfully installed"
+  vcredist2008_done:
+FunctionEnd
+
+Function create_uninstaller
+  StrCmp $addremoveset "" 0 skipaddremove
+  ; Register Nmap with add/remove programs 
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayName" "Nmap ${VERSION}" 
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "UninstallString" '"$INSTDIR\uninstall.exe"' 
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "DisplayIcon" '"$INSTDIR\icon1.ico"' 
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoModify" 1 
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Nmap" "NoRepair" 1 
+  ;Create uninstaller 
+  WriteUninstaller "$INSTDIR\Uninstall.exe" 
+  StrCpy $addremoveset "true"
+  skipaddremove:
+FunctionEnd
 
 ;Disable a named section if the command line option Opt has the value "NO".
 ;See http://nsis.sourceforge.net/Macro_vs_Function for the ID label technique.
@@ -368,7 +390,7 @@ FunctionEnd
   ;Component strings 
   LangString DESC_SecCore ${LANG_ENGLISH} "Installs Nmap executable, NSE scripts and Visual C++ 2010 runtime components"
   LangString DESC_SecRegisterPath ${LANG_ENGLISH} "Registers Nmap path to System path so you can execute it from any directory" 
-  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1 (required for most Nmap scans unless it is already installed)" 
+  LangString DESC_SecWinPcap ${LANG_ENGLISH} "Installs WinPcap 4.1.2 (required for most Nmap scans unless it is already installed)" 
   LangString DESC_SecPerfRegistryMods ${LANG_ENGLISH} "Modifies Windows registry values to improve TCP connect scan performance.  Recommended." 
   LangString DESC_SecZenmap ${LANG_ENGLISH} "Installs Zenmap, the official Nmap graphical user interface, and Visual C++ 2008 runtime components.  Recommended." 
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
