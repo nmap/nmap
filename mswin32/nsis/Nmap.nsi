@@ -435,6 +435,10 @@ Section "Uninstall"
   probably_safe_key_uninstall:
 
   IfFileExists $INSTDIR\nmap.exe nmap_installed 
+  IfFileExists $INSTDIR\zenmap.exe nmap_installed 
+  IfFileExists $INSTDIR\ncat.exe nmap_installed 
+  IfFileExists $INSTDIR\nping.exe nmap_installed 
+  IfFileExists $INSTDIR\ndiff.exe nmap_installed 
     MessageBox MB_YESNO "It does not appear that Nmap is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES nmap_installed 
     Abort "Uninstall aborted by user" 
 
@@ -443,6 +447,7 @@ Section "Uninstall"
   SetDetailsPrint listonly 
    
   nmap_installed: 
+  Delete "$INSTDIR\3rd-party-licenses.txt"
   Delete "$INSTDIR\CHANGELOG" 
   Delete "$INSTDIR\COPYING" 
   Delete "$INSTDIR\nmap-mac-prefixes" 
@@ -474,6 +479,7 @@ Section "Uninstall"
   RMDir /r "$INSTDIR\scripts"
   RMDir /r "$INSTDIR\share"
   RMDir /r "$INSTDIR\py2exe"
+  RMDir /r "$INSTDIR\licenses"
  
   Delete "$INSTDIR\Uninstall.exe" 
 
