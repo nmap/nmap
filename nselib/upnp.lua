@@ -171,7 +171,7 @@ Comm = {
 			return true, result
 		end
 	
-		if ( #response > 0 ) then
+		if ( status and #response > 0 ) then
 			return true, result[1]
 		else
 			return false, "Received no responses"
