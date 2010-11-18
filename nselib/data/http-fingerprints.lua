@@ -728,6 +728,35 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+  category='management',
+  probes={
+    {path='/common/help/en/go/login_ts.html', method='HEAD'},
+    {path='/system/login/', method='HEAD'},
+    {path='/system/login/reset?next=%2Fsystem%2Flogin&set-lang=en', method='HEAD'},
+    {path='/common/images/logos/img_logoMain.jpg', method='HEAD'},
+  },
+  matches= {
+    {match='URL=http://www.macromedia.com/go/breeze_login_help_en', output='Adobe Acrobat Connect Pro'},
+    {match='<title>Connect Pro Central Login</title>', output='Adobe Acrobat Connect Pro'},
+    {match='<title>Forgot your password?</title>', output='Adobe Acrobat Connect Pro'},
+    {match='Server: JRun Web Server', output='Adobe Acrobat Connect Pro'},
+  }
+})
+
+
+table.insert(fingerprints, {
+  category='management',
+  probes={
+    {path='/Dashboard/Dashboard.html', method='GET'},
+  },
+  matches= {
+    {match='Server: Kodak-RulesBasedAutomation', output='Prinergy Dashboard Client Login'},
+    {match='<title>Dashboard</title>', output='Prinergy Dashboard Client Login'}
+  }
+})
+
+
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
 ------------------------------------------------
@@ -1032,6 +1061,20 @@ table.insert(fingerprints, {
 	}
 })
 
+
+------------------------------------------------
+----         NETWORK EQUIPMENT              ----
+------------------------------------------------
+-- Routers, switches, etc
+table.insert(fingerprints, {
+	category='network',
+	probes={
+		{path='/', method='GET'},
+	},
+	matches= {
+		{match='realm="WRT54G"', output='Linksys WRT54g Wireless Router'}
+	}
+})
 
 
 ------------------------------------------------
