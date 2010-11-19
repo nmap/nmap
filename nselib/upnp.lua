@@ -37,6 +37,7 @@ module(... or "upnp", package.seeall)
 
 require("strbuf")
 require("target")
+require("http")
 
 Util = {
 	
@@ -155,7 +156,7 @@ Comm = {
 			if target.ALLOW_NEW_TARGETS then target.add(ip) end
 
 			if ( not(host_responses[ip]) ) then
-				local status, output = self.decodeResponse( response )
+				local status, output = self:decodeResponse( response )
 				if ( not(status) ) then
 					return false, "Failed to decode UPNP response"
 				end
@@ -171,7 +172,7 @@ Comm = {
 			return true, result
 		end
 	
-		if ( status and #response > 0 ) then
+		if ( status and #result > 0 ) then
 			return true, result[1]
 		else
 			return false, "Received no responses"
@@ -181,9 +182,9 @@ Comm = {
 	--- Processes a response from a upnp device
 	--
 	-- @param response as received over the socket
-	-- @return status true on success, false on failure
-	-- @return response suitable for output or error message if status is false
-	decodeResponse = function( response )
+	-- @return status boolean true on success, false on failure
+	-- @return response table or string suitable for output or error message if status is false
+	decodeResponse = function( self, response )
 		local output = {}
 	
 		if response ~= nil then
@@ -191,8 +192,8 @@ Comm = {
 			-- these match any combination of upper and lower case responses
 			local server, location
 			server = string.match(response, "[Ss][Ee][Rr][Vv][Ee][Rr]:%s*(.-)\010")
-			if server ~= nil then table.insert(output, server ) end
-			location = string.match(response, "[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:(.-)\010")
+			if server ~= nil then table.insert(output, "Server: " .. server ) end
+			location = string.match(response, "[Ll][Oo][Cc][Aa][Tt][Ii][Oo][Nn]:%s*(.-)\010")
 			if location ~= nil then
 				table.insert(output, "Location: " .. location )
 			
@@ -200,79 +201,89 @@ Comm = {
 
 				-- the following check can output quite a lot of information, so we require at least one -v flag
 				if v > 0 then
-					-- split the location into an IP address, port, and path name for the xml file
-					local xhost, xport, xfile
-					xhost = string.match(location, "http://(.-)/")
-					-- check to see if the host portionof the location specifies a port
-					-- if not, use port 80 as a standard web server port
-					if xhost ~= nil and string.match(xhost, ":") then
-						xport = string.match(xhost, ":(.*)")
-						xhost = string.match(xhost, "(.*):")
-					end
-
-					if xport == nil then
-						xport = 80
-					end
-
-					local peer = {}
-					local _
-
-					-- extract the path name from the location field, but strip off the \r that HTTP servers return
-					xfile = string.match(location, "http://.-/(.-)\013")
-					if xfile ~= nil then
-						local payload = strbuf.new()
-
-						strbuf.clear(payload)
-						-- create an HTTP request for the file, using the host and port we extracted earlier
-						payload = payload .. "GET /" .. xfile .. " HTTP/1.1\r\n"
-						payload = payload .. "Accept: text/xml, application/xml, text/html\r\n"
-						payload = payload .. "User-Agent: Mozilla/5.0 (compatible; Nmap Scripting Engine; http://nmap.org/book/nse.html)\r\n"
-						payload = payload .. "Host: " .. xhost .. ":" .. xport .. "\r\n"
-						payload = payload .. "Connection: Keep-Alive\r\n"
-						payload = payload .. "Cache-Control: no-cache\r\n"
-						payload = payload .. "Pragma: no-cache\r\n\r\n"
-
-						local socket = nmap.new_socket()
-						socket:set_timeout(5000)
-
-						local status = socket:connect(xhost, xport, "tcp")
-						if ( not(status) ) then return false, ("Failed to connect to: %s"):format(xhost) end
-
-						status = socket:send(strbuf.dump(payload))
-						if ( not(status) ) then return false, ("Failed to send data to: %s"):format(xhost) end
-
-						-- we're expecting an xml file, and for UPnP purposes it should end in </root>
-						status, response = socket:receive_buf("</root>", true)
-
-						if (status) and (response ~= "TIMEOUT") then
-							if string.match(response, "HTTP/1.%d 200") then
-								local webserver
-								-- extract information about the webserver that is handling responses for the UPnP system
-								webserver = string.match(response, "[Ss][Ee][Rr][Vv][Ee][Rr]:(.-)\010")
-								if webserver ~= nil then table.insert(output, "Webserver: " .. webserver) end
-
-								-- the schema for UPnP includes a number of <device> entries, which can a number of interesting fields
-								for device in string.gmatch(response, "<deviceType>(.-)</UDN>") do
-									local fn, mnf, mdl, nm, ver
-
-									fn = string.match(device, "<friendlyName>(.-)</friendlyName>")
-									mnf = string.match(device, "<manufacturer>(.-)</manufacturer>")
-									mdl = string.match(device, "<modelDescription>(.-)</modelDescription>")
-									nm = string.match(device, "<modelName>(.-)</modelName>")
-									ver = string.match(device, "<modelNumber>(.-)</modelNumber>")
-
-									if fn ~= nil then table.insert(output, "Name: " .. fn) end
-									if mnf ~= nil then table.insert(output,"Manufacturer: " .. mnf) end
-									if mdl ~= nil then table.insert(output,"Model Descr: " .. mdl) end
-									if nm ~= nil then table.insert(output,"Model Name: " .. nm) end
-									if ver ~= nil then table.insert(output,"Model Version: " .. ver) end
-								end
-							end
-						end
+					local status, result = self:retrieveXML( location )
+					if status then
+						table.insert(output, result)
 					end
 				end	
 			end
+			if #output > 0 then
+				return true, output
+			else
+				return false, "Could not decode response"
+			end
+		end
+	end,
+	
+	--- Retrieves the XML file that describes the UPNP device
+	--
+	-- @param location string containing the location of the XML file from the UPNP response
+	-- @return status boolean true on success, false on failure
+	-- @return response table or string suitable for output or error message if status is false
+	retrieveXML = function( self, location )
+		local response
+		local options = {}
+		options['header'] = {}
+		options['header']['Accept'] = "text/xml, application/xml, text/html"
+		
+		-- if we're in multicast mode, or if the user doesn't want us to override the IP address,
+		-- just use the HTTP library to grab the XML file
+		if ( self.mcast or ( not self.override ) ) then
+			response = http.get_url( location, options )
+		else
+			-- otherwise, split the location into an IP address, port, and path name for the xml file
+			local xhost, xport, xfile
+			xhost = string.match(location, "http://(.-)/")
+			-- check to see if the host portion of the location specifies a port
+			-- if not, use port 80 as a standard web server port
+			if xhost ~= nil and string.match(xhost, ":") then
+				xport = string.match(xhost, ":(.*)")
+				xhost = string.match(xhost, "(.*):")
+			end
+
+			-- check to see if the IP address returned matches the IP address we scanned
+			if xhost ~= self.host.ip then 
+				stdnse.print_debug("IP addresses did not match! Found %s, using %s instead.", xhost, self.host.ip)
+				xhost = self.host.ip
+			end
+			
+			if xport == nil then
+				xport = 80
+			end
+
+			-- extract the path name from the location field, but strip off the \r that HTTP servers return
+			xfile = string.match(location, "http://.-(/.-)\013")
+			if xfile ~= nil then
+				response = http.get( xhost, xport, xfile, options )
+			end
+		end
+
+		if response ~= nil then
+			local output = {}
+					
+			-- extract information about the webserver that is handling responses for the UPnP system
+			local webserver = response['header']['server']
+			if webserver ~= nil then table.insert(output, "Webserver: " .. webserver) end
+
+			-- the schema for UPnP includes a number of <device> entries, which can a number of interesting fields
+			for device in string.gmatch(response['body'], "<deviceType>(.-)</UDN>") do
+				local fn, mnf, mdl, nm, ver
+
+				fn = string.match(device, "<friendlyName>(.-)</friendlyName>")
+				mnf = string.match(device, "<manufacturer>(.-)</manufacturer>")
+				mdl = string.match(device, "<modelDescription>(.-)</modelDescription>")
+				nm = string.match(device, "<modelName>(.-)</modelName>")
+				ver = string.match(device, "<modelNumber>(.-)</modelNumber>")
+
+				if fn ~= nil then table.insert(output, "Name: " .. fn) end
+				if mnf ~= nil then table.insert(output,"Manufacturer: " .. mnf) end
+				if mdl ~= nil then table.insert(output,"Model Descr: " .. mdl) end
+				if nm ~= nil then table.insert(output,"Model Name: " .. nm) end
+				if ver ~= nil then table.insert(output,"Model Version: " .. ver) end
+			end
 			return true, output
+		else
+			return false, "Could not retrieve XML file"
 		end
 	end,
 	
@@ -311,6 +322,14 @@ Helper = {
 	--
 	-- @param mcast boolean true if multicast is to be used, false otherwise
 	setMulticast = function( self, mcast ) self.comm:setMulticast(mcast) end,
+	
+	--- Enables or disables whether the script will override the IP address is the Location URL
+	--
+	-- @param override boolean true if override is to be enabled, false otherwise
+	setOverride = function( self, override )
+		assert( type(override)=="boolean", "override has to be either true or false")
+		self.comm.override = override
+	end,
 	
 	--- Sends a UPnP queries and collects a single or multiple responses
 	--
