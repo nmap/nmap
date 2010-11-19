@@ -47,8 +47,10 @@ function is_privileged()
 -- @param family Address family string (such as "inet") to specify the type
 -- of addresses returned
 -- @see address_family
--- @return Table containing addresses resolved from the host name
--- @usage local t = nmap.resolve("www.kame.net", nmap.address_family())
+-- @return Status (true or false)
+-- @return Table containing addresses resolved from the host name if status
+-- is true, or an error string if status is false
+-- @usage local status, t = nmap.resolve("www.kame.net", nmap.address_family())
 function resolve(host, family)
 
 --- Returns the address family Nmap is using.
