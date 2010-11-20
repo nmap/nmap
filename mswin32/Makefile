@@ -33,7 +33,7 @@ winbuild:
 		cp -f $$f ../nmap-$(NMAP_VERSION)/$$f; \
 	done
 	cd Release && cp -r ../../docs/licenses ../nmap-$(NMAP_VERSION)/
-	rm -rf ../nmap-$(NMAP_VERSION)/licenses/.svn
+	rm -rf nmap-$(NMAP_VERSION)/licenses/.svn
 	cp winpcap/winpcap-nmap-*.exe nmap-$(NMAP_VERSION)
 	cp vcredist_x86.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
