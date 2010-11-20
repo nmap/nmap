@@ -4356,7 +4356,7 @@ unknown	5343/udp	0.000330
 unknown	5345/udp	0.000330
 unknown	5347/tcp	0.000076
 unknown	5347/udp	0.000991
-unknown	5351/udp	0.003304
+nat-pmp	5351/udp	0.003304
 unknown	5352/udp	0.000330
 unknown	5353/tcp	0.000152
 zeroconf	5353/udp	0.100166	# Mac OS X Bonjour/Zeroconf port
