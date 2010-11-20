@@ -648,13 +648,19 @@ TDSStream = {
 		local status, result, lport, _
 		
 		self.socket = nmap.new_socket()
+
+		-- Set the timeout to something realistic for connects
+		self.socket:set_timeout( 5000 )
+		status, result = self.socket:connect(host, port)
+		if ( not(status) ) then return false, "Connect failed" end
+
 		-- Sometimes a Query can take a long time to respond, so we set
 		-- the timeout to 30 seconds. This shouldn't be a problem as the
 		-- library attempt to decode the protocol and avoid reading past 
 		-- the end of the input buffer. So the only time the timeout is
 		-- triggered is when waiting for a response to a query.
 		self.socket:set_timeout( MSSQL_TIMEOUT * 1000 )
-		status, result = self.socket:connect(host, port)
+
 		status, _, lport, _, _ = self.socket:get_info()
 		if ( status ) then
 			math.randomseed(os.time() * lport )
@@ -773,6 +779,75 @@ Helper =
 		end
 
 		return true
+	end,
+	
+	--- Sends a broadcast message to the SQL Browser Agent and parses the
+	-- results. The response is returned as an array of tables representing
+	-- each database instance. The tables have the following fields:
+	-- <code>servername</code> - the server name
+	-- <code>name</code> - the name of the instance
+	-- <code>clustered</code> - is the server clustered?
+	-- <code>version</code> - the db version, WILL MOST LIKELY BE INCORRECT
+	-- <code>port</code> - the TCP port of the server
+	-- <code>pipe</code> - the location of the listening named pipe
+	-- <code>ip</code> - the IP of the server
+	--
+	-- @param host table as received by the script action function
+	-- @param port table as received by the script action function
+	-- @param broadcast boolean true if the discovery should be performed
+	--        against the broadcast address or not.
+	-- @return status boolean, true on success false on failure
+	-- @return instances array of instance tables
+	Discover = function( host, port, broadcast )
+		local socket = nmap.new_socket("udp")
+		local instances = {}
+		
+		-- set a reasonable timeout
+		socket:set_timeout(5000)
+		
+		local status, err
+		
+		if ( not(broadcast) ) then
+			status, err = socket:connect( host, port )
+			if ( not(status) ) then	return false, err end
+			status, err = socket:send("\002")
+			if ( not(status) ) then	return status, err end
+		else
+			status, err = socket:sendto(host, port, "\002")			
+		end
+		
+		local data
+		
+		repeat
+			status, data = socket:receive()
+			if ( not(status) ) then break end
+
+			-- strip of first 3 bytes as they contain thing we don't want
+			data = data:sub(4)
+			
+			local _, ip
+			status, _, _, ip, _ = socket:get_info()
+
+			for instance in string.gmatch(data, "(.-;;)") do
+				instances[ip] = instances[ip] or {}
+
+		  		local info = {}
+		  		info.servername = string.match(instance, "ServerName;(.-);")
+		  		info.name = string.match(instance, "InstanceName;(.-);")
+		  		info.clustered = string.match(instance, "IsClustered;(.-);")
+		  		info.version = string.match(instance, "Version;(.-);")
+		  		info.port = string.match(instance, ";tcp;(.-);")
+		  		info.pipe = string.match(instance, ";np;(.-);")
+				info.ip = ip
+				
+				if ( not(instances[ip][info.name]) ) then
+					instances[ip][info.name] = info
+				end
+			end
+		until( not(broadcast) )
+		socket:close()
+		
+		return true, instances
 	end,
 
 	--- Disconnects from the SQL Server
@@ -984,5 +1059,54 @@ Util =
 		return new_tbl
 	end,
 	
+	--- Decodes the version based on information from the SQL browser service.
+	--
+	-- @param info table with instance information as received by
+	--        <code>Helper.Discover</code>
+	-- @return status true on successm false on failure
+	-- @return version table containing the following fields
+	--         <code>product</code>, <code>version</code>,
+	--         <code>level</code>
+	DecodeBrowserInfoVersion = function(info)
+
+		local VER_INFO = {
+			["^6%.0"] = "6.0", ["^6%.5"] = "6.5", ["^7%.0"] = "7.0", 
+			["^8%.0"] = "2000",	["^9%.0"] = "2005",	["^10%.0"]= "2008",
+		}
+
+		local VER_LEVEL = {
+			["9.00.3042"] = "SP2", ["9.00.3043"] = "SP2", ["9.00.2047"] = "SP1",
+			["9.00.1399"] = "RTM", ["10.0.1075"] = "CTP", ["10.0.1600"] = "CTP",
+			["10.0.2531"] = "SP1"
+		}
+
+		local product = ""
+		local version = {}
+
+		for m, v in pairs(VER_INFO) do
+			if ( info.version:match(m) ) then
+				product=v
+				break
+			end
+		end
+		if ( info.name == "SQLEXPRESS" ) then
+			product = product .. " Express Edition"
+		end
+		version.product = ("Microsoft SQL Server %s"):format(product)
+		version.version = info.version
+		for ver, level in pairs( VER_LEVEL ) do
+			-- make sure we're comparing the same length
+			local len = ( #info.version > #ver ) and #ver or #info.version
+			if ( ver == info.version:sub(1, len) ) then
+				version.level = level
+				break
+			end
+		end
+		if ( version.level ) then
+			version.version = version.version .. (" (%s)"):format(version.level)
+		end
+		version.version = version.version .. " - UNVERIFIED"
+		return true, version
+	end
 	
 }
