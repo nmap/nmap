@@ -176,6 +176,9 @@ Section "Nmap Core Files" SecCore
   RMDir /r "$INSTDIR\nselib-bin"
   RMDir /r "$INSTDIR\scripts"
   RMDir /r "$INSTDIR\zenmap"
+  RMDir /r "$INSTDIR\py2exe"
+  RMDir /r "$INSTDIR\share"
+  RMDir /r "$INSTDIR\licenses"
 
   SetOutPath "$INSTDIR" 
 
