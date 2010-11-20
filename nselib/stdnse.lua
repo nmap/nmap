@@ -460,18 +460,18 @@ local function format_output_sub(status, data, indent)
   -- Make sure we have an indent value
   indent = indent or {}
 
+  if(data['name']) then
+    if(data['warning'] and nmap.debugging() > 0) then
+      output = output .. format("%s%s%s (WARNING: %s)\n", format_get_indent(indent), prefix, data['name'], data['warning'])
+    else
+      output = output .. format("%s%s%s\n", format_get_indent(indent), prefix, data['name'])
+    end
+  elseif(data['warning'] and nmap.debugging() > 0) then
+      output = output .. format("%s%s(WARNING: %s)\n", format_get_indent(indent), prefix, data['warning'])
+  end
+
   for i, value in ipairs(data) do
     if(type(value) == 'table') then
-      if(value['name']) then
-        if(value['warning'] and nmap.debugging() > 0) then
-          output = output .. format("%s  %s%s (WARNING: %s)\n", format_get_indent(indent), prefix, value['name'], value['warning'])
-        else
-          output = output .. format("%s  %s%s\n", format_get_indent(indent), prefix, value['name'])
-        end
-      elseif(value['warning'] and nmap.debugging() > 0) then
-          output = output .. format("%s  %s(WARNING: %s)\n", format_get_indent(indent), prefix, value['warning'])
-      end
-
       -- Do a shallow copy of indent
       local new_indent = {}
       for _, v in ipairs(indent) do
