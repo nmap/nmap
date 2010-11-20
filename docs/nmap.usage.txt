@@ -1,4 +1,4 @@
-Nmap 5.35DC18 ( http://nmap.org )
+Nmap 5.36RC1 ( http://nmap.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc.
@@ -75,7 +75,6 @@ FIREWALL/IDS EVASION AND SPOOFING:
   --ttl <val>: Set IP time-to-live field
   --spoof-mac <mac address/prefix/vendor name>: Spoof your MAC address
   --badsum: Send packets with a bogus TCP/UDP/SCTP checksum
-  --adler32: Use deprecated Adler32 instead of CRC32C for SCTP checksums
 OUTPUT:
   -oN/-oX/-oS/-oG <file>: Output scan in normal, XML, s|<rIpt kIddi3,
      and Grepable format, respectively, to the given filename.
