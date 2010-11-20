@@ -42,7 +42,6 @@ Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "giop-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
-Entry { filename = "html-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
@@ -56,6 +55,8 @@ Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
@@ -109,7 +110,6 @@ Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
 Entry { filename = "smb-brute.nse", categories = { "auth", "intrusive", } }
