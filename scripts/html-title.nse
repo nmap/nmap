@@ -12,7 +12,7 @@ original target.
 -- Interesting ports on scanme.nmap.org (64.13.134.52):
 -- PORT   STATE SERVICE
 -- 80/tcp open  http
--- |_ html-title.nse: Go ahead and ScanMe!
+-- |_ http-title.nse: Go ahead and ScanMe!
 
 author = "Diman Todorov"
 
@@ -66,7 +66,7 @@ action = function(host, port)
     result = data.body
   else
     -- debug msg and no output; or no debug msg and some output if we were redirected.
-    if not redir then stdnse.print_debug( "html-title.nse: %s did not respond with any data.", host.targetname or host.ip ) end
+    if not redir then stdnse.print_debug( "http-title.nse: %s did not respond with any data.", host.targetname or host.ip ) end
     return (redir and ("%s %s no page was returned."):format( redir, (loc and ", but") or "and" )) or nil
   end
 
@@ -76,7 +76,7 @@ action = function(host, port)
   if title and title ~= "" then
     result = string.gsub(title , "[\n\r\t]", "")
     if string.len(title) > 65 then
-      stdnse.print_debug("html-title.nse: (%s) Title got truncated!", host.targetname or host.ip );
+      stdnse.print_debug("http-title.nse: (%s) Title got truncated!", host.targetname or host.ip );
       result = string.sub(result, 1, 62) .. "..."
     end
   else
@@ -177,7 +177,7 @@ function is_vhost( rhost, host )
   local status, answer = dns.query( rhost, opts )
 
   if not status then
-    stdnse.print_debug( "html-title.nse: DNS query failed for target %s.  Query was: %s. Error: %s", host.targetname or host.ip, rhost, answer or "nil" )
+    stdnse.print_debug( "http-title.nse: DNS query failed for target %s.  Query was: %s. Error: %s", host.targetname or host.ip, rhost, answer or "nil" )
     return false
   end
 

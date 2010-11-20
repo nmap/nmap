@@ -1,5 +1,5 @@
 description = [[
-Checks for disallowed entries in <code>robots.txt</code>.
+Checks for disallowed entries in <code>/robots.txt</code> on a web server.
 
 The higher the verbosity or debug level, the more disallowed entries are shown.
 ]]
@@ -7,7 +7,7 @@ The higher the verbosity or debug level, the more disallowed entries are shown.
 ---
 --@output
 -- 80/tcp  open   http    syn-ack
--- |  robots.txt: has 156 disallowed entries (40 shown)
+-- |  http-robots.txt: 156 disallowed entries (40 shown)
 -- |  /news?output=xhtml& /search /groups /images /catalogs
 -- |  /catalogues /news /nwshp /news?btcid=*& /news?btaid=*&
 -- |  /setnewsprefs? /index.html? /? /addurl/image? /pagead/ /relpage/
@@ -103,6 +103,6 @@ action = function(host, port)
 	local shown = (detail == 0 or detail == dis_count) 
                  and "\n" or '(' .. detail .. ' shown)\n'
 
-	return "has " .. dis_count .. " disallowed " .. noun ..
+	return  dis_count .. " disallowed " .. noun ..
 		shown .. table.concat(output, ' ', 1, detail) 
 end
