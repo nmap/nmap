@@ -952,7 +952,6 @@ local function main (hosts, scantype)
     runlevels[script.runlevel] = runlevels[script.runlevel] or {};
     insert(runlevels[script.runlevel], script);
   end
-  sort(runlevels);
 
   -- Yield only scripts in the given runlevel.
   local function runlevel_scripts(scripts)
