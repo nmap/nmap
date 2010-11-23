@@ -13,6 +13,7 @@ It also gives information about where the objects are located, (marked with @<ip
 Some apps give away the classpath, which this scripts catches in so-called "Custom data". 
 ]]
 
+---
 -- @usage nmap --script "rmi-dumpregistry.nse" -p 1098 <host>
 -- @output
 -- PORT     STATE SERVICE REASON
@@ -25,7 +26,7 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 -- |       java.rmi.server.RemoteStub
 -- |       extends
 -- |_        java.rmi.server.RemoteObject
-
+--
 -- @output
 -- PORT     STATE SERVICE REASON
 -- 1099/tcp open  rmi     syn-ack
@@ -132,8 +133,8 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 -- |         file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/jsse.jar
 -- |         file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/oscache.jar
 -- |_        file:/C:/CFusionMX7/runtime/../wwwroot/WEB-INF/cfform/jars/
-
-
+--
+--
 --@version 0.5
 
 author = "Martin Holst Swende"
@@ -147,7 +148,7 @@ portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"rmi
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug("RMI-DUMPREG:"..str, unpack(arg))
+	stdnse.print_debug(3,"RMI-DUMPREG:"..str, unpack(arg))
 end
 
 local function dbg_err(str, ... )

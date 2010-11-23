@@ -4,24 +4,24 @@
 -- to invoke methods and parse returnvalues which are simple, basically the java primitives.
 -- This can be used to e.g dump out the registry, and perform authentication against
 -- e.g JMX-services. 
-
+--
 -- This library also contains some classes which works pretty much like the 
 -- java classes BufferedReader, BufferedWriter, DataOutputStream and DataInputStream. 
-
+--
 -- Most of the methods in the RMIDataStream class is based on the OpenJDK RMI Implementation, 
 -- and I have kept the methodnames  as they are in java, so it should not be too hard to find 
 -- the corresponding functionality in the jdk codebase to see how things 'should' be done, in case
 -- there are bugs or someone wants to make additions. I have only implemented the 
 -- things that were needed to get things working, but it should be pretty simple to add more 
 -- functionality by lifting over more stuff from the jdk. 
-
+--
 -- The interesting classes in OpenJDK are:
 --	java.io.ObjectStreamConstants
 --	java.io.ObjectStreamClass 
 --	java.io.ObjectInputStream
 --	sun.rmi.transport.StreamRemoteCall
 -- 	and a few more. 
-
+--
 -- If you want to add calls to classes you know of, you can use e.g Jode to decompile the 
 -- stub-class or skeleton class and find out the details that are needed to perform an 
 -- RMI method invokation. Those are
@@ -30,23 +30,25 @@
 --	Arguments f
 -- You also need the object id (so the remote server knows what instance you are talking to). That can be
 -- fetched from the registry (afaik) but not currently implemented. Some object ids are static : the registry is always 0
-
+--
 -- @author Martin Holst Swende
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @see java 1.4 RMI-spec: http://java.sun.com/j2se/1.4.2/docs/guide/rmi/ 
 -- @see java 5 RMI-spec: http://java.sun.com/j2se/1.5.0/docs/guide/rmi/spec/rmiTOC.html
 -- @see java 6 RMI-spec : http://java.sun.com/javase/6/docs/technotes/guides/rmi/index.html
 -- @see The protocol for Java object serializtion : http://java.sun.com/javase/6/docs/platform/serialization/spec/protocol.html
--- Version 0.1
+-- Version 0.2
 
 -- Created 09/06/2010 - v0.1 - created by Martin Holst Swende <martin@swende.se>
+-- Fixed more documentation - v0.2 Martin Holst Swende <martin@swende.se>
+
 module("rmi", package.seeall)
 require("bin")
 require("bit")
 -- Some lazy shortcuts
 
 local function dbg(str,...)
-	stdnse.print_debug("RMI:"..str, unpack(arg))
+	stdnse.print_debug(3,"RMI:"..str, unpack(arg))
 end
 -- Convenience function to both print an error message and return <false, msg>
 -- Example usage : 
@@ -57,27 +59,14 @@ local function doh(str,...)
 	stdnse.print_debug("RMI-ERR:"..tostring(str), unpack(arg))
 end
 
-----------------------------------------------------------------------------------------------------------
--- The Buffering classes
-----------------------------------------------------------------------------------------------------------
--- These buffering clases provide functionality much like javas BufferedReader
--- and BufferedWriter. 
-
+---
+-- BufferedWriter 
+-- This buffering writer provide functionality much like javas BufferedWriter. 
+--
 -- BufferedWriter wraps the pack-functionality from bin, and buffers data internally
 -- until flush is called. When flush is called, it either sends the data to the socket OR
 -- returns the data, if no socket has been set. 
-
--- BufferedReader reads data from the supplied socket and contains functionality
--- to read all that is available and store all that is not currently needed, so the caller
--- gets an exact number of bytes (which is not the case with the basic nmap socket implementation)
--- If not enough data is available, it blocks until data is received, thereby handling the case
--- if data is spread over several tcp packets (which is a pitfall for many scripts)
-
--- It wraps unpack from bin for the reading. 
--- OBS! You need to check before invoking skip or unpack that there is enough
--- data to read. Since this class does not parse arguments to unpack, it does not 
--- know how much data to read ahead on those calls. 
--- Example usage:
+--@usage:
 --	local bWriter = BufferedWriter:new(socket)
 -- 	local breader= BufferedReader:new(socket)
 --
@@ -100,7 +89,7 @@ BufferedWriter = {
 		return o
 	end,
 	
-	--- Sends data over the socket
+	-- Sends data over the socket
 	-- (Actually, just buffers until flushed)
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
@@ -129,6 +118,29 @@ BufferedWriter = {
 	end, 
 
 }
+---
+-- BufferedReader reads data from the supplied socket and contains functionality
+-- to read all that is available and store all that is not currently needed, so the caller
+-- gets an exact number of bytes (which is not the case with the basic nmap socket implementation)
+-- If not enough data is available, it blocks until data is received, thereby handling the case
+-- if data is spread over several tcp packets (which is a pitfall for many scripts)
+--
+-- It wraps unpack from bin for the reading. 
+-- OBS! You need to check before invoking skip or unpack that there is enough
+-- data to read. Since this class does not parse arguments to unpack, it does not 
+-- know how much data to read ahead on those calls. 
+--@usage:
+--	local bWriter = BufferedWriter:new(socket)
+-- 	local breader= BufferedReader:new(socket)
+--
+--	bWriter.pack('>i', integer)
+--	bWrier.flush() -- sends the data
+--
+-- 	if bsocket:canRead(4) then -- Waits until four bytes can be read
+-- 		local packetLength = bsocket:unpack('i') -- Read the four bytess
+-- 		if bsocket:canRead(packetLength) then
+-- 			-- ...continue reading packet values
+
 BufferedReader = {
 	new = function(self, socket, readBuffer)
 		local o = {}
@@ -139,7 +151,7 @@ BufferedReader = {
 		o.socket = socket -- May also be nil
 		return o
 	end,
-	
+	---
 	-- This method blocks until the specified number of bytes
 	-- have been read from the socket and are avaiable for 
 	-- the caller to read, e.g via the unpack function
@@ -165,31 +177,35 @@ BufferedReader = {
 		end
 		return true
 	end,
-	
-	--Returns the number of bytes already available for reading
+	---
+	--@return Returns the number of bytes already available for reading
 	bufferSize = function(self)
 		return #self.readBuffer +1 -self.pos 
 	end,
-	
+	---
 	-- This function works just like bin.unpack (in fact, it is 
 	-- merely a wrapper around it.  However, it uses the data
 	-- already read into the buffer, and the internal position
 	--@param format - see bin
+	--@return the unpacked value (NOT the index)
 	unpack = function(self,format)
 		local ret = {bin.unpack(format, self.readBuffer, self.pos)}
 		self.pos = ret[1]
 		return unpack(ret,2)
 	end,
+	---
 	-- This function works just like bin.unpack (in fact, it is 
 	-- merely a wrapper around it.  However, it uses the data
 	-- already read into the buffer, and the internal position. 
 	-- This method does not update the current position, and the 
 	-- data can be read again
 	--@param format - see bin
+	--@return the unpacked value (NOT the index)
 	peekUnpack = function(self,format)
 		local ret = {bin.unpack(format, self.readBuffer, self.pos)}
 		return unpack(ret,2)
 	end,
+	---
 	-- Tries to read a byte, without consuming it. 
 	--@return status
 	--@return bytevalue
@@ -199,7 +215,7 @@ BufferedReader = {
 		end
 		return false
 	end,
-	
+	---
 	-- Skips a number of bytes
 	--@param len the number of bytes to skip
 	skip = function(self, len)
@@ -213,28 +229,6 @@ BufferedReader = {
 
 }
 
-----------------------------------------------------------------------------------------------------------
--- The JavaDOS / JavaDIS classes 
-----------------------------------------------------------------------------------------------------------
--- The JavaDOS class is an approximation of a java DataOutputStream, and 
--- JavaDIS close to java DataInputStream. They provide convenience functions 
--- for reading and writing java types to/from an underlying BufferedReader/BufferedWriter
-
--- When used in conjunction with the BufferedX- classes, they handle the availability-
--- checks transparently, i.e the caller does not have to check if enough data is available
-
--- Usage : 
--- 	local dos = JavaDOS:new(BufferedWriter:new(socket))
--- 	local dos = JavaDIS:new(BufferedReader:new(socket))
--- 	dos:writeUTF("Hello world")
--- 	dos:writeInt(3)
--- 	dos:writeLong(3)
---	dos:flush() -- send data
--- 	local answer = dis:readUTF()
--- 	local int = dis:readInt()
--- 	local long = dis:readLong()
-
---
 -- The classes are generated when this file is loaded, by the definitions in the JavaTypes 
 -- table. That table contains mappings between the format used by bin and the types 
 -- available in java, aswell as the lengths (used for availability-checks) and the name which
@@ -251,6 +245,26 @@ local JavaTypes = {
 	{name = 'UnsignedLong', expr = '>L', len=  8},
 	{name = 'Byte', expr = '>C', len=  1},
 }
+
+---
+-- The JavaDOS classes 
+-- The JavaDOS class is an approximation of a java DataOutputStream. It provides convenience functions 
+-- for writing java types toan underlying BufferedWriter
+--
+-- When used in conjunction with the BufferedX- classes, they handle the availability-
+-- checks transparently, i.e the caller does not have to check if enough data is available
+--
+-- @usage: 
+-- 	local dos = JavaDOS:new(BufferedWriter:new(socket))
+-- 	local dos = JavaDIS:new(BufferedReader:new(socket))
+-- 	dos:writeUTF("Hello world")
+-- 	dos:writeInt(3)
+-- 	dos:writeLong(3)
+--	dos:flush() -- send data
+-- 	local answer = dis:readUTF()
+-- 	local int = dis:readInt()
+-- 	local long = dis:readLong()
+
 JavaDOS = {
 	new = function  (self,bWriter)
 		local o = {}   -- create new object if user does not provide one
@@ -285,6 +299,24 @@ JavaDOS = {
 	end,
 }
 
+---
+-- The JavaDIS class
+-- JavaDIS is close to java DataInputStream. It provides convenience functions 
+-- for reading java types from an underlying BufferedReader
+--
+-- When used in conjunction with the BufferedX- classes, they handle the availability-
+-- checks transparently, i.e the caller does not have to check if enough data is available
+--
+-- @usage: 
+-- 	local dos = JavaDOS:new(BufferedWriter:new(socket))
+-- 	local dos = JavaDIS:new(BufferedReader:new(socket))
+-- 	dos:writeUTF("Hello world")
+-- 	dos:writeInt(3)
+-- 	dos:writeLong(3)
+--	dos:flush() -- send data
+-- 	local answer = dis:readUTF()
+-- 	local int = dis:readInt()
+-- 	local long = dis:readLong()
 JavaDIS = {
 	new = function  (self,bReader)
 		local o = {}   -- create new object if user does not provide one
@@ -351,17 +383,15 @@ for _,x in ipairs(JavaTypes) do
 	JavaDOS._generateWriterFunc(JavaDOS, x)
 	JavaDIS._generateReaderFunc(JavaDIS, x)
 end
-	
+---
+-- This class represents a java class and is what is returned by the library
+-- when invoking a remote function. Therefore, this can also represent a java 
+-- object instance. 
 JavaClass = {
-	
-	
-	
 	new = function(self)
 		local o = {}
 		setmetatable(o, self)
 		self.__index = self
-		--o.fields = {}
-		--o.isclass = true
 		return o
 	end,
 	
@@ -483,7 +513,7 @@ JavaClass = {
 	end,
 	
 }
-
+--- Represents a field in an object, i.e an object member
 JavaField = {
 
 	new = function(self, name, typ )
@@ -523,7 +553,7 @@ JavaField = {
 	end,
 	toTable = function(self)
 		local data = {tostring(self.type) .. " " .. tostring(self.name)}
-		print("FIELD VALUE:", self.value)
+		--print("FIELD VALUE:", self.value)
 		if self.value ~= nil then
 			if type(self.value) == 'table' then
 				if self.value.toTable ~=nil then
@@ -539,7 +569,8 @@ JavaField = {
 	end,
 	
 }
-
+--- 
+-- Represents a java array. Internally, this is a lua list of JavaClass-instances
 JavaArray = {
 	new = function(self)
 		local o = {}
@@ -616,14 +647,25 @@ TC = {
 
 }
 
-----------------------------------------------------------------------------------------------------------
+local Version= 0x02
+local Proto= {Stream=0x4b, SingleOp=0x4c, Multiplex=0x4d}
+
+---
 -- RmiDataStream class
-----------------------------------------------------------------------------------------------------------
 -- This class can handle reading and writing JRMP, i.e RMI wire protocol and 
 -- can do some very limited java deserialization. This implementation has 
 -- borrowed from OpenJDK RMI implementation, but only implements an
 -- absolute minimum of what is required in order to perform some basic calls
 -- 
+
+RmiDataStream = {
+	new = function  (self,o)
+		o = o or {}   -- create object if user does not provide one
+		setmetatable(o, self)
+		self.__index = self -- DIY inheritance
+		return o
+	end,
+}
 -- An output stream in RMI consists of transport Header information followed by a sequence of Messages.
 --  Out:
 --  	Header Messages
@@ -647,16 +689,6 @@ TC = {
 --  	Message
 --  	Messages Message 
 
-local Version= 0x02
-local Proto= {Stream=0x4b, SingleOp=0x4c, Multiplex=0x4d}
-RmiDataStream = {
-	new = function  (self,o)
-		o = o or {}   -- create object if user does not provide one
-		setmetatable(o, self)
-		self.__index = self -- DIY inheritance
-		return o
-	end,
-}
 ----
 -- Connects to a remote service. The connection process creates a 
 -- socket and does some handshaking. If this is successfull, 
@@ -782,6 +814,7 @@ function RmiDataStream:writeMethodCall(out,objNum, hash, op, arguments)
 	dos:flush()
 
 end
+---
 -- Invokes a method over RMI
 --@param methodData, a table which should contain the following
 --@param objNum -object id (target of call)
@@ -789,6 +822,8 @@ end
 --@param op - the operation number (method) invoked 
 --@param arguments - optional, if arguments are needed to this method. Should be an Arguments table
 --	or something else which has a getData() function to get binary data
+--@return status
+--@return a JavaClass instance
 function RmiDataStream:invoke(objNum, hash, op, arguments)
 	local status, data
 	local out = self.out
@@ -805,7 +840,7 @@ function RmiDataStream:invoke(objNum, hash, op, arguments)
 	return status, data
 end
 
-
+---
 -- Reads an RMI ReturnData packet
 --@param dis a JavaDIS inputstream
 function RmiDataStream:readReturnData(dis)
@@ -867,6 +902,8 @@ function RmiDataStream:readReturnData(dis)
  	end
 	return status, x
 end
+---
+-- Deserializes a serialized java object
 function readObject0(dis)
 
 	local finished = false
@@ -968,19 +1005,6 @@ function readOrdinaryObject(dis)
 	return status, desc
 
 end
---[[
-
-00000060: 2e 73 65 72 76 65 72 2e 52 65 6d 6f 74 65 53 74 .server.RemoteSt
-00000070: 75 62 e9 fe dc c9 8b e1 65 1a 02 00 00 70 78 72 ub      e    pxr
-00000080: 00 1c 6a 61 76 61 2e 72 6d 69 2e 73 65 72 76 65   java.rmi.serve
-00000090: 72 2e 52 65 6d 6f 74 65 4f 62 6a 65 63 74 d3 61 r.RemoteObject a
-000000a0: b4 91 0c 61 33 1e 03 00 00 70 78 70 77 32 00 0a    a3    pxpw2  
-000000b0: 55 6e 69 63 61 73 74 52 65 66 00 09 31 32 37 2e UnicastRef  127.
-000000c0: 30 2e 31 2e 31 00 00 94 5c 66 06 14 9c 2c 38 ba 0.1.1   \f   ,8 
-000000d0: c7 25 14 95 21 00 00 01 2b 16 9a 62 5a 80 01 01  %  !   +  bZ   
-000000e0: 78               
-
---]]
 
 -- Attempts to read some object-data, at least remove the block
 -- header. This method returns the external data in 'raw' form, 
@@ -997,8 +1021,8 @@ function readExternalData(dis)
 		if tc == TC.TC_BLOCKDATA then
 			status, len = dis:readByte()
 			status, content = dis.bReader:skip(len)
-			print(bin.unpack("H"..tostring(#content),content))
-			print(makeStringReadable(content))
+			--print(bin.unpack("H"..tostring(#content),content))
+			--print(makeStringReadable(content))
 			dbg("Read external data (%d bytes): %s " ,len, content)
 			--local object = ExternalClassParsers['java.rmi.server.RemoteObject'](dis)
 			--print(object)
@@ -1015,9 +1039,8 @@ function readExternalData(dis)
 	end
 end
 
-----------------------------------------------------------------------------------------------------------
--- External Java Classes
-----------------------------------------------------------------------------------------------------------
+----
+-- ExternalClassParsers : External Java Classes
 -- This 'class' contains information about certain specific java classes, 
 -- such as UnicastRef, UnicastRef2. After such an object has been read by 
 -- the object serialization protocol, it will contain a lump of data which is 
@@ -1026,6 +1049,7 @@ end
 -- 'goodies' of e.g UnicastRef, which contain important information about
 -- where another RMI-socket is listening and waiting for someone to connect. 
 ExternalClassParsers = {
+	---
 	--@see sun.rmi.transport.tcp.TCPEndpoint
 	--@see sun.rmi.server.UnicastRef
 	--@see sun.rmi.server.UnicastRef2
@@ -1038,6 +1062,10 @@ ExternalClassParsers = {
 		dbg("a host: %s, port %d", host, port)
 		return true, ("@%s:%d"):format(host,port)
 	end,
+	---
+	--@see sun.rmi.transport.tcp.TCPEndpoint
+	--@see sun.rmi.server.UnicastRef
+	--@see sun.rmi.server.UnicastRef2
 	UnicastRef2 = function(dis)
 		local stat, form = dis:readByte();
 		if not stat then return doh("Parsing external data, could not read byte") end
@@ -1176,7 +1204,7 @@ function readNonProxyDesc(dis)
 		if ( TypeDecoders[fieldType] ) then
 			status, value= TypeDecoders[fieldType](dis)
 		else
-			dbg("ellol reading".. RMIUtils.tcString(p))
+			dbg("ellol reading".. RMIUtils.tcString(fieldType))
 			return
 		end
 		dbg("Read fieldvalue ".. tostring(value) .. " for field ".. tostring(fields[i]))
@@ -1214,7 +1242,7 @@ function readProxyDesc(dis)
 	local _,superDescriptor = readClassDesc(dis)
 	
 	
-	print ("superdescriptor", superDescriptor)
+	--print ("superdescriptor", superDescriptor)
 	j_class:setSuperClass(superDescriptor)
 	j_class:setInterfaces(interfaces)
 	
@@ -1358,9 +1386,10 @@ TypeDecoders =
 	[TC.TC_OBJECT] = readOrdinaryObject,
 }
 
-
+---
+-- Registry
 -- Class to represent the RMI Registry. 
---- Usage : 
+--@usage:
 -- 	registry = rmi.Registry:new()
 -- 	status, data = registry:list()
 Registry ={
@@ -1392,6 +1421,7 @@ function Registry:_handshake()
 	self.out = out
 	return true
 end
+---
 -- List the named objects in the remote RMI registry
 --@return status
 --@return a table of strings , or error message
@@ -1402,9 +1432,12 @@ function Registry:list()
 	-- Method list() is op number 1
 	return self.out:invoke(self.objId, self.hash,1)
 end
+---
 -- Perform a lookup on an object in the Registry, 
 -- takes the name which is bound in the registry
 -- as argument
+--@return status
+--@return JavaClass-object
 function Registry:lookup(name)
 	self:_handshake()
 	-- Method lookup() is op number 2
@@ -1413,16 +1446,16 @@ function Registry:lookup(name)
 	a:addString(name)
 	return self.out:invoke(self.objId, self.hash,2, a)
 end
-----------------------------------------------------------------------------------------------------------
+----
 -- Arguments class
-----------------------------------------------------------------------------------------------------------
 -- This class is meant to handle arguments which is sent to a mehtod invoked 
 -- remotely. It is mean to contain functionality to add java primitive datatypes, 
--- such as pushInt, pushString, pushLong etc. When invoking a remote method
+-- such as pushInt, pushString, pushLong etc. All of these are not implemented
+-- currently
+--@usage: When invoking a remote method
 -- use this class in this manner: 
 -- 	Arguments a = Arguments:new()
--- 	a:pushString("Argument one")
--- 	a:pushInt(1)
+-- 	a:addString("foo")
 -- 	datastream:invoke{objNum=oid, hash=hash, opNum = opid, arguments=a}
 -- 	...
 -- 	
@@ -1447,10 +1480,8 @@ Arguments = {
 }
 
 
-
-----------------------------------------------------------------------------------------------------------
--- Below is some codes and definitions from Java
-----------------------------------------------------------------------------------------------------------
+---
+-- RMIUtils class provides some some codes and definitions from Java
 -- There are three types of output messages: Call, Ping  and DgcAck. 
 -- A Call encodes a method invocation. A Ping  is a transport-level message 
 -- for testing liveness of a remote virtual machine. 
@@ -1507,4 +1538,3 @@ STREAM_MAGIC =  0xaced
 STREAM_VERSION = 5
 
 baseWireHandle = 0x7E0000
-
