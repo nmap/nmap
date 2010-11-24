@@ -5,7 +5,7 @@ their ID files. (CVE-2006-5835)
 
 ---
 -- @usage
--- nmap --script domino-enum-users -p 5900 <host>
+-- nmap --script domino-enum-users -p 1352 <host>
 --
 -- @output
 -- PORT     STATE SERVICE REASON
