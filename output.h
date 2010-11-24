@@ -133,6 +133,8 @@
 #include "nmap.h"
 #include "global_structures.h"
 
+#include <string>
+
 #ifdef WIN32
 /* Display a warning that a device is not Ethernet and so raw sockets
    will be used. The warning is shown only once per unique device name. */
