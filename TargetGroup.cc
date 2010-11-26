@@ -308,28 +308,46 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
     }
   else {
 #if HAVE_IPV6
-    int rc = 0;
+    struct addrinfo *addrs, *addr;
+    struct sockaddr_storage ss;
+    size_t sslen;
+
     assert(af == AF_INET6);
     if (strchr(hostexp, '/')) {
       fatal("Invalid host expression: %s -- slash not allowed.  IPv6 addresses can currently only be specified individually", hostexp);
     }
+    resolvedname = hostexp;
+    if (strchr(hostexp, ':') == NULL)
+      namedhost = 1;
+
     targets_type = IPV6_ADDRESS;
-    struct addrinfo hints;
-    struct addrinfo *result = NULL;
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_family = PF_INET6;
-    rc = getaddrinfo(hostexp, NULL, &hints, &result);
-    if (rc != 0 || result == NULL) {
-      error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.  Error code %d: %s", hostexp, rc, gai_strerror(rc));
-      free(hostexp);
-      if (result) freeaddrinfo(result);
-      return 1;
+    addrs = resolve_all(hostexp, AF_INET6);
+    for (addr = addrs; addr != NULL; addr = addr->ai_next) {
+      if (addr->ai_family != AF_INET6)
+        continue;
+      if (addr->ai_addrlen < sizeof(ss)) {
+        memcpy(&ss, addr->ai_addr, addr->ai_addrlen);
+        resolvedaddrs.push_back(ss);
+      }
     }
-    assert(result->ai_addrlen == sizeof(struct sockaddr_in6));
-    struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) result->ai_addr;
-    memcpy(&ip6, sin6, sizeof(struct sockaddr_in6));
+    freeaddrinfo(addrs);
+
+    if (resolvedaddrs.empty()) {
+      error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.", hostexp);
+      free(hostexp);
+      return 1;
+    } else {
+      ss = *resolvedaddrs.begin();
+      sslen = sizeof(ss);
+    }
+
+    if (resolvedaddrs.size() > 1 && o.verbose > 1)
+      error("Warning: Hostname %s resolves to %lu IPs. Using %s.", hostexp, (unsigned long)resolvedaddrs.size(), inet_ntop_ez(&ss, sslen));
+
+    assert(sizeof(ip6) <= sslen);
+    memcpy(&ip6, &ss, sizeof(ip6));
+
     ipsleft = 1;
-    freeaddrinfo(result);
 #else // HAVE_IPV6
     fatal("IPv6 not supported on your platform");
 #endif // HAVE_IPV6
@@ -535,21 +553,17 @@ int TargetGroup::return_last_host() {
    netmask. */
 bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
 {
-  const struct sockaddr_in *sin, *sin_resolved;
   struct sockaddr_storage resolvedaddr;
 
-  if (targets_type != IPV4_NETMASK || ss->ss_family != AF_INET
-      || resolvedaddrs.empty()) {
+  if (resolvedaddrs.empty())
     return false;
-  }
+  /* We only have a single distinguished address for these target types.
+     IPV4_RANGES doesn't, for example. */
+  if (!(targets_type == IPV4_NETMASK || targets_type == IPV6_ADDRESS))
+    return false;
   resolvedaddr = *resolvedaddrs.begin();
-  if (resolvedaddr.ss_family != AF_INET)
-    return false;
 
-  sin = (struct sockaddr_in *) ss;
-  sin_resolved = (struct sockaddr_in *) &resolvedaddr;
-
-  return sin->sin_addr.s_addr == sin_resolved->sin_addr.s_addr;
+  return sockaddr_storage_cmp(&resolvedaddr, ss) == 0;
 }
 
 /* Return a string of the name or address that was resolved for this group. */
