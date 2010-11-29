@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the hddtemp-info script from Toni Ruotto, which gets
+  hard drive temperatures from the hddtemp service.
+
 o [NSE] There is now a limit of 1,000 concurrent running scripts,
   instituted to keep memory under control when there are many open
   ports. Nathan reported 3 GB of memory use (with an out-of-memory NSE

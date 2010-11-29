@@ -41,6 +41,7 @@ Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "giop-info.nse", categories = { "discovery", "safe", } }
+Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
