@@ -314,7 +314,7 @@ local function ttlmetric(host)
   -- look for the ttl value to use according to traceroute results
   for i, hop in pairs(host.traceroute) do
     if hop.ip == gateway then
-      return i + 2
+      return i + 1
     end
   end
 
@@ -439,7 +439,7 @@ action = function(host)
 
     if not Protocol then
       if nmap.verbosity() > 1 then
-        nmap.log_write("FIREWALK: Unsupported protocol: " .. proto)
+        nmap.log_write("stdout", "FIREWALK: Unsupported protocol: " .. proto)
       end
       return
     end
