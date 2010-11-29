@@ -195,7 +195,7 @@
 /* #undef HAVE_SYS_NDD_VAR_H */
 
 /* Define if you have the <sys/socket.h> header file. */
-#define HAVE_SYS_SOCKET_H 1
+/* #undef HAVE_SYS_SOCKET_H */
 
 /* Define if you have the <sys/sockio.h> header file. */
 /* #undef HAVE_SYS_SOCKIO_H */
