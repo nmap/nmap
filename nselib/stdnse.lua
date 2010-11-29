@@ -135,7 +135,7 @@ function make_buffer(socket, sep)
     if done then
       return nil, msg; -- must be nil for stdnse.lines (below)
     elseif not buffer then
-      local status, str = socket:receive_lines(1);
+      local status, str = socket:receive();
       if not status then
         if #left > 0 then
           done, msg = not status, str;
