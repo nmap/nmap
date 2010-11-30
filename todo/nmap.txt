@@ -2,6 +2,15 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Process Nmap survey and send out results [Fyodor]
 
+o Do service/version detection submission integration (last done in
+  April)
+
+o Do os detection submission integration (last done in April)
+
+o Update changelog to note recent changes
+
+o Do another Nmap test/dev release
+
 o Do new Nmap release with the stuff merged from SoC students and
   other new developments.
   - Need to have our SoC successes writeup for 2010 posted first.
@@ -28,12 +37,8 @@ o We should probably update our Windows build systems to use Python
   PyGObject: 2.26.0 IS available for 2.7
   Py2exe: 0.6.9 IS available for 2.7
 
-o Create Nmap wiki
- o Decide on domain name
- o Include insecure Chrome
- o Decide on wiki software, probably just use mediawiki
- o install it on a Linode, probably Web
- 
+o Add some content to https://secwiki.org and announce it.
+
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
@@ -524,31 +529,6 @@ o Look into whether we should loosen/change the global congestion
     image file at once and count on the fairness of TCP to sort it
     out.
 
-o [libnetutil] Study route_dst(), getinterfaces() and getsysroutes() because
-  they don't seem to be freeing memory they aquire thorugh safe_zalloc().
-  Currently valgrind reports this:
-  ==12849== 2,944 bytes in 1 blocks are still reachable in loss record 8 of 9
-  ==12849==    at 0x4C277CC: calloc (vg_replace_malloc.c:467)
-  ==12849==    by 0x42AEE5: safe_zalloc (nbase_memalloc.c:140)
-  ==12849==    by 0x438809: getinterfaces(int*, char*, unsigned long) (netuti
-  ==12849==    by 0x438ED2: getsysroutes_proc(_IO_FILE*, int*, char*, unsigne
-  ==12849==    by 0x4394A7: getsysroutes(int*, char*, unsigned long) (netutil
-  ==12849==    by 0x4398EC: route_dst(sockaddr_storage const*, route_nfo*, ch
-  ==12849==    by 0x413939: getNetworkInterfaceName(sockaddr_storage*, char*) 
-  ==12849==    by 0x40F64A: NpingOps::validateOptions() (NpingOps.cc:2489)
-  ==12849==    by 0x40B2B1: main (nping.cc:156)
-  ==12849== 
-  ==12849== 3,072 bytes in 1 blocks are still reachable in loss record 9 of 9
-  ==12849==    at 0x4C277CC: calloc (vg_replace_malloc.c:467)
-  ==12849==    by 0x42AEE5: safe_zalloc (nbase_memalloc.c:140)
-  ==12849==    by 0x438EEF: getsysroutes_proc(_IO_FILE*, int*, char*, unsigne
-  ==12849==    by 0x4394A7: getsysroutes(int*, char*, unsigned long) (netutil
-  ==12849==    by 0x4398EC: route_dst(sockaddr_storage const*, route_nfo*, ch
-  ==12849==    by 0x413939: getNetworkInterfaceName(sockaddr_storage*, char*) 
-  ==12849==    by 0x40F64A: NpingOps::validateOptions() (NpingOps.cc:2489)
-  ==12849==    by 0x40B2B1: main (nping.cc:156)
-
-
 o Make Zenmap settings get upgraded when the Zenmap executable is
   upgraded. The per-user configuration files such as scan_profile.usp
   and zenmap.conf are never overwritten once installed by Zenmap, so
@@ -672,6 +652,12 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Create Nmap wiki
+ o Decide on domain name
+ o Include insecure Chrome
+ o Decide on wiki software, probably just use mediawiki
+ o install it on a Linode, probably Web
 
 o [NSE] Web application fingerprinting script.  Would be great to be
   able to take a URL and determine things like "this is Joomla" or
