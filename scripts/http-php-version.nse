@@ -40,20 +40,15 @@ local CREDITS_QUERY = "/?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000"
 
 local LOGO_HASHES = {
 	-- Bunny (Carmella)
-	-- www.patelecningbo.com
-	["37e194b799d4aaff10e39c4e3b2679a2"] = {"4.3.1", "5.0.0 - 5.0.3"},
+	["37e194b799d4aaff10e39c4e3b2679a2"] = {"5.0.0 - 5.0.3"},
 	-- Black Scottish Terrier (Scotch)
-	-- www.psychreport.com www.myxeau.com
-	["4b2c92409cf0bcf465d199e93a15ac3f"] = {"4.3.11", "4.4.0 - 4.4.4", "4.4.9", "5.0.4 - 5.0.5", "5.1.0 - 5.1.2"},
+	["4b2c92409cf0bcf465d199e93a15ac3f"] = {"4.3.11", "4.4.0 - 4.4.9", "5.0.4 - 5.0.5", "5.1.0 - 5.1.2"},
 	-- Colored
-	-- www.pamzylove.com
 	["50caaf268b4f3d260d720a1a29c5fe21"] = {"5.1.3 - 5.1.6", "5.2.0 - 5.2.14"},
 	-- PHP Code Guy With Breadsticks (Thies C. Arntzen)
-	-- 206.230.28.196, www.security.lutsk.ua/gb/gb2.php
-	["85be3b4be7bfe839cbb3b4f2d30ff983"] = {"4.0.1pl2", "4.1.2", "4.2.2 - 4.2.3"},
+	["85be3b4be7bfe839cbb3b4f2d30ff983"] = {"4.0.0 - 4.2.3"},
 	-- Brown Dog In Grass (Nadia)
-	-- www.168.hk
-	["a57bd73e27be03a62dd6b3e1b537a72c"] = {"PHP4u 3.0", "4.3.2 - 4.3.10"},
+	["a57bd73e27be03a62dd6b3e1b537a72c"] = {"4.3.0 - 4.3.10"},
 	-- Elephant
 	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.3"},
 }
@@ -62,11 +57,8 @@ local CREDITS_HASHES = {
 	["1776a7c1b3255b07c6b9f43b9f50f05e"] = {"5.2.6"},
 	["1ffc970c5eae684bebc0e0133c4e1f01"] = {"5.2.8"},
 	["3422eded2fcceb3c89cabb5156b5d4e2"] = {"4.2.3"},
-	-- www.patelecningbo.com
-	["3c31e4674f42a49108b5300f8e73be26"] = {"4.3.1", "5.0.0 - 5.0.5"},
-	-- www.psychreport.com www.myxeau.com
+	["3c31e4674f42a49108b5300f8e73be26"] = {"5.0.0 - 5.0.5"},
 	["50ac182f03fc56a719a41fc1786d937d"] = {"4.3.11", "4.4.0 - 4.4.4", "4.4.9", "5.0.5-2ubuntu1.1", "5.0.5-pl3-gentoo", "5.1.0 - 5.1.2"},
-	-- www.pamzylove.com
 	["54f426521bf61f2d95c8bfaa13857c51"] = {"5.1.4", "5.2.9 - 5.2.14"},
 	["5518a02af41478cfc492c930ace45ae5"] = {"5.1.0 - 5.1.1"},
 	["55bc081f2d460b8e6eb326a953c0e71e"] = {"4.4.1"},
@@ -75,14 +67,12 @@ local CREDITS_HASHES = {
 	["6a1c211f27330f1ab602c7c574f3a279"] = {"5.2.0"},
 	["6be3565cdd38e717e4eb96868d9be141"] = {"5.0.5"},
 	["6cb0a5ba2d88f9d6c5c9e144dd5941a6"] = {"5.1.2"},
-	-- 206.230.28.196, www.security.lutsk.ua/gb/gb2.php
 	["744aecef04f9ed1bc39ae773c40017d1"] = {"4.0.1pl2", "4.1.2", "4.2.2"},
 	["82fa2d6aa15f971f7dadefe4f2ac20e3"] = {"5.1.3 - 5.1.6"},
 	["8a4a61f60025b43f11a7c998f02b1902"] = {"4.3.4"},
 	["8fbf48d5a2a64065fc26db3e890b9871"] = {"4.3.10"},
-	-- www.168.hk
-	["913ec921cf487109084a518f91e70859"] = {"PHP4u 3.0", "4.3.2 - 4.3.3", "4.3.6", "4.3.8 - 4.3.10"},
-	["a4c057b11fa0fba98c8e26cd7bb762a8"] = {"5.3.1RC3", "5.3.1 - 5.3.2"},
+	["913ec921cf487109084a518f91e70859"] = {"4.3.2 - 4.3.3", "4.3.6", "4.3.8 - 4.3.10"},
+	["a4c057b11fa0fba98c8e26cd7bb762a8"] = {"5.3.1 - 5.3.2"},
 	["b34501471d51cebafacdd45bf2cd545d"] = {"5.3.3"},
 	["bed7ceff09e9666d96fdf3518af78e0e"] = {"4.4.2 - 4.4.4"},
 	["c37c96e8728dc959c55219d47f2d543f"] = {"5.2.3 - 5.2.5"},
