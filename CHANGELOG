@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now uses case-insensitive string comparison when
+  checking authentication schemes and parameters. Florian Roth found a
+  server offering "BASIC" instead of "Basic", and the HTTP RFC
+  requires case-insensitive comparisons in most places. [David]
+
 o [NSE] Added the hddtemp-info script from Toni Ruotto, which gets
   hard drive temperatures from the hddtemp service.
 
