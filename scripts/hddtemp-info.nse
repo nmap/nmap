@@ -1,5 +1,5 @@
 description = [[
-Reads hard disk information from hddtemp service.
+Reads hard disk information (such as brand, model, and sometimes temperature) from a listening hddtemp service.
 ]]
 
 ---
