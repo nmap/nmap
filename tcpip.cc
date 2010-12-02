@@ -635,7 +635,8 @@ u8 *build_icmp_raw(const struct in_addr *source,
     memset(datastart, 0, MIN(dlen, datalen));
   }
 
-  /* Fill out the ping packet */
+  /* Fill out the ping packet. All the ICMP types handled by this function have
+     the id and seq fields. */
   pingpkt.id = htons(id);
   pingpkt.seq = htons(seq);
   pingpkt.checksum = 0;
