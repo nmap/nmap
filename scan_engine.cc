@@ -3947,7 +3947,7 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
     if (to_usec < 2000) to_usec = 2000;
     rc = read_arp_reply_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, PacketTrace::traceArp);
     gettimeofday(&USI->now, NULL);
-    if (rc == -1) fatal("Received -1 response from readarp_reply_pcap");
+    if (rc == -1) fatal("Received -1 response from read_arp_reply_pcap");
     if (rc == 0) {
       if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
 	timedout = true;
