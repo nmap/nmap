@@ -53,7 +53,7 @@ action = function(host, port)
 	local cmd, err, line, req, resp, results, sock, status
 
 	-- Get script arguments.
-	cmd = stdnse.get_script_args("ftp-proftp-backdoor.cmd")
+	cmd = stdnse.get_script_args("ftp-proftpd-backdoor.cmd")
 	if not cmd then
 		cmd = CMD_SHELL
 	end
