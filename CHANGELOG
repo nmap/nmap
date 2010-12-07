@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the ftp-proftpd-backdoor.nse script by mak Kolybabi,
+  which checks for a backdoor in ProFTPD 1.3.3c.
+
 o [NSE] Added http-vhosts.nse from Carlos Pantelides. This script
   brute-forces virtual hosts by sending different Host headers to the
   same server.
