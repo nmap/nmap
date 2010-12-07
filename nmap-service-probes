@@ -1146,7 +1146,7 @@ match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\
 # Sometimes multiple emails are specified, bad emails, etc
 match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Throttled: Reconnecting too fast\) -Email .* for more information\.| p/Unreal ircd/ i/Admin email $1/
 match irc m|^ERROR :Closing Link: \[[\d.]+\] \(Too many unknown connections from your IP\)\r\n| p/Unreal ircd/
-match irc m|^ERROR :Reconnecting too fast, throttled\.\r\n$| p/Unreal ircd/
+match irc m|^ERROR :Reconnecting too fast, throttled\.\r\n$| p/ratbox, charybdis, or ircd-seven ircd/
 
 match irc m|^:([-\w_.]+) NOTICE Auth :\*\*\* Looking up your hostname\.\.\.\r\n| p/InspIRCd/ h/$1/
 
