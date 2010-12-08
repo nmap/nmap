@@ -499,7 +499,7 @@ local collapse = function(result)
   local limit = tonumber(stdnse.get_script_args("http-vhosts.collapse")) or 10
   for code, group in next, result do
     if  #group > limit then
-      collapsed[#collapsed + 1] =  #group .. " other names had status " ..  code
+      collapsed[#collapsed + 1] =  #group .. " names had status " ..  code
     else 
       for _,name in ipairs(group) do
         collapsed[#collapsed + 1] = name 
