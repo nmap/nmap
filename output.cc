@@ -1549,7 +1549,7 @@ static void printosclassificationoutput(const struct
       log_write(LOG_PLAIN, "Device type: ");
       for (classno = 0; classno < numtypes; classno++)
         log_write(LOG_PLAIN, "%s%s", types[classno], (classno < numtypes - 1) ? "|" : "");
-      log_write(LOG_PLAIN, "\nRunning%s: ", (familyaccuracy[0] < 1.0) ? " (JUST GUESSING) " : "");
+      log_write(LOG_PLAIN, "\nRunning%s: ", (familyaccuracy[0] < 1.0) ? " (JUST GUESSING)" : "");
       for (familyno = 0; familyno < numfamilies; familyno++) {
         if (familyno > 0)
           log_write(LOG_PLAIN, ", ");
