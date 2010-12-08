@@ -6,7 +6,8 @@
 
 module(... or "packet" ,package.seeall)
 
-require "bit"
+local bit = require "bit"
+local stdnse = require "stdnse"
 
 
 ----------------------------------------------------------------------------------------------------------------
@@ -142,15 +143,15 @@ function Packet:new(packet, packet_len, force_continue)
 	end
 	if o.ip_p == IPPROTO_TCP then
 		if not o:tcp_parse(force_continue) then
-			io.write("Error while parsing TCP packet\n")
+			stdnse.print_debug("Error while parsing TCP packet\n")
 		end
 	elseif o.ip_p == IPPROTO_UDP then
 		if not o:udp_parse(force_continue) then
-			io.write("Error while parsing UDP packet\n")
+			stdnse.print_debug("Error while parsing UDP packet\n")
 		end
 	elseif o.ip_p == IPPROTO_ICMP then
 		if not o:icmp_parse(force_continue) then
-			io.write("Error while parsing ICMP packet\n")
+			stdnse.print_debug("Error while parsing ICMP packet\n")
 		end
 	end
 	return o
