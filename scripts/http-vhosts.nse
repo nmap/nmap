@@ -19,6 +19,7 @@ various names of the form <name>.example.com are tried.
 -- example <code>example.com</code> yields www.example.com, www2.example.com,
 -- etc. If not provided, a guess is made based on the hostname.
 -- @arg http-vhosts.path The path to try to retrieve. Default <code>/</code>.
+-- @arg http-vhosts.collapse The limit to start collapsing results by status code. Default <code>20</code>
 
 -- @output
 -- PORT   STATE SERVICE REASON
@@ -487,6 +488,27 @@ local makeTargetName = function(name,domain)
   return name .. "." .. domain
 end
 
+
+---
+-- Collapses a result
+-- key -> table
+-- @param result table
+-- @return string
+local collapse = function(result) 
+  local collapsed = {""}
+  local limit = tonumber(stdnse.get_script_args("http-vhosts.collapse")) or 10
+  for code, group in next, result do
+    if  #group > limit then
+      collapsed[#collapsed + 1] =  #group .. " other names had status " ..  code
+    else 
+      for _,name in ipairs(group) do
+        collapsed[#collapsed + 1] = name 
+      end
+    end
+  end
+  return table.concat(collapsed,"\n")
+end
+
 portrule = shortport.http
 
 ---
@@ -497,9 +519,8 @@ action = function(host, port)
   local service = "http"
   local domain = defineDomain(host)
   local path = stdnse.get_script_args("http-vhosts.path") or "/"
-  local response = {}
+  local result = {}
 
-  response[#response + 1] = ""
   for _,name in ipairs(HOSTNAMES) do
     local http_response
     local targetname
@@ -507,20 +528,26 @@ action = function(host, port)
     targetname = makeTargetName(name , domain)
 
     if targetname ~= nil then
-      local record = targetname .. ": "
 
       http_response = http.head(host, port, path, {header={Host=targetname}, bypass_cache=true})
 
       if not http_response.status  then
-        record = record .. "ERROR"
+        if not response["ERROR"] then
+          result["ERROR"]={}
+        end
+        result["ERROR"][result["ERROR"] + 1] = targetname
       else
-        record = record .. http_response.status
+        local status = tostring(http_response.status)
+        if not result[status] then
+          result[status]={}
+        end
         if 300 <= http_response.status and http_response.status < 400 then
-          record = record .. " -> " .. (http_response.header.location or "(no Location provided)")
+          result[status][#result[status] + 1] = targetname .. " : " .. status .. " -> " .. (http_response.header.location or "(no Location provided)")
+        else 
+          result[status][#result[status] + 1] = targetname .. " : " .. status
         end
       end
-      response[#response + 1] = record
     end
   end
-  return table.concat(response, "\n")
+  return collapse(result)
 end
