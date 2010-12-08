@@ -246,9 +246,7 @@ function read_from_file( file )
   end
 
   local line, ret = nil, {}
-  while true do
-    line = f:read()
-    if not line then break end
+  for l in f:lines() do
     ret[#ret+1] = line
   end
 
