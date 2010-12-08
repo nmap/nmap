@@ -501,14 +501,14 @@ function get_performance_data(host, objects)
 			end
 
 			-- Start setting up the result object
---io.write(string.format("Index = %d\n", object_type['ObjectNameTitleIndex']))
+--stdnse.print_debug("Index = %d\n", object_type['ObjectNameTitleIndex'])
 			local object_name = result['title_database'][object_type['ObjectNameTitleIndex']]
 			result[object_name] = {}
 			
---io.write(string.format("\n\nOBJECT: %s\n", object_name))
---io.write(string.format(" Counters: %d\n", object_type['NumCounters']))
---io.write(string.format(" Instances: %d\n", object_type['NumInstances']))
---io.write("-----------------\n")
+--stdnse.print_debug("\n\nOBJECT: %s\n", object_name)
+--stdnse.print_debug(" Counters: %d\n", object_type['NumCounters'])
+--stdnse.print_debug(" Instances: %d\n", object_type['NumInstances'])
+--stdnse.print_debug("-----------------\n")
 
 			-- Bring the position to the beginning of the counter definitions
 			pos = object_start + object_type['HeaderLength']
@@ -520,7 +520,7 @@ function get_performance_data(host, objects)
 					msrpc.stop_smb(smbstate)
 					return false, pos
 				end
---io.write(string.format(" Counter definition #%2d: [%d bytes] %s\n", j, counter_definitions[j]['CounterSize'], result['title_database'][counter_definitions[j]['CounterNameTitleIndex']]))
+--stdnse.print_debug(" Counter definition #%2d: [%d bytes] %s\n", j, counter_definitions[j]['CounterSize'], result['title_database'][counter_definitions[j]['CounterNameTitleIndex']])
 			end
 
 			-- Bring the position to the beginning of the instances (or counters)
@@ -547,11 +547,11 @@ function get_performance_data(host, objects)
 					-- Bring the pos to the start of the counter block
 					pos = instance_start + object_instances[j]['ByteLength']
 
---io.write(string.format("\n  INSTANCE: %s\n", instance_name))
---io.write(string.format("  Length: %d\n",     object_instances[j]['ByteLength']))
---io.write(string.format("  NameOffset: %d\n", object_instances[j]['NameOffset']))
---io.write(string.format("  NameLength: %d\n", object_instances[j]['NameLength']))
---io.write("  --------------\n")
+--stdnse.print_debug("\n  INSTANCE: %s\n", instance_name)
+--stdnse.print_debug("  Length: %d\n",     object_instances[j]['ByteLength'])
+--stdnse.print_debug("  NameOffset: %d\n", object_instances[j]['NameOffset'])
+--stdnse.print_debug("  NameLength: %d\n", object_instances[j]['NameLength'])
+--stdnse.print_debug("  --------------\n")
 		
 					-- The counter block
 					local status, counter_block
@@ -571,7 +571,7 @@ function get_performance_data(host, objects)
 						end
 
 						local counter_name = result['title_database'][counter_definitions[k]['CounterNameTitleIndex']]
---io.write(string.format("    %s: %s\n", counter_name, counter_result))
+--stdnse.print_debug("    %s: %s\n", counter_name, counter_result)
 
 						-- Save it in the result
 						result[object_name][instance_name][counter_name] = counter_result
@@ -591,7 +591,7 @@ function get_performance_data(host, objects)
 					end
 
 					local counter_name = result['title_database'][counter_definitions[k]['CounterNameTitleIndex']]
---io.write(string.format("    %s: %s\n", counter_name, counter_result))
+--stdnse.print_debug("    %s: %s\n", counter_name, counter_result)
 
 					-- Save it in the result
 					result[object_name][counter_name] = counter_result
