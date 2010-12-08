@@ -104,13 +104,7 @@ local filltable = function(filename, table)
 		return false
 	end
 
-	while true do
-		local l = file:read()
-
-		if not l then
-			break
-		end
-
+	for l in file:lines() do
 		-- Comments takes up a whole line
 		if not l:match("#!comment:") then
 			table[#table + 1] = l
