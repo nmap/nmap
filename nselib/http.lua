@@ -1118,7 +1118,6 @@ local function request(host, port, data, options)
 
   method = string.match(data, "^(%S+)")
 
---io.write(data)
   socket, partial = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
