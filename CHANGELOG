@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add new script broadcast-ms-sql-discover and removed broadcast
+  support from ms-sql-info. [Patrik]
+
 o [NSE] Added the ftp-proftpd-backdoor.nse script by mak Kolybabi,
   which checks for a backdoor in ProFTPD 1.3.3c.
 
