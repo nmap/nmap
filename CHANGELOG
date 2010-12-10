@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new iSCSI library and the two scripts iscsi-info and
+  iscsi-brute. [Patrik]
+
 o [NSE] Add new script broadcast-ms-sql-discover and removed broadcast
   support from ms-sql-info. [Patrik]
 
