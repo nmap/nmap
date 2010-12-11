@@ -53216,3 +53216,54 @@ T6(R=Y%DF=Y%T=FA-104%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=N)
 U1(R=N)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
+
+# Visual UpTime Select IP Transport DS3/E3 Inline ASE Software version:     I 3.1.011 - May 10 2009
+Fingerprint Visual Network Systems Visual UpTime Select IP Transport DS3/E3 inline ASE
+Class Visual Network Systems | embedded || specialized
+SEQ(CI=I%II=I)
+OPS(O1=%O2=%O3=%O4=%O5=%O6=)
+WIN(W1=1%W2=3F%W3=4%W4=4%W5=10%W6=200)
+ECN(R=Y%DF=N%T=26-35%TG=40%W=3%O=%CC=N%Q=U)
+T1(R=Y%DF=N%T=29-37%TG=40%S=Z%A=S+%F=AR%RD=0%Q=)
+T2(R=Y%DF=Y%T=20-3B%TG=40%W=80%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=25-36%TG=40%W=100%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=Y%T=20-30|33-3F%TG=40%W=400%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=27-3D%TG=40%W=7A69%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=20-2C|2E-3B%TG=40%W=8000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=1F-33|35-3F%TG=20|40%W=FFFF%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=19-23%TG=20%IPL=38%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=19-23%TG=20%CD=S)
+
+# Visual UpTime Select IP Transport NxT1 Inline ASE Software version:     I 3.1.011 - May 10 2009
+Fingerprint Visual Network Systems Visual UpTime Select IP Transport NxT1 inline ASE
+Class Visual Network Systems | embedded || specialized
+SEQ(SP=FA-106%GCD=1-6%ISR=100-10E%TI=I%CI=I%II=I%SS=O%TS=U)
+OPS(O1=M564%O2=M564%O3=M564%O4=M564%O5=M564%O6=M564)
+WIN(W1=7FF%W2=7FF%W3=7FF%W4=7FF%W5=7FF%W6=7FF)
+ECN(R=Y%DF=N%T=19-2D%TG=20%W=FFFF%O=|M564%CC=N%Q=)
+T1(R=Y%DF=N%T=19-23%TG=20%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=Y%T=22-34%TG=40%W=80%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=19-30%TG=20|40%W=100|7FE%S=O|Z%A=O%F=AR|AS%O=|M564%RD=0%Q=)
+T4(R=Y%DF=Y%T=21-3C%TG=40%W=400%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=22-36%TG=40%W=7A69%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=20-3E%TG=40%W=8000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=26-40%TG=40%W=FFFF%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=19-23%TG=20%IPL=38%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=19-23%TG=20%CD=S)
+
+# Visual UpTime Select IP Transport T1 CSU DROP & INSERT ASE Software version:     I 3.1.011 - May 10 2009
+Fingerprint Visual Network Systems Visual UpTime Select IP Transport T1 CSU DROP & INSERT ASE
+Class Visual Network Systems | embedded || specialized
+SEQ(CI=I%II=I)
+OPS(O1=%O2=%O3=%O4=%O5=%O6=)
+WIN(W1=1%W2=3F%W3=4%W4=4%W5=10%W6=200)
+ECN(R=Y%DF=N%T=20-39%TG=40%W=3%O=%CC=N%Q=U)
+T1(R=Y%DF=N%T=27-39%TG=40%S=Z%A=S+%F=AR%RD=0%Q=)
+T2(R=Y%DF=Y%T=28-3F%TG=40%W=80%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=25-3F%TG=40%W=100%S=Z%A=O%F=AR%O=%RD=0%Q=)
+T4(R=Y%DF=Y%T=20-3E%TG=40%W=400%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=23-3F%TG=40%W=7A69%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=Y%T=21-3D%TG=40%W=8000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=25-3D%TG=40%W=FFFF%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=19-23%TG=20%IPL=38%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=N%T=19-23%TG=20%CD=S)
