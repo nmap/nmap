@@ -294,7 +294,7 @@ end
 --        useful one being 'arguments', which are the values returned by the server. If the packet is fragmented, the fragments
 --        will be reassembled and 'arguments' will represent all the arguments; however, the rest of the result table will represent
 --        the most recent fragment. 
-local function call_function(smbstate, opnum, arguments)
+function call_function(smbstate, opnum, arguments)
 	local i
 	local status, result
 	local parameters, data
