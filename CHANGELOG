@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added stuxnet-detect.nse by Mak Kolybabi, which detects
+  infections of the Sutxnet worm and can optionally download the
+  Stuxnet executable.
+
 o [NSE] Added a new iSCSI library and the two scripts iscsi-info and
   iscsi-brute. [Patrik]
 
