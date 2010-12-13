@@ -16,7 +16,7 @@ and login to the service by typing Password;1; into the console.
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "vuln", "safe"}
+categories = {"auth", "intrusive", "vuln"}
 
 require("nmap")
 require("stdnse")
