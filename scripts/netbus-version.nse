@@ -36,7 +36,7 @@ action = function( host, port )
 
 	--NetBuster does not
 	port.version.name = "netbus"
-	port.version.product = "Netbuster"
+	port.version.product = "NetBuster"
 	port.version.extrainfo = "honeypot"
 	port.version.version = nil
 	nmap.set_port_version(host, port, "hardmatched")
