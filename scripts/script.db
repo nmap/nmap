@@ -155,6 +155,7 @@ Entry { filename = "sshv1.nse", categories = { "default", "safe", } }
 Entry { filename = "ssl-cert.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ssl-enum-ciphers.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
+Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
