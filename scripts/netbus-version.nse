@@ -15,7 +15,7 @@ require("nmap")
 require("stdnse")
 require("shortport")
 
-portrule = shortport.port_or_service (12345, "netbus", {"tcp"})
+portrule = shortport.version_port_or_service (12345, "netbus", {"tcp"})
 
 action = function( host, port )
 
