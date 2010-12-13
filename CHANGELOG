@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added scripts by Toni Ruotto communicating with the NetBus
+  remote administration/backdoor program.
+  - netbus-info: gets configuration information.
+  - netbus-brute: guesses passwords.
+  - netbus-version: distinguishes NetBus from NetBuster, a program
+    that mimics the protocol but doesn't actually allow any
+    operations.
+  - netbus-auth-bypass: Checks for a bug in the server that allows
+    connecting without a password.
+
 o [NSE] Added stuxnet-detect.nse by Mak Kolybabi, which detects
   infections of the Sutxnet worm and can optionally download the
   Stuxnet executable.

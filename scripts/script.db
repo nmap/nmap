@@ -97,6 +97,10 @@ Entry { filename = "mysql-users.nse", categories = { "discovery", "intrusive", }
 Entry { filename = "mysql-variables.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "nat-pmp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "nbstat.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "netbus-auth-bypass.nse", categories = { "default", "safe", "vuln", } }
+Entry { filename = "netbus-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "netbus-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "netbus-version.nse", categories = { "version", } }
 Entry { filename = "nfs-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
