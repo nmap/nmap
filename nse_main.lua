@@ -962,12 +962,11 @@ local function main (hosts, scantype)
     end);
   end
 
-  -- This iterator is passed to the run function. It returns one new script
-  -- thread on demand until exhausted.
-  local function threads_iter ()
-    -- activate prerule scripts
-    for runlevel, scripts in ipairs(runlevels) do
-      print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
+  for runlevel, scripts in ipairs(runlevels) do
+    -- This iterator is passed to the run function. It returns one new script
+    -- thread on demand until exhausted.
+    local function threads_iter ()
+      -- activate prerule scripts
       if (scantype == NSE_PRE_SCAN) then
         print_verbose(1, "Script Pre-scanning.");
         for script in runlevel_scripts(scripts) do
@@ -1017,9 +1016,9 @@ local function main (hosts, scantype)
         end
       end
     end
+    print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
+    run(wrap(threads_iter), scantype)
   end
-
-  run(wrap(threads_iter), scantype)
 
   collectgarbage "collect";
 end
