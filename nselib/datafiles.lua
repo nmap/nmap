@@ -245,8 +245,8 @@ function read_from_file( file )
     return false, ( "Error in datafiles.read_from_file: Cannot open %s for reading: %s" ):format( filepath, err )
   end
 
-  local line, ret = nil, {}
-  for l in f:lines() do
+  local ret = {}
+  for line in f:lines() do
     ret[#ret+1] = line
   end
 
