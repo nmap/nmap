@@ -52723,8 +52723,8 @@ U1(DF=N%T=3B-45%TG=40%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=3B-45%TG=40%CD=S)
 
 # http://www.burny.com/pc-based_cnc_controls.asp, Windows embedded
-Fingerprint Burny CNC controller (embedded Windows)
-Class Burny | Windows || specialized
+Fingerprint Burny CNC controller (Microsoft Windows XP Embedded)
+Class Burny | Windows | XP | specialized
 SEQ(SP=FE-108%GCD=1-6%ISR=105-10F%TI=I%CI=RD%II=I%SS=S%TS=0)
 OPS(O1=M546NW0NNT00NNS%O2=M546NW0NNT00NNS%O3=M546NW0NNT00%O4=M546NW0NNT00NNS%O5=M546NW0NNT00NNS%O6=M546NNT00NNS)
 WIN(W1=448E%W2=448E%W3=4100%W4=40E8%W5=40E8%W6=402E)
