@@ -19,6 +19,19 @@ o Write and post 2010 SoC Successes writeup [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
+o Script review:
+  - modbus-enum http://seclists.org/nmap-dev/2010/q4/489
+  - p2p-dropbox-listener http://seclists.org/nmap-dev/2010/q4/689
+  - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
+    http://seclists.org/nmap-dev/2010/q4/613
+    http://seclists.org/nmap-dev/2010/q4/623
+    http://seclists.org/nmap-dev/2010/q4/639
+  - servicetags http://seclists.org/nmap-dev/2010/q4/691
+  - patch for ftp-proftpd-backdoor http://seclists.org/nmap-dev/2010/q4/678
+  - patch for hddtemp-info http://seclists.org/nmap-dev/2010/q4/676
+  - Martin Swende patch to force script run
+    http://seclists.org/nmap-dev/2010/q4/567
+
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
   is a solution people use for Wireshark or does it always cause this
