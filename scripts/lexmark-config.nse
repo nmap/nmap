@@ -76,7 +76,7 @@ action = function( host, port )
 	end
 	
 	-- set port to open
-    nmap.set_port_state(host, port, "open")
+	nmap.set_port_state(host, port, "open")
 	nmap.set_port_version(host, port, "hardmatched")
 	
 	return stdnse.format_output(true, result)
