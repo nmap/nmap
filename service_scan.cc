@@ -1462,7 +1462,7 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
     // A run of this can take up to 8 chars: "\n  \x20"
     assert( servicefpalloc - servicefplen > 8);
  
-   if (isalnum((int)resp[srcidx]))
+    if (isalnum((int)resp[srcidx]))
       addServiceChar((char) resp[srcidx], servicewrap);
     else if (resp[srcidx] == '\0') {
       /* We need to be careful with this, because if it is followed by
