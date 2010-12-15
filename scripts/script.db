@@ -31,7 +31,6 @@ Entry { filename = "dns-service-discovery.nse", categories = { "default", "disco
 Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery", "intrusive", } }
 Entry { filename = "domcon-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-info.nse", categories = { "discovery", "safe", "version", } }
@@ -48,6 +47,7 @@ Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intru
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-form-brute.nse", categories = { "auth", "intrusive", } }
