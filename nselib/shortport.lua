@@ -162,5 +162,5 @@ end
 -- <code>false</code> otherwise.
 -- @usage
 -- portrule = shortport.http
-http = shortport.port_or_service({80, 443, 631, 3872, 8080},
-	{"http", "https", "ipp", "http-alt", "oem-agent"})
+http = shortport.port_or_service({80, 443, 631, 8080, 5800, 3872},
+	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent"})
