@@ -118,11 +118,8 @@ modbus_exception_codes = {
 }
 
 action = function(host, port)
-    local aggressive = false -- stop on first founded sid
-
-    if (nmap.registry.args['modbus-discover.aggressive']) then
-        aggressive = nmap.registry.args['modbus-discover.aggressive']
-    end
+    -- If false, stop after first sid.
+    local aggressive = stdnse.get_script_args('modbus-discover.aggressive')
 
     local opts = {timeout=2000}
     local results = {}
