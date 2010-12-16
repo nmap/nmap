@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added modbus-discover.nse by Alexander Rudakov. This script
+  enumerates Modbus slave ids and then tries to find device
+  information about each of them.
+
 o [NSE] Added scripts by Toni Ruotto communicating with the NetBus
   remote administration/backdoor program.
   - netbus-info: gets configuration information.

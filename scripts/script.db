@@ -79,6 +79,7 @@ Entry { filename = "ldap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
+Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-brute.nse", categories = { "auth", "intrusive", } }
