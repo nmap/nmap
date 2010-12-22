@@ -20,7 +20,6 @@ o Write and post 2010 SoC Successes writeup [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
-  - modbus-enum http://seclists.org/nmap-dev/2010/q4/489
   - p2p-dropbox-listener http://seclists.org/nmap-dev/2010/q4/689
   - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
     http://seclists.org/nmap-dev/2010/q4/613
@@ -31,6 +30,10 @@ o Script review:
   - patch for hddtemp-info http://seclists.org/nmap-dev/2010/q4/676
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
+
+o We should add fields to the service submitter
+  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
+  application name and version.
 
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
@@ -665,6 +668,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review:
+  - modbus-enum http://seclists.org/nmap-dev/2010/q4/489
 
 o Create Nmap wiki
  o Decide on domain name
