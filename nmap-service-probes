@@ -1,5 +1,5 @@
 # Nmap service detection probe list -*- mode: fundamental; -*-
-# $Id: nmap-service-probes 21449 2010-12-17 05:25:40Z david $ 
+# $Id$ 
 #
 # This is a database of custom probes and expected responses that the
 # Nmap Security Scanner ( http://nmap.org ) uses to
@@ -4619,11 +4619,13 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) DAV/([\d.]+)\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; DAV $3/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) PHP/([\d.]+)\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; PHP $3/ o/Unix/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_SERVER/(\d[-.\w]+) +Apache/(\d[-.\w]+) \(Unix\) mod_jk\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from Apache $2; using mod_jk/ o/Unix/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*)\r\n| p/IBM HTTP Server/ v/$1/ i/Based on $2/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*) \(Win32\)\r\n|s p/IBM HTTP Server/ v/$1/ i/Based on $2/ o/Windows/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server\r\n| p/IBM HTTP Server/ i/Based on Apache/
-match http m|^HTTP/1\.1 \d\d\d .*Server: IBM_HTTP_Server\r\n|s p/IBM HTTP Server/
-match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) \(Win32\)\r\n|s p/IBM HTTP Server/ v/$1/ o/Windows/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*)\r\n| p/IBM HTTP Server/ v/$1/ i/Derived from $2/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) (Apache/.*) \(Win32\)\r\n|s p/IBM HTTP Server/ v/$1/ i/Derived from $2/ o/Windows/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) \(Win32\)\r\n|s p/IBM HTTP Server/ v/$1/ i/Derived from Apache/ o/Windows/ 
+match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: IBM_HTTP_Server/(\d[-.\w]+) \(Unix\)\r\n|s  p/IBM HTTP Server/ v/$1/ i/Derived from Apache/ o/Unix/
+match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: IBM_HTTP_Server\r\n| p/IBM HTTP Server/ i/Derived from Apache/
+match http m|^HTTP/1\.1 \d\d\d .*Server: IBM_HTTP_Server\r\n|s p/IBM HTTP Server/ i/Derived from Apache/
+
 
 # D-Link DWL-1000AP webadmin
 match http m|^HTTP/1\.0 200 OK\r\nServer: PSIWBL/(\d[-.\w]+)\r\nDate: .*Title: www\r\n\r\n<HTML>\n <HEAD>\n   <meta http-equiv=\"Refresh\" content=\"0; url=/startup/startup\.shtml\">\n </HEAD>\n <BODY>\n </BODY>\n</HTML>$|s i/D-Link http config/ p/PSIWBL/ v/$1/
