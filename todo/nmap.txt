@@ -2,11 +2,6 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Process Nmap survey and send out results [Fyodor]
 
-o Do service/version detection submission integration (last done in
-  April)
-
-o Do os detection submission integration (last done in April)
-
 o Update changelog to note recent changes
 
 o Do another Nmap test/dev release
@@ -41,17 +36,6 @@ o Investigate ways to limit Winpcap privileges so that only
   issue (allowing any user to sniff the network) when it is installed?
   - CACE says they will add a feature to do this.  See this thread:
   http://seclists.org/nmap-dev/2010/q3/826
-
-o We should probably update our Windows build systems to use Python
-  2.7.  As of 11/8, it looks like all our dependency libraries are
-  available for 2.7:
-  o David upgraded and it worked, though Rob found a potential problem
-  and added vcredist 2008.  Fyodor will test on the official Win7 Nmap
-  build system.
-  PyGTK: 2.22.0 IS available for 2.7
-  PyCairo: 1.8.10 IS available for 2.7
-  PyGObject: 2.26.0 IS available for 2.7
-  Py2exe: 0.6.9 IS available for 2.7
 
 o Add some content to https://secwiki.org and announce it.
 
@@ -668,6 +652,22 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should probably update our Windows build systems to use Python
+  2.7.  As of 11/8, it looks like all our dependency libraries are
+  available for 2.7:
+  o David upgraded and it worked, though Rob found a potential problem
+  and added vcredist 2008.  Fyodor will test on the official Win7 Nmap
+  build system.
+  PyGTK: 2.22.0 IS available for 2.7
+  PyCairo: 1.8.10 IS available for 2.7
+  PyGObject: 2.26.0 IS available for 2.7
+  Py2exe: 0.6.9 IS available for 2.7
+
+o Do service/version detection submission integration (last done in
+  April)
+
+o Do os detection submission integration (last done in April)
 
 o Script review:
   - modbus-enum http://seclists.org/nmap-dev/2010/q4/489
