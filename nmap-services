@@ -9974,6 +9974,7 @@ unknown	25544/udp	0.001307
 unknown	25546/udp	0.001961
 unknown	25560/udp	0.001307
 unknown	25564/udp	0.000654
+minecraft	25565/tcp	0.000076	# A video game - http://en.wikipedia.org/wiki/Minecraft
 unknown	25567/udp	0.000654
 unknown	25568/udp	0.000654
 unknown	25569/udp	0.000654
