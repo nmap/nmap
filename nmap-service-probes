@@ -2611,6 +2611,7 @@ match ssh m|^SSH-([\d.]+)-Foxit-WAC-Server-([\d.]+ Build \d+)\n| p/Foxit WAC Ser
 match ssh m|^SSH-([\d.]+)-ROSSSH\r\n| p/MikroTik RouterOS sshd/ i/protocol $1/ o/Linux/ d/router/
 match ssh m|^SSH-([\d.]+)-3Com OS-([\w._-]+ Release \w+)\n| p/3Com switch sshd/ d/switch/ v/$2/ i/protocol $1/
 match ssh m|^SSH-2\.0-XXXX\r\n| p/Cyberoam firewall sshd/ d/firewall/
+match ssh m|^SSH-2\.0-Tc6l51-sD1m-m_\n| p/Fortinet FortiWifi 60C firewall sshd/ d/firewall/
 
 softmatch ssh m/^SSH-([.\d]+)-/ i/protocol $1/
 
@@ -3581,6 +3582,12 @@ match uc4 m|^\d\d\d\d\d\d\d\dUC4:global001NAT {24}| p/UC4 Executor/
 
 match wyse-devmgr m|^Invalid Command Sent:GET / HTTP/1\.0\r\n\r\n$| p/Wyse Device Manager/
 
+# Not sure about these. It's port 9200 on some printers. On Intermec printers
+# at least, port 9200 is some kind of XML printing service. The first byte
+# appears to be a total length.
+match xml-print m|^.\0\0\0\0(IBM Infoprint \w+)\0$|s p/$1 printer XML printing/ d/printer/
+match xml-print m|^.\x2f\0\0\0(Lexmark \w+)\0|s p/$1 printer XML printing/ d/printer/
+
 # http://www.brainz.co.kr/product/infra_05.php
 match zenius-sms m|^Zenius SMS Agent V([\w. ]+) \(zagent-\w+-sparc\) 1400\r\n\0\0\0\0\0\0\0\0\0\0| p/Brainz Zenius Server Management System Agent/ v/$1/ i/SPARC/
 
@@ -4224,8 +4231,6 @@ match zmodem m|^\*\*\x18B0100000023be50\r\x8a\x11$| p/ZMODEM/
 # Know the device, but not the service.
 # Port 2000.
 # match unknown m|^\x20$| p/Samsung CLX-3175FW printer/ d/printer/
-# Port 9200. RPC?
-# match unknown m|^\x18\0\0\0\0IBM Infoprint 1572\0$| p/IBM Infoprint 1572 printer/ d/printer/
 
 
 ##############################NEXT PROBE##############################
