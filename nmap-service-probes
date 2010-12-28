@@ -988,7 +988,8 @@ match giop m|^GIOP\x01...\0\0\0\0|s p/CORBA naming service/
 match H.323-gatekeeper m|^\x03\0\0.*@|s p/CompTek AquaGateKeeper/
 # OpenH323 Gatekeeper 2.0.3
 match H.323-gatekeeper m|^\xff\xfd\x03\xff\xfb\x05.*Version:\r\nGatekeeper\(GNU\) Version\(([\d.]+)\) Ext\(.*\) Build\(.*\) Sys\(Linux .*\)\r\n| p/OpenH323 Gatekeeper/ v/$1/ o/Linux/
-match H.323-gatekeeper m|^\xff\xfd.$| p|GNU Gatekeeper|
+# Causes false matches with telnet.
+# match H.323-gatekeeper m|^\xff\xfd.$| p|GNU Gatekeeper|
 match H.323-gatekeeper m|^\xff\xfd\x03\xff\xfb\x05\xff\xfe\x01\r\nAccess forbidden!\r\n$| p/GNU Gatekeeper/
 match H.323-gatekeeper m|^\x03\0\0\.\x08\x02\0\0Z~\0\"\x05%\xc0\x06\0\x08\x91J\0\x02X\x08\x11\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02\x80\x01\0$| p/GNU Gatekeeper/
 
@@ -2588,7 +2589,7 @@ match ssh m|^SSH-([\d.]+)-DigiSSH_([\d.]+)\r?\n| p/Digi CM sshd/ v/$2/ i/protoco
 match ssh m|^SSH-([\d.]+)-0 Tasman Networks Inc\.\r?\n| p/Tasman router sshd/ i/protocol $1/ d/router/
 match ssh m|^SSH-([\d.]+)-([\w.]+)rad\r?\n| p/Rad Java SFTPd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\d.]+) in DesktopAuthority ([\d.]+)\r?\n| p/DesktopAuthority OpenSSH/ v/$2/ i/DesktopAuthority $3; protocol $1/ o/Windows/
-match ssh m|^SSH-([\d.]+)-NOS-SSH_([\d.]+)\r?\n| p/3Com WX4400 NOS sshd/ v/$2/ i/protocol $1/ d/WAP/
+match ssh m|^SSH-([\d.]+)-NOS-SSH_([\d.]+)\r?\n| p/3Com WX2200 or WX4400 NOS sshd/ v/$2/ i/protocol $1/ d/WAP/
 match ssh m|^SSH-1\.5-SSH\.0\.1\r?\n| p/Dell PowerConnect sshd/ i/protocol 1.5/ d/power-device/
 match ssh m|^SSH-([\d.]+)-Ingrian_SSH\r?\n| p/Ingrian SSH/ i/protocol $1/ d/security-misc/
 match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r?\n| p/PSFTPd sshd/ i/protocol $1/ o/Windows/
@@ -3306,7 +3307,8 @@ match telnet m|^Secure Defrag Service v([\d.]+)\r\n \[\]\r\nlocal time: ([^\r\n]
 match telnet m|^\xff\xfd\x01\xff\xfd!\xff\xfb\x01\xff\xfb\x03Huawei (SmartAX \w+)\r\nLogin: | p/Huawei $1 ADSL router telnetd/ d/broadband router/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\n\r\n\r\n\*{76}\r\n\r\n +Minolta Network Configuration Utility\r\n +Minolta\r\n +Version ([\w.]+)\r\n| p/Minolta PagePro 20 printer telnetd/ v/$1/ d/printer/
 match telnet m|^\xff\xfb\x01\xff\xfd\x18\xff\xfb\x03$| p/Tandem Himalaya K2000 telnetd/ o/GuardianOS/
-match telnet m|^\xff\xfb\x01\xff\xfb\x03                  ZebraNet PrintServer Configuration Utility\r\n\r\n Type your password\. Press Enter when finished\.\r\n\r\n Password: | p/Zebra print server telnetd/
+match telnet m|^\xff\xfb\x01\xff\xfb\x03                  ZebraNet PrintServer Configuration Utility\r\n\r\n Type your password\. Press Enter when finished\.\r\n\r\n Password: | p/Zebra print server telnetd/ d/print server/
+match telnet m|^\xff\xfd\x03\xff\xfe\x01\xff\xfb\x01\s+ZebraNet Internal Wired PS Configuration Utility\r\n\r\n Type your password\. Press Enter when finished\.\r\n\r\n Password: | p/Zebra print server telnetd/ d/print server/
 match telnet m|^\xff\xfb\x01\n\rWelcome to TrueTime Network Interface\n\r\rUser name: | p/TrueTime GPS clock telnetd/
 match telnet m|^MythFrontend Network Control\r\nType 'help' for usage information\r\n---------------------------------\r\n# | p/mythfrontend MythTV control/ d/media device/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\(Cisco Controller\) \r\nUser: | p/Cisco 4402 WLAN controller telnetd/ d/remote management/
@@ -6077,6 +6079,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Length: \d+\r\nContent-Type: text/html
 match http m|^HTTP/1\.0 200 OK\r\n.*<img src=\"images/chumby_logo\.png\">.*<font size=10>Welcome to Chumby</font>|s p/Chumby chumbhttpd/ d/media device/
 match http m|^HTTP/1\.1 200 OK\n.*<resolved count='\d+' ommitted='\d+' chumbhowld_ver='([\w._-]+)'>|s p/Chumby chumbhowld/ v/$1/ d/media device/
 match http m|^HTTP/1\.1 200 OK\r \nContent-type: text/xml\r\n.*<resolved count='\d+' ommitted='\d+' chumbhowld_ver='([\w._-]+)'>\n</resolved>\r\n|s p/Chumby One chumbhowld/ v/$1/ d/media device/
+match http m|^HTTP/1\.1 200 OK\r \nContent-type: text/xml\r\n.*<resolved count='\d+' ommitted='\d+' chumbhowld_ver='([\w._-]+)'>\n<resolve interface='\d+' name='([\w._-]+)' type='_http\._tcp\.'|s p/Chumby One chumbhowld/ v/$1/ h/$2/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: Close\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n<html>\r\n.*if \(window != top\) {\r\n\t\t\t\t\t\t// Load page in the top frame\.\r\n\t|s p/Dell OpenManage httpd/ d/remote management/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm=\"Linksys BEFSR41v3\"\r\n| p/Linksys BEFSR41v3 http config/ d/broadband router/
 match http m|^HTTP/1\.1 200 OK\r\n.*<title>ZyWALL ([\w._+-]+)</title>|s p/ZyXEL ZyWALL $1 http config/ d/security-misc/
@@ -9828,7 +9831,7 @@ ports 88
 # MIT 1.2.8
 match kerberos-sec m%^~\x81[\x86-\x88]0\x81[\x83-\x85]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa2\x11\x18\x0f\d{14}Z\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01\x06\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\(\x1b&Client not found in Kerberos database\0$% p/MIT Kerberos/ v/1.2/ i/server time: $1-$2-$3 $4:$5:$6Z/
 # OS X 10.6.2; MIT 1.3.5, 1.6.3, 1.7.
-match kerberos-sec m%^~[\x6b-\x6d]0[\x69-\x6b]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa2\x11\x18\x0f\d{14}Z\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01\x06\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\x0e\x1b\x0cNULL_CLIENT\0$% p/MIT Kerberos/ v/1.3 - 1.7/ i/server time: $1-$2-$3 $4:$5:$6Z/
+match kerberos-sec m%^~[\x6b-\x6d]0[\x69-\x6b]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa2\x11\x18\x0f\d{14}Z\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01\x06\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\x0e\x1b\x0cNULL_CLIENT\0$% p/MIT Kerberos/ v/1.3 - 1.8/ i/server time: $1-$2-$3 $4:$5:$6Z/
 
 # Heimdal 1.0.1-5ubuntu4
 match kerberos-sec m%^~[\x60-\x62]0[\x5e-\x60]\xa0\x03\x02\x01\x05\xa1\x03\x02\x01\x1e\xa4\x11\x18\x0f(\d\d\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)Z\xa5[\x03-\x05]\x02(?:\x03...|\x02..|\x01.)\xa6\x03\x02\x01<\xa9\x04\x1b\x02NM\xaa\x170\x15\xa0\x03\x02\x01\0\xa1\x0e0\x0c\x1b\x06krbtgt\x1b\x02NM\xab\x16\x1b\x14No client in request$% p/Heimdal Kerberos/ i/server time: $1-$2-$3 $4:$5:$6Z/
