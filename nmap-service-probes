@@ -60,7 +60,7 @@ match adabas-d m|^Adabas D Remote Control Server Version ([\d.]+) Date [\d-]+ \(
 
 match adobe-crossdomain m|^<cross-domain-policy><allow-access-from domain='[^']*' to-ports='\d+' /></cross-domain-policy>\0$| p/Adobe cross-domain policy/
 
-match ipmi-advertiserd m|^\x0e\0\0\0\0\0\0$| p/SuperMicro IPMI advertiserd/ d/remote managment/
+match ipmi-advertiserd m|^\x0e\0\0\0\0\0\0$| p/SuperMicro IPMI advertiserd/ d/remote management/
 
 match altiris-agent m|^<\0r\0e\0s\0p\0o\0n\0s\0e\0>\0C\0o\0n\0n\0e\0c\0t\0e\0d\0 \0t\0o\0 [\0\d.]*<\0/\0r\0e\0s\0p\0o\0n\0s\0e\0>\0$| p/Altiris remote monitoring agent/
 
@@ -1349,7 +1349,7 @@ match jmond m|^cpu: *[\d.]+ mem: *[\d.]+ swp: *[\d.]+\0| p/jmond unix resource m
 
 match jtag m|^\0%\rJTAG Server\r\n\0\0\0\x08\0\0\0\xf0| p/Altera Quartus JTAG service/
 
-match junoscript m|^<\?xml version=\"1\.0\"[^<]+<junoscript.*release=\"([^\"]+)\" hostname=\"([^\"]+)\"| p/Junoscript XML Interface/ v/Release $1/ d/router/ o/Junos $1/ h/$2/
+match junoscript m|^<\?xml version=\"1\.0\"[^<]+<junoscript.*release=\"([^\"]+)\" hostname=\"([^\"]+)\"| p/Junoscript XML Interface/ v/Release $1/ d/router/ o/JUNOS $1/ h/$2/
 
 match kguard m|^inv2W\x04\x0f\0\0\0\x01\0\t\0\0\x00| p/Kguard Security DVR/ d/webcam/
 
@@ -1738,7 +1738,7 @@ match pop3 m/^\+OK ([-.\w]+) POP3 server \(Netscape Mail Server v(\d[-.\w])\) re
 match pop3 m/^\+OK Cubic Circle's v(\d[-.\w]+) .* POP3 ready/ p/Cubic Circle Cucipop pop3d/ v/$1/
 match pop3 m/^\+OK ArGoSoft Mail Server Freeware, Version \S+ \(([^)]+)\)\r\n$/ p/ArGoSoft freeware pop3d/ v/$1/
 match pop3 m|^\+OK ArGoSoft Mail Server, Version [-.\w]+ \(([-.\w]+)\)\r\n$| p/ArGoSoft Mail Server pop3d/ v/$1/
-match pop3 m|^\+OK ArGoSoft Mail Server POP3 Module v\.([\w._-]+) at | p/ArGoSoft Mail Server pop3d/ v/$1/ o/WIndows/
+match pop3 m|^\+OK ArGoSoft Mail Server POP3 Module v\.([\w._-]+) at | p/ArGoSoft Mail Server pop3d/ v/$1/ o/Windows/
 match pop3 m|^\+OK ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [-.\w]+ \(([-.\w]+)\)\r\n$| p/ArGoSoft Mail Server Pro pop3d/ v/$1/ o/Windows/
 match pop3 m|^\+OK ([-\w.]+) ArGoSoft Mail Server Pro for WinNT/2000/XP, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Pro/ v/$2/ h/$1/ o/Windows/
 match pop3 m|^\+OK ArGoSoft Mail Server Plus for WinNT/2000, Version [\d.]+ \(([\d.]+)\)\r\n| p/ArGoSoft Plus/ v/$1/ o/Windows/
@@ -2596,7 +2596,7 @@ match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r?\n| p/PSFTPd ssh
 match ssh m|^SSH-([\d.]+)-BlueArcSSH_([\d.]+)\r?\n| p/BlueArc sshd/ v/$2/ i/protocol $1/ d/storage-misc/
 match ssh m|^SSH-([.\d]+)-Zyxel SSH server\r?\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
 match ssh m|^SSH-([.\d]+)-paramiko_([\w._-]+)\r?\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
-match ssh m|^SSH-([\d.]+)-USHA SSHv([\w._-]+)\r?\n| p/USHA SSH/ v/$2/ i/protocol $1/ d/power-misc/
+match ssh m|^SSH-([\d.]+)-USHA SSHv([\w._-]+)\r?\n| p/USHA SSH/ v/$2/ i/protocol $1/ d/power-device/
 match ssh m|^SSH-2\.0-SSH_0\.2\r?\n$| p/3com WAP sshd/ d/WAP/ v/0.2/ i/protocol 2.0/
 match ssh m|^SSH-([\d.]+)-CoreFTP-([\w._-]+)\r?\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-RomSShell_([\w._-]+)\r\n| p/AllegroSoft RomSShell sshd/ v/$2/ i/protocol $1/
@@ -6509,7 +6509,7 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: Xunlei Http Server/([\d.]+)\r\n| p/Xun
 match http m|^HTTP/1\.1 200 OK\r\n.*<\?xml version=\"1\.0\" encoding=\"utf-8\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\" \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xml:lang=\"en\" lang=\"en\">\n  <head>\n    <!--\n    ShellInABox - Make command line applications available as AJAX web applications\n|s p/ShellInABox httpd/
 match http m|^HTTP/1\.1 400 Bad Request\r\nConnection: close\r\nDate: .*\r\nServer: Java/([-\d_.]+) javax\.wbem\.client\.adapter\.http\.transport\.HttpServerConnection\r\nContent-Length: 0\r\n\r\n| p/Solaris WBEM web management httpd/ i/Java $1/ o/Solaris/
 match http m|^HTTP/1\.1 200 OK\r\n.*<TITLE>MGI ZOOM Image Server</TITLE>.*Version: ([^\n]*)\n\t\tBuild: (\d+)<build/><BR>\n|s p/Zoom Image Server httpd/ v/$1 build $2/
-match http m|^HTTP/1\.0 200 OK\r\nServer: upshttpd/([\d.]+)\r\n| p/upshttpd/ v/$1/ i/Effekta UPS http config/ d/power-misc/
+match http m|^HTTP/1\.0 200 OK\r\nServer: upshttpd/([\d.]+)\r\n| p/upshttpd/ v/$1/ i/Effekta UPS http config/ d/power-device/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: ZNC ZNC ([\d.]+) - by prozac@rottenboy\.com\r\n| p/ZNC IRC bouncer http config/ v/$1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: (ZNC )?ZNC ([-\w_.+]+) (by prozac )?- http://znc\.sourceforge\.net\r\n| p/ZNC IRC bounce http config/ v/$2/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: ZNC ([\w_.+-]+) - http://znc\.sourceforge\.net\r\n| p/ZNC IRC bouncer httpd/ v/$1/
@@ -6569,13 +6569,13 @@ match http m|^HTTP/1\.0 200 OK\r\n.*Server: W3MFC/([\w._-]+)\r\nAllow: GET, POST
 match http m|^HTTP/1\.0 200 OK\r\n.*Content-Type: text/html;charset=utf-8\r\n.*Mime-Version: 1\.0\r\n.*<title>FRITZ!WLAN Repeater</title>|s p|FRITZ!WLAN Repeater N/G http config| d/WAP/
 match http m|^HTTP/1\.1 200 OK\r\n.*Content-Type: text/html; Charset=UTF-8\r\nConnection: close\r\n\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4\.01 Transitional//EN\">\r\n<html><head><title>(.*) - foobar2000</title>|s p/foobar2000 media player httpd/ i/now playing: $1/
 match http m|^HTTP/1\.1 301 Redirection\r\nServer: Cegid-WEB-Access-Server/([\w._-]+)\r\n| p/Cegid-WEB-Access-Server/ v/$1/
-match http m|^HTTP/1\.1 200 Ok\r\nServer: micro_httpd\r\n.*<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"it\" lang=\"it\">\n<head>\n\t<title>Vodafone</title>|s d/micro_httpd/ i/Vodafone Station WAP http config/
+match http m|^HTTP/1\.1 200 Ok\r\nServer: micro_httpd\r\n.*<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"it\" lang=\"it\">\n<head>\n\t<title>Vodafone</title>|s p/micro_httpd/ i/Vodafone Station WAP http config/
 match http m%^<html>\n<head>\n<title>TRENDnet \| (TEG-\w+) \| Login</title>% p/TRENDnet $1 switch http config/ d/switch/
 match http m|^HTTP/1\.1 200 OK\r\nServer: Web Server\r\n.*top\.location\.href = \"/hp_login\.html\";\r\n</script>\r\n\r\n\r\n<BODY style=\"text-align: center\" onload=\"document\.forms\[0\]\.login\.focus\(\);CheckError\(\)\">\r\n<FORM METHOD=\"POST\" ACTION=\"/hp_login\.html\">|s p/HP Procurve 1810G switch http config/ d/switch/
 match http m|^HTTP/1\.0 302\r\nLocation: /Portal0000\.htm\r\n.*<HTML><HEAD><TITLE>Error</TITLE></HEAD>\r\n<BODY><CENTER><H2>/<BR><BR>302 : MOVED TEMPORARILY</H2></CENTER></BODY></HTML>$|s p/Siemens SIMATIC S7-300 PLC controller httpd/ d/specialized/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nContent-Type: text/html\r\nWWW-Authenticate: Basic realm=\"Web Management\"\r\n\r\n<html><title>401 Unauthorized</title><body>401 Unauthorized</body></html>$| p/Foundry EdgeIron switch http config/ d/switch/
 match http m|^HTTP/1\.1 404 Not Found\r\nConnection: Close\r\nContent-Type: text/html\r\n\r\nThe specified URL cannot be found<!--(?:0123456789){50}01234-->\r\n| p/Barracuda Web Application Firewall/ d/firewall/
-match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nSet-Cookie: DLILPC=\"\"; Version=1; Max-Age=0; Path=/\r\n\r\n.*<title>Power Controller </title>\n \n<script language=\"javascript\" src=\"/md5\.js\"></script>|s p/Digital Loggers Web Power Switch II http config/ d/power-misc/
+match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nContent-Type: text/html\r\nSet-Cookie: DLILPC=\"\"; Version=1; Max-Age=0; Path=/\r\n\r\n.*<title>Power Controller </title>\n \n<script language=\"javascript\" src=\"/md5\.js\"></script>|s p/Digital Loggers Web Power Switch II http config/ d/power-device/
 match http m|^HTTP/1\.1 403 Directory Listing Denied\r\nContent-Type: text/plain\r\nContent-Length: 12\r\n\r\nError: 403\r\n$| p/HP Dream Screen media player http config/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nX-Powered-By: PHP/([\w._-]+)\r\n.*<title>Seagate NAS - ([\w._-]+)</title>\n<link rel=\"stylesheet\" type=\"text/css\" href=\"/admin/layout_design\.css\" />\n|s p/Seagate Black Armor 440 NAS http config/ h/$2/ i/PHP $1/
 match http m|^HTTP/1\.0 200 OK\r\nX-Powered-By: PHP/([\w._-]+)\r\n.*<title>My Book World Edition - ([\w._-]+)</title>\n.*<!-- Framework CSS -->\n<link rel=\"stylesheet\" href=\"/blueprint/screen\.css\" type=\"text/css\" media=\"screen, projection\">|s p/Western Digital My Book http config/ h/$2/ i/PHP $1/ d/storage-misc/
@@ -6733,7 +6733,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Last-Modified: Mon, 13 Mar 2006 11:22:33 \+1
 match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/([\w._-]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\nSet-Cookie: auth=\w+; path=/\r\n\r\n\xef\xbb\xbf.*<title>Logon</title>.*if \(window\.focus\) self\.focus\(\);|s p/RapidLogic httpd/ v/$1/ i/Unita VoIP phone http config/ d/VoIP phone/
 match http m|^HTTP/1\.1 400 Bad Request\r\nContent-Type: text/html\r\nContent-Length: 2\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nConnection: Close\r\n\r\n5\0$| p/Matrix42 remote control httpd/ d/remote management/
 match http m|^HTTP/1\.0 200 OK\r\nConnection: close\r\nProxy-Connection: close\r\nContent-Type: text/html\r\nCache-Control: private\r\nExpires: 0\r\n\r\n<html><head><title></title></head><frameset cols=\"100%\"><frame src=\"http://[\d.]+:\d+/joikuspot-accept\">| p/JoikuSpot 3G tethering http interface/ d/phone/
-match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Type: text/html\r\nCache-Control: max-age=0\r\nExpires: -1\r\n\r\n<!-- \n  Copyright \(c\) 2004-2006 by Cisco Systems, Inc\.\n  All rights reserved\.\n -->.*<title>Cisco Systems, Inc\. Easy VPN Network Access</title>|s i/Cisco ASA firewall http config/ p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ d/firewall-misc/
+match http m|^HTTP/1\.1 200 OK\r\nServer: Virata-EmWeb/R([\d_]+)\r\nContent-Type: text/html\r\nCache-Control: max-age=0\r\nExpires: -1\r\n\r\n<!-- \n  Copyright \(c\) 2004-2006 by Cisco Systems, Inc\.\n  All rights reserved\.\n -->.*<title>Cisco Systems, Inc\. Easy VPN Network Access</title>|s i/Cisco ASA firewall http config/ p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ d/firewall/
 match http m|^HTTP/1\.1 200 Ok\r\nDate: .*\r\nServer: ebHTTPD ([\w._-]+)\r\n| p/ebHTTPD/ v/$1/
 match http m|^HTTP/1\.0 404 not found \(/\)\r\n.*Server: Tntnet/([\w._-]+)\r\n|s p/Tntnet httpd/ v/$1/
 match http m|^HTTP/1\.1 401 Authorization Required\r\n.*Server: SecureTransport/([\w._-]+)\r\n.*WWW-Authenticate: Basic realm=\"FileDriveWWW\"\r\n|s p/Axway SecureTransport httpd/ v/$1/
@@ -7035,7 +7035,7 @@ match http-proxy m|^HTTP/1\.0 302 Moved Temporarily\r\nContent-length: 22\r\nCon
 match http-proxy m|^HTTP/1\.0 503 Service Unavailable\r\nCache-Control: no-cache\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<html><body><h1>503 Service Unavailable</h1>\nNo server is available to handle this request\.\n</body></html>\n$| p/Haproxy http proxy/ d/load balancer/
 match http-proxy m|^HTTP/1\.0 200 OK\r\nCache-Control: no-cache\r\nConnection: close\r\nContent-Type: text/html\r\n\r\n<html><head><title>Statistics Report for HAProxy</title>| p/Haproxy http proxy/ d/load balancer/
 match http-proxy m|^HTTP/1\.0 400\r\nContent-Type: text/html\r\n\r\n<html><head><title>Error</title></head><body>\r\n<h2>ERROR: 400</h2>\r\n<br>\r\n</body></html>\r\n$| p/Citrix Application Firewall/ d/firewall/
-match http-proxy m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 3366\r\nPragma: no-cache\r\n\r\n.*<style>\r\n\r\nh1, p, a, body {font-family: Arial;}\r\n\r\nh2\r\n{\r\n\ttext-align: center; \r\n\tfont: bold 20px Verdana, sans-serif; \r\n\tcolor: #00F; \r\n}|s p/Integard filtering http proxy management interface/ d/http-proxy/
+match http-proxy m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 3366\r\nPragma: no-cache\r\n\r\n.*<style>\r\n\r\nh1, p, a, body {font-family: Arial;}\r\n\r\nh2\r\n{\r\n\ttext-align: center; \r\n\tfont: bold 20px Verdana, sans-serif; \r\n\tcolor: #00F; \r\n}|s p/Integard filtering http proxy management interface/ d/proxy server/
 match http-proxy m|^HTTP/1\.0 502 Bad gateway\r\n\r\nBurp proxy error: invalid client request received: first line of request did not contain an absolute URL - try enabling invisible proxy support\r\n$| p/Burp Suite Pro http proxy/
 match http-proxy m|^HTTP/1\.1 401 Unauthorized\r\nServer: RabbIT proxy version ([\w._-]+)\r\nContent-type: text/html; charset=utf-8\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"([\w._-]+):\d+\"\r\n| p/RabbIT http proxy/ v/$1/ h/$2/
 match http-proxy m|^HTTP/1\.1 403 Forbidden\r\nServer: Lusca/([\w._-]+)\r\n| p/Lusca http proxy/ v/$1/
