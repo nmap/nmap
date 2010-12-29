@@ -52,11 +52,6 @@ local setup_connect = function(host, port, opts)
 		return status, err
 	end
 
-	-- If nothing is given, specify bytes=1 so NSE reads everything
-	if not opts.lines and not opts.bytes then
-		opts.bytes = 1
-	end
-
 	return true, sock
 end
 
@@ -68,7 +63,12 @@ local read = function(sock, opts)
 		return status, response
 	end
 
-	status, response = sock:receive_bytes(opts.bytes)
+	if opts.bytes then
+		status, response = sock:receive_bytes(opts.bytes)
+		return status, response
+	end
+
+	status, response = sock:receive()
 	return status, response
 end
 
