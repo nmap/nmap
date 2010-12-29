@@ -39,6 +39,11 @@ o Investigate ways to limit Winpcap privileges so that only
 
 o Add some content to https://secwiki.org and announce it.
 
+o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
+  code path skips the --exec code. See
+  http://seclists.org/nmap-dev/2010/q4/604 and the test "--exec
+  through proxy" in ncat-test.pl.
+
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
   o Could be a SoC Ncrack task, though should prove useful for Nmap
