@@ -54,6 +54,6 @@ action = function( host, port )
 		end
 	line = buffer()
 	end
-	return stdnse.strjoin(", ", files)
+	return "\n" .. stdnse.strjoin("\n", files)
 end
 
