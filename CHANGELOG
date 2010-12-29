@@ -27,7 +27,7 @@ o [NSE] Added a new iSCSI library and the two scripts iscsi-info and
 o [NSE] Add new script broadcast-ms-sql-discover and removed broadcast
   support from ms-sql-info. [Patrik]
 
-o [NSE] Added the ftp-proftpd-backdoor.nse script by mak Kolybabi,
+o [NSE] Added the ftp-proftpd-backdoor.nse script by Mak Kolybabi,
   which checks for a backdoor in ProFTPD 1.3.3c.
 
 o [NSE] Added http-vhosts.nse from Carlos Pantelides. This script
