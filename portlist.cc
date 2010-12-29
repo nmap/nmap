@@ -335,7 +335,6 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
     port->service->dtype = SERVICE_DETECTION_PROBED;
     if (sname == NULL)
       sname = "tcpwrapped";
-    port->service->dtype = SERVICE_DETECTION_TABLE;
     port->service->name_confidence = 8;
   } else {
     /* PROBESTATE_FINISHED_NOMATCH, PROBESTATE_EXCLUDED, PROBESTATE_INCOMPLETE.
