@@ -5,7 +5,9 @@ Lists files and directories at the root of a gopher service.
 ---
 -- @output
 -- 70/tcp open  gopher
--- |_gopher-ls: [txt] Gopher, the next big thing?, [dir] Tax Forms
+-- | gopher-ls:
+-- | [txt] Gopher, the next big thing?
+-- |_[dir] Tax Forms
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
