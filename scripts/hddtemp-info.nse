@@ -17,11 +17,13 @@ require("shortport")
 portrule = shortport.port_or_service (7634, "hddtemp", {"tcp"})
 
 action = function( host, port )
-	local status, data = comm.get_banner(host, port)
+	-- 5000B should be enough for 100 disks
+	local status, data = comm.get_banner(host, port, {bytes=5000})
 	if not status then
 		return
 	end
-	local fields = stdnse.strsplit("|", data)
+	local separator = string.sub(data, 1, 1)
+	local fields = stdnse.strsplit(separator, data)
 	local info = {}
 	local disks = math.floor((# fields) / 5)
 	for i = 0, (disks - 1) do
