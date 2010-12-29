@@ -52,7 +52,7 @@ action = function( host, port )
 				table.insert(files, string.format("%s %s", typelabel(type), label))
 			end
 		end
-	line = buffer()
+		line = buffer()
 	end
 	return "\n" .. stdnse.strjoin("\n", files)
 end
