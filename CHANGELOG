@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added gopher-ls.nse by Toni Ruotto, which lists the root of a
+  Gopher server.
+
 o [NSE] Added modbus-discover.nse by Alexander Rudakov. This script
   enumerates Modbus slave ids and then tries to find device
   information about each of them.
