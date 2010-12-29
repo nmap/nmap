@@ -27,52 +27,10 @@ author = "Eddie Bell, Rob Nicholls, Ange Gutek, David Fifield"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "auth", "safe"}
 
+require "ftp"
 require "shortport"
 
 portrule = shortport.port_or_service(21, "ftp")
-
--- Read an FTP reply and return the numeric code and the message. See RFC 959,
--- section 4.2. The buffer argument should have been created with
--- stdnse.make_buffer(socket, "\r?\n"). On error, returns nil and an error
--- message.
-local function read_reply(buffer)
-	local readline
-	local line, err
-	local code, message
-	local _, p, tmp
-
-	line, err = buffer()
-	if not line then
-		    return line, err
-	end
-
-	-- Single-line response?
-	code, message = string.match(line, "^(%d%d%d) (.*)$")
-	if code then
-		return tonumber(code), message
-	end
-
-	-- Multi-line response?
-	_, p, code, message = string.find(line, "^(%d%d%d)-(.*)$")
-	if p then
-	while true do
-		line, err = buffer()
-		if not line then
-			return line, err
-		end
-		tmp = string.match(line, "^%d%d%d (.*)$")
-		if tmp then
-			message = message .. "\n" .. tmp
-			break
-		end
-		message = message .. "\n" .. line
-		end
-
-		return tonumber(code), message
-	end
-
-	return nil, string.format("Unparseable response: %q", line)
-end
 
 -- ---------------------
 -- Directory listing function.
@@ -90,7 +48,7 @@ local function list(socket, target, max_lines)
 	if not status then
 		return status, err
 	end
-	code, message = read_reply(buffer)
+	code, message = ftp.read_reply(buffer)
 
 	-- Compute the PASV port as given by the server
 	-- The server should answer with something like
@@ -160,14 +118,14 @@ action = function(host, port)
 	buffer = stdnse.make_buffer(socket, "\r?\n")
 
 	-- Read banner.
-	code, message = read_reply(buffer)
+	code, message = ftp.read_reply(buffer)
 	if code and code == 220 then
 		try(socket:send("USER anonymous\r\n"))
-		code, message = read_reply(buffer)
+		code, message = ftp.read_reply(buffer)
 		if code == 331 then
 			-- 331: User name okay, need password.
 			try(socket:send("PASS IEUser@\r\n"))
-			code, message = read_reply(buffer)
+			code, message = ftp.read_reply(buffer)
 		end
 
 		if code == 332 then
@@ -176,11 +134,11 @@ action = function(host, port)
 			-- USER or PASS command. As we're doing this
 			-- anonymously, send back a blank ACCT.
 			try(socket:send("ACCT\r\n"))
-			code, message = read_reply(buffer)
+			code, message = ftp.read_reply(buffer)
 			if code == 331 then
 				-- 331: User name okay, need password.
 				try(socket:send("PASS IEUser@\r\n"))
-				code, message = read_reply(buffer)
+				code, message = ftp.read_reply(buffer)
 			end
 		end
 	end

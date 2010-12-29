@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Created an ftp.lua library. [David]
+
 o [NSE] Added gopher-ls.nse by Toni Ruotto, which lists the root of a
   Gopher server.
 
