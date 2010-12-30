@@ -426,6 +426,28 @@ local function format_get_indent(indent, at_end)
   return str
 end
 
+local function splitlines(s)
+  local result = {}
+  local i = 0
+
+  while i <= #s do
+    local b, e
+    b, e = string.find(s, "\r?\n", i)
+    if not b then
+      break
+    end
+    result[#result + 1] = string.sub(s, i, b - 1)
+    i = e + 1
+  end
+
+  if i <= #s then
+    result[#result + 1] = string.sub(s, i)
+  end
+
+  return result
+end
+
+
 -- A helper for format_output (see below).
 local function format_output_sub(status, data, indent)
   if (#data == 0) then
@@ -482,10 +504,10 @@ local function format_output_sub(status, data, indent)
       output = output .. format_output_sub(status, value, new_indent)
         
     elseif(type(value) == 'string') then
-      if(i ~= #data) then
-        output = output .. format("%s  %s%s\n", format_get_indent(indent, false), prefix, value)
-      else
-        output = output .. format("%s  %s%s\n", format_get_indent(indent, true), prefix, value)
+      local lines = splitlines(value)
+
+      for j, line in ipairs(lines) do
+        output = output .. format_get_indent(indent, i == #data and j == #lines) .. "  " .. prefix .. line .. "\n"
       end
     end
   end
