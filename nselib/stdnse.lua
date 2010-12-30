@@ -432,11 +432,6 @@ local function format_output_sub(status, data, indent)
     return ""
   end
 
-  -- Return a single line of output as-is (assuming it's top-level and a string)
-  if(indent == nil and #data == 1 and type(data) == 'string' and not(data['name']) and not(data['warning'])) then
-    return data[1]
-  end
-
   -- Used to put 'ERROR: ' in front of all lines on error messages
   local prefix = ""
   -- Initialize the output string to blank (or, if we're at the top, add a newline)
