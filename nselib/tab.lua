@@ -22,13 +22,10 @@ require('strbuf')
 
 --- Create and return a new table with a given number of columns and
 -- the row counter set to 1.
--- @param cols The number of columns the table will hold.
 -- @return A new table.
-function new(cols)
-	assert(cols > 0)
+function new()
 	local table ={}
 
-	table['cols'] = cols
 	table['rows'] = 1
 	setmetatable(table, {__tostring=dump})
 	return table
@@ -45,12 +42,7 @@ function add(t, c, v)
 	assert(t)
 	assert(v)
 	assert(t['rows'])
-	assert(t['cols'])
 	assert(type(v) == "string")
-
-	if c < 1 or c > t['cols'] then
-		return false
-	end
 
 	-- add a new row if one doesn't exist
 	if t[t['rows']] == nil then
@@ -92,35 +84,35 @@ end
 function dump(t)
 	assert(t)
 	assert(t['rows'])
-	assert(t['cols'])
 
-	local col_len = {}	
-	local table = strbuf.new()
+	local column_width = {}	
+	local num_columns = 0
+	local buf = strbuf.new()
 	local len
 
-	-- find largest string in column
-	for i=1, t['cols'] do
-		local max = 0
-		for x=1, t['rows'] do
-			if t[x] == nil then t[x] = {} end
-			if t[x][i] ~= nil and string.len(t[x][i]) > max then
-				max = string.len(t[x][i])
+	-- find widest element in each column
+	for i = 1, t['rows'] do
+		local row = t[i]
+		for x, elem in pairs(row) do
+			local elem_width = string.len(elem)
+			if not column_width[x] or elem_width > column_width[x] then
+				column_width[x] = elem_width
+			end
+			if x > num_columns then
+				num_columns = x
 			end
 		end
-		col_len[i] = max+2
 	end
 
-	-- build table with padding so all column elements line up
-	for i=1,t['rows'] do
-		for x=1, t['cols'] do
-			if t[i][x] ~= nil then
-				local length = string.len(t[i][x])
-				table = table .. t[i][x]
-				table = table .. string.rep(' ', col_len[x]-length)
-			end
+	-- build buf with padding so all column elements line up
+	for i = 1, t['rows'] do
+		local text_row = {}
+		for x = 1, num_columns do
+			local elem = t[i][x] or ""
+			text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
 		end
-		table = table .. "\n"
+		buf = buf .. table.concat(text_row, "  ") .. "\n"
 	end
 
-	return strbuf.dump(table)
+	return strbuf.dump(buf)
 end
