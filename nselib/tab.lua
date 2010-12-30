@@ -84,18 +84,19 @@ function dump(t)
 	assert(t)
 
 	local column_width = {}	
-	local num_columns = 0
+	local num_columns = {}
 	local buf = strbuf.new()
 
 	-- find widest element in each column
 	for i, row in ipairs(t) do
+		num_columns[i] = 0
 		for x, elem in pairs(row) do
 			local elem_width = string.len(elem)
 			if not column_width[x] or elem_width > column_width[x] then
 				column_width[x] = elem_width
 			end
-			if x > num_columns then
-				num_columns = x
+			if x > num_columns[i] then
+				num_columns[i] = x
 			end
 		end
 	end
@@ -103,9 +104,13 @@ function dump(t)
 	-- build buf with padding so all column elements line up
 	for i, row in ipairs(t) do
 		local text_row = {}
-		for x = 1, num_columns do
+		for x = 1, num_columns[i] do
 			local elem = row[x] or ""
-			text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
+			if x < num_columns[i] then
+				text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
+			else
+				text_row[#text_row + 1] = elem
+			end
 		end
 		buf = buf .. table.concat(text_row, "  ") .. "\n"
 	end
