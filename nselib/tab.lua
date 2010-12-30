@@ -26,7 +26,7 @@ require('strbuf')
 function new()
 	local table ={}
 
-	table['rows'] = 1
+	table.current_row = 1
 	setmetatable(table, {__tostring=dump})
 	return table
 end
@@ -43,11 +43,11 @@ function add(t, c, v)
 	assert(type(v) == "string")
 
 	-- add a new row if one doesn't exist
-	if t[t['rows']] == nil then
-		t[t['rows']] = {}
+	if t[t.current_row] == nil then
+		t[t.current_row] = {}
 	end
 
-	t[t['rows']][c] = v
+	t[t.current_row][c] = v
 	return true
 end
 
@@ -70,9 +70,9 @@ end
 -- @param t The table.
 function nextrow(t)
 	assert(t)
-	assert(t['rows'])
-	t[t['rows']] = t[t['rows']] or {}
-	t['rows'] = t['rows'] + 1
+	assert(t.current_row)
+	t[t.current_row] = t[t.current_row] or {}
+	t.current_row = t.current_row + 1
 end
 
 --- Return a formatted string representation of the table.
