@@ -84,7 +84,7 @@ local function report(nfs, tables)
   end
 
   if nfs.version == 2 then
-    outtab = tab.new(6)
+    outtab = tab.new()
     tab.nextrow(outtab)
     tab.addrow(outtab, tab_filesys, tab_size, tab_used,
                        tab_avail, tab_use, tab_bs)
@@ -94,7 +94,7 @@ local function report(nfs, tables)
                          t.used, t.available, t.use, t.bsize)
     end
   elseif nfs.version == 3 then
-    outtab = tab.new(7)
+    outtab = tab.new()
     tab.nextrow(outtab)
     tab.addrow(outtab, tab_filesys, tab_size, tab_used,
                        tab_avail, tab_use, tab_maxfs, tab_linkmax)

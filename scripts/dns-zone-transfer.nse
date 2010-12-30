@@ -426,7 +426,7 @@ function add_zone_info(response)
     offset = parse_records(add_answers, data, RR, offset)
   end
 
-  local outtab, nhosts = tab.new(2), 0
+  local outtab, nhosts = tab.new(), 0
   local newhosts_count, status, ret = 0, false
 
   tab.nextrow(outtab)
@@ -588,7 +588,7 @@ action = function(host, port)
         return stdnse.format_output(true, ret)
     -- dump axfr results
     else
-        local table = tab.new(3)
+        local table = tab.new()
         local status, ret = dump_zone_info(table, response_str)
         if not status then
             return stdnse.format_output(false, ret)

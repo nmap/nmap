@@ -207,7 +207,7 @@ local function nfs_ls(nfs, mount, results, access)
 end
 
 local function report(nfs, table)
-  local outtab, time = tab.new(6), ""
+  local outtab, time = tab.new(), ""
 
   if nfs.time == "mtime" then
     time = "MODIFICATION TIME"

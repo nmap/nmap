@@ -231,7 +231,7 @@ end
 -- @return Output report
 local report = function(stats)
 	local j
-	local outtab = tab.new(5)
+	local outtab = tab.new()
 
 	tab.add(outtab, 1, "PORT")
 	tab.add(outtab, 2, "FAMILY")

@@ -391,7 +391,7 @@ end
 -- @param forwarded array of ports we discovered as forwarded, one row per protocol
 -- @return the report string
 local function report(tested, forwarded)
-  local output = tab.new(2)
+  local output = tab.new()
 
   tab.add(output, 1, "PROTOCOL")
   tab.add(output, 2, "FORWARDED PORTS")
