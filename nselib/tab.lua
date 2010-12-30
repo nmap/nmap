@@ -6,7 +6,7 @@
 --
 -- Example usage:
 -- <code>
--- local t = tab.new(2)
+-- local t = tab.new()
 -- tab.add(t, 1, 'A1')
 -- tab.add(t, 2, 'A2')
 -- tab.nextrow(t)
@@ -16,17 +16,22 @@
 -- tab.addrow(t, 'C1', 'C2')
 -- tab.dump(t)
 -- </code>
+--
+-- <code>tab.add</code> works on the bottom-most row until
+-- <code>tab.nextrow</code> is called. Think of <code>tab.nextrow</code> as
+-- typing Enter at the end of a line. <code>tab.addrow</code> adds a whole row
+-- at a time and calls <code>tab.nextrow</code> automatically.
+--
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
-module(... or "tab",package.seeall)
+module(... or "tab", package.seeall)
 
 require('strbuf')
 
---- Create and return a new table with a given number of columns and
--- the row counter set to 1.
+--- Create and return a new table.
 -- @return A new table.
 function new()
-	local table ={}
+	local table = {}
 
 	table.current_row = 1
 	setmetatable(table, {__tostring=dump})
@@ -45,9 +50,7 @@ function add(t, c, v)
 	assert(type(v) == "string")
 
 	-- add a new row if one doesn't exist
-	if t[t.current_row] == nil then
-		t[t.current_row] = {}
-	end
+	t[t.current_row] = t[t.current_row] or {}
 
 	t[t.current_row][c] = v
 	return true
@@ -60,10 +63,10 @@ end
 -- @param t The table.
 -- @param ... The elements to add to the row.
 function addrow(t, ...)
-	for i=1, select("#", ...) do
-		add( t, i, tostring( ( select(i, ...)) ) )
+	for i = 1, select("#", ...) do
+		add(t, i, tostring((select(i, ...))))
 	end
-	nextrow( t )
+	nextrow(t)
 end
 
 --- Move on to the next row in the table. If this is not called
