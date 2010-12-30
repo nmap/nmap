@@ -238,6 +238,7 @@ local report = function(stats)
 	tab.add(outtab, 3, "MEAN (us)")
 	tab.add(outtab, 4, "STDDEV")
 	tab.add(outtab, 5, "LOSS (%)")
+	tab.nextrow(outtab)
 
 	for _, j in pairs(stats) do
 		port = tostring(j.port)
@@ -246,12 +247,12 @@ local report = function(stats)
 		stddev = string.format("%.2f", math.sqrt(j.K / (j.num - 1)))
 		loss = string.format("%.1f%%", 100 * (1 - j.num / j.sent))
 
-		tab.nextrow(outtab)
 		tab.add(outtab, 1, port)
 		tab.add(outtab, 2, fam)
 		tab.add(outtab, 3, mean)
 		tab.add(outtab, 4, stddev)
 		tab.add(outtab, 5, loss)
+		tab.nextrow(outtab)
 	end
 
 	return tab.dump(outtab)

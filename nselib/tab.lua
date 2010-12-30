@@ -12,6 +12,8 @@
 -- tab.nextrow(t)
 -- tab.add(t, 1, 'BBBBBBBBB1')
 -- tab.add(t, 2, 'BBB2')
+-- tab.nextrow(t)
+-- tab.addrow(t, 'C1', 'C2')
 -- tab.dump(t)
 -- </code>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html

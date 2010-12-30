@@ -348,7 +348,6 @@ function parse_records_table(number, data, table, offset)
         local answer, st = {}
         st, offset = get_answer_record(answer, data, offset)
         if st then
-            tab.nextrow(table)
             if answer.domain then
                 tab.add(table, 1, answer.domain)
             end
@@ -358,6 +357,7 @@ function parse_records_table(number, data, table, offset)
             if answer.rdata then
                 tab.add(table, 3, answer.rdata)
             end
+            tab.nextrow(table)
         end
         number = number - 1
     end
@@ -429,8 +429,7 @@ function add_zone_info(response)
   local outtab, nhosts = tab.new(), 0
   local newhosts_count, status, ret = 0, false
 
-  tab.nextrow(outtab)
-  tab.addrow(outtab, "  Domains", "Added Targets")
+  tab.addrow(outtab, "Domains", "Added Targets")
   for rdata in pairs(RR['Node Names']) do
     status, ret = target.add(rdata)
     if not status then
@@ -442,11 +441,12 @@ function add_zone_info(response)
   if newhosts_count == 0 then
     return false, ret and ret or "Error: failed to add DNS records."
   end
-  tab.addrow(outtab, "  Node Names", newhosts_count)
+  tab.addrow(outtab, "Node Names", newhosts_count)
   nhosts = newhosts_count 
 
   tab.nextrow(outtab)
-  tab.addrow(outtab, "  DNS Records", "Added Targets")
+
+  tab.addrow(outtab, "DNS Records", "Added Targets")
   for rectype in pairs(RR) do
     newhosts_count = 0
     -- filter Private IPs
@@ -475,7 +475,7 @@ function add_zone_info(response)
     end
 
     if newhosts_count ~= 0 then
-      tab.addrow(outtab, "  "..rectype, newhosts_count)
+      tab.addrow(outtab, rectype, newhosts_count)
       nhosts = nhosts + newhosts_count
     elseif nhosts == 0 then
       -- error: we can't add new targets
@@ -488,7 +488,7 @@ function add_zone_info(response)
     return false, "Error: failed to add valid DNS records."
   end
 
-  return true, tab.dump(outtab) ..
+  return true, tab.dump(outtab) .. "\n" ..
       string.format("Total new targets added to Nmap scan queue: %d.",
           nhosts)
 end

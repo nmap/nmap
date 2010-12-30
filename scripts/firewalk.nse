@@ -395,13 +395,14 @@ local function report(tested, forwarded)
 
   tab.add(output, 1, "PROTOCOL")
   tab.add(output, 2, "FORWARDED PORTS")
+  tab.nextrow(output)
 
   -- script output: one line per protocol
   for proto in pairs(tested) do
     if #tested[proto] ~= 0 then
-      tab.nextrow(output)
       tab.add(output, 1, proto)
       tab.add(output, 2, portrange(forwarded[proto]))
+      tab.nextrow(output)
     end
   end
 

@@ -10,7 +10,6 @@ the version used is NFSv3.
 -- @output
 -- PORT    STATE SERVICE
 -- | nfs-statfs:
--- |
 -- |   Filesystem           1K-blocks  Used     Available  Use%  Blocksize
 -- |   /mnt/nfs/files       5542276    2732012  2528728    52%   4096
 -- |_  /mnt/nfs/opensource  5534416    620640   4632644    12%   4096
@@ -72,7 +71,7 @@ end
 local function report(nfs, tables)
   local outtab, tab_size, tab_avail
   local tab_filesys, tab_used, tab_use,
-        tab_bs, tab_maxfs, tab_linkmax = "  Filesystem",
+        tab_bs, tab_maxfs, tab_linkmax = "Filesystem",
         "Used", "Use%", "Blocksize", "Maxfilesize", "Maxlink"
 
   if nfs.human then
@@ -85,22 +84,18 @@ local function report(nfs, tables)
 
   if nfs.version == 2 then
     outtab = tab.new()
-    tab.nextrow(outtab)
     tab.addrow(outtab, tab_filesys, tab_size, tab_used,
                        tab_avail, tab_use, tab_bs)
     for _, t in ipairs(tables) do
-      tab.nextrow(outtab)
-      tab.addrow(outtab, "  "..t.filesystem, t.size,
+      tab.addrow(outtab, t.filesystem, t.size,
                          t.used, t.available, t.use, t.bsize)
     end
   elseif nfs.version == 3 then
     outtab = tab.new()
-    tab.nextrow(outtab)
     tab.addrow(outtab, tab_filesys, tab_size, tab_used,
                        tab_avail, tab_use, tab_maxfs, tab_linkmax)
     for _, t in ipairs(tables) do
-      tab.nextrow(outtab)
-      tab.addrow(outtab, "  "..t.filesystem, t.size, t.used,
+      tab.addrow(outtab, t.filesystem, t.size, t.used,
                         t.available, t.use, t.maxfilesize, t.linkmax)
     end
   end

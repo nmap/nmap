@@ -30,7 +30,6 @@ These access permissions are shown only with NFSv3:
 -- | nfs-ls:
 -- |   Arguments:
 -- |     maxfiles: 10 (file listing output limited)
--- |
 -- |   NFS Export: /mnt/nfs/files
 -- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
 -- |
@@ -38,7 +37,6 @@ These access permissions are shown only with NFSv3:
 -- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
 -- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
 -- |     -rw-------  1000  1002  23606    2010-06-17 12:28   notes
--- |
 -- |   NFS Export: /home/storage/backup
 -- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
 -- |
@@ -217,17 +215,16 @@ local function report(nfs, table)
     time = "CHANGE TIME"
   end
 
-  tab.nextrow(outtab)
-  tab.add(outtab, 1, "    PERMISSION")
+  tab.add(outtab, 1, "PERMISSION")
   tab.add(outtab, 2, "UID")
   tab.add(outtab, 3, "GID")
   tab.add(outtab, 4, "SIZE")
   tab.add(outtab, 5, time)
   tab.add(outtab, 6, "FILENAME")
+  tab.nextrow(outtab)
 
   for _,f in pairs(table) do
-    local perm = "    " .. f.type .. f.mode
-    tab.nextrow(outtab)
+    local perm = f.type .. f.mode
     tab.addrow(outtab, perm, f.uid, f.gid,
                f.size, f.time, f.filename)
   end
@@ -283,7 +280,7 @@ action = function(host, port)
       if #access ~= 0 then
         table.insert(o, string.format("NFS Access: %s", access[1]))
       end
-      table.insert(o, report(nfs_info, results))
+      table.insert(o, {report(nfs_info, results)})
     end
   end
 
