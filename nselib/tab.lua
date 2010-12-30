@@ -40,8 +40,6 @@ end
 -- @param c The column position at which to add the item.
 function add(t, c, v)
 	assert(t)
-	assert(v)
-	assert(t['rows'])
 	assert(type(v) == "string")
 
 	-- add a new row if one doesn't exist
@@ -73,6 +71,7 @@ end
 function nextrow(t)
 	assert(t)
 	assert(t['rows'])
+	t[t['rows']] = t[t['rows']] or {}
 	t['rows'] = t['rows'] + 1
 end
 
@@ -83,16 +82,13 @@ end
 -- @param t The table.
 function dump(t)
 	assert(t)
-	assert(t['rows'])
 
 	local column_width = {}	
 	local num_columns = 0
 	local buf = strbuf.new()
-	local len
 
 	-- find widest element in each column
-	for i = 1, t['rows'] do
-		local row = t[i]
+	for i, row in ipairs(t) do
 		for x, elem in pairs(row) do
 			local elem_width = string.len(elem)
 			if not column_width[x] or elem_width > column_width[x] then
@@ -105,10 +101,10 @@ function dump(t)
 	end
 
 	-- build buf with padding so all column elements line up
-	for i = 1, t['rows'] do
+	for i, row in ipairs(t) do
 		local text_row = {}
 		for x = 1, num_columns do
-			local elem = t[i][x] or ""
+			local elem = row[x] or ""
 			text_row[#text_row + 1] = elem .. string.rep(" ", column_width[x] - #elem)
 		end
 		buf = buf .. table.concat(text_row, "  ") .. "\n"
