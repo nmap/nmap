@@ -57,6 +57,7 @@ categories = {"discovery", "intrusive", "vuln"}
 require 'http'
 require 'shortport'
 require 'stdnse'
+require 'nsedebug'
 
 portrule = shortport.http
 
@@ -147,10 +148,11 @@ local function get_variations(filename)
 	return variations
 end
 
----Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. 
+---Get the list of fingerprints from files. The files are defined in <code>fingerprint_files</code>. If category
+-- is non-nil, only choose scripts that are in that category.
 --
 --@return An array of entries, each of which have a <code>checkdir</code> field, and possibly a <code>checkdesc</code>. 
-local function get_fingerprints(fingerprint_file)
+local function get_fingerprints(fingerprint_file, category)
 	local entries  = {}
 	local i
 	local total_count = 0 -- Used for 'limit'
@@ -283,6 +285,29 @@ local function get_fingerprints(fingerprint_file)
 		end
 	end
 
+	-- Make sure we have some fingerprints fingerprints
+	if(#fingerprints == 0) then
+		return false, "No fingerprints were loaded"
+	end
+
+	-- If the user wanted to filter by category, do it
+	if(category) then
+		local filtered_fingerprints = {}
+		for _, fingerprint in pairs(fingerprints) do
+			if(fingerprint.category == category) then
+				table.insert(filtered_fingerprints, fingerprint)
+			end
+		end
+
+		fingerprints = filtered_fingerprints
+
+		-- Make sure we still have fingerprints after the category filter
+		if(#fingerprints == 0) then
+			return false, "No fingerprints matched the given category (" .. category .. ")"
+		end
+	end
+
+
 --	-- If the user wants to try variations, add them
 --	if(try_variations) then
 --		-- Get a list of all variations for this directory
@@ -314,14 +339,16 @@ action = function(host, port)
 	local basepath         = stdnse.get_script_args({'http-enum.basepath',        'path'})         or '/'
 	local displayall       = stdnse.get_script_args({'http-enum.displayall',      'displayall'})   or false
 	local fingerprint_file = stdnse.get_script_args({'http-enum.fingerprintfile', 'fingerprints'}) or 'http-fingerprints.lua'
+	local category         = stdnse.get_script_args('http-enum.category')
 --	local try_variations   = stdnse.get_script_args({'http-enum.tryvariations',   'variations'})   or false
 --	local limit            = tonumber(stdnse.get_script_args({'http-enum.limit', 'limit'})) or -1
 
 	-- Add URLs from external files
-	local status, fingerprints = get_fingerprints(fingerprint_file)
+	local status, fingerprints = get_fingerprints(fingerprint_file, category)
 	if(not(status)) then
 		return stdnse.format_output(false, fingerprints)
 	end
+	stdnse.print_debug(1, "http-enum: Loaded %d fingerprints", #fingerprints)
 
 	-- Check what response we get for a 404
 	local result, result_404, known_404 = http.identify_404(host, port)
