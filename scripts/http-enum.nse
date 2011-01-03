@@ -34,6 +34,8 @@ database can specify their own criteria for accepting a page as valid.
 --                                  just 200 OK and 401 Authentication Required pages. Although this is more likely
 --                                  to find certain hidden folders, it also generates far more false positives. 
 -- @args http-enum.fingerprintfile  Specify a different file to read fingerprints from. 
+-- @args http-enum.category         Set to a category (as defined in the fingerprints file). Some options are 'attacks',
+--                                  'database', 'general', 'microsoft', 'printer', etc.
 --
 -- @output
 -- Interesting ports on test.skullsecurity.org (208.81.2.52):
