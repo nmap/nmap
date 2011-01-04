@@ -258,7 +258,7 @@ action = function(host, port)
     local args = {}
     args['name'] = 'Arguments:'
     table.insert(args, 
-          string.format("maxfiles: %d (file listing output limited)\n",
+          string.format("maxfiles: %d (file listing output limited)",
                 nfs_info.maxfiles))
     table.insert(o, args)
   end
@@ -272,11 +272,11 @@ action = function(host, port)
     local results, access, err = {}, {}
     status, err = nfs_ls(nfs_info, v.name, results, access)
     if not status then
-      table.insert(o, string.format("NFS Export %s", v.name))
+      table.insert(o, string.format("\nNFS Export %s", v.name))
       table.insert(o, string.format("ERROR: %s", err))
     else
       table.insert(o,
-            string.format("NFS Export: %s", results[1].filename))
+            string.format("\nNFS Export: %s", results[1].filename))
       if #access ~= 0 then
         table.insert(o, string.format("NFS Access: %s", access[1]))
       end
