@@ -383,8 +383,10 @@ static const char *pkey_type_to_string(int type)
     return "dsa";
   case EVP_PKEY_DH:
     return "dh";
+#ifdef EVP_PKEY_EC
   case EVP_PKEY_EC:
     return "ec";
+#endif
   default:
     return "unknown";
   }
