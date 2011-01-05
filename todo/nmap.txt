@@ -1,10 +1,13 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Fix our mac builds so that they contain SSL support again (5.35DC1
+  did, but TEST1 and TEST2 didn't for some reason.
+
+o Do another Nmap test/dev release
+
 o Process Nmap survey and send out results [Fyodor]
 
 o Update changelog to note recent changes
-
-o Do another Nmap test/dev release
 
 o Do new Nmap release with the stuff merged from SoC students and
   other new developments.
@@ -43,8 +46,6 @@ o Script review:
     http://seclists.org/nmap-dev/2010/q4/623
     http://seclists.org/nmap-dev/2010/q4/639
   - servicetags http://seclists.org/nmap-dev/2010/q4/691
-  - patch for ftp-proftpd-backdoor http://seclists.org/nmap-dev/2010/q4/678
-  - patch for hddtemp-info http://seclists.org/nmap-dev/2010/q4/676
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
 
@@ -679,6 +680,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review:
+  - patch for ftp-proftpd-backdoor
+    http://seclists.org/nmap-dev/2010/q4/678
+  - patch for hddtemp-info http://seclists.org/nmap-dev/2010/q4/676
 
 o We should probably update our Windows build systems to use Python
   2.7.  As of 11/8, it looks like all our dependency libraries are
