@@ -50,7 +50,7 @@ local LOGO_HASHES = {
 	-- Brown Dog In Grass (Nadia)
 	["a57bd73e27be03a62dd6b3e1b537a72c"] = {"4.3.0 - 4.3.10"},
 	-- Elephant
-	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.4"},
+	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.5"},
 }
 
 local CREDITS_HASHES = {
@@ -79,7 +79,7 @@ local CREDITS_HASHES = {
 	["c37c96e8728dc959c55219d47f2d543f"] = {"5.2.3 - 5.2.5"},
 	["d3894e19233d979db07d623f608b6ece"] = {"5.2.1"},
 	["db23b07a9b426d0d033565b878b1e384"] = {"5.3.0"},
-	["e3b18899d0ffdf8322ed18d7bce3c9a0"] = {"5.3.4"},
+	["e3b18899d0ffdf8322ed18d7bce3c9a0"] = {"5.3.4 - 5.3.5"},
 	["e54dbf41d985bfbfa316dba207ad6bce"] = {"5.0.0"},
 }
 
