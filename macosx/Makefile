@@ -26,6 +26,7 @@ NDIFF_STAGING_DIR = Ndiff
 NPING_BUILD_DIR = nping-build
 NPING_STAGING_DIR = Nping
 
+MACPORTS_PREFIX=$(HOME)/macports-10.4u
 PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
@@ -36,7 +37,9 @@ CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=inc
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
-UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
+# Link against the local MacPorts openssl because the 10.4u SDK doesn't
+# have EVP_sha256, used by Nping.
+UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking --with-openssl=$(MACPORTS_PREFIX)
 # gcc-4.0 is used to avoid an error with stdarg.h ("No such file or directory")
 # when building against the 10.4u SDK on OS X 10.6.
 UNIVERSAL_CC = gcc-4.0
