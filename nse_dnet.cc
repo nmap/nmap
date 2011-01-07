@@ -259,7 +259,7 @@ usesock:
 
 static int gc (lua_State *L)
 {
-  nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
+  luaL_checkudata(L, 1, DNET_METATABLE);
 
   lua_pushcfunction(L, ip_close);
   lua_pushvalue(L, 1);
