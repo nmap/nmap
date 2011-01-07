@@ -44,7 +44,7 @@ local LOGO_HASHES = {
 	-- Black Scottish Terrier (Scotch)
 	["4b2c92409cf0bcf465d199e93a15ac3f"] = {"4.3.11", "4.4.0 - 4.4.9", "5.0.4 - 5.0.5", "5.1.0 - 5.1.2"},
 	-- Colored
-	["50caaf268b4f3d260d720a1a29c5fe21"] = {"5.1.3 - 5.1.6", "5.2.0 - 5.2.16"},
+	["50caaf268b4f3d260d720a1a29c5fe21"] = {"5.1.3 - 5.1.6", "5.2.0 - 5.2.17"},
 	-- PHP Code Guy With Breadsticks (Thies C. Arntzen)
 	["85be3b4be7bfe839cbb3b4f2d30ff983"] = {"4.0.0 - 4.2.3"},
 	-- Brown Dog In Grass (Nadia)
@@ -72,7 +72,7 @@ local CREDITS_HASHES = {
 	["8a4a61f60025b43f11a7c998f02b1902"] = {"4.3.4"},
 	["8fbf48d5a2a64065fc26db3e890b9871"] = {"4.3.10"},
 	["913ec921cf487109084a518f91e70859"] = {"4.3.2 - 4.3.3", "4.3.6", "4.3.8 - 4.3.10"},
-	["adb361b9255c1e5275e5bd6e2907c5fb"] = {"5.2.15 - 5.2.16"},
+	["adb361b9255c1e5275e5bd6e2907c5fb"] = {"5.2.15 - 5.2.17"},
 	["a4c057b11fa0fba98c8e26cd7bb762a8"] = {"5.3.1 - 5.3.2"},
 	["b34501471d51cebafacdd45bf2cd545d"] = {"5.3.3"},
 	["bed7ceff09e9666d96fdf3518af78e0e"] = {"4.4.2 - 4.4.4"},
