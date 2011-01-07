@@ -32,7 +32,6 @@ typedef struct nse_dnet_udata
 {
   eth_t *eth;
   int sock; /* raw ip socket */
-  int interface; /* integer reference in registry for interface string */
 } nse_dnet_udata;
 
 LUALIB_API int l_dnet_new (lua_State *L)
@@ -44,7 +43,6 @@ LUALIB_API int l_dnet_new (lua_State *L)
   lua_setmetatable(L, -2);
   udata->eth = NULL;
   udata->sock = -1;
-  udata->interface = LUA_NOREF;
 
   return 1;
 }
@@ -122,8 +120,6 @@ static int ethernet_open (lua_State *L)
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
 
   udata->eth = open_eth_cached(L, 1, interface_name);
-  lua_pushvalue(L, 2);
-  udata->interface = luaL_ref(L, LUA_REGISTRYINDEX);
 
   return success(L);
 }
@@ -138,9 +134,6 @@ static int ethernet_close (lua_State *L)
   lua_pushvalue(L, 1);
   lua_pushnil(L);
   lua_rawset(L, -3);
-
-  luaL_unref(L, LUA_REGISTRYINDEX, udata->interface);
-  udata->interface = LUA_NOREF;
 
   return success(L);
 }
@@ -247,8 +240,6 @@ static int ip_send (lua_State *L)
     lua_call(L, 1, 0);
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
-    lua_pushstring(L, route.ii.devname);
-    udata->interface = luaL_ref(L, LUA_REGISTRYINDEX);
 
     ret = send_ip_packet(udata->sock, &eth, (u8 *) packet, lua_objlen(L, 2));
   } else {
@@ -277,7 +268,6 @@ static int gc (lua_State *L)
   lua_pushvalue(L, 1);
   lua_call(L, 1, 0);
 
-  luaL_unref(L, LUA_REGISTRYINDEX, udata->interface);
   return 0;
 }
 
