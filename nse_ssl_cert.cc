@@ -104,7 +104,6 @@ extern "C"
 {
 #include "lua.h"
 #include "lauxlib.h"
-void *safe_realloc(void *, size_t);
 }
 
 #include "nse_nsock.h"
@@ -163,14 +162,16 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
 
   nid = OBJ_obj2nid(obj);
   if (nid == NID_undef) {
-    size_t size = 0;
-    char *buf = NULL;
+    size_t size = 1;
+    char *buf = (char *) lua_newuserdata(L, size);
     const char *p, *q;
     int i, n;
 
     while ((n = OBJ_obj2txt(buf, size, obj, 1)) < 0 || (unsigned) n >= size) {
-      size = size * 2 + 1;
-      buf = (char *) safe_realloc(buf, size);
+      size = size * 2;
+      buf = (char *) lua_newuserdata(L, size);
+      memcpy(lua_touserdata(L, -1), lua_touserdata(L, -2), lua_objlen(L, -2));
+      lua_replace(L, -2);
     }
 
     lua_newtable(L);
@@ -186,7 +187,7 @@ static void obj_to_key(lua_State *L, const ASN1_OBJECT *obj)
       lua_rawseti(L, -2, i++);
       p = q + 1;
     }
-    free(buf);
+    lua_replace(L, -2); /* replace userdata with table */
   } else {
     lua_pushstring(L, OBJ_nid2ln(nid));
   }
