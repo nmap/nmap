@@ -6,8 +6,14 @@ Lists files and directories at the root of a gopher service.
 -- @output
 -- 70/tcp open  gopher
 -- | gopher-ls:
--- | [txt] Gopher, the next big thing?
--- |_[dir] Tax Forms
+-- | [txt] /gresearch.txt "Gopher, the next big thing?"
+-- | [dir] /taxf "Tax Forms"
+-- |_Only 2 shown. Use --script-args gopher-ls.maxfiles=-1 to see all.
+--
+-- @args gopher-ls.maxfiles If set, limits the amount of files returned by
+--       the script. If set to 0 or less, all files are shown. The default
+--       value is 10.
+
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -19,18 +25,29 @@ require("shortport")
 
 portrule = shortport.port_or_service (70, "gopher", {"tcp"})
 
-local function typelabel(type)
-	if type == "0" then
+local function typelabel(gtype)
+	if gtype == "0" then
 		return "[txt]"
 	end
-	if type == "1" then
+	if gtype == "1" then
 		return "[dir]"
 	end
-	return string.format("[%s]", type)
+	return string.format("[%s]", gtype)
 
 end
 
 action = function( host, port )
+
+	local INFO = "i"
+	local maxfiles = nmap.registry.args[SCRIPT_NAME .. ".maxfiles"]
+	if not maxfiles then
+		maxfiles = 10
+	else
+                maxfiles = tonumber(maxfiles)
+	end
+	if maxfiles < 1 then
+		maxfiles = nil
+	end
 
 	local socket = nmap.new_socket()
 	local status, err = socket:connect(host.ip, port.number)
@@ -45,13 +62,20 @@ action = function( host, port )
 	local files = {}
 
 	while line ~= nil do
-		local fields = stdnse.strsplit("\t", line)
-		local first = fields[1]
-		if #first > 1 then
-			local type = string.sub(first, 1, 1)
-			if type ~= "i" then
-				local label = string.sub(first, 2)
-				table.insert(files, string.format("%s %s", typelabel(type), label))
+		if #line > 1 then
+			local gtype = string.sub(line, 1, 1)
+			local fields = stdnse.strsplit("\t", string.sub(line, 2))
+			if #fields > 1 then
+				local label = fields[1]
+				local filename = fields[2]
+				if gtype ~= INFO then
+					if maxfiles and #files >= maxfiles then
+						table.insert(files, string.format('Only %d shown. Use --script-args %s.maxfiles=-1 to see all.', maxfiles, SCRIPT_NAME))
+						break
+					else
+						table.insert(files, string.format('%s %s "%s"', typelabel(gtype), filename, label))
+					end
+				end
 			end
 		end
 		line = buffer()
