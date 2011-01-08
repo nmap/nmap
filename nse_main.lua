@@ -634,7 +634,6 @@ local function run (threads_iter, scantype)
   local current; -- The currently running Thread.
   local total = 0; -- Number of threads, for record keeping.
   local timeouts = {}; -- A list to save and to track scripts timeout.
-  local progress = cnse.scan_progress_meter(NAME);
   local num_threads = 0; -- Number of script instances currently running.
 
   -- Map of yielded threads to the base Thread
@@ -707,6 +706,22 @@ local function run (threads_iter, scantype)
   rawset(stdnse, "base", function ()
     return current.co;
   end);
+
+  while threads_iter and num_threads < CONCURRENCY_LIMIT do
+    local thread = threads_iter()
+    if not thread then
+      threads_iter = nil;
+      break;
+    end
+    all[thread.co], running[thread.co], total = thread, thread, total+1;
+    num_threads = num_threads + 1;
+    thread:start(timeouts);
+  end
+  if num_threads == 0 then
+    return
+  end
+
+  local progress = cnse.scan_progress_meter(NAME);
 
   -- Loop while any thread is running or waiting.
   while next(running) or next(waiting) or threads_iter do
