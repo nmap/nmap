@@ -953,15 +953,6 @@ local function main (hosts, scantype)
     insert(runlevels[script.runlevel], script);
   end
 
-  -- Yield only scripts in the given runlevel.
-  local function runlevel_scripts(scripts)
-    return wrap(function ()
-      for i, script in ipairs(scripts) do
-        yield(script);
-      end
-    end);
-  end
-
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
@@ -969,7 +960,7 @@ local function main (hosts, scantype)
       -- activate prerule scripts
       if (scantype == NSE_PRE_SCAN) then
         print_verbose(1, "Script Pre-scanning.");
-        for script in runlevel_scripts(scripts) do
+        for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
              thread.args = {n = 0};
@@ -986,7 +977,7 @@ local function main (hosts, scantype)
 
         -- Check hostrules for this host.
         for j, host in ipairs(hosts) do
-          for script in runlevel_scripts(scripts) do
+          for _, script in ipairs(scripts) do
             local thread = script:new_thread("hostrule", tcopy(host));
             if thread then
               thread.args, thread.host = {n = 1, tcopy(host)}, host;
@@ -995,7 +986,7 @@ local function main (hosts, scantype)
           end
           -- Check portrules for this host.
           for port in cnse.ports(host) do
-            for script in runlevel_scripts(scripts) do
+            for _, script in ipairs(scripts) do
               local thread = script:new_thread("portrule", tcopy(host), tcopy(port));
               if thread then
                 thread.args, thread.host, thread.port = {n = 2, tcopy(host), tcopy(port)}, host, port;
@@ -1007,7 +998,7 @@ local function main (hosts, scantype)
         -- activate postrule scripts
       elseif (scantype == NSE_POST_SCAN) then
         print_verbose(1, "Script Post-scanning.");
-        for script in runlevel_scripts(scripts) do
+        for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
             thread.args = {n = 0};
