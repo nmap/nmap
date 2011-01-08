@@ -15,7 +15,7 @@ To use this, a configuration file should be created and edited. Several configur
 files are included that you can customize, or you can write your own. This config file 
 is placed in <code>nselib/data/psexec</code> (if you aren't sure where that is, search your system 
 for <code>default.lua</code>), then is passed to Nmap as a script argument (for example, 
-myconfig.lua would be passed as <code>--script-args=config-myconfig</code>. 
+myconfig.lua would be passed as <code>--script-args=config=myconfig</code>. 
 
 The configuration file consists mainly of a module list. Each module is defined by a lua
 table, and contains fields for the name of the program, the executable and arguments 
