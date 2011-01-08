@@ -9907,6 +9907,17 @@ match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* linux-[^\\]
 match quake3 m|^\xff\xff\xff\xffstatusResponse\n.*\\version\\([^\\]* freebsd-[^\\]*)(?=\\)| p/World of Padman game server/ v/$1/ o/FreeBSD/
 
 ##############################NEXT PROBE##############################
+# Quake 3 and other games
+# http://svn.icculus.org/twilight/trunk/dpmaster/doc/techinfo.txt?view=markup
+# Protocol 68 is a specific revision of Quake 3, but the server should respond
+# with an empty server list even if it doesn't know that game.
+Probe UDP Quake3_master_getservers q|\xff\xff\xff\xffgetservers 68 empty full|
+rarity 9
+ports 27950,30710
+
+match quake3-master m|^\xff\xff\xff\xffgetserversResponse|
+
+##############################NEXT PROBE##############################
 # SqueezeCenter CLI
 # http://wiki.slimdevices.com/index.php/CLI
 Probe TCP SqueezeCenter_CLI q|serverstatus\r\n|
