@@ -968,13 +968,24 @@ local function main (hosts, scantype)
     insert(runlevels[script.runlevel], script);
   end
 
+  if (scantype == NSE_PRE_SCAN) then
+    print_verbose(1, "Script Pre-scanning.");
+  elseif (scantype == NSE_SCAN) then
+    if #hosts > 1 then
+      print_verbose(1, "Script scanning %d hosts.", #hosts);
+    elseif #hosts == 1 then
+      print_verbose(1, "Script scanning %s.", hosts[1].ip);
+    end
+  elseif (scantype == NSE_POST_SCAN) then
+    print_verbose(1, "Script Post-scanning.");
+  end
+
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
     local function threads_iter ()
       -- activate prerule scripts
       if (scantype == NSE_PRE_SCAN) then
-        print_verbose(1, "Script Pre-scanning.");
         for _, script in ipairs(scripts) do
            local thread = script:new_thread("prerule");
            if thread then
@@ -984,12 +995,6 @@ local function main (hosts, scantype)
         end
       -- activate hostrule and portrule scripts
       elseif (scantype == NSE_SCAN) then
-        if #hosts > 1 then
-          print_verbose(1, "Script scanning %d hosts.", #hosts);
-        elseif #hosts == 1 then
-          print_verbose(1, "Script scanning %s.", hosts[1].ip);
-        end
-
         -- Check hostrules for this host.
         for j, host in ipairs(hosts) do
           for _, script in ipairs(scripts) do
@@ -1012,7 +1017,6 @@ local function main (hosts, scantype)
         end
         -- activate postrule scripts
       elseif (scantype == NSE_POST_SCAN) then
-        print_verbose(1, "Script Post-scanning.");
         for _, script in ipairs(scripts) do
           local thread = script:new_thread("postrule");
           if thread then
