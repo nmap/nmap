@@ -4,6 +4,8 @@
 -- o Jason H. (@jhaddix) for helping out with a whole pile of fingerprints he's
 --   collected
 -- o Bob Dooling
+-- o Robert Rowley for the awesome open source cms and README checks
+--   http://www.irvineunderground.org
 --
 -- This file is released under the Nmap license; see:
 --  http://nmap.org/book/man-legal.html
@@ -1157,6 +1159,139 @@ table.insert(fingerprints, {
 })
 
 ------------------------------------------------
+----        Open Source CMS checks          ----
+------------------------------------------------
+
+-- Broad wordpress version identification
+table.insert(fingerprints, {
+        category='cms',
+        probes={
+                {path='/wp-login.php'},
+                {path='/wordpress/wp-login.php'},
+                {path='/blog/wp-login.php'},
+                {path='/weblog/wp-login.php'}
+        },
+        matches={
+                {match='ver=20080708', output='WordPress 2.6.x found'},
+                {match='ver=20081210', output='WordPress 2.7.x found'},
+                {match='ver=20090514', output='WordPress 2.8.x found'},
+                {match='ver=20091217', output='WordPress 2.9.x found'},
+                {match='ver=20100601', output='WordPress 3.0.x found'},
+		{output='Wordpress login page.'}
+        }
+})
+
+-- ZenCart version detection
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/docs/'},
+		{path='/store/docs/'},
+		{path='/zencart/docs/'},
+		{path='/cart/docs/'}
+	},
+	matches={
+		{match='.*">Changelog for v(%d-%..-) %(changed files%)</a>', output='ZenCart, version \\1'}
+	}
+})
+
+-- Broad phpBB versions 
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/docs/CHANGELOG.html'},
+		{path='/forum/docs/CHANGELOG.html'},
+		{path='/forums/docs/CHANGELOG.html'},
+		{path='/board/docs/CHANGELOG.html'},
+		{path='/boards/docs/CHANGELOG.html'}
+	},
+	matches={
+		{match='Changes since (%d-%..-)</a>', output='phpBB version slightly newer than \\1'},
+		{match='<meta name="description" content="phpBB (%d-%..-) Changelog"', output='phpBB, version \\1'},
+		{match='Changes since (%d)', output='phpBB versioning \\1'},
+	}
+})
+
+-- tinymce / changelog
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/changelog.txt'},
+		{path='/tinymce/changelog.txt'},
+	},
+	matches={
+		{match='Version (.-) ', output='Version \\1'},
+		{output='Interesting, a changelog.'}
+	}
+})
+
+-- interesting README  files
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/readme.html'},
+		{path='/pligg/readme.html'},
+		{path='/digg/readme.html'},
+		{path='/news/readme.html'},
+	},
+	matches={
+		{match='<h1>Pligg Content Management System</h1>%s*<h2>Version (.-)</h2>', output='Pligg version \\1'},
+		{output='Interesting, a readme.'}
+	}
+})
+
+-- They're kind enough to tell us in the meta tags (used for the author's stats)
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/'},
+		{path='/forum/'},
+		{path='/site/'},
+		{path='/website/'},
+		{path='/store/'},
+		{path='/webstore/'},
+		{path='/comic/'},
+		{path='/wiki/'},
+		{path='/mediawiki/'},
+		{path='/Mediawiki/'},
+		{path='/MediaWiki/'},
+                {path='/wordpress/'},
+                {path='/blog/'},
+                {path='/cms/'},
+		{path='/comiccms/'},
+                {path='/weblog/'},
+		{path='/joomla/'},
+		{path='/administrator/'},
+		{path='/openx/www/admin/index.php'},
+		{path='/www/admin/index.php'},
+		{path='/ads/www/admin/index.php'},
+		{path='/adserver/www/admin/index.php'},
+		{path='/splashfrog/'},
+		{path='/pligg/'},
+		{path='/vanilla/'},
+		{path='/vanillaforum/'},
+		{path='/vanillaforums/'},
+		{path='/statusnet/'},
+		{path='/xoda/'},
+		{path='/trac/'},
+		{path='/lime/'},
+		{path='/survey/'},
+		{path='/limesurvey/'},
+		{path='/openvbx/'},
+		{path='/getsimple/'},
+		{path='/ecoder/'},
+	},
+	matches={
+                {match='<meta name="generator" content="(.-)"', output='\\1'},
+                {match='<h1>ecoder v(.-)</h1>', output='ecoder v\\1'},
+                {match='<a href="http://www.splashfrog.com" target="_blank">Splash Frog WMS v(.-)</a>', output='Splash Frog WMS v\\1'},
+                {match='<a href="http://status.net/">StatusNet</a> microblogging software, version (.-),', output='StatusNet v\\1'},
+		{match='<script src=".*/applications/vanilla/js/options.js%?v%=(.-)" type="text/javascript">', output='Vanilla Forums v\\1'},
+		{match='about"><strong>Trac (.-)</strong></a>', output='Trac version \\1'},
+	}
+})
+
+------------------------------------------------
 ----           UNCATEGORIZED                ----
 ------------------------------------------------
 
@@ -1216,6 +1351,27 @@ table.insert(fingerprints, {
 ------------------------------------------------
 ----    MISCELLANEOUS ITEMS OF INTEREST     ----
 ------------------------------------------------
+
+-- interesting README  files
+table.insert(fingerprints, {
+	category='miscellaneous',
+	probes={
+		{path='/README'},
+		{path='/xoda/README'},
+		{path='/docs/README'},
+		{path='/documents/README'},
+		{path='/dms/README'},
+		{path='/status/README'},
+		{path='/statusnet/README'},
+		{path='/twitter/README'},
+	},
+	matches={
+		{match='StatusNet (.-) ', output='StatusNet README version \\1'},
+		{match='XODA.*Changelog%s---------%s(%d.-):', output='XODA \\1'},
+		{output='Interesting, a readme.'}
+	}
+})
+
 
 table.insert(fingerprints, {
 	category='miscellaneous',
@@ -2059,4 +2215,6 @@ table.insert(fingerprints, {
 		{match='',                output='Potentially interesting folder'}
 	}
 })
+
+
 
