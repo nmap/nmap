@@ -192,7 +192,7 @@ dixie	96/tcp	0.000013	# DIXIE Protocol Specification
 dixie	96/udp	0.000939	# DIXIE Protocol Specification
 swift-rvf	97/tcp	0.000038	# Swift Remote Virtural File Protocol
 swift-rvf	97/udp	0.000362	# Swift Remote Virtural File Protocol
-linuxconf	98/tcp	0.000088	# linuxconf
+linuxconf	98/tcp	0.000088
 tacnews	98/udp	0.000560	# TAC News
 metagram	99/tcp	0.000326	# Metagram Relay
 metagram	99/udp	0.000972	# Metagram Relay
@@ -406,7 +406,7 @@ rsh-spx	222/tcp	0.000941	# Berkeley rshd with SPX auth
 rsh-spx	222/udp	0.000774	# Berkeley rshd with SPX auth
 cdc	223/tcp	0.000125	# Certificate Distribution Center
 cdc	223/udp	0.000346	# Certificate Distribution Center
-masqdialer	224/tcp	0.000025	# masqdialer
+masqdialer	224/tcp	0.000025
 unknown	225/tcp	0.000100
 unknown	225/udp	0.000330
 unknown	226/tcp	0.000013
@@ -467,7 +467,7 @@ http-mgmt	280/tcp	0.001844
 http-mgmt	280/udp	0.000379
 personal-link	281/udp	0.000544
 cableport-ax	282/udp	0.000494	# cable port a/x
-corerjd	284/tcp	0.000013	# corerjd
+corerjd	284/tcp	0.000013
 unknown	288/tcp	0.000013
 unknown	289/tcp	0.000013
 unknown	293/tcp	0.000013
@@ -969,8 +969,8 @@ rda	630/tcp	0.000050	# RDA
 rda	630/udp	0.000330	# RDA
 ipp	631/tcp	0.006160	# Internet Printing Protocol -- for one implementation see http://www.cups.org (Common UNIX Printing System)
 ipp	631/udp	0.450281	# Internet Printing Protocol
-bmpp	632/tcp	0.000050	# bmpp
-bmpp	632/udp	0.000661	# bmpp
+bmpp	632/tcp	0.000050
+bmpp	632/udp	0.000661
 servstat	633/tcp	0.000038	# Service Status update (Sterling Software)
 ginad	634/tcp	0.000063
 ginad	634/udp	0.000692
@@ -980,18 +980,18 @@ ldapssl	636/tcp	0.002083	# LDAP over SSL
 ldaps	636/udp	0.000661	# ldap protocol over TLS/SSL (was sldap)
 lanserver	637/tcp	0.000038
 lanserver	637/udp	0.000428
-mcns-sec	638/tcp	0.000050	# mcns-sec
+mcns-sec	638/tcp	0.000050
 msdp	639/tcp	0.000151	# MSDP
 msdp	639/udp	0.001321	# MSDP
-entrust-sps	640/tcp	0.000050	# entrust-sps
+entrust-sps	640/tcp	0.000050
 pcnfs	640/udp	0.000890	# PC-NFS DOS Authentication
-repcmd	641/tcp	0.000088	# repcmd
-repcmd	641/udp	0.000661	# repcmd
+repcmd	641/tcp	0.000088
+repcmd	641/udp	0.000661
 esro-emsdp	642/tcp	0.000075	# ESRO-EMSDP V1.3
 sanity	643/tcp	0.000013	# SANity
 sanity	643/udp	0.001982	# SANity
-dwr	644/tcp	0.000038	# dwr
-dwr	644/udp	0.000991	# dwr
+dwr	644/tcp	0.000038
+dwr	644/udp	0.000991
 pssc	645/tcp	0.000025	# PSSC
 ldp	646/tcp	0.006549	# Label Distribution
 dhcp-failover	647/tcp	0.000050	# DHCP Failover
@@ -1041,10 +1041,10 @@ vpps-via	676/tcp	0.000038	# VPPS Via
 vpp	677/tcp	0.000025	# Virtual Presence Protocol
 ggf-ncp	678/tcp	0.000075	# GNU Generation Foundation NCP
 mrm	679/udp	0.000330	# MRM
-entrust-aaas	680/tcp	0.000038	# entrust-aaas
-entrust-aaas	680/udp	0.000661	# entrust-aaas
-entrust-aams	681/tcp	0.000038	# entrust-aams
-entrust-aams	681/udp	0.000991	# entrust-aams
+entrust-aaas	680/tcp	0.000038
+entrust-aaas	680/udp	0.000661
+entrust-aams	681/tcp	0.000038
+entrust-aams	681/udp	0.000991
 xfr	682/tcp	0.000063	# XFR
 xfr	682/udp	0.002643	# XFR
 corba-iiop	683/tcp	0.000176
@@ -1055,8 +1055,8 @@ mdc-portmapper	685/tcp	0.000038	# MDC Port Mapper
 mdc-portmapper	685/udp	0.002973	# MDC Port Mapper
 hcp-wismar	686/tcp	0.000025	# Hardware Control Protocol Wismar
 hcp-wismar	686/udp	0.002973	# Hardware Control Protocol Wismar
-asipregistry	687/tcp	0.000188	# asipregistry
-asipregistry	687/udp	0.001982	# asipregistry
+asipregistry	687/tcp	0.000188
+asipregistry	687/udp	0.001982
 realm-rusd	688/tcp	0.000025	# ApplianceWare managment protocol
 realm-rusd	688/udp	0.001982	# ApplianceWare managment protocol
 nmap	689/tcp	0.000038	# NMAP
@@ -1066,8 +1066,8 @@ vatp	690/udp	0.000330	# Velazquez Application Transfer Protocol
 resvc	691/tcp	0.000376	# The Microsoft Exchange 2000 Server Routing Service
 msexch-routing	691/udp	0.000330	# MS Exchange Routing
 hyperwave-isp	692/tcp	0.000038	# Hyperwave-ISP
-ha-cluster	694/tcp	0.000038	# ha-cluster
-ha-cluster	694/udp	0.000661	# ha-cluster
+ha-cluster	694/tcp	0.000038
+ha-cluster	694/udp	0.000661
 ieee-mms-ssl	695/tcp	0.000063	# IEEE-MMS-SSL
 rushd	696/tcp	0.000050	# RUSHD
 rushd	696/udp	0.000330	# RUSHD
@@ -1299,8 +1299,8 @@ unknown	825/tcp	0.000113
 unknown	826/tcp	0.000050
 unknown	826/udp	0.001321
 unknown	827/tcp	0.000025
-itm-mcell-s	828/tcp	0.000063	# itm-mcell-s
-itm-mcell-s	828/udp	0.000330	# itm-mcell-s
+itm-mcell-s	828/tcp	0.000063
+itm-mcell-s	828/udp	0.000330
 pkix-3-ca-ra	829/tcp	0.000125	# PKIX-3 CA/RA
 pkix-3-ca-ra	829/udp	0.001982	# PKIX-3 CA/RA
 netconf-ssh	830/tcp	0.000075	# NETCONF over SSH
@@ -1371,7 +1371,7 @@ supfilesrv	871/tcp	0.000025	# SUP server
 unknown	872/tcp	0.000050
 unknown	872/udp	0.000330
 rsync	873/tcp	0.003400	# Rsync server ( http://rsync.samba.org )
-rsync	873/udp	0.000661	# rsync
+rsync	873/udp	0.000661
 unknown	874/tcp	0.000138
 unknown	875/tcp	0.000050
 unknown	876/tcp	0.000025
@@ -1432,7 +1432,7 @@ unknown	908/udp	0.000661
 unknown	909/tcp	0.000038
 kink	910/tcp	0.000013	# Kerberized Internet Negotiation of Keys (KINK)
 kink	910/udp	0.000330	# Kerberized Internet Negotiation of Keys (KINK)
-xact-backup	911/tcp	0.000188	# xact-backup
+xact-backup	911/tcp	0.000188
 apex-mesh	912/tcp	0.000527	# APEX relay-relay service
 apex-edge	913/tcp	0.000151	# APEX endpoint-relay service
 unknown	914/tcp	0.000075
@@ -1600,8 +1600,8 @@ ufsd	1008/tcp	0.000125	# ufsd		# UFS-aware server
 ufsd	1008/udp	0.004020
 unknown	1009/tcp	0.000226
 unknown	1009/udp	0.000330
-surf	1010/tcp	0.000188	# surf
-surf	1010/udp	0.000661	# surf
+surf	1010/tcp	0.000188
+surf	1010/udp	0.000661
 unknown	1011/tcp	0.000176
 unknown	1011/udp	0.000661
 unknown	1012/tcp	0.000100
@@ -1791,8 +1791,8 @@ isoipsigport-1	1106/tcp	0.000380	# ISOIPSIGPORT-1
 isoipsigport-1	1106/udp	0.000661	# ISOIPSIGPORT-1
 isoipsigport-2	1107/tcp	0.000380	# ISOIPSIGPORT-2
 isoipsigport-2	1107/udp	0.000330	# ISOIPSIGPORT-2
-ratio-adp	1108/tcp	0.000380	# ratio-adp
-ratio-adp	1108/udp	0.000330	# ratio-adp
+ratio-adp	1108/tcp	0.000380
+ratio-adp	1108/udp	0.000330
 kpop	1109/tcp	0.000151	# Pop with Kerberos
 nfsd-status	1110/tcp	0.005809	# Cluster status info
 nfsd-keepalive	1110/udp	0.000939	# Client status info
@@ -1812,8 +1812,8 @@ bnetgame	1119/tcp	0.000228	# Battle.net Chat/Game Protocol
 bnetgame	1119/udp	0.000330	# Battle.net Chat/Game Protocol
 bnetfile	1120/udp	0.000330	# Battle.net File Transfer Protocol
 rmpp	1121/tcp	0.000152	# Datalode RMPP
-availant-mgr	1122/tcp	0.000228	# availant-mgr
-availant-mgr	1122/udp	0.000661	# availant-mgr
+availant-mgr	1122/tcp	0.000228
+availant-mgr	1122/udp	0.000661
 murray	1123/tcp	0.000152	# Murray
 hpvmmcontrol	1124/tcp	0.000304	# HP VMM Control
 hpvmmcontrol	1124/udp	0.001652	# HP VMM Control
@@ -1947,35 +1947,35 @@ dns2go	1227/udp	0.000330	# DNS2Go
 florence	1228/tcp	0.000076	# FLORENCE
 zented	1229/tcp	0.000076	# ZENworks Tiered Electronic Distribution
 zented	1229/udp	0.000330	# ZENworks Tiered Electronic Distribution
-menandmice-lpm	1231/udp	0.000330	# menandmice-lpm
+menandmice-lpm	1231/udp	0.000330
 univ-appserver	1233/tcp	0.000152	# Universal App Server
 univ-appserver	1233/udp	0.000330	# Universal App Server
 hotline	1234/tcp	0.001217
 search-agent	1234/udp	0.001652	# Infoseek Search Agent
-bvcontrol	1236/tcp	0.000152	# bvcontrol
-tsdos390	1237/udp	0.000991	# tsdos390
+bvcontrol	1236/tcp	0.000152
+tsdos390	1237/udp	0.000991
 nmsd	1239/tcp	0.000076	# NMSD
 instantia	1240/tcp	0.000076	# Instantia
 nessus	1241/tcp	0.000113	# Nessus or remote message server
-nessus	1241/udp	0.000330	# nessus
+nessus	1241/udp	0.000330
 serialgateway	1243/tcp	0.000076	# SerialGateway
-isbconference1	1244/tcp	0.000152	# isbconference1
+isbconference1	1244/tcp	0.000152
 visionpyramid	1247/tcp	0.000304	# VisionPyramid
 hermes	1248/tcp	0.000477
 hermes	1248/udp	0.000412
 mesavistaco	1249/tcp	0.000076	# Mesa Vista Co
 mesavistaco	1249/udp	0.000330	# Mesa Vista Co
-swldy-sias	1250/tcp	0.000076	# swldy-sias
-servergraph	1251/tcp	0.000076	# servergraph
-servergraph	1251/udp	0.000661	# servergraph
-q55-pcc	1253/udp	0.000330	# q55-pcc
-de-cache-query	1255/udp	0.000330	# de-cache-query
-de-server	1256/udp	0.000661	# de-server
+swldy-sias	1250/tcp	0.000076
+servergraph	1251/tcp	0.000076
+servergraph	1251/udp	0.000661
+q55-pcc	1253/udp	0.000330
+de-cache-query	1255/udp	0.000330
+de-server	1256/udp	0.000661
 shockwave2	1257/udp	0.000661	# Shockwave 2
 opennl-voice	1259/tcp	0.000152	# Open Network Library Voice
 opennl-voice	1259/udp	0.000330	# Open Network Library Voice
-ibm-ssd	1260/udp	0.000330	# ibm-ssd
-mpshrsv	1261/tcp	0.000076	# mpshrsv
+ibm-ssd	1260/udp	0.000330
+mpshrsv	1261/tcp	0.000076
 qnts-orb	1262/tcp	0.000076	# QNTS-ORB
 prat	1264/tcp	0.000076	# PRAT
 prat	1264/udp	0.000330	# PRAT
@@ -1984,12 +1984,12 @@ watilapp	1269/udp	0.000330	# WATiLaPP
 ssserver	1270/tcp	0.000138	# Sun StorEdge Configuration Service
 excw	1271/tcp	0.000228	# eXcW
 cspmlockmgr	1272/tcp	0.000380	# CSPMLockMgr
-ivmanager	1276/tcp	0.000076	# ivmanager
+ivmanager	1276/tcp	0.000076
 miva-mqs	1277/tcp	0.000152	# mqs
 dellwebadmin-2	1279/tcp	0.000076	# Dell Web Admin 2
 dellwebadmin-2	1279/udp	0.000330	# Dell Web Admin 2
 emperion	1282/tcp	0.000076	# Emperion
-netuitive	1286/udp	0.000991	# netuitive
+netuitive	1286/udp	0.000991
 routematch	1287/tcp	0.000152	# RouteMatch Com
 routematch	1287/udp	0.000991	# RouteMatch Com
 winjaserver	1290/tcp	0.000076	# WinJaServer
@@ -1997,19 +1997,19 @@ seagulllms	1291/tcp	0.000076	# SEAGULLLMS
 seagulllms	1291/udp	0.000330	# SEAGULLLMS
 cmmdriver	1294/udp	0.000330	# CMMdriver
 ehtp	1295/udp	0.000330	# End-by-Hop Transmission Protocol
-dproxy	1296/tcp	0.000304	# dproxy
-sdproxy	1297/tcp	0.000076	# sdproxy
-sdproxy	1297/udp	0.000330	# sdproxy
-hp-sci	1299/tcp	0.000076	# hp-sci
-hp-sci	1299/udp	0.000330	# hp-sci
+dproxy	1296/tcp	0.000304
+sdproxy	1297/tcp	0.000076
+sdproxy	1297/udp	0.000330
+hp-sci	1299/tcp	0.000076
+hp-sci	1299/udp	0.000330
 h323hostcallsc	1300/tcp	0.000152	# H323 Host Call Secure
 h323hostcallsc	1300/udp	0.000330	# H323 Host Call Secure
 ci3-software-1	1301/tcp	0.000152	# CI3-Software-1
 ci3-software-1	1301/udp	0.000330	# CI3-Software-1
 ci3-software-2	1302/tcp	0.000076	# CI3-Software-2
 ci3-software-2	1302/udp	0.000661	# CI3-Software-2
-sftsrv	1303/tcp	0.000076	# sftsrv
-pe-mike	1305/tcp	0.000076	# pe-mike
+sftsrv	1303/tcp	0.000076
+pe-mike	1305/tcp	0.000076
 re-conn-proto	1306/tcp	0.000076	# RE-Conn-Proto
 pacmand	1307/tcp	0.000076	# Pacmand
 odsi	1308/tcp	0.000076	# Optical Domain Service Interconnect (ODSI)
@@ -2022,27 +2022,27 @@ pdps	1314/udp	0.000330	# Photoscript Distributed Printing System
 els	1315/tcp	0.000076	# E.L.S., Event Listener Service
 els	1315/udp	0.000330	# E.L.S., Event Listener Service
 exbit-escp	1316/tcp	0.000076	# Exbit-ESCP
-vrts-ipcserver	1317/tcp	0.000076	# vrts-ipcserver
-vrts-ipcserver	1317/udp	0.000330	# vrts-ipcserver
-krb5gatekeeper	1318/tcp	0.000076	# krb5gatekeeper
+vrts-ipcserver	1317/tcp	0.000076
+vrts-ipcserver	1317/udp	0.000330
+krb5gatekeeper	1318/tcp	0.000076
 amx-icsp	1319/tcp	0.000076	# AMX-ICSP
 pip	1321/tcp	0.000076	# PIP
 novation	1322/tcp	0.000152	# Novation
-delta-mcp	1324/tcp	0.000076	# delta-mcp
+delta-mcp	1324/tcp	0.000076
 dx-instrument	1325/udp	0.000330	# DX-Instrument
 ultrex	1327/tcp	0.000076	# Ultrex
 ultrex	1327/udp	0.000330	# Ultrex
 ewall	1328/tcp	0.000152	# EWALL
 streetperfect	1330/tcp	0.000076	# StreetPerfect
-intersan	1331/tcp	0.000076	# intersan
-writesrv	1334/tcp	0.000304	# writesrv
-writesrv	1334/udp	0.000991	# writesrv
+intersan	1331/tcp	0.000076
+writesrv	1334/tcp	0.000304
+writesrv	1334/udp	0.000991
 ischat	1336/tcp	0.000076	# Instant Service Chat
 ischat	1336/udp	0.000330	# Instant Service Chat
 waste	1337/tcp	0.000088	# Nullsoft WASTE encrypted P2P app
 menandmice-dns	1337/udp	0.000661	# menandmice DNS
 wmc-log-svc	1338/udp	0.000330	# WMC-log-svr
-kjtsiteserver	1339/tcp	0.000076	# kjtsiteserver
+kjtsiteserver	1339/tcp	0.000076
 naap	1340/tcp	0.000076	# NAAP
 esbroker	1342/udp	0.000330	# ESBroker
 icap	1344/udp	0.000330	# ICAP
@@ -2374,7 +2374,7 @@ cichild-lm	1523/udp	0.000610
 ingreslock	1524/tcp	0.000276	# ingres
 ingreslock	1524/udp	0.001647	# ingres
 orasrv	1525/tcp	0.000088	# oracle or Prospero Directory Service non-priv
-oracle	1525/udp	0.000461	# oracle
+oracle	1525/udp	0.000461
 pdap-np	1526/tcp	0.000113	# Prospero Data Access Prot non-priv
 pdap-np	1526/udp	0.000478	# Prospero Data Access Prot non-priv
 tlisrv	1527/tcp	0.000038	# oracle
@@ -2425,47 +2425,47 @@ hecmtl-db	1551/tcp	0.000050
 hecmtl-db	1551/udp	0.000675
 pciarray	1552/tcp	0.000050
 pciarray	1552/udp	0.000478
-livelan	1555/udp	0.000330	# livelan
+livelan	1555/udp	0.000330
 veritas_pbx	1556/tcp	0.000152	# VERITAS Private Branch Exchange
-xingmpeg	1558/tcp	0.000076	# xingmpeg
-web2host	1559/tcp	0.000076	# web2host
-web2host	1559/udp	0.000330	# web2host
+xingmpeg	1558/tcp	0.000076
+web2host	1559/tcp	0.000076
+web2host	1559/udp	0.000330
 asci-val	1560/tcp	0.000076	# ASCI-RemoteSHADOW
 winddlb	1565/tcp	0.000076	# WinDD
 corelvideo	1566/tcp	0.000076	# CORELVIDEO
-ets	1569/tcp	0.000076	# ets
+ets	1569/tcp	0.000076
 chip-lm	1572/udp	0.000330	# Chipcom License Manager
 moldflow-lm	1576/udp	0.000330	# Moldflow License Manager
-ioc-sea-lm	1579/udp	0.000330	# ioc-sea-lm
-tn-tl-r1	1580/tcp	0.000304	# tn-tl-r1
-simbaexpress	1583/tcp	0.000152	# simbaexpress
-tn-tl-fd2	1584/tcp	0.000076	# tn-tl-fd2
-intv	1585/udp	0.000661	# intv
-pra_elmd	1587/udp	0.000330	# pra_elmd
+ioc-sea-lm	1579/udp	0.000330
+tn-tl-r1	1580/tcp	0.000304
+simbaexpress	1583/tcp	0.000152
+tn-tl-fd2	1584/tcp	0.000076
+intv	1585/udp	0.000661
+pra_elmd	1587/udp	0.000330
 vqp	1589/udp	0.000330	# VQP
-commonspace	1592/tcp	0.000076	# commonspace
-sixtrak	1594/tcp	0.000152	# sixtrak
-radio-bc	1596/udp	0.000330	# radio-bc
-orbplus-iiop	1597/udp	0.000330	# orbplus-iiop
-picknfs	1598/tcp	0.000076	# picknfs
-simbaservices	1599/udp	0.000330	# simbaservices
+commonspace	1592/tcp	0.000076
+sixtrak	1594/tcp	0.000152
+radio-bc	1596/udp	0.000330
+orbplus-iiop	1597/udp	0.000330
+picknfs	1598/tcp	0.000076
+simbaservices	1599/udp	0.000330
 issd	1600/tcp	0.000263
 issd	1600/udp	0.000807
 slp	1605/tcp	0.000076	# Salutation Manager (Salutation Protocol)
 slp	1605/udp	0.000330	# Salutation Manager (Salutation Protocol)
 slm-api	1606/udp	0.000330	# Salutation Manager (SLM-API)
-stt	1607/tcp	0.000076	# stt
+stt	1607/tcp	0.000076
 smart-lm	1608/udp	0.000330	# Smart Corp. License Manager
-taurus-wh	1610/udp	0.000330	# taurus-wh
+taurus-wh	1610/udp	0.000330
 netbill-auth	1615/tcp	0.000076	# NetBill Authorization Server
 netbill-prod	1616/udp	0.000330	# NetBill Product Server
-skytelnet	1618/udp	0.000330	# skytelnet
-faxportwinport	1620/tcp	0.000076	# faxportwinport
-faxportwinport	1620/udp	0.000661	# faxportwinport
-softdataphone	1621/udp	0.000330	# softdataphone
-ontime	1622/tcp	0.000076	# ontime
-ontime	1622/udp	0.000991	# ontime
-jaleosnd	1623/udp	0.000330	# jaleosnd
+skytelnet	1618/udp	0.000330
+faxportwinport	1620/tcp	0.000076
+faxportwinport	1620/udp	0.000661
+softdataphone	1621/udp	0.000330
+ontime	1622/tcp	0.000076
+ontime	1622/udp	0.000991
+jaleosnd	1623/udp	0.000330
 shockwave	1626/udp	0.000330	# Shockwave
 lontalk-norm	1628/udp	0.000330	# LonTalk normal
 visitview	1631/udp	0.000330	# Visit view
@@ -2473,20 +2473,20 @@ pammratc	1632/tcp	0.000076	# PAMMRATC
 pammrpc	1633/udp	0.000330	# PAMMRPC
 edb-server1	1635/tcp	0.000076	# EDB Server 1
 ismc	1638/tcp	0.000076	# ISP shared management control
-cert-initiator	1639/udp	0.000330	# cert-initiator
-cert-responder	1640/udp	0.000330	# cert-responder
+cert-initiator	1639/udp	0.000330
+cert-responder	1640/udp	0.000330
 invision	1641/tcp	0.000152	# InVision
 sightline	1645/tcp	0.000076	# SightLine
 radius	1645/udp	0.023180	# radius authentication
 radacct	1646/udp	0.023196	# radius accounting
-rsap	1647/udp	0.000330	# rsap
+rsap	1647/udp	0.000330
 nkd	1650/tcp	0.000038
 nkd	1650/udp	0.000774
 shiva_confsrvr	1651/tcp	0.000050
 shiva_confsrvr	1651/udp	0.000593
 xnmp	1652/tcp	0.000063
 xnmp	1652/udp	0.000593
-sixnetudr	1658/tcp	0.000152	# sixnetudr
+sixnetudr	1658/tcp	0.000152
 netview-aix-1	1661/tcp	0.000025
 netview-aix-1	1661/udp	0.000445
 netview-aix-2	1662/tcp	0.000025
@@ -2509,78 +2509,78 @@ netview-aix-11	1671/tcp	0.000013
 netview-aix-11	1671/udp	0.000659
 netview-aix-12	1672/tcp	0.000013
 netview-aix-12	1672/udp	0.000824
-groupwise	1677/tcp	0.000076	# groupwise
-groupwise	1677/udp	0.000330	# groupwise
-prolink	1678/udp	0.000330	# prolink
+groupwise	1677/tcp	0.000076
+groupwise	1677/udp	0.000330
+prolink	1678/udp	0.000330
 CarbonCopy	1680/tcp	0.000063
-microcom-sbp	1680/udp	0.000330	# microcom-sbp
-ncpm-hip	1683/tcp	0.000076	# ncpm-hip
-n2nremote	1685/udp	0.000661	# n2nremote
-nsjtp-ctrl	1687/tcp	0.000380	# nsjtp-ctrl
-nsjtp-ctrl	1687/udp	0.000330	# nsjtp-ctrl
-nsjtp-data	1688/tcp	0.000152	# nsjtp-data
-nsjtp-data	1688/udp	0.000330	# nsjtp-data
-empire-empuma	1691/tcp	0.000076	# empire-empuma
-rrimwm	1694/tcp	0.000076	# rrimwm
-rrilwm	1695/udp	0.000661	# rrilwm
-rrifmm	1696/udp	0.000330	# rrifmm
+microcom-sbp	1680/udp	0.000330
+ncpm-hip	1683/tcp	0.000076
+n2nremote	1685/udp	0.000661
+nsjtp-ctrl	1687/tcp	0.000380
+nsjtp-ctrl	1687/udp	0.000330
+nsjtp-data	1688/tcp	0.000152
+nsjtp-data	1688/udp	0.000330
+empire-empuma	1691/tcp	0.000076
+rrimwm	1694/tcp	0.000076
+rrilwm	1695/udp	0.000661
+rrifmm	1696/udp	0.000330
 rsvp-encap-2	1699/tcp	0.000076	# RSVP-ENCAPSULATION-2
 rsvp-encap-2	1699/udp	0.000330	# RSVP-ENCAPSULATION-2
 mps-raft	1700/tcp	0.000836
-l2f	1701/tcp	0.000076	# l2f
+l2f	1701/tcp	0.000076
 L2TP	1701/udp	0.076163
-hb-engine	1703/tcp	0.000076	# hb-engine
-vdmplay	1707/tcp	0.000076	# vdmplay
-gat-lmd	1708/tcp	0.000076	# gat-lmd
-centra	1709/tcp	0.000076	# centra
-pptconference	1711/tcp	0.000076	# pptconference
-pptconference	1711/udp	0.000330	# pptconference
+hb-engine	1703/tcp	0.000076
+vdmplay	1707/tcp	0.000076
+gat-lmd	1708/tcp	0.000076
+centra	1709/tcp	0.000076
+pptconference	1711/tcp	0.000076
+pptconference	1711/udp	0.000330
 registrar	1712/tcp	0.000076	# resource monitoring service
 registrar	1712/udp	0.000330	# resource monitoring service
 conferencetalk	1713/tcp	0.000076	# ConferenceTalk
-houdini-lm	1715/tcp	0.000076	# houdini-lm
+houdini-lm	1715/tcp	0.000076
 fj-hdnet	1717/tcp	0.000912
-h323gatedisc	1718/tcp	0.000380	# h323gatedisc
+h323gatedisc	1718/tcp	0.000380
 h225gatedisc	1718/udp	0.012554	# H.225 gatekeeper discovery
-h323gatestat	1719/tcp	0.000152	# h323gatestat
+h323gatestat	1719/tcp	0.000152
 h323gatestat	1719/udp	0.018500	# H.323 Gatestat
 H.323/Q.931	1720/tcp	0.014277	# Interactive media
-caicci	1721/tcp	0.000152	# caicci
+caicci	1721/tcp	0.000152
 hks-lm	1722/tcp	0.000076	# HKS License Manager
 pptp	1723/tcp	0.032468	# Point-to-point tunnelling protocol
-csbphonemaster	1724/udp	0.000330	# csbphonemaster
+csbphonemaster	1724/udp	0.000330
 iberiagames	1726/udp	0.000330	# IBERIAGAMES
 citynl	1729/udp	0.000330	# CityNL License Management
-roketz	1730/tcp	0.000076	# roketz
-roketz	1730/udp	0.000330	# roketz
+roketz	1730/tcp	0.000076
+roketz	1730/udp	0.000330
 siipat	1733/udp	0.000330	# SIMS - SIIPAT Protocol for Alarm Transmission
 privatechat	1735/tcp	0.000076	# PrivateChat
-street-stream	1736/tcp	0.000076	# street-stream
+street-stream	1736/tcp	0.000076
 gamegen1	1738/udp	0.000661	# GameGen1
-encore	1740/udp	0.000330	# encore
+encore	1740/udp	0.000330
 cinegrfx-lm	1743/udp	0.000330	# Cinema Graphics License Manager
-remote-winsock	1745/tcp	0.000076	# remote-winsock
+remote-winsock	1745/tcp	0.000076
 sslp	1750/tcp	0.000076	# Simple Socket Library's PortMaster
 lofr-lm	1752/tcp	0.000076	# Leap of Faith Research License Manager
 unknown	1753/tcp	0.000076
 unknown	1753/udp	0.000661
 wms	1755/tcp	0.003350	# Windows media service
-ms-streaming	1755/udp	0.000661	# ms-streaming
+ms-streaming	1755/udp	0.000661
 landesk-rc	1761/tcp	0.001756	# LANDesk Remote Control
-cft-0	1761/udp	0.002313	# cft-0
+cft-0	1761/udp	0.002313
 landesk-rc	1762/tcp	0.000038	# LANDesk Remote Control
 landesk-rc	1763/tcp	0.000025	# LANDesk Remote Control
-cft-5	1766/udp	0.000330	# cft-5
-cft-6	1767/udp	0.000330	# cft-6
+cft-5	1766/udp	0.000330
+cft-6	1767/udp	0.000330
 kmscontrol	1773/udp	0.000330	# KMSControl
-pharmasoft	1779/udp	0.000330	# pharmasoft
+pharmasoft	1779/udp	0.000330
 hp-hcip	1782/tcp	0.000304
 hp-hcip	1782/udp	0.004625
 unknown	1783/tcp	0.000380
-funk-logger	1786/udp	0.000330	# funk-logger
+funk-logger	1786/udp	0.000330
 ea1	1791/tcp	0.000076	# EA1
-ibm-dt-2	1792/tcp	0.000076	# ibm-dt-2
-ibm-dt-2	1792/udp	0.000661	# ibm-dt-2
+ibm-dt-2	1792/tcp	0.000076
+ibm-dt-2	1792/udp	0.000661
 vocaltec-admin	1796/udp	0.000330	# Vocaltec Server Administration
 netrisk	1799/tcp	0.000076	# NETRISK
 ansys-lm	1800/tcp	0.000076	# ANSYS-License manager
@@ -2601,9 +2601,9 @@ radacct	1813/udp	0.010429	# RADIUS accounting protocol (RFC 2139)
 tdp-suite	1814/udp	0.000330	# TDP Suite
 mmpft	1815/udp	0.000330	# MMPFT
 etftp	1818/udp	0.000330	# Enhanced Trivial File Transfer Protocol
-es-elmd	1822/udp	0.000330	# es-elmd
+es-elmd	1822/udp	0.000330
 unisys-lm	1823/tcp	0.000076	# Unisys Natural Language License Manager
-metrics-pas	1824/udp	0.000330	# metrics-pas
+metrics-pas	1824/udp	0.000330
 direcpc-video	1825/tcp	0.000076	# DirecPC Video
 ardt	1826/udp	0.000330	# ARDT
 pcm	1827/tcp	0.000025	# PCM Agent (AutoSecure Policy Compliance Manager
@@ -2611,10 +2611,10 @@ asi	1827/udp	0.000330	# ASI
 ardusuni	1834/udp	0.000661	# ARDUS Unicast
 ardusmul	1835/tcp	0.000076	# ARDUS Multicast
 ardusmul	1835/udp	0.000330	# ARDUS Multicast
-netopia-vo1	1839/tcp	0.000152	# netopia-vo1
-netopia-vo2	1840/tcp	0.000380	# netopia-vo2
-netopia-vo2	1840/udp	0.000330	# netopia-vo2
-netopia-vo3	1841/udp	0.000330	# netopia-vo3
+netopia-vo1	1839/tcp	0.000152
+netopia-vo2	1840/tcp	0.000380
+netopia-vo2	1840/udp	0.000330
+netopia-vo3	1841/udp	0.000330
 fiorano-msgsvc	1856/udp	0.000330	# Fiorano MsgSvc
 privateark	1858/tcp	0.000076	# PrivateArk
 lecroy-vicp	1861/tcp	0.000076	# LeCroy VICP
@@ -2643,8 +2643,8 @@ fjicl-tep-a	1901/udp	0.001982	# Fujitsu ICL Terminal Emulator Program A
 tpmd	1906/udp	0.000330	# TPortMapperReq
 global-wlink	1909/udp	0.000661	# Global World Link
 mtp	1911/tcp	0.000076	# Starlight Networks Multimedia Transport Protocol
-rhp-iibp	1912/tcp	0.000076	# rhp-iibp
-rhp-iibp	1912/udp	0.000330	# rhp-iibp
+rhp-iibp	1912/tcp	0.000076
+rhp-iibp	1912/udp	0.000330
 elm-momentum	1914/tcp	0.000152	# Elm-Momentum
 can-nds	1918/tcp	0.000076	# IBM Tivole Directory Service - NDS
 noadmin	1921/udp	0.000661	# NoAdmin
@@ -2657,7 +2657,7 @@ sentinelsrm	1947/tcp	0.000380	# SentinelSRM
 sentinelsrm	1947/udp	0.000330	# SentinelSRM
 ismaeasdaqtest	1950/udp	0.000330	# ISMA Easdaq Test
 abr-api	1954/tcp	0.000076	# ABR-API (diskbridge)
-unix-status	1957/udp	0.000330	# unix-status
+unix-status	1957/udp	0.000330
 dxadmind	1958/tcp	0.000076	# CA Administration Daemon
 dxadmind	1958/udp	0.000330	# CA Administration Daemon
 simp-all	1959/udp	0.000330	# SIMP Channel
@@ -2760,7 +2760,7 @@ submitserver	2028/tcp	0.000013
 submitserver	2028/udp	0.000445
 device2	2030/tcp	0.000514
 device2	2030/udp	0.000412
-mobrien-chat	2031/tcp	0.000076	# mobrien-chat
+mobrien-chat	2031/tcp	0.000076
 blackboard	2032/udp	0.000840
 glogger	2033/tcp	0.000339
 glogger	2033/udp	0.000560
@@ -2831,8 +2831,8 @@ nbx-ser	2095/tcp	0.000076	# NBX SER
 nbx-dir	2096/tcp	0.000076	# NBX DIR
 h2250-annex-g	2099/tcp	0.000152	# H.225.0 Annex G
 amiganetfs	2100/tcp	0.000380	# Amiga Network Filesystem
-rtcm-sc104	2101/tcp	0.000076	# rtcm-sc104
-rtcm-sc104	2101/udp	0.000991	# rtcm-sc104
+rtcm-sc104	2101/tcp	0.000076
+rtcm-sc104	2101/udp	0.000991
 zephyr-srv	2102/udp	0.000330	# Zephyr server
 zephyr-clt	2103/tcp	0.002661	# Zephyr serv-hm connection
 zephyr-clt	2103/udp	0.000758	# Zephyr serv-hm connection
@@ -2919,7 +2919,7 @@ hao	2245/udp	0.000330	# HaO
 pc-mta-addrmap	2246/udp	0.000330	# PacketCable MTA Addr Map
 antidotemgrsvr	2247/udp	0.000330	# Antidote Deployment Manager Service
 rfmp	2249/udp	0.000330	# RISO File Manager Protocol
-remote-collab	2250/tcp	0.000076	# remote-collab
+remote-collab	2250/tcp	0.000076
 dif-port	2251/tcp	0.000304	# Distributed Framework Port
 dif-port	2251/udp	0.000330	# Distributed Framework Port
 dtv-chan-req	2253/tcp	0.000076	# DTV Channel Request
@@ -2938,7 +2938,7 @@ starschool	2270/tcp	0.000076	# starSchool
 starschool	2270/udp	0.000330	# starSchool
 mmcals	2271/tcp	0.000076	# Secure Meeting Maker Scheduling
 mysql-im	2273/udp	0.000330	# MySQL Instance Manager
-xmquery	2279/udp	0.000330	# xmquery
+xmquery	2279/udp	0.000330
 lnvpoller	2280/tcp	0.000076	# LNVPOLLER
 lnvstatus	2283/udp	0.000330	# LNVSTATUS
 netml	2288/tcp	0.000152	# NETML
@@ -2958,12 +2958,12 @@ iapp	2313/tcp	0.000076	# IAPP (Inter Access Point Protocol)
 attachmate-g32	2317/udp	0.000330	# Attachmate G32
 infolibria	2319/udp	0.000330	# InfoLibria
 siebel-ns	2320/udp	0.000330	# Siebel NS
-3d-nfsd	2323/tcp	0.000228	# 3d-nfsd
+3d-nfsd	2323/tcp	0.000228
 cosmocall	2324/udp	0.000330	# Cosmocall
 ansysli	2325/tcp	0.000076	# ANSYS Licensing Interconnect
 idcp	2326/tcp	0.000076	# IDCP
 idcp	2326/udp	0.000330	# IDCP
-xingcsm	2327/udp	0.000330	# xingcsm
+xingcsm	2327/udp	0.000330
 netrix-sftm	2328/udp	0.000330	# Netrix SFTM
 tscchat	2330/tcp	0.000076	# TSCCHAT
 tscchat	2330/udp	0.000330	# TSCCHAT
@@ -2975,12 +2975,12 @@ wrs_registry	2340/tcp	0.000076	# WRS Registry
 wrs_registry	2340/udp	0.000330	# WRS Registry
 manage-exec	2342/udp	0.000330	# Seagate Manage Exec
 nati-logos	2343/udp	0.001652	# nati logos
-dbm	2345/udp	0.001321	# dbm
-pslserver	2352/udp	0.000330	# pslserver
+dbm	2345/udp	0.001321
+pslserver	2352/udp	0.000330
 nexstorindltd	2360/udp	0.000330	# NexstorIndLtd
-digiman	2362/udp	0.001321	# digiman
+digiman	2362/udp	0.001321
 oi-2000	2364/udp	0.000330	# OI-2000
-qip-login	2366/tcp	0.000152	# qip-login
+qip-login	2366/tcp	0.000152
 opentable	2368/udp	0.000661	# OpenTable
 unknown	2369/udp	0.000330
 worldwire	2371/tcp	0.000076	# Compaq WorldWire Port
@@ -3008,8 +3008,8 @@ cvspserver	2401/udp	0.000544	# CVS network server
 jediserver	2406/udp	0.000330	# JediServer
 cdn	2412/udp	0.000330	# CDN
 composit-server	2417/udp	0.000330	# Composit Server
-cas	2418/tcp	0.000076	# cas
-cas	2418/udp	0.000330	# cas
+cas	2418/tcp	0.000076
+cas	2418/udp	0.000330
 fjitsuappmgr	2425/tcp	0.000076	# Fujitsu App Manager
 mgcp-gateway	2427/sctp	0.000000
 ft-role	2429/udp	0.000330	# FT-ROLE
@@ -3027,7 +3027,7 @@ msp	2438/tcp	0.000076	# MSP
 sybasedbsynch	2439/tcp	0.000076	# SybaseDBSynch
 dtn1	2445/udp	0.000330	# DTN1
 ratl	2449/tcp	0.000076	# RATL
-altav-remmgt	2456/tcp	0.000076	# altav-remmgt
+altav-remmgt	2456/tcp	0.000076
 rapido-ip	2457/udp	0.000330	# Rapido_IP
 lsi-raid-mgmt	2463/tcp	0.000076	# LSI RAID Management
 lsi-raid-mgmt	2463/udp	0.000330	# LSI RAID Management
@@ -3046,8 +3046,8 @@ rtsclient	2501/udp	0.000461	# Resource Tracking system client
 nms-dpnss	2503/udp	0.000330	# NMS-DPNSS
 ppcontrol	2505/tcp	0.000076	# PowerPlay Control
 ppcontrol	2505/udp	0.000330	# PowerPlay Control
-fjmpss	2509/udp	0.000330	# fjmpss
-fjappmgrbulk	2510/udp	0.000330	# fjappmgrbulk
+fjmpss	2509/udp	0.000330
+fjappmgrbulk	2510/udp	0.000330
 citrixima	2512/udp	0.000330	# Citrix IMA
 facsys-router	2515/udp	0.000330	# Facsys Router
 call-sig-trans	2517/udp	0.000661	# H.323 Annex E call signaling transport
@@ -3059,16 +3059,16 @@ ncr_ccl	2528/udp	0.000661	# NCR CCL
 ito-e-gui	2531/tcp	0.000076	# ITO-E GUI
 ovtopmd	2532/tcp	0.000076	# OVTOPMD
 snifferserver	2533/udp	0.000330	# SnifferServer
-vnwk-prapi	2538/udp	0.000330	# vnwk-prapi
+vnwk-prapi	2538/udp	0.000330
 vsiadmin	2539/udp	0.000330	# VSI Admin
 udrawgraph	2542/udp	0.000330	# uDraw(Graph)
 reftek	2543/udp	0.000330	# REFTEK
-vytalvaultbrtp	2546/udp	0.000330	# vytalvaultbrtp
+vytalvaultbrtp	2546/udp	0.000330
 ads	2550/tcp	0.000076	# ADS
 isg-uda-server	2551/tcp	0.000076	# ISG UDA Server
 call-logging	2552/udp	0.000330	# Call Logging
 compaq-wcp	2555/udp	0.000330	# Compaq WCP
-nicetec-mgmt	2557/tcp	0.000152	# nicetec-mgmt
+nicetec-mgmt	2557/tcp	0.000152
 pclemultimedia	2558/tcp	0.000076	# PCLE Multi Media
 lstp	2559/udp	0.000330	# LSTP
 hp-3000-telnet	2564/tcp	0.000013	# HP 3000 NS/VT block mode telnet
@@ -3076,9 +3076,9 @@ clp	2567/tcp	0.000076	# Cisco Line Protocol
 tributary	2580/tcp	0.000076	# Tributary
 argis-ds	2582/udp	0.000330	# ARGIS DS
 mon	2583/tcp	0.000076	# MON
-cyaserv	2584/tcp	0.000076	# cyaserv
+cyaserv	2584/tcp	0.000076
 quartus-tcl	2589/udp	0.000330	# quartus tcl
-netrek	2592/udp	0.000330	# netrek
+netrek	2592/udp	0.000330
 citriximaclient	2598/tcp	0.000076	# Citrix MA Client
 zebrasrv	2600/tcp	0.000088	# zebra service
 hpstgmgr	2600/udp	0.000330	# HPSTGMGR
@@ -3092,7 +3092,7 @@ connection	2607/tcp	0.000380	# Dell Connection
 wag-service	2608/tcp	0.000228	# Wag Service
 qpasa-agent	2612/udp	0.000330	# Qpasa Agent
 smntubootstrap	2613/udp	0.000330	# SMNTUBootstrap
-firepower	2615/udp	0.000330	# firepower
+firepower	2615/udp	0.000330
 priority-e-com	2618/udp	0.000330	# Priority E-Com
 metricadbc	2622/tcp	0.000076	# MetricaDBC
 lmdp	2623/tcp	0.000076	# LMDP
@@ -3113,7 +3113,7 @@ vpsipport	2649/udp	0.000330	# VPSIPPORT
 sns-dispatcher	2657/udp	0.000330	# SNS Dispatcher
 bintec-capi	2662/udp	0.000330	# BinTec-CAPI
 patrol-mq-gm	2664/udp	0.000330	# Patrol for MQ GM
-extensis	2666/udp	0.000330	# extensis
+extensis	2666/udp	0.000330
 alarm-clock-s	2667/udp	0.000330	# Alarm Clock Server
 firstcall42	2673/udp	0.000330	# First Call 42
 gadgetgate1way	2677/udp	0.000330	# Gadget Gate 1 Way
@@ -3121,7 +3121,7 @@ gadgetgate2way	2678/udp	0.000330	# Gadget Gate 2 Way
 itinternet	2691/tcp	0.000076	# ITInternet ISM Server
 admins-lms	2692/udp	0.000330	# Admins LMS
 vspread	2695/udp	0.000330	# VSPREAD
-tqdata	2700/tcp	0.000076	# tqdata
+tqdata	2700/tcp	0.000076
 sms-rcinfo	2701/tcp	0.000836
 sms-xfer	2702/tcp	0.000760
 sms-remctrl	2704/udp	0.000330	# SMS REMCTRL
@@ -3135,7 +3135,7 @@ aocp	2712/tcp	0.000076	# Axapta Object Communication Protocol
 pn-requester	2717/tcp	0.003345	# PN REQUESTER
 pn-requester2	2718/tcp	0.000380	# PN REQUESTER 2
 scan-change	2719/udp	0.000330	# Scan & Change
-wkars	2720/udp	0.000330	# wkars
+wkars	2720/udp	0.000330
 watchdog-nt	2723/tcp	0.000076	# WatchDog NT Protocol
 msolap-ptp2	2725/tcp	0.000228	# SQL Analysis Server
 tams	2726/udp	0.000330	# TAMS
@@ -3145,32 +3145,32 @@ ccs-software	2734/udp	0.000330	# CCS Software
 srp-feedback	2737/udp	0.000330	# SRP Feedback
 tn-timing	2739/udp	0.000330	# TN Timing
 fjippol-cnsl	2749/udp	0.000330
-qip-audup	2765/udp	0.000330	# qip-audup
+qip-audup	2765/udp	0.000330
 listen	2766/tcp	0.000013	# System V listener port
 uadtc	2767/udp	0.000330	# UADTC
 vergencecm	2771/udp	0.000330	# Vergence CM
 rbakcup1	2773/udp	0.000330	# RBackup Remote Backup
 ridgeway2	2777/udp	0.000330	# Ridgeway Systems & Software
-whosells	2781/udp	0.000330	# whosells
+whosells	2781/udp	0.000330
 www-dev	2784/udp	0.000395	# world wide web - development
 media-agent	2789/udp	0.000330	# Media Agent
 mtport-regist	2791/udp	0.000330	# MT Port Registrator
-esp-encap	2797/udp	0.000330	# esp-encap
+esp-encap	2797/udp	0.000330
 acc-raid	2800/tcp	0.000152	# ACC RAID
 igcp	2801/udp	0.000330	# IGCP
-btprjctrl	2803/udp	0.000330	# btprjctrl
+btprjctrl	2803/udp	0.000330
 dvr-esm	2804/tcp	0.000076	# March Networks Digital Video Recorders and Enterprise Service Manager products
 dvr-esm	2804/udp	0.000330	# March Networks Digital Video Recorders and Enterprise Service Manager products
-cspuni	2806/tcp	0.000076	# cspuni
+cspuni	2806/tcp	0.000076
 corbaloc	2809/tcp	0.000439	# Corba
 gsiftp	2811/tcp	0.000380	# GSI FTP
-atmtcp	2812/tcp	0.000076	# atmtcp
-llm-pass	2813/udp	0.000330	# llm-pass
+atmtcp	2812/tcp	0.000076
+llm-pass	2813/udp	0.000330
 fc-faultnotify	2819/udp	0.000661	# FC Fault Notification
 vrts-at-port	2821/udp	0.000661	# VERITAS Authentication Service
 cqg-netlan-1	2824/udp	0.000330	# CQG Net/Lan 1
 slc-systemlog	2826/udp	0.000330	# slc systemlog
-silkp3	2831/udp	0.000330	# silkp3
+silkp3	2831/udp	0.000330
 repliweb	2837/udp	0.000330	# Repliweb
 aimpp-port-req	2847/tcp	0.000076	# AIMPP Port Req
 aimpp-port-req	2847/udp	0.000330	# AIMPP Port Req
@@ -3179,7 +3179,7 @@ msrp	2855/udp	0.000330	# MSRP
 dialpad-voice1	2860/udp	0.000330	# Dialpad Voice 1
 sonardata	2863/udp	0.000991	# Sonar Data
 astromed-main	2864/udp	0.000330	# main 5001 cmd
-pit-vpn	2865/udp	0.000330	# pit-vpn
+pit-vpn	2865/udp	0.000330
 icslap	2869/tcp	0.002129	# Universal Plug and Play Device Host, SSDP Discovery Service
 icslap	2869/udp	0.000330	# ICSLAP
 unknown	2873/udp	0.000330
@@ -3206,8 +3206,8 @@ suitcase	2903/udp	0.000330	# SUITCASE
 m2ua	2904/sctp	0.000000	# SIGTRAN M2UA
 m2ua	2904/udp	0.000330	# SIGTRAN M2UA
 m3ua	2905/sctp	0.000000	# SIGTRAN M3UA
-mao	2908/tcp	0.000076	# mao
-mao	2908/udp	0.000661	# mao
+mao	2908/tcp	0.000076
+mao	2908/udp	0.000661
 funk-dialout	2909/tcp	0.000228	# Funk Dialout
 funk-dialout	2909/udp	0.000330	# Funk Dialout
 tdaccess	2910/tcp	0.000152	# TDAccess
@@ -3238,12 +3238,12 @@ pmsm-webrctl	2972/udp	0.000330	# PMSM Webrctl
 svnetworks	2973/tcp	0.000076	# SV Networks
 svnetworks	2973/udp	0.000991	# SV Networks
 hpidsadmin	2984/tcp	0.000076	# HPIDSADMIN
-identify	2987/tcp	0.000076	# identify
-identify	2987/udp	0.000330	# identify
+identify	2987/tcp	0.000076
+identify	2987/udp	0.000330
 hippad	2988/tcp	0.000076	# HIPPA Reporting Protocol
 wkstn-mon	2991/tcp	0.000076	# WKSTN-MON
 veritas-vis2	2994/udp	0.000330	# VERITAS VIS2
-vsixml	2996/udp	0.000330	# vsixml
+vsixml	2996/udp	0.000330
 rebol	2997/tcp	0.000076	# REBOL
 iss-realsec	2998/tcp	0.000351	# ISS RealSecure IDS Remote Console Admin port
 ppp	3000/tcp	0.004115	# User-level ppp daemon, or chili!soft asp
@@ -3261,27 +3261,27 @@ trusted-web	3011/tcp	0.000304	# Trusted Web
 gilatskysurfer	3013/tcp	0.000152	# Gilat Sky Surfer
 broker_service	3014/tcp	0.000076	# Broker Service
 event_listener	3017/tcp	0.000380	# Event Listener
-magicnotes	3023/tcp	0.000076	# magicnotes
+magicnotes	3023/tcp	0.000076
 slnp	3025/tcp	0.000125	# SLNP (Simple Library Network Protocol) by Sisis Informationssysteme GmbH
 arepa-cas	3030/tcp	0.000304	# Arepa Cas
 arepa-cas	3030/udp	0.000330	# Arepa Cas
 eppc	3031/tcp	0.000380	# Remote AppleEvents/PPC Toolbox
 hagel-dump	3036/udp	0.000330	# Hagel DUMP
 slnp	3045/tcp	0.000063	# SLNP (Simple Library Network Protocol) by Sisis Informationssysteme GmbH
-di-ase	3046/udp	0.000330	# di-ase
+di-ase	3046/udp	0.000330
 pctrader	3048/udp	0.000661	# Sierra Net PC Trader
 cfs	3049/tcp	0.000063	# cryptographic file system (nfs) (proposed)
 cfs	3049/udp	0.000675	# cryptographic file system (nfs)
-gds_db	3050/tcp	0.000152	# gds_db
-gds_db	3050/udp	0.000330	# gds_db
+gds_db	3050/tcp	0.000152
+gds_db	3050/udp	0.000330
 powerchute	3052/tcp	0.000966
 apc-3052	3052/udp	0.003304	# APC 3052
 amt-cnf-prot	3054/udp	0.000661	# AMT CNF PROT
 goahead-fldup	3057/tcp	0.000076	# GoAhead FldUp
-interserver	3060/udp	0.000330	# interserver
-cautcpd	3061/udp	0.000330	# cautcpd
-ncacn-ip-tcp	3062/tcp	0.000076	# ncacn-ip-tcp
-ncadg-ip-udp	3063/tcp	0.000076	# ncadg-ip-udp
+interserver	3060/udp	0.000330
+cautcpd	3061/udp	0.000330
+ncacn-ip-tcp	3062/tcp	0.000076
+ncadg-ip-udp	3063/tcp	0.000076
 dnet-tstproxy	3064/tcp	0.000063	# distributed.net (a closed source crypto-cracking project) proxy test port
 netattachsdmp	3066/udp	0.000330	# NETATTACHSDMP
 fjhpjp	3067/udp	0.000330	# FJHPJP
@@ -3289,7 +3289,7 @@ csd-mgmt-port	3071/tcp	0.000380	# ContinuStor Manager Port
 orbix-locator	3075/udp	0.000330	# Orbix 2000 Locator
 orbix-config	3076/udp	0.000330	# Orbix 2000 Config
 orbix-loc-ssl	3077/tcp	0.000304	# Orbix 2000 Locator SSL
-stm_pproc	3080/tcp	0.000076	# stm_pproc
+stm_pproc	3080/tcp	0.000076
 sj3	3086/tcp	0.000050	# SJ3 (kanji input)
 ptk-alink	3089/tcp	0.000076	# ParaTek Agent Linking
 rapidmq-reg	3094/udp	0.000661	# Jiiva RapidMQ Registry
@@ -3309,7 +3309,7 @@ squid-ipc	3130/udp	0.006656
 netbookmark	3131/udp	0.000330	# Net Book Mark
 vmodem	3141/tcp	0.000038
 vmodem	3141/udp	0.000560
-bears-02	3146/tcp	0.000076	# bears-02
+bears-02	3146/tcp	0.000076
 rfio	3147/udp	0.000330	# RFIO
 nm-game-admin	3148/udp	0.000330	# NetMike Game Administrator
 indura	3156/udp	0.000330	# Indura Collector
@@ -3352,7 +3352,7 @@ globalcatLDAPssl	3269/tcp	0.001142	# Global Catalog LDAP over ssl
 user-manager	3272/udp	0.000330	# Fujitsu User Manager
 sxmp	3273/udp	0.000330	# Simple Extensible Multiplexed Protocol
 lkcmserver	3278/udp	0.000330	# LKCM Server
-admind	3279/udp	0.000330	# admind
+admind	3279/udp	0.000330
 vs-server	3280/tcp	0.000076	# VS Server
 sysopt	3281/tcp	0.000076	# SYSOPT
 netassistant	3283/tcp	0.000760	# Apple Remote Desktop Net Assistant reporting feature
@@ -3362,7 +3362,7 @@ sah-lm	3291/tcp	0.000076	# S A Holditch & Associates - LM
 sah-lm	3291/udp	0.000330	# S A Holditch & Associates - LM
 meetingmaker	3292/tcp	0.000038	# Meeting maker time management software
 cart-o-rama	3292/udp	0.000330	# Cart O Rama
-fg-fps	3293/udp	0.000330	# fg-fps
+fg-fps	3293/udp	0.000330
 rib-slm	3296/udp	0.001321	# Rib License Manager
 saprouter	3299/tcp	0.000125	# SAProuter
 unknown	3300/tcp	0.000380
@@ -3769,14 +3769,14 @@ remoteanything	4000/tcp	0.001794	# neoworx remote-anything slave remote control
 icq	4000/udp	0.006392	# AOL ICQ instant messaging clent-server communication
 newoak	4001/tcp	0.002129	# NewOak
 mlchat-proxy	4002/tcp	0.000765	# mlnet - MLChat P2P chat proxy
-pxc-spvr-ft	4002/udp	0.000330	# pxc-spvr-ft
-pxc-splr-ft	4003/tcp	0.000380	# pxc-splr-ft
-pxc-roid	4004/tcp	0.000228	# pxc-roid
-pxc-pin	4005/tcp	0.000228	# pxc-pin
-pxc-pin	4005/udp	0.000330	# pxc-pin
-pxc-spvr	4006/tcp	0.000304	# pxc-spvr
-pxc-spvr	4006/udp	0.000330	# pxc-spvr
-pxc-splr	4007/tcp	0.000076	# pxc-splr
+pxc-spvr-ft	4002/udp	0.000330
+pxc-splr-ft	4003/tcp	0.000380
+pxc-roid	4004/tcp	0.000228
+pxc-pin	4005/tcp	0.000228
+pxc-pin	4005/udp	0.000330
+pxc-spvr	4006/tcp	0.000304
+pxc-spvr	4006/udp	0.000330
+pxc-splr	4007/tcp	0.000076
 netcheque	4008/tcp	0.000075	# NetCheque accounting
 netcheque	4008/udp	0.001367	# NetCheque accounting
 chimera-hwm	4009/tcp	0.000152	# Chimera HWM
@@ -4185,16 +4185,16 @@ fmwp	5015/tcp	0.000076	# FileMaker, Inc. - Web publishing
 unknown	5016/tcp	0.000076
 unknown	5017/tcp	0.000076
 unknown	5018/udp	0.000991
-zenginkyo-1	5020/tcp	0.000076	# zenginkyo-1
-zenginkyo-2	5021/tcp	0.000076	# zenginkyo-2
-zenginkyo-2	5021/udp	0.000330	# zenginkyo-2
+zenginkyo-1	5020/tcp	0.000076
+zenginkyo-2	5021/tcp	0.000076
+zenginkyo-2	5021/udp	0.000330
 htuilsrv	5023/tcp	0.000076	# Htuil Server for PLD2
 scpi-raw	5025/udp	0.000330	# SCPI-RAW
 surfpass	5030/tcp	0.000380	# SurfPass
 unknown	5033/tcp	0.000228
 unknown	5034/udp	0.000661
 unknown	5040/tcp	0.000152
-asnaacceler8db	5042/udp	0.000330	# asnaacceler8db
+asnaacceler8db	5042/udp	0.000330
 swxadmin	5043/udp	0.000330	# ShopWorX Administration
 unknown	5048/udp	0.000661
 mmcc	5050/tcp	0.002584	# multimedia conference control tool
@@ -4407,8 +4407,8 @@ connect-proxy	5490/tcp	0.000013	# Many HTTP CONNECT proxies
 unknown	5496/udp	0.000330
 hotline	5500/tcp	0.000690	# Hotline file sharing client/server
 securid	5500/udp	0.003295	# SecurID
-fcp-addr-srvr2	5501/tcp	0.000152	# fcp-addr-srvr2
-fcp-srvr-inst1	5502/tcp	0.000076	# fcp-srvr-inst1
+fcp-addr-srvr2	5501/tcp	0.000152
+fcp-srvr-inst1	5502/tcp	0.000076
 unknown	5509/udp	0.000661
 secureidprop	5510/tcp	0.000339	# ACE/Server services
 unknown	5518/udp	0.000330
@@ -4627,8 +4627,8 @@ unknown	5962/tcp	0.000380
 indy	5963/tcp	0.000304	# Indy Application Server
 unknown	5964/udp	0.000330
 unknown	5966/tcp	0.000076
-mppolicy-v5	5968/tcp	0.000152	# mppolicy-v5
-mppolicy-mgr	5969/tcp	0.000076	# mppolicy-mgr
+mppolicy-v5	5968/tcp	0.000152
+mppolicy-mgr	5969/tcp	0.000076
 unknown	5971/tcp	0.000076
 unknown	5974/tcp	0.000076
 unknown	5975/tcp	0.000076
@@ -4703,7 +4703,7 @@ synchronet-db	6100/udp	0.000330	# SynchroNet-db
 backupexec	6101/tcp	0.000452	# Backup Exec UNIX and 95/98/ME Aent
 RETS-or-BackupExec	6103/tcp	0.000125	# Backup Exec Agent Accelerator and Remote Agent also sql server and cisco works blue
 dbdb	6104/udp	0.000330	# DBDB
-isdninfo	6105/tcp	0.000075	# isdninfo
+isdninfo	6105/tcp	0.000075
 primaserver	6105/udp	0.000661	# Prima Server
 isdninfo	6106/tcp	0.000314	# i4lmond
 softcm	6110/tcp	0.000063	# HP SoftBench CM
@@ -4793,7 +4793,7 @@ adap	6350/tcp	0.000076	# App Discovery and Access Protocol
 unknown	6353/udp	0.000661
 unknown	6372/udp	0.000661
 unknown	6386/udp	0.000330
-clariion-evr01	6389/tcp	0.000380	# clariion-evr01
+clariion-evr01	6389/tcp	0.000380
 unknown	6395/udp	0.000661
 crystalreports	6400/tcp	0.000025	# Seagate Crystal Reports
 crystalenterprise	6401/tcp	0.000050	# Seagate Crystal Enterprise
@@ -4840,8 +4840,8 @@ mythtv	6544/tcp	0.000025
 powerchuteplus	6547/tcp	0.000251
 powerchuteplus	6548/tcp	0.000013
 powerchuteplus	6549/udp	0.000511
-fg-sysupdate	6550/tcp	0.000152	# fg-sysupdate
-fg-sysupdate	6550/udp	0.000330	# fg-sysupdate
+fg-sysupdate	6550/tcp	0.000152
+fg-sysupdate	6550/udp	0.000330
 xdsxdm	6558/udp	0.000478
 unknown	6565/tcp	0.000228
 sane-port	6566/tcp	0.000228	# SANE Control Port
@@ -5025,7 +5025,7 @@ unknown	7081/udp	0.000330
 unknown	7085/udp	0.000330
 unknown	7089/udp	0.000330
 unknown	7092/tcp	0.000076
-lazy-ptop	7099/tcp	0.000076	# lazy-ptop
+lazy-ptop	7099/tcp	0.000076
 font-service	7100/tcp	0.000928	# X Font Service
 font-service	7100/udp	0.001170	# X Font Service
 elcn	7101/tcp	0.000076	# Embedded Light Control Network
@@ -5222,7 +5222,7 @@ unknown	7771/tcp	0.000076
 unknown	7772/tcp	0.000076
 unknown	7773/udp	0.000330
 unknown	7775/udp	0.000330
-cbt	7777/tcp	0.000380	# cbt
+cbt	7777/tcp	0.000380
 interwise	7778/tcp	0.000380	# Interwise
 interwise	7778/udp	0.000330	# Interwise
 vstat	7779/udp	0.000330	# VSTAT
@@ -5317,7 +5317,7 @@ unknown	8016/tcp	0.000152
 unknown	8018/tcp	0.000076
 qbdb	8019/tcp	0.000152	# QB DB Dynamic Port
 ftp-proxy	8021/tcp	0.000627	# Common FTP proxy port
-oa-system	8022/tcp	0.000228	# oa-system
+oa-system	8022/tcp	0.000228
 unknown	8023/tcp	0.000076
 unknown	8023/udp	0.000330
 ca-audit-da	8025/tcp	0.000076	# CA Audit Distribution Agent
@@ -5442,12 +5442,12 @@ unknown	8385/tcp	0.000152
 unknown	8386/udp	0.000330
 unknown	8388/udp	0.000330
 unknown	8393/udp	0.000330
-cvd	8400/tcp	0.000380	# cvd
-sabarsd	8401/tcp	0.000076	# sabarsd
-abarsd	8402/tcp	0.000380	# abarsd
-abarsd	8402/udp	0.000661	# abarsd
-admind	8403/tcp	0.000076	# admind
-admind	8403/udp	0.000330	# admind
+cvd	8400/tcp	0.000380
+sabarsd	8401/tcp	0.000076
+abarsd	8402/tcp	0.000380
+abarsd	8402/udp	0.000661
+admind	8403/tcp	0.000076
+admind	8403/udp	0.000330
 unknown	8409/tcp	0.000076
 unknown	8409/udp	0.000330
 unknown	8411/udp	0.000330
@@ -5592,13 +5592,13 @@ ddi-tcp-2	8889/tcp	0.000152	# Desktop Data TCP 1
 seosload	8892/tcp	0.000038	# From the new Computer Associates eTrust ACX
 unknown	8896/udp	0.000330
 unknown	8898/tcp	0.000076
-ospf-lite	8899/tcp	0.000608	# ospf-lite
-ospf-lite	8899/udp	0.000330	# ospf-lite
+ospf-lite	8899/tcp	0.000608
+ospf-lite	8899/udp	0.000330
 jmb-cds1	8900/tcp	0.000076	# JMB-CDS 1
 jmb-cds1	8900/udp	0.001321	# JMB-CDS 1
 jmb-cds2	8901/udp	0.000330	# JMB-CDS 2
 unknown	8907/udp	0.000330
-manyone-http	8910/udp	0.000330	# manyone-http
+manyone-http	8910/udp	0.000330
 unknown	8919/udp	0.000330
 unknown	8924/udp	0.000661
 unknown	8925/tcp	0.000076
@@ -5669,8 +5669,8 @@ net2display	9086/udp	0.000330	# Vesa Net2Display
 sqlexec	9088/udp	0.000330	# IBM Informix SQL Interface
 sqlexec-ssl	9089/udp	0.000330	# IBM Informix SQL Interface - Encrypted
 zeus-admin	9090/tcp	0.002747	# Zeus admin server
-xmltec-xmlmail	9091/tcp	0.000304	# xmltec-xmlmail
-xmltec-xmlmail	9091/udp	0.000330	# xmltec-xmlmail
+xmltec-xmlmail	9091/tcp	0.000304
+xmltec-xmlmail	9091/udp	0.000330
 unknown	9098/tcp	0.000152
 unknown	9098/udp	0.000330
 unknown	9099/tcp	0.000228
@@ -5703,9 +5703,9 @@ ms-sql2000	9152/tcp	0.000125
 unknown	9154/udp	0.000661
 unknown	9156/udp	0.000661
 unknown	9159/udp	0.000330
-apani1	9160/tcp	0.000076	# apani1
-apani2	9161/tcp	0.000076	# apani2
-apani5	9164/udp	0.000330	# apani5
+apani1	9160/tcp	0.000076
+apani2	9161/tcp	0.000076
+apani5	9164/udp	0.000330
 unknown	9168/udp	0.000330
 unknown	9170/tcp	0.000076
 unknown	9170/udp	0.000661
@@ -5777,7 +5777,7 @@ unknown	9372/udp	0.000330
 unknown	9383/udp	0.000330
 unknown	9388/udp	0.000330
 unknown	9391/udp	0.000330
-fjinvmgr	9396/udp	0.000330	# fjinvmgr
+fjinvmgr	9396/udp	0.000330
 mpidcagt	9397/udp	0.000330	# MpIdcAgt
 sec-t4net-srv	9400/tcp	0.000076	# Samsung Twain for Network Server
 unknown	9407/udp	0.000330
@@ -5801,7 +5801,7 @@ unknown	9478/tcp	0.000076
 unknown	9485/tcp	0.000380
 unknown	9493/tcp	0.000076
 unknown	9497/udp	0.000330
-ismserver	9500/tcp	0.000380	# ismserver
+ismserver	9500/tcp	0.000380
 unknown	9501/tcp	0.000152
 unknown	9502/tcp	0.000380
 unknown	9502/udp	0.000330
@@ -5936,7 +5936,7 @@ enrp-sctp	9901/sctp	0.000000	# ENRP server channel
 unknown	9901/tcp	0.000076
 enrp-sctp-tls	9902/sctp	0.000000	# ENRP/TLS server channel
 unknown	9908/tcp	0.000076
-domaintime	9909/tcp	0.000076	# domaintime
+domaintime	9909/tcp	0.000076
 unknown	9910/tcp	0.000076
 sype-transport	9911/tcp	0.000076	# SYPECom Transport Protocol
 unknown	9912/tcp	0.000076
@@ -5967,7 +5967,7 @@ palace-4	9995/tcp	0.000076	# Palace-4
 distinct32	9998/tcp	0.000304	# Distinct32
 distinct32	9998/udp	0.000330	# Distinct32
 abyss	9999/tcp	0.004441	# Abyss web server remote web management interface
-distinct	9999/udp	0.000330	# distinct
+distinct	9999/udp	0.000330
 snet-sensor-mgmt	10000/tcp	0.011692	# SecureNet Pro Sensor https management server or apple airport admin
 ndmp	10000/udp	0.007598	# Network Data Management Protocol
 scp-config	10001/tcp	0.001292	# SCP Configuration
@@ -7021,7 +7021,7 @@ unknown	14916/udp	0.000330
 unknown	14922/udp	0.000661
 unknown	14928/udp	0.000330
 unknown	14934/udp	0.000330
-hde-lcesrvr-2	14937/udp	0.000661	# hde-lcesrvr-2
+hde-lcesrvr-2	14937/udp	0.000661
 unknown	14944/udp	0.000330
 unknown	14946/udp	0.000661
 unknown	14959/udp	0.000330
@@ -9539,8 +9539,8 @@ unknown	23988/udp	0.000654
 unknown	23989/udp	0.000654
 unknown	23990/udp	0.000654
 unknown	23993/udp	0.000654
-med-ovw	24004/udp	0.000654	# med-ovw
-med-ci	24005/udp	0.000654	# med-ci
+med-ovw	24004/udp	0.000654
+med-ci	24005/udp	0.000654
 unknown	24007/udp	0.001961
 unknown	24008/udp	0.001307
 unknown	24012/udp	0.000654
@@ -9817,9 +9817,9 @@ unknown	24983/udp	0.000654
 unknown	24993/udp	0.000654
 unknown	24995/udp	0.000654
 unknown	24999/tcp	0.000076
-icl-twobase1	25000/tcp	0.000076	# icl-twobase1
-icl-twobase2	25001/tcp	0.000076	# icl-twobase2
-icl-twobase4	25003/udp	0.001961	# icl-twobase4
+icl-twobase1	25000/tcp	0.000076
+icl-twobase2	25001/tcp	0.000076
+icl-twobase4	25003/udp	0.001961
 unknown	25011/udp	0.000654
 unknown	25017/udp	0.000654
 unknown	25018/udp	0.000654
@@ -10088,7 +10088,7 @@ unknown	25988/udp	0.000654
 unknown	25989/udp	0.000654
 unknown	25992/udp	0.001307
 unknown	25993/udp	0.000654
-quake	26000/tcp	0.000152	# quake
+quake	26000/tcp	0.000152
 quake	26000/udp	0.000490	# Quake game server
 unknown	26001/tcp	0.000076
 unknown	26002/udp	0.000654
@@ -15893,7 +15893,7 @@ unknown	48548/udp	0.001036
 unknown	48551/udp	0.000518
 unknown	48554/udp	0.000518
 unknown	48555/udp	0.001036
-com-bardac-dw	48556/udp	0.001036	# com-bardac-dw
+com-bardac-dw	48556/udp	0.001036
 unknown	48558/udp	0.001036
 unknown	48564/udp	0.000518
 unknown	48566/udp	0.000518
@@ -15910,7 +15910,7 @@ unknown	48605/udp	0.001036
 unknown	48606/udp	0.000518
 unknown	48611/udp	0.000518
 unknown	48613/udp	0.000518
-iqobject	48619/tcp	0.000076	# iqobject
+iqobject	48619/tcp	0.000076
 unknown	48620/udp	0.000518
 unknown	48626/udp	0.001036
 unknown	48629/udp	0.000518
