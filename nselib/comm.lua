@@ -215,7 +215,7 @@ local function opencon(host, port, protocol, data, opts)
     end
 
     local response, early_resp;
-    if opts and opts.recv_before then status, early_resp = sd:receive() end
+    if opts and opts.recv_before then status, early_resp = read(sd, opts) end
     if #data > 0 then
         sd:send(data)
         status, response = sd:receive()
