@@ -27,49 +27,49 @@ require 'datafiles'
 
 -- Makes sure that opts exists and the default proto is there
 local initopts = function(opts)
-	if not opts then
-		opts = {}
-	end
+    if not opts then
+        opts = {}
+    end
 
-	if not opts.proto then
-		opts.proto = "tcp"
-	end
+    if not opts.proto then
+        opts.proto = "tcp"
+    end
 
-	return opts
+    return opts
 end
 
 -- Sets up the socket and connects to host:port
 local setup_connect = function(host, port, opts)
-	local sock = nmap.new_socket()
+    local sock = nmap.new_socket()
 
-	if opts.timeout then
-		sock:set_timeout(opts.timeout)
-	end
+    if opts.timeout then
+        sock:set_timeout(opts.timeout)
+    end
 
-	local status, err = sock:connect(host, port, opts.proto)
+    local status, err = sock:connect(host, port, opts.proto)
 
-	if not status then
-		return status, err
-	end
+    if not status then
+        return status, err
+    end
 
-	return true, sock
+    return true, sock
 end
 
 local read = function(sock, opts)
-	local response, status
+    local response, status
 
-	if opts.lines then
-		status, response = sock:receive_lines(opts.lines)
-		return status, response
-	end
+    if opts.lines then
+        status, response = sock:receive_lines(opts.lines)
+        return status, response
+    end
 
-	if opts.bytes then
-		status, response = sock:receive_bytes(opts.bytes)
-		return status, response
-	end
+    if opts.bytes then
+        status, response = sock:receive_bytes(opts.bytes)
+        return status, response
+    end
 
-	status, response = sock:receive()
-	return status, response
+    status, response = sock:receive()
+    return status, response
 end
 
 --- This function simply connects to the specified port number on the
@@ -84,14 +84,14 @@ end
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 get_banner = function(host, port, opts)
-	opts = initopts(opts)
-	opts.recv_before = true
-	local socket, nothing, correct, banner = tryssl(host, port, "", opts)
+    opts = initopts(opts)
+    opts.recv_before = true
+    local socket, nothing, correct, banner = tryssl(host, port, "", opts)
     if socket then
       socket:close()
       return true, banner
     end
-	return false, banner
+    return false, banner
 end
 
 --- This function connects to the specified port number on the specified
@@ -107,28 +107,28 @@ end
 -- @return Status (true or false).
 -- @return Data (if status is true) or error string (if status is false).
 exchange = function(host, port, data, opts)
-	opts = initopts(opts)
+    opts = initopts(opts)
 
-	local status, sock = setup_connect(host, port, opts)
-	local ret
+    local status, sock = setup_connect(host, port, opts)
+    local ret
 
-	if not status then
-		-- sock is an error message in this case
-		return status, sock
-	end
+    if not status then
+        -- sock is an error message in this case
+        return status, sock
+    end
 
-	status, ret = sock:send(data)
+    status, ret = sock:send(data)
 
-	if not status then
-		sock:close()
-		return status, ret
-	end
+    if not status then
+        sock:close()
+        return status, ret
+    end
 
-	status, ret = read(sock, opts)
+    status, ret = read(sock, opts)
 
-	sock:close()
+    sock:close()
 
-	return status, ret
+    return status, ret
 end
 
 --- This function just checks if the provided port number is on a list
@@ -137,14 +137,14 @@ end
 -- @param port_number The number of the port to check
 -- @return bool True if port is usually ssl, otherwise false
 local function is_ssl(port_number)
-	local common_ssl_ports = {443, 465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
-	local table_size = table.maxn(common_ssl_ports)	
-	local i = 0
-	while i < table_size do
-		if port_number == common_ssl_ports[i] then return true end
-		i = i + 1
-	end
-	return false
+    local common_ssl_ports = {443, 465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
+    local table_size = table.maxn(common_ssl_ports) 
+    local i = 0
+    while i < table_size do
+        if port_number == common_ssl_ports[i] then return true end
+        i = i + 1
+    end
+    return false
 end
 
 --- This function returns best protocol order for trying  to open a 
@@ -155,14 +155,14 @@ end
 -- @return Best option ("tcp" or "ssl")
 -- @return Worst option ("tcp" or "ssl")
 local function bestoption(port)
-	if type(port) == 'table' then
-		if port.version and port.version.service_tunnel and port.version.service_tunnel == "ssl" then return "ssl","tcp" end
-		if port.version and port.version.name_confidence and port.version.name_confidence > 6 then return "tcp","ssl" end
-		if is_ssl(port.number) then return "ssl","tcp" end
-	elseif type(port) == 'number' then
-		if is_ssl(port) then return "ssl","tcp" end
-	end
-	return "tcp","ssl"
+    if type(port) == 'table' then
+        if port.version and port.version.service_tunnel and port.version.service_tunnel == "ssl" then return "ssl","tcp" end
+        if port.version and port.version.name_confidence and port.version.name_confidence > 6 then return "tcp","ssl" end
+        if is_ssl(port.number) then return "ssl","tcp" end
+    elseif type(port) == 'number' then
+        if is_ssl(port) then return "ssl","tcp" end
+    end
+    return "tcp","ssl"
 end
 
 --- This function opens a connection, sends the first data payload and
@@ -186,51 +186,51 @@ end
 -- @return early_resp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
 local function opencon(host, port, protocol, data, opts)
-	local sd = nmap.new_socket()
+    local sd = nmap.new_socket()
 
-	-- check for connect_timeout or timeout option
+    -- check for connect_timeout or timeout option
 
-	if opts and opts.connect_timeout then 
-		sd:set_timeout(opts.connect_timeout)
-	elseif opts and opts.timeout then
-		sd:set_timeout(opts.timeout)
-	else
-		sd:set_timeout(8000)
-	end
+    if opts and opts.connect_timeout then 
+        sd:set_timeout(opts.connect_timeout)
+    elseif opts and opts.timeout then
+        sd:set_timeout(opts.timeout)
+    else
+        sd:set_timeout(8000)
+    end
 
-	local status = sd:connect(host, port, protocol)
-	if not status then 
+    local status = sd:connect(host, port, protocol)
+    if not status then 
           sd:close()
           return nil, nil, nil 
         end
 
-	-- check for request_timeout or timeout option
+    -- check for request_timeout or timeout option
 
-	if opts and opts.request_timeout then
-		sd:set_timeout(opts.request_timeout)
-	elseif opts and opts.timeout then
-		sd:set_timeout(opts.timeout)
-	else
-		sd:set_timeout(8000)
-	end
+    if opts and opts.request_timeout then
+        sd:set_timeout(opts.request_timeout)
+    elseif opts and opts.timeout then
+        sd:set_timeout(opts.timeout)
+    else
+        sd:set_timeout(8000)
+    end
 
     local response, early_resp;
-	if opts and opts.recv_before then status, early_resp = sd:receive() end
-	if #data > 0 then
-		sd:send(data)
-		status, response = sd:receive()
-	else
-		if not opts and opts.recv_before then
-			nsedebug.print_debug("Using comm.tryssl without first data payload and recv_first." .. 
-					     "\nImpossible to test the connection for the correct protocol!")
-		end
-		response = early_resp
-	end
-	if not status then 
+    if opts and opts.recv_before then status, early_resp = sd:receive() end
+    if #data > 0 then
+        sd:send(data)
+        status, response = sd:receive()
+    else
+        if not opts and opts.recv_before then
+            nsedebug.print_debug("Using comm.tryssl without first data payload and recv_first." .. 
+                         "\nImpossible to test the connection for the correct protocol!")
+        end
+        response = early_resp
+    end
+    if not status then 
           sd:close()
           return nil, response, early_resp 
         end
-	return sd, response, early_resp
+    return sd, response, early_resp
 end
 
 --- This function tries to open a connection based on the best
@@ -252,13 +252,13 @@ end
 -- @return earlyResp If opt recv_before is true, returns the value
 -- of the first receive (before sending data)
 function tryssl(host, port, data, opts)
-	local opt1, opt2 = bestoption(port)
-	local best = opt1
-	local sd, response, early_resp = opencon(host, port, opt1, data, opts)
-	if not sd then
-		sd, response, early_resp = opencon(host, port, opt2, data, opts)
-		best = opt2
-	end
-	if not sd then best = "none" end
-	return sd, response, best, early_resp
+    local opt1, opt2 = bestoption(port)
+    local best = opt1
+    local sd, response, early_resp = opencon(host, port, opt1, data, opts)
+    if not sd then
+        sd, response, early_resp = opencon(host, port, opt2, data, opts)
+        best = opt2
+    end
+    if not sd then best = "none" end
+    return sd, response, best, early_resp
 end
