@@ -1,5 +1,5 @@
 description = [[
-Detects Minecraft username spoofing vulnerability.
+Detects Minecraft offline/insecure authentication.
 
 Logging into a Minecraft multiplayer server requires online
 authentication at minecraft.net. Some Minecraft servers
@@ -10,6 +10,8 @@ authentication letting anyone log in with any username.
 A determined individual can use modified client software to log
 into such insecure servers with a username registered to another
 player.
+
+http://notch.tumblr.com/post/942787216/minecraft-alpha-1-0-16-minecraft-server-0-1-1-and-a
 ]]
 
 ---
@@ -19,7 +21,7 @@ player.
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "vuln", "safe"}
+categories = {"auth", "default", "safe"}
 
 require("bin")
 require("nmap")
