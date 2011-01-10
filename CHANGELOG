@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added minecraft-auth.nse by Toni Ruotto. It checks for
+  Minecraft game servers that don't check usernames against a master
+  server.
+
 o Added a service probe for master servers of Quake 3 and other games.
   [Toni Ruotto]
 
