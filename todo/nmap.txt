@@ -1,5 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Decide what to do about Nmap static binaries failing to work on new
+  Fedora releases (and others?).  See these threads:
+  http://seclists.org/nmap-dev/2011/q1/46 and
+  http://seclists.org/nmap-dev/2010/q1/308
+
 o Fix our mac builds so that they contain SSL support again (5.35DC1
   did, but TEST1 and TEST2 didn't for some reason.
 
