@@ -493,7 +493,7 @@ o [NSE] http improvements
    for authentication/authorization/personalization.
  o HTTP persistant connections/keepalive? May make
    spidering/grinding/auth cracking more efficient
- o Pipeliing? May make spidering/grinding/auth cracking more efficient
+ o Pipelining? May make spidering/grinding/auth cracking more efficient
 
 o Consider offering a way to link Winpcap DLLs so that they start the
   service as needed rather than requiring explicitly installing
