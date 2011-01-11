@@ -37,9 +37,7 @@ CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=inc
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
-# Link against the local MacPorts openssl because the 10.4u SDK doesn't
-# have EVP_sha256, used by Nping.
-UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking --with-openssl=$(MACPORTS_PREFIX)
+UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
 # gcc-4.0 is used to avoid an error with stdarg.h ("No such file or directory")
 # when building against the 10.4u SDK on OS X 10.6.
 UNIVERSAL_CC = gcc-4.0
@@ -84,8 +82,11 @@ stage-ncat: export-$(NCAT_BUILD_DIR)
 	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
 
 stage-nping: export-$(NPING_BUILD_DIR)
-	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping $(CONFIGURE_ARGS)
-	make -C $(NPING_BUILD_DIR)
+# Link against the local MacPorts openssl because the 10.4u SDK doesn't
+# have EVP_sha256, used by Nping. We let configure find the libraries
+# dynamically, then link with the static libraries with "make".
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
+	make -C $(NPING_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NPING_STAGING_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
 
