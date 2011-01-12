@@ -8,11 +8,36 @@ o Decide what to do about Nmap static binaries failing to work on new
 o Fix our mac builds so that they contain SSL support again (5.35DC1
   did, but TEST1 and TEST2 didn't for some reason.
 
-o Do another Nmap test/dev release
-
-o Process Nmap survey and send out results [Fyodor]
+o Add our broadcast discovery scripts to a "broadcast" category (they
+  should generally just be in "broadcast" and (assuming they are safe)
+  "safe", and not normal "discovery".  Update scripting.xml to note
+  this new category too.
 
 o Update changelog to note recent changes
+
+o Do final dev/test release
+
+o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
+  code path skips the --exec code. See
+  http://seclists.org/nmap-dev/2010/q4/604 and the test "--exec
+  through proxy" in ncat-test.pl.
+
+==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
+
+o The -V option to Nmap, in addition to reporting the version number,
+  should give details on how Nmap was compiled and the environment it
+  is running on.  This includes things like whether SSL is enabled,
+  the platform string, versions of libraries it is linked to, and
+  other stuff which is often useful in debugging problems.
+
+o If Nping is compiled w/o SSL support, and the user specifies an
+  encryption key, it should fail and insist they use --no-crypto
+  rather than ignoring the key and omitting crypto.  Otherwise the
+  user might think they're getting encryption when they're not.  David
+  found this problem in the server, and we also should check how the
+  client behaves.
+
+o Process Nmap survey and send out results [Fyodor]
 
 o Do new Nmap release with the stuff merged from SoC students and
   other new developments.
@@ -66,11 +91,6 @@ o Investigate ways to limit Winpcap privileges so that only
   http://seclists.org/nmap-dev/2010/q3/826
 
 o Add some content to https://secwiki.org and announce it.
-
-o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
-  code path skips the --exec code. See
-  http://seclists.org/nmap-dev/2010/q4/604 and the test "--exec
-  through proxy" in ncat-test.pl.
 
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
@@ -192,14 +212,6 @@ o Consider an update feed system for Nmap which let's people obtain
   o Another approach is a special feed system as is used by Nessus and
     OpenVAS.  OpenVAS uses a script wrapper around rsync, or an HTTP
     download if that fails.
-
-o The latest IANA services file
-  (http://www.iana.org/assignments/port-numbers) has many identified
-  services which are still "unknown" in our files because ours is
-  based on a much older version of that file.  We should probably take
-  that file and add names and comments to our nmap-services-all where
-  they are "unknown" in our file.  An example of such a port is 3872,
-  oem-agent.
 
 o Investigate why and whether we need mswin32/pcap-include/pcap-int.h.
   This file is not included in the official WinPcap 4.1.1 developers'
@@ -685,6 +697,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o The latest IANA services file
+  (http://www.iana.org/assignments/port-numbers) has many identified
+  services which are still "unknown" in our files because ours is
+  based on a much older version of that file.  We should probably take
+  that file and add names and comments to our nmap-services-all where
+  they are "unknown" in our file.  An example of such a port is 3872,
+  oem-agent.
 
 o Script review:
   - patch for ftp-proftpd-backdoor
