@@ -348,7 +348,7 @@ you would expect.</para>
 
     <para>If no host discovery options are given, Nmap sends an ICMP
     echo request, a TCP SYN packet to port 443, a TCP ACK packet to
-    port 80 and an ICMP timestamp request. These defaults are
+    port 80, and an ICMP timestamp request. These defaults are
     equivalent to the <option>-PE -PS443 -PA80 -PP</option> options.
     An exception to this is that an ARP scan is used for any targets
     which are on a local ethernet network. For unprivileged Unix shell
