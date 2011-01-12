@@ -1,8 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added minecraft-auth.nse by Toni Ruotto. It checks for
-  Minecraft game servers that don't check usernames against a master
-  server.
+o Integrated cracked passwords from the Gawker.com compromise
+  (http://seclists.org/nmap-dev/2010/q4/674) into
+  Nmap's top-5000 password database. A team of Nmap developers, lead
+  by Brandon Enright has cracked 635,546 out of 748,081 password
+  hashes so far (85%). Gawker users' top passwords are are "123456",
+  "password", "12345678", "lifehack", "qwerty", "abc123", "12345",
+  "monkey", "111111", "consumer", and "letmein".
 
 o Added a service probe for master servers of Quake 3 and other games.
   [Toni Ruotto]
