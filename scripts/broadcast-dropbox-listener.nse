@@ -7,7 +7,7 @@ identifiers. It does this every twenty seconds.
 
 author = "Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"broadcast", "safe"}
 
 require("json")
 require("shortport")

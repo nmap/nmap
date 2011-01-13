@@ -7,7 +7,7 @@ Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
-Entry { filename = "broadcast-dropbox-listener.nse", categories = { "discovery", "safe", } }
+Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
