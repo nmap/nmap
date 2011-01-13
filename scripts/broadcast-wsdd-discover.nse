@@ -36,7 +36,7 @@ Framework (WCF) web services (.NET 4.0 or later).
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"safe", "discovery"}
+categories = {"broadcast", "safe"}
 
 require 'shortport'
 require 'wsdd'

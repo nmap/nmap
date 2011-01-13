@@ -40,7 +40,7 @@ get more information.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"broadcast", "safe"}
 
 require 'shortport'
 require 'dnssd'

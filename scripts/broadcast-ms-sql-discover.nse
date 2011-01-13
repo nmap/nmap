@@ -9,7 +9,7 @@ Discovers Microsoft SQL servers in the same broadcast domain.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"broadcast"}
 
 require 'mssql'
 require 'target'

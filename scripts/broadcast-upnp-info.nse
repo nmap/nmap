@@ -28,7 +28,7 @@ Attempts to extract system information from the UPnP service by running a multic
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"broadcast", "safe"}
 
 require("shortport")
 require("upnp")
