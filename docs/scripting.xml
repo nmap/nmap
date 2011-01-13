@@ -227,6 +227,7 @@ Black Hat Briefings in 2010.</para>
     <para>NSE scripts define a list of categories they belong to.
     Currently defined categories are
     <literal>auth</literal>,
+    <literal>broadcast</literal>,
     <literal>default</literal>.
     <literal>discovery</literal>,
     <literal>dos</literal>,
@@ -250,6 +251,21 @@ Black Hat Briefings in 2010.</para>
           <listitem>
             <para>These scripts try to determine authentication credentials
             on the target system, often through a brute-force attack.  Examples include <literal>snmp-brute</literal>, <literal>http-auth</literal>, and <literal>ftp-anon</literal>.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="broadcast script category">&ldquo;<literal>broadcast</literal>&rdquo; script category</primary></indexterm>
+            <option>broadcast</option>
+          </term>
+          <listitem>
+            <para>Scripts in this category typically do discovery of hosts
+            not listed on the command line by broadcasting on the local network.
+            Use the
+            <varname>newtargets</varname><indexterm><primary><varname>newtargets</varname> script argument</primary></indexterm>
+            script argument to allow these scripts to automatically add the
+            hosts they discover to the Nmap scanning queue.</para>
           </listitem>
         </varlistentry>
 
