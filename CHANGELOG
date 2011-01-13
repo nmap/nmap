@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Created a new "broadcast" script category. This is the new
+  home for the broadcast-* scripts, which do discovery by broadcasting
+  on the local network (but may not relate to the targets listed on
+  the command line). The broadcast scripts that were in the
+  "discovery" category have been taken out of that category so that
+  scans like --script=discovery don't include them by default.
+
 o Integrated cracked passwords from the Gawker.com compromise
   (http://seclists.org/nmap-dev/2010/q4/674) into
   Nmap's top-5000 password database. A team of Nmap developers, lead
