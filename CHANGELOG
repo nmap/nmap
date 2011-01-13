@@ -41,7 +41,7 @@ o [NSE] Added scripts by Toni Ruotto communicating with the NetBus
     connecting without a password.
 
 o [NSE] Added stuxnet-detect.nse by Mak Kolybabi, which detects
-  infections of the Sutxnet worm and can optionally download the
+  infections of the Stuxnet worm and can optionally download the
   Stuxnet executable.
 
 o [NSE] Added a new iSCSI library and the two scripts iscsi-info and
