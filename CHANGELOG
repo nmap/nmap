@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added p2p-dropbox-listener.nse, which listens for Dropbox
+  LanSync broadcasts and can optionally add discovered hosts to the
+  scan queue. [Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne]
+
 o [NSE] Created a new "broadcast" script category. This is the new
   home for the broadcast-* scripts, which do discovery by broadcasting
   on the local network (but may not relate to the targets listed on
