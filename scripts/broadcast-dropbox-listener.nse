@@ -1,8 +1,29 @@
 description = [[
 Listens for the LAN sync information broadcasts that the Dropbox.com client broadcasts every 20 seconds, then prints all the discovered client IP addresses, port numbers, version numbers, display names, and more.
 
-If the <code>newtargets</code> script argument will given, all discovered Dropbox clients will be added to the Nmap target list rather than just listed in the output.
+If the <code>newtargets</code> script argument is given, all discovered Dropbox clients will be added to the Nmap target list rather than just listed in the output.
 ]]
+
+-- @usage
+-- nmap --script=broadcast-dropbox-listener
+-- nmap --script=broadcast-dropbox-listener --script-args=newtargets -Pn
+-- @output
+-- Pre-scan script results:
+-- | broadcast-dropbox-listener: 
+-- | displayname  ip             port   version  host_int  namespaces
+-- |_noob         192.168.0.110  17500  1.8      34176083  26135075
+--
+-- Pre-scan script results:
+-- | broadcast-dropbox-listener: 
+-- | displayname  ip             port   version  host_int  namespaces
+-- |_noob         192.168.0.110  17500  1.8      34176083  26135075
+-- Nmap scan report for 192.168.0.110
+-- Host is up (0.00073s latency).
+-- Not shown: 997 filtered ports
+-- PORT     STATE SERVICE
+-- 139/tcp  open  netbios-ssn
+-- 445/tcp  open  microsoft-ds
+-- 1047/tcp open  neod1
 
 author = "Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
