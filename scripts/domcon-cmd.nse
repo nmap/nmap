@@ -1,5 +1,5 @@
 description = [[
-Runs a console command on the Lotus Domino Console
+Runs a console command on the Lotus Domino Console using the given authentication credentials (see also: domcon-brute)
 ]]
 
 ---

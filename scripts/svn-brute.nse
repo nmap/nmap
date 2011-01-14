@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Subversion
+Performs brute force password auditing against Subversion source code control servers.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against iSCSI targets
+Performs brute force password auditing against iSCSI targets.
 ]]
 
 ---

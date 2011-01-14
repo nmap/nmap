@@ -1,6 +1,8 @@
 description = [[
-Resolves hostnames and adds every address (IPv4 or IPv6, depending) to Nmap's
-target list.  Nmap itself resolves a host but only scans the first address.
+Resolves hostnames and adds every address (IPv4 or IPv6, depending on
+Nmap mode) to Nmap's target list.  This differs from Nmap's normal
+host resolution process, which only scans the first address (A or AAAA
+record) returned for each host name.
 ]]
 
 ---

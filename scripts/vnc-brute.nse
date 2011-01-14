@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against VNC
+Performs brute force password auditing against VNC servers.
 ]]
 
 ---

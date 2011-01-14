@@ -1,5 +1,5 @@
 description = [[
-Attempts to discover DB2 servers on the network using UDP.
+Attempts to discover DB2 servers on the network by querying open ibm-db2 UDP ports (normally port 523).
 ]]
 
 ---

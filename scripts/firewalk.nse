@@ -1,6 +1,6 @@
 description = [[
-Try to discover firewall rules with an IP TTL expiration technique known
-as "firewalking".
+Tries to discover firewall rules using an IP TTL expiration technique known
+as firewalking.
 
 The scan requires a firewall (or "gateway") and a metric (or "target").
 For each filtered port on the target, send a probe with an IP TTL one greater

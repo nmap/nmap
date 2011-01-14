@@ -1,7 +1,7 @@
 description = [[
-Exhaust the limit of SMB connections on a remote server by opening as many as we can. 
+Exhausts the limit of SMB connections on a remote server by opening as many as we can. 
 Most implementations of SMB have a hard global limit of 11 connections for user accounts
-and 10 connections for anonymous.  Once that limit is exhausted, further connections
+and 10 connections for anonymous.  Once that limit is reached, further connections
 are denied. This exploits that limit by taking up all the connections and holding them. 
 
 This works better with a valid user account, because Windows reserves one slot for valid

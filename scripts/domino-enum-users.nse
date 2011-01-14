@@ -1,6 +1,5 @@
 description = [[
-A script that attempts to discover valid IBM Lotus Domino users and download
-their ID files. (CVE-2006-5835)
+Attempts to discover valid IBM Lotus Domino users and download their ID files by exploiting the CVE-2006-5835 vulnerability.
 ]]
 
 ---

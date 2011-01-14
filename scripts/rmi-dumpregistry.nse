@@ -1,14 +1,16 @@
 description = [[
-This script connects to a remote RMI registry and attempts to dump all
-its objects.
+Connects to a remote RMI registry and attempts to dump all its objects.
 
-First it tries to 
-determine the names of all objects bound in the registry, and then it tries to determine information about the objects, 
-such as the the class names of the superclasses and interfaces. This may, depending on what the registry is used for, give
-valuable information about the service. E.g, if the app uses JMX (Java Management eXtensions), you should see an object
-called "jmxconnector" on it. 
+First it tries to determine the names of all objects bound in the
+registry, and then it tries to determine information about the
+objects, such as the the class names of the superclasses and
+interfaces. This may, depending on what the registry is used for, give
+valuable information about the service. E.g, if the app uses JMX (Java
+Management eXtensions), you should see an object called "jmxconnector"
+on it.
 
-It also gives information about where the objects are located, (marked with @<ip>:port in the output). 
+It also gives information about where the objects are located, (marked
+with @<ip>:port in the output).
 
 Some apps give away the classpath, which this scripts catches in so-called "Custom data". 
 ]]

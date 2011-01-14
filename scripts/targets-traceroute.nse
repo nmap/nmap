@@ -1,8 +1,5 @@
 description = [[
-Inserts traceroute hops into the Nmap scanning queue.
-
-The script needs Nmap <code>traceroute</code> option, and will
-only run if the script argument <code>newtargets</code> is given.
+Inserts traceroute hops into the Nmap scanning queue. It only functions if Nmap's <code>--traceroute</code> option is used and the <code>newtargets</code> script argument is given.
 ]]
 
 ---

@@ -2,7 +2,6 @@ description = [[
 Discovers Microsoft SQL servers in the same broadcast domain.
 ]]
 
-
 --
 -- Version 0.1
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

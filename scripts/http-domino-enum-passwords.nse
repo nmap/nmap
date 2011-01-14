@@ -1,6 +1,7 @@
 description = [[
-Attempts to enumerate the hashed Domino Internet Passwords, that by default are accessible to all authenticated users.
-The script can also download any Domino ID Files attached to the Person document. 
+Attempts to enumerate the hashed Domino Internet Passwords that are
+accessible by all authenticated users by default. This script can also
+download any Domino ID Files attached to the Person document.
 ]]
 
 ---

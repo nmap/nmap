@@ -1,7 +1,8 @@
 description = [[ 
-Discovers devices supporting the Web Services Dynamic Discovery (WS-Discovery)
-protocol. It also attempts to locate any published Windows Communication
-Framework (WCF) web services (.NET 4.0 or later).
+Retrieves and displays information from devices supporting the Web
+Services Dynamic Discovery (WS-Discovery) protocol. It also attempts
+to locate any published Windows Communication Framework (WCF) web
+services (.NET 4.0 or later).
 ]]
 
 ---

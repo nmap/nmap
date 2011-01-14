@@ -1,5 +1,5 @@
 description = [[
-Queries the CORBA naming server for a list of objects
+Queries a CORBA naming server for a list of objects.
 ]]
 
 author = "Patrik Karlsson"

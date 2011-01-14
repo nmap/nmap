@@ -1,6 +1,6 @@
 description = [[
-Checks if a NetBus server is vulnerable to authentication bypass.
-Servers with this vulnerability can be accessed without knowing
+Checks if a NetBus server is vulnerable to an authentication bypass
+vulnerability which allows them to be fully accessed without knowing
 the password.
 
 For example a server running on TCP port 12345 on localhost with

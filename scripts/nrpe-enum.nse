@@ -2,10 +2,9 @@
 -- vim: set filetype=lua :
 
 description = [[
-Queries Nagios Remote Plugin Executor daemons.
+Queries Nagios Remote Plugin Executor (NRPE) daemons to obtain information such as load averages, process counts, logged in user information, etc.
 
-Nagios plugins can be remotely queried without authentication through the NRPE
-daemon. This script attempts to execute the stock list of commands that are
+This script attempts to execute the stock list of commands that are
 enabled. User-supplied arguments are not supported.
 ]]
 

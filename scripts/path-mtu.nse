@@ -1,5 +1,5 @@
 description = [[
-Performs simple Path MTU Discovery to the target host.
+Performs simple Path MTU Discovery to target hosts.
 
 TCP or UDP packets are sent to the host with the DF (don't fragment) bit
 set and with varying amounts of data.  If an ICMP Fragmentation Needed

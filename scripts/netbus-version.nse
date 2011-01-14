@@ -1,5 +1,5 @@
 description = [[
-Extends version detection to cover NetBuster, a honeypot service
+Extends version detection to detect NetBuster, a honeypot service
 that mimes NetBus.
 ]]
 

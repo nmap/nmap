@@ -1,8 +1,8 @@
 description = [[
-Searches for web virtual hostnames.
+Searches for web virtual hostnames by making a large number of HEAD requests against http servers using common hostnames.
 
-Makes a number of HEAD requests to the same server, providing a different
-<code>Host</code> header each time. The hostnames come from a built-in default
+Each HEAD request provides a different
+<code>Host</code> header. The hostnames come from a built-in default
 list. Shows the names that return a document. Also shows the location of
 redirections.
 

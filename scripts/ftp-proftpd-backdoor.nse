@@ -2,11 +2,7 @@
 -- vim: set filetype=lua :
 
 description = [[
-This script tests ProFTPD 1.3.3c for the presence of the backdoor which was
-reported as OSVDB-ID 69562.
-
-It allows the remote execution of commands in a root shell. The command that is
-executed by default is <code>id</code>, but that can be changed via script-args.
+Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID 69562. This script attempts to exploit the backdoor using the innocuous <code>id</code> command by default, but that can be changed with the <code>ftp-proftpd-backdoor.cmd</code> script argument.
 ]]
 
 ---

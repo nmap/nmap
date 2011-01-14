@@ -1,5 +1,5 @@
 description = [[
-Enumerates Modbus slave ids (sids) and gets their device information.
+Enumerates SCADA Modbus slave ids (sids) and gets their device information.
 
 Modbus is one of the popular SCADA protocols. This script does Modbus device
 information disclosure. It tries to find legal sids (slave ids) of Modbus

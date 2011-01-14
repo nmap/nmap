@@ -1,5 +1,6 @@
 description = [[
-Gathers information from a Wind DeBug Agent on VxWorks
+Detects vulnerabilities and gathers information (such as version
+numbers and hardware support) from a VxWorks Wind DeBug Agent.
 
 Wind DeBug is a SunRPC-type service that is enabled by default on many devices
 that use the popular VxWorks real-time embedded operating system. H.D. Moore

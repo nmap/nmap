@@ -2,7 +2,7 @@
 -- vim: set filetype=lua :
 
 description = [[
-This script detects whether a host is infected with the Stuxnet worm.
+Detects whether a host is infected with the Stuxnet worm (http://en.wikipedia.org/wiki/Stuxnet).
 
 An executable version of the Stuxnet infection will be downloaded if a format
 for the filename is given on the command line.

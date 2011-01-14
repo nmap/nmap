@@ -1,5 +1,5 @@
 description = [[
-Attempts to extract system information from the UPnP service by running a multicast query.
+Attempts to extract system information from the UPnP service by sending a multicast query, then collecting, parsing, and displaying all responses.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against http basic authentication
+Performs brute force password auditing against http basic authentication.
 ]]
 
 ---

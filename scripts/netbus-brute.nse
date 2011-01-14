@@ -1,5 +1,5 @@
 description = [[
-Tries to retrieve NetBus password by guessing.
+Performs brute force password auditing about the Netbus backdoor ("remote administration") service.
 ]]
 
 ---

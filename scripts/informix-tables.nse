@@ -1,5 +1,5 @@
 description = [[
-Retrieves a list of tables and column definition for each Informix database
+Retrieves a list of tables and column definitions for each database on an Informix server.
 ]]
 
 ---

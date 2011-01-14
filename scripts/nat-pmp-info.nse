@@ -1,5 +1,5 @@
 description = [[
-Queries the NAT-PMP service for the external address
+Queries a NAT-PMP service for its external address.
 ]]
 
 ---

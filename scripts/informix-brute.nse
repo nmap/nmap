@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Informix Dynamic Server
+Performs brute force password auditing against IBM Informix Dynamic Server.
 ]]
 
 ---

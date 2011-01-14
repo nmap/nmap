@@ -1,10 +1,7 @@
 description = [[
-Tries to find hostnames that resolve to the target's IP address.
+Tries to find hostnames that resolve to the target's IP address by querying the online database at http://www.bfk.de/bfk_dnslogger.html.
 
-The script works by querying the online database at
-http://www.bfk.de/bfk_dnslogger.html. It is in the "external" category
-because of this. Be aware that this script could expose the targets of a
-scan to a third party.
+The script is in the "external" category because it sends target IPs to a third party in order to query their database.
 ]]
 
 ---
@@ -34,7 +31,7 @@ scan to a third party.
 -- | www.sectools.org
 -- |_seclists.org
 
-author = "Ange Gutek <ange.gutek@gmail.com>"
+author = "Ange Gutek"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

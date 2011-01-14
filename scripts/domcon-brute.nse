@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against the Lotus Domino Console
+Performs brute force password auditing against the Lotus Domino Console.
 ]]
 
 ---
@@ -18,8 +18,6 @@ Performs password guessing against the Lotus Domino Console
 --   x The Driver class contains the driver implementation used by the brute
 --     library
 --
---
-
 --
 -- Version 0.1
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

@@ -1,5 +1,5 @@
 description = [[
-Retrieves information from the remote iSCSI target.
+Collects and displays information from remote iSCSI targets.
 ]]
 
 ---

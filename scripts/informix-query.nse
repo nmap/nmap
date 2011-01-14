@@ -1,5 +1,6 @@
 description = [[
-Runs a query against IBM Informix Dynamic Server.
+Runs a query against IBM Informix Dynamic Server using the given
+authentication credentials (see also: informix-brute).
 ]]
 
 ---

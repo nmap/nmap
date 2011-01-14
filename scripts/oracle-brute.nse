@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Oracle
+Performs brute force password auditing against Oracle servers.
 ]]
 
 ---
