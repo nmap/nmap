@@ -1,7 +1,5 @@
 description=[[ 
-Attempts to discover a hosts services using the DNS Service Discovery protocol.
-It does so by sending a multicast query and collects responses from all
-responding hosts.
+Attempts to discover hosts' services using the DNS Service Discovery protocol.  It sends a multicast DNS-SD query and collects all the responses.
 
 The script first sends a query for _services._dns-sd._udp.local to get a
 list of services. It then sends a followup query for each one to try to

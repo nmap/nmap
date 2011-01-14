@@ -1,8 +1,7 @@
 description = [[
-Listens for Dropbox LanSync information broadcasts.
+Listens for the LAN sync information broadcasts that the Dropbox.com client broadcasts every 20 seconds, then prints all the discovered client IP addresses, port numbers, version numbers, display names, and more.
 
-The Dropbox LanSync protocol broadcasts an opaque set of host and share
-identifiers. It does this every twenty seconds.
+If the <code>newtargets</code> script argument will given, all discovered Dropbox clients will be added to the Nmap target list rather than just listed in the output.
 ]]
 
 author = "Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait Milne"
