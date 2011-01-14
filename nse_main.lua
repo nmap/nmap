@@ -49,6 +49,14 @@ local SELECTED_BY_NAME = "NSE_SELECTED_BY_NAME";
 -- count worker threads started by scripts.
 local CONCURRENCY_LIMIT = 1000;
 
+-- Table of different supported rules.
+local NSE_SCRIPT_RULES = {
+  prerule = "prerule",
+  hostrule = "hostrule",
+  portrule = "portrule",
+  postrule = "postrule",
+};
+
 local _G = _G;
 
 local assert = assert;
@@ -123,14 +131,6 @@ local stdnse = require "stdnse";
 -- This is the table C uses to yield a thread with a unique value to
 -- differentiate between yields initiated by NSE or regular coroutine yields.
 local NSE_YIELD_VALUE = {};
-
--- Table of different supported rules.
-local NSE_SCRIPT_RULES = {
-  prerule = "prerule",
-  hostrule = "hostrule",
-  portrule = "portrule",
-  postrule = "postrule",
-};
 
 do
   -- This is the method by which we allow a script to have nested
