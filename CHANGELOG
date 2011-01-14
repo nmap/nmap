@@ -1,82 +1,223 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [NSE] Added support for dynamic updates to the DNS library. Added the
-  script dns-update.nse, which attempts to add a DNS record to a given zone.
-  [Patrik]
+o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
+  can learn more about any of them at http://nmap.org/nsedoc/.  Here
+  are the new ones (script authors are listed in brackets):
+
+  broadcast-dns-service-discovery: Attempts to discover hosts'
+    services using the DNS Service Discovery protocol.  It sends a
+    multicast DNS-SD query and collects all the responses. [Patrik
+    Karlsson]
+
+  broadcast-dropbox-listener: Listens for the LAN sync information
+    broadcasts that the Dropbox.com client broadcasts every 20
+    seconds, then prints all the discovered client IP addresses, port
+    numbers, version numbers, display names, and more.  [Ron Bowes,
+    Mak Kolybabi, Andrew Orr, Russ Tait Milne]
+
+  broadcast-ms-sql-discover: Discovers Microsoft SQL servers in the
+    same broadcast domain. [Patrik Karlsson]
+
+  broadcast-upnp-info: Attempts to extract system information from the
+    UPnP service by sending a multicast query, then collecting,
+    parsing, and displaying all responses. [Patrik Karlsson]
+
+  broadcast-wsdd-discover: Uses a multicast query to discover devices
+    supporting the Web Services Dynamic Discovery (WS-Discovery)
+    protocol. It also attempts to locate any published Windows
+    Communication Framework (WCF) web services (.NET 4.0 or
+    later). [Patrik Karlsson]
+
+  db2-discover: Attempts to discover DB2 servers on the network by
+    querying open ibm-db2 UDP ports (normally port 523). [Patrik
+    Karlsson]
+
+  dns-update.nse: Attempts to perform a dynamic DNS update without
+    authentication. [Patrik Karlsson]
+
+  domcon-brute: Performs brute force password auditing against the
+    Lotus Domino Console. [Patrik Karlsson]
+
+  domcon-cmd: Runs a console command on the Lotus Domino Console using
+    the given authentication credentials (see also: domcon-brute)
+    [Patrik Karlsson]
+
+  domino-enum-users: Attempts to discover valid IBM Lotus Domino users
+    and download their ID files by exploiting the CVE-2006-5835
+    vulnerability. [Patrik Karlsson]
+
+  firewalk: Tries to discover firewall rules using an IP TTL
+    expiration technique known as firewalking. [Henri Doreau]
+
+  ftp-proftpd-backdoor: Tests for the presence of the ProFTPD 1.3.3c
+    backdoor reported as OSVDB-ID 69562. This script attempts to
+    exploit the backdoor using the innocuous id command by default,
+    but that can be changed with the ftp-proftpd-backdoor.cmd script
+    argument. [Mak Kolybabi]
+
+  giop-info: Queries a CORBA naming server for a list of
+    objects. [Patrik Karlsson]
+
+  gopher-ls: Lists files and directories at the root of a gopher
+    service. [Toni Ruottu]
+
+  hddtemp-info: Reads hard disk information (such as brand, model, and
+    sometimes temperature) from a listening hddtemp service. [Toni
+    Ruottu]
+
+  hostmap: Tries to find hostnames that resolve to the target's IP
+    address by querying the online database at
+    http://www.bfk.de/bfk_dnslogger.html. [Ange Gutek]
+
+  http-brute: Performs brute force password auditing against http
+    basic authentication. [Patrik Karlsson]
+
+  http-domino-enum-passwords: Attempts to enumerate the hashed Domino
+    Internet Passwords that are accessible by all authenticated users
+    by default. This script can also download any Domino ID Files
+    attached to the Person document. [Patrik Karlsson]
+
+  http-form-brute: Performs brute force password auditing against http
+    form-based authentication. [Patrik Karlsson]
+
+  http-vhosts: Searches for web virtual hostnames by making a large
+    number of HEAD requests against http servers using common
+    hostnames. [Carlos Pantelides]
+
+  informix-brute: Performs brute force password auditing against
+    IBM Informix Dynamic Server. [Patrik Karlsson]
+
+  informix-query: Runs a query against IBM Informix Dynamic Server
+    using the given authentication credentials (see also:
+    informix-brute). [Patrik Karlsson]
+
+  informix-tables: Retrieves a list of tables and column definitions
+    for each database on an Informix server. [Patrik Karlsson]
+
+  iscsi-brute: Performs brute force password auditing against iSCSI
+    targets. [Patrik Karlsson]
+
+  iscsi-info: Collects and displays information from remote iSCSI
+    targets. [Patrik Karlsson]
+
+  modbus-discover: Enumerates SCADA Modbus slave ids (sids) and gets
+    their device information. [Alexander Rudakov]
+
+  nat-pmp-info: Queries a NAT-PMP service for its external
+    address. [Patrik Karlsson]
+
+  netbus-auth-bypass: Checks if a NetBus server is vulnerable to an
+    authentication bypass vulnerability which allows them to be fully
+    accessed without knowing the password. [Toni Ruottu]
+
+  netbus-brute: Performs brute force password auditing about the
+    Netbus backdoor ("remote administration") service. [Toni Ruottu]
+
+  netbus-info: Opens a connection to a NetBus server and extracts
+    information about the host and the NetBus service itself. [Toni
+    Ruottu]
+
+  netbus-version: Extends version detection to detect NetBuster, a
+    honeypot service that mimes NetBus. [Toni Ruottu]
+
+  nrpe-enum: Queries Nagios Remote Plugin Executor (NRPE) daemons to
+    obtain information such as load averages, process counts, logged in
+    user information, etc. [Mak Kolybabi]
+
+  oracle-brute: Performs brute force password auditing against Oracle
+    servers. [Patrik Karlsson]
+
+  oracle-enum-users: Attempts to enumerate valid Oracle user names
+    against Oracle 11g servers (this bug was fixed in Oracle's October
+    2009 Critical Patch Update). [Patrik Karlsson]
+
+  path-mtu: Performs simple Path MTU Discovery to target hosts. [Kris
+    Katterjohn]
+
+  resolveall: Resolves hostnames and adds every address (IPv4 or IPv6,
+    depending on Nmap mode) to Nmap's target list.  This differs from
+    Nmap's normal host resolution process, which only scans the first
+    address (A or AAAA record) returned for each host name. [Kris
+    Katterjohn]
+
+  rmi-dumpregistry: Connects to a remote RMI registry and attempts to
+    dump all its objects. [Martin Holst Swende]
+
+  smb-flood: Exhausts the limit of SMB connections on a remote server
+    by opening as many as we can.  Most implementations of SMB have a
+    hard global limit of 11 connections for user accounts and 10
+    connections for anonymous.  Once that limit is reached, further
+    connections are denied. This exploits that limit by taking up all
+    the connections and holding them. [Ron Bowes]
+
+  ssh2-enum-algos: Reports the number of algorithms (such as
+    encryption, compression, etc.) that the target SSH2 server offers.
+    If verbosity is set, then the offered algorithms are each listed
+    by type. [Kris Katterjohn]
+
+  stuxnet-detect: Detects whether a host is infected with the Stuxnet
+    worm (http://en.wikipedia.org/wiki/Stuxnet). [Mak Kolybabi]
+
+  svn-brute: Performs brute force password auditing against Subversion
+    source code control servers. [Patrik Karlsson]
+
+  targets-traceroute: Inserts traceroute hops into the Nmap scanning
+    queue. It only functions if Nmap's <code>--traceroute</code>
+    option is used and the <code>newtargets</code> script argument is
+    given. [Henri Doreau]
+
+  vnc-brute: Performs brute force password auditing against VNC
+    servers. [Patrik Karlsson]
+
+  vnc-info: Queries a VNC server for the protocol version and
+    supported security types. [Patrik Karlsson]
+
+  wdb-version: Detects vulnerabilities and gathers information (such
+    as version numbers and hardware support) from a VxWorks Wind DeBug
+    Agent. [Daniel Miller]
+
+  wsdd-discover: Retrieves and displays information from devices
+    supporting the Web Services Dynamic Discovery (WS-Discovery)
+    protocol. It also attempts to locate any published Windows
+    Communication Framework (WCF) web services (.NET 4.0 or
+    later). [Patrik Karlsson]
 
 o [Ncat] Make --exec and --idle-timeout work when connecting with
   --proxy. Florian Roth reported the bug. [David]
 
-o [NSE] Added broadcast-dropbox-listener.nse, which listens for
-  Dropbox LanSync broadcasts and can optionally add discovered hosts
-  to the scan queue. [Ron Bowes, Mak Kolybabi, Andrew Orr, Russ Tait
-  Milne]
-
-o [NSE] Created a new "broadcast" script category. This is the new
-  home for the broadcast-* scripts, which do discovery by broadcasting
-  on the local network (but may not relate to the targets listed on
-  the command line). The broadcast scripts that were in the
-  "discovery" category have been taken out of that category so that
-  scans like --script=discovery don't include them by default.
+o [NSE] Created a new "broadcast" script category for the broadcast-*
+  scripts.  These perform network discovery by broadcasting on the
+  local network and listening for responses.  Since they don't
+  directly relate to targets specified on the command line, these are
+  kept out of the default category (nor do they go in "discovery").
 
 o Integrated cracked passwords from the Gawker.com compromise
   (http://seclists.org/nmap-dev/2010/q4/674) into
-  Nmap's top-5000 password database. A team of Nmap developers, lead
+  Nmap's top-5000 password database. A team of Nmap developers lead
   by Brandon Enright has cracked 635,546 out of 748,081 password
   hashes so far (85%). Gawker users' top passwords are are "123456",
   "password", "12345678", "lifehack", "qwerty", "abc123", "12345",
   "monkey", "111111", "consumer", and "letmein".
 
-o Added a service probe for master servers of Quake 3 and other games.
-  [Toni Ruotto]
+o Added a service detection probe for master servers of Quake 3 and
+  related games.  [Toni Ruotto]
 
-o [NSE] Added nrpe-enum.nse by Mak Kolybabi, which shows information
-  from the Nagios Remote Plugin Executor service.
+o [NSE] Nmap now have three different NSE script scan phases. The first
+  one is the script pre-scanning phase, which will run before any Nmap
+  scan operation. Scripts during this phase are activated by the new
+  rule prerule. The second phase is the classic script scan one, which
+  will run for every host group. Scripts during this phase are
+  activated by the classic portrules and hostrules. The third phase
+  is the script post-scanning one, which will run after all Nmap scan
+  operations. Scripts are activated during this phase by the new rule
+  postrule. [Djalal]
 
 o [NSE] Created an ftp.lua library. [David]
-
-o [NSE] Added gopher-ls.nse by Toni Ruotto, which lists the root of a
-  Gopher server.
-
-o [NSE] Added modbus-discover.nse by Alexander Rudakov. This script
-  enumerates Modbus slave ids and then tries to find device
-  information about each of them.
-
-o [NSE] Added scripts by Toni Ruotto communicating with the NetBus
-  remote administration/backdoor program.
-  - netbus-info: gets configuration information.
-  - netbus-brute: guesses passwords.
-  - netbus-version: distinguishes NetBus from NetBuster, a program
-    that mimics the protocol but doesn't actually allow any
-    operations.
-  - netbus-auth-bypass: Checks for a bug in the server that allows
-    connecting without a password.
-
-o [NSE] Added stuxnet-detect.nse by Mak Kolybabi, which detects
-  infections of the Stuxnet worm and can optionally download the
-  Stuxnet executable.
-
-o [NSE] Added a new iSCSI library and the two scripts iscsi-info and
-  iscsi-brute. [Patrik]
-
-o [NSE] Add new script broadcast-ms-sql-discover and removed broadcast
-  support from ms-sql-info. [Patrik]
-
-o [NSE] Added the ftp-proftpd-backdoor.nse script by Mak Kolybabi,
-  which checks for a backdoor in ProFTPD 1.3.3c. Michael Meyer tested
-  the script and contributed some patches.
-
-o [NSE] Added http-vhosts.nse from Carlos Pantelides. This script
-  brute-forces virtual hosts by sending different Host headers to the
-  same server.
 
 o [Ncat] Ncat now uses case-insensitive string comparison when
   checking authentication schemes and parameters. Florian Roth found a
   server offering "BASIC" instead of "Basic", and the HTTP RFC
   requires case-insensitive comparisons in most places. [David]
-
-o [NSE] Added the hddtemp-info script from Toni Ruotto, which gets
-  hard drive temperatures from the hddtemp service.
 
 o [NSE] There is now a limit of 1,000 concurrent running scripts,
   instituted to keep memory under control when there are many open
@@ -95,9 +236,6 @@ o XML output now excludes output for down hosts when doing host
   worked for normal scans, but the ping-only case was overlooked.
   [David]
 
-o [NSE] Added a new Web Service Dynamic Discovery library (wsdd) and the two 
-  scripts broadcast-wsdd-discover and wsdd-discover. [Patrik]
-
 o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
   messages about gtk.Tooltip. [Rob Nicholls]
 
@@ -115,26 +253,11 @@ o [NSE] Added a new library dnssd with supporting functions for DNS Service
   Discovery. Moved multicast prerule from dns-service-discovery to a new
   script called broadcast-dns-service-discovery. [Patrik]
 
-o [NSE] Added the rmi-dumpregistry script, which shows the contents of
-  Java RMI registry. [Martin Holst Swende]
-
-o [NSE] Added the ssh2-enum-algos script which reports the number of
-  algorithms the target SSH2 server supports, by type. If verbosity
-  is set, then the offered algorithms are listed. Output is reduced
-  for identical "client to server" and "server to client" lists by
-  using a single combined list. [Kris]
-
 o [NSE] Made dns-zone-transfer script able to add new discovered DNS
   records onto Nmap scanning queue. [Djalal]
 
 o [NSE] Added reporting of the type and bit size of certificate public
   keys to ssl-cert.nse. [Matt Selsky]
-
-o [NSE] Added the db2-discover script. This can find DB2 servers by
-  sending a UDP broadcast. [Patrik]
-
-o [NSE] Added the hostmap script by Ange Gutek. This uses a third-party
-  database to look up other hostnames mapping to the target.
 
 o [NSE] Added the ability to send and receive on unconnected sockets.
   This can be used, for example, to receive UDP broadcasts without
@@ -162,18 +285,10 @@ o Ncat now logs Nsock debug output to stderr instead of stdout, like
 o Updated to the latest config.guess and config.sub. Thanks to Ty
   Miller for a reminder. [David]
 
-o [NSE] Added nat-pmp-info script that uses the nat-pmp service to
-  discover the external IP address of a router. [Patrik]
-
 o [NSE] Added prerule support to snmp-interfaces and the ability to
   add the host's interface addresses to the scanning queue.  The new
   script arguments used for this functionality are "host" (required)
   and "port" (optional). [Kris]
-
-o [NSE] Added the resolveall prerule script which takes a table of
-  target names as a "hosts" argument and adds all of the resolved
-  addresses (IPv4 or IPv6, depending on Nmap's -6 option) for all of
-  the hosts to the scanning queue. [Kris]
 
 o Fixed some inconsistencies in nmap-os-db and a small memory leak
   that would happen where there was more than one round of OS
@@ -198,9 +313,6 @@ o Increased the initial RTT timeout for ARP scans from 100 ms to
 o Upgraded the OpenSSL binaries shipped in our Windows installer to
   version 1.0.0a. [David]
 
-o [NSE] Added the targets-traceroute script, which inserts traceroute
-  hops onto Nmap scanning queue. [Henri Doreau]
-
 o [NSE] Added the target NSE library to let scripts to add new
   discovered targets onto Nmap scanning queue. This feature, coupled
   with the new prerule is well suited for NSE host discovery. [Djalal]
@@ -210,24 +322,10 @@ o [NSE] Added a prerule support to dns-zone-transfer script, which
   perform DNS zone transfer discovery operations when the necessary
   script arguments are given. [Djalal]
 
-o [NSE] Nmap now have three different NSE script scan phases. The first
-  one is the script pre-scanning phase, which will run before any Nmap
-  scan operation. Scripts during this phase are activated by the new
-  rule prerule. The second phase is the classic script scan one, which
-  will run for every host group. Scripts during this phase are
-  activated by the classic portrules and hostrules. The third phase
-  is the script post-scanning one, which will run after all Nmap scan
-  operations. Scripts are activated during this phase by the new rule
-  postrule. [Djalal]
-
 o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
   a struct of the same name in <netinet/sctp.h>. This caused a
   compiliation error when Nmap was compiled with an OpenSSL that had
   SCTP support. [Olli Hauer, Daniel Roethlisberger]
-
-o [NSE] Added the firewalk script, which tries to find whether a
-  firewall blocks or forwards ports like the firewalk tool does. [Henri
-  Doreau]
 
 o [NSE] Host tables now have a host.traceroute member when --traceroute
   is used. This array contains the IP address, reverse DNS name, and RTT
@@ -245,12 +343,6 @@ o [NSE] Added the nmap.address_family() function which returns the address
   family Nmap is using as a string (e.g., "inet6" is returned if Nmap is
   called with the -6 option). [Kris]
 
-o [NSE] Added the path-mtu script to perform Path MTU Discovery to the
-  target host using TCP or UDP. The script tries to conserve bandwidth and
-  time by starting with the outgoing interface's MTU and properly handling
-  the Next-Hop MTU field in ICMP responses generated by RFC-compliant
-  intermediate routers. [Kris]
-
 o [NSE] Scripts can now access the MTU of the host.interface device using
   host.interface_mtu. [Kris]
 
@@ -258,16 +350,6 @@ o Nmap now prints the MTU for interfaces when using --iflist. [Kris]
 
 o [NSE] Removed references to MD2, as OpenSSL 1.x.x doesn't support it anymore
   [alexandru]
-
-o [NSE] Added GIOP library and a small script that makes use of it:
-  - giop-info Queries the CORBA naming server for a list of objects
-  [Patrik]
-
-o [NSE] Added a Oracle TNS library and two new scripts that make use of it.
-  The scripts are:
-  - oracle-brute uses the brute and tns library to perform password guessing
-  - oracle-enum-users attempts to determine valid Oracle user names
-  [Patrik]
 
 o [NSE] Added a smallish Lotus Domino rpc library (nrpc.lua) and some Lotus
   Domino oriented scripts:
@@ -285,24 +367,11 @@ o [NSE] Added an Informix library and three scripts that make use of it:
   - informix-tables lists table- and column-names for a given database
   [Patrik]
 
-o [NSE] Added two new scripts http-brute.nse and http-form-brute that attempt
-  to perform password guessing against web servers and applications. [Patrik]
-
-o [NSE] Added svn-brute, which attempts to perform password guessing against
-  the subversion service. [Patrik]
-
 o [NSE] The nmap.connect function can now accept host and port tables
   (like those provided to the action function) in place of a string
   and a number. The motivation behind this is to easily support Server
   Name Indication for SSL sockets by reading host.targetname. [David
   Fifield]
-
-o [NSE] Added wdb-version, which discovers information from a VxWorks
-  debug service that is often left open. [Daniel Miller]
-
-o [NSE] Added one script (vnc-brute) that performs password guessing against
-  VNC using the new brute library and another (vnc-info) that lists supported
-  security mechanisms. [Patrik]
 
 o [NSE] Added a new brute library that provides a basic framework and logic
   for password guessing scripts. [Patrik]
