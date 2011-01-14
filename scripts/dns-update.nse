@@ -1,5 +1,5 @@
 description = [[
-Attempts to perform a dynamic DNS update without authentication
+Attempts to perform a dynamic DNS update without authentication.
 ]]
 
 author = "Patrik Karlsson"
