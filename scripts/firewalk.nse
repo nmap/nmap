@@ -43,7 +43,7 @@ firewalk tool.
 
 
 -- 08/28/2010
-author = "Henri Doreau <henri.doreau[at]gmail.com>"
+author = "Henri Doreau"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
