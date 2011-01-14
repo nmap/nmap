@@ -57,6 +57,11 @@ types = {
    ANY = 255
 }
 
+CLASS = {
+	IN = 1,
+	ANY = 255
+}
+
 
 ---
 -- Repeatedly sends UDP packets to host, waiting for an answer.
@@ -676,6 +681,22 @@ function findNiceAdditional(dtype, dec, retAll)
    end
 end
 
+--
+-- Encodes a FQDN
+-- @param fqdn containing the fully qualified domain name
+-- @return encQ containing the encoded value
+local function encodeFQDN(fqdn)
+	if ( not(fqdn) or #fqdn == 0 ) then return end
+	
+	local parts = stdnse.strsplit("%.", fqdn)
+	local encQ = ""
+    for _, part in ipairs(parts) do
+       encQ = encQ .. bin.pack("p", part)
+    end
+	encQ = encQ .. string.char(0)
+	return encQ
+end
+
 ---
 -- Encodes the question part of a DNS request.
 -- @param questions Table of questions.
@@ -684,14 +705,28 @@ local function encodeQuestions(questions)
    if type(questions) ~= "table" then return nil end
    local encQ = ""
    for _, v in ipairs(questions) do
-      local parts = stdnse.strsplit("%.", v.dname)
-      for _, part in ipairs(parts) do
-         encQ = encQ .. bin.pack("p", part)
-      end
-      encQ = encQ .. string.char(0)
+      encQ = encQ .. encodeFQDN(v.dname)
       encQ = encQ .. bin.pack(">SS", v.dtype, v.class)
    end
    return encQ
+end
+
+---
+-- Encodes the zone part of a DNS request.
+-- @param questions Table of questions.
+-- @return Encoded question string.
+local function encodeZones(zones)
+	return encodeQuestions(zones)
+end
+
+local function encodeUpdates(updates)
+   if type(updates) ~= "table" then return nil end
+   local encQ = ""
+   for _, v in ipairs(updates) do
+      encQ = encQ .. encodeFQDN(v.dname)
+      encQ = encQ .. bin.pack(">SSISA", v.dtype, v.class, v.ttl, #v.data, v.data)
+   end
+   return encQ	
 end
 
 ---
@@ -730,8 +765,21 @@ end
 function encode(pkt)
    if type(pkt) ~= "table" then return nil end
    local encFlags = encodeFlags(pkt.flags)
-   local encQs = encodeQuestions(pkt.questions)
-   local encStr = bin.pack(">SBS4", pkt.id, encFlags, #pkt.questions, #pkt.answers, #pkt.auth, #pkt.additional) .. encQs
+   local data = encodeQuestions(pkt.questions)
+   local qorzlen = #pkt.questions
+   local aorplen = #pkt.answers
+   local aorulen = #pkt.auth
+
+   if ( #pkt.questions < 1 ) then
+      -- The packet has no questions, assume we're dealing with an update
+      data = encodeZones( pkt.zones )
+      qorzlen = #pkt.zones
+
+      aorulen = #pkt.updates
+      data = data .. encodeUpdates( pkt.updates )
+   end
+
+   local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data
    return encStr
 end
 
@@ -1037,14 +1085,20 @@ function decode(data)
    -- for now, don't decode the flags
    pkt.flags = decodeFlags(encFlags)
 
-   pos, pkt.questions = decodeQuestions(data, cnt.q, pos)
-
-   pos, pkt.answers = decodeRR(data, cnt.a, pos)
-
-   pos, pkt.auth = decodeRR(data, cnt.auth, pos)
-
-   pos, pkt.add = decodeRR(data, cnt.add, pos)
-
+   --  
+   -- check whether this is an update response or not
+   -- a quick fix to allow decoding of non updates and not break for updates
+   -- the flags are enough for the current code to determine whether an update was successful or not
+   -- 
+   local strflags=encodeFlags(pkt.flags)
+   if ( strflags:sub(1,4) == "1010" ) then
+      return pkt
+   else
+      pos, pkt.questions = decodeQuestions(data, cnt.q, pos)
+      pos, pkt.answers = decodeRR(data, cnt.a, pos)
+      pos, pkt.auth = decodeRR(data, cnt.auth, pos)
+      pos, pkt.add = decodeRR(data, cnt.add, pos)
+   end
    return pkt
 end
 
@@ -1058,6 +1112,8 @@ function newPacket()
    pkt.flags = {}
    pkt.flags.RD = true
    pkt.questions = {}
+   pkt.zones = {}
+   pkt.updates = {}
    pkt.answers = {}
    pkt.auth = {}
    pkt.additional = {}
@@ -1076,7 +1132,7 @@ function addQuestion(pkt, dname, dtype)
    local q = {}
    q.dname = dname
    q.dtype = dtype
-   q.class = 1
+   q.class = CLASS.IN
    table.insert(pkt.questions, q)
    return pkt
 end
@@ -1086,4 +1142,132 @@ get_default_timeout = function()
   local timeout = {[0] = 10000, 7000, 5000, 4000, 4000, 4000}
   return timeout[nmap.timing_level()] or 4000
 end
+
+--- 
+-- Adds a zone to a DNS packet table
+-- @param pkt Table representing DNS packet.
+-- @param dname Domain name to be asked.
+function addZone(pkt, dname)
+   if ( type(pkt) ~= "table" ) or (type(pkt.updates) ~= "table") then return nil end
+   table.insert(pkt.zones, { dname=dname, dtype=types.SOA, class=CLASS.IN })
+   return pkt
+end
+
+--- 
+-- Adds a update to a DNS packet table
+-- @param pkt Table representing DNS packet.
+-- @param dname Domain name to be asked.
+-- @param dtype to be updated
+-- @param ttl the time-to-live of the record
+-- @param data type specific data
+function addUpdate(pkt, dname, dtype, ttl, data, class)
+   if ( type(pkt) ~= "table" ) or (type(pkt.updates) ~= "table") then return nil end
+   table.insert(pkt.updates, { dname=dname, dtype=dtype, class=class, ttl=ttl, data=(data or "") } )
+   return pkt		
+end
+
+
+--- Adds a record to the Zone
+-- @param dname containing the hostname to add
+-- @param options A table containing any of the following fields:
+-- * <code>dtype</code>: Desired DNS record type (default: <code>"A"</code>).
+-- * <code>host</code>: DNS server to be queried (default: DNS servers known to Nmap).
+-- * <code>timeout</code>: The time to wait for a response
+-- * <code>sendCount</code>: The number of send attempts to perform
+-- * <code>zone</code>: If not supplied deduced from hostname
+-- * <code>data</code>: Table or string containing update data (depending on record type):
+--   A     - String containing the IP address
+--   CNAME - String containing the FQDN 
+--   MX    - Table containing <code>pref</code>, <code>mx</code>
+--   SRV   - Table containing <code>prio</code>, <code>weight</code>, <code>port</code>, <code>target</code>
+--
+-- @return status true on success false on failure
+-- @return msg containing the error message
+--
+-- Examples
+--
+-- Adding different types of records to a server
+--  * update( "www.cqure.net", { host=host, port=port, dtype="A", data="10.10.10.10" } )
+--	* update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="www.cqure.net" } )
+--	* update( "cqure.net", { host=host, port=port, dtype="MX", data={ pref=10, mx="mail.cqure.net"} })
+--	* update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data={ prio=0, weight=100, port=389, target="ldap.cqure.net" } } )
+--
+-- Removing the above records by setting an empty data and a ttl of zero
+--   * update( "www.cqure.net", { host=host, port=port, dtype="A", data="", ttl=0 } )
+--	 * update( "alias.cqure.net", { host=host, port=port, dtype="CNAME", data="", ttl=0 } )
+--	 * update( "cqure.net", { host=host, port=port, dtype="MX", data="", ttl=0 } )
+--	 * update( "_ldap._tcp.cqure.net", { host=host, port=port, dtype="SRV", data="", ttl=0 } )
+--
+function update(dname, options)
+	local options = options or {}
+	local pkt = newPacket()
+	local flags = pkt.flags
+	local host, port = options.host, options.port
+	local timeout = ( type(options.timeout) == "number" ) and options.timeout or get_default_timeout()
+	local sendcount = options.sendCount or 2
+	local dtype = ( type(options.dtype) == "string" ) and types[options.dtype] or types.A
+	local updata = options.data
+	local ttl = options.ttl or 86400
+	local zone = options.zone or dname:match("^.-%.(.+)$")
+	local class = CLASS.IN
+
+	assert(host, "dns.update needs a valid host in options")
+	assert(port, "dns.update needs a valid port in options")
+	
+	if ( options.zone ) then dname = dname .. "." .. options.zone end
+
+	if ( not(zone) and not( dname:match("^.-%..+") ) ) then
+		return false, "hostname needs to be supplied as FQDN"
+	end
+   
+	flags.RD = false
+	flags.OC1, flags.OC2, flags.OC3, flags.OC4 = false, true, false, true
+	
+	-- If ttl is zero and updata is string and zero length or nil, assume delete record
+	if ( ttl == 0 and ( ( type(updata) == "string" and #updata == 0 ) or not(updata) ) ) then
+		class = CLASS.ANY
+		updata = ""
+		if ( types.MX == dtype and not(options.zone) ) then zone=dname end
+		if ( types.SRV == dtype and not(options.zone) ) then
+			zone=dname:match("^_.-%._.-%.(.+)$")
+		end
+	-- if not, let's try to update the zone
+	else
+		if ( dtype == types.A ) then
+			updata = updata and bin.pack(">I", ipOps.todword(updata)) or ""
+		elseif( dtype == types.CNAME ) then
+			updata = encodeFQDN(updata)
+		elseif( dtype == types.MX ) then
+			assert( not( type(updata) ~= "table" ), "dns.update expected options.data to be a table")
+			if ( not(options.zone) ) then zone = dname end
+			local data = bin.pack(">S", updata.pref)
+			data = data .. encodeFQDN(updata.mx)
+			updata = data
+		elseif ( dtype == types.SRV ) then
+			assert( not( type(updata) ~= "table" ), "dns.update expected options.data to be a table")
+			local data = bin.pack(">SSS", updata.prio, updata.weight, updata.port )
+			data = data .. encodeFQDN(updata.target)
+			updata = data
+			zone = options.zone or dname:match("^_.-%._.-%.(.+)$")
+		else
+			return false, "Unsupported record type"
+		end
+	end
+	
+	pkt = addZone(pkt, zone)
+	pkt = addUpdate(pkt, dname, dtype, ttl, updata, class)
+	
+	local data = encode(pkt)
+	local status, response = sendPackets(data, host, port, timeout, sendcount, false)
+	
+	if ( status ) then
+		local decoded = decode(response[1].data)
+		local flags=encodeFlags(decoded.flags)
+		if (flags:sub(-4) == "0000") then
+			return true
+		end
+	end
+	return false
+end
+
 

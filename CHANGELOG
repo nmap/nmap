@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for dynamic updates to the DNS library. Added the
+  script dns-update.nse, which attempts to add a DNS record to a given zone.
+  [Patrik]
+
 o [Ncat] Make --exec and --idle-timeout work when connecting with
   --proxy. Florian Roth reported the bug. [David]
 
