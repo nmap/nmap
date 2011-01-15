@@ -191,6 +191,27 @@ o [NSE] Created a new "broadcast" script category for the broadcast-*
   directly relate to targets specified on the command line, these are
   kept out of the default category (nor do they go in "discovery").
 
+o [NSE] Added 12 new protocol libraries:
+ - dhcp.lua by Ron
+ - dnssd.lua (DNS Service Discovery) by Patrik
+ - ftp.lua by David
+ - giop.lua (CORBA naming service) by Patrik
+ - informix.lua (Informix database) by Patrik
+ - iscsi.lua (iSCSI - IP based SCSI data transfer) by Patrik
+ - nrpc.lua (Lotus Domino RPC) by Patrik
+ - rmi.lua (Java Remote Method Invocation) by Martin Holst Swende
+ - tns.lua (Oracle) by Patrik
+ - upnp.lua (UPnP support) by Thomas Buchanan and Patrik
+ - vnc.lua (Virtual Network Computing) by Patrik
+ - wsdd.lua (Web Service Dynamic Discovery) by Patrik
+
+o [NSE] Added the target NSE library to let scripts to add new
+  discovered targets onto Nmap scanning queue. This feature, coupled
+  with the new prerule is well suited for NSE host discovery. [Djalal]
+
+o [NSE] Added a new brute library that provides a basic framework and logic
+  for brute force password auditing scripts. [Patrik]
+
 o Integrated cracked passwords from the Gawker.com compromise
   (http://seclists.org/nmap-dev/2010/q4/674) into
   Nmap's top-5000 password database. A team of Nmap developers lead
@@ -211,8 +232,6 @@ o [NSE] Nmap now have three different NSE script scan phases. The first
   is the script post-scanning one, which will run after all Nmap scan
   operations. Scripts are activated during this phase by the new rule
   postrule. [Djalal]
-
-o [NSE] Created an ftp.lua library. [David]
 
 o [Ncat] Ncat now uses case-insensitive string comparison when
   checking authentication schemes and parameters. Florian Roth found a
@@ -244,14 +263,6 @@ o Updated the Windows build process to work with (and require) Visual
   need Python 2.7 (rather than 2.6) and GTK+ 2.22. See
   http://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
   Nicholls, KX]
-
-o [NSE] Added a new library upnp that provides UPnP support to the scripts
-  upnp-info and broadcast-upnp-info. The library is largely based on code
-  taken from Thomas Buchanan's upnp-info script. [Patrik]
-
-o [NSE] Added a new library dnssd with supporting functions for DNS Service
-  Discovery. Moved multicast prerule from dns-service-discovery to a new
-  script called broadcast-dns-service-discovery. [Patrik]
 
 o [NSE] Made dns-zone-transfer script able to add new discovered DNS
   records onto Nmap scanning queue. [Djalal]
@@ -313,10 +324,6 @@ o Increased the initial RTT timeout for ARP scans from 100 ms to
 o Upgraded the OpenSSL binaries shipped in our Windows installer to
   version 1.0.0a. [David]
 
-o [NSE] Added the target NSE library to let scripts to add new
-  discovered targets onto Nmap scanning queue. This feature, coupled
-  with the new prerule is well suited for NSE host discovery. [Djalal]
-
 o [NSE] Added a prerule support to dns-zone-transfer script, which
   lets the script to run during the script pre-scanning phase to
   perform DNS zone transfer discovery operations when the necessary
@@ -351,30 +358,11 @@ o Nmap now prints the MTU for interfaces when using --iflist. [Kris]
 o [NSE] Removed references to MD2, as OpenSSL 1.x.x doesn't support it anymore
   [alexandru]
 
-o [NSE] Added a smallish Lotus Domino rpc library (nrpc.lua) and some Lotus
-  Domino oriented scripts:
-  - domino-enum-users guesses users and attempts to download ID files by
-                      exploiting (CVE-2006-5835).
-  - domino-enum-passwords attempts to download Internet passwords and ID files
-                          from the web server.
-  - domcon-brute performs password guessing against the remote console.
-  - domcon-cmd adds support for running custom remote console commands.
-  [Patrik]
-
-o [NSE] Added an Informix library and three scripts that make use of it:
-  - informix-brute uses the brute framework to perform password guessing
-  - informix-query add support for running SQL queries against Informix
-  - informix-tables lists table- and column-names for a given database
-  [Patrik]
-
 o [NSE] The nmap.connect function can now accept host and port tables
   (like those provided to the action function) in place of a string
   and a number. The motivation behind this is to easily support Server
   Name Indication for SSL sockets by reading host.targetname. [David
   Fifield]
-
-o [NSE] Added a new brute library that provides a basic framework and logic
-  for password guessing scripts. [Patrik]
 
 o [NSE] Renamed db2-info and db2-brute scripts to drda-*. Updated script
   and library to reflect name change. Added support other DRDA based
