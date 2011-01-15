@@ -4,6 +4,9 @@ that mimes NetBus.
 ]]
 
 ---
+-- @usage
+-- nmap -sV -p 12345 --script netbus-version <target>
+--
 -- @output
 -- 12345/tcp open  netbus  Netbuster (honeypot)
 
@@ -15,7 +18,7 @@ require("nmap")
 require("stdnse")
 require("shortport")
 
-portrule = shortport.version_port_or_service (12345, "netbus", {"tcp"})
+portrule = shortport.version_port_or_service ({}, "netbus", {"tcp"})
 
 action = function( host, port )
 

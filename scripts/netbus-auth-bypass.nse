@@ -10,13 +10,16 @@ and login to the service by typing Password;1; into the console.
 ]]
 
 ---
+-- @usage
+-- nmap -p 12345 --script netbus-auth-bypass <target>
+--
 -- @output
 -- 12345/tcp open  netbus
 -- |_netbus-auth-bypass: Vulnerable
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive", "vuln"}
+categories = {"auth", "safe", "vuln"}
 
 require("nmap")
 require("stdnse")
@@ -50,6 +53,6 @@ action = function( host, port )
 	if buffer() == "Access;1" then
 		return "Vulnerable"
 	end
-	return
+	return "Not vulnerable, but password is empty"
 end
 

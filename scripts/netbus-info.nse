@@ -18,6 +18,9 @@ and an smtp-server used for notification delivery.
 ]]
 
 ---
+-- @usage
+-- nmap -p 12345 --script netbus-info <target> --script-args netbus-info.password=<password>
+--
 -- @output
 -- 12345/tcp open  netbus
 -- | netbus-info:   
@@ -41,6 +44,8 @@ and an smtp-server used for notification delivery.
 -- |     Wave: 0
 -- |     Synth: 0
 -- |_    Cd: 0
+--
+-- @args netbus-info.password The password used for authentication
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -123,12 +128,14 @@ local function format_volume(volume)
 end
 
 action = function( host, port )
-
-	local password = nmap.registry.netbuspassword
-	if password == nil then
-		password = ""		 
+	local password = nmap.registry.args[SCRIPT_NAME .. ".password"]
+	if not password and nmap.registry.netbuspasswords then
+		local key = string.format("%s:%d", host.ip, port.number)
+		password = nmap.registry.netbuspasswords[key]
 	end
-
+	if not password then
+		password = ""
+	end
 	local socket = nmap.new_socket()
 	socket:set_timeout(5000)
 	local status, err = socket:connect(host.ip, port.number)
@@ -153,7 +160,6 @@ action = function( host, port )
 	socket:close()
 
 	local response = {}
-	table.insert(response, "")
 	table.insert(response, format_acl(acl))
 	table.insert(response, format_apps(apps))
 	table.insert(response, format_info(info))

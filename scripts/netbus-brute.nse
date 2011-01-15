@@ -3,6 +3,9 @@ Performs brute force password auditing about the Netbus backdoor ("remote admini
 ]]
 
 ---
+-- @usage
+-- nmap -p 12345 --script netbus-brute <target>
+--
 -- @output
 -- 12345/tcp open  netbus
 -- |_netbus-brute: password123
@@ -36,13 +39,18 @@ action = function( host, port )
 		local login = buffer()
 		if login == "Access;1" then
 			-- Store the password for other netbus scripts
-			nmap.registry.netbuspassword=password
-
+			local key = string.format("%s:%d", host.ip, port.number)
+			if not nmap.registry.netbuspasswords then
+				nmap.registry.netbuspasswords = {}
+			end
+			nmap.registry.netbuspasswords[key] = password
+			if password == "" then
+				return "<empty>"
+			end
 			return string.format("%s", password)
 		end
 	end
 	socket:close()
-
 end
 
 
