@@ -1,3 +1,4 @@
+---
 -- The VNC library provides some basic functionality needed in order to
 -- communicate with VNC servers, and derivates such as Tight- or Ultra-
 -- VNC.
