@@ -3,6 +3,9 @@ Lists files and directories at the root of a gopher service.
 ]]
 
 ---
+-- @usage
+-- nmap -p 70 --script gopher-ls --script-args gopher-ls.maxfiles=100 <target>
+--
 -- @output
 -- 70/tcp open  gopher
 -- | gopher-ls:

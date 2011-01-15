@@ -3,6 +3,9 @@ Reads hard disk information (such as brand, model, and sometimes temperature) fr
 ]]
 
 ---
+-- @usage
+-- nmap -p 7634 -sV -sC <target>
+--
 -- @output
 -- 7634/tcp open  hddtemp
 -- |_hddtemp-info: /dev/sda: WDC WD2500JS-60MHB1: 38 C
