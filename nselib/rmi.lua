@@ -57,6 +57,7 @@ end
 -- end
 local function doh(str,...)
 	stdnse.print_debug("RMI-ERR:"..tostring(str), unpack(arg))
+	return false, str
 end
 
 ---
