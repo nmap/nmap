@@ -1,0 +1,12 @@
+o Use a more efficient algorithm to update the display of Nmap normal
+  output in live scans.
+  zenmapGUI.NmapOutputViewer.NmapOutputViewer.refresh_output calls
+  zenmapCore.NmapCommand.NmapCommand.get_output, which re-reads the
+  entire output file (into memory) and then puts it in the text buffer
+  if it has changed. So already we're storing the whole output twice in
+  memory. When the text field changes, update_output_colors
+  re-highlights the whole file.
+
+  It should instead only read new text at the end of the output file and
+  append it to what's already in the text buffer.
+  http://seclists.org/nmap-dev/2011/q1/162
