@@ -85,7 +85,7 @@ stage-nping: export-$(NPING_BUILD_DIR)
 # Link against the local MacPorts openssl because the 10.4u SDK doesn't
 # have EVP_sha256, used by Nping. We let configure find the libraries
 # dynamically, then link with the static libraries with "make".
-	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl=$(MACPORTS_PREFIX) $(CONFIGURE_ARGS)
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NPING_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NPING_STAGING_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
