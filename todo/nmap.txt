@@ -1,29 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Decide what to do about Nmap static binaries failing to work on new
-  Fedora releases (and others?).  See these threads:
-  http://seclists.org/nmap-dev/2011/q1/46 and
-  http://seclists.org/nmap-dev/2010/q1/308
-
-o Fix our mac builds so that they contain SSL support again (5.35DC1
-  did, but TEST1 and TEST2 didn't for some reason.
-
-o Add our broadcast discovery scripts to a "broadcast" category (they
-  should generally just be in "broadcast" and (assuming they are safe)
-  "safe", and not normal "discovery".  Update scripting.xml to note
-  this new category too.
-
-o Update changelog to note recent changes
-
-o Do final dev/test release
-
-o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
-  code path skips the --exec code. See
-  http://seclists.org/nmap-dev/2010/q4/604 and the test "--exec
-  through proxy" in ncat-test.pl.
-
-==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
-
 o [Zenmap] Use a more efficient algorithm to update the display of Nmap normal
   output in live scans.
   zenmapGUI.NmapOutputViewer.NmapOutputViewer.refresh_output calls
@@ -33,18 +9,17 @@ o [Zenmap] Use a more efficient algorithm to update the display of Nmap normal
   memory. When the text field changes, update_output_colors
   re-highlights the whole file.
 
+o Update changelog to note recent changes
+
+o Do final dev/test release
+
+==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
+
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
   is running on.  This includes things like whether SSL is enabled,
   the platform string, versions of libraries it is linked to, and
   other stuff which is often useful in debugging problems.
-
-o If Nping is compiled w/o SSL support, and the user specifies an
-  encryption key, it should fail and insist they use --no-crypto
-  rather than ignoring the key and omitting crypto.  Otherwise the
-  user might think they're getting encryption when they're not.  David
-  found this problem in the server, and we also should check how the
-  client behaves.
 
 o Process Nmap survey and send out results [Fyodor]
 
@@ -716,6 +691,34 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o If Nping is compiled w/o SSL support, and the user specifies an
+  encryption key, it should fail and insist they use --no-crypto
+  rather than ignoring the key and omitting crypto.  Otherwise the
+  user might think they're getting encryption when they're not.  David
+  found this problem in the server, and we also should check how the
+  client behaves.
+
+o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
+  code path skips the --exec code. See
+  http://seclists.org/nmap-dev/2010/q4/604 and the test "--exec
+  through proxy" in ncat-test.pl.
+
+o Decide what to do about Nmap static binaries failing to work on new
+  Fedora releases (and others?).  See these threads:
+  http://seclists.org/nmap-dev/2011/q1/46 and
+  http://seclists.org/nmap-dev/2010/q1/308
+  o We ended up dynamically linking system libs in the RPM rather than
+    statically linking them.  We still statically link things like lua,
+    pcre, ssl, etc.
+
+o Fix our mac builds so that they contain SSL support again (5.35DC1
+  did, but TEST1 and TEST2 didn't for some reason.
+
+o Add our broadcast discovery scripts to a "broadcast" category (they
+  should generally just be in "broadcast" and (assuming they are safe)
+  "safe", and not normal "discovery".  Update scripting.xml to note
+  this new category too.
 
 o The latest IANA services file
   (http://www.iana.org/assignments/port-numbers) has many identified
