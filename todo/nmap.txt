@@ -24,6 +24,15 @@ o [Ncat] Make --exec work in conjunction with --proxy. The --proxy
 
 ==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
 
+o [Zenmap] Use a more efficient algorithm to update the display of Nmap normal
+  output in live scans.
+  zenmapGUI.NmapOutputViewer.NmapOutputViewer.refresh_output calls
+  zenmapCore.NmapCommand.NmapCommand.get_output, which re-reads the
+  entire output file (into memory) and then puts it in the text buffer
+  if it has changed. So already we're storing the whole output twice in
+  memory. When the text field changes, update_output_colors
+  re-highlights the whole file.
+
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
   is running on.  This includes things like whether SSL is enabled,
@@ -132,6 +141,16 @@ o Further brainstorm and consider implementing more prerule/postrule
    o We could have a script which takes traceroute results and adds them to the target list.
    o [Implemented] dns-zone-transfer
    o [Implemented, but a joke] http-california-plates
+
+o [NCAT] Send one line at a time when --delay is in effect. This is
+  cumbersome to do until Nsock supports buffered reading.
+
+o [NCAT] Make the HTTP proxy support the chunked transfer encoding,
+  then change it to be HTTP/1.1 and support pipelining.
+
+o [NCAT] Drop privileges on startup.
+
+o [NCAT] Work as a SOCKS4a/SOCKSv5 proxy.
 
 o [NSE] Write a couple more MSRPC scripts inspired by sysinternals:
   o Windows system logs (like sysinternals' psloglist)

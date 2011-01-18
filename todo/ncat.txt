@@ -1,7 +1,0 @@
-* Send one line at a time when --delay is in effect. This is cumbersome
-  to do until Nsock supports buffered reading.
-* Make the HTTP proxy support the chunked transfer encoding, then change
-  it to be HTTP/1.1 and support pipelining.
-* Drop privileges on startup.
-* Work as a SOCKS4a/SOCKSv5 proxy.
-* Connect to a unix domain socket.
