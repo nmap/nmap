@@ -4,7 +4,7 @@ Runs a console command on the Lotus Domino Console using the given authenticatio
 
 ---
 -- @usage
--- nmap -np 2050 <host> --script domcon-cmd --script-args domcon-cmd.cmd="show server", \
+-- nmap -p 2050 <host> --script domcon-cmd --script-args domcon-cmd.cmd="show server", \
 --		domcon-cmd.user="Patrik Karlsson",domcon-cmd.pass="secret"
 --
 -- @output

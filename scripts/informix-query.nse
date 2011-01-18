@@ -5,7 +5,7 @@ authentication credentials (see also: informix-brute).
 
 ---
 -- @usage
--- nmap -np 9088 <host> --script informix-query --script-args informix-query.username=informix,informix-query.password=informix
+-- nmap -p 9088 <host> --script informix-query --script-args informix-query.username=informix,informix-query.password=informix
 --
 -- @output
 -- PORT     STATE SERVICE
