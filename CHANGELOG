@@ -182,6 +182,11 @@ o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
     Communication Framework (WCF) web services (.NET 4.0 or
     later). [Patrik Karlsson]
 
+o [Zenmap] Improved the output viewer to show new output in constant
+  time. Previously it would get slower and slower as the output grew
+  longer, eventually making Zenmap appear to freeze with 100% CPU. Rob
+  Nicholls and Ray Middleton helped with testing. [David]
+
 o [Ncat] Make --exec and --idle-timeout work when connecting with
   --proxy. Florian Roth reported the bug. [David]
 
