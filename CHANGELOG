@@ -182,13 +182,18 @@ o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
     Communication Framework (WCF) web services (.NET 4.0 or
     later). [Patrik Karlsson]
 
-o [Zenmap] Improved the output viewer to show new output in constant
-  time. Previously it would get slower and slower as the output grew
-  longer, eventually making Zenmap appear to freeze with 100% CPU. Rob
-  Nicholls and Ray Middleton helped with testing. [David]
+o [Zenmap] Added a new Script selection Interface. This interface is 
+  present under the "Scripting" tab of profile editor. Besides selecting 
+  script,argument values can also be given. Description and categories 
+  of script is also shown.
+  [kirubakaran]
 
 o [Ncat] Make --exec and --idle-timeout work when connecting with
   --proxy. Florian Roth reported the bug. [David]
+
+o [NSE] Added the target NSE library to let scripts to add new
+  discovered targets onto Nmap scanning queue. This feature, coupled
+  with the new prerule is well suited for NSE host discovery. [Djalal]
 
 o [NSE] Created a new "broadcast" script category for the broadcast-*
   scripts.  These perform network discovery by broadcasting on the
@@ -210,10 +215,6 @@ o [NSE] Added 12 new protocol libraries:
  - vnc.lua (Virtual Network Computing) by Patrik
  - wsdd.lua (Web Service Dynamic Discovery) by Patrik
 
-o [NSE] Added the target NSE library to let scripts to add new
-  discovered targets onto Nmap scanning queue. This feature, coupled
-  with the new prerule is well suited for NSE host discovery. [Djalal]
-
 o [NSE] Added a new brute library that provides a basic framework and logic
   for brute force password auditing scripts. [Patrik]
 
@@ -225,9 +226,6 @@ o Integrated cracked passwords from the Gawker.com compromise
   "password", "12345678", "lifehack", "qwerty", "abc123", "12345",
   "monkey", "111111", "consumer", and "letmein".
 
-o Added a service detection probe for master servers of Quake 3 and
-  related games.  [Toni Ruotto]
-
 o [NSE] Nmap now have three different NSE script scan phases. The first
   one is the script pre-scanning phase, which will run before any Nmap
   scan operation. Scripts during this phase are activated by the new
@@ -238,30 +236,10 @@ o [NSE] Nmap now have three different NSE script scan phases. The first
   operations. Scripts are activated during this phase by the new rule
   postrule. [Djalal]
 
-o [Ncat] Ncat now uses case-insensitive string comparison when
-  checking authentication schemes and parameters. Florian Roth found a
-  server offering "BASIC" instead of "Basic", and the HTTP RFC
-  requires case-insensitive comparisons in most places. [David]
-
-o [NSE] There is now a limit of 1,000 concurrent running scripts,
-  instituted to keep memory under control when there are many open
-  ports. Nathan reported 3 GB of memory use (with an out-of-memory NSE
-  crash) for one host with tens of thousands of open ports. This limit
-  can be controlled with the variable CONCURRENCY_LIMIT in
-  nse_main.lua. [David]
-
-o The command line in XML output (/nmaprun/@args attribute) now does
-  quoting of whitespace using double quotes and backslashes. This
-  allows recovering the original command line array even when
-  arguments contain whitespace. [David]
-
 o XML output now excludes output for down hosts when doing host
   discovery only, except in verbose mode. This is how it already
   worked for normal scans, but the ping-only case was overlooked.
   [David]
-
-o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
-  messages about gtk.Tooltip. [Rob Nicholls]
 
 o Updated the Windows build process to work with (and require) Visual
   C++ 2010 rather than 2008.  If you want to build Zenmap too, you now
@@ -269,11 +247,10 @@ o Updated the Windows build process to work with (and require) Visual
   http://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
   Nicholls, KX]
 
-o [NSE] Made dns-zone-transfer script able to add new discovered DNS
-  records onto Nmap scanning queue. [Djalal]
-
-o [NSE] Added reporting of the type and bit size of certificate public
-  keys to ssl-cert.nse. [Matt Selsky]
+o [Zenmap] Improved the output viewer to show new output in constant
+  time. Previously it would get slower and slower as the output grew
+  longer, eventually making Zenmap appear to freeze with 100% CPU. Rob
+  Nicholls and Ray Middleton helped with testing. [David]
 
 o [NSE] Added the ability to send and receive on unconnected sockets.
   This can be used, for example, to receive UDP broadcasts without
@@ -287,6 +264,18 @@ o [NSE] Added the ability to send and receive on unconnected sockets.
   protocol and address family, which will be used if the socket is not
   connected. There is a new nmap.sendto function to be used with
   unconnected UDP sockets. [David, Patrik]
+
+o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
+  messages about gtk.Tooltip. [Rob Nicholls]
+
+o [NSE] Made dns-zone-transfer script able to add new discovered DNS
+  records onto Nmap scanning queue. [Djalal]
+
+o [NSE] Added reporting of the type and bit size of certificate public
+  keys to ssl-cert.nse. [Matt Selsky]
+
+o [Ncat] Make --exec and --idle-timeout work when connecting with
+  --proxy. Florian Roth reported the bug. [David]
 
 o [NSE] Improved ssh2's kex_init() parameters: all of the algorithm
   and language lists can be set using new keys in the "options" table
@@ -329,10 +318,11 @@ o Increased the initial RTT timeout for ARP scans from 100 ms to
 o Upgraded the OpenSSL binaries shipped in our Windows installer to
   version 1.0.0a. [David]
 
-o [NSE] Added a prerule support to dns-zone-transfer script, which
-  lets the script to run during the script pre-scanning phase to
-  perform DNS zone transfer discovery operations when the necessary
-  script arguments are given. [Djalal]
+o [NSE] Added prerule support to the dns-zone-transfer script,
+  allowing it to run during the script pre-scanning phase to perform
+  DNS zone transfer discovery operations when the necessary script
+  arguments are given.  Discovered IPs can be added to Nmap's target
+  queue. [Djalal]
 
 o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
   a struct of the same name in <netinet/sctp.h>. This caused a
@@ -358,10 +348,10 @@ o [NSE] Added the nmap.address_family() function which returns the address
 o [NSE] Scripts can now access the MTU of the host.interface device using
   host.interface_mtu. [Kris]
 
-o Nmap now prints the MTU for interfaces when using --iflist. [Kris]
+o Nmap now prints the MTU for interfaces in --iflist output. [Kris]
 
-o [NSE] Removed references to MD2, as OpenSSL 1.x.x doesn't support it anymore
-  [alexandru]
+o [NSE] Removed references to MD2 (OpenSSL 1.x.x doesn't support it
+  anymore) [Alexandru]
 
 o [NSE] The nmap.connect function can now accept host and port tables
   (like those provided to the action function) in place of a string
@@ -369,20 +359,19 @@ o [NSE] The nmap.connect function can now accept host and port tables
   Name Indication for SSL sockets by reading host.targetname. [David
   Fifield]
 
-o [NSE] Renamed db2-info and db2-brute scripts to drda-*. Updated script
-  and library to reflect name change. Added support other DRDA based
-  databases such as IBM Informix Dynamic Server and Apache Derby.
-  [Patrik]
+o [NSE] Renamed db2-info and db2-brute scripts to drda-*. Added
+  support other DRDA based databases such as IBM Informix Dynamic
+  Server and Apache Derby.  [Patrik]
 
 o [Nsock] Added a new function, nsi_set_hostname, to set the intended
   hostname of the target. This allows the use of Server Name
   Indication in SSL connections. This was suggested by Nuno Goncalves.
   [David]
 
-o [NSE] Added default limits on the number of ports that qscan will
-  scan. By default, it will do upt o 8 open ports and up to 1 closed
-  port. These limits can be controlled with the qscan.numopen and
-  qscan.numclosed script arguments. [David]
+o [NSE] Limits the number of ports that qscan will scan (now up to 8
+  open ports and up to 1 closed port by default). These limits can be
+  controlled with the qscan.numopen and qscan.numclosed script
+  arguments. [David]
 
 o [NSE] Made sslv2.nse give special output when SSLv2 is supported,
   but no SSLv2 ciphers are offered. This happened with a specific
@@ -396,13 +385,11 @@ o [NSE] Added a "times" table to the host table passed to scripts.
   conservative guess of 3 seconds for read timeouts. [Kris]
 
 o [Nmap, Nping] Fixed the fragmentation options (-f in Nmap, --mtu in
-  both) which broke in 5.35DC1. Instead of sending multiple fragments,
-  the original packet was sent whole. In some circumstances, sending
-  would fail on interfaces with low MTUs (such as SLIP lines) with no
-  way to bump down packet sizes for transport. [Kris]
+  both) which were improperly sending whole packets in Nmap version
+  5.35DC1.
 
 o [NSE] The http library's request functions now accept an additional
-  "auth" table within the option table, which if provided causes Basic
+  "auth" table within the option table, which causes Basic
   authentication credentials to be sent. [David]
 
 o [NSE] When receiving raw packets from Pcap, the packet capture time
@@ -425,14 +412,28 @@ o [Zenmap] Fixed a crash that would happen after opening the search
     AttributeError: 'tuple' object has no attribute 'strftime'
   [David]
 
-o [zenmap] Added a new Script selection Interface. This interface is 
-  present under the "Scripting" tab of profile editor. Besides selecting 
-  script,argument values can also be given. Description and categories 
-  of script is also shown.
-  [kirubakaran]
-
 o Updated IANA IP address space assignment list for random IP (-iR)
   generation. [Kris]
+
+o [Ncat] Ncat now uses case-insensitive string comparison when
+  checking authentication schemes and parameters. Florian Roth found a
+  server offering "BASIC" instead of "Basic", and the HTTP RFC
+  requires case-insensitive comparisons in most places. [David]
+
+o [NSE] There is now a limit of 1,000 concurrent running scripts,
+  instituted to keep memory under control when there are many open
+  ports. Nathan reported 3 GB of memory use (with an out-of-memory NSE
+  crash) for one host with tens of thousands of open ports. This limit
+  can be controlled with the variable CONCURRENCY_LIMIT in
+  nse_main.lua. [David]
+
+o The command line in XML output (/nmaprun/@args attribute) now does
+  quoting of whitespace using double quotes and backslashes. This
+  allows recovering the original command line array even when
+  arguments contain whitespace. [David]
+
+o Added a service detection probe for master servers of Quake 3 and
+  related games.  [Toni Ruotto]
 
 Nmap 5.35DC1 [2010-07-16]
 
