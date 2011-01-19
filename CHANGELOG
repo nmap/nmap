@@ -182,11 +182,18 @@ o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
     Communication Framework (WCF) web services (.NET 4.0 or
     later). [Patrik Karlsson]
 
-o [Zenmap] Added a new Script selection Interface. This interface is 
-  present under the "Scripting" tab of profile editor. Besides selecting 
-  script,argument values can also be given. Description and categories 
-  of script is also shown.
-  [kirubakaran]
+o [Zenmap] Added a new script selection interface, allowing you to
+  choose scripts and arguments from a list which includes descriptions
+  of every available script.  Just click the "Scripting" tab in the
+  profile editor. [kirubakaran]
+
+o [Nping] Added echo mode, a novel technique for discovering how your
+  packets are changed (or dropped) in transit between the host they
+  originated and a target machine. You can try it out against our
+  public Nping echo server using this command:
+    nping --echo-client "public" echo.nmap.org'
+  Or learn more about echo mode at
+  http://nmap.org/book/nping-man-echo-mode.html.
 
 o [Ncat] Make --exec and --idle-timeout work when connecting with
   --proxy. Florian Roth reported the bug. [David]
