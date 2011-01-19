@@ -35,23 +35,19 @@ o A trivial change: we currently print some lines about NSE
   pre-scanning and post-scanning in verbose mode even when no such
   scripts are being run.  We should not print those in that case.  For
   example, nmap -A -v scanme.nmap.org gives me these superfluous lines:
-  NSE: Starting runlevel 1 (of 2) scan.
-  Initiating NSE at 18:09
   NSE: Script Pre-scanning.
-  Completed NSE at 18:09, 0.00s elapsed
-  NSE: Starting runlevel 2 (of 2) scan.
-  Initiating NSE at 18:09
-  NSE: Script Pre-scanning.
-  Completed NSE at 18:09, 0.00s elapsed
-  [...]
   NSE: Starting runlevel 1 (of 2) scan.
-  Initiating NSE at 18:09
-  NSE: Script Post-scanning.
-  Completed NSE at 18:09, 0.00s elapsed
+  Initiating NSE at 12:23
+  Completed NSE at 12:23, 0.00s elapsed
   NSE: Starting runlevel 2 (of 2) scan.
-  Initiating NSE at 18:09
+  NSE: Script scanning 64.13.134.52.
+  NSE: Starting runlevel 1 (of 2) scan.
+  Initiating NSE at 12:24
+  Completed NSE at 12:24, 4.14s elapsed
+  NSE: Starting runlevel 2 (of 2) scan.
   NSE: Script Post-scanning.
-  Completed NSE at 18:09, 0.00s elapsed
+  NSE: Starting runlevel 1 (of 2) scan.
+  NSE: Starting runlevel 2 (of 2) scan.
 
 o Script review:
   - p2p-dropbox-listener http://seclists.org/nmap-dev/2010/q4/689
