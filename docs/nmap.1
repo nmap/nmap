@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 12/28/2010
+.\"      Date: 01/20/2011
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "12/28/2010" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/20/2011" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -117,7 +117,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.36TEST3 ( http://nmap\&.org )
+Nmap 5\&.36TEST4 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -327,7 +327,7 @@ Because host discovery needs are so diverse, Nmap offers a wide variety of optio
 ping
 tool\&. Users can skip the ping step entirely with a list scan (\fB\-sL\fR) or by disabling ping (\fB\-Pn\fR), or engage the network with arbitrary combinations of multi\-port TCP SYN/ACK, UDP, SCTP INIT and ICMP probes\&. The goal of these probes is to solicit responses which demonstrate that an IP address is actually active (is being used by a host or network device)\&. On many networks, only a small percentage of IP addresses are active at any given time\&. This is particularly common with private address space such as 10\&.0\&.0\&.0/8\&. That network has 16 million IPs, but I have seen it used by companies with less than a thousand machines\&. Host discovery can find those machines in a sparsely allocated sea of IP addresses\&.
 .PP
-If no host discovery options are given, Nmap sends an ICMP echo request, a TCP SYN packet to port 443, and TCP ACK packet to port 80, and an ICMP timestamp request\&. These defaults are equivalent to the
+If no host discovery options are given, Nmap sends an ICMP echo request, a TCP SYN packet to port 443, a TCP ACK packet to port 80, and an ICMP timestamp request\&. These defaults are equivalent to the
 \fB\-PE \-PS443 \-PA80 \-PP\fR
 options\&. An exception to this is that an ARP scan is used for any targets which are on a local ethernet network\&. For unprivileged Unix shell users, the default probes are a SYN packet to ports 80 and 443 using the
 \fBconnect\fR
