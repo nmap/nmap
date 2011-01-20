@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Added a new script selection interface, allowing you to
+  choose scripts and arguments from a list which includes descriptions
+  of every available script.  Just click the "Scripting" tab in the
+  profile editor. [kirubakaran]
+
+o [Nping] Added echo mode, a novel technique for discovering how your
+  packets are changed (or dropped) in transit between the host they
+  originated and a target machine. You can try it out against our
+  public Nping echo server using this command:
+    nping --echo-client "public" echo.nmap.org'
+  Or learn more about echo mode at
+  http://nmap.org/book/nping-man-echo-mode.html.
+
 o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
   can learn more about any of them at http://nmap.org/nsedoc/.  Here
   are the new ones (script authors are listed in brackets):
@@ -182,32 +195,6 @@ o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
     Communication Framework (WCF) web services (.NET 4.0 or
     later). [Patrik Karlsson]
 
-o [Zenmap] Added a new script selection interface, allowing you to
-  choose scripts and arguments from a list which includes descriptions
-  of every available script.  Just click the "Scripting" tab in the
-  profile editor. [kirubakaran]
-
-o [Nping] Added echo mode, a novel technique for discovering how your
-  packets are changed (or dropped) in transit between the host they
-  originated and a target machine. You can try it out against our
-  public Nping echo server using this command:
-    nping --echo-client "public" echo.nmap.org'
-  Or learn more about echo mode at
-  http://nmap.org/book/nping-man-echo-mode.html.
-
-o [Ncat] Make --exec and --idle-timeout work when connecting with
-  --proxy. Florian Roth reported the bug. [David]
-
-o [NSE] Added the target NSE library to let scripts to add new
-  discovered targets onto Nmap scanning queue. This feature, coupled
-  with the new prerule is well suited for NSE host discovery. [Djalal]
-
-o [NSE] Created a new "broadcast" script category for the broadcast-*
-  scripts.  These perform network discovery by broadcasting on the
-  local network and listening for responses.  Since they don't
-  directly relate to targets specified on the command line, these are
-  kept out of the default category (nor do they go in "discovery").
-
 o [NSE] Added 12 new protocol libraries:
  - dhcp.lua by Ron
  - dnssd.lua (DNS Service Discovery) by Patrik
@@ -222,6 +209,46 @@ o [NSE] Added 12 new protocol libraries:
  - vnc.lua (Virtual Network Computing) by Patrik
  - wsdd.lua (Web Service Dynamic Discovery) by Patrik
 
+o Performed a major OS detection integration run. The database has
+  grown more than 14% to 2,982 fingerprints and many of the existing
+  fingerprints were improved. Highlights include Linux 2.6.37, iPhone
+  OS 4.2.1, Solaris 11, AmigaOS 3.1, GNU Hurd 0.3, and Minix 2.0.4.
+  David posted highlights of his integration work at
+  http://seclists.org/nmap-dev/2010/q4/651
+
+o Performed a huge version detection integration run. The number of
+  signatures has grown by more than 11% to 7,355.  More than a third
+  of our signatures are for http, but we also detect 743 other service
+  protocols, from abc, acap, access-remote-pc, and achat to zenworks,
+  zeo, and zmodem.  You can read David's integration highlights at
+  http://seclists.org/nmap-dev/2010/q4/761.
+
+o [NSE] Added the target NSE library which allows scripts to add newly
+  discovered targets to Nmap's scanning queue. This feature, coupled
+  with the new prerule is well suited for NSE host discovery. [Djalal]
+
+o [NSE] Nmap has two new NSE script scanning phases. The new pre-scan
+  occurs before Nmap starts scanning. Some of the initial pre-scan
+  scripts use techniques like broadcast DNS service discovery or DNS
+  zone transfers to enumerate hosts which can optionally be treated as
+  targets. The other phase (post scan) runs after all of Nmap's
+  scanning is complete. We don't have any of these scripts yet, but
+  they could compile scan statistics or present the
+  results in a different way. One idea is a reverse index which gives
+  a list of IP addresses running each individual service discovered on
+  a network.  See
+  http://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
+
+o Documented the licenses of the third-party software used by Nmap and
+  it's sibling tools:
+  http://nmap.org/svn/docs/3rd-party-licenses.txt. [David]
+
+o [NSE] Created a new "broadcast" script category for the broadcast-*
+  scripts.  These perform network discovery by broadcasting on the
+  local network and listening for responses.  Since they don't
+  directly relate to targets specified on the command line, these are
+  kept out of the default category (nor do they go in "discovery").
+
 o [NSE] Added a new brute library that provides a basic framework and logic
   for brute force password auditing scripts. [Patrik]
 
@@ -233,16 +260,6 @@ o Integrated cracked passwords from the Gawker.com compromise
   "password", "12345678", "lifehack", "qwerty", "abc123", "12345",
   "monkey", "111111", "consumer", and "letmein".
 
-o [NSE] Nmap now have three different NSE script scan phases. The first
-  one is the script pre-scanning phase, which will run before any Nmap
-  scan operation. Scripts during this phase are activated by the new
-  rule prerule. The second phase is the classic script scan one, which
-  will run for every host group. Scripts during this phase are
-  activated by the classic portrules and hostrules. The third phase
-  is the script post-scanning one, which will run after all Nmap scan
-  operations. Scripts are activated during this phase by the new rule
-  postrule. [Djalal]
-
 o XML output now excludes output for down hosts when doing host
   discovery only, except in verbose mode. This is how it already
   worked for normal scans, but the ping-only case was overlooked.
@@ -253,6 +270,20 @@ o Updated the Windows build process to work with (and require) Visual
   need Python 2.7 (rather than 2.6) and GTK+ 2.22. See
   http://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
   Nicholls, KX]
+
+o Enabled ASLR and DEP for Nmap.exe, Ncat.exe and Nping.exe on Windows
+  Vista and above. Visual C++ will set the /DYNAMICBASE and /NXCOMPAT
+  flags in the PE header. Executables generated using py2exe or NSIS
+  and third party binaries (OpenSSL, WinPcap) still don't support ASLR
+  or DEP. Support for DEP on XP SP3, using SetProcessDEPPolicy(),
+  could still be implemented. See
+  http://seclists.org/nmap-dev/2010/q3/328. [Robert]
+
+o Investigated using the CPE (Common Platform Enumeration) standard
+  for describing operating systems, devices, and service names for
+  Nmap OS and service detection. You can read David's reports at
+  http://seclists.org/nmap-dev/2010/q3/278 and
+  http://seclists.org/nmap-dev/2010/q3/303.
 
 o [Zenmap] Improved the output viewer to show new output in constant
   time. Previously it would get slower and slower as the output grew
@@ -291,11 +322,19 @@ o [NSE] Improved ssh2's kex_init() parameters: all of the algorithm
   key in the "options" table, defaulting to random bytes as the RFC
   says the value should be. [Kris]
 
-o Ncat now logs Nsock debug output to stderr instead of stdout, like
-  its other debug messages. [David]
+o Ncat now logs Nsock debug output to stderr instead of stdout for
+  consistency with its other debug messages. [David]
+
+o [NSE] Added a new function, shortport.http, for HTTP script
+  portrules and changed 14 to use it. [David]
 
 o Updated to the latest config.guess and config.sub. Thanks to Ty
   Miller for a reminder. [David]
+
+o [NSE] Improved the SMB scripts so that they can run in parallel
+  rather than using a mutex to force serialization.  This quadroupled
+  the SMB scan speed in one large scale test.  See
+  http://seclists.org/nmap-dev/2010/q3/819. [Ron]
 
 o [NSE] Added prerule support to snmp-interfaces and the ability to
   add the host's interface addresses to the scanning queue.  The new
@@ -317,9 +356,13 @@ o [Zenmap] Made the topology node radiuses grow logarithmically
   open|filtered) are considered when calculating node sizes. Henri
   Doreau found and fixed a bug in the implementation. [Daniel Miller]
 
-o Increased the initial RTT timeout for ARP scans from 100 ms to
-  200 ms. Some wireless and VPN links were taking around 300 ms to
-  respond. The default of one retransmit gives them 400 ms to be
+o [NSE] Added the get_script_args NSE function for parsing script
+  arguments in a clean and standardized way
+  (http://nmap.org/nsedoc/lib/stdnse.html#get_script_args). [Djalal]
+
+o Increased the initial RTT timeout for ARP scans from 100 ms to 200
+  ms. Some wireless and VPN links were taking around 300 ms to
+  respond. The default of one retransmission gives them 400 ms to be
   detected.
 
 o Upgraded the OpenSSL binaries shipped in our Windows installer to
@@ -336,6 +379,13 @@ o Changed the name of libdnet's sctp_chunkhdr to avoid a conflict with
   compiliation error when Nmap was compiled with an OpenSSL that had
   SCTP support. [Olli Hauer, Daniel Roethlisberger]
 
+o [NSE] Implemented a big cleanup of the Nmap NSE Nsock library
+  binding code. [Patrick]
+
+o Added a bunch of Apple and Netatalk AFP service detection
+  signatures.  These often provide extra details such as whether the
+  target is a MacBook Pro, MacBook Air, Mac Mini, iMac, etc. [Brandon]
+
 o [NSE] Host tables now have a host.traceroute member when --traceroute
   is used. This array contains the IP address, reverse DNS name, and RTT
   for each traceroute hop. [Henri Doreau]
@@ -348,12 +398,25 @@ o [NSE] Added the nmap.resolve() function which takes a host name and
   containing all of its matching addresses.  If no address family is
   specified, then all of the addresses are returned for the name. [Kris]
 
+o Added new version detection probes and signatures from Patrik for:
+  - Lotus Domino Console running on tcp/2050 (shows OS and hostname)
+  - IBM Informix Dynamic Server running native protocol (shows hostname, and file path)
+  - Database servers running the DRDA protocol
+  - IBM Websphere MQ (shows name of queue-manager and channel)
+
 o [NSE] Added the nmap.address_family() function which returns the address
   family Nmap is using as a string (e.g., "inet6" is returned if Nmap is
   called with the -6 option). [Kris]
 
 o [NSE] Scripts can now access the MTU of the host.interface device using
   host.interface_mtu. [Kris]
+
+o Restrict the default Windows DLL search path by removing the current
+  directory. This adds extra protection against DLL hijacking attacks,
+  especially if we were to add file type associations to Nmap in the
+  future. We implement this with SetDllDirectory function when available
+  (Windows XP SP1 and later). Otherwise, we call SetCurrentDirectory
+  with the directory containing the executable. [David]
 
 o Nmap now prints the MTU for interfaces in --iflist output. [Kris]
 
@@ -391,9 +454,11 @@ o [NSE] Added a "times" table to the host table passed to scripts.
   updated to utilize the host's timeout value instead of the very
   conservative guess of 3 seconds for read timeouts. [Kris]
 
-o [Nmap, Nping] Fixed the fragmentation options (-f in Nmap, --mtu in
-  both) which were improperly sending whole packets in Nmap version
-  5.35DC1.
+o Fixed the fragmentation options (-f in Nmap, --mtu in Nmap & Nping)
+  which were improperly sending whole packets in version 5.35DC1.
+
+o Fix Nmap compilation on OpenSolaris (see
+  http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on) [David]
 
 o [NSE] The http library's request functions now accept an additional
   "auth" table within the option table, which causes Basic
@@ -419,6 +484,14 @@ o [Zenmap] Fixed a crash that would happen after opening the search
     AttributeError: 'tuple' object has no attribute 'strftime'
   [David]
 
+o Added a new packet payload--a NAT-PMP external address request for
+  port 5351/udp.  Payloads help us elicit responses from listening UDP
+  services to better distinguish them from filtered ports.  This
+  payload goes well with our new nat-pmp-info script. [David, Patrik]
+
+o [NSE] Significant cleanup and bugfixes to the smb-psexec script
+  [Ron]
+
 o Updated IANA IP address space assignment list for random IP (-iR)
   generation. [Kris]
 
@@ -441,6 +514,7 @@ o The command line in XML output (/nmaprun/@args attribute) now does
 
 o Added a service detection probe for master servers of Quake 3 and
   related games.  [Toni Ruotto]
+
 
 Nmap 5.35DC1 [2010-07-16]
 
