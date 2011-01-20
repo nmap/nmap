@@ -1,5 +1,5 @@
 # THIS FILE IS GENERATED AUTOMATICALLY FROM A MASTER - DO NOT EDIT.
-# EDIT /nmap-dev/nmap-services-all IN SVN INSTEAD.
+# EDIT /nmap-private-dev/nmap-services-all IN SVN INSTEAD.
 # Well known service port numbers -*- mode: fundamental; -*-
 # From the Nmap Security Scanner ( http://nmap.org )
 #
@@ -5946,6 +5946,7 @@ unknown	9915/tcp	0.000076
 unknown	9917/tcp	0.000228
 unknown	9919/tcp	0.000076
 unknown	9921/udp	0.000661
+nping-echo	9929/tcp	0.000163	# Nping echo server mode - http://nmap.org/book/nping-man-echo-mode.html - The port frequency is made up to keep it (barely) in top 1000 TCP
 unknown	9941/tcp	0.000152
 unknown	9943/tcp	0.000304
 unknown	9944/tcp	0.000304
