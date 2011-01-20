@@ -1422,6 +1422,9 @@ match netop m|^\xd6\x81\x81\0\0\xf9\0\xf9\xee\xe3\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
 
 match netrek m|^<>=======================================================================<>\n  Pl: Rank       Name             Login      Host name                Type\n| p/Netrek game server player information interface/
 
+# Nping echo mode -- added in Nmap 5.36TEST1
+match nping-echo m|^\x01\x01\0\x18.{8}\0\0\0\0.{32}\0{16}.{32}$|s p/Nping echo/
+
 match nrpep m|^nrpep - ([\d.]+)\n$| p|NetSaint Remote Plugin Executor/Perl| v/$1/
 
 # The four wildcard bytes are a timestamp.
