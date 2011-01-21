@@ -6,7 +6,7 @@
   <indexterm><primary>GNU General Public License</primary></indexterm>
 
 
-<para>The Nmap Security Scanner is (C) 1996&ndash;2010 Insecure.Com LLC. Nmap is also a registered trademark of Insecure.Com LLC.  This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below.  This guarantees your right to use, modify, and redistribute this software under certain conditions.  If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact <email>sales@insecure.com</email>).  Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection.</para>
+<para>The Nmap Security Scanner is (C) 1996&ndash;2011 Insecure.Com LLC. Nmap is also a registered trademark of Insecure.Com LLC.  This program is free software; you may redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; Version 2 with the clarifications and exceptions described below.  This guarantees your right to use, modify, and redistribute this software under certain conditions.  If you wish to embed Nmap technology into proprietary software, we sell alternative licenses (contact <email>sales@insecure.com</email>).  Dozens of software vendors already license Nmap technology such as host discovery, port scanning, OS detection, and version detection.</para>
 
 <para>Note that the GPL places important restrictions on
 <quote>derived works</quote>, yet it does not provide a detailed
@@ -64,7 +64,7 @@ comments.</para>
 
 <refsect2 id="man-copyright">
   <title>Creative Commons License for this Nmap Guide</title>
-  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2010 Insecure.Com LLC. It is
+  <para>This <citetitle>Nmap Reference Guide</citetitle> is (C) 2005&ndash;2011 Insecure.Com LLC. It is
    hereby placed under version 3.0 of the <ulink
    url="http://creativecommons.org/licenses/by/3.0/">Creative Commons
    Attribution License</ulink>.  This allows you redistribute and modify
