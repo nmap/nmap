@@ -59,6 +59,9 @@ o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
 
+o [Nping] See whether --echo-client mode really requires root, and
+  remove that restriction if not.
+
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
