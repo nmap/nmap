@@ -239,9 +239,22 @@ o [NSE] Nmap has two new NSE script scanning phases. The new pre-scan
   a network.  See
   http://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
 
-o Documented the licenses of the third-party software used by Nmap and
-  it's sibling tools:
-  http://nmap.org/svn/docs/3rd-party-licenses.txt. [David]
+o Dramatically improved nmap.xsl (used for converting Nmap XML output
+  to HTML). In particular:
+  - Added support for the new NSE pre-scan and post-scan output
+  - Changed script output to use 'pre' tags to keep even lengthy
+    output readable.
+  - Put verbose details behind expander buttons so you can see them if
+    you want, but they don't distract from the main output.  In
+    particular, offline hosts and traceroute results are collapsed by
+    default.
+  - Added a floating menu to the lower-right for toggling whether
+    closed/filtered ports are shown or not (they are now hidden by
+    default if Javascript is enabled).
+  - Improved the color scheme to be less garish.
+  Many small improvements were made as well.  You can find the new
+  file at http://nmap.org/svn/docs/nmap.xsl, and here is an example
+  scan processed through it: http://nmap.org/tmp/newxsl.html. [Tom]
 
 o [NSE] Created a new "broadcast" script category for the broadcast-*
   scripts.  These perform network discovery by broadcasting on the
@@ -271,6 +284,11 @@ o Updated the Windows build process to work with (and require) Visual
   http://nmap.org/book/inst-windows.html#inst-win-source [David, Rob
   Nicholls, KX]
 
+o Merged port names in the nmap-services file with allocated names
+  from the IANA (http://www.iana.org/assignments/port-numbers). We
+  only added IANA names which were "unknown" in our file--we didn't
+  deal with conflicting names. [David]
+
 o Enabled ASLR and DEP for Nmap.exe, Ncat.exe and Nping.exe on Windows
   Vista and above. Visual C++ will set the /DYNAMICBASE and /NXCOMPAT
   flags in the PE header. Executables generated using py2exe or NSIS
@@ -290,6 +308,14 @@ o [Zenmap] Improved the output viewer to show new output in constant
   longer, eventually making Zenmap appear to freeze with 100% CPU. Rob
   Nicholls and Ray Middleton helped with testing. [David]
 
+o The Linux RPM builds of Nmap and related tools (ncat, nping, etc.)
+  now link to system lybraries dynamically rather than statically.
+  The still link statically to dependency libraries such as OpenSSL,
+  Lua, LibPCRE, LibPcap, etc. We hope this will improve portability,
+  so the RPMs will work on older distributions (built and tested on
+  CentOS 5.5) and distributions with bleeding edge tech (tested on
+  Fedora 14). [David]
+
 o [NSE] Added the ability to send and receive on unconnected sockets.
   This can be used, for example, to receive UDP broadcasts without
   using pcap. A number of scripts have been changed so that they can
@@ -302,6 +328,10 @@ o [NSE] Added the ability to send and receive on unconnected sockets.
   protocol and address family, which will be used if the socket is not
   connected. There is a new nmap.sendto function to be used with
   unconnected UDP sockets. [David, Patrik]
+
+o Improved IPv6 host output in that we now remember and report the forward DNS
+  name (given by the user) and non-scanned addresses (e.g. because they
+  return multiple AAAA records) just as we do for IPv4. [David]
 
 o [Zenmap] Upgraded to the newer gtk.Tooltip API to avoid deprecation
   messages about gtk.Tooltip. [Rob Nicholls]
@@ -328,6 +358,10 @@ o Ncat now logs Nsock debug output to stderr instead of stdout for
 o [NSE] Added a new function, shortport.http, for HTTP script
   portrules and changed 14 to use it. [David]
 
+o Documented the licenses of the third-party software used by Nmap and
+  it's sibling tools:
+  http://nmap.org/svn/docs/3rd-party-licenses.txt. [David]
+
 o Updated to the latest config.guess and config.sub. Thanks to Ty
   Miller for a reminder. [David]
 
@@ -335,6 +369,9 @@ o [NSE] Improved the SMB scripts so that they can run in parallel
   rather than using a mutex to force serialization.  This quadroupled
   the SMB scan speed in one large scale test.  See
   http://seclists.org/nmap-dev/2010/q3/819. [Ron]
+
+o Added a simple Nmap NSE script template to make writing new scripts
+  easier: http://nmap.org/svn/docs/sample-script.nse. [Ron]
 
 o [NSE] Added prerule support to snmp-interfaces and the ability to
   add the host's interface addresses to the scanning queue.  The new
@@ -455,8 +492,8 @@ o [NSE] Added a "times" table to the host table passed to scripts.
   conservative guess of 3 seconds for read timeouts. [Kris]
 
 o Fixed the fragmentation options (-f in Nmap, --mtu in Nmap & Nping)
-  which were improperly sending whole packets in version 5.35DC1.
-  [Kris]
+  which were improperly sending whole packets in version
+  5.35DC1. [Kris]
 
 o Fix Nmap compilation on OpenSolaris (see
   http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on) [David]
@@ -515,7 +552,6 @@ o The command line in XML output (/nmaprun/@args attribute) now does
 
 o Added a service detection probe for master servers of Quake 3 and
   related games.  [Toni Ruotto]
-
 
 Nmap 5.35DC1 [2010-07-16]
 
