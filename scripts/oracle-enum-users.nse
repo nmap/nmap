@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate valid Oracle user names against Oracle 11g
+Attempts to enumerate valid Oracle user names against unpatched Oracle 11g
 servers (this bug was fixed in Oracle's October 2009 Critical Patch Update).
 ]]
 

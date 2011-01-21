@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password auditing about the Netbus backdoor ("remote administration") service.
+Performs brute force password auditing against the Netbus backdoor ("remote administration") service.
 ]]
 
 ---

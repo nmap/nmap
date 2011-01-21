@@ -1,5 +1,5 @@
 description = [[
-Queries a VNC server for the protocol version and supported security types.
+Queries a VNC server for its protocol version and supported security types.
 ]]
 
 author = "Patrik Karlsson"

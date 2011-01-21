@@ -1,6 +1,6 @@
 description = [[
-Reports the number of algorithms (such as encryption, compression, etc.) that
-the target SSH2 server offers.  If verbosity is set, then the offered algorithms
+Reports the number of algorithms (for encryption, compression, etc.) that
+the target SSH2 server offers. If verbosity is set, the offered algorithms
 are each listed by type.
 
 If the "client to server" and "server to client" algorithm lists are identical

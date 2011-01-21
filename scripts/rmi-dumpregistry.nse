@@ -1,5 +1,5 @@
 description = [[
-Connects to a remote RMI registry and attempts to dump all its objects.
+Connects to a remote RMI registry and attempts to dump all of its objects.
 
 First it tries to determine the names of all objects bound in the
 registry, and then it tries to determine information about the

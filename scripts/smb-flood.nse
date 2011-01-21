@@ -1,15 +1,18 @@
 description = [[
-Exhausts the limit of SMB connections on a remote server by opening as many as we can. 
-Most implementations of SMB have a hard global limit of 11 connections for user accounts
-and 10 connections for anonymous.  Once that limit is reached, further connections
-are denied. This exploits that limit by taking up all the connections and holding them. 
+Exhausts a remote SMB server's connection limit by by opening as many
+connections as we can.  Most implementations of SMB have a hard global
+limit of 11 connections for user accounts and 10 connections for
+anonymous. Once that limit is reached, further connections are
+denied. This script exploits that limit by taking up all the
+connections and holding them.
 
-This works better with a valid user account, because Windows reserves one slot for valid
-users. So, no matter how many anonymous connections are taking up spaces, a single valid
-user can still log in. 
+This works better with a valid user account, because Windows reserves
+one slot for valid users. So, no matter how many anonymous connections
+are taking up spaces, a single valid user can still log in.
 
-This is *not* recommended as a general purpose script, because a) it is designed to harm
-the server and has no useful output, and b) it never ends (until timeout). 
+This is *not* recommended as a general purpose script, because a) it
+is designed to harm the server and has no useful output, and b) it
+never ends (until timeout).
 ]]
 
 ---
