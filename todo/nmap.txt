@@ -59,6 +59,10 @@ o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
 
+o We should document Ron's sample script
+  (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
+  that new script writers know about it.
+
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
