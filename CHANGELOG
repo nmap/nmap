@@ -456,6 +456,7 @@ o [NSE] Added a "times" table to the host table passed to scripts.
 
 o Fixed the fragmentation options (-f in Nmap, --mtu in Nmap & Nping)
   which were improperly sending whole packets in version 5.35DC1.
+  [Kris]
 
 o Fix Nmap compilation on OpenSolaris (see
   http://blogs.sun.com/sdaven/entry/nmap_5_35dc1_compile_on) [David]
