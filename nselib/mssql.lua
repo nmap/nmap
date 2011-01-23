@@ -8,6 +8,7 @@
 -- 
 -- The code has been implemented based on traffic analysis and the following
 -- documentation:
+-- * SSRP Protocol Specification: http://msdn.microsoft.com/en-us/library/cc219703.aspx
 -- * TDS Protocol Documentation: http://www.freetds.org/tds.html.
 -- * The JTDS source code: http://jtds.sourceforge.net/index.html.
 --
@@ -53,6 +54,8 @@ module(... or "mssql", package.seeall)
 -- Version 0.2
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 03/28/2010 - v0.2 - fixed incorrect token types. added 30 seconds timeout
+-- Revised 01/23/2011 - v0.3 - fixed parsing error in discovery code with patch
+--							   from Chris Woodbury
 
 require("bit")
 require("bin")
@@ -827,8 +830,29 @@ Helper =
 			
 			local _, ip
 			status, _, _, ip, _ = socket:get_info()
-
-			for instance in string.gmatch(data, "(.-;;)") do
+			
+			
+			-- It would seem easier to just capture (.-;;) repeateadly, since
+			-- each instance ends with ";;", but ";;" can also occur within the
+			-- data, signifying an empty field (e.g. "...bv;;@COMPNAME;;tcp;1433;;...").
+			-- So, instead, we'll split up the string ahead of time.
+			-- See the SSRP specification for more details.
+			local instanceStrings = {}
+			
+			local firstInstanceEnd, instanceString
+			repeat
+				firstInstanceEnd = data:find( ";ServerName;(.-);InstanceName;(.-);IsClustered;(.-);" )
+				if firstInstanceEnd then
+					instanceString = data:sub( 1, firstInstanceEnd )
+					data = data:sub( firstInstanceEnd + 1 )
+				else
+					instanceString = data
+				end
+				
+				table.insert( instanceStrings, instanceString )
+			until (not firstInstanceEnd)
+			
+			for _, instance in ipairs( instanceStrings ) do
 				instances[ip] = instances[ip] or {}
 
 		  		local info = {}
