@@ -573,6 +573,10 @@ o Added a service detection probe for master servers of Quake 3 and
 
 o [Zenmap] Updated French translation. [Henri Doreau]
 
+o [Zenmap] Fixed an crash when printing a scan that had no output
+  (like a scan made by command-line Nmap). Henri Doreau noticed the
+  error. [David]
+
 Nmap 5.35DC1 [2010-07-16]
 
 o [NSE] Added 17 scripts, bringing the total to 131! They are
