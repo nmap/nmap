@@ -571,6 +571,8 @@ o The command line in XML output (/nmaprun/@args attribute) now does
 o Added a service detection probe for master servers of Quake 3 and
   related games.  [Toni Ruottu]
 
+o [Zenmap] Updated French translation. [Henri Doreau]
+
 Nmap 5.35DC1 [2010-07-16]
 
 o [NSE] Added 17 scripts, bringing the total to 131! They are
