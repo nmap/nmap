@@ -6,6 +6,7 @@
 #include "timing.h"
 #include "Target.h"
 #include "nmap_tty.h"
+#include "xml.h"
 
 #include "nse_main.h"
 #include "nse_utility.h"
@@ -193,6 +194,65 @@ static int scan_progress_meter (lua_State *L)
   return 1;
 }
 
+/* This is like nmap.log_write, but doesn't append "NSE:" to the beginning of
+   messages. It is only used internally by nse_main.lua and is not available to
+   scripts. */
+static int l_log_write(lua_State *L)
+{
+  static const char *const ops[] = {"stdout", "stderr", NULL};
+  static const int logs[] = {LOG_STDOUT, LOG_STDERR};
+  int log = logs[luaL_checkoption(L, 1, NULL, ops)];
+  log_write(log, "%s", luaL_checkstring(L, 2));
+  return 0;
+}
+
+static int l_xml_start_tag(lua_State *L)
+{
+  const char *name;
+
+  name = luaL_checkstring(L, 1);
+  xml_open_start_tag(name);
+
+  if (lua_isnoneornil(L, 2)) {
+    lua_newtable(L);
+    lua_replace(L, 2);
+  }
+
+  lua_pushnil(L);
+  while (lua_next(L, 2)) {
+    xml_attribute(luaL_checkstring(L, -2), "%s", luaL_checkstring(L, -1));
+    lua_pop(L, 1);
+  }
+
+  xml_close_start_tag();
+
+  return 0;
+}
+
+static int l_xml_end_tag(lua_State *L)
+{
+  xml_end_tag();
+
+  return 0;
+}
+
+static int l_xml_write_escaped(lua_State *L)
+{
+  const char *text;
+
+  text = luaL_checkstring(L, 1);
+  xml_write_escaped(text);
+
+  return 0;
+}
+
+static int l_xml_newline(lua_State *L)
+{
+  xml_newline();
+
+  return 0;
+}
+
 static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
@@ -208,6 +268,11 @@ static void open_cnse (lua_State *L)
     {"script_set_output", script_set_output},
     {"host_set_output", host_set_output},
     {"port_set_output", port_set_output},
+    {"log_write", l_log_write},
+    {"xml_start_tag", l_xml_start_tag},
+    {"xml_end_tag", l_xml_end_tag},
+    {"xml_write_escaped", l_xml_write_escaped},
+    {"xml_newline", l_xml_newline},
     {NULL, NULL}
   };
 
@@ -220,8 +285,10 @@ static void open_cnse (lua_State *L)
   setbfield(L, -1, "default", o.script == 1);
   setbfield(L, -1, "scriptversion", o.scriptversion == 1);
   setbfield(L, -1, "scriptupdatedb", o.scriptupdatedb == 1);
+  setbfield(L, -1, "scripthelp", o.scripthelp);
   setsfield(L, -1, "script_dbpath", SCRIPT_ENGINE_DATABASE);
   setsfield(L, -1, "scriptargs", o.scriptargs);
+  setsfield(L, -1, "NMAP_URL", NMAP_URL);
 }
 
 void ScriptResult::set_output (const char *out)

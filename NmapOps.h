@@ -326,6 +326,7 @@ class NmapOps {
   int scriptversion;
   int scripttrace;
   int scriptupdatedb;
+  bool scripthelp;
   void chooseScripts(char* argument);
   std::vector<std::string> chosenScripts;
 #endif

@@ -192,7 +192,10 @@ Black Hat Briefings in 2010.</para>
       directories full of scripts you wish to execute.  You can customize 
 	  some scripts by providing arguments to them via the
 	  <option>--script-args</option><indexterm><primary><option>--script-args</option></primary></indexterm>
-          option. The two remaining options,
+          option.
+          The <option>--script-help</option><indexterm><primary><option>--script-help</option></primary></indexterm>
+          shows a description of what each selected script does.
+          The two remaining options,
 	  <option>--script-trace</option><indexterm><primary><option>--script-trace</option></primary></indexterm>
           and <option>--script-updatedb</option>,<indexterm><primary><option>--script-updatedb</option></primary></indexterm>
           are generally only used for script debugging and development.  Script scanning is also included as part of the <option>-A</option> (aggressive scan) option.
@@ -664,6 +667,51 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
             <xref linkend="nse-args"/> for a detailed explanation.</para>
           </listitem>
         </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary><option>--script-help</option></primary></indexterm>
+            <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option></term>
+          </term>
+          <listitem>
+            <para>
+            Shows help about scripts. For each script matching the given
+            specification, Nmap prints the script name, its categories, and its
+            description. The specifications are the same as those accepted by
+            <option>--script</option>; so for example if you want help about
+            the <literal>ftp-anon</literal> script, you would run
+            <command>nmap --script-help ftp-anon</command>. A sample of script
+            help is shown in <xref linkend="nse-script-help"/>.
+            </para>
+            <example id="nse-script-help">
+              <indexterm><primary><option>--script-help</option></primary><secondary>example of</secondary></indexterm>
+              <title>Script help</title>
+              <screen>
+$ nmap --script-help "afp-* and discovery"
+
+Starting Nmap 5.36TEST4 ( http://nmap.org ) at 2011-01-27 13:04 PST
+
+afp-serverinfo
+Categories: discovery safe
+http://nmap.org/nsedoc/scripts/afp-serverinfo.html
+  Shows AFP server information. This information includes the server's
+  hostname, IPv4 and IPv6 addresses, and hardware type (for example
+  <code>Macmini</code> or <code>MacBookPro</code>).
+
+afp-showmount
+Categories: discovery safe
+http://nmap.org/nsedoc/scripts/afp-showmount.html
+  Shows AFP shares and ACLs.
+            </example>
+            <para>
+            If the
+            <option>-oX</option><indexterm><primary><option>-oX</option></primary></indexterm>
+            option is used, an XML representation of the script help will be
+            written to the given file.
+            </para>
+          </listitem>
+        </varlistentry>
+
         <varlistentry>
           <term>
             <indexterm><primary><option>--script-trace</option></primary></indexterm>

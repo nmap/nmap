@@ -308,6 +308,7 @@ void NmapOps::Initialize() {
   scriptversion = 0;
   scripttrace = 0;
   scriptupdatedb = 0;
+  scripthelp = false;
   chosenScripts.clear();
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));

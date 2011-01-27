@@ -1,0 +1,14 @@
+<!-- DTD for Nmap XML -&#45;script-help output.
+     nmap -&#45;script-help "<rules>" -oX - -->
+
+<!ELEMENT nse-scripts (script*)>
+
+<!ELEMENT script (categories?, description?)>
+
+<!ATTLIST script filename CDATA #REQUIRED>
+
+<!ELEMENT categories (category*)>
+
+<!ELEMENT category (#PCDATA)>
+
+<!ELEMENT description (#PCDATA)>

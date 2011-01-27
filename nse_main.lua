@@ -122,6 +122,7 @@ end
 local script_database_type, script_database_path =
     cnse.fetchfile_absolute(cnse.script_dbpath);
 local script_database_update = cnse.scriptupdatedb;
+local script_help = cnse.scripthelp;
 
 local stdnse = require "stdnse";
 
@@ -170,6 +171,7 @@ end
 
 local log_write, verbosity, debugging =
     nmap.log_write, nmap.verbosity, nmap.debugging;
+local log_write_raw = cnse.log_write;
 
 local function print_verbose (level, fmt, ...)
   if verbosity() >= assert(tonumber(level)) or debugging() > 0 then
@@ -421,6 +423,7 @@ do
       portrule = portrule,
       postrule = postrule,
       args = {n = 0};
+      description = rawget(env, "description"),
       categories = rawget(env, "categories"),
       author = rawget(env, "author"),
       license = rawget(env, "license"),
@@ -819,6 +822,62 @@ local function run (threads_iter, scantype)
   progress "endTask";
 end
 
+-- Format NSEDoc markup (e.g., including bullet lists and <code> sections) into
+-- a display string at the given indentation level. Currently this only indents
+-- the string and doesn't interpret any other markup.
+local function format_nsedoc(nsedoc, indent)
+  indent = indent or ""
+
+  return string.gsub(nsedoc, "([^\n]+)", indent .. "%1")
+end
+
+-- Return the NSEDoc URL for the script with the given id.
+local function nsedoc_url(id)
+  return string.format("%s/nsedoc/scripts/%s.html", cnse.NMAP_URL, id)
+end
+
+local function script_help_normal(chosen_scripts)
+  for i, script in ipairs(chosen_scripts) do
+    log_write_raw("stdout", "\n");
+    log_write_raw("stdout", string.format("%s\n", script.id));
+    log_write_raw("stdout", string.format("Categories: %s\n", table.concat(script.categories, " ")));
+    log_write_raw("stdout", string.format("%s\n", nsedoc_url(script.id)));
+    log_write_raw("stdout", format_nsedoc(script.description, "  "));
+  end
+end
+
+local function script_help_xml(chosen_scripts)
+  cnse.xml_start_tag("nse-scripts");
+  cnse.xml_newline();
+
+  for i, script in ipairs(chosen_scripts) do
+    cnse.xml_start_tag("script", { filename = script.filename });
+    cnse.xml_newline();
+
+    cnse.xml_start_tag("categories");
+    for _, category in ipairs(script.categories) do
+      cnse.xml_start_tag("category");
+      cnse.xml_write_escaped(category);
+      cnse.xml_end_tag();
+    end
+    cnse.xml_end_tag();
+    cnse.xml_newline();
+
+    cnse.xml_start_tag("description");
+    cnse.xml_write_escaped(script.description);
+    cnse.xml_end_tag();
+    cnse.xml_newline();
+
+    -- script
+    cnse.xml_end_tag();
+    cnse.xml_newline();
+  end
+
+  -- nse-scripts
+  cnse.xml_end_tag();
+  cnse.xml_newline();
+end
+
 do -- Load script arguments (--script-args)
   local args = cnse.scriptargs or "";
 
@@ -919,8 +978,12 @@ end
 local chosen_scripts = get_chosen_scripts(rules);
 print_verbose(1, "Loaded %d scripts for scanning.", #chosen_scripts);
 for i, script in ipairs(chosen_scripts) do
-  -- PLEASE DO NOT CHANGE THIS FORMAT. IT IS USED BY ZENMAP TO SELECT SCRIPTS
   print_debug(2, "Loaded '%s'.", script.filename);
+end
+
+if script_help then
+  script_help_normal(chosen_scripts);
+  script_help_xml(chosen_scripts);
 end
 
 -- main(hosts)

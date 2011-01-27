@@ -251,6 +251,13 @@ o [NSE] Nmap has two new NSE script scanning phases. The new pre-scan
   found to be running each service. See
   http://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
 
+o A new --script-help option prints out the categories, NSEDoc URL,
+  and description for scripts matching a specification. Use it like
+  this for example: nmap --script-help "default or http-*". You can
+  use this to get a preview of what scripts will run for a given
+  specification. Martin Holst Swende had the idea for this feature and
+  wrote the first implementation. [David]
+
 o Dramatically improved nmap.xsl (used for converting Nmap XML output
   to HTML). In particular:
   - Put verbose details behind expander buttons so you can see them if
