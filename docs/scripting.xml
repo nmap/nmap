@@ -671,7 +671,7 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
         <varlistentry>
           <term>
             <indexterm><primary><option>--script-help</option></primary></indexterm>
-            <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option></term>
+            <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
           </term>
           <listitem>
             <para>
@@ -686,7 +686,7 @@ Nmap script database, but should be used cautiously since Nmap may contain explo
             <example id="nse-script-help">
               <indexterm><primary><option>--script-help</option></primary><secondary>example of</secondary></indexterm>
               <title>Script help</title>
-              <screen>
+<screen>
 $ nmap --script-help "afp-* and discovery"
 
 Starting Nmap 5.36TEST4 ( http://nmap.org ) at 2011-01-27 13:04 PST
@@ -702,6 +702,7 @@ afp-showmount
 Categories: discovery safe
 http://nmap.org/nsedoc/scripts/afp-showmount.html
   Shows AFP shares and ACLs.
+</screen>
             </example>
             <para>
             If the
