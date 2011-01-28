@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.50 [2011-01-28]
+
 o [Zenmap] Added a new script selection interface, allowing you to
   choose scripts and arguments from a list which includes descriptions
   of every available script. Just click the "Scripting" tab in the
