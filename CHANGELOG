@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Fixed an output line that wasn't being redirected to a file
+  when all other output was. [Daniel Miller]
+
 Nmap 5.50 [2011-01-28]
 
 o [Zenmap] Added a new script selection interface, allowing you to

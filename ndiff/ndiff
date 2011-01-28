@@ -425,7 +425,7 @@ class ScanDiff(object):
             print >> f, u" %s" % banner_a
 
         for host in self.hosts:
-            print
+            print >> f
 
             h_diff = self.host_diffs[host]
             h_diff.print_text(f)
