@@ -252,9 +252,9 @@ o [NSE] Nmap has two new NSE script scanning phases. The new pre-scan
   http://nmap.org/book/nse-usage.html#nse-script-types. [Djalal]
 
 o [NSE] A new --script-help option describes all scripts matching a
-  given specification (in the same format as --script takes).  For
-  example, try 'nmap --script-help "default" or http-*"'. [David,
-  Martin Holst Swende]
+  given specification. It accepts the same specification format as
+  --script does. For example, try 'nmap --script-help "default or
+  http-*"'. [David, Martin Holst Swende]
 
 o Dramatically improved nmap.xsl (used for converting Nmap XML output
   to HTML). In particular:
