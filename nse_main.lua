@@ -828,20 +828,20 @@ end
 local function format_nsedoc(nsedoc, indent)
   indent = indent or ""
 
-  return string.gsub(nsedoc, "([^\n]+)", indent .. "%1")
+  return gsub(nsedoc, "([^\n]+)", indent .. "%1")
 end
 
 -- Return the NSEDoc URL for the script with the given id.
 local function nsedoc_url(id)
-  return string.format("%s/nsedoc/scripts/%s.html", cnse.NMAP_URL, id)
+  return format("%s/nsedoc/scripts/%s.html", cnse.NMAP_URL, id)
 end
 
 local function script_help_normal(chosen_scripts)
   for i, script in ipairs(chosen_scripts) do
     log_write_raw("stdout", "\n");
-    log_write_raw("stdout", string.format("%s\n", script.id));
-    log_write_raw("stdout", string.format("Categories: %s\n", table.concat(script.categories, " ")));
-    log_write_raw("stdout", string.format("%s\n", nsedoc_url(script.id)));
+    log_write_raw("stdout", format("%s\n", script.id));
+    log_write_raw("stdout", format("Categories: %s\n", concat(script.categories, " ")));
+    log_write_raw("stdout", format("%s\n", nsedoc_url(script.id)));
     log_write_raw("stdout", format_nsedoc(script.description, "  "));
   end
 end
