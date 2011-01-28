@@ -15,6 +15,8 @@ o Modify Zenmap to use the new --script-help system to enumerate
 
 ==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
 
+o Document --script-help in docs/refguide.xml and docs/scripting.xml.
+
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
   is running on.  This includes things like whether SSL is enabled,
