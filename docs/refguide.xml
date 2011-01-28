@@ -2392,6 +2392,27 @@ lists the arguments that each script accepts.
 </para>
 </listitem>
 
+      <varlistentry>
+        <term>
+          <option>--script-help <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
+          <indexterm><primary><option>--script-help</option></primary></indexterm>
+        </term>
+
+        <listitem>
+        <para>
+        Shows help about scripts. For each script matching the given
+        specification, Nmap prints the script name, its categories, and its
+        description. The specifications are the same as those accepted by
+        <option>--script</option>; so for example if you want help about
+        the <literal>ftp-anon</literal> script, you would run
+        <command>nmap --script-help ftp-anon</command>. In addition to getting
+        help for individual scripts, you can use this as a preview of what
+        scripts will be run for a specification, for example with <command>nmap
+        --script-help default</command>.
+        </para>
+        </listitem>
+      </varlistentry>
+
 </varlistentry>
       <varlistentry>
         <term><option>--script-trace</option>
