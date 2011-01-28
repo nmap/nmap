@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against Apple Filing Protocol (AFP)
+Performs password guessing against Apple Filing Protocol (AFP).
 ]]
 
 ---
