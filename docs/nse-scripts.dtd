@@ -1,7 +1,11 @@
 <!-- DTD for Nmap XML -&#45;script-help output.
      nmap -&#45;script-help "<rules>" -oX - -->
 
-<!ELEMENT nse-scripts (script*)>
+<!ELEMENT nse-scripts (directory*, script*)>
+
+<!ELEMENT directory EMPTY>
+
+<!ATTLIST directory name (scripts|nselib) #REQUIRED path CDATA #REQUIRED>
 
 <!ELEMENT script (categories?, description?)>
 

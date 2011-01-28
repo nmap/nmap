@@ -850,6 +850,18 @@ local function script_help_xml(chosen_scripts)
   cnse.xml_start_tag("nse-scripts");
   cnse.xml_newline();
 
+  local t, scripts_dir, nselib_dir
+  t, scripts_dir = cnse.fetchfile_absolute("scripts/")
+  assert(t == 'directory', 'could not locate scripts directory');
+  t, nselib_dir = cnse.fetchfile_absolute("nselib/")
+  assert(t == 'directory', 'could not locate nselib directory');
+  cnse.xml_start_tag("directory", { name = "scripts", path = scripts_dir });
+  cnse.xml_end_tag();
+  cnse.xml_newline();
+  cnse.xml_start_tag("directory", { name = "nselib", path = nselib_dir });
+  cnse.xml_end_tag();
+  cnse.xml_newline();
+
   for i, script in ipairs(chosen_scripts) do
     cnse.xml_start_tag("script", { filename = script.filename });
     cnse.xml_newline();
