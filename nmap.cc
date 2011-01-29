@@ -1321,11 +1321,14 @@ int nmap_main(int argc, char *argv[]) {
     print_iflist();
     exit(0);
   }
+
+#ifndef NOLUA
   if (o.scripthelp) {
     /* Special-case open_nse for --script-help only. */
     open_nse();
     exit(0);
   }
+#endif
 
 #if HAVE_IPV6
   if(o.af() == AF_INET6 && o.traceroute)
@@ -1618,6 +1621,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.scriptversion || o.script || o.scriptupdatedb)
     open_nse();
 
+  /* Run the script pre-scanning phase */
   if (o.script) {
     new_targets = NewTargets::get();
     script_scan_results = get_script_scan_results_obj();
