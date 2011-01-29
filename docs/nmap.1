@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 01/28/2011
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 01/29/2011
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "01/28/2011" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "01/29/2011" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -117,7 +117,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.36TEST4 ( http://nmap\&.org )
+Nmap 5\&.51SVN ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -1690,7 +1690,7 @@ Tells Nmap what interface to send and receive packets on\&. Nmap should be able 
 .PP
 \fB\-\-source\-port \fR\fB\fIportnumber\fR\fR\fB;\fR \fB\-g \fR\fB\fIportnumber\fR\fR (Spoof source port number) .\" --source-port .\" -g .\" source port number
 .RS 4
-One surprisingly common misconfiguration is to trust traffic based only on the source port number\&. It is easy to understand how this comes about\&. An administrator will set up a shiny new firewall, only to be flooded with complains from ungrateful users whose applications stopped working\&. In particular, DNS may be broken because the UDP DNS replies from external servers can no longer enter the network\&. FTP is another common example\&. In active FTP transfers, the remote server tries to establish a connection back to the client to transfer the requested file\&.
+One surprisingly common misconfiguration is to trust traffic based only on the source port number\&. It is easy to understand how this comes about\&. An administrator will set up a shiny new firewall, only to be flooded with complaints from ungrateful users whose applications stopped working\&. In particular, DNS may be broken because the UDP DNS replies from external servers can no longer enter the network\&. FTP is another common example\&. In active FTP transfers, the remote server tries to establish a connection back to the client to transfer the requested file\&.
 .sp
 Secure solutions to these problems exist, often in the form of application\-level proxies or protocol\-parsing firewall modules\&. Unfortunately there are also easier, insecure solutions\&. Noting that DNS replies come from port 53 and active FTP from port 20, many administrators have fallen into the trap of simply allowing incoming traffic from those ports\&. They often assume that no attacker would notice and exploit such firewall holes\&. In other cases, administrators consider this a short\-term stop\-gap measure until they can implement a more secure solution\&. Then they forget the security upgrade\&.
 .sp
