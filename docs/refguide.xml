@@ -3172,7 +3172,7 @@ services.</para>
 <para>One surprisingly common misconfiguration is to trust traffic
 based only on the source port number.  It is easy to understand how
 this comes about.  An administrator will set up a shiny new firewall,
-only to be flooded with complains from ungrateful users whose
+only to be flooded with complaints from ungrateful users whose
 applications stopped working.  In particular, DNS may be broken
 because the UDP DNS replies from external servers can no longer enter
 the network.  FTP is another common example.  In active FTP transfers,
