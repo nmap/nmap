@@ -1,5 +1,13 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o [Zenmap] Brian Krebs found a problem (which Fyodor is able to
+  reproduce) in the target selector on the left pane.  When you select
+  one of the scanned targets, it is supposed to jump to that target in
+  the "Nmap Output" tab on the right pane.  Instead, nothing seems to
+  happen.  One of our output format changes probably broke the
+  feature.  It still works fine if you have the "Ports / Hosts" or
+  "Host Details" tabs active in the right pane instead.
+
 o Include a --script-help system to Nmap, which provides user readable
   text help and also machine parsable XML information for scripts
   which match a pattern (e.g. the same sort of arguments you could use
