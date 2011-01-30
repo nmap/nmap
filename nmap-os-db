@@ -32825,7 +32825,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 5.2 (Build 3790.srv03_sp1_gdr.060315-1609 : Service Pack 1)
 # Microsoft (R) Windows Version 5.0 (Build 2195) (VMware)
-Fingerprint Microsoft Windows 2000 or Server 2003 SP1
+Fingerprint Microsoft Windows 2000 or Windows Server 2003 SP1
 Class Microsoft | Windows | 2000 | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=101-10B%GCD=1-6%ISR=FE-108%TI=I%TS=0)
@@ -37718,7 +37718,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows Vista (TM) Home Premium 6001 Service Pack 1
 # Version 6.1 Build 7100, RC install.
 # windows server 2008 standard
-Fingerprint Microsoft Windows Vista Home Premium SP1, Windows 7, or Server 2008
+Fingerprint Microsoft Windows Vista Home Premium SP1, Windows 7, or Windows Server 2008
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 7 | general purpose
 Class Microsoft | Windows | 2008 | general purpose
@@ -37749,7 +37749,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows 7 Ultimate (Build 7000)
 # Windows 7 RC1
 # Windows 6.0 (build 6002: Service Pack 2)
-Fingerprint Microsoft Windows Vista SP0 - SP2, Server 2008, or Windows 7 Ultimate
+Fingerprint Microsoft Windows Vista SP0 - SP2, Windows Server 2008, or Windows 7 Ultimate
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
 Class Microsoft | Windows | 7 | general purpose
@@ -37793,7 +37793,7 @@ IE(DFI=N%T=7B-85%TG=80%CD=Z)
 # Windows Server 2008 Standard Edition SP1 x64
 # Windows Seven Ultimate x64
 # Windows 7 Professional x64
-Fingerprint Microsoft Windows Vista SP0 or SP1, Server 2008 SP1, or Windows 7
+Fingerprint Microsoft Windows Vista SP0 or SP1, Windows Server 2008 SP1, or Windows 7
 Class Microsoft | Windows | Vista | general purpose
 Class Microsoft | Windows | 2008 | general purpose
 Class Microsoft | Windows | 7 | general purpose
@@ -39955,7 +39955,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Microsoft Windows 2003 Server SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232-Service Pack 1)]
 # Microsoft Windows Server 2003 [Winver: Version 5.2 (Build 3790.srv03_sp2_rtm.070216-1710 : Service Pack 2)]
 # Microsoft Windows 2003 Standard R2 version 5.2 Service Pack 2 (build 3790.srv03_sp2_gdr.070304-2240)
-Fingerprint Microsoft Windows XP SP2 or Server 2003 SP1 or SP2
+Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP1 or SP2
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F0-10A%GCD=1-6%ISR=F7-111%TI=I%CI=I%II=I%SS=S%TS=0)
@@ -39974,7 +39974,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
 # Microsoft Windows Xp Professional versione 2002 Service Pack 2
-Fingerprint Microsoft Windows XP SP2 or Server 2003 SP2
+Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP2
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I|RD%TS=0)
@@ -41564,7 +41564,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Versión 5.1(Build 2600.xpsp_sp3_gdr.090206-1234)
 # Build 3790.srv02_rtm.030324-2048
-Fingerprint Microsoft Windows XP SP3 or Server 2003
+Fingerprint Microsoft Windows XP SP3 or Windows Server 2003
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=F2-106%GCD=1-6%ISR=100-110%TI=I%CI=I%II=I%SS=S%TS=0)
