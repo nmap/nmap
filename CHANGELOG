@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Worked around an error that caused the py2app bootstrap
+  executable to be non-universal even when the rest of the application
+  was universal. This prevented the binary .dmg from working on
+  PowerPC. yxynaxen reported the problem. [David]
+
 o [Ndiff] Fixed an output line that wasn't being redirected to a file
   when all other output was. [Daniel Miller]
 

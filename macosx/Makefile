@@ -42,13 +42,20 @@ UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
 # when building against the 10.4u SDK on OS X 10.6.
 UNIVERSAL_CC = gcc-4.0
 UNIVERSAL_CXX = g++-4.0
+# Setting ARCHFLAGS separately is required. distutils.util.get_platform
+# sniffs it to determine whether to return a universal architecture
+# ("fat" or "universal") or a single one ("i386" or "ppc"). py2app in
+# turn uses the arch value to decide which of its bootstrappers to
+# install.
+UNIVERSAL_ARCHFLAGS = -arch ppc -arch i386
 UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk
-UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 -arch ppc -arch i386
+UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
-UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -arch ppc -arch i386
+UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 $(UNIVERSAL_ARCHFLAGS)
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
+ARCHFLAGS += $(UNIVERSAL_ARCHFLAGS)
 CONFIGURE_ARGS += $(UNIVERSAL_CONFIGURE_ARGS)
 CPPFLAGS += $(UNIVERSAL_CPPFLAGS)
 CFLAGS += $(UNIVERSAL_CFLAGS)
@@ -91,7 +98,7 @@ stage-nping: export-$(NPING_BUILD_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
 
 # make-bundle.sh uses these to build its authorization wrapper.
-export CC CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
+export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS
 
 stage-zenmap: export-$(ZENMAP_BUILD_DIR)
 	cd $(ZENMAP_BUILD_DIR)/zenmap && install_scripts/macosx/make-bundle.sh
