@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
+  from netVigilance.
+
 o [Zenmap] Worked around an error that caused the py2app bootstrap
   executable to be non-universal even when the rest of the application
   was universal. This prevented the binary .dmg from working on
