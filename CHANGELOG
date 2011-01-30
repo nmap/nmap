@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug which caused some NSE scripts to fail, due to the
+  absence of the NSE SCRIPT_NAME environment variable when the scripts
+  are loaded. Michael Pattrick reported the problem. [Djalal]
+
 o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
   from netVigilance.
 

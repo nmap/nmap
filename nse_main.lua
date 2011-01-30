@@ -303,6 +303,7 @@ do
     local script_type = assert(NSE_SCRIPT_RULES[rule]);
     if not self[rule] then return nil end -- No rule for this script?
     local file_closure = self.file_closure;
+    -- Rebuild the environment for the running thread.
     local env = {
         SCRIPT_PATH = self.filename,
         SCRIPT_NAME = self.short_basename,
@@ -366,10 +367,15 @@ do
           "Warning: Loading '%s' -- the recommended file extension is '.nse'.",
           filename);
     end
+    local basename = match(filename, "[/\\]([^/\\]-)$") or filename;
+    local short_basename = match(filename, "[/\\]([^/\\]-)%.nse$") or
+                       match(filename, "[/\\]([^/\\]-)%.[^.]*$") or
+                       filename;
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
     local env = {
-      filename = filename,
+      SCRIPT_PATH = filename,
+      SCRIPT_NAME = short_basename,
       dependencies = {},
     };
     setmetatable(env, {__index = _G});
@@ -412,11 +418,9 @@ do
     -- Return the script
     local script = {
       filename = filename,
-      basename = match(filename, "[/\\]([^/\\]-)$") or filename,
-      short_basename = match(filename, "[/\\]([^/\\]-)%.nse$") or
-                       match(filename, "[/\\]([^/\\]-)%.[^.]*$") or
-                       filename,
-      id = match(filename, "^.-[/\\]([^\\/]-)%.nse$") or filename,
+      basename = basename,
+      short_basename = short_basename,
+      id = match(filename, "^.-[/\\]([^\\/]-)%.nse$") or short_basename,
       file_closure = file_closure,
       prerule = prerule,
       hostrule = hostrule,
