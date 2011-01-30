@@ -33000,7 +33000,7 @@ IE(R=N)
 
 # Microsoft Windows 2000 Server [Winver: Version 5.0 (Build 2195: Service Pack 4)]
 # Windows XP Professional Version 2002 Service Pack 3
-Fingerprint Microsoft Windows 2000 Server SP4 or XP Professional SP3
+Fingerprint Microsoft Windows 2000 Server SP4 or Windows XP Professional SP3
 Class Microsoft | Windows | 2000 | general purpose
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=FE-108%GCD=1-6%ISR=102-110%TI=I%II=I%SS=S%TS=0)
@@ -36176,7 +36176,7 @@ IE(DFI=S%T=1D-27%TG=20%CD=Z)
 # Windows for Workgroups 3.11, using Microsoft TCP/IP-32 3.11b.
 # Windows NT 3.51 Build 1057, no service pack
 # Windows NT 3.51 build 1057 SP5
-Fingerprint Microsoft Windows for Workgroups 3.11, NT 3.51 SP0 - SP5, or Windows 95
+Fingerprint Microsoft Windows for Workgroups 3.11, Windows NT 3.51 SP0 - SP5, or Windows 95
 Class Microsoft | Windows | 3.X | general purpose
 Class Microsoft | Windows | NT | general purpose
 Class Microsoft | Windows | 95 | general purpose
@@ -41584,7 +41584,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # Vista Business: Version 6.0 Build 6001: service pack 1
 # Version 5.1 (Build 2600.xpsp_sp3_gdr.080814-1236 : Service Pack 3)
 # version 5.2 build 3790.srv03_gdr.070301-2306
-Fingerprint Microsoft Windows XP SP3, Server 2003, or Vista SP1
+Fingerprint Microsoft Windows XP SP3, Windows Server 2003, or Windows Vista SP1
 Class Microsoft | Windows | XP | general purpose
 Class Microsoft | Windows | 2003 | general purpose
 Class Microsoft | Windows | Vista | general purpose
