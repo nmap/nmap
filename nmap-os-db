@@ -33034,6 +33034,7 @@ IE(R=N)
 # Windows XP Professional Version 2002 Service Pack 3
 Fingerprint Microsoft Windows 2000 Server SP4 or XP Professional SP3
 Class Microsoft | Windows | 2000 | general purpose
+Class Microsoft | Windows | XP | general purpose
 SEQ(SP=FE-108%GCD=1-6%ISR=102-110%TI=I%II=I%SS=S%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
 WIN(W1=4470%W2=41A0%W3=4100%W4=40E8%W5=40E8%W6=402E)
@@ -34209,7 +34210,7 @@ U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Windows 2003 R2
-Fingerprint Microsoft Windows 2003
+Fingerprint Microsoft Windows Server 2003
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=100-10A%GCD=1-6%ISR=104-10E%CI=I%II=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
@@ -35861,7 +35862,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
 
 # Microsoft (r) Windows Version 5.2 R2 (Build 3790.srv03_sp1_gdr.090319-1204: Service Pack 1)
-Fingerprint Microsoft Windows Version Server 2003 R2 SP1
+Fingerprint Microsoft Windows Server 2003 R2 SP1
 Class Microsoft | Windows | 2003 | general purpose
 SEQ(SP=FF-109%GCD=1-6%ISR=103-10D%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
@@ -41617,6 +41618,7 @@ IE(DFI=S%T=7B-85%TG=80%CD=Z)
 # version 5.2 build 3790.srv03_gdr.070301-2306
 Fingerprint Microsoft Windows XP SP3, Server 2003, or Vista SP1
 Class Microsoft | Windows | XP | general purpose
+Class Microsoft | Windows | 2003 | general purpose
 Class Microsoft | Windows | Vista | general purpose
 SEQ(SP=FE-10C%GCD=1-6%ISR=104-10E%TI=I%TS=0)
 OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
