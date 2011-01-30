@@ -34,8 +34,13 @@
 
 module(... or "wsdd", package.seeall)
 
-require 'openssl'
 require 'target'
+
+local HAVE_SSL = false
+
+if pcall(require,'openssl') then
+  HAVE_SSL = true
+end
 
 -- The different probes
 local probes = {
@@ -332,6 +337,8 @@ Helper = {
 	-- @return matches table containing responses, suitable for printing using
 	--         the <code>stdnse.format_output</code> function
 	discoverServices = function( self, probename )
+		if ( not(HAVE_SSL) ) then return false, "The wsdd library requires OpenSSL"	end
+	
 		local comm = Comm:new(self.host, self.port, self.mcast)
 		local probe = Util.getProbeByName(probename)
 		comm:setProbe( probe )
