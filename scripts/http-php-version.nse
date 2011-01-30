@@ -105,7 +105,7 @@ action = function(host, port)
 	end
 
 	for name, value in pairs(response.header) do
-		if string.match(value, "^PHP") then
+		if string.match(value, "^PHP/") then
 			header_name = name
 			header_value = value
 			break
