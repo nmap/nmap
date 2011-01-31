@@ -78,11 +78,11 @@ local function list(socket, target, max_lines)
 	local listing = {}
 	while not max_lines or #listing < max_lines do
 		local status, data = list_socket:receive_buf("\r?\n", false)
+		if (not status and data == "EOF") or data == "" then
+			break
+		end
 		if not status then
 			return status, data
-		end
-		if data == "" then
-			break
 		end
 		listing[#listing + 1] = data
 	end
