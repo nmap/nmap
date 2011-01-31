@@ -32843,7 +32843,7 @@ U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Microsoft Windows 2000 Professional SP4/update rollup 1 [winver reports Version 5.0 (Build 2195: Service Pack 4)]
-Fingerprint Microsoft Windows 2000 Pro SP4
+Fingerprint Microsoft Windows 2000 Professional SP4
 Class Microsoft | Windows | 2000 | general purpose
 SEQ(SP=FD-107%GCD=1-6%ISR=102-10C%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
@@ -38207,7 +38207,7 @@ U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(R=N)
 
 # Windows XP Pro, SP2, build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2
-Fingerprint Microsoft Windows XP Pro SP2
+Fingerprint Microsoft Windows XP Professional SP2
 Class Microsoft | Windows | XP | general purpose
 SEQ(SP=FD-107%GCD=1-6%ISR=109-113%TI=I%II=I%SS=S%TS=U)
 OPS(O1=M5ACNW4NNS%O2=M5ACNW4NNS%O3=M5ACNW4%O4=M5ACNW4NNS%O5=M5ACNW4NNS%O6=M5ACNNS)
