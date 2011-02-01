@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made it a controlled Lua stack trace instead of a fatal error
+  when an NSE script sets a negative socket timeout. Vlatko Kosturjak
+  reported the bug. [David]
+
 o [NSE] Fixed a bug which caused some NSE scripts to fail, due to the
   absence of the NSE SCRIPT_NAME environment variable when the scripts
   are loaded. Michael Pattrick reported the problem. [Djalal]

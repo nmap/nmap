@@ -756,6 +756,8 @@ static int l_set_timeout (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, 0);
   nu->timeout = luaL_checkint(L, 2);
+  if ((int) nu->timeout < -1)
+    return luaL_error(L, "Negative timeout: %d", nu->timeout);
   return success(L);
 }
 
