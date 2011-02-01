@@ -1,63 +1,22 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o [Zenmap] Brian Krebs found a problem (which Fyodor is able to
-  reproduce) in the target selector on the left pane.  When you select
-  one of the scanned targets, it is supposed to jump to that target in
-  the "Nmap Output" tab on the right pane.  Instead, nothing seems to
-  happen.  One of our output format changes probably broke the
-  feature.  It still works fine if you have the "Ports / Hosts" or
-  "Host Details" tabs active in the right pane instead.
-
-o Include a --script-help system to Nmap, which provides user readable
-  text help and also machine parsable XML information for scripts
-  which match a pattern (e.g. the same sort of arguments you could use
-  for --script, like a category or http-* or whatever).  The
-  --script-help ONLY provides help and quits, it does not run the
-  script.  For some initial implementation work, see this thread:
-  http://seclists.org/nmap-dev/2011/q1/163
-
-o Modify Zenmap to use the new --script-help system to enumerate
-  scripts and collect information such as their descriptions.  This
-  will resolve the problem of Nmap's broadcast prerule scripts running
-  when you open the profile editor.
-
-==STUFF WE WANT IN STABLE RELEASE ABOVE THIS LINE==
-
-o Document --script-help in docs/refguide.xml and docs/scripting.xml.
-
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
   is running on.  This includes things like whether SSL is enabled,
   the platform string, versions of libraries it is linked to, and
   other stuff which is often useful in debugging problems.
-
-o Process Nmap survey and send out results [Fyodor]
-
-o Do new Nmap release with the stuff merged from SoC students and
-  other new developments.
-  - Need to have our SoC successes writeup for 2010 posted first.
+  o We want to list at least:
+    o Nmap version number (that line is fine as is)
+    o host platform string (for which it was compiled)
+    o Whether OpenSSL and LibSSL, NLS, and IPv6 are enabled
+      - Version number of OpenSSL and LibSSL if those are enabled
+    o Version numbers of libdnet, libpcre, and libpcap
 
 o Write and post 2010 SoC Successes writeup [Fyodor]
 
-o Make new SecTools.Org site with the 2010 survey results.
+o Process Nmap survey and send out results [Fyodor]
 
-o A trivial change: we currently print some lines about NSE
-  pre-scanning and post-scanning in verbose mode even when no such
-  scripts are being run.  We should not print those in that case.  For
-  example, nmap -A -v scanme.nmap.org gives me these superfluous lines:
-  NSE: Script Pre-scanning.
-  NSE: Starting runlevel 1 (of 2) scan.
-  Initiating NSE at 12:23
-  Completed NSE at 12:23, 0.00s elapsed
-  NSE: Starting runlevel 2 (of 2) scan.
-  NSE: Script scanning 64.13.134.52.
-  NSE: Starting runlevel 1 (of 2) scan.
-  Initiating NSE at 12:24
-  Completed NSE at 12:24, 4.14s elapsed
-  NSE: Starting runlevel 2 (of 2) scan.
-  NSE: Script Post-scanning.
-  NSE: Starting runlevel 1 (of 2) scan.
-  NSE: Starting runlevel 2 (of 2) scan.
+o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
   - p2p-dropbox-listener http://seclists.org/nmap-dev/2010/q4/689
@@ -731,6 +690,50 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o A trivial change: we currently print some lines about NSE
+  pre-scanning and post-scanning in verbose mode even when no such
+  scripts are being run.  We should not print those in that case.  For
+  example, nmap -A -v scanme.nmap.org gives me these superfluous lines:
+  NSE: Script Pre-scanning.
+  NSE: Starting runlevel 1 (of 2) scan.
+  Initiating NSE at 12:23
+  Completed NSE at 12:23, 0.00s elapsed
+  NSE: Starting runlevel 2 (of 2) scan.
+  NSE: Script scanning 64.13.134.52.
+  NSE: Starting runlevel 1 (of 2) scan.
+  Initiating NSE at 12:24
+  Completed NSE at 12:24, 4.14s elapsed
+  NSE: Starting runlevel 2 (of 2) scan.
+  NSE: Script Post-scanning.
+  NSE: Starting runlevel 1 (of 2) scan.
+  NSE: Starting runlevel 2 (of 2) scan.
+
+o Do new Nmap release with the stuff merged from SoC students and
+  other new developments.
+
+o Modify Zenmap to use the new --script-help system to enumerate
+  scripts and collect information such as their descriptions.  This
+  will resolve the problem of Nmap's broadcast prerule scripts running
+  when you open the profile editor.
+
+o Document --script-help in docs/refguide.xml and docs/scripting.xml.
+
+o [Zenmap] Brian Krebs found a problem (which Fyodor is able to
+  reproduce) in the target selector on the left pane.  When you select
+  one of the scanned targets, it is supposed to jump to that target in
+  the "Nmap Output" tab on the right pane.  Instead, nothing seems to
+  happen.  One of our output format changes probably broke the
+  feature.  It still works fine if you have the "Ports / Hosts" or
+  "Host Details" tabs active in the right pane instead.
+
+o Include a --script-help system to Nmap, which provides user readable
+  text help and also machine parsable XML information for scripts
+  which match a pattern (e.g. the same sort of arguments you could use
+  for --script, like a category or http-* or whatever).  The
+  --script-help ONLY provides help and quits, it does not run the
+  script.  For some initial implementation work, see this thread:
+  http://seclists.org/nmap-dev/2011/q1/163
 
 o [Nping] See whether --echo-client mode really requires root, and
   remove that restriction if not.
