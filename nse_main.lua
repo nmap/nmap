@@ -1105,7 +1105,7 @@ local function main (hosts, scantype)
         end
       end
     end
-    print_verbose(1, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
+    print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
     run(wrap(threads_iter), scantype)
   end
 
