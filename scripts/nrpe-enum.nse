@@ -197,9 +197,7 @@ local nrpe_check = function(host, port, cmd)
 	return true, nrpe_read(resp)
 end
 
-portrule = function(host, port)
-	return shortport.port_or_service(5666, "nrpe")
-end
+portrule = shortport.port_or_service(5666, "nrpe")
 
 action = function(host, port)
 	-- Get script arguments.
