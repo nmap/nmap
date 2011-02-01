@@ -36,12 +36,23 @@ dependencies = {"snmp-brute"}
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 -- Revised 08/10/2010 - v0.3 - prerule; add interface addresses to Nmap's target list (Kris Katterjohn)
 
+require "stdnse"
 require "shortport"
 require "snmp"
 require "datafiles"
 require "target"
 
-prerule = function() return true end
+prerule = function()
+	if not stdnse.get_script_args({"snmp-interfaces.host", "host"}) then
+		stdnse.print_debug(3,
+			"Skipping '%s' %s, 'snmp-interfaces.host' argument is missing.",
+			SCRIPT_NAME, SCRIPT_TYPE)
+		return false
+	end
+
+        return true
+end
+
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
 -- List of IANA-assigned network interface types
@@ -389,26 +400,16 @@ action = function(host, port)
 	local srvhost, srvport
 
 	if SCRIPT_TYPE == "prerule" then
-		for _, k in ipairs({"snmp-interfaces.host", "host"}) do
-			if nmap.registry.args[k] then
-				srvhost = nmap.registry.args[k]
-			end
-		end
-
+		srvhost = stdnse.get_script_args({"snmp-interfaces.host", "host"})
 		if not srvhost then
-			stdnse.print_debug(3,
-				"Skipping '%s' %s, 'snmp-interfaces.host' argument is missing.",
-				SCRIPT_NAME, SCRIPT_TYPE)
+			-- Shouldn't happen; checked in prerule.
 			return
 		end
 
-		for _, k in ipairs({"snmp-interfaces.port", "port"}) do
-			if nmap.registry.args[k] then
-				srvport = tonumber(nmap.registry.args[k])
-			end
-		end
-
-		if not srvport then
+		srvport = stdnse.get_script_args({"snmp-interfaces.port", "port"})
+		if srvport then
+			srvport = tonumber(srvport)
+		else
 			srvport = 161
 		end
 	else
