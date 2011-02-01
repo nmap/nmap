@@ -631,7 +631,7 @@ end
 -- Arguments:
 --   threads  An array of threads (a runlevel) to run.
 --   scantype  A string that indicates the current script scan phase.
-local function run (threads_iter, scantype)
+local function run (threads_iter, scantype, hosts)
   -- running scripts may be resumed at any time. waiting scripts are
   -- yielded until Nsock wakes them. After being awakened with
   -- nse_restore, waiting threads become pending and later are moved all
@@ -726,6 +726,18 @@ local function run (threads_iter, scantype)
   end
   if num_threads == 0 then
     return
+  end
+
+  if (scantype == NSE_PRE_SCAN) then
+    print_verbose(1, "Script Pre-scanning.");
+  elseif (scantype == NSE_SCAN) then
+    if #hosts > 1 then
+      print_verbose(1, "Script scanning %d hosts.", #hosts);
+    elseif #hosts == 1 then
+      print_verbose(1, "Script scanning %s.", hosts[1].ip);
+    end
+  elseif (scantype == NSE_POST_SCAN) then
+    print_verbose(1, "Script Post-scanning.");
   end
 
   local progress = cnse.scan_progress_meter(NAME);
@@ -1047,18 +1059,6 @@ local function main (hosts, scantype)
     insert(runlevels[script.runlevel], script);
   end
 
-  if (scantype == NSE_PRE_SCAN) then
-    print_verbose(1, "Script Pre-scanning.");
-  elseif (scantype == NSE_SCAN) then
-    if #hosts > 1 then
-      print_verbose(1, "Script scanning %d hosts.", #hosts);
-    elseif #hosts == 1 then
-      print_verbose(1, "Script scanning %s.", hosts[1].ip);
-    end
-  elseif (scantype == NSE_POST_SCAN) then
-    print_verbose(1, "Script Post-scanning.");
-  end
-
   for runlevel, scripts in ipairs(runlevels) do
     -- This iterator is passed to the run function. It returns one new script
     -- thread on demand until exhausted.
@@ -1106,7 +1106,7 @@ local function main (hosts, scantype)
       end
     end
     print_verbose(2, "Starting runlevel %u (of %u) scan.", runlevel, #runlevels);
-    run(wrap(threads_iter), scantype)
+    run(wrap(threads_iter), scantype, hosts)
   end
 
   collectgarbage "collect";
