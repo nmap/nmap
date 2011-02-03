@@ -390,6 +390,42 @@ def format_banner(scan):
         parts.append(u"at %s" % scan.start_date.strftime("%Y-%m-%d %H:%M"))
     return u" ".join(parts)
 
+def print_script_result_diffs_text(title, script_results_a, script_results_b,
+    script_result_diffs, f = sys.stdout):
+    table = Table(u"*")
+    for sr_diff in script_result_diffs:
+        sr_diff.append_to_port_table(table)
+    if len(table) > 0:
+        print >> f
+        if len(script_results_b) == 0:
+            print >> f, u"-%s:" % title
+        elif len(script_results_a) == 0:
+            print >> f, u"+%s:" % title
+        else:
+            print >> f, u" %s:" % title
+        print >> f, table
+
+def script_result_diffs_to_dom_fragment(elem, script_results_a,
+    script_results_b, script_result_diffs, document):
+    if len(script_results_a) == 0 and len(script_results_b) == 0:
+        return document.createDocumentFragment()
+    elif len(script_results_b) == 0:
+        a_elem = document.createElement(u"a")
+        for sr in script_results_a:
+            elem.appendChild(sr.to_dom_fragment(document))
+        a_elem.appendChild(elem)
+        return a_elem
+    elif len(script_results_a) == 0:
+        b_elem = document.createElement(u"b")
+        for sr in script_results_b:
+            elem.appendChild(sr.to_dom_fragment(document))
+        b_elem.appendChild(elem)
+        return b_elem
+    else:
+        for sr_diff in script_result_diffs:
+            elem.appendChild(sr_diff.to_dom_fragment(document))
+        return elem
+
 class ScanDiff(object):
     """A complete diff of two scans. It is a container for two scans and a dict
     mapping hosts to HostDiffs."""
@@ -431,18 +467,9 @@ class ScanDiff(object):
         else:
             print >> f, u" %s" % banner_a
 
-        table = Table(u"*")
-        for sr_diff in self.pre_script_result_diffs:
-            sr_diff.append_to_port_table(table)
-        if len(table) > 0:
-            print >> f
-            if len(self.scan_b.pre_script_results) == 0:
-                print >> f, u"-Pre-scan script results:"
-            elif len(self.scan_a.pre_script_results) == 0:
-                print >> f, u"+Pre-scan script results:"
-            else:
-                print >> f, u" Pre-scan script results:"
-            print >> f, table
+        print_script_result_diffs_text("Pre-scan script results",
+            self.scan_a.pre_script_results, self.scan_b.pre_script_results,
+            self.pre_script_result_diffs)
 
         for host in self.hosts:
             print >> f
@@ -450,18 +477,9 @@ class ScanDiff(object):
             h_diff = self.host_diffs[host]
             h_diff.print_text(f)
 
-        table = Table(u"*")
-        for sr_diff in self.post_script_result_diffs:
-            sr_diff.append_to_port_table(table)
-        if len(table) > 0:
-            print >> f
-            if len(self.scan_b.post_script_results) == 0:
-                print >> f, u"-Post-scan script results:"
-            elif len(self.scan_a.post_script_results) == 0:
-                print >> f, u"+Post-scan script results:"
-            else:
-                print >> f, u" Post-scan script results:"
-            print >> f, table
+        print_script_result_diffs_text("Post-scan script results",
+            self.scan_a.post_script_results, self.scan_b.post_script_results,
+            self.post_script_result_diffs)
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
@@ -474,24 +492,10 @@ class ScanDiff(object):
         # prerule script changes.
         if len(self.pre_script_result_diffs) > 0 or verbose:
             prescript_elem = document.createElement(u"prescript")
-            if len(self.scan_a.pre_script_results) == 0 and len(self.scan_b.pre_script_results) == 0:
-                pass
-            elif len(self.scan_b.pre_script_results) == 0:
-                a_elem = document.createElement(u"a")
-                for sr in self.scan_a.pre_script_results:
-                    prescript_elem.appendChild(sr.to_dom_fragment(document))
-                a_elem.appendChild(prescript_elem)
-                scandiff_elem.appendChild(a_elem)
-            elif len(self.scan_a.pre_script_results) == 0:
-                b_elem = document.createElement(u"b")
-                for sr in self.scan_b.pre_script_results:
-                    prescript_elem.appendChild(sr.to_dom_fragment(document))
-                b_elem.appendChild(prescript_elem)
-                scandiff_elem.appendChild(b_elem)
-            else:
-                for sr_diff in self.pre_script_result_diffs:
-                    prescript_elem.appendChild(sr_diff.to_dom_fragment(document))
-                scandiff_elem.appendChild(prescript_elem)
+            scandiff_elem.appendChild(script_result_diffs_to_dom_fragment(
+                prescript_elem, self.scan_a.pre_script_results,
+                self.scan_b.pre_script_results, self.pre_script_result_diffs,
+                document))
 
         for host in self.hosts:
             h_diff = self.host_diffs[host]
@@ -501,24 +505,10 @@ class ScanDiff(object):
         # postrule script changes.
         if len(self.post_script_result_diffs) > 0 or verbose:
             postscript_elem = document.createElement(u"postscript")
-            if len(self.scan_a.post_script_results) == 0 and len(self.scan_b.post_script_results) == 0:
-                pass
-            elif len(self.scan_b.post_script_results) == 0:
-                a_elem = document.createElement(u"a")
-                for sr in self.scan_a.post_script_results:
-                    postscript_elem.appendChild(sr.to_dom_fragment(document))
-                a_elem.appendChild(postscript_elem)
-                scandiff_elem.appendChild(a_elem)
-            elif len(self.scan_a.post_script_results) == 0:
-                b_elem = document.createElement(u"b")
-                for sr in self.scan_b.post_script_results:
-                    postscript_elem.appendChild(sr.to_dom_fragment(document))
-                b_elem.appendChild(postscript_elem)
-                scandiff_elem.appendChild(b_elem)
-            else:
-                for sr_diff in self.post_script_result_diffs:
-                    postscript_elem.appendChild(sr_diff.to_dom_fragment(document))
-                scandiff_elem.appendChild(postscript_elem)
+            scandiff_elem.appendChild(script_result_diffs_to_dom_fragment(
+                postscript_elem, self.scan_a.post_script_results,
+                self.scan_b.post_script_results, self.post_script_result_diffs,
+                document))
 
         document.writexml(f, addindent = u"  ", newl = u"\n", encoding = "UTF-8")
         document.unlink()
@@ -664,18 +654,9 @@ class HostDiff(object):
                     for i in range(i1, i2):
                         print >> f, "   %s" % host_a.os[i]
 
-        table = Table(u"*")
-        for sr_diff in self.script_result_diffs:
-            sr_diff.append_to_port_table(table)
-        if len(table) > 0:
-            print >> f
-            if len(host_b.script_results) == 0:
-                print >> f, u"-Host script results:"
-            elif len(host_a.script_results) == 0:
-                print >> f, u"+Host script results:"
-            else:
-                print >> f, u" Host script results:"
-            print >> f, table
+        print_script_result_diffs_text("Host script results",
+            host_a.script_results, host_b.script_results,
+            self.script_result_diffs)
 
     def to_dom_fragment(self, document):
         host_a = self.host_a
@@ -792,24 +773,10 @@ class HostDiff(object):
         # Host script changes.
         if len(self.script_result_diffs) > 0 or verbose:
             hostscript_elem = document.createElement(u"hostscript")
-            if len(host_a.script_results) == 0 and len(host_b.script_results) == 0:
-                pass
-            elif len(host_b.script_results) == 0:
-                a_elem = document.createElement(u"a")
-                for sr in host_a.script_results:
-                    hostscript_elem.appendChild(sr.to_dom_fragment(document))
-                a_elem.appendChild(hostscript_elem)
-                host_elem.appendChild(a_elem)
-            elif len(host_a.script_results) == 0:
-                b_elem = document.createElement(u"b")
-                for sr in host_b.script_results:
-                    hostscript_elem.appendChild(sr.to_dom_fragment(document))
-                b_elem.appendChild(hostscript_elem)
-                host_elem.appendChild(b_elem)
-            else:
-                for sr_diff in self.script_result_diffs:
-                    hostscript_elem.appendChild(sr_diff.to_dom_fragment(document))
-                host_elem.appendChild(hostscript_elem)
+            host_elem.appendChild(script_result_diffs_to_dom_fragment(
+                hostscript_elem, host_a.script_results,
+                host_b.script_results, self.script_result_diffs,
+                document))
 
         hostdiff_elem.appendChild(host_elem)
 
