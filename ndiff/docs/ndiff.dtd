@@ -71,8 +71,11 @@ unchanged.
 version 0, which was rather different. -->
 <!ATTLIST nmapdiff version CDATA #IMPLIED>
 
-<!ELEMENT scandiff (hostdiff | host)*>
+<!ELEMENT scandiff (prescript | hostdiff | host | postscript | (a, b?) | b)*>
 
+
+<!ELEMENT prescript (script* | (a, b?) | b)>
+<!ELEMENT postscript (script* | (a, b?) | b)>
 
 <!ELEMENT hostdiff (host | (a, b?) | b)>
 
@@ -124,6 +127,6 @@ version 0, which was rather different. -->
 
 <!ELEMENT hostscript (script | a | b)*>
 
-<!ENTITY % diff-elem "(host | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
+<!ENTITY % diff-elem "(prescript | postscript | host | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
 <!ELEMENT a %diff-elem;>
 <!ELEMENT b %diff-elem;>

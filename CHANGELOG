@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Added support for prerule and postrule scripts. [David]
+
 o [Ndiff] Fixed the ordering of hostscript-related elements in XML
   output. [Daniel Miller]
 

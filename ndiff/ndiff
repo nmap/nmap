@@ -34,6 +34,8 @@ class Scan(object):
         self.start_date = None
         self.end_date = None
         self.hosts = []
+        self.pre_script_results = []
+        self.post_script_results = []
 
     def find_host(self, id):
         for host in self.hosts:
@@ -396,6 +398,8 @@ class ScanDiff(object):
         self.scan_a = scan_a
         self.scan_b = scan_b
         self.hosts = []
+        self.pre_script_result_diffs = []
+        self.post_script_result_diffs = []
         self.host_diffs = {}
 
         self.diff()
@@ -414,6 +418,9 @@ class ScanDiff(object):
                 self.hosts.append(host)
                 self.host_diffs[host] = h_diff
 
+        self.pre_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.pre_script_results, self.scan_b.pre_script_results)
+        self.post_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.post_script_results, self.scan_b.post_script_results)
+
     def print_text(self, f = sys.stdout):
         """Print this diff in a human-readable text form."""
         banner_a = format_banner(self.scan_a)
@@ -424,11 +431,37 @@ class ScanDiff(object):
         else:
             print >> f, u" %s" % banner_a
 
+        table = Table(u"*")
+        for sr_diff in self.pre_script_result_diffs:
+            sr_diff.append_to_port_table(table)
+        if len(table) > 0:
+            print >> f
+            if len(self.scan_b.pre_script_results) == 0:
+                print >> f, u"-Pre-scan script results:"
+            elif len(self.scan_a.pre_script_results) == 0:
+                print >> f, u"+Pre-scan script results:"
+            else:
+                print >> f, u" Pre-scan script results:"
+            print >> f, table
+
         for host in self.hosts:
             print >> f
 
             h_diff = self.host_diffs[host]
             h_diff.print_text(f)
+
+        table = Table(u"*")
+        for sr_diff in self.post_script_result_diffs:
+            sr_diff.append_to_port_table(table)
+        if len(table) > 0:
+            print >> f
+            if len(self.scan_b.post_script_results) == 0:
+                print >> f, u"-Post-scan script results:"
+            elif len(self.scan_a.post_script_results) == 0:
+                print >> f, u"+Post-scan script results:"
+            else:
+                print >> f, u" Post-scan script results:"
+            print >> f, table
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
@@ -438,10 +471,54 @@ class ScanDiff(object):
         scandiff_elem = document.createElement(u"scandiff")
         root.appendChild(scandiff_elem)
 
+        # prerule script changes.
+        if len(self.pre_script_result_diffs) > 0 or verbose:
+            prescript_elem = document.createElement(u"prescript")
+            if len(self.scan_a.pre_script_results) == 0 and len(self.scan_b.pre_script_results) == 0:
+                pass
+            elif len(self.scan_b.pre_script_results) == 0:
+                a_elem = document.createElement(u"a")
+                for sr in self.scan_a.pre_script_results:
+                    prescript_elem.appendChild(sr.to_dom_fragment(document))
+                a_elem.appendChild(prescript_elem)
+                scandiff_elem.appendChild(a_elem)
+            elif len(self.scan_a.pre_script_results) == 0:
+                b_elem = document.createElement(u"b")
+                for sr in self.scan_b.pre_script_results:
+                    prescript_elem.appendChild(sr.to_dom_fragment(document))
+                b_elem.appendChild(prescript_elem)
+                scandiff_elem.appendChild(b_elem)
+            else:
+                for sr_diff in self.pre_script_result_diffs:
+                    prescript_elem.appendChild(sr_diff.to_dom_fragment(document))
+                scandiff_elem.appendChild(prescript_elem)
+
         for host in self.hosts:
             h_diff = self.host_diffs[host]
             frag = h_diff.to_dom_fragment(document)
             scandiff_elem.appendChild(frag)
+
+        # postrule script changes.
+        if len(self.post_script_result_diffs) > 0 or verbose:
+            postscript_elem = document.createElement(u"postscript")
+            if len(self.scan_a.post_script_results) == 0 and len(self.scan_b.post_script_results) == 0:
+                pass
+            elif len(self.scan_b.post_script_results) == 0:
+                a_elem = document.createElement(u"a")
+                for sr in self.scan_a.post_script_results:
+                    postscript_elem.appendChild(sr.to_dom_fragment(document))
+                a_elem.appendChild(postscript_elem)
+                scandiff_elem.appendChild(a_elem)
+            elif len(self.scan_a.post_script_results) == 0:
+                b_elem = document.createElement(u"b")
+                for sr in self.scan_b.post_script_results:
+                    postscript_elem.appendChild(sr.to_dom_fragment(document))
+                b_elem.appendChild(postscript_elem)
+                scandiff_elem.appendChild(b_elem)
+            else:
+                for sr_diff in self.post_script_result_diffs:
+                    postscript_elem.appendChild(sr_diff.to_dom_fragment(document))
+                scandiff_elem.appendChild(postscript_elem)
 
         document.writexml(f, addindent = u"  ", newl = u"\n", encoding = "UTF-8")
         document.unlink()
@@ -1099,24 +1176,27 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             self.current_port.service.extrainfo = attrs.get(u"extrainfo")
             self.current_port.service.tunnel = attrs.get(u"tunnel")
         elif name == u"script":
-            assert self.current_host is not None
             result = ScriptResult()
             try:
                 result.id = attrs[u"id"]
             except KeyError:
-                warn(u"%s element of host %s missing the \"id\" attribute; skipping." % (name, self.current_host.format_name()))
+                warn(u"%s element missing the \"id\" attribute; skipping." % name)
                 return
             try:
                 result.output = attrs[u"output"]
             except KeyError:
-                warn(u"%s element of host %s missing the \"output\" attribute; skipping." % (name, self.current_host.format_name()))
+                warn(u"%s element missing the \"output\" attribute; skipping." % name)
                 return
-            if self.parent_element() == u"hostscript":
+            if self.parent_element() == u"prescript":
+                self.scan.pre_script_results.append(result)
+            elif self.parent_element() == u"postscript":
+                self.scan.post_script_results.append(result)
+            elif self.parent_element() == u"hostscript":
                 self.current_host.script_results.append(result)
             elif self.parent_element() == u"port":
                 self.current_port.script_results.append(result)
             else:
-                warn(u"%s element of host %s not inside hostscript or port element; ignoring." % (name, self.current_host.format_name()))
+                warn(u"%s element not inside prescript, postscript, hostscript, or port element; ignoring." % name)
                 return
         elif name == u"osmatch":
             assert self.parent_element() == u"os"
