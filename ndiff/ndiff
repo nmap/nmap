@@ -1198,7 +1198,7 @@ def main():
         scan_a.load_from_file(filename_a)
         scan_b = Scan()
         scan_b.load_from_file(filename_b)
-    except Exception, e:
+    except IOError, e:
         print >> sys.stderr, u"Can't open file: %s" % str(e)
         sys.exit(EXIT_ERROR)
 
