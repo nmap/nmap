@@ -127,6 +127,6 @@ version 0, which was rather different. -->
 
 <!ELEMENT hostscript (script | a | b)*>
 
-<!ENTITY % diff-elem "(prescript | postscript | host | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
+<!ENTITY % diff-elem "(prescript | postscript | host | status | address | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
 <!ELEMENT a %diff-elem;>
 <!ELEMENT b %diff-elem;>

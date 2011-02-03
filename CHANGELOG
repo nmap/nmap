@@ -2,6 +2,9 @@
 
 o [Ndiff] Added support for prerule and postrule scripts. [David]
 
+o [Ndiff] Fixed ndiff.dtd to include two elements that can be diffed:
+  status and address. [Daniel Miller]
+
 o [Ndiff] Fixed the ordering of hostscript-related elements in XML
   output. [Daniel Miller]
 
