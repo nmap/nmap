@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Fixed the ordering of hostscript-related elements in XML
+  output. [Daniel Miller]
+
 o [NSE] Fixed a bug in the nrpe-enum script that would make it run for
   every port (when it was selected, which it was not by default).
   Daniel Miller reported the bug. [Patrick]

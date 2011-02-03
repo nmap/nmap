@@ -720,13 +720,13 @@ class HostDiff(object):
             elif len(host_b.script_results) == 0:
                 a_elem = document.createElement(u"a")
                 for sr in host_a.script_results:
-                    a_elem.appendChild(sr.to_dom_fragment(document))
+                    hostscript_elem.appendChild(sr.to_dom_fragment(document))
                 a_elem.appendChild(hostscript_elem)
                 host_elem.appendChild(a_elem)
             elif len(host_a.script_results) == 0:
                 b_elem = document.createElement(u"b")
                 for sr in host_b.script_results:
-                    b_elem.appendChild(sr.to_dom_fragment(document))
+                    hostscript_elem.appendChild(sr.to_dom_fragment(document))
                 b_elem.appendChild(hostscript_elem)
                 host_elem.appendChild(b_elem)
             else:
