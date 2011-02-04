@@ -32,7 +32,9 @@ o [Ndiff] Fixed an output line that wasn't being redirected to a file
   when all other output was. [Daniel Miller]
 
 o Updated IANA IP address space assignment list for random IP (-iR)
-  generation. [Kris]
+  generation.  This list now contains only various reserved blocks as
+  IANA has handed out the final unallocated IPv4 addresses to the
+  RIRs. [Kris]
 
 Nmap 5.50 [2011-01-28]
 

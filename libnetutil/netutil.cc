@@ -416,16 +416,10 @@ int ip_is_reserved(struct in_addr *ip)
     case 10:        /* the infamous 10.0.0.0/8      */
     case 55:        /* misc. U.S.A. Armed forces    */
     case 127:       /* 127/8 is reserved for loopback */
-    case 179:       /* 179/8 is IANA reserved       */
-    case 185:       /* 185/8 is IANA reserved       */
       return 1;
     default:
       break;
     }
-
-  /* 102-104/8 is IANA reserved */
-  if (i1 >= 102 && i1 <= 104)
-    return 1;
 
   /* 172.16.0.0/12 is reserved for private nets by RFC1819 */
   if (i1 == 172 && i2 >= 16 && i2 <= 31)
