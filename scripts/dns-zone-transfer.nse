@@ -112,7 +112,7 @@ prerule = function()
 end
 
 portrule = function(host, port)
-  if shortport.portnumber(53, 'tcp') then
+  if shortport.portnumber(53, 'tcp')(host, port) then
     dns_opts.domain, dns_opts.addall = stdnse.get_script_args(
       {"dns-zone-transfer.domain", "dnszonetransfer.domain"},
       {"dns-zone-transfer.addall","dnszonetransfer.addall"}

@@ -43,7 +43,7 @@ portrule = function (host, port)
 		return false
 	end
 
-	return shortport.port_or_service(21, "ftp")
+       return shortport.port_or_service(21, "ftp")(host, port)
 end
 
 action = function(host, port)

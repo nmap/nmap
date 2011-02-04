@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed some portrules that used shortport functions incorrectly
+  and always returned true in dns-zone-transfer and
+  ftp-proftpd-backdoor. [Jost Krieger]
+
 o [Ndiff] Added support for prerule and postrule scripts. [David]
 
 o [Ndiff] Fixed ndiff.dtd to include two elements that can be diffed:
