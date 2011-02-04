@@ -36,6 +36,13 @@ o Script review:
     Requires a TFTP server; decision was to build such server in Lua
     if possible. Patrik Karlsson's beginning TFTP implementation:
     http://seclists.org/nmap-dev/2011/q1/169.
+  - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
+    Should share domain list with http-vhosts.
+    git://code.0x0lab.org/nmap-dns-brute.git
+  - Patch to get interfaces by Djalal.
+    http://seclists.org/nmap-dev/2011/q1/291
+  - dpap-brute by Patrik Karlsson.
+    http://seclists.org/nmap-dev/2011/q1/252.
 
 o Investigate this interface-matching problem on Windows:
   http://seclists.org/nmap-dev/2011/q1/52. It is related to the
