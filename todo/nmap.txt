@@ -43,6 +43,7 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q1/291
   - dpap-brute by Patrik Karlsson.
     http://seclists.org/nmap-dev/2011/q1/252.
+  - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
 
 o Investigate this interface-matching problem on Windows:
   http://seclists.org/nmap-dev/2011/q1/52. It is related to the
