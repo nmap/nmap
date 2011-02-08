@@ -1,5 +1,10 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Investigate this interface-matching problem on Windows:
+  http://seclists.org/nmap-dev/2011/q1/52. It is related to the
+  libdnet changes we made to allow choosing the correct physical
+  interface when teamed interfaces share the same MAC.
+
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
   is running on.  This includes things like whether SSL is enabled,
@@ -19,7 +24,6 @@ o Process Nmap survey and send out results [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
-  - p2p-dropbox-listener http://seclists.org/nmap-dev/2010/q4/689
   - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
     http://seclists.org/nmap-dev/2010/q4/613
     http://seclists.org/nmap-dev/2010/q4/623
@@ -44,11 +48,6 @@ o Script review:
   - dpap-brute by Patrik Karlsson.
     http://seclists.org/nmap-dev/2011/q1/252.
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
-
-o Investigate this interface-matching problem on Windows:
-  http://seclists.org/nmap-dev/2011/q1/52. It is related to the
-  libdnet changes we made to allow choosing the correct physical
-  interface when teamed interfaces share the same MAC.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
@@ -698,6 +697,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script merged: p2p-dropbox-listener
+  http://seclists.org/nmap-dev/2010/q4/689
 
 o A trivial change: we currently print some lines about NSE
   pre-scanning and post-scanning in verbose mode even when no such
