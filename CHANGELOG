@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The -V and --version options now show the platform Nmap was compiled
+  on, which features are compiled in, and the version numbers of
+  libraries it is linked against. [Ambarisha B., David]
+
 o [NSE] Fixed some portrules that used shortport functions incorrectly
   and always returned true in dns-zone-transfer and
   ftp-proftpd-backdoor. [Jost Krieger]

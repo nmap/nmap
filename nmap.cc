@@ -119,6 +119,18 @@
 #include "winfix.h"
 #endif
 
+#if HAVE_OPENSSL
+#include <openssl/opensslv.h>
+#endif
+
+/* To get the version number only. */
+#ifdef WIN32
+#include "libdnet-stripped/include/dnet_winconfig.h"
+#else
+#include "libdnet-stripped/include/config.h"
+#endif
+#define DNET_VERSION VERSION
+
 using namespace std;
 
 /* global options */
@@ -128,6 +140,7 @@ extern NmapOps o;  /* option structure */
 
 static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
   const Target *target);
+static void display_nmap_version();
 
 /* parse the --scanflags argument.  It can be a number >=0 or a string consisting of TCP flag names like "URGPSHFIN".  Returns -1 if the argument is invalid. */
 static int parse_scanflags(char *arg) {
@@ -1224,7 +1237,7 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'V':
-      log_write(LOG_STDOUT, "\n%s version %s ( %s )\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
+      display_nmap_version();
       exit(0);
       break;
     case 'v':
@@ -2800,4 +2813,78 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
 
   return foundsomething;
 
+}
+
+/* Extracts a whitespace-separated word from a string. Returns a zero-length
+   string if there are too few words. */
+static std::string get_word(const char *str, unsigned int n) {
+  const char *p, *q;
+  unsigned int i;
+
+  p = str;
+  for (i = 0; *p != '\0' && i <= n; i++) {
+    while (isspace((int) (unsigned char) *p))
+      p++;
+    q = p;
+    while (*q != '\0' && !isspace((int) (unsigned char) *q))
+      q++;
+    if (i == n)
+      return std::string(p, q - p);
+    p = q;
+  }
+
+  return std::string();
+}
+
+/* Helper for display_nmap_version. Tries to extract a word (presumably a
+   version number) from a string, but if that fails, returns the whole string
+   enclosed in parentheses as a failsafe. */
+static std::string get_word_or_quote(const char *str, unsigned int n) {
+  std::string word;
+
+  word = get_word(str, n);
+  if (word.length() == 0)
+    word = std::string("(") + str + std::string(")");
+
+  return word;
+}
+
+static void display_nmap_version() {
+  std::vector<std::string> with, without;
+  unsigned int i;
+
+#ifndef NOLUA
+  with.push_back(std::string("liblua-") + get_word_or_quote(LUA_RELEASE, 1));
+#else
+  without.push_back("liblua");
+#endif
+
+#if HAVE_OPENSSL
+  with.push_back(std::string("openssl-") + get_word_or_quote(OPENSSL_VERSION_TEXT, 1));
+#else
+  without.push_back("openssl");
+#endif
+
+  with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
+
+  with.push_back(std::string("libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+
+  with.push_back(std::string("libdnet-") + DNET_VERSION);
+
+#if HAVE_IPV6
+  with.push_back("ipv6");
+#else
+  without.push_back("ipv6");
+#endif
+
+  log_write(LOG_STDOUT, "\n%s version %s ( %s )\n", NMAP_NAME, NMAP_VERSION, NMAP_URL);
+  log_write(LOG_STDOUT, "Platform: %s\n", NMAP_PLATFORM);
+  log_write(LOG_STDOUT, "Compiled with:");
+  for (i = 0; i < with.size(); i++)
+    log_write(LOG_STDOUT, " %s", with[i].c_str());
+  log_write(LOG_STDOUT, "\n");
+  log_write(LOG_STDOUT, "Compiled without:");
+  for (i = 0; i < without.size(); i++)
+    log_write(LOG_STDOUT, " %s", without[i].c_str());
+  log_write(LOG_STDOUT, "\n");
 }
