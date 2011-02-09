@@ -4707,6 +4707,7 @@ match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtran
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache-AdvancedExtranetServer/([\d.]+) \(Mandrakelinux/PREFORK-([-\w_.]+)\) ?([^\r\n]*)\r\n|s p/Apache Advanced Extranet Server httpd/ v/$1/ i/Mandrake $2; $3/ o/Linux/
 match http m|^HTTP/1.[10] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold/([-.\w]+) Apache/([-.\w]+)| p/Apache Stronghold httpd/ v/$1/ i/based on Apache $2/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache Tomcat/(\d[-.\w]+)|s p/Apache Tomcat/ v/$1/
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: Apache[- ]Coyote/(\d[-\d.]+)\r\n.*/Tomcat-(\d[-\d.]+)\r\n|s p|Apache Tomcat/Coyote JSP engine| v|$1| i|Tomcat $2| 
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: Apache[- ]Coyote/(\d[-\d.]+)\r\n|s p|Apache Tomcat/Coyote JSP engine| v|$1|
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache/([\w._-]+) Ben-SSL/([\w._-]+) \(Unix\)\r\n|s p/Apache httpd/ v/$1/ i/Ben-SSL $1/ o/Unix/
 
