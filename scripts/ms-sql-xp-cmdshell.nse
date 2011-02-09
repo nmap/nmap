@@ -30,7 +30,7 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --       the server. This option overrides any accounts found by
 --       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
--- @args mssql-xp-cmdshell.cmd specifies the OS command to run.
+-- @args ms-sql-xp-cmdshell.cmd specifies the OS command to run.
 --       (default is ipconfig /all)
 --
 -- @output
