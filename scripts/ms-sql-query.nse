@@ -13,7 +13,7 @@ require 'mssql'
 dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 
 ---
--- @args mssql-query.query specifies the query to run against the server.
+-- @args ms-sql-query.query specifies the query to run against the server.
 --       (default SELECT @@version version)
 --
 -- @output
@@ -34,12 +34,12 @@ portrule = shortport.port_or_service(1433, "ms-sql-s")
 action = function( host, port )
 
 	local status, result, helper	
-	local username = nmap.registry.args['mssql.username']
-	local password = nmap.registry.args['mssql.password'] or ""
+	local username = stdnse.get_script_args( 'mssql.username' )
+	local password = stdnse.get_script_args( 'mssql.password' ) or ""
 	-- the tempdb should be a safe guess, anyway the library is set up
 	-- to continue even if the DB is not accessible to the user
-	local database = nmap.registry.args['mssql.database'] or "tempdb"
-	local query = nmap.registry.args['mssql-query.query'] or "SELECT @@version version"
+	local database = stdnse.get_script_args( 'mssql.database' ) or "tempdb"
+	local query = stdnse.get_script_args( {'ms-sql-query.query', 'mssql-query.query' } ) or "SELECT @@version version"
 	
 	if ( not(username) and nmap.registry.mssqlusers ) then
 		-- do we have a sysadmin?

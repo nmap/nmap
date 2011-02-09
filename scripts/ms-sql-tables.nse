@@ -35,14 +35,14 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --       the server. This option overrides any accounts found by
 --       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
--- @args mssql-tables.maxdb Limits the amount of databases that are
+-- @args ms-sql-tables.maxdb Limits the amount of databases that are
 --       processed and returned (default 5). If set to zero or less 
 --       all databases are processed.
 --
--- @args mssql-tables.maxtables Limits the amount of tables returned
+-- @args ms-sql-tables.maxtables Limits the amount of tables returned
 --       (default 5). If set to zero or less all tables are returned.
 --
--- @args mssql-tables.keywords If set shows only tables or columns matching
+-- @args ms-sql-tables.keywords If set shows only tables or columns matching
 --		 the keywords
 --
 -- @output
@@ -94,8 +94,8 @@ end
 action = function( host, port )
 
 	local status, result, dbs, tables, helper	
-	local username = nmap.registry.args['mssql.username']
-	local password = nmap.registry.args['mssql.password'] or ""
+	local username = stdnse.get_script_args( 'mssql.username' )
+	local password = stdnse.get_script_args( 'mssql.password' ) or ""
 	
 	local output = {}
 	local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
@@ -104,8 +104,10 @@ action = function( host, port )
 	local creds = {}
 	local db_limit, tbl_limit
 
-	local DB_COUNT = nmap.registry.args["mssql-tables.maxdb"] and tonumber(nmap.registry.args["mssql-tables.maxdb"]) or 5
-	local TABLE_COUNT = nmap.registry.args["mssql-tables.maxtables"] and tonumber(nmap.registry.args["mssql-tables.maxtables"]) or 2
+	local DB_COUNT = stdnse.get_script_args( {'ms-sql-tables.maxdb', 'mssql-tables.maxdb'} )
+		and tonumber( stdnse.get_script_args( {'ms-sql-tables.maxdb', 'mssql-tables.maxdb'} ) ) or 5
+	local TABLE_COUNT = stdnse.get_script_args( {'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } )
+		and tonumber( stdnse.get_script_args( {'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } ) ) or 2
 	local keywords_filter = ""
 	
 	if ( DB_COUNT <= 0 ) then
@@ -207,21 +209,21 @@ action = function( host, port )
 	local pos = 1
 	local restrict_tbl = {}
 	
-	if ( nmap.registry.args['mssql-tables.keywords'] ) then
-		tmp = nmap.registry.args['mssql-tables.keywords']
+	if ( stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } ) ) then
+		tmp = stdnse.get_script_args( {'ms-sql-tables.keywords', 'mssql-tables.keywords' } )
 		if ( type(tmp) == 'table' ) then
 			tmp = stdnse.strjoin(',', tmp)
 		end
 		table.insert(restrict_tbl, 1, ("Filter: %s"):format(tmp))
 		pos = pos + 1
 	else
-		table.insert(restrict_tbl, 1, "No filter (see mssql-tables.keywords)")
+		table.insert(restrict_tbl, 1, "No filter (see ms-sql-tables.keywords)")
 	end
 
 	if ( DB_COUNT > 0 ) then
 		local tmp = ("Output restricted to %d databases"):format(DB_COUNT)
-		if ( not(nmap.registry.args['mssql-tables.maxdb']) ) then
-			tmp = tmp .. " (see mssql-tables.maxdb)"
+		if ( not(stdnse.get_script_args( { 'ms-sql-tables.maxdb', 'mssql-tables.maxdb' } ) ) ) then
+			tmp = tmp .. " (see ms-sql-tables.maxdb)"
 		end
 		table.insert(restrict_tbl, 1, tmp)
 		pos = pos + 1
@@ -229,8 +231,8 @@ action = function( host, port )
 	
 	if ( TABLE_COUNT > 0 ) then
 		local tmp = ("Output restricted to %d tables"):format(TABLE_COUNT)
-		if ( not(nmap.registry.args['mssql-tables.maxtables']) ) then
-			tmp = tmp .. " (see mssql-tables.maxtables)"
+		if ( not(stdnse.get_script_args( { 'ms-sql-tables.maxtables', 'mssql-tables.maxtables' } ) ) ) then
+			tmp = tmp .. " (see ms-sql-tables.maxtables)"
 		end
 		table.insert(restrict_tbl, 1, tmp)
 		pos = pos + 1

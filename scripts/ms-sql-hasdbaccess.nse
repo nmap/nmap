@@ -29,7 +29,7 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --       the server. This option overrides any accounts found by
 --       the <code>ms-sql-brute</code> and <code>ms-sql-empty-password</code> scripts.
 --
--- @args mssql-hasdbaccess.limit limits the amount of databases per-user
+-- @args ms-sql-hasdbaccess.limit limits the amount of databases per-user
 --       that are returned (default 5). If set to zero or less all 
 --       databases the user has access to are returned.
 --
@@ -64,14 +64,15 @@ end
 action = function( host, port )
 
 	local status, result, helper, rs	
-	local username = nmap.registry.args['mssql.username']
-	local password = nmap.registry.args['mssql.password'] or ""
+	local username = stdnse.get_script_args('mssql.username')
+	local password = stdnse.get_script_args('mssql.password') or ""
 	local creds
 	local query, limit
 	local output = {}
 	local exclude_dbs = { "'master'", "'tempdb'", "'model'", "'msdb'" }
 	
-	local RS_LIMIT = nmap.registry.args["mssql-hasdbaccess.limit"] and tonumber(nmap.registry.args["mssql-hasdbaccess.limit"]) or 5
+	local RS_LIMIT = stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )
+		and tonumber(stdnse.get_script_args( {'mssql-hasdbaccess.limit', 'ms-sql-hasdbaccess.limit' } )) or 5
 	
 	if ( RS_LIMIT <= 0 ) then
 		limit = ""

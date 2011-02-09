@@ -81,11 +81,11 @@ end
 action = function( host, port )
 
 	local status, result, helper	
-	local username = nmap.registry.args['mssql.username']
-	local password = nmap.registry.args['mssql.password'] or ""
+	local username = stdnse.get_script_args( 'mssql.username' )
+	local password = stdnse.get_script_args( 'mssql.password' ) or ""
 	local creds
 	local query
-	local cmd = nmap.registry.args['ms-sql-xp-cmdshell.cmd'] or 'ipconfig /all'
+	local cmd = stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) or 'ipconfig /all'
 	local output = {}
 
 	query = ("EXEC master..xp_cmdshell '%s'"):format(cmd)
@@ -126,10 +126,10 @@ action = function( host, port )
 
 		if ( status ) then
 			output = mssql.Util.FormatOutputTable( result, true )
-			if ( not(nmap.registry.args['mssql-xp-cmdshell.cmd']) ) then
+			if ( not(stdnse.get_script_args( {'ms-sql-xp-cmdshell.cmd', 'mssql-xp-cmdshell.cmd'} ) ) ) then
 				table.insert(output, 1, cmd)
 				output = stdnse.format_output( true, output )
-				output = "(Use --script-args=mssql-xp-cmdshell.cmd='<CMD>' to change command.)" .. output
+				output = "(Use --script-args=ms-sql-xp-cmdshell.cmd='<CMD>' to change command.)" .. output
 			else
 				output = stdnse.format_output( true, output )
 			end

@@ -22,7 +22,7 @@ dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
 --       the server. This option overrides any accounts found by
 --       the mssql-brute and mssql-empty-password scripts.
 --
--- @args mssql-config.showall if set shows all configuration options.
+-- @args ms-sql-config.showall if set shows all configuration options.
 --
 -- @output
 -- PORT     STATE SERVICE
@@ -55,11 +55,13 @@ portrule = shortport.port_or_service(1433, "ms-sql-s")
 action = function( host, port )
 
 	local status, helper, response	
-	local username = nmap.registry.args['mssql.username']
-	local password = nmap.registry.args['mssql.password'] or ""
+	local username = stdnse.get_script_args( 'mssql.username' )
+	local password = stdnse.get_script_args( 'mssql.password' ) or ""
 	local result, result_part = {}, {}
-	local conf_filter = ( nmap.registry.args['mssql-config.showall'] ) and "" or " WHERE configuration_id > 16384"
-	local db_filter = ( nmap.registry.args['mssql-config.showall'] ) and "" or " WHERE name NOT IN ('master','model','tempdb','msdb')"
+	local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
+		or " WHERE configuration_id > 16384"
+	local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
+		or " WHERE name NOT IN ('master','model','tempdb','msdb')"
 	
 	local queries = { 
 		[2]={ ["Configuration"] = [[ SELECT name, 
