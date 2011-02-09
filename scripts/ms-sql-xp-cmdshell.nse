@@ -85,7 +85,7 @@ action = function( host, port )
 	local password = nmap.registry.args['mssql.password'] or ""
 	local creds
 	local query
-	local cmd = nmap.registry.args['mssql-xp-cmdshell.cmd'] or 'ipconfig /all'
+	local cmd = nmap.registry.args['ms-sql-xp-cmdshell.cmd'] or 'ipconfig /all'
 	local output = {}
 
 	query = ("EXEC master..xp_cmdshell '%s'"):format(cmd)
