@@ -2780,12 +2780,17 @@ function share_get_list(host)
 		extra = string.format("ERROR: Enumerating shares failed, guessing at common ones (%s)", shares)
 
 		-- Take some common share names I've seen (thanks to Brandon Enright for most of these, except the last few)
-		shares = {"IPC$", "ADMIN$", "TEST", "TEST$", "HOME", "HOME$", "PUBLIC", "PRINT", "PRINT$", "GROUPS", "USERS", "MEDIA", "SOFTWARE", "XSERVE", "NETLOGON", "INFO", "PROGRAMS", "FILES", "WWW", "STMP", "TMP", "DATA", "BACKUP", "DOCS", "HD", "WEBSERVER", "WEB DOCUMENTS", "SHARED", "DESKTOP", "MY DOCUMENTS", "PORN", "PRON", "PR0N", "PICTURES", "BACKUP" }
+		shares = {"ADMIN", "BACKUP", "DATA", "DESKTOP", "DOCS", "FILES", "GROUPS", "HD", "HOME", "INFO", "IPC", "MEDIA", "MY DOCUMENTS", "NETLOGON", "PICTURES", "PORN", "PR0N", "PRINT", "PROGRAMS", "PRON", "PUBLIC", "SHARE", "SHARED", "SOFTWARE", "STMP", "TEMP", "TEST", "TMP", "USERS", "WEB DOCUMENTS","WEBSERVER", "WWW", "XSERVE" }
 
-		-- Try every alphabetic share, with and without a trailing '$'
+		-- Try every alphabetic share
 		for i = string.byte("A", 1), string.byte("Z", 1), 1 do
 			shares[#shares + 1] = string.char(i)
-			shares[#shares + 1] = string.char(i) .. "$"
+		end
+		
+		-- For each share, add one with the same name and a trailing '$'
+		local sharesLength = #shares
+		for shareItr = 1, sharesLength, 1 do
+			shares[ sharesLength + shareItr ] = shares[ shareItr ] .. '$'
 		end
 	else
 		stdnse.print_debug(1, "SMB: Found %d shares, will attempt to find more information", #shares)
