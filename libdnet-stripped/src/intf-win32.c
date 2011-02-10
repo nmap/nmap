@@ -441,12 +441,12 @@ intf_get_pcap_devname(const char *intf_name, char *pcapdev, int pcapdevlen)
 		/* Check the MAC address if available. */
 		data->Oid = OID_802_3_CURRENT_ADDRESS;
 		data->Length = sizeof(buf) - sizeof(*data);
-		if (PacketRequest(lpa, FALSE, data) == TRUE) {
-			if (data->Length != ifrow.dwPhysAddrLen)
-				goto close_adapter;
-			if (memcmp(ifrow.bPhysAddr, data->Data, data->Length) != 0)
-				goto close_adapter;
-		}
+		if (!PacketRequest(lpa, FALSE, data))
+			goto close_adapter;
+		if (data->Length != ifrow.dwPhysAddrLen)
+			goto close_adapter;
+		if (memcmp(ifrow.bPhysAddr, data->Data, data->Length) != 0)
+			goto close_adapter;
 
 		/* A hardware address match is good enough, but we will prefer
 		   an additional match with the description if available. */
