@@ -69,7 +69,7 @@ $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 $(IMAGE_STAGING_DIR)/$(PKG_NAME): stage-nmap stage-ncat stage-ndiff stage-zenmap stage-nping COPYING.formatted
 	mkdir -p $(IMAGE_STAGING_DIR)
 	cp -rf $(EXTRA_DIST) $(IMAGE_STAGING_DIR)/
-	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" -o $@
+	$(PACKAGEMAKER) --doc nmap.pmdoc --title "Nmap $(NMAP_VERSION)" --no-relocate -o $@
 
 export-%:
 	rm -rf $*
