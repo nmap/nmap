@@ -37,7 +37,15 @@ categories = {"intrusive", "auth"}
 
 require 'shortport'
 require 'brute'
-require 'tns'
+if pcall(require,"openssl") then
+  require("tns")
+else
+  portrule = function() return false end
+  action = function() end
+  stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
+      SCRIPT_NAME)
+  return;
+end
 
 portrule = shortport.port_or_service(1521, "oracle-tns", "tcp", "open")
 

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Selecting one of the scan targets in the left pane is
+  supposed to jump to that host in the Nmap Output in the right pane
+  (but it wasn't).  Brian Krebs reported this bug. [David]
+
 o The -V and --version options now show the platform Nmap was compiled
   on, which features are compiled in, and the version numbers of
   libraries it is linked against. [Ambarisha B., David]
