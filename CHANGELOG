@@ -1,18 +1,37 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [Zenmap] Selecting one of the scan targets in the left pane is
-  supposed to jump to that host in the Nmap Output in the right pane
-  (but it wasn't).  Brian Krebs reported this bug. [David]
-
 o The -V and --version options now show the platform Nmap was compiled
   on, which features are compiled in, and the version numbers of
   libraries it is linked against. [Ambarisha B., David]
 
-o [NSE] Fixed some portrules that used shortport functions incorrectly
-  and always returned true in dns-zone-transfer and
-  ftp-proftpd-backdoor. [Jost Krieger]
+o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
+  from netVigilance.
+
+o Updated IANA IP address space assignment list for random IP (-iR)
+  generation.  This list now contains only various reserved blocks as
+  IANA has handed out the final unallocated IPv4 addresses to the
+  RIRs. [Kris]
+
+Nmap 5.51 [2011-02-11]
 
 o [Ndiff] Added support for prerule and postrule scripts. [David]
+
+o [NSE] Fixed a bug which caused some NSE scripts to fail due to the
+  absence of the NSE SCRIPT_NAME environment variable when loaded.
+  Michael Pattrick reported the problem. [Djalal]
+
+o [Zenmap] Selecting one of the scan targets in the left pane is
+  supposed to jump to that host in the Nmap Output in the right pane
+  (but it wasn't).  Brian Krebs reported this bug. [David]
+
+o Fixed an obscure bug in Windows interface matching. If the MAC
+  address of an interface couldn't be retrieved, it might have been
+  used instead of the correct interface. Alexander Khodyrev reported
+  the problem.  [David]
+
+o [NSE] Fixed portrules in dns-zone-transfer and ftp-proftpd-backdoor
+  that used shortport functions incorrectly and always returned
+  true. [Jost Krieger]
 
 o [Ndiff] Fixed ndiff.dtd to include two elements that can be diffed:
   status and address. [Daniel Miller]
@@ -21,32 +40,20 @@ o [Ndiff] Fixed the ordering of hostscript-related elements in XML
   output. [Daniel Miller]
 
 o [NSE] Fixed a bug in the nrpe-enum script that would make it run for
-  every port (when it was selected, which it was not by default).
-  Daniel Miller reported the bug. [Patrick]
+  every port (when it was selected--it isn't by default).  Daniel
+  Miller reported the bug. [Patrick]
 
-o [NSE] Made it a controlled Lua stack trace instead of a fatal error
-  when an NSE script sets a negative socket timeout. Vlatko Kosturjak
-  reported the bug. [David]
-
-o [NSE] Fixed a bug which caused some NSE scripts to fail, due to the
-  absence of the NSE SCRIPT_NAME environment variable when the scripts
-  are loaded. Michael Pattrick reported the problem. [Djalal]
-
-o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
-  from netVigilance.
+o [NSE] When an NSE script sets a negative socket timeout, it now
+  causes a controlled Lua stack trace instead of a fatal error.
+  Vlatko Kosturjak reported the bug. [David]
 
 o [Zenmap] Worked around an error that caused the py2app bootstrap
   executable to be non-universal even when the rest of the application
   was universal. This prevented the binary .dmg from working on
-  PowerPC. yxynaxen reported the problem. [David]
+  PowerPC. Yxynaxen reported the problem. [David]
 
 o [Ndiff] Fixed an output line that wasn't being redirected to a file
   when all other output was. [Daniel Miller]
-
-o Updated IANA IP address space assignment list for random IP (-iR)
-  generation.  This list now contains only various reserved blocks as
-  IANA has handed out the final unallocated IPv4 addresses to the
-  RIRs. [Kris]
 
 Nmap 5.50 [2011-01-28]
 
