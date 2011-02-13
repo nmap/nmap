@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Worked around a pycairo bug that prevented saving the
+  topology graphic as PNG on Windows: "Error Saving Snapshot:
+  Surface.write_to_png takes one argument which must be a filename
+  (str), file object, or a file-like object which has a 'write' method
+  (like StringIO)". The problem was reported by Alex Kah. [David]
+
 o The -V and --version options now show the platform Nmap was compiled
   on, which features are compiled in, and the version numbers of
   libraries it is linked against. [Ambarisha B., David]
