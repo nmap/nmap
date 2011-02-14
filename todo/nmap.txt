@@ -96,6 +96,14 @@ o Revive the Nmap Public Source License project (need to find an open
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
 
+o The file /nmap/mswin32/icon1.ico is used by the NSIS installer to
+  set the Nmap uninstall icon (I'm not sure if it is used for anything
+  else).  But this is a very old icon and doesn't match the blue eye
+  we use now.  So we should probably update that with a modern "blue
+  insecure eye" icon.  I (Fyodor) tried simply replacing icon1.ico
+  with http://insecure.org/shared/images/tiny-eyeicon.ico, but that
+  didn't work.  It must not meet the required format.
+
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
    some research on what IPv6 OS detection might require).
