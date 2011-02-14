@@ -1252,8 +1252,8 @@ action refer to <xref linkend="nse-tutorial-action"/>.
               <literal>"prerule"</literal>, <literal>"hostrule"</literal>, 
               <literal>"portrule"</literal> or 
               <literal>"postrule"</literal>.
-              This variable is only available after the evaluation of
-              the rule functions.
+              This variable is only available during and after the evaluation
+              of the rule functions.
             </para>
           </listitem>
         </varlistentry>
