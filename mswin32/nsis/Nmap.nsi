@@ -48,8 +48,8 @@ SetCompressor /SOLID /FINAL lzma
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "5.36TEST4"  
-  VIProductVersion "5.36.0.4"
+  !define VERSION "5.51SVN"  
+  VIProductVersion "5.51.0.0"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -476,6 +476,7 @@ Section "Uninstall"
   Delete "$INSTDIR\ZENMAP_README"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
   Delete "$INSTDIR\ncat.exe"
+  Delete "$INSTDIR\nping.exe"
   Delete "$INSTDIR\ca-bundle.crt"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
