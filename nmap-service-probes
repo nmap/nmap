@@ -2442,6 +2442,8 @@ match fw1-topology m|^[QY]\0\0\0$| p/Checkpoint FW1 Topology/ d/firewall/
 
 softmatch smtp m|^220[\s-].*?E?SMTP[^\r]*\r\n|
 softmatch smtp m|^572 Relay not authorized\r\n| i/Relay not authorized/
+# This is likely Cisco specific, but making it generic just in case - Tom S.
+softmatch smtp m|^550 (\d.\d.\d) ([^\r\n]+)| p/Unrecognized SMTP service/ i/$1 $2/
 
 match smtp-stats m|^Statistics from .*\n M   msgsfr  bytes_from   msgsto    bytes_to  msgsrej msgsdis  Mailer\n| p/Multi Router Traffic Grapher smtp statistics/
 
