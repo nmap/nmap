@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added checks that the argument to freeaddrinfo is not NULL, avoiding
+  a segmentation fault on Android and possibly other platforms.
+  Suggested by Vlatko Kosturjak and Alexismm2.
+
 o [Zenmap] Worked around a pycairo bug that prevented saving the
   topology graphic as PNG on Windows: "Error Saving Snapshot:
   Surface.write_to_png takes one argument which must be a filename

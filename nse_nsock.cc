@@ -576,7 +576,8 @@ static int l_connect (lua_State *L)
       break;
   }
 
-  freeaddrinfo(dest);
+  if (dest != NULL)
+    freeaddrinfo(dest);
   return yield(L, nu, "CONNECT", TO, 0, NULL);
 }
 

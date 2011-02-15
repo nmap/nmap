@@ -220,7 +220,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
           resolvedaddrs.push_back(ss);
         }
       }
-      freeaddrinfo(addrs);
+      if (addrs != NULL)
+        freeaddrinfo(addrs);
 
       if (resolvedaddrs.empty()) {
         error("Failed to resolve given hostname/IP: %s.  Note that you can't use '/mask' AND '1-4,7,100-' style IP ranges", target_net);
@@ -330,7 +331,8 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         resolvedaddrs.push_back(ss);
       }
     }
-    freeaddrinfo(addrs);
+    if (addrs != NULL)
+      freeaddrinfo(addrs);
 
     if (resolvedaddrs.empty()) {
       error("Failed to resolve given IPv6 hostname/IP: %s.  Note that you can't use '/mask' or '[1-4,7,100-]' style ranges for IPv6.", hostexp);

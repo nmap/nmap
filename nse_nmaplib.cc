@@ -724,7 +724,8 @@ static int l_resolve(lua_State *L)
     lua_rawseti(L, -2, i++);
   }
 
-  freeaddrinfo(addrs);
+  if (addrs != NULL)
+    freeaddrinfo(addrs);
 
   return 2;
 }
