@@ -99,6 +99,7 @@ end
 -- @return response String with supported methods
 function default_test(host, port)
   local fstatus = false
+  local cstatus = false
   local response = ""
   local get_status, head_status, conn_status
   local get_r1, get_r2, get_r3
