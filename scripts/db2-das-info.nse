@@ -406,8 +406,12 @@ action = function(host, port)
 	if current_count < new_count then
 		port.version.version = server_version
 	end
-	
-	if db2response.info then
+  
+  local result = false 
+
+  local db2profile = extract_server_profile( db2response.info ) 
+
+  if (db2profile ~= nil ) then 	
 		result = "DB2 Administration Server Settings\r\n"
 		result = result .. extract_server_profile( db2response.info )		
 		
