@@ -17,7 +17,7 @@ An example of how to specify the methods to use and the order is the following:
 
 ---
 -- @usage
--- nmap --script smtp-user-enum.nse [--script-args smtp-enum-users.methods={EXPN,...},...] -p 25,465,587 <host>
+-- nmap --script smtp-enum-users.nse [--script-args smtp-enum-users.methods={EXPN,...},...] -p 25,465,587 <host>
 --
 -- @output
 -- Host script results:

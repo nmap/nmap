@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Use the correct script name in the usage example of the
+  smtp-enum-users script. Reported by Jamuse, who also contributed
+  a patch.
+  
 o Added checks that the argument to freeaddrinfo is not NULL, avoiding
   a segmentation fault on Android and possibly other platforms.
   Suggested by Vlatko Kosturjak and Alexismm2.
