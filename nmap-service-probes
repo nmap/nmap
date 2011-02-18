@@ -5495,6 +5495,10 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nWWW-authenticate: basic realm=\"Vina Techno
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: CPWS\r\n| p/Connectra Check Point Web Security httpd/ d/security-misc/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Agranat-EmWeb/R([-\w_.]+)\r\nWWW-Authenticate: Basic realm=\"Efficient Networks Web User Interface\"\r\n\r\n| i/Efficient Networks router http config/ p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Niagara Web Server/([\d.]+)\r\nNiagara-Release: ([-\w_.]+)\r\n|s p/Sun Niagara httpd/ v/$1/ i/Niagara release $2/
+#The following two lines are for the Tridium Niagara embedded device httpd, NOT the Sun (now Oracle) Solaris httpd - Tom
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nNiagara-Platform: ([^\r\n]+).*Server: Niagara Web Server/([\d.]+)\r\n|is p/Tridium Niagara httpd/ v/$2/ i/Platform: $1/ o/$1/ d/specialized/ 
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Niagara Web Server/([\d.]+)\r\n|is p/Tridium Niagara httpd/ v/$1/  d/specialized/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: The Knopflerfish HTTP Server\r\n|s p/Knopflerfish httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: HTTP\r\n.*<title>Inventel</title>|s p/Inventel router http config/ d/router/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: Nanox WebServer\r\n| p/Nanox Web Digital Video Recorder http config/ d/media device/
 match http m|^HTTP/1\.0 200 OK\r\nServer: NetPort Software ([\d.]+)\r\nDate:.* - VSX 7000</title>|s p/Polycom VSX 7000 video conferencer http config/ i/NetPort httpd $1/ d/webcam/
