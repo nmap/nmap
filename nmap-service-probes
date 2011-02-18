@@ -1048,7 +1048,7 @@ match http m|^HTTP/1\.1 400 Bad Request\r\nServer: Cassini/([\w._-]+)\r\n.*<styl
 match http m|^HTTP/1\.1 200 OK\r\nServer: Menuet\r\nConnection: close\r\nContent-Length: 0\d+\r\nContent-Type: image/bmp\r\n\r\n| p/MenuetOS webcam server/ o/MenuetOS/
 
 # This is here for NULL probe cheat since several probes unpredictably trigger it -Doug
-match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-Type: text/plain\r\nAccept-Ranges: bytes\r\nContent-Length: 4\r\n\r\nFail| p/TrendMicro OfficeScan Antivirus http config/ o/Windows/
+match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-Type: text/plain\r\nAccept-Ranges: bytes\r\nContent-Length: 4\r\n\r\nFail| p/Trend Micro OfficeScan Antivirus http config/ o/Windows/
 
 match http-proxy m=^HTTP/1\.[01] \d\d\d .*\r\n(Server|Proxy-agent): iPlanet-Web-Proxy-Server/([\d.]+)\r\n=s p/iPlanet web proxy/ v/$2/
 
@@ -1886,7 +1886,7 @@ match pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_init\(\) failed\r\n| p/Cyrus po
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ p/CCProxy pop3d/ v/$1/
 match pop3-proxy m/^Proxy\+ POP3 server\. Insecure access - terminating\.\r\n/ p/Proxy+ pop3d/ o/Windows/
-match pop3-proxy m|^\+OK TrendMicro IMSS (\d[-.\w ]+) POP3 Proxy at ([-.\w]+)\r\n| p/TrendMicro IMSS virus scanning POP3 proxy/ h/$1/ v/$2/
+match pop3-proxy m|^\+OK TrendMicro IMSS (\d[-.\w ]+) POP3 Proxy at ([-.\w]+)\r\n| p/Trend Micro IMSS virus scanning POP3 proxy/ h/$1/ v/$2/
 match pop3-proxy m|^\+OK Proxy-POP server \(DeleGate/([\d.]+) by ysato AT delegate DOT org\) at ([-\w_.]+) starting\.\r\n| p/DeleGate pop3 proxy/ v/$1/ h/$2/
 match pop3-proxy m|^\+OK Jana-Server POP3 ready <[\w.]+@([-\w_.]+)>\r\n| p/JanaServer pop3 proxy/ h/$1/ o/Windows/
 match pop3-proxy m|^\+OK POP3 Y(ahoo)?POPs! proxy ready\r\n| p/YahooPOPs! pop3 proxy/
@@ -2234,7 +2234,7 @@ match smtp m|^220 (\S+) Service ready by DvISE PostMan \((\d+)\) ESMTP Server| p
 match smtp m|^220 ([-\w_.]+) Service ready by DvISE PostMan \((\d+)\) ESMTP Server \(Tobit Software, Germany\)\r\n| p/DvISE PostMan smtpd/ h/$1/ v/$2/
 match smtp m|^220 (\S+) F-Secure Anti-Virus for Internet Mail ready| p/F-Secure AV SMTP Proxy/ h/$1/
 match smtp m|^220 (\S+) Welcome to SpamFilter for ISP SMTP Server v(\d\S+)| p/LogSat SMTP Proxy/ h/$1/ v/$2/
-match smtp m|^220-TrendMicro IMSS SMTP proxy\r\n| p/TrendMicro SMTP Proxy/
+match smtp m|^220-TrendMicro IMSS SMTP proxy\r\n| p/Trend Micro SMTP Proxy/
 match smtp m|^220 ?(\S+) ESMTP server \(InterMail v(\S+)| p/InterMail smtpd/ h/$1/ v/$2/
 match smtp m|^220 ([-\w_.]+) -- Server ESMTP \(Sun Java\(tm\) System Messaging Server ([\w._-]+) \(built .*; (\d+)bit\)| p/Sun Java System Messaging Server smtpd/ v/$2/ h/$1/ i/$3 bits/
 match smtp m|^220 ([-\w_.]+) -- Server ESMTP \(Sun Java\(tm\) System Messaging Server ([\w._-]+) \(built .*; (\d+)bit\)| p/Sun Java System Messaging Server smtpd/ v/$2/ h/$1/ i/$3 bits/
