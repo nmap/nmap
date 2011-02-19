@@ -4,6 +4,10 @@ o [NSE] Use the correct script name in the usage example of the
   smtp-enum-users script. Reported by Jamuse, who also contributed
   a patch.
   
+o [NSE] db2-das-info - Corrected a bug that caused the script to fail
+  when DB2 Discovery mode is disabled on the DAS service on port 523.
+  [Tom]
+  
 o Added checks that the argument to freeaddrinfo is not NULL, avoiding
   a segmentation fault on Android and possibly other platforms.
   Suggested by Vlatko Kosturjak and Alexismm2.
