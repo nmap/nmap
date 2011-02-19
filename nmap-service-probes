@@ -4456,7 +4456,7 @@ match http m|^HTTP/1\.0 200 Ok\r\nContent-Type: text/html; charset=\"utf-8\"\r\n
 # Very specific... Will probably have to be changed when MythTV changes their CSS...
 match http m|^HTTP/1\.[01] 200 .*<style type=\"text/css\" title=\"Default\" media=\"all\">\r\n  <!--\r\n  body {|s p/MythTV Linux PVR webadmin/ o/Linux/
 
-match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[-.+\w]+:32\d\d\d/\r\n\r\n$| p/Sun Solaris Management Console/ i/Tomcat httpd/ o/Solaris/
+match http m|^HTTP/1\.0 302 Found\r\nLocation: http://[-.+\w]+:32\d\d\d/\r\n\r\n$| p/Sun Solaris Management Console/ i/Apache Tomcat/ o/Solaris/
 # Cyclades PR2000 Router
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"PR2000 - Login\"\r\nContent-Type: text/html\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n.*</H1>This object on the Cyclades PR2000 - RomPager server is protected|s p/Cyclades PR2000 Router/ i/Allegro RomPager $1/ d/router/
 # 3Com OfficeConnect 812 Router telnetd
@@ -4679,10 +4679,10 @@ match http m|^HTTP/1\.0 200 OK\r\nServer: HP-Web-Server-(\d[-.\w]+)\r\n.*<!-- fr
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP Web Jetadmin (\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nDate: .*\r\nServer: HP Web Jetadmin/(\d[-.\w]+) (.*)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ i/$2/ d/print server/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: HP-Web-JetAdmin-(\d[-.\w]+)\r\n| p/HP Web Jetadmin print server http config/ v/$1/ d/print server/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+) \( ([^)]+) \)\r\n|s p/Apache Tomcat httpd/ v/$1/ i/$2/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+)\r\n\r\n|s p/Apache Tomcat httpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]+) \(([^\)]+)\)\r\n|s p/Apache Tomcat httpd/ v/$1/ i/$2/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]+) \(([^\)]+)\) \(([^\)]+)\)\r\n|s p/Apache Tomcat httpd/ v/$1/ i/$2; $3/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+) \( ([^)]+) \)\r\n|s p/Apache Tomcat/ v/$1/ i/$2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Tomcat Web Server/(\d[-.\w ]+)\r\n\r\n|s p/Apache Tomcat/ v/$1/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]+) \(([^\)]+)\)\r\n|s p/Apache Tomcat/ v/$1/ i/$2/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServlet-Engine: Tomcat Web Server/(\d[-.\w]+) \(([^\)]+)\) \(([^\)]+)\)\r\n|s p/Apache Tomcat/ v/$1/ i/$2; $3/
 match 3dm-http m|^HTTP/1\.0 200 OK\r\nServer: 3ware/(\d[-.\w]+)\r\n.*<title>3ware 3DM - No remote access</title>|s p/3Ware 3DM Raid Daemon/ v/$1/ i/Access denied/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: publicfile|s p/publicfile httpd/
 # http://xaxxon.slackworks.com/ehs/
