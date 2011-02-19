@@ -373,9 +373,6 @@ match ftp m|^220 ([-/.+\w]+) FTP server \(Medusa Async V(\d[^\)]+)\) ready\.\r\n
 match ftp m|^220 ([-/.+\w]+)\((\d[-.\w]+)\) FTP server \(EPSON ([^\)]+)\) ready\.\r\n| p/Epson printer ftpd/ h/$1/ v/$2/ i/Epson $3/ d/printer/
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| h/$1/ o|OS/2|
 match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| h/$1/ o|OS/2| i/German/
-match ftp m|^220 ([-/.+\w]+) Lexmark ([-/.+\w ]+) FTP Server (\d[-.\w]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ v/$3/ h/$1/ d/printer/
-#atch ftp m|^220 LXK14ED59 Lexmark Optra SC 1275 FTP Server ([\d.]+) ready\.\r\n| p/Lexmark Optra SC 1275 ftpd/ v/$1/ d/printer/
-match ftp m|^220 YUZU Lexmark Optra S 1625 FTP Server ([\d.]+) ready\.\r\n| p/Lexmark Optra S 1625 ftpd/ v/$1/ d/printer/
 match ftp m|^220 Internet Rex (\d[-.\w ]+) \(([-/.+\w]+)\) FTP server awaiting your command\.\r\n| p/Internet Rex ftpd/ v/$1/ i/$2/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (\d[-.\w]+)\([^\)]+\) [A-Z][a-z][a-z] [A-Z].*200\d\) ready\.\r\n| p/HP-UX ftpd/ h/$1/ v/$2/ o/HP-UX/
 match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/
@@ -698,7 +695,6 @@ match ftp m|^220 Blue Coat FTP Service\r\n| p/Blue Coat ftpd/
 match ftp m|^220 Homer Ftp Server\r\n| p/Homer ftpd/ o/Windows/
 match ftp m|^220 Personal FTP Server ready\r\n| p/Personal FTPd/ o/Windows/
 match ftp m|^220 Personal FTP Professional Server ready\r\n| p/Personal FTPd Professional/ o/Windows/
-match ftp m|^220 \w+ Lexmark T642 FTP Server ([-\w_.]+) ready\.\r\n| p/Lexmark T642 printer ftpd/ i/Firmware $1/ d/printer/
 match ftp m|^220-InterVations FileCOPA FTP Server Version ([\d.]+) .*\r\n220 Trial Version\. (\d+) days remaining\r\n| p/InterVations FileCOPA ftpd/ v/$1/ i/Trial: $2 days left/ o/Windows/
 match ftp m|^220 cab Mach4/(\d+) FTP Server ready\.\r\n| p/CAB MACH 4 label printer ftpd/ d/printer/ i/$1 dpi/
 match ftp m|^220 cab A4\+/(\d+) FTP Server ready\.\r\n| p/CAB A4+ label printer ftpd/ d/printer/ i/$1 dpi/
@@ -719,10 +715,10 @@ match ftp m|^220 .* Server \(vftpd ([\d.]+)\) ready\.\r\n| p/vftpd/ v/$1/ o/Wind
 match ftp m|^220 Welcome to Network Camera FTP Server\r\n| p/Vivotek 3102 Camera ftpd/ d/webcam/
 match ftp m|^220-TwoFTPd server ready\.\r\n220 Authenticate first\.\r\n| p/TwoFTPd/ o/Unix/
 match ftp m|^220  WEB TLC FTP SERVER READY TYPE HELP FOR HELP \r\n| p/Overland Storage Neo2000 ftpd/ d/storage-misc/
-match ftp m|^220 ([-\w_.]+) Lexmark (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/ d/printer/
-match ftp m|^220 ([-\w_.]+) MarkNet (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ h/$1/ v/$3/ d/printer/
-match ftp m|^220 ([-\w_.]+) Dell Laser Printer (\w+) FTP Server ([\w.]+) ready\.\r\n| p/Dell $2 laser printer ftpd/ h/$1/ v/$3/ d/printer/
-match ftp m|^220 ([-\w_.]+) Dell (\w+) Laser Printer FTP Server ([\w.]+) ready\.\r\n| p/Dell $2 laser printer ftpd/ h/$1/ v/$3/ d/printer/
+match ftp m|^220 ([-/.+\w_]+) Lexmark ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ v/$3/ h/$1/ d/printer/
+match ftp m|^220 ([-/.+\w_]+) MarkNet ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Lexmark $2 printer ftpd/ v/$3/ h/$1/ d/printer/
+match ftp m|^220 ([-/.+\w_]+) Dell Laser Printer ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ h/$1/ d/printer/
+match ftp m|^220 ([-/.+\w_]+) Dell ([-/.+\w ]+) FTP Server ([-.\w]+) ready\.\r\n| p/Dell $2 printer ftpd/ v/$3/ h/$1/ d/printer/
 match ftp m|^500 newmedia\.sheridanc\.on\.ca FTP server shut down -- please try again later\.\r\n| p/Mac OS X Server ftpd/ i/disabled/ o/Mac OS X/
 match ftp m|^220  \(Ver\. ([^)]+)\) [A-Z][a-z]{2} \d+ 20\d+ ready\.\r\n| p|Canon VB-C10/VB-C10R webcam ftpd| v/$1/ d/webcam/
 match ftp m|^220 Cisco \(([\d.]+)\) FTP server ready\r\n| p/Cisco ftpd/ v/$1/ o/IOS/
