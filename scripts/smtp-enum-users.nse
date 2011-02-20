@@ -58,7 +58,8 @@ STATUS_CODES = {
 	ERROR = 1,
 	NOTPERMITTED = 2,
 	VALID = 3,
-	INVALID = 4
+	INVALID = 4,
+	UNKNOWN = 5
 }
 
 ---Counts the number of occurrences in a table. Helper function from LUA documentation
@@ -288,6 +289,9 @@ function do_rcpt(socket, username, domain)
 
 	if not status then
 		return STATUS_CODES.ERROR, string.format("Failed to issue RCPT TO:<%s@%s> command (%s)", username, domain, response)
+	elseif string.match(response, "^550") then
+		-- 550 User Unknown
+        return STATUS_CODES.UNKNOWN	
 	elseif string.match(response, "^553") then
 		-- 553 Relaying Denied
 		return STATUS_CODES.NOTPERMITTED
@@ -393,7 +397,7 @@ function go(host, port)
 			elseif status == STATUS_CODES.AUTHENTICATION then
 				quit(socket)
 				return false, "Couldn't perform user enumeration, authentication needed"
-			else -- STATUS_CODES.INVALID
+			elseif status == STATUS_CODES.INVALID then
 				table.insert(result, string.format("Method %s returned a unhandled status code.", method))
 				break
 			end
