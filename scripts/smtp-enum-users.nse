@@ -291,7 +291,7 @@ function do_rcpt(socket, username, domain)
 		return STATUS_CODES.ERROR, string.format("Failed to issue RCPT TO:<%s@%s> command (%s)", username, domain, response)
 	elseif string.match(response, "^550") then
 		-- 550 User Unknown
-        return STATUS_CODES.UNKNOWN	
+		return STATUS_CODES.UNKNOWN
 	elseif string.match(response, "^553") then
 		-- 553 Relaying Denied
 		return STATUS_CODES.NOTPERMITTED
