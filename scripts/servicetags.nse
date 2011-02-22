@@ -72,7 +72,6 @@ categories = {"default", "discovery", "safe"}
 
 require("stdnse")
 require("shortport")
-require("strbuf")
 
 -- Mapping from XML element names to human-readable table labels.
 local XML_TO_TEXT = {
@@ -135,13 +134,11 @@ action = function(host, port)
     -- connect to the potential service tags discoverer
     try(socket:connect(host.ip, port.number, "udp"))
     
-    local payload = strbuf.new()
+    local payload
     
-    payload = payload .. "[PROBE] "
-    payload = payload .. tostring(os.time())
-    payload = payload .. "\r\n"
+    payload = "[PROBE] ".. tostring(os.time()) .. "\r\n"
     
-    try(socket:send(strbuf.dump(payload)))
+    try(socket:send(payload))
     
     local status
     local response
@@ -169,14 +166,13 @@ action = function(host, port)
     table.insert(output, "URN: " .. urn)
 
     if xport ~= nil then
-        strbuf.clear(payload)
-        payload = payload .. "GET /stv1/agent/ HTTP/1.0\r\n"
+        payload = "GET /stv1/agent/ HTTP/1.0\r\n"
 
         socket = nmap.new_socket()
         socket:set_timeout(5000)
 
         try(socket:connect(host.ip, xport, "tcp"))
-        try(socket:send(strbuf.dump(payload)))
+        try(socket:send(payload))
 
         status, response = socket:receive_buf("</st1:response>", true)
 
@@ -193,10 +189,9 @@ action = function(host, port)
         end
 
         -- Check if any other service tags are registered and enumerate them
-        strbuf.clear(payload)
-        payload = payload .. "GET /stv1/svctag/ HTTP/1.0\r\n"
+        payload = "GET /stv1/svctag/ HTTP/1.0\r\n"
         try(socket:connect(host.ip, xport, "tcp"))
-        try(socket:send(strbuf.dump(payload)))
+        try(socket:send(payload))
 
         status, response = socket:receive_buf("</service_tags>", true)
 
@@ -211,13 +206,10 @@ action = function(host, port)
         for svctag in string.gmatch(response, "<link type=\"service_tag\" href=\"(.-)\" />") do
             local tag = {}
 
-            strbuf.clear(payload)
-            payload = payload .. "GET "
-            payload = payload .. svctag
-            payload = payload .. " HTTP/1.0\r\n"
+            payload = "GET " .. svctag .. " HTTP/1.0\r\n"
 
             try(socket:connect(host.ip, xport, "tcp"))
-            try(socket:send(strbuf.dump(payload)))
+            try(socket:send(payload))
 
             status, response = socket:receive_buf("</st1:response>", true)
 
