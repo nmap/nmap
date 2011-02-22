@@ -22,6 +22,7 @@ categories = {"default", "discovery", "safe"}
 require "datafiles"
 require "shortport"
 require "bin"
+require "tab"
 
 portrule = shortport.port_or_service ({20110, 20510, 27950, 30710}, "quake3-master", {"udp"})
 
@@ -120,10 +121,11 @@ local function getservers(host, port, q3protocol)
 end
 
 local function formatresult(servers, outputlimit, protocols)
+	local t = tab.new()
+
 	if not outputlimit then
 		outputlimit = #servers
 	end
-	local formatted = {}
 	for i = 1, outputlimit do
 		if not servers[i] then
 			break
@@ -132,12 +134,10 @@ local function formatresult(servers, outputlimit, protocols)
 		local protocol = node.protocol
 		local ip = node.ip
 		local portnum = node.port
-		table.insert(formatted, string.format('%s:%d %s (%s)', ip, portnum, protocols[protocol], protocol))
+		tab.addrow(t, string.format('%s:%d', ip, portnum), string.format('%s (%s)', protocols[protocol], protocol))
 	end
-	if #formatted < #servers then
-		table.insert(formatted, string.format('Only %d/%d shown. Use --script-args %s.outputlimit=-1 to see all.', #formatted, #servers, SCRIPT_NAME))
-	end
-	return formatted
+
+	return tab.dump(t)
 end
 
 local function dropdupes(tables, stringify)
@@ -198,6 +198,9 @@ action = function(host, port)
 	end
 	local response = {}
 	table.insert(response, formatted)
+	if outputlimit and outputlimit < #servers then
+		table.insert(response, string.format('Only %d/%d shown. Use --script-args %s.outputlimit=-1 to see all.', outputlimit, #servers, SCRIPT_NAME))
+	end
 	return stdnse.format_output(true, response)
 end
 
