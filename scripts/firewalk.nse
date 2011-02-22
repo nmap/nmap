@@ -16,8 +16,8 @@ Every "no-reply" filtered TCP and UDP ports are probed. As for UDP scans, this
 process can be quite slow if lots of ports are blocked by a gateway close to the
 scanner.
 
-Scan parameters can be controlled using the <code><firewalk.*</code>
-optionnal arguments.
+Scan parameters can be controlled using the <code>firewalk.*</code>
+optional arguments.
 
 From an original idea of M. Schiffman and D. Goldsmith, authors of the
 firewalk tool.
@@ -345,7 +345,7 @@ local function getopts()
   MaxRetries = tonumber(stdnse.get_script_args("firewalk.max-retries")) or DEFAULT_MAX_RETRIES
 
   MaxActiveProbes = tonumber(stdnse.get_script_args("firewalk.max-active-probes")) or DEFAULT_MAX_ACTIVE_PROBES
-  
+
   MaxProbedPorts = tonumber(stdnse.get_script_args("firewalk.max-probed-ports")) or DEFAULT_MAX_PROBED_PORTS
 
 
