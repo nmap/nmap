@@ -122,6 +122,7 @@ Entry { filename = "pop3-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
+Entry { filename = "quake3-master-getservers.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", "vuln", } }
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
