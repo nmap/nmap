@@ -164,6 +164,13 @@ udp 2049
   "\x00\x00\x00\x02\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
   "\x00\x00\x00\x00\x00\x00\x00\x00"
 
+# Sun Service Tag Discovery protocol (stdiscover)
+# http://arc.opensolaris.org/caselog/PSARC/2006/638/stdiscover_protocolv2.pdf
+# Would work better with a varying cookie; the second and later sends of this
+# probe will be interpreted as resends by the server and will be ignored.
+udp 6481
+    "[PROBE] 0000"
+
 # NAT-PMP external IP address request. See section 3.2 of
 # http://files.dns-sd.org/draft-cheshire-nat-pmp.txt.
 udp 5351 "\x00\x00"

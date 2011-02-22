@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a Service Tags UDP probe for port 6481/udp. [David]
+
 o [NSE] Added servicetags.nse, which queries the Sun Service Tags
   agent and gets system information. [Matthew Flanagan]
 
