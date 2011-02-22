@@ -160,20 +160,61 @@ action = function(host, port)
     -- buffer to hold script output
     local output = {}
     
-    if response ~= nil then
-        -- We should get a response back that has contains one line for the
-        -- agent URN and TCP port
-        local urn, xport, split
-        split = stdnse.strsplit(" ", response)
-        urn = split[1]
-        xport = split[2]
-        table.insert(output, "URN: " .. urn)
-        if xport ~= nil then
-            strbuf.clear(payload)
-            payload = payload .. "GET /stv1/agent/ HTTP/1.0\r\n"
+    -- We should get a response back that has contains one line for the
+    -- agent URN and TCP port
+    local urn, xport, split
+    split = stdnse.strsplit(" ", response)
+    urn = split[1]
+    xport = split[2]
+    table.insert(output, "URN: " .. urn)
 
-            socket = nmap.new_socket()
-            socket:set_timeout(5000)
+    if xport ~= nil then
+        strbuf.clear(payload)
+        payload = payload .. "GET /stv1/agent/ HTTP/1.0\r\n"
+
+        socket = nmap.new_socket()
+        socket:set_timeout(5000)
+
+        try(socket:connect(host.ip, xport, "tcp"))
+        try(socket:send(strbuf.dump(payload)))
+
+        status, response = socket:receive_buf("</st1:response>", true)
+
+        if (not status) or (response == "TIMEOUT") then
+            socket:close()
+            return
+        end
+
+        for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+            if XML_TO_TEXT[elem] then
+                table.insert(output,
+                    string.format("%s: %s", XML_TO_TEXT[elem], contents))
+            end
+        end
+
+        -- Check if any other service tags are registered and enumerate them
+        strbuf.clear(payload)
+        payload = payload .. "GET /stv1/svctag/ HTTP/1.0\r\n"
+        try(socket:connect(host.ip, xport, "tcp"))
+        try(socket:send(strbuf.dump(payload)))
+
+        status, response = socket:receive_buf("</service_tags>", true)
+
+        if (not status) or (response == "TIMEOUT") then
+            socket:close()
+            return
+        end
+        local svctags = {}
+        if string.match(response, "<link type") then
+            svctags['name'] = "Service Tags"
+        end
+        for svctag in string.gmatch(response, "<link type=\"service_tag\" href=\"(.-)\" />") do
+            local tag = {}
+
+            strbuf.clear(payload)
+            payload = payload .. "GET "
+            payload = payload .. svctag
+            payload = payload .. " HTTP/1.0\r\n"
 
             try(socket:connect(host.ip, xport, "tcp"))
             try(socket:send(strbuf.dump(payload)))
@@ -186,62 +227,21 @@ action = function(host, port)
             end
 
             for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+                if elem == "product_name" then
+                    tag['name'] = contents
+                end
                 if XML_TO_TEXT[elem] then
-                    table.insert(output,
+                    table.insert(tag,
                         string.format("%s: %s", XML_TO_TEXT[elem], contents))
                 end
             end
 
-            -- Check if any other service tags are registered and enumerate them
-            strbuf.clear(payload)
-            payload = payload .. "GET /stv1/svctag/ HTTP/1.0\r\n"
-            try(socket:connect(host.ip, xport, "tcp"))
-            try(socket:send(strbuf.dump(payload)))
-
-            status, response = socket:receive_buf("</service_tags>", true)
-
-            if (not status) or (response == "TIMEOUT") then
-                socket:close()
-                return
-            end
-            local svctags = {}
-            if string.match(response, "<link type") then
-                svctags['name'] = "Service Tags"
-            end
-            for svctag in string.gmatch(response, "<link type=\"service_tag\" href=\"(.-)\" />") do
-                local tag = {}
-
-                strbuf.clear(payload)
-                payload = payload .. "GET "
-                payload = payload .. svctag
-                payload = payload .. " HTTP/1.0\r\n"
-
-                try(socket:connect(host.ip, xport, "tcp"))
-                try(socket:send(strbuf.dump(payload)))
-
-                status, response = socket:receive_buf("</st1:response>", true)
-
-                if (not status) or (response == "TIMEOUT") then
-                    socket:close()
-                    return
-                end
-
-                for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
-                    if elem == "product_name" then
-                        tag['name'] = contents
-                    end
-                    if XML_TO_TEXT[elem] then
-                        table.insert(tag,
-                            string.format("%s: %s", XML_TO_TEXT[elem], contents))
-                    end
-                end
-
-                table.insert(svctags, tag)
-                socket:close()
-            end
+            table.insert(svctags, tag)
             socket:close()
-            table.insert(output, svctags)
         end
-        return stdnse.format_output(true, output)
+        socket:close()
+        table.insert(output, svctags)
     end
+
+    return stdnse.format_output(true, output)
 end
