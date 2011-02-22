@@ -126,6 +126,7 @@ Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", 
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "discovery", "safe", } }
+Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
 Entry { filename = "smb-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "smb-check-vulns.nse", categories = { "dos", "exploit", "intrusive", "vuln", } }
@@ -149,6 +150,7 @@ Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "snmp-interfaces.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "snmp-ios-config.nse", categories = { "intrusive", } }
 Entry { filename = "snmp-netstat.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-processes.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-sysdescr.nse", categories = { "default", "discovery", "safe", } }
