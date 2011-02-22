@@ -120,28 +120,22 @@ local function getservers(host, port, q3protocol)
 end
 
 local function formatresult(servers, outputlimit, protocols)
-	math.randomseed(os.time())
-	randomized = {}
-	while #servers > 0 do
-		local x = table.remove(servers, math.random(1, #servers))
-		table.insert(randomized, x)
-	end
 	if not outputlimit then
-		outputlimit = #randomized
+		outputlimit = #servers
 	end
 	local formatted = {}
 	for i = 1, outputlimit do
-		if not randomized[i] then
+		if not servers[i] then
 			break
 		end
-		local node = randomized[i]
+		local node = servers[i]
 		local protocol = node.protocol
 		local ip = node.ip
 		local portnum = node.port
 		table.insert(formatted, string.format('%s:%d %s (%s)', ip, portnum, protocols[protocol], protocol))
 	end
-	if #formatted < #randomized then
-		table.insert(formatted, string.format('Only %d shown. Use --script-args %s.outputlimit=-1 to see all.', outputlimit, SCRIPT_NAME))
+	if #formatted < #servers then
+		table.insert(formatted, string.format('Only %d/%d shown. Use --script-args %s.outputlimit=-1 to see all.', #formatted, #servers, SCRIPT_NAME))
 	end
 	return formatted
 end
