@@ -16,7 +16,7 @@ Every "no-reply" filtered TCP and UDP ports are probed. As for UDP scans, this
 process can be quite slow if lots of ports are blocked by a gateway close to the
 scanner.
 
-Scan parameters can be controlled using the <code><firewalk-path.*</code>
+Scan parameters can be controlled using the <code><firewalk.*</code>
 optionnal arguments.
 
 From an original idea of M. Schiffman and D. Goldsmith, authors of the
@@ -26,23 +26,23 @@ firewalk tool.
 
 ---
 -- @usage
--- nmap --script=firewalk-path --traceroute <host>
+-- nmap --script=firewalk --traceroute <host>
 --
 -- @usage
--- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.max-retries=1 <host>
+-- nmap --script=firewalk --traceroute --script-args=firewalk.max-retries=1 <host>
 --
 -- @usage
--- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.probe-timeout=400ms <host>
+-- nmap --script=firewalk --traceroute --script-args=firewalk.probe-timeout=400ms <host>
 --
 -- @usage
--- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.max-probed-ports=7 <host>
+-- nmap --script=firewalk --traceroute --script-args=firewalk.max-probed-ports=7 <host>
 --
 --
--- @args firewalk-path.max-retries the maximum number of allowed retransmissions
--- @args firewalk-path.recv-timeout the duration of the packets capture loop (in milliseconds)
--- @args firewalk-path.probe-timeout validity period of a probe (in milliseconds)
--- @args firewalk-path.max-active-probes maximum number of parallel active probes
--- @args firewalk-path.max-probed-ports maximum number of ports to probe per protocol. Set to -1 to scan every filtered ports
+-- @args firewalk.max-retries the maximum number of allowed retransmissions
+-- @args firewalk.recv-timeout the duration of the packets capture loop (in milliseconds)
+-- @args firewalk.probe-timeout validity period of a probe (in milliseconds)
+-- @args firewalk.max-active-probes maximum number of parallel active probes
+-- @args firewalk.max-probed-ports maximum number of ports to probe per protocol. Set to -1 to scan every filtered ports
 --
 --
 -- @output
@@ -333,7 +333,7 @@ local function setregs(host, ports)
     nmap.registry[host.ip] = {}
   end
 
-  nmap.registry[host.ip]['firewalk-path_ports'] = ports
+  nmap.registry[host.ip]['firewalk_ports'] = ports
 
 end
 
@@ -342,23 +342,23 @@ local function getopts()
 
   -- assign parameters to scan constants or use defaults
 
-  MaxRetries = tonumber(stdnse.get_script_args("firewalk-path.max-retries")) or DEFAULT_MAX_RETRIES
+  MaxRetries = tonumber(stdnse.get_script_args("firewalk.max-retries")) or DEFAULT_MAX_RETRIES
 
-  MaxActiveProbes = tonumber(stdnse.get_script_args("firewalk-path.max-active-probes")) or DEFAULT_MAX_ACTIVE_PROBES
+  MaxActiveProbes = tonumber(stdnse.get_script_args("firewalk.max-active-probes")) or DEFAULT_MAX_ACTIVE_PROBES
   
-  MaxProbedPorts = tonumber(stdnse.get_script_args("firewalk-path.max-probed-ports")) or DEFAULT_MAX_PROBED_PORTS
+  MaxProbedPorts = tonumber(stdnse.get_script_args("firewalk.max-probed-ports")) or DEFAULT_MAX_PROBED_PORTS
 
 
   -- use stdnse time specification parser for ProbeTimeout and RecvTimeout
 
-  local timespec = stdnse.get_script_args("firewalk-path.recv-timeout")
+  local timespec = stdnse.get_script_args("firewalk.recv-timeout")
 
   if timespec then
 
     RecvTimeout = parse_timespec_ms(timespec)
 
     if not RecvTimeout then
-      stdnse.print_debug("Invalid time specification for option: firewalk-path.recv-timeout (%s)", timespec)
+      stdnse.print_debug("Invalid time specification for option: firewalk.recv-timeout (%s)", timespec)
       return false
     end
 
@@ -368,14 +368,14 @@ local function getopts()
   end
 
 
-  timespec = stdnse.get_script_args("firewalk-path.probe-timeout")
+  timespec = stdnse.get_script_args("firewalk.probe-timeout")
 
   if timespec then
 
     ProbeTimeout = parse_timespec_ms(timespec)
 
     if not ProbeTimeout then
-      stdnse.print_debug("Invalid time specification for option: firewalk-path.probe-timeout (%s)", timespec)
+      stdnse.print_debug("Invalid time specification for option: firewalk.probe-timeout (%s)", timespec)
       return false
     end
 
@@ -393,15 +393,15 @@ hostrule = function(host)
 
   -- firewalk requires privileges to run
   if not nmap.is_privileged() then
-    if not nmap.registry['firewalk-path'] then
-      nmap.registry['firewalk-path'] = {}
+    if not nmap.registry['firewalk'] then
+      nmap.registry['firewalk'] = {}
     end
 
-    if nmap.registry['firewalk-path']['rootfail'] then
+    if nmap.registry['firewalk']['rootfail'] then
       return false
     end
 
-    nmap.registry['firewalk-path']['rootfail'] = true
+    nmap.registry['firewalk']['rootfail'] = true
 
     if nmap.verbosity() > 0 then
       nmap.log_write("stdout", SCRIPT_NAME .. ": not running for lack of privileges")
@@ -445,15 +445,15 @@ end
 local function initial_ttl(host)
 
   if not host.traceroute then
-    if not nmap.registry['firewalk-path'] then
-      nmap.registry['firewalk-path'] = {}
+    if not nmap.registry['firewalk'] then
+      nmap.registry['firewalk'] = {}
     end
 
-    if nmap.registry['firewalk-path']['traceroutefail'] then
+    if nmap.registry['firewalk']['traceroutefail'] then
       return nil
     end
 
-    nmap.registry['firewalk-path']['traceroutefail'] = true
+    nmap.registry['firewalk']['traceroutefail'] = true
 
     if nmap.verbosity() > 0 then
       nmap.log_write("stdout", SCRIPT_NAME .. ": requires unavailable traceroute informations")
@@ -828,7 +828,7 @@ action = function(host)
     sock = nmap.new_dnet(),
     pcap = nmap.new_socket(),
 
-    ports = nmap.registry[host.ip]['firewalk-path_ports'],
+    ports = nmap.registry[host.ip]['firewalk_ports'],
 
     sendqueue = {},       -- pending probes
     pending_resends = {}, -- probes needing to be resent
