@@ -32,13 +32,17 @@ firewalk tool.
 -- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.max-retries=1 <host>
 --
 -- @usage
--- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.probe-timeout=1000 <host>
+-- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.probe-timeout=400ms <host>
+--
+-- @usage
+-- nmap --script=firewalk-path --traceroute --script-args=firewalk-path.max-probed-ports=7 <host>
 --
 --
 -- @args firewalk-path.max-retries the maximum number of allowed retransmissions
 -- @args firewalk-path.recv-timeout the duration of the packets capture loop (in milliseconds)
 -- @args firewalk-path.probe-timeout validity period of a probe (in milliseconds)
 -- @args firewalk-path.max-active-probes maximum number of parallel active probes
+-- @args firewalk-path.max-probed-ports maximum number of ports to probe per protocol. Set to -1 to scan every filtered ports
 --
 --
 -- @output
@@ -53,8 +57,8 @@ firewalk tool.
 --
 
 
--- 12/29/2010
-author = "Henri Doreau <henri.doreau[at]gmail.com>"
+-- 12/29/2010: initial version
+author = "Henri Doreau"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -62,7 +66,6 @@ categories = {"safe", "discovery"}
 
 
 -- TODO
---  o add an option to select ports to probe
 --  o add an option to select gateway(s)/TTL(s) to probe
 --  o remove traceroute dependency
 
@@ -88,6 +91,9 @@ local DEFAULT_PROBE_TIMEOUT = 2000
 -- max number of simultaneously neither replied nor timed out probes
 local DEFAULT_MAX_ACTIVE_PROBES = 20
 
+-- maximum number of probed ports per protocol
+local DEFAULT_MAX_PROBED_PORTS = 10
+
 ----------------------------------------
 
 
@@ -97,6 +103,7 @@ local MaxRetries
 local RecvTimeout
 local ProbeTimeout
 local MaxActiveProbes
+local MaxProbedPorts
 
 
 
@@ -289,6 +296,7 @@ local function build_portlist(host)
   }
 
   for _, combo in ipairs(combos) do
+    local i = 0
     local port = nil
     local proto = combo[1]
     local state = combo[2]
@@ -306,8 +314,10 @@ local function build_portlist(host)
         }
 
         portlist[proto][port.number] = pentry
+        i = i + 1
       end
-    until not port
+
+    until not port or i == MaxProbedPorts
   end
 
   return portlist
@@ -324,6 +334,57 @@ local function setregs(host, ports)
   end
 
   nmap.registry[host.ip]['firewalk-path_ports'] = ports
+
+end
+
+--- set scan parameters using user values if specified or defaults otherwise
+local function getopts()
+
+  -- assign parameters to scan constants or use defaults
+
+  MaxRetries = tonumber(stdnse.get_script_args("firewalk-path.max-retries")) or DEFAULT_MAX_RETRIES
+
+  MaxActiveProbes = tonumber(stdnse.get_script_args("firewalk-path.max-active-probes")) or DEFAULT_MAX_ACTIVE_PROBES
+  
+  MaxProbedPorts = tonumber(stdnse.get_script_args("firewalk-path.max-probed-ports")) or DEFAULT_MAX_PROBED_PORTS
+
+
+  -- use stdnse time specification parser for ProbeTimeout and RecvTimeout
+
+  local timespec = stdnse.get_script_args("firewalk-path.recv-timeout")
+
+  if timespec then
+
+    RecvTimeout = parse_timespec_ms(timespec)
+
+    if not RecvTimeout then
+      stdnse.print_debug("Invalid time specification for option: firewalk-path.recv-timeout (%s)", timespec)
+      return false
+    end
+
+  else
+    -- no value supplied: use default
+    RecvTimeout = DEFAULT_RECV_TIMEOUT
+  end
+
+
+  timespec = stdnse.get_script_args("firewalk-path.probe-timeout")
+
+  if timespec then
+
+    ProbeTimeout = parse_timespec_ms(timespec)
+
+    if not ProbeTimeout then
+      stdnse.print_debug("Invalid time specification for option: firewalk-path.probe-timeout (%s)", timespec)
+      return false
+    end
+
+  else
+    -- no value supplied: use default
+    ProbeTimeout = DEFAULT_PROBE_TIMEOUT
+  end
+
+  return true
 
 end
 
@@ -350,6 +411,11 @@ hostrule = function(host)
   end
 
   if not host.interface then
+    return false
+  end
+
+  -- assign user's values to scan parameters or use defaults
+  if not getopts() then
     return false
   end
 
@@ -495,7 +561,7 @@ local function report(scanner)
     -- XXX 'localhost' might be a better choice?
     {ip = packet.toip(scanner.target.bin_ip_src)}
   }
-  
+
   for _, v in pairs(scanner.target.traceroute) do
     table.insert(path, v)
   end
@@ -738,18 +804,16 @@ local function generate_initial_probes(scanner)
   end
 end
 
-local function set_scan_parameters()
-
-  -- Assign parameters to scan constants or use defaults --
-
-  MaxRetries = tonumber(stdnse.get_script_args("firewalk-path.max-retries")) or DEFAULT_MAX_RETRIES
-
-  RecvTimeout = tonumber(stdnse.get_script_args("firewalk-path.recv-timeout")) or DEFAULT_RECV_TIMEOUT
-
-  ProbeTimeout = tonumber(stdnse.get_script_args("firewalk-path.probe-timeout")) or DEFAULT_PROBE_TIMEOUT
-
-  MaxActiveProbes = tonumber(stdnse.get_script_args("firewalk-path.max-active-probes")) or DEFAULT_MAX_ACTIVE_PROBES
-
+--- wrapper for stdnse.parse_timespec() to get specified value in milliseconds
+-- @param spec the time specification string (like "10s", "120ms"...)
+-- @return the equivalent number of milliseconds or nil on failure
+local function parse_timespec_ms(spec)
+  local t = stdnse.parse_timespec(spec)
+  if t then
+    return t * 1000
+  else
+    return nil
+  end
 end
 
 --- firewalk entry point
@@ -774,9 +838,6 @@ action = function(host)
   if not scanner.ttl then
     return nil
   end
-
-  -- assign user's values to scan parameters or use defaults
-  set_scan_parameters()
 
   -- filter for incoming ICMP time exceeded replies
   scanner.pcap:pcap_open(host.interface, 104, false, "icmp and dst host " .. saddr)
