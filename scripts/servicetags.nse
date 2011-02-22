@@ -113,6 +113,8 @@ local XML_TO_TEXT = {
 -- Runs on UDP port 6481
 portrule = shortport.portnumber(6481, "udp", {"open", "open|filtered"})
 
+local get_agent, get_svctag_list, get_svctag
+
 ---
 -- Sends Service Tags discovery packet to host, 
 -- and extracts service information from results
@@ -144,12 +146,8 @@ action = function(host, port)
     local response
     
     -- read in any response we might get
-    status, response = socket:receive_bytes(1)
-
-    if (not status) or (response == "TIMEOUT") then
-        socket:close()
-        return
-    end
+    response = try(socket:receive())
+    socket:close()
 
     -- since we got something back, the port is definitely open
     nmap.set_port_state(host, port, "open")
@@ -166,74 +164,120 @@ action = function(host, port)
     table.insert(output, "URN: " .. urn)
 
     if xport ~= nil then
-        payload = "GET /stv1/agent/ HTTP/1.0\r\n"
-
-        socket = nmap.new_socket()
-        socket:set_timeout(5000)
-
-        try(socket:connect(host.ip, xport, "tcp"))
-        try(socket:send(payload))
-
-        status, response = socket:receive_buf("</st1:response>", true)
-
-        if (not status) or (response == "TIMEOUT") then
-            socket:close()
-            return
-        end
-
-        for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
-            if XML_TO_TEXT[elem] then
-                table.insert(output,
-                    string.format("%s: %s", XML_TO_TEXT[elem], contents))
-            end
-        end
+        get_agent(host, xport, output)
 
         -- Check if any other service tags are registered and enumerate them
-        payload = "GET /stv1/svctag/ HTTP/1.0\r\n"
-        try(socket:connect(host.ip, xport, "tcp"))
-        try(socket:send(payload))
-
-        status, response = socket:receive_buf("</service_tags>", true)
-
-        if (not status) or (response == "TIMEOUT") then
-            socket:close()
-            return
-        end
-        local svctags = {}
-        if string.match(response, "<link type") then
-            svctags['name'] = "Service Tags"
-        end
-        for svctag in string.gmatch(response, "<link type=\"service_tag\" href=\"(.-)\" />") do
-            local tag = {}
-
-            payload = "GET " .. svctag .. " HTTP/1.0\r\n"
-
-            try(socket:connect(host.ip, xport, "tcp"))
-            try(socket:send(payload))
-
-            status, response = socket:receive_buf("</st1:response>", true)
-
-            if (not status) or (response == "TIMEOUT") then
-                socket:close()
-                return
-            end
-
-            for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
-                if elem == "product_name" then
-                    tag['name'] = contents
-                end
-                if XML_TO_TEXT[elem] then
-                    table.insert(tag,
-                        string.format("%s: %s", XML_TO_TEXT[elem], contents))
+        status, svctags_list = get_svctag_list(host, xport, output)
+        if status then
+            svctags = {}
+            for _, svctag in ipairs(svctags_list) do
+                svctags['name'] = "Service Tags"
+                status, tag = get_svctag(host, port, svctag)
+                if status then
+                    svctags[#svctags + 1] = tag
                 end
             end
-
-            table.insert(svctags, tag)
-            socket:close()
+            table.insert(output, svctags)
         end
-        socket:close()
-        table.insert(output, svctags)
     end
 
     return stdnse.format_output(true, output)
+end
+
+function get_agent(host, port, output)
+    local socket = nmap.new_socket()
+    local status, err, response
+    socket:set_timeout(5000)
+
+    status, err = socket:connect(host.ip, port, "tcp")
+    if not status then
+        return nil, err
+    end
+    status, err = socket:send("GET /stv1/agent/ HTTP/1.0\r\n")
+    if not status then
+        socket:close()
+        return nil, err
+    end
+    status, response = socket:receive_buf("</st1:response>", true)
+    if not status then
+        socket:close()
+        return nil, response
+    end
+
+    socket:close()
+
+    for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+        if XML_TO_TEXT[elem] then
+            table.insert(output,
+                string.format("%s: %s", XML_TO_TEXT[elem], contents))
+        end
+    end
+
+    return true, output
+end
+
+function get_svctag_list(host, port)
+    local socket = nmap.new_socket()
+    local status, err, response
+    socket:set_timeout(5000)
+
+    status, err = socket:connect(host.ip, port, "tcp")
+    if not status then
+        return nil, err
+    end
+    status, err = socket:send("GET /stv1/svctag/ HTTP/1.0\r\n")
+    if not status then
+        socket:close()
+        return nil, err
+    end
+    status, response = socket:receive_buf("</service_tags>", true)
+    if not status then
+        socket:close()
+        return nil, response
+    end
+
+    socket:close()
+
+    local svctags = {}
+    for svctag in string.gmatch(response, "<link type=\"service_tag\" href=\"(.-)\" />") do
+        svctags[#svctags + 1] = svctag
+    end
+
+    return true, svctags
+end
+
+function get_svctag(host, port, svctag)
+    local socket = nmap.new_socket()
+    local status, err, response
+    socket:set_timeout(5000)
+
+    status, err = socket:connect(host.ip, port, "tcp")
+    if not status then
+        return nil, err
+    end
+    status, err = socket:send("GET " .. svctag .. " HTTP/1.0\r\n")
+    if not status then
+        socket:close()
+        return nil, err
+    end
+    status, response = socket:receive_buf("</st1:response>", true)
+    if not status then
+        socket:close()
+        return nil, response
+    end
+
+    socket:close()
+
+    local tag = {}
+    for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+        if elem == "product_name" then
+            tag['name'] = contents
+        end
+        if XML_TO_TEXT[elem] then
+            table.insert(tag,
+                string.format("%s: %s", XML_TO_TEXT[elem], contents))
+        end
+    end
+
+    return true, tag
 end
