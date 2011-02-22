@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Enhanced firewalk.nse to automatically find the gateways at
+  which probes are dropped. [Henri Doreau]
+
 o [NSE] Use the correct script name in the usage example of the
   smtp-enum-users script. Reported by Jamuse, who also contributed
   a patch.
