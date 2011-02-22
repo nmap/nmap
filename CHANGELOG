@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added servicetags.nse, which queries the Sun Service Tags
+  agent and gets system information. [Matthew Flanagan]
+
 o [NSE] Enhanced firewalk.nse to automatically find the gateways at
   which probes are dropped. [Henri Doreau]
 
