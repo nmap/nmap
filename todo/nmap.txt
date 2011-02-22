@@ -24,22 +24,11 @@ o Process Nmap survey and send out results [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
-  - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
-    http://seclists.org/nmap-dev/2010/q4/613
-    http://seclists.org/nmap-dev/2010/q4/623
-    http://seclists.org/nmap-dev/2010/q4/639
-  - servicetags http://seclists.org/nmap-dev/2010/q4/691
-    needs new testing on OpenSolaris: http://seclists.org/nmap-dev/2011/q1/91
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
   - ssl-known_key http://seclists.org/nmap-dev/2010/q4/733
     Thread continues at http://seclists.org/nmap-dev/2011/q1/26.
-  - firewalk-path http://seclists.org/nmap-dev/2011/q1/63
   - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
-  - snmp-ios-config http://seclists.org/nmap-dev/2011/q1/10
-    Requires a TFTP server; decision was to build such server in Lua
-    if possible. Patrik Karlsson's beginning TFTP implementation:
-    http://seclists.org/nmap-dev/2011/q1/169.
   - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
     Should share domain list with http-vhosts.
     git://code.0x0lab.org/nmap-dns-brute.git
@@ -705,6 +694,23 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review:
+  - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
+    http://seclists.org/nmap-dev/2010/q4/613
+    http://seclists.org/nmap-dev/2010/q4/623
+    http://seclists.org/nmap-dev/2010/q4/639
+    [on hold]
+  - servicetags http://seclists.org/nmap-dev/2010/q4/691
+    needs new testing on OpenSolaris: http://seclists.org/nmap-dev/2011/q1/91
+    [committed]
+  - firewalk-path http://seclists.org/nmap-dev/2011/q1/63
+    [committed over previous firewalk script]
+  - snmp-ios-config http://seclists.org/nmap-dev/2011/q1/10
+    Requires a TFTP server; decision was to build such server in Lua
+    if possible. Patrik Karlsson's beginning TFTP implementation:
+    http://seclists.org/nmap-dev/2011/q1/169.
+    [committed by Patrik]
 
 o Script merged: p2p-dropbox-listener
   http://seclists.org/nmap-dev/2010/q4/689
