@@ -184,5 +184,5 @@ local LIKELY_SSL_SERVICES = {
 -- portrule = shortport.ssl
 function ssl(host, port)
     return port.version.service_tunnel == "ssl" or
-        port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, "tcp", "sctp")
+        port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, {"tcp", "sctp"})(host, port)
 end
