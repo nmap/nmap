@@ -74,6 +74,42 @@ require("stdnse")
 require("shortport")
 require("strbuf")
 
+-- Mapping from XML element names to human-readable table labels.
+local XML_TO_TEXT = {
+    -- Information about the agent.
+    system = "System",
+    release = "Release",
+    host = "Hostname",
+    architecture = "Architecture",
+    platform = "Platform",
+    manufacturer = "Manufacturer",
+    cpu_manufacturer = "CPU Manufacturer",
+    serial_number = "Serial Number",
+    hostid = "HostID",
+    physmem = "RAM",
+    sockets = "CPUs",
+    cores = "Cores",
+    virtcpus = "Virtual CPUs",
+    name = "CPU Name:",
+    clockrate = "CPU Clock Rate",
+
+    -- Information about an individual svctag.
+    product_name = "Product Name",
+    instance_urn = "Instance URN",
+    product_version = "Product Version",
+    product_urn = "Product URN",
+    product_parent_urn = "Product Parent URN",
+    product_parent = "Product Parent",
+    product_defined_inst_id = "Product Defined Instance ID",
+    product_vendor = "Product Vendor",
+    timestamp = "Timestamp",
+    container = "Container",
+    source = "Source",
+    platform_arch = "Platform Arch",
+    installer_uid = "Installer UID",
+    version = "Version",
+}
+
 ---
 -- Runs on UDP port 6481
 portrule = shortport.portnumber(6481, "udp", {"open", "open|filtered"})
@@ -149,53 +185,12 @@ action = function(host, port)
                 return
             end
 
-            local v
-
-            v = string.match(response, "<system>(.-)</system>")
-            if v ~= nil then table.insert(output, "System: " .. v) end
-
-            v = string.match(response, "<release>(.-)</release>")
-            if v ~= nil then table.insert(output, "Release: " .. v) end
-
-            v = string.match(response, "<host>(.-)</host>")
-            if v ~= nil then table.insert(output, "Hostname: " .. v) end
-
-            v = string.match(response, "<architecture>(.-)</architecture>")
-            if v ~= nil then table.insert(output, "Architecture: " .. v) end
-
-            v = string.match(response, "<platform>(.-)</platform>")
-            if v ~= nil then table.insert(output, "Platform: " .. v) end
-
-            v = string.match(response, "<manufacturer>(.-)</manufacturer>")
-            if v ~= nil then table.insert(output, "Manufacturer: " .. v) end
-
-            v = string.match(response, "<cpu_manufacturer>(.-)</cpu_manufacturer>")
-            if v ~= nil then table.insert(output, "CPU Manufacturer: " .. v) end
-
-            v = string.match(response, "<serial_number>(.-)</serial_number>")
-            if v ~= nil then table.insert(output, "Serial Number: " .. v) end
-
-            v = string.match(response, "<hostid>(.-)</hostid>")
-            if v ~= nil then table.insert(output, "HostID: " .. v) end
-
-            v = string.match(response, "<physmem>(.-)</physmem>")
-            if v ~= nil then table.insert(output, "RAM: " .. v) end
-
-            v = string.match(response, "<sockets>(.-)</sockets>")
-            if v ~= nil then table.insert(output, "CPUs: " .. v) end
-
-            v = string.match(response, "<cores>(.-)</cores>")
-            if v ~= nil then table.insert(output, "Cores: " .. v) end
-
-            v = string.match(response, "<virtcpus>(.-)</virtcpus>")
-            if v ~= nil then table.insert(output, "Virtual CPUs: " .. v) end
-
-            v = string.match(response, "<name>(.-)</name>")
-            if v ~= nil then table.insert(output, "CPU Name: " .. v) end
-
-            v = string.match(response, "<clockrate>(.-)</clockrate>")
-            if v ~= nil then table.insert(output, "CPU Clock Rate: " .. v) end
-            socket:close()
+            for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+                if XML_TO_TEXT[elem] then
+                    table.insert(output,
+                        string.format("%s: %s", XML_TO_TEXT[elem], contents))
+                end
+            end
 
             -- Check if any other service tags are registered and enumerate them
             strbuf.clear(payload)
@@ -231,49 +226,15 @@ action = function(host, port)
                     return
                 end
 
-                local v
-                v = string.match(response, "<product_name>(.-)</product_name>")
-                table.insert(tag, "Product Name: " .. v)
-                tag['name'] = v
-
-                v = string.match(response, "<instance_urn>(.-)</instance_urn>")
-                if v ~= nil then table.insert(tag, "Instance URN: " .. v) end
-
-                v = string.match(response, "<product_version>(.-)</product_version>")
-                if v ~= nil then table.insert(tag, "Product Version: " .. v) end
-
-                v = string.match(response, "<product_urn>(.-)</product_urn>")
-                if v ~= nil then table.insert(tag, "Product URN: " .. v) end
-
-                v = string.match(response, "<product_parent_urn>(.-)</product_parent_urn>")
-                if v ~= nil then table.insert(tag, "Product Parent URN: " .. v) end
-
-                v = string.match(response, "<product_parent>(.-)</product_parent>")
-                if v ~= nil then table.insert(tag, "Product Parent: " .. v) end
-
-                v = string.match(response, "<product_defined_inst_id>(.-)</product_defined_inst_id>")
-                if v ~= nil then table.insert(tag, "Product Defined Instance ID: " .. v) end
-
-                v = string.match(response, "<product_vendor>(.-)</product_vendor>")
-                if v ~= nil then table.insert(tag, "Product Vendor: " .. v) end
-
-                v = string.match(response, "<timestamp>(.-)</timestamp>")
-                if v ~= nil then table.insert(tag, "Timestamp: " .. v) end
-
-                v = string.match(response, "<container>(.-)</container>")
-                if v ~= nil then table.insert(tag, "Container: " .. v) end
-
-                v = string.match(response, "<source>(.-)</source>")
-                if v ~= nil then table.insert(tag, "Source: " .. v) end
-
-                v = string.match(response, "<platform_arch>(.-)</platform_arch>")
-                if v ~= nil then table.insert(tag, "Platform Arch: " .. v) end
-
-                v = string.match(response, "<installer_uid>(.-)</installer_uid>")
-                if v ~= nil then table.insert(tag, "Installer UID: " .. v) end
-
-                v = string.match(response, "<version>(.-)</version>")
-                if v ~= nil then table.insert(tag, "Version: " .. v) end
+                for elem, contents in string.gmatch(response, "<([^>]+)>([^<]-)</%1>") do
+                    if elem == "product_name" then
+                        tag['name'] = contents
+                    end
+                    if XML_TO_TEXT[elem] then
+                        table.insert(tag,
+                            string.format("%s: %s", XML_TO_TEXT[elem], contents))
+                    end
+                end
 
                 table.insert(svctags, tag)
                 socket:close()
