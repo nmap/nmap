@@ -164,3 +164,25 @@ end
 -- portrule = shortport.http
 http = shortport.port_or_service({80, 443, 631, 8080, 5800, 3872},
 	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent"})
+
+local LIKELY_SSL_PORTS = {
+    443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443
+}
+local LIKELY_SSL_SERVICES = {
+    "ftps", "ftps-data", "https", "https-alt", "imaps", "ircs",
+    "ldapssl", "pop3s", "sip-tls", "smtps", "telnets"
+}
+
+---
+-- A portrule that matches likely SSL services.
+--
+-- @param host The host table to match against.
+-- @param port The port table to match against.
+-- @return <code>true</code> if the port is likely to be SSL,
+-- <code>false</code> otherwise.
+-- @usage
+-- portrule = shortport.ssl
+function ssl(host, port)
+    return port.version.service_tunnel == "ssl" or
+        port_or_service(LIKELY_SSL_PORTS, LIKELY_SSL_SERVICES, "tcp", "sctp")
+end

@@ -66,6 +66,7 @@ categories = { "safe", "discovery" }
 
 require("nmap")
 require("nsedebug")
+require("shortport")
 require("stdnse")
 
 local stringify_name
@@ -73,12 +74,10 @@ local date_to_string
 local table_find
 local s
 
-local LIKELY_SSL_PORTS = { 443, 465, 989, 990, 992, 993, 994, 995, 587, 8443 }
 local STARTTLS_PORTS = { 25, 587 }
 
 portrule = function(host, port)
-    return port.version.service_tunnel == "ssl"
-        or table_find(LIKELY_SSL_PORTS, port.number) or table_find(STARTTLS_PORTS, port.number)
+    return shortport.ssl(host, port) or table_find(STARTTLS_PORTS, port.number)
 end
 
 action = function(host, port)

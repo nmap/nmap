@@ -76,37 +76,6 @@ require("nmap")
 require("shortport")
 require("stdnse")
 
-local SSL_PORTS = {
-	443,
-	465,
-	587,
-	636,
-	989,
-	990,
-	992,
-	993,
-	994,
-	995,
-	5061,
-	6679,
-	6697,
-	8443
-}
-
-local SSL_SERVICES = {
-	"ftps",
-	"ftps-data",
-	"https",
-	"https-alt",
-	"imaps",
-	"ircs",
-	"ldapssl",
-	"pop3s",
-	"sip-tls",
-	"smtps",
-	"telnets"
-}
-
 -- Most of the values in the tables below are from:
 -- http://www.iana.org/assignments/tls-parameters/
 PROTOCOLS = {
@@ -735,24 +704,7 @@ local function try_protocol(host, port, protocol)
 	return results
 end
 
-portrule = function(host, port)
-	local is_ssl = shortport.port_or_service(SSL_PORTS, SSL_SERVICES)
-
-	-- This script only handles SSL/TLS over TCP.
-	if port.protocol ~= "tcp" then
-		return false
-	end
-
-	if port.version.service_tunnel == "ssl" then
-		return true
-	end
-
-	if is_ssl(host, port) then
-		return true
-	end
-
-	return false
-end
+portrule = shortport.ssl
 
 action = function(host, port)
 	local name, result, results

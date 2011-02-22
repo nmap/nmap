@@ -21,11 +21,7 @@ categories = {"default", "safe"}
 
 require "shortport"
 
-local portfunction = shortport.port_or_service({443,993,995},{'https','imaps','pop3s'})
-
-portrule = function( host, port )
-  return portfunction( host, port ) or port.version.service_tunnel == 'ssl'
-end
+portrule = shortport.ssl
 
 hex2dec = function(hex)
 
