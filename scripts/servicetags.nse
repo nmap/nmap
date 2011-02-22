@@ -1,5 +1,6 @@
 description = [[
 Attempts to extract system information from the Service Tags.
+
 Based on protocol specs from
 http://arc.opensolaris.org/caselog/PSARC/2006/638/stdiscover_protocolv2.pdf
 http://arc.opensolaris.org/caselog/PSARC/2006/638/stlisten_protocolv2.pdf
@@ -196,7 +197,7 @@ action = function(host, port)
             if v ~= nil then table.insert(output, "CPU Clock Rate: " .. v) end
             socket:close()
 
-            -- Check if any other service tags are registerd and enumerate them
+            -- Check if any other service tags are registered and enumerate them
             strbuf.clear(payload)
             payload = payload .. "GET /stv1/svctag/ HTTP/1.0\r\n"
             try(socket:connect(host.ip, xport, "tcp"))
