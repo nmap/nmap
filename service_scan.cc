@@ -2197,8 +2197,9 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
       } else {
 	if (o.debugging > 1 || o.versionTrace()) {
 	  if (MD->product || MD->version || MD->info)
-	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
+	    log_write(LOG_PLAIN, "Service scan match (Probe %s matched with %s line %d): %s:%hu is %s%s.  Version: |%s|%s|%s|\n",
                       probe->getName(), (*probe->fallbacks[fallbackDepth]).getName(),
+		      MD->lineno,
 		      svc->target->targetipstr(), svc->portno, (svc->tunnel == SERVICE_TUNNEL_SSL)? "SSL/" : "", 
 		      MD->serviceName, (MD->product)? MD->product : "", (MD->version)? MD->version : "", 
 		      (MD->info)? MD->info : "");
