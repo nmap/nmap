@@ -337,6 +337,18 @@ local function setregs(host, ports)
 
 end
 
+--- wrapper for stdnse.parse_timespec() to get specified value in milliseconds
+-- @param spec the time specification string (like "10s", "120ms"...)
+-- @return the equivalent number of milliseconds or nil on failure
+local function parse_timespec_ms(spec)
+  local t = stdnse.parse_timespec(spec)
+  if t then
+    return t * 1000
+  else
+    return nil
+  end
+end
+
 --- set scan parameters using user values if specified or defaults otherwise
 local function getopts()
 
@@ -801,18 +813,6 @@ local function generate_initial_probes(scanner)
       table.insert(scanner.sendqueue, probe)
 
     end
-  end
-end
-
---- wrapper for stdnse.parse_timespec() to get specified value in milliseconds
--- @param spec the time specification string (like "10s", "120ms"...)
--- @return the equivalent number of milliseconds or nil on failure
-local function parse_timespec_ms(spec)
-  local t = stdnse.parse_timespec(spec)
-  if t then
-    return t * 1000
-  else
-    return nil
   end
 end
 
