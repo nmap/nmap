@@ -271,7 +271,7 @@ match daytime m|^[01]\d:\d\d:\d\d [AP]M [0-3]\d/[01]\d/0\d\n$| p/Microsoft Windo
 # HP-UX B.11.00 A inetd daytime
 match daytime m|^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d [A-Z]+ 20\d\d\r\n$| p/HP-UX daytime/ o/HP-UX/
 # Tardis 2000 v1.4 on NT
-match daytime m|^^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d 20\d\d $| p/Tardis 2000 daytime/
+match daytime m|^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d 20\d\d $| p/Tardis 2000 daytime/
 match daytime m|^\d+ \d\d-\d\d-\d\d \d\d:\d\d:\d\d 50 0 4 \d+\.0 UTC\(NIST\) \*\r\n| p/Greyware Domain Time II daytime/
 
 # TrueTime nts100 running WxWorks
