@@ -416,6 +416,7 @@ if test $have_libpcap != yes; then
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
+  AC_DEFINE(PCAP_INCLUDED)
 else
   AC_DEFINE(HAVE_LIBPCAP)
   LIBPCAP_LIBS="-lpcap"
@@ -472,6 +473,7 @@ if test $have_pcre != yes ; then
   PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
+  AC_DEFINE(PCRE_INCLUDED)
 else
 # We only need to check for and use this if we are NOT using included pcre
   AC_CHECK_HEADERS(pcre/pcre.h)
@@ -524,6 +526,7 @@ if test $have_dnet != yes ; then
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
+  AC_DEFINE(DNET_INCLUDED)
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
@@ -621,6 +624,7 @@ else
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
+    AC_DEFINE(LUA_INCLUDED)
   else
     AC_MSG_RESULT(yes) 
   fi

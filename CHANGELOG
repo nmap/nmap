@@ -34,8 +34,10 @@ o [Zenmap] Worked around a pycairo bug that prevented saving the
   (like StringIO)". The problem was reported by Alex Kah. [David]
 
 o The -V and --version options now show the platform Nmap was compiled
-  on, which features are compiled in, and the version numbers of
-  libraries it is linked against. [Ambarisha B., David]
+  on, which features are compiled in, the version numbers of
+  libraries it is linked against, and whether the libraries are the
+  ones that come with Nmap or are from the operating system.
+  [Ambarisha B., David]
 
 o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
   from netVigilance.

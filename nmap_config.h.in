@@ -178,6 +178,12 @@ extern "C" int gethostname (char *, unsigned int);
 #endif
 #endif
 
+/* Used for -V. */
+#undef LUA_INCLUDED
+#undef PCAP_INCLUDED
+#undef DNET_INCLUDED
+#undef PCRE_INCLUDED
+
 #undef DEC
 #undef LINUX
 #undef FREEBSD

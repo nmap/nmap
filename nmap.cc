@@ -2854,7 +2854,11 @@ static void display_nmap_version() {
   unsigned int i;
 
 #ifndef NOLUA
+#ifdef LUA_INCLUDED
+  with.push_back(std::string("nmap-liblua-") + get_word_or_quote(LUA_RELEASE, 1));
+#else
   with.push_back(std::string("liblua-") + get_word_or_quote(LUA_RELEASE, 1));
+#endif
 #else
   without.push_back("liblua");
 #endif
@@ -2865,11 +2869,23 @@ static void display_nmap_version() {
   without.push_back("openssl");
 #endif
 
+#ifdef PCRE_INCLUDED
+  with.push_back(std::string("nmap-libpcre-") + get_word_or_quote(pcre_version(), 0));
+#else
   with.push_back(std::string("libpcre-") + get_word_or_quote(pcre_version(), 0));
+#endif
 
+#ifdef PCAP_INCLUDED
+  with.push_back(std::string("nmap-libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+#else
   with.push_back(std::string("libpcap-") + get_word_or_quote(pcap_lib_version(), 2));
+#endif
 
+#ifdef DNET_INCLUDED
+  with.push_back(std::string("nmap-libdnet-") + DNET_VERSION);
+#else
   with.push_back(std::string("libdnet-") + DNET_VERSION);
+#endif
 
 #if HAVE_IPV6
   with.push_back("ipv6");
