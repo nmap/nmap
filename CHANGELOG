@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed http.validate_options when handling a cookie table.
+  [Sebastian Prengel]
+
 o [NSE] Added quake3-master-getservers, which gets a list of live
   Quake 3 servers from a master server. (It also works for many
   similar games.) [Toni Ruottu]

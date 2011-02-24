@@ -266,8 +266,8 @@ local function validate_options(options)
       end
     elseif(key == 'cookies') then
       if(type(value) == 'table') then
-        for cookie in pairs(value) do
-          for cookie_key, cookie_value in pairs(value) do
+        for _, cookie in ipairs(value) do
+          for cookie_key, cookie_value in pairs(cookie) do
             if(cookie_key == 'name') then
               if(type(cookie_value) ~= 'string') then
                 stdnse.print_debug(1, "http: options.cookies[i].name should be a string")
@@ -281,6 +281,11 @@ local function validate_options(options)
             elseif(cookie_key == 'path') then
               if(type(cookie_value) ~= 'string') then
                 stdnse.print_debug(1, "http: options.cookies[i].path should be a string")
+                bad = true
+              end
+            elseif(cookie_key == 'expires') then
+              if(type(cookie_value) ~= 'string') then
+                stdnse.print_debug(1, "http: options.cookies[i].expires should be a string")
                 bad = true
               end
             else
