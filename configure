@@ -6197,6 +6197,8 @@ if test $have_libpcap != yes; then
   PCAP_BUILD="pcap_build"
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
+  $as_echo "#define PCAP_INCLUDED 1" >>confdefs.h
+
 else
   $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
@@ -6344,6 +6346,8 @@ if test $have_pcre != yes ; then
   PCRE_BUILD="pcre_build"
   PCRE_CLEAN="pcre_clean"
   PCRE_DIST_CLEAN="pcre_dist_clean"
+  $as_echo "#define PCRE_INCLUDED 1" >>confdefs.h
+
 else
 # We only need to check for and use this if we are NOT using included pcre
   for ac_header in pcre/pcre.h
@@ -6410,6 +6414,8 @@ if test $have_dnet != yes ; then
   DNET_BUILD="dnet_build"
   DNET_CLEAN="dnet_clean"
   DNET_DIST_CLEAN="dnet_dist_clean"
+  $as_echo "#define DNET_INCLUDED 1" >>confdefs.h
+
 else
   LIBDNET_LIBS="-ldnet"
   DNET_DEPENDS=""
@@ -6741,6 +6747,8 @@ $as_echo "no" >&6; }
     LUA_BUILD="lua_build"
     LUA_CLEAN="lua_clean"
     LUA_DIST_CLEAN="lua_dist_clean"
+    $as_echo "#define LUA_INCLUDED 1" >>confdefs.h
+
   else
     { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
