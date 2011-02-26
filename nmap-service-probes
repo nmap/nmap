@@ -9990,3 +9990,12 @@ ports 1414-1420
 match ibm-mqseries m|^TSH\x20\0\0\0\xec\x02\x01\x02\0\0\0\0\0\0\0\0\0\x11\x01\0\0\xb5\x01\0\0ID\x20\x20\n&\0\x90\0\0\0\0\xf6\x7f\0\0\0\0@\0\0\0\0\0([^\s]*)\s*Q\0\xb5\x01([^\s]*)\s*,\x01\0\0\0\0\0\0\0\xff\0\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\0\0\0\0\0\0\n\0\0\0\0\0\0\0..\0\0.\0\0\0.\0\0\0[^\s]*\s*$| p/IBM Websphere MQ/ i/Queue manager: $2, Channel: $1/ v/7.0/
 
 softmatch ibm-mqseries m|^TSH\x20\0\0\0| p/IBM Websphere MQ/
+
+##############################NEXT PROBE##############################
+# Queries iPhoto for the /server-info url containing the shared library name
+#
+Probe TCP apple-iphoto q|GET /server-info HTTP/1.1\r\nClient-DPAP-Version: 1\.1\r\nUser-Agent: iPhoto/9.1.1  (Macintosh; N; PPC)\r\n\r\n|
+rarity 8
+ports 8770
+
+match apple-iphoto m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nDPAP-Server: iPhoto/(.*)\r\nContent-Type: application/x-dmap-tagged\r\nContent-Length: \d+\r\n\r\nmsrv\0\0\0\x83mstt\0\0\0\x04\0\0\0\xc8mpro\0\0\0\x04\0\x02\0\0ppro\0\0\0\x04\0\x01\0\x01minm\0\0\0.(.*)mslr\0\0\0\x01\0mstm\0\0\0\x04\0\0\x07\x08msal\0\0\0\x01\0msau\0\0\0\x01\x02msas\0\0\0\x01\x03msix\0\0\0\x01\0msdc\0\0\0\x04\0\0\0\x01$| p/Apple iPhoto/ v/$1/ i/Library name: $2/

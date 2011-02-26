@@ -34,6 +34,7 @@ Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery
 Entry { filename = "domcon-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "dpap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }

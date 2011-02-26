@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added probe for Apple iPhoto (DPAP) and the dpap-brute script that
+  performs password guessing against a shared iPhoto library. [Patrik]
+
 o [NSE] Fixed http.validate_options when handling a cookie table.
   [Sebastian Prengel]
 
