@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Merged the ms-sql branch with several improvements and changes to the
+  ms-sql scripts and library:
+  - Improved version detection
+  - Improved server discovery
+  - Add support for named pipes
+  - Add support for integrated authentication
+  - Add support for connecting to instances by name or port
+  - Improved script and library stability
+  - Improved script and library documentation
+ [Patrik Karlsson, Chris Woodbury]
+
 o [NSE] Added probe for Apple iPhoto (DPAP) and the dpap-brute script that
   performs password guessing against a shared iPhoto library. [Patrik]
 

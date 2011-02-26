@@ -131,6 +131,8 @@ command_codes = {}
 command_names = {}
 status_codes = {}
 status_names = {}
+filetype_codes = {}
+filetype_names = {}
 
 local TIMEOUT = 10000
 
@@ -1350,9 +1352,9 @@ local function start_session_extended(smb, log_errors, overrides)
 					-- Check if they were logged in as a guest
 					if(log_errors == nil or log_errors == true) then
 						if(smb['is_guest'] == 1) then
-							stdnse.print_debug(1, string.format("SMB: Extended login as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", domain, stdnse.string_or_blank(username)))
+							stdnse.print_debug(1, string.format("SMB: Extended login to %s as %s\\%s failed, but was given guest access (username may be wrong, or system may only allow guest)", smb['ip'], domain, stdnse.string_or_blank(username)))
 						else
-							stdnse.print_debug(2, string.format("SMB: Extended login as %s\\%s succeeded", domain, stdnse.string_or_blank(username)))
+							stdnse.print_debug(2, string.format("SMB: Extended login to %s as %s\\%s succeeded", smb['ip'], domain, stdnse.string_or_blank(username)))
 						end
 					end
 	
@@ -1378,7 +1380,7 @@ local function start_session_extended(smb, log_errors, overrides)
 		else
 			-- Display a message to the user, and try the next account
 			if(log_errors == nil or log_errors == true) then
-				stdnse.print_debug(1, "SMB: Extended login as %s\\%s failed (%s)", domain, stdnse.string_or_blank(username), status_name)
+				stdnse.print_debug(1, "SMB: Extended login to %s as %s\\%s failed (%s)", smb['ip'], domain, stdnse.string_or_blank(username), status_name)
 			end
 
 			-- Go to the next account
@@ -1763,7 +1765,9 @@ function read_file(smb, offset, count, overrides)
 	if(header1 == nil or mid == nil) then
 		return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [25]"
 	end
-	if(status ~= 0) then
+	if(status ~= 0 and 
+		(status ~= status_codes.NT_STATUS_BUFFER_OVERFLOW and (smb['filetype'] == filetype_codes.FILE_TYPE_BYTE_MODE_PIPE or
+																smb['filetype'] == filetype_codes.FILE_TYPE_MESSAGE_MODE_PIPE) ) ) then
 		return false, get_status_name(status)
 	end
 
@@ -1775,6 +1779,7 @@ function read_file(smb, offset, count, overrides)
 
 	response['remaining']   = remaining
 	response['data_length'] = bit.bor(data_length_low, bit.lshift(data_length_high, 16))
+	response['status']      = status
 
 
 	-- data_start is the offset of the beginning of the data section -- we use this to calculate where the read data lives
@@ -3703,3 +3708,174 @@ for i, v in pairs(status_codes) do
 	status_names[v] = i
 end
 
+
+local NP_LIBRARY_NAME = "PIPE"
+
+namedpipes =
+{		
+	get_pipe_subpath = function( pipeName, writeToDebugLog )
+		local status, pipeSubPath
+		if not pipeName then return false end
+
+		local _, _, match = pipeName:match( "^(\\+)(.-)\\pipe(\\.-)$" )
+		if match then
+			pipeSubPath = match
+			status = true
+			if writeToDebugLog then
+				stdnse.print_debug( 2, "%s: Converting %s to subpath %s", NP_LIBRARY_NAME, pipeName, match )
+			end
+		else
+			status = false
+			pipeSubPath = pipeName
+		end
+
+		return status, pipeSubPath
+	end,
+
+
+	make_pipe_name = function( hostnameOrIp, pipeSubPath )
+		if pipeSubPath:sub(1,1) ~= "\\" then
+			pipeSubPath = "\\" .. pipeSubPath
+		end
+
+		return string.format( "\\\\%s\\pipe%s", hostnameOrIp, pipeSubPath )
+	end,
+
+
+	named_pipe = {
+
+		_smbstate = nil,
+		_host = nil,
+		_pipeSubPath = nil,
+		_overrides = nil,
+		name = nil,
+
+		new = function(self,o)
+			o = o or {}
+	        setmetatable(o, self)
+	        self.__index = self
+			return o
+	    end,
+
+
+	    connect = function( self, host, pipeSubPath, overrides )
+
+			stdnse.print_debug( 2, "%s: connect() called with %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
+			self._overrides = overrides or {}
+			self._host = host
+			self._pipeSubPath = pipeSubPath
+			if not host and not host.ip then return false, "host table is required" end
+			if not pipeSubPath then return false, "pipeSubPath is required" end
+
+			-- If we got a full pipe name, not a sub-path, fix it
+			if ( pipeSubPath:match( "^\\\\(.-)$" ) ) then
+				local status
+				status, self._pipeSubPath = namedpipes.get_pipe_subpath( self._pipeSubPath, true )
+				if ( not status ) then
+					stdnse.print_debug( 1, "%s: Attempt to connect to invalid pipe name: %s", NP_LIBRARY_NAME, tostring( pipeSubPath ) )
+					return false, "Invalid pipe name"
+				end
+			end
+			self.name = namedpipes.make_pipe_name( self._host.ip, self._pipeSubPath )
+
+			stdnse.print_debug( 2, "%s: Connecting to named pipe: %s", NP_LIBRARY_NAME, self.name )
+			local status, result, errorMessage
+			local negotiate_protocol, start_session, disable_extended = true, true, false
+			status, result = smb.start_ex( self._host, negotiate_protocol, start_session,
+				"IPC$", self._pipeSubPath, disable_extended, self._overrides )
+
+			if status then
+				self._smbstate = result
+			else
+				errorMessage = string.format( "Connection failed: %s", result )
+				stdnse.print_debug( 2, "%s: Connection to named pipe (%s) failed: %s",
+					NP_LIBRARY_NAME, self.name, errorMessage )
+			end
+
+			return status, errorMessage, result
+		end,
+
+
+		disconnect = function( self )
+			if ( self._smbstate ) then
+				stdnse.print_debug( 2, "%s: Disconnecting named pipe: %s", NP_LIBRARY_NAME, self.name )
+				return smb.stop( self._smbstate )
+			else
+				stdnse.print_debug( 2, "%s: disconnect() called, but SMB connection is already closed: %s", NP_LIBRARY_NAME, self.name )
+			end
+		end,
+
+
+		send = function( self, messageData )
+			if not self._smbstate then
+				stdnse.print_debug( 2, "%s: send() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
+				return false, "Failed to send message on named pipe"
+			end
+
+			local offset = 0 -- offset is actually ignored for named pipes, but we'll define the argument for clarity
+			local status, result, errorMessage
+
+			status, result = smb.write_file( self._smbstate, messageData, offset, self._overrides )
+
+			-- if status is true, result is data that we don't need to pay attention to
+			if not status then
+				stdnse.print_debug( 2, "%s: Write to named pipe (%s) failed: %s",
+					NP_LIBRARY_NAME, self.name, result )
+				errorMessage = "Failed to send message on named pipe", result
+			end
+
+			return status, errorMessage
+		end,
+
+
+		receive = function( self )
+			if not self._smbstate then
+				stdnse.print_debug( 2, "%s: receive() called on closed pipe (%s)", NP_LIBRARY_NAME, self.name )
+				return false, "Failed to read from named pipe"
+			end
+
+			local status, result, messageData
+			-- Packet header values
+			local offset = 0 -- offset is actually ignored for named pipes, but we'll define the argument for clarity
+			local MAX_BYTES_PER_READ = 4096
+
+			status, result = smb.read_file( self._smbstate, offset, MAX_BYTES_PER_READ, self._overrides )
+
+			if status and result.data then
+				messageData = result.data
+			else
+				stdnse.print_debug( 2, "%s: Read from named pipe (%s) failed: %s",
+					NP_LIBRARY_NAME, self.name, result )
+				return false, "Failed to read from named pipe", result
+			end
+
+			while (result["status"] == smb.status_codes.NT_STATUS_BUFFER_OVERFLOW) do
+				status, result = smb.read_file( self._smbstate, offset, MAX_BYTES_PER_READ, self._overrides )
+
+				if status and result.data then
+					messageData = messageData .. result.data
+				else
+					stdnse.print_debug( 2, "%s: Read additional data from named pipe (%s) failed: %s",
+						NP_LIBRARY_NAME, self.name, result )
+					return false, "Failed to read from named pipe", result
+				end
+			end
+
+			return status, messageData
+		end,
+	}
+	
+}
+
+filetype_codes = 
+{
+	FILE_TYPE_DISK              = 0x00,
+	FILE_TYPE_BYTE_MODE_PIPE    = 0x01,
+	FILE_TYPE_MESSAGE_MODE_PIPE = 0x02,
+	FILE_TYPE_PRINTER           = 0x03,
+	FILE_TYPE_UNKNOWN           = 0xFF
+}
+
+for i, v in pairs(filetype_codes) do
+	filetype_names[v] = i
+end

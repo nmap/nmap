@@ -1,7 +1,64 @@
+-- -*- mode: lua -*-
+-- vim: set filetype=lua :
+
 description = [[
-Queries Microsoft SQL Server (ms-sql) for a list of databases, linked
-servers, and configuration settings.
+Queries Microsoft SQL Server (ms-sql) instances for a list of databases, linked servers,
+and configuration settings.
+
+SQL Server credentials required: Yes (use <code>ms-sql-brute</code>, <code>ms-sql-empty-password</code>
+and/or <code>mssql.username</code> & <code>mssql.password</code>)
+Run criteria:
+* Host script: Will run if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code>
+or <code>mssql.instance-port</code> script arguments are used (see mssql.lua).
+* Port script: Will run against any services identified as SQL Servers, but only
+if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code>
+and <code>mssql.instance-port</code> script arguments are NOT used.
+
+NOTE: Communication with instances via named pipes depends on the <code>smb</code>
+library. To communicate with (and possibly to discover) instances via named pipes,
+the host must have at least one SMB port (e.g. TCP 445) that was scanned and
+found to be open. Additionally, named pipe connections may require Windows
+authentication to connect to the Windows host (via SMB) in addition to the
+authentication required to connect to the SQL Server instances itself. See the
+documentation and arguments for the <code>smb</code> library for more information.
+
+NOTE: By default, the ms-sql-* scripts may attempt to connect to and communicate
+with ports that were not included in the port list for the Nmap scan. This can
+be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 ]]
+
+---
+-- @usage
+-- nmap -p 1433 --script ms-sql-config --script-args mssql.username=sa,mssql.password=sa <host>
+--
+-- @args ms-sql-config.showall If set, shows all configuration options.
+--
+-- @output
+-- | ms-sql-config:
+-- |   [192.168.100.25\MSSQLSERVER]
+-- |     Databases
+-- |       name      db_size owner
+-- |       ====      ======= =====
+-- |       nmap      2.74 MB MAC-MINI\david
+-- |     Configuration
+-- |       name      value   inuse   description
+-- |       ====      =====   =====   ===========
+-- |       SQL Mail XPs      0       0       Enable or disable SQL Mail XPs
+-- |       Database Mail XPs 0       0       Enable or disable Database Mail XPs
+-- |       SMO and DMO XPs   1       1       Enable or disable SMO and DMO XPs
+-- |       Ole Automation Procedures 0       0       Enable or disable Ole Automation Procedures
+-- |       xp_cmdshell       0       0       Enable or disable command shell
+-- |       Ad Hoc Distributed Queries        0       0       Enable or disable Ad Hoc Distributed Queries
+-- |       Replication XPs   0       0       Enable or disable Replication XPs
+-- |     Linked Servers
+-- |       srvname   srvproduct      providername
+-- |       =======   ==========      ============
+-- |_      MAC-MINI  SQL Server      SQLOLEDB
+--
+
+-- Created 04/02/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 02/01/2011 - v0.2 - Added ability to run against all instances on a host;
+--							   added compatibility with changes in mssql.lua (Chris Woodbury)
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -11,57 +68,23 @@ require 'shortport'
 require 'stdnse'
 require 'mssql'
 
-dependencies = {"ms-sql-brute", "ms-sql-empty-password"}
+dependencies = {"ms-sql-brute", "ms-sql-empty-password", "ms-sql-discover"}
 
----
--- @args mssql.username specifies the username to use to connect to
---       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
---
--- @args mssql.password specifies the password to use to connect to
---       the server. This option overrides any accounts found by
---       the mssql-brute and mssql-empty-password scripts.
---
--- @args ms-sql-config.showall if set shows all configuration options.
---
--- @output
--- PORT     STATE SERVICE
--- 1433/tcp open  ms-sql-s
--- | ms-sql-config:
--- |   Databases
--- |     name      db_size owner
--- |     ====      ======= =====
--- |     nmap            2.74 MB   MAC-MINI\david
--- |   Configuration
--- |     name      value   inuse   description
--- |     ====      =====   =====   ===========
--- |     SQL Mail XPs      0       0       Enable or disable SQL Mail XPs
--- |     Database Mail XPs 0       0       Enable or disable Database Mail XPs
--- |     SMO and DMO XPs   1       1       Enable or disable SMO and DMO XPs
--- |     Ole Automation Procedures 0       0       Enable or disable Ole Automation Procedures
--- |     xp_cmdshell       0       0       Enable or disable command shell
--- |     Ad Hoc Distributed Queries        0       0       Enable or disable Ad Hoc Distributed Queries
--- |     Replication XPs   0       0       Enable or disable Replication XPs
--- |   Linked Servers
--- |     srvname   srvproduct      providername
--- |     =======   ==========      ============
--- |_    MAC-MINI  SQL Server      SQLOLEDB
 
--- Version 0.1
--- Created 04/02/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+hostrule = mssql.Helper.GetHostrule_Standard()
+portrule = mssql.Helper.GetPortrule_Standard()
 
-portrule = shortport.port_or_service(1433, "ms-sql-s")
 
-action = function( host, port )
-
-	local status, helper, response	
-	local username = stdnse.get_script_args( 'mssql.username' )
-	local password = stdnse.get_script_args( 'mssql.password' ) or ""
+--- Processes a set of instances
+local function process_instance( instance )
+	
+	local status, errorMessage
 	local result, result_part = {}, {}
 	local conf_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
 		or " WHERE configuration_id > 16384"
 	local db_filter = stdnse.get_script_args( {'mssql-config.showall', 'ms-sql-config.showall'} ) and "" 
 		or " WHERE name NOT IN ('master','model','tempdb','msdb')"
+	local helper = mssql.Helper:new()
 	
 	local queries = { 
 		[2]={ ["Configuration"] = [[ SELECT name, 
@@ -77,46 +100,25 @@ action = function( host, port )
 								INSERT INTO #nmap_dbs EXEC sp_helpdb
 								SELECT name, db_size, owner 
 									FROM #nmap_dbs ]] .. db_filter .. [[
-								DROP DATABASE #nmap_dbs ]] }
+								DROP TABLE #nmap_dbs ]] }
 	}
 	
-	if ( not(username) and nmap.registry.mssqlusers ) then
-		-- do we have a sysadmin?
-		if ( nmap.registry.mssqlusers.sa ) then
-			username = "sa"
-			password = nmap.registry.mssqlusers.sa
-		else
-			-- ok were stuck with some non sysadmin account, just get the first one
-			for user, pass in pairs(nmap.registry.mssqlusers) do
-				username = user
-				password = pass
-				break
-			end
-		end
-	end
+	status, errorMessage = helper:ConnectEx( instance )
+	if ( not(status) ) then result = "ERROR: " .. errorMessage end
 	
-	-- If we don't have a valid username, simply fail silently
-	if ( not(username) ) then
-		return
-	end
-	
-	helper = mssql.Helper:new()
- 	status, response = helper:Connect(host, port)
-	if ( not(status) ) then
-		return "  \n\n" .. response
-	end
-		
-	status, response = helper:Login( username, password, nil, host.ip )
-	if ( not(status) ) then
-		return "  \n\nERROR: " .. response
+	if status then
+		status, errorMessage = helper:LoginEx( instance )
+		if ( not(status) ) then result = "ERROR: " .. errorMessage end
 	end
 
 	for _, v in ipairs( queries ) do
+		if ( not status ) then break end
 		for header, query in pairs(v) do
 			status, result_part = helper:Query( query )
 
 			if ( not(status) ) then
-				return "  \n\nERROR: " .. result_part
+				result = "ERROR: " .. result_part
+				break
 			end
 			result_part = mssql.Util.FormatOutputTable( result_part, true )
 			result_part.name = header
@@ -126,6 +128,28 @@ action = function( host, port )
 	
 	helper:Disconnect()
 	
-	return stdnse.format_output( true, result )
+	local instanceOutput = {}
+	instanceOutput["name"] = string.format( "[%s]", instance:GetName() )
+	table.insert( instanceOutput, result )
+	
+	return instanceOutput
+end
 
+
+action = function( host, port )
+	local scriptOutput = {}
+	local status, instanceList = mssql.Helper.GetTargetInstances( host, port )
+	
+	if ( not status ) then
+		return stdnse.format_output( false, instanceList )
+	else
+		for _, instance in pairs( instanceList ) do
+			local instanceOutput = process_instance( instance )
+			if instanceOutput then
+				table.insert( scriptOutput, instanceOutput )
+			end
+		end
+	end
+	
+	return stdnse.format_output( true, scriptOutput )
 end
