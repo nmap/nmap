@@ -4354,7 +4354,7 @@ match gopher-proxy m|^3That item is not currently available\.\r\n$| p/Symantec g
 match goverlan m|^\0\0\0\0/\x20HT| p/Goverlan Remote Administration/
 
 match gpsd m|^GPSD,G=\?,E=\?,T=\?,T=\?,T=\?,P=\?\r\n| p/gpsd/
-match gpsd-ng m|^{\"class\":\"VERSION\",\"release\":\"([\w._-]+)\",\"rev\":\"svn\",\"proto_major\":\d+,\"proto_minor\":\d+}\r\n$| p/GPSD-NG/
+match gpsd-ng m|^{\"class\":\"VERSION\",\"release\":\"([\w._-]+)\",\"rev\":\"([\w._-]+)\",\"proto_major\":\d+,\"proto_minor\":\d+}\r\n$| p/GPSD-NG/ v/$1 rev $2/
 
 match groupwise m|^\xbc\xef\x16\0\xb5\xfe\x14\0\0\0\0 \xb5x3\x06a\x05\0\0\x16\0\xbc\xef\x1a\0\xb5\xfe\x18\0\0\0\0 d\xcf2\n\0\0\0\0\0\0\0\0\x1a\0\xbc\xef\x14\0\xb5\xfe\x0e\0\x02\0\x02!\x03\x16\x7f\$r\xe7\x14\0$| p/Novell GroupWise/
 
