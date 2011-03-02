@@ -115,6 +115,7 @@ Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", }
 Entry { filename = "oracle-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ovs-agent-version.nse", categories = { "version", } }
 Entry { filename = "p2p-conficker.nse", categories = { "default", "safe", } }
 Entry { filename = "path-mtu.nse", categories = { "discovery", "safe", } }
 Entry { filename = "pgsql-brute.nse", categories = { "auth", "intrusive", } }
