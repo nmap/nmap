@@ -5,37 +5,29 @@ o Investigate this interface-matching problem on Windows:
   libdnet changes we made to allow choosing the correct physical
   interface when teamed interfaces share the same MAC.
 
-o The -V option to Nmap, in addition to reporting the version number,
-  should give details on how Nmap was compiled and the environment it
-  is running on.  This includes things like whether SSL is enabled,
-  the platform string, versions of libraries it is linked to, and
-  other stuff which is often useful in debugging problems.
-  o We want to list at least:
-    o Nmap version number (that line is fine as is)
-    o host platform string (for which it was compiled)
-    o Whether OpenSSL and LibSSL, NLS, and IPv6 are enabled
-      - Version number of OpenSSL and LibSSL if those are enabled
-    o Version numbers of libdnet, libpcre, and libpcap
-
 o Write and post 2010 SoC Successes writeup [Fyodor]
 
 o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
+o Script review dispensation
+  - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
+    [merged]
+  - dpap-brute by Patrik Karlsson.
+    http://seclists.org/nmap-dev/2011/q1/252.
+
+
 o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
   - ssl-known_key http://seclists.org/nmap-dev/2010/q4/733
     Thread continues at http://seclists.org/nmap-dev/2011/q1/26.
-  - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
   - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
     Should share domain list with http-vhosts.
     git://code.0x0lab.org/nmap-dns-brute.git
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
-  - dpap-brute by Patrik Karlsson.
-    http://seclists.org/nmap-dev/2011/q1/252.
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
@@ -694,6 +686,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o The -V option to Nmap, in addition to reporting the version number,
+  should give details on how Nmap was compiled and the environment it
+  is running on.  This includes things like whether SSL is enabled,
+  the platform string, versions of libraries it is linked to, and
+  other stuff which is often useful in debugging problems.
+  o We want to list at least:
+    o Nmap version number (that line is fine as is)
+    o host platform string (for which it was compiled)
+    o Whether OpenSSL and LibSSL, NLS, and IPv6 are enabled
+      - Version number of OpenSSL and LibSSL if those are enabled
+    o Version numbers of libdnet, libpcre, and libpcap
 
 o Script review:
   - SCADA scripts http://seclists.org/nmap-dev/2010/q4/612
