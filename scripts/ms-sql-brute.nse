@@ -3,7 +3,7 @@
 
 description = [[
 Performs password guessing against Microsoft SQL Server (ms-sql). Works best in
-conjuction with the <code>ms-sql-discover</code> script.
+conjunction with the <code>ms-sql-discover</code> script.
 
 SQL Server credentials required: No (will not benefit from 
 <code>mssql.username</code> & <code>mssql.password</code>).
