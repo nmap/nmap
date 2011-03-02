@@ -27,6 +27,10 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
+o [Ndiff] should, in non-verbose mode, perhaps not print the changed
+  Nmap version and/or scan time if nothing else has changed between
+  two files. See http://seclists.org/nmap-dev/2011/q1/674.
+
 o [Zenmap] Make formerly open ports that are now closed or filtered
   disappear from the "Ports / Hosts" tab. This appears to be related
   to ignored states; if in the second scan I use -d2 so all ports are
