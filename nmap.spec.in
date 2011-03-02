@@ -49,6 +49,17 @@ both console and graphical versions are available.
 %setup -q
 
 %build
+# Link with compatibility Glibc 2.3.4. CentOS packages
+# compat-glibc and compat-gcc-34-c++.
+CC=gcc34; export CC
+CXX=g++34; export CXX
+CPPFLAGS="-I/usr/lib/i386-redhat-linux4E/include -B/usr/lib/i386-redhat-linux4E/lib/ $CPPFLAGS"; export CPPFLAGS
+CFLAGS="-I/usr/lib/i386-redhat-linux4E/include -B/usr/lib/i386-redhat-linux4E/lib/ $CFLAGS"; export CFLAGS
+CXXFLAGS="-I/usr/lib/i386-redhat-linux4E/include -B/usr/lib/i386-redhat-linux4E/lib/ $CXXFLAGS"; export CXXFLAGS
+# Settings LDFLAGS seems logical but leads to an error on C++ link:
+# /usr/lib/gcc/i386-redhat-linux/3.4.6/libgcc_s.so: undefined reference to `__stack_chk_fail@GLIBC_2.4'
+# LDFLAGS="-B/usr/lib/i386-redhat-linux4E/lib/ $LDFLAGS"; export LDFLAGS
+
 %configure --with-openssl=%{openssl} --without-zenmap --with-ndiff --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included
 %if "%{buildncat}" == "0"
 %configure --without-ncat
