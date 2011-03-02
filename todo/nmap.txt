@@ -11,13 +11,6 @@ o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
-o Script review dispensation
-  - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
-    [merged]
-  - dpap-brute by Patrik Karlsson.
-    http://seclists.org/nmap-dev/2011/q1/252.
-
-
 o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
@@ -686,6 +679,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review
+  - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
+    [merged]
+  - dpap-brute by Patrik Karlsson.
+    http://seclists.org/nmap-dev/2011/q1/252.
+    [merged]
 
 o The -V option to Nmap, in addition to reporting the version number,
   should give details on how Nmap was compiled and the environment it
