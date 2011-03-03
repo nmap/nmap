@@ -625,7 +625,7 @@ until found:
 <member><option>--datadir</option></member>
 <member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
 <member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
-<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm></member>
+<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm> (a value compiled into Nmap)</member>
 <member>the current directory</member>
 </simplelist>
 A <filename>scripts</filename> subdirectory is also tried in each of
@@ -765,7 +765,7 @@ http://nmap.org/nsedoc/scripts/afp-showmount.html
         the scripts in the
 	<literal>version</literal> category.<indexterm><primary sortas="version script category">&ldquo;<literal>version</literal>&rdquo; script category</primary></indexterm>
         The scripts
-        in this category are slightly different than other scripts because their
+        in this category are slightly different from other scripts because their
         output blends in with the version scan results and they do not produce any
         script scan output.
       </para>
