@@ -241,7 +241,7 @@ static int l_xml_write_escaped(lua_State *L)
   const char *text;
 
   text = luaL_checkstring(L, 1);
-  xml_write_escaped(text);
+  xml_write_escaped("%s", text);
 
   return 0;
 }
