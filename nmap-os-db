@@ -16748,31 +16748,6 @@ T7(R=Y%DF=N%T=42%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=42%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
 IE(DFI=S%T=42%TG=40%CD=S)
 
-# ProFibre Storage Array DF-4000 with firmware 9.40.0.0
-# HP LaserJet 2420
-# "Siemens C-110" ADSL Modem (Not Wireless)
-# Kaiomy Modem Roteador ADSL Wireless 2014PW
-# PLANET ADSL MODEM ROUTER ADE-4110
-Fingerprint Kaiomy AL-2014PW, Planet ADE-4110, or Siemens C-110 ADSL modem; HP LaserJet 2420 printer; or IBM DF-4000 ProFibre Storage Array
-Class HP | embedded || printer
-Class IBM | embedded || storage-misc
-Class Kaiomy | embedded || WAP
-Class Planet | embedded || broadband router
-Class Siemens | embedded || broadband router
-SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
-OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
-WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
-ECN(R=Y%DF=N%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N%Q=)
-T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=O%A=O%F=A%O=NNT11%RD=0%Q=)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
-IE(DFI=S%T=3B-45%TG=40%CD=S)
-
 # HP Color LaserJet 2600n Printer
 Fingerprint HP LaserJet 2600n printer
 Class HP | embedded || printer
@@ -17651,6 +17626,31 @@ T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
+
+# ProFibre Storage Array DF-4000 with firmware 9.40.0.0
+# HP LaserJet 2420
+# "Siemens C-110" ADSL Modem (Not Wireless)
+# Kaiomy Modem Roteador ADSL Wireless 2014PW
+# PLANET ADSL MODEM ROUTER ADE-4110
+Fingerprint Kaiomy AL-2014PW, Planet ADE-4110, or Siemens C-110 ADSL modem; HP LaserJet 2420 printer; or IBM DF-4000 ProFibre Storage Array
+Class HP | embedded || printer
+Class IBM | embedded || storage-misc
+Class Kaiomy | embedded || WAP
+Class Planet | embedded || broadband router
+Class Siemens | embedded || broadband router
+SEQ(SP=14-1E%GCD=FA00|1F400|2EE00|3E800|4E200%ISR=99-A3%TI=I%II=I%SS=S%TS=1)
+OPS(O1=M5B4NW0NNT11%O2=M5B4NW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NW0NNT11%O5=M5B4NW0NNT11%O6=M5B4NNT11)
+WIN(W1=2000%W2=2000%W3=2000%W4=2000%W5=2000%W6=2000)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=2000%O=M5B4NW0%CC=N%Q=)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=O%A=O%F=A%O=NNT11%RD=0%Q=)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=2000%S=A%A=Z%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=4210%RIPCK=Z%RUCK=0%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # HP Onboard Administrator, Firmware Version 2.04
 Fingerprint HP Onboard Administrator management console
@@ -32844,23 +32844,6 @@ T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=O|S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
-# Microsoft Windows 2000 Professional SP4/update rollup 1 [winver reports Version 5.0 (Build 2195: Service Pack 4)]
-Fingerprint Microsoft Windows 2000 Professional SP4
-Class Microsoft | Windows | 2000 | general purpose
-SEQ(SP=FD-107%GCD=1-6%ISR=102-10C%TI=I%II=I%SS=S%TS=U)
-OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
-WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FAF0%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=3B-45%TG=40%W=FAF0%S=O%A=S+%F=AS%O=M5B4NW0NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=S%T=3B-45%TG=40%CD=Z)
-
 # Windows 2000 Pro Gold (no service packs/patches/etc - "Version 5.0 2195"). Standard OEM Install x86 architecture, dual cpu.
 Fingerprint Microsoft Windows 2000 Professional (no service pack)
 Class Microsoft | Windows | 2000 | general purpose
@@ -32877,6 +32860,23 @@ T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# Microsoft Windows 2000 Professional SP4/update rollup 1 [winver reports Version 5.0 (Build 2195: Service Pack 4)]
+Fingerprint Microsoft Windows 2000 Professional SP4
+Class Microsoft | Windows | 2000 | general purpose
+SEQ(SP=FD-107%GCD=1-6%ISR=102-10C%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
+WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FAF0%O=M5B4NW0NNS%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=FAF0%S=O%A=S+%F=AS%O=M5B4NW0NNS%RD=0%Q=)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=Z)
 
 # Microsoft Windows 2000 Professional Service Pack 4.0
 Fingerprint Microsoft Windows 2000 Professional SP4
@@ -34401,6 +34401,23 @@ T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
+# Microsoft (r) Windows Version 5.2 R2 (Build 3790.srv03_sp1_gdr.090319-1204: Service Pack 1)
+Fingerprint Microsoft Windows Server 2003 R2 SP1
+Class Microsoft | Windows | 2003 | general purpose
+SEQ(SP=FF-109%GCD=1-6%ISR=103-10D%TI=I%CI=I%II=I%SS=S%TS=U)
+OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
+WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
+ECN(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%O=M5B4NW0NNS%CC=N%Q=)
+T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%S=O%A=S+%F=AS%O=M5B4NW0NNS%RD=0%Q=)
+T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
 # Version 5.2 R2 (Build 3790.svr03_sp2_gdr.090805-1438 : Service pack 2)
 Fingerprint Microsoft Windows Server 2003 R2 SP2
 Class Microsoft | Windows | 2003 | general purpose
@@ -35830,23 +35847,6 @@ T6(R=Y%DF=Y%T=FA-104%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=Y%T=FA-104%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=FA-104%TG=FF%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=N%T=FA-104%TG=FF%CD=S)
-
-# Microsoft (r) Windows Version 5.2 R2 (Build 3790.srv03_sp1_gdr.090319-1204: Service Pack 1)
-Fingerprint Microsoft Windows Server 2003 R2 SP1
-Class Microsoft | Windows | 2003 | general purpose
-SEQ(SP=FF-109%GCD=1-6%ISR=103-10D%TI=I%CI=I%II=I%SS=S%TS=U)
-OPS(O1=M5B4NW0NNS%O2=M5B4NW0NNS%O3=M5B4NW0%O4=M5B4NW0NNS%O5=M5B4NW0NNS%O6=M5B4NNS)
-WIN(W1=FAF0%W2=FAF0%W3=FAF0%W4=FAF0%W5=FAF0%W6=FAF0)
-ECN(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=N%T=7B-85%TG=80%W=FAF0%S=O%A=S+%F=AS%O=M5B4NW0NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
 # Version 6.1 (Build 7600)
 Fingerprint Microsoft Windows Server 2008
@@ -37986,23 +37986,6 @@ T7(R=N)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
-# 5.1 2600.xpsp_sp3_qfe.090206-1316
-Fingerprint Microsoft Windows XP SP3
-Class Microsoft | Windows | XP | general purpose
-SEQ(CI=I%II=I%TS=0)
-OPS(O1=M5B4NW4NNT00NNS%O2=M5B4NW4NNT00NNS%O3=M5B4NW4NNT00%O4=M5B4NW4NNT00NNS%O5=M5B4NW4NNT00NNS%O6=M5B4NNT00NNS)
-WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
-ECN(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%O=M5B4NW4NNS%CC=N%Q=)
-T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=O|S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=N)
-U1(R=N)
-IE(DFI=S%T=3B-45%TG=40%CD=Z)
-
 # Windows ver 5.1 Build 2600
 Fingerprint Microsoft Windows XP
 Class Microsoft | Windows | XP | general purpose
@@ -38208,23 +38191,6 @@ T7(R=N)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(R=N)
 
-# Windows XP Pro, SP2, build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2
-Fingerprint Microsoft Windows XP Professional SP2
-Class Microsoft | Windows | XP | general purpose
-SEQ(SP=FD-107%GCD=1-6%ISR=109-113%TI=I%II=I%SS=S%TS=U)
-OPS(O1=M5ACNW4NNS%O2=M5ACNW4NNS%O3=M5ACNW4%O4=M5ACNW4NNS%O5=M5ACNW4NNS%O6=M5ACNNS)
-WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
-ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5ACNW4NNS%CC=N%Q=)
-T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%S=O%A=S+%F=AS%O=M5ACNW4NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=3B-45%TG=40%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=S%T=3B-45%TG=40%CD=Z)
-
 # Microsoft Windows XP Professional Version 5.1 (build 2600.xpclient.010817-1148)
 Fingerprint Microsoft Windows XP Professional
 Class Microsoft | Windows | XP | general purpose
@@ -38311,6 +38277,23 @@ T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# Windows XP Pro, SP2, build 2600.xpsp_sp2_gdr.070227-2254 : Service Pack 2
+Fingerprint Microsoft Windows XP Professional SP2
+Class Microsoft | Windows | XP | general purpose
+SEQ(SP=FD-107%GCD=1-6%ISR=109-113%TI=I%II=I%SS=S%TS=U)
+OPS(O1=M5ACNW4NNS%O2=M5ACNW4NNS%O3=M5ACNW4%O4=M5ACNW4NNS%O5=M5ACNW4NNS%O6=M5ACNNS)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5ACNW4NNS%CC=N%Q=)
+T1(R=Y%DF=Y%T=3B-45%TG=40%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%S=O%A=S+%F=AS%O=M5ACNW4NNS%RD=0%Q=)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=3B-45%TG=40%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=3B-45%TG=40%CD=Z)
 
 # Microsoft Windows XP Professional SP2 English VLK (build 2600.xpsp_sp2_gdr.050301-1519: Service Pack 2) + All latest security updates
 Fingerprint Microsoft Windows XP Professional SP2
@@ -39944,55 +39927,6 @@ T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
 
-# Version 5.2 (Build 3790.srv03_sp1_rtm.05034-1447: Service Pack 1)
-# Microsoft Windows Server 2003 R2 Enterprise Edition SP2 [Winver: Version 5.2 R2 (build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)]
-# Microsoft Windows Server 2003 Enterprise Edition SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447: Service Pack 1)
-# Version 5.2 R2 (Build 3790.srv03_sp2_gdr.070304_2240:Service Pack 2)
-# Windows 7 beta 32 bit
-# Windows XP Professional Version 2002 SP2
-# Microsoft Windows Server 2003 w/SP1 [Build: 3790.srv03_sp1_rtm.050324-1447, Service Pack 1]
-# Microsoft Windows 2003 R2 standard x64 SP1 - (Version 5.2.3790 Service Pack 1 Nu 3790)
-# Microsoft Windows  2003 SP1 SE (Russian) [Winver:Version 5.2 (build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
-# Windows 2003 SBS SP1 (Build 3790.srv03_sp1_rtm.05034-1447: Service Pack 1)
-# Microsoft Windows 2003 Server SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232-Service Pack 1)]
-# Microsoft Windows Server 2003 [Winver: Version 5.2 (Build 3790.srv03_sp2_rtm.070216-1710 : Service Pack 2)]
-# Microsoft Windows 2003 Standard R2 version 5.2 Service Pack 2 (build 3790.srv03_sp2_gdr.070304-2240)
-Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP1 or SP2
-Class Microsoft | Windows | XP | general purpose
-Class Microsoft | Windows | 2003 | general purpose
-SEQ(SP=F0-10A%GCD=1-6%ISR=F7-111%TI=I%CI=I%II=I%SS=S%TS=0)
-OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
-WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
-ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
-T2(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
-T3(R=Y%DF=N%T=7B-85%TG=80%W=4000%S=O%A=S+%F=AS%O=M5B4NW0NNT00NNS%RD=0%Q=)
-T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=S%T=7B-85%TG=80%CD=Z)
-
-# Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
-# Microsoft Windows Xp Professional versione 2002 Service Pack 2
-Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP2
-Class Microsoft | Windows | XP | general purpose
-Class Microsoft | Windows | 2003 | general purpose
-SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I|RD%TS=0)
-OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
-WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
-ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000%O=M5B4NW0NNS%CC=N%Q=)
-T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=O|S+%F=AS%RD=0%Q=)
-T2(R=N)
-T3(R=N)
-T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
-T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
-T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A|O%A=O%F=R%O=%RD=0%Q=)
-T7(R=N)
-U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=1-FFFF%RIPCK=G%RUCK=G%RUD=G)
-IE(DFI=S%T=7B-85%TG=80%CD=Z)
-
 # Windows XP Professional SP2: Version 5.1 (2600.xpsp_sp2_rtm.040803-2158 : Service Pack 2. firewall disabled)
 # Microsoft Windows XP Pro SP2  (English) Build 2600.xpsp_sp2_gdr.050301-1519
 # Version 5.1 (Build 2600.xsp2_sp2_rtm.040803-215-2158 : Service Pack 2)
@@ -40297,6 +40231,72 @@ T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
 T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
 U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# Version 5.2 (Build 3790.srv03_sp1_rtm.05034-1447: Service Pack 1)
+# Microsoft Windows Server 2003 R2 Enterprise Edition SP2 [Winver: Version 5.2 R2 (build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)]
+# Microsoft Windows Server 2003 Enterprise Edition SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_rtm.050324-1447: Service Pack 1)
+# Version 5.2 R2 (Build 3790.srv03_sp2_gdr.070304_2240:Service Pack 2)
+# Windows 7 beta 32 bit
+# Windows XP Professional Version 2002 SP2
+# Microsoft Windows Server 2003 w/SP1 [Build: 3790.srv03_sp1_rtm.050324-1447, Service Pack 1]
+# Microsoft Windows 2003 R2 standard x64 SP1 - (Version 5.2.3790 Service Pack 1 Nu 3790)
+# Microsoft Windows  2003 SP1 SE (Russian) [Winver:Version 5.2 (build 3790.srv03_sp1_rtm.050324-1447 : Service Pack 1)
+# Windows 2003 SBS SP1 (Build 3790.srv03_sp1_rtm.05034-1447: Service Pack 1)
+# Microsoft Windows 2003 Server SP1 [Winver: Version 5.2 (Build 3790.srv03_sp1_gdr.070304-2232-Service Pack 1)]
+# Microsoft Windows Server 2003 [Winver: Version 5.2 (Build 3790.srv03_sp2_rtm.070216-1710 : Service Pack 2)]
+# Microsoft Windows 2003 Standard R2 version 5.2 Service Pack 2 (build 3790.srv03_sp2_gdr.070304-2240)
+Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP1 or SP2
+Class Microsoft | Windows | XP | general purpose
+Class Microsoft | Windows | 2003 | general purpose
+SEQ(SP=F0-10A%GCD=1-6%ISR=F7-111%TI=I%CI=I%II=I%SS=S%TS=0)
+OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
+WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
+ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000%O=M5B4NW0NNS%CC=N%Q=)
+T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=S+%F=AS%RD=0%Q=)
+T2(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)
+T3(R=Y%DF=N%T=7B-85%TG=80%W=4000%S=O%A=S+%F=AS%O=M5B4NW0NNT00NNS%RD=0%Q=)
+T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# Version 5.2 (Build 3790.srv03_sp2_gdr.070304-2240 : Service Pack 2)
+# Microsoft Windows Xp Professional versione 2002 Service Pack 2
+Fingerprint Microsoft Windows XP SP2 or Windows Server 2003 SP2
+Class Microsoft | Windows | XP | general purpose
+Class Microsoft | Windows | 2003 | general purpose
+SEQ(SP=FF-109%GCD=1-6%ISR=105-10F%TI=I|RD%TS=0)
+OPS(O1=M5B4NW0NNT00NNS%O2=M5B4NW0NNT00NNS%O3=M5B4NW0NNT00%O4=M5B4NW0NNT00NNS%O5=M5B4NW0NNT00NNS%O6=M5B4NNT00NNS)
+WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
+ECN(R=Y%DF=N%T=7B-85%TG=80%W=4000%O=M5B4NW0NNS%CC=N%Q=)
+T1(R=Y%DF=N%T=7B-85%TG=80%S=O%A=O|S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=7B-85%TG=80%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=7B-85%TG=80%W=0%S=A|O%A=O%F=R%O=%RD=0%Q=)
+T7(R=N)
+U1(DF=N%T=7B-85%TG=80%IPL=B0%UN=0%RIPL=G%RID=1-FFFF%RIPCK=G%RUCK=G%RUD=G)
+IE(DFI=S%T=7B-85%TG=80%CD=Z)
+
+# 5.1 2600.xpsp_sp3_qfe.090206-1316
+Fingerprint Microsoft Windows XP SP3
+Class Microsoft | Windows | XP | general purpose
+SEQ(CI=I%II=I%TS=0)
+OPS(O1=M5B4NW4NNT00NNS%O2=M5B4NW4NNT00NNS%O3=M5B4NW4NNT00%O4=M5B4NW4NNT00NNS%O5=M5B4NW4NNT00NNS%O6=M5B4NNT00NNS)
+WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
+ECN(R=Y%DF=N%T=3B-45%TG=40%W=FFFF%O=M5B4NW4NNS%CC=N%Q=)
+T1(R=Y%DF=N%T=3B-45%TG=40%S=O%A=O|S+%F=AS%RD=0%Q=)
+T2(R=N)
+T3(R=N)
+T4(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T5(R=Y%DF=N%T=3B-45%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)
+T6(R=Y%DF=N%T=3B-45%TG=40%W=0%S=A%A=O%F=R%O=%RD=0%Q=)
+T7(R=N)
+U1(R=N)
+IE(DFI=S%T=3B-45%TG=40%CD=Z)
 
 # Microsoft Windows Version 5.1 (Build 2600.xpsp.071130-1427:Service Pack 3, V.3264) Copyright 2007 Microsoft Corporation
 Fingerprint Microsoft Windows XP SP3
