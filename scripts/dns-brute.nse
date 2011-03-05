@@ -148,6 +148,7 @@ local function thread_main(results, name_iter)
 			end
 		end
 	end
+	condvar("signal")
 end
 
 local function srv_main(srvresults, srv_iter)
@@ -174,6 +175,7 @@ local function srv_main(srvresults, srv_iter)
 			end
 		end
 	end
+	condvar("signal")
 end
 
 action = function(host)
