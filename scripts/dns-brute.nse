@@ -124,15 +124,6 @@ resolve = function (host, dtype)
 	return status and result or false
 end
 
---- Verbose printing function when -v flag is specified
---@param msg The message to print
-print_verb = function(msg)
-	local verbosity, debugging = nmap.verbosity, nmap.debugging
-	if verbosity() >= 2 or debugging() > 0 then
-		print(msg)
-	end
-end
-
 thread_main = function( results, ... )
 	local condvar = nmap.condvar( results )
 	local what = {n = select("#", ...), ...}
@@ -146,7 +137,7 @@ thread_main = function( results, ... )
 						stdnse.print_debug("Added target: "..hostn)
 						local status,err = target.add(hostn)
 					end
-					print_verb("Hostname: "..hostn.." IP: "..addr)
+					stdnse.print_debug("Hostname: "..hostn.." IP: "..addr)
 					results[#results+1] = { hostname=hostn, address=addr }
 				end
 			end
@@ -160,7 +151,7 @@ thread_main = function( results, ... )
 						stdnse.print_debug("Added target: "..hostn)
 						local status,err = target.add(hostn)
 					end
-					print_verb("Hostname: "..hostn.." IP: "..addr)
+					stdnse.print_debug("Hostname: "..hostn.." IP: "..addr)
 					results[#results+1] = { hostname=hostn, address=addr }
 				end
 			end
@@ -181,7 +172,7 @@ srv_main = function( srvresults, ... )
 					local srvres = resolve(addr[4], "A")
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
-							print_verb("Hostname: "..hostn.." IP: "..srvip)
+							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
 							srvresults[#srvresults+1] = { hostname=hostn, address=srvip }
 							if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
 								stdnse.print_debug("Added target: "..srvip)
@@ -194,7 +185,7 @@ srv_main = function( srvresults, ... )
 					local srvres = resolve(addr[4], "AAAA")
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
-							print_verb("Hostname: "..hostn.." IP: "..srvip)
+							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
 							srvresults[#srvresults+1] = { hostname=hostn, address=srvip }
 							if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
 								stdnse.print_debug("Added target: "..srvip)
@@ -220,7 +211,7 @@ action = function(host)
 	end
 	if(not table.contains(nmap.registry.bruteddomains,domainname)) then
 		table.insert(nmap.registry.bruteddomains, domainname)
-		print_verb("Starting dns-brute at: "..domainname)
+		stdnse.print_debug("Starting dns-brute at: "..domainname)
 		local max_threads = nmap.registry.args['dns-brute.threads'] and tonumber( nmap.registry.args['dns-brute.threads'] ) or 5
 		ipv6 = stdnse.get_script_args("dns-brute.ipv6") or false
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
