@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added dns-brute.nse by cirrus, a brute-force DNS name
+  enumerator.
+
 o [NSE] Merged the ms-sql branch with several improvements and changes to the
   ms-sql scripts and library:
   - Improved version detection
