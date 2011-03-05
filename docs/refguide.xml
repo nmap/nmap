@@ -2299,8 +2299,8 @@ which lists the category or categories in which each script belongs.</para>
           <listitem>
           <para>Loads all scripts whose name starts with
           <filename>http-</filename>, such as
-          <filename>http-auth.nse</filename> and
-          <filename>http-open-proxy.nse</filename>. The argument to
+          <filename>http-auth</filename> and
+          <filename>http-open-proxy</filename>. The argument to
           <option>--script</option> had to be in quotes to protect the
           wildcard from the shell.</para>
           </listitem>
