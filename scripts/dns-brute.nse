@@ -5,13 +5,11 @@ Attempts to find an DNS hostnames by brute force guessing.
 
 ---
 -- @usage
--- nmap --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.threads=6,dns-brute.cclass,dns-brute.hostlist=./hostfile.txt,newtargets -sS -p 80
+-- nmap --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.threads=6,dns-brute.hostlist=./hostfile.txt,newtargets -sS -p 80
 -- nmap --script dns-brute www.foo.com
--- nmap -6 --script dns-brute --script-args dns-brute.cclass,dns-brute.domain=foo.com,dns-brute.ipv6=only,newtargets -v -p 80
+-- nmap -6 --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.ipv6=only,newtargets -v -p 80
 -- @args dns-brute.hostlist The filename of a list of host strings to try.
 -- @args dns-brute.threads Thread to use (default 5).
--- @args dns-brute.cclass If specified, adds the reverse DNS for the c-class of all discovered IP addresses. cclass can 
---	 also be set to the value 'printall' to print all reverse DNS names instead of only the ones matching the base domain
 -- @args dns-brute.ipv6 Perform lookup for IPv6 addresses as well. ipv6 can also be se to the value 'only' to only lookup IPv6 records
 -- @args dns-brute.srv Perform lookup for SRV records
 -- @args dns-brute.domain Domain name to brute force if no host is specified
@@ -26,13 +24,7 @@ Attempts to find an DNS hostnames by brute force guessing.
 -- |   mail.foo.com - 127.0.0.2
 -- |   blog.foo.com - 127.0.1.3
 -- |   ns1.foo.com - 127.0.0.4
--- |   admin.foo.com - 127.0.0.5
--- |   Reverse DNS hostnames:
--- |   srv-32.foo.com - 127.0.0.16
--- |   srv-33.foo.com - 127.0.1.23
--- |   C-Classes:
--- |   127.0.0.0/24
--- |_  127.0.1.0/24
+-- |_  admin.foo.com - 127.0.0.5
 
 author = "cirrus"
 
@@ -78,14 +70,6 @@ function parse_domain(host)
 		domainname = host
 	end
 	return domainname
-end
-
---- Remove the last octet of an IP address
---@param ip IP address to parse
---@return IP address without the last octet
-function iptocclass(ip)
-	local o1, o2, o3, o4 = ip:match("^(%d*)%.(%d*)%.(%d*)%.(%d*)$")
-	return o1..'.'..o2..'.'..o3
 end
 
 --- Check if an element is inside a table
@@ -135,19 +119,6 @@ end
 resolve = function (host)
 	local dnsname = host
 	status, result = dns.query(dnsname, {dtype='A',retAll=true})
-	if(status == true) then
-		return result
-	else
-		return false
-	end
-end
-
---- Try to get the PTR record for an in-addr.arpa address
---@param host Host to resolve
---@result The PTR records or false
-revresolve = function (host)
-	local ipaddress = dns.reverse(host)
-	status, result = dns.query(ipaddress, {dtype='PTR',retAll=true})
 	if(status == true) then
 		return result
 	else
@@ -240,37 +211,6 @@ srv_main = function( srvresults, ... )
 	end
 end
 
-reverse_main = function( revresults, ... )
-	local condvar = nmap.condvar( revresults )
-	local what = {n = select("#", ...), ...}
-	for i = 1, what.n do
-		local res = revresolve(what[i])
-		if(res) then
-			for _,host in ipairs(res) do
-				if(revcclass == 'printall') then
-					if(not string.match(host,'addr.arpa$')) then
-						if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
-							stdnse.print_debug("Added target: "..what[i])
-							local status,err = target.add(what[i])
-						end
-						print_verb("Hostname: "..host.." IP: "..what[i])
-						revresults[#revresults+1] = { hostname=host, address=what[i] }
-					end
-				else
-					if(string.match(host,domainname..'$')) then
-						if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
-							stdnse.print_debug("Added target: "..what[i])
-							local status,err = target.add(what[i])
-						end
-						print_verb("Hostname: "..host.." IP: "..what[i])
-						revresults[#revresults+1] = { hostname=host, address=what[i] }
-					end
-				end
-			end
-		end
-	end
-end
-
 action = function(host)
 	if nmap.registry.args['dns-brute.domain'] then
 		domainname = nmap.registry.args['dns-brute.domain']
@@ -286,11 +226,6 @@ action = function(host)
 		local max_threads = nmap.registry.args['dns-brute.threads'] and tonumber( nmap.registry.args['dns-brute.threads'] ) or 5
 		ipv6 = stdnse.get_script_args("dns-brute.ipv6") or false
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
-		if(ipv6 == 'only') then
-			revcclass = false
-		else
-			revcclass = stdnse.get_script_args("dns-brute.cclass") or false
-		end
 		stdnse.print_debug("THREADS: "..max_threads)
 		local fileName = nmap.registry.args['dns-brute.hostlist']
 		local commFile = fileName and nmap.fetchfile(fileName)
@@ -366,60 +301,6 @@ action = function(host)
 			end
 		end
 
-		if (revcclass and not (ipv6=='only')) then
-			cclasses = {}
-			ipaddresses = {}
-			local i = 1
-			for _, res in ipairs(results) do
-				if res['address']:match(":") then
-					print_verb("IPv6 class detected skipping: "..res['address'])
-				else
-					local class = iptocclass(res['address'])
-					if(not table.contains(cclasses,class)) then
-						print_verb("C-Class: "..class..".0/24")
-						table.insert(cclasses,class)
-					end
-				end
-			end
-			if(dosrv) then
-				for _, res in ipairs(srvresults) do
-					if res['address']:match(":") then
-						print_verb("IPv6 class detected skipping: "..res['address'])
-					else
-						local class = iptocclass(res['address'])
-						if(not table.contains(cclasses,class)) then
-							print_verb("C-Class: "..class..".0/24")
-							table.insert(cclasses,class)
-						end
-					end
-				end
-			end
-			for _,class in ipairs(cclasses) do
-				for v=1,254,1 do
-					table.insert(ipaddresses, class..'.'..v)
-				end
-			end
-			stdnse.print_debug("Will reverse lookup "..#ipaddresses.." IPs")
-			print_verb("Starting reverse DNS in c-classes")
-			local threads = {}
-			local howmany_ip = math.floor(#ipaddresses/max_threads)+1
-			local condvar = nmap.condvar( revresults )
-			stdnse.print_debug("IP's per thread: "..howmany_ip)
-			repeat
-				local j = math.min(i+howmany_ip, #ipaddresses)	
-				threads[stdnse.new_thread( reverse_main,revresults, unpack(ipaddresses, i, j)  )] = true
-				i = j+1
-			until i > #ipaddresses
-			local done
-			-- wait for all threads to finish
-			while( not(done) ) do
-				condvar("wait")
-				done = true
-				for thread in pairs(threads) do
-					if (coroutine.status(thread) ~= "dead") then done = false end
-				end
-			end
-		end
 		response = {}
 		response['name'] = "Result:"
 		table.insert(response,"DNS Brute-force hostnames:")
@@ -436,21 +317,6 @@ action = function(host)
 			end
 			for _, res in ipairs(srvresults) do
 				table.insert(response, res['hostname'].." - "..res['address'])
-			end
-		end
-		if revcclass then
-			table.insert(response,"Reverse DNS hostnames:")
-			if(#revresults==0) then
-				table.insert(response,"No results.")
-			end
-			for _, res in ipairs(revresults) do
-				table.insert(response, res['hostname'].." - "..res['address'])
-			end
-			if(#cclasses>0) then
-				table.insert(response,"C-Classes:")
-				for _, res in ipairs(cclasses) do
-					table.insert(response, res..".0/24")
-				end
 			end
 		end
 		return stdnse.format_output(true, response)
