@@ -321,6 +321,8 @@ static int aux_condvar (lua_State *L)
       return nse_yield(L, 0, NULL);
     case SIGNAL:
       n = lua_objlen(L, lua_upvalueindex(1));
+      if (n == 0)
+        n = 1;
       break;
     case BROADCAST:
       n = 1;
