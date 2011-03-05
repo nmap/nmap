@@ -23,6 +23,7 @@ Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "db2-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
