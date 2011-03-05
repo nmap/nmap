@@ -464,7 +464,7 @@ class ScanDiff(object):
         if banner_a != banner_b:
             print >> f, u"-%s" % banner_a
             print >> f, u"+%s" % banner_b
-        else:
+        elif verbose:
             print >> f, u" %s" % banner_a
 
         print_script_result_diffs_text("Pre-scan script results",
