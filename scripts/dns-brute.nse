@@ -118,43 +118,10 @@ function table.contains(table, element)
 	return false
 end
 
---- Try to get the SRV record for a host
---@param host Hostname to resolve
---@result The SRV records or false
-resolve_srv = function (host)
-	local dnsname = host
-	status, result = dns.query(dnsname, {dtype='SRV',retAll=true})
-	if(status == true) then
-		return result
-	else
-		return false
-	end
-end
-
---- Try to get the AAAA record for a host
---@param host Hostname to resolve
---@result The AAAA records or false
-resolve_v6 = function (host)
-	local dnsname = host
-	status, result = dns.query(dnsname, {dtype='AAAA',retAll=true})
-	if(status == true) then
-		return result
-	else
-		return false
-	end
-end
-
---- Try to get the A record for a host
---@param host Hostname to resolve
---@result The A records or false
-resolve = function (host)
-	local dnsname = host
-	status, result = dns.query(dnsname, {dtype='A',retAll=true})
-	if(status == true) then
-		return result
-	else
-		return false
-	end
+-- Single DNS lookup, returning all results. dtype should be e.g. "A", "AAAA".
+resolve = function (host, dtype)
+	local status, result = dns.query(host, {dtype=dtype,retAll=true})
+	return status and result or false
 end
 
 --- Verbose printing function when -v flag is specified
@@ -171,7 +138,7 @@ thread_main = function( results, ... )
 	local what = {n = select("#", ...), ...}
 	for i = 1, what.n do
 		if not (ipv6 == 'only') then
-			local res = resolve(what[i]..'.'..domainname)
+			local res = resolve(what[i]..'.'..domainname, "A")
 			if(res) then
 				for _,addr in ipairs(res) do
 					local hostn = what[i]..'.'..domainname
@@ -185,7 +152,7 @@ thread_main = function( results, ... )
 			end
 		end
 		if ipv6 then
-			local res = resolve_v6(what[i]..'.'..domainname)
+			local res = resolve(what[i]..'.'..domainname, "AAAA")
 			if(res) then
 				for _,addr in ipairs(res) do
 					local hostn = what[i]..'.'..domainname
@@ -205,13 +172,13 @@ srv_main = function( srvresults, ... )
 	local condvar = nmap.condvar( srvresults )
 	local what = {n = select("#", ...), ...}
 	for i = 1, what.n do
-		local res = resolve_srv(what[i]..'.'..domainname)
+		local res = resolve(what[i]..'.'..domainname, "SRV")
 		if(res) then
 			for _,addr in ipairs(res) do
 				local hostn = what[i]..'.'..domainname
 				addr = stdnse.strsplit(":",addr)
 				if not (ipv6 == 'only') then
-					local srvres = resolve(addr[4])
+					local srvres = resolve(addr[4], "A")
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
 							print_verb("Hostname: "..hostn.." IP: "..srvip)
@@ -224,7 +191,7 @@ srv_main = function( srvresults, ... )
 					end
 				end
 				if ipv6 then
-					local srvres = resolve_v6(addr[4])
+					local srvres = resolve(addr[4], "AAAA")
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
 							print_verb("Hostname: "..hostn.." IP: "..srvip)
