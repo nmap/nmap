@@ -54,6 +54,37 @@ require 'dns'
 require 'stdnse'
 require 'target'
 
+local HOST_LIST = {
+	'www', 'mail', 'blog', 'ns0', 'ns1', 'mail2', 'mail3', 'admin', 'ads', 'ssh',
+	'voip', 'sip', 'dns', 'ns2', 'ns3', 'dns0', 'dns1', 'dns2', 'eshop', 'shop',
+	'forum', 'ftp', 'ftp0', 'host', 'log', 'mx0', 'mx1', 'mysql', 'sql', 'news',
+	'noc', 'ns', 'auth', 'administration', 'adserver', 'alerts', 'alpha', 'ap',
+	'app', 'apache', 'apps' , 'appserver', 'gw', 'backup', 'beta', 'cdn', 'chat',
+	'citrix', 'cms', 'erp', 'corp', 'intranet', 'crs', 'svn', 'cvs', 'git', 'db',
+	'database', 'demo', 'dev', 'devsql', 'dhcp', 'dmz', 'download', 'en', 'f5',
+	'fileserver', 'firewall', 'help', 'http', 'id', 'info', 'images', 'internal',
+	'internet', 'lab', 'ldap', 'linux', 'local', 'log', 'ipv6', 'syslog',
+	'mailgate', 'main', 'manage', 'mgmt', 'monitor', 'mirror', 'mobile', 'mssql',
+	'oracle', 'exchange', 'owa', 'mta', 'mx', 'mx0', 'mx1', 'ntp', 'ops', 'pbx',
+	'whois', 'ssl', 'secure', 'server', 'smtp', 'squid', 'stage', 'stats', 'test',
+	'upload', 'vm', 'vnc', 'vpn', 'wiki', 'xml',
+}
+
+local SRV_LIST = {
+	'_afpovertcp._tcp', '_ssh._tcp', '_autodiscover._tcp', '_caldav._tcp',
+	'_client._smtp', '_gc._tcp', '_h323cs._tcp', '_h323cs._udp', '_h323ls._tcp',
+	'_h323ls._udp', '_h323rs._tcp', '_h323rs._tcp', '_http._tcp', '_iax.udp',
+	'_imap._tcp', '_imaps._tcp', '_jabber-client._tcp', '_jabber._tcp',
+	'_kerberos-adm._tcp', '_kerberos._tcp', '_kerberos._tcp.dc._msdcs',
+	'_kerberos._udp', '_kpasswd._tcp', '_kpasswd._udp', '_ldap._tcp',
+	'_ldap._tcp.dc._msdcs', '_ldap._tcp.gc._msdcs', '_ldap._tcp.pdc._msdcs',
+	'_msdcs', '_mysqlsrv._tcp', '_ntp._udp', '_pop3._tcp', '_pop3s._tcp',
+	'_sip._tcp', '_sip._tls', '_sip._udp', '_sipfederationtls._tcp',
+	'_sipinternaltls._tcp', '_sips._tcp', '_smtp._tcp', '_stun._tcp',
+	'_stun._udp', '_tcp', '_tls', '_udp', '_vlmcs._tcp', '_vlmcs._udp',
+	'_wpad._tcp', '_xmpp-client._tcp', '_xmpp-server._tcp',
+}
+
 --- Parse a hostname and try to return a domain name
 --@param host Hostname to parse
 --@return Domain name
@@ -250,8 +281,8 @@ action = function(host)
 				print("dns-brute: Hostlist file not found. Will use default list.")
 			end
 		end
-		if (not hostlist) then	hostlist = {'www', 'mail', 'blog', 'ns0', 'ns1', 'mail2','mail3', 'admin','ads','ssh','voip','sip','dns','ns2','ns3','dns0','dns1','dns2','eshop','shop','forum','ftp', 'ftp0', 'host','log', 'mx0', 'mx1', 'mysql', 'sql', 'news', 'noc', 'ns', 'auth', 'administration', 'adserver', 'alerts', 'alpha', 'ap', 'app', 'apache', 'apps' ,'appserver', 'gw', 'backup', 'beta', 'cdn', 'chat', 'citrix', 'cms', 'erp', 'corp', 'intranet', 'crs', 'svn', 'cvs', 'git', 'db', 'database', 'demo', 'dev', 'devsql', 'dhcp', 'dmz', 'download', 'en', 'f5', 'fileserver', 'firewall', 'help', 'http', 'id', 'info', 'images', 'internal', 'internet', 'lab', 'ldap', 'linux', 'local', 'log', 'ipv6', 'syslog', 'mailgate', 'main', 'manage', 'mgmt', 'monitor', 'mirror', 'mobile', 'mssql', 'oracle', 'exchange', 'owa', 'mta', 'mx', 'mx0', 'mx1', 'ntp', 'ops', 'pbx', 'whois', 'ssl', 'secure', 'server', 'smtp', 'squid', 'stage', 'stats', 'test', 'upload', 'vm', 'vnc', 'vpn', 'wiki', 'xml'} end
-		local srvlist = {'_afpovertcp._tcp','_ssh._tcp','_autodiscover._tcp','_caldav._tcp','_client._smtp','_gc._tcp','_h323cs._tcp','_h323cs._udp','_h323ls._tcp','_h323ls._udp','_h323rs._tcp','_h323rs._tcp','_http._tcp','_iax.udp','_imap._tcp','_imaps._tcp','_jabber-client._tcp','_jabber._tcp','_kerberos-adm._tcp','_kerberos._tcp','_kerberos._tcp.dc._msdcs','_kerberos._udp','_kpasswd._tcp','_kpasswd._udp','_ldap._tcp','_ldap._tcp.dc._msdcs','_ldap._tcp.gc._msdcs','_ldap._tcp.pdc._msdcs','_msdcs','_mysqlsrv._tcp','_ntp._udp','_pop3._tcp','_pop3s._tcp','_sip._tcp','_sip._tls','_sip._udp','_sipfederationtls._tcp','_sipinternaltls._tcp','_sips._tcp','_smtp._tcp','_stun._tcp','_stun._udp','_tcp','_tls','_udp','_vlmcs._tcp','_vlmcs._udp','_wpad._tcp','_xmpp-client._tcp','_xmpp-server._tcp'}
+		if (not hostlist) then hostlist = HOST_LIST end
+		local srvlist = SRV_LIST
 
 		local threads, results, revresults, srvresults = {}, {}, {}, {}
 		results['name'] = "Result:"
