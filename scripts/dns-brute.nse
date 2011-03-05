@@ -7,14 +7,11 @@ Attempts to find an DNS hostnames by brute force guessing.
 -- @usage
 -- nmap --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.threads=6,dns-brute.hostlist=./hostfile.txt,newtargets -sS -p 80
 -- nmap --script dns-brute www.foo.com
--- nmap -6 --script dns-brute --script-args dns-brute.domain=foo.com,dns-brute.ipv6=only,newtargets -v -p 80
 -- @args dns-brute.hostlist The filename of a list of host strings to try.
 -- @args dns-brute.threads Thread to use (default 5).
--- @args dns-brute.ipv6 Perform lookup for IPv6 addresses as well. ipv6 can also be se to the value 'only' to only lookup IPv6 records
 -- @args dns-brute.srv Perform lookup for SRV records
 -- @args dns-brute.domain Domain name to brute force if no host is specified
 -- @args newtargets Add discovered targets to nmap scan queue (only applies when dns-brute.domain has been set). 
---	 If dns-brute.ipv6 is used don't forget to set the -6 Nmap flag, if you require scanning IPv6 hosts.
 -- @output
 -- Pre-scan script results:
 -- | dns-brute: 
@@ -136,22 +133,8 @@ end
 local function thread_main(results, name_iter)
 	local condvar = nmap.condvar( results )
 	for name in name_iter do
-		if not (ipv6 == 'only') then
-			local res = resolve(name..'.'..domainname, "A")
-			if(res) then
-				for _,addr in ipairs(res) do
-					local hostn = name..'.'..domainname
-					if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
-						stdnse.print_debug("Added target: "..hostn)
-						local status,err = target.add(hostn)
-					end
-					stdnse.print_debug("Hostname: "..hostn.." IP: "..addr)
-					results[#results+1] = { hostname=hostn, address=addr }
-				end
-			end
-		end
-		if ipv6 then
-			local res = resolve(name..'.'..domainname, "AAAA")
+		for _, dtype in ipairs({"A", "AAAA"}) do
+			local res = resolve(name..'.'..domainname, dtype)
 			if(res) then
 				for _,addr in ipairs(res) do
 					local hostn = name..'.'..domainname
@@ -175,8 +158,8 @@ local function srv_main(srvresults, srv_iter)
 			for _,addr in ipairs(res) do
 				local hostn = name..'.'..domainname
 				addr = stdnse.strsplit(":",addr)
-				if not (ipv6 == 'only') then
-					local srvres = resolve(addr[4], "A")
+				for _, dtype in ipairs({"A", "AAAA"}) do
+					local srvres = resolve(addr[4], dtype) 
 					if(srvres) then
 						for srvhost,srvip in ipairs(srvres) do
 							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
@@ -187,20 +170,6 @@ local function srv_main(srvresults, srv_iter)
 							end
 						end
 					end
-				end
-				if ipv6 then
-					local srvres = resolve(addr[4], "AAAA")
-					if(srvres) then
-						for srvhost,srvip in ipairs(srvres) do
-							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
-							srvresults[#srvresults+1] = { hostname=hostn, address=srvip }
-							if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
-								stdnse.print_debug("Added target: "..srvip)
-								local status,err = target.add(srvip)
-							end
-						end
-					end
-
 				end
 			end
 		end
@@ -220,7 +189,6 @@ action = function(host)
 		table.insert(nmap.registry.bruteddomains, domainname)
 		stdnse.print_debug("Starting dns-brute at: "..domainname)
 		local max_threads = nmap.registry.args['dns-brute.threads'] and tonumber( nmap.registry.args['dns-brute.threads'] ) or 5
-		ipv6 = stdnse.get_script_args("dns-brute.ipv6") or false
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
 		stdnse.print_debug("THREADS: "..max_threads)
 		local fileName = nmap.registry.args['dns-brute.hostlist']
@@ -279,7 +247,8 @@ action = function(host)
 			stdnse.print_debug("SRV's per thread: "..howmany_ip)
 			repeat
 				local j = math.min(i+howmany_ip, #srvlist)	
-				threads[stdnse.new_thread( srv_main,srvresults, unpack(srvlist, i, j)  )] = true
+				local name_iter = array_iter(srvlist, i, j)
+				threads[stdnse.new_thread( srv_main,srvresults, name_iter)] = true
 				i = j+1
 			until i > #srvlist
 			local done
