@@ -27,6 +27,9 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
+o Consider removing -sR option (but keeping the functionality as part
+  of -sV).  See http://seclists.org/nmap-dev/2011/q1/688
+
 o [Ndiff] should, in non-verbose mode, perhaps not print the changed
   Nmap version and/or scan time if nothing else has changed between
   two files. See http://seclists.org/nmap-dev/2011/q1/674.
