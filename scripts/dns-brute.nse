@@ -82,22 +82,15 @@ local SRV_LIST = {
 	'_wpad._tcp', '_xmpp-client._tcp', '_xmpp-server._tcp',
 }
 
---- Parse a hostname and try to return a domain name
---@param host Hostname to parse
---@return Domain name
-local function parse_domain(host)
-	local domainname = ''
-	if(string.find(host,'%.')) then
-		remove = string.sub(host,string.find(host,'%.')+1,string.len(host))
+local function guess_domain(host)
+	local name
+
+	name = stdnse.get_hostname(host)
+	if name and name ~= host.ip then
+		return string.match(name, "%.([^.]+%..+)%.?$") or string.match(name, "^([^.]+%.[^.]+)%.?$")
 	else
-		remove = host
+		return nil
 	end
-	if(string.find(remove,'%.')) then
-		domainname = string.sub(host,string.find(host,'%.')+1,string.len(host))
-	else
-		domainname = host
-	end
-	return domainname
 end
 
 --- Check if an element is inside a table
@@ -179,13 +172,14 @@ local function srv_main(domainname, srvresults, srv_iter)
 end
 
 action = function(host)
-	local domainname
-
-	if nmap.registry.args['dns-brute.domain'] then
-		domainname = nmap.registry.args['dns-brute.domain']
-	else
-		domainname = parse_domain(stdnse.get_hostname(host))
+	local domainname = nmap.registry.args['dns-brute.domain']
+	if not domainname then
+		domainname = guess_domain(host)
 	end
+	if not domainname then
+		return string.format("Can't guess domain of \"%s\"; use %s.domain script argument.", stdnse.get_hostname(host), SCRIPT_NAME)
+	end
+
 	if not nmap.registry.bruteddomains then
 		nmap.registry.bruteddomains = {}
 	end
