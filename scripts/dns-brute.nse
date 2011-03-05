@@ -130,7 +130,7 @@ local function array_iter(array, i, j)
 	end)
 end
 
-local function thread_main(results, name_iter)
+local function thread_main(domainname, results, name_iter)
 	local condvar = nmap.condvar( results )
 	for name in name_iter do
 		for _, dtype in ipairs({"A", "AAAA"}) do
@@ -151,7 +151,7 @@ local function thread_main(results, name_iter)
 	condvar("signal")
 end
 
-local function srv_main(srvresults, srv_iter)
+local function srv_main(domainname, srvresults, srv_iter)
 	local condvar = nmap.condvar( srvresults )
 	for name in srv_iter do
 		local res = resolve(name..'.'..domainname, "SRV")
@@ -179,6 +179,8 @@ local function srv_main(srvresults, srv_iter)
 end
 
 action = function(host)
+	local domainname
+
 	if nmap.registry.args['dns-brute.domain'] then
 		domainname = nmap.registry.args['dns-brute.domain']
 	else
@@ -228,7 +230,7 @@ action = function(host)
 		repeat
 			local j = math.min(i+howmany, #hostlist)
 			local name_iter = array_iter(hostlist, i, j)
-			threads[stdnse.new_thread( thread_main,results, name_iter)] = true
+			threads[stdnse.new_thread(thread_main, domainname, results, name_iter)] = true
 			i = j+1
 		until i > #hostlist
 		local done
@@ -250,7 +252,7 @@ action = function(host)
 			repeat
 				local j = math.min(i+howmany_ip, #srvlist)	
 				local name_iter = array_iter(srvlist, i, j)
-				threads[stdnse.new_thread( srv_main,srvresults, name_iter)] = true
+				threads[stdnse.new_thread(srv_main, domainname, srvresults, name_iter)] = true
 				i = j+1
 			until i > #srvlist
 			local done
