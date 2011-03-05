@@ -11,7 +11,7 @@ Attempts to find an DNS hostnames by brute force guessing.
 -- @args dns-brute.threads Thread to use (default 5).
 -- @args dns-brute.srv Perform lookup for SRV records
 -- @args dns-brute.domain Domain name to brute force if no host is specified
--- @args newtargets Add discovered targets to nmap scan queue (only applies when dns-brute.domain has been set). 
+-- @args newtargets Add discovered targets to nmap scan queue
 -- @output
 -- Pre-scan script results:
 -- | dns-brute: 
@@ -122,7 +122,7 @@ local function thread_main(domainname, results, name_iter)
 			if(res) then
 				for _,addr in ipairs(res) do
 					local hostn = name..'.'..domainname
-					if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
+					if target.ALLOW_NEW_TARGETS then
 						stdnse.print_debug("Added target: "..hostn)
 						local status,err = target.add(hostn)
 					end
@@ -149,7 +149,7 @@ local function srv_main(domainname, srvresults, srv_iter)
 						for srvhost,srvip in ipairs(srvres) do
 							stdnse.print_debug("Hostname: "..hostn.." IP: "..srvip)
 							srvresults[#srvresults+1] = { hostname=hostn, address=srvip }
-							if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
+							if target.ALLOW_NEW_TARGETS then
 								stdnse.print_debug("Added target: "..srvip)
 								local status,err = target.add(srvip)
 							end
