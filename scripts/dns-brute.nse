@@ -88,7 +88,7 @@ local SRV_LIST = {
 --- Parse a hostname and try to return a domain name
 --@param host Hostname to parse
 --@return Domain name
-function parse_domain(host)
+local function parse_domain(host)
 	local domainname = ''
 	if(string.find(host,'%.')) then
 		remove = string.sub(host,string.find(host,'%.')+1,string.len(host))
@@ -119,7 +119,7 @@ function table.contains(table, element)
 end
 
 -- Single DNS lookup, returning all results. dtype should be e.g. "A", "AAAA".
-resolve = function (host, dtype)
+local function resolve(host, dtype)
 	local status, result = dns.query(host, {dtype=dtype,retAll=true})
 	return status and result or false
 end
@@ -133,7 +133,7 @@ local function array_iter(array, i, j)
 	end)
 end
 
-thread_main = function(results, name_iter)
+local function thread_main(results, name_iter)
 	local condvar = nmap.condvar( results )
 	for name in name_iter do
 		if not (ipv6 == 'only') then
@@ -167,7 +167,7 @@ thread_main = function(results, name_iter)
 	end
 end
 
-srv_main = function(srvresults, srv_iter)
+local function srv_main(srvresults, srv_iter)
 	local condvar = nmap.condvar( srvresults )
 	for name in srv_iter do
 		local res = resolve(name..'.'..domainname, "SRV")
