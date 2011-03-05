@@ -124,15 +124,23 @@ resolve = function (host, dtype)
 	return status and result or false
 end
 
-thread_main = function( results, ... )
+local function array_iter(array, i, j)
+	return coroutine.wrap(function ()
+		while i <= j do
+			coroutine.yield(array[i])
+			i = i + 1
+		end
+	end)
+end
+
+thread_main = function(results, name_iter)
 	local condvar = nmap.condvar( results )
-	local what = {n = select("#", ...), ...}
-	for i = 1, what.n do
+	for name in name_iter do
 		if not (ipv6 == 'only') then
-			local res = resolve(what[i]..'.'..domainname, "A")
+			local res = resolve(name..'.'..domainname, "A")
 			if(res) then
 				for _,addr in ipairs(res) do
-					local hostn = what[i]..'.'..domainname
+					local hostn = name..'.'..domainname
 					if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
 						stdnse.print_debug("Added target: "..hostn)
 						local status,err = target.add(hostn)
@@ -143,10 +151,10 @@ thread_main = function( results, ... )
 			end
 		end
 		if ipv6 then
-			local res = resolve(what[i]..'.'..domainname, "AAAA")
+			local res = resolve(name..'.'..domainname, "AAAA")
 			if(res) then
 				for _,addr in ipairs(res) do
-					local hostn = what[i]..'.'..domainname
+					local hostn = name..'.'..domainname
 					if nmap.registry.args['dns-brute.domain'] and target.ALLOW_NEW_TARGETS then
 						stdnse.print_debug("Added target: "..hostn)
 						local status,err = target.add(hostn)
@@ -159,14 +167,13 @@ thread_main = function( results, ... )
 	end
 end
 
-srv_main = function( srvresults, ... )
+srv_main = function(srvresults, srv_iter)
 	local condvar = nmap.condvar( srvresults )
-	local what = {n = select("#", ...), ...}
-	for i = 1, what.n do
-		local res = resolve(what[i]..'.'..domainname, "SRV")
+	for name in srv_iter do
+		local res = resolve(name..'.'..domainname, "SRV")
 		if(res) then
 			for _,addr in ipairs(res) do
-				local hostn = what[i]..'.'..domainname
+				local hostn = name..'.'..domainname
 				addr = stdnse.strsplit(":",addr)
 				if not (ipv6 == 'only') then
 					local srvres = resolve(addr[4], "A")
@@ -247,15 +254,11 @@ action = function(host)
 		local condvar = nmap.condvar( results )
 		local i = 1
 		local howmany = math.floor(#hostlist/max_threads)+1
-		if (howmany > 7900) then
-			--Cannot unpack a list with more than 7900 items so we will set it to 7900
-			stdnse.print_debug("Hostlist items per thread is more than 7900. Setting to 7900.")
-			howmany = 7900
-		end
 		stdnse.print_debug("Hosts per thread: "..howmany)
 		repeat
 			local j = math.min(i+howmany, #hostlist)
-			threads[stdnse.new_thread( thread_main,results, unpack(hostlist, i, j)  )] = true
+			local name_iter = array_iter(hostlist, i, j)
+			threads[stdnse.new_thread( thread_main,results, name_iter)] = true
 			i = j+1
 		until i > #hostlist
 		local done
