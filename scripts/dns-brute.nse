@@ -30,16 +30,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "discovery"}
 
 prerule = function()
-	if nmap.registry.args['dns-brute.domain'] then
-		local name = nmap.registry.args['dns-brute.domain']
-		if(name:match("^(%d*)%.(%d*)%.(%d*)%.(%d*)$")) then
-			return false
-		else
-			return true
-		end
-	else
-		return false
-	end
+	return stdnse.get_script_args("dns-brute.domain")
 end
 
 hostrule = function(host)
