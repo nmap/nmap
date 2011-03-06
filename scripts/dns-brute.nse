@@ -1,5 +1,5 @@
 description = [[
-Attempts to find an DNS hostnames by brute force guessing.
+Attempts to enumerate DNS hostnames by brute force guessing.
 ]]
 -- 2011-01-26
 
