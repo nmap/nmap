@@ -5,8 +5,6 @@ o Investigate this interface-matching problem on Windows:
   libdnet changes we made to allow choosing the correct physical
   interface when teamed interfaces share the same MAC.
 
-o Write and post 2010 SoC Successes writeup [Fyodor]
-
 o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
@@ -16,9 +14,6 @@ o Script review:
     http://seclists.org/nmap-dev/2010/q4/567
   - ssl-known_key http://seclists.org/nmap-dev/2010/q4/733
     Thread continues at http://seclists.org/nmap-dev/2011/q1/26.
-  - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
-    Should share domain list with http-vhosts.
-    git://code.0x0lab.org/nmap-dns-brute.git
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
@@ -27,8 +22,9 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
-o Consider removing -sR option (but keeping the functionality as part
+o Removing -sR option (but keeping the functionality as part
   of -sV).  See http://seclists.org/nmap-dev/2011/q1/688
+  - Update Nmap documentation/book to remove it there too
 
 o [Ndiff] should, in non-verbose mode, perhaps not print the changed
   Nmap version and/or scan time if nothing else has changed between
@@ -686,6 +682,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script disposition:
+  - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
+    Should share domain list with http-vhosts.
+    git://code.0x0lab.org/nmap-dns-brute.git
+  - Added by David
+
+o Write and post 2010 SoC Successes writeup [Fyodor]
 
 o Script review
   - quake3-master-getservers http://seclists.org/nmap-dev/2011/q1/64
