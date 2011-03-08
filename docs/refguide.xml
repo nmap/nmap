@@ -3998,11 +3998,12 @@ hosts with at least one
 
           <para>Since 2002, Nmap has offered IPv6 support for its most
           popular features.  In particular, ping scanning (TCP-only),
-          connect scanning, and version detection all support IPv6.
-          The command syntax is the same as usual except that you also
-          add the <option>-6</option> option.  Of course, you must use
-          IPv6 syntax if you specify an address rather than a
-          hostname.  An address might look like
+          connect scanning, version detection, and the Nmap Scripting
+          Engine all support IPv6.  The command syntax is the same as
+          usual except that you also add the <option>-6</option>
+          option.  Of course, you must use IPv6 syntax if you specify
+          an address rather than a hostname.  An address might look
+          like
           <literal>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</literal>,
           so hostnames are recommended.  The output looks the same as
           usual, with the IPv6 address on the <quote>interesting
