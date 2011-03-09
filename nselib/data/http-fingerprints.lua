@@ -1064,6 +1064,16 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+	category='microsoft',
+	probes={
+		{path='/tsweb/', method='HEAD'},
+	},
+	matches= {
+		{match='', output='Remote Desktop Web Connection'}
+	}
+})
+
 
 ------------------------------------------------
 ----         NETWORK EQUIPMENT              ----
@@ -1130,18 +1140,41 @@ table.insert(fingerprints, {
 		{path='/_vti_log/', method='GET'},
 		{path='/_vti_pvt/', method='GET'},
 		{path='/_vti_txt/', method='GET'},
+		{path='/_vti_bin/_vti_aut/author.dll'},
+		{path='/_vti_bin/_vti_aut/author.exe'},
 		{path='/_vti_bin/_vti_aut/dvwssr.dll'},
+		{path='/_vti_bin/_vti_adm/admin.dll'},
+		{path='/_vti_bin/_vti_adm/admin.exe'},
 		{path='/_vti_bin/fpcount.exe?Page=default.asp|Image=3'},
 		{path='/_vti_bin/shtml.dll'},
+		{path='/_vti_bin/shtml.exe'},
+		{path='/_vti_pvt/_x_todo.htm'},
+		{path='/_vti_pvt/_x_todoh.htm'},
+		{path='/_vti_pvt/access.cnf'},
 		{path='/_vti_pvt/administrator.pwd'},
 		{path='/_vti_pvt/administrators.pwd'},
 		{path='/_vti_pvt/authors.pwd'},
+		{path='/_vti_pvt/bots.cnf'},
+		{path='/_vti_pvt/botinfs.cnf'},
+		{path='/_vti_pvt/deptodoc.btr'},
+		{path='/_vti_pvt/doctodep.btr'},
+		{path='/_vti_pvt/frontpg.lck'},
+		{path='/_vti_pvt/linkinfo.cnf'},
+		{path='/_vti_pvt/service.cnf'},
+		{path='/_vti_pvt/service.grp'},
+		{path='/_vti_pvt/service.lck'},
 		{path='/_vti_pvt/service.pwd'},
-		{path='/_vti_pvt/shtml.exe'},
+		{path='/_vti_pvt/Service.stp'},
+		{path='/_vti_pvt/services.cnf'},
+		{path='/_vti_pvt/services.org'},
+		{path='/_vti_pvt/structure.cnf'},
+		{path='/_vti_pvt/svcacl.cnf'},
 		{path='/_vti_pvt/users.pwd'},
+		{path='/_vti_pvt/uniqueperm.cnf'},
+		{path='/_vti_pvt/writeto.cnf'},
 	},
 	matches= {
-		{match='200', output='Frontpage folder'}
+		{match='200', output='Frontpage file or folder'}
 	}
 })
 
