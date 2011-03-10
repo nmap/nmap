@@ -1769,7 +1769,9 @@ function get_local_assignments_data()
           local hline = {}
           hline[#hline+1] = "<" .. os.time() .. ">"
           hline[#hline+1] = "<" .. http_response.header["last-modified"] .. ">"
-          hline[#hline+1] = "<" .. http_response.header.etag .. ">"
+          if http_response.header.etag then
+            hline[#hline+1] = "<" .. http_response.header.etag .. ">"
+          end
           table.insert( file_content, 2, table.concat( hline ) )
           write_success, err = write_to_file( file, file_content )
           if err then
