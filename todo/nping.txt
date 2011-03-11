@@ -56,6 +56,20 @@
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
   to his tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
+
+* A few ideas for the Echo protocol:
+    - Add an authenticated NEP_BYE message, so session termination is explicit
+      and both ends can determine if the session was ended because the other end
+      requested it or if it was due to some error at the network or transport
+      layer. Suggested by David.
+      
+    - Add examples for encryption and hmac to the RFC. This would help in
+      debugging implementations. Suggested by Toni Ruottu.
+
+    - RFC. Improve description of how the IVs work. Suggested by Toni Ruottu.
+
+    - RFC. Improve description of encryptionless sessions.  Suggested by Toni
+      Ruottu.
   
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
