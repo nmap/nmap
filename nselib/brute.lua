@@ -262,7 +262,7 @@ Account =
 		if ( #self.username > 0 ) then
 			creds = ("%s:%s"):format( self.username, #self.password > 0 and self.password or "<empty>" )
 		else
-			creds = ("%s"):format( self.password )
+			creds = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
 		end
 		
 		-- An account have the following states
