@@ -5482,8 +5482,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
       // When service scan is in use, we only want to scan ports that have already
       // been determined to be RPC
       
-      if (!o.servicescan)
-	break; // We do all open ports if no service scan
       if (!rsi.rpc_current_port) 
 	break; // done!
       target->ports.getServiceDeductions(rsi.rpc_current_port->portno, rsi.rpc_current_port->proto, &sd);

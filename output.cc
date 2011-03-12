@@ -230,7 +230,7 @@ static void print_xml_service(const struct serviceDeductions *sd) {
   xml_attribute("method", "%s", (sd->dtype == SERVICE_DETECTION_TABLE) ? "table" : "probed");
   xml_attribute("conf", "%i", sd->name_confidence);
 
-  if (o.rpcscan && sd->rpc_status == RPC_STATUS_GOOD_PROG) {
+  if (sd->rpc_status == RPC_STATUS_GOOD_PROG) {
     xml_attribute("rpcnum", "%li", sd->rpc_program);
     xml_attribute("lowver", "%i", sd->rpc_lowver);
     xml_attribute("highver", "%i", sd->rpc_highver);
@@ -595,7 +595,7 @@ void printportoutput(Target *currenths, PortList *plist) {
   servicecol = colno++;
   if (o.reason)
     reasoncol = colno++;
-  if (o.servicescan || o.rpcscan)
+  if (o.servicescan)
     versioncol = colno++;
 
   numrows = numports - numignoredports;
@@ -687,48 +687,42 @@ void printportoutput(Target *currenths, PortList *plist) {
         if (sd.service_fp && saved_servicefps.size() <= 8)
           saved_servicefps.push_back(sd.service_fp);
 
-        if (o.rpcscan) {
-          switch (sd.rpc_status) {
-          case RPC_STATUS_UNTESTED:
-            rpcinfo[0] = '\0';
-            strcpy(rpcmachineinfo, "");
-            break;
-          case RPC_STATUS_UNKNOWN:
-            strcpy(rpcinfo, "(RPC (Unknown Prog #))");
-            strcpy(rpcmachineinfo, "R");
-            break;
-          case RPC_STATUS_NOT_RPC:
-            rpcinfo[0] = '\0';
-            strcpy(rpcmachineinfo, "N");
-            break;
-          case RPC_STATUS_GOOD_PROG:
-            name = nmap_getrpcnamebynum(sd.rpc_program);
-            Snprintf(rpcmachineinfo, sizeof(rpcmachineinfo),
-                     "(%s:%li*%i-%i)", (name) ? name : "", sd.rpc_program,
-                     sd.rpc_lowver, sd.rpc_highver);
-            if (!name) {
-              Snprintf(rpcinfo, sizeof(rpcinfo), "(#%li (unknown) V%i-%i)",
-                       sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
-            } else {
-              if (sd.rpc_lowver == sd.rpc_highver) {
-                Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i)", name,
-                         sd.rpc_lowver);
-              } else
-                Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i-%i)", name,
-                         sd.rpc_lowver, sd.rpc_highver);
-            }
-            break;
-          default:
-            fatal("Unknown rpc_status %d", sd.rpc_status);
-            break;
+        switch (sd.rpc_status) {
+        case RPC_STATUS_UNTESTED:
+          rpcinfo[0] = '\0';
+          strcpy(rpcmachineinfo, "");
+          break;
+        case RPC_STATUS_UNKNOWN:
+          strcpy(rpcinfo, "(RPC (Unknown Prog #))");
+          strcpy(rpcmachineinfo, "R");
+          break;
+        case RPC_STATUS_NOT_RPC:
+          rpcinfo[0] = '\0';
+          strcpy(rpcmachineinfo, "N");
+          break;
+        case RPC_STATUS_GOOD_PROG:
+          name = nmap_getrpcnamebynum(sd.rpc_program);
+          Snprintf(rpcmachineinfo, sizeof(rpcmachineinfo),
+                   "(%s:%li*%i-%i)", (name) ? name : "", sd.rpc_program,
+                   sd.rpc_lowver, sd.rpc_highver);
+          if (!name) {
+            Snprintf(rpcinfo, sizeof(rpcinfo), "(#%li (unknown) V%i-%i)",
+                     sd.rpc_program, sd.rpc_lowver, sd.rpc_highver);
+          } else {
+            if (sd.rpc_lowver == sd.rpc_highver) {
+              Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i)", name,
+                       sd.rpc_lowver);
+            } else
+              Snprintf(rpcinfo, sizeof(rpcinfo), "(%s V%i-%i)", name,
+                       sd.rpc_lowver, sd.rpc_highver);
           }
-          Snprintf(serviceinfo, sizeof(serviceinfo), "%s%s%s",
-                   (sd.name) ? sd.name : ((*rpcinfo) ? "" : "unknown"),
-                   (sd.name) ? " " : "", rpcinfo);
-        } else {
-          current->getNmapServiceName(serviceinfo, sizeof(serviceinfo));
-          rpcmachineinfo[0] = '\0';
+          break;
+        default:
+          fatal("Unknown rpc_status %d", sd.rpc_status);
+          break;
         }
+        current->getNmapServiceName(serviceinfo, sizeof(serviceinfo), rpcinfo);
+
         Tbl->addItem(rowno, portcol, true, portinfo);
         Tbl->addItem(rowno, statecol, false, state);
         Tbl->addItem(rowno, servicecol, true, serviceinfo);

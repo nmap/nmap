@@ -1,6 +1,6 @@
 
 /***************************************************************************
- * nmap_rpc.h -- Functions related to the RPCGrind (-sR) facility of Nmap. *
+ * nmap_rpc.h -- Functions related to the RPCGrind facility of Nmap.       *
  * This includes reading the nmap-rpc services file and sending rpc        *
  * queries and interpreting responses.  The actual scan engine used for    *
  * rpc grinding is pos_scan (which is not in this file)                    *

@@ -256,7 +256,7 @@ void NmapOps::Initialize() {
   version_intensity = 7;
   pingtype = PINGTYPE_UNKNOWN;
   listscan = allowall = ackscan = bouncescan = connectscan = 0;
-  rpcscan = nullscan = xmasscan = fragscan = synscan = windowscan = 0;
+  nullscan = xmasscan = fragscan = synscan = windowscan = 0;
   maimonscan = idlescan = finscan = udpscan = ipprotscan = 0;
   noportscan = noresolve = 0;
   sctpinitscan = 0;
@@ -433,10 +433,6 @@ dialog where you can start NPF if you have administrator privileges.";
     }
   }
   
-  
-  if (numdecoys > 0 && rpcscan) {
-    error("WARNING:  RPC scan currently does not make use of decoys so don't count on that protection");
-  }
   
   if (bouncescan && pingtype != PINGTYPE_NONE) 
     log_write(LOG_STDOUT, "Hint: if your bounce scan target hosts aren't reachable from here, remember to use -Pn so we don't try and ping them prior to the scan\n");

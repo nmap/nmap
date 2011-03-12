@@ -178,7 +178,7 @@ class Port {
  public:
   Port();
   void freeService();
-  void getNmapServiceName(char *namebuf, int buflen) const;
+  void getNmapServiceName(char *namebuf, int buflen, const char *rpcinfo) const;
 
   u16 portno;
   u8 proto;

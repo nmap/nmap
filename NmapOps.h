@@ -289,7 +289,6 @@ class NmapOps {
   int ipprotscan;
   int maimonscan;
   int nullscan;
-  int rpcscan;
   int synscan;
   int udpscan;
   int sctpinitscan;

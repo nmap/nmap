@@ -141,7 +141,7 @@ void Port::freeService() {
    Name nmap normal output will use to describe the port.  This takes
    into account to confidence level, any SSL tunneling, etc.  Truncates
    namebuf to 0 length if there is no room.*/
-void Port::getNmapServiceName(char *namebuf, int buflen) const {
+void Port::getNmapServiceName(char *namebuf, int buflen, const char *rpcinfo) const {
   const char *tunnel_prefix;
   const char *service_name;
   int len;
@@ -172,8 +172,20 @@ void Port::getNmapServiceName(char *namebuf, int buflen) const {
   } else {
     len = Snprintf(namebuf, buflen, "%sunknown", tunnel_prefix);
   }
-  if (len >= buflen || len < 0)
+  if (len >= buflen || len < 0) {
     namebuf[0] = '\0';
+    return;
+  }
+
+  if (rpcinfo != NULL && rpcinfo[0] != '\0') {
+    namebuf += len;
+    buflen -= len;
+    len = Snprintf(namebuf, buflen, " %s", rpcinfo);
+    if (len >= buflen || len < 0) {
+      namebuf[0] = '\0';
+      return;
+    }
+  }
 }
 
 serviceDeductions::serviceDeductions() {

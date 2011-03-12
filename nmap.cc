@@ -1185,7 +1185,8 @@ int nmap_main(int argc, char *argv[]) {
         case 'M':  o.maimonscan = 1; break;
         case 'N':  o.nullscan = 1; break;
         case 'O':  o.ipprotscan = 1; break;
-        case 'R':  o.rpcscan = 1; break;
+        /* Alias for -sV since March 2011. */
+        case 'R':  o.servicescan = 1; break;
         case 'S':  o.synscan = 1; break;
         case 'T':  o.connectscan = 1; break;
         case 'U':  o.udpscan++; break;
@@ -1856,7 +1857,7 @@ int nmap_main(int argc, char *argv[]) {
         service_scan(Targets);
       }
 
-      if (o.servicescan || o.rpcscan) {
+      if (o.servicescan) {
         /* This scantype must be after any TCP or UDP scans since it
          * get's it's port scan list from the open port list of the current
          * host rather than port list the user specified.
