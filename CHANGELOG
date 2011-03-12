@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Removed the -sR (RPC scan) option--it is now an alias for -sV
+  (version scan), which always does RPC scan when appropriate.
+
 o [NSE] Added dns-brute.nse by cirrus, a brute-force DNS name
   enumerator.
 
