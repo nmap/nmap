@@ -1850,11 +1850,7 @@ way.</para>
     provide all of this information.  If Nmap was compiled with
     OpenSSL support, it will connect to SSL servers to deduce the
     service listening behind that encryption layer.<indexterm><primary>SSL</primary><secondary>in version detection</secondary></indexterm>
-    When RPC services are
-    discovered, the Nmap RPC grinder<indexterm><primary>RPC grinder</primary></indexterm>
-    (<option>-sR</option>)<indexterm><primary><option>-sR</option></primary></indexterm>
-    is automatically used to determine the RPC program and version
-    numbers. Some UDP ports are left in the
+    Some UDP ports are left in the
     <literal>open|filtered</literal> state after a UDP port scan is
     unable to determine whether the port is open or filtered. Version
     detection will try to elicit a response from these ports (just as
@@ -1870,6 +1866,19 @@ way.</para>
     <notman>
     Version detection is described in detail in <xref linkend="vscan"/>.
     </notman>
+    </para>
+
+    <para>When RPC services are discovered, the Nmap RPC
+    grinder<indexterm><primary>RPC grinder</primary></indexterm>
+    is automatically used to determine the RPC program and version
+    numbers. It takes all the TCP/UDP ports detected as RPC and floods
+    them with SunRPC program NULL commands in an attempt to determine
+    whether they are RPC ports, and if so, what program and version
+    number they serve up. Thus you can effectively obtain the same info
+    as <command>rpcinfo -p</command> even if the target's portmapper is
+    behind a firewall (or protected by TCP wrappers). Decoys do not
+    currently work with
+    RPC scan.<indexterm><primary>decoys</primary><secondary>which scans use</secondary></indexterm>
     </para>
 
     <para>When Nmap receives responses from a service but cannot match
@@ -1898,6 +1907,10 @@ way.</para>
           Alternatively, you can use <option>-A</option>, which enables
           version detection among other things.</para>
 
+          <para><option>-sR</option><indexterm><primary><option>-sR</option></primary></indexterm>
+          is an alias for <option>-sV</option>. Prior to March 2011, it
+          was used to active the RPC grinder separately from version
+          detection, but now these options are always combined.</para>
         </listitem>
       </varlistentry>
 
@@ -1987,31 +2000,6 @@ way.</para>
           <para>This causes Nmap to print out extensive debugging info
           about what version scanning is doing.  It is a subset of
           what you get with <option>--packet-trace</option>.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>
-        <option>-sR</option> (RPC scan)
-          <indexterm significance="preferred"><primary><option>-sR</option></primary></indexterm>
-          <indexterm><primary>RPC scan</primary><see>RPC grinder</see></indexterm>
-          <indexterm><primary>RPC grinder</primary></indexterm>
-          </term>
-
-        <listitem>
-          <para>This method works in conjunction with the various port
-          scan methods of Nmap. It takes all the TCP/UDP ports found
-          open and floods them with SunRPC program NULL commands in an
-          attempt to determine whether they are RPC ports, and if so,
-          what program and version number they serve up. Thus you can
-          effectively obtain the same info as <command>rpcinfo -p</command> even if the
-          target's portmapper is behind a firewall (or protected by
-          TCP wrappers). Decoys do not currently work with
-	  RPC scan.<indexterm><primary>decoys</primary><secondary>which scans use</secondary></indexterm>
-          This is automatically enabled as part of version scan
-          (<option>-sV</option>) if you request that.  As version
-          detection includes this and is much more comprehensive,
-          <option>-sR</option> is rarely needed.</para>
         </listitem>
       </varlistentry>
   
