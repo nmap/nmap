@@ -1186,7 +1186,10 @@ int nmap_main(int argc, char *argv[]) {
         case 'N':  o.nullscan = 1; break;
         case 'O':  o.ipprotscan = 1; break;
         /* Alias for -sV since March 2011. */
-        case 'R':  o.servicescan = 1; break;
+        case 'R':
+          o.servicescan = 1;
+          error("WARNING: -sR is now an alias for -sV and activates version detection as well as RPC scan.");
+          break;
         case 'S':  o.synscan = 1; break;
         case 'T':  o.connectscan = 1; break;
         case 'U':  o.udpscan++; break;
