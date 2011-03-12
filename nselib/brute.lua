@@ -657,7 +657,7 @@ Engine =
 		local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
 		-- Add the statistics to the result
-		table.insert(stats, ("Perfomed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps ) )
+		table.insert(stats, ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps ) )
 		stats.name = "Statistics"
 		table.insert( result, stats )
 
