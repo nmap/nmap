@@ -525,9 +525,14 @@ Engine =
 				-- Prevent locked accounts from appearing several times
 				if ( not(self.found_accounts) or self.found_accounts[response.username] == nil ) then
 					if ( response.username and #response.username > 0 ) then
-						stdnse.print_debug("Found valid password %s:%s on target %s", response.username, response.password, self.host.ip )
+						stdnse.print_debug("Found valid password %s:%s on target %s", 
+							response.username, 
+							( response.password and #response.password > 0 ) and response.password or "<empty>",
+							self.host.ip )
 					else
-						stdnse.print_debug("Found valid password %s on target %s", response.password, self.host.ip )
+						stdnse.print_debug("Found valid password %s on target %s", 
+							( response.password and #response.password > 0 ) and response.password or "<empty>",
+							self.host.ip )
 					end
 					table.insert( valid_accounts, response:toString() )
 					self.found_accounts[response.username] = true
