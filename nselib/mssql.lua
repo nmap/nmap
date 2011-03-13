@@ -1,6 +1,3 @@
--- -*- mode: lua -*-
--- vim: set filetype=lua :
-
 ---
 -- MSSQL Library supporting a very limited subset of operations.
 --
