@@ -111,6 +111,7 @@ Entry { filename = "netbus-version.nse", categories = { "version", } }
 Entry { filename = "nfs-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "nfs-statfs.nse", categories = { "discovery", "safe", } }
+Entry { filename = "nping-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "nrpe-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", } }

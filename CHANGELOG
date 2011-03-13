@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nping-brute.nse by Toni Ruottu, which tries to guess
+  the passphrase of an Nping Echo server.
+
 o Removed the -sR (RPC scan) option--it is now an alias for -sV
   (version scan), which always does RPC scan when appropriate.
 
