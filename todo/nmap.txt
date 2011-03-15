@@ -22,10 +22,6 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
-o Removing -sR option (but keeping the functionality as part
-  of -sV).  See http://seclists.org/nmap-dev/2011/q1/688
-  - Update Nmap documentation/book to remove it there too
-
 o [Ndiff] should, in non-verbose mode, perhaps not print the changed
   Nmap version and/or scan time if nothing else has changed between
   two files. See http://seclists.org/nmap-dev/2011/q1/674.
@@ -46,6 +42,11 @@ o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
 
+o [Zenmap] When a target is unresponsive (and its distance isn't
+   known), put it at the next furthest ring from the known traceroute
+   hosts (with a dashed line), instead of putting it at the first
+   ring.  See http://seclists.org/nmap-dev/2011/q1/834.
+
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
@@ -56,8 +57,6 @@ o Investigate ways to limit Winpcap privileges so that only
   issue (allowing any user to sniff the network) when it is installed?
   - CACE says they will add a feature to do this.  See this thread:
   http://seclists.org/nmap-dev/2010/q3/826
-
-o Add some content to https://secwiki.org and announce it.
 
 o Create new default username list:
   http://seclists.org/nmap-dev/2010/q1/798
@@ -72,14 +71,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o The file /nmap/mswin32/icon1.ico is used by the NSIS installer to
-  set the Nmap uninstall icon (I'm not sure if it is used for anything
-  else).  But this is a very old icon and doesn't match the blue eye
-  we use now.  So we should probably update that with a modern "blue
-  insecure eye" icon.  I (Fyodor) tried simply replacing icon1.ico
-  with http://insecure.org/shared/images/tiny-eyeicon.ico, but that
-  didn't work.  It must not meet the required format.
 
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
@@ -510,7 +501,6 @@ o [NSE] BasicHTML/XML parser?  For example, Sven Klemm wrote a script
 o [NSE] Would be great if NSE scripts could be made to NOT
   run as root if they don't have to.
 
-
 o [NSE] Consider how we compare to the Nessus Web Application Attack
   scripts
   (http://blog.tenablesecurity.com/2009/06/enhanced-web-application-attacks-added-to-nessus.html).
@@ -682,6 +672,21 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o The file /nmap/mswin32/icon1.ico is used by the NSIS installer to
+  set the Nmap uninstall icon (I'm not sure if it is used for anything
+  else).  But this is a very old icon and doesn't match the blue eye
+  we use now.  So we should probably update that with a modern "blue
+  insecure eye" icon.  I (Fyodor) tried simply replacing icon1.ico
+  with http://insecure.org/shared/images/tiny-eyeicon.ico, but that
+  didn't work.  It must not meet the required format.
+
+o Add some content to https://secwiki.org and announce it.
+
+o Removing -sR option (but keeping the functionality as part
+  of -sV).  See http://seclists.org/nmap-dev/2011/q1/688
+  - Update Nmap documentation/book to remove it there too
+
 
 o Script disposition:
   - dns-brute by cirrus. http://seclists.org/nmap-dev/2011/q1/351
