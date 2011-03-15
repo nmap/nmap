@@ -33,7 +33,7 @@ PACKAGEMAKER = /Developer/usr/bin/packagemaker
 
 EXTRA_DIST = README ../COPYING ../docs/3rd-party-licenses.txt ../docs/licenses
 
-CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
+CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=included --with-libpcre=included --with-liblua=included CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)" PYTHON="$(PYTHON)"
 
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
@@ -61,6 +61,8 @@ CPPFLAGS += $(UNIVERSAL_CPPFLAGS)
 CFLAGS += $(UNIVERSAL_CFLAGS)
 CXXFLAGS += $(UNIVERSAL_CXXFLAGS)
 LDFLAGS += $(UNIVERSAL_LDFLAGS)
+
+PYTHON = /usr/bin/python
 
 $(IMAGE_NAME): $(IMAGE_STAGING_DIR)/$(PKG_NAME)
 	rm -f $@

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Fixed the Mac OS X packages to use the correct path for
+  Python: /usr/bin/python instead of /opt/local/bin/python. The bug
+  was reported by Wellington Castello. [David]
+
 o [NSE] Added nping-brute.nse by Toni Ruottu, which tries to guess
   the passphrase of an Nping Echo server.
 
