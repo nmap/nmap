@@ -736,7 +736,7 @@ local function parse_set_cookie(s)
       else
         value = true
       end
-      cookie[name] = value
+      cookie[name:lower()] = value
       pos = skip_space(s, pos)
     end
 
