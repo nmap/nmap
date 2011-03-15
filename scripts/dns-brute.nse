@@ -14,14 +14,13 @@ Attempts to enumerate DNS hostnames by brute force guessing.
 -- @args newtargets Add discovered targets to nmap scan queue
 -- @output
 -- Pre-scan script results:
--- | dns-brute: 
--- | Result:
--- |   DNS Brute-force hostnames:
--- |   www.foo.com - 127.0.0.1
--- |   mail.foo.com - 127.0.0.2
--- |   blog.foo.com - 127.0.1.3
--- |   ns1.foo.com - 127.0.0.4
--- |_  admin.foo.com - 127.0.0.5
+-- | dns-brute:
+-- |   DNS Brute-force hostnames
+-- |     www.foo.com - 127.0.0.1
+-- |     mail.foo.com - 127.0.0.2
+-- |     blog.foo.com - 127.0.1.3
+-- |     ns1.foo.com - 127.0.0.4
+-- |_    admin.foo.com - 127.0.0.5
 
 author = "cirrus"
 
@@ -252,22 +251,25 @@ action = function(host)
 		end
 
 		response = {}
-		response['name'] = "Result:"
-		table.insert(response,"DNS Brute-force hostnames:")
+		t_dns = {}
+		t_dns['name'] = "DNS Brute-force hostnames"
 		if(#results==0) then
-			table.insert(response,"No results.")
+			table.insert(t_dns,"No results.")
 		end
 		for _, res in ipairs(results) do
-			table.insert(response, res['hostname'].." - "..res['address'])
+			table.insert(t_dns, res['hostname'].." - "..res['address'])
 		end
+		response[#response + 1] = t_dns
 		if(dosrv) then
-			table.insert(response,"SRV results:")
+			t_srv = {}
+			t_srv['name'] = "SRV results"
 			if(#srvresults==0) then
-				table.insert(response,"No results.")
+				table.insert(t_srv,"No results.")
 			end
 			for _, res in ipairs(srvresults) do
-				table.insert(response, res['hostname'].." - "..res['address'])
+				table.insert(t_srv, res['hostname'].." - "..res['address'])
 			end
+			response[#response + 1] = t_srv
 		end
 		return stdnse.format_output(true, response)
 	end
