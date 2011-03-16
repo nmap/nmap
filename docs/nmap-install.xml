@@ -713,7 +713,7 @@ many Windows users do not have a compiler, binary executables are
 distributed for each major Nmap release.  Nmap supports Windows 7,
 Windows Server 2008 and 2003, Windows Vista, and Windows XP SP1 and
 later.  We also have a <ulink
-url="https://secwiki.org/w/Nmap_On_Old_Windows_Releases">help
+url="https://secwiki.org/w/Nmap/Old_Windows_Releases">help
 page</ulink> for users who must run Nmap on earlier versions of
 Windows.  While it has improved dramatically, the Windows port is not
 quite as efficient as on Unix.  Here are the known limitations:
