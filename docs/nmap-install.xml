@@ -710,12 +710,14 @@ described in <xref linkend="inst-source" />.
 released in 2000 and has since become the second most popular Nmap
 platform (behind Linux). Because of this popularity and the fact that
 many Windows users do not have a compiler, binary executables are
-distributed for each major Nmap release.  Nmap supports all versions
-of Windows since NT, including 2K, XP, Vista, Windows 7, and Server
-2003/2008. While it has improved dramatically, the Windows port is not
+distributed for each major Nmap release.  Nmap supports Windows 7,
+Windows Server 2008 and 2003, Windows Vista, and Windows XP SP1 and
+later.  We also have a <ulink
+url="https://secwiki.org/w/Nmap_On_Old_Windows_Releases">help
+page</ulink> for users who must run Nmap on earlier versions of
+Windows.  While it has improved dramatically, the Windows port is not
 quite as efficient as on Unix.  Here are the known limitations:
 </para>
-
 
 <indexterm><primary>Windows</primary><secondary>limitations of</secondary></indexterm>
 <itemizedlist>
@@ -778,13 +780,6 @@ be reused.  Most people simply check the box to apply these changes in the execu
 <para>Windows users have three choices for installing
 Nmap, all of which are available from the
 download page at <ulink url="http://nmap.org/download.html" />.</para>
-
-
-<sect2 id="inst-win2k"><title>Windows 2000 Dependencies</title>
-<indexterm><primary>Windows</primary><secondary>Windows 2000 Dependencies</secondary></indexterm>
-
-<para>Nmap supports Windows 2000, but a couple dependencies from Microsoft must be installed first.  Those are the <ulink url="http://microsoft.com/downloads/details.aspx?FamilyID=889482FC-5F56-4A38-B838-DE776FD4138C">Windows Installer 3.1 (v2)</ulink> and the <ulink url="http://microsoft.com/downloads/details.aspx?FamilyID=0692C27E-F63A-414C-B3EB-D2342FBB6C00">Security Update for Windows 2000 (KB835732)</ulink>.  After installing these, follow the general instructions in the following two sections to install Nmap.</para>
-</sect2>
 
 <sect2 id="inst-win-exe"><title>Windows Self-installer</title>
 <indexterm><primary>Windows</primary><secondary>self-installer</secondary></indexterm>
