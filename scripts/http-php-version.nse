@@ -50,12 +50,13 @@ local LOGO_HASHES = {
 	-- Brown Dog In Grass (Nadia)
 	["a57bd73e27be03a62dd6b3e1b537a72c"] = {"4.3.0 - 4.3.10"},
 	-- Elephant
-	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.5"},
+	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.6"},
 }
 
 local CREDITS_HASHES = {
 	["1776a7c1b3255b07c6b9f43b9f50f05e"] = {"5.2.6"},
 	["1ffc970c5eae684bebc0e0133c4e1f01"] = {"5.2.8"},
+	["2e7f5372931a7f6f86786e95871ac947"] = {"5.3.6"},
 	["3422eded2fcceb3c89cabb5156b5d4e2"] = {"4.2.3"},
 	["3c31e4674f42a49108b5300f8e73be26"] = {"5.0.0 - 5.0.5"},
 	["50ac182f03fc56a719a41fc1786d937d"] = {"4.3.11", "4.4.0 - 4.4.4", "4.4.9", "5.0.5-2ubuntu1.1", "5.0.5-pl3-gentoo", "5.1.0 - 5.1.2"},
