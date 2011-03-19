@@ -131,7 +131,7 @@ Entry { filename = "quake3-master-getservers.nse", categories = { "default", "di
 Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", "vuln", } }
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "rpcinfo.nse", categories = { "discovery", "safe", } }
+Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "skypev2-version.nse", categories = { "version", } }
 Entry { filename = "smb-brute.nse", categories = { "auth", "intrusive", } }

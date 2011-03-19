@@ -1,5 +1,5 @@
 description = [[
-Connects to portmapper and fetches a list of all registered programs.
+Connects to portmapper and fetches a list of all registered programs.  It then prints out a table including (for each program) the RPC program number, supported version numbers, port number and protocol, and program name.
 ]]
 
 ---
@@ -18,7 +18,7 @@ Connects to portmapper and fetches a list of all registered programs.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"discovery", "default", "safe"}
 
 require 'stdnse'
 require 'shortport'
