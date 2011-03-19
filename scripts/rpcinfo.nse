@@ -4,17 +4,35 @@ Connects to portmapper and fetches a list of all registered programs.  It then p
 
 ---
 -- @output
--- PORT    STATE SERVICE
--- 111/tcp open  rpcbind
--- | rpcinfo:  
--- |   100000  2        111/tcp  rpcbind
--- |   100000  2        111/udp  rpcbind
--- |   100003  2       2049/tcp  nfs
--- |   100003  2       2049/udp  nfs
--- |   100005  1,2      953/udp  mountd
--- |   100005  1,2      956/tcp  mountd
--- |   100024  1      55145/tcp  status
--- |_  100024  1      59421/udp  status
+PORT    STATE SERVICE
+111/tcp open  rpcbind
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2,3,4        111/tcp  rpcbind
+|   100000  2,3,4        111/udp  rpcbind
+|   100001  2,3,4      32774/udp  rstatd
+|   100002  2,3        32776/udp  rusersd
+|   100002  2,3        32780/tcp  rusersd
+|   100011  1          32777/udp  rquotad
+|   100021  1,2,3,4     4045/tcp  nlockmgr
+|   100021  1,2,3,4     4045/udp  nlockmgr
+|   100024  1          32771/tcp  status
+|   100024  1          32773/udp  status
+|   100068  2,3,4,5    32775/udp  cmsd
+|   100083  1          32779/tcp  ttdbserverd
+|   100133  1          32771/tcp  nsm_addrand
+|   100133  1          32773/udp  nsm_addrand
+|   100229  1,2        32775/tcp  metad
+|   100230  1          32778/tcp  metamhd
+|   100242  1          32777/tcp  rpc.metamedd
+|   100249  1          32780/udp  snmpXdmid
+|   100249  1          32781/tcp  snmpXdmid
+|   100422  1          32776/tcp  mdcommd
+|   1073741824 1          32772/tcp  fmproduct
+|   300598  1          32782/tcp  dmispd
+|   300598  1          32783/udp  dmispd
+|   805306368 1          32782/tcp  dmispd
+|_  805306368 1          32783/udp  dmispd
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -42,6 +60,11 @@ action = function(host, port)
     end
     
     table.sort(result)
+
+    if (#result > 0) then
+        table.insert(result, 1, "program version   port/proto  service")
+    end
+
     return stdnse.format_output( true, result )
     
 end
