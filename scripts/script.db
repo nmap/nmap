@@ -89,7 +89,6 @@ Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ms-sql-config.nse", categories = { "discovery", "safe", } }
-Entry { filename = "ms-sql-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ms-sql-empty-password.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ms-sql-hasdbaccess.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "safe", } }
