@@ -65,15 +65,34 @@ Driver =
 	--
 	-- @return true on success, false on failure
 	connect = function( self )
-		local status, data 
+		local status, data
 		self.helper = tns.Helper:new( self.host, self.port, nmap.registry.args['oracle-brute.sid'] )
 		
-		status, data = self.helper:Connect()
-		if ( not(status) ) then
-			return status, data
-		end
+		local MAX_RETRIES = 10
+		local tries = MAX_RETRIES
 		
-		return true
+		-- This loop is intended for handling failed connections
+		-- A connection may fail for a number of different reasons.
+		-- For the moment, we're just handling the error code 12520
+		--
+		-- Error 12520 has been observed on Oracle XE and seems to
+		-- occur when a maximum connection count is reached.
+		repeat
+			if ( tries < MAX_RETRIES ) then
+				stdnse.print_debug(2, "%s: Attempting to re-connect (attempt %d of %d)", SCRIPT_NAME, MAX_RETRIES - tries, MAX_RETRIES)
+			end
+			status, data = self.helper:Connect()
+			if ( not(status) ) then
+				stdnse.print_debug(2, "%s: ERROR: An Oracle %s error occured", SCRIPT_NAME, data)
+				self.helper:Close()
+			else
+				break
+			end
+			tries = tries - 1
+			stdnse.sleep(1)
+		until( tries == 0 or data ~= "12520")
+		
+		return status, data
 	end,
 	
 	--- Attempts to login to the Oracle server

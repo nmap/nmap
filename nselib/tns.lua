@@ -254,7 +254,7 @@ Packet.Connect = {
 				if ( tns.data:match("ERR=12514") ) then
 					return false, ("TNS: The listener could not resolve \"%s\""):format(self.dbinstance)
 				end
-				return false, "The server did not respond with an ACCEPT packet"
+				return false, tns.data:match("%(ERR=(%d*)%)")
 			end
 			
 			pos, version = bin.unpack(">S", tns.data )

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a problem in oracle-brute that would fail due to connection
+  exhaustion. Fixed some debugging messages in the brute library [Patrik]
+
 o [Ndiff] Fixed the Mac OS X packages to use the correct path for
   Python: /usr/bin/python instead of /opt/local/bin/python. The bug
   was reported by Wellington Castello. [David]
