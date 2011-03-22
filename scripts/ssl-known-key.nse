@@ -31,43 +31,12 @@ require("nmap")
 require("shortport")
 require("stdnse")
 
-local FINGERPRINT_FILE = "ssl-fingerprints.txt"
-
-local SSL_PORTS = {
-	443,
-	465,
-	587,
-	636,
-	989,
-	990,
-	992,
-	993,
-	994,
-	995,
-	5061,
-	6679,
-	6697,
-	8443
-}
-
-local SSL_SERVICES = {
-	"ftps",
-	"ftps-data",
-	"https",
-	"https-alt",
-	"imaps",
-	"ircs",
-	"ldapssl",
-	"pop3s",
-	"sip-tls",
-	"smtps",
-	"telnets"
-}
+local FINGERPRINT_FILE = "ssl-fingerprints"
 
 local get_fingerprints = function(path)
 	-- Check registry for cached fingerprints.
 	if nmap.registry.ssl_fingerprints then
-		stdnse.print_debug(1, "Using cached SSL fingerprints.")
+		stdnse.print_debug(2, "Using cached SSL fingerprints.")
 		return true, nmap.registry.ssl_fingerprints
 	end
 
@@ -76,7 +45,7 @@ local get_fingerprints = function(path)
 	if not full_path then
 		full_path = path
 	end
-	stdnse.print_debug("Loading SSL fingerprints from %s.", full_path)
+	stdnse.print_debug(2, "Loading SSL fingerprints from %s.", full_path)
 
 	-- Open database.
 	local file = io.open(full_path, "r")
@@ -86,20 +55,15 @@ local get_fingerprints = function(path)
 
 	-- Parse database.
 	local fingerprints = {}
-	while true do
-		local line = file:read("*line")
-		if not line then
-			break
+	for line in file:lines() do
+		line = line:gsub("#.*", "")
+		line = line:gsub("^%s*", "")
+		line = line:gsub("%s*$", "")
+		if line ~= "" then
+			local fields = stdnse.strsplit(",", line)
+			stdnse.print_debug(4, "Added %s to database with reason %s.", fields[1], fields[2])
+			fingerprints[fields[1]] = fields[2]
 		end
-
-		line = line:gsub("\n", "")
-		if line == "" then
-			break
-		end
-
-		local fields = stdnse.strsplit(",", line)
-		stdnse.print_debug(3, "Added %s to database with reason %s.", fields[1], fields[2])
-		fingerprints[fields[1]] = fields[2]
 	end
 
 	-- Close database.
@@ -111,7 +75,7 @@ local get_fingerprints = function(path)
 	return true, fingerprints
 end
 
-portrule = shortport.port_or_service(SSL_PORTS, SSL_SERVICES)
+portrule = shortport.ssl
 
 action = function(host, port)
 	-- Get script arguments.

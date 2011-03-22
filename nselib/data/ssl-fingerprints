@@ -1,3 +1,27 @@
+# SHA-1 hashes of SSL certificates that have known private keys. These are from
+# Little Black Box 0.1 (http://code.google.com/p/littleblackbox/), which has
+# this copyright notice:
+#
+# Copyright (c) 2010 Craig Heffner
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 00:28:E7:D4:9C:FA:4A:A5:98:4F:E4:97:EB:73:48:56:07:87:E4:96,Little Black Box 0.1
 00:3A:E5:45:D6:9C:47:FB:1C:C2:53:59:AA:D7:54:62:D6:D7:89:90,Little Black Box 0.1
 00:3C:F1:AB:48:B4:6C:41:5E:48:15:10:3F:F8:28:AC:7C:60:D5:51,Little Black Box 0.1
