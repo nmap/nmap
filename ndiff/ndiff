@@ -461,11 +461,12 @@ class ScanDiff(object):
         """Print this diff in a human-readable text form."""
         banner_a = format_banner(self.scan_a)
         banner_b = format_banner(self.scan_b)
-        if banner_a != banner_b:
-            print >> f, u"-%s" % banner_a
-            print >> f, u"+%s" % banner_b
-        elif verbose:
-            print >> f, u" %s" % banner_a
+        if self.cost > 0 or verbose:
+            if banner_a != banner_b:
+                print >> f, u"-%s" % banner_a
+                print >> f, u"+%s" % banner_b
+            elif verbose:
+                print >> f, u" %s" % banner_a
 
         print_script_result_diffs_text("Pre-scan script results",
             self.scan_a.pre_script_results, self.scan_b.pre_script_results,
