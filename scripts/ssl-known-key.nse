@@ -34,6 +34,16 @@ require("stdnse")
 local FINGERPRINT_FILE = "ssl-fingerprints"
 
 local get_fingerprints = function(path)
+	local pretty = function(key)
+		local s = key:sub(1, 2)
+
+		for i = 3, 40, 2 do
+			s = s .. ":" .. key:sub(i, i + 1)
+		end
+
+		return s:upper()
+	end
+
 	-- Check registry for cached fingerprints.
 	if nmap.registry.ssl_fingerprints then
 		stdnse.print_debug(2, "Using cached SSL fingerprints.")
@@ -54,15 +64,27 @@ local get_fingerprints = function(path)
 	end
 
 	-- Parse database.
+	local section = nil
 	local fingerprints = {}
 	for line in file:lines() do
 		line = line:gsub("#.*", "")
 		line = line:gsub("^%s*", "")
 		line = line:gsub("%s*$", "")
 		if line ~= "" then
-			local fields = stdnse.strsplit(",", line)
-			stdnse.print_debug(4, "Added %s to database with reason %s.", fields[1], fields[2])
-			fingerprints[fields[1]] = fields[2]
+			if line:sub(1,1) == "[" then
+				-- Start a new section.
+				line = line:sub(2, #line - 1)
+				stdnse.print_debug(4, "Starting new section %s.", line)
+				section = line
+			elseif section ~= nil then
+				-- Add fingerprint to section.
+				line = pretty(line)
+				stdnse.print_debug(4, "Added key %s to database.", line)
+				fingerprints[line] = section
+			else
+				-- Key found outside of section.
+				stdnse.print_debug(1, "Key %s is not in a section.", pretty(line))
+			end
 		end
 	end
 
@@ -105,11 +127,11 @@ action = function(host, port)
 
 	-- Check SSL fingerprint against database.
 	local fingerprint = stdnse.tohex(cert:digest("sha1"), {separator=":", group=2}):upper()
-	local reason = fingerprints[fingerprint]
-	if not reason then
+	local section = fingerprints[fingerprint]
+	if not section then
 		stdnse.print_debug(2, "%s was not in the database.", fingerprint)
 		return
 	end
 
-	return fingerprint .. " is in the database with the reason " .. reason
+	return "Found in " .. section .. " (certificate hash: " .. fingerprint .. ")"
 end
