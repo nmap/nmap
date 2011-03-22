@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ssl-known-key.nse, which checks SSL certificates against a
+  list of certificates with known keys that have been extracted from
+  firmware files. [Mak Kolybabi]
+
 o [Ndiff] The Nmap banner (with the version number and date of the scan)
   is not printed unless there were other differences. This makes Nidff
   produce no output when there wre no differences other than the version
