@@ -24,7 +24,7 @@ Debian OpenSSL keys.
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"safe", "discovery", "vuln"}
 
 require("bin")
 require("nmap")
