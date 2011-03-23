@@ -17,6 +17,7 @@ o Script review:
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
+  - http-wp-plugins. http://seclists.org/nmap-dev/2011/q1/806.
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
   - quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
   - epmd-info. http://seclists.org/nmap-dev/2011/q1/931.
