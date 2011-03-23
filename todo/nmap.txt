@@ -17,6 +17,14 @@ o Script review:
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
+  - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
+  - quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
+  - epmd-info. http://seclists.org/nmap-dev/2011/q1/931.
+  - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
+  - google-id. http://seclists.org/nmap-dev/2011/q1/952.
+
+o Decide what to do about ms-sql-info slowing scans:
+  http://seclists.org/nmap-dev/2011/q1/913
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
