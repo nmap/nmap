@@ -119,52 +119,52 @@ ypserv		100004	ypprog
 mountd		100005	mount showmount
 remote_dbx	100006
 ypbind		100007
-walld		100008  rwall shutdown
-yppasswdd       100009  yppasswd
-etherstatd      100010  etherstat
-rquotad         100011  rquotaprog quota rquota
-sprayd          100012  spray
-3270_mapper     100013
-rje_mapper      100014		# Remote job entry mapping service.
-selection_svc   100015  selnsvc
-database_svc    100016	dbsessionmgr unify netdbms dbms
-rexd            100017	rex remote_exec
-alis            100018	alice office_auto
-sched           100019
-llockmgr        100020
-nlockmgr        100021
-x25.inr         100022
-statmon         100023
-status          100024	statd rpc.statd		# Status monitor
-select_lib      100025
-bootparam       100026
-mazewars        100027		# Mazewars game
-ypupdated       100028  ypupdate
-keyserv         100029  keyserver
-securelogin     100030
-nfs_fwdlnit     100031		# NFS network forwarding service.
-nfs_fwdtrns     100032		# NFS forwarding transmitter
+walld		100008	rwall shutdown
+yppasswdd	100009	yppasswd
+etherstatd	100010	etherstat
+rquotad		100011	rquotaprog quota rquota
+sprayd		100012	spray
+3270_mapper	100013
+rje_mapper	100014	# Remote job entry mapping service.
+selection_svc	100015	selnsvc
+database_svc	100016	dbsessionmgr unify netdbms dbms
+rexd		100017	rex remote_exec
+alis		100018	alice office_auto
+sched		100019
+llockmgr	100020
+nlockmgr	100021
+x25.inr		100022
+statmon		100023
+status		100024	statd rpc.statd	# Status monitor
+select_lib	100025
+bootparam	100026
+mazewars	100027	# Mazewars game
+ypupdated	100028	ypupdate
+keyserv		100029	keyserver
+securelogin	100030
+nfs_fwdlnit	100031	# NFS network forwarding service.
+nfs_fwdtrns	100032	# NFS forwarding transmitter
 sunlink_mapper	100033
 net_monitor	100034
-database	100035		# Lightweight database
+database	100035	# Lightweight database
 passwd_auth	100036
-tfsd		100037		# Translucent file service.
+tfsd		100037	# Translucent file service.
 nsed		100038
 nsemntd		100039
 pfs_mountd	100040
 showfhd		100043	showfh
-mvsmount	100044		# MVSmount daemon (for mvslogin mvslogout)
+mvsmount	100044	# MVSmount daemon (for mvslogin mvslogout)
 ioadmd		100055	rpc.ioadmd
-showattrd	100059		# DFSMS/MVS NFS server
+showattrd	100059	# DFSMS/MVS NFS server
 NETlicense	100062
 sunisamd	100065
-debug_svc 	100066	dbsrv
+debug_svc	100066	dbsrv
 cmsd		100068	rpc.cmsd dtcalendar
 ypxfrd		100069	rpc.ypxfrd ypxfr
 bugtraqd	100071
 kerbd		100078
-rpc.operd	100080	opermsg		# Sun Online-Backup
-ttdbserverd     100083	rpc.ttdbserverd ttdbserverd ttdbserver tooltalk
+rpc.operd	100080	opermsg	# Sun Online-Backup
+ttdbserverd	100083	rpc.ttdbserverd ttdbserverd ttdbserver tooltalk
 admind		100087
 autofsd		100099	autofsd
 event		100101	na.event	# SunNet Manager
@@ -188,59 +188,59 @@ iproutes	100120	na.iproutes
 layers		100121	na.layers
 snmp		100122	na.snmp snmp-cmc snmp-synoptics snmp-unisys snmp-utk
 traffic		100123	na.traffic
-DNInode		100124	na.dni	DNIneT
+DNInode		100124	na.dni DNIneT
 layers2		100131	na.layers2	# SunNet Manager
-nsm_addrand	100133			# Solaris's statd NSM
-ktkt_warnd	100134			# Kerberos warning daemon	
+nsm_addrand	100133	# Solaris's statd NSM
+ktkt_warnd	100134	# Kerberos warning daemon
 etherif2	100135	na.etherif2	# SunNet Manager
 hostmem2	100136	na.hostmem2	# SunNet Manager
 iostat2		100137	na.iostat2	# SunNet Manager
 snmpv2		100138	na.snmpv2	# SNM Version 2.2.2
 sender		100139	cc_sender	# Cooperative Consoles
-amiserv		100146			# AMI Daemon
-amiaux		100147			# AMI Daemon
-ocfserv		100150			# OCF (Smart card) Daemon
+amiserv		100146	# AMI Daemon
+amiaux		100147	# AMI Daemon
+ocfserv		100150	# OCF (Smart card) Daemon
 sunvts		100153
-smserverd	100155	rpc.smserverd	# support removable media devices 
-kcms_server	100221			# SunKCMS Profile Server
+smserverd	100155	rpc.smserverd	# support removable media devices
+kcms_server	100221	# SunKCMS Profile Server
 nfs_acl		100227
 #
 # rpc.metad - SUNWmd - Sun Solstice DiskSuite
 #
-metad		100229	metad	rpc.metad # METAD - SLVM metadb Daemon
-metamhd		100230	metamhd	rpc.metamhd
+metad		100229	metad rpc.metad	# METAD - SLVM metadb Daemon
+metamhd		100230	metamhd rpc.metamhd
 #
 nfsauth		100231
-sadmind		100232			# Solstice
+sadmind		100232	# Solstice
 ufsd		100233	ufsd
-gssd		100234	gss		# GSS Daemon
-cachefsd	100235	cachefs		# CacheFS Daemon
-rpc.metamedd	100242			# SUNWmdm - Sun Cluster
-sm_symond	100244			# Solstice SyMON process controller
-rpc.pmfd	100248	pmfd		# Sun Cluster - process monitor server
+gssd		100234	gss	# GSS Daemon
+cachefsd	100235	cachefs	# CacheFS Daemon
+rpc.metamedd	100242	# SUNWmdm - Sun Cluster
+sm_symond	100244	# Solstice SyMON process controller
+rpc.pmfd	100248	pmfd	# Sun Cluster - process monitor server
 snmpXdmid	100249
-rpc.metacld	100281			# SUNWmdm - Sun Cluster
+rpc.metacld	100281	# SUNWmdm - Sun Cluster
 nisd		100300	rpc.nisd
 nis_cache	100301
 nis_callback	100302
 nispasswd	100303	rpc.nispasswdd
-fnsypd          100304			# Federated Naming Service (FNS)
+fnsypd		100304	# Federated Naming Service (FNS)
 
 # MDMN_COMMD
-mdcommd         100422			# SVM Multi Node Communication Daemon 
-stfsloader	100424			# Standard Type Services Framework (STSF) Font Server
-rpc.pts         105004  Protoserver	# Advanced Printing Software
-swu_svr		120100			# Software Usage Monitoring daemon 
-nf_snmd		120126			# SunNet Manager
+mdcommd		100422	# SVM Multi Node Communication Daemon
+stfsloader	100424	# Standard Type Services Framework (STSF) Font Server
+rpc.pts		105004	Protoserver	# Advanced Printing Software
+swu_svr		120100	# Software Usage Monitoring daemon
+nf_snmd		120126	# SunNet Manager
 nf_snmd		120127
 pcnfsd		150001	pcnfs
 #
 # Pyramid
 #
 PyramidLock	200000
-PyramidSys5	200001		# Sys5
+PyramidSys5	200001	# Sys5
 #
-CADDS_Image     200002 		# CV CADDS images.
+CADDS_Image	200002	# CV CADDS images.
 #
 pdbDA		200005
 SWG		200020	swg	# DMFE/DAWS (Defense Automated Warning System)
@@ -267,8 +267,8 @@ Magfetch	200050	magfetch
 Optfetch	200051	optfetch
 Securitysrv	200052	securitysrv
 #
-bundle		200100 # Delay Tolerant Networking - DTN agent
-bundle_demux	200200 # Delay Tolerant Networking - DTN agent
+bundle		200100	# Delay Tolerant Networking - DTN agent
+bundle_demux	200200	# Delay Tolerant Networking - DTN agent
 #
 # EcoTools daemons/programs
 #
@@ -280,42 +280,42 @@ ecoad		200205
 # VERSANT
 # Operator Communications Software (OCS)
 #
-rpc.dbserv      211637  dbserv rpc.dbserv_dir
-rpc.taped       217843	taped  rpc.taped_dir
-rpc.taped       217854  taped  rpc.taped_dir
+rpc.dbserv	211637	dbserv rpc.dbserv_dir
+rpc.taped	217843	taped rpc.taped_dir
+rpc.taped	217854	taped rpc.taped_dir
 #
-ADTFileLock     300001		# ADT file locking service.
+ADTFileLock	300001	# ADT file locking service.
 #
 # FrameMaker
 #
-rpc.frameusersd	300004				# FrameMaker
-fmclient	300006				# FrameMaker Client
-fmeditor	300007				# FrameMaker Editor
+rpc.frameusersd	300004	# FrameMaker
+fmclient	300006	# FrameMaker Client
+fmeditor	300007	# FrameMaker Editor
 fmserver	300009	stdfm FrameServer	# FrameMaker Server
 #
 amd		300019	amq
 #
-Steering	300021		# Steering Library
+Steering	300021	# Steering Library
 #
 rpc.ldmd	300029	ldm	# Unidata LDM
 #
 # DMFE/DAWS (Defense Automated Warning System)
 #
-UpdtAuditsS	300030	
+UpdtAuditsS	300030
 Dbpass		300091	dbpass
 #
-clms		300145		# CenterLine CodeCenter
+clms		300145	# CenterLine CodeCenter
 #
 # FrameMaker
-fm_flb		300214		# FrameMaker
-fm_fls		300215		# FrameMaker licnese server
+fm_flb		300214	# FrameMaker
+fm_fls		300215	# FrameMaker licnese server
 #
 # AcuServer provides remote file access services to ACUCOBOL-85 and
 # ACUCOBOL-GT applications. 
 #
 acuserve	300301
 #
-dr_daemon	300326		# Sun Enterprise Server Alternate Pathing
+dr_daemon	300326	# Sun Enterprise Server Alternate Pathing
 #
 # FA&O Command Post App
 #
@@ -324,17 +324,17 @@ agcd		300376
 #
 bssd		300433	bss
 drdd		300434	drd
-ap_daemon       300473		# SUNWapu - Alternate Pathing (AP)
-cnxmond		300483		# cluster node monitor (Digital UNIX)
-cnxagentd	300484		# cluster agent (Digital UNIX)
+ap_daemon	300473	# SUNWapu - Alternate Pathing (AP)
+cnxmond		300483	# cluster node monitor (Digital UNIX)
+cnxagentd	300484	# cluster agent (Digital UNIX)
 mcserv		300516
-cluinfod	300527		# cluster information server (Digital UNIX)
-dmispd		300598		# Sun Solstice Enterprise DMI Service Provider
+cluinfod	300527	# cluster information server (Digital UNIX)
+dmispd		300598	# Sun Solstice Enterprise DMI Service Provider
 prpasswd	300632
-ks		300664		# ACPLT/KS protocol
-sfs		344444		# SFS - Self-Certifying File System
+ks		300664	# ACPLT/KS protocol
+sfs		344444	# SFS - Self-Certifying File System
 mapsvc		351455
-berkeleydb	351457		# Sleepycat Software: Berkeley DB
+berkeleydb	351457	# Sleepycat Software: Berkeley DB
 prestoctl_svc	390100	presto	# Prestoserve control daemon
 #
 # Computer Associates
@@ -352,58 +352,58 @@ caloggerd	395650	as6_logger
 #
 rap		390101	rapla
 rapserv		390102	raprd
-nsrd		390103	nsr	 # NetWorker service
-nsrmmd		390104	nsrmm	 # NetWorker media mupltiplexor daemon
-nsrindexd	390105	nsrindex # NetWorker file index daemon
-nsrmmdbd	390107	nsrmmdb  # NetWorker media management database daemon
+nsrd		390103	nsr	# NetWorker service
+nsrmmd		390104	nsrmm	# NetWorker media mupltiplexor daemon
+nsrindexd	390105	nsrindex	# NetWorker file index daemon
+nsrmmdbd	390107	nsrmmdb	# NetWorker media management database daemon
 nsrstat		390109
-nsrjb		390110	nsrjbd	 # NetWorker jukebox-control service
-nsrexec		390113	nsrexecd # NetWorker client execution service
-lgtolmd		390115		 # Legato license daemon
-nsrnotd		390400		 # NetWorker notary service
+nsrjb		390110	nsrjbd	# NetWorker jukebox-control service
+nsrexec		390113	nsrexecd	# NetWorker client execution service
+lgtolmd		390115	# Legato license daemon
+nsrnotd		390400	# NetWorker notary service
 #
 # Remedy AR System daemons
 #
-arserverd       390600  arserverd
-ntserverd       390601	ntserverd	# Remedy Notifier and AR Server 5.0
-ntclientd       390602  ntclientd
-aresclsrv       390603  aresclsrv
-arservtcd       390604  arservtcd
+arserverd	390600	arserverd
+ntserverd	390601	ntserverd	# Remedy Notifier and AR Server 5.0
+ntclientd	390602	ntclientd
+aresclsrv	390603	aresclsrv
+arservtcd	390604	arservtcd
 # Remedy Flashboards daemons
 flashservd	390610	flashservd
-arflashbd       390619  arflashbd
+arflashbd	390619	arflashbd
 #
-arfastsrv       390620  arfastsrv
-arfastsrv       390621  arfastsrv
-arfastsrv       390622  arfastsrv
-arfastsrv       390623  arfastsrv
-arfastsrv       390624  arfastsrv
-arfastsrv       390625  arfastsrv
-arfastsrv       390626  arfastsrv
-arfastsrv       390627  arfastsrv
-arfastsrv       390628  arfastsrv
-arfastsrv       390629  arfastsrv
-arfastsrv       390630  arfastsrv
-arfastsrv       390631  arfastsrv
-arfastsrv       390632  arfastsrv
-arfastsrv       390633  arfastsrv
-arfastsrv       390634  arfastsrv
+arfastsrv	390620	arfastsrv
+arfastsrv	390621	arfastsrv
+arfastsrv	390622	arfastsrv
+arfastsrv	390623	arfastsrv
+arfastsrv	390624	arfastsrv
+arfastsrv	390625	arfastsrv
+arfastsrv	390626	arfastsrv
+arfastsrv	390627	arfastsrv
+arfastsrv	390628	arfastsrv
+arfastsrv	390629	arfastsrv
+arfastsrv	390630	arfastsrv
+arfastsrv	390631	arfastsrv
+arfastsrv	390632	arfastsrv
+arfastsrv	390633	arfastsrv
+arfastsrv	390634	arfastsrv
 #
-arlistsrv       390635  arlistsrv
-arlistsrv       390636  arlistsrv
-arlistsrv       390637  arlistsrv
-arlistsrv       390638  arlistsrv
-arlistsrv       390639  arlistsrv
-arlistsrv       390640  arlistsrv
-arlistsrv       390641  arlistsrv
-arlistsrv       390642  arlistsrv
-arlistsrv       390643  arlistsrv
-arlistsrv       390644  arlistsrv
-arlistsrv       390645  arlistsrv
-arlistsrv       390646  arlistsrv
-arlistsrv       390647  arlistsrv
-arlistsrv       390648  arlistsrv
-arlistsrv       390649  arlistsrv
+arlistsrv	390635	arlistsrv
+arlistsrv	390636	arlistsrv
+arlistsrv	390637	arlistsrv
+arlistsrv	390638	arlistsrv
+arlistsrv	390639	arlistsrv
+arlistsrv	390640	arlistsrv
+arlistsrv	390641	arlistsrv
+arlistsrv	390642	arlistsrv
+arlistsrv	390643	arlistsrv
+arlistsrv	390644	arlistsrv
+arlistsrv	390645	arlistsrv
+arlistsrv	390646	arlistsrv
+arlistsrv	390647	arlistsrv
+arlistsrv	390648	arlistsrv
+arlistsrv	390649	arlistsrv
 #
 # SGI
 #
@@ -411,18 +411,18 @@ sgi_snoopd	391000	snoopd snoop
 sgi_toolkitbus	391001
 sgi_fam		391002
 sgi_notepad	391003	notepad
-sgi_mountd	391004  mount showmount
-sgi_smtd	391005  smtd
-sgi_pcsd        391006  pcsd
+sgi_mountd	391004	mount showmount
+sgi_smtd	391005	smtd
+sgi_pcsd	391006	pcsd
 sgi_nfs		391007
-sgi_rfind	391008  rfind
+sgi_rfind	391008	rfind
 sgi_pod		391009	pod
 sgi_iphone	391010
 sgi_videod	391011
 sgi_testcd	391012	testcd
-sgi.ha_hbeat 	391013  ha_hbeat ha_heartbeat sgi_ha_hb
-sgi.ha_nc	391014  ha_nc sgi.ha_nc
-sgi.ha_appmon	391015  ha_appmon
+sgi.ha_hbeat	391013	ha_hbeat ha_heartbeat sgi_ha_hb
+sgi.ha_nc	391014	ha_nc sgi.ha_nc
+sgi.ha_appmon	391015	ha_appmon
 sgi_xfsmd	391016
 sgi_mediad	391017	mediad
 sgi.ha_orcl	391018	ha_orcl
@@ -436,7 +436,7 @@ sgi_reserved	391025
 sgi_reserved	391026
 sgi_reserved	391027
 sgi_reserved	391028
-sgi_espd    	391029  espd
+sgi_espd	391029	espd
 sgi_reserved	391030
 sgi_reserved	391031
 sgi_reserved	391032
@@ -472,7 +472,7 @@ sgi_reserved	391061
 sgi_reserved	391062
 sgi_reserved	391063
 #
-ingsqld		391434		# SCO JDBC
+ingsqld		391434	# SCO JDBC
 #
 # AEDIS
 #
@@ -486,28 +486,28 @@ licd		391206
 #
 # Compaq TruCluster - Available Server Environment 
 #
-asedirector	395175  asedirector	# ASE Director Daemon
-aseagent	395176  aseagent	# ASE Agent Daemon
-asehsm		395177  asehsm		# Host Status Monitor Daemon
-aselogger	395179  aselogger	# Logger Daemon
+asedirector	395175	asedirector	# ASE Director Daemon
+aseagent	395176	aseagent	# ASE Agent Daemon
+asehsm		395177	asehsm	# Host Status Monitor Daemon
+aselogger	395179	aselogger	# Logger Daemon
 #
 pnictl		395250
 # BMC
-EnsignAgent	450000		# Ensign Agent
+EnsignAgent	450000	# Ensign Agent
 #
-drac		900101		# Dynamic Relay Authorization Control
+drac		900101	# Dynamic Relay Authorization Control
 #
-AdoIfServer 	1000002		# RHIC AdoIf Server (Accelerator Device Object)
-notifServer	2000004		# RHIC notifServer
+AdoIfServer	1000002	# RHIC AdoIf Server (Accelerator Device Object)
+notifServer	2000004	# RHIC notifServer
 #
 retherif	20000000	na.retherif
 genagnt		20000001	na.genagnt
 #
 # ACeDB database server
 #
-acedb           20000114  rpc.acedbd
-aboutdb         20000115  rpc.acedbd
-aatdb           20000116  rpc.acedbd
+acedb		20000114	rpc.acedbd
+aboutdb		20000115	rpc.acedbd
+aatdb		20000116	rpc.acedbd
 #
 seagent		20000777	# Memco/Platinum/CA SeOS security product
 dbsrvr		21000023	# TACO
@@ -520,8 +520,8 @@ sas		28000230	# Spectrum Access Server    (10230/udp)
 #
 # The range 200100000-200199999 is reserved for NeXT services ???
 #
-netinfobind	200100001  nibindd	# NeXT NetInfo
-renderd		200100002		# NeXT renderd
+netinfobind	200100001	nibindd	# NeXT NetInfo
+renderd		200100002	# NeXT renderd
 #
 SLSd_daemon	536870913	# HP Distributed Single Logical Screen
 uidd		536870915
@@ -662,30 +662,30 @@ ugidd		545580417	rpc.ugidd
 #
 # Inetray - Raytrace
 #
-inetray.start   555555554
-inetray         555555555
-inetray         555555556
-inetray         555555557
-inetray         555555558
-inetray         555555559
-inetray         555555560
+inetray.start	555555554
+inetray		555555555
+inetray		555555556
+inetray		555555557
+inetray		555555558
+inetray		555555559
+inetray		555555560
 #
 # Keck Long Wavelength Spectrometer (LWS) related rpc daemons
 #
-collectd	600000001	collect		# IRE Computer
-xycomd		600000002	xycom		# IRE Computer
-motord		600000003	motor		# IRE Computer
+collectd	600000001	collect	# IRE Computer
+xycomd		600000002	xycom	# IRE Computer
+motord		600000003	motor	# IRE Computer
 fitsd		600000004	fits writer	# Control Room computer
 #
 des_crypt	600100029	freebsd-crypt	# FreeBSD
 fypxfrd		600100069	freebsd-ypxfrd	# FreeBSD
 rdbx		611319808
 bminrd		630474513	# MacroModel - BatchMin Network Server
-bwnfsd          788585389	# (PC)NFS server by Beame & Whiteside, Inc.
+bwnfsd		788585389	# (PC)NFS server by Beame & Whiteside, Inc.
 dmispd		805306368	# Sun Solstice Enterprise DMI Service Provider
 sql_disp	805310465	# GNU SQL Server
 rdict		805898569	# "Internetworking with TCP/IP Vol 3"
-piktc_svc	806422610	# PIKT: Problem Informant/Killer Tool 
+piktc_svc	806422610	# PIKT: Problem Informant/Killer Tool
 		822084608	# OLD - Inter-Language Unification (ILU)
 #
 # LIGO Global Diagnostics System (GDS) - Diagnostics Test Tool (DTT)
@@ -701,7 +701,7 @@ rlaunchd	822087687	# Remote program launcher
 #
 cfsd		824395111
 cns		912680550	# Controls Name Server
-fmproduct	1073741824  _Frame_RPC		# FrameMaker
+fmproduct	1073741824	_Frame_RPC	# FrameMaker
 gsql_trn	1073741840	# GNU SQL Server
 cfsd		1092830567
 rdb		1145324612	# Wind River Systems' VxWorks debug stub
