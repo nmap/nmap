@@ -98,7 +98,7 @@
 # Program numbers are assigned in groups of 0x20000000 (decimal 536870912)
 # according to the following chart: 
 #
-#	       0x0 - 0x1fffffff		Defined by Sun 
+#	       0x0 - 0x1fffffff		Defined by IANA
 #	0x20000000 - 0x3fffffff		Defined by user 
 #	0x40000000 - 0x5fffffff		Transient 
 #	0x60000000 - 0x7fffffff		Reserved 
@@ -111,74 +111,106 @@
 # request to "rpc@sun.com".
 #
 
-rpcbind		100000	portmap sunrpc rpcbind
-rstatd		100001	rstat rup perfmeter rstat_svc
-rusersd		100002	rusers
-nfs		100003	nfsprog nfsd
-ypserv		100004	ypprog
-mountd		100005	mount showmount
-remote_dbx	100006
-ypbind		100007
-walld		100008	rwall shutdown
-yppasswdd	100009	yppasswd
-etherstatd	100010	etherstat
-rquotad		100011	rquotaprog quota rquota
-sprayd		100012	spray
-3270_mapper	100013
-rje_mapper	100014	# Remote job entry mapping service.
-selection_svc	100015	selnsvc
-database_svc	100016	dbsessionmgr unify netdbms dbms
-rexd		100017	rex remote_exec
-alis		100018	alice office_auto
-sched		100019
-llockmgr	100020
-nlockmgr	100021
-x25.inr		100022
-statmon		100023
-status		100024	statd rpc.statd	# Status monitor
-select_lib	100025
-bootparam	100026
-mazewars	100027	# Mazewars game
-ypupdated	100028	ypupdate
-keyserv		100029	keyserver
-securelogin	100030
-nfs_fwdlnit	100031	# NFS network forwarding service.
-nfs_fwdtrns	100032	# NFS forwarding transmitter
-sunlink_mapper	100033
-net_monitor	100034
-database	100035	# Lightweight database
-passwd_auth	100036
-tfsd		100037	# Translucent file service.
-nsed		100038
-nsemntd		100039
-pfs_mountd	100040
-showfhd		100043	showfh
-mvsmount	100044	# MVSmount daemon (for mvslogin mvslogout)
-ioadmd		100055	rpc.ioadmd
-showattrd	100059	# DFSMS/MVS NFS server
-NETlicense	100062
-sunisamd	100065
-debug_svc	100066	dbsrv
-cmsd		100068	rpc.cmsd dtcalendar
-ypxfrd		100069	rpc.ypxfrd ypxfr
-bugtraqd	100071
-kerbd		100078
-rpc.operd	100080	opermsg	# Sun Online-Backup
-ttdbserverd	100083	rpc.ttdbserverd ttdbserverd ttdbserver tooltalk
-admind		100087
-autofsd		100099	autofsd
-event		100101	na.event	# SunNet Manager
-logger		100102	na.logger	# SunNet Manager
-sync		100104	na.sync
-diskinfo	100105	na.diskinfo	# SunNet Manager
-iostat		100106	na.iostat
-hostperf	100107	na.hostperf
-activity	100109	na.activity	# SunNet Manager
-db_mgr		100110
-lpstat		100111	na.lpstat	# SunNet Manager
-hostmem		100112	na.hostmem
-sample		100113	na.sample
-x25		100114	na.x25
+rpcbind		100000	portmap sunrpc rpcbind pmapprog	# portmapper
+rstatd		100001	rstat rup perfmeter rstat_svc rstatprog	# remote stats
+rusersd		100002	rusers rusersprog	# remote users
+nfs		100003	nfsprog nfsd	# nfs
+ypserv		100004	ypprog	# yellow pages (NIS)
+mountd		100005	mount showmount mountprog	# mount demon
+remote_dbx	100006	dbxprog	# remote dbx
+ypbind		100007	ypbindprog	# yp binder (NIS)
+walld		100008	rwall shutdown wall	# shutdown msg
+yppasswdd	100009	yppasswd yppasswdprog	# yppasswd server
+etherstatd	100010	etherstat etherstatprog	# ether stats
+rquotad		100011	rquotaprog quota rquota	# disk quotas
+sprayd		100012	spray	# spray packets
+3270_mapper	100013	ibm3270prog	# 3270 mapper
+rje_mapper	100014	ibmrjeprog	# Remote job entry mapping service.
+selection_svc	100015	selnsvc selnsvcprog	# selection service
+database_svc	100016	dbsessionmgr unify netdbms dbms rdatabaseprog	# remote database access
+rexd		100017	rex remote_exec rexec	# remote execution
+alis		100018	alice office_auto aliceprog	# Alice Office Automation
+sched		100019	schedprog	# scheduling service
+llockmgr	100020	lockprog	# local lock manager
+nlockmgr	100021	netlockprog	# network lock manager
+x25.inr		100022	x25prog	# x.25 inr protocol
+statmon		100023	statmon1	# status monitor 1
+status		100024	statd rpc.statd statmon2	# Status monitor
+select_lib	100025	selnlibprog	# selection library
+bootparam	100026	# boot parameters service
+mazewars	100027	mazeprog	# Mazewars game
+ypupdated	100028	ypupdate ypupdateprog	# yp update (NIS)
+keyserv		100029	keyserver keyserveprog	# key server
+securelogin	100030	securecmdprog	# secure login
+nfs_fwdlnit	100031	netfwdiprog	# NFS network forwarding service.
+nfs_fwdtrns	100032	netfwdtprog	# NFS forwarding transmitter
+sunlink_mapper	100033	sunlinkmap	# sunlink MAP
+net_monitor	100034	netmonprog	# network monitor
+database	100035	dbaseprog	# Lightweight database
+passwd_auth	100036	pwdauthprog	# password authorization
+tfsd		100037	tfsprog	# Translucent file service.
+nsed		100038	nseprog	# nse server
+nsemntd		100039	nse_activate_prog	# nse activate daemon
+pfs_mountd	100040	sunview_help_prog	# sunview help
+pnp_prog	100041	# pnp install
+ipaddr_alloc_prog	100042	# ip addr allocator
+showfhd		100043	showfh filehandle	# show filehandle
+mvsmount	100044	mvsnfsprog	# MVSmount daemon (for mvslogin mvslogout)
+rem_fileop_user_prog	100045	# remote user file operations
+batch_ypupdateprog	100046	# batched ypupdate
+nem_prog	100047	# network execution mgr
+raytrace_rd_prog	100048	# raytrace/mandelbrot remote daemon
+raytrace_ld_prog	100049	# raytrace/mandelbrot local daemon
+rem_fileop_group_prog	100050	# remote group file operations
+rem_fileop_system_prog	100051	# remote system file operations
+rem_system_role_prog	100052	# remote system role operations
+ioadmd		100055	rpc.ioadmd	# ioadmd
+filemerge_prog	100056	# filemerge
+namebind_prog	100057	# Name Binding Program
+njeprog		100058	# sunlink NJE
+showattrd	100059	mvsattrprog	# DFSMS/MVS NFS server
+rmgrprog	100060	# SunAccess/SunLink resource manager
+uidallocprog	100061	# UID allocation service
+NETlicense	100062	lbserverprog	# license broker
+lbbinderprog	100063	# NETlicense client binder
+gidallocprog	100064	# GID allocation service
+sunisamd	100065	sunisamprog	# SunIsam
+debug_svc	100066	dbsrv rdbsrvprog	# Remote Debug Server
+cmsd		100068	rpc.cmsd dtcalendar cm	# Network Calendar Program
+ypxfrd		100069	rpc.ypxfrd ypxfr	# ypxfrd
+timedprog	100070	# rpc.timed
+bugtraqd	100071	# bugtraqd
+schedroom	100075	# Sun tool for scheduling rooms
+authnegotiate_prog	100076	# Authentication Negotiation
+attribute_prog	100077	# Database manipulation
+kerbd		100078	kerbprog	# Kerberos authentication daemon
+rpc.operd	100080	opermsg autodump_prog	# Sun Online-Backup
+event_svc	100081	# Event protocol
+bugtraq_qd	100082	# bugtraq_qd
+ttdbserverd	100083	rpc.ttdbserverd ttdbserverd ttdbserver tooltalk database service	# ToolTalk and Link Service Project
+admind		100087	adm_agent	# Jupiter Administration
+libdsd/dsd	100090	# Dual Disk support
+remote_activation_svc	100092	# ToolTalk
+host_checking	100093	# Consulting Services
+searchit	100095	# Roger Riggs
+mesgtool	100096	# Robert Allen
+networked	100098	version of CS5	# SISU
+autofsd		100099	autofsd autofs	# NFS Automount File System
+msgboard	100100
+event		100101	na.event netmgt_eventd_prog	# SunNet Manager
+logger		100102	na.logger netmgt_netlogd_prog	# SunNet Manager
+netmgt_topology_prog	100103	# topology display manager [topology]
+sync		100104	na.sync netmgt_syncstatd_prog	# syncstat agent [syncstatd]
+diskinfo	100105	na.diskinfo netmgt_ippktd_prog	# SunNet Manager
+iostat		100106	na.iostat netmgt_configd_prog	# netmgt config agent [configd]
+hostperf	100107	na.hostperf netmgt_restatd_prog	# restat agent [restatd]
+netmgt_lprstatd_prog	100108	# lpq agent [lprstatd]
+activity	100109	na.activity netmgt_mgtlogd_prog	# SunNet Manager
+db_mgr		100110	netmgt_proxydni_prog	# proxy DECnet NCP agent [proxydni]
+lpstat		100111	na.lpstat netmgt_mapperd_prog	# SunNet Manager
+hostmem		100112	na.hostmem netmgt_netstatd_prog	# netstat agent [netstatd]
+sample		100113	na.sample netmgt_sampled_prog	# sample netmgt agent [sampled]
+x25		100114	na.x25 netmgt_vcstatd_prog	# X.25 statistics agent [vcstatd]
 ping		100115	na.ping
 rpcnfs		100116	na.rpcnfs
 hostif		100117	na.hostif
@@ -189,62 +221,225 @@ layers		100121	na.layers
 snmp		100122	na.snmp snmp-cmc snmp-synoptics snmp-unisys snmp-utk
 traffic		100123	na.traffic
 DNInode		100124	na.dni DNIneT
+rpc.localhad	100130	# localhad
 layers2		100131	na.layers2	# SunNet Manager
-nsm_addrand	100133	# Solaris's statd NSM
-ktkt_warnd	100134	# Kerberos warning daemon
+na.tr		100132	# token ring agent
+nsm_addrand	100133	nsm_addr	# Solaris's statd NSM
+ktkt_warnd	100134	kwarn	# Kerberos warning daemon
 etherif2	100135	na.etherif2	# SunNet Manager
 hostmem2	100136	na.hostmem2	# SunNet Manager
 iostat2		100137	na.iostat2	# SunNet Manager
 snmpv2		100138	na.snmpv2	# SNM Version 2.2.2
 sender		100139	cc_sender	# Cooperative Consoles
+na.cpustat	100140	# na.cpustat
+rgmd_receptionist	100141	# Sun Cluster SC3.0
+fed		100142
+rdc		100143	# Network Storage
+nafo		100144	# Sun Cluster products
+scadmd		100145	# SunCluster 3.0
 amiserv		100146	# AMI Daemon
 amiaux		100147	# AMI Daemon
+dm		100148	# Delegate Management Server
+rkstat		100149
 ocfserv		100150	# OCF (Smart card) Daemon
+sccheckd	100151
+autoclientd	100152
 sunvts		100153
+ssmond		100154
 smserverd	100155	rpc.smserverd	# support removable media devices
-kcms_server	100221	# SunKCMS Profile Server
-nfs_acl		100227
+test1		100156
+test2		100157
+test3		100158
+test4		100159
+test5		100160
+test6		100161
+test7		100162
+test8		100163
+test9		100164
+test10		100165
+nfsmapid	100166
+SUN_WBEM_C_CIMON_HANDLE	100167
+sacmmd		100168
+fmd_adm		100169
+fmd_api		100170
+idmapd		100172
+na.snmptrap	100175	# snmptrap
+ShowMe		100213
+keyrsa		100216	# AUTH_RSA Key service
+sunsolve	100218	# WWCS (Corporate)
+cstatd		100219
+xfn_server_prog	100220	# X/Open Federated Naming
+kcms_server	100221	kcs_network_io kcs	# SunKCMS Profile Server
+ha_dbms_serv	100222	# HA-DBMS
+hafaultd	100226
+nfs_acl		100227	# NFS ACL Service
 #
 # rpc.metad - SUNWmd - Sun Solstice DiskSuite
 #
+dlmd		100228	# distributed lock manager
 metad		100229	metad rpc.metad	# METAD - SLVM metadb Daemon
 metamhd		100230	metamhd rpc.metamhd
-#
 nfsauth		100231
 sadmind		100232	# Solstice
 ufsd		100233	ufsd
-gssd		100234	gss	# GSS Daemon
+gssd		100234	gss grpservd	# GSS Daemon
 cachefsd	100235	cachefs	# CacheFS Daemon
-rpc.metamedd	100242	# SUNWmdm - Sun Cluster
-sm_symond	100244	# Solstice SyMON process controller
+msmprog		100236	Media_Server
+ihnamed		100237
+ihnetd		100238
+ihsecured	100239
+ihclassmgrd	100240
+ihrepositoryd	100241
+rpc.metamedd	100242	metamedd	# SUNWmdm - Sun Cluster
+contentmanager	100243	cm
+sm_symond	100244	symon	# Solstice SyMON process controller
+pld		100245	genesil
+ctid		100246
+ccd		100247
 rpc.pmfd	100248	pmfd	# Sun Cluster - process monitor server
-snmpXdmid	100249
+snmpXdmid	100249	dmi2_client
+mfs_admin	100250
+ndshared_unlink	100251
+ndshared_touch	100252
+ndshared_slink	100253
+cbs		100254	control_board_server
+skiserv		100255
+nfsxa		100256	nfsxattr
+ndshared_disable	100257
+ndshared_enable	100258
+sms_account_admin	100259
+sms_modem_admin	100260
+sms_r_login	100261
+sms_r_subaccount_mgt	100262
+sms_service_admin	100263
+session_admin	100264
+canci_ancs_program	100265
+canci_sms_program	100266
+msmp		100267
+halck		100268
+halogmsg	100269
+nfs_id_map	100270
+ncall		100271
+hmip		100272
+repl_mig	100273
+repl_mig_cb	100274
 rpc.metacld	100281	# SUNWmdm - Sun Cluster
-nisd		100300	rpc.nisd
-nis_cache	100301
+nisd		100300	rpc.nisd nisplus	# NIS+
+nis_cache	100301	nis_cachemgr	# NIS+
 nis_callback	100302
-nispasswd	100303	rpc.nispasswdd
+nispasswd	100303	rpc.nispasswdd nispasswdd	# NIS+ Password Update Daemon
 fnsypd		100304	# Federated Naming Service (FNS)
+nfscksum	100399	# nfscksum
+netmgt_netu_prog	100400	# network utilization agent
+netmgt_rping_prog	100401	# network rpc ping agent
+na.shell	100402
+na.picslp	100403	# picsprint
+traps		100404
+jdsagent	100410
+na.haconfig	100411
+na.halhost	100412
+na.hadtsrvc	100413
+na.hamdstat	100414
+na.neoadmin	100415
+ex1048prog	100416
+rpc.rdmaconfig	100417	# rdmaconfig
 
 # MDMN_COMMD
 mdcommd		100422	# SVM Multi Node Communication Daemon
-stfsloader	100424	# Standard Type Services Framework (STSF) Font Server
-rpc.pts		105004	Protoserver	# Advanced Printing Software
-swu_svr		120100	# Software Usage Monitoring daemon
-nf_snmd		120126	# SunNet Manager
-nf_snmd		120127
-pcnfsd		150001	pcnfs
+kiprop		100423	krb5_iprop
+stfsloader	100424	stsf	# Standard Type Services Framework (STSF) Font Server
+ucmmstate	100532
+scrcmd		100533
+nselinktool	101002	# nse link daemon
+nselinkapp	101003	# nse link application
+sharedapp	105001	# ShowMe
+REGISTRY_PROG	105002	# Registry
+print-server	105003	# Print-server
+rpc.pts		105004	Protoserver proto-server	# Advanced Printing Software
+notification-server	105005	# Notification-server
+transfer-agent-server	105006	# Transfer-agent-server
+tsolrpcb	110001
+tsolpeerinfo	110002
+tsolboot	110003
+cmip		120001	na.cmip
+na.osidiscover	120002
+cmiptrap	120003
+swu_svr		120100	eserver	# Software Usage Monitoring daemon
+repserver	120101
+swserver	120102
+dmd		120103
+ca		120104
+nf_snmd		120126	nf_fddi	# SunNet Manager
+nf_snmd		120127	nf_fddismt7_2
+pcnfsd		150001	pcnfs pcnfsdprog	# pc passwd authorization
+pcnfslicense	150006	# PC NFS License
+rdaprog		150007	# RDA
+wsprog		150008	# WabiServer
+wsrlprog	150009	# WabiServer
+nihon-cm	160001
+nihon-ce	160002
+domf_daemon0	170100
+domf_daemon1	170101
+domf_daemon2	170102
+domf_daemon3	170103
+domf_daemon4	170104
+domf_daemon5	170105
+cecprog		180000
+cecsysprog	180001
+cec2cecprog	180002
+cesprog		180003
+ces2cesprog	180004
+cet2cetprog	180005
+cet2cetdoneprog	180006
+cetcomprog	180007
+cetsysprog	180008
+cghapresenceprog	180009
+cgdmsyncprog	180010
+cgdmcnscliprog	180011
+cgdmcrcscliprog	180012
+cgdmcrcssvcproG	180013
+chmprog		180014
+chmsysprog	180015
+crcsapiprog	180016
+ckptmprog	180017
+crimcomponentprog	180018
+crimqueryprog	180019
+crimsecondaryprog	180020
+crimservicesprog	180021
+crimsyscomponentprog	180022
+crimsysservicesprog	180023
+csmagtapiprog	180024
+csmagtcallbackprog	180025
+csmreplicaprog	180026
+csmsrvprog	180027
+cssccltprog	180028
+csscsvrprog	180029
+csscopresultprog	180030
 #
 # Pyramid
 #
-PyramidLock	200000
-PyramidSys5	200001	# Sys5
+PyramidLock	200000	pyramid_nfs
+PyramidSys5	200001	pyramid_reserved	# Sys5
 #
-CADDS_Image	200002	# CV CADDS images.
+CADDS_Image	200002	cadds_image	# CV CADDS images.
+stellar_name_prog	200003
 #
 pdbDA		200005
-SWG		200020	swg	# DMFE/DAWS (Defense Automated Warning System)
+pacl		200006
+lookupids	200007
+ax_statd_prog	200008
+ax_statd2_prog	200009
+edm		200010
+dtedirwd	200011
+easerpcd	200016
+rlxnfs		200017
+sascuiddprog	200018
+knfsd		200019
+SWG		200020	swg ftnfsd ftnfsd_program	# DMFE/DAWS (Defense Automated Warning System)
+ftsyncd		200021	ftsyncd_program
+ftstatd		200022	ftstatd_program
 exportmap	200023
+nfs_metadata	200024
 #
 # DMFE/DAWS (Defense Automated Warning System)
 #
@@ -272,10 +467,11 @@ bundle_demux	200200	# Delay Tolerant Networking - DTN agent
 #
 # EcoTools daemons/programs
 #
-ecodisc		200201
-ecolic		200202
-eamon		200203
-ecoad		200205
+ecodisc		200201	ecoad
+ecolic		200202	eamon
+eamon		200203	ecolic
+cs_printstatus_svr	200204
+ecoad		200205	ecodisc
 #
 # VERSANT
 # Operator Communications Software (OCS)
@@ -284,69 +480,881 @@ rpc.dbserv	211637	dbserv rpc.dbserv_dir
 rpc.taped	217843	taped rpc.taped_dir
 rpc.taped	217854	taped rpc.taped_dir
 #
-ADTFileLock	300001	# ADT file locking service.
+ADTFileLock	300001	adt_rflockprog	# ADT file locking service.
+columbine1	300002
+system33_prog	300003
 #
 # FrameMaker
 #
-rpc.frameusersd	300004	# FrameMaker
-fmclient	300006	# FrameMaker Client
-fmeditor	300007	# FrameMaker Editor
-fmserver	300009	stdfm FrameServer	# FrameMaker Server
+rpc.frameusersd	300004	frame_prog1	# FrameMaker
+uimxprog	300005
+fmclient	300006	rvd	# FrameMaker Client
+fmeditor	300007	entombing daemon	# FrameMaker Editor
+account		300008	mgmt system
+fmserver	300009	stdfm FrameServer frame_prog2	# FrameMaker Server
 #
-amd		300019	amq
+beeper		300010	access
+dptuprog	300011
+mx-bcp		300012
+instrument-file-access	300013
+file-system-statistics	300014
+unify-database-server	300015
+tmd_msg		300016
+amd		300019	amq automounter access
 #
+lock		300020	server
 Steering	300021	# Steering Library
+office-automation-1	300022
+office-automation-2	300023
+office-automation-3	300024
+office-automation-4	300025
+office-automation-5	300026
+office-automation-6	300027
+office-automation-7	300028
 #
-rpc.ldmd	300029	ldm	# Unidata LDM
+rpc.ldmd	300029	ldm local-data-manager	# Unidata LDM
 #
 # DMFE/DAWS (Defense Automated Warning System)
 #
-UpdtAuditsS	300030
-Dbpass		300091	dbpass
+UpdtAuditsS	300030	chide
+csi_program	300031
+online-help	300033
+case-tool	300034
+delta		300035
+rgi		300036
+instrument-config-server	300037
+dtia-rpc-server	300040
+cms		300041
+viewer		300042
+aqm		300043
+exclaim		300044
+masterplan	300045
+fig_tool	300046
+remote-lock-manager	300050
+gdebug		300052
+ldebug		300053
+rscanner	300054
+nSERVER		300066
+BioStation	300071
+NetProb		300073
+Logging		300074
+Logging		300075
+sw_twin		300082
+remote_get_login	300083
+odcprog		300084
+Dbpass		300091	dbpass smartdoc
+superping	300092
+distributed-chembench	300093
+uacman/alfil-uacman	300094
+ait_rcagent_prog	300095
+ait_rcagent_appl_prog	300096
+smart		300097
+ecoprog		300098
+leonardo	300099
 #
+wingz		300108
+teidan		300109
+cadc_fhlockprog	300116
+highscan	300117
+opennavigator	300121
+aarpcxfer	300122
+groggs		300126
+licsrv		300127
+issdemon	300128
+maximize	300130
+cgm_server	300131
+agent_rpc	300133
+docmaker	300134
+docmaker	300135
+iesx		300139
+smart-mbs	300144
 clms		300145	# CenterLine CodeCenter
+docimage	300147
+dmc-interface	300149
+jss		300151
+arimage		300153
+xdb-workbench	300154
+frontdesk	300155
+dmc		300156
+expressight-6000	300157
+graph		300158	service program
+rlpr		300176
+nx_hostdprog	300177
+netuser-x	300178
+rmntprog	300179
+mipe		300181
+collectorprog	300183
+uslookup_PROG	300184
+viewstation	300185
+iate		300186
+imsvtprog	300190
+pmdb		300194
+pmda		300195
+trend_idbd	300198
+rres		300199
+sd.masterd	300200
+sd.executiond	300201
+sd.listend	300202
+sd.reserve1	300203
+sd.reserve2	300204
+msbd		300205
+stagedprog	300206
+mountprog	300207
+watchdprog	300208
+pms		300209
+session_server_program	300211
+session_program	300212
+debug_serverprog	300213
 #
 # FrameMaker
 fm_flb		300214	# FrameMaker
 fm_fls		300215	# FrameMaker licnese server
+
+paceprog	300216
+mbus		300218
+aframes2ps	300219
+npartprog	300220
+cm1server	300221
+cm1bridge	300222
+sailfrogfaxprog	300223
+sailfrogphoneprog	300224
+sailfrogvmailprog	300225
+wserviceprog	300226	arcstorm
+hld		300227
+alive		300228
+radsp		300229
+radavx		300230
+radview		300231
+rsys_prog	300232
+rsys_prog	300233
+fm_rpc_prog	300234
+aries		300235
+uapman		300236
+ddman		300237
+top		300238
+trendlink	300240
+licenseprog	300241
+statuslicenseprog	300242
+oema_rmpf_svc	300243
+oema_smpf_svc	300244
+oema_rmsg_svc	300245
+grapes-sd	300246
+ds_master	300247
+ds_transfer	300248
+ds_logger	300249
+ds_query	300250
+nsd_prog	300253
+browser		300254
+epoch		300255
+floorplanner	300256
+reach		300257
+tactic		300258
+cachescientific1	300259
+cachescientific2	300260
+desksrc_prog	300261
+photo3d1	300262
+photo3d2	300263
+soundmgr	300265
+s6k		300266
+aims_referenced_	300267
+xess		300268
+ds_queue	300269
+orionscanplus	300271
+openlink-xx	300272
+kbmsprog	300273
+futuresource	300275
+the_xprt	300276
+cmg_srvprog	300277
+front		300280
+conmanprog	300284
+jincv2		300285
+isls		300286
+systemstatprog	300287
+fxpsprog	300288
+callpath	300289
+axess		300290
+armor_rpcd	300291
+armor_dictionary_rpcd	300292
+armor_miscd	300293
+filetransfer_prog	300294
+bl_swda		300295
+bl_hwda		300296
+filemon		300300
 #
 # AcuServer provides remote file access services to ACUCOBOL-85 and
 # ACUCOBOL-GT applications. 
 #
-acuserve	300301
+acuserve	300301	acunetprog
 #
-dr_daemon	300326	# Sun Enterprise Server Alternate Pathing
+rbuild		300302
+assistprog	300303
+tog		300304
+sns7000		300306
+igprog		300307
+tgprog		300308
+plc		300309
+pxman		300310	pxlsprog
+hde_server	300311	hdeserver
+tsslicenseprog	300312
+rpc.explorerd	300313
+chrd		300314
+tbisam		300315
+tbis		300316
+adsprog		300317
+sponsorprog	300318
+querycmprog	300319
+mobil1		300322
+sld		300323
+linkprog	300324
+codexdaemonprog	300325
+dr_daemon	300326	drprog	# Sun Enterprise Server Alternate Pathing
+ressys_commands	300327
+stamp		300328
+matlab		300329
+sched1d		300330
+upcprog		300331
+xferbkch	300332
+xfer		300333
+qbthd		300334
+qbabort		300335
+lsd		300336
+geomgrd		300337
+generic_fts	300338
+ft_ack		300339
+lymb		300340
+vantage		300341
+cltstd		300342	clooptstdprog
+clui		300343	clui_prog
+testerd		300344	tstdprog
+extsim		300345
+cmd_dispatch	300346	maxm_ems
+callpath_receive_program	300347
+x3270prog	300348
+sbc_lag		300349
+sbc_frsa	300350
+sbc_frs		300351
+atommgr		300352
+geostrat	300353
+dbvialu6.2	300354
+fxncprog	300356
+infopolic	300357
+aagns		300359
+aagms		300360
+clariion_mgr	300362
+setcimrpc	300363
+virtual_protocol_adapter	300364
+unibart		300365
+uniarch		300366
+unifile		300367
+unisrex		300368
+uniscmd		300369
+rsc		300370
+set		300371
+desaf-ws/key	300372
+reeldb		300373
+nl		300374
 #
 # FA&O Command Post App
 #
 rmd		300375
 agcd		300376
 #
+rsynd		300377
+rcnlib		300378
+rcnlib_attach	300379
+evergreen_mgmt_agent	300380
+fx104prog	300381
+rui		300382
+ovomd		300383
+system_server	300386
+pipecs		300387	cs_pipeprog
+uv-net		300388	univision
+auexe		300389
+audip		300390
+mqi		300391
+eva		300392
+eeei_reserved_1	300393
+eeei_reserved_2	300394
+eeei_reserved_3	300395
+eeei_reserved_4	300396
+eeei_reserved_5	300397
+eeei_reserved_6	300398
+eeei_reserved_7	300399
+eeei_reserved_8	300400
+cprlm		300401
+wg_idms_manager	300402
+timequota	300403
+spiff		300404
+ov_oem_svc	300405
+ov_oem_svc	300406
+ov_oem_svc	300407
+ov_oem_svc	300408
+ov_oem_svc	300409
+ov_oem_svc	300410
+ov_oem_svc	300411
+ov_oem_svc	300412
+ov_oem_svc	300413
+ov_msg_ctlg_svc	300415
+ov_advt_reg_svc	300416
+showkron	300417
+showkron	300418
+showkron	300419
+showkron	300420
+showkron	300421
+showkron	300422
+showkron	300423
+daatd		300425
+swiftnet	300426
+ovomdel		300427
+ovomreq		300428
+msg_dispatcher	300429
+pcshare		300430	server
+rcvs		300431
+fdfserver	300432
 bssd		300433	bss
 drdd		300434	drd
-ap_daemon	300473	# SUNWapu - Alternate Pathing (AP)
-cnxmond		300483	# cluster node monitor (Digital UNIX)
-cnxagentd	300484	# cluster agent (Digital UNIX)
-mcserv		300516
-cluinfod	300527	# cluster information server (Digital UNIX)
-dmispd		300598	# Sun Solstice Enterprise DMI Service Provider
+mif_gutsprog	300435
+mif_guiprog	300436
+twolfd		300437
+twscd		300438
+nwsbumv		300439
+dgux_mgr	300440
+pfxd		300441
+tds		300442
+ovomadmind	300443
+ovomgate	300444
+omadmind	300445
+nps		300446
+npd		300447
+tsa		300448
+cdaimc		300449
+ckt_implementation	300453
+mda-tactical	300454
+atrrun		300459
+RoadRunner	300460
+nas		300461
+undelete	300462
+ovacadd		300463
+tbdesmai	300464
+arguslm		300465
+dmd		300466
+drd		300467
+fm_help		300468
+ftransrpc_prog	300469
+finrisk		300470
+dg_pc_idisched	300471
+dg_pc_idiserv	300472
+ap_daemon	300473	apd	# SUNWapu - Alternate Pathing (AP)
+ap_sspd		300474
+callpatheventrecorder	300475
+flc		300476
+dg_osm		300477
+dspnamed	300478
+iqddsrv		300479
+iqjobsrv	300480
+tacosxx		300481
+wheeldbmg	300482
+cnxmond		300483	cnxmgr_nm_prog	# cluster node monitor (Digital UNIX)
+cnxagentd	300484	cnxmgr_cfg_prog	# cluster agent (Digital UNIX)
+3dsmapper	300485
+ids		300486
+imagine_rpc_svc	300487
+lfn		300488
+salesnet	300489
+defaxo		300490
+dbqtsd		300491
+kms		300492
+rpc.iced	300493
+calc2s		300494
+ptouidprog	300495
+docsls		300496
+new		300497
+collagebdg	300498
+ars_server	300499
+ars_client	300500
+vr_catalog	300501
+vr_tdb		300502
+ama		300503
+evama		300504
+conama		300505
+service_process	300506
+reuse_proxy	300507
+mars_ctrl	300508
+mars_db		300509
+mars_com	300510
+mars_admch	300511
+tbpipcip	300512
+top_acs_svc	300513
+inout_svc	300514
+csoft_wp	300515
+mcserv		300516	mcfs
+eventprog	300517
+dg_pc_idimsg	300518
+dg_pc_idiaux	300519
+atsr_gc		300520
+alarm		300521	alarm_prog
+fts_prog	300522
+dcs_prog	300523
+ihb_prog	300524
+cluinfod	300527	clu_info_prog	# cluster information server (Digital UNIX)
+rmfm		300528
+c2sdocd		300529
+interahelp	300530
+callpathasyncmsghandler	300531
+optix_arc	300532
+optix_ts	300533
+optix_wf	300534
+maxopenc	300535
+cev		300536	cev_server
+sitewideprog	300537
+drs		300538
+drsdm		300539
+dasgate		300540
+dcdbd		300541
+dcpsd		300542
+supportlink_prog	300543
+broker		300544
+listner		300545
+multiaccess	300546
+spai_interface	300547
+spai_adaption	300548
+chimera_ci	300549
+chimera_pi	300550
+teamware_fl	300551
+teamware_sl	300552
+teamware_ui	300553
+lprm		300554
+mpsprog		300555
+mo_symdis	300556
+retsideprog	300557
+slp		300558
+slm-api		300559
+im_rpc		300560	teamconference
+license_prog	300561	license
+stuple		300562	stuple_prog
+upasswd_prog	300563
+gentranmentorsecurity	300564
+gentranmentorprovider	300565
+latituded	300566
+gentranmentorreq1	300567
+gentranmentorreq2	300568
+gentranmentorreq3	300569
+rj_server	300570
+gws-rdb		300571
+gws-mpmd	300572
+gws-spmd	300573
+vwcalcd		300574
+vworad		300575
+vwsybd		300576
+vwave		300577
+online_assistant	300578
+internet_assistant	300579
+spawnd		300580
+procmgrg	300581
+cfgdbd		300582
+logutild	300583
+ibis		300584
+ibisaux		300585
+aapi		300586
+rstrt		300587
+hbeat		300588
+pcspu		300589
+empress		300590
+sched_server	300591
+path_server	300592
+c2sdmd		300593
+c2scf		300594
+btsas		300595
+sdtas		300596
+appie		300597
+dmispd		300598	dmi	# Sun Solstice Enterprise DMI Service Provider
+pscd		300599
+sisd		300600
+cpwebserver	300601
+wwcommo		300602
+mx-mie		300603
+mx-mie-debug	300604
+idmn		300605
+ssrv		300606
+vpnserver	300607
+samserver	300608
+sams_server	300609
+chrysalis	300610
+ddm		300611
+ddm-is		300612
+mx-bcp-debug	300613
+upmrd		300614
+upmdsd		300615
+res		300616
+colortron	300617
+zrs		300618
+afpsrv		300619
+apxft		300620
+nrp		300621
+hpid		300622
+mailwatch	300623
+fos		300624	bc_fcrb_receiver
+cs_sysadmin_svr	300625
+cs_controller_svr	300626
+nokia_nms_eai	300627
+dbg		300628
+remex		300629
+cs_bind		300630
+idm		300631
 prpasswd	300632
+iw-pw		300633
+starrb		300634
+Impress_Server	300635
+colorstar	300636
+gwugui		300637
+gwsgui		300638
+dai_command_proxy	300639
+dai_alarm_server	300640
+dai_fui_proxy	300641
+spai_command_proxy	300642
+spai_alarm_server	300643
+iris		300644
+hcxttp		300645
+updatedb	300646	rsched
+urnd		300647	urn
+iqwpsrv		300648
+dskutild	300649
+online		300650
+nlserv		300651
+acsm		300652
+dg_clar_sormsg	300653
+wwpollerrpc	300654
+wwmodelrpc	300655
+nsprofd		300656
+nsdistd		300657
+recollect	300658
+lssexecd	300659	lss_res
+lssagend	300660	lss_rea
+cdinfo		300661
+sninsr_addon	300662
+mm-sap		300663
 ks		300664	# ACPLT/KS protocol
+psched		300665
+tekdvfs		300666
+storxll		300667
+nisse		300668
+lbadvise	300669
+atcinstaller	300670
+atntstarter	300671
+NetML		300672
+tdmesmge	300673
+tdmesmgd	300674
+tdmesmgt	300675
+olm		300676
+mediamanagement	300677
+rdbprog		300678	fieldowsrv
+rpwdprog	300679	rpwd
+sapi-trace	300680
+sapi-master-daemon	300681
+omdcuprog	300682	om-dcu
+wwprocmon	300683
+tndidprog	300684
+rkey_setsecretprog	300685
+asdu_server_prog	300686
+pwrcntrl	300687
+siunixd		300688
+wmapi		300689
+cross_reference_ole	300690
+rtc		300691
+disp		300692
+sql_compilation_agent	300693
+tnsysprog	300694
+ius-sapimd	300695
+apteam-dx	300696
+rmsrpc		300697
+seismic_system	300698
+remote		300699
+tt1_ts_event	300700	nokia_nms
+fxrs		300701
+onlicense	300702
+vxkey		300703
+dinis		300704
+sched2d		300705	schedule-2
+sched3d		300706	schedule-3
+sched4d		300707	schedule-4
+sched5d		300708	schedule-5
+sched6d		300709	schedule-6
+sched7d		300710	schedule-7
+sched8d		300711	schedule-8
+sched9d		300712	schedule-9
+adtsqry		300713
+adserv		300714
+adrepserv	300715
+caad		300717
+caaui		300718
+cescda		300719
+vcapiadmin	300720
+vcapi20		300721
+tcfs		300722
+csed		300723
+nothand		300724
+hacb		300725
+nfauth		300726
+imlm		300727
+bestcomm	300728
+lprpasswd	300729
+rprpasswd	300730
+proplistd	300731
+mikomomc	300732
+arepa-cas	300733
+ando_ts		300736
+intermezzo	300737
+ftel-sdh-request	300738
+ftel-sdh-response	300739
+vrc_abb		300745
+vrc_comau	300746
+vrc_fanuc	300747
+vrc_kuka	300748
+vrc_reis	300749
+hp_sv6d		300750
+correntmgr01	300751
+correntike	300752
+intransa_location	300755
+intransa_management	300756
+intransa_federation	300757
+portprot	300758
+ipmiprot	300759
+aceapi		300760
+f6000pss	300761
+vsmapi_program	300762
+ubertuple	300763
+ctconcrpcif	300764
+mfuadmin	300765
+aiols		300766
+dsmrootd	300767
+htdl		300768
+caba		300769
+vrc_cosimir	300770
+cmhelmd		300771
+polynsm		300772
+dsmrecalld	300781
+twrgcontrol	300784
+twrled		300785
+twrcfgdb	300786
 sfs		344444	# SFS - Self-Certifying File System
-mapsvc		351455
-berkeleydb	351457	# Sleepycat Software: Berkeley DB
+wfmMgmtApp	351350
+wfmMgmtDataSrv	351351
+wfmMgmtFut1	351352
+wfmMgmtFut1	351353
+wfmAPM		351354
+wfmIAMgr	351355
+wfmECMgr	351356
+wfmLookOut	351357
+wfmAgentFut1	351358
+wfmAgentFut2	351359
+sched10d	351360
+sched11d	351361
+sched12d	351362
+sched13d	351363
+sched14d	351364
+sched15d	351365
+sched16d	351366
+sched17d	351367
+sched18d	351368
+sched19d	351369
+sched20d	351370
+sched21d	351371
+sched22d	351372
+sched23d	351373
+sched24d	351374
+sched25d	351375
+sched26d	351376
+sched27d	351377
+sched28d	351378
+sched29d	351379
+sched30d	351380
+sched31d	351381
+sched32d	351382
+sched33d	351383
+sched34d	351384
+sched35d	351385
+sched36d	351386
+sched37d	351387
+sched38d	351388
+sched39d	351389
+consoleserver	351390
+scheduleserver	351391
+RDELIVER	351392
+REVENTPROG	351393
+RSENDEVENTPROG	351394
+snapp		351395
+snapad		351396
+sdsoodb		351397
+sdsmain		351398
+sdssrv		351399
+sdsclnt		351400
+sdsreg		351401
+fsbatch		351402
+fsmonitor	351403
+fsdisp		351404
+fssession	351405
+fslog		351406
+csed		351407	svdpappserv	# Sterling Software ITD
+svdpappserv	351407
+gns		351408
+axi		351412
+rpcxfr		351413
+slm		351414
+smbpasswdd	351415
+tbdbserv	351416
+tbprojserv	351417
+genericserver	351418
+dynarc_ds	351419
+dnscmdr		351420
+ipcmdr		351421
+faild		351422
+failmon		351423
+faildebug	351424
+siemens_srs	351427
+bsproxy		351428
+ifsrpc		351429
+CesPvcSm	351430
+FrPvcSm		351431
+AtmPvcSm	351432
+radius		351433
+auditor		351434
+sft		351435
+voicemail	351436
+kis		351437
+SOFTSERV_NOTIFY	351438
+dynarpc		351439
+hc		351440
+iopas		351441
+iopcs		351442
+iopss		351443
+spcnfs		351444
+spcvss		351445
+matilda_sms	351446
+matilda_brs	351447
+matilda_dbs	351448
+matilda_sps	351449
+matilda_svs	351450
+matilda_sds	351451
+matilda_vvs	351452
+matilda_stats	351453
+xtrade		351454
+mapsvc		351455	mapsvr
+hp_graphicsd	351456
+berkeleydb	351457	berkeley_db	# Sleepycat Software: Berkeley DB
+
+io_server	351458
+rpc.niod	351459
+rpc.kill	351460
+hmdisproxy	351461
+smdisproxy	351462
+avatard		351463
+namu		351464
+BMCSess		351465
+FENS_Sport	351466
+EM_CONFIG	351467
+EM_CONFIG_RESP	351468
+lodge_proof	351469
+ARCserveIT-Queue	351470
+ARCserveIT-Device	351471
+ARCserveIT-Discover	351472
+caasalert	351473	ARCserveIT-Alert
+ARCserveIT-Database	351474
+scand1		351475
+scand2		351476
+scand3		351477
+scand4		351478
+scand5		351479
+dscv		351480
+cb_svc		351481
+iprobe		351483
+omniconf	351484
+isan		351485
+mond		351501
+iqlremote	351502
+iqlalarm	351503
+asautostart	352233
+asmediad1	352234
+asmediad2	352235
+asmediad3	352236
+asmediad4	352237
+asmediad5	352238
+asmediad6	352239
+asmediad7	352240
+asmediad8	352241
+asmediad9	352242
+asmediad10	352243
+asmediad11	352244
+asmediad12	352245
+asmediad13	352246
+asmediad14	352247
+asmediad15	352248
+asmediad16	352249
+waruser		352250
+warlogd		352251
+warsvrmgr	352252
+warvfsysd	352253
+warftpd		352254
+warnfsd		352255
+bofproxyc0	352256
+bofproxys0	352257
+bofproxyc1	352258
+bofproxys1	352259
+bofproxyc2	352260
+bofproxys2	352261
+bofproxyc3	352262
+bofproxys3	352263
+bofproxyc4	352264
+bofproxys4	352265
+bofproxyc5	352266
+bofproxys5	352267
+bofproxyc6	352268
+bofproxys6	352269
+bofproxyc7	352270
+bofproxys7	352271
+bofproxyc8	352272
+bofproxys8	352273
+bofproxyc9	352274
+bofproxys9	352275
+bofproxyca	352276
+bofproxysa	352277
+bofproxycb	352278
+bofproxysb	352279
+bofproxycc	352280
+bofproxysc	352281
+bofproxycd	352282
+bofproxysd	352283
+bofproxyce	352284
+bofproxyse	352285
+bofproxycf	352286
+bofproxysf	352287
+bofproxypo0	352288
+bofproxypo1	352289
+bofproxypo2	352290
+bofproxypo3	352291
+bofproxypo4	352292
+opensna		380000
+probenet	380001
+license		380003
+na.3com-remote	380004
+na.ntp		380005
+probeutil	380006
+na.vlb		380007
+cds_mhs_agent	380008
+cds_x500_agent	380009
+cds_mailhub_agent	380010
+codex_6500_proxy	380011
+codex_6500_trapd	380012
+na.nm212	380013
+cds_mta_metrics_agent	380014
+na.caple	380016
+codexcapletrap	380017
+ncstat		380029
+ncnfsstat	380030
+ftams		380031
+na.isotp	380032
+na.rfc1006	380033
+
 prestoctl_svc	390100	presto	# Prestoserve control daemon
-#
-# Computer Associates
-#
-caasalert	351473
-caservd		395644	as6_arcserve
-calqserver	395645	as6_queue LQServer
-camediadsvr	395646	as6_tapesvr MediaSvr
-caldbserver	395647	as6_dbserver LDbserver
-caauthd		395648	as6_auth
-cadiscovd	395649	as6_discovery
-caloggerd	395650	as6_logger
 #
 # Legato NetWorker
 #
@@ -360,6 +1368,12 @@ nsrstat		390109
 nsrjb		390110	nsrjbd	# NetWorker jukebox-control service
 nsrexec		390113	nsrexecd	# NetWorker client execution service
 lgtolmd		390115	# Legato license daemon
+cdsmonitor	390116
+cdslock		390117
+cdslicense	390118
+shm		390119
+rws		390120
+cdc		390121
 nsrnotd		390400	# NetWorker notary service
 #
 # Remedy AR System daemons
@@ -472,8 +1486,6 @@ sgi_reserved	391061
 sgi_reserved	391062
 sgi_reserved	391063
 #
-ingsqld		391434	# SCO JDBC
-#
 # AEDIS
 #
 afsd		391200
@@ -484,14 +1496,199 @@ trif2xxx	391204
 dx		391205
 licd		391206
 #
+ingsqld		391434	# SCO JDBC
+naas-spare	391756
+naas-admin	391757
+isps		391758
+isps-admin	391759
+mars		391760
+mars-admin	391761
+attcis_spare0	391762
+attcis_spare1	391763
+mail-server	391764
+mail-server-spare	391765
+attcis_spare2	391766
+attcis_spare3	391767
+attcis_spare4	391768
+attcis_spare5	391769
+attcis_spare6	391770
+attcis_spare7	391771
+qhrdata		391850
+qhrbackup	391851
+minutedata	391852
+prefecture	391853
+supc		391854
+suadmincrw	391855
+suadminotas	391856
+sumessage	391857
+sublock		391858
+sumotd		391859
+namesrvr	391880
+disksrvr	391881
+tapesrvr	391882
+migsrvr		391883
+pdmsrvr		391884
+pvrsrvr		391885
+repacksrvr	391886
+lookoutsrv	391952
+lookoutagnt	391953
+lookoutprxy	391954
+lookoutsnmp	391955
+lookoutrmon	391956
+lookoutfut1	391957
+lookoutfut2	391958
+sra_legato	391968
+sra_legato_imgsvr	391969
+sra_legato_0	391970
+sra_legato_1	391971
+sra_legato_2	391972
+sra_legato_3	391973
+sra_legato_4	391974
+sra_legato_5	391975
+sra_legato_6	391976
+sra_legato_7	391977
+sra_legato_8	391978
+sra_legato_9	391979
+odbc_sqlretriever	395024
+ife-es		395165
+ife-resmgr	395166
+ife-aes		395167
+ife-bite	395168
+ife-loader	395169
+ife-satcom	395170
+ife-seat	395171
+ife-dbmgr	395172
+ife-testmgr	395173
+atrium_server	395174
+#
 # Compaq TruCluster - Available Server Environment 
 #
-asedirector	395175	asedirector	# ASE Director Daemon
-aseagent	395176	aseagent	# ASE Agent Daemon
-asehsm		395177	asehsm	# Host Status Monitor Daemon
-aselogger	395179	aselogger	# Logger Daemon
+asedirector	395175	asedirector ase_director	# ASE Director Daemon
+aseagent	395176	aseagent ase_agent	# ASE Agent Daemon
+asehsm		395177	asehsm ase_hsm	# Host Status Monitor Daemon
+ase_mgr		395178
+aselogger	395179	aselogger ase_sim	# Logger Daemon
 #
 pnictl		395250
+#
+# Computer Associates
+#
+caservd		395644	as6_arcserve
+calqserver	395645	as6_queue LQServer
+camediadsvr	395646	as6_tapesvr MediaSvr
+caldbserver	395647	as6_dbserver LDbserver
+caauthd		395648	as6_auth
+cadiscovd	395649	as6_discovery
+caloggerd	395650	as6_logger
+mcm		400000	# Sun Microsystems fabric management
+mcm		400001	# Sun Microsystems fabric management
+mcm		400002	# Sun Microsystems fabric management
+mcm		400003	# Sun Microsystems fabric management
+mcm		400004	# Sun Microsystems fabric management
+mcm		400005	# Sun Microsystems fabric management
+mcm		400006	# Sun Microsystems fabric management
+mcm		400007	# Sun Microsystems fabric management
+mcm		400008	# Sun Microsystems fabric management
+NetAppPartnerSvc	400010	# Partner Service/NetApp
+Oropo		400011	# Oropo
+Oropo		400012	# Oropo
+Oropo		400013	# Oropo
+Oropo		400014	# Oropo
+Oropo		400015	# Oropo
+Oropo		400016	# Oropo
+Oropo		400017	# Oropo
+Oropo		400018	# Oropo
+Oropo		400019	# Oropo
+Oropo		400020	# Oropo
+Oropo		400021	# Oropo
+Oropo		400022	# Oropo
+Oropo		400023	# Oropo
+Oropo		400024	# Oropo
+Oropo		400025	# Oropo
+Oropo		400026	# Oropo
+Oropo		400027	# Oropo
+Oropo		400028	# Oropo
+Oropo		400029	# Oropo
+Oropo		400030	# Oropo
+Oropo		400031	# Oropo
+Oropo		400032	# Oropo
+Oropo		400033	# Oropo
+Oropo		400034	# Oropo
+Oropo		400035	# Oropo
+Oropo		400036	# Oropo
+Oropo		400037	# Oropo
+Oropo		400038	# Oropo
+Oropo		400039	# Oropo
+Oropo		400040	# Oropo
+Oropo		400041	# Oropo
+Oropo		400042	# Oropo
+Oropo		400043	# Oropo
+Oropo		400044	# Oropo
+Oropo		400045	# Oropo
+Oropo		400046	# Oropo
+Oropo		400047	# Oropo
+Oropo		400048	# Oropo
+Oropo		400049	# Oropo
+Oropo		400050	# Oropo
+Oropo		400051	# Oropo
+Oropo		400052	# Oropo
+Oropo		400053	# Oropo
+Oropo		400054	# Oropo
+Oropo		400055	# Oropo
+Oropo		400056	# Oropo
+Oropo		400057	# Oropo
+Oropo		400058	# Oropo
+Oropo		400059	# Oropo
+Oropo		400060	# Oropo
+Oropo		400061	# Oropo
+Oropo		400062	# Oropo
+Oropo		400063	# Oropo
+Oropo		400064	# Oropo
+Oropo		400065	# Oropo
+Oropo		400066	# Oropo
+Oropo		400067	# Oropo
+Oropo		400068	# Oropo
+Oropo		400069	# Oropo
+Oropo		400070	# Oropo
+Oropo		400071	# Oropo
+Oropo		400072	# Oropo
+Oropo		400073	# Oropo
+Oropo		400074	# Oropo
+Oropo		400075	# Oropo
+Oropo		400076	# Oropo
+Oropo		400077	# Oropo
+Oropo		400078	# Oropo
+Oropo		400079	# Oropo
+Oropo		400080	# Oropo
+Oropo		400081	# Oropo
+Oropo		400082	# Oropo
+Oropo		400083	# Oropo
+Oropo		400084	# Oropo
+Oropo		400085	# Oropo
+Oropo		400086	# Oropo
+Oropo		400087	# Oropo
+Oropo		400088	# Oropo
+Oropo		400089	# Oropo
+Oropo		400090	# Oropo
+Oropo		400091	# Oropo
+Oropo		400092	# Oropo
+Oropo		400093	# Oropo
+Oropo		400094	# Oropo
+Oropo		400095	# Oropo
+Oropo		400096	# Oropo
+Oropo		400097	# Oropo
+Oropo		400098	# Oropo
+Oropo		400099	# Oropo
+Oropo		400100	# Oropo
+Oropo		400101	# Oropo
+Oropo		400102	# Oropo
+Oropo		400103	# Oropo
+Oropo		400104	# Oropo
+Oropo		400105	# Oropo
+Oropo		400106	# Oropo
+Oropo		400107	# Oropo
+Oropo		400108	# Oropo
+Oropo		400109	# Oropo
 # BMC
 EnsignAgent	450000	# Ensign Agent
 #
@@ -656,8 +1853,6 @@ katie_nfs	537208900	katie
 #
 fcagent		541414217	# SGI FibreVault Status/Configuration daemon
 #
-pnmd		591751041	# SunCluster - Public Network Management (PNM)
-#
 ugidd		545580417	rpc.ugidd
 #
 # Inetray - Raytrace
@@ -669,6 +1864,8 @@ inetray		555555557
 inetray		555555558
 inetray		555555559
 inetray		555555560
+#
+pnmd		591751041	# SunCluster - Public Network Management (PNM)
 #
 # Keck Long Wavelength Spectrometer (LWS) related rpc daemons
 #

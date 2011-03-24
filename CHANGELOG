@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Updated nmap-rpc from the master list, now maintained by IANA.
+  [Daniel Miller, David]
+
 o [NSE] Added ssl-known-key.nse, which checks SSL certificates against a
   list of certificates with known keys that have been extracted from
   firmware files. [Mak Kolybabi]
