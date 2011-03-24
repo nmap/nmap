@@ -1905,7 +1905,7 @@ function requires_updating( file )
   f:close()
   if not stamp then return true, nil end
 
-  last_cached, mod, etag = stamp:match( "<([^>]*)><([^>]*)><([^>]*)>" )
+  last_cached, mod, etag = stamp:match( "^<([^>]*)><([^>]*)><?([^>]*)>?$" )
 
   if not ( last_cached or mod or etag ) then return true, nil end
 
