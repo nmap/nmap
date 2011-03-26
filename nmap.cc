@@ -2714,7 +2714,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   /* First, check the map of requested data file names. If there's an entry for
      file, use it and return.
      Otherwise, we try [--datadir]/file, then $NMAPDIR/file
-     next we try ~user/nmap/file
+     next we try ~user/.nmap/file
      then we try NMAPDATADIR/file <--NMAPDATADIR 
      finally we try ./file
 
