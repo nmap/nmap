@@ -1,5 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap no longer searches for data files (like nmap-services) in the
+  current directory as a last resort. This is to reduce the chance of
+  accessing an unexpected file in case the system-installed data files
+  are not found. The main reason for searching the current directory
+  was to support running ./nmap from a source directory. This is now
+  supported by searching the directory containing the Nmap executable
+  for data files. On non-Windows platforms, the executable directory
+  followed by "../share/nmap" is also searched. Thanks to Solar
+  Designed for implementation advice. [David]
+
 o Updated nmap-rpc from the master list, now maintained by IANA.
   [Daniel Miller, David]
 
