@@ -138,6 +138,8 @@ extern char *optarg;
 extern int optind;
 extern NmapOps o;  /* option structure */
 
+/* argv[0] storage from main.cc. */
+extern const char *get_program_name(void);
 static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
   const Target *target);
 static void display_nmap_version();
