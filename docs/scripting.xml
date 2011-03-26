@@ -618,18 +618,21 @@ eligible to run.  The <literal>all</literal> argument should be used with cautio
 
 <para>
 File and directory names may be relative or absolute. Absolute names are
-used directly. Relative paths are looked for in the following places
-until found:
+used directly. Relative paths are looked for in the
+<filename>scripts</filename> of each of the following places until
+found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <simplelist>
 <member><option>--datadir</option></member>
 <member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
 <member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
-<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm> (a value compiled into Nmap)</member>
-<member>the current directory</member>
+<member>the directory containing the <filename>nmap</filename>
+executable</member>
+<member>the directory containing the <filename>nmap</filename>
+executable, followed by <filename>../share/nmap</filename></member>
+<member><varname>NMAPDATADIR</varname><indexterm><primary><varname>NMAPDATADIR</varname></primary></indexterm></member>
+<member>the current directory.</member>
 </simplelist>
-A <filename>scripts</filename> subdirectory is also tried in each of
-these.
 </para>
 
 <para>
