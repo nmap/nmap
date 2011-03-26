@@ -2728,6 +2728,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
      Otherwise, we try [--datadir]/file, then $NMAPDIR/file
      next we try ~user/.nmap/file
      then the directory the nmap binary is in
+     then the directory the nmap binary is in plus "../share/nmap"
      then we try NMAPDATADIR/file <--NMAPDATADIR 
      finally we try ./file
 
@@ -2780,21 +2781,32 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
     }
   }
 #endif
-  if (!foundsomething) { /* Try the nMap directory */
-    const char *argv0;
-    char *dir;
 
-    argv0 = get_program_name();
-    assert(argv0 != NULL);
-    dir = executable_dir(argv0);
-    if (dir != NULL) {
+  const char *argv0;
+  char *dir;
+
+  argv0 = get_program_name();
+  assert(argv0 != NULL);
+  dir = executable_dir(argv0);
+
+  if (dir != NULL) {
+    if (!foundsomething) { /* Try the nMap directory */
       res = Snprintf(filename_returned, bufferlen, "%s/%s", dir, file);
       if (res > 0 && res < bufferlen) {
         foundsomething = fileexistsandisreadable(filename_returned);
       }
-      free(dir);
     }
+#ifndef WIN32
+    if (!foundsomething) {
+      res = Snprintf(filename_returned, bufferlen, "%s/../share/nmap/%s", dir, file);
+      if (res > 0 && res < bufferlen) {
+        foundsomething = fileexistsandisreadable(filename_returned);
+      }
+    }
+#endif
+    free(dir);
   }
+
   if (!foundsomething) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
