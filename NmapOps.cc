@@ -195,8 +195,6 @@ static char *filename_to_url(const char *filename) {
 }
 
 void NmapOps::Initialize() {
-  char tmpxsl[MAXPATHLEN];
-
   setaf(AF_INET);
 #if defined WIN32 || defined __amigaos__
   isr00t = 1;
@@ -272,20 +270,9 @@ void NmapOps::Initialize() {
   adler32 = false;
   if (datadir) free(datadir);
   datadir = NULL;
+  xsl_stylesheet_set = false;
   if (xsl_stylesheet) free(xsl_stylesheet);
-  if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") == 1) {
-    xsl_stylesheet = filename_to_url(tmpxsl);
-  } else {
-#if WIN32
-    /* Use a relative URL on Windows if nmap_fetchfile failed. It won't work,
-       but it gives a clue that there is an nmap.xsl somewhere. */
-    Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
-    xsl_stylesheet = strdup(tmpxsl);
-#else
-    Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
-    xsl_stylesheet = filename_to_url(tmpxsl);
-#endif
-  }
+  xsl_stylesheet = NULL;
   spoof_mac_set = false;
   mass_dns = true;
   log_errors = false;
@@ -572,6 +559,33 @@ void NmapOps::setMaxHostGroupSz(unsigned int sz) {
 void NmapOps::setXSLStyleSheet(const char *xslname) {
   if (xsl_stylesheet) free(xsl_stylesheet);
   xsl_stylesheet = xslname? strdup(xslname) : NULL;
+  xsl_stylesheet_set = true;
+}
+
+/* Returns the full path or URL that should be printed in the XML
+   output xml-stylesheet element.  Returns NULL if the whole element
+   should be skipped */
+char *NmapOps::XSLStyleSheet() {
+  char tmpxsl[MAXPATHLEN];
+
+  if (xsl_stylesheet_set)
+    return xsl_stylesheet;
+
+  if (nmap_fetchfile(tmpxsl, sizeof(tmpxsl), "nmap.xsl") == 1) {
+    xsl_stylesheet = filename_to_url(tmpxsl);
+  } else {
+#if WIN32
+    /* Use a relative URL on Windows if nmap_fetchfile failed. It won't work,
+       but it gives a clue that there is an nmap.xsl somewhere. */
+    Strncpy(tmpxsl, "nmap.xsl", sizeof(tmpxsl));
+    xsl_stylesheet = strdup(tmpxsl);
+#else
+    Snprintf(tmpxsl, sizeof(tmpxsl), "%s/nmap.xsl", NMAPDATADIR);
+    xsl_stylesheet = filename_to_url(tmpxsl);
+#endif
+  }
+
+  return xsl_stylesheet;
 }
 
 void NmapOps::setSpoofMACAddress(u8 *mac_data) {

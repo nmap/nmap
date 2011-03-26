@@ -235,7 +235,7 @@ class NmapOps {
   /* Returns the full path or URL that should be printed in the XML
      output xml-stylesheet element.  Returns NULL if the whole element
      should be skipped */
-  char *XSLStyleSheet() { return xsl_stylesheet; }
+  char *XSLStyleSheet();
 
   /* Sets the spoofed MAC address */
   void setSpoofMACAddress(u8 *mac_data);
@@ -362,6 +362,7 @@ class NmapOps {
   struct timeval start_time;
   bool pTrace; // Whether packet tracing has been enabled
   bool vTrace; // Whether version tracing has been enabled
+  bool xsl_stylesheet_set;
   char *xsl_stylesheet;
   u8 spoof_mac[6];
   bool spoof_mac_set;
