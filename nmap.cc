@@ -2702,6 +2702,18 @@ int nmap_fileexistsandisreadable(const char* pathname) {
 	return fileexistsandisreadable(pathname);
 }
 
+static char *executable_dir(const char *argv0) {
+  char *path, *dir;
+
+  path = executable_path(argv0);
+  if (path == NULL)
+    return NULL;
+  dir = path_get_dirname(path);
+  free(path);
+
+  return dir;
+}
+
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   char *dirptr;
   int res;
@@ -2715,6 +2727,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
      file, use it and return.
      Otherwise, we try [--datadir]/file, then $NMAPDIR/file
      next we try ~user/.nmap/file
+     then the directory the nmap binary is in
      then we try NMAPDATADIR/file <--NMAPDATADIR 
      finally we try ./file
 
@@ -2766,22 +2779,22 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
       }
     }
   }
-#else
-  if (!foundsomething) { /* Try the nMap directory */
-	  char fnbuf[MAX_PATH];
-	  int i;
-	  res = GetModuleFileName(GetModuleHandle(0), fnbuf, sizeof(fnbuf));
-      if(!res) fatal("GetModuleFileName failed (!)\n");
-	  /*	Strip it */
-	  for(i = res - 1; i >= 0 && fnbuf[i] != '/' && fnbuf[i] != '\\'; i--);
-	  if(i >= 0) /* we found it */
-		  fnbuf[i] = 0;
-	  res = Snprintf(filename_returned, bufferlen, "%s\\%s", fnbuf, file);
-	  if(res > 0 && res < bufferlen) {
-		  foundsomething = fileexistsandisreadable(filename_returned);
-      }
-  }
 #endif
+  if (!foundsomething) { /* Try the nMap directory */
+    const char *argv0;
+    char *dir;
+
+    argv0 = get_program_name();
+    assert(argv0 != NULL);
+    dir = executable_dir(argv0);
+    if (dir != NULL) {
+      res = Snprintf(filename_returned, bufferlen, "%s/%s", dir, file);
+      if (res > 0 && res < bufferlen) {
+        foundsomething = fileexistsandisreadable(filename_returned);
+      }
+      free(dir);
+    }
+  }
   if (!foundsomething) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", NMAPDATADIR, file);
     if (res > 0 && res < bufferlen) {
