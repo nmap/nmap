@@ -257,6 +257,7 @@ static void open_cnse (lua_State *L)
 {
   static const luaL_Reg nse[] = {
     {"fetchfile_absolute", fetchfile_absolute},
+    {"fetchscript", fetchscript},
     {"dir", nse_readdir},
     {"nsock_loop", nsock_loop},
     {"key_was_pressed", key_was_pressed},

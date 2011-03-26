@@ -540,7 +540,7 @@ local function get_chosen_scripts (rules)
     for globalized_rule, rule_table in pairs(entry_rules) do
       if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
         used_rules[rule_table.original_rule] = true;
-        local t, path = cnse.fetchfile_absolute(filename);
+        local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
             script = Script.new(path);
@@ -568,9 +568,9 @@ local function get_chosen_scripts (rules)
   -- Now load any scripts listed by name rather than by category.
   for rule, loaded in pairs(used_rules) do
     if not loaded then -- attempt to load the file/directory
-      local t, path = cnse.fetchfile_absolute(rule);
+      local t, path = cnse.fetchscript(rule);
       if t == nil then -- perhaps omitted the extension?
-        t, path = cnse.fetchfile_absolute(rule..".nse");
+        t, path = cnse.fetchscript(rule..".nse");
       end
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");

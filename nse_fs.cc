@@ -50,19 +50,35 @@ static bool filename_is_absolute(const char *file) {
   return false;
 }
 
-static int nse_fetchfile(char *path, size_t path_len, const char *file) {
-  int type = nmap_fetchfile(path, path_len, file);
+/* This is a modification of nmap_fetchfile specialized to look for files
+ * in the scripts subdirectory. If the path is absolute, it is always tried
+ * verbatim. Otherwise, the file is looked for under scripts/, and then finally
+ * in the current directory.
+ */
+static int nse_fetchscript(char *path, size_t path_len, const char *file) {
+  std::string scripts_path = std::string(SCRIPT_ENGINE_LUA_DIR) + std::string(file);
+  int type;
 
-  // lets look in <nmap>/scripts too
-  if(type == 0) {
-    std::string alt_path = std::string(SCRIPT_ENGINE_LUA_DIR) + std::string(file);
-    type = nmap_fetchfile(path, path_len, alt_path.c_str());
+  if (filename_is_absolute(file)) {
+    if (o.debugging > 1)
+      log_write(LOG_STDOUT, "%s: Trying absolute path %s\n", SCRIPT_ENGINE, file);
+    Strncpy(path, file, path_len);
+    return nmap_fileexistsandisreadable(file);
+  }
+
+  // lets look in <path>/scripts
+  type = nmap_fetchfile(path, path_len, scripts_path.c_str());
+
+  if (type == 0) {
+    // current directory
+    Strncpy(path, file, path_len);
+    return nmap_fileexistsandisreadable(file);
   }
 
   return type;
 }
 
-/* This is a modification of nse_fetchfile that first looks for an
+/* This is a modification of nmap_fetchfile that first looks for an
  * absolute file name.
  */
 static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file) {
@@ -73,13 +89,13 @@ static int nse_fetchfile_absolute(char *path, size_t path_len, const char *file)
     return nmap_fileexistsandisreadable(file);
   }
 
-  return nse_fetchfile(path, path_len, file);
+  return nmap_fetchfile(path, path_len, file);
 }
 
-int fetchfile_absolute (lua_State *L)
+static int nse_fetch (lua_State *L, int (*fetch)(char *, size_t, const char *))
 {
   char path[MAXPATHLEN];
-  switch (nse_fetchfile_absolute(path, sizeof(path), luaL_checkstring(L, 1)))
+  switch (fetch(path, sizeof(path), luaL_checkstring(L, 1)))
   {
     case 0: // no such path
       lua_pushnil(L);
@@ -94,9 +110,19 @@ int fetchfile_absolute (lua_State *L)
       lua_pushstring(L, path);
       break;
     default:
-      return luaL_error(L, "nse_fetchfile_absolute returned bad code");
+      return luaL_error(L, "nse_fetch returned bad code");
   }
   return 2;
+}
+
+int fetchscript (lua_State *L)
+{
+  return nse_fetch(L, nse_fetchscript);
+}
+
+int fetchfile_absolute (lua_State *L)
+{
+  return nse_fetch(L, nse_fetchfile_absolute);
 }
 
 
