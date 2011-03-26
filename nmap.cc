@@ -2730,11 +2730,10 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
      then the directory the nmap binary is in
      then the directory the nmap binary is in plus "../share/nmap"
      then we try NMAPDATADIR/file <--NMAPDATADIR 
-     finally we try ./file
 
 	 -- or on Windows --
 
-	 --datadir -> $NMAPDIR -> nmap.exe directory -> NMAPDATADIR -> .
+	 --datadir -> $NMAPDIR -> nmap.exe directory -> NMAPDATADIR
   */
 
   /* Check the map of requested data file names. */
@@ -2826,17 +2825,6 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
 	  error("Warning: File %s exists, but Nmap is using %s for security and consistency reasons.  set NMAPDIR=. to give priority to files in your local directory (may affect the other data files too).", dot_buffer, filename_returned);
       }
     }
-  }
-
-  if (!foundsomething) {
-    res = Snprintf(filename_returned, bufferlen, "./%s", file);
-    if (res > 0 && res < bufferlen) {
-      foundsomething = fileexistsandisreadable(filename_returned);
-    }
-  }
-
-  if (!foundsomething) {
-    filename_returned[0] = '\0';
   }
 
   if (foundsomething && o.debugging > 1)
