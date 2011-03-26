@@ -2714,6 +2714,19 @@ static char *executable_dir(const char *argv0) {
   return dir;
 }
 
+/* Returns true if the two given filenames refer to the same file. (Have the
+   same device and inode number.) */
+static bool same_file(const char *filename_a, const char *filename_b) {
+  struct stat stat_a, stat_b;
+
+  if (stat(filename_a, &stat_a) == -1)
+    return false;
+  if (stat(filename_b, &stat_b) == -1)
+    return false;
+
+  return stat_a.st_dev == stat_b.st_dev && stat_a.st_ino == stat_b.st_ino;
+}
+
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   char *dirptr;
   int res;
@@ -2816,7 +2829,7 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   if (foundsomething && (*filename_returned != '.')) {    
     res = Snprintf(dot_buffer, sizeof(dot_buffer), "./%s", file);
     if (res > 0 && res < bufferlen) {
-      if (fileexistsandisreadable(dot_buffer)) {
+      if (fileexistsandisreadable(dot_buffer) && !same_file(filename_returned, dot_buffer)) {
 #ifdef WIN32
 	if (warningcount++ < 1 && o.debugging)
 #else
