@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] ssh-hostkey now additionally has a postrule that prints hosts
+  that have the same hostkey. [Toni Ruottu]
+
 o [NSE] Added dns-nsec-enum.nse, which quickly enumerates the domains
   of a DNSSEC server that uses NSEC records for nonexistent domains.
   [John Bond, David]
