@@ -980,7 +980,7 @@ end
 -- section 4.
 --
 -- <code>entry.NSEC</code> has the fields <code>dname</code>,
--- <code>name</code>, and <code>types</code>.
+-- <code>next_dname</code>, and <code>types</code>.
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
@@ -989,7 +989,7 @@ decoder[types.NSEC] = function (entry, data, pos)
    local block_num, type_bitmap
    entry.NSEC = {}
    entry.NSEC.dname = entry.dname
-   np, entry.NSEC.name = decStr(data, np)
+   np, entry.NSEC.next_dname = decStr(data, np)
    np, block_num, type_bitmap = bin.unpack(">Cp", data, np)
    entry.NSEC.types = {}
    for i in bit_iter(type_bitmap) do

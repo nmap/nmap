@@ -268,10 +268,10 @@ end
 local function get_next_nsec(retPkt, domain)
 	for _, nsec in ipairs(auth_filter(retPkt, "NSEC")) do
 		-- The last NSEC record points backwards to the start of the subzone.
-		if domain_lt(nsec.dname, domain) and not domain_lt(nsec.dname, nsec.name) then
+		if domain_lt(nsec.dname, domain) and not domain_lt(nsec.dname, nsec.next_dname) then
 			return nsec
 		end
-		if domain_lt(nsec.dname, domain) and domain_lt(domain, nsec.name) then
+		if domain_lt(nsec.dname, domain) and domain_lt(domain, nsec.next_dname) then
 			return nsec
 		end
 	end
@@ -303,9 +303,9 @@ local function enum(host, port, domain)
 				subdomain = nil
 				break
 			end
-			last, remainder = remove_suffix(nsec.name, domain)
+			last, remainder = remove_suffix(nsec.next_dname, domain)
 			if #remainder > 0 then
-				stdnse.print_debug("Result name %q doesn't end in %q.", nsec.name, domain)
+				stdnse.print_debug("Result name %q doesn't end in %q.", nsec.next_dname, domain)
 				subdomain = nil
 				break
 			end
