@@ -31,6 +31,7 @@
 
 module(... or "dns", package.seeall)
 
+require("bit")
 require("ipOps")
 require("stdnse")
 
@@ -955,29 +956,44 @@ decoder[types.SOA] = function(entry, data, pos)
       = bin.unpack(">I5", data, np)
 end
 
--- Decodes NSEC records, puts result in <code>entry.NSEC</code>.
+-- An iterator that returns the positions of nonzero bits in the given binary
+-- string.
+local function bit_iter(bits)
+   return coroutine.wrap(function()
+      for i = 1, #bits do
+         local n = string.byte(bits, i)
+         local j = 0
+         local mask = 0x80
+
+         while mask > 0 do
+           if bit.band(n, mask) ~= 0 then
+              coroutine.yield((i - 1) * 8 + j)
+           end
+           j = j + 1
+           mask = bit.rshift(mask, 1)
+         end
+      end
+   end)
+end
+
+-- Decodes NSEC records, puts result in <code>entry.NSEC</code>. See RFC 4034,
+-- section 4.
 --
 -- <code>entry.NSEC</code> has the fields <code>dname</code>,
--- <code>NSEC</code>, <code>name</code>, <code>WinBlockNo</code>,
--- <code>bmplength</code>, <code>bin</code>, and <code>types</code>.
+-- <code>name</code>, and <code>types</code>.
 -- @param entry RR in packet.
 -- @param data Complete encoded DNS packet.
 -- @param pos Position in packet after RR.
 decoder[types.NSEC] = function (entry, data, pos)
    local np = pos - #entry.data
+   local block_num, type_bitmap
    entry.NSEC = {}
    entry.NSEC.dname = entry.dname
-   entry.NSEC.NSEC = true
    np, entry.NSEC.name = decStr(data, np)
-   np, entry.NSEC.WinBlockNo, entry.NSEC.bmplength = bin.unpack(">CC", data, np)
-   np, entry.NSEC.bin = bin.unpack("B".. entry.NSEC.bmplength, data, np)
+   np, block_num, type_bitmap = bin.unpack(">Cp", data, np)
    entry.NSEC.types = {}
-   for i=1, string.len(entry.NSEC.bin) do
-      local bit = string.sub(entry.NSEC.bin,i,i)
-      if bit == "1" then
-         --the first bit represents window block 0 hence -1
-         table.insert(entry.NSEC.types, (entry.NSEC.WinBlockNo*256+i-1))
-      end
+   for i in bit_iter(type_bitmap) do
+      entry.NSEC.types[(block_num - 1) * 256 + i] = true
    end
 end
 
