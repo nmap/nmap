@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added dns-nsec-enum.nse, which quickly enumerates the domains
+  of a DNSSEC server that uses NSEC records for nonexistent domains.
+  [John Bond, David]
+
 o Nmap no longer searches for data files (like nmap-services) in the
   current directory as a last resort. This is to reduce the chance of
   accessing an unexpected file in case the system-installed data files
