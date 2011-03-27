@@ -986,14 +986,16 @@ end
 -- @param pos Position in packet after RR.
 decoder[types.NSEC] = function (entry, data, pos)
    local np = pos - #entry.data
-   local block_num, type_bitmap
    entry.NSEC = {}
    entry.NSEC.dname = entry.dname
    np, entry.NSEC.next_dname = decStr(data, np)
-   np, block_num, type_bitmap = bin.unpack(">Cp", data, np)
-   entry.NSEC.types = {}
-   for i in bit_iter(type_bitmap) do
-      entry.NSEC.types[(block_num - 1) * 256 + i] = true
+   while np < pos do
+      local block_num, type_bitmap
+      np, block_num, type_bitmap = bin.unpack(">Cp", data, np)
+      entry.NSEC.types = {}
+      for i in bit_iter(type_bitmap) do
+         entry.NSEC.types[(block_num - 1) * 256 + i] = true
+      end
    end
 end
 
