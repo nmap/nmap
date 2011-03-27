@@ -15,7 +15,7 @@ o Nmap no longer searches for data files (like nmap-services) in the
   supported by searching the directory containing the Nmap executable
   for data files. On non-Windows platforms, the executable directory
   followed by "../share/nmap" is also searched. Thanks to Solar
-  Designed for implementation advice. [David]
+  Designer for implementation advice. [David]
 
 o Updated nmap-rpc from the master list, now maintained by IANA.
   [Daniel Miller, David]
