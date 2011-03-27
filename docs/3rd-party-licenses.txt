@@ -38,6 +38,9 @@ On Windows only, Nmap uses:
    distributed with Nmap in the subdirectory mswin32/winpcap.
    http://www.winpcap.org/
 
+Certain Nmap Scripting Engine scripts use the simplified BSD license in
+licenses/BSD-simplified.
+
 Zenmap and Ndiff require:
  o Python. The binary distributions of Nmap include a Python interpreter
    and various libraries, built using either py2exe or py2app.

@@ -43,7 +43,6 @@ get_servers = nmap.get_dns_servers
 -- @class table
 types = {
    A = 1,
-   AAAA = 28,
    NS = 2,
    SOA = 6,
    CNAME = 5,
@@ -51,8 +50,11 @@ types = {
    HINFO = 13,
    MX = 15,
    TXT = 16,
+   AAAA = 28,
    SRV = 33,
+   OPT = 41,
    SSHFP = 44,
+   NSEC = 47,
    AXFR = 252,
    ANY = 255
 }
@@ -277,6 +279,10 @@ function query(dname, options)
    addQuestion(pkt, dname, dtype)
    if options.norecurse then pkt.flags.RD = false end
 
+   if options.dnssec then
+      addOPT(pkt, {DO = true})
+   end
+
    local data = encode(pkt)
 
    local status, response = sendPackets(data, host, port, options.timeout, options.sendCount, options.multiple)
@@ -484,6 +490,29 @@ answerFetcher[types.SRV] = function(dec, retAll)
   return true, answers
 end
 
+-- Answer fetcher for NSEC records.
+-- @param dec Decoded DNS response.
+-- @param retAll If true, return all entries, not just the first.
+-- @return True if one or more answers of the required type were found - otherwise false.
+-- @return String first dns NSEC record or Table of NSEC records or String Error message.
+--  Note that the format of a returned NSEC answer is "name:dname:types".
+answerFetcher[types.NSEC] = function(dec, retAll)
+   local nsec, answers = {}, {}
+   for _, auth in ipairs(dec.auth) do
+      if auth.NSEC then nsec[#nsec+1] = auth.NSEC end
+      if not retAll then break end
+   end
+   if #nsec == 0 then
+      stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: NSEC")
+      return false, "No Answers"
+   end
+   for _, nsecrec in ipairs(nsec) do
+      table.insert( answers, ("%s:%s:%s"):format(nsecrec.name or "-", nsecrec.dname or "-", stdnse.strjoin(":", nsecrec.types) or "-"))
+   end
+   if not retAll then return true, answers[1] end
+   return true, answers
+end
+
 -- Answer fetcher for NS records.
 -- @name answerFetcher[types.NS]
 -- @class function
@@ -537,8 +566,7 @@ function findNiceAnswer(dtype, dec, retAll)
       if answerFetcher[dtype] then 
          return answerFetcher[dtype](dec, retAll)
       else 
-         stdnse.print_debug(1, "dns.findNiceAnswer() does not have an answerFetcher for dtype %s",
-            (type(dtype) == 'string' and dtype) or type(dtype) or "nil")
+         stdnse.print_debug(1, "dns.findNiceAnswer() does not have an answerFetcher for dtype %s", tostring(dtype))
          return false, "Unable to handle response"
       end
    elseif (dec.flags.RC3 and dec.flags.RC4) then
@@ -730,6 +758,21 @@ local function encodeUpdates(updates)
 end
 
 ---
+-- Encodes the additional part of a DNS request.
+-- @param additional Table of additional records. Each must have the keys
+-- <code>type</code>, <code>class</code>, <code>ttl</code>, <code>rdlen</code>,
+-- and <code>rdata</code>.
+-- @return Encoded additional string.
+local function encodeAdditional(additional)
+   if type(additional) ~= "table" then return nil end
+   local encA = ""
+   for _, v in ipairs(additional) do
+      encA = encA .. bin.pack(">xSSISA",  v.type, v.class, v.ttl, v.rdlen, v.rdata)
+   end
+   return encA
+end
+
+---
 -- Encodes DNS flags to a binary digit string.
 -- @param flags Flag table, each entry representing a flag (QR, OCx, AA, TC, RD,
 -- RA, RCx).
@@ -758,14 +801,15 @@ end
 ---
 -- Encode a DNS packet.
 --
--- Caution: doesn't encode answer, authority and additional part.
+-- Caution: doesn't encode answer and authority part.
 -- @param pkt Table representing DNS packet, initialized by
 -- <code>newPacket</code>.
 -- @return Encoded DNS packet.
 function encode(pkt)
    if type(pkt) ~= "table" then return nil end
    local encFlags = encodeFlags(pkt.flags)
-   local data = encodeQuestions(pkt.questions)
+   local questions = encodeQuestions(pkt.questions)
+   local additional = encodeAdditional(pkt.additional)
    local qorzlen = #pkt.questions
    local aorplen = #pkt.answers
    local aorulen = #pkt.auth
@@ -779,7 +823,7 @@ function encode(pkt)
       data = data .. encodeUpdates( pkt.updates )
    end
 
-   local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data
+   local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. questions .. additional
    return encStr
 end
 
@@ -911,6 +955,32 @@ decoder[types.SOA] = function(entry, data, pos)
       = bin.unpack(">I5", data, np)
 end
 
+-- Decodes NSEC records, puts result in <code>entry.NSEC</code>.
+--
+-- <code>entry.NSEC</code> has the fields <code>dname</code>,
+-- <code>NSEC</code>, <code>name</code>, <code>WinBlockNo</code>,
+-- <code>bmplength</code>, <code>bin</code>, and <code>types</code>.
+-- @param entry RR in packet.
+-- @param data Complete encoded DNS packet.
+-- @param pos Position in packet after RR.
+decoder[types.NSEC] = function (entry, data, pos)
+   local np = pos - #entry.data
+   entry.NSEC = {}
+   entry.NSEC.dname = entry.dname
+   entry.NSEC.NSEC = true
+   np, entry.NSEC.name = decStr(data, np)
+   np, entry.NSEC.WinBlockNo, entry.NSEC.bmplength = bin.unpack(">CC", data, np)
+   np, entry.NSEC.bin = bin.unpack("B".. entry.NSEC.bmplength, data, np)
+   entry.NSEC.types = {}
+   for i=1, string.len(entry.NSEC.bin) do
+      local bit = string.sub(entry.NSEC.bin,i,i)
+      if bit == "1" then
+         --the first bit represents window block 0 hence -1
+         table.insert(entry.NSEC.types, (entry.NSEC.WinBlockNo*256+i-1))
+      end
+   end
+end
+
 -- Decodes records that consist only of one domain, for example CNAME, NS, PTR.
 -- Puts result in <code>entry.domain</code>.
 -- @param entry RR in packet.
@@ -1030,7 +1100,9 @@ local function decodeRR(data, count, pos)
       pos, currRR.data = bin.unpack("A" .. reslen, data, pos)
 
       -- try to be smart: decode per type
-      decoder[currRR.dtype](currRR, data, pos)
+      if decoder[currRR.dtype] then
+         decoder[currRR.dtype](currRR, data, pos)
+      end
 
       table.insert(ans, currRR)
    end
@@ -1150,6 +1222,42 @@ end
 function addZone(pkt, dname)
    if ( type(pkt) ~= "table" ) or (type(pkt.updates) ~= "table") then return nil end
    table.insert(pkt.zones, { dname=dname, dtype=types.SOA, class=CLASS.IN })
+   return pkt
+end
+
+---
+-- Encodes the Z bitfield of an OPT record.
+-- @param flags Flag table, each entry representing a flag (only DO flag implmented).
+-- @return Binary digit string representing flags.
+local function encodeOPT_Z(flags)
+   if type(flags) == "string" then return flags end
+   if type(flags) ~= "table" then return nil end
+   local bits = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+   for n, k in pairs({[1] = "DO"}) do
+      if flags[k] then
+         bits[n] = 1
+      end
+   end
+   return table.concat(bits)
+end
+
+---
+-- Adds an OPT RR to a DNS packet's additional section. Only the table of Z
+-- flags is supported (i.e., not RDATA). See RFC 2671 section 4.3.
+-- @param pkt Table representing DNS packet.
+-- @param Z Table of Z flags. Only DO is supported.
+function addOPT(pkt, Z)
+   if type(pkt) ~= "table" then return nil end
+   if type(pkt.additional) ~= "table" then return nil end
+   local _, Z_int = bin.unpack(">S", bin.pack("B", encodeOPT_Z(Z)))
+   local opt = {
+      type = types.OPT,
+      class = 4096,  -- Actually the sender UDP payload size.
+      ttl = 0 * (0x01000000) + 0 * (0x00010000) + Z_int,
+      rdlen = 0,
+      rdata = "",
+   }
+   table.insert(pkt.additional, opt)
    return pkt
 end
 
