@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed an overflow in scan elapsed time display that caused negative
+  times to be printed after about 25 days. [Daniel Miller]
+
 o [NSE] ssh-hostkey now additionally has a postrule that prints hosts
   that have the same hostkey. [Henri Doreau]
 

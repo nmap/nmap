@@ -523,7 +523,7 @@ public:
      resetHostIterator() afterward). Don't let this list get empty,
      then add to it again, or you may mess up nextI (I'm not sure) */
   list<HostOsScanInfo *> incompleteHosts;
-  unsigned int starttimems;
+  float starttime;
 
   unsigned int numIncompleteHosts() {return incompleteHosts.size();}
   HostOsScanInfo *findIncompleteHost(struct sockaddr_storage *ss);
@@ -2886,7 +2886,7 @@ int OsScanInfo::removeCompletedHosts() {
         if (remain && !timedout)
           log_write(LOG_STDOUT, "Completed os scan against %s in %.3fs (%d %s)\n",
                     hsi->target->targetipstr(), 
-                    (o.TimeSinceStartMS() - this->starttimems) / 1000.0, remain, 
+                    o.TimeSinceStart() - this->starttime, remain,
                     (remain == 1)? "host left" : "hosts left");
         else if (timedout)
           log_write(LOG_STDOUT, "%s timed out during os scan (%d %s)\n",
@@ -3747,7 +3747,7 @@ static int os_scan_2(vector<Target *> &Targets) {
     delete OSI;
     return 1;
   }
-  OSI->starttimems = o.TimeSinceStartMS();
+  OSI->starttime = o.TimeSinceStart();
   
   HOS = new HostOsScan(Targets[0]);
   startTimeOutClocks(OSI);

@@ -2193,7 +2193,7 @@ void printStatusMessage() {
   // Pre-computations
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  int time = (int) (o.TimeSinceStartMS(&tv) / 1000.0);
+  int time = (int) (o.TimeSinceStart(&tv));
 
   log_write(LOG_STDOUT, "Stats: %d:%02d:%02d elapsed; %d hosts completed (%d up), %d undergoing %s\n",
             time / 60 / 60, time / 60 % 60, time % 60, o.numhosts_scanned,
@@ -2213,13 +2213,13 @@ void print_xml_finished_open(time_t timep, const struct timeval *tv) {
   xml_open_start_tag("finished");
   xml_attribute("time", "%lu", (unsigned long) timep);
   xml_attribute("timestr", "%s", mytime);
-  xml_attribute("elapsed", "%.2f", o.TimeSinceStartMS(tv) / 1000.0);
+  xml_attribute("elapsed", "%.2f", o.TimeSinceStart(tv));
   xml_attribute("summary",
     "Nmap done at %s; %d %s (%d %s up) scanned in %.2f seconds",
     mytime, o.numhosts_scanned,
     (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
     o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-    o.TimeSinceStartMS(tv) / 1000.0);
+    o.TimeSinceStart(tv));
 }
 
 void print_xml_hosts() {
@@ -2264,7 +2264,7 @@ void printfinaloutput() {
             o.numhosts_scanned,
             (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
             o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-            o.TimeSinceStartMS(&tv) / 1000.0);
+            o.TimeSinceStart(&tv));
   if (o.verbose && o.isr00t && o.RawScan())
     log_write(LOG_STDOUT | LOG_SKID, "           %s\n",
               getFinalPacketStats(statbuf, sizeof(statbuf)));
@@ -2286,7 +2286,7 @@ void printfinaloutput() {
             mytime, o.numhosts_scanned,
             (o.numhosts_scanned == 1) ? "IP address" : "IP addresses",
             o.numhosts_up, (o.numhosts_up == 1) ? "host" : "hosts",
-            o.TimeSinceStartMS(&tv) / 1000.0);
+            o.TimeSinceStart(&tv));
 
   xml_end_tag(); /* nmaprun */
   xml_newline();

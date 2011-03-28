@@ -155,15 +155,15 @@ const struct in_addr *NmapOps::v4sourceip() {
   return NULL;
 }
 
-// Number of milliseconds since getStartTime().  The current time is an
+// Number of seconds since getStartTime().  The current time is an
 // optional argument to avoid an extra gettimeofday() call.
-int NmapOps::TimeSinceStartMS(const struct timeval *now) {
+float NmapOps::TimeSinceStart(const struct timeval *now) {
   struct timeval tv;
   if (!now)
     gettimeofday(&tv, NULL);
   else tv = *now;
 
-  return TIMEVAL_MSEC_SUBTRACT(tv, start_time);
+  return TIMEVAL_FSEC_SUBTRACT(tv, start_time);
 }
 
 // Convert a filename to a file:// URL. The return value must be freed.

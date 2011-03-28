@@ -204,7 +204,7 @@ void PacketTrace::traceArp(pdirection pdir, const u8 *frame, u32 len,
 
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) ARP %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
-            o.TimeSinceStartMS(&tv) / 1000.0, arpdesc);
+            o.TimeSinceStart(&tv), arpdesc);
 
   return;
 }
@@ -260,7 +260,7 @@ void PacketTrace::trace(pdirection pdir, const u8 *packet, u32 len,
 
   log_write(LOG_STDOUT | LOG_NORMAL, "%s (%.4fs) %s\n",
             (pdir == SENT) ? "SENT" : "RCVD",
-            o.TimeSinceStartMS(&tv) / 1000.0, nmap_format_ippacket(packet, len));
+            o.TimeSinceStart(&tv), nmap_format_ippacket(packet, len));
 
   return;
 }
@@ -326,7 +326,7 @@ void PacketTrace::traceConnect(u8 proto, const struct sockaddr *sock,
 
   log_write(LOG_STDOUT | LOG_NORMAL,
             "CONN (%.4fs) %s localhost > %s:%d => %s\n",
-            o.TimeSinceStartMS(&tv) / 1000.0,
+            o.TimeSinceStart(&tv),
             (proto == IPPROTO_TCP) ? "TCP" : "UDP", targetipstr,
             targetport, errbuf);
 }
