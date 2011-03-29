@@ -562,13 +562,20 @@ Black Hat Briefings in 2010.</para>
         <listitem>
 
           <para>These scripts run after Nmap has scanned all of its
-            targets.  They can be useful for formatting and presenting
-            Nmap output.  For example, a postrule script could print a
-            reverse-index of the Nmap output&mdash;showing which hosts
-            run a particular service rather than just listing the
-            services on each host.  They are distinguished from other
-            script types by containing a <literal>postrule</literal>
-            function.
+          targets.  They can be useful for formatting and presenting
+          Nmap output.  For example, <ulink role="hidepdf"
+          url="http://nmap.org/nsedoc/scripts/ssh-hostkey.html">ssh-hostkey</ulink>
+          is best known for its service (portrule) script which
+          connects to SSH servers, discovers their public keys, and
+          prints them.  But it also includes a postrule which checks
+          for duplicate keys amongst all of the hosts scanned, then
+          prints any that are found.  Another potential use for a
+          postrule script is printing a reverse-index of the Nmap
+          output&mdash;showing which hosts run a particular service
+          rather than just listing the services on each host.
+          Postrule scripts are identified by containing a
+          <literal>postrule</literal> function.
+
           </para>
 
           <para>Many scripts could potentially run as either a prerule
