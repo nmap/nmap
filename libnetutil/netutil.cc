@@ -1517,11 +1517,15 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
   i = 0;
   while (i < dcrn->numroutes) {
     if (dcrn->routes[i].device == NULL) {
+      char destbuf[INET6_ADDRSTRLEN];
+      char gwbuf[INET6_ADDRSTRLEN];
       struct in_addr ia; 
 
       ia.s_addr = dcrn->routes[i].dest;
+      strncpy(destbuf, inet_ntoa(ia), sizeof(destbuf));
+      strncpy(gwbuf, inet_ntoa(dcrn->routes[i].gw), sizeof(gwbuf));
       netutil_error("WARNING: Unable to find appropriate interface for system route to %s/%u gw %s",
-      	inet_ntoa(ia), dcrn->routes[i].netmask, inet_ntoa(dcrn->routes[i].gw));
+      	destbuf, dcrn->routes[i].netmask, gwbuf);
       /* Remove this entry from the table. */
       memmove(dcrn->routes + i, dcrn->routes + i + 1, sizeof(dcrn->routes[0]) * (dcrn->numroutes - i - 1));
       dcrn->numroutes--;
