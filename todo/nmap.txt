@@ -12,8 +12,6 @@ o Make new SecTools.Org site with the 2010 survey results.
 o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
-  - ssl-known_key http://seclists.org/nmap-dev/2010/q4/733
-    Thread continues at http://seclists.org/nmap-dev/2011/q1/26.
   - Patch to get interfaces by Djalal.
     http://seclists.org/nmap-dev/2011/q1/291
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
@@ -30,10 +28,6 @@ o Decide what to do about ms-sql-info slowing scans:
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
-
-o [Ndiff] should, in non-verbose mode, perhaps not print the changed
-  Nmap version and/or scan time if nothing else has changed between
-  two files. See http://seclists.org/nmap-dev/2011/q1/674.
 
 o [Zenmap] Make formerly open ports that are now closed or filtered
   disappear from the "Ports / Hosts" tab. This appears to be related
@@ -681,6 +675,17 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ndiff] should, in non-verbose mode, perhaps not print the changed
+  Nmap version and/or scan time if nothing else has changed between
+  two files. See http://seclists.org/nmap-dev/2011/q1/674.
+
+o Script review disposition:
+  - ssl-known_key http://seclists.org/nmap-dev/2010/q4/733
+    Thread continues at http://seclists.org/nmap-dev/2011/q1/26.
+    - Merged
+  - dns-nsec-enum
+    - Merged
 
 o The file /nmap/mswin32/icon1.ico is used by the NSIS installer to
   set the Nmap uninstall icon (I'm not sure if it is used for anything
