@@ -30,16 +30,16 @@ These access permissions are shown only with NFSv3:
 -- | nfs-ls:
 -- |   Arguments:
 -- |     maxfiles: 10 (file listing output limited)
+-- |
 -- |   NFS Export: /mnt/nfs/files
 -- |   NFS Access: Read Lookup NoModify NoExtend NoDelete NoExecute
--- |
 -- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
 -- |     drwxr-xr-x  1000  100   4096     2010-06-17 12:28   /mnt/nfs/files
 -- |     drwxr--r--  1000  1002  4096     2010-05-14 12:58   sources
 -- |     -rw-------  1000  1002  23606    2010-06-17 12:28   notes
+-- |
 -- |   NFS Export: /home/storage/backup
 -- |   NFS Access: Read Lookup Modify Extend Delete NoExecute
--- |
 -- |     PERMISSION  UID   GID   SIZE     MODIFICATION TIME  FILENAME
 -- |     drwxr-xr-x  1000  100   4096     2010-06-11 22:31   /home/storage/backup
 -- |     -rw-r--r--  1000  1002  0        2010-06-10 08:34   filetest
