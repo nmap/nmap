@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-affiliate-id.nse, which scrapes a web page for
+  affiliate IDs (like Google AdSense and Amazon associates) that can
+  be used to link sites to the same owner. [Hani Benhabiles, Daniel
+  Miller]
+
 o Fixed an overflow in scan elapsed time display that caused negative
   times to be printed after about 25 days. [Daniel Miller]
 
