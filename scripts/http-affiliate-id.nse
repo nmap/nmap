@@ -44,18 +44,16 @@ local AFFILIATE_PATTERNS = {
 portrule = shortport.http
 
 action = function(host, port)
-	local url_path, body, result
-	result = {}
-	url_path = stdnse.get_script_args("http-affiliate-id.url-path") or "/"
-	body = http.get(host, port, url_path).body
+	local result = {}
+	local url_path = stdnse.get_script_args("http-affiliate-id.url-path") or "/"
+	local body = http.get(host, port, url_path).body
 
 	-- Here goes affiliate matching
 	for name, re in pairs(AFFILIATE_PATTERNS) do
-		local regex, limit, limit2, matches, affiliateid
-		regex = pcre.new(re, 0, "C")
-		limit, limit2, matches = regex:match(body)
+		local regex = pcre.new(re, 0, "C")
+		local limit, limit2, matches = regex:match(body)
 		if limit ~= nil then
-			affiliateid = matches["id"]
+			local affiliateid = matches["id"]
 			result[#result + 1] = name .. ": " .. affiliateid
 		end
 	end
