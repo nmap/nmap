@@ -28,11 +28,11 @@ Supported IDs:
 -- Post-scan script results:
 -- | http-affiliate-id: Possible related sites
 -- | Google Analytics ID: UA-2460010-99 used by:
--- |   thisisphotobomb.memebase.com:80
--- |   memebase.com:80
+-- |   thisisphotobomb.memebase.com:80/
+-- |   memebase.com:80/
 -- | Google Adsense ID: pub-0766144451700556 used by:
--- |   thisisphotobomb.memebase.com:80
--- |_  memebase.com:80
+-- |   thisisphotobomb.memebase.com:80/
+-- |_  memebase.com:80/
 
 author = "Hani Benhabiles, Daniel Miller"
 
@@ -60,9 +60,9 @@ postrule = function() return (nmap.registry.httpaffid ~= nil) end
 --@param host nmap host table
 --@param port nmap port table
 --@param affid affiliate id table
-local add_key_to_registry = function(host, port, affid)
+local add_key_to_registry = function(host, port, path, affid)
 	local site = host.targetname or host.ip
-	site = site .. ":" .. port.number
+	site = site .. ":" .. port.number .. path
 	nmap.registry.httpaffid = nmap.registry.httpaffid or {}
 
 	nmap.registry.httpaffid[site] = nmap.registry.httpaffid[site] or {}
@@ -94,7 +94,7 @@ portaction = function(host, port)
 		if limit ~= nil then
 			local affiliateid = matches["id"]
 			result[#result + 1] = name .. ": " .. affiliateid
-			add_key_to_registry(host, port, result[#result])
+			add_key_to_registry(host, port, url_path, result[#result])
 		end
 	end
 
