@@ -54,7 +54,7 @@ local AFFILIATE_PATTERNS = {
 
 portrule = shortport.http
 
-postrule = function() return (nmap.registry.httpaffid ~= nil) end
+postrule = function() return (nmap.registry["http-affiliate-id"] ~= nil) end
 
 --- put id in the nmap registry for usage by other scripts
 --@param host nmap host table
@@ -63,10 +63,10 @@ postrule = function() return (nmap.registry.httpaffid ~= nil) end
 local add_key_to_registry = function(host, port, path, affid)
 	local site = host.targetname or host.ip
 	site = site .. ":" .. port.number .. path
-	nmap.registry.httpaffid = nmap.registry.httpaffid or {}
+	nmap.registry["http-affiliate-id"] = nmap.registry["http-affiliate-id"] or {}
 
-	nmap.registry.httpaffid[site] = nmap.registry.httpaffid[site] or {}
-	table.insert(nmap.registry.httpaffid[site], affid)
+	nmap.registry["http-affiliate-id"][site] = nmap.registry["http-affiliate-id"][site] or {}
+	table.insert(nmap.registry["http-affiliate-id"][site], affid)
 end
 
 --- check for the presence of a value in a table
@@ -107,7 +107,7 @@ local function postaction()
 	local output = {}
 
 	-- create a reverse mapping affiliate ids -> site(s)
-	for site, ids in pairs(nmap.registry.httpaffid) do
+	for site, ids in pairs(nmap.registry["http-affiliate-id"]) do
 		for _, id in ipairs(ids) do
 			if not siteids[id] then
 				siteids[id] = {}
