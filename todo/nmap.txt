@@ -25,6 +25,9 @@ o Script review:
 o Decide what to do about ms-sql-info slowing scans:
   http://seclists.org/nmap-dev/2011/q1/913
 
+o Don't show a service fingerprint if an NSE script finds a service
+  match: http://seclists.org/nmap-dev/2011/q1/1055.
+
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
