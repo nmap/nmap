@@ -54,7 +54,7 @@
   level. None of them seems to work well, though.
 
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
-  to his tests, better results are obtained when sending UDP probes with a
+  to David's tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
 
 * A few ideas for the Echo protocol:
@@ -70,7 +70,18 @@
 
     - RFC. Improve description of encryptionless sessions.  Suggested by Toni
       Ruottu.
-  
+
+    - Currently, the echo server zeroes any application layer data before
+      transmission in a NEP_ECHO message. This minimizes the impact of
+      errors in the server's packet matching engine or malicious attacks that
+      attempt to trick the server into echoing packets that do not belong to
+      a particular user. This works well but in the future, if one day we
+      create a NEPv2 specification, we may want to consider extending NEP_ECHO
+      packets to allow stripped-packet transport. This is, to allow echo servers
+      to remove application layer data before transmission, and include
+      additional information in the NEP_ECHO message so clients can determine 
+      that the payload part was stripped and how long was it.
+        
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
   nice to get rid of them if possible. There are some of them:
