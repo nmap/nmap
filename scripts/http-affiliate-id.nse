@@ -2,6 +2,9 @@ description = [[
 Grabs affiliate network IDs from an HTML page. These can be used to
 identify pages with the same owner.
 
+If there is more than one target using an ID, the postrule of this
+script shows the ID along with a list of the targets using it.
+
 Supported IDs:
 * Google Analytics
 * Google AdSense
@@ -22,6 +25,14 @@ Supported IDs:
 -- |   Amazon Associates ID: XXXX-XX
 -- |   Google Adsense ID: pub-YYYY
 -- |_  Google Analytics ID: UA-ZZZZ-ZZ
+-- Post-scan script results:
+-- | http-affiliate-id: Possible related sites
+-- | Google Analytics ID: UA-2460010-99 used by:
+-- |   thisisphotobomb.memebase.com:80
+-- |   memebase.com:80
+-- | Google Adsense ID: pub-0766144451700556 used by:
+-- |   thisisphotobomb.memebase.com:80
+-- |_  memebase.com:80
 
 author = "Hani Benhabiles, Daniel Miller"
 
@@ -43,7 +54,35 @@ local AFFILIATE_PATTERNS = {
 
 portrule = shortport.http
 
-action = function(host, port)
+postrule = function() return (nmap.registry.httpaffid ~= nil) end
+
+--- put id in the nmap registry for usage by other scripts
+--@param host nmap host table
+--@param port nmap port table
+--@param affid affiliate id table
+local add_key_to_registry = function(host, port, affid)
+	local site = host.targetname or host.ip
+	site = site .. ":" .. port.number
+	nmap.registry.httpaffid = nmap.registry.httpaffid or {}
+
+	nmap.registry.httpaffid[site] = nmap.registry.httpaffid[site] or {}
+	table.insert(nmap.registry.httpaffid[site], affid)
+end
+
+--- check for the presence of a value in a table
+--@param tab the table to search into
+--@param item the searched value
+--@return a boolean indicating whether the value has been found or not
+local function contains(tab, item)
+	for _, val in pairs(tab) do
+		if val == item then
+			return true
+		end
+	end
+	return false
+end
+
+portaction = function(host, port)
 	local result = {}
 	local url_path = stdnse.get_script_args("http-affiliate-id.url-path") or "/"
 	local body = http.get(host, port, url_path).body
@@ -55,8 +94,53 @@ action = function(host, port)
 		if limit ~= nil then
 			local affiliateid = matches["id"]
 			result[#result + 1] = name .. ": " .. affiliateid
+			add_key_to_registry(host, port, result[#result])
 		end
 	end
 
 	return stdnse.format_output(true, result)
 end
+
+--- iterate over the list of gathered ids and look for related sites (sharing the same siteids)
+local function postaction()
+	local siteids = {}
+	local output = {}
+
+	-- create a reverse mapping affiliate ids -> site(s)
+	for site, ids in pairs(nmap.registry.httpaffid) do
+		for _, id in ipairs(ids) do
+			if not siteids[id] then
+				siteids[id] = {}
+			end
+			-- discard duplicate IPs
+			if not contains(siteids[id], site) then
+				table.insert(siteids[id], site)
+			end
+		end
+	end
+
+	-- look for sites using the same affiliate id
+	for id, sites in pairs(siteids) do
+		if #siteids[id] > 1 then
+			local str = id .. ' used by:'
+			for _, site in ipairs(siteids[id]) do
+				str = str .. '\n	' .. site
+			end
+			table.insert(output, str)
+		end
+	end
+
+	if #output > 0 then
+		return 'Possible related sites\n' .. table.concat(output, '\n')
+	end
+end
+
+local ActionsTable = {
+	-- portrule: get affiliate ids
+	portrule = portaction,
+	-- postrule: look for related sites (same affiliate ids)
+	postrule = postaction
+}
+
+-- execute the action function corresponding to the current rule
+action = function(...) return ActionsTable[SCRIPT_TYPE](...) end
