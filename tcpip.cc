@@ -1041,28 +1041,6 @@ u8 *build_ip_raw(const struct in_addr *source,
   return packet;
 }
 
-/* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_ip_raw(int sd, struct eth_nfo *eth,
-                struct in_addr *source, const struct in_addr *victim,
-                u8 proto, int ttl,
-                u8 *ipopt, int ipoptlen, char *data, u16 datalen) {
-  unsigned int packetlen;
-  int res = -1;
-
-  u8 *packet = build_ip_raw(source, victim,
-                            proto,
-                            ttl, get_random_u16(), IP_TOS_DEFAULT, false,
-                            ipopt, ipoptlen,
-                            data, datalen, &packetlen);
-  if (!packet)
-    return -1;
-
-  res = send_ip_packet(sd, eth, packet, packetlen);
-
-  free(packet);
-  return res;
-}
-
 
 /* Used by validatepkt() to validate the TCP header (including option lengths).
    The options checked are MSS, WScale, SackOK, Sack, and Timestamp. */

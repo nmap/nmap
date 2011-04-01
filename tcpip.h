@@ -435,12 +435,6 @@ int send_udp_raw( int sd, struct eth_nfo *eth,
 		  u16 sport, u16 dport,
 		  char *data, u16 datalen);
 
-int send_ip_raw( int sd, struct eth_nfo *eth,
-		 struct in_addr *source, const struct in_addr *victim,
-		 u8 proto, int ttl,
-		 u8* ipopt, int ipoptlen,
-		 char *data, u16 datalen);
-
 /* Builds a TCP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
    packet contents, and then returns that buffer.  The packet is not
