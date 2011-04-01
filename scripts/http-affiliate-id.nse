@@ -38,7 +38,7 @@ require 'stdnse'
 local AFFILIATE_PATTERNS = {
 	["Google Analytics ID"] = "(?P<id>UA-[0-9]{6,9}-[0-9]{1,2})",
 	["Google Adsense ID"] = "(?P<id>pub-[0-9]{16,16})",
-	["Amazon Associates ID"] = "href=\"http://www.amazon.com/[^\"]*[\\?&;]tag=(?P<id>\\w+-\\d+)",
+	["Amazon Associates ID"] = "http://(www\.amazon\.com/[^\"']*[\\?&;]tag|rcm\.amazon\.com/[^\"']*[\\?&;]t)=(?P<id>\\w+-\\d+)",
 }
 
 portrule = shortport.http
