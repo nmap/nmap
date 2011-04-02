@@ -76,7 +76,7 @@ local function escape(str)
 	return "\"" .. string.gsub(str, ".", ESCAPE_TABLE) .. "\""
 end
 
--- Creates json data from an object
+--- Creates json data from an object
 --@param object a table containing data
 --@return a string containing valid json
 function generate(obj)
