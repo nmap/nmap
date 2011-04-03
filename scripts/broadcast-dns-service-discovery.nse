@@ -9,7 +9,7 @@ get more information.
 
 ---
 -- @usage
--- nmap --script=broadcast-dns-service-discovery -p 5353 <target>
+-- nmap --script=broadcast-dns-service-discovery
 --
 -- @output
 -- | broadcast-dns-service-discovery: 
