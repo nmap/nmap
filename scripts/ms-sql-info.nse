@@ -115,7 +115,17 @@ hostrule = function(host)
 	if ( mssql.Helper.WasDiscoveryPerformed( host ) ) then
 		return mssql.Helper.GetDiscoveredInstances( host ) ~= nil
 	else
-		return true
+		local sqlDefaultPort = nmap.get_port_state( host, {number = 1433, protocol = "tcp"} )
+		local sqlBrowserPort = nmap.get_port_state( host, {number = 1434, protocol = "udp"} )
+		-- smb.get_port() will return nil if no SMB port was scanned OR if SMB ports were scanned but none was open
+		local smbPortNumber = smb.get_port( host )
+		
+		if ( (stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) ~= nil) or
+				(sqlBrowserPort and sqlBrowserPort.state ~= "closed") or
+				(sqlDefaultPort and sqlDefaultPort.state ~= "closed") or
+				(smbPortNumber ~= nil)  ) then
+			return true
+		end
 	end
 end
 
