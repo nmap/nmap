@@ -87,7 +87,9 @@
 --
 --@author Patrik Karlsson <patrik@cqure.net>
 --@copyright Same as Nmap--See http://nmap.org/book/man-legal.html
------------------------------------------------------------------------
+--
+-- @args afp.username The username to use for authentication.
+-- @args afp.password The password to use for authentication.
 
 --
 -- Version 0.5
@@ -106,6 +108,8 @@
 --                           - added support for --without-openssl
 --
 -- Revised 03/09/2010 - v0.5 - documentation, documenation and more documentation
+-- Revised 04/03/2011 - v0.6 - add support for getting file- sizes, dates and Unix ACLs
+--							 - moved afp.username & afp.password arguments to library
 
 module(... or "afp",package.seeall)
 
@@ -1331,9 +1335,11 @@ Helper = {
 
 	--- Creates a new helper object
 	new = function(self,o)
-		o = o or {}
+		local o = {}
         setmetatable(o, self)
         self.__index = self
+		o.username = stdnse.get_script_args("afp.username")
+		o.password = stdnse.get_script_args("afp.password")
 		return o
     end,
 
@@ -1386,12 +1392,17 @@ Helper = {
 
 	--- Logs in to an AFP service
 	--
-	-- @param username string containing the username 
-	-- @param password string containing the user password
+	-- @param username (optional) string containing the username 
+	-- @param password (optional) string containing the user password
 	-- @param options table containing additional options <code>uam</code>
 	Login = function( self, username, password, options )
 		local uam = ( options and options.UAM ) and options.UAM or "DHCAST128"
 		local response
+		
+		-- username and password arguments override the ones supplied using the
+		-- script arguments afp.username and afp.password
+		local username = username or self.username
+		local password = password or self.password
 		
 		if ( username and uam == "DHCAST128" ) then
 			response = self.proto:fp_login( "AFP3.1", "DHCAST128", username, password )
@@ -1697,6 +1708,103 @@ Helper = {
 		
 		return true, acls
 	end,
+	
+	--- Gets the Unix permissions of a file
+	-- @param vol_name string containing the name of the volume
+	-- @param str_path string containing the name of the file
+	-- @return status true on success, false on failure
+	-- @return acls table (on success) containing the following fields
+	--	<code>uid</code> - a numeric user identifier
+	--  <code>gid</code> - a numeric group identifier
+	--  <code>privs</code> - a string value representing the permissions
+	--						 eg: drwx------
+	-- @return err string (on failure) containing the error message
+	GetFileUnixPermissions = function(self, vol_name, str_path)
+		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+		
+		local vol_id = response.result.volume_id
+		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.UnixPrivileges, DIR_BITMAP.UnixPrivileges, path )
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+		
+		local item = ( response.result.file ) and response.result.file or response.result.dir
+		local item_type = ( response.result.file ) and "-" or "d"
+		local privs = ( item.UnixPrivileges and item.UnixPrivileges.ua_permissions ) and
+						item.UnixPrivileges.ua_permissions
+		if ( privs ) then
+			local uid = item.UnixPrivileges.uid
+			local gid = item.UnixPrivileges.gid
+			local str_privs = item_type .. Util.decode_unix_privs(privs)
+			return true, { uid = uid, gid = gid, privs = str_privs }
+		end
+	end,
+	
+	--- Gets the Unix permissions of a file
+	-- @param vol_name string containing the name of the volume
+	-- @param str_path string containing the name of the file
+	-- @return status true on success, false on failure
+	-- @return size containing the size of the file in bytes
+	-- @return err string (on failure) containing the error message
+	GetFileSize = function( self, vol_name, str_path )
+		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+		
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+		
+		local vol_id = response.result.volume_id
+		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		response = self.proto:fp_get_file_dir_parms( vol_id, 2, FILE_BITMAP.ExtendedDataForkSize, 0, path )
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+		
+		return true, ( response.result.file and
+						response.result.file.ExtendedDataForkSize) and 
+						response.result.file.ExtendedDataForkSize or 0
+	end,
+	
+	
+	--- Returns the creation, modification and backup dates of a file
+	-- @param vol_name string containing the name of the volume
+	-- @param str_path string containing the name of the file
+	-- @return status true on success, false on failure
+	-- @return dates table containing the following fields:
+	-- 	<code>create</code> - Creation date of the file
+	-- 	<code>modify</code> - Modification date of the file
+	--	<code>backup</code> - Date of last backup
+	-- @return err string (on failure) containing the error message
+	GetFileDates = function( self, vol_name, str_path )
+		local response = self.proto:fp_open_vol( afp.VOL_BITMAP.ID, vol_name )
+	
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+	
+		local vol_id = response.result.volume_id
+		local path = { type = afp.PATH_TYPE.LongName, name = str_path, len = #str_path }
+		local f_bm = FILE_BITMAP.CreationDate + FILE_BITMAP.ModificationDate + FILE_BITMAP.BackupDate
+		local d_bm = DIR_BITMAP.CreationDate + DIR_BITMAP.ModificationDate + DIR_BITMAP.BackupDate
+		response = self.proto:fp_get_file_dir_parms( vol_id, 2, f_bm, d_bm, path )
+		if ( response:getErrorCode() ~= ERROR.FPNoErr ) then
+			return false, response:getErrorMessage()
+		end
+
+		local item = ( response.result.file ) and response.result.file or response.result.dir
+		
+		local diff = os.time{year=2000, month=1, day=1, hour=0} - os.time{year=1970, month=1, day=1, hour=0}
+		local create = os.date("%Y-%m-%d %H:%M", item.CreationDate + diff)
+		local backup = os.date("%Y-%m-%d %H:%M", item.BackupDate )
+		local modify = os.date("%Y-%m-%d %H:%M", item.ModificationDate + diff )
+
+		return true, { create = create, backup = backup, modify = modify }
+	end,
 
 	--- Creates a new directory on the AFP sharepoint
 	--
@@ -1827,6 +1935,28 @@ Util =
 	 	return acls_tbl
 
 	end,
+
+
+    --- Decodes the UnixPrivileges.ua_permissions value
+    --
+    -- @param privs number containing the UnixPrivileges.ua_permissions value
+    -- @return string containing the ACL characters
+	decode_unix_privs = function( privs )
+		local owner = ( bit.band( privs, ACLS.OwnerRead ) == ACLS.OwnerRead ) and "r" or "-"
+		owner = owner .. (( bit.band( privs, ACLS.OwnerWrite ) == ACLS.OwnerWrite ) and "w" or "-")
+		owner = owner .. (( bit.band( privs, ACLS.OwnerSearch ) == ACLS.OwnerSearch ) and "x" or "-")
+
+		local group = ( bit.band( privs, ACLS.GroupRead ) == ACLS.GroupRead ) and "r" or "-"
+		group = group .. (( bit.band( privs, ACLS.GroupWrite ) == ACLS.GroupWrite ) and "w" or "-")
+		group = group .. (( bit.band( privs, ACLS.GroupSearch ) == ACLS.GroupSearch ) and "x" or "-")
+
+		local other = ( bit.band( privs, ACLS.EveryoneRead ) == ACLS.EveryoneRead ) and "r" or "-"
+		other = other .. (( bit.band( privs, ACLS.EveryoneWrite ) == ACLS.EveryoneWrite ) and "w" or "-")
+		other = other .. (( bit.band( privs, ACLS.EveryoneSearch ) == ACLS.EveryoneSearch ) and "x" or "-")
+
+		return owner .. group .. other
+    end,
+    
 	
 	--- Decodes a file bitmap
 	--
@@ -1893,7 +2023,7 @@ Util =
 		if ( bit.band( bitmap, FILE_BITMAP.UnixPrivileges ) == FILE_BITMAP.UnixPrivileges ) then
 		local unixprivs = {}
 			pos, unixprivs.uid, unixprivs.gid, 
-			unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">I>I>I>I", data, pos )
+			unixprivs.permissions, unixprivs.ua_permissions = bin.unpack(">IIII", data, pos )
 			file.UnixPrivileges = unixprivs
 		end
 		return pos, file

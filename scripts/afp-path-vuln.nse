@@ -21,8 +21,6 @@ For additional information:
 ]]
 
 ---
--- @args afp.username The username to use for authentication. (If unset it first attempts to use credentials found by <code>afp-brute</code> then no credentials)
--- @args afp.password The password to use for authentication. (If unset it first attempts to use credentials found by <code>afp-brute</code> then no credentials)
 --
 --@output
 -- PORT    STATE SERVICE
