@@ -675,6 +675,10 @@ unsigned long NewTargets::insert (const char *target) {
       error("ERROR: adding targets is disabled in the Post-scanning phase.");
       return 0;
     }
+    if (strlen(target) >= 1024) {
+      error("ERROR: new target is too long (>= 1024), failed to add it.");
+      return 0;
+    }
   }
 
   return new_targets->push(target);
