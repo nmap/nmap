@@ -29,6 +29,17 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
+o A couple minor nsedoc issues (see
+  http://seclists.org/nmap-dev/2011/q1/1095):
+ o After the ssh-hostkey portrule was added, nsedoc seems to be
+   generating a blank "Script types" filed for the script:
+   http://localhost:8082/nsedoc/scripts/ssh-hostkey.html
+ o ssh-hostkey and rmi-dumpregistry each have two @output sections,
+   and NSEDoc is only showing the second one.  We should probably just
+   combine them into one @output section, and maybe make nsedoc give a
+   warning in this case.  Or we could make nsedoc handle multiple
+   @outputs.
+
 o [Zenmap] Make formerly open ports that are now closed or filtered
   disappear from the "Ports / Hosts" tab. This appears to be related
   to ignored states; if in the second scan I use -d2 so all ports are
