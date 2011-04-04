@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added epmd-info.nse, which gets a list of Erlang node port
+  numbers. [Toni Ruottu]
+
 o [NSE] Added http-affiliate-id.nse, which scrapes a web page for
   affiliate IDs (like Google AdSense and Amazon associates) that can
   be used to link sites to the same owner. [Hani Benhabiles, Daniel

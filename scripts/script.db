@@ -39,6 +39,7 @@ Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", 
 Entry { filename = "dpap-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "drda-info.nse", categories = { "discovery", "safe", "version", } }
+Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
