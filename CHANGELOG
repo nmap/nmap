@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the targets-sniffer script by Nick Nickolaou. It sniffs
+  on an interface for a configurable amount of time, then displays the
+  IPv4 addresses found and optionally adds them to the scanning queue.
+
 o [NSE] Added nmap.get_interface and nmap.get_interface_info functions
   so scripts can access characteristics of the scanning interface.
   [Djalal]
