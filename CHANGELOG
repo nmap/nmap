@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nmap.get_interface and nmap.get_interface_info functions
+  so scripts can access characteristics of the scanning interface.
+  [Djalal]
+
 o [NSE] Added epmd-info.nse, which gets a list of Erlang node port
   numbers. [Toni Ruottu]
 

@@ -61,6 +61,54 @@ function resolve(host, family)
 -- @usage local family = nmap.address_family()
 function address_family()
 
+--- Returns the interface name (dnet-style) that Nmap is using.
+--
+-- For example in the pre-scanning (<code>"prerule"</code> scripts) phase
+-- if Nmap is run with the <code>-e eth0</code>, then "eth0" can be
+-- returned, however Nmap can return an other interface name since it
+-- can determine the best interface suited for the job.
+-- Other <code>"hostrule"</code> and <code>"portrule"</code> scripts
+-- should use the interface field of the </code>host</code> table:
+-- <code>host.interface</code>.
+--
+-- The result of this function can be used to get the interface information
+-- table, example: <code>nmap.get_interface_info("eth0")</code>.
+--
+-- @return A string containing the interface name (dnet-style) on
+success, or a nil value on failures.
+-- @usage local interface_name = nmap.get_interface()
+function get_interface()
+
+--- Gets the interface network information.
+--
+-- This function takes a dnet-style interface name and returns a table
+-- containing the network information of the interface.
+--
+-- @param interface_name The name of the interface.
+-- @return Table containing the network information of the interface on
+--  success, or nil and an error message on failures.
+-- @usage local iface, err = nmap.get_interface_info("eth0")
+--
+-- Keys of the returned table:
+-- <code>device</code> The interface name, can be an interface aliase.
+-- <code>shortname</code> A simple short name of the device.
+-- <code>netmask</code> The netmask bits (CIDR) of the interface.
+-- <code>address</code> The string representing the IP address assigned
+-- to the interface.
+-- <code>link</code> The string representing the hardware type of the
+-- interface. Possible values are: <code>"ethernet"</code>,
+-- <code>"loopback"</code>, <code>"p2p"</code> or <code>"other"</code>.
+-- <code>mac</code> MAC address (six-byte-long binary string) of the
+-- interface if the type of the interface is <code>"ethernet"</code>,
+-- otherwise it is nil.
+-- <code>broadcast</code> The string representing the broadcast address
+-- assigned to the interface if the interface type is <code>"ethernet"</code>
+-- and if the used address is IPv4, otherwise it is nil.
+-- <code>up</code> The state of the interface, possible values are:
+-- <code>"up"</code> or <code>"down"</code>.
+-- <code>mtu</code> The MTU size of the interface.
+function get_interface_info(interface_name)
+
 --- Searches for the specified file and returns a string containing its path if
 -- it is found and readable (to the process).
 --

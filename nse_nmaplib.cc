@@ -741,6 +741,18 @@ static int l_address_family(lua_State *L)
   return 1;
 }
 
+/* return the interface name that was specified with
+ * the -e option
+ */
+static int l_get_interface (lua_State *L)
+{
+  if (*o.device)
+    lua_pushstring(L, o.device);
+  else
+    lua_pushnil(L);
+  return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_reg nmaplib [] = {
@@ -767,6 +779,8 @@ int luaopen_nmap (lua_State *L)
     {"is_privileged", l_is_privileged},
     {"resolve", l_resolve},
     {"address_family", l_address_family},
+    {"get_interface", l_get_interface},
+    {"get_interface_info", l_dnet_get_interface_info},
     {NULL, NULL}
   };
 

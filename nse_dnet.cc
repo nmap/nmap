@@ -47,6 +47,72 @@ LUALIB_API int l_dnet_new (lua_State *L)
   return 1;
 }
 
+LUALIB_API int l_dnet_get_interface_info (lua_State *L)
+{
+  char ipstr[INET6_ADDRSTRLEN];
+  struct addr src, bcast;
+  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1));
+
+  if (ii == NULL) {
+    lua_pushnil(L);
+    lua_pushstring(L, "failed to find interface");
+    return 2;
+  }
+
+  memset(ipstr, 0, INET6_ADDRSTRLEN);
+  memset(&src, 0, sizeof(src));
+  memset(&bcast, 0, sizeof(bcast));
+  lua_newtable(L);
+
+  setsfield(L, -1, "device", ii->devfullname);
+  setsfield(L, -1, "shortname", ii->devname);
+  setnfield(L, -1, "netmask", ii->netmask_bits);
+
+  if (ii->addr.ss_family == AF_INET)
+    inet_ntop(AF_INET, &((struct sockaddr_in *)&ii->addr)->sin_addr,
+              ipstr, INET6_ADDRSTRLEN);
+  else if (ii->addr.ss_family == AF_INET6)
+    inet_ntop(AF_INET6, &((struct sockaddr_in6 *)&ii->addr)->sin6_addr,
+              ipstr, INET6_ADDRSTRLEN);
+  else
+    luaL_error(L, "unknown protocol");
+
+  setsfield(L, -1, "address", ipstr);
+
+  switch (ii->device_type) {
+    case devt_ethernet:
+      setsfield(L, -1, "link", "ethernet");
+      lua_pushlstring(L, (const char *) ii->mac, 6);
+      lua_setfield(L, -2, "mac");
+
+      /* calculate the broadcast address */
+      if (ii->addr.ss_family == AF_INET) {
+        src.addr_type = ADDR_TYPE_IP;
+        src.addr_bits = ii->netmask_bits;
+        src.addr_ip = ((struct sockaddr_in *)&ii->addr)->sin_addr.s_addr;
+        addr_bcast(&src, &bcast);
+        memset(ipstr, 0, INET6_ADDRSTRLEN);
+        if (addr_ntop(&bcast, ipstr, INET6_ADDRSTRLEN) != NULL)
+          setsfield(L, -1, "broadcast", ipstr);
+      }
+      break;
+    case devt_loopback:
+      setsfield(L, -1, "link", "loopback");
+      break;
+    case devt_p2p:
+      setsfield(L, -1, "link", "p2p");
+      break;
+    case devt_other:
+    default:
+      setsfield(L, -1, "link", "other");
+  }
+
+  setsfield(L, -1, "up", (ii->device_up ? "up" : "down"));
+  setnfield(L, -1, "mtu", ii->mtu);
+
+  return 1;
+}
+
 LUALIB_API int l_dnet_get_interface_link (lua_State *L)
 {
   struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1));
