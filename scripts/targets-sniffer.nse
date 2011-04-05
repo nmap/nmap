@@ -58,7 +58,8 @@ local function get_ip_addresses(layer3)
 end
 
 prerule =  function()
-  return stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface()
+  return nmap.is_privileged() and
+	(stdnse.get_script_args("targets-sniffer.iface") or nmap.get_interface())
 end
 
 
