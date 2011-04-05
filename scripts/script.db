@@ -177,7 +177,7 @@ Entry { filename = "ssl-known-key.nse", categories = { "discovery", "safe", "vul
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
-Entry { filename = "targets-sniffer.nse", categories = { "discovery", } }
+Entry { filename = "targets-sniffer.nse", categories = { "broadcast", "discovery", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }

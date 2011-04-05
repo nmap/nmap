@@ -28,7 +28,7 @@ argument or <code>-e</code> Nmap option to define which interface to use.
 -- Thanks to everyone for the feedback and especially Henri Doreau for his detailed feedback and suggestions
 
 author = "Nick Nikolaou <nikolasnikolaou1@gmail.com>"
-categories = {"discovery"}
+categories = {"broadcast", "discovery"}
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 require("stdnse")
