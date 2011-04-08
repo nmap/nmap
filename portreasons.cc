@@ -129,7 +129,7 @@ const char *reason_pl_text[ER_MAX+1]={
         "unknowns", "timestamp-replies", "unknowns", "unknowns", "unknowns", 
         "addressmask-replies", "no-ipid-changes", "ipid-changes", "arp-responses",
         "tcp-responses", "no-responses", "init-acks", "aborts",
-        "localhost-response", "script-set", "unknown-responses"
+        "localhost-response", "script-set", "unknown-responses","user-sets"
 };
 
 static void state_reason_summary_init(state_reason_summary_t *r) {
