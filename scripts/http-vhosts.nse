@@ -544,7 +544,7 @@ action = function(host, port)
       http_response = http.head(host, port, path, {header={Host=targetname}, bypass_cache=true})
 
       if not http_response.status  then
-        if not response["ERROR"] then
+        if not http_response["ERROR"] then
           result["ERROR"]={}
         end
         result["ERROR"][result["ERROR"] + 1] = targetname
