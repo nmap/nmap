@@ -12,18 +12,11 @@ o Make new SecTools.Org site with the 2010 survey results.
 o Script review:
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
-  - Patch to get interfaces by Djalal.
-    http://seclists.org/nmap-dev/2011/q1/291
   - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
   - http-wp-plugins. http://seclists.org/nmap-dev/2011/q1/806.
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
   - quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
-  - epmd-info. http://seclists.org/nmap-dev/2011/q1/931.
   - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
-  - google-id. http://seclists.org/nmap-dev/2011/q1/952.
-
-o Decide what to do about ms-sql-info slowing scans:
-  http://seclists.org/nmap-dev/2011/q1/913
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
@@ -686,6 +679,19 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Decide what to do about ms-sql-info slowing scans:
+  http://seclists.org/nmap-dev/2011/q1/913
+ - patch applied: http://seclists.org/nmap-dev/2011/q1/1102
+ 
+o Script disposition
+  - Patch to get interfaces by Djalal.
+    http://seclists.org/nmap-dev/2011/q1/291
+    - Incorporated
+  - epmd-info. http://seclists.org/nmap-dev/2011/q1/931.
+    - Incorporated
+  - google-id. http://seclists.org/nmap-dev/2011/q1/952.
+    - Incorporated as http-affiliate-id
 
 o [Ndiff] should, in non-verbose mode, perhaps not print the changed
   Nmap version and/or scan time if nothing else has changed between
