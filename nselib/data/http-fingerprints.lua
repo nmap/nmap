@@ -446,6 +446,17 @@ table.insert(fingerprints, {
 	}
 })
 
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+	{path='/crossdomain.xml', method='HEAD'},
+	},
+	matches= {
+		{output='Adobe Flash crossdomain policy'}
+	}
+})
+
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
