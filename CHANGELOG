@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe for Zend Java Bridge, which is vulnerable if
+  exposed to an untrusted network. It was contributed by Michael
+  Schierl.
+
 o [NSE] Added the afp-ls script that lists files accessible on remote
   AFP Volumes. [Patrik]
   

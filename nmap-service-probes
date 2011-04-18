@@ -9999,3 +9999,14 @@ rarity 8
 ports 8770
 
 match apple-iphoto m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nDPAP-Server: iPhoto/(.*)\r\nContent-Type: application/x-dmap-tagged\r\nContent-Length: \d+\r\n\r\nmsrv\0\0\0\x83mstt\0\0\0\x04\0\0\0\xc8mpro\0\0\0\x04\0\x02\0\0ppro\0\0\0\x04\0\x01\0\x01minm\0\0\0.(.*)mslr\0\0\0\x01\0mstm\0\0\0\x04\0\0\x07\x08msal\0\0\0\x01\0msau\0\0\0\x01\x02msas\0\0\0\x01\x03msix\0\0\0\x01\0msdc\0\0\0\x04\0\0\0\x01$| p/Apple iPhoto/ v/$1/ i/Library name: $2/
+
+##############################NEXT PROBE##############################
+# Zend Java Bridge, vulnerable control port, see
+# <http://www.zerodayinitiative.com/advisories/ZDI-11-113/>
+# GetClassName called on an empty string.
+Probe TCP ZendJavaBridge q|\0\0\0\x1f\0\0\0\0\0\0\0\x0cGetClassName\0\0\0\x02\x04\0\0\0\0\x01\0|
+rarity 9
+ports 10001
+
+match zend-java-bridge m|^\0\0\0\x15\x04\0\0\0\x10java\.lang\.String$|
+###################################################################
