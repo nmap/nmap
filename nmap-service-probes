@@ -7140,19 +7140,19 @@ match irc m|^:([-\w_.]+) 451  :You have not registered your connection\r\n$| p/W
 match ingrian-xml m|^<GenericError><Success>false</Success><FatalError>101</FatalError><ErrorString>Could not parse client request</ErrorString></GenericError>| p/Ingrian NAE XML daemon/ d/security-misc/
 
 # Jabber 1.4.2
-match jabber m|^<stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' version='([\d.]+)'>| p/Jabber instant messaging server/ i/Protocol $1/
-match jabber m|^<stream:stream version='([\d.]+)' from='[\w._-]+' xmlns:stream='http://etherx\.jabber\.org/streams'>| p/Jabber instant messaging server/ i/Protocol $1/
+match xmpp-server m|^<stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' version='([\d.]+)'>| p/Jabber instant messaging server/ i/Protocol $1/
+match xmpp-server m|^<stream:stream version='([\d.]+)' from='[\w._-]+' xmlns:stream='http://etherx\.jabber\.org/streams'>| p/Jabber instant messaging server/ i/Protocol $1/
 
-match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='none' from='([\w._-]+)' version='([\d.]+)'>| p/ejabberd/ h/$1/ i/Protocol $2/
-match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='\d+' from='([\w._-]+)' version='([\d.]+)'>| p/ejabberd/ h/$1/ i/Protocol $2/
-match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:server' xmlns:db='jabber:server:dialback'| p/ejabberd/
-match jabber m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:component:accept' id='none' from='([-\w_.]+)'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/jit-transport jabber-ICQ transport/ h/$1/
-match jabber m|^<stream:error>Invalid XML</stream:error>$| p/Jabber instant messaging server/
-match jabber m|^<stream:error>Invalid XML</stream:error></stream:stream>$| p/Jabber instant messaging server/
-match jabber m|^<stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/><text xmlns='urn:ietf:params:xml:ns:xmpp-streams' xml:lang='en'>Invalid XML</text></stream:error>| p/jabberd instant messaging server/
-match jabber m|^<\?xml version=\"1\.0\"\?><stream:stream id=\"none\" from=\"([\w._-]+)\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx\.jabber\.org/streams\" version=\"1\.0\"><stream:error><xml-not-well-formed xmlns=\"urn:ietf:params:xml:ns:xmpp-streams\"/></stream:error></stream:stream>$| p/Facebook Chat XMPP/
-match jabber m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http://etherx\.jabber\.org/streams' version='1\.0' xmlns='jabber:server'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber server/
-match jabber m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http://etherx\.jabber\.org/streams' version='1\.0' xmlns='jabber:client'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber client/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='none' from='([\w._-]+)' version='([\d.]+)'>| p/ejabberd/ h/$1/ i/Protocol $2/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream xmlns='jabber:client' xmlns:stream='http://etherx\.jabber\.org/streams' id='\d+' from='([\w._-]+)' version='([\d.]+)'>| p/ejabberd/ h/$1/ i/Protocol $2/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:server' xmlns:db='jabber:server:dialback'| p/ejabberd/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream xmlns:stream='http://etherx\.jabber\.org/streams' xmlns='jabber:component:accept' id='none' from='([-\w_.]+)'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>| p/jit-transport jabber-ICQ transport/ h/$1/
+match xmpp-server m|^<stream:error>Invalid XML</stream:error>$| p/Jabber instant messaging server/
+match xmpp-server m|^<stream:error>Invalid XML</stream:error></stream:stream>$| p/Jabber instant messaging server/
+match xmpp-server m|^<stream:error><invalid-xml xmlns='urn:ietf:params:xml:ns:xmpp-streams'/><text xmlns='urn:ietf:params:xml:ns:xmpp-streams' xml:lang='en'>Invalid XML</text></stream:error>| p/jabberd instant messaging server/
+match xmpp-server m|^<\?xml version=\"1\.0\"\?><stream:stream id=\"none\" from=\"([\w._-]+)\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx\.jabber\.org/streams\" version=\"1\.0\"><stream:error><xml-not-well-formed xmlns=\"urn:ietf:params:xml:ns:xmpp-streams\"/></stream:error></stream:stream>$| p/Facebook Chat XMPP/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http://etherx\.jabber\.org/streams' version='1\.0' xmlns='jabber:server'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber server/
+match xmpp-server m|^<\?xml version='1\.0'\?><stream:stream id='' xmlns:stream='http://etherx\.jabber\.org/streams' version='1\.0' xmlns='jabber:client'><stream:error><xml-not-well-formed xmlns='urn:ietf:params:xml:ns:xmpp-streams'/></stream:error></stream:stream>$| p/Prosody Jabber client/
 
 match james-admin m|^JAMES Remote Administration Tool ([\d.]+)\nPlease enter your login and password\nLogin id:\n| p/JAMES Remote Admin/ v/$1/
 
@@ -8384,7 +8384,7 @@ match irc m|^:([\w._-]+) 451 \* :Connection not registered\r\n| p/ngircd/ h/$1/
 
 match irc m|^:([-\w_.]+) 290  :\.-----------------=#\[ euIRCd HelpSystem \]#=----------------\.\n| p/euIRCd/ h/$1/
 
-match jabber m|^</stream:stream>$| p/Zimbra 6 jabberd/
+match xmpp-server m|^</stream:stream>$| p/Zimbra 6 jabberd/
 
 match laserfiche m|^HLO 0 0 \. 0 71\r\nContent-type: application/vnd\.laserfiche\.lrnp\r\n\r\nLRNP/1\.1\r\n\r\nlistener\r\nEND\r\nERR 0 1 \. 71 80\r\nContent-type: application/vnd\.laserfiche\.lrnp\r\n\r\n451 0 Invalid message \(-2001\)\r\nEND\r\nMSG 0 2 \. 151 58\r\nContent-type: application/vnd\.laserfiche\.lrnp\r\n\r\nCLOSE 0\r\nEND\r\n$| p/Laserfiche document service/
 
