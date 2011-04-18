@@ -74,17 +74,86 @@ local date_to_string
 local table_find
 local s
 
-local STARTTLS_PORTS = { 25, 587 }
+function smtp_starttls(host, port)
+    -- Attempt to negotiate TLS over SMTP for services that support it
+    -- Works for SMTP (25) and SMTP Submission (587)
+
+    -- Open a standard TCP socket
+    local status, error = s:connect(host, port, "tcp")  
+        
+    if not status then   
+        return nil
+    else 
+    
+        -- Loop until the service presents a banner to deal with server
+        -- load and timing issues.  There may be a better way to handle this.
+        local i = 0
+        repeat
+            status, resultEHLO = s:receive_lines(1)
+            i = i + 1
+        until string.match(resultEHLO, "^220") or i == 5
+
+        -- Send EHLO because the the server expects it
+        -- We are not going to check for STARTTLS in the capabilities
+        -- list, sometimes it is not advertised.
+        local query = "EHLO example.org\r\n"
+        status = s:send(query)
+        status, resultEHLO = s:receive_lines(1)
+
+        if not (string.match(resultEHLO, "^250")) then
+            stdnse.print_debug("1","%s",resultEHLO)
+            stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
+            return nil
+        end
+
+        resultEHLO = ""
+        
+        -- Send STARTTLS command ask the service to start encryption    
+        local query = "STARTTLS\r\n"
+        status = s:send(query)
+        status, resultEHLO = s:receive_lines(1)
+        
+        if not (string.match(resultEHLO, "^220")) then
+            stdnse.print_debug("1","%s",resultEHLO)
+            stdnse.print_debug("1","STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
+            
+            -- Send QUIT to clean up server side connection
+            local query = "QUIT\r\n"
+            status = s:send(query)        
+            resultEHLO = ""
+                
+            return nil
+        end
+        
+        -- Service supports STARTTLS, tell NSE start SSL negotiation
+        status, error = s:reconnect_ssl()
+        if not status then
+            stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
+            s:close()
+            return nil
+        end 
+                
+    end    
+    -- Should have a solid TLS over SMTP session now...
+    return "Connected"
+end 
+
+-- A table mapping port numbers to specialized SSL negotiation functions.
+local SPECIALIZED_FUNCS = { [25] = smtp_starttls, [587] = smtp_starttls }
 
 portrule = function(host, port)
-    return shortport.ssl(host, port) or table_find(STARTTLS_PORTS, port.number)
+    return shortport.ssl(host, port) or SPECIALIZED_FUNCS[port.number]
 end
 
 action = function(host, port)
+    local specialized
+
     s = nmap.new_socket()
 
-    if table_find(STARTTLS_PORTS, port.number) then
-        local status = starttls_negotiate(host,port)
+    -- Is there a specialized function for this port?
+    specialized = SPECIALIZED_FUNCS[port.number]
+    if specialized then
+        local status = specialized(host, port)
 
         if not status then
             return nil
@@ -186,67 +255,3 @@ function date_to_string(date)
         return os.date("%Y-%m-%d %H:%M:%S", os.time(date))
     end
 end
-
-function starttls_negotiate(host, port)
-    -- Attempt to negotiate TLS over SMTP for services that support it
-    -- Works for SMTP (25) and SMTP Submission (587)
-
-    -- Open a standard TCP socket
-    local status, error = s:connect(host, port, "tcp")  
-        
-    if not status then   
-        return nil
-    else 
-    
-        -- Loop until the service presents a banner to deal with server
-        -- load and timing issues.  There may be a better way to handle this.
-        local i = 0
-        repeat
-            status, resultEHLO = s:receive_lines(1)
-            i = i + 1
-        until string.match(resultEHLO, "^220") or i == 5
-
-        -- Send EHLO because the the server expects it
-        -- We are not going to check for STARTTLS in the capabilities
-        -- list, sometimes it is not advertised.
-        local query = "EHLO example.org\r\n"
-        status = s:send(query)
-        status, resultEHLO = s:receive_lines(1)
-
-        if not (string.match(resultEHLO, "^250")) then
-            stdnse.print_debug("1","%s",resultEHLO)
-            stdnse.print_debug("1","EHLO with errors or timeout.  Enable --script-trace to see what is happening.")
-            return nil
-        end
-
-        resultEHLO = ""
-        
-        -- Send STARTTLS command ask the service to start encryption    
-        local query = "STARTTLS\r\n"
-        status = s:send(query)
-        status, resultEHLO = s:receive_lines(1)
-        
-        if not (string.match(resultEHLO, "^220")) then
-            stdnse.print_debug("1","%s",resultEHLO)
-            stdnse.print_debug("1","STARTTLS failed or unavailable.  Enable --script-trace to see what is happening.")
-            
-            -- Send QUIT to clean up server side connection
-            local query = "QUIT\r\n"
-            status = s:send(query)        
-            resultEHLO = ""
-                
-            return nil
-        end
-        
-        -- Service supports STARTTLS, tell NSE start SSL negotiation
-        status, error = s:reconnect_ssl()
-        if not status then
-            stdnse.print_debug("1","Could not establish SSL session after STARTTLS command.")
-            s:close()
-            return nil
-        end 
-                
-    end    
-    -- Should have a solid TLS over SMTP session now...
-    return "Connected"
-end 
