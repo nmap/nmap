@@ -416,7 +416,7 @@ hostrule = function(host)
     nmap.registry['firewalk']['rootfail'] = true
 
     if nmap.verbosity() > 0 then
-      nmap.log_write("stdout", SCRIPT_NAME .. ": not running for lack of privileges")
+      stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
     end
 
     return false
@@ -468,7 +468,7 @@ local function initial_ttl(host)
     nmap.registry['firewalk']['traceroutefail'] = true
 
     if nmap.verbosity() > 0 then
-      nmap.log_write("stdout", SCRIPT_NAME .. ": requires unavailable traceroute informations")
+      stdnse.print_debug("%s requires unavailable traceroute informations.", SCRIPT_NAME)
     end
 
     return nil

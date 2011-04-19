@@ -38,6 +38,7 @@ categories = {"safe", "discovery"}
 
 require 'bin'
 require 'packet'
+require 'stdnse'
 
 local IPPROTO_ICMP = packet.IPPROTO_ICMP
 local IPPROTO_TCP  = packet.IPPROTO_TCP
@@ -274,7 +275,7 @@ hostrule = function(host)
 		end
 		nmap.registry['pathmtu']['rootfail'] = true
 		if nmap.verbosity() > 0 then
-			nmap.log_write("stdout", "PATH-MTU: not running for lack of privileges")
+			stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
 		end
 		return false
 	end

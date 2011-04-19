@@ -374,7 +374,7 @@ hostrule = function(host)
 		end
 		nmap.registry['qscan']['rootfail'] = true
 		if nmap.verbosity() > 0 then
-			nmap.log_write("stdout", "QSCAN: not running for lack of privileges")
+			stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
 		end
 		return false
 	end

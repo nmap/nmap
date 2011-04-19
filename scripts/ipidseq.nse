@@ -30,6 +30,7 @@ categories = {"safe", "discovery"}
 
 require 'bin'
 require 'packet'
+require 'stdnse'
 
 local NUMPROBES = 6
 
@@ -193,7 +194,7 @@ hostrule = function(host)
 		end
 		nmap.registry['ipidseq']['rootfail'] = true
 		if nmap.verbosity() > 0 then
-			nmap.log_write("stdout", "IPIDSEQ: not running for lack of privileges")
+			stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
 		end
 		return false
 	end
