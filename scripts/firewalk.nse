@@ -57,7 +57,9 @@ firewalk tool.
 --
 
 
--- 12/29/2010: initial version
+-- 11/29/2010: initial version
+-- 03/28/2011: added IPv4 check
+
 author = "Henri Doreau"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -419,6 +421,11 @@ hostrule = function(host)
       stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
     end
 
+    return false
+  end
+
+  if nmap.address_family() ~= 'inet' then
+    stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
     return false
   end
 

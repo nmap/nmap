@@ -67,7 +67,14 @@ require 'shortport'
 require 'stdnse'
 
 -- We want to run against a specific host if UDP/67 is open
-portrule = shortport.portnumber(67, "udp")
+function portrule(host, port)
+	if nmap.address_family() ~= 'inet' then
+		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+		return false
+	end
+
+	return shortport.portnumber(67, "udp")(host, port)
+end
 
 -- We will want to run as a prerule any time
 --prerule  = function()

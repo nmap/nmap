@@ -17,6 +17,10 @@ categories = {"discovery", "intrusive"}
 
 -- okay, we're interested only in hosts that are on our ethernet lan
 hostrule = function(host)
+	if nmap.address_family() ~= 'inet' then
+		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
+		return false
+	end
 	return host.directly_connected == true and
 		host.mac_addr ~= nil and
 		host.mac_addr_src ~= nil and

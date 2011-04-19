@@ -38,6 +38,7 @@ categories = {"safe", "discovery"}
 
 require 'bin'
 require 'packet'
+require 'nmap'
 require 'stdnse'
 
 local IPPROTO_ICMP = packet.IPPROTO_ICMP
@@ -277,6 +278,10 @@ hostrule = function(host)
 		if nmap.verbosity() > 0 then
 			stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
 		end
+		return false
+	end
+	if nmap.address_family() ~= 'inet' then
+		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
 		return false
 	end
 	if not (host.interface and host.interface_mtu) then
