@@ -25,6 +25,9 @@ require "bin"
 require "tab"
 
 portrule = shortport.port_or_service ({20110, 20510, 27950, 30710}, "quake3-master", {"udp"})
+postrule = function()
+	return (nmap.registry.q3m_servers ~= nil)
+end
 
 -- There are various sources for this information. These include:
 -- - http://svn.icculus.org/twilight/trunk/dpmaster/readme.txt?view=markup
@@ -179,7 +182,44 @@ local function store(servers)
 	end
 end
 
+local function protocols()
+	local filter = {}
+	local count = {}
+	for _, advert in ipairs(nmap.registry.q3m_servers) do
+		local key = stdnse.strjoin(":", {advert.ip, advert.port, advert.protocol})
+		if filter[key] == nil then
+			if count[advert.protocol] == nil then
+				count[advert.protocol] = 0
+			end
+			count[advert.protocol] = count[advert.protocol] + 1
+			filter[key] = true
+		end
+		local mkey = stdnse.strjoin(":", {advert.masterip, advert.masterport})
+	end
+	local sortable = {}
+	for k, v in pairs(count) do
+		table.insert(sortable, {k, v})
+	end
+	table.sort(sortable, function(a, b) return a[2] > b[2] or (a[2] == b[2] and a[1] > b[1]) end)
+	local t = tab.new()
+	tab.addrow(t, '#', 'PROTOCOL', 'GAME', 'SERVERS')
+	for i, p in ipairs(sortable) do
+		pos = i .. '.'
+		protocol = p[1]
+		count = p[2]
+		game = KNOWN_PROTOCOLS[protocol]
+		if game == "unknown" then
+			game = ""
+		end
+		tab.addrow(t, pos, protocol, game, count)
+	end
+	return '\n' .. tab.dump(t)
+end
+
 action = function(host, port)
+	if SCRIPT_TYPE == "postrule" then
+		return protocols()
+	end
 	local outputlimit = nmap.registry.args[SCRIPT_NAME .. ".outputlimit"]
 	if not outputlimit then
 		outputlimit = 10
