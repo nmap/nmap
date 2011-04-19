@@ -10,13 +10,18 @@ o Process Nmap survey and send out results [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
+  - Merged: DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
+  - Merged: quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
-  - DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
   - http-wp-plugins. http://seclists.org/nmap-dev/2011/q1/806.
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
-  - quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
   - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
+  - omp-brute and omp-enum-targets. http://seclists.org/nmap-dev/2011/q2/231.
+  - xmpp. http://seclists.org/nmap-dev/2011/q2/239.
+  - backorifice-info. http://seclists.org/nmap-dev/2011/q2/185.
+  - quake3-info. http://seclists.org/nmap-dev/2011/q2/172.
+  - sip-enum-users and sip-brute. http://seclists.org/nmap-dev/2011/q2/56.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
