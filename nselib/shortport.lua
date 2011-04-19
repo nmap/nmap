@@ -166,11 +166,12 @@ http = shortport.port_or_service({80, 443, 631, 8080, 5800, 3872},
 	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent"})
 
 local LIKELY_SSL_PORTS = {
-    443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443
+    443, 465, 587, 636, 989, 990, 992, 993, 994, 995, 5061, 6679, 6697, 8443,
+    9001,
 }
 local LIKELY_SSL_SERVICES = {
     "ftps", "ftps-data", "https", "https-alt", "imaps", "ircs",
-    "ldapssl", "pop3s", "sip-tls", "smtps", "telnets"
+    "ldapssl", "pop3s", "sip-tls", "smtps", "telnets", "tor-orport",
 }
 
 ---
