@@ -6,6 +6,7 @@ Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
+Entry { filename = "backorifice-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added backorifice-info from Gorjan Petrovski, which retrieves
+  lots of system information from a BackOrifice server.
+
 o Added a service probe for BackOrifice contributed by Gorjan
   Petrovski.
 
