@@ -382,7 +382,7 @@ Some ideas for later versions (TODO):
 -- 
 --@args config  The config file to use (eg, default). Config files require a .lua extension, and are located in <code>nselib/data/psexec</code>. 
 --@args nohide  Don't set the uploaded files to hidden/system/etc.
---@args cleanup Set to <code>1</code> or <code>true</code> to simply clean up any mess we made (leftover files, processes, etc. on the host OS). 
+--@args cleanup Set to only clean up any mess we made (leftover files, processes, etc. on the host OS) on a previous run of the script. 
 --              This will attempt to delete the files from every share, not just the first one. This is done to prevent leftover
 --              files if the OS changes the ordering of the shares (there's no guarantee of shares coming back in any particular 
 --              order)
@@ -394,10 +394,10 @@ Some ideas for later versions (TODO):
 --@args sharepath The full path to the share (eg, <code>"c:\windows"</code>). This is required when creating a service. 
 --@args time    The minimum amount of time, in seconds, to wait for the external module to finish (default: <code>15</code>)
 --
---@args nocleanup If set to <code>1</code> or <code>true</code>, don't clean up at all; this leaves the files on the remote system and the wrapper 
+--@args nocleanup Set to not clean up at all; this leaves the files on the remote system and the wrapper 
 --              service installed. This is bad in practice, but significantly reduces the network traffic and makes analysis 
 --              easier. 
---@args nocipher Set to <code>1</code> or <code>true</code> to disable the ciphering of the returned text (useful for debugging). 
+--@args nocipher Set to disable the ciphering of the returned text (useful for debugging). 
 --@args key     Script uses this value instead of a random encryption key (useful for debugging the crypto). 
 -----------------------------------------------------------------------
 
@@ -476,7 +476,7 @@ function cleanup(host, config)
 	stdnse.sleep(.01)
 
 	-- If the user doesn't want to clean up, don't
-	if(nmap.registry.args.nocleanup == '1' or nmap.registry.args.nocleanup == "true") then
+	if(stdnse.get_script_args( "nocleanup" )) then
 		return
 	end
 
@@ -688,7 +688,7 @@ local function get_config(host, config)
 	local overrides = getfenv(file)["overrides"]
 
 	-- Generate a cipher key
-	if(nmap.registry.args.nocipher == "1" or nmap.registry.args.nocipher == "true") then
+	if(stdnse.get_script_args( "nocipher" )) then
 		config.key = ""
 	elseif(nmap.registry.args.key) then
 		config.key = nmap.registry.args.key
@@ -940,7 +940,7 @@ local function get_overrides()
 	local attr = bit.bor(0x00000004,0x00000002,0x00000800,0x00000100,0x00002000,0x00004000)
 
 	-- Let the user override this behaviour
-	if(nmap.registry.args.nohide == '1' or nmap.registry.args.nohide == 'true') then
+	if(stdnse.get_script_args( "nohide" )) then
 		attr = 0
 	end
 
@@ -1367,7 +1367,7 @@ and place it in nselib/data/psexec/ under the Nmap DATADIR.
 		cleanup(host, config)
 	
 		-- If the user just wanted a cleanup, do it
-		if(nmap.registry.args.cleanup == '1' or nmap.registry.args.cleanup == 'true') then
+		if(stdnse.get_script_args( "cleanup" )) then
 			return stdnse.format_output(true, "Cleanup complete.")
 		end
 	

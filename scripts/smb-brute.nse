@@ -78,7 +78,7 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 -- |  |  thisisaverylongnamev:password => Login was successful
 -- |_ |_ web:TeSt => Password was correct, but user's account is disabled
 -- 
--- @args smblockout Unless this is set to <code>1</code> or <code>true</code>, the script won't continue if it 
+-- @args smblockout This argument will force the script to continue if it 
 --       locks out an account or thinks it will lock out an account. 
 -- @args brutelimit Limits the number of usernames checked in the script. In some domains, 
 --       it's possible to end up with 10,000+ usernames on each server. By default, this
@@ -510,7 +510,7 @@ end
 -- portion among the domains. Returns true if lockouts could happen, false otherwise. 
 local function bad_lockout_policy(host)
 	-- If the user is ok with locking out accounts, just return
-	if(nmap.registry.args.smblockout == "1" or nmap.registry.args.smblockout == "true") then
+	if(stdnse.get_script_args( "smblockout" )) then
 		stdnse.print_debug(1, "smb-brute: Not checking server's lockout policy")
 		return true, false
 	end
@@ -735,7 +735,7 @@ function test_lockouts(hostinfo)
 		return 
 	end
 
-	if(nmap.registry.args.smblockout == 1 or nmap.registry.args.smblockout == "true") then
+	if(stdnse.get_script_args( "smblockout" )) then
 		return
 	end
 
@@ -1009,7 +1009,7 @@ local function go(host)
 				hostinfo['locked_usernames'][username] = true
 
 				-- Unless the user requested to keep going, stop the check
-				if(not(nmap.registry.args.smblockout == "1" or nmap.registry.args.smblockout == "true")) then
+				if(not(stdnse.get_script_args( "smblockout" ))) then
 					-- Mark it as found, which is technically true
 					status, err = found_account(hostinfo, username, nil, results.ACCOUNT_LOCKED_NOW)
 					if(status == false) then

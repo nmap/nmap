@@ -260,10 +260,10 @@ function start(host)
 	state['sequence'] = -1
 
 	-- Check whether or not the user requested basic authentication
-	if(nmap.registry.args.smbbasic == nil) then
-		state['extended_security'] = true
-	else
+	if(stdnse.get_script_args( "smbbasic" )) then
 		state['extended_security'] = false
+	else
+		state['extended_security'] = true
 	end
 
 	-- Store the name of the server
