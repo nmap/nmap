@@ -73,12 +73,11 @@ portrule = shortport.port_or_service (31337, "BackOrifice", "udp")
 
 
 --variables
-rand =31337
-g_packet = 0
+local g_packet = 0
 
 --"constants"
-MAGICSTRING ="*!*QWTY?"
-TYPE = {
+local MAGICSTRING ="*!*QWTY?"
+local TYPE = {
 	ERROR = 0x00,
 	PARTIAL_PACKET = 0x80,
 	CONTINUED_PACKET = 0x40,
@@ -94,7 +93,7 @@ TYPE = {
 
 
 --table of commands which have output
-cmds ={
+local cmds = {
 	{cmd_name="PING REPLY",p_code=TYPE.PING,arg1="",arg2="",
 	filter = function(data)
 		data = string.gsub(data," ","")
@@ -141,13 +140,13 @@ cmds ={
 	end}
 }
 
-function gen_next_seed(seed)
+local function gen_next_seed(seed)
 	seed = seed*214013 + 2531011
 	seed = bit.band(seed,0xffffff)
 	return seed
 end
 
-function gen_initial_seed(password)
+local function gen_initial_seed(password)
 	if password == nil then
 		return 31337
 	else
@@ -174,7 +173,7 @@ function gen_initial_seed(password)
 end
 
 --BOcrypt returns encrypted/decrypted data
-function BOcrypt(data, password, initial_seed )
+local function BOcrypt(data, password, initial_seed )
 	local output =""
 	if data==nil then return end
 
@@ -205,7 +204,7 @@ function BOcrypt(data, password, initial_seed )
 	return output
 end
 
-function BOpack(type_packet, str1, str2)
+local function BOpack(type_packet, str1, str2)
 -- create BO packet
 	local data = ""
 	local size = #MAGICSTRING + 4*2 + 3 + #str1 + #str2
@@ -214,7 +213,7 @@ function BOpack(type_packet, str1, str2)
 	return data
 end
 
-function BOunpack(packet)
+local function BOunpack(packet)
 	local pos, magic = bin.unpack("A8",packet)
 
 	if magic ~= MAGICSTRING then return nul,TYPE.ERROR end  --received non-BO packet
