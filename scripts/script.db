@@ -119,6 +119,8 @@ Entry { filename = "nping-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "nrpe-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "omp2-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "omp2-enum-targets.nse", categories = { "discovery", "safe", } }
 Entry { filename = "oracle-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "auth", "intrusive", } }
