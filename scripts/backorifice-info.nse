@@ -14,6 +14,9 @@ installed with the service.
 -- @usage
 -- nmap --script backorifice-info <target> --script-args backorifice-info.password=<password>
 --
+-- @arg backorifice-info.password Encryption password (defaults to no password).
+-- @arg backorifice-info.seed Encryption seed (default derived from password, or 31337 for no password).
+--
 --@output
 --31337/udp open|filtered BackOrifice
 --| backorifice-info:
