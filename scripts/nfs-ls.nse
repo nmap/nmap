@@ -131,6 +131,12 @@ local function table_dirlist(nfs, mount, dirlist)
   return ret
 end
 
+-- Unmount the NFS file system and close the connections
+local function unmount_nfs(mount, mnt_obj, nfs_obj)
+  rpc.Helper.NfsClose(nfs_obj)
+  rpc.Helper.UnmountPath(mnt_obj, mount)
+end
+
 local function nfs_ls(nfs, mount, results, access)
   local dirs, attr, acs = {}, {}, {}
   local nfsobj = rpc.NFS:new()
@@ -147,17 +153,21 @@ local function nfs_ls(nfs, mount, results, access)
     return false, status
   end 
 
-  -- use simple chack since NFSv1 is not used anymore.
-  if (mnt_comm.version ~= nfs_comm.version) then
-    rpc.Helper.UnmountPath(mnt_comm, mount)
-    return false, string.format("versions mismatch, nfs v%d - mount v%d",
-                                nfs_comm.version, mnt_comm.version)
+  -- check if NFS and Mount versions are combatible
+  -- RPC library will check if the Mount and NFS versions are supported
+  if (nfs_comm.version == 1) then
+      unmount_nfs(mount, mnt_comm, nfs_comm)
+      return false, string.format("NFS v%d not supported", nfs_comm.version)
+  elseif ((nfs_comm.version == 2 and mnt_comm.version > 2) or
+    (nfs_comm.version == 3 and mnt_comm.version ~= 3)) then
+      unmount_nfs(mount, mnt_comm, nfs_comm)
+      return false, string.format("versions mismatch, NFS v%d - Mount v%d",
+                                  nfs_comm.version, mnt_comm.version)
   end
 
   status, attr = nfsobj:GetAttr(nfs_comm, fhandle)
   if not status then
-    rpc.Helper.NfsClose(nfs_comm)
-    rpc.Helper.UnmountPath(mnt_comm, mount)
+    unmount_nfs(mount, mnt_comm, nfs_comm)
     return status, attr
   end
 
@@ -199,8 +209,7 @@ local function nfs_ls(nfs, mount, results, access)
     end
   end
 
-  rpc.Helper.NfsClose(nfs_comm)
-  rpc.Helper.UnmountPath(mnt_comm, mount)
+  unmount_nfs(mount, mnt_comm, nfs_comm)
   return status, dirs
 end
 
