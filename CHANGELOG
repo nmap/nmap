@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug reported by Daniel Miller that was causing the
+  nfs-ls script to ignore NFS mounts when the Mount version is 1.
+  [Djalal]
+
 o [NSE] Added omp2-brute and omp2-enum-targets, which respectively get
   authentication credentials and then a list of scanning targets from
   the OpenVAS Management Protocol. [Henri Doreau]
