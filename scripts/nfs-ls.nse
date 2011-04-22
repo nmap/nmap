@@ -153,7 +153,7 @@ local function nfs_ls(nfs, mount, results, access)
     return false, status
   end 
 
-  -- check if NFS and Mount versions are combatible
+  -- check if NFS and Mount versions are compatible
   -- RPC library will check if the Mount and NFS versions are supported
   if (nfs_comm.version == 1) then
       unmount_nfs(mount, mnt_comm, nfs_comm)
