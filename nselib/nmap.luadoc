@@ -230,18 +230,6 @@ function clock()
 -- @usage local now = nmap.clock_ms()
 function clock_ms()
 
---- Gets the link-level hardware type of an interface.
---
--- This function takes a dnet-style interface name and returns a string
--- representing the hardware type of the interface. Possible return values are
--- <code>"ethernet"</code>, <code>"loopback"</code>, <code>"p2p"</code>, or
--- <code>nil</code> if none of the other types apply.
--- @param interface_name The name of the interface.
--- @return <code>"ethernet"</code>, <code>"loopback"</code>,
--- <code>"p2p"</code>, or <code>nil</code>.
--- @usage iface_type = nmap.get_interface_link("eth0")
-function get_interface_link(interface_name)
-
 --- Create a mutex on an object.
 --
 -- This function returns another function that works as a mutex on the object

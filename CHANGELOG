@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed the nmap.get_interface_link function, which was
+  deprecated by the new nmap.get_interface_info. The sniffer-detect
+  script now calls the nmap.get_interface_info function to retrieve
+  the network interface link type. [Djalal]
+
 o [NSE] Fixed a bug reported by Daniel Miller that was causing the
   nfs-ls script to ignore NFS mounts when the Mount version is 1.
   [Djalal]

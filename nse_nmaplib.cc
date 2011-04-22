@@ -763,7 +763,6 @@ int luaopen_nmap (lua_State *L)
     {"port_is_excluded", l_port_is_excluded},
     {"new_socket", l_nsock_new},
     {"new_dnet", l_dnet_new},
-    {"get_interface_link", l_dnet_get_interface_link},
     {"clock_ms", l_clock_ms},
     {"clock", l_clock},
     {"log_write", l_log_write},

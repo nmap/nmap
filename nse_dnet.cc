@@ -113,31 +113,6 @@ LUALIB_API int l_dnet_get_interface_info (lua_State *L)
   return 1;
 }
 
-LUALIB_API int l_dnet_get_interface_link (lua_State *L)
-{
-  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1));
-
-  if (ii == NULL)
-    return luaL_argerror(L, 1, "bad interface");
-
-  switch (ii->device_type)
-  {
-    case devt_ethernet:
-      lua_pushliteral(L, "ethernet");
-      return 1;
-    case devt_loopback:
-      lua_pushliteral(L, "loopback");
-      return 1;
-    case devt_p2p:
-      lua_pushliteral(L, "p2p");
-      return 1;
-    case devt_other:
-    default:
-      lua_pushnil(L);
-      return 1;
-  }
-}
-
 static int close_eth (lua_State *L)
 {
   eth_t **eth = (eth_t **) luaL_checkudata(L, 1, DNET_ETH_METATABLE);
