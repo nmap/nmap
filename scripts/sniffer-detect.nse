@@ -10,6 +10,8 @@ http://www.securityfriday.com/promiscuous_detection_01.pdf.
 -- Host script results:
 -- |_ sniffer-detect: Likely in promiscuous mode (tests: "11111111")
 
+require 'nmap'
+
 author = "Marek Majkowski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -21,11 +23,16 @@ hostrule = function(host)
 		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
 		return false
 	end
-	return host.directly_connected == true and
-		host.mac_addr ~= nil and
-		host.mac_addr_src ~= nil and
-		host.interface ~= nil and
-		nmap.get_interface_link(host.interface) == 'ethernet'
+	if host.directly_connected == true and
+	  host.mac_addr ~= nil and
+	  host.mac_addr_src ~= nil and
+	  host.interface ~= nil then
+	        local iface = nmap.get_interface_info(host.interface)
+	        if iface and iface.link == 'ethernet' then
+	              return true
+	        end
+	end
+	return false
 end
 
 local function check (layer2)
