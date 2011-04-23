@@ -10019,5 +10019,5 @@ Probe UDP BackOrifice q|\xCE\x63\xD1\xD2\x16\xE7\x13\xCF\x38\xA5\xA5\x86\xB2\x75
 ports 31337
 rarity 9
 
-# Encryption of "*!*QWTY?.........  !PONG!1.20!".
-match BackOrifice m|^\xCE\x63\xD1\xD2\x16\xE7\x13\xCF.........\x12\x78\xC4\xE3\xD6\xA6\x65\x51\x75\x51\xEB\x2A\x3F|s p/BackOrifice trojan/ o/Windows/ v/1.20/ i/no password/
+# Encryption of "*!*QWTY?........\x01  !PONG!1.20!".
+match BackOrifice m|^\xCE\x63\xD1\xD2\x16\xE7\x13\xCF........\x01\x12\x78\xC4\xE3\xD6\xA6\x65\x51\x75\x51\xEB\x2A\x3F|s p/BackOrifice trojan/ o/Windows/ v/1.20/ i/no password/
