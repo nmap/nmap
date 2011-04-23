@@ -783,7 +783,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (product_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, product_template, product, productlen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill product_template (subjectlen: %d, productlen: %d). Capture exceeds length? Match string was line %d: v/%s/%s/%s", subjectlen, productlen, deflineno,
+      error("Warning: Servicescan failed to fill product_template (subjectlen: %d, productlen: %d). Capture exceeds length? Match string was line %d: p/%s/%s/%s", subjectlen, productlen, deflineno,
 	    (product_template)? product_template : "",
 	    (version_template)? version_template : "",
 	    (info_template)? info_template : "");
@@ -807,7 +807,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (info_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, info_template, info, infolen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill info_template (subjectlen: %d, infolen: %d). Capture exceeds length? Match string was line %d: v/%s/%s/%s", subjectlen, infolen, deflineno,
+      error("Warning: Servicescan failed to fill info_template (subjectlen: %d, infolen: %d). Capture exceeds length? Match string was line %d: i/%s/%s/%s", subjectlen, infolen, deflineno,
 	    (product_template)? product_template : "",
 	    (version_template)? version_template : "",
 	    (info_template)? info_template : "");
@@ -829,7 +829,7 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (ostype_template) {
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, ostype_template, ostype, ostypelen);
     if (rc != 0) {
-      error("Warning: Servicescan failed to fill ostype_template (subjectlen: %d, ostypelen: %d). Capture exceeds length? Match string was line %d: p/%s/", subjectlen, ostypelen, deflineno,
+      error("Warning: Servicescan failed to fill ostype_template (subjectlen: %d, ostypelen: %d). Capture exceeds length? Match string was line %d: o/%s/", subjectlen, ostypelen, deflineno,
 	    (ostype_template)? ostype_template : "");
       if (ostypelen > 0) *ostype = '\0';
       retval = -1;
