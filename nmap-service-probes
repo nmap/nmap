@@ -9959,7 +9959,7 @@ Probe TCP dominoconsole q|\#ST\n|
 rarity 8
 sslports 2050
 
-match dominoconsole m|^([^/]+)/([^:]+):([^:]*):([^:]*):| p/Lotus Domino Console/ o/$3/ h/$2/ i/domain: $1; description: "$4"/
+match dominoconsole m|^([^/]+)/([\w._-]+):([^:]*):([^:]*):| p/Lotus Domino Console/ o/$3/ h/$2/ i/domain: $1; description: "$4"/
 
 ##############################NEXT PROBE##############################
 # Informix probe
