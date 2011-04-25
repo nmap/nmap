@@ -6802,6 +6802,7 @@ match http m|^HTTP/1\.1 200 OK\r\n.*Set-Cookie: _sonar_session=[\w+%-]+; path=/;
 match http m|^HTTP/1\.1 200 OK\r\nContent-Length: 0\r\nContent-Type: text/html\r\nConnection: close\r\nServer: OpenEJB/\?\?\? \(unknown os\)\r\n\r\n$| p/OpenEJB httpd/
 match http m|^HTTP/1\.0 302 Found\r\n.*Location: /index\.ds\r\n.*Server: DrWebAV-DeskServer/(REL-500-[\w._-]+) Linux/i686 Lua/([\w._-]+) OpenSSL/([\w._-]+)\r\n\r\n$|s p/Dr. Web AV-Desk httpd/ v/$1/ o/Linux/ i/i686; Lua $2; OpenSSL $3/
 match http m|^HTTP/1\.0 200 OK\r\n.*Expires: Thu, 01 Jan 1970 00:00:00 GMT\r\n.*Server: vdradmind/([\w._-]+)\r\n|s p/VDR-Admin httpd/ v/$1/
+match http m|^HTTP/1\.1 302 Found\r\nDate: .*\r\nServer: unknown\r\nLocation: https?://([\w._-]+)/workplace/access/home\r\n| p/SonicWALL SSL-VPN http proxy auth/ h/$1/
 
 #(insert http)
 
