@@ -2995,7 +2995,7 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
     udp->uh_ulen = htons(8 + datalen);
 
     /* OK, now we should be able to compute a valid checksum */
-    realcheck = tcpudp_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
+    realcheck = ipv4_pseudoheader_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
 				   sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
     udp->uh_sum = sizeof(struct udp_hdr) + datalen;

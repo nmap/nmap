@@ -183,10 +183,11 @@ int arp_cache_set(struct sockaddr_storage *ss, u8 *mac);
 /* Standard BSD internet checksum routine. */
 unsigned short in_cksum(u16 *ptr, int nbytes);
 
-/* For computing TCP/UDP checksums, see RFC 1071 and TCP/IP Illustrated
-   sections 3.2, 11.3, and 17.3.*/
-unsigned short tcpudp_cksum(const struct in_addr *src, const struct in_addr *dst,
-                            u8 proto, u16 len, const void *hstart);
+/* Calculate the Internet checksum of some given data concatentated with the
+   IPv4 pseudo-header. See RFC 1071 and TCP/IP Illustrated sections 3.2, 11.3,
+   and 17.3. */
+unsigned short ipv4_pseudoheader_cksum(const struct in_addr *src,
+  const struct in_addr *dst, u8 proto, u16 len, const void *hstart);
 
 void sethdrinclude(int sd);
 void set_ipoptions(int sd, void *opts, size_t optslen);
