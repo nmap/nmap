@@ -512,7 +512,7 @@ u8 *build_tcp_raw(const struct in_addr *source,
 #if STUPID_SOLARIS_CHECKSUM_BUG
   tcp->th_sum = sizeof(struct tcp_hdr) + tcpoptlen + datalen;
 #else
-  tcp->th_sum = tcpudp_cksum(source, victim, IPPROTO_TCP,
+  tcp->th_sum = ipv4_pseudoheader_cksum(source, victim, IPPROTO_TCP,
                                    sizeof(struct tcp_hdr) + tcpoptlen +
                                    datalen, (char *) tcp);
 #endif
@@ -897,7 +897,7 @@ u8 *build_udp_raw(const struct in_addr *source, const struct in_addr *victim,
 #if STUPID_SOLARIS_CHECKSUM_BUG
   udp->uh_sum = sizeof(struct udp_hdr) + datalen;
 #else
-  udp->uh_sum = tcpudp_cksum(source, victim, IPPROTO_UDP,
+  udp->uh_sum = ipv4_pseudoheader_cksum(source, victim, IPPROTO_UDP,
                                    sizeof(struct udp_hdr) + datalen,
                                    (char *) udp);
 #endif
