@@ -228,10 +228,33 @@ local function BOunpack(packet)
 	return data, type_packet
 end
 
+local function insert_version_info(host,port,BOversion,BOhostname,initial_seed,password)
+	if(port.version==nil) then port.version={} end
+	if(port.version.name==nil) then 
+		port.version.name ="BackOrifice"
+		port.version.name_confidence = 10
+	end
+	if(port.version.product==nil) then port.version.product ="BackOrifice trojan" end
+	if(port.version.version == nil) then port.version.version = BOversion end
+	if(port.version.extrainfo == nil) then 
+		if password == nil then
+			if initial_seed == nil then
+				port.version.extrainfo = "no password"
+			else
+				port.version.extrainfo = "initial encryption seed="..initial_seed
+			end
+		else
+			port.version.extrainfo = "password="..password
+		end
+	end
+	port.version.hostname = BOhostname
+	if(port.version.ostype == nil) then port.version.ostype = "Windows" end
+	nmap.set_port_version(host, port, "hardmatched")
+end
+
 action = function( host, port )
 	--initial seed is set by backorifice-brute
 	local initial_seed = stdnse.get_script_args( SCRIPT_NAME .. ".seed" )
-
 	local password = stdnse.get_script_args(SCRIPT_NAME .. ".password")
 	local socket = nmap.new_socket("udp")
 	try = nmap.new_try(function() socket:close() end)
@@ -257,9 +280,19 @@ action = function( host, port )
 
 			if p_type ~= TYPE.ERROR then
 				local tmp_str = cmds[i].filter(response)
-				if tmp_str ~= nil and string.gsub(tmp_str,"[%c*%z*%s*]","")~="" then
-					--in case of bad PING reply return ""
-					if (cmds[i].cmd_name=="PING REPLY" and string.match(tmp_str,"!PONG!")==nil) then return end
+				if tmp_str ~= nil then
+					if cmds[i].p_code==TYPE.PING then 
+						--invalid chars for hostname are allowed on old windows boxes
+						local BOversion, BOhostname = string.match(tmp_str,"!PONG!(1%.20)!(.*)!")
+						if BOversion==nil then 
+							--in case of bad PING reply return ""
+							return 
+						else
+							--fill up version information
+							insert_version_info(host,port,BOversion,BOhostname,initial_seed,password)
+						end
+					end
+						
 					table.insert(output,tmp_str)
 				end
 
