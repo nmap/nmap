@@ -28,6 +28,7 @@ o Script review:
   - irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
   - NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307.
+  - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
