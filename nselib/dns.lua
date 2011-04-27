@@ -809,22 +809,22 @@ end
 function encode(pkt)
     if type(pkt) ~= "table" then return nil end
     local encFlags = encodeFlags(pkt.flags)
-    local questions = encodeQuestions(pkt.questions)
     local additional = encodeAdditional(pkt.additional)
-    local qorzlen = #pkt.questions
     local aorplen = #pkt.answers
-    local aorulen = #pkt.auth
+    local data, qorzlen, aorulen
 
-    if ( #pkt.questions < 1 ) then
+    if ( #pkt.questions > 0 ) then
+        data = encodeQuestions( pkt.questions )
+        qorzlen = #pkt.questions
+        aorulen = 0
+    else
         -- The packet has no questions, assume we're dealing with an update
-        data = encodeZones( pkt.zones )
+        data = encodeZones( pkt.zones ) .. encodeUpdates( pkt.updates )
         qorzlen = #pkt.zones
-
         aorulen = #pkt.updates
-        data = data .. encodeUpdates( pkt.updates )
     end
 
-    local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. questions .. additional
+    local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
     return encStr
 end
 
