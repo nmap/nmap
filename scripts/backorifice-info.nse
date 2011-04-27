@@ -10,7 +10,7 @@ listening console applications and a list of BackOrifice plugins
 installed with the service.
 ]]
 
---
+---
 -- @usage
 -- nmap --script backorifice-info <target> --script-args backorifice-info.password=<password>
 --
