@@ -4,6 +4,8 @@ o Investigate this interface-matching problem on Windows:
   http://seclists.org/nmap-dev/2011/q1/52. It is related to the
   libdnet changes we made to allow choosing the correct physical
   interface when teamed interfaces share the same MAC.
+  I think this is solved with the rewritten libdnet code (that uses
+  GetAdaptersAddresses) in my nmap-ipv6 branch. --David
 
 o Process Nmap survey and send out results [Fyodor]
 
