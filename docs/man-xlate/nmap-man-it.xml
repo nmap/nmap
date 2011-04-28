@@ -574,7 +574,7 @@ EXAMPLES:
             alla system call connect(), la quale viene lanciata su ogni porta
             di destinazione. Questo ha l'effetto di inviare pacchetti SYN
             all'host di destinazione come per stabilire una connessione. Se la
-            connect() ritorna rapidamente con un messaggio di successo o con
+            connect() restituisce rapidamente un messaggio di successo o
             un messaggio di errore ECONNREFUSED significa che lo stack TCP
             sottostante deve aver ricevuto un SYN/ACK o un RST e l'host viene
             marcato come disponibile. Se il tentativo di connessione viene
@@ -820,7 +820,7 @@ EXAMPLES:
       </varlistentry>
 
 
-	
+
       </variablelist>
     </refsect1>
 
@@ -974,7 +974,7 @@ EXAMPLES:
       accurati, si tenga in mente che tutte le sue conclusioni sono basate su
       pacchetti che tornano indietro dalle macchine di destinazione (o dai
       firewall che le proteggono). Tali host possono essere inaffidabili o
-      ritornare risposte mirate proprio a confondere e sviare Nmap. Sono molto
+      restituire risposte mirate proprio a confondere e sviare Nmap. Sono molto
       piu` comuni inoltre host che non rispettano gli RFC e che non rispondono
       come dovrebbero ai tentativi di connessione di Nmap. Scansioni come FIN,
       Null e Xmas sono particolarmente suscettibili a questo problema. Tali
@@ -1096,7 +1096,7 @@ EXAMPLES:
 
             <para>Lo scan UDP funziona inviando pacchetti UDP vuoti (senza
             dati ma formati solo dall'intestazione) ad ogni porta di
-            destinazioe. Se viene ritornato un errore ICMP di "port
+            destinazione. Se viene restituito un errore ICMP di "port
             unreachable" (tipo 3, codice 3) significa che la porta e` <literal
             moreinfo="none">closed</literal> (chiusa). Altri errori ICMP di
             tipo "unreachable" (irraggiungibile) come quelli del tipo 3,
@@ -1120,7 +1120,7 @@ EXAMPLES:
             sono spesso un problema ancora maggiore: esse generalmente
             rimandano un pacchetto ICMP di "port unreachable error", ma a
             differenza dei pacchetti RST rimandati dalle porte chiuse TCP come
-            rispota ad un SYN o Connect scan, molti host limitano il tasso di
+            risposta ad un SYN o Connect scan, molti host limitano il tasso di
             invio di tali pacchetti di default. Linux e Solaris sono
             particolarmente restrittivi da questo punto di vista. Ad esempio,
             il kernel 2.4.20 limita i messaggi di "destination unreachable" a
@@ -1236,7 +1236,7 @@ EXAMPLES:
 
             <para>I pacchetti dell' ACK scan hanno soltanto la flag ACK
             abilitata (a meno che non si usi <option>--scanflags</option>).
-            Mentresi scansionano sistemi non filtrati, sia le porte aperte che
+            Mentre si scansionano sistemi non filtrati, sia le porte aperte che
             le porte chiuse manderanno pacchetti RST. Nmap poi le cataloga
             come non filtrate, nel senso che e` possibile raggiungerle con un
             pacchetto ACK, ma che siano aperte o chiuse non e` determinabile.
@@ -1253,8 +1253,8 @@ EXAMPLES:
             <para>Il window scan e` esattamente la stessa cosa di ACK scan, ad
             eccezione del fatto che sfrutta un dettaglio di implementazione di
             certi sistemi per differenziare le porte aperte e quelle chiuse,
-            invece di scrivere sempre non filtrata quando ritorna un RST. Lo
-            fa esaminando il campo TCP Windowdel pacchetto RST che ritorna. In
+            invece di scrivere sempre non filtrata quando restituisce un RST. Lo
+            fa esaminando il campo TCP Window del pacchetto RST che ritorna. In
             alcuni sistemi le porte aperte usano una grandezza della finestra
             positiva (anche per i pacchetti RST), mentre nelle porte chiuse la
             grandezza della finestra e` zero. Quindi, invece di catalogare
@@ -1322,7 +1322,7 @@ EXAMPLES:
             risulta multo utilie al fine della scansione. L'ordine con cui
             vengono specificati non e` rilevante.</para>
 
-            <para>Oltre allo specificare i falg desidearti, e` possibile
+            <para>Oltre allo specificare i flag desiderati, e` possibile
             indicare uno tipo di scansione TCP (come <option>-sA</option> o
             <option>-sF</option>). Questo specifica come Nmap deve
             interpretare le risposte. Per esempio, un "SYN scan" considera la
@@ -1333,7 +1333,7 @@ EXAMPLES:
             comportera` nello stesso modo che per la scansione normale, tranne
             che per il fatto di interpretare i flag TCP che sono stati
             diveramente specificarti. Se non viene indicata una diverso tipo
-            di cansione, viene automaticamente utilizzata la "SYN
+            di scansione, viene automaticamente utilizzata la "SYN
             scan".</para>
           </listitem>
         </varlistentry>
@@ -1348,7 +1348,7 @@ EXAMPLES:
             nessun pacchetto viene inviato dall'indirizzo IP reale da cui si
             sta effettuando la scansione.) Viene diversamente utilizzato un
             unico attacco parallelo che utilizza la predicibilita` dell'ID
-            relativo alla sequanza di frammentazione generato dallo "Zombie"
+            relativo alla sequenza di frammentazione generato dallo "Zombie"
             per ottenere informazioni sulle porte aperte. I sistemi IDS
             intrepreteranno la scansione come se provenisse dalla macchina
             "Zombie" specificata (e che deve rispondere a certi criteri).
@@ -1358,7 +1358,7 @@ EXAMPLES:
             dettagli al seguente url: <ulink
             url="http://nmap.org/book/idlescan.html" />.</para>
 
-            <para>Oltre che essere straodrinariamente nascosto (grazie alla
+            <para>Oltre che essere straordinariamente nascosto (grazie alla
             sua natura "invisibile"), questo tipo di scansione permette di
             creare una mappa indicante le relazioni tra le macchine da un
             punto di vista dell'indirizzo IP. I risultati dalla scansione
@@ -1443,12 +1443,12 @@ EXAMPLES:
             nell'utilizzo di questa peculiarita` e` la possibilita` far
             effettuare al server FTP un port scan verso altri host. Basta
             semplicemente richiedere al server FTP di inviare un file ad
-            ognuna delle porte che vogliamo scansionare Il messaggio di errore
+            ognuna delle porte che vogliamo scansionare. Il messaggio di errore
             ci permettera` di dedurre se la porta e` aperta o meno. Questo e`
-            un'ottimo modo per aggiare i firewall in quanto gli FTP aziendali
+            un'ottimo modo per aggirare i firewall in quanto gli FTP aziendali
             sono spesso posizionati nella rete cosi` da poter accedere a piu`
             host interni di quanto sia possibile fare da Internet. Nmap
-            supporta la "ftp bounce scan" attraverso l'optione
+            supporta la "ftp bounce scan" attraverso l'opzione
             <option>-b</option>. I parametri per tale opzione devono
             rispettare il formato:
             <replaceable>username</replaceable>:<replaceable>password</replaceable>@<replaceable>server</replaceable>:<replaceable>port</replaceable>.
@@ -1465,7 +1465,7 @@ EXAMPLES:
 
             <para>Questa vulnerabilita` e` stata diffusa nel 1997 quando Nmap
             e` stato rilasciato, ma e` stata risolta su gran parte dei
-            sistemi. Esistno alcuni server ancora vulnerabili, ed ha senso
+            sistemi. Esistono alcuni server ancora vulnerabili, ed ha senso
             provare ad utilizzarla quando ogni altra cosa fallisce. Se
             l'obiettivo e` oltrepassare un firewall, e` necessario effettuare
             una scansione sulla rete cercando di trovare la porta 21 aperta (o
@@ -1883,7 +1883,7 @@ EXAMPLES:
 
 
 <para>Alcune opzioni accettano il parametro <literal moreinfo="none">time</literal>. Questo indica una quantita` di tempo in millisecondi (di default), ma e` possibile aggiungere 's', 'm' o 'h' per indicare secondi, minuti oppure ore. Ad esempio, per il parametro <option>--host-timeout</option> gli argomenti <literal moreinfo="none">900000</literal>, <literal moreinfo="none">900s</literal> e <literal moreinfo="none">15m</literal> hanno tutti lo stesso effetto.</para>
-	  
+
 
           <variablelist>
             <varlistentry>
@@ -2098,7 +2098,7 @@ EXAMPLES:
 
 <para>Molti host usano da tempo delle funzionalita` di "rate limiting" (limitazioni alla frequenza) per ridurre il numero di messaggi di errore ICMP che mandano (ad esempio gli errori su "port-unreachable", porta non raggiungibile). Alcuni sistemi hanno iniziato ad applicare le stesse tecniche all'invio di pacchetti RST (reset). Queste tecniche possono rallentare di molto Nmap poiche` esso continuera` a calibrare la gestione dei timing per gestire queste limitazioni di frequenza. Si puo` quindi indicare a Nmap di ignorare questi rate limits (per i port scan come il SYN scan, che <emphasis>non</emphasis> considerano le porte silenziose come <literal moreinfo="none">aperte</literal>) mediante l'opzione <option>--defeat-rst-ratelimit</option>.</para>
 
-<para>L'uso di questa opzione puo` ridurre la precisione di uno scan, poiche` alcune porte potrebbero ritornare uno stato di non-risposta (Nmap non e` rimasto in attesa abbastanza a lungo a causa di meccanismi di rate-limiting dei pacchetti RST). Con una scansione di tipo SYN le porte "mute" (dalle quali non si e` ricevuto un RST) in questo caso vengono indicate con <literal moreinfo="none">filtered</literal> piuttosto che <literal moreinfo="none">chiuse</literal>. Quest'opzione e` utile solo quando si e` interessati alle porte aperte, e la distinzione tra porte <literal moreinfo="none">open</literal> e <literal moreinfo="none">closed</literal> non e` di alcun interesse rispetto al tempo che richiede.</para>
+<para>L'uso di questa opzione puo` ridurre la precisione di uno scan, poiche` alcune porte potrebbero restituire uno stato di non-risposta (Nmap non e` rimasto in attesa abbastanza a lungo a causa di meccanismi di rate-limiting dei pacchetti RST). Con una scansione di tipo SYN le porte "mute" (dalle quali non si e` ricevuto un RST) in questo caso vengono indicate con <literal moreinfo="none">filtered</literal> piuttosto che <literal moreinfo="none">chiuse</literal>. Quest'opzione e` utile solo quando si e` interessati alle porte aperte, e la distinzione tra porte <literal moreinfo="none">open</literal> e <literal moreinfo="none">closed</literal> non e` di alcun interesse rispetto al tempo che richiede.</para>
         </listitem>
       </varlistentry>
 
@@ -2437,7 +2437,7 @@ EXAMPLES:
 
 <indexterm significance="normal"><primary>--source-port</primary></indexterm>
 <indexterm significance="normal"><primary>--g</primary></indexterm>
-<para>Un errore di configurazione sorprendente comune e` quello di fidarsi del traffico di rete basandosi solo sulla porta di origine. E` facile capire come puo` succedere: un amministratore configura un firewall nuovo fiammante per poi ritrovarsi sommerso dalle lamentele degli utenti ingrati le cui applicazioni hanno smesso di funzionare. Ad esempio le query DNS possono non funzionare piu` perche` le risposte (sotto forma di pacchetti UDP) provenienti da server esterni non possono piu` entrare nella rete. Anche l'ftp e` un esempio piuttosto comune: nei trasferimenti di dati attivi (opposti a quelli di tipo "passive ftp") il server remoto cerca di stabilire una connessione diretta con il client per trasferire i file richiesti.</para> 
+<para>Un errore di configurazione sorprendente comune e` quello di fidarsi del traffico di rete basandosi solo sulla porta di origine. E` facile capire come puo` succedere: un amministratore configura un firewall nuovo fiammante per poi ritrovarsi sommerso dalle lamentele degli utenti ingrati le cui applicazioni hanno smesso di funzionare. Ad esempio le query DNS possono non funzionare piu` perche` le risposte (sotto forma di pacchetti UDP) provenienti da server esterni non possono piu` entrare nella rete. Anche l'ftp e` un esempio piuttosto comune: nei trasferimenti di dati attivi (opposti a quelli di tipo "passive ftp") il server remoto cerca di stabilire una connessione diretta con il client per trasferire i file richiesti.</para>
 
 <para>Esistono soluzioni sicure a questi problemi, spesso nella forma di proxy a livello di applicazione o moduli del firewall che fanno parsing del protocollo. Sfortunatamente ci sono anche soluzioni facili ma insicure. Ad esempio, notando che le risposte alle query DNS arrivano dalla porta 53 e i transfer ftp "active" provengono dalla porta 20, tanti amministratori cadono nella trappola di lasciar passare il traffico proveniente da queste porte. Essi assumono spesso che nessun attaccante potrebbe accorgersi di questi buchi di sicurezza e appprofittarne. In altri casi un amministratore puo` considerare questa soluzione una misura temporanea fino a quando non implementera` una soluzione migliore e piu` sicura. E poi si dimentica di farlo.</para>
 
@@ -2488,7 +2488,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
         <listitem>
 
         <indexterm significance="normal"><primary>--spoof-mac</primary></indexterm>
-	  <para>Richiede a Nmap di usare l'indirizzo hardware (mac) per tutti i frame ethernet raw che invia. Quest'opzione implica <option>--send-eth</option> per garantire che Nmap invii di fatto pacchetti a livello ethernet. Il MAC puo` essere specificato in vari formati: nel caso in cui sia la stringa <quote>0</quote>, Nmap sceglie un MAC completamente random per la sessione. Se la stringa e` un numero pari di simboli esadecimali (con le coppie separate eventualmente dal simbolo di due punti), Nmap usera` questo come MAC. Se dovessero essere specificate meno di 12 cifre decimali, Nmap riempira` il resto dei 6 bytes con valori casuali. Se l'argomento non e` uno zero (0) o una stringa esadecimale, Nmap cerchera` nel file <filename moreinfo="none">nmap-mac-prefixes</filename> per cercare il nome di un produttore contenente la stringa indicata (senza distinguere tra maiuscole e minuscole). Se trova una corrispondenza, Nmap usera` la parte OUI del produttore (il prefisso di 3 bytes) e riempira` i restanti 6 bytes in maniera casuale. 
+	  <para>Richiede a Nmap di usare l'indirizzo hardware (mac) per tutti i frame ethernet raw che invia. Quest'opzione implica <option>--send-eth</option> per garantire che Nmap invii di fatto pacchetti a livello ethernet. Il MAC puo` essere specificato in vari formati: nel caso in cui sia la stringa <quote>0</quote>, Nmap sceglie un MAC completamente random per la sessione. Se la stringa e` un numero pari di simboli esadecimali (con le coppie separate eventualmente dal simbolo di due punti), Nmap usera` questo come MAC. Se dovessero essere specificate meno di 12 cifre decimali, Nmap riempira` il resto dei 6 bytes con valori casuali. Se l'argomento non e` uno zero (0) o una stringa esadecimale, Nmap cerchera` nel file <filename moreinfo="none">nmap-mac-prefixes</filename> per cercare il nome di un produttore contenente la stringa indicata (senza distinguere tra maiuscole e minuscole). Se trova una corrispondenza, Nmap usera` la parte OUI del produttore (il prefisso di 3 bytes) e riempira` i restanti 6 bytes in maniera casuale.
 	  Esempi validi dell'uso di <option>--spoof-mac</option> sono <literal moreinfo="none">Apple</literal>, <literal moreinfo="none">0</literal>, <literal moreinfo="none">01:02:03:04:05:06</literal>, <literal moreinfo="none">deadbeefcafe</literal>, <literal moreinfo="none">0020F2</literal>, e <literal moreinfo="none">Cisco</literal>.</para>
         </listitem>
       </varlistentry>
@@ -2500,7 +2500,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
         <listitem>
 
         <indexterm significance="normal"><primary>--badsum</primary></indexterm>
-	<para>Richiede a Nmap di usare un checksum TCP o UDP non valido per i pacchetti inviati alla macchina di destinazione. Poiche` teoricamente tutti gli stack IP degli host finiranno per ignorare questi pacchetti, qualunque risposta ricevuta dovra` per forza provenire da un firewall o da un Intrusion Detection System (IDS) che non si preoccupa di verificare il checksum. Per maggiori informazioni su questa tecnica, si consulti 
+	<para>Richiede a Nmap di usare un checksum TCP o UDP non valido per i pacchetti inviati alla macchina di destinazione. Poiche` teoricamente tutti gli stack IP degli host finiranno per ignorare questi pacchetti, qualunque risposta ricevuta dovra` per forza provenire da un firewall o da un Intrusion Detection System (IDS) che non si preoccupa di verificare il checksum. Per maggiori informazioni su questa tecnica, si consulti
    <ulink url="http://nmap.org/p60-12.txt"/></para>
         </listitem>
       </varlistentry>
@@ -2851,7 +2851,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
 	  <para>Gli avvertimenti ("warnings") e gli errori mostrati da Nmap in genere vanno allo standard output (schermo) nella modalita` interattiva, lasciando cosi` "puliti" i file di output normali. Tuttavia nel caso in cui si voglia vedere questi messaggi nel normale file di output specificato e` necessario specificare quest'opzione. Essa e` utile quando non si ha la possibilita` di guardare l'output interattivo e quando si sta cercando di effettuare il debug di un problema; i messaggi appariranno comunque sullo schermo come se si fosse in modalita` interattiva. Quest'opzione non funzionera` per la maggior parte degli errori dovuti all'uso di opzioni in maniera errata sulla linea di comando, poiche` probabilmente Nmap non avra` ancora inizializzato i file nei quali dovra` andare a scrivere. Inoltre alcuni errori e warning di Nmap usano un sistema di notifica che non supporta ancora quest'opzione. Un'alternativa all'uso di <option>--log-errors</option> e` quella di ridirigere l'output interattivo (e lo standard error) in un file. Nonostante quest'approccio sia facile in ambiente Unix, puo` risultare difficile in Windows.</para>
         </listitem>
       </varlistentry>
-	      
+
 	</variablelist>
 
 
@@ -2877,7 +2877,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
 	  <para>Alcune esecuzioni di Nmap possono richiedere molto tempo - dell'ordine di giorni. Tali scansioni non arrivano sempre alla fine; alcune restrizioni possono impedire a Nmap di funzionare durante le ore del giorno, la rete puo` diventare irraggiungibile, la macchina sulla quale Nmap sta girando puo` subire un riavvio pianificato o improvviso, o Nmap stesso puo` andare in crash. L'amministratore che sta usando Nmap puo` interromperlo per qualsiasi ragione, premento <keycap moreinfo="none">ctrl-C</keycap>. Ricominciare l'intera scansione dall'inizio puo` diventare fastidioso. Fortunatamente se sono rimasti i log in formato "normal" (<option>-oN</option>) o "grepable" (<option>-oG</option>), l'utente puo` richiedere a Nmap di ricominciare la scansione dall'host sul quale stava lavorando quando l'esecuzione e` stata interrotta. Semplicemente basta specificare l'opzione <option>--resume</option> e passargli il file di output in formato normal/grepable come argomento. Non e` permesso nessun altro argomento, poiche` Nmap fara` il parsing del file di output per usare le stesse opzioni specificate in precedenza. E` quindi sufficiente invocare Nmap come <command moreinfo="none">nmap --resume <replaceable>logfilename</replaceable></command>. Nmap aggiungera` i nuovi risultati ai files specificiati nell'esecuzione precedente. La ripresa di un'esecuzione
 	  non supporta il formato di output XML poiche` sarebbe troppo difficile combinare le due esecuzioni in un unico file XML valido.
 	  </para>
-	  
+
         </listitem>
       </varlistentry>
 
@@ -2887,8 +2887,8 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
         </term>
         <listitem>
           <indexterm significance="normal"><primary>--stylesheet</primary></indexterm>
-	  <para>Nmap viene fornito con un foglio di stile XSL chiamato <filename moreinfo="none">nmap.xsl</filename> per vedere o tradurre l'output XML in HTML. L'output XML include una direttiva <literal moreinfo="none">xml-stylesheet</literal> che punta al file <filename moreinfo="none">nmap.xml</filename> dove e` stato installato Nmap la prima volta (o nella directory corrente nel caso di Windows). Basta semplicemente caricare l'output XML in un browser recente e dovrebbe automaticamente prelevare <filename moreinfo="none">nmap.xsl</filename> dal filesystem e usarlo per effettuare il rendering dei risultati. Se si volesse usare 
-	  un foglio di stile diverso, va specificato mediantel'opzione <option>--stylesheet</option>. Il file va indicato con il PATH completo o l'URL. Un esempio di invocazione di Nmap con quest'opzione e` <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>. Questo indica al browser di caricare l'ultima versione del foglio di stile da Insecure.org. L'opzione <option>--webxml</option> fa la stessa cosa ma richiede meno digitazioni e meno cose da ricordare. 
+	  <para>Nmap viene fornito con un foglio di stile XSL chiamato <filename moreinfo="none">nmap.xsl</filename> per vedere o tradurre l'output XML in HTML. L'output XML include una direttiva <literal moreinfo="none">xml-stylesheet</literal> che punta al file <filename moreinfo="none">nmap.xml</filename> dove e` stato installato Nmap la prima volta (o nella directory corrente nel caso di Windows). Basta semplicemente caricare l'output XML in un browser recente e dovrebbe automaticamente prelevare <filename moreinfo="none">nmap.xsl</filename> dal filesystem e usarlo per effettuare il rendering dei risultati. Se si volesse usare
+	  un foglio di stile diverso, va specificato mediantel'opzione <option>--stylesheet</option>. Il file va indicato con il PATH completo o l'URL. Un esempio di invocazione di Nmap con quest'opzione e` <option>--stylesheet http://www.insecure.org/nmap/data/nmap.xsl</option>. Questo indica al browser di caricare l'ultima versione del foglio di stile da Insecure.org. L'opzione <option>--webxml</option> fa la stessa cosa ma richiede meno digitazioni e meno cose da ricordare.
 	  Caricando l'XSL da Insecure.org rende piu` semplice visualizzare i risultati su una macchina che non ha Nmap (e quindi il file <filename moreinfo="none">nmap.xsl</filename> installato). Quindi l'URL e` spesso una scelta migliore, ma di default viene usato il file dal filesystem locale per ragioni di privacy.</para>
         </listitem>
       </varlistentry>
@@ -2910,7 +2910,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
         </term>
         <listitem>
           <indexterm significance="normal"><primary>--no_stylesheet</primary></indexterm>
-	  <para>Quest'opzione va specificata quando non si vuole che Nmap associ un qualsiasi foglio di stile XSL con il proprio output XML. La direttiva 
+	  <para>Quest'opzione va specificata quando non si vuole che Nmap associ un qualsiasi foglio di stile XSL con il proprio output XML. La direttiva
               <literal moreinfo="none">xml-stylesheet</literal>  viene omessa.</para>
         </listitem>
       </varlistentry>
@@ -2921,7 +2921,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
 
 
 
-	
+
 	</refsect1>
 
             <refsect1 id="man-misc-options">
@@ -3121,7 +3121,7 @@ implicita che permette il passaggio di tutto il traffico proveniente dalla porta
 
 <refsect1 id="man-runtime-interaction">
     <title>Interazione in runtime</title>
- 
+
     <indexterm significance="normal"><primary>interazione in runtime (a tempo di esecuzione)</primary></indexterm>
     <para>Durante l'esecuzione di Nmap qualsiasi tasto venga premuto viene registrato. Questo permette di interagire con il programma senza doverlo interrompere e farlo ripartire. Alcuni tasti particolari possono cambiare opzioni, mentre altri stampano un messaggio di stato sulla scansione in corso. La convenzione e` che <emphasis>lettere minuscole aumentano</emphasis> la quantita` di messaggi stampati, mentre <emphasis> lettere maiuscole </emphasis> diminuiscono questi messaggi. E` inoltre possibile premdere <emphasis>?</emphasis> per avere un aiuto. </para>
     <variablelist>
