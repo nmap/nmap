@@ -643,7 +643,7 @@ class scan_diff_xml_test(unittest.TestCase):
         try:
             document = xml.dom.minidom.parseString(self.xml)
         except Exception, e:
-            fail(u"Parsing XML diff output caused the exception: %s" % str(e))
+            self.fail(u"Parsing XML diff output caused the exception: %s" % str(e))
 
 def scan_apply_diff(scan, diff):
     """Apply a scan diff to the given scan."""
