@@ -227,7 +227,7 @@ class Address(object):
         return frag
 
 # The sort_key method in the Address subclasses determines the order in which
-# addresses are displayed. We do IPv4, then IPV6, then MAC.
+# addresses are displayed. We do IPv4, then IPv6, then MAC.
 
 class IPv4Address(Address):
     type = property(lambda self: u"ipv4")
