@@ -1080,6 +1080,8 @@ function negotiate_protocol(smb, overrides)
 end
 
 
+--- This is an internal function and should not be called externally. Use
+--  the start_session() function instead.
 local function start_session_basic(smb, log_errors, overrides)
 	local i, err
 	local status, result
@@ -1233,6 +1235,8 @@ local function start_session_basic(smb, log_errors, overrides)
 	return false, username
 end
 
+--- This is an internal function and should not be called externally. Use
+--  the start_session() function instead.
 local function start_session_extended(smb, log_errors, overrides)
 	local i
 	local status, status_name, result, err
@@ -1431,11 +1435,19 @@ end
 --    *  'os'          The operating system
 --    *  'lanmanager'  The servers's LAN Manager
 function start_session(smb, overrides, log_errors)
+	-- Use a mutex to avoid some issues (see http://seclists.org/nmap-dev/2011/q1/464)
+	local smb_auth_mutex = nmap.mutex( "SMB Authentication Mutex" )
+	smb_auth_mutex( "lock" )
+	
+	local status, result
 	if(smb['extended_security'] == true) then
-		return start_session_extended(smb, log_errors, overrides)
+		status, result = start_session_extended(smb, log_errors, overrides)
 	else
-		return start_session_basic(smb, log_errors, overrides)
+		status, result = start_session_basic(smb, log_errors, overrides)
 	end
+	
+	smb_auth_mutex( "done" )
+	return status, result
 end
  
 --- Sends out <code>SMB_COM_SESSION_TREE_CONNECT_ANDX</code>, which attempts to connect to a share. 
