@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a GKrellM service probe from Toni Ruottu.
+
 o [NSE] Removed the nmap.get_interface_link function, which was
   deprecated by the new nmap.get_interface_info. The sniffer-detect
   script now calls the nmap.get_interface_info function to retrieve

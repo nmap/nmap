@@ -972,8 +972,8 @@ match goldsync m|^%%QU%%QU%%QU$| p/GoldMine GoldSync synchronization/
 # Probably not general enough...
 match gnatbox m|^GBPK\xfb\xf7n\x93W\xaf\x86\x93x@\xa9\x0e\xca\*\x9bS\0| p/GNATBox firewall administration/ d/firewall/
 
-match gkrellm m|^<error>\nClient limit exceeded\.\n| p/GKrellM System Monitor/
-match gkrellm m|^<error>\nConnection not allowed from .*\n| p/GKrellM System Monitor/
+softmatch gkrellm m|^<error>\nClient limit exceeded\.\n| p/GKrellM System Monitor/
+softmatch gkrellm m|^<error>\nConnection not allowed from .*\n| p/GKrellM System Monitor/
 
 match gopher m|^3Connection to [\d.]+ is denied -- no authorization\.\r\n$|
 match g6-remote m|^200 1400\r\n$| p/G6 ftpd remote admin/ o/Windows/
@@ -3776,7 +3776,7 @@ match geovision-control m|^..\0\0\xff\xff\xff\xff$|s p/Geovision webcam control/
 match geovision-audio m|^\$\0\0\0\xd4\x17\0\0\x01\0\0\0\x05\0\0\0\x01\0\0\0\x05\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Geovision webcam audio/ d/webcam/
 
 # GKrellM System Monitor 2.1.15 on Linux
-match gkrellm m|^<error>\nBad connect string!| p/GKrellM System Monitor/
+softmatch gkrellm m|^<error>\nBad connect string!| p/GKrellM System Monitor/
 
 match control-gc-ports m|^unknowncommand 14\r$| p/Global Cache GC-100 config/ d/media device/
 
@@ -10022,3 +10022,10 @@ rarity 9
 
 # Encryption of "*!*QWTY?........\x01  !PONG!1.20!".
 match BackOrifice m|^\xCE\x63\xD1\xD2\x16\xE7\x13\xCF........\x01\x12\x78\xC4\xE3\xD6\xA6\x65\x51\x75\x51\xEB\x2A\x3F|s p/BackOrifice trojan/ o/Windows/ v/1.20/ i/no password/
+
+##############################NEXT PROBE##############################
+Probe TCP gkrellm q|gkrellm 0.0.0|
+rarity 9
+ports 19150
+
+match gkrellm m|^<gkrellmd_setup>\n<version>\ngkrellmd ([\w._-]+)\n| p/GKrellM System Monitor/ v/$1/
