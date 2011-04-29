@@ -30,7 +30,9 @@ class Scan(object):
     container for a list of hosts. It also has utility methods to load itself
     from an Nmap XML file."""
     def __init__(self):
+        self.scanner = None
         self.version = None
+        self.args = None
         self.start_date = None
         self.end_date = None
         self.hosts = []
@@ -58,6 +60,21 @@ class Scan(object):
             self.load(f)
         finally:
             f.close()
+
+    def nmaprun_to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        elem = document.createElement(u"nmaprun")
+        if self.scanner is not None:
+            elem.setAttribute(u"scanner", self.scanner)
+        if self.args is not None:
+            elem.setAttribute(u"args", self.args)
+        if self.start_date is not None:
+            elem.setAttribute(u"start", "%d" % time.mktime(self.start_date.timetuple()))
+            elem.setAttribute(u"startstr", self.start_date.strftime("%a %b %d %H:%M:%S %Y"))
+        if self.version is not None:
+            elem.setAttribute(u"version", self.version)
+        frag.appendChild(elem)
+        return frag
 
 class Host(object):
     """A single host, with a state, addresses, host names, a dict mapping port
@@ -383,11 +400,17 @@ class ScriptResult(object):
 
 def format_banner(scan):
     """Format a startup banner more or less like Nmap does."""
-    parts = [u"Nmap"]
+    scanner = u"Nmap"
+    if scan.scanner is not None and scan.scanner != u"nmap":
+        scanner = scan.scanner
+    parts = [ scanner ]
     if scan.version is not None:
         parts.append(scan.version)
+    parts.append(u"scan")
     if scan.start_date is not None:
-        parts.append(u"at %s" % scan.start_date.strftime("%Y-%m-%d %H:%M"))
+        parts.append(u"initiated %s" % scan.start_date.strftime("%a %b %d %H:%M:%S %Y"))
+    if scan.args is not None:
+        parts.append(u"as: %s" % scan.args)
     return u" ".join(parts)
 
 def print_script_result_diffs_text(title, script_results_a, script_results_b,
@@ -482,6 +505,16 @@ class ScanDiff(object):
             self.scan_a.post_script_results, self.scan_b.post_script_results,
             self.post_script_result_diffs)
 
+    def nmaprun_to_dom_fragment(self, document):
+        frag = document.createDocumentFragment()
+        a_elem = document.createElement(u"a")
+        a_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
+        frag.appendChild(a_elem)
+        b_elem = document.createElement(u"b")
+        b_elem.appendChild(self.scan_b.nmaprun_to_dom_fragment(document))
+        frag.appendChild(b_elem)
+        return frag
+
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
         document = impl.createDocument(None, u"nmapdiff", None)
@@ -489,6 +522,15 @@ class ScanDiff(object):
         root.setAttribute(u"version", NDIFF_XML_VERSION)
         scandiff_elem = document.createElement(u"scandiff")
         root.appendChild(scandiff_elem)
+
+        # nmaprun changes
+        if ( verbose or
+                self.scan_a.scanner    != self.scan_b.scanner or
+                self.scan_a.version    != self.scan_b.version or
+                self.scan_a.args       != self.scan_b.args or
+                self.scan_a.start_date != self.scan_b.start_date or
+                self.scan_a.end_date   != self.scan_b.end_date ):
+            scandiff_elem.appendChild(self.nmaprun_to_dom_fragment(document))
 
         # prerule script changes.
         if len(self.pre_script_result_diffs) > 0 or verbose:
@@ -1052,6 +1094,8 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             if attrs.has_key(u"start"):
                 start_timestamp = int(attrs.get(u"start"))
                 self.scan.start_date = datetime.datetime.fromtimestamp(start_timestamp)
+            self.scan.scanner = attrs.get(u"scanner")
+            self.scan.args = attrs.get(u"args")
             self.scan.version = attrs.get(u"version")
         elif name == u"host":
             assert self.parent_element() == u"nmaprun"

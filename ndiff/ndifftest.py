@@ -48,6 +48,14 @@ class scan_test(unittest.TestCase):
         self.assertEqual(len(host.ports), 6)
         self.assertEqual(set(host.extraports.items()), set([("filtered", 95), ("open|filtered", 99)]))
 
+    def test_nmaprun(self):
+        """Test that nmaprun information is recorded."""
+        scan = Scan()
+        scan.load_from_file("test-scans/empty.xml")
+        self.assertEqual(scan.scanner, u"nmap")
+        self.assertEqual(scan.version, u"4.90RC2")
+        self.assertEqual(scan.args, u"nmap -oX empty.xml -p 1-100")
+
     def test_addresses(self):
         """Test that addresses are recorded."""
         scan = Scan()

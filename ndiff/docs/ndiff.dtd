@@ -73,6 +73,13 @@ version 0, which was rather different. -->
 
 <!ELEMENT scandiff (prescript | hostdiff | host | postscript | (a, b?) | b)*>
 
+<!ELEMENT nmaprun EMPTY>
+<!ATTLIST nmaprun
+    scanner CDATA #REQUIRED
+    args CDATA #IMPLIED
+    start CDATA #IMPLIED
+    startstr CDATA #IMPLIED
+    version CDATA #REQUIRED>
 
 <!ELEMENT prescript (script* | (a, b?) | b)>
 <!ELEMENT postscript (script* | (a, b?) | b)>
@@ -127,6 +134,6 @@ version 0, which was rather different. -->
 
 <!ELEMENT hostscript (script | a | b)*>
 
-<!ENTITY % diff-elem "(prescript | postscript | host | status | address | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
+<!ENTITY % diff-elem "(nmaprun | prescript | postscript | host | status | address | hostname | extraports* | port | state | service | script | os | osmatch* | hostscript)">
 <!ELEMENT a %diff-elem;>
 <!ELEMENT b %diff-elem;>

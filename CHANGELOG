@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ndiff] Added nmaprun element information to the diff. [Daniel
+  Miller]
+
 o Added a GKrellM service probe from Toni Ruottu.
 
 o [NSE] Removed the nmap.get_interface_link function, which was
