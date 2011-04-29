@@ -30,6 +30,10 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q2/307.
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
+o Change Zenmap bug reporter so that instead of an automatic
+  submission system, we print a stack trace and request that the user
+  send a bug report to nmap-dev.
+
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
