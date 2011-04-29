@@ -109,11 +109,6 @@ local MaxProbedPorts
 
 
 
--- probed port states
-local PSTATE_UNKNOWN = 0
-local PSTATE_SCANNED = 1
-
-
 -- ICMP constant
 local ICMP_TIME_EXCEEDED = 11
 
@@ -158,7 +153,7 @@ local tcp_funcs = {
 
       -- mark the gateway as forwarding the packet
       scanner.ports.tcp[port].final_ttl = gateway_ttl(scanner.target.traceroute, packet.toip(ip.ip_bin_src))
-      scanner.ports.tcp[port].state = PSTATE_SCANNED
+      scanner.ports.tcp[port].scanned = true
 
       -- remove the related probe
       for i, probe in ipairs(scanner.active_probes) do
@@ -222,7 +217,7 @@ local udp_funcs = {
 
       -- mark the gateway as forwarding the packet
       scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, packet.toip(ip.ip_bin_src))
-      scanner.ports.udp[port].state = PSTATE_SCANNED
+      scanner.ports.udp[port].scanned = true 
 
       for i, probe in ipairs(scanner.active_probes) do
         if probe.proto == "udp" and probe.portno == ip2.udp_dport then
@@ -311,8 +306,8 @@ local function build_portlist(host)
       -- do not include administratively prohibited ports
       if port and port.reason == "no-response" then
         local pentry = {
-          final_ttl = 0,          -- TTL of the blocking gateway
-          state = PSTATE_UNKNOWN, -- initial state: unprobed => unknown
+          final_ttl = 0,    -- TTL of the blocking gateway
+          scanned = false,  -- initial state: unprobed
         }
 
         portlist[proto][port.number] = pentry
@@ -651,7 +646,7 @@ local function finished(scanner)
     for _, port in pairs(ports) do
 
       -- if a port is still unprobed => we're not done!
-      if port.state == PSTATE_UNKNOWN then
+      if not port.scanned then
         return false
       end
     end
@@ -792,7 +787,7 @@ local function update_probe_queues(scanner)
 
           -- set final_ttl to zero (=> probe might be blocked by localhost)
           scanner.ports[probe.proto][probe.portno].final_ttl = 0
-          scanner.ports[probe.proto][probe.portno].state = PSTATE_SCANNED
+          scanner.ports[probe.proto][probe.portno].scanned = true
 
         end
       end
