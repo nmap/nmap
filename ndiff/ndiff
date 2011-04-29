@@ -505,15 +505,11 @@ class ScanDiff(object):
             self.scan_a.post_script_results, self.scan_b.post_script_results,
             self.post_script_result_diffs)
 
-    def nmaprun_to_dom_fragment(self, document):
-        frag = document.createDocumentFragment()
-        a_elem = document.createElement(u"a")
-        a_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
-        frag.appendChild(a_elem)
-        b_elem = document.createElement(u"b")
-        b_elem.appendChild(self.scan_b.nmaprun_to_dom_fragment(document))
-        frag.appendChild(b_elem)
-        return frag
+    def nmaprun_differs(self):
+        for attr in ("scanner", "version", "args", "start_date", "end_date"):
+            if getattr(self.scan_a, attr, None) != getattr(self.scan_b, attr, None):
+                return True
+        return False
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
@@ -523,14 +519,15 @@ class ScanDiff(object):
         scandiff_elem = document.createElement(u"scandiff")
         root.appendChild(scandiff_elem)
 
-        # nmaprun changes
-        if ( verbose or
-                self.scan_a.scanner    != self.scan_b.scanner or
-                self.scan_a.version    != self.scan_b.version or
-                self.scan_a.args       != self.scan_b.args or
-                self.scan_a.start_date != self.scan_b.start_date or
-                self.scan_a.end_date   != self.scan_b.end_date ):
-            scandiff_elem.appendChild(self.nmaprun_to_dom_fragment(document))
+        if self.nmaprun_differs():
+            a_elem = document.createElement(u"a")
+            a_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
+            scandiff_elem.appendChild(a_elem)
+            b_elem = document.createElement(u"b")
+            b_elem.appendChild(self.scan_b.nmaprun_to_dom_fragment(document))
+            scandiff_elem.appendChild(b_elem)
+        elif verbose:
+            scandiff_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
 
         # prerule script changes.
         if len(self.pre_script_result_diffs) > 0 or verbose:
