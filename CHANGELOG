@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-wp-plugins.nse, which retrieves the list of installed
+  Wordpress plugins by bruteforcing the wp-content directory. [Ange Gutek]
+
 o [Ndiff] Added nmaprun element information to the diff. [Daniel
   Miller]
 

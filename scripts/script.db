@@ -74,6 +74,7 @@ Entry { filename = "http-trace.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
+Entry { filename = "http-wp-plugins.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } }
 Entry { filename = "informix-brute.nse", categories = { "auth", "intrusive", } }
