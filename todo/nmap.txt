@@ -30,9 +30,51 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q2/307.
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
-o Change Zenmap bug reporter so that instead of an automatic
-  submission system, we print a stack trace and request that the user
-  send a bug report to nmap-dev.
+o Summer of Code feature creeper:
+  o Change Zenmap bug reporter so that instead of an automatic
+    submission system, we print a stack trace and request that the user
+    send a bug report to nmap-dev.
+  o [Zenmap] Make formerly open ports that are now closed or filtered
+    disappear from the "Ports / Hosts" tab. This appears to be related
+    to ignored states; if in the second scan I use -d2 so all ports are
+    included in the output, the interface is updated correctly.
+    http://seclists.org/nmap-dev/2010/q4/659
+  o [Zenmap] When a target is unresponsive (and its distance isn't
+    known), put it at the next furthest ring from the known traceroute
+    hosts (with a dashed line), instead of putting it at the first
+    ring.  See http://seclists.org/nmap-dev/2011/q1/834.
+  o [Zenmap] should actually parse and use script results. See
+    http://seclists.org/nmap-dev/2010/q1/1108
+  o Make Zenmap settings get upgraded when the Zenmap executable is
+    upgraded. The per-user configuration files such as scan_profile.usp
+    and zenmap.conf are never overwritten once installed by Zenmap, so
+    changes and fixes to those files don't reach anyone who has
+    installed Zenmap already. This is most noticeable with changes to
+    profiles and highlight definitions are notably affected. This fix
+    may involve hard-coding settings that are not normally configured by
+    users (like highlighting) or updating the per-user files at startup
+    (only those parts that haven't been changed by the user).
+  (Later...)
+  o We should offer partial results when a host
+    timeouts. I (Fyodor) have been against this in the past, but maybe
+    the value is sufficient to be worth the maintenance headaches.  Many
+    users have asked for this.  If we do implement this, we may want to
+    only print results for the COMPLETED phases (e.g. host discovery,
+    port scanning, version detection, traceroute, NSE, etc.)  Trying to
+    print partial results of a port scan or NSE or the like might be a
+    pain.  And if we print some results for a host which timeouts, we
+    should give a very clear warning that the results for that host are
+    incomplete. As an example, here is someone who hacked Nmap source
+    code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
+    o Another benefit would be that it would allow us to clean
+      up/regularize the host output code. Right now there are I think
+      three places where a host's final output can be printed. If,
+      instead, that code just looked at what information was available and
+      printed that out only, we could potentially isolate it in just one
+      place.
+    o This also might let us provide a feature for skipping the rest of
+      an Nmap phase which is going too slowly (I think that has its own
+      Nmap TODO item).
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
@@ -49,12 +91,6 @@ o A couple minor nsedoc issues (see
    warning in this case.  Or we could make nsedoc handle multiple
    @outputs.
 
-o [Zenmap] Make formerly open ports that are now closed or filtered
-  disappear from the "Ports / Hosts" tab. This appears to be related
-  to ignored states; if in the second scan I use -d2 so all ports are
-  included in the output, the interface is updated correctly.
-  http://seclists.org/nmap-dev/2010/q4/659
-
 o UDP scanning with IP options causes "Received short ICMP packet" on
   receipt. http://seclists.org/nmap-dev/2011/q1/82
 
@@ -64,11 +100,6 @@ o [Ncat] Find out what RDP port forwarding apparently doesn't work on
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
-
-o [Zenmap] When a target is unresponsive (and its distance isn't
-   known), put it at the next furthest ring from the known traceroute
-   hosts (with a dashed line), instead of putting it at the first
-   ring.  See http://seclists.org/nmap-dev/2011/q1/834.
 
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
@@ -162,9 +193,6 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
-
-o [Zenmap] should actually parse and use script results. See
-  http://seclists.org/nmap-dev/2010/q1/1108
 
 o We should document an official way to compile/test refguide.xml so
   people can more easily test their changes to it.  This will probably
@@ -267,27 +295,6 @@ o [NSE] Do some benchmarking of our brute.nse.  We should check the
   out why the threads aren't helping more, and whether there is
   something we can do to fix it.  It would also be interesting to
   compare speed with Ncrack for services we have in common.
-
-o We should offer partial results when a host
-  timeouts. I (Fyodor) have been against this in the past, but maybe
-  the value is sufficient to be worth the maintenance headaches.  Many
-  users have asked for this.  If we do implement this, we may want to
-  only print results for the COMPLETED phases (e.g. host discovery,
-  port scanning, version detection, traceroute, NSE, etc.)  Trying to
-  print partial results of a port scan or NSE or the like might be a
-  pain.  And if we print some results for a host which timeouts, we
-  should give a very clear warning that the results for that host are
-  incomplete. As an example, here is someone who hacked Nmap source
-  code to achieve this: http://seclists.org/pen-test/2010/Mar/108.
-  o Another benefit would be that it would allow us to clean
-    up/regularize the host output code. Right now there are I think
-    three places where a host's final output can be printed. If,
-    instead, that code just looked at what information was available and
-    printed that out only, we could potentially isolate it in just one
-    place.
-  o This also might let us provide a feature for skipping the rest of
-    an Nmap phase which is going too slowly (I think that has its own
-    Nmap TODO item).
 
 o [NSE] Consider a script which uses Nmap's detected OS and version
   detection information for open ports to print out _possible_ (unverified)
@@ -571,16 +578,6 @@ o Look into whether we should loosen/change the global congestion
     of connections it will make, and doesn't try to download every
     image file at once and count on the fairness of TCP to sort it
     out.
-
-o Make Zenmap settings get upgraded when the Zenmap executable is
-  upgraded. The per-user configuration files such as scan_profile.usp
-  and zenmap.conf are never overwritten once installed by Zenmap, so
-  changes and fixes to those files don't reach anyone who has
-  installed Zenmap already. This is most noticeable with changes to
-  profiles and highlight definitions are notably affected. This fix
-  may involve hard-coding settings that are not normally configured by
-  users (like highlighting) or updating the per-user files at startup
-  (only those parts that haven't been changed by the user).
 
 o libnmap organization for UNIX and Windows
   o Then change Nmap and Zenmap to simply call this library
