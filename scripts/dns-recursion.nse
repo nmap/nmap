@@ -14,7 +14,7 @@ author = "Felix Groebert"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "intrusive"}
+categories = {"default", "safe"}
 
 require "bit"
 require "comm"

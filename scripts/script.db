@@ -24,17 +24,17 @@ Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
 Entry { filename = "db2-discover.nse", categories = { "broadcast", "safe", } }
-Entry { filename = "dhcp-discover.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "dhcp-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-fuzz.nse", categories = { "fuzzer", "intrusive", } }
 Entry { filename = "dns-nsec-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-random-srcport.nse", categories = { "external", "intrusive", } }
 Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive", } }
-Entry { filename = "dns-recursion.nse", categories = { "default", "intrusive", } }
+Entry { filename = "dns-recursion.nse", categories = { "default", "safe", } }
 Entry { filename = "dns-service-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dns-update.nse", categories = { "discovery", "safe", } }
-Entry { filename = "dns-zone-transfer.nse", categories = { "default", "discovery", "intrusive", } }
+Entry { filename = "dns-zone-transfer.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "domcon-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "domino-enum-users.nse", categories = { "auth", "intrusive", } }
@@ -45,7 +45,7 @@ Entry { filename = "epmd-info.nse", categories = { "default", "discovery", "safe
 Entry { filename = "finger.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "firewalk.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ftp-anon.nse", categories = { "auth", "default", "safe", } }
-Entry { filename = "ftp-bounce.nse", categories = { "default", "intrusive", } }
+Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ftp-proftpd-backdoor.nse", categories = { "discovery", "intrusive", } }
@@ -65,7 +65,7 @@ Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
-Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
+Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
@@ -171,7 +171,7 @@ Entry { filename = "snmp-win32-services.nse", categories = { "default", "discove
 Entry { filename = "snmp-win32-shares.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-software.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-win32-users.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "intrusive", } }
+Entry { filename = "socks-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "sql-injection.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ssh-hostkey.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "ssh2-enum-algos.nse", categories = { "discovery", "safe", } }

@@ -24,7 +24,7 @@ argument.
 
 author = "Joao Correa"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "discovery", "external", "intrusive"}
+categories = {"default", "discovery", "external", "safe"}
 
 require "shortport"
 require "stdnse"

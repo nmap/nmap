@@ -80,7 +80,7 @@ require('ipOps')
 
 author = "Eddie Bell"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {'default', 'intrusive', 'discovery'}
+categories = {'intrusive', 'discovery'}
 
 -- DNS options
 local dns_opts = {}

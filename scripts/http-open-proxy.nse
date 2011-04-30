@@ -36,7 +36,7 @@ the target to retrieve a web page from www.google.com.
 
 author = "Arturo 'Buanzo' Busleiman"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "discovery", "external", "intrusive"}
+categories = {"default", "discovery", "external", "safe"}
 require "comm"
 require "shortport"
 require "stdnse"

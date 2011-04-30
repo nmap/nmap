@@ -23,7 +23,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- 21/tcp open  ftp
 -- |_ftp-bounce: no banner
 
-categories = {"default", "intrusive"}
+categories = {"default", "safe"}
 
 require "shortport"
 
