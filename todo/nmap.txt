@@ -159,7 +159,8 @@ o [NCAT] Send one line at a time when --delay is in effect. This is
 o [NCAT] Make the HTTP proxy support the chunked transfer encoding,
   then change it to be HTTP/1.1 and support pipelining.
 
-o [NCAT] Drop privileges on startup.
+o [NCAT] Drop privileges once it has started up, bound the ports it
+  needs to, etc.
 
 o [NCAT] Work as a SOCKS4a/SOCKSv5 proxy.
 
@@ -429,9 +430,6 @@ o Scanning through proxies
      these different applications can be scanned through using the
      same basic engine.  You should run your ideas by nmap-dev in as
      much detail as possible before starting.
-
-o [Ncat] Drop privileges once it has started up, bound the ports it
-  needs to, etc.
 
 o [Web] Consider adding training/introduction videos to the Nmap site
  o Would be great to have a (5 minute or less) promotional video
