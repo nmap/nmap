@@ -54,7 +54,7 @@ Entry { filename = "gopher-ls.nse", categories = { "default", "discovery", "safe
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
-Entry { filename = "http-auth.nse", categories = { "auth", "default", } }
+Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }

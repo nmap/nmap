@@ -21,7 +21,7 @@ author = "Thomas Buchanan"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "auth"}
+categories = {"default", "auth", "safe"}
 
 require "shortport"
 require "http"
