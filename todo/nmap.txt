@@ -320,6 +320,8 @@ o Start project to make Nmap a Featured Article on Wikipedia.
 
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
+ o Daniel Miller is working on an implementation:
+   http://seclists.org/nmap-dev/2011/q2/263.
 
 o Add Nmap web board/forum
  - First step is looking at the available software for this.
