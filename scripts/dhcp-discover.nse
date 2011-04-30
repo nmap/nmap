@@ -38,7 +38,7 @@ Some of the more useful fields:
 -- @args fake_requests Set to an integer to make that many fake requests  before the real one(s).
 --                This could be useful, for example, if you  also use <code>randomize_mac</code>
 --                and you want to try exhausting  all addresses. 
-
+--
 -- @output
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE
