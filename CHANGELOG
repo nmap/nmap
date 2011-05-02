@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed an error that could cause a crash ("TypeError: an
+  integer is required") if a sort column in the ports table was unset.
+  [David]
+
 o [NSE] Added http-wp-plugins.nse, which retrieves the list of installed
   Wordpress plugins by bruteforcing the wp-content directory. [Ange Gutek]
 
