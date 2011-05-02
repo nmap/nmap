@@ -479,7 +479,6 @@ function send(data)
 -- success the function returns a true value. If the send operation fails, the
 -- function returns a false value (<code>false</code> or <code>nil</code>) along
 -- with an error string. The error strings are
--- * <code>"Trying to send through a closed socket"</code>: There was no call to <code>socket:connect</code> before the send operation.
 -- * <code>"TIMEOUT"</code>: The operation took longer than the specified timeout for the socket.
 -- * <code>"ERROR"</code>: An error occurred inside the underlying Nsock library.
 -- * <code>"CANCELLED"</code>: The operation was cancelled.
@@ -490,7 +489,7 @@ function send(data)
 -- @param data The data to send.
 -- @return Status (true or false).
 -- @return Error code (if status is false).
--- @usage local status, err = socket:send(data)
+-- @usage local status, err = socket:sendto(host, port, data)
 function sendto(host, port, data)
 
 --- Receives data from an open socket.
