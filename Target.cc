@@ -200,7 +200,7 @@ void Target::GenerateIPString() {
      address since it is portable for IPv6 hosts.  Returns 0 for
      success. ss_len must be provided.  It is not examined, but is set
      to the size of the sockaddr copied in. */
-int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
+int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   assert(ss);
   assert(ss_len);  
   if (targetsocklen <= 0)
@@ -213,7 +213,7 @@ int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
-void Target::setTargetSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+void Target::setTargetSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
 
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   if (targetsocklen > 0) {
@@ -248,7 +248,7 @@ const struct in_addr *Target::v4hostip() const {
 }
 
  /* The source address used to reach the target */
-int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
+int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   if (sourcesocklen <= 0)
     return 1;
   assert(sourcesocklen <= sizeof(*ss));
@@ -261,7 +261,7 @@ int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
-void Target::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
+void Target::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
   sourcesocklen = ss_len;
