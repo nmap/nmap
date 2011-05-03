@@ -44,6 +44,6 @@ o Investigate on differences between SCTP stacks and
   results.  For example, BSD systems send the ASCII string
   KAME-BSD in INIT-ACK chunks.
 
-o SCTP-enable scanme.nmap.org in order to make scanme.csnc.ch
+o SCTP-enable scanme.nmap.org in order to make scanme.roe.ch
   obsolete.
 
