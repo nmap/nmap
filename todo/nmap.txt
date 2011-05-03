@@ -31,6 +31,15 @@ o Script review:
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
 o Summer of Code feature creeper:
+  o Rewrite the portreasons code not to use parallel arrays
+    (reason_text, reason_pl_text) and not to require special alignment
+    between the enum codes and (for example) ICMP types. Instead
+    define one structure containing all relevant information about a
+    reason, and define helper functions to map ICMP types to reason
+    codes. In particular, code like this needs to go away:
+      current_reason = ping->type + ER_ICMPTYPE_MOD;
+      if (current_reason == ER_DESTUNREACH)
+        current_reason = ping->code + ER_ICMPCODE_MOD;
   o Change Zenmap bug reporter so that instead of an automatic
     submission system, we print a stack trace and request that the user
     send a bug report to nmap-dev.
