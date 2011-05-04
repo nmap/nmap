@@ -8111,7 +8111,7 @@ match login m|^\0\r\n\nIQinVision IQeye3 Version ([vV].*)\n\r\nType HELP| p/IQin
 match login m|^\0\r\n\nLantronix ETS16 Version V([\d.]+)/\d+\(\d+\)\n\r\nType HELP at the 'BRTR-ETS16>' prompt for assistance\.\n\r\nUsername> | p/Lantronix ETS16 logind/ d/terminal server/
 match shell m|^\0rsh: \x10: Command not supported\n| p/Ricoh rshd/ d/printer/
 
-# Knwo teh device but not the service.
+# Know the device but not the service.
 # match unknown m|^\0\0\0\0\0\x03\0\x80\x01$| p/Weintek MT8000 touch screen/ d/media device/
 
 ##############################NEXT PROBE##############################
