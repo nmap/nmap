@@ -114,6 +114,13 @@ o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
 
+o When I (Fyodor) scan scanme.nmap.org with the command "nmap -sC -p80
+-Pn -n scanme.nmap.org", I get a blank http-favicon line like:
+    80/tcp open  http
+    |_http-title: Go ahead and ScanMe!
+    |_http-favicon: 
+  But if I use "--script http-favicon" instead of -sC, it works fine.
+
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
   is a solution people use for Wireshark or does it always cause this
@@ -138,6 +145,18 @@ o Revive the Nmap Public Source License project (need to find an open
 o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
    some research on what IPv6 OS detection might require).
+
+o Add IPv6 support to Nping, including raw packet mode (hopefully
+  sharing as much code with Nmap as possible, though Nping's packet code
+  is a bit different), and also including echo mode server and client
+  support.
+
+o If possible, Ncat, in listen mode, should probably listen on the system's
+  IPv6 interfaces as well as IPv4.  This is what servers like apache
+  and ssh do by default.  It might now be possible to listen on IPv6
+  by running a second ncat with -6, but that doesn't really work for
+  broker and chat modes because you want the IPv6 users to be able to
+  talk to IPv4 and vice versa.
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
