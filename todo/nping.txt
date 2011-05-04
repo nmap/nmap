@@ -81,6 +81,8 @@
       to remove application layer data before transmission, and include
       additional information in the NEP_ECHO message so clients can determine 
       that the payload part was stripped and how long was it.
+
+    - Consider making the echo server bind to all IPv4 AND IPv6 interfaces.
         
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
