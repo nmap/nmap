@@ -139,6 +139,14 @@ o Add raw packet IPv6 support, initially for SYN scan
  o After that can add UDP scan, and sometime OS detection (David did
    some research on what IPv6 OS detection might require).
 
+o Add IPv6 subnet/pattern support like we offer for IPv4.
+ o Obviously we can't go scanning a /48 in IPv6, but small subnets do
+ make sense in some cases.  For example, the VPS hosting company
+ Linode assigns only one IPv6 address per user (unless they pay) and
+ you can find many Linode machines by scanning certain /112's.  And
+ patterns might be useful because people assigned /64's might still
+ put their machines at ::1, ::2, etc.
+
 o Further brainstorm and consider implementing more prerule/postrule
   scripts:
    o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
