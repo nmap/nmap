@@ -29,24 +29,13 @@ categories = {"intrusive", "auth"}
 require 'shortport'
 require 'stdnse'
 require 'unpwdb'
+require 'openssl'
 
 -- Version 0.3
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 02/20/2010 - v0.2 - moved version detection to pgsql library 
 -- Revised 03/04/2010 - v0.3 - added code from ssh-hostkey.nse to check for SSL support
 --                           - added support for trusted authentication method
-
--- ripped from ssh-hostkey.nse
--- openssl is required for this script
-if pcall(require,"openssl") then
-	require("pgsql")
-else
-	portrule = function() return false end
-  	action = function() end
-  	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-  	    SCRIPT_NAME)
-  	return;
-end
 
 portrule = shortport.port_or_service(5432, "postgresql")
 

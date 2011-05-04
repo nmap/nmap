@@ -364,21 +364,17 @@ local setreg = function(host, ports)
 end
 
 hostrule = function(host)
+    if not nmap.is_privileged() then
+        nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {};
+        if not nmap.registry[SCRIPT_NAME].rootfail then
+            stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME);
+        end
+        nmap.registry[SCRIPT_NAME].rootfail = true;
+        return nil;
+    end
+
 	local numopen, numclosed = NUMOPEN, NUMCLOSED
 
-	if not nmap.is_privileged() then
-		if not nmap.registry['qscan'] then
-			nmap.registry['qscan'] = {}
-		end
-		if nmap.registry['qscan']['rootfail'] then
-			return false
-		end
-		nmap.registry['qscan']['rootfail'] = true
-		if nmap.verbosity() > 0 then
-			stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
-		end
-		return false
-	end
 	if nmap.address_family() ~= 'inet' then
 		stdnse.print_debug("%s is IPv4 compatible only.", SCRIPT_NAME)
 		return false

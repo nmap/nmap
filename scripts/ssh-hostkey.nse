@@ -56,18 +56,9 @@ categories = {"safe","default","discovery"}
 
 require("shortport")
 require("stdnse")
-
--- openssl is required for this script
-if pcall(require,"openssl") then
-  require("ssh1")
-  require("ssh2")
-else
-  portrule = function() return false end
-  action = function() end
-  stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-      SCRIPT_NAME)
-  return;
-end
+require("openssl")
+require("ssh1")
+require("ssh2")
 
 portrule = shortport.port_or_service(22, "ssh")
 

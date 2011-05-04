@@ -17,21 +17,12 @@ require 'shortport'
 require 'stdnse'
 require 'mysql'
 require 'unpwdb'
+require 'openssl'
 
 -- Version 0.3
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/23/2010 - v0.2 - revised by Patrik Karlsson, changed username, password loop, added credential storage for other mysql scripts, added timelimit
 -- Revised 01/23/2010 - v0.3 - revised by Patrik Karlsson, fixed bug showing account passwords detected twice
-
--- ripped from ssh-hostkey.nse
--- openssl is required for this script
-if not pcall(require,"openssl") then
-	portrule = function() return false end
-  	action = function() end
-  	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-  	    SCRIPT_NAME)
-  	return;
-end
 
 portrule = shortport.port_or_service(3306, "mysql")
 

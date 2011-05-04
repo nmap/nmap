@@ -30,21 +30,12 @@ categories = {"discovery", "intrusive"}
 require 'shortport'
 require 'stdnse'
 require 'mysql'
+require 'openssl'
 
 dependencies = {"mysql-brute", "mysql-empty-password"}
 
 -- Version 0.1
 -- Created 01/23/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
-
--- ripped from ssh-hostkey.nse
--- openssl is required for this script
-if not pcall(require,"openssl") then
-	portrule = function() return false end
-  	action = function() end
-  	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-  	    SCRIPT_NAME)
-  	return;
-end
 
 portrule = shortport.port_or_service(3306, "mysql")
 

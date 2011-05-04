@@ -53,7 +53,7 @@ c = nil
 -- sleep is a C function defined in nse_nmaplib.cc.
 
 ---
--- Prints a formatted debug message if the current verbosity level is greater
+-- Prints a formatted debug message if the current debugging level is greater
 -- than or equal to a given level.
 -- 
 -- This is a convenience wrapper around
@@ -72,6 +72,28 @@ print_debug = function(level, fmt, ...)
     nmap.log_write("stdout", format(level, fmt, ...));
   end
 end
+
+---
+-- Prints a formatted verbosity message if the current verbosity level is greater
+-- than or equal to a given level.
+-- 
+-- This is a convenience wrapper around
+-- <code>nmap.log_write</code>. The first optional numeric
+-- argument, <code>level</code>, is used as the verbosity level necessary
+-- to print the message (it defaults to 1 if omitted). All remaining arguments
+-- are processed with Lua's <code>string.format</code> function.
+-- @param level Optional verbosity level.
+-- @param fmt Format string.
+-- @param ... Arguments to format.
+print_verbose = function(level, fmt, ...)
+  local l, d = tonumber(level), nmap.verbosity();
+  if l and l <= d then
+    nmap.log_write("stdout", format(fmt, ...));
+  elseif not l and 1 <= d then
+    nmap.log_write("stdout", format(level, fmt, ...));
+  end
+end
+
 
 --- Join a list of strings with a separator string.
 -- 
@@ -845,4 +867,13 @@ do end -- no function here, see nse_main.lua
 --@name base
 --@class function
 --@return coroutine Returns the base coroutine of the running script.
+do end -- no function here, see nse_main.lua
+
+--- The (Unmodified) Lua Require Function.
+--
+-- See the Lua manual for description. NSE replaces the standard function
+-- in the global namespace to improve error handling.
+--
+--@name require
+--@class function
 do end -- no function here, see nse_main.lua

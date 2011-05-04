@@ -77,8 +77,6 @@ require('stdnse')
 require('packet')
 require('tab')
 
-
-
 -----=  scan parameters defaults  =-----
 
 -- number of retries for unanswered probes
@@ -399,24 +397,13 @@ end
 
 --- host rule, check for requirements before to launch the script
 hostrule = function(host)
-
-  -- firewalk requires privileges to run
   if not nmap.is_privileged() then
-    if not nmap.registry['firewalk'] then
-      nmap.registry['firewalk'] = {}
+    nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {};
+    if not nmap.registry[SCRIPT_NAME].rootfail then
+      stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME);
     end
-
-    if nmap.registry['firewalk']['rootfail'] then
-      return false
-    end
-
-    nmap.registry['firewalk']['rootfail'] = true
-
-    if nmap.verbosity() > 0 then
-      stdnse.print_debug("%s not running for lack of privileges.", SCRIPT_NAME)
-    end
-
-    return false
+    nmap.registry[SCRIPT_NAME].rootfail = true;
+    return nil;
   end
 
   if nmap.address_family() ~= 'inet' then

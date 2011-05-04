@@ -57,15 +57,7 @@ categories = {"safe", "discovery"}
 
 require "shortport"
 require "stdnse"
-if pcall(require,"openssl") then
-  require("ssh2")
-else
-  portrule = function() return false end
-  action = function() end
-  stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-      SCRIPT_NAME)
-  return;
-end
+require "openssl"
 
 portrule = shortport.port_or_service(22, "ssh")
 

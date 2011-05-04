@@ -37,6 +37,7 @@ require "http"
 require "stdnse"
 require "datafiles"
 require "nsedebug"
+require "openssl"
 
 portrule = shortport.http
 
@@ -52,12 +53,6 @@ action = function(host, port)
   status, favicondb = datafiles.parse_file( favicondbfile, {["^%s*([^%s#:]+)[%s:]+"] = "^%s*[^%s#:]+[%s:]+(.*)"})
   if not status then
   	stdnse.print_debug( 1, "Could not open file: %s", favicondbfile )
-	return
-  end
-
-  if not pcall(require,'openssl') then
-	stdnse.print_debug( 3, "Skipping %s script because OpenSSL is missing.",
-	    SCRIPT_NAME)
 	return
   end
 

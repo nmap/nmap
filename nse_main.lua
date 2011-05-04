@@ -67,8 +67,10 @@ local loadfile = loadfile;
 local loadstring = loadstring;
 local next = next;
 local pairs = pairs;
+local pcall = pcall;
 local rawget = rawget;
 local rawset = rawset;
+local require = require;
 local select = select;
 local setfenv = setfenv;
 local setmetatable = setmetatable;
@@ -93,6 +95,8 @@ local open = io.open;
 
 local math = require "math";
 local max = math.max;
+
+local package = require "package";
 
 local string = require "string";
 local byte = string.byte;
@@ -205,6 +209,19 @@ local function tcopy (t)
     end
   end
   return tc;
+end
+
+local REQUIRE_ERROR = {};
+stdnse.require = require; -- add real require to stdnse so it can be called if desired
+function _G.require (...)
+  local status, mod = pcall(require, ...);
+  if not status then
+    print_debug(1, "%s", traceback(mod));
+    yield(REQUIRE_ERROR); -- use script yield
+    error(mod);
+  else
+    return mod;
+  end
 end
 
 local Script = {}; -- The Script Class, its constructor is Script.new.
@@ -354,6 +371,9 @@ do
     categories = "table",
     dependencies = "table",
   };
+  local quiet_errors = {
+    [REQUIRE_ERROR] = true,
+  }
   -- script = Script.new(filename)
   -- Creates a new Script Class for the script.
   -- Arguments:
@@ -381,7 +401,11 @@ do
     setmetatable(env, {__index = _G});
     setfenv(file_closure, env);
     local co = create(file_closure); -- Create a garbage thread
-    assert(resume(co)); -- Get the globals it loads in env
+    local status, e = assert(resume(co)); -- Get the globals it loads in env
+    if quiet_errors[e] then
+      print_verbose(1, "Failed to load '%s'.", filename);
+      return nil;
+    end
     -- Check that all the required fields were set
     for f, t in pairs(required_fields) do
       local field = rawget(env, f);
