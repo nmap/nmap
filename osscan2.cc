@@ -3766,7 +3766,7 @@ static int os_scan_2(vector<Target *> &Targets) {
       if (!plural) {
 	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
-      log_write(LOG_PLAIN, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
+      log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();
     }
     startRound(OSI, HOS, itry);
