@@ -12,13 +12,8 @@ o Process Nmap survey and send out results [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
-  - Merged: DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
-  - Merged: quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
-  - Merged: backorifice-info. http://seclists.org/nmap-dev/2011/q2/185.
-  - Merged: omp2-brute and omp2-enum-targets. http://seclists.org/nmap-dev/2011/q2/231.
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
-  - http-wp-plugins. http://seclists.org/nmap-dev/2011/q1/806.
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
   - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
   - xmpp. http://seclists.org/nmap-dev/2011/q2/239.
@@ -728,6 +723,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review/disposition:
+  - Merged: DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
+  - Merged: quake3-master-getservers patch. http://seclists.org/nmap-dev/2011/q1/925.
+  - Merged: backorifice-info. http://seclists.org/nmap-dev/2011/q2/185.
+  - Merged: omp2-brute and omp2-enum-targets. http://seclists.org/nmap-dev/2011/q2/231.
+  - Merged: http-wp-plugins. http://seclists.org/nmap-dev/2011/q1/806.
 
 o Decide what to do about ms-sql-info slowing scans:
   http://seclists.org/nmap-dev/2011/q1/913
