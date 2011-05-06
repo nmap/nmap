@@ -129,7 +129,7 @@ class NmapOps {
      It does not currently cover cases such as TCP SYN ping scan which
      can go either way based on whether the user is root or IPv6 is
      being used.  It will return false in those cases where a RawScan
-     is not neccessarily used. */
+     is not necessarily used. */
   bool RawScan();
   void ValidateOptions(); /* Checks that the options given are
                              reasonable and consistant.  If they aren't, the
