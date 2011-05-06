@@ -364,14 +364,14 @@ local setreg = function(host, ports)
 end
 
 hostrule = function(host)
-    if not nmap.is_privileged() then
-        nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {};
-        if not nmap.registry[SCRIPT_NAME].rootfail then
-            stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME);
-        end
-        nmap.registry[SCRIPT_NAME].rootfail = true;
-        return nil;
-    end
+	if not nmap.is_privileged() then
+		nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
+		if not nmap.registry[SCRIPT_NAME].rootfail then
+			stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
+		end
+		nmap.registry[SCRIPT_NAME].rootfail = true
+		return nil
+	end
 
 	local numopen, numclosed = NUMOPEN, NUMCLOSED
 
