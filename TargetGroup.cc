@@ -565,7 +565,7 @@ bool TargetGroup::is_resolved_address(const struct sockaddr_storage *ss)
     return false;
   resolvedaddr = *resolvedaddrs.begin();
 
-  return sockaddr_storage_cmp(&resolvedaddr, ss) == 0;
+  return sockaddr_storage_equal(&resolvedaddr, ss);
 }
 
 /* Return a string of the name or address that was resolved for this group. */

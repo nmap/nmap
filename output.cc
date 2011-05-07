@@ -2055,7 +2055,7 @@ static void printtraceroute_normal(Target *currenths) {
     sslen = sizeof(addr);
     currenths->TargetSockAddr(&addr, &sslen);
     while (it != currenths->traceroute_hops.end()
-           && sockaddr_storage_cmp(&it->tag, &addr) != 0) {
+           && !sockaddr_storage_equal(&it->tag, &addr)) {
       shared_hop = &*it;
       it++;
     }

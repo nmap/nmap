@@ -997,7 +997,7 @@ void TracerouteState::set_host_hop(HostState *host, u8 ttl,
       }
       sslen = sizeof(addr);
       host->target->TargetSockAddr(&addr, &sslen);
-      if (sockaddr_storage_cmp(&hop->tag, &addr) == 0) {
+      if (sockaddr_storage_equal(&hop->tag, &addr)) {
         if (o.debugging > 1) {
           log_write(LOG_STDOUT, "%s continuing trace from TTL %d\n",
             host->target->targetipstr(), host->current_ttl);
@@ -1204,7 +1204,7 @@ void TracerouteState::read_replies(long timeout) {
 
     sslen = sizeof(ss);
     host->target->TargetSockAddr(&ss, &sslen);
-    if (sockaddr_storage_cmp(&ss, &reply.from_addr) == 0) {
+    if (sockaddr_storage_equal(&ss, &reply.from_addr)) {
       adjust_timeouts2(&probe->sent_time, &reply.rcvdtime, &host->target->to);
       if (host->reached_target == 0 || probe->ttl < host->reached_target)
         host->reached_target = probe->ttl;
@@ -1371,7 +1371,7 @@ Probe *TracerouteState::lookup_probe(
 
     sslen = sizeof(ss);
     (*host_iter)->target->TargetSockAddr(&ss, &sslen);
-    if (sockaddr_storage_cmp(&ss, target_addr) != 0)
+    if (!sockaddr_storage_equal(&ss, target_addr))
       continue;
     for (probe_iter = (*host_iter)->unanswered_probes.begin();
          probe_iter != (*host_iter)->unanswered_probes.end();
