@@ -389,10 +389,6 @@ int resolve(const char *hostname, u16 port, int nodns, struct sockaddr_storage *
  * We try to optimize speed when ordering the tests. This optimization
  * assumes that all byte values are equally likely in the input.
  *
- * Warning: This function needs frequent attention because IANA has been
- * allocating address blocks many times per year (although it's questionable
- * how much longer this trend can be kept up).
- *
  * Check
  * <http://www.iana.org/assignments/ipv4-address-space/ipv4-address-space.txt>
  * for the most recent assigments and
