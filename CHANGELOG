@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
+
 o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the 
   hosts in the local network that are running Avahi are vulnerable to
   the NULL UDP packet denial of service (CVE-2011-1002). [Djalal]
