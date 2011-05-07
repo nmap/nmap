@@ -5,7 +5,7 @@ SMTP server.
 
 ---
 -- @usage
--- nmap --script smtp-commands.nse [--script-args smtp-open-relay.domain=<domain>] -pT:25,465,587 <host>
+-- nmap --script smtp-commands.nse [--script-args smtp-commands.domain=<domain>] -pT:25,465,587 <host>
 --
 -- @output
 -- PORT   STATE SERVICE REASON  VERSION
