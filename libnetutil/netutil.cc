@@ -2140,7 +2140,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   char *p = NULL;                       /* Aux pointer.                      */
   int frag_off = 0;                     /* To compute IP fragment offset.    */
   int more_fragments = 0;               /* True if IP MF flag is set.        */
-  int dont_fragment = 0;                /* Ture if IP DF flag is set.        */
+  int dont_fragment = 0;                /* True if IP DF flag is set.        */
   int reserved_flag = 0;                /* True if IP Reserved flag is set.  */
   size_t iphdrlen=0;                    /* Length of the IP (4 or 6) header  */
   u8 nextproto=0;                       /* Protocol after IP (4 or 6) header */
