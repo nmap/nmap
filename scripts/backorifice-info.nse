@@ -250,6 +250,7 @@ local function insert_version_info(host,port,BOversion,BOhostname,initial_seed,p
 	port.version.hostname = BOhostname
 	if(port.version.ostype == nil) then port.version.ostype = "Windows" end
 	nmap.set_port_version(host, port, "hardmatched")
+	nmap.set_port_state(host, port, "open")
 end
 
 action = function( host, port )
