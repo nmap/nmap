@@ -1,13 +1,13 @@
 PENDING:
--Work on php-self.nse
--Define list of required functions for http-crawler
+-Work on php-self.nse and httpspider.lua
 -Wait for feedback to complete/close project http-cakephp-version
--Write draft for the http-crawler library
+
 
 COMPLETED:
+-Define list of required functions for http-crawler (Library renamed to httpspider)
+-Write draft for the http-crawler library
 -Read again the NSE documentation
 -Fingerprint more cakephp 1.1.x installations
-
 
 INCOMPLETE TASKS:
 -Work on HTTP URI Fuzzing script (Delayed)
