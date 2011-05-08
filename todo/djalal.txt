@@ -2,21 +2,11 @@
 
 1) Nmap Scripting Engine Infrastructure:
 
-o Create a new function nmap.getinterfaces() which will return a
-  table of network interfaces tables from struct interface_info
-  (libnetutil/netutil.h).  
-
 o NSE Version Numbering.
   http://seclists.org/nmap-dev/2010/q4/693
 
-o Write an other script that uses a "prerule" or a "postrule".
-
 [Other tasks]
 o Propose a better duplicate scanned IPs filtering engine.
-
-o Fixing bugs.
-- NSE not honoring the source port flag when doing version scan.
-    http://seclists.org/nmap-dev/2010/q2/576
 
 
 2) NSE Scripts:
@@ -34,13 +24,13 @@ Select vulnerabilities form the oss-security mailing list.
 o Review NSE scripts and libs, and fixing bugs:
  - Document all the new NFS procedures.
 
+o Write an other script that uses a "prerule" or a "postrule".
 
 [Other tasks]
 o NFS/RPC features:
 - Add more authentication support: Unix authentication.
 - NFSv4 support.
 - Add recursion support to nfs-ls.nse
-
 
 
 ==
@@ -68,12 +58,23 @@ o Privileges dropping for NSE scripts [nmap TODO list].
 o NSE security review [nmap TODO list].
 
 
+o Fixing bugs.
+- NSE not honoring the source port flag when doing version scan.
+  http://seclists.org/nmap-dev/2010/q2/576
+  
+  David said that it will not be easy to support setting the source port
+  http://seclists.org/nmap-dev/2010/q3/331
+
+
 ==
 
 DONE:
 
 1) Nmap Scripting Engine Infrastructure:
 
+o Make NSE scripts able to retrieve the interface network
+  information.
+  
 o LuaFileSystem directory iterator [1] port.
 [1] http://keplerproject.github.com/luafilesystem/
 
