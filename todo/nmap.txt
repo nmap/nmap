@@ -84,6 +84,9 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
+o Fix memory consumption problem in drda-info (see
+  http://seclists.org/nmap-dev/2011/q2/451)
+
 o A couple minor nsedoc issues (see
   http://seclists.org/nmap-dev/2011/q1/1095):
  o After the ssh-hostkey portrule was added, nsedoc seems to be
