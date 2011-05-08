@@ -1,0 +1,107 @@
+==
+
+1) Nmap Scripting Engine Infrastructure:
+
+o Create a new function nmap.getinterfaces() which will return a
+  table of network interfaces tables from struct interface_info
+  (libnetutil/netutil.h).  
+
+o NSE Version Numbering.
+  http://seclists.org/nmap-dev/2010/q4/693
+
+o Write an other script that uses a "prerule" or a "postrule".
+
+[Other tasks]
+o Propose a better duplicate scanned IPs filtering engine.
+
+o Fixing bugs.
+- NSE not honoring the source port flag when doing version scan.
+    http://seclists.org/nmap-dev/2010/q2/576
+
+
+2) NSE Scripts:
+
+[Priorities tasks]
+o NFS/RPC features:
+- add NFS READLINK support to let nfs-ls show symbolic files.
+
+o Write new NSE libraries and scripts which can includes vulnerabilities
+checks scripts.
+Focus on the open source software vulnerabilities since there is another
+google summer of code project which handles Microsoft softwares.
+Select vulnerabilities form the oss-security mailing list.
+
+o Review NSE scripts and libs, and fixing bugs:
+ - Document all the new NFS procedures.
+
+
+[Other tasks]
+o NFS/RPC features:
+- Add more authentication support: Unix authentication.
+- NFSv4 support.
+- Add recursion support to nfs-ls.nse
+
+
+
+==
+
+MAYBE:
+
+o Create a new rule "versionrule" which will be used by version
+  category scripts.
+  http://seclists.org/nmap-dev/2010/q3/551
+
+o NSE debugger.
+
+o Add more NSE control for long running scripts: one option will be a
+boolean expression filter (like: tcpdump) which will change NSE scripts
+arguments or behaviour according to previous results, this will be
+really useful for big networks. Another option will be a generic NSE
+(Lua) script with an easy and readable code that includes expressions or
+filters selection to let us change NSE arguments according to previous
+results.
+Note: this option will be useful on big networks. however for the moment
+this is a simple idea and it needs further discussion on the nmap-dev.
+
+o Privileges dropping for NSE scripts [nmap TODO list].
+
+o NSE security review [nmap TODO list].
+
+
+==
+
+DONE:
+
+1) Nmap Scripting Engine Infrastructure:
+
+o LuaFileSystem directory iterator [1] port.
+[1] http://keplerproject.github.com/luafilesystem/
+
+o New class of scripts which use two new script rules:
+ - Script Pre-scanning and Script Post-scanning rules: "prerule" and
+   "postrule". Documented these new phases.
+ - Update scripts to use these new rules:
+   dns-zone-transfer now uses "prerule" and "portrule".
+
+o Update other parts of Nmap book to show the new Script scan phases.
+
+o Fixing bugs:
+ - NSE not honoring the Exclude directive bug fixed and committed 
+   as r18467.
+
+o Let NSE "prerule", "portrule" and "hostrule" scripts to add new
+discoverd targets to Nmap.
+
+o Update scripting.xml to show the new script scan phases.
+
+2) NSE Scripts:
+
+o NFS/RPC features:
+ - New script: nfs-ls which combines nfs-dirlist and nfs-acls and try to
+   emulates some features of the old "ls" unix tool. The script support
+   NFSv2 and NFSv3.
+ - Readapted the RPC and NFS library code with a new re-design with new
+   high level functions.
+ - Added NFS procedures support:
+   NFSv2: LOOKUP
+   NFSv3: FSSTAT, FSINFO, READDIRPLUS, PATHCONF, ACCESS, LOOKUP
