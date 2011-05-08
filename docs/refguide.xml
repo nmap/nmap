@@ -2177,6 +2177,7 @@ way.</para>
     To reflect those different uses and to simplify the choice of which
     scripts to run, each script contains a field associating it with one or more categories.  Currently defined categories are
     <literal>auth</literal>,
+    <literal>broadcast</literal>,
     <literal>default</literal>.
     <literal>discovery</literal>,
     <literal>dos</literal>,
