@@ -98,6 +98,13 @@ o A couple minor nsedoc issues (see
 o UDP scanning with IP options causes "Received short ICMP packet" on
   receipt. http://seclists.org/nmap-dev/2011/q1/82
 
+o We should run at least one SCTP service on scanme.  Daniel
+  Roethlisberger has made available dummy services which support IPv4
+  and IPv6 (see http://seclists.org/nmap-dev/2011/q2/450).
+  Alternatively, we could run some sort of "real" SCTP application(s)
+  (preferably one which is relatively simple, easy to install, secure,
+  and supports IPv6).
+
 o [Ncat] Find out what RDP port forwarding apparently doesn't work on
   Windows. http://seclists.org/nmap-dev/2011/q1/86
 
