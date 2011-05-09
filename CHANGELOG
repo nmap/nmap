@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a SIP library and two new scripts sip-brute.nse and
+  sip-user-enum.nse providing brute and user enumeration support for the SIP
+  protocol. [Patrik]
+
 o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
 
 o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the 
