@@ -9274,7 +9274,7 @@ match audioworks m|^\0\0$| p/AudioWorks sound server/ o/IRIX/
 
 # Netware 5 and 6
 # NCP "OK" reply
-match ncp m|^\x74\x4e\x63\x50\0\0\0\x10\x33\x33| p/Novell NetWare NCP/ o/NetWare/
+match ncp m|^\x74\x4e\x63\x50\0\0\0\x10\x33\x33| p/Novell NetWare NCP/
 match srun m|^X\0\0\0$| p/Caucho Resin JSP Engine srun/
 match progress m|^\0\0\0\x01\0\x17\0\x14\0\x06\0\0\0.\0\0\0\0\0\0|s p/Progress Database/
 
@@ -9886,6 +9886,9 @@ match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x80\x7d.([^\0\x01]+)[\0\
 
 # Novell NetWare AFP
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\0\xbf.([^\0]+)\0.*\x16Novell NetWare ([0-9.]+)\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x02\x10([^\x16]+)\x16|s p/Novell NetWare AFP/ v/$2/ i/name: $3/ o/Novell NetWare/
+
+# Novell Open Enterprise Server
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\0\xb7.([^\0]+)\0.*\x1fNovell\x20Open\x20Enterprise\x20Server\x202|s p/Novell Open Enterprise Server/ v/2/ i/name: $1/ o/Linux/
 
 
 ##############################NEXT PROBE##############################
