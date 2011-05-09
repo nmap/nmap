@@ -125,7 +125,7 @@ DominoSocket =
 	
 		if ( #self.Buffer < count ) then
 			status, data = self.Socket:receive_bytes( count - #self.Buffer )
-			if ( not(status) ) then
+			if ( not(status) or #data < count - #self.Buffer ) then
 				return false, data
 			end
 			self.Buffer = self.Buffer .. data
