@@ -47,7 +47,7 @@ end
 numbytes = function(num)
 	local n = num
 	return function(buf)
-		if(string.len(buf) >=n) then
+		if(#buf >=n) then
 			return n, n
 		end
 		return nil

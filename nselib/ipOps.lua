@@ -248,7 +248,7 @@ compare_ip = function( left, op, right )
     return nil, table.concat( err, " " )
   end
 
-  if string.len( left ) ~= string.len( right ) then
+  if # left  ~= # right  then
       -- shouldn't happen...
       return nil, "Error in ipOps.compare_ip: Binary IP addresses were of different lengths."
   end
@@ -262,7 +262,7 @@ compare_ip = function( left, op, right )
 
   -- starting from the leftmost bit, subtract the bit in right from the bit in left
   local compare
-  for i = 1, string.len( left ), 1 do
+  for i = 1, # left , 1 do
     compare = tonumber( string.sub( left, i, i ) ) - tonumber( string.sub( right, i, i ) )
     if compare == 1 then
       return true
@@ -485,7 +485,7 @@ get_last_ip = function( ip, prefix )
   if err then return nil, err end
 
   prefix = tonumber( prefix )
-  if not prefix or ( prefix < 0 ) or ( prefix > string.len( first ) ) then
+  if not prefix or ( prefix < 0 ) or ( prefix > # first  ) then
     return nil, "Error in ipOps.get_last_ip: Invalid prefix length."
   end
 
@@ -534,7 +534,7 @@ ip_to_bin = function( ip )
 
   -- padding
   for i, v in ipairs( t ) do
-    t[i] = mask:sub( 1, string.len( mask ) - string.len( v ) ) .. v
+    t[i] = mask:sub( 1, # mask  - # v  ) .. v
   end
 
   return hex_to_bin( table.concat( t ) )
@@ -559,9 +559,9 @@ bin_to_ip = function( binstring )
   end
 
   local af
-  if string.len( binstring ) == 32 then
+  if # binstring  == 32 then
     af = 4
-  elseif string.len( binstring ) == 128 then
+  elseif # binstring  == 128 then
     af = 6
   else
     return nil, "Error in ipOps.bin_to_ip: Expected exactly 32 or 128 binary digits."
@@ -609,7 +609,7 @@ hex_to_bin = function( hex )
   local t, mask, binchar = {}, "0000"
   for hexchar in string.gmatch( hex, "%x" ) do
       binchar = stdnse.tobinary( tonumber( hexchar, 16 ) )
-      t[#t+1] = mask:sub( 1, string.len( mask ) - string.len( binchar ) ) .. binchar
+      t[#t+1] = mask:sub( 1, # mask  - # binchar  ) .. binchar
   end
   return table.concat( t )
 

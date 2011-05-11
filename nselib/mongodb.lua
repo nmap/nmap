@@ -113,7 +113,7 @@ function toBson(dict)
 		end
 	end
 	-- Get length
-	local length = string.len(elements) + 5
+	local length = #elements + 5
 	
 	if length > 4 * 1024 * 1024 then
 		return false, "document too large - BSON documents are limited to 4 MB"
@@ -563,7 +563,7 @@ function query(socket, data)
 	end
 	
 	local bsonData = responseHeader["bson"]
-	if string.len(bsonData) == 0 then 
+	if #bsonData == 0 then 
 		dbg("No BSon data returned ")
 		return false, "No Bson data returned"
 	end
@@ -626,7 +626,7 @@ function test()
 	local res
 	res = versionQuery()
 	print(type(res),res:len(),res)
-	local  out= bin.unpack('C'..string.len(res),res)
+	local  out= bin.unpack('C'..#res,res)
 	printBuffer(res)
 end
 --test()

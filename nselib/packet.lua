@@ -128,7 +128,7 @@ Packet = {}
 --- Create a new Packet object.
 -- @param packet Binary string with packet data.
 -- @param packet_len Packet length. It could be more than
--- <code>string.len(packet)</code>.
+-- <code>#packet</code>.
 -- @param force_continue whether an error in parsing headers should be fatal or
 -- not. This is especially useful when parsing ICMP packets, where a small ICMP
 -- payload could be a TCP header. The problem is that parsing this payload
@@ -236,7 +236,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:ip_parse(force_continue)
 	self.ip_offset		= 0
-	if    string.len(self.buf) < 20 then 	-- too short
+	if    #self.buf < 20 then 	-- too short
 		return false
 	end
 	self.ip_v		= bit.rshift(bit.band(self:u8(self.ip_offset + 0), 0xF0), 4)
@@ -391,7 +391,7 @@ end
 -- @return Whether the parsing succeeded.
 function Packet:icmp_parse(force_continue)
 	self.icmp_offset	= self.ip_data_offset
-	if string.len(self.buf) < self.icmp_offset + 8 then -- let's say 8 bytes minimum
+	if #self.buf < self.icmp_offset + 8 then -- let's say 8 bytes minimum
 		return false
 	end
 	self.icmp = true
@@ -403,7 +403,7 @@ function Packet:icmp_parse(force_continue)
 		self.icmp_payload = true
 		self.icmp_r0	  = self:u32(self.icmp_offset + 4)
 		self.icmp_payload_offset = self.icmp_offset + 8
-		if string.len(self.buf) < self.icmp_payload_offset + 24 then
+		if #self.buf < self.icmp_payload_offset + 24 then
 			return false
 		end
 		self.icmp_payload = Packet:new(self.buf:sub(self.icmp_payload_offset+1), self.packet_len - self.icmp_payload_offset, true)
@@ -423,12 +423,12 @@ end
 function Packet:tcp_parse(force_continue)
 	self.tcp = true
 	self.tcp_offset		= self.ip_data_offset
-	if string.len(self.buf) < self.tcp_offset + 4 then
+	if #self.buf < self.tcp_offset + 4 then
 		return false
 	end
 	self.tcp_sport		= self:u16(self.tcp_offset + 0)
 	self.tcp_dport		= self:u16(self.tcp_offset + 2)
-	if string.len(self.buf) < self.tcp_offset + 20 then
+	if #self.buf < self.tcp_offset + 20 then
 		if force_continue then
 			return true
 		else
@@ -609,12 +609,12 @@ end
 function Packet:udp_parse(force_continue)
 	self.udp = true
 	self.udp_offset		= self.ip_data_offset
-	if string.len(self.buf) < self.udp_offset + 4 then
+	if #self.buf < self.udp_offset + 4 then
 		return false
 	end
 	self.udp_sport		= self:u16(self.udp_offset + 0)
 	self.udp_dport		= self:u16(self.udp_offset + 2)
-	if string.len(self.buf) < self.udp_offset + 8 then
+	if #self.buf < self.udp_offset + 8 then
 		if force_continue then
 			return true
 		else

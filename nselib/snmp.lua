@@ -34,7 +34,7 @@ tagEncoder['table'] = function(self, val)
     -- counter or gauge or timeticks or opaque
 	elseif (val._snmp == '41' or val._snmp == '42' or val._snmp == '43' or val._snmp == '44') then
 		local val = self:encodeInt(val[1])
-		return bin.pack("HAA", val._snmp, self.encodeLength(string.len(val)), val)
+		return bin.pack("HAA", val._snmp, self.encodeLength(#val), val)
 	end
 	
 	local encVal = ""
@@ -46,7 +46,7 @@ tagEncoder['table'] = function(self, val)
 	if (val["_snmp"]) then 
 		tableType = bin.pack("H", val["_snmp"]) 
 	end
-	return bin.pack('AAA', tableType, self.encodeLength(string.len(encVal)), encVal)
+	return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
 end
 
 ---

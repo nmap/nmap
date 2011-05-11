@@ -272,7 +272,7 @@ ASN1Encoder = {
 	---
 	-- Encodes an ASN1 sequence
 	encodeSeq = function(self, seqData)
-		return bin.pack('HAA' , '30', self.encodeLength(string.len(seqData)), seqData)
+		return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
 	end,
 
 	---
@@ -318,13 +318,13 @@ ASN1Encoder = {
 		-- Integer encoder
 		self.encoder['number'] = function( self, val )
 			local ival = self.encodeInt(val)
-	  		local len = self.encodeLength(string.len(ival))
+	  		local len = self.encodeLength(#ival)
 	  		return bin.pack('HAA', '02', len, ival)
 		end
 
 		-- Octet String encoder
 		self.encoder['string'] = function( self, val )
-			local len = self.encodeLength(string.len(val))
+			local len = self.encodeLength(#val)
 			return bin.pack('HAA', '04', len, val)
 		end
 

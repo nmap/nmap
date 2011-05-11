@@ -309,7 +309,7 @@ function call_function(smbstate, opnum, arguments)
 				0x00,        -- Packet type (0x00 = request)
 				0x03,        -- Packet flags (0x03 = first frag + last frag)
 				0x10000000,  -- Data representation (big endian)
-				0x18 + string.len(arguments), -- Frag length (0x18 = the size of this data)
+				0x18 + #arguments, -- Frag length (0x18 = the size of this data)
 				0x0000,      -- Auth length
 				0x41414141,  -- Call ID (I use 'AAAA' because it's easy to recognize)
 				0x00000038,  -- Alloc hint
@@ -318,7 +318,7 @@ function call_function(smbstate, opnum, arguments)
 				arguments
 			)
 
-	stdnse.print_debug(3, "MSRPC: Calling function 0x%02x with %d bytes of arguments", string.len(arguments), opnum)
+	stdnse.print_debug(3, "MSRPC: Calling function 0x%02x with %d bytes of arguments", #arguments, opnum)
 
 	-- Pass the information up to the smb layer
 	status, result = smb.write_file(smbstate, data, 0)
@@ -391,7 +391,7 @@ function call_function(smbstate, opnum, arguments)
 
 	result['arguments'] = arguments
 
-	stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned argumenst", string.len(result['arguments']))
+	stdnse.print_debug(3, "MSRPC: Function call successful, %d bytes of returned argumenst", #result['arguments'])
 
 	return true, result
 end
@@ -4462,7 +4462,7 @@ RRAS_Opnums["RasRpcGetVersion"] = 15
 function RRAS_SubmitRequest(smbstate, pReqBuffer, dwcbBufSize)
 	--sanity check
 	if(dwcbBufSize == nil) then
-		dwcbBufSize = string.len(pReqBuffer)
+		dwcbBufSize = #pReqBuffer
 	end
 	--pack the request
 	local req_blob
@@ -4581,9 +4581,9 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
 	srv_name_utf16 = msrpctypes.string_to_unicode(server_name, true)
 	req_blob = bin.pack("<IIIIAA",
 		unique_ptr,
-		string.len(srv_name_utf16)/2,
+		#srv_name_utf16/2,
 		0,
-		string.len(srv_name_utf16)/2,
+		#srv_name_utf16/2,
 		srv_name_utf16,
 		get_pad(srv_name_utf16, 4))
 	--[in, unique, string] LPCSTR pszZone,
@@ -4593,9 +4593,9 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
 		zone_ascii = zone .. string.char(0x00)
 		req_blob = req_blob .. bin.pack("<IIIIAA",
 			unique_ptr + 1,
-			string.len(zone_ascii),
+			#zone_ascii,
 			0,
-			string.len(zone_ascii),
+			#zone_ascii,
 			zone_ascii,
 			get_pad(zone_ascii, 4))
 	end
@@ -4603,9 +4603,9 @@ function DNSSERVER_Query(smbstate, server_name, zone, operation)
   	operation_ascii = operation .. string.char(0x00)
 	req_blob = req_blob .. bin.pack("<IIIIAA",
 		unique_ptr+2,
-		string.len(operation_ascii),
+		#operation_ascii,
 		0,
-		string.len(operation_ascii),
+		#operation_ascii,
 		operation_ascii,
 		get_pad(operation_ascii, 4))
 
@@ -4652,7 +4652,7 @@ end
 --####################################################################--
 function get_pad(data, align, pad_byte)
 	pad_byte = pad_byte or "\00"
-	return string.rep(pad_byte, (align-string.len(data)%align)%align)
+	return string.rep(pad_byte, (align-#data%align)%align)
 end
 
 --####################################################################--

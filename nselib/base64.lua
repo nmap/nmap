@@ -163,7 +163,7 @@ function dec(b64data)
 	local pos = 1
 	local byte
 	local nbyte = ''
-	for pos = 1, #b64data do -- while pos <= string.len(b64data) do
+	for pos = 1, #b64data do -- while pos <= #b64data do
 		byte = b64dec6bit(substr(b64data, pos, pos))
 		if not byte then return end
 		nbyte = nbyte .. byte

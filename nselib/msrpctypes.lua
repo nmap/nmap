@@ -142,7 +142,7 @@ function string_to_unicode(string, do_null)
 		
 
 	-- Loop through the string, adding each character followed by a char(0)
-	for i = 1, string.len(string), 1 do
+	for i = 1, #string, 1 do
 		result = result .. string.sub(string, i, i) .. string.char(0)
 	end
 
@@ -152,7 +152,7 @@ function string_to_unicode(string, do_null)
 	end
 
 	-- Align it to a multiple of 4, if necessary
-	if(string.len(result) % 4 ~= 0) then
+	if(#result % 4 ~= 0) then
 		result = result .. string.char(0) .. string.char(0)
 	end
 
@@ -549,9 +549,9 @@ function marshall_unicode(str, do_null, max_length)
 	end
 
 	if(do_null) then
-		buffer_length = string.len(str) + 1
+		buffer_length = #str + 1
 	else
-		buffer_length = string.len(str)
+		buffer_length = #str
 	end
 
 	if(max_length == nil) then
@@ -580,13 +580,13 @@ function marshall_ascii(str, max_length)
 	local result
 	local padding = ""
 
-	buffer_length = string.len(str) + 1
+	buffer_length = #str + 1
 
 	if(max_length == nil) then
 		max_length = buffer_length
 	end
 
-	while((string.len(str .. string.char(0) .. padding) % 4) ~= 0) do
+	while((#(str .. string.char(0 .. padding)) % 4) ~= 0) do
 		padding = padding .. string.char(0)
 	end
 
@@ -1654,14 +1654,14 @@ local function marshall_lsa_String_internal(location, str, max_length, do_null)
 		if(str == nil) then
 			max_length = 0
 		else
-			max_length = string.len(str)
+			max_length = #str
 		end
 	end
 
 	if(str == nil) then
 		length = 0
 	else
-		length = string.len(str)
+		length = #str
 	end
 
 	if(do_null == nil) then
@@ -2685,7 +2685,7 @@ function marshall_winreg_StringBuf(table, max_length)
 		if(name == nil) then
 			max_length = 0
 		else
-			max_length = string.len(name) + 1
+			max_length = #name + 1
 		end
 	end
 
@@ -2697,7 +2697,7 @@ function marshall_winreg_StringBuf(table, max_length)
 		if(name == nil) then
 			length = 0
 		else
-			length = string.len(name) + 1
+			length = #name + 1
 		end
 
 		result = bin.pack("<SSA", length * 2, max_length * 2, marshall_ptr(ALL, marshall_unicode, {name, true, max_length}, name))

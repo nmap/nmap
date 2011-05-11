@@ -1461,12 +1461,12 @@ local function read_quoted_string(s, pos)
   end
   pos = pos + 1
   pos = skip_space(s, pos)
-  while pos <= string.len(s) and string.sub(s, pos, pos) ~= "\"" do
+  while pos <= #s and string.sub(s, pos, pos) ~= "\"" do
     local c
 
     c = string.sub(s, pos, pos)
     if c == "\\" then
-      if pos < string.len(s) then
+      if pos < #s then
         pos = pos + 1
         c = string.sub(s, pos, pos)
       else
@@ -1477,7 +1477,7 @@ local function read_quoted_string(s, pos)
     chars[#chars + 1] = c
     pos = pos + 1
   end
-  if pos > string.len(s) or string.sub(s, pos, pos) ~= "\"" then
+  if pos > #s or string.sub(s, pos, pos) ~= "\"" then
     return nil
   end
 
@@ -1561,7 +1561,7 @@ local function read_auth_challenge(s, pos)
 
   params = {}
   pos = skip_space(s, pos)
-  while pos < string.len(s) do
+  while pos < #s do
     local name, val
     local tmp_pos
 
@@ -1595,7 +1595,7 @@ local function read_auth_challenge(s, pos)
     pos = skip_space(s, pos)
     if string.sub(s, pos, pos) == "," then
       pos = skip_space(s, pos + 1)
-      if pos > string.len(s) then
+      if pos > #s then
         return nil
       end
     end
@@ -1615,7 +1615,7 @@ function parse_www_authenticate(s)
   local pos
 
   pos = 1
-  while pos <= string.len(s) do
+  while pos <= #s do
     local challenge
 
     pos, challenge = read_auth_challenge(s, pos)
@@ -1696,7 +1696,7 @@ function can_use_head(host, port, result_404, path)
 
     if data.status and data.status == 200 and data.header then
       -- check that a body wasn't returned
-      if string.len(data.body) > 0 then
+      if #data.body > 0 then
         stdnse.print_debug(1, "HTTP: Warning: Host returned data when performing HEAD.")
         return false
       end
@@ -1892,7 +1892,7 @@ function page_exists(data, result_404, known_404, page, displayall)
     if(data.status == 200) then
       if(result_404 == 200) then
         -- If the 404 response is also "200", deal with it (check if the body matches)
-        if(string.len(data.body) == 0) then
+        if(#data.body == 0) then
           -- I observed one server that returned a blank string instead of an error, on some occasions
           stdnse.print_debug(1, "HTTP: Page returned a totally empty body; page likely doesn't exist")
           return false

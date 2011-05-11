@@ -31,7 +31,7 @@ function name_encode(name, scope)
 
 	stdnse.print_debug(3, "Encoding name '%s'", name)
 	-- Truncate or pad the string to 16 bytes
-	if(string.len(name) >= 16) then
+	if(#name >= 16) then
 		name = string.sub(name, 1, 16)
 	else
 		local padding = " "
@@ -41,7 +41,7 @@ function name_encode(name, scope)
 
 		repeat
 			name = name .. padding
-		until string.len(name) == 16
+		until #name == 16
 	end
 
 	-- Convert to uppercase
@@ -49,7 +49,7 @@ function name_encode(name, scope)
 
 	-- Do the L1 encoding
 	local L1_encoded = ""
-	for i=1, string.len(name), 1 do
+	for i=1, #name, 1 do
 		local b = string.byte(name, i)
 		L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0xF0), 4) + 0x41)
 		L1_encoded = L1_encoded .. string.char(bit.rshift(bit.band(b, 0x0F), 0) + 0x41)
@@ -62,7 +62,7 @@ function name_encode(name, scope)
 		-- Split the scope at its periods
 		local piece
 		for piece in string.gmatch(scope, "[^.]+") do
-			L2_encoded = L2_encoded .. string.char(string.len(piece)) .. piece
+			L2_encoded = L2_encoded .. string.char(#piece) .. piece
 		end
 	end
 
@@ -97,15 +97,15 @@ function name_decode(encoded_name)
 
 	-- Decode the scope
 	local pos = 34
-	while string.len(encoded_name) > pos do
+	while #encoded_name > pos do
 		local len = string.byte(encoded_name, pos)
 		scope = scope .. string.sub(encoded_name, pos + 1, pos + len) .. "."
 		pos = pos + 1 + len
 	end
 
 	-- If there was a scope, remove the trailing period
-	if(string.len(scope) > 0) then
-		scope = string.sub(scope, 1, string.len(scope) - 1)
+	if(#scope > 0) then
+		scope = string.sub(scope, 1, #scope - 1)
 	end
 
 	stdnse.print_debug(3, "=> '%s'", name)

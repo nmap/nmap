@@ -96,7 +96,7 @@ function dump(t)
 	for i, row in ipairs(t) do
 		num_columns[i] = 0
 		for x, elem in pairs(row) do
-			local elem_width = string.len(elem)
+			local elem_width = #elem
 			if not column_width[x] or elem_width > column_width[x] then
 				column_width[x] = elem_width
 			end

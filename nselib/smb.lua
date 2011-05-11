@@ -670,7 +670,7 @@ local function smb_encode_parameters(parameters, overrides)
 	-- Make sure we have an overrides array
 	overrides = overrides or {}
 	
-	return bin.pack("<CA", (overrides['parameters_length'] or (string.len(parameters) / 2)), parameters)
+	return bin.pack("<CA", (overrides['parameters_length'] or (#parameters / 2)), parameters)
 end
 
 --- Converts a string containing the data section into the encoded data string. 
@@ -686,7 +686,7 @@ local function smb_encode_data(data, overrides)
 	-- Make sure we have an overrides array
 	overrides = overrides or {}
 
-	return bin.pack("<SA", (overrides['data_length'] or string.len(data)), data)
+	return bin.pack("<SA", (overrides['data_length'] or #data), data)
 end
 
 ---Sign the message, if possible. This is done by replacing the signature with the sequence
@@ -774,12 +774,12 @@ function smb_send(smb, header, parameters, data, overrides)
 	-- Calculate the message signature
 	body = message_sign(smb, body)
 
-    local out = bin.pack(">I<A", string.len(body), body)
+    local out = bin.pack(">I<A", #body, body)
 
 
 	repeat
 		attempts = attempts - 1
-		stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d, attempts remaining: %d)", string.len(out), attempts)
+		stdnse.print_debug(3, "SMB: Sending SMB packet (len: %d, attempts remaining: %d)", #out, attempts)
 		status, err = smb['socket']:send(out)
 	until(status or (attempts == 0))
 
@@ -899,7 +899,7 @@ function smb_read(smb, read_data)
 		data = nil
 	end
 
-	stdnse.print_debug(3, "SMB: Received %d bytes", string.len(result))
+	stdnse.print_debug(3, "SMB: Received %d bytes", #result)
 	return true, header, parameters, data
 end
 
@@ -1650,7 +1650,7 @@ function create_file(smb, path, overrides)
 						0x00,   -- ANDX reserved
 						0x0000, -- ANDX offset
 						0x00,   -- Reserved
-						string.len(path), -- Path length
+						#path, -- Path length
 						(overrides['file_create_flags']            or 0x00000016),         -- Create flags
 						(overrides['file_create_root_fid']         or 0x00000000),         -- Root FID
 						(overrides['file_create_access_mask']      or 0x02000000),         -- Access mask
@@ -2106,9 +2106,9 @@ function send_transaction_named_pipe(smb, function_parameters, function_data, pi
 
 	-- Convert the parameter/data offsets into something more useful (the offset into the data section)
 	-- - 0x20 for the header, - 0x01 for the length. 
-	parameter_offset = parameter_offset - 0x20 - 0x01 - string.len(parameters) - 0x02;
+	parameter_offset = parameter_offset - 0x20 - 0x01 - #parameters - 0x02;
 	-- - 0x20 for the header, - 0x01 for parameter length, the parameter length, and - 0x02 for the data length. 
-	data_offset = data_offset - 0x20 - 0x01 - string.len(parameters) - 0x02;
+	data_offset = data_offset - 0x20 - 0x01 - #parameters - 0x02;
 
 	-- I'm not sure I entirely understand why the '+1' is here, but I think it has to do with the string starting at '1' and not '0'.
 	function_parameters = string.sub(data, parameter_offset + 1, parameter_offset + parameter_count)

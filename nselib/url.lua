@@ -350,5 +350,5 @@ function build_query(query)
 	for i,v in pairs(query) do 
 		qstr = qstr .. i .. '=' .. v .. '&'
 	end
-	return string.sub(qstr, 0, string.len(qstr)-1)
+	return string.sub(qstr, 0, #qstr-1)
 end	

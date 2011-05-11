@@ -76,15 +76,15 @@ local tagEncoder = {}
 tagEncoder['table'] = function(self, val)
 	if (val._ldap == '0A') then
 		local ival = self.encodeInt(val[1])
-		local len = self.encodeLength(string.len(ival))
+		local len = self.encodeLength(#ival)
 		return bin.pack('HAA', '0A', len, ival)	
 	end
 	if (val._ldaptype) then
 		local len
-		if val[1] == nil or string.len(val[1]) == 0 then
+		if val[1] == nil or #val[1] == 0 then
 			return bin.pack('HC', val._ldaptype, 0)
 		else
-			len = self.encodeLength(string.len(val[1]))
+			len = self.encodeLength(#val[1])
 			return bin.pack('HAA', val._ldaptype, len, val[1])
 		end
 	end
@@ -97,7 +97,7 @@ tagEncoder['table'] = function(self, val)
   	if (val["_snmp"]) then 
  		tableType = bin.pack("H", val["_snmp"]) 
   	end
-  	return bin.pack('AAA', tableType, self.encodeLength(string.len(encVal)), encVal)
+  	return bin.pack('AAA', tableType, self.encodeLength(#encVal), encVal)
  	
 end
 

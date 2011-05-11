@@ -336,7 +336,7 @@ function reverse(ip)
         -- padding
         local mask = "0000"
         for i, part in ipairs(ipParts) do
-             ipParts[i] = mask:sub(1, string.len(mask) - string.len(part)) .. part
+             ipParts[i] = mask:sub(1, #mask - #part) .. part
         end
         -- 32 parts from 8
         local temp = {}
