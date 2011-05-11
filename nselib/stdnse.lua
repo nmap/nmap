@@ -578,7 +578,7 @@ end
 --
 --@param status A boolean value dictating whether or not the script succeeded. 
 --              If status is false, and debugging is enabled, 'ERROR' is prepended
---              to every line. If status is false and ebugging is disabled, no output
+--              to every line. If status is false and debugging is disabled, no output
 --              occurs. 
 --@param data   The table of output. 
 --@param indent Used for indentation on recursive calls; should generally be set to
