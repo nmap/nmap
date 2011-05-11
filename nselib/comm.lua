@@ -137,14 +137,21 @@ end
 -- @param port_number The number of the port to check
 -- @return bool True if port is usually ssl, otherwise false
 local function is_ssl(port_number)
-    local common_ssl_ports = {443, 465, 989, 990, 992, 993, 994, 995, 587, 6697, 6679, 8443}
-    local table_size = table.maxn(common_ssl_ports) 
-    local i = 0
-    while i < table_size do
-        if port_number == common_ssl_ports[i] then return true end
-        i = i + 1
-    end
-    return false
+    local common_ssl_ports = {
+      [443] = true,
+      [465] = true,
+      [989] = true,
+      [990] = true,
+      [992] = true,
+      [993] = true,
+      [994] = true,
+      [995] = true,
+      [587] = true,
+      [6697] = true,
+      [6679] = true,
+      [8443] = true,
+    }
+    return not not common_ssl_ports[port_number]
 end
 
 --- This function returns best protocol order for trying  to open a 

@@ -31,11 +31,11 @@ require('strbuf')
 --- Create and return a new table.
 -- @return A new table.
 function new()
-	local table = {}
+	local t = {}
 
-	table.current_row = 1
-	setmetatable(table, {__tostring=dump})
-	return table
+	t.current_row = 1
+	setmetatable(t, {__tostring=dump})
+	return t
 end
 
 --- Add a new string item to a table at a given column position.
