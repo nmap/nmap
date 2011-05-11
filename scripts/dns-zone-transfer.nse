@@ -228,7 +228,7 @@ function build_domain(host)
 
     -- prepend each element with its length
     while i <= #abs_name do
-        buf = buf .. string.char(string.len(abs_name[i])) .. abs_name[i]
+        buf = buf .. string.char(#abs_name[i]) .. abs_name[i]
         i = i + 1
     end
 
@@ -373,7 +373,7 @@ function responses_iter(data)
     return function()
         local length, remaining, response
 
-        remaining = string.len(data) - offset + 1
+        remaining = #data - offset + 1
         if remaining == 0 then
             return nil
         end
@@ -551,7 +551,7 @@ action = function(host, port)
     local req_id = '\222\173'
     local offset = 1
     local name = build_domain(string.lower(dns_opts.domain))
-    local pkt_len = string.len(name) + 16
+    local pkt_len = #name + 16
 
     -- build axfr request
     local buf = strbuf.new()
@@ -571,7 +571,7 @@ action = function(host, port)
     soc:close()
 
     local response_str = strbuf.dump(response)
-    local length = string.len(response_str)
+    local length = #response_str
 
     -- check server response code
     if length < 6 or

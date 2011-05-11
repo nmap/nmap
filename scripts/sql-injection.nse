@@ -177,7 +177,7 @@ local function find_links(list, base_path, page, host)
 	
   for w in string.gmatch(page, 'href%s*=%s*"%s*[^"]+%s*"') do
     s, e = string.find(w, '"')
-    httpurl = string.sub(w, s+1, string.len(w)-1)
+    httpurl = string.sub(w, s+1, #w-1)
     i = 1
 
     -- parse out duplicates, otherwise we'll be here all day 

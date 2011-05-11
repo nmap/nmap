@@ -921,7 +921,7 @@ local function cipher(str, config)
 		c = string.char(bit.bxor(c, string.byte(config.key, config.key_index + 1)))
 
 		config.key_index = config.key_index + 1
-		config.key_index = config.key_index % string.len(config.key)
+		config.key_index = config.key_index % #config.key
 
 		result = result .. c
 	end

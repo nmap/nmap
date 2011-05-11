@@ -243,9 +243,9 @@ end
 --@return An integer representing the checksum. 
 local function p2p_checksum(data)
 	local pos, i
-	local hash = string.len(data)
+	local hash = #data
 
-	stdnse.print_debug(2, "Conficker: Calculating checksum for %d-byte buffer", string.len(data))
+	stdnse.print_debug(2, "Conficker: Calculating checksum for %d-byte buffer", #data)
 
 	-- Get the first character
 	pos, i = bin.unpack("<C", data)
@@ -274,7 +274,7 @@ local function p2p_cipher(packet, key1, key2)
 	local i
 	local buf = ""
 
-	for i = 1, string.len(packet), 1 do
+	for i = 1, #packet, 1 do
 		-- Do a 64-bit rotate on key1:key2
 		key2, key1 = rot64(key2, key1)
 
@@ -441,7 +441,7 @@ local function p2p_create_packet(protocol, do_encryption)
 
 	-- Add the length in front if it's TCP
 	if(protocol == "tcp") then
-		packet = bin.pack("<SA", string.len(packet), packet)
+		packet = bin.pack("<SA", #packet, packet)
 	end
 
 	return true, packet
@@ -493,7 +493,7 @@ local function conficker_check(ip, port, protocol)
 		local length
 		_, length = bin.unpack("<S", response, 1)
 
-		while length > (string.len(response) - 2) do
+		while length > (#response - 2) do
 			local response2
 
 			status, response2 = socket:receive_bytes(2)

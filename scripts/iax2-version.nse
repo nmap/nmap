@@ -32,7 +32,7 @@ action = function(host, port)
 		return
 	end
 
-	if (string.len(recv)) == 12 then
+	if (#recv) == 12 then
 		local byte11 = string.format("%02X", string.byte(recv, 11))
 		local byte12 = string.format("%02X", string.byte(recv, 12))
 

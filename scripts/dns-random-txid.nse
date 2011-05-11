@@ -83,7 +83,7 @@ action = function(host, port)
         -- Now we need to "parse" the results to check to see if they are good
 
         -- We need a minimum of 5 bytes...
-        if (string.len(result) < 5) then
+        if (#result < 5) then
            if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
                 return "ERROR: Malformed response"
            else
@@ -133,7 +133,7 @@ action = function(host, port)
         end
 
         -- We need a minimum of 128 bytes...
-        if (string.len(result) < 128) then
+        if (#result < 128) then
            if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
                 return "ERROR: Truncated response"
            else
@@ -171,7 +171,7 @@ action = function(host, port)
         local txtlen = string.byte(result, 128)
 
         -- We now need a minimum of 128 + txtlen bytes + 1...
-        if (string.len(result) < 128 + txtlen) then
+        if (#result < 128 + txtlen) then
            if (nmap.verbosity() >= 2 or nmap.debugging() >= 1) then
                 return "ERROR: Truncated response"
            else

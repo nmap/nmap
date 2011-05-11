@@ -75,7 +75,7 @@ action = function(host, port)
 
   if title and title ~= "" then
     result = string.gsub(title , "[\n\r\t]", "")
-    if string.len(title) > 65 then
+    if #title > 65 then
       stdnse.print_debug("http-title.nse: (%s) Title got truncated!", host.targetname or host.ip );
       result = string.sub(result, 1, 62) .. "..."
     end

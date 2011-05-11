@@ -427,7 +427,7 @@ function get_prefix_length( range )
   last = ipOps.ip_to_bin( last ):reverse()
 
   local hostbits = 0
-  for pos = 1, string.len( first ), 1 do
+  for pos = 1, # first , 1 do
 
     if first:sub( pos, pos ) == "0" and last:sub( pos, pos ) == "1" then
       hostbits = hostbits + 1
@@ -437,7 +437,7 @@ function get_prefix_length( range )
 
   end
 
-  return ( string.len( first ) - hostbits )
+  return ( # first  - hostbits )
 
 end
 
@@ -1159,7 +1159,7 @@ function get_assignment( ip, prefix )
   if err then return nil, err end
 
   prefix = tonumber( prefix )
-  if not prefix or ( prefix < 0 ) or ( prefix > string.len( some_ip ) ) then
+  if not prefix or ( prefix < 0 ) or ( prefix > # some_ip  ) then
     return nil, "Error in get_assignment: Invalid prefix length."
   end
 

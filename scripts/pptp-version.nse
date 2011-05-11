@@ -71,7 +71,7 @@ action = function(host, port)
 
 		-- get the vendor (should be 64 octets, but capture to end of the string to be safe)
 		local s4, length
-		length = string.len(result)
+		length = #result
 		s4 = string.sub(result, 88, length)
 		vendor = string.match(s4, "(.-)%z")
 	
