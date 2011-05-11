@@ -117,7 +117,7 @@ action = function()
 	sock:close()
 
 	-- If no broadcasts received, don't output anything.
-	if table.maxn(ids) == 0 then
+	if #ids == 0 then
 		 return
 	end
 
