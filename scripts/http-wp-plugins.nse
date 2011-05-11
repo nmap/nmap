@@ -23,8 +23,13 @@ check the first 100 ones. Users can tweak this with an option (see below).
 -- Interesting ports on my.woot.blog (123.123.123.123):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-wp-plugins: search amongst the 500 most popular plugins:
--- |_akismet, wp-db-backup, all-in-one-seo-pack, stats, wp-to-twitter
+-- | http-wp-plugins:
+-- | search amongst the 500 most popular plugins
+-- |   akismet
+-- |   wp-db-backup
+-- |   all-in-one-seo-pack
+-- |   stats
+-- |_  wp-to-twitter
 
 author = "Ange Gutek <ange.gutek@gmail.com>"
 
@@ -144,8 +149,8 @@ action = function(host, port)
 
 
   if table.getn(result) > 0 then
-    local output_str = stdnse.strjoin(", ", result)
-    return "search amongst the " .. plugin_count .. " most popular plugins:\n" .. output_str
+    result.name = "search amongst the " .. plugin_count .. " most popular plugins"
+    return stdnse.format_output(true, result)
   else
     return "nothing found amongst the " .. plugin_count .. " most popular plugins, use --script-arg http-wp-plugins.search=<number|all> for deeper analysis)\n"
   end
