@@ -22,8 +22,8 @@ local function check_code(result)
     if result:match( "\r?\n\r?\n" ) then
       result = result:match( "^(.-)\r?\n\r?\n(.*)$" )
     end
-    if string.match(result:lower(),"^http/%d\.%d%s*200") then return true end
-    if string.match(result:lower(),"^http/%d\.%d%s*30[12]") then return true end
+    if result:lower():match("^http/%d\.%d%s*200") then return true end
+    if result:lower():match("^http/%d\.%d%s*30[12]") then return true end
   end
   return false
 end
@@ -34,13 +34,10 @@ end
 --@return true if pattern is found, otherwise false
 local function check_pattern(result, pattern)
   local lines = stdnse.strsplit("\n", result)
-  local i = 1
-  local n = table.getn(lines)
-  while true do
-    if i > n then return false end
-    if string.match(lines[i]:lower(),pattern:lower()) then return true end
-    i = i + 1
+  for i, line in ipairs(lines) do
+    if line:lower():match(pattern:lower()) then return true end
   end
+  return false
 end
 
 --- check, decides what kind of check should be done on the response,

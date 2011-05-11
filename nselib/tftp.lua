@@ -133,10 +133,9 @@ local function dispatcher()
 			s_condvar "broadcast"
 		end
 	
-		local n = table.getn(threads)
-		if ( n == 0 ) then break end
-		for i=1,n do
-			local status, res = coroutine.resume(threads[i])
+		if #threads == 0 then break end
+		for i, thread in ipairs(threads) do
+			local status, res = coroutine.resume(thread)
 			if ( not(res) ) then    -- thread finished its task?
 				table.remove(threads, i)
             	break
