@@ -152,7 +152,7 @@ local function process_instance( instance )
 		for _, message in ipairs( instance.ms_sql_empty ) do
 			table.insert( instanceOutput, message )
 		end
-		if ( nmap.verbosity() > 1 and table.getn( instance.ms_sql_empty ) == 0 ) then
+		if ( nmap.verbosity() > 1 and #instance.ms_sql_empty == 0 ) then
 			table.insert( instanceOutput, "'sa' account password is not blank." )
 		end
 	end

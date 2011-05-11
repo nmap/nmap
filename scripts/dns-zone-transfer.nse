@@ -227,7 +227,7 @@ function build_domain(host)
     abs_name = listop.reverse(abs_name)
 
     -- prepend each element with its length
-    while i <= table.getn(abs_name) do
+    while i <= #abs_name do
         buf = buf .. string.char(string.len(abs_name[i])) .. abs_name[i]
         i = i + 1
     end

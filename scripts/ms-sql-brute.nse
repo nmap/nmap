@@ -101,7 +101,7 @@ local function create_instance_output_table( instance )
 			end
 		end
 		
-		if ( table.getn( credsOutput ) == 0 ) then
+		if ( #credsOutput == 0 ) then
 			table.insert( instanceOutput, "No credentials found" )
 		end
 	end

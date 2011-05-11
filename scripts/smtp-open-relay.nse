@@ -209,7 +209,7 @@ function go(host, port)
 		end
 	end
 	
-	for index = 1, table.getn(tests), 1 do
+	for index = 1, #tests do
 		status, response = do_request(socket, "RSET\r\n")
 
 		if not status then

@@ -148,7 +148,7 @@ action = function(host, port)
   end
 
 
-  if table.getn(result) > 0 then
+  if #result > 0 then
     result.name = "search amongst the " .. plugin_count .. " most popular plugins"
     return stdnse.format_output(true, result)
   else
