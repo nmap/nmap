@@ -132,10 +132,14 @@ action = function( host, port )
 	local uservar = nmap.registry.args['http-form-brute.uservar']
 	local passvar = nmap.registry.args['http-form-brute.passvar']
   	local path = nmap.registry.args['http-form-brute.path'] or "/"
-	local status, result, engine
+	local status, result, engine, _
 
-	if ( not(uservar) or not(passvar) ) then
+	if ( not(uservar) and not(passvar) ) then
 		uservar, passvar = detectFormFields( host, port, path )
+	elseif ( not(uservar) ) then
+		uservar, _ = detectFormFields( host, port, path )
+	elseif ( not(passvar) ) then
+		_, passvar = detectFormFields( host, port, path )
 	end
 	if ( not( uservar ) ) then
 		return "  \n  ERROR: No uservar was specified (see http-form-brute.uservar)"

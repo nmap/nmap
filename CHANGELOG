@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch from Daniel Miller that fixes a bug in http-form-brute
+  reported by Josh Greenwood. The script would break if autodetection of
+  either brute form fields would fail.
+
 o [NSE] Added a SIP library and two new scripts sip-brute.nse and
   sip-user-enum.nse providing brute and user enumeration support for the SIP
   protocol. [Patrik]
