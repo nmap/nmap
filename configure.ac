@@ -417,6 +417,9 @@ if test $have_libpcap != yes; then
   PCAP_CLEAN="pcap_clean"
   PCAP_DIST_CLEAN="pcap_dist_clean"
   AC_DEFINE(PCAP_INCLUDED)
+
+  # libpcap can require libnl
+  AC_SEARCH_LIBS(nl_handle_alloc, nl)
 else
   AC_DEFINE(HAVE_LIBPCAP)
   LIBPCAP_LIBS="-lpcap"
@@ -578,9 +581,6 @@ AC_HELP_STRING([--without-liblua], [Compile without lua (this will exclude all o
 
 # OpenSSL and NSE C modules can require dlopen
 AC_SEARCH_LIBS(dlopen, dl)
-
-# libpcap can require libnl
-AC_SEARCH_LIBS(nl_handle_alloc, nl)
 
 # They don't want lua
 if test "$no_lua" = "yes"; then

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Stopped linking against libnl when not necessary (when linking
+  dynamically with libpcap). Patch by Kevin Locke.
+
 o [NSE] Applied patch from Daniel Miller that fixes a bug in http-form-brute
   reported by Josh Greenwood. The script would break if autodetection of
   either brute form fields would fail.

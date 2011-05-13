@@ -6199,6 +6199,64 @@ if test $have_libpcap != yes; then
   PCAP_DIST_CLEAN="pcap_dist_clean"
   $as_echo "#define PCAP_INCLUDED 1" >>confdefs.h
 
+
+  # libpcap can require libnl
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing nl_handle_alloc" >&5
+$as_echo_n "checking for library containing nl_handle_alloc... " >&6; }
+if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char nl_handle_alloc ();
+int
+main ()
+{
+return nl_handle_alloc ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' nl; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_nl_handle_alloc=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
+  break
+fi
+done
+if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
+
+else
+  ac_cv_search_nl_handle_alloc=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_nl_handle_alloc" >&5
+$as_echo "$ac_cv_search_nl_handle_alloc" >&6; }
+ac_res=$ac_cv_search_nl_handle_alloc
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
+
 else
   $as_echo "#define HAVE_LIBPCAP 1" >>confdefs.h
 
@@ -6518,64 +6576,6 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_dlopen" >&5
 $as_echo "$ac_cv_search_dlopen" >&6; }
 ac_res=$ac_cv_search_dlopen
-if test "$ac_res" != no; then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-
-fi
-
-
-# libpcap can require libnl
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing nl_handle_alloc" >&5
-$as_echo_n "checking for library containing nl_handle_alloc... " >&6; }
-if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char nl_handle_alloc ();
-int
-main ()
-{
-return nl_handle_alloc ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' nl; do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_search_nl_handle_alloc=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-  if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
-  break
-fi
-done
-if test "${ac_cv_search_nl_handle_alloc+set}" = set; then :
-
-else
-  ac_cv_search_nl_handle_alloc=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_nl_handle_alloc" >&5
-$as_echo "$ac_cv_search_nl_handle_alloc" >&6; }
-ac_res=$ac_cv_search_nl_handle_alloc
 if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
