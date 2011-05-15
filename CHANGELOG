@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added smtp-check-vulns, which checks for the Postfix SMTP server
+  Cyrus SASL authentication memory corruption (CVE-2011-1720). [Djalal]
+
 o Stopped linking against libnl when not necessary (when linking
   dynamically with libpcap). Patch by Kevin Locke.
 
