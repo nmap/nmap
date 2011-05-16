@@ -16,9 +16,7 @@ o Script review:
     http://seclists.org/nmap-dev/2010/q4/567
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
   - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
-  - xmpp. http://seclists.org/nmap-dev/2011/q2/239.
   - quake3-info. http://seclists.org/nmap-dev/2011/q2/172.
-  - sip-enum-users and sip-brute. http://seclists.org/nmap-dev/2011/q2/56.
   - smb-os-discovery additional information. http://seclists.org/nmap-dev/2011/q2/276.
   - irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
   - NSE-based port scanning and RST idle scan.
@@ -83,9 +81,6 @@ o Summer of Code feature creeper:
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
-
-o Fix memory consumption problem in drda-info (see
-  http://seclists.org/nmap-dev/2011/q2/451)
 
 o A couple minor nsedoc issues (see
   http://seclists.org/nmap-dev/2011/q1/1095):
@@ -733,6 +728,17 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix memory consumption problem in drda-info (see
+  http://seclists.org/nmap-dev/2011/q2/451)
+  - Fixed (turned out to affect a lot of scripts)
+
+o Script dispensation
+  - sip-enum-users and
+    sip-brute. http://seclists.org/nmap-dev/2011/q2/56.
+    o Merged
+  - xmpp. http://seclists.org/nmap-dev/2011/q2/239.
+    o Merged  
 
 o Script review/disposition:
   - Merged: DNSSEC enumeration. http://seclists.org/nmap-dev/2011/q1/406.
