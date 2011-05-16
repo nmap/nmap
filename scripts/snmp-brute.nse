@@ -4,7 +4,7 @@ Attempts to find an SNMP community string by brute force guessing.
 -- 2008-07-03
 
 ---
--- @args snmpcommunity The SNMP community string to use. If not supplied, this
+-- @args snmpcommunity The SNMP community string to use. If it's supplied, this
 -- script will not run.
 -- @args snmplist The filename of a list of community strings to try.
 --
