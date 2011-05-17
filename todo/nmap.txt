@@ -82,6 +82,12 @@ o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
   r19801 in http://seclists.org/nmap-dev/2011/q1/12.
 
+o [NSE] Consider a system where scripts can tell if any other scripts
+  depend on them.  They could then use that to determine whether they
+  should bother storing information in the registry.  For example,
+  snmp-interfaces could store the discovered table if another script
+  (such as a mac address geolocator script) depends on it.
+
 o A couple minor nsedoc issues (see
   http://seclists.org/nmap-dev/2011/q1/1095):
  o After the ssh-hostkey portrule was added, nsedoc seems to be
