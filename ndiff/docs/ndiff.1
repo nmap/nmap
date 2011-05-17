@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: ndiff
 .\"    Author: [see the "Authors" section]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 01/29/2011
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 05/17/2011
 .\"    Manual: User Commands
 .\"    Source: Ndiff
 .\"  Language: English
 .\"
-.TH "NDIFF" "1" "01/29/2011" "Ndiff" "User Commands"
+.TH "NDIFF" "1" "05/17/2011" "Ndiff" "User Commands"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -83,8 +92,6 @@ OS matches (from
 .\}
 Script output
 .RE
-.sp
-.RE
 .PP
 Ndiff, like the standard
 \fBdiff\fR
@@ -116,7 +123,7 @@ included in the distribution\&.
 Any other arguments are taken to be the names of Nmap XML output files\&. There must be exactly two\&.
 .SH "EXAMPLE"
 .PP
-Let\'s use Ndiff to compare the output of two Nmap scans that use different options\&. In the first, we\'ll do a fast scan (\fB\-F\fR), which scans fewer ports for speed\&. In the second, we\'ll scan the larger default set of ports, and run an NSE script\&.
+Let\*(Aqs use Ndiff to compare the output of two Nmap scans that use different options\&. In the first, we\*(Aqll do a fast scan (\fB\-F\fR), which scans fewer ports for speed\&. In the second, we\*(Aqll scan the larger default set of ports, and run an NSE script\&.
 .sp
 .if n \{\
 .RS 4
@@ -159,13 +166,13 @@ script produced some additional output for port 80\&. From the port counts, we m
 The
 \fB\-v\fR
 (or
-\fB\-\-verbose\fR) option to Ndiff made it show even the ports that didn\'t change, like 22 and 25\&. Without
+\fB\-\-verbose\fR) option to Ndiff made it show even the ports that didn\*(Aqt change, like 22 and 25\&. Without
 \fB\-v\fR, they would not have been shown\&.
 .SH "OUTPUT"
 .PP
 There are two output modes: text and XML\&. Text output is the default, and can also be selected with the
 \fB\-\-text\fR
-option\&. Text output resembles a unified diff of Nmap\'s normal terminal output\&. Each line is preceded by a character indicating whether and how it changed\&.
+option\&. Text output resembles a unified diff of Nmap\*(Aqs normal terminal output\&. Each line is preceded by a character indicating whether and how it changed\&.
 \-
 means that the line was in the first scan but not in the second;
 +
@@ -213,7 +220,7 @@ is an example of text output\&. Here, port 80 on the host photos\-cache\-snc1\&.
 .PP
 XML output, intended to be processed by other programs, is selected with the
 \fB\-\-xml\fR
-option\&. It is based on Nmap\'s XML output, with a few additional elements to indicate differences\&. The XML document is enclosed in
+option\&. It is based on Nmap\*(Aqs XML output, with a few additional elements to indicate differences\&. The XML document is enclosed in
 \fInmapdiff\fR
 and
 \fIscandiff\fR
@@ -323,7 +330,7 @@ without a corresponding
 .\}
 .SH "PERIODIC DIFFS"
 .PP
-Using Nmap, Ndiff, cron, and a shell script, it\'s possible to scan a network daily and get email reports of the state of the network and changes since the previous scan\&.
+Using Nmap, Ndiff, cron, and a shell script, it\*(Aqs possible to scan a network daily and get email reports of the state of the network and changes since the previous scan\&.
 Example\ \&3
 shows the script that ties it together\&.
 .PP
@@ -354,7 +361,7 @@ ln \-sf scan\-$date\&.xml scan\-prev\&.xml
 .\}
 .PP
 If the script is saved as
-/root/scan\-ndiff\&.sh, add the following line to root\'s crontab:
+/root/scan\-ndiff\&.sh, add the following line to root\*(Aqs crontab:
 .sp
 .if n \{\
 .RS 4
@@ -403,7 +410,6 @@ The exit code indicates whether the scans are equal\&.
 2 indicates a runtime error, such as the failure to open a file\&.
 .RE
 .sp
-.RE
 .SH "BUGS"
 .PP
 Report bugs to the
