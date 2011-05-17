@@ -24,7 +24,7 @@ Checks for SMTP, SMTPS and Submission vulnerabilities:
 
 author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"dos", "exploit", "intrusive", "vuln"}
+categories = {"intrusive", "vuln"}
 
 require "shortport"
 require "stdnse"
