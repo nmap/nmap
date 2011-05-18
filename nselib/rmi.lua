@@ -1,6 +1,6 @@
 --- Library method for communicating over RMI (JRMP + java serialization) 
 --
--- This is a not complete RMI implementation for LUA, which is meant to be able
+-- This is a not complete RMI implementation for Lua, which is meant to be able
 -- to invoke methods and parse returnvalues which are simple, basically the java primitives.
 -- This can be used to e.g dump out the registry, and perform authentication against
 -- e.g JMX-services. 
