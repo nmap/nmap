@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added backorifice-brute, a bruteforcing script against the old 
+  BackOrifice service
+
 o [NSE] Moved the script smtp-check-vulns to smtp-vuln-cve2011-1720.
   [Djalal]
 
