@@ -8,12 +8,12 @@ Checks for SMTP, SMTPS and Submission vulnerabilities:
 
 ---
 -- @usage
--- nmap --script=smtp-check-vulns --script-args='smtp.domain=<domain>' -pT:25,465,587 <host>
+-- nmap --script=smtp-vuln-cve2011-1720 --script-args='smtp.domain=<domain>' -pT:25,465,587 <host>
 --
 -- @output
 -- PORT   STATE SERVICE
 -- 25/tcp open  smtp
--- | smtp-check-vulns:
+-- | smtp-vuln-cve2011-1720:
 -- | Postfix Cyrus SASL (CVE-2011-1720):
 -- |   AUTH MECHANISMS: CRAM-MD5 DIGEST-MD5 NTLM PLAIN LOGIN
 -- |   AUTH tests: CRAM-MD5
@@ -85,7 +85,7 @@ function get_domain(host)
 
   -- Use the user provided options.
   local result = stdnse.get_script_args("smtp.domain") or
-                    stdnse.get_script_args("smtp-check-vulns.domain")
+                    stdnse.get_script_args("smtp-vuln-cve2011-1720.domain")
 
   if not result then
     if type(host) == "table" then
