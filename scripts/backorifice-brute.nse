@@ -24,12 +24,12 @@ the script against).
 -- |   Statistics
 -- |_    Perfomed 60023 guesses in 467 seconds, average tps: 138
 --
+
 -- Summary
 -- -------
 --   x The Driver class contains the driver implementation used by the brute
 --     library
 --   x The backorifice class contains the backorifice client implementation
---
 --
 
 author = "Gorjan Petrovski"
