@@ -160,11 +160,11 @@ Entry { filename = "smb-security-mode.nse", categories = { "discovery", "safe", 
 Entry { filename = "smb-server-stats.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-system-info.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smbv2-enabled.nse", categories = { "default", "safe", } }
-Entry { filename = "smtp-check-vulns.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "smtp-commands.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smtp-enum-users.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-open-relay.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
+Entry { filename = "smtp-vuln-cve2011-1720.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "snmp-interfaces.nse", categories = { "default", "discovery", "safe", } }
