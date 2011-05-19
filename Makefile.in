@@ -388,6 +388,6 @@ promiscuous RealVNC_auth_bypass ripeQuery robots showHTMLTitle \
 showHTTPVersion showOwner showSMTPVersion showSSHVersion skype_v2-version \
 smb-enumdomains smb-enumsessions smb-enumshares smb-enumusers \
 smb-serverstats smb-systeminfo SMTPcommands SMTP_openrelay_test \
-SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey SSHv1-support \
-SSLv2-support strangeSMTPport UPnP-info xamppDefaultPass zoneTrans db2-info \
-db2-brute html-title robots.txt)
+smtp-check-vulns SNMPcommunitybrute SNMPsysdescr SQLInject SSH-hostkey \
+SSHv1-support SSLv2-support strangeSMTPport UPnP-info xamppDefaultPass \
+zoneTrans db2-info db2-brute html-title robots.txt)
