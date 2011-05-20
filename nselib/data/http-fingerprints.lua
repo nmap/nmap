@@ -457,6 +457,18 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/css/cake.generic.css', method='HEAD'},
+		{path='/img/cake.icon.gif', method='HEAD'},
+		{path='/img/cake.icon.png', method='HEAD'},
+		{path='/js/vendors.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='CakePHP application'}
+	}
+})
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
