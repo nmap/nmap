@@ -1,4 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NSE] Added new fingerprint data to http-fingerprints.lua and favicon-db
+  for CakePHP applications. [Paulino Calderon]
+
+o [NSE] Added http-cakephp-version, a discovery script to fingerprint 
+  CakePHP applications. Script by Paulino Calderon.
 
 o [NSE] Added backorifice-brute, a bruteforcing script against the old 
   BackOrifice service
