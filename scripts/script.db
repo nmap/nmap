@@ -58,6 +58,7 @@ Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intru
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "http-cakephp-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vuln", } }
