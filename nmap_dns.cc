@@ -142,7 +142,7 @@
 // * Tune performance parameters
 //
 // * Figure out best way to estimate completion time
-//   and display it in a ScanProgressMeter 
+//   and display it in a ScanProgressMeter
 
 #ifdef WIN32
 #include "nmap_winconfig.h"
@@ -301,7 +301,7 @@ static void addto_etchosts(u32 ip, const char *hname);
 #define ACTION_CNAME_LIST 1
 #define ACTION_TIMEOUT 2
 
-//------------------- Misc code --------------------- 
+//------------------- Misc code ---------------------
 
 static void output_summary() {
   int tp = stat_ok + stat_nx + stat_dropped;
@@ -622,7 +622,7 @@ static int encoded_name_to_normal(unsigned char *buf, char *output, int outputsi
 
 // Takes a pointer to the start of a DNS name inside a packet. It makes
 // sure that there is enough space in the name, deals with compression, etc.
-static int advance_past_dns_name(u8 *buf, int buflen, int curbuf, 
+static int advance_past_dns_name(u8 *buf, int buflen, int curbuf,
 			  int *nameloc) {
   int compression=0;
 
@@ -1031,7 +1031,7 @@ static void addto_etchosts(u32 ip, const char *hname) {
   host_elem *he;
   int i;
 
-  if(lookup_etchosts(ip) != NULL) 
+  if(lookup_etchosts(ip) != NULL)
     return;
 
   while(total_size >= HASH_TABLE_SIZE) {
@@ -1191,7 +1191,7 @@ static void nmap_mass_rdns_core(Target **targets, int num_targets) {
 
   if ((lasttrace = o.packetTrace()))
     nsp_settrace(dnspool, NULL, NSOCK_TRACE_LEVEL, o.getStartTime());
-  
+
   connect_dns_servers();
 
   cname_reqs.clear();
@@ -1284,7 +1284,7 @@ static void nmap_system_rdns_core(Target **targets, int num_targets) {
 
   for(i=0, hostI = targets; hostI < targets+num_targets; hostI++, i++) {
     currenths = *hostI;
-      
+
     if (keyWasPressed())
       SPM->printStats((double) i / stat_actual, NULL);
 
