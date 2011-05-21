@@ -77,7 +77,7 @@ local function escape(str)
 end
 
 --- Creates json data from an object
---@param object a table containing data
+--@param obj a table containing data
 --@return a string containing valid json
 function generate(obj)
 
