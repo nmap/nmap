@@ -11,22 +11,15 @@ known-good versions.
 
 GTK+ All-in-one bundle
   o http://www.gtk.org/download-windows.html
-  o Tested: gtk+-bundle_2.22.0-20101016_win32.zip
+  o Tested: gtk+-bundle_2.22.1-20101227_win32.zip
 Python
   o http://www.python.org/download
-  o Tested: python-2.7.msi
-PyGTK
+  o Tested: python-2.7.1.msi
+GTK+, PyGTK, PyGObject, PyCairo
   o http://ftp.gnome.org/pub/gnome/binaries/win32/pygtk
-  o Tested: pygtk-2.22.0.win32-py2.7.exe
-PyCairo
-  o http://ftp.gnome.org/pub/gnome/binaries/win32/pycairo
-  o Tested: pycairo-1.8.10.win32-py2.7.exe
-PyGObject
-  o http://ftp.gnome.org/pub/gnome/binaries/win32/pygobject
-  o Tested: pygobject-2.26.0.win32-py2.7.exe
+  o Tested: pygtk-all-in-one-2.22.6.win32-py2.7.msi
 Py2exe (0.6.9) - http://www.sourceforge.net/projects/py2exe/files/
   o Tested: py2exe-0.6.9.win32-py2.7.exe
-Be sure to grab the PyGTK, PyCairo, etc. for Python 2.7!
 
 The GTK all-in-one bundle is a zip file.  Unzip it into the directory
 c:\GTK.  The other components have installers-using the default
@@ -42,10 +35,6 @@ follows:
    "Environment Variables" button.  Add ";C:\GTK\bin" to the end of
    the user PATH variable.
 
-After installing GTK, create C:\GTK\etc\gtk-2.0\gtkrc with the
-contents:
-gtk-theme-name = "MS-Windows"
-
 II. OTHER REQUIREMENTS
 
 You'll need Microsoft Visual C++ 2010 for compilation.
@@ -57,7 +46,8 @@ required for normal compiling).  You'll find it at http://www.cygwin.com
 
 And last, you'll need the Nullsoft Scriptable Install System installed.  You
 can download if from http://nsis.sourceforge.net/Download  (Version
-2.45 tested)
+2.46 tested). Install in "C:\Program Files\NSIS" even if it offers
+"C:\Program Files (x86)\NSIS".
 
 
 III. BUILDING
