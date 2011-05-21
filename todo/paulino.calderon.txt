@@ -1,9 +1,10 @@
 PENDING:
 -Work on php-self.nse and httpspider.lua
--Wait for feedback to complete/close project http-cakephp-version
-
+-Work on http-sitemap-dumper
 
 COMPLETED:
+
+-Wait for feedback to complete/close project http-cakephp-version
 -Define list of required functions for http-crawler (Library renamed to httpspider)
 -Write draft for the http-crawler library
 -Read again the NSE documentation
