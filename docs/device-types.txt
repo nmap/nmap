@@ -88,7 +88,7 @@ include such things as clocks, oscilloscopes, climate sensors, and more.
 
 storage-misc (101)
 Data storage devices like tape decks and network-attached storage
-applicances.
+appliances.
 
 switch (274)
 A device that extends a network by selectively re-broadcasting packets.
