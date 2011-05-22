@@ -20,7 +20,9 @@ local ldapMessageId = 1
 ERROR_MSG = {}
 ERROR_MSG[1]  = "Intialization of LDAP library failed."
 ERROR_MSG[4]  = "Size limit exceeded."
+ERROR_MSG[13] = "Confidentiality required"
 ERROR_MSG[32] = "No such object"
+ERROR_MSG[34] = "Invalid DN"
 ERROR_MSG[49] = "The supplied credential is invalid."
 
 ERRORS = {
@@ -127,6 +129,10 @@ local tagDecoder = {}
 
 tagDecoder["0A"] = function( self, encStr, elen, pos )
 	return self.decodeInt(encStr, elen, pos)
+end
+
+tagDecoder["8A"] = function( self, encStr, elen, pos )
+	return bin.unpack("A" .. elen, encStr, pos)
 end
 
 -- null decoder
@@ -360,7 +366,9 @@ function bindRequest( socket, params )
 		pos, response.matchedDN = decode( packet, pos )
 		pos, response.errorMessage = decode( packet, pos )
 		error_msg = ERROR_MSG[response.resultCode] 
-		return false, string.format("Error: %s\nDetails: %s", error_msg or "", response.errorMessage or "" )
+		return false, string.format("\n  Error: %s\n  Details: %s", 
+			error_msg or "Unknown error occured (code: " .. response.resultCode ..
+			")", response.errorMessage or "" )
 	else
 		return true, "Success"
 	end	
