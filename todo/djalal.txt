@@ -1,5 +1,14 @@
 ==
 
+GSoC 2011 TASKS:
+
+o Finish the HTTP architecture ideas draft and submit it to nmap-dev.
+
+o Work on my GSoC vulnerability and exploitation script ideas:
+  https://secwiki.org/w/Nmap/Script_Ideas#Djalal_Harouni
+
+==
+
 1) Nmap Scripting Engine Infrastructure:
 
 o NSE Version Numbering.
