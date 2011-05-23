@@ -24,16 +24,8 @@ o Propose a better duplicate scanned IPs filtering engine.
 o NFS/RPC features:
 - add NFS READLINK support to let nfs-ls show symbolic files.
 
-o Write new NSE libraries and scripts which can includes vulnerabilities
-checks scripts.
-Focus on the open source software vulnerabilities since there is another
-google summer of code project which handles Microsoft softwares.
-Select vulnerabilities form the oss-security mailing list.
-
 o Review NSE scripts and libs, and fixing bugs:
  - Document all the new NFS procedures.
-
-o Write an other script that uses a "prerule" or a "postrule".
 
 [Other tasks]
 o NFS/RPC features:
