@@ -82,9 +82,6 @@ end
 --end
 
 local function go(host, port)
-	-- We're going to need some low quality random numbers
-	math.randomseed(os.time())
-
 	-- Set up a fake host for prerule
 	if(not(host)) then
 		host = {}

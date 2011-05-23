@@ -180,7 +180,6 @@ Driver =
 }
 
 action = function(host, port)
-	math.randomseed(nmap.clock())
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.firstonly = true
 	engine.options:setOption("passonly", true)

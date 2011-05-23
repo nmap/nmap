@@ -1691,11 +1691,6 @@ TDSStream = {
 			self._socket:set_timeout( MSSQL_TIMEOUT * 1000 )
 	
 			status, _, lport, _, _ = self._socket:get_info()
-			if ( status ) then
-				math.randomseed(os.time() * lport )
-			else
-				math.randomseed(os.time() )
-			end
 		end
 		
 		if ( not(status) ) then

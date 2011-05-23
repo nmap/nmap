@@ -683,13 +683,6 @@ Util = {
 
 		local str = ""
 
-		-- Seed the random number, if we haven't already
-		if (not(nmap.registry.sip) or not(nmap.registry.sip.seeded)) then
-			math.randomseed(os.time())
-			nmap.registry.sip = {}
-			nmap.registry.sip.seeded = true
-		end
-
 		for i = 1, length, 1 do
 			local random = math.random(#set)
 			str = str .. string.sub(set, random, random)

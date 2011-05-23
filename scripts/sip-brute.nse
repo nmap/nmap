@@ -73,7 +73,6 @@ Driver = {
 -- was successful which makes it impossible to tell successfull logins
 -- from non-existing accounts apart.
 local function checkBadUser(host, port)
-	math.randomseed( os.time() )
 	local user = "baduser-" .. math.random(10000)
 	local pass = "badpass-" .. math.random(10000)
 	local helper = sip.Helper:new(host, port, { expires = 0 })

@@ -96,6 +96,12 @@ local open = io.open;
 local math = require "math";
 local max = math.max;
 
+-- Due to heap randomization (on most Operating Systems), we can use a
+-- Lua function address as a good seed for the C srand function. If there
+-- is no heap randomization, it's still a decently random integer; that is,
+-- it's no better or worse than os.time().
+math.randomseed(tonumber(tostring(function() end):match("function: (0x%x+)")));
+
 local package = require "package";
 
 local string = require "string";

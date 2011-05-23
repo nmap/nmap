@@ -86,9 +86,6 @@ local HAVE_SSL = false
 
 if pcall(require,'openssl') then
   HAVE_SSL = true
-  math.randomseed( select(2, bin.unpack(">L", openssl.rand_bytes(8))))
-else
-  math.randomseed( os.time() )
 end
 
 

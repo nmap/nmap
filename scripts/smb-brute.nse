@@ -172,13 +172,6 @@ local function get_random_string(length, set)
 
 	local str = ""
 
-	-- Seed the random number, if we haven't already
-	if not nmap.registry.smbbrute or not nmap.registry.smbbrute.seeded then
-		math.randomseed(os.time())
-		nmap.registry.smbbrute = {}
-		nmap.registry.smbbrute.seeded = true
-	end
-
 	for i = 1, length, 1 do
 		local random = math.random(#set)
 		str = str .. string.sub(set, random, random)

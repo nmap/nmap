@@ -693,7 +693,6 @@ local function get_config(host, config)
 	elseif(nmap.registry.args.key) then
 		config.key = nmap.registry.args.key
 	else
-		math.randomseed( os.time() )
 		config.key = ""
 		for i = 1, 127, 1 do
 			config.key = config.key .. string.char(math.random(0x20, 0x7F))

@@ -280,7 +280,6 @@ function corruptAndSend (host, port, query)
 end
 
 action = function(host, port)
-     math.randomseed(os.time())
      local endT
      local timelimit, err
      local retStr

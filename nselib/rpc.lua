@@ -120,8 +120,6 @@ RPC_version = {
     ["mountd"] = { min=1, max=3 },
 }
 
-math.randomseed( os.time() )
-
 -- Low-level communication class
 Comm = {
 
