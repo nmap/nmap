@@ -8,11 +8,9 @@ o [NSE] Added http-cakephp-version, a discovery script to fingerprint
 o [NSE] Added backorifice-brute, a bruteforcing script against the old 
   BackOrifice service
 
-o [NSE] Moved the script smtp-check-vulns to smtp-vuln-cve2011-1720.
-  [Djalal]
-
-o [NSE] Added smtp-check-vulns, which checks for the Postfix SMTP server
-  Cyrus SASL authentication memory corruption (CVE-2011-1720). [Djalal]
+o [NSE] Added smtp-vuln-cve2011-1720, which checks for the Postfix
+  SMTP server Cyrus SASL authentication memory corruption
+  vulnerability (CVE-2011-1720). [Djalal]
 
 o Stopped linking against libnl when not necessary (when linking
   dynamically with libpcap). Patch by Kevin Locke.
