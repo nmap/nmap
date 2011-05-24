@@ -1,6 +1,6 @@
 description = [[
 Performs brute force password auditing against the BackOrifice service. The
-backorifice-brute.ports script argument is mandatory (it specifies ports to run
+<code>backorifice-brute.ports</code> script argument is mandatory (it specifies ports to run
 the script against).
 ]]
 
@@ -12,7 +12,7 @@ the script against).
 --
 -- This script uses the brute library to perform password guessing. A 
 -- successful password guess is stored in the nmap registry, under the 
--- nmap.registry.credentials.backorifice table for other BackOrifice 
+-- <code>nmap.registry.credentials.backorifice</code> table for other BackOrifice 
 -- scripts to use.
 --
 -- @output
