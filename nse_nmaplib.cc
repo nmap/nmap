@@ -8,6 +8,7 @@ extern "C" {
 #include <math.h>
 
 #include "nmap.h"
+#include "nbase.h"
 #include "nmap_error.h"
 #include "NmapOps.h"
 #include "Target.h"
@@ -753,6 +754,12 @@ static int l_get_interface (lua_State *L)
   return 1;
 }
 
+static int l_get_random_uint (lua_State *L)
+{
+  lua_pushnumber(L, (lua_Number) get_random_uint());
+  return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_reg nmaplib [] = {
@@ -780,6 +787,7 @@ int luaopen_nmap (lua_State *L)
     {"address_family", l_address_family},
     {"get_interface", l_get_interface},
     {"get_interface_info", l_dnet_get_interface_info},
+    {"get_random_uint", l_get_random_uint},
     {NULL, NULL}
   };
 
