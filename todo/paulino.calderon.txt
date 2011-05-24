@@ -1,6 +1,10 @@
 PENDING:
--Work on php-self.nse and httpspider.lua
--Work on http-sitemap-dumper
+-Add support to relative links in http-phpself-xss
+-Add support to redirects in http-phpself-xss
+-Use http_pipeline for probing in http-phpself-xss
+-Write draft proposal for http-spider
+-Write http-sitemap-dumper
+-
 
 COMPLETED:
 
