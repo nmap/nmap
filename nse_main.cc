@@ -1,4 +1,5 @@
 #include "nmap.h"
+#include "nbase.h"
 #include "nmap_error.h"
 #include "portlist.h"
 #include "nsock.h"
@@ -612,6 +613,13 @@ void script_scan (std::vector<Target *> &targets, stype scantype)
 
   assert(L_NSE != NULL);
   lua_settop(L_NSE, 0); /* clear the stack */
+
+  /*
+   Set the random seed value on behalf of scripts.  Since Lua uses the C rand
+   and srand functions, which have a static seed for the entire program, we
+   don't want scripts doing this themselves.
+   */
+  srand(get_random_uint());
 
 #if 0
   /* Lua 5.2 */

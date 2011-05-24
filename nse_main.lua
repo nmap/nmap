@@ -95,7 +95,6 @@ local open = io.open;
 
 local math = require "math";
 local max = math.max;
-local randomseed = math.randomseed;
 
 local package = require "package";
 
@@ -123,11 +122,6 @@ do -- Append the nselib directory to the Lua search path
   assert(t == "directory", "could not locate nselib directory!");
   package.path = path.."?.lua;"..package.path;
 end
-
--- Set the math.randomseed value in nse_main.lua on behalf of scripts.
--- Since Lua uses the C rand and srand functions, which have a static
--- seed for the entire program, we don't want scripts doing this themselves.
-math.randomseed(nmap.get_random_uint());
 
 local script_database_type, script_database_path =
     cnse.fetchfile_absolute(cnse.script_dbpath);

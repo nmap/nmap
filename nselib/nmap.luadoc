@@ -120,17 +120,6 @@ function get_interface_info(interface_name)
 -- @return String representing the full path to the file or <code>nil</code>.
 function fetchfile(filename)
 
-
---- Generates a random unsigned integer.
---
--- This function is generally useful for seeding a random number generator.
--- It is not efficient enough to be used as a random number generator.
---
--- @usage
--- nmap.get_rand_uint() --> 1234567890
--- @return Number A random unsigned integer.
-function get_random_uint()
-
 --- Returns the timing level as a non-negative integer.
 --
 -- Possible return values vary from <code>0</code> to <code>5</code>,
