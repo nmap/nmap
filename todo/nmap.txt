@@ -88,6 +88,9 @@ o [NSE] Consider a system where scripts can tell if any other scripts
   snmp-interfaces could store the discovered table if another script
   (such as a mac address geolocator script) depends on it.
 
+o NSEDoc generation should be performed automatically on the web
+  server on at least a daily (just before VA modules email) basis.
+
 o A couple minor nsedoc issues (see
   http://seclists.org/nmap-dev/2011/q1/1095):
  o After the ssh-hostkey portrule was added, nsedoc seems to be
