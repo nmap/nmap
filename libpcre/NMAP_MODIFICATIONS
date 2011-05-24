@@ -35,7 +35,7 @@ CleanTxt
 ChangeLog
 NEWS
 HACKING
-COPYING [Look at LICENSE]
+COPYING [Look at LICENCE]
 
 o Got rid of the C++ wrapper, which included this step:
   rm -f *.cc pcrecpparg.h.in pcrecpp.h pcrecpp_internal.h pcre_scanner.h pcre_stringpiece.h.in
