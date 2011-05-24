@@ -1359,14 +1359,6 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
   int port_base = tcpPortBase + NUM_SEQ_SAMPLES + 7;
 
   switch(probeNo) {
-  case 0: /* T1 */
-    if(hss->openTCPPort == -1) return;
-    send_tcp_probe(hss, o.ttl, false, NULL, 0,
-                   port_base, hss->openTCPPort,
-                   tcpSeqBase, tcpAck,
-                   0, TH_SYN, prbWindowSz[0], 0,
-                   prbOpts[0].val, prbOpts[0].len, NULL, 0);
-    break;
   case 1: /* T2 */
     if(hss->openTCPPort == -1) return;
     send_tcp_probe(hss, o.ttl, true, NULL, 0,
@@ -1415,6 +1407,10 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
                    0, TH_FIN|TH_PUSH|TH_URG, prbWindowSz[12], 0,
                    prbOpts[12].val, prbOpts[12].len, NULL, 0);
     break;
+  default:
+    fatal("Wrong probe number (%d) passed to %s()", probeNo, __func__);
+    break;
+  
   }
 }
 
