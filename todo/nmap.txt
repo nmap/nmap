@@ -77,6 +77,9 @@ o Summer of Code feature creeper:
     o This also might let us provide a feature for skipping the rest of
       an Nmap phase which is going too slowly (I think that has its own
       Nmap TODO item).
+    o Nmap should defer address parsing in arguments until it has read
+      through all the args.  Otherwise you get an error if you use like -S
+      with an IPv6 address before you put -6 in the command line.
 
 o [Nsock] Some SSL connections that used to work now fail; find out
   why. http://seclists.org/nmap-dev/2010/q4/788. Narrowed down to
