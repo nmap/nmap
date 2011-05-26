@@ -88,6 +88,7 @@
 
 /*
  * Written by Eddie Bell <ejlbell@gmail.com> 2007
+ * Modified by Colin Rice <dah4k0r@gmail.com> 2011
  */
 
 #ifndef REASON_H
@@ -102,11 +103,23 @@
 #endif
 
 #include <sys/types.h>
-
+#include <map>
 class Target;
 class PortList;
 
 typedef unsigned short reason_t;
+
+/* Holds various string outputs of a reason  *
+ * Stored inside a map which maps enum_codes *
+ * to reason_strings				     */
+class reason_string {
+public:
+    //Required for map
+    reason_string();
+    reason_string(const char * plural, const char * singular);
+    const char * plural;
+    const char * singular;
+};
 
 /* stored inside a Port Object and describes
  * why a port is in a specific state */
@@ -124,31 +137,41 @@ typedef struct port_reason_summary {
 	struct port_reason_summary *next;
 } state_reason_summary_t;
 
-/* portreasons.h:reason_codes and portreasons.cc:reason_str must stay in sync */
+
 enum reason_codes {
-	ER_RESETPEER=0, ER_CONREFUSED, ER_CONACCEPT,
-	ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, /* 8 */
+	ER_RESETPEER, ER_CONREFUSED, ER_CONACCEPT, 
+	ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, 
 
 	ER_NETUNREACH, ER_HOSTUNREACH, ER_PROTOUNREACH,
-	ER_PORTUNREACH, ER_ECHOREPLY,  /* 12 */
+	ER_PORTUNREACH, ER_ECHOREPLY, 
 
-	ER_DESTUNREACH=14, ER_SOURCEQUENCH, ER_NETPROHIBITED,
-	ER_HOSTPROHIBITED, ER_ADMINPROHIBITED=20,
-	ER_TIMEEXCEEDED=22, ER_TIMESTAMPREPLY=25,
+	ER_DESTUNREACH, ER_SOURCEQUENCH, ER_NETPROHIBITED,
+	ER_HOSTPROHIBITED, ER_ADMINPROHIBITED,
+	ER_TIMEEXCEEDED, ER_TIMESTAMPREPLY,
 
-	ER_ADDRESSMASKREPLY=30, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
+	ER_ADDRESSMASKREPLY, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
 	ER_ARPRESPONSE, ER_TCPRESPONSE, ER_NORESPONSE,
 	ER_INITACK, ER_ABORT,
-	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER, ER_MAX=ER_USER   /* 42 */
+	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER 
 };
 
-/* Be careful to update these values if any ICMP
- * ER_* definitions are modified.
- *
- * ICMP ER_* codes are calculated by adding the
- * offsets below to an ICMP packets code/type value */
-#define ER_ICMPCODE_MOD 8
-#define ER_ICMPTYPE_MOD 12
+/* A map of reason_codes to plural and singular *
+ * versions of the error string                 */
+class reason_map_type{
+private:
+    std::map<reason_codes,reason_string > reason_map;
+public:
+    reason_map_type();
+    std::map<reason_codes,reason_string>::iterator find(const reason_codes& x){
+        std::map<reason_codes,reason_string>::iterator itr = reason_map.find(x);
+        if(itr == reason_map.end())
+            return reason_map.find(ER_UNKNOWN);
+        return itr;
+    };
+};
+
+/* Function to translate ICMP code and typ to reason code */
+reason_codes icmp_to_reason(int icmp_type, int icmp_code);
 
 /* passed to the print_state_summary.
  * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"

@@ -88,6 +88,7 @@
 
 /*
  * Written by Eddie Bell <ejlbell@gmail.com> 2007
+ * Modified by Colin Rice <dah4k0r@gmail.com> 2011
  */
 
 #include "nmap.h"
@@ -99,37 +100,112 @@
 #ifdef WIN32
 #include "winfix.h"
 #endif
-
 #include <iostream>
 
 extern NmapOps o;
 class PortList;
 
-/* Possible plural and singular reasons */
-const char *reason_text[ER_MAX+1]={
-        "reset", "conn-refused", "syn-ack", "syn-ack", "split-handshake-syn",
-        "udp-response", "proto-response", "perm-denied",
-        "net-unreach", "host-unreach", "proto-unreach",
-        "port-unreach", "echo-reply", "unknown", "dest-unreach",
-        "source-quench", "net-prohibited", "host-prohibited", "unknown",
-        "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
-        "timestamp-reply", "unknown", "unknown", "unknown", "unknown", "addressmask-reply",
-        "no-ipid-change", "ipid-change", "arp-response", "tcp-response",
-        "no-response", "init-ack", "abort",
-        "localhost-response", "script-set", "unknown-response","user-set"
+/* reason_string initializer */
+reason_string::reason_string(){
+    this->plural = "unknown";
+    this->singular = this->plural;
+}
+reason_string::reason_string(const char * plural, const char * singular){
+    this->plural = plural;
+    this->singular = singular;
 };
 
-const char *reason_pl_text[ER_MAX+1]={
-        "resets", "conn-refused", "syn-acks", "syn-acks", "split-handshake-syns",
-        "udp-responses", "proto-responses", "perm-denieds",
-        "net-unreaches", "host-unreaches", "proto-unreaches",
-        "port-unreaches", "echo-replies", "unknowns", "dest-unreaches",
-        "source-quenches", "net-prohibiteds", "host-prohibiteds", "unknowns",
-        "unknowns", "admin-prohibiteds", "unknowns", "time-exceededs", "unknowns",
-        "unknowns", "timestamp-replies", "unknowns", "unknowns", "unknowns", "unknowns",
-        "addressmask-replies", "no-ipid-changes", "ipid-changes", "arp-responses",
-        "tcp-responses", "no-responses", "init-acks", "aborts",
-        "localhost-response", "script-set", "unknown-responses","user-sets"
+reason_map_type::reason_map_type(){
+    reason_map[ER_RESETPEER] = reason_string("reset","resets");
+    reason_map[ER_CONREFUSED] = reason_string("conn-refused","conn-refused");
+    reason_map[ER_CONACCEPT] = reason_string("syn-ack","syn-acks");
+
+    reason_map[ER_SYNACK] = reason_string("syn-ack","syn-acks");
+    reason_map[ER_SYN] = reason_string("split-handshake-syn","split-handshake-syns");
+    reason_map[ER_UDPRESPONSE] = reason_string("udp-response","udp-responses");
+    reason_map[ER_PROTORESPONSE] = reason_string("proto-response","proto-responses");
+    reason_map[ER_ACCES] = reason_string("perm-denied","perm-denieds");
+
+
+    reason_map[ER_NETUNREACH] = reason_string("net-unreach","net-unreaches");
+    reason_map[ER_HOSTUNREACH] = reason_string("host-unreach","host-unreaches");
+    reason_map[ER_PROTOUNREACH] = reason_string("proto-unreaches","proto-unreaches");
+
+    reason_map[ER_PORTUNREACH] = reason_string("port-unreach","port-unreaches");
+    reason_map[ER_ECHOREPLY] = reason_string("echo-reply","echo-replies");
+
+
+    reason_map[ER_DESTUNREACH] = reason_string("dest-unreach","dest-unreaches");
+    reason_map[ER_SOURCEQUENCH] = reason_string("source-quench","source-quenches");
+    reason_map[ER_NETPROHIBITED] = reason_string("net-prohibited","net-prohibiteds");
+
+    reason_map[ER_HOSTPROHIBITED] = reason_string("host-prohibited","host-prohibiteds");
+    reason_map[ER_ADMINPROHIBITED] = reason_string("admin-prohibited","admin-prohibiteds");
+
+    reason_map[ER_TIMEEXCEEDED] = reason_string("time-exceeded","time-exceededs");
+    reason_map[ER_TIMESTAMPREPLY] = reason_string("timestamp-reply","timestamp-replies");
+
+    reason_map[ER_NOIPIDCHANGE] = reason_string("no-ipid-change","no-ipid-changes");
+    reason_map[ER_IPIDCHANGE] = reason_string("ipid-change","ipid-changes");
+
+    reason_map[ER_ARPRESPONSE] = reason_string("arp-response","arp-responses");
+    reason_map[ER_TCPRESPONSE] = reason_string("tcp-response","tcp-responses");
+    reason_map[ER_NORESPONSE] = reason_string("no-response","no-responses");
+
+    reason_map[ER_INITACK] = reason_string("init-ack","init-acks");
+    reason_map[ER_ABORT] = reason_string("abort","aborts");
+
+    reason_map[ER_LOCALHOST] = reason_string("localhost-response","localhost-responses");
+    reason_map[ER_SCRIPT] = reason_string("script-set","script-set");
+    reason_map[ER_UNKNOWN] = reason_string("unknown-response","unknown-responses");
+    reason_map[ER_USER] = reason_string("user-set","user-sets");
+
+}
+
+/* Map holding plural and singular versions of error codes */
+reason_map_type reason_map;
+
+/* Function to Translate ICMP codes and types to *
+ * Reason Codes                  */
+
+reason_codes icmp_to_reason(int icmp_type, int icmp_code){
+
+    switch(icmp_type){
+
+        case ICMP_UNREACH:
+            switch(icmp_code){
+            case ICMP_UNREACH_NET:
+                return ER_NETUNREACH;
+            case ICMP_UNREACH_HOST:
+                return ER_HOSTUNREACH;
+            case ICMP_UNREACH_PROTO:
+                return ER_PROTOUNREACH;
+            case ICMP_UNREACH_PORT:
+                return ER_PORTUNREACH;
+            case ICMP_UNREACH_NET_PROHIB:
+                return ER_NETPROHIBITED;
+            case ICMP_UNREACH_HOST_PROHIB:
+                return ER_HOSTPROHIBITED;
+            case ICMP_UNREACH_FILTER_PROHIB:
+                return ER_ADMINPROHIBITED;
+            }
+            return ER_UNKNOWN;
+
+        case ICMP_SRCQUENCH:
+            return ER_SOURCEQUENCH;
+
+        case ICMP_TIMEXCEED:
+            return ER_TIMEEXCEEDED;
+
+        case ICMP_TSTAMPREPLY:
+            return ER_TIMESTAMPREPLY;
+
+        case ICMP_MASKREPLY:
+            return ER_ADDRESSMASKREPLY;
+
+
+    }
+    return ER_UNKNOWN;
 };
 
 static void state_reason_summary_init(state_reason_summary_t *r) {
@@ -288,12 +364,12 @@ static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int
  * string representation. If 'number' is equal to 1 then the
  * singular is used, otherwise the plural */
 const char *reason_str(reason_t reason_code, unsigned int number) {
-	if(reason_code > ER_MAX)
-		return "unknown";
-	if(number == 1)
-		return reason_text[reason_code];
-	else
-		return reason_pl_text[reason_code];
+    std::map<reason_codes,reason_string>::iterator itr = reason_map.find((reason_codes)reason_code);
+    reason_string temp = (*itr).second;
+    if (number == SINGULAR){
+        return temp.singular;
+    }
+    return temp.plural;
 }
 
 void state_reason_init(state_reason_t *reason) {
@@ -322,7 +398,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 
 	states = state_summary_size(reason_head);
 	currentr = reason_head;
-
+	
 	while(currentr != NULL) {
 		if(states == 1 && (!first_time))
 			separator = " and ";

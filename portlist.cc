@@ -897,8 +897,6 @@ bool PortList::hasOpenPorts() const {
 int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr) {
     Port *answer = NULL;
 
-    if(reason > ER_MAX)
-        return -1;
     answer = createPort(portno, proto);
 
     /* set new reason and increment its count */

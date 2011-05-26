@@ -4313,7 +4313,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 		  sizeof(struct ip));
 	    break;
 	  }
-	  current_reason = icmp->icmp_code+ER_ICMPCODE_MOD;
+	  current_reason = icmp_to_reason(icmp->icmp_type, icmp->icmp_code);
 	  if (newstate == PORT_UNKNOWN) break;
 	  goodone = true;
 	}
@@ -4405,7 +4405,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 			hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, ER_ECHOREPLY, 
                                               ip_icmp->ip_ttl, reason_sip);
 		else 
-			hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, icmp->icmp_type+ER_ICMPCODE_MOD, 
+			hss->target->ports.setStateReason(IPPROTO_ICMP, IPPROTO_IP, icmp_to_reason(icmp->icmp_type, icmp->icmp_code), 
                                               ip_icmp->ip_ttl, reason_sip);
 	      } 
 	      if (!goodone) goodone = true;
@@ -4486,9 +4486,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
         continue;
       }
 
-      current_reason = ping->type + ER_ICMPTYPE_MOD;
-      if (current_reason == ER_DESTUNREACH)
-        current_reason = ping->code + ER_ICMPCODE_MOD;
+      current_reason = icmp_to_reason(ping->type, ping->code);
 
       /* Echo reply, Timestamp reply, or Address Mask Reply. RFCs 792 and 950. */
       if (USI->ptech.rawicmpscan && (ping->type == 0 || ping->type == 14 || ping->type == 18)) {
