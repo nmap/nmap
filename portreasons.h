@@ -126,7 +126,7 @@ typedef struct port_reason_summary {
 
 /* portreasons.h:reason_codes and portreasons.cc:reason_str must stay in sync */
 enum reason_codes {
-	ER_RESETPEER=0, ER_CONREFUSED, ER_CONACCEPT, 
+	ER_RESETPEER=0, ER_CONREFUSED, ER_CONACCEPT,
 	ER_SYNACK, ER_SYN, ER_UDPRESPONSE, ER_PROTORESPONSE, ER_ACCES, /* 8 */
 
 	ER_NETUNREACH, ER_HOSTUNREACH, ER_PROTOUNREACH,
@@ -145,10 +145,10 @@ enum reason_codes {
 /* Be careful to update these values if any ICMP
  * ER_* definitions are modified.
  *
- * ICMP ER_* codes are calculated by adding the 
+ * ICMP ER_* codes are calculated by adding the
  * offsets below to an ICMP packets code/type value */
-#define ER_ICMPCODE_MOD 8  
-#define ER_ICMPTYPE_MOD 12  
+#define ER_ICMPCODE_MOD 8
+#define ER_ICMPTYPE_MOD 12
 
 /* passed to the print_state_summary.
  * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"
@@ -163,8 +163,8 @@ enum reason_codes {
 
 void state_reason_init(state_reason_t *reason);
 
-/* converts a reason_id to a string. number represents the 
- * amount ports in a given state. If there is more then one 
+/* converts a reason_id to a string. number represents the
+ * amount ports in a given state. If there is more then one
  * port the plural is used, otherwise the singular is used. */
 const char *reason_str(reason_t reason_id, unsigned int number);
 

@@ -240,7 +240,7 @@ void serviceDeductions::populateFullVersionString(char *buf, size_t n) const {
       strncat(dst, " ", spaceleft);
       spaceleft--;
     }
-    
+
     if (spaceleft < strlen(version)) {
       strncat(dst, version, spaceleft - 3);
       strncat(dst, "...", spaceleft);
@@ -324,7 +324,7 @@ static char *cstringSanityCheck(const char* string, int len) {
   result = (char *) safe_malloc(slen + 1);
   memcpy(result, string, slen);
   result[slen] = '\0';
-  replacenonprintable(result, slen, '.'); 
+  replacenonprintable(result, slen, '.');
   return result;
 }
 
@@ -364,14 +364,14 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   // port->serviceprobe_results = sres;
   port->service->service_tunnel = tunnel;
 
-  if (sname) 
+  if (sname)
     port->service->name = strdup(sname);
   else
     port->service->name = NULL;
 
-  if (fingerprint) 
+  if (fingerprint)
     port->service->service_fp = strdup(fingerprint);
-  else 
+  else
     port->service->service_fp = NULL;
 
   port->service->product = cstringSanityCheck(product, 80);
@@ -385,7 +385,7 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
 /* Sets the results of an RPC scan.  if rpc_status is not
    RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args.  This function
    takes care of setting the port's service and version appropriately. */
-void PortList::setRPCProbeResults(u16 portno, int proto, int rpcs, unsigned long rpcp, 
+void PortList::setRPCProbeResults(u16 portno, int proto, int rpcs, unsigned long rpcp,
 			unsigned int rpcl, unsigned int rpch) {
   Port *port;
   const char *newsvc;
@@ -419,7 +419,7 @@ void PortList::setRPCProbeResults(u16 portno, int proto, int rpcs, unsigned long
   } else if (port->service->rpc_status == RPC_STATUS_UNKNOWN) {
     if (port->service->name)
       free(port->service->name);
-    
+
     port->service->name = strdup("rpc.unknown");
     port->service->name_confidence = 8;
     port->service->dtype = SERVICE_DETECTION_PROBED;
@@ -473,14 +473,14 @@ PortList::PortList() {
 PortList::~PortList() {
   int proto, i;
 
-  if (idstr) { 
+  if (idstr) {
     free(idstr);
     idstr = NULL;
   }
 
   for(proto=0; proto < PORTLIST_PROTO_MAX; proto++) { // for every protocol
     if(port_list[proto]) {
-      for(i=0; i < port_list_count[proto]; i++) { // free every Port 
+      for(i=0; i < port_list_count[proto]; i++) { // free every Port
         if(port_list[proto][i]) {
           port_list[proto][i]->freeService();
           delete port_list[proto][i];
@@ -514,7 +514,7 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
 
   if ((state == PORT_OPEN && o.verbose) || (o.debugging > 1)) {
     log_write(LOG_STDOUT, "Discovered %s port %hu/%s%s\n",
-	      statenum2str(state), portno, 
+	      statenum2str(state), portno,
 	      proto2ascii_lowercase(protocol), idstr? idstr : "");
     log_flush(LOG_STDOUT);
   }
@@ -522,7 +522,7 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
 
   /* Make sure state is OK */
   if (state != PORT_OPEN && state != PORT_CLOSED && state != PORT_FILTERED &&
-      state != PORT_UNFILTERED && state != PORT_OPENFILTERED && 
+      state != PORT_UNFILTERED && state != PORT_OPENFILTERED &&
       state != PORT_CLOSEDFILTERED)
     fatal("%s: attempt to add port number %d with illegal state %d\n", __func__, portno, state);
 
@@ -534,18 +534,18 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
        if a complete duplicate */
     if (o.debugging && oldport->state == state) {
       error("Duplicate port (%hu/%s)", portno, proto2ascii_lowercase(protocol));
-    } 
+    }
     state_counts_proto[proto][oldport->state]--;
   } else {
     state_counts_proto[proto][default_port_state[proto].state]--;
   }
   current = createPort(portno, protocol);
-  
+
   current->state = state;
   state_counts_proto[proto][state]++;
- 
+
   if(state == PORT_FILTERED || state == PORT_OPENFILTERED)
-  	setStateReason(portno, protocol, ER_NORESPONSE, 0, 0); 
+  	setStateReason(portno, protocol, ER_NORESPONSE, 0, 0);
   return;
 }
 
@@ -607,7 +607,7 @@ Port *PortList::nextPort(const Port *cur, Port *next,
   int proto;
   int mapped_pno;
   Port *port;
-  
+
   if (cur) {
     proto = INPROTO2PORTLISTPROTO(cur->proto);
     assert(port_map[proto]!=NULL); // Hmm, it's not posible to handle port that doesn't have anything in map
@@ -623,7 +623,7 @@ Port *PortList::nextPort(const Port *cur, Port *next,
       proto = INPROTO2PORTLISTPROTO(allowed_protocol);
     mapped_pno = 0;
   }
-  
+
   if(port_list[proto] != NULL) {
     for(;mapped_pno < port_list_count[proto]; mapped_pno++) {
       port = port_list[proto][mapped_pno];
@@ -638,7 +638,7 @@ Port *PortList::nextPort(const Port *cur, Port *next,
       }
     }
   }
-  
+
   /* if all protocols, than after TCP search UDP & SCTP */
   if((!cur && allowed_protocol == TCPANDUDPANDSCTP) ||
       (cur && proto == INPROTO2PORTLISTPROTO(IPPROTO_TCP)))
@@ -648,8 +648,8 @@ Port *PortList::nextPort(const Port *cur, Port *next,
   if((!cur && allowed_protocol == UDPANDSCTP) ||
       (cur && proto == INPROTO2PORTLISTPROTO(IPPROTO_UDP)))
     return(nextPort(NULL, next, IPPROTO_SCTP, allowed_state));
-  
-  return(NULL); 
+
+  return(NULL);
 }
 
 /* Convert portno and protocol into the internal indices used to index
@@ -669,7 +669,7 @@ bool PortList::mapPort(u16 *portno, u8 *protocol) const {
 
   assert(mapped_portno < port_list_count[mapped_protocol]);
   assert(mapped_portno >= 0);
-  
+
   *portno = mapped_portno;
   *protocol = mapped_protocol;
 
@@ -721,22 +721,22 @@ int PortList::forgetPort(u16 portno, u8 protocol) {
 
   state_counts_proto[protocol][answer->state]--;
   state_counts_proto[protocol][default_port_state[protocol].state]++;
-    
+
   delete answer;
 
   port_list[protocol][portno] = NULL;
 
-  if (o.verbose) {  
+  if (o.verbose) {
     log_write(LOG_STDOUT, "Deleting port %hu/%s, which we thought was %s\n",
 	      portno, proto2ascii_lowercase(answer->proto),
 	      statenum2str(answer->state));
     log_flush(LOG_STDOUT);
-  }    
+  }
 
   return 0;
 }
 
-/* Just free memory used by PortList::port_map[]. Should be done somewhere 
+/* Just free memory used by PortList::port_map[]. Should be done somewhere
  * before closing nmap. */
 void PortList::freePortMap() {
   int proto;
@@ -753,31 +753,31 @@ void PortList::freePortMap() {
     port_list_count[proto] = 0;
   }
 }
-  
+
 
 u16 *PortList::port_map[PORTLIST_PROTO_MAX];
 u16 *PortList::port_map_rev[PORTLIST_PROTO_MAX];
 int PortList::port_list_count[PORTLIST_PROTO_MAX];
 
 /* This function must be runned before any PortList object is created.
- * It must be runned for every used protocol. The data in "ports" 
+ * It must be runned for every used protocol. The data in "ports"
  * should be sorted. */
 void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
   int i;
   int ports_max = (protocol == IPPROTO_IP) ? 256 : 65536;
   int proto = INPROTO2PORTLISTPROTO(protocol);
-  
+
   if (port_map[proto] != NULL || port_map_rev[proto] != NULL)
     fatal("%s: portmap for protocol %i already initialized", __func__, protocol);
 
   assert(port_list_count[proto]==0);
-  
+
   /* this memory will never be freed, but this is the way it has to be. */
   port_map[proto] = (u16 *) safe_zalloc(sizeof(u16) * ports_max);
   port_map_rev[proto] = (u16 *) safe_zalloc(sizeof(u16) * portcount);
 
   port_list_count[proto] = portcount;
-  
+
   for(i=0; i < portcount; i++) {
     port_map[proto][ports[i]] = i;
     port_map_rev[proto][i] = ports[i];
@@ -798,10 +798,10 @@ void PortList::initializePortMap(int protocol, u16 *ports, int portcount) {
 int PortList::nextIgnoredState(int prevstate) {
 
   int beststate = PORT_UNKNOWN;
-  
+
   for(int state=0; state < PORT_HIGHEST_STATE; state++) {
     /* The state must be ignored */
-    if (!isIgnoredState(state)) 
+    if (!isIgnoredState(state))
       continue;
 
     /* We can't give the same state again ... */
@@ -809,7 +809,7 @@ int PortList::nextIgnoredState(int prevstate) {
 
     /* If a previous state was given, we must have fewer ports than
        that one, or be tied but be a larger state number */
-    if (prevstate != PORT_UNKNOWN && 
+    if (prevstate != PORT_UNKNOWN &&
 	(getStateCounts(state) > getStateCounts(prevstate) ||
 	 (getStateCounts(state) == getStateCounts(prevstate) && state <= prevstate)))
       continue;
@@ -840,7 +840,7 @@ bool PortList::isIgnoredState(int state) {
 
   /* If openonly, we always ignore states that don't at least have open
      as a possibility. */
-  if (o.openOnly() && state != PORT_OPENFILTERED && state != PORT_UNFILTERED 
+  if (o.openOnly() && state != PORT_OPENFILTERED && state != PORT_UNFILTERED
       && getStateCounts(state) > 0)
     return true;
 

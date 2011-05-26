@@ -106,12 +106,12 @@ extern NmapOps o;
 class PortList;
 
 /* Possible plural and singular reasons */
-const char *reason_text[ER_MAX+1]={ 
+const char *reason_text[ER_MAX+1]={
         "reset", "conn-refused", "syn-ack", "syn-ack", "split-handshake-syn",
         "udp-response", "proto-response", "perm-denied",
         "net-unreach", "host-unreach", "proto-unreach",
         "port-unreach", "echo-reply", "unknown", "dest-unreach",
-        "source-quench", "net-prohibited", "host-prohibited", "unknown", 
+        "source-quench", "net-prohibited", "host-prohibited", "unknown",
         "unknown", "admin-prohibited", "unknown", "time-exceeded", "unknown", "unknown",
         "timestamp-reply", "unknown", "unknown", "unknown", "unknown", "addressmask-reply",
         "no-ipid-change", "ipid-change", "arp-response", "tcp-response",
@@ -119,14 +119,14 @@ const char *reason_text[ER_MAX+1]={
         "localhost-response", "script-set", "unknown-response","user-set"
 };
 
-const char *reason_pl_text[ER_MAX+1]={ 
+const char *reason_pl_text[ER_MAX+1]={
         "resets", "conn-refused", "syn-acks", "syn-acks", "split-handshake-syns",
         "udp-responses", "proto-responses", "perm-denieds",
         "net-unreaches", "host-unreaches", "proto-unreaches",
         "port-unreaches", "echo-replies", "unknowns", "dest-unreaches",
-        "source-quenches", "net-prohibiteds", "host-prohibiteds", "unknowns", 
+        "source-quenches", "net-prohibiteds", "host-prohibiteds", "unknowns",
         "unknowns", "admin-prohibiteds", "unknowns", "time-exceededs", "unknowns",
-        "unknowns", "timestamp-replies", "unknowns", "unknowns", "unknowns", "unknowns", 
+        "unknowns", "timestamp-replies", "unknowns", "unknowns", "unknowns", "unknowns",
         "addressmask-replies", "no-ipid-changes", "ipid-changes", "arp-responses",
         "tcp-responses", "no-responses", "init-acks", "aborts",
         "localhost-response", "script-set", "unknown-responses","user-sets"
@@ -140,7 +140,7 @@ static void state_reason_summary_init(state_reason_summary_t *r) {
 
 static void state_reason_summary_dinit(state_reason_summary_t *r) {
 	state_reason_summary_t *tmp;
-	
+
 	while(r != NULL) {
 		tmp = r->next;
 		free(r);
@@ -161,14 +161,14 @@ static int state_summary_size(state_reason_summary_t *head) {
 	return size;
 }
 
-/* Simon Tatham's linked list merge sort 
+/* Simon Tatham's linked list merge sort
  *
  * Merge sort works really well on linked lists
- * because it does not require the O(N) extra space 
- * needed with arrays */ 
-static state_reason_summary_t *reason_sort(state_reason_summary_t *list) { 
-	state_reason_summary_t *p, *q, *e, *tail; 
-	int insize = 1, nmerges, psize, qsize, i; 
+ * because it does not require the O(N) extra space
+ * needed with arrays */
+static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
+	state_reason_summary_t *p, *q, *e, *tail;
+	int insize = 1, nmerges, psize, qsize, i;
 
     if (!list)
 	  return NULL;
@@ -177,7 +177,7 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
         p = list;
         list = NULL;
         tail = NULL;
-        nmerges = 0;  
+        nmerges = 0;
 
         while (p) {
             nmerges++;
@@ -212,7 +212,7 @@ static state_reason_summary_t *reason_sort(state_reason_summary_t *list) {
       if (!tail)
         return NULL;
       tail->next = NULL;
-      if (nmerges <= 1)  
+      if (nmerges <= 1)
         return list;
       insize *= 2;
     }
@@ -288,7 +288,7 @@ static state_reason_summary_t *print_state_summary_internal(PortList *Ports, int
  * string representation. If 'number' is equal to 1 then the
  * singular is used, otherwise the plural */
 const char *reason_str(reason_t reason_code, unsigned int number) {
-	if(reason_code > ER_MAX) 
+	if(reason_code > ER_MAX)
 		return "unknown";
 	if(number == 1)
 		return reason_text[reason_code];
@@ -312,11 +312,11 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 
 	if((reason_head = print_state_summary_internal(Ports, 0)) == NULL)
 		return;
-	
+
 	if(type == STATE_REASON_EMPTY)
-		log_write(LOG_PLAIN, " because of"); 
+		log_write(LOG_PLAIN, " because of");
 	else if(type == STATE_REASON_FULL)
-		log_write(LOG_PLAIN, "Reason:"); 
+		log_write(LOG_PLAIN, "Reason:");
 	else
 		assert(0);
 
@@ -327,7 +327,7 @@ void print_state_summary(PortList *Ports, unsigned short type) {
 		if(states == 1 && (!first_time))
 			separator = " and ";
 		if(currentr->count > 0) {
-			log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator, 
+			log_write(LOG_PLAIN, "%s%d %s", (first_time) ? " " : separator,
 				currentr->count, reason_str(currentr->reason_id, currentr->count));
 			first_time = false;
 
@@ -345,7 +345,7 @@ void print_xml_state_summary(PortList *Ports, int state) {
 
 	if((currentr = reason_head = print_state_summary_internal(Ports, state)) == NULL)
 		return;
-	
+
 	while(currentr != NULL) {
 		if(currentr->count > 0) {
 			xml_open_start_tag("extrareasons");
@@ -364,7 +364,7 @@ void print_xml_state_summary(PortList *Ports, int state) {
 char *target_reason_str(Target *t) {
 	static char reason[128];
 	memset(reason,'\0', 128);
-	Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR)); 
+	Snprintf(reason, 128, "received %s", reason_str(t->reason.reason_id, SINGULAR));
 	return reason;
 }
 
@@ -377,5 +377,5 @@ char *port_reason_str(state_reason_t r) {
 	Snprintf(reason, 128, "%s%s%s", reason_str(r.reason_id, SINGULAR),
             (r.ip_addr.s_addr==0)?"":" from ",
             (r.ip_addr.s_addr==0)?"":inet_ntoa(r.ip_addr));
-	return reason;	
+	return reason;
 }
