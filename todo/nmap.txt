@@ -99,6 +99,15 @@ o A couple minor nsedoc issues (see
  o After the ssh-hostkey portrule was added, nsedoc seems to be
    generating a blank "Script types" filed for the script:
    http://localhost:8082/nsedoc/scripts/ssh-hostkey.html
+   o This is happening because "portrule" and "hostrule" appear later in
+     the script, and NSEDoc thinks it is their definition, and there is
+     no NSEDoc there.
+       local ActionsTable = {
+         -- portrule: retrieve ssh hostkey
+         portrule = portaction,
+         -- postrule: look for duplicate hosts (same hostkey)
+         postrule = postaction
+       }
  o ssh-hostkey and rmi-dumpregistry each have two @output sections,
    and NSEDoc is only showing the second one.  We should probably just
    combine them into one @output section, and maybe make nsedoc give a
