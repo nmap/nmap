@@ -1,11 +1,15 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [NMAP] Redid portreasons.h and portreasons.cc to use a map instead of
+  parrallel arrays and added icmp_to_reason for consistent translation to
+  reason codes. [Colin Rice]
+
 o [NSE] Added new fingerprint data to http-fingerprints.lua and favicon-db
   for CakePHP applications. [Paulino Calderon]
 
-o [NSE] Added http-cakephp-version, a discovery script to fingerprint 
+o [NSE] Added http-cakephp-version, a discovery script to fingerprint
   CakePHP applications. Script by Paulino Calderon.
 
-o [NSE] Added backorifice-brute, a bruteforcing script against the old 
+o [NSE] Added backorifice-brute, a bruteforcing script against the old
   BackOrifice service
 
 o [NSE] Added smtp-vuln-cve2011-1720, which checks for the Postfix
@@ -25,7 +29,7 @@ o [NSE] Added a SIP library and two new scripts sip-brute.nse and
 
 o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
 
-o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the 
+o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the
   hosts in the local network that are running Avahi are vulnerable to
   the NULL UDP packet denial of service (CVE-2011-1002). [Djalal]
 
@@ -66,7 +70,7 @@ o Added a service probe for Zend Java Bridge, which is vulnerable if
 
 o [NSE] Added the afp-ls script that lists files accessible on remote
   AFP Volumes. [Patrik]
-  
+
 o [NSE] Added the targets-sniffer script by Nick Nickolaou. It sniffs
   on an interface for a configurable amount of time, then displays the
   IPv4 addresses found and optionally adds them to the scanning queue.
@@ -167,11 +171,11 @@ o [NSE] Enhanced firewalk.nse to automatically find the gateways at
 o [NSE] Use the correct script name in the usage example of the
   smtp-enum-users script. Reported by Jamuse, who also contributed
   a patch.
-  
+
 o [NSE] db2-das-info - Corrected a bug that caused the script to fail
   when DB2 Discovery mode is disabled on the DAS service on port 523.
   [Tom]
-  
+
 o Added checks that the argument to freeaddrinfo is not NULL, avoiding
   a segmentation fault on Android and possibly other platforms.
   Suggested by Vlatko Kosturjak and Alexismm2.
@@ -852,7 +856,7 @@ o Performed a large version detection integration run. The number of
   http://seclists.org/nmap-dev/2010/q2/385.
 
 o [NSE] Added nfs-ls.nse, which lists NFS exported files and their
-  attributes. The nfs-acls and nfs-dirlist scripts were deleted 
+  attributes. The nfs-acls and nfs-dirlist scripts were deleted
   because all their features are supported by this script. [Djalal]
 
 o [NSE] Add new DB2 library and two scripts
@@ -863,7 +867,7 @@ o [NSE] Add new DB2 library and two scripts
 o [NSE] Added a library for Microsoft SQL Server and 7 new scripts. The new
   scripts are:
   - ms-sql-brute.nse uses the unpwdb library to guess credentials for MSSQL
-  - ms-sql-config retrieves various configuration details from the server		
+  - ms-sql-config retrieves various configuration details from the server
   - ms-sql-empty-password checks if the sa account has an empty password
   - ms-sql-hasdbaccess lists database access per user
   - ms-sql-query add support for running custom queries against the database
@@ -1333,7 +1337,7 @@ o [NSE] Added http-vmware-path-vuln.nse, which checks for a critical
 
 o [NSE] Added a new library for LDAP and three new scripts by Patrik:
   - ldap-brute uses the unpwdb library to guess credentials for LDAP
-    (http://nmap.org/nsedoc/scripts/ldap-brute.html). 
+    (http://nmap.org/nsedoc/scripts/ldap-brute.html).
   - ldap-rootdse retrieves the LDAP root DSA-specific Entry (DSE)
     (http://nmap.org/nsedoc/scripts/ldap-rootdse.html).
   - ldap-search queries a LDAP directory for either
@@ -1509,7 +1513,7 @@ o Nmap now honors routing table entries that override interface
   ************************INTERFACES************************
   DEV  (SHORT) IP/MASK         TYPE     UP MAC
   eth0 (eth0)  192.168.0.21/24 ethernet up 00:00:00:00:00:00
-  
+
   **************************ROUTES**************************
   DST/MASK       DEV  GATEWAY
   192.168.0.3/32 eth0 192.168.0.1
@@ -1707,7 +1711,7 @@ o Added an Apple Filing Protocol service probe that detects Netatalk
 o [NSE] Fixed packet.lua so that functions used to set packet header
   fields (e.g. ip_set_ttl) also set the appropriate variables used to
   access the data (e.g. ip_ttl). [Kris]
-  
+
 o Updated and corrected IANA assignment IP list for random IP (-iR)
   generation.  Now even 001/8 has been allocated. [Kris]
 
@@ -1987,7 +1991,7 @@ o Nmap script output now uses two spaces of indention rather than
   |_html-title: Nmap - Free Security Scanner For Network Exploration & Securit...
   ...
   Host script results:
-  | smb-os-discovery:  
+  | smb-os-discovery:
   |   OS: Unix (Samba 3.4.2-0.42.fc11)
   |   Name: Unknown\Unknown
   |_  System time: 2009-11-24 17:19:21 UTC-8
@@ -2337,12 +2341,12 @@ o Fixed an error in the handling of exclude groups that used IPv4
     Assertion `ipsleft > 1' failed.
   [David]
 
-o [NSE] Improved the authentication used by the smb-* scripts. Instead of 
+o [NSE] Improved the authentication used by the smb-* scripts. Instead of
   looking in a bunch of places (registry, command-line, etc) for the
   usernames/passwords, a table is kept. This lets us store any number
   of accounts for later use, and remove them if they stop working. This
   also fixes a bug where typing in a password incorrectly would lock
-  out an account (since it wouldn't stop trying the account in question). 
+  out an account (since it wouldn't stop trying the account in question).
   [Ron]
 
 o Removed IP ID matching in packet headers returned in ICMP errors.
@@ -2521,7 +2525,7 @@ o Ncat now supports wildcard SSL certificates.  The wildcard character
      w*.example.com).
   -There should be at least three components in FQDN.(*.exmaple.com but
      not *.com or *.com.).[venkat]
-  
+
 o Nmap now handles the case when a primary network interface (venet0)
   does not have an address assigned but its aliases do (venet0:1
   etc.). This could result in the error messages
@@ -2619,7 +2623,7 @@ o [Ncat] Fixed an error that would cause Ncat to use 100% CPU in
 
 o [NSE] --script-args may now have whitespace in unquoted strings (but
   surrounding whitespace is ignored). For example,
-  --script-args 'greeting = This is a greeting' Becomes: 
+  --script-args 'greeting = This is a greeting' Becomes:
   { ["greeting"] = "This is a greeting" } [Patrick]
 
 o [Ncat] Using --send-only in conjunction with the plain listen or
@@ -3377,7 +3381,7 @@ o [Zenmap] A crash was fixed:
   part of the code can be rewritten. [David]
 
 o [Zenmap] A bug was fixed that caused a crash when doing a keyword:
-  or target: search over hosts that had a MAC address. [David] 
+  or target: search over hosts that had a MAC address. [David]
   The crash output was
       File "zenmapCore\SearchResult.pyo", line 86, in match_keyword
       File "zenmapCore\SearchResult.pyo", line 183, in match_target
@@ -3564,9 +3568,9 @@ o Improved operating system support for the smb-enum-sessions NSE
   but never both.  Currently, it is tested and working on both
   versions.  [Ron Bowes]
 
-o Implemented file-management functions in SMB, including file upload, 
+o Implemented file-management functions in SMB, including file upload,
   file download, and file delete. Only leverages by smb-pwdump.nse at
-  the moment, these functions give scripts the ability to perform 
+  the moment, these functions give scripts the ability to perform
   checks against the filesystem of a server. [Ron Bowes]
 
 o [Zenmap] A crash was fixed that occurred when you ran a scan
@@ -3596,17 +3600,17 @@ o A bug was fixed in route finding on BSD Unix. The libdnet function
   than 0.0.0.0. [David]
 
 o Added bindings for the service control (SVCCTL) and at service (ATSVC)
-  services. These are both related to running processes on the remote 
+  services. These are both related to running processes on the remote
   system (identical to how PsExec-style scripts work). These bindings
   are used by smb-pwdump.nse. [Ron Bowes]
 
-o Refactored SMB authentication code into its own module, smbauth.lua. 
-  Improved scripts' ability to store and retrieve login information 
+o Refactored SMB authentication code into its own module, smbauth.lua.
+  Improved scripts' ability to store and retrieve login information
   discovered by modules such as smb-brute.nse. [Ron Bowes]
 
 o Added message signing to SMB. Connections will no longer fail if the
   server requires message signatures. This is a rare case, but comes up
-  on occasion. If a server allows but doesn't require message signing, 
+  on occasion. If a server allows but doesn't require message signing,
   smb.lua will negotiate signing. This improves security by preventing
   man in the middle attacks. [Ron Bowes]
 
@@ -3915,7 +3919,7 @@ o Improved port scan performance by changing the list of high priority
   they are more likely to be responsive.  We based the change on
   empirical data from large-scale scanning.  The new port list is:
     21, 22, 23, 25, 53, 80, 110, 111, 113, 135, 139, 143, 199, 256,
-    443, 445, 554, 587, 993, 995, 1025, 1720, 1723, 3306, 3389, 5900, 
+    443, 445, 554, 587, 993, 995, 1025, 1720, 1723, 3306, 3389, 5900,
     8080, 8888 [Fyodor, David]
 
 o [NSE] Almost all scripts were renamed to be more consistent.  They
@@ -3960,7 +3964,7 @@ o Enhanced the AS Numbers script (ASN.nse) to better consolidate
   results and bail out if the DNS server doesn't support the ASN
   queries. [Jah]
 
-o Complete re-write of the marshaling logic for Microsoft RPC calls. 
+o Complete re-write of the marshaling logic for Microsoft RPC calls.
   [Ron Bowes]
 
 o Added a script that checks for ms08-067-vulnerable hosts
@@ -4590,7 +4594,7 @@ o Fixed a number of NSE scripts which used print_debug()
 
 o [Zenmap] The Ports/Hosts view now provides full version detection
   values rather than just a simple summary. [Jurand Nogiec]
-  
+
 o [Zenmap] When you edit the command-entry field, then change the
   target selection, Nmap no longer blows away your edits in favor of
   using your current profile. [Jurand Nogiec]
@@ -6233,7 +6237,7 @@ o Fixed an output bug on systems like Windows which return -1 when
   vsnprintf is passed a too-small buffer rather than returning the
   size needed.  Thanks to jah (jah(a)zadkiel.plus.com) for the report.
 
-o Added sys/types.h include to portreasons.h to help OpenBSD compilation.  
+o Added sys/types.h include to portreasons.h to help OpenBSD compilation.
   Thanks to Olivier Meyer for the patch.
 
 o Many hard coded function names and instances of __FUNCTION__ were
@@ -6323,7 +6327,7 @@ o If we get a ICMP Protocol Unreachable from a host other than our
   udp scan. [Kris]
 
 o Relocated OSScan warning message (could not find 1 closed and 1 open
-  port). Now output.cc prints the warning along with a targets OSScan 
+  port). Now output.cc prints the warning along with a targets OSScan
   results. [Eddie]
 
 o Fixed a bug which caused port 0 to be improperly used for gen1 OS
@@ -6366,7 +6370,7 @@ o Improved how the Gen1 OS Detection system selects which UDP ports to
 o Updated nmap-mac-prefixes to latest IEEE data as of 5/18/07. Also
   removed some high (greater than 0x80) characters from some company
   names because they were causing this error on Windows when Nmap is
-  compiled in Debug mode: 
+  compiled in Debug mode:
   isctype.c Line 56: Expression: (unsigned)(c + 1) <= 256".
   Thanks to Sina Bahram for the initial report and Thomas Buchanan for
   tracking down the problem.
@@ -6803,7 +6807,7 @@ Nmap 4.11 [2006-6-23]
 
 o Added a dozens of more detailed SSH version detection signatures, thanks
   to a SSH huge survey and integration effort by Doug Hoyte.  The
-  results of his large-scale SSH scan are posted at 
+  results of his large-scale SSH scan are posted at
   http://seclists.org/nmap-dev/2006/Apr-Jun/0393.html .
 
 o Fixed the Nmap Makefile (actually Makefile.in) to correctly handle
@@ -6901,7 +6905,7 @@ o Moved my Nmap development environment to Visual C++ 2005 Express
   2003 users will no longer be able to compile Nmap using the new
   solution files.  The compilation, installation, and execution
   instructions at http://nmap.org/install/inst-windows.html have been
-  upgraded.  
+  upgraded.
 
 o Automated my Windows build system so that I just have to type a
   single make command in the mswin32 directory.  Thanks to Scott
@@ -7412,7 +7416,7 @@ o Removed foreign translations of the old man page from the
   distribution.  Included the following contributed translations
   (nroff format) of the new man page:
     Brazilian Portuguese by Lucien Raven (lucienraven(a)yahoo.com.br)
-    Portuguese (Portugal) by José Domingos (jd_pt(a)yahoo.com) and 
+    Portuguese (Portugal) by José Domingos (jd_pt(a)yahoo.com) and
                              Andreia Gaita (shana.ufie(a)gmail.com).
 
 o Added --thc option (undocumented)
@@ -7453,7 +7457,7 @@ o Made the version detection "ports" directive (in
   nmap-service-probes) more comprehensive.  This should speed up scans a
   bit.  The patch was done by Doug Hoyte (doug(a)hcsw.org).
 
-o Added the --webxml option, which does the same thing as 
+o Added the --webxml option, which does the same thing as
   --stylesheet http://nmap.org/data/nmap.xsl , without
   requiring you to remember the exact URL or type that whole thing.
 
@@ -8030,7 +8034,7 @@ o Implemented a huge OS fingerprint database update.  The number of
 o Updated nmap-mac-prefixes with the latest OUIs from the IEEE.
   [ http://standards.ieee.org/regauth/oui/oui.txt ]
 
-o Updated nmap-protocols with the latest IP protocols from IANA 
+o Updated nmap-protocols with the latest IP protocols from IANA
   [ http://www.iana.org/assignments/protocol-numbers ]
 
 o Added a few new Nmap version detection signatures thanks to a patch
@@ -8434,7 +8438,7 @@ o Applied a patch to Makefile.in from Scott Mansfield
   to install the whole Nmap directory structure under a different root
   directory.  The configure --prefix option would do the same thing in
   this case, but DESTDIR is apparently a standard that package
-  maintainers like Scott are used to.  An example usage is 
+  maintainers like Scott are used to.  An example usage is
   "make DESTDIR=/tmp/packageroot".
 
 o Removed unnecessary banner printing in the non-root connect() ping
@@ -8541,14 +8545,14 @@ o Version scan now chops commas and whitespace from the end of
   (TCP port 1) gives a list of supported services separated by CRLF.
   Nmap uses this new feature to print them comma separated without
   having an annoying trailing comma as so (linewrapped):
-  match tcpmux m|^(sgi_[-.\w]+\r\n([-.\w]+\r\n)*)$| 
+  match tcpmux m|^(sgi_[-.\w]+\r\n([-.\w]+\r\n)*)$|
         v/SGI IRIX tcpmux//Available services: $SUBST(1, "\r\n", ",")/
 
 Nmap 3.48 [2003-10-6]
 
 o Integrated an enormous number of version detection service
   submissions.  The database has almost doubled in size to 663
-  signatures representing the following 130 services: 
+  signatures representing the following 130 services:
     3dm-http afp apcnisd arkstats bittorent chargen citrix-ica
     cvspserver cvsup dantzretrospect daytime dict directconnect domain
     echo eggdrop exec finger flexlm font-service ftp ftp-proxy gnats
@@ -8777,7 +8781,7 @@ o Fixed a major bug in the Nsock time caching system.  This could
   the second or later machines scanned.  Thanks to Solar Designer and HD
   Moore for helping me track this down.
 
-o Fixed some *BSD compilation bugs found by 
+o Fixed some *BSD compilation bugs found by
   Zillion (zillion(a)safemode.org).
 
 o Integrated more services thanks to submissions from Fyodor Yarochkin
@@ -8871,7 +8875,7 @@ o Fixed a problem reported by Solar Designer and MadHat (
   version/info responses were particularly long.  It could happen in
   other cases as well.  Now Nmap just prints a warning.
 
-o Fixed some portability issues reported by Solar Designer 
+o Fixed some portability issues reported by Solar Designer
   ( solar(a)openwall.com )
 
 Nmap 3.40PVT12 [2003-8-24]
@@ -9237,7 +9241,7 @@ o Fixed a problem that would cause Nmap on Windows to send ICMP ping
 o Applied some changes from Solar Designer (solar(a)openwall.com)
   which fix some typos and also suggest safer /tmp/ behavior in the
   HACKING file and Lithuanian man page.  These changes are for the
-  Nmap package of his Openwall GNU/*/Linux (Owl) distribution. 
+  Nmap package of his Openwall GNU/*/Linux (Owl) distribution.
   [ http://www.openwall.com/Owl/ ]
 
 o For Solaris, I now define NET_SIZE_T to size_t rather than socklen_t
@@ -9311,7 +9315,7 @@ o Applied patch from Marius Strobl (marius(a)alchemy.franken.de) which improves
 Nmap 3.26 [2003-4-24]
 
 o Fixed Mac OS X Compilation (at least on most of the machines
-  tested).  You will probably need to type 
+  tested).  You will probably need to type
   "./configure CPP=/usr/bin/cpp" instead of simply "./configure".  If
   you still have trouble, drop me an email.  Thanks to everyone who
   provided or offered shell accounts!
@@ -9435,7 +9439,7 @@ o Changed Nmap such that ALL syn scan packets are sent from the port
 
 o Added timestamps to "Starting nmap" line and each host port scan in
   verbose (-v) mode.  These are in ISO 8601 standard format because
-  unlike President Bush, we actually care about International 
+  unlike President Bush, we actually care about International
   consensus :).
 
 o Nmap now comes by default in .tar.bz2 format, which compresses about
@@ -9475,7 +9479,7 @@ o Fixed Windows (VC++ 6) compilation, thanks to patches from Kevin
   Davis (computerguy(a)cfl.rr.com) and Andy Lutomirski
   (luto(a)stanford.edu)
 
-o Included new Latvian man page translation by 
+o Included new Latvian man page translation by
   "miscelerious options" (misc(a)inbox.lv)
 
 o Fixed Solaris compilation when Sun make is used rather than GNU
@@ -9717,7 +9721,7 @@ o I removed "credit" lines from the nmap-os-fingerprints file out of
   in.  I still appreciate everyone who submits fingerprints!  I just
   don't want you to be spammed when the fingerprint file goes online.
 
-o Minor usage screen (nmap -h) fix suggested by Martin Kluge 
+o Minor usage screen (nmap -h) fix suggested by Martin Kluge
   ( martin(a)elxsi.info )
 
 o Insured that the initial pound (#) in C preprocessor directives is
@@ -9764,7 +9768,7 @@ o Applied patch from benkj(a)gmx.it which fixes misbehavior when Nmap
   would receive EOF (including ^D) in interactive mode.
 
 o Fixed format string bugs (not the security-related kind) found by
-  Takehiro YONEKURA (yonekura(a)obliguard.com) and Kuk-hyeon Lee 
+  Takehiro YONEKURA (yonekura(a)obliguard.com) and Kuk-hyeon Lee
   (errai(a)inzen.com)
 
 o Applied patch from Greg Steuck (greg-nmap-dev(a)nest.cx) which fixes
@@ -9809,7 +9813,7 @@ o Restructured "TCP probe port" output message a bit as suggested by
 Nmap 2.54BETA34 [2002-05-02]
 
 o Windows compilation fixed thanks to new VC++ project file (nmap.dsp) sent
-  by Evan Sparks (gmplague(a)sdf.lonestar.org) (I had forgotten to include 
+  by Evan Sparks (gmplague(a)sdf.lonestar.org) (I had forgotten to include
   the new main.c).
 
 o Various nmap-services updates
@@ -9905,7 +9909,7 @@ o Added a Document Type Definition (DTD) for the Nmap XML output
   format (-oX) to the docs directory.  This allows validating parsers
   to check nmap XML output files for correctness.  It is also useful
   for application programmers to understand the XML output structure.
-  The DTD was written by William McVey (wam(a)cisco.com) of Cisco Secure 
+  The DTD was written by William McVey (wam(a)cisco.com) of Cisco Secure
   Consulting Services ( http://www.cisco.com/go/securityconsulting ).
 
 o Merged in a number of Windows fixes/updates from Andy Lutomirski
@@ -10017,14 +10021,14 @@ o Fixed a memory leak in Nbase str*casecmp() functions by applying
 
 Nmap 2.54BETA26 [2001-07-09]
 
-o Added Idlescan (IPID blind scan).  The usage syntax is 
+o Added Idlescan (IPID blind scan).  The usage syntax is
   "-sI [zombie]".
 
 o Fixed a bunch of fingerprints that were corrupt due to violations of
   the fingerprint syntax/grammar (problems were found by Raymond
   Mercier of VIGILANTe )
 
-o Fixed command-line option parsing bug found 
+o Fixed command-line option parsing bug found
   by "m r rao" (mrrao(a)del3.vsnl.net.in )
 
 o Fixed an OS fingerprinting bug that caused many extra packets to be
@@ -10083,7 +10087,7 @@ o Applied patch from Colin Phipps (cph(a)netcraft.com) which fixes a
 o Applied a patch from Chris Eagle (cseagle(a)redshift.com) which fixes
   Windows compilation (I broke it with a recent change).
 
-o Updated Lithuanian translation of man page based on a newer version sent 
+o Updated Lithuanian translation of man page based on a newer version sent
   by Aurimas Mikalauskas (inner(a)crazy.lt)
 
 o Killed carriage returns in nmap.c and nmapfe.c, which caused
@@ -10093,7 +10097,7 @@ o Killed carriage returns in nmap.c and nmapfe.c, which caused
 o Updated to latest version of rpc program number list, maintained by
   Eilon Gishri (eilon(a)aristo.tau.ac.il)
 
-o Fixed a quoting bug in the Nmap man page found by 
+o Fixed a quoting bug in the Nmap man page found by
   Rasmus Andersson (rasmus(a)pole-position.org)
 
 o Applied RPM spec file changes from "Benjamin Reed"
@@ -10395,7 +10399,7 @@ o Eliminated -I. from Nmap's and NmapFE's makefiles (suggested by "Jay
 
 o Added Russian documentation by Alex Volkov
 
-o Added Lithuanian documentation from Aurimas Mikalauskas (inner(a)dammit.lt) 
+o Added Lithuanian documentation from Aurimas Mikalauskas (inner(a)dammit.lt)
 
 Nmap 2.53 [2000-05-08]
 
@@ -10981,11 +10985,11 @@ o Several other little fixes to the installation script and minor
 
 Nmap 2.10
 
-o Private test release 
+o Private test release
 
 Nmap 2.09
 
-o Private test release 
+o Private test release
 
 Nmap 2.08 [1999-02-16]
 
