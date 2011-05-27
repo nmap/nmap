@@ -1,4 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [ZenMmap] Fixed issue with ports closed in newer scan not being removed
+  from the ports list [Colin Rice]
+
 o [NMAP] Redid portreasons.h and portreasons.cc to use a map instead of
   parrallel arrays and added icmp_to_reason for consistent translation to
   reason codes. [Colin Rice]
