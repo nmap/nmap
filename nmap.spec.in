@@ -49,7 +49,7 @@ both console and graphical versions are available.
 %setup -q
 
 %build
-# Link with compatibility Glibc 2.3.4. CentOS packages
+# Link with compatibility Glibc 2.3.4 CentOS packages
 # compat-glibc and compat-gcc-34-c++.
 CC=gcc34; export CC
 CXX=g++34; export CXX
