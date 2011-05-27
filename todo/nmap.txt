@@ -124,9 +124,6 @@ o We should run at least one SCTP service on scanme.  Daniel
   (preferably one which is relatively simple, easy to install, secure,
   and supports IPv6).
 
-o [Ncat] Find out what RDP port forwarding apparently doesn't work on
-  Windows. http://seclists.org/nmap-dev/2011/q1/86
-
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
@@ -209,6 +206,19 @@ o Further brainstorm and consider implementing more prerule/postrule
    o We could have a script which takes traceroute results and adds them to the target list.
    o [Implemented] dns-zone-transfer
    o [Implemented, but a joke] http-california-plates
+
+o [Ncat] Find out what RDP port forwarding apparently doesn't work on
+  Windows. http://seclists.org/nmap-dev/2011/q1/86
+
+o [Ncat] When in connection brokering or chat mode with ssl support
+  enabled, if one client connects and doesn't complete ssl negotiation,
+  it hangs any other connections while that first is active.  One way to
+  reproduce:
+  Run SSL chat server like: /usr/local/bin/ncat --ssl -l --chat
+  Window #1: Connect without ssl: ncat -v chatserverip
+  Window #2: Try to connect with SSL: ncat -v --ssl chatserverip
+  Window #2 will not work while #1 is active.  If you quit #1, #2
+  should work again.
 
 o [NCAT] Send one line at a time when --delay is in effect. This is
   cumbersome to do until Nsock supports buffered reading.
