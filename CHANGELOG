@@ -1,7 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the Netware Core Protocol (NCP) library and the scripts
+  ncp-serverinfo and ncp-enum-users. [Patrik]
+
 o [NSE] Added ldap-novell-getpass, a script that provides support for
   retrieving Universal Passwords in plain-text from Novell eDirectory.
+  [Patrik]
 
 o [ZenMmap] Fixed issue with ports closed in newer scan not being removed
   from the ports list [Colin Rice]
