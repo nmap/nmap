@@ -8,7 +8,7 @@ the script against).
 -- @usage
 -- nmap -sU --script backorifice-brute <host> --script-args backorifice-brute.ports=<ports>
 --
--- @arg backorifice-brute.ports (mandatory) List of UDP ports to run the script against separated with ";" ex. "U:31337;25252;151-222", "U:1024-1512"
+-- @arg backorifice-brute.ports (mandatory) List of UDP ports to run the script against separated with "," ex. "U:31337,25252,151-222", "U:1024-1512"
 --
 -- This script uses the brute library to perform password guessing. A 
 -- successful password guess is stored in the nmap registry, under the 
@@ -53,7 +53,7 @@ portrule = function(host, port)
 		return false
 	end
 	
-	return port.protocol == "udp" and stdnse.in_port_range(port, ports:gsub(";",",") ) and
+	return port.protocol == "udp" and stdnse.in_port_range(port, ports:gsub(",",",") ) and
 		not(shortport.port_is_excluded(port.number,port.protocol))
 end
 
