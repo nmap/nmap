@@ -1,0 +1,29 @@
+==
+
+GSoC 2011 participation:
+
+* Discovery and miscelaneous script specialist 
+
+==
+
+Work in progress:
+
+* Finishing mac-geolocation.nse
+
+* Small snmp-interfaces.nse patch to work with mac-geolocation
+
+==
+
+ToDo:
+
+* ip-geolocation method research and script development
+
+* broadcast-ping.nse
+
+* Selection of discovery script candidates 
+
+==
+
+Maybe:
+
+==
