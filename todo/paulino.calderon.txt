@@ -1,13 +1,12 @@
 PENDING:
--Add support to relative links in http-phpself-xss
--Add support to redirects in http-phpself-xss
--Use http_pipeline for probing in http-phpself-xss
--Write draft proposal for http-spider
+-Finish list of script ideas
 -Write http-sitemap-dumper
--
+-Work on draft for http-spider
 
 COMPLETED:
-
+-Add support to relative links in http-phpself-xss
+-Add support to redirects in http-phpself-xss
+-Write draft proposal for http-spider
 -Wait for feedback to complete/close project http-cakephp-version
 -Define list of required functions for http-crawler (Library renamed to httpspider)
 -Write draft for the http-crawler library
