@@ -8,8 +8,6 @@ GSoC 2011 participation:
 
 Work in progress:
 
-* Finishing mac-geolocation.nse
-
 * Small snmp-interfaces.nse patch to work with mac-geolocation
 
 ==
