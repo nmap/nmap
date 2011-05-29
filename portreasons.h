@@ -116,9 +116,9 @@ class reason_string {
 public:
     //Required for map
     reason_string();
-    reason_string(const char * plural, const char * singular);
-    const char * plural;
+    reason_string(const char * singular, const char * plural);
     const char * singular;
+    const char * plural;
 };
 
 /* stored inside a Port Object and describes

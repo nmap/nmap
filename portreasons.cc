@@ -110,7 +110,7 @@ reason_string::reason_string(){
     this->plural = "unknown";
     this->singular = this->plural;
 }
-reason_string::reason_string(const char * plural, const char * singular){
+reason_string::reason_string(const char * singular, const char * plural){
     this->plural = plural;
     this->singular = singular;
 };
