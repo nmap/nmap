@@ -54,16 +54,8 @@ action = function(host, port)
 	local icon_hash, stylesheet_hash
 	local output_lines
 	local installation_version
-
-	-- Is /js/vendors.php there?
-	response = http.get(host, port, VENDORS_QUERY)
-	if response.body and response.status == 200 then
-		installation_version = {"1.1.x","1.2.x"}	
-	elseif response.status ~= 200 then
-		installation_version = {"1.3.x"}	
-	end
-
-	-- Are the default icons there?
+	
+        -- Are the default icons there?
 	png_icon_response = http.get(host, port, PNG_ICON_QUERY)
 	gif_icon_response = http.get(host, port, GIF_ICON_QUERY)
 	if png_icon_response.body and png_icon_response.status == 200 then
@@ -78,7 +70,13 @@ action = function(host, port)
 		stylesheet_hash = stdnse.tohex(openssl.md5(response.body))
 		stylesheet_versions = CAKEPHP_STYLESHEET_HASHES[stylesheet_hash]
 	end
-
+	-- Is /js/vendors.php there?
+	response = http.get(host, port, VENDORS_QUERY)
+	if response.body and response.status == 200 then
+		installation_version = {"1.1.x","1.2.x"}	
+	elseif response.status ~= 200 and (icon_versions or stylesheet_versions) then
+		installation_version = {"1.3.x"}	
+	end
 	-- Prepare output	
 	output_lines = {}
 	if installation_version then
