@@ -172,6 +172,9 @@ reason_codes icmp_to_reason(int icmp_type, int icmp_code){
 
     switch(icmp_type){
 
+	case ICMP_ECHOREPLY:
+	    return ER_ECHOREPLY;
+
         case ICMP_UNREACH:
             switch(icmp_code){
             case ICMP_UNREACH_NET:
