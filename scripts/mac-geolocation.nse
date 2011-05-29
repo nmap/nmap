@@ -3,8 +3,8 @@ Looks up geolocation information for BSSID (MAC) addresses of WiFi access points
 in the Google geolocation database. Geolocation information in this databasea 
 usually includes information including coordinates, country, state, city, 
 street address etc. The MAC addresses can be supplied as an argument 
-<code>macs<\code>, or in the registry under 
-<code>nmap.registry.[host.ip][mac-geolocation]<\code>.
+<code>macs</code>, or in the registry under
+<code>nmap.registry.[host.ip][mac-geolocation]</code>.
 ]]
 
 ---
