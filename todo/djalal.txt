@@ -7,6 +7,10 @@ o Finish the HTTP architecture ideas draft and submit it to nmap-dev.
 o Work on my GSoC vulnerability and exploitation script ideas:
   https://secwiki.org/w/Nmap/Script_Ideas#Djalal_Harouni
 
+o Start a thread on Nmap-dev about users favorite Nmap and NSE commands,
+  and create a special page for it in the secwiki.org site.
+  This will also let us to create more scan profiles for Zenmap.
+
 ==
 
 1) Nmap Scripting Engine Infrastructure:
