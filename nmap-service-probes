@@ -1878,6 +1878,7 @@ match pop3 m|^\+OK ([\w._-]+) Cyrus POP3 v([\w._-]+)-OS X Server ([\w._-]+):\t9L
 match pop3 m|^\+OK Kerio Connect ([\w._ -]+) POP3 server ready <[\d.]+@([\w._-]+)>\r\n$| p/Kerio Connect pop3d/ v/$1/ h/$2/
 match pop3 m|^\+OK Welcome NewsGator Online Services POP3 Server version ([\w._-]+)\r\n$| p/NewsGator Enterprise Server pop3d/ v/$1/
 match pop3 m|^-ERR \[SYS/PERM\] Fatal error: tls_init\(\) failed\r\n| p/Cyrus pop3d/
+match pop3 m|^\+OK Quick 'n Easy Mail Server ready\r\n| p/Quick 'n Easy pop3d/ o/Windows/
 
 match pop3-proxy m|^\+OK POP3 AnalogX Proxy (\d[-.\w]+) \(Release\) ready\.\n$| p/AnalogX POP3 proxy/ v/$1/
 match pop3-proxy m/^\+OK CCProxy (\S+) POP3 Service Ready\r\n/ p/CCProxy pop3d/ v/$1/
