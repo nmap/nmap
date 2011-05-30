@@ -8,13 +8,11 @@ GSoC 2011 participation:
 
 Work in progress:
 
-* Small snmp-interfaces.nse patch to work with mac-geolocation
+* ip-geolocation method research and script development
 
 ==
 
 ToDo:
-
-* ip-geolocation method research and script development
 
 * broadcast-ping.nse
 
