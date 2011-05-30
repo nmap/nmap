@@ -279,14 +279,6 @@ action = function(host,port)
 				end
 			end
 			
-			-- only fill output if there are entries in mac_geo_table
-			if mac_geo_table[mac].skyhook then
-				table.insert(tmp, {name="Skyhook:"})
-				if fill_output(mac_geo_table[mac].skyhook, tmp[2], extra_info) then 
-					entry_flag = true 
-				end
-			end
-			
 			table.insert(output,tmp)
 		end
 		
