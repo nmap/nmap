@@ -268,7 +268,7 @@ int TargetGroup::parse_expr(const char * const target_expr, int af) {
         }
         else if (*r != '*' && *r != ',' && *r != '-' && !isdigit((int) (unsigned char) *r)) 
           fatal("Invalid character in host specification.  Note in particular that square brackets [] are no longer allowed.  They were redundant and can simply be removed.");
-        *r++;
+        r++;
       }
       if (i != 3) fatal("Invalid target host specification: %s", target_expr);
       
