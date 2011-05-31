@@ -145,6 +145,7 @@ reason_map_type::reason_map_type(){
     reason_map[ER_TIMEEXCEEDED] = reason_string("time-exceeded","time-exceededs");
     reason_map[ER_TIMESTAMPREPLY] = reason_string("timestamp-reply","timestamp-replies");
 
+    reason_map[ER_ADDRESSMASKREPLY] = reason_string("addressmask-reply","addressmask-replies");
     reason_map[ER_NOIPIDCHANGE] = reason_string("no-ipid-change","no-ipid-changes");
     reason_map[ER_IPIDCHANGE] = reason_string("ipid-change","ipid-changes");
 
