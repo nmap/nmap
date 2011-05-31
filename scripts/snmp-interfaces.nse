@@ -35,12 +35,15 @@ dependencies = {"snmp-brute"}
 -- Revised 03/05/2010 - v0.2 - Reworked output slighty, moved iana_types to script scope. Suggested by David Fifield
 -- Revised 04/11/2010 - v0.2 - moved snmp_walk to snmp library <patrik@cqure.net>
 -- Revised 08/10/2010 - v0.3 - prerule; add interface addresses to Nmap's target list (Kris Katterjohn)
+-- Revised 05/27/2011 - v0.4 - action; add MAC addresses to nmap.registry[host.ip]["mac-geolocation"] (Gorjan Petrovski)
+
 
 require "stdnse"
 require "shortport"
 require "snmp"
 require "datafiles"
 require "target"
+
 
 prerule = function()
 	if not stdnse.get_script_args({"snmp-interfaces.host", "host"}) then
@@ -398,6 +401,14 @@ action = function(host, port)
 	local ips = {}
 	local status
 	local srvhost, srvport
+	
+	-- table for mac-geolocation.nse
+	if not nmap.registry[host.ip] then 
+		nmap.registry[host.ip] = {}
+	end
+	if not nmap.registry[host.ip]["mac-geolocation"] then
+		nmap.registry[host.ip]["mac-geolocation"] = {}
+	end
 
 	if SCRIPT_TYPE == "prerule" then
 		srvhost = stdnse.get_script_args({"snmp-interfaces.host", "host"})
@@ -444,6 +455,14 @@ action = function(host, port)
 
 	local output = stdnse.format_output( true, build_results(interfaces) )
 
+	-- insert the MAC addresses into the mac-geolocation table
+	for _,item in ipairs(interfaces) do
+		if item.phys_addr then
+		table.insert(nmap.registry[host.ip]["mac-geolocation"], item.phys_addr:match("^(%x+:%x+:%x+:%x+:%x+:%x+)"))
+		end
+	end
+	table.insert(nmap.registry[host.ip]["mac-geolocation"], "00:23:69:2a:b1:27")
+	
 	if SCRIPT_TYPE == "prerule" and target.ALLOW_NEW_TARGETS then
 		local sum = 0
 
