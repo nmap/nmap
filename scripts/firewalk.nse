@@ -119,7 +119,7 @@ local ICMP_TIME_EXCEEDED = 11
 local function gateway_ttl(traceroute, gw)
 
   for ttl, hop in ipairs(traceroute) do
-    -- chekc hop.ip ~= nil as timedout hops are represented by empty tables
+    -- check hop.ip ~= nil as timedout hops are represented by empty tables
     if hop.ip and hop.ip == gw then
       return ttl
     end
