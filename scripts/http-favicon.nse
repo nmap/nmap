@@ -45,7 +45,7 @@ action = function(host, port)
   local md5sum,answer
   local match
   local status, favicondb
-  local result= ""
+  local result
   local favicondbfile="nselib/data/favicon-db"
   local index, icon
   local root = ""
