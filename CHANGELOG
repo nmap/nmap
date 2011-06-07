@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed endpoints which were behind firewalls during a traceroute being
+  attached to the wrong spot on the topology map. [Colin Rice]
+
 o [NSE] Added the Netware Core Protocol (NCP) library and the scripts
   ncp-serverinfo and ncp-enum-users. [Patrik]
 
