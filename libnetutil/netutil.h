@@ -114,7 +114,7 @@ enum { OP_FAILURE = -1, OP_SUCCESS = 0 };
 #define IPPROTO_SCTP 132
 #endif
 
-int netutil_fatal(const char *str, ...)
+void netutil_fatal(const char *str, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
 

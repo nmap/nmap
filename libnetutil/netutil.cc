@@ -142,7 +142,7 @@
 /** Print fatal error messages to stderr and then exits. A newline
     character is printed automatically after the supplied text.
  * @warning This function does not return because it calls exit() */
-int netutil_fatal(const char *str, ...){
+void netutil_fatal(const char *str, ...){
  va_list  list;
  char errstr[NBASE_MAX_ERR_STR_LEN];
  memset(errstr,0, NBASE_MAX_ERR_STR_LEN);
