@@ -157,9 +157,6 @@ int netutil_fatal(const char *str, ...){
   va_end(list);
 
   exit(EXIT_FAILURE);
-
-  return 0;
-
 } /* End of fatal() */
 
 /** Print error messages to stderr and then return. A newline

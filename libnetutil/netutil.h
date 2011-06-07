@@ -115,6 +115,7 @@ enum { OP_FAILURE = -1, OP_SUCCESS = 0 };
 #endif
 
 int netutil_fatal(const char *str, ...)
+     __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
 
 int netutil_error(const char *str, ...)
