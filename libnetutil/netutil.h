@@ -116,7 +116,7 @@ enum { OP_FAILURE = -1, OP_SUCCESS = 0 };
 
 int netutil_fatal(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
-         
+
 int netutil_error(const char *str, ...)
      __attribute__ ((format (printf, 1, 2)));
 
@@ -238,12 +238,12 @@ struct route_nfo {
 
 /* true if the target is directly connected on the network (no routing
    required). */
-  int direct_connect; 
+  int direct_connect;
 
 /* This is the source address that should be used by the packets.  It
    may be different than ii.addr if you are using localhost interface
    to scan the IP of another interface on the machine */
-  struct sockaddr_storage srcaddr; 
+  struct sockaddr_storage srcaddr;
 
   /* If direct_connect is 0, this is filled in with the next hop
      required to route to the target */
@@ -363,7 +363,7 @@ char *format_ip_options(u8* ipopt, int ipoptlen);
  * The function provides full support for IPv4,TCP,UDP,SCTP and ICMPv4.
  * It also provides support for standard IPv6 but not for its extension
  * headers. If an IPv6 packet contains an ICMPv6 Header, the output will
- * reflect this but no parsing of ICMPv6 contents will be performed. 
+ * reflect this but no parsing of ICMPv6 contents will be performed.
  *
  * The output has three different levels of detail. Parameter "detail"
  * determines how verbose the output should be. It should take one of
@@ -387,8 +387,8 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail);
  * of the routing details. If the source address needs to be spoofed,
  * it should be passed through "spoofss" (otherwise NULL should be
  * specified), along with a suitable network device (parameter "device").
- * Even if spoofss is NULL, if user specified a network device with -e, 
- * it should still be passed. Note that it's OK to pass either NULL or 
+ * Even if spoofss is NULL, if user specified a network device with -e,
+ * it should still be passed. Note that it's OK to pass either NULL or
  * an empty string as the "device", as long as spoofss==NULL. */
 int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
               char *device, struct sockaddr_storage *spoofss);
