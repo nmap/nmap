@@ -23,6 +23,14 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q2/307.
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
+o IPv6 todo.
+  - Protocol scan (-sO).
+  - CIDR address specification.
+  - Reverse DNS resolution.
+  - Neighbor Discovery-based host discovery (analog to ARP scan).
+  - Multicast host discovery.
+  - OS detection.
+
 o Summer of Code feature creeper:
   o Rewrite the portreasons code not to use parallel arrays
     (reason_text, reason_pl_text) and not to require special alignment
