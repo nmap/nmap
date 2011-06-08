@@ -116,7 +116,7 @@ TTL 11 -> TTL_EXCEEDED
 TTL 12 -> TTL_EXCEEDED
 TTL 13 -> SYN/ACK, or whatever is the target's response to the probe
 
-The output for this host would then say "Hops 1-7 as the same as for ...".
+The output for this host would then say "Hops 1-7 are the same as for ...".
 
 The detection of shared traces rests on the assumption that all paths going
 through a router at a certain TTL will be identical up to and including the
