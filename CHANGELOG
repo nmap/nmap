@@ -1,7 +1,31 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Added support for raw-packet IPv6 scans (SYN, UDP, ICMP, etc.) and
-  traceroute. [David, Weilin]
+o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
+  scan, and ICMP host discovery and similar work for IPv6 now!  A few
+  notes:
+  o OS detection isn't yet supported.  That is a huge task (requires
+    an all-new database), but we're working hard on it.
+  o Protocol scan (-sO) isn't yet supported.
+  o IPv6 CIDR address notation isn't yet supported (it is rarely useful
+    due to the size of IPv6 networks, but we plan to add it anyway).
+  o Neighbor Discovery-based host discovery (analog to ARP scan) isn't
+    yet supported.
+  o Multicast host discovery isn't yet supported.
+  o Windows Teredo tunnels (a system for tunneling IPv6 to systems
+    which don't support it natively) are not supported by the raw
+    system, but you can still use -6 with --unprivileged to scan through
+    those interfaces.
+  o When scanning link local IPv6 addresses (they start with fe80),
+    you might need to put the interface name at the end like you
+    sometimes do with ping6 and other system IPv6 tools
+    (e.g. fe80::9afc:22ee:bc91:3e1d%eth0)
+  [Added by David and Weilin]
+
+o Added IPv6 --traceroute support. [David]
+
+o Scanme.Nmap.Org is now dual-stacked (has an IPv6 address as well as
+  IPv4) so you can scan it during IPv6 testing.  We also added a DNS
+  record for ScanmeV6.nmap.org which is IPv6-only. [Fyodor]
 
 o [Zenmap] Fixed endpoints which were behind firewalls during a traceroute being
   attached to the wrong spot on the topology map. [Colin Rice]
