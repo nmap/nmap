@@ -583,7 +583,7 @@ you would expect.</para>
           <para>The <option>-PA</option> option uses the same default
           port as the SYN probe (80) and can also take a list of
           destination ports in the same format.  If an unprivileged
-          user tries this, or an IPv6 target is specified, the
+          user tries this, the
           <function>connect</function> workaround discussed previously is used.  This
           workaround is imperfect because <function>connect</function> is actually
           sending a SYN packet rather than an ACK.</para>
@@ -3983,8 +3983,8 @@ hosts with at least one
         </term>
         <listitem>
 
-          <para>Since 2002, Nmap has offered IPv6 support for its most
-          popular features.  In particular, ping scanning (TCP-only),
+          <para>Nmap has IPv6 support for its most
+          popular features.  Ping scanning,
           port scanning, version detection, and the Nmap Scripting
           Engine all support IPv6.  The command syntax is the same as
           usual except that you also add the <option>-6</option>
@@ -4009,6 +4009,13 @@ hosts with at least one
           <ulink url="http://en.wikipedia.org/wiki/List_of_IPv6_tunnel_brokers">listed
           at Wikipedia</ulink>.  6to4 tunnels are another popular,
           free approach.</para>
+
+	  <para>On Windows, raw-socket IPv6 scans are supported only on
+	  ethernet devices (not tunnels), and only on Windows
+	  Vista<indexterm><primary>Windows Vista</primary></indexterm>
+	  and later. Use the
+	  <option>--unprivileged</option><indexterm><primary><option>--unprivileged</option></primary></indexterm>
+	  option in other situations.</para>
 
         </listitem>
       </varlistentry>
