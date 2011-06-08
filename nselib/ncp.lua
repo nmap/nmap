@@ -55,7 +55,7 @@
 
 module(... or "ncp", package.seeall)
 
-require 'ipops'
+require 'ipOps'
 
 NCPType = {
 	CreateConnection = 0x1111,
