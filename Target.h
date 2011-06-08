@@ -158,20 +158,25 @@ class Target {
   /* Recycles the object by freeing internal objects and reinitializing
      to default state */
   void Recycle();
+  /* Returns the address family of the destination address. */
+  int af() const;
   /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
      information of the target.  This is a preferred way to get the
      address since it is portable for IPv6 hosts.  Returns 0 for
      success. ss_len must be provided.  It is not examined, but is set
      to the size of the sockaddr copied in. */
   int TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const;
+  const struct sockaddr_storage *TargetSockAddr() const;
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
   void setTargetSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
   // Returns IPv4 target host address or {0} if unavailable.
   struct in_addr v4host() const;
   const struct in_addr *v4hostip() const;
+  const struct in6_addr *v6hostip() const;
   /* The source address used to reach the target */
   int SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const;
+  const struct sockaddr_storage *SourceSockAddr() const;
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
   void setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);

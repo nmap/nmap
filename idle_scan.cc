@@ -375,7 +375,7 @@ static void initialize_idleproxy(struct idle_proxy_info *proxy, char *proxyName,
     proxy->ethptr = &proxy->eth;
   } else {
 #ifdef WIN32
-    win32_warn_raw_sockets(proxy->host.deviceName());
+    win32_fatal_raw_sockets(proxy->host.deviceName());
 #endif
     if ((proxy->rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
       pfatal("socket troubles in %s", __func__);
@@ -1042,9 +1042,9 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   for(portidx = 0; portidx < numports; portidx++) {
     if (target->ports.portIsDefault(portarray[portidx], IPPROTO_TCP)) {
       target->ports.setPortState(portarray[portidx], IPPROTO_TCP, PORT_CLOSEDFILTERED);
-      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, 0);
+      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_NOIPIDCHANGE, 0, NULL);
     } else 
-      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, 0);
+      target->ports.setStateReason(portarray[portidx], IPPROTO_TCP, ER_IPIDCHANGE, 0, NULL);
   }
 
   target->stopTimeOutClock(NULL);

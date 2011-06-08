@@ -114,6 +114,17 @@ enum { OP_FAILURE = -1, OP_SUCCESS = 0 };
 #define IPPROTO_SCTP 132
 #endif
 
+/* Container used for information common to IPv4 and IPv6 headers, used by
+   ip_get_data. */
+struct abstract_ip_hdr {
+  u8 version; /* 4 or 6. */
+  struct sockaddr_storage src;
+  struct sockaddr_storage dst;
+  u8 proto; /* IPv4 proto or IPv6 next header. */
+  u8 ttl;   /* IPv4 TTL or IPv6 hop limit. */
+  u8 ipid;  /* IPv4 IP ID or IPv6 flow label. */
+};
+
 void netutil_fatal(const char *str, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
@@ -181,6 +192,17 @@ int ip_is_reserved(struct in_addr *ip);
 int arp_cache_get(struct sockaddr_storage *ss, u8 *mac);
 int arp_cache_set(struct sockaddr_storage *ss, u8 *mac);
 
+const void *ip_get_data(const void *packet, unsigned int *len,
+  struct abstract_ip_hdr *hdr);
+/* Get the upper-layer protocol from an IPv4 packet. */
+const void *ipv4_get_data(const struct ip *ip, unsigned int *len);
+/* Get the upper-layer protocol from an IPv6 packet. This skips over known
+   extension headers. The length of the upper-layer payload is stored in *len.
+   The protocol is stored in *nxt. Returns NULL in case of error. */
+const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt);
+const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len);
+const void *icmpv6_get_data(const struct icmpv6_hdr *icmpv6, unsigned int *len);
+
 /* Standard BSD internet checksum routine. */
 unsigned short in_cksum(u16 *ptr, int nbytes);
 
@@ -189,6 +211,11 @@ unsigned short in_cksum(u16 *ptr, int nbytes);
    and 17.3. */
 unsigned short ipv4_pseudoheader_cksum(const struct in_addr *src,
   const struct in_addr *dst, u8 proto, u16 len, const void *hstart);
+
+/* Calculate the Internet checksum of some given data concatenated with the
+   IPv6 pseudo-header. See RFC 2460 section 8.1. */
+u16 ipv6_pseudoheader_cksum(const struct in6_addr *src,
+  const struct in6_addr *dst, u8 nxt, u32 len, const void *hstart);
 
 void sethdrinclude(int sd);
 void set_ipoptions(int sd, void *opts, size_t optslen);
@@ -253,9 +280,9 @@ struct route_nfo {
 
 struct sys_route {
   struct interface_info *device;
-  u32 dest;
-  u32 netmask;
-  struct in_addr gw; /* gateway - 0 if none */
+  struct sockaddr_storage dest;
+  u16 netmask_bits;
+  struct sockaddr_storage gw; /* gateway - 0 if none */
 };
 
 struct eth_nfo {
@@ -295,11 +322,19 @@ void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize);
 /* Convert an IP address to the device (IE ppp0 eth0) using that
  * address.  Supplied "dev" must be able to hold at least 32 bytes.
  * Returns 0 on success or -1 in case of error. */
-int ipaddr2devname( char *dev, const struct in_addr *addr );
+int ipaddr2devname( char *dev, const struct sockaddr_storage *addr );
 
-/* Convert a network interface name (IE ppp0 eth0) to an IPv4 address.
+/* Convert a network interface name (IE ppp0 eth0) to an IP address.
  * Returns 0 on success or -1 in case of error. */
-int devname2ipaddr(char *dev, struct in_addr *addr);
+int devname2ipaddr(char *dev, struct sockaddr_storage *addr);
+
+int sockaddr_equal(const struct sockaddr_storage *a,
+  const struct sockaddr_storage *b);
+
+int sockaddr_equal_netmask(const struct sockaddr_storage *a,
+  const struct sockaddr_storage *b, u16 nbits);
+
+int sockaddr_equal_zero(const struct sockaddr_storage *s);
 
 /* Returns an allocated array of struct interface_info representing the
    available interfaces. The number of interfaces is returned in *howmany. This
@@ -392,7 +427,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail);
  * it should still be passed. Note that it's OK to pass either NULL or
  * an empty string as the "device", as long as spoofss==NULL. */
 int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
-              char *device, struct sockaddr_storage *spoofss);
+              const char *device, const struct sockaddr_storage *spoofss);
 
 /* Send an IP packet over a raw socket. */
 int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen);
@@ -404,6 +439,9 @@ int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen);
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
 int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen);
+
+/* Sends an IPv4 packet. */
+int send_ipv6_packet_eth_or_sd(int sd, struct eth_nfo *eth, const u8 *packet, unsigned int len);
 
 /* Create and send all fragments of a pre-built IPv4 packet.
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
@@ -442,6 +480,23 @@ bool doArp(const char *dev, const u8 *srcmac,
                   const struct sockaddr_storage *targetip,
                   u8 *targetmac,
                   void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
+
+
+/* Issues an Neighbor Solicitation for the MAC of targetss (which will be placed
+   in targetmac if obtained) from the source IP (srcip) and source mac
+   (srcmac) given.  "The request is ussued using device dev to the
+   multicast MAC address.  The transmission is attempted up to 3
+   times.  If none of these elicit a response, false will be returned.
+   If the mac is determined, true is returned. The last parameter is
+   a pointer to a callback function that can be used for packet tracing.
+   This is intended to be used by Nmap only. Any other calling this
+   should pass NULL instead. */
+bool doND(const char *dev, const u8 *srcmac,
+                  const struct sockaddr_storage *srcip,
+                   const struct sockaddr_storage *targetip,
+                   u8 *targetmac,
+                   void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *)
+                    ) ;
 
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass

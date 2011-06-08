@@ -107,6 +107,8 @@ class NmapOps {
   /* Returns 0 for success, nonzero if no source has been set or any other
      failure */
   int SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len);
+  /* Returns a const pointer to the source address if set, or NULL if unset. */
+  const struct sockaddr_storage *SourceSockAddr() const;
   /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
   void setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len);
@@ -116,8 +118,6 @@ class NmapOps {
   // Number of seconds since getStartTime().  The current time is an
   // optional argument to avoid an extra gettimeofday() call.
   float TimeSinceStart(const struct timeval *now=NULL);
-  struct in_addr v4source();
-  const struct in_addr *v4sourceip();
 
 
 

@@ -228,9 +228,6 @@ route_loop(route_t *r, route_handler callback, void *arg)
 			if (i < 10 || !(iflags & RTF_UP))
 				continue;
 		
-			if (entry.route_gw.addr_ip == IP_ADDR_ANY)
-				continue;
-		
 			entry.route_dst.addr_type = entry.route_gw.addr_type =
 			    ADDR_TYPE_IP;
 		

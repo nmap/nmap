@@ -253,6 +253,8 @@ class PacketTrace {
      efficient by avoiding a gettimeofday() call. */
   static void traceArp(pdirection pdir, const u8 *frame, u32 len,
 				    struct timeval *now);
+  static void traceND(pdirection pdir, const u8 *frame, u32 len,
+                                    struct timeval *now);
 };
 
 class PacketCounter {
@@ -418,22 +420,27 @@ bool routethrough(const struct sockaddr_storage * const dest,
 unsigned short in_cksum(u16 *ptr,int nbytes);
 
 
-/* Build and send a raw tcp packet.  If TTL is -1, a partially random
-   (but likely large enough) one is chosen */
-int send_tcp_raw( int sd, struct eth_nfo *eth,
-		  const struct in_addr *source, const struct in_addr *victim, 
-		  int ttl, bool df,
-		  u8* ipopt, int ipoptlen,
-		  u16 sport, u16 dport,
-		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
-		  u8 *options, int optlen,
-		  char *data, u16 datalen);
-int send_udp_raw( int sd, struct eth_nfo *eth,
-		  struct in_addr *source, const struct in_addr *victim,
-		  int ttl, u16 ipid,
-		  u8* ipopt, int ipoptlen,
-		  u16 sport, u16 dport,
-		  char *data, u16 datalen);
+/* Send a pre-built IPv4 or IPv6 packet */
+int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, 
+		   unsigned int packetlen);
+
+/* Builds an IP packet (including an IP header) by packing the fields
+   with the given information.  It allocates a new buffer to store the
+   packet contents, and then returns that buffer.  The packet is not
+   actually sent by this function.  Caller must delete the buffer when
+   finished with the packet.  The packet length is returned in
+   packetlen, which must be a valid int pointer. */
+u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim, 
+		 u8 proto,
+		 int ttl, u16 ipid, u8 tos, bool df,
+		 const u8* ipopt, int ipoptlen,
+		 const char *data, u16 datalen,
+		 u32 *packetlen);
+
+u8 *build_ipv6_raw(const struct in6_addr *source,
+                   const struct in6_addr *victim, u8 tc, u32 flowlabel,
+                   u8 nextheader, int hoplimit,
+                   char *data, u16 datalen, u32 *outpacketlen);
 
 /* Builds a TCP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
@@ -450,6 +457,33 @@ u8 *build_tcp_raw(const struct in_addr *source, const struct in_addr *victim,
 		  char *data, u16 datalen,
 		  u32 *packetlen);
 
+u8 *build_tcp_raw_ipv6(const struct in6_addr *source,
+                       const struct in6_addr *victim, u8 tc, u32 flowlabel,
+                       u8 hoplimit, u16 sport, u16 dport, u32 seq, u32 ack,
+                       u8 reserved, u8 flags, u16 window, u16 urp,
+                       const u8 *tcpopt, int tcpoptlen, char *data,
+                       u16 datalen, u32 *packetlen);
+
+/* Build and send a raw tcp packet.  If TTL is -1, a partially random
+   (but likely large enough) one is chosen */
+int send_tcp_raw( int sd, struct eth_nfo *eth,
+		  const struct in_addr *source, const struct in_addr *victim, 
+		  int ttl, bool df,
+		  u8* ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+		  u8 *options, int optlen,
+		  char *data, u16 datalen);
+
+int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
+			 const struct in_addr *victim,
+			 int ttl, bool df, 
+			 u8* ipopt, int ipoptlen,
+			 u16 sport, u16 dport,
+			 u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
+			 u8 *options, int optlen,
+			 char *data, u16 datalen);
+
 /* Builds a UDP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
    packet contents, and then returns that buffer.  The packet is not
@@ -462,6 +496,25 @@ u8 *build_udp_raw(const struct in_addr *source, const struct in_addr *victim,
  		  u16 sport, u16 dport, 
  		  const char *data, u16 datalen,
  		  u32 *packetlen);
+
+u8 *build_udp_raw_ipv6(const struct in6_addr *source,
+                       const struct in6_addr *victim, u8 tc, u32 flowlabel,
+                       u8 hoplimit, u16 sport, u16 dport,
+                       char *data, u16 datalen, u32 *packetlen);
+
+int send_udp_raw( int sd, struct eth_nfo *eth,
+		  struct in_addr *source, const struct in_addr *victim,
+		  int ttl, u16 ipid,
+		  u8* ipopt, int ipoptlen,
+		  u16 sport, u16 dport,
+		  char *data, u16 datalen);
+
+int send_udp_raw_decoys( int sd, struct eth_nfo *eth, 
+			 const struct in_addr *victim,
+			 int ttl, u16 ipid,
+			 u8* ipops, int ip,
+			 u16 sport, u16 dport,
+			 char *data, u16 datalen);
 
 /* Builds an SCTP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
@@ -477,6 +530,12 @@ u8 *build_sctp_raw(const struct in_addr *source, const struct in_addr *victim,
 		   char *data, u16 datalen,
 		   u32 *packetlen);
 
+u8 *build_sctp_raw_ipv6(const struct in6_addr *source,
+                        const struct in6_addr *victim, u8 tc, u32 flowlabel,
+                        u8 hoplimit, u16 sport, u16 dport, u32 vtag,
+                        char *chunks, int chunkslen, char *data, u16 datalen,
+                        u32 *packetlen);
+
 /* Builds an ICMP packet (including an IP header) by packing the
    fields with the given information.  It allocates a new buffer to
    store the packet contents, and then returns that buffer.  The
@@ -491,6 +550,11 @@ u8 *build_icmp_raw(const struct in_addr *source, const struct in_addr *victim,
 		   u16 seq, unsigned short id, u8 ptype, u8 pcode,
 		   char *data, u16 datalen, u32 *packetlen);
 
+u8 *build_icmpv6_raw(const struct in6_addr *source,
+                     const struct in6_addr *victim, u8 tc, u32 flowlabel,
+                     u8 hoplimit, u16 seq, u16 id, u8 ptype, u8 pcode,
+                     char *data, u16 datalen, u32 *packetlen);
+
 /* Builds an IGMP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the
    packet contents, and then returns that buffer.  The packet is not
@@ -503,40 +567,6 @@ u8 *build_igmp_raw(const struct in_addr *source, const struct in_addr *victim,
 		   u8* ipopt, int ipoptlen,
 		   u8 ptype, u8 pcode,
 		   char *data, u16 datalen, u32 *packetlen);
-
-/* Builds an IP packet (including an IP header) by packing the fields
-   with the given information.  It allocates a new buffer to store the
-   packet contents, and then returns that buffer.  The packet is not
-   actually sent by this function.  Caller must delete the buffer when
-   finished with the packet.  The packet length is returned in
-   packetlen, which must be a valid int pointer. */
-u8 *build_ip_raw(const struct in_addr *source, const struct in_addr *victim, 
-		 u8 proto,
-		 int ttl, u16 ipid, u8 tos, bool df,
-		 u8* ipopt, int ipoptlen,
-		 char *data, u16 datalen, 
-		 u32 *packetlen);
-
-/* Send a pre-built IPv4 packet */
-int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet, 
-		   unsigned int packetlen);
-
-/* Decoy versions of the raw packet sending functions ... */
-int send_tcp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim,
-			 int ttl, bool df, 
-			 u8* ipopt, int ipoptlen,
-			 u16 sport, u16 dport,
-			 u32 seq, u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
-			 u8 *options, int optlen,
-			 char *data, u16 datalen);
-
-int send_udp_raw_decoys( int sd, struct eth_nfo *eth, 
-			 const struct in_addr *victim,
-			 int ttl, u16 ipid,
-			 u8* ipops, int ip,
-			 u16 sport, u16 dport,
-			 char *data, u16 datalen);
 
 
 // Returns whether the packet receive time value obtaned from libpcap
@@ -577,13 +607,10 @@ char *getFinalPacketStats(char *buf, int buflen);
       directly connected to the src host running Nmap.  If it is, set the MAC.
 
    This function returns 0 if it ends up setting the MAC, nonzero otherwise
-
-   This function assumes that ip has already been verified as
-   containing a complete IP header (or at least the first 20 bytes).
 */  
 
 int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
-			    struct ip *ip, int overwrite);
+                            const struct sockaddr_storage *src, int overwrite);
 
 /* This function ensures that the next hop MAC address for a target is
    filled in.  This address is the target's own MAC if it is directly
@@ -607,6 +634,9 @@ int get_link_offset(char *device);
    lnkinfo->header will be filled with the appropriate values. */
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
 		  struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
+
+char *readip46_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+                    struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass

@@ -241,15 +241,13 @@ static void print_xml_service(const struct serviceDeductions *sd) {
 }
 
 #ifdef WIN32
-/* Display a warning that a device is not Ethernet and so raw sockets
-   will be used. The warning is shown only once per unique device name. */
-void win32_warn_raw_sockets(const char *devname) {
-  static set<string> shown_names;
-
-  if (devname != NULL && shown_names.find(devname) == shown_names.end()) {
-    error("WARNING: Using raw sockets because %s is not an ethernet device."
-          " This probably won't work on Windows.\n", devname);
-    shown_names.insert(devname);
+/* Show a fatal error explaining that an interface is not Ethernet and won't
+   work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */
+void win32_fatal_raw_sockets(const char *devname) {
+  if ((o.sendpref & PACKET_SEND_IP_STRONG) == 0) {
+    fatal("Only ethernet devices can be used for raw scans on Windows, and\n"
+          "\"%s\" is not an ethernet device. Use the --unprivileged option\n"
+	  "for this scan.", devname);
   }
 }
 
@@ -383,9 +381,7 @@ int print_iflist(void) {
   /* OK -- time to handle routes */
   errstr[0]='\0';
   routes = getsysroutes(&numroutes, errstr, sizeof(errstr));
-  u32 mask_nbo;
   u16 nbits;
-  struct in_addr ia;
   if (routes==NULL || numroutes<= 0) {
     log_write(LOG_PLAIN, "ROUTES: NONE FOUND(!)\n");
     if (o.debugging)
@@ -397,15 +393,12 @@ int print_iflist(void) {
     Tbl->addItem(0, devcol, false, "DEV", 3);
     Tbl->addItem(0, gwcol, false, "GATEWAY", 7);
     for (i = 0; i < numroutes; i++) {
-      mask_nbo = routes[i].netmask;
-      addr_mtob(&mask_nbo, sizeof(mask_nbo), &nbits);
-      assert(nbits <= 32);
-      ia.s_addr = routes[i].dest;
-      Tbl->addItemFormatted(i + 1, dstcol, false, "%s/%d", inet_ntoa(ia),
-                            nbits);
+      nbits = routes[i].netmask_bits;
+      Tbl->addItemFormatted(i + 1, dstcol, false, "%s/%d",
+      	inet_ntop_ez(&routes[i].dest, sizeof(routes[i].dest)), nbits);
       Tbl->addItem(i + 1, devcol, false, routes[i].device->devfullname);
-      if (routes[i].gw.s_addr != 0)
-        Tbl->addItem(i + 1, gwcol, true, inet_ntoa(routes[i].gw));
+      if (!sockaddr_equal_zero(&routes[i].gw))
+        Tbl->addItem(i + 1, gwcol, true, inet_ntop_ez(&routes[i].gw, sizeof(routes[i].gw)));
     }
     log_write(LOG_PLAIN, "**************************ROUTES**************************\n");
     log_write(LOG_PLAIN, "%s\n", Tbl->printableTable(NULL));
@@ -653,8 +646,8 @@ void printportoutput(Target *currenths, PortList *plist) {
         xml_attribute("state", "%s", state);
         xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
         xml_attribute("reason_ttl", "%d", current->reason.ttl);
-        if (current->reason.ip_addr.s_addr)
-          xml_attribute("reason_ip", "%s", inet_ntoa(current->reason.ip_addr));
+        if (current->reason.ip_addr.ss_family != AF_UNSPEC)
+          xml_attribute("reason_ip", "%s", inet_ntop_ez(&current->reason.ip_addr, sizeof(current->reason.ip_addr)));
         xml_close_empty_tag();
 
         if (proto && proto->p_name && *proto->p_name) {
@@ -765,8 +758,8 @@ void printportoutput(Target *currenths, PortList *plist) {
         xml_attribute("state", "%s", state);
         xml_attribute("reason", "%s", reason_str(current->reason.reason_id, SINGULAR));
         xml_attribute("reason_ttl", "%d", current->reason.ttl);
-        if (current->reason.ip_addr.s_addr)
-          xml_attribute("reason_ip", "%s", inet_ntoa(current->reason.ip_addr));
+        if (current->reason.ip_addr.ss_family != AF_UNSPEC)
+          xml_attribute("reason_ip", "%s", inet_ntop_ez(&current->reason.ip_addr, sizeof(current->reason.ip_addr)));
         xml_close_empty_tag();
 
         if (sd.name || sd.service_fp)
@@ -2029,13 +2022,15 @@ static void printtraceroute_normal(Target *currenths) {
   } else if (probe.type == PS_SCTP) {
     log_write(LOG_PLAIN, "TRACEROUTE (using port %d/%s)\n",
               probe.pd.sctp.dport, proto2ascii_lowercase(probe.proto));
-  } else if (probe.type == PS_ICMP || probe.type == PS_PROTO) {
+  } else if (probe.type == PS_ICMP || probe.type == PS_ICMPV6 || probe.type == PS_PROTO) {
     struct protoent *proto = nmap_getprotbynum(htons(probe.proto));
     log_write(LOG_PLAIN, "TRACEROUTE (using proto %d/%s)\n",
               probe.proto, proto ? proto->p_name : "unknown");
-  } else {
+  } else if (probe.type == PS_NONE) {
     /* "Traces" of directly connected targets don't send any packets. */
     log_write(LOG_PLAIN, "TRACEROUTE\n");
+  } else {
+    fatal("Unknown probe type %d.", probe.type);
   }
 
   row = 0;

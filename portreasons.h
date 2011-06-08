@@ -125,7 +125,7 @@ public:
  * why a port is in a specific state */
 typedef struct port_reason {
 	reason_t reason_id;
-	struct in_addr ip_addr;
+	struct sockaddr_storage ip_addr;
 	unsigned short ttl;
 } state_reason_t;
 
@@ -152,7 +152,8 @@ enum reason_codes {
 	ER_ADDRESSMASKREPLY, ER_NOIPIDCHANGE, ER_IPIDCHANGE,
 	ER_ARPRESPONSE, ER_TCPRESPONSE, ER_NORESPONSE,
 	ER_INITACK, ER_ABORT,
-	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER 
+	ER_LOCALHOST, ER_SCRIPT, ER_UNKNOWN, ER_USER,
+	ER_NOROUTE, ER_BEYONDSCOPE, ER_REJECTROUTE,
 };
 
 /* A map of reason_codes to plural and singular *
@@ -171,7 +172,7 @@ public:
 };
 
 /* Function to translate ICMP code and typ to reason code */
-reason_codes icmp_to_reason(int icmp_type, int icmp_code);
+reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code);
 
 /* passed to the print_state_summary.
  * STATE_REASON_EMPTY will append to the current line, prefixed with " because of"

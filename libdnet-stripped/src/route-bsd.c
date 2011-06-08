@@ -44,7 +44,7 @@
 #include "dnet.h"
 
 #define ROUNDUP(a) \
-	((a) > 0 ? (1 + (((a) - 1) | (sizeof(long) - 1))) : sizeof(long))
+	((a) > 0 ? (1 + (((a) - 1) | (RT_MSGHDR_ALIGNMENT - 1))) : RT_MSGHDR_ALIGNMENT)
 
 #ifdef HAVE_SOCKADDR_SA_LEN
 #define NEXTSA(s) \

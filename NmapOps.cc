@@ -131,28 +131,20 @@ int NmapOps::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) {
   return 0;
 }
 
+/* Returns a const pointer to the source address if set, or NULL if unset. */
+const struct sockaddr_storage *NmapOps::SourceSockAddr() const {
+  if (sourcesock.ss_family == AF_UNSPEC)
+    return NULL;
+  else
+    return &sourcesock;
+}
+
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
      to sockaddr_storage */
 void NmapOps::setSourceSockAddr(struct sockaddr_storage *ss, size_t ss_len) {
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
   sourcesocklen = ss_len;
-}
-
-struct in_addr NmapOps::v4source() {
- const struct in_addr *addy = v4sourceip();
-  struct in_addr in;
-  if (addy) return *addy;
-  in.s_addr = 0;
-  return in;
-}
-
-const struct in_addr *NmapOps::v4sourceip() {
-   struct sockaddr_in *sin = (struct sockaddr_in *) &sourcesock;
-  if (sin->sin_family == AF_INET) {
-    return &(sin->sin_addr);
-  }
-  return NULL;
 }
 
 // Number of seconds since getStartTime().  The current time is an
@@ -319,9 +311,9 @@ bool NmapOps::RawScan() {
     return true;
   if (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS|PINGTYPE_TCP_USE_ACK|PINGTYPE_UDP|PINGTYPE_SCTP_INIT))
     return true;
-  /* A SYN scan will only generate raw packets if nmap is running as root and is
-     not issuing IPv6 packets.  Otherwise, it becomes a connect scan. */
-  if ((pingtype & PINGTYPE_TCP_USE_SYN) && (af() == AF_INET) && isr00t)
+  /* A SYN scan will only generate raw packets if nmap is running as root.
+     Otherwise, it becomes a connect scan. */
+  if ((pingtype & PINGTYPE_TCP_USE_SYN) && isr00t)
     return true;
 
    return false; 
@@ -346,7 +338,7 @@ dialog where you can start NPF if you have administrator privileges.";
 
   /* Insure that at least one scantype is selected */
   if (!noportscan && !(TCPScan() || UDPScan() || SCTPScan() || ipprotscan)) {
-    if (isr00t && af() == AF_INET)
+    if (isr00t)
       synscan++;
     else connectscan++;
     //    if (verbose) error("No TCP, UDP, SCTP or ICMP scantype specified, assuming %s scan. Use -sn if you really don't want to portscan (and just want to see what hosts are up).", synscan? "SYN Stealth" : "vanilla tcp connect()");
@@ -369,8 +361,8 @@ dialog where you can start NPF if you have administrator privileges.";
     error("WARNING:  -S will only affect the source address used in a connect() scan if you specify one of your own addresses.  Use -sS or another raw scan if you want to completely spoof your source address, but then you need to know what you're doing to obtain meaningful results.");
   }
 
- if ((pingtype & PINGTYPE_UDP) && (!isr00t || af() != AF_INET)) {
-   fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire) and only for IPv4 (cause fyodor is too lazy right now to add IPv6 support and nobody has sent a patch)");
+ if ((pingtype & PINGTYPE_UDP) && (!isr00t)) {
+   fatal("Sorry, UDP Ping (-PU) only works if you are root (because we need to read raw responses off the wire)");
  }
 
  if ((pingtype & PINGTYPE_SCTP_INIT) && (!isr00t || af() != AF_INET)) {
@@ -389,8 +381,8 @@ dialog where you can start NPF if you have administrator privileges.";
    fatal("-sL and -sn (skip port scan) are not valid with any other scan types");
  }
 
- if (af() == AF_INET6 && (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))) {
-   fatal("ICMP Echo, Timestamp and Address Mask pings are only valid for IPv4.");
+ if (af() == AF_INET6 && (pingtype & (PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))) {
+   fatal("ICMP Timestamp and Address Mask pings are only valid for IPv4.");
  }
 
  if (sendpref == PACKET_SEND_NOPREF) {
@@ -482,8 +474,8 @@ dialog where you can start NPF if you have administrator privileges.";
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
   
-  if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|ackscan|finscan|idlescan|ipprotscan|maimonscan|nullscan|synscan|udpscan|windowscan|xmasscan|sctpinitscan|sctpcookieechoscan)) {
-    fatal("Sorry -- IPv6 support is currently only available for connect() scan (-sT), ping scan (-sn), and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
+  if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|idlescan|ipprotscan)) {
+    fatal("Sorry -- IPv6 support is currently only available for TCP, UDP, and SCTP port scans and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
 
   /* Prevent performance values from getting out of whack */

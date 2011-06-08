@@ -114,6 +114,9 @@
 #if HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
+#ifdef HAVE_LINUX_RTNETLINK_H
+#include <linux/rtnetlink.h>
+#endif
 
 #ifndef NETINET_IN_SYSTM_H  /* This guarding is needed for at least some versions of OpenBSD */
 #include <netinet/in_systm.h>
@@ -470,9 +473,8 @@ int ip_is_reserved(struct in_addr *ip)
 #define ARPCACHE_GET 1
 #define ARPCACHE_SET 2
 static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
-  struct sockaddr_in *sin = (struct sockaddr_in *) ss;
   struct ArpCache {
-    u32 ip; /* Network byte order */
+    struct sockaddr_storage ip; /* Network byte order */
     u8 mac[6];
   };
   static struct ArpCache *Cache = NULL;
@@ -480,12 +482,12 @@ static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
   static int ArpCacheSz = 0;
   int i;
 
-  if (sin->sin_family != AF_INET)
-    return 0;
+  //if (sin->sin_family != AF_INET)
+  //  return 0;
 
   if (command == ARPCACHE_GET) {
     for (i = 0; i < ArpCacheSz; i++) {
-      if (Cache[i].ip == sin->sin_addr.s_addr) {
+      if (sockaddr_storage_cmp(&Cache[i].ip, ss) == 0) {
         memcpy(mac, Cache[i].mac, 6);
         return 1;
       }
@@ -503,14 +505,14 @@ static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
 
   /* Ensure that it isn't already there ... */
   for (i = 0; i < ArpCacheSz; i++) {
-    if (Cache[i].ip == sin->sin_addr.s_addr) {
+    if (sockaddr_storage_cmp(&Cache[i].ip, ss) == 0) {
       memcpy(Cache[i].mac, mac, 6);
       return 1;
     }
   }
 
   /* Add it to the end of the list */
-  Cache[i].ip = sin->sin_addr.s_addr;
+  memcpy(&Cache[i].ip, ss, sizeof(struct sockaddr_storage));
   memcpy(Cache[i].mac, mac, 6);
   ArpCacheSz++;
   return 1;
@@ -546,6 +548,173 @@ unsigned short in_cksum(u16 *ptr,int nbytes) {
 }
 
 
+const void *ip_get_data(const void *packet, unsigned int *len,
+  struct abstract_ip_hdr *hdr) {
+  const struct ip *ip;
+
+  ip = (struct ip *) packet;
+  if (*len >= 20 && ip->ip_v == 4) {
+    struct sockaddr_in *sin;
+
+    hdr->version = 4;
+
+    sin = (struct sockaddr_in *) &hdr->src;
+    memset(&hdr->src, 0, sizeof(hdr->src));
+    sin->sin_family = AF_INET;
+    sin->sin_addr.s_addr = ip->ip_src.s_addr;
+
+    sin = (struct sockaddr_in *) &hdr->dst;
+    memset(&hdr->dst, 0, sizeof(hdr->dst));
+    sin->sin_family = AF_INET;
+    sin->sin_addr.s_addr = ip->ip_dst.s_addr;
+
+    hdr->proto = ip->ip_p;
+    hdr->ttl = ip->ip_ttl;
+    hdr->ipid = ntohs(ip->ip_id);
+    return ipv4_get_data(ip, len);
+  } else if (*len >= 40 && ip->ip_v == 6) {
+    const struct ip6_hdr *ip6 = (struct ip6_hdr *) ip;
+    struct sockaddr_in6 *sin6;
+
+    hdr->version = 6;
+
+    sin6 = (struct sockaddr_in6 *) &hdr->src;
+    memset(&hdr->src, 0, sizeof(hdr->src));
+    sin6->sin6_family = AF_INET6;
+    memcpy(&sin6->sin6_addr, &ip6->ip6_src, IP6_ADDR_LEN);
+
+    sin6 = (struct sockaddr_in6 *) &hdr->dst;
+    memset(&hdr->dst, 0, sizeof(hdr->dst));
+    sin6->sin6_family = AF_INET6;
+    memcpy(&sin6->sin6_addr, &ip6->ip6_dst, IP6_ADDR_LEN);
+
+    hdr->ttl = ip6->ip6_hlim;
+    hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
+    return ipv6_get_data(ip6, len, &hdr->proto);
+  }
+
+  return NULL;
+}
+
+/* Get the upper-layer protocol from an IPv4 packet. */
+const void *ipv4_get_data(const struct ip *ip, unsigned int *len)
+{
+  unsigned int header_len;
+
+  if (*len < 20)
+    return NULL;
+  header_len = ip->ip_hl * 4;
+  if (header_len < sizeof(*ip))
+    return NULL;
+  if (header_len > *len)
+    return NULL;
+  *len -= header_len;
+
+  return (char *) ip + header_len;
+}
+
+/* Return true iff this Next Header type is an extension header we must skip to
+   get to the upper-layer header. Types for which neither this function nor
+   ipv6_is_upperlayer return true are unknown and could be either. */
+static int ipv6_is_extension_header(u8 type)
+{
+  switch (type) {
+  case IP_PROTO_HOPOPTS:
+  case IP_PROTO_DSTOPTS:
+  case IP_PROTO_ROUTING:
+  case IP_PROTO_FRAGMENT:
+  /*
+  case IP_PROTO_ESP:
+  case IP_PROTO_AH:
+  */
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/* Return true iff this Next Header type is a known upper-layer protocol, one
+   that isn't followed by any more headers. Types for which neither this
+   function nor ipv6_is_upperlayer return true are unknown and could be
+   either. */
+static int ipv6_is_upperlayer(u8 type)
+{
+  switch (type) {
+  case IP_PROTO_TCP:
+  case IP_PROTO_UDP:
+  case IP_PROTO_ICMP:
+  case IP_PROTO_ICMPV6:
+  case IP_PROTO_SCTP:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/* Get the upper-layer protocol from an IPv6 packet. This skips over known
+   extension headers. The length of the upper-layer payload is stored in *len.
+   The protocol is stored in *nxt. Returns NULL in case of error. */
+const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
+{
+  const unsigned char *p, *end;
+  unsigned int hdr_len;
+
+  if (*len < sizeof(*ip6))
+    return NULL;
+
+  p = (unsigned char *) ip6;
+  end = p + *len;
+
+  *nxt = ip6->ip6_nxt;
+  hdr_len = sizeof(*ip6);
+  p += sizeof(*ip6);
+  while (ipv6_is_extension_header(*nxt)) {
+    if (p + 2 > end)
+      return NULL;
+    *nxt = *p;
+    p += (*(p + 1) + 1) * 8;
+    if (p > end)
+      return NULL;
+  }
+
+  *len = end - p;
+  if (!ipv6_is_upperlayer(*nxt))
+    return NULL;
+
+  return (char *) p;
+}
+
+const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len)
+{
+  unsigned int header_len;
+
+  if (icmp->icmp_type == ICMP_TIMEXCEED || icmp->icmp_type == ICMP_UNREACH)
+    header_len = 8;
+  else
+    netutil_fatal("%s passed ICMP packet with unhandled type %d", __func__, icmp->icmp_type);
+  if (header_len > *len)
+    return NULL;
+  *len -= header_len;
+
+  return (char *) icmp + header_len;
+}
+
+const void *icmpv6_get_data(const struct icmpv6_hdr *icmpv6, unsigned int *len)
+{
+  unsigned int header_len;
+
+  if (icmpv6->icmpv6_type == ICMPV6_TIMEXCEED || icmpv6->icmpv6_type == ICMPV6_UNREACH)
+    header_len = 8;
+  else
+    netutil_fatal("%s passed ICMPv6 packet with unhandled type %d", __func__, icmpv6->icmpv6_type);
+  if (header_len > *len)
+    return NULL;
+  *len -= header_len;
+
+  return (char *) icmpv6 + header_len;
+}
+
+
 /* Calculate the Internet checksum of some given data concatentated with the
    IPv4 pseudo-header. See RFC 1071 and TCP/IP Illustrated sections 3.2, 11.3,
    and 17.3. */
@@ -572,6 +741,38 @@ unsigned short ipv4_pseudoheader_cksum(const struct in_addr *src,
   sum = ip_cksum_add(hstart, len, sum);
 
   /* Fold in the carry, take the complement, and return. */
+  return ip_cksum_carry(sum);
+}
+
+/* Calculate the Internet checksum of some given data concatenated with the
+   IPv6 pseudo-header. See RFC 2460 section 8.1. */
+u16 ipv6_pseudoheader_cksum(const struct in6_addr *src,
+  const struct in6_addr *dst, u8 nxt, u32 len, const void *hstart) {
+  struct {
+    struct in6_addr src;
+    struct in6_addr dst;
+    u32 length;
+    u8 z0, z1, z2;
+    u8 nxt;
+  } hdr;
+  int sum;
+
+  hdr.src = *src;
+  hdr.dst = *dst;
+  hdr.z0 = hdr.z1 = hdr.z2 = 0;
+  hdr.length = htonl(len);
+  hdr.nxt = nxt;
+
+  sum = ip_cksum_add(&hdr, sizeof(hdr), 0);
+  sum = ip_cksum_add(hstart, len, sum);
+  /* RFC 2460: "Unlike IPv4, when UDP packets are originated by an IPv6 node,
+     the UDP checksum is not optional.  That is, whenever originating a UDP
+     packet, an IPv6 node must compute a UDP checksum over the packet and the
+     pseudo-header, and, if that computation yields a result of zero, it must be
+     changed to hex FFFF for placement in the UDP header." */
+  if (nxt == IP_PROTO_UDP && sum == 0)
+    sum = 0xFFFF;
+
   return ip_cksum_carry(sum);
 }
 
@@ -911,29 +1112,32 @@ void tcppacketoptinfo(u8 *optp, int len, char *result, int bufsize) {
 static int nmaskcmp(const void *a, const void *b) {
   struct sys_route *r1 = (struct sys_route *) a;
   struct sys_route *r2 = (struct sys_route *) b;
-  if (r1->netmask == r2->netmask) {
-    /* Compare addresses of equal elements to make the sort stable, as suggested
-       by the Glibc manual. */
-    if (a < b)
-      return -1;
-    else if (a > b)
-      return 1;
-    else
-      return 0;
-  }
-  if (ntohl(r1->netmask) > ntohl(r2->netmask))
+  if (r1->dest.ss_family < r2->dest.ss_family)
     return -1;
-  else
+  else if (r1->dest.ss_family > r2->dest.ss_family)
     return 1;
+
+  if (r1->netmask_bits < r2->netmask_bits)
+    return 1;
+  else if (r1->netmask_bits > r2->netmask_bits)
+    return -1;
+
+  /* Compare addresses of equal elements to make the sort stable, as suggested
+     by the Glibc manual. */
+  if (a < b)
+    return -1;
+  else if (a > b)
+    return 1;
+  else
+    return 0;
 }
 
 
 
-#if WIN32
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
   bool primary_done;
-  int num_aliases_done;
+  unsigned int num_aliases_done;
 
   primary_done = false;
   num_aliases_done = 0;
@@ -948,16 +1152,14 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
     /* The first time through the loop we add the primary interface record.
        After that we add the aliases one at a time. */
     if (!primary_done) {
-      if (entry->intf_addr.addr_type == ADDR_TYPE_IP) {
-        addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr);
-        dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_addr.addr_bits;
-      }
+      if (addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr) == -1)
+        dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
+      dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_addr.addr_bits;
       primary_done = true;
-    } else if (num_aliases_done < (int) entry->intf_alias_num) {
-      if (entry->intf_alias_addrs[num_aliases_done].addr_type == ADDR_TYPE_IP) {
-        addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr);
-        dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_alias_addrs[num_aliases_done].addr_bits;
-      }
+    } else if (num_aliases_done < entry->intf_alias_num) {
+      if (addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr) == -1)
+        dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
+      dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_alias_addrs[num_aliases_done].addr_bits;
       num_aliases_done++;
     }
 
@@ -1024,202 +1226,10 @@ static struct interface_info *getinterfaces_dnet(int *howmany, char *errstr, siz
   return dcrn.ifaces;
 }
 
-#else /* !WIN32 */
-
-/* Get a list of interfaces using ioctl(SIOCGIFCONF). */
-static struct interface_info *getinterfaces_siocgifconf(int *howmany, char *errstr, size_t errstrlen) {
-  struct interface_info *devs;
-  int count = 0;
-  int capacity = 0;
-  struct ifconf ifc;
-  struct ifreq *ifr;
-  int sd;
-  int len;
-  assert(howmany);
-  capacity = 16;
-  devs = (struct interface_info *) safe_zalloc(sizeof(struct interface_info) * capacity);
-
-  /* Dummy socket for ioctl */
-  sd = socket(AF_INET, SOCK_DGRAM, 0);
-  if (sd < 0){
-    if(errstr) Snprintf(errstr, errstrlen, "socket in %s", __func__); 
-    *howmany=-1;
-    return NULL;
-  }
-
-  ifc.ifc_len = 20480;
-  ifc.ifc_buf = (char *) safe_zalloc(ifc.ifc_len);
-  /* Returns an array of struct ifreq in ifc.ifc_req, which is a union with
-     ifc.ifc_buf. */
-  if (ioctl(sd, SIOCGIFCONF, &ifc) < 0){
-    if(errstr) Snprintf(errstr, errstrlen, "Failed to determine your configured interfaces!\n");
-    *howmany=-1;
-    return NULL;
-  }
-  if (ifc.ifc_len == 0){
-    if(errstr) Snprintf(errstr, errstrlen, "%s: SIOCGIFCONF claims you have no network interfaces!\n", __func__);
-    *howmany=-1;
-    return NULL;
-  }
-  ifr = ifc.ifc_req;
-
-  for (ifr = ifc.ifc_req;
-       ifr && ifr->ifr_name[0] && (void *) ifr < (void *)((char *) ifc.ifc_buf + ifc.ifc_len);
-       ifr = (struct ifreq *) ((char *) ifr + len)) {
-    struct sockaddr_in *sin;
-    struct ifreq tmpifr;
-    u16 ifflags;
-    int rc;
-    char *p;
-
-    len = sizeof(struct ifreq);
-#if HAVE_SOCKADDR_SA_LEN
-    /* Some platforms (such as FreeBSD) have an sa_len member that may make the
-       ifr longer than sizeof(struct ifreq). */
-    if (ifr->ifr_addr.sa_len > sizeof(ifr->ifr_ifru))
-      len += ifr->ifr_addr.sa_len - sizeof(ifr->ifr_ifru);
-#endif
-
-    /* skip any device with no name */
-    if (ifr->ifr_name[0] == '\0')
-      continue;
-
-    /* We currently only handle IPv4 */
-    sin = (struct sockaddr_in *) &ifr->ifr_addr;
-    if (sin->sin_family != AF_INET)
-      continue;
-
-    /* Make room for this new interface if necessary. */
-    if (count >= capacity) {
-      capacity <<= 2;
-      devs = (struct interface_info *) safe_realloc(devs, sizeof(struct interface_info) * capacity);
-    }
-
-    /* We know the address, put it in the array. */
-    memcpy(&(devs[count].addr), sin, MIN(sizeof(devs[count].addr), sizeof(*sin)));
-    Strncpy(devs[count].devname, ifr->ifr_name, sizeof(devs[count].devname));
-    Strncpy(devs[count].devfullname, ifr->ifr_name, sizeof(devs[count].devfullname));
-    /* devname isn't allowed to have alias qualification */
-    p = strchr(devs[count].devname, ':');
-    if (p != NULL)
-      *p = '\0';
-
-    /* Use tmpifr for further ioctl requests. We're going to make a bunch of
-       ioctl calls to learn about the interface and set fields in devs[count].
-
-       The Linux netdevice(7) man page says that you only have to set ifr_name
-       before making the ioctl, but perhaps other platforms need ifr_addr to be
-       set too. ifr_name will persist but ifr_addr is in a union with the ioctl
-       return value, so it has to be reset before every call. The general
-       pattern is memcpy, then ioctl. */
-    Strncpy(tmpifr.ifr_name, ifr->ifr_name, sizeof(tmpifr.ifr_name));
-
-    /* Look up the netmask. Note setting of ifr_addr. */
-    memcpy(&tmpifr.ifr_addr, sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-    rc = ioctl(sd, SIOCGIFNETMASK, &tmpifr);
-    if (rc < 0 && errno != EADDRNOTAVAIL){
-      if(errstr) Snprintf(errstr, errstrlen, "Failed to determine the netmask of %s!", tmpifr.ifr_name);
-      *howmany=-1;
-      return NULL;
-    }
-    else if (rc < 0)
-      devs[count].netmask_bits = 32;
-    else {
-      /* We would use ifr_netmask, but that's only on Linux, so use ifr_addr
-         which shares the same memory space in a union. */
-      addr_stob(&(tmpifr.ifr_addr), &devs[count].netmask_bits);
-    }
-
-    /* Now we need to determine the device type ... this technique is kinda iffy
-       ... may not be portable. */
-    /* Get the flags. */
-    memcpy(&tmpifr.ifr_addr, sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-    rc = ioctl(sd, SIOCGIFFLAGS, &tmpifr);
-    if (rc < 0){
-      if(errstr) Snprintf(errstr, errstrlen, "Failed to get IF Flags for device %s", ifr->ifr_name);
-      *howmany=-1;
-      return NULL;
-    }
-    ifflags = tmpifr.ifr_flags;
-
-    if (ifflags & IFF_LOOPBACK) {
-      devs[count].device_type = devt_loopback;
-    } else if (ifflags & IFF_BROADCAST) {
-      devs[count].device_type = devt_ethernet;
-
-      /* If the device type is ethernet, get the MAC address. */
-#ifdef SIOCGIFHWADDR
-      memcpy(&tmpifr.ifr_addr, sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-      rc = ioctl(sd, SIOCGIFHWADDR, &tmpifr);
-      if (rc < 0 && errno != EADDRNOTAVAIL){
-         if(errstr) Snprintf(errstr, errstrlen, "Failed to determine the MAC address of %s!", tmpifr.ifr_name);
-         *howmany=-1;
-         return NULL;
-      }
-      else if (rc >= 0)
-        memcpy(devs[count].mac, &tmpifr.ifr_addr.sa_data, 6);
-#else
-      /* Let's just let libdnet handle it ... */
-      eth_t *ethsd = eth_open_cached(devs[count].devname);
-      eth_addr_t ethaddr;
-
-      if (!ethsd) {
-        netutil_error("Warning: Unable to open interface %s -- skipping it.", devs[count].devname);
-        continue;
-      }
-      if (eth_get(ethsd, &ethaddr) != 0) {
-        netutil_error("Warning: Unable to get hardware address for interface %s -- skipping it.", devs[count].devname);
-        continue;
-      }
-      memcpy(devs[count].mac, ethaddr.data, 6);
-#endif /*SIOCGIFHWADDR*/
-    } else if (ifflags & IFF_POINTOPOINT) {
-      devs[count].device_type = devt_p2p;
-    } else {
-      devs[count].device_type = devt_other;
-    }
-
-    if (ifflags & IFF_UP)
-      devs[count].device_up = 1;
-    else
-      devs[count].device_up = 0;
-
-#ifdef SIOCGIFMTU
-    memcpy(&tmpifr.ifr_addr, sin, MIN(sizeof(tmpifr.ifr_addr), sizeof(*sin)));
-    rc = ioctl(sd, SIOCGIFMTU, &tmpifr);
-    if (rc < 0) {
-      if(errstr) Snprintf(errstr, errstrlen, "Failed to determine the mtu of %s!", tmpifr.ifr_name);
-      *howmany=-1;
-      return NULL;
-    } else {
-#ifdef ifr_mtu
-      devs[count].mtu = tmpifr.ifr_mtu;
-#else
-      /* Some systems lack ifr_mtu and a common solution (see pcap, dnet and
-       * others) is using ifr_metric instead
-       */
-      devs[count].mtu = tmpifr.ifr_metric;
-#endif
-    }
-#else
-    devs[count].mtu = 0;
-#endif
-
-    /* All done with this interface. Increase the count. */
-    count++;
-  }
-  free(ifc.ifc_buf);
-  close(sd);
-
-  *howmany = count;
-  return devs;
-}
-#endif
-
 /* Returns an allocated array of struct interface_info representing the
    available interfaces. The number of interfaces is returned in *howmany. This
    function just does caching of results; the real work is done in
-   getinterfaces_dnet() or getinterfaces_siocgifconf().
+   getinterfaces_dnet().
    On error, NULL is returned, howmany is set to -1 and the supplied
    error buffer "errstr", if not NULL, will contain an error message. */
 struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrlen) {
@@ -1228,12 +1238,7 @@ struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrle
   static int numifaces = 0;
 
   if (!initialized) {
-#if WIN32
-    /* On Win32 we just use Dnet to determine the interface list */
     mydevs = getinterfaces_dnet(&numifaces, errstr, errstrlen);
-#else
-    mydevs = getinterfaces_siocgifconf(&numifaces, errstr, errstrlen);
-#endif
     initialized = 1;
   }
 
@@ -1246,9 +1251,8 @@ struct interface_info *getinterfaces(int *howmany, char *errstr, size_t errstrle
 
 
 /* The 'dev' passed in must be at least 32 bytes long. Returns 0 on success. */
-int ipaddr2devname(char *dev, const struct in_addr *addr) {
+int ipaddr2devname(char *dev, const struct sockaddr_storage *addr) {
   struct interface_info *ifaces;
-  struct sockaddr_in *sin;
   int numifaces;
   int i;
 
@@ -1258,10 +1262,7 @@ int ipaddr2devname(char *dev, const struct in_addr *addr) {
     return -1;
 
   for (i = 0; i < numifaces; i++) {
-    sin = (struct sockaddr_in *) &ifaces[i].addr;
-    if (sin->sin_family != AF_INET)
-      continue;
-    if (addr->s_addr == sin->sin_addr.s_addr) {
+    if (sockaddr_storage_cmp(&ifaces[i].addr, addr) == 0) {
       Strncpy(dev, ifaces[i].devname, 32);
       return 0;
     }
@@ -1270,9 +1271,8 @@ int ipaddr2devname(char *dev, const struct in_addr *addr) {
   return -1;
 }
 
-int devname2ipaddr(char *dev, struct in_addr *addr) {
+int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
   struct interface_info *mydevs;
-  struct sockaddr_in *s;
   int numdevs;
   int i;
   mydevs = getinterfaces(&numdevs, NULL, 0);
@@ -1281,11 +1281,8 @@ int devname2ipaddr(char *dev, struct in_addr *addr) {
     return -1;
 
   for (i = 0; i < numdevs; i++) {
-    s = (struct sockaddr_in *) &mydevs[i].addr;
-    if (s->sin_family != AF_INET) /* Currently we only support IPv4 */
-      continue;
     if (!strcmp(dev, mydevs[i].devfullname)) {
-      memcpy(addr, (char *) &s->sin_addr, sizeof(struct in_addr));
+      *addr = mydevs[i].addr;
       return 0;
     }
   }
@@ -1312,148 +1309,77 @@ struct interface_info *getInterfaceByName(const char *iname) {
 }
 
 
+int sockaddr_equal(const struct sockaddr_storage *a,
+  const struct sockaddr_storage *b) {
 
-/* Read system routes from a handle to a /proc/net/route file. */
-static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany, char *errstr, size_t errstrlen) {
-  struct sys_route *routes = NULL;
-  int route_capacity = 128;
-  struct interface_info *ifaces;
-  char buf[1024];
-  char iface[16];
-  char *p, *endptr;
-  struct interface_info *ii;
-  u32 routeaddr, mask;
-  struct sockaddr_in *sin;
-  int numifaces = 0, numroutes = 0;
-  int i;
-  assert(howmany);
-  
-  /* Obtain list of system network interfaces */
-  if( (ifaces=getinterfaces(&numifaces, errstr, errstrlen)) == NULL ){
-    *howmany=-1;
-    return NULL;
-  }
-  routes = (struct sys_route *) safe_zalloc(route_capacity * sizeof(struct sys_route));
+  if (a->ss_family == AF_INET && b->ss_family == AF_INET) {
+    struct sockaddr_in *sa, *sb;
 
-  /* Kill the first line (column headers) */
-  errno = 0;
-  if (fgets(buf, sizeof(buf), routefp) == NULL) {
-    if (errno){
-      if(errstr) Snprintf(errstr, errstrlen, "Read error in /proc/net/route");
-    }else{
-      if(errstr) Snprintf(errstr, errstrlen, "Premature EOF in /proc/net/route");
-    }
-    *howmany=-1;
-    return NULL;
-  }
-  
-  while (fgets(buf, sizeof(buf), routefp)) {
-    p = strtok(buf, " \t\n");
-    if (!p) {
-      netutil_error("Could not find interface in /proc/net/route line");
-      continue;
-    }
-    if (*p == '*')
-      continue; /* Deleted route -- any other valid reason for a route to start with an asterict? */
-    Strncpy(iface, p, sizeof(iface));
-    p = strtok(NULL, " \t\n");
-    if (!p) {
-      netutil_error("Could not find destination in /proc/net/route line");
-      continue;
-    }
-    endptr = NULL;
-    routes[numroutes].dest = strtoul(p, &endptr, 16);
-    if (!endptr || *endptr) {
-      netutil_error("Failed to determine Destination from /proc/net/route");
-      continue;
-    }
+    sa = (struct sockaddr_in *) a;
+    sb = (struct sockaddr_in *) b;
 
-    /* Now for the gateway */
-    p = strtok(NULL, " \t\n");
-    if (!p) {
-      netutil_error("Could not find gateway in /proc/net/route line");
-      continue;
-    }
-    endptr = NULL;
-    routes[numroutes].gw.s_addr = strtoul(p, &endptr, 16);
-    if (!endptr || *endptr) {
-      netutil_error("Failed to determine gw for %s from /proc/net/route", iface);
-    }
-    for (i = 0; i < 5; i++) {
-      p = strtok(NULL, " \t\n");
-      if (!p)
-        break;
-    }
-    if (!p) {
-      netutil_error("Failed to find field %d in /proc/net/route", i + 2);
-      continue;
-    }
-    endptr = NULL;
-    routes[numroutes].netmask = strtoul(p, &endptr, 16);
-    if (!endptr || *endptr) {
-      netutil_error("Failed to determine mask from /proc/net/route");
-      continue;
-    }
-    for (i = 0; i < numifaces; i++) {
-      if (!strcmp(iface, ifaces[i].devfullname)) {
-        routes[numroutes].device = &ifaces[i];
-        break;
-      }
-    }
-    /* If device name in the route file does not match the full name (including
-       alias extension) of any interface, then try to find at least an alias of
-       the proper interface. */
-    if (i == numifaces) {
-      for (i = 0; i < numifaces; i++) {
-        if (!strcmp(iface, ifaces[i].devname)) {
-          routes[numroutes].device = &ifaces[i];
-          break;
-        }
-      }
-    }
-    if (i == numifaces) {
-      netutil_error("Failed to find device %s which was referenced in /proc/net/route", iface);
-      continue;
-    }
+    return sa->sin_addr.s_addr == sb->sin_addr.s_addr;
+  } if (a->ss_family == AF_INET6 && b->ss_family == AF_INET6) {
+    struct sockaddr_in6 *sa, *sb;
 
-    /* Now to deal with some alias nonsense ... at least on Linux
-       this file will just list the short name, even though IP
-       information (such as source address) from an alias must be
-       used.  So if the purported device can't reach the gateway
-       (or destination address for directly connected routes),
-       try to find a device that starts with the same short
-       devname, but can (e.g. eth0 -> eth0:3) */
-    if (routes[numroutes].gw.s_addr != 0)
-        routeaddr = routes[numroutes].gw.s_addr;
-    else
-        routeaddr = routes[numroutes].dest;
-    ii = &ifaces[i];
-    mask = htonl((unsigned long) (0 - 1) << (32 - ii->netmask_bits));
-    sin = (struct sockaddr_in *) &ii->addr;
-    if ((sin->sin_addr.s_addr & mask) != (routeaddr & mask)) {
-      for (i = 0; i < numifaces; i++) {
-        if (ii == &ifaces[i])
-          continue;
-        if (strcmp(ii->devname, ifaces[i].devname) == 0) {
-          sin = (struct sockaddr_in *) &ifaces[i].addr;
-          if ((sin->sin_addr.s_addr & mask) == (routeaddr & mask)) {
-            routes[numroutes].device = &ifaces[i];
-          }
-        }
-      }
-    }
+    sa = (struct sockaddr_in6 *) a;
+    sb = (struct sockaddr_in6 *) b;
 
-    numroutes++;
-    if (numroutes >= route_capacity) {
-      route_capacity <<= 2;
-      routes = (struct sys_route *) safe_realloc(routes, route_capacity * sizeof(struct sys_route));
-    }
+    return memcmp(sa->sin6_addr.s6_addr, sb->sin6_addr.s6_addr, sizeof(sa->sin6_addr.s6_addr)) == 0;
   }
 
-  *howmany = numroutes;
-  return routes;
+  return 0;
 }
 
+int sockaddr_equal_netmask(const struct sockaddr_storage *a,
+  const struct sockaddr_storage *b, u16 nbits) {
+  unsigned char netmask[IP6_ADDR_LEN];
+
+  addr_btom(nbits, netmask, sizeof(netmask));
+
+  if (a->ss_family == AF_INET && b->ss_family == AF_INET) {
+    struct in_addr *sa, *sb, *sn;
+
+    sa = &((struct sockaddr_in *) a)->sin_addr;
+    sb = &((struct sockaddr_in *) b)->sin_addr;
+    sn = (struct in_addr *) netmask;
+
+    return (sa->s_addr & sn->s_addr) == (sb->s_addr & sn->s_addr);
+  } else if (a->ss_family == AF_INET6 && b->ss_family == AF_INET6) {
+    struct in6_addr *sa, *sb, *sn;
+    unsigned int i;
+
+    sa = &((struct sockaddr_in6 *) a)->sin6_addr;
+    sb = &((struct sockaddr_in6 *) b)->sin6_addr;
+    sn = (struct in6_addr *) netmask;
+
+    for (i = 0; i < sizeof(sa->s6_addr); i++) {
+      if ((sa->s6_addr[i] & sn->s6_addr[i]) != (sb->s6_addr[i] & sn->s6_addr[i])) {
+        return 0;
+      }
+    }
+
+    return 1;
+  }
+
+  return 0;
+}
+
+int sockaddr_equal_zero(const struct sockaddr_storage *s) {
+  if (s->ss_family == AF_INET) {
+    const struct sockaddr_in *sin;
+
+    sin = (struct sockaddr_in *) s;
+    return sin->sin_addr.s_addr == 0;
+  } if (s->ss_family == AF_INET6) {
+    const struct sockaddr_in6 *sin6;
+
+    sin6 = (struct sockaddr_in6 *) s;
+    return memcmp(sin6->sin6_addr.s6_addr, IP6_ADDR_UNSPEC, IP6_ADDR_LEN) == 0;
+  }
+
+  return 0;
+}
 
 /* This is a helper for getsysroutes_dnet. Once the table of routes is in
    place, this function assigns each to an interface and removes any routes
@@ -1461,8 +1387,6 @@ static struct sys_route *getsysroutes_proc(FILE *routefp, int *howmany, char *er
 static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dnet_collector_route_nfo *dcrn) 
 {
   struct interface_info *ifaces;
-  u32 mask;
-  struct sockaddr_in *sin;
   int numifaces = 0;
   int i, j;
   int changed=0;
@@ -1473,11 +1397,7 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
     /* First we match up routes whose gateway address directly matches the
        address of an interface. */
     for (j = 0; j < numifaces; j++) {
-      sin = (struct sockaddr_in *) &ifaces[j].addr;
-      mask =
-          htonl((unsigned long) (0 - 1) << (32 - ifaces[j].netmask_bits));
-      if ((sin->sin_addr.s_addr & mask) ==
-          (dcrn->routes[i].gw.s_addr & mask)) {
+      if (sockaddr_equal_netmask(&ifaces[j].addr, &dcrn->routes[i].gw, ifaces[j].netmask_bits)) {
         dcrn->routes[i].device = &ifaces[j];
         break;
       }
@@ -1498,7 +1418,7 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
       /* Does this route's gateway go through another route with an assigned
          interface? */
       for (j = 0; j < dcrn->numroutes; j++) {
-        if (dcrn->routes[i].gw.s_addr == dcrn->routes[j].dest
+        if (sockaddr_equal(&dcrn->routes[i].gw, &dcrn->routes[j].dest)
             && dcrn->routes[j].device != NULL) {
           dcrn->routes[i].device = dcrn->routes[j].device;
           changed = 1;
@@ -1513,13 +1433,11 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
     if (dcrn->routes[i].device == NULL) {
       char destbuf[INET6_ADDRSTRLEN];
       char gwbuf[INET6_ADDRSTRLEN];
-      struct in_addr ia; 
 
-      ia.s_addr = dcrn->routes[i].dest;
-      strncpy(destbuf, inet_ntoa(ia), sizeof(destbuf));
-      strncpy(gwbuf, inet_ntoa(dcrn->routes[i].gw), sizeof(gwbuf));
+      strncpy(destbuf, inet_ntop_ez(&dcrn->routes[i].dest, sizeof(dcrn->routes[i].dest)), sizeof(destbuf));
+      strncpy(gwbuf, inet_ntop_ez(&dcrn->routes[i].gw, sizeof(dcrn->routes[i].gw)), sizeof(gwbuf));
       netutil_error("WARNING: Unable to find appropriate interface for system route to %s/%u gw %s",
-      	destbuf, dcrn->routes[i].netmask, gwbuf);
+        destbuf, dcrn->routes[i].netmask_bits, gwbuf);
       /* Remove this entry from the table. */
       memmove(dcrn->routes + i, dcrn->routes + i + 1, sizeof(dcrn->routes[0]) * (dcrn->numroutes - i - 1));
       dcrn->numroutes--;
@@ -1536,9 +1454,6 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
    takes a route entry and adds it into the dnet_collector_route_nfo struct. */
 static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
-  /* Make sure that it is the proper type of route ... */
-  if (entry->route_dst.addr_type != ADDR_TYPE_IP || entry->route_gw.addr_type != ADDR_TYPE_IP)
-    return 0; /* Not interested in IPv6 routes at the moment ... */
 
   /* Make sure we have room for the new route */
   if (dcrn->numroutes >= dcrn->capacity) {
@@ -1547,11 +1462,10 @@ static int collect_dnet_routes(const struct route_entry *entry, void *arg) {
   }
 
   /* Now for the important business */
-  dcrn->routes[dcrn->numroutes].dest = entry->route_dst.addr_ip;
-  addr_btom(entry->route_dst.addr_bits,
-            &dcrn->routes[dcrn->numroutes].netmask,
-            sizeof(dcrn->routes[dcrn->numroutes].netmask));
-  dcrn->routes[dcrn->numroutes].gw.s_addr = entry->route_gw.addr_ip;
+  dcrn->routes[dcrn->numroutes].device = NULL;
+  addr_ntos(&entry->route_dst, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].dest);
+  dcrn->routes[dcrn->numroutes].netmask_bits = entry->route_dst.addr_bits;
+  addr_ntos(&entry->route_gw, (struct sockaddr *) &dcrn->routes[dcrn->numroutes].gw);
   dcrn->numroutes++;
 
   return 0;
@@ -1604,7 +1518,6 @@ static struct sys_route *getsysroutes_dnet(int *howmany, char *errstr, size_t er
 struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
   static struct sys_route *routes = NULL;
   static int numroutes = 0;
-  FILE *routefp;
   assert(howmany);
   
   if (routes != NULL) {
@@ -1613,14 +1526,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
     return routes;
   }
 
-  /* First let us try Linux-style /proc/net/route */
-  routefp = fopen("/proc/net/route", "r");
-  if (routefp) {
-    routes = getsysroutes_proc(routefp, howmany, errstr, errstrlen);
-    fclose(routefp);
-  } else {
-    routes = getsysroutes_dnet(howmany, errstr, errstrlen);
-  }
+  routes = getsysroutes_dnet(howmany, errstr, errstrlen);
 
   /* Check if we managed to get the routes and sort them if we did */
   if(routes==NULL){
@@ -1641,6 +1547,9 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
 int islocalhost(const struct in_addr *const addr) {
   char dev[128];
+  struct sockaddr_storage ss;
+  struct sockaddr_in *sin;
+
   /* If it is 0.0.0.0 or starts with 127 then it is 
      probably localhost */
   if ((addr->s_addr & htonl(0xFF000000)) == htonl(0x7F000000))
@@ -1651,7 +1560,10 @@ int islocalhost(const struct in_addr *const addr) {
 
   /* If it is the same addy as a local interface, then it is
      probably localhost */
-  if (ipaddr2devname(dev, addr) != -1)
+  sin = (struct sockaddr_in *) &ss;
+  sin->sin_family = AF_INET;
+  sin->sin_addr = *addr;
+  if (ipaddr2devname(dev, &ss) != -1)
     return 1;
 
   /* OK, so to a first approximation, this addy is probably not
@@ -2121,7 +2033,10 @@ char *format_ip_options(u8* ipopt, int ipoptlen) {
  *                          protocol headers .
  */
 const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
-  struct ip *ip = (struct ip *) packet; /* IPv4 header structure.            */
+  struct abstract_ip_hdr hdr;
+  const u8 *data;
+  unsigned int datalen;
+
   struct tcp_hdr *tcp = NULL;           /* TCP header structure.             */
   struct udp_hdr *udp = NULL;           /* UDP header structure.             */
   struct sctp_hdr *sctp = NULL;         /* SCTP header structure.            */
@@ -2133,18 +2048,16 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
   char fragnfo[64] = "";                /* Temp info about fragmentation.    */
   char srchost[INET6_ADDRSTRLEN] = "";  /* Src IP in dot-decimal notation.   */
   char dsthost[INET6_ADDRSTRLEN] = "";  /* Dst IP in dot-decimal notation.   */
-  struct in_addr saddr, daddr;          /* Src and Dst IPs in binary.        */
   char *p = NULL;                       /* Aux pointer.                      */
   int frag_off = 0;                     /* To compute IP fragment offset.    */
   int more_fragments = 0;               /* True if IP MF flag is set.        */
   int dont_fragment = 0;                /* True if IP DF flag is set.        */
   int reserved_flag = 0;                /* True if IP Reserved flag is set.  */
-  size_t iphdrlen=0;                    /* Length of the IP (4 or 6) header  */
-  u8 nextproto=0;                       /* Protocol after IP (4 or 6) header */
-  
-  /* Ensure IP version makes sense */
-  if (ip->ip_v != 4 && ip->ip_v != 6 )
-    return "BOGUS!  IP Version in packet is not 4";
+
+  datalen = len;
+  data = (u8 *) ip_get_data(packet, &datalen, &hdr);
+  if (data == NULL)
+    return "BOGUS!  Can't parse supposed IP packet";
 
 
   /* Ensure we end up with a valid detail number */
@@ -2152,20 +2065,17 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
     detail=LOW_DETAIL;
 
 /* IP INFORMATION ************************************************************/
-if( ip->ip_v == 4 ){ /* IPv4 */
+if (hdr.version == 4) { /* IPv4 */
+  const struct ip *ip;
+  const struct sockaddr_in *sin;
 
-  if (len < 20)
-    return "BOGUS!  Packet too short.";
-  else{
-     iphdrlen=ip->ip_hl * 4;
-     nextproto=ip->ip_p;
-  }
+  ip = (struct ip *) packet;
 
   /* Obtain IP source and destination info */
-  saddr.s_addr = ip->ip_src.s_addr;
-  daddr.s_addr = ip->ip_dst.s_addr;
-  inet_ntop(AF_INET, &saddr, srchost, sizeof(srchost));
-  inet_ntop(AF_INET, &daddr, dsthost, sizeof(dsthost));
+  sin = (struct sockaddr_in *) &hdr.src;
+  inet_ntop(AF_INET, &sin->sin_addr.s_addr, srchost, sizeof(srchost));
+  sin = (struct sockaddr_in *) &hdr.dst;
+  inet_ntop(AF_INET, &sin->sin_addr.s_addr, dsthost, sizeof(dsthost));
 
   /* Compute fragment offset and check if flags are set */
   frag_off = 8 * (ntohs(ip->ip_off) & 8191) /* 2^13 - 1 */;
@@ -2211,55 +2121,35 @@ if( ip->ip_v == 4 ){ /* IPv4 */
   }
 
 }else{ /* IPv6 */
+  const struct ip6_hdr *ip6;
+  const struct sockaddr_in6 *sin6;
 
-  /* I'd rather use a regular u8 pointer to access the IPv6 header because
-   * it's surprinsingly easy to fuck the whole thing up using structures due
-   * to the weird IPv6 field alignment and the f*** compiler padding structs
-   * when it shouldn't. */
-  u8  *ipv6pnt = (u8 *)packet;
-
-  if (len < 40)
-    return "BOGUS!  IPv6 Packet too short.";
-  else{
-     iphdrlen=40;
-     nextproto=ipv6pnt[6];
-  }
+  ip6 = (struct ip6_hdr *) packet;
 
   /* Obtain IP source and destination info */
-  struct in6_addr ip6_src;
-  struct in6_addr ip6_dst;
-  memcpy(ip6_src.s6_addr, &ipv6pnt[8], 16);
-  memcpy(ip6_dst.s6_addr, &ipv6pnt[24], 16);
-  inet_ntop(AF_INET6, &ip6_src, srchost, sizeof(srchost));
-  inet_ntop(AF_INET6, &ip6_dst, dsthost, sizeof(dsthost));
-
-  /* Obtain payload length, next protocol and hop limit */
-  u16 *ipv6_pl = (u16 *)(&ipv6pnt[4]);
-  u8  *ipv6_nh = (u8 *)(& ipv6pnt[6]);
-  u8  *ipv6_hl = (u8 *)(& ipv6pnt[7]);
-
+  sin6 = (struct sockaddr_in6 *) &hdr.src;
+  inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, srchost, sizeof(srchost));
+  sin6 = (struct sockaddr_in6 *) &hdr.dst;
+  inet_ntop(AF_INET6, sin6->sin6_addr.s6_addr, dsthost, sizeof(dsthost));
 
   /* Obtain flow label and traffic class */
-  u32 *word = (u32 *)(&ipv6pnt[0]);
-  u32 flow= ntohl( *word );
-
+  u32 flow = ntohl(ip6->ip6_flow);
   u32 ip6_fl = flow & 0x000fffff;
   u32 ip6_tc = (flow & 0x0ff00000) >> 20;
-
 
   /* Create a string with information relevant to the specified level of detail */
   if( detail == LOW_DETAIL ){
       Snprintf(ipinfo, sizeof(ipinfo), "hopl=%d flow=%x payloadlen=%d",
-          (*ipv6_hl), ip6_fl, ntohs(*ipv6_pl)
+          ip6->ip6_hlim, ip6_fl, ntohs(ip6->ip6_plen)
           );
   }else if( detail == MEDIUM_DETAIL ){
       Snprintf(ipinfo, sizeof(ipinfo), "hopl=%d tclass=%d flow=%x payloadlen=%d",
-          (*ipv6_hl), ip6_tc, ip6_fl, ntohs(*ipv6_pl)
+          ip6->ip6_hlim, ip6_tc, ip6_fl, ntohs(ip6->ip6_plen)
           );
   }else if( detail==HIGH_DETAIL ){
       Snprintf(ipinfo, sizeof(ipinfo), "ver=6, tclass=%x flow=%x payloadlen=%d nh=%s hopl=%d ",
-          ip6_tc, ip6_fl, ntohs(*ipv6_pl),
-          nexthdrtoa(*ipv6_nh, 1), *ipv6_hl
+          ip6_tc, ip6_fl, ntohs(ip6->ip6_plen),
+          nexthdrtoa(ip6->ip6_nxt, 1), ip6->ip6_hlim
           );
   }
 
@@ -2267,12 +2157,12 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
 
 /* TCP INFORMATION ***********************************************************/
-  if (nextproto == IPPROTO_TCP) {
+  if (hdr.proto == IPPROTO_TCP) {
     char tflags[10];
     char tcpinfo[64] = "";
     char buf[32];
     char tcpoptinfo[256] = "";
-    tcp = (struct tcp_hdr *)  (packet + iphdrlen);
+    tcp = (struct tcp_hdr *) data;
 
 
     /* Let's parse the TCP header. The following code is very ugly because we
@@ -2301,7 +2191,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
      * either the fragment belongs to somewhere past that or the IP contains
      * less than 8 bytes. This also includes empty IP packets that say they
      * contain a TCP packet. */
-    if ( (frag_off > 8) || (len < (u32) iphdrlen + 8) ){    
+    if (frag_off > 8 || datalen < 8) {
       Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:?? > %s:?? ?? %s (incomplete)",
         srchost, dsthost, ipinfo);
     }
@@ -2309,7 +2199,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
     /* CASE 2: where we are missing the first 8 bytes of the TCP header but we
      * have, at least, the next 8 bytes so we can see the ACK number, the
      * flags and window size. */      
-    else if ( (frag_off == 8) && (len >= (u32) iphdrlen + 8)) {
+    else if (frag_off == 8 && datalen >= 8) {
 
       tcp = (struct tcp_hdr *)((u8 *) tcp - frag_off); // ugly?
 
@@ -2331,7 +2221,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
       /* TCP Options */
       if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-        if(len < (u32) iphdrlen + (u32) tcp->th_off * 4 - frag_off) {
+        if (datalen < (u32) tcp->th_off * 4 - frag_off) {
           Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
         } else {
           tcppacketoptinfo((u8*) tcp + sizeof(struct tcp_hdr),
@@ -2350,7 +2240,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
                ntohl(tcp->th_ack), ntohs(tcp->th_win),
                tcpoptinfo, ipinfo);
       }else if( detail==HIGH_DETAIL ){
-          if( len >= (u32) iphdrlen + 12 ){ /* We have at least bytes 8-20 */
+          if (datalen >= 12) { /* We have at least bytes 8-20 */
             Snprintf(protoinfo, sizeof(protoinfo), "TCP [%s:?? > %s:?? %s seq=%lu ack=%lu off=%d res=%d win=%hu csum=0x%04X urp=%d%s%s] IP [%s]",
                srchost, dsthost, tflags,
                (unsigned long) ntohl(tcp->th_seq),
@@ -2371,23 +2261,23 @@ if( ip->ip_v == 4 ){ /* IPv4 */
     
     /* CASE 3: where the IP packet is not a fragment but for some reason, we
      * don't have the entire TCP header, just part of it.*/
-    else if ((len > (u32)iphdrlen) && (len < (u32) iphdrlen + 20)) {
+    else if (datalen > 0 && datalen < 20) {
      
         /* We only have the first 32 bits: source and dst port */
-        if( (len >= (u32)iphdrlen + 4) && (len < (u32)iphdrlen + 8) ){
+        if (datalen >= 4 && datalen < 8) {
             Snprintf(protoinfo, sizeof(protoinfo), "TCP %s:%d > %s:%d ?? (incomplete) %s",
                      srchost, ntohs(tcp->th_sport), dsthost, ntohs(tcp->th_dport), ipinfo);
         }
 
          /* We only have the first 64 bits: ports and seq number */
-        if( (len >= (u32)iphdrlen + 8) && (len < (u32)iphdrlen + 12) ) {
+        if (datalen >= 8 && datalen < 12) {
             Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%d > %s:%d ?? seq=%lu (incomplete) %s",
                      srchost, ntohs(tcp->th_sport), dsthost,
                      ntohs(tcp->th_dport), (unsigned long) ntohl(tcp->th_seq), ipinfo);
         }
         
         /* We only have the first 96 bits: ports, seq and ack number */
-        if( (len >= (u32)iphdrlen + 12) && (len < (u32)iphdrlen + 16) ) {
+        if (datalen >= 12 && datalen < 16) {
             if(detail == LOW_DETAIL){ /* We don't print ACK in low detail */
                 Snprintf(tcpinfo, sizeof(tcpinfo), "TCP %s:%d > %s:%d seq=%lu (incomplete), %s",
                          srchost, ntohs(tcp->th_sport), dsthost,
@@ -2401,7 +2291,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
         }
 
         /* We are missing the last 32 bits (checksum and urgent pointer) */
-        if( (len >= (u32)iphdrlen + 16) && (len < (u32)iphdrlen + 20) ) {
+        if (datalen >= 16 && datalen < 20) {
             p = tflags;
             /* These are basically in tcpdump order */
             if (tcp->th_flags & TH_SYN) *p++ = 'S';
@@ -2446,7 +2336,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
     
     /* CASE 4: where we (finally!) have a full 20 byte TCP header so we can
      * safely print all fields */
-    else if (len >= (u32) iphdrlen + 20){
+    else if (datalen >= 20) {
          
       /* TCP Flags */
       p = tflags;
@@ -2468,7 +2358,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
       /* TCP Options */
       if((u32) tcp->th_off * 4 > sizeof(struct tcp_hdr)) {
-        if(len < (u32) iphdrlen + (u32) tcp->th_off * 4) {
+        if (datalen < (unsigned int) tcp->th_off * 4) {
           Snprintf(tcpoptinfo, sizeof(tcpoptinfo), "option incomplete");
 
         } else {
@@ -2512,9 +2402,9 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
     
 /* UDP INFORMATION ***********************************************************/
-  } else if (nextproto == IPPROTO_UDP && frag_off) {
+  } else if (hdr.proto == IPPROTO_UDP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
-  } else if (nextproto == IPPROTO_UDP) {
+  } else if (hdr.proto == IPPROTO_UDP) {
     udp =  (struct udp_hdr *) (packet + sizeof(struct ip));
   /* TODO: See if we can segfault if we receive a fragmented packet whose IP packet does not say a thing about fragmentation */
 
@@ -2536,9 +2426,9 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
 
 /* SCTP INFORMATION **********************************************************/
-  } else if (nextproto == IPPROTO_SCTP && frag_off) {
+  } else if (hdr.proto == IPPROTO_SCTP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
-  } else if (nextproto == IPPROTO_SCTP) {
+  } else if (hdr.proto == IPPROTO_SCTP) {
     sctp =  (struct sctp_hdr *) (packet + sizeof(struct ip));
 
     if( detail == LOW_DETAIL ){
@@ -2558,9 +2448,9 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 
 
 /* ICMP INFORMATION **********************************************************/
-  } else if (nextproto == IPPROTO_ICMP && frag_off) {
+  } else if (hdr.proto == IPPROTO_ICMP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "ICMP %s > %s fragment %s (incomplete)", srchost, dsthost, ipinfo);
-  } else if (nextproto == IPPROTO_ICMP) {
+  } else if (hdr.proto == IPPROTO_ICMP) {
 
     struct ip *ip2;       /* Points to the IP datagram carried by some ICMP messages */
     char *ip2dst;         /* Dest IP in caried IP datagram                   */
@@ -2620,15 +2510,15 @@ if( ip->ip_v == 4 ){ /* IPv4 */
       u32 mask;
     } *icmpmask=NULL;
     
-    /* Compute the length of the IP datagram + ICMP minimum length  */
-    unsigned pktlen = (iphdrlen) + 8;
+    /* Compute the ICMP minimum length. */
+    unsigned pktlen = 8;
 
     /* We need the ICMP packet to be at least 8 bytes long */
-    if (pktlen > len)
+    if (pktlen > datalen)
       goto icmpbad;
       
-    ping = (struct ppkt *) ((iphdrlen) + (char *) ip);
-    icmppkt=(struct icmp_packet *)  ((iphdrlen) + (char *) ip);
+    ping = (struct ppkt *) data;
+    icmppkt = (struct icmp_packet *) data;
     
     switch(icmppkt->type) {
 
@@ -2641,12 +2531,12 @@ if( ip->ip_v == 4 ){ /* IPv4 */
         /* Destination Unreachable *************/
         case 3: 
             /* Point to the start of the original datagram */
-            ip2 = (struct ip *) ((char *) ip + (iphdrlen) + 8);
+            ip2 = (struct ip *) (data + 8);
                 
             /* Check we have a full IP datagram included in the ICMP message */
             pktlen += MAX( (ip2->ip_hl * 4), 20 );
-            if (pktlen > len){
-                if(len==(u32)(iphdrlen) + 8 )
+            if (pktlen > datalen) {
+                if(datalen == 8)
                     Snprintf(icmptype, sizeof icmptype, "Destination unreachable%s",
                     (detail!=LOW_DETAIL)? " (original datagram missing)" : "" );
                 else
@@ -2667,7 +2557,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
             
             /* We have the original datagram + the first 8 bytes of the
              * transport layer header */    
-            if ( (pktlen+8) < len) {
+            if (pktlen + 8 < datalen) {
                 tcp = (struct tcp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
                 udp = (struct udp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
                 sctp = (struct sctp_hdr *) ((char *) ip2 + (ip2->ip_hl * 4));
@@ -2691,7 +2581,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
                 break;
 
                 case 3:
-                    if ( (pktlen+8) < len){
+                    if (pktlen + 8 < datalen) {
                         if (ip2->ip_p == IPPROTO_UDP && udp)
                           Snprintf(icmptype, sizeof icmptype, "Port %u unreachable", ntohs(udp->uh_dport));
                         else if (ip2->ip_p == IPPROTO_TCP && tcp)
@@ -2886,7 +2776,7 @@ if( ip->ip_v == 4 ){ /* IPv4 */
     } /* End of ICMP Type switch */
 
     
-    if (pktlen > len) {
+    if (pktlen > datalen) {
     icmpbad:
       if (ping) {
         /* We still have this information */
@@ -2913,17 +2803,21 @@ if( ip->ip_v == 4 ){ /* IPv4 */
     }
 
 /* UNKNOWN PROTOCOL **********************************************************/
-  } else if( nextproto == IPPROTO_ICMPV6){
-        Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s: %s",
-            ip->ip_p, srchost, dsthost, ipinfo);
+  } else if( hdr.proto == IPPROTO_ICMPV6){
+    const struct icmpv6_hdr *icmpv6;
+
+    icmpv6 = (struct icmpv6_hdr *) data;
+    Snprintf(protoinfo, sizeof(protoinfo), "ICMPv6 (%d) %s > %s (type=%d/code=%d) %s",
+      hdr.proto, srchost, dsthost,
+      icmpv6->icmpv6_type, icmpv6->icmpv6_code, ipinfo);
   }else{
 
-    if( nexthdrtoa(nextproto, 1) == NULL ){
+    if( nexthdrtoa(hdr.proto, 1) == NULL ){
         Snprintf(protoinfo, sizeof(protoinfo), "Unknown protocol (%d) %s > %s: %s",
-            ip->ip_p, srchost, dsthost, ipinfo);
+            hdr.proto, srchost, dsthost, ipinfo);
     }else{
            Snprintf(protoinfo, sizeof(protoinfo), "%s (%d) %s > %s: %s",
-            nexthdrtoa(nextproto, 1), ip->ip_p, srchost, dsthost, ipinfo); 
+            nexthdrtoa(hdr.proto, 1), hdr.proto, srchost, dsthost, ipinfo);
     }
   }
 
@@ -2931,18 +2825,175 @@ if( ip->ip_v == 4 ){ /* IPv4 */
 }
 
 
-static int match_netmask(u32 addr1, u32 addr2, u32 mask) {
-  return (addr1 & mask) == (addr2 & mask);
+#ifdef HAVE_LINUX_RTNETLINK_H
+/* Fill in a sockaddr_storage given an address family and raw address. */
+static int set_sockaddr(struct sockaddr_storage *ss, int af, void *data) {
+  struct sockaddr_in *sin;
+  struct sockaddr_in6 *sin6;
+
+  ss->ss_family = af;
+  if (af == AF_INET) {
+    sin = (struct sockaddr_in *) ss;
+    memcpy(&sin->sin_addr.s_addr, data, IP_ADDR_LEN);
+  } else if (af == AF_INET6) {
+    sin6 = (struct sockaddr_in6 *) ss;
+    memcpy(sin6->sin6_addr.s6_addr, data, IP6_ADDR_LEN);
+  } else {
+    return -1;
+  }
+
+  return 0;
 }
 
-static int match_netmask_bits(u32 addr1, u32 addr2, int bits) {
-  return match_netmask(addr1, addr2, htonl((unsigned long) (0 - 1) << (32 - bits)));
+/* Get an interface name from an index number. */
+static int intf_name(int index, char *name, size_t len) {
+  struct ifreq ifr;
+  int s;
+
+  s = socket(AF_INET, SOCK_DGRAM, 0);
+  if (s < 0)
+    return -1;
+
+  ifr.ifr_ifindex = index;
+  if (ioctl(s, SIOCGIFNAME, &ifr) < 0)
+    goto bail;
+  strncpy(name, ifr.ifr_name, len);
+  if (name[len - 1] != '\0')
+    goto bail;
+
+  return 0;
+
+bail:
+  close(s);
+  return -1;
 }
 
-static int match_netmask_bits(const struct sockaddr_in *addr1,
-  const struct sockaddr_in *addr2, int bits) {
-  return match_netmask_bits(addr1->sin_addr.s_addr, addr2->sin_addr.s_addr, bits);
+/* Does route_dst using the Linux-specific rtnetlink interface. See rtnetlink(3)
+   and rtnetlink(7). */
+static int route_dst_netlink(const struct sockaddr_storage *dst,
+                             struct route_nfo *rnfo, const char *device,
+                             const struct sockaddr_storage *spoofss) {
+  struct sockaddr_nl snl;
+  struct msghdr msg;
+  struct iovec iov;
+  struct nlmsghdr *nlmsg;
+  struct rtmsg *rtmsg;
+  struct rtattr *rtattr;
+  unsigned char buf[512];
+  void *addr;
+  size_t addrlen;
+  int fd, rc, len;
+
+  if (dst->ss_family == AF_INET) {
+    addr = &((struct sockaddr_in *) dst)->sin_addr.s_addr;
+    addrlen = IP_ADDR_LEN;
+  } else if (dst->ss_family == AF_INET6) {
+    addr = ((struct sockaddr_in6 *) dst)->sin6_addr.s6_addr;
+    addrlen = IP6_ADDR_LEN;
+  } else {
+    netutil_fatal("%s: unknown address family %d", __func__, dst->ss_family);
+  }
+
+  fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
+  if (fd == -1)
+    netutil_fatal("%s: cannot create AF_NETLINK socket: %s", __func__, strerror(errno));
+
+  memset(&snl, 0, sizeof(snl));
+  snl.nl_family = AF_NETLINK;
+
+  rc = bind(fd, (struct sockaddr *) &snl, sizeof(snl));
+  if (rc == -1)
+    netutil_fatal("%s: cannot bind AF_NETLINK socket: %s", __func__, strerror(errno));
+
+  memset(buf, 0, sizeof(buf));
+
+  nlmsg = (struct nlmsghdr *) buf;
+
+  nlmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*rtmsg) + RTA_LENGTH(addrlen));
+  assert(nlmsg->nlmsg_len <= sizeof(buf));
+  nlmsg->nlmsg_flags = NLM_F_REQUEST;
+  nlmsg->nlmsg_type = RTM_GETROUTE;
+
+  rtmsg = (struct rtmsg *) (nlmsg + 1);
+  rtmsg->rtm_family = dst->ss_family;
+  rtmsg->rtm_dst_len = addrlen * 8;
+
+  rtattr = RTM_RTA(rtmsg);
+  rtattr->rta_type = RTA_DST;
+  rtattr->rta_len = RTA_LENGTH(addrlen);
+  memcpy(RTA_DATA(rtattr), addr, addrlen);
+
+  iov.iov_base = nlmsg;
+  iov.iov_len = nlmsg->nlmsg_len;
+
+  memset(&msg, 0, sizeof(msg));
+  msg.msg_name = &snl;
+  msg.msg_namelen = sizeof(snl);
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+
+  rc = sendmsg(fd, &msg, 0);
+  if (rc == -1)
+    netutil_fatal("%s: cannot sendmsg: %s", __func__, strerror(errno));
+
+  iov.iov_base = buf;
+  iov.iov_len = sizeof(buf);
+
+  len = recvmsg(fd, &msg, 0);
+  if (len <= 0)
+    netutil_fatal("%s: cannot recvmsg: %s", __func__, strerror(errno));
+
+  close(fd);
+
+  if (nlmsg->nlmsg_len < sizeof(*nlmsg) || (unsigned int) len < NLMSG_LENGTH(sizeof(*nlmsg)))
+    netutil_fatal("%s: wrong size reply in recvmsg", __func__);
+  len -= NLMSG_LENGTH(sizeof(*nlmsg));
+
+  /* Default values to be possibly overridden. */
+  rnfo->direct_connect = 1;
+  rnfo->nexthop.ss_family = AF_UNSPEC;
+  rnfo->srcaddr.ss_family = AF_UNSPEC;
+  if (spoofss != NULL)
+    rnfo->srcaddr = *spoofss;
+
+  struct interface_info *ii;
+  ii = NULL;
+  if (device != NULL && device[0] != '\0') {
+    ii = getInterfaceByName(device);
+    if (ii == NULL)
+      netutil_fatal("Could not find interface %s which was specified by -e", device);
+  }
+
+  for ( ; RTA_OK(rtattr, len); rtattr = RTA_NEXT(rtattr, len)) {
+    if (rtattr->rta_type == RTA_GATEWAY) {
+      rnfo->direct_connect = 0;
+      rc = set_sockaddr(&rnfo->nexthop, rtmsg->rtm_family, RTA_DATA(rtattr));
+      assert(rc != -1);
+    } else if (rtattr->rta_type == RTA_OIF && ii == NULL) {
+      char namebuf[32];
+      int intf_index;
+
+      intf_index = *(int *) RTA_DATA(rtattr);
+      rc = intf_name(intf_index, namebuf, sizeof(namebuf));
+      assert(rc != -1);
+      ii = getInterfaceByName(namebuf);
+      if (ii == NULL)
+        netutil_fatal("%s: can't find interface \"%s\"", __func__, namebuf);
+    } else if (rtattr->rta_type == RTA_PREFSRC && rnfo->srcaddr.ss_family == AF_UNSPEC) {
+      rc = set_sockaddr(&rnfo->srcaddr, rtmsg->rtm_family, RTA_DATA(rtattr));
+      assert(rc != -1);
+    }
+  }
+
+  if (ii != NULL) {
+    rnfo->ii = *ii;
+    return 1;
+  } else {
+    return 0;
+  }
 }
+
+#else
 
 static struct interface_info *find_loopback_iface(struct interface_info *ifaces,
   int numifaces) {
@@ -2956,34 +3007,20 @@ static struct interface_info *find_loopback_iface(struct interface_info *ifaces,
   return NULL;
 }
 
-/* Takes an IPv4 destination address (dst) and tries to determine the
- * source address and interface necessary to route to this address.
- * If no route is found, 0 is returned and "rnfo" is undefined.  If
- * a route is found, 1 is returned and "rnfo" is filled in with all
- * of the routing details. If the source address needs to be spoofed,
- * it should be passed through "spoofss" (otherwise NULL should be
- * specified), along with a suitable network device (parameter "device").
- * Even if spoofss is NULL, if user specified a network device with -e, 
- * it should still be passed. Note that it's OK to pass either NULL or 
- * an empty string as the "device", as long as spoofss==NULL. */
-int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
-              char *device, struct sockaddr_storage *spoofss) {
+static int route_dst_generic(const struct sockaddr_storage *dst,
+                             struct route_nfo *rnfo, const char *device,
+                             const struct sockaddr_storage *spoofss) {
   struct interface_info *ifaces;
   struct interface_info *iface;
   int numifaces = 0;
   struct sys_route *routes;
   int numroutes = 0;
   int i;
-  struct sockaddr_in *ifsin, *dstsin;
   char errstr[256];
   errstr[0]='\0';
 
   if (!dst)
     netutil_fatal("%s passed a NULL dst address", __func__);
-  dstsin = (struct sockaddr_in *) dst;
-
-  if (dstsin->sin_family != AF_INET)
-    netutil_fatal("Sorry -- %s currently only supports IPv4", __func__);
 
   if(spoofss!=NULL){
     /* Throughout the rest of this function we only change rnfo->srcaddr if the source isnt spoofed */
@@ -3010,8 +3047,7 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
   for (i = 0; i < numifaces; i++) {
     struct interface_info *loopback;
 
-    ifsin = (struct sockaddr_in *) &ifaces[i].addr;
-    if (dstsin->sin_addr.s_addr != ifsin->sin_addr.s_addr)
+    if (!sockaddr_equal(dst, &ifaces[i].addr))
       continue;
     if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
       continue;
@@ -3036,7 +3072,7 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
   /* Go through the routing table and take the first match. getsysroutes sorts
      so more-specific routes come first. */
   for (i = 0; i < numroutes; i++) {
-    if (!match_netmask(dstsin->sin_addr.s_addr, routes[i].dest, routes[i].netmask))
+    if (!sockaddr_equal_netmask(dst, &routes[i].dest, routes[i].netmask_bits))
       continue;
     /* Ignore routes that aren't on the device we specified. */
     if (iface != NULL && strcmp(routes[i].device->devname, iface->devname) != 0)
@@ -3045,26 +3081,21 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
     rnfo->ii = *routes[i].device;
     /* At this point we don't whether this route is direct or indirect ("G" flag
        in netstat). We guess that a route is direct when the gateway address is
-       0.0.0.0, when it exactly matches the interface address, or when it
+       0.0.0.0 or ::, when it exactly matches the interface address, or when it
        exactly matches the destination address. */
-    rnfo->direct_connect = (routes[i].gw.s_addr == 0) ||
-      (routes[i].gw.s_addr == ((struct sockaddr_in *) &routes[i].device->addr)->sin_addr.s_addr) ||
-      (routes[i].gw.s_addr == dstsin->sin_addr.s_addr);
+    rnfo->direct_connect = (sockaddr_equal_zero(&routes[i].gw) ||
+      sockaddr_equal(&routes[i].gw, &routes[i].device->addr) ||
+      sockaddr_equal(&routes[i].gw, dst));
     if (!spoofss)
       rnfo->srcaddr = routes[i].device->addr;
-    ifsin = (struct sockaddr_in *) &rnfo->nexthop;
-    ifsin->sin_family = AF_INET;
-    ifsin->sin_addr = routes[i].gw;
+    rnfo->nexthop = routes[i].gw;
 
     return 1;
   }
 
   /* No match on routes. Try interfaces directly. */
   for (i = 0; i < numifaces; i++) {
-    if (ifaces[i].addr.ss_family != AF_INET)
-      continue;
-    ifsin = (struct sockaddr_in *) &ifaces[i].addr;
-    if (!match_netmask_bits(dstsin, ifsin, ifaces[i].netmask_bits))
+    if (!sockaddr_equal_netmask(dst, &ifaces[i].addr, ifaces[i].netmask_bits))
       continue;
     if (iface != NULL && strcmp(ifaces[i].devname, iface->devname) != 0)
       continue;
@@ -3079,6 +3110,26 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
 
   return 0;
 }
+#endif
+
+/* Takes a destination address (dst) and tries to determine the
+ * source address and interface necessary to route to this address.
+ * If no route is found, 0 is returned and "rnfo" is undefined.  If
+ * a route is found, 1 is returned and "rnfo" is filled in with all
+ * of the routing details. If the source address needs to be spoofed,
+ * it should be passed through "spoofss" (otherwise NULL should be
+ * specified), along with a suitable network device (parameter "device").
+ * Even if spoofss is NULL, if user specified a network device with -e, 
+ * it should still be passed. Note that it's OK to pass either NULL or 
+ * an empty string as the "device", as long as spoofss==NULL. */
+int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
+              const char *device, const struct sockaddr_storage *spoofss) {
+#ifdef HAVE_LINUX_RTNETLINK_H
+  return route_dst_netlink(dst, rnfo, device, spoofss);
+#else
+  return route_dst_generic(dst, rnfo, device, spoofss);
+#endif
+}
 
 /* Wrapper for system function sendto(), which retries a few times when
  * the call fails. It also prints informational messages about the
@@ -3088,7 +3139,6 @@ int Sendto(const char *functionname, int sd,
                   const unsigned char *packet, int len, unsigned int flags,
                   struct sockaddr *to, int tolen) {
 
-  struct sockaddr_in *sin = (struct sockaddr_in *) to;
   int res;
   int retries = 0;
   int sleeptime = 0;
@@ -3101,7 +3151,7 @@ int Sendto(const char *functionname, int sd,
       numerrors++;
         if(numerrors <= 10) {
         netutil_error("sendto in %s: sendto(%d, packet, %d, 0, %s, %d) => %s",
-              functionname, sd, len, inet_ntoa(sin->sin_addr), tolen,
+              functionname, sd, len, inet_ntop_ez((struct sockaddr_storage *) to, sizeof(struct sockaddr_storage)), tolen,
               strerror(err));
         netutil_error("Offending packet: %s", ippackethdrinfo(packet, len, LOW_DETAIL));
         if (numerrors == 10) {
@@ -3266,6 +3316,212 @@ int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
   return res;
 }
 
+/* There are three ways to send a raw IPv6 packet.
+
+   send_ipv6_eth works when the device is Ethernet. (Unfortunately IPv6-in-IPv4
+   tunnels are not.) We can control all header fields and extension headers.
+
+   send_ipv6_ipproto_raw must be used when IPPROTO_RAW sockets include the IP
+   header, like IP_HDRINCL for IPv4. This is non-standard but is the case on
+   Linux. (On other platforms, IPPROTO_RAW has no special meaning and just
+   stands for protocol 255.) We can control all header fields and extension
+   headers. This method uses only one raw socket for all sends.
+
+   send_ipv6_ip must be used when IPPROTO_RAW sockets do not include the IP
+   header. Through standard function calls we can control all header fields
+   except for the flow label. This method needs one raw socket for every
+   protocol. (More precisely, one socket per distinct Next Header value.)
+*/
+
+/* Send an IPv6 packet over an Ethernet handle. */
+static int send_ipv6_eth(struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+  eth_t *ethsd;
+  struct eth_hdr *eth_frame;
+  u8 *copy;
+  int res;
+
+  copy = (u8 *) safe_malloc(packetlen + sizeof(*eth_frame));
+  memcpy(copy + sizeof(*eth_frame), packet, packetlen);
+  eth_frame = (struct eth_hdr *) copy;
+  eth_pack_hdr(eth_frame, eth->dstmac, eth->srcmac, ETH_TYPE_IPV6);
+  if (!eth->ethsd) {
+    ethsd = eth_open_cached(eth->devname);
+    if (!ethsd)
+      netutil_fatal("%s: Failed to open ethernet device (%s)", __func__, eth->devname);
+  } else {
+    ethsd = eth->ethsd;
+  }
+  res = eth_send(ethsd, eth_frame, sizeof(*eth_frame) + packetlen);
+  /* No need to close ethsd due to caching */
+  free(eth_frame);
+
+  return res;
+}
+
+#if HAVE_IPV6_IPPROTO_RAW
+
+/* Send an IPv6 packet over a raw socket, on platforms where IPPROTO_RAW implies
+   IP_HDRINCL-like behavior. */
+static int send_ipv6_ipproto_raw(const unsigned char *packet, unsigned int packetlen) {
+  struct ip6_hdr *hdr;
+  struct sockaddr_in6 dest = { 0 };
+  int sd, n;
+
+  sd = -1;
+  n = -1;
+
+  if (packetlen < sizeof(*hdr))
+    return -1;
+
+  hdr = (struct ip6_hdr *) packet;
+  dest.sin6_family = AF_INET6;
+  memcpy(&dest.sin6_addr.s6_addr, &hdr->ip6_dst, sizeof(dest.sin6_addr.s6_addr));
+  dest.sin6_port = 0;
+
+  sd = socket(AF_INET6, SOCK_RAW, IPPROTO_RAW);
+  if (sd == -1) {
+    perror("socket");
+    goto bail;
+  }
+
+  n = Sendto(__func__, sd, packet, packetlen, 0, (struct sockaddr *) &dest, sizeof(dest));
+
+bail:
+  if (sd != -1)
+    close(sd);
+
+  return n;
+}
+
+#elif !WIN32
+
+/* Add an ancillary cmsghdr data block to the list of blocks in a msghdr.
+   The list is stored in msg->msg_control, which is must be allocated to
+   hold at least maxlen bytes. msg->msg_controllen is also modified by this
+   function. Returns -1 in case of error or 0 otherwise. */
+static int add_ancillary(struct msghdr *msg, size_t maxlen,
+  int level, int type, const void *data, size_t len)
+{
+  struct cmsghdr *cm;
+
+  if (maxlen < msg->msg_controllen + CMSG_SPACE(len))
+    return -1;
+
+  cm = (struct cmsghdr *) ((char *) msg->msg_control + msg->msg_controllen);
+  msg->msg_controllen += CMSG_SPACE(len);
+
+  cm->cmsg_len = CMSG_LEN(len);
+  cm->cmsg_level = level;
+  cm->cmsg_type = type;
+
+  memcpy(CMSG_DATA(cm), data, len);
+
+  return 0;
+}
+
+/* Send an IPv6 packet over a raw socket. This function can control all header
+   fields except the flow label (and the payload length can only be controlled
+   indirectly through the length of the payload). While there are standard
+   functions to add extension headers, we don't use them, instead opening the
+   socket with a protocol the same as the Next Header field in the packet. Then
+   we paste in the packet contents (including extension headers) verbatim. This
+   allows controlling the order of headers, making broken headers, and sending
+   headers not understood by the underlying OS. */
+static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
+  struct msghdr msg;
+  struct sockaddr_in6 dest = { 0 };
+  struct iovec iov;
+
+  struct ip6_hdr *hdr;
+  int tclass, hoplimit;
+
+  char *control;
+  size_t controllen;
+  int sd;
+  int n;
+
+  /* Allocate a control buffer big enough to hold the IPV6_TCLASS and
+     IPV6_HOPLIMIT options. This is a byte buffer but must be aligned for
+     a struct cmsghdr. See section 15.7 (p. 425) of Unix Network
+     Programming, third edition. */
+  controllen = CMSG_SPACE(sizeof(int)) + CMSG_SPACE(sizeof(int));
+  control = (char *) safe_zalloc(controllen);
+  sd = -1;
+  n = -1;
+
+  /* Set up sendmsg data structure. dest and iov are filled in below. */
+  msg.msg_name = &dest;
+  msg.msg_namelen = sizeof(dest);
+  msg.msg_iov = &iov;
+  msg.msg_iovlen = 1;
+  msg.msg_control = control;
+  msg.msg_controllen = 0;
+  msg.msg_flags = 0;
+
+  if (packetlen < sizeof(*hdr))
+    return -1;
+  hdr = (struct ip6_hdr *) packet;
+
+  dest.sin6_family = AF_INET6;
+  memcpy(&dest.sin6_addr.s6_addr, &hdr->ip6_dst, sizeof(dest.sin6_addr.s6_addr));
+  dest.sin6_port = 0;
+
+  iov.iov_base = (unsigned char *) packet + sizeof(*hdr);
+  iov.iov_len = packetlen - sizeof(*hdr);
+
+  /* This can also be set with setsockopt(IPPROTO_IPV6, IPV6_TCLASS). */
+#ifdef IPV6_TCLASS
+  tclass = ntohl(hdr->ip6_flow & IP6_FLOWINFO_MASK) >> 20;
+  if (add_ancillary(&msg, controllen, IPPROTO_IPV6,
+    IPV6_TCLASS, &tclass, sizeof(tclass)) == -1) {
+    goto bail;
+  }
+#endif
+  /* This can also be set with setsockopt(IPPROTO_IPV6, IPV6_UNICAST_HOPS). */
+  hoplimit = hdr->ip6_hlim;
+  if (add_ancillary(&msg, controllen, IPPROTO_IPV6,
+    IPV6_HOPLIMIT, &hoplimit, sizeof(hoplimit)) == -1) {
+    goto bail;
+  }
+  /* The Next Header field is set when the socket is created. The payload
+     length is set in the call to sendmsg. There's no way to set the flow
+     label. */
+
+  sd = socket(AF_INET6, SOCK_RAW, hdr->ip6_nxt);
+  if (sd == -1) {
+    perror("socket");
+    goto bail;
+  }
+
+  n = sendmsg(sd, &msg, 0);
+  if (n == -1)
+    perror("sendmsg");
+
+bail:
+  free(control);
+  if (sd != -1)
+    close(sd);
+
+  return n;
+}
+
+#endif
+
+/* For now, the sd argument is ignored. */
+int send_ipv6_packet_eth_or_sd(int sd, struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+  if (eth != NULL) {
+    return send_ipv6_eth(eth, packet, packetlen);
+  } else {
+#if HAVE_IPV6_IPPROTO_RAW
+    return send_ipv6_ipproto_raw(packet, packetlen);
+#elif !WIN32
+    return send_ipv6_ip(packet, packetlen);
+#endif
+  }
+
+  return -1;
+}
+
 
 
 #ifdef WIN32
@@ -3383,29 +3639,13 @@ void set_pcap_filter(const char *device, pcap_t *pd, const char *bpf, ...) {
   va_list ap;
   char buf[3072];
   struct bpf_program fcode;
-#ifndef __amigaos__
-  unsigned int localnet, netmask;
-#else
-  bpf_u_int32 localnet, netmask;
-#endif
-  char err0r[256];
-
-  // Cast below is becaue OpenBSD apparently has a version that takes a
-  // non-const device (hopefully they don't actually write to it).
-  if (pcap_lookupnet((char *) device, &localnet, &netmask, err0r) < 0)
-    netutil_fatal("Failed to lookup subnet/netmask for device (%s): %s", device, err0r);
 
   va_start(ap, bpf);
   if (Vsnprintf(buf, sizeof(buf), bpf, ap) >= (int) sizeof(buf))
     netutil_fatal("%s called with too-large filter arg\n", __func__);
   va_end(ap);
 
-  /* Due to apparent bug in libpcap */
-  /* Maybe this bug no longer exists ... I'll comment out for now 
-   *      if (islocalhost(target->v4hostip()))
-   *      buf[0] = '\0'; */
-
-  if (pcap_compile(pd, &fcode, buf, 0, netmask) < 0)
+  if (pcap_compile(pd, &fcode, buf, 0, 0) < 0)
     netutil_fatal("Error compiling our pcap filter: %s", pcap_geterr(pd));
   if (pcap_setfilter(pd, &fcode) < 0)
     netutil_fatal("Failed to set the pcap filter: %s\n", pcap_geterr(pd));
@@ -3552,6 +3792,256 @@ int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
   }
 
   return 1;
+}
+
+/* Attempts to read one IPv6/Ethernet Neighbor Solicitation reply packet from the pcap
+   descriptor pd.  If it receives one, fills in sendermac (must pass
+   in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)
+   and returns 1.  If it times out and reads no Neighbor Advertisement, returns
+   0.  to_usec is the timeout period in microseconds.  Use 0 to avoid
+   blocking to the extent possible.  Returns -1 or exits if there is
+   an error.  The last parameter is a pointer to a callback function
+   that can be used for packet tracing. This is intended to be used
+   by Nmap only. Any other calling this should pass NULL instead. */
+int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
+                        struct sockaddr_in6 *senderIP, long to_usec,
+                        struct timeval *rcvdtime,
+                        void (*traceND_callback)(int, const u8 *, u32 , struct timeval *)) {
+  static int warning = 0;
+  int datalink;
+  struct pcap_pkthdr head;
+  u8 *p;
+  int timedout = 0;
+  int badcounter = 0;
+  unsigned int offset=0;
+  struct timeval tv_start, tv_end;
+  struct icmpv6_hdr *icmp6_header = NULL;
+  struct icmpv6_msg_nd *na = NULL;
+
+  if (!pd)
+    netutil_fatal("NULL packet device passed to %s", __func__);
+
+  if (to_usec < 0) {
+    if (!warning) {
+      warning = 1;
+      netutil_error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
+    }
+    to_usec = 0;
+  }
+
+  /* New packet capture device, need to recompute offset */
+  if ((datalink = pcap_datalink(pd)) < 0)
+    netutil_fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
+
+  if (datalink == DLT_EN10MB) {
+    offset = ETH_HDR_LEN;
+  } else if (datalink == DLT_LINUX_SLL) {
+    /* The datalink type is Linux "cooked" sockets. See pcap-linktype(7). */
+    offset = 16;
+  } else {
+    netutil_fatal("%s called on interface that is datatype %d rather than DLT_EN10MB (%d) or DLT_LINUX_SLL (%d)", __func__, datalink, DLT_EN10MB, DLT_LINUX_SLL);
+  }
+
+  if (to_usec > 0) {
+    gettimeofday(&tv_start, NULL);
+  }
+
+  do {
+#ifdef WIN32
+    if (to_usec == 0) {
+      PacketSetReadTimeout(pd->adapter, 1);
+    } else {
+      gettimeofday(&tv_end, NULL);
+      long to_left =
+          MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
+      // Set the timeout (BUGBUG: this is cheating)
+      PacketSetReadTimeout(pd->adapter, to_left);
+    }
+#endif
+
+    p = NULL;
+
+    if (pcap_select(pd, to_usec) == 0)
+      timedout = 1;
+    else
+      p = (u8 *) pcap_next(pd, &head);
+
+    if (p && head.caplen >= offset + IP6_HDR_LEN + 32) {
+      /* hw type eth (0x0001), prot ip (0x0800),
+         hw size (0x06), prot size (0x04)  */
+      icmp6_header = (struct icmpv6_hdr *)(p + offset + IP6_HDR_LEN);
+      na = (struct icmpv6_msg_nd *)(p + offset + IP6_HDR_LEN + ICMPV6_HDR_LEN);
+      if (icmp6_header->icmpv6_type == ICMPV6_NEIGHBOR_ADVERTISEMENT &&
+          icmp6_header->icmpv6_code == 0 &&
+          na->icmpv6_option_type == 2 && na->icmpv6_option_length == 1){
+        memcpy(sendermac, &na->icmpv6_mac, 6);
+        memcpy(&senderIP->sin6_addr.s6_addr, &na->icmpv6_target, 16);
+        break;
+      }
+    }
+
+    if (!p) {
+      /* Should we timeout? */
+      if (to_usec == 0) {
+        timedout = 1;
+      } else if (to_usec > 0) {
+        gettimeofday(&tv_end, NULL);
+        if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
+          timedout = 1;
+        }
+      }
+    } else {
+      /* We'll be a bit patient if we're getting actual packets back, but
+         not indefinitely so */
+      if (badcounter++ > 50)
+        timedout = 1;
+    }
+  } while (!timedout);
+
+  if (timedout)
+    return 0;
+
+  if (rcvdtime) {
+    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
+    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
+    // use gettimeofday() for Windows in this case
+    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
+    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a
+    // COUPLE SECONDS before the gettimeofday() results :(.
+#if defined(WIN32) || defined(__amigaos__)
+    gettimeofday(&tv_end, NULL);
+    *rcvdtime = tv_end;
+#else
+    rcvdtime->tv_sec = head.ts.tv_sec;
+    rcvdtime->tv_usec = head.ts.tv_usec;
+    assert(head.ts.tv_sec);
+#endif
+  }
+  if(traceND_callback!=NULL){
+    /* TODO: First parameter "2" is a hardcoded value for Nmap's PacketTrace::RECV*/
+    traceND_callback(2, (u8 *) p + offset, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8, rcvdtime);
+  }
+
+  return 1;
+}
+
+/* Issues an Neighbor Solicitation for the MAC of targetss (which will be placed
+   in targetmac if obtained) from the source IP (srcip) and source mac
+   (srcmac) given.  "The request is ussued using device dev to the
+   multicast MAC address.  The transmission is attempted up to 3
+   times.  If none of these elicit a response, false will be returned.
+   If the mac is determined, true is returned. The last parameter is
+   a pointer to a callback function that can be used for packet tracing.
+   This is intended to be used by Nmap only. Any other calling this
+   should pass NULL instead. */
+bool doND(const char *dev, const u8 *srcmac,
+                  const struct sockaddr_storage *srcip,
+                   const struct sockaddr_storage *targetip,
+                   u8 *targetmac,
+                   void (*traceND_callback)(int, const u8 *, u32 , struct timeval *)
+                    ) {
+  /* timeouts in microseconds ... the first ones are retransmit times, while
+     the final one is when we give up */
+  int timeouts[] = { 100000, 400000, 800000 };
+  int max_sends = 3;
+  int num_sends = 0; // How many we have sent so far
+  eth_t *ethsd;
+  u8 frame[ETH_HDR_LEN + IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8];
+  struct timeval start, now, rcvdtime;
+  int timeleft;
+  int listenrounds;
+  int rc;
+  pcap_t *pd;
+  struct sockaddr_storage rcvdIP;
+  rcvdIP.ss_family = AF_INET6;
+  bool foundit = false;
+  char filterstr[256];
+  struct sockaddr_in6 *target_sin6, *src_sin6;
+  struct sockaddr_in6 ns_dst_ip6;
+
+  if (targetip->ss_family != AF_INET6 || srcip->ss_family != AF_INET6)
+    netutil_fatal("%s can only handle IPv6 addresses", __func__);
+
+  target_sin6 = (struct sockaddr_in6 *) targetip;
+  src_sin6 = (struct sockaddr_in6 *) srcip;
+
+  unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
+  ns_dst_mac[3] = target_sin6->sin6_addr.s6_addr[13];
+  ns_dst_mac[4] = target_sin6->sin6_addr.s6_addr[14];
+  ns_dst_mac[5] = target_sin6->sin6_addr.s6_addr[15];
+
+  ns_dst_ip6 = *target_sin6;
+  unsigned char multicast_prefix[13] = {0};
+  multicast_prefix[0] = 0xff;
+  multicast_prefix[1] = 0x02;
+  multicast_prefix[11] = 0x1;
+  multicast_prefix[12] = 0xff;
+  memcpy(ns_dst_ip6.sin6_addr.s6_addr, multicast_prefix, sizeof(multicast_prefix));
+
+  /* Start listening */
+  if((pd=my_pcap_open_live(dev, 100, 1, 25))==NULL)
+    netutil_fatal("my_pcap_open_live(%s, 50, 1, 25) failed three times.", dev);
+  /* Libpcap: IPv6 upper-layer protocol is not supported by proto[x] */
+  /* Grab the ICMPv6 type using ip6[X:Y] syntax. This works only if there are no
+     extension headers (top-level nh is IPPROTO_ICMPV6). */
+  Snprintf(filterstr, 256, "ether dst %02X%02X%02X%02X%02X%02X and icmp6 and ip6[6:1] = %u and ip6[40:1] = %u",
+           srcmac[0], srcmac[1], srcmac[2], srcmac[3], srcmac[4], srcmac[5],
+	   IPPROTO_ICMPV6, ICMPV6_NEIGHBOR_ADVERTISEMENT);
+  set_pcap_filter(dev, pd, filterstr);
+
+  /* Prepare probe and sending stuff */
+  ethsd = eth_open_cached(dev);
+  if (!ethsd)
+    netutil_fatal("%s: failed to open device %s", __func__, dev);
+  eth_pack_hdr(frame, *ns_dst_mac, *srcmac, ETH_TYPE_IPV6);
+  ip6_pack_hdr(frame + ETH_HDR_LEN, 0, 0, 32, 0x3a, 255, *src_sin6->sin6_addr.s6_addr, *ns_dst_ip6.sin6_addr.s6_addr);
+  icmpv6_pack_hdr_ns(frame + ETH_HDR_LEN + IP6_HDR_LEN, target_sin6->sin6_addr.s6_addr, *srcmac);
+  ip6_checksum(frame + ETH_HDR_LEN, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8);
+
+  gettimeofday(&start, NULL);
+  gettimeofday(&now, NULL);
+
+  while (!foundit && num_sends < max_sends) {
+    /* Send the sucker */
+    rc = eth_send(ethsd, frame, sizeof(frame));
+    if (rc != sizeof(frame)) {
+     netutil_error("WARNING: %s: eth_send of Neighbor Solicitation packet returned %u rather than expected %d bytes", __func__, rc, (int) sizeof(frame));
+    }
+    if(traceND_callback!=NULL){
+        /* TODO: First parameter "1" is a hardcoded value for Nmap's PacketTrace::SENT*/
+        traceND_callback(1, (u8 *) frame + ETH_HDR_LEN, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8, &now);
+    }
+    num_sends++;
+
+    listenrounds = 0;
+    while (!foundit) {
+      gettimeofday(&now, NULL);
+      timeleft = timeouts[num_sends - 1] - TIMEVAL_SUBTRACT(now, start);
+      if (timeleft < 0) {
+        if (listenrounds > 0)
+          break;
+        else
+          timeleft = 25000;
+      }
+      listenrounds++;
+      /* Now listen until we reach our next timeout or get an answer */
+      rc = read_ns_reply_pcap(pd, targetmac, (struct sockaddr_in6 *) &rcvdIP, timeleft,
+                               &rcvdtime, traceND_callback);
+      if (rc == -1)
+        netutil_fatal("%s: Received -1 response from read_ns_reply_pcap", __func__);
+      if (rc == 1) {
+        /* Yay, I got one! But is it the right one? */
+        if (sockaddr_storage_cmp(&rcvdIP,targetip) != 0)
+          continue; /* D'oh! */
+        foundit = true; /* WOOHOO! */
+      }
+    }
+  }
+
+  /* OK - let's close up shop ... */
+  pcap_close(pd);
+  /* No need to close ethsd due to caching */
+  return foundit;
 }
 
 /* Issues an ARP request for the MAC of targetss (which will be placed

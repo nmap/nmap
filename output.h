@@ -136,9 +136,9 @@
 #include <string>
 
 #ifdef WIN32
-/* Display a warning that a device is not Ethernet and so raw sockets
-   will be used. The warning is shown only once per unique device name. */
-void win32_warn_raw_sockets(const char *devname);
+/* Show a fatal error explaining that an interface is not Ethernet and won't
+   work on Windows. Do nothing if --send-ip (PACKET_SEND_IP_STRONG) was used. */
+void win32_fatal_raw_sockets(const char *devname);
 #endif
 
 /* Prints the familiar Nmap tabular output showing the "interesting"

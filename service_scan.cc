@@ -1733,9 +1733,9 @@ static void adjustPortStateIfNecessary(ServiceNFO *svc) {
   if (oldstate != PORT_OPEN) {
     svc->target->ports.setPortState(svc->portno, svc->proto, PORT_OPEN);
     if (svc->proto == IPPROTO_TCP) 
-        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, 0);
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_TCPRESPONSE, 0, NULL);
     if (svc->proto == IPPROTO_UDP)
-        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, 0);
+        svc->target->ports.setStateReason(svc->portno, svc->proto, ER_UDPRESPONSE, 0, NULL);
 
     if (o.verbose || o.debugging > 1) {
       svc->target->NameIP(host, sizeof(host));

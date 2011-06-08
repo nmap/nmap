@@ -161,6 +161,9 @@ reason_map_type::reason_map_type(){
     reason_map[ER_UNKNOWN] = reason_string("unknown-response","unknown-responses");
     reason_map[ER_USER] = reason_string("user-set","user-sets");
 
+    reason_map[ER_NOROUTE] = reason_string("no-route", "no-routes");
+    reason_map[ER_BEYONDSCOPE] = reason_string("beyond-scope", "beyond-scopes");
+    reason_map[ER_REJECTROUTE] = reason_string("reject-route", "reject-routes");
 }
 
 /* Map holding plural and singular versions of error codes */
@@ -169,7 +172,7 @@ reason_map_type reason_map;
 /* Function to Translate ICMP codes and types to *
  * Reason Codes                  */
 
-reason_codes icmp_to_reason(int icmp_type, int icmp_code){
+static reason_codes icmpv4_to_reason(int icmp_type, int icmp_code) {
 
     switch(icmp_type){
 
@@ -211,6 +214,47 @@ reason_codes icmp_to_reason(int icmp_type, int icmp_code){
     }
     return ER_UNKNOWN;
 };
+
+static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
+
+    switch(icmp_type){
+
+	case ICMPV6_ECHOREPLY:
+	    return ER_ECHOREPLY;
+
+        case ICMPV6_UNREACH:
+            switch(icmp_code) {
+            case ICMPV6_UNREACH_NOROUTE:
+                return ER_NOROUTE;
+            case ICMPV6_UNREACH_PROHIB:
+                return ER_ADMINPROHIBITED;
+            case ICMPV6_UNREACH_SCOPE:
+                return ER_BEYONDSCOPE;
+            case ICMPV6_UNREACH_ADDR:
+                return ER_HOSTUNREACH;
+            case ICMPV6_UNREACH_PORT:
+                return ER_PORTUNREACH;
+            case ICMPV6_UNREACH_FILTER_PROHIB:
+                return ER_ADMINPROHIBITED;
+            case ICMPV6_UNREACH_REJECT_ROUTE:
+                return ER_REJECTROUTE;
+            }
+            return ER_UNKNOWN;
+
+        case ICMPV6_TIMEXCEED:
+            return ER_TIMEEXCEEDED;
+    }
+    return ER_UNKNOWN;
+};
+
+reason_codes icmp_to_reason(u8 proto, int icmp_type, int icmp_code) {
+	if (proto == IPPROTO_ICMP)
+		return icmpv4_to_reason(icmp_type, icmp_code);
+	else if (proto == IPPROTO_ICMPV6)
+		return icmpv6_to_reason(icmp_type, icmp_code);
+	else
+		return ER_UNKNOWN;
+}
 
 static void state_reason_summary_init(state_reason_summary_t *r) {
 	r->reason_id = ER_UNKNOWN;
@@ -378,7 +422,7 @@ const char *reason_str(reason_t reason_code, unsigned int number) {
 
 void state_reason_init(state_reason_t *reason) {
 	reason->reason_id = ER_UNKNOWN;
-	reason->ip_addr.s_addr = 0;
+	reason->ip_addr.ss_family = AF_UNSPEC;
 	reason->ttl = 0;
 }
 
@@ -455,7 +499,7 @@ char *port_reason_str(state_reason_t r) {
 	static char reason[128];
 	memset(reason,'\0', 128);
 	Snprintf(reason, 128, "%s%s%s", reason_str(r.reason_id, SINGULAR),
-            (r.ip_addr.s_addr==0)?"":" from ",
-            (r.ip_addr.s_addr==0)?"":inet_ntoa(r.ip_addr));
+            (r.ip_addr.ss_family==AF_UNSPEC)?"":" from ",
+            (r.ip_addr.ss_family==AF_UNSPEC)?"":inet_ntop_ez(&r.ip_addr, sizeof(r.ip_addr)));
 	return reason;
 }

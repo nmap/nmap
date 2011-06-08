@@ -5103,6 +5103,19 @@ fi
 
 done
 
+for ac_header in linux/rtnetlink.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "linux/rtnetlink.h" "ac_cv_header_linux_rtnetlink_h" "#include <netinet/in.h>
+"
+if test "x$ac_cv_header_linux_rtnetlink_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_RTNETLINK_H 1
+_ACEOF
+
+fi
+
+done
+
 for ac_header in sys/socket.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "sys/socket.h" "ac_cv_header_sys_socket_h" "$ac_includes_default"
@@ -5252,6 +5265,24 @@ if test "$ac_res" != no; then :
   test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
 
 fi
+
+
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if AF_INET6 IPPROTO_RAW sockets include the packet header" >&5
+$as_echo_n "checking if AF_INET6 IPPROTO_RAW sockets include the packet header... " >&6; }
+  # This should be replaced with a better test, if possible.
+  case "$host" in
+    *-linux*)
+      $as_echo "#define HAVE_IPV6_IPPROTO_RAW 1" >>confdefs.h
+
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+      ;;
+    *)
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+      ;;
+  esac
 
 
 NDIFFDIR=ndiff

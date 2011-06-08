@@ -382,20 +382,24 @@ static unsigned short *merge_port_lists(unsigned short *port_list1, int count1,
 
 void validate_scan_lists(scan_lists &ports, NmapOps &o){
 	if (o.pingtype == PINGTYPE_UNKNOWN) {
-		if (o.isr00t && o.pf() == PF_INET) {
-			o.pingtype = DEFAULT_PING_TYPES;
+		if (o.isr00t) {
+			if (o.pf() == PF_INET){
+				o.pingtype = DEFAULT_IPV4_PING_TYPES;
+			} else {
+				o.pingtype = DEFAULT_IPV6_PING_TYPES;
+			}
 			getpts_simple(DEFAULT_PING_ACK_PORT_SPEC, SCAN_TCP_PORT,
 				&ports.ack_ping_ports, &ports.ack_ping_count);
 			getpts_simple(DEFAULT_PING_SYN_PORT_SPEC, SCAN_TCP_PORT,
 				&ports.syn_ping_ports, &ports.syn_ping_count);
 		} else {
-			o.pingtype = PINGTYPE_TCP; // if nonr00t or IPv6
+			o.pingtype = PINGTYPE_TCP; // if nonr00t
 			getpts_simple(DEFAULT_PING_CONNECT_PORT_SPEC, SCAN_TCP_PORT,
 				&ports.syn_ping_ports, &ports.syn_ping_count);
 		}
 	}
 
-	if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t || o.pf() != PF_INET)) {
+	if ((o.pingtype & PINGTYPE_TCP) && (!o.isr00t)) {
     		// We will have to do a connect() style ping 
 		// Pretend we wanted SYN probes all along.
 		if (ports.ack_ping_count > 0) { 
@@ -629,6 +633,8 @@ int nmap_main(int argc, char *argv[]) {
       {"adler32", no_argument, 0, 0},
       {"stats_every", required_argument, 0, 0},
       {"stats-every", required_argument, 0, 0},
+      {"route_dst", required_argument, 0, 0},
+      {"route-dst", required_argument, 0, 0},
       {0, 0, 0, 0}
     };
 
@@ -912,6 +918,27 @@ int nmap_main(int argc, char *argv[]) {
         if (d < 0)
           fatal("Argument to --stats-every cannot be negative.");
         o.stats_interval = d;
+      } else if(optcmp(long_options[option_index].name, "route-dst") == 0) {
+        struct sockaddr_storage ss;
+        struct route_nfo rnfo;
+        size_t sslen;
+
+        if (!resolve(optarg, 0, 0, &ss, &sslen, 0))
+          fatal("Can't resolve %s.", optarg);
+
+        printf("%s\n", inet_ntop_ez(&ss, sslen));
+
+        if (!route_dst(&ss, &rnfo, o.device, o.SourceSockAddr())) {
+          printf("Can't route %s (%s).", optarg, inet_ntop_ez(&ss, sslen));
+        } else {
+          printf("%s %s", rnfo.ii.devname, rnfo.ii.devfullname);
+          printf(" srcaddr %s", inet_ntop_ez(&rnfo.srcaddr, sizeof(rnfo.srcaddr)));
+          if (rnfo.direct_connect)
+            printf(" direct");
+          else
+            printf(" nexthop %s", inet_ntop_ez(&rnfo.nexthop, sizeof(rnfo.nexthop)));
+        }
+        printf("\n");
       } else {
         fatal("Unknown long option (%s) given@#!$#$", long_options[option_index].name);
       }
@@ -929,7 +956,8 @@ int nmap_main(int argc, char *argv[]) {
       o.script = 1;
 #endif
       if (o.isr00t) {
-        o.osscan++;
+        if (o.af() == AF_INET)
+          o.osscan++;
         o.traceroute = true;
       }
       break;
@@ -1121,7 +1149,7 @@ int nmap_main(int argc, char *argv[]) {
       else if (*optarg == 'B') {
         if (ports.ack_ping_count > 0)
           fatal("Only one -PB, -PA, or -PT option is allowed. Combine port ranges with commas.");
-        o.pingtype = DEFAULT_PING_TYPES;
+        o.pingtype = DEFAULT_IPV4_PING_TYPES;
         if (*(optarg + 1) != '\0') {
           getpts_simple(optarg + 1, SCAN_TCP_PORT, &ports.ack_ping_ports, &ports.ack_ping_count);
           if (ports.ack_ping_count <= 0)
@@ -1349,14 +1377,10 @@ int nmap_main(int argc, char *argv[]) {
   }
 #endif
 
-#if HAVE_IPV6
-  if(o.af() == AF_INET6 && o.traceroute)
-     fatal("Traceroute does not support IPv6");
-#endif
   if (o.traceroute && !o.isr00t)
     fatal("Traceroute has to be run as root");
-  if (o.traceroute && (o.idlescan || o.connectscan))
-    fatal("Traceroute does not support idle or connect scan");
+  if (o.traceroute && o.idlescan)
+    fatal("Traceroute does not support idle scan");
 
   if ((o.noportscan) && (portlist || o.fastscan))
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) when not doing a port scan");
@@ -1459,23 +1483,19 @@ int nmap_main(int argc, char *argv[]) {
    * --None have been specified AND
    * --We are root and doing tcp ping OR
    * --We are doing a raw sock scan and NOT pinging anyone */
-  if (o.af() == AF_INET && o.v4sourceip() && !*o.device) {
-    if (ipaddr2devname(o.device, o.v4sourceip()) != 0) {
+  if (o.SourceSockAddr() && !*o.device) {
+    if (ipaddr2devname(o.device, o.SourceSockAddr()) != 0) {
       fatal("Could not figure out what device to send the packet out on with the source address you gave me!  If you are trying to sp00f your scan, this is normal, just give the -e eth0 or -e ppp0 or whatever.  Otherwise you can still use -e, but I find it kindof fishy.");
     }
   }
 
-  if (o.af() == AF_INET && *o.device && !o.v4sourceip()) {
-    struct sockaddr_in tmpsock;
+  if (*o.device && !o.SourceSockAddr()) {
+    struct sockaddr_storage tmpsock;
     memset(&tmpsock, 0, sizeof(tmpsock));
-    if (devname2ipaddr(o.device, &(tmpsock.sin_addr)) == -1) {
+    if (devname2ipaddr(o.device, &tmpsock) == -1) {
       fatal("I cannot figure out what source address to use for device %s, does it even exist?", o.device);
     }
-    tmpsock.sin_family = AF_INET;
-#if HAVE_SOCKADDR_SA_LEN
-    tmpsock.sin_len = sizeof(tmpsock);
-#endif
-    o.setSourceSockAddr((struct sockaddr_storage *) &tmpsock, sizeof(tmpsock));
+    o.setSourceSockAddr(&tmpsock, sizeof(tmpsock));
   }
 
 
@@ -2001,11 +2021,9 @@ static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
      cope with that, because it uses IP addresses to look up targets from
      replies. What happens is one target gets the replies for all probes
      referring to the same IP address. */
-  if (o.af() == AF_INET) {
-    for (it = targets.begin(); it != targets.end(); it++) {
-      if ((*it)->v4host().s_addr == target->v4host().s_addr)
-        return true;
-    }
+  for (it = targets.begin(); it != targets.end(); it++) {
+    if (sockaddr_storage_cmp((*it)->TargetSockAddr(), target->TargetSockAddr()) == 0)
+      return true;
   }
 
   return false;

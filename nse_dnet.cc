@@ -287,7 +287,7 @@ static int ip_send (lua_State *L)
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
-      win32_warn_raw_sockets(dev);
+      win32_fatal_raw_sockets(dev);
 #endif
     ret = send_ip_packet(udata->sock, NULL, (u8 *) packet, lua_objlen(L, 2));
   }

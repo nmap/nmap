@@ -173,6 +173,7 @@ AC_SUBST(LUA_CFLAGS)
 
 dnl Checks for header files.
 AC_CHECK_HEADERS(pwd.h termios.h sys/sockio.h)
+AC_CHECK_HEADERS(linux/rtnetlink.h,,,[#include <netinet/in.h>])
 dnl A special check required for <net/if.h> on Darwin. See
 dnl http://www.gnu.org/software/autoconf/manual/html_node/Header-Portability.html.
 AC_CHECK_HEADERS([sys/socket.h])
@@ -194,6 +195,9 @@ AC_CHECK_HEADERS([net/if.h], [], [],
 dnl If any socket libraries needed
 AC_SEARCH_LIBS(setsockopt, socket)
 AC_SEARCH_LIBS(gethostbyname, nsl)
+
+dnl Check IPv6 raw sending flavor.
+CHECK_IPV6_IPPROTO_RAW
 
 NDIFFDIR=ndiff
 

@@ -382,8 +382,12 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
     return false;
 
   /* There are no restrictions on non-root scans. */
-  if (!(o.af() == AF_INET && o.isr00t && target->deviceName() != NULL))
+  if (!(o.isr00t && target->deviceName() != NULL))
     return false;
+
+  /* Different address family? */
+  if (hs->hostbatch[0]->af() != target->af())
+    return true;
 
   /* Different interface name? */
   if (hs->hostbatch[0]->deviceName() != NULL &&
@@ -392,7 +396,7 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   }
 
   /* Different source address? */
-  if (hs->hostbatch[0]->v4source().s_addr != target->v4source().s_addr)
+  if (sockaddr_storage_cmp(hs->hostbatch[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
     return true;
 
   /* Different direct connectedness? */
@@ -404,7 +408,7 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
      replies. What happens is one target gets the replies for all probes
      referring to the same IP address. */
   for (i = 0; i < hs->current_batch_sz; i++) {
-    if (hs->hostbatch[0]->v4host().s_addr == target->v4host().s_addr)
+    if (sockaddr_storage_cmp(hs->hostbatch[0]->TargetSockAddr(), target->TargetSockAddr()) == 0)
       return true;
   }
 
@@ -453,7 +457,7 @@ Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
          2) We are doing tcp or udp pingscan OR
          3) We are doing a raw-mode portscan or osscan or traceroute OR
          4) We are on windows and doing ICMP ping */
-      if (o.isr00t && o.af() == AF_INET && 
+      if (o.isr00t && 
           ((pingtype & (PINGTYPE_TCP|PINGTYPE_UDP|PINGTYPE_SCTP_INIT|PINGTYPE_PROTO|PINGTYPE_ARP)) || o.RawScan()
 #ifdef WIN32
            || (pingtype & (PINGTYPE_ICMP_PING|PINGTYPE_ICMP_MASK|PINGTYPE_ICMP_TS))
@@ -520,6 +524,7 @@ batchfull:
      directly connected over ethernet.  I may need the MAC addresses
      later anyway. */
   if (hs->hostbatch[0]->ifType() == devt_ethernet && 
+      hs->hostbatch[0]->af() == AF_INET &&
       hs->hostbatch[0]->directlyConnected() && 
       o.sendpref != PACKET_SEND_IP_STRONG) {
     arpping(hs->hostbatch, hs->current_batch_sz);

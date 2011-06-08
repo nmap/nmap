@@ -934,7 +934,7 @@ HostOsScan::HostOsScan(Target *t) {
   } else {
     /* Init our raw socket */
 #ifdef WIN32
-    win32_warn_raw_sockets(t->deviceName());
+    win32_fatal_raw_sockets(t->deviceName());
 #endif
     if ((rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0 )
       pfatal("socket troubles in %s", __func__);
@@ -3253,7 +3253,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
 
   struct ip *ip = NULL;
   struct link_header linkhdr;
-  struct sockaddr_in sin;
+  struct sockaddr_storage ss;
   unsigned int bytes;
   struct timeval rcvdtime;
   
@@ -3367,12 +3367,12 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(bytes < (4 * ip->ip_hl) + 4U)
         continue;
 
-      memset(&sin, 0, sizeof(sin));
-      sin.sin_addr.s_addr = ip->ip_src.s_addr;
-      sin.sin_family = AF_INET;
-      hsi = OSI->findIncompleteHost((struct sockaddr_storage *) &sin);
+      memset(&ss, 0, sizeof(ss));
+      ((struct sockaddr_in *) &ss)->sin_addr.s_addr = ip->ip_src.s_addr;
+      ss.ss_family = AF_INET;
+      hsi = OSI->findIncompleteHost(&ss);
       if (!hsi) continue; /* Not from one of our targets. */
-      setTargetMACIfAvailable(hsi->target, &linkhdr, ip, 0);
+      setTargetMACIfAvailable(hsi->target, &linkhdr, &ss, 0);
       
       goodResponse = HOS->processResp(hsi->hss, ip, bytes, &rcvdtime);
       
@@ -3417,7 +3417,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
 
   struct ip *ip = NULL;
   struct link_header linkhdr;
-  struct sockaddr_in sin;
+  struct sockaddr_storage ss;
   unsigned int bytes;
   struct timeval rcvdtime;
   
@@ -3536,12 +3536,12 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(bytes < (4 * ip->ip_hl) + 4U)
         continue;
 
-      memset(&sin, 0, sizeof(sin));
-      sin.sin_addr.s_addr = ip->ip_src.s_addr;
-      sin.sin_family = AF_INET;
-      hsi = OSI->findIncompleteHost((struct sockaddr_storage *) &sin);
+      memset(&ss, 0, sizeof(ss));
+      ((struct sockaddr_in *) &ss)->sin_addr.s_addr = ip->ip_src.s_addr;
+      ss.ss_family = AF_INET;
+      hsi = OSI->findIncompleteHost(&ss);
       if (!hsi) continue; /* Not from one of our targets. */
-      setTargetMACIfAvailable(hsi->target, &linkhdr, ip, 0);
+      setTargetMACIfAvailable(hsi->target, &linkhdr, &ss, 0);
       
       goodResponse = HOS->processResp(hsi->hss, ip, bytes, &rcvdtime);
       

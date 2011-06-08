@@ -284,7 +284,7 @@ public:
   void resend(int rawsd, eth_t *ethsd, struct timeval *now = NULL);
   bool is_timedout(struct timeval *now = NULL) const;
   bool may_resend() const;
-  virtual unsigned char *build_packet(const struct in_addr *source,
+  virtual unsigned char *build_packet(const struct sockaddr_storage *source,
     u32 *len) const = 0;
 
   static Probe *make(HostState *host, struct probespec pspec, u8 ttl);
@@ -550,13 +550,9 @@ struct probespec HostState::get_probe(const Target *target) {
   struct probespec probe;
 
   probe = target->pingprobe;
-  if (probe.type == PS_NONE || probe.type == PS_ARP) {
-    /* No responsive probe known? The user probably skipped both ping and
-       port scan. Guess ICMP echo as the most likely to get a response. */
-    probe.type = PS_ICMP;
-    probe.proto = IPPROTO_ICMP;
-    probe.pd.icmp.type = ICMP_ECHO;
-    probe.pd.icmp.code = 0;
+  if (probe.type == PS_TCP || probe.type == PS_UDP || probe.type == PS_ICMP ||
+      probe.type == PS_SCTP || probe.type == PS_ICMPV6) {
+    /* Nothing needed. */
   } else if (probe.type == PS_PROTO) {
     /* If this is an IP protocol probe, fill in some fields for some common
        protocols. We cheat and store them in the TCP-, UDP-, SCTP- and
@@ -570,6 +566,22 @@ struct probespec HostState::get_probe(const Target *target) {
       probe.pd.sctp.dport = get_random_u16();
     } else if (probe.proto == IPPROTO_ICMP) {
       probe.pd.icmp.type = ICMP_ECHO;
+    }
+  } else {
+    /* No responsive probe known? The user probably skipped both ping and
+       port scan. Guess ICMP echo as the most likely to get a response. */
+    if (target->af() == AF_INET) {
+      probe.type = PS_ICMP;
+      probe.proto = IPPROTO_ICMP;
+      probe.pd.icmp.type = ICMP_ECHO;
+      probe.pd.icmp.code = 0;
+    } else if (target->af() == AF_INET6) {
+      probe.type = PS_ICMPV6;
+      probe.proto = IPPROTO_ICMPV6;
+      probe.pd.icmp.type = ICMPV6_ECHO;
+      probe.pd.icmp.code = 0;
+    } else {
+      fatal("Unknown address family %d", target->af());
     }
   }
 
@@ -606,18 +618,29 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
   }
 
   for (decoy = 0; decoy < o.numdecoys; decoy++) {
-    const struct in_addr *source;
+    struct sockaddr_storage source;
+    size_t source_len;
     unsigned char *packet;
     u32 packetlen;
 
     if (decoy == o.decoyturn) {
-      source = host->target->v4sourceip();
+      source_len = sizeof(source);
+      host->target->SourceSockAddr(&source, &source_len);
       sent_time = get_now(now);
     } else {
-      source = &o.decoys[decoy];
+      if (o.af() == AF_INET) {
+        struct sockaddr_in *sin;
+
+        sin = (struct sockaddr_in *) &source;
+        sin->sin_family = AF_INET;
+        sin->sin_addr = o.decoys[decoy];
+      } else {
+        /* Decoys are IPv4-only. */
+        continue;
+      }
     }
 
-    packet = this->build_packet(source, &packetlen);
+    packet = this->build_packet(&source, &packetlen);
     send_ip_packet(rawsd, ethp, packet, packetlen);
     free(packet);
   }
@@ -650,8 +673,11 @@ public:
   : Probe(host, pspec, ttl) {
   }
 
-  unsigned char *build_packet(const struct in_addr *source, u32 *len) const {
-    return build_icmp_raw(source, host->target->v4hostip(), ttl,
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
+    const struct sockaddr_in *sin;
+    assert(source->ss_family == AF_INET);
+    sin = (struct sockaddr_in *) source;
+    return build_icmp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
       0x0000, 0x00, false, NULL, 0, token, global_id,
       pspec.pd.icmp.type, pspec.pd.icmp.code,
       o.extra_payload, o.extra_payload_length, len);
@@ -664,7 +690,7 @@ public:
   TCPProbe(HostState *host, struct probespec pspec, u8 ttl)
   : Probe(host, pspec, ttl) {
   }
-  unsigned char *build_packet(const struct in_addr *source, u32 *len) const {
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
     const char *tcpopts;
     int tcpoptslen;
     u32 ack;
@@ -681,11 +707,23 @@ public:
     }
 
     /* For TCP we encode the token in the source port. */
-    return build_tcp_raw(source, host->target->v4hostip(), ttl,
-      get_random_u16(), get_random_u8(), false, NULL, 0,
-      token ^ global_id, pspec.pd.tcp.dport, get_random_u32(), ack, 0x00,
-      pspec.pd.tcp.flags, get_random_u16(), 0, (const u8 *) tcpopts, tcpoptslen,
-      o.extra_payload, o.extra_payload_length, len);
+    if (source->ss_family == AF_INET) {
+      const struct sockaddr_in *sin = (struct sockaddr_in *) source;
+      return build_tcp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
+        get_random_u16(), get_random_u8(), false, NULL, 0,
+        token ^ global_id, pspec.pd.tcp.dport, get_random_u32(), ack, 0x00,
+        pspec.pd.tcp.flags, get_random_u16(), 0, (const u8 *) tcpopts, tcpoptslen,
+        o.extra_payload, o.extra_payload_length, len);
+    } else if (source->ss_family == AF_INET6) {
+      const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) source;
+      return build_tcp_raw_ipv6(&sin6->sin6_addr, host->target->v6hostip(),
+        0, 0, ttl,
+        token ^ global_id, pspec.pd.tcp.dport, get_random_u32(), ack, 0x00,
+        pspec.pd.tcp.flags, get_random_u16(), 0, (const u8 *) tcpopts, tcpoptslen,
+        o.extra_payload, o.extra_payload_length, len);
+    } else {
+      fatal("Unknown address family %u in %s.", source->ss_family, __func__);
+    }
   }
 };
 
@@ -695,14 +733,18 @@ public:
   UDPProbe(HostState *host, struct probespec pspec, u8 ttl)
   : Probe(host, pspec, ttl) {
   }
-  unsigned char *build_packet(const struct in_addr *source, u32 *len) const {
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
     const char *payload;
     size_t payload_length;
+    const struct sockaddr_in *sin;
+
+    assert(source->ss_family == AF_INET);
+    sin = (struct sockaddr_in *) source;
 
     payload = get_udp_payload(pspec.pd.udp.dport, &payload_length);
 
     /* For UDP we encode the token in the source port. */
-    return build_udp_raw(source, host->target->v4hostip(), ttl,
+    return build_udp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
       get_random_u16(), get_random_u8(), false, NULL, 0,
       token ^ global_id, pspec.pd.udp.dport,
       payload, payload_length, len);
@@ -715,12 +757,16 @@ public:
   SCTPProbe(HostState *host, struct probespec pspec, u8 ttl)
   : Probe(host, pspec, ttl) {
   }
-  unsigned char *build_packet(const struct in_addr *source, u32 *len) const {
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
     struct sctp_chunkhdr_init chunk;
+    const struct sockaddr_in *sin;
+
+    assert(source->ss_family == AF_INET);
+    sin = (struct sockaddr_in *) source;
 
     sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0, sizeof(chunk),
       get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
-    return build_sctp_raw(source, host->target->v4hostip(), ttl,
+    return build_sctp_raw(&sin->sin_addr, host->target->v4hostip(), ttl,
       get_random_u16(), get_random_u8(), false, NULL, 0,
       token ^ global_id, pspec.pd.sctp.dport, 0UL,
       (char *) &chunk, sizeof(chunk),
@@ -734,10 +780,30 @@ public:
   IPProtoProbe(HostState *host, struct probespec pspec, u8 ttl)
   : Probe(host, pspec, ttl) {
   }
-  unsigned char *build_packet(const struct in_addr *source, u32 *len) const {
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
+    const struct sockaddr_in *sin;
+    assert(source->ss_family == AF_INET);
+    sin = (struct sockaddr_in *) source;
     /* For IP proto scan the token is put in the IP ID. */
-    return build_ip_raw(source, host->target->v4hostip(), pspec.proto, ttl,
+    return build_ip_raw(&sin->sin_addr, host->target->v4hostip(), pspec.proto, ttl,
       token ^ global_id, get_random_u8(), false, NULL, 0,
+      o.extra_payload, o.extra_payload_length, len);
+  }
+};
+
+class ICMPv6Probe : public Probe
+{
+public:
+  ICMPv6Probe(HostState *host, struct probespec pspec, u8 ttl)
+  : Probe(host, pspec, ttl) {
+  }
+
+  unsigned char *build_packet(const struct sockaddr_storage *source, u32 *len) const {
+    const struct sockaddr_in6 *sin6;
+    assert(source->ss_family == AF_INET6);
+    sin6 = (struct sockaddr_in6 *) source;
+    return build_icmpv6_raw(&sin6->sin6_addr, host->target->v6hostip(), 0x00, 0x0000,
+      ttl, token, global_id, pspec.pd.icmp.type, pspec.pd.icmp.code,
       o.extra_payload, o.extra_payload_length, len);
   }
 };
@@ -754,6 +820,8 @@ Probe *Probe::make(HostState *host, struct probespec pspec, u8 ttl)
     return new SCTPProbe(host, pspec, ttl);
   else if (pspec.type == PS_PROTO)
     return new IPProtoProbe(host, pspec, ttl);
+  else if (pspec.type == PS_ICMPV6)
+    return new ICMPv6Probe(host, pspec, ttl);
   else
     fatal("Unknown probespec type in traceroute");
 
@@ -776,7 +844,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
     rawsd = -1;
   } else {
 #ifdef WIN32
-    win32_warn_raw_sockets(targets[0]->deviceName());
+    win32_fatal_raw_sockets(targets[0]->deviceName());
 #endif
     rawsd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
     if (rawsd == -1)
@@ -793,7 +861,7 @@ TracerouteState::TracerouteState(std::vector<Target *> &targets) {
     fatal("%s", PCAP_OPEN_ERRMSG);
   sslen = sizeof(srcaddr);
   targets[0]->SourceSockAddr(&srcaddr, &sslen);
-  n = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s",
+  n = Snprintf(pcap_filter, sizeof(pcap_filter), "(ip or ip6) and dst host %s",
     ss_to_string(&srcaddr));
   assert(n < (int) sizeof(pcap_filter));
   set_pcap_filter(targets[0]->deviceFullName(), pd, pcap_filter);
@@ -1024,113 +1092,81 @@ struct Reply {
   u16 token;
 };
 
-static const void *ip_get_data(const struct ip *ip, unsigned int *len)
-{
-  unsigned int header_len;
+static bool parse_encapsulated_reply(const void *ip, unsigned len, Reply *reply) {
+  struct abstract_ip_hdr hdr;
+  const void *data;
 
-  header_len = ip->ip_hl * 4;
-  if (header_len > *len)
-    return NULL;
-  *len -= header_len;
+  data = ip_get_data(ip, &len, &hdr);
+  if (data == NULL)
+    return false;
 
-  return (char *) ip + header_len;
-}
-
-static const void *icmp_get_data(const struct icmp *icmp, unsigned int *len)
-{
-  unsigned int header_len;
-
-  if (icmp->icmp_type == ICMP_TIMEXCEED || icmp->icmp_type == ICMP_UNREACH)
-    header_len = 8;
-  else
-    fatal("%s passed ICMP packet with unhandled type %d", __func__, icmp->icmp_type);
-  if (header_len > *len)
-    return NULL;
-  *len -= header_len;
-
-  return (char *) icmp + header_len;
-}
-
-static bool parse_encapsulated_reply(const struct ip *ip, unsigned int len,
-  Reply *reply) {
-  sockaddr_in *addr_in;
-
-  if (ip->ip_p == IPPROTO_ICMP) {
-    const struct icmp *icmp = (struct icmp *) ip_get_data(ip, &len);
-    if (icmp == NULL || len < 8 || ntohs(icmp->icmp_id) != global_id)
+  if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
+    const struct icmp *icmp = (const struct icmp *) data;
+    if (len < 8 || ntohs(icmp->icmp_id) != global_id)
       return false;
     reply->token = ntohs(icmp->icmp_seq);
-  } else if (ip->ip_p == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp = (struct tcp_hdr *) ip_get_data(ip, &len);
-    if (tcp == NULL || len < 2)
+  } else if (hdr.version == 6 && hdr.proto == IPPROTO_ICMPV6) {
+    const struct icmpv6_msg_echo *echo = (struct icmpv6_msg_echo *) ((char *) data + sizeof(struct icmpv6_hdr));
+    if (len < 8 || ntohs(echo->icmpv6_id) != global_id)
+      return false;
+    reply->token = ntohs(echo->icmpv6_seq);
+  } else if (hdr.proto == IPPROTO_TCP) {
+    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
+    if (len < 2)
       return false;
     reply->token = ntohs(tcp->th_sport) ^ global_id;
-  } else if (ip->ip_p == IPPROTO_UDP) {
-    const struct udp_hdr *udp = (struct udp_hdr *) ip_get_data(ip, &len);
-    if (udp == NULL || len < 2)
+  } else if (hdr.proto == IPPROTO_UDP) {
+    const struct udp_hdr *udp = (const struct udp_hdr *) data;
+    if (len < 2)
       return false;
     reply->token = ntohs(udp->uh_sport) ^ global_id;
-  } else if (ip->ip_p == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp = (struct sctp_hdr *) ip_get_data(ip, &len);
-    if (sctp == NULL || len < 2)
+  } else if (hdr.proto == IPPROTO_SCTP) {
+    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
+    if (len < 2)
       return false;
     reply->token = ntohs(sctp->sh_sport) ^ global_id;
   } else {
     if (len < 6)
       return false;
     /* Check IP ID for proto scan. */
-    reply->token = ntohs(ip->ip_id) ^ global_id;
+    reply->token = hdr.ipid ^ global_id;
   }
 
-  addr_in = (struct sockaddr_in *) &reply->target_addr;
-  addr_in->sin_family = AF_INET;
-  addr_in->sin_addr = ip->ip_dst;
+  reply->target_addr = hdr.dst;
 
   return true;
 }
 
-static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
-  const struct ip *ip;
-  unsigned int iplen;
-  struct link_header linkhdr;
-  sockaddr_in *addr_in;
+static bool decode_reply(const void *ip, unsigned int len, Reply *reply) {
+  struct abstract_ip_hdr hdr;
+  const void *data;
 
-  ip = (struct ip *) readip_pcap(pd, &iplen, timeout, &reply->rcvdtime,
-    &linkhdr, true);
-  if (ip == NULL)
-    return false;
-  if (ip->ip_v != 4)
+  data = ip_get_data(ip, &len, &hdr);
+  if (data == NULL)
     return false;
 
-  addr_in = (struct sockaddr_in *) &reply->from_addr;
-  addr_in->sin_family = AF_INET;
-  addr_in->sin_addr = ip->ip_src;
+  reply->from_addr = hdr.src;
 
-  reply->ttl = ip->ip_ttl;
-
-  if (ip->ip_p == IPPROTO_ICMP) {
+  if (hdr.version == 4 && hdr.proto == IPPROTO_ICMP) {
     /* ICMP responses comprise all the TTL exceeded messages we expect from all
        probe types, as well as actual replies from ICMP probes. */
-    const struct icmp *icmp;
-    unsigned int icmplen;
-
-    icmplen = iplen;
-    icmp = (struct icmp *) ip_get_data(ip, &icmplen);
-    if (icmp == NULL || icmplen < 8)
+    const struct icmp_hdr *icmp = (const struct icmp_hdr *) data;
+    if (len < 8)
       return false;
     if ((icmp->icmp_type == ICMP_TIMEXCEED
          && icmp->icmp_code == ICMP_TIMEXCEED_INTRANS)
         || icmp->icmp_type == ICMP_UNREACH) {
-      /* Get the encapsulated ICMP packet. */
-      iplen = icmplen;
-      ip = (struct ip *) icmp_get_data(icmp, &iplen);
-      if (ip == NULL || ip->ip_v != 4 || iplen < 20)
+      /* Get the encapsulated IP packet. */
+      const void *encaps = icmp_get_data(icmp, &len);
+      if (encaps == NULL)
         return false;
-      if (!parse_encapsulated_reply(ip, iplen, reply))
-        return false;
+      return parse_encapsulated_reply(encaps, len, reply);
     } else if (icmp->icmp_type == ICMP_ECHOREPLY
                || icmp->icmp_type == ICMP_MASKREPLY
                || icmp->icmp_type == ICMP_TSTAMPREPLY) {
+      /* Need this alternate form of header for icmp_id and icmp_seq. */
+      const struct icmp *icmp = (const struct icmp *) data;
+
       if (ntohs(icmp->icmp_id) != global_id)
         return false;
       reply->token = ntohs(icmp->icmp_seq);
@@ -1139,33 +1175,51 @@ static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
     } else {
       return false;
     }
-  } else if (ip->ip_p == IPPROTO_TCP) {
-    const struct tcp_hdr *tcp;
-    unsigned int tcplen;
+  } else if (hdr.version == 6 && hdr.proto == IP_PROTO_ICMPV6) {
+    /* ICMPv6 responses comprise all the TTL exceeded messages we expect from
+       all probe types, as well as actual replies from ICMP probes. */
+    const struct icmpv6_hdr *icmpv6 = (const struct icmpv6_hdr *) data;
+    if (len < 2)
+      return false;
+    /* TIMEXCEED, UNREACH */
+    if ((icmpv6->icmpv6_type == ICMPV6_TIMEXCEED
+         && icmpv6->icmpv6_code == ICMPV6_TIMEXCEED_INTRANS)
+        || icmpv6->icmpv6_type == ICMPV6_UNREACH) {
+      /* Get the encapsulated IP packet. */
+      const void *encaps = icmpv6_get_data(icmpv6, &len);
+      if (encaps == NULL)
+        return false;
+      return parse_encapsulated_reply(encaps, len, reply);
+    } else if (icmpv6->icmpv6_type == ICMPV6_ECHOREPLY) {
+      /* MASKREPLY, TSTAMPREPLY */
+      const struct icmpv6_msg_echo *echo;
 
-    tcplen = iplen;
-    tcp = (struct tcp_hdr *) ip_get_data(ip, &tcplen);
-    if (tcp == NULL || tcplen < 4)
+      if (len < sizeof(*icmpv6) + 4)
+	return false;
+      echo = (struct icmpv6_msg_echo *) ((char *) icmpv6 + sizeof(*icmpv6));
+      if (ntohs(echo->icmpv6_id) != global_id)
+        return false;
+      reply->token = ntohs(echo->icmpv6_seq);
+      /* Reply came directly from the target. */
+      reply->target_addr = reply->from_addr;
+    } else {
+      return false;
+    }
+  } else if (hdr.proto == IPPROTO_TCP) {
+    const struct tcp_hdr *tcp = (const struct tcp_hdr *) data;
+    if (len < 4)
       return false;
     reply->token = ntohs(tcp->th_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
-  } else if (ip->ip_p == IPPROTO_UDP) {
-    const struct udp_hdr *udp;
-    unsigned int udplen;
-
-    udplen = iplen;
-    udp = (struct udp_hdr *) ip_get_data(ip, &udplen);
-    if (udp == NULL || udplen < 4)
+  } else if (hdr.proto == IPPROTO_UDP) {
+    const struct udp_hdr *udp = (const struct udp_hdr *) data;
+    if (len < 4)
       return false;
     reply->token = ntohs(udp->uh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
-  } else if (ip->ip_p == IPPROTO_SCTP) {
-    const struct sctp_hdr *sctp;
-    unsigned int sctplen;
-
-    sctplen = iplen;
-    sctp = (struct sctp_hdr *) ip_get_data(ip, &sctplen);
-    if (sctp == NULL || sctplen < 4)
+  } else if (hdr.proto == IPPROTO_SCTP) {
+    const struct sctp_hdr *sctp = (const struct sctp_hdr *) data;
+    if (len < 4)
       return false;
     reply->token = ntohs(sctp->sh_dport) ^ global_id;
     reply->target_addr = reply->from_addr;
@@ -1174,6 +1228,20 @@ static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   }
 
   return true;
+}
+
+static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
+  const struct ip *ip;
+  unsigned int iplen;
+  struct link_header linkhdr;
+
+  ip = (struct ip *) readip46_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
+  if (ip == NULL)
+    return false;
+  if (ip->ip_v == 4 || ip->ip_v == 6)
+    return decode_reply(ip, iplen, reply);
+  else
+    return false;
 }
 
 void TracerouteState::read_replies(long timeout) {
@@ -1265,12 +1333,19 @@ void TracerouteState::remove_finished_hosts() {
   }
 }
 
+/* Dummy class to use sockaddr_storage as a map key. */
+struct lt_sockaddr_storage {
+  bool operator()(const struct sockaddr_storage& a, const struct sockaddr_storage& b) {
+    return sockaddr_storage_cmp(&a, &b) < 0;
+  }
+};
+
 /* Find the reverse-DNS names of the hops. */
 void TracerouteState::resolve_hops() {
-  std::set<uint32_t> addrs;
-  std::set<uint32_t>::iterator addr_iter;
+  std::set<sockaddr_storage, lt_sockaddr_storage> addrs;
+  std::set<sockaddr_storage, lt_sockaddr_storage>::iterator addr_iter;
   std::vector<HostState *>::iterator host_iter;
-  std::map<uint32_t, const char *> name_map;
+  std::map<sockaddr_storage, const char *, lt_sockaddr_storage> name_map;
   Target **targets;
   Hop *hop;
   int i, n;
@@ -1280,9 +1355,8 @@ void TracerouteState::resolve_hops() {
      inefficient. */
   for (host_iter = hosts.begin(); host_iter != hosts.end(); host_iter++) {
     for (hop = (*host_iter)->hops; hop != NULL; hop = hop->parent) {
-      struct sockaddr_in *sin = (struct sockaddr_in *) &hop->addr;
-      if (hop->addr.ss_family == AF_INET)
-        addrs.insert(sin->sin_addr.s_addr);
+      if (hop->addr.ss_family != AF_UNSPEC)
+        addrs.insert(hop->addr);
     }
   }
   n = addrs.size();
@@ -1292,11 +1366,8 @@ void TracerouteState::resolve_hops() {
   i = 0;
   addr_iter = addrs.begin();
   while (i < n) {
-    struct sockaddr_in sin;
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = *addr_iter;
     targets[i] = new Target();
-    targets[i]->setTargetSockAddr((struct sockaddr_storage *) &sin, sizeof(sin));
+    targets[i]->setTargetSockAddr(&*addr_iter, sizeof(*addr_iter));
     targets[i]->flags = HOST_UP;
     i++;
     addr_iter++;
@@ -1304,17 +1375,20 @@ void TracerouteState::resolve_hops() {
   nmap_mass_rdns(targets, n);
   /* Third, make a map from addresses to names for easy lookup. */
   for (i = 0; i < n; i++) {
+    struct sockaddr_storage ss;
+    size_t ss_len;
     const char *hostname = targets[i]->HostName();
     if (*hostname == '\0')
       hostname = NULL;
-    name_map[targets[i]->v4hostip()->s_addr] = hostname;
+    ss_len = sizeof(ss);
+    targets[i]->TargetSockAddr(&ss, &ss_len);
+    name_map[ss] = hostname;
   }
   /* Finally, copy the names into the hops. */
   for (host_iter = hosts.begin(); host_iter != hosts.end(); host_iter++) {
     for (hop = (*host_iter)->hops; hop != NULL; hop = hop->parent) {
-      struct sockaddr_in *sin = (struct sockaddr_in *) &hop->addr;
-      if (hop->addr.ss_family == AF_INET) {
-        const char *hostname = name_map[sin->sin_addr.s_addr];
+      if (hop->addr.ss_family != AF_UNSPEC) {
+        const char *hostname = name_map[hop->addr];
         if (hostname != NULL)
           hop->hostname = hostname;
       }

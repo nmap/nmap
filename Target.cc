@@ -195,6 +195,11 @@ void Target::GenerateIPString() {
   }
 }
 
+/* Returns the address family of the destination address. */
+int Target::af() const {
+  return targetsock.ss_family;
+}
+
 /* Fills a sockaddr_storage with the AF_INET or AF_INET6 address
      information of the target.  This is a preferred way to get the
      address since it is portable for IPv6 hosts.  Returns 0 for
@@ -209,6 +214,10 @@ int Target::TargetSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   memcpy(ss, &targetsock, targetsocklen);
   *ss_len = targetsocklen;
   return 0;
+}
+
+const struct sockaddr_storage *Target::TargetSockAddr() const {
+  return &targetsock;
 }
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted
@@ -247,6 +256,14 @@ const struct in_addr *Target::v4hostip() const {
   return NULL;
 }
 
+const struct in6_addr *Target::v6hostip() const {
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &targetsock;
+  if (sin6->sin6_family == AF_INET6) {
+    return &(sin6->sin6_addr);
+  }
+  return NULL;
+}
+
  /* The source address used to reach the target */
 int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   if (sourcesocklen <= 0)
@@ -257,6 +274,10 @@ int Target::SourceSockAddr(struct sockaddr_storage *ss, size_t *ss_len) const {
   if (ss_len)
     *ss_len = sourcesocklen;
   return 0;
+}
+
+const struct sockaddr_storage *Target::SourceSockAddr() const {
+  return &sourcesock;
 }
 
 /* Note that it is OK to pass in a sockaddr_in or sockaddr_in6 casted

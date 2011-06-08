@@ -240,7 +240,7 @@ class PortList {
   Port *nextPort(const Port *cur, Port *next,
                  int allowed_protocol, int allowed_state);
 
-  int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr);
+  int setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, const struct sockaddr_storage *ip_addr);
 
   int numscriptresults; /* Total number of scripts which produced output */
 

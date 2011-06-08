@@ -471,7 +471,7 @@ static int l_set_port_state (lua_State *L)
         target->ports.setPortState(p->portno, p->proto, PORT_CLOSED);
         break;
     }
-    target->ports.setStateReason(p->portno, p->proto, ER_SCRIPT, 0, 0);
+    target->ports.setStateReason(p->portno, p->proto, ER_SCRIPT, 0, NULL);
   }
   return 0;
 }

@@ -545,7 +545,7 @@ void PortList::setPortState(u16 portno, u8 protocol, int state) {
   state_counts_proto[proto][state]++;
 
   if(state == PORT_FILTERED || state == PORT_OPENFILTERED)
-  	setStateReason(portno, protocol, ER_NORESPONSE, 0, 0);
+    setStateReason(portno, protocol, ER_NORESPONSE, 0, NULL);
   return;
 }
 
@@ -894,14 +894,18 @@ bool PortList::hasOpenPorts() const {
     getStateCounts(PORT_UNFILTERED) != 0;
 }
 
-int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl, u32 ip_addr) {
+int PortList::setStateReason(u16 portno, u8 proto, reason_t reason, u8 ttl,
+  const struct sockaddr_storage *ip_addr) {
     Port *answer = NULL;
 
     answer = createPort(portno, proto);
 
     /* set new reason and increment its count */
     answer->reason.reason_id = reason;
-    answer->reason.ip_addr.s_addr = ip_addr;
+    if (ip_addr == NULL)
+      answer->reason.ip_addr.ss_family = AF_UNSPEC;
+    else
+      answer->reason.ip_addr = *ip_addr;
 	answer->reason.ttl = ttl;
     return 0;
 }
