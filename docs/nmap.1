@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 05/17/2011
+.\"      Date: 06/07/2011
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "05/17/2011" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "06/07/2011" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -126,7 +126,7 @@ This options summary is printed when Nmap is run with no arguments, and the late
 .RS 4
 .\}
 .nf
-Nmap 5\&.51SVN ( http://nmap\&.org )
+Nmap 5\&.52\&.IPv6\&.Beta2 ( http://nmap\&.org )
 Usage: nmap [Scan Type(s)] [Options] {target specification}
 TARGET SPECIFICATION:
   Can pass hostnames, IP addresses, networks, etc\&.
@@ -447,7 +447,7 @@ whereby the
 \fBconnect\fR
 system call is initiated against each target port\&. This has the effect of sending a SYN packet to the target host, in an attempt to establish a connection\&. If
 \fBconnect\fR
-returns with a quick success or an ECONNREFUSED failure, the underlying TCP stack must have received a SYN/ACK or RST and the host is marked available\&. If the connection attempt is left hanging until a timeout is reached, the host is marked as down\&. This workaround is also used for IPv6 connections, as raw IPv6 packet building support is not yet available in Nmap\&..\" IPv6: limitations of
+returns with a quick success or an ECONNREFUSED failure, the underlying TCP stack must have received a SYN/ACK or RST and the host is marked available\&. If the connection attempt is left hanging until a timeout is reached, the host is marked as down\&.
 .RE
 .PP
 \fB\-PA \fR\fB\fIport list\fR\fR (TCP ACK Ping) .\" -PA .\" ACK ping
@@ -456,7 +456,7 @@ The TCP ACK ping is quite similar to the just\-discussed SYN ping\&. The differe
 .sp
 The
 \fB\-PA\fR
-option uses the same default port as the SYN probe (80) and can also take a list of destination ports in the same format\&. If an unprivileged user tries this, or an IPv6 target is specified, the
+option uses the same default port as the SYN probe (80) and can also take a list of destination ports in the same format\&. If an unprivileged user tries this, the
 \fBconnect\fR
 workaround discussed previously is used\&. This workaround is imperfect because
 \fBconnect\fR
@@ -526,7 +526,6 @@ On Unix boxes, only the privileged user
 root.\" privileged users
 is generally able to send and receive raw SCTP packets\&..\" raw packets
 Using SCTP INIT Pings is currently not possible for unprivileged users\&..\" unprivileged users: limitations of
-The same limitation applies to IPv6, which is currently not supported for SCTP INIT Ping\&..\" IPv6: limitations of
 .RE
 .PP
 \fB\-PE\fR; \fB\-PP\fR; \fB\-PM\fR (ICMP Ping Types) .\" -PE .\" -PP .\" -PM .\" ICMP ping
@@ -681,7 +680,7 @@ This section documents the dozen or so port scan techniques supported by Nmap\&.
 \fB\-sZ\fR) may be combined with any one of the TCP scan types\&. As a memory aid, port scan type options are of the form
 \fB\-s\fR\fB\fIC\fR\fR, where
 \fIC\fR
-is a prominent character in the scan name, usually the first\&. The one exception to this is the deprecated FTP bounce scan (\fB\-b\fR)\&. By default, Nmap performs a SYN Scan, though it substitutes a connect scan if the user does not have proper privileges to send raw packets (requires root access on Unix) or if IPv6 targets were specified\&. Of the scans listed in this section, unprivileged users can only execute connect and FTP bounce scans\&.
+is a prominent character in the scan name, usually the first\&. The one exception to this is the deprecated FTP bounce scan (\fB\-b\fR)\&. By default, Nmap performs a SYN Scan, though it substitutes a connect scan if the user does not have proper privileges to send raw packets (requires root access on Unix)\&. Of the scans listed in this section, unprivileged users can only execute connect and FTP bounce scans\&.
 .PP
 \fB\-sS\fR (TCP SYN scan) .\" -sS .\" SYN scan
 .RS 4
@@ -697,7 +696,7 @@ This technique is often referred to as half\-open scanning, because you don\*(Aq
 .PP
 \fB\-sT\fR (TCP connect scan) .\" -sT .\" connect scan
 .RS 4
-TCP connect scan is the default TCP scan type when SYN scan is not an option\&. This is the case when a user does not have raw packet privileges or is scanning IPv6 networks\&. Instead of writing raw packets as most other scan types do, Nmap asks the underlying operating system to establish a connection with the target machine and port by issuing the
+TCP connect scan is the default TCP scan type when SYN scan is not an option\&. This is the case when a user does not have raw packet privileges\&. Instead of writing raw packets as most other scan types do, Nmap asks the underlying operating system to establish a connection with the target machine and port by issuing the
 \fBconnect\fR
 system call\&. This is the same high\-level system call that web browsers, P2P clients, and most other network\-enabled applications use to establish a connection\&. It is part of a programming interface known as the Berkeley Sockets API\&. Rather than read raw packet responses off the wire, Nmap uses this API to obtain status information on each connection attempt\&.
 .sp
@@ -2132,7 +2131,7 @@ This section describes some important (and not\-so\-important) options that don\
 .PP
 \fB\-6\fR (Enable IPv6 scanning) .\" -6 .\" IPv6
 .RS 4
-Since 2002, Nmap has offered IPv6 support for its most popular features\&. In particular, ping scanning (TCP\-only), connect scanning, version detection, and the Nmap Scripting Engine all support IPv6\&. The command syntax is the same as usual except that you also add the
+Nmap has IPv6 support for its most popular features\&. Ping scanning, port scanning, version detection, and the Nmap Scripting Engine all support IPv6\&. The command syntax is the same as usual except that you also add the
 \fB\-6\fR
 option\&. Of course, you must use IPv6 syntax if you specify an address rather than a hostname\&. An address might look like
 3ffe:7501:4819:2000:210:f3ff:fe03:14d0, so hostnames are recommended\&. The output looks the same as usual, with the IPv6 address on the
@@ -2143,6 +2142,11 @@ While IPv6 hasn\*(Aqt exactly taken the world by storm, it gets significant use 
 service at
 \m[blue]\fB\%http://www.tunnelbroker.net\fR\m[]\&. Other tunnel brokers are
 \m[blue]\fBlisted at Wikipedia\fR\m[]\&\s-2\u[18]\d\s+2\&. 6to4 tunnels are another popular, free approach\&.
+.sp
+On Windows, raw\-socket IPv6 scans are supported only on ethernet devices (not tunnels), and only on Windows Vista.\" Windows Vista
+and later\&. Use the
+\fB\-\-unprivileged\fR.\" --unprivileged
+option in other situations\&.
 .RE
 .PP
 \fB\-A\fR (Aggressive scan options) .\" -A
