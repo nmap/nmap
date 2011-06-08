@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added support for raw-packet IPv6 scans (SYN, UDP, ICMP, etc.) and
+  traceroute. [David, Weilin]
+
 o [Zenmap] Fixed endpoints which were behind firewalls during a traceroute being
   attached to the wrong spot on the topology map. [Colin Rice]
 
