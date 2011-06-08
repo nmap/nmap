@@ -1458,220 +1458,25 @@ static bool validatepkt(u8 *ipc, unsigned *len) {
    linknfo->header will be filled with the appropriate values. */
 /* Specifying true for validate will enable validity checks against the
    received IP packet.  See validatepkt() for a list of checks. */
-char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
-                  struct timeval *rcvdtime, struct link_header *linknfo,
-                  bool validate) {
-  unsigned int offset = 0;
-  struct pcap_pkthdr head;
-  char *p;
-  int datalink;
-  int timedout = 0;
-  struct timeval tv_start, tv_end;
-  static char *alignedbuf = NULL;
-  static unsigned int alignedbufsz = 0;
-  static int warning = 0;
+char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+                    struct timeval *rcvdtime, struct link_header *linknfo,
+                    bool validate) {
+  char *buf;
 
-  if (linknfo) {
-    memset(linknfo, 0, sizeof(*linknfo));
-  }
+  buf = readip_pcap(pd, len, to_usec, rcvdtime, linknfo, validate);
+  if (buf != NULL) {
+    struct ip *ip;
 
-  if (!pd)
-    fatal("NULL packet device passed to %s", __func__);
-
-  if (to_usec < 0) {
-    if (!warning) {
-      warning = 1;
-      error("WARNING: Negative timeout value (%lu) passed to %s() -- using 0", to_usec, __func__);
-    }
-    to_usec = 0;
-  }
-
-/* New packet capture device, need to recompute offset */
-  if ((datalink = pcap_datalink(pd)) < 0)
-    fatal("Cannot obtain datalink information: %s", pcap_geterr(pd));
-
-  /* NOTE: IF A NEW OFFSET EVER EXCEEDS THE CURRENT MAX (24), ADJUST
-     MAX_LINK_HEADERSZ in tcpip.h */
-  switch (datalink) {
-  case DLT_EN10MB:
-    offset = 14;
-    break;
-  case DLT_IEEE802:
-    offset = 22;
-    break;
-#ifdef __amigaos__
-  case DLT_MIAMI:
-    offset = 16;
-    break;
-#endif
-#ifdef DLT_LOOP
-  case DLT_LOOP:
-#endif
-  case DLT_NULL:
-    offset = 4;
-    break;
-  case DLT_SLIP:
-#ifdef DLT_SLIP_BSDOS
-  case DLT_SLIP_BSDOS:
-#endif
-#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-    offset = 16;
-#else
-    offset = 24; /* Anyone use this??? */
-#endif
-    break;
-  case DLT_PPP:
-#ifdef DLT_PPP_BSDOS
-  case DLT_PPP_BSDOS:
-#endif
-#ifdef DLT_PPP_SERIAL
-  case DLT_PPP_SERIAL:
-#endif
-#ifdef DLT_PPP_ETHER
-  case DLT_PPP_ETHER:
-#endif
-#if (FREEBSD || OPENBSD || NETBSD || BSDI || MACOSX)
-    offset = 4;
-#else
-#ifdef SOLARIS
-    offset = 8;
-#else
-    offset = 24; /* Anyone use this? */
-#endif /* ifdef solaris */
-#endif /* if freebsd || openbsd || netbsd || bsdi */
-    break;
-  case DLT_RAW:
-    offset = 0;
-    break;
-  case DLT_FDDI:
-    offset = 21;
-    break;
-#ifdef DLT_ENC
-  case DLT_ENC:
-    offset = 12;
-    break;
-#endif /* DLT_ENC */
-#ifdef DLT_LINUX_SLL
-  case DLT_LINUX_SLL:
-    offset = 16;
-    break;
-#endif
-  default:
-    p = (char *) pcap_next(pd, &head);
-    if (head.caplen == 0) {
-      /* Lets sleep a brief time and try again to increase the chance of seeing
-         a real packet ... */
-      usleep(500000);
-      p = (char *) pcap_next(pd, &head);
-    }
-    if (head.caplen > 100000) {
-      fatal("FATAL: %s: bogus caplen from libpcap (%d) on interface type %d", __func__, head.caplen, datalink);
-    }
-    error("FATAL:  Unknown datalink type (%d). Caplen: %d; Packet:", datalink, head.caplen);
-    nmap_hexdump((unsigned char *) p, head.caplen);
-    exit(1);
-  }
-
-  if (to_usec > 0) {
-    gettimeofday(&tv_start, NULL);
-  }
-
-  do {
-#ifdef WIN32
-    long to_left;
-
-    if (to_usec > 0) {
-      gettimeofday(&tv_end, NULL);
-      to_left = MAX(1, (to_usec - TIMEVAL_SUBTRACT(tv_end, tv_start)) / 1000);
-    } else {
-      to_left = 1;
-    }
-    // Set the timeout (BUGBUG: this is cheating)
-    PacketSetReadTimeout(pd->adapter, to_left);
-#endif
-
-    p = NULL;
-
-    if (pcap_select(pd, to_usec) == 0)
-      timedout = 1;
-    else
-      p = (char *) pcap_next(pd, &head);
-
-    if (p) {
-      if (head.caplen <= offset) {
-        *len = 0;
-        return NULL;
-      }
-      if (offset && linknfo) {
-        linknfo->datalinktype = datalink;
-        linknfo->headerlen = offset;
-        assert(offset < MAX_LINK_HEADERSZ);
-        memcpy(linknfo->header, p, MIN(sizeof(linknfo->header), offset));
-      }
-      p += offset;
-    }
-    if (!p) {
-      /* Should we timeout? */
-      if (to_usec == 0) {
-        timedout = 1;
-      } else if (to_usec > 0) {
-        gettimeofday(&tv_end, NULL);
-        if (TIMEVAL_SUBTRACT(tv_end, tv_start) >= to_usec) {
-          timedout = 1;
-        }
-      }
-    }
-  } while (!timedout && (!p));
-
-  if (timedout) {
-    *len = 0;
-    return NULL;
-  }
-  *len = head.caplen - offset;
-  if (*len > alignedbufsz) {
-    alignedbuf = (char *) safe_realloc(alignedbuf, *len);
-    alignedbufsz = *len;
-  }
-  memcpy(alignedbuf, p, *len);
-
-  if (validate) {
-    const struct ip *ip = (struct ip *) alignedbuf;
-
-    /* Let's see if this packet passes inspection.. */
-    if (!validatepkt((u8 *) alignedbuf, len) || ip->ip_v != 4) {
-      *len = 0;
+    ip = (struct ip *) buf;
+    if (*len < 1 || ip->ip_v != 4)
       return NULL;
-    }
-  }
-  // printf("Just got a packet at %li,%li\n", head.ts.tv_sec, head.ts.tv_usec);
-  if (rcvdtime) {
-    // FIXME: I eventually need to figure out why Windows head.ts time is sometimes BEFORE the time I
-    // sent the packet (which is according to gettimeofday() in nbase).  For now, I will sadly have to
-    // use gettimeofday() for Windows in this case
-    // Actually I now allow .05 discrepancy.   So maybe this isn't needed.  I'll comment out for now.
-    // Nope: it is still needed at least for Windows.  Sometimes the time from he pcap header is a 
-    // COUPLE SECONDS before the gettimeofday() results :(.
-#if defined(WIN32) || defined(__amigaos__)
-    gettimeofday(&tv_end, NULL);
-    *rcvdtime = tv_end;
-#else
-    rcvdtime->tv_sec = head.ts.tv_sec;
-    rcvdtime->tv_usec = head.ts.tv_usec;
-    assert(head.ts.tv_sec);
-#endif
   }
 
-  if (rcvdtime)
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len,
-                       rcvdtime);
-  else
-    PacketTrace::trace(PacketTrace::RCVD, (u8 *) alignedbuf, *len);
-
-  return alignedbuf;
+  return buf;
 }
 
-char *readip46_pcap(pcap_t *pd, unsigned int *len, long to_usec,
-                    struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
+char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+                  struct timeval *rcvdtime, struct link_header *linknfo, bool validate) {
   unsigned int offset = 0;
   struct pcap_pkthdr head;
   char *p;

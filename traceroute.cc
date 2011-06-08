@@ -1235,7 +1235,7 @@ static bool read_reply(Reply *reply, pcap_t *pd, long timeout) {
   unsigned int iplen;
   struct link_header linkhdr;
 
-  ip = (struct ip *) readip46_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
+  ip = (struct ip *) readip_pcap(pd, &iplen, timeout, &reply->rcvdtime, &linkhdr, true);
   if (ip == NULL)
     return false;
   if (ip->ip_v == 4 || ip->ip_v == 6)

@@ -632,11 +632,11 @@ int get_link_offset(char *device);
    filled with the time that packet was captured from the wire by
    pcap.  If linknfo is not NULL, lnknfo->headerlen and
    lnkinfo->header will be filled with the appropriate values. */
-char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
-		  struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
-
-char *readip46_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec, 
                     struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
+
+char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
+                  struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass

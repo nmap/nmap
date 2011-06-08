@@ -4139,7 +4139,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000) to_usec = 2000;
-    ip_tmp = (struct ip *) readip46_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
+    ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip_tmp && TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
       timedout = true;
@@ -4705,7 +4705,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   do {
     to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
     if (to_usec < 2000) to_usec = 2000;
-    ip_tmp = (struct ip *) readip46_pcap(USI->pd, &bytes, to_usec, &rcvdtime,
+    ip_tmp = (struct ip *) readip_pcap(USI->pd, &bytes, to_usec, &rcvdtime,
         &linkhdr, true);
     gettimeofday(&USI->now, NULL);
     if (!ip_tmp) {

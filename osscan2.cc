@@ -3347,7 +3347,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(o.debugging > 2)
         log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
-      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
+      ip = (struct ip*) readipv4_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     
       gettimeofday(&now, NULL);
       
@@ -3516,7 +3516,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       if(o.debugging > 2)
         log_write(LOG_PLAIN, "pcap wait time is %ld.\n", to_usec);
       
-      ip = (struct ip*) readip_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
+      ip = (struct ip*) readipv4_pcap(HOS->pd, &bytes, to_usec, &rcvdtime, &linkhdr, true);
     
       gettimeofday(&now, NULL);
       
