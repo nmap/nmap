@@ -737,13 +737,14 @@ static int l_get_info (lua_State *L)
   int status;
   int protocol;                                  // tcp or udp
   int af;                                        // address family
-  struct sockaddr local;
-  struct sockaddr remote;
+  struct sockaddr_storage local;
+  struct sockaddr_storage remote;
   char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
   char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
 
   status = nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
-      &local, &remote, sizeof(sockaddr));
+      (struct sockaddr*)&local, (struct sockaddr*)&remote,
+      sizeof(struct sockaddr_storage));
 
   lua_pushboolean(L, true);
   lua_pushstring(L, inet_ntop_both(af, &local, ipstring_local));
