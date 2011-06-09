@@ -1,9 +1,10 @@
 PENDING:
--Finish list of script ideas
--Write http-sitemap-dumper
--Work on draft for http-spider
+-Work on the majordomo2 traversal http exploit
 
 COMPLETED:
+-Finished http-wordpress-brute, http-joomla-brute, http-tomcat-brute
+-Added bing search results to hostmap.nse
+-Research new http exploits
 -Add support to relative links in http-phpself-xss
 -Add support to redirects in http-phpself-xss
 -Write draft proposal for http-spider
@@ -15,3 +16,5 @@ COMPLETED:
 
 INCOMPLETE TASKS:
 -Work on HTTP URI Fuzzing script (Delayed)
+-Write http-sitemap-dumper (Delayed)
+-Work on draft for http-spider (Delayed)
