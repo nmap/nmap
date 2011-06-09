@@ -11,32 +11,22 @@ Work in progress:
 ToDo:
 
 * broadcast-ping.nse
-* Selection of discovery script candidates 
-* Set up virtual machine so I don't install servers localy (Arch?)
 
 =====
 
 Maybe (the ones with ** aren't on the Script_Ideas Page yet)
 
-** faceniff-discovery
-http://faceniff.ponury.net/
-Try if Faceniff can be detected using similar methods to firesheep
-
-** targets-lltd (and perhaps otherscripts)
-** lltd-info (?)
+** lltd
 http://en.wikipedia.org/wiki/Link_Layer_Topology_Discovery
 
-** targets-lldp
+** lldp
 http://en.wikipedia.org/wiki/Link_Layer_Discovery_Protocol
 
 ** disjunctive-traceroute + target add 
 http://ccr.sigcomm.org/online/?q=node/398
 
-* firesheep-discovery
-http://research.zscaler.com/2010/11/detecting-firesheep.html
-
 * Bonjour / mdns / llmnr etc. 
-(DNS protocols support) + backscatter into dns scripts where applicable
+(DNS protocols support) + backscatter into dns scripts where applicable?
 
 * targets-asn 
 John Bond is working on this. It's called asn-to-prefixes. Perhaps I could 
@@ -48,9 +38,6 @@ dhcp-discover as a prerule, so it doesn't run by default. But it doesn't run by
 default. It's discovery, intrusive, but not default. Maybe just add the prerule 
 there, and some way of forcibly initiating the prerule (like an argument).
 
-* imap-brute
-The library will need to be extended.
-
 * hnap-info 
 * hnap-auth-bypass
 A nice hnap library would be fitting, that will make these scripts a breeze. 
@@ -59,8 +46,6 @@ I'd need testing equipment, or some :S implementation.
 * snmp-brute port to brute framework
 There are a couple of default passwords that snmp-brute uses atm which should be
 considered even when it's the brute.lua is used
-
-* pop-brute port to brute fraework
 
 * vuze-dht-version
 * bittorrent-dht-nodes
