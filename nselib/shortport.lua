@@ -162,7 +162,11 @@ end
 -- <code>false</code> otherwise.
 -- @usage
 -- portrule = shortport.http
-http = shortport.port_or_service({80, 443, 631, 8080, 5800, 3872},
+
+--[[
+  Apache Tomcat HTTP server default ports: 8180 and 8000
+--]]
+http = shortport.port_or_service({80, 443, 631, 8080, 5800, 3872, 8180, 8000},
 	{"http", "https", "ipp", "http-alt", "vnc-http", "oem-agent"})
 
 local LIKELY_SSL_PORTS = {
