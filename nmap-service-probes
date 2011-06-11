@@ -5478,6 +5478,8 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: BRS-WebWeaver/([\d.]+)\r\n| p/BR
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: eSoft/([\d.]+) \(Unix\)\r\n| p/eSoft emumail webmail httpd/ v/$1/ o/Unix/
 match http m|^HTTP/1\.1 400 Bad Request\r\nDate: .*\r\nServer: tigershark/([\d.]+) | p/tigershark httpd/ v/$1/ o/Unix/
 match http m|^HTTP/1\.1 200 Document Follows\r\n.*CONTENT=\"TANDBERG ASA \(http://www\.tandberg\.net\)\">\r\n<meta name=\"description\"\r\ncontent=\"TANDBERG is a leading global provider of videoconferencing|s p/Tandberg video conferencing http config/ d/media device/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-type: text/html\r\nServer: Tandberg Television Web server\r\n| p/Tandberg Television httpd/ d/media device/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"([^\"]+)\"\r\n.*\r\n.*\r\nServer :Tandberg Television Web server\r\n| p/Tandberg Television httpd/ d/media device/ i/Realm: $1/
 match http m|^HTTP/1\.0 200 OK\nContent-type: text/html\n\n<!-- \n#ident \"%W%\"\n# Copyright \(c\) 2\d+ SteelEye Technology Inc\. - Mountain View, CA, USA\n################### LifeKeeper| p/SteelEye LifeKeeper cluster http config/ o/Unix/
 match http m|^HTTP/1\.0 \d\d\d .*Server: Ubicom/([\d.]+)\r\n.*<title>D-Link Gaming Router : Login</title>|s i/D-Link gaming router http config/ p/Ubicom httpd/ v/$1/ d/router/
 match http m|^HTTP/1\.1 \d\d\d .*Server: Allegro-Software-RomPager/([\d.]+)\r\n\r\n<HTML>\n<HEAD>\n<TITLE>LANIER 5613 / LANIER Network Printer D model-Network Administration</TITLE>|s p/Lanier 5613 network printer http config/ i/Allegro RomPager httpd $1/ d/printer/
@@ -5528,6 +5530,8 @@ match http m|^HTTP/1\.0 400 Bad-Request\nHTTP/1\.0 200 OK\r\n.*Aironet BR500E V(
 match http m|^HTTP/1\.0 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"4AFXS Configuration Web Server\"\r\n| p/SunComm 4AFXS VoIP gateway http config/ d/VoIP adapter/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: ATR-HTTP-Server/([\d.]+)\r\n.*WWW-Authenticate: Basic realm=\"Allied Telesyn AR410\"\r\n|s p/Allied Telesyn AR410 http config/ i/ATR httpd $1/ d/router/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Oracle_Web_Listener/([\d.]+)EnterpriseEdition\r\n|s p/Oracle Web Listener Enterprise Edition/ v/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Oracle_Web_Listener/([\d.]+)AdvancedEdition\r\n|s p/Oracle Web Listener Advanced Edition/ v/$1/
+match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Oracle_Web_listener_?([^\r\n]+)\r\n|s p/Oracle Web Listener/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: VOMwebserver v([\d.]+)\r\n|s p/VOMwebserver/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: RapidLogic/([\d.]+)\r\n.*<TITLE>Net2Phone Init Page</TITLE>|s p/Net2Phone VoIP adapter http config/ i/RapidLogic embedded httpd $1/ d/VoIP adapter/
 
@@ -7550,6 +7554,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: ELMO Web Server\r\n.*<TITLE>HV-([\w
 match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: HTTPD/[\d.]+\r\n.*<a href=\"/\">Return to Web Management</a>.*<A HREF=\"http://www\.juniper\.net/support/\">HTTPD release ([-\w_.]+) built by|s p/Juniper router http config/ i/HTTPD $1/ d/router/
 match http m|^HTTP/1\.1 404 Not found\r\nServer: BadBlue/([\d.]+)\r\n| p/BadBlue httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 501 Not Implemented\r\nServer: httpd/1\.00\r\nCache-Control: no-cache\r\nExpires: 0\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD>\n<BODY><H2>501 Not Implemented</H2>\nThe requested method 'OPTIONS' is not implemented by this server\.\n<HR>\n<I>httpd/1\.00</I></BODY></HTML>\n$| p|Packeteer PacketShaper 4500/ISP httpd|
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SkyX HTTPS ([^\r\n]+)\r\n| p/Packeteer SkyX Accellerator/ v/$1/
 match http m|^HTTP/1\.0 501 Not Implemented\r\nDate: .*<H1>501 Not Implemented</H1>\nPOST to non-script is not supported in Boa\.\n</BODY></HTML>\n|s p/Boa httpd/
 match http m|^HTTP/1\.1 200 OK\r\n.*Server: Oracle-Application-Server-11g\r\nAllow: GET,HEAD,POST,OPTIONS\r\nContent-Length: 0\r\n|s p/Oracle Application Server 11g httpd/
 
