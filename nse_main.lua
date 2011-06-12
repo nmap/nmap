@@ -380,7 +380,7 @@ do
   --   filename  The filename (path) of the script to load.
   -- Returns:
   --   script  The script (class) created.
-  function Script.new (filename)
+  function Script.new (filename, selected_by_name)
     assert(type(filename) == "string", "string expected");
     if not find(filename, "%.nse$") then
       log_error(
@@ -457,7 +457,7 @@ do
       license = rawget(env, "license"),
       dependencies = rawget(env, "dependencies"),
       threads = {},
-      selected_by_name = false,
+      selected_by_name = not not selected_by_name,
     };
     return setmetatable(script, {__index = Script, __metatable = Script});
   end
@@ -567,8 +567,7 @@ local function get_chosen_scripts (rules)
         local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
-            script = Script.new(path);
-            chosen_scripts[#chosen_scripts+1] = script;
+            chosen_scripts[#chosen_scripts+1] = Script.new(path);
             files_loaded[path] = true;
             -- do not break so other rules can be marked as used
           end
@@ -599,10 +598,9 @@ local function get_chosen_scripts (rules)
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");
       elseif t == "file" and not files_loaded[path] then
-        local script = Script.new(path);
-        script.selected_by_name = true;
+        local script = Script.new(path, true);
         chosen_scripts[#chosen_scripts+1] = script;
-        print_debug(2, "Script %s was selected by name.", script.filename);
+        print_debug(2, "Script %s was selected by name.", path);
         files_loaded[path] = true;
       elseif t == "directory" then
         for f in cnse.dir(path) do
