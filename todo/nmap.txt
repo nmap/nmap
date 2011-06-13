@@ -32,27 +32,9 @@ o IPv6 todo.
   - OS detection.
 
 o Summer of Code feature creeper:
-  o Rewrite the portreasons code not to use parallel arrays
-    (reason_text, reason_pl_text) and not to require special alignment
-    between the enum codes and (for example) ICMP types. Instead
-    define one structure containing all relevant information about a
-    reason, and define helper functions to map ICMP types to reason
-    codes. In particular, code like this needs to go away:
-      current_reason = ping->type + ER_ICMPTYPE_MOD;
-      if (current_reason == ER_DESTUNREACH)
-        current_reason = ping->code + ER_ICMPCODE_MOD;
   o Change Zenmap bug reporter so that instead of an automatic
     submission system, we print a stack trace and request that the user
     send a bug report to nmap-dev.
-  o [Zenmap] Make formerly open ports that are now closed or filtered
-    disappear from the "Ports / Hosts" tab. This appears to be related
-    to ignored states; if in the second scan I use -d2 so all ports are
-    included in the output, the interface is updated correctly.
-    http://seclists.org/nmap-dev/2010/q4/659
-  o [Zenmap] When a target is unresponsive (and its distance isn't
-    known), put it at the next furthest ring from the known traceroute
-    hosts (with a dashed line), instead of putting it at the first
-    ring.  See http://seclists.org/nmap-dev/2011/q1/834.
   o [Zenmap] should actually parse and use script results. See
     http://seclists.org/nmap-dev/2010/q1/1108
   o Make Zenmap settings get upgraded when the Zenmap executable is
@@ -124,9 +106,6 @@ o A couple minor nsedoc issues (see
    warning in this case.  Or we could make nsedoc handle multiple
    @outputs.
 
-o UDP scanning with IP options causes "Received short ICMP packet" on
-  receipt. http://seclists.org/nmap-dev/2011/q1/82
-
 o We should run at least one SCTP service on scanme.  Daniel
   Roethlisberger has made available dummy services which support IPv4
   and IPv6 (see http://seclists.org/nmap-dev/2011/q2/450).
@@ -141,13 +120,6 @@ o We should document Ron's sample script
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
-
-o When I (Fyodor) scan scanme.nmap.org with the command "nmap -sC -p80
--Pn -n scanme.nmap.org", I get a blank http-favicon line like:
-    80/tcp open  http
-    |_http-title: Go ahead and ScanMe!
-    |_http-favicon: 
-  But if I use "--script http-favicon" instead of -sC, it works fine.
 
 o Investigate ways to limit Winpcap privileges so that only
   administrative users or a certain accounts can sniff.  Maybe there
@@ -169,10 +141,6 @@ o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
-
-o Add raw packet IPv6 support, initially for SYN scan
- o After that can add UDP scan, and sometime OS detection (David did
-   some research on what IPv6 OS detection might require).
 
 o Add IPv6 support to Nping, including raw packet mode (hopefully
   sharing as much code with Nmap as possible, though Nping's packet code
@@ -216,9 +184,6 @@ o Further brainstorm and consider implementing more prerule/postrule
    o We could have a script which takes traceroute results and adds them to the target list.
    o [Implemented] dns-zone-transfer
    o [Implemented, but a joke] http-california-plates
-
-o [Ncat] Find out what RDP port forwarding apparently doesn't work on
-  Windows. http://seclists.org/nmap-dev/2011/q1/86
 
 o [Ncat] When in connection brokering or chat mode with ssl support
   enabled, if one client connects and doesn't complete ssl negotiation,
@@ -769,6 +734,44 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] Find out what RDP port forwarding apparently doesn't work on
+  Windows. http://seclists.org/nmap-dev/2011/q1/86
+
+o Add raw packet IPv6 support, initially for SYN scan
+ o After that can add UDP scan, and sometime OS detection (David did
+   some research on what IPv6 OS detection might require).
+
+o When I (Fyodor) scan scanme.nmap.org with the command "nmap -sC -p80
+-Pn -n scanme.nmap.org", I get a blank http-favicon line like:
+    80/tcp open  http
+    |_http-title: Go ahead and ScanMe!
+    |_http-favicon: 
+  But if I use "--script http-favicon" instead of -sC, it works fine.
+
+o UDP scanning with IP options causes "Received short ICMP packet" on
+  receipt. http://seclists.org/nmap-dev/2011/q1/82
+
+
+o [Zenmap] Make formerly open ports that are now closed or filtered
+  disappear from the "Ports / Hosts" tab. This appears to be related
+  to ignored states; if in the second scan I use -d2 so all ports are
+  included in the output, the interface is updated correctly.
+  http://seclists.org/nmap-dev/2010/q4/659
+
+o [Zenmap] When a target is unresponsive (and its distance isn't
+  known), put it at the next furthest ring from the known traceroute
+  hosts (with a dashed line), instead of putting it at the first ring.
+  See http://seclists.org/nmap-dev/2011/q1/834.
+
+o Rewrite the portreasons code not to use parallel arrays
+  (reason_text, reason_pl_text) and not to require special alignment
+  between the enum codes and (for example) ICMP types. Instead define
+  one structure containing all relevant information about a reason,
+  and define helper functions to map ICMP types to reason codes. In
+  particular, code like this needs to go away: current_reason =
+  ping->type + ER_ICMPTYPE_MOD; if (current_reason == ER_DESTUNREACH)
+  current_reason = ping->code + ER_ICMPCODE_MOD;
 
 o Fix memory consumption problem in drda-info (see
   http://seclists.org/nmap-dev/2011/q2/451)
