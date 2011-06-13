@@ -37,7 +37,8 @@ require "http"
 require "stdnse"
 require "datafiles"
 require "nsedebug"
-require "openssl"
+require "stdnse"
+stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

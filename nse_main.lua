@@ -212,8 +212,7 @@ local function tcopy (t)
 end
 
 local REQUIRE_ERROR = {};
-stdnse.require = require; -- add real require to stdnse so it can be called if desired
-function _G.require (...)
+rawset(stdnse, "silent_require", function (...)
   local status, mod = pcall(require, ...);
   if not status then
     print_debug(1, "%s", traceback(mod));
@@ -222,7 +221,7 @@ function _G.require (...)
   else
     return mod;
   end
-end
+end);
 
 local Script = {}; -- The Script Class, its constructor is Script.new.
 local Thread = {}; -- The Thread Class, its constructor is Script:new_thread.

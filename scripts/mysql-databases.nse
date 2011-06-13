@@ -27,7 +27,7 @@ categories = {"discovery", "intrusive"}
 require 'shortport'
 require 'stdnse'
 require 'mysql'
-require 'openssl'
+stdnse.silent_require 'openssl'
 
 dependencies = {"mysql-brute", "mysql-empty-password"}
 

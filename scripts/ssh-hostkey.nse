@@ -56,7 +56,7 @@ categories = {"safe","default","discovery"}
 
 require("shortport")
 require("stdnse")
-require("openssl")
+stdnse.silent_require("openssl")
 require("ssh1")
 require("ssh2")
 

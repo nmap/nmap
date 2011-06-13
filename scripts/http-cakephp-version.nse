@@ -27,6 +27,8 @@ categories = {"discovery","safe"}
 
 require "http"
 require "shortport"
+require "stdnse"
+stdnse.silent_require "openssl"
 
 portrule = shortport.http
 

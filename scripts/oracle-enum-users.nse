@@ -34,7 +34,8 @@ categories = {"intrusive", "auth"}
 
 require 'shortport'
 require 'unpwdb'
-require 'openssl'
+require 'stdnse'
+stdnse.silent_require 'openssl'
 require 'tns'
 
 portrule = shortport.port_or_service(1521, 'oracle-tns' )

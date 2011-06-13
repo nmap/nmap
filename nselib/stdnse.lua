@@ -869,13 +869,15 @@ do end -- no function here, see nse_main.lua
 --@return coroutine Returns the base coroutine of the running script.
 do end -- no function here, see nse_main.lua
 
---- The (Unmodified) Lua Require Function.
+--- The Lua Require Function with errors silenced.
 --
--- See the Lua manual for description. NSE replaces the standard function
--- in the global namespace to improve error handling.
+-- See the Lua manual for description of the require function. This modified
+-- version allows the script to quietly fail at loading if a required
+-- library does not exist.
 --
---@name require
+--@name silent_require
 --@class function
+--@usage stdnse.silent_require "openssl"
 do end -- no function here, see nse_main.lua
 
 

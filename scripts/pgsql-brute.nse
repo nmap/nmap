@@ -29,7 +29,7 @@ categories = {"intrusive", "auth"}
 require 'shortport'
 require 'stdnse'
 require 'unpwdb'
-require 'openssl'
+stdnse.silent_require 'openssl'
 
 -- Version 0.3
 -- Created 01/15/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>

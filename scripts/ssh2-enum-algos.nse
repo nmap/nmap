@@ -57,7 +57,7 @@ categories = {"safe", "discovery"}
 
 require "shortport"
 require "stdnse"
-require "openssl"
+stdnse.silent_require "openssl"
 
 portrule = shortport.port_or_service(22, "ssh")
 
