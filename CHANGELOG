@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the Simple Mail Transfer Protocol (SMTP) library. [Djalal]
+
 o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
   scan, and ICMP host discovery and similar work for IPv6 now!  A few
   notes:
