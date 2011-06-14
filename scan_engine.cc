@@ -817,35 +817,37 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
   type = UP_IP;
   if (ip->ip_v == 4) {
     data = ipv4_get_data(ip, &len);
-    assert(data != NULL);
-    assert(len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
+    assert(data == NULL || len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
     const struct ip6_hdr *ip6 = (struct ip6_hdr *) ippacket;
     data = ipv6_get_data(ip6, &len, &hdr);
-    assert(data != NULL);
-    assert(len == (u32) ntohs(ip6->ip6_plen));
+    /* ipv6_get_data may fail because of malformed -sO probes for example, so
+       only trust len and hdr if data != NULL. */
+    assert(data == NULL || len == (u32) ntohs(ip6->ip6_plen));
     probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK) & 0xFFFF;
     hdr = ip6->ip6_nxt;
   } else {
     fatal("Bogus packet passed to %s -- only IP packets allowed", __func__);
   }
 
-  if (hdr == IPPROTO_TCP) {
-    assert(len >= 20);
-    tcp = (struct tcp_hdr *) data;
-    probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
-    probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
-  } else if (hdr == IPPROTO_UDP) {
-    assert(len >= 8);
-    udp = (struct udp_hdr *) data;
-    probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
-  } else if (hdr == IPPROTO_SCTP) {
-    assert(len >= 12);
-    sctp = (struct sctp_hdr *) data;
-    probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
-    probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
+  if (data != NULL) {
+    if (hdr == IPPROTO_TCP) {
+      assert(len >= 20);
+      tcp = (struct tcp_hdr *) data;
+      probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
+      probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
+    } else if (hdr == IPPROTO_UDP) {
+      assert(len >= 8);
+      udp = (struct udp_hdr *) data;
+      probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
+    } else if (hdr == IPPROTO_SCTP) {
+      assert(len >= 12);
+      sctp = (struct sctp_hdr *) data;
+      probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
+      probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
+    }
   }
 
   mypspec = *pspec;
@@ -3359,75 +3361,133 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     }
     free(chunk);
   } else if (pspec->type == PS_PROTO) {
-    for(decoy = 0; decoy < o.numdecoys; decoy++) {
+    if (hss->target->af() == AF_INET) {
+      for(decoy = 0; decoy < o.numdecoys; decoy++) {
+        switch(pspec->proto) {
+
+        case IPPROTO_TCP:
+          packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                 o.ipoptions, o.ipoptionslen,
+                                 sport, o.magic_port,
+                                 get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0,
+                                 NULL,0,
+                                 o.extra_payload, o.extra_payload_length, 
+                                 &packetlen);
+          break;
+        case IPPROTO_ICMP:
+          packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                  o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                  o.ipoptions, o.ipoptionslen,
+                                  0, icmp_ident, 8, 0,
+                                  o.extra_payload, o.extra_payload_length,
+                                  &packetlen);
+          break;
+        case IPPROTO_IGMP:
+          packet = build_igmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                  o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                  o.ipoptions, o.ipoptionslen,
+                                  0x11, 0,
+                                  o.extra_payload, o.extra_payload_length,
+                                  &packetlen);
+          break;
+        case IPPROTO_UDP:
+          packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                 o.ipoptions, o.ipoptionslen,
+                                 sport, o.magic_port,
+                                 o.extra_payload, o.extra_payload_length, 
+                                 &packetlen);
+
+          break;
+        case IPPROTO_SCTP:
+          {
+            struct sctp_chunkhdr_init chunk;
+            sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
+                                    sizeof(struct sctp_chunkhdr_init),
+                                    get_random_u32()/*itag*/,
+                                    32768, 10, 2048,
+                                    get_random_u32()/*itsn*/);
+            packet = build_sctp_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                    o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                    o.ipoptions, o.ipoptionslen,
+                                    sport, o.magic_port,
+                                    0UL, (char*)&chunk,
+                                    sizeof(struct sctp_chunkhdr_init),
+                                    o.extra_payload, o.extra_payload_length,
+                                    &packetlen);
+          }
+          break;
+        default:
+          packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
+                                pspec->proto,
+                                o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                o.ipoptions, o.ipoptionslen,
+                                o.extra_payload, o.extra_payload_length, 
+                                &packetlen);
+          break;
+        }
+        if (decoy == o.decoyturn) {
+          probe->setIP(packet, packetlen, pspec);
+          probe->sent = USI->now;
+        }
+        hss->probeSent(packetlen);
+        send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+        free(packet);
+      }
+    } else if (hss->target->af() == AF_INET6) {
+      struct sockaddr_storage source;
+      struct sockaddr_in6 *sin6;
+      size_t source_len;
+
+      source_len = sizeof(source);
+      hss->target->SourceSockAddr(&source, &source_len);
+      sin6 = (struct sockaddr_in6 *) &source;
       switch(pspec->proto) {
-
       case IPPROTO_TCP:
-	packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-			       o.ttl, ipid, IP_TOS_DEFAULT, false,
-			       o.ipoptions, o.ipoptionslen,
-			       sport, o.magic_port,
-			       get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0,
-			       NULL,0,
-			       o.extra_payload, o.extra_payload_length, 
-			       &packetlen);
-	break;
-      case IPPROTO_ICMP:
-	packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-				o.ttl, ipid, IP_TOS_DEFAULT, false,
-				o.ipoptions, o.ipoptionslen,
-				0, icmp_ident, 8, 0,
-				o.extra_payload, o.extra_payload_length,
-				&packetlen);
-	break;
-      case IPPROTO_IGMP:
-	packet = build_igmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-				o.ttl, ipid, IP_TOS_DEFAULT, false,
-				o.ipoptions, o.ipoptionslen,
-				0x11, 0,
-				o.extra_payload, o.extra_payload_length,
-				&packetlen);
-	break;
+        packet = build_tcp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+                                    0, ipid, o.ttl, sport, o.magic_port,
+                                    get_random_u32(), get_random_u32(), 0,
+                                    TH_ACK, 0, 0, NULL, 0, o.extra_payload,
+                                    o.extra_payload_length, &packetlen);
+        break;
+      case IPPROTO_ICMPV6:
+        packet = build_icmpv6_raw(&sin6->sin6_addr, hss->target->v6hostip(),
+                                  0, ipid, o.ttl, 0, icmp_ident,
+                                  ICMPV6_ECHO, ICMPV6_ECHOREPLY,
+                                  o.extra_payload, o.extra_payload_length,
+                                  &packetlen);
+        break;
       case IPPROTO_UDP:
-	packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-			       o.ttl, ipid, IP_TOS_DEFAULT, false,
-			       o.ipoptions, o.ipoptionslen,
-			       sport, o.magic_port,
-			       o.extra_payload, o.extra_payload_length, 
-			       &packetlen);
-
-	break;
+        packet = build_udp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+                                    0, ipid, o.ttl, sport, o.magic_port,
+                                    o.extra_payload, o.extra_payload_length, 
+                                    &packetlen);
+        break;
       case IPPROTO_SCTP:
-	{
-	  struct sctp_chunkhdr_init chunk;
-	  sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
-				  sizeof(struct sctp_chunkhdr_init),
-				  get_random_u32()/*itag*/,
-				  32768, 10, 2048,
-				  get_random_u32()/*itsn*/);
-	  packet = build_sctp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-				  o.ttl, ipid, IP_TOS_DEFAULT, false,
-				  o.ipoptions, o.ipoptionslen,
-				  sport, o.magic_port,
-				  0UL, (char*)&chunk,
-				  sizeof(struct sctp_chunkhdr_init),
-				  o.extra_payload, o.extra_payload_length,
-				  &packetlen);
-	}
-	break;
+        {
+          struct sctp_chunkhdr_init chunk;
+          sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
+                                  sizeof(struct sctp_chunkhdr_init),
+                                  get_random_u32()/*itag*/,
+                                  32768, 10, 2048,
+                                  get_random_u32()/*itsn*/);
+          packet = build_sctp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
+                                       0, ipid, o.ttl, sport, o.magic_port,
+                                       0UL, (char*)&chunk,
+                                       sizeof(struct sctp_chunkhdr_init),
+                                       o.extra_payload, o.extra_payload_length,
+                                       &packetlen);
+        }
+        break;
       default:
-	packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
-			      pspec->proto,
-			      o.ttl, ipid, IP_TOS_DEFAULT, false,
-			      o.ipoptions, o.ipoptionslen,
-			      o.extra_payload, o.extra_payload_length, 
-			      &packetlen);
-	break;
+        packet = build_ipv6_raw(&sin6->sin6_addr, hss->target->v6hostip(),
+                                0, ipid, pspec->proto, o.ttl, o.extra_payload,
+                                o.extra_payload_length, &packetlen);
+        break;
       }
-      if (decoy == o.decoyturn) {
-	probe->setIP(packet, packetlen, pspec);
-	probe->sent = USI->now;
-      }
+      probe->setIP(packet, packetlen, pspec);
+      probe->sent = USI->now;
       hss->probeSent(packetlen);
       send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
       free(packet);
