@@ -2398,7 +2398,7 @@ if (hdr.version == 4) { /* IPv4 */
   } else if (hdr.proto == IPPROTO_UDP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "UDP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (hdr.proto == IPPROTO_UDP) {
-    udp =  (struct udp_hdr *) (packet + sizeof(struct ip));
+    udp =  (struct udp_hdr *) data;
   /* TODO: See if we can segfault if we receive a fragmented packet whose IP packet does not say a thing about fragmentation */
 
 
@@ -2422,7 +2422,7 @@ if (hdr.version == 4) { /* IPv4 */
   } else if (hdr.proto == IPPROTO_SCTP && frag_off) {
       Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:?? > %s:?? fragment %s (incomplete)", srchost, dsthost, ipinfo);
   } else if (hdr.proto == IPPROTO_SCTP) {
-    sctp =  (struct sctp_hdr *) (packet + sizeof(struct ip));
+    sctp =  (struct sctp_hdr *) data;
 
     if( detail == LOW_DETAIL ){
         Snprintf(protoinfo, sizeof(protoinfo), "SCTP %s:%d > %s:%d %s",
