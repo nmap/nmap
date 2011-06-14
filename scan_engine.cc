@@ -4503,16 +4503,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       encaps_len = datalen - 8;
       encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
-      if (encaps_data == NULL ||
-	/* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
-        ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
-        /* prot scan has no headers coming back, so we don't reserve the
-	   8 xtra bytes */
-        ) {
-	if (o.debugging)
-	  error("Received short ICMPv6 packet (%u bytes)", datalen);
-	continue;
-      }
 
       /* Make sure the protocol is right */
       if (USI->tcp_scan && encaps_hdr.proto != IPPROTO_TCP)
@@ -4546,19 +4536,19 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0)
 	  continue;
 
-	if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
+	if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
 	  struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
 	  if (ntohs(tcp->th_sport) != probe->sport() ||
 	      ntohs(tcp->th_dport) != probe->dport() ||
 	      ntohl(tcp->th_seq) != probe->tcpseq())
 	    continue;
-	} else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
+	} else if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
 	  struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
 	  if (ntohs(sctp->sh_sport) != probe->sport() ||
 	      ntohs(sctp->sh_dport) != probe->dport() ||
 	      ntohl(sctp->sh_vtag) != probe->sctpvtag())
 	    continue;
-	} else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
+	} else if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
 	  /* TODO: IPID verification */
 	  struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
 	  if (ntohs(udp->uh_sport) != probe->sport() ||
