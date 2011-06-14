@@ -268,7 +268,7 @@ class ServiceProbe {
   void setRarity(const char *portstr, int lineno);
 
   // Simply returns the rarity of this probe
-  const int getRarity() { return rarity; }
+  int getRarity() const { return rarity; }
 
   // Takes a match line in a probe description and adds it to the
   // list of matches for this probe.  This function should be passed

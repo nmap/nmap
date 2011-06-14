@@ -280,7 +280,7 @@ void serviceDeductions::populateFullVersionString(char *buf, size_t n) const {
 // initializing, and you don't have to free any internal ptrs.  See the
 // serviceDeductions definition for the fields that are populated.
 // Returns 0 if at least a name is available.
-const void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const {
+void PortList::getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const {
   const Port *port;
 
   port = lookupPort(portno, protocol);

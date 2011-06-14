@@ -270,7 +270,7 @@ class PortList {
   // pass in an allocated struct serviceDeductions (don't worry about initializing, and
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for
   // the fields that are populated.  Returns 0 if at least a name is available.
-  const void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
+  void getServiceDeductions(u16 portno, int protocol, struct serviceDeductions *sd) const;
 
   /* Sets the results of an RPC scan.  if rpc_status is not
    RPC_STATUS_GOOD_PROGRAM, pass 0 for the other args. This function
