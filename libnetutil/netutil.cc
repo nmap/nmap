@@ -459,27 +459,27 @@ int ip_is_reserved(struct in_addr *ip)
 }
 
 /* A trivial functon that maintains a cache of IP to MAC Address
-   entries.  If the command is ARPCACHE_GET, this func looks for the
+   entries.  If the command is MACCACHE_GET, this func looks for the
    IPv4 address in ss and fills in the 'mac' parameter and returns
    true if it is found.  Otherwise (not found), the function returns
-   false.  If the command is ARPCACHE_SET, the function adds an entry
+   false.  If the command is MACCACHE_SET, the function adds an entry
    with the given ip (ss) and mac address.  An existing entry for the
    IP ss will be overwritten with the new MAC address.  true is always
    returned for the set command. */
-#define ARPCACHE_GET 1
-#define ARPCACHE_SET 2
-static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
-  struct ArpCache {
+#define MACCACHE_GET 1
+#define MACCACHE_SET 2
+static int do_mac_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
+  struct MacCache {
     struct sockaddr_storage ip;
     u8 mac[6];
   };
-  static struct ArpCache *Cache = NULL;
-  static int ArpCapacity = 0;
-  static int ArpCacheSz = 0;
+  static struct MacCache *Cache = NULL;
+  static int MacCapacity = 0;
+  static int MacCacheSz = 0;
   int i;
 
-  if (command == ARPCACHE_GET) {
-    for (i = 0; i < ArpCacheSz; i++) {
+  if (command == MACCACHE_GET) {
+    for (i = 0; i < MacCacheSz; i++) {
       if (sockaddr_storage_cmp(&Cache[i].ip, ss) == 0) {
         memcpy(mac, Cache[i].mac, 6);
         return 1;
@@ -487,17 +487,17 @@ static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
     }
     return 0;
   }
-  assert(command == ARPCACHE_SET);
-  if (ArpCacheSz == ArpCapacity) {
-    if (ArpCapacity == 0)
-      ArpCapacity = 32;
+  assert(command == MACCACHE_SET);
+  if (MacCacheSz == MacCapacity) {
+    if (MacCapacity == 0)
+      MacCapacity = 32;
     else
-      ArpCapacity <<= 2;
-    Cache = (struct ArpCache *) safe_realloc(Cache, ArpCapacity * sizeof(struct ArpCache));
+      MacCapacity <<= 2;
+    Cache = (struct MacCache *) safe_realloc(Cache, MacCapacity * sizeof(struct MacCache));
   }
 
   /* Ensure that it isn't already there ... */
-  for (i = 0; i < ArpCacheSz; i++) {
+  for (i = 0; i < MacCacheSz; i++) {
     if (sockaddr_storage_cmp(&Cache[i].ip, ss) == 0) {
       memcpy(Cache[i].mac, mac, 6);
       return 1;
@@ -507,26 +507,26 @@ static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
   /* Add it to the end of the list */
   memcpy(&Cache[i].ip, ss, sizeof(struct sockaddr_storage));
   memcpy(Cache[i].mac, mac, 6);
-  ArpCacheSz++;
+  MacCacheSz++;
   return 1;
 }
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
- * Address entries. Function arp_cache_get() looks for the IPv4 address
+ * Address entries. Function mac_cache_get() looks for the IPv4 address
  * in ss and fills in the 'mac' parameter and returns true if it is
  * found.  Otherwise (not found), the function returns false.
- * Function arp_cache_set() adds an entry with the given ip (ss) and
+ * Function mac_cache_set() adds an entry with the given ip (ss) and
  * mac address.  An existing entry for the IP ss will be overwritten
- * with the new MAC address.  arp_cache_set() always returns true.
+ * with the new MAC address.  mac_cache_set() always returns true.
  * WARNING: The caller must ensure that the supplied "ss" is of family
  * AF_INET. Otherwise the function will return 0 and there would be
  * no way for the caller to tell tell the difference between an error
  * or a cache miss.*/
-int arp_cache_get(struct sockaddr_storage *ss, u8 *mac){
-    return do_arp_cache(ARPCACHE_GET, ss, mac);
+int mac_cache_get(struct sockaddr_storage *ss, u8 *mac){
+    return do_mac_cache(MACCACHE_GET, ss, mac);
 }
-int arp_cache_set(struct sockaddr_storage *ss, u8 *mac){
-    return do_arp_cache(ARPCACHE_SET, ss, mac);
+int mac_cache_set(struct sockaddr_storage *ss, u8 *mac){
+    return do_mac_cache(MACCACHE_SET, ss, mac);
 }
 
 /* Standard BSD internet checksum routine. Uses libdnet helper functions. */

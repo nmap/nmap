@@ -1797,7 +1797,7 @@ bool setTargetNextHopMAC(Target *target) {
   }
 
   /* First, let us check the Nmap arp cache ... */
-  if (arp_cache_get(&targetss, mac)) {
+  if (mac_cache_get(&targetss, mac)) {
     target->setNextHopMACAddress(mac);
     return true;
   }
@@ -1806,7 +1806,7 @@ bool setTargetNextHopMAC(Target *target) {
   a = arp_open();
   addr_ston((sockaddr *) & targetss, &ae.arp_pa);
   if (arp_get(a, &ae) == 0) {
-    arp_cache_set(&targetss, ae.arp_ha.addr_eth.data);
+    mac_cache_set(&targetss, ae.arp_ha.addr_eth.data);
     target->setNextHopMACAddress(ae.arp_ha.addr_eth.data);
     arp_close(a);
     return true;
@@ -1819,7 +1819,7 @@ bool setTargetNextHopMAC(Target *target) {
   if (target->af() == AF_INET){
     if (doArp(target->deviceFullName(), target->SrcMACAddress(),
               &srcss, &targetss, mac, PacketTrace::traceArp)) {
-      arp_cache_set(&targetss, mac);
+      mac_cache_set(&targetss, mac);
       target->setNextHopMACAddress(mac);
       return true;
     }
@@ -1827,7 +1827,7 @@ bool setTargetNextHopMAC(Target *target) {
   else if (target->af() == AF_INET6){
     if (doND(target->deviceFullName(), target->SrcMACAddress(),
               &srcss, &targetss, mac, PacketTrace::traceND)) {
-      arp_cache_set(&targetss, mac);
+      mac_cache_set(&targetss, mac);
       target->setNextHopMACAddress(mac);
       return true;
     }
@@ -1846,14 +1846,14 @@ bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
   struct arp_entry ae;
 
   /* Nmap's ARP cache */
-  if (arp_cache_get(dstss, dstmac))
+  if (mac_cache_get(dstss, dstmac))
     return true;
 
   /* System ARP cache */
   a = arp_open();
   addr_ston((sockaddr *) dstss, &ae.arp_pa);
   if (arp_get(a, &ae) == 0) {
-    arp_cache_set(dstss, ae.arp_ha.addr_eth.data);
+    mac_cache_set(dstss, ae.arp_ha.addr_eth.data);
     memcpy(dstmac, ae.arp_ha.addr_eth.data, 6);
     arp_close(a);
     return true;
@@ -1862,7 +1862,7 @@ bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
 
   /* Send ARP */
   if (doArp(iface, srcmac, srcss, dstss, dstmac, PacketTrace::traceArp)) {
-    arp_cache_set(dstss, dstmac);
+    mac_cache_set(dstss, dstmac);
     return true;
   }
 

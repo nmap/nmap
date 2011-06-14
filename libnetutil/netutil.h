@@ -183,14 +183,14 @@ int ip_is_reserved(struct in_addr *ip);
 
 
 /* A couple of trivial functions that maintain a cache of IP to MAC
- * Address entries. Function arp_cache_get() looks for the IPv4 address
+ * Address entries. Function mac_cache_get() looks for the IPv4 address
  * in ss and fills in the 'mac' parameter and returns true if it is
  * found.  Otherwise (not found), the function returns false.
- * Function arp_cache_set() adds an entry with the given ip (ss) and
+ * Function mac_cache_set() adds an entry with the given ip (ss) and
  * mac address.  An existing entry for the IP ss will be overwritten
- * with the new MAC address.  arp_cache_set() always returns true. */
-int arp_cache_get(struct sockaddr_storage *ss, u8 *mac);
-int arp_cache_set(struct sockaddr_storage *ss, u8 *mac);
+ * with the new MAC address.  mac_cache_set() always returns true. */
+int mac_cache_get(struct sockaddr_storage *ss, u8 *mac);
+int mac_cache_set(struct sockaddr_storage *ss, u8 *mac);
 
 const void *ip_get_data(const void *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr);
