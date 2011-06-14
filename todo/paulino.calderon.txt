@@ -1,7 +1,10 @@
 PENDING:
--Work on the majordomo2 traversal http exploit
+-Work on the http-waf-detect
 
 COMPLETED:
+-Wrote new http-trace
+-Patched shortport.lua and http-form-brute
+-Work on the majordomo2 traversal http exploit (Finished http-majordomo2-dir-traversal)
 -Finished http-wordpress-brute, http-joomla-brute, http-tomcat-brute
 -Added bing search results to hostmap.nse
 -Research new http exploits
