@@ -220,7 +220,7 @@ static int parse_bounce_argument(struct ftpinfo *ftp, char *url) {
   return 1;
 }
 
-static void printusage(char *name, int rc) {
+static void printusage(int rc) {
 
 printf("%s %s ( %s )\n"
        "Usage: nmap [Scan Type(s)] [Options] {target specification}\n"
@@ -645,7 +645,7 @@ int nmap_main(int argc, char *argv[]) {
   }
   fakeargv[argc] = NULL;
 
-  if (argc < 2 ) printusage(argv[0], -1);
+  if (argc < 2 ) printusage(-1);
 
   Targets.reserve(100);
 #ifdef WIN32
@@ -1040,8 +1040,8 @@ int nmap_main(int argc, char *argv[]) {
       o.magic_port_set = 1;
       if (o.magic_port == 0) error("WARNING: a source port of zero may not work on all systems.");
       break;
-    case 'h': printusage(argv[0], 0); break;
-    case '?': printusage(argv[0], -1); break;
+    case 'h': printusage(0); break;
+    case '?': printusage(-1); break;
     case 'I':
       error("WARNING: identscan (-I) no longer supported.  Ignoring -I");
       break;
@@ -1196,7 +1196,7 @@ int nmap_main(int argc, char *argv[]) {
     case 's':
       if (!*optarg) {
         error("An option is required for -s, most common are -sT (tcp scan), -sS (SYN scan), -sF (FIN scan), -sU (UDP scan) and -sn (Ping scan)");
-        printusage(argv[0], -1);
+        printusage(-1);
       }
       p = optarg;
       while(*p) {
@@ -1228,7 +1228,7 @@ int nmap_main(int argc, char *argv[]) {
         case 'X':  o.xmasscan++; break;
         case 'Y':  o.sctpinitscan = 1; break;
         case 'Z':  o.sctpcookieechoscan = 1; break;
-        default:  error("Scantype %c not supported\n",*p); printusage(argv[0], -1); break;
+        default:  error("Scantype %c not supported\n",*p); printusage(-1); break;
         }
         p++;
       }
@@ -1573,7 +1573,7 @@ int nmap_main(int argc, char *argv[]) {
   /* Before we randomize the ports scanned, lets output them to machine
      parseable output */
   if (o.verbose)
-    output_ports_to_machine_parseable_output(&ports, o.TCPScan(), o.UDPScan(), o.SCTPScan(), o.ipprotscan);
+    output_ports_to_machine_parseable_output(&ports);
 
   /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
   if (quashargv) {

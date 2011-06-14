@@ -188,9 +188,7 @@ int log_open(int logt, int append, char *filename);
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
    in sequential order for space savings and easier to read output */
-void output_ports_to_machine_parseable_output(struct scan_lists *ports, 
-					      int tcpscan, int udpscan,
-					      int sctpscan, int protscan);
+void output_ports_to_machine_parseable_output(struct scan_lists *ports);
 
 /* Return a std::string containing all n strings separated by whitespace, and
    individually quoted if needed. */
@@ -207,9 +205,8 @@ void write_host_header(Target *currenths);
 
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to 
-   machine log.  resolve_all should be passed nonzero if the user asked
-   for all hosts (even down ones) to be resolved */
-void write_host_status(Target *currenths, int resolve_all);
+   machine log. */
+void write_host_status(Target *currenths);
 
 /* Prints the formatted OS Scan output to stdout, logfiles, etc (but only
    if an OS Scan was performed */

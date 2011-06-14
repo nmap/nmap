@@ -1109,9 +1109,7 @@ static void output_rangelist_given_ports(int logt, unsigned short *ports,
 /* Output the list of ports scanned to the top of machine parseable
    logs (in a comment, unfortunately).  The items in ports should be
    in sequential order for space savings and easier to read output */
-void output_ports_to_machine_parseable_output(struct scan_lists *ports,
-                                              int tcpscan, int udpscan,
-                                              int sctpscan, int protscan) {
+void output_ports_to_machine_parseable_output(struct scan_lists *ports) {
   int tcpportsscanned = ports->tcp_count;
   int udpportsscanned = ports->udp_count;
   int sctpportsscanned = ports->sctp_count;
@@ -1338,7 +1336,7 @@ void write_host_header(Target *currenths) {
       log_write(LOG_PLAIN, "]\n");
     }
   }
-  write_host_status(currenths, o.resolve_all);
+  write_host_status(currenths);
   if (currenths->TargetName() != NULL
       && currenths->resolved_addrs.size() > 1) {
     std::list<struct sockaddr_storage>::iterator it;
@@ -1362,9 +1360,8 @@ void write_host_header(Target *currenths) {
 
 /* Writes host status info to the log streams (including STDOUT).  An
    example is "Host: 10.11.12.13 (foo.bar.example.com)\tStatus: Up\n" to
-   machine log.  resolve_all should be passed nonzero if the user asked
-   for all hosts (even down ones) to be resolved */
-void write_host_status(Target *currenths, int resolve_all) {
+   machine log. */
+void write_host_status(Target *currenths) {
   if (o.listscan) {
     /* write "unknown" to machine and xml */
     log_write(LOG_MACHINE, "Host: %s (%s)\tStatus: Unknown\n",
