@@ -129,7 +129,7 @@ reason_map_type::reason_map_type(){
 
     reason_map[ER_NETUNREACH] = reason_string("net-unreach","net-unreaches");
     reason_map[ER_HOSTUNREACH] = reason_string("host-unreach","host-unreaches");
-    reason_map[ER_PROTOUNREACH] = reason_string("proto-unreaches","proto-unreaches");
+    reason_map[ER_PROTOUNREACH] = reason_string("proto-unreach","proto-unreaches");
 
     reason_map[ER_PORTUNREACH] = reason_string("port-unreach","port-unreaches");
     reason_map[ER_ECHOREPLY] = reason_string("echo-reply","echo-replies");
