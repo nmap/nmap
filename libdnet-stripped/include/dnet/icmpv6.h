@@ -44,6 +44,10 @@ struct icmpv6_hdr {
 #define ICMPV6_TIMEXCEED	3		/* time exceeded, code: */
 #define		ICMPV6_TIMEXCEED_INTRANS	0	/* hop limit exceeded in transit */
 #define		ICMPV6_TIMEXCEED_REASS		1	/* fragmetn reassembly time exceeded */
+#define ICMPV6_PARAMPROBLEM	4		/* parameter problem, code: */
+#define 	ICMPV6_PARAMPROBLEM_FIELD	0	/* erroneous header field encountered */
+#define 	ICMPV6_PARAMPROBLEM_NEXTHEADER	1	/* unrecognized Next Header type encountered */
+#define 	ICMPV6_PARAMPROBLEM_OPTION	2	/* unrecognized IPv6 option encountered */
 #define ICMPV6_ECHO		128		/* echo request */
 #define ICMPV6_ECHOREPLY	129		/* echo reply */
 /*
