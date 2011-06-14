@@ -4498,7 +4498,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 
       if (datalen < 8)
         continue;
-      if (icmpv6->icmpv6_type != ICMPV6_UNREACH)
+      if (!(icmpv6->icmpv6_type == ICMPV6_UNREACH || icmpv6->icmpv6_type == ICMPV6_PARAMPROBLEM))
 	continue;
 
       encaps_len = datalen - 8;
@@ -4589,6 +4589,9 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	    if (USI->scantype == UDP_SCAN &&
 	        sockaddr_storage_cmp(&target_dst, &hdr.src) == 0)
 	      newstate = PORT_CLOSED;
+	    else if (USI->scantype == IPPROT_SCAN &&
+	             sockaddr_storage_cmp(&target_dst, &hdr.src) == 0)
+	      newstate = PORT_OPEN;
 	    else
 	      newstate = PORT_FILTERED;
 	    break;
@@ -4598,9 +4601,37 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	      nmap_hexdump((unsigned char *)icmpv6, datalen);
 	    break;
 	  }
-	  if (newstate == PORT_UNKNOWN) break;
-	  goodone = true;
-	}
+	} else if (icmpv6->icmpv6_type == ICMPV6_PARAMPROBLEM) {
+          switch (icmpv6->icmpv6_code) {
+          case ICMPV6_PARAMPROBLEM_FIELD:
+            /* "Erroneous header field encountered" means it was understood,
+               just invalid. */
+            newstate = PORT_OPEN;
+            break;
+          case ICMPV6_PARAMPROBLEM_NEXTHEADER:
+            if (USI->scantype == IPPROT_SCAN &&
+                sockaddr_storage_cmp(&target_dst, &hdr.src) == 0) {
+              newstate = PORT_CLOSED;
+            } else {
+              newstate = PORT_FILTERED;
+            }
+            break;
+          default:
+	    error("Unexpected ICMPv6 type/code %d/%d unreachable packet:\n",
+		  icmpv6->icmpv6_type, icmpv6->icmpv6_code);
+	      nmap_hexdump((unsigned char *)icmpv6, datalen);
+            break;
+          }
+        } else {
+          error("Unexpected ICMPv6 type/code %d/%d unreachable packet:\n",
+                icmpv6->icmpv6_type, icmpv6->icmpv6_code);
+            nmap_hexdump((unsigned char *)icmpv6, datalen);
+          break;
+        }
+        current_reason = icmp_to_reason(hdr.proto, icmpv6->icmpv6_type, icmpv6->icmpv6_code);
+        if (newstate == PORT_UNKNOWN)
+          break;
+        goodone = true;
       }
     } else if (hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
       struct udp_hdr *udp = (struct udp_hdr *) data;
