@@ -465,25 +465,18 @@ int ip_is_reserved(struct in_addr *ip)
    false.  If the command is ARPCACHE_SET, the function adds an entry
    with the given ip (ss) and mac address.  An existing entry for the
    IP ss will be overwritten with the new MAC address.  true is always
-   returned for the set command.
-   WARNING: The caller must ensure that the supplied "ss" is of family
-   AF_INET. Otherwise the function will return 0 and there would be
-   no way for the caller to tell tell the difference between an error
-   or a cache miss. */
+   returned for the set command. */
 #define ARPCACHE_GET 1
 #define ARPCACHE_SET 2
 static int do_arp_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
   struct ArpCache {
-    struct sockaddr_storage ip; /* Network byte order */
+    struct sockaddr_storage ip;
     u8 mac[6];
   };
   static struct ArpCache *Cache = NULL;
   static int ArpCapacity = 0;
   static int ArpCacheSz = 0;
   int i;
-
-  //if (sin->sin_family != AF_INET)
-  //  return 0;
 
   if (command == ARPCACHE_GET) {
     for (i = 0; i < ArpCacheSz; i++) {
