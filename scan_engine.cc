@@ -4181,7 +4181,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	      /* if this is our probe we sent to localhost, then it doesn't count! */
 	      if (sockaddr_storage_cmp(&hdr.src, &hdr.dst) == 0 &&
 		  probe->ipid() == hdr.ipid)
-	        continue;
+	        break;
 
 	      /* We got a packet from the dst host in the protocol we looked for, and
 		 it wasn't our probe to ourselves, so it must be open */
@@ -5105,7 +5105,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	  /* if this is our probe we sent to localhost, then it doesn't count! */
 	  if (sockaddr_storage_cmp(&hdr.src, &hdr.dst) == 0 &&
 	      probe->ipid() == hdr.ipid)
-	    continue;
+	    break;
 
 	  newstate = HOST_UP;
 	  current_reason = ER_PROTORESPONSE;
