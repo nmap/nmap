@@ -122,7 +122,7 @@ struct abstract_ip_hdr {
   struct sockaddr_storage dst;
   u8 proto; /* IPv4 proto or IPv6 next header. */
   u8 ttl;   /* IPv4 TTL or IPv6 hop limit. */
-  u8 ipid;  /* IPv4 IP ID or IPv6 flow label. */
+  u16 ipid;  /* IPv4 IP ID or IPv6 flow label. */
 };
 
 void netutil_fatal(const char *str, ...)
