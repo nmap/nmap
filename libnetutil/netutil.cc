@@ -2011,10 +2011,7 @@ char *format_ip_options(u8* ipopt, int ipoptlen) {
  * returned buffer is guaranteed to be NULL-terminated but no
  * assumptions should be made concerning its length.
  *
- * The function provides full support for IPv4,TCP,UDP,SCTP and ICMPv4.
- * It also provides support for standard IPv6 but not for its extension
- * headers. If an IPv6 packet contains an ICMPv6 Header, the output will
- * reflect this but no parsing of ICMPv6 contents will be performed. 
+ * The function knows IPv4, IPv6, TCP, UDP, SCTP, ICMP, and ICMPv6.
  *
  * The output has three different levels of detail. Parameter "detail"
  * determines how verbose the output should be. It should take one of
