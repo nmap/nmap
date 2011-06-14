@@ -131,7 +131,7 @@ Additional functions are
 
 xml_write_raw                 Raw unescaped output.
 xml_write_escaped             XML-escaped output.
-xml_write_escaped_v           XML_escaped output, with a va_list.
+xml_write_escaped_v           XML-escaped output, with a va_list.
 xml_start_document            Writes <?xml version="1.0"?>.
 xml_depth                     Returns the size of the element stack.
 
