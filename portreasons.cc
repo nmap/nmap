@@ -164,6 +164,7 @@ reason_map_type::reason_map_type(){
     reason_map[ER_NOROUTE] = reason_string("no-route", "no-routes");
     reason_map[ER_BEYONDSCOPE] = reason_string("beyond-scope", "beyond-scopes");
     reason_map[ER_REJECTROUTE] = reason_string("reject-route", "reject-routes");
+    reason_map[ER_PARAMPROBLEM] = reason_string("param-problem", "param-problems");
 }
 
 /* Map holding plural and singular versions of error codes */
@@ -240,6 +241,9 @@ static reason_codes icmpv6_to_reason(int icmp_type, int icmp_code) {
                 return ER_REJECTROUTE;
             }
             return ER_UNKNOWN;
+
+        case ICMPV6_PARAMPROBLEM:
+	    return ER_PARAMPROBLEM;
 
         case ICMPV6_TIMEXCEED:
             return ER_TIMEEXCEEDED;
