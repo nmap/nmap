@@ -1067,7 +1067,7 @@ int log_open(int logt, int append, char *filename) {
     if (!o.nmap_stdout)
       fatal("Could not assign %s to stdout for writing", DEVNULL);
   } else {
-    if (o.append_output)
+    if (append)
       o.logfd[i] = fopen(filename, "a");
     else
       o.logfd[i] = fopen(filename, "w");
