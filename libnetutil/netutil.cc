@@ -2856,6 +2856,8 @@ static int intf_name(int index, char *name, size_t len) {
   if (name[len - 1] != '\0')
     goto bail;
 
+  close(s);
+
   return 0;
 
 bail:
