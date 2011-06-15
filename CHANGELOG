@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added minimal Service Location Protocol (SLP) library and the script
+  broadcast-novell-locate that detects servers running eDirectory. [Patrik]
+
 o [ncat] ncat now listens on localhost and ::1 when you do ncat -l. If you
   specify an address or use -4,-6 it works as before.
 
