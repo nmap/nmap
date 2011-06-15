@@ -650,7 +650,6 @@ static int ipv6_is_upperlayer(u8 type)
 const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
 {
   const unsigned char *p, *end;
-  unsigned int hdr_len;
 
   if (*len < sizeof(*ip6))
     return NULL;
@@ -659,7 +658,6 @@ const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
   end = p + *len;
 
   *nxt = ip6->ip6_nxt;
-  hdr_len = sizeof(*ip6);
   p += sizeof(*ip6);
   while (ipv6_is_extension_header(*nxt)) {
     if (p + 2 > end)
