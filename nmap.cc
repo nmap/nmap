@@ -138,11 +138,20 @@ extern char *optarg;
 extern int optind;
 extern NmapOps o;  /* option structure */
 
-/* argv[0] storage from main.cc. */
-extern const char *get_program_name(void);
 static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
   const Target *target);
 static void display_nmap_version();
+
+/* A mechanism to save argv[0] for code that requires that. */
+static const char *program_name = NULL;
+
+void set_program_name(const char *name) {
+  program_name = name;
+}
+
+static const char *get_program_name(void) {
+  return program_name;
+}
 
 /* parse the --scanflags argument.  It can be a number >=0 or a string consisting of TCP flag names like "URGPSHFIN".  Returns -1 if the argument is invalid. */
 static int parse_scanflags(char *arg) {

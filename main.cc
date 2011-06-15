@@ -127,16 +127,7 @@ static BOOL OpenLibs(void) {
 /* global options */
 extern NmapOps o;  /* option structure */
 
-/* A mechanism to save argv[0] for code that requires that. */
-static const char *program_name = NULL;
-
-static void set_program_name(const char *name) {
-  program_name = name;
-}
-
-const char *get_program_name(void) {
-  return program_name;
-}
+extern void set_program_name(const char *name);
 
 int main(int argc, char *argv[]) {
   /* The "real" main is nmap_main().  This function hijacks control at the
