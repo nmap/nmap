@@ -9338,8 +9338,8 @@ Probe TCP JavaRMI q|\x4a\x52\x4d\x49\0\x02\x4b|
 rarity 8
 ports 706,1098,1099,1981
 
-match jrmi m|^\x4e..[0-9.]+\0\0..$|s p/Java RMI/
-match jrmi m|^\x4e..([\w._-]+)\0\0..$|s p/GNU Classpath grmiregistry/ h/$1/
+match rmiregistry m|^\x4e..[0-9.]+\0\0..$|s p/Java RMI/
+match rmiregistry m|^\x4e..([\w._-]+)\0\0..$|s p/GNU Classpath grmiregistry/ h/$1/
 
 ##############################NEXT PROBE##############################
 Probe TCP Radmin q|\x01\x00\x00\x00\x01\x00\x00\x00\x08\x08|
