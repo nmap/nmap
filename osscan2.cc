@@ -1345,6 +1345,9 @@ void HostOsScan::sendT1_7Probe(HostOsScanStats *hss, int probeNo) {
 
   switch(probeNo) {
   case 0: /* T1 */
+    /* T1 is normally filled in by sendTSeqProbe so this case doesn't happen. In
+       case all six Seq probes failed, this one will be re-sent. It is the same
+       as the first probe sent by sendTSeqProbe. */
     if(hss->openTCPPort == -1) return;
     send_tcp_probe(hss, o.ttl, false, NULL, 0,
                    port_base, hss->openTCPPort,
