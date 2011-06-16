@@ -1214,6 +1214,50 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, { 
+        category='attacks',
+        probes={
+                {path='/downloadFile.php', method='GET'},
+                {path='/BackupConfig.php', method='GET'}
+        },
+        matches={
+                 {output='NETGEAR WNDAP350 2.0.1 to 2.0.9 potential file download and SSH root password disclosure'}
+        }
+})
+    
+table.insert(fingerprints, { 
+        category='attacks',
+        probes={
+                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\boot.ini', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\MDC\Tomcat\webapps\triveni\WEB-INF\classes\schedule.properties', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\lib\classpath\com\cisco\nm\cmf\dbservice2\DBServer.properties', method='GET'},
+                {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\log\dbpwdChange.log', method='GET'}
+        }, 
+        matches={
+          {match='boot loader', output='CiscoWorks (CuOM 8.0 and 8.5) Directory traversal (CVE-2011-0966) (Windows)'},
+          {match='', output='Possible CiscoWorks (CuOM 8.0 and 8.5) Directory traversal (CVE-2011-0966) (Windows)'}
+ }
+})
+ 
+table.insert(fingerprints, { 
+ category='attacks',
+ probes={
+         {path='..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/var/mobile/Library/AddressBook/AddressBook.sqlitedb', method='GET'}
+        }, 
+        matches={
+          {match='', output='Possible iPhone/iPod/iPad generic file sharing app Directory Traversal (iOS)'}
+ }
+})
+     
+table.insert(fingerprints, { 
+ category='attacks',
+        probes={
+         {path='/Info.live.htm', method='GET'}
+ }, 
+        matches={
+                 {match='200', output='Possible DD-WRT router Information Disclosure (OSVDB 70230)'}
+        }
+})
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
