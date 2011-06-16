@@ -40,30 +40,16 @@ require("target")
 require("http")
 
 Util = {
-	
-	--- Converts a string ip to a numeric value suitable for comparing
-	--
-	-- @param ip string containing the ip to convert
-	-- @return number containing the converted ip
-	ipToNumber = function(ip)
-		local o1, o2, o3, o4 = ip:match("^(%d*)%.(%d*)%.(%d*)%.(%d*)$")
-		return (256^3) * o1 + (256^2) * o2 + (256^1) * o3 + (256^0) * o4
-	end,
 
 	--- Compare function used for sorting IP-addresses
 	--
 	-- @param a table containing first item
 	-- @param b table containing second item
-	-- @return true if the port of a is less than the port of b
+	-- @return true if a is less than b
 	ipCompare = function(a, b)
-		local ip_a = Util.ipToNumber(a.name)
-		local ip_b = Util.ipToNumber(b.name)
-		if ( tonumber(ip_a) < tonumber(ip_b) ) then
-			return true
-		end
-		return false
-	end
-	
+    return ipOps.compare_ip(a, "lt", b)
+	end,
+
 }
 
 Comm = {
@@ -293,7 +279,8 @@ Comm = {
 	setMulticast = function( self, mcast )
 		assert( type(mcast)=="boolean", "mcast has to be either true or false")
 		self.mcast = mcast
-		self.host = "239.255.255.250"
+		local family = nmap.address_family()		
+		self.host = (family=="inet6" and "FF02::C" or "239.255.255.250")
 		self.port = 1900
 	end,
 

@@ -11,6 +11,7 @@ local tonumber = tonumber
 
 local stdnse   = require "stdnse"
 local bit      = require "bit"
+local bin      = require "bin"
 
 module ( "ipOps" )
 
@@ -126,7 +127,7 @@ end
 --
 -- Note: IPv6 addresses are not supported. Currently, numbers in NSE are
 -- limited to 10^14, and consequently not all IPv6 addresses can be
--- represented.
+-- represented. Consider using <code>ip_to_str</code> for IPv6 addresses.
 -- @param ip  String representing an IPv4 address.  Shortened notation is
 -- permitted.
 -- @usage
@@ -211,7 +212,8 @@ end
 
 
 ---
--- Compares two IP addresses (from the same address family).
+-- Compares two IP addresses. When comparing addresses from different families,
+-- IPv4 addresses will sort before IPv6 addresses.
 -- @param left   String representing an IPv4 or IPv6 address.  Shortened
 -- notation is permitted.
 -- @param op     A comparison operator which may be one of the following
@@ -231,47 +233,36 @@ compare_ip = function( left, op, right )
     return nil, "Error in ipOps.compare_ip: Expected IP address as a string."
   end
 
-  if ( left:match( ":" ) and not right:match( ":" ) ) or ( not left:match( ":" ) and right:match( ":" ) ) then
-    return nil, "Error in ipOps.compare_ip: IP addresses must be from the same address family."
-  end
-
-  if op == "lt" or op == "le" then
-    left, right = right, left
-  elseif op ~= "eq" and op ~= "ge" and op ~= "gt" then
-    return nil, "Error in ipOps.compare_ip: Invalid Operator."
-  end
-
   local err ={}
-  left, err[#err+1] = ip_to_bin( left )
-  right, err[#err+1] = ip_to_bin( right )
+  left, err[#err+1] = ip_to_str( left )
+  right, err[#err+1] = ip_to_str( right )
   if #err > 0 then
     return nil, table.concat( err, " " )
   end
 
-  if # left  ~= # right  then
-      -- shouldn't happen...
-      return nil, "Error in ipOps.compare_ip: Binary IP addresses were of different lengths."
+  if #left > #right then
+    left = bin.pack( "CA", 0x06, left )
+    right = bin.pack( "CA", 0x04, right )
+  elseif #right > #left then
+    right = bin.pack( "CA", 0x06, right )
+    left = bin.pack( "CA", 0x04, left )
   end
 
-  -- equal?
-  if ( op == "eq" or op == "le" or op == "ge" ) and left == right then
-    return true
-  elseif op == "eq" then
-    return false
+  if ( op == "eq" ) then
+    return ( left == right )
+  elseif ( op == "ne" ) then
+    return ( left ~= right )
+  elseif ( op == "le" ) then
+    return ( left <= right )
+  elseif ( op == "ge" ) then
+    return ( left >= right )
+  elseif ( op == "lt" ) then
+    return ( left < right )
+  elseif ( op == "gt" ) then
+    return ( left > right )
   end
 
-  -- starting from the leftmost bit, subtract the bit in right from the bit in left
-  local compare
-  for i = 1, # left , 1 do
-    compare = tonumber( string.sub( left, i, i ) ) - tonumber( string.sub( right, i, i ) )
-    if compare == 1 then
-      return true
-    elseif compare == -1 then
-      return false
-    end
-  end
-  return false
-
+  return nil, "Error in ipOps.compare_ip: Invalid Operator."
 end
 
 
@@ -327,12 +318,15 @@ end
 -- the IPv4 portion is shortened and does not contain a dot, in which case the
 -- address will be treated as IPv6.
 -- @param ip  String representing an IPv4 or IPv6 address in shortened or full notation.
+-- @param family String representing the address family to expand to. Only
+-- affects IPv4 addresses when "inet6" is provided, causing the function to
+-- return an IPv4-mapped IPv6 address.
 -- @usage
 -- local ip = ipOps.expand_ip( "2001::" )
 -- @return    String representing a fully expanded IPv4 or IPv6 address (or
 -- <code>nil</code> in case of an error).
 -- @return String error message in case of an error.
-expand_ip = function( ip )
+expand_ip = function( ip, family )
   local err
 
   if type( ip ) ~= "string" or ip == "" then
@@ -355,7 +349,18 @@ expand_ip = function( ip )
     while #octets < 4 do
       octets[#octets+1] = "0"
     end
-    return ( table.concat( octets, "." ) )
+    if family == "inet6" then
+      return ( table.concat( { 0,0,0,0,0,"ffff",
+        stdnse.tohex( 256*octets[1]+octets[2] ),
+        stdnse.tohex( 256*octets[3]+octets[4] ) 
+        }, ":" ) )
+    else
+      return ( table.concat( octets, "." ) )
+    end
+  end
+
+  if family ~= nil and family ~= "inet6" then
+    return nil, "Error in ipOps.expand_ip: Cannot convert IPv6 address to IPv4"
   end
 
   if ip:match( "[^\.:%x]" ) then
@@ -498,6 +503,39 @@ get_last_ip = function( ip, prefix )
 
 end
 
+---
+-- Converts an IP address into an opaque string.
+-- @param ip  String representing an IPv4 or IPv6 address.
+-- @param family (optional) Address family to convert to. "ipv6" converts IPv4
+-- addresses to IPv4-mapped IPv6.
+-- @usage
+-- opaque = ipOps.ip_to_str( "192.168.3.4" )
+-- @return 4- or 16-byte string representing IP address (or <code>nil</code>
+-- in case of an error).
+-- @return String error message in case of an error
+ip_to_str = function( ip, family )
+  local err
+
+  ip, err = expand_ip( ip, family )
+  if err then return nil, err end
+
+  local t = {}
+
+  if not ip:match( ":" ) then
+    -- ipv4 string
+    for octet in string.gmatch( ip, "%d+" ) do
+      t[#t+1] = bin.pack( ">C", tonumber(octet) )
+    end
+  else
+    -- ipv6 string
+    for hdt in string.gmatch( ip, "%x+" ) do
+      t[#t+1] = bin.pack( ">S", tonumber(hdt, 16) )
+    end
+  end
+
+
+  return table.concat( t )
+end
 
 
 ---

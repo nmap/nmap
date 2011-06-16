@@ -1059,8 +1059,9 @@ function output_ips(t)
     end
   end
 
-  -- IPv6 - for now, no sorting.
+  -- IPv6
   -- Rows are allowed to be 71 chars wide
+  table.sort(t['6'], function(a,b) return ipOps.compare_ip(a, "lt", b) end)
   local i = 1
   local limit = #t['6']
   while i <= limit do

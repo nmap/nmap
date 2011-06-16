@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
+  patch from Dan Miller that fixes errors in processing and sorting ipv6
+  addresses in scripts using these libraries. [Daniel Miller, Patrik]
+
 o [NSE] Added minimal Service Location Protocol (SLP) library and the script
   broadcast-novell-locate that detects servers running eDirectory. [Patrik]
 

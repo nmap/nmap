@@ -322,8 +322,10 @@ Helper = {
 	-- @param mcast boolean true if multicast is to be used, false otherwise
 	setMulticast = function( self, mcast )
 		assert( type(mcast)=="boolean", "mcast has to be either true or false")
+		local family = nmap.address_family()
 		self.mcast = mcast
-		self.host, self.port = "239.255.255.250", 3702
+		self.host = (family=="inet6" and "FF02::C" or "239.255.255.250")
+		self.port = 3702
 	end,
 	
 	--- Sets the timeout for socket reads

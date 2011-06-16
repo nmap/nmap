@@ -41,31 +41,17 @@ module(... or "dnssd", package.seeall)
 
 require 'dns'
 require 'target'
+require 'ipOps'
 
 Util = {
-	
-	--- Converts a string ip to a numeric value suitable for comparing
-	--
-	-- @param ip string containing the ip to convert
-	-- @return number containing the converted ip
-	ipToNumber = function(ip)
-		local o1, o2, o3, o4 = ip:match("^(%d*)%.(%d*)%.(%d*)%.(%d*)$")
-		return (256^3) * o1 + (256^2) * o2 + (256^1) * o3 + (256^0) * o4
-	end,
 
 	--- Compare function used for sorting IP-addresses
 	--
 	-- @param a table containing first item
 	-- @param b table containing second item
-	-- @return true if the port of a is less than the port of b
+	-- @return true if a is less than b
 	ipCompare = function(a, b)
-		local ip_a = Util.ipToNumber(a.name) or 0
-		local ip_b = Util.ipToNumber(b.name) or 0
-
-		if ( tonumber(ip_a) < tonumber(ip_b) ) then
-			return true
-		end
-		return false
+     return ipOps.compare_ip(a, "lt", b)
 	end,
 	
 	--- Function used to compare discovered DNS services so they can be sorted
@@ -229,7 +215,10 @@ Comm = {
 		if status then address = ip	end
 
 		status, ipv6 = Comm.getRecordType( dns.types.AAAA, response, false )
-		if status then address = address .. " " .. ipv6	end
+		if status then
+			address = address or ""
+			address = address .. " " .. ipv6
+		end
 
 		status, txt = Comm.getRecordType( dns.types.TXT, response, true )
 		if status then
@@ -337,7 +326,8 @@ Helper = {
 		local status, response
 		local mcast = self.mcast
 		local port = self.port or 5353
-		local host = mcast and "224.0.0.251" or self.host
+		local family = nmap.address_family()
+		local host = mcast and (family=="inet6" and "ff02::fb" or "224.0.0.251") or self.host
 		local service = service or stdnse.get_script_args('dnssd.services')
 		
 		if ( not(service) ) then
