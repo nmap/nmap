@@ -1780,7 +1780,7 @@ int nmap_main(int argc, char *argv[]) {
         continue;
       }
 
-      if (o.af() == AF_INET && o.RawScan()) { 
+      if (o.RawScan()) {
         if (currenths->SourceSockAddr(NULL, NULL) != 0) {
           if (o.SourceSockAddr(&ss, &sslen) == 0) {
             currenths->setSourceSockAddr(&ss, sslen);
