@@ -3163,6 +3163,148 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   return probe;
 }
 
+
+/* Build an appropriate protocol scan (-sO) probe for the given source and
+   destination addresses and protocol. src and dst must be of the same address
+   family. Returns NULL on error. */
+static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
+  const struct sockaddr_storage *dst, u8 proto, u16 sport, u32 *packetlen)
+{
+  u16 icmp_ident, ipid;
+  u8 *packet;
+
+  packet = NULL;
+  *packetlen = 0;
+
+  ipid = get_random_u16();
+  /* Some hosts do not respond to ICMP requests if the identifier is 0. */
+  icmp_ident = (get_random_u16() % 0xffff) + 1;
+
+  assert(src->ss_family == dst->ss_family);
+
+  if (src->ss_family == AF_INET) {
+    const struct sockaddr_in *src_in, *dst_in;
+
+    src_in = (struct sockaddr_in *) src;
+    dst_in = (struct sockaddr_in *) dst;
+
+    switch (proto) {
+    case IPPROTO_TCP:
+      packet = build_tcp_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                             o.ttl, ipid, IP_TOS_DEFAULT, false,
+                             o.ipoptions, o.ipoptionslen,
+                             sport, o.magic_port,
+                             get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0,
+                             NULL,0,
+                             o.extra_payload, o.extra_payload_length, 
+                             packetlen);
+      break;
+    case IPPROTO_ICMP:
+      packet = build_icmp_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                              o.ttl, ipid, IP_TOS_DEFAULT, false,
+                              o.ipoptions, o.ipoptionslen,
+                              0, icmp_ident, 8, 0,
+                              o.extra_payload, o.extra_payload_length,
+                              packetlen);
+      break;
+    case IPPROTO_IGMP:
+      packet = build_igmp_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                              o.ttl, ipid, IP_TOS_DEFAULT, false,
+                              o.ipoptions, o.ipoptionslen,
+                              0x11, 0,
+                              o.extra_payload, o.extra_payload_length,
+                              packetlen);
+      break;
+    case IPPROTO_UDP:
+      packet = build_udp_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                             o.ttl, ipid, IP_TOS_DEFAULT, false,
+                             o.ipoptions, o.ipoptionslen,
+                             sport, o.magic_port,
+                             o.extra_payload, o.extra_payload_length, 
+                             packetlen);
+
+      break;
+    case IPPROTO_SCTP:
+      {
+        struct sctp_chunkhdr_init chunk;
+        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
+                                sizeof(struct sctp_chunkhdr_init),
+                                get_random_u32()/*itag*/,
+                                32768, 10, 2048,
+                                get_random_u32()/*itsn*/);
+        packet = build_sctp_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                                o.ttl, ipid, IP_TOS_DEFAULT, false,
+                                o.ipoptions, o.ipoptionslen,
+                                sport, o.magic_port,
+                                0UL, (char*)&chunk,
+                                sizeof(struct sctp_chunkhdr_init),
+                                o.extra_payload, o.extra_payload_length,
+                                packetlen);
+      }
+      break;
+    default:
+      packet = build_ip_raw(&src_in->sin_addr, &dst_in->sin_addr,
+                            proto,
+                            o.ttl, ipid, IP_TOS_DEFAULT, false,
+                            o.ipoptions, o.ipoptionslen,
+                            o.extra_payload, o.extra_payload_length, 
+                            packetlen);
+      break;
+    }
+  } else if (src->ss_family == AF_INET6) {
+    const struct sockaddr_in6 *src_in6, *dst_in6;
+
+    src_in6 = (struct sockaddr_in6 *) src;
+    dst_in6 = (struct sockaddr_in6 *) dst;
+
+    switch (proto) {
+    case IPPROTO_TCP:
+      packet = build_tcp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
+                                  0, ipid, o.ttl, sport, o.magic_port,
+                                  get_random_u32(), get_random_u32(), 0,
+                                  TH_ACK, 0, 0, NULL, 0, o.extra_payload,
+                                  o.extra_payload_length, packetlen);
+      break;
+    case IPPROTO_ICMPV6:
+      packet = build_icmpv6_raw(&src_in6->sin6_addr, &dst_in6->sin6_addr,
+                                0, ipid, o.ttl, 0, icmp_ident,
+                                ICMPV6_ECHO, ICMPV6_ECHOREPLY,
+                                o.extra_payload, o.extra_payload_length,
+                                packetlen);
+      break;
+    case IPPROTO_UDP:
+      packet = build_udp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
+                                  0, ipid, o.ttl, sport, o.magic_port,
+                                  o.extra_payload, o.extra_payload_length, 
+                                  packetlen);
+      break;
+    case IPPROTO_SCTP:
+      {
+        struct sctp_chunkhdr_init chunk;
+        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
+                                sizeof(struct sctp_chunkhdr_init),
+                                get_random_u32()/*itag*/,
+                                32768, 10, 2048,
+                                get_random_u32()/*itsn*/);
+        packet = build_sctp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
+                                     0, ipid, o.ttl, sport, o.magic_port,
+                                     0UL, (char*)&chunk,
+                                     sizeof(struct sctp_chunkhdr_init),
+                                     o.extra_payload, o.extra_payload_length,
+                                     packetlen);
+      }
+      break;
+    default:
+      packet = build_ipv6_raw(&src_in6->sin6_addr, &dst_in6->sin6_addr,
+                              0, ipid, proto, o.ttl, o.extra_payload,
+                              o.extra_payload_length, packetlen);
+      break;
+    }
+  }
+
+  return packet;
+}
+
 /* If this is NOT a ping probe, set pingseq to 0.  Otherwise it will be the
    ping sequence number (they start at 1).  The probe sent is returned.
    
@@ -3362,71 +3504,17 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     free(chunk);
   } else if (pspec->type == PS_PROTO) {
     if (hss->target->af() == AF_INET) {
+      struct sockaddr_storage ss;
+      struct sockaddr_in *sin;
+
+      sin = (struct sockaddr_in *) &ss;
+      sin->sin_family = AF_INET;
+
       for(decoy = 0; decoy < o.numdecoys; decoy++) {
-        switch(pspec->proto) {
-
-        case IPPROTO_TCP:
-          packet = build_tcp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                 o.ipoptions, o.ipoptionslen,
-                                 sport, o.magic_port,
-                                 get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0,
-                                 NULL,0,
-                                 o.extra_payload, o.extra_payload_length, 
-                                 &packetlen);
-          break;
-        case IPPROTO_ICMP:
-          packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                  o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                  o.ipoptions, o.ipoptionslen,
-                                  0, icmp_ident, 8, 0,
-                                  o.extra_payload, o.extra_payload_length,
-                                  &packetlen);
-          break;
-        case IPPROTO_IGMP:
-          packet = build_igmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                  o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                  o.ipoptions, o.ipoptionslen,
-                                  0x11, 0,
-                                  o.extra_payload, o.extra_payload_length,
-                                  &packetlen);
-          break;
-        case IPPROTO_UDP:
-          packet = build_udp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                 o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                 o.ipoptions, o.ipoptionslen,
-                                 sport, o.magic_port,
-                                 o.extra_payload, o.extra_payload_length, 
-                                 &packetlen);
-
-          break;
-        case IPPROTO_SCTP:
-          {
-            struct sctp_chunkhdr_init chunk;
-            sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
-                                    sizeof(struct sctp_chunkhdr_init),
-                                    get_random_u32()/*itag*/,
-                                    32768, 10, 2048,
-                                    get_random_u32()/*itsn*/);
-            packet = build_sctp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                    o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                    o.ipoptions, o.ipoptionslen,
-                                    sport, o.magic_port,
-                                    0UL, (char*)&chunk,
-                                    sizeof(struct sctp_chunkhdr_init),
-                                    o.extra_payload, o.extra_payload_length,
-                                    &packetlen);
-          }
-          break;
-        default:
-          packet = build_ip_raw(&o.decoys[decoy], hss->target->v4hostip(),
-                                pspec->proto,
-                                o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                o.ipoptions, o.ipoptionslen,
-                                o.extra_payload, o.extra_payload_length, 
-                                &packetlen);
-          break;
-        }
+        sin->sin_addr = o.decoys[decoy];
+        packet = build_protoscan_packet(&ss, hss->target->TargetSockAddr(),
+          pspec->proto, sport, &packetlen);
+        assert(packet != NULL);
         if (decoy == o.decoyturn) {
           probe->setIP(packet, packetlen, pspec);
           probe->sent = USI->now;
@@ -3436,56 +3524,9 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
-      struct sockaddr_storage source;
-      struct sockaddr_in6 *sin6;
-      size_t source_len;
-
-      source_len = sizeof(source);
-      hss->target->SourceSockAddr(&source, &source_len);
-      sin6 = (struct sockaddr_in6 *) &source;
-      switch(pspec->proto) {
-      case IPPROTO_TCP:
-        packet = build_tcp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
-                                    0, ipid, o.ttl, sport, o.magic_port,
-                                    get_random_u32(), get_random_u32(), 0,
-                                    TH_ACK, 0, 0, NULL, 0, o.extra_payload,
-                                    o.extra_payload_length, &packetlen);
-        break;
-      case IPPROTO_ICMPV6:
-        packet = build_icmpv6_raw(&sin6->sin6_addr, hss->target->v6hostip(),
-                                  0, ipid, o.ttl, 0, icmp_ident,
-                                  ICMPV6_ECHO, ICMPV6_ECHOREPLY,
-                                  o.extra_payload, o.extra_payload_length,
-                                  &packetlen);
-        break;
-      case IPPROTO_UDP:
-        packet = build_udp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
-                                    0, ipid, o.ttl, sport, o.magic_port,
-                                    o.extra_payload, o.extra_payload_length, 
-                                    &packetlen);
-        break;
-      case IPPROTO_SCTP:
-        {
-          struct sctp_chunkhdr_init chunk;
-          sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
-                                  sizeof(struct sctp_chunkhdr_init),
-                                  get_random_u32()/*itag*/,
-                                  32768, 10, 2048,
-                                  get_random_u32()/*itsn*/);
-          packet = build_sctp_raw_ipv6(&sin6->sin6_addr, hss->target->v6hostip(),
-                                       0, ipid, o.ttl, sport, o.magic_port,
-                                       0UL, (char*)&chunk,
-                                       sizeof(struct sctp_chunkhdr_init),
-                                       o.extra_payload, o.extra_payload_length,
-                                       &packetlen);
-        }
-        break;
-      default:
-        packet = build_ipv6_raw(&sin6->sin6_addr, hss->target->v6hostip(),
-                                0, ipid, pspec->proto, o.ttl, o.extra_payload,
-                                o.extra_payload_length, &packetlen);
-        break;
-      }
+      packet = build_protoscan_packet(hss->target->SourceSockAddr(), hss->target->TargetSockAddr(),
+        pspec->proto, sport, &packetlen);
+      assert(packet != NULL);
       probe->setIP(packet, packetlen, pspec);
       probe->sent = USI->now;
       hss->probeSent(packetlen);
