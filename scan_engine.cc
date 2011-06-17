@@ -4229,7 +4229,7 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
     size_t ss_len;
 
     datalen = bytes;
-    data = ip_get_data(ip_tmp, &bytes, &hdr);
+    data = ip_get_data(ip_tmp, &datalen, &hdr);
     if (data == NULL)
       continue;
 
@@ -4820,7 +4820,7 @@ static int get_ping_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
      */
 
     datalen = bytes;
-    data = ip_get_data(ip_tmp, &bytes, &hdr);
+    data = ip_get_data(ip_tmp, &datalen, &hdr);
     if (data == NULL)
       continue;
 
