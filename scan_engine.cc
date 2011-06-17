@@ -817,37 +817,35 @@ void UltraProbe::setIP(u8 *ippacket, u32 len, const probespec *pspec) {
   type = UP_IP;
   if (ip->ip_v == 4) {
     data = ipv4_get_data(ip, &len);
-    assert(data == NULL || len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
+    assert(data != NULL);
+    assert(len + ip->ip_hl * 4 == (u32) ntohs(ip->ip_len));
     probes.IP.ipid = ntohs(ip->ip_id);
     hdr = ip->ip_p;
   } else if (ip->ip_v == 6) {
     const struct ip6_hdr *ip6 = (struct ip6_hdr *) ippacket;
-    data = ipv6_get_data(ip6, &len, &hdr);
-    /* ipv6_get_data may fail because of malformed -sO probes for example, so
-       only trust len and hdr if data != NULL. */
-    assert(data == NULL || len == (u32) ntohs(ip6->ip6_plen));
+    data = ipv6_get_data_any(ip6, &len, &hdr);
+    assert(data != NULL);
+    assert(len == (u32) ntohs(ip6->ip6_plen));
     probes.IP.ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK) & 0xFFFF;
     hdr = ip6->ip6_nxt;
   } else {
     fatal("Bogus packet passed to %s -- only IP packets allowed", __func__);
   }
 
-  if (data != NULL) {
-    if (hdr == IPPROTO_TCP) {
-      assert(len >= 20);
-      tcp = (struct tcp_hdr *) data;
-      probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
-      probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
-    } else if (hdr == IPPROTO_UDP) {
-      assert(len >= 8);
-      udp = (struct udp_hdr *) data;
-      probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
-    } else if (hdr == IPPROTO_SCTP) {
-      assert(len >= 12);
-      sctp = (struct sctp_hdr *) data;
-      probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
-      probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
-    }
+  if (hdr == IPPROTO_TCP) {
+    assert(len >= 20);
+    tcp = (struct tcp_hdr *) data;
+    probes.IP.pd.tcp.sport = ntohs(tcp->th_sport);
+    probes.IP.pd.tcp.seq = ntohl(tcp->th_seq);
+  } else if (hdr == IPPROTO_UDP) {
+    assert(len >= 8);
+    udp = (struct udp_hdr *) data;
+    probes.IP.pd.udp.sport = ntohs(udp->uh_sport);
+  } else if (hdr == IPPROTO_SCTP) {
+    assert(len >= 12);
+    sctp = (struct sctp_hdr *) data;
+    probes.IP.pd.sctp.sport = ntohs(sctp->sh_sport);
+    probes.IP.pd.sctp.vtag = ntohl(sctp->sh_vtag);
   }
 
   mypspec = *pspec;
@@ -4513,7 +4511,17 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	continue;
 
       encaps_len = datalen - 8;
-      encaps_data = ip_get_data((char *) data + 8, &encaps_len, &encaps_hdr);
+      encaps_data = ip_get_data_any((char *) data + 8, &encaps_len, &encaps_hdr);
+      if (encaps_data == NULL ||
+          /* UDP hdr, or TCP hdr up to seq #, or SCTP hdr up to vtag */
+          ((USI->tcp_scan || USI->udp_scan || USI->sctp_scan) && encaps_len < 8)
+          /* prot scan has no headers coming back, so we don't reserve the
+             8 xtra bytes */
+          ) {
+        if (o.debugging)
+          error("Received short ICMPv6 packet (%u bytes)", datalen);
+        continue;
+      }
 
       /* Make sure the protocol is right */
       if (USI->tcp_scan && encaps_hdr.proto != IPPROTO_TCP)
@@ -4547,19 +4555,19 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
             sockaddr_storage_cmp(&target_dst, &encaps_hdr.dst) != 0)
 	  continue;
 
-	if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
+	if (encaps_hdr.proto == IPPROTO_TCP && !USI->prot_scan) {
 	  struct tcp_hdr *tcp = (struct tcp_hdr *) encaps_data;
 	  if (ntohs(tcp->th_sport) != probe->sport() ||
 	      ntohs(tcp->th_dport) != probe->dport() ||
 	      ntohl(tcp->th_seq) != probe->tcpseq())
 	    continue;
-	} else if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
+	} else if (encaps_hdr.proto == IPPROTO_SCTP && !USI->prot_scan) {
 	  struct sctp_hdr *sctp = (struct sctp_hdr *) encaps_data;
 	  if (ntohs(sctp->sh_sport) != probe->sport() ||
 	      ntohs(sctp->sh_dport) != probe->dport() ||
 	      ntohl(sctp->sh_vtag) != probe->sctpvtag())
 	    continue;
-	} else if (encaps_data != NULL && encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
+	} else if (encaps_hdr.proto == IPPROTO_UDP && !USI->prot_scan) {
 	  /* TODO: IPID verification */
 	  struct udp_hdr *udp = (struct udp_hdr *) encaps_data;
 	  if (ntohs(udp->uh_sport) != probe->sport() ||
