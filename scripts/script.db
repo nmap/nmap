@@ -107,6 +107,7 @@ Entry { filename = "ms-sql-info.nse", categories = { "default", "discovery", "sa
 Entry { filename = "ms-sql-query.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-tables.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ms-sql-xp-cmdshell.nse", categories = { "intrusive", } }
+Entry { filename = "mysql-audit.nse", categories = { "discovery", "safe", } }
 Entry { filename = "mysql-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "mysql-databases.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mysql-empty-password.nse", categories = { "auth", "intrusive", } }

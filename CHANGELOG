@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a MySQL audit script and a rulebase that supports auditing a
+  subset of the MySQL CIS 1.0.2 Benchmark. [Patrik]
+
 o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
   patch from Dan Miller that fixes errors in processing and sorting ipv6
   addresses in scripts using these libraries. [Daniel Miller, Patrik]
