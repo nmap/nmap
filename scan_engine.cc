@@ -1710,7 +1710,6 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
   struct timeval tmptv;
   list<HostScanStats *>::iterator host;
   bool ggood = false;
-  bool hgood = false;
   bool thisHostGood = false;
   bool foundgood = false;
 
@@ -1735,7 +1734,6 @@ bool UltraScanInfo::sendOK(struct timeval *when) {
       thisHostGood = (*host)->sendOK(&tmptv);
       if (ggood && thisHostGood) {
 	lowhtime = tmptv;
-	hgood = true;
 	foundgood = true;
 	break;
       }
@@ -4186,7 +4184,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
   bool timedout = false;
   bool adjust_timing = true;
   struct timeval rcvdtime;
-  struct ip *ip_icmp = NULL;
   struct link_header linkhdr;
   unsigned int bytes;
   long to_usec;
@@ -4243,7 +4240,6 @@ static bool get_pcap_result(UltraScanInfo *USI, struct timeval *stime) {
 	if (hdr.proto == IPPROTO_ICMP) {
 	  protoscanicmphack = true;
 	  protoscanicmphackaddy = hdr.src;
-	  ip_icmp = ip_tmp;
 	} else {
 	  probeI = hss->probes_outstanding.end();
 	  listsz = hss->num_probes_outstanding();
@@ -5362,7 +5358,6 @@ static void processData(UltraScanInfo *USI) {
   HostScanStats *host = NULL;
   UltraProbe *probe = NULL;
   unsigned int maxtries = 0;
-  bool scanmaybedone = true; /* The whole scan is not yet done */
   int expire_us = 0;
 
   bool tryno_capped = false, tryno_mayincrease = false;
@@ -5388,8 +5383,6 @@ static void processData(UltraScanInfo *USI) {
   for(hostI = USI->incompleteHosts.begin(); 
       hostI != USI->incompleteHosts.end(); hostI++) {
     host = *hostI;
-    if (host->num_probes_active != 0 || host->freshPortsLeft() != 0)
-      scanmaybedone = false;
     /* Look for timedout or long expired entries */
     maxtries = host->allowedTryno(&tryno_capped, &tryno_mayincrease);
 
@@ -5746,7 +5739,7 @@ void bounce_scan(Target *target, u16 *portarray, int numports,
    likely to get through (and flag us a problem if responsive)
    if we let them go first in the next round */
 static void reverse_testing_order(struct portinfolist *pil, struct portinfo *scanarray) {
-  int currentidx, nextidx;
+  int nextidx;
   struct portinfo *current;
 
   current = pil->testinglist;
@@ -5756,7 +5749,6 @@ static void reverse_testing_order(struct portinfolist *pil, struct portinfo *sca
 
   while(1) {
     nextidx = current->next;
-    currentidx = current - scanarray;
     /* current->state is always PORT_TESTING here */
     current->next = current->prev; // special case 1st node dealt w/later
     current->prev = nextidx; // special last TESTING node case dealt w/later
@@ -5789,7 +5781,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   struct scanstats ss;
   int senddelay = 0;
   int rpcportsscanned = 0;
-  time_t starttime;
   struct timeval starttm;
   struct portinfo *scan = NULL,  *current, *next;
   struct portinfolist pil;
@@ -5853,8 +5844,6 @@ void pos_scan(Target *target, u16 *portarray, int numports, stype scantype) {
   }
   current = pil.testinglist = &scan[0]; 
   rsi.rpc_current_port = NULL; 
-
-  starttime = time(NULL);
 
   do {
     ss.changed = 0;
