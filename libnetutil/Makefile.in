@@ -14,8 +14,8 @@ LIBPCAPDIR = @libpcapdir@
 
 TARGET = libnetutil.a
 
-SRCS = $(srcdir)/netutil.cc
-OBJS = netutil.o
+SRCS = $(srcdir)/netutil.cc $(srcdir)/addrset.cc
+OBJS = netutil.o addrset.o
 
 all: $(TARGET) 
 

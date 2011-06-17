@@ -132,7 +132,7 @@ netutil_build: libnetutil/Makefile
 	@echo Compiling libnetutil;
 	cd libnetutil && $(MAKE)
 
-ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h
+ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build netutil_build $(NCATDIR)/ncat.h
 	cd $(NCATDIR) && $(MAKE)
 
 lua_build: $(LIBLUADIR)/Makefile

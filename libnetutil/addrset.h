@@ -1,8 +1,5 @@
-
 /***************************************************************************
- * targets.h -- Functions relating to "ping scanning" as well as           *
- * determining the exact IPs to hit based on CIDR and other input formats. * 
- *                                                                         *
+ * addrset.h                                                               *
  ***********************IMPORTANT NMAP LICENSE TERMS************************
  *                                                                         *
  * The Nmap Security Scanner is (C) 1996-2011 Insecure.Com LLC. Nmap is    *
@@ -88,83 +85,78 @@
  *                                                                         *
  ***************************************************************************/
 
-/* $Id$ */
 
-#ifndef TARGETS_H
-#define TARGETS_H
+#ifndef _NETUTIL_ADDRSET_H
+#define _NETUTIL_ADDRSET_H
 
-#ifdef HAVE_CONFIG_H
-#include "nmap_config.h"
-#else
-#ifdef WIN32
-#include "nmap_winconfig.h"
-#endif /* WIN32 */
-#endif /* HAVE_CONFIG_H */
-
-/* This contains pretty much everything we need ... */
-#if HAVE_SYS_TIME_H
-#include <sys/time.h>
+//#define HAVE_IPV6 1
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <ctype.h>
+#ifndef WIN32
+#include <sys/socket.h>
 #endif
 
-#if HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#ifdef HAVE_SYS_PARAM_H   
-#include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
+struct addrset_elem;
+
+/* A set of addresses. Used to match against allow/deny lists. */
+struct addrset {
+    /* Linked list of struct addset_elem. */
+    struct addrset_elem *head;
+};
+
+/* We use bit vectors to represent what values are allowed in an IPv4 octet.
+   Each vector is built up of an array of bitvector_t (any convenient integer
+   type). */
+typedef unsigned long bitvector_t;
+/* A 256-element bit vector, representing legal values for one octet. */
+typedef bitvector_t octet_bitvector[(256 - 1) / (sizeof(unsigned long) * CHAR_BIT) + 1];
+
+enum addrset_elem_type {
+    ADDRSET_TYPE_IPV4_BITVECTOR,
+#ifdef HAVE_IPV6
+    ADDRSET_TYPE_IPV6_NETMASK,
+#endif
+};
+
+/* A chain of tests for set inclusion. If one test is passed, the address is in
+   the set. */
+struct addrset_elem {
+    enum addrset_elem_type type;
+    union {
+        struct {
+            /* A bit vector for each address octet. */
+            octet_bitvector bits[4];
+        } ipv4;
+#ifdef HAVE_IPV6
+        struct {
+            struct in6_addr addr;
+            struct in6_addr mask;
+        } ipv6;
+#endif
+    } u;
+    struct addrset_elem *next;
+};
+
+extern void addrset_init(struct addrset *set);
+
+extern void addrset_free(struct addrset *set);
+
+extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
+
+extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
+
+extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
+
+#ifdef __cplusplus
+}
 #endif
 
-#include "nmap.h"
-#include "libnetutil/addrset.h"
-#include "global_structures.h"
-
-class HostGroupState;
-
-/**************************STRUCTURES******************************/
-struct pingtune {
-  int up_this_block;
-  int down_this_block;
-  int block_tries;
-  int block_unaccounted;
-  int max_tries;
-  int num_responses;
-  int dropthistry;
-  double group_size;
-  int min_group_size; /* The group size must never go below this value */
-  int group_start;
-  int group_end;
-  u16 seq_offset; // For distinguishing between received packets from this 
-                  // execution vs. concurrent nmaps
-};
-
-struct tcpqueryinfo {
-  int *sockets[MAX_PROBE_PORTS];
-  int maxsd;
-  fd_set fds_r;
-  fd_set fds_w;
-  fd_set fds_x;
-  int sockets_out;
-};
-
-struct pingtech {
-  unsigned int rawicmpscan: 1,
-    connecttcpscan: 1,
-    rawtcpscan: 1,
-    rawudpscan: 1,
-    rawsctpscan: 1,
-    rawprotoscan: 1;
-};
-
-/* Ports is the list of ports the user asked to be scanned (0 terminated),
-   you can just pass NULL (it is only a stupid optimization that needs it) */
-Target *nexthost(HostGroupState *hs,const addrset *exclude_group, 
-		 struct scan_lists *ports, int pingtype);
-int load_exclude_file(addrset *exclude_group, FILE *fp);
-int load_exclude_string(addrset *exclude_group, const char *s);
-/* a debugging routine to dump an exclude list to stdout. */
-int dumpExclude(addrset *exclude_group);
-/* Returns the last host obtained by nexthost.  It will be given again the next
-   time you call nexthost(). */
-void returnhost(HostGroupState *hs);
-#endif /* TARGETS_H */
-
+#endif

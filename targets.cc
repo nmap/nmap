@@ -101,7 +101,7 @@
 #include "nmap_dns.h"
 #include "nmap_tty.h"
 #include "utils.h"
-
+#include "libnetutil/addrset.h"
 using namespace std;
 extern NmapOps o;
 
@@ -156,133 +156,40 @@ void returnhost(HostGroupState *hs) {
 /* Is the host passed as Target to be excluded? Much of this logic had
    to be rewritten from wam's original code to allow for the objects */
 static int hostInExclude(struct sockaddr *checksock, size_t checksocklen, 
-                  TargetGroup *exclude_group) {
-  unsigned long tmpTarget; /* ip we examine */
-  int i=0;                 /* a simple index */
-  char targets_type;       /* what is the address type of the Target Group */
-  struct sockaddr_storage ss; 
-  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
-  size_t slen;             /* needed for funct but not used */
-  unsigned long mask = 0;  /* our trusty netmask, which we convert to nbo */
-  struct sockaddr_in *checkhost_in;
-
-  if ((TargetGroup *)0 == exclude_group)
+                  const addrset *exclude_group) {
+  if (exclude_group == NULL)
     return 0;
 
-  checkhost_in = NULL;
-  if (checksock->sa_family == AF_INET) {
-    assert(checksocklen >= sizeof(struct sockaddr_in));
-    checkhost_in = (struct sockaddr_in *) checksock;
-  }
+  if (checksock == NULL)
+    return 0;
 
-  /* First find out what type of addresses are in the target group */
-  targets_type = exclude_group[i].get_targets_type();
-
-  /* Lets go through the targets until we reach our uninitialized placeholder */
-  while (exclude_group[i].get_targets_type() != TargetGroup::TYPE_NONE) { 
-    /* while there are still hosts in the target group */
-    while (exclude_group[i].get_next_host(&ss, &slen) == 0) {
-      tmpTarget = sin->sin_addr.s_addr; 
-
-      /* For Netmasks simply compare the network bits and move to the next
-       * group if it does not compare, we don't care about the individual addrs */
-      if (targets_type == TargetGroup::IPV4_NETMASK) {
-        if (checkhost_in == NULL)
-          break;
-        mask = htonl((unsigned long) (0-1) << (32-exclude_group[i].get_mask()));
-        if ((tmpTarget & mask) == (checkhost_in->sin_addr.s_addr & mask)) {
-          exclude_group[i].rewind();
-          return 1;
-        } else {
-          break;
-        }
-      } 
-      /* For ranges we need to be a little more slick, if we don't find a match
-       * we should skip the rest of the addrs in the octet, thank wam for this
-       * optimization */
-      else if (targets_type == TargetGroup::IPV4_RANGES) {
-        if (checkhost_in == NULL)
-          break;
-        if (tmpTarget == checkhost_in->sin_addr.s_addr) {
-          exclude_group[i].rewind();
-          return 1;
-        } else {
-          /* note these are in network byte order */
-          if ((tmpTarget & 0x000000ff) != (checkhost_in->sin_addr.s_addr & 0x000000ff))
-            exclude_group[i].skip_range(TargetGroup::FIRST_OCTET); 
-          else if ((tmpTarget & 0x0000ff00) != (checkhost_in->sin_addr.s_addr & 0x0000ff00))
-            exclude_group[i].skip_range(TargetGroup::SECOND_OCTET); 
-          else if ((tmpTarget & 0x00ff0000) != (checkhost_in->sin_addr.s_addr & 0x00ff0000))
-            exclude_group[i].skip_range(TargetGroup::THIRD_OCTET); 
-
-          continue;
-        }
-      }
-#if HAVE_IPV6
-      else if (targets_type == TargetGroup::IPV6_ADDRESS) {
-        fatal("exclude file not supported for IPV6 -- If it is important to you, send a mail to fyodor@insecure.org so I can guage support\n");
-      }
-#endif
-    }
-    exclude_group[i++].rewind();
-  }
-
-  /* we did not find the host */
+  if (addrset_contains(exclude_group,checksock))
+    return 1;
   return 0;
 }
 
-/* Convert a vector of host specifications to an array (allocated with new[]) of
-   TargetGroups. The size of the returned array is one greater than the number
-   of host specs, to leave on uninitialized member at the end. */
-static TargetGroup *specs_to_targetgroups(const std::vector<std::string> &specs) {
-  TargetGroup *excludelist;
-  unsigned int i;
-
-  excludelist = new TargetGroup[specs.size() + 1];
-
-  for (i = 0; i < specs.size(); i++) {
-    if (excludelist[i].parse_expr(specs[i].c_str(), o.af()) == 0) {
-      if (o.debugging > 1)
-        error("Loaded exclude target of: %s", specs[i].c_str());
-    }
-  }
-
-  return excludelist;
-}
-
 /* Load an exclude list from a file for --excludefile. */
-TargetGroup* load_exclude_file(FILE *fp) {
-  std::vector<std::string> specs;
+int load_exclude_file(addrset *excludelist, FILE *fp) {
+  addrset_init(excludelist);
   char host_spec[1024];
   size_t n;
 
   while ((n = read_host_from_file(fp, host_spec, sizeof(host_spec))) > 0) {
     if (n >= sizeof(host_spec))
       fatal("One of your exclude file specifications was too long to read (>= %u chars)", (unsigned int) sizeof(host_spec));
-    specs.push_back(host_spec);
+    addrset_add_spec(excludelist, host_spec, o.af(), 1);
   }
 
-  return specs_to_targetgroups(specs);
+  return 1;
 }
 
 /* Load a comma-separated exclude list from a string, the argument to
    --exclude. */
-TargetGroup* load_exclude_string(const char *s) {
-  std::vector<std::string> specs;
-  const char *begin, *p;
+int load_exclude_string(addrset *excludelist, const char *s) {
+  addrset_init(excludelist);
+  addrset_add_spec(excludelist, s, o.af(), 1);
 
-  p = s;
-  while (*p != '\0') {
-    begin = p;
-    while (*p != '\0' && *p != ',')
-      p++;
-    specs.push_back(std::string(begin, p - begin));
-    if (*p == '\0')
-      break;
-    p++;
-  }
-
-  return specs_to_targetgroups(specs);
+  return 1;
 }
 
 
@@ -292,43 +199,11 @@ TargetGroup* load_exclude_string(const char *s) {
    the Target Group Object. Rather than writing a bunch of methods to return
    private attributes, which would only be used for debugging, I went for the
    method below. */
-int dumpExclude(TargetGroup *exclude_group) {
-  int i=0, debug_save=0, type=TargetGroup::TYPE_NONE;
-  unsigned int mask = 0;
-  struct sockaddr_storage ss;
-  struct sockaddr_in *sin = (struct sockaddr_in *) &ss;
-  size_t slen;
-
-  /* shut off debugging for now, this is a debug routine in itself, we don't
-     want to see all the debug messages inside of the object */
-  debug_save = o.debugging;
-  o.debugging = 0;
-
-  while ((type = exclude_group[i].get_targets_type()) != TargetGroup::TYPE_NONE) {
-    switch (type) {
-      case TargetGroup::IPV4_NETMASK:
-        exclude_group[i].get_next_host(&ss, &slen);
-        mask = exclude_group[i].get_mask();
-        error("exclude host group %d is %s/%d", i, inet_ntoa(sin->sin_addr), mask);
-        break;
-
-      case TargetGroup::IPV4_RANGES:
-        while (exclude_group[i].get_next_host(&ss, &slen) == 0) 
-          error("exclude host group %d is %s", i, inet_ntoa(sin->sin_addr));
-        break;
-
-      case TargetGroup::IPV6_ADDRESS:
-        fatal("IPV6 addresses are not supported in the exclude file\n");
-        break;
-
-      default:
-        fatal("Unknown target type in exclude file.\n");
-    }
-    exclude_group[i++].rewind();
-  }
-
-  /* return debugging to what it was */
-  o.debugging = debug_save; 
+int dumpExclude(addrset *exclude_group) {
+  /* When we updated the exclude code to use addrset from libnetutil (originally
+     from ncat) there was no simple available debugging function. Thus we are
+     zeroing this and if it is needed look in addrset.cc for the lower level
+     debug function -Colin */
   return 1;
 }
  
@@ -415,7 +290,7 @@ static bool target_needs_new_hostgroup(const HostGroupState *hs, const Target *t
   return false;
 }
 
-Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group,
+Target *nexthost(HostGroupState *hs, const addrset *exclude_group,
                  struct scan_lists *ports, int pingtype) {
   int i;
   struct sockaddr_storage ss;

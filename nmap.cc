@@ -475,7 +475,7 @@ int nmap_main(int argc, char *argv[]) {
   /* Only NSE scripts can add targets */
   NewTargets *new_targets = NULL;
 #endif
-  TargetGroup *exclude_group = NULL;
+  addrset exclude_group;
   char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
@@ -1645,20 +1645,17 @@ int nmap_main(int argc, char *argv[]) {
 
   /* lets load our exclude list */
   if (excludefd != NULL) {
-    exclude_group = load_exclude_file(excludefd);
+    load_exclude_file(&exclude_group, excludefd);
     fclose(excludefd);
   }
   if (exclude_spec != NULL) {
     /* Simultaneous --excludefile and --exclude are not supported. */
-    assert(exclude_group == NULL);
-    exclude_group = load_exclude_string(exclude_spec);
+    load_exclude_string(&exclude_group ,exclude_spec);
     free(exclude_spec);
   }
 
-  if (exclude_group != NULL) {
-    if (o.debugging > 3)
-      dumpExclude(exclude_group);
-  }
+  if (o.debugging > 3)
+    dumpExclude(&exclude_group);
 
 #ifndef NOLUA
   if (o.scriptupdatedb) {
@@ -1692,7 +1689,7 @@ int nmap_main(int argc, char *argv[]) {
     ideal_scan_group_sz = determineScanGroupSize(o.numhosts_scanned, &ports);
     while(Targets.size() < ideal_scan_group_sz) {
       o.current_scantype = HOST_DISCOVERY;
-      currenths = nexthost(hstate, exclude_group, &ports, o.pingtype);
+      currenths = nexthost(hstate, &exclude_group, &ports, o.pingtype);
       if (!currenths) {
         /* Try to refill with any remaining expressions */
         /* First free the old ones */
@@ -1730,7 +1727,7 @@ int nmap_main(int argc, char *argv[]) {
                         num_host_exp_groups);
       
         /* Try one last time -- with new expressions */
-        currenths = nexthost(hstate, exclude_group, &ports, o.pingtype);
+        currenths = nexthost(hstate, &exclude_group, &ports, o.pingtype);
         if (!currenths)
           break;
       }
@@ -1971,9 +1968,8 @@ int nmap_main(int argc, char *argv[]) {
 #endif
 
   delete hstate;
-  if (exclude_group)
-    delete[] exclude_group;
-
+  
+  addrset_free(&exclude_group);
   hstate = NULL;
 
   /* Free host expressions */
