@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nmap] Updated --exclude and --excludefile to now support IPV6 addresses with
+  netmasks. [Colin]
+
 o [NSE] Added a MySQL audit script and a rulebase that supports auditing a
   subset of the MySQL CIS 1.0.2 Benchmark. [Patrik]
 
@@ -11,7 +14,7 @@ o [NSE] Added minimal Service Location Protocol (SLP) library and the script
   broadcast-novell-locate that detects servers running eDirectory. [Patrik]
 
 o [ncat] ncat now listens on localhost and ::1 when you do ncat -l. If you
-  specify an address or use -4,-6 it works as before.
+  specify an address or use -4,-6 it works as before. [Colin]
 
 o [NSE] Added the Simple Mail Transfer Protocol (SMTP) library. [Djalal]
 
