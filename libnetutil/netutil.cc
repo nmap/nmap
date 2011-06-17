@@ -541,8 +541,76 @@ unsigned short in_cksum(u16 *ptr,int nbytes) {
 }
 
 
-const void *ip_get_data(const void *packet, unsigned int *len,
-  struct abstract_ip_hdr *hdr) {
+/* Return true iff this Next Header type is an extension header we must skip to
+   get to the upper-layer header. Types for which neither this function nor
+   ipv6_is_upperlayer return true are unknown and could be either. */
+static int ipv6_is_extension_header(u8 type)
+{
+  switch (type) {
+  case IP_PROTO_HOPOPTS:
+  case IP_PROTO_DSTOPTS:
+  case IP_PROTO_ROUTING:
+  case IP_PROTO_FRAGMENT:
+  /*
+  case IP_PROTO_ESP:
+  case IP_PROTO_AH:
+  */
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/* Return true iff this Next Header type is a known upper-layer protocol, one
+   that isn't followed by any more headers. Types for which neither this
+   function nor ipv6_is_upperlayer return true are unknown and could be
+   either. */
+static int ipv6_is_upperlayer(u8 type)
+{
+  switch (type) {
+  case IP_PROTO_TCP:
+  case IP_PROTO_UDP:
+  case IP_PROTO_ICMP:
+  case IP_PROTO_ICMPV6:
+  case IP_PROTO_SCTP:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/* upperlayer_only controls whether we require a known upper-layer protocol at
+   the end of the chain, or return the last readable header even if it is not an
+   upper-layer protocol (may even be another extension header). */
+static const void *ipv6_get_data_primitive(const struct ip6_hdr *ip6,
+  unsigned int *len, u8 *nxt, bool upperlayer_only)
+{
+  const unsigned char *p, *end;
+
+  if (*len < sizeof(*ip6))
+    return NULL;
+
+  p = (unsigned char *) ip6;
+  end = p + *len;
+
+  *nxt = ip6->ip6_nxt;
+  p += sizeof(*ip6);
+  while (p < end && ipv6_is_extension_header(*nxt)) {
+    if (p + 2 > end)
+      return NULL;
+    *nxt = *p;
+    p += (*(p + 1) + 1) * 8;
+  }
+
+  *len = end - p;
+  if (upperlayer_only && !ipv6_is_upperlayer(*nxt))
+    return NULL;
+
+  return (char *) p;
+}
+
+static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
+  struct abstract_ip_hdr *hdr, bool upperlayer_only) {
   const struct ip *ip;
 
   ip = (struct ip *) packet;
@@ -583,10 +651,20 @@ const void *ip_get_data(const void *packet, unsigned int *len,
 
     hdr->ttl = ip6->ip6_hlim;
     hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
-    return ipv6_get_data(ip6, len, &hdr->proto);
+    return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only);
   }
 
   return NULL;
+}
+
+const void *ip_get_data(const void *packet, unsigned int *len,
+  struct abstract_ip_hdr *hdr) {
+  return ip_get_data_primitive(packet, len, hdr, true);
+}
+
+const void *ip_get_data_any(const void *packet, unsigned int *len,
+  struct abstract_ip_hdr *hdr) {
+  return ip_get_data_primitive(packet, len, hdr, false);
 }
 
 /* Get the upper-layer protocol from an IPv4 packet. */
@@ -606,73 +684,20 @@ const void *ipv4_get_data(const struct ip *ip, unsigned int *len)
   return (char *) ip + header_len;
 }
 
-/* Return true iff this Next Header type is an extension header we must skip to
-   get to the upper-layer header. Types for which neither this function nor
-   ipv6_is_upperlayer return true are unknown and could be either. */
-static int ipv6_is_extension_header(u8 type)
-{
-  switch (type) {
-  case IP_PROTO_HOPOPTS:
-  case IP_PROTO_DSTOPTS:
-  case IP_PROTO_ROUTING:
-  case IP_PROTO_FRAGMENT:
-  /*
-  case IP_PROTO_ESP:
-  case IP_PROTO_AH:
-  */
-    return 1;
-  default:
-    return 0;
-  }
-}
-
-/* Return true iff this Next Header type is a known upper-layer protocol, one
-   that isn't followed by any more headers. Types for which neither this
-   function nor ipv6_is_upperlayer return true are unknown and could be
-   either. */
-static int ipv6_is_upperlayer(u8 type)
-{
-  switch (type) {
-  case IP_PROTO_TCP:
-  case IP_PROTO_UDP:
-  case IP_PROTO_ICMP:
-  case IP_PROTO_ICMPV6:
-  case IP_PROTO_SCTP:
-    return 1;
-  default:
-    return 0;
-  }
-}
-
 /* Get the upper-layer protocol from an IPv6 packet. This skips over known
    extension headers. The length of the upper-layer payload is stored in *len.
    The protocol is stored in *nxt. Returns NULL in case of error. */
 const void *ipv6_get_data(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
 {
-  const unsigned char *p, *end;
+  return ipv6_get_data_primitive(ip6, len, nxt, true);
+}
 
-  if (*len < sizeof(*ip6))
-    return NULL;
-
-  p = (unsigned char *) ip6;
-  end = p + *len;
-
-  *nxt = ip6->ip6_nxt;
-  p += sizeof(*ip6);
-  while (ipv6_is_extension_header(*nxt)) {
-    if (p + 2 > end)
-      return NULL;
-    *nxt = *p;
-    p += (*(p + 1) + 1) * 8;
-    if (p > end)
-      return NULL;
-  }
-
-  *len = end - p;
-  if (!ipv6_is_upperlayer(*nxt))
-    return NULL;
-
-  return (char *) p;
+/* Get the protocol payload from an IPv6 packet. This skips over known extension
+   headers. It differs from ipv6_get_data in that it will return a result even
+   if the final header is not a known upper-layer protocol. */
+const void *ipv6_get_data_any(const struct ip6_hdr *ip6, unsigned int *len, u8 *nxt)
+{
+  return ipv6_get_data_primitive(ip6, len, nxt, false);
 }
 
 const void *icmp_get_data(const struct icmp_hdr *icmp, unsigned int *len)
