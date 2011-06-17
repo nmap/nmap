@@ -3191,64 +3191,45 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     switch (proto) {
     case IPPROTO_TCP:
       packet = build_tcp_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                             o.ttl, ipid, IP_TOS_DEFAULT, false,
-                             o.ipoptions, o.ipoptionslen,
-                             sport, o.magic_port,
-                             get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0,
-                             NULL,0,
-                             o.extra_payload, o.extra_payload_length, 
-                             packetlen);
+        o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+        sport, o.magic_port, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_ICMP:
       packet = build_icmp_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                              o.ttl, ipid, IP_TOS_DEFAULT, false,
-                              o.ipoptions, o.ipoptionslen,
-                              0, icmp_ident, 8, 0,
-                              o.extra_payload, o.extra_payload_length,
-                              packetlen);
+        o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+        0, icmp_ident, 8, 0,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_IGMP:
       packet = build_igmp_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                              o.ttl, ipid, IP_TOS_DEFAULT, false,
-                              o.ipoptions, o.ipoptionslen,
-                              0x11, 0,
-                              o.extra_payload, o.extra_payload_length,
-                              packetlen);
+        o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+        0x11, 0,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_UDP:
       packet = build_udp_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                             o.ttl, ipid, IP_TOS_DEFAULT, false,
-                             o.ipoptions, o.ipoptionslen,
-                             sport, o.magic_port,
-                             o.extra_payload, o.extra_payload_length, 
-                             packetlen);
-
+        o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+        sport, o.magic_port,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_SCTP:
       {
         struct sctp_chunkhdr_init chunk;
-        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
-                                sizeof(struct sctp_chunkhdr_init),
-                                get_random_u32()/*itag*/,
-                                32768, 10, 2048,
-                                get_random_u32()/*itsn*/);
+
+        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0, sizeof(chunk),
+          get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
         packet = build_sctp_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                                o.ttl, ipid, IP_TOS_DEFAULT, false,
-                                o.ipoptions, o.ipoptionslen,
-                                sport, o.magic_port,
-                                0UL, (char*)&chunk,
-                                sizeof(struct sctp_chunkhdr_init),
-                                o.extra_payload, o.extra_payload_length,
-                                packetlen);
+          o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+          sport, o.magic_port, 0UL, (char*) &chunk, sizeof(chunk),
+          o.extra_payload, o.extra_payload_length, packetlen);
       }
       break;
     default:
       packet = build_ip_raw(&src_in->sin_addr, &dst_in->sin_addr,
-                            proto,
-                            o.ttl, ipid, IP_TOS_DEFAULT, false,
-                            o.ipoptions, o.ipoptionslen,
-                            o.extra_payload, o.extra_payload_length, 
-                            packetlen);
+        proto,
+        o.ttl, ipid, IP_TOS_DEFAULT, false, o.ipoptions, o.ipoptionslen,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     }
   } else if (src->ss_family == AF_INET6) {
@@ -3260,44 +3241,37 @@ static u8 *build_protoscan_packet(const struct sockaddr_storage *src,
     switch (proto) {
     case IPPROTO_TCP:
       packet = build_tcp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
-                                  0, ipid, o.ttl, sport, o.magic_port,
-                                  get_random_u32(), get_random_u32(), 0,
-                                  TH_ACK, 0, 0, NULL, 0, o.extra_payload,
-                                  o.extra_payload_length, packetlen);
+        0, ipid, o.ttl,
+        sport, o.magic_port, get_random_u32(), get_random_u32(), 0, TH_ACK, 0, 0, NULL, 0,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_ICMPV6:
       packet = build_icmpv6_raw(&src_in6->sin6_addr, &dst_in6->sin6_addr,
-                                0, ipid, o.ttl, 0, icmp_ident,
-                                ICMPV6_ECHO, ICMPV6_ECHOREPLY,
-                                o.extra_payload, o.extra_payload_length,
-                                packetlen);
+        0, ipid, o.ttl,
+        0, icmp_ident, ICMPV6_ECHO, ICMPV6_ECHOREPLY,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_UDP:
       packet = build_udp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
-                                  0, ipid, o.ttl, sport, o.magic_port,
-                                  o.extra_payload, o.extra_payload_length, 
-                                  packetlen);
+        0, ipid, o.ttl,
+        sport, o.magic_port,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     case IPPROTO_SCTP:
       {
         struct sctp_chunkhdr_init chunk;
-        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0,
-                                sizeof(struct sctp_chunkhdr_init),
-                                get_random_u32()/*itag*/,
-                                32768, 10, 2048,
-                                get_random_u32()/*itsn*/);
+        sctp_pack_chunkhdr_init(&chunk, SCTP_INIT, 0, sizeof(chunk),
+          get_random_u32() /*itag*/, 32768, 10, 2048, get_random_u32() /*itsn*/);
         packet = build_sctp_raw_ipv6(&src_in6->sin6_addr, &dst_in6->sin6_addr,
-                                     0, ipid, o.ttl, sport, o.magic_port,
-                                     0UL, (char*)&chunk,
-                                     sizeof(struct sctp_chunkhdr_init),
-                                     o.extra_payload, o.extra_payload_length,
-                                     packetlen);
+          0, ipid, o.ttl,
+          sport, o.magic_port, 0UL, (char*) &chunk, sizeof(chunk),
+          o.extra_payload, o.extra_payload_length, packetlen);
       }
       break;
     default:
       packet = build_ipv6_raw(&src_in6->sin6_addr, &dst_in6->sin6_addr,
-                              0, ipid, proto, o.ttl, o.extra_payload,
-                              o.extra_payload_length, packetlen);
+        0, ipid, proto, o.ttl,
+        o.extra_payload, o.extra_payload_length, packetlen);
       break;
     }
   }
