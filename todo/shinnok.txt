@@ -7,7 +7,7 @@ o Review latest revision of Marek's ncat_proxy.patch
   http://seclists.org/nmap-dev/2011/q2/573
 o Ncat should close its socket and refuse further connections after the first
   one, if invoked without --keep-open. That's what traditional netcat does
-  too.
+  too. + TESTS in ncat-test.pl
   http://seclists.org/nmap-dev/2011/q2/944
 o Pending uncompleted SSL handshakes when in --exec* listening mode make
   Ncat consume 100% cpu(core/thread).
