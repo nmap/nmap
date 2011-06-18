@@ -115,7 +115,6 @@
 #endif
 
 #include "nmap.h"
-#include "libnetutil/addrset.h"
 #include "global_structures.h"
 
 class HostGroupState;
@@ -155,14 +154,15 @@ struct pingtech {
     rawprotoscan: 1;
 };
 
+
 /* Ports is the list of ports the user asked to be scanned (0 terminated),
    you can just pass NULL (it is only a stupid optimization that needs it) */
-Target *nexthost(HostGroupState *hs,const addrset *exclude_group, 
+Target *nexthost(HostGroupState *hs, TargetGroup *exclude_group, 
 		 struct scan_lists *ports, int pingtype);
-int load_exclude_file(addrset *exclude_group, FILE *fp);
-int load_exclude_string(addrset *exclude_group, const char *s);
+TargetGroup* load_exclude_file(FILE *fp);
+TargetGroup* load_exclude_string(const char *s);
 /* a debugging routine to dump an exclude list to stdout. */
-int dumpExclude(addrset *exclude_group);
+int dumpExclude(TargetGroup*exclude_group);
 /* Returns the last host obtained by nexthost.  It will be given again the next
    time you call nexthost(). */
 void returnhost(HostGroupState *hs);
