@@ -613,7 +613,7 @@ u8 *build_ip_raw(const struct in_addr *source,
               tos, ipid, df ? IP_DF : 0, myttl, proto, source, victim);
 
   /* We should probably copy the data over too */
-  if (data)
+  if (data && datalen)
     memcpy((u8 *) ip + sizeof(struct ip) + ipoptlen, data, datalen);
 
   *outpacketlen = packetlen;
@@ -1030,9 +1030,10 @@ u8 *build_icmp_raw(const struct in_addr *source,
     fatal("Unknown icmp type/code (%d/%d) in %s", ptype, pcode, __func__);
   }
 
-  if (datalen > 0) {
+  /* Copy the data over too */
+  if (data && datalen) {
     icmplen += MIN(dlen, datalen);
-    memset(datastart, 0, MIN(dlen, datalen));
+    memcpy(datastart, data, MIN(dlen, datalen));
   }
 
   /* Fill out the ping packet. All the ICMP types handled by this function have
@@ -1138,9 +1139,10 @@ u8 *build_igmp_raw(const struct in_addr *source,
     fatal("Unknown igmp type (%d) in %s", ptype, __func__);
   }
 
-  if (datalen > 0) {
+  /* Copy the data over too */
+  if (data && datalen) {
     igmplen += MIN(dlen, datalen);
-    memset(datastart, 0, MIN(dlen, datalen));
+    memcpy(datastart, data, MIN(dlen, datalen));
   }
 
   igmp.igmp_cksum = 0;
