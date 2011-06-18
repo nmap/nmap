@@ -27,6 +27,10 @@ o Nmap should defer address parsing in arguments until it has read
   (but "-6 -A works properly).
 
 Pending (low priority):
+o libpcre/pcre.h - is cleared upon make distclean thus leaving the SVN
+  working directory dirty
+  http://seclists.org/nmap-dev/2011/q2/708
+
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
   dependencies of Nmap and Zenmap.  It may be instructive to look at
