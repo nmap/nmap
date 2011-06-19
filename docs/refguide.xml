@@ -637,9 +637,7 @@ you would expect.</para>
           response.<indexterm><primary>protocol-specific payloads</primary><secondary>UDP</secondary></indexterm>
 <man>The payload database is described at <ulink url="http://nmap.org/book/nmap-payloads.html" />.</man>
 <notman>See <xref linkend="nmap-payloads"/> for a description of the database of payloads.</notman>
- The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm>
-          option sends a fixed-length random payload for all ports.</para>
-
+ The <option>--data-length</option><indexterm><primary><option>--data-length</option></primary></indexterm> option sends a fixed-length random payload for all ports.</para>
           <para>The port list
           takes the same format as with the previously discussed
           <option>-PS</option> and <option>-PA</option> options.  If
