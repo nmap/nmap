@@ -4,26 +4,35 @@ GSoC 2011 participation: Discovery and miscelaneous script specialist
 
 Work in progress:
 
-* ip-geolocation method research and script development
+* ip-geolocation waiting on response to issue with gmtime() from ntp servers
+
+* ip-geolocation BGP usage, and RIPE local data search method (more of a whois script); Related to Jacob's blockfinder
+
+* broadcast-ping.nse
+
+* snmp-brute port to brute framework
+There are a couple of default passwords that snmp-brute uses atm which should be
+considered even when it's the brute.lua is used
 
 =====
 
 ToDo:
 
-* broadcast-ping.nse
+* bgpmon-info analyze
+
+* bittorrent-dht-nodes
+
+* lldp - write script proposal
+http://en.wikipedia.org/wiki/Link_Layer_Discovery_Protocol
+
+* disjunctive-traceroute analyze feasibility
+http://ccr.sigcomm.org/online/?q=node/398
+
+* backorifice-brute "fire-and-forget" UDP method
 
 =====
 
 Maybe (the ones with ** aren't on the Script_Ideas Page yet)
-
-** lltd
-http://en.wikipedia.org/wiki/Link_Layer_Topology_Discovery
-
-** lldp
-http://en.wikipedia.org/wiki/Link_Layer_Discovery_Protocol
-
-** disjunctive-traceroute + target add 
-http://ccr.sigcomm.org/online/?q=node/398
 
 * Bonjour / mdns / llmnr etc. 
 (DNS protocols support) + backscatter into dns scripts where applicable?
@@ -43,13 +52,7 @@ there, and some way of forcibly initiating the prerule (like an argument).
 A nice hnap library would be fitting, that will make these scripts a breeze. 
 I'd need testing equipment, or some :S implementation.
 
-* snmp-brute port to brute framework
-There are a couple of default passwords that snmp-brute uses atm which should be
-considered even when it's the brute.lua is used
-
 * vuze-dht-version
-* bittorrent-dht-nodes
-* bgpmon-info
 * Nbstat.nse -> change to using a broadcast prerule
 * SSL renegotiation
 * soap.lua
