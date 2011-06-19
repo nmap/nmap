@@ -1,6 +1,13 @@
 In progress:
 
-o --max-conns is broken in latest svn, find out why
+o --max-conns is broken in latest svn -> fixed in r24130, other two
+  bugs discovered:
+  o --max-conns 0 kills ncat with a glibc assertion error on calloc with
+  zero as nmemb(??) at:
+    init_fdlist(&broadcast_fdlist, o.conn_limit);
+  o When killing the first initiated connection on --max-conns > 1 Ncat:
+    Ncat: Program bug: fd (5) not on list. QUITTING.
+
 o Ncat hangs on ssl -> mostly done, some refactoring left to do
   http://seclists.org/nmap-dev/2011/q2/842
 o Review latest revision of Marek's ncat_proxy.patch
