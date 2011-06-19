@@ -13,6 +13,7 @@ Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos",
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-novell-locate.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
@@ -161,6 +162,7 @@ Entry { filename = "smb-enum-sessions.nse", categories = { "discovery", "intrusi
 Entry { filename = "smb-enum-shares.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-enum-users.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "smb-flood.nse", categories = { "dos", "intrusive", } }
+Entry { filename = "smb-mbenum.nse", categories = { "discovery", "safe", } }
 Entry { filename = "smb-os-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "smb-psexec.nse", categories = { "intrusive", } }
 Entry { filename = "smb-security-mode.nse", categories = { "discovery", "safe", } }

@@ -397,59 +397,86 @@ function call_function(smbstate, opnum, arguments)
 end
 
 ---LANMAN API calls use different conventions than everything else, so make a separate function for them. 
-function call_lanmanapi(smbstate, opnum, server_type)
+function call_lanmanapi(smbstate, opnum, paramdesc, datadesc, data)
 	local status, result
 	local parameters = ""
-	local data
-	local convert, entry_count, available_entries
-	local entries = {}
 	local pos
 
-	parameters = bin.pack("<SzzSSI", 
+	parameters = bin.pack("<SzzA", 
 							opnum, 
-							"WrLehDO",  -- Parameter Descriptor
-							"B16",      -- Return Descriptor
-							0,          -- Detail level
-							14724,      -- Return buffer size
-							server_type -- Server type
+							paramdesc,  -- Parameter Descriptor
+							datadesc,      -- Return Descriptor
+							data
 						)
 
 	stdnse.print_debug(1, "MSRPC: Sending Browser Service request")
 	status, result = smb.send_transaction_named_pipe(smbstate, parameters, nil, "\\PIPE\\LANMAN", true)
+	
 	if(not(status)) then
 		return false, "Couldn't call LANMAN API: " .. result
 	end
 
-	parameters = result.parameters
-	data       = result.data
+	return true, result
+end
+
+--- Queries the (master) browser service for a list of server that it manages
+--
+-- @param smbstate  The SMB state table (after <code>bind</code> has been called). 
+-- @param domain (optional) string containing the domain name to query
+-- @param server_type number containing a server bit mask to use to filter responses
+-- @param detail_level number containing either 0 or 1 
+function rap_netserverenum2(smbstate, domain, server_type, detail_level)
+
+	local NETSERVERENUM2 = 0x0068
+	local paramdesc = (domain and "WrLehDz" or "WrLehDO")
+	assert( detail_level > 0 and detail_level < 2, "detail_level must be either 0 or 1")
+	local datadesc = ( detail_level == 0 and "B16" or "B16BBDz")
+	local data = bin.pack("<SSIA", detail_level,
+							14724, 
+							server_type,
+							(domain or "")
+						)
+
+	local status, result = call_lanmanapi(smbstate, NETSERVERENUM2, paramdesc, datadesc, data )
+
+	if ( not(status) ) then
+		return false, "MSRPC: NetServerEnum2 call failed"
+	end
+	
+	local parameters = result.parameters
+	local data = result.data
 
 	stdnse.print_debug(1, "MSRPC: Parsing Browser Service response")
-	pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
+	local pos, status, convert, entry_count, available_entries = bin.unpack("<SSSS", parameters)
+
 	if(status ~= 0) then
 		return false, string.format("Call to Browser Service failed with status = %d", status)
 	end
 
 	stdnse.print_debug(1, "MSRPC: Browser service returned %d entries", entry_count)
-
+	
+	
 	local pos = 1
-	local entry
+	local entries = {}
+	
 	for i = 1, entry_count, 1 do
-		-- Read the string
-		pos, entry = bin.unpack("<z", data, pos)
-		stdnse.print_debug(1, "MSRPC: Found name: %s", entry)
+		local server = {}
+
+		pos, server.name = bin.unpack("<z", data, pos)
+		stdnse.print_debug(1, "MSRPC: Found name: %s", server.name)
 
 		-- pos needs to be rounded to the next even multiple of 16
-		while(((pos - 1) % 16) ~= 0) do
-			pos = pos + 1
-		end
+		pos = pos + ( 16 - (#server.name % 16) ) - 1
 
-		-- Make sure we didn't hit the end of the packet
-		if(not(entry)) then
-			return false, "Call to browser service didn't receive enough data"
-		end
+		if ( detail_level > 0 ) then
+			local comment_offset, _
+			server.version = {}
+			pos, server.version.major, server.version.minor, 
+				server.type, comment_offset, _ = bin.unpack("<CCISS", data, pos)
 
-		-- Insert the result
-		table.insert(entries, entry)
+			_, server.comment = bin.unpack("<z", data, (comment_offset - convert + 1))
+		end
+		table.insert(entries, server)
 	end
 
 	return true, entries

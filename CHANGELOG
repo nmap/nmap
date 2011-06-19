@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
+  - broadcast-netbios-master-browser attempts to discover master browsers in
+    the broadcast domain
+  - smb-mbenum lists servers registered with the master browser
+  [Patrik]
+
 o [NSE] Added credential storage library (creds.lua) and modified the brute
   library and scripts to make use of it. [Patrik]
 

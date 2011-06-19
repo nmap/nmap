@@ -10,6 +10,12 @@ module(... or "netbios", package.seeall)
 require 'bit'
 require 'bin'
 require 'stdnse'
+require 'dns'
+
+types = {
+	NB = 32,
+	NBSTAT = 33,
+}
 
 --- Encode a NetBIOS name for transport. Most packets that use the NetBIOS name
 --  require this encoding to happen first. It takes a name containing any possible
@@ -367,6 +373,41 @@ function do_nbstat(host)
 	else
 		return false, "Name query failed: " .. result
 	end
+end
+
+function nbquery(host, nbname, options)
+	-- override any options or set the default values
+	local options = options or {}
+	options.port = options.port or 137
+	options.retPkt = options.retPkt or true
+	options.dtype = options.dtype or types.NB
+	options.host = host.ip
+	options.flags = options.flags or ( options.multiple and 0x0110 )
+	options.id = math.random(0xFFFF)
+	
+	-- encode and chop off the leading byte, as the dns library takes care of
+	-- specifying the length
+	local encoded_name = name_encode(nbname):sub(2)
+
+	local status, response = dns.query( encoded_name, options )
+	if ( not(status) ) then return false, "ERROR: nbquery failed" end
+	
+	local results = {}
+	-- discard any additional responses
+	if ( options.multiple and #response > 0 ) then
+		for _, resp in ipairs(response) do
+			assert( options.id == resp.output.id, "Received packet with invalid transaction ID" )
+			if ( not(resp.output.answers) or #resp.output.answers < 1 ) then
+				return false, "ERROR: Response contained no answers"
+			end
+			local dname = string.char(#resp.output.answers[1].dname) .. resp.output.answers[1].dname
+			table.insert( results, { peer = resp.peer, name = name_decode(dname) } )
+		end
+		return true, results
+	else
+		local dname = string.char(#response.answers[1].dname) .. response.answers[1].dname
+		return true, { { peer = host.ip, name = name_decode(dname) } }
+	end		
 end
 
 ---Convert the 16-bit flags field to a string. 

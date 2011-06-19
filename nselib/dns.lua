@@ -239,8 +239,10 @@ end
 -- * <code>tries</code>: How often should <code>query</code> try to contact another server (for non-recursive queries).
 -- * <code>retAll</code>: Return all answers, not just the first.
 -- * <code>retPkt</code>: Return the packet instead of using the answer-fetching mechanism.
--- * <code>norecurse</code> If true, do not set the recursion (RD) flag.
--- * <code>multiple</code> If true, expects multiple hosts to respond to multicast request
+-- * <code>norecurse</code>: If true, do not set the recursion (RD) flag.
+-- * <code>multiple</code>: If true, expects multiple hosts to respond to multicast request
+-- * <code>flags</code>: numeric value to set flags in the DNS query to a specific value
+-- * <code>id</code>: numeric value to use for the DNS transaction id
 -- @return <code>true</code> if a dns response was received and contained an answer of the requested type,
 --  or the decoded dns response was requested (retPkt) and is being returned - or <code>false</code> otherwise.
 -- @return String answer of the requested type, table of answers or a String error message of one of the following:
@@ -283,6 +285,9 @@ function query(dname, options)
     if options.dnssec then
         addOPT(pkt, {DO = true})
     end
+
+	if ( options.flags ) then pkt.flags.raw = options.flags end
+	if ( options.id ) then pkt.id = options.id end
 
     local data = encode(pkt)
 
@@ -824,7 +829,12 @@ function encode(pkt)
         aorulen = #pkt.updates
     end
 
-    local encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
+	local encStr
+	if ( pkt.flags.raw ) then
+		encStr = bin.pack(">SSS4", pkt.id, pkt.flags.raw, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
+	else
+		encStr = bin.pack(">SBS4", pkt.id, encFlags, qorzlen, aorplen, aorulen, #pkt.additional) .. data .. additional
+	end
     return encStr
 end
 
