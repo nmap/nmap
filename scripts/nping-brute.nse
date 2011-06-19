@@ -165,7 +165,7 @@ Driver =
 
 	login = function(self, _, password)
 		if self:testpass(password) then
-			return true, brute.Account:new("", password, "OPEN")
+			return true, brute.Account:new("", password, creds.State.VALID)
 		end
 		return false, brute.Error:new("Incorrect password")
 	end,
@@ -173,16 +173,13 @@ Driver =
 	disconnect = function(self)
 		return self.socket:close()
 	end,
-	
-	check = function(self) --deprecated
-		return true
-	end,
 }
 
 action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port)
 	engine.options.firstonly = true
 	engine.options:setOption("passonly", true)
+	engine.options.script_name = SCRIPT_NAME
 	local status, result = engine:start()
 	return result
 end

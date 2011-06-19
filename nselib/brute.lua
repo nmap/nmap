@@ -164,7 +164,7 @@
 --       by '/'
 
 --
--- Version 0.6
+-- Version 0.7
 -- Created 06/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/13/2010 - v0.2 - added connect, disconnect methods to Driver
 --							   <patrik@cqure.net>
@@ -176,10 +176,12 @@
 --                             David's request.
 -- Revised 08/30/2010 - v0.6 - added support for custom iterators and did some
 --                             needed cleanup.
+-- Revised 06/19/2010 - v0.7 - added support for creds library
 
 module(... or "brute", package.seeall)
 require 'unpwdb'
 require 'datafiles'
+require 'creds'
 
 -- Options that can be set through --script-args
 Options = {
@@ -244,12 +246,9 @@ Account =
 	--        following <code>OPEN</code>, <code>LOCKED</code>,
 	--        <code>DISABLED</code>.
 	new = function(self, username, password, state)
-		local o = {}
+		local o = { username = username, password = password, state = state }
        	setmetatable(o, self)
         self.__index = self
-		o.username = username
-		o.password = password
-		o.state = state
 		return o
 	end,
 	
@@ -258,27 +257,12 @@ Account =
 	-- @return string representation of object
 	toString = function( self )
 		local creds
-		
 		if ( #self.username > 0 ) then
 			creds = ("%s:%s"):format( self.username, #self.password > 0 and self.password or "<empty>" )
 		else
 			creds = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
 		end
-		
-		-- An account have the following states
-		--
-		-- OPEN - Login was successful
-		-- LOCKED - The account was locked
-		-- DISABLED - The account was disabled
-		if ( self.state == "OPEN" ) then
-			return ("%s => Login correct"):format( creds )
-		elseif ( self.state == "LOCKED" ) then
-			return ("%s => Account locked"):format( creds )
-		elseif ( self.state == "DISABLED" ) then
-			return ("%s => Account disabled"):format( creds )
-		else
-			return ("%s => Account has unknown state (%s)"):format( creds, self.state )
-		end
+		return ( "%s => %s"):format(creds, self.state.msg )
 	end,
 			
 }
@@ -290,11 +274,9 @@ Error =
 	retry = false,
 	
 	new = function(self, msg)
-		local o = {}
+		local o = { msg = msg, done = false }
        	setmetatable(o, self)
         self.__index = self
-		o.msg = msg
-		o.done = false
 		return o
 	end,
 	
@@ -340,8 +322,7 @@ Error =
 Engine =
 {
 	STAT_INTERVAL = 20,
-	terminate_all = false,
-	
+		
 	--- Creates a new Engine instance
 	--
 	-- @param driver, the driver class that should be instantiated
@@ -350,21 +331,23 @@ Engine =
 	-- @param options table containing any script specific options
 	-- @return o new Engine instance	
 	new = function(self, driver, host, port, options)
-		local o = {}
+		local o = { 
+			driver = driver,
+			host = host,
+			port = port,
+			driver_options = options,
+			terminate_all = false,
+			error = nil,
+			counter = 0,
+			threads = {},
+			tps = {},
+			iterators = {},
+			found_accounts = {},
+			options = Options:new(),
+		}
        	setmetatable(o, self)
         self.__index = self
-		o.driver = driver
-		o.driver_options = options
-		o.host = host
-		o.port = port
-		o.options = Options:new()
-		o.found_accounts = {}
-		o.threads = {}
-		o.counter = 0
-		o.max_threads = tonumber(nmap.registry.args["brute.threads"]) or 10
-		o.iterators = {}
-		o.error = nil
-		o.tps = {}
+		o.max_threads = stdnse.get_script_args("brute.threads") or 10
 		return o
 	end,
 
@@ -509,31 +492,31 @@ Engine =
 		return status, response
 	end,
 	
-	login = function(self, valid_accounts )
-
-		local condvar = nmap.condvar( valid_accounts )		
+	login = function(self, cvar )
+		local condvar = nmap.condvar( cvar )		
 		local thread_data = self.threads[coroutine.running()]
 		local interval_start = os.time()
 		
 		while( true ) do
 			-- Should we terminate all threads?
-			if ( Engine.terminate_all or thread_data.terminate ) then break	end
+			if ( self.terminate_all or thread_data.terminate ) then break	end
 			
 			local status, response = self:doAuthenticate()
 				
 			if ( status ) then
 				-- Prevent locked accounts from appearing several times
 				if ( not(self.found_accounts) or self.found_accounts[response.username] == nil ) then
+					creds.Credentials:new( self.options.script_name, self.host, self.port ):add(response.username, response.password, response.state )
+					
 					stdnse.print_debug("Discovered account: %s", response:toString())
-					table.insert( valid_accounts, response:toString() )
 					self.found_accounts[response.username] = true
 					
 					-- Check if firstonly option was set, if so abort all threads
-					if ( self.options.firstonly ) then Engine.terminate_all = true end
+					if ( self.options.firstonly ) then self.terminate_all = true end
 				end
 			else
 				if ( response and response:isAbort() ) then
-					Engine.terminate_all = true
+					self.terminate_all = true
 					self.error = response:getMessage()
 					break
 				elseif( response and response:isDone() ) then
@@ -559,7 +542,7 @@ Engine =
 			-- if delay was speciefied, do sleep
 			if ( self.options.delay > 0 ) then stdnse.sleep( self.options.delay ) end
 		end
-		condvar("broadcast")
+		condvar "broadcast"
 	end,
 			
 	--- Starts the brute-force
@@ -568,8 +551,11 @@ Engine =
 	-- @return err string containing error message on failure
 	start = function(self)
 	
-		local result, valid_accounts, stats = {}, {}, {}
-		local condvar = nmap.condvar( valid_accounts )
+		local result, cvar, stats = {}, {}, {}
+		local condvar = nmap.condvar( cvar )
+		
+		assert(self.options.script_name, "SCRIPT_NAME was not set in options.script_name")
+		assert(self.port.number and self.port.protocol and self.port.service, "Invalid port table detected")
 		
 		-- Only run the check method if it exist. We should phase this out
 		-- in favor of a check in the action function of the script
@@ -629,16 +615,18 @@ Engine =
 
 		-- Startup all worker threads
 		for i=1, self.max_threads do
-			local co = stdnse.new_thread( self.login, self, valid_accounts )
+			local co = stdnse.new_thread( self.login, self, cvar )
 			self.threads[co] = {}
 			self.threads[co].running = true
 		end
 
 		-- wait for all threads to finnish running
-		while self:threadCount()>0 do condvar("wait") end
+		while self:threadCount()>0 do condvar "wait" end
+		
+		local valid_accounts = creds.Credentials:new(self.options.script_name, self.host, self.port):getTable()
 		
 		-- Did we find any accounts, if so, do formatting
-		if ( #valid_accounts > 0 ) then
+		if ( valid_accounts and #valid_accounts > 0 ) then
 			valid_accounts.name = "Accounts"
 			table.insert( result, valid_accounts )
 		else
@@ -661,7 +649,7 @@ Engine =
 		
 		-- Did any error occure? If so add this to the result.
 		if ( self.error ) then
-			result = result .. ("  \n\n  ERROR: %s"):format( self.error )
+			result = result .. ("  \n ERROR: %s"):format( self.error )
 			return false, result
 		end
 		return true, result

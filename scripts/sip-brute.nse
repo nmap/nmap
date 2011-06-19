@@ -61,7 +61,7 @@ Driver = {
 			end
 			return false, brute.Error:new( "Incorrect password" )
 		end
-		return true, brute.Account:new(username, password, "OPEN")
+		return true, brute.Account:new(username, password, creds.State.VALID)
 	end,
 	
 	disconnect = function(self)	return self.helper:close() end,	
@@ -100,6 +100,7 @@ action = function(host, port)
 		end
 	end
 	local engine = brute.Engine:new(Driver, host, port)
+	engine.options.script_name = SCRIPT_NAME
 	local status, result = engine:start()
 	return result
 end

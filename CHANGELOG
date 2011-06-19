@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added credential storage library (creds.lua) and modified the brute
+  library and scripts to make use of it. [Patrik]
+
 o [NSE] Added a MySQL audit script and a rulebase that supports auditing a
   subset of the MySQL CIS 1.0.2 Benchmark. [Patrik]
 

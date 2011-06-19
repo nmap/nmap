@@ -69,7 +69,8 @@ Driver =
 	login = function( self, username, password )
 
 		local status, data = self.vnc:handshake()
-		if ( not(status) and data:match("Too many authentication failures") ) then
+		if ( not(status) and ( data:match("Too many authentication failures") or
+			data:match("Your connection has been rejected.") ) ) then
 			local err = brute.Error:new( data )
 			err:setAbort( true )
 			return false, err			
@@ -83,7 +84,7 @@ Driver =
 		status, data = self.vnc:login( nil, password )
 
 		if ( status ) then
-			return true, brute.Account:new("", password, "OPEN")
+			return true, brute.Account:new("", password, creds.State.VALID)
 		elseif ( not( data:match("Authentication failed") ) ) then
 			local err = brute.Error:new( data )
 			-- This might be temporary, set the retry flag
@@ -132,6 +133,7 @@ action = function(host, port)
 	local status, result 
 	local engine = brute.Engine:new(Driver, host, port )
 	
+	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )
 	

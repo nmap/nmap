@@ -55,8 +55,8 @@ Driver = {
 			"Client-DPAP-Version: 1.1\r\n" ..
 			"\r\n\r\n"
 		
-		local creds = base64.enc("nmap:" .. password)
-		data = data:format( self.host.ip, self.port.number, self.host.ip, creds )
+		local c = base64.enc("nmap:" .. password)
+		data = data:format( self.host.ip, self.port.number, self.host.ip, c )
 		
 		local status = self.socket:send( data )
 		if ( not(status) ) then
@@ -73,7 +73,7 @@ Driver = {
 		end
 		
 		if ( data:match("^HTTP/1.1 200 OK") ) then
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
 		
 		return false, brute.Error:new( "Incorrect password" )
@@ -111,7 +111,8 @@ action = function(host, port)
 	
 	engine.options.firstonly = true
 	engine.options:setOption( "passonly", true )
-	
+	engine.options.script_name = SCRIPT_NAME
+		
 	status, result = engine:start()
 
 	return result

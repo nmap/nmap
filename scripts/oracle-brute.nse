@@ -100,10 +100,10 @@ Driver =
 		local status, data = self.helper:Login( username, password )
 		
 		if ( status ) then
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		-- Check for account locked message
 		elseif ( data:match("ORA[-]28000") ) then
-			return true, brute.Account:new(username, password, "LOCKED")
+			return true, brute.Account:new(username, password, creds.State.LOCKED)
 		-- check for any other message
 		elseif ( data:match("ORA[-]%d+")) then
 			stdnse.print_debug(3, "username: %s, password: %s, error: %s", username, password, data )
@@ -147,6 +147,7 @@ Driver =
 action = function(host, port)
 	local status, result 
 	local engine = brute.Engine:new(Driver, host, port )
+	engine.options.script_name = SCRIPT_NAME
 	
 	if ( not( nmap.registry.args['oracle-brute.sid'] ) and not( nmap.registry.args['tns.sid'] ) ) then
 		return "ERROR: Oracle instance not set (see oracle-brute.sid or tns.sid)"

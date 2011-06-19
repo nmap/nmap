@@ -47,7 +47,7 @@ Driver = {
 		local status = self.helper:login( self.target, username, password, "CHAP")
 		
 		if ( status ) then
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
 		
 		return false, brute.Error:new( "Incorrect password" )
@@ -78,7 +78,10 @@ action = function( host, port )
 	if ( status ) then return "No authentication required" end
 
 	local accounts
-	status, accounts = brute.Engine:new(Driver, host, port):start()
+
+	local engine = brute.Engine:new(Driver, host, port)
+	engine.options.script_name = SCRIPT_NAME
+	status, accounts = engine:start()
 
 	if ( status ) then return accounts end
 end

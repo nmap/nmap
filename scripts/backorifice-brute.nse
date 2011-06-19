@@ -262,7 +262,7 @@ local Driver =
 				nmap.registry.credentials['backorifice'] = {}
 			end
 			table.insert( nmap.registry.credentials.backorifice, { password = password } )
-			return true, brute.Account:new("", password, "OPEN")
+			return true, brute.Account:new("", password, creds.State.VALID)
 		else  
 			-- The only indication that the password is incorrect is a timeout
 			local err = brute.Error:new( "Incorrect password" )
@@ -271,9 +271,6 @@ local Driver =
 		end
 	end,
 	
-	check = function( self )
-		return true
-	end
 }
 
 action = function( host, port )
@@ -283,6 +280,7 @@ action = function( host, port )
 	
 	engine.options.firstonly = true
 	engine.options.passonly = true
+	engine.options.script_name = SCRIPT_NAME
 	
 	status, result = engine:start()
 	

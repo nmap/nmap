@@ -78,10 +78,10 @@ Driver =
 				nmap.registry['informix-brute'] = {}
 			end
 			table.insert( nmap.registry['informix-brute'], { ["username"] = username, ["password"] = password } )
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		-- Check for account locked message
 		elseif ( data:match("INFORMIXSERVER does not match either DBSERVERNAME or DBSERVERALIASES") ) then
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		end
 
 		return false, brute.Error:new( data )
@@ -93,21 +93,13 @@ Driver =
 		self.helper:Close()
 	end,
 	
-	--- Perform a connection with the helper, this makes sure that the Informix
-	-- instance is correct.
-	--
-	-- @return status true on success false on failure
-	-- @return err containing the error message on failure
-	check = function( self )
-		return true
-	end,
-	
 }
 
 
 action = function(host, port)
 	local status, result 
 	local engine = brute.Engine:new(Driver, host, port )
+	engine.options.script_name = SCRIPT_NAME
 	
 	status, result = engine:start()
 

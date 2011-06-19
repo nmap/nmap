@@ -64,20 +64,18 @@ Driver = {
     if self.session:authenticate(username, password) then
       -- store the account for possible future use
       omp2.add_account(self.host, username, password)
-      return true, brute.Account:new(username, password, "OPEN")
+      return true, brute.Account:new(username, password, creds.State.VALID)
     else
       return false, brute.Error:new("login failed")
     end
   end,
 
-  --- Deprecated
-  check = function(self)
-    return true
-  end,
 }
 
 action = function(host, port)
-  local status, result = brute.Engine:new(Driver, host, port):start()
+  local engine = brute.Engine:new(Driver, host, port)
+  engine.options.script_name = SCRIPT_NAME
+  local status, result = engine:start()
   return result
 end
 

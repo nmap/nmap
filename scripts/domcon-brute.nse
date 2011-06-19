@@ -136,7 +136,7 @@ Driver =
 		if ( status and data:match("NOT_REG_ADMIN") ) then
 			not_admins[username] = true
 		elseif( status and data:match("VALID_USER") ) then
-			return true, brute.Account:new( username, password, "OPEN")
+			return true, brute.Account:new( username, password, creds.State.VALID)
 		end
 
 		return false, brute.Error:new( "Incorrect password" )
@@ -146,11 +146,7 @@ Driver =
 	disconnect = function( self )
 		self.sockpool:releaseSocket( self.socket )
 	end,
-	
-	check = function( self )
-		return true
-	end,
-	
+		
 }
 
 
@@ -159,6 +155,7 @@ action = function(host, port)
 	local pool = SocketPool:new(10)
 	local engine = brute.Engine:new(Driver, host, port, pool )
    	
+	engine.options.script_name = SCRIPT_NAME
 	status, result = engine:start()
 	pool:shutdown()
 	

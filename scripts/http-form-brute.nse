@@ -135,7 +135,7 @@ Driver = {
 			nmap.registry['credentials'] = nmap.registry['credentials'] or {}
 			nmap.registry.credentials['http'] = nmap.registry.credentials['http'] or {}
 			table.insert( nmap.registry.credentials.http, { username = username, password = password } )
-			return true, brute.Account:new( username, password, "OPEN")
+			return true, brute.Account:new( username, password, creds.State.VALID)
 		end
 		
 		return false, brute.Error:new( "Incorrect password" )
@@ -235,6 +235,8 @@ action = function( host, port )
 	-- there's a bug in http.lua that does not allow it to be called by
 	-- multiple threads
 	engine:setMaxThreads(1)
+	engine.options.script_name = SCRIPT_NAME
+	
 	if ( not(uservar) ) then
 		engine.options:setOption( "passonly", true )
 	end

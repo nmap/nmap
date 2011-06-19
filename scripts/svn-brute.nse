@@ -207,7 +207,7 @@ Driver =
 			self.invalid_users[username] = true
 			return false, brute.Error:new("Username not found")
 		elseif ( status and msg:match("success") ) then
-			return true, brute.Account:new(username, password, "OPEN")
+			return true, brute.Account:new(username, password, creds.State.VALID)
 		else
 			return false, brute.Error:new( "Incorrect password" )
 		end
@@ -250,12 +250,14 @@ action = function(host, port)
 		return "  \n  Anonymous SVN detected, no authentication needed"
 	end
 	
-	if ( not( svn.auth_mech["CRAM-MD5"] ) ) then
+	if ( not(svn.auth_mech) or not( svn.auth_mech["CRAM-MD5"] ) ) then
 		return "  \n  No supported authentication mechanisms detected"
 	end
 	
 	local invalid_users = {}
-	status, accounts = brute.Engine:new(Driver, host, port, invalid_users):start()
+	local engine = brute.Engine:new(Driver, host, port, invalid_users)
+	engine.options.script_name = SCRIPT_NAME
+	status, accounts = engine:start()
 	if( not(status) ) then
 		return accounts
 	end

@@ -79,7 +79,7 @@ Driver = {
 				nmap.registry.credentials['http'] = {}
 			end
 			table.insert( nmap.registry.credentials.http, { username = username, password = password } )
-			return true, brute.Account:new( username, password, "OPEN")
+			return true, brute.Account:new( username, password, creds.State.VALID)
 		end
 		return false, brute.Error:new( "Incorrect password" )
 	end,
@@ -105,7 +105,8 @@ action = function( host, port )
 	local path = nmap.registry.args['http-brute.path']
 	local method = string.upper(nmap.registry.args['http-brute.method'] or "GET")
 	local engine = brute.Engine:new(Driver, host, port, method )
-
+	engine.options.script_name = SCRIPT_NAME
+	
 	if ( not(path) ) then
 		return "  \n  ERROR: No path was specified (see http-brute.path)"
 	end
