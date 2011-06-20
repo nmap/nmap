@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
+  "all" to "discovery" and "safe" categories. The "all" profile is pretty 
+  dangerous to be run since it includes denial of service and exploit scripts
+  among many others and because in some cases the scan might never finish.
+
 o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
   - broadcast-netbios-master-browser attempts to discover master browsers in
     the broadcast domain
