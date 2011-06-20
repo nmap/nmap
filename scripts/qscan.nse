@@ -99,6 +99,10 @@ local tdist = {
 	{ 0.6770, 1.2901, 1.6602,  1.9840,  2.3642,  2.6259,   3.3905 }  -- 100
 }
 
+-- cache ports to probe between the hostrule and the action function
+local qscanports
+
+
 local tinv = function(p, dof)
 	local din, pin
 
@@ -353,16 +357,6 @@ local getports = function(host, numopen, numclosed)
 	return table_extend(open, closed)
 end
 
---- Sets probe port list in registry
--- @param host Host object
--- @param ports Port list
-local setreg = function(host, ports)
-	if not nmap.registry[host.ip] then
-		nmap.registry[host.ip] = {}
-	end
-	nmap.registry[host.ip]['qscanports'] = ports
-end
-
 hostrule = function(host)
 	if not nmap.is_privileged() then
 		nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
@@ -397,18 +391,13 @@ hostrule = function(host)
 		end
 	end
 
-	local ports = getports(host, numopen, numclosed)
-	if #ports <= 1 then
-		return false
-	end
-	setreg(host, ports)
-	return true
+	qscanports = getports(host, numopen, numclosed)
+	return (#qscanports > 1)
 end
 
 action = function(host)
 	local sock = nmap.new_dnet()
 	local pcap = nmap.new_socket()
-	local ports = nmap.registry[host.ip]['qscanports']
 	local saddr = packet.toip(host.bin_ip_src)
 	local daddr = packet.toip(host.bin_ip)
 	local start
@@ -435,7 +424,7 @@ action = function(host)
 	local tcp = genericpkt(host)
 
 	for i = 1, numtrips do
-		for j, port in ipairs(ports) do
+		for j, port in ipairs(qscanports) do
 
 			updatepkt(tcp, port)
 

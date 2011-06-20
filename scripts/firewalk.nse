@@ -105,6 +105,8 @@ local ProbeTimeout
 local MaxActiveProbes
 local MaxProbedPorts
 
+-- cache ports to probe between the hostrule and the action function
+local FirewalkPorts
 
 
 -- ICMP constant
@@ -296,8 +298,6 @@ local function build_portlist(host)
     local proto = combo[1]
     local state = combo[2]
 
-    portlist[proto] = {}
-
     repeat
       port = nmap.get_ports(host, port, proto, state)
 
@@ -308,6 +308,8 @@ local function build_portlist(host)
           scanned = false,  -- initial state: unprobed
         }
 
+        portlist[proto] = portlist[proto] or {}
+
         portlist[proto][port.number] = pentry
         i = i + 1
       end
@@ -316,19 +318,6 @@ local function build_portlist(host)
   end
 
   return portlist
-
-end
-
---- store the portlist in the register
--- @param host the destination host object
--- @param ports the table of ports to probe
-local function setregs(host, ports)
-
-  if not nmap.registry[host.ip] then
-    nmap.registry[host.ip] = {}
-  end
-
-  nmap.registry[host.ip]['firewalk_ports'] = ports
 
 end
 
@@ -421,23 +410,11 @@ hostrule = function(host)
   end
 
   -- get the list of ports to probe
-  local portlist = build_portlist(host)
-  local nb_ports = 0
+  FirewalkPorts = build_portlist(host)
 
-  for _, proto in pairs(portlist) do
-    for _ in pairs(proto) do
-      nb_ports = nb_ports + 1
-    end
-  end
+  -- schedule the execution if there are filtered ports to probe
+  return (next(FirewalkPorts) ~= nil)
 
-  -- nothing to probe: cancel the execution
-  if nb_ports < 1 then
-    return false
-  end
-
-  setregs(host, portlist)
-
-  return true
 end
 
 --- return the initial TTL to use (the one of the last gateway before the target)
@@ -817,7 +794,7 @@ action = function(host)
     sock = nmap.new_dnet(),
     pcap = nmap.new_socket(),
 
-    ports = nmap.registry[host.ip]['firewalk_ports'],
+    ports = FirewalkPorts,
 
     sendqueue = {},       -- pending probes
     pending_resends = {}, -- probes needing to be resent
