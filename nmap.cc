@@ -476,6 +476,10 @@ int nmap_main(int argc, char *argv[]) {
   NewTargets *new_targets = NULL;
 #endif
   addrset exclude_group;
+  if(o.debugging)
+    nbase_set_log(fatal,error);
+  else
+    nbase_set_log(fatal,NULL);
   char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
