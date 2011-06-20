@@ -65,7 +65,7 @@ o [NSE] Added ldap-novell-getpass, a script that provides support for
   retrieving Universal Passwords in plain-text from Novell eDirectory.
   [Patrik]
 
-o [ZenMmap] Fixed issue with ports closed in newer scan not being removed
+o [Zenmap] Fixed issue with ports closed in newer scan not being removed
   from the ports list [Colin Rice]
 
 o [NMAP] Redid portreasons.h and portreasons.cc to use a map instead of
