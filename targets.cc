@@ -203,9 +203,9 @@ int load_exclude_string(addrset *excludelist, const char *s) {
    private attributes, which would only be used for debugging, I went for the
    method below. */
 int dumpExclude(addrset *exclude_group) {
-  /* When we updated the exclude code to use addrset from libnetutil (originally
+  /* When we updated the exclude code to use addrset from nbase (originally
      from ncat) there was no simple available debugging function. Thus we are
-     zeroing this and if it is needed look in addrset.cc for the lower level
+     zeroing this and if it is needed look in nbase_addrset.c for the lower level
      debug function -Colin */
   return 1;
 }
