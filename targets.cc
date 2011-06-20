@@ -176,7 +176,9 @@ int load_exclude_file(addrset *excludelist, FILE *fp) {
   while ((n = read_host_from_file(fp, host_spec, sizeof(host_spec))) > 0) {
     if (n >= sizeof(host_spec))
       fatal("One of your exclude file specifications was too long to read (>= %u chars)", (unsigned int) sizeof(host_spec));
-    addrset_add_spec(excludelist, host_spec, o.af(), 1);
+    if(!addrset_add_spec(excludelist, host_spec, o.af(), 1)){
+      fatal("Invalid address specification:");
+    }
   }
 
   return 1;
@@ -186,7 +188,9 @@ int load_exclude_file(addrset *excludelist, FILE *fp) {
    --exclude. */
 int load_exclude_string(addrset *excludelist, const char *s) {
   addrset_init(excludelist);
-  addrset_add_spec(excludelist, s, o.af(), 1);
+  if (!addrset_add_spec(excludelist, s, o.af(), 1)){
+    fatal("Invalid address specification: %s", s);
+  }
 
   return 1;
 }
