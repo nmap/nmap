@@ -85,6 +85,11 @@ Entry { filename = "imap-capabilities.nse", categories = { "default", "safe", } 
 Entry { filename = "informix-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "informix-query.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "informix-tables.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "ip-geolocation-geobytes.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "ip-geolocation-maxmind.nse", categories = { "discovery", "external", "safe", } }
+Entry { filename = "ip-geolocation-quova.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "safe", "vuln", } }
