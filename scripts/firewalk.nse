@@ -217,7 +217,7 @@ local udp_funcs = {
 
       -- mark the gateway as forwarding the packet
       scanner.ports.udp[port].final_ttl = gateway_ttl(scanner.target.traceroute, packet.toip(ip.ip_bin_src))
-      scanner.ports.udp[port].scanned = true 
+      scanner.ports.udp[port].scanned = true
 
       for i, probe in ipairs(scanner.active_probes) do
         if probe.proto == "udp" and probe.portno == ip2.udp_dport then
