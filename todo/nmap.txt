@@ -1,5 +1,34 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o CHANGELOG updates [Fyodor]
+
+==Things needed for next DEV release go ABOVE THIS LINE==
+
+o Ncat chat (at least in ssl mode) no longer gives the banner greeting
+  when I connect.  This worked in r23918, but not in r24185, which is
+  the one running on chat.nmap.org as of 6/20/11.  Verify by running
+  "ncat --ssl -v chat.nmap.org"
+
+o If possible, Ncat, in listen mode, should probably listen on the system's
+  IPv6 interfaces as well as IPv4.  This is what servers like apache
+  and ssh do by default.  It might now be possible to listen on IPv6
+  by running a second ncat with -6, but that doesn't really work for
+  broker and chat modes because you want the IPv6 users to be able to
+  talk to IPv4 and vice versa.
+  - This was partially implemented, but still doesn't seem to work in
+    --chat mode.  Can test against chat.nmap.org
+
+o Integrate new OS detection submissions (We have about 1,700
+  submissions since 11/30/10)
+
+o Integrate new service fingerprint submissions (we have about 1,400
+  submissions since 11/30/10)
+
+o [Ncat] Add new certificate bundle (ca-bundle.crt) since the current
+  one is out of date.  See http://seclists.org/nmap-dev/2011/q2/641.
+
+==Things needed for next STABLE release go ABOVE THIS LINE==
+
 o Investigate this interface-matching problem on Windows:
   http://seclists.org/nmap-dev/2011/q1/52. It is related to the
   libdnet changes we made to allow choosing the correct physical
@@ -12,6 +41,9 @@ o Process Nmap survey and send out results [Fyodor]
 o Make new SecTools.Org site with the 2010 survey results.
 
 o Script review:
+  - New scripts from Paulino: http-phpself-xss and
+    http-wordpress-brute and http-joomla-brute,
+    http-majordomo2-dir-traversal.nse, http-trace, http-waf-detect
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
   - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
@@ -24,7 +56,6 @@ o Script review:
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
 o IPv6 todo.
-  - Protocol scan (-sO).
   - CIDR address specification.
   - Reverse DNS resolution.
   - Neighbor Discovery-based host discovery (analog to ARP scan).
@@ -147,13 +178,6 @@ o Add IPv6 support to Nping, including raw packet mode (hopefully
   is a bit different), and also including echo mode server and client
   support.
 
-o If possible, Ncat, in listen mode, should probably listen on the system's
-  IPv6 interfaces as well as IPv4.  This is what servers like apache
-  and ssh do by default.  It might now be possible to listen on IPv6
-  by running a second ncat with -6, but that doesn't really work for
-  broker and chat modes because you want the IPv6 users to be able to
-  talk to IPv4 and vice versa.
-
 o Add IPv6 subnet/pattern support like we offer for IPv4.
  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
  make sense in some cases.  For example, the VPS hosting company
@@ -184,16 +208,6 @@ o Further brainstorm and consider implementing more prerule/postrule
    o We could have a script which takes traceroute results and adds them to the target list.
    o [Implemented] dns-zone-transfer
    o [Implemented, but a joke] http-california-plates
-
-o [Ncat] When in connection brokering or chat mode with ssl support
-  enabled, if one client connects and doesn't complete ssl negotiation,
-  it hangs any other connections while that first is active.  One way to
-  reproduce:
-  Run SSL chat server like: /usr/local/bin/ncat --ssl -l --chat
-  Window #1: Connect without ssl: ncat -v chatserverip
-  Window #2: Try to connect with SSL: ncat -v --ssl chatserverip
-  Window #2 will not work while #1 is active.  If you quit #1, #2
-  should work again.
 
 o [NCAT] Send one line at a time when --delay is in effect. This is
   cumbersome to do until Nsock supports buffered reading.
@@ -734,6 +748,19 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] When in connection brokering or chat mode with ssl support
+  enabled, if one client connects and doesn't complete ssl negotiation,
+  it hangs any other connections while that first is active.  One way to
+  reproduce:
+  Run SSL chat server like: /usr/local/bin/ncat --ssl -l --chat
+  Window #1: Connect without ssl: ncat -v chatserverip
+  Window #2: Try to connect with SSL: ncat -v --ssl chatserverip
+  Window #2 will not work while #1 is active.  If you quit #1, #2
+  should work again.
+
+o IPv6 todo.
+  - Protocol scan (-sO).
 
 o [Ncat] Find out what RDP port forwarding apparently doesn't work on
   Windows. http://seclists.org/nmap-dev/2011/q1/86
