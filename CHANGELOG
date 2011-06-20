@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
+  [Colin]
+
 o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
   "all" to "discovery" and "safe" categories. The "all" profile is pretty 
   dangerous to be run since it includes denial of service and exploit scripts
