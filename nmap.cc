@@ -1647,6 +1647,8 @@ int nmap_main(int argc, char *argv[]) {
       shortfry(ports.prots, ports.prot_count);
   }
 
+  addrset_init(&exclude_group);
+
   /* lets load our exclude list */
   if (excludefd != NULL) {
     load_exclude_file(&exclude_group, excludefd);
