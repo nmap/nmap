@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added five scripts for IP based geolocation using the Quova, Geobytes,
+  Geoplugin and IPInfoDB web services and a Maxmind database.
+
 o [Ncat] Updated the ca-bundle.crt list of certificate authority
   certificates. It now has the default list of 11 CAs that come with
   Windows 7, down from 107 CAs before. [David]
