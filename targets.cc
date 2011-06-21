@@ -186,9 +186,21 @@ int load_exclude_file(addrset *excludelist, FILE *fp) {
 /* Load a comma-separated exclude list from a string, the argument to
    --exclude. */
 int load_exclude_string(addrset *excludelist, const char *s) {
-  if (!addrset_add_spec(excludelist, s, o.af(), 1)){
-    fatal("Invalid address specification: %s", s);
-  }
+  const char *begin, *p;
+
+  p = s;
+  while (*p != '\0') {
+    begin = p;
+    while (*p != '\0' && *p != ',')
+      p++;
+    const char * addr = std::string(begin, p - begin).c_str();
+    if (!addrset_add_spec(excludelist,addr, o.af(), 1)){
+        fatal("Invalid address specification: %s", addr);
+    }
+    if (*p == '\0')
+      break;
+    p++;
+  };
 
   return 1;
 }
