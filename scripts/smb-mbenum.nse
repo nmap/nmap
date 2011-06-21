@@ -171,7 +171,7 @@ action = function(host, port)
 	status, entries = msrpc.rap_netserverenum2(smbstate, domain, filter, detail_level)
 	if ( not(status) ) then 
 		log("ERROR: msrpc.call_lanmanapi failed")
-		return "\n  ERROR: Failed to retrieve list of servers from browser service"
+		return "\n  ERROR: " .. entries
 	end
 	
 	status, err = smb.tree_disconnect(smbstate)
