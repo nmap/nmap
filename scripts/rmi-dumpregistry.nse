@@ -18,8 +18,8 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 ---
 -- @usage nmap --script "rmi-dumpregistry.nse" -p 1098 <host>
 -- @output
--- PORT     STATE SERVICE     REASON
--- 1099/tcp open  rmiregistry syn-ack
+-- PORT     STATE SERVICE  REASON
+-- 1099/tcp open  java-rmi syn-ack
 -- | rmi-dumpregistry:  
 -- |   jmxrmi
 -- |     javax.management.remote.rmi.RMIServerImpl_Stub
@@ -30,8 +30,8 @@ Some apps give away the classpath, which this scripts catches in so-called "Cust
 -- |_        java.rmi.server.RemoteObject
 --
 -- @output
--- PORT     STATE SERVICE     REASON
--- 1099/tcp open  rmiregistry syn-ack
+-- PORT     STATE SERVICE  REASON
+-- 1099/tcp open  java-rmi syn-ack
 -- | rmi-dumpregistry:  
 -- |   cfassembler/default
 -- |     coldfusion.flex.rmi.DataServicesCFProxyServer_Stub
@@ -145,7 +145,7 @@ categories = {"default", "discovery", "safe"}
 
 require "shortport"
 require "rmi"
-portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"rmiregistry"})
+portrule = shortport.port_or_service({1098, 1099, 1090, 8901, 8902, 8903}, {"java-rmi", "rmiregistry"})
 
 -- Some lazy shortcuts
 
@@ -205,7 +205,7 @@ function action(host,port, args)
 		return false, ("Registry listing failed (%s)"):format(tostring(j_array))
 	end
 	-- It's definitely RMI!
-	port.version.name ='rmi'
+	port.version.name ='java-rmi'
 	port.version.product='Java RMI Registry'
 	nmap.set_port_version(host,port,'hardmatched')
 	
