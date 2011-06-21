@@ -68,7 +68,7 @@ function address_family()
 -- returned, however Nmap can return an other interface name since it
 -- can determine the best interface suited for the job.
 -- Other <code>"hostrule"</code> and <code>"portrule"</code> scripts
--- should use the interface field of the </code>host</code> table:
+-- should use the interface field of the <code>host</code> table:
 -- <code>host.interface</code>.
 --
 -- The result of this function can be used to get the interface information
