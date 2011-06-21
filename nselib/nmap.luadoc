@@ -75,7 +75,7 @@ function address_family()
 -- table, example: <code>nmap.get_interface_info("eth0")</code>.
 --
 -- @return A string containing the interface name (dnet-style) on
-success, or a nil value on failures.
+-- success, or a nil value on failures.
 -- @usage local interface_name = nmap.get_interface()
 function get_interface()
 
