@@ -35,6 +35,21 @@ o Integrate new service fingerprint submissions (we have about 1,400
 o [Ncat] Add new certificate bundle (ca-bundle.crt) since the current
   one is out of date.  See http://seclists.org/nmap-dev/2011/q2/641.
 
+o [Ncat] Solve a crash that only happens on Windows when connecting
+  with SSL and -vvv, for example
+    ncat --ssl -vvv www.amazon.com 443
+  The crash happens in the function verify_callback, when the function
+  X509_NAME_print_ex_fp is called. Just commenting those two calls
+  avoid the problem. By trying different combinations of debug print
+  statements, I once got the message
+    OPENSSL_Uplink(10109000,08): no OPENSSL_Applink
+  This refers to a Windows dynamic linking issue:
+    http://www.openssl.org/support/faq.html#PROG2
+  However I tried both including <openssl/applink.c> and changing the
+  linker mode to /MD, and neither changed the behavior.
+  Changing the flags from XN_FLAG_ONELINE to 0 seems to make the
+  problem go away.
+
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
 o We should document Ron's sample script
