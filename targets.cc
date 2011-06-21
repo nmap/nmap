@@ -169,7 +169,6 @@ static int hostInExclude(struct sockaddr *checksock, size_t checksocklen,
 
 /* Load an exclude list from a file for --excludefile. */
 int load_exclude_file(addrset *excludelist, FILE *fp) {
-  addrset_init(excludelist);
   char host_spec[1024];
   size_t n;
 
@@ -187,7 +186,6 @@ int load_exclude_file(addrset *excludelist, FILE *fp) {
 /* Load a comma-separated exclude list from a string, the argument to
    --exclude. */
 int load_exclude_string(addrset *excludelist, const char *s) {
-  addrset_init(excludelist);
   if (!addrset_add_spec(excludelist, s, o.af(), 1)){
     fatal("Invalid address specification: %s", s);
   }
