@@ -29,7 +29,7 @@ o NMAP reports different service results every so often with the same port.
 o Fix ncat.xml(the input for the man page) examples section.
 
 o Closing Zenmap without stopping the scan first will leave nmap running in 
-the process list.
+  the process list on Windows.
 
 
 Pending:
