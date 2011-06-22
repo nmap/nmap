@@ -1469,7 +1469,39 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+	category='network',
+	probes={
+		{path='/HW_logo.html', method='GET'},
+	},
+	matches= {
+		{match='', output='Huawei HG 530'}
+	}
+})
 
+table.insert(fingerprints, {
+	category='network',
+	probes={
+		{path='/icons/icon_set_up_2701XX_01.gif', method='GET'},
+		{path='/icons/icon_homeportal_2701XX.gif', method='GET'},
+		{path='/es/images/nav_sl_home_network_01.gif', method='GET'},
+		{path='/en/images/nav_sl_home_network_01.gif', method='GET'}
+	},
+	matches= {
+		{match='', output='2WIRE 2701HG'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='network',
+	probes={
+		{path='/images/stxx__xl.gif', method='GET'},
+		{path='/images/bbc__xl.gif', method='GET'}
+	},
+	matches= {
+		{match='', output='Thomson TG585'}
+	}
+})
 ------------------------------------------------
 ----               ATTACKS                  ----
 ------------------------------------------------
@@ -1777,6 +1809,7 @@ table.insert(fingerprints, {
 	category='uncategorized',
 	probes={
 		{path='/Default?MAIN=DEVICE', method='HEAD'},
+		{path='/TopAccess/images/RioGrande/Rio_PPC.gif', method='HEAD'}
 	},
 	matches= {
 		{match='', output='TopAccess Toshiba e-Studio520'}
