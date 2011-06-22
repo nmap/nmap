@@ -76,37 +76,6 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q2/307.
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
-o Move these prerule/postrule script ideas to secwiki script idea page
-   if appropriate (with a bit more details):
-   o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
-   o DNS service discovery (Bonjour): http://en.wikipedia.org/wiki/Bonjour_%28software%29
-   o Netbios Name Service
-   o DHCP broadcast requests
-   o Postrules could be created which give final reports/statistics or
-     other useful output.  Like a reverse-index, which shows all the open
-     port numbers individually and the hosts which had that port open
-     (e.g. so you can see all the ssh servers at once, etc.)
-     Admittedly you can do that pretty easy with Zenmap instead.
-   o We could have a prerule sniffer script which uses pcap to sniff
-     traffic for some short configurable amount of time and then adds the
-     discovered hosts to the target list.
-   o We could have a script which takes traceroute results and adds them to the target list.
-
-o [NSE] Add these ideas to secwiki script ideas page if appropriate
-  (with a bit more details):
-  o Windows system logs (like sysinternals' psloglist)
-  o Services (like sysinternals' psservice)
-  o A script (or modification to smb-check-vulns) to
-    detect this MSRPC vulnerability:
-    http://seclists.org/fulldisclosure/2010/Aug/122
-  o BasicHTML/XML parser library?  For example, Sven Klemm wrote a script
-    which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html.
-    And here is one by Duart Silva using Expat:
-    http://seclists.org/nmap-dev/2009/q3/1093.
-  o Add detection of duplicate machines via IP.ID technique.
-    Maybe I should use uptime timestamps too.  Oh, and MAC addresses
-    too.  Our SSH host key script is useful for this as well.
-
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
@@ -701,6 +670,44 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Move these prerule/postrule script ideas to secwiki script idea page
+   if appropriate (with a bit more details):
+   o AS Number to IP ranges: http://seclists.org/nmap-dev/2010/q2/101
+     In progress.
+   o DNS service discovery (Bonjour): http://en.wikipedia.org/wiki/Bonjour_%28software%29
+     Present as dns-service-discovery.nse.
+   o Netbios Name Service
+     Already present as broadcast-netbios-master-browser.nse?
+   o DHCP broadcast requests
+     Present as dhcp-discover.nse.
+   o Postrules could be created which give final reports/statistics or
+     other useful output.  Like a reverse-index, which shows all the open
+     port numbers individually and the hosts which had that port open
+     (e.g. so you can see all the ssh servers at once, etc.)
+     Admittedly you can do that pretty easy with Zenmap instead.
+     Have a few of these: ssh-hostkey and upcoming creds-summary.
+   o We could have a prerule sniffer script which uses pcap to sniff
+     traffic for some short configurable amount of time and then adds the
+     discovered hosts to the target list.
+     Already present as targets-sniffer.nse.
+   o We could have a script which takes traceroute results and adds them to the target list.
+     Already present as targets-traceroute.nse.
+
+o [NSE] Add these ideas to secwiki script ideas page if appropriate
+  (with a bit more details):
+  o Windows system logs (like sysinternals' psloglist)
+  o Services (like sysinternals' psservice)
+  o A script (or modification to smb-check-vulns) to
+    detect this MSRPC vulnerability:
+    http://seclists.org/fulldisclosure/2010/Aug/122
+  o BasicHTML/XML parser library?  For example, Sven Klemm wrote a script
+    which uses libxml2: http://seclists.org/nmap-dev/2008/q3/0462.html.
+    And here is one by Duart Silva using Expat:
+    http://seclists.org/nmap-dev/2009/q3/1093.
+  o Add detection of duplicate machines via IP.ID technique.
+    Maybe I should use uptime timestamps too.  Oh, and MAC addresses
+    too.  Our SSH host key script is useful for this as well.
 
 o Look into iplog ( http://ojnk.sourceforge.net/ ) -z option which is 
   supposed to fool OS detection.
