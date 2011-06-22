@@ -98,8 +98,8 @@ o --max-conns is broken in latest svn -> fixed in r24130, other two
     init_fdlist(&broadcast_fdlist, o.conn_limit);
   o When killing the first initiated connection on --max-conns > 1 Ncat:
     Ncat: Program bug: fd (5) not on list. QUITTING.
-  The previous two bugs were introduced in r24130, they are now fixed in
-  r24193.
+  [DONE]The previous two bugs were introduced in r24130, they are now fixed
+  in r24193.
 
 o Ncat hangs on ssl -> done, some refactoring left to do
   http://seclists.org/nmap-dev/2011/q2/842
@@ -114,3 +114,12 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
+
+o Fix build_icmp_raw and build_igmp_raw filling the packet data payload
+  with zeroes instead of the supplied random data, when nmap is invoked
+  with --data-length.
+
+o Zenmap should wait for the return exit code of the nmap scanning subprocess
+  upon killing it(canceled scan), otherwise the subprocesses will enter a 
+  defunct(zombie) state.
+
