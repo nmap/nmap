@@ -8,7 +8,8 @@ o Ncat should close its socket and refuse further connections after the first
   one, if invoked without --keep-open. That's what traditional netcat does
   too. - DONE
   http://seclists.org/nmap-dev/2011/q2/944
-  o TESTS in ncat-test.pl
+  o Add TEST in ncat-test.pl
+
 o Pending uncompleted SSL handshakes when in --exec* listening mode make
   Ncat consume 100% cpu(core/thread).
   Possible solutions:
@@ -17,9 +18,21 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
       until the ssl handshake has been completed.
   http://seclists.org/nmap-dev/2011/q2/988
 
-Pending:
+o Ncat chat (at least in ssl mode) no longer gives the banner greeting
+  when I connect.  This worked in r23918, but not in r24185, which is
+  the one running on chat.nmap.org as of 6/20/11.  Verify by running
+  "ncat --ssl -v chat.nmap.org"
+
 o NMAP reports different service results every so often with the same port.
   http://seclists.org/nmap-dev/2011/q2/815
+
+o Fix ncat.xml(the input for the man page) examples section.
+
+o Closing Zenmap without stopping the scan first will leave nmap running in 
+the process list.
+
+
+Pending:
 o Nmap should defer address parsing in arguments until it has read
   through all the args.  Otherwise you get an error if you use like -S
   with an IPv6 address before you put -6 in the command line.  You
@@ -85,8 +98,10 @@ o --max-conns is broken in latest svn -> fixed in r24130, other two
     init_fdlist(&broadcast_fdlist, o.conn_limit);
   o When killing the first initiated connection on --max-conns > 1 Ncat:
     Ncat: Program bug: fd (5) not on list. QUITTING.
+  The previous two bugs were introduced in r24130, they are now fixed in
+  r24193.
 
-o Ncat hangs on ssl -> mostly done, some refactoring left to do
+o Ncat hangs on ssl -> done, some refactoring left to do
   http://seclists.org/nmap-dev/2011/q2/842
 
 o Investigate and document how easy it is to drop Ncat.exe by itself
