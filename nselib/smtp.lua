@@ -81,6 +81,25 @@ local SMTP_CMD = {
       [421] = "<domain> Service not available, closing transmission channel",
     },
   },
+  ["DATA"] = {
+    cmd = "DATA",
+    success = {
+      [250] = "Requested mail action okay, completed",
+      [354] = "Start mail input; end with <CRLF>.<CRLF>",
+    },
+    errors = {
+      [451] = "Requested action aborted: local error in processing",
+      [554] = "Transaction failed",
+      [500] = "Syntax error, command unrecognised",
+      [501] = "Syntax error in parameters or arguments",
+      [503] = "Bad sequence of commands",
+      [421] = "<domain> Service not available, closing transmission channel",
+      [552] = "Requested mail action aborted: exceeded storage allocation",
+      [554] = "Transaction failed",
+      [451] = "Requested action aborted: local error in processing",
+      [452] = "Requested action not taken: insufficient system storage",
+    },
+  },
   ["STARTTLS"] = {
     cmd = "STARTTLS",
     success = {
@@ -219,6 +238,7 @@ end
 --
 -- This is a low level function that can be used to have more control
 -- over the data exchanged. On network errors the socket will be closed.
+-- This function automatically adds <code>CRLF<code> at the end.
 --
 -- @param socket connected to the server
 -- @param cmd The SMTP cmd to send to the server
@@ -428,6 +448,76 @@ mail = function(socket, address, esmtp_opts)
   if not st then
     quit(socket)
     return st, ret
+  end
+
+  return st, response
+end
+
+--- Sends the RCPT command to the SMTP server.
+--
+-- On network errors or if the SMTP command fails, the connection
+-- will be closed and the socket cleared.
+--
+-- @param socket connected to server.
+-- @param address of the recipient.
+-- @return true on success, or false on failures.
+-- @return response returned by the SMTP server on success, or an
+--         error message on failures.
+recipient = function(socket, address)
+  local st, ret, response
+
+  st, response = query(socket, "RCPT",
+                      string.format("TO:<%s>", address))
+
+  if not st then
+    return st, response
+  end
+
+  st, ret = check_reply("RCPT", response)
+  if not st then
+    quit(socket)
+    return st, ret
+  end
+
+  return st, response
+end
+
+--- Sends data to the SMTP server.
+--
+-- This function will automatically adds <code><CRLF>.<CRLF></code> at the
+-- end. On network errors or if the SMTP command fails, the connection
+-- will be closed and the socket cleared.
+--
+-- @param socket connected to server.
+-- @param data to be sent.
+-- @return true on success, or false on failures.
+-- @return response returned by the SMTP server on success, or an
+--         error message on failures.
+datasend = function(socket, data)
+  local st, ret, response
+
+  st, response = query(socket, "DATA")
+  if not st then
+    return st, response
+  end
+
+  st, ret = check_reply("DATA", response)
+  if not st then
+    quit(socket)
+    return st, ret
+  end
+
+  if data then
+    st, response = query(socket, data.."\r\n.")
+    if not st then
+      return st, response
+    end
+
+    st, ret = check_reply("DATA", response)
+    if not st then
+      quit(socket)
+      return st, ret
+    end
   end
 
   return st, response
