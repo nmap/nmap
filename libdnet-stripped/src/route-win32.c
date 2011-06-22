@@ -172,7 +172,6 @@ route_loop_getipforwardtable2(GETIPFORWARDTABLE2 GetIpForwardTable2,
 
 	for (i = 0; i < r->ipftable2->NumEntries; i++) {
 		MIB_IPFORWARD_ROW2 *row;
-		char buf[100];
 
 		row = &r->ipftable2->Table[i];
 		addr_ston((struct sockaddr *) &row->DestinationPrefix.Prefix, &entry.route_dst);
