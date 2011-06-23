@@ -1,8 +1,9 @@
 In progress:
 
-o Review latest revision of Marek's ncat_proxy.patch - DONE
-  http://seclists.org/nmap-dev/2011/q2/573
-  o Commit approval pending
+o Ncat chat (at least in ssl mode) no longer gives the banner greeting
+  when I connect.  This worked in r23918, but not in r24185, which is
+  the one running on chat.nmap.org as of 6/20/11.  Verify by running
+  "ncat --ssl -v chat.nmap.org"
 
 o Ncat should close its socket and refuse further connections after the first
   one, if invoked without --keep-open. That's what traditional netcat does
@@ -13,23 +14,25 @@ o Ncat should close its socket and refuse further connections after the first
 o Pending uncompleted SSL handshakes when in --exec* listening mode make
   Ncat consume 100% cpu(core/thread).
   Possible solutions:
+    o Listen on the union of the two sets in ncat_listen.c composed of the
+      current set and a secondary one, ssl_pending which should include the
+      pending ssl hanshake sockets.
     o Timeout ssl handshakes.
     o Delay adding the exec output pipes to fselect/WaitForMultipleObjects 
       until the ssl handshake has been completed.
   http://seclists.org/nmap-dev/2011/q2/988
 
-o Ncat chat (at least in ssl mode) no longer gives the banner greeting
-  when I connect.  This worked in r23918, but not in r24185, which is
-  the one running on chat.nmap.org as of 6/20/11.  Verify by running
-  "ncat --ssl -v chat.nmap.org"
-
-o NMAP reports different service results every so often with the same port.
-  http://seclists.org/nmap-dev/2011/q2/815
-
 o Fix ncat.xml(the input for the man page) examples section.
 
 o Closing Zenmap without stopping the scan first will leave nmap running in 
   the process list on Windows.
+
+o NMAP reports different service results every so often with the same port.
+  http://seclists.org/nmap-dev/2011/q2/815
+
+o Review latest revision of Marek's ncat_proxy.patch - DONE
+  http://seclists.org/nmap-dev/2011/q2/573
+  o Commit approval pending
 
 
 Pending:
@@ -101,8 +104,11 @@ o --max-conns is broken in latest svn -> fixed in r24130, other two
   [DONE]The previous two bugs were introduced in r24130, they are now fixed
   in r24193.
 
-o Ncat hangs on ssl -> done, some refactoring left to do
+o Ncat hangs on ssl -> DONE
+  some refactoring left to be done to reduce code duplication
   http://seclists.org/nmap-dev/2011/q2/842
+  o Commit current switch/ifdef refactoring patch.
+  o Research code deduplication even further.
 
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
