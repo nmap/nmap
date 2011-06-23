@@ -216,6 +216,7 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
   char buf[32];
   memset(data, 0, datalen);
   int sourcerouting = 0;
+  long strtolbyte = 0; // used to check strtol() return boundaries
 
   for(;*c;c++){
     switch(s){
@@ -226,7 +227,12 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
         break;
       }
       if(isxdigit(*c)){
-        *d++ = strtol(c, &n, base);
+        strtolbyte = strtol(c, &n, base);
+        if((strtolbyte < 0) || (strtolbyte > 255)){
+          if(errstr) Snprintf(errstr, errstrlen, "invalid ipv4 address format");
+          return OP_FAILURE;
+        }
+        *d++ = (u8) strtolbyte;
         c = n-1;
       }else{
           if(errstr) Snprintf(errstr, errstrlen, "not a digit after '\\'");
@@ -649,7 +655,8 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
     memcpy(&sin6->sin6_addr, &ip6->ip6_dst, IP6_ADDR_LEN);
 
     hdr->ttl = ip6->ip6_hlim;
-    hdr->ipid = ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
+    /* abstract_hdr.ipid is limited to 16 bits. */
+    hdr->ipid = (u16) ntohl(ip6->ip6_flow & IP6_FLOWLABEL_MASK);
     return ipv6_get_data_primitive(ip6, len, &hdr->proto, upperlayer_only);
   }
 
