@@ -121,11 +121,18 @@
 extern "C" {
 #endif
 
+#ifdef WIN32
+__declspec(noreturn)
+#endif  
 void fatal(const char *fmt, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));
 void error(const char *fmt, ...)
      __attribute__ ((format (printf, 1, 2)));
+
+#ifdef WIN32
+__declspec(noreturn)
+#endif
 void pfatal(const char *err, ...)
      __attribute__ ((noreturn))
      __attribute__ ((format (printf, 1, 2)));

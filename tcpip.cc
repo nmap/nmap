@@ -499,6 +499,9 @@ int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
     return send_ipv6_packet(sd, eth, packet, packetlen);
 
   fatal("%s only understands IP versions 4 and 6 (got %u)", __func__, ip->ip_v);
+
+  /* This should not be reached. Just in case. */
+  assert(0);
 }
 
 
