@@ -13,9 +13,12 @@ o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks
   [Colin]
 
 o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
-  "all" to "discovery" and "safe" categories. The "all" profile is pretty 
-  dangerous to be run since it includes denial of service and exploit scripts
-  among many others and because in some cases the scan might never finish.
+  "all" to "default or (discovery and safe)" categories, which specifies that
+  all scripts in default category as well as all scripts that are both in
+  discovery and safe should be executed.
+  The "all" profile is pretty dangerous to be run since it includes denial of
+  service and exploit scripts among many others and because in some cases the
+  scan might never finish.
 
 o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
   - broadcast-netbios-master-browser attempts to discover master browsers in
