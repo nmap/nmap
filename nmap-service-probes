@@ -9186,7 +9186,7 @@ match irc-proxy m|^Login failed\. Disconnecting\.\r\n$| p/psyBNC/ i/Login Failed
 
 match zabbix m|^OK$| p/Zabbix Monitoring System/
 
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_\.\(\)]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 ##############################NEXT PROBE##############################
@@ -9208,7 +9208,7 @@ match sip-proxy m|^SIP/2\.0 .*\r\nUser-Agent: Asterisk PBX\r\n|s p/Asterisk PBX/
 match sip-proxy m|^SIP/2\.0 .*\r\nServer: OpenSIPS \(([\w\d\.-]+) \(([\d\w/]+)\)\)|s p/OpenSIPS SIP Server/ v/$1/ i/$2/
 match sip-proxy m|^SIP/2\.0 200 OK\r\n.*\r\nUser-Agent: ComdasysB2BUA([\w._-]+)\r\n|s p/Comdasys SIP Server/ v/$1/
 
-softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_.]+)\r\n|s p/$2/ i/Status: $1/
+softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n.*Server: ([-\w\s/_\.\(\)]+)\r\n|s p/$2/ i/Status: $1/
 softmatch sip m|^SIP/2\.0 ([-\w\s.]+)\r\n| i/SIP end point; Status: $1/
 
 ##############################NEXT PROBE##############################
