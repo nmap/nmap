@@ -217,7 +217,6 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
   memset(data, 0, datalen);
   int sourcerouting = 0;
 
-
   for(;*c;c++){
     switch(s){
     case SLASH:
@@ -228,7 +227,7 @@ int parse_ip_options(const char *txt, u8 *data, int datalen, int* firsthopoff, i
       }
       if(isxdigit(*c)){
         *d++ = strtol(c, &n, base);
-        c=n-1;
+        c = n-1;
       }else{
           if(errstr) Snprintf(errstr, errstrlen, "not a digit after '\\'");
           return OP_FAILURE;
