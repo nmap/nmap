@@ -60,7 +60,6 @@ require 'shortport'
 require 'tab'
 
 hostrule = function(host) return smb.get_port(host) ~= nil end
-prerule = function() return true end
 
 local function log(msg) stdnse.print_debug(3, msg) end
 
