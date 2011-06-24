@@ -2,10 +2,12 @@
 
 GSoC 2011 TASKS:
 
-o Finish the HTTP architecture ideas draft and submit it to nmap-dev.
-
 o Work on my GSoC vulnerability and exploitation script ideas:
   https://secwiki.org/w/Nmap/Script_Ideas#Djalal_Harouni
+
+o Review all the "Improve NSE HTTP architecture" proposal suggetions
+  and comments, and try to include them and update the proposal.
+  http://seclists.org/nmap-dev/2011/q2/967
 
 o Start a thread on Nmap-dev about users favorite Nmap and NSE commands,
   and create a special page for it in the secwiki.org site.
@@ -77,6 +79,9 @@ DONE:
 
 1) Nmap Scripting Engine Infrastructure:
 
+o Submitted the "Improve NSE HTTP architecture" proposal
+  http://seclists.org/nmap-dev/2011/q2/967
+
 o Make NSE scripts able to retrieve the interface network
   information.
   
@@ -103,12 +108,18 @@ o Update scripting.xml to show the new script scan phases.
 
 2) NSE Scripts:
 
+o smtp-vuln-cve2010-4344 script to check and exploit Exim SMTP Server:
+  heap overflow (CVE-2010-4344) and privileges escalation (CVE-2010-4345)
+
 o SMTP library.
+
 o Rewritten SMTP scripts to use the smtp library:
   - smtp-commands
   - smtp-open-relay
   - smtp-enum-users
+
 o smtp-vuln-cve2011-1720 script to check for CVE-2011-1720
+
 o broadcast-avahi-dos script to check for CVE-2011-1002
 
 o NFS/RPC features:
