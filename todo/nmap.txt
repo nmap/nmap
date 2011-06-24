@@ -316,6 +316,8 @@ o Consider an update feed system for Nmap which let's people obtain
   o Another approach is a special feed system as is used by Nessus and
     OpenVAS.  OpenVAS uses a script wrapper around rsync, or an HTTP
     download if that fails.
+  o Colin's analysis of different methods:
+    http://seclists.org/nmap-dev/2011/q2/821
 
 o [Web] Add a page with the Nmap related videos we do have already
 
