@@ -753,6 +753,32 @@ static int l_get_interface (lua_State *L)
   return 1;
 }
 
+/* return the ttl (time to live) specified with the 
+ * --ttl command line option. If a wrong value is 
+ * specified it defaults to 64.
+ */
+static int l_get_ttl (lua_State *L)
+{
+	if (o.ttl < 0 || o.ttl > 255)
+		lua_pushnumber(L, 64); //default TTL
+	else
+		lua_pushnumber(L, o.ttl);
+	return 1;
+}
+
+/* return the payload length specified by the --data-length 
+ * command line option. If it  * isn't specified or the value 
+ * is out of range then the default value (0) is returned.
+ */
+static int l_get_payload_length(lua_State *L)
+{
+	if (o.extra_payload_length < 0)
+		lua_pushnumber(L, 0); //default payload length
+	else
+		lua_pushnumber(L, o.extra_payload_length);
+	return 1;
+}
+
 int luaopen_nmap (lua_State *L)
 {
   static const luaL_reg nmaplib [] = {
@@ -780,6 +806,8 @@ int luaopen_nmap (lua_State *L)
     {"address_family", l_address_family},
     {"get_interface", l_get_interface},
     {"get_interface_info", l_dnet_get_interface_info},
+	{"get_ttl", l_get_ttl},
+	{"get_payload_length",l_get_payload_length},
     {NULL, NULL}
   };
 
