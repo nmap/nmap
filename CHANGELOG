@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added smtp-vuln-cve2010-4344, a script that checks and exploits two
+  vulnerabilities in the Exim SMTP Server:
+  o CVE-2010-4344: A heap overflow vulnerability.
+  o CVE-2010-4345: A privileges escalation vulnerability.
+
 o [NSE] Added 300+ new signatures to http-enum [Paulino]
 
 o [NSE] Added five scripts for IP based geolocation using the Quova, Geobytes,
