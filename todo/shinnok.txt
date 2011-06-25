@@ -109,6 +109,8 @@ COMPLETED:
 
 o Closing Zenmap without stopping the scan first will leave nmap running in 
   the process list on Windows.
+  [Actually, Zenmap was unable to kill the nmap scan processes at all on 
+  Windows]
 
 o Zenmap should wait for the return exit code of the nmap scanning subprocess
   upon killing it(canceled scan), otherwise the subprocesses will enter a 
