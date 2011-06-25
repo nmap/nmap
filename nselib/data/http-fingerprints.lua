@@ -142,6 +142,98 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/dsc/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Trend Micro Data Loss Prevention Virtual Appliance'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/reg_1.htm', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Polycom IP phone'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/globalSIPsettings.html', method='HEAD'},
+		{path='/SIPsettingsLine1.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Aastra IP Phone'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/websvn/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='WEBSVN Repository'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/login.stm', method='GET'}
+	},
+	matches= {
+		{match='', output='Belkin G Wireless Router'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/frontend/x3/', method='GET'}
+	},
+	matches= {
+		{match='', output='CPanel'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/awstatstotals/awstatstotals.php', method='GET'}
+	},
+	matches= {
+		{match='', output='AWStats Totals'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/egroupware/', method='GET'}
+	},
+	matches= {
+		{match='', output='eGroupware'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/calendar/cal_search.php', method='GET'},
+		{path='/cal_search.php', method='GET'}
+	},
+	matches= {
+		{match='', output='ExtCalendar'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/forum/', method='HEAD'},
 		{path='/forums/', method='HEAD'},
 		{path='/smf/', method='HEAD'},
@@ -1778,6 +1870,107 @@ table.insert(fingerprints, {
                 {match='<a href="http://status.net/">StatusNet</a> microblogging software, version (.-),', output='StatusNet v\\1'},
 		{match='<script src=".*/applications/vanilla/js/options.js%?v%=(.-)" type="text/javascript">', output='Vanilla Forums v\\1'},
 		{match='about"><strong>Trac (.-)</strong></a>', output='Trac version \\1'},
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/cmspages.php', method='GET'}
+	},
+	matches={
+		{match='', output='2Point Solutions CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/sc_webcat/ecat/cms_view.php', method='GET'}
+	},
+	matches={
+		{match='', output='Webcat'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/kbcat.cgi', method='GET'}
+	},
+	matches={
+		{match='', output='ActivDesk'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/workorder/FileDownload.jsp', method='GET'},
+		{path='/sd/workorder/FileDownload.jsp', method='GET'}
+	},
+	matches={
+		{match='500', output='ManageEngine Support Center Plus'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/sections/reference.inc.php', method='GET'}
+	},
+	matches={
+		{match='200', output='BrewBlogger'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/store.php?action=view_cart', method='GET'}
+	},
+	matches={
+		{match='200', output='AiCart'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/catalog/main.php?cat_id=', method='GET'}
+	},
+	matches={
+		{match='200', output='Catalog Builder'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/index.php?cat_id=', method='GET'}
+	},
+	matches={
+		{match='powered by CubeCart', output='CubeCart'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/forum_answer.php?que_id=1', method='GET'}
+	},
+	matches={
+		{match='', output='Guru JustAnswer'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/templates1/view_product.php', method='GET'}
+	},
+	matches={
+		{match='', output='HB ECommerce'}
 	}
 })
 
