@@ -1,15 +1,17 @@
 In progress:
+============
+
+--
+o Ncat hangs on ssl -> REFACTORING
+  some refactoring left to be done to reduce code duplication
+  http://seclists.org/nmap-dev/2011/q2/842
+  o Commit current switch/ifdef refactoring patch.
+  o Research code deduplication even further.
 
 o Ncat chat (at least in ssl mode) no longer gives the banner greeting
   when I connect.  This worked in r23918, but not in r24185, which is
   the one running on chat.nmap.org as of 6/20/11.  Verify by running
   "ncat --ssl -v chat.nmap.org"
-
-o Ncat should close its socket and refuse further connections after the first
-  one, if invoked without --keep-open. That's what traditional netcat does
-  too. - DONE
-  http://seclists.org/nmap-dev/2011/q2/944
-  o Add TEST in ncat-test.pl
 
 o Pending uncompleted SSL handshakes when in --exec* listening mode make
   Ncat consume 100% cpu(core/thread).
@@ -21,11 +23,17 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
     o Delay adding the exec output pipes to fselect/WaitForMultipleObjects 
       until the ssl handshake has been completed.
   http://seclists.org/nmap-dev/2011/q2/988
+---
+o Ncat should close its socket and refuse further connections after the first
+  one, if invoked without --keep-open. That's what traditional netcat does
+  too. - DONE
+  http://seclists.org/nmap-dev/2011/q2/944
+  o Add TEST in ncat-test.pl
 
 o Fix ncat.xml(the input for the man page) examples section.
 
-o Closing Zenmap without stopping the scan first will leave nmap running in 
-  the process list on Windows.
+Hanging(waiting for further input, etc..):
+==========================================
 
 o NMAP reports different service results every so often with the same port.
   http://seclists.org/nmap-dev/2011/q2/815
@@ -34,8 +42,9 @@ o Review latest revision of Marek's ncat_proxy.patch - DONE
   http://seclists.org/nmap-dev/2011/q2/573
   o Commit approval pending
 
-
 Pending:
+========
+
 o Nmap should defer address parsing in arguments until it has read
   through all the args.  Otherwise you get an error if you use like -S
   with an IPv6 address before you put -6 in the command line.  You
@@ -43,6 +52,8 @@ o Nmap should defer address parsing in arguments until it has read
   (but "-6 -A works properly).
 
 Pending (low priority):
+=======================
+
 o libpcre/pcre.h - is cleared upon make distclean thus leaving the SVN
   working directory dirty
   http://seclists.org/nmap-dev/2011/q2/708
@@ -60,6 +71,7 @@ o E-mail nmap-dev with GProfiles /ncrack
     emails, etc.
 
 Potential:
+==========
 
 o Consider offering a way to link Winpcap DLLs so that they start the
   service as needed rather than requiring explicitly installing
@@ -92,23 +104,19 @@ o We should offer partial results when a host
     an Nmap phase which is going too slowly (I think that has its own
     Nmap TODO item).
 
-Done:
+COMPLETED:
+==========
 
-o --max-conns is broken in latest svn -> fixed in r24130, other two
-  bugs discovered:
-  o --max-conns 0 kills ncat with a glibc assertion error on calloc with
-  zero as nmemb(??) at:
-    init_fdlist(&broadcast_fdlist, o.conn_limit);
-  o When killing the first initiated connection on --max-conns > 1 Ncat:
-    Ncat: Program bug: fd (5) not on list. QUITTING.
-  [DONE]The previous two bugs were introduced in r24130, they are now fixed
-  in r24193.
+o Closing Zenmap without stopping the scan first will leave nmap running in 
+  the process list on Windows.
 
-o Ncat hangs on ssl -> DONE
-  some refactoring left to be done to reduce code duplication
-  http://seclists.org/nmap-dev/2011/q2/842
-  o Commit current switch/ifdef refactoring patch.
-  o Research code deduplication even further.
+o Zenmap should wait for the return exit code of the nmap scanning subprocess
+  upon killing it(canceled scan), otherwise the subprocesses will enter a 
+  defunct(zombie) state.
+
+o Fix build_icmp_raw and build_igmp_raw filling the packet data payload
+  with zeroes instead of the supplied random data, when nmap is invoked
+  with --data-length.
 
 o Investigate and document how easy it is to drop Ncat.exe by itself
   on other systems and have it work.  We should also look into the
@@ -121,11 +129,13 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
 
-o Fix build_icmp_raw and build_igmp_raw filling the packet data payload
-  with zeroes instead of the supplied random data, when nmap is invoked
-  with --data-length.
-
-o Zenmap should wait for the return exit code of the nmap scanning subprocess
-  upon killing it(canceled scan), otherwise the subprocesses will enter a 
-  defunct(zombie) state.
+o --max-conns is broken in latest svn -> fixed in r24130, other two
+  bugs discovered:
+  o --max-conns 0 kills ncat with a glibc assertion error on calloc with
+  zero as nmemb(??) at:
+    init_fdlist(&broadcast_fdlist, o.conn_limit);
+  o When killing the first initiated connection on --max-conns > 1 Ncat:
+    Ncat: Program bug: fd (5) not on list. QUITTING.
+  [DONE]The previous two bugs were introduced in r24130, they are now fixed
+  in r24193.
 
