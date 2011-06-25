@@ -26,7 +26,7 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
 ---
 o Ncat should close its socket and refuse further connections after the first
   one, if invoked without --keep-open. That's what traditional netcat does
-  too. - DONE
+  too. - DONE [r24197]
   http://seclists.org/nmap-dev/2011/q2/944
   o Add TEST in ncat-test.pl
 
@@ -108,28 +108,30 @@ COMPLETED:
 ==========
 
 o Closing Zenmap without stopping the scan first will leave nmap running in 
-  the process list on Windows.
+  the process list on Windows. [r24308]
   [Actually, Zenmap was unable to kill the nmap scan processes at all on 
   Windows]
 
 o Zenmap should wait for the return exit code of the nmap scanning subprocess
   upon killing it(canceled scan), otherwise the subprocesses will enter a 
-  defunct(zombie) state.
+  defunct(zombie) state.[r24235]
 
 o Fix build_icmp_raw and build_igmp_raw filling the packet data payload
   with zeroes instead of the supplied random data, when nmap is invoked
-  with --data-length.
+  with --data-length.[r24127]
 
 o Investigate and document how easy it is to drop Ncat.exe by itself
-  on other systems and have it work.  We should also look into the
-  dependencies of Nmap and Zenmap.  It may be instructive to look at
-  "Portable Firefox"
-  (http://portableapps.com/apps/internet/firefox_portable) which is
-  built using open source technology from portableapps.com, or look at
-  "The Network Toolkit" by Cace
-  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
-  and Nping, we may want to improve our Winpcap to load as a DLL
-  without requiring installation.  There is a separate TODO item for that.
+  on other systems and have it work. [r24242]
+  http://seclists.org/nmap-dev/2011/q2/1090
+
+  o We should also look into the dependencies of Nmap and Zenmap.  
+    It may be instructive to look at "Portable Firefox"
+    (http://portableapps.com/apps/internet/firefox_portable) which is
+    built using open source technology from portableapps.com, or look at
+    "The Network Toolkit" by Cace
+    (http://www.cacetech.com/products/network_toolkit.html).
+  o For Nmap and Nping, we may want to improve our Winpcap to load as a DLL
+    without requiring installation.  There is a separate TODO item for that.
 
 o --max-conns is broken in latest svn -> fixed in r24130, other two
   bugs discovered:
