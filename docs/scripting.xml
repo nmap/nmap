@@ -1676,7 +1676,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    <term><option>host.bin_ip</option>
 	      </term>
 	    <listitem>
-	      <para>The target host's IPv4 address as a 32-bit binary value.
+	      <para>The target host's IP address as a 4-byte (IPv4) or 16-byte (IPv6) string.
 		  </para>
 	    </listitem>
 	  </varlistentry>
@@ -1684,7 +1684,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    <term><option>host.bin_ip_src</option>
 	      </term>
 	    <listitem>
-	      <para>Our host's (running Nmap) source IPv4 address as a 32-bit binary value.
+	      <para>Our host's (running Nmap) source IP address as a 4-byte (IPv4) or 16-byte (IPv6) string.
 		  </para>
 	    </listitem>
 	  </varlistentry>
