@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The host.bin_ip and host.bin_ip_src entries now also work with
+  16-byte IPv6 addresses. [David]
+
 o [NSE] Added smtp-vuln-cve2010-4344, a script that checks and exploits two
   vulnerabilities in the Exim SMTP Server:
   o CVE-2010-4344: A heap overflow vulnerability.

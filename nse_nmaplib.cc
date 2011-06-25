@@ -81,6 +81,25 @@ void set_portinfo (lua_State *L, const Target *target, const Port *port)
   lua_setfield(L, -2, "version");
 }
 
+/* Push a string containing the binary contents of the given address. If ss has
+   an unknown address family, push nil. */
+static void push_bin_ip(lua_State *L, const struct sockaddr_storage *ss)
+{
+  if (ss->ss_family == AF_INET) {
+    const struct sockaddr_in *sin;
+
+    sin = (struct sockaddr_in *) ss;
+    lua_pushlstring(L, (char *) &sin->sin_addr.s_addr, IP_ADDR_LEN);
+  } else if (ss->ss_family == AF_INET6) {
+    const struct sockaddr_in6 *sin6;
+
+    sin6 = (struct sockaddr_in6 *) ss;
+    lua_pushlstring(L, (char *) &sin6->sin6_addr.s6_addr, IP6_ADDR_LEN);
+  } else {
+    lua_pushnil(L);
+  }
+}
+
 /* set host ip, host name and target name onto the
  * table which is currently on the stack
  * set name of the os run by the host onto the
@@ -113,18 +132,11 @@ void set_hostinfo(lua_State *L, Target *currenths) {
   }
   setsfield(L, -1, "interface", currenths->deviceName());
   setnfield(L, -1, "interface_mtu", currenths->MTU());
-  if ((u32)(currenths->v4host().s_addr))
-  {
-    struct in_addr adr = currenths->v4host();
-    lua_pushlstring(L, (const char *) &adr, 4);
-    lua_setfield(L, -2, "bin_ip");
-  }
-  if ((u32)(currenths->v4source().s_addr))
-  {
-    struct in_addr adr = currenths->v4source();
-    lua_pushlstring(L, (const char *) &adr, 4);
-    lua_setfield(L, -2, "bin_ip_src");
-  }
+
+  push_bin_ip(L, currenths->TargetSockAddr());
+  lua_setfield(L, -2, "bin_ip");
+  push_bin_ip(L, currenths->SourceSockAddr());
+  lua_setfield(L, -2, "bin_ip_src");
 
   lua_newtable(L);
   setnfield(L, -1, "srtt", (lua_Number) currenths->to.srtt / 1000000.0);
