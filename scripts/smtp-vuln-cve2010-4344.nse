@@ -12,9 +12,9 @@ file using the -C option (CVE-2010-4345).
 The <code>smtp-vuln-cve2010-4344.exploit</code> script argument will make
 the script try to exploit the vulnerabilties, by sending more than 50MB of
 data, it depends on the message size limit configuration option of the
-Exim server. If the exploit succeed the <code>exploit.command</code> or
-<code>smtp-vuln-cve2010-4344.command</code> script arguments can be used
-to run an arbitrary command on the remote system, under the
+Exim server. If the exploit succeed the <code>exploit.cmd</code> or
+<code>smtp-vuln-cve2010-4344.cmd</code> script arguments can be used to
+run an arbitrary command on the remote system, under the
 <code>Exim</code> user privileges. If this script argument is set then it
 will enable the <code>smtp-vuln-cve2010-4344.exploit</code> argument.
 
@@ -32,7 +32,7 @@ Reference:
 ---
 -- @usage
 -- nmap --script=smtp-vuln-cve2010-4344 --script-args="smtp-vuln-cve2010-4344.exploit" -pT:25,465,587 <host>
--- nmap --script=smtp-vuln-cve2010-4344 --script-args="exploit.command='uname -a'" -pT:25,465,587 <host>
+-- nmap --script=smtp-vuln-cve2010-4344 --script-args="exploit.cmd='uname -a'" -pT:25,465,587 <host>
 --
 -- @output
 -- PORT   STATE SERVICE
@@ -53,9 +53,9 @@ Reference:
 --       be used.
 -- @args smtp-vuln-cve2010-4344.mailto Define the destination email address
 --       to be used.
--- @args exploit.command or smtp-vuln-cve2010-4344.command An arbitrary
---       command to run under the <code>Exim</code> user privileges on the
---       remote system. If this argument is set then, it will enable the
+-- @args exploit.cmd or smtp-vuln-cve2010-4344.cmd An arbitrary command to
+--       run under the <code>Exim</code> user privileges on the remote
+--       system. If this argument is set then, it will enable the
 --       <code>smtp-vuln-cve2010-4344.exploit</code> argument.
 
 author = "Djalal Harouni"
@@ -453,8 +453,8 @@ action = function(host, port)
     mailfrom = stdnse.get_script_args('smtp-vuln-cve2010-4344.mailfrom'),
     mailto = stdnse.get_script_args('smtp-vuln-cve2010-4344.mailto'),
     exploit = stdnse.get_script_args('smtp-vuln-cve2010-4344.exploit'),
-    shell_cmd = stdnse.get_script_args('exploit.command') or
-                  stdnse.get_script_args('smtp-vuln-cve2010-4344.command'),
+    shell_cmd = stdnse.get_script_args('exploit.cmd') or
+                  stdnse.get_script_args('smtp-vuln-cve2010-4344.cmd'),
   }
   if smtp_opts.shell_cmd then
     smtp_opts.exploit = true
