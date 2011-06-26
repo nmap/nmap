@@ -688,12 +688,18 @@ table.insert(fingerprints, {
 		{path='/_administracion/', method='HEAD'},
 		{path='/_4dm1n/', method='HEAD'},
 		{path='/_adm1n/', method='HEAD'},
+		{path='/_Admin/', method='HEAD'},
 		{path='/system_administration/', method='HEAD'},
 		{path='/system-administration/', method='HEAD'},
 		{path='/system-admin/', method='HEAD'},
 		{path='/system-admins/', method='HEAD'},
 		{path='/system-administrators/', method='HEAD'},
 		{path='/administracion-sistema/', method='HEAD'},
+		{path='/Administracion/', method='HEAD'},
+		{path='/Admin/', method='HEAD'},
+		{path='/Administrator/', method='HEAD'},
+		{path='/Manager/', method='HEAD'},
+		{path='/Adm/', method='HEAD'}
 	}, 
 	matches={
 		{match='<title>Index of', output='Possible admin folder w/ directory listing'},
