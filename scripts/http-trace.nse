@@ -1,99 +1,66 @@
 description = [[
-Sends an HTTP TRACE request and shows header fields that were modified in the
-response.
+Sends an HTTP TRACE request and shows if the method TRACE is enabled. If debug is enabled, it returns the header fields that were modified in the response.
 ]]
 
 ---
+-- @usage
+-- nmap --script http-trace -d <ip>
+--
 -- @output
--- 80/tcp open  http
--- |  http-trace: Response differs from request.  First 5 additional lines:
--- |  Cookie: UID=d4287aa38d02f409841b4e0c0050c131...
--- |  Country: us
--- |  Ip_is_advertise_combined: yes
--- |  Ip_conntype-Confidence: -1
--- |_ Ip_line_speed: medium
+-- 80/tcp open  http    syn-ack
+-- | http-trace: TRACE is enabled
+-- | Headers:
+-- | Date: Tue, 14 Jun 2011 04:41:28 GMT
+-- | Server: Apache
+-- | Connection: close
+-- | Transfer-Encoding: chunked
+-- |_Content-Type: message/http
+--
+-- @args http-trace.path Path to URI
 
--- 08/31/2007
-
-author = "Kris Katterjohn"
+author = "Paulino Calderon"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery", "safe"}
 
-require "comm"
 require "shortport"
 require "stdnse"
-
---- Truncates and formats the first 5 elements of a table.
---@param tab The table to truncate.
---@return Truncated, formatted table.
-local truncate = function(tab)
-	local str = ""
-	str = str .. tab[1] .. "\n"
-	str = str .. tab[2] .. "\n"
-	str = str .. tab[3] .. "\n"
-	str = str .. tab[4] .. "\n"
-	str = str .. tab[5] .. "\n"
-	return str
-end
-
---- Validates the HTTP response and checks for modifications.
---@param response The HTTP response from the server.
---@param original The original HTTP request sent to the server.
---@return A string describing the changes (if any) between the response and
--- request.
-local validate = function(response, original)
-	local start, stop
-	local body
-
-	if not response:match("HTTP/1.[01] 200") or
-	   not response:match("TRACE / HTTP/1.0") then
-		return
-	end
-
-	start, stop = response:find("\r\n\r\n")
-	body = response:sub(stop + 1)
-
-	if original ~= body then
-		local output =  "Response differs from request.  "
-
-		if body:match("^TRACE / HTTP/1.0\r\n") then
-			local extra = body:sub(19) -- skip TRACE line
-			local tab = {}
-
-			-- Skip extra newline at the end (making sure it's there)
-			extra = extra:gsub("\r\n\r\n$", "\r\n")
-
-			tab = stdnse.strsplit("\r\n", extra)
-
-			if #tab > 5 then
-				output = output .. "First 5 additional lines:\n"
-				return output .. truncate(tab)
-			end
-
-			output = output .. "Additional lines:\n"
-			return output .. extra .. "\n"
-		end
-
-		-- This shouldn't happen
-
-		output = output .. "Full response:\n"
-		return output .. body .. "\n"
-	end
-
-	return
-end
+require "http"
 
 portrule = shortport.http
 
-action = function(host, port)
-	local cmd = "TRACE / HTTP/1.0\r\n\r\n"
+--- Validates the HTTP response and returns header list
+--@param response The HTTP response
+--@param response_headers The HTTP response headers 
+local validate = function(response, response_headers)
+  local output_lines = {}
 
-	local sd, response = comm.tryssl(host, port, cmd, false)
-	if not sd then 
-		stdnse.print_debug("Unable to open connection") 
-		return
-	end
-	return validate(response, cmd)
+  if not(response:match("HTTP/1.[01] 200") or response:match("TRACE / HTTP/1.[01]")) then
+    return
+  else
+    output_lines[ #output_lines+1 ] = "TRACE is enabled"
+  end
+  if nmap.verbosity() >= 2 then 
+    output_lines[ #output_lines+1 ]= "Headers:"
+    for _, value in pairs(response_headers) do
+      output_lines [ #output_lines+1 ] = value
+    end
+  end
+  if #output_lines > 0 then
+    return stdnse.strjoin("\n", output_lines)
+  end 
+end
+
+---
+--MAIN
+---
+action = function(host, port)
+  local path = nmap.registry.args["http-trace.path"] or "/"
+  
+  local req = http.generic_request(host, port, "TRACE", path)
+  if (req.status == 301 or req.status == 302) and req.header["location"] then
+    req = http.generic_request(host, port, "TRACE", req.header["location"])
+  end
+  return validate(req.body, req.rawheader)
 end
