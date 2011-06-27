@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Documented the credential library and added the creds-summary script.
+  [Patrik]
+
 o [NSE] Added http-majordomo2-dir-traversal and new version of http-trace.nse.
   [Paulino]
 
