@@ -3037,6 +3037,45 @@ static struct interface_info *find_loopback_iface(struct interface_info *ifaces,
   return NULL;
 }
 
+/* Get the source address for routing to dst by creating a socket and asking the
+   operating system for the local address. */
+static int get_srcaddr(const struct sockaddr_storage *dst,
+  struct sockaddr_storage *src)
+{
+  static const unsigned short DUMMY_PORT = 1234;
+  struct sockaddr_storage dst_dummy;
+  socklen_t len;
+  int fd, rc;
+
+  fd = socket(dst->ss_family, SOCK_DGRAM, 0);
+  if (fd == -1)
+    netutil_fatal("%s: can't create socket: %s", __func__, socket_strerror(socket_errno()));
+
+  dst_dummy = *dst;
+  if (dst_dummy.ss_family == AF_INET) {
+    struct sockaddr_in *sin = (struct sockaddr_in *) &dst_dummy;
+    sin->sin_port = htons(DUMMY_PORT);
+  } else if (dst_dummy.ss_family == AF_INET6) {
+    struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &dst_dummy;
+    sin6->sin6_port = htons(DUMMY_PORT);
+  } else {
+    return -1;
+  }
+
+  rc = connect(fd, (struct sockaddr *) &dst_dummy, sizeof(struct sockaddr_in6));
+  if (rc == -1)
+    netutil_fatal("%s: can't connect socket: %s", __func__, socket_strerror(socket_errno()));
+
+  len = sizeof(*src);
+  rc = getsockname(fd, (struct sockaddr *) src, &len);
+  if (rc == -1)
+    netutil_fatal("%s: can't getsockname: %s", __func__, socket_strerror(socket_errno()));
+
+  close(fd);
+
+  return 0;
+}
+
 static int route_dst_generic(const struct sockaddr_storage *dst,
                              struct route_nfo *rnfo, const char *device,
                              const struct sockaddr_storage *spoofss) {
@@ -3093,8 +3132,10 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     rnfo->ii = *loopback;
     rnfo->direct_connect = 1;
     /* But the source address we want to use is the target address. */
-    if (!spoofss)
-      rnfo->srcaddr = ifaces[i].addr;
+    if (!spoofss) {
+      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+        return 0;
+    }
 
     return 1;
   }
@@ -3116,8 +3157,10 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     rnfo->direct_connect = (sockaddr_equal_zero(&routes[i].gw) ||
       sockaddr_equal(&routes[i].gw, &routes[i].device->addr) ||
       sockaddr_equal(&routes[i].gw, dst));
-    if (!spoofss)
-      rnfo->srcaddr = routes[i].device->addr;
+    if (!spoofss) {
+      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+        return 0;
+    }
     rnfo->nexthop = routes[i].gw;
 
     return 1;
@@ -3132,8 +3175,10 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
 
     rnfo->ii = ifaces[i];
     rnfo->direct_connect = 1;
-    if (!spoofss)
-      rnfo->srcaddr = ifaces[i].addr;
+    if (!spoofss) {
+      if (get_srcaddr(dst, &rnfo->srcaddr) == -1)
+        return 0;
+    }
 
     return 1;
   }
