@@ -1,11 +1,46 @@
 --- The credential class stores found credentials in the Nmap registry
 --
+-- The credentials library may be used by scripts to store credentials in
+-- a common format in the nmap registry. The Credentials class serves as
+-- a primary interface for scripts to the library.
+--
+-- The State table keeps track of possible account states and a corresponding
+-- message to return for each state.
+--
+-- The following code illustrates how a script may add discovered credentials
+-- to the database:
+-- <code>
+-- 	local c = creds.Credentials:new( SCRIPT_NAME, host, port )
+-- 	c:add("patrik", "secret", creds.State.VALID )
+-- </code>
+--
+-- The following code illustrates how a script can return a table of discovered
+-- credentials at the end of execution:
+-- <code>
+--	return tostring(creds.Credentials:new(SCRIPT_NAME, host, port))
+-- </code>
+--
+-- The following code illustrates how a script may iterate over discovered
+-- credentials:
+-- <code>
+--	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+-- 	for _, cred in pairs(c:getCredentials(creds.State.VALID)) do
+--		chowContentForUser(cred.user, cred.pass)
+-- 	end
+-- </code>
+--
+
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 -- Version 0.1
 -- Created 2011/02/06 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 2011/27/06 - v0.2 - revised by Patrik Karlsson <patrik@cqure.net>
+--								added documentation
+--								added getCredentials function
+--
+
 module(... or "creds", package.seeall)
 
 require('ipOps')
@@ -60,10 +95,12 @@ RegStorage = {
 	--- Sets the storage filter
 	--
 	-- @param host table containing the host
-	-- @param port table containign the port
-	setFilter = function( self, host, port )
+	-- @param port table containing the port
+	-- @param state table containing the account state
+	setFilter = function( self, host, port, state )
 		self.filter.host = host
 		self.filter.port = port
+		self.filter.state = state
 	end,
 	
 	--- Retrieves the table containing all credential records
@@ -79,13 +116,21 @@ RegStorage = {
 		for _, v in pairs(tbl) do
 			local h = ( v.host.ip or v.host )
 			if ( not(host) and not(port) ) then
-				table.insert(new_tbl, v)
+				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					table.insert(new_tbl, v) 
+				end
 			elseif ( not(host) and ( port == v.port ) ) then
-				table.insert(new_tbl, v)
+				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					table.insert(new_tbl, v) 
+				end
 			elseif ( ( host and ( h == host or h == host.ip ) ) and not(port) ) then
-				table.insert(new_tbl, v)
+				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					table.insert(new_tbl, v) 
+				end
 			elseif ( ( host and ( h == host or h == host.ip ) ) and port.number == v.port ) then
-				table.insert(new_tbl, v)
+				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+					table.insert(new_tbl, v) 
+				end
 			end
 		end
 		return new_tbl
@@ -133,6 +178,26 @@ Credentials = {
 		if ( user or pass ) then
 			self.storage:add( self.scriptname, self.host, self.port, self.service, user, pass, state )
 		end
+	end,
+	
+	--- Returns all accounts for a given state, or all states if no filter is set
+	--
+	-- @param state table containing a value from the <Code>State</code> table
+	-- @return table containing accounts matching the state, or all accounts if
+	--         no state was given. Accounts have the following fields:
+	--         <code>host</code> - table as received by the action function
+	--         <code>port</code> - number containing the port number
+	--         <code>user</code> - string containing the user name
+	--         <code>pass</code> - string containing the user password
+	--         <code>state</code> - a state table @see <code>State</code>
+	--         <code>service</code> - string containing the name of the service
+	--         <code>scriptname</code> - string containing the name of the
+	--                                   script that added the credential
+	getCredentials = function(self, state)
+		if ( state ) then 
+			self.storage:setFilter(self.host, { number=self.port, service = self.service }, state)
+		end
+		return self.storage:getAll()
 	end,
 	
 	--- Returns a table of credentials
