@@ -247,11 +247,7 @@ local function exploit_heap(socket, smtp_opts)
     body_size = body_size + #filler
     status, ret = socket:send(filler)
     if not status then
-      if string.match(response, "connection closed") then
-        return clean(socket, true, "heap")
-      else
-        return clean(socket, status, "failed to send body.")
-      end
+      return clean(socket, status, "failed to send body.")
     end
   end
 
