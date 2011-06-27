@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-majordomo2-dir-traversal and new version of http-trace.nse.
+  [Paulino]
+
 o [Zenmap] Fixed issue with Zenmap not being able to kill the Nmap scan 
   subprocess upon canceling a scan or quitting the application on Windows.
   [Shinnok]
