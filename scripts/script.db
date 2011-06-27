@@ -68,6 +68,7 @@ Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "s
 Entry { filename = "http-form-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
 Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
