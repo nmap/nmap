@@ -162,6 +162,18 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/adr.htm', method='HEAD'},
+		{path='/line_login.htm?l=1', method='GET'},
+		{path='/tbook.csv', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Snom IP Phone'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/globalSIPsettings.html', method='HEAD'},
 		{path='/SIPsettingsLine1.html', method='HEAD'}
 	},
@@ -169,7 +181,6 @@ table.insert(fingerprints, {
 		{match='', output='Aastra IP Phone'}
 	}
 })
-
 table.insert(fingerprints, {
 	category='general',
 	probes={
@@ -228,6 +239,38 @@ table.insert(fingerprints, {
 	},
 	matches= {
 		{match='', output='ExtCalendar'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/a_viewusers.php', method='GET'},
+		{path='/aphpkb/', method='GET'}
+	},
+	matches= {
+		{match='', output='Andys PHP Knowledgebase'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/webedition/we/include/we_modules/', method='GET'},
+		{path='/webedition/', method='GET'}
+	},
+	matches= {
+		{match='', output='Web Edition'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/Examples/', method='GET'}
+	},
+	matches= {
+		{match='', output='Possible documentation files'}
 	}
 })
 
@@ -699,7 +742,14 @@ table.insert(fingerprints, {
 		{path='/Admin/', method='HEAD'},
 		{path='/Administrator/', method='HEAD'},
 		{path='/Manager/', method='HEAD'},
-		{path='/Adm/', method='HEAD'}
+		{path='/Adm/', method='HEAD'},
+		{path='/systemadmin/', method='HEAD'},
+		{path='/AdminLogin.asp', method='HEAD'},
+		{path='/AdminLogin.php', method='HEAD'},
+		{path='/AdminLogin.jsp', method='HEAD'},
+		{path='/AdminLogin.aspx', method='HEAD'},
+		{path='/AdminLogin.cfm', method='HEAD'},
+		{path='/admin108/', method='HEAD'}
 	}, 
 	matches={
 		{match='<title>Index of', output='Possible admin folder w/ directory listing'},
@@ -718,7 +768,8 @@ table.insert(fingerprints, {
 		{path='/backup.zip', method='GET'},
 		{path='/backups/', method='GET'},
 		{path='/bak/', method='GET'},
-		{path='/back/', method='GET'}
+		{path='/back/', method='GET'},
+		{path='/cache/backup/', method='GET'}
 	},
 	matches={
 		{match='<title>Index of', output='Backup folder w/ directory listing'},
@@ -902,6 +953,138 @@ table.insert(fingerprints, {
 		{match='', output='CakePHP application'}
 	}
 })
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-bin/ffileman.cgi?', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Ffileman Web File Manager'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/fshow.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Horizon Web App'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/info.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Possible information file'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/kusabax/manage_page.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Kusabax Image Board'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/plus/lurking.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='phpMyChat Plus'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/adm/barra/assetmanager/assetmanager.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='360 Web Manager'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/eyeos/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Possible eyeOS installation'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/NETWARE.HTM', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Planet FPS-1101'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/setup.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Linksys Cisco Wag120n or similar'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/confirminvite.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='phpMyBitTorrent'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/sourcebans/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='SourceBans - Steam server application'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/swfupload/index.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='SWFUpload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/mymarket/shopping/index.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='MyMarket'}
+	}
+})
+
+
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
@@ -1953,7 +2136,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/index.php?cat_id=', method='GET'}
+		{path='/index.php?cat_id=1', method='GET'}
 	},
 	matches={
 		{match='powered by CubeCart', output='CubeCart'}
@@ -1979,6 +2162,79 @@ table.insert(fingerprints, {
 		{match='', output='HB ECommerce'}
 	}
 })
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/escort-profile.php', method='GET'}
+	},
+	matches={
+		{match='', output='First Escort Marketing CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/pages/indexheader.php', method='GET'},
+		{path='/pages/searcher.php', method='GET'},
+		{path='/pages/indexviewentry.php', method='GET'}
+	},
+	matches={
+		{match='', output='Green Pants CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/tinymcpuk/filemanager/browser.html', method='GET'}
+	},
+	matches= {
+		{match='', output='CMS Lokomedia'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/libraries/ajaxfilemanager/ajaxfilemanager.php', method='GET'}
+	},
+	matches= {
+		{match='', output='Log1 CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/leftmenubody.php', method='GET'}
+	},
+	matches= {
+		{match='', output='Quicktech'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/dsp_page.cfm', method='GET'}
+	},
+	matches= {
+		{match='', output='Alcassofts SOPHIA CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/zikula/index.php', method='GET'}
+	},
+	matches= {
+		{match='', output='Zikula CMS'}
+	}
+})
+
 
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
@@ -2897,7 +3153,8 @@ table.insert(fingerprints, {
 		{path='/xymon/', method='GET'},
 		{path='/zb41/', method='GET'},
 		{path='/zipfiles/', method='GET'},
-		{path='/zip/', method='GET'}
+		{path='/zip/', method='GET'},
+		{path='/_docs/', method='GET'}
 	},
 	matches={
 		{match='<title>Index of .*(Apache.*) Server at', output='Potentially interesting directory w/ listing on \'\\1\''},
