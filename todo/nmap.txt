@@ -32,9 +32,6 @@ o Integrate new OS detection submissions (We have about 1,700
 o Integrate new service fingerprint submissions (we have about 1,400
   submissions since 11/30/10)
 
-o [Ncat] Add new certificate bundle (ca-bundle.crt) since the current
-  one is out of date.  See http://seclists.org/nmap-dev/2011/q2/641.
-
 o [Ncat] Solve a crash that only happens on Windows when connecting
   with SSL and -vvv, for example
     ncat --ssl -vvv www.amazon.com 443
@@ -672,6 +669,9 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] Add new certificate bundle (ca-bundle.crt) since the current
+  one is out of date.  See http://seclists.org/nmap-dev/2011/q2/641.
 
 o Move these prerule/postrule script ideas to secwiki script idea page
    if appropriate (with a bit more details):
