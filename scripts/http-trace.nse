@@ -22,7 +22,7 @@ author = "Paulino Calderon"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery", "safe"}
+categories = {"vuln", "discovery", "safe"}
 
 require "shortport"
 require "stdnse"
