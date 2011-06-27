@@ -1,7 +1,11 @@
 PENDING:
--Work on the http-waf-detect
+-Add more signatures for http-default-accounts
+-Select new scripts to work on
 
 COMPLETED:
+-Completed http-default-accounts
+-Added new signatures to http-enum
+-Work on the http-waf-detect
 -Wrote new http-trace
 -Patched shortport.lua and http-form-brute
 -Work on the majordomo2 traversal http exploit (Finished http-majordomo2-dir-traversal)
