@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.59BETA1 [2011-06-29]
+
+o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
+  can learn more about any of them at http://nmap.org/nsedoc/. Here
+  are the new ones (authors listed in brackets):
+
+
 o [NSE] Documented the credential library and added the creds-summary script.
   [Patrik]
 
