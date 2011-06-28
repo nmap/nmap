@@ -219,8 +219,8 @@ void PacketTrace::traceND(pdirection pdir, const u8 *frame, u32 len,
   union icmpv6_msg *msg;
   size_t msg_len;
   const char *label;
-  char src[INET6_ADDRSTRLEN], dst[INET_ADDRSTRLEN];
-  char who_has[INET6_ADDRSTRLEN], tgt_is[INET_ADDRSTRLEN];
+  char src[INET6_ADDRSTRLEN], dst[INET6_ADDRSTRLEN];
+  char who_has[INET6_ADDRSTRLEN], tgt_is[INET6_ADDRSTRLEN];
   char desc[128];
 
   if (pdir == SENT) {
