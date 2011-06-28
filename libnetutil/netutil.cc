@@ -3044,6 +3044,7 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
 {
   static const unsigned short DUMMY_PORT = 1234;
   struct sockaddr_storage dst_dummy;
+  size_t dst_dummy_len;
   socklen_t len;
   int fd, rc;
 
@@ -3055,14 +3056,16 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
   if (dst_dummy.ss_family == AF_INET) {
     struct sockaddr_in *sin = (struct sockaddr_in *) &dst_dummy;
     sin->sin_port = htons(DUMMY_PORT);
+    dst_dummy_len = sizeof(*sin);
   } else if (dst_dummy.ss_family == AF_INET6) {
     struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &dst_dummy;
     sin6->sin6_port = htons(DUMMY_PORT);
+    dst_dummy_len = sizeof(*sin6);
   } else {
     return -1;
   }
 
-  rc = connect(fd, (struct sockaddr *) &dst_dummy, sizeof(struct sockaddr_in6));
+  rc = connect(fd, (struct sockaddr *) &dst_dummy, dst_dummy_len);
   if (rc == -1)
     netutil_fatal("%s: can't connect socket: %s", __func__, socket_strerror(socket_errno()));
 
