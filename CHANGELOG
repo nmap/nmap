@@ -6,41 +6,13 @@ o [NSE] Documented the credential library and added the creds-summary script.
 o [NSE] Added http-majordomo2-dir-traversal and new version of http-trace.nse.
   [Paulino]
 
-o [Zenmap] Fixed issue with Zenmap not being able to kill the Nmap scan 
-  subprocess upon canceling a scan or quitting the application on Windows.
-  [Shinnok]
-
-o [Zenmap] Fixed issue with Zenmap not waiting for the return exit code
-  of the Nmap scan subprocess after killing it on Posix systems, thus 
-  leaving the processes in a defunct(zombie) state. [Shinnok]
-
-o [NSE] The host.bin_ip and host.bin_ip_src entries now also work with
-  16-byte IPv6 addresses. [David]
-
 o [NSE] Added smtp-vuln-cve2010-4344, a script that checks and exploits two
   vulnerabilities in the Exim SMTP Server:
   o CVE-2010-4344: A heap overflow vulnerability.
   o CVE-2010-4345: A privileges escalation vulnerability.
 
-o [NSE] Added 300+ new signatures to http-enum [Paulino]
-
 o [NSE] Added five scripts for IP based geolocation using the Quova, Geobytes,
   Geoplugin and IPInfoDB web services and a Maxmind database.
-
-o [Ncat] Updated the ca-bundle.crt list of certificate authority
-  certificates. It now has the default list of 11 CAs that come with
-  Windows 7, down from 107 CAs before. [David]
-
-o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
-  [Colin]
-
-o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
-  "all" to "default or (discovery and safe)" categories, which specifies that
-  all scripts in default category as well as all scripts that are both in
-  discovery and safe should be executed.
-  The "all" profile is pretty dangerous to be run since it includes denial of
-  service and exploit scripts among many others and because in some cases the
-  scan might never finish.
 
 o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
   - broadcast-netbios-master-browser attempts to discover master browsers in
@@ -48,23 +20,84 @@ o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
   - smb-mbenum lists servers registered with the master browser
   [Patrik]
 
-o [NSE] Added credential storage library (creds.lua) and modified the brute
-  library and scripts to make use of it. [Patrik]
+o [NSE] Added the Netware Core Protocol (NCP) library and the scripts
+  ncp-serverinfo and ncp-enum-users. [Patrik]
+
+o [NSE] Added ldap-novell-getpass, a script that provides support for
+  retrieving Universal Passwords in plain-text from Novell eDirectory.
+  [Patrik]
 
 o [NSE] Added a MySQL audit script and a rulebase that supports auditing a
   subset of the MySQL CIS 1.0.2 Benchmark. [Patrik]
 
-o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
-  patch from Dan Miller that fixes errors in processing and sorting ipv6
-  addresses in scripts using these libraries. [Daniel Miller, Patrik]
-
 o [NSE] Added minimal Service Location Protocol (SLP) library and the script
   broadcast-novell-locate that detects servers running eDirectory. [Patrik]
 
-o [ncat] ncat now listens on localhost and ::1 when you do ncat -l. If you
-  specify an address or use -4,-6 it works as before.
+o [NSE] Added http-cakephp-version, a discovery script to fingerprint
+  CakePHP applications. Script by Paulino Calderon.
 
-o [NSE] Added the Simple Mail Transfer Protocol (SMTP) library. [Djalal]
+o [NSE] Added backorifice-brute, a bruteforcing script against the old
+  BackOrifice service
+
+o [NSE] Added smtp-vuln-cve2011-1720, which checks for the Postfix
+  SMTP server Cyrus SASL authentication memory corruption
+  vulnerability (CVE-2011-1720). [Djalal]
+
+o [NSE] Added a SIP library and two new scripts sip-brute.nse and
+  sip-user-enum.nse providing brute and user enumeration support for the SIP
+  protocol. [Patrik]
+
+o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
+
+o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the
+  hosts in the local network that are running Avahi are vulnerable to
+  the NULL UDP packet denial of service (CVE-2011-1002). [Djalal]
+
+o [NSE] Added http-wp-plugins.nse, which retrieves the list of installed
+  Wordpress plugins by bruteforcing the wp-content directory. [Ange Gutek]
+
+o [NSE] Added omp2-brute and omp2-enum-targets, which respectively get
+  authentication credentials and then a list of scanning targets from
+  the OpenVAS Management Protocol. [Henri Doreau]
+
+o [NSE] Added backorifice-info from Gorjan Petrovski, which retrieves
+  lots of system information from a BackOrifice server.
+
+o [NSE] Added the afp-ls script that lists files accessible on remote
+  AFP Volumes. [Patrik]
+
+o [NSE] Added the targets-sniffer script by Nick Nickolaou. It sniffs
+  on an interface for a configurable amount of time, then displays the
+  IPv4 addresses found and optionally adds them to the scanning queue.
+
+o [NSE] Added epmd-info.nse, which gets a list of Erlang node port
+  numbers. [Toni Ruottu]
+
+o [NSE] Added http-affiliate-id.nse, which scrapes a web page for
+  affiliate IDs (like Google AdSense and Amazon associates) that can
+  be used to link sites to the same owner. [Hani Benhabiles, Daniel
+  Miller]
+
+o [NSE] Added dns-nsec-enum.nse, which quickly enumerates the domains
+  of a DNSSEC server that uses NSEC records for nonexistent domains.
+  [John Bond, David]
+
+o [NSE] Added ssl-known-key.nse, which checks SSL certificates against a
+  list of certificates with known keys that have been extracted from
+  firmware files. [Mak Kolybabi]
+
+o [NSE] Added nping-brute.nse by Toni Ruottu, which tries to guess
+  the passphrase of an Nping Echo server.
+
+o [NSE] Added dns-brute.nse by cirrus, a brute-force DNS name
+  enumerator.
+
+o [NSE] Added quake3-master-getservers, which gets a list of live
+  Quake 3 servers from a master server. (It also works for many
+  similar games.) [Toni Ruottu]
+
+o [NSE] Added servicetags.nse, which queries the Sun Service Tags
+  agent and gets system information. [Matthew Flanagan]
 
 o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
   scan, and ICMP host discovery and similar work for IPv6 now!  A few
@@ -86,41 +119,60 @@ o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
     (e.g. fe80::9afc:22ee:bc91:3e1d%eth0)
   [Added by David and Weilin]
 
-o Added IPv6 --traceroute support. [David]
-
 o Scanme.Nmap.Org is now dual-stacked (has an IPv6 address as well as
   IPv4) so you can scan it during IPv6 testing.  We also added a DNS
   record for ScanmeV6.nmap.org which is IPv6-only. [Fyodor]
 
+o [Zenmap] Fixed issue with Zenmap not being able to kill the Nmap scan 
+  subprocess upon canceling a scan or quitting the application on Windows.
+  [Shinnok]
+
+o [Zenmap] Fixed issue with Zenmap not waiting for the return exit code
+  of the Nmap scan subprocess after killing it on Posix systems, thus 
+  leaving the processes in a defunct(zombie) state. [Shinnok]
+
+o [NSE] The host.bin_ip and host.bin_ip_src entries now also work with
+  16-byte IPv6 addresses. [David]
+
+o [NSE] Added 300+ new signatures to http-enum [Paulino]
+
+o [Ncat] Updated the ca-bundle.crt list of certificate authority
+  certificates. It now has the default list of 11 CAs that come with
+  Windows 7, down from 107 CAs before. [David]
+
+o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
+  [Colin]
+
+o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
+  "all" to "default or (discovery and safe)" categories, which specifies that
+  all scripts in default category as well as all scripts that are both in
+  discovery and safe should be executed.
+  The "all" profile is pretty dangerous to be run since it includes denial of
+  service and exploit scripts among many others and because in some cases the
+  scan might never finish.
+
+o [NSE] Added credential storage library (creds.lua) and modified the brute
+  library and scripts to make use of it. [Patrik]
+
+o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
+  patch from Dan Miller that fixes errors in processing and sorting ipv6
+  addresses in scripts using these libraries. [Daniel Miller, Patrik]
+
+o [Ncat] ncat now listens on localhost and ::1 when you do ncat -l. If you
+  specify an address or use -4,-6 it works as before.
+
+o [NSE] Added the Simple Mail Transfer Protocol (SMTP) library. [Djalal]
+
+o Added IPv6 --traceroute support. [David]
+
 o [Zenmap] Fixed endpoints which were behind firewalls during a traceroute being
   attached to the wrong spot on the topology map. [Colin Rice]
-
-o [NSE] Added the Netware Core Protocol (NCP) library and the scripts
-  ncp-serverinfo and ncp-enum-users. [Patrik]
-
-o [NSE] Added ldap-novell-getpass, a script that provides support for
-  retrieving Universal Passwords in plain-text from Novell eDirectory.
-  [Patrik]
 
 o [Zenmap] Fixed issue with ports closed in newer scan not being removed
   from the ports list [Colin Rice]
 
-o [NMAP] Redid portreasons.h and portreasons.cc to use a map instead of
-  parrallel arrays and added icmp_to_reason for consistent translation to
-  reason codes. [Colin Rice]
-
 o [NSE] Added new fingerprint data to http-fingerprints.lua and favicon-db
   for CakePHP applications. [Paulino Calderon]
-
-o [NSE] Added http-cakephp-version, a discovery script to fingerprint
-  CakePHP applications. Script by Paulino Calderon.
-
-o [NSE] Added backorifice-brute, a bruteforcing script against the old
-  BackOrifice service
-
-o [NSE] Added smtp-vuln-cve2011-1720, which checks for the Postfix
-  SMTP server Cyrus SASL authentication memory corruption
-  vulnerability (CVE-2011-1720). [Djalal]
 
 o Stopped linking against libnl when not necessary (when linking
   dynamically with libpcap). Patch by Kevin Locke.
@@ -129,27 +181,18 @@ o [NSE] Applied patch from Daniel Miller that fixes a bug in http-form-brute
   reported by Josh Greenwood. The script would break if autodetection of
   either brute form fields would fail.
 
-o [NSE] Added a SIP library and two new scripts sip-brute.nse and
-  sip-user-enum.nse providing brute and user enumeration support for the SIP
-  protocol. [Patrik]
-
-o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
-
-o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the
-  hosts in the local network that are running Avahi are vulnerable to
-  the NULL UDP packet denial of service (CVE-2011-1002). [Djalal]
-
 o [Zenmap] Fixed an error that could cause a crash ("TypeError: an
   integer is required") if a sort column in the ports table was unset.
   [David]
-
-o [NSE] Added http-wp-plugins.nse, which retrieves the list of installed
-  Wordpress plugins by bruteforcing the wp-content directory. [Ange Gutek]
 
 o [Ndiff] Added nmaprun element information to the diff. [Daniel
   Miller]
 
 o Added a GKrellM service probe from Toni Ruottu.
+
+o [NSE] Added nmap.get_interface and nmap.get_interface_info functions
+  so scripts can access characteristics of the scanning interface.
+  [Djalal]
 
 o [NSE] Removed the nmap.get_interface_link function, which was
   deprecated by the new nmap.get_interface_info. The sniffer-detect
@@ -160,13 +203,6 @@ o [NSE] Fixed a bug reported by Daniel Miller that was causing the
   nfs-ls script to ignore NFS mounts when the Mount version is 1.
   [Djalal]
 
-o [NSE] Added omp2-brute and omp2-enum-targets, which respectively get
-  authentication credentials and then a list of scanning targets from
-  the OpenVAS Management Protocol. [Henri Doreau]
-
-o [NSE] Added backorifice-info from Gorjan Petrovski, which retrieves
-  lots of system information from a BackOrifice server.
-
 o Added a service probe for BackOrifice contributed by Gorjan
   Petrovski.
 
@@ -174,34 +210,11 @@ o Added a service probe for Zend Java Bridge, which is vulnerable if
   exposed to an untrusted network. It was contributed by Michael
   Schierl.
 
-o [NSE] Added the afp-ls script that lists files accessible on remote
-  AFP Volumes. [Patrik]
-
-o [NSE] Added the targets-sniffer script by Nick Nickolaou. It sniffs
-  on an interface for a configurable amount of time, then displays the
-  IPv4 addresses found and optionally adds them to the scanning queue.
-
-o [NSE] Added nmap.get_interface and nmap.get_interface_info functions
-  so scripts can access characteristics of the scanning interface.
-  [Djalal]
-
-o [NSE] Added epmd-info.nse, which gets a list of Erlang node port
-  numbers. [Toni Ruottu]
-
-o [NSE] Added http-affiliate-id.nse, which scrapes a web page for
-  affiliate IDs (like Google AdSense and Amazon associates) that can
-  be used to link sites to the same owner. [Hani Benhabiles, Daniel
-  Miller]
-
 o Fixed an overflow in scan elapsed time display that caused negative
   times to be printed after about 25 days. [Daniel Miller]
 
 o [NSE] ssh-hostkey now additionally has a postrule that prints hosts
   that have the same hostkey. [Henri Doreau]
-
-o [NSE] Added dns-nsec-enum.nse, which quickly enumerates the domains
-  of a DNSSEC server that uses NSEC records for nonexistent domains.
-  [John Bond, David]
 
 o Nmap no longer searches for data files (like nmap-services) in the
   current directory as a last resort. This is to reduce the chance of
@@ -215,10 +228,6 @@ o Nmap no longer searches for data files (like nmap-services) in the
 
 o Updated nmap-rpc from the master list, now maintained by IANA.
   [Daniel Miller, David]
-
-o [NSE] Added ssl-known-key.nse, which checks SSL certificates against a
-  list of certificates with known keys that have been extracted from
-  firmware files. [Mak Kolybabi]
 
 o [Ndiff] The Nmap banner (with the version number and date of the scan)
   is not printed unless there were other differences. This makes Nidff
@@ -236,14 +245,8 @@ o [Ndiff] Fixed the Mac OS X packages to use the correct path for
   Python: /usr/bin/python instead of /opt/local/bin/python. The bug
   was reported by Wellington Castello. [David]
 
-o [NSE] Added nping-brute.nse by Toni Ruottu, which tries to guess
-  the passphrase of an Nping Echo server.
-
 o Removed the -sR (RPC scan) option--it is now an alias for -sV
   (version scan), which always does RPC scan when appropriate.
-
-o [NSE] Added dns-brute.nse by cirrus, a brute-force DNS name
-  enumerator.
 
 o [NSE] Merged the ms-sql branch with several improvements and changes to the
   ms-sql scripts and library:
@@ -262,14 +265,7 @@ o [NSE] Added probe for Apple iPhoto (DPAP) and the dpap-brute script that
 o [NSE] Fixed http.validate_options when handling a cookie table.
   [Sebastian Prengel]
 
-o [NSE] Added quake3-master-getservers, which gets a list of live
-  Quake 3 servers from a master server. (It also works for many
-  similar games.) [Toni Ruottu]
-
 o Added a Service Tags UDP probe for port 6481/udp. [David]
-
-o [NSE] Added servicetags.nse, which queries the Sun Service Tags
-  agent and gets system information. [Matthew Flanagan]
 
 o [NSE] Enhanced firewalk.nse to automatically find the gateways at
   which probes are dropped. [Henri Doreau]
