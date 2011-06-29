@@ -144,8 +144,7 @@ o [NSE] The host.bin_ip and host.bin_ip_src entries now also work with
 o [NSE] Added 300+ new signatures to http-enum [Paulino]
 
 o [Ncat] Updated the ca-bundle.crt list of certificate authority
-  certificates. It now has the default list of 11 CAs that come with
-  Windows 7, down from 107 CAs before. [David]
+  certificates. [David]
 
 o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
   [Colin]
