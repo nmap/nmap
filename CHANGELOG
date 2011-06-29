@@ -2,7 +2,7 @@
 
 Nmap 5.59BETA1 [2011-06-29]
 
-o [NSE] Added 41 scripts, bringing the total to 218!  You can learn
+o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
 
@@ -83,10 +83,6 @@ o [NSE] Added 41 scripts, bringing the total to 218!  You can learn
   + ip-geolocation-maxmind: Tries to identify the physical location of
     an IP address using a Geolocation Maxmind database file (available
     from http://www.maxmind.com/app/ip-location). [Gorjan Petrovski]
-
-  + ip-geolocation-quova: Tries to identify the physical location of an
-    IP address using the Quova geolocation web service
-    (http://www.quova.com/).  [Gorjan Petrovski]
 
   + ldap-novell-getpass: Attempts to retrieve the Novell Universal
     Password for a user. You must already have (and include in script

@@ -92,7 +92,6 @@ Entry { filename = "ip-geolocation-geobytes.nse", categories = { "discovery", "e
 Entry { filename = "ip-geolocation-geoplugin.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-ipinfodb.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ip-geolocation-maxmind.nse", categories = { "discovery", "external", "safe", } }
-Entry { filename = "ip-geolocation-quova.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "ipidseq.nse", categories = { "discovery", "safe", } }
 Entry { filename = "irc-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "safe", "vuln", } }
