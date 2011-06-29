@@ -1,5 +1,6 @@
 description = [[
-Gets NCP Server Information
+Retrieves eDirectory server information (OS version, server name,
+mounts, etc.) from the Novell NetWare Core Protocol (NCP) service.
 ]]
 
 ---

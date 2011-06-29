@@ -1,5 +1,5 @@
 description = [[
-Retrieves a list of all eDirectory users from the NCP service
+Retrieves a list of all eDirectory users from the Novell NetWare Core Protocol (NCP) service.
 ]]
 
 ---

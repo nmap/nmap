@@ -1,5 +1,5 @@
 description = [[
-Attempts to brute-force SIP accounts
+Performs brute force password auditing against Session Initiation Protocol (SIP - http://en.wikipedia.org/wiki/Session_Initiation_Protocol) accounts.  This protocol is most commonly associated with VoIP sessions.
 ]]
 
 ---

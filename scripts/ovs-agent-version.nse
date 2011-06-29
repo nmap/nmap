@@ -1,5 +1,6 @@
 description = [[
-Detects the version of an OVSAgentServer.
+Detects the version of an Oracle OVSAgentServer by fingerprinting
+responses to an HTTP GET request and an XML-RPC method call.
 
 Version 2.2 of OVSAgentServer returns a distinctive string in response to an
 HTTP GET request. However version 3.0 returns a generic response that looks like

@@ -1,5 +1,7 @@
 description = [[
-Exploits a directory traversal vulnerability existing in Majordomo2 to retrieve remote files. (CVE-2011-0049). 
+Exploits a directory traversal vulnerability existing in the
+Majordomo2 mailing list manager to retrieve remote
+files. (CVE-2011-0049).
 
 Vulnerability originally discovered by Michael Brooks.
 

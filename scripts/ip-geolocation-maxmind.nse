@@ -1,8 +1,9 @@
 description = [[
-Geolocation lookup by IP address in a Maxmind database. This script supports 
-queries using all Maxmind databases that are supported by their API including 
-the commercial ones. The databases can be obtained at: 
-http://www.maxmind.com/app/ip-location
+Tries to identify the physical location of an IP address using a
+Geolocation Maxmind database file (available from
+http://www.maxmind.com/app/ip-location). This script supports queries
+using all Maxmind databases that are supported by their API including
+the commercial ones.
 ]]
 
 ---

@@ -1,6 +1,8 @@
 description = [[
-Attempts to enumerate valid user account using SIP. Currently only the SIP
-server Asterisk is supported. 
+Attempts to enumerate valid user account using SIP (Session Initiation
+Protocol - http://en.wikipedia.org/wiki/Session_Initiation_Protocol).
+This protocol is most commonly associated with VoIP
+sessions. Currently only the SIP server Asterisk is supported.
 
 * Asterisk
 	- The script enumerates valid accounts by checking the SIP servers response

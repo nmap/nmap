@@ -1,5 +1,5 @@
 description = [[
-Queries Quake 3 styled master servers for game servers.
+Queries Quake3-style master servers for game servers (many games other than Quake 3 use this same protocol).
 ]]
 
 ---

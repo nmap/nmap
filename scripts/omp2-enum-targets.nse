@@ -1,5 +1,5 @@
 description = [[
-Attempts to get the list of targets from an OpenVAS Manager server.
+Attempts to retrieve the list of target systems and networks from an OpenVAS Manager server.
 
 The script authenticates on the manager using provided or previously cracked
 credentials and gets the list of defined targets for each account.

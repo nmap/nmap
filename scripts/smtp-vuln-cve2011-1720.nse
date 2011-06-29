@@ -1,6 +1,8 @@
 description = [[
-Checks for a Memory corruption in the Postfix SMTP server when it uses
-Cyrus SASL library authentication mechanisms (CVE-2011-1720).
+Checks for a memory corruption in the Postfix SMTP server when it uses
+Cyrus SASL library authentication mechanisms (CVE-2011-1720).  This
+vulnerability can allow denial of service and possibly remote code
+execution.
 
 Reference:
 * http://www.postfix.org/CVE-2011-1720.html

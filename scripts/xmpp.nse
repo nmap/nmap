@@ -1,5 +1,5 @@
 description = [[
-Connect to XMPP server (port 5222) and collect server information such as:
+Connects to an XMPP server (port 5222) and collects server information such as
 supported auth mechanisms, compression methods and whether TLS is supported
 and mandatory.
 ]]

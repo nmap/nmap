@@ -1,5 +1,5 @@
 description = [[
-Attempts to enumerate DNS hostnames by brute force guessing.
+Attempts to enumerate DNS hostnames by brute force guessing of common subdomains.
 ]]
 -- 2011-01-26
 
@@ -22,7 +22,7 @@ Attempts to enumerate DNS hostnames by brute force guessing.
 -- |     ns1.foo.com - 127.0.0.4
 -- |_    admin.foo.com - 127.0.0.5
 
-author = "cirrus"
+author = "Cirrus"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

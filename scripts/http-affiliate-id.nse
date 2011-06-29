@@ -1,6 +1,7 @@
 description = [[
-Grabs affiliate network IDs from an HTML page. These can be used to
-identify pages with the same owner.
+Grabs affiliate network IDs (e.g. Google AdSense or Analytics, Amazon
+Associates, etc.) from a web page. These can be used to identify pages
+with the same owner.
 
 If there is more than one target using an ID, the postrule of this
 script shows the ID along with a list of the targets using it.

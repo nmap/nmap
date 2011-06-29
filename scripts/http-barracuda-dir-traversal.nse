@@ -1,10 +1,13 @@
 description = [[
-Attempts to retrieve the configuration settings from the MySQL database 
-dump on a Barracuda Networks Spam & Virus Firewall device using the 
-directory traversal vulnerability in the "locale" parameter of 
-"/cgi-mod/view_help.cgi" or "/cgi-bin/view_help.cgi".
+Attempts to retrieve the configuration settings from a Barracuda
+Networks Spam & Virus Firewall device using the directory traversal
+vulnerability described at
+http://seclists.org/fulldisclosure/2010/Oct/119.
 
-The web administration interface runs on port 8000 by default.
+This vulnerability is in the "locale" parameter of
+"/cgi-mod/view_help.cgi" or "/cgi-bin/view_help.cgi", allowing the
+information to be retrieved from a MySQL database dump.  The web
+administration interface runs on port 8000 by default.
 
 Barracuda Networks Spam & Virus Firewall <= 4.1.1.021 Remote Configuration Retrieval
 Original exploit by ShadowHatesYou <Shadow@SquatThis.net>

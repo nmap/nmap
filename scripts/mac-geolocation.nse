@@ -1,9 +1,9 @@
 description = [[
 Looks up geolocation information for BSSID (MAC) addresses of WiFi access points
 in the Google geolocation database. Geolocation information in this databasea 
-usually includes information including coordinates, country, state, city, 
-street address etc. The MAC addresses can be supplied as an argument 
-<code>macs</code>, or in the registry under
+usually includes coordinates, country, state, city, 
+street address, etc. The MAC addresses can be supplied as an argument 
+<code>mac-geolocation.macs</code>, or in the registry under
 <code>nmap.registry.[host.ip][mac-geolocation]</code>.
 ]]
 
@@ -11,8 +11,8 @@ street address etc. The MAC addresses can be supplied as an argument
 -- @usage
 -- nmap --script mac-geolocation <target> --script-args 'mac-geolocation.macs="00:24:B2:1E:24:FE,00:23:69:2A:B1:27"'
 --
--- @arg macs a list of MAC addresses separated by "," for which to do a geolocation lookup 
--- @arg extra_info include additional information in the output such as lookup accuracy, street address etc.
+-- @arg mac-geolocation.macs a list of MAC addresses separated by "," for which to do a geolocation lookup 
+-- @arg mac-geolocation.extra_info include additional information in the output such as lookup accuracy, street address etc.
 --
 -- @output Location info arranged by MAC and geolocation database
 -- | mac-geolocation: 

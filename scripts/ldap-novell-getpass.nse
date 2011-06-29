@@ -1,5 +1,7 @@
 description = [[
-Attempts to retrieve the Novell Universal Password for a user.
+Attempts to retrieve the Novell Universal Password for a user. You
+must already have (and include in script arguments) the username and password for an eDirectory server
+administrative account.
 ]]
 
 ---

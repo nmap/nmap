@@ -1,8 +1,10 @@
 description = [[
-This script looks up the host's IP address using the Geobytes geolocation web 
-service. The limit of lookups using this service is 20 requests per hour. Once 
-the limit is reached, an nmap.registry["ip-geolocation-geobytes"].blocked 
-boolean is set so no further requests are made during a scan.
+Tries to identify the physical location of an IP address using the
+Geobytes geolocation web service
+(http://www.geobytes.com/iplocator.htm). The limit of lookups using
+this service is 20 requests per hour. Once the limit is reached, an
+nmap.registry["ip-geolocation-geobytes"].blocked boolean is set so no
+further requests are made during a scan.
 ]]
 
 ---

@@ -2,9 +2,10 @@
 -- vim: set filetype=lua :
 
 description = [[
-Sniffs the local network for a configurable amount of time and prints
-discovered addresses. If <code>newtargets</code> is true, adds the addresses to
-the queue to be scanned.
+Sniffs the local network for a configurable amount of time (10 seconds
+by default) and prints discovered addresses. If the
+<code>newtargets</code> script argument is set, discovered addresses
+are added to the scan queue.
 
 Requires root privileges. Either the <code>targets-sniffer.iface</code> script
 argument or <code>-e</code> Nmap option to define which interface to use.
@@ -27,7 +28,7 @@ argument or <code>-e</code> Nmap option to define which interface to use.
 
 -- Thanks to everyone for the feedback and especially Henri Doreau for his detailed feedback and suggestions
 
-author = "Nick Nikolaou <nikolasnikolaou1@gmail.com>"
+author = "Nick Nikolaou"
 categories = {"broadcast", "discovery"}
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

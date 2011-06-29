@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against an iPhoto Library
+Performs brute force password auditing against an iPhoto Library.
 ]]
 
 

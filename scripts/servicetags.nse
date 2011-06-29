@@ -1,5 +1,5 @@
 description = [[
-Attempts to extract system information from the Service Tags.
+Attempts to extract system information (OS, hardware, etc.) from the Sun Service Tags service (UDP port 6481).
 
 Based on protocol specs from
 http://arc.opensolaris.org/caselog/PSARC/2006/638/stdiscover_protocolv2.pdf

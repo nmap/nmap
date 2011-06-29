@@ -1,5 +1,5 @@
 description = [[
-Lists all discovered credentials at end of scan
+Lists all discovered credentials (e.g. from brute force and default password checking scripts) at end of scan
 ]]
 
 ---

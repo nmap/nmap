@@ -1,7 +1,10 @@
 description = [[
-This script looks up the host's IP address using the IPInfoDB geolocation web 
-service. There is no limit on requests to this service. However, the API key 
-used is obtained through a free registration with the service.
+Tries to identify the physical location of an IP address using the
+IPInfoDB geolocation web service
+(http://ipinfodb.com/ip_location_api.php).
+
+There is no limit on requests to this service. However, the API key
+used was obtained through a free registration with the service.
 ]]
 
 ---

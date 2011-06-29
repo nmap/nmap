@@ -1,5 +1,5 @@
 description = [[
-Download IOS configuration using SNMP RW (v1) and displays the result or saves it to a file.
+Attempts to downloads Cisco router IOS configuration files using SNMP RW (v1) and display or save them.
 ]]
 
 ---

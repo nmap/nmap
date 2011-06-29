@@ -2,12 +2,14 @@
 -- vim: set filetype=lua :
 
 description = [[
-This script checks whether the SSL certificate used by a host has a fingerprint
-that matches the ones in a database.
+Checks whether the SSL certificate used by a host has a fingerprint
+that matches the ones in database of problematic keys.
 
-The database checked is currently from LittleBlackBox 0.1, but any file of
-fingerprints will serve just as well. One suggestion is the list of the weak
-Debian OpenSSL keys.
+The only database currently checked the LittleBlackBox 0.1 database of
+comprimised keys from various devices, but any file of fingerprints
+will serve just as well. For example, this could be used to find weak
+Debian OpenSSL keys using the widely available (but too large to
+include with Nmap) list.
 ]]
 
 ---

@@ -1,6 +1,8 @@
 description = [[
-This script looks up the host's IP address using the Quova geolocation web 
-service. It uses three API keys obtained through a free registration. The limit
+Tries to identify the physical location of an IP address using the
+Quova geolocation web service (http://www.quova.com/).
+
+It uses three API keys obtained through a free registration. The limit
 on lookups is 1000 per API key per day, and 2 per API key per second.
 ]]
 

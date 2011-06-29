@@ -1,5 +1,5 @@
 description = [[
-Obtains the CakePHP version of a web application built with the CakePHP framework. This script depends on default files shipped with the CakePHP framework.
+Obtains the CakePHP version of a web application built with the CakePHP framework by fingerprinting default files shipped with the CakePHP framework.
 
 This script queries the files 'vendors.php', 'cake.generic.css', 'cake.icon.png' and 'cake.icon.gif' to try to obtain the version of the CakePHP installation.
 Since installations that had been upgraded are prone to false positives due to old files that aren't removed, the script displays 3 different versions:

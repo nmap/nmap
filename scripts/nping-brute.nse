@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password auditing against the Nping Echo service.
+Performs brute force password auditing against an Nping Echo service.
 
 See http://nmap.org/book/nping-man-echo-mode.html for Echo Mode
 documentation.

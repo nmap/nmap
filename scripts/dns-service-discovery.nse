@@ -1,5 +1,5 @@
 description=[[ 
-Attempts to discover a hosts services using the DNS Service Discovery protocol.
+Attempts to discover target hosts' services using the DNS Service Discovery protocol.
 
 The script first sends a query for _services._dns-sd._udp.local to get a
 list of services. It then sends a followup query for each one to try to

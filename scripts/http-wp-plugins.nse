@@ -1,5 +1,6 @@
 description = [[
-Tries to give a list of installed WordPress plugins.
+Tries to obtain a list of installed WordPress plugins by brute force
+testing for known plugins.
 
 The script will brute force the /wp-content/plugins/ folder with a dictionnary
 of 14K (and counting) known WP plugins. Anything but a 404 means that a given
@@ -31,7 +32,7 @@ check the first 100 ones. Users can tweak this with an option (see below).
 -- |   stats
 -- |_  wp-to-twitter
 
-author = "Ange Gutek <ange.gutek@gmail.com>"
+author = "Ange Gutek"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

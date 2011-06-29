@@ -1,6 +1,7 @@
 description = [[
-This script looks up the host's IP address using the Geoplugin geolocation web 
-service. There is no limit on lookups using this service.
+Tries to identify the physical location of an IP address using the
+Geoplugin geolocation web service (http://www.geoplugin.com/). There
+is no limit on lookups using this service.
 ]]
 
 ---
