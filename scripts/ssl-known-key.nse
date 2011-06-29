@@ -6,7 +6,7 @@ Checks whether the SSL certificate used by a host has a fingerprint
 that matches the ones in database of problematic keys.
 
 The only database currently checked the LittleBlackBox 0.1 database of
-comprimised keys from various devices, but any file of fingerprints
+compromised keys from various devices, but any file of fingerprints
 will serve just as well. For example, this could be used to find weak
 Debian OpenSSL keys using the widely available (but too large to
 include with Nmap) list.
