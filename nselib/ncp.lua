@@ -1,4 +1,4 @@
---- A tiny implementation of the Netware Core Protocol (NCP)
+--- A tiny implementation of the Netware Core Protocol (NCP).
 -- While NCP was originally a Netware only protocol it's now present on
 -- both Linux and Windows platforms running Novell eDirectory.
 --
