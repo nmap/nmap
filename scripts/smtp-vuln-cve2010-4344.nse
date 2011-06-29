@@ -1,10 +1,14 @@
 description = [[
-Exploits a heap overflow within versions of Exim prior to version 4.69.
-The vulnerability allows remote attackers to execute arbitrary code with
-the privileges of the Exim daemon (CVE-2010-4344). If the exploit fails
-then the Exim smtpd child will be killed (heap corruption).
+Checks for and/or exploits a heap overflow within versions of Exim
+prior to version 4.69 (CVE-2010-4344) and a privilege escalation
+vulnerability in Exim 4.72 and prior (CVE-2010-4345).
 
-The script will also check for a privilege escalation vulnerability that
+The heap overflow vulnerability allows remote attackers to execute
+arbitrary code with the privileges of the Exim daemon
+(CVE-2010-4344). If the exploit fails then the Exim smtpd child will
+be killed (heap corruption).
+
+The script also checks for a privilege escalation vulnerability that
 affects Exim version 4.72 and prior. The vulnerability allows the exim
 user to gain root privileges by specifying an alternate configuration
 file using the -C option (CVE-2010-4345).
