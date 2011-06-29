@@ -101,6 +101,14 @@ o Investigate and document how easy it is to drop Ncat.exe by itself
   and Nping, we may want to improve our Winpcap to load as a DLL
   without requiring installation.  There is a separate TODO item for that.
 
+o We should probably modify stdnse.get_script_args so that it first
+  checks [scriptname].[argname] and then (if that fails) looks for
+  [argname] by itself.  This way people who are only running one
+  script or who want to use the same value for multiple scripts that
+  take the same argument can just give [argname].  But those who want
+  an argument to only apply to a specific script can give
+  [scriptname].[argname].
+
 o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Nscan work [placeholder]
