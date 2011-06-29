@@ -2,109 +2,175 @@
 
 Nmap 5.59BETA1 [2011-06-29]
 
-o [NSE] Added an amazing 46 scripts, bringing the total to 177! You
-  can learn more about any of them at http://nmap.org/nsedoc/. Here
-  are the new ones (authors listed in brackets):
+o [NSE] Added 41 scripts, bringing the total to 218!  You can learn
+  more about any of them at http://nmap.org/nsedoc/. Here are the new
+  ones (authors listed in brackets):
 
+  + afp-ls: Lists files and their attributes from Applie Filing
+    Protocol (AFP) volumes. [Patrik Karlsson]
 
-o [NSE] Documented the credential library and added the creds-summary script.
-  [Patrik]
+  + backorifice-brute: Performs brute force password auditing against
+    the BackOrifice remote administration (trojan) service. [Gorjan
+    Petrovski]
 
-o [NSE] Added http-majordomo2-dir-traversal and new version of http-trace.nse.
-  [Paulino]
+  + backorifice-info: Connects to a BackOrifice service and gathers
+    information about the host and the BackOrifice service
+    itself. [Gorjan Petrovski]
 
-o [NSE] Added smtp-vuln-cve2010-4344, a script that checks and exploits two
-  vulnerabilities in the Exim SMTP Server:
-  o CVE-2010-4344: A heap overflow vulnerability.
-  o CVE-2010-4345: A privileges escalation vulnerability.
+  + broadcast-avahi-dos: Attempts to discover hosts in the local
+    network using the DNS Service Discovery protocol, then tests
+    whether each host is vulnerable to the Avahi NULL UDP packet
+    denial of service bug (CVE-2011-1002). [Djalal Harouni]
 
-o [NSE] Added five scripts for IP based geolocation using the Quova, Geobytes,
-  Geoplugin and IPInfoDB web services and a Maxmind database.
+  + broadcast-netbios-master-browser: Attempts to discover master
+    browsers and the Windows domains they manage. [Patrik Karlsson]
 
-o [NSE] Added two new scripts broadcast-netbios-master-browser and smb-mbenum:
-  - broadcast-netbios-master-browser attempts to discover master browsers in
-    the broadcast domain
-  - smb-mbenum lists servers registered with the master browser
-  [Patrik]
+  + broadcast-novell-locate: Attempts to use the Service Location
+    Protocol to discover NCP Servers. [Patrik Karlsson]
 
-o [NSE] Added the Netware Core Protocol (NCP) library and the scripts
-  ncp-serverinfo and ncp-enum-users. [Patrik]
+  + creds-summary: Lists all discovered credentials (e.g. from brute
+    force and default password checking scripts) at end of scan.
+    [Patrik Karlsson]
 
-o [NSE] Added ldap-novell-getpass, a script that provides support for
-  retrieving Universal Passwords in plain-text from Novell eDirectory.
-  [Patrik]
+  + dns-brute: Attempts to enumerate DNS hostnames by brute force
+    guessing of common subdomains. [Cirrus]
 
-o [NSE] Added a MySQL audit script and a rulebase that supports auditing a
-  subset of the MySQL CIS 1.0.2 Benchmark. [Patrik]
+  + dns-nsec-enum: Attempts to discover target hosts' services using
+    the DNS Service Discovery protocol. [Patrik Karlsson]
 
-o [NSE] Added minimal Service Location Protocol (SLP) library and the script
-  broadcast-novell-locate that detects servers running eDirectory. [Patrik]
+  + dpap-brute: Performs brute force password auditing against an
+    iPhoto Library. [Patrik Karlsson]
 
-o [NSE] Added http-cakephp-version, a discovery script to fingerprint
-  CakePHP applications. Script by Paulino Calderon.
+  + epmd-info: Connects to Erlang Port Mapper Daemon (epmd) and
+    retrieves a list of nodes with their respective port
+    numbers. [Toni Ruottu]
 
-o [NSE] Added backorifice-brute, a bruteforcing script against the old
-  BackOrifice service
+  + http-affiliate-id: Grabs affiliate network IDs (e.g. Google
+    AdSense or Analytics, Amazon Associates, etc.) from a web
+    page. These can be used to identify pages with the same
+    owner. [Hani Benhabiles, Daniel Miller]
 
-o [NSE] Added smtp-vuln-cve2011-1720, which checks for the Postfix
-  SMTP server Cyrus SASL authentication memory corruption
-  vulnerability (CVE-2011-1720). [Djalal]
+  + http-barracuda-dir-traversal: Attempts to retrieve the
+    configuration settings from a Barracuda Networks Spam & Virus
+    Firewall device using the directory traversal vulnerability
+    described at
+    http://seclists.org/fulldisclosure/2010/Oct/119. [Brendan Coles]
 
-o [NSE] Added a SIP library and two new scripts sip-brute.nse and
-  sip-user-enum.nse providing brute and user enumeration support for the SIP
-  protocol. [Patrik]
+  + http-cakephp-version: Obtains the CakePHP version of a web
+    application built with the CakePHP framework by fingerprinting
+    default files shipped with the CakePHP framework. [Paulino
+    Calderon]
 
-o [NSE] Added xmpp.nse, which collects XMPP server information [Vasiliy Kulikov]
+  + http-majordomo2-dir-traversal: Exploits a directory traversal
+    vulnerability existing in the Majordomo2 mailing list manager to
+    retrieve remote files. (CVE-2011-0049). [Paulino Calderon]
 
-o [NSE] Added broadcast-avahi-dos.nse, which tries to detect if the
-  hosts in the local network that are running Avahi are vulnerable to
-  the NULL UDP packet denial of service (CVE-2011-1002). [Djalal]
+  + http-wp-plugins: Tries to obtain a list of installed WordPress
+    plugins by brute force testing for known plugins. [Ange Gutek]
 
-o [NSE] Added http-wp-plugins.nse, which retrieves the list of installed
-  Wordpress plugins by bruteforcing the wp-content directory. [Ange Gutek]
+  + ip-geolocation-geobytes: Tries to identify the physical location
+    of an IP address using the Geobytes geolocation web service
+    (http://www.geobytes.com/iplocator.htm). [Gorjan Petrovski]
 
-o [NSE] Added omp2-brute and omp2-enum-targets, which respectively get
-  authentication credentials and then a list of scanning targets from
-  the OpenVAS Management Protocol. [Henri Doreau]
+  + ip-geolocation-geoplugin: Tries to identify the physical location
+    of an IP address using the Geoplugin geolocation web service
+    (http://www.geoplugin.com/). [Gorjan Petrovski]
 
-o [NSE] Added backorifice-info from Gorjan Petrovski, which retrieves
-  lots of system information from a BackOrifice server.
+  + ip-geolocation-ipinfodb: Tries to identify the physical location
+    of an IP address using the IPInfoDB geolocation web service
+    (http://ipinfodb.com/ip_location_api.php). [Gorjan Petrovski]
 
-o [NSE] Added the afp-ls script that lists files accessible on remote
-  AFP Volumes. [Patrik]
+  + ip-geolocation-maxmind: Tries to identify the physical location of
+    an IP address using a Geolocation Maxmind database file (available
+    from http://www.maxmind.com/app/ip-location). [Gorjan Petrovski]
 
-o [NSE] Added the targets-sniffer script by Nick Nickolaou. It sniffs
-  on an interface for a configurable amount of time, then displays the
-  IPv4 addresses found and optionally adds them to the scanning queue.
+  + ip-geolocation-quova: Tries to identify the physical location of an
+    IP address using the Quova geolocation web service
+    (http://www.quova.com/).  [Gorjan Petrovski]
 
-o [NSE] Added epmd-info.nse, which gets a list of Erlang node port
-  numbers. [Toni Ruottu]
+  + ldap-novell-getpass: Attempts to retrieve the Novell Universal
+    Password for a user. You must already have (and include in script
+    arguments) the username and password for an eDirectory server
+    administrative account. [Patrik Karlsson]
 
-o [NSE] Added http-affiliate-id.nse, which scrapes a web page for
-  affiliate IDs (like Google AdSense and Amazon associates) that can
-  be used to link sites to the same owner. [Hani Benhabiles, Daniel
-  Miller]
+  + mac-geolocation: Looks up geolocation information for BSSID (MAC)
+    addresses of WiFi access points in the Google geolocation
+    database. [Gorjan Petrovski]
 
-o [NSE] Added dns-nsec-enum.nse, which quickly enumerates the domains
-  of a DNSSEC server that uses NSEC records for nonexistent domains.
-  [John Bond, David]
+  + mysql-audit:Audit MySQL database server security configuration
+    against parts of the CIS MySQL v1.0.2 benchmark (the engine can be
+    used for other MySQL audits by creating appropriate audit files).
+    [Patrik Karlsson]
 
-o [NSE] Added ssl-known-key.nse, which checks SSL certificates against a
-  list of certificates with known keys that have been extracted from
-  firmware files. [Mak Kolybabi]
+  + ncp-enum-users: Retrieves a list of all eDirectory users from the
+    Novell NetWare Core Protocol (NCP) service. [Patrik Karlsson]
 
-o [NSE] Added nping-brute.nse by Toni Ruottu, which tries to guess
-  the passphrase of an Nping Echo server.
+  + ncp-serverinfo: Retrieves eDirectory server information (OS
+    version, server name, mounts, etc.) from the Novell NetWare Core
+    Protocol (NCP) service. [Patrik Karlsson]
 
-o [NSE] Added dns-brute.nse by cirrus, a brute-force DNS name
-  enumerator.
+  + nping-brute: Performs brute force password auditing against an
+    Nping Echo service. [Toni Ruottu]
 
-o [NSE] Added quake3-master-getservers, which gets a list of live
-  Quake 3 servers from a master server. (It also works for many
-  similar games.) [Toni Ruottu]
+  + omp2-brute: Performs brute force password auditing against the
+    OpenVAS manager using OMPv2. [Henri Doreau]
 
-o [NSE] Added servicetags.nse, which queries the Sun Service Tags
-  agent and gets system information. [Matthew Flanagan]
+  + omp2-enum-targets: Attempts to retrieve the list of target systems
+    and networks from an OpenVAS Manager server. [Henri Doreau]
+
+  + ovs-agent-version: Detects the version of an Oracle OVSAgentServer
+    by fingerprinting responses to an HTTP GET request and an XML-RPC
+    method call. [David Fifield]
+
+  + quake3-master-getservers: Queries Quake3-style master servers for
+    game servers (many games other than Quake 3 use this same
+    protocol). [Toni Ruottu]
+
+  + servicetags: Attempts to extract system information (OS, hardware,
+    etc.) from the Sun Service Tags service agent (UDP port
+    6481). [Matthew Flanagan]
+
+  + sip-brute: Performs brute force password auditing against Session
+    Initiation Protocol (SIP -
+    http://en.wikipedia.org/wiki/Session_Initiation_Protocol)
+    accounts.  This protocol is most commonly associated with VoIP
+    sessions. [Patrik Karlsson]
+
+  + sip-enum-users: Attempts to enumerate valid SIP user accounts.
+    Currently only the SIP server Asterisk is supported. [Patrik
+    Karlsson]
+
+  + smb-mbenum: Queries information managed by the Windows Master
+    Browser. [Patrik Karlsson]
+
+  + smtp-vuln-cve2010-4344: Checks for and/or exploits a heap overflow
+    within versions of Exim prior to version 4.69 (CVE-2010-4344) and
+    a privilege escalation vulnerability in Exim 4.72 and prior
+    (CVE-2010-4345). [Djalal Harouni]
+
+  + smtp-vuln-cve2011-1720: Checks for a memory corruption in the
+    Postfix SMTP server when it uses Cyrus SASL library authentication
+    mechanisms (CVE-2011-1720).  This vulnerability can allow denial
+    of service and possibly remote code execution. [Djalal Harouni]
+
+  + snmp-ios-config: Attempts to downloads Cisco router IOS
+    configuration files using SNMP RW (v1) and display or save
+    them. [Vikas Singhal, Patrik Karlsson]
+
+  + ssl-known-key: Checks whether the SSL certificate used by a host
+    has a fingerprint that matches the ones in database of problematic
+    keys. [Mak Kolybabi]
+
+  + targets-sniffer: niffs the local network for a configurable amount
+    of time (10 seconds by default) and prints discovered
+    addresses. If the newtargets script argument is set, discovered
+    addresses are added to the scan queue. [Nick Nikolaou]
+
+  + xmpp: Connects to an XMPP server (port 5222) and collects server information such as
+    supported auth mechanisms, compression methods and whether TLS is supported
+    and mandatory. [Vasiliy Kulikov]
+
+o [NSE] Replaced http-trace with a new more effective version. [Paulino]
 
 o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
   scan, and ICMP host discovery and similar work for IPv6 now!  A few
