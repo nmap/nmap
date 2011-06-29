@@ -166,6 +166,10 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
     supported auth mechanisms, compression methods and whether TLS is supported
     and mandatory. [Vasiliy Kulikov]
 
+o [Ncat] Added support for building a portable version of Ncat for the
+  Microsoft Windows platform, by means of static linking. You can read
+  more about it in Ncat's INSTALL file.
+
 o [NSE] Replaced http-trace with a new more effective version. [Paulino]
 
 o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
