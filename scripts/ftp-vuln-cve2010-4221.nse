@@ -113,7 +113,7 @@ end
 
 local function check_proftpd(ftp_opts)
   local out, ftp_server = {}, {}
-  local cve, proftpd_vuln = "CVE-2010-4221", ""
+  local cve, proftpd_vuln = "CVE-2010-4221"
   local proftpd_str = "ProFTPD Telnet IAC buffer overflow ("..cve.."):"
   local socket, ret = ftp.connect(ftp_opts.host, ftp_opts.port,
                                  {recv_before = true})
@@ -141,6 +141,10 @@ local function check_proftpd(ftp_opts)
     return ftp_finish(socket, false, killed)
   elseif killed then
     proftpd_vuln = string.format("  ProFTPD (%s): VULNERABLE", cve)
+  elseif not proftpd_vuln then
+    return ftp_finish(socket, false,
+                      string.format("%s: server %s seems NOT VULNERABLE.",
+                                    SCRIPT_NAME, ftp_opts.host.ip))
   end
 
   table.insert(out, proftpd_str)
