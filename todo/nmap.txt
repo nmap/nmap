@@ -47,8 +47,15 @@ o [Ncat] Solve a crash that only happens on Windows when connecting
   Changing the flags from XN_FLAG_ONELINE to 0 seems to make the
   problem go away.
 
+o Nmap should defer address parsing in arguments until it has read
+  through all the args.  Otherwise you get an error if you use like -S
+  with an IPv6 address before you put -6 in the command line.  You get
+  a similar problem if you do "-A -6" (but "-6 -A works properly).
+  This is a possible feature creeper task.
+
 o Right before the release, we could build Ncat portable and post it
   on http://nmap.org/ncat/.
+
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -167,12 +174,6 @@ o Summer of Code feature creeper:
     o This also might let us provide a feature for skipping the rest of
       an Nmap phase which is going too slowly (I think that has its own
       Nmap TODO item).
-    o Nmap should defer address parsing in arguments until it has read
-      through all the args.  Otherwise you get an error if you use like -S
-      with an IPv6 address before you put -6 in the command line.  You
-      get a similar problem (on David's IPv6 branch) if you do "-A -6"
-     (but "-6 -A works properly).
-
     o Consider providing an option which causes Nmap to scan ALL IP
       addresses returned for a given name.  So if "google.com" returns
       4 names, scan them all (right now we print them all but only
