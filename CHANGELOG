@@ -1,6 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-Nmap 5.59BETA1 [2011-06-29]
+Nmap 5.59BETA1 [2011-06-30]
 
 o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
@@ -166,9 +166,39 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
     supported auth mechanisms, compression methods and whether TLS is supported
     and mandatory. [Vasiliy Kulikov]
 
-o [Ncat] Added support for building a portable version of Ncat for the
-  Microsoft Windows platform, by means of static linking. You can read
-  more about it in Ncat's INSTALL file.
+o [NSE] Added 7 new protocol libraries, bringing the total to 66.  You
+  can read about them all at http://nmap.org/nsedoc/. Here are the new
+  ones (authors listed in brackets):
+
+  + creds: Handles storage and retrieval of discovered credentials
+    (such as passwords discovered by brute force scripts). [Patrik
+    Karlsson]
+
+  + ncp: A tiny implementation of the Novell Netware Core Protocol
+    (NCP). [Patrik Karlsson]
+
+  + omp2: OpenVAS Management Protocol (OMP) version 2 support. [Henri
+    Doreau]
+
+  + sip: Supports a limited subset of SIP commands and
+    methods. [Patrik Karlsson]
+
+  + smtp: Simple Mail Transfer Protocol (SMTP) operations. [Djalal
+    Harouni]
+
+  + srvloc: A relatively small implementation of the Service Location
+    Protocol. [Patrik Karlsson]
+
+  + tftp: Library implementing a minimal TFTP server. [Patrik
+    Karlsson]
+
+o Improved Nmap's service/version detection database by adding:
+  + Apple iPhoto (DPAP) protocol probe [Patrik]
+  + Zend Java Bridge probe [Michael Schierl]
+  + BackOrifice probe [Gorjan Petrovski]
+  + GKrellM probe [Toni Ruotto]
+  + Signature improvements for a wide variety of services (we now have
+    7,375 signatures)
 
 o [NSE] Replaced http-trace with a new more effective version. [Paulino]
 
@@ -192,9 +222,34 @@ o Added support for raw-packet IPv6 scans!  This means SYN scan, UDP
     (e.g. fe80::9afc:22ee:bc91:3e1d%eth0)
   [Added by David and Weilin]
 
+o Added IPv6 --traceroute support. [David]
+
+o Added IPv6 protocol scan (-sO) support, including creating realistic
+  headers for many protocols. [David]
+
+o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
+  patch from Dan Miller that fixes errors in processing and sorting ipv6
+  addresses in scripts using these libraries. [Daniel Miller, Patrik]
+
 o Scanme.Nmap.Org is now dual-stacked (has an IPv6 address as well as
   IPv4) so you can scan it during IPv6 testing.  We also added a DNS
   record for ScanmeV6.nmap.org which is IPv6-only. [Fyodor]
+
+o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
+  [Colin]
+
+o The Nmap.Org website as well as sister sites Insecure.Org,
+  SecLists.Org, and SecTools.Org all have working IPv6 addresses now.
+
+o Performed some output cleanup work to remove various status lines in cases
+  that they don't really matter.  This makes it easier to find the
+  good stuff! [David]
+
+o The development pace has greatly increased because Google (again)
+  sponsored a 7 full-time college and graduate student programmer
+  interns this summer as part of their Summer of Code program!
+  Thanks, Google Open Source Department!  We're delighted to introduce
+  the team: http://seclists.org/nmap-dev/2011/q2/312
 
 o [Zenmap] Fixed issue with Zenmap not being able to kill the Nmap scan 
   subprocess upon canceling a scan or quitting the application on Windows.
@@ -204,16 +259,31 @@ o [Zenmap] Fixed issue with Zenmap not waiting for the return exit code
   of the Nmap scan subprocess after killing it on Posix systems, thus 
   leaving the processes in a defunct(zombie) state. [Shinnok]
 
+o [NSE] Banned scripts from being in both the "default" and
+  "intrusive" categories.  We did this by removing dhcp-discover and
+  dns-zone-transfer from the set of scripts run by default (leaving
+  them "intrusive"), and reclassifying dns-recusion, ftp-bounce,
+  http-open-proxy, and socks-open-proxy as "safe" rather than
+  "intrusive" (keeping them in the "default" set).
+
 o [NSE] The host.bin_ip and host.bin_ip_src entries now also work with
   16-byte IPv6 addresses. [David]
 
-o [NSE] Added 300+ new signatures to http-enum [Paulino]
+o [NSE] Added 300+ new signatures to http-enum which look for admin
+  directories, JBoss, Tomcat, TikiWiki, Majordomo2, MS SQL, Wordpress,
+  and more. [Paulino]
 
 o [Ncat] Updated the ca-bundle.crt list of certificate authority
   certificates. [David]
 
-o [Nmap] --exclude and --excludefile now support IPV6 addresses with netmasks 
-  [Colin]
+o [NSE] Fixed a bug in the SMB Authentication library which could
+  prevent concurrently running scripts with valid credentials from
+  logging in. [Chris Woodbury]
+
+o [NSE] Re-worked http-form-brute.nse to better autodetect form
+  fields, allow brute force attempts where only the password (no
+  username) is needed, follow HTTP redirects, and better detect
+  incorrect login attempts. [Patrik]
 
 o [Zenmap] Changed "Slow comprehensive scan" profile script selection from 
   "all" to "default or (discovery and safe)" categories, which specifies that
@@ -226,25 +296,32 @@ o [Zenmap] Changed "Slow comprehensive scan" profile script selection from
 o [NSE] Added credential storage library (creds.lua) and modified the brute
   library and scripts to make use of it. [Patrik]
 
-o [NSE] Added ipv6 support to the wsdd, dnssd and upnp libraries. Applied
-  patch from Dan Miller that fixes errors in processing and sorting ipv6
-  addresses in scripts using these libraries. [Daniel Miller, Patrik]
+o [Ncat] Added support for building a portable version of Ncat for the
+  Microsoft Windows platform, by means of static linking.  This allows
+  you to drop it by itself on pretty much any Windows system without
+  worrying about installing anything else or including a bunch of DLL
+  library or data files.  You can read more about it in Ncat's INSTALL
+  file (http://nmap.org/svn/ncat/INSTALL).
+
+o [NSE] Added the stdnse.silent_require method which is used for
+  library requires that you know might fail (e.g. "openssl" fails if
+  Nmap was compiled without that library and the new "root" library
+  fails Nmap isn't running with raw packet sending privileges).  If
+  these libraries are called with silent_require and fail to load, the
+  script will cease running but the user won't be presented with ugly
+  failure messages as would happen with a normal require. [Patrick
+  Donnelly]
 
 o [Ncat] ncat now listens on localhost and ::1 when you do ncat -l. If you
   specify an address or use -4,-6 it works as before.
 
 o [NSE] Added the Simple Mail Transfer Protocol (SMTP) library. [Djalal]
 
-o Added IPv6 --traceroute support. [David]
-
 o [Zenmap] Fixed endpoints which were behind firewalls during a traceroute being
   attached to the wrong spot on the topology map. [Colin Rice]
 
 o [Zenmap] Fixed issue with ports closed in newer scan not being removed
   from the ports list [Colin Rice]
-
-o [NSE] Added new fingerprint data to http-fingerprints.lua and favicon-db
-  for CakePHP applications. [Paulino Calderon]
 
 o Stopped linking against libnl when not necessary (when linking
   dynamically with libpcap). Patch by Kevin Locke.
@@ -259,6 +336,11 @@ o [Zenmap] Fixed an error that could cause a crash ("TypeError: an
 
 o [Ndiff] Added nmaprun element information to the diff. [Daniel
   Miller]
+
+o Created a page on our SecWiki for collecting Nmap script ideas! If
+  you have a good idea, post it to the incoming section of the page.
+  Or if you're in a script writing mood but don't know what to write,
+  come here for inspiration: https://secwiki.org/w/Nmap_Script_Ideas.
 
 o Added a GKrellM service probe from Toni Ruottu.
 
@@ -286,17 +368,13 @@ o Fixed an overflow in scan elapsed time display that caused negative
   times to be printed after about 25 days. [Daniel Miller]
 
 o [NSE] ssh-hostkey now additionally has a postrule that prints hosts
-  that have the same hostkey. [Henri Doreau]
+  found during the scan which share the same hostkey. [Henri Doreau]
 
-o Nmap no longer searches for data files (like nmap-services) in the
-  current directory as a last resort. This is to reduce the chance of
-  accessing an unexpected file in case the system-installed data files
-  are not found. The main reason for searching the current directory
-  was to support running ./nmap from a source directory. This is now
-  supported by searching the directory containing the Nmap executable
-  for data files. On non-Windows platforms, the executable directory
-  followed by "../share/nmap" is also searched. Thanks to Solar
-  Designer for implementation advice. [David]
+o Nmap now determines the location it is being run from and that
+  location is now included early in the search path for data files
+  (such as nmap-services).  For full details, see
+  http://nmap.org/book/data-files-replacing-data-files.html.  Thanks
+  to Solar Designer for implementation advice. [David]
 
 o Updated nmap-rpc from the master list, now maintained by IANA.
   [Daniel Miller, David]
@@ -318,7 +396,8 @@ o [Ndiff] Fixed the Mac OS X packages to use the correct path for
   was reported by Wellington Castello. [David]
 
 o Removed the -sR (RPC scan) option--it is now an alias for -sV
-  (version scan), which always does RPC scan when appropriate.
+  (version scan), which always does RPC scan when an rpcinfo service
+  is detected.
 
 o [NSE] Merged the ms-sql branch with several improvements and changes to the
   ms-sql scripts and library:
@@ -339,8 +418,8 @@ o [NSE] Fixed http.validate_options when handling a cookie table.
 
 o Added a Service Tags UDP probe for port 6481/udp. [David]
 
-o [NSE] Enhanced firewalk.nse to automatically find the gateways at
-  which probes are dropped. [Henri Doreau]
+o [NSE] Enabled firewalk.nse to automatically find the gateways at
+  which probes are dropped and fixed various bugs. [Henri Doreau]
 
 o [NSE] Use the correct script name in the usage example of the
   smtp-enum-users script. Reported by Jamuse, who also contributed
@@ -361,18 +440,37 @@ o [Zenmap] Worked around a pycairo bug that prevented saving the
   (like StringIO)". The problem was reported by Alex Kah. [David]
 
 o The -V and --version options now show the platform Nmap was compiled
-  on, which features are compiled in, the version numbers of
-  libraries it is linked against, and whether the libraries are the
-  ones that come with Nmap or are from the operating system.
-  [Ambarisha B., David]
+  on, which features are compiled in, the version numbers of libraries
+  it is linked against, and whether the libraries are the ones that
+  come with Nmap or the operating system.  [Ambarisha B., David]
 
 o Fixed some inconsistencies in nmap-os-db reported by Xavier Sudre
   from netVigilance.
 
-o Updated IANA IP address space assignment list for random IP (-iR)
-  generation.  This list now contains only various reserved blocks as
-  IANA has handed out the final unallocated IPv4 addresses to the
-  RIRs. [Kris]
+o Made the final IP address space assignment update as all available
+  IPv4 address blocks have now been allocated to the regional
+  registries.  Our random IP generation (-iR) logic now only excludes
+  the various reserved blocks.  Thanks to Kris for years of regular
+  updates to this function!
+
+o The Nmap Win32 uninstaller now properly deletes nping.exe. [Fyodor]
+
+o Fix a segmentation fault which could occur when running Nmap on
+  various Andriod-based phones.  The problem related to NULL being
+  passed to freeaddrinfo(). [David, Vlatko Kosturjak]
+
+o [NSE] Added a shortport.ssl function which can be used as a script
+  portrule to match SSL services.  It is similar in concept to our
+  existing shortport.http. [David]
+
+o Set up the RPM build to use the compat-glibc and compat-gcc-34-c++
+  packages (on CentOS 5.3) to resolve a report of Nmap failing to run
+  on old versions of Glibc. [David]
+
+o We no longer support Nmap on versions of Windows earlier than XP
+  SP2.  Even Microsoft no longer supports Windows versions that old.
+  But if you must use Nmap on such systems anyway, please see
+  https://secwiki.org/w/Nmap_On_Old_Windows_Releases.
 
 Nmap 5.51 [2011-02-11]
 
