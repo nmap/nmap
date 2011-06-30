@@ -5,6 +5,33 @@
 
 module(... or "ftp", package.seeall)
 
+local comm    = require 'comm'
+local stdnse  = require 'stdnse'
+
+local ERROR_MESSAGES = {
+  ["EOF"]     = "connection closed",
+  ["TIMEOUT"] = "connection timeout",
+  ["ERROR"]   = "failed to receive data"
+}
+
+--- Connects to the FTP server based on the provided options.
+--
+-- @param host The host table
+-- @param port The port table
+-- @param opts The connection option table, possible options:
+--    timeout: generic timeout value
+--    recv_before: receive data before returning
+-- @return socket The socket descriptor, or nil on errors
+-- @return response The response received on success and when
+--    the recv_before is set, or the error message on failures.
+connect = function(host, port, opts)
+  local socket, _, _, ret = comm.tryssl(host, port, '', opts)
+  if not socket then
+    return socket, (ERROR_MESSAGES[ret] or 'unspecified error')
+  end
+  return socket, ret
+end
+
 ---
 -- Read an FTP reply and return the numeric code and the message. See RFC 959,
 -- section 4.2.
