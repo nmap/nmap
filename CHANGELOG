@@ -6,7 +6,7 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
 
-  + afp-ls: Lists files and their attributes from Applie Filing
+  + afp-ls: Lists files and their attributes from Apple Filing
     Protocol (AFP) volumes. [Patrik Karlsson]
 
   + backorifice-brute: Performs brute force password auditing against
@@ -26,7 +26,8 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
     browsers and the Windows domains they manage. [Patrik Karlsson]
 
   + broadcast-novell-locate: Attempts to use the Service Location
-    Protocol to discover NCP Servers. [Patrik Karlsson]
+    Protocol to discover Novell NetWare Core Protocol (NCP)
+    servers. [Patrik Karlsson]
 
   + creds-summary: Lists all discovered credentials (e.g. from brute
     force and default password checking scripts) at end of scan.
@@ -93,10 +94,10 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
     addresses of WiFi access points in the Google geolocation
     database. [Gorjan Petrovski]
 
-  + mysql-audit:Audit MySQL database server security configuration
-    against parts of the CIS MySQL v1.0.2 benchmark (the engine can be
-    used for other MySQL audits by creating appropriate audit files).
-    [Patrik Karlsson]
+  + mysql-audit: Audit MySQL database server security configuration
+    against parts of the CIS MySQL v1.0.2 benchmark (the engine can
+    also be used for other MySQL audits by creating appropriate audit
+    files).  [Patrik Karlsson]
 
   + ncp-enum-users: Retrieves a list of all eDirectory users from the
     Novell NetWare Core Protocol (NCP) service. [Patrik Karlsson]
@@ -154,11 +155,11 @@ o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
     them. [Vikas Singhal, Patrik Karlsson]
 
   + ssl-known-key: Checks whether the SSL certificate used by a host
-    has a fingerprint that matches the ones in database of problematic
+    has a fingerprint that matches an included database of problematic
     keys. [Mak Kolybabi]
 
-  + targets-sniffer: niffs the local network for a configurable amount
-    of time (10 seconds by default) and prints discovered
+  + targets-sniffer: Sniffs the local network for a configurable
+    amount of time (10 seconds by default) and prints discovered
     addresses. If the newtargets script argument is set, discovered
     addresses are added to the scan queue. [Nick Nikolaou]
 
@@ -174,7 +175,7 @@ o [NSE] Added 7 new protocol libraries, bringing the total to 66.  You
     (such as passwords discovered by brute force scripts). [Patrik
     Karlsson]
 
-  + ncp: A tiny implementation of the Novell Netware Core Protocol
+  + ncp: A tiny implementation of Novell Netware Core Protocol
     (NCP). [Patrik Karlsson]
 
   + omp2: OpenVAS Management Protocol (OMP) version 2 support. [Henri
@@ -189,8 +190,7 @@ o [NSE] Added 7 new protocol libraries, bringing the total to 66.  You
   + srvloc: A relatively small implementation of the Service Location
     Protocol. [Patrik Karlsson]
 
-  + tftp: Library implementing a minimal TFTP server. [Patrik
-    Karlsson]
+  + tftp: Implements a minimal TFTP server. [Patrik Karlsson]
 
 o Improved Nmap's service/version detection database by adding:
   + Apple iPhoto (DPAP) protocol probe [Patrik]
