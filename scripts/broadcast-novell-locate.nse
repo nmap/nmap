@@ -1,5 +1,5 @@
 description = [[
-Attempts to use the Service Location Protocol to discover NCP Servers
+Attempts to use the Service Location Protocol to discover Novell NetWare Core Protocol (NCP) Servers
 ]]
 
 ---
