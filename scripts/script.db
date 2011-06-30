@@ -54,6 +54,7 @@ Entry { filename = "ftp-bounce.nse", categories = { "default", "safe", } }
 Entry { filename = "ftp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "ftp-libopie.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "ftp-proftpd-backdoor.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "ftp-vuln-cve2010-4221.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "giop-info.nse", categories = { "discovery", "safe", } }
 Entry { filename = "gopher-ls.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
