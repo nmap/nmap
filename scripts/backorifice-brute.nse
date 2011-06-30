@@ -49,7 +49,7 @@ portrule = function(host, port)
 	local ports = stdnse.get_script_args(SCRIPT_NAME .. ".ports")
 	--print out a debug message if port 31337/udp is open
 	if port.number==31337 and port.protocol == "udp" and not(ports) then
-		stdnse.print_debug("%s","Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
+		stdnse.print_debug("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
 		return false
 	end
 	
