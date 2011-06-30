@@ -308,12 +308,10 @@ o [Zenmap] Changed the "slow comprehensive scan" profile's NSE script
 
 o [NSE] Added the stdnse.silent_require method which is used for
   library requires that you know might fail (e.g. "openssl" fails if
-  Nmap was compiled without that library and the new "root" library
-  fails Nmap isn't running with raw packet sending privileges).  If
-  these libraries are called with silent_require and fail to load, the
-  script will cease running but the user won't be presented with ugly
-  failure messages as would happen with a normal require. [Patrick
-  Donnelly]
+  Nmap was compiled without that library).  If these libraries are
+  called with silent_require and fail to load, the script will cease
+  running but the user won't be presented with ugly failure messages
+  as would happen with a normal require. [Patrick Donnelly]
 
 o [Ncat] ncat now listens on both localhost and ::1 when you run ncat
   -l. It works as before if you specify -4 or -6 or a specific
