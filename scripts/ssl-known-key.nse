@@ -3,7 +3,7 @@
 
 description = [[
 Checks whether the SSL certificate used by a host has a fingerprint
-that matches the ones in database of problematic keys.
+that matches an included database of problematic keys.
 
 The only database currently checked the LittleBlackBox 0.1 database of
 compromised keys from various devices, but any file of fingerprints
