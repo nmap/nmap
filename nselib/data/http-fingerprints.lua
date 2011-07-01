@@ -408,7 +408,6 @@ table.insert(fingerprints, {
 		{path='/manager/html/upload', method='HEAD'},
 		{path='/web-console/ServerInfo.jsp', method='HEAD'},
 		{path='/jmx-console/', method='HEAD'},
-		{path='/CFIDE/administrator/enter.cfm', method='HEAD'},
 		{path='/CFIDE/componentutils/login.cfm', method='HEAD'},
 		{path='/admin.php', method='HEAD'},
 		{path='/admin/', method='HEAD'},
@@ -2254,17 +2253,6 @@ table.insert(fingerprints, {
 	probes={
 		{path='/homepage.nsf/homePage.gif?OpenImageResource', method='HEAD'},
 		{path='/icons/ecblank.gif', method='HEAD'},
-	},
-	matches= {
-		{match='', output='Lotus Domino'}
-	}
-})
-
-table.insert(fingerprints, {
-	category='database',
-	probes={
-		{path='/homepage.nsf/homePage.gif?OpenImageResource', method='HEAD'},
-		{path='/icons/ecblank.gif', method='HEAD'},
 		{path='/852566C90012664F', method='HEAD'},
 		{path='/admin4.nsf', method='HEAD'},
 		{path='/admin5.nsf', method='HEAD'},
@@ -2375,6 +2363,8 @@ table.insert(fingerprints, {
 		{path='/webadmin.nsf', method='HEAD'},
 		{path='/web.nsf', method='HEAD'},
 		{path='/.nsf/../winnt/win.ini', method='HEAD'},
+		{path='/homepage.nsf/homePage.gif?OpenImageResource', method='HEAD'},
+		{path='/icons/ecblank.gif', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Lotus Domino'}
@@ -3271,9 +3261,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/infusions/avatar_studio/avatar_studio.php', method='HEAD'},
-		{path='/bnnr.php', method='HEAD'},
-		{path='/vb/bnnr.php', method='HEAD'}
+		{path='/infusions/avatar_studio/avatar_studio.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='PHP-Fusion Mod avatar_studio'}
