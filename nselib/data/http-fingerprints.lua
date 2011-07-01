@@ -103,7 +103,8 @@ table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/wiki/', method='HEAD'},
-		{path='/mediawiki/', method='HEAD'}
+		{path='/mediawiki/', method='HEAD'},
+		{path='/wiki/Main_Page', method='HEAD'}
 	},
 	matches={
 		{output='Wiki'}
