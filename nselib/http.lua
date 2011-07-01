@@ -81,6 +81,10 @@
 -- pipelined (ie, sent in a single request). This can be set low to make
 -- debugging easier, or it can be set high to test how a server reacts (its
 -- chosen max is ignored).
+--
+-- TODO
+-- Implement cache system for http pipelines
+--
 
 local coroutine = require "coroutine";
 local table = require "table";
