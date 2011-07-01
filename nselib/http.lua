@@ -825,7 +825,7 @@ local function getPipelineMax(response)
   local pipeline = stdnse.get_script_args({'http.pipeline', 'pipeline'})
 
   if(pipeline) then
-    return tonumber(nmap.registry.args.pipeline)
+    return tonumber(pipeline)
   end
 
   if response then
@@ -1731,7 +1731,7 @@ end
 -- the user.
 --
 -- @param body The body of the page.
-local function clean_404(body)
+function clean_404(body)
   -- Remove anything that looks like time
   body = string.gsub(body, '%d?%d:%d%d:%d%d', "")
   body = string.gsub(body, '%d%d:%d%d', "")
