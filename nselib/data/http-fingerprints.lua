@@ -429,7 +429,6 @@ table.insert(fingerprints, {
 		{path='/admin/index.php', method='HEAD'},
 		{path='/admin/login.php', method='HEAD'},
 		{path='/admin/admin.php', method='HEAD'},
-		{path='/admin/account.php', method='HEAD'},
 		{path='/joomla/administrator', method='HEAD'},
 		{path='/login.php', method='HEAD'},
 		{path='/admin_area/admin.php', method='HEAD'},
@@ -437,7 +436,6 @@ table.insert(fingerprints, {
 		{path='/siteadmin/login.php', method='HEAD'},
 		{path='/siteadmin/index.php', method='HEAD'},
 		{path='/siteadmin/login.html', method='HEAD'},
-		{path='/admin/account.html', method='HEAD'},
 		{path='/admin/index.html', method='HEAD'},
 		{path='/admin/login.html', method='HEAD'},
 		{path='/admin/admin.html', method='HEAD'},
@@ -451,7 +449,6 @@ table.insert(fingerprints, {
 		{path='/admin/controlpanel.php', method='HEAD'},
 		{path='/admincp/', method='HEAD'},
 		{path='/admincp/index.asp', method='HEAD'},
-		{path='/admincp/login.asp', method='HEAD'},
 		{path='/admincp/index.html', method='HEAD'},
 		{path='/admincp/login.php', method='HEAD'},
 		{path='/admin/account.html', method='HEAD'},
@@ -493,7 +490,6 @@ table.insert(fingerprints, {
 		{path='/admincontrol.php', method='HEAD'},
 		{path='/admin/adminLogin.html', method='HEAD'},
 		{path='/adminLogin.html', method='HEAD'},
-		{path='/admin/adminLogin.html', method='HEAD'},
 		{path='/home.html', method='HEAD'},
 		{path='/rcjakar/admin/login.php', method='HEAD'},
 		{path='/adminarea/index.html', method='HEAD'},
@@ -644,10 +640,8 @@ table.insert(fingerprints, {
 		{path='/moderator/admin.asp', method='HEAD'},
 		{path='/controlpanel.asp', method='HEAD'},
 		{path='/user.asp', method='HEAD'},
-		{path='/admincp/index.asp', method='HEAD'},
 		{path='/admincp/login.asp', method='HEAD'},
 		{path='/admincontrol.asp', method='HEAD'},
-		{path='/admin/account.asp', method='HEAD'},
 		{path='/adminpanel.asp', method='HEAD'},
 		{path='/webadmin.asp', method='HEAD'},
 		{path='/webadmin/index.asp', method='HEAD'},
@@ -712,7 +706,6 @@ table.insert(fingerprints, {
 		{path='/admincp/index.aspx', method='HEAD'},
 		{path='/admincp/login.aspx', method='HEAD'},
 		{path='/admincontrol.aspx', method='HEAD'},
-		{path='/admin/account.aspx', method='HEAD'},
 		{path='/adminpanel.aspx', method='HEAD'},
 		{path='/webadmin.aspx', method='HEAD'},
 		{path='/webadmin/index.aspx', method='HEAD'},
@@ -746,7 +739,6 @@ table.insert(fingerprints, {
 		{path='/siteadmin/login.aspx', method='HEAD'},
 		{path='/siteadmin/index.aspx', method='HEAD'},
 		{path='/account.jsp', method='HEAD'},
-		{path='/admin/account.jsp', method='HEAD'},
 		{path='/admin/index.jsp', method='HEAD'},
 		{path='/admin/login.jsp', method='HEAD'},
 		{path='/admin/admin.jsp', method='HEAD'},
@@ -872,7 +864,6 @@ table.insert(fingerprints, {
 		{path='/plog-admin/', method='HEAD'},
 		{path='/ESAdmin/', method='HEAD'},
 		{path='/axis2-admin/', method='HEAD'},
-		{path='/webadmin.php', method='HEAD'},
 		{path='/_sys/', method='HEAD'},
 		{path='/admin_cp.asp', method='HEAD'}
 	},
@@ -1573,7 +1564,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/Base/upload.php', method='GET'}
+		{path='/Base/upload.php', method='HEAD'},
+		{path='/Base/example_1.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='MassMirror Uploader'}
@@ -1596,7 +1588,7 @@ table.insert(fingerprints, {
 		{path='/tools/filemanager/skins/mobile/admin1.template.php', method='GET'}
 	},
 	matches= {
-		{match='', output='MassMirror Uploader'}
+		{match='', output='ispCP Omega'}
 	}
 })
 
@@ -2207,12 +2199,10 @@ table.insert(fingerprints, {
 		{path='/phpMyAdmin-2.6.1-pl3/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.2-rc1/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.2-beta1/', method='HEAD'},
-		{path='/phpMyAdmin-2.6.2-rc1/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.2/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.2-pl1/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.3/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.3-rc1/', method='HEAD'},
-		{path='/phpMyAdmin-2.6.3/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.3-pl1/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.4-rc1/', method='HEAD'},
 		{path='/phpMyAdmin-2.6.4-pl1/', method='HEAD'},
@@ -3050,17 +3040,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
-	},
-	matches= {
-		{match='', output='DM File Manager/FCKeditor File upload'}
-	}
-})
-
-table.insert(fingerprints, {
-	category='cms',
-	probes={
-		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+		{path='/fckeditor/editor/filemanager/connectors/php/config.php', method='GET'}
 	},
 	matches= {
 		{match='', output='DM File Manager/FCKeditor File upload'}
@@ -3230,7 +3210,7 @@ table.insert(fingerprints, {
 		{path='/Final/login/ava_upl2.php', method='HEAD'}
 	},
 	matches= {
-		{match='', output='Asset Manager/Remote File upload'}
+		{match='', output='CH-CMS'}
 	}
 })
 
@@ -3291,16 +3271,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/infusions/avatar_studio/avatar_studio.php', method='HEAD'}
-	},
-	matches= {
-		{match='', output='PHP-Fusion Mod avatar_studio'}
-	}
-})
-
-table.insert(fingerprints, {
-	category='cms',
-	probes={
+		{path='/infusions/avatar_studio/avatar_studio.php', method='HEAD'},
 		{path='/bnnr.php', method='HEAD'},
 		{path='/vb/bnnr.php', method='HEAD'}
 	},
@@ -3334,16 +3305,6 @@ table.insert(fingerprints, {
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
 ------------------------------------------------
-
-table.insert(fingerprints, {
-	category='uncategorized',
-	probes={
-		{path='/TopAccess/images/RioGrande/Rio_PPC.gif', method='HEAD'},
-	},
-	matches= {
-		{match='', output='TopAccess Toshiba e-Studio520'}
-	}
-})
 
 table.insert(fingerprints, {
 	category='uncategorized',
@@ -3451,7 +3412,6 @@ table.insert(fingerprints, {
 		{path='/u/', method='GET'},
 		{path='/v/', method='GET'},
 		{path='/w/', method='GET'},
-		{path='/x/', method='GET'},
 		{path='/x/', method='GET'},
 		{path='/y/', method='GET'},
 		{path='/z/', method='GET'},
