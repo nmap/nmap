@@ -9,12 +9,12 @@
 --
 -- This file is released under the Nmap license; see:
 --  http://nmap.org/book/man-legal.html
--- 
+--
 -- Although this format was originally modeled after the Nikto format, that ended
 -- up being too restrictive. The current format is a simple Lua table. There are many
 -- advantages to this technique; it's powerful, we don't need to write custom parsing
 -- code, anybody who codes in Lua can easily add checks, and we can write converters
--- to read Nikto and other formats if we want to. 
+-- to read Nikto and other formats if we want to.
 --
 -- The 'fingerprints' table is the key. It's an array of checks that will be run in the
 -- order they're given. Each check consists of a path, zero or more matches, output text,
@@ -22,18 +22,18 @@
 --
 -- fingerprint.probes
 -- A list of one or more probes to send to the server. Each probe is either a table containing
--- the key 'path' (and potentially others), or it's a string indicating the path. 
+-- the key 'path' (and potentially others), or it's a string indicating the path.
 --
 -- fingerprint.probes[i].path
--- The URI to check, optionally containing GET arguments. This should start with a '/' 
--- and, if it's a directory, end with a '/'. 
+-- The URI to check, optionally containing GET arguments. This should start with a '/'
+-- and, if it's a directory, end with a '/'.
 --
 -- fingerprint.probes[i].method [optional; default: 'GET'}}]
 -- The HTTP method to use when making requests ('GET'}}, 'POST', 'HEAD', 'PUT', 'DELETE', etc
 --
 -- fingerprint.ignore_404 [optional; default: false]
--- If set, the automatic checks for 404 and custom 404 pages are disabled for that check. 
--- Every page will be included unless fingerprint.matches.dontmatch excludes it. 
+-- If set, the automatic checks for 404 and custom 404 pages are disabled for that check.
+-- Every page will be included unless fingerprint.matches.dontmatch excludes it.
 --
 -- fingerprint.severity [optional; default: 1]
 -- Give a severity rating, if it's a vulnerability. The scale is:
@@ -45,24 +45,27 @@
 -- fingerprint.matches
 -- An array of tables, each of which contains three fields. These will be checked, starting
 -- from the first, until one is matched. If there is no 'match' text, it will fire as long
--- as the result isn't a 404. This match is not case sensitive. 
+-- as the result isn't a 404. This match is not case sensitive.
 --
 -- fingerprint.matches[i].match
 -- A string (specifically, a Lua pattern) that has to be found somewhere in the output to
 -- count as a match. The string can be in the status line, in a header, or in the body.
--- In addition to matching, this field can contain captures that'll be included in the 
+-- In addition to matching, this field can contain captures that'll be included in the
 -- output. See: http://lua-users.org/wiki/PatternsTutorial
 --
 -- fingerprint.matches[i].dontmatch
--- A string (specifically, a lua pattern) that cannot be found somewhere in the output. 
+-- A string (specifically, a lua pattern) that cannot be found somewhere in the output.
 -- This takes precedence over any text matched in the 'match' field
 --
 -- fingerprint.matches[i].output
 -- The text to output if this match happens. If the 'match' field contains captures, these
--- captures can be used with \1, \2, etc. 
+-- captures can be used with \1, \2, etc.
 --
 --
--- If you have any questions, feel free to email nmap-dev@insecure.org or contact Ron Bowes! 
+-- If you have any questions, feel free to email nmap-dev@insecure.org or contact Ron Bowes!
+--
+-- CHANGELOG:
+-- Added 120 new signatures [Paulino Calderon]
 --
 
 fingerprints = {}
@@ -83,35 +86,35 @@ table.insert(fingerprints, {
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/blog/', method='HEAD'},
 		{path='/weblog/', method='HEAD'},
 		{path='/weblogs/', method='HEAD'},
 		{path='/wordpress/', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='Blog'}
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/wiki/', method='HEAD'},
 		{path='/mediawiki/', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='Wiki'}
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/tikiwiki/', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='Tikiwiki'}
 	}
@@ -181,6 +184,7 @@ table.insert(fingerprints, {
 		{match='', output='Aastra IP Phone'}
 	}
 })
+
 table.insert(fingerprints, {
 	category='general',
 	probes={
@@ -198,6 +202,66 @@ table.insert(fingerprints, {
 	},
 	matches= {
 		{match='', output='Belkin G Wireless Router'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/tools_admin.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='D-Link DIR-300'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/bsc_lan.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='D-Link DIR-300, DIR-320, DIR-615 revD'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/Manage.tri', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Linksys WRT54G2'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='//system.html', method='GET'}
+	},
+	matches= {
+		{match='', output='CMNC-200 IP Camera'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/main_configure.cgi', method='GET'}
+	},
+	matches= {
+		{match='', output='Intellinet IP Camera'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/OvCgi/Toolbar.exe', method='HEAD'}
+	},
+	matches= {
+		{match='', output='HP OpenView Network Node Manager'}
 	}
 })
 
@@ -277,6 +341,56 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/LightNEasy.php?do=login', method='GET'}
+	},
+	matches= {
+		{match='', output='LightNEasy'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/channel_detail.php', method='GET'}
+	},
+	matches= {
+		{match='', output='DzTube'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-bin/vcs', method='GET'}
+	},
+	matches= {
+		{match='', output='Mitel Audio and Web Conferencing (AWC)'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/ocsreports/', method='GET'}
+	},
+	matches= {
+		{match='', output='OCS Inventory'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/vbseo.php', method='GET'}
+	},
+	matches= {
+		{match='', output='vBSEO'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/forum/', method='HEAD'},
 		{path='/forums/', method='HEAD'},
 		{path='/smf/', method='HEAD'},
@@ -298,6 +412,7 @@ table.insert(fingerprints, {
 		{path='/CFIDE/componentutils/login.cfm', method='HEAD'},
 		{path='/admin.php', method='HEAD'},
 		{path='/admin/', method='HEAD'},
+		{path='/admin/admin/', method='HEAD'},
 		{path='/administrator/', method='HEAD'},
 		{path='/moderator/', method='HEAD'},
 		{path='/webadmin/', method='HEAD'},
@@ -334,9 +449,11 @@ table.insert(fingerprints, {
 		{path='/admin_area/login.html', method='HEAD'},
 		{path='/admin_area/index.html', method='HEAD'},
 		{path='/admin/controlpanel.php', method='HEAD'},
+		{path='/admincp/', method='HEAD'},
 		{path='/admincp/index.asp', method='HEAD'},
 		{path='/admincp/login.asp', method='HEAD'},
 		{path='/admincp/index.html', method='HEAD'},
+		{path='/admincp/login.php', method='HEAD'},
 		{path='/admin/account.html', method='HEAD'},
 		{path='/adminpanel.html', method='HEAD'},
 		{path='/webadmin.html', method='HEAD'},
@@ -749,8 +866,16 @@ table.insert(fingerprints, {
 		{path='/AdminLogin.jsp', method='HEAD'},
 		{path='/AdminLogin.aspx', method='HEAD'},
 		{path='/AdminLogin.cfm', method='HEAD'},
-		{path='/admin108/', method='HEAD'}
-	}, 
+		{path='/admin108/', method='HEAD'},
+		{path='/pec_admin/', method='HEAD'},
+		{path='/system/admin/', method='HEAD'},
+		{path='/plog-admin/', method='HEAD'},
+		{path='/ESAdmin/', method='HEAD'},
+		{path='/axis2-admin/', method='HEAD'},
+		{path='/webadmin.php', method='HEAD'},
+		{path='/_sys/', method='HEAD'},
+		{path='/admin_cp.asp', method='HEAD'}
+	},
 	matches={
 		{match='<title>Index of', output='Possible admin folder w/ directory listing'},
 		{output='Possible admin folder'}
@@ -769,7 +894,9 @@ table.insert(fingerprints, {
 		{path='/backups/', method='GET'},
 		{path='/bak/', method='GET'},
 		{path='/back/', method='GET'},
-		{path='/cache/backup/', method='GET'}
+		{path='/cache/backup/', method='GET'},
+		{path='/admin/backup/', method='GET'},
+		{path='/dbbackup.txt', method='GET'}
 	},
 	matches={
 		{match='<title>Index of', output='Backup folder w/ directory listing'},
@@ -777,7 +904,31 @@ table.insert(fingerprints, {
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/b.sql', method='GET'},
+		{path='/db.sql', method='GET'},
+		{path='/ddb.sql', method='GET'},
+		{path='/users.sql', method='GET'},
+		{path='/database.sql', method='GET'},
+		{path='/mysql.sql', method='GET'},
+		{path='/dump.sql', method='GET'},
+		{path='/respaldo.sql', method='GET'},
+		{path='/data.sql', method='GET'},
+		{path='/old.sql', method='GET'},
+		{path='/usuarios.sql', method='GET'},
+		{path='/bdb.sql', method='GET'},
+		{path='/1.sql', method='GET'},
+		{path='/admin/download/backup.sql', method='HEAD'}
+
+	},
+	matches={
+		{match='', output='Possible database backup'}
+	}
+})
+
+table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/atom/', method='HEAD'},
@@ -790,18 +941,18 @@ table.insert(fingerprints, {
 		{path='/rss.php', method='HEAD'},
 		{path='/rss.xml', method='HEAD'},
 		{path='/rss.jsp', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='RSS or Atom feed'}
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/etc/passwd', method='GET'},
 		{path='/boot.ini', method='GET'}
-	}, 
+	},
 	matches={
 		{match='root:', output='Webroot appears to be in / (Linux)'},
 		{match='boot loader', output='Webroot appears to be in c:\\ (Windows)'},
@@ -977,6 +1128,36 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/admin/upload.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Admin File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/upload_multiple_js.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='NAS Uploader'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/uploadtester.asp', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Free ASP Upload Shell'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/info.php', method='HEAD'}
 	},
 	matches= {
@@ -1047,6 +1228,46 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/tools_admin.cgi?', method='HEAD'}
+	},
+	matches= {
+		{match='', output='D-Link WBR-1310'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/browserId/wizardForm.jhtml', method='HEAD'},
+		{path='/webline/html/forms/callback.jhtml', method='HEAD'},
+		{path='/webline/html/forms/callbackICM.jhtml', method='HEAD'},
+		{path='/webline/html/agent/AgentFrame.jhtml', method='HEAD'},
+		{path='/webline/html/agent/default/badlogin.jhtml', method='HEAD'},
+		{path='/callme/callForm.jhtml', method='HEAD'},
+		{path='/webline/html/multichatui/nowDefunctWindow.jhtml', method='HEAD'},
+		{path='/browserId/wizard.jhtml', method='HEAD'},
+		{path='/admin/CiscoAdmin.jhtml', method='HEAD'},
+		{path='/msccallme/mscCallForm.jhtml', method='HEAD'},
+		{path='/webline/html/admin/wcs/LoginPage.jhtml', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Cisco Collaboration Server'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/restoreinfo.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Sagem router'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/confirminvite.php', method='HEAD'}
 	},
 	matches= {
@@ -1084,20 +1305,424 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/myshop_start.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='FozzCom shopping'}
+	}
+})
 
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/piranha/secure/passwd.php3', method='HEAD'}
+	},
+	matches= {
+		{match='', output='RedHat Piranha Virtual Server'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-bin/ck/mimencode', method='HEAD'}
+	},
+	matches= {
+		{match='', output='ContentKeeper Web Appliance'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-bin/masterCGI?', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Alcatel-Lucent OmniPCX Enterprise'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/tiny_mce/plugins/filemanager/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Tiny MCE File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/upload/scp/ajax.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='osTicket / AJAX File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-mod/view_help.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Barracuda Networks Spam & Virus Firewall'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-mod/index.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Barracuda Web Application Firewall'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-mod/smtp_test.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Barracuda IM Firewall'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/TopToolArea.html', method='HEAD'},
+		{path='/switchSystem.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Alteon OS BBI (Nortell)'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/intruvert/jsp/module/Login.jsp', method='HEAD'}
+	},
+	matches= {
+		{match='', output='McAfee Network Security Manager'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/ajaxfilemanager/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='AJAX File Manager'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/upload/data/settings.cdb', method='HEAD'}
+	},
+	matches= {
+		{match='', output='CF Image Hosting DB'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/fm.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Simple File Manager'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/nagios3/cgi-bin/statuswml.cgi', method='GET'},
+		{path='/nagios3/', method='GET'}
+	},
+	matches= {
+		{match='', output='Nagios3'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/test/logon.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Jetty'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cal_cat.php', method='HEAD'},
+		{path='/calendar/cal_cat.php', method='HEAD'},
+		{path='/cal/cal_cat.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Calendarix'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/private/sdc.tgz', method='GET'}
+	},
+	matches= {
+		{match='', output='IBM Bladecenter Management Logs'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cacti/', method='GET'}
+	},
+	matches= {
+		{match='', output='Cacti Web Monitoring'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/cgi-bin/awstats.pl', method='GET'}
+	},
+	matches= {
+		{match='', output='AWStats'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/wiki/rankings.php', method='GET'}
+	},
+	matches= {
+		{match='', output='Bit Weaver'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/reqdetails.php', method='GET'}
+	},
+	matches= {
+		{match='', output='BtiTracker'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/shared/help.php', method='GET'}
+	},
+	matches= {
+		{match='', output='OpenBiblio/WebBiblio Subject Gateway System'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/seti.php', method='GET'}
+	},
+	matches= {
+		{match='', output='PHP SETI@home'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/imc/', method='GET'},
+		{path='/imcws/', method='GET'}
+	},
+	matches= {
+		{match='', output='3Com Intelligent Management Center'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/partymgr/', method='GET'}
+	},
+	matches= {
+		{match='', output='Apache OFBiz'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/Base/upload.php', method='GET'}
+	},
+	matches= {
+		{match='', output='MassMirror Uploader'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/YUI-upload/html', method='GET'}
+	},
+	matches= {
+		{match='', output='YUI Images / File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/tools/filemanager/skins/mobile/admin1.template.php', method='GET'}
+	},
+	matches= {
+		{match='', output='MassMirror Uploader'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/Uploadify/', method='GET'}
+	},
+	matches= {
+		{match='', output='Uploadify'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/syssite/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='ShopEx'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/updown.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='PHP Uploader Downloader'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/modules/docmanager/doctypetemplates/myuploadedfile', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Achievo'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/ReqWebHelp/advanced/workingSet.jsp', method='HEAD'}
+	},
+	matches= {
+		{match='', output='IBM Rational RequisitePro/ReqWebHelp'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/dhost/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Novell eDirectory'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/engine/api/api.class.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='DatalifeEngine'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/jsft_resource.jsf', method='HEAD'},
+		{path='/scales_static_resource.jsf', method='HEAD'}
+	},
+	matches= {
+		{match='', output='JSFTemplating/Mojarra Scales/GlassFish Application Server'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/setup/password_required.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='2WIRE GATEWAY'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/zp-core/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Zen Photo'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/amember/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='aMember'}
+	}
+})
 ------------------------------------------------
 ----         SECURITY SOFTWARE              ----
 ------------------------------------------------
 -- These checks will find specific installed software. If possible, it will also
--- find versions, etc. 
+-- find versions, etc.
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='security',
 	probes={
 		{path='/arcsight/', method='HEAD'},
 		{path='/arcsight/images/logo-login-arcsight.gif', method='HEAD'},
 		{path='/arcsight/images/navbar-icon-logout-on.gif', method='HEAD'},
-		{path='/images/logo-arcsight.gif', method='HEAD'}, 
+		{path='/images/logo-arcsight.gif', method='HEAD'},
 	{path='/logger/monitor.ftl', method='HEAD'},
 	},
 	matches={
@@ -1105,13 +1730,13 @@ table.insert(fingerprints, {
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='security',
 	probes={
 		{path='/beef/', method='HEAD'},
 		{path='/BEEF/', method='HEAD'},
 		{path='/beef/images/beef.gif', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='BeEF Browser Exploitation Framework'}
 	}
@@ -1209,10 +1834,19 @@ table.insert(fingerprints, {
   }
 })
 
+table.insert(fingerprints, {
+  category='security',
+  probes={
+    {path='/dotDefender/', method='HEAD'},
+  },
+  matches={
+    {match='', output='dotDefender Web Application Firewall'}
+  }
+})
 ------------------------------------------------
 ----        MANAGEMENT SOFTWARE             ----
 ------------------------------------------------
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='management',
 	probes={
 		{path='/vmware/', method='HEAD'},
@@ -1223,13 +1857,13 @@ table.insert(fingerprints, {
 		{path='/ui/vManage.do', method='HEAD'},
 		{path='/client/VMware-viclient.exe', method='HEAD'},
 		{path='/en/welcomeRes.js', method='HEAD'}
-	}, 
+	},
 	matches={
 		{output='VMWare'}
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='management',
 	probes={
 		{path='/citrix/', method='HEAD'},
@@ -1244,7 +1878,7 @@ table.insert(fingerprints, {
 		{path='/Citrix//AccessPlatform/auth/clientscripts/cookies.js', method='HEAD'},
 		{path='/Citrix/AccessPlatform/auth/clientscripts/login.js', method='HEAD'},
 		{path='/Citrix/PNAgent/config.xml', method='HEAD'},
-	}, 
+	},
 	matches={
 		{output='Citrix'}
 	}
@@ -1404,7 +2038,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
   category='management',
   probes={
-    {path='/Dashboard/Dashboard.html', method='GET'},
+    {path='/Dashboard/Dashboard.html', method='GET'}
   },
   matches= {
     {match='Server: Kodak-RulesBasedAutomation', output='Prinergy Dashboard Client Login'},
@@ -1412,7 +2046,45 @@ table.insert(fingerprints, {
   }
 })
 
+table.insert(fingerprints, {
+	category='management',
+	probes={
+		{path='/flexfm/', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Flex File Manager'}
+	}
+})
 
+table.insert(fingerprints, {
+	category='management',
+	probes={
+		{path='/lib/usermanagement/userInfo.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Testlink TestManagement'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='management',
+	probes={
+		{path='/security/xamppsecurity.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='XAMPP'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='management',
+	probes={
+		{path='/dm-albums/dm-albums.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='DM FileManager'}
+	}
+})
 ------------------------------------------------
 ----     PRINTERS, WEBCAMS, PROJECTORS      ----
 ------------------------------------------------
@@ -1488,13 +2160,90 @@ table.insert(fingerprints, {
 ------------------------------------------------
 ----              DATABASES                 ----
 ------------------------------------------------
-table.insert(fingerprints, { 
+
+--phpmyadmin db taken from http://milw0rm.com/exploits/8921
+table.insert(fingerprints, {
 	category='database',
 	probes={
 		{path='/phpmyadmin/', method='HEAD'},
 		{path='/phpMyAdmin/', method='HEAD'},
-		{path='/PHPMyAdmin/', method='HEAD'}
-	}, 
+		{path='/PHPMyAdmin/', method='HEAD'},
+		{path='/PMA/', method='HEAD'},
+		{path='/pma/', method='HEAD'},
+		{path='/dbadmin/', method='HEAD'},
+		{path='/myadmin/', method='HEAD'},
+		{path='/php-my-admin/', method='HEAD'},
+		{path='/phpMyAdmin2/', method='HEAD'},
+		{path='/phpMyAdmin-2/', method='HEAD'},
+		{path='/phpMyAdmin-2.2.3/', method='HEAD'},
+		{path='/phpMyAdmin-2.2.6/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.1/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.4/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.5-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.5-rc2/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.5/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.5-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.6-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.6-rc2/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.6/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.7/', method='HEAD'},
+		{path='/phpMyAdmin-2.5.7-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-alpha/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-alpha2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-beta1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-beta2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-rc2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-rc3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-pl2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.0-pl3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1-rc2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1-pl2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.1-pl3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.2-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.2-beta1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.2-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.2-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.3-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.3-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4-pl2/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4-pl3/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4-pl4/', method='HEAD'},
+		{path='/phpMyAdmin-2.6.4/', method='HEAD'},
+		{path='/phpMyAdmin-2.7.0-beta1/', method='HEAD'},
+		{path='/phpMyAdmin-2.7.0-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.7.0-pl1/', method='HEAD'},
+		{path='/phpMyAdmin-2.7.0-pl2/', method='HEAD'},
+		{path='/phpMyAdmin-2.7.0/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0-beta1/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0-rc2/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0.1/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0.2/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0.3/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.0.4/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.1-rc1/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.1/', method='HEAD'},
+		{path='/phpMyAdmin-2.8.2/', method='HEAD'},
+		{path='/sqlmanager/', method='HEAD'},
+		{path='/php-myadmin/', method='HEAD'},
+		{path='/phpmy-admin/', method='HEAD'},
+		{path='/mysqladmin/', method='HEAD'},
+		{path='/mysql-admin/', method='HEAD'},
+		{path='/websql/', method='HEAD'},
+		{path='/_phpmyadmin/', method='HEAD'}
+	},
 	matches={
 		{output='phpMyAdmin'}
 	}
@@ -1684,6 +2433,7 @@ table.insert(fingerprints, {
 		{path='/lists/mycomments.aspx', method='HEAD'},
 		{path='/_layouts/userdisp.aspx', method='HEAD'},
 		{path='/_layouts/help.aspx', method='HEAD'},
+		{path='/_layouts/download.aspx', method='HEAD'}
 	},
 	matches= {
 		{match='', output='MS Sharepoint'}
@@ -1786,26 +2536,26 @@ table.insert(fingerprints, {
 ------------------------------------------------
 ----               ATTACKS                  ----
 ------------------------------------------------
--- These will search for and possibly exploit vulnerabilities. 
+-- These will search for and possibly exploit vulnerabilities.
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='attacks',
 	probes={
 		{path='/sdk/../../../../../../../etc/vmware/hostd/vmInventory.xml', method='GET'},
 		{path='/sdk/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/%2E%2E/etc/vmware/hostd/vmInventory.xml', method='GET'}
-	}, 
+	},
 	matches={
 		{match='<ConfigRoot>', output='Path traversal in VMWare (CVE-2009-3733)'},
 		{match='', output='Possible path traversal in VMWare (CVE-2009-3733)'}
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='attacks',
 	probes={
 		{path='/../../../../../../../../../../etc/passwd', method='GET'},
 		{path='/../../../../../../../../../../boot.ini', method='GET'}
-	}, 
+	},
 	matches={
 		{match='root:', output='Simple path traversal in URI (Linux)'},
 		{match='boot loader', output='Simple path traversal in URI (Windows)'},
@@ -1813,12 +2563,12 @@ table.insert(fingerprints, {
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
 	category='attacks',
 	probes={
 		{path='/.htaccess', method='GET'},
 		{path='/.htpasswd', method='GET'}
-	}, 
+	},
 	matches={
 		-- We look for a '200 OK' message on this one, because most Apache servers return an access denied
 		{match='200 OK', output='Incorrect permissions on .htaccess or .htpasswd files'}
@@ -1884,7 +2634,7 @@ table.insert(fingerprints, {
 	}
 })
 
-table.insert(fingerprints, { 
+table.insert(fingerprints, {
         category='attacks',
         probes={
                 {path='/downloadFile.php', method='GET'},
@@ -1894,38 +2644,48 @@ table.insert(fingerprints, {
                  {output='NETGEAR WNDAP350 2.0.1 to 2.0.9 potential file download and SSH root password disclosure'}
         }
 })
-    
-table.insert(fingerprints, { 
+
+table.insert(fingerprints, {
         category='attacks',
         probes={
                 {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\boot.ini', method='GET'},
                 {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\MDC\Tomcat\webapps\triveni\WEB-INF\classes\schedule.properties', method='GET'},
                 {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\lib\classpath\com\cisco\nm\cmf\dbservice2\DBServer.properties', method='GET'},
                 {path='/cwhp/auditLog.do?file=..\..\..\..\..\..\..\Program%20Files\CSCOpx\log\dbpwdChange.log', method='GET'}
-        }, 
+        },
         matches={
           {match='boot loader', output='CiscoWorks (CuOM 8.0 and 8.5) Directory traversal (CVE-2011-0966) (Windows)'},
           {match='', output='Possible CiscoWorks (CuOM 8.0 and 8.5) Directory traversal (CVE-2011-0966) (Windows)'}
  }
 })
- 
-table.insert(fingerprints, { 
+
+table.insert(fingerprints, {
  category='attacks',
  probes={
          {path='..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/var/mobile/Library/AddressBook/AddressBook.sqlitedb', method='GET'}
-        }, 
+        },
         matches={
           {match='', output='Possible iPhone/iPod/iPad generic file sharing app Directory Traversal (iOS)'}
  }
 })
-     
-table.insert(fingerprints, { 
+
+table.insert(fingerprints, {
  category='attacks',
         probes={
          {path='/Info.live.htm', method='GET'}
- }, 
+ },
         matches={
                  {match='200', output='Possible DD-WRT router Information Disclosure (OSVDB 70230)'}
+        }
+})
+
+table.insert(fingerprints, {
+ category='attacks',
+        probes={
+         {path='/CuteSoft_Client/CuteEditor/Load.ashx?type=image&file=../../../web.config', method='GET'}
+ },
+        matches={
+                 {match='200', output='Cute Editor ASP.NET Remote File Disclosure ( CVE 2009-4665 )'}
         }
 })
 ------------------------------------------------
@@ -1966,7 +2726,7 @@ table.insert(fingerprints, {
 	}
 })
 
--- Broad phpBB versions 
+-- Broad phpBB versions
 table.insert(fingerprints, {
 	category='cms',
 	probes={
@@ -2053,7 +2813,7 @@ table.insert(fingerprints, {
 		{path='/ecoder/'},
 	},
 	matches={
-                {match='<meta name="generator" content="(.-)"', output='\\1'},
+                {match='<meta name="generator" content="Bluefish 2.0.1" ', output='\\1'},
                 {match='<h1>ecoder v(.-)</h1>', output='ecoder v\\1'},
                 {match='<a href="http://www.splashfrog.com" target="_blank">Splash Frog WMS v(.-)</a>', output='Splash Frog WMS v\\1'},
                 {match='<a href="http://status.net/">StatusNet</a> microblogging software, version (.-),', output='StatusNet v\\1'},
@@ -2235,6 +2995,341 @@ table.insert(fingerprints, {
 	}
 })
 
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/system/admin/header.php', method='GET'},
+		{path='/system/admin/comments_items.php', method='GET'}
+	},
+	matches= {
+		{match='', output='Habari Blog'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/scripts/fckeditor/editor/filemanager/connectors/test.html', method='GET'},
+		{path='/scripts/fckeditor/editor/filemanager/connectors/uploadtest.html', method='GET'}
+	},
+	matches= {
+		{match='', output='Digitalus CMS/FCKEditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='phpmotion/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/fckeditor/editor/filemanager/upload/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='Geeklog/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='OpenCart/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='DM File Manager/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='DM File Manager/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/php/connector.php', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/asp/connector.asp', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/aspx/connector.aspx', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/cfm/connector.cfm', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/lasso/connector.lasso', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/perl/connector.cgi', method='HEAD'},
+		{path='/includes/FCKeditor/editor/filemanager/browser/default/connectors/py/connector.py', method='HEAD'}
+	},
+	matches= {
+		{match='', output='PHPnuke/Remote File Download'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/FCKEditor/editor/filemanager/browser/default/connectors/test.html', method='GET'}
+	},
+	matches= {
+		{match='', output='EgO or osCMax/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/includes/tiny_mce/plugins/tinybrowser/upload.php', method='GET'}
+	},
+	matches= {
+		{match='', output='CompactCMS or B-Hind CMS/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/Backstage/Components/FreeTextBox/ftb.imagegallery.aspx', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Luftguitar CMS/File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/_plugin/fckeditor/editor/filemanager/connectors/test.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='SweetRice/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/html/news_fckeditor/editor/filemanager/upload/php/upload.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='cardinalCms/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/fckeditor/editor/filemanager/connectors/test.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='LightNEasy/FCKeditor File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/includes/FCKeditor/editor/filemanager/upload/test.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='ASP Simple Blog / FCKeditor File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/uploadsnaps.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='ZeeMatri/File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/upload/includes/js/files/upload.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Digital College/File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/tinybrowser/upload.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Tinybrowser Remote File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/editor/editor/filemanager/upload/test.html', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Tadbir / File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/photogallery_open.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Heaven Soft CMS'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/Providers/HtmlEditorProviders/Fck/fcklinkgallery.aspx', method='HEAD'}
+	},
+	matches= {
+		{match='', output='DotNetNuke / File Upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/assetmanager/assetmanager.asp', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Asset Manager/Remote File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/Final/login/ava_upl.php', method='HEAD'},
+		{path='/Final/login/ava_upl2.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Asset Manager/Remote File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/spaw/demo.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='SpawCMS/Remote File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/admin/jscript/upload.php', method='HEAD'},
+		{path='/admin/jscript/upload.html', method='HEAD'},
+		{path='/admin/jscript/upload.pl', method='HEAD'},
+		{path='/admin/jscript/upload.asp', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Lizard Cart/Remote File upload'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/databases/acidcat_3.mdb', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Acidcat CMS Database'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/mdb-database/dblog.mdb', method='HEAD'}
+	},
+	matches= {
+		{match='', output='dBlog Database'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/db/users.mdb', method='HEAD'},
+		{path='/db/'}
+	},
+	matches= {
+		{match='', output='BlogWorx Database'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/infusions/avatar_studio/avatar_studio.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='PHP-Fusion Mod avatar_studio'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/bnnr.php', method='HEAD'},
+		{path='/vb/bnnr.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='PHP-Fusion Mod avatar_studio'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/bnnr.php', method='HEAD'},
+		{path='/vb/bnnr.php', method='HEAD'},
+		{path='/forum/bnnr.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='vBulletin ads_saed'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/weblink_cat_list.php', method='HEAD'}
+	},
+	matches= {
+		{match='', output='WHMCompleteSolution CMS'}
+	}
+})
 
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
