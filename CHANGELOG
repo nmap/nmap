@@ -313,10 +313,6 @@ o [NSE] Added the stdnse.silent_require method which is used for
   running but the user won't be presented with ugly failure messages
   as would happen with a normal require. [Patrick Donnelly]
 
-o [Ncat] ncat now listens on both localhost and ::1 when you run ncat
-  -l. It works as before if you specify -4 or -6 or a specific
-  address. [Colin Rice]
-
 o [Zenmap] Fixed a bug in topology mapper which caused endpoints
   behind firewalls to sometimes show up in the wrong place (see
   http://seclists.org/nmap-dev/2011/q2/733).  [Colin Rice]
