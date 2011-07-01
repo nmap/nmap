@@ -405,10 +405,6 @@ table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/manager/', method='HEAD'},
-		{path='/manager/html/upload', method='HEAD'},
-		{path='/web-console/ServerInfo.jsp', method='HEAD'},
-		{path='/jmx-console/', method='HEAD'},
-		{path='/CFIDE/componentutils/login.cfm', method='HEAD'},
 		{path='/admin.php', method='HEAD'},
 		{path='/admin/', method='HEAD'},
 		{path='/admin/admin/', method='HEAD'},
@@ -975,12 +971,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/login.asp', method='HEAD'},
-		{path='/login.aspx', method='HEAD'},
 		{path='/login/', method='HEAD'},
 		{path='/login.htm', method='HEAD'},
-		{path='/login.html', method='HEAD'},
-		{path='/login.php', method='HEAD'},
 		{path='/login.jsp', method='HEAD'}
 	},
 	matches= {
@@ -1964,7 +1956,6 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='management',
 	probes={
-		{path='/manager/', method='HEAD'},
 		{path='/manager/html/upload', method='HEAD'},
                 {path='/manager/html', method='HEAD'}
 	},
@@ -2363,7 +2354,6 @@ table.insert(fingerprints, {
 		{path='/webadmin.nsf', method='HEAD'},
 		{path='/web.nsf', method='HEAD'},
 		{path='/.nsf/../winnt/win.ini', method='HEAD'},
-		{path='/homepage.nsf/homePage.gif?OpenImageResource', method='HEAD'},
 		{path='/icons/ecblank.gif', method='HEAD'}
 	},
 	matches= {
@@ -3811,7 +3801,6 @@ table.insert(fingerprints, {
 		{path='/makefile/', method='GET'},
 		{path='/manage/', method='GET'},
 		{path='/management/', method='GET'},
-		{path='/manager/', method='GET'},
 		{path='/man/', method='GET'},
 		{path='/manual/', method='GET'},
 		{path='/map/', method='GET'},
