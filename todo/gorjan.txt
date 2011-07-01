@@ -4,20 +4,6 @@ GSoC 2011 participation: Discovery and miscelaneous script specialist
 
 Work in progress:
 
-* ip-geolocation waiting on response to issue with gmtime() from ntp servers
-
-* ip-geolocation BGP usage, and RIPE local data search method (more of a whois script); Related to Jacob's blockfinder
-
-* broadcast-ping.nse
-
-* snmp-brute port to brute framework
-There are a couple of default passwords that snmp-brute uses atm which should be
-considered even when it's the brute.lua is used
-
-=====
-
-ToDo:
-
 * bgpmon-info analyze
 
 * bittorrent-dht-nodes
@@ -28,7 +14,13 @@ http://en.wikipedia.org/wiki/Link_Layer_Discovery_Protocol
 * disjunctive-traceroute analyze feasibility
 http://ccr.sigcomm.org/online/?q=node/398
 
-* backorifice-brute "fire-and-forget" UDP method
+=====
+
+ToDo:
+
+* snmp-brute port to brute framework
+There are a couple of default passwords that snmp-brute uses atm which should be
+considered even when it's the brute.lua is used
 
 =====
 
@@ -62,6 +54,9 @@ I'd need testing equipment, or some :S implementation.
 
 Completed:
 
+* broadcast-ping
+* nmap lib: get_ttl() and get_payload_info()
+* ip-geolocation scripts
 * snmp-interfaces patch related to mac-geolocation
 * mac-geolocation
 * stdnse.lua: in_port_range()
