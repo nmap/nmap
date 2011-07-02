@@ -25,7 +25,7 @@ require("bin")
 require("nmap")
 require("brute")
 require("stdnse")
-require("openssl")
+stdnse.silent_require "openssl"
 require("shortport")
 
 portrule = shortport.port_or_service(9929, "nping-echo")
