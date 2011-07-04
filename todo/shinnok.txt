@@ -1,6 +1,16 @@
 In progress:
 ============
 
+o Nmap should defer address parsing in arguments until it has read
+  through all the args.  Otherwise you get an error if you use like -S
+  with an IPv6 address before you put -6 in the command line.  You
+  get a similar problem (on David's IPv6 branch) if you do "-A -6"
+  (but "-6 -A works properly).
+
+
+Hanging(waiting for further input, etc..):
+==========================================
+
 --
 o Ncat hangs on ssl -> REFACTORING
   some refactoring left to be done to reduce code duplication
@@ -24,16 +34,8 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
       until the ssl handshake has been completed.
   http://seclists.org/nmap-dev/2011/q2/988
 ---
-o Ncat should close its socket and refuse further connections after the first
-  one, if invoked without --keep-open. That's what traditional netcat does
-  too. - DONE [r24197]
-  http://seclists.org/nmap-dev/2011/q2/944
-  o Add TEST in ncat-test.pl
 
 o Fix ncat.xml(the input for the man page) examples section.
-
-Hanging(waiting for further input, etc..):
-==========================================
 
 o NMAP reports different service results every so often with the same port.
   http://seclists.org/nmap-dev/2011/q2/815
@@ -45,11 +47,6 @@ o Review latest revision of Marek's ncat_proxy.patch - DONE
 Pending:
 ========
 
-o Nmap should defer address parsing in arguments until it has read
-  through all the args.  Otherwise you get an error if you use like -S
-  with an IPv6 address before you put -6 in the command line.  You
-  get a similar problem (on David's IPv6 branch) if you do "-A -6"
-  (but "-6 -A works properly).
 
 Pending (low priority):
 =======================
@@ -106,6 +103,12 @@ o We should offer partial results when a host
 
 COMPLETED:
 ==========
+
+o Ncat should close its socket and refuse further connections after the first
+  one, if invoked without --keep-open. That's what traditional netcat does
+  too. - DONE [r24197]
+  http://seclists.org/nmap-dev/2011/q2/944
+  o Add TEST in ncat-test.pl - DONE [r24373]
 
 o Closing Zenmap without stopping the scan first will leave nmap running in 
   the process list on Windows. [r24308]
