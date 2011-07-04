@@ -203,7 +203,7 @@ end
 -- @param login_username Username
 -- @param login_password Password
 ---
-local function register_http_credentials(login_username, login_password) 
+local function register_http_credentials(host, port, login_username, login_password) 
   local c = creds.Credentials:new( SCRIPT_NAME, host, port )
   c:add(login_username, login_password, creds.State.VALID )
 end
@@ -232,7 +232,7 @@ action = function(host, port)
 
   -- Add requests to the http pipeline
   requests = {}
-  stdnse.print_debug(1, "%s: Searching for entries under path '%s' (change with '%s.basepath' argument)", SCRIPT_NAME, basepath, SCRIPT_NAME)
+  stdnse.print_debug(1, "%s: Trying known locations under path '%s' (change with '%s.basepath' argument)", SCRIPT_NAME, basepath, SCRIPT_NAME)
   for i = 1, #fingerprints, 1 do
     for j = 1, #fingerprints[i].paths, 1 do
       requests = http.pipeline_add(basepath .. fingerprints[i].paths[j].path, nil, requests, 'GET')
@@ -271,7 +271,7 @@ action = function(host, port)
               output_lns[#output_lns + 1] = string.format("[%s] credentials found -> %s:%s Path:%s", 
                                           fingerprint.name, login_combo["username"], login_combo["password"], path)
               -- Add to http credentials table
-              register_http_credentials(login_combo["username"], login_combo["password"])
+              register_http_credentials(host, port, login_combo["username"], login_combo["password"])
             end
           end
         end
