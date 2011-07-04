@@ -11,6 +11,16 @@
 -- * <code>paths</code> - Paths table containing the possible location of the target
 -- * <code>login_check</code> - Login function of the target
 ---
+
+---
+-- Requests given path using basic authentication.
+-- @param host Host table
+-- @param port Port table
+-- @param path Path to request
+-- @param user Username for Basic Auth
+-- @param pass Password for Basic Auth
+-- @return True if login in was successful
+---
 local function try_http_basic_login(host, port, path, user, pass)
     local credentials = {username = user, password = pass}
     local req = http.get(host, port, path, {no_cache=true, auth=credentials})
@@ -20,6 +30,29 @@ local function try_http_basic_login(host, port, path, user, pass)
     return false
 end
 
+---
+-- Tries to login with a http post, if the FAIL string is not found
+-- we assume login in was successful
+-- @param host Host table
+-- @param port Port table
+-- @param target Target file
+-- @param failstr String shown when login in fails
+-- @param params Post parameters
+-- @param follow_redirects True if you want redirects to be followed
+-- @return True if login in was successful
+---
+local function try_http_post_login(host, port, path, target, failstr, params, follow_redirects)
+    local req = http.post(host, port, path..target, {no_cache=true}, nil, params)
+    
+    local status = ( req and tonumber(req.status) ) or 0
+    if follow_redirects and ( status > 300 and status < 400 ) then
+      req = http.get(host, port, url.absolute(path, req.header.location), { no_cache = true})
+    end
+    if not(http.response_contains(req, failstr)) then
+      return true
+    end
+    return false
+end
 fingerprints = {}
 
 ---
@@ -35,11 +68,7 @@ table.insert(fingerprints, {
     {username = "admin", password = "admin"}
   },
   login_check = function (host, port, path, user, pass)
-    local req = http.post(host, port, path.."index.php", {no_cache=true}, nil, {action="login", login_username=user, login_password=pass})
-    if not(http.response_contains(req, 'Invalid User Name/Password')) then
-      return true
-    end
-    return false
+    return try_http_post_login(host, port, path, "index.php", "Invalid User Name/Password", {action="login", login_username=user, login_password=pass}, false)
   end
 })
 
@@ -63,4 +92,16 @@ table.insert(fingerprints, {
 ---
 --ROUTERS
 ---
-
+table.insert(fingerprints, {
+  name = "Arris 2307",
+  category = "routers",
+  paths = {
+    {path = "/logo_t.gif"}
+  },
+  login_combos = {
+    {username = "", password = ""}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login.cgi", "Login Error !!", {action="submit", page="", logout="", pws=pass})
+  end
+})
