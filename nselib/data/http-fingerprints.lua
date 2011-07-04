@@ -239,6 +239,16 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/logo_t.gif', method='HEAD'}
+	},
+	matches= {
+		{match='IP_SHARER WEB', output='Arris 2307'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='//system.html', method='GET'}
 	},
 	matches= {
@@ -1215,6 +1225,47 @@ table.insert(fingerprints, {
 	},
 	matches= {
 		{match='', output='D-Link WBR-1310'}
+	}
+})
+
+-- Drupal changelog
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/CHANGELOG.txt'}
+	},
+	matches={
+		{match='Drupal (%d..-),', output='Drupal v\\1'}
+	}
+})
+
+-- Drupal signatures
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/'}
+	},
+	matches={
+		{match=' src="/sites/all/themes/', output='Drupal signature'},
+		{match=' src="/sites/all/modules/', output='Drupal signature'},
+		{match=' href="/sites/all/themes/', output='Drupal signature'},
+		{match='jQuery.extend(Drupal.settings,', output='Drupal signature'}
+	}
+})
+
+-- Drupal files
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/UPGRADE.txt'},
+		{path='/INSTALL.txt'},
+		{path='/MAINTENERS.txt'},
+		{path='/INSTALL.mysql.txt'},
+		{path='/INSTALL.pgsql.txt'},
+		{path='/update.php'}
+	},
+	matches={
+		{match='Drupal ', output='Drupal file'}
 	}
 })
 
