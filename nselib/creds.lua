@@ -205,9 +205,6 @@ Credentials = {
 	-- @return tbl table containing the discovered credentials	
 	getTable = function(self)
 		local result = {}
-		local all = self.storage:getAll()
-		
-		if ( not(all) ) then return end
 
 		for _, v in pairs(self.storage:getAll()) do
 			local h = ( v.host.ip or v.host )
