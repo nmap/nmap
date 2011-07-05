@@ -22,8 +22,8 @@ References:
 -- 21/tcp open  ftp
 -- | ftp-vsftpd-backdoor:
 -- |   This installation has been backdoored: VULNERABLE
--- |   Command: id
--- |_  Results: uid=0(root) gid=0(root) groups=0(root)
+-- |     Shell command: id
+-- |_    Results: uid=0(root) gid=0(root) groups=0(root)
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -110,13 +110,14 @@ action = function(host, port)
 
   local results = {
     "This installation has been backdoored: VULNERABLE",
-    "Command: " .. cmd,
+    "  Shell command: " .. cmd,
   }
 
   -- check to see if the vsFTPd backdoor was already triggered
   local status, ret = check_backdoor(host, cmd)
   if status then
-    table.insert(results, string.format("Results: %s", ret))
+    table.insert(results, 2, "The backdoor was already triggered")
+    table.insert(results, string.format("  Results: %s", ret))
     return stdnse.format_output(true, results)
   end
 
@@ -157,6 +158,6 @@ action = function(host, port)
 
   -- delay ftp socket cleaning
   sock:close()
-  table.insert(results, string.format("Results: %s", ret))
+  table.insert(results, string.format("  Results: %s", ret))
   return stdnse.format_output(true, results)
 end
