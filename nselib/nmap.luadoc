@@ -101,6 +101,26 @@ function get_interface()
 -- @usage local iface, err = nmap.get_interface_info("eth0")
 function get_interface_info(interface_name)
 
+--- Lists network interfaces
+-- 
+-- This script enumerates all network interfaces and returns a list of tables
+-- containing information about every interface. 
+-- 
+-- Keys of each table:
+-- * <code>device</code> The interface name, can be an interface alias.
+-- * <code>shortname</code> A simple short name of the device.
+-- * <code>netmask</code> The netmask bits (CIDR) of the interface.
+-- * <code>address</code> The string representing the IP address assigned to the interface.
+-- * <code>link</code> The string representing the hardware type of the interface. Possible values are: <code>"ethernet"</code>, <code>"loopback"</code>, <code>"p2p"</code> or <code>"other"</code>.
+-- * <code>mac</code> MAC address (six-byte-long binary string) of the interface if the type of the interface is <code>"ethernet"</code>, otherwise it is <code>nil</code>.
+-- * <code>broadcast</code> The string representing the broadcast address assigned to the interface if the interface type is <code>"ethernet"</code> and if the used address is IPv4, otherwise it is <code>nil</code>.
+-- * <code>up</code> The state of the interface, possible values are <code>"up"</code> or <code>"down"</code>.
+-- * <code>mtu</code> The MTU size of the interface.
+-- 
+-- @return Array of tables containing information about every discovered interface.
+-- @usage local interfaces, err = nmap.list_interfaces()
+function list_interfaces()
+
 --- Returns the TTL (time to live) value selected by the --ttl option
 --
 -- If there is no value specified or if the value specified with the --ttl 

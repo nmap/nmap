@@ -18,6 +18,7 @@ extern "C" {
 #include "nmap_dns.h"
 #include "osscan.h"
 #include "protocols.h"
+#include "libnetutil/netutil.h"
 
 #include "nse_nmaplib.h"
 #include "nse_utility.h"
@@ -765,17 +766,89 @@ static int l_get_interface (lua_State *L)
   return 1;
 }
 
+/* returns a list of tables where each table contains information about each 
+ * interface.
+ */
+static int l_list_interfaces (lua_State *L)
+{
+  int numifs = 0, numroutes = 0;
+  struct interface_info *iflist;
+  char errstr[256];
+  errstr[0]='\0';
+  char ipstr[INET6_ADDRSTRLEN];
+  struct addr src, bcast;
+
+  iflist = getinterfaces(&numifs, errstr, sizeof(errstr));
+ 
+  int i;
+  
+  if (iflist==NULL || numifs<=0) {
+    lua_pushnil(L);
+    lua_pushstring(L, errstr);
+    return 2;
+  } else {
+    memset(ipstr, 0, INET6_ADDRSTRLEN);
+    memset(&src, 0, sizeof(src));
+    memset(&bcast, 0, sizeof(bcast));
+    lua_newtable(L); //base table
+    
+    for(i=0; i< numifs; i++) {
+      lua_newtable(L); //interface table
+      setsfield(L, -1, "device", iflist[i].devfullname);
+      setsfield(L, -1, "shortname", iflist[i].devname);
+      setnfield(L, -1, "netmask", iflist[i].netmask_bits);
+      setsfield(L, -1, "address", inet_ntop_ez(&(iflist[i].addr), 
+	    sizeof(iflist[i].addr) ));
+      
+      switch (iflist[i].device_type){
+        case devt_ethernet:
+          setsfield(L, -1, "link", "ethernet");
+          lua_pushlstring(L, (const char *) iflist[i].mac, 6);
+          lua_setfield(L, -2, "mac");
+          
+          /* calculate the broadcast address */
+          if (iflist[i].addr.ss_family == AF_INET) {
+          src.addr_type = ADDR_TYPE_IP;
+          src.addr_bits = iflist[i].netmask_bits;
+          src.addr_ip = ((struct sockaddr_in *)&(iflist[i].addr))->sin_addr.s_addr;
+          addr_bcast(&src, &bcast);
+          memset(ipstr, 0, INET6_ADDRSTRLEN);
+          if (addr_ntop(&bcast, ipstr, INET6_ADDRSTRLEN) != NULL)
+            setsfield(L, -1, "broadcast", ipstr);
+          }
+          break;
+        case devt_loopback:
+          setsfield(L, -1, "link", "loopback");
+          break;
+        case devt_p2p:
+          setsfield(L, -1, "link", "p2p");
+          break;
+        case devt_other:
+        default:
+          setsfield(L, -1, "link", "other");
+      }
+      
+      setsfield(L, -1, "up", (iflist[i].device_up ? "up" : "down"));
+      setnfield(L, -1, "mtu", iflist[i].mtu);
+      
+      /* After setting the fields, add the interface table to the base table */
+      lua_rawseti(L, -2, i);
+    }
+  }
+  return 1;
+}
+
 /* return the ttl (time to live) specified with the 
  * --ttl command line option. If a wrong value is 
  * specified it defaults to 64.
  */
 static int l_get_ttl (lua_State *L)
 {
-	if (o.ttl < 0 || o.ttl > 255)
-		lua_pushnumber(L, 64); //default TTL
-	else
-		lua_pushnumber(L, o.ttl);
-	return 1;
+  if (o.ttl < 0 || o.ttl > 255)
+    lua_pushnumber(L, 64); //default TTL
+  else
+    lua_pushnumber(L, o.ttl);
+  return 1;
 }
 
 /* return the payload length specified by the --data-length 
@@ -784,11 +857,11 @@ static int l_get_ttl (lua_State *L)
  */
 static int l_get_payload_length(lua_State *L)
 {
-	if (o.extra_payload_length < 0)
-		lua_pushnumber(L, 0); //default payload length
-	else
-		lua_pushnumber(L, o.extra_payload_length);
-	return 1;
+  if (o.extra_payload_length < 0)
+    lua_pushnumber(L, 0); //default payload length
+  else
+    lua_pushnumber(L, o.extra_payload_length);
+  return 1;
 }
 
 int luaopen_nmap (lua_State *L)
@@ -818,8 +891,9 @@ int luaopen_nmap (lua_State *L)
     {"address_family", l_address_family},
     {"get_interface", l_get_interface},
     {"get_interface_info", l_dnet_get_interface_info},
-	{"get_ttl", l_get_ttl},
-	{"get_payload_length",l_get_payload_length},
+    {"list_interfaces", l_list_interfaces},
+    {"get_ttl", l_get_ttl},
+    {"get_payload_length",l_get_payload_length},
     {NULL, NULL}
   };
 
