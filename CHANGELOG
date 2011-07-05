@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ftp-vuln-cve2010-4221 script, which checks if the ProFTPD
+  server is vulnerable to the Telnet IAC stack overflow vulnerability
+  (CVE-2010-4221). [Djalal]
+
 o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
   into vsftpd-2.3.4 source code distributions. [Daniel Miller]
 
