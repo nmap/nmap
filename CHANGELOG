@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
+  into vsftpd-2.3.4 source code distributions. [Daniel Miller]
+
 Nmap 5.59BETA1 [2011-06-30]
 
 o [NSE] Added 40 scripts, bringing the total to 217!  You can learn
