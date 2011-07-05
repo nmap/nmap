@@ -108,6 +108,9 @@ o Update scripting.xml to show the new script scan phases.
 
 2) NSE Scripts:
 
+o ftp-vuln-cve2010-4221.nse script to check the ProFTPD Telnet IAC stack
+  overflow (CVE-2010-4221).
+
 o smtp-vuln-cve2010-4344 script to check and exploit Exim SMTP Server:
   heap overflow (CVE-2010-4344) and privileges escalation (CVE-2010-4345)
 
