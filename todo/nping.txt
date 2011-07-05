@@ -83,6 +83,45 @@
       that the payload part was stripped and how long was it.
 
     - Consider making the echo server bind to all IPv4 AND IPv6 interfaces.
+
+* When running Nping echo client with the --no-capture parameter, the last
+  packet's CAPT line is not displayed.
+
+  nping --ec public echo.nmap.org -p90 --tcp --count 1 --no-capture
+
+  luis@Aberdeen:~$ sudo nping --ec public echo.nmap.org -p90-92 --tcp --count 1 --no-capture
+
+    Starting Nping 0.5.52.IPv6.Beta2 ( http://nmap.org/nping ) at 2011-07-05 12:53 CEST
+    SENT (7.3302s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=64 
+    CAPT (7.4625s) TCP 163.117.203.253:18554 > 74.207.244.221:90 S ttl=54 
+    SENT (8.3309s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=64 
+    CAPT (8.4429s) TCP 163.117.203.253:18554 > 74.207.244.221:91 S ttl=54 
+    SENT (9.3310s) TCP 163.117.203.253:18554 > 74.207.244.221:92 S ttl=64 
+     
+    Max rtt: N/A | Min rtt: N/A | Avg rtt: N/A
+    Raw packets sent: 3 (120B) | Rcvd: 0 (0B) | Lost: 3 (100.00%)| Echoed: 2 (80B) 
+    Tx time: 2.00181s | Tx bytes/s: 59.95 | Tx pkts/s: 1.50
+    Rx time: 2.00193s | Rx bytes/s: 0.00 | Rx pkts/s: 0.00
+    Nping done: 1 IP address pinged in 9.33 seconds
+
+* Sometimes Nping displays a couple of error messages (related to cleanup of
+  Nsock events), even though everything went fine.
+
+    luis@Aberdeen:~$ sudo nping --ec public echo.nmap.org -p90 --tcp --count 1
+
+    Starting Nping 0.5.52.IPv6.Beta2 ( http://nmap.org/nping ) at 2011-07-05 12:51 CEST
+    SENT (1.8965s) TCP 163.117.203.253:64288 > 74.207.244.221:90 S ttl=64
+    CAPT (2.0293s) TCP 163.117.203.253:64288 > 74.207.244.221:90 S ttl=54
+    RCVD (2.1233s) TCP 74.207.244.221:90 > 163.117.203.253:64288 RA ttl=51
+    nping_event_handler(): READ-PCAP killed: Resource temporarily unavailable
+    nping_event_handler(): TIMER killed: Resource temporarily unavailable
+     
+    Max rtt: 226.762ms | Min rtt: 226.762ms | Avg rtt: 226.762ms
+    Raw packets sent: 1 (40B) | Rcvd: 1 (40B) | Lost: 0 (0.00%)| Echoed: 1 (40B) 
+    Tx time: 0.00136s | Tx bytes/s: 29411.76 | Tx pkts/s: 735.29
+    Rx time: 1.00082s | Rx bytes/s: 39.97 | Rx pkts/s: 1.00
+    Nping done: 1 IP address pinged in 2.93 seconds
+
         
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
