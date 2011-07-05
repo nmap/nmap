@@ -1,8 +1,15 @@
 PENDING:
--Add more signatures for http-default-accounts
--Select new scripts to work on
+-Write more signatures for http-default-accounts
+-Select new scripts from queue and work on them
+-Improve my documentation
 
 COMPLETED:
+-Write http-wp-enum
+-Write http-malware-host
+-Write more signatures for http-default-accounts
+-Research more about spidering
+-Add more signatures for http-default-accounts
+-Select new scripts to work on
 -Completed http-default-accounts
 -Added new signatures to http-enum
 -Work on the http-waf-detect
