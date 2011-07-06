@@ -42,6 +42,7 @@ require("bit")
 require("shortport")
 require("brute")
 require("stdnse")
+require("creds")
 
 -- This portrule succeeds only when the open|filtered port is in the port range
 -- which is specified by the ports script argument
