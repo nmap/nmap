@@ -130,10 +130,6 @@
 -- For a complete example of a brute implementation consult the 
 -- <code>svn-brute.nse</code> or <code>vnc-brute.nse</code> scripts
 --
--- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
--- @author "Patrik Karlsson <patrik@cqure.net>"
---
---
 -- @args brute.useraspass guess the username as password for each user
 --	     (default: true)
 -- @args brute.unique make sure that each password is only guessed once
@@ -162,6 +158,8 @@
 --       iterator the pass mode will be enabled.
 -- @args brute.credfile a file containing username and password pairs delimited
 --       by '/'
+-- @author "Patrik Karlsson <patrik@cqure.net>"
+-- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 --
 -- Version 0.7
