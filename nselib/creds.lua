@@ -24,8 +24,8 @@
 -- credentials:
 -- <code>
 --	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
--- 	for _, cred in pairs(c:getCredentials(creds.State.VALID)) do
---		chowContentForUser(cred.user, cred.pass)
+-- 	for cred in c:getCredentials(creds.State.VALID) do
+--		showContentForUser(cred.user, cred.pass)
 -- 	end
 -- </code>
 --
@@ -34,24 +34,38 @@
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
--- Version 0.1
+-- Version 0.3
 -- Created 2011/02/06 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 2011/27/06 - v0.2 - revised by Patrik Karlsson <patrik@cqure.net>
---								added documentation
---								added getCredentials function
+--								* added documentation
+--								* added getCredentials function
 --
-
+-- Revised 2011/05/07 - v0.3 - revised by Patrik Karlsson <patrik@cqure.net>
+--                              * modified getCredentials to return an iterator
+--                              * added support for adding credentials as
+--                                script arguments
+--
 module(... or "creds", package.seeall)
 
 require('ipOps')
+require('bit')
 
 -- Table containing the different account states
 State = {
-	LOCKED = { msg = 'Account is locked' },
-	VALID = { msg = 'Account is valid' },
-	DISABLED = { msg = 'Account is disabled' },
-	CHANGEPW = { msg = 'Password needs to be changed at next logon' },
+	LOCKED = 1,
+	VALID = 2,
+	DISABLED = 4,
+	CHANGEPW = 8,
+	PARAM = 16,
 }
+
+StateMsg = {
+	[State.LOCKED] = 'Account is locked',
+	[State.VALID] = 'Account is valid',
+	[State.DISABLED] = 'Account is disabled',
+	[State.CHANGEPW] = 'Password needs to be changed at next logon',
+}
+
 
 ALL_DATA = "all_script_data"
 
@@ -103,37 +117,37 @@ RegStorage = {
 		self.filter.state = state
 	end,
 	
-	--- Retrieves the table containing all credential records
+	--- Returns a credential iterator matching the selected filters
 	--
-	-- @return table containing all credential records
+	-- @return a credential iterator
 	getAll = function( self )
-		local tbl = nmap.registry.creds
-		local new_tbl = {}
-		local host, port = self.filter.host, self.filter.port
+		local function get_next()
+			local host, port = self.filter.host, self.filter.port
 
-		if ( not(tbl) ) then return end
+			if ( not(nmap.registry.creds) ) then return end
 		
-		for _, v in pairs(tbl) do
-			local h = ( v.host.ip or v.host )
-			if ( not(host) and not(port) ) then
-				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
-					table.insert(new_tbl, v) 
-				end
-			elseif ( not(host) and ( port == v.port ) ) then
-				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
-					table.insert(new_tbl, v) 
-				end
-			elseif ( ( host and ( h == host or h == host.ip ) ) and not(port) ) then
-				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
-					table.insert(new_tbl, v) 
-				end
-			elseif ( ( host and ( h == host or h == host.ip ) ) and port.number == v.port ) then
-				if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
-					table.insert(new_tbl, v) 
+			for _, v in pairs(nmap.registry.creds) do
+				local h = ( v.host.ip or v.host )
+				if ( not(host) and not(port) ) then
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+						coroutine.yield(v)
+					end
+				elseif ( not(host) and ( port == v.port ) ) then
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+						coroutine.yield(v)
+					end
+				elseif ( ( host and ( h == host or h == host.ip ) ) and not(port) ) then
+					if ( not(self.filter.state) or ( v.state == self.filter.state ) ) then 
+						coroutine.yield(v)
+					end
+				elseif ( ( host and ( h == host or h == host.ip ) ) and port.number == v.port ) then
+					if ( not(self.filter.state) or ( v.state == bit.band(self.filter.state, v.state) ) ) then 
+						coroutine.yield(v)
+					end
 				end
 			end
 		end
-		return new_tbl
+		return coroutine.wrap(get_next)
 	end,
 	
 }
@@ -160,9 +174,6 @@ Credentials = {
 	
 	--- Add a discovered credential
 	--
-	-- @param host host table, name or ip
-	-- @param port number containing the port of the service
-	-- @param service the name of the service
 	-- @param user the name of the user
 	-- @param pass the password of the user
 	-- @param state of the account
@@ -180,24 +191,67 @@ Credentials = {
 		end
 	end,
 	
-	--- Returns all accounts for a given state, or all states if no filter is set
+	--- Returns a credential iterator
 	--
-	-- @param state table containing a value from the <Code>State</code> table
-	-- @return table containing accounts matching the state, or all accounts if
-	--         no state was given. Accounts have the following fields:
+	-- @param state mask containing values from the <Code>State</code> table
+	-- @return credential iterator, returning a credential each time it's 
+	--         called. Unless filtered by the state mask all credentials
+	--         for the host, port match are iterated over.
+	--         The credential table has the following fields:
 	--         <code>host</code> - table as received by the action function
 	--         <code>port</code> - number containing the port number
 	--         <code>user</code> - string containing the user name
 	--         <code>pass</code> - string containing the user password
-	--         <code>state</code> - a state table @see <code>State</code>
+	--         <code>state</code> - a state number @see <code>State</code>
 	--         <code>service</code> - string containing the name of the service
 	--         <code>scriptname</code> - string containing the name of the
 	--                                   script that added the credential
 	getCredentials = function(self, state)
-		if ( state ) then 
-			self.storage:setFilter(self.host, { number=self.port, service = self.service }, state)
+		local function next_credential()
+			if ( state ) then 
+				self.storage:setFilter(self.host, { number=self.port, service = self.service }, state)
+			end
+
+			for cred in self.storage:getAll() do
+				if ( ( self.scriptname == ALL_DATA ) or
+					 ( cred.scriptname == self.scriptname ) ) then
+					coroutine.yield(cred)
+				end
+			end
+
+			if ( state and State.PARAM == bit.band(state, State.PARAM) ) then
+				local creds_global = stdnse.get_script_args('creds.global')
+				local creds_service= stdnse.get_script_args('creds.' .. self.service )
+				local creds_params
+				
+				if ( creds_service ) then creds_params = creds_service end
+				if ( creds_global and creds_service ) then
+					creds_params = creds_params .. ',' .. creds_global
+				elseif ( creds_global ) then
+					creds_params = creds_global
+				end
+
+				if ( not(creds_params) ) then return end
+
+				for _, cred in ipairs(stdnse.strsplit(",", creds_params)) do
+					-- if the credential contains a ':' we have a user + pass pair
+					-- if not, we only have a user with an empty password
+					local user, pass
+					if ( cred:match(":") ) then
+						user, pass = cred:match("^(.-):(.-)$")
+					else
+						user = cred:match("^(.*)$")
+					end
+					coroutine.yield( { host = self.host, 
+					port = self.port,
+					user = user, 
+					pass = pass,
+					state = State.PARAM,
+					service = self.service } )
+				end
+			end
 		end
-		return self.storage:getAll()
+		return coroutine.wrap( next_credential )
 	end,
 	
 	--- Returns a table of credentials
@@ -206,14 +260,14 @@ Credentials = {
 	getTable = function(self)
 		local result = {}
 
-		for _, v in pairs(self.storage:getAll()) do
+		for v in self.storage:getAll() do
 			local h = ( v.host.ip or v.host )
 			local svc = ("%s/%s"):format(v.port,v.service)
 			local c 
 			if ( v.user and #v.user > 0 ) then
-				c = ("%s:%s - %s"):format(v.user, v.pass, v.state.msg)
+				c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state])
 			else
-				c = ("%s - %s"):format(v.pass, v.state.msg)
+				c = ("%s - %s"):format(v.pass, StateMsg[v.state])
 			end
 			local script = v.scriptname
 			assert(type(h)=="string", "Could not determine a valid host")
@@ -255,7 +309,7 @@ Credentials = {
 			output = output[1]
 			output.name = nil
 		end
-		return output
+		return (#output > 0 ) and output
 	end,
 	
 	--- Get credentials with optional host and port filter

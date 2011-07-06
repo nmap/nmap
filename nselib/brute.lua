@@ -256,13 +256,13 @@ Account =
 	--
 	-- @return string representation of object
 	toString = function( self )
-		local creds
+		local c
 		if ( #self.username > 0 ) then
-			creds = ("%s:%s"):format( self.username, #self.password > 0 and self.password or "<empty>" )
+			c = ("%s:%s"):format( self.username, #self.password > 0 and self.password or "<empty>" )
 		else
-			creds = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
+			c = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
 		end
-		return ( "%s => %s"):format(creds, self.state.msg )
+		return ( "%s => %s"):format(c, creds.StateMsg[self.state] )
 	end,
 			
 }
@@ -460,16 +460,16 @@ Engine =
 					return false
 				end
 				
-				local creds
+				local c
 				-- Do we have a username or not?
 				if ( username and #username > 0 ) then
-					creds = ("%s/%s"):format(username, #password > 0 and password or "<empty>")
+					c = ("%s/%s"):format(username, #password > 0 and password or "<empty>")
 				else
-					creds = ("%s"):format(#password > 0 and password or "<empty>")
+					c = ("%s"):format(#password > 0 and password or "<empty>")
 				end
 			
 				local msg = ( retries ~= self.options.max_retries ) and "Re-trying" or "Trying"
-				stdnse.print_debug(2, "%s %s against %s:%d", msg, creds, self.host.ip, self.port.number )
+				stdnse.print_debug(2, "%s %s against %s:%d", msg, c, self.host.ip, self.port.number )
 				status, response = driver:login( username, password )
 
 				driver:disconnect()
@@ -591,15 +591,15 @@ Engine =
 			if ( not(f) ) then
 				return false, ("Failed to open credfile (%s)"):format(credfile)
 			end
-			local creds = {}
+			local c = {}
 			for line in f:lines() do
 				local trim = function(s) return s:match('^()%s*$') and '' or s:match('^%s*(.*%S)') end 
 				line = trim(line)
 				local user, pass = line:match("^([^%/]*)%/(.*)$")
-				table.insert(creds, { [user]=pass } )
+				table.insert(c, { [user]=pass } )
 			end
 		
-			table.insert( self.iterators, Iterators.credential_iterator( creds ) )
+			table.insert( self.iterators, Iterators.credential_iterator( c ) )
 		elseif ( mode and mode == 'user' ) then
 			table.insert( self.iterators, Iterators.user_pw_iterator( usernames, passwords ) )
 		elseif( mode and mode == 'pass' ) then
