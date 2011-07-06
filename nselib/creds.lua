@@ -221,8 +221,12 @@ Credentials = {
 
 			if ( state and State.PARAM == bit.band(state, State.PARAM) ) then
 				local creds_global = stdnse.get_script_args('creds.global')
-				local creds_service= stdnse.get_script_args('creds.' .. self.service )
+				local creds_service
 				local creds_params
+				
+				if ( self.service ) then
+					creds_service = stdnse.get_script_args('creds.' .. self.service )
+				end
 				
 				if ( creds_service ) then creds_params = creds_service end
 				if ( creds_global and creds_service ) then
