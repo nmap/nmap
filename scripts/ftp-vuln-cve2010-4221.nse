@@ -124,6 +124,8 @@ local function check_proftpd(ftp_opts)
   ftp_server.banner, ftp_server.version = get_proftpd_banner(ret)
   if not ftp_server.banner then
     return ftp_finish(socket, false, "failed to get FTP banner.")
+  elseif not ftp_server.banner:match("ProFTPD") then
+    return ftp_finish(socket, false, "not a ProFTPD server.")
   end
 
   -- check if this version is vulnerable
