@@ -73,6 +73,7 @@ require 'shortport'
 require 'http'
 require 'brute'
 require 'url'
+require 'creds'
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 

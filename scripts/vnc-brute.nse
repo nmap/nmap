@@ -32,6 +32,7 @@ categories = {"intrusive", "auth"}
 require 'shortport'
 require 'brute'
 require 'vnc'
+require 'creds'
 
 portrule = shortport.port_or_service(5901, "vnc", "tcp", "open")
 

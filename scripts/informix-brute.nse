@@ -33,6 +33,7 @@ categories = {"intrusive", "auth"}
 require 'shortport'
 require 'brute'
 require 'informix'
+require 'creds'
 
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
 

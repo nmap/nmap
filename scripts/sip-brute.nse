@@ -24,6 +24,7 @@ categories = {"intrusive", "auth"}
 require "shortport"
 require "sip"
 require "brute"
+require "creds"
 
 portrule = shortport.port_or_service(5060, "sip", "udp")
 

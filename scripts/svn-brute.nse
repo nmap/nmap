@@ -32,6 +32,7 @@ Performs brute force password auditing against Subversion source code control se
 
 require 'shortport'
 require 'brute'
+require 'creds'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"

@@ -27,6 +27,7 @@ require("brute")
 require("stdnse")
 stdnse.silent_require "openssl"
 require("shortport")
+require("creds")
 
 portrule = shortport.port_or_service(9929, "nping-echo")
 

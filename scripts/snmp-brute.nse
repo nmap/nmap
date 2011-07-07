@@ -13,99 +13,111 @@ Attempts to find an SNMP community string by brute force guessing.
 -- 161/udp open  snmp
 -- |_snmp-brute: public
 
-author = "Philip Pickering"
-
+author = "Philip Pickering, Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-
 categories = {"intrusive", "auth"}
+
+-- Revised 07/07/2011 - v 0.2 - ported to the brute library (Gorjan Petrovski)  
 
 require "shortport"
 require "snmp"
+require "brute"
+require "creds"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
-action = function(host, port)
+local port_set_open = false
 
-  if nmap.registry.snmpcommunity or nmap.registry.args.snmpcommunity then return end
+local Driver =
+{
+	new = function(self, host, port)
+		local o = {}
+		setmetatable(o,self)
+		self.__index = self
+		o.host = host
+		o.port = port
+		return o
+	end,
+	connect = function(self)
+		self.socket = nmap.new_socket()
+		if not self.socket then return false end
+		-- set some reasonable timeouts :)
+		if self.host.times.timeout < 1 then
+			self.socket:set_timeout(1000)
+		else
+			self.socket:set_timeout(self.host.times.timeout * 1000)
+		end
+		local status, err = self.socket:connect(self.host, self.port)
+		if not status then
+			self.socket:close()
+			return false
+		end
+		self.request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0") 
+		return true
+	end,
+	disconnect = function(self)
+		self.socket:close()
+	end,
+	login = function( self, username, password)
+		local payload = snmp.encode(snmp.buildPacket(self.request, 0, password))
 
-  -- create the socket used for our connection
-  local socket = nmap.new_socket()
-  
-  -- set a reasonable timeout value
-  socket:set_timeout(5000)
-  
-  -- do some exception handling / cleanup
-  local catch = function()
-    socket:close()
-  end
+		local status, response = self.socket:send(payload)
+		if not status then
+			self.socket:close()
+			local brute_err = brute.Error:new(response)
+			brute_err:setAbort(true)
+			return false, brute_err
+		end
 
-  local try = nmap.new_try(catch)
-	
-	-- connect to the potential SNMP system
-  try(socket:connect(host, port))
+		status, response = self.socket:receive_bytes(1)
+		if (not status) or (response == "TIMEOUT") then
+			local brute_err = brute.Error:new(response)
+			brute_err:setRetry(false)
+			return false, brute_err
+		end
 
-	
-  local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")
+		if not port_set_open then
+			port_set_open = true
+			nmap.set_port_state(self.host, self.port, "open")
+		end
 
-  local commFile = nmap.registry.args.snmplist and nmap.fetchfile(nmap.registry.args.snmplist)
-  local commTable
-  
-  -- fetch wordlist from file (from unpwdb-lib)
-  if commFile then
-     local file = io.open(commFile)
-     
-     if file then
-	commTable = {}
-	while true do
-	   local l = file:read()
-	   
-	   if not l then
-	      break
-	   end
-					 
-	   -- Comments takes up a whole line
-	   if not l:match("#!comment:") then
-	      table.insert(commTable, l)
-	   end
+		local result 
+		_, result = snmp.decode(response)
+
+		-- response contains valid community string
+		if type(result) == "table" then
+			-- keep only the first password as snmpcommunity, like the old script did
+			if not nmap.registry.snmpcommunity then
+				nmap.registry.snmpcommunity = result[2]
+			end
+			
+			-- adding the credentials
+			local c = creds.Credentials:new( SCRIPT_NAME, self.host, self.port )
+			c:add(nil, result[2], creds.State.VALID)
+			
+			local brute_acc = brute.Account.new("", result[2], creds.State.VALID)
+			return true, brute_acc
+		end
+
+		local err = brute.Error:new("Incorrect password")
+		err:setRetry(false)
+		return false, err
+
 	end
+}
+
+action = function(host, port)
+	if nmap.registry.snmpcommunity or nmap.registry.args.snmpcommunity then return end
 	
-	file:close()
-     end
-  end
-  
-  -- default wordlist
-  if (not commTable) then	commTable = {'public', 'private', 'snmpd', 'snmp', 'mngt', 'cisco', 'admin'} end
-  
-  -- send all possible words out before waiting for an answer
-  for _, commStr in ipairs(commTable) do
-     local payload = snmp.encode(snmp.buildPacket(request, 0, commStr))
-     try(socket:send(payload))
-  end
-  
-  -- finally wait for a response
-  local status
-  local response
-  
-  status, response = socket:receive_bytes(1)
-  
-  if (not status) then
-     return
-  end
-  
-  if (response == "TIMEOUT") then
-     return
-  end
-  nmap.set_port_state(host, port, "open")
-  
-  local result
-  _, result = snmp.decode(response)
-  
-  -- response contains valid community string
-  if type(result) == "table" then
-     nmap.registry.snmpcommunity = result[2]
-     return result[2]
-  end
-  
-  return
+	local engine = brute.Engine:new(Driver,host,port)
+	
+	--we want to search for both readonly and readwrite community strings
+	-- engine.options.firstonly = false
+	engine.options.passonly = true
+	engine.options.script_name = SCRIPT_NAME
+	
+	status, result = engine:start()
+	
+	return result
 end
 

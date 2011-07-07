@@ -40,6 +40,7 @@ categories = {"intrusive", "auth"}
 require 'shortport'
 require 'http'
 require 'brute'
+require 'creds'
 
 portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open")
 

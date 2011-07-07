@@ -40,6 +40,7 @@ require 'brute'
 require 'stdnse'
 stdnse.silent_require 'openssl'
 require 'tns'
+require 'creds'
 
 portrule = shortport.port_or_service(1521, "oracle-tns", "tcp", "open")
 

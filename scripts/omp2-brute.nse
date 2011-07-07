@@ -22,7 +22,7 @@ require("omp2")
 require("nmap")
 require("brute")
 require("shortport")
-
+require("creds")
 
 portrule = shortport.port_or_service(9390, "openvas")
 

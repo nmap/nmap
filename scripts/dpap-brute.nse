@@ -27,6 +27,7 @@ categories = {"intrusive", "auth"}
 require("base64")
 require("shortport")
 require("brute")
+require("creds")
 
 portrule = shortport.port_or_service(8770, "apple-iphoto")
 

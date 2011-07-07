@@ -29,6 +29,7 @@ categories = {"intrusive", "auth"}
 
 require 'shortport'
 require 'brute'
+require 'creds'
 
 portrule = shortport.port_or_service(2050, "", "tcp", "open")
 
