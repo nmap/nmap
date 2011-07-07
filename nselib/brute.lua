@@ -174,7 +174,9 @@
 --                             David's request.
 -- Revised 08/30/2010 - v0.6 - added support for custom iterators and did some
 --                             needed cleanup.
--- Revised 06/19/2010 - v0.7 - added support for creds library
+-- Revised 06/19/2011 - v0.7 - added support for creds library [Patrik]
+-- Revised 07/07/2011 - v0.71- fixed some minor bugs, and changed credential
+--                             iterator to use a file handle instead of table
 
 module(... or "brute", package.seeall)
 require 'unpwdb'
@@ -216,11 +218,18 @@ Options = {
 	-- @return status true on success else false
 	-- @return err string containing the error message on failure
 	setMode = function( self, mode )
-		if ( mode == "password" or mode == "user" ) then
-			self.mode = mode
-		else
+		local modes = { "password", "user", "creds" }
+		local supported = false
+		
+		for _, m in ipairs(modes) do
+			if ( mode == m ) then supported = true end
+		end
+		
+		if ( not(supported) ) then
 			stdnse.print_debug("ERROR: brute.options.setMode: mode %s not supported", mode)
 			return false, "Unsupported mode"
+		else
+			self.mode = mode
 		end
 		return true
 	end,
@@ -355,14 +364,6 @@ Engine =
 	addIterator = function( self, iterator )
 		table.insert( self.iterators, iterator )
 	end,
-
-	--- Sets the engine running mode
-	--
-	-- @param mode string, one of either "user", "creds" or "pass"
-	setMode = function( self, mode )
-		mode = ( mode == "user" or mode == "creds" or mode == "pass" ) and mode or nil
-		assert(mode, ("Unsupported mode: (%s)"):format(mode))
-	end,
 	
 	--- Limit the number of worker threads
 	--
@@ -481,6 +482,9 @@ Engine =
 		-- * The response was not set to retry
 		-- * We've reached the maximum retry attempts
 		until( status or ( response and not( response:isRetry() ) ) or retries == 0)
+	
+		-- Increase the amount of total guesses
+		self.counter = self.counter + 1
 			
 		-- did we exhaust all retries, terminate and report?
 		if ( retries == 0 ) then
@@ -522,8 +526,6 @@ Engine =
 				end
 			end
 				
-			-- Increase the amount of total guesses
-			self.counter = self.counter + 1
 			local timediff = (os.time() - interval_start)
 	
 			-- This thread made another guess
@@ -549,7 +551,7 @@ Engine =
 	-- @return err string containing error message on failure
 	start = function(self)
 	
-		local result, cvar, stats = {}, {}, {}
+		local cvar = {}
 		local condvar = nmap.condvar( cvar )
 		
 		assert(self.options.script_name, "SCRIPT_NAME was not set in options.script_name")
@@ -570,7 +572,7 @@ Engine =
 		local status, passwords = unpwdb.passwords()
 		if ( not(status) ) then	return false, "Failed to load passwords" end
 	
-		local mode = stdnse.get_script_args("brute.mode")
+		local mode = self.options.mode or stdnse.get_script_args("brute.mode")
 	
 		-- Are we guessing against a service that has no username (eg. VNC)
 		if ( self.options.passonly ) then
@@ -582,28 +584,21 @@ Engine =
 		elseif ( mode == 'creds' ) then
 			local credfile = stdnse.get_script_args("brute.credfile")
 			if ( not(credfile) ) then
-				return false, "No credential file specified"
+				return false, "No credential file specified (see brute.credfile)"
 			end
 		
 			local f = io.open( credfile, "r" )
 			if ( not(f) ) then
 				return false, ("Failed to open credfile (%s)"):format(credfile)
 			end
-			local c = {}
-			for line in f:lines() do
-				local trim = function(s) return s:match('^()%s*$') and '' or s:match('^%s*(.*%S)') end 
-				line = trim(line)
-				local user, pass = line:match("^([^%/]*)%/(.*)$")
-				table.insert(c, { [user]=pass } )
-			end
 		
-			table.insert( self.iterators, Iterators.credential_iterator( c ) )
+			table.insert( self.iterators, Iterators.credential_iterator( f ) )
 		elseif ( mode and mode == 'user' ) then
 			table.insert( self.iterators, Iterators.user_pw_iterator( usernames, passwords ) )
 		elseif( mode and mode == 'pass' ) then
 			table.insert( self.iterators, Iterators.pw_user_iterator( usernames, passwords ) )
 		elseif ( mode ) then
-			return false, ("Unsupported mode: %s"):format(nmap.registry.args['brute.mode'])
+			return false, ("Unsupported mode: %s"):format(mode)
 		-- Default to the pw_user_iterator in case no iterator was specified
 		elseif ( 0 == #self.iterators ) then
 			table.insert( self.iterators, Iterators.pw_user_iterator( usernames, passwords ) )
@@ -623,6 +618,7 @@ Engine =
 		
 		local valid_accounts = creds.Credentials:new(self.options.script_name, self.host, self.port):getTable()
 		
+		local result = {}
 		-- Did we find any accounts, if so, do formatting
 		if ( valid_accounts and #valid_accounts > 0 ) then
 			valid_accounts.name = "Accounts"
@@ -639,6 +635,7 @@ Engine =
 		local tps = ( sum == 0 ) and ( self.counter / time_diff ) or ( sum / #self.tps )
 
 		-- Add the statistics to the result
+		local stats = {}
 		table.insert(stats, ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps ) )
 		stats.name = "Statistics"
 		table.insert( result, stats )
@@ -763,17 +760,18 @@ Iterators = {
 	
 	--- Credential iterator (for default or known user/pass combinations)
 	--
-	-- @param creds table containing username/pass combinations
-	--        the table should be of the following format
-	--        { ["user"] = "pass", ["user2"] = "pass2" }
+	-- @param f file handle to file containing credentials separated by '/'
 	-- @return function iterator
-	credential_iterator = function( creds )
+	credential_iterator = function( f )
 		local function next_credential ()
-			for _, item in ipairs(creds) do
-				for user, pass in pairs(item) do
-					coroutine.yield( user, pass )
-				end
+			local c = {}
+			for line in f:lines() do
+				local trim = function(s) return s:match('^()%s*$') and '' or s:match('^%s*(.*%S)') end 
+				line = trim(line)
+				local user, pass = line:match("^([^%/]*)%/(.*)$")
+				coroutine.yield( user, pass )
 			end
+			f:close()
 			while true do coroutine.yield( nil, nil ) end
 		end
 		return coroutine.wrap( next_credential )
