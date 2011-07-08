@@ -1920,7 +1920,13 @@ int nmap_main(int argc, char *argv[]) {
       currenths = Targets[targetno];
       /* Now I can do the output and such for each host */
       if (currenths->timedOut(NULL)) {
+        xml_open_start_tag("host");
+        xml_attribute("starttime", "%lu", (unsigned long) currenths->StartTime());
+        xml_attribute("endtime", "%lu", (unsigned long) currenths->EndTime());
+        xml_close_start_tag();
         write_host_header(currenths);
+        xml_end_tag(); /* host */
+        xml_newline();
         log_write(LOG_PLAIN,"Skipping host %s due to host timeout\n",
             currenths->NameIP(hostname, sizeof(hostname)));
         log_write(LOG_MACHINE,"Host: %s (%s)\tStatus: Timeout", 

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed broken XML output in the case of timed-out hosts; the
+  enclosing host element was missing. The fix was suggested by Rémi
+  Mollon.
+
 o [NSE] Added ftp-vuln-cve2010-4221 script, which checks if the ProFTPD
   server is vulnerable to the Telnet IAC stack overflow vulnerability
   (CVE-2010-4221). [Djalal]
