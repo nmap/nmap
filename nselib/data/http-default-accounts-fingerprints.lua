@@ -87,8 +87,6 @@ table.insert(fingerprints, {
     return try_http_basic_login(host, port, path, user, pass)
   end
 })
-
-
 ---
 --ROUTERS
 ---
@@ -105,3 +103,23 @@ table.insert(fingerprints, {
     return try_http_post_login(host, port, path, "login.cgi", "Login Error !!", {action="submit", page="", logout="", pws=pass})
   end
 })
+
+table.insert(fingerprints, {
+  name = "Cisco 2811",
+  category = "routers",
+  paths = {
+    {path = "/exec/show/log/CR"},
+    {path = "/level/15/exec/-/configure/http"},
+    {path = "/level/15/exec/-"},
+    {path = "/level/15/"}
+  },
+  login_combos = {
+    {username = "", password = ""},
+    {username = "cisco", password = "cisco"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_basic_login(host, port, path, user, pass)
+  end
+})
+
+
