@@ -253,11 +253,13 @@ action = function(host, port)
 
   -- Iterate through responses to find a candidate for login routine
   local j = 1
+  
   for i, fingerprint in ipairs(fingerprints) do
+    local credentials_found = false
     stdnse.print_debug(1, "%s: Processing %s", SCRIPT_NAME, fingerprint.name)
     for _, probe in ipairs(fingerprint.paths) do
 
-      if (results[j]) then
+      if (results[j] and not(credentials_found)) then
         local path = basepath .. probe['path']
 
         if( http.page_exists(results[j], result_404, known_404, path, true) ) then
@@ -272,6 +274,7 @@ action = function(host, port)
                                           fingerprint.name, login_combo["username"], login_combo["password"], path)
               -- Add to http credentials table
               register_http_credentials(host, port, login_combo["username"], login_combo["password"])
+              credentials_found = true
             end
           end
         end
