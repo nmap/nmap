@@ -19,7 +19,6 @@ These targets will be added to the scanning queue in case
 -- PORT     STATE SERVICE
 -- 9390/tcp open  openvas
 -- | omp2-enum-targets:
--- |
 -- |  Targets for account admin:
 -- |  TARGET              HOSTS
 -- |  Sales network       192.168.20.0/24
@@ -107,10 +106,10 @@ action = function(host, port)
     local targets = account_enum_targets(host, port, username, password)
 
     if targets ~= nil then
-      table.insert(results, "\nTargets for account " .. username .. ":")
+      table.insert(results, "Targets for account " .. username .. ":")
       table.insert(results, report(targets))
     else
-      table.insert(results, "\nNo targets found for account " .. username)
+      table.insert(results, "No targets found for account " .. username)
     end
 
     if target.ALLOW_NEW_TARGETS and targets ~= nil then
