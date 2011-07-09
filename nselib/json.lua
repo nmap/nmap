@@ -76,6 +76,45 @@ local function escape(str)
 	return "\"" .. string.gsub(str, ".", ESCAPE_TABLE) .. "\""
 end
 
+--- Makes a table be treated as a JSON Array when generating JSON
+--  A table treated as an Array has all non-number indices ignored.
+-- () param t a table to be treated as an array
+function make_array(t)
+	local mt = getmetatable(t) or {}
+	mt["json"] = "array"
+	setmetatable(t, mt)
+end
+
+--- Makes a table be treated as a JSON Object when generating JSON
+--  A table treated as an Object has all non-number indices ignored.
+-- () param t a table to be treated as an object
+function make_object(t)
+	local mt = getmetatable(t) or {}
+	mt["json"] = "object"
+	setmetatable(t, mt)
+end
+
+--- Checks what JSON type a variable will be treated as when generating JSON
+-- () param var a variable to inspect
+-- () return a string containing the JSON type. Valid values are "array",
+--        "object", "number", "string", "boolean", and "null"
+function typeof(var)
+	local t = type(var)
+	if var == NULL then
+		return "null"
+	elseif t == "table" then
+		local mtval = rawget(getmetatable(var) or {}, "json")
+		if mtval == "array" or (mtval ~= "object" and #var > 0) then
+			return "array"
+		else
+			return "object"
+		end
+	else
+		return t
+	end
+	error("Unknown data type in typeof")
+end
+
 --- Creates json data from an object
 --@param obj a table containing data
 --@return a string containing valid json
@@ -95,24 +134,22 @@ function generate(obj)
 	elseif type(obj) == "string" then
 		return escape(obj)
 	elseif type(obj) == "table" then
-		local k, v, elems
+		local k, v, elems, jtype
 		elems = {}
-		if #obj > 0 then
-			-- Array
-			for _, v in ipairs(obj) do
-				elems[#elems + 1] = generate(v)
-			end
-			return "[" .. table.concat(elems, ", ") .. "]"
-		else
-			-- Object
-			for k, v in pairs(obj) do
-				elems[#elems + 1] = escape(k) .. ": " .. generate(v)
-			end
-			return "{" .. table.concat(elems, ", ") .. "}"
-		end
-	else
-		error("Unknown data type in generate")
+    jtype = typeof(obj)
+    if jtype == "array" then
+      for _, v in ipairs(obj) do
+        elems[#elems + 1] = generate(v)
+      end
+      return "[" .. table.concat(elems, ", ") .. "]"
+    elseif jtype == "object" then
+      for k, v in pairs(obj) do
+        elems[#elems + 1] = escape(k) .. ": " .. generate(v)
+      end
+      return "{" .. table.concat(elems, ", ") .. "}"
+    end
 	end
+  	error("Unknown data type in generate")
 end
 
 -- This is the parser, implemented in OO-form to deal with state better
@@ -243,6 +280,7 @@ end
 --@return the object (or triggers a syntax error)
 function Json:parseObject()
 	local object  = {}
+  	make_object(object)
 	local _= self:next() -- Eat {
 	
 	while(self:hasMore() and not self:errors()) do
@@ -292,6 +330,7 @@ end
 --@return the array object
 function Json:parseArray()
 	local array  = {}
+  	make_array(array)
 	self:next()
 	while(self:hasMore() and not self:errors()) do
 		self:eatWhiteSpace()
