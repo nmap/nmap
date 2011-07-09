@@ -1228,44 +1228,36 @@ table.insert(fingerprints, {
 	}
 })
 
--- Drupal changelog
 table.insert(fingerprints, {
-	category='cms',
+	category='general',
 	probes={
-		{path='/CHANGELOG.txt'}
+		{path='/level/15', method='HEAD'},
+		{path='/exec/show/log/CR', method='HEAD'},
+		{path='/level/15/exec/-/configure/http', method='HEAD'},
+		{path='/level/15/exec/-', method='HEAD'}
 	},
-	matches={
-		{match='Drupal (%d..-),', output='Drupal v\\1'}
+	matches= {
+		{match='cisco-IOS', output='Cisco 2811'}
 	}
 })
 
--- Drupal signatures
 table.insert(fingerprints, {
-	category='cms',
+	category='general',
 	probes={
-		{path='/'}
+		{path='/login_img.jpg', method='HEAD'}
 	},
-	matches={
-		{match=' src="/sites/all/themes/', output='Drupal signature'},
-		{match=' src="/sites/all/modules/', output='Drupal signature'},
-		{match=' href="/sites/all/themes/', output='Drupal signature'},
-		{match='jQuery.extend(Drupal.settings,', output='Drupal signature'}
+	matches= {
+		{match='RapidLogic', output='AIRAYA WirelessGRID'}
 	}
 })
 
--- Drupal files
 table.insert(fingerprints, {
-	category='cms',
+	category='general',
 	probes={
-		{path='/UPGRADE.txt'},
-		{path='/INSTALL.txt'},
-		{path='/MAINTENERS.txt'},
-		{path='/INSTALL.mysql.txt'},
-		{path='/INSTALL.pgsql.txt'},
-		{path='/update.php'}
+		{path='/cirronetlogo.gif', method='HEAD'}
 	},
-	matches={
-		{match='Drupal ', output='Drupal file'}
+	matches= {
+		{match='Cirronet Wavebolt-AP', output='Cirronet Wavebolt'}
 	}
 })
 
@@ -3331,6 +3323,72 @@ table.insert(fingerprints, {
 		{match='', output='WHMCompleteSolution CMS'}
 	}
 })
+
+-- Drupal signatures
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/', method='GET'}
+	},
+	matches={
+		{match=' src="/sites/all/themes/', output='Drupal signature'},
+		{match=' src="/sites/all/modules/', output='Drupal signature'},
+		{match=' href="/sites/all/themes/', output='Drupal signature'},
+		{match='jQuery.extend(Drupal.settings,', output='Drupal signature'}
+	}
+})
+
+-- Drupal files
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/UPGRADE.txt'},
+		{path='/INSTALL.txt'},
+		{path='/MAINTENERS.txt'},
+		{path='/INSTALL.mysql.txt'},
+		{path='/INSTALL.pgsql.txt'},
+		{path='/update.php'}
+	},
+	matches={
+		{match='Drupal ', output='Drupal file'}
+	}
+})
+
+-- Joomla! version
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/language/en-GB/en-GB.xml'}
+	},
+	matches={
+		{match='<version>(.-)</version>', output='Joomla! '}
+	}
+})
+
+-- Joomla!
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/htaccess.txt'},
+        	{path='/templates/system/css/toolbar.css'},
+        	{path='/templates/beez/css/template_rtl.css'}
+	},
+	matches={
+		{match='Joomla!', output='Joomla!'}
+	}
+})
+
+-- Drupal changelog
+table.insert(fingerprints, {
+	category='cms',
+	probes={
+		{path='/CHANGELOG.txt'}
+	},
+	matches={
+		{match='Drupal (%d..-),', output='Drupal v1'}
+	}
+})
+
 
 ------------------------------------------------
 ----           UNCATEGORIZED                ----
