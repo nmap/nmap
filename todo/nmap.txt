@@ -1,9 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o CHANGELOG updates [Fyodor]
-
-==Things needed for next DEV release go ABOVE THIS LINE==
-
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
@@ -55,7 +51,6 @@ o Nmap should defer address parsing in arguments until it has read
 
 o Right before the release, we could build Ncat portable and post it
   on http://nmap.org/ncat/.
-
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -681,6 +676,8 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o CHANGELOG updates [Fyodor]
 
 o [Ncat] Add new certificate bundle (ca-bundle.crt) since the current
   one is out of date.  See http://seclists.org/nmap-dev/2011/q2/641.
