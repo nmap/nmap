@@ -10,6 +10,7 @@ Entry { filename = "backorifice-brute.nse", categories = { "auth", "intrusive", 
 Entry { filename = "backorifice-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "banner.nse", categories = { "discovery", "safe", } }
 Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos", "intrusive", "vuln", } }
+Entry { filename = "broadcast-db2-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dns-service-discovery.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-dropbox-listener.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", "discovery", "safe", } }
@@ -28,7 +29,7 @@ Entry { filename = "creds-summary.nse", categories = { "auth", "default", "safe"
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
-Entry { filename = "db2-discover.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "db2-discover.nse", categories = { "discover", "safe", } }
 Entry { filename = "dhcp-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }

@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Split script db2-discover into two scripts, adding a new
+  broadcast-db2-discover script. This script attempts to discover DB2
+  database servers through broadcast requests. [Patrik Karlsson]
+
 o Fixed broken XML output in the case of timed-out hosts; the
   enclosing host element was missing. The fix was suggested by Rémi
   Mollon.
