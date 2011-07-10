@@ -131,18 +131,18 @@
 -- <code>svn-brute.nse</code> or <code>vnc-brute.nse</code> scripts
 --
 -- @args brute.useraspass guess the username as password for each user
---	     (default: true)
+--       (default: true)
 -- @args brute.unique make sure that each password is only guessed once
---	     (default: true)
+--       (default: true)
 -- @args brute.firstonly stop guessing after first password is found
---	     (default: false)
+--       (default: false)
 -- @args brute.passonly iterate over passwords only for services that provide
 --       only a password for authentication. (default: false)
 -- @args brute.retries the number of times to retry if recoverable failures
---		 occure. (default: 3)
+--       occure. (default: 3)
 -- @args brute.delay the number of seconds to wait between guesses (default: 0)
 -- @args brute.threads the number of initial worker threads, the number of
---		 active threads will be automatically adjusted.
+--       active threads will be automatically adjusted.
 -- @args brute.mode can be user, pass or creds and determines what mode to run
 --       the engine in.
 --       * user - the unpwdb library is used to guess passwords, every password
@@ -154,7 +154,7 @@
 --       * creds- a set of credentials (username and password pairs) are
 --                guessed against the service. This allows for lists of known
 --                or common username and password combinations to be tested.
---		 If no mode is specified and the script has not added any custom
+--       If no mode is specified and the script has not added any custom
 --       iterator the pass mode will be enabled.
 -- @args brute.credfile a file containing username and password pairs delimited
 --       by '/'
