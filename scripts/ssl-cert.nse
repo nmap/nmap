@@ -62,7 +62,7 @@ author = "David Fifield"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = { "safe", "discovery" }
+categories = { "default", "safe", "discovery" }
 
 require("nmap")
 require("nsedebug")

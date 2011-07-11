@@ -21,7 +21,7 @@ Collects and displays information from remote iSCSI targets.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"default", "safe", "discovery"}
 
 require("shortport")
 require("iscsi")

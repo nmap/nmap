@@ -28,7 +28,7 @@ References:
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive"}
+categories = {"exploit", "intrusive", "malware", "vuln"}
 
 require("ftp")
 require("nmap")

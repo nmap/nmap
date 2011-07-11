@@ -44,7 +44,7 @@ Reference:
 
 author = "Vlatko Kosturjak and Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe"}
+categories = {"exploit", "intrusive", "malware", "vuln"}
 
 require "shortport"
 require "comm"

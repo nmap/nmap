@@ -45,7 +45,7 @@ broadcast version will only use the SQL Server Browser service discovery method.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"broadcast", "safe", "discovery"}
+categories = {"broadcast", "safe"}
 
 require 'mssql'
 require 'target'

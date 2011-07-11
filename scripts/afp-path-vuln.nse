@@ -46,7 +46,7 @@ For additional information:
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe"}
+categories = {"exploit", "intrusive", "vuln"}
 
 require 'shortport'
 require 'stdnse'

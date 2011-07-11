@@ -23,7 +23,7 @@ Tests for the presence of the ProFTPD 1.3.3c backdoor reported as OSVDB-ID 69562
 
 author = "Mak Kolybabi"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive"}
+categories = {"exploit", "intrusive", "malware", "vuln"}
 
 require("ftp")
 require("shortport")
