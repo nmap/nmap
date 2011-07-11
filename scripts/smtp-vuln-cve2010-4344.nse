@@ -331,23 +331,19 @@ local function check_exim(smtp_opts)
           string.format("Exim version: %.02f", smtp_server.version))
 
       if smtp_server.version > exim_heap_ver then
-        exim_heap_result =
-        string.format("  Exim (%s): NOT VULNERABLE",
-          heap_cve, smtp_server.version)
+        exim_heap_result = string.format("  Exim (%s): NOT VULNERABLE",
+                                         heap_cve)
       else
-        exim_heap_result =
-        string.format("  Exim (%s): LIKELY VULNERABLE",
-          heap_cve, smtp_server.version)
+        exim_heap_result = string.format("  Exim (%s): LIKELY VULNERABLE",
+                                         heap_cve)
       end
 
       if smtp_server.version > exim_priv_ver then
-      	exim_priv_result =
-          string.format("  Exim (%s): NOT VULNERABLE",
-          priv_cve, smtp_server.version)
+        exim_priv_result = string.format("  Exim (%s): NOT VULNERABLE",
+                                         priv_cve)
       else
-      	exim_priv_result =
-        string.format("  Exim (%s): LIKELY VULNERABLE",
-          priv_cve, smtp_server.version)
+        exim_priv_result = string.format("  Exim (%s): LIKELY VULNERABLE",
+                                         priv_cve)
       end
 
     else
@@ -418,8 +414,8 @@ local function check_exim(smtp_opts)
       -- clear socket
       socket:receive_lines(1)
       if smtp_opts.shell_cmd then
-      	status, response = send_recv(socket,string.format("%s\n",
-                                                smtp_opts.shell_cmd))
+        status, response = send_recv(socket,
+                              string.format("%s\n", smtp_opts.shell_cmd))
         if status then
           exim_heap_result = exim_heap_result ..
             string.format("\n    Shell command '%s': %s",
