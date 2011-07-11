@@ -771,7 +771,7 @@ static int l_get_interface (lua_State *L)
  */
 static int l_list_interfaces (lua_State *L)
 {
-  int numifs = 0, numroutes = 0;
+  int numifs = 0;
   struct interface_info *iflist;
   char errstr[256];
   errstr[0]='\0';
