@@ -1,13 +1,14 @@
 description = [[
-Tests for the presence of the vsFTPd 2.3.4 backdoor reported on 2011-07-04. This
-script attempts to exploit the backdoor using the innocuous <code>id</code>
-command by default, but that can be changed with the
-<code>exploit.cmd</code> or <code>ftp-vsftpd-backdoor.cmd</code> script
+Tests for the presence of the vsFTPd 2.3.4 backdoor reported on 2011-07-04
+(CVE-2011-2523). This script attempts to exploit the backdoor using the
+innocuous <code>id</code> command by default, but that can be changed with
+the <code>exploit.cmd</code> or <code>ftp-vsftpd-backdoor.cmd</code> script
 arguments.
 
 References:
  * http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
  * https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093
+ * http://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=CVE-2011-2523
 ]]
 
 ---
@@ -21,7 +22,7 @@ References:
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
 -- | ftp-vsftpd-backdoor:
--- |   This installation has been backdoored: VULNERABLE
+-- |   This installation has been backdoored (CVE-2011-2523): VULNERABLE
 -- |     Shell command: id
 -- |_    Results: uid=0(root) gid=0(root) groups=0(root)
 
@@ -97,6 +98,8 @@ local function check_backdoor(host, shell_cmd)
                   string.format("failed to read shell commands results: %s",
                                 ret))
       end
+    else
+      socket:send("exit\n");
     end
   end
 
@@ -109,7 +112,7 @@ action = function(host, port)
                 stdnse.get_script_args("exploit.cmd") or CMD_SHELL_ID
 
   local results = {
-    "This installation has been backdoored: VULNERABLE",
+    "This installation has been backdoored (CVE-2011-2523): VULNERABLE",
     "  Shell command: " .. cmd,
   }
 
