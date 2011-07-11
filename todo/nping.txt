@@ -122,6 +122,22 @@
     Rx time: 1.00082s | Rx bytes/s: 39.97 | Rx pkts/s: 1.00
     Nping done: 1 IP address pinged in 2.93 seconds
 
+* When running Nping in ARP mode, hexdump of ARP replies is not shown with -vvv,
+  only for requests. Here's the output: 
+
+sudo nping --arp 192.168.240.139 -vvv -d1
+
+Starting Nping 0.5.59BETA1 ( http://nmap.org/nping ) at 2011-07-11 12:32 CEST
+BPF-filter: arp and arp[6]==0x00 and arp[7]==0x02
+SENT (0.0562s) ARP who has 192.168.240.139? Tell 192.168.240.1
+0000   ff ff ff ff ff ff 00 50  56 c0 00 01 08 06 00 01  .......PV.......
+0010   08 00 06 04 00 01 00 50  56 c0 00 01 c0 a8 f0 01  .......PV.......
+0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........      
+RCVD (0.0568s) ARP reply 192.168.240.139 is at 00:0C:29:E4:90:CD
+SENT (1.0580s) ARP who has 192.168.240.139? Tell 192.168.240.1
+0000   ff ff ff ff ff ff 00 50  56 c0 00 01 08 06 00 01  .......PV.......
+0010   08 00 06 04 00 01 00 50  56 c0 00 01 c0 a8 f0 01  .......PV.......
+0020   00 00 00 00 00 00 c0 a8  f0 8b                    ..........      
         
 * Investigate about warning on old version of gcc like g++ 4.1.2 20080704
   (Red Hat 4.1.2-48). No warnings are shown on newer version but it would be
