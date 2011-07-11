@@ -289,7 +289,11 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/awstatstotals/awstatstotals.php', method='GET'}
+		{path='/awstatstotals/awstatstotals.php', method='GET'},
+		{path='/awstats/awstatstotals.php', method='GET'},
+		{path='/awstatstotals.php', method='GET'},
+		{path='/awstats/index.php', method='GET'},
+		{path='/awstatstotals/index.php', method='GET'}
 	},
 	matches= {
 		{match='', output='AWStats Totals'}
