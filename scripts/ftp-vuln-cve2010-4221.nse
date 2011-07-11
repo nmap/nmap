@@ -145,8 +145,7 @@ local function check_proftpd(ftp_opts)
     proftpd_vuln = string.format("  ProFTPD (%s): VULNERABLE", cve)
   elseif not proftpd_vuln then
     return ftp_finish(socket, false,
-                      string.format("%s: server %s seems NOT VULNERABLE.",
-                                    SCRIPT_NAME, ftp_opts.host.ip))
+                      'server ProFTPD seems NOT VULNERABLE.')
   end
 
   table.insert(out, proftpd_str)
