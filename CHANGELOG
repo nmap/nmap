@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now supports IPV6 addresses by default without the -6 flag.
+  Additionally ncat listens on both :: and localhost when passed
+  -l, or any other listening mode unless a specific listening address is
+  supplied.
+
 o [NSE] Split script db2-discover into two scripts, adding a new
   broadcast-db2-discover script. This script attempts to discover DB2
   database servers through broadcast requests. [Patrik Karlsson]
