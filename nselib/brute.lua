@@ -402,13 +402,13 @@ Engine =
 	-- @return iterator function
 	get_next_credential = function( self )
 		local function next_credential ()
-			local used_creds = {}
 			-- iterate over all credential iterators
 			for _, iter in ipairs( self.iterators ) do
 				for user, pass in iter do
 					-- makes sure the credentials have not been tested before
-					if ( not(used_creds[user..pass]) ) then
-						used_creds[user..pass] = true
+					self.used_creds = self.used_creds or {}
+					if ( not(self.used_creds[user..pass]) ) then
+						self.used_creds[user..pass] = true
 						coroutine.yield( user, pass )
 					end
 				end
@@ -511,7 +511,13 @@ Engine =
 					creds.Credentials:new( self.options.script_name, self.host, self.port ):add(response.username, response.password, response.state )
 					
 					stdnse.print_debug("Discovered account: %s", response:toString())
-					self.found_accounts[response.username] = true
+
+					-- if we're running in passonly mode, and want to continue guessing
+					-- we will have a problem as the username is always the same.
+					-- in this case we don't log the account as found.
+					if ( not(self.options.passonly) ) then
+						self.found_accounts[response.username] = true
+					end
 					
 					-- Check if firstonly option was set, if so abort all threads
 					if ( self.options.firstonly ) then self.terminate_all = true end
