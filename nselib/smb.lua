@@ -1,13 +1,16 @@
 ---
--- Implements functionality related to Server Message Block (SMB, also known 
--- as CIFS) traffic, which is a Windows protocol.
+-- Implements functionality related to Server Message Block (SMB, an extension 
+-- of CIFS) traffic, which is a Windows protocol.
 --
 -- SMB traffic is normally sent to/from ports 139 or 445 of Windows systems. Other systems
 -- implement SMB as well, including Samba and a lot of embedded devices. Some of them implement
 -- it properly and many of them not. Although the protocol has been documented decently 
 -- well by Samba and others, many 3rd party implementations are broken or make assumptions. 
 -- Even Samba's and Windows' implementations aren't completely compatiable. As a result, 
--- creating an implementation that accepts everything is a bit of a minefield. 
+-- creating an implementation that accepts everything is a bit of a minefield. Microsoft's
+-- extensive documentation is available at the following URLs:
+-- * SMB: http://msdn.microsoft.com/en-us/library/cc246231(v=prot.13).aspx
+-- * CIFS: http://msdn.microsoft.com/en-us/library/ee442092(v=prot.13).aspx
 --
 -- Where possible, this implementation, since it's intended for scanning, will attempt to 
 -- accept any invalid implementations it can, and fail gracefully if it can't. This has
@@ -554,7 +557,7 @@ function start_netbios(host, port, name)
 			return false, "SMB: ERROR: Server returned less data than it was supposed to (one or more fields are missing); aborting [1]"
 		end
 	
-		-- Check for a position session response (0x82)
+		-- Check for a positive session response (0x82)
 		if result == 0x82 then
 			stdnse.print_debug(3, "SMB: Successfully established NetBIOS session with server name %s", name)
 			return true, socket
@@ -932,7 +935,7 @@ end
 --      * 'timezone'         The server's timezone, in hours from UTC
 --      * 'timezone_str'     The server's timezone, as a string
 --      * 'server_challenge' A random string used for challenge/response
---      * 'domain'           The server's primary domain
+--      * 'domain'           The server's primary domain or workgroup
 --      * 'server'           The server's name
 function negotiate_protocol(smb, overrides)
 	local header, parameters, data
@@ -1328,7 +1331,7 @@ local function start_session_extended(smb, log_errors, overrides)
 			status_name = get_status_name(status)
 	
 			-- Only parse the parameters if it's ok or if we're going to keep going
-			if(status_name == "NT_STATUS_OK" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
+			if(status_name == "NT_STATUS_SUCCESS" or status_name == "NT_STATUS_MORE_PROCESSING_REQUIRED") then
 				-- Parse the parameters
 				pos, andx_command, andx_reserved, andx_offset, action, security_blob_length = bin.unpack("<CCSSS", parameters)
 				if(andx_command == nil or security_blob_length == nil) then
@@ -1343,9 +1346,19 @@ local function start_session_extended(smb, log_errors, overrides)
 				end
 				smb['os']         = os
 				smb['lanmanager'] = lanmanager
+				
+				local host_info = smbauth.get_host_info_from_security_blob(security_blob)
+				if ( host_info ) then
+					smb['fqdn'] = host_info['fqdn']
+					smb['domain_dns'] = host_info['dns_domain_name']
+					smb['forest_dns'] = host_info['dns_forest_name']
+					smb['server'] = host_info['netbios_computer_name']
+					smb['domain'] = host_info['netbios_domain_name']
+				end
+				
 	
 				-- If it's ok, do a cleanup and return true
-				if(status_name == "NT_STATUS_OK") then
+				if(status_name == "NT_STATUS_SUCCESS") then
 					-- Check if they're using an un-supported system
 					if(os == nil or lanmanager == nil) then
 						stdnse.print_debug(1, "SMB: WARNING: the server is using a non-standard SMB implementation; your mileage may vary (%s)", smb['ip'])
@@ -2920,16 +2933,41 @@ function get_os(host)
 		return false, "Server didn't return OS details"
 	end
 
-	-- Convert blank values to something useful
-	response['os']           = stdnse.string_or_blank(smbstate['os'],           "Unknown")
-	response['lanmanager']   = stdnse.string_or_blank(smbstate['lanmanager'],   "Unknown")
-	response['domain']       = stdnse.string_or_blank(smbstate['domain'],       "Unknown")
-	response['server']       = stdnse.string_or_blank(smbstate['server'],       "Unknown")
-	response['date']         = stdnse.string_or_blank(smbstate['date'],         "Unknown")
-	response['timezone_str'] = stdnse.string_or_blank(smbstate['timezone_str'], "Unknown")
-
+	response['os']           = smbstate['os']
+	response['lanmanager']   = smbstate['lanmanager']
+	response['domain']       = smbstate['domain']
+	response['server']       = smbstate['server']
+	response['date']         = smbstate['date']
+	response['timezone_str'] = smbstate['timezone_str']
+	
     -- Kill SMB
     smb.stop(smbstate)
+    
+    
+    -- Start another session with extended security. This will allow us to get
+    -- additional information about the target.
+    status, smbstate = smb.start_ex(host, true, true, nil, nil, false)
+    if(status == true) then
+		-- See if we actually got something
+		if (smbstate['fqdn'] or smbstate['domain_dns'] or smbstate['forest_dns']) then
+			response['fqdn']         = smbstate['fqdn']
+			response['domain_dns']   = smbstate['domain_dns']
+			response['forest_dns']   = smbstate['forest_dns']
+			-- After a non-extended security negotiation, smbstate['domain'] will
+			-- contain the NetBIOS domain name, or the workgroup name. However,
+			-- after an extended-security session setup, smbstate['domain'] will
+			-- contain the NetBIOS domain name. For hosts in a workgroup, Windows
+			-- uses the NetBIOS hostname as the NetBIOS domain name. Comparing the
+			-- two will reveal whether the target is in a domain or a workgroup.
+			if ( smbstate['domain'] ~= nil and response['domain'] ~= smbstate['domain'] ) then
+				response['workgroup']    = response['domain']
+				response['domain']       = nil
+			end
+		end
+		
+	    -- Kill SMB again
+	    smb.stop(smbstate)
+	end
 
 	return true, response
 end
@@ -3162,13 +3200,13 @@ for i, v in pairs(command_codes) do
 end
 
 
-
+-- see http://msdn.microsoft.com/en-us/library/cc231196(v=prot.10).aspx
 status_codes = 
 {
-	NT_STATUS_OK = 0x0000,
+	NT_STATUS_SUCCESS 							= 0x00000000,
 	NT_STATUS_WERR_BADFILE                      = 0x00000002,
 	NT_STATUS_WERR_ACCESS_DENIED                = 0x00000005,
-	NT_STATUS_WERR_UNKNOWN_57                   = 0x00000057,
+	NT_STATUS_WERR_INVALID_PARAMETER            = 0x00000057,
 	NT_STATUS_WERR_INVALID_NAME                 = 0x0000007b,
 	NT_STATUS_WERR_UNKNOWN_LEVEL                = 0x0000007c,
 	NT_STATUS_WERR_MORE_DATA                    = 0x000000ea,

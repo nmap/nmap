@@ -1,10 +1,23 @@
 description = [[
-Attempts to determine the operating system, computer name, domain, and current
+Attempts to determine the operating system, computer name, domain, workgroup, and current
 time over the SMB protocol (ports 445 or 139).
 This is done by starting a session with the anonymous 
 account (or with a proper user account, if one is given; it likely doesn't make
 a difference); in response to a session starting, the server will send back all this
-information. 
+information.
+
+The following fields may be included in the output, depending on the 
+cirumstances (e.g. the workgroup name is mutually exclusive with domain and forest
+names) and the information available:
+* OS
+* Computer name
+* Domain name
+* Forest name
+* FQDN
+* NetBIOS computer name
+* NetBIOS domain name
+* Workgroup
+* System time
 
 Some systems, like Samba, will blank out their name (and only send their domain). 
 Other systems (like embedded printers) will simply leave out the information. Other
@@ -18,7 +31,8 @@ servers that are being poorly maintained (for more information/random thoughts o
 using the time, see http://www.skullsecurity.org/blog/?p=76. 
 
 Although the standard <code>smb*</code> script arguments can be used, 
-they likely won't change the outcome in any meaningful way. 
+they likely won't change the outcome in any meaningful way. However, <code>smbnoguest</code>
+will speed up the script on targets that do not allow guest access.
 ]]
 
 ---
@@ -28,10 +42,15 @@ they likely won't change the outcome in any meaningful way.
 --
 --@output
 -- Host script results:
--- |  smb-os-discovery:
--- |  |  OS: Windows 2000 (Windows 2000 LAN Manager)
--- |  |  Name: WORKGROUP\RON-WIN2K-TEST
--- |_ |_ System time: 2009-11-09 14:33:39 UTC-6
+-- | smb-os-discovery:
+-- |   OS: Windows Server (R) 2008 Standard 6001 Service Pack 1 (Windows Server (R) 2008 Standard 6.0)
+-- |   Computer name: Sql2008
+-- |   Domain name: lab.test.local
+-- |   Forest name: test.local
+-- |   FQDN: Sql2008.lab.test.local
+-- |   NetBIOS computer name: SQL2008
+-- |   NetBIOS domain name: LAB
+-- |_  System time: 2011-04-20 13:34:06 UTC-5
 -----------------------------------------------------------------------
 
 author = "Ron Bowes"
@@ -62,6 +81,16 @@ function get_windows_version(os)
 
 end
 
+function add_to_output(output_table, label, value, value_if_nil)
+	if (value == nil and value_if_nil ~= nil) then
+		value = value_if_nil
+	end
+	
+	if (value ~= nil) then
+		table.insert(output_table, string.format("%s: %s", label, value) )
+	end
+end
+
 action = function(host)
 	local response = {}
 	local status, result = smb.get_os(host)
@@ -69,10 +98,44 @@ action = function(host)
 	if(status == false) then
 		return stdnse.format_output(false, result)
 	end
-
-	table.insert(response, string.format("OS: %s (%s)", get_windows_version(result['os']), result['lanmanager']))
-	table.insert(response, string.format("Name: %s\\%s", result['domain'], result['server']))
-	table.insert(response, string.format("System time: %s %s", result['date'], result['timezone_str']))
+	
+	local hostname_dns, is_domain_member, os_string, time_string
+	if (result[ "fqdn" ]) then
+		-- Pull the first part of the FQDN as the computer name
+		hostname_dns = string.match( result[ "fqdn" ], "^([^.]+)%.?" )
+		
+		if (result[ "domain_dns" ]) then
+			-- If the computer name doesn't match the domain name, the target is a domain member
+			is_domain_member = ( result[ "fqdn" ] ~= result[ "domain_dns" ] )
+		end
+	end
+	
+	if (result['os'] and result['lanmanager']) then
+		os_string = string.format( "%s (%s)", get_windows_version( result['os'] ), result['lanmanager'] )
+	end
+	if (result['date'] and result['timezone_str']) then
+		time_string = string.format("%s %s", result['date'], result['timezone_str'])
+	end
+	
+	
+	add_to_output( response, "OS", os_string, "Unknown" )
+	add_to_output( response, "Computer name", hostname_dns )
+	
+	if ( is_domain_member ) then
+		add_to_output( response, "Domain name", result[ "domain_dns" ] )
+		add_to_output( response, "Forest name", result[ "forest_dns" ] )
+		add_to_output( response, "FQDN", result[ "fqdn" ] )
+	end
+	
+	add_to_output( response, "NetBIOS computer name", result[ "server" ] )
+	
+	if ( is_domain_member ) then
+		add_to_output( response, "NetBIOS domain name", result[ "domain" ] )
+	else
+		add_to_output( response, "Workgroup", result[ "workgroup" ], result[ "domain" ] )
+	end
+	
+	add_to_output( response, "System time", time_string, "Unknown" )
 
 	return stdnse.format_output(true, response)
 end

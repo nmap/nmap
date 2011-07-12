@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch from Chris Woodbury that adds the following additional
+  information to the output of smb-os-discovery:
+  + Forest name
+  + FQDN
+  + NetBIOS computer name
+  + NetBIOS domain name
+
 o [Ncat] Ncat now supports IPV6 addresses by default without the -6 flag.
   Additionally ncat listens on both :: and localhost when passed
   -l, or any other listening mode unless a specific listening address is

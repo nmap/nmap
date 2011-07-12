@@ -322,6 +322,17 @@ local function to_unicode(str)
 	return unicode
 end
 
+local function from_unicode(unicode)
+	local str = ""
+	if ( unicode == nil ) then
+		return nil
+	end
+	for char_itr = 1, unicode:len(), 2 do
+		str = str .. unicode:sub(char_itr, char_itr)
+	end
+	return str
+end
+
 ---Generate the Lanman v1 hash (LMv1). The generated hash is incredibly easy to reverse, because the input
 -- is padded or truncated to 14 characters, then split into two 7-character strings. Each of these strings
 -- are used as a key to encrypt the string, "KGS!@#$%" in DES. Because the keys are no longer than 
@@ -712,6 +723,86 @@ function get_security_blob(security_blob, ip, username, domain, password, passwo
 		return true, new_blob, mac_key
 	end
 
+end
+
+function get_host_info_from_security_blob(security_blob)
+	local ntlm_challenge = {}
+	--local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+	local pos, identifier, message_type, domain_length, domain_max, domain_offset, server_flags, challenge, reserved, target_info_length, target_info_max, target_info_offset = bin.unpack("<A8ISSIILLSSI", security_blob)
+	
+	-- Do some validation on the NTLMSSP message
+	if ( identifier ~= "NTLMSSP\0" ) then
+		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected signature." )
+		return false, "Invalid NTLM challenge message"
+	-- Per MS-NLMP, this field must be 2 for an NTLM challenge message
+	elseif ( message_type ~= 0x2 ) then
+		stdnse.print_debug( 1, "SMB: Invalid NTLM challenge message: unexpected message type: %d.", message_type )
+		return false, "Invalid message type in NTLM challenge message"
+	end
+	
+	-- Parse the TargetName data (i.e. the server authentication realm)
+	if ( domain_length > 0 ) then
+		local length = domain_length
+		local pos = domain_offset + 1 -- +1 to convert to Lua's 1-based indexes
+		local target_realm
+		pos, target_realm = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+		ntlm_challenge[ "target_realm" ] = from_unicode( target_realm )
+	end
+	
+	-- Parse the TargetInfo data (Wireshark calls this the "Address List")
+	if ( target_info_length > 0 ) then
+		
+		-- Definition of AvId values (IDs for AV_PAIR (attribute-value pair) structures),
+		-- as definied by the NTLM Authentication Protocol specification [MS-NLMP].
+		local NTLM_AV_ID_VALUES = {
+			MsvAvEOL				= 0x0,
+			MsvAvNbComputerName		= 0x1,
+			MsvAvNbDomainName		= 0x2,
+			MsvAvDnsComputerName	= 0x3,
+			MsvAvDnsDomainName		= 0x4,
+			MsvAvDnsTreeName		= 0x5,
+			MsvAvFlags				= 0x6,
+			MsvAvTimestamp			= 0x7,
+			MsvAvRestrictions		= 0x8,
+			MsvAvTargetName			= 0x9,
+			MsvAvChannelBindings	= 0xA,
+		}
+		-- Friendlier names for AvId values, to be used as keys in the results table
+		-- e.g. ntlm_challenge[ "dns_computer_name" ] -> "host.test.local"
+		local NTLM_AV_ID_NAMES = {
+			[NTLM_AV_ID_VALUES.MsvAvNbComputerName]		= "netbios_computer_name",
+			[NTLM_AV_ID_VALUES.MsvAvNbDomainName]		= "netbios_domain_name",
+			[NTLM_AV_ID_VALUES.MsvAvDnsComputerName]	= "fqdn",
+			[NTLM_AV_ID_VALUES.MsvAvDnsDomainName]		= "dns_domain_name",
+			[NTLM_AV_ID_VALUES.MsvAvDnsTreeName]		= "dns_forest_name",
+			[NTLM_AV_ID_VALUES.MsvAvTimestamp]			= "timestamp",
+		}
+		
+		
+		local length = target_info_length
+		local pos = target_info_offset + 1 -- +1 to convert to Lua's 1-based indexes
+		local target_info
+		pos, target_info = bin.unpack( string.format( "A%d", length ), security_blob, pos )
+		
+		pos = 1 -- reset pos to 1, since we'll be working out of just the target_info
+		repeat
+			local value, av_id, av_len
+			pos, av_id, av_len = bin.unpack( "<SS", target_info, pos )
+			pos, value = bin.unpack( string.format( "A%d", av_len ), target_info, pos )
+			local friendly_name = NTLM_AV_ID_NAMES[ av_id ]
+			
+			if ( av_id == NTLM_AV_ID_VALUES.MsvAvEOL ) then
+				break
+			elseif ( av_id == NTLM_AV_ID_VALUES.MsvAvTimestamp ) then
+				-- this is a FILETIME value (see [MS-DTYP]), representing the time in 100-ns increments since 1/1/1601
+				ntlm_challenge[ friendly_name ] = bin.unpack( "<L", value )
+			elseif ( friendly_name ) then
+				ntlm_challenge[ friendly_name ] = from_unicode( value )
+			end
+		until ( pos >= #target_info )
+	end
+	
+	return ntlm_challenge
 end
 
 ---Create an 8-byte message signature that's sent with all SMB packets. 

@@ -542,7 +542,7 @@ local function initialize(host)
 
 	-- Get the OS (identifying windows versions tells us which hash to use)
 	result, os = smb.get_os(host)
-	if(result == false) then
+	if(result == false or os['os'] == nil) then
 		hostinfo['os'] = "<Unknown>"
 	else
 		hostinfo['os'] = os['os']
