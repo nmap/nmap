@@ -267,11 +267,11 @@ Credentials = {
 		for v in self.storage:getAll() do
 			local h = ( v.host.ip or v.host )
 			local svc = ("%s/%s"):format(v.port,v.service)
-			local c 
+			local c
 			if ( v.user and #v.user > 0 ) then
-				c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state])
+				c = ("%s:%s - %s"):format(v.user, v.pass, StateMsg[v.state] or "Unknown state")
 			else
-				c = ("%s - %s"):format(v.pass, StateMsg[v.state])
+				c = ("%s - %s"):format(v.pass, StateMsg[v.state] or "Unknown state")
 			end
 			local script = v.scriptname
 			assert(type(h)=="string", "Could not determine a valid host")
