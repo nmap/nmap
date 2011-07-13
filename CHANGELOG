@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added the broadcast-ping script which sends icmp packets to broadcast 
+  addresses on the selected network interface, or all ethernet interfaces if 
+  none is selected. It has the option to add the discovered hosts as targets. 
+
 o [NSE] Applied patch from Chris Woodbury that adds the following additional
   information to the output of smb-os-discovery:
   + Forest name
