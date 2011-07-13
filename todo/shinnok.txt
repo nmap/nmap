@@ -35,8 +35,6 @@ o Pending uncompleted SSL handshakes when in --exec* listening mode make
   http://seclists.org/nmap-dev/2011/q2/988
 ---
 
-o Fix ncat.xml(the input for the man page) examples section.
-
 o NMAP reports different service results every so often with the same port.
   http://seclists.org/nmap-dev/2011/q2/815
 
@@ -47,6 +45,10 @@ o Review latest revision of Marek's ncat_proxy.patch - DONE
 Pending:
 ========
 
+o De-duplicate code by unifying ncat_broker.c and ncat_listen.c code paths,
+  either as a single file in ncat_listen.c or merge duplicate code in
+  ncat_listen.c and keep only broker specific code in ncat_broker.c(it it's a
+  lot of code, otherwise ncat_listen.c would do just fine).
 
 Pending (low priority):
 =======================
@@ -103,6 +105,9 @@ o We should offer partial results when a host
 
 COMPLETED:
 ==========
+
+o Fix ncat.xml(the input for the man page) examples section. - David came up
+  with the final right fix on this one.
 
 o Ncat should close its socket and refuse further connections after the first
   one, if invoked without --keep-open. That's what traditional netcat does
