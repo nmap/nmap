@@ -183,7 +183,24 @@ require 'unpwdb'
 require 'datafiles'
 require 'creds'
 
--- Options that can be set through --script-args
+-- Engine options that can be set by scripts
+-- Supported options are:
+--   * firstonly   - stop after finding the first correct password
+--                   (can be set using script-arg brute.firstonly)
+--   * passonly    - guess passwords only, don't supply a username
+--                   (can be set using script-arg brute.passonly)
+--   * max_retries - the amount of retries to do before aborting
+--                   (can be set using script-arg brute.retries)
+--   * delay       - sets the delay between attempts
+--                   (can be set using script-arg brute.delay)
+--   * mode        - can be set to either cred, user or pass and controls
+--                   whether the engine should iterate over users, passwords
+--                   or fetch a list of credentials from a single file.
+--                   (can be set using script-arg brut.mode)
+--   * title       - changes the title of the result table where the
+--                   passwords are returned.
+--   * nostore     - don't store the results in the credential library
+--
 Options = {
 	
 	new = function(self)
@@ -239,6 +256,11 @@ Options = {
 	-- @param param string containing the parameter name
 	-- @param value string containing the parameter value
 	setOption = function( self, param, value ) self[param] = value end,
+	
+	--- Set an alternate title for the result output (default: Accounts)
+	--
+	-- @param title string containing the title value
+	setTitle = function(self, title) self.title = title end,
 
 }
 
@@ -269,7 +291,11 @@ Account =
 		else
 			c = ("%s"):format( ( self.password and #self.password > 0 ) and self.password or "<empty>" )
 		end
-		return ( "%s => %s"):format(c, creds.StateMsg[self.state] )
+		if ( creds.StateMsg[self.state] ) then
+			return ( "%s - %s"):format(c, creds.StateMsg[self.state] )
+		else
+			return ("%s"):format(c)
+		end
 	end,
 			
 }
@@ -437,7 +463,14 @@ Engine =
 
 				local username, password
 				if ( not(username) and not(password) ) then
-					username, password = next_credential()
+					repeat
+						username, password = next_credential()
+						if ( not(username) and not(password) ) then
+							driver:disconnect()
+							self.threads[coroutine.running()].terminate = true
+							return false 
+						end
+					until ( not(self.found_accounts) or not(self.found_accounts[username]) )
 				end
 
 				-- make sure that all threads locked in connect stat terminate quickly
@@ -445,20 +478,7 @@ Engine =
 					driver:disconnect()
 					return false
 				end
-		
-				-- We've reached the end of the iterator, signal the thread to terminate
-				if ( not(password) ) then
-					driver:disconnect()
-					self.threads[coroutine.running()].terminate = true
-					return false
-				end
-
-				-- The username was already tested
-				if ( self.found_accounts and self.found_accounts[username] ) then
-					driver:disconnect()
-					return false
-				end
-				
+			
 				local c
 				-- Do we have a username or not?
 				if ( username and #username > 0 ) then
@@ -508,7 +528,12 @@ Engine =
 			if ( status ) then
 				-- Prevent locked accounts from appearing several times
 				if ( not(self.found_accounts) or self.found_accounts[response.username] == nil ) then
-					creds.Credentials:new( self.options.script_name, self.host, self.port ):add(response.username, response.password, response.state )
+					if ( not(self.options.nostore) ) then
+						creds.Credentials:new( self.options.script_name, self.host, self.port ):add(response.username, response.password, response.state )
+					else
+						self.credstore = self.credstore or {}
+						table.insert(self.credstore, response:toString() )
+					end
 					
 					stdnse.print_debug("Discovered account: %s", response:toString())
 
@@ -586,7 +611,10 @@ Engine =
 				local function next_user() coroutine.yield( "" ) end
 				return coroutine.wrap(next_user)
 			end
-			table.insert( self.iterators, Iterators.user_pw_iterator( single_user_iter(), passwords ) )
+			-- only add this iterator if no other iterator was specified
+			if ( #self.iterators == 0 ) then
+				table.insert( self.iterators, Iterators.user_pw_iterator( single_user_iter(), passwords ) )
+			end
 		elseif ( mode == 'creds' ) then
 			local credfile = stdnse.get_script_args("brute.credfile")
 			if ( not(credfile) ) then
@@ -622,12 +650,18 @@ Engine =
 		-- wait for all threads to finnish running
 		while self:threadCount()>0 do condvar "wait" end
 		
-		local valid_accounts = creds.Credentials:new(self.options.script_name, self.host, self.port):getTable()
+		local valid_accounts
+		
+		if ( not(self.options.nostore) ) then
+			valid_accounts = creds.Credentials:new(self.options.script_name, self.host, self.port):getTable()
+		else
+			valid_accounts = self.credstore
+		end
 		
 		local result = {}
 		-- Did we find any accounts, if so, do formatting
 		if ( valid_accounts and #valid_accounts > 0 ) then
-			valid_accounts.name = "Accounts"
+			valid_accounts.name = self.options.title or "Accounts"
 			table.insert( result, valid_accounts )
 		else
 			table.insert( result, {"No valid accounts found", name="Accounts"} )
