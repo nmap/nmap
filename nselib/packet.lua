@@ -206,7 +206,7 @@ end
 -- @return A string.
 function Packet:raw(index, length)
 	if not index then index = 0 end
-	if not length then length = #self.buf-index 
+	if not length then length = #self.buf-index end 
 	return string.char(string.byte(self.buf, index+1, index+1+length-1))
 end
 
