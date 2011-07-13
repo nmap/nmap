@@ -199,11 +199,15 @@ function Packet:u32(index)
         return u32(self.buf, index)
 end
 --- Return part of the packet contents as a byte string.
--- @param index The beginning of the part of the packet to extract.
--- @param length The length of the part of the packet to extract.
+-- @param index The beginning of the part of the packet to extract. The index 
+-- is 0-based. If omitted the default value is 0 (begining of the string)
+-- @param length The length of the part of the packet to extract. If omitted 
+-- the remaining contents from index to the end of the string are returned.
 -- @return A string.
 function Packet:raw(index, length)
-        return string.char(string.byte(self.buf, index+1, index+1+length-1))
+	if not index then index = 0 end
+	if not length then length = #self.buf-index 
+	return string.char(string.byte(self.buf, index+1, index+1+length-1))
 end
 
 --- Set an 8-bit integer at a 0-based byte offset in the packet.
