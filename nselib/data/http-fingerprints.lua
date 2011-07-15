@@ -1225,6 +1225,16 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/debug.cgi', method='HEAD'}
+	},
+	matches= {
+		{match='', output='Linksys WRT54G'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/tools_admin.cgi?', method='HEAD'}
 	},
 	matches= {
@@ -2040,6 +2050,10 @@ table.insert(fingerprints, {
 	category='management',
 	probes={
 		{path='/CFIDE/administrator/enter.cfm', method='HEAD'},
+		{path='/CFIDE/administrator/entman/index.cfm', method='HEAD'},
+		{path='/cfide/install.cfm', method='HEAD'},
+		{path='/CFIDE/administrator/archives/index.cfm', method='HEAD'},
+		{path='/CFIDE/wizards/common/_logintowizard.cfm', method='HEAD'},
 		{path='/CFIDE/componentutils/login.cfm', method='HEAD'},
 		{path='/CFIDE/Administrator/startstop.html', method='HEAD'},
 	},
