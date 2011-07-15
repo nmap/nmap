@@ -108,6 +108,12 @@ o Update scripting.xml to show the new script scan phases.
 
 2) NSE Scripts:
 
+o smtp-vuln-cve2011-1764 script to check Exim DKIM Format String
+  vulnerability (CVE-2011-1764).
+
+o Updated and Improved ftp-vsftpd-backdoor to detect the vsFTPd backdoor
+  (CVE-2011-2523).
+
 o ftp-vuln-cve2010-4221.nse script to check the ProFTPD Telnet IAC stack
   overflow (CVE-2010-4221).
 
