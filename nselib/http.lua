@@ -1081,11 +1081,12 @@ local function build_request(host, port, method, path, options)
 
   -- Add any other header fields into the local copy.
   table_augment(mod_options, options)
-
-  local request_line = string.format("%s %s HTTP/1.1", method, path)
+  -- We concat this string manually to allow null bytes in requests
+  local request_line = method.." "..path.." HTTP/1.1"
   local header = {}
   for name, value in pairs(mod_options.header) do
-    header[#header + 1] = string.format("%s: %s", name, value)
+    -- we concat this string manually to allow null bytes in requests
+    header[#header + 1] = name..": "..value
   end
 
   return request_line .. "\r\n" .. stdnse.strjoin("\r\n", header) .. "\r\n\r\n" .. (body or "")
