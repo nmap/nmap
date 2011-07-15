@@ -87,6 +87,20 @@ table.insert(fingerprints, {
     return try_http_basic_login(host, port, path, user, pass)
   end
 })
+
+table.insert(fingerprints, {
+  name = "Apache Axis2",
+  category = "web",
+  paths = {
+    {path = "/axis2/axis2-admin/"}
+  },
+  login_combos = {
+    {username = "admin", password = "axis2"}
+  },
+  login_check = function (host, port, path, user, pass)
+    return try_http_post_login(host, port, path, "login", "Invalid auth credentials!", {submit="+Login+", userName=user, password=pass})
+  end
+})
 ---
 --ROUTERS
 ---
