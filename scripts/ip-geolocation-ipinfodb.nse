@@ -4,12 +4,16 @@ IPInfoDB geolocation web service
 (http://ipinfodb.com/ip_location_api.php).
 
 There is no limit on requests to this service. However, the API key
-used was obtained through a free registration with the service.
+needs to be obtained through free registration for this service:
+<code>http://ipinfodb.com/login.php</code>
 ]]
 
 ---
 -- @usage
--- nmap --script ip-geolocation-ipinfodb <target>
+-- nmap --script ip-geolocation-ipinfodb <target> --script-args ip-geolocation-ipinfodb.apikey=<API_key>
+--
+-- @args ip-geolocation-ipinfodb.apikey A sting specifying the api-key which 
+--       the user wants to use to access this service
 --
 -- @output
 -- | ip-geolocation-ipinfodb:
@@ -30,18 +34,35 @@ require "http"
 hostrule = function(host)
 	local is_private, err = ipOps.isPrivate( host.ip )
     if is_private == nil then
-      stdnse.print_debug( "%s Error in Hostrule: %s.", SCRIPT_NAME, err )
+      stdnse.print_debug( "%s not running: Error in Hostrule: %s.", SCRIPT_NAME, err )
       return false
+	elseif is_private then
+		stdnse.print_debug("%s not running: Private IP address of target: %s", SCRIPT_NAME, host.ip)
+		return false
     end
-    return not is_private
+
+	local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
+	if not (type(api_key)=="string") then
+		stdnse.print_debug("%s not running: No IPInfoDB API key specified.", SCRIPT_NAME)
+		return false
+	end
+
+    return true 
 end
 
 -- No limit on requests. A free registration for an API key is a prerequisite
 local ipinfodb = function(ip)
-	local api_key = "430ff90c5bf74d71db87f156837ffd7c67725927271c95f650a6ae994342b57f"
+	local api_key = stdnse.get_script_args(SCRIPT_NAME..".apikey")
 	local response = http.get("api.ipinfodb.com", 80, "/v3/ip-city/?key="..api_key.."&format=json".."&ip="..ip, nil)
 	local stat, loc = json.parse(response.body)
-	if not stat then return nil end
+	if not stat then 
+		stdnse.print_debug("No response, possibly a network problem.")
+		return nil 
+	end
+	if loc.statusMessage and loc.statusMessage == "Invalid API key." then
+		stdnse.print_debug(loc.statusMessage)
+		return nil
+	end
 	
 	local output = {}
  	table.insert(output, "coordinates (lat,lon): "..loc.latitude..","..loc.longitude)
