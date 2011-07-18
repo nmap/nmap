@@ -382,8 +382,8 @@ OLD_SCRIPT_NAMES = $(addsuffix .nse, \
 anonFTP ASN brutePOP3 bruteTelnet chargenTest daytimeTest \
 dns-safe-recursion-port dns-safe-recursion-txid dns-test-open-recursion \
 domino-enum-passwords echoTest ftpbounce HTTPAuth HTTP_open_proxy HTTPpasswd \
-HTTPtrace iax2Detect ircServerInfo ircZombieTest MSSQLm MySQLinfo \
-netbios-smb-os-discovery nfs-acls nfs-dirlist popcapa PPTPversion \
+HTTPtrace iax2Detect ircServerInfo ircZombieTest mac-geolocation MSSQLm \
+MySQLinfo netbios-smb-os-discovery nfs-acls nfs-dirlist popcapa PPTPversion \
 promiscuous RealVNC_auth_bypass ripeQuery robots showHTMLTitle \
 showHTTPVersion showOwner showSMTPVersion showSSHVersion skype_v2-version \
 smb-enumdomains smb-enumsessions smb-enumshares smb-enumusers \
