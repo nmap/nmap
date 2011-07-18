@@ -547,7 +547,7 @@ action = function(host, port)
         if not http_response["ERROR"] then
           result["ERROR"]={}
         end
-        result["ERROR"][result["ERROR"] + 1] = targetname
+        result["ERROR"][#result["ERROR"] + 1] = targetname
       else
         local status = tostring(http_response.status)
         if not result[status] then
