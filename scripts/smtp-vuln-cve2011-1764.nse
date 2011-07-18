@@ -40,6 +40,9 @@ require "smtp"
 require "stdnse"
 
 portrule = function (host, port)
+  if port.version.product ~= nil and port.version.product ~= "Exim smtpd" then
+     return false
+  end
   return shortport.port_or_service({25, 465, 587},
               {"smtp", "smtps", "submission"})(host, port)
 end
@@ -121,7 +124,7 @@ local function check_exim(smtp_opts)
   local exim_ver_min, exim_ver_max = 4.70, 4.75
   local cve = 'CVE-2011-1764'
   local exim_dkim_str = "Exim DKIM Signatures Format String ("..cve.."):"
-  local exim_dkim_result = ""
+  local exim_dkim_result
 
   local socket, ret = smtp.connect(smtp_opts.host,
                           smtp_opts.port,
@@ -176,7 +179,7 @@ local function check_exim(smtp_opts)
     return smtp_finish(socket, status, ret)
   elseif ret then
     exim_dkim_result = string.format("  Exim (%s): VULNERABLE", cve)
-  else
+  elseif not exim_dkim_result then
     return smtp_finish(socket, false, 'Exim server seems NOT VULNERABLE.')
   end
 
