@@ -621,6 +621,6 @@ action = function(host)
 		table.insert(response, string.format("%d/%d checks are positive: Host is likely INFECTED", count, checks))
 	end
 
-	return true, stdnse.format_output(true, response)
+	return stdnse.format_output(true, response)
 end
 
