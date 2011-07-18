@@ -7323,7 +7323,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03telnet@CER(\w+)>GET / HTTP/1\.0\r\nInval
 match telnet m|^BAD_COMMAND\n| p/Lotus Domino Console/
 
 # The Onion Router
-match tor-socks m|^HTTP/1\.0 501 Tor is not an HTTP Proxy\r\n| p/Tor SOCKS Proxy/
+match tor-socks m|^HTTP/1\.0 501 Tor is not an HTTP Proxy\r\n| p/Tor SOCKS proxy/
 match tor-info m|^HTTP/1\.0 \d\d\d .*\r\nContent-Encoding: identity\r\n.*signed-directory\npublished .*\nrecommended-software|s p/Tor nodes info httpd/
 match tor-info m|^HTTP/1\.0 503 Directory busy, try again later\r\n\r\n$| p/Tor nodes info httpd/
 
