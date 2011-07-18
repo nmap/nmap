@@ -135,7 +135,7 @@ local function default_test(host, port)
 
 end
 
-portrule = shortport.port_or_service({1080},{"socks","socks4","socks5"})
+portrule = shortport.port_or_service({1080,9050},{"socks","socks4","socks5","tor-socks"})
 
 action = function(host, port)
   local supported_versions = "\nVersions succesfully tested: "
