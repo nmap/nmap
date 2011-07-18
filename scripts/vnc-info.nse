@@ -4,7 +4,7 @@ Queries a VNC server for its protocol version and supported security types.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 ---
 -- @output

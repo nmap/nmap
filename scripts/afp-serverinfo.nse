@@ -39,7 +39,7 @@ hostname, IPv4 and IPv6 addresses, and hardware type (for example
 
 author = "Andrew Orr"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"default", "discovery", "safe"}
 
 require 'shortport'
 require 'stdnse'
