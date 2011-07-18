@@ -187,6 +187,7 @@ Entry { filename = "smtp-open-relay.nse", categories = { "discovery", "external"
 Entry { filename = "smtp-strangeport.nse", categories = { "malware", "safe", } }
 Entry { filename = "smtp-vuln-cve2010-4344.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "smtp-vuln-cve2011-1720.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "smtp-vuln-cve2011-1764.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "snmp-interfaces.nse", categories = { "default", "discovery", "safe", } }

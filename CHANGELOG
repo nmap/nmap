@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added smtp-vuln-cve2011-1764 script, which checks if the Exim
+  SMTP server is vulnerable to the DKIM Format String vulnerability
+  (CVE-2011-1764). [Djalal]
+
 o Added the broadcast-ping script which sends icmp packets to broadcast 
   addresses on the selected network interface, or all ethernet interfaces if 
   none is selected. It has the option to add the discovered hosts as targets. 
