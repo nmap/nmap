@@ -3685,7 +3685,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   if (pspec.type == PS_CONNECTTCP)
     sendConnectScanProbe(USI, hss, pspec.pd.tcp.dport, pspec_tries + 1, 0);
   else {
-    assert(pspec.type != PS_ARP and pspec.type != PS_ND);
+    assert(pspec.type != PS_ARP && pspec.type != PS_ND);
     sendIPScanProbe(USI, hss, &pspec, pspec_tries + 1, 0);
   }
 }

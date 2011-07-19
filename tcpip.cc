@@ -1762,7 +1762,7 @@ int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long 
         }
       }
     }
-  } while (!timedout and !ip_tmp);
+  } while (!timedout && !ip_tmp);
 
   if (timedout)
     return 0;
