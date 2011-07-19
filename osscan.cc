@@ -229,9 +229,9 @@ const FingerTest *FingerPrint::gettestbyname(const char *name) const {
    that extra info printed.  If you pass 0 for verbose, you might as
    well pass NULL for testGroupName as it won't be used. */
 static int AVal_match(const FingerTest *reference, const FingerTest *fprint, const FingerTest *points,
-		      unsigned long *num_subtests, 
-		      unsigned long *num_subtests_succeeded, int shortcut,
-		      int verbose, const char *testGroupName) {
+                      unsigned long *num_subtests,
+                      unsigned long *num_subtests_succeeded, int shortcut,
+                      int verbose, const char *testGroupName) {
   std::vector<struct AVal>::const_iterator current_ref;
   const struct AVal *current_fp;
   const struct AVal *current_points;
@@ -248,93 +248,166 @@ static int AVal_match(const FingerTest *reference, const FingerTest *fprint, con
   for (current_ref = reference->results.begin();
        current_ref != reference->results.end();
        current_ref++) {
-    current_fp = fprint->getattrbyname(current_ref->attribute);    
-    if (!current_fp) continue;
-    /* OK, we compare an attribute value in  current_fp->value to a 
+    current_fp = fprint->getattrbyname(current_ref->attribute);
+    if (!current_fp)
+      continue;
+    /* OK, we compare an attribute value in  current_fp->value to a
        potentially large expression in current_ref->value.  The syntax
        uses < (less than), > (greather than), + (non-zero), | (or), -
        (range), and & (and).  No parenthesis are allowed */
     numtrue = andexp = orexp = 0; testfailed = 0;
     Strncpy(valcpy, current_ref->value, sizeof(valcpy));
     p = valcpy;
+
     if (strchr(current_ref->value, '|')) {
       orexp = 1; expchar = '|';
     } else {
       andexp = 1; expchar = '&';
     }
+
     do {
       q = strchr(p, expchar);
-      if (q) *q = '\0';
+      if (q)
+        *q = '\0';
       if (strcmp(p, "+") == 0) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	else {
-	  val = strtol(current_fp->value, &endptr, 16);
-	  if (val == 0 || *endptr) { if (andexp) { testfailed=1; break; } }
-	  else { numtrue++; if (orexp) break; }
-	}
+        if (!*current_fp->value) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          val = strtol(current_fp->value, &endptr, 16);
+          if (val == 0 || *endptr) {
+            if (andexp) {
+              testfailed = 1;
+              break;
+            }
+          } else {
+            numtrue++;
+            if (orexp)
+              break;
+          }
+        }
       } else if (*p == '<' && isxdigit((int) (unsigned char) p[1])) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	number = strtol(p + 1, &endptr, 16);
-	val = strtol(current_fp->value, &endptr, 16);
-	if (val >= number || *endptr) { if (andexp)  { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
+        if (!*current_fp->value) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        }
+        number = strtol(p + 1, &endptr, 16);
+        val = strtol(current_fp->value, &endptr, 16);
+        if (val >= number || *endptr) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          numtrue++;
+          if (orexp)
+            break;
+        }
       } else if (*p == '>' && isxdigit((int) (unsigned char) p[1])) {
-	if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-	number = strtol(p + 1, &endptr, 16);
-	val = strtol(current_fp->value, &endptr, 16);
-	if (val <= number || *endptr) { if (andexp) { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
+        if (!*current_fp->value) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        }
+        number = strtol(p + 1, &endptr, 16);
+        val = strtol(current_fp->value, &endptr, 16);
+        if (val <= number || *endptr) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          numtrue++;
+          if (orexp)
+            break;
+        }
       } else if (((q1 = strchr(p, '-')) != NULL) && isxdigit((int) (unsigned char) p[0]) && isxdigit((int) (unsigned char) q1[1])) {
-		if (!*current_fp->value) { if (andexp) { testfailed=1; break; } }
-		*q1 = '\0'; number = strtol(p, NULL, 16);
-		number1 = strtol(q1 + 1, NULL, 16);
-		if(number1 < number && o.debugging) {
-		  error("Range error in reference aval: %s=%s", current_ref->attribute, current_ref->value);
+        if (!*current_fp->value) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        }
+        *q1 = '\0';
+        number = strtol(p, NULL, 16);
+        number1 = strtol(q1 + 1, NULL, 16);
+        if (number1 < number && o.debugging) {
+          error("Range error in reference aval: %s=%s", current_ref->attribute, current_ref->value);
+        }
+        val = strtol(current_fp->value, &endptr, 16);
+        if (val < number || val > number1 || *endptr) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          numtrue++;
+          if (orexp)
+            break;
+        }
+      } else {
+        if (strcmp(p, current_fp->value)) {
+          if (andexp) {
+            testfailed = 1;
+            break;
+          }
+        } else {
+          numtrue++;
+          if (orexp)
+            break;
+        }
       }
-		val = strtol(current_fp->value, &endptr, 16);
-		if (val < number || val > number1 || *endptr) { if (andexp)  { testfailed=1; break; } }
-		else { numtrue++; if (orexp) break; }
-	  } else {
-	if (strcmp(p, current_fp->value))
-	  { if (andexp) { testfailed=1; break; } }
-	else { numtrue++; if (orexp) break; }
+      if (q)
+        p = q + 1;
+    } while (q);
+
+    if (numtrue == 0)
+      testfailed = 1;
+    if (points) {
+      current_points = points->getattrbyname(current_ref->attribute);
+      if (!current_points)
+        fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
+      errno = 0;
+      pointsThisTest = strtol(current_points->value, &endptr, 10);
+      if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
+        fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
+    }
+    subtests += pointsThisTest;
+    if (testfailed) {
+      if (shortcut) {
+        if (num_subtests)
+          *num_subtests += subtests;
+        return 0;
       }
-      if (q) p = q + 1;
-    } while(q);
-      if (numtrue == 0) testfailed=1;
-      if (points) {
-	 current_points = points->getattrbyname(current_ref->attribute);
-	 if (!current_points) fatal("%s: Failed to find point amount for test %s.%s", __func__, testGroupName? testGroupName : "", current_ref->attribute);
-	 errno = 0;
-	 pointsThisTest = strtol(current_points->value, &endptr, 10);
-	 if (errno != 0 || *endptr != '\0' || pointsThisTest < 0)
-	   fatal("%s: Got bogus point amount (%s) for test %s.%s", __func__, current_points->value, testGroupName? testGroupName : "", current_ref->attribute);
-      }
-      subtests += pointsThisTest;
-      if (testfailed) {
-	if (shortcut) {
-	  if (num_subtests) *num_subtests += subtests;
-	  return 0;
-	}
-	if (verbose) 
-	  log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName, 
-		    current_ref->attribute, current_fp->value, 
-		    current_ref->value, pointsThisTest, (pointsThisTest == 1)? "point" : "points");
-      } else subtests_succeeded += pointsThisTest;
-      /* Whew, we made it past one Attribute alive , on to the next! */
+      if (verbose)
+        log_write(LOG_PLAIN, "%s.%s: \"%s\" NOMATCH \"%s\" (%d %s)\n", testGroupName,
+                  current_ref->attribute, current_fp->value,
+                  current_ref->value, pointsThisTest, (pointsThisTest == 1) ? "point" : "points");
+    } else {
+      subtests_succeeded += pointsThisTest;
+    }
+    /* Whew, we made it past one Attribute alive , on to the next! */
   }
-  if (num_subtests) *num_subtests += subtests;
-  if (num_subtests_succeeded) *num_subtests_succeeded += subtests_succeeded;
-  return (subtests == subtests_succeeded)? 1 : 0;
+  if (num_subtests)
+    *num_subtests += subtests;
+  if (num_subtests_succeeded)
+    *num_subtests_succeeded += subtests_succeeded;
+
+  return (subtests == subtests_succeeded) ? 1 : 0;
 }
 
 /* Compares 2 fingerprints -- a referenceFP (can have expression
    attributes) with an observed fingerprint (no expressions).  If
    verbose is nonzero, differences will be printed.  The comparison
-   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is 
+   accuracy (between 0 and 1) is returned).  If MatchPoints is not NULL, it is
    a special "fingerprints" which tells how many points each test is worth. */
 double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
-			    FingerPrint *MatchPoints, int verbose) {
+                            FingerPrint *MatchPoints, int verbose) {
   std::vector<FingerTest>::iterator currentReferenceTest;
   const FingerTest *currentObservedTest;
   const FingerTest *currentTestMatchPoints;
@@ -350,20 +423,22 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
     if (currentObservedTest) {
       new_subtests = new_subtests_succeeded = 0;
       if (MatchPoints) {
-	currentTestMatchPoints = MatchPoints->gettestbyname(currentReferenceTest->name);
-	if (!currentTestMatchPoints)
-	  fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, currentReferenceTest->name);
-      } else currentTestMatchPoints = NULL;
+        currentTestMatchPoints = MatchPoints->gettestbyname(currentReferenceTest->name);
+        if (!currentTestMatchPoints)
+          fatal("%s: Failed to locate test %s in MatchPoints directive of fingerprint file", __func__, currentReferenceTest->name);
+      } else {
+        currentTestMatchPoints = NULL;
+      }
 
       AVal_match(&*currentReferenceTest, currentObservedTest, currentTestMatchPoints,
-		 &new_subtests, &new_subtests_succeeded, 0, verbose, currentReferenceTest->name);
+                 &new_subtests, &new_subtests_succeeded, 0, verbose, currentReferenceTest->name);
       num_subtests += new_subtests;
       num_subtests_succeeded += new_subtests_succeeded;
     }
   }
 
   assert(num_subtests_succeeded <= num_subtests);
-  return (num_subtests)? (num_subtests_succeeded / (double) num_subtests) : 0; 
+  return (num_subtests) ? (num_subtests_succeeded / (double) num_subtests) : 0;
 }
 
 /* Takes a fingerprint and looks for matches inside the passed in
@@ -372,12 +447,12 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
    will be reverse-sorted by accuracy.  No results below
    accuracy_threshhold will be included.  The max matches returned is
    the maximum that fits in a FingerPrintResults class.  */
-void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR, 
-		      FingerPrintDB *DB, double accuracy_threshold) {
-  double FPR_entrance_requirement = accuracy_threshold; /* accuracy must be 
-							   at least this big 
-							   to be added to the 
-							   list */
+void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
+                      FingerPrintDB *DB, double accuracy_threshold) {
+  double FPR_entrance_requirement = accuracy_threshold; /* accuracy must be
+                                                           at least this big
+                                                           to be added to the
+                                                           list */
   std::vector<FingerPrint *>::iterator current_os;
   double acc;
   int state;
@@ -385,14 +460,14 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
   int max_prints = sizeof(FPR->prints) / sizeof(FingerPrint *);
   int idx;
   double tmp_acc=0.0, tmp_acc2; /* These are temp buffers for list swaps */
-  FingerPrint *tmp_FP=NULL, *tmp_FP2;
+  FingerPrint *tmp_FP = NULL, *tmp_FP2;
 
   assert(FP);
   assert(FPR);
   assert(accuracy_threshold >= 0 && accuracy_threshold <= 1);
 
   FPR->overall_results = OSSCAN_SUCCESS;
-  
+
   for (current_os = DB->prints.begin(); current_os != DB->prints.end(); current_os++) {
     skipfp = 0;
 
@@ -402,67 +477,68 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
     if (acc >= FPR_entrance_requirement || acc == 1.0) {
 
       state = 0;
-      for(idx=0; idx < FPR->num_matches; idx++) {	
-	if (strcmp(FPR->prints[idx]->OS_name, (*current_os)->OS_name) == 0) {
-	  if (FPR->accuracy[idx] >= acc) {
-	    skipfp = 1; /* Skip it -- a higher version is already in list */
-	  } else {	  
-	    /* We must shift the list left to delete this sucker */
-	    memmove(FPR->prints + idx, FPR->prints + idx + 1,
-		    (FPR->num_matches - 1 - idx) * sizeof(FingerPrint *));
-	    memmove(FPR->accuracy + idx, FPR->accuracy + idx + 1,
-		    (FPR->num_matches - 1 - idx) * sizeof(double));
-	    FPR->num_matches--;
-	    FPR->accuracy[FPR->num_matches] = 0;
-	  }
-	  break; /* There can only be 1 in the list with same name */
-	}
+      for (idx=0; idx < FPR->num_matches; idx++) {
+        if (strcmp(FPR->prints[idx]->OS_name, (*current_os)->OS_name) == 0) {
+          if (FPR->accuracy[idx] >= acc) {
+            skipfp = 1; /* Skip it -- a higher version is already in list */
+          } else {
+            /* We must shift the list left to delete this sucker */
+            memmove(FPR->prints + idx, FPR->prints + idx + 1,
+                    (FPR->num_matches - 1 - idx) * sizeof(FingerPrint *));
+            memmove(FPR->accuracy + idx, FPR->accuracy + idx + 1,
+                    (FPR->num_matches - 1 - idx) * sizeof(double));
+            FPR->num_matches--;
+            FPR->accuracy[FPR->num_matches] = 0;
+          }
+          break; /* There can only be 1 in the list with same name */
+        }
       }
 
-      if (!skipfp) {      
-	/* First we check whether we have overflowed with perfect matches */
-	if (acc == 1) {
-	  /*	  error("DEBUG: Perfect match #%d/%d", FPR->num_perfect_matches + 1, max_prints); */
-	  if (FPR->num_perfect_matches == max_prints) {
-	    FPR->overall_results = OSSCAN_TOOMANYMATCHES;
-	    return;
-	  }
-	  FPR->num_perfect_matches++;
-	}
-	
-	/* Now we add the sucker to the list */
-	state = 0; /* Have not yet done the insertion */
-	for(idx=-1; idx < max_prints -1; idx++) {
-	  if (state == 1) {
-	    /* Push tmp_acc and tmp_FP onto the next idx */
-	    tmp_acc2 = FPR->accuracy[idx+1];
-	    tmp_FP2 = FPR->prints[idx+1];
-	    
-	    FPR->accuracy[idx+1] = tmp_acc;
-	    FPR->prints[idx+1] = tmp_FP;
-	    
-	    tmp_acc = tmp_acc2;
-	    tmp_FP = tmp_FP2;
-	  } else if (FPR->accuracy[idx + 1] < acc) {
-	    /* OK, I insert the sucker into the next slot ... */
-	    tmp_acc = FPR->accuracy[idx+1];
-	    tmp_FP = FPR->prints[idx+1];
-	    FPR->prints[idx+1] = *current_os;
-	    FPR->accuracy[idx+1] = acc;
-	    state = 1;
-	  }
-	}
-	if (state != 1) {
-	  fatal("Bogus list insertion state (%d) -- num_matches = %d num_perfect_matches=%d entrance_requirement=%f", state, FPR->num_matches, FPR->num_perfect_matches, FPR_entrance_requirement);
-	}
-	FPR->num_matches++;
-	/* If we are over max_prints, one was shoved off list */
-	if (FPR->num_matches > max_prints) FPR->num_matches = max_prints;
+      if (!skipfp) {
+        /* First we check whether we have overflowed with perfect matches */
+        if (acc == 1) {
+          /*      error("DEBUG: Perfect match #%d/%d", FPR->num_perfect_matches + 1, max_prints); */
+          if (FPR->num_perfect_matches == max_prints) {
+            FPR->overall_results = OSSCAN_TOOMANYMATCHES;
+            return;
+          }
+          FPR->num_perfect_matches++;
+        }
 
-	/* Calculate the new min req. */
-	if (FPR->num_matches == max_prints) {
-	  FPR_entrance_requirement = FPR->accuracy[max_prints - 1] + 0.00001;
-	}
+        /* Now we add the sucker to the list */
+        state = 0; /* Have not yet done the insertion */
+        for (idx=-1; idx < max_prints -1; idx++) {
+          if (state == 1) {
+            /* Push tmp_acc and tmp_FP onto the next idx */
+            tmp_acc2 = FPR->accuracy[idx+1];
+            tmp_FP2 = FPR->prints[idx+1];
+
+            FPR->accuracy[idx+1] = tmp_acc;
+            FPR->prints[idx+1] = tmp_FP;
+
+            tmp_acc = tmp_acc2;
+            tmp_FP = tmp_FP2;
+          } else if (FPR->accuracy[idx + 1] < acc) {
+            /* OK, I insert the sucker into the next slot ... */
+            tmp_acc = FPR->accuracy[idx+1];
+            tmp_FP = FPR->prints[idx+1];
+            FPR->prints[idx+1] = *current_os;
+            FPR->accuracy[idx+1] = acc;
+            state = 1;
+          }
+        }
+        if (state != 1) {
+          fatal("Bogus list insertion state (%d) -- num_matches = %d num_perfect_matches=%d entrance_requirement=%f", state, FPR->num_matches, FPR->num_perfect_matches, FPR_entrance_requirement);
+        }
+        FPR->num_matches++;
+        /* If we are over max_prints, one was shoved off list */
+        if (FPR->num_matches > max_prints)
+          FPR->num_matches = max_prints;
+
+        /* Calculate the new min req. */
+        if (FPR->num_matches == max_prints) {
+          FPR_entrance_requirement = FPR->accuracy[max_prints - 1] + 0.00001;
+        }
       }
     }
   }
@@ -503,7 +579,7 @@ static const char *dist_method_fp_string(enum dist_calc_method method)
    FPrint is submitted (eg Nmap version, etc).  Result is written (up
    to ostrlen) to the ostr var passed in */
 static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
-				const struct in_addr * const addr, int distance,
+                                const struct in_addr * const addr, int distance,
                                 enum dist_calc_method distance_calculation_method,
                                 const u8 *mac, int openTcpPort,
                                 int closedTcpPort, int closedUdpPort) {
@@ -515,33 +591,31 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
   ltime = localtime(&timep);
 
   otbuf[0] = '\0';
-  if(openTcpPort != -1)
-	Snprintf(otbuf, sizeof(otbuf), "%d", openTcpPort);
+  if (openTcpPort != -1)
+    Snprintf(otbuf, sizeof(otbuf), "%d", openTcpPort);
   ctbuf[0] = '\0';
-  if(closedTcpPort != -1)
-	Snprintf(ctbuf, sizeof(ctbuf), "%d", closedTcpPort);
+  if (closedTcpPort != -1)
+    Snprintf(ctbuf, sizeof(ctbuf), "%d", closedTcpPort);
   cubuf[0] = '\0';
-  if(closedUdpPort != -1)
-	Snprintf(cubuf, sizeof(cubuf), "%d", closedUdpPort);
-  
+  if (closedUdpPort != -1)
+    Snprintf(cubuf, sizeof(cubuf), "%d", closedUdpPort);
+
   dsbuf[0] = '\0';
-  if(distance != -1) {
-	Snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
-  }
-  if (distance_calculation_method != DIST_METHOD_NONE) {
-	Snprintf(dcbuf, sizeof(dcbuf), "%%DC=%s", dist_method_fp_string(distance_calculation_method));
-  } else {
-	dcbuf[0] = '\0';
-  }
-  
+  if (distance != -1)
+    Snprintf(dsbuf, sizeof(dsbuf), "%%DS=%d", distance);
+  if (distance_calculation_method != DIST_METHOD_NONE)
+    Snprintf(dcbuf, sizeof(dcbuf), "%%DC=%s", dist_method_fp_string(distance_calculation_method));
+  else
+    dcbuf[0] = '\0';
+
   macbuf[0] = '\0';
   if (mac)
     Snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
   Snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%s%%G=%c%s%%TM=%X%%P=%s)",
-		   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
-		   otbuf, ctbuf, cubuf, isipprivate(addr)?'Y':'N', dsbuf, dcbuf, isGoodFP?'Y':'N',
-		   macbuf, (int) timep, NMAP_PLATFORM);
+                   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
+                   otbuf, ctbuf, cubuf, isipprivate(addr) ? 'Y' : 'N', dsbuf, dcbuf, isGoodFP ? 'Y' : 'N',
+                   macbuf, (int) timep, NMAP_PLATFORM);
 }
 
 /* Puts a textual representation of the test in s.
@@ -616,13 +690,13 @@ static std::vector<struct AVal> str2AVal(char *str) {
     return std::vector<struct AVal>();
 
   /* count the AVals */
-  while((q = strchr(q, '%'))) {
+  while ((q = strchr(q, '%'))) {
     count++;
     q++;
   }
 
   AVs.reserve(count);
-  for(i=0; i < count; i++) {
+  for (i = 0; i < count; i++) {
     struct AVal av;
 
     q = strchr(p, '=');
@@ -635,7 +709,7 @@ static std::vector<struct AVal> str2AVal(char *str) {
     if (i != count - 1) {
       q = strchr(p, '%');
       if (!q) {
-	fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
+        fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
       }
       *q = '\0';
     }
@@ -783,7 +857,8 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
   WriteSInfo(p, sizeof(str), isGoodFP, addr, distance, distance_calculation_method, mac, openTcpPort, closedTcpPort, closedUdpPort);
   p = p + strlen(str);
-  if (!wrapit) *p++ = '\n';
+  if (!wrapit)
+    *p++ = '\n';
 
   assert(p <= end);
 
@@ -808,31 +883,32 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
 
   *p = '\0';
 
-  if(!wrapit) {
-return str;
+  if (!wrapit) {
+    return str;
   } else {
-	/* Wrap the str. */
-	int len;
-	char *p1 = wrapstr;
-	end = wrapstr + sizeof(wrapstr) - 1;
+    /* Wrap the str. */
+    int len;
+    char *p1 = wrapstr;
+    end = wrapstr + sizeof(wrapstr) - 1;
 
-	p = str;
+    p = str;
 
-	while(*p && end-p1 >= 3) {
-	  len = 0;
-	  strcpy(p1, "OS:"); p1 += 3; len +=3;
-	  while(*p && len <= FP_RESULT_WRAP_LINE_LEN && end-p1 > 0) {
-		*p1++=*p++; len++;
-	  }
-	  if(end-p1<=0) {
-		fatal("Wrapped result too long!\n");
-		break;
-	  }
-	  *p1++ = '\n';
-}
-	*p1 = '\0';
+    while (*p && end-p1 >= 3) {
+      len = 0;
+      strcpy(p1, "OS:"); p1 += 3; len +=3;
+      while (*p && len <= FP_RESULT_WRAP_LINE_LEN && end-p1 > 0) {
+        *p1++ = *p++;
+        len++;
+      }
+      if (end-p1 <= 0) {
+        fatal("Wrapped result too long!\n");
+        break;
+      }
+      *p1++ = '\n';
+    }
+    *p1 = '\0';
 
-	return wrapstr;
+    return wrapstr;
   }
 }
 
@@ -841,7 +917,8 @@ const char *fp2ascii(FingerPrint *FP) {
   std::vector<FingerTest>::iterator iter;
   char *p = str;
 
-  if (!FP) return "(None)";
+  if (!FP)
+    return "(None)";
 
   for (iter = FP->tests.begin(); iter != FP->tests.end(); iter++) {
     int len;
@@ -907,10 +984,10 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
 }
 
 /* Parses a single fingerprint from the memory region given.  If a
- non-null fingerprint is returned, the user is in charge of freeing it
- when done.  This function does not require the fingerprint to be 100%
- complete since it is used by scripts such as scripts/fingerwatch for
- which some partial fingerpritns are OK. */
+   non-null fingerprint is returned, the user is in charge of freeing it
+   when done.  This function does not require the fingerprint to be 100%
+   complete since it is used by scripts such as scripts/fingerwatch for
+   which some partial fingerpritns are OK. */
 /* This function is not currently used by Nmap, but it is present here because
    it is used by fingerprint utilities that link with Nmap object files. */
 FingerPrint *parse_single_fingerprint(char *fprint_orig) {
@@ -923,26 +1000,30 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
   FP = new FingerPrint;
 
   thisline = fprint;
-  
+
   do /* 1 line at a time */ {
     nextline = strchr(thisline, '\n');
-    if (nextline) *nextline++ = '\0';
+    if (nextline)
+      *nextline++ = '\0';
     /* printf("Preparing to handle next line: %s\n", thisline); */
 
-    while(*thisline && isspace((int) (unsigned char) *thisline)) thisline++;
+    while (*thisline && isspace((int) (unsigned char) *thisline))
+      thisline++;
     if (!*thisline) {
-      fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);    
+      fatal("Parse error on line %d of fingerprint: %s", lineno, nextline);
     }
 
     if (strncmp(thisline, "Fingerprint ", 12) == 0) {
       /* Ignore a second Fingerprint line if it appears. */
       if (FP->OS_name == NULL) {
         p = thisline + 12;
-        while(*p && isspace((int) (unsigned char) *p)) p++;
+        while (*p && isspace((int) (unsigned char) *p))
+          p++;
 
         q = strchr(p, '\n');
-        if (!q) q = p + strlen(p);
-        while(q > p && isspace((int) (unsigned char) *(--q)))
+        if (!q)
+          q = p + strlen(p);
+        while (q > p && isspace((int) (unsigned char) *(--q)))
           ;
 
         FP->OS_name = (char *) cp_alloc(q - p + 2);
@@ -952,10 +1033,11 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
     } else if (strncmp(thisline, "MatchPoints", 11) == 0) {
       p = thisline + 11;
       if (*p && !isspace((int) (unsigned char) *p))
-	fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
-      while(*p && isspace((int) (unsigned char) *p)) p++;
+        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+      while (*p && isspace((int) (unsigned char) *p))
+        p++;
       if (*p != '\0')
-	fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
       parse_classline(FP, thisline, lineno);
@@ -968,7 +1050,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
       *q = '(';
       q = strchr(p, ')');
       if (!q) {
-	fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
+        fatal("Parse error on line %d of fingerprint: %s\n", lineno, thisline);
       }
       *q = '\0';
       test.results = str2AVal(p);
@@ -989,112 +1071,119 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
 
 
 FingerPrintDB *parse_fingerprint_file(const char *fname) {
-FingerPrintDB *DB = NULL;
-FingerPrint *current;
-FILE *fp;
-char line[2048];
-int lineno = 0;
- bool parsingMatchPoints = false;
+  FingerPrintDB *DB = NULL;
+  FingerPrint *current;
+  FILE *fp;
+  char line[2048];
+  int lineno = 0;
+  bool parsingMatchPoints = false;
 
- DB = new FingerPrintDB;
+  DB = new FingerPrintDB;
 
-char *p, *q; /* OH YEAH!!!! */
+  char *p, *q; /* OH YEAH!!!! */
 
- if (!DB) fatal("non-allocated DB passed to %s", __func__);
+  if (!DB)
+    fatal("non-allocated DB passed to %s", __func__);
 
- fp = fopen(fname, "r");
- if (!fp) fatal("Unable to open Nmap fingerprint file: %s", fname);
+  fp = fopen(fname, "r");
+  if (!fp)
+    fatal("Unable to open Nmap fingerprint file: %s", fname);
 
- top:
-while(fgets(line, sizeof(line), fp)) {  
-  lineno++;
-  /* Read in a record */
-  if (*line == '\n' || *line == '#')
-    continue;
-
- fparse:
-
-  if (strncasecmp(line, "FingerPrint", 11) == 0) {
-    parsingMatchPoints = false;
-  } else if (strncasecmp(line, "MatchPoints", 11) == 0) {
-    if (DB->MatchPoints) fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
-    parsingMatchPoints = true;
-  } else {
-    error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
-    continue;
-  }
-
-  current = new FingerPrint;
-
-  if (parsingMatchPoints) {
-    current->OS_name = NULL;
-    DB->MatchPoints = current;
-  } else {
-    DB->prints.push_back(current);
-    p = line + 12;
-    while(*p && isspace((int) (unsigned char) *p)) p++;
-    
-    q = strpbrk(p, "\n#");
-    if (!q) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
-
-    while(isspace((int) (unsigned char) *(--q)))
-      ;
-
-    if (q < p) fatal("Parse error on line %d of fingerprint: %s", lineno, line);
-
-    current->OS_name = (char *) cp_alloc(q - p + 2);
-    memcpy(current->OS_name, p, q - p + 1);
-    current->OS_name[q - p + 1] = '\0';
-  }
-      
-  current->line = lineno;
-
-  /* Now we read the fingerprint itself */
-  while(fgets(line, sizeof(line), fp)) {
+top:
+  while (fgets(line, sizeof(line), fp)) {
     lineno++;
-    if (*line == '#')
+    /* Read in a record */
+    if (*line == '\n' || *line == '#')
       continue;
-    if (*line == '\n')
-      break;
-    if (!strncmp(line, "FingerPrint ",12)) {
-      goto fparse;
-    } else if (strncmp(line, "Class ", 6) == 0) {
-      parse_classline(current, line, lineno);
+
+fparse:
+    if (strncasecmp(line, "FingerPrint", 11) == 0) {
+      parsingMatchPoints = false;
+    } else if (strncasecmp(line, "MatchPoints", 11) == 0) {
+      if (DB->MatchPoints)
+        fatal("Found MatchPoints directive on line %d of %s even though it has previously been seen in the file", lineno, fname);
+      parsingMatchPoints = true;
     } else {
-      FingerTest test;
-      p = line;
-      q = strchr(line, '(');
-      if (!q) {
-	error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
-	goto top;
+      error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+      continue;
+    }
+
+    current = new FingerPrint;
+
+    if (parsingMatchPoints) {
+      current->OS_name = NULL;
+      DB->MatchPoints = current;
+    } else {
+      DB->prints.push_back(current);
+      p = line + 12;
+      while (*p && isspace((int) (unsigned char) *p))
+        p++;
+
+      q = strpbrk(p, "\n#");
+      if (!q)
+        fatal("Parse error on line %d of fingerprint: %s", lineno, line);
+
+      while (isspace((int) (unsigned char) *(--q)))
+        ;
+
+      if (q < p)
+        fatal("Parse error on line %d of fingerprint: %s", lineno, line);
+
+      current->OS_name = (char *) cp_alloc(q - p + 2);
+      memcpy(current->OS_name, p, q - p + 1);
+      current->OS_name[q - p + 1] = '\0';
+    }
+
+    current->line = lineno;
+
+    /* Now we read the fingerprint itself */
+    while (fgets(line, sizeof(line), fp)) {
+      lineno++;
+      if (*line == '#')
+        continue;
+      if (*line == '\n')
+        break;
+
+      if (!strncmp(line, "FingerPrint ",12)) {
+        goto fparse;
+      } else if (strncmp(line, "Class ", 6) == 0) {
+        parse_classline(current, line, lineno);
+      } else {
+        FingerTest test;
+        p = line;
+        q = strchr(line, '(');
+        if (!q) {
+          error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+          goto top;
+        }
+        *q = '\0';
+        test.name = string_pool_insert(p);
+        p = q+1;
+        *q = '(';
+        q = strchr(p, ')');
+        if (!q) {
+          error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
+          goto top;
+        }
+        *q = '\0';
+        test.results = str2AVal(p);
+        current->tests.push_back(test);
       }
-      *q = '\0';
-      test.name = string_pool_insert(p);
-      p = q+1;
-      *q = '(';
-      q = strchr(p, ')');
-      if (!q) {
-	error("Parse error on line %d of nmap-os-db file: %s", lineno, line);
-	goto top;
-      }
-      *q = '\0';
-      test.results = str2AVal(p);
-      current->tests.push_back(test);
     }
   }
- }
- fclose(fp);
- return DB;
+
+  fclose(fp);
+  return DB;
 }
 
 FingerPrintDB *parse_fingerprint_reference_file(const char *dbname) {
-char filename[256];
+  char filename[256];
 
-if (nmap_fetchfile(filename, sizeof(filename), dbname) != 1){
+  if (nmap_fetchfile(filename, sizeof(filename), dbname) != 1) {
     fatal("OS scan requested but I cannot find %s file.  It should be in %s, ~/.nmap/ or .", dbname, NMAPDATADIR);
-}
-/* Record where this data file was found. */
-o.loaded_data_files[dbname] = filename;
+  }
+  /* Record where this data file was found. */
+  o.loaded_data_files[dbname] = filename;
 
- return parse_fingerprint_file(filename);
+  return parse_fingerprint_file(filename);
 }
