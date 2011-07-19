@@ -996,8 +996,6 @@ char line[2048];
 int lineno = 0;
  bool parsingMatchPoints = false;
 
-int classno = 0; /* Number of Class lines dealt with so far */
-
  DB = new FingerPrintDB;
 
 char *p, *q; /* OH YEAH!!!! */
@@ -1050,7 +1048,6 @@ while(fgets(line, sizeof(line), fp)) {
   }
       
   current->line = lineno;
-  classno = 0;
 
   /* Now we read the fingerprint itself */
   while(fgets(line, sizeof(line), fp)) {

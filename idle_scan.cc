@@ -150,7 +150,6 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
   int ipid = -1;
   int to_usec;
   unsigned int bytes;
-  int timedout = 0;
   int base_port;
   struct ip *ip;
   struct tcp_hdr *tcp;
@@ -167,7 +166,6 @@ static int ipid_proxy_probe(struct idle_proxy_info *proxy, int *probes_sent,
 
 
   do {
-    timedout = 0;
     gettimeofday(&tv_sent[tries], NULL);
 
     /* Time to send the pr0be!*/
@@ -977,7 +975,6 @@ void idle_scan(Target *target, u16 *portarray, int numports,
   int groupsz;
   int portidx = 0; /* Used for splitting the port array into chunks */
   int portsleft;
-  time_t starttime;
   char scanname[128];
   Snprintf(scanname, sizeof(scanname), "idle scan against %s", target->NameIP());
   ScanProgressMeter SPM(scanname);
@@ -1004,8 +1001,6 @@ void idle_scan(Target *target, u16 *portarray, int numports,
     initialize_idleproxy(&proxy, proxyName, target->v4hostip(), ports);
     strncpy(lastproxy, proxyName, sizeof(lastproxy));
   }
-
-  starttime = time(NULL);
 
   /* If we don't have timing infoz for the new target, we'll use values 
      derived from the proxy */

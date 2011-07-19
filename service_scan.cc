@@ -449,7 +449,6 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // NULL.
 const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int buflen) {
   int rc;
-  int i;
   static char product[80];
   static char version[80];
   static char info[256];  /* We will truncate with ... later */
@@ -480,8 +479,8 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   } else {
     // Yeah!  Match apparently succeeded.
     // Now lets get the version number if available
-    i = getVersionStr(buf, buflen, ovector, rc, product, sizeof(product), version, sizeof(version), info, sizeof(info),
-                      hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype));    
+    getVersionStr(buf, buflen, ovector, rc, product, sizeof(product), version, sizeof(version), info, sizeof(info),
+                  hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype));
     if (*product) MD_return.product = product;
     if (*version) MD_return.version = version;
     if (*info) MD_return.info = info;
@@ -1429,7 +1428,6 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   struct tm *ltime;
   time_t timep;
   char buf[128];
-  int len;
 
   assert(resplen);
   assert(probeName);
@@ -1449,13 +1447,13 @@ void ServiceNFO::addToServiceFingerprint(const char *probeName, const u8 *resp,
   if (servicefplen == 0) {
     timep = time(NULL);
     ltime = localtime(&timep);
-    len = Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
+    Snprintf(buf, sizeof(buf), "SF-Port%hu-%s:V=%s%s%%I=%d%%D=%d/%d%%Time=%X%%P=%s", portno, proto2ascii_uppercase(proto), NMAP_VERSION, (tunnel == SERVICE_TUNNEL_SSL)? "%T=SSL" : "", o.version_intensity, ltime->tm_mon + 1, ltime->tm_mday, (int) timep, NMAP_PLATFORM);
     addServiceString(buf, servicewrap);
   }
 
   // Note that we give the total length of the response, even though we 
   // may truncate
-  len = Snprintf(buf, sizeof(buf), "%%r(%s,%X,\"", probeName, resplen);
+  Snprintf(buf, sizeof(buf), "%%r(%s,%X,\"", probeName, resplen);
   addServiceString(buf, servicewrap);
 
   // Now for the probe response itself ...
@@ -2437,7 +2435,6 @@ int service_scan(vector<Target *> &Targets) {
   struct timeval now;
   int timeout;
   enum nsock_loopstatus looprc;
-  time_t starttime;
   struct timeval starttv;
 
   if (Targets.size() == 0)
@@ -2463,7 +2460,6 @@ int service_scan(vector<Target *> &Targets) {
   }
   
   gettimeofday(&starttv, NULL);
-  starttime = time(NULL);
   if (o.verbose) {
     char targetstr[128];
     bool plural = (Targets.size() != 1);
