@@ -135,11 +135,12 @@ static void arpping(Target *hostbatch[], int num_hosts) {
     }
     targets.push_back(hostbatch[targetno]);
   }
-  if (!targets.empty())
+  if (!targets.empty()) {
     if (targets[0]->af() == AF_INET)
       ultra_scan(targets, NULL, PING_SCAN_ARP);
     else
       ultra_scan(targets, NULL, PING_SCAN_ND);
+  }
   return;
 }
 
