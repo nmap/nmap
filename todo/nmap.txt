@@ -46,6 +46,10 @@ o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
 
+o The SCRIPT_NAME variable should not include the ".nse" in script names.  Currently, it omits that
+  for scripts in the DB, but includes it for scripts you specify based on their filename.  See: 
+  http://seclists.org/nmap-dev/2011/q2/481
+
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
