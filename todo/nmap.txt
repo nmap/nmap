@@ -13,15 +13,6 @@ o Ncat chat (at least in ssl mode) no longer gives the banner greeting
   the one running on chat.nmap.org as of 6/20/11.  Verify by running
   "ncat --ssl -v chat.nmap.org"
 
-o If possible, Ncat, in listen mode, should probably listen on the system's
-  IPv6 interfaces as well as IPv4.  This is what servers like apache
-  and ssh do by default.  It might now be possible to listen on IPv6
-  by running a second ncat with -6, but that doesn't really work for
-  broker and chat modes because you want the IPv6 users to be able to
-  talk to IPv4 and vice versa.
-  - This was partially implemented, but still doesn't seem to work in
-    --chat mode.  Can test against chat.nmap.org
-
 o Integrate new OS detection submissions (We have about 1,700
   submissions since 11/30/10)
 
@@ -48,9 +39,6 @@ o Nmap should defer address parsing in arguments until it has read
   with an IPv6 address before you put -6 in the command line.  You get
   a similar problem if you do "-A -6" (but "-6 -A works properly).
   This is a possible feature creeper task.
-
-o Right before the release, we could build Ncat portable and post it
-  on http://nmap.org/ncat/.
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -676,6 +664,20 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o If possible, Ncat, in listen mode, should probably listen on the system's
+  IPv6 interfaces as well as IPv4.  This is what servers like apache
+  and ssh do by default.  It might now be possible to listen on IPv6
+  by running a second ncat with -6, but that doesn't really work for
+  broker and chat modes because you want the IPv6 users to be able to
+  talk to IPv4 and vice versa.
+  - This was partially implemented, but still doesn't seem to work in
+    --chat mode.  Can test against chat.nmap.org
+  - Done.  Tested on scanme with David & Fyodor on 7/18/11.
+
+o Right before the release, we could build Ncat portable and post it
+  on http://nmap.org/ncat/.
+  - Actually we did that for 5.59BETA1, which is good enough for now.
 
 o CHANGELOG updates [Fyodor]
 
