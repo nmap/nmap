@@ -1567,25 +1567,31 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
  * localhost. (eg: the address is something like 127.x.x.x, the address
  * matches one of the local network interfaces' address, etc).
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
-int islocalhost(const struct in_addr *const addr) {
+int islocalhost(const struct sockaddr_storage *const ss) {
   char dev[128];
-  struct sockaddr_storage ss;
-  struct sockaddr_in *sin;
+  struct sockaddr_in *sin = NULL;
+  struct sockaddr_in6 *sin6 = NULL;
 
-  /* If it is 0.0.0.0 or starts with 127 then it is 
-     probably localhost */
-  if ((addr->s_addr & htonl(0xFF000000)) == htonl(0x7F000000))
-    return 1;
+  if (ss->ss_family == AF_INET){
+    sin = (struct sockaddr_in *) ss;
+    /* If it is 0.0.0.0 or starts with 127 then it is probably localhost. */
+    if ((sin->sin_addr.s_addr & htonl(0xFF000000)) == htonl(0x7F000000))
+      return 1;
 
-  if (!addr->s_addr)
-    return 1;
+    if (!(sin->sin_addr.s_addr))
+      return 1;
+  } else {
+    sin6 = (struct sockaddr_in6 *) ss;
+    /* If it is ::0 or ::1 then it is probably localhost. */
+    if (memcmp(&(sin6->sin6_addr), IP6_ADDR_UNSPEC, IP6_ADDR_LEN) == 0)
+      return 1;
+    if (memcmp(&(sin6->sin6_addr), IP6_ADDR_LOOPBACK, IP6_ADDR_LEN) == 0)
+      return 1;
+  }
 
   /* If it is the same addy as a local interface, then it is
      probably localhost */
-  sin = (struct sockaddr_in *) &ss;
-  sin->sin_family = AF_INET;
-  sin->sin_addr = *addr;
-  if (ipaddr2devname(dev, &ss) != -1)
+  if (ipaddr2devname(dev, ss) != -1)
     return 1;
 
   /* OK, so to a first approximation, this addy is probably not
@@ -4073,7 +4079,7 @@ bool doND(const char *dev, const u8 *srcmac,
     netutil_fatal("%s: failed to open device %s", __func__, dev);
   eth_pack_hdr(frame, *ns_dst_mac, *srcmac, ETH_TYPE_IPV6);
   ip6_pack_hdr(frame + ETH_HDR_LEN, 0, 0, 32, 0x3a, 255, *src_sin6->sin6_addr.s6_addr, *ns_dst_ip6.sin6_addr.s6_addr);
-  icmpv6_pack_hdr_ns(frame + ETH_HDR_LEN + IP6_HDR_LEN, target_sin6->sin6_addr.s6_addr, *srcmac);
+  icmpv6_pack_hdr_ns_mac(frame + ETH_HDR_LEN + IP6_HDR_LEN, target_sin6->sin6_addr.s6_addr, *srcmac);
   ip6_checksum(frame + ETH_HDR_LEN, IP6_HDR_LEN + ICMPV6_HDR_LEN + 4 + 16 + 8);
 
   gettimeofday(&start, NULL);

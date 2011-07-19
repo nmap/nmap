@@ -118,7 +118,7 @@ static void arpping(Target *hostbatch[], int num_hosts) {
     /* Default timout should be much lower for arp */
     hostbatch[targetno]->to.timeout = MAX(o.minRttTimeout(), MIN(o.initialRttTimeout(), INITIAL_ARP_RTT_TIMEOUT)) * 1000;
     if (!hostbatch[targetno]->SrcMACAddress()) {
-      bool islocal = islocalhost(hostbatch[targetno]->v4hostip());
+      bool islocal = islocalhost(hostbatch[targetno]->TargetSockAddr());
       if (islocal) {
         log_write(LOG_STDOUT|LOG_NORMAL, 
                   "ARP ping: Considering %s UP because it is a local IP, despite no MAC address for device %s\n",
@@ -136,7 +136,10 @@ static void arpping(Target *hostbatch[], int num_hosts) {
     targets.push_back(hostbatch[targetno]);
   }
   if (!targets.empty())
-    ultra_scan(targets, NULL, PING_SCAN_ARP);
+    if (targets[0]->af() == AF_INET)
+      ultra_scan(targets, NULL, PING_SCAN_ARP);
+    else
+      ultra_scan(targets, NULL, PING_SCAN_ND);
   return;
 }
 
@@ -414,6 +417,16 @@ batchfull:
   if (hs->hostbatch[0]->ifType() == devt_ethernet && 
       hs->hostbatch[0]->af() == AF_INET &&
       hs->hostbatch[0]->directlyConnected() && 
+      o.sendpref != PACKET_SEND_IP_STRONG) {
+    arpping(hs->hostbatch, hs->current_batch_sz);
+    arpping_done = true;
+  }
+
+  /* No other interface types are supported by ND ping except devt_ethernet
+     at the moment. */
+  if (hs->hostbatch[0]->ifType() == devt_ethernet &&
+      hs->hostbatch[0]->af() == AF_INET6 &&
+      hs->hostbatch[0]->directlyConnected() &&
       o.sendpref != PACKET_SEND_IP_STRONG) {
     arpping(hs->hostbatch, hs->current_batch_sz);
     arpping_done = true;

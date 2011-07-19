@@ -2627,6 +2627,7 @@ const char *scantype2str(stype scantype) {
   case IPPROT_SCAN: return "IPProto Scan"; break;
   case PING_SCAN: return "Ping Scan"; break;
   case PING_SCAN_ARP: return "ARP Ping Scan"; break;
+  case PING_SCAN_ND: return "ND Ping Scan"; break;
   case IDLE_SCAN: return "Idle Scan"; break;
   case BOUNCE_SCAN: return "Bounce Scan"; break;
   case SERVICE_SCAN: return "Service Scan"; break;

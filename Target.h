@@ -182,6 +182,7 @@ class Target {
   void setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len);
   struct in_addr v4source() const;
   const struct in_addr *v4sourceip() const;
+  const struct in6_addr *v6sourceip() const;
   /* The IPv4 or IPv6 literal string for the target host */
   const char *targetipstr() const { return targetipstring; }
   /* Give the name from the last setHostName() call, which should be

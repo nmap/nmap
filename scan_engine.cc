@@ -179,6 +179,8 @@ static const char *pspectype2ascii(int type) {
     return "ICMP";
   case PS_ARP:
     return "ARP";
+  case PS_ND:
+    return "ND";
   case PS_CONNECTTCP:
     return "connect";
   default:
@@ -223,7 +225,7 @@ class UltraProbe {
 public:
   UltraProbe();
   ~UltraProbe();
-  enum UPType { UP_UNSET, UP_IP, UP_CONNECT, UP_RPC, UP_ARP } type; /* The type of probe this is */
+  enum UPType { UP_UNSET, UP_IP, UP_CONNECT, UP_RPC, UP_ARP, UP_ND } type; /* The type of probe this is */
 
   /* Sets this UltraProbe as type UP_IP and creates & initializes the
      internal IPProbe.  The relevent probespec is necessary for setIP
@@ -235,6 +237,7 @@ public:
   void setConnect(u16 portno);
   /* Pass an arp packet, including ethernet header. Must be 42bytes */
   void setARP(u8 *arppkt, u32 arplen);
+  void setND(u8 *ndpkt, u32 ndlen);
   // The 4 accessors below all return in HOST BYTE ORDER
   // source port used if TCP, UDP or SCTP
   u16 sport() const {
@@ -618,6 +621,7 @@ public:
   bool prot_scan;
   bool ping_scan; /* Includes trad. ping scan & arp scan */
   bool ping_scan_arp; /* ONLY includes arp ping scan */
+  bool ping_scan_nd; /* ONLY includes ND ping scan */
   bool noresp_open_scan; /* Whether no response means a port is open */
 
   /* massping state. */
@@ -759,6 +763,9 @@ static char *probespec2ascii(const probespec *pspec, char *buf, unsigned int buf
   case PS_ARP:
     Snprintf(buf, bufsz, "ARP");
     break;
+  case PS_ND:
+    Snprintf(buf, bufsz, "ND");
+    break;
   case PS_CONNECTTCP:
     Snprintf(buf, bufsz, "connect to port %hu", pspec->pd.tcp.dport);
     break;
@@ -799,6 +806,12 @@ UltraProbe::~UltraProbe() {
 void UltraProbe::setARP(u8 *arppkt, u32 arplen) {
   type = UP_ARP;
   mypspec.type = PS_ARP;
+  return;
+}
+
+void UltraProbe::setND(u8 *ndpkt, u32 ndlen) {
+  type = UP_ND;
+  mypspec.type = PS_ND;
   return;
 }
 
@@ -1112,6 +1125,8 @@ static bool pingprobe_is_appropriate(const UltraScanInfo *USI,
     return ((USI->ping_scan && !USI->ping_scan_arp )|| pingprobe->pd.icmp.type == 3);
   case(PS_ARP):
     return USI->ping_scan_arp;
+  case(PS_ND):
+    return USI->ping_scan_nd;
   }
   return false;
 }
@@ -1400,7 +1415,7 @@ UltraScanInfo::~UltraScanInfo() {
    Basically, any scan type except pure TCP connect scans are raw. */
 bool UltraScanInfo::isRawScan() {
   return scantype != CONNECT_SCAN
-    && (tcp_scan || udp_scan || sctp_scan || prot_scan || ping_scan_arp
+    && (tcp_scan || udp_scan || sctp_scan || prot_scan || ping_scan_arp || ping_scan_nd
       || (ping_scan && (ptech.rawicmpscan || ptech.rawtcpscan || ptech.rawudpscan
         || ptech.rawsctpscan || ptech.rawprotoscan)));
 }
@@ -1516,6 +1531,7 @@ static void set_default_port_state(vector<Target *> &targets, stype scantype) {
       break;
     case PING_SCAN:
     case PING_SCAN_ARP:
+    case PING_SCAN_ND:
       break;
     default:
       fatal("Unexpected scan type found in %s()", __func__);
@@ -1539,7 +1555,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
   SPM = new ScanProgressMeter(scantype2str(scantype));
   send_rate_meter.start(&now);
   tcp_scan = udp_scan = sctp_scan = prot_scan = false;
-  ping_scan = noresp_open_scan = ping_scan_arp = false;
+  ping_scan = noresp_open_scan = ping_scan_arp = ping_scan_nd = false;
   memset((char *) &ptech, 0, sizeof(ptech));
   switch(scantype) {
   case FIN_SCAN:
@@ -1589,6 +1605,10 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
     ping_scan = true;
     ping_scan_arp = true;
     break;
+  case PING_SCAN_ND:
+    ping_scan = true;
+    ping_scan_nd = true;
+    break;
   default:
     break;
   }
@@ -1624,7 +1644,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
      aren't doing a TCP connect scan, or if we're doing a ping scan that
      requires it. */
   if (isRawScan()) {
-    if (ping_scan_arp || ((o.sendpref & PACKET_SEND_ETH) && 
+    if (ping_scan_arp || (ping_scan_nd && o.sendpref != PACKET_SEND_IP_STRONG) || ((o.sendpref & PACKET_SEND_ETH) &&
 			  Targets[0]->ifType() == devt_ethernet)) {
       /* We'll send ethernet packets with dnet */
       ethsd = eth_open_cached(Targets[0]->deviceName());
@@ -2020,6 +2040,12 @@ static int get_next_target_probe(UltraScanInfo *USI, HostScanStats *hss,
     pspec->type = PS_ARP;
     hss->sent_arp = true;
     return 0;
+  } else if (USI->ping_scan_nd) {
+    if (hss->sent_arp)
+      return -1;
+    pspec->type = PS_ND;
+    hss->sent_arp = true;
+    return 0;
   } else if (USI->ping_scan) {
     /* This is ordered to try probes of higher effectiveness first:
          -PE -PS -PA -PP -PU
@@ -2130,6 +2156,9 @@ int HostScanStats::freshPortsLeft() {
       return 0;
     return USI->ports->prot_count - next_portidx;
   } else if (USI->ping_scan_arp) {
+    if (sent_arp) return 0;
+    return 1;
+  } else if (USI->ping_scan_nd) {
     if (sent_arp) return 0;
     return 1;
   } else if (USI->ping_scan) {
@@ -2566,7 +2595,7 @@ void HostScanStats::getTiming(struct ultra_timing_vals *tmng) {
    preferred, is
       Raw TCP/SCTP (not filtered, not SYN/INIT to an open port)
       ICMP information queries (echo request, timestamp request, netmask req)
-      ARP
+      ARP/ND
       Raw TCP/SCTP (SYN/INIT to an open port)
       UDP, IP protocol, or other ICMP (including filtered TCP/SCTP)
       TCP connect
@@ -2602,6 +2631,7 @@ static unsigned int pingprobe_score(const probespec *pspec, int state) {
         score = 2;
       break;
     case PS_ARP:
+    case PS_ND:
       score = 4;
       break;
     case PS_UDP:
@@ -3159,6 +3189,75 @@ static UltraProbe *sendArpScanProbe(UltraScanInfo *USI, HostScanStats *hss,
   return probe;
 }
 
+static UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
+                    u8 tryno, u8 pingseq) {
+  UltraProbe *probe = new UltraProbe();
+  struct eth_nfo eth;
+  struct eth_nfo *ethptr = NULL;
+  u8 *packet = NULL;
+  u32 packetlen = 0;
+  struct in6_addr ns_dst_ip6;
+  ns_dst_ip6 = *hss->target->v6hostip();
+
+  if (USI->ethsd) {
+    unsigned char ns_dst_mac[6] = {0x33, 0x33, 0xff};
+    ns_dst_mac[3] = ns_dst_ip6.s6_addr[13];
+    ns_dst_mac[4] = ns_dst_ip6.s6_addr[14];
+    ns_dst_mac[5] = ns_dst_ip6.s6_addr[15];
+
+    memcpy(eth.srcmac, hss->target->SrcMACAddress(), 6);
+    memcpy(eth.dstmac, ns_dst_mac, 6);
+    eth.ethsd = USI->ethsd;
+    eth.devname[0] = '\0';
+    ethptr = &eth;
+  }
+
+  unsigned char multicast_prefix[13] = {0};
+  multicast_prefix[0] = 0xff;
+  multicast_prefix[1] = 0x02;
+  multicast_prefix[11] = 0x1;
+  multicast_prefix[12] = 0xff;
+  memcpy(&ns_dst_ip6, multicast_prefix, sizeof(multicast_prefix));
+
+  struct sockaddr_storage source;
+  struct sockaddr_in6 *sin6;
+  size_t source_len;
+
+  source_len = sizeof(source);
+  hss->target->SourceSockAddr(&source, &source_len);
+  sin6 = (struct sockaddr_in6 *) &source;
+
+  struct icmpv6_msg_nd ns_msg;
+  ns_msg.icmpv6_flags = htons(0);
+  memcpy(&ns_msg.icmpv6_target, hss->target->v6hostip(), IP6_ADDR_LEN);
+  ns_msg.icmpv6_option_type = 1;
+  ns_msg.icmpv6_option_length = 1;
+  memcpy(&ns_msg.icmpv6_mac, hss->target->SrcMACAddress(), ETH_ADDR_LEN);
+
+  packet = build_icmpv6_raw(&sin6->sin6_addr, &ns_dst_ip6,
+                0, 0, o.ttl, 0, 0, ICMPV6_NEIGHBOR_SOLICITATION,
+                0, (char *)&ns_msg, sizeof(ns_msg),
+                &packetlen);
+  probe->sent = USI->now;
+  hss->probeSent(packetlen);
+  send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+
+  probe->tryno = tryno;
+  probe->pingseq = pingseq;
+  /* First build the probe */
+  probe->setND(packet, packetlen);
+
+  free(packet);
+
+  /* Now that the probe has been sent, add it to the Queue for this host */
+  hss->probes_outstanding.push_back(probe);
+  USI->gstats->num_probes_active++;
+  hss->num_probes_active++;
+
+  gettimeofday(&USI->now, NULL);
+  return probe;
+}
+
 
 /* Build an appropriate protocol scan (-sO) probe for the given source and
    destination addresses and protocol. src and dst must be of the same address
@@ -3559,6 +3658,8 @@ static void sendNextScanProbe(UltraScanInfo *USI, HostScanStats *hss) {
   USI->gstats->probes_sent++;
   if (pspec.type == PS_ARP)
     sendArpScanProbe(USI, hss, 0, 0);
+  else if (pspec.type == PS_ND)
+    sendNDScanProbe(USI, hss, 0, 0);
   else if (pspec.type == PS_CONNECTTCP)
     sendConnectScanProbe(USI, hss, pspec.pd.tcp.dport, 0, 0);
   else if (pspec.type == PS_TCP || pspec.type == PS_UDP
@@ -3584,7 +3685,7 @@ static void sendNextRetryStackProbe(UltraScanInfo *USI, HostScanStats *hss) {
   if (pspec.type == PS_CONNECTTCP)
     sendConnectScanProbe(USI, hss, pspec.pd.tcp.dport, pspec_tries + 1, 0);
   else {
-    assert(pspec.type != PS_ARP);
+    assert(pspec.type != PS_ARP and pspec.type != PS_ND);
     sendIPScanProbe(USI, hss, &pspec, pspec_tries + 1, 0);
   }
 }
@@ -3653,6 +3754,8 @@ static void sendPingProbe(UltraScanInfo *USI, HostScanStats *hss) {
     sendIPScanProbe(USI, hss, &hss->target->pingprobe, 0, hss->nextPingSeq(true));
   } else if (hss->target->pingprobe.type == PS_ARP) {
     sendArpScanProbe(USI, hss, 0, hss->nextPingSeq(true));
+  } else if (hss->target->pingprobe.type == PS_ND) {
+    sendNDScanProbe(USI, hss, 0, hss->nextPingSeq(true));
   } else if (USI->scantype == RPC_SCAN) {
     assert(0); /* TODO: fill out */
   } else {
@@ -3738,6 +3841,8 @@ static void retransmitProbe(UltraScanInfo *USI, HostScanStats *hss,
     newProbe = sendConnectScanProbe(USI, hss, probe->pspec()->pd.tcp.dport, probe->tryno + 1, 0);
   } else if (probe->type == UltraProbe::UP_ARP) {
     newProbe = sendArpScanProbe(USI, hss, probe->tryno + 1, 0);
+  } else if (probe->type == UltraProbe::UP_ND) {
+    newProbe = sendNDScanProbe(USI, hss, probe->tryno + 1, 0);
   } else {
     /* TODO: Support any other probe types */
     fatal("%s: unsupported probe type %d", __func__, probe->type);
@@ -4155,6 +4260,75 @@ static bool get_arp_result(UltraScanInfo *USI, struct timeval *stime) {
       if (hss->probes_outstanding.empty()) {
 	continue;
 	/* TODO: I suppose I should really mark the @@# host as up */
+      }
+      probeI = hss->probes_outstanding.end();
+      probeI--;
+      ultrascan_host_probe_update(USI, hss, probeI, HOST_UP, &rcvdtime);
+      /* Now that we know the host is up, we can forget our other probes. */
+      hss->destroyAllOutstandingProbes();
+      /* TODO: Set target mac */
+      gotone = 1;
+      //      printf("Marked host %s as up!", hss->target->NameIP());
+      break;
+    }
+  } while(!timedout);
+
+  return gotone;
+}
+
+static bool get_ns_result(UltraScanInfo *USI, struct timeval *stime) {
+
+  gettimeofday(&USI->now, NULL);
+  long to_usec;
+  int rc;
+  u8 rcvdmac[6];
+  struct sockaddr_in6 rcvdIP;
+  struct timeval rcvdtime;
+  bool timedout = false;
+  bool has_mac = false;
+  struct sockaddr_in6 sin6;
+  HostScanStats *hss = NULL;
+  list<UltraProbe *>::iterator probeI;
+  int gotone = 0;
+
+  do {
+    to_usec = TIMEVAL_SUBTRACT(*stime, USI->now);
+    if (to_usec < 2000) to_usec = 2000;
+    rc = read_na_pcap(USI->pd, rcvdmac, &rcvdIP, to_usec, &rcvdtime, &has_mac);
+    gettimeofday(&USI->now, NULL);
+    if (rc == -1) fatal("Received -1 response from read_arp_reply_pcap");
+    if (rc == 0) {
+      if (TIMEVAL_SUBTRACT(*stime, USI->now) < 0) {
+    timedout = true;
+    break;
+      } else continue;
+    }
+    if (rc == 1) {
+      if (TIMEVAL_SUBTRACT(USI->now, *stime) > 200000) {
+    /* While packets are still being received, I'll be generous
+       and give an extra 1/5 sec.  But we have to draw the line
+       somewhere.  Hopefully this response will be a keeper so it
+       won't matter.  */
+    timedout = true;
+      }
+
+      /* Yay, I got one.  Find whether I asked for it */
+      /* Search for this host on the incomplete list */
+      memset(&sin6, 0, sizeof(sin6));
+      sin6.sin6_addr = rcvdIP.sin6_addr;
+      sin6.sin6_family = AF_INET6;
+      hss = USI->findHost((struct sockaddr_storage *) &sin6);
+      if (!hss) continue;
+      /* Add found HW address for target */
+      /* A Neighbor Advertisement packet may not include the Target link-layer address. */
+      if (has_mac){
+        hss->target->setMACAddress(rcvdmac);
+      }
+      hss->target->reason.reason_id = ER_NDRESPONSE;
+
+      if (hss->probes_outstanding.empty()) {
+    continue;
+    /* TODO: I suppose I should really mark the @@# host as up */
       }
       probeI = hss->probes_outstanding.end();
       probeI--;
@@ -5254,6 +5428,8 @@ static void waitForResponses(UltraScanInfo *USI) {
     USI->sendOK(&stime);
     if (USI->ping_scan_arp) {
       gotone = get_arp_result(USI, &stime);
+    } else if (USI->ping_scan_nd) {
+      gotone = get_ns_result(USI,&stime);
     } else if (USI->ping_scan) {
       if (USI->pd)
         gotone = get_ping_pcap_result(USI, &stime);
@@ -5315,6 +5491,16 @@ static void begin_sniffer(UltraScanInfo *USI, vector<Target *> &Targets) {
     pcap_filter += " and arp[22:2] = 0x";
     pcap_filter.append(macstring, 4 * 2, 2 * 2);
     //its not arp, so lets check if for a protocol scan.
+  } else if (USI->ping_scan_nd) {
+    /* Libpcap: IPv6 upper-layer protocol is not supported by proto[x] */
+    /* Grab the ICMPv6 type using ip6[X:Y] syntax. This works only if there are no
+       extension headers (top-level nh is IPPROTO_ICMPV6). */
+    const u8 *srcmac = Targets[0]->SrcMACAddress();
+    assert(srcmac);
+    char filterstr[256];
+    Snprintf(filterstr, 256, "icmp6 and ip6[6:1] = %u and ip6[40:1] = %u",
+         IPPROTO_ICMPV6, ICMPV6_NEIGHBOR_ADVERTISEMENT);
+    pcap_filter.append(filterstr);
   } else if(USI->prot_scan || (USI->ping_scan && USI->ptech.rawprotoscan)){
     struct sockaddr_storage source;
     size_t source_len;

@@ -638,6 +638,9 @@ char *readipv4_pcap(pcap_t *pd, unsigned int *len, long to_usec,
 char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
                   struct timeval *rcvdtime, struct link_header *linknfo, bool validate);
 
+int read_na_pcap(pcap_t *pd, u8 *sendermac, struct sockaddr_in6 *senderIP, long to_usec,
+                  struct timeval *rcvdtime, bool *has_mac);
+
 /* Attempts to read one IPv4/Ethernet ARP reply packet from the pcap
    descriptor pd.  If it receives one, fills in sendermac (must pass
    in 6 bytes), senderIP, and rcvdtime (can be NULL if you don't care)

@@ -376,7 +376,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen);
  * localhost. (eg: the address is something like 127.x.x.x, the address
  * matches one of the local network interfaces' address, etc).
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
-int islocalhost(const struct in_addr *const addr);
+int islocalhost(const struct sockaddr_storage *const ss);
 
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
@@ -512,6 +512,10 @@ bool doND(const char *dev, const u8 *srcmac,
    by Nmap only. Any other calling this should pass NULL instead. */
 int read_arp_reply_pcap(pcap_t *pd, u8 *sendermac,
                         struct in_addr *senderIP, long to_usec,
+                        struct timeval *rcvdtime,
+                        void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
+int read_ns_reply_pcap(pcap_t *pd, u8 *sendermac,
+                        struct sockaddr_in6 *senderIP, long to_usec,
                         struct timeval *rcvdtime,
                         void (*traceArp_callback)(int, const u8 *, u32 , struct timeval *));
 

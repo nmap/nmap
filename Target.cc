@@ -306,6 +306,14 @@ const struct in_addr *Target::v4sourceip() const {
   return NULL;
 }
 
+// Returns IPv6 host address or NULL if unavailable.
+const struct in6_addr *Target::v6sourceip() const {
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sourcesock;
+  if (sin6->sin6_family == AF_INET6) {
+    return &(sin6->sin6_addr);
+  }
+  return NULL;
+}
 
   /* You can set to NULL to erase a name or if it failed to resolve -- or 
      just don't call this if it fails to resolve */

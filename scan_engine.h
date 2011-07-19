@@ -131,6 +131,7 @@ struct probespec_icmpv6data {
 #define PS_CONNECTTCP 6
 #define PS_SCTP 7
 #define PS_ICMPV6 8
+#define PS_ND 9
 
 /* The size of this structure is critical, since there can be tens of
    thousands of them stored together ... */

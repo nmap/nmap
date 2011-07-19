@@ -1809,7 +1809,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   }
   
   if (good_tcp_ipid_num >= 3) {
-    tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->v4hostip()));
+    tcp_ipid_seqclass = get_ipid_sequence(good_tcp_ipid_num, hss->ipid.tcp_ipids, islocalhost(hss->target->TargetSockAddr()));
   } else {
     tcp_ipid_seqclass = IPID_SEQ_UNKNOWN;
   }
@@ -1817,13 +1817,13 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
   hss->si.ipid_seqclass = tcp_ipid_seqclass;
   
   if (good_tcp_closed_ipid_num >= 2) {
-    tcp_closed_ipid_seqclass = get_ipid_sequence(good_tcp_closed_ipid_num, hss->ipid.tcp_closed_ipids, islocalhost(hss->target->v4hostip()));
+    tcp_closed_ipid_seqclass = get_ipid_sequence(good_tcp_closed_ipid_num, hss->ipid.tcp_closed_ipids, islocalhost(hss->target->TargetSockAddr()));
   } else {
     tcp_closed_ipid_seqclass = IPID_SEQ_UNKNOWN;
   }
   
   if (good_icmp_ipid_num >= 2) {
-    icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->v4hostip()));
+    icmp_ipid_seqclass = get_ipid_sequence(good_icmp_ipid_num, hss->ipid.icmp_ipids, islocalhost(hss->target->TargetSockAddr()));
   } else {
     icmp_ipid_seqclass = IPID_SEQ_UNKNOWN;
   }
@@ -3610,7 +3610,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       hsi->isCompleted = true;
     }
 
-    if (islocalhost(hsi->target->v4hostip())) {
+    if (islocalhost(hsi->target->TargetSockAddr())) {
       /* scanning localhost */
       distance = 0;
       distance_calculation_method = DIST_METHOD_LOCALHOST;

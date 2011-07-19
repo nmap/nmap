@@ -150,6 +150,7 @@ reason_map_type::reason_map_type(){
     reason_map[ER_IPIDCHANGE] = reason_string("ipid-change","ipid-changes");
 
     reason_map[ER_ARPRESPONSE] = reason_string("arp-response","arp-responses");
+    reason_map[ER_NDRESPONSE] = reason_string("nd-response","nd-responses");
     reason_map[ER_TCPRESPONSE] = reason_string("tcp-response","tcp-responses");
     reason_map[ER_NORESPONSE] = reason_string("no-response","no-responses");
 
