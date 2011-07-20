@@ -1,4 +1,6 @@
 # Nmap Changelog ($Id$); -*-text-*-
+o [Zenmap] The Zenmap crash handler now instructs you to mail in crash
+  information to nmap-dev. [Colin Rice]
 
 o Added IPv6 Neighbor Discovery ping. This is the IPv6 analog to IPv4
   ARP scan. It is the default ping type for local IPv6 networks.
