@@ -95,7 +95,6 @@
   <ItemGroup>
     <ClInclude Include="include\dnet\addr.h" />
     <ClInclude Include="include\dnet\arp.h" />
-    <ClInclude Include="include\config.h" />
     <ClInclude Include="include\dnet.h" />
     <ClInclude Include="include\err.h" />
     <ClInclude Include="include\dnet\eth.h" />
