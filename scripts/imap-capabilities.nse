@@ -24,7 +24,14 @@ require 'stdnse'
 portrule = shortport.port_or_service({143}, "imap")
 
 action = function(host, port)
-  local capa, err = imap.capabilities(host, port)
+  local helper = imap.Helper:new(host, port)
+  local status = helper:connect()
+  if ( not(status) ) then return "\n  ERROR: Failed to connect to server" end
+
+  local status, capa = helper:capabilities(host, port)
+  if( not(status) ) then return "\n  ERROR: Failed to retrieve capabilities" end
+  helper:close()
+
   if type(capa) == "table" then
      -- Convert the capabilities table into an array of strings.
      local capstrings = {}

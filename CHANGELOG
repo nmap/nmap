@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script imap-brute that performs brute force password
+  auditing against IMAP servers. [Patrik]
+
+o [NSE] Updated IMAP library to support authentication using both plain-text
+  and the SASL library. [Patrik]
+
 o [NSE] Added SASL library created by Djalal Harouni and Patrik Karlsson
   providing common code for "Simple Authentication and Security Layer" to
   services supporting it. The algorithms supported by the library are:
