@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added SASL library created by Djalal Harouni and Patrik Karlsson
+  providing common code for "Simple Authentication and Security Layer" to
+  services supporting it. The algorithms supported by the library are:
+  PLAIN, CRAM-MD5, DIGEST-MD5 and NTLM. [Patrik Karlsson, Djalal Harouni]
+
 o [NSE] Added scripts cvs-brute.nse, cvs-brute-repository.nse and the cvs
   library. The cvs-brute-repository script allows for guessing possible
   repository names needed in order to perform password guessing using the
