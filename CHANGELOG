@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script smtp-brute that performs brute force password
+  auditing against SMTP servers. [Patrik]
+
+o [NSE] Updated SMTP library to support authentication using both plain-text
+  and the SASL library. [Patrik]
+
 o [NSE] Added the script imap-brute that performs brute force password
   auditing against IMAP servers. [Patrik]
 
