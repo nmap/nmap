@@ -400,7 +400,11 @@ do
     setmetatable(env, {__index = _G});
     setfenv(file_closure, env);
     local co = create(file_closure); -- Create a garbage thread
-    local status, e = assert(resume(co)); -- Get the globals it loads in env
+    local status, e = resume(co); -- Get the globals it loads in env
+    if not status then
+      log_error("Failed to load %s:\n%s", filename, traceback(co, e));
+      error("could not load script");
+    end
     if quiet_errors[e] then
       print_verbose(1, "Failed to load '%s'.", filename);
       return nil;
