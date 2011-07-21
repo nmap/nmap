@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-dhcp-discover that sends a DHCP discover
+  message to the broadcast address and collects and reports the network
+  information received from the DHCP server. [Patrik]
+
 o [NSE] Added the script smtp-brute that performs brute force password
   auditing against SMTP servers. [Patrik]
 

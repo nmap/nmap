@@ -402,7 +402,31 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	return true, data
 end
 
-local function dhcp_build(request_type, ip_address, mac_address, request_options, overrides, lease_time, transaction_id)
+--- Builds a DHCP packet
+--
+--@param request_type    The type of request as an integer (use the <code>request_types</code> table at the
+--                       top of this file). 
+--@param ip_address      Your ip address (as a dotted-decimal string). This tells the DHCP server where to 
+--                       send the response. Setting it to "255.255.255.255" or "0.0.0.0" is generally acceptable (if not,
+--                       host.ip_src can work). 
+--@param mac_address     Your mac address (as a string up to 16 bytes) where the server will send the response. Like
+--                       <code>ip_address</code>, setting to the broadcast address (FF:FF:FF:FF:FF:FF) is 
+--                       common (host.mac_addr_src works). 
+--@param request_options [optional] The options to request from the server, as an array of integers. For the 
+--                       acceptable options, see the <code>actions</code> table above or have a look at rfc2132.
+--                       Some DHCP servers (such as my Linksys WRT54g) will ignore this list and send whichever
+--                       information it wants. Default: all options marked as 'default' in the <code>actions</code>
+--                       table above are requested (the typical interesting ones) if no verbosity is given. 
+--                       If any level of verbosity is on, get all types. 
+--@param overrides       [optional] A table of overrides. If a field in the table matches a field in the DHCP
+--                       packet (see rfc2131 section 2 for a list of possible fields), the value in the table
+--                       will be sent instead of the default value. 
+--@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second. 
+--@param transaction_id  The identity of the transaction.
+--
+--@return status (true or false)
+--@return The parsed response, as a table. 
+function dhcp_build(request_type, ip_address, mac_address, request_options, overrides, lease_time, transaction_id)
 	local packet = ''
 
 	-- Set up the default overrides
@@ -455,7 +479,7 @@ end
 --
 --@param data The DHCP packet data. Any padding at the end of the packet will be ignored (by default, 
 --            DHCP packets are padded with \x00 bytes). 
-local function dhcp_parse(data, transaction_id)
+function dhcp_parse(data, transaction_id)
 	local pos = 1
 	local result = {}
 

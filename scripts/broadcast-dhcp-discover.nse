@@ -1,0 +1,197 @@
+description = [[
+Sends a DHCP request to the broadcast address (255.255.255.255) and reports
+the results. The script uses a static MAC address (DE:AD:CO:DE:CA:FE) while
+doing so in order to prevent scope exhaustion.
+
+The script reads the response using pcap by opening a listening pcap socket
+on all available ethernet interfaces that are reported up. If no response
+has been received before the timeout has been reached (default 10 seconds)
+the script will abort execution.
+
+The script needs to be run as a privileged user, typically root.
+]]
+
+---
+-- @usage
+-- sudo nmap --script broadcast-dhcp-discover
+-- 
+-- @output
+-- | broadcast-dhcp-discover: 
+-- |   IP Offered: 192.168.1.114
+-- |   DHCP Message Type: DHCPOFFER
+-- |   Server Identifier: 192.168.1.1
+-- |   IP Address Lease Time: 1 day, 0:00:00
+-- |   Subnet Mask: 255.255.255.0
+-- |   Router: 192.168.1.1
+-- |   Domain Name Server: 192.168.1.1
+-- |_  Domain Name: localdomain
+--
+-- @args broadcast-dhcp-discover.timeout time in seconds to wait for a response
+--       (default: 10s)
+--
+
+-- Version 0.1
+-- Created 07/14/2011 - v0.1 - created by Patrik Karlsson
+
+author = "Patrik Karlsson"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"broadcast", "safe"}
+
+prerule = function() return not( nmap.address_family() == "inet6") end
+
+require 'dhcp'
+require 'ipOps'
+require 'packet'
+
+-- Creates a random MAC address
+--
+-- @return mac_addr string containing a random MAC
+local function randomizeMAC()
+	mac_addr = ""
+	for j=1, 6 do
+		mac_addr = mac_addr .. string.char(math.random(1, 255))
+	end	
+	return mac_addr
+end
+
+-- Gets a list of available interfaces based on link and up filters
+--
+-- @param link string containing the link type to filter
+-- @param up string containing the interface status to filter
+-- @return result table containing the matching interfaces
+local function getInterfaces(link, up)
+	if( not(nmap.list_interfaces) ) then return end
+	local interfaces, err = nmap.list_interfaces()
+	local result
+	if ( not(err) ) then
+		for _, iface in ipairs(interfaces) do
+			if ( iface.link == link and iface.up == up ) then
+				result = result or {}
+				result[iface.device] = true
+			end
+		end
+	end
+	return result
+end	
+
+-- Listens for an incoming dhcp response
+--
+-- @param iface string with the name of the interface to listen to
+-- @param timeout number of ms to wait for a response
+-- @param xid the DHCP transaction id
+-- @param result a table to which the result is written
+local function dhcp_listener(iface, timeout, xid, result)
+	local sock = nmap.new_socket()
+	local condvar = nmap.condvar(result)
+	
+	sock:set_timeout(100)
+	sock:pcap_open(iface, 1500, false, "ip && udp && port 68")
+	
+	local start_time = nmap.clock_ms()
+	while( nmap.clock_ms() - start_time < timeout ) do
+		local status, _, _, data = sock:pcap_receive()
+		-- abort, once another thread has picked up our response
+		if ( #result > 0 ) then
+			sock:close()
+			condvar "signal"
+			return
+		end
+	
+		if ( status ) then
+			local p = packet.Packet:new( data, #data )
+			if ( p and p.udp_dport ) then
+				local data = data:sub(p.udp_offset + 9)
+				local status, response = dhcp.dhcp_parse(data, xid)
+				if ( status ) then
+					table.insert( result, response )
+					sock:close()
+					condvar "signal"
+					return
+				end
+			end
+		end
+ 	end
+	sock:close()
+	condvar "signal"
+end
+
+
+action = function()
+
+	if not nmap.is_privileged() then
+		return ("\n  ERROR: %s needs to be run as a privileged user (root)."):format(SCRIPT_NAME)
+	end
+
+	local host, port = "255.255.255.255", 67
+	local timeout = stdnse.get_script_args("broadcast-dhcp-discover.timeout")
+	timeout = tonumber(timeout) or 10
+
+	-- convert from seconds to ms
+	timeout = timeout * 1000
+
+	-- randomizing the MAC could exhaust dhcp servers with small scopes
+	-- if ran multiple times, so we should probably refrain from doing
+	-- this?
+	local mac = string.char(0xDE,0xAD,0xC0,0xDE,0xCA,0xFE)--randomizeMAC()
+	
+	local interfaces
+	
+	-- first check if the user supplied an interface
+	if ( nmap.get_interface() ) then
+		interfaces = { [nmap.get_interface()] = true }
+	else
+		-- As the response will be sent to the "offered" ip address we need
+		-- to use pcap to pick it up. However, we don't know what interface
+		-- our packet went out on, so lets get a list of all interfaces and
+		-- run pcap on all of them, if they're a) up and b) ethernet.
+		interfaces = getInterfaces("ethernet", "up")
+	end
+
+	if( not(interfaces) ) then return "\n  ERROR: Failed to retrieve interfaces (try setting one explicitly using -e)" end
+	
+	local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
+	local request_type = dhcp.request_types["DHCPDISCOVER"]
+	local ip_address = bin.pack(">I", ipOps.todword("0.0.0.0"))
+
+	-- we nead to set the flags to broadcast
+	local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
+	local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, request_options, overrides, lease_time, transaction_id)
+	if (not(status)) then return "\n  ERROR: Failed to build packet" end
+
+	local socket = nmap.new_socket("udp")
+	socket:bind(nil, 68)
+	socket:sendto( host, port, packet )
+	socket:close()
+
+	local threads = {}
+	local result = {}
+	local condvar = nmap.condvar(result)
+	
+	-- start a listening thread for each interface
+	for iface, _ in pairs(interfaces) do
+		local co = stdnse.new_thread( dhcp_listener, iface, timeout, transaction_id, result )
+		threads[co] = true
+	end
+	
+	-- wait until all threads are done
+	repeat 
+		condvar "wait"
+		for thread in pairs(threads) do
+			if coroutine.status(thread) == "dead" then threads[thread] = nil end
+		end
+	until next(threads) == nil
+	
+	local response = {}
+	-- Display the results
+	for i, r in ipairs(result) do
+		table.insert(response, string.format("IP Offered: %s", r.yiaddr_str))
+		for _, v in ipairs(r.options) do
+			if(type(v['value']) == 'table') then
+				table.insert(response, string.format("%s: %s", v['name'], stdnse.strjoin(", ", v['value'])))
+			else
+				table.insert(response, string.format("%s: %s\n", v['name'], v['value']))
+			end
+		end
+	end
+	return stdnse.format_output(true, response)		
+end
