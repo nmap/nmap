@@ -30,7 +30,7 @@ Entry { filename = "creds-summary.nse", categories = { "auth", "default", "safe"
 Entry { filename = "daap-get-library.nse", categories = { "discovery", "safe", } }
 Entry { filename = "daytime.nse", categories = { "discovery", "safe", } }
 Entry { filename = "db2-das-info.nse", categories = { "discovery", "safe", "version", } }
-Entry { filename = "db2-discover.nse", categories = { "default", "discover", "safe", } }
+Entry { filename = "db2-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dhcp-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-brute.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "dns-cache-snoop.nse", categories = { "discovery", "intrusive", } }
