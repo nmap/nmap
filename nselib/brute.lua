@@ -177,6 +177,8 @@
 -- Revised 06/19/2011 - v0.7 - added support for creds library [Patrik]
 -- Revised 07/07/2011 - v0.71- fixed some minor bugs, and changed credential
 --                             iterator to use a file handle instead of table
+-- Revised 07/21/2011 - v0.72- added code to allow script reporting invalid
+--								(non existing) accounts using setInvalidAccount
 
 module(... or "brute", package.seeall)
 require 'unpwdb'
@@ -348,6 +350,18 @@ Error =
 	--
 	-- @param b boolean true if done, unset or false if not
 	setDone = function( self, b ) self.done = b end,
+	
+	-- Marks the username as invalid, aborting further guessing.
+	-- @param username
+	setInvalidAccount = function(self, username)
+		self.invalid_account = username
+	end,
+
+	-- Checks if the error reported the account as invalid.
+	-- @return username string containing the invalid account
+	isInvalidAccount = function(self)
+		return self.invalid_account 
+	end,
 	
 }
 
@@ -554,6 +568,8 @@ Engine =
 					break
 				elseif( response and response:isDone() ) then
 					break
+				elseif ( response and response:isInvalidAccount() ) then
+					self.found_accounts[response:isInvalidAccount()] = true
 				end
 			end
 				
