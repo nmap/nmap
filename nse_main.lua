@@ -386,10 +386,9 @@ do
           "Warning: Loading '%s' -- the recommended file extension is '.nse'.",
           filename);
     end
-    local basename = match(filename, "[/\\]([^/\\]-)$") or filename;
-    local short_basename = match(filename, "[/\\]([^/\\]-)%.nse$") or
-                       match(filename, "[/\\]([^/\\]-)%.[^.]*$") or
-                       filename;
+    local basename = match(filename, "([^/\\]+)$") or filename;
+    local short_basename = match(filename, "([^/\\]+)%.nse$") or
+        match(filename, "([^/\\]+)%.[^.]*$") or filename;
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
     local env = {
