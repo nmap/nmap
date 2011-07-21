@@ -1,4 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
+
+o [NSE] Added scripts cvs-brute.nse, cvs-brute-repository.nse and the cvs
+  library. The cvs-brute-repository script allows for guessing possible
+  repository names needed in order to perform password guessing using the
+  cvs-brute.nse script. [Patrik]
+
 o [Zenmap] The Zenmap crash handler now instructs you to mail in crash
   information to nmap-dev. [Colin Rice]
 

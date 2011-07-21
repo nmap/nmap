@@ -1,0 +1,107 @@
+description = [[
+Performs password guessing against CVS pserver.
+]]
+
+---
+-- @usage 
+-- nmap -p 2401 --script cvs-brute <host>
+--
+-- @output
+-- 2401/tcp open  cvspserver syn-ack
+-- | cvs-brute: 
+-- |   Accounts
+-- |     hotchner:francisco - Account is valid
+-- |     reid:secret - Account is valid
+-- |   Statistics
+-- |_    Performed 544 guesses in 14 seconds, average tps: 38
+--
+-- @args cvs-brute.repo string containing the name of the repository to brute
+--       if no repo was given the script checks the registry for any
+--       repositories discovered by the cvs-brute-repository script. If the
+--       registry contains any discovered repositories, the script attempts to
+--       brute force the credentials for the first one.
+
+-- Version 0.1
+-- Created 07/13/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+
+
+author = "Patrik Karlsson"
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+categories = {"intrusive", "auth"}
+dependencies = {"cvs-brute-repository"}
+
+require 'cvs'
+require 'brute'
+require 'creds'
+require 'shortport'
+
+portrule = shortport.port_or_service(2401, "cvspserver")
+
+Driver = 
+{
+
+	new = function(self, host, port, repo)
+		local o = { repo = repo, helper = cvs.Helper:new(host, port) }
+       	setmetatable(o, self)
+        self.__index = self
+		return o
+	end,
+	
+	connect = function( self )
+		self.helper:connect()
+		return true
+	end,
+
+	login = function( self, username, password )
+		local status, err = self.helper:login( self.repo, username, password )
+		if ( status ) then 
+			return true, brute.Account:new(username, password, creds.State.VALID)
+		end
+		
+		-- This error seems to indicate tha the user does not exist
+		if ( err:match("E PAM start error%: Critical error %- immediate abort\0$") ) then
+			stdnse.print_debug(2, "%s: The user %s does not exist", SCRIPT_NAME, username)
+			local err = brute.Error:new("Account invalid")
+			err:setInvalidAccount(username)
+			return false, err
+		end
+		return false, brute.Error:new( "Incorrect password" )
+	end,
+	
+	disconnect = function( self )
+		self.helper:close()
+	end,
+		
+}
+
+local function getDiscoveredRepos(host)
+
+	if ( not(nmap.registry.cvs) or 
+		 not(nmap.registry.cvs[host.ip]) or
+		 not(nmap.registry.cvs[host.ip].repos)
+		) then 
+		return
+	end
+		
+	return nmap.registry.cvs[host.ip].repos
+end
+
+action = function(host, port)
+	
+	local repo = stdnse.get_script_args("cvs-brute.repo") and 
+				{ stdnse.get_script_args("cvs-brute.repo") } or 
+				getDiscoveredRepos(host)
+	if ( not(repo) ) then return "\n  ERROR: No CVS repository specified (see cvs-brute.repo)" end
+
+	local status, result
+	
+	-- If repositories were discovered and not overridden by argument
+	-- only attempt to brute force the first one.
+	local engine = brute.Engine:new(Driver, host, port, repo[1])
+	
+	engine.options.script_name = SCRIPT_NAME	
+	status, result = engine:start()
+
+	return result
+end
+
