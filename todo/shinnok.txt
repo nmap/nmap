@@ -7,33 +7,8 @@ o Nmap should defer address parsing in arguments until it has read
   get a similar problem (on David's IPv6 branch) if you do "-A -6"
   (but "-6 -A works properly).
 
-
 Hanging(waiting for further input, etc..):
 ==========================================
-
---
-o Ncat hangs on ssl -> REFACTORING
-  some refactoring left to be done to reduce code duplication
-  http://seclists.org/nmap-dev/2011/q2/842
-  o Commit current switch/ifdef refactoring patch.
-  o Research code deduplication even further.
-
-o Ncat chat (at least in ssl mode) no longer gives the banner greeting
-  when I connect.  This worked in r23918, but not in r24185, which is
-  the one running on chat.nmap.org as of 6/20/11.  Verify by running
-  "ncat --ssl -v chat.nmap.org"
-
-o Pending uncompleted SSL handshakes when in --exec* listening mode make
-  Ncat consume 100% cpu(core/thread).
-  Possible solutions:
-    o Listen on the union of the two sets in ncat_listen.c composed of the
-      current set and a secondary one, ssl_pending which should include the
-      pending ssl hanshake sockets.
-    o Timeout ssl handshakes.
-    o Delay adding the exec output pipes to fselect/WaitForMultipleObjects 
-      until the ssl handshake has been completed.
-  http://seclists.org/nmap-dev/2011/q2/988
----
 
 o NMAP reports different service results every so often with the same port.
   http://seclists.org/nmap-dev/2011/q2/815
@@ -56,8 +31,6 @@ Pending (low priority):
 o libpcre/pcre.h - is cleared upon make distclean thus leaving the SVN
   working directory dirty
   http://seclists.org/nmap-dev/2011/q2/708
-
-o E-mail nmap-dev with QtCreator usage steps for Nmap
 
 o E-mail nmap-dev with GProfiles /ncrack
   o Create new default username list:
@@ -105,6 +78,32 @@ o We should offer partial results when a host
 
 COMPLETED:
 ==========
+
+o E-mail nmap-dev with QtCreator usage steps for Nmap
+
+--
+o Ncat hangs on ssl -> REFACTORING
+  some refactoring left to be done to reduce code duplication
+  http://seclists.org/nmap-dev/2011/q2/842
+  o Commit current switch/ifdef refactoring patch.
+  o Research code deduplication even further.
+
+o Ncat chat (at least in ssl mode) no longer gives the banner greeting
+  when I connect.  This worked in r23918, but not in r24185, which is
+  the one running on chat.nmap.org as of 6/20/11.  Verify by running
+  "ncat --ssl -v chat.nmap.org"
+
+o Pending uncompleted SSL handshakes when in --exec* listening mode make
+  Ncat consume 100% cpu(core/thread).
+  Possible solutions:
+    o Listen on the union of the two sets in ncat_listen.c composed of the
+      current set and a secondary one, ssl_pending which should include the
+      pending ssl hanshake sockets.
+    o Timeout ssl handshakes.
+    o Delay adding the exec output pipes to fselect/WaitForMultipleObjects 
+      until the ssl handshake has been completed.
+  http://seclists.org/nmap-dev/2011/q2/988
+---
 
 o Fix ncat.xml(the input for the man page) examples section. - David came up
   with the final right fix on this one.
