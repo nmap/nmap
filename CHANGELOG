@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Ncat] Ncat now no longer blocks while an ssl handshake is taking place or
+  waiting to complete. [Shinnok]
+
 o [NSE] Added the script broadcast-dhcp-discover that sends a DHCP discover
   message to the broadcast address and collects and reports the network
   information received from the DHCP server. [Patrik]
