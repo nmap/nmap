@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the scripts http-axis2-dir-traversal and http-litespeed-sourcecode-download
+  that exploits a directory traversal and null byte poisoning vulnerabilities in
+  Apache Axis2 and LiteSpeed Web Server respectively. [Paulino]
+  
 o [Ncat] Ncat now no longer blocks while an ssl handshake is taking place or
   waiting to complete. [Shinnok]
 
