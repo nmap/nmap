@@ -153,6 +153,25 @@ typedef struct os_scan_performance_vars {
 
 
 
+/* Some of the algorithms used here are TCP congestion control
+   techniques from RFC2581. */
+typedef struct osscan_timing_vals {
+  double cwnd; /* Congestion window - in probes */
+
+  /* The threshold after which mode is changed from QUICK_START to
+     CONGESTION_CONTROL */
+  int ccthresh;
+
+  /* Number of updates to this utv (generally packet receipts ) */
+  int num_updates;
+
+  /* Last time values were adjusted for a drop (you usually only want
+     to adjust again based on probes sent after that adjustment so a
+     sudden batch of drops doesn't destroy timing.  Init to now */
+  struct timeval last_drop;
+} osscan_timing_vals_t;
+
+
 /******************************************************************************
  * FUNCTION PROTOTYPES                                                        *
  ******************************************************************************/
