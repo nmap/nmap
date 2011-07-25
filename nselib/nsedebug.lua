@@ -86,26 +86,30 @@ function print_hex(str)
 	end
 
 	-- Prints out the final, partial line
-	local line = math.floor((#str/16)) + 1
-	io.write(string.format("%08x ", (line - 1) * 16))
+	if (#str % 16 ~= 0) then
+		local line = math.floor((#str/16)) + 1
+		io.write(string.format("%08x ", (line - 1) * 16))
 
-	for char=1, #str % 16, 1 do
-		local ch = string.byte(str, ((line - 1) * 16) + char)
-		io.write(string.format("%02x ", ch))
-	end
-	io.write(string.rep("   ", 16 - (#str % 16)));
-	io.write("   ")
-
-	for char=1, #str % 16, 1 do
-		local ch = string.byte(str, ((line - 1) * 16) + char)
-		if ch < 0x20 or ch > 0x7f then
-			ch = string.byte(".", 1)
+		for char=1, #str % 16, 1 do
+			local ch = string.byte(str, ((line - 1) * 16) + char)
+			io.write(string.format("%02x ", ch))
 		end
-		io.write(string.format("%c", ch))
+		io.write(string.rep("   ", 16 - (#str % 16)));
+		io.write("   ")
+
+		for char=1, #str % 16, 1 do
+			local ch = string.byte(str, ((line - 1) * 16) + char)
+			if ch < 0x20 or ch > 0x7f then
+				ch = string.byte(".", 1)
+			end
+			io.write(string.format("%c", ch))
+		end
+		
+		io.write("\n")
 	end
 
 	-- Print out the length
-	io.write(string.format("\n         Length: %d [0x%x]\n", #str, #str))
+	io.write(string.format("         Length: %d [0x%x]\n", #str, #str))
 
 end
 
