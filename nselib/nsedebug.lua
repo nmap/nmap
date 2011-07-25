@@ -58,7 +58,9 @@ function tostr(data, indent)
 	return str
 end
 
--- Print out a string in hex, for debugging. 
+--- Print out a string in hex, for debugging.
+--
+--@param str The data to print in hex.
 function print_hex(str)
 
 	-- Prints out the full lines
