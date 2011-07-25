@@ -589,7 +589,7 @@ Engine =
 			-- if delay was speciefied, do sleep
 			if ( self.options.delay > 0 ) then stdnse.sleep( self.options.delay ) end
 		end
-		condvar "broadcast"
+		condvar "signal"
 	end,
 			
 	--- Starts the brute-force
@@ -822,10 +822,12 @@ Iterators = {
 		local function next_credential ()
 			local c = {}
 			for line in f:lines() do
-				local trim = function(s) return s:match('^()%s*$') and '' or s:match('^%s*(.*%S)') end 
-				line = trim(line)
-				local user, pass = line:match("^([^%/]*)%/(.*)$")
-				coroutine.yield( user, pass )
+				if ( not(line:match("^#!comment:")) ) then
+					local trim = function(s) return s:match('^()%s*$') and '' or s:match('^%s*(.*%S)') end 
+					line = trim(line)
+					local user, pass = line:match("^([^%/]*)%/(.*)$")
+					coroutine.yield( user, pass )
+				end
 			end
 			f:close()
 			while true do coroutine.yield( nil, nil ) end
