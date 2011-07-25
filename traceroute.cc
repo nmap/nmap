@@ -1338,7 +1338,7 @@ void TracerouteState::remove_finished_hosts() {
 
 /* Dummy class to use sockaddr_storage as a map key. */
 struct lt_sockaddr_storage {
-  bool operator()(const struct sockaddr_storage& a, const struct sockaddr_storage& b) {
+  bool operator()(const struct sockaddr_storage& a, const struct sockaddr_storage& b) const {
     return sockaddr_storage_cmp(&a, &b) < 0;
   }
 };
