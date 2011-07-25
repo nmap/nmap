@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed the nsedebug print_hex() function so it does not print an
+  empty line if there are no remaining characters, and improved its NSEDoc.
+  [Chris Woodbury].
+
 o [NSE] Added the scripts http-axis2-dir-traversal and http-litespeed-sourcecode-download
   that exploits a directory traversal and null byte poisoning vulnerabilities in
   Apache Axis2 and LiteSpeed Web Server respectively. [Paulino]
