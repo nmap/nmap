@@ -101,8 +101,36 @@
 
 class Target;
 
-/**********************  PROTOTYPES  ***********************************/
 
+/******************************************************************************
+ * CONSTANT DEFINITIONS                                                       *
+ ******************************************************************************/
+
+#define NUM_FPTESTS    13
+
+/* The number of tries we normally do.  This may be increased if
+   the target looks like a good candidate for fingerprint submission, or fewer
+   if the user gave the --max-os-tries option */
+#define STANDARD_OS2_TRIES 2
+
+// The minimum (and target) amount of time to wait between probes
+// sent to a single host, in milliseconds.
+#define OS_PROBE_DELAY 25
+
+// The target amount of time to wait between sequencing probes sent to
+// a single host, in milliseconds.  The ideal is 500ms because of the
+// common 2Hz timestamp frequencies.  Less than 500ms and we might not
+// see any change in the TS counter (and it gets less accurate even if
+// we do).  More than 500MS and we risk having two changes (and it
+// gets less accurate even if we have just one).  So we delay 100MS
+// between probes, leaving 500MS between 1st and 6th.
+#define OS_SEQ_PROBE_DELAY 100
+
+
+
+/******************************************************************************
+ * FUNCTION PROTOTYPES                                                        *
+ ******************************************************************************/
 
 /* This is the primary OS detection function.  If many Targets are
    passed in (the threshold is based on timing level), they are
