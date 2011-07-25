@@ -46,10 +46,6 @@ o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
   that new script writers know about it.
 
-o The SCRIPT_NAME variable should not include the ".nse" in script names.  Currently, it omits that
-  for scripts in the DB, but includes it for scripts you specify based on their filename.  See: 
-  http://seclists.org/nmap-dev/2011/q2/481
-
 o Revive the Nmap Public Source License project (need to find an open
   source attorney to review it).  http://nmap.org/npsl/
   o Also take close look at Mozilla's license modernization project:
@@ -87,17 +83,6 @@ o Add IPv6 subnet/pattern support like we offer for IPv4.
    into individual addresses, or pass the block off to some
    specialized discovery routine."
 
-o Investigate and document how easy it is to drop Ncat.exe by itself
-  on other systems and have it work.  We should also look into the
-  dependencies of Nmap and Zenmap.  It may be instructive to look at
-  "Portable Firefox"
-  (http://portableapps.com/apps/internet/firefox_portable) which is
-  built using open source technology from portableapps.com, or look at
-  "The Network Toolkit" by Cace
-  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
-  and Nping, we may want to improve our Winpcap to load as a DLL
-  without requiring installation.  There is a separate TODO item for that.
-
 o We should probably modify stdnse.get_script_args so that it first
   checks [scriptname].[argname] and then (if that fails) looks for
   [argname] by itself.  This way people who are only running one
@@ -114,9 +99,9 @@ o Nscan work [placeholder]
 o IPv6 todo.
   - CIDR address specification.
   - Reverse DNS resolution.
-  - Neighbor Discovery-based host discovery (analog to ARP scan).
   - Multicast host discovery.
   - OS detection.
+
 
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
@@ -126,6 +111,9 @@ o Nmap should have a better way to handle XML script output.
 o [NSE] HTTP spidering library/script
 
 o Summer of Code feature creeper:
+  o Ncat should probably have an --append-output option like Nmap does
+    so that we can use -o without clobbering existing file.  This would
+    at least be useful for chat.nmap.org.
   o Change Zenmap bug reporter so that instead of an automatic
     submission system, we print a stack trace and request that the user
     send a bug report to nmap-dev.
@@ -668,6 +656,24 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o IPv6 Neighbor Discovery-based host discovery (analog to ARP scan).
+
+o Investigate and document how easy it is to drop Ncat.exe by itself
+  on other systems and have it work.  We should also look into the
+  dependencies of Nmap and Zenmap.  It may be instructive to look at
+  "Portable Firefox"
+  (http://portableapps.com/apps/internet/firefox_portable) which is
+  built using open source technology from portableapps.com, or look at
+  "The Network Toolkit" by Cace
+  (http://www.cacetech.com/products/network_toolkit.html).  For Nmap
+  and Nping, we may want to improve our Winpcap to load as a DLL
+  without requiring installation.  There is a separate TODO item for that.
+
+o The SCRIPT_NAME variable should not include the ".nse" in script
+  names.  Currently, it omits that for scripts in the DB, but includes
+  it for scripts you specify based on their filename.  See:
+  http://seclists.org/nmap-dev/2011/q2/481
 
 o If possible, Ncat, in listen mode, should probably listen on the system's
   IPv6 interfaces as well as IPv4.  This is what servers like apache
