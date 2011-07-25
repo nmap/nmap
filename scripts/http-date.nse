@@ -21,7 +21,7 @@ require("http")
 require("shortport")
 require("stdnse")
 
-portrule =  shortport.http
+portrule = shortport.http
 
 action = function(host, port)
 	-- Get the local date in UTC.
