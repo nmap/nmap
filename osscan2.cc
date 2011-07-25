@@ -152,25 +152,8 @@ class HostOsScan;
 class HostOsScanInfo;
 class OsScanInfo;
 
-/* Performance tuning variable. */
-struct os_scan_performance_vars {
-  int low_cwnd;  /* The lowest cwnd (congestion window) allowed */
-  int host_initial_cwnd; /* Initial congestion window for ind. hosts */
-  int group_initial_cwnd; /* Initial congestion window for all hosts as a group */
-  int max_cwnd; /* I should never have more than this many probes
-                   outstanding */
-  int quick_incr; /* How many probes are incremented for each response
-                     in quick start mode */
-  int cc_incr; /* How many probes are incremented per (roughly) rtt in 
-                  congestion control mode */
-  int initial_ccthresh;
-  double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
-                                     value if any packet drop occurs */
-  double group_drop_ccthresh_divisor; /* used to drop the group ccthresh when
-                                         any drop occurs */
-  double host_drop_ccthresh_divisor; /* used to drop the host ccthresh when
-                                        any drop occurs */
-} perf;
+/* Global to store performance info */
+os_scan_performance_vars_t perf;
 
 /* Some of the algorithms used here are TCP congestion control
    techniques from RFC2581. */
