@@ -337,6 +337,8 @@ static void startTimeOutClocks(OsScanInfo *OSI) {
 }
 
 
+/** Sets up the pcap descriptor in HOS (obtains a descriptor and sets the
+ * appropriate BPF filter, based on the supplied list of targets). */
 static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   char pcap_filter[2048];
   /* 20 IPv6 addresses is max (45 byte addy + 14 (" or src host ")) * 20 == 1180 */
@@ -386,6 +388,9 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
 }
 
 
+/* Sets everything up so the current round can be performed. This includes
+ * reinitializing some variables of the supplied objects and deleting
+ * some old information. */
 static void startRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
@@ -403,7 +408,7 @@ static void startRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   }
 }
 
-
+/* Run the sequence generation tests (6 TCP probes sent 100ms apart) */
 static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
