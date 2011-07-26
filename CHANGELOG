@@ -1,12 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
+  brute force password auditing against XMPP (Jabber) servers. [Patrik]
+
+o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
+  displaying any output unless run in debug mode. [Patrik]
+
 o [NSE] Fixed the nsedebug print_hex() function so it does not print an
   empty line if there are no remaining characters, and improved its NSEDoc.
   [Chris Woodbury].
 
-o [NSE] Added the scripts http-axis2-dir-traversal and http-litespeed-sourcecode-download
-  that exploits a directory traversal and null byte poisoning vulnerabilities in
-  Apache Axis2 and LiteSpeed Web Server respectively. [Paulino]
+o [NSE] Added the scripts http-axis2-dir-traversal and 
+  http-litespeed-sourcecode-download that exploits a directory traversal and
+  null byte poisoning vulnerabilities in Apache Axis2 and LiteSpeed Web Server
+  respectively. [Paulino]
   
 o [Ncat] Ncat now no longer blocks while an ssl handshake is taking place or
   waiting to complete. [Shinnok]
