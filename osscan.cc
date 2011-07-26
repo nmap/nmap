@@ -680,10 +680,10 @@ error:
   return -1;
 }
 
-static std::vector<struct AVal> str2AVal(char *str) {
+static std::vector<struct AVal> str2AVal(const char *str) {
   int i = 1;
   int count = 1;
-  char *q = str, *p=str;
+  const char *q = str, *p=str;
   std::vector<struct AVal> AVs;
 
   if (!*str)
@@ -703,17 +703,17 @@ static std::vector<struct AVal> str2AVal(char *str) {
     if (!q) {
       fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
     }
-    *q = '\0';
-    av.attribute = string_pool_insert(p);
+    av.attribute = string_pool_substr(p, q);
     p = q+1;
-    if (i != count - 1) {
+    if (i < count - 1) {
       q = strchr(p, '%');
       if (!q) {
         fatal("Parse error with AVal string (%s) in nmap-os-db file", str);
       }
-      *q = '\0';
+      av.value = string_pool_substr(p, q);
+    } else {
+      av.value = string_pool_insert(p);
     }
-    av.value = string_pool_insert(p);
     p = q + 1;
     AVs.push_back(av);
   }
