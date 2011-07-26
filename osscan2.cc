@@ -214,11 +214,9 @@ int get_initial_ttl_guess(u8 ttl) {
  may be modified if localhost is set to true. */
 int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
   u16 ipid_diffs[32];
-  int i;
-  int allipideqz = 1;  /* Flag that means "All IP.IDs returned during
-						  sequencing are zero.  This is unset if we
-						  find a nonzero */
-  int j,k;
+  int i,j,k;
+  int allipideqz = 1;  /* Flag that means "All IP.IDs returned during sequencing
+                        * are zero. This is unset if we find a nonzero */
 
   assert(numSamples < (int) (sizeof(ipid_diffs) / 2));
   if (numSamples < 2) return IPID_SEQ_UNKNOWN;
@@ -227,14 +225,14 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
     if (ipids[i-1] != 0 || ipids[i] != 0)
       allipideqz = 0; /* All IP.ID values do *NOT* equal zero */
 
-	if (ipids[i-1] <= ipids[i]) {
-	  ipid_diffs[i-1] = ipids[i] - ipids[i-1];
-	} else {
-	  ipid_diffs[i-1] = (u16) (ipids[i] - ipids[i-1] + 65536);
+    if (ipids[i-1] <= ipids[i]) {
+        ipid_diffs[i-1] = ipids[i] - ipids[i-1];
+    } else {
+        ipid_diffs[i-1] = (u16) (ipids[i] - ipids[i-1] + 65536);
     }
 
-	/* Random */
-    if (numSamples > 2 && ipid_diffs[i-1] > 20000)
+  /* Random */
+  if (numSamples > 2 && ipid_diffs[i-1] > 20000)
       return IPID_SEQ_RD;
   }
 
@@ -246,16 +244,16 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
 
     for(i=0; i < numSamples - 1; i++) {
       if (ipid_diffs[i] < 2) {
-		allgto = 0; break;
+        allgto = 0; break;
       }
-	}
+    }
 
     if (allgto) {
       for(i=0; i < numSamples - 1; i++) {
-		if (ipid_diffs[i] % 256 == 0) /* Stupid MS */
-		  ipid_diffs[i] -= 256;
-		else
-		  ipid_diffs[i]--; /* Because on localhost the RST sent back use an IPID */
+        if (ipid_diffs[i] % 256 == 0) /* Stupid MS */
+            ipid_diffs[i] -= 256;
+        else
+            ipid_diffs[i]--; /* Because on localhost the RST sent back use an IPID */
       }
     }
   }
@@ -263,27 +261,27 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
   /* Constant */
   j = 1; /* j is a flag meaning "all differences seen are zero" */
   for(i=0; i < numSamples - 1; i++) {
-	if (ipid_diffs[i] != 0) {
-	  j = 0;
+    if (ipid_diffs[i] != 0) {
+        j = 0;
     break;
-	}
+    }
   }
   if (j) {
-	return IPID_SEQ_CONSTANT;
+    return IPID_SEQ_CONSTANT;
   }
 
   /* Random Positive Increments */
   for(i=0; i < numSamples - 1; i++) {
     if (ipid_diffs[i] > 1000 &&
-		(ipid_diffs[i] % 256 != 0 ||
-		 (ipid_diffs[i] % 256 == 0 && ipid_diffs[i] >= 25600))) {
+        (ipid_diffs[i] % 256 != 0 ||
+        (ipid_diffs[i] % 256 == 0 && ipid_diffs[i] >= 25600))) {
       return IPID_SEQ_RPI;
       }
-	}
+    }
 
   j = 1; /* j is a flag meaning "all differences seen are < 10" */
-  k = 1; /* k is a flag meaning "all difference seen are multiples of
-			256 and no greater than 5120" */
+  k = 1; /* k is a flag meaning "all difference seen are multiples of 256 and
+          * no greater than 5120" */
   for(i=0; i < numSamples - 1; i++) {
     if (k && (ipid_diffs[i] > 5120 || ipid_diffs[i] % 256 != 0)) {
       k = 0;
@@ -291,17 +289,17 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
 
     if (j && ipid_diffs[i] > 9) {
       j = 0;
-	}
+    }
   }
 
   /* Broken Increment */
   if (k == 1) {
-	return IPID_SEQ_BROKEN_INCR;
+    return IPID_SEQ_BROKEN_INCR;
   }
 
   /* Incremental */
   if (j == 1)
-	return IPID_SEQ_INCR;
+    return IPID_SEQ_INCR;
 
   return IPID_SEQ_UNKNOWN;
 }
