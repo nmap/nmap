@@ -749,8 +749,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
   int distance = -1;
   enum dist_calc_method distance_calculation_method = DIST_METHOD_NONE;
 
-  for(hostI = OSI->incompleteHosts.begin();
-      hostI != OSI->incompleteHosts.end(); hostI++) {
+  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     distance = -1;
     hsi = *hostI;
     HOS->makeFP(hsi->hss);
@@ -792,7 +791,6 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
     hsi->target->FPR->distance_guess = hsi->hss->distance_guess;
 
   }
-
   OSI->removeCompletedHosts();
 }
 
@@ -805,8 +803,7 @@ static void findBestFPs(OsScanInfo *OSI) {
   double bestacc;
   int bestaccidx;
 
-  for(hostI = OSI->incompleteHosts.begin();
-      hostI != OSI->incompleteHosts.end(); hostI++) {
+  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
     memcpy(&(hsi->target->seq), &hsi->hss->si, sizeof(struct seq_info));
 
@@ -838,8 +835,7 @@ static void printFP(OsScanInfo *OSI) {
   HostOsScanInfo *hsi = NULL;
   FingerPrintResults *FPR;
 
-  for(hostI = OSI->incompleteHosts.begin();
-      hostI != OSI->incompleteHosts.end(); hostI++) {
+  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
     FPR = hsi->target->FPR;
 
@@ -860,15 +856,13 @@ static void printFP(OsScanInfo *OSI) {
    the maximum number of OS detection tries allowed for it without
    matching, it is transferred to the passed in unMatchedHosts list.
    Returns the number of hosts moved to unMatchedHosts. */
-static int expireUnmatchedHosts(OsScanInfo *OSI,
-                list<HostOsScanInfo *> *unMatchedHosts) {
+static int expireUnmatchedHosts(OsScanInfo *OSI, list<HostOsScanInfo *> *unMatchedHosts) {
   list<HostOsScanInfo *>::iterator hostI, nextHost;
   int hostsRemoved = 0;
   HostOsScanInfo *HOS;
 
   gettimeofday(&now, NULL);
-  for(hostI = OSI->incompleteHosts.begin();
-      hostI != OSI->incompleteHosts.end(); hostI = nextHost) {
+  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI = nextHost) {
     HOS = *hostI;
     nextHost = hostI;
     nextHost++;
@@ -1058,7 +1052,7 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   sendDelayMs = MAX(o.scan_delay, OS_PROBE_DELAY);
   lastProbeSent = now;
 
-  /* timing */
+  /* Timing */
   timing.cwnd = perf.host_initial_cwnd;
   timing.ccthresh = perf.initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
   timing.num_updates = 0;
@@ -1129,7 +1123,7 @@ void HostOsScanStats::initScanStats() {
     target->FPR->osscan_opentcpport = openTCPPort;
   }
 
-  /* Now we should find a closed port */
+  /* Now we should find a closed TCP port */
   if (target->FPR->osscan_closedtcpport > 0)
     closedTCPPort = target->FPR->osscan_closedtcpport;
   else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_CLOSED))) {
@@ -1153,7 +1147,7 @@ void HostOsScanStats::initScanStats() {
     closedTCPPort = (get_random_uint() % 14781) + 30000;
   }
 
-  /* Now we should find a closed udp port */
+  /* Now we should find a closed UDP port */
   if (target->FPR->osscan_closedudpport > 0)
     closedUDPPort = target->FPR->osscan_closedudpport;
   else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_CLOSED))) {
@@ -1442,8 +1436,8 @@ void HostOsScan::buildSeqProbeList(HostOsScanStats *hss) {
 }
 
 
-/* Update the seq probes in the active probe list:
- * o Remove the timedout seq probes. */
+/* Update the seq probes in the active probe list and remove the ones that have
+ * timed out. */
 void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
   assert(hss);
   list<OFProbe *>::iterator probeI, nxt;
@@ -1464,7 +1458,7 @@ void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
 }
 
 
-/* initiate the normal tcp/udp/icmp probe list */
+/* Initialize the normal TCP/UDP/ICMP probe list */
 void HostOsScan::buildTUIProbeList(HostOsScanStats *hss) {
   assert(hss);
   int i;
@@ -1619,8 +1613,8 @@ bool HostOsScan::hostSendOK(HostOsScanStats *hss, struct timeval *when) {
 }
 
 
-/* Check whether it is ok to send the next seq probe to the host. If
- * not, fill _when_ with the time when it will be sendOK and return
+/* Check whether it is OK to send the next seq probe to the host. If
+ * not, fill param "when" with the time when it will be sendOK and return
  * false; else, fill it with now and return true. */
 bool HostOsScan::hostSeqSendOK(HostOsScanStats *hss, struct timeval *when) {
   assert(hss);
@@ -1735,7 +1729,7 @@ void HostOsScan::sendNextProbe(HostOsScanStats *hss) {
 
   probe->tryno++;
   if(probe->tryno > 0) {
-    /* This is a retransmiting */
+    /* This is a retransmission */
     probe->retransmitted = true;
     probe->prevSent = probe->sent;
   }
