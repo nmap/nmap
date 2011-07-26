@@ -662,7 +662,7 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
       }
     }
     else {
-	  foundgood = false;
+      foundgood = false;
       for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         thisHostGood = HOS->hostSendOK((*hostI)->hss, &tmptv);
         if (thisHostGood) {
@@ -736,8 +736,8 @@ static void doTUITests(OsScanInfo *OSI, HostOsScan *HOS) {
     if(expectReplies == 0) {
       timeToSleep = TIMEVAL_SUBTRACT(stime, now);
     } else {
-	  timeToSleep = 0;
-	}
+      timeToSleep = 0;
+    }
 
   } while (numProbesLeft > 0);
 }
@@ -841,17 +841,17 @@ static void printFP(OsScanInfo *OSI) {
   for(hostI = OSI->incompleteHosts.begin();
       hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
-	FPR = hsi->target->FPR;
+    FPR = hsi->target->FPR;
 
-	log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
-		  "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
-		  hsi->target->targetipstr(),
-		  mergeFPs(FPR->FPs, FPR->numFPs, true,
-			   hsi->target->v4hostip(), hsi->target->distance,
-			   hsi->target->distance_calculation_method,
-			   hsi->target->MACAddress(),
-			   FPR->osscan_opentcpport, FPR->osscan_closedtcpport,
-			   FPR->osscan_closedudpport, false));
+    log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
+          "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
+          hsi->target->targetipstr(),
+          mergeFPs(FPR->FPs, FPR->numFPs, true,
+               hsi->target->v4hostip(), hsi->target->distance,
+               hsi->target->distance_calculation_method,
+               hsi->target->MACAddress(),
+               FPR->osscan_opentcpport, FPR->osscan_closedtcpport,
+               FPR->osscan_closedudpport, false));
   }
 }
 
@@ -861,7 +861,7 @@ static void printFP(OsScanInfo *OSI) {
    matching, it is transferred to the passed in unMatchedHosts list.
    Returns the number of hosts moved to unMatchedHosts. */
 static int expireUnmatchedHosts(OsScanInfo *OSI,
-				list<HostOsScanInfo *> *unMatchedHosts) {
+                list<HostOsScanInfo *> *unMatchedHosts) {
   list<HostOsScanInfo *>::iterator hostI, nextHost;
   int hostsRemoved = 0;
   HostOsScanInfo *HOS;
@@ -879,7 +879,7 @@ static int expireUnmatchedHosts(OsScanInfo *OSI,
 
     if (HOS->target->FPR->numFPs >= max_tries) {
       /* We've done all the OS2 tries we're going to do ... move this
-	 to unMatchedHosts */
+     to unMatchedHosts */
       HOS->target->stopTimeOutClock(&now);
       OSI->incompleteHosts.erase(hostI);
       /* We need to adjust nextI if necessary */
@@ -933,7 +933,7 @@ static int os_scan_2(vector<Target *> &Targets) {
       char targetstr[128];
       bool plural = (OSI->numIncompleteHosts() != 1);
       if (!plural) {
-	(*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
+    (*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
       } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
       log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();
@@ -992,8 +992,7 @@ void os_scan2(vector<Target *> &Targets) {
     if (diff > max_os_group_sz * fudgeratio) {
       diff = max_os_group_sz;
     }
-    tmpTargets.assign(Targets.begin() + startidx,
-		      Targets.begin() + startidx + diff);
+    tmpTargets.assign(Targets.begin() + startidx, Targets.begin() + startidx + diff);
     os_scan_2(tmpTargets);
     startidx += diff;
   }
@@ -1018,22 +1017,22 @@ OFProbe::OFProbe() {
 const char *OFProbe::typestr() {
   switch(type) {
   case OFP_UNSET:
-	return "OFP_UNSET";
+    return "OFP_UNSET";
   case OFP_TSEQ:
-	return "OFP_TSEQ";
+    return "OFP_TSEQ";
   case OFP_TOPS:
-	return "OFP_TOPS";
+    return "OFP_TOPS";
   case OFP_TECN:
-	return "OFP_TECN";
+    return "OFP_TECN";
   case OFP_T1_7:
-	return "OFP_T1_7";
+    return "OFP_T1_7";
   case OFP_TUDP:
-	return "OFP_TUDP";
+    return "OFP_TUDP";
   case OFP_TICMP:
-	return "OFP_TICMP";
+    return "OFP_TICMP";
   default:
-	assert(false);
-	return "ERROR";
+    assert(false);
+    return "ERROR";
   }
 }
 
@@ -1044,7 +1043,7 @@ const char *OFProbe::typestr() {
 
 HostOsScanStats::HostOsScanStats(Target * t) {
   int i;
-  
+
   target = t;
   FP = NULL;
 
@@ -1058,13 +1057,13 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   num_probes_sent = 0;
   sendDelayMs = MAX(o.scan_delay, OS_PROBE_DELAY);
   lastProbeSent = now;
-  
+
   /* timing */
   timing.cwnd = perf.host_initial_cwnd;
   timing.ccthresh = perf.initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
-  
+
   for (i=0; i<NUM_FPTESTS; i++)
     FPtests[i] = NULL;
   for (i=0; i<6; i++) {
@@ -1081,7 +1080,7 @@ HostOsScanStats::HostOsScanStats(Target * t) {
 
 HostOsScanStats::~HostOsScanStats() {
   int i;
-  
+
   for (i = 0; i < NUM_FPTESTS; i++) {
     if (FPtests[i] != NULL)
       delete FPtests[i];
@@ -1092,7 +1091,7 @@ HostOsScanStats::~HostOsScanStats() {
     if (TWin_AVs[i])
       free(TWin_AVs[i]);
   }
-  
+
   while(!probesToSend.empty()) {
     delete probesToSend.front();
     probesToSend.pop_front();
@@ -1117,7 +1116,7 @@ void HostOsScanStats::initScanStats() {
   /*  target->FPR->osscan_opentcpport = -1;
   target->FPR->osscan_closedtcpport = -1;
   target->FPR->osscan_closedudpport = -1; */
-  
+
   if (target->FPR->osscan_opentcpport > 0)
     openTCPPort = target->FPR->osscan_opentcpport;
   else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_OPEN))) {
@@ -1125,8 +1124,8 @@ void HostOsScanStats::initScanStats() {
     /* If it is zero, let's try another one if there is one ) */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_OPEN)))
-	openTCPPort = tport->portno;
-       
+        openTCPPort = tport->portno;
+
     target->FPR->osscan_opentcpport = openTCPPort;
   }
 
@@ -1139,7 +1138,7 @@ void HostOsScanStats::initScanStats() {
     /* If it is zero, let's try another one if there is one ) */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_CLOSED)))
-	closedTCPPort = tport->portno;
+        closedTCPPort = tport->portno;
 
     target->FPR->osscan_closedtcpport = closedTCPPort;
   } else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_TCP, PORT_UNFILTERED))) {
@@ -1148,7 +1147,7 @@ void HostOsScanStats::initScanStats() {
     /* But again we'd prefer not to have zero */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(tport, &port, IPPROTO_TCP, PORT_UNFILTERED)))
-	closedTCPPort = tport->portno;
+        closedTCPPort = tport->portno;
   } else {
     /* We'll just have to pick one at random :( */
     closedTCPPort = (get_random_uint() % 14781) + 30000;
@@ -1162,7 +1161,7 @@ void HostOsScanStats::initScanStats() {
     /* Not zero, if possible */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(tport, &port, IPPROTO_UDP, PORT_CLOSED)))
-	closedUDPPort = tport->portno;
+        closedUDPPort = tport->portno;
     target->FPR->osscan_closedudpport = closedUDPPort;
   } else if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED))) {
     /* Well, we will settle for unfiltered */
@@ -1170,7 +1169,7 @@ void HostOsScanStats::initScanStats() {
     /* But not zero, please */
     if (tport->portno == 0)
       if ((tport = target->ports.nextPort(NULL, &port, IPPROTO_UDP, PORT_UNFILTERED)))
-	closedUDPPort = tport->portno;
+        closedUDPPort = tport->portno;
   } else {
     /* Pick one at random.  Shrug. */
     closedUDPPort = (get_random_uint() % 14781) + 30000;
@@ -1178,15 +1177,15 @@ void HostOsScanStats::initScanStats() {
 
   FP = NULL;
   for (i=0; i<NUM_FPTESTS; i++) {
-	if (FPtests[i] != NULL)
-	  delete FPtests[i];
-	FPtests[i] = NULL;
+    if (FPtests[i] != NULL)
+      delete FPtests[i];
+    FPtests[i] = NULL;
   }
   for (i=0; i<6; i++) {
-	TOps_AVs[i] = NULL;
-	TWin_AVs[i] = NULL;
+    TOps_AVs[i] = NULL;
+    TWin_AVs[i] = NULL;
   }
-  
+
   TOpsReplyNum = 0;
   TWinReplyNum = 0;
 
@@ -1198,7 +1197,7 @@ void HostOsScanStats::initScanStats() {
     ipid.tcp_closed_ipids[i] = -1;
     ipid.icmp_ipids[i] = -1;
   }
-  
+
   memset(&seq_send_times, 0, sizeof(seq_send_times));
 
   if (icmpEchoReply) {
@@ -1207,7 +1206,7 @@ void HostOsScanStats::initScanStats() {
   }
   storedIcmpReply = -1;
 
-  memset(&upi, 0, sizeof(upi));  
+  memset(&upi, 0, sizeof(upi));
 }
 
 
@@ -1249,20 +1248,20 @@ void HostOsScanStats::removeActiveProbe(list<OFProbe *>::iterator probeI) {
 list<OFProbe *>::iterator HostOsScanStats::getActiveProbe(OFProbeType type, int subid) {
   list<OFProbe *>::iterator probeI;
   OFProbe *probe = NULL;
-  
+
   for(probeI = probesActive.begin(); probeI != probesActive.end(); probeI++) {
     probe = *probeI;
     if(probe->type == type && probe->subid == subid)
       break;
   }
-  
+
   if(probeI == probesActive.end()) {
-    /* not found!? */ 
+    /* not found!? */
     if(o.debugging > 1)
       log_write(LOG_PLAIN, "Probe doesn't exist! Probe type: %d. Probe subid: %d\n", type, subid);
     return probesActive.end();
   }
-  
+
   return probeI;
 }
 
@@ -1288,11 +1287,10 @@ double HostOsScanStats::timingRatio() {
   if (openTCPPort < 0)
     return 0;
   int msec_ideal = OS_SEQ_PROBE_DELAY * (NUM_SEQ_SAMPLES - 1);
-  int msec_taken = TIMEVAL_MSEC_SUBTRACT(seq_send_times[NUM_SEQ_SAMPLES -1 ], 
-					 seq_send_times[0]);
+  int msec_taken = TIMEVAL_MSEC_SUBTRACT(seq_send_times[NUM_SEQ_SAMPLES -1 ], seq_send_times[0]);
   if (o.debugging) {
     log_write(LOG_PLAIN, "OS detection timingRatio() == (%.3f - %.3f) * 1000 / %d == %.3f\n",
-	      seq_send_times[NUM_SEQ_SAMPLES - 1].tv_sec + seq_send_times[NUM_SEQ_SAMPLES - 1].tv_usec / 1000000.0, seq_send_times[0].tv_sec + (float) seq_send_times[0].tv_usec / 1000000.0, msec_ideal, (float) msec_taken / msec_ideal);
+              seq_send_times[NUM_SEQ_SAMPLES - 1].tv_sec + seq_send_times[NUM_SEQ_SAMPLES - 1].tv_usec / 1000000.0, seq_send_times[0].tv_sec + (float) seq_send_times[0].tv_usec / 1000000.0, msec_ideal, (float) msec_taken / msec_ideal);
   }
   return (double) msec_taken / msec_ideal;
 }
@@ -1337,7 +1335,7 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
     adjust_timeouts2(&(probe->sent), rcvdtime, &(hss->target->to));
     adjust_timeouts2(&(probe->sent), rcvdtime, &(stats->to));
   }
-  
+
   hss->timing.num_updates++;
   stats->timing.num_updates++;
 
@@ -1354,7 +1352,7 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
       stats->timing.last_drop = now;
     }
   } else {
-    /* Good news -- got a response to first try.  Increase window as 
+    /* Good news -- got a response to first try.  Increase window as
        appropriate.  */
     if (hss->timing.cwnd <= hss->timing.ccthresh) {
       /* In quick start mode */
@@ -1451,10 +1449,9 @@ void HostOsScan::updateActiveSeqProbes(HostOsScanStats *hss) {
   list<OFProbe *>::iterator probeI, nxt;
   OFProbe *probe = NULL;
 
-  for(probeI = hss->probesActive.begin(); probeI != hss->probesActive.end();
-	  probeI = nxt) {
-	nxt = probeI;
-	nxt++;
+  for(probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI = nxt) {
+    nxt = probeI;
+    nxt++;
     probe = *probeI;
 
     /* Is the probe timedout? */
@@ -1496,8 +1493,7 @@ void HostOsScan::buildTUIProbeList(HostOsScanStats *hss) {
 
   if(hss->openTCPPort != -1) {
     /* tops/twin probes. We send the probe again if we didn't get a
-	   response by the corresponding seq probe.
-	 */
+       response by the corresponding seq probe. */
     if(!hss->FP_TOps || !hss->FP_TWin) {
       for(i=0; i<6; i++) {
         if(!hss->TOps_AVs[i] || !hss->TWin_AVs[i])
@@ -1535,10 +1531,9 @@ void HostOsScan::updateActiveTUIProbes(HostOsScanStats *hss) {
   list<OFProbe *>::iterator probeI, nxt;
   OFProbe *probe = NULL;
 
-  for(probeI = hss->probesActive.begin(); probeI != hss->probesActive.end();
-	  probeI = nxt) {
-	nxt = probeI;
-	nxt++;
+  for(probeI = hss->probesActive.begin(); probeI != hss->probesActive.end(); probeI = nxt) {
+    nxt = probeI;
+    nxt++;
     probe = *probeI;
 
     if(TIMEVAL_SUBTRACT(now, probe->sent) > (long) timeProbeTimeout(hss)) {
@@ -1922,7 +1917,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
       if(isPktUseful) {
         hss->ipid.tcp_ipids[testno] = ntohs(ip->ip_id);
         probeI = hss->getActiveProbe(OFP_TSEQ, testno);
-		/* printf("tcp ipid = %d\n", ntohs(ip->ip_id)); */
+        /* printf("tcp ipid = %d\n", ntohs(ip->ip_id)); */
       }
 
       /* Use the seq response to do other tests. We don't care if it
@@ -1935,14 +1930,14 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
       if (testno<6) {
         /* the 1th~6th replies are used to do TOps and TWin */
         processTOpsResp(hss, tcp, testno);
-		processTWinResp(hss, tcp, testno);
+        processTWinResp(hss, tcp, testno);
       }
 
     } else if (testno>=NUM_SEQ_SAMPLES && testno<NUM_SEQ_SAMPLES+6) {
 
       /* TOps/Twin */
       isPktUseful = processTOpsResp(hss, tcp, testno - NUM_SEQ_SAMPLES);
-	  isPktUseful |= processTWinResp(hss, tcp, testno - NUM_SEQ_SAMPLES);
+      isPktUseful |= processTWinResp(hss, tcp, testno - NUM_SEQ_SAMPLES);
       if(isPktUseful) {
         probeI = hss->getActiveProbe(OFP_TOPS, testno - NUM_SEQ_SAMPLES);
       }
@@ -1957,7 +1952,7 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
 
     } else if (testno >= NUM_SEQ_SAMPLES+7 && testno<NUM_SEQ_SAMPLES+14) {
 
-	  isPktUseful = processT1_7Resp(hss, ip, testno-NUM_SEQ_SAMPLES-7);
+      isPktUseful = processT1_7Resp(hss, ip, testno-NUM_SEQ_SAMPLES-7);
 
       if(isPktUseful) {
         probeI = hss->getActiveProbe(OFP_T1_7, testno-NUM_SEQ_SAMPLES-7);
@@ -1976,17 +1971,17 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
     /* Is it an icmp echo reply? */
     if (icmp->icmp_type == ICMP_ECHOREPLY) {
       testno = ntohs(icmp->icmp_id) - icmpEchoId;
-	  if (testno==0 || testno==1) {
-		isPktUseful = processTIcmpResp(hss, ip, testno);
-		if(isPktUseful) {
-		  probeI = hss->getActiveProbe(OFP_TICMP, testno);
-		}
+      if (testno==0 || testno==1) {
+        isPktUseful = processTIcmpResp(hss, ip, testno);
+        if(isPktUseful) {
+          probeI = hss->getActiveProbe(OFP_TICMP, testno);
+        }
 
-		if(isPktUseful && probeI != hss->probesActive.end() && !(*probeI)->retransmitted) { /* Retransmitted ipid is useless. */
-		  hss->ipid.icmp_ipids[testno] = ntohs(ip->ip_id);
-		  /* printf("icmp ipid = %d\n", ntohs(ip->ip_id)); */
-		}
-	  }
+        if(isPktUseful && probeI != hss->probesActive.end() && !(*probeI)->retransmitted) { /* Retransmitted ipid is useless. */
+          hss->ipid.icmp_ipids[testno] = ntohs(ip->ip_id);
+          /* printf("icmp ipid = %d\n", ntohs(ip->ip_id)); */
+        }
+      }
     }
 
     /* Is it a destination port unreachable? */
@@ -2011,9 +2006,9 @@ bool HostOsScan::processResp(HostOsScanStats *hss, struct ip *ip, unsigned int l
     if(rcvdtime)
       adjust_times(hss, probe, rcvdtime);
 
-	if(o.debugging > 1)
-	  log_write(LOG_PLAIN, "Got a valid response for probe (type: %s subid: %d) from %s\n",
-		    probe->typestr(), probe->subid, hss->target->targetipstr());
+    if(o.debugging > 1)
+      log_write(LOG_PLAIN, "Got a valid response for probe (type: %s subid: %d) from %s\n",
+            probe->typestr(), probe->subid, hss->target->targetipstr());
 
     /* delete the probe. */
     hss->removeActiveProbe(probeI);
@@ -2047,9 +2042,9 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
 
   for(i=3; i < NUM_FPTESTS; i++) {
     if (!hss->FPtests[i] &&
-		((i>=3 && i<=7 && hss->openTCPPort !=  -1) ||
-		 (i>=8 && i<=10 && hss->target->FPR->osscan_closedtcpport != -1) ||
-		 i>=11)) {
+        ((i>=3 && i<=7 && hss->openTCPPort !=  -1) ||
+         (i>=8 && i<=10 && hss->target->FPR->osscan_closedtcpport != -1) ||
+         i>=11)) {
       /* We create a Resp (response) attribute with value of N (no) because
          it is important here to note whether responses were or were not
          received */
@@ -2059,34 +2054,32 @@ void HostOsScan::makeFP(HostOsScanStats *hss) {
       hss->FPtests[i]->results.push_back(AV);
       hss->FPtests[i]->name =  (i == 3)? "ECN" : (i == 4)? "T1" : (i == 5)? "T2" : (i == 6)? "T3" : (i == 7)? "T4" : (i == 8)? "T5" : (i == 9)? "T6" : (i == 10)? "T7" : (i == 11)? "U1" : "IE";
     }
-	else if(hss->FPtests[i]) {
-	  /* Replace TTL with initial TTL. */
-          for (it = hss->FPtests[i]->results.begin();
-               it != hss->FPtests[i]->results.end();
-               it++) {
-		if (strcmp(it->attribute, "T") == 0) {
-		  /* Found TTL item. The value for this attribute is the
-		     received TTL encoded in decimal. We replace it with the
-		     initial TTL encoded in hex. */
-		  ttl = atoi(it->value);
+    else if(hss->FPtests[i]) {
+      /* Replace TTL with initial TTL. */
+      for (it = hss->FPtests[i]->results.begin(); it != hss->FPtests[i]->results.end(); it++) {
+        if (strcmp(it->attribute, "T") == 0) {
+            /* Found TTL item. The value for this attribute is the
+             * received TTL encoded in decimal. We replace it with the
+             * initial TTL encoded in hex. */
+            ttl = atoi(it->value);
 
-		  if(hss->distance_guess == -1)
-			hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
+            if(hss->distance_guess == -1)
+                hss->distance_guess = get_initial_ttl_guess(ttl) - ttl;
 
-		  if(hss->distance != -1) {
-			/* We've gotten response for the UDP probe and thus have
-			   the "true" hop count. Add the received TTL to the hop
-			   count to get the initial TTL. */
-			it->value = string_pool_sprintf("%hX", ttl + hss->distance);
-		  } else {
-			/* Guess the initial TTL value */
-			it->attribute = "TG";
-			it->value = string_pool_sprintf("%hX", get_initial_ttl_guess(ttl));
-		  }
-		  break;
-		}
-	  }
-	}
+            if(hss->distance != -1) {
+                /* We've gotten response for the UDP probe and thus have
+                   the "true" hop count. Add the received TTL to the hop
+                   count to get the initial TTL. */
+                it->value = string_pool_sprintf("%hX", ttl + hss->distance);
+            } else {
+                /* Guess the initial TTL value */
+                it->attribute = "TG";
+                it->value = string_pool_sprintf("%hX", get_initial_ttl_guess(ttl));
+            }
+            break;
+        }
+      }
+    }
   }
 
   /* Link them up. */
@@ -2133,10 +2126,8 @@ int HostOsScan::send_icmp_echo_probe(HostOsScanStats *hss,
 
   for(decoy = 0; decoy < o.numdecoys; decoy++) {
     packet = build_icmp_raw(&o.decoys[decoy], hss->target->v4hostip(),
-    			    o.ttl, get_random_u16(), tos, df,
-    			    NULL, 0,
-    			    seq, id, ICMP_ECHO, pcode,
-    			    NULL, datalen, &packetlen);
+                            o.ttl, get_random_u16(), tos, df, NULL, 0, seq, id,
+                            ICMP_ECHO, pcode, NULL, datalen, &packetlen);
     if(!packet) return -1;
     res = send_ip_packet(rawsd, ethptr, packet, packetlen);
     free(packet);
@@ -2173,9 +2164,9 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
   /*  while(!id) id = get_random_uint(); */
 
   if (ttl == -1) {
-	myttl = (time(NULL) % 14) + 51;
+    myttl = (time(NULL) % 14) + 51;
   } else {
-	myttl = ttl;
+    myttl = ttl;
   }
 
   /* check that required fields are there and not too silly */
@@ -2195,7 +2186,7 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
 
     /* OK, now we should be able to compute a valid checksum */
     realcheck = ipv4_pseudoheader_cksum(source, hss->target->v4hostip(), IPPROTO_UDP,
-				   sizeof(struct udp_hdr) + datalen, (char *) udp);
+                                        sizeof(struct udp_hdr) + datalen, (char *) udp);
 #if STUPID_SOLARIS_CHECKSUM_BUG
     udp->uh_sum = sizeof(struct udp_hdr) + datalen;
 #else
@@ -2251,10 +2242,10 @@ ScanStats::ScanStats() {
   timing.ccthresh = perf.initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
-  
+
   initialize_timeout_info(&to);
-  
-  num_probes_active = 0;  
+
+  num_probes_active = 0;
   num_probes_sent = num_probes_sent_at_last_wait = 0;
 }
 
@@ -2266,7 +2257,7 @@ bool ScanStats::sendOK() {
 
   if (timing.cwnd < num_probes_active + 0.5)
     return false;
-  
+
   return true;
 }
 
@@ -2313,9 +2304,9 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
         ts_diffs[j - 1] = MOD_DIFF(hss->si.timestamps[j], hss->si.timestamps[j - 1]);
         time_usec_diffs[j - 1] = TIMEVAL_SUBTRACT(hss->seq_send_times[j], hss->seq_send_times[j - 1]);
         if (!time_usec_diffs[j - 1]) time_usec_diffs[j - 1]++; /* We divide by this later */
-	/* Rate of ISN increase per second */
-	seq_rates[j - 1] = seq_diffs[j-1] * 1000000.0 / time_usec_diffs[j-1];
-	seq_avg_rate += seq_rates[j-1];
+    /* Rate of ISN increase per second */
+    seq_rates[j - 1] = seq_diffs[j-1] * 1000000.0 / time_usec_diffs[j-1];
+    seq_avg_rate += seq_rates[j-1];
       }
       j++;
     } /* Otherwise nothing good in this slot to copy */
@@ -2339,42 +2330,41 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
     } else {
 
       /* Finally we take a binary logarithm, multiply by 8, and round
-	 to get the final result */
+       * to get the final result */
       seq_rate = log(seq_rate) / log(2.0);
       seq_rate = (unsigned int) (seq_rate * 8 + 0.5);
 
       /* Normally we don't divide by gcd in computing the rate stddev
-	 because otherwise we'll get an artificially low value about
-	 1/32 of the time if the responses all happen to be even.  On
-	 the other hand, if a system inherently uses a large gcd such
-	 as 64,000, we want to get rid of it.  So as a compromise, we
-	 divide by the gcd if it is at least 9 */
-
+       * because otherwise we'll get an artificially low value about
+       * 1/32 of the time if the responses all happen to be even.  On
+       * the other hand, if a system inherently uses a large gcd such
+       * as 64,000, we want to get rid of it.  So as a compromise, we
+       * divide by the gcd if it is at least 9 */
       int div_gcd = 1;
       if (seq_gcd > 9)
-	div_gcd = seq_gcd;
+        div_gcd = seq_gcd;
 
       for(i=0; i < hss->si.responses - 1; i++) {
-	double rtmp = seq_rates[i] / div_gcd - seq_avg_rate / div_gcd;
-	seq_stddev += rtmp * rtmp;
+        double rtmp = seq_rates[i] / div_gcd - seq_avg_rate / div_gcd;
+        seq_stddev += rtmp * rtmp;
       }
 
       /* We divide by ((numelements in seq_diffs) - 1), which is
-	 (si.responses - 2), because that gives a better approx of
-	 std. dev when you're only looking at a subset of whole
-	 population. */
+       * (si.responses - 2), because that gives a better approx of
+       * std. dev when you're only looking at a subset of whole
+       * population. */
       seq_stddev /= hss->si.responses - 2;
 
       /* Next we need to take the square root of this value */
       seq_stddev = sqrt(seq_stddev);
 
       /* Finally we take a binary logarithm, multiply by 8, and round
-	 to get the final result */
+       * to get the final result */
       if (seq_stddev <= 1)
-	hss->si.index = 0;
+        hss->si.index = 0;
       else {
-	seq_stddev = log(seq_stddev) / log(2.0);
-	hss->si.index = (int) (seq_stddev * 8 + 0.5);
+        seq_stddev = log(seq_stddev) / log(2.0);
+        hss->si.index = (int) (seq_stddev * 8 + 0.5);
       }
     }
 
@@ -2508,8 +2498,7 @@ void HostOsScan::makeTSeqFP(HostOsScanStats *hss) {
       /* Up 2 years?  Perhaps, but they're probably lying. */
       if (o.debugging) {
         log_write(LOG_STDOUT, "Ignoring claimed %s uptime of %lu days",
-	      hss->target->targetipstr(),
-              (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
+        hss->target->targetipstr(), (hss->seq_send_times[0].tv_sec - hss->si.lastboot) / 86400);
       }
       lastboot = 0;
     }
@@ -2716,22 +2705,22 @@ bool HostOsScan::processTOpsResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
   switch(replyNo) {
   case 0:
     hss->TOps_AVs[replyNo]->attribute = "O1";
-	break;
+    break;
   case 1:
     hss->TOps_AVs[replyNo]->attribute = "O2";
-	break;
+    break;
   case 2:
     hss->TOps_AVs[replyNo]->attribute = "O3";
-	break;
+    break;
   case 3:
     hss->TOps_AVs[replyNo]->attribute = "O4";
-	break;
+    break;
   case 4:
     hss->TOps_AVs[replyNo]->attribute = "O5";
-	break;
+    break;
   case 5:
     hss->TOps_AVs[replyNo]->attribute = "O6";
-	break;
+    break;
   }
 
   hss->TOpsReplyNum++;
@@ -2749,23 +2738,23 @@ bool HostOsScan::processTWinResp(HostOsScanStats *hss, struct tcp_hdr *tcp, int 
 
   switch(replyNo) {
   case 0:
-	hss->TWin_AVs[replyNo]->attribute = "W1";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W1";
+    break;
   case 1:
-	hss->TWin_AVs[replyNo]->attribute = "W2";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W2";
+    break;
   case 2:
-	hss->TWin_AVs[replyNo]->attribute = "W3";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W3";
+    break;
   case 3:
-	hss->TWin_AVs[replyNo]->attribute = "W4";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W4";
+    break;
   case 4:
-	hss->TWin_AVs[replyNo]->attribute = "W5";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W5";
+    break;
   case 5:
-	hss->TWin_AVs[replyNo]->attribute = "W6";
-	break;
+    hss->TWin_AVs[replyNo]->attribute = "W6";
+    break;
   }
 
   hss->TWinReplyNum++;
@@ -2815,9 +2804,9 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
   opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
 
   if (!opsParseResult) {
-	if (o.debugging)
-	  error("Option parse error for ECN response from %s.", hss->target->targetipstr());
-	AV.value = "";
+    if (o.debugging)
+      error("Option parse error for ECN response from %s.", hss->target->targetipstr());
+    AV.value = "";
   }
 
   AV.value = string_pool_insert(ops_buf);
@@ -2832,7 +2821,7 @@ bool HostOsScan::processTEcnResp(HostOsScanStats *hss, struct ip *ip) {
     /* support */
     AV.value = "Y";
   else if (!(tcp->th_flags & TH_CWR))
-	/* not support */
+    /* not support */
     AV.value = "N";
   else
     AV.value = "O";
@@ -2906,10 +2895,10 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
   AVs.push_back(AV);
 
   if(replyNo!=0) {
-	/* Now we do the TCP Window size */
-	AV.attribute = "W";
-	AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
-	AVs.push_back(AV);
+    /* Now we do the TCP Window size */
+    AV.attribute = "W";
+    AV.value = string_pool_sprintf("%hX", ntohs(tcp->th_win));
+    AVs.push_back(AV);
   }
 
   /* Seq test values:
@@ -2930,7 +2919,7 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
   AVs.push_back(AV);
 
   /* ACK test values:
-	 Z   = zero
+     Z   = zero
      S   = same as syn
      S+  = syn + 1
      O   = other
@@ -2981,17 +2970,17 @@ bool HostOsScan::processT1_7Resp(HostOsScanStats *hss, struct ip *ip, int replyN
   if(replyNo!=0) {
         char ops_buf[256];
 
-	/* Now for the TCP options ... */
-	AV.attribute = "O";
-	opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
-	if (!opsParseResult) {
-	  if (o.debugging)
-		error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
-	  AV.value = "";
-	}
+    /* Now for the TCP options ... */
+    AV.attribute = "O";
+    opsParseResult = get_tcpopt_string(tcp, this->tcpMss, ops_buf, sizeof(ops_buf));
+    if (!opsParseResult) {
+      if (o.debugging)
+        error("Option parse error for T%d response from %s.", replyNo, hss->target->targetipstr());
+      AV.value = "";
+    }
 
-	AV.value = string_pool_insert(ops_buf);
-	AVs.push_back(AV);
+    AV.value = string_pool_insert(ops_buf);
+    AVs.push_back(AV);
   }
 
   /* Rst Data CRC32 */
@@ -3107,9 +3096,9 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
      up */
   AV.attribute = "RIPL";
   if(ntohs(ip2->ip_len) == 328)
-	AV.value = "G";
+    AV.value = "G";
   else
-	AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_len));
+    AV.value = string_pool_sprintf("%hX", ntohs(ip2->ip_len));
   AVs.push_back(AV);
 
   /* This next test doesn't work on Solaris because the lamers
@@ -3176,7 +3165,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   /* Count hop count */
   if (hss->distance == -1) {
-	hss->distance = this->udpttl - ip2->ip_ttl;
+    hss->distance = this->udpttl - ip2->ip_ttl;
   }
 
   return true;
@@ -3244,7 +3233,7 @@ bool HostOsScan::processTIcmpResp(HostOsScanStats *hss, struct ip *ip, int reply
     /* echo back */
     AV.value = "S";
   else if (!value1 && !value2)
-	/* neither set */
+    /* neither set */
     AV.value = "N";
   else
     AV.value = "O";
@@ -3318,10 +3307,10 @@ bool HostOsScan::get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, i
       *p++ = 'M';
       q++;
       memcpy(&tmpshort, q, 2);
-	  /*  if(ntohs(tmpshort) == mss) */
-	  /*    *p++ = 'E'; */
-	  sprintf(p, "%hX", ntohs(tmpshort));
-	  p += strlen(p); /* max movement of p is 4 (0xFFFF) */
+      /*  if(ntohs(tmpshort) == mss) */
+      /*    *p++ = 'E'; */
+      sprintf(p, "%hX", ntohs(tmpshort));
+      p += strlen(p); /* max movement of p is 4 (0xFFFF) */
       q += 2;
       length -= 4;
     } else if (opcode == 3) { /* Window Scale */
