@@ -95,9 +95,12 @@ local output = function(parsed, lists)
 	for _, l in ipairs(lists) do
 		local v = parsed[l]
 		local a = v:len() > 0 and stdnse.strsplit(",", v) or {}
-		local e = { ["name"] = l .. " (" .. #a .. ")" }
+		local e
 		if nmap.verbosity() > 0 then
+			e = { ["name"] = l .. " (" .. #a .. ")" }
 			table.insert(e, a)
+		else
+			e = l .. " (" .. #a .. ")"
 		end
 		table.insert(out, e)
 	end
