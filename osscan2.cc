@@ -347,6 +347,8 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
   bool doIndividual = Targets.size() <= 20; // Don't bother IP limits if scanning huge # of hosts
   pcap_filter[0] = '\0';
 
+  /* If we have 20 or less targets, build a list of addresses so we can set
+   * an explicit BPF filter */
   if (doIndividual) {
     for(targetno = 0; targetno < Targets.size(); targetno++) {
       len = Snprintf(dst_hosts + filterlen,
@@ -361,11 +363,12 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
     if (len < 0 || len + filterlen >= (int) sizeof(dst_hosts))
       fatal("ran out of space in dst_hosts");
   }
-  filterlen = 0;
 
+  /* Open a network interface for packet capture */
   if((HOS->pd=my_pcap_open_live(Targets[0]->deviceName(), 8192,  (o.spoofsource)? 1 : 0, pcap_selectable_fd_valid()? 200 : 2))==NULL)
     fatal("%s", PCAP_OPEN_ERRMSG);
 
+  /* Build the final BPF filter */
   if (doIndividual)
     len = Snprintf(pcap_filter, sizeof(pcap_filter), "dst host %s and (icmp or (tcp and (%s",
                    inet_ntoa(Targets[0]->v4source()), dst_hosts);
@@ -374,8 +377,8 @@ static void begin_sniffer(HostOsScan *HOS, vector<Target *> &Targets) {
                    inet_ntoa(Targets[0]->v4source()));
   if (len < 0 || len >= (int) sizeof(pcap_filter))
     fatal("ran out of space in pcap filter");
-  filterlen = len;
 
+  /* Compile and apply the filter to the pcap descriptor */
   if (o.debugging) log_write(LOG_PLAIN, "Packet capture filter (device %s): %s\n", Targets[0]->deviceFullName(), pcap_filter);
   set_pcap_filter(Targets[0]->deviceFullName(), HOS->pd, pcap_filter);
 
