@@ -519,6 +519,5 @@ class HostOsScanInfo {
   HostOsScanStats *hss; /* Scan status of the host in one scan round   */
 };
 
-
 #endif /*OSSCAN2_H*/
 
