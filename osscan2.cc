@@ -188,6 +188,11 @@ static struct AVal *make_aval_ipid_seq(struct AVal *av, const char *attribute,
 }
 
 
+/* Returns a guess about the original TTL based on an observed TTL value.
+ * This function assumes that the target from which we received the packet was
+ * less than 32 hops away. Also, note that although some systems use an
+ * initial TTL of 60, this function rounds that to 64, as both values
+ * cannot be reliably distinguished based on a simple observed hop count. */
 int get_initial_ttl_guess(u8 ttl) {
   if (ttl <= 32)
     return 32;
