@@ -413,33 +413,34 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
   HostOsScanStats *hss = NULL;
-  unsigned int unableToSend; /* # of times in a row that hosts were unable to send probe */
-  unsigned int expectReplies;
-  long to_usec;
+  unsigned int unableToSend = 0;  /* # of times in a row that hosts were unable to send probe */
+  unsigned int expectReplies = 0;
+  long to_usec = 0;
   int timeToSleep = 0;
-
   struct ip *ip = NULL;
   struct link_header linkhdr;
   struct sockaddr_storage ss;
-  unsigned int bytes;
+  unsigned int bytes = 0;
   struct timeval rcvdtime;
-
-  struct timeval stime, tmptv;
+  struct timeval stime;
+  struct timeval tmptv;
   bool timedout = false;
-  bool thisHostGood;
-  bool foundgood;
-  bool goodResponse;
+  bool thisHostGood = false;
+  bool foundgood = false;
+  bool goodResponse = false;
   int numProbesLeft = 0;
 
   memset(&stime, 0, sizeof(stime));
   memset(&tmptv, 0, sizeof(tmptv));
 
+  /* For each host, build a list of sequence probes to send */
   for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
     hss = hsi->hss;
     HOS->buildSeqProbeList(hss);
   }
 
+  /* Iterate until we have sent all the probes */
   do {
     if(timeToSleep > 0) {
       if(o.debugging > 1) {
@@ -453,7 +454,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
     unableToSend = 0;
 
     if(o.debugging > 2) {
-	  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
+      for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         hss = (*hostI)->hss;
         log_write(LOG_PLAIN, "Host %s. ProbesToSend %d: \tProbesActive %d\n",
                   hss->target->targetipstr(), hss->numProbesToSend(),
@@ -483,7 +484,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
     if(!HOS->stats->sendOK()) {
       TIMEVAL_MSEC_ADD(stime, now, 1000);
 
-	  for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
+    for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         if (HOS->nextTimeout((*hostI)->hss, &tmptv)) {
           if (TIMEVAL_SUBTRACT(tmptv, stime) < 0)
             stime = tmptv;
@@ -491,7 +492,7 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
       }
     }
     else {
-	  foundgood = false;
+      foundgood = false;
       for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
         thisHostGood = HOS->hostSeqSendOK((*hostI)->hss, &tmptv);
         if (thisHostGood) {
@@ -565,8 +566,8 @@ static void doSeqTests(OsScanInfo *OSI, HostOsScan *HOS) {
     if(expectReplies == 0) {
       timeToSleep = TIMEVAL_SUBTRACT(stime, now);
     } else {
-	  timeToSleep = 0;
-	}
+      timeToSleep = 0;
+    }
 
   } while(numProbesLeft > 0);
 
