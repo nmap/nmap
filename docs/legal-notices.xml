@@ -130,7 +130,7 @@ before doing even a light scan of a network.</para>
 </para>
 </refsect2>
 
-<refsect2 id="third-party-soft"><title>Third-Party Software</title>
+<refsect2 id="third-party-soft"><title>Third-Party Software and Funding Notices</title>
 
 <para>This product includes software developed by
 the <ulink role="hidepdf" url="http://www.apache.org">Apache Software
@@ -164,6 +164,10 @@ necessary to run Zenmap and Ndiff with Python and PyGTK. (Unix platforms
 commonly make these libraries easy to install, so they are not part of
 the packages.) A listing of these support libraries and their licenses
 is included in the <filename>LICENSES</filename> files.
+</para>
+
+<para>
+This software was supported in part through the <ulink url="http://nmap.org/soc/">Google Summer of Code</ulink> and the <ulink role="hidepdf" url="https://www.fbo.gov/index?s=opportunity&amp;mode=form&amp;id=585e02a51f77af5cb3c9e06b9cc82c48&amp;tab=core&amp;_cview=1">DARPA CINDER program</ulink> (DARPA-BAA-10-84).
 </para>
 
 </refsect2>
