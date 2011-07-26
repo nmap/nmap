@@ -207,9 +207,13 @@ class HostOsScan;
 class HostOsScanInfo;
 class OsScanInfo;
 
-class OFProbe
-{
-public:
+/** Represents an OS detection probe. It does not contain the actual packet
+ * that is sent to the target but contains enough information to generate
+ * it (such as the probe type and its subid). It also stores timing
+ * information. */
+class OFProbe {
+
+ public:
   OFProbe();
 
   /* The literal string for the current probe type. */
@@ -221,7 +225,8 @@ public:
   /* Subid of this probe to separate different tcp/udp/icmp. */
   int subid;
 
-  int tryno; /* Try (retransmission) number of this probe */
+  /* Try (retransmission) number of this probe */
+  int tryno;
 
   /* A packet may be timedout for a while before being retransmitted
      due to packet sending rate limitations */
@@ -233,39 +238,33 @@ public:
   struct timeval prevSent;
 };
 
-/*
- * HostOsScanStats stores the status for a host being scanned
- * in a scan round.
- */
-class HostOsScanStats
-{
-  friend class HostOsScan;
-public:
+
+/* Stores the status for a host being scanned in a scan round. */
+class HostOsScanStats {
+
+ friend class HostOsScan;
+ 
+ public:
   HostOsScanStats(Target *t);
   ~HostOsScanStats();
   void initScanStats();
-
   struct eth_nfo *fill_eth_nfo(struct eth_nfo *eth, eth_t *ethsd) const;
-
   void addNewProbe(OFProbeType type, int subid);
   void removeActiveProbe(list<OFProbe *>::iterator probeI);
-
-/* Get an active probe from active probe list identified by probe type
-   and subid.  returns probesActive.end() if there isn't one. */
+  /* Get an active probe from active probe list identified by probe type
+   * and subid.  returns probesActive.end() if there isn't one. */
   list<OFProbe *>::iterator getActiveProbe(OFProbeType type, int subid);
   void moveProbeToActiveList(list<OFProbe *>::iterator probeI);
   void moveProbeToUnSendList(list<OFProbe *>::iterator probeI);
   unsigned int numProbesToSend() {return probesToSend.size();}
   unsigned int numProbesActive() {return probesActive.size();}
-
   FingerPrint *getFP() {return FP;}
 
   Target *target; /* the Target */
   struct seq_info si;
   struct ipid_info ipid;
 
-  /*
-   * distance, distance_guess: hop count between us and the target.
+  /* distance, distance_guess: hop count between us and the target.
    *
    * Possible values of distance:
    *   0: when scan self;
@@ -275,18 +274,17 @@ public:
    *
    * Possible values of distance_guess:
    *  -1: nmap fails to get a valid ttl by all kinds of probes.
-   * >=1: a guessing value based on ttl.
-   */
+   * >=1: a guessing value based on ttl. */
   int distance;
   int distance_guess;
 
   /* Returns the amount of time taken between sending 1st tseq probe
-     and the last one.  Zero is
-     returned if we didn't send the tseq probes because there was no
-     open tcp port */
+   * and the last one.  Zero is
+   * returned if we didn't send the tseq probes because there was no
+   * open tcp port */
   double timingRatio();
 
-private:
+ private:
   /* Ports of the targets used in os fingerprinting. */
   int openTCPPort, closedTCPPort, closedUDPPort;
 
@@ -294,47 +292,43 @@ private:
    * probesToSend; when a probe is sent, it will be removed from
    * probesToSend and appended to probesActive. If any probes in
    * probesActive are timedout, they will be moved to probesToSend and
-   * sent again till expired.
-   */
+   * sent again till expired. */
   list<OFProbe *> probesToSend;
   list<OFProbe *> probesActive;
 
   /* A record of total number of probes that have been sent to this
    * host, including restranmited ones. */
   unsigned int num_probes_sent;
-  /* Delay between two probes. */
+  /* Delay between two probes.    */
   unsigned int sendDelayMs;
   /* When the last probe is sent. */
   struct timeval lastProbeSent;
 
   osscan_timing_vals_t timing;
 
-  /*
-   * Fingerprint of this target. When a scan is completed, it'll
-   * finally be passed to hs->target->FPR->FPs[x].
-   */
+  /* Fingerprint of this target. When a scan is completed, it'll
+   * finally be passed to hs->target->FPR->FPs[x]. */
   FingerPrint *FP;
   FingerTest *FPtests[NUM_FPTESTS];
-#define FP_TSeq  FPtests[0]
-#define FP_TOps  FPtests[1]
-#define FP_TWin  FPtests[2]
-#define FP_TEcn  FPtests[3]
-#define FP_T1_7_OFF 4
-#define FP_T1    FPtests[4]
-#define FP_T2    FPtests[5]
-#define FP_T3    FPtests[6]
-#define FP_T4    FPtests[7]
-#define FP_T5    FPtests[8]
-#define FP_T6    FPtests[9]
-#define FP_T7    FPtests[10]
-#define FP_TUdp  FPtests[11]
-#define FP_TIcmp FPtests[12]
+  #define FP_TSeq  FPtests[0]
+  #define FP_TOps  FPtests[1]
+  #define FP_TWin  FPtests[2]
+  #define FP_TEcn  FPtests[3]
+  #define FP_T1_7_OFF 4
+  #define FP_T1    FPtests[4]
+  #define FP_T2    FPtests[5]
+  #define FP_T3    FPtests[6]
+  #define FP_T4    FPtests[7]
+  #define FP_T5    FPtests[8]
+  #define FP_T6    FPtests[9]
+  #define FP_T7    FPtests[10]
+  #define FP_TUdp  FPtests[11]
+  #define FP_TIcmp FPtests[12]
   struct AVal *TOps_AVs[6]; /* 6 AVs of TOps */
   struct AVal *TWin_AVs[6]; /* 6 AVs of TWin */
 
   /* The following are variables to store temporary results
-   * during the os fingerprinting process of this host.
-   */
+   * during the os fingerprinting process of this host. */
   u16 lastipid;
   struct timeval seq_send_times[NUM_SEQ_SAMPLES];
 
@@ -349,36 +343,31 @@ private:
 
 /* These are statistics for the whole group of Targets */
 class ScanStats {
-public:
-  ScanStats();
 
-  /* Returns true if the system says that sending is OK. */
-  bool sendOK();
+ public:
+  ScanStats();
+  bool sendOK(); /* Returns true if the system says that sending is OK. */
 
   osscan_timing_vals_t timing;
-  struct timeout_info to; /* rtt/timeout info */
-
-  /* Total number of active probes */
-  int num_probes_active;
-  /* Number of probes sent in total. */
-  int num_probes_sent;
+  struct timeout_info to;      /* rtt/timeout info                */
+  int num_probes_active;       /* Total number of active probes   */
+  int num_probes_sent;         /* Number of probes sent in total. */
   int num_probes_sent_at_last_wait;
 };
 
-/*
- * HostOsScan does the scan job, setting and using the status of a host in
- * the host's HostOsScanStats.
- */
-class HostOsScan
-{
-public:
+
+/* This class does the scan job, setting and using the status of a host in
+ * the host's HostOsScanStats. */
+class HostOsScan {
+
+ public:
   HostOsScan(Target *t); /* OsScan need a target to set eth stuffs */
   ~HostOsScan();
 
   pcap_t *pd;
   ScanStats *stats;
 
-  /* (Re)Initial the parameters that will be used during the scan.*/
+  /* (Re)Initialize the parameters that will be used during the scan.*/
   void reInitScanSystem();
 
   void buildSeqProbeList(HostOsScanStats *hss);
@@ -390,8 +379,7 @@ public:
   /* send the next probe in the probe list of the hss */
   void sendNextProbe(HostOsScanStats *hss);
 
-  /* Process one response.
-   * If the response is useful, return true. */
+  /* Process one response. If the response is useful, return true. */
   bool processResp(HostOsScanStats *hss, struct ip *ip, unsigned int len, struct timeval *rcvdtime);
 
   /* Make up the fingerprint. */
@@ -399,27 +387,24 @@ public:
 
   /* Check whether the host is sendok. If not, fill _when_ with the
    * time when it will be sendOK and return false; else, fill it with
-   * now and return true.
-   */
+   * now and return true. */
   bool hostSendOK(HostOsScanStats *hss, struct timeval *when);
 
   /* Check whether it is ok to send the next seq probe to the host. If
    * not, fill _when_ with the time when it will be sendOK and return
-   * false; else, fill it with now and return true.
-   */
+   * false; else, fill it with now and return true. */
   bool hostSeqSendOK(HostOsScanStats *hss, struct timeval *when);
 
 
   /* How long I am currently willing to wait for a probe response
-     before considering it timed out.  Uses the host values from
-     target if they are available, otherwise from gstats.  Results
-     returned in MICROseconds.  */
+   * before considering it timed out.  Uses the host values from
+   * target if they are available, otherwise from gstats.  Results
+   * returned in MICROseconds.  */
   unsigned long timeProbeTimeout(HostOsScanStats *hss);
 
   /* If there are pending probe timeouts, fills in when with the time
    * of the earliest one and returns true.  Otherwise returns false
-   * and puts now in when.
-   */
+   * and puts now in when. */
   bool nextTimeout(HostOsScanStats *hss, struct timeval *when);
 
   /* Adjust various timing variables based on pcket receipt. */
@@ -461,76 +446,77 @@ private:
 
   bool get_tcpopt_string(struct tcp_hdr *tcp, int mss, char *result, int maxlen);
 
-  int rawsd; /* raw socket descriptor */
-  eth_t *ethsd; /* Ethernet handle */
+  int rawsd;    /* Raw socket descriptor */
+  eth_t *ethsd; /* Ethernet handle       */
 
-  unsigned int tcpSeqBase, tcpAck; /* Seq&Ack value used in TCP probes */
-  int tcpMss; /* tcp Mss value used in TCP probes */
-  int udpttl; /* ttl value used in udp probe. */
-  unsigned short icmpEchoId, icmpEchoSeq; /* Icmp Echo Id&Seq value used in ICMP probes*/
+  unsigned int tcpSeqBase;    /* Seq value used in TCP probes                 */
+  unsigned int  tcpAck;       /* Ack value used in TCP probes                 */
+  int tcpMss;                 /* TCP MSS value used in TCP probes             */
+  int udpttl;                 /* TTL value used in the UDP probe              */
+  unsigned short icmpEchoId;  /* ICMP Echo Identifier value for ICMP probes   */
+  unsigned short icmpEchoSeq; /* ICMP Echo Sequence value used in ICMP probes */
 
-  /* Source port number in TCP probes. Different probe will use
-   * arbitrary offset value of it. */
+  /* Source port number in TCP probes. Different probes will use an arbitrary
+   * offset value of it. */
   int tcpPortBase;
   int udpPortBase;
 };
 
 
 
-/*
- * Maintain a link of incomplete HostOsScanInfo.
- */
-class OsScanInfo
-{
-public:
+/* Maintains a link of incomplete HostOsScanInfo. */
+class OsScanInfo {
+
+ public:
   OsScanInfo(vector<Target *> &Targets);
   ~OsScanInfo();
+  float starttime;
 
   /* If you remove from this, you had better adjust nextI too (or call
-     resetHostIterator() afterward). Don't let this list get empty,
-     then add to it again, or you may mess up nextI (I'm not sure) */
+   * resetHostIterator() afterward). Don't let this list get empty,
+   * then add to it again, or you may mess up nextI (I'm not sure) */
   list<HostOsScanInfo *> incompleteHosts;
-  float starttime;
 
   unsigned int numIncompleteHosts() {return incompleteHosts.size();}
   HostOsScanInfo *findIncompleteHost(struct sockaddr_storage *ss);
+
   /* A circular buffer of the incompleteHosts.  nextIncompleteHost() gives
      the next one.  The first time it is called, it will give the
      first host in the list.  If incompleteHosts is empty, returns
      NULL. */
   HostOsScanInfo *nextIncompleteHost();
+
   /* Resets the host iterator used with nextIncompleteHost() to the
      beginning.  If you remove a host from incompleteHosts, call this
      right afterward */
   void resetHostIterator() { nextI = incompleteHosts.begin(); }
 
   int removeCompletedHosts();
-private:
+
+ private:
   unsigned int numInitialTargets;
   list<HostOsScanInfo *>::iterator nextI;
 };
 
 
-/*
- * The overall os scan information of a host:
+/* The overall os scan information of a host:
  *  - Fingerprints gotten from every scan round;
  *  - Maching results of these fingerprints.
  *  - Is it timeout/completed?
- *  - ...
- */
-class HostOsScanInfo
-{
-public:
+ *  - ... */
+class HostOsScanInfo {
+
+ public:
   HostOsScanInfo(Target *t, OsScanInfo *OSI);
   ~HostOsScanInfo();
 
-  Target *target; /* the Target */
-  OsScanInfo *OSI; /* The OSI which contains this HostOsScanInfo */
-  FingerPrint **FPs; /* Fingerprints of the host */
-  FingerPrintResults *FP_matches; /* Fingerprint-matching results */
-  bool timedOut;
-  bool isCompleted;
-  HostOsScanStats *hss; /* Scan status of the host in one scan round */
+  Target *target;       /* The target                                  */
+  OsScanInfo *OSI;      /* The OSI which contains this HostOsScanInfo  */
+  FingerPrint **FPs;    /* Fingerprints of the host                    */
+  FingerPrintResults *FP_matches; /* Fingerprint-matching results      */
+  bool timedOut;        /* Did it time out?                            */
+  bool isCompleted;     /* Has the OS detection been completed?        */
+  HostOsScanStats *hss; /* Scan status of the host in one scan round   */
 };
 
 
