@@ -137,16 +137,11 @@ static struct {
   {(u8*) "\x03\x03\x0f\x01\x02\x04\x01\x09\x08\x0A\xff\xff\xff\xff\x00\x00\x00\x00\x04\x02", 20}
 };
 
-/* Numbering is the same as for prbOpts[] */
+/* TCP Window sizes. Numbering is the same as for prbOpts[] */
 u16 prbWindowSz[] = { 1, 63, 4, 4, 16, 512, 3, 128, 256, 1024, 31337, 32768, 65535 };
 
-
-/* A global now. Updated after potentially meaningful delays. This can
- * be used to save a call to gettimeofday()
- */
+/* Current time. It is globally accessible so it can save calls to gettimeofday() */
 static struct timeval now;
-
-
 
 /* Global to store performance info */
 os_scan_performance_vars_t perf;
