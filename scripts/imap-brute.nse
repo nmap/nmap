@@ -31,7 +31,7 @@ require 'imap'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"brute", "intrusive"}
+categories = {"auth", "intrusive"}
 
 portrule = shortport.port_or_service({143,993}, {"imap","imaps"})
 
