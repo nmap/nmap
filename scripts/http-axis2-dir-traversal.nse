@@ -105,9 +105,7 @@ local function extract_credentials(host, port, body)
   end
   return false, "Credentials were not found."
 end
----
---MAIN
----
+
 action = function(host, port)
   local outfile = stdnse.get_script_args("http-axis2-dir-traversal.outfile") 
   local rfile = stdnse.get_script_args("http-axis2-dir-traversal.file") or DEFAULT_FILE
