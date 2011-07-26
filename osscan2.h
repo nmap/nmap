@@ -173,6 +173,16 @@ typedef struct osscan_timing_vals {
 } osscan_timing_vals_t;
 
 
+typedef enum OFProbeType {
+  OFP_UNSET,
+  OFP_TSEQ,
+  OFP_TOPS,
+  OFP_TECN,
+  OFP_T1_7,
+  OFP_TICMP,
+  OFP_TUDP
+} OFProbeType;
+
 /******************************************************************************
  * FUNCTION PROTOTYPES                                                        *
  ******************************************************************************/

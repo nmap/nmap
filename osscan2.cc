@@ -156,17 +156,6 @@ class OsScanInfo;
 os_scan_performance_vars_t perf;
 
 
-
-typedef enum OFProbeType {
-  OFP_UNSET,
-  OFP_TSEQ,
-  OFP_TOPS,
-  OFP_TECN,
-  OFP_T1_7,
-  OFP_TICMP,
-  OFP_TUDP
-} OFProbeType;
-
 class OFProbe
 {
 public:
