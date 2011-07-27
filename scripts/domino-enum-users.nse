@@ -66,18 +66,18 @@ action = function(host, port)
 
 	local helper = nrpc.Helper:new( host, port )
 	local status, data, usernames, err
-	local path = nmap.registry.args['domino-enum-users.path']
+	local path = stdnse.get_script_args('domino-enum-users.path')
 	local result = {}
 	local save_file = false
 	local counter = 0
-	
-	if ( nmap.registry.args['domino-enum-users.username'] ) then
+	local domino_username = stdnse.get_script_args("domino-enum-users.username")
+	if ( domino_username ) then
 		usernames = ( 	function() 
 							local b = true 
 							return function() 
 								if ( b ) then 
 									b=false; 
-									return nmap.registry.args['domino-enum-users.username']
+									return domino_username
 								end
 						 	end 
 						end )()

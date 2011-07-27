@@ -57,14 +57,14 @@ action = function(host, port)
 	return
   end
 
-  if(nmap.registry.args['favicon.root']) then
-	root = nmap.registry.args['favicon.root']
+  if(stdnse.get_script_args('favicon.root')) then
+	root = stdnse.get_script_args('favicon.root')
   end
-
-  if(nmap.registry.args['favicon.uri']) then
+  local favicon_uri = stdnse.get_script_args("favicon.uri")
+  if(favicon_uri) then
 	-- If we got a script arg URI, always use that.
-  	answer = http.get( host, port, root .. "/" .. nmap.registry.args['favicon.uri'])
-	stdnse.print_debug( 4, "Using URI %s", nmap.registry.args['favicon.uri'])
+  	answer = http.get( host, port, root .. "/" .. favicon_uri)
+	stdnse.print_debug( 4, "Using URI %s", favicon_uri)
   else
 	-- Otherwise, first try parsing the home page.
  	index = http.get( host, port, root .. "/" )

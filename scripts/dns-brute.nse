@@ -162,7 +162,7 @@ local function srv_main(domainname, srvresults, srv_iter)
 end
 
 action = function(host)
-	local domainname = nmap.registry.args['dns-brute.domain']
+	local domainname = stdnse.get_script_args('dns-brute.domain')
 	if not domainname then
 		domainname = guess_domain(host)
 	end
@@ -176,10 +176,10 @@ action = function(host)
 	if(not table.contains(nmap.registry.bruteddomains,domainname)) then
 		table.insert(nmap.registry.bruteddomains, domainname)
 		stdnse.print_debug("Starting dns-brute at: "..domainname)
-		local max_threads = nmap.registry.args['dns-brute.threads'] and tonumber( nmap.registry.args['dns-brute.threads'] ) or 5
+		local max_threads = stdnse.get_script_args('dns-brute.threads') and tonumber( stdnse.get_script_args('dns-brute.threads') ) or 5
 		dosrv = stdnse.get_script_args("dns-brute.srv") or false
 		stdnse.print_debug("THREADS: "..max_threads)
-		local fileName = nmap.registry.args['dns-brute.hostlist']
+		local fileName = stdnse.get_script_args('dns-brute.hostlist')
 		local commFile = fileName and nmap.fetchfile(fileName)
 		local hostlist
 		if commFile then

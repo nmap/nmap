@@ -103,7 +103,7 @@ action = function( host, port )
 	local ldap_anonymous_bind = string.char( 0x30, 0x0c, 0x02, 0x01, 0x01, 0x60, 0x07, 0x02, 0x01, 0x03, 0x04, 0x00, 0x80, 0x00 )
 	local socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
 	
-	local base_dn = nmap.registry.args['ldap.base']
+	local base_dn = stdnse.get_script_args('ldap.base')
 			
 	if not socket then
 		return

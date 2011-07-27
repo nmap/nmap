@@ -96,9 +96,9 @@ action = function(host, port)
 
 	local socket = nmap.new_socket()
 	local result_part, result, cmds = {}, {}, {}
-	local user = nmap.registry.args['domcon-cmd.user']
-	local pass = nmap.registry.args['domcon-cmd.pass']
-	local cmd = nmap.registry.args['domcon-cmd.cmd']
+	local user = stdnse.get_script_args('domcon-cmd.user')
+	local pass = stdnse.get_script_args('domcon-cmd.pass')
+	local cmd = stdnse.get_script_args('domcon-cmd.cmd')
 
 	if( not(cmd) ) then	return "  \n  ERROR: No command supplied (see domcon-cmd.cmd)" end
 	if( not(user)) then return "  \n  ERROR: No username supplied (see domcon-cmd.user)" end

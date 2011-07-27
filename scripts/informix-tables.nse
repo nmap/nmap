@@ -57,8 +57,8 @@ action = function( host, port )
 	local helper
 	local status, data
 	local result, output = {}, {}
-	local user = nmap.registry.args['informix-tables.username']
-	local pass = nmap.registry.args['informix-tables.password'] or ""
+	local user = stdnse.get_script_args('informix-tables.username')
+	local pass = stdnse.get_script_args('informix-tables.password') or ""
 	local query= [[
 		SELECT cast(tabname as char(20)) table, cast(colname as char(20)) column, cast( cast(nrows as int) as char(20)) rows
 		FROM "informix".systables st, "informix".syscolumns sc 

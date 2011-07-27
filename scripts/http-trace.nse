@@ -56,7 +56,7 @@ end
 --MAIN
 ---
 action = function(host, port)
-  local path = nmap.registry.args["http-trace.path"] or "/"
+  local path = stdnse.get_script_args("http-trace.path") or "/"
   
   local req = http.generic_request(host, port, "TRACE", path)
   if (req.status == 301 or req.status == 302) and req.header["location"] then

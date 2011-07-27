@@ -210,15 +210,15 @@ action = function(host, port)
   injectable = {}
 
   -- start at the root
-  if nmap.registry.args['sql-injection.start'] then
-    table.insert(urllist, "/" .. nmap.registry.args['sql-injection.start'])
+  if stdnse.get_script_args('sql-injection.start') then
+    table.insert(urllist, "/" .. stdnse.get_script_args('sql-injection.start'))
   else
     table.insert(urllist, "/")
   end
 
   -- check for argument supplied max depth
-  if nmap.registry.args['sql-injection.maxdepth'] then
-    maxdepth = tonumber(nmap.registry.args['sql-injection.maxdepth'])
+  if stdnse.get_script_args('sql-injection.maxdepth') then
+    maxdepth = tonumber(stdnse.get_script_args('sql-injection.maxdepth'))
     stdnse.print_debug("maxdepth set to: " .. maxdepth)
   end
 

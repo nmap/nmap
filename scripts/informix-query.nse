@@ -41,14 +41,14 @@ require 'informix'
 portrule = shortport.port_or_service( { 1526, 9088, 9090, 9092 }, "informix", "tcp", "open") 
 
 action = function( host, port )
-	local instance = nmap.registry.args['informix-info.instance']
+	local instance = stdnse.get_script_args('informix-info.instance')
 	local helper
 	local status, data
 	local result = {}
-	local user = nmap.registry.args['informix-query.username']
-	local pass = nmap.registry.args['informix-query.password']
-	local query = nmap.registry.args['informix-query.query']
-	local db = nmap.registry.args['informix-query.database'] or "sysmaster"
+	local user = stdnse.get_script_args('informix-query.username')
+	local pass = stdnse.get_script_args('informix-query.password')
+	local query = stdnse.get_script_args('informix-query.query')
+	local db = stdnse.get_script_args('informix-query.database') or "sysmaster"
 	
 	query = query or "SELECT FIRST 1 DBINFO('dbhostname') hostname, " ..
 					 "DBINFO('version','full') version FROM systables"

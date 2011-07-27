@@ -98,7 +98,7 @@ action = function(host, port)
 		socket:close()
 	end
 
-	local max_list = nmap.registry.args[SCRIPT_NAME .. ".maxlist"]
+	local max_list = stdnse.get_script_args("ftp-anon.maxlist")
 	if not max_list then
 		if nmap.verbosity() == 0 then
 			max_list = 20

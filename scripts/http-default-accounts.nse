@@ -215,9 +215,9 @@ end
 ---
 action = function(host, port)
   local fingerprintload_status, fingerprints, requests, results
-  local fingerprint_filename = nmap.registry.args["http-default-accounts.fingerprintfile"] or "http-defaul-accounts-fingerprints.lua"
-  local category = nmap.registry.args["http-default-accounts.category"] or false
-  local basepath = nmap.registry.args["http-default-accounts.basepath"] or "/"
+  local fingerprint_filename = stdnse.get_script_args("http-default-accounts.fingerprintfile") or "http-defaul-accounts-fingerprints.lua"
+  local category = stdnse.get_script_args("http-default-accounts.category") or false
+  local basepath = stdnse.get_script_args("http-default-accounts.basepath") or "/"
   local output_lns = {}
 
   --Load fingerprint data or abort 

@@ -73,14 +73,14 @@ function action(host,port)
 	local status
 	local socket, opt	
 	local args = nmap.registry.args
-	local username = args['ldap.username']
-	local password = args['ldap.password']
-	local qfilter = args['ldap.qfilter']
-	local base = args['ldap.base']
-	local attribs = args['ldap.attrib']
+	local username = stdnse.get_script_args('ldap.username')
+	local password = stdnse.get_script_args('ldap.password')
+	local qfilter = stdnse.get_script_args('ldap.qfilter')
+	local base = stdnse.get_script_args('ldap.base')
+	local attribs = stdnse.get_script_args('ldap.attrib')
 	local accounts
 	local objCount = 0
-	local maxObjects = nmap.registry.args['ldap.maxobjects'] and tonumber(nmap.registry.args['ldap.maxobjects']) or 20
+	local maxObjects = stdnse.get_script_args('ldap.maxobjects') and tonumber(stdnse.get_script_args('ldap.maxobjects')) or 20
 
 	-- In order to discover what protocol to use (SSL/TCP) we need to send a few bytes to the server
 	-- An anonymous bind should do it
