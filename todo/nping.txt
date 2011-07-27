@@ -84,6 +84,13 @@
 
     - Consider making the echo server bind to all IPv4 AND IPv6 interfaces.
 
+    - Add a description of the security implications of running a public echo
+      server (failures in the packet matching algorithm, etc), to either the
+      RFC or the man page. Suggested by Toni Ruottu.
+
+    - Test the new --safe-payloads option with a packet fuzzer to make sure
+      the packet parser behaves correctly.
+
 * When running Nping echo client with the --no-capture parameter, the last
   packet's CAPT line is not displayed.
 
