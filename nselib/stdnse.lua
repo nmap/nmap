@@ -610,7 +610,16 @@ end
 local function arg_value(argname)
   if nmap.registry.args[argname] then
     return nmap.registry.args[argname]
+  else
+    -- if scriptname.arg is not there, check "arg"
+    local argument_frags = strsplit("%.", argname)
+    if #argument_frags > 0 then
+      if nmap.registry.args[argument_frags[2]] then
+        return nmap.registry.args[argument_frags[2]]
+      end
+    end
   end
+
   for _, v in ipairs(nmap.registry.args) do
     if v == argname then
       return 1
