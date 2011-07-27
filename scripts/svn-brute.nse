@@ -164,7 +164,7 @@ Driver =
         self.__index = self
 		o.host = host
 		o.port = port
-		o.repo = nmap.registry.args['svn-brute.repo']
+		o.repo = stdnse.get_script_args('svn-brute.repo')
 		o.invalid_users = invalid_users
 		return o
 	end,
@@ -237,8 +237,8 @@ Driver =
 action = function(host, port)
 	local status, accounts 
 	
-	local repo = nmap.registry.args['svn-brute.repo']
-	local force = nmap.registry.args['svn-brute.force']
+	local repo = stdnse.get_script_args('svn-brute.repo')
+	local force = stdnse.get_script_args('svn-brute.force')
 	
 	if ( not(repo) ) then
 		return "No repository specified (see svn-brute.repo)"
