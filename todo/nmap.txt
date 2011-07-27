@@ -91,6 +91,10 @@ o We should probably modify stdnse.get_script_args so that it first
   an argument to only apply to a specific script can give
   [scriptname].[argname].
 
+o [Nping] The --safe-payloads option should be default (though we
+  should keep it for backward compatability).  We could then introduce
+  --include-payloads for cases where they are desired.
+
 o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Nscan work [placeholder]
