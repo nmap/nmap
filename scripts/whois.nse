@@ -1655,8 +1655,8 @@ function get_args()
     args = nmap.registry.args.whois.whodb
   elseif nmap.registry.args.whodb then
     args = nmap.registry.args.whodb
-  elseif nmap.registry.args['whois.whodb'] then
-    args = nmap.registry.args['whois.whodb']
+  elseif stdnse.get_script_args('whois.whodb') then
+    args = stdnse.get_script_args('whois.whodb')
   else return
   end
 
