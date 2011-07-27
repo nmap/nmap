@@ -29,6 +29,36 @@
 -- 	end
 -- </code>
 --
+-- The library also enables users to add credentials through script arguments
+-- either globally or per service. These credentials may be retrieved by script
+-- through the same functions as any other discovered credentials. Arguments
+-- passed using script arguments will be added with the PARAM state. The
+-- following code may be used by a scripts to retrieve these credentials:
+-- <code>
+--	local c = creds.Credentials:new(creds.ALL_DATA, host, port)
+--	for cred in c:getCredentials(creds.State.PARAM) do
+--		... do something ...
+--	end
+-- </code>
+--
+-- Any globally added credentials will be made available to all scripts,
+-- regardless of what service is being filtered through the host and port
+-- arguments when instantiating the Credentials class. Service specific
+-- arguments will only be made available to scripts with ports matching
+-- the service name. The following two examples illustrate how credentials are
+-- added globally and for the http service:
+-- --script-args creds.global='admin:nimda'
+-- --script-args creds.http='webadmin:password'
+--
+-- The service name at this point may be anything and the entry is created
+-- dynamically without validating whether the service exists or not. 
+--
+-- The credential argument is not documented in this library using the <at>args
+-- function as the argument would incorrectly show up in all scripts making use
+-- of this library. This would show that credentials could be added to scripts
+-- that do not make use of this function. Therefore any scripts that make use
+-- of the credentials passing arguments need to have appropriate documentation
+-- added to them.
 
 --
 -- @author "Patrik Karlsson <patrik@cqure.net>"
