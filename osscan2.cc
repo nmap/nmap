@@ -889,9 +889,6 @@ static int expireUnmatchedHosts(OsScanInfo *OSI, list<HostOsScanInfo *> *unMatch
 /* You should call os_scan2 rather than this function, as that version handles
    chunking so you don't do too many targets in parallel */
 static int os_scan_2(vector<Target *> &Targets) {
-  OsScanInfo *OSI;
-  HostOsScan *HOS;
-
   // Hosts which haven't matched and have been removed from
   // incompleteHosts because they have exceeded the number of
   // retransmissions the host is allowed.
@@ -904,61 +901,58 @@ static int os_scan_2(vector<Target *> &Targets) {
 
   init_perf_values();
 
-  OSI = new OsScanInfo(Targets);
-  if(OSI->numIncompleteHosts() == 0) {
+  OsScanInfo OSI(Targets);
+  if (OSI.numIncompleteHosts() == 0) {
     /* no one will be scanned */
-    delete OSI;
     return 1;
   }
-  OSI->starttime = o.TimeSinceStart();
+  OSI.starttime = o.TimeSinceStart();
+  startTimeOutClocks(&OSI);
 
-  HOS = new HostOsScan(Targets[0]);
-  startTimeOutClocks(OSI);
+  HostOsScan HOS(Targets[0]);
 
   itry = 0;
 
 
 
-  begin_sniffer(HOS, Targets); /* initial the pcap session handler in HOS */
-  while(OSI->numIncompleteHosts() != 0) {
+  begin_sniffer(&HOS, Targets); /* initial the pcap session handler in HOS */
+  while(OSI.numIncompleteHosts() != 0) {
     if (itry > 0) sleep(1);
     if (itry == 3) usleep(1500000); /* Try waiting a little longer just in case it matters */
     if (o.verbose) {
       char targetstr[128];
-      bool plural = (OSI->numIncompleteHosts() != 1);
+      bool plural = (OSI.numIncompleteHosts() != 1);
       if (!plural) {
-    (*(OSI->incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
-      } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI->numIncompleteHosts());
+    (*(OSI.incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
+      } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI.numIncompleteHosts());
       log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
       log_flush_all();
     }
-    startRound(OSI, HOS, itry);
-    doSeqTests(OSI, HOS);
-    doTUITests(OSI, HOS);
-    endRound(OSI, HOS, itry);
-    expireUnmatchedHosts(OSI, &unMatchedHosts);
+    startRound(&OSI, &HOS, itry);
+    doSeqTests(&OSI, &HOS);
+    doTUITests(&OSI, &HOS);
+    endRound(&OSI, &HOS, itry);
+    expireUnmatchedHosts(&OSI, &unMatchedHosts);
     itry++;
   }
 
   /* Now move the unMatchedHosts array back to IncompleteHosts */
   if (!unMatchedHosts.empty())
-    OSI->incompleteHosts.splice(OSI->incompleteHosts.begin(), unMatchedHosts);
+    OSI.incompleteHosts.splice(OSI.incompleteHosts.begin(), unMatchedHosts);
 
-  if (OSI->numIncompleteHosts()) {
+  if (OSI.numIncompleteHosts()) {
     /* For host that doesn't have a perfect match, we do the following
        things. */
 
     /* Find the most matching item in the db. */
-    findBestFPs(OSI);
+    findBestFPs(&OSI);
 
     /* Print the fp in debug mode.
        Normally let output.cc to print the FP. */
     if(o.debugging > 1)
-      printFP(OSI);
+      printFP(&OSI);
   }
 
-  delete HOS;
-  delete OSI;
   return 0;
 }
 
