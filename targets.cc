@@ -197,9 +197,9 @@ int load_exclude_string(addrset *excludelist, const char *s) {
     begin = p;
     while (*p != '\0' && *p != ',')
       p++;
-    const char * addr = std::string(begin, p - begin).c_str();
-    if (!addrset_add_spec(excludelist,addr, o.af(), 1)){
-        fatal("Invalid address specification: %s", addr);
+    std::string addr_str = std::string(begin, p - begin);
+    if (!addrset_add_spec(excludelist, addr_str.c_str(), o.af(), 1)) {
+        fatal("Invalid address specification: %s", addr_str.c_str());
     }
     if (*p == '\0')
       break;
