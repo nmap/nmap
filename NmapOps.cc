@@ -107,8 +107,53 @@ NmapOps::NmapOps() {
 }
 
 NmapOps::~NmapOps() {
-  if (datadir) free(datadir);
-  if (xsl_stylesheet) free(xsl_stylesheet);
+  if (xsl_stylesheet) {
+    free(xsl_stylesheet);
+    xsl_stylesheet = NULL;
+  }
+
+  if (reference_FPs) {
+    delete reference_FPs;
+    reference_FPs = NULL;
+  }
+
+  if (dns_servers) {
+    free(dns_servers);
+    dns_servers = NULL;
+  }
+  if (extra_payload) {
+    free(extra_payload);
+    extra_payload = NULL;
+  }
+  if (ipoptions) {
+    free(ipoptions);
+    ipoptions = NULL;
+  }
+  if (portlist) {
+    free(portlist);
+    portlist = NULL;
+  }
+  if (exclude_spec) {
+    free(exclude_spec);
+    exclude_spec = NULL;
+  }
+  if (idleProxy) {
+    free(idleProxy);
+    idleProxy = NULL;
+  }
+  if (datadir) {
+    free(datadir);
+    datadir = NULL;
+  }
+
+#ifndef NOLUA
+  if (scriptversion || script)
+    close_nse();
+  if (scriptargs) {
+    free(scriptargs);
+    scriptargs = NULL;
+  }
+#endif
 }
 
 void NmapOps::ReInit() {
@@ -205,6 +250,7 @@ void NmapOps::Initialize() {
   max_packet_send_rate = 0.0; /* Unset. */
   stats_interval = 0.0; /* Unset. */
   randomize_hosts = 0;
+  randomize_ports = 1;
   sendpref = PACKET_SEND_NOPREF;
   spoofsource = 0;
   fastscan = 0;
@@ -292,6 +338,12 @@ void NmapOps::Initialize() {
 #endif
   memset(&sourcesock, 0, sizeof(sourcesock));
   sourcesocklen = 0;
+  excludefd = NULL;
+  exclude_spec = NULL;
+  quashargv = 0;
+  inputfd = NULL;
+  idleProxy = NULL;
+  portlist = NULL;
 }
 
 bool NmapOps::SCTPScan() {
@@ -323,7 +375,7 @@ bool NmapOps::RawScan() {
 void NmapOps::ValidateOptions() {
 	const char *privreq = "root privileges.";
 #ifdef WIN32
-	if (!o.have_pcap)
+	if (!have_pcap)
 		privreq = "WinPcap version 3.1 or higher and\n\
 iphlpapi.dll.  You seem to be missing one or both of these.  Winpcap is\n\
 available from http://www.winpcap.org.  iphlpapi.dll comes with Win98 and\n\

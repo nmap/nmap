@@ -452,38 +452,6 @@ void validate_scan_lists(scan_lists &ports, NmapOps &o){
 	#endif
 }
 
-int nmap_main(int argc, char *argv[]) {
-  char *p, *q;
-  int i, arg;
-  long l;
-  double d;
-  unsigned int targetno;
-  FILE *inputfd = NULL, *excludefd = NULL;
-  char *host_spec = NULL, *exclude_spec = NULL;
-  short randomize=1;
-  short quashargv = 0;
-  char **host_exp_group;
-  char *idleProxy = NULL; /* The idle host used to "Proxy" an idle scan */
-  int num_host_exp_groups;
-  char *machinefilename = NULL, *kiddiefilename = NULL,
-    *normalfilename = NULL, *xmlfilename = NULL;
-  time_t now;
-  struct tm *tm;
-  HostGroupState *hstate = NULL;
-  char *endptr = NULL;
-  struct scan_lists ports = { 0 };
-#ifndef NOLUA
-  /* Pre-Scan and Post-Scan script results datastructure */
-  ScriptResults *script_scan_results = NULL;
-  /* Only NSE scripts can add targets */
-  NewTargets *new_targets = NULL;
-#endif
-  addrset exclude_group;
-  if(o.debugging)
-    nbase_set_log(fatal,error);
-  else
-    nbase_set_log(fatal,NULL);
-  char myname[MAXHOSTNAMELEN + 1];
 #if (defined(IN_ADDR_DEEPSTRUCT) || defined( SOLARIS))
   /* Note that struct in_addr in solaris is 3 levels deep just to store an
    * unsigned int! */
@@ -491,33 +459,56 @@ int nmap_main(int argc, char *argv[]) {
 #else
   struct ftpinfo ftp = { FTPUSER, FTPPASS, "", { 0 }, 21, 0};
 #endif
-  struct hostent *target = NULL;
-  char **fakeargv;
-  Target *currenths;
-  vector<Target *> Targets;
-  char *portlist = NULL; /* Ports list specified by user */
-  int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
-                                source addresses? */
-  unsigned int ideal_scan_group_sz = 0;
-  char hostname[MAXHOSTNAMELEN + 1] = "";
-  const char *spoofmac = NULL;
-  time_t timep;
-  char mytime[128];
-  char tbuf[128];
-  char errstr[256];
-  struct sockaddr_storage ss;
-  size_t sslen;
-  int option_index;
-  bool iflist = false;
+
+struct scan_lists ports = { 0 };
+
+/* struct delayed_options is used as a temporary storage place in which options
+   that can't be correctly parsed and interpreted without having full knowledge
+   of all other user supplied command line arguments like -S and -6. Trying to
+   set the source address without knowing the address family first would result
+   in a failure if you pass an ipv6 address and the address family is still ipv4
+   since the ipv6 argument hasn't been read yet and thus you would be forced
+   to put -6 before -S. This is why we use delayed_options and delayed parsing
+   and interpretation of such options in apply_delayed_options(). */
+static struct delayed_options{
+public:
+  delayed_options() {
+    this->pre_max_parallelism   = -1;
+    this->pre_scan_delay        = -1;
+    this->pre_max_scan_delay    = -1;
+    this->pre_init_rtt_timeout  = -1;
+    this->pre_min_rtt_timeout   = -1;
+    this->pre_max_rtt_timeout   = -1;
+    this->pre_max_retries       = -1;
+    this->pre_host_timeout      = -1;
+    this->iflist                = false;
+  }
 
   // Pre-specified timing parameters.
   // These are stored here during the parsing of the arguments so that we can
   // set the defaults specified by any timing template options (-T2, etc) BEFORE
   // any of these. In other words, these always take precedence over the templates.
-  int pre_max_parallelism=-1, pre_scan_delay=-1, pre_max_scan_delay=-1;
-  int pre_init_rtt_timeout=-1, pre_min_rtt_timeout=-1, pre_max_rtt_timeout=-1;
-  int pre_max_retries=-1;
-  long pre_host_timeout=-1;
+  int   pre_max_parallelism, pre_scan_delay, pre_max_scan_delay;
+  int   pre_init_rtt_timeout, pre_min_rtt_timeout, pre_max_rtt_timeout;
+  int   pre_max_retries;
+  long  pre_host_timeout;
+  char  *machinefilename, *kiddiefilename, *normalfilename, *xmlfilename;
+  bool  iflist;
+  char  *exclude_spec, *exclude_file;
+  char  *spoofSource;
+  const char *spoofmac;
+}delayed_options;
+
+struct tm *local_time;
+
+void parse_options(int argc, char **argv) {
+  char *p, *q;
+  int arg;
+  long l;
+  double d;
+  char *endptr = NULL;
+  char errstr[256];
+  int option_index;
 
   struct option long_options[] =
     {
@@ -654,26 +645,9 @@ int nmap_main(int argc, char *argv[]) {
       {0, 0, 0, 0}
     };
 
-  /* argv faking silliness */
-  fakeargv = (char **) safe_malloc(sizeof(char *) * (argc + 1));
-  for(i=0; i < argc; i++) {
-    fakeargv[i] = strdup(argv[i]);
-  }
-  fakeargv[argc] = NULL;
-
-  if (argc < 2 ) printusage(-1);
-
-  Targets.reserve(100);
-#ifdef WIN32
-  win_pre_init();
-#endif
-
-  now = time(NULL);
-  tm = localtime(&now);
-
   /* OK, lets parse these args! */
   optind = 1; /* so it can be called multiple times */
-  while((arg = getopt_long_only(argc,fakeargv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
+  while((arg = getopt_long_only(argc,argv,"6Ab:D:d::e:Ffg:hIi:M:m:nO::o:P:p:qRrS:s:T:Vv::", long_options, &option_index)) != EOF) {
     switch(arg) {
     case 0:
 #ifndef NOLUA
@@ -704,32 +678,25 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Since April 2010, the default unit for --max-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
         if (l < 20)
           error("WARNING: You specified a round-trip time timeout (%ld ms) that is EXTRAORDINARILY SMALL.  Accuracy may suffer.", l);
-        pre_max_rtt_timeout = l;
+        delayed_options.pre_max_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "min-rtt-timeout") == 0) {
         l = tval2msecs(optarg);
         if (l < 0)
           fatal("Bogus --min-rtt-timeout argument specified");
         if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --min-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
-        pre_min_rtt_timeout = l;
+        delayed_options.pre_min_rtt_timeout = l;
       } else if (optcmp(long_options[option_index].name, "initial-rtt-timeout") == 0) {
         l = tval2msecs(optarg);
         if (l <= 0)
           fatal("Bogus --initial-rtt-timeout argument specified.  Must be positive");
         if (l >= 50 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --initial-rtt-timeout is seconds, so your time of \"%s\" is %g seconds. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0, optarg, l / 1000.0);
-        pre_init_rtt_timeout = l;
+        delayed_options.pre_init_rtt_timeout = l;
       } else if (strcmp(long_options[option_index].name, "excludefile") == 0) {
-        if (exclude_spec)
-          fatal("--excludefile and --exclude options are mutually exclusive.");
-        excludefd = fopen(optarg, "r");
-        if (!excludefd) {
-          fatal("Failed to open exclude file %s for reading", optarg);
-        }
+        delayed_options.exclude_file = strdup(optarg);
       } else if (strcmp(long_options[option_index].name, "exclude") == 0) {
-        if (excludefd)
-          fatal("--excludefile and --exclude options are mutually exclusive.");
-        exclude_spec = strdup(optarg);
+        delayed_options.exclude_spec = strdup(optarg);
       } else if (optcmp(long_options[option_index].name, "max-hostgroup") == 0) {
         o.setMaxHostGroupSz(atoi(optarg));
       } else if (optcmp(long_options[option_index].name, "min-hostgroup") == 0) {
@@ -744,14 +711,15 @@ int nmap_main(int argc, char *argv[]) {
           fatal("--scanflags option must be a number between 0 and 255 (inclusive) or a string like \"URGPSHFIN\".");
         }
       } else if (strcmp(long_options[option_index].name, "iflist") == 0 ) {
-        iflist = true;
+        delayed_options.iflist = true;
       } else if (strcmp(long_options[option_index].name, "nogcc") == 0 ) {
-          o.nogcc = 1;
+        o.nogcc = 1;
       } else if (optcmp(long_options[option_index].name, "release-memory") == 0 ) {
         o.release_memory = true;
       } else if (optcmp(long_options[option_index].name, "min-parallelism") == 0 ) {
         o.min_parallelism = atoi(optarg);
-        if (o.min_parallelism < 1) fatal("Argument to --min-parallelism must be at least 1!");
+        if (o.min_parallelism < 1)
+          fatal("Argument to --min-parallelism must be at least 1!");
         if (o.min_parallelism > 100) {
           error("Warning: Your --min-parallelism option is pretty high!  This can hurt reliability.");
         }
@@ -761,7 +729,7 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Bogus --host-timeout argument specified");
         if (l >= 10000 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --host-timeout is seconds, so your time of \"%s\" is %.1f hours. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60 / 60, optarg);
-        pre_host_timeout = l;
+        delayed_options.pre_host_timeout = l;
       } else if (strcmp(long_options[option_index].name, "ttl") == 0) {
         o.ttl = atoi(optarg);
         if (o.ttl < 0 || o.ttl > 255) {
@@ -781,13 +749,13 @@ int nmap_main(int argc, char *argv[]) {
       } else if (optcmp(long_options[option_index].name, "spoof-mac") == 0) {
         /* I need to deal with this later, once I'm sure that I have output
            files set up, --datadir, etc. */
-        spoofmac = optarg;
+        delayed_options.spoofmac = optarg;
       } else if (strcmp(long_options[option_index].name, "allports") == 0) {
         o.override_excludeports = 1;
       } else if (optcmp(long_options[option_index].name, "version-intensity") == 0) {
         o.version_intensity = atoi(optarg);
         if (o.version_intensity < 0 || o.version_intensity > 9)
-                fatal("version-intensity must be between 0 and 9");
+          fatal("version-intensity must be between 0 and 9");
       } else if (optcmp(long_options[option_index].name, "version-light") == 0) {
         o.version_intensity = 2;
       } else if (optcmp(long_options[option_index].name, "version-all") == 0) {
@@ -798,7 +766,7 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Bogus --scan-delay argument specified.");
         if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --scan-delay is seconds, so your time of \"%s\" is %.1f minutes. Use \"%sms\" for %g milliseconds.", optarg, l / 1000.0 / 60, optarg, l / 1000.0);
-        pre_scan_delay = l;
+        delayed_options.pre_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "defeat-rst-ratelimit") == 0) {
         o.defeat_rst_ratelimit = 1;
       } else if (optcmp(long_options[option_index].name, "max-scan-delay") == 0) {
@@ -807,10 +775,10 @@ int nmap_main(int argc, char *argv[]) {
           fatal("Bogus --max-scan-delay argument specified.");
         if (l >= 100 * 1000 && tval_unit(optarg) == NULL)
           fatal("Since April 2010, the default unit for --max-scan-delay is seconds, so your time of \"%s\" is %.1f minutes. If this is what you want, use \"%ss\".", optarg, l / 1000.0 / 60, optarg);
-        pre_max_scan_delay = l;
+        delayed_options.pre_max_scan_delay = l;
       } else if (optcmp(long_options[option_index].name, "max-retries") == 0) {
-        pre_max_retries = atoi(optarg);
-        if (pre_max_retries < 0)
+        delayed_options.pre_max_retries = atoi(optarg);
+        if (delayed_options.pre_max_retries < 0)
           fatal("max-retries must be positive");
       } else if (optcmp(long_options[option_index].name, "randomize-hosts") == 0
                  || strcmp(long_options[option_index].name, "rH") == 0) {
@@ -854,24 +822,24 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "webxml") == 0) {
         o.setXSLStyleSheet("http://nmap.org/svn/docs/nmap.xsl");
       } else if (strcmp(long_options[option_index].name, "oN") == 0) {
-        normalfilename = logfilename(optarg, tm);
-      } else if (strcmp(long_options[option_index].name, "oG") == 0 ||
-                 strcmp(long_options[option_index].name, "oM") == 0) {
-        machinefilename = logfilename(optarg, tm);
+        delayed_options.normalfilename = logfilename(optarg, local_time);
+      } else if (strcmp(long_options[option_index].name, "oG") == 0
+                 || strcmp(long_options[option_index].name, "oM") == 0) {
+        delayed_options.machinefilename = logfilename(optarg, local_time);
       } else if (strcmp(long_options[option_index].name, "oS") == 0) {
-        kiddiefilename = logfilename(optarg, tm);
+        delayed_options.kiddiefilename = logfilename(optarg, local_time);
       } else if (strcmp(long_options[option_index].name, "oH") == 0) {
         fatal("HTML output is not directly supported, though Nmap includes an XSL for transforming XML output into HTML.  See the man page.");
       } else if (strcmp(long_options[option_index].name, "oX") == 0) {
-        xmlfilename = logfilename(optarg, tm);
+        delayed_options.xmlfilename = logfilename(optarg, local_time);
       } else if (strcmp(long_options[option_index].name, "oA") == 0) {
         char buf[MAXPATHLEN];
-        Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, tm));
-        normalfilename = strdup(buf);
-        Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, tm));
-        machinefilename = strdup(buf);
-        Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, tm));
-        xmlfilename = strdup(buf);
+        Snprintf(buf, sizeof(buf), "%s.nmap", logfilename(optarg, local_time));
+        delayed_options.normalfilename = strdup(buf);
+        Snprintf(buf, sizeof(buf), "%s.gnmap", logfilename(optarg, local_time));
+        delayed_options.machinefilename = strdup(buf);
+        Snprintf(buf, sizeof(buf), "%s.xml", logfilename(optarg, local_time));
+        delayed_options.xmlfilename = strdup(buf);
       } else if (strcmp(long_options[option_index].name, "thc") == 0) {
         log_write(LOG_STDOUT, "!!Greets to Van Hauser, Plasmoid, Skyper and the rest of THC!!\n");
         exit(0);
@@ -885,7 +853,7 @@ int nmap_main(int argc, char *argv[]) {
         }
       } else if (strcmp(long_options[option_index].name, "sI") == 0) {
         o.idlescan = 1;
-        idleProxy = optarg;
+        o.idleProxy = strdup(optarg);
       } else if (strcmp(long_options[option_index].name, "vv") == 0) {
         /* Compatability hack ... ugly */
         o.verbose += 2;
@@ -898,7 +866,7 @@ int nmap_main(int argc, char *argv[]) {
       } else if (strcmp(long_options[option_index].name, "mtu") == 0) {
         o.fragscan = atoi(optarg);
         if (o.fragscan <= 0 || o.fragscan % 8 != 0)
-            fatal("Data payload MTU must be >0 and multiple of 8");
+          fatal("Data payload MTU must be >0 and multiple of 8");
       } else if (optcmp(long_options[option_index].name, "port-ratio") == 0) {
         char *ptr;
         o.topportlevel = strtod(optarg, &ptr);
@@ -911,30 +879,30 @@ int nmap_main(int argc, char *argv[]) {
           fatal("--top-ports should be an integer 1 or greater");
       } else if (optcmp(long_options[option_index].name, "ip-options") == 0){
         o.ipoptions    = (u8*) safe_malloc(4*10+1);
-        if( (o.ipoptionslen=parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr)))==OP_FAILURE )
-            fatal("%s", errstr);
+        if( (o.ipoptionslen=parse_ip_options(optarg, o.ipoptions, 4*10+1, &o.ipopt_firsthop, &o.ipopt_lasthop, errstr, sizeof(errstr))) == OP_FAILURE )
+          fatal("%s", errstr);
         if(o.ipoptionslen > 4*10)
           fatal("Ip options can't be more than 40 bytes long");
         if(o.ipoptionslen %4 != 0)
           fatal("Ip options must be multiple of 4 (read length is %i bytes)", o.ipoptionslen);
-      } else if(strcmp(long_options[option_index].name, "traceroute") == 0) {
+      } else if (strcmp(long_options[option_index].name, "traceroute") == 0) {
         o.traceroute = true;
-      } else if(strcmp(long_options[option_index].name, "reason") == 0) {
+      } else if (strcmp(long_options[option_index].name, "reason") == 0) {
         o.reason = true;
-      } else if(optcmp(long_options[option_index].name, "min-rate") == 0) {
+      } else if (optcmp(long_options[option_index].name, "min-rate") == 0) {
         if (sscanf(optarg, "%f", &o.min_packet_send_rate) != 1 || o.min_packet_send_rate <= 0.0)
           fatal("Argument to --min-rate must be a positive floating-point number");
-      } else if(optcmp(long_options[option_index].name, "max-rate") == 0) {
+      } else if (optcmp(long_options[option_index].name, "max-rate") == 0) {
         if (sscanf(optarg, "%f", &o.max_packet_send_rate) != 1 || o.max_packet_send_rate <= 0.0)
           fatal("Argument to --max-rate must be a positive floating-point number");
       } else if (optcmp(long_options[option_index].name, "adler32") == 0) {
         o.adler32 = true;
-      } else if(optcmp(long_options[option_index].name, "stats-every") == 0) {
+      } else if (optcmp(long_options[option_index].name, "stats-every") == 0) {
         d = tval2secs(optarg);
         if (d < 0)
           fatal("Argument to --stats-every cannot be negative.");
         o.stats_interval = d;
-      } else if(optcmp(long_options[option_index].name, "route-dst") == 0) {
+      } else if (optcmp(long_options[option_index].name, "route-dst") == 0) {
         struct sockaddr_storage ss;
         struct route_nfo rnfo;
         size_t sslen;
@@ -980,7 +948,7 @@ int nmap_main(int argc, char *argv[]) {
     case 'b':
       o.bouncescan++;
       if (parse_bounce_argument(&ftp, optarg) < 0 ) {
-        error("Your argument to -b is b0rked. Use the normal url style:  user:pass@server:port or just use server and use default anon login\n  Use -h for help");
+        fatal("Your argument to -b is b0rked. Use the normal url style:  user:pass@server:port or just use server and use default anon login\n  Use -h for help");
       }
       break;
     case 'D':
@@ -1014,10 +982,10 @@ int nmap_main(int argc, char *argv[]) {
         } else {
           if (o.numdecoys >= MAX_DECOYS -1)
             fatal("You are only allowed %d decoys (if you need more redefine MAX_DECOYS in nmap.h)", MAX_DECOYS);
-            
+
           /* Try to resolve it */
           struct sockaddr_in decoytemp;
-          size_t decoytemplen=sizeof(struct sockaddr_in);          
+          size_t decoytemplen=sizeof(struct sockaddr_in);
           if( resolve(p, 0, 0, (sockaddr_storage*)&decoytemp, &decoytemplen, AF_INET) == 1 ){
             o.decoys[o.numdecoys]=decoytemp.sin_addr;
             o.numdecoys++;
@@ -1063,27 +1031,27 @@ int nmap_main(int argc, char *argv[]) {
       break;
       // o.identscan++; break;
     case 'i':
-      if (inputfd) {
+      if (o.inputfd) {
         fatal("Only one input filename allowed");
       }
       if (!strcmp(optarg, "-")) {
-        inputfd = stdin;
+        o.inputfd = stdin;
       } else {
-        inputfd = fopen(optarg, "r");
-        if (!inputfd) {
+        o.inputfd = fopen(optarg, "r");
+        if (!o.inputfd) {
           fatal("Failed to open input file %s for reading", optarg);
         }
       }
       break;
     case 'M':
-      pre_max_parallelism = atoi(optarg);
-      if (pre_max_parallelism < 1)
+      delayed_options.pre_max_parallelism = atoi(optarg);
+      if (delayed_options.pre_max_parallelism < 1)
         fatal("Argument to -M must be at least 1!");
-      if (pre_max_parallelism > 900)
+      if (delayed_options.pre_max_parallelism > 900)
         error("Warning: Your max-parallelism (-M) option is extraordinarily high, which can hurt reliability");
       break;
     case 'm':
-      machinefilename = logfilename(optarg, tm);
+      delayed_options.machinefilename = logfilename(optarg, local_time);
       break;
     case 'n': o.noresolve++; break;
     case 'O':
@@ -1095,7 +1063,7 @@ int nmap_main(int argc, char *argv[]) {
         fatal("Unknown argument to -O.");
       break;
     case 'o':
-      normalfilename = logfilename(optarg, tm);
+      delayed_options.normalfilename = logfilename(optarg, local_time);
       break;
     case 'P':
       if (*optarg == '\0' || *optarg == 'I' || *optarg == 'E')
@@ -1191,22 +1159,19 @@ int nmap_main(int argc, char *argv[]) {
       }
       break;
     case 'p':
-      if (portlist)
+      if (o.portlist)
         fatal("Only 1 -p option allowed, separate multiple ranges with commas.");
-      portlist = strdup(optarg);
+      o.portlist = strdup(optarg);
       break;
-    case 'q': quashargv++; break;
+    case 'q': o.quashargv++; break;
     case 'R': o.resolve_all++; break;
     case 'r':
-      randomize = 0;
+      o.randomize_ports = 0;
       break;
     case 'S':
       if (o.spoofsource)
         fatal("You can only use the source option once!  Use -D <decoy1> -D <decoy2> etc. for decoys\n");
-      if (resolve(optarg, 0, 0, &ss, &sslen, o.af()) == 0) {
-        fatal("Failed to resolve/decode supposed %s source address %s. Note that if you are using IPv6, the -6 argument must come before -S", (o.af() == AF_INET)? "IPv4" : "IPv6", optarg);
-      }
-      o.setSourceSockAddr(&ss, sslen);
+      delayed_options.spoofSource = strdup(optarg);
       o.spoofsource = 1;
       break;
     case 's':
@@ -1305,33 +1270,40 @@ int nmap_main(int argc, char *argv[]) {
     }
   }
 
-#ifdef WIN32
-  win_init();
-#endif
+}
 
-  tty_init(); // Put the keyboard in raw mode
+void  apply_delayed_options() {
+  int i;
+  char tbuf[128];
+  struct sockaddr_storage ss;
+  size_t sslen;
 
+  if(o.spoofsource) {
+    if (resolve(delayed_options.spoofSource, 0, 0, &ss, &sslen, o.af()) == 0)
+      fatal("Failed to resolve/decode supposed %s source address %s.", (o.af() == AF_INET)? "IPv4" : "IPv6", optarg);
+    o.setSourceSockAddr(&ss, sslen);
+  }
   // After the arguments are fully processed we now make any of the timing
   // tweaks the user might've specified:
-  if (pre_max_parallelism != -1) o.max_parallelism = pre_max_parallelism;
-  if (pre_scan_delay != -1) {
-    o.scan_delay = pre_scan_delay;
+  if (delayed_options.pre_max_parallelism != -1) o.max_parallelism = delayed_options.pre_max_parallelism;
+  if (delayed_options.pre_scan_delay != -1) {
+    o.scan_delay = delayed_options.pre_scan_delay;
     if (o.scan_delay > o.maxTCPScanDelay()) o.setMaxTCPScanDelay(o.scan_delay);
     if (o.scan_delay > o.maxUDPScanDelay()) o.setMaxUDPScanDelay(o.scan_delay);
     if (o.scan_delay > o.maxSCTPScanDelay()) o.setMaxSCTPScanDelay(o.scan_delay);
-    if (pre_max_parallelism != -1 || o.min_parallelism != 0)
+    if (delayed_options.pre_max_parallelism != -1 || o.min_parallelism != 0)
       error("Warning: --min-parallelism and --max-parallelism are ignored with --scan-delay.");
   }
-  if (pre_max_scan_delay != -1) {
-    o.setMaxTCPScanDelay(pre_max_scan_delay);
-    o.setMaxUDPScanDelay(pre_max_scan_delay);
-    o.setMaxSCTPScanDelay(pre_max_scan_delay);
+  if (delayed_options.pre_max_scan_delay != -1) {
+    o.setMaxTCPScanDelay(delayed_options.pre_max_scan_delay);
+    o.setMaxUDPScanDelay(delayed_options.pre_max_scan_delay);
+    o.setMaxSCTPScanDelay(delayed_options.pre_max_scan_delay);
   }
-  if (pre_init_rtt_timeout != -1) o.setInitialRttTimeout(pre_init_rtt_timeout);
-  if (pre_min_rtt_timeout != -1) o.setMinRttTimeout(pre_min_rtt_timeout);
-  if (pre_max_rtt_timeout != -1) o.setMaxRttTimeout(pre_max_rtt_timeout);
-  if (pre_max_retries != -1) o.setMaxRetransmissions(pre_max_retries);
-  if (pre_host_timeout != -1) o.host_timeout = pre_host_timeout;
+  if (delayed_options.pre_init_rtt_timeout != -1) o.setInitialRttTimeout(delayed_options.pre_init_rtt_timeout);
+  if (delayed_options.pre_min_rtt_timeout != -1) o.setMinRttTimeout(delayed_options.pre_min_rtt_timeout);
+  if (delayed_options.pre_max_rtt_timeout != -1) o.setMaxRttTimeout(delayed_options.pre_max_rtt_timeout);
+  if (delayed_options.pre_max_retries != -1) o.setMaxRetransmissions(delayed_options.pre_max_retries);
+  if (delayed_options.pre_host_timeout != -1) o.host_timeout = delayed_options.pre_host_timeout;
 
 
   if (o.osscan)
@@ -1352,35 +1324,35 @@ int nmap_main(int argc, char *argv[]) {
 
   /* Open the log files, now that we know whether the user wants them appended
      or overwritten */
-  if (normalfilename) {
-    log_open(LOG_NORMAL, o.append_output, normalfilename);
-    free(normalfilename);
+  if (delayed_options.normalfilename) {
+    log_open(LOG_NORMAL, o.append_output, delayed_options.normalfilename);
+    free(delayed_options.normalfilename);
   }
-  if (machinefilename) {
-    log_open(LOG_MACHINE, o.append_output, machinefilename);
-    free(machinefilename);
+  if (delayed_options.machinefilename) {
+    log_open(LOG_MACHINE, o.append_output, delayed_options.machinefilename);
+    free(delayed_options.machinefilename);
   }
-  if (kiddiefilename) {
-    log_open(LOG_SKID, o.append_output, kiddiefilename);
-    free(kiddiefilename);
+  if (delayed_options.kiddiefilename) {
+    log_open(LOG_SKID, o.append_output, delayed_options.kiddiefilename);
+    free(delayed_options.kiddiefilename);
   }
-  if (xmlfilename) {
-    log_open(LOG_XML, o.append_output, xmlfilename);
-    free(xmlfilename);
+  if (delayed_options.xmlfilename) {
+    log_open(LOG_XML, o.append_output, delayed_options.xmlfilename);
+    free(delayed_options.xmlfilename);
   }
 
   // ISO 8601 date/time -- http://www.cl.cam.ac.uk/~mgk25/iso-time.html
-  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", tm) <= 0)
+  if (strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M %Z", local_time) <= 0)
     fatal("Unable to properly format time");
   log_write(LOG_STDOUT|LOG_SKID, "\nStarting %s %s ( %s ) at %s\n", NMAP_NAME, NMAP_VERSION, NMAP_URL, tbuf);
   if (o.verbose) {
-    if (tm->tm_mon == 8 && tm->tm_mday == 1) {
-      log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", tm->tm_year - 97, tm->tm_year + 3 );
-    } else if (tm->tm_mon == 11 && tm->tm_mday == 25) {
+    if (local_time->tm_mon == 8 && local_time->tm_mday == 1) {
+      log_write(LOG_STDOUT|LOG_SKID, "Happy %dth Birthday to Nmap, may it live to be %d!\n", local_time->tm_year - 97, local_time->tm_year + 3 );
+    } else if (local_time->tm_mon == 11 && local_time->tm_mday == 25) {
       log_write(LOG_STDOUT|LOG_SKID, "Nmap wishes you a merry Christmas! Specify -sX for Xmas Scan (http://nmap.org/book/man-port-scanning-techniques.html).\n");
-    } 
+    }
   }
-  if (iflist) {
+  if (delayed_options.iflist) {
     print_iflist();
     exit(0);
   }
@@ -1398,24 +1370,19 @@ int nmap_main(int argc, char *argv[]) {
   if (o.traceroute && o.idlescan)
     fatal("Traceroute does not support idle scan");
 
-  if ((o.noportscan) && (portlist || o.fastscan))
+  if ((o.noportscan) && (o.portlist || o.fastscan))
     fatal("You cannot use -F (fast scan) or -p (explicit port selection) when not doing a port scan");
 
-  if (portlist && o.fastscan)
+  if (o.portlist && o.fastscan)
     fatal("You cannot use -F (fast scan) with -p (explicit port selection) but see --top-ports and --port-ratio to fast scan a range of ports");
 
   if (o.ipprotscan) {
-    if (portlist)
-      getpts(portlist, &ports);
+    if (o.portlist)
+      getpts(o.portlist, &ports);
     else
       getpts((char *) (o.fastscan ? "[P:0-]" : "0-"), &ports);  // Default protocols to scan
   } else if (!o.noportscan) {
-    gettoppts(o.topportlevel, portlist, &ports);
-  }
-
-  if (portlist) {
-    free(portlist);
-    portlist = NULL;
+    gettoppts(o.topportlevel, o.portlist, &ports);
   }
 
   // Uncomment the following line to use the common lisp port spec test suite
@@ -1426,7 +1393,7 @@ int nmap_main(int argc, char *argv[]) {
     error("WARNING: raw IP (rather than raw ethernet) packet sending attempted on Windows. This probably won't work.  Consider --send-eth next time.");
   }
 #endif
-  if (spoofmac) {
+  if (delayed_options.spoofmac) {
     u8 mac_data[6];
     int pos = 0; /* Next index of mac_data to fill in */
     char tmphex[3];
@@ -1434,14 +1401,14 @@ int nmap_main(int argc, char *argv[]) {
        or colons is treated as a prefix, with remaining characters for
        the 6-byte MAC (if any) chosen randomly.  Otherwise, it is
        treated as a vendor string for lookup in nmap-mac-prefixes */
-    if (strcmp(spoofmac, "0") == 0) {
+    if (strcmp(delayed_options.spoofmac, "0") == 0) {
       pos = 0;
     } else {
-      const char *p = spoofmac;
+      const char *p = delayed_options.spoofmac;
       while(*p) {
         if (*p == ':') p++;
         if (isxdigit((int) (unsigned char) *p) && isxdigit((int) (unsigned char) *(p+1))) {
-          if (pos >= 6) fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", spoofmac);
+          if (pos >= 6) fatal("Bogus --spoof-mac value encountered (%s) -- only up to 6 bytes permitted", delayed_options.spoofmac);
           tmphex[0] = *p; tmphex[1] = *(p+1); tmphex[2] = '\0';
           mac_data[pos] = (u8) strtol(tmphex, NULL, 16);
           pos++;
@@ -1450,8 +1417,8 @@ int nmap_main(int argc, char *argv[]) {
       }
       if (*p) {
         /* Failed to parse it as a MAC prefix -- treating as a vendor substring instead */
-        if (!MACCorp2Prefix(spoofmac, mac_data))
-          fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof-mac argument: %s.  If you are giving hex digits, there must be an even number of them.", spoofmac);
+        if (!MACCorp2Prefix(delayed_options.spoofmac, mac_data))
+          fatal("Could not parse as a prefix nor find as a vendor substring the given --spoof-mac argument: %s.  If you are giving hex digits, there must be an even number of them.", delayed_options.spoofmac);
         pos = 3;
       }
     }
@@ -1514,6 +1481,89 @@ int nmap_main(int argc, char *argv[]) {
     o.setSourceSockAddr(&tmpsock, sizeof(tmpsock));
   }
 
+  if (delayed_options.exclude_spec && delayed_options.exclude_file)
+    fatal("--excludefile and --exclude options are mutually exclusive.");
+  if(delayed_options.exclude_file) {
+    o.excludefd = fopen(delayed_options.exclude_file, "r");
+    if (!o.excludefd)
+      fatal("Failed to open exclude file %s for reading", delayed_options.exclude_file);
+    free(delayed_options.exclude_file);
+  }
+  o.exclude_spec = delayed_options.exclude_spec;
+
+}
+
+int nmap_main(int argc, char *argv[]) {
+  int i;
+  vector<Target *> Targets;
+  time_t now;
+  struct hostent *target = NULL;
+  time_t timep;
+  char mytime[128];
+  addrset exclude_group;
+  /* Only NSE scripts can add targets */
+  NewTargets *new_targets = NULL;
+  #ifndef NOLUA
+  /* Pre-Scan and Post-Scan script results datastructure */
+  ScriptResults *script_scan_results = NULL;
+  #endif
+  char **host_exp_group;
+  int num_host_exp_groups;
+  HostGroupState *hstate = NULL;
+  unsigned int ideal_scan_group_sz = 0;
+  Target *currenths;
+  char *host_spec = NULL;
+  char myname[MAXHOSTNAMELEN + 1];
+  int sourceaddrwarning = 0; /* Have we warned them yet about unguessable
+                                source addresses? */
+  unsigned int targetno;
+  char hostname[MAXHOSTNAMELEN + 1] = "";
+  struct sockaddr_storage ss;
+  size_t sslen;
+  char **fakeargv = NULL;
+
+  now = time(NULL);
+  local_time = localtime(&now);
+
+  if(o.debugging)
+    nbase_set_log(fatal,error);
+  else
+    nbase_set_log(fatal,NULL);
+
+  if (argc < 2 ) printusage(-1);
+
+  /* argv faking silliness */
+  fakeargv = (char **) safe_malloc(sizeof(char *) * (argc + 1));
+  for(i=0; i < argc; i++) {
+    fakeargv[i] = strdup(argv[i]);
+  }
+  fakeargv[argc] = NULL;
+
+  Targets.reserve(100);
+#ifdef WIN32
+  win_pre_init();
+#endif
+
+  parse_options(argc, fakeargv);
+
+#ifdef WIN32
+  win_init();
+#endif
+
+  tty_init(); // Put the keyboard in raw mode
+
+   apply_delayed_options();
+
+  /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
+  if (o.quashargv) {
+    size_t fakeargvlen = strlen(FAKE_ARGV), argvlen = strlen(argv[0]);
+    if (argvlen < fakeargvlen)
+      fatal("If you want me to fake your argv, you need to call the program with a longer name.  Try the full pathname, or rename it fyodorssuperdedouperportscanner");
+    strncpy(argv[0], FAKE_ARGV, fakeargvlen);
+    memset(&argv[0][fakeargvlen], '\0', strlen(&argv[0][fakeargvlen]));
+    for(i=1; i < argc; i++)
+      memset(argv[i], '\0', strlen(argv[i]));
+  }
 
   /* If he wants to bounce off of an FTP site, that site better damn well be reachable! */
   if (o.bouncescan) {
@@ -1591,17 +1641,6 @@ int nmap_main(int argc, char *argv[]) {
   if (o.verbose)
     output_ports_to_machine_parseable_output(&ports);
 
-  /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
-  if (quashargv) {
-    size_t fakeargvlen = strlen(FAKE_ARGV), argvlen = strlen(argv[0]);
-    if (argvlen < fakeargvlen)
-      fatal("If you want me to fake your argv, you need to call the program with a longer name.  Try the full pathname, or rename it fyodorssuperdedouperportscanner");
-    strncpy(argv[0], FAKE_ARGV, fakeargvlen);
-    memset(&argv[0][fakeargvlen], '\0', strlen(&argv[0][fakeargvlen]));
-    for(i=1; i < argc; i++)
-      memset(argv[i], '\0', strlen(argv[i]));
-  }
-
 #if defined(HAVE_SIGNAL) && defined(SIGPIPE)
   signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE so our program doesn't crash because
                                of it, but we really shouldn't get an unexpected
@@ -1636,7 +1675,7 @@ int nmap_main(int argc, char *argv[]) {
   if (o.SCTPScan())
     PortList::initializePortMap(IPPROTO_SCTP, ports.sctp_ports, ports.sctp_count);
 
-  if  (randomize) {
+  if (o.randomize_ports) {
     if (ports.tcp_count) {
       shortfry(ports.tcp_ports, ports.tcp_count);
       // move a few more common ports closer to the beginning to speed scan
@@ -1653,14 +1692,13 @@ int nmap_main(int argc, char *argv[]) {
   addrset_init(&exclude_group);
 
   /* lets load our exclude list */
-  if (excludefd != NULL) {
-    load_exclude_file(&exclude_group, excludefd);
-    fclose(excludefd);
+  if (o.excludefd != NULL) {
+    load_exclude_file(&exclude_group, o.excludefd);
+    fclose(o.excludefd);
   }
-  if (exclude_spec != NULL) {
+  if (o.exclude_spec != NULL) {
     /* Simultaneous --excludefile and --exclude are not supported. */
-    load_exclude_string(&exclude_group ,exclude_spec);
-    free(exclude_spec);
+    load_exclude_string(&exclude_group , o.exclude_spec);
   }
 
   if (o.debugging > 3)
@@ -1708,7 +1746,7 @@ int nmap_main(int argc, char *argv[]) {
         /* Now grab any new expressions */
         while(num_host_exp_groups < o.ping_group_sz && 
           (!o.max_ips_to_scan || o.max_ips_to_scan > o.numhosts_scanned + (int) Targets.size() + num_host_exp_groups) &&
-          (host_spec = grab_next_host_spec(inputfd, o.generate_random_ips, argc, fakeargv))) {
+          (host_spec = grab_next_host_spec(o.inputfd, o.generate_random_ips, argc, fakeargv))) {
             // For purposes of random scan
             host_exp_group[num_host_exp_groups++] = strdup(host_spec);
         }
@@ -1765,7 +1803,7 @@ int nmap_main(int argc, char *argv[]) {
         o.numhosts_scanned++;
         continue;
       }
-    
+
       if (o.spoofsource) {
         o.SourceSockAddr(&ss, &sslen);
         currenths->setSourceSockAddr(&ss, sslen);
@@ -1877,8 +1915,8 @@ int nmap_main(int argc, char *argv[]) {
         for(targetno = 0; targetno < Targets.size(); targetno++) {
            o.current_scantype = IDLE_SCAN;
            keyWasPressed(); // Check if a status message should be printed
-           idle_scan(Targets[targetno], ports.tcp_ports, 
-                                  ports.tcp_count, idleProxy, &ports);
+           idle_scan(Targets[targetno], ports.tcp_ports,
+                                  ports.tcp_count, o.idleProxy, &ports);
         }
       }
       if (o.bouncescan) {
@@ -1886,7 +1924,7 @@ int nmap_main(int argc, char *argv[]) {
            o.current_scantype = BOUNCE_SCAN;
            keyWasPressed(); // Check if a status message should be printed
           if (ftp.sd <= 0) ftp_anon_connect(&ftp);
-          if (ftp.sd > 0) bounce_scan(Targets[targetno], ports.tcp_ports, 
+          if (ftp.sd > 0) bounce_scan(Targets[targetno], ports.tcp_ports,
                                       ports.tcp_count, &ftp);
         }
       }
@@ -1993,8 +2031,8 @@ int nmap_main(int argc, char *argv[]) {
   num_host_exp_groups = 0;
   free(host_exp_group);
 
-  if (inputfd != NULL)
-    fclose(inputfd);
+  if (o.inputfd != NULL)
+    fclose(o.inputfd);
 
   printdatafilepaths();
 
@@ -2057,19 +2095,7 @@ void nmap_free_mem() {
   free_dns_servers();
   free_etchosts();
   free_services();
-  if (o.reference_FPs) {
-    delete o.reference_FPs;
-    o.reference_FPs = NULL;
-  }
   AllProbes::service_scan_free();
-  if (o.dns_servers) free(o.dns_servers);
-  if (o.extra_payload) free(o.extra_payload);
-  if (o.ipoptions) free(o.ipoptions);
-#ifndef NOLUA
-  if (o.scriptversion || o.script)
-    close_nse();
-  free(o.scriptargs);
-#endif
   traceroute_hop_cache_clear();
 }
 

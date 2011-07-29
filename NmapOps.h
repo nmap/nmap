@@ -179,6 +179,7 @@ class NmapOps {
   /* The requested auto stats printing interval, or 0.0 if unset. */
   float stats_interval;
   int randomize_hosts;
+  int randomize_ports;
   int spoofsource; /* -S used */
   int fastscan;
   char device[64];
@@ -286,6 +287,7 @@ class NmapOps {
   int connectscan;
   int finscan;
   int idlescan;
+  char* idleProxy; /* The idle host used to "Proxy" an idle scan */
   int ipprotscan;
   int maimonscan;
   int nullscan;
@@ -318,6 +320,11 @@ class NmapOps {
   bool traceroute;
   bool reason;
   bool adler32;
+  FILE *excludefd;
+  char *exclude_spec;
+  int quashargv;
+  FILE *inputfd;
+  char *portlist; /* Ports list specified by user */
 
 #ifndef NOLUA
   int script;
