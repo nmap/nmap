@@ -22,6 +22,9 @@ Pending:
 Pending (low priority):
 =======================
 
+o Nmap *poor's man* test suite by expanding on what I already have in
+  /nmap-exp/shinnok/nmap-test-script.
+
 o libpcre/pcre.h - is cleared upon make distclean thus leaving the SVN
   working directory dirty
   http://seclists.org/nmap-dev/2011/q2/708
