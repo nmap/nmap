@@ -1,9 +1,10 @@
 PENDING:
+-Work on the spidering library and proposal
+
+COMPLETED:
 -Write more signatures for http-default-accounts
 -Select new scripts from queue and work on them
 -Improve my documentation
-
-COMPLETED:
 -Write http-wp-enum
 -Write http-malware-host
 -Write more signatures for http-default-accounts
