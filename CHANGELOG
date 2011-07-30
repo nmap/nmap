@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Nmap now defers options parsing until it has read through all the command line
+  arguments. You can now use options like -S with an IPv6 address before
+  specifying -6 at the command line, which previously got you an error.
+  [Shinnok]
+
 o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
   brute force password auditing against XMPP (Jabber) servers. [Patrik]
 
