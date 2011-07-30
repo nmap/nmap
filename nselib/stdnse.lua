@@ -752,7 +752,7 @@ end
 
 ---Similar to <code>registry_add_array</code>, except instead of adding a value to the
 -- end of an array, it adds a key:value pair to the table. 
-function registry_add_table(subkeys, key, value)
+function registry_add_table(subkeys, key, value, allow_duplicates)
   local registry = nmap.registry
   local i = 1
 
