@@ -1,11 +1,10 @@
 In progress:
 ============
 
-o Nmap should defer address parsing in arguments until it has read
-  through all the args.  Otherwise you get an error if you use like -S
-  with an IPv6 address before you put -6 in the command line.  You
-  get a similar problem (on David's IPv6 branch) if you do "-A -6"
-  (but "-6 -A works properly).
+o De-duplicate code by unifying ncat_broker.c and ncat_listen.c code paths,
+  either as a single file in ncat_listen.c or merge duplicate code in
+  ncat_listen.c and keep only broker specific code in ncat_broker.c(it it's a
+  lot of code, otherwise ncat_listen.c would do just fine).
 
 Hanging(waiting for further input, etc..):
 ==========================================
@@ -19,11 +18,6 @@ o Review latest revision of Marek's ncat_proxy.patch - DONE
 
 Pending:
 ========
-
-o De-duplicate code by unifying ncat_broker.c and ncat_listen.c code paths,
-  either as a single file in ncat_listen.c or merge duplicate code in
-  ncat_listen.c and keep only broker specific code in ncat_broker.c(it it's a
-  lot of code, otherwise ncat_listen.c would do just fine).
 
 Pending (low priority):
 =======================
@@ -78,6 +72,12 @@ o We should offer partial results when a host
 
 COMPLETED:
 ==========
+
+o Nmap should defer address parsing in arguments until it has read
+  through all the args.  Otherwise you get an error if you use like -S
+  with an IPv6 address before you put -6 in the command line.  You
+  get a similar problem (on David's IPv6 branch) if you do "-A -6"
+  (but "-6 -A works properly).
 
 o E-mail nmap-dev with QtCreator usage steps for Nmap
 
