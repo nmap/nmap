@@ -82,6 +82,11 @@ o Nmap should defer address parsing in arguments until it has read
   get a similar problem (on David's IPv6 branch) if you do "-A -6"
   (but "-6 -A works properly).
 
+o Delve into Lua and NSE and try to write some scripts to get the hang
+  of it and gain a better understanding of the NSE engine in Nmap.
+  o Written two NSE scripts, http-reverse-ip and http-google-email that
+    can be found in /nmap-exp/shinnok/nse.
+
 o E-mail nmap-dev with QtCreator usage steps for Nmap
 
 --
