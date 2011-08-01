@@ -8,11 +8,6 @@ o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
-o Ncat chat (at least in ssl mode) no longer gives the banner greeting
-  when I connect.  This worked in r23918, but not in r24185, which is
-  the one running on chat.nmap.org as of 6/20/11.  Verify by running
-  "ncat --ssl -v chat.nmap.org"
-
 o Integrate new OS detection submissions (We have about 1,700
   submissions since 11/30/10)
 
@@ -34,17 +29,14 @@ o [Ncat] Solve a crash that only happens on Windows when connecting
   Changing the flags from XN_FLAG_ONELINE to 0 seems to make the
   problem go away.
 
-o Nmap should defer address parsing in arguments until it has read
-  through all the args.  Otherwise you get an error if you use like -S
-  with an IPv6 address before you put -6 in the command line.  You get
-  a similar problem if you do "-A -6" (but "-6 -A works properly).
-  This is a possible feature creeper task.
-
 o Unless we get good arguments for keeping it, we should remove Mac OS
   X PowerPC support from our binaries.  Apple stopped selling PowerPC
   machines in 2006 and they stopped making new OS releases available
   for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
   thread: http://seclists.org/nmap-dev/2011/q3/430
+
+o Fix reported (by many people) crash when trying to launch Zenmap on
+  Mac OS X 10.7 (Lion).
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -666,6 +658,17 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Nmap should defer address parsing in arguments until it has read
+  through all the args.  Otherwise you get an error if you use like -S
+  with an IPv6 address before you put -6 in the command line.  You get
+  a similar problem if you do "-A -6" (but "-6 -A works properly).
+  This is a possible feature creeper task.
+
+o Ncat chat (at least in ssl mode) no longer gives the banner greeting
+  when I connect.  This worked in r23918, but not in r24185, which is
+  the one running on chat.nmap.org as of 6/20/11.  Verify by running
+  "ncat --ssl -v chat.nmap.org"
 
 o IPv6 Neighbor Discovery-based host discovery (analog to ARP scan).
 
