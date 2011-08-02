@@ -856,6 +856,10 @@ you would expect.</para>
           for any of the targets which are on the same LAN.  If you
           absolutely don't want to do an ARP scan, specify
           <option>--send-ip</option>.</para>
+          
+          <para>For IPv6 (-6 option), <option>-PR</option> uses ICMPv6
+          Neighbor Discovery instead of ARP. Neighbor Discovery, defined
+          in RFC 4861, can be seen as the IPv6 equivalent of ARP.</para>
 
         </listitem>
       </varlistentry>
