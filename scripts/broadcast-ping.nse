@@ -267,7 +267,9 @@ action = function()
 		for ip_addr, mac_addr in pairs(icmp_responders) do
 			table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
 		end
-		table.insert(output,"Use the newtargets script-arg to add the results as targets")
+		if #output>0 then
+			table.insert(output,"Use the newtargets script-arg to add the results as targets")
+		end
 	end
 	
 	return stdnse.format_output( (#output>0), output )
