@@ -212,7 +212,7 @@ end
 -- @param count_limit Count limit in seconds. Use 0 or <code>nil</code> for no limit.
 -- @return boolean Status.
 -- @return function The wrapped iterator.
-local limited_iterator = function(iterator, time_limit, count_limit)
+limited_iterator = function(iterator, time_limit, count_limit)
 	local start, count, elem
 
 	time_limit = (time_limit and time_limit > 0) and time_limit
