@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Ncat SCTP mode supports connection brokering now(--sctp --broker). [Shinnok]
+
 o Nmap now defers options parsing until it has read through all the command line
   arguments. You can now use options like -S with an IPv6 address before
   specifying -6 at the command line, which previously got you an error.
