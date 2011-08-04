@@ -15,11 +15,11 @@ o Integrate new service fingerprint submissions (we have about 1,400
   submissions since 11/30/10)
 
 o [Ncat] Solve a crash that only happens on Windows when connecting
-  with SSL and -vvv, for example
-    ncat --ssl -vvv www.amazon.com 443
+  with --ssl-verify and -vvv, for example
+    ncat --ssl-verify -vvv www.amazon.com 443
   The crash happens in the function verify_callback, when the function
   X509_NAME_print_ex_fp is called. Just commenting those two calls
-  avoid the problem. By trying different combinations of debug print
+  avoids the problem. By trying different combinations of debug print
   statements, I once got the message
     OPENSSL_Uplink(10109000,08): no OPENSSL_Applink
   This refers to a Windows dynamic linking issue:
