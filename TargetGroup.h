@@ -115,8 +115,6 @@ class TargetGroup {
     fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
     AF_INET6 Returns 0 for success */
   int parse_expr(const char * const target_expr, int af);
-  /* Reset the object without reinitializing it */
-  int rewind();
   /* Grab the next host from this expression (if any).  Returns 0 and
      fills in ss if successful.  ss must point to a pre-allocated
      sockaddr_storage structure */

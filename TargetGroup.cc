@@ -115,44 +115,6 @@ void TargetGroup::Initialize() {
   ipsleft = 0;
 }
 
-/* take the object back to the beginning without  (mdmcl)
- * reinitalizing the data structures */  
-int TargetGroup::rewind() {
-
-  /* For netmasks we must set the current address to the
-   * starting address and calculate the ips by distance */
-  if (targets_type == IPV4_NETMASK) {
-    currentaddr = startaddr;
-    if (startaddr.s_addr <= endaddr.s_addr) { 
-      ipsleft = ((unsigned long long) (endaddr.s_addr - startaddr.s_addr)) + 1;
-      return 0; 
-    }
-    else
-      assert(0);
-  }
-  /* For ranges, we easily set current to zero and calculate
-   * the ips by the number of values in the columns */
-  else if (targets_type == IPV4_RANGES) {
-    memset((char *)current, 0, sizeof(current));
-    ipsleft = (unsigned long long) (last[0] + 1) *
-              (unsigned long long) (last[1] + 1) *
-              (unsigned long long) (last[2] + 1) *
-              (unsigned long long) (last[3] + 1);
-    return 0;
-  }
-#if HAVE_IPV6
-  /* For IPV6 there is only one address, this function doesn't
-   * make much sence for IPv6 does it? */
-  else if (targets_type == IPV6_ADDRESS) {
-    ipsleft = 1;
-    return 0;
-  }
-#endif 
-
-  /* If we got this far there must be an error, wrong type */
-  return -1;
-}
-
  /* Initializes (or reinitializes) the object with a new expression, such
     as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .  
     Returns 0 for success */  
