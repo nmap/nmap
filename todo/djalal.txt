@@ -17,6 +17,10 @@ o Start a thread on Nmap-dev about users favorite Nmap and NSE commands,
 
 1) Nmap Scripting Engine Infrastructure:
 
+o [High priority]
+  Take a look at Dan's NSE XML output patch and try to commit it.
+  http://seclists.org/nmap-dev/2011/q2/1230
+
 o NSE Version Numbering.
   http://seclists.org/nmap-dev/2010/q4/693
 
