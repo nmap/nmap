@@ -16,8 +16,8 @@ fully distinguished name. E.g., "Patrik Karlsson" vs.
 This type of authentication is not supported on e.g. OpenLDAP.
 
 This script uses some AD-specific support and optimizations:
-* LDAP on Windows 2003 reports different error messages depending on whether an account exists or not. If the script recieves an error indicating that the username does not exist it simply stops guessing passwords for this account and moves on to the next.
-* The script attempts to authenticate with the username only if no LDAP base is specified. The benefit of authenticating this way is that the LDAP path of each account does not need to be known in advance as it's looked up by the server.
+* LDAP on Windows 2003 reports different error messages depending on whether an account exists or not. If the script receives an error indicating that the username does not exist it simply stops guessing passwords for this account and moves on to the next.
+* The script attempts to authenticate with the username only if no LDAP base is specified. The benefit of authenticating this way is that the LDAP path of each account does not need to be known in advance as it's looked up by the server.  This technique will only find a match if the account Display Name matches the username being attempted.
 ]]
 
 ---
@@ -45,10 +45,11 @@ require 'ldap'
 require 'unpwdb'
 require 'comm'
 
--- Version 0.3
+-- Version 0.4
 -- Created 01/20/2010 - v0.1 - created by Patrik Karlsson
 -- Revised 01/26/2010 - v0.2 - cleaned up unpwdb related code, fixed ssl stuff
 -- Revised 02/17/2010 - v0.3 - added AD specific checks and fixed bugs related to LDAP base
+-- Revised 08/07/2011 - v0.4 - adjusted AD match strings to be level independent, added additional account condition checks
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 
@@ -163,26 +164,44 @@ action = function( host, port )
 			end
 			
 			-- Is AD telling us the account does not exist?
-			if not status and response:match("AcceptSecurityContext error, data 525, vece") then
+			if not status and response:match("AcceptSecurityContext error, data 525,") then
 				invalid_account_cnt = invalid_account_cnt + 1
 				break
 			end
 
 			-- Account Locked Out
-			if not status and response:match("AcceptSecurityContext error, data 775, vece") then
+			if not status and response:match("AcceptSecurityContext error, data 775,") then
 				table.insert( valid_accounts, string.format("%s => Account locked out", fq_username ) )
 				break
 			end
 
 			-- Login correct, account disabled
-			if not status and response:match("AcceptSecurityContext error, data 533, vece") then
+			if not status and response:match("AcceptSecurityContext error, data 533,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, account disabled", fq_username, password:len()>0 and password or "<empty>" ) )
 				break
 			end
 
 			-- Login correct, user must change password
-			if not status and response:match("AcceptSecurityContext error, data 773, vece") then
+			if not status and response:match("AcceptSecurityContext error, data 773,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, user must change password", fq_username, password:len()>0 and password or "<empty>" ) )
+				break
+			end
+			
+			-- Login correct, user account expired
+			if not status and response:match("AcceptSecurityContext error, data 701,") then
+				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account expired", fq_username, password:len()>0 and password or "<empty>" ) )
+				break
+			end
+			
+			-- Login correct, user account logon time restricted
+			if not status and response:match("AcceptSecurityContext error, data 530,") then
+				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account logon time restricted", fq_username, password:len()>0 and password or "<empty>" ) )
+				break
+			end
+			
+			-- Login correct, user account can only log in from certain workstations
+			if not status and response:match("AcceptSecurityContext error, data 531,") then
+				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account cannot login from current host", fq_username, password:len()>0 and password or "<empty>" ) )
 				break
 			end
 
@@ -205,7 +224,7 @@ action = function( host, port )
 		passwords("reset")
 	end
 
-	stdnse.print_debug( "Finnished brute against LDAP, total tries: %d, tps: %d", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
+	stdnse.print_debug( "Finished brute against LDAP, total tries: %d, tps: %d", tot_tries, ( tot_tries / ( ( nmap.clock_ms() - clock_start ) / 1000 ) ) )
 
 	if ( invalid_account_cnt == user_cnt and base_dn ~= nil ) then
 		return "WARNING: All usernames were invalid. Invalid LDAP base?"

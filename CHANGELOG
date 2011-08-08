@@ -92,6 +92,10 @@ o [NSE] Added ftp-vuln-cve2010-4221 script, which checks if the ProFTPD
 
 o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
   into vsftpd-2.3.4 source code distributions. [Daniel Miller]
+	
+o [NSE] Added support for 2008 R2 functional level Active Directory instances 
+  to ldap-brute. Also added detection for valid credentials where the target 
+	account was expired or limited by time or login host constraints. [Tom Sellers]
 
 Nmap 5.59BETA1 [2011-06-30]
 
