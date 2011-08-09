@@ -13,13 +13,12 @@ peers as targets.
 -- @usage 
 -- nmap --script bittorrent-discovery --script-args bittorrent-discovery.torrent=<filename>,
 -- bittorrent-discovery.magnet=<magnet_link>[,bittorrent-discovery.dht_timeout=<seconds>]
--- [,bittorrent-discovery.nodes-only][,bittorrent-discovery.peers-only][,newtargets]
+-- [,bittorrent-discovery.include-nodes][,newtargets]
 --
 -- @arg torrent, a string containing the filename of the torrent file
 -- @arg magnet, a string containing the magnet link of the torrent
 -- @arg timeout, desired (not actual) timeout for the DHT discovery (default = 30 s)
--- @arg nodes-only, boolean selecting whether to show only nodes
--- @arg peers-only, boolean selecting whether to show only peers
+-- @arg include-nodes, boolean selecting whether to show only nodes
 --
 -- @output
 -- | bittorrent-peers:
