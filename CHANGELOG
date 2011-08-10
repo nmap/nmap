@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script broadcast-listener that attempts to discover hosts by
+  passively listening to the network. It does so by decoding ethernet and IP
+  broadcast and multicast messages. [Patrik]
+
 o Fixed a bug that would make Nmap segfault if it failed to open an interface
   using pcap. The bug details and patch are posted here:
   http://seclists.org/nmap-dev/2011/q3/365 [Patrik]
