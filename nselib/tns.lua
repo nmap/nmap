@@ -61,9 +61,9 @@
 --      x http://www.soonerorlater.hu/index.khtml?article_id=511
 --
 -- This implementation is tested and known to work against:
--- x Oracle 10g R2 on Windows
--- x Oracle 11g on Linux
--- x Oracle 11g R2 on Linux 
+-- x Oracle 10g R2 on Windows (Authentication only)
+-- x Oracle 11g on Linux (Authentication only)
+-- x Oracle 11g R2 on Linux (Authentication and queries)
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
@@ -71,11 +71,12 @@
 -- @args tns.sid specifies the Oracle instance to connect to
 
 --
--- Version 0.3
+-- Version 0.4
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/21/2010 - v0.2 - made minor changes to support 11gR2 on Windows
 -- Revised 07/23/2010 - v0.3 - corrected incorrect example code in docs
 --                           - removed ssl require
+-- Revised 02/08/2011 - v0.4 - added basic query support <patrik@cqure.net>
 
 require 'bin'
 
@@ -112,6 +113,74 @@ AuthOptions =
 	end,	
 	
 }
+
+-- Data type to number conversions
+DataTypes = {
+	NUMBER = 2,
+	DATE = 12,
+}
+
+-- Decodes different datatypes from the byte arrays or strings read from the
+-- tns data packets
+DataTypeDecoders = {
+	
+	-- Decodes a number
+	[DataTypes.NUMBER] = function(val)
+		if ( #val == 0 ) then return "" end
+		if ( #val == 1 and val == '\128' ) then	return 0 end
+		
+		local bytes = {}
+		for i=1, #val do bytes[i] = select(2, bin.unpack("C", val, i)) end
+		
+		local positive = ( bit.band(bytes[1], 0x80) ~= 0 )
+
+		local function convert_bytes(bytes, positive)
+			local ret_bytes = {}
+			local len = #bytes
+
+			if ( positive ) then
+				ret_bytes[1] = bit.band(bytes[1], 0x7F) - 65
+				for i=2, len do ret_bytes[i] = bytes[i] - 1 end
+			else
+				ret_bytes[1] = bit.band(bit.bxor(bytes[1], 0xFF), 0x7F) - 65
+				for i=2, len do ret_bytes[i] = 101 - bytes[i] end
+			end
+			
+			return ret_bytes
+		end
+		
+		bytes = convert_bytes(bytes, positive)
+
+		local k = ( #bytes - 1 > bytes[1] +1 ) and 
+					( bytes[1] + 1 ) or 
+					#bytes - 1
+
+		local l = 0
+		for m=1, k do l = l * 100 + bytes[m+1] end
+		for m=bytes[1]-#bytes - 1, 0, -1 do l = l * 100	end
+		
+		return (positive and l or -l)
+	end,
+
+	-- Decodes a date
+	[DataTypes.DATE] = function(val)
+		local bytes = {}
+	
+		if (#val == 0) then
+			return ""
+		elseif( #val ~= 7 ) then
+			return "ERROR: Failed to decode date"
+		end
+	
+		for i=1, 7 do bytes[i] = select(2, bin.unpack("C", val, i))	end
+
+		return ("%d-%02d-%02d"):format( (bytes[1] - 100 ) * 100 + bytes[2] - 100, bytes[3], bytes[4] )
+	end,
+	
+	
+	
+}
+
 
 -- Packet class table
 --
@@ -185,7 +254,7 @@ Packet.TNS = {
 	--- Converts the TNS packet to string suitable to be sent over the socket
 	--
 	-- @return string containing the TNS packet
-	toString = function( self )
+	__tostring = function( self )
 		local data = bin.pack(">SSCCSA", self.length, self.checksum, self.type, 
 										self.reserved, self.hdr_checksum, self.data )
 		return data
@@ -220,13 +289,14 @@ Packet.Connect = {
 		tns_type = Packet.TNS.Type.CONNECT,
 		
 		new = function( self, rhost, rport, dbinstance )
-			local o = {}
+			local o = {
+				rhost = rhost,
+				rport = rport,
+				conn_data = Packet.Connect.CONN_STR:format( rhost, rport, dbinstance, rhost ),
+				dbinstance = dbinstance:upper()
+			}
 	       	setmetatable(o, self)
 	        self.__index = self
-			o.rhost = rhost
-			o.rport = rport
-			o.conn_data = Packet.Connect.CONN_STR:format( rhost, rport, dbinstance, rhost )
-			o.dbinstance = dbinstance:upper()
 			return o
 		end,
 		
@@ -261,7 +331,7 @@ Packet.Connect = {
 		--- Converts the CONNECT packet to string
 		--
 		-- @return string containing the packet
-		toString = function( self )
+		__tostring = function( self )
 			self.conn_data_len = #self.conn_data
 
 			return bin.pack(">SSSSSSSSSSICCIILLA", self.version, self.version_comp, self.svc_options,
@@ -294,12 +364,12 @@ Packet.Data = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet
-	toString = function( self )
+	__tostring = function( self )
 		local data = bin.pack( ">S", self.flag ) .. self.data
 		
 		self.TNS.length = #data + 8
 		
-		return self.TNS:toString() .. data
+		return tostring(self.TNS) .. data
 	end,
 	
 }
@@ -311,18 +381,16 @@ Packet.Attention = {
 	tns_type = Packet.TNS.Type.MARKER,
 
 	new = function( self, typ, data )
-		local o = {}
+		local o = { data = data, att_type = typ }
        	setmetatable(o, self)
         self.__index = self
-		o.att_type = typ
-		o.data = data
 		return o
 	end,
 
 	--- Converts the MARKER packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		return bin.pack( ">C", self.att_type ) .. self.data
 	end,
 		
@@ -348,11 +416,9 @@ Packet.PreAuth = {
 	-- @param user string containing the user name
 	-- @return a new instance of Packet.PreAuth
 	new = function(self, user, options)
-		local o = {}
+		local o = { auth_user = user, auth_options = options }
        	setmetatable(o, self)
         self.__index = self
-		o.auth_user = user
-		o.auth_options = options
 		return o
 	end,
 	
@@ -368,7 +434,7 @@ Packet.PreAuth = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		local data = bin.pack("<SHIIH", self.flags, "037602feffffff", #self.auth_user, 1, "feffffff05000000fefffffffeffffff")
 		data = data .. bin.pack("CA", #self.auth_user, self.auth_user )
 
@@ -444,13 +510,14 @@ Packet.Auth = {
 	-- @param auth_pass the encrypted user password
 	-- @return a new instance of Packet.Auth
 	new = function(self, user, options, auth_sesskey, auth_pass)
-		local o = {}
+		local o = {
+			auth_sesskey = auth_sesskey,
+			auth_pass = auth_pass,
+			auth_options = options,
+			user = user
+		}
        	setmetatable(o, self)
         self.__index = self
-		o.auth_sesskey = auth_sesskey
-		o.auth_pass = auth_pass
-		o.auth_options = options
-		o.user = user
 		return o
 	end,
 
@@ -470,7 +537,7 @@ Packet.Auth = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		
 		local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
 		local data = bin.pack(">SHCHpHAHAH", self.flags, "037303feffffff", 
@@ -491,7 +558,33 @@ Packet.Auth = {
 		
 
 		return data 
-	end
+	end,
+	
+	
+	parseResponse = function( self, tns )
+		local pos = 6
+		local len, name, val, _
+		local data = tns.data
+		local response
+		
+		repeat
+			pos, len, _ = bin.unpack("CI", data, pos)
+			if ( len == 0 ) then break end
+			pos, name = bin.unpack("A" .. len, data, pos)
+			pos, len, _ = bin.unpack("CI", data, pos)
+			if ( len > 0 ) then
+				pos, val  = bin.unpack("A" .. len, data, pos)
+				pos = pos + 4
+			else
+				pos = pos + 3
+			end
+			response = response or {}
+			response[name] = val
+		until( name == "AUTH_SVR_RESPONSE" )
+
+		return true, response
+	end,
+	
 }
 
 Packet.SNS = {
@@ -510,7 +603,7 @@ Packet.SNS = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		return  bin.pack("SH", self.flags, "deadbeef00920b1006000004000004000300000000000400050b10060000080001000015cb353abecb00120001" .. 
 				    		 	  "deadbeef00030000000400040001000100020001000300000000000400050b10060000020003e0e100020006fc" ..
 								  "ff0002000200000000000400050b100600000c0001001106100c0f0a0b08020103000300020000000000040005" ..
@@ -534,7 +627,7 @@ Packet.ProtoNeg = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		local pfx = bin.pack(">SH", self.flags, "0106050403020100")
 		return pfx .. "Linuxi386/Linux-2.0.34-8.1.0\0"		
 	end,		
@@ -569,9 +662,8 @@ Packet.Unknown1 = {
 	-- @param version containing the version of the packet to send
 	-- @return new instance of Packet.Unknown1
 	new = function(self, os)
-		local o = {}
+		local o = { os = os }
        	setmetatable(o, self)
-		o.os = os
         self.__index = self
 		return o
 	end,
@@ -579,7 +671,7 @@ Packet.Unknown1 = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 
 		if (  self.os:match("IBMPC/WIN_NT[-]8.1.0") ) then
 			return bin.pack(">SH", self.flags, [[
@@ -673,7 +765,7 @@ Packet.Unknown2 = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		return bin.pack(">SH", self.flags, [[
 				024502450001000002460246000100000247024700010000024802480001000
 				0024902490001000000030002000a000000040002000a000000050001000100
@@ -716,10 +808,250 @@ Packet.EOF = {
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
-	toString = function( self )
+	__tostring = function( self )
 		return bin.pack(">S", self.flags )
 	end	
 }
+
+Packet.PostLogin = {
+	
+	tns_type = Packet.TNS.Type.DATA,
+	flags = 0x0000,
+	
+	new = function(self, sessid)
+		local o = { sessid = sessid }
+       	setmetatable(o, self)
+        self.__index = self
+		return o
+	end,
+	
+	--- Converts the DATA packet to string
+	--
+	-- @return string containing the packet	
+	__tostring = function( self )
+		local unknown1 = "116b04"
+		local unknown2 = "0000002200000001000000033b05fefffffff4010000fefffffffeffffff"
+		return bin.pack(">SHCH", self.flags, unknown1, tonumber(self.sessid), unknown2 )
+	end
+	
+}
+
+-- Class responsible for sending queries to the server and handling the first
+-- row returned by the server. This class is 100% based on packet captures and
+-- guesswork.
+Packet.Query = {
+	
+	tns_type = Packet.TNS.Type.DATA,
+	flags = 0x0000,
+	
+	--- Creates a new instance of Query
+	-- @param query string containing the SQL query
+	-- @return instance of Query
+	new = function(self, query)
+		local o = { query = query, counter = 0 }
+       	setmetatable(o, self)
+        self.__index = self
+		return o
+	end,
+	
+	--- Gets the current counter value
+	-- @return counter number containing the current counter value
+	getCounter = function(self) return self.counter end,
+	
+	--- Sets the current counter value
+	-- This function is called from sendTNSPacket
+	-- @param counter number containing the counter value to set
+	setCounter = function(self, counter) self.counter = counter end,
+		
+	--- Converts the DATA packet to string
+	--
+	-- @return string containing the packet	
+	__tostring = function( self )
+		local unknown1 = "035e"
+		local unknown2 = "6180000000000000feffffff"
+		local unknown3 = "000000feffffff0d000000fefffffffeffffff000000000100000000000000000000000000000000000000feffffff00000000fefffffffeffffff54d25d020000000000000000fefffffffeffffff0000000000000000000000000000000000000000"
+		local unknown4 = "01000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000"
+		return bin.pack(">SHCHCHCAH", self.flags, unknown1, self.counter, unknown2, #self.query, unknown3, #self.query, self.query, unknown4 )
+	end,
+	
+	--- Parses the Query response from the server
+	-- @param tns response as received from the <code>Comm.recvTNSPacket</code>
+	--        function.
+	-- @return result table containing:
+	--  <code>columns</code> - a column indexed table with the column names
+	--  <code>types</code>   - a column indexed table with the data types
+	--  <code>rows</code>    - a table containing a row table for each row
+	--                         the row table is a column indexed table of
+	--                         column values.
+	parseResponse = function( self, tns )
+		local data = tns.data
+		local result = {}
+		
+		local pos, columns = bin.unpack("C", tns.data, 35)
+		
+		pos = 40
+		for i=1, columns do
+			local sql_type
+			pos, sql_type = bin.unpack("C", data, pos)
+			pos = pos + 34
+			local name, len
+			pos, len = bin.unpack("C", tns.data, pos)
+			pos, name= bin.unpack("A" .. len, tns.data, pos)
+			result.columns = result.columns or {}
+			result.types = result.types or {}
+			table.insert(result.columns, name)
+			table.insert(result.types, sql_type)
+			pos = pos + 10
+		end
+		
+		pos = pos + 55
+		
+		result.rows = {}
+		local row = {}
+		for i=1, columns do
+			local val, len
+			pos, len = bin.unpack("C", tns.data, pos)
+			pos, val = bin.unpack("A" .. len, tns.data, pos)
+			local sql_type = result.types[i]
+			if ( DataTypeDecoders[sql_type] ) then
+				val = DataTypeDecoders[sql_type](val)
+			end
+			table.insert(row, val)
+		end
+		table.insert(result.rows, row)
+		
+		return true, result
+	end,
+}
+
+-- Class responsible for acknowledging a query response from the server
+-- and handles the next several rows returned by the server. This class
+-- is mostly based on packet captures and guesswork.
+Packet.QueryResponseAck = {
+
+	tns_type = Packet.TNS.Type.DATA,
+	flags = 0x0000,
+	
+	--- Creates a new QueryResponseAck instance
+	-- @param result table containing the results as received from the
+	--        <code>Query.parseResponse</code> function.
+	-- @return instance new instance of QueryResponseAck
+	new = function(self, result)
+		local o = { result = result }
+       	setmetatable(o, self)
+        self.__index = self
+		return o
+	end,
+
+	--- Gets the current counter value
+	-- @return counter number containing the current counter value
+	getCounter = function(self) return self.counter end,
+	
+	--- Sets the current counter value
+	-- This function is called from sendTNSPacket
+	-- @param counter number containing the counter value to set
+	setCounter = function(self, counter) self.counter = counter end,
+	
+	--- Serializes the packet into a string suitable to be sent to the DB
+	-- server.
+	-- @return str string containing the serialized packet
+	__tostring = function(self)
+		return bin.pack(">SHCH", self.flags, "0305", self.counter, "030000000f000000")
+	end,
+	
+	--
+	-- This is how I (Patrik Karlsson) think this is supposed to work
+	-- At this point we have the 2nd row (the query response has the first)
+	-- Every row looks like this, where the leading mask marker (0x15) and mask
+	-- is optional.
+	-- | (mask mark)| (bytes) | sor  | byte | len * bytes | ... next_column |
+	-- |  0x15      | [mask]  | 0x07 | [len]| [column_val]| ... next_column |
+
+	-- The mask is used in order to achieve "compression" and is essentially
+	-- at a bit mask that decides what columns should be fetched from the
+	-- preceeding row. The mask is provided in reverse order and a set bit
+	-- indicates that data is provided while an unset bit indicates that the
+	-- column data should be fetched from the previous row.
+	--
+	-- Once a value is fetched the sql data type is verified against the
+	-- DataTypeDecoder table. If there's a function registered for the fetched
+	-- data it is run through a decoder, that decodes the *real* value from
+	-- the encoded data.
+	--
+	parseResponse = function( self, tns )		
+		local data = tns.data
+		local pos, len = bin.unpack("C", data, 21)
+		local mask = ""
+
+		-- calculate the initial mask
+		if ( len > 0 ) then
+			while( len > 0) do
+				local mask_part
+				pos, mask_part = bin.unpack("B", data, pos)
+				mask = mask .. mask_part:reverse()
+				len = len - 1
+			end
+			pos = pos + 4
+		else
+			pos = pos +3 
+		end
+		
+		while(true) do
+			local row = {}
+			local result = self.result
+			local cols = #result.columns
+			
+			-- check for start of data marker
+			local marker
+			pos, marker = bin.unpack("C", data, pos)
+			if ( marker == 0x15 ) then
+				mask = ""
+				local _
+				-- not sure what this value is
+				pos, _ = bin.unpack("<S", data, pos)
+
+				-- calculate the bitmask for the columns that do contain
+				-- data.
+				len = cols
+				while( len > 0 ) do
+					local mask_part
+					pos, mask_part = bin.unpack("B", data, pos)
+					mask = mask .. mask_part:reverse()
+					len = len - 8
+				end
+				pos, marker = bin.unpack("C", data, pos)
+			end
+			if ( marker ~= 0x07 ) then
+				stdnse.print_debug(2, "Encountered unknown marker: %d", marker)
+				break
+			end
+			
+			local val
+			local rows = self.result.rows
+			for col=1, cols do
+				if ( #mask > 0 and mask:sub(col, col) == '0' ) then
+					val = rows[#rows][col]
+				else
+					pos, len = bin.unpack("C", data, pos)
+					pos, val = bin.unpack("A" .. len, data, pos)
+				
+					local sql_type = result.types[col]
+					if ( DataTypeDecoders[sql_type] ) then
+						val = DataTypeDecoders[sql_type](val)
+					end
+				end
+				table.insert(row, val)
+			end
+			
+			-- add row to result
+			table.insert(rows, row)
+		end
+		
+		return true, tns.data
+	end,
+	
+}
+
 
 -- The TNS communication class uses the TNSSocket to transmit data
 Comm = {
@@ -729,10 +1061,11 @@ Comm = {
 	-- @param socket containing a TNSSocket
 	-- @return new instance of Comm
 	new = function(self, socket)
-		local o = {}
+		local o = { 
+				tnssocket = socket, 
+				data_counter = 06 }
        	setmetatable(o, self)
         self.__index = self
-		o.tnssocket = socket
 		return o
 	end,
 
@@ -742,16 +1075,19 @@ Comm = {
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
 	sendTNSPacket = function( self, pkt )
-
 		local tns = Packet.TNS:new( self.tnssocket )
 		tns.type = pkt.tns_type
-		tns.data = pkt:toString()
+		if ( pkt.setCounter ) then
+			pkt:setCounter(self.data_counter)
+			self.data_counter = self.data_counter + 1
+		end
+		tns.data = tostring(pkt)
 		tns.length = #tns.data + 8
 		
 		-- buffer incase of RESEND
 		self.pkt = pkt
 		
-		return self.tnssocket:send( tns:toString() )
+		return self.tnssocket:send( tostring(tns) )
 	end,
 
 	--- Handles communication when a MARKER packet is recieved and retrieves
@@ -782,7 +1118,7 @@ Comm = {
 		-- to the error message in Oracle 10g and 11g
 		pos, b1 = bin.unpack("C", tns.data, 10)
 		
-		if( b1 == 1) then
+		if( b1 == 1 ) then
 			pos = 99
 		else
 			pos = 69
@@ -991,13 +1327,16 @@ Crypt = {
 Helper = {
 				
 	new = function(self, host, port, instance )
-		local o = {}
+		local o = { 
+			host = host,
+			port = port,
+			tnssocket = TNSSocket:new(),
+			dbinstance = instance or
+							stdnse.get_script_args('tns.sid') or 
+							"orcl"
+		}
        	setmetatable(o, self)
         self.__index = self
-		o.host = host
-		o.port = port
-		o.tnssocket = TNSSocket:new()
-		o.dbinstance = instance or nmap.registry.args['tns.sid'] or "orcl"
 		return o
 	end,
 	
@@ -1112,7 +1451,6 @@ Helper = {
 	-- @return true on success, false on failure
 	-- @return err containing error message when status is false
 	Login = function( self, user, password )
-		
 		local data, packet, status, tns, parser
 		local sesskey_enc, auth_pass, auth
 		local auth_options = AuthOptions:new()
@@ -1135,8 +1473,27 @@ Helper = {
 		if ( not(status) ) then
 			return false, data
 		end
+		
+		status, data = self.comm:exchTNSPacket( Packet.PostLogin:new(data["AUTH_SESSION_ID"]) )
 
-		return true;
+		return true
+	end,
+	
+	Query = function(self, query)
+		if ( not(query) ) then
+			return false, "No query was supplied by user"
+		end
+		local status, result = self.comm:exchTNSPacket( Packet.Query:new(query) )
+		if ( not(status) ) then
+			return false, result
+		end
+		
+		repeat
+			local data
+			status, data = self.comm:exchTNSPacket( Packet.QueryResponseAck:new(result) )
+		until(not(status) or data:match(".*ORA%-01403: no data found\n$"))
+
+		return true, result
 	end,
 
 	--- Ends the Oracle communication

@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added basic query support to the Oracle TNS library making it possible
+  for scripts to query the database server using SQL. [Patrik]
+
 o [Ncat] Added --append-output option, that when used along with -o and/or -x
   prevents clobbering(truncating) an existing file. [Shinnok]
 
