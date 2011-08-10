@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug that would make Nmap segfault if it failed to open an interface
+  using pcap. The bug details and patch are posted here:
+  http://seclists.org/nmap-dev/2011/q3/365 [Patrik]
+
 o Ncat SCTP mode supports connection brokering now(--sctp --broker). [Shinnok]
 
 o Nmap now defers options parsing until it has read through all the command line
