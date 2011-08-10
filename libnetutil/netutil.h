@@ -357,10 +357,11 @@ struct dnet_collector_route_nfo {
   int numifaces;
 };
 
-/* Looks for an interface with the given name (iname), and returns the
-   corresponding interface_info if found.  Will accept a match of
-   devname or devfullname.  Returns NULL if none found */
-struct interface_info *getInterfaceByName(const char *iname);
+/* Looks for an interface with the given name (iname) and address
+   family type, and returns the corresponding interface_info if found.
+   Will accept a match of devname or devfullname. Returns NULL if
+   none found */
+struct interface_info *getInterfaceByName(const char *iname, int af);
 
 /* Parse the system routing table, converting each route into a
    sys_route entry.  Returns an array of sys_routes.  numroutes is set

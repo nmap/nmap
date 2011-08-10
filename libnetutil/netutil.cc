@@ -1311,10 +1311,11 @@ int devname2ipaddr(char *dev, struct sockaddr_storage *addr) {
   return -1;
 }
 
-/* Looks for an interface with the given name (iname), and returns the
-   corresponding interface_info if found.  Will accept a match of
-   devname or devfullname.  Returns NULL if none found */
-struct interface_info *getInterfaceByName(const char *iname) {
+/* Looks for an interface with the given name (iname) and address
+   family type, and returns the corresponding interface_info if found.
+   Will accept a match of devname or devfullname. Returns NULL if
+   none found */
+struct interface_info *getInterfaceByName(const char *iname, int af) {
   struct interface_info *ifaces;
   int numifaces = 0;
   int ifnum;
@@ -1322,8 +1323,9 @@ struct interface_info *getInterfaceByName(const char *iname) {
   ifaces = getinterfaces(&numifaces, NULL, 0);
 
   for (ifnum = 0; ifnum < numifaces; ifnum++) {
-    if (strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
-        strcmp(ifaces[ifnum].devname, iname) == 0)
+    if ((strcmp(ifaces[ifnum].devfullname, iname) == 0 ||
+        strcmp(ifaces[ifnum].devname, iname) == 0) &&
+        ifaces[ifnum].addr.ss_family == af)
       return &ifaces[ifnum];
   }
 
@@ -2993,7 +2995,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   struct interface_info *ii;
   ii = NULL;
   if (device != NULL && device[0] != '\0') {
-    ii = getInterfaceByName(device);
+    ii = getInterfaceByName(device, rtmsg->rtm_family);
     if (ii == NULL)
       netutil_fatal("Could not find interface %s which was specified by -e", device);
   }
@@ -3012,7 +3014,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
       intf_index = *(int *) RTA_DATA(rtattr);
       rc = intf_name(intf_index, namebuf, sizeof(namebuf));
       assert(rc != -1);
-      ii = getInterfaceByName(namebuf);
+      ii = getInterfaceByName(namebuf, rtmsg->rtm_family);
       if (ii == NULL)
         netutil_fatal("%s: can't find interface \"%s\"", __func__, namebuf);
     } else if (rtattr->rta_type == RTA_PREFSRC && rnfo->srcaddr.ss_family == AF_UNSPEC) {
@@ -3108,7 +3110,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
   }
 
   if (device!=NULL && device[0]!='\0'){
-    iface = getInterfaceByName(device);
+    iface = getInterfaceByName(device, dst->ss_family);
     if (!iface)
       netutil_fatal("Could not find interface %s which was specified by -e", device);
   } else {

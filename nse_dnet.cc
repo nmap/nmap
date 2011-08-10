@@ -51,7 +51,8 @@ LUALIB_API int l_dnet_get_interface_info (lua_State *L)
 {
   char ipstr[INET6_ADDRSTRLEN];
   struct addr src, bcast;
-  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1));
+  struct interface_info *ii = getInterfaceByName(luaL_checkstring(L, 1),
+                                                 o.af());
 
   if (ii == NULL) {
     lua_pushnil(L);
@@ -155,7 +156,7 @@ static int ethernet_open (lua_State *L)
 {
   nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
   const char *interface_name = luaL_checkstring(L, 2);
-  struct interface_info *ii = getInterfaceByName(interface_name);
+  struct interface_info *ii = getInterfaceByName(interface_name, o.af());
 
   if (ii == NULL || ii->device_type != devt_ethernet)
     return luaL_argerror(L, 2, "device is not valid ethernet interface");
