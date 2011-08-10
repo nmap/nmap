@@ -598,7 +598,7 @@ PACKAGE_VERSION='7.6'
 PACKAGE_STRING='PCRE 7.6'
 PACKAGE_BUGREPORT=''
 
-ac_unique_file="pcre.h.in"
+ac_unique_file=""
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -6332,7 +6332,7 @@ if test "$enable_pcretest_libreadline" = "yes"; then
 fi
 
 # Produce these files, in addition to config.h.
-ac_config_files="$ac_config_files Makefile pcre-config pcre.h"
+ac_config_files="$ac_config_files Makefile pcre-config"
 
 
 # Make the generated script files executable.
@@ -6969,7 +6969,6 @@ do
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "pcre-config") CONFIG_FILES="$CONFIG_FILES pcre-config" ;;
-    "pcre.h") CONFIG_FILES="$CONFIG_FILES pcre.h" ;;
     "script-chmod") CONFIG_COMMANDS="$CONFIG_COMMANDS script-chmod" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -7024,7 +7023,7 @@ $debug ||
 if test -n "$CONFIG_FILES"; then
 
 
-ac_cr=`echo X | tr X '\015'`
+ac_cr=''
 ac_cs_awk_cr=`$AWK 'BEGIN { print "a\rb" }' </dev/null 2>/dev/null`
 if test "$ac_cs_awk_cr" = "a${ac_cr}b"; then
   ac_cs_awk_cr='\\r'

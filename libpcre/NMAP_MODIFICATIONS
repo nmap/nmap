@@ -202,3 +202,75 @@ o Removed the code from Makefile.in which regenerates Makefile.am when it's out 
 
 o Regenerated everything with 'aclocal; autoconf'
 
+o Prevent pcre.h from being regenerated everytime configure is invoked and
+  subsequently removed upon a distclean:
+Index: configure.ac
+===================================================================
+--- configure.ac    (revision 25730)
++++ configure.ac    (working copy)
+@@ -13,7 +13,7 @@
+ 
+ AC_PREREQ(2.57)
+ AC_INIT(PCRE, pcre_major.pcre_minor[]pcre_prerelease, , pcre)
+-AC_CONFIG_SRCDIR([pcre.h.in])
++AC_CONFIG_SRCDIR()
+ AM_INIT_AUTOMAKE([dist-bzip2 dist-zip])
+ AC_CONFIG_HEADERS(config.h)
+ 
+@@ -485,7 +485,6 @@
+ AC_CONFIG_FILES(
+    Makefile
+    pcre-config
+-   pcre.h
+ )
+ 
+ # Make the generated script files executable.
+Index: Makefile.in
+===================================================================
+--- Makefile.in (revision 25730)
++++ Makefile.in (working copy)
+@@ -44,7 +44,6 @@
+    $(srcdir)/../depcomp $(srcdir)/../install-sh \
+    $(srcdir)/../missing $(srcdir)/Makefile.am \
+    $(srcdir)/Makefile.in $(srcdir)/config.h.in \
+-   $(srcdir)/pcre-config.in $(srcdir)/pcre.h.in \
+    $(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+@@ -54,7 +53,7 @@
+  configure.lineno config.status.lineno
+ mkinstalldirs = $(install_sh) -d
+ CONFIG_HEADER = config.h
+-CONFIG_CLEAN_FILES = pcre-config pcre.h
++CONFIG_CLEAN_FILES = pcre-config
+ am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+ am__vpath_adj = case $$p in \
+     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+@@ -228,9 +227,6 @@
+ CLEANFILES = 
+ MAINTAINERCLEANFILES = pcre.h.generic
+ 
+-# These are the header files we'll install. We do not distribute pcre.h because
+-# it is generated from pcre.h.in.
+-nodist_include_HEADERS = pcre.h
+ include_HEADERS = pcreposix.h
+ bin_SCRIPTS = pcre-config
+ @WITH_REBUILD_CHARTABLES_TRUE@dftables_SOURCES = dftables.c
+@@ -303,8 +299,6 @@
+    -rm -f config.h stamp-h1
+ pcre-config: $(top_builddir)/config.status $(srcdir)/pcre-config.in
+    cd $(top_builddir) && $(SHELL) ./config.status $@
+-pcre.h: $(top_builddir)/config.status $(srcdir)/pcre.h.in
+-   cd $(top_builddir) && $(SHELL) ./config.status $@
+ install-libLIBRARIES: $(lib_LIBRARIES)
+    @$(NORMAL_INSTALL)
+    test -z "$(libdir)" || $(MKDIR_P) "$(DESTDIR)$(libdir)"
+@@ -760,7 +754,6 @@
+ 
+ pcre.h.generic: configure.ac
+    rm -f $@
+-   cp -p pcre.h $@
+ 
+ @WITH_REBUILD_CHARTABLES_TRUE@pcre_chartables.c: dftables$(EXEEXT)
+ @WITH_REBUILD_CHARTABLES_TRUE@ ./dftables$(EXEEXT) $@
+

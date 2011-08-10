@@ -13,7 +13,7 @@ m4_define(pcre_date, [2008-01-28])
 
 AC_PREREQ(2.57)
 AC_INIT(PCRE, pcre_major.pcre_minor[]pcre_prerelease, , pcre)
-AC_CONFIG_SRCDIR([pcre.h.in])
+AC_CONFIG_SRCDIR()
 AM_INIT_AUTOMAKE([dist-bzip2 dist-zip])
 AC_CONFIG_HEADERS(config.h)
 
@@ -485,7 +485,6 @@ fi
 AC_CONFIG_FILES(
 	Makefile
 	pcre-config
-	pcre.h
 )
 
 # Make the generated script files executable.

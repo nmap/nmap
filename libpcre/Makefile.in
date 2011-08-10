@@ -44,7 +44,6 @@ DIST_COMMON = README $(am__configure_deps) $(include_HEADERS) \
 	$(srcdir)/../depcomp $(srcdir)/../install-sh \
 	$(srcdir)/../missing $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
-	$(srcdir)/pcre-config.in $(srcdir)/pcre.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -54,7 +53,7 @@ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
  configure.lineno config.status.lineno
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = config.h
-CONFIG_CLEAN_FILES = pcre-config pcre.h
+CONFIG_CLEAN_FILES = pcre-config
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -228,9 +227,6 @@ lib_LIBRARIES = libpcre.a
 CLEANFILES = 
 MAINTAINERCLEANFILES = pcre.h.generic
 
-# These are the header files we'll install. We do not distribute pcre.h because
-# it is generated from pcre.h.in.
-nodist_include_HEADERS = pcre.h
 include_HEADERS = pcreposix.h
 bin_SCRIPTS = pcre-config
 @WITH_REBUILD_CHARTABLES_TRUE@dftables_SOURCES = dftables.c
@@ -302,8 +298,6 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 distclean-hdr:
 	-rm -f config.h stamp-h1
 pcre-config: $(top_builddir)/config.status $(srcdir)/pcre-config.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
-pcre.h: $(top_builddir)/config.status $(srcdir)/pcre.h.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 install-libLIBRARIES: $(lib_LIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -760,7 +754,6 @@ uninstall-am: uninstall-binPROGRAMS uninstall-binSCRIPTS \
 
 pcre.h.generic: configure.ac
 	rm -f $@
-	cp -p pcre.h $@
 
 @WITH_REBUILD_CHARTABLES_TRUE@pcre_chartables.c: dftables$(EXEEXT)
 @WITH_REBUILD_CHARTABLES_TRUE@	./dftables$(EXEEXT) $@
