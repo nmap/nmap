@@ -23,6 +23,71 @@
 -- @license "Same as Nmap--See http://nmap.org/book/man-legal.html"
 --
 
+-- The usage of the library would be first to initialize a new Torrent
+-- object. This initialization includes setting values for several
+-- variables.
+-- Next, a the torrent information needs to be loaded from a torrent file
+-- or a magnet link. The information in question would be a list of
+-- trackers, and the info_hash variable which is a 20 bytes length SHA1
+-- hash of the info field in the torrent file. The torrent file includes
+-- the field itself, but the magnet link only includes the info_hash
+-- value.
+-- After the basic info for the torrent is set, next the peers from the
+-- trackers need to be downloaded (torrent:trackers_peers()). There are
+-- http and udp trackers which use different protocols implemented in the
+-- Torrent:http_tracker_peers() and Torrent:udp_tracker_peers(). The
+-- communication is done serially and could be improved by using threads.
+-- After a few peers have been discovered we can continue in using the
+-- DHT protocol to discover more. We MUST have several peers in order to
+-- use the DHT protocol, and what's more at least one of the peers must
+-- have that protocol implemented. A peer which implements the DHT
+-- protocol is called a node. What that protocol allows is actually to
+-- find more peers for the torrent we are downloading/interested in, and
+-- it also allows us to find more nodes (hosts which implement the DHT
+-- protocol). Please notice that a DHT node does not necessarily have to
+-- be a peer sharing the torrent we need. So, in fact we have two
+-- networks, the network of peers (hosts sharing the torrent we need) and
+-- the DHT network (network of nodes which allow us to find more peers
+-- and nodes.
+-- There are three kinds of commands we need to do DHT discovery:
+-- - dht_ping, which is sent to a peer to test if the peer is a DHT node
+-- - find_node, which is sent to a DHT node to discover more DHT nodes
+-- - get_peers, which is sent to a DHT node to discover peers sharing a
+-- specific torrent; If the node that we send the get_peers command
+-- doesn't have a record of peers sharing that torrent, it returns more
+-- nodes.
+-- So in the bittorrent library I implemented every command in functions
+-- which are run as separate threads. They synchronize their work using
+-- the pnt condvar table. This is the map of pnt (peer node table):
+-- pnt = { peers_dht_ping, peers, nodes_find_node, nodes_get_peers, nodes }
+-- The dht_ping thread pings every peer in peers_dht_ping and then
+-- inserts it into peers. It does this for batches of a 100 peers. If the
+-- peer responds it adds it to the nodes_find_node list.
+-- The find_node thread sends find_node queries to the nodes in
+-- nodes_find_node, after which it puts them in nodes_get_peers. The
+-- nodes included in the response are added to the nodes_find_node list
+-- if they are not present in any of the nodes' lists.
+-- The nodes_get_peers sends a get_peers query to every node in the list
+-- after which they are added to the nodes list. If undiscovered peers
+-- are returned they are inserted into peers_dht_ping. If undiscovered
+-- nodes are found they are inserted into nodes_find_node.
+-- All of these threads run for a specified timeout whose default value
+-- is ~ 30 seconds.
+-- As you can see all newly discovered nodes are added to the
+-- nodes_find_node, and are processed first by the find_node thread, and
+-- then by the get_peers thread. All newly discovered peers are added to
+-- the peers_dht_ping to be processed by the dht_ping thread and so on.
+-- That enables the three threads to cooperate and pass on peers and
+-- nodes between each other.
+-- 
+-- There is also a bdecode function which decodes Bittorrent encoded
+-- buffers and organizes them into a structure I deemed fit for use.
+-- There are two known bittorrent structures: the list and the
+-- dictionary. One problem I encountered was that the bittorrent
+-- dictionary can have multiple entries with same-name keys. This kind of
+-- structure is not supported by Lua, so I had to use lists to represent
+-- the dictionaries as well which made accessing the keys a bit quirky
+
 module(... or "bittorrent", package.seeall)
 
 require "nmap"
