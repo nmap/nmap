@@ -912,6 +912,13 @@ Packet.Query = {
 			local val, len
 			pos, len = bin.unpack("C", tns.data, pos)
 			pos, val = bin.unpack("A" .. len, tns.data, pos)
+
+			-- if we're at the first row and first column and the len is 0
+			-- assume we got an empty resultset
+			if ( len == 0 and #result.rows == 0 and i == 1 ) then
+				return true, { data = result, moredata = false }
+			end
+
 			local sql_type = result.types[i]
 			if ( DataTypeDecoders[sql_type] ) then
 				val = DataTypeDecoders[sql_type](val)
@@ -920,7 +927,18 @@ Packet.Query = {
 		end
 		table.insert(result.rows, row)
 		
-		return true, result
+		local moredata = true
+		-- check if we've got any more data?
+		if ( #data > pos + 97 ) then
+			local len, err
+			pos, len = bin.unpack(">S", data, pos + 97)
+			pos, err = bin.unpack("A" .. len, data, pos)
+			if ( err:match("^ORA%-01403") ) then
+				moredata = false
+			end
+		end
+		
+		return true, { data = result, moredata = moredata }
 	end,
 }
 
@@ -1487,6 +1505,9 @@ Helper = {
 		if ( not(status) ) then
 			return false, result
 		end
+		
+		if ( not(result.moredata) ) then return true, result.data end
+		result = result.data
 		
 		repeat
 			local data
