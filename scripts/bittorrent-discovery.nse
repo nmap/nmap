@@ -11,9 +11,7 @@ peers as targets.
 
 ---
 -- @usage 
--- nmap --script bittorrent-discovery --script-args bittorrent-discovery.torrent=<filename>,
--- bittorrent-discovery.magnet=<magnet_link>[,bittorrent-discovery.dht_timeout=<seconds>]
--- [,bittorrent-discovery.include-nodes][,newtargets]
+-- nmap --script bittorrent-discovery --script-args newtargets,bittorrent-discovery.torrent=<torrent_file>
 --
 -- @arg torrent, a string containing the filename of the torrent file
 -- @arg magnet, a string containing the magnet link of the torrent
