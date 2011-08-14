@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the bittorrent library and bittorrent-discovery script which 
+  enables us to discover peers and nodes for a particular torrent file or 
+  magnet link.
+
 o [NSE] Added basic query support to the Oracle TNS library making it possible
   for scripts to query the database server using SQL. [Patrik]
 
