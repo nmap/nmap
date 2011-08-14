@@ -81,6 +81,10 @@ o Add IPv6 subnet/pattern support like we offer for IPv4.
    into individual addresses, or pass the block off to some
    specialized discovery routine."
 
+o Investigate report of Nmap ARP discovery using the wrong target MAC
+  address field in ARP requests (it is correct in the ethernet frame
+  itself).  See this thread: http://seclists.org/nmap-dev/2011/q3/547
+
 o We should probably modify stdnse.get_script_args so that it first
   checks [scriptname].[argname] and then (if that fails) looks for
   [argname] by itself.  This way people who are only running one
