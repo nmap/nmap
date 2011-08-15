@@ -101,12 +101,6 @@ o Nmap should have a better way to handle XML script output.
 o [NSE] HTTP spidering library/script
 
 o Summer of Code feature creeper:
-  o Ncat should probably have an --append-output option like Nmap does
-    so that we can use -o without clobbering existing file.  This would
-    at least be useful for chat.nmap.org.
-  o Change Zenmap bug reporter so that instead of an automatic
-    submission system, we print a stack trace and request that the user
-    send a bug report to nmap-dev.
   o [Zenmap] should actually parse and use script results. See
     http://seclists.org/nmap-dev/2010/q1/1108
   o Make Zenmap settings get upgraded when the Zenmap executable is
@@ -646,6 +640,14 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Summer of Code feature creeper:
+  o Ncat should probably have an --append-output option like Nmap does
+    so that we can use -o without clobbering existing file.  This would
+    at least be useful for chat.nmap.org.
+  o Change Zenmap bug reporter so that instead of an automatic
+    submission system, we print a stack trace and request that the user
+    send a bug report to nmap-dev.
 
 o [Ncat] Solve a crash that only happens on Windows when connecting
   with --ssl-verify and -vvv, for example
