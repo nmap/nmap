@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script http-waf-detect. This script tries to determine
+  if an IDS/IPS/WAF is protecting a web server. [Paulino]
+
 o [NSE] Added the bittorrent library and bittorrent-discovery script which 
   enables us to discover peers and nodes for a particular torrent file or 
   magnet link.
