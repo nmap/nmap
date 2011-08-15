@@ -1,5 +1,8 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Initial IPv6 OS detection system (may not make it into stable
+  though, but we want to at least have it working in a branch first.)
+
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
   application name and version.
@@ -8,26 +11,8 @@ o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
-o Integrate new OS detection submissions (We have about 1,700
-  submissions since 11/30/10)
-
 o Integrate new service fingerprint submissions (we have about 1,400
   submissions since 11/30/10)
-
-o [Ncat] Solve a crash that only happens on Windows when connecting
-  with --ssl-verify and -vvv, for example
-    ncat --ssl-verify -vvv www.amazon.com 443
-  The crash happens in the function verify_callback, when the function
-  X509_NAME_print_ex_fp is called. Just commenting those two calls
-  avoids the problem. By trying different combinations of debug print
-  statements, I once got the message
-    OPENSSL_Uplink(10109000,08): no OPENSSL_Applink
-  This refers to a Windows dynamic linking issue:
-    http://www.openssl.org/support/faq.html#PROG2
-  However I tried both including <openssl/applink.c> and changing the
-  linker mode to /MD, and neither changed the behavior.
-  Changing the flags from XN_FLAG_ONELINE to 0 seems to make the
-  problem go away.
 
 o Unless we get good arguments for keeping it, we should remove Mac OS
   X PowerPC support from our binaries.  Apple stopped selling PowerPC
@@ -107,7 +92,6 @@ o IPv6 todo.
   - Reverse DNS resolution.
   - Multicast host discovery.
   - OS detection.
-
 
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
@@ -662,6 +646,24 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o [Ncat] Solve a crash that only happens on Windows when connecting
+  with --ssl-verify and -vvv, for example
+    ncat --ssl-verify -vvv www.amazon.com 443
+  The crash happens in the function verify_callback, when the function
+  X509_NAME_print_ex_fp is called. Just commenting those two calls
+  avoids the problem. By trying different combinations of debug print
+  statements, I once got the message
+    OPENSSL_Uplink(10109000,08): no OPENSSL_Applink
+  This refers to a Windows dynamic linking issue:
+    http://www.openssl.org/support/faq.html#PROG2
+  However I tried both including <openssl/applink.c> and changing the
+  linker mode to /MD, and neither changed the behavior.
+  Changing the flags from XN_FLAG_ONELINE to 0 seems to make the
+  problem go away.
+
+o Integrate new OS detection submissions (We have about 1,700
+  submissions since 11/30/10)
 
 o Nmap should defer address parsing in arguments until it has read
   through all the args.  Otherwise you get an error if you use like -S
