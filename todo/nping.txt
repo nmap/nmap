@@ -53,6 +53,9 @@
   transport level (letting the OS craft the IPv6 header), and at raw ethernet
   level. None of them seems to work well, though.
 
+* Investigate an IPv6-related core dump reported by Vasiliy Kulikov.
+  More info: http://seclists.org/nmap-dev/2011/q3/567
+
 * Consider using Nmap's proto-dependant payloads for UDP packets. According
   to David's tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
