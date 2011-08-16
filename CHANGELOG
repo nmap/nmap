@@ -1,5 +1,12 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Zenmap] Fixed zenmap deleting ports based on newer scans which did
+  not actually scan the port in question. Additionally ncat now only
+  updates ports with new information if the new information is the same
+  protocol. Not just the same port. [Colin Rice]
+
+o [Ncat] Fixed ncat crashing with --ssl-verify -vvv on windows. [Colin Rice]
+
 o [NSE] Added script http-waf-detect. This script tries to determine
   if an IDS/IPS/WAF is protecting a web server. [Paulino]
 
