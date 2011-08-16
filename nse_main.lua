@@ -358,8 +358,8 @@ do
       thread.parent = thread; -- itself
       return thread;
     elseif not s then
-      log_error("A thread for %s failed to load:\n%s\n", self.filename,
-          traceback(co, tostring(value)));
+      log_error("A thread for %s failed to load in %s function:\n%s\n",
+          self.filename, rule, traceback(co, tostring(value)));
     end
     return nil;
   end
