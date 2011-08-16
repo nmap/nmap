@@ -170,7 +170,7 @@ const char *FingerPrintResults::OmitSubmissionFP() {
 
   if (osscan_closedudpport < 0 && !o.udpscan) {
     /* If we didn't get a U1 response, that might be just
-       because we didn't search for an open port rather than
+       because we didn't search for an closed port rather than
        because this OS doesn't respond to that sort of probe.
        So we don't print FP if U1 response is lacking AND no UDP
        scan was performed. */
