@@ -104,9 +104,7 @@ FingerPrintResults::FingerPrintResults() {
   osscan_opentcpport = osscan_closedtcpport = osscan_closedudpport = -1;
   distance = -1;
   distance_guess = -1;
-  /* We keep FPs holding at least 10 records because Gen1 OS detection
-     doesn't support maxOSTries() */
-  FPs = (FingerPrint **) safe_zalloc(MAX(o.maxOSTries(), 10) * sizeof(FingerPrint *));
+  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
   maxTimingRatio = 0;
   numFPs = 0;
 }
