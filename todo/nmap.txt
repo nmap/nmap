@@ -23,6 +23,10 @@ o Unless we get good arguments for keeping it, we should remove Mac OS
 o Fix reported (by many people) crash when trying to launch Zenmap on
   Mac OS X 10.7 (Lion).
 
+o Investigate a probe/response matching problem reported by QA Cafe
+  Matthew Stickey and Joe McEachern of QA Cafe.  See this thread:
+  http://seclists.org/nmap-dev/2011/q3/227
+
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
 o We should document Ron's sample script
@@ -568,15 +572,16 @@ o Deal with UDP retransmission for version detection (I think I
   that match the port number) quickly.  Lost packets should probably
   affect ideal_parallelism.
 
+o Make RPM relocatable (requires somehow avoiding storing paths in the
+  binary)
+  - That may be easier now that David has made some big improvements
+    in detecting where the binary is cross-platform and then looking for
+    data files based on that location.
+
 o Nmaprc-related - Create a system to store Nmap defaults/preferences
   in an nmaprc file.
   o nmaprc should be in ~/.nmap on UNIX
   o On Windows, we may need a registry key to find the .nmaprc
-  o Obtain Nmap data directory information from nmaprc at runtime rather than
-    compiled in -- among other advantages this is needed to make
-    relocateable rpm.
-  o Make RPM relocatable (requires somehow avoiding storing paths in the
-    binary)
   o Perhaps Lua could be used as the format?
   o .nmaprc for keeping defaults, etc.
     o Nmaprc infrastructure, hook to new timing variables
@@ -640,6 +645,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Obtain Nmap data directory information from nmaprc at runtime rather than
+  compiled in -- among other advantages this is needed to make
+  relocateable rpm. [actually we ended up doing this without needing
+  nmaprc for now]
 
 o Summer of Code feature creeper:
   o Ncat should probably have an --append-output option like Nmap does
