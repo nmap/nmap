@@ -207,8 +207,10 @@ Function .onInit
       return
 
       silent_uninstall:
-        ; Our old UninstallString is present, should have quotes and uninstall.exe location
-        ; and should support a silent uninstall by passing /S to it.
+        ; Our InstalledBy string is present, UninstallString should have quotes and uninstall.exe location
+        ; and this file should support a silent uninstall by passing /S to it.
+        ; we could read QuietUninstallString, but this should be exactly the same as UninstallString with /S on the end.
+        ReadRegStr $0 "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "UninstallString"
         ExecWait '$0 /S _?=$INSTDIR'
       return
 
