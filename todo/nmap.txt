@@ -27,6 +27,15 @@ o Investigate a probe/response matching problem reported by QA Cafe
   Matthew Stickey and Joe McEachern of QA Cafe.  See this thread:
   http://seclists.org/nmap-dev/2011/q3/227
 
+o When our winpcap installer is run in silent mode
+  (e.g. "winpcap-nmap-4.12.exe /S"), it seems to execute nmap.exe if
+  that binary exists in the same directory.  This leads to a cmd.exe
+  window briefly poping up as Nmap displays its console help output.
+  Moving the Winpcap installer into its own subdir and running it from
+  there seems to fix this (because it then can't find nmap.exe to
+  run), but it would be better to determine why this is happening in
+  the first place and fix it.
+
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
 o We should document Ron's sample script
