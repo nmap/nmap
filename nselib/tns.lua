@@ -4,9 +4,16 @@
 -- Summary
 -- -------
 -- 	The library currently provides functionality to connect and authenticate
---  to the Oracle database server. It has currently been tested against and
---  known to work with Oracle 10G and Oracle 11G.
+--  to the Oracle database server. Some preliminary query support has been
+--  added, which only works against a few specific versions. The library has
+--  been tested against and known to work with Oracle 10g and 11g. Please check
+--  the matrix below for tested versions that are known to work. 
 --
+--  Due to the lack of documentation the library is based mostly on guesswork
+--  with a lot of unknowns. Bug reports are therefore both welcome and
+--  important in order to further improve this library. In addition, knowing
+--  that the library works against versions not in the test matrix is valuable
+--  as well.
 --
 -- Overview
 -- --------
@@ -60,10 +67,9 @@
 --  o Oracle native authentication version 9i and 10g (László Tóth)
 --      x http://www.soonerorlater.hu/index.khtml?article_id=511
 --
--- This implementation is tested and known to work against:
--- x Oracle 10g R2 on Windows (Authentication only)
--- x Oracle 11g on Linux (Authentication only)
--- x Oracle 11g R2 on Linux (Authentication and queries)
+-- This implementation is tested and known to work against Oracle 10g and 11g
+-- on both Linux and Windows. For details regarding what versions where tested
+-- please consult the matrix below.
 --
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 -- @author "Patrik Karlsson <patrik@cqure.net>"
@@ -71,32 +77,57 @@
 -- @args tns.sid specifies the Oracle instance to connect to
 
 --
--- Version 0.4
+-- Version 0.6
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/21/2010 - v0.2 - made minor changes to support 11gR2 on Windows
 -- Revised 07/23/2010 - v0.3 - corrected incorrect example code in docs
 --                           - removed ssl require
 -- Revised 02/08/2011 - v0.4 - added basic query support <patrik@cqure.net>
+-- Revised 17/08/2011 - v0.5 - fixed bug that would prevent connections from
+--                             working on 64-bit oracle.
+-- Revised 20/08/2011 - v0.6 - fixed a few bugs in connection and query code
+--                           - changed so that connections against untested
+--                             databases versions will fail
+--                           - added some more documentation and fixed some
+--                             indentation bugs
+--                             <patrik@cqure.net>
+--
+-- The following versions have been tested and are known to work:
+-- +--------+---------------+-------+-------------------------------+
+-- | OS     | DB Version    | Arch  | Functionality                 |
+-- +--------+---------------+-------+-------------------------------|
+-- | Win    | 11.2.0.2.0    | 64bit | Authentication                |
+-- | Win    | 11.2.0.1.0    | 64bit | Authentication                |
+-- | Win    | 11.1.0.6.0    | 64bit | Authentication                |
+-- | Win    | 11.1.0.6.0    | 32bit | Authentication, Queries       |
+-- | Win    | 11.2.0.1.0    | 32bit | Authentication, Queries       |
+-- | Linux  | 10.2.0.1.0    | 32bit | Authentication                |
+-- | Linux  | 11.2.0.1.0    | 64bit | Authentication                |
+-- +--------+---------------+-------+-------------------------------+
+--
 
 require 'bin'
+require 'bit'
+stdnse.silent_require 'openssl'
 
 module(... or "tns", package.seeall)
-
--- Make sure we have SSL support
-local HAVE_SSL = false
-
-if pcall(require,'openssl') then
-  HAVE_SSL = true
-end
-
 
 -- Oracle version constants
 ORACLE_VERSION_10G = 313
 ORACLE_VERSION_11G = 314
 
+-- Data type to number conversions
+DataTypes = {
+	NUMBER = 2,
+	DATE = 12,
+}
+
+-- A class containing some basic authentication options
 AuthOptions = 
 {
 		
+	-- Creates a new AuthOptions instance
+	-- @return o new instance of AuthOptions
 	new = function( self )
 		local o = {}
    		setmetatable(o, self)
@@ -112,12 +143,6 @@ AuthOptions =
 		return o
 	end,	
 	
-}
-
--- Data type to number conversions
-DataTypes = {
-	NUMBER = 2,
-	DATE = 12,
 }
 
 -- Decodes different datatypes from the byte arrays or strings read from the
@@ -180,7 +205,6 @@ DataTypeDecoders = {
 	
 	
 }
-
 
 -- Packet class table
 --
@@ -288,6 +312,11 @@ Packet.Connect = {
 		trace_unique_conn = 0,
 		tns_type = Packet.TNS.Type.CONNECT,
 		
+		-- Creates a new Connect instance
+		-- @param rhost string containing host or ip
+		-- @param rport string containing the port number
+		-- @param dbinstance string containing the instance name
+		-- @return o containing new Connect instance
 		new = function( self, rhost, rport, dbinstance )
 			local o = {
 				rhost = rhost,
@@ -350,6 +379,8 @@ Packet.Data = {
 
 	flag = 0,
 
+	-- Createas a new Data instance
+	-- @return o new instance of Data
 	new = function( self, sock, data )
 		local o = {}
        	setmetatable(o, self)
@@ -366,9 +397,7 @@ Packet.Data = {
 	-- @return string containing the packet
 	__tostring = function( self )
 		local data = bin.pack( ">S", self.flag ) .. self.data
-		
 		self.TNS.length = #data + 8
-		
 		return tostring(self.TNS) .. data
 	end,
 	
@@ -380,6 +409,8 @@ Packet.Attention = {
 
 	tns_type = Packet.TNS.Type.MARKER,
 
+	-- Creates a new instance of the Attention packet
+	-- @return o new instance of Attention
 	new = function( self, typ, data )
 		local o = { data = data, att_type = typ }
        	setmetatable(o, self)
@@ -403,11 +434,11 @@ Packet.PreAuth = {
 	flags = 0,
 		
 	param_order = { 
-		[1] = { ["AUTH_TERMINAL"] = "auth_term" },
-		[2] = { ["AUTH_PROGRAM_NM"] = "auth_prog" },
-		[3] = { ["AUTH_MACHINE"] = "auth_machine" },
-		[4] = { ["AUTH_PID"] = "auth_pid" },
-		[5] = { ["AUTH_SID"] = "auth_sid" }
+		{ ["AUTH_TERMINAL"] = "auth_term" },
+		{ ["AUTH_PROGRAM_NM"] = "auth_prog" },
+		{ ["AUTH_MACHINE"] = "auth_machine" },
+		{ ["AUTH_PID"] = "auth_pid" },
+		{ ["AUTH_SID"] = "auth_sid" }
 	},
 	
 	
@@ -415,8 +446,8 @@ Packet.PreAuth = {
 	--
 	-- @param user string containing the user name
 	-- @return a new instance of Packet.PreAuth
-	new = function(self, user, options)
-		local o = { auth_user = user, auth_options = options }
+	new = function(self, user, options, ver)
+		local o = { auth_user = user, auth_options = options, version = ver }
        	setmetatable(o, self)
         self.__index = self
 		return o
@@ -435,15 +466,22 @@ Packet.PreAuth = {
 	--
 	-- @return string containing the packet	
 	__tostring = function( self )
-		local data = bin.pack("<SHIIH", self.flags, "037602feffffff", #self.auth_user, 1, "feffffff05000000fefffffffeffffff")
+		local packet_type = 0x0376
+		local UNKNOWN_MAP = {
+			["Linuxi386/Linux-2.0.34-8.1.0"] = 	"0238be08080400000001000000a851bfbf05000000504ebfbf7853bfbf",
+			["IBMPC/WIN_NT-8.1.0"] = 			"0238be08080400000001000000a851bfbf05000000504ebfbf7853bfbf",
+			["IBMPC/WIN_NT64-9.1.0"] = "0201040000000100000001050000000101",
+			["x86_64/Linux 2.4.xx"] =  "0201040000000100000001050000000101",
+		}
+		local unknown = UNKNOWN_MAP[self.version] or ""
+		local data = bin.pack(">SSH", self.flags, packet_type, unknown)
+		
 		data = data .. bin.pack("CA", #self.auth_user, self.auth_user )
-
 		for _, v in ipairs( Packet.PreAuth.param_order ) do
 			for k, v2 in pairs(v) do
 				data = data .. self:paramToString( k, self.auth_options[v2] )
 			end
 		end
-		
 		return data
 	end,
 	
@@ -460,9 +498,7 @@ Packet.PreAuth = {
 
 		while( true ) do
 			pos, len, len2 = bin.unpack("<IC", tns.data, pos )
-			if ( len ~= len2 ) then
-				break
-			end
+			if ( len ~= len2 ) then	break end
 
 			pos, key = bin.unpack("A" .. len, tns.data, pos )
 			pos, len, _ = bin.unpack("<IC", tns.data, pos )
@@ -486,22 +522,17 @@ Packet.Auth = {
 
 
 	param_order = { 
-		[1] = { ['key'] = "AUTH_RTT", ['def'] = "25456" },
-		[2] = { ['key'] = "AUTH_CLNT_MEM", ['def'] = "4096" },
-		[3] = { ['key'] = "AUTH_TERMINAL", ['var'] = "auth_term" },
-		[4] = { ['key'] = "AUTH_PROGRAM_NM", ['var'] = "auth_prog" },
-		[5] = { ['key'] = "AUTH_MACHINE", ['var'] = "auth_machine" },
-		[6] = { ['key'] = "AUTH_PID", ['var'] = "auth_pid" },
-		[7] = { ['key'] = "AUTH_SID", ['var'] = "auth_sid" },
-		[8] = { ['key'] = "SESSION_CLIENT_CHARSET", ['def'] = "1" },
-		[9] = { ['key'] = "SESSION_CLIENT_LIBTYPE", ['def'] = "1" },
-		[10] = { ['key'] = "SESSION_CLIENT_DRIVER_NAME", ['def'] = "" },
-		[11] = { ['key'] = "SESSION_CLIENT_VERSION", ['def'] = "185599488" },
-		[12] = { ['key'] = "SESSION_CLIENT_LOBATTR", ['def'] = "1" },
-		[13] = { ['key'] = "AUTH_ACL", ['def'] = "4400" },
-		[14] = { ['key'] = "AUTH_ALTER_SESSION", ['def'] = "ALTER SESSION SET TIME_ZONE='+02:00'\0" },
-		[15] = { ['key'] = "AUTH_LOGICAL_SESSION_ID", ['def'] = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16))) },
-		[16] = { ['key'] = "AUTH_FAILOVER_ID", ['def'] = "" },
+		{ ['key'] = "AUTH_RTT", ['def'] = "25456" },
+		{ ['key'] = "AUTH_CLNT_MEM", ['def'] = "4096" },
+		{ ['key'] = "AUTH_TERMINAL", ['var'] = "auth_term" },
+		{ ['key'] = "AUTH_PROGRAM_NM", ['var'] = "auth_prog" },
+		{ ['key'] = "AUTH_MACHINE", ['var'] = "auth_machine" },
+		{ ['key'] = "AUTH_PID", ['var'] = "auth_pid" },
+		{ ['key'] = "AUTH_SID", ['var'] = "auth_sid" },
+		{ ['key'] = "AUTH_ACL", ['def'] = "4400" },
+		{ ['key'] = "AUTH_ALTER_SESSION", ['def'] = "ALTER SESSION SET TIME_ZONE='+02:00'\0" },
+		{ ['key'] = "AUTH_LOGICAL_SESSION_ID", ['def'] = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16))) },
+		{ ['key'] = "AUTH_FAILOVER_ID", ['def'] = "" },
 	},
 
 	--- Creates a new Auth packet
@@ -509,12 +540,13 @@ Packet.Auth = {
 	-- @param auth_sesskey the encrypted session key
 	-- @param auth_pass the encrypted user password
 	-- @return a new instance of Packet.Auth
-	new = function(self, user, options, auth_sesskey, auth_pass)
+	new = function(self, user, options, auth_sesskey, auth_pass, ver)
 		local o = {
 			auth_sesskey = auth_sesskey,
 			auth_pass = auth_pass,
 			auth_options = options,
-			user = user
+			user = user,
+			version = ver
 		}
        	setmetatable(o, self)
         self.__index = self
@@ -538,13 +570,19 @@ Packet.Auth = {
 	--
 	-- @return string containing the packet	
 	__tostring = function( self )
+		local UNKNOWN_MAP = {
+			["Linuxi386/Linux-2.0.34-8.1.0"] = 	"0338be08080400000001010000cc7dbfbf0d000000747abfbf608abfbf",
+			["IBMPC/WIN_NT-8.1.0"] = 			"0338be08080400000001010000cc7dbfbf0d000000747abfbf608abfbf",
+			["IBMPC/WIN_NT64-9.1.0"] = 			"03010400000001010000010d0000000101",
+			["x86_64/Linux 2.4.xx"]  = 			"03010400000001010000010d0000000101"
+		}
 		
 		local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
-		local data = bin.pack(">SHCHpHAHAH", self.flags, "037303feffffff", 
-								#self.user, "00000001010000feffffff12000000fefffffffeffffff", 
-								self.user, "0c0000000c415554485f534553534b455960000000fe40",
-								self.auth_sesskey, "00010000000d0000000d415554485f50415353574f52444000000040",
-								self.auth_pass, "00000000") 
+		local unknown = UNKNOWN_MAP[self.version] or ""
+		local data = bin.pack(">SSH", self.flags, 0x0373, unknown)
+		data = data .. bin.pack("CAH", #self.user, self.user, "0c0000000c" )
+		data = data .. bin.pack("AHAH", "AUTH_SESSKEY", "60000000fe40", self.auth_sesskey, "00010000000d0000000d")
+		data = data .. bin.pack("AHAH", "AUTH_PASSWORD", "4000000040", self.auth_pass, "00000000")
 								
 		for k, v in ipairs( self.param_order ) do
 			if ( v['def'] ) then
@@ -555,12 +593,13 @@ Packet.Auth = {
 				data = data .. self:paramToString(  v['key'], self[ v['var'] ] )
 			end
 		end
-		
-
 		return data 
 	end,
 	
-	
+	-- Parses the response of an Auth packet
+	--
+	-- @param tns Packet.TNS containing the TNS packet recieved from the server
+	-- @return table containing the key pair values from the Auth packet
 	parseResponse = function( self, tns )
 		local pos = 6
 		local len, name, val, _
@@ -592,6 +631,9 @@ Packet.SNS = {
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
 	
+	-- Creates a new SNS instance
+	--
+	-- @return o new instance of the SNS packet
 	new = function(self)
 		local o = {}
        	setmetatable(o, self)
@@ -604,10 +646,14 @@ Packet.SNS = {
 	--
 	-- @return string containing the packet	
 	__tostring = function( self )
-		return  bin.pack("SH", self.flags, "deadbeef00920b1006000004000004000300000000000400050b10060000080001000015cb353abecb00120001" .. 
-				    		 	  "deadbeef00030000000400040001000100020001000300000000000400050b10060000020003e0e100020006fc" ..
-								  "ff0002000200000000000400050b100600000c0001001106100c0f0a0b08020103000300020000000000040005" ..
-								  "0b10060000030001000301" )
+		return  bin.pack("SH", self.flags, 
+			[[ 
+				deadbeef00920b1006000004000004000300000000000400050b10060000080
+				001000015cb353abecb00120001deadbeef0003000000040004000100010002
+				0001000300000000000400050b10060000020003e0e100020006fcff0002000
+				200000000000400050b100600000c0001001106100c0f0a0b08020103000300
+				0200000000000400050b10060000030001000301
+			]] )
 	end,	
 }
 
@@ -673,7 +719,7 @@ Packet.Unknown1 = {
 	-- @return string containing the packet	
 	__tostring = function( self )
 
-		if (  self.os:match("IBMPC/WIN_NT[-]8.1.0") ) then
+		if (  self.os:match("IBMPC/WIN_NT[64]*[-]%d%.%d%.%d") ) then
 			return bin.pack(">SH", self.flags, [[
 				02b200b2004225060101010d010105010101010101017fff0309030301007f0
 				11fff010301013f01010500010702010000180001800000003c3c3c80000000
@@ -740,6 +786,73 @@ Packet.Unknown1 = {
 				023f023f0001000002400240000100000241024100010000024202420001000
 				002430243000100000244024400010000
 				]])
+		elseif ( "x86_64/Linux 2.4.xx" == self.os ) then
+			return bin.pack(">SH", self.flags, [[
+				02b200b2004221060101010d01010401010101010101ffff0308030001003f0
+				1073f010101010301050201000018800000003c3c3c80000000d00700010001
+				0001000000020002000a00000008000800010000000c000c000a00000017001
+				7000100000018001800010000001900190018001900010000001a001a001900
+				1a00010000001b001b000a001b00010000001c001c0016001c00010000001d0
+				01d0017001d00010000001e001e0017001e00010000001f001f0019001f0001
+				000000200020000a00200001000000210021000a002100010000000a000a000
+				10000000b000b00010000002800280001000000290029000100000075007500
+				010000007800780001000001220122000100000123012300010123000100000
+				12401240001000001250125000100000126012600010000012a012a00010000
+				012b012b00010000012c012c00010000012d012d00010000012e012e0001000
+				0012f012f000100000130013000010000013101310001000001320132000100
+				000133013300010000013401340001000001350135000100000136013600010
+				000013701370001000001380138000100000139013900010000013b013b0001
+				0000013c013c00010000013d013d00010000013e013e00010000013f013f000
+				100000140014000010000014101410001000001420142000100000143014300
+				010000014701470001000001480148000100000149014900010000014b014b0
+				0010000014d014d00010000014e014e00010000014f014f0001000001500150
+				000100000151015100010000015201520001000001530153000100000154015
+				400010000015501550001000001560156000100000157015700010157000100
+				0001580158000100000159015900010000015a015a00010000015c015c00010
+				000015d015d0001000001620162000100000163016300010000016701670001
+				0000016b016b00010000017c017c0001014200010000017d017d00010000017
+				e017e00010000017f017f000100000180018000010000018101810001000001
+				820182000100000183018300010000018401840001000001850185000100000
+				18601860001000001870187000100000189018900010000018a018a00010000
+				018b018b00010000018c018c00010000018d018d00010000018e018e0001000
+				0018f018f000100000190019000010000019101910001000001940194000101
+				2500010000019501950001000001960196000100000197019700010000019d0
+				19d00010000019e019e00010000019f019f0001000001a001a00001000001a1
+				01a10001000001a201a20001000001a301a30001000001a401a40001000001a
+				501a50001000001a601a60001000001a701a70001000001a801a80001000001
+				a901a90001000001aa01aa0001000001ab01ab0001000001ad01ad000100000
+				1ae01ae0001000001af01af0001000001b001b00001000001b101b100010000
+				01c101c10001000001c201c2000101250001000001c601c60001000001c701c
+				70001000001c801c80001000001c901c90001000001ca01ca0001019f000100
+				0001cb01cb000101a00001000001cc01cc000101a20001000001cd01cd00010
+				1a30001000001ce01ce000101b10001000001cf01cf000101220001000001d2
+				01d20001000001d301d3000101ab0001000001d401d40001000001d501d5000
+				1000001d601d60001000001d701d70001000001d801d80001000001d901d900
+				01000001da01da0001000001db01db0001000001dc01dc0001000001dd01dd0
+				001000001de01de0001000001df01df0001000001e001e00001000001e101e1
+				0001000001e201e20001000001e301e30001016b0001000001e401e40001000
+				001e501e50001000001e601e60001000001ea01ea0001000001eb01eb000100
+				0001ec01ec0001000001ed01ed0001000001ee01ee0001000001ef01ef00010
+				00001f001f00001000001f201f20001000001f301f30001000001f401f40001
+				000001f501f50001000001f601f60001000001fd01fd0001000001fe01fe000
+				100000201020100010000020202020001000002040204000100000205020500
+				010000020602060001000002070207000100000208020800010000020902090
+				0010000020a020a00010000020b020b00010000020c020c00010000020d020d
+				00010000020e020e00010000020f020f0001000002100210000100000211021
+				100010000021202120001000002130213000100000214021400010000021502
+				150001000002160216000100000217021700010000021802180001000002190
+				21900010000021a021a00010000021b021b0001000000030002000a00000004
+				0002000a0000000500010001000000060002000a000000070002000a0000000
+				9000100010000000d0000000e0000000f001700010000001000000011000000
+				12000000130000001400000015000000160000002700780001015d000101260
+				0010000003a003a0001000000440002000a00000045000000460000004a006d
+				00010000004c0000005b0002000a0000005e000100010000005f00170001000
+				000600060000100000061006000010000006400640001000000650065000100
+				0000660066000100000068000000690000006a006a00010000006c006d00010
+				000006d006d00010000006e006f00010000006f006f00010000007000700001
+				000000710071000100000072007200010000007300730001000000740066000
+				100000076000000770000007900790001
+			]])
 		else
 			return bin.pack(">SH", self.flags, "02b200b2004225060101010d010105010101010101017fff0309030301007f011" ..
 								 	"fff010301013f01010500010702010000180001800000003c3c3c80000000d007")
@@ -755,8 +868,8 @@ Packet.Unknown2 = {
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0,
 	
-	new = function(self)
-		local o = {}
+	new = function(self, os)
+		local o = { os = os }
        	setmetatable(o, self)
         self.__index = self
 		return o
@@ -766,7 +879,20 @@ Packet.Unknown2 = {
 	--
 	-- @return string containing the packet	
 	__tostring = function( self )
-		return bin.pack(">SH", self.flags, [[
+		if ( "x86_64/Linux 2.4.xx" == self.os ) then
+			return bin.pack(">SH", self.flags, [[
+				0000007a007a00010000007b007b00010000008800000092009200010000009
+				300930001000000980002000a000000990002000a0000009a0002000a000000
+				9b000100010000009c000c000a000000ac0002000a000000b200b2000100000
+				0b300b30001000000b400b40001000000b500b50001000000b600b600010000
+				00b700b70001000000b8000c000a000000b900b20001000000ba00b30001000
+				000bb00b40001000000bc00b50001000000bd00b60001000000be00b7000100
+				0000bf000000c0000000c300700001000000c400710001000000c5007200010
+				00000d000d00001000000d1000000e700e70001000000e800e70001000000e9
+				00e90001000000f1006d0001000002030203000100000000]]
+				)
+		else
+			return bin.pack(">SH", self.flags, [[
 				024502450001000002460246000100000247024700010000024802480001000
 				0024902490001000000030002000a000000040002000a000000050001000100
 				0000060002000a000000070002000a00000009000100010000000d0000000e0
@@ -788,6 +914,7 @@ Packet.Unknown2 = {
 				720001000000d000d00001000000d1000000e700e70001000000e800e700010
 				00000e900e90001000000f1006d0001000002030203000100000000
 				]])
+		end
 	end,		
 	
 }
@@ -818,6 +945,10 @@ Packet.PostLogin = {
 	tns_type = Packet.TNS.Type.DATA,
 	flags = 0x0000,
 	
+	-- Creates a new PostLogin instance
+	--
+	-- @param sessid number containing session id
+	-- @return o a new instance of PostLogin
 	new = function(self, sessid)
 		local o = { sessid = sessid }
        	setmetatable(o, self)
@@ -1343,12 +1474,19 @@ Crypt = {
 }
 
 Helper = {
-				
+	
+	--- Creates a new Helper instance
+	--
+	-- @param host table containing the host table as received by action
+	-- @param port table containing the port table as received by action
+	-- @param instance string containing the instance name
+	-- @return o new instance of Helper			
 	new = function(self, host, port, instance )
 		local o = { 
 			host = host,
 			port = port,
 			tnssocket = TNSSocket:new(),
+			-- fallback to the common ORCL instance if none was supplied
 			dbinstance = instance or
 							stdnse.get_script_args('tns.sid') or 
 							"orcl"
@@ -1363,63 +1501,88 @@ Helper = {
 	-- @return true on success, false on failure
 	-- @return err containing error message when status is false
 	Connect = function( self )
+		local SUPPORTED_VERSIONS = {
+			"IBMPC/WIN_NT64-9.1.0",
+			"IBMPC/WIN_NT-8.1.0",
+			"Linuxi386/Linux-2.0.34-8.1.0",
+			"x86_64/Linux 2.4.xx"
+		}
 		local status, data = self.tnssocket:connect( self.host.ip, self.port.number, "tcp" )
 		local conn, packet, tns
 
-		if( not(status) ) then
-			return status, data
-		end
+		if( not(status) ) then return status, data	end
 		
 		self.comm = Comm:new( self.tnssocket )
 											
 		status, self.version = self.comm:exchTNSPacket( Packet.Connect:new( self.host.ip, self.port.number, self.dbinstance ) )
-		if ( not(status) ) then
-			return false, self.version
-		end
+		if ( not(status) ) then	return false, self.version end
 
 		if ( self.version ~= ORACLE_VERSION_11G and self.version ~= ORACLE_VERSION_10G ) then
 			return false, ("Unsupported Oracle Version (%d)"):format(self.version)
 		end
 						
 		status = self.comm:exchTNSPacket( Packet.SNS:new( self.version ) )
-		if ( not(status) ) then
-			return false, "ERROR: Helper.Connect failed"
-		end
+		if ( not(status) ) then	return false, "ERROR: Helper.Connect failed" end
 				
 		status, self.os = self.comm:exchTNSPacket( Packet.ProtoNeg:new( self.version ) )
 		if ( not(status) ) then
 			return false, data
 		end
+		
+		-- used for testing unsupported versions
+		self.os = stdnse.get_script_args("tns.forceos") or self.os
 
-		if ( self.os:match("IBMPC/WIN_NT[-]8.1.0") ) then
+		status = false
+		for _, ver in pairs(SUPPORTED_VERSIONS) do
+			if ( self.os == ver ) then
+				status = true
+				break
+			end
+		end
+		
+		if ( not(status) ) then
+			stdnse.print_debug(2, "ERROR: Version %s is not yet supported", self.os)
+			return false, ("ERROR: Connect to version %s is not yet supported"):format(self.os)
+		end
+
+		if ( self.os:match("IBMPC/WIN_NT") ) then
 			status = self.comm:sendTNSPacket( Packet.Unknown1:new( self.os ) )
 			if ( not(status) ) then
 				return false, "ERROR: Helper.Connect failed"
 			end			
-			status, data = self.comm:sendTNSPacket( Packet.Unknown2:new( ) )
-			if ( not(status) ) then
-				return false, data
-			end			
+			status, data = self.comm:sendTNSPacket( Packet.Unknown2:new( self.os ) )
+			if ( not(status) ) then	return false, data end			
+			
 			status, data = self.comm:recvTNSPacket( Packet.Unknown2:new( ) )
-			if ( not(status) ) then
-				return false, data
-			end			
+			if ( not(status) ) then return false, data end			
 			-- Oracle 10g under Windows needs this additional read, there's
 			-- probably a better way to detect this by analysing the packets
 			-- further.
 			if ( self.version == ORACLE_VERSION_10G ) then
 				status, data = self.comm:recvTNSPacket( Packet.Unknown2:new( ) )
-				if ( not(status) ) then
-					return false, data
-				end			
+				if ( not(status) ) then	return false, data end
 			end
+		elseif ( "x86_64/Linux 2.4.xx" == self.os ) then
+			status = self.comm:sendTNSPacket( Packet.Unknown1:new( self.os ) )
+			if ( not(status) ) then
+				return false, "ERROR: Helper.Connect failed"
+			end
+
+			status = self.comm:sendTNSPacket( Packet.Unknown2:new( self.os ) )
+			if ( not(status) ) then
+				return false, "ERROR: Helper.Connect failed"
+			end
+
+			status, data = self.comm:recvTNSPacket( Packet.Unknown2:new( ) )
+			if ( not(status) ) then
+				return false, data
+			end			
 
 		else
 			status = self.comm:exchTNSPacket( Packet.Unknown1:new( self.os ) )
 			if ( not(status) ) then
 				return false, "ERROR: Helper.Connect failed"
 			end
-
 		end
 		
 		return true
@@ -1473,7 +1636,7 @@ Helper = {
 		local sesskey_enc, auth_pass, auth
 		local auth_options = AuthOptions:new()
 
-		status, auth = self.comm:exchTNSPacket( Packet.PreAuth:new( user, auth_options ) )
+		status, auth = self.comm:exchTNSPacket( Packet.PreAuth:new( user, auth_options, self.os ) )
 		if ( not(status) ) then
 			return false, auth
 		end
@@ -1487,30 +1650,54 @@ Helper = {
 			sesskey_enc, auth_pass = Crypt:Encrypt10g( user, password, bin.pack( "H", auth["AUTH_SESSKEY"] ) )
 		end
 			
-		status, data = self.comm:exchTNSPacket( Packet.Auth:new( user, auth_options, sesskey_enc, auth_pass ) )
-		if ( not(status) ) then
-			return false, data
-		end
-		
-		status, data = self.comm:exchTNSPacket( Packet.PostLogin:new(data["AUTH_SESSION_ID"]) )
-
+		status, data = self.comm:exchTNSPacket( Packet.Auth:new( user, auth_options, sesskey_enc, auth_pass, self.os ) )
+		if ( not(status) ) then	return false, data end
+		self.auth_session = data["AUTH_SESSION_ID"]
 		return true
 	end,
 	
+	--- Queries the database
+	--
+	-- @param query string containing the SQL query
+	-- @return true on success, false on failure
+	-- @return result table containing fields
+	--          <code>rows</code>
+	--          <code>columns</code>
+	-- @return err containing error message when status is false
 	Query = function(self, query)
-		if ( not(query) ) then
-			return false, "No query was supplied by user"
+	
+		local SUPPORTED_VERSIONS = {
+			"IBMPC/WIN_NT-8.1.0",
+		}
+
+		local status = false
+		for _, ver in pairs(SUPPORTED_VERSIONS) do
+			if ( self.os == ver ) then
+				status = true
+				break
+			end
 		end
-		local status, result = self.comm:exchTNSPacket( Packet.Query:new(query) )
+		
 		if ( not(status) ) then
-			return false, result
+			stdnse.print_debug(2, "ERROR: Version %s is not yet supported", self.os)
+			return false, ("ERROR: Querying version %s is not yet supported"):format(self.os)
 		end
+	
+		if ( not(query) ) then return false, "No query was supplied by user" end
+		
+		local data
+		status, data = self.comm:exchTNSPacket( Packet.PostLogin:new(self.auth_session) )
+		if ( not(status) ) then
+			return false, "ERROR: Postlogin packet failed"
+		end
+		
+		local status, result = self.comm:exchTNSPacket( Packet.Query:new(query) )
+		if ( not(status) ) then	return false, result end
 		
 		if ( not(result.moredata) ) then return true, result.data end
 		result = result.data
 		
 		repeat
-			local data
 			status, data = self.comm:exchTNSPacket( Packet.QueryResponseAck:new(result) )
 		until(not(status) or data:match(".*ORA%-01403: no data found\n$"))
 
@@ -1551,10 +1738,6 @@ TNSSocket =
 	-- @return Status (true or false).
 	-- @return Error code (if status is false).
 	connect = function( self, hostid, port, protocol )
-		-- Attempt to catch this as early as possible
-		if ( not(HAVE_SSL) ) then
-			return false, "This module requires OpenSSL"
-		end
 		return self.Socket:connect( hostid, port, protocol )
 	end,
 	
