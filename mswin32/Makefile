@@ -1,5 +1,5 @@
 MAKENSIS="/cygdrive/c/Program Files/NSIS/makensis.exe"
-VCEXPRESS := $(shell reg query "HKEY_CLASSES_ROOT\\Applications\\VCExpress.exe\\shell\\edit\\command" | egrep '[A-H]:\\' | cut -d\" -f2 | sed 's%\\%/%g' | tr -d '\n')
+VCEXPRESS := $(shell reg query "HKEY_CLASSES_ROOT\\Applications\\VCExpress.exe\\shell\\edit\\command" | egrep -i '[A-H]:\\' | cut -d\" -f2 | sed 's%\\%/%g' | tr -d '\n')
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 export NMAP_NUM_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_NUM_VERSION' ../nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 COMMA_VERSION=$(shell echo $(NMAP_NUM_VERSION) | tr '.' ',')
