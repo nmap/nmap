@@ -4,9 +4,12 @@ PENDING:
 -Find best output format for large lists for http-sitemap
 -Write test cases for future development of the spidering library
 -Commit finished scripts.
+-Add functionality to disable the time limit of spidering
+-Move list of binary files founds to the registry
 
 
 
+-
 COMPLETED:
 -Write more signatures for http-default-accounts
 -Select new scripts from queue and work on them
