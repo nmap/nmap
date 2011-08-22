@@ -261,7 +261,7 @@ action = function()
 	if target.ALLOW_NEW_TARGETS then
 		for ip_addr, mac_addr in pairs(icmp_responders) do
 			target.add(ip_addr)
-			table.insert(output,ip_addr.."  "..mac_addr)
+			table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
 		end
 	else
 		for ip_addr, mac_addr in pairs(icmp_responders) do
