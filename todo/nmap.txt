@@ -81,6 +81,7 @@ o We should probably modify stdnse.get_script_args so that it first
   take the same argument can just give [argname].  But those who want
   an argument to only apply to a specific script can give
   [scriptname].[argname].
+  o The code is in place now, we just need to document the feature.
 
 o [Nping] The --safe-payloads option should be default (though we
   should keep it for backward compatability).  We could then introduce
