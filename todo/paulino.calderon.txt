@@ -1,5 +1,11 @@
 PENDING:
--Work on the spidering library and proposal
+
+-Write more usage examples of the spidering library
+-Find best output format for large lists for http-sitemap
+-Write test cases for future development of the spidering library
+-Commit finished scripts.
+
+
 
 COMPLETED:
 -Write more signatures for http-default-accounts
