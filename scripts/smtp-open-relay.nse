@@ -39,7 +39,7 @@ printed with the list of any combinations that were found prior to the error.
 --   * Fixed some API differences
 --   * The "ourdomain" variable's contents are used instead of hardcoded "insecure.org". Settable by the user.
 --   * Fixed tags -> categories (reported by Jason DePriest to nmap-dev)
--- 2009-09-20 Duarte Silva <duarte.silva@myf00.net>
+-- 2009-09-20 Duarte Silva <duarte.silva@serializing.me>
 --   * Rewrote the script
 --   + Added documentation and some more comments
 --   + Parameter to define the domain to be used instead of "ourdomain" variable
@@ -47,21 +47,21 @@ printed with the list of any combinations that were found prior to the error.
 --   * Script now detects servers that enforce authentication
 --   * Changed script categories from demo to discovery and intrusive
 --   * Renamed "spamtest" strings to "antispam"
--- 2010-02-20 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-02-20 Duarte Silva <duarte.silva@serializing.me>
 --   * Renamed script parameters to follow the new naming convention
 --   * Fixed problem with broken connections
 --   * Changed script output to show all the successful tests
 --   * Changed from string concatenation to string formatting
 --   + External category
 --   + Now the script will issue the QUIT message as specified in the SMTP RFC
--- 2010-02-27 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-02-27 Duarte Silva <duarte.silva@serializing.me>
 --   + More information in the script description
 --   + Script will output the reason for failed commands (at the connection level)
 --   * If some combinations were already found before an error, the script will report them
--- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-03-07 Duarte Silva <duarte.silva@serializing.me>
 --   * Fixed socket left open when receive_lines function call fails
 --   * Minor comments changes
--- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-03-14 Duarte Silva <duarte.silva@serializing.me>
 --   * Made the script a little more verbose
 -- 2011-06-03
 --   * Rewrite the script to use the smtp.lua library.

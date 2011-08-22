@@ -28,9 +28,9 @@ An example of how to specify the methods to use and the order is the following:
 -- @args smtp-enum-users.methods Define the methods and order to be used by the script (EXPN, VRFY, RCPT)
 
 -- changelog
--- 2010-03-07 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-03-07 Duarte Silva <duarte.silva@serializing.me>
 --   * First version ;)
--- 2010-03-14 Duarte Silva <duarte.silva@myf00.net>
+-- 2010-03-14 Duarte Silva
 --   * Credits to David Fifield and Ron Bowes for the following changes
 --   * Changed the way the user defines which method is used
 --   + Script now handles 252 and 550 SMTP status codes
@@ -40,7 +40,7 @@ An example of how to specify the methods to use and the order is the following:
 --   * Rewrite the script to use the smtp.lua library.
 -----------------------------------------------------------------------
 
-author = "Duarte Silva <duarte.silva@myf00.net>"
+author = "Duarte Silva <duarte.silva@serializing.me>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","external","intrusive"}
 
