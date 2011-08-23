@@ -479,9 +479,9 @@ local function format_output_sub(status, data, indent)
   -- Used to put 'ERROR: ' in front of all lines on error messages
   local prefix = ""
   -- Initialize the output string to blank (or, if we're at the top, add a newline)
-  local output = ""
+  local output = {}
   if(not(indent)) then
-    output = '\n'
+    insert(output, '\n')
   end
 
   if(not(status)) then
@@ -501,12 +501,18 @@ local function format_output_sub(status, data, indent)
 
   if(data['name']) then
     if(data['warning'] and nmap.debugging() > 0) then
-      output = output .. format("%s%s%s (WARNING: %s)\n", format_get_indent(indent), prefix, data['name'], data['warning'])
+      insert(output, format("%s%s%s (WARNING: %s)\n",
+                        format_get_indent(indent), prefix,
+                        data['name'], data['warning']))
     else
-      output = output .. format("%s%s%s\n", format_get_indent(indent), prefix, data['name'])
+      insert(output, format("%s%s%s\n",
+                        format_get_indent(indent), prefix,
+                        data['name']))
     end
   elseif(data['warning'] and nmap.debugging() > 0) then
-      output = output .. format("%s%s(WARNING: %s)\n", format_get_indent(indent), prefix, data['warning'])
+    insert(output, format("%s%s(WARNING: %s)\n",
+                      format_get_indent(indent), prefix,
+                      data['warning']))
   end
 
   for i, value in ipairs(data) do
@@ -523,18 +529,20 @@ local function format_output_sub(status, data, indent)
         insert(new_indent, true)
       end
 
-      output = output .. format_output_sub(status, value, new_indent)
+      insert(output, format_output_sub(status, value, new_indent))
         
     elseif(type(value) == 'string') then
       local lines = splitlines(value)
 
       for j, line in ipairs(lines) do
-        output = output .. format_get_indent(indent, i == #data and j == #lines) .. "  " .. prefix .. line .. "\n"
+      	insert(output, format("%s  %s%s\n",
+      	                  format_get_indent(indent, i == #data and j == #lines),
+      	                  prefix, line))
       end
     end
   end
 
-  return output
+  return concat(output)
 end
 
 ---Takes a table of output on the commandline and formats it for display to the 
