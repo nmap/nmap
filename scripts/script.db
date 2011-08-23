@@ -1,3 +1,4 @@
+Entry { filename = "address-info.nse", categories = { "default", "safe", } }
 Entry { filename = "afp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "afp-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "afp-path-vuln.nse", categories = { "exploit", "intrusive", "vuln", } }

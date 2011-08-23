@@ -1,5 +1,7 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the address-info.nse script, which shows extra information about IP addresses.
+
 o [NSE] Added scripts http-joomla-brute, http-wordpress-brute, http-wp-enum and
   http-awstatstotal-exec. [Paulino]
 
