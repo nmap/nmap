@@ -69,6 +69,7 @@ Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "s
 Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
+Entry { filename = "http-awstatstotals-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-axis2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-barracuda-dir-traversal.nse", categories = { "auth", "exploit", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "auth", "intrusive", } }
@@ -82,6 +83,7 @@ Entry { filename = "http-form-brute.nse", categories = { "auth", "intrusive", } 
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
+Entry { filename = "http-joomla-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-litespeed-sourcecode-download.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-majordomo2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-malware-host.nse", categories = { "malware", "safe", } }
@@ -96,6 +98,8 @@ Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusi
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "http-wordpress-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "http-wp-enum.nse", categories = { "auth", "discovery", "intrusive", "vuln", } }
 Entry { filename = "http-wp-plugins.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "iax2-version.nse", categories = { "version", } }
 Entry { filename = "imap-brute.nse", categories = { "auth", "intrusive", } }
