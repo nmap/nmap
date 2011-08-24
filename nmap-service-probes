@@ -115,7 +115,7 @@ match backdoor m|^220 SSL Connection Established - Loading Protocol\.\.\.\.\r\n|
 match backdoor m|^A-311 Death welcome\x001| p/Haxdoor trojan/ i/**BACKDOOR**/ o/Windows/
 match backdoor m|^220 CAFEiNi [-\w_.]+ FTP server\r\n$| p/CAFEiNi trojan/ i/**BACKDOOR**/ o/Windows/
 match backdoor m/^220 (Stny|fuck)Ftpd 0wns j0\r?\n/ p/Kibuv.b worm/ i/**BACKDOOR**/ o/Windows/
-match backdoor m|^220 [Sf.][tu.][nc.][yk.][.F][t.][p.][d.] [0.][w.][n.][s.] [j.][0.]\r?\n|i p/Generic Kibuv worm/ i/**BACKDOOR**/ o/Windows/
+match backdoor m|^220 [Sf.][tu.][nc.][yk.][F.][t.][p.][d.] [0.][w.][n.][s.] [j.][0.]\r?\n|i p/Generic Kibuv worm/ i/**BACKDOOR**/ o/Windows/
 match backdoor m=^(?:ba|)sh-([\d.]+)\$ = p/Bourne shell/ i/**BACKDOOR**/ v/$1/
 match backdoor m=^exec .* failed : No such file or directory\n$= p/netcat -e/ i/misconfigured/
 match backdoor m=220-Welcome!\r\n220-\x1b\[30m/\x1b\[31m#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#\xa4#                                                         \r\n220-\x1b\[30m\|          Current Time:  \x1b\[35m[^\r\n]*\r\n220-\x1b\[30m\|          Current Date:  \x1b\[35m[^\r\n]*\r\n220-\x1b\[30m\\\r\n= p/Windows trojan/ i/**BACKDOOR**/ o/Windows/
@@ -519,7 +519,7 @@ match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.\w]+)/OpenBSD\) ready\.\r\n$
 match ftp m|^220 ([-.\w]+) FTP server \(Version (6.0\w+)\) ready.\r\n| p/FreeBSD ftpd/ h/$1/ v/$2/ o/FreeBSD/
 match ftp m|^220  FTP server \(Version ([\w.]+)\) ready\.\r\n| p/FreeBSD ftpd/ v/$1/ o/FreeBSD/
 # Trolltech Troll-FTPD 1.28 (Only runs on Linux)
-match ftp m|^220-Setting memory limit to 1024\+1024kbytes\r\n220-Local time is now \d+:\d+ and the load is [.\d]+\.\r\n220 You will be disconnected after \d+ seconds of inactivity.\r\n$| p/Trolltech Troll-FTPd/ o/Linux/
+match ftp m|^220-Setting memory limit to 1024\+1024kbytes\r\n220-Local time is now \d+:\d+ and the load is [\d.]+\.\r\n220 You will be disconnected after \d+ seconds of inactivity.\r\n$| p/Trolltech Troll-FTPd/ o/Linux/
 
 match ftp m|^220  FTP server \(Hummingbird Ltd\. \(HCLFTPD\) Version (7.1.0.0)\) ready\.\r\n$| p/Hummingbird FTP server/ v/$1/
 match ftp m|^220  FTP server \(Hummingbird Communications Ltd\. \(HCLFTPD\) Version ([\d.]+)\) ready\.\r\n| p/Hummingbird FTP server/ v/$1/
@@ -539,7 +539,7 @@ match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(NetBSD-ftpd ([-.\w]+)\) ready.\r
 match ftp m|^220 ([-.\w]+) Network Management Card AOS v([-.\w]+) FTP server ready.\r\n$| p/APC AOS ftpd/ v/$2/ i/on APC $1 network management card/ d/power-device/ o/AOS/
 match ftp m|^220 FTP Server \(Version 1.0\) ready.\r\n$| p/GlobespanVirata ftpd/ v/1.0/ d/broadband router/
 # HP-UX B.11.00
-match ftp m|^220 ([-.\w ]+) FTP server \(Version (1.1.2[.\d]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready.\r\n| p/HP-UX ftpd/ h/$1/ v/$2/ o/HP-UX/
+match ftp m|^220 ([-.\w ]+) FTP server \(Version (1.1.2[\d.]+) [A-Z][a-z]{2} [A-Z][a-z]{2} .*\) ready.\r\n| p/HP-UX ftpd/ h/$1/ v/$2/ o/HP-UX/
 # 220 mirrors.midco.net FTP server ready.
 # WarFTP Daemon 1.70 on Win2K
 match ftp m=^220-.*\r\n(220-|)    WarFTPd (\d[-.\w]+) \([\w ]+\) Ready\r\n=s p/WarFTPd/ v/$2/
@@ -704,7 +704,7 @@ match ftp m|^220 Golden FTP Server ready v([\d.]+)\r\n| p/Golden ftpd/ v/$1/ o/W
 match ftp m|^220 Golden FTP Server PRO ready v([\d.]+)\r\n| p/Golden PRO ftpd/ v/$1/ o/Windows/
 match ftp m|^220 ITC Version  ([\d.]+) of [-\d]+  X Kyocera UIO UMC 10base OK \r\n| p/X Kyocera UIO UMC 10base print server ftpd/ v/$1/ d/print server/
 match ftp m|^220 ActiveFax Version ([\d.]+) \(Build (\d+)\) - .*\r\n| p/ActiveFax ftpd/ v/$1 build $2/
-match ftp m|^220-Welcome to CrushFTP!\r\n220 CrushFTP Server Ready[.!]\r\n| p/CrushFTPd/
+match ftp m|^220-Welcome to CrushFTP!\r\n220 CrushFTP Server Ready[!.]\r\n| p/CrushFTPd/
 match ftp m|^220-Welcome to CrushFTP([\w._-]+)!\r\n220 CrushFTP Server Ready\.\r\n| p/CrushFTP/ v/$1/
 match ftp m|^220 DPO-7300 FTP Server ([\d.]+) ready\.\n| p/NetSilicon DPO-7300 ftpd/ v/$1/
 match ftp m|^220 Welcome to WinFtp Server\.\r\n| p/WinFtpd/ o/Windows/
@@ -1065,7 +1065,7 @@ match http m|^HTTP/1\.0 400 Bad Request\r\nServer: OfficeScan Client\r\nContent-
 
 match http-proxy m=^HTTP/1\.[01] \d\d\d .*\r\n(Server|Proxy-agent): iPlanet-Web-Proxy-Server/([\d.]+)\r\n=s p/iPlanet web proxy/ v/$2/
 
-match hp-gsg m|^220 JetDirect GGW server \(version (\d[.\d]+)\) ready\r\n| p/HP JetDirect Generic Scan Gateway/ v/$1/ d/printer/
+match hp-gsg m|^220 JetDirect GGW server \(version (\d[\d.]+)\) ready\r\n| p/HP JetDirect Generic Scan Gateway/ v/$1/ d/printer/
 match hp-gsg m|^220 HP GGW server \(version ([\w._-]+)\) ready\r\n\0| p/HP Generic Scan Gateway/ v/$1/ d/printer/
 
 # http://h20000.www2.hp.com/bizsupport/TechSupport/Document.jsp?objectID=bpj01014
@@ -1563,7 +1563,7 @@ match nntp m|^200 NNTP Service 5\.00\.0984 Version: (5\.0\.2159.1) Posting Allow
 match nntp m|^200 NNTP Service Microsoft\xae Internet Services (\d[-.\w]+) Version: (\d[-.\w]+) Posting Allowed \r\n| p/Microsoft NNTP Service $1/ v/$2/ i/posting OK/ o/Windows/
 match nntp m|^502 Connection refused\r\n| p/Microsoft NNTP Service/ i/refused/ o/Windows/
 # Windows NT 4.0 SP5-SP6 
-match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[.\d]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/
+match nntp m|^20[01] Microsoft Exchange Internet News Service Version (\d\.\d\.[\d.]+) \((.*)\)\r\n| p/Microsoft Exchange Internet News Service/ v/$1/ i/$2/ o/Windows/
 match nntp m|^20. ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(posting ok\)\.\r\n| p/InterNetNews (INN)/ h/$1/ v/$2/ i/posting ok/
 match nntp m|^20. ([-.\w]+) InterNetNews NNRP server INN (\d[-.\w ]+) ready \(no posting\)\.\r\n| p/InterNetNews (INN)/ h/$1/ v/$2/ i/no posting/
 match nntp m|^200 ArGoSoft News Server for WinNT/2000/XP v ([\d.]+) ready\r\n| p/ArGoSoft nntpd/ v/$1/ o/Windows/
@@ -2168,7 +2168,7 @@ match smtp m/^220[- ].*\r\n220[- ]([^\r\n]+) ESMTP Exim /s p/Exim smtpd/ h/$1/
 match smtp m/^220 CheckPoint FireWall-1 secure ESMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m/^220 CheckPoint FireWall-1 secure SMTP server\r\n$/ p/Checkpoint FireWall-1 smtpd/ d/firewall/
 match smtp m|^220 ([-.+\w]+) running IBM AS/400 SMTP V([\w]+)| p|IBM AS/400 smtpd| h|$1| v|$2|
-match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[.\w]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
+match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: (\d[\w.]+)- ready at | p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
 match smtp m/^220 ([-.+\w]+) ESMTP Mail Enable SMTP Service, Version: (\d[\w.]+)-- ready at/ p/MailEnable smptd/ h/$1/ v/$2/ o/Windows/
 # Enterprise version number seems to be preceeded by "0--"; Professional with "0-"
 match smtp m|^220 ([-.+\w]+) ESMTP MailEnable Service, Version: \d+--([\d.]+) ready at| p/MailEnable Enterprise smptd/ h/$1/ v/$2/ o/Windows/
@@ -2481,8 +2481,8 @@ match sourceviewerserver m|^OK SourceViewerService v1\.0\r\n| p/NetBeans Source 
 # http://udk.openoffice.org/common/man/spec/urp.html
 match urp m|^\0\0\0\x60\0\0\0\x01\xf8\x04\x96\0\0'com\.sun\.star\.bridge\.XProtocolProperties\x15UrpProtocolProperties\0\0\x14\r\0\0\0\x85\xfbc\x80\x9e\xca@\$\xbc\xc7\x9e\xbb#\x0f\xfc\xd6\0\0\x92\]\xe4\xb8$| p/UNO Remote Protocol (URP)/
 
-match sourceoffice m|^200\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\n\r\n(\w:\\.*ini)\r\n\r\n| p/Sourcegear SourceOffSite/ i/Protocol $1; INI file: $2/
-match sourceoffice m|^250\r\nProtocol-Version:(\d[.\d]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\nKey Length:(\d+)\r\n\r\n.*(\w:\\.*ini)\r\n\r\n|s p/Sourcegear SourceOffSite/ i/Protocol $1; Key len: $2; INI file: $3/
+match sourceoffice m|^200\r\nProtocol-Version:(\d[\d.]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\n\r\n(\w:\\.*ini)\r\n\r\n| p/Sourcegear SourceOffSite/ i/Protocol $1; INI file: $2/
+match sourceoffice m|^250\r\nProtocol-Version:(\d[\d.]+)\r\nMessage-ID:\d+\r\nDatabase .*\r\nContent-Length:\d+\r\nKey Length:(\d+)\r\n\r\n.*(\w:\\.*ini)\r\n\r\n|s p/Sourcegear SourceOffSite/ i/Protocol $1; Key len: $2; INI file: $3/
 
 match spmd m|^SPMD_ACK\0\0\x01\0\x01$| p/Softimage XSI SPMD license server/ o/Windows/
 
@@ -2494,14 +2494,14 @@ match ssh m|^SSH-([\d.]+)-ReflectionForSecureIT_([-\w_.]+) - Process Software Mu
 match ssh m|^SSH-([\d.]+)-ReflectionForSecureIT_([-\w_.]+)\r?\n| p/WRQ Reflection for Secure IT sshd/ v/$2/ i/protocol $1/
 
 # SCS
-match ssh m|^SSH-(\d[.\d]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\r?\n| p/SCS NetScreen sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]+)-SSH Protocol Compatible Server SCS (\d[-.\w]+)\r?\n| p/SCS NetScreen sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-SSH Compatible Server\r?\n| p/SCS NetScreen sshd/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-([\d.]+) SSH Secure Shell Tru64 UNIX\r?\n| p/SCS sshd/ v/$2/ i/protocol $1/ o/Tru64 UNIX/
-match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.\d+) SSH Secure Shell/ p/SCS sshd/ v/$2/ i/protocol $1/
-match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS SSH Secure Shell/ v/$1/ i/on $2; protocol $3/
-match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) \(([^\r\n\)]+)\) on ([-.\w]+)\nSSH-(\d[.\d]+)-| p/SCS sshd/ v/$1/ i/$2; on $3; protocol $4/
+match ssh m/^SSH-([\d.]+)-(\d+\.\d+\.\d+) SSH Secure Shell/ p/SCS sshd/ v/$2/ i/protocol $1/
+match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) on ([-.\w]+)\nSSH-(\d[\d.]+)-| p/SCS SSH Secure Shell/ v/$1/ i/on $2; protocol $3/
+match ssh m|^sshd: SSH Secure Shell (\d[-.\w]+) \(([^\r\n\)]+)\) on ([-.\w]+)\nSSH-(\d[\d.]+)-| p/SCS sshd/ v/$1/ i/$2; on $3; protocol $4/
 match ssh m|^sshd2\[\d+\]: .*\r\nSSH-(\d[\d.]+)-(\d[-.\w]+) SSH Secure Shell \(([^\r\n\)]+)\)\r?\n| p/SCS sshd/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([\d.]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
 
 # OpenSSH
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $1/ i/Nokia Maemo tablet; protocol $1/ o/Linux/
@@ -2535,9 +2535,9 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([-\w_.]+) NCSA_GSSAPI_GPT_([-\w_.]+) GSI\n| p
 
 # Choose 1 of the following:
 # 1) Match all OpenSSHs:
-#match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
+#match ssh m/^SSH-([\d.]+)-OpenSSH[_-]([\S ]+)/i p/OpenSSH/ v/$2/ i/protocol $1/
 # 2) Don't match unknown SSHs (and generate fingerprints)
-match ssh m/^SSH-([.\d]+)-OpenSSH[_-]([\w.]+)\r?\n/i p/OpenSSH/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([\d.]+)-OpenSSH[_-]([\w.]+)\r?\n/i p/OpenSSH/ v/$2/ i/protocol $1/
 
 # These are strange ones. These routers pretend to be OpenSSH, but don't do it that well (see the \r):
 match ssh m|^SSH-2\.0-OpenSSH\r?\n| p/Linksys WRT45G modified dropbear sshd/ i/protocol 2.0/ d/router/
@@ -2547,31 +2547,31 @@ match ssh m|^\0\0\0\$\0\0\0\0\x01\0\0\0\x1bNo host key is configured!\n\r!\"v| p
 match ssh m|^SSH-(\d[\d.]+)-SSF-(\d[-.\w]+)\r?\n| p/SSF French SSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd_(\d[-.\w]+) lsh - a free ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
 match ssh m|^SSH-(\d[\d.]+)-lshd-(\d[-.\w]+) lsh - a GNU ssh\r\n\0\0| p/lshd secure shell/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
+match ssh m/^SSH-([\d.]+)-Sun_SSH_(\S+)/ p/SunSSH/ v/$2/ i/protocol $1/
+match ssh m/^SSH-([\d.]+)-meow roototkt by rebel/ p/meow SSH ROOTKIT/ i/protocol $1/
 # Akamai hosted systems tend to run this - found on www.microsoft.com
-match ssh m|^SSH-(\d[.\d]*)-(AKAMAI-I*)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-V)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-VI)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]*)-(Server-VII)\r?\n| p/Akamai SSH/ v/$2/ i/protocol $1/
-match ssh m|^SSH-(\d[.\d]+)-Cisco-(\d[.\d]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/
-match ssh m|^SSH-(\d[.\d]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/
+match ssh m|^SSH-(\d[\d.]*)-(AKAMAI-I*)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]*)-(Server-V)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]*)-(Server-VI)\r?\n$| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]*)-(Server-VII)\r?\n| p/Akamai SSH/ v/$2/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]+)-Cisco-(\d[\d.]+)\r?\n$| p/Cisco SSH/ v/$2/ i/protocol $1/ o/IOS/
+match ssh m|^SSH-(\d[\d.]+)-CiscoIOS_([\d.]+)XA\r?\n| p/Cisco SSH/ v/$2/ i/protocol $1; Chinese IOS XA/ o/IOS/
 match ssh m|^\r\nDestination server does not have Ssh activated\.\r\nContact Cisco Systems, Inc to purchase a\r\nlicense key to activate Ssh\.\r\n| p/Cisco CSS SSH/ i/Unlicensed/
-match ssh m|^SSH-(\d[.\d]+)-VShell_(\d[._\d]+) VShell\r?\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
+match ssh m|^SSH-(\d[\d.]+)-VShell_(\d[_\d.]+) VShell\r?\n$| p/VanDyke VShell sshd/ v/$SUBST(2,"_",".")/ i/protocol $1/
 match ssh m|^SSH-2\.0-0\.0 \r?\n| p/VanDyke VShell sshd/ i/version info hidden; protocol 2.0/
 match ssh m|^SSH-([\d.]+)-([\w.]+) VShell\r?\n| p/VanDyke VShell/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-([\w.]+) \(beta\) VShell\r?\n| p/VanDyke VShell/ v/$2 beta/ i/protocol $1/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n/ p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/
-match ssh m/^SSH-([.\d]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n/ p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/
-match ssh m|^SSH-([.\d]+)-([\w._-]+) sshlib: sshlibSrSshServer ([\w._-]+)\r\n| p/SrSshServer/ i/sshlib $2; protocol $1/ v/$3/
+match ssh m/^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD (\d[-.\w]+)\r?\n/ p/Bitvise WinSSHD/ v/$3/ i/sshlib $2; protocol $1/ o/Windows/
+match ssh m/^SSH-([\d.]+)-(\d[-.\w]+) sshlib: WinSSHD\r?\n/ p/Bitvise WinSSHD/ i/sshlib $2; protocol $1; server version hidden/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: sshlibSrSshServer ([\w._-]+)\r\n| p/SrSshServer/ i/sshlib $2; protocol $1/ v/$3/
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: GlobalScape\r?\n| p/GlobalScape CuteFTP sshd/ i/sshlib $2; protocol $1/ o/Windows/
 match ssh m|^SSH-([\d.]+)-([\w._-]+) sshlib: EdmzSshDaemon ([\w._-]+)\r\n| p/EdmzSshDaemon/ v/$3/ i/sshlib $2; protocol $1/
-match ssh m|^SSH-([.\d]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+)\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1/ v/$3/ o/Windows/
-match ssh m|^SSH-([.\d]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+): free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ v/$3/ o/Windows/
-match ssh m|^SSH-([.\d]+)-([\w._-]+) FlowSsh: WinSSHD: free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+)\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1/ v/$3/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD ([\w._-]+): free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ v/$3/ o/Windows/
+match ssh m|^SSH-([\d.]+)-([\w._-]+) FlowSsh: WinSSHD: free only for personal non-commercial use\r\n| p/Bitvise WinSSHD/ i/FlowSsh $2; protocol $1; non-commercial use/ o/Windows/
 # Cisco VPN 3000 Concentrator
 # Cisco VPN Concentrator 3005 - Cisco Systems, Inc./VPN 3000 Concentrator Version 4.0.1.B Jun 20 2003
-match ssh m/^SSH-([.\d]+)-OpenSSH\r?\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
+match ssh m/^SSH-([\d.]+)-OpenSSH\r?\n$/ p/OpenSSH/ i/protocol $1/ d/terminal server/
 match ssh m|^SSH-1\.5-X\r?\n| p/Cisco VPN Concentrator SSHd/ i/protocol 1.5/ d/terminal server/
 match ssh m|^SSH-([\d.]+)-NetScreen\r?\n| p/NetScreen sshd/ i/protocol $1/ d/firewall/
 match ssh m|^SSH-1\.5-FucKiT RootKit by Cyrax\r?\n| p/FucKiT RootKit sshd/ i/**BACKDOOR** protocol 1.5/ o/Linux/
@@ -2579,7 +2579,7 @@ match ssh m|^SSH-2\.0-dropbear_([-\w.]+)\r?\n| p/Dropbear sshd/ v/$1/ i/protocol
 match ssh m|^Access to service sshd from [-\w_.]+@[-\w_.]+ has been denied\.\r\n| p/libwrap'd OpenSSH/ i/Access denied/
 match ssh m|^SSH-([\d.]+)-FortiSSH_([\d.]+)\r?\n| p/FortiSSH/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-cryptlib\r?\n| p/APC AOS cryptlib sshd/ i/protocol $1/ o/AOS/
-match ssh m/^SSH-([.\d]+)-([.\d]+) Radware\r?\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
+match ssh m/^SSH-([\d.]+)-([\d.]+) Radware\r?\n$/ p/Radware Linkproof SSH/ v/$2/ i/protocol $1/ d/terminal server/
 match ssh m|^SSH-2\.0-1\.0 Radware SSH \r?\n| p/Radware sshd/ i|protocol 2.0| d/firewall/
 match ssh m|^SSH-([\d.]+)-Radware_([\d.]+)\r?\n| p/Radware sshd/ v/$2/ i/protocol $1/ d/firewall/
 match ssh m|^SSH-1\.5-By-ICE_4_All \( Hackers Not Allowed! \)\r?\n| p/ICE_4_All backdoor sshd/ i/**BACKDOOR** protocol 1.5/
@@ -2616,8 +2616,8 @@ match ssh m|^SSH-1\.5-SSH\.0\.1\r?\n| p/Dell PowerConnect sshd/ i/protocol 1.5/ 
 match ssh m|^SSH-([\d.]+)-Ingrian_SSH\r?\n| p/Ingrian SSH/ i/protocol $1/ d/security-misc/
 match ssh m|^SSH-([\d.]+)-PSFTPd PE\. Secure FTP Server ready\r?\n| p/PSFTPd sshd/ i/protocol $1/ o/Windows/
 match ssh m|^SSH-([\d.]+)-BlueArcSSH_([\d.]+)\r?\n| p/BlueArc sshd/ v/$2/ i/protocol $1/ d/storage-misc/
-match ssh m|^SSH-([.\d]+)-Zyxel SSH server\r?\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
-match ssh m|^SSH-([.\d]+)-paramiko_([\w._-]+)\r?\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-Zyxel SSH server\r?\n| p/ZyXEL ZyWALL sshd/ o/ZyNOS/ d/security-misc/ i/protocol $1/
+match ssh m|^SSH-([\d.]+)-paramiko_([\w._-]+)\r?\n| p/Paramiko Python sshd/ v/$2/ i/protocol $1/
 match ssh m|^SSH-([\d.]+)-USHA SSHv([\w._-]+)\r?\n| p/USHA SSH/ v/$2/ i/protocol $1/ d/power-device/
 match ssh m|^SSH-2\.0-SSH_0\.2\r?\n$| p/3com WAP sshd/ d/WAP/ v/0.2/ i/protocol 2.0/
 match ssh m|^SSH-([\d.]+)-CoreFTP-([\w._-]+)\r?\n| p/CoreFTP sshd/ v/$2/ i/protocol $1/
@@ -2636,7 +2636,7 @@ match ssh m|^SSH-([\d.]+)-3Com OS-([\w._-]+ Release \w+)\n| p/3Com switch sshd/ 
 match ssh m|^SSH-2\.0-XXXX\r\n| p/Cyberoam firewall sshd/ d/firewall/
 match ssh m|^SSH-2\.0-Tc6l51-sD1m-m_\n| p/Fortinet FortiWifi 60C firewall sshd/ d/firewall/
 
-softmatch ssh m/^SSH-([.\d]+)-/ i/protocol $1/
+softmatch ssh m/^SSH-([\d.]+)-/ i/protocol $1/
 
 
 match soldat m|^Soldat Admin Connection Established\.\.\.\r\nAdmin connected\.\r\n| p/Soldat multiplayer-game server/
@@ -2757,7 +2757,7 @@ match telnet m|^\xff\xfd\x1f\n\n\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*
 match telnet m|^\r\nRaptor Firewall Secure Gateway\.\r\n| p/Symantec Raptor firewall secure gateway telnetd/
 match telnet m|^\r\nSynchronet BBS for Win32  Version (\d[-.\w]+)\r\n| p/Synchronet BBS/ v/$1/ i/on Win32/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\nlogin: $| p/Orinoco WAP telnetd/
-match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03\x1b\[1;1H\x1b\[2K\x1b\[2;1H\x1b\[2K\x1b\[3;1H\x1b.*Nortel Networks.*BayStack ([-.\w]+).*Versions: ([.: \w]+)|s p/Nortel Networks telnetd/ i/Baystack $1; Versions: $2/ d/switch/
+match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03\x1b\[1;1H\x1b\[2K\x1b\[2;1H\x1b\[2K\x1b\[3;1H\x1b.*Nortel Networks.*BayStack ([-.\w]+).*Versions: ([: \w.]+)|s p/Nortel Networks telnetd/ i/Baystack $1; Versions: $2/ d/switch/
 match telnet m|^\xff\xfd\x03\xff\xfb\x01\xff\xfb\x03\x1b\[1;1H\x1b\[2K\x1b\[2;1H\x1b\[2K\x1b\[3;1H\x1b.*BayStack ([-\w_.]+) .*HW:(\w+)  FW:V([\d.]+) SW:V([\d.]+)\x1b|s p/BayStack switch $1 telnetd/ v/HW:$2 FW:$3 SW:$4/ d/switch/
 # ASCII art banner that says "BAYSTACK"
 match telnet m|^\xff\xfb\x01\x1b\[2J\x1b\[58259456;1H\x1b\[0m\x1b\[1;1H \*\*\*\*\*      \*\*\*     \*     \*    \*\*\*\*\*   \*\*\*\*\*\*\*\*\*     \*\*\*       \*\*\*\*\*  \*      \*\x1b\[2;1H| p/BayStack switch telnetd/ d/switch/
@@ -4553,7 +4553,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: SimpleServer:WWW/(\d[-.\w]+)\r\n| p
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nContent-Length: \d+\r\nX-Powered-By: ([-/.\w ]+)\r\nContent-Type: .*\r\nServer: Xitami\r\n| p/Xitami httpd/ i/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Xitami\r\n|s p/Xitami httpd/
 match http m|^ERROR: Malformed startup string$| p/Xitami httpd admin port/
-match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[.\w ]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ 
+match http m|^HTTP/1\.1 500 Server Error\r\nConnection: close\r\nContent-Length: \d+\r\nDate: .*\r\nServer: Radio UserLand/(\d[\w .]+)-([-.\w ]+)\r\n\r\n| p/Radio Userland blog server/ v/$1/ i/$2/ 
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: (prod )?[Ff]red (\d[-.\w]+) \(build (\d+)\) HTTP Servlets\r\n\r\n|s p/Freenet Fred anonymous P2P/ v/$2 build $3/
 match http m|^HTTP/1\.0 200 Ok\r\nServer: diva_httpd\r\n| p/Eicon Diva ISDN card configuration server/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Resin/(\d[-.\w]+)\r\n| p/Caucho Resin JSP engine/ v/$1/
@@ -4769,9 +4769,9 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Domino-Go-Webserver/([\d.]+)\r\n
 match http m|^HTTP/1.1 302 Document Follows\r\nLocation: /hag/pages/home.ssi\r\n\r\n$| p/GlobespanVirata httpd/ i/on broadband router/
 match http m|^HTTP/1.0 200 OK\r\nServer:HTTP/1.0\r\n.*<title>Hewlett Packard</title>|s p/HP Jetdirect httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: EHTTP/([\d.]+)\r\nPragma:no-cache\r\nContent-Type:text/html\r\n\r\n<html> \n<head>\n<title> \n(.*) \n- HP (J\w+) ProCurve Switch (\w+)\n</title>| p/HP $3 Procurve Switch $4 http config/ i/EHTTPd $1; Name $2/ d/switch/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: EHTTP/([.\d]+)\r\nWWW-Authenticate: Basic realm=\"HP ([-.\w]+)\"\r\n| p/HP switch EHTTP admin server/ v/$1/ i/HP $2 switch/ d/switch/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: EHTTP/([\d.]+)\r\nWWW-Authenticate: Basic realm=\"HP ([-.\w]+)\"\r\n| p/HP switch EHTTP admin server/ v/$1/ i/HP $2 switch/ d/switch/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Virata-EmWeb/([-.\w]+)\r\n.*\r\n\r\n\n<!--\nFile name: index\.html\n\nThis is the 'parent' file that calls the individual child frames\. \nThis is the file that is first accessed when the user types http://<ipaddress> \nin the browser toolbar\. \n\nThe UI Architecture consists of a total of 4 frames\. This file calls 3 high-level |s i/HP LaserJet printer webadmin/ p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ d/printer/
-match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([.\w\d]+)\r\n|s p/Compaq Insight Manager HTTP server/ v/$1/
+match http m|^HTTP/1\.0 \d{3} .*\r\nServer: CompaqHTTPServer/([\w\d.]+)\r\n|s p/Compaq Insight Manager HTTP server/ v/$1/
 match http m|^HTTP/1\.1 401 Authorization Required\r\nWWW-Authenticate: Basic realm="Linksys ([-.A-Z\d/ ]+)"\r\n| p/Linksys router http config/ i/device model $1/ d/WAP/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Dell TrueMobile ([\d.]+) Wireless Broadband Router\"\r\n| p/Dell TrueMobile $1 wireless router http config/ d/WAP/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: httpd\r\nDate: .*\r\nWWW-Authenticate: Basic realm=\"Linksys WAP54G\"\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n| p/Linksys WAP54G wireless-G router http config/ d/WAP/
@@ -4808,7 +4808,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apach
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apache/([-.\w]+)\r\n|s p/Oracle HTTP Server Powered by Apache/ v/$1/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apache/([-.\w]+) \(Win32\) ([^\r\n]+)\r\n|s p/Oracle HTTP Server Powered by Apache/ v/$1/ i/$2/ o/Windows/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Oracle HTTP Server Powered by Apache/([-.\w]+) \(Unix\) ([^\r\n]+)\r\n|s p/Oracle HTTP Server Powered by Apache/ v/$1/ i/$2/ o/Unix/
-match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server (\d[.\d]+)\r\nWWW-Authenticate: Basic realm=\"([-+.\w]+)\"\r\nConnection:| p/D-Link http config/ v/$1/ i/on D-Link $2/
+match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: Embedded HTTP Server (\d[\d.]+)\r\nWWW-Authenticate: Basic realm=\"([-+.\w]+)\"\r\nConnection:| p/D-Link http config/ v/$1/ i/on D-Link $2/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n.*Pragma: no-cache\r\nServer: Allegro-Software-RomPager/ ?([\w.]+)\r\n\r\n<HTML><head>\n<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-8859-1\">\n<TITLE></TITLE></HEAD><frameset framespacing=\"0\" BORDER=\"false\" frameborder=\"0\" rows=\"90,\*\">\n  <frame NAME=\"fLogo\" scrolling=\"no\" noresize src=\"/html/Hlogo\.html\"|s p/D-Link DSL-300g or g+ http config/ i/Allegro RomPager $1/ d/broadband router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"Please enter your user name and password on DSL-([\w+]+)\"\r\n\r\n|s p/D-Link DSL-$1 http config/ d/broadband router/
 match http m|^HTTP/1\.0 401 Unauthorized\r\nServer: \r\n.*WWW-Authenticate: Basic realm=\"DSL-([\w+]+) Admin Login\"\r\n\r\n|s p/D-Link DSL-$1 http config/ d/broadband router/
@@ -4840,7 +4840,7 @@ match http m|^HTTP/1\.1 200 OK\r\nContent-Type: text/html\r\nDate: .*\r\nAllow: 
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nServer: Cougar (\d[-.\w]+)\r\n\r\n$| p/Microsoft Windows Media Server/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 200 OK\r\nContent-Type: video/x-ms-asf\r\nCache-Control: max-age=0, no-cache\r\nServer: Cougar/(\d[-.\w]+)\r\n| p/Microsoft Windows Media Server/ v/$1/ o/Windows/
 match http m|^HTTP/1\.[01] \d\d\d .*Server: NetApp/(\d[-.\w]+)\r\n|s p/NetApp filer httpd/ v/$1/
-match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/(\d[.\d]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Frameset//EN\"\r\n\t\t\t\"http://www\.w3\.org/TR/REC-html40/frameset\.dtd\">\r\n<HTML>\r\n<HEAD>\r\n\t<TITLE>Netopia Router Web </TITLE>| p/Netopia RapidLogic admin server/ v/$1/ d/router/
+match http m|^HTTP/1\.0 200 OK\r\nServer: RapidLogic/(\d[\d.]+)\r\nMIME-version: 1\.0\r\nContent-type: text/html\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4\.0 Frameset//EN\"\r\n\t\t\t\"http://www\.w3\.org/TR/REC-html40/frameset\.dtd\">\r\n<HTML>\r\n<HEAD>\r\n\t<TITLE>Netopia Router Web </TITLE>| p/Netopia RapidLogic admin server/ v/$1/ d/router/
 match http m|^HTTP/1\.1 200 OK\r\nServer: WebSTAR/(\d[-.()\w]+) ID/| p/WebSTAR httpd/ v/$1/
 match http m|^HTTP/1\.1 200 OK\r\nDate: .*\r\nServer: 4D_WebSTAR_S/([\d.]+) \(MacOS X\)\r\n| p/WebSTAR httpd/ v/$1/ o/Mac OS X/
 match http m|^HTTP/1\.1 401 Unauthorized\r\nServer: Agranat-EmWeb/R([\w_]+)\r\nWWW-Authenticate: Basic realm=\"accessPoint\"\r\n\r\n401 Unauthorized\r\n$| i/Orinoco AP-200 webadmin/ p/Agranat-EmWeb/ v/$SUBST(1,"_",".")/
@@ -5638,7 +5638,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: IISGuard\r\n| p/Troxo IISGuard/ 
 match http m|^HTTP/1\.0 \d\d\d .*<title>Smart VoIP IAD Web Configuration Pages</title>|s p/Patton SmartLink 4020 VoIP adapter http config/ d/VoIP adapter/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: DesktopAuthority/([\d.]+)\r\n|s p/ScriptLogic DesktopAuthority httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 302 Please login\.\nDate: .*\nServer: (P560\.GSI\.[\d.]+)\n| p/Gemtek P560 WAP http config/ v/$1/ d/WAP/
-match http m|^HTTP/1\.0 302 Please login\.\nDate: .*\nServer: RG4000\.CMC\.([.\d]+)\n| p/RG4000 Access Control Gateway/ v/$1/ d/security-misc/
+match http m|^HTTP/1\.0 302 Please login\.\nDate: .*\nServer: RG4000\.CMC\.([\d.]+)\n| p/RG4000 Access Control Gateway/ v/$1/ d/security-misc/
 match http m|^HTTP/1\.0 200 OK\r\n\r\n<HTML>\r\r\n<BODY>\r\r\n\r\r\n<APPLET CODE=\"SimpleCamApplet2\.class\" CODEBASE=\"http://([-\w_.]+)/.*\" WIDTH=\"(\d+)\" HEIGHT=\"(\d+)\">| p/SimpleCam httpd/ i/Webcam resolution: $2x$3/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: LogMeIn/([\d.]+)\r\n|s p/LogMeIn httpd/ v/$1/ o/Windows/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: MacroMaker\r\n| p/MacroMaker httpd/ o/Windows/
@@ -6037,7 +6037,7 @@ match http m|^HTTP/1\.1 302 Found\r\n.*\r\nLocation: https://[\d.:]+/zimbraAdmin
 match http m|^HTTP/1\.1 \d\d\d .*\r\nWWW-Authenticate: Basic realm=\"CANOPY ([-\w]+)\"\r\n|s p/Motorola Canopy WAP http config/ d/WAP/ i/MAC $1/
 match http m|^HTTP/1\.0 200 Document follows\nMIME-Version: 1\.0\nServer: Java Cell Server\n.*<title>dCache service</title>|s p/dCache httpd/ i/Distributed Storage Node/ d/storage-misc/
 match http m|^HTTP/1\.0 200 OK\r\nDate:.*\r\nServer: HighPoint Raidman WebServer/([-.\w\d]+)\r\nAccept-Ranges: bytes\r\n| p/HighPoint Raidman web config http/ v/$1/ d/storage-misc/
-match http m|^HTTP/1\.1 404 Not Found\r\nconnection: close\r\ncontent-type: text/html\r\ndate: .*\r\nserver: Ruckus/([.\d]+)\r\n\r\n| p/Ruckus Media Player/ v/$1/ o/Windows/
+match http m|^HTTP/1\.1 404 Not Found\r\nconnection: close\r\ncontent-type: text/html\r\ndate: .*\r\nserver: Ruckus/([\d.]+)\r\n\r\n| p/Ruckus Media Player/ v/$1/ o/Windows/
 #Novell Groupwise HTTP services
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise MTA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise MTA httpd/ v/$1/ o/Unix/
 match http m|^HTTP/1\.0 \d\d\d .*\r\n(?:Date: .*\r\n)?Server: GroupWise POA ([-_.\d\w\(\) ]+)\r\n| p/Novell GroupWise POA httpd/ v/$1/ i/Post Office Agent/ o/Unix/
@@ -6048,7 +6048,7 @@ match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Hunchentoot ([\w._-]+)\r\n|s p/H
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: AllegroServe/([\w._-]+)\r\n|s p/Franz Allegroserve httpd/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Hop\r\n|s p/HOP httpd/
 match http m|^HTTP/1\.1 200 OK\r\nServer: minituner\r\n| p|BMC/Marimba Management http config|
-match http m|^HTTP/1\.1 200 Channel Listing\r\nServer: Marimba-Transmitter/([.\d]+)\r\n| p|BMC/Marimba Transmitter| v/$1/
+match http m|^HTTP/1\.1 200 Channel Listing\r\nServer: Marimba-Transmitter/([\d.]+)\r\n| p|BMC/Marimba Transmitter| v/$1/
 match http m|^HTTP/1\.0 500 Internal Server Error\r\nContent-type: text/html; charset=UTF-8\r\n\r\n<html><META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\"><body>\r\nInternal Server Error</body>\r\n</html>\r\n| p|BMC/Marimba Management http config| i|Error Condition|
 match http m|^HTTP/1\.0 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"tuner\"\r\n| p|BMC/Marimba Management http config|
 match http m|^HTTP/1\.0 200 OK\r\nServer: Henry/\d\.\d\r\n|s p/NEC Electra Elite IPK II WebPro/
@@ -10009,8 +10009,8 @@ Probe TCP informix q|\0\x94\x01\x3c\0\0\0\x64\0\x65\0\0\0\x3d\0\x06IEEEM\0\0lsql
 rarity 8
 ports 1526,9088-9100
 
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ o/Windows/ h/$1/ i/Path: $3/
-match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[.\d\w]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ h/$1/ i/Path: $3/
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([A-Z]\:[^/]*)\0\0t\0\x08\x01Y\0\x06\x01Y\0\0\0\x7f$| p/Informix Dynamic Server/ v/11.50/ o/Windows/ h/$1/ i/Path: $3/
+match informix m|^.{2}\x03<\x10\0\0d\0e\0\0\0=\0\x6IEEEI\0\0lsrvinfx\0\0\0\0\0\0\x05V1.0\0\0\x04SER\0\0\x08asfecho\0{19}o[ln]\0{9}=soctcp\0{5}\x01\0\x66\0{6}\xfcI..\0\0\0\x01\0\0\0.nmap@[\d\w.]+\0k\0\0\0\0\0\0..\0\0\0\0\0.(.*)\0\0.(.*)\0\0.([^\\]*)\0\0t\0\x08\0\0\x03\xe9\0\0\x03\xe9\0\x7f$| p/Informix Dynamic Server/ v/11.50/ h/$1/ i/Path: $3/
 
 ##############################NEXT PROBE##############################
 # The DRDA protocol is used by both Informix and DB2

@@ -1,5 +1,11 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
+o Rearranged some characters classes in service matches to avoid any
+  that look like POSIX collating symbols ("[.xyz.]"). John Hutchison
+  discovered this error caused by one of the match lines:
+    InitMatch: illegal regexp: POSIX collating elements are not supported
+  [Daniel Miller]
+
 o [NSE] Added the address-info.nse script, which shows extra information about IP addresses.
 
 o [NSE] Added scripts http-joomla-brute, http-wordpress-brute, http-wp-enum and
