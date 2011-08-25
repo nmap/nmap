@@ -1,5 +1,9 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
+o Removed some restrictions on probe matching that, for example,
+  prevented a RST/ACK reply from being recognized in a NULL scan. This
+  was found and fixed by Matthew Stickney and Joe McEachern.
+
 o Rearranged some characters classes in service matches to avoid any
   that look like POSIX collating symbols ("[.xyz.]"). John Hutchison
   discovered this error caused by one of the match lines:

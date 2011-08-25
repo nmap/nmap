@@ -2535,19 +2535,10 @@ static bool tcp_probe_match(const UltraScanInfo *USI, const UltraProbe *probe,
   /* Make sure we are matching up the right kind of probe, otherwise just the
      ports, address, tryno, and pingseq can be ambiguous, between a SYN and an
      ACK probe during a -PS80 -PA80 scan for example. A SYN/ACK can only be
-     matched to a SYN probe. A RST/ACK can only be matched to a SYN or FIN. A
-     bare RST cannot be matched to a SYN or FIN. */
+     matched to a SYN probe. */
   probedata = &probe->pspec()->pd.tcp;
   if ((tcp->th_flags & (TH_SYN | TH_ACK)) == (TH_SYN | TH_ACK)
       && !(probedata->flags & TH_SYN)) {
-    return false;
-  }
-  if ((tcp->th_flags & (TH_RST | TH_ACK)) == (TH_RST | TH_ACK)
-      && !(probedata->flags & (TH_SYN | TH_FIN))) {
-    return false;
-  }
-  if ((tcp->th_flags & (TH_RST | TH_ACK)) == TH_RST
-      && (probedata->flags & (TH_SYN | TH_FIN))) {
     return false;
   }
 
