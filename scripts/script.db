@@ -235,5 +235,5 @@ Entry { filename = "wdb-version.nse", categories = { "default", "discovery", "ve
 Entry { filename = "whois.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "wsdd-discover.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "x11-access.nse", categories = { "auth", "default", "safe", } }
-Entry { filename = "xmpp-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "xmpp-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "xmpp.nse", categories = { "default", "discovery", "safe", } }
