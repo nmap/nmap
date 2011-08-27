@@ -1,5 +1,8 @@
 ﻿# Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed authentication problems in the TNS library that would prevent
+  authentication from working against Oracle 11.2.0.2.0 XE [Chris Woodbury]
+
 o Removed some restrictions on probe matching that, for example,
   prevented a RST/ACK reply from being recognized in a NULL scan. This
   was found and fixed by Matthew Stickney and Joe McEachern.

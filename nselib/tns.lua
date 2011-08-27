@@ -77,7 +77,7 @@
 -- @args tns.sid specifies the Oracle instance to connect to
 
 --
--- Version 0.6
+-- Version 0.7
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/21/2010 - v0.2 - made minor changes to support 11gR2 on Windows
 -- Revised 07/23/2010 - v0.3 - corrected incorrect example code in docs
@@ -91,19 +91,23 @@
 --                           - added some more documentation and fixed some
 --                             indentation bugs
 --                             <patrik@cqure.net>
+-- Revised 26/08/2011 - v0.7 - applied patch from Chris Woodbury
+--                           - <patrik@cqure.net>
 --
 -- The following versions have been tested and are known to work:
--- +--------+---------------+-------+-------------------------------+
--- | OS     | DB Version    | Arch  | Functionality                 |
--- +--------+---------------+-------+-------------------------------|
--- | Win    | 11.2.0.2.0    | 64bit | Authentication                |
--- | Win    | 11.2.0.1.0    | 64bit | Authentication                |
--- | Win    | 11.1.0.6.0    | 64bit | Authentication                |
--- | Win    | 11.1.0.6.0    | 32bit | Authentication, Queries       |
--- | Win    | 11.2.0.1.0    | 32bit | Authentication, Queries       |
--- | Linux  | 10.2.0.1.0    | 32bit | Authentication                |
--- | Linux  | 11.2.0.1.0    | 64bit | Authentication                |
--- +--------+---------------+-------+-------------------------------+
+-- +--------+---------------+---------+-------+-------------------------------+
+-- | OS     | DB Version    | Edition | Arch  | Functionality                 |
+-- +--------+---------------+---------+-------+-------------------------------|
+-- | Win    | 10.2.0.1.0    | EE      | 32bit | Authentication                |
+-- | Linux  | 10.2.0.1.0    | EE      | 32bit | Authentication                |
+-- | Win    | 11.1.0.6.0    | EE      | 64bit | Authentication                |
+-- | Win    | 11.1.0.6.0    | EE      | 32bit | Authentication, Queries       |
+-- | Win    | 11.2.0.1.0    | EE      | 64bit | Authentication                |
+-- | Win    | 11.2.0.1.0    | XE      | 32bit | Authentication, Queries       |
+-- | Win    | 11.2.0.2.0    | EE      | 64bit | Authentication                |
+-- | Win    | 11.2.0.2.0    | XE      | 32bit | Authentication, Queries       |
+-- | Linux  | 11.2.0.1.0    | EE      | 64bit | Authentication                |
+-- +--------+---------------+---------+-------+-------------------------------+
 --
 
 require 'bin'
@@ -452,15 +456,6 @@ Packet.PreAuth = {
         self.__index = self
 		return o
 	end,
-	
-	--- Converts a parameter to a string representation
-	--
-	-- @param name string containing the parameter name
-	-- @param value string containing the parameter value
-	-- @return string containing the parameter key and value
-	paramToString = function( self, param_name, param_value )
-		return bin.pack(">CIACIAI", #param_name, #param_name, param_name, #param_value, #param_value, param_value, 0 )
-	end,
 
 	--- Converts the DATA packet to string
 	--
@@ -479,9 +474,10 @@ Packet.PreAuth = {
 		data = data .. bin.pack("CA", #self.auth_user, self.auth_user )
 		for _, v in ipairs( Packet.PreAuth.param_order ) do
 			for k, v2 in pairs(v) do
-				data = data .. self:paramToString( k, self.auth_options[v2] )
+				data = data .. Marshaller.marshalKvp( k, self.auth_options[v2] )
 			end
 		end
+		
 		return data
 	end,
 	
@@ -492,26 +488,22 @@ Packet.PreAuth = {
 	-- @return table containing the keys and values returned by the server
 	parseResponse = function( self, tns )
 
-		local len, len2, key, val, _
-		local pos = 6
+		local kvp_count, key, val, kvp_flags
 		local kvps = {}
-
-		while( true ) do
-			pos, len, len2 = bin.unpack("<IC", tns.data, pos )
-			if ( len ~= len2 ) then	break end
-
-			pos, key = bin.unpack("A" .. len, tns.data, pos )
-			pos, len, _ = bin.unpack("<IC", tns.data, pos )
-			pos, val = bin.unpack("A" .. len, tns.data, pos)
-			pos = pos + 4
-
+		
+		local pos = 4
+		pos, kvp_count = bin.unpack( "C", tns.data, pos )
+		pos = 6
+		
+		for kvp_itr=1, kvp_count do
+			pos, key, val, kvp_flags = Marshaller.unmarshalKvp( tns.data, pos )
+			-- we don't actually do anything with the flags currently, but they're there
 			kvps[key] = val
 		end
 
 		return true, kvps
 	end,
-		
-	
+
 }
 
 -- Packet containing authentication data
@@ -553,19 +545,6 @@ Packet.Auth = {
 		return o
 	end,
 
-	--- Converts a parameter to a string representation
-	--
-	-- @param name string containing the parameter name
-	-- @param value string containing the parameter value
-	-- @return string containing the parameter key and value
-	paramToString = function( self, param_name, param_value )
-		if ( not( param_value ) or #param_value == 0 ) then
-			return bin.pack(">CIAII", #param_name, #param_name, param_name, #param_value, 0 )			
-		else
-			return bin.pack(">CIACIAI", #param_name, #param_name, param_name, #param_value, #param_value, param_value, 0 )
-		end
-	end,
-
 	--- Converts the DATA packet to string
 	--
 	-- @return string containing the packet	
@@ -586,11 +565,11 @@ Packet.Auth = {
 								
 		for k, v in ipairs( self.param_order ) do
 			if ( v['def'] ) then
-				data = data .. self:paramToString( v['key'], v['def'])
+				data = data .. Marshaller.marshalKvp( v['key'], v['def'] )
 			elseif ( self.auth_options[ v['var'] ] ) then
-				data = data .. self:paramToString(  v['key'], self.auth_options[ v['var'] ] )
+				data = data .. Marshaller.marshalKvp( v['key'], self.auth_options[ v['var'] ] )
 			elseif ( self[ v['var'] ] ) then
-				data = data .. self:paramToString(  v['key'], self[ v['var'] ] )
+				data = data .. Marshaller.marshalKvp( v['key'], self[ v['var'] ] )
 			end
 		end
 		return data 
@@ -601,27 +580,20 @@ Packet.Auth = {
 	-- @param tns Packet.TNS containing the TNS packet recieved from the server
 	-- @return table containing the key pair values from the Auth packet
 	parseResponse = function( self, tns )
-		local pos = 6
-		local len, name, val, _
-		local data = tns.data
-		local response
+		local kvp_count, key, val, kvp_flags
+		local kvps = {}
 		
-		repeat
-			pos, len, _ = bin.unpack("CI", data, pos)
-			if ( len == 0 ) then break end
-			pos, name = bin.unpack("A" .. len, data, pos)
-			pos, len, _ = bin.unpack("CI", data, pos)
-			if ( len > 0 ) then
-				pos, val  = bin.unpack("A" .. len, data, pos)
-				pos = pos + 4
-			else
-				pos = pos + 3
-			end
-			response = response or {}
-			response[name] = val
-		until( name == "AUTH_SVR_RESPONSE" )
+		local pos = 4
+		pos, kvp_count = bin.unpack( "C", tns.data, pos )
+		pos = 6
+		
+		for kvp_itr=1, kvp_count do
+			pos, key, val, kvp_flags = Marshaller.unmarshalKvp( tns.data, pos )
+			-- we don't actually do anything with the flags currently, but they're there
+			kvps[key] = val
+		end
 
-		return true, response
+		return true, kvps
 	end,
 	
 }
@@ -1199,6 +1171,126 @@ Packet.QueryResponseAck = {
 		return true, tns.data
 	end,
 	
+}
+
+Marshaller = {
+	--- Marshals a TNS key-value pair data structure
+	--
+	-- @param key The key
+	-- @param value The value
+	-- @param flags The flags
+	-- @return A binary packed string representing the KVP structure
+	marshalKvp = function( key, value, flags )
+		flags = flags or 0
+		
+		local result = ""
+		result = result .. Marshaller.marshalKvpComponent( key )
+		result = result .. Marshaller.marshalKvpComponent( value )
+		result = result .. bin.pack( "<I", flags )
+		
+		return result
+	end,
+	
+	--- Parses a TNS key-value pair data structure.
+	--
+	-- @param data Packed string to parse
+	-- @param pos Position in the string at which the KVP begins
+	-- @return table containing the last position read, the key, the value, and the KVP flags
+	unmarshalKvp = function( data, pos )
+		local key, value, flags
+		
+		pos, key   = Marshaller.unmarshalKvpComponent( data, pos )
+		pos, value = Marshaller.unmarshalKvpComponent( data, pos )
+		pos, flags = bin.unpack("<I", data, pos )
+		
+		return pos, key, value, flags
+	end,
+	
+	--- Marshals a key or value element from a TNS key-value pair data structure
+	--
+	-- @param value The key or value
+	-- @return A binary packed string representing the element
+	marshalKvpComponent = function( value )
+		local result = ""
+		value = value or ""
+		
+		result = result .. bin.pack( "<I", #value )
+		if ( #value > 0 ) then
+			-- 64 bytes seems to be the maximum length before Oracle starts
+			-- chunking strings
+			local MAX_CHUNK_LENGTH = 64
+			local split_into_chunks = ( #value > MAX_CHUNK_LENGTH )
+			
+			if ( not( split_into_chunks ) ) then
+				-- It's pretty easy if we don't have to split up the string
+				result = result .. bin.pack( "p", value )
+			else
+				-- Otherwise, it's a bit more involved:
+				-- First, write the multiple-chunk indicator
+				result = result .. bin.pack( "C", 0xFE )
+				
+				-- Loop through the string, chunk by chunk
+				while ( #value > 0 ) do
+					-- Figure out how much we're writing in this chunk, the
+					-- remainder of the string, or the maximum, whichever is less
+					local write_length = MAX_CHUNK_LENGTH
+					if (#value < MAX_CHUNK_LENGTH) then
+						write_length = #value
+					end
+					
+					-- get a substring of what we're going to write...
+					local write_value = value:sub( 1, write_length )
+					-- ...and remove that piece from the remaining string
+					value = value:sub( write_length + 1 )
+					
+					result = result .. bin.pack( "p", write_value )
+				end
+			
+				-- put a null byte at the end
+				result = result .. bin.pack( "C", 0 )
+			end
+		end
+		
+		return result
+	end,
+	
+	--- Parses a key or value element from a TNS key-value pair data structure.
+	--
+	-- @param data Packed string to parse
+	-- @param pos Position in the string at which the element begins
+	-- @return table containing the last position read and the value parsed
+	unmarshalKvpComponent = function( data, pos )
+		local value_len, chunk_len
+		local value, chunk = "", ""
+		local has_multiple_chunks = false
+
+		-- read the 32-bit total length of the value
+		pos, value_len = bin.unpack("<I", data, pos )
+		if ( value_len == 0 ) then
+			value = ""
+		else
+			-- Look at the first byte after the total length. If the value is
+			-- broken up into multiple chunks, this will be indicated by this
+			-- byte being 0xFE.
+			local _, first_byte = bin.unpack("C", data, pos )
+			if ( first_byte == 0xFE ) then
+				has_multiple_chunks = true
+				pos = pos + 1 -- move pos past the multiple-chunks indicator
+			end
+			
+			-- Loop through the chunks until we read the whole value
+			while ( value:len() < value_len ) do
+				pos, chunk = bin.unpack("p", data, pos )
+				value = value .. chunk
+			end
+			
+			if ( has_multiple_chunks ) then
+				pos = pos + 1 -- there's a null byte after the last chunk
+			end
+		end
+		
+		return pos, value
+	end,
 }
 
 
