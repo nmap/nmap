@@ -81,3 +81,9 @@ robert     - Rob Nicholls has done a ton of work, particularly his
 
 sven       - Sven Klemm has made dramatic improvements to the Nmap
              Scripting Engine.
+
+djalal     - Djalal Harouni focuses on the Nmap Scripting Engine.  In
+             addition to writing several scripts and libraries, he
+             improved the infrastructure by adding the script
+             pre-scanning and post-scanning phases and the newtargets
+             (adding new systems to the scan queue) functionality.
