@@ -100,10 +100,10 @@
 -- +--------+---------------+---------+-------+-------------------------------|
 -- | Win    | 10.2.0.1.0    | EE      | 32bit | Authentication                |
 -- | Linux  | 10.2.0.1.0    | EE      | 32bit | Authentication                |
+-- | Win    | 10.2.0.1.0    | XE      | 32bit | Authentication, Queries       |
 -- | Win    | 11.1.0.6.0    | EE      | 64bit | Authentication                |
 -- | Win    | 11.1.0.6.0    | EE      | 32bit | Authentication, Queries       |
 -- | Win    | 11.2.0.1.0    | EE      | 64bit | Authentication                |
--- | Win    | 11.2.0.1.0    | XE      | 32bit | Authentication, Queries       |
 -- | Win    | 11.2.0.2.0    | EE      | 64bit | Authentication                |
 -- | Win    | 11.2.0.2.0    | XE      | 32bit | Authentication, Queries       |
 -- | Linux  | 11.2.0.1.0    | EE      | 64bit | Authentication                |
