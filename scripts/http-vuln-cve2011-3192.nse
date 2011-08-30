@@ -19,7 +19,7 @@ References:
 --
 -- @args http-vuln-cve2011-3192.hostname  Define the host name to be used in the HEAD request sent to the server
 -- @args http-vuln-cve2011-3192.path  Define the request path
---
+
 -- changelog
 -- 2011-08-29 Duarte Silva <duarte.silva@serializing.me>
 --   - Removed the "Accept-Encoding" HTTP header
