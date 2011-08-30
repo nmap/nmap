@@ -257,6 +257,21 @@ _find_adapter_address(intf_t *intf, const char *device)
 	return NULL;
 }
 
+static IP_ADAPTER_ADDRESSES *
+_find_adapter_address_by_index(intf_t *intf, int af, unsigned int index)
+{
+	IP_ADAPTER_ADDRESSES *a;
+
+	for (a = intf->iftable; a != NULL; a = a->Next) {
+		if (af == AF_INET && index == a->IfIndex)
+			return a;
+		if (af == AF_INET6 && index == a->Ipv6IfIndex)
+			return a;
+	}
+
+	return NULL;
+}
+
 intf_t *
 intf_open(void)
 {
@@ -277,6 +292,24 @@ intf_get(intf_t *intf, struct intf_entry *entry)
 
 	_adapter_address_to_entry(intf, a, entry);
 	
+	return (0);
+}
+
+/* Look up an interface from an index, such as a sockaddr_in6.sin6_scope_id. */
+int
+intf_get_index(intf_t *intf, struct intf_entry *entry, int af, unsigned int index)
+{
+	IP_ADAPTER_ADDRESSES *a;
+
+	if (_refresh_tables(intf) < 0)
+		return (-1);
+
+	a = _find_adapter_address_by_index(intf, af, index);
+	if (a == NULL)
+		return (-1);
+
+	_adapter_address_to_entry(intf, a, entry);
+
 	return (0);
 }
 
