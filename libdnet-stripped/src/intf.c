@@ -391,6 +391,11 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 
 	strlcpy(ifr.ifr_name, entry->intf_name, sizeof(ifr.ifr_name));
 	
+	/* Get interface index. */
+	if (ioctl(intf->fd, SIOCGIFINDEX, &ifr) < 0)
+		return (-1);
+	entry->intf_index = ifr.ifr_ifindex;
+
 	/* Get interface flags. */
 	if (ioctl(intf->fd, SIOCGIFFLAGS, &ifr) < 0)
 		return (-1);
