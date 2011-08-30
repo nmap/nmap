@@ -3094,7 +3094,6 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
   struct sys_route *routes;
   int numroutes = 0;
   int i;
-  char namebuf[IFNAMSIZ];
   char errstr[256];
   errstr[0]='\0';
 
@@ -3108,21 +3107,10 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     assert(device!=NULL && device[0]!='\0');
   }
 
-  /* Check if there is an interface scope on the address. */
-  if (device == NULL || device[0] == '\0') {
-    if (dst->ss_family == AF_INET6) {
-      const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) dst;
-      if (sin6->sin6_scope_id > 0) {
-        device = if_indextoname(sin6->sin6_scope_id, namebuf);
-        assert(device != NULL);
-      }
-    }
-  }
-
   if (device!=NULL && device[0]!='\0'){
     iface = getInterfaceByName(device, dst->ss_family);
     if (!iface)
-      netutil_fatal("Could not find interface %s", device);
+      netutil_fatal("Could not find interface %s which was specified by -e", device);
   } else {
     iface = NULL;
   }
