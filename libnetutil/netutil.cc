@@ -3074,6 +3074,11 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
   rc = connect(fd, (struct sockaddr *) &dst_dummy, dst_dummy_len);
   if (rc == -1) {
     netutil_error("%s: can't connect socket: %s", __func__, socket_strerror(socket_errno()));
+    if (dst->ss_family == AF_INET6) {
+      struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &dst_dummy;
+      if (sin6->sin6_scope_id == 0)
+        netutil_error("Do you need an IPv6 zone ID suffix (e.g. %%eth0 or %%1)?");
+    }
     return -1;
   }
 
