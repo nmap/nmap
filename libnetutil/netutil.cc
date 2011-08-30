@@ -2916,16 +2916,22 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   struct rtmsg *rtmsg;
   struct rtattr *rtattr;
   unsigned char buf[512];
-  void *addr;
+  const void *addr;
   size_t addrlen;
+  int ifindex;
   int fd, rc, len;
+
+  ifindex = 0;
 
   if (dst->ss_family == AF_INET) {
     addr = &((struct sockaddr_in *) dst)->sin_addr.s_addr;
     addrlen = IP_ADDR_LEN;
   } else if (dst->ss_family == AF_INET6) {
-    addr = ((struct sockaddr_in6 *) dst)->sin6_addr.s6_addr;
+    const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) dst;
+
+    addr = sin6->sin6_addr.s6_addr;
     addrlen = IP6_ADDR_LEN;
+    ifindex = sin6->sin6_scope_id;
   } else {
     netutil_fatal("%s: unknown address family %d", __func__, dst->ss_family);
   }
@@ -2945,7 +2951,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
 
   nlmsg = (struct nlmsghdr *) buf;
 
-  nlmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*rtmsg) + RTA_LENGTH(addrlen));
+  nlmsg->nlmsg_len = NLMSG_LENGTH(sizeof(*rtmsg));
   assert(nlmsg->nlmsg_len <= sizeof(buf));
   nlmsg->nlmsg_flags = NLM_F_REQUEST;
   nlmsg->nlmsg_type = RTM_GETROUTE;
@@ -2955,9 +2961,25 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   rtmsg->rtm_dst_len = addrlen * 8;
 
   rtattr = RTM_RTA(rtmsg);
+  len = sizeof(buf) - ((unsigned char *) rtattr - buf);
+
+  /* Add an rtattr for destination address. */
   rtattr->rta_type = RTA_DST;
   rtattr->rta_len = RTA_LENGTH(addrlen);
+  assert(RTA_OK(rtattr, len));
   memcpy(RTA_DATA(rtattr), addr, addrlen);
+  nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + RTA_LENGTH(rtattr->rta_len);
+
+  /* Specific interface (sin6_scope_id) requested? */
+  if (ifindex > 0) {
+    /* Add an rtattr for outgoing interface. */
+    rtattr = RTA_NEXT(rtattr, len);
+    rtattr->rta_type = RTA_OIF;
+    rtattr->rta_len = RTA_LENGTH(sizeof(uint32_t));
+    assert(RTA_OK(rtattr, len));
+    *(uint32_t *) RTA_DATA(rtattr) = ifindex;
+    nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + RTA_LENGTH(rtattr->rta_len);
+  }
 
   iov.iov_base = nlmsg;
   iov.iov_len = nlmsg->nlmsg_len;
@@ -3000,7 +3022,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
       netutil_fatal("Could not find interface %s which was specified by -e", device);
   }
 
-  for ( ; RTA_OK(rtattr, len); rtattr = RTA_NEXT(rtattr, len)) {
+  for (rtattr = RTM_RTA(rtmsg); RTA_OK(rtattr, len); rtattr = RTA_NEXT(rtattr, len)) {
     if (rtattr->rta_type == RTA_GATEWAY) {
       rc = set_sockaddr(&rnfo->nexthop, rtmsg->rtm_family, RTA_DATA(rtattr));
       assert(rc != -1);
