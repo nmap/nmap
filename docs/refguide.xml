@@ -214,6 +214,19 @@ for Internet surveys and research.</para>
 address or hostname.  CIDR and octet ranges aren't yet supported for
 IPv6.</para>
 
+<indexterm><primary>link-local IPv6 address</primary><see>IPv6 address, link-local</see></indexterm>
+<indexterm><primary>IPv6 address</primary><secondary>link-local</secondary></indexterm>
+<indexterm><primary>zone ID (IPv6 address)</primary></indexterm>
+<para>
+IPv6 addresses with non-global scope need to have a zone ID suffix. On
+Unix systems, this is a percent sign followed by an interface name; a
+complete address might be <literal>fe80::a8bb:ccff:fedd:eeff%eth0</literal>.
+On Windows, use an interface index number in place of an interface name:
+<literal>fe80::a8bb:ccff:fedd:eeff%1</literal>. You can see a list of
+interface indexes by running the command
+<command>netsh.exe interface ipv6 show interface</command>.
+</para>
+
 <para>Nmap accepts multiple host specifications on the command line,
 and they don't need to be the same type.  The command <command>nmap
 scanme.nmap.org 192.168.0.0/8 10.0.0,1,3-7.-</command> does what
