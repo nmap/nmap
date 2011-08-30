@@ -1973,15 +1973,16 @@ pcap_if_t *getpcapinterfaces() {
 
 
 
-int nmap_route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo){
- struct sockaddr_storage spoofss;
- size_t spoofsslen;
-    if(o.spoofsource){
-        o.SourceSockAddr(&spoofss, &spoofsslen);
-        return route_dst(dst, rnfo, o.device, &spoofss);
-    }else{
-        return route_dst(dst, rnfo, o.device, NULL);
-    }
+int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo) {
+  struct sockaddr_storage spoofss;
+  size_t spoofsslen;
+
+  if (o.spoofsource) {
+    o.SourceSockAddr(&spoofss, &spoofsslen);
+    return route_dst(dst, rnfo, o.device, &spoofss);
+  } else {
+    return route_dst(dst, rnfo, o.device, NULL);
+  }
 }
 
 
