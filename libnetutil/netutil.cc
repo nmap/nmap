@@ -3092,6 +3092,23 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
   return 0;
 }
 
+static char *lookup_ifindex(unsigned int index, int af, char *namebuf, size_t len) {
+  intf_t *it;
+  struct intf_entry entry;
+  int rc;
+
+  it = intf_open();
+  assert(it != NULL);
+  entry.intf_len = sizeof(entry);
+  rc = intf_get_index(it, &entry, af, index);
+  intf_close(it);
+  if (rc == -1)
+    return NULL;
+
+  Strncpy(namebuf, entry.intf_name, len);
+  return namebuf;
+}
+
 static int route_dst_generic(const struct sockaddr_storage *dst,
                              struct route_nfo *rnfo, const char *device,
                              const struct sockaddr_storage *spoofss) {
@@ -3118,27 +3135,13 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
   if (device == NULL || device[0] == '\0') {
     /* Check if there is an interface scope on the address which we must use. */
     if (dst->ss_family == AF_INET6) {
-      const struct sockaddr_in6 *sin6;
-
-      sin6 = (struct sockaddr_in6 *) dst;
+      const struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) dst;
       if (sin6->sin6_scope_id > 0) {
-        intf_t *it;
-        struct intf_entry entry;
-        int rc;
-
-        it = intf_open();
-        assert(it != NULL);
-        entry.intf_len = sizeof(entry);
-        rc = intf_get_index(it, &entry, sin6->sin6_family, sin6->sin6_scope_id);
-        if (rc == -1) {
-          intf_close(it);
+        device = lookup_ifindex(sin6->sin6_scope_id, sin6->sin6_family, namebuf, sizeof(namebuf));
+        if (device == NULL) {
           netutil_error("Could not find interface with index %u", (unsigned int) sin6->sin6_scope_id);
-	  return 0;
-	}
-        intf_close(it);
-
-        Strncpy(namebuf, entry.intf_name, sizeof(namebuf));
-        device = namebuf;
+          return 0;
+        }
       }
     }
   }
