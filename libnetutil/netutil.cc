@@ -3130,8 +3130,11 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
         assert(it != NULL);
         entry.intf_len = sizeof(entry);
         rc = intf_get_index(it, &entry, sin6->sin6_family, sin6->sin6_scope_id);
-        if (rc == -1)
-          netutil_fatal("Could not find interface with index %u", (unsigned int) sin6->sin6_scope_id);
+        if (rc == -1) {
+          intf_close(it);
+          netutil_error("Could not find interface with index %u", (unsigned int) sin6->sin6_scope_id);
+	  return 0;
+	}
         intf_close(it);
 
         Strncpy(namebuf, entry.intf_name, sizeof(namebuf));
