@@ -3094,6 +3094,7 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
   struct sys_route *routes;
   int numroutes = 0;
   int i;
+  char namebuf[32];
   char errstr[256];
   errstr[0]='\0';
 
@@ -3107,10 +3108,35 @@ static int route_dst_generic(const struct sockaddr_storage *dst,
     assert(device!=NULL && device[0]!='\0');
   }
 
+  if (device == NULL || device[0] == '\0') {
+    /* Check if there is an interface scope on the address which we must use. */
+    if (dst->ss_family == AF_INET6) {
+      const struct sockaddr_in6 *sin6;
+
+      sin6 = (struct sockaddr_in6 *) dst;
+      if (sin6->sin6_scope_id > 0) {
+        intf_t *it;
+        struct intf_entry entry;
+        int rc;
+
+        it = intf_open();
+        assert(it != NULL);
+        entry.intf_len = sizeof(entry);
+        rc = intf_get_index(it, &entry, sin6->sin6_family, sin6->sin6_scope_id);
+        if (rc == -1)
+          netutil_fatal("Could not find interface with index %u", (unsigned int) sin6->sin6_scope_id);
+        intf_close(it);
+
+        Strncpy(namebuf, entry.intf_name, sizeof(namebuf));
+        device = namebuf;
+      }
+    }
+  }
+
   if (device!=NULL && device[0]!='\0'){
     iface = getInterfaceByName(device, dst->ss_family);
     if (!iface)
-      netutil_fatal("Could not find interface %s which was specified by -e", device);
+      netutil_fatal("Could not find interface %s", device);
   } else {
     iface = NULL;
   }
