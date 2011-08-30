@@ -3072,8 +3072,10 @@ static int get_srcaddr(const struct sockaddr_storage *dst,
   }
 
   rc = connect(fd, (struct sockaddr *) &dst_dummy, dst_dummy_len);
-  if (rc == -1)
-    netutil_fatal("%s: can't connect socket: %s", __func__, socket_strerror(socket_errno()));
+  if (rc == -1) {
+    netutil_error("%s: can't connect socket: %s", __func__, socket_strerror(socket_errno()));
+    return -1;
+  }
 
   len = sizeof(*src);
   rc = getsockname(fd, (struct sockaddr *) src, &len);
