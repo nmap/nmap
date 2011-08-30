@@ -187,7 +187,6 @@
     <ClInclude Include="..\FingerPrintResults.h" />
     <ClInclude Include="..\global_structures.h" />
     <ClInclude Include="..\idle_scan.h" />
-    <ClInclude Include="NETINET\IP.H" />
     <ClInclude Include="..\MACLookup.h" />
     <ClInclude Include="..\nmap.h" />
     <ClInclude Include="..\nmap_dns.h" />
@@ -220,39 +219,13 @@
     <ClInclude Include="..\service_scan.h" />
     <ClInclude Include="..\services.h" />
     <ClInclude Include="..\targets.h" />
-    <ClInclude Include="NETINET\TCP.H" />
     <ClInclude Include="..\tcpip.h" />
     <ClInclude Include="..\timing.h" />
     <ClInclude Include="..\traceroute.h" />
     <ClInclude Include="..\utils.h" />
     <ClInclude Include="..\xml.h" />
-    <ClInclude Include="NET\Bpf.h" />
-    <ClInclude Include="winip\iphlpapi.h" />
     <ClInclude Include="winclude.h" />
     <ClInclude Include="winfix.h" />
-    <ClInclude Include="pcap-include\bittypes.h" />
-    <ClInclude Include="pcap-include\bucket_lookup.h" />
-    <ClInclude Include="pcap-include\count_packets.h" />
-    <ClInclude Include="pcap-include\Devioctl.h" />
-    <ClInclude Include="pcap-include\Gnuc.h" />
-    <ClInclude Include="pcap-include\ip6_misc.h" />
-    <ClInclude Include="pcap-include\memory_t.h" />
-    <ClInclude Include="pcap-include\normal_lookup.h" />
-    <ClInclude Include="pcap-include\Ntddndis.h" />
-    <ClInclude Include="pcap-include\Ntddpack.h" />
-    <ClInclude Include="pcap-include\Packet32.h" />
-    <ClInclude Include="pcap-include\pcap-bpf.h" />
-    <ClInclude Include="pcap-include\pcap-int.h" />
-    <ClInclude Include="pcap-include\pcap-stdinc.h" />
-    <ClInclude Include="pcap-include\pcap.h" />
-    <ClInclude Include="pcap-include\pthread.h" />
-    <ClInclude Include="pcap-include\remote-ext.h" />
-    <ClInclude Include="pcap-include\sched.h" />
-    <ClInclude Include="pcap-include\semaphore.h" />
-    <ClInclude Include="pcap-include\tcp_session.h" />
-    <ClInclude Include="pcap-include\time_calls.h" />
-    <ClInclude Include="pcap-include\tme.h" />
-    <ClInclude Include="pcap-include\Win32-Extensions.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icon1.ico" />
