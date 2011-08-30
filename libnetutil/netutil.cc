@@ -2879,31 +2879,6 @@ static int set_sockaddr(struct sockaddr_storage *ss, int af, void *data) {
   return 0;
 }
 
-/* Get an interface name from an index number. */
-static int intf_name(int index, char *name, size_t len) {
-  struct ifreq ifr;
-  int s;
-
-  s = socket(AF_INET, SOCK_DGRAM, 0);
-  if (s < 0)
-    return -1;
-
-  ifr.ifr_ifindex = index;
-  if (ioctl(s, SIOCGIFNAME, &ifr) < 0)
-    goto bail;
-  strncpy(name, ifr.ifr_name, len);
-  if (name[len - 1] != '\0')
-    goto bail;
-
-  close(s);
-
-  return 0;
-
-bail:
-  close(s);
-  return -1;
-}
-
 /* Does route_dst using the Linux-specific rtnetlink interface. See rtnetlink(3)
    and rtnetlink(7). */
 static int route_dst_netlink(const struct sockaddr_storage *dst,
@@ -3030,12 +3005,13 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
       if (!sockaddr_storage_equal(dst, &rnfo->nexthop))
         rnfo->direct_connect = 0;
     } else if (rtattr->rta_type == RTA_OIF && ii == NULL) {
-      char namebuf[32];
+      char namebuf[IFNAMSIZ];
+      char *p;
       int intf_index;
 
       intf_index = *(int *) RTA_DATA(rtattr);
-      rc = intf_name(intf_index, namebuf, sizeof(namebuf));
-      assert(rc != -1);
+      p = if_indextoname(intf_index, namebuf);
+      assert(p != NULL);
       ii = getInterfaceByName(namebuf, rtmsg->rtm_family);
       if (ii == NULL)
         netutil_fatal("%s: can't find interface \"%s\"", __func__, namebuf);
