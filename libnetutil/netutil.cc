@@ -1204,6 +1204,8 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
       dcrn->ifaces[dcrn->numifaces].device_type = devt_other;
     }
 
+    dcrn->ifaces[dcrn->numifaces].ifindex = entry->intf_index;
+
     dcrn->ifaces[dcrn->numifaces].mtu = entry->intf_mtu;
 
     /* Is the interface up and running? */
