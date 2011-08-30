@@ -1687,6 +1687,8 @@ unsigned int UltraScanInfo::numProbesPerHost()
     numprobes = ports->prot_count;
   } else if (ping_scan_arp) {
     numprobes = 1;
+  } else if (ping_scan_nd) {
+    numprobes = 1;
   } else if (ping_scan) {
     numprobes = 0;
     if (ptech.rawtcpscan) {
