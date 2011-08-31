@@ -23,7 +23,10 @@ winbuild:
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
 	mkdir nmap-$(NMAP_VERSION)
 	cd Release && cp -r ../../CHANGELOG ../../COPYING nmap-mac-prefixes nmap-os-db nmap-payloads nmap-protocols nmap-rpc nmap-service-probes nmap-services nmap.exe nmap.xsl nse_main.lua ../nmap_performance.reg ../../README-WIN32 ../../docs/3rd-party-licenses.txt ../nmap-$(NMAP_VERSION)/
-	cp -f OpenSSL/bin/*.dll ./nmap-$(NMAP_VERSION)/
+# Use "cmd /c copy" rather than "cp" to preserve Windows ACLs. Using
+# "cp" means that the copied DLLs don't have the same ACL and cause an
+# error on startup: 0xc0000022.
+	cmd /c copy OpenSSL\\bin\\*.dll nmap-$(NMAP_VERSION)
 	mkdir nmap-$(NMAP_VERSION)/scripts
 	cd Release && cp -f $(NSE_FILES) ../nmap-$(NMAP_VERSION)/scripts/
 	cd Release && for f in `find nselib -name .svn -prune -o -type d -print`; do \
