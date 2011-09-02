@@ -5,7 +5,7 @@ Do a very fast host discovery on link-local IPv6 network.
 
 ---
 -- @usage
--- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0,ipv6="2001:da8:215:3320:223:aeff:fe5d:3b10"' -sP
+-- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0' -sP
 -- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
 author = "David and Weilin"
@@ -96,7 +96,7 @@ action = function()
 		return false
 	end
 	local src_mac = if_nfo.mac
-	local src_ip6 = packet.ip6tobin(stdnse.get_script_args("ipv6.src")) or packet.ip6tobin(if_nfo.address)
+	local src_ip6 = packet.ip6tobin(if_nfo.address)
 	local dst_mac = packet.mactobin("33:33:00:00:00:01")
 	local dst_ip6 = packet.ip6tobin("ff02::1")
 	local id_set = {}
