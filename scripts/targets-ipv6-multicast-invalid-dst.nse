@@ -22,8 +22,8 @@ require 'packet'
 local bit = require 'bit'
 
 prerule = function()
-  return nmap.is_privileged() and
-	(stdnse.get_script_args("interface") or nmap.get_interface())
+	return nmap.is_privileged() and
+		(stdnse.get_script_args("interface") or nmap.get_interface())
 end
 
 catch = function()
@@ -62,7 +62,7 @@ end
 
 action = function()
 	local if_name = stdnse.get_script_args("targets-ipv6-multicast.interface") or nmap.get_interface()
-	local if_nfo = get_ipv6_interface_info_by_name(if_name)	
+	local if_nfo = get_ipv6_interface_info_by_name(if_name)
 	if not if_nfo then
 		stdnse.print_debug("Invalid interface: " .. if_name)
 		return false
@@ -72,16 +72,16 @@ action = function()
 	local dst_mac = packet.mactobin("33:33:00:00:00:01")
 	local dst_ip6 = packet.ip6tobin("ff02::1")
 	local id_set = {}
-	
+
 ----------------------------------------------------------------------------
---Multicast invalid destination exheader probe	
+--Multicast invalid destination exheader probe
 
 	local dnet = nmap.new_dnet()
 	local pcap = nmap.new_socket()
-	
+
 	try(dnet:ethernet_open(if_name))
 	pcap:pcap_open(if_name, 128, false, "icmp6 and ip6[6:1] = 58 and ip6[40:1] = 4")
-	
+
 	local probe = packet.Frame:new()
 	probe.mac_src = src_mac
 	probe.mac_dst = dst_mac
@@ -99,18 +99,18 @@ action = function()
 
 	probe:build_ipv6_packet()
 	probe:build_ether_frame()
-		
+
 	try(dnet:ethernet_send(probe.frame_buf))
-	
-	pcap:set_timeout(1000)	
+
+	pcap:set_timeout(1000)
 	local pcap_timeout_count = 0
 	local nse_timeout = 5
 	local start_time = nmap:clock()
 	local cur_time = nmap:clock()
-	
+
 	local found_targets = 0
-	
-	repeat		
+
+	repeat
 		local status, length, layer2, layer3 = pcap:pcap_receive()
 		cur_time = nmap:clock()
 		if not status then
@@ -125,16 +125,16 @@ action = function()
 				if not id_set[identifier] then
 					id_set[identifier] = true
 					local target_str = packet.toipv6(target_addr)
-					target.add(target_str)			
+					target.add(target_str)
 				end
 			end
 		end
 	until pcap_timeout_count >= 2 or cur_time - start_time >= nse_timeout
 
 	stdnse.print_debug(0, "[Invalid DSTOPTS] Found %d targets.", found_targets)
-		
+
 	dnet:ethernet_close()
 	pcap:pcap_close()
-	
+
 	return true
 end
