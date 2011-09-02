@@ -1,5 +1,18 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added three scripts that do host discovery on local IPv6
+  subnets. Each of them uses a different multicast technique, meaning
+  that even very large networks have host discovery done without
+  needing to probe every address individually.
+  + targets-multicast-ipv6-echo: Sends a multicast echo request, like
+    broadcast-ping does for IPv4.
+  + targets-multicast-ipv6-invalid-dst: Sends an invalid packet that
+    can elicit an ICMPv6 Parameter Problem response.
+  + targets-multicast-ipv6-slaac: Sends a phony router advertisement,
+    which causes hosts to allocate a temporary address and then send a
+    packet to discover if anyone else is using the address.
+  [Weilin, David]
+
 o [NSE] Added new script http-vuln-cve2011-3192 which checks whether an instance
   of Apache is vulnerable to a DoS attack exploiting the byterange filter. [Duarte Silva].
 
