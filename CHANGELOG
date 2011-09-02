@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made a service confidence of 8 (used when tcpwrapped) and indeed any
+  number between 0 and 10 be legal in XML output according to the DTD.
+  [Daniel Miller]
+
 o [NSE] Added three scripts that do host discovery on local IPv6
   subnets. Each of them uses a different multicast technique, meaning
   that even very large networks have host discovery done without
