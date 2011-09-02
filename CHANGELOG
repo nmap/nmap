@@ -1,4 +1,4 @@
-﻿# Nmap Changelog ($Id$); -*-text-*-
+# Nmap Changelog ($Id$); -*-text-*-
 
 o [NSE] Added new script http-vuln-cve2011-3192 which checks whether an instance
   of Apache is vulnerable to a DoS attack exploiting the byterange filter. [Duarte Silva].
