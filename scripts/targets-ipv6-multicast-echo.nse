@@ -7,7 +7,7 @@ Do a very fast host discovery on link-local IPv6 network.
 -- @usage
 -- ./nmap -6 --script=targets-ipv6-multicast-echo.nse --script-args 'newtargets,interface=eth0,ipv6.src=2001:da8:215:3320:223:aeff:fe5d:3b10' -sL
 -- @args newtargets  If true, add discovered targets to the scan queue.
--- @args interface  The interface to use for host discovery.
+-- @args targets-ipv6-multicast-echo.interface  The interface to use for host discovery.
 -- @args ipv6.src  The source IPv6 address in the probe packets.
 
 author = "David and Weilin"
@@ -23,7 +23,7 @@ local bit = require 'bit'
 
 prerule = function()
 	return nmap.is_privileged() and
-		(stdnse.get_script_args("interface") or nmap.get_interface())
+		(stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface())
 end
 
 catch = function()
@@ -50,7 +50,7 @@ local function get_identifier(ip6_addr)
 end
 
 action = function()
-	local if_name = stdnse.get_script_args("targets-ipv6-multicast.interface") or nmap.get_interface()
+	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
 	local if_nfo = get_ipv6_interface_info_by_name(if_name)
 	if not if_nfo then
 		stdnse.print_debug("Invalid interface: " .. if_name)

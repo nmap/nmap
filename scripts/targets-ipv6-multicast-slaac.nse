@@ -6,6 +6,7 @@ Do a very fast host discovery on link-local IPv6 network.
 ---
 -- @usage
 -- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0,ipv6="2001:da8:215:3320:223:aeff:fe5d:3b10"' -sP
+-- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
 author = "David and Weilin"
 
@@ -21,7 +22,7 @@ require "math"
 
 prerule = function()
 	return nmap.is_privileged() and
-		(stdnse.get_script_args("targets-ipv6-multicast.interface") or nmap.get_interface())
+		(stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface())
 end
 
 catch = function()
@@ -88,7 +89,7 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 end
 
 action = function()
-	local if_name = stdnse.get_script_args("targets-ipv6-multicast.interface") or nmap.get_interface()
+	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
 	local if_nfo = get_ipv6_interface_info_by_name(if_name)
 	if not if_nfo then
 		stdnse.print_debug("Invalid interface: " .. if_name)
