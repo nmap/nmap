@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Relaxed the XML DTD to allow validation of files where the verbosity
+  level changed during the scan. [Daniel Miller]
+
 o Made a service confidence of 8 (used when tcpwrapped) and indeed any
   number between 0 and 10 be legal in XML output according to the DTD.
   [Daniel Miller]
