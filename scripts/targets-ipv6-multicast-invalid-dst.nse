@@ -1,6 +1,11 @@
 description = [[
-Multicast invalid destination options ping.
-Do a very fast host discovery on link-local IPv6 network.
+Multicast invalid packet host discovery.
+
+This script works by sending an ICMPv6 packet with an invalid extension header
+to the all-nodes link-local multicast address, <code>ff02::1</code>. Some hosts
+will respond to this probe with an ICMPv6 Parameter Problem packet. This script
+can discover hosts reachable on an interface without needing to individually
+ping each address.
 ]]
 
 ---

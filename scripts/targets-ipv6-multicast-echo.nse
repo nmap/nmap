@@ -1,6 +1,10 @@
 description = [[
 Multicast echo ping.
-Do a very fast host discovery on link-local IPv6 network.
+
+This script works by sending an ICMPv6 Echo Request packet to the all-nodes
+link-local multicast address, <code>ff02::1</code>. It can discover all hosts
+responding to echo on an interface, without needing to individually ping each
+address.
 ]]
 
 ---

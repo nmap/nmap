@@ -1,6 +1,21 @@
 description = [[
-SLAAC-based host discovery.
-Do a very fast host discovery on link-local IPv6 network.
+Does IPv6 host discovery by triggering stateless address auto-configuration
+(SLAAC).
+
+This script works by sending an ICMPv6 Router Advertisement with a random
+address prefix, which causes hosts to begin SLAAC and send a solicitation for
+their newly configured address, as part of duplicate address detection. The
+script then guesses the remote addresses by combining the link-local prefix of
+the interface with the interface identifier in each of the received
+solicitations. This should be followed up with ordinary ND host discovery to
+verify that the guessed addresses are correct.
+
+The router advertisement has a router lifetime of zero and a short prefix
+lifetime (a few seconds)
+
+See also:
+* RFC 4862, IPv6 Stateless Address Autoconfiguration, especially section 5.5.3.
+* http://dev.metasploit.com/redmine/projects/framework/repository/changes/modules/auxiliary/scanner/discovery/ipv6_neighbor_router_advertisement.rb
 ]]
 
 ---
