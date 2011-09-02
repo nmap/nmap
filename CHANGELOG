@@ -13,6 +13,9 @@ o [NSE] Added three scripts that do host discovery on local IPv6
     packet to discover if anyone else is using the address.
   [Weilin, David]
 
+o [NSE] Added functions to packet.lua to make it easier to build IPv6
+  packets. [Weilin]
+
 o [NSE] Added new script http-vuln-cve2011-3192 which checks whether an instance
   of Apache is vulnerable to a DoS attack exploiting the byterange filter. [Duarte Silva].
 
