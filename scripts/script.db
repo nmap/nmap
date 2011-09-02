@@ -226,6 +226,9 @@ Entry { filename = "ssl-known-key.nse", categories = { "discovery", "safe", "vul
 Entry { filename = "sslv2.nse", categories = { "default", "safe", } }
 Entry { filename = "stuxnet-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "svn-brute.nse", categories = { "auth", "intrusive", } }
+Entry { filename = "targets-ipv6-multicast-echo.nse", categories = { "discovery", } }
+Entry { filename = "targets-ipv6-multicast-invalid-dst.nse", categories = { "discovery", } }
+Entry { filename = "targets-ipv6-multicast-slaac.nse", categories = { "discovery", } }
 Entry { filename = "targets-sniffer.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "auth", "intrusive", } }
