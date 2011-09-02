@@ -56,10 +56,15 @@ end
 --- Build an IPv6 invalid extension header.
 -- @param nxt_hdr integer that stands for next header's type
 local function build_invalid_extension_header(nxt_hdr)
-	local ex_invalid_opt = string.char(0x80,0x01,0xfe,0x18,0xfe,0x18,0xfe,0x18,0x0,0x0,0x0,0x0,0x0,0x0)
+	-- RFC 2640, section 4.2 defines the TLV format of options headers.
+	-- It is important that the first byte have 10 in the most significant
+	-- bits; that instructs the receiver to send a Parameter Problem.
+	-- Option type 0x80 is unallocated; see
+	-- http://www.iana.org/assignments/ipv6-parameters/.
+	local ex_invalid_opt = string.char(0x80,0x01,0x00,0x00,0x00,0x00)
 	local ext_header =
 		string.char(nxt_hdr) .. --next header
-		string.char(#ex_invalid_opt/16) .. --length (16bytes)
+		string.char(0) .. -- length 8
 		ex_invalid_opt
 	return ext_header
 end
@@ -92,10 +97,16 @@ action = function()
 	probe.ip6_src = src_ip6
 	probe.ip6_dst = dst_ip6
 
-	probe.echo_id = 5
-	probe.echo_seq = 6
-	probe.echo_data = "Nmap host discovery."
-	probe:build_icmpv6_echo_request()
+	-- In addition to setting an invalid option in
+	-- build_invalid_extension_header, we set an unknown ICMPv6 type of
+	-- 254. (See http://www.iana.org/assignments/icmpv6-parameters for
+	-- allocations.) Mac OS X 10.6 appears to send a Parameter Problem
+	-- response only if both of these conditions are met. In this we differ
+	-- from the alive6 tool, which sends a proper echo request.
+	probe.icmpv6_type = 254
+	probe.icmpv6_code = 0
+	-- Add a non-empty payload too.
+	probe.icmpv6_payload = string.char(0x00, 0x00, 0x00, 0x00)
 	probe:build_icmpv6_header()
 
 	probe.exheader = build_invalid_extension_header(packet.IPPROTO_ICMPV6)
