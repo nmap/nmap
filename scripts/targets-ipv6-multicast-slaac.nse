@@ -171,8 +171,6 @@ action = function()
 		end
 	until pcap_timeout_count >= 2 or cur_time - start_time >= nse_timeout
 
-	stdnse.print_debug(0, "[SLAAC] Found %d targets.", found_targets)
-
 	dnet:ethernet_close()
 	pcap:pcap_close()
 	return true
