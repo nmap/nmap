@@ -621,6 +621,15 @@ Engine =
 	
 		local mode = self.options.mode or stdnse.get_script_args("brute.mode")
 	
+		-- if no mode was given, but a credfile is present, assume creds mode
+		if ( not(mode) and stdnse.get_script_args("brute.credfile") ) then
+			if ( stdnse.get_script_args("userdb") or
+				 stdnse.get_script_args("passdb") ) then
+				return false, "\n  ERROR: brute.credfile can't be used in combination with userdb/passdb"
+			end
+			mode = 'creds'
+		end
+	
 		-- Are we guessing against a service that has no username (eg. VNC)
 		if ( self.options.passonly ) then
 			local function single_user_iter(next)
