@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed RPC scan for 64-bit architectures by using fixed-size data
+  types. [David]
+
 o Relaxed the XML DTD to allow validation of files where the verbosity
   level changed during the scan. [Daniel Miller]
 

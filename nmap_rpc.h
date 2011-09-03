@@ -116,27 +116,27 @@
 
 /* structure used for RPC calls */
 struct rpc_hdr                          
-{       u_long  xid;                    /* xid number                    */
-        u_long  type_msg;               /* request or answer             */
-        u_long  version_rpc;            /* portmapper/rpcbind version    */
-        u_long  prog_id;                /* rpc program id                */
-        u_long  prog_ver;               /* rpc program version           */
-        u_long  prog_proc;              /* remote procedure call number  */
-        u_long  authcred_flavor;        /* credentials field             */
-        u_long  authcred_length;
-        u_long  authveri_flavor;        /* verification field            */
-        u_long  authveri_length;
+{       u32  xid;                    /* xid number                    */
+        u32  type_msg;               /* request or answer             */
+        u32  version_rpc;            /* portmapper/rpcbind version    */
+        u32  prog_id;                /* rpc program id                */
+        u32  prog_ver;               /* rpc program version           */
+        u32  prog_proc;              /* remote procedure call number  */
+        u32  authcred_flavor;        /* credentials field             */
+        u32  authcred_length;
+        u32  authveri_flavor;        /* verification field            */
+        u32  authveri_length;
 };
 
 struct rpc_hdr_rcv {
-  unsigned long xid;
-  unsigned long type_msg;
-  unsigned long rp_stat;
-  unsigned long auth_flavor;
-  unsigned long opaque_length;
-  unsigned long accept_stat;
-  unsigned long low_version;
-  unsigned long high_version;
+  u32 xid;
+  u32 type_msg;
+  u32 rp_stat;
+  u32 auth_flavor;
+  u32 opaque_length;
+  u32 accept_stat;
+  u32 low_version;
+  u32 high_version;
 };
 
 struct rpc_info {

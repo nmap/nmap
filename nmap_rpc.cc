@@ -223,7 +223,7 @@ int send_rpc_query(Target *target_host, unsigned short portno,
      if (numruns++ > 2)
      fatal("Done");  */
 
-  rpch = (struct rpc_hdr *) ((char *)rpch_buf + sizeof(unsigned long));
+  rpch = (struct rpc_hdr *) ((char *)rpch_buf + sizeof(u32));
   memset(rpch, 0, sizeof(struct rpc_hdr));
 
 
@@ -337,8 +337,8 @@ int send_rpc_query(Target *target_host, unsigned short portno,
   } else {
     /* TCP socket */
     /* 0x80000000 means only 1 record marking */
-    *(unsigned long *)rpch_buf = htonl(sizeof(struct rpc_hdr) | 0x80000000);
-    res = Send(tcp_rpc_socket, rpch_buf, sizeof(struct rpc_hdr) + sizeof(unsigned long), 0);
+    *(u32 *)rpch_buf = htonl(sizeof(struct rpc_hdr) | 0x80000000);
+    res = Send(tcp_rpc_socket, rpch_buf, sizeof(struct rpc_hdr) + sizeof(u32), 0);
     if (res == -1) {
       if (o.debugging) {
 	gh_perror("Write in %s", __func__);
@@ -406,7 +406,8 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
   }
   if (ntohl(rpc_pack->auth_flavor) != 0 /* AUTH_NULL */ ||
       ntohl(rpc_pack->opaque_length != 0)) {
-    error("Strange -- auth flavor/opaque_length are %lu/%lu should generally be 0/0", rpc_pack->auth_flavor, rpc_pack->opaque_length);
+    error("Strange -- auth flavor/opaque_length are %lu/%lu should generally be 0/0",
+      (unsigned long) rpc_pack->auth_flavor, (unsigned long) rpc_pack->opaque_length);
     rsi->rpc_status = RPC_STATUS_NOT_RPC;
     ss->numqueries_outstanding = 0;
     return 1;
