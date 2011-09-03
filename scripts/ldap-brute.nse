@@ -172,36 +172,42 @@ action = function( host, port )
 			-- Account Locked Out
 			if not status and response:match("AcceptSecurityContext error, data 775,") then
 				table.insert( valid_accounts, string.format("%s => Account locked out", fq_username ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s => Account locked out", fq_username ))
 				break
 			end
 
 			-- Login correct, account disabled
 			if not status and response:match("AcceptSecurityContext error, data 533,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, account disabled", fq_username, password:len()>0 and password or "<empty>" ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct, account disabled", fq_username, password:len()>0 and password or "<empty>" ))
 				break
 			end
 
 			-- Login correct, user must change password
 			if not status and response:match("AcceptSecurityContext error, data 773,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, user must change password", fq_username, password:len()>0 and password or "<empty>" ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct, user must change password", fq_username, password:len()>0 and password or "<empty>" ))
 				break
 			end
 			
 			-- Login correct, user account expired
 			if not status and response:match("AcceptSecurityContext error, data 701,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account expired", fq_username, password:len()>0 and password or "<empty>" ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct, user account expired", fq_username, password:len()>0 and password or "<empty>" ))
 				break
 			end
 			
 			-- Login correct, user account logon time restricted
 			if not status and response:match("AcceptSecurityContext error, data 530,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account logon time restricted", fq_username, password:len()>0 and password or "<empty>" ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct, user account logon time restricted", fq_username, password:len()>0 and password or "<empty>" ))
 				break
 			end
 			
 			-- Login correct, user account can only log in from certain workstations
 			if not status and response:match("AcceptSecurityContext error, data 531,") then
 				table.insert( valid_accounts, string.format("%s:%s => Login correct, user account cannot login from current host", fq_username, password:len()>0 and password or "<empty>" ) )
+				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct, user account cannot login from current host", fq_username, password:len()>0 and password or "<empty>" ))
 				break
 			end
 
@@ -210,7 +216,7 @@ action = function( host, port )
 				status = is_valid_credential( socket, context )
 				if status then
 					table.insert( valid_accounts, string.format("%s:%s => Login correct", fq_username, password:len()>0 and password or "<empty>" ) )
-					
+					stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Login correct", fq_username, password:len()>0 and password or "<empty>" ) )
 					-- Add credentials for other ldap scripts to use
 					if nmap.registry.ldapaccounts == nil then
 						nmap.registry.ldapaccounts = {}
