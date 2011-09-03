@@ -519,9 +519,6 @@ void get_rpc_results(Target *target, struct portinfo *scan,
   struct timeval tv;
   int res;
   static char readbuf[512];
-  struct sockaddr_storage from;
-  recvfrom6_t fromlen = sizeof(from);
-  unsigned short fromport;
   char *current_msg;
   unsigned long current_msg_len;
 
@@ -556,6 +553,10 @@ void get_rpc_results(Target *target, struct portinfo *scan,
     if (sres == -1 && socket_errno() == EINTR)
       continue;
     if (udp_rpc_socket >= 0 && FD_ISSET(udp_rpc_socket, &fds_r)) {
+      struct sockaddr_storage from;
+      recvfrom6_t fromlen = sizeof(from);
+      unsigned short fromport;
+
       res = recvfrom(udp_rpc_socket, readbuf, sizeof(readbuf), 0, (struct sockaddr *) &from, &fromlen);
 
       if (res < 0) {
