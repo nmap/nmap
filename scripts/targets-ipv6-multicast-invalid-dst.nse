@@ -36,19 +36,6 @@ catch = function()
 end
 try = nmap.new_try(catch)
 
-local function get_ipv6_interface_info_by_name(if_name)
-	local ifaces = nmap.list_interfaces()
-	local iface
-	local if_nfo
-	for _,iface in pairs(ifaces) do
-		if if_name == iface.device and (#iface.address>15 or string.find(iface.address, "::")) then
-			if_nfo = iface
-			return if_nfo
-		end
-	end
-	return nil
-end
-
 local function get_identifier(ip6_addr)
 	return string.sub(ip6_addr, 9, 16)
 end
@@ -71,9 +58,9 @@ end
 
 action = function()
 	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-	local if_nfo = get_ipv6_interface_info_by_name(if_name)
+	local if_nfo = nmap.get_interface_info(if_name)
 	if not if_nfo then
-		stdnse.print_debug("Invalid interface: " .. if_name)
+		stdnse.print_debug("Invalid interface: %s", if_name)
 		return false
 	end
 	local src_mac = if_nfo.mac
