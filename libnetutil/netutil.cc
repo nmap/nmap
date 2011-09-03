@@ -2965,7 +2965,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
   rtattr->rta_len = RTA_LENGTH(addrlen);
   assert(RTA_OK(rtattr, len));
   memcpy(RTA_DATA(rtattr), addr, addrlen);
-  nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + RTA_LENGTH(rtattr->rta_len);
+  nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + rtattr->rta_len;
 
   /* Specific interface (sin6_scope_id) requested? */
   if (ifindex > 0) {
@@ -2975,7 +2975,7 @@ static int route_dst_netlink(const struct sockaddr_storage *dst,
     rtattr->rta_len = RTA_LENGTH(sizeof(uint32_t));
     assert(RTA_OK(rtattr, len));
     *(uint32_t *) RTA_DATA(rtattr) = ifindex;
-    nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + RTA_LENGTH(rtattr->rta_len);
+    nlmsg->nlmsg_len = NLMSG_ALIGN(nlmsg->nlmsg_len) + rtattr->rta_len;
   }
 
   iov.iov_base = nlmsg;
