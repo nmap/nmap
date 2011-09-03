@@ -1235,7 +1235,11 @@ local function start_session_basic(smb, log_errors, overrides)
 		stdnse.print_debug(1, "SMB: ERROR: %s", username)
 	end
 
-	return false, username
+	if (status ~= nil) then
+		return false, get_status_name(status)
+	else
+		return false, username
+	end
 end
 
 --- This is an internal function and should not be called externally. Use
