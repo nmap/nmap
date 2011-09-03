@@ -167,7 +167,10 @@ o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
 	
 o [NSE] Added support for 2008 R2 functional level Active Directory instances 
   to ldap-brute. Also added detection for valid credentials where the target 
-	account was expired or limited by time or login host constraints. [Tom Sellers]
+  account was expired or limited by time or login host constraints. [Tom Sellers]
+
+o [NSE] Updated smb-brute to add detection for valid credentials where the 
+  target account was expired or limited by time or login host constraints. [Tom Sellers]
 
 Nmap 5.59BETA1 [2011-06-30]
 

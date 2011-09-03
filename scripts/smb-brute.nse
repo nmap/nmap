@@ -115,40 +115,47 @@ end
 ---The possible result codes. These are simplified from the actual codes that SMB returns. 
 local results =
 {
-	SUCCESS            = 1, -- Login was successful
-	GUEST_ACCESS       = 2, -- Login was successful, but was granted guest access
-	NOT_GRANTED        = 3, -- Password was correct, but user wasn't allowed to log in (often happens with blank passwords)
-	DISABLED           = 4, -- Password was correct, but user's account is disabled
-	EXPIRED            = 5, -- Password was correct, but user's account is expired
-	CHANGE_PASSWORD    = 6, -- Password was correct, but user can't log in without changing it
-	ACCOUNT_LOCKED     = 7, -- User's account is locked out (hopefully not by us!)
-	ACCOUNT_LOCKED_NOW = 8, -- User's account just became locked out (oops!)
-	FAIL               = 9  -- User's password was incorrect
+	SUCCESS             =  1, -- Login was successful
+	GUEST_ACCESS        =  2, -- Login was successful, but was granted guest access
+	NOT_GRANTED         =  3, -- Password was correct, but user wasn't allowed to log in (often happens with blank passwords)
+	DISABLED            =  4, -- Password was correct, but user's account is disabled
+	EXPIRED             =  5, -- Password was correct, but user's account is expired
+	CHANGE_PASSWORD     =  6, -- Password was correct, but user can't log in without changing it
+	ACCOUNT_LOCKED      =  7, -- User's account is locked out (hopefully not by us!)
+	ACCOUNT_LOCKED_NOW  =  8, -- User's account just became locked out (oops!)
+	FAIL                =  9, -- User's password was incorrect
+	INVALID_LOGON_HOURS = 10, -- Password was correct, but user's account has logon time restrictions in place
+	INVALID_WORKSTATION = 11  -- Password was correct, but user's account has workstation restrictions in place
 }
 
 ---Strings for debugging output
 local result_short_strings = {}
-result_short_strings[results.SUCCESS]            = "SUCCESS"
-result_short_strings[results.GUEST_ACCESS]       = "GUEST_ACCESS"
-result_short_strings[results.NOT_GRANTED]        = "NOT_GRANTED"
-result_short_strings[results.DISABLED]           = "DISABLED"
-result_short_strings[results.EXPIRED]            = "EXPIRED"
-result_short_strings[results.CHANGE_PASSWORD]    = "CHANGE_PASSWORD"
-result_short_strings[results.ACCOUNT_LOCKED]     = "LOCKED"
-result_short_strings[results.ACCOUNT_LOCKED_NOW] = "LOCKED_NOW"
-result_short_strings[results.FAIL]               = "FAIL"
+result_short_strings[results.SUCCESS]             = "SUCCESS"
+result_short_strings[results.GUEST_ACCESS]        = "GUEST_ACCESS"
+result_short_strings[results.NOT_GRANTED]         = "NOT_GRANTED"
+result_short_strings[results.DISABLED]            = "DISABLED"
+result_short_strings[results.EXPIRED]             = "EXPIRED"
+result_short_strings[results.CHANGE_PASSWORD]     = "CHANGE_PASSWORD"
+result_short_strings[results.ACCOUNT_LOCKED]      = "LOCKED"
+result_short_strings[results.ACCOUNT_LOCKED_NOW]  = "LOCKED_NOW"
+result_short_strings[results.FAIL]                = "FAIL"
+result_short_strings[results.INVALID_LOGON_HOURS] = "INVALID_LOGON_HOURS"
+result_short_strings[results.INVALID_WORKSTATION] = "INVALID_WORKSTATION"
+
 
 ---The strings that the user will see
 local result_strings = {}
-result_strings[results.SUCCESS]            = "Login was successful"
-result_strings[results.GUEST_ACCESS]       = "Login was successful, but was granted guest access"
-result_strings[results.NOT_GRANTED]        = "Password was correct, but user wasn't allowed to log in (often happens with blank passwords)"
-result_strings[results.DISABLED]           = "Password was correct, but user's account is disabled"
-result_strings[results.EXPIRED]            = "Password was correct, but user's account is expired"
-result_strings[results.CHANGE_PASSWORD]    = "Password was correct, but user can't log in without changing it"
-result_strings[results.ACCOUNT_LOCKED]     = "User's account is locked out (hopefully not by us!)"
-result_strings[results.ACCOUNT_LOCKED_NOW] = "User's account just became locked out (oops!)"
-result_strings[results.FAIL]               = "User's password was incorrect"
+result_strings[results.SUCCESS]              = "Login was successful"
+result_strings[results.GUEST_ACCESS]         = "Login was successful, but was granted guest access"
+result_strings[results.NOT_GRANTED]          = "Password was correct, but user wasn't allowed to log in (often happens with blank passwords)"
+result_strings[results.DISABLED]             = "Password was correct, but user's account is disabled"
+result_strings[results.EXPIRED]              = "Password was correct, but user's account is expired"
+result_strings[results.CHANGE_PASSWORD]      = "Password was correct, but user can't log in without changing it"
+result_strings[results.ACCOUNT_LOCKED]       = "User's account is locked out (hopefully not by us!)"
+result_strings[results.ACCOUNT_LOCKED_NOW]   = "User's account just became locked out (oops!)"
+result_strings[results.FAIL]                 = "User's password was incorrect"
+result_strings[results.INVALID_LOGON_HOURS]  = "Password was correct, but the user's logon hours are restricted"
+result_strings[results.INVALID_WORKSTATION]  = "Password was correct, but the user account is restricted to certain workstations"
 
 ---Constants for special passwords. These each contain a null character, which is illegal in 
 -- actual passwords. 
@@ -333,6 +340,12 @@ local function check_login(hostinfo, username, password, logintype)
 			result = results.DISABLED
 		elseif(err == "NT_STATUS_PASSWORD_MUST_CHANGE") then
 			result = results.CHANGE_PASSWORD
+		elseif(err == "NT_STATUS_INVALID_LOGON_HOURS") then
+			result = results.INVALID_LOGON_HOURS
+		elseif(err == "NT_STATUS_INVALID_WORKSTATION") then
+			result = results.INVALID_WORKSTATION
+		elseif(err == "NT_STATUS_ACCOUNT_EXPIRED") then
+			result = results.EXPIRED
 		else
 			result = results.FAIL
 		end
