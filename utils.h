@@ -149,12 +149,6 @@
 #define TRUE 1
 #endif
 
-#define NIPQUAD(addr) \
-        (((addr) >> 0)  & 0xff), \
-        (((addr) >> 8)  & 0xff), \
-        (((addr) >> 16) & 0xff), \
-        (((addr) >> 24) & 0xff)
-
 #define MAX_PARSE_ARGS 254 /* +1 for integrity checking + 1 for null term */
 
 

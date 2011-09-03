@@ -497,6 +497,19 @@ static int rpc_are_we_done(char *msg, int msg_len, Target *target,
   return 0;
 }
 
+static unsigned short sockaddr_port(const struct sockaddr_storage *ss) {
+  unsigned short port;
+
+  if (ss->ss_family == AF_INET)
+    port = ((struct sockaddr_in *) ss)->sin_port;
+  else if (ss->ss_family == AF_INET6)
+    port = ((struct sockaddr_in6 *) ss)->sin6_port;
+  else
+    port = 0;
+
+  return ntohs(port);
+}
+
 void get_rpc_results(Target *target, struct portinfo *scan,
 		     struct scanstats *ss, struct portinfolist *pil, 
                      struct rpcscaninfo *rsi) {
@@ -506,8 +519,9 @@ void get_rpc_results(Target *target, struct portinfo *scan,
   struct timeval tv;
   int res;
   static char readbuf[512];
-  struct sockaddr_in from;
-  recvfrom6_t fromlen = sizeof(struct sockaddr_in);
+  struct sockaddr_storage from;
+  recvfrom6_t fromlen = sizeof(from);
+  unsigned short fromport;
   char *current_msg;
   unsigned long current_msg_len;
 
@@ -552,13 +566,15 @@ void get_rpc_results(Target *target, struct portinfo *scan,
         rsi->rpc_status = RPC_STATUS_NOT_RPC;
         return;
       }
+      fromport = sockaddr_port(&from);
       if (o.debugging > 1)
         log_write(LOG_PLAIN, "Received %d byte UDP packet\n", res);
       /* Now we check that the response is from the expected host/port */
-      if (from.sin_addr.s_addr != target->v4host().s_addr ||
-          from.sin_port != htons(rsi->rpc_current_port->portno)) {
+      if (!sockaddr_storage_equal(&from, target->TargetSockAddr()) ||
+          fromport != rsi->rpc_current_port->portno) {
         if (o.debugging > 1) {
-          log_write(LOG_PLAIN, "Received UDP packet from %d.%d.%d.%d/%hu when expecting packet from %d.%d.%d.%d/%hu\n", NIPQUAD(from.sin_addr.s_addr), ntohs(from.sin_port), NIPQUAD(target->v4host().s_addr), rsi->rpc_current_port->portno);
+          log_write(LOG_PLAIN, "Received UDP packet from %s/%hu", inet_ntop_ez(&from, fromlen), fromport);
+          log_write(LOG_PLAIN, " when expecting packet from %s/%hu\n", target->targetipstr(), rsi->rpc_current_port->portno);
         }
         continue;
       }
