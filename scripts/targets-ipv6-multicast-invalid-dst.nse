@@ -58,9 +58,13 @@ end
 
 action = function()
 	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-	local if_nfo = nmap.get_interface_info(if_name)
+	local if_nfo, err = nmap.get_interface_info(if_name)
 	if not if_nfo then
-		stdnse.print_debug("Invalid interface: %s", if_name)
+		stdnse.print_debug(err)
+		return false
+	end
+	if if_nfo.link ~= "ethernet" then
+		stdnse.print_debug("Not a Ethernet link.")
 		return false
 	end
 	local src_mac = if_nfo.mac
