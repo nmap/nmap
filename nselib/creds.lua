@@ -59,12 +59,25 @@
 -- that do not make use of this function. Therefore any scripts that make use
 -- of the credentials passing arguments need to have appropriate documentation
 -- added to them.
-
 --
+--
+-- The following code illustrates how a script may save its discovered credentials
+-- to a file:
+-- <code>
+-- 	local c = creds.Credentials:new( SCRIPT_NAME, host, port )
+-- 	c:add("patrik", "secret", creds.State.VALID )
+--  status, err = c:saveToFile("outputname","csv")
+-- </code>
+--
+--  Supported output formats are CSV, verbose and plain.  In both verbose and plain
+--  records are seperated by colons.  The difference between the two is that verbose
+--  includes the credential state.  The file extension is automatically added to 
+--  the filename based on the type requested.
+-- 
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
--- Version 0.3
+-- Version 0.4
 -- Created 2011/02/06 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 2011/27/06 - v0.2 - revised by Patrik Karlsson <patrik@cqure.net>
 --								* added documentation
@@ -75,6 +88,10 @@
 --                              * added support for adding credentials as
 --                                script arguments
 --
+-- Revised 2011/09/04 - v0.4 - revised by Tom Sellers
+--                              * added saveToFile function for saving credential
+--								* table to file in CSV or text formats
+
 module(... or "creds", package.seeall)
 
 require('ipOps')
@@ -87,6 +104,9 @@ State = {
 	DISABLED = 4,
 	CHANGEPW = 8,
 	PARAM = 16,
+	EXPIRED = 32,
+	TIME_RESTRICTED = 64,
+	HOST_RESTRICTED = 128,
 }
 
 StateMsg = {
@@ -94,6 +114,9 @@ StateMsg = {
 	[State.VALID] = 'Account is valid',
 	[State.DISABLED] = 'Account is disabled',
 	[State.CHANGEPW] = 'Password needs to be changed at next logon',
+	[State.EXPIRED] = 'Account has expired',
+	[State.TIME_RESTRICTED] = 'Account has logon time restrictions',
+	[State.HOST_RESTRICTED] = 'Account has logon host restrictions',
 }
 
 
@@ -344,6 +367,43 @@ Credentials = {
 			output.name = nil
 		end
 		return (#output > 0 ) and output
+	end,
+	
+	-- Saves credentials in the current object to file
+	-- @param filename string name of the file
+	-- @param fileformat string file format type, values = csv | verbose | plain (default)
+	-- @return status true on success, false on failure
+	-- @return err string containing the error if status is false
+	saveToFile = function(self, filename, fileformat)
+	
+		if ( fileformat == 'csv' ) then
+			filename = filename .. '.csv'
+		else
+			filename = filename .. '.txt'
+		end
+	
+		local f = io.open( filename, "w")
+		local output = nil
+		
+		if ( not(f) ) then
+			return false, ("ERROR: Failed to open file (%s)"):format(filename)
+		end
+	
+		for account in self:getCredentials() do
+			if ( fileformat == 'csv' ) then
+				output = "\"" .. account.user .. "\",\"" .. account.pass .. "\",\"" .. StateMsg[account.state] .. "\""
+			elseif ( fileformat == 'verbose') then
+				output = account.user .. ":" .. account.pass .. ":" .. StateMsg[account.state]
+			else
+				output = account.user .. ":" .. account.pass
+			end
+			if ( not(f:write( output .."\n" ) ) ) then
+				return false, ("ERROR: Failed to write file (%s)"):format(filename)
+			end
+		end
+
+		f:close()
+		return true
 	end,
 	
 	--- Get credentials with optional host and port filter
