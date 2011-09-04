@@ -52,7 +52,7 @@ local LOGO_HASHES = {
 	-- Brown Dog In Grass (Nadia)
 	["a57bd73e27be03a62dd6b3e1b537a72c"] = {"4.3.0 - 4.3.10"},
 	-- Elephant
-	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.6"},
+	["fb3bbd9ccc4b3d9e0b3be89c5ff98a14"] = {"5.3.0 - 5.3.8"},
 }
 
 local CREDITS_HASHES = {
@@ -84,6 +84,7 @@ local CREDITS_HASHES = {
 	["db23b07a9b426d0d033565b878b1e384"] = {"5.3.0"},
 	["e3b18899d0ffdf8322ed18d7bce3c9a0"] = {"5.3.4 - 5.3.5"},
 	["e54dbf41d985bfbfa316dba207ad6bce"] = {"5.0.0"},
+	["f1f1f60ac0dcd700a1ad30aa81175d34"] = {"5.3.7 - 5.3.8"},
 }
 
 action = function(host, port)
