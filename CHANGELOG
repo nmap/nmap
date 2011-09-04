@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added xmpp-info.nse as a replacement for xmpp.nse. This updated version
+  brings new features and fixes. [Vasiliy Kulikov]
+
 o Fixed RPC scan for 64-bit architectures by using fixed-size data
   types. [David]
 
