@@ -6,10 +6,12 @@
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --
--- Version 0.3
+-- Version 0.4
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Revised to fit better fit ASN.1 library
 -- Revised 02/02/2010 - v0.3 - Revised to fit OO ASN.1 Library
+-- Revised 09/05/2011 - v0.4 - Revised to include support for writing output to file, added decoding certain time
+--                             formats
 
 module("ldap", package.seeall)
 
@@ -448,6 +450,10 @@ function searchResultToTable( searchEntries )
 					elseif ( attrib[1] == "objectGUID") then
 						local _, o1, o2, o3, o4, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of = bin.unpack("C16", attrib[i] )
 						table.insert( attribs, string.format( "%s: %x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x", attrib[1], o4, o3, o2, o1, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of ) )
+					elseif ( attrib[1] == "lastLogon" or attrib[1] == "lastLogonTimestamp" or attrib[1] == "pwdLastSet" or attrib[1] == "accountExpires" or attrib[1] == "badPasswordTime"  ) then
+						table.insert( attribs, string.format( "%s: %s", attrib[1], ldap.convertADTimeStamp(attrib[i]) ) )
+					elseif ( attrib[1] == "whenChanged" or attrib[1] == "whenCreated" or attrib[1] == "dSCorePropagationData" ) then
+						table.insert( attribs, string.format( "%s: %s", attrib[1], ldap.convertZuluTimeStamp(attrib[i]) ) )
 					else
 						table.insert( attribs, string.format( "%s: %s", attrib[1], attrib[i] ) )
 					end
@@ -458,6 +464,119 @@ function searchResultToTable( searchEntries )
 		table.insert( result, result_part )
 	end
 	return result
+end
+
+--- Saves a search result as received from searchRequest to a file
+--
+-- Does some limited decoding of LDAP attributes
+--
+-- TODO: Add decoding of missing attributes
+-- TODO: Add decoding of userParameters
+-- TODO: Add decoding of loginHours
+--
+-- @param searchEntries table as returned from searchRequest
+-- @param filename the name of a save to save results to
+-- @return table suitable for <code>stdnse.format_output</code>
+function searchResultToFile( searchEntries, filename )
+
+	local f = io.open( filename, "w")
+	
+	if ( not(f) ) then
+		return false, ("ERROR: Failed to open file (%s)"):format(filename)
+	end
+		
+	-- Build table structure.  Using a multi pass approach ( build table then populate table )
+	-- because the objects returned may not necessarily have the same number of attributes
+	-- making single pass CSV output generation problematic.
+	-- Unfortunately the searchEntries table passed to this function is not organized in a  
+	-- way that make particular attributes for a given hostname directly addressable.  	
+	--
+	-- At some point restructuring the searchEntries table may be a good optimization target
+
+	-- build table of attributes
+	local attrib_table = {}
+	for _, v in ipairs( searchEntries ) do
+		if ( v.attributes ~= nil ) then
+			for _, attrib in ipairs( v.attributes ) do
+				for i=2, #attrib do
+					if ( attrib_table[attrib[1]] == nil ) then
+						attrib_table[attrib[1]] = ''
+					end
+				end
+			end
+		end		
+	end
+	
+	-- build table of hosts
+	local host_table = {}
+	for _, v in ipairs( searchEntries ) do
+		if v.objectName and v.objectName:len() > 0 then
+			local host = {}
+			
+			if v.objectName and v.objectName:len() > 0 then
+				-- use a copy of the table here, assigning attrib_table into host_table
+				-- links the values so setting it for one host changes the specific attribute
+				-- values for all hosts.
+				host_table[v.objectName] = {attributes = copyTable(attrib_table) }
+			end
+		end
+	end
+	
+	-- populate the host table with values for each attribute that has valid data
+	for _, v in ipairs( searchEntries ) do
+		if ( v.attributes ~= nil ) then
+			for _, attrib in ipairs( v.attributes ) do
+				for i=2, #attrib do			
+					-- do some additional Windows decoding
+					if ( attrib[1] == "objectSid" ) then
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = string.format( "%d", decode( attrib[i] ) )
+					
+					elseif ( attrib[1] == "objectGUID") then
+						local _, o1, o2, o3, o4, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of = bin.unpack("C16", attrib[i] )
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] =  string.format( "%x%x%x%x-%x%x-%x%x-%x%x-%x%x%x%x%x", o4, o3, o2, o1, o5, o6, o7, o8, o9, oa, ob, oc, od, oe, of )
+					
+					elseif ( attrib[1] == "lastLogon" or attrib[1] == "lastLogonTimestamp" or attrib[1] == "pwdLastSet" or attrib[1] == "accountExpires" or attrib[1] == "badPasswordTime" ) then
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = ldap.convertADTimeStamp(attrib[i])
+					
+					elseif ( attrib[1] == "whenChanged" or attrib[1] == "whenCreated" or attrib[1] == "dSCorePropagationData" ) then
+						host_table[string.format("%s", v.objectName)].attributes[attrib[1]] = ldap.convertZuluTimeStamp(attrib[i])
+					
+					else
+						host_table[v.objectName].attributes[attrib[1]] = string.format( "%s", attrib[i] )
+					end
+						
+				end
+			end
+		end		
+	end
+
+	-- write the new, fully populuated table out to CSV
+	
+	-- initialize header row
+	local output = "\"name\""
+	for attribute, value in pairs(attrib_table) do
+		output = output .. ",\"" .. attribute .. "\""
+	end 
+	output = output .. "\n"
+	
+	-- gather host data from fields, add to output.
+	for name, attribs in pairs(host_table) do
+		output = output .. "\"" .. name .. "\""
+		local host_attribs = attribs.attributes
+		for attribute, value in pairs(attrib_table) do
+			output = output .. ",\"" .. host_attribs[attribute] .. "\""
+		end
+		output = output .. "\n"
+	end
+		
+	-- write the output to file
+	if ( not(f:write( output .."\n" ) ) ) then
+		f:close()
+		return false, ("ERROR: Failed to write file (%s)"):format(filename)
+	end
+	
+	f:close()
+	return true
 end
 
 
@@ -481,4 +600,72 @@ function extractAttribute( searchEntries, attributeName )
 		end
 	end
 	return ( #attributeTbl > 0 and attributeTbl or nil )
+end
+
+--- Convert Microsoft Active Directory timestamp format to a human readable form
+--  These values store time values in 100 nanoseconds segments from 01-Jan-1601
+--
+-- @param timestamp Microsoft Active Directory timestamp value
+-- @return string containing human readable form
+function convertADTimeStamp(timestamp)
+
+	local result = 0
+	local base_time = tonumber(os.time({year=1601, month=1, day=1, hour=0, minute=0, sec =0}))
+
+	timestamp = tonumber(timestamp)
+		
+	if (timestamp and timestamp > 0) then
+		
+		-- The result value was 3036 seconds off what Microsoft says it should be.
+		-- I have been unable to find an explaination for this, and have resorted to
+		-- manually adjusting the formula.
+		
+		result = ( timestamp /  10000000 ) - 3036
+		result = result + base_time
+		result = os.date("%Y/%m/%d %H:%M:%S UTC", result)
+	else
+		result = 'Never'
+	end
+		
+	return result
+	
+end
+
+--- Converts a non-delimited Zulu timestamp format to a human readable form
+--  For example 20110904003302.0Z becomes 2001/09/04 00:33:02 UTC
+--
+--
+-- @param timestamp in Zulu format without seperators
+-- @return string containing human readable form
+function convertZuluTimeStamp(timestamp)
+
+	if ( type(timestamp) == 'string' and string.sub(timestamp,-3) == '.0Z' ) then
+
+		local year  = string.sub(timestamp,1,4)
+		local month = string.sub(timestamp,5,6)
+		local day   = string.sub(timestamp,7,8)
+		local hour  = string.sub(timestamp,9,10)
+		local mins  = string.sub(timestamp,11,12)
+		local secs  = string.sub(timestamp,13,14)
+		local result = year .. "/" .. month .. "/" .. day .. " " .. hour .. ":" .. mins .. ":" .. secs .. " UTC"
+		
+		return result
+	
+	else
+		return 'Invalid date format'		
+	end
+		
+end
+
+--- Creates a copy of a table
+--
+--
+-- @param targetTable  table object to copy
+-- @return table object containing copy of original
+local function copyTable(targetTable)
+  local temp = { }
+  for key, val in pairs(targetTable) do 
+	temp[key] = val 
+  end
+  return setmetatable(temp, getmetatable(targetTable))
 end
