@@ -662,7 +662,7 @@ end
 --
 -- @param targetTable  table object to copy
 -- @return table object containing copy of original
-local function copyTable(targetTable)
+function copyTable(targetTable)
   local temp = { }
   for key, val in pairs(targetTable) do 
 	temp[key] = val 
