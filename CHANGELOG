@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new default credential list for Oracle and modified the
+  oracle-brute script to make use of it. [Patrik]
+
 o [NSE] Added xmpp-info.nse as a replacement for xmpp.nse. This updated version
   brings new features and fixes. [Vasiliy Kulikov]
 
@@ -30,7 +33,8 @@ o [NSE] Added functions to packet.lua to make it easier to build IPv6
   packets. [Weilin]
 
 o [NSE] Added new script http-vuln-cve2011-3192 which checks whether an instance
-  of Apache is vulnerable to a DoS attack exploiting the byterange filter. [Duarte Silva].
+  of Apache is vulnerable to a DoS attack exploiting the byterange filter.
+  [Duarte Silva].
 
 o [NSE] Fixed authentication problems in the TNS library that would prevent
   authentication from working against Oracle 11.2.0.2.0 XE [Chris Woodbury]
