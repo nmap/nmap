@@ -1,5 +1,6 @@
 description = [[
 Performs brute force password auditing against Oracle servers.
+
 Running it in default mode it performs an audit against a list of common
 Oracle usernames and passwords. The mode can be changed by supplying the
 argument oracle-brute.nodefault at which point the script will use the
@@ -31,11 +32,6 @@ result in a large number of accounts being locked out on the database server.
 -- |   Statistics
 -- |_    Perfomed 157 guesses in 8 seconds, average tps: 19
 --
--- Summary
--- -------
---   x The Driver class contains the driver implementation used by the brute
---     library
---
 -- @args oracle-brute.sid - the instance against which to perform password
 --                          guessing
 -- @args oracle-brute.nodefault - do not attempt to guess any Oracle default
@@ -48,6 +44,12 @@ result in a large number of accounts being locked out on the database server.
 -- 							 - oracle-brute.sid argument
 -- Revised 07/25/2011 - v0.3 - added support for guessing default accounts
 --								changed code to use ConnectionPool
+
+--
+-- Summary
+-- -------
+--   x The Driver class contains the driver implementation used by the brute
+--     library
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
