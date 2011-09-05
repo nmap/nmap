@@ -18,6 +18,9 @@ anonymous bind will be used as a last attempt.
 --       multiple attributes need to be supplied a table should be used instead.
 -- @args ldap.maxobjects If set, overrides the number of objects returned by the script (default 20). 
 --       The value -1 removes the limit completely.
+-- @args ldap.savesearch If set, the script will save the output to a file beginning with the specified path and name.  The file suffix 
+--       of .CSV as well as the hostname and port will automatically be added based on the output type selected.
+--
 -- @usage
 -- nmap -p 389 --script ldap-search --script-args ldap.username="'cn=ldaptest,cn=users,dc=cqure,dc=net'",ldap.password=ldaptest,
 -- ldap.qfilter=users,ldap.attrib=sAMAccountName <host>
@@ -48,13 +51,14 @@ anonymous bind will be used as a last attempt.
 -- ------
 -- o Martin Swende who provided me with the initial code that got me started writing this.
 
--- Version 0.5
+-- Version 0.6
 -- Created 01/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/20/2010 - v0.2 - added SSL support
 -- Revised 01/26/2010 - v0.3 - Changed SSL support to comm.tryssl, prefixed arguments with ldap, changes in determination of namingContexts
 -- Revised 02/17/2010 - v0.4 - Added dependencie to ldap-brute and the abilitity to check for ldap accounts (credentials) stored in nmap registry
 --                             Capped output to 20 entries, use ldap.maxObjects to override
 -- Revised 07/16/2010 - v0.5 - Fixed bug with empty contexts, added objectClass person to qfilter users, add error msg for invalid credentials
+-- Revised 09/05/2011 - v0.6 - Added support for saving searches to a file via argument ldap.savesearch
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -78,6 +82,7 @@ function action(host,port)
 	local qfilter = stdnse.get_script_args('ldap.qfilter')
 	local base = stdnse.get_script_args('ldap.base')
 	local attribs = stdnse.get_script_args('ldap.attrib')
+	local saveFile = stdnse.get_script_args('ldap.savesearch')
 	local accounts
 	local objCount = 0
 	local maxObjects = stdnse.get_script_args('ldap.maxobjects') and tonumber(stdnse.get_script_args('ldap.maxobjects')) or 20
@@ -195,6 +200,15 @@ function action(host,port)
 		end
 				
 		local result_part = ldap.searchResultToTable( searchResEntries )
+
+		if saveFile then
+			local output_file = saveFile .. "_" .. host.ip .. "_" .. port.number .. ".csv"
+			local save_status, save_err = ldap.searchResultToFile(searchResEntries,output_file)
+			if not save_status then
+				stdnse.print_debug(save_err)
+			end
+		end
+		
 		objCount = objCount + (result_part and #result_part or 0)
 		result_part.name = ""
 
