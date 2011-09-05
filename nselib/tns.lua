@@ -77,7 +77,7 @@
 -- @args tns.sid specifies the Oracle instance to connect to
 
 --
--- Version 0.7
+-- Version 0.71
 -- Created 07/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/21/2010 - v0.2 - made minor changes to support 11gR2 on Windows
 -- Revised 07/23/2010 - v0.3 - corrected incorrect example code in docs
@@ -92,21 +92,25 @@
 --                             indentation bugs
 --                             <patrik@cqure.net>
 -- Revised 26/08/2011 - v0.7 - applied patch from Chris Woodbury
---                           - <patrik@cqure.net>
+--                             <patrik@cqure.net>
+-- Revised 28/08/2011 - v0.71- fixed a bug that would prevent the library from
+--                             authenticating against Oracle 10.2.0.1.0 XE
+--                             <patrik@cqure.net>
 --
 -- The following versions have been tested and are known to work:
 -- +--------+---------------+---------+-------+-------------------------------+
 -- | OS     | DB Version    | Edition | Arch  | Functionality                 |
 -- +--------+---------------+---------+-------+-------------------------------|
 -- | Win    | 10.2.0.1.0    | EE      | 32bit | Authentication                |
--- | Linux  | 10.2.0.1.0    | EE      | 32bit | Authentication                |
 -- | Win    | 10.2.0.1.0    | XE      | 32bit | Authentication, Queries       |
--- | Win    | 11.1.0.6.0    | EE      | 64bit | Authentication                |
+-- | Linux  | 10.2.0.1.0    | EE      | 32bit | Authentication                |
 -- | Win    | 11.1.0.6.0    | EE      | 32bit | Authentication, Queries       |
+-- | Win    | 11.1.0.6.0    | EE      | 64bit | Authentication                |
 -- | Win    | 11.2.0.1.0    | EE      | 64bit | Authentication                |
 -- | Win    | 11.2.0.2.0    | EE      | 64bit | Authentication                |
--- | Win    | 11.2.0.2.0    | XE      | 32bit | Authentication, Queries       |
 -- | Linux  | 11.2.0.1.0    | EE      | 64bit | Authentication                |
+-- | Win    | 11.2.0.2.0    | XE      | 32bit | Authentication, Queries       |
+-- | Win    | 11.2.0.2.0    | EE      | 64bit | Authentication, Queries       |
 -- +--------+---------------+---------+-------+-------------------------------+
 --
 
@@ -463,13 +467,13 @@ Packet.PreAuth = {
 	__tostring = function( self )
 		local packet_type = 0x0376
 		local UNKNOWN_MAP = {
-			["Linuxi386/Linux-2.0.34-8.1.0"] = 	"0238be08080400000001000000a851bfbf05000000504ebfbf7853bfbf",
-			["IBMPC/WIN_NT-8.1.0"] = 			"0238be08080400000001000000a851bfbf05000000504ebfbf7853bfbf",
-			["IBMPC/WIN_NT64-9.1.0"] = "0201040000000100000001050000000101",
-			["x86_64/Linux 2.4.xx"] =  "0201040000000100000001050000000101",
+			["Linuxi386/Linux-2.0.34-8.1.0"] = 	bin.pack("HCH","0238be0808", #self.auth_user, "00000001000000a851bfbf05000000504ebfbf7853bfbf"),
+			["IBMPC/WIN_NT-8.1.0"]			 = 	bin.pack("HCH","0238be0808", #self.auth_user, "00000001000000a851bfbf05000000504ebfbf7853bfbf"),
+			["IBMPC/WIN_NT64-9.1.0"] = bin.pack("H", "0201040000000100000001050000000101"),
+			["x86_64/Linux 2.4.xx"] =  bin.pack("H", "0201040000000100000001050000000101"),
 		}
 		local unknown = UNKNOWN_MAP[self.version] or ""
-		local data = bin.pack(">SSH", self.flags, packet_type, unknown)
+		local data = bin.pack(">SSA", self.flags, packet_type, unknown)
 		
 		data = data .. bin.pack("CA", #self.auth_user, self.auth_user )
 		for _, v in ipairs( Packet.PreAuth.param_order ) do
@@ -550,15 +554,15 @@ Packet.Auth = {
 	-- @return string containing the packet	
 	__tostring = function( self )
 		local UNKNOWN_MAP = {
-			["Linuxi386/Linux-2.0.34-8.1.0"] = 	"0338be08080400000001010000cc7dbfbf0d000000747abfbf608abfbf",
-			["IBMPC/WIN_NT-8.1.0"] = 			"0338be08080400000001010000cc7dbfbf0d000000747abfbf608abfbf",
-			["IBMPC/WIN_NT64-9.1.0"] = 			"03010400000001010000010d0000000101",
-			["x86_64/Linux 2.4.xx"]  = 			"03010400000001010000010d0000000101"
+			["Linuxi386/Linux-2.0.34-8.1.0"] = 	bin.pack("HCH","0338be0808", #self.user, "00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
+			["IBMPC/WIN_NT-8.1.0"] = 			bin.pack("HCH","0338be0808", #self.user, "00000001010000cc7dbfbf0d000000747abfbf608abfbf"),
+			["IBMPC/WIN_NT64-9.1.0"] = 			bin.pack("H","03010400000001010000010d0000000101"),
+			["x86_64/Linux 2.4.xx"]  = 			bin.pack("H","03010400000001010000010d0000000101")
 		}
 		
 		local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
 		local unknown = UNKNOWN_MAP[self.version] or ""
-		local data = bin.pack(">SSH", self.flags, 0x0373, unknown)
+		local data = bin.pack(">SSA", self.flags, 0x0373, unknown)
 		data = data .. bin.pack("CAH", #self.user, self.user, "0c0000000c" )
 		data = data .. bin.pack("AHAH", "AUTH_SESSKEY", "60000000fe40", self.auth_sesskey, "00010000000d0000000d")
 		data = data .. bin.pack("AHAH", "AUTH_PASSWORD", "4000000040", self.auth_pass, "00000000")
