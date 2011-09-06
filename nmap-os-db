@@ -1708,7 +1708,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # Alcatel-Lucent OmniPCX Enterprise
 # OmniPCX Enterprise R8.0.1-g1.503-12-a-nl-c80s1 (Linux 2.4.17-ll-dhs3)
 Fingerprint Alcatel-Lucent OmniPCX Enterprise PBX (Linux 2.4.17)
-Class Alcatel-Lucent | Linux | 2.4.17 | PBX
+Class Alcatel-Lucent | Linux | 2.4.X | PBX
 SEQ(SP=C5-D3%GCD=1-6%ISR=CC-D6%TI=Z%II=I%TS=U)
 OPS(O1=M5B4NNSNW0%O2=M5B4NNSNW0%O3=M5B4NW0%O4=M5B4NNSNW0%O5=M5B4NNSNW0%O6=M5B4NNS)
 WIN(W1=16D0%W2=16D0%W3=16D0%W4=16D0%W5=16D0%W6=16D0)
@@ -57279,7 +57279,7 @@ IE(DFI=Y%T=3B-45%TG=40%CD=S)
 
 # UnixWare 2.1
 Fingerprint SCO UnixWare 2.1
-Class SCO | UnixWare | 2.1 | general purpose
+Class SCO | UnixWare | 2.X | general purpose
 SEQ(SP=AE-B8%GCD=1-6%ISR=B2-C0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -57296,7 +57296,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # UnixWare 2.1
 Fingerprint SCO UnixWare 2.1
-Class SCO | UnixWare | 2.1 | general purpose
+Class SCO | UnixWare | 2.X | general purpose
 SEQ(SP=AE-B8%GCD=1-6%ISR=B2-C0%TI=I%CI=I%II=I%SS=S%TS=U)
 OPS(O1=M400%O2=M400%O3=M400%O4=M400%O5=M400%O6=M400)
 WIN(W1=1000%W2=1000%W3=1000%W4=1000%W5=1000%W6=1000)
@@ -58939,7 +58939,7 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 
 # SonicOS Enhanced 5.2.0.1-21o
 Fingerprint SonicWALL SonicOS Enhanced 5.2
-Class SonicWALL | SonicOS | 5.2 | firewall
+Class SonicWALL | SonicOS | 5.X | firewall
 SEQ(SP=101-10B%GCD=1-6%ISR=106-110%TI=I%CI=RI%II=I%SS=S%TS=6)
 OPS(O1=M5B4NW0NNT11%O2=M578NW0NNT11%O3=M280NW0NNT11%O4=M22CNW0NNT11%O5=M218NW0NNT11%O6=M109NNT11)
 WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)
