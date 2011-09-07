@@ -11,7 +11,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 -- 5900/tcp open  vnc     VNC (protocol 3.8)
 -- |_realvnc-auth-bypass: Vulnerable
 
-categories = {"auth", "default", "vuln", "safe"}
+categories = {"auth", "default", "safe"}
 
 require "shortport"
 

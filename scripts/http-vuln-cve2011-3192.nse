@@ -31,7 +31,7 @@ References:
 
 author = "Duarte Silva <duarte.silva@serializing.me>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"vuln", "safe", "default"}
+categories = {"vuln", "safe"}
 
 require "shortport"
 require "http"

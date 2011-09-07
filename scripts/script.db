@@ -97,8 +97,8 @@ Entry { filename = "http-title.nse", categories = { "default", "discovery", "saf
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
-Entry { filename = "http-vmware-path-vuln.nse", categories = { "default", "safe", "vuln", } }
-Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "default", "safe", "vuln", } }
+Entry { filename = "http-vmware-path-vuln.nse", categories = { "safe", "vuln", } }
+Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "http-wp-enum.nse", categories = { "auth", "discovery", "intrusive", "vuln", } }
@@ -172,7 +172,7 @@ Entry { filename = "pop3-capabilities.nse", categories = { "default", "discovery
 Entry { filename = "pptp-version.nse", categories = { "version", } }
 Entry { filename = "qscan.nse", categories = { "discovery", "safe", } }
 Entry { filename = "quake3-master-getservers.nse", categories = { "default", "discovery", "safe", } }
-Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", "vuln", } }
+Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
