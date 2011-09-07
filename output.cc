@@ -1837,7 +1837,7 @@ void printosscanoutput(Target *currenths) {
 /* An auxillary function for printserviceinfooutput(). Returns
    non-zero if a and b are considered the same hostnames. */
 static int hostcmp(const char *a, const char *b) {
-  return strcasestr(a, b) ? 1 : 0;
+  return strcasecmp(a, b) == 0;
 }
 
 /* Prints the alternate hostname/OS/device information we got from the service
