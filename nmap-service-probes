@@ -4517,7 +4517,7 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IP_SHARER WEB ([\w._-]+)\r\nWWW-Aut
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: IP_SHARER WEB ([\w._-]+)\r\nWWW-Authenticate: Basic realm=\"(WGR614[^"]*)\"\r\n| i/Netgear $2 router http config/ p/IP_SHARER WEB/ v/$1/ d/router/
 
 # PRINT_SERVER WEB
-match http m|^HTTP/1\.0 200 Document follows\r\nServer: PRINT_SERVER WEB ([\w._-]+)\r\n.*<meta name=\"description\" content=\"([\w-]+) \d+\">\n\n<title>NetGear Print Server Setup</title>|s p/PRINT_SHARER WEB/ v/$1/ i/Netgear $2 print server http config/ d/print server/
+match http m|^HTTP/1\.0 200 Document follows\r\nServer: PRINT_SERVER WEB ([\w._-]+)\r\n.*<meta name=\"description\" content=\"([\w-]+) \d+\">\n\n<title>NetGear Print Server Setup</title>|s p/PRINT_SERVER WEB/ v/$1/ i/Netgear $2 print server http config/ d/print server/
 
 # Netgear FR314 Firewall Router
 match http m|^HTTP/1\.0 200 OK\r\nServer: NETGEAR Firewall\r\n| p/Netgear FR-series firewall router http config/ d/router/
