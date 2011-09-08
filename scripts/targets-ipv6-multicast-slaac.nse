@@ -36,8 +36,7 @@ require "os"
 require "math"
 
 prerule = function()
-	return nmap.is_privileged() and
-		(stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface())
+	return nmap.is_privileged()
 end
 
 catch = function()
@@ -92,6 +91,11 @@ end
 
 action = function()
 	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
+	if not if_name then
+		return "Error: need an interface name.\n"
+			.. "Use -e <iface> or --script-args " .. SCRIPT_NAME .. ".interface=<iface>."
+	end
+
 	local if_nfo, err = nmap.get_interface_info(if_name)
 	if not if_nfo then
 		stdnse.print_debug(err)
