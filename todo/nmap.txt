@@ -1,7 +1,38 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Initial IPv6 OS detection system (may not make it into stable
-  though, but we want to at least have it working in a branch first.)
+o IPv6 OS detection
+ o [DONE] Initial branch working (nmap-exp/luis/nmap-os6)
+ o Implement the 2 remaining probes
+ o Disable the printing of matches (except maybe with debug on).  We
+   want more training examples first so that results are better.
+ o Merge to /nmap
+
+o Collect many more IPv6 OS detection training samples from users
+ - Can start with nmap-dev, but will probably have to do an Nmap
+   release too.
+
+o IPv6 OS detection working (when run on) Solaris and AIX
+
+o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
+
+o Finish CPE support code
+ - Escape certain values that can be inserted into cpe string through
+   substitution, like cpe:/a:apache:httpd:$1 where $1 contains a
+   colon.
+
+o Add many more CPE entries to OS and version detection databases
+
+o Document Nmap CPE support in appropriate places (canddiates:
+  refguide, os detection book chapter, version detection book chapter,
+  output book chapter).
+
+o Move advanced IPv6 host discovery features from NSE into core Nmap.
+  We'll probably add the functionality of
+  targets-ipv6-multicast-invalid-dst, targets-ipv6-multicast-echo, and
+  maybe targets-ipv6-multicast-slaac.
+  - The idea is that Nmap does them automatically if it gets a large
+    target specification and sees that it is local so can be multicast
+    pinged.
 
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
@@ -22,10 +53,6 @@ o Unless we get good arguments for keeping it, we should remove Mac OS
 
 o Fix reported (by many people) crash when trying to launch Zenmap on
   Mac OS X 10.7 (Lion).
-
-o Investigate a probe/response matching problem reported by QA Cafe
-  Matthew Stickey and Joe McEachern of QA Cafe.  See this thread:
-  http://seclists.org/nmap-dev/2011/q3/227
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -646,6 +673,19 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Add advanced IPv6 host discovery features
+ o Initially done using NSE by adding these scripts:
+   targets-ipv6-multicast-slaac, targets-ipv6-multicast-invalid-dst, and
+   targets-ipv6-multicast-echo
+
+o Initial IPv6 OS detection system (may not make it into stable
+  though, but we want to at least have it working in a branch first.)
+  - OK, it is working in nmap-exp/luis/nmap-os6
+
+o Investigate a probe/response matching problem reported by QA Cafe
+  Matthew Stickey and Joe McEachern of QA Cafe.  See this thread:
+  http://seclists.org/nmap-dev/2011/q3/227
 
 o When our winpcap installer is run in silent mode
   (e.g. "winpcap-nmap-4.12.exe /S"), it seems to execute nmap.exe if
