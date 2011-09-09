@@ -1170,6 +1170,10 @@ void HostOsScanStats::initScanStats() {
     FPtests[i] = NULL;
   }
   for (i=0; i<6; i++) {
+    if (TOps_AVs[i])
+      free(TOps_AVs[i]);
+    if (TWin_AVs[i])
+      free(TWin_AVs[i]);
     TOps_AVs[i] = NULL;
     TWin_AVs[i] = NULL;
   }
