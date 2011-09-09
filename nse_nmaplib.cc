@@ -540,11 +540,11 @@ static int l_set_port_version (lua_State *L)
   if (o.servicescan)
     target->ports.setServiceProbeResults(p->portno, p->proto,
         probestate, name, tunnel, product,
-        version, extrainfo, hostname, ostype, devicetype, NULL);
+        version, extrainfo, hostname, ostype, devicetype, NULL, NULL, NULL, NULL);
   else
     target->ports.setServiceProbeResults(p->portno, p->proto,
         probestate, name, tunnel, NULL, NULL,
-        NULL, NULL, NULL, NULL, NULL);
+        NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
   return 0;
 }

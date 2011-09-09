@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
+  output for OS and service versions. These show up in normal output
+  with the headings "OS CPE:" and "Service Info:":
+    OS CPE: cpe:/o:linux:kernel:2.6.39
+    Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
+  These also appear in XML output, which additionally has CPE entries
+  for service versions. [David, Henri]
+
 o [NSE] Added new default credential list for Oracle and modified the
   oracle-brute script to make use of it. [Patrik]
 

@@ -237,7 +237,19 @@ static void print_xml_service(const struct serviceDeductions *sd) {
     xml_attribute("proto", "rpc");
   }
 
-  xml_close_empty_tag();
+  if (sd->cpe.empty()) {
+    xml_close_empty_tag();
+  } else {
+    unsigned int i;
+
+    xml_close_start_tag();
+    for (i = 0; i < sd->cpe.size(); i++) {
+      xml_start_tag("cpe");
+      xml_write_escaped("%s", sd->cpe[i]);
+      xml_end_tag();
+    }
+    xml_end_tag();
+  }
 }
 
 #ifdef WIN32
@@ -1442,13 +1454,15 @@ static int addtochararrayifnew(const char *arr[], int *numentries, int arrsize,
 static void printosclassificationoutput(const struct
                                         OS_Classification_Results *OSR,
                                         bool guess) {
-  int classno, i, familyno;
+  int classno, cpeno, familyno;
+  unsigned int i;
   int overflow = 0;             /* Whether we have too many devices to list */
   const char *types[MAX_OS_CLASSMEMBERS];
+  const char *cpes[MAX_OS_CLASSMEMBERS];
   char fullfamily[MAX_OS_CLASSMEMBERS][128];    // "[vendor] [os family]"
   double familyaccuracy[MAX_OS_CLASSMEMBERS];   // highest accuracy for this fullfamily
   char familygenerations[MAX_OS_CLASSMEMBERS][48];      // example: "4.X|5.X|6.X"
-  int numtypes = 0, numfamilies = 0;
+  int numtypes = 0, numcpes = 0, numfamilies = 0;
   char tmpbuf[1024];
 
   for (i = 0; i < MAX_OS_CLASSMEMBERS; i++) {
@@ -1468,7 +1482,17 @@ static void printosclassificationoutput(const struct
       if (OSR->OSC[classno]->OS_Generation)
         xml_attribute("osgen", "%s", OSR->OSC[classno]->OS_Generation);
       xml_attribute("accuracy", "%d", (int) (OSR->OSC_Accuracy[classno] * 100));
-      xml_close_empty_tag();
+      if (OSR->OSC[classno]->cpe.empty()) {
+        xml_close_empty_tag();
+      } else {
+        xml_close_start_tag();
+        for (i = 0; i < OSR->OSC[classno]->cpe.size(); i++) {
+          xml_start_tag("cpe");
+          xml_write_escaped("%s", OSR->OSC[classno]->cpe[i]);
+          xml_end_tag();
+        }
+        xml_end_tag();
+      }
       xml_newline();
     }
 
@@ -1482,6 +1506,12 @@ static void printosclassificationoutput(const struct
       if (addtochararrayifnew(types, &numtypes, MAX_OS_CLASSMEMBERS,
                               OSR->OSC[classno]->Device_Type) == -1) {
         overflow = 1;
+      }
+      for (i = 0; i < OSR->OSC[classno]->cpe.size(); i++) {
+        if (addtochararrayifnew(cpes, &numcpes, MAX_OS_CLASSMEMBERS,
+                                OSR->OSC[classno]->cpe[i]) == -1) {
+          overflow = 1;
+        }
       }
 
       // If family and vendor names are the same, no point being redundant
@@ -1545,6 +1575,13 @@ static void printosclassificationoutput(const struct
                     floor(familyaccuracy[familyno] * 100));
       }
       log_write(LOG_PLAIN, "\n");
+
+      if (numcpes > 0) {
+        log_write(LOG_PLAIN, "OS CPE:");
+        for (cpeno = 0; cpeno < numcpes; cpeno++)
+          log_write(LOG_PLAIN, " %s", cpes[cpeno]);
+        log_write(LOG_PLAIN, "\n");
+      }
     }
   }
   log_flush_all();
@@ -1846,16 +1883,19 @@ void printserviceinfooutput(Target *currenths) {
   Port *p = NULL;
   Port port;
   struct serviceDeductions sd;
-  int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0;
+  int i, numhostnames = 0, numostypes = 0, numdevicetypes = 0, numcpes = 0;
   char hostname_tbl[MAX_SERVICE_INFO_FIELDS][MAXHOSTNAMELEN];
   char ostype_tbl[MAX_SERVICE_INFO_FIELDS][64];
   char devicetype_tbl[MAX_SERVICE_INFO_FIELDS][64];
+  char cpe_tbl[MAX_SERVICE_INFO_FIELDS][80];
   const char *delim;
 
   for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++)
-    hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = '\0';
+    hostname_tbl[i][0] = ostype_tbl[i][0] = devicetype_tbl[i][0] = cpe_tbl[i][0] = '\0';
 
   while ((p = currenths->ports.nextPort(p, &port, TCPANDUDPANDSCTP, PORT_OPEN))) {
+    std::vector<char *>::iterator it;
+
     // The following 2 lines (from portlist.h) tell us that we don't need to
     // worry about free()ing anything in the serviceDeductions struct. pass in
     // an allocated struct serviceDeductions (don't wory about initializing, and
@@ -1901,9 +1941,29 @@ void printserviceinfooutput(Target *currenths) {
       }
     }
 
+    for (it = sd.cpe.begin(); it != sd.cpe.end(); it++) {
+      for (i = 0; i < MAX_SERVICE_INFO_FIELDS; i++) {
+        if (cpe_tbl[i][0] && !strcmp(&cpe_tbl[i][0], *it))
+          break;
+        /* Applications (CPE part "a") aren't shown in this summary list in
+           normal output. "a" classifications belong to an individual port, not
+           the entire host, unlike "h" (hardware) and "o" (operating system).
+           There isn't a good place to put the "a" classifications, so they are
+           written to XML only. */
+        if (cpe_get_part(*it) == 'a')
+          break;
+
+        if (!cpe_tbl[i][0]) {
+          numcpes++;
+          strncpy(&cpe_tbl[i][0], *it, sizeof(cpe_tbl[i]));
+          break;
+        }
+      }
+    }
+
   }
 
-  if (!numhostnames && !numostypes && !numdevicetypes)
+  if (!numhostnames && !numostypes && !numdevicetypes && !numcpes)
     return;
 
   log_write(LOG_PLAIN, "Service Info:");
@@ -1934,6 +1994,15 @@ void printserviceinfooutput(Target *currenths) {
     for (i = 1; i < MAX_SERVICE_INFO_FIELDS; i++) {
       if (devicetype_tbl[i][0])
         log_write(LOG_PLAIN, ", %s", &devicetype_tbl[i][0]);
+    }
+    delim = "; ";
+  }
+
+  if (numcpes > 0) {
+    log_write(LOG_PLAIN, "%sCPE: %s", delim, &cpe_tbl[0][0]);
+    for (i = 1; i < MAX_SERVICE_INFO_FIELDS; i++) {
+      if (cpe_tbl[i][0])
+        log_write(LOG_PLAIN, ", %s", &cpe_tbl[i][0]);
     }
     delim = "; ";
   }

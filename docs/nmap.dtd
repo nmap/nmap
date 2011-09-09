@@ -202,7 +202,7 @@
 <!ELEMENT owner		EMPTY >
 <!ATTLIST owner		name		CDATA		#REQUIRED >
 
-<!ELEMENT service	EMPTY >
+<!ELEMENT service	(cpe*) >
 <!ATTLIST service
 			name		CDATA		#REQUIRED
 			conf		%service_confs;	#REQUIRED
@@ -221,6 +221,8 @@
                         servicefp       CDATA           #IMPLIED
 >
 
+<!ELEMENT cpe (#PCDATA)>
+
 <!ELEMENT script	EMPTY >
 <!ATTLIST script	
 	id	CDATA	#REQUIRED
@@ -235,7 +237,7 @@
 			proto 		%port_protocols; #REQUIRED
 			portid 		%attr_numeric;	#REQUIRED
 >
-<!ELEMENT osclass      EMPTY >
+<!ELEMENT osclass      (cpe*) >
 <!ATTLIST osclass
                        vendor          CDATA           #REQUIRED
                        osgen           CDATA           #IMPLIED

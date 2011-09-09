@@ -145,6 +145,23 @@ const char *string_pool_substr_strip(const char *s, const char *t) {
   return string_pool_substr(s, t);
 }
 
+/* Skip over whitespace to find the beginning of a word, then read until the
+   next whilespace character. Returns NULL if only whitespace is found. */
+static const char *string_pool_strip_word(const char *s) {
+  const char *t;
+
+  while (isspace((int) (unsigned char) *s))
+    s++;
+  t = s;
+  while (*t != '\0' && !isspace((int) (unsigned char) *t))
+    t++;
+
+  if (s == t)
+    return NULL;
+
+  return string_pool_substr(s, t);
+}
+
 /* Format a string with sprintf and insert it with string_pool_insert. */
 const char *string_pool_sprintf(const char *fmt, ...)
 {
@@ -983,6 +1000,24 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
   FP->OS_class.push_back(os_class);
 }
 
+static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
+  const char *cpe;
+
+  if (FP->OS_class.empty())
+    fatal("\"CPE\" line without preceding \"Class\" at line %d", lineno);
+
+  OS_Classification& osc = FP->OS_class.back();
+
+  if (thisline == NULL || strncmp(thisline, "CPE ", 4) != 0)
+    fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
+
+  /* The cpe part may be followed by whitespace-separated flags (like "auto"),
+     which we ignore. */
+  cpe = string_pool_strip_word(thisline + 4);
+  assert(cpe != NULL);
+  osc.cpe.push_back(cpe);
+}
+
 /* Parses a single fingerprint from the memory region given.  If a
    non-null fingerprint is returned, the user is in charge of freeing it
    when done.  This function does not require the fingerprint to be 100%
@@ -1041,6 +1076,10 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
     } else if (strncmp(thisline, "Class ", 6) == 0) {
 
       parse_classline(FP, thisline, lineno);
+
+    } else if (strncmp(thisline, "CPE ", 4) == 0) {
+
+      parse_cpeline(FP, thisline, lineno);
 
     } else if ((q = strchr(thisline, '('))) {
       FingerTest test;
@@ -1148,6 +1187,8 @@ fparse:
         goto fparse;
       } else if (strncmp(line, "Class ", 6) == 0) {
         parse_classline(current, line, lineno);
+      } else if (strncmp(line, "CPE ", 4) == 0) {
+        parse_cpeline(current, line, lineno);
       } else {
         FingerTest test;
         p = line;

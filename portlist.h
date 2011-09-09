@@ -155,6 +155,7 @@ struct serviceDeductions {
   char *hostname;
   char *ostype;
   char *devicetype;
+  std::vector<char *> cpe;
   // SERVICE_TUNNEL_NONE or SERVICE_TUNNEL_SSL
   enum service_tunnel_type service_tunnel; 
   // if we should give the user a service fingerprint to submit, here it is.  Otherwise NULL.
@@ -265,7 +266,9 @@ class PortList {
 			      enum service_tunnel_type tunnel, const char *product, 
 			      const char *version, const char *hostname,
 			      const char *ostype, const char *devicetype,
-			      const char *extrainfo, const char *fingerprint);
+			      const char *extrainfo,
+			      const char *cpe_a, const char *cpe_h, const char *cpe_o,
+			      const char *fingerprint);
 
   // pass in an allocated struct serviceDeductions (don't worry about initializing, and
   // you don't have to free any internal ptrs.  See the serviceDeductions definition for

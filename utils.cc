@@ -449,6 +449,23 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen){
       bp += Snprintf(buf+bp, buflen-bp,"\n");
 }
 
+/* Get the CPE part (first component of the URL, should be "a", "h", or "o") as
+   a character: 'a', 'h', or 'o'. Returns -1 on error. */
+int cpe_get_part(const char *cpe) {
+  const char *PREFIX = "cpe:/";
+  char part;
+
+  if (strncmp(cpe, PREFIX, strlen(PREFIX) != 0))
+    return -1;
+  /* This could be more robust, by decoding character escapes and checking ':'
+     boundaries. */
+  part = cpe[strlen(PREFIX)];
+
+  if (part == 'a' || part == 'h' || part == 'o')
+    return part;
+  else
+    return -1;
+}
 
 
 /* mmap() an entire file into the address space.  Returns a pointer

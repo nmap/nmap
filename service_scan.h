@@ -137,6 +137,11 @@ struct MatchDetails {
   const char *hostname;
   const char *ostype;
   const char *devicetype;
+
+  // CPE identifiers for application, OS, and hardware type.
+  const char *cpe_a;
+  const char *cpe_o;
+  const char *cpe_h;
 };
 
 /**********************  CLASSES     ***********************************/
@@ -190,6 +195,7 @@ class ServiceProbeMatch {
   char *hostname_template;
   char *ostype_template;
   char *devicetype_template;
+  std::vector<char *> cpe_templates;
   // The anchor is for SERVICESCAN_STATIC matches.  If the anchor is not -1, the match must
   // start at that zero-indexed position in the response str.
   int matchops_anchor;
@@ -205,7 +211,10 @@ class ServiceProbeMatch {
 		  int nummatches, char *product, int productlen,
 		  char *version, int versionlen, char *info, int infolen,
                   char *hostname, int hostnamelen, char *ostype, int ostypelen,
-                  char *devicetype, int devicetypelen);
+                  char *devicetype, int devicetypelen,
+                  char *cpe_a, int cpe_alen,
+                  char *cpe_h, int cpe_hlen,
+                  char *cpe_o, int cpe_olen);
 };
 
 

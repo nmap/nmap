@@ -117,6 +117,8 @@ Port::Port() {
 
 void Port::freeService() {
   if (service != NULL) {
+    std::vector<char *>::iterator it;
+
     if (service->name)
       free(service->name);
     if (service->product)
@@ -133,6 +135,8 @@ void Port::freeService() {
       free(service->devicetype);
     if (service->service_fp)
       free(service->service_fp);
+    for (it = service->cpe.begin(); it != service->cpe.end(); it++)
+      free(*it);
     delete service;
   }
 }
@@ -332,8 +336,10 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   enum serviceprobestate sres, const char *sname,
   enum service_tunnel_type tunnel, const char *product, const char *version,
   const char *extrainfo, const char *hostname, const char *ostype,
-  const char *devicetype, const char *fingerprint) {
+  const char *devicetype, const char *cpe_a, const char *cpe_h, const char *cpe_o,
+  const char *fingerprint) {
   Port *port;
+  char *p;
 
   port = createPort(portno, protocol);
   if (port->service == NULL)
@@ -380,6 +386,16 @@ void PortList::setServiceProbeResults(u16 portno, int protocol,
   port->service->hostname = cstringSanityCheck(hostname, 80);
   port->service->ostype = cstringSanityCheck(ostype, 32);
   port->service->devicetype = cstringSanityCheck(devicetype, 32);
+
+  p = cstringSanityCheck(cpe_a, 80);
+  if (p != NULL)
+    port->service->cpe.push_back(p);
+  p = cstringSanityCheck(cpe_h, 80);
+  if (p != NULL)
+    port->service->cpe.push_back(p);
+  p = cstringSanityCheck(cpe_o, 80);
+  if (p != NULL)
+    port->service->cpe.push_back(p);
 }
 
 /* Sets the results of an RPC scan.  if rpc_status is not

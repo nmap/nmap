@@ -98,35 +98,32 @@
 <screen>
 # <userinput>nmap -A -T4 scanme.nmap.org</userinput>
 
-Nmap scan report for scanme.nmap.org (64.13.134.52)
-Host is up (0.045s latency).
-Not shown: 993 filtered ports
-PORT      STATE  SERVICE VERSION
-22/tcp    open   ssh     OpenSSH 4.3 (protocol 2.0)
-| ssh-hostkey: 1024 60:ac:4d:51:b1:cd:85:09:12:16:92:76:1d:5d:27:6e (DSA)
-|_2048 2c:22:75:60:4b:c3:3b:18:a2:97:2c:96:7e:28:dc:dd (RSA)
-25/tcp    closed smtp
-53/tcp    open   domain
-70/tcp    closed gopher
-80/tcp    open   http    Apache httpd 2.2.3 ((CentOS))
-|_html-title: Go ahead and ScanMe!
-| http-methods: Potentially risky methods: TRACE
-|_See http://nmap.org/nsedoc/scripts/http-methods.html
-113/tcp   closed auth
-31337/tcp closed Elite
+Nmap scan report for scanme.nmap.org (74.207.244.221)
+Host is up (0.029s latency).
+rDNS record for 74.207.244.221: li86-221.members.linode.com
+Not shown: 995 closed ports
+PORT     STATE    SERVICE     VERSION
+22/tcp   open     ssh         OpenSSH 5.3p1 Debian 3ubuntu7 (protocol 2.0)
+| ssh-hostkey: 1024 8d:60:f1:7c:ca:b7:3d:0a:d6:67:54:9d:69:d9:b9:dd (DSA)
+|_2048 79:f8:09:ac:d4:e2:32:42:10:49:d3:bd:20:82:85:ec (RSA)
+80/tcp   open     http        Apache httpd 2.2.14 ((Ubuntu))
+|_http-title: Go ahead and ScanMe!
+646/tcp  filtered ldp
+1720/tcp filtered H.323/Q.931
+9929/tcp open     nping-echo  Nping echo
 Device type: general purpose
 Running: Linux 2.6.X
-OS details: Linux 2.6.13 - 2.6.31, Linux 2.6.18
-Network Distance: 13 hops
+OS CPE: cpe:/o:linux:kernel:2.6.39
+OS details: Linux 2.6.39
+Network Distance: 11 hops
+Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
 
-TRACEROUTE (using port 80/tcp)
-HOP RTT       ADDRESS
+TRACEROUTE (using port 53/tcp)
+HOP RTT      ADDRESS
 [Cut first 10 hops for brevity]
-11  80.33 ms  layer42.car2.sanjose2.level3.net (4.59.4.78)
-12  137.52 ms xe6-2.core1.svk.layer42.net (69.36.239.221)
-13  44.15 ms  scanme.nmap.org (64.13.134.52)
+11  17.65 ms li86-221.members.linode.com (74.207.244.221)
 
-Nmap done: 1 IP address (1 host up) scanned in 22.19 seconds
+Nmap done: 1 IP address (1 host up) scanned in 14.40 seconds
 </screen>
 </example>
 
@@ -1859,9 +1856,11 @@ way.</para>
     (e.g. FTP, SSH, Telnet, HTTP), the application name (e.g. ISC
     BIND, Apache httpd, Solaris telnetd), the version number,
     hostname, device type (e.g. printer, router), the OS family
-    (e.g. Windows, Linux) and sometimes miscellaneous details like
+    (e.g. Windows, Linux). When possible, Nmap also gets the
+    Common Platform Enumeration (CPE)<indexterm><primary>Common Platform Enumeration</primary><secondary>service</secondary></indexterm>
+    representation of this information. Sometimes miscellaneous details like
     whether an X server is open to connections, the SSH protocol
-    version, or the KaZaA user name).  Of course, most services don't
+    version, or the KaZaA user name, are available.  Of course, most services don't
     provide all of this information.  If Nmap was compiled with
     OpenSSL support, it will connect to SSL servers to deduce the
     service listening behind that encryption layer.<indexterm><primary>SSL</primary><secondary>in version detection</secondary></indexterm>
@@ -2027,6 +2026,7 @@ way.</para>
     <title>OS Detection</title>
     <indexterm class="startofrange" id="man-os-detection-indexterm"><primary>OS detection</primary></indexterm>
 
+    <indexterm><primary>CPE</primary><see>Common Platform Enumeration</see></indexterm>
     <para>One of Nmap's best-known features is remote OS detection
     using TCP/IP stack fingerprinting.  Nmap sends a series of TCP and
     UDP packets to the remote host and examines practically every bit
@@ -2040,7 +2040,10 @@ way.</para>
     OS, and a classification which provides the vendor name
     (e.g. Sun), underlying OS (e.g. Solaris), OS generation (e.g. 10),
     and device type (general purpose, router, switch, game console,
-    etc).</para>
+    etc). Most fingerprints also have a Common Platform Enumeration
+    (CPE)<indexterm><primary>Common Platform Enumeration</primary><secondary>operating system</secondary></indexterm>
+    representation, like
+    <literal>cpe:/o:linux:kernel:2.6</literal>.</para>
 
     <para>If Nmap is unable to guess the OS of a machine, and
     conditions are good (e.g. at least one open port and one closed

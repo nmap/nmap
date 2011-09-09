@@ -199,6 +199,10 @@ void bintohexstr(char *buf, int buflen, char *src, int srclen);
 char *strerror(int errnum);
 #endif
 
+/* Get the CPE part (first component of the URL, should be "a", "h", or "o") as
+   a character: 'a', 'h', or 'o'. Returns -1 on error. */
+int cpe_get_part(const char *cpe);
+
 /* mmap() an entire file into the address space.  Returns a pointer
    to the beginning of the file.  The mmap'ed length is returned
    inside the length parameter.  If there is a problem, NULL is

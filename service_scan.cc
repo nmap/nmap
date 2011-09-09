@@ -166,6 +166,9 @@ public:
   char hostname_matched[80];
   char ostype_matched[32];
   char devicetype_matched[32];
+  char cpe_a_matched[80];
+  char cpe_h_matched[80];
+  char cpe_o_matched[80];
   enum service_tunnel_type tunnel; /* SERVICE_TUNNEL_NONE, SERVICE_TUNNEL_SSL */
   // This stores our SSL session id, which will help speed up subsequent
   // SSL connections.  It's overwritten each time.  void* is used so we don't
@@ -270,6 +273,7 @@ ServiceProbeMatch::ServiceProbeMatch() {
 }
 
 ServiceProbeMatch::~ServiceProbeMatch() {
+  std::vector<char *>::iterator it;
   if (!isInitialized) return;
   if (servicename) free(servicename);
   if (matchstr) free(matchstr);
@@ -279,11 +283,90 @@ ServiceProbeMatch::~ServiceProbeMatch() {
   if (hostname_template) free(hostname_template);
   if (ostype_template) free(ostype_template);
   if (devicetype_template) free(devicetype_template);
+  for (it = cpe_templates.begin(); it != cpe_templates.end(); it++)
+    free(*it);
   matchstrlen = 0;
   if (regex_compiled) pcre_free(regex_compiled);
   if (regex_extra) pcre_free(regex_extra);
   isInitialized = false;
   matchops_anchor = -1;
+}
+
+/* Make a new allocated null-terminated string from the bytes [start, end). */
+static char *mkstr(const char *start, const char *end)
+{
+    char *s;
+
+    assert(end >= start);
+    s = (char *) safe_malloc(end - start + 1);
+    memcpy(s, start, end - start);
+    s[end - start] = '\0';
+
+    return s;
+}
+
+/* Realloc a malloc-allocated string and put a given prefix at the front. */
+static char *string_prefix(char *string, const char *prefix)
+{
+    size_t slen, plen;
+
+    slen = strlen(string);
+    plen = strlen(prefix);
+    string = (char *) safe_realloc(string, plen + slen + 1);
+    memmove(string + plen, string, slen + 1);
+    memmove(string, prefix, plen);
+
+    return string;
+}
+
+/* Read the next tmplt from *matchtext and update *matchtext. Return true iff
+   a template was read. For example, after
+     matchtext = "p/123/ d/456/";
+     next_template(&matchtext, &modestr, &flags, &tmplt);
+   then
+     matchtext == " d/456/"
+     modestr == "p"
+     tmplt == "123"
+     flags == ""
+   *modestr and *tmplt must be freed if the return value is true. */
+static bool next_template(const char **matchtext, char **modestr, char **tmplt,
+  char **flags, int lineno) {
+  const char *p, *q;
+  char delimchar;
+
+  p = *matchtext;
+  while(isspace((int) (unsigned char) *p))
+    p++;
+  if (*p == '\0')
+    return false;
+
+  q = p;
+  while (isalpha(*q) || *q == ':')
+    q++;
+  if (*q == '\0' || isspace(*q))
+    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
+
+  *modestr = mkstr(p, q);
+
+  delimchar = *q;
+  p = q + 1;
+
+  q = strchr(p, delimchar);
+  if (q == NULL)
+    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
+
+  *tmplt = mkstr(p, q);
+  p = q + 1;
+
+  q = p;
+  while (isalpha(*q))
+    q++;
+  *flags = mkstr(p, q);
+
+  /* Update pointer for caller. */
+  *matchtext = q;
+
+  return true;
 }
 
 // match text from the nmap-service-probes file.  This must be called
@@ -294,12 +377,10 @@ ServiceProbeMatch::~ServiceProbeMatch() {
 // function will abort the program if there is a syntax problem.
 void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   const char *p;
-  char *tmptemplate;
-  char delimchar, modechar;
+  char *modestr, *tmptemplate, *flags;
   int pcre_compile_ops = 0;
   const char *pcre_errptr = NULL;
   int pcre_erroffset = 0;
-  unsigned int tmpbuflen = 0;
   char **curr_tmp = NULL;
 
   if (isInitialized) fatal("Sorry ... %s does not yet support reinitializion", __func__);
@@ -336,103 +417,80 @@ void ServiceProbeMatch::InitMatch(const char *matchtext, int lineno) {
   // options. ('i' means "case insensitive", 's' means that . matches
   // newlines (both are just as in perl)
   matchtext = p;
-  while(isspace((int) (unsigned char) *matchtext)) matchtext++;
-  if (*matchtext == 'm') {
-    if (!*(matchtext+1))
-      fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
-    matchtype = SERVICEMATCH_REGEX;
-    delimchar = *(++matchtext);
-    ++matchtext;
-    // find the end of the regex
-    p = strchr(matchtext, delimchar);
-    if (!p) fatal("%s: parse error on line %d of nmap-service-probes: could not find end delimiter for regex", __func__, lineno);
-    matchstrlen = p - matchtext;
-    matchstr = (char *) safe_malloc(matchstrlen + 1);
-    memcpy(matchstr, matchtext, matchstrlen);
-    matchstr[matchstrlen]  = '\0';
-    
-    matchtext = p + 1; // skip past the delim
-    // any options?
-    while(*matchtext && !isspace((int) (unsigned char) *matchtext)) {
-      if (*matchtext == 'i')
-	matchops_ignorecase = true;
-      else if (*matchtext == 's')
-	matchops_dotall = true;
-      else fatal("%s: illegal regexp option on line %d of nmap-service-probes", __func__, lineno);
-      matchtext++;
-    }
+  if (!next_template(&matchtext, &modestr, &matchstr, &flags, lineno))
+    fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
 
-    // Next we compile and study the regular expression to match
-    if (matchops_ignorecase)
-      pcre_compile_ops |= PCRE_CASELESS;
+  if (strcmp(modestr, "m") != 0)
+    fatal("%s: parse error on line %d of nmap-service-probes: matchtext must begin with 'm'", __func__, lineno);
+  matchtype = SERVICEMATCH_REGEX;
 
-    if (matchops_dotall)
-      pcre_compile_ops |= PCRE_DOTALL;
-    
-    regex_compiled = pcre_compile(matchstr, pcre_compile_ops, &pcre_errptr, 
-				     &pcre_erroffset, NULL);
-    
-    if (regex_compiled == NULL)
-      fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
-    
-    
-    // Now study the regexp for greater efficiency
-    regex_extra = pcre_study(regex_compiled, 0, &pcre_errptr);
-    if (pcre_errptr != NULL)
-      fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
-  } else {
-    /* Invalid matchtext */
-    fatal("%s: parse error on line %d of nmap-service-probes: match string must begin with 'm'", __func__, lineno);
+  // any options?
+  for (p = flags; *p != '\0'; p++) {
+    if (*p == 'i')
+      matchops_ignorecase = true;
+    else if (*p == 's')
+      matchops_dotall = true;
+    else
+      fatal("%s: illegal regexp option on line %d of nmap-service-probes", __func__, lineno);
   }
+
+  // Next we compile and study the regular expression to match
+  if (matchops_ignorecase)
+    pcre_compile_ops |= PCRE_CASELESS;
+
+  if (matchops_dotall)
+    pcre_compile_ops |= PCRE_DOTALL;
+
+  regex_compiled = pcre_compile(matchstr, pcre_compile_ops, &pcre_errptr, 
+                                   &pcre_erroffset, NULL);
+
+  if (regex_compiled == NULL)
+    fatal("%s: illegal regexp on line %d of nmap-service-probes (at regexp offset %d): %s\n", __func__, lineno, pcre_erroffset, pcre_errptr);
+
+  // Now study the regexp for greater efficiency
+  regex_extra = pcre_study(regex_compiled, 0, &pcre_errptr);
+  if (pcre_errptr != NULL)
+    fatal("%s: failed to pcre_study regexp on line %d of nmap-service-probes: %s\n", __func__, lineno, pcre_errptr);
+
+  free(modestr);
+  free(flags);
 
   /* OK! Now we look for any templates of the form ?/.../
    * where ? is either p, v, i, h, o, or d. / is any
    * delimiter character and ... is a template */
 
-  while(1) {
-  while(isspace((int) (unsigned char) *matchtext)) matchtext++;
-    if (*matchtext == '\0' || *matchtext == '\r' || *matchtext == '\n') break;
+  while (next_template(&matchtext, &modestr, &tmptemplate, &flags, lineno)) {
+    if (strcmp(modestr, "p") == 0)
+      curr_tmp = &product_template;
+    else if (strcmp(modestr, "v") == 0)
+      curr_tmp = &version_template;
+    else if (strcmp(modestr, "i") == 0)
+      curr_tmp = &info_template;
+    else if (strcmp(modestr, "h") == 0)
+      curr_tmp = &hostname_template;
+    else if (strcmp(modestr, "o") == 0)
+      curr_tmp = &ostype_template;
+    else if (strcmp(modestr, "d") == 0)
+      curr_tmp = &devicetype_template;
+    else if (strcmp(modestr, "cpe:") == 0) {
+      tmptemplate = string_prefix(tmptemplate, "cpe:/");
+      cpe_templates.push_back(NULL);
+      curr_tmp = &cpe_templates.back();
+    } else
+      fatal("%s: Unknown template specifier '%s' on line %d of nmap-service-probes", __func__, modestr, lineno);
 
-    modechar = *(matchtext++);
-    if (*matchtext == 0 || *matchtext == '\r' || *matchtext == '\n')
-      fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
-
-    delimchar = *(matchtext++);
-
-    p = strchr(matchtext, delimchar);
-    if (!p) fatal("%s: parse error on line %d of nmap-service-probes", __func__, lineno);
-
-    tmptemplate = NULL;
-    tmpbuflen = p - matchtext;
-    if (tmpbuflen > 0) {
-      tmptemplate = (char *) safe_malloc(tmpbuflen + 1);
-      memcpy(tmptemplate, matchtext, tmpbuflen);
-      tmptemplate[tmpbuflen] = '\0';
-    }
-
-    switch(modechar){
-    case 'p': curr_tmp = &product_template; break;
-    case 'v': curr_tmp = &version_template; break;
-    case 'i': curr_tmp = &info_template; break;
-    case 'h': curr_tmp = &hostname_template; break;
-    case 'o': curr_tmp = &ostype_template; break;
-    case 'd': curr_tmp = &devicetype_template; break;
-    default:
-    	fatal("%s: Unknown template specifier '%c' on line %d of nmap-service-probes", __func__, modechar, lineno);
-    }
-    if(*curr_tmp){
-      if(o.debugging)
-        error("WARNING: Template \"%c/%s/\" replaced with \"%c/%s/\" on line %d of nmap-service-probes",
-        	modechar,
-    	  	*curr_tmp,
-        	modechar,
-    	  	tmptemplate,
-    	  	lineno);
-    	free(*curr_tmp);
+    /* This one already defined? */
+    if (*curr_tmp) {
+      if (o.debugging) {
+        error("WARNING: Template \"%s/%s/\" replaced with \"%s/%s/\" on line %d of nmap-service-probes",
+              modestr, *curr_tmp, modestr, tmptemplate, lineno);
       }
-    *curr_tmp = tmptemplate;
+      free(*curr_tmp);
+    }
 
-    matchtext = p + 1;
+    *curr_tmp = tmptemplate;
+    free(modestr);
+    free(flags);
   }
 
   isInitialized = 1;
@@ -455,6 +513,7 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
   static char hostname[80];
   static char ostype[32];
   static char devicetype[32];
+  static char cpe_a[80], cpe_h[80], cpe_o[80];
   char *bufc = (char *) buf;
   int ovector[150]; // allows 50 substring matches (including the overall match)
   assert(isInitialized);
@@ -480,13 +539,17 @@ const struct MatchDetails *ServiceProbeMatch::testMatch(const u8 *buf, int bufle
     // Yeah!  Match apparently succeeded.
     // Now lets get the version number if available
     getVersionStr(buf, buflen, ovector, rc, product, sizeof(product), version, sizeof(version), info, sizeof(info),
-                  hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype));
+                  hostname, sizeof(hostname), ostype, sizeof(ostype), devicetype, sizeof(devicetype),
+                  cpe_a, sizeof(cpe_a), cpe_h, sizeof(cpe_h), cpe_o, sizeof(cpe_o));
     if (*product) MD_return.product = product;
     if (*version) MD_return.version = version;
     if (*info) MD_return.info = info;
     if (*hostname) MD_return.hostname = hostname;
     if (*ostype) MD_return.ostype = ostype;
     if (*devicetype) MD_return.devicetype = devicetype;
+    if (*cpe_a) MD_return.cpe_a = cpe_a;
+    if (*cpe_h) MD_return.cpe_h = cpe_h;
+    if (*cpe_o) MD_return.cpe_o = cpe_o;
   
     MD_return.serviceName = servicename;
     MD_return.lineno = getLineNo();
@@ -561,44 +624,103 @@ static int getsubstcommandargs(struct substargs *args, char *args_start,
   return args->num_args;
 }
 
-// This function does the actual substitution of a placeholder like $2
-// or $P(4) into the given buffer.  It returns the number of chars
-// written, or -1 if it fails.  tmplvar is a template variable, such
-// as "$P(2)".  We determine the appropriate string representing that,
-// and place it in newstr (as long as it doesn't exceed newstrlen).
-// We then set *tmplvarend to the character after the
-// variable. subject, subjectlen, ovector, and nummatches mean the
-// same as in dotmplsubst().
-static int substvar(char *tmplvar, char **tmplvarend, char *newstr, 
-	     int newstrlen, const u8 *subject, int subjectlen, int *ovector,
+/* These three functions manage a growing string buffer, appended to at the end.
+   Begin with strbuf_init, follow with any number of strbuf_append, and end with
+   strbuf_finish. */
+static void strbuf_init(char **buf, size_t *n, size_t *len) {
+  *buf = NULL;
+  *n = 0;
+  *len = 0;
+}
+
+static void strbuf_append(char **buf, size_t *n, size_t *len,
+  const char *from, size_t fromlen) {
+  /* Double the size of the buffer if necessary. */
+  if (*len == 0 || *len + fromlen > *n) {
+    *n = (*len + fromlen) * 2;
+    *buf = (char *) safe_realloc(*buf, *n + 1);
+  }
+  memcpy(*buf + *len, from, fromlen);
+  *len += fromlen;
+}
+
+/* Trim to length. (Also does initial allocation when *buf is empty.) */
+static void strbuf_finish(char **buf, size_t *n, size_t *len) {
+  *buf = (char *) safe_realloc(*buf, *len + 1);
+  (*buf)[*len] = '\0';
+}
+
+/* Transform a string so that it is safe to insert into the middle of a CPE URL. */
+static char *transform_cpe(const char *s) {
+  char *result;
+  size_t n, len, repllen;
+  const char *p;
+
+  strbuf_init(&result, &n, &len);
+  for (p = s; *p != '\0'; p++) {
+    const char *repl;
+    char buf[32];
+
+    /* Section 5.4 of the CPE specification lists these characters to be
+       escaped. */
+    if (strchr(":/?#[]@!$&'()*+,;=%<>\"", *p) != NULL) {
+      Snprintf(buf, sizeof(buf), "%%%02X", *p);
+      repl = buf;
+    /* Replacing spaces with underscores is also a convention. */
+    } else if (*p == ' ') {
+      repl = "_";
+    /* Otherwise just make lower-case. */
+    } else {
+      buf[0] = tolower(*p);
+      buf[1] = '\0';
+      repl = buf;
+    }
+
+    repllen = strlen(repl);
+    strbuf_append(&result, &n, &len, repl, repllen);
+  }
+  strbuf_finish(&result, &n, &len);
+
+  return result;
+}
+
+// This function does the substitution of a placeholder like $2 or $P(4). It
+// returns a newly allocated string, or NULL if it fails. tmplvar is a template
+// variable, such as "$P(2)". We set *tmplvarend to the character after the
+// variable. subject, subjectlen, ovector, and nummatches mean the same as in
+// dotmplsubst().
+static char *substvar(char *tmplvar, char **tmplvarend,
+	     const u8 *subject, int subjectlen, int *ovector,
 	     int nummatches) {
   char substcommand[16];
   char *p = NULL;
   char *p_end;
-  int len;
   int subnum = 0;
   int offstart, offend;
-  int byteswritten = 0; // for return val
   int rc;
   int i;
   struct substargs command_args;
+  char *result;
+  size_t n, len;
+
   // skip the '$'
-  if (*tmplvar != '$') return -1;
+  if (*tmplvar != '$') return NULL;
   tmplvar++;
 
   if (!isdigit((int) (unsigned char) *tmplvar)) {
+    int commandlen;
     /* This is a command like $P(1). */
     p = strchr(tmplvar, '(');
-    if (!p) return -1;
-    len = p - tmplvar;
-    if (!len || len >= (int) sizeof(substcommand))
-      return -1;
-    memcpy(substcommand, tmplvar, len);
-    substcommand[len] = '\0';
+    if (!p) return NULL;
+    commandlen = p - tmplvar;
+    if (!commandlen || commandlen >= (int) sizeof(substcommand))
+      return NULL;
+    memcpy(substcommand, tmplvar, commandlen);
+    substcommand[commandlen] = '\0';
     tmplvar = p+1;
     // Now we grab the arguments.
     rc = getsubstcommandargs(&command_args, tmplvar, &p_end);
-    if (rc <= 0) return -1;
+    if (rc <= 0) return NULL;
     tmplvar = p_end;
   } else {
     /* This is a placeholder like $2. */
@@ -609,28 +731,25 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
 
   if (tmplvarend) *tmplvarend = tmplvar;
 
+  strbuf_init(&result, &n, &len);
   if (!*substcommand) {
     /* Handler for a placeholder like $2. */
-    if (subnum > 9 || subnum <= 0) return -1;
-    if (subnum >= nummatches) return -1;
+    if (subnum > 9 || subnum <= 0) return NULL;
+    if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
     assert(offstart >= 0 && offstart < subjectlen);
     assert(offend >= 0 && offend <= subjectlen);
-    len = offend - offstart;
     // A plain-jane copy
-    if (newstrlen <= len - 1)
-      return -1;
-    memcpy(newstr, subject + offstart, len);
-    byteswritten = len;
+    strbuf_append(&result, &n, &len, (const char *) subject + offstart, offend - offstart);
   } else if (strcmp(substcommand, "P") == 0) {
     if (command_args.num_args != 1 ||
         command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT) {
-      return -1;
+      return NULL;
     }
     subnum = command_args.int_args[0];
-    if (subnum > 9 || subnum <= 0) return -1;
-    if (subnum >= nummatches) return -1;
+    if (subnum > 9 || subnum <= 0) return NULL;
+    if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
     assert(offstart >= 0 && offstart < subjectlen);
@@ -638,12 +757,10 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
     // This filter only includes printable characters.  It is particularly
     // useful for collapsing unicode text that looks like 
     // "W\0O\0R\0K\0G\0R\0O\0U\0P\0"
-    for(i=offstart; i < offend; i++)
-      if (isprint((int) subject[i])) {
-	if (byteswritten >= newstrlen - 1)
-	  return -1;
-	newstr[byteswritten++] = subject[i];
-      }
+    for(i=offstart; i < offend; i++) {
+      if (isprint((int) subject[i]))
+        strbuf_append(&result, &n, &len, (const char *) subject + i, 1);
+    }
   } else if (strcmp(substcommand, "SUBST") == 0) {
     char *findstr, *replstr;
     int findstrlen, replstrlen;
@@ -651,11 +768,11 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
         command_args.arg_types[0] != SUBSTARGS_ARGTYPE_INT ||
         command_args.arg_types[1] != SUBSTARGS_ARGTYPE_STRING ||
 	command_args.arg_types[2] != SUBSTARGS_ARGTYPE_STRING) {
-      return -1;
+      return NULL;
     }
     subnum = command_args.int_args[0];
-    if (subnum > 9 || subnum <= 0) return -1;
-    if (subnum >= nummatches) return -1;
+    if (subnum > 9 || subnum <= 0) return NULL;
+    if (subnum >= nummatches) return NULL;
     offstart = ovector[subnum * 2];
     offend = ovector[subnum * 2 + 1];
     assert(offstart >= 0 && offstart < subjectlen);
@@ -665,26 +782,19 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
     replstr = command_args.str_args[2];
     replstrlen = command_args.str_args_len[2];
     for(i=offstart; i < offend; ) {
-      if (byteswritten >= newstrlen - 1)
-	return -1;
-      if (offend - i < findstrlen)
-	newstr[byteswritten++] = subject[i++]; // No room for match
-      else if (memcmp(subject + i, findstr, findstrlen) != 0)
-	newstr[byteswritten++] = subject[i++]; // no match
-      else {
+      if (memcmp(subject + i, findstr, findstrlen) != 0) {
+        strbuf_append(&result, &n, &len, (const char *) subject + i, 1); // no match
+        i++;
+      } else {
 	// The find string was found, copy it to newstring
-	if (newstrlen - 1 - byteswritten < replstrlen)
-	  return -1;
-	memcpy(newstr + byteswritten, replstr, replstrlen);
-	byteswritten += replstrlen;
+        strbuf_append(&result, &n, &len, replstr, replstrlen);
 	i += findstrlen;
       }
     }
-  } else return -1; // Unknown command
+  } else return NULL; // Unknown command
 
-  if (byteswritten >= newstrlen) return -1;
-  newstr[byteswritten] = '\0';
-  return byteswritten;
+  strbuf_finish(&result, &n, &len);
+  return result;
 }
 
 
@@ -695,13 +805,19 @@ static int substvar(char *tmplvar, char **tmplvarend, char *newstr,
 // matches in ovector.  The NUL-terminated newly composted string is
 // placed into 'newstr', as long as it doesn't exceed 'newstrlen'
 // bytes.  Trailing whitespace and commas are removed.  Returns zero for success
+//
+// The transform argument is a function pointer. If not NULL, the given
+// function is applied to all substitutions before they are inserted
+// into the result string.
 static int dotmplsubst(const u8 *subject, int subjectlen, 
 		       int *ovector, int nummatches, char *tmpl, char *newstr,
-		       int newstrlen) {
+		       int newstrlen,
+		       char *(*transform)(const char *) = NULL) {
   int newlen;
   char *srcstart=tmpl, *srcend;
   char *dst = newstr;
   char *newstrend = newstr + newstrlen; // Right after the final char
+  char *subst;
 
   if (!newstr || !tmpl) return -1;
   if (newstrlen < 3) return -1; // fuck this!
@@ -733,9 +849,24 @@ static int dotmplsubst(const u8 *subject, int subjectlen,
 	dst += newlen;
       }
       srcstart = srcend;
-      newlen = substvar(srcstart, &srcend, dst, newstrend - dst, subject, 
-		    subjectlen, ovector, nummatches);
-      if (newlen == -1) return -1;
+      subst = substvar(srcstart, &srcend, subject, subjectlen, ovector, nummatches);
+      if (subst == NULL)
+        return -1;
+      /* Apply transformation if requested. */
+      if (transform != NULL) {
+        char *tmp = subst;
+        subst = transform(subst);
+        free(tmp);
+        if (subst == NULL)
+          return -1;
+      }
+      newlen = strlen(subst);
+      if (dst + newlen >= newstrend - 1) {
+        free(subst);
+        return -1;
+      }
+      memcpy(dst, subst, newlen);
+      free(subst);
       dst += newlen;
       srcstart = srcend;
     }
@@ -754,7 +885,7 @@ static int dotmplsubst(const u8 *subject, int subjectlen,
 }
 
 
-// Use the six version templates and the match data included here
+// Use the version templates and the match data included here
 // to put the version info into the given strings, (as long as the sizes
 // are sufficient).  Returns zero for success.  If no template is available
 // for a string, that string will have zero length after the function
@@ -764,7 +895,10 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
 	    int *ovector, int nummatches, char *product, int productlen,
 	    char *version, int versionlen, char *info, int infolen,
                   char *hostname, int hostnamelen, char *ostype, int ostypelen,
-                  char *devicetype, int devicetypelen) {
+                  char *devicetype, int devicetypelen,
+                  char *cpe_a, int cpe_alen,
+                  char *cpe_h, int cpe_hlen,
+                  char *cpe_o, int cpe_olen) {
 
   int rc;
   assert(productlen >= 0 && versionlen >= 0 && infolen >= 0 &&
@@ -776,6 +910,9 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
   if (hostnamelen > 0) *hostname = '\0';
   if (ostypelen > 0) *ostype = '\0';
   if (devicetypelen > 0) *devicetype = '\0';
+  if (cpe_alen > 0) *cpe_a = '\0';
+  if (cpe_hlen > 0) *cpe_h = '\0';
+  if (cpe_olen > 0) *cpe_o = '\0';
   int retval = 0;
 
   // Now lets get this started!  We begin with the product name
@@ -839,6 +976,42 @@ int ServiceProbeMatch::getVersionStr(const u8 *subject, int subjectlen,
     rc = dotmplsubst(subject, subjectlen, ovector, nummatches, devicetype_template, devicetype, devicetypelen);
     if (rc != 0) {
       error("Warning: Servicescan failed to fill devicetype_template (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", subjectlen, devicetypelen, deflineno,
+	    (devicetype_template)? devicetype_template : "");
+      if (devicetypelen > 0) *devicetype = '\0';
+      retval = -1;
+    }
+  }
+
+  /* There may be multiple cpe templates. We peek at the first character and
+     store in cpe_a, cpe_h, or cpe_o as appropriate. */
+  for (unsigned int i = 0; i < cpe_templates.size(); i++) {
+    char *cpe;
+    int cpelen;
+    int part;
+
+    part = cpe_get_part(cpe_templates[i]);
+    switch (part) {
+    case 'a':
+      cpe = cpe_a;
+      cpelen = cpe_alen;
+      break;
+    case 'h':
+      cpe = cpe_h;
+      cpelen = cpe_hlen;
+      break;
+    case 'o':
+      cpe = cpe_o;
+      cpelen = cpe_olen;
+      break;
+    default:
+      error("Warning: ignoring cpe:// template with unknown part '%c' (0x%02X)",
+        isprint(part) ? part : '.', part);
+      continue;
+      break;
+    }
+    rc = dotmplsubst(subject, subjectlen, ovector, nummatches, cpe_templates[i], cpe, cpelen, transform_cpe);
+    if (rc != 0) {
+      error("Warning: Servicescan failed to fill cpe_%c (subjectlen: %d, devicetypelen: %d). Too long? Match string was line %d: d/%s/", part, subjectlen, devicetypelen, deflineno,
 	    (devicetype_template)? devicetype_template : "");
       if (devicetypelen > 0) *devicetype = '\0';
       retval = -1;
@@ -1368,6 +1541,7 @@ ServiceNFO::ServiceNFO(AllProbes *newAP) {
   currentresplen = 0;
   product_matched[0] = version_matched[0] = extrainfo_matched[0] = '\0';
   hostname_matched[0] = ostype_matched[0] = devicetype_matched[0] = '\0';
+  cpe_a_matched[0] = cpe_h_matched[0] = cpe_o_matched[0] = '\0';
   tunnel = SERVICE_TUNNEL_NONE;
   ssl_session = NULL;
   softMatchFound = false;
@@ -1891,6 +2065,7 @@ static int scanThroughTunnel(nsock_pool nsp, nsock_iod nsi, ServiceGroup *SG,
   svc->probe_matched = NULL;
   svc->product_matched[0] = svc->version_matched[0] = svc->extrainfo_matched[0] = '\0';
   svc->hostname_matched[0] = svc->ostype_matched[0] = svc->devicetype_matched[0] = '\0';
+  svc->cpe_a_matched[0] = svc->cpe_h_matched[0] = svc->cpe_o_matched[0] = '\0';
   svc->softMatchFound = false;
    svc->resetProbes(true);
   startNextProbe(nsp, nsi, SG, svc, true);
@@ -2221,6 +2396,12 @@ static void servicescan_read_handler(nsock_pool nsp, nsock_event nse, void *myda
 	  Strncpy(svc->ostype_matched, MD->ostype, sizeof(svc->ostype_matched));
 	if (MD->devicetype) 
 	  Strncpy(svc->devicetype_matched, MD->devicetype, sizeof(svc->devicetype_matched));
+	if (MD->cpe_a)
+	  Strncpy(svc->cpe_a_matched, MD->cpe_a, sizeof(svc->cpe_a_matched));
+	if (MD->cpe_h)
+	  Strncpy(svc->cpe_h_matched, MD->cpe_h, sizeof(svc->cpe_h_matched));
+	if (MD->cpe_o)
+	  Strncpy(svc->cpe_o_matched, MD->cpe_o, sizeof(svc->cpe_o_matched));
 	svc->softMatchFound = MD->isSoft;
 	if (!svc->softMatchFound) {
 	  // We might be able to continue scan through a tunnel protocol 
@@ -2365,11 +2546,15 @@ list<ServiceNFO *>::iterator svc;
 					  *(*svc)->hostname_matched? (*svc)->hostname_matched : NULL, 
 					  *(*svc)->ostype_matched? (*svc)->ostype_matched : NULL, 
 					  *(*svc)->devicetype_matched? (*svc)->devicetype_matched : NULL, 
+					  *(*svc)->cpe_a_matched? (*svc)->cpe_a_matched : NULL, 
+					  *(*svc)->cpe_h_matched? (*svc)->cpe_h_matched : NULL, 
+					  *(*svc)->cpe_o_matched? (*svc)->cpe_o_matched : NULL, 
 					  shouldWePrintFingerprint(*svc) ? (*svc)->getServiceFingerprint(NULL) : NULL);
    }  else {
        (*svc)->target->ports.setServiceProbeResults((*svc)->portno, (*svc)->proto,
 					    (*svc)->probe_state, NULL,
 					    (*svc)->tunnel, NULL, NULL, NULL, NULL, NULL, NULL,
+					    NULL, NULL, NULL,
 					    (*svc)->getServiceFingerprint(NULL));
    }
  }
@@ -2415,7 +2600,8 @@ static void remove_excluded_ports(AllProbes *AP, ServiceGroup *SG) {
 					PROBESTATE_EXCLUDED, NULL, 
 					SERVICE_TUNNEL_NONE,
                                         "Excluded from version scan", NULL,
-					NULL, NULL, NULL, NULL, NULL);
+					NULL, NULL, NULL, NULL,
+					NULL, NULL, NULL, NULL);
 
       SG->services_remaining.erase(i);
       SG->services_finished.push_back(svc);
