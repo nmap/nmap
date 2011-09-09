@@ -16,7 +16,7 @@ fully distinguished name. E.g., "Patrik Karlsson" vs.
 This type of authentication is not supported on e.g. OpenLDAP.
 
 This script uses some AD-specific support and optimizations:
-* LDAP on Windows 2003 reports different error messages depending on whether an account exists or not. If the script receives an error indicating that the username does not exist it simply stops guessing passwords for this account and moves on to the next.
+* LDAP on Windows 2003/2008 reports different error messages depending on whether an account exists or not. If the script receives an error indicating that the username does not exist it simply stops guessing passwords for this account and moves on to the next.
 * The script attempts to authenticate with the username only if no LDAP base is specified. The benefit of authenticating this way is that the LDAP path of each account does not need to be known in advance as it's looked up by the server.  This technique will only find a match if the account Display Name matches the username being attempted.
 ]]
 
@@ -31,9 +31,24 @@ This script uses some AD-specific support and optimizations:
 -- |_  ldaptest:ldaptest => Login Correct
 --
 -- @args ldap.base If set, the script will use it as a base for the password
---       guessing attempts. If unset the user list must either contain the
---       distinguished name of each user or the server must support
---       authentication using a simple user name. See the AD discussion in the description.
+--       guessing attempts. If both ldap.base and ldap.upnsuffix are unset the user 
+--       list must either contain the distinguished name of each user or the server
+--       must support authentication using a simple user name. See the AD discussion 
+--       in the description.  DO NOT use ldap.upnsuffix in conjunction with ldap.base 
+--       as attempts to login will fail.
+--
+-- @args ldap.upnsuffix  If set, the script will append this suffix value to the username 
+--       to create a User Principle Name (UPN).  For example if the ldap.upnsuffix value were
+--       'mycompany.com' and the username being tested was 'pete' then this script would 
+--       attempt to login as 'pete@mycompany.com'.  This setting should only have value
+--       when running the script against a Microsoft Active Directory LDAP implementation.
+--       When the UPN is known using this setting should provide more reliable results
+--       against domains that have been organized into various OUs or child domains.
+--       If both ldap.base and ldap.upnsuffix are unset the user list must either contain
+--       the distinguished name of each user or the server must support authentication 
+--       using a simple user name. See the AD discussion in the description.
+--       DO NOT use ldap.upnsuffix in conjunction with ldap.base as attempts to login
+--       will fail.
 --
 -- @args ldap.saveprefix  If set, the script will save the output to a file
 --       beginning with the specified path and name.  The file suffix will automatically
@@ -41,7 +56,7 @@ This script uses some AD-specific support and optimizations:
 --
 -- @args ldap.savetype  If set, the script will save the passwords in the specified
 --       format.  The current formats are CSV, verbose and plain. In both verbose and plain
---       records are seperated by colons.  The difference between the two is that verbose
+--       records are separated by colons.  The difference between the two is that verbose
 --       includes the credential state.  When ldap.savetype is used without ldap.saveprefix
 --       then ldap-brute will be prefixed to all output filenames.
 --
@@ -57,12 +72,13 @@ require 'unpwdb'
 require 'comm'
 require 'creds'
 
--- Version 0.5
+-- Version 0.6
 -- Created 01/20/2010 - v0.1 - created by Patrik Karlsson
 -- Revised 01/26/2010 - v0.2 - cleaned up unpwdb related code, fixed ssl stuff
 -- Revised 02/17/2010 - v0.3 - added AD specific checks and fixed bugs related to LDAP base
 -- Revised 08/07/2011 - v0.4 - adjusted AD match strings to be level independent, added additional account condition checks
 -- Revised 09/04/2011 - v0.5 - added support for creds library, saving output to file
+-- Revised 09/09/2011 - v0.6 - added support specifying a UPN suffix via ldap.upnsuffx
 
 portrule = shortport.port_or_service({389,636}, {"ldap","ldapssl"})
 
@@ -117,6 +133,7 @@ action = function( host, port )
 	local socket, _, opt = comm.tryssl( host, port, ldap_anonymous_bind, nil )
 	
 	local base_dn = stdnse.get_script_args('ldap.base')
+	local upn_suffix = stdnse.get_script_args('ldap.upnsuffix')
 		
 	local output_type = stdnse.get_script_args('ldap.savetype')
 	
@@ -164,9 +181,13 @@ action = function( host, port )
 		-- if a base DN was set append our username (CN) to the base
 		if base_dn then
 			fq_username = ("cn=%s,%s"):format(username, base_dn)
+		elseif upn_suffix then
+			fq_username = ("%s@%s"):format(username, upn_suffix)
 		else
 			fq_username = username
 		end
+		
+		
 		user_cnt = user_cnt + 1
 		for password in passwords do			
 			tot_tries = tot_tries + 1
