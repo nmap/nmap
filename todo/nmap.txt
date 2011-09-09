@@ -684,7 +684,7 @@ o Initial IPv6 OS detection system (may not make it into stable
   - OK, it is working in nmap-exp/luis/nmap-os6
 
 o Investigate a probe/response matching problem reported by QA Cafe
-  Matthew Stickey and Joe McEachern of QA Cafe.  See this thread:
+  Matthew Stickney and Joe McEachern of QA Cafe.  See this thread:
   http://seclists.org/nmap-dev/2011/q3/227
 
 o When our winpcap installer is run in silent mode
