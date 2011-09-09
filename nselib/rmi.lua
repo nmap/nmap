@@ -1151,7 +1151,7 @@ function makeStringReadable(data)
 		if x > 31 and x <127 then
 			r = r .. data:sub(i,i)
 		else 
-			r = r .. ("\x%x"):format(x)
+			r = r .. ("\\x%x"):format(x)
 		end
 	end
 	return r
