@@ -22,6 +22,8 @@ o Finish CPE support code
 
 o Add many more CPE entries to OS and version detection databases
 
+o Give CPE visibility to NSE.
+
 o Document Nmap CPE support in appropriate places (canddiates:
   refguide, os detection book chapter, version detection book chapter,
   output book chapter).
