@@ -329,7 +329,7 @@ match eggdrop m|\(Eggdrop v([\d.]+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdr
 match eggdrop m|\(Eggdrop v([\d.]+)\+ipv6 \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console with ipv6/ v/$1/
 match eggdrop m|\(Eggdrop v([\d.]+)\+SSL \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console with SSL/ v/$1/
 match eggdrop m|\(Eggdrop v([\d.]+)\+rc(\d+) \(C\) 1997 Robey Pointer.*Eggheads|s p/Eggdrop IRC bot console/ v/$1 rc $2/
-match eggdrop m=\(Eggdrop v([\d.]+)\+(STEALER\.net|Gentoo) \(C\) 1997 Robey Pointer.*Eggheads=s p/Eggdrop IRC bot console with Gentoo patches/ v/$1/ o/Linux/ i/Gentoo/ cpe:/o:linux:kernel/a
+match eggdrop m=\(Eggdrop v([\d.]+)\+(STEALER\.net|Gentoo) \(C\) 1997 Robey Pointer.*Eggheads=s p/Eggdrop IRC bot console with Gentoo patches/ v/$1/ o/Linux/ i/Gentoo/ cpe:/o:gentoo:linux/
 
 match eggdrop m|Copyright \(C\) 1997 Robey Pointer\r\n.*Eggheads| p/Eggdrop IRC bot console/
 
@@ -467,7 +467,7 @@ match ftp m|^220 ProFTP Server Ready\r\n| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:prof
 match ftp m|^220 ProFTP Ready\r\n| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220 Welcome @ my\.ftp\.org\r\n$| p/ProFTPD/ o/Unix/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220-.*\r\n220 ProFTPD ([\d.]+) Server|s p/ProFTPD/ v/$1/ o/Unix/ cpe:/a:proftpd:proftpd:$1/a
-match ftp m|^220 .* FTP Server \(ProFTPD ([\d.]+) on Red Hat linux ([\d.]+)\) ready\.\r\n| p/ProFTPD/ v/$1/ i/RedHat $2/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:proftpd:proftpd:$1/a
+match ftp m|^220 .* FTP Server \(ProFTPD ([\d.]+) on Red Hat linux ([\d.]+)\) ready\.\r\n| p/ProFTPD/ v/$1/ i/RedHat $2/ o/Linux/ cpe:/o:redhat:linux/ cpe:/a:proftpd:proftpd:$1/a
 match ftp m|^220 ProFTP-Server auf ([-\w_.]+)\r\n| p/ProFTPD/ i/German/ o/Unix/ cpe:/a:proftpd:proftpd/a
 match ftp m|^220.*\r\n220 ProFTPD ([\w._-]+) Server \(ProFTPD\)|s p/ProFTPD/ o/Unix/ v/$1/ cpe:/a:proftpd:proftpd:$1/a
 # Hope these aren't too general -Doug
@@ -515,7 +515,7 @@ match ftp m|220 ([-.\w]+) FTP server \(Version (\S+)/OpenBSD, linux port (\S+)\)
 match ftp m|^220 ([-.\w]+) FTP server \(Version (\S+)/OpenBSD/Linux-ftpd-([-.\w]+)\) ready.\r\n$| p/OpenBSD ftpd/ h/$1/ v/$2/ i/Linux port $2/ o/Linux/ cpe:/o:linux:kernel/a
 match ftp m/^220 Interscan Version ([-\w.]+)/i p/InterScan VirusWall ftpd/ v/$1/
 match ftp m|^220 InterScan FTP VirusWall NT (\d[-.\w]+) \(([-.\w]+) Mode\), Virus scan (\w+)\r\n$| p/InterScan VirusWall NT/ v/$1/ i/Virus scan $3; $2 mode/ o/Windows/ cpe:/o:microsoft:windows/a
-match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.\w]+)/OpenBSD\) ready\.\r\n$| p/OpenBSD ftpd/ h/$1/ v/$2/ o/OpenBSD/
+match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.\w]+)/OpenBSD\) ready\.\r\n$| p/OpenBSD ftpd/ h/$1/ v/$2/ o/OpenBSD/ cpe:/o:openbsd:openbsd/
 match ftp m|^220 ([-.\w]+) FTP server \(Version (6.0\w+)\) ready.\r\n| p/FreeBSD ftpd/ h/$1/ v/$2/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a
 match ftp m|^220  FTP server \(Version ([\w.]+)\) ready\.\r\n| p/FreeBSD ftpd/ v/$1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a
 # Trolltech Troll-FTPD 1.28 (Only runs on Linux)
@@ -549,7 +549,7 @@ match ftp m|^220 Welcome to Windows FTP Server| p|Windows Ftp Server| i|Not from
 match ftp m|^220 ([-\w_.]+) FTP server \(BSDI Version ([\w.]+)\) ready\.\r\n| p|BSDI/Unixware ftpd| v/$2/ h/$1/
 match ftp m|^220  FTP server \(Hummingbird Ltd\. \(HCLFTPD\) Version ([\d.]+)\) ready\.\r\n| p/Hummingbird ftpd/ v/$1/
 match ftp m|^220 OpenFTPD server ready\. .*\.\r\n| p/OpenFTPD/
-match ftp m|^220 ([\w._-]+) FTP server \(NetBSD-ftpd 20\w+\) ready\.\r\n| p/NetBSD lukemftpd/ o/NetBSD/
+match ftp m|^220 ([\w._-]+) FTP server \(NetBSD-ftpd 20\w+\) ready\.\r\n| p/NetBSD lukemftpd/ o/NetBSD/ cpe:/o:netbsd:netbsd/
 match ftp m|^220-\r\n    Your connection logged!\r\n220 ([\w\d_.-]+) FTP server \(NetBSD-ftpd 200\d+\) ready\.\r\n| p/NetBSD lukemftpd/ i/Connection logged/
 match ftp m|^220 CommuniGate Pro FTP Server ([\d.]+) ready\r\n| p/Communigate Pro ftpd/ v/$1/
 match ftp m|^220 CommuniGate Pro FTP Server ready\r\n| p/Communigate Pro ftpd/
@@ -808,7 +808,7 @@ match ftp m|^220 NetBotz FTP Server ([\w._-]+) ready\.\r\n| p/NetBotz network mo
 match ftp m|^220 TOSHIBA e-STUDIO5500c FTP server \(([\w._-]+)\) ready\.\r\n| p/Toshiba e-STUDIO5500c printer ftpd/ d/printer/ v/$1/
 match ftp m|^220  \(WJ-HD220 FTP Server version ([\w._-]+) Ready\)\r\n| p/Panasonic WJ-HD220 ftpd/ d/media device/ v/$1/
 match ftp m|^220 ([\w._-]+) FTP server \(EMC-SNAS: ([\w._-]+)\) ready\.\r\n| p/EMC Scalable Network Accelerator ftpd/ h/$1/ v/$2/
-match ftp m|^220-CentOS release ([\w._-]+) .*\r\n220 ProFTPD ([\w._-]+) Server \(ProFTPD Default Installation\)|s p/ProFTPD/ v/$2/ i/CentOS $1/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:proftpd:proftpd:$2/a
+match ftp m|^220-CentOS release ([\w._-]+) .*\r\n220 ProFTPD ([\w._-]+) Server \(ProFTPD Default Installation\)|s p/ProFTPD/ v/$2/ i/CentOS $1/ o/Linux/ cpe:/o:centos:centos/ cpe:/a:proftpd:proftpd:$2/a
 match ftp m|^220 TCAdmin FTP Server\r\n| p/Balance Servers TCAdmin game hosting ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^.* klogd: klogd started: BusyBox v([\w._-]+) \(.*\)\r\nDoing BRCTL \.\.\.\r\nsetfilter br0 0 \r\n/var/tmp/act_firewall: No such file or directory\r\n| p/Actiontec router ftpd/ i/firewall broken; BusyBox $1/ d/broadband router/ cpe:/a:busybox:ftpd:$1/
 # these should be fine. embyte
@@ -1143,7 +1143,7 @@ match imap m|^\* OK IMAP4rev1 Server DeskNow \(DeskNow ([\w._-]+)\) ready\r\n| p
 match imap m|^\* OK \[CAPABILITY (IMAP4 )?IMAP4REV1 .*IMAP4rev1 (200\d\.[-.\w]+) at| p/UW imapd/ v/$2/
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
 match imap m|^\* OK (?:\[CAPABILITY IMAP4[^\]]*?\] )?([-.\w]+) Cyrus IMAP4? v([-.\w\+]+) server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/
-match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/ i/RedHat/ o/Linux/ cpe:/o:linux:kernel/a
+match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([-.\w\+]+)-Red Hat [-.\w\+]+ server ready\r\n| p/Cyrus imapd/ h/$1/ v/$2/ i/RedHat/ o/Linux/ cpe:/o:redhat:linux/
 match imap m|^\* OK ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-Debian| p/Cyrus imapd/ h/$1/ v/$2/ o/Linux/ i|Debian/Ubuntu| cpe:/o:linux:kernel/a
 match imap m|^\* OK ([-.\w]+) Cyrus IMAP4 v([\w_.]+)-OS X ([\d.]+) server ready\r\n| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
 match imap m|^\* OK \[[^\]]+\] ([-\w_.]+) Cyrus IMAP4 v([-\w_.]+)-OS X Server ([\d.]+):| p/Cyrus imapd/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
@@ -1719,7 +1719,7 @@ match pop3 m|^\+OK ([-.\w]+) POP3 service \(Netscape Messaging Server (\d[^(]+) 
 match pop3 m/^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+) server ready </ p/Cyrus pop3d/ h/$1/ v/$2/
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-Red Hat [-\d.]+ server ready <| p/Cyrus pop3d/ h/$1/ v/$2/ i/Red Hat/ o/Linux/ cpe:/o:linux:kernel/a
 match pop3 m|^\+OK ([-.\w]+) Cyrus POP3 v(\d[-.\w]+)-OS X ([\d.]+) server ready <| p/Cyrus pop3d/ v/$2/ h/$1/ i/Mac OS X $3/ o/Mac OS X/ cpe:/o:apple:mac_os_x/a
-match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ h/$1/ i/Debian/ o/Linux/ cpe:/o:linux:kernel/a
+match pop3 m|^\+OK ([-\w_.]+) Cyrus POP3 v(\S+Debian\S+) server ready| p/Cyrus pop3d/ v/$2/ h/$1/ i/Debian/ o/Linux/ cpe:/o:debian:debian_linux/
 match pop3 m|^\+OK <[\d.]+@([\w._-]+)> [\w._-]+ Cyrus POP3 v([\w._-]+) server ready\r\n| p/Cyrus pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK X1 NT-POP3 Server ([-\w.]+) \(IMail ([^)]+)\)\r\n/ p/IMail pop3d/ h/$1/ v/$2/
 match pop3 m/^\+OK POP3 \[cppop (\d[^]]+)\] at \[/ p/cppop pop3d/ v/$1/
@@ -2267,9 +2267,9 @@ match smtp m|^220-([-\w_.]+) Stalker Internet Mail Server V\.([\w.]+) is ready\.
 match smtp m|^220 ([-\w_.]+) ESMTP MailMax ([\d.]+) [A-Z][a-z][a-z].*\r\n| p/MailMax smtpd/ v/$2/ h/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) Mailmax version ([\d. ]+) ESMTP Mail Server Ready \r\n| p/MailMax smtpd/ v/$2/ h/$1/
 match smtp m|^220 ([-\w_.]+) running IBM MVS SMTP CS V2R10 on .*\r\n| p/IBM MVS smtpd/ h/$1/ o/MVS/
-match smtp m|^220 [-\w_]+ ESMTP ([-\w_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ h/$1/ o/Linux/ i/Debian/ cpe:/o:linux:kernel/a cpe:/a:postfix:postfix/a
-match smtp m|^220 ESMTP \(Debian/GNU Mewwwwwww\)\r\n| p/Postfix smtpd/ o/Linux/ i/Debian/ cpe:/o:linux:kernel/a cpe:/a:postfix:postfix/a
-match smtp m|^220 ([\w._-]+) [\w._-]+ ESMTP Postfix \(Debian/GNU\)| p/Postfix smtpd/ o/Linux/ i/Debian/ cpe:/o:linux:kernel/a cpe:/a:postfix:postfix/a
+match smtp m|^220 [-\w_]+ ESMTP ([-\w_.]+) \(Debian/GNU\)\r\n| p/Postfix smtpd/ h/$1/ o/Linux/ i/Debian/ cpe:/o:debian:debian_linux/ cpe:/a:postfix:postfix/a
+match smtp m|^220 ESMTP \(Debian/GNU Mewwwwwww\)\r\n| p/Postfix smtpd/ o/Linux/ i/Debian/ cpe:/o:debian:debian_linux/ cpe:/a:postfix:postfix/a
+match smtp m|^220 ([\w._-]+) [\w._-]+ ESMTP Postfix \(Debian/GNU\)| p/Postfix smtpd/ o/Linux/ i/Debian/ cpe:/o:debian:debian_linux/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) ESMTP postfix NO UCE\r\n| p/Postfix smtpd/ h/$1/ i/whoson patch/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) SMTPD Server - Postfix\r\n| p/Postfix smtpd/ h/$1/ cpe:/a:postfix:postfix/a
 match smtp m|^220 ([-\w_.]+) ESMTP PostFix ([\d.]+)\r\n| p/Postfix smtpd/ h/$1/ v/$2/ cpe:/a:postfix:postfix:$2/a
@@ -2506,7 +2506,7 @@ match ssh m/^SSH-([\d.]+)-(\d+\.\d+\.[-.\w]+)/ p/SCS sshd/ v/$2/ i/protocol $1/
 # OpenSSH
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) Debian-(\S*maemo\S*)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/Nokia Maemo tablet; protocol $1/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)[ -]{1,2}Debian[ -_]([^\r\n]+)\r?\n| p/OpenSSH/ v/$2 Debian $3/ i/protocol $1/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:openbsd:openssh:$2/
-match ssh m|^SSH-([\d.]+)-OpenSSH_[\w.]+-FC-([\w.-]+)\.fc(\d+)\r\n| p/OpenSSH/ v/$2 Fedora/ i/Fedora Core $3; protocol $1/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:openbsd:openssh:$2/
+match ssh m|^SSH-([\d.]+)-OpenSSH_[\w.]+-FC-([\w.-]+)\.fc(\d+)\r\n| p/OpenSSH/ v/$2 Fedora/ i/Fedora Core $3; protocol $1/ o/Linux/ cpe:/o:fedoraproject:fedora_core/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD localisations (\d+)\r?\n| p/OpenSSH/ v/$2/ i/FreeBSD $3; protocol $1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-openssh-portable-([\w.,]+)\r?\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a cpe:/a:openbsd:openssh:$2/
@@ -2514,7 +2514,7 @@ match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-openssh-portable-overwrite-
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD-openssh-gssapi-| p/OpenSSH/ v/$2/ i/gssapi; protocol $1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) FreeBSD\n| p/OpenSSH/ v/$2/ i/protocol $1/ o/FreeBSD/ cpe:/o:freebsd:freebsd/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) miniBSD-([\d]+)\r?\n| p/OpenSSH/ v/$2/ i/MiniBSD $3; protocol $1/ o/MiniBSD/ cpe:/a:openbsd:openssh:$2/
-match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) NetBSD_Secure_Shell-([\w._-]+)\r?\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/ cpe:/a:openbsd:openssh:$2/
+match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) NetBSD_Secure_Shell-([\w._-]+)\r?\n| p/OpenSSH/ v/$2/ i/NetBSD $3; protocol $1/ o/NetBSD/ cpe:/o:netbsd:netbsd/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w.-]+)_Mikrotik_v([\d.]+)\r?\n| p/OpenSSH/ v/$2 mikrotik $3/ i/protocol $1/ d/router/ cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+) in RemotelyAnywhere ([\d.]+)\r?\n| p/OpenSSH/ v/$2/ i/RemotelyAnywhere $3; protocol $1/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:openbsd:openssh:$2/
 match ssh m|^SSH-([\d.]+)-OpenSSH_([\w._-]+)\+CAN-2004-0175\r?\n| p/OpenSSH/ v/$2+CAN-2004-0175/ i/protocol $1/ cpe:/a:openbsd:openssh:$2/
@@ -3298,7 +3298,7 @@ match telnet m|^\xff\xfb\x01\xff\xfb\x03\r\n\r\nWelcome to Dinion-IP-NWC [\d.]+ 
 match telnet m|^\xff\xfb\x01\xff\xfb\x03Welcome to the Agilent PNA Network Analyzer at ([\w._-]+)\r\n\r\nSCPI> | p/Agilent PNA Network Analyzer SCPI telnetd/ d/specialized/ h/$1/
 match telnet m=^\xff\xfb\x01\xff\xfb\x03\r\n\r\n#\r\n\| ELSA LANCOM DSL/([\w._-]+) Office\r\n\| Ver\. ([\w._-]+) / ([\w._-]+)\r\n\| SN\.  (\w+)\r\n\| Copyright \(c\) ELSA AG, Aachen\r\n\r\n= p|ELSA Lancom DSL/$1 Office router telnetd| d/router/ v/$2 $3/ i/Serial $4/
 match telnet m|^\n\rCMI SEC\n\rProgram: +\d+\n\rMajor\.Minor\.Rel:  ([\w._-]+)\n\rMAC Address:      ([\w:]+)\n\r\n\rPress <ENTER> to go into setup mode\.| p/ADP IP Timeclock telnetd/ v/$1/ i/MAC $2/ d/specialized/
-match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01\xff\xfd\0\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/ser2net telnetd/ i/Debian; serial port $1/ o/Linux/ cpe:/o:linux:kernel/a
+match telnet m|^\xff\xfb\x03\xff\xfb\x01\xff\xfe\x01\xff\xfd\0\r\nser2net port \d+ device (/dev/[-\w_]+) \[\d+ \w+\] \(Debian GNU/Linux\)\r\n|s p/ser2net telnetd/ i/Debian; serial port $1/ o/Linux/ cpe:/o:debian:debian_linux/
 match telnet m|^Port's device already in use\n\r$| p/ser2net telnetd/ i/device in use/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r\rCopyright \xa9\d+ Netopia, Inc\.  All rights reserved\.\n\r\rNetopia Model ([\w-]+) Wireless DSL Ethernet Switch\n\rRunning Netopia SOC OS version ([\d.]+ \(build \w+\))\n| p/Netopia $1 wireless ADSL router telnetd/ i/SOC OS $2/ o/SOC OS/ d/WAP/
 match telnet m|^\xff\xfb\x01\xff\xfb\x03\xff\xfe\x01\n\rTerminal shell v1\.0\n\r\rCopyright \xa92008 Motorola, Inc\.  All rights reserved\.\n\r\rNetopia Model ([\d-]+)(?: AnnexA)? High-Power Wireless DSL Ethernet Managed Switch\n\rRunning Netopia SOC OS version ([\w.-]+ \(build \w+\))\n| p/Netopia $1 wireless ADSL router telnetd/ i/SOC OS $2/ o/SOC OS/ d/WAP/
@@ -3713,7 +3713,7 @@ match finger m|^\r\nIntegrated port\r\nPrinter Type: Lexmark ([^\r\n]+)\r\n| p/L
 match finger m|^finger: /var/adm/lastlog open error\nNo one logged on\r\n| p/Solaris 10 fingerd/ i/Nobody logged in/ o/Solaris/ cpe:/o:sun:sunos/a
 match finger m|^finger: /var/adm/lastlog open error\nLogin       Name| p/Solaris 10 fingerd/ i/Somebody logged in/ o/Solaris/ cpe:/o:sun:sunos/a
 match finger m|^\r\nUSB port \d+\r\nPrinter Type:  Photo AIO Printer (\w+)\r\nPrint Job Status: ([^\r\n]+)\r\n| p/Dell Photo AIO $1 printer fingerd/ i/Status $2/ d/printer/
-match finger m|^\nDebian GNU/Linux      Copyright \(c\) 1993-1999 Software in the Public Interest\n\n                 Your site has been rejected for some reason\.\n\n         This may be caused by a missing RFC 1413 identd on your site\.\n\n| i/Debian Cfingerd/ o/Linux/ cpe:/o:linux:kernel/a
+match finger m|^\nDebian GNU/Linux      Copyright \(c\) 1993-1999 Software in the Public Interest\n\n                 Your site has been rejected for some reason\.\n\n         This may be caused by a missing RFC 1413 identd on your site\.\n\n| i/Debian Cfingerd/ o/Linux/ cpe:/o:debian:debian_linux/
 match finger m|^Debian GNU/Linux      Copyright \(C\) 1993-1999 Software in the Public Interest\n.*You haven't specified a user\.\n\n               A general listing is not provided to the public\.|s p/Debian Cfingerd/ o/Linux/ cpe:/o:linux:kernel/a
 match finger m|^\r\nPrinter Type: Lexmark Optra LaserPrinter\r\n| p/Lexmark Optra LaserPrinter fingerd/ d/printer/
 match finger m|^MSS485 Version V([\w._/-]+)\(([\w._-]+)\) - Time Since Boot:| p/Lantronix MSS485 serial to ethernet bridge fingerd/ v/$1 $2/ d/bridge/
@@ -4101,7 +4101,7 @@ match tor-control m|^514 Authentication required\.\r\n$| p/Tor control port/ i/A
 match uucp m|^login: Please enter user name: Password: $| p/Solaris uucpd/ o/Solaris/ cpe:/o:sun:sunos/a
 # SunOS 4
 match uucp m|^login: Password: Login incorrect\.$| p/SunOS uucpd/ o/SunOS/
-match uucp m|^login: login: login: $| p/NetBSD uucpd/ o/NetBSD/
+match uucp m|^login: login: login: $| p/NetBSD uucpd/ o/NetBSD/ cpe:/o:netbsd:netbsd/
 match uucp m|^login: uucpd: \d+-\d+ The user is not known\.\n| p/AIX uucpd/ o/AIX/ cpe:/o:ibm:aix/a
 
 match ups m|^32\r $| p/Cyber Power PowerPanelPlus UPS Server/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -4198,7 +4198,7 @@ match upnp m|^ 501 Not Implemented\r\n.*Server: OpenWRT/kamikaze UPnP/([\w._-]+)
 
 # MiniDLNA
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n| p/MiniDLNA/
-match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Fedora/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Fedora $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:kernel/a
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Fedora/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Fedora $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:fedoraproject:fedora/
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: RAIDiator/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/RAIDiator $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:kernel/a
 
 match upnp m|^HTTP/1\.1 501 Not Implemented\r\nConnection: close\r\nContent-type: text/html\r\n\r\n<HTML><HEAD><TITLE>501 Not Implemented</TITLE></HEAD><BODY><H1>Not Implemented</H1>The HTTP Method is not implemented by this server\.</BODY></HTML>\r\n$| p/MiniUPnP/
@@ -4536,10 +4536,10 @@ match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: 3ware/(\d[-.\w]+)\r\n| p/3Ware web 
 
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee\r\n|s p/Cherokee httpd/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+)\r\n|s p/Cherokee httpd/ v/$1/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Debian GNU/Linux\)\r\n|s p/Cherokee httpd/ v/$1/ i/Debian/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Ubuntu\)\r\n|s p/Cherokee httpd/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(openSUSE Build Service\)\r\n|s p/Cherokee httpd/ v/$1/ i/OpenSUSE/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Gentoo Linux\)\r\n|s p/Cherokee httpd/ v/$1/ i/Gentoo/ o/Linux/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Debian GNU/Linux\)\r\n|s p/Cherokee httpd/ v/$1/ i/Debian/ o/Linux/ cpe:/o:debian:debian_linux/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Ubuntu\)\r\n|s p/Cherokee httpd/ v/$1/ i/Ubuntu/ o/Linux/ cpe:/o:canonical:ubuntu_linux/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(openSUSE Build Service\)\r\n|s p/Cherokee httpd/ v/$1/ i/OpenSUSE/ o/Linux/ cpe:/o:novell:opensuse/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]+) \(Gentoo Linux\)\r\n|s p/Cherokee httpd/ v/$1/ i/Gentoo/ o/Linux/ cpe:/o:gentoo:linux/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Cherokee/([-.\w]++) \(UNIX\)\r\n|s p/Cherokee httpd/ v/$1/ o/Unix/
 
 match http m|^HTTP/1\.0 200 OK\r\nServer: HomeSeer\r\n| p/HomeSeer Home Control Web Interface/ o/Windows/ cpe:/o:microsoft:windows/a
@@ -4722,7 +4722,7 @@ match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtran
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtranetServer/(\d[-.\w]+)\r\n| p/Apache Advanced Extranet Server httpd/ v/$1/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtranetServer\r\n|s p/Apache Advanced Extranet Server httpd/ o/Linux/ cpe:/o:linux:kernel/a
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: ?(.*) Apache-AdvancedExtranetServer/(\d[-.\w]+) \(Mandrakelinux/[-.\w]+\) ?(.*)\r\n| p/Apache Advanced Extranet Server httpd/ v/$2/ i/$1 $3/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:apache:http_server:$2/
-match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtranetServer/(\d[-.\w]+) \(Mandriva Linux/PREFORK-([-\w_.]+)\) (.*)\r\n| p/Apache Advanced Extranet Server httpd/ v/$1/ i/Mandriva $2; $3/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:apache:http_server:$1/
+match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache-AdvancedExtranetServer/(\d[-.\w]+) \(Mandriva Linux/PREFORK-([-\w_.]+)\) (.*)\r\n| p/Apache Advanced Extranet Server httpd/ v/$1/ i/Mandriva $2; $3/ o/Linux/ cpe:/o:mandriva:linux/ cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache-AdvancedExtranetServer/([\d.]+) \(Mandrakelinux/PREFORK-([-\w_.]+)\) ?([^\r\n]*)\r\n|s p/Apache Advanced Extranet Server httpd/ v/$1/ i/Mandrake $2; $3/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:apache:http_server:$1/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nServer: Apache Tomcat/(\d[-.\w]+)|s p/Apache Tomcat/ v/$1/
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nServer: Apache[- ]Coyote/(\d[-\d.]+)\r\n.*/Tomcat-(\d[-\d.]+)\r\n|s p|Apache Tomcat/Coyote JSP engine| v|$1| i|Tomcat $2| 
@@ -5046,8 +5046,8 @@ match http m|^HTTP/1\.0 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><HEAD><ME
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nWWW-Authenticate: Basic realm=\"NeedPassword\"\r\nContent-type: text/html\r\n| p/Netgear Mini print server http config/ i/PRINT_SERVER WEB httpd $1/ d/print server/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: PRINT_SERVER WEB ([\d.]+)\r\nContent-type: text/html\r\n\r\n<html><head><title>NETGEAR Setup</title>| p/Netgear print server http config/ i/PRINT_SERVER WEB httpd $1/ d/print server/
 match http m|^HTTP/1\.0 401 Password Required\r\nWWW-Authenticate: Basic realm= StarVoice\r\nServer: GoAhead-Webs\r\n| p/Aethra Starvoice DSL router http config/ i/GoAhead httpd/ d/router/
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian/[\w/]+ \([^)]+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:linux:kernel/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian \(\w+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian/[\w/]+ \([^)]+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:debian:debian_linux/
+match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) Debian \(\w+\) GnuTLS/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/Debian; GnuTLS $2; zlib $3/ o/Linux/ cpe:/o:debian:debian_linux/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: Thy/([\d.]+) zlib/([\d.]+)\r\n| p/Thy httpd/ v/$1/ i/zlib $2/
 match http m|^HTTP/1\.[01] \d\d\d .*\r\nDate: .*\r\nServer: FileMakerPro/([\w.]+) WebCompanion/([\w.]+)\r\n| p/WebCompanion httpd $2/ i/FileMakerPro $1/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nServer: FileMakerPro/([\d.]+)\r\n|s p/FileMakerPro httpd/ v/$1/
@@ -5751,7 +5751,7 @@ match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: GoAhead-Webs\r\nDate: .*\r\nWWW-Aut
 match http m|^HTTP/1.0 401 Unauthorized\r\n.*WWW-Authenticate: Basic realm="(GN-\w+)"|s p/Gigabyte $1 WAP http config/ d/WAP/
 match http m|^HTTP/1\.0 200\r\nContent-type: text/html\r\nConnection: close\r\nCONTENT-LENGTH: \d+\r\n\r\n.*\r\n<meta http-equiv=\"refresh\" content=\"1; URL=secure/ltx_conf\.htm\">|s p/Lantronix XPort embedded ethernet http config/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: FreeBrowser/([\d.]+) \(Win32\)\r\n| p/FreeBox FreeBrowser http interface/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
-match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: GG/([\d.]+) \(Unix\) Debian GNU/Linux\r\nWWW-Authenticate: Basic realm=\"gg zone\"\r\n| p/Ruchomy Terminal Gadu-Gadu http interface/ v/$1/ i/Debian/ o/Linux/ cpe:/o:linux:kernel/a
+match http m|^HTTP/1\.0 \d\d\d .*\r\nDate: .*\r\nServer: GG/([\d.]+) \(Unix\) Debian GNU/Linux\r\nWWW-Authenticate: Basic realm=\"gg zone\"\r\n| p/Ruchomy Terminal Gadu-Gadu http interface/ v/$1/ i/Debian/ o/Linux/ cpe:/o:debian:debian_linux/
 match http m|^HTTP/1\.0 \d\d\d .*\r\nSet-Cookie: SESSIONID=-1 \r\nServer: Easy File Sharing Web Server v([\w.]+)\r\n| p/Easy File Sharing Web Server httpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*<title>Welcome to the Galty client depl</title>\r\n|s p/Galty Technologies GaltyExplorer httpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Adaptec ASM ([\d.]+)\r\n| p|Adaptec/IBM ServeRAID Management http config| v/$1/ d/storage-misc/
@@ -7647,7 +7647,7 @@ match sand-db m|^\xff\x02\x04\0\x03\0r\n\x08\0@L\x01\0\x01\x01\0\0\0\0[A-Z]{16}$
 match tgcmd m|^\d+ \d+ \d+,Invalid command\.\n$| p/tgcmd.exe support daemon/ o/Windows/ cpe:/o:microsoft:windows/a
 
 match upnp m|^HTTP/1\.1 405 METHOD NOT ALLOWED\r\nCache-Control: no-cache\r\nLast-Modified: .*\r\nX-User-Agent: DVArchive\r\nServer: Unknown/0\.0 UPnP/([\d.]+) Virata-EmWeb/R([\d_]+)\r\n| i/DVArchive UPnP; UPnP $2/ p/Virata-EmWeb/ v/$SUBST(1,"_",".")/ o/Linux/ cpe:/o:linux:kernel/a cpe:/a:virata:emweb:$SUBST(1,"_",".")/a
-match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:linux:kernel/a
+match upnp m|^HTTP/1\.1 501 Not Implemented\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: 149\r\nServer: Debian/([\w._-]+) DLNADOC/([\w._-]+) UPnP/([\w._-]+) MiniDLNA/([\w._-]+)\r\n| p/MiniDLNA/ v/$4/ i/Debian $1; DLNADOC $2; UPnP $3/ o/Linux/ cpe:/o:debian:debian_linux/
 
 ##############################NEXT PROBE##############################
 Probe TCP RTSPRequest q|OPTIONS / RTSP/1.0\r\n\r\n|
@@ -8480,8 +8480,8 @@ match smtp m|^220 ([-\w_.]+) ESMTP server ready .*\r\n214-This SMTP server is a 
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n535 Authentication required\.\r\n| p/Courier MSA smtpd/ h/$1/ i/Auth required/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n400 STARTTLS is required first\.\r\n| p/Courier MSA smtpd/ h/$1/ i/STARTTLS required/
 match smtp m|^220  ESMTP\r\n214 qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/
-match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-Gentoo Linux qmail-([-\w.]+)\r\n214 qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/ h/$1/ o/Linux/ i/Gentoo/ cpe:/o:linux:kernel/a
-match smtp m|^220 .* ESMTP\r\n214-Gentoo Linux qmail-([-\w.]+)\r\n214 qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/ o/Linux/ i/Gentoo/ cpe:/o:linux:kernel/a
+match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-Gentoo Linux qmail-([-\w.]+)\r\n214 qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/ h/$1/ o/Linux/ i/Gentoo/ cpe:/o:gentoo:linux/
+match smtp m|^220 .* ESMTP\r\n214-Gentoo Linux qmail-([-\w.]+)\r\n214 qmail home page: http://pobox\.com/~djb/qmail\.html\r\n| p/qmail smtpd/ o/Linux/ i/Gentoo/ cpe:/o:gentoo:linux/
 match smtp m|^554 SMTP synchronization error\r\n$| p/Exim smtpd/ cpe:/a:exim:exim/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-The following commands are recognized\r\n214-\tdata\tehlo\thelo\thelp\r\n214-\tmail\tnoop\tquit\trcpt\r\n214 \trset\tvrfy\r\n| p/IronPort C60 smtpd/ h/$1/ o/AsyncOS/ d/specialized/
 match smtp m|^220 ([-\w_.]+) ESMTP\r\n214-The following commands are recognized\r\n214-\tauth\tdata\tehlo\teuq_full\r\n214-\thelo\thelp\tmail\tnoop\r\n214 \tquit\trcpt\trset\tvrfy\r\n| p/IronPort C600 smtpd/ h/$1/ o/AsyncOS/ d/specialized/
@@ -8935,10 +8935,10 @@ match X11 m|^\0\x2D\x0B\0\0\0\x0C\0| i/access denied/
 match X11 m|^\0\x16\x0b\0\0\0\x06\0No protocol specified\x0a..$|s i/access denied/ o/Unix/
 match X11 m|^\x01\0\x0b\0\0\0......\0\0.*The XFree86 Project, Inc|s p/XFree86/ i/open/ o/Unix/
 match X11 m|^\x01\0\x0b\0\0\0......\0\0.*The X\.Org Foundation|s p/X.Org/ i/open/ o/Unix/
-match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0..\xff\xff\x1f\0\0\x01\0\0.*Gentoo Linux \(XFree86 (\d[^)]+)\)\0\0|s p/XFree86/ v/$1/ i/Gentoo Linux/ o/Linux/ cpe:/o:linux:kernel/a
-match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0..\xff\xff\x1f\0\0\x01\0\0.\0\xff\xff\x01\x07\0\0  \x08\xff....Gentoo Linux \(The X\.Org Foundation ([-\w_.]+), revision ([-\w_.]+)\)\0\0|s p/X.Org/ v/$1 revision $2/ i/Gentoo Linux/ o/Linux/ cpe:/o:linux:kernel/a
-match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0.*Mandrake Linux \(XFree86 (\d[^\)]+)\)\0\0|s p/XFree86/ v/$1/ i/Mandrake Linux/ o/Linux/ cpe:/o:linux:kernel/a
-match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0.*Mandrakelinux \(X\.Org X11 ([\d.]+), patch level ([\w.]+)\)|s p/X.Org/ v/$1 patch level $2/ i/Mandrake Linux/ o/Linux/ cpe:/o:linux:kernel/a
+match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0..\xff\xff\x1f\0\0\x01\0\0.*Gentoo Linux \(XFree86 (\d[^)]+)\)\0\0|s p/XFree86/ v/$1/ i/Gentoo Linux/ o/Linux/ cpe:/o:gentoo:linux/
+match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0..\xff\xff\x1f\0\0\x01\0\0.\0\xff\xff\x01\x07\0\0  \x08\xff....Gentoo Linux \(The X\.Org Foundation ([-\w_.]+), revision ([-\w_.]+)\)\0\0|s p/X.Org/ v/$1 revision $2/ i/Gentoo Linux/ o/Linux/ cpe:/o:gentoo:linux/
+match X11 m|^\x01\0\x0b\0\0\0.....\x02\0\0.*Mandrake Linux \(XFree86 (\d[^\)]+)\)\0\0|s p/XFree86/ v/$1/ i/Mandrake Linux/ o/Linux/ cpe:/o:mandrakesoft:mandrake_linux/
+match X11 m|^\x01\0\x0b\0\0\0.....\x03\0\0.*Mandrakelinux \(X\.Org X11 ([\d.]+), patch level ([\w.]+)\)|s p/X.Org/ v/$1 patch level $2/ i/Mandrake Linux/ o/Linux/ cpe:/o:mandrakesoft:mandrake_linux/
 match X11 m|^\x01\0\x0b\0\0.*Conectiva Linux \(XFree86 ([\d.]+), patch level (\w+)\)|s p/XFree86/ v/$1 patch level $2/ i/Connectiva Linux/ o/Linux/ cpe:/o:linux:kernel/a
 match X11 m|^\x01\0\x0b\0\0\0\x4C\0\xA0\xE0\x63\x02\0\0| i/open/
 # StarNet X-Win32 v5.4 on Windows XP
