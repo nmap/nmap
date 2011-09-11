@@ -183,12 +183,25 @@ o [NSE] Added ftp-vuln-cve2010-4221 script, which checks if the ProFTPD
 o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
   into vsftpd-2.3.4 source code distributions. [Daniel Miller]
 	
-o [NSE] Added support for 2008 R2 functional level Active Directory instances 
-  to ldap-brute. Also added detection for valid credentials where the target 
-  account was expired or limited by time or login host constraints. [Tom Sellers]
+o [NSE] ldap-brute.nse - Multiple changes:
+  + Added support for 2008 R2 functional level Active Directory instances
+    to ldap-brute. 
+  + Added detection for valid credentials where the target account was 
+    expired or limited by time or login host constraints.
+  + Added support for specifying a UPN suffix to be appended to usernames
+    when brute forcing Microsoft Active Directory accounts.
+  + Added support for saving discovered credentials to a CSV file.
+  + Now reports valid credentials as they are discovered when the script
+    is run with -vv or higher.
+	[Tom Sellers] 
+  
+o [NSE] ldap-search.nse - Added support for saving search results to
+  CSV.  This is done by using the ldap.savesearch script argument to
+  specify an output filename prefix.  [Tom Sellers]  
 
 o [NSE] Updated smb-brute to add detection for valid credentials where the 
-  target account was expired or limited by time or login host constraints. [Tom Sellers]
+  target account was expired or limited by time or login host constraints.
+  [Tom Sellers]
 
 o [NSE] Updated account status text in brute force password discovery 
   scripts in an effort to make the reporting more consistent across
