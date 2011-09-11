@@ -115,6 +115,7 @@ StateMsg = {
 	[State.VALID]     = 'Valid credentials',
 	[State.DISABLED]  = 'Account is disabled',
 	[State.CHANGEPW]  = 'Valid credentials, password must be changed at next logon',
+	[State.PARAM]  = 'Credentials passed to script during Nmap execution',
 	[State.EXPIRED]   = 'Valid credentials, account expired',
 	[State.TIME_RESTRICTED] = 'Valid credentials, account cannot log in at current time',
 	[State.HOST_RESTRICTED] = 'Valid credentials, account cannot log in from current host',
