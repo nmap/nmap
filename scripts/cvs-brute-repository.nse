@@ -1,5 +1,5 @@
 description = [[
-Attempts to guess the name of the CVS repository hosted on the remote server.
+Attempts to guess the name of the CVS repositories hosted on the remote server.
 With knowledge of the correct repository name, usernames and passwords can be guessed.
 ]]
 

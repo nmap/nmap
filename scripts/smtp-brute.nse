@@ -1,6 +1,5 @@
 description = [[
-Performs password guessing against SMTP servers using either LOGIN, PLAIN,
-CRAM-MD5, DIGEST-MD5 or NTLM authentication.
+Performs brute force password auditing against SMTP servers using either LOGIN, PLAIN, CRAM-MD5, DIGEST-MD5 or NTLM authentication.
 ]]
 
 ---

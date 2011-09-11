@@ -1,7 +1,6 @@
 description = [[
 Sends broadcast pings on a selected interface using raw ethernet packets and 
-outputs the responder hosts' IP and MAC addresses. r00t permissions are a 
-prerequisite. Most operating systems don't respond to broadcast-ping probes, 
+outputs the responding hosts' IP and MAC addresses or (if requested) adds them as targets.  Root privileges on UNIX are required to run this script since it uses raw sockets.  Most operating systems don't respond to broadcast-ping probes, 
 but they can be configured to do so.
 
 The interface on which is broadcasted can be specified using the -e Nmap option

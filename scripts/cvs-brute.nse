@@ -1,5 +1,5 @@
 description = [[
-Performs password guessing against CVS pserver.
+Performs brute force password auditing against CVS pserver authentication.
 ]]
 
 ---
