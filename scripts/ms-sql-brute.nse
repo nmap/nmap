@@ -3,16 +3,13 @@
 
 description = [[
 Performs password guessing against Microsoft SQL Server (ms-sql). Works best in
-conjunction with the <code>ms-sql-discover</code> script.
+conjunction with the <code>broadcast-ms-sql-discover</code> script.
 
-SQL Server credentials required: No (will not benefit from 
-<code>mssql.username</code> & <code>mssql.password</code>).
+SQL Server credentials required: No  (will not benefit from <code>mssql.username</code> & <code>mssql.password</code>).
+
 Run criteria:
-* Host script: Will run if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code>
-or <code>mssql.instance-port</code> script arguments are used (see mssql.lua).
-* Port script: Will run against any services identified as SQL Servers, but only
-if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code>
-and <code>mssql.instance-port</code> script arguments are NOT used.
+* Host script: Will run if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code> or <code>mssql.instance-port</code> script arguments are used (see mssql.lua).
+* Port script: Will run against any services identified as SQL Servers, but only if the <code>mssql.instance-all</code>, <code>mssql.instance-name</code> and <code>mssql.instance-port</code> script arguments are NOT used.
 
 WARNING: SQL Server 2005 and later versions include support for account lockout
 policies (which are enforced on a per-user basis). If an account is locked out,
@@ -54,6 +51,10 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 --			the script to continue attempting to brute-forcing passwords for users
 --			even after a user has been locked out. This may result in many SQL
 --			Server logins being locked out!
+--
+-- @args ms-sql-brute.brute-windows-accounts  Enable targeting Windows accounts
+--          as part of the brute force attack.  This should be used in conjunction
+--          with the mssql library's mssql.domain argument.
 --
 
 -- Created 01/17/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
