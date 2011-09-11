@@ -18,7 +18,7 @@ author = "David and Weilin"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery"}
+categories = {"discovery","broadcast"}
 
 require 'nmap'
 require 'target'
