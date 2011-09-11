@@ -1,5 +1,5 @@
 description = [[
-http-default-accounts tests for access with default credentials used by a variety of web applications and devices.  
+Tests for access with default credentials used by a variety of web applications and devices.  
 
 It works similar to http-enum, we detect applications by matching known paths and launching a login routine using default credentials when found.
 This script depends on a fingerprint file containing the target's information: name, category, location paths, default credentials and login routine.

@@ -1,5 +1,5 @@
 description = [[
-This script implements remote process execution similar to the Sysinternals' psexec tool, 
+Implements remote process execution similar to the Sysinternals' psexec tool, 
 allowing a user to run a series of programs on a remote machine and read the output. This
 is great for gathering information about servers, running the same tool on a range of 
 system, or even installing a backdoor on a collection of computers. 
