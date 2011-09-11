@@ -1,9 +1,10 @@
 description = [[
-Discovers bittorrent peers and nodes using the Bittorrent and DHT protocol when
-supplied with a valid torrent file or a magnet link. The peers implement the 
-Bittorrent protocol and share the torrent, whereas the nodes implement the DHT
-protocol and are used to track the peers. The sets of peers and nodes are not 
-the same, but they usually intersect.
+Discovers bittorrent peers sharing a file based on a user-supplied
+torrent file or magnet link.  Peers implement the Bittorrent protocol
+and share the torrent, whereas the nodes (only shown if the
+include-nodes NSE argument is given) implement the DHT protocol and
+are used to track the peers. The sets of peers and nodes are not the
+same, but they usually intersect.
 
 If the <code>newtargets</code> script-arg is supplied it adds the discovered 
 peers as targets.

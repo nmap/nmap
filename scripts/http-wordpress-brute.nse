@@ -1,5 +1,5 @@
 description = [[
-Performs a brute force password attack against Wordpress installations.
+performs brute force password auditing against Wordpress CMS/blog installations.
 
 This script uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are 
 stored using the credentials library.

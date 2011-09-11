@@ -1,6 +1,5 @@
 description = [[
-http-wp-enum enumerates usernames in Wordpress installations by exploiting an information disclosure vulnerability 
-existing in versions 2.6, 3.1, 3.1.1, 3.1.3 and 3.2-beta2 and possibly others.
+Enumerates usernames in Wordpress blog/CMS installations by exploiting an information disclosure vulnerability existing in versions 2.6, 3.1, 3.1.1, 3.1.3 and 3.2-beta2 and possibly others.
 
 Original advisory:
 * http://www.talsoft.com.ar/index.php/research/security-advisories/wordpress-user-id-and-user-name-disclosure

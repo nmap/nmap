@@ -1,5 +1,5 @@
 description = [[ 
-The script sniffs the network for incoming broadcast communication and
+Sniffs the network for incoming broadcast communication and
 attempts to decode the received packets. It supports protocols like CDP, HSRP,
 Spotify, DropBox, DHCP, ARP and a few more. See packetdecoders.lua for more
 information.

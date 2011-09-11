@@ -1,6 +1,5 @@
 description = [[
-This script will check for a denial of service vulnerability that has been
-found in the way the multiple overlapping/simple ranges are handled.
+Detects a denial of service vulnerability in the way the Apache web server handles requests for multiple overlapping/simple ranges of a page.
 
 References:
 * http://seclists.org/fulldisclosure/2011/Aug/175

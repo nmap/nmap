@@ -1,5 +1,5 @@
 description = [[
-Determines if a web server is protected by an IPS (Intrusion Prevention System), IDS (Intrusion Detection System) or WAF (Web Application Firewall) by probing the web server with malicious payloads and detecting changes in the response code and body.
+Attempts to determine whether a web server is protected by an IPS (Intrusion Prevention System), IDS (Intrusion Detection System) or WAF (Web Application Firewall) by probing the web server with malicious payloads and detecting changes in the response code and body.
 
 To do this the script will send a "good" request and record the response, afterwards it will match this response against new requests containing 
 malicious payloads. In theory, web applications shouldn't react to malicious requests because we are storing the payloads in a variable that is 

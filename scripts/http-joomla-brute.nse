@@ -1,5 +1,5 @@
 description = [[
-Performs a brute force password attack against Joomla installations.
+Performs brute force password auditing against Joomla web CMS installations.
 
 This script initially reads the session cookie and parses the security token to perfom the brute force password auditing. 
 It uses the unpwdb and brute libraries to perform password guessing. Any successful guesses are stored using the 
