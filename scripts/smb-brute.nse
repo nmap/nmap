@@ -67,16 +67,16 @@ determined with a fairly efficient bruteforce. For example, if the actual passwo
 --@output
 -- Host script results:
 -- |  smb-brute:
--- |  |  bad name:test => Login was successful
--- |  |  consoletest:test => Password was correct, but user can't log in without changing it
--- |  |  guest:<anything> => Password was correct, but user's account is disabled
--- |  |  mixcase:BuTTeRfLY1 => Login was successful
--- |  |  test:password1 => Login was successful
--- |  |  this:password => Login was successful
--- |  |  thisisaverylong:password => Login was successful
--- |  |  thisisaverylongname:password => Login was successful
--- |  |  thisisaverylongnamev:password => Login was successful
--- |_ |_ web:TeSt => Password was correct, but user's account is disabled
+-- |  |  bad name:test => Valid credentials
+-- |  |  consoletest:test => Valid credentials, password must be changed at next logon
+-- |  |  guest:<anything> => Valid credentials, account disabled
+-- |  |  mixcase:BuTTeRfLY1 => Valid credentials
+-- |  |  test:password1 => Valid credentials, account expired
+-- |  |  this:password => Valid credentials, account cannot log in at current time
+-- |  |  thisisaverylong:password => Valid credentials
+-- |  |  thisisaverylongname:password => Valid credentials
+-- |  |  thisisaverylongnamev:password => Valid credentials
+-- |_ |_ web:TeSt => Valid credentials, account disabled
 -- 
 -- @args smblockout This argument will force the script to continue if it 
 --       locks out an account or thinks it will lock out an account. 
@@ -145,17 +145,17 @@ result_short_strings[results.INVALID_WORKSTATION] = "INVALID_WORKSTATION"
 
 ---The strings that the user will see
 local result_strings = {}
-result_strings[results.SUCCESS]              = "Login was successful"
-result_strings[results.GUEST_ACCESS]         = "Login was successful, but was granted guest access"
-result_strings[results.NOT_GRANTED]          = "Password was correct, but user wasn't allowed to log in (often happens with blank passwords)"
-result_strings[results.DISABLED]             = "Password was correct, but user's account is disabled"
-result_strings[results.EXPIRED]              = "Password was correct, but user's account is expired"
-result_strings[results.CHANGE_PASSWORD]      = "Password was correct, but user can't log in without changing it"
-result_strings[results.ACCOUNT_LOCKED]       = "User's account is locked out (hopefully not by us!)"
-result_strings[results.ACCOUNT_LOCKED_NOW]   = "User's account just became locked out (oops!)"
-result_strings[results.FAIL]                 = "User's password was incorrect"
-result_strings[results.INVALID_LOGON_HOURS]  = "Password was correct, but the user's logon hours are restricted"
-result_strings[results.INVALID_WORKSTATION]  = "Password was correct, but the user account is restricted to certain workstations"
+result_strings[results.SUCCESS]              = "Valid credentials"
+result_strings[results.GUEST_ACCESS]         = "Valid credentials, account granted guest access only"
+result_strings[results.NOT_GRANTED]          = "Valid credentials, but account wasn't allowed to log in (often happens with blank passwords)"
+result_strings[results.DISABLED]             = "Valid credentials, account disabled"
+result_strings[results.EXPIRED]              = "Valid credentials, account expired"
+result_strings[results.CHANGE_PASSWORD]      = "Valid credentials, password must be changed at next logon"
+result_strings[results.ACCOUNT_LOCKED]       = "Valid credentials, account locked (hopefully not by us!)"
+result_strings[results.ACCOUNT_LOCKED_NOW]   = "Valid credentials, account just became locked (oops!)"
+result_strings[results.FAIL]                 = "Invalid credentials"
+result_strings[results.INVALID_LOGON_HOURS]  = "Valid credentials, account cannot log in at current time"
+result_strings[results.INVALID_WORKSTATION]  = "Valid credentials, account cannot log in from current host"
 
 ---Constants for special passwords. These each contain a null character, which is illegal in 
 -- actual passwords. 

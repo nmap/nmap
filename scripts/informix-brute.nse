@@ -11,7 +11,7 @@ Performs brute force password auditing against IBM Informix Dynamic Server.
 -- 9088/tcp open  unknown
 -- | informix-brute:  
 -- |   Accounts
--- |     ifxnoob:ifxnoob => Login correct
+-- |     ifxnoob:ifxnoob => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 25024 guesses in 75 seconds, average tps: 320
 --

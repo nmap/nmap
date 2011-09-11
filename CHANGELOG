@@ -190,6 +190,11 @@ o [NSE] Added support for 2008 R2 functional level Active Directory instances
 o [NSE] Updated smb-brute to add detection for valid credentials where the 
   target account was expired or limited by time or login host constraints. [Tom Sellers]
 
+o [NSE] Updated account status text in brute force password discovery 
+  scripts in an effort to make the reporting more consistent across
+  all scripts.  This will have an impact on any code that parses these
+  values.  [Tom Sellers]
+
 Nmap 5.59BETA1 [2011-06-30]
 
 o [NSE] Added 40 scripts, bringing the total to 217!  You can learn

@@ -32,8 +32,8 @@ No output is reported if no valid account is found.
 -- PORT    STATE SERVICE
 -- 161/udp open  snmp
 -- | snmp-brute: 
--- |   dragon - Account is valid
--- |_  jordan - Account is valid
+-- |   dragon - Valid credentials
+-- |_  jordan - Valid credentials
 
 author = "Philip Pickering, Gorjan Petrovski, Patrik Karlsson"
 

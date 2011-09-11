@@ -15,7 +15,7 @@ Performs brute force password auditing against http basic authentication.
 -- 80/tcp   open  http    syn-ack
 -- | http-brute:  
 -- |   Accounts
--- |     Patrik Karlsson:secret => Login correct
+-- |     Patrik Karlsson:secret => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 60023 guesses in 467 seconds, average tps: 138
 --

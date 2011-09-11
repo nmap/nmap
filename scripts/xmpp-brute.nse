@@ -11,9 +11,9 @@ Performs brute force password auditing against XMPP (jabber) servers.
 -- 5222/tcp open  xmpp-client
 -- | xmpp-brute: 
 -- |   Accounts
--- |     CampbellJ:arthur321 - Account is valid
--- |     CampbellA:joan123 - Account is valid
--- |     WalkerA:auggie123 - Account is valid
+-- |     CampbellJ:arthur321 - Valid credentials
+-- |     CampbellA:joan123 - Valid credentials
+-- |     WalkerA:auggie123 - Valid credentials
 -- |   Statistics
 -- |_    Performed 6237 guesses in 5 seconds, average tps: 1247
 --

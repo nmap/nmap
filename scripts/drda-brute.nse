@@ -14,7 +14,7 @@ Performs password guessing against databases supporting the IBM DB2 protocol suc
 -- @output
 -- 50000/tcp open  drda
 -- | drda-brute:  
--- |_  db2admin:db2admin => Login Correct
+-- |_  db2admin:db2admin => Valid credentials
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -25,11 +25,12 @@ require "shortport"
 require "drda"
 require "unpwdb"
 
--- Version 0.3
+-- Version 0.5
 -- Created 05/08/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 05/09/2010 - v0.2 - re-wrote as multi-threaded <patrik@cqure.net>
 -- Revised 05/10/2010 - v0.3 - revised parallellised design <patrik@cqure.net>
 -- Revised 08/14/2010 - v0.4 - renamed script and library from db2* to drda* <patrik@cqure.net>
+-- Revised 09/09/2011 - v0.5 - changed account status text to be more consistent with other *-brute scripts
 
 portrule = shortport.port_or_service({50000,60000}, {"drda","ibm-db2"}, "tcp", {"open", "open|filtered"})
 
@@ -78,7 +79,7 @@ doLogin = function( host, port, database, creds, valid_accounts )
 					nmap.registry.db2users = {}
 				end	
 				nmap.registry.db2users[username]=password
-				table.insert( valid_accounts, string.format("%s:%s => Login Correct", username, password:len()>0 and password or "<empty>" ) )
+				table.insert( valid_accounts, string.format("%s:%s => Valid credentials", username, password:len()>0 and password or "<empty>" ) )
 			end
 		end
 	end	

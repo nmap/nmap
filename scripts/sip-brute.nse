@@ -10,7 +10,7 @@ Performs brute force password auditing against Session Initiation Protocol (SIP 
 -- 5060/udp open|filtered sip
 -- | sip-brute: 
 -- |   Accounts
--- |     1000:password123 => Login correct
+-- |     1000:password123 => Valid credentials
 -- |   Statistics
 -- |_    Performed 5010 guesses in 3 seconds, average tps: 1670
 

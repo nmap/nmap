@@ -8,7 +8,7 @@ Performs brute force password auditing against iSCSI targets.
 -- 3260/tcp open  iscsi   syn-ack
 -- | iscsi-brute: 
 -- |   Accounts
--- |     user:password123456 => Login correct
+-- |     user:password123456 => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 5000 guesses in 7 seconds, average tps: 714
 

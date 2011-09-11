@@ -12,9 +12,9 @@ CRAM-MD5, DIGEST-MD5 or NTLM authentication.
 -- 25/tcp  open  stmp    syn-ack
 -- | smtp-brute: 
 -- |   Accounts
--- |     braddock:jules - Account is valid
--- |     lane:sniper - Account is valid
--- |     parker:scorpio - Account is valid
+-- |     braddock:jules - Valid credentials
+-- |     lane:sniper - Valid credentials
+-- |     parker:scorpio - Valid credentials
 -- |   Statistics
 -- |_    Performed 1160 guesses in 41 seconds, average tps: 33
 --

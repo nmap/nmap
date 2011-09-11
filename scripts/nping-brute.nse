@@ -13,7 +13,7 @@ documentation.
 -- 9929/tcp open  nping-echo
 -- | nping-brute: 
 -- |   Accounts
--- |     123abc => Login correct
+-- |     123abc => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 204 guesses in 204 seconds, average tps: 1
 

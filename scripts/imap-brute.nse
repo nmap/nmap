@@ -12,9 +12,9 @@ CRAM-MD5, DIGEST-MD5 or NTLM authentication.
 -- 143/tcp open  imap    syn-ack
 -- | imap-brute: 
 -- |   Accounts
--- |     braddock:jules - Account is valid
--- |     lane:sniper - Account is valid
--- |     parker:scorpio - Account is valid
+-- |     braddock:jules - Valid credentials
+-- |     lane:sniper - Valid credentials
+-- |     parker:scorpio - Valid credentials
 -- |   Statistics
 -- |_    Performed 62 guesses in 10 seconds, average tps: 6
 --

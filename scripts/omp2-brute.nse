@@ -11,7 +11,7 @@ Performs brute force password auditing against the OpenVAS manager using OMPv2.
 -- 9390/tcp open  openvas syn-ack
 -- | svn-brute:
 -- |   Accounts
--- |_    admin:secret => Login correct
+-- |_    admin:secret => Valid credentials
 --
 
 author = "Henri Doreau"

@@ -11,7 +11,7 @@ Performs brute force password auditing against VNC servers.
 -- 5900/tcp open   vnc     syn-ack
 -- | vnc-brute:  
 -- |   Accounts
--- |_    123456 => Login correct
+-- |_    123456 => Valid credentials
 --
 -- Summary
 -- -------
