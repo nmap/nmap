@@ -20,7 +20,7 @@ the script against).
 -- 31337/udp  open   BackOrifice
 -- | backorifice-brute:  
 -- |   Accounts:
--- |     michael => Login correct
+-- |     michael => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 60023 guesses in 467 seconds, average tps: 138
 --
@@ -47,7 +47,13 @@ require("creds")
 -- This portrule succeeds only when the open|filtered port is in the port range
 -- which is specified by the ports script argument
 portrule = function(host, port)
+	if not stdnse.get_script_args(SCRIPT_NAME .. ".ports") then
+		stdnse.print_debug(3,"Skipping '%s' %s, 'ports' argument is missing.",SCRIPT_NAME, SCRIPT_TYPE)
+		return false
+	end
+
 	local ports = stdnse.get_script_args(SCRIPT_NAME .. ".ports")
+
 	--print out a debug message if port 31337/udp is open
 	if port.number==31337 and port.protocol == "udp" and not(ports) then
 		stdnse.print_debug("Port 31337/udp is open. Possibility of version detection and password bruteforcing using the backorifice-brute script")
