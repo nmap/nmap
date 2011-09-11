@@ -107,16 +107,19 @@ State = {
 	EXPIRED = 32,
 	TIME_RESTRICTED = 64,
 	HOST_RESTRICTED = 128,
+	LOCKED_VALID = 256,
 }
 
 StateMsg = {
-	[State.LOCKED] = 'Account is locked',
-	[State.VALID] = 'Account is valid',
-	[State.DISABLED] = 'Account is disabled',
-	[State.CHANGEPW] = 'Password needs to be changed at next logon',
-	[State.EXPIRED] = 'Account has expired',
-	[State.TIME_RESTRICTED] = 'Account has logon time restrictions',
-	[State.HOST_RESTRICTED] = 'Account has logon host restrictions',
+	[State.LOCKED]    = 'Account is locked',
+	[State.VALID]     = 'Valid credentials',
+	[State.DISABLED]  = 'Account is disabled',
+	[State.CHANGEPW]  = 'Valid credentials, password must be changed at next logon',
+	[State.EXPIRED]   = 'Valid credentials, account expired',
+	[State.TIME_RESTRICTED] = 'Valid credentials, account cannot log in at current time',
+	[State.HOST_RESTRICTED] = 'Valid credentials, account cannot log in from current host',
+	[State.LOCKED_VALID]    = 'Valid credentials, account locked',
+	[State.DISABLED_VALID]  = 'Valid credentials, account disabled',
 }
 
 
