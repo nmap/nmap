@@ -1,6 +1,5 @@
 ---
--- A minimal CVS pserver protocol implementation support authentication only
--- for the time being.
+-- A minimal CVS (Concurrent Versions System) pserver protocol implementation which currently only supports authentication.
 --
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html

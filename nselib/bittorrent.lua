@@ -1,7 +1,7 @@
---- Bittorrent and DHT protocol library which enables the users to read 
--- information from a torrent file, decode bencoded (bittorrent encoded) 
--- buffers, get peers associated with a certain torrent and nodes acquired
--- during the search for peers.
+--- Bittorrent and DHT protocol library which enables users to read 
+-- information from a torrent file, decode bencoded (bittorrent
+-- encoded) buffers, find peers associated with a certain torrent and
+-- retrieve nodes discovered during the search for peers.
 --
 -- For more information on the Bittorrent and DHT protocol go to:
 -- http://www.bittorrent.org/beps/bep_0000.html
