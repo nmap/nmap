@@ -1,5 +1,5 @@
 description = [[
-Shows extra information about IPv6 addresses, such as embedded MAC or IPv4 addresses when applicable.
+Shows extra information about IPv6 addresses, such as embedded MAC or IPv4 addresses when available.
 
 Some IP address formats encode extra information; for example some IPv6
 addresses encode an IPv4 address or MAC address. This script can decode
