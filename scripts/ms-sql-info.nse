@@ -121,8 +121,8 @@ hostrule = function(host)
 		local smbPortNumber = smb.get_port( host )
 		
 		if ( (stdnse.get_script_args( {"mssql.instance-all", "mssql.instance-name", "mssql.instance-port"} ) ~= nil) or
-				(sqlBrowserPort and sqlBrowserPort.state ~= "closed") or
-				(sqlDefaultPort and sqlDefaultPort.state ~= "closed") or
+				(sqlBrowserPort and (sqlBrowserPort.state == "open" or sqlBrowserPort.state == "open|filtered")) or
+				(sqlDefaultPort and (sqlDefaultPort.state == "open" or sqlDefaultPort.state == "open|filtered")) or
 				(smbPortNumber ~= nil)  ) then
 			return true
 		end
