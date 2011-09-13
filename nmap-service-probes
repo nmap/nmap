@@ -1252,12 +1252,12 @@ match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :
 match irc m=^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* (Couldn't look up|Found) your hostname\r\n$= p/Hybrid-based ircd/
 
 # ircu
-match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Found your hostname, cached\r\nNOTICE AUTH :\*\*\* Checking Ident\r\n| p/ircu ircd/
-match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* No ident response\r\n| p/ircu ircd/
-match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Couldn't look up your hostname\r\n| p/ircu ircd/
-match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Got ident response\r\nNOTICE AUTH :\*\*\* Couldn't look up your hostname\r\n| p/ircu ircd/
-match irc m|^ERROR..Your host is trying to \(re\)connect too fast -- throttled\r\n| p/ircu ircd/
-match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Found your hostname\r\n| p/ircu ircd/
+match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Found your hostname, cached\r\nNOTICE AUTH :\*\*\* Checking Ident\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
+match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* No ident response\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
+match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Couldn't look up your hostname\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
+match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Got ident response\r\nNOTICE AUTH :\*\*\* Couldn't look up your hostname\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
+match irc m|^ERROR..Your host is trying to \(re\)connect too fast -- throttled\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
+match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\r\nNOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Found your hostname\r\n| p/ircu ircd/ cpe:/a:undernet:ircu/
 
 # Hybrid6/PTlink6.15.0 ircd on Linux
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Found your hostname\r\n$| p/Hybrid ircd/
@@ -1300,7 +1300,7 @@ match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking ident\r\nNOTICE AUTH :\*\*\* No identd \(auth\) response\r\n| p/Dancer ircd/
 match irc m|^NOTICE AUTH :\*\*\* Looking up your hostname\.\.\.\r\nNOTICE AUTH :\*\*\* Checking ident\r\nNOTICE AUTH :\*\*\*| p/Dancer ircd/
 
-match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Got ident response\r\n| p/ircu Undernet IRCd/
+match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\nNOTICE AUTH :\*\*\* Got ident response\r\n| p/ircu Undernet IRCd/ cpe:/a:undernet:ircu/
 # Bitlbee ircd 0.80
 match irc m|(^:[-.\w]+) NOTICE AUTH :BitlBee-IRCd initialized, please go on\r\n| p/BitlBee IRCd/ h/$1/
 match irc m|^Warning: Unable to read configuration file `.*/bitlbee\.conf'\.\n:[-\w_.]+\. NOTICE AUTH :BitlBee-IRCd initialized, please go on\r\n| p/BitlBee IRCd/
@@ -8415,10 +8415,10 @@ match irc m|^:([-\w_.]+) 451 \* :You have not registered\r\n$| p/IRCnet-based ir
 match irc m|^:([-\w_.]+) 020 \* :.*\r\n:[-\w_.]+ 451 \* :You have not registered\r\n| p/IRCnet-based ircd/ h/$1/
 
 # ircu
-match irc m|^:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd inter-server port/ h/$1/
-match irc m|^:([-\w_.]+) 451 HELP :You have not registered\r\n| p/ircu ircd/ h/$1/
-match irc m|^:([-\w_.]+) 451  HELP :Register first\.\r\n| p/ircu ircd/ h/$1/
-match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\n:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd/ h/$1/
+match irc m|^:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd inter-server port/ h/$1/ cpe:/a:undernet:ircu/
+match irc m|^:([-\w_.]+) 451 HELP :You have not registered\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
+match irc m|^:([-\w_.]+) 451  HELP :Register first\.\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
+match irc m|^NOTICE AUTH :\*\*\* Checking Ident\r\n:([-\w_.]+) 451 \*  :Register first\.\r\n| p/ircu ircd/ h/$1/ cpe:/a:undernet:ircu/
 match irc m|^:([\w._-]+) 451 \* :Connection not registered\r\n| p/ngircd/ h/$1/
 
 match irc m|^:([-\w_.]+) 290  :\.-----------------=#\[ euIRCd HelpSystem \]#=----------------\.\n| p/euIRCd/ h/$1/
