@@ -9906,11 +9906,7 @@ ports 548
 # See other AFP matches in SSLSessionReq.
 
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x7f.([^\0\x01]+)[\0\x01].*\x08Netatalk\x04\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x06AFP3\.2\x02\x0fNo User Authent\tDHCAST128|s p/Netatalk/ v/2/ i/name: $1; protocol 3.2/ o/Unix/
-match afp
-m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x79.([^\0\x01]+)[\0\x01].*\x08Netatalk\x06\x0eAFPVersion
-1\.1\x0eAFPVersion 2\.0\x0eAFPVersion
-2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x01\x10Cleartxt Passwrd|s p/Netatalk/ v/2/
-i/name: $1; protocol 3.1/ o/Unix/ cpe:/a:netatalk:netatalk:2/
+match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x79.([^\0\x01]+)[\0\x01].*\x08Netatalk\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x01\x10Cleartxt Passwrd|s p/Netatalk/ v/2/ i/name: $1; protocol 3.1/ o/Unix/ cpe:/a:netatalk:netatalk:2/
 
 # Netatalk 2.0.5
 match afp m|^\x01\x03\0\x01\0\0\0\0....\0\0\0\0........\x83\x7d.([^\0\x01]+)[\0\x01].*\x08Netatalk\x06\x0eAFPVersion 1\.1\x0eAFPVersion 2\.0\x0eAFPVersion 2\.1\x06AFP2\.2\x06AFPX03\x06AFP3\.1\x02\x04DHX2\x0fNo User Authent|s p/Netatalk/ v/2/ i/name: $1; protocol 3.1/ o/Unix/ cpe:/a:netatalk:netatalk:2/
