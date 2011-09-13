@@ -27,7 +27,7 @@ result in a large number of accounts being locked out on the database server.
 -- 1521/tcp open  oracle  syn-ack
 -- | oracle-brute:  
 -- |   Accounts
--- |     system:powell => Valid credentials, account locked
+-- |     system:powell => Account locked
 -- |     haxxor:haxxor => Valid credentials
 -- |   Statistics
 -- |_    Perfomed 157 guesses in 8 seconds, average tps: 19

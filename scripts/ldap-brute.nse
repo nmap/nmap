@@ -28,7 +28,13 @@ This script uses some AD-specific support and optimizations:
 -- @output
 -- 389/tcp open  ldap
 -- | ldap-brute:  
--- |_  ldaptest:ldaptest => Login Correct
+-- |_  ldaptest:ldaptest => Valid credentials
+-- |   restrict.ws:restricted1 => Valid credentials, account cannot log in from current host
+-- |   restrict.time:restricted1 => Valid credentials, account cannot log in at current time
+-- |   valid.user:valid1 => Valid credentials
+-- |   expired.user:expired1 => Valid credentials, account expired
+-- |   disabled.user:disabled1 => Valid credentials, account disabled
+-- |_  must.change:need2change => Valid credentials, password must be changed at next logon
 --
 -- @args ldap.base If set, the script will use it as a base for the password
 --       guessing attempts. If both ldap.base and ldap.upnsuffix are unset the user 
@@ -217,7 +223,7 @@ action = function( host, port )
 			if not status and response:match("AcceptSecurityContext error, data 775,") then
 				table.insert( valid_accounts, string.format("%s => Valid credentials, account locked", fq_username ) )
 				stdnse.print_verbose(2, string.format(" ldap-brute: %s => Valid credentials, account locked", fq_username ))
-				credTable:add(fq_username,password, creds.State.LOCKED)
+				credTable:add(fq_username,password, creds.State.LOCKED_VALID)
 				break
 			end
 
@@ -225,7 +231,7 @@ action = function( host, port )
 			if not status and response:match("AcceptSecurityContext error, data 533,") then
 				table.insert( valid_accounts, string.format("%s:%s => Valid credentials, account disabled", fq_username, password:len()>0 and password or "<empty>" ) )
 				stdnse.print_verbose(2, string.format(" ldap-brute: %s:%s => Valid credentials, account disabled", fq_username, password:len()>0 and password or "<empty>" ))
-				credTable:add(fq_username,password, creds.State.DISABLED)
+				credTable:add(fq_username,password, creds.State.DISABLED_VALID)
 				break
 			end
 

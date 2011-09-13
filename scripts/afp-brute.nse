@@ -10,7 +10,7 @@ Performs password guessing against Apple Filing Protocol (AFP).
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
 -- | afp-brute:  
--- |_  admin:KenSentMe => Login Correct
+-- |_  admin:KenSentMe => Valid credentials
 
 -- Information on AFP implementations
 --
