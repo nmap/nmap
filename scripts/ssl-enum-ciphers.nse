@@ -3,6 +3,16 @@ This script repeatedly initiates SSL/TLS connections, each time trying a new
 cipher or compressor while recording whether a host accepts or rejects it. The
 end result is a list of all the ciphers and compressors that a server accepts.
 
+Each cipher is shown with a strength rating: one of <code>strong</code>,
+<code>weak</code>, or <code>unknown strength</code>. The output line
+beginning with <code>Least strength</code> shows the strength of the
+weakest cipher offered. If you are auditing for weak ciphers, you would
+want to look more closely at any port where <code>Least strength</code>
+is not <code>strong</code>. The cipher strength database is in the file
+<code>nselib/data/ssl-ciphers</code>, or you can use a different file
+through the script argument
+<code>ssl-enum-ciphers.rankedcipherlist</code>.
+
 SSLv3/TLSv1 requires more effort to determine which ciphers and compression
 methods a server supports than SSLv2. A client lists the ciphers and compressors
 that it is capable of supporting, and the server will respond with a single
@@ -15,57 +25,34 @@ and therefore is quite noisy.
 ---
 -- @usage
 -- nmap --script ssl-enum-ciphers -p 443 <host>
--- nmap --script ssl-enum-ciphers --script-args ssl-enum-ciphers.goodcipherlist=<path> -p 443 <host>
 --
--- @args ssl-enum-ciphers.goodcipherlist A path to a file of cipher names
+-- @args ssl-enum-ciphers.rankedcipherlist A path to a file of cipher names and strength ratings
+--
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
 -- | ssl-enum-ciphers:
 -- |   SSLv3
--- |     Ciphers (18)
--- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
--- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_WITH_RC4_128_MD5
--- |       TLS_RSA_WITH_RC4_128_SHA
+-- |     Ciphers (6)
+-- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA - unknown strength
+-- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA - strong
+-- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA - unknown strength
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA - strong
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA - unknown strength
 -- |     Compressors (1)
 -- |       uncompressed
 -- |   TLSv1.0
--- |     Ciphers (18)
--- |       TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_DHE_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_DES40_CBC_SHA
--- |       TLS_RSA_EXPORT_WITH_RC2_CBC_40_MD5
--- |       TLS_RSA_EXPORT_WITH_RC4_40_MD5
--- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA
--- |       TLS_RSA_WITH_AES_128_CBC_SHA
--- |       TLS_RSA_WITH_AES_256_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
--- |       TLS_RSA_WITH_CAMELLIA_256_CBC_SHA
--- |       TLS_RSA_WITH_DES_CBC_SHA
--- |       TLS_RSA_WITH_RC4_128_MD5
--- |       TLS_RSA_WITH_RC4_128_SHA
+-- |     Ciphers (6)
+-- |       TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA - unknown strength
+-- |       TLS_DHE_RSA_WITH_AES_128_CBC_SHA - strong
+-- |       TLS_DHE_RSA_WITH_AES_256_CBC_SHA - unknown strength
+-- |       TLS_RSA_WITH_3DES_EDE_CBC_SHA - strong
+-- |       TLS_RSA_WITH_AES_128_CBC_SHA - strong
+-- |       TLS_RSA_WITH_AES_256_CBC_SHA - unknown strength
 -- |     Compressors (1)
--- |_      uncompressed
+-- |       uncompressed
+-- |_  Least strength = unknown strength
 
 author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
