@@ -15,7 +15,9 @@ and therefore is quite noisy.
 ---
 -- @usage
 -- nmap --script ssl-enum-ciphers -p 443 <host>
+-- nmap --script ssl-enum-ciphers --script-args ssl-enum-ciphers.goodcipherlist=<path> -p 443 <host>
 --
+-- @args ssl-enum-ciphers.goodcipherlist A path to a file of cipher names
 -- @output
 -- PORT    STATE SERVICE REASON
 -- 443/tcp open  https   syn-ack
@@ -65,7 +67,7 @@ and therefore is quite noisy.
 -- |     Compressors (1)
 -- |_      uncompressed
 
-author = "Mak Kolybabi <mak@kolybabi.com>"
+author = "Mak Kolybabi <mak@kolybabi.com>, Gabriel Lawrence"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
@@ -376,6 +378,17 @@ CIPHERS = {
 	["SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA"]		= 0xFEFF
 }
 
+cipherstrength = {
+	["weak"]	= 0,
+	["unknown strength"]	= 1,
+	["strong"]	= 2
+}
+
+local rankedciphers={}
+local mincipherstrength=2
+local rankedciphersfilename=false
+local policy=true
+
 local function record_read(buffer, i)
 	local b, h, j, len
 
@@ -595,7 +608,7 @@ local function try_protocol(host, port, protocol)
 	local ciphers, compressors, results
 
 	local function find_ciphers()
-		local name, protocol_worked, record, results, t
+		local name, protocol_worked, record, results, t,cipherstr
 
 		results = {}
 
@@ -630,6 +643,17 @@ local function try_protocol(host, port, protocol)
 
 				-- Add cipher to the list of accepted ciphers.
 				name = record["body"]["cipher"]
+                                if rankedciphersfilename and rankedciphers[name] then
+                                        cipherstr=rankedciphers[name]
+                                else
+                                   cipherstr="unknown strength"
+				end
+                                stdnse.print_debug(2, "Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
+                                if mincipherstrength>cipherstrength[cipherstr] then
+                                        stdnse.print_debug(2, "Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
+					mincipherstrength=cipherstrength[cipherstr]
+                                end
+				name=name.." - "..cipherstr
 				table.insert(results, name)
 			end
 		end
@@ -704,10 +728,54 @@ local function try_protocol(host, port, protocol)
 	return results
 end
 
+-- Shamelessly stolen from nselib/unpwdb.lua and changed a bit. (Gabriel Lawrence)
+local filltable = function(filename,table)
+        if #table ~= 0 then
+                return true
+        end
+
+        local file = io.open(filename, "r")
+
+        if not file then
+                return false
+        end
+
+        while true do
+                local l = file:read()
+
+                if not l then
+                        break
+                end
+
+                -- Comments takes up a whole line
+                if not l:match("#!comment:") then
+                        lsplit=stdnse.strsplit("%s+", l)
+                        if cipherstrength[lsplit[2]] then
+                        	table[lsplit[1]] = lsplit[2]
+			else
+				stdnse.print_debug(1,"Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
+			end
+                end
+        end
+
+        file:close()
+
+        return true
+end
+
 portrule = shortport.ssl
 
 action = function(host, port)
 	local name, result, results
+        
+        rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
+        if rankedciphersfilename then
+		filltable(rankedciphersfilename,rankedciphers)
+        else
+                rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
+	        stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
+		filltable(rankedciphersfilename,rankedciphers)
+        end
 
 	results = {}
 
@@ -722,6 +790,13 @@ action = function(host, port)
 
 	-- Sort protocol results by name.
 	table.sort(results, function(a, b) return a["name"] < b["name"] end)
+	if rankedciphersfilename then
+                for k,v in pairs(cipherstrength) do 
+		   if v==mincipherstrength then
+		      table.insert(results, "Least strength = " .. k)
+                   end
+                end
+	end
 
 	return stdnse.format_output(true, results)
 end
