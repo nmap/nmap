@@ -679,12 +679,14 @@ local function try_protocol(host, port, protocol)
 				stdnse.print_debug(2, "Compressor %s rejected.", name)
 			elseif record["type"] ~= "handshake" or record["body"]["type"] ~= "server_hello" then
 				stdnse.print_debug(2, "Unexpected record received.")
+			elseif record["body"]["compressor"] ~= name then
+				protocol_worked = true
+				stdnse.print_debug(2, "Compressor %s rejected.", name)
 			else
 				protocol_worked = true
 				stdnse.print_debug(2, "Compressor %s chosen.", name)
 
 				-- Add compressor to the list of accepted compressors.
-				name = record["body"]["compressor"]
 				table.insert(results, name)
 			end
 		end
