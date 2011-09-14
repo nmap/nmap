@@ -392,7 +392,7 @@ hostrule = function(host)
       stdnse.print_verbose("%s not running for lack of privileges.", SCRIPT_NAME)
     end
     nmap.registry[SCRIPT_NAME].rootfail = true
-    return nil;
+    return false
   end
 
   if nmap.address_family() ~= 'inet' then
