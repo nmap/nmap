@@ -630,16 +630,16 @@ local function try_protocol(host, port, protocol)
 
 				-- Add cipher to the list of accepted ciphers.
 				name = record["body"]["cipher"]
-                                if rankedciphersfilename and rankedciphers[name] then
-                                        cipherstr=rankedciphers[name]
-                                else
-                                   cipherstr="unknown strength"
+				if rankedciphersfilename and rankedciphers[name] then
+					cipherstr=rankedciphers[name]
+				else
+					cipherstr="unknown strength"
 				end
-                                stdnse.print_debug(2, "Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
-                                if mincipherstrength>cipherstrength[cipherstr] then
-                                        stdnse.print_debug(2, "Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
+				stdnse.print_debug(2, "Strength of %s rated %d.",cipherstr,cipherstrength[cipherstr])
+				if mincipherstrength>cipherstrength[cipherstr] then
+					stdnse.print_debug(2, "Downgrading min cipher strength to %d.",cipherstrength[cipherstr])
 					mincipherstrength=cipherstrength[cipherstr]
-                                end
+				end
 				name=name.." - "..cipherstr
 				table.insert(results, name)
 			end
@@ -717,52 +717,52 @@ end
 
 -- Shamelessly stolen from nselib/unpwdb.lua and changed a bit. (Gabriel Lawrence)
 local filltable = function(filename,table)
-        if #table ~= 0 then
-                return true
-        end
+	if #table ~= 0 then
+		return true
+	end
 
-        local file = io.open(filename, "r")
+	local file = io.open(filename, "r")
 
-        if not file then
-                return false
-        end
+	if not file then
+		return false
+	end
 
-        while true do
-                local l = file:read()
+	while true do
+		local l = file:read()
 
-                if not l then
-                        break
-                end
+		if not l then
+			break
+		end
 
-                -- Comments takes up a whole line
-                if not l:match("#!comment:") then
-                        lsplit=stdnse.strsplit("%s+", l)
-                        if cipherstrength[lsplit[2]] then
-                        	table[lsplit[1]] = lsplit[2]
+		-- Comments takes up a whole line
+		if not l:match("#!comment:") then
+			lsplit=stdnse.strsplit("%s+", l)
+			if cipherstrength[lsplit[2]] then
+				table[lsplit[1]] = lsplit[2]
 			else
 				stdnse.print_debug(1,"Strength not defined, ignoring: %s:%s",lsplit[1],lsplit[2])
 			end
-                end
-        end
+		end
+	end
 
-        file:close()
+	file:close()
 
-        return true
+	return true
 end
 
 portrule = shortport.ssl
 
 action = function(host, port)
 	local name, result, results
-        
-        rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
-        if rankedciphersfilename then
+
+	rankedciphersfilename=stdnse.get_script_args("ssl-enum-ciphers.rankedcipherlist")
+	if rankedciphersfilename then
 		filltable(rankedciphersfilename,rankedciphers)
-        else
-                rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
-	        stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
+	else
+		rankedciphersfilename = nmap.fetchfile( "nselib/data/ssl-ciphers" )
+		stdnse.print_debug(1, "Ranked ciphers filename: %s", rankedciphersfilename)
 		filltable(rankedciphersfilename,rankedciphers)
-        end
+	end
 
 	results = {}
 
@@ -778,11 +778,11 @@ action = function(host, port)
 	-- Sort protocol results by name.
 	table.sort(results, function(a, b) return a["name"] < b["name"] end)
 	if rankedciphersfilename then
-                for k,v in pairs(cipherstrength) do 
-		   if v==mincipherstrength then
-		      table.insert(results, "Least strength = " .. k)
-                   end
-                end
+		for k, v in pairs(cipherstrength) do
+			if v == mincipherstrength then
+				table.insert(results, "Least strength = " .. k)
+			end
+		end
 	end
 
 	return stdnse.format_output(true, results)
