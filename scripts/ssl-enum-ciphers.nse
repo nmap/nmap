@@ -153,11 +153,12 @@ TLS_HANDSHAKETYPE_REGISTRY = {
 
 --
 -- Compression Algorithms
+-- http://www.iana.org/assignments/comp-meth-ids
 --
 COMPRESSORS = {
-	["uncompressed"]		= 0,
-	["ansiX962_compressed_prime"]	= 1,
-	["ansiX962_compressed_char2"]	= 2
+	["NULL"]		= 0,
+	["DEFLATE"]		= 1,
+	["LZS"]			= 64
 }
 
 --

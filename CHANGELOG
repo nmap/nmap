@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse. [Matt Selsky]
+
 o [NSE] Added cipher strength ratings to ssl-enum-ciphers.nse.
   [Gabriel Lawrence]
 
