@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added cipher strength ratings to ssl-enum-ciphers.nse.
+  [Gabriel Lawrence]
+
 o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
   output for OS and service versions. These show up in normal output
   with the headings "OS CPE:" and "Service Info:":
