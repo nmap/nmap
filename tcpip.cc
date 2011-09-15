@@ -1034,9 +1034,12 @@ u8 *build_icmp_raw(const struct in_addr *source,
   }
 
   /* Copy the data over too */
-  if (data && datalen) {
+  if (datalen > 0) {
     icmplen += MIN(dlen, datalen);
-    memcpy(datastart, data, MIN(dlen, datalen));
+    if (data == NULL)
+      memset(datastart, 0, MIN(dlen, datalen));
+    else
+      memcpy(datastart, data, MIN(dlen, datalen));
   }
 
   /* Fill out the ping packet. All the ICMP types handled by this function have
@@ -1140,10 +1143,12 @@ u8 *build_igmp_raw(const struct in_addr *source,
     fatal("Unknown igmp type (%d) in %s", ptype, __func__);
   }
 
-  /* Copy the data over too */
-  if (data && datalen) {
+  if (datalen > 0) {
     igmplen += MIN(dlen, datalen);
-    memcpy(datastart, data, MIN(dlen, datalen));
+    if (data == NULL)
+      memset(datastart, 0, MIN(dlen, datalen));
+    else
+      memcpy(datastart, data, MIN(dlen, datalen));
   }
 
   igmp.igmp_cksum = 0;
