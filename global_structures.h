@@ -167,13 +167,6 @@ struct OS_Classification {
   const char *OS_Generation; /* Can be NULL if unclassified */
   const char *Device_Type;
   std::vector<const char *> cpe;
-
-  OS_Classification() {
-    OS_Vendor = NULL;
-    OS_Family = NULL;
-    OS_Generation = NULL;
-    Device_Type = NULL;
-  }
 };
 
 struct FingerTest {
