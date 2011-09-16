@@ -126,6 +126,7 @@ o IPv6 todo.
   - Reverse DNS resolution.
   - Multicast host discovery.
   - OS detection.
+    - CPE
 
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
