@@ -1155,7 +1155,7 @@ Torrent =
 		local hello_connection_id = "00 00 04 17 27 10 19 80" -- identification of the protocol
 		local hello_packet = bin.pack("HHA", hello_connection_id, hello_action, hello_transaction_id)
 		local status, msg = socket:sendto(host, port, hello_packet)
-		if not status then return false, err end
+		if not status then return false, msg end
 
 		status, msg = socket:receive()
 		if not status then return false, "Could not connect to tracker:"..tracker.." reason:"..msg end
