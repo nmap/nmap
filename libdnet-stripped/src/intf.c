@@ -389,12 +389,12 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 {
 	struct ifreq ifr;
 
-	strlcpy(ifr.ifr_name, entry->intf_name, sizeof(ifr.ifr_name));
-	
 	/* Get interface index. */
-	if (ioctl(intf->fd, SIOCGIFINDEX, &ifr) < 0)
+	entry->intf_index = if_nametoindex(entry->intf_name);
+	if (entry->intf_index == 0)
 		return (-1);
-	entry->intf_index = ifr.ifr_ifindex;
+
+	strlcpy(ifr.ifr_name, entry->intf_name, sizeof(ifr.ifr_name));
 
 	/* Get interface flags. */
 	if (ioctl(intf->fd, SIOCGIFFLAGS, &ifr) < 0)
