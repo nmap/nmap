@@ -82,6 +82,8 @@ o Script review:
     http://seclists.org/nmap-dev/2011/q2/307.
   - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
+o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
+  packets.
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
