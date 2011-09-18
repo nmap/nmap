@@ -3545,16 +3545,20 @@ bail:
 #elif !WIN32
 
 /* Add an ancillary cmsghdr data block to the list of blocks in a msghdr.
-   The list is stored in msg->msg_control, which is must be allocated to
-   hold at least maxlen bytes. msg->msg_controllen is also modified by this
-   function. Returns -1 in case of error or 0 otherwise. */
-static int add_ancillary(struct msghdr *msg, size_t maxlen,
-  int level, int type, const void *data, size_t len)
+   The list is stored in msg->msg_control, which is dynamically allocated
+   and reallocated as needed. It must be freed after this function returns.
+   msg->msg_controllen is also modified by this function. Returns -1 in case of
+   error or 0 otherwise. */
+static int add_ancillary(struct msghdr *msg, int level, int type,
+  const void *data, size_t len)
 {
   struct cmsghdr *cm;
+  void *p;
 
-  if (maxlen < msg->msg_controllen + CMSG_SPACE(len))
+  p = realloc(msg->msg_control, msg->msg_controllen + CMSG_SPACE(len));
+  if (p == NULL)
     return -1;
+  msg->msg_control = p;
 
   cm = (struct cmsghdr *) ((char *) msg->msg_control + msg->msg_controllen);
   msg->msg_controllen += CMSG_SPACE(len);
@@ -3568,33 +3572,69 @@ static int add_ancillary(struct msghdr *msg, size_t maxlen,
   return 0;
 }
 
+static int exthdr_type_to_cmsg_type(uint8_t type) {
+  switch (type) {
+  /* These are the only extension headers we can set directly through a
+     msghdr. */
+  case 0:
+    return IPV6_HOPOPTS;
+  case 43:
+    return IPV6_RTHDR;
+  case 60:
+    return IPV6_DSTOPTS;
+  default:
+    return -1;
+  }
+}
+
+static const unsigned char *add_exthdr_ancillary(struct msghdr *msg,
+  const unsigned char *p, size_t len, unsigned char *proto) {
+  unsigned char nxt;
+  size_t extlen;
+  int cmsg_type;
+
+  cmsg_type = exthdr_type_to_cmsg_type(*proto);
+  if (cmsg_type == -1)
+    return NULL;
+
+  if (len < 2)
+    return NULL;
+  nxt = *p;
+  extlen = (*(p + 1) + 1) * 8;
+  if (len < extlen)
+    return NULL;
+  if (add_ancillary(msg, IPPROTO_IPV6, cmsg_type, p, extlen) == -1)
+    return NULL;
+
+  *proto = nxt;
+
+  return p + extlen;
+}
+
 /* Send an IPv6 packet over a raw socket. This function can control all header
    fields except the flow label (and the payload length can only be controlled
-   indirectly through the length of the payload). While there are standard
-   functions to add extension headers, we don't use them, instead opening the
-   socket with a protocol the same as the Next Header field in the packet. Then
-   we paste in the packet contents (including extension headers) verbatim. This
-   allows controlling the order of headers, making broken headers, and sending
-   headers not understood by the underlying OS. */
+   indirectly through the length of the payload).
+
+   For most extension header types, we initialize the socket with the given
+   protocol, which causes the Next Header field to match when the packet is set.
+   This allows stuffing arbitrary data into extension headers. However, for a
+   few well-known headers (like Destination and Routing options), this fails
+   with EPROTOTYPE because there are specialized functions to add these headers
+   using the IPv6 socket API. These do not offer as much control because they
+   are controlled by the OS, and may be reordered, for example. */
 static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
   struct msghdr msg;
   struct sockaddr_in6 dest = { 0 };
   struct iovec iov;
 
+  const unsigned char *end;
   struct ip6_hdr *hdr;
+  unsigned char nxt;
   int tclass, hoplimit;
 
-  char *control;
-  size_t controllen;
   int sd;
   int n;
 
-  /* Allocate a control buffer big enough to hold the IPV6_TCLASS and
-     IPV6_HOPLIMIT options. This is a byte buffer but must be aligned for
-     a struct cmsghdr. See section 15.7 (p. 425) of Unix Network
-     Programming, third edition. */
-  controllen = CMSG_SPACE(sizeof(int)) + CMSG_SPACE(sizeof(int));
-  control = (char *) safe_zalloc(controllen);
   sd = -1;
   n = -1;
 
@@ -3603,7 +3643,7 @@ static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
   msg.msg_namelen = sizeof(dest);
   msg.msg_iov = &iov;
   msg.msg_iovlen = 1;
-  msg.msg_control = control;
+  msg.msg_control = NULL;
   msg.msg_controllen = 0;
   msg.msg_flags = 0;
 
@@ -3615,20 +3655,17 @@ static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
   memcpy(&dest.sin6_addr.s6_addr, &hdr->ip6_dst, sizeof(dest.sin6_addr.s6_addr));
   dest.sin6_port = 0;
 
-  iov.iov_base = (unsigned char *) packet + sizeof(*hdr);
-  iov.iov_len = packetlen - sizeof(*hdr);
-
   /* This can also be set with setsockopt(IPPROTO_IPV6, IPV6_TCLASS). */
 #ifdef IPV6_TCLASS
   tclass = ntohl(hdr->ip6_flow & IP6_FLOWINFO_MASK) >> 20;
-  if (add_ancillary(&msg, controllen, IPPROTO_IPV6,
+  if (add_ancillary(&msg, IPPROTO_IPV6,
     IPV6_TCLASS, &tclass, sizeof(tclass)) == -1) {
     goto bail;
   }
 #endif
   /* This can also be set with setsockopt(IPPROTO_IPV6, IPV6_UNICAST_HOPS). */
   hoplimit = hdr->ip6_hlim;
-  if (add_ancillary(&msg, controllen, IPPROTO_IPV6,
+  if (add_ancillary(&msg, IPPROTO_IPV6,
     IPV6_HOPLIMIT, &hoplimit, sizeof(hoplimit)) == -1) {
     goto bail;
   }
@@ -3636,18 +3673,47 @@ static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
      length is set in the call to sendmsg. There's no way to set the flow
      label. */
 
-  sd = socket(AF_INET6, SOCK_RAW, hdr->ip6_nxt);
+  /* We must loop until we find a nh value acceptable to the operating system
+     (one that can be passed as the third parameter to socket). In my tests on
+     OS X, you get EPROTOTYPE "Protocol wrong type for socket" for
+       43  routing
+       44  fragment
+       50  ESP
+       51  AH
+       60  DSTOPT
+       108 IPcomp
+     Some of these we are able to handle with ancillary data. When that's
+     possible, we skip over the header, add the ancillary data, and try again
+     with the next header. */
+  end = packet + packetlen;
+  packet += sizeof(*hdr);
+  nxt = hdr->ip6_nxt;
+  for (;;) {
+    errno = 0;
+    sd = socket(AF_INET6, SOCK_RAW, nxt);
+    if (!(sd == -1 && errno == EPROTOTYPE))
+      break;
+    packet = add_exthdr_ancillary(&msg, packet, end - packet, &nxt);
+    if (packet == NULL) {
+      netutil_error("Can't add extension header %u as ancillary data", nxt);
+      goto bail;
+    }
+  }
   if (sd == -1) {
     perror("socket");
     goto bail;
   }
+
+  assert(packet <= end);
+  iov.iov_base = (unsigned char *) packet;
+  iov.iov_len = end - packet;
 
   n = sendmsg(sd, &msg, 0);
   if (n == -1)
     perror("sendmsg");
 
 bail:
-  free(control);
+  free(msg.msg_control);
   if (sd != -1)
     close(sd);
 
