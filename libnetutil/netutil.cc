@@ -87,6 +87,10 @@
  *                                                                         *
  ***************************************************************************/
 
+/* Since OS X 10.7, we must declare whether we expect RFC 2292 or RFC 3542
+   behavior from <netinet6/in6.h>. */
+#define __APPLE_USE_RFC_3542
+
 #if HAVE_CONFIG_H
 #include "../nmap_config.h"
 #endif
