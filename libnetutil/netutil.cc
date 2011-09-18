@@ -1180,10 +1180,48 @@ static int nmaskcmp(const void *a, const void *b) {
 
 
 
+/* Convert an address to a string and back again. The first parsing step
+   eliminates magical OS-specific syntax, for example on OS X, fe80:4::X:X:X:X
+   becomes "fe80::X:X:X:X" (the "4" in this case is another way of writing the
+   zone ID, like "%en0"; i.e., in this case en0 is interface number 4. This must
+   be done before e.g. comparing addresses by netmask. */
+static int canonicalize_address(const struct sockaddr_storage *ss,
+  struct sockaddr_storage *output) {
+  char canonical_ip_string[NI_MAXHOST];
+  struct addrinfo hints;
+  struct addrinfo *ai;
+  int rc;
+
+  /* Convert address to string. */
+  rc = getnameinfo((struct sockaddr *) ss, sizeof(*ss),
+    canonical_ip_string, sizeof(canonical_ip_string), NULL, 0, NI_NUMERICHOST);
+  if (rc != 0) {
+    /* Don't care. */
+    *output = *ss;
+    return 0;
+  }
+
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = ss->ss_family;
+  hints.ai_socktype = SOCK_DGRAM;
+  hints.ai_flags |= AI_NUMERICHOST;
+
+  rc = getaddrinfo(canonical_ip_string, NULL, &hints, &ai);
+  if (rc != 0 || ai == NULL)
+    return -1;
+  assert(ai->ai_addrlen > 0 && ai->ai_addrlen <= (int) sizeof(*output));
+  memcpy(output, ai->ai_addr, ai->ai_addrlen);
+  freeaddrinfo(ai);
+
+  return 0;
+}
+
 static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
   struct dnet_collector_route_nfo *dcrn = (struct dnet_collector_route_nfo *) arg;
   bool primary_done;
   unsigned int num_aliases_done;
+  struct sockaddr_storage tmpss;
+  int rc;
 
   primary_done = false;
   num_aliases_done = 0;
@@ -1198,13 +1236,21 @@ static int collect_dnet_interfaces(const struct intf_entry *entry, void *arg) {
     /* The first time through the loop we add the primary interface record.
        After that we add the aliases one at a time. */
     if (!primary_done) {
-      if (addr_ntos(&entry->intf_addr, (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr) == -1)
+      if (addr_ntos(&entry->intf_addr, (struct sockaddr *) &tmpss) == -1) {
         dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
+      } else {
+        rc = canonicalize_address(&tmpss, &dcrn->ifaces[dcrn->numifaces].addr);
+        assert(rc == 0);
+      }
       dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_addr.addr_bits;
       primary_done = true;
     } else if (num_aliases_done < entry->intf_alias_num) {
-      if (addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &dcrn->ifaces[dcrn->numifaces].addr) == -1)
+      if (addr_ntos(&entry->intf_alias_addrs[num_aliases_done], (struct sockaddr *) &tmpss) == -1) {
         dcrn->ifaces[dcrn->numifaces].addr.ss_family = 0;
+      } else {
+        rc = canonicalize_address(&tmpss, &dcrn->ifaces[dcrn->numifaces].addr);
+        assert(rc == 0);
+      }
       dcrn->ifaces[dcrn->numifaces].netmask_bits = entry->intf_alias_addrs[num_aliases_done].addr_bits;
       num_aliases_done++;
     }
