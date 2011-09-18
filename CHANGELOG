@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed compilation on OS X 10.7 Lion. Thanks to Patrik Karlsson and
+  Babak Farroki for researching fixes.
+
 o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse, and
   removed redundant multiple listings of the NULL compressor.
   [Matt Selsky]
