@@ -511,12 +511,33 @@ class HostOsScanInfo {
   ~HostOsScanInfo();
 
   Target *target;       /* The target                                  */
+  FingerPrintResultsIPv4 *FPR;
   OsScanInfo *OSI;      /* The OSI which contains this HostOsScanInfo  */
   FingerPrint **FPs;    /* Fingerprints of the host                    */
-  FingerPrintResults *FP_matches; /* Fingerprint-matching results      */
+  FingerPrintResultsIPv4 *FP_matches; /* Fingerprint-matching results      */
   bool timedOut;        /* Did it time out?                            */
   bool isCompleted;     /* Has the OS detection been completed?        */
   HostOsScanStats *hss; /* Scan status of the host in one scan round   */
+};
+
+
+/** This is the class that performs OS detection (both IPv4 and IPv6).
+  * Using it is simple, just call os_scan() passing a list of targets.
+  * The results of the detection will be stored inside the supplied
+  * target objects. */
+class OSScan {
+
+ private:
+  int ip_ver;             /* IP version for the OS Scan (4 or 6) */
+  int chunk_and_do_scan(vector<Target *> &Targets, int family);
+  int os_scan_ipv4(vector<Target *> &Targets);
+  int os_scan_ipv6(vector<Target *> &Targets);
+        
+  public:
+   OSScan();
+   ~OSScan();
+   void reset();
+   int os_scan(vector<Target *> &Targets);
 };
 
 #endif /*OSSCAN2_H*/

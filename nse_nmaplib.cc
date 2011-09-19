@@ -184,7 +184,7 @@ void set_hostinfo(lua_State *L, Target *currenths) {
     lua_newtable(L);
     // this will run at least one time and at most 8 times, see if condition
     for(i = 0; FPR->accuracy[i] == 1; i++) {
-      lua_pushstring(L, FPR->prints[i]->OS_name);
+      lua_pushstring(L, FPR->matches[i]->OS_name);
       lua_rawseti(L, -2, i+1);
     }
     lua_setfield(L, -2, "os");

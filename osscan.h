@@ -144,18 +144,24 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
 
 /* Takes a fingerprint and looks for matches inside the passed in
    reference fingerprint DB.  The results are stored in in FPR (which
-   must point to an instantiated FingerPrintResults class) -- results
+   must point to an instantiated FingerPrintResultsIPv4 class) -- results
    will be reverse-sorted by accuracy.  No results below
    accuracy_threshhold will be included.  The max matches returned is
-   the maximum that fits in a FingerPrintResults class.  */
-void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR, 
+   the maximum that fits in a FingerPrintResultsIPv4 class.  */
+void match_fingerprint(FingerPrint *FP, FingerPrintResultsIPv4 *FPR, 
 		       FingerPrintDB *DB, double accuracy_threshold);
 
 /* Returns true if perfect match -- if num_subtests & num_subtests_succeeded are non_null it updates them.  if shortcircuit is zero, it does all the tests, otherwise it returns when the first one fails */
 
 void freeFingerPrint(FingerPrint *FP);
+void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
+                                const char *engine_id,
+                                const struct sockaddr_storage *addr, int distance,
+                                enum dist_calc_method distance_calculation_method,
+                                const u8 *mac, int openTcpPort,
+                                int closedTcpPort, int closedUdpPort);
 const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
-                           const struct in_addr * const addr, int distance,
+                           const struct sockaddr_storage *addr, int distance,
                            enum dist_calc_method distance_calculation_method,
                            const u8 *mac, int openTcpPort, int closedTcpPort,
                            int closedUdpPort, bool wrapit);

@@ -606,6 +606,12 @@ NSOCKDIR
 LIBNBASE_LIBS
 NBASE_BUILD
 NBASEDIR
+LIBLINEAR_DIST_CLEAN
+LIBLINEAR_CLEAN
+LIBLINEAR_BUILD
+LIBLINEAR_DEPENDS
+LIBLINEARDIR
+LIBLINEAR_LIBS
 INSTALLNSE
 LUA_DIST_CLEAN
 LUA_CLEAN
@@ -741,6 +747,7 @@ with_libpcap
 with_libpcre
 with_libdnet
 with_liblua
+with_liblinear
 with_libnbase
 with_libnsock
 with_ncat
@@ -1403,6 +1410,28 @@ Optional Packages:
   --with-liblua=included  Use the liblua version included with Nmap
   --without-liblua        Compile without lua (this will exclude all of NSE
                           from compilation)
+  --with-liblinear=DIR    Use an existing (compiled) liblinear from
+                          DIR/include and DIR/lib.
+  --with-liblinear=included
+                          Use the liblinear version included with Nmap
+  case "$with_liblinear" in
+  yes)
+  ;;
+  included)
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
+    LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_BUILD="liblinear_build"
+    LIBLINEAR_CLEAN="liblinear_clean"
+    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    have_liblinear=yes
+  ;;
+  *)
+    CPPFLAGS="-I$with_liblinear/include $CPPFLAGS"
+    LDFLAGS="-L$with_liblinear/lib $LDFLAGS"
+  ;;
+  esac
+
   --with-libnbase=DIR     Look for nbase include/libs in DIR
   --with-libnsock=DIR     Compile and link to libnsock in DIR
   --without-ncat          Skip build and installation of Ncat
@@ -6788,6 +6817,104 @@ $as_echo "yes" >&6; }
   INSTALLNSE="install-nse"
 fi
 
+
+
+
+
+
+
+
+
+
+
+LIBLINEARDIR=liblinear
+have_liblinear=no
+
+# First we test whether they specified liblinear explicitly
+
+# Check whether --with-liblinear was given.
+if test "${with_liblinear+set}" = set; then :
+  withval=$with_liblinear;
+fi
+
+
+# If they didn't specify it, we try to find it
+if test $have_liblinear != yes; then
+  for ac_header in linear.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "linear.h" "ac_cv_header_linear_h" "$ac_includes_default"
+if test "x$ac_cv_header_linear_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINEAR_H 1
+_ACEOF
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for predict in -llinear" >&5
+$as_echo_n "checking for predict in -llinear... " >&6; }
+if test "${ac_cv_lib_linear_predict+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llinear -lm $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char predict ();
+int
+main ()
+{
+return predict ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_linear_predict=yes
+else
+  ac_cv_lib_linear_predict=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_linear_predict" >&5
+$as_echo "$ac_cv_lib_linear_predict" >&6; }
+if test "x$ac_cv_lib_linear_predict" = x""yes; then :
+  have_liblinear=yes; LIBLINEAR_LIBS="-llinear"; break
+fi
+
+
+fi
+
+done
+
+
+  LIBLINEAR_DEPENDS=""
+  LIBLINEAR_BUILD=""
+  LIBLINEAR_CLEAN=""
+  LIBLINEAR_DIST_CLEAN=""
+fi
+
+# if we didn't find we use our own
+if test $have_liblinear != yes; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+  CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
+  LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+  LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+  LIBLINEAR_BUILD="liblinear_build"
+  LIBLINEAR_CLEAN="liblinear_clean"
+  LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+  $as_echo "#define LIBLINEAR_INCLUDED 1" >>confdefs.h
+
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+fi
 
 
 

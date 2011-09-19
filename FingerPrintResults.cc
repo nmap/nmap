@@ -104,12 +104,18 @@ FingerPrintResults::FingerPrintResults() {
   osscan_opentcpport = osscan_closedtcpport = osscan_closedudpport = -1;
   distance = -1;
   distance_guess = -1;
-  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
   maxTimingRatio = 0;
-  numFPs = 0;
 }
 
 FingerPrintResults::~FingerPrintResults() {
+}
+
+FingerPrintResultsIPv4::FingerPrintResultsIPv4() {
+  FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
+  numFPs = 0;
+}
+
+FingerPrintResultsIPv4::~FingerPrintResultsIPv4() {
   int i;
 
   /* Free OS fingerprints of OS scanning was done */
@@ -119,6 +125,25 @@ FingerPrintResults::~FingerPrintResults() {
   }
   numFPs = 0;
   free(FPs);
+}
+
+FingerPrintResultsIPv6::FingerPrintResultsIPv6() {
+  unsigned int i;
+
+  begin_time.tv_sec = 0;
+  begin_time.tv_usec = 0;
+  for (i = 0; i < sizeof(fp_responses) / sizeof(*fp_responses); i++)
+    fp_responses[i] = NULL;
+  flow_label = 0;
+}
+
+FingerPrintResultsIPv6::~FingerPrintResultsIPv6() {
+  unsigned int i;
+
+  for (i = 0; i < sizeof(fp_responses) / sizeof(*fp_responses); i++) {
+    if (fp_responses[i])
+      delete fp_responses[i];
+  }
 }
 
 const struct OS_Classification_Results *FingerPrintResults::getOSClassification() {
@@ -178,6 +203,19 @@ const char *FingerPrintResults::OmitSubmissionFP() {
   return NULL;
 }
 
+/* IPv6 classification is more robust to errors than IPv4, so apply less
+   stringent conditions than the general OmitSubmissionFP. */
+const char *FingerPrintResultsIPv6::OmitSubmissionFP() {
+  static char reason[128];
+
+  if (o.scan_delay > 500) { // This can screw up the sequence timing
+    Snprintf(reason, sizeof(reason), "Scan delay (%d) is greater than 500", o.scan_delay);
+    return reason;
+  }
+
+  return NULL;
+}
+
 
 /* Goes through fingerprinting results to populate OSR */
 void FingerPrintResults::populateClassification() {
@@ -196,8 +234,8 @@ void FingerPrintResults::populateClassification() {
 
   for(printno = 0; printno < num_matches; printno++) {
     // a single print may have multiple classifications
-    for (osclass = prints[printno]->OS_class.begin();
-         osclass != prints[printno]->OS_class.end();
+    for (osclass = matches[printno]->OS_class.begin();
+         osclass != matches[printno]->OS_class.end();
          osclass++) {
       if (!classAlreadyExistsInResults(&*osclass)) {
 	// Then we have to add it ... first ensure we have room
@@ -217,7 +255,7 @@ void FingerPrintResults::populateClassification() {
 	// OK, we will add the new class
        OSR.OSC[OSR.OSC_num_matches] = &*osclass;
 	OSR.OSC_Accuracy[OSR.OSC_num_matches] = accuracy[printno];
-	if (accuracy[printno] == 1.0) OSR.OSC_num_perfect_matches++;
+	if (printno < num_perfect_matches) OSR.OSC_num_perfect_matches++;
 	OSR.OSC_num_matches++;
       }
     }

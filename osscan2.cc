@@ -97,6 +97,7 @@
 #include "NmapOps.h"
 #include "Target.h"
 #include "utils.h"
+#include "FPEngine.h"
 #include <dnet.h>
 #include <list>
 
@@ -755,8 +756,8 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
     HOS->makeFP(hsi->hss);
 
     hsi->FPs[roundNum] = hsi->hss->getFP();
-    hsi->target->FPR->FPs[roundNum] = hsi->FPs[roundNum];
-    hsi->target->FPR->numFPs = roundNum + 1;
+    hsi->FPR->FPs[roundNum] = hsi->FPs[roundNum];
+    hsi->FPR->numFPs = roundNum + 1;
     double tr = hsi->hss->timingRatio();
     hsi->target->FPR->maxTimingRatio = MAX(hsi->target->FPR->maxTimingRatio, tr);
     match_fingerprint(hsi->FPs[roundNum], &hsi->FP_matches[roundNum],
@@ -768,7 +769,7 @@ static void endRound(OsScanInfo *OSI, HostOsScan *HOS, int roundNum) {
       if (roundNum > 0) {
         if(o.verbose) log_write(LOG_STDOUT, "WARNING:  OS didn't match until try #%d\n", roundNum + 1);
       }
-      match_fingerprint(hsi->target->FPR->FPs[roundNum], hsi->target->FPR,
+      match_fingerprint(hsi->FPR->FPs[roundNum], hsi->FPR,
                         o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
       hsi->isCompleted = true;
     }
@@ -810,7 +811,7 @@ static void findBestFPs(OsScanInfo *OSI) {
     /* Now lets find the best match */
     bestacc = 0;
     bestaccidx = 0;
-    for(i=0; i < hsi->target->FPR->numFPs; i++) {
+    for(i=0; i < hsi->FPR->numFPs; i++) {
       if (hsi->FP_matches[i].overall_results == OSSCAN_SUCCESS &&
           hsi->FP_matches[i].num_matches > 0 &&
           hsi->FP_matches[i].accuracy[0] > bestacc) {
@@ -824,7 +825,7 @@ static void findBestFPs(OsScanInfo *OSI) {
     // Now we redo the match, since target->FPR has various data (such as
     // target->FPR->numFPs) which is not in FP_matches[bestaccidx].  This is
     // kinda ugly.
-    match_fingerprint(hsi->target->FPR->FPs[bestaccidx], hsi->target->FPR,
+    match_fingerprint(hsi->FPR->FPs[bestaccidx], (FingerPrintResultsIPv4 *) hsi->target->FPR,
                       o.reference_FPs, OSSCAN_GUESS_THRESHOLD);
   }
 }
@@ -833,17 +834,17 @@ static void findBestFPs(OsScanInfo *OSI) {
 static void printFP(OsScanInfo *OSI) {
   list<HostOsScanInfo *>::iterator hostI;
   HostOsScanInfo *hsi = NULL;
-  FingerPrintResults *FPR;
+  FingerPrintResultsIPv4 *FPR;
 
   for(hostI = OSI->incompleteHosts.begin(); hostI != OSI->incompleteHosts.end(); hostI++) {
     hsi = *hostI;
-    FPR = hsi->target->FPR;
+    FPR = hsi->FPR;
 
     log_write(LOG_NORMAL|LOG_SKID_NOXLT|LOG_STDOUT,
           "No OS matches for %s by new os scan system.\n\nTCP/IP fingerprint:\n%s",
           hsi->target->targetipstr(),
           mergeFPs(FPR->FPs, FPR->numFPs, true,
-               hsi->target->v4hostip(), hsi->target->distance,
+               hsi->target->TargetSockAddr(), hsi->target->distance,
                hsi->target->distance_calculation_method,
                hsi->target->MACAddress(),
                FPR->osscan_opentcpport, FPR->osscan_closedtcpport,
@@ -871,7 +872,7 @@ static int expireUnmatchedHosts(OsScanInfo *OSI, list<HostOsScanInfo *> *unMatch
     if (HOS->target->FPR->OmitSubmissionFP())
       max_tries = min(max_tries, STANDARD_OS2_TRIES);
 
-    if (HOS->target->FPR->numFPs >= max_tries) {
+    if (HOS->FPR->numFPs >= max_tries) {
       /* We've done all the OS2 tries we're going to do ... move this
      to unMatchedHosts */
       HOS->target->stopTimeOutClock(&now);
@@ -883,108 +884,6 @@ static int expireUnmatchedHosts(OsScanInfo *OSI, list<HostOsScanInfo *> *unMatch
     }
   }
   return hostsRemoved;
-}
-
-
-/* You should call os_scan2 rather than this function, as that version handles
-   chunking so you don't do too many targets in parallel */
-static int os_scan_2(vector<Target *> &Targets) {
-  // Hosts which haven't matched and have been removed from
-  // incompleteHosts because they have exceeded the number of
-  // retransmissions the host is allowed.
-  list<HostOsScanInfo *> unMatchedHosts;
-  int itry;
-
-  if (Targets.size() == 0) {
-    return 1;
-  }
-
-  init_perf_values();
-
-  OsScanInfo OSI(Targets);
-  if (OSI.numIncompleteHosts() == 0) {
-    /* no one will be scanned */
-    return 1;
-  }
-  OSI.starttime = o.TimeSinceStart();
-  startTimeOutClocks(&OSI);
-
-  HostOsScan HOS(Targets[0]);
-
-  itry = 0;
-
-
-
-  begin_sniffer(&HOS, Targets); /* initial the pcap session handler in HOS */
-  while(OSI.numIncompleteHosts() != 0) {
-    if (itry > 0) sleep(1);
-    if (itry == 3) usleep(1500000); /* Try waiting a little longer just in case it matters */
-    if (o.verbose) {
-      char targetstr[128];
-      bool plural = (OSI.numIncompleteHosts() != 1);
-      if (!plural) {
-    (*(OSI.incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
-      } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI.numIncompleteHosts());
-      log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
-      log_flush_all();
-    }
-    startRound(&OSI, &HOS, itry);
-    doSeqTests(&OSI, &HOS);
-    doTUITests(&OSI, &HOS);
-    endRound(&OSI, &HOS, itry);
-    expireUnmatchedHosts(&OSI, &unMatchedHosts);
-    itry++;
-  }
-
-  /* Now move the unMatchedHosts array back to IncompleteHosts */
-  if (!unMatchedHosts.empty())
-    OSI.incompleteHosts.splice(OSI.incompleteHosts.begin(), unMatchedHosts);
-
-  if (OSI.numIncompleteHosts()) {
-    /* For host that doesn't have a perfect match, we do the following
-       things. */
-
-    /* Find the most matching item in the db. */
-    findBestFPs(&OSI);
-
-    /* Print the fp in debug mode.
-       Normally let output.cc to print the FP. */
-    if(o.debugging > 1)
-      printFP(&OSI);
-  }
-
-  return 0;
-}
-
-
-/* This is the primary OS detection function.  If many Targets are
-   passed in (the threshold is based on timing level), they are
-   processed as smaller groups to improve accuracy  */
-void os_scan2(vector<Target *> &Targets) {
-  unsigned int max_os_group_sz = 20;
-  double fudgeratio = 1.2; /* Allow a slightly larger final group rather than finish with a tiny one */
-  vector<Target *> tmpTargets;
-  unsigned int startidx = 0;
-
-  if (o.timing_level == 4)
-    max_os_group_sz = (unsigned int) (max_os_group_sz * 1.5);
-
-  if (o.timing_level > 4 || Targets.size() <= max_os_group_sz * fudgeratio) {
-    os_scan_2(Targets);
-    return;
-  }
-
-  /* We need to split it up */
-  while(startidx < Targets.size()) {
-    int diff = Targets.size() - startidx;
-    if (diff > max_os_group_sz * fudgeratio) {
-      diff = max_os_group_sz;
-    }
-    tmpTargets.assign(Targets.begin() + startidx, Targets.begin() + startidx + diff);
-    os_scan_2(tmpTargets);
-    startidx += diff;
-  }
-  return;
 }
 
 
@@ -3364,12 +3263,14 @@ HostOsScanInfo::HostOsScanInfo(Target *t, OsScanInfo *OsSI) {
   OSI = OsSI;
 
   FPs = (FingerPrint **) safe_zalloc(o.maxOSTries() * sizeof(FingerPrint *));
-  FP_matches = (FingerPrintResults *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResults));
+  FP_matches = (FingerPrintResultsIPv4 *) safe_zalloc(o.maxOSTries() * sizeof(FingerPrintResultsIPv4));
   timedOut = false;
   isCompleted = false;
 
-  if (target->FPR == NULL)
-    target->FPR = new FingerPrintResults;
+  if (target->FPR == NULL) {
+    this->FPR = new FingerPrintResultsIPv4;
+    target->FPR = this->FPR;
+  }
   target->osscanSetFlag(OS_PERF);
 
   hss = new HostOsScanStats(t);
@@ -3520,4 +3421,181 @@ int OsScanInfo::removeCompletedHosts() {
     }
   }
   return hostsRemoved;
+}
+
+/******************************************************************************
+ * Implementation of class OSScan()                                           *
+ ******************************************************************************/
+
+/* Constructor */
+OSScan::OSScan() {
+  this->reset();
+  return;
+}
+
+/* Destructor */
+OSScan::~OSScan() {
+  return;
+}
+
+/* Function that initializes internal variables */
+void OSScan::reset(){
+
+}
+
+
+/* This function takes a group of targets and divides it in chunks if there are
+ * too many to be processed at the same time. The threshold is based on Nmap's
+ * timing level (when timing level is above 4, no chunking is performed).
+ * The reason targets are processed in smaller groups is to improve accuracy. */
+int OSScan::chunk_and_do_scan(vector<Target *> &Targets, int family) {
+  unsigned int max_os_group_sz = 20;
+  double fudgeratio = 1.2; /* Allow a slightly larger final group rather than finish with a tiny one */
+  vector<Target *> tmpTargets;
+  unsigned int startidx = 0;
+
+  if (o.timing_level == 4)
+    max_os_group_sz = (unsigned int) (max_os_group_sz * 1.5);
+
+  if (o.timing_level > 4 || Targets.size() <= max_os_group_sz * fudgeratio) {
+    if(family==AF_INET6)
+      os_scan_ipv6(Targets);
+    else
+      os_scan_ipv4(Targets);
+    return OP_SUCCESS;
+  }
+
+  /* We need to split it up */
+  while(startidx < Targets.size()) {
+    int diff = Targets.size() - startidx;
+    if (diff > max_os_group_sz * fudgeratio) {
+      diff = max_os_group_sz;
+    }
+    tmpTargets.assign(Targets.begin() + startidx, Targets.begin() + startidx + diff);
+    if(family==AF_INET6)
+      os_scan_ipv6(Targets);
+    else
+      os_scan_ipv4(Targets);
+    startidx += diff;
+  }
+  return OP_SUCCESS;
+}
+
+
+/* Performs the OS detection for IPv4 hosts. This method should not be called
+ * directly. os_scan() should be used instead, as it handles chunking so
+ * you don't do too many targets in parallel */
+int OSScan::os_scan_ipv4(vector<Target *> &Targets) {
+  int itry=0;
+  /* Hosts which haven't matched and have been removed from incompleteHosts because
+   * they have exceeded the number of retransmissions the host is allowed. */
+  list<HostOsScanInfo *> unMatchedHosts;
+
+  /* Check we have at least one target*/
+  if (Targets.size() == 0) {
+    return OP_FAILURE;
+  }
+
+  /* Init the necessary objects to perform the detection */
+  init_perf_values();
+
+  OsScanInfo OSI(Targets);
+  if (OSI.numIncompleteHosts() == 0) {
+    /* no one will be scanned */
+    return OP_FAILURE;
+  }
+  OSI.starttime = o.TimeSinceStart();
+  startTimeOutClocks(&OSI);
+
+  HostOsScan HOS(Targets[0]);
+
+  /* Initialize the pcap session handler in HOS */
+  begin_sniffer(&HOS, Targets);
+  while(OSI.numIncompleteHosts() != 0) {
+    if (itry > 0) sleep(1);
+    if (itry == 3) usleep(1500000); /* Try waiting a little longer just in case it matters */
+    if (o.verbose) {
+      char targetstr[128];
+      bool plural = (OSI.numIncompleteHosts() != 1);
+      if (!plural) {
+	(*(OSI.incompleteHosts.begin()))->target->NameIP(targetstr, sizeof(targetstr));
+      } else Snprintf(targetstr, sizeof(targetstr), "%d hosts", (int) OSI.numIncompleteHosts());
+      log_write(LOG_STDOUT, "%s OS detection (try #%d) against %s\n", (itry == 0)? "Initiating" : "Retrying", itry + 1, targetstr);
+      log_flush_all();
+    }
+    startRound(&OSI, &HOS, itry);
+    doSeqTests(&OSI, &HOS);
+    doTUITests(&OSI, &HOS);
+    endRound(&OSI, &HOS, itry);
+    expireUnmatchedHosts(&OSI, &unMatchedHosts);
+    itry++;
+  }
+
+  /* Now move the unMatchedHosts array back to IncompleteHosts */
+  if (!unMatchedHosts.empty())
+    OSI.incompleteHosts.splice(OSI.incompleteHosts.begin(), unMatchedHosts);
+
+  if (OSI.numIncompleteHosts()) {
+    /* For hosts that don't have a perfect match, find the closest fingerprint
+     * in the DB and, if we are in debugging mode, print them. */
+    findBestFPs(&OSI);
+    if(o.debugging > 1)
+      printFP(&OSI);
+  }
+
+  return OP_SUCCESS;
+}
+
+
+/* Performs the OS detection for IPv6 hosts. This method should not be called
+ * directly. os_scan() should be used instead, as it handles chunking so
+ * you don't do too many targets in parallel */
+int OSScan::os_scan_ipv6(vector<Target *> &Targets) {
+
+  /* Object instantiation */
+  FPEngine6 fp6;
+
+  /* Safe checks. */
+  if (Targets.size() == 0) {
+    return OP_FAILURE;
+  }
+
+  return fp6.os_scan(Targets);
+}
+
+
+/* This function performs the OS detection. It processes the supplied list of
+ * targets and classifies it into two groups: IPv4 and IPv6 targets. Then,
+ * OS detection is carried out for those two separate groups. It returns
+ * OP_SUCCESS on success or OP_FAILURE in case of error. */
+int OSScan::os_scan(vector<Target *> &Targets){
+  vector<Target *> ip4_targets;
+  vector<Target *> ip6_targets;
+  int res4=OP_SUCCESS, res6=OP_SUCCESS;
+
+  /* Make sure we have at least one target */
+  if(Targets.size()<=0)
+    return OP_FAILURE;
+
+  /* Classify targets into two groups: IPv4 and IPv6 */
+  for(size_t i=0; i<Targets.size(); i++){
+      if(Targets[i]->af()==AF_INET6)
+          ip6_targets.push_back(Targets[i]);
+      else
+          ip4_targets.push_back(Targets[i]);
+  }
+
+  /* Do IPv4 OS Detection */
+  if( ip4_targets.size()>0 )
+      res4=this->os_scan_ipv4(ip4_targets);
+
+  /* Do IPv6 OS Detection */
+  if( ip6_targets.size()>0 )
+      res6=this->os_scan_ipv6(ip6_targets);
+
+  /* If both scans were succesful, return OK */
+  if(res4==OP_SUCCESS && res6==OP_SUCCESS)
+    return OP_SUCCESS;
+  else
+    return OP_FAILURE;
 }

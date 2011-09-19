@@ -113,6 +113,7 @@ void Target::Initialize() {
   targetname = NULL;
   memset(&seq, 0, sizeof(seq));
   distance = -1;
+  distance_calculation_method = DIST_METHOD_NONE;
   FPR = NULL;
   osscan_flag = OS_NOTPERF;
   weird_responses = flags = 0;
@@ -124,6 +125,7 @@ void Target::Initialize() {
   targetsocklen = sourcesocklen = nexthopsocklen = 0;
   directly_connected = -1;
   targetipstring[0] = '\0';
+  sourceipstring[0] = '\0';
   nameIPBuf = NULL;
   memset(&MACaddress, 0, sizeof(MACaddress));
   memset(&SrcMACaddress, 0, sizeof(SrcMACaddress));
@@ -177,7 +179,7 @@ void Target::FreeInternal() {
 
 /*  Creates a "presentation" formatted string out of the IPv4/IPv6 address.
     Called when the IP changes */
-void Target::GenerateIPString() {
+void Target::GenerateTargetIPString() {
   struct sockaddr_in *sin = (struct sockaddr_in *) &targetsock;
 #if HAVE_IPV6
   struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &targetsock;
@@ -192,6 +194,26 @@ void Target::GenerateIPString() {
 #endif
 		targetipstring, sizeof(targetipstring)) == NULL) {
     fatal("Failed to convert target address to presentation format!?!  Error: %s", strerror(socket_errno()));
+  }
+}
+
+/*  Creates a "presentation" formatted string out of the IPv4/IPv6 address.
+    Called when the IP changes */
+void Target::GenerateSourceIPString() {
+  struct sockaddr_in *sin = (struct sockaddr_in *) &sourcesock;
+#if HAVE_IPV6
+  struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *) &sourcesock;
+#endif
+
+  if (inet_ntop(sin->sin_family, (sin->sin_family == AF_INET)?
+                (char *) &sin->sin_addr :
+#if HAVE_IPV6
+                (char *) &sin6->sin6_addr,
+#else
+                (char *) NULL,
+#endif
+		sourceipstring, sizeof(sourceipstring)) == NULL) {
+    fatal("Failed to convert source address to presentation format!?!  Error: %s", strerror(socket_errno()));
   }
 }
 
@@ -233,7 +255,7 @@ void Target::setTargetSockAddr(const struct sockaddr_storage *ss, size_t ss_len)
   }
   memcpy(&targetsock, ss, ss_len);
   targetsocklen = ss_len;
-  GenerateIPString();
+  GenerateTargetIPString();
   /* The ports array needs to know a name too */
   ports.setIdStr(targetipstr());
 }
@@ -286,6 +308,7 @@ void Target::setSourceSockAddr(const struct sockaddr_storage *ss, size_t ss_len)
   assert(ss_len > 0 && ss_len <= sizeof(*ss));
   memcpy(&sourcesock, ss, ss_len);
   sourcesocklen = ss_len;
+  GenerateSourceIPString();
 }
 
 // Returns IPv4 host address or {0} if unavailable.

@@ -940,8 +940,7 @@ void parse_options(int argc, char **argv) {
       o.script = 1;
 #endif
       if (o.isr00t) {
-        if (o.af() == AF_INET)
-          o.osscan++;
+        o.osscan++;
         o.traceroute = true;
       }
       break;
@@ -1306,8 +1305,10 @@ void  apply_delayed_options() {
   if (delayed_options.pre_host_timeout != -1) o.host_timeout = delayed_options.pre_host_timeout;
 
 
-  if (o.osscan)
+  if (o.osscan) {
     o.reference_FPs = parse_fingerprint_reference_file("nmap-os-db");
+    o.os_labels_ipv6 = load_fp_matches();
+  }
 
   validate_scan_lists(ports,o);
   o.ValidateOptions();
@@ -1945,8 +1946,10 @@ int nmap_main(int argc, char *argv[]) {
       }
     }
 
-    if (o.osscan)
-      os_scan2(Targets);
+    if (o.osscan){
+      OSScan os_engine;
+      os_engine.os_scan(Targets);
+    }
 
     if (o.traceroute)
       traceroute(Targets);

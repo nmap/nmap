@@ -326,6 +326,7 @@ void NmapOps::Initialize() {
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;  
   release_memory = false;
+  disable_ipv6_os_results = true;
   topportlevel = -1;
 #ifndef NOLUA
   script = 0;
@@ -526,7 +527,7 @@ dialog where you can start NPF if you have administrator privileges.";
     fatal("--min-rate=%g must be less than or equal to --max-rate=%g", min_packet_send_rate, max_packet_send_rate);
   }
   
-  if (af() == AF_INET6 && (generate_random_ips|numdecoys|osscan|bouncescan|fragscan|idlescan)) {
+  if (af() == AF_INET6 && (generate_random_ips|numdecoys|bouncescan|fragscan|idlescan)) {
     fatal("Sorry -- IPv6 support is currently only available for TCP, UDP, and SCTP port scans and list scan (-sL).  OS detection, random targets and decoys are also not supported with IPv6.  Further support is under consideration.");
   }
 

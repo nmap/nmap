@@ -185,6 +185,8 @@ class Target {
   const struct in6_addr *v6sourceip() const;
   /* The IPv4 or IPv6 literal string for the target host */
   const char *targetipstr() const { return targetipstring; }
+  /* The IPv4 or IPv6 literal string for the source address */
+  const char *sourceipstr() const { return sourceipstring; }
   /* Give the name from the last setHostName() call, which should be
    the name obtained from reverse-resolution (PTR query) of the IP (v4
    or v6).  If the name has not been set, or was set to NULL, an empty
@@ -315,12 +317,15 @@ class Target {
   private:
   void Initialize();
   void FreeInternal(); // Free memory allocated inside this object
- // Creates a "presentation" formatted string out of the IPv4/IPv6 address
-  void GenerateIPString();
+ // Creates a "presentation" formatted string out of the target's IPv4/IPv6 address
+  void GenerateTargetIPString();
+ // Creates a "presentation" formatted string out of the source IPv4/IPv6 address.
+  void GenerateSourceIPString();
   struct sockaddr_storage targetsock, sourcesock, nexthopsock;
   size_t targetsocklen, sourcesocklen, nexthopsocklen;
   int directly_connected; // -1 = unset; 0 = no; 1 = yes
   char targetipstring[INET6_ADDRSTRLEN];
+  char sourceipstring[INET6_ADDRSTRLEN];
   char *nameIPBuf; /* for the NameIP(void) function to return */
   u8 MACaddress[6], SrcMACaddress[6], NextHopMACaddress[6];  
   bool MACaddress_set, SrcMACaddress_set, NextHopMACaddress_set;

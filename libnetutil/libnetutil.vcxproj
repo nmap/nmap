@@ -74,10 +74,52 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ARPHeader.cc" />
+    <ClCompile Include="DestOptsHeader.cc" />
+    <ClCompile Include="EthernetHeader.cc" />
+    <ClCompile Include="FragmentHeader.cc" />
+    <ClCompile Include="HopByHopHeader.cc" />
+    <ClCompile Include="ICMPv4Header.cc" />
+    <ClCompile Include="ICMPv6Header.cc" />
+    <ClCompile Include="ICMPv6Option.cc" />
+    <ClCompile Include="ICMPv6RRBody.cc" />
+    <ClCompile Include="IPv4Header.cc" />
+    <ClCompile Include="IPv6Header.cc" />
     <ClCompile Include="netutil.cc" />
+    <ClCompile Include="NetworkLayerElement.cc" />
+    <ClCompile Include="PacketElement.cc" />
+    <ClCompile Include="PacketParser.cc" />
+    <ClCompile Include="RawData.cc" />
+    <ClCompile Include="RoutingHeader.cc" />
+    <ClCompile Include="TCPHeader.cc" />
+    <ClCompile Include="TransportLayerElement.cc" />
+    <ClCompile Include="UDPHeader.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApplicationLayerElement.h" />
+    <ClInclude Include="ARPHeader.h" />
+    <ClInclude Include="DataLinkLayerElement.h" />
+    <ClInclude Include="DestOptsHeader.h" />
+    <ClInclude Include="EthernetHeader.h" />
+    <ClInclude Include="FragmentHeader.h" />
+    <ClInclude Include="HopByHopHeader.h" />
+    <ClInclude Include="ICMPHeader.h" />
+    <ClInclude Include="ICMPv4Header.h" />
+    <ClInclude Include="ICMPv6Header.h" />
+    <ClInclude Include="ICMPv6Option.h" />
+    <ClInclude Include="ICMPv6RRBody.h" />
+    <ClInclude Include="IPv4Header.h" />
+    <ClInclude Include="IPv6Header.h" />
     <ClInclude Include="netutil.h" />
+    <ClInclude Include="NetworkLayerElement.h" />
+    <ClInclude Include="npacket.h" />
+    <ClInclude Include="PacketElement.h" />
+    <ClInclude Include="PacketParser.h" />
+    <ClInclude Include="RawData.h" />
+    <ClInclude Include="RoutingHeader.h" />
+    <ClInclude Include="TCPHeader.h" />
+    <ClInclude Include="TransportLayerElement.h" />
+    <ClInclude Include="UDPHeader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

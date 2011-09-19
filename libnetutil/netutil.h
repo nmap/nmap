@@ -106,6 +106,10 @@ extern "C" {
 
 #include "dnet.h"
 
+
+/* It is VERY important to never change the value of these two constants. 
+ * Specially, OP_FAILURE should never be positive, as some pieces of code take
+ * that for granted. */
 enum { OP_FAILURE = -1, OP_SUCCESS = 0 };
 
 
@@ -383,7 +387,7 @@ int islocalhost(const struct sockaddr_storage *const ss);
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
  * Returns 1 if the address is private or 0 otherwise. */
-int isipprivate(const struct in_addr *const addr);
+int isipprivate(const struct sockaddr_storage *addr);
 
 /* Takes binary data found in the IP Options field of an IPv4 packet
  * and returns a string containing an ASCII description of the options

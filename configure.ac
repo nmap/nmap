@@ -645,6 +645,67 @@ AC_SUBST(LUA_DIST_CLEAN)
 AC_SUBST(INSTALLNSE)
 AC_SUBST(CXXFLAGS)
 
+
+LIBLINEARDIR=liblinear
+have_liblinear=no
+
+# First we test whether they specified liblinear explicitly
+AC_ARG_WITH(liblinear,
+AC_HELP_STRING([--with-liblinear=DIR], [Use an existing (compiled) liblinear from DIR/include and DIR/lib.])
+AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included with Nmap])
+[  case "$with_liblinear" in
+  yes)
+  ;;
+  included)
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
+    LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_BUILD="liblinear_build"
+    LIBLINEAR_CLEAN="liblinear_clean"
+    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    have_liblinear=yes
+  ;;
+  *)
+    CPPFLAGS="-I$with_liblinear/include $CPPFLAGS"
+    LDFLAGS="-L$with_liblinear/lib $LDFLAGS"
+  ;;
+  esac]
+)
+
+# If they didn't specify it, we try to find it
+if test $have_liblinear != yes; then
+  AC_CHECK_HEADERS([linear.h],
+    AC_CHECK_LIB(linear, predict, [have_liblinear=yes; LIBLINEAR_LIBS="-llinear"; break],, [-lm])
+  )
+
+  LIBLINEAR_DEPENDS=""
+  LIBLINEAR_BUILD=""
+  LIBLINEAR_CLEAN=""
+  LIBLINEAR_DIST_CLEAN=""
+fi
+
+# if we didn't find we use our own
+if test $have_liblinear != yes; then
+  AC_MSG_RESULT(no) 
+  CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
+  LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+  LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+  LIBLINEAR_BUILD="liblinear_build"
+  LIBLINEAR_CLEAN="liblinear_clean"
+  LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+  AC_DEFINE(LIBLINEAR_INCLUDED)
+else
+  AC_MSG_RESULT(yes) 
+fi
+
+AC_SUBST(LIBLINEAR_LIBS)
+AC_SUBST(LIBLINEARDIR)
+AC_SUBST(LIBLINEAR_DEPENDS)
+AC_SUBST(LIBLINEAR_BUILD)
+AC_SUBST(LIBLINEAR_CLEAN)
+AC_SUBST(LIBLINEAR_DIST_CLEAN)
+
+
 dnl This test is from the configure.in of Unix Network Programming second
 dnl edition example code by W. Richard Stevens
 dnl ##################################################################

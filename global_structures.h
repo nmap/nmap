@@ -169,6 +169,14 @@ struct OS_Classification {
   std::vector<const char *> cpe;
 };
 
+/* A description of an operating system: a human-readable name and a list of
+   classifications. */
+struct FingerMatch {
+  int line; /* For reference prints, the line # in nmap-os-db */
+  char *OS_name;
+  std::vector<OS_Classification> OS_class;
+};
+
 struct FingerTest {
   const char *name;
   std::vector<struct AVal> results;
@@ -176,9 +184,7 @@ struct FingerTest {
 };
 
 struct FingerPrint {
-  int line; /* For reference prints, the line # in nmap-os-db */
-  char *OS_name;
-  std::vector<OS_Classification> OS_class;
+  FingerMatch match;
   std::vector<FingerTest> tests;
   const FingerTest *gettestbyname(const char *name) const;
   FingerPrint();

@@ -97,6 +97,7 @@ class FingerPrintResults;
 
 #include "nmap.h"
 #include "global_structures.h"
+#include "FPEngine.h"
 
 /* Maximum number of results allowed in one of these things ... */
 #define MAX_FP_RESULTS 36
@@ -112,11 +113,11 @@ struct OS_Classification_Results {
 class FingerPrintResults {
  public: /* For now ... a lot of the data members should be made private */
   FingerPrintResults();
-  ~FingerPrintResults();
+  virtual ~FingerPrintResults();
 
   double accuracy[MAX_FP_RESULTS]; /* Percentage of match (1.0 == perfect 
 				      match) in same order as pritns[] below */
-  FingerPrint *prints[MAX_FP_RESULTS]; /* ptrs to matching references -- 
+  FingerMatch *matches[MAX_FP_RESULTS]; /* ptrs to matching references -- 
 					      highest accuracy matches first */
   int num_perfect_matches; /* Number of 1.0 accuracy matches in prints[] */
   int num_matches; /* Total number of matches in prints[] */
@@ -147,14 +148,13 @@ class FingerPrintResults {
      consistancy standpoint. */
   double maxTimingRatio;
 
-  FingerPrint **FPs; /* Fingerprint data obtained from host */
-  int numFPs;
-
 /* If the fingerprint is of potentially poor quality, we don't want to
    print it and ask the user to submit it.  In that case, the reason
    for skipping the FP is returned as a static string.  If the FP is
    great and should be printed, NULL is returned. */
-  const char *OmitSubmissionFP();
+  virtual const char *OmitSubmissionFP();
+
+  virtual const char *merge_fpr(const Target *currenths, bool isGoodFP, bool wrapit) const = 0;
 
  private:
   bool isClassified; // Whether populateClassification() has been called
@@ -163,6 +163,29 @@ class FingerPrintResults {
   void populateClassification();
   bool classAlreadyExistsInResults(struct OS_Classification *OSC);
   struct OS_Classification_Results OSR;
+};
+
+class FingerPrintResultsIPv4 : public FingerPrintResults {
+public:
+  FingerPrint **FPs; /* Fingerprint data obtained from host */
+  int numFPs;
+
+  FingerPrintResultsIPv4();
+  virtual ~FingerPrintResultsIPv4();
+  const char *merge_fpr(const Target *currenths, bool isGoodFP, bool wrapit) const;
+};
+
+class FingerPrintResultsIPv6 : public FingerPrintResults {
+public:
+  FPResponse *fp_responses[NUM_FP_PROBES_IPv6];
+  struct timeval begin_time;
+  /* The flow label we set in our sent packets, for calculating offsets later. */
+  unsigned int flow_label;
+
+  FingerPrintResultsIPv6();
+  virtual ~FingerPrintResultsIPv6();
+  const char *OmitSubmissionFP();
+  const char *merge_fpr(const Target *currenths, bool isGoodFP, bool wrapit) const;
 };
 
 #endif /* FINGERPRINTRESULTS_H */

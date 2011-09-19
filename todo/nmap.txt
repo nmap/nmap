@@ -371,6 +371,14 @@ o [Nsock] Consider adding server support to Nsock so it can accept
   followed by a nonblocking accept().  Then Nping gives the SD's to
   Nsock to manage.
 
+o Consider implementing both global and per-host congestion control in
+  the IPv6 OS detection engine. Currently it handles congestion globally
+  (one CWND and SSTHRESH shared by all hosts). This works fine but it
+  may not be the most efficient approach: if the congestion is not
+  in our network segment but in a target's and we are os-scanning
+  hosts in different networks, then all hosts get "penalized" because
+  there is congestion in another network, not in theirs.
+
 o [Nsock] Consider implementing a nsock_pcap_close() function or making
   nsp_delete() call pcap_close() when pcap IODs are used. Currently valgrind
   warns about a socket descriptor left opened (at least in Nping).

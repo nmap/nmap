@@ -17,8 +17,10 @@ NMAPDEVDIR=~/nmap-private-dev
 export NBASEDIR=@NBASEDIR@
 export NSOCKDIR=@NSOCKDIR@
 export LIBLUADIR = @LIBLUADIR@
+export LIBLINEARDIR = @LIBLINEARDIR@
 export NDIR=$(shell pwd)
 export LIBLUA_LIBS = @LIBLUA_LIBS@
+export LIBLINEAR_LIBS = @LIBLINEAR_LIBS@
 export NCATDIR=@NCATDIR@
 CC = @CC@
 CXX = @CXX@
@@ -47,7 +49,7 @@ export CFLAGS = $(CXXFLAGS)
 # CFLAGS = $(DEFS) $(INCLS)
 STATIC =
 LDFLAGS = @LDFLAGS@ $(DBGFLAGS) $(STATIC)
-LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBS@
+LIBS =  @LIBNBASE_LIBS@ @LIBNSOCK_LIBS@ @LIBPCRE_LIBS@ @LIBPCAP_LIBS@ $(OPENSSL_LIBS) libnetutil/libnetutil.a @LIBDNET_LIBS@ @LIBLUA_LIBS@ @LIBLINEAR_LIBS@ @LIBS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
 # LIBS =  -lefence @LIBS@
 # LIBS =  -lrmalloc @LIBS@
@@ -93,20 +95,20 @@ NSE_OBJS+=nse_openssl.o nse_ssl_cert.o
 endif
 endif
 
-export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc output.cc payload.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc traceroute.cc portreasons.cc xml.cc $(NSE_SRC) @COMPAT_SRCS@
+export SRCS = main.cc nmap.cc targets.cc tcpip.cc nmap_error.cc utils.cc idle_scan.cc osscan.cc osscan2.cc FPEngine.cc FPmodel.cc output.cc payload.cc scan_engine.cc timing.cc charpool.cc services.cc protocols.cc nmap_rpc.cc portlist.cc NmapOps.cc TargetGroup.cc Target.cc FingerPrintResults.cc service_scan.cc NmapOutputTable.cc MACLookup.cc nmap_tty.cc nmap_dns.cc traceroute.cc portreasons.cc xml.cc $(NSE_SRC) @COMPAT_SRCS@
 
-export HDRS = charpool.h FingerPrintResults.h global_structures.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h NmapOps.h NmapOutputTable.h nmap_rpc.h nmap_tty.h nmap_winconfig.h osscan.h osscan2.h output.h payload.h portlist.h protocols.h scan_engine.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h utils.h traceroute.h portreasons.h xml.h $(NSE_HDRS)
+export HDRS = charpool.h FingerPrintResults.h global_structures.h idle_scan.h MACLookup.h nmap_amigaos.h nmap_dns.h nmap_error.h nmap.h NmapOps.h NmapOutputTable.h nmap_rpc.h nmap_tty.h nmap_winconfig.h osscan.h osscan2.h FPEngine.h output.h payload.h portlist.h protocols.h scan_engine.h service_scan.h services.h TargetGroup.h Target.h targets.h tcpip.h timing.h utils.h traceroute.h portreasons.h xml.h $(NSE_HDRS)
 
-OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o osscan2.o output.o payload.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o nmap_tty.o nmap_dns.o  traceroute.o portreasons.o xml.o $(NSE_OBJS) @COMPAT_OBJS@
+OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o osscan2.o FPEngine.o FPmodel.o output.o payload.o scan_engine.o timing.o charpool.o services.o protocols.o nmap_rpc.o portlist.o NmapOps.o TargetGroup.o Target.o FingerPrintResults.o service_scan.o NmapOutputTable.o MACLookup.o nmap_tty.o nmap_dns.o  traceroute.o portreasons.o xml.o $(NSE_OBJS) @COMPAT_OBJS@
 
 # %.o : %.cc -- nope this is a GNU extension
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
-all: @LUA_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
+all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
-$(TARGET): @LUA_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
+$(TARGET): @LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
 	@echo Compiling nmap
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
@@ -138,6 +140,9 @@ ncat_build: $(NCATDIR)/Makefile nbase_build nsock_build $(NCATDIR)/ncat.h
 lua_build: $(LIBLUADIR)/Makefile
 	@echo Compiling liblua; cd $(LIBLUADIR) && $(MAKE) liblua.a CC="$(CC)" MYCFLAGS="$(CFLAGS) @LUA_CFLAGS@"
 
+liblinear_build: $(LIBLINEARDIR)/Makefile
+	@echo Compiling liblinear; cd $(LIBLINEARDIR) && $(MAKE) liblinear.a CC="$(CC)" CFLAGS="$(CFLAGS)"
+
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
 
@@ -166,7 +171,7 @@ release-rpms:
 web:
 	cd $(NMAPDEVDIR) && $(MAKE) web
 
-clean: @LUA_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@
+clean: @LUA_CLEAN@ @LIBLINEAR_CLEAN@ @PCAP_CLEAN@ @PCRE_CLEAN@ @DNET_CLEAN@ nsock_clean nbase_clean netutil_clean my_clean @NPING_CLEAN@ @ZENMAP_CLEAN@ @NCAT_CLEAN@
 
 my_clean:
 	rm -f dependencies.mk makefile.dep
@@ -187,6 +192,8 @@ ncat_clean:
 	-cd $(NCATDIR) && $(MAKE) clean
 lua_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
+liblinear_clean:
+	-cd $(LIBLINEARDIR) && $(MAKE) clean
 zenmap_clean:
 	-cd $(ZENMAPDIR) && $(PYTHON) setup.py clean --all
 ndiff_clean:
@@ -201,6 +208,7 @@ dnet_dist_clean:
 	-cd $(LIBDNETDIR) && $(MAKE) distclean
 lua_dist_clean:
 	-cd $(LIBLUADIR) && $(MAKE) clean
+liblinear_dist_clean: liblinear_clean
 nbase_dist_clean:
 	-cd $(NBASEDIR) && $(MAKE) distclean
 nsock_dist_clean:
@@ -218,7 +226,7 @@ nping_dist_clean:
 debugclean:
 	rm -f *.gcov *.gcda *.gcno gmon.out
 
-distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nsock_dist_clean nbase_dist_clean netutil_dist_clean
+distclean: my_clean my_distclean @LUA_DIST_CLEAN@ @LIBLINEAR_DIST_CLEAN@ @PCAP_DIST_CLEAN@ @PCRE_DIST_CLEAN@ @DNET_DIST_CLEAN@ @NPING_DIST_CLEAN@ @ZENMAP_DIST_CLEAN@ @NCAT_DIST_CLEAN@ nsock_dist_clean nbase_dist_clean netutil_dist_clean
 
 my_distclean:
 	rm -f Makefile Makefile.bak makefile.dep nmap_config.h stamp-h stamp-h.in \

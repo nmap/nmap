@@ -1677,14 +1677,18 @@ int islocalhost(const struct sockaddr_storage *const ss) {
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
  * Returns 1 if the address is private or 0 otherwise. */
-int isipprivate(const struct in_addr *const addr) {
+int isipprivate(const struct sockaddr_storage *addr) {
+  const struct sockaddr_in *sin;
   char *ipc;
   unsigned char i1, i2;
 
   if (!addr)
     return 0;
+  if (addr->ss_family != AF_INET)
+    return 0;
+  sin = (struct sockaddr_in *) addr;
 
-  ipc = (char *) &(addr->s_addr);
+  ipc = (char *) &(sin->sin_addr.s_addr);
   i1 = ipc[0];
   i2 = ipc[1];
 

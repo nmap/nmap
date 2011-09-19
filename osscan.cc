@@ -206,8 +206,6 @@ FingerPrintDB::~FingerPrintDB() {
 }
 
 FingerPrint::FingerPrint() {
-  line = 0;
-  OS_name = NULL;
 }
 
 const struct AVal *FingerTest::getattrbyname(const char *name) const {
@@ -460,11 +458,11 @@ double compare_fingerprints(FingerPrint *referenceFP, FingerPrint *observedFP,
 
 /* Takes a fingerprint and looks for matches inside the passed in
    reference fingerprint DB.  The results are stored in in FPR (which
-   must point to an instantiated FingerPrintResults class) -- results
+   must point to an instantiated FingerPrintResultsIPv4 class) -- results
    will be reverse-sorted by accuracy.  No results below
    accuracy_threshhold will be included.  The max matches returned is
-   the maximum that fits in a FingerPrintResults class.  */
-void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
+   the maximum that fits in a FingerPrintResultsIPv4 class.  */
+void match_fingerprint(FingerPrint *FP, FingerPrintResultsIPv4 *FPR,
                       FingerPrintDB *DB, double accuracy_threshold) {
   double FPR_entrance_requirement = accuracy_threshold; /* accuracy must be
                                                            at least this big
@@ -474,10 +472,10 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
   double acc;
   int state;
   int skipfp;
-  int max_prints = sizeof(FPR->prints) / sizeof(FingerPrint *);
+  int max_prints = sizeof(FPR->matches) / sizeof(FPR->matches[0]);
   int idx;
   double tmp_acc=0.0, tmp_acc2; /* These are temp buffers for list swaps */
-  FingerPrint *tmp_FP = NULL, *tmp_FP2;
+  FingerMatch *tmp_FP = NULL, *tmp_FP2;
 
   assert(FP);
   assert(FPR);
@@ -495,12 +493,12 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
 
       state = 0;
       for (idx=0; idx < FPR->num_matches; idx++) {
-        if (strcmp(FPR->prints[idx]->OS_name, (*current_os)->OS_name) == 0) {
+        if (strcmp(FPR->matches[idx]->OS_name, (*current_os)->match.OS_name) == 0) {
           if (FPR->accuracy[idx] >= acc) {
             skipfp = 1; /* Skip it -- a higher version is already in list */
           } else {
             /* We must shift the list left to delete this sucker */
-            memmove(FPR->prints + idx, FPR->prints + idx + 1,
+            memmove(FPR->matches + idx, FPR->matches + idx + 1,
                     (FPR->num_matches - 1 - idx) * sizeof(FingerPrint *));
             memmove(FPR->accuracy + idx, FPR->accuracy + idx + 1,
                     (FPR->num_matches - 1 - idx) * sizeof(double));
@@ -528,18 +526,18 @@ void match_fingerprint(FingerPrint *FP, FingerPrintResults *FPR,
           if (state == 1) {
             /* Push tmp_acc and tmp_FP onto the next idx */
             tmp_acc2 = FPR->accuracy[idx+1];
-            tmp_FP2 = FPR->prints[idx+1];
+            tmp_FP2 = FPR->matches[idx+1];
 
             FPR->accuracy[idx+1] = tmp_acc;
-            FPR->prints[idx+1] = tmp_FP;
+            FPR->matches[idx+1] = tmp_FP;
 
             tmp_acc = tmp_acc2;
             tmp_FP = tmp_FP2;
           } else if (FPR->accuracy[idx + 1] < acc) {
             /* OK, I insert the sucker into the next slot ... */
             tmp_acc = FPR->accuracy[idx+1];
-            tmp_FP = FPR->prints[idx+1];
-            FPR->prints[idx+1] = *current_os;
+            tmp_FP = FPR->matches[idx+1];
+            FPR->matches[idx+1] = &(*current_os)->match;
             FPR->accuracy[idx+1] = acc;
             state = 1;
           }
@@ -595,8 +593,9 @@ static const char *dist_method_fp_string(enum dist_calc_method method)
    top of a fingerprint.  Gives info which might be useful when the
    FPrint is submitted (eg Nmap version, etc).  Result is written (up
    to ostrlen) to the ostr var passed in */
-static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
-                                const struct in_addr * const addr, int distance,
+void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
+                                const char *engine_id,
+                                const struct sockaddr_storage *addr, int distance,
                                 enum dist_calc_method distance_calculation_method,
                                 const u8 *mac, int openTcpPort,
                                 int closedTcpPort, int closedUdpPort) {
@@ -629,8 +628,8 @@ static void WriteSInfo(char *ostr, int ostrlen, bool isGoodFP,
   if (mac)
     Snprintf(macbuf, sizeof(macbuf), "%%M=%02X%02X%02X", mac[0], mac[1], mac[2]);
 
-  Snprintf(ostr, ostrlen, "SCAN(V=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%s%%G=%c%s%%TM=%X%%P=%s)",
-                   NMAP_VERSION, ltime->tm_mon + 1, ltime->tm_mday,
+  Snprintf(ostr, ostrlen, "SCAN(V=%s%%E=%s%%D=%d/%d%%OT=%s%%CT=%s%%CU=%s%%PV=%c%s%s%%G=%c%s%%TM=%X%%P=%s)",
+                   NMAP_VERSION, engine_id, ltime->tm_mon + 1, ltime->tm_mday,
                    otbuf, ctbuf, cubuf, isipprivate(addr) ? 'Y' : 'N', dsbuf, dcbuf, isGoodFP ? 'Y' : 'N',
                    macbuf, (int) timep, NMAP_PLATFORM);
 }
@@ -804,7 +803,7 @@ static bool FingerTest_lessthan(const FingerTest* a, const FingerTest* b) {
    are included only once. If wrapit is true, the string is wrapped for
    submission. */
 const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
-                           const struct in_addr * const addr, int distance,
+                           const struct sockaddr_storage *addr, int distance,
                            enum dist_calc_method distance_calculation_method,
                            const u8 *mac, int openTcpPort, int closedTcpPort,
                            int closedUdpPort, bool wrapit) {
@@ -872,7 +871,7 @@ const char *mergeFPs(FingerPrint *FPs[], int numFPs, bool isGoodFP,
   p = str;
 
   /* Lets start by writing the fake "SCAN" test for submitting fingerprints */
-  WriteSInfo(p, sizeof(str), isGoodFP, addr, distance, distance_calculation_method, mac, openTcpPort, closedTcpPort, closedUdpPort);
+  WriteSInfo(p, sizeof(str), isGoodFP, "4", addr, distance, distance_calculation_method, mac, openTcpPort, closedTcpPort, closedUdpPort);
   p = p + strlen(str);
   if (!wrapit)
     *p++ = '\n';
@@ -997,16 +996,16 @@ static void parse_classline(FingerPrint *FP, char *thisline, int lineno) {
   end = strchr(begin, '\0');
   os_class.Device_Type = string_pool_substr_strip(begin, end);
 
-  FP->OS_class.push_back(os_class);
+  FP->match.OS_class.push_back(os_class);
 }
 
 static void parse_cpeline(FingerPrint *FP, char *thisline, int lineno) {
   const char *cpe;
 
-  if (FP->OS_class.empty())
+  if (FP->match.OS_class.empty())
     fatal("\"CPE\" line without preceding \"Class\" at line %d", lineno);
 
-  OS_Classification& osc = FP->OS_class.back();
+  OS_Classification& osc = FP->match.OS_class.back();
 
   if (thisline == NULL || strncmp(thisline, "CPE ", 4) != 0)
     fatal("Bogus line #%d (%s) passed to %s()", lineno, thisline, __func__);
@@ -1050,7 +1049,7 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
 
     if (strncmp(thisline, "Fingerprint ", 12) == 0) {
       /* Ignore a second Fingerprint line if it appears. */
-      if (FP->OS_name == NULL) {
+      if (FP->match.OS_name == NULL) {
         p = thisline + 12;
         while (*p && isspace((int) (unsigned char) *p))
           p++;
@@ -1061,9 +1060,9 @@ FingerPrint *parse_single_fingerprint(char *fprint_orig) {
         while (q > p && isspace((int) (unsigned char) *(--q)))
           ;
 
-        FP->OS_name = (char *) cp_alloc(q - p + 2);
-        memcpy(FP->OS_name, p, q - p + 1);
-        FP->OS_name[q - p + 1] = '\0';
+        FP->match.OS_name = (char *) cp_alloc(q - p + 2);
+        memcpy(FP->match.OS_name, p, q - p + 1);
+        FP->match.OS_name[q - p + 1] = '\0';
       }
     } else if (strncmp(thisline, "MatchPoints", 11) == 0) {
       p = thisline + 11;
@@ -1150,7 +1149,7 @@ fparse:
     current = new FingerPrint;
 
     if (parsingMatchPoints) {
-      current->OS_name = NULL;
+      current->match.OS_name = NULL;
       DB->MatchPoints = current;
     } else {
       DB->prints.push_back(current);
@@ -1168,12 +1167,12 @@ fparse:
       if (q < p)
         fatal("Parse error on line %d of fingerprint: %s", lineno, line);
 
-      current->OS_name = (char *) cp_alloc(q - p + 2);
-      memcpy(current->OS_name, p, q - p + 1);
-      current->OS_name[q - p + 1] = '\0';
+      current->match.OS_name = (char *) cp_alloc(q - p + 2);
+      memcpy(current->match.OS_name, p, q - p + 1);
+      current->match.OS_name[q - p + 1] = '\0';
     }
 
-    current->line = lineno;
+    current->match.line = lineno;
 
     /* Now we read the fingerprint itself */
     while (fgets(line, sizeof(line), fp)) {

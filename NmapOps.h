@@ -187,6 +187,7 @@ class NmapOps {
   int nogcc; /* Turn off group congestion control with --nogcc */
   int generate_random_ips; /* -iR option */
   FingerPrintDB *reference_FPs; /* Used in the new OS scan system. */
+  std::vector<FingerMatch> os_labels_ipv6;
   u16 magic_port;
   unsigned short magic_port_set; /* Was this set by user? */
 
@@ -351,6 +352,11 @@ class NmapOps {
   bool noninteractive;
 
   bool release_memory;	/* suggest to release memory before quitting. used to find memory leaks. */
+
+  /* This is a temporary option that disables the printing of IPv6 OS results,
+     to allow collection of more fingerprints. */
+  bool disable_ipv6_os_results;
+
  private:
   int max_os_tries;
   int max_rtt_timeout;

@@ -114,6 +114,7 @@
 #include <set>
 #include <vector>
 #include <list>
+#include <sstream>
 
 /* Workaround for lack of namespace std on HP-UX 11.00 */
 namespace std {};
@@ -1499,7 +1500,7 @@ static void printosclassificationoutput(const struct
     // Now to create the fodder for normal output
     for (classno = 0; classno < OSR->OSC_num_matches; classno++) {
       /* We have processed enough if any of the following are true */
-      if ((!guess && OSR->OSC_Accuracy[classno] < 1.0) ||
+      if ((!guess && classno >= OSR->OSC_num_perfect_matches) ||
           OSR->OSC_Accuracy[classno] <= OSR->OSC_Accuracy[0] - 0.1 ||
           (OSR->OSC_Accuracy[classno] < 1.0 && classno > 9))
         break;
@@ -1563,14 +1564,14 @@ static void printosclassificationoutput(const struct
       log_write(LOG_PLAIN, "Device type: ");
       for (classno = 0; classno < numtypes; classno++)
         log_write(LOG_PLAIN, "%s%s", types[classno], (classno < numtypes - 1) ? "|" : "");
-      log_write(LOG_PLAIN, "\nRunning%s: ", (familyaccuracy[0] < 1.0) ? " (JUST GUESSING)" : "");
+      log_write(LOG_PLAIN, "\nRunning%s: ", OSR->OSC_num_perfect_matches == 0 ? " (JUST GUESSING)" : "");
       for (familyno = 0; familyno < numfamilies; familyno++) {
         if (familyno > 0)
           log_write(LOG_PLAIN, ", ");
         log_write(LOG_PLAIN, "%s", fullfamily[familyno]);
         if (*familygenerations[familyno])
           log_write(LOG_PLAIN, " %s", familygenerations[familyno]);
-        if (familyaccuracy[familyno] < 1.0)
+        if (familyno >= OSR->OSC_num_perfect_matches)
           log_write(LOG_PLAIN, " (%.f%%)",
                     floor(familyaccuracy[familyno] * 100));
       }
@@ -1609,15 +1610,174 @@ void printmacinfo(Target *currenths) {
 
 
 /* A convenience wrapper around mergeFPs. */
-static const char *merge_fpr(const FingerPrintResults *FPR,
-                             const Target *currenths,
-                             bool isGoodFP, bool wrapit) {
-  return mergeFPs(FPR->FPs, FPR->numFPs, isGoodFP, currenths->v4hostip(),
+const char *FingerPrintResultsIPv4::merge_fpr(const Target *currenths,
+                             bool isGoodFP, bool wrapit) const {
+  return mergeFPs(this->FPs, this->numFPs, isGoodFP, currenths->TargetSockAddr(),
                   currenths->distance,
                   currenths->distance_calculation_method,
-                  currenths->MACAddress(), FPR->osscan_opentcpport,
-                  FPR->osscan_closedtcpport, FPR->osscan_closedudpport,
+                  currenths->MACAddress(), this->osscan_opentcpport,
+                  this->osscan_closedtcpport, this->osscan_closedudpport,
                   wrapit);
+}
+
+/* Run-length encode a string in chunks of two bytes. The output sequence
+   AA{n} means to repeat AA n times. The input must not contain '{' or '}'
+   characters. */
+static std::string run_length_encode(const std::string &s) {
+  std::ostringstream result;
+  const char *p, *q;
+  unsigned int reps;
+
+  p = s.c_str();
+  while (*p != '\0' && *(p + 1) != '\0') {
+    for (q = p + 2; *q == *p && *(q + 1) == *(p + 1); q += 2)
+      ;
+    reps = (q - p) / 2;
+    if (reps < 3)
+      result << std::string(p, q);
+    else
+      result << std::string(p, 2) << "{" << reps << "}";
+    p = q;
+  }
+  if (*p != '\0')
+    result << std::string(p);
+
+  return result.str();
+}
+
+static std::string wrap(const std::string &s) {
+  const static char *prefix = "OS:";
+  std::string t, buf;
+  int i, len, prefixlen;
+  size_t p;
+
+  t = s;
+  /* Remove newlines. */
+  p = 0;
+  while ((p = t.find("\n", p)) != std::string::npos)
+    t.erase(p, 1);
+
+  len = t.size();
+  prefixlen = strlen(prefix);
+  assert(FP_RESULT_WRAP_LINE_LEN > prefixlen);
+  for (i = 0; i < len; i += FP_RESULT_WRAP_LINE_LEN - prefixlen) {
+    buf.append(prefix);
+    buf.append(t, i, FP_RESULT_WRAP_LINE_LEN - prefixlen);
+    buf.append("\n");
+  }
+
+  return buf;
+}
+
+static void scrub_packet(PacketElement *pe, unsigned char fill) {
+  unsigned char fillbuf[16];
+
+  memset(fillbuf, fill, sizeof(fillbuf));
+  for (; pe != NULL; pe = pe->getNextElement()) {
+    if (pe->protocol_id() == HEADER_TYPE_IPv6) {
+      IPv6Header *ipv6 = (IPv6Header *) pe;
+      ipv6->setSourceAddress(fillbuf);
+      ipv6->setDestinationAddress(fillbuf);
+    } else if (pe->protocol_id() == HEADER_TYPE_ICMPv6) {
+      ICMPv6Header *icmpv6 = (ICMPv6Header *) pe;
+      in6_addr *addr = (in6_addr *) fillbuf;
+      if (icmpv6->getType() == ICMPV6_NEIGHBOR_ADVERTISEMENT)
+        icmpv6->setTargetAddress(*addr);
+    }
+  }
+}
+
+static std::string get_scrubbed_buffer(const FPResponse *resp) {
+  std::ostringstream result;
+  PacketElement *scrub1, *scrub2;
+  u8 *buf1, *buf2;
+  int len1, len2;
+  unsigned int i;
+
+  scrub1 = PacketParser::split(resp->buf, resp->len);
+  assert(scrub1 != NULL);
+  scrub_packet(scrub1, 0x00);
+
+  scrub2 = PacketParser::split(resp->buf, resp->len);
+  assert(scrub2 != NULL);
+  scrub_packet(scrub2, 0xFF);
+
+  buf1 = scrub1->getBinaryBuffer(&len1);
+  buf2 = scrub2->getBinaryBuffer(&len2);
+
+  assert(resp->len == (unsigned int) len1);
+  assert(resp->len == (unsigned int) len2);
+
+  result.fill('0');
+  result << std::hex;
+  for (i = 0; i < resp->len; i++) {
+    if (resp->buf[i] == buf1[i] && resp->buf[i] == buf2[i]) {
+      result.width(2);
+      result << (unsigned int) resp->buf[i];
+    } else {
+      result << "XX";
+    }
+  }
+
+  free(buf1);
+  free(buf2);
+  PacketParser::freePacketChain(scrub1);
+  PacketParser::freePacketChain(scrub2);
+
+  return result.str();
+}
+
+const char *FingerPrintResultsIPv6::merge_fpr(const Target *currenths,
+                             bool isGoodFP, bool wrapit) const {
+  static char str[10240];
+  const FingerPrintResultsIPv6 *FPR;
+  std::ostringstream result;
+  std::string output;
+  unsigned int i;
+
+  /* Write the SCAN line. */
+  WriteSInfo(str, sizeof(str), isGoodFP, "6", currenths->TargetSockAddr(),
+    currenths->distance, currenths->distance_calculation_method,
+    currenths->MACAddress(), this->osscan_opentcpport,
+    this->osscan_closedtcpport, this->osscan_closedudpport);
+  result << str << "\n";
+
+  FPR = (FingerPrintResultsIPv6 *) currenths->FPR;
+  assert(FPR->begin_time.tv_sec != 0);
+  for (i = 0; i < sizeof(FPR->fp_responses) / sizeof(FPR->fp_responses[0]); i++) {
+    const FPResponse *resp;
+    std::string scrubbed;
+
+    resp = this->fp_responses[i];
+    if (resp == NULL)
+      continue;
+    scrubbed = get_scrubbed_buffer(resp);
+    if (wrapit)
+      scrubbed = run_length_encode(scrubbed);
+    result << resp->probe_id << "(P=" << scrubbed;
+    assert(resp->senttime.tv_sec != 0);
+    result << "%ST=" << TIMEVAL_FSEC_SUBTRACT(resp->senttime, FPR->begin_time);
+    assert(resp->rcvdtime.tv_sec != 0);
+    result << "%RT=" << TIMEVAL_FSEC_SUBTRACT(resp->rcvdtime, FPR->begin_time);
+    result << ")\n";
+  }
+
+  result << "EXTRA(";
+  result << "FL=";
+  result.fill('0');
+  result << std::hex;
+  result.width(5);
+  result << FPR->flow_label;
+  result << ")\n";
+
+  output = result.str();
+  if (wrapit) {
+    output = wrap(output);
+  }
+
+  Strncpy(str, output.c_str(), sizeof(str));
+
+  return str;
 }
 
 static void write_merged_fpr(const FingerPrintResults *FPR,
@@ -1625,12 +1785,12 @@ static void write_merged_fpr(const FingerPrintResults *FPR,
                              bool isGoodFP, bool wrapit) {
   log_write(LOG_NORMAL | LOG_SKID_NOXLT | LOG_STDOUT,
             "TCP/IP fingerprint:\n%s\n",
-            merge_fpr(FPR, currenths, isGoodFP, wrapit));
+            FPR->merge_fpr(currenths, isGoodFP, wrapit));
 
   /* Added code here to print fingerprint to XML file any time it would be
      printed to any other output format  */
   xml_open_start_tag("osfingerprint");
-  xml_attribute("fingerprint", "%s", merge_fpr(FPR, currenths, isGoodFP, wrapit));
+  xml_attribute("fingerprint", "%s", FPR->merge_fpr(currenths, isGoodFP, wrapit));
   xml_close_empty_tag();
   xml_newline();
 }
@@ -1691,22 +1851,22 @@ void printosscanoutput(Target *currenths) {
     /* Success, not too many perfect matches. */
     if (FPR->num_perfect_matches > 0) {
       /* Some perfect matches. */
-      for (i = 0; FPR->accuracy[i] == 1; i++) {
+      for (i = 0; i < FPR->num_perfect_matches; i++) {
         xml_open_start_tag("osmatch");
-        xml_attribute("name", "%s", FPR->prints[i]->OS_name);
-        xml_attribute("accuracy", "100");
-        xml_attribute("line", "%d", FPR->prints[i]->line);
+        xml_attribute("name", "%s", FPR->matches[i]->OS_name);
+        xml_attribute("accuracy", "%d", (int) (FPR->accuracy[i] * 100));
+        xml_attribute("line", "%d", FPR->matches[i]->line);
         xml_close_empty_tag();
         xml_newline();
       }
 
-      log_write(LOG_MACHINE, "\tOS: %s", FPR->prints[0]->OS_name);
-      for (i = 1; FPR->accuracy[i] == 1; i++)
-        log_write(LOG_MACHINE, "|%s", FPR->prints[i]->OS_name);
+      log_write(LOG_MACHINE, "\tOS: %s", FPR->matches[0]->OS_name);
+      for (i = 1; i < FPR->num_perfect_matches; i++)
+        log_write(LOG_MACHINE, "|%s", FPR->matches[i]->OS_name);
 
-      log_write(LOG_PLAIN, "OS details: %s", FPR->prints[0]->OS_name);
-      for (i = 1; FPR->accuracy[i] == 1; i++)
-        log_write(LOG_PLAIN, ", %s", FPR->prints[i]->OS_name);
+      log_write(LOG_PLAIN, "OS details: %s", FPR->matches[0]->OS_name);
+      for (i = 1; i < FPR->num_perfect_matches; i++)
+        log_write(LOG_PLAIN, ", %s", FPR->matches[i]->OS_name);
       log_write(LOG_PLAIN, "\n");
 
       if (o.debugging || o.verbose > 1)
@@ -1721,17 +1881,17 @@ void printosscanoutput(Target *currenths) {
         /* Print the best guesses available */
         for (i = 0; i < 10 && i < FPR->num_matches && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++) {
           xml_open_start_tag("osmatch");
-          xml_attribute("name", "%s", FPR->prints[i]->OS_name);
+          xml_attribute("name", "%s", FPR->matches[i]->OS_name);
           xml_attribute("accuracy", "%d", (int) (FPR->accuracy[i] * 100));
-          xml_attribute("line", "%d", FPR->prints[i]->line);
+          xml_attribute("line", "%d", FPR->matches[i]->line);
           xml_close_empty_tag();
           xml_newline();
         }
 
         log_write(LOG_PLAIN, "Aggressive OS guesses: %s (%.f%%)",
-                  FPR->prints[0]->OS_name, floor(FPR->accuracy[0] * 100));
+                  FPR->matches[0]->OS_name, floor(FPR->accuracy[0] * 100));
         for (i = 1; i < 10 && FPR->num_matches > i && FPR->accuracy[i] > FPR->accuracy[0] - 0.10; i++)
-          log_write(LOG_PLAIN, ", %s (%.f%%)", FPR->prints[i]->OS_name, floor(FPR->accuracy[i] * 100));
+          log_write(LOG_PLAIN, ", %s (%.f%%)", FPR->matches[i]->OS_name, floor(FPR->accuracy[i] * 100));
 
         log_write(LOG_PLAIN, "\n");
       }
