@@ -389,7 +389,7 @@ int isipprivate(const struct in_addr *const addr);
  * and returns a string containing an ASCII description of the options
  * found. The function returns a pointer to a static buffer that
  * subsequent calls will overwrite. On error, NULL is returned. */
-char *format_ip_options(u8* ipopt, int ipoptlen);
+char *format_ip_options(const u8* ipopt, int ipoptlen);
 
 /* Returns a buffer of ASCII information about an IP packet that may
  * look like "TCP 127.0.0.1:50923 > 127.0.0.1:3 S ttl=61 id=39516
@@ -435,23 +435,23 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss);
 
 /* Send an IP packet over a raw socket. */
-int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen);
+int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen);
 
 /* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen);
+int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
 
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
-int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen);
+int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
 
 /* Sends an IPv4 packet. */
-int send_ipv6_packet_eth_or_sd(int sd, struct eth_nfo *eth, const u8 *packet, unsigned int len);
+int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int len);
 
 /* Create and send all fragments of a pre-built IPv4 packet.
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte */
-int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
+int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
                         unsigned int packetlen, u32 mtu);
 
 /* Wrapper for system function sendto(), which retries a few times when

@@ -453,7 +453,7 @@ struct addrinfo *resolve_all(char *hostname, int pf)
 
 /* Send a pre-built IPv4 packet. Handles fragmentation and whether to send with
    an ethernet handle or a socket. */
-static int send_ipv4_packet(int sd, struct eth_nfo *eth, u8 *packet,
+static int send_ipv4_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
                    unsigned int packetlen) {
   struct ip *ip = (struct ip *) packet;
   int res;
@@ -474,8 +474,8 @@ static int send_ipv4_packet(int sd, struct eth_nfo *eth, u8 *packet,
   return res;
 }
 
-static int send_ipv6_packet(int sd, struct eth_nfo *eth, const u8 *packet,
-  unsigned int packetlen) {
+static int send_ipv6_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
+  unsigned int packetlen){
   int res;
 
   res = send_ipv6_packet_eth_or_sd(sd, eth, packet, packetlen);
@@ -485,7 +485,7 @@ static int send_ipv6_packet(int sd, struct eth_nfo *eth, const u8 *packet,
   return res;
 }
 
-int send_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
+int send_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
   unsigned int packetlen) {
   struct ip *ip = (struct ip *) packet;
 
@@ -752,7 +752,7 @@ u8 *build_tcp_raw_ipv6(const struct in6_addr *source,
 }
 
 /* You need to call sethdrinclude(sd) on the sending sd before calling this */
-int send_tcp_raw(int sd, struct eth_nfo *eth,
+int send_tcp_raw(int sd, const struct eth_nfo *eth,
                  const struct in_addr *source,
                  const struct in_addr *victim, int ttl, bool df,
                  u8 *ipops, int ipoptlen, u16 sport, u16 dport, u32 seq,
@@ -776,7 +776,7 @@ int send_tcp_raw(int sd, struct eth_nfo *eth,
   return res;
 }
 
-int send_tcp_raw_decoys(int sd, struct eth_nfo *eth,
+int send_tcp_raw_decoys(int sd, const struct eth_nfo *eth,
                         const struct in_addr *victim,
                         int ttl, bool df,
                         u8 *ipopt, int ipoptlen,
@@ -871,7 +871,7 @@ u8 *build_udp_raw_ipv6(const struct in6_addr *source,
   return ipv6;
 }
 
-int send_udp_raw(int sd, struct eth_nfo *eth,
+int send_udp_raw(int sd, const struct eth_nfo *eth,
                  struct in_addr *source, const struct in_addr *victim,
                  int ttl, u16 ipid,
                  u8 *ipopt, int ipoptlen,
@@ -891,7 +891,7 @@ int send_udp_raw(int sd, struct eth_nfo *eth,
   return res;
 }
 
-int send_udp_raw_decoys(int sd, struct eth_nfo *eth,
+int send_udp_raw_decoys(int sd, const struct eth_nfo *eth,
                         const struct in_addr *victim,
                         int ttl, u16 ipid,
                         u8 *ipops, int ipoptlen,

@@ -1936,13 +1936,13 @@ static inline char* STRAPP(const char *fmt, ...) {
  * and returns a string containing an ASCII description of the options
  * found. The function returns a pointer to a static buffer that
  * subsequent calls will overwrite. On error, NULL is returned. */
-char *format_ip_options(u8* ipopt, int ipoptlen) {
+char *format_ip_options(const u8* ipopt, int ipoptlen) {
   char ipstring[32];
   int option_type = UNKNOWN;// option type
   int option_len  = 0; // option length
   int option_pt   = 0; // option pointer
   int option_fl   = 0;  // option flag
-  u8 *tptr;		// temp pointer
+  const u8 *tptr;	// temp pointer
   u32 *tint;		// temp int
 
   int option_sta = 0;	// option start offset
@@ -3374,7 +3374,7 @@ int Sendto(const char *functionname, int sd,
 
 
 /* Send an IP packet over an ethernet handle. */
-int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen) {
+int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
   eth_t *ethsd;
   u8 *eth_frame;
   int res;
@@ -3398,7 +3398,7 @@ int send_ip_packet_eth(struct eth_nfo *eth, u8 *packet, unsigned int packetlen) 
 
 
 /* Send an IP packet over a raw socket. */
-int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen) {
+int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen) {
   struct sockaddr_in sock;
   struct ip *ip = (struct ip *) packet;
   struct tcp_hdr *tcp;
@@ -3455,7 +3455,8 @@ int send_ip_packet_sd(int sd, u8 *packet, unsigned int packetlen) {
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
-int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned int packetlen){
+int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet,
+  unsigned int packetlen) {
   if(eth)
     return send_ip_packet_eth(eth, packet, packetlen);
   else
@@ -3468,7 +3469,7 @@ int send_ip_packet_eth_or_sd(int sd, struct eth_nfo *eth, u8 *packet, unsigned i
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte
  * (shouldn't we inflate the header to 60 bytes too?) */
-int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
+int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
                         unsigned int packetlen, u32 mtu) {
   struct ip *ip = (struct ip *) packet;
   int headerlen = ip->ip_hl * 4; // better than sizeof(struct ip)
@@ -3529,7 +3530,7 @@ int send_frag_ip_packet(int sd, struct eth_nfo *eth, u8 *packet,
 */
 
 /* Send an IPv6 packet over an Ethernet handle. */
-static int send_ipv6_eth(struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+static int send_ipv6_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
   eth_t *ethsd;
   struct eth_hdr *eth_frame;
   u8 *copy;
@@ -3769,7 +3770,7 @@ bail:
 #endif
 
 /* For now, the sd argument is ignored. */
-int send_ipv6_packet_eth_or_sd(int sd, struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
     return send_ipv6_eth(eth, packet, packetlen);
   } else {
