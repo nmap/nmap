@@ -1,12 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o IPv6 OS detection
- o [DONE] Initial branch working (nmap-exp/luis/nmap-os6)
- o Implement the 2 remaining probes
- o Disable the printing of matches (except maybe with debug on).  We
-   want more training examples first so that results are better.
- o Merge to /nmap
-
 o Collect many more IPv6 OS detection training samples from users
  - Can start with nmap-dev, but will probably have to do an Nmap
    release too.
@@ -16,15 +9,15 @@ o IPv6 OS detection working (when run on) Solaris and AIX
  - AIX 7.1 - iSeries / System p
  - Solaris 10 - SPARC
 
+o Collect a bunch of IPv6 OS detection signatures from users,
+  integrate them, and then when we have enough, re-enable OS detection
+  results.
+
 o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
 
 o Add many more CPE entries to OS and version detection databases
 
 o Give CPE visibility to NSE.
-
-o Add anti-spam defenses to secwiki.com to stop the current onslaught
-  of spam.  An extention like ConfirmEdit
-  (http://www.mediawiki.org/wiki/Extension:ConfirmEdit) may be a good choice.
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
@@ -55,6 +48,10 @@ o Fix reported (by many people) crash when trying to launch Zenmap on
   Mac OS X 10.7 (Lion).
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
+
+o Add anti-spam defenses to secwiki.com to stop the current onslaught
+  of spam.  An extention like ConfirmEdit
+  (http://www.mediawiki.org/wiki/Extension:ConfirmEdit) may be a good choice.
 
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
@@ -684,6 +681,13 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o IPv6 OS detection merge
+ o [DONE] Initial branch working (nmap-exp/luis/nmap-os6)
+ o [DONE] Implement the 2 remaining probes
+ o [DONE] Disable the printing of matches (except maybe with debug on).  We
+   want more training examples first so that results are better.
+ o [DONE] Merge to /nmap
 
 o Document Nmap CPE support in appropriate places (candidates:
   refguide, os detection book chapter, version detection book chapter,
