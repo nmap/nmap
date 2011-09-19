@@ -12,21 +12,19 @@ o Collect many more IPv6 OS detection training samples from users
    release too.
 
 o IPv6 OS detection working (when run on) Solaris and AIX
+ - AIX 6.1 - iSeries / System p
+ - AIX 7.1 - iSeries / System p
+ - Solaris 10 - SPARC
 
 o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
-
-o Finish CPE support code
- - Escape certain values that can be inserted into cpe string through
-   substitution, like cpe:/a:apache:httpd:$1 where $1 contains a
-   colon.
 
 o Add many more CPE entries to OS and version detection databases
 
 o Give CPE visibility to NSE.
 
-o Document Nmap CPE support in appropriate places (canddiates:
-  refguide, os detection book chapter, version detection book chapter,
-  output book chapter).
+o Add anti-spam defenses to secwiki.com to stop the current onslaught
+  of spam.  An extention like ConfirmEdit
+  (http://www.mediawiki.org/wiki/Extension:ConfirmEdit) may be a good choice.
 
 o Move advanced IPv6 host discovery features from NSE into core Nmap.
   We'll probably add the functionality of
@@ -686,6 +684,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Document Nmap CPE support in appropriate places (candidates:
+  refguide, os detection book chapter, version detection book chapter,
+  output book chapter).
+
+o Finish CPE support code
+ - Escape certain values that can be inserted into cpe string through
+   substitution, like cpe:/a:apache:httpd:$1 where $1 contains a
+   colon.
 
 o Add advanced IPv6 host discovery features
  o Initially done using NSE by adding these scripts:
