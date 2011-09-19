@@ -5,6 +5,8 @@ Nmap 5.61TEST1 [2011-09-19]
 o The changelog entries below for this test release are not yet
   finished or comprehensive.  We'll update them soon.
 
+o [Ncat] Updated ca-bundle.crt (primarily to remove DigiNotar).
+
 o Fixed compilation on OS X 10.7 Lion. Thanks to Patrik Karlsson and
   Babak Farroki for researching fixes.
 
