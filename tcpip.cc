@@ -453,8 +453,9 @@ struct addrinfo *resolve_all(char *hostname, int pf)
 
 /* Send a pre-built IPv4 packet. Handles fragmentation and whether to send with
    an ethernet handle or a socket. */
-static int send_ipv4_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
-                   unsigned int packetlen) {
+static int send_ipv4_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in *dst,
+  const u8 *packet, unsigned int packetlen) {
   struct ip *ip = (struct ip *) packet;
   int res;
 
@@ -464,9 +465,9 @@ static int send_ipv4_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
   /* Fragmentation requested && packet is bigger than MTU */
   if(o.fragscan && !(ntohs(ip->ip_off) & IP_DF) &&
      (packetlen - ip->ip_hl * 4 > (unsigned int) o.fragscan)){
-    res = send_frag_ip_packet(sd, eth, packet, packetlen, o.fragscan);
+    res = send_frag_ip_packet(sd, eth, dst, packet, packetlen, o.fragscan);
   }else{
-    res = send_ip_packet_eth_or_sd(sd, eth, packet, packetlen);
+    res = send_ip_packet_eth_or_sd(sd, eth, dst, packet, packetlen);
   }
   if (res != -1)
     PacketTrace::trace(PacketTrace::SENT, packet, packetlen);
@@ -474,29 +475,34 @@ static int send_ipv4_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
   return res;
 }
 
-static int send_ipv6_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
-  unsigned int packetlen){
+static int send_ipv6_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in6 *dst,
+  const u8 *packet, unsigned int packetlen){
   int res;
 
-  res = send_ipv6_packet_eth_or_sd(sd, eth, packet, packetlen);
+  res = send_ipv6_packet_eth_or_sd(sd, eth, dst, packet, packetlen);
   if (res != -1)
     PacketTrace::trace(PacketTrace::SENT, packet, packetlen);
 
   return res;
 }
 
-int send_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
-  unsigned int packetlen) {
+int send_ip_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_storage *dst,
+  const u8 *packet, unsigned int packetlen) {
   struct ip *ip = (struct ip *) packet;
 
   /* Ensure there's enough to read ip->ip_v at least. */
   if (packetlen < 1)
     return -1;
 
-  if (ip->ip_v == 4)
-    return send_ipv4_packet(sd, eth, packet, packetlen);
-  else if (ip->ip_v == 6)
-    return send_ipv6_packet(sd, eth, packet, packetlen);
+  if (ip->ip_v == 4) {
+    assert(dst->ss_family == AF_INET);
+    return send_ipv4_packet(sd, eth, (struct sockaddr_in *) dst, packet, packetlen);
+  } else if (ip->ip_v == 6) {
+    assert(dst->ss_family == AF_INET6);
+    return send_ipv6_packet(sd, eth, (struct sockaddr_in6 *) dst, packet, packetlen);
+  }
 
   fatal("%s only understands IP versions 4 and 6 (got %u)", __func__, ip->ip_v);
 
@@ -758,6 +764,8 @@ int send_tcp_raw(int sd, const struct eth_nfo *eth,
                  u8 *ipops, int ipoptlen, u16 sport, u16 dport, u32 seq,
                  u32 ack, u8 reserved, u8 flags, u16 window, u16 urp,
                  u8 *options, int optlen, char *data, u16 datalen) {
+  struct sockaddr_storage dst;
+  struct sockaddr_in *dst_in;
   unsigned int packetlen;
   int res = -1;
 
@@ -770,7 +778,11 @@ int send_tcp_raw(int sd, const struct eth_nfo *eth,
                              data, datalen, &packetlen);
   if (!packet)
     return -1;
-  res = send_ip_packet(sd, eth, packet, packetlen);
+  memset(&dst, 0, sizeof(dst));
+  dst_in = (struct sockaddr_in *) &dst;
+  dst_in->sin_family = AF_INET;
+  dst_in->sin_addr = *victim;
+  res = send_ip_packet(sd, eth, &dst, packet, packetlen);
 
   free(packet);
   return res;
@@ -876,6 +888,8 @@ int send_udp_raw(int sd, const struct eth_nfo *eth,
                  int ttl, u16 ipid,
                  u8 *ipopt, int ipoptlen,
                  u16 sport, u16 dport, char *data, u16 datalen) {
+  struct sockaddr_storage dst;
+  struct sockaddr_in *dst_in;
   unsigned int packetlen;
   int res = -1;
   u8 *packet = build_udp_raw(source, victim,
@@ -885,7 +899,11 @@ int send_udp_raw(int sd, const struct eth_nfo *eth,
                              data, datalen, &packetlen);
   if (!packet)
     return -1;
-  res = send_ip_packet(sd, eth, packet, packetlen);
+  memset(&dst, 0, sizeof(dst));
+  dst_in = (struct sockaddr_in *) &dst;
+  dst_in->sin_family = AF_INET;
+  dst_in->sin_addr = *victim;
+  res = send_ip_packet(sd, eth, &dst, packet, packetlen);
 
   free(packet);
   return res;

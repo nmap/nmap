@@ -219,6 +219,10 @@ static int ip_send (lua_State *L)
   const char *packet = luaL_checkstring(L, 2);
   char dev[16];
   int ret;
+  struct sockaddr_storage srcss, dstss, *nexthop;
+  struct sockaddr_in *srcsin = (struct sockaddr_in *) &srcss;
+  struct sockaddr_in *dstsin = (struct sockaddr_in *) &dstss;
+  struct ip *ip = (struct ip *) packet;
 
   if (udata->sock == -1)
     return luaL_error(L, "raw socket not open to send");
@@ -228,20 +232,16 @@ static int ip_send (lua_State *L)
 
   *dev = '\0';
 
+  /* build sockaddr for target from user packet and determine route */
+  memset(&dstss, 0, sizeof(dstss));
+  dstsin->sin_family = AF_INET;
+  dstsin->sin_addr.s_addr = ip->ip_dst.s_addr;
+
   if (o.sendpref & PACKET_SEND_ETH)
   {
     struct route_nfo route;
-    struct sockaddr_storage srcss, dstss, *nexthop;
-    struct sockaddr_in *srcsin = (struct sockaddr_in *) &srcss;
-    struct sockaddr_in *dstsin = (struct sockaddr_in *) &dstss;
-    struct ip *ip = (struct ip *) packet;
     u8 dstmac[6];
     eth_nfo eth;
-
-    /* build sockaddr for target from user packet and determine route */
-    memset(&dstss, 0, sizeof(dstss));
-    dstsin->sin_family = AF_INET;
-    dstsin->sin_addr.s_addr = ip->ip_dst.s_addr;
 
     if (!nmap_route_dst(&dstss, &route))
       goto usesock;
@@ -283,14 +283,14 @@ static int ip_send (lua_State *L)
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
 
-    ret = send_ip_packet(udata->sock, &eth, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, &eth, &dstss, (u8 *) packet, lua_objlen(L, 2));
   } else {
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
       win32_fatal_raw_sockets(dev);
 #endif
-    ret = send_ip_packet(udata->sock, NULL, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, NULL, &dstss, (u8 *) packet, lua_objlen(L, 2));
   }
   if (ret == -1)
     return safe_error(L, "error while sending: %s (errno %d)",

@@ -2121,7 +2121,7 @@ int HostOsScan::send_icmp_echo_probe(HostOsScanStats *hss,
                             o.ttl, get_random_u16(), tos, df, NULL, 0, seq, id,
                             ICMP_ECHO, pcode, NULL, datalen, &packetlen);
     if(!packet) return -1;
-    res = send_ip_packet(rawsd, ethptr, packet, packetlen);
+    res = send_ip_packet(rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
     free(packet);
     if(res==-1) return -1;
   }
@@ -2213,7 +2213,7 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
       hss->upi.target.s_addr = ip->ip_dst.s_addr;
     }
 
-    if ((res = send_ip_packet(rawsd, ethptr, packet, ntohs(ip->ip_len))) == -1)
+    if ((res = send_ip_packet(rawsd, ethptr, hss->target->TargetSockAddr(), packet, ntohs(ip->ip_len))) == -1)
       {
         gh_perror("send_ip_packet in %s", __func__);
         return 1;

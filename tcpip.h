@@ -421,8 +421,9 @@ unsigned short in_cksum(u16 *ptr,int nbytes);
 
 
 /* Send a pre-built IPv4 or IPv6 packet */
-int send_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet, 
-		   unsigned int packetlen);
+int send_ip_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_storage *dst,
+  const u8 *packet, unsigned int packetlen);
 
 /* Builds an IP packet (including an IP header) by packing the fields
    with the given information.  It allocates a new buffer to store the

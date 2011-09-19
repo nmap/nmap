@@ -641,7 +641,7 @@ void Probe::send(int rawsd, eth_t *ethsd, struct timeval *now) {
     }
 
     packet = this->build_packet(&source, &packetlen);
-    send_ip_packet(rawsd, ethp, packet, packetlen);
+    send_ip_packet(rawsd, ethp, host->target->TargetSockAddr(), packet, packetlen);
     free(packet);
   }
 }

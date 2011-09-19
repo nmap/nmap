@@ -3398,7 +3398,8 @@ int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int
 
 
 /* Send an IP packet over a raw socket. */
-int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen) {
+int send_ip_packet_sd(int sd, const struct sockaddr_in *dst,
+  const u8 *packet, unsigned int packetlen) {
   struct sockaddr_in sock;
   struct ip *ip = (struct ip *) packet;
   struct tcp_hdr *tcp;
@@ -3406,16 +3407,11 @@ int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen) {
   int res;
 
   assert(sd >= 0);
-  memset(&sock, 0, sizeof(sock));
-  sock.sin_family = AF_INET;
-#if HAVE_SOCKADDR_SA_LEN
-  sock.sin_len = sizeof(sock);
-#endif
+  sock = *dst;
 
   /* It is bogus that I need the address and port info when sending a RAW IP 
      packet, but it doesn't seem to work w/o them */
   if (packetlen >= 20) {
-    sock.sin_addr.s_addr = ip->ip_dst.s_addr;
     if (ip->ip_p == IPPROTO_TCP
         && packetlen >= (unsigned int) ip->ip_hl * 4 + 20) {
       tcp = (struct tcp_hdr *) ((u8 *) ip + ip->ip_hl * 4);
@@ -3455,12 +3451,13 @@ int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen) {
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
-int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet,
-  unsigned int packetlen) {
+int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in *dst,
+  const u8 *packet, unsigned int packetlen) {
   if(eth)
     return send_ip_packet_eth(eth, packet, packetlen);
   else
-    return send_ip_packet_sd(sd, packet, packetlen);
+    return send_ip_packet_sd(sd, dst, packet, packetlen);
 }
 
 
@@ -3469,8 +3466,9 @@ int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte
  * (shouldn't we inflate the header to 60 bytes too?) */
-int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
-                        unsigned int packetlen, u32 mtu) {
+int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in *dst,
+  const u8 *packet, unsigned int packetlen, u32 mtu) {
   struct ip *ip = (struct ip *) packet;
   int headerlen = ip->ip_hl * 4; // better than sizeof(struct ip)
   u32 datalen = packetlen - headerlen;
@@ -3483,7 +3481,7 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
 
   if (datalen <= mtu) {
     netutil_error("Warning: fragmentation (mtu=%lu) requested but the payload is too small already (%lu)", (unsigned long)mtu, (unsigned long)datalen);
-    return send_ip_packet_eth_or_sd(sd, eth, packet, packetlen);
+    return send_ip_packet_eth_or_sd(sd, eth, dst, packet, packetlen);
   }
 
   u8 *fpacket = (u8 *) safe_malloc(headerlen + mtu);
@@ -3504,7 +3502,7 @@ int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
     if (fragment > 1) // copy data payload
       memcpy(fpacket + headerlen,
              packet + headerlen + (fragment - 1) * mtu, fdatalen);
-    res = send_ip_packet_eth_or_sd(sd, eth, fpacket, ntohs(ip->ip_len));
+    res = send_ip_packet_eth_or_sd(sd, eth, dst, fpacket, ntohs(ip->ip_len));
     if (res == -1)
       break;
   }
@@ -3558,21 +3556,12 @@ static int send_ipv6_eth(const struct eth_nfo *eth, const u8 *packet, unsigned i
 
 /* Send an IPv6 packet over a raw socket, on platforms where IPPROTO_RAW implies
    IP_HDRINCL-like behavior. */
-static int send_ipv6_ipproto_raw(const unsigned char *packet, unsigned int packetlen) {
-  struct ip6_hdr *hdr;
-  struct sockaddr_in6 dest = { 0 };
+static int send_ipv6_ipproto_raw(const struct sockaddr_in6 *dst,
+  const unsigned char *packet, unsigned int packetlen) {
   int sd, n;
 
   sd = -1;
   n = -1;
-
-  if (packetlen < sizeof(*hdr))
-    return -1;
-
-  hdr = (struct ip6_hdr *) packet;
-  dest.sin6_family = AF_INET6;
-  memcpy(&dest.sin6_addr.s6_addr, &hdr->ip6_dst, sizeof(dest.sin6_addr.s6_addr));
-  dest.sin6_port = 0;
 
   sd = socket(AF_INET6, SOCK_RAW, IPPROTO_RAW);
   if (sd == -1) {
@@ -3580,7 +3569,7 @@ static int send_ipv6_ipproto_raw(const unsigned char *packet, unsigned int packe
     goto bail;
   }
 
-  n = Sendto(__func__, sd, packet, packetlen, 0, (struct sockaddr *) &dest, sizeof(dest));
+  n = Sendto(__func__, sd, packet, packetlen, 0, (struct sockaddr *) dst, sizeof(*dst));
 
 bail:
   if (sd != -1)
@@ -3669,9 +3658,9 @@ static const unsigned char *add_exthdr_ancillary(struct msghdr *msg,
    with EPROTOTYPE because there are specialized functions to add these headers
    using the IPv6 socket API. These do not offer as much control because they
    are controlled by the OS, and may be reordered, for example. */
-static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
+static int send_ipv6_ip(const struct sockaddr_in6 *dst,
+  const unsigned char *packet, size_t packetlen) {
   struct msghdr msg;
-  struct sockaddr_in6 dest = { 0 };
   struct iovec iov;
 
   const unsigned char *end;
@@ -3685,9 +3674,9 @@ static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
   sd = -1;
   n = -1;
 
-  /* Set up sendmsg data structure. dest and iov are filled in below. */
-  msg.msg_name = &dest;
-  msg.msg_namelen = sizeof(dest);
+  /* Set up sendmsg data structure. iov is filled in below. */
+  msg.msg_name = (void *) dst;
+  msg.msg_namelen = sizeof(*dst);
   msg.msg_iov = &iov;
   msg.msg_iovlen = 1;
   msg.msg_control = NULL;
@@ -3697,10 +3686,6 @@ static int send_ipv6_ip(const unsigned char *packet, size_t packetlen) {
   if (packetlen < sizeof(*hdr))
     return -1;
   hdr = (struct ip6_hdr *) packet;
-
-  dest.sin6_family = AF_INET6;
-  memcpy(&dest.sin6_addr.s6_addr, &hdr->ip6_dst, sizeof(dest.sin6_addr.s6_addr));
-  dest.sin6_port = 0;
 
   /* This can also be set with setsockopt(IPPROTO_IPV6, IPV6_TCLASS). */
 #ifdef IPV6_TCLASS
@@ -3770,14 +3755,15 @@ bail:
 #endif
 
 /* For now, the sd argument is ignored. */
-int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen) {
+int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen) {
   if (eth != NULL) {
     return send_ipv6_eth(eth, packet, packetlen);
   } else {
 #if HAVE_IPV6_IPPROTO_RAW
-    return send_ipv6_ipproto_raw(packet, packetlen);
+    return send_ipv6_ipproto_raw(dst, packet, packetlen);
 #elif !WIN32
-    return send_ipv6_ip(packet, packetlen);
+    return send_ipv6_ip(dst, packet, packetlen);
 #endif
   }
 

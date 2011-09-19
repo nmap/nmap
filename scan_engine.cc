@@ -3233,7 +3233,7 @@ static UltraProbe *sendNDScanProbe(UltraScanInfo *USI, HostScanStats *hss,
                 &packetlen);
   probe->sent = USI->now;
   hss->probeSent(packetlen);
-  send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+  send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
 
   probe->tryno = tryno;
   probe->pingseq = pingseq;
@@ -3442,7 +3442,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
           probe->sent = USI->now;
         }
         hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
@@ -3462,7 +3462,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       probe->setIP(packet, packetlen, pspec);
       probe->sent = USI->now;
       hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
       free(packet);
     }
   } else if (pspec->type == PS_UDP) {
@@ -3484,7 +3484,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
           probe->sent = USI->now;
         }
         hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
@@ -3502,7 +3502,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       probe->setIP(packet, packetlen, pspec);
       probe->sent = USI->now;
       hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
       free(packet);
     }
   } else if (pspec->type == PS_SCTP) {
@@ -3541,7 +3541,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
           probe->sent = USI->now;
         }
         hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
@@ -3560,7 +3560,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       probe->setIP(packet, packetlen, pspec);
       probe->sent = USI->now;
       hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
       free(packet);
     }
     free(chunk);
@@ -3582,7 +3582,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
           probe->sent = USI->now;
         }
         hss->probeSent(packetlen);
-        send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+        send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
         free(packet);
       }
     } else if (hss->target->af() == AF_INET6) {
@@ -3592,7 +3592,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
       probe->setIP(packet, packetlen, pspec);
       probe->sent = USI->now;
       hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
       free(packet);
     }
   } else if (pspec->type == PS_ICMP) {
@@ -3608,7 +3608,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
 	probe->sent = USI->now;
       }
       hss->probeSent(packetlen);
-      send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+      send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
       free(packet);
     }
   } else if (pspec->type == PS_ICMPV6) {
@@ -3627,7 +3627,7 @@ static UltraProbe *sendIPScanProbe(UltraScanInfo *USI, HostScanStats *hss,
     probe->setIP(packet, packetlen, pspec);
     probe->sent = USI->now;
     hss->probeSent(packetlen);
-    send_ip_packet(USI->rawsd, ethptr, packet, packetlen);
+    send_ip_packet(USI->rawsd, ethptr, hss->target->TargetSockAddr(), packet, packetlen);
     free(packet);
   }else assert(0); /* TODO:  Maybe RPC scan and the like */
 

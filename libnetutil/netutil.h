@@ -435,7 +435,7 @@ int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss);
 
 /* Send an IP packet over a raw socket. */
-int send_ip_packet_sd(int sd, const u8 *packet, unsigned int packetlen);
+int send_ip_packet_sd(int sd, const struct sockaddr_in *dst, const u8 *packet, unsigned int packetlen);
 
 /* Send an IP packet over an ethernet handle. */
 int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
@@ -443,16 +443,19 @@ int send_ip_packet_eth(const struct eth_nfo *eth, const u8 *packet, unsigned int
 /* Sends the supplied pre-built IPv4 packet. The packet is sent through
  * the raw socket "sd" if "eth" is NULL. Otherwise, it gets sent at raw
  * ethernet level. */
-int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int packetlen);
+int send_ip_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in *dst, const u8 *packet, unsigned int packetlen);
 
 /* Sends an IPv4 packet. */
-int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth, const u8 *packet, unsigned int len);
+int send_ipv6_packet_eth_or_sd(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in6 *dst, const u8 *packet, unsigned int packetlen);
 
 /* Create and send all fragments of a pre-built IPv4 packet.
  * Minimal MTU for IPv4 is 68 and maximal IPv4 header size is 60
  * which gives us a right to cut TCP header after 8th byte */
-int send_frag_ip_packet(int sd, const struct eth_nfo *eth, const u8 *packet,
-                        unsigned int packetlen, u32 mtu);
+int send_frag_ip_packet(int sd, const struct eth_nfo *eth,
+  const struct sockaddr_in *dst,
+  const u8 *packet, unsigned int packetlen, u32 mtu);
 
 /* Wrapper for system function sendto(), which retries a few times when
  * the call fails. It also prints informational messages about the
