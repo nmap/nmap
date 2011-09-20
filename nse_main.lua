@@ -119,6 +119,7 @@ local cnse, rules = ...; -- The NSE C library and Script Rules
 
 do -- Add loader to look in nselib/?.lua (nselib/ can be in multiple places)
   local function loader (lib)
+    lib = lib:gsub("%.", "/"); -- change Lua "module seperator" to directory separator
     local name = "nselib/"..lib..".lua";
     local type, path = cnse.fetchfile_absolute(name);
     if type == "file" then
