@@ -31,34 +31,6 @@ require("creds")
 
 portrule = shortport.port_or_service(9929, "nping-echo")
 
-local function ip6tobin(address)
-	local sides = stdnse.strsplit("::", address)
-	local head = stdnse.strsplit(":", sides[1])
-	if #sides > 1 then
-		local tail = stdnse.strsplit(":", sides[2])
-		local missing = 8 - #head - #tail
-		while missing > 0 do
-			table.insert(head, "0")
-			missing = missing - 1
-		end
-		for _, e in ipairs(tail) do
-			table.insert(head, e)
-		end
-	end
-	local binaddress = ""
-	for _, e in ipairs(head) do
-		local part = ""
-		local zeros = 4 - #e
-		while zeros > 0 do
-			part = part .. "0"
-			zeros = zeros - 1
-		end
-		part = part .. e
-		binaddress = binaddress .. bin.pack("S", tonumber(part, 16))
-	end
-	return binaddress
-end
-
 local function randombytes(x)
 	local bytes = ""
 	for i = 1, x do
@@ -112,13 +84,13 @@ Driver =
 	chsbody = function(self)
 		local IP4 = 0x04
 		local IP6 = 0x06
+		local family = IP6
 		local target = self.host.bin_ip
-		if target then
-			return bin.pack("Ax12Cx15", target, IP4)
+		if #target == 4 then
+			target = bin.pack("Ax12", target)
+			family = IP4
 		end
-		target = ip6tobin(self.host.ip)
-		return bin.pack("ACx15", target, IP6)
-	
+		return bin.pack("ACx15", target, family)
 	end,
 	
 	clienths = function(self, snonce, password)
