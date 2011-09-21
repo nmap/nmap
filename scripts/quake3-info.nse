@@ -224,6 +224,8 @@ action = function(host, port)
 	local response = {}
 	table.insert(response, formatplayers(players, fraglimit))
 	table.insert(response, formatfields(basic, "BASIC OPTIONS:"))
-	table.insert(response, formatfields(other, "OTHER OPTIONS:"))
+	if nmap.verbosity() > 0 then
+		table.insert(response, formatfields(other, "OTHER OPTIONS:"))
+	end
 	return stdnse.format_output(true, response)
 end
