@@ -29,7 +29,7 @@ linear.o: linear.cpp linear.h
 	$(CXX) $(CFLAGS) -c -o linear.o linear.cpp
 
 blas/blas.a:
-	cd blas; make OPTFLAGS='$(CFLAGS)' CC='$(CC)';
+	cd blas; $(MAKE) OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
 	cd blas;	make clean
