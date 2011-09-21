@@ -28,6 +28,9 @@
 #include <sys/stream.h>
 #include <sys/stropts.h>
 #endif
+#ifdef HAVE_GETKERNINFO
+#include <sys/kinfo.h>
+#endif
 
 #define route_t	oroute_t	/* XXX - unixware */
 #include <net/route.h>
@@ -213,7 +216,7 @@ route_get(route_t *r, struct route_entry *entry)
 	return (0);
 }
 
-#if defined(HAVE_SYS_SYSCTL_H) || defined(HAVE_STREAMS_ROUTE)
+#if defined(HAVE_SYS_SYSCTL_H) || defined(HAVE_STREAMS_ROUTE) || defined(HAVE_GETKERNINFO)
 int
 route_loop(route_t *r, route_handler callback, void *arg)
 {
@@ -236,6 +239,21 @@ route_loop(route_t *r, route_handler callback, void *arg)
 		return (-1);
 	
 	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) {
+		free(buf);
+		return (-1);
+	}
+	lim = buf + len;
+	next = buf;
+#elif defined(HAVE_GETKERNINFO)
+	int len = getkerninfo(KINFO_RT_DUMP,0,0,0);
+
+	if (len == 0)
+		return (0);
+
+	if ((buf = malloc(len)) == NULL)
+		return (-1);
+
+	if (getkerninfo(KINFO_RT_DUMP,buf,&len,0) < 0) {
 		free(buf);
 		return (-1);
 	}

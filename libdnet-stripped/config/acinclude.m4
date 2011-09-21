@@ -266,6 +266,26 @@ AC_DEFUN(AC_DNET_RAWIP_COOKED,
     fi])
 
 dnl
+dnl Check for getkerninfo
+dnl
+dnl usage:	AC_DNET_GETKERNINFO
+dnl results:	HAVE_GETKERNINFO
+dnl
+AC_DEFUN(AC_DNET_GETKERNINFO,
+    [AC_MSG_CHECKING(for getkerninfo)
+    AC_CACHE_VAL(ac_cv_dnet_getkerninfo,
+        AC_TRY_COMPILE([
+#       include <sys/kinfo.h>],
+        [getkerninfo(KINFO_RT_DUMP, 0, 0, 0);],
+	ac_cv_dnet_getkerninfo=yes,
+	ac_cv_dnet_getkerninfo=no))
+    AC_MSG_RESULT($ac_cv_dnet_getkerninfo)
+    if test $ac_cv_dnet_getkerninfo = yes ; then
+        AC_DEFINE(HAVE_GETKERNINFO, 1,
+	          [Define if <sys/kinfo.h> has getkerninfo.])
+    fi])
+
+dnl
 dnl AC_LBL_LIBRARY_NET
 dnl
 dnl This test is for network applications that need socket() and

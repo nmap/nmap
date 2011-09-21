@@ -212,6 +212,7 @@ if test "$CYGWIN" != yes ; then
 	AC_DNET_IOCTL_ARP
 	AC_DNET_RAWIP_HOST_OFFLEN
 	AC_DNET_RAWIP_COOKED
+	AC_DNET_GETKERNINFO
 fi
 
 dnl Check for arp interface.
