@@ -32,6 +32,10 @@ local init = function()
   nmap.registry.ircserverinfo_375 = nmap.registry.ircserverinfo_375
     or pcre.new("^:([\\w-_.]+) 375", 0, "C")
 
+  -- MOTD could be missing, we want to handle that scenario as well
+  nmap.registry.ircserverinfo_422 = nmap.registry.ircserverinfo_422
+    or pcre.new("^:([\\w-_.]+) 422", 0, "C")
+
   -- NICK already in use
   nmap.registry.ircserverinfo_433 = nmap.registry.ircserverinfo_433
     or pcre.new("^:[\\w-_.]+ 433", 0, "C")
@@ -80,6 +84,7 @@ action = function(host, port)
   local myhost, myident
   local s, e, t
   local buf
+  local banner_timeout = 60
   local make_output = function()
     local o = ""
     if (not shost) then
@@ -120,6 +125,9 @@ action = function(host, port)
   local sd, line = comm.tryssl(host, port, "USER nmap +iw nmap :Nmap Wuz Here\nNICK " .. curr_nick .. "\n")
   if not sd then return "Unable to open connection" end
 
+  -- set a healthy banner timeout
+  sd:set_timeout(banner_timeout * 1000)
+
   buf = stdnse.make_buffer(sd, "\r?\n")
 
   while true do
@@ -127,6 +135,12 @@ action = function(host, port)
 
     -- This one lets us know we've connected, pre-PONGed, and got a NICK
     s, e, t = nmap.registry.ircserverinfo_375:exec(line, 0, 0)
+    if (s) then
+      shost = string.sub(line, t[1], t[2])
+      sd:send("LUSERS\nVERSION\nSTATS u\nWHO " .. curr_nick .. "\nQUIT\n")
+    end
+
+    s, e, t = nmap.registry.ircserverinfo_422:exec(line, 0, 0)
     if (s) then
       shost = string.sub(line, t[1], t[2])
       sd:send("LUSERS\nVERSION\nSTATS u\nWHO " .. curr_nick .. "\nQUIT\n")
