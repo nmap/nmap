@@ -553,18 +553,18 @@ static u16 ipv6_cksum(const struct in6_addr *src, const struct in6_addr *dst,
 // fill ip header. no error check.
 // This function is also changing what's needed from host to network order.
 static inline int fill_ip_raw(struct ip *ip, int packetlen, const u8 *ipopt,
-                              int ipoptlen, int ip_tos, int ip_id,
-                              int ip_off, int ip_ttl, int ip_p,
+                              int ipoptlen, int tos, int id,
+                              int off, int ttl, int p,
                               const struct in_addr *ip_src,
                               const struct in_addr *ip_dst) {
   ip->ip_v = 4;
   ip->ip_hl = 5 + (ipoptlen / 4);
-  ip->ip_tos = ip_tos;
+  ip->ip_tos = tos;
   ip->ip_len = htons(packetlen);
-  ip->ip_id = htons(ip_id);
-  ip->ip_off = htons(ip_off);
-  ip->ip_ttl = ip_ttl;
-  ip->ip_p = ip_p;
+  ip->ip_id = htons(id);
+  ip->ip_off = htons(off);
+  ip->ip_ttl = ttl;
+  ip->ip_p = p;
   ip->ip_src.s_addr = ip_src->s_addr;
   ip->ip_dst.s_addr = ip_dst->s_addr;
 

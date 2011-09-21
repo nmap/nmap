@@ -2612,7 +2612,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       u32 recv;
       u32 trans;
     } *icmptstamp = NULL;
-    struct icmp_mask{
+    struct icmp_amask{
       u8 type;
       u8 code;
       u16 checksum;
@@ -2857,7 +2857,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail) {
       case 17:
       case 18:
         Snprintf(icmptype, sizeof(icmptype), "Address mask %s", (icmppkt->type == 17)? "request" : "reply");
-        icmpmask = (struct icmp_mask *) icmppkt;
+        icmpmask = (struct icmp_amask *) icmppkt;
         inet_ntop(AF_INET, &icmpmask->mask, auxbuff, sizeof(auxbuff));
         Snprintf(icmpfields, sizeof(icmpfields), "id=%u seq=%u mask=%s",
             ntohs(ping->id), ntohs(ping->seq), auxbuff);
