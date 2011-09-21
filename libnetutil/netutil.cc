@@ -147,6 +147,8 @@
 #define NETINET_IN_SYSTM_H
 #endif
 
+#include "netutil.h"
+
 #if HAVE_NET_IF_H
 #ifndef NET_IF_H /* This guarding is needed for at least some versions of OpenBSD */
 #include <net/if.h>
@@ -161,8 +163,6 @@
 #if HAVE_SYS_RESOURCE_H
 #include <sys/resource.h>
 #endif
-
-#include "netutil.h"
 
 #define NBASE_MAX_ERR_STR_LEN 1024  /* Max length of an error message */
 
