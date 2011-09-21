@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added quake3-info.nse by Toni Ruottu. This script gets
+  information about games and settings for a Quake 3 (or derived game)
+  server.
+
 o [NSE] Made irc-info.nse handle the case where the MOTD is missing.
   Patch by Sebastian Dragomir.
 
