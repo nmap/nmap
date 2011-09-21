@@ -10,10 +10,8 @@ Extracts information from a Quake3-like game server.
 -- PORT      STATE         SERVICE VERSION
 -- 27960/udp open          quake3  Quake 3 dedicated server
 -- | quake3-info:  
--- |   
 -- | PLAYERS:
 -- |     1. cyberix (frags: 0/20, ping: 4)
--- |   
 -- | BASIC OPTIONS:
 -- |     capturelimit: 8
 -- |     dmflags: 0
@@ -26,7 +24,6 @@ Extracts information from a Quake3-like game server.
 -- |     version: ioq3 1.36+svn1933-1/Ubuntu linux-x86_64 Apr  4 2011
 -- |     videoflags: 7
 -- |     voteflags: 767
--- |   
 -- | OTHER OPTIONS:
 -- |     bot_minplayers: 0
 -- |     elimination_roundtime: 120
@@ -161,7 +158,7 @@ local function formatplayers(players, fraglimit)
 		end
 		table.insert(printable, string.format("%d. %s (frags: %s, ping: %s)", i, name, frags, ping))
 	end
-	printable["name"] = "\nPLAYERS:"
+	printable["name"] = "PLAYERS:"
 	return printable
 end
 
@@ -226,7 +223,7 @@ action = function(host, port)
 
 	local response = {}
 	table.insert(response, formatplayers(players, fraglimit))
-	table.insert(response, formatfields(basic, "\nBASIC OPTIONS:"))
-	table.insert(response, formatfields(other, "\nOTHER OPTIONS:"))
+	table.insert(response, formatfields(basic, "BASIC OPTIONS:"))
+	table.insert(response, formatfields(other, "OTHER OPTIONS:"))
 	return stdnse.format_output(true, response)
 end
