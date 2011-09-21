@@ -150,20 +150,6 @@ void *realloc();
 #include <sys/param.h> /* Defines MAXHOSTNAMELEN on BSD*/
 #endif
 
-/* Linux uses these defines in netinet/ip.h to use the correct struct ip */
-#ifndef __FAVOR_BSD
-#define __FAVOR_BSD
-#endif
-#ifndef __USE_BSD
-#define __USE_BSD
-#endif
-#ifndef _BSD_SOURCE
-#define _BSD_SOURCE
-#endif
-
-/* BSDI needs this to insure the correct struct ip */
-#undef _IP_VHL
-
 #include <stdio.h>
 
 #if HAVE_RPC_TYPES_H
@@ -203,16 +189,6 @@ void *realloc();
 #ifdef HAVE_PWD_H
 #include <pwd.h>
 #endif
-
-#ifndef NETINET_IN_SYSTM_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/in_systm.h> /* defines n_long needed for netinet/ip.h */
-#define NETINET_IN_SYSTM_H
-#endif
-#ifndef NETINET_IP_H  /* This guarding is needed for at least some versions of OpenBSD */
-#include <netinet/ip.h> 
-#define NETINET_IP_H
-#endif
-// #include <netinet/ip_icmp.h> 
 
 #if HAVE_ARPA_INET_H
 #include <arpa/inet.h>

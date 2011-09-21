@@ -105,6 +105,9 @@
 #include "Target.h"
 #include "targets.h"
 #include "utils.h"
+
+#include "struct_ip.h"
+
 #include <math.h>
 #include <list>
 #include <map>

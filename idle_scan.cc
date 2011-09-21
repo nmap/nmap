@@ -104,6 +104,8 @@
 #include "utils.h"
 #include "output.h"
 
+#include "struct_ip.h"
+
 #include <stdio.h>
 
 extern NmapOps o;

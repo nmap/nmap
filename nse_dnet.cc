@@ -9,6 +9,8 @@
 #include "nse_main.h"
 #include "nse_utility.h"
 
+#include "struct_ip.h"
+
 extern "C" {
 #include "lua.h"
 #include "lauxlib.h"

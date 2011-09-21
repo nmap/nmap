@@ -103,6 +103,7 @@
 #include "Target.h"
 #include "utils.h"
 
+#include "struct_ip.h"
 
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
