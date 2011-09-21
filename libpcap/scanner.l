@@ -1,3 +1,10 @@
+%top{
+/* Must come first for _LARGE_FILE_API on AIX. */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 %{
 /*
  * Copyright (c) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997
@@ -23,10 +30,6 @@
 #ifndef lint
 static const char rcsid[] _U_ =
     "@(#) $Header: /tcpdump/master/libpcap/scanner.l,v 1.112 2008-02-06 10:21:30 guy Exp $ (LBL)";
-#endif
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
 #endif
 
 #ifdef WIN32
