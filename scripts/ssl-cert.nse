@@ -200,6 +200,8 @@ action = function(host, port)
         lines[#lines + 1] = cert.pem
     end
 
+    add_cert(host, port.number, cert)
+
     return stdnse.strjoin("\n", lines)
 end
 
@@ -255,3 +257,15 @@ function date_to_string(date)
         return os.date("%Y-%m-%d %H:%M:%S", os.time(date))
     end
 end
+
+function add_cert(host, port, cert)
+    if not nmap.registry[host.ip] then
+        nmap.registry[host.ip] = {}
+    end
+    if not nmap.registry[host.ip][port] then
+        nmap.registry[host.ip][port] = {}
+    end
+
+    nmap.registry[host.ip][port]["ssl-cert"] = cert
+end
+

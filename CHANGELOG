@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ssl-google-cert-catalog.nse which queries the Google SSL
+  certificates catalog for each discovered certificate. [Vasiliy Kulikov]
+
 o [NSE] Fixed a bug in dns.lua: ensure that dns.query() always return two values
   (status, response) and replaced the workaround in asn-query.nse by the proper
   use. [Henri]
