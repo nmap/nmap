@@ -287,8 +287,8 @@ function asn_description( asn )
 
   -- send query
   local query = ( "AS%s.asn.cymru.com" ):format( asn )
-  local decoded_response, other_response = dns.query( query, options)
-  if type( decoded_response ) ~= "string" then
+  local status, decoded_response = dns.query( query, options )
+  if not status then
     return ""
   end
 

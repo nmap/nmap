@@ -370,7 +370,7 @@ local answerFetcher = {}
 answerFetcher[types.TXT] = function(dec, retAll)
     local answers = {}
     if not retAll and dec.answers[1].data then
-        return string.sub(dec.answers[1].data, 2)
+        return true, string.sub(dec.answers[1].data, 2)
     elseif not retAll then
         stdnse.print_debug(1, "dns.answerFetcher found no records of the required type: TXT")
         return false, "No Answers"
@@ -599,7 +599,7 @@ local additionalFetcher = {}
 additionalFetcher[types.TXT] = function(dec, retAll)
     local answers = {}
     if not retAll and dec.add[1].data then
-        return string.sub(dec.add[1].data, 2)
+        return true, string.sub(dec.add[1].data, 2)
     elseif not retAll then
         stdnse.print_debug(1, "dns.aditionalFetcher found no records of the required type: TXT")
         return false, "No Answers"
