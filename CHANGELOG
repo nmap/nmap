@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug in dns.lua: ensure that dns.query() always return two values
+  (status, response) and replaced the workaround in asn-query.nse by the proper
+  use. [Henri]
+
 o [NSE] Added quake3-info.nse by Toni Ruottu. This script gets
   information about games and settings for a Quake 3 (or derived game)
   server.
