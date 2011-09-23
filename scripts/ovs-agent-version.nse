@@ -3,13 +3,16 @@ Detects the version of an Oracle OVSAgentServer by fingerprinting
 responses to an HTTP GET request and an XML-RPC method call.
 
 Version 2.2 of OVSAgentServer returns a distinctive string in response to an
-HTTP GET request. However version 3.0 returns a generic response that looks like
-any other BaseHTTP/SimpleXMLRPCServer. Both versions return a distinctive error
-message in response to a <code>system.listMethods</code> XML-RPC call, which
-however does not distinguish the two versions. Therefore we use this strategy:
-(1.) Send a GET request. If the version 2.2 string is returned, return "2.2".
-(2.) Send a <code>system.listMethods</code> method call. If an OVSAgentServer
-error is returned, return "3.0".
+HTTP GET request. However versions 3.0 and 3.0.1 return a generic response that
+looks like any other BaseHTTP/SimpleXMLRPCServer. Versions 2.2 and 3.0 return a
+distinctive error message in response to a <code>system.listMethods</code>
+XML-RPC call, which however does not distinguish the two versions. Version 3.0.1
+returns a response to <code>system.listMethods</code> that is different from
+that of both version 2.2 and 3.0. Therefore we use this strategy: (1.) Send a
+GET request. If the version 2.2 string is returned, return "2.2". (2.) Send a
+<code>system.listMethods</code> method call. If an OVSAgentServer error is
+returned, return "3.0" or "3.0.1", depending on the specific format of the
+error.
 ]]
 
 categories = {"version"}
@@ -63,6 +66,10 @@ function action(host, port)
 	if response.status == 403 and string.match(response.body,
 		"Message: Unauthorized HTTP Access Attempt from %('[%d.]+', %d+%)!%.") then
 		set_port_version(host, port, "3.0", response.header["server"])
+		return
+	elseif response.status == 403 and string.match(response.body,
+		"Message: Unauthorized access attempt from %('[%d.]+', %d+%)!%.") then
+		set_port_version(host, port, "3.0.1", response.header["server"])
 		return
 	end
 end
