@@ -32,5 +32,5 @@ blas/blas.a:
 	cd blas; $(MAKE) OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
-	cd blas;	make clean
+	cd blas;	$(MAKE) clean
 	rm -f *~ tron.o linear.o train predict liblinear.so.$(SHVER) liblinear.a
