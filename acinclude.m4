@@ -74,8 +74,12 @@ int main() {
 #endif
   return 0;
 }
+    ], [
+      AC_CHECK_DECL([pcap_get_selectable_fd],
+        [AC_MSG_RESULT(yes); $1],
+        [AC_MSG_RESULT(no -- pcap_get_selectable_fd not declared); $2],
+        [[#include <pcap.h>]])
     ],
-    [AC_MSG_RESULT(yes); $1],
     [AC_MSG_RESULT(no -- BPF_TIMEOUT BIOCSRTIMEOUT bug (64-bit OS X)); $2])
   ],
   [AC_MSG_RESULT(no); $2],

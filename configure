@@ -1847,6 +1847,45 @@ $as_echo "$ac_res" >&6; }
 
 } # ac_fn_c_check_header_compile
 
+# ac_fn_c_check_decl LINENO SYMBOL VAR
+# ------------------------------------
+# Tests whether SYMBOL is declared, setting cache variable VAR accordingly.
+ac_fn_c_check_decl ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether $2 is declared" >&5
+$as_echo_n "checking whether $2 is declared... " >&6; }
+if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+#ifndef $2
+  (void) $2;
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  eval "$3=yes"
+else
+  eval "$3=no"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
+
+} # ac_fn_c_check_decl
+
 # ac_fn_cxx_try_run LINENO
 # ------------------------
 # Try to link conftest.$ac_ext, and return whether this succeeded. Assumes
@@ -6221,8 +6260,18 @@ int main() {
 
 _ACEOF
 if ac_fn_c_try_run "$LINENO"; then :
+
+      ac_fn_c_check_decl "$LINENO" "pcap_get_selectable_fd" "ac_cv_have_decl_pcap_get_selectable_fd" "#include <pcap.h>
+"
+if test "x$ac_cv_have_decl_pcap_get_selectable_fd" = x""yes; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }; have_libpcap=yes
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no -- pcap_get_selectable_fd not declared" >&5
+$as_echo "no -- pcap_get_selectable_fd not declared" >&6; }; have_libpcap=no
+fi
+
+
 else
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no -- BPF_TIMEOUT BIOCSRTIMEOUT bug (64-bit OS X)" >&5
 $as_echo "no -- BPF_TIMEOUT BIOCSRTIMEOUT bug (64-bit OS X)" >&6; }; have_libpcap=no
