@@ -105,6 +105,11 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 .cc.o:
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $< -o $@
 
+# FPmodel.cc contains large numeric tables that exceed the capacity of
+# debugging output with GCC 4.6.0 on AIX, causing "Error: value of 121716 too
+# large for field of 2 bytes". Disable debugging for this one file.
+FPmodel.o: CXXFLAGS += -g0
+
 all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
