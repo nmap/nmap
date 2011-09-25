@@ -19,13 +19,24 @@ o Add many more CPE entries to OS and version detection databases
 
 o Give CPE visibility to NSE.
 
-o Move advanced IPv6 host discovery features from NSE into core Nmap.
-  We'll probably add the functionality of
-  targets-ipv6-multicast-invalid-dst, targets-ipv6-multicast-echo, and
-  maybe targets-ipv6-multicast-slaac.
-  - The idea is that Nmap does them automatically if it gets a large
-    target specification and sees that it is local so can be multicast
-    pinged.
+o Improvements to the Nmap multicast IPv6 host discovery scripts
+ - Note that we hope to move them into core Nmap at some point, but
+   would be good to improve them for now.
+ - They should probably print the discovered IPv6 addresses, otherwise
+   they don't actually give the user any information (despite doing
+   their work) unless you give the newtargets script arg.
+ - It might be nice if they gave the target MAC address and vendor
+   when printing the discovered IPv6 information too.  Daniel Miller
+   wrote an initial patch for this (though we need to make sure it can
+   handle (e.g. doesn't crash for) non-ethernet
+   devices:http://seclists.org/nmap-dev/2011/q3/862
+ - It is great that the scripts properly use a specific device when
+   given the Nmap -e option, but they shouldn't require this.  They
+   should do something smart if no specific device name is given.
+   Examples include performing on all compatable devices or trying to
+   pick the best device.  The all-devices appraoch may be the best,
+   IMHO.
+
 
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
@@ -48,6 +59,14 @@ o Fix reported (by many people) crash when trying to launch Zenmap on
   Mac OS X 10.7 (Lion).
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
+
+o Move advanced IPv6 host discovery features from NSE into core Nmap.
+  We'll probably add the functionality of
+  targets-ipv6-multicast-invalid-dst, targets-ipv6-multicast-echo, and
+  maybe targets-ipv6-multicast-slaac.
+  - The idea is that Nmap does them automatically if it gets a large
+    target specification and sees that it is local so can be multicast
+    pinged.
 
 o Add anti-spam defenses to secwiki.com to stop the current onslaught
   of spam.  An extention like ConfirmEdit
