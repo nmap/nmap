@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made the interface gathering loop work on Linux when an interface
+  index is more than two digits in /proc/sys/if_inet6. Joe McEachern
+  tracked down the problem and provided the fix.
+
 o [NSE] Added ssl-google-cert-catalog.nse which queries the Google SSL
   certificates catalog for each discovered certificate. [Vasiliy Kulikov]
 

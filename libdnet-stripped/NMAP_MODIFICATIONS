@@ -561,6 +561,20 @@ Index: include/dnet/sctp.h
  	/* empty */
  } __attribute__((__packed__));
 
+o Allowed reading interface indexes that exceed 255 on Linux.
+
+--- libdnet-stripped/src/intf.c
++++ libdnet-stripped/src/intf.c
+@@ -560,7 +560,7 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
+ 		if ((f = fopen(PROC_INET6_FILE, "r")) != NULL) {
+ 			while (ap < lap &&
+ 			       fgets(buf, sizeof(buf), f) != NULL) {
+-				sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %02x %02x %02x %02x %32s\n",
++				sscanf(buf, "%04s%04s%04s%04s%04s%04s%04s%04s %x %02x %02x %02x %32s\n",
+ 				    s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7],
+ 				    &idx, &bits, &scope, &flags, name);
+ 				if (strcmp(name, entry->intf_name) == 0) {
+
 ===CHANGES ALREADY MERGED TO UPSTREAM LIBDNET GO BELOW THIS LINE===
 
 o Fixed the ip6_pack_hdr macro with respect to traffic class and flow
