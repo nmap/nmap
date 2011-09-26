@@ -706,22 +706,6 @@ AC_SUBST(LIBLINEAR_CLEAN)
 AC_SUBST(LIBLINEAR_DIST_CLEAN)
 
 
-dnl This test is from the configure.in of Unix Network Programming second
-dnl edition example code by W. Richard Stevens
-dnl ##################################################################
-dnl Check if sockaddr{} has sa_len member.
-dnl
-AC_CACHE_CHECK(if sockaddr{} has sa_len member, ac_cv_sockaddr_has_sa_len,
-        AC_TRY_COMPILE([
-               #include <sys/types.h>
-               #include <sys/socket.h>],
-                [unsigned int i = sizeof(((struct sockaddr *)0)->sa_len)],
-        ac_cv_sockaddr_has_sa_len=yes,
-        ac_cv_sockaddr_has_sa_len=no))
-if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        AC_DEFINE(HAVE_SOCKADDR_SA_LEN)
-fi
-
 #dnl check endedness
 AC_C_BIGENDIAN
 

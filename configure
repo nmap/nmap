@@ -6973,38 +6973,6 @@ fi
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if sockaddr{} has sa_len member" >&5
-$as_echo_n "checking if sockaddr{} has sa_len member... " >&6; }
-if test "${ac_cv_sockaddr_has_sa_len+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-               #include <sys/types.h>
-               #include <sys/socket.h>
-int
-main ()
-{
-unsigned int i = sizeof(((struct sockaddr *)0)->sa_len)
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ac_cv_sockaddr_has_sa_len=yes
-else
-  ac_cv_sockaddr_has_sa_len=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_sockaddr_has_sa_len" >&5
-$as_echo "$ac_cv_sockaddr_has_sa_len" >&6; }
-if test $ac_cv_sockaddr_has_sa_len = yes ; then
-        $as_echo "#define HAVE_SOCKADDR_SA_LEN 1" >>confdefs.h
-
-fi
-
 #dnl check endedness
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether byte ordering is bigendian" >&5
 $as_echo_n "checking whether byte ordering is bigendian... " >&6; }
