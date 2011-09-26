@@ -57,7 +57,7 @@ Extracts information from a Quake3-like game server.
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"default", "discovery", "safe"}
+categories = {"default", "discovery", "safe", "version"}
 
 require "shortport"
 require "stdnse"
@@ -215,6 +215,27 @@ action = function(host, port)
 	local players = parseplayers(player_data)
 
 	local basic, other = assorted(fields)
+
+	-- Previously observed version strings:
+	-- "tremulous 1.1.0 linux-x86_64 Aug  5 2010"
+	-- "ioq3 1.36+svn1933-1/Ubuntu linux-x86_64 Apr  4 2011"
+	local versionline = basic["version"]
+	if versionline then
+		local fields = stdnse.strsplit(" ", versionline)
+		local product = fields[1]
+		local version = fields[2]
+		local osline = fields[3]
+		port.version.name = "quake3"
+		port.version.product = product
+		port.version.version = version
+		if string.find(osline, "linux") then
+			port.version.ostype = "Linux"
+		end
+		if string.find(osline, "win") then
+			port.version.ostype = "Windows"
+		end
+		nmap.set_port_version(host, port, "hardmatched")
+	end
 
 	local fraglimit = fields["fraglimit"]
 	if not fraglimit then
