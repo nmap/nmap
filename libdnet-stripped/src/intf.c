@@ -374,12 +374,12 @@ intf_set(intf_t *intf, const struct intf_entry *entry)
 static void
 _intf_set_type(struct intf_entry *entry)
 {
-	if ((entry->intf_flags & INTF_FLAG_BROADCAST) != 0)
+	if ((entry->intf_flags & INTF_FLAG_LOOPBACK) != 0)
+		entry->intf_type = INTF_TYPE_LOOPBACK;
+	else if ((entry->intf_flags & INTF_FLAG_BROADCAST) != 0)
 		entry->intf_type = INTF_TYPE_ETH;
 	else if ((entry->intf_flags & INTF_FLAG_POINTOPOINT) != 0)
 		entry->intf_type = INTF_TYPE_TUN;
-	else if ((entry->intf_flags & INTF_FLAG_LOOPBACK) != 0)
-		entry->intf_type = INTF_TYPE_LOOPBACK;
 	else
 		entry->intf_type = INTF_TYPE_OTHER;
 }
