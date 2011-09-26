@@ -40,7 +40,7 @@ definitions of some terms.
 --
 -- Nmap scan report for fe80::a8bb:ccff:fedd:eeff
 -- Host script results:
--- |_address-info: IPv6 EUI-64; MAC address: aa:bb:cc:dd:ee:ff
+-- |_address-info: IPv6 EUI-64; MAC address: aa:bb:cc:dd:ee:ff (Unknown)
 --
 -- Nmap scan report for 64:ff9b::c000:221
 -- Host script results:
@@ -94,6 +94,19 @@ local function matches(addr, pattern)
 	return true
 end
 
+local function get_manuf(mac)
+	if not nmap.registry.mac then
+		local catch = function() return end
+		local try = nmap.new_try(catch)
+		-- Create the table in the registry so we can share between scripts
+		nmap.registry.mac = {}
+		nmap.registry.mac.prefixes = try(datafiles.parse_mac_prefixes())
+	end
+	local prefix = string.upper(string.format("%02x%02x%02x", mac[1], mac[2], mac[3]))
+	local manuf = nmap.registry.mac.prefixes[prefix] or "Unknown"
+	return manuf
+end
+
 local function format_mac(mac)
 	local octets
 
@@ -102,7 +115,7 @@ local function format_mac(mac)
 		octets[#octets + 1] = string.format("%02x", v)
 	end
 
-	return stdnse.strjoin(":", octets)
+	return stdnse.strjoin(":", octets) .. " (" .. get_manuf(mac) .. ")"
 end
 
 local function format_ipv4(ipv4)
