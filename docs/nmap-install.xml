@@ -1257,6 +1257,87 @@ chapter referenced above.</para></listitem>
 </sect2>
 </sect1>
 
+<sect1 id="inst-aix"><title>AIX</title>
+<indexterm><primary>AIX, installing on</primary></indexterm>
+
+<para>
+Nmap can be installed from source on IBM AIX by following the instructions in
+<xref linkend="inst-source"/>. You need only pay attention to a few
+details.
+</para>
+
+<para>
+You must use the
+<command>gcc</command><indexterm><primary>GCC</primary></indexterm> compiler,
+not <command>xlc</command>. Nmap's configure script will automatically find
+<command>gcc</command> if it is somewhere in the
+<envar>PATH</envar><indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
+environment variable.
+</para>
+
+<!-- Also relevant: http://gcc.gnu.org/install/specific.html#x-ibm-aix -->
+<para>
+Some editions of the default
+<command>as</command><indexterm><primary><command>as</command> (assembler)</primary></indexterm>
+assembler either
+<ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33577">crash</ulink> or
+<ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=46072">produce object
+files that can't be linked</ulink>. This is what's happening if you see compiler
+output like this:
+<screen>
+g++: internal compiler error: Segmentation fault (program as)
+Please submit a full bug report,
+with preprocessed source if appropriate.
+See &lt;http://gcc.gnu.org/bugs.html&gt; for instructions.
+</screen>
+<screen>
+ld: 0711-596 SEVERE ERROR: Object ../nsock/src/libnsock.a[nsock_core.o]
+        An RLD for section 2 (.data) refers to symbol 1794,
+        but the storage class of the symbol is not C_EXT or C_HIDEXT.
+</screen>
+</para>
+
+<para>
+You can work around this problem by installing the <command>as</command> from
+GNU binutils<indexterm><primary>binutils</primary></indexterm>. (But not
+<command>ld</command>; you want to continue using the default
+<command>ld</command>.) These instructions were tested on AIX 7.1 with
+<filename>binutils-2.21.1a</filename> from
+<literal>http://ftp.gnu.org/gnu/binutils</literal>.
+</para>
+
+<screen>
+$ <userinput>bzip2 -dc binutils-2.21.1a.tar.bz2 | tar -xvf -</userinput>
+$ <userinput>cd binutils-2.21.1</userinput>
+$ <userinput>./configure --disable-werror --disable-largefile CFLAGS="-O2 -Wall"</userinput>
+$ <userinput>gmake</userinput>
+$ <userinput>cd gas</userinput>
+$ <userinput>su</userinput>
+# <userinput>gmake install</userinput>
+</screen>
+
+<para>
+This will install <command>as</command> in <filename>/usr/local/bin</filename>.
+The custom
+<varname>CFLAGS</varname><indexterm><primary><varname>CFLAGS</varname></primary></indexterm>
+omit <option>-g</option>,<indexterm><primary><option>-g</option> (GCC option)</primary></indexterm>
+which would otherwise cause one of the <command>as</command> errors you are
+trying to work around. You must make sure that
+<filename>/usr/local/bin</filename> appears before
+<filename>/usr/bin</filename> in
+<envar>PATH</envar><indexterm><primary><envar>PATH</envar> environment variable</primary></indexterm>
+while building and configuring Nmap.
+</para>
+
+<screen>
+$ <userinput>export PATH="/usr/local/bin:$PATH"</userinput>
+</screen>
+
+<para>
+Now follow the instructions in <xref linkend="inst-source"/>.
+</para>
+</sect1>
+
 <sect1 id="inst-other-platforms"><title>Amiga, HP-UX, IRIX, and Other Platforms</title>
 <indexterm><primary>AmigaOS, installing on</primary></indexterm>
 <indexterm><primary>HP-UX, installing on</primary></indexterm>
