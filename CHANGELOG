@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Improved AIX support for raw scans. This includes some patches
+  originally written by Peter O'Gorman and Florian Schmid. It also
+  involved various build fixes found necessary on AIX 6.1 and 7.1.
+  [David]
+
 o Made the interface gathering loop work on Linux when an interface
   index is more than two digits in /proc/sys/if_inet6. Joe McEachern
   tracked down the problem and provided the fix.
