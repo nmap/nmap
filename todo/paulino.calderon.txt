@@ -1,44 +1,6 @@
-PENDING:
+TODO:
 
--Write more usage examples of the spidering library
--Find best output format for large lists for http-sitemap
--Write test cases for future development of the spidering library
--Commit finished scripts.
--Add functionality to disable the time limit of spidering
--Move list of binary files founds to the registry
-
-
-
+-Update wiki page.
+-Fix support for running multiple scripts at the same time.
 -
-COMPLETED:
--Write more signatures for http-default-accounts
--Select new scripts from queue and work on them
--Improve my documentation
--Write http-wp-enum
--Write http-malware-host
--Write more signatures for http-default-accounts
--Research more about spidering
--Add more signatures for http-default-accounts
--Select new scripts to work on
--Completed http-default-accounts
--Added new signatures to http-enum
--Work on the http-waf-detect
--Wrote new http-trace
--Patched shortport.lua and http-form-brute
--Work on the majordomo2 traversal http exploit (Finished http-majordomo2-dir-traversal)
--Finished http-wordpress-brute, http-joomla-brute, http-tomcat-brute
--Added bing search results to hostmap.nse
--Research new http exploits
--Add support to relative links in http-phpself-xss
--Add support to redirects in http-phpself-xss
--Write draft proposal for http-spider
--Wait for feedback to complete/close project http-cakephp-version
--Define list of required functions for http-crawler (Library renamed to httpspider)
--Write draft for the http-crawler library
--Read again the NSE documentation
--Fingerprint more cakephp 1.1.x installations
-
-INCOMPLETE TASKS:
--Work on HTTP URI Fuzzing script (Delayed)
--Write http-sitemap-dumper (Delayed)
--Work on draft for http-spider (Delayed)
+Add timeout setting for unlimited.
