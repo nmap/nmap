@@ -33,6 +33,10 @@
 # include <netinet/in.h>
 # include <netinet/in_var.h>
 #endif
+#ifdef HAVE_NETINET_IN6_VAR_H
+# include <sys/protosw.h>
+# include <netinet/in6_var.h>
+#endif
 
 #include <errno.h>
 #include <stdio.h>
@@ -134,7 +138,7 @@ intf_open(void)
 		setsockopt(intf->fd, SOL_SOCKET, SO_BROADCAST,
 			(const char *) &one, sizeof(one));
 
-#ifdef SIOCGIFNETMASK_IN6
+#if defined(SIOCGIFNETMASK_IN6) || defined(SIOCGIFNETMASK6)
 		if ((intf->fd6 = socket(AF_INET6, SOCK_DGRAM, 0)) < 0) {
 #  ifdef EPROTONOSUPPORT
 			if (errno != EPROTONOSUPPORT)
@@ -547,6 +551,23 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 			}
 			else perror("SIOCGIFNETMASK_IN6");
 		}
+#else
+#ifdef SIOCGIFNETMASK6
+		else if (ap->addr_type == ADDR_TYPE_IP6 && intf->fd6 != -1) {
+			struct in6_ifreq ifr6;
+
+			/* XXX - sizeof(ifr) < sizeof(ifr6) */
+			memcpy(&ifr6, ifr, sizeof(ifr6));
+			
+			if (ioctl(intf->fd6, SIOCGIFNETMASK6, &ifr6) == 0) {
+				/* For some reason this is 0 after the ioctl. */
+				ifr6.ifr_Addr.sin6_family = AF_INET6;
+				addr_stob((struct sockaddr *)&ifr6.ifr_Addr,
+				    &ap->addr_bits);
+			}
+			else perror("SIOCGIFNETMASK6");
+		}
+#endif
 #endif
 		ap++, entry->intf_alias_num++;
 	}
