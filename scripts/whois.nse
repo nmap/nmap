@@ -427,7 +427,7 @@ function get_prefix_length( range )
   last = ipOps.ip_to_bin( last ):reverse()
 
   local hostbits = 0
-  for pos = 1, # first , 1 do
+  for pos = 1, string.len( first ), 1 do
 
     if first:sub( pos, pos ) == "0" and last:sub( pos, pos ) == "1" then
       hostbits = hostbits + 1
@@ -437,7 +437,7 @@ function get_prefix_length( range )
 
   end
 
-  return ( # first  - hostbits )
+  return ( string.len( first ) - hostbits )
 
 end
 
@@ -1159,7 +1159,7 @@ function get_assignment( ip, prefix )
   if err then return nil, err end
 
   prefix = tonumber( prefix )
-  if not prefix or ( prefix < 0 ) or ( prefix > # some_ip  ) then
+  if not prefix or ( prefix < 0 ) or ( prefix > string.len( some_ip ) ) then
     return nil, "Error in get_assignment: Invalid prefix length."
   end
 
@@ -1650,15 +1650,7 @@ function get_args()
 
   if not nmap.registry.args then return end
 
-  local args
-  if ( nmap.registry.args.whois and nmap.registry.args.whois.whodb ) then
-    args = nmap.registry.args.whois.whodb
-  elseif nmap.registry.args.whodb then
-    args = nmap.registry.args.whodb
-  elseif stdnse.get_script_args('whois.whodb') then
-    args = stdnse.get_script_args('whois.whodb')
-  else return
-  end
+  local args = stdnse.get_script_args('whois.whodb')
 
   if type( args ) ~= "string" or ( args == "" ) then return end
 
@@ -1906,16 +1898,18 @@ function requires_updating( file )
   if not stamp then return true, nil end
 
   last_cached, mod, etag = stamp:match( "^<([^>]*)><([^>]*)><?([^>]*)>?$" )
-
+  if (etag == "") then etag = nil end
   if not ( last_cached or mod or etag ) then return true, nil end
-
-  if not etag or not mod or not (
-  mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+  if not (
+    mod:match( "%a%a%a,%s%d%d%s%a%a%a%s%d%d%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
   or
-  mod:match( "%a*day,%d%d\-%a%a%a\-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
+    mod:match( "%a*day,%d%d\-%a%a%a\-%d%d%s%d%d:%d%d:%d%d%s%u%u%u" )
   or
-  mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
+    mod:match( "%a%a%a%s%a%a%a%s%d?%d%s%d%d:%d%d:%d%d%s%d%d%d%d" )
   ) then
+    mod = nil
+  end
+  if not etag and not mod then
     return true, nil
   end
 
