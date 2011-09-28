@@ -82,6 +82,9 @@
 /* Define to 1 if you have the <netinet/in_var.h> header file. */
 #undef HAVE_NETINET_IN_VAR_H
 
+/* Define to 1 if you have the <netinet/in6_var.h> header file. */
+#undef HAVE_NETINET_IN6_VAR_H
+
 /* Define to 1 if you have the <netinet/ip_compat.h> header file. */
 #undef HAVE_NETINET_IP_COMPAT_H
 

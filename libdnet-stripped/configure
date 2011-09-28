@@ -12881,9 +12881,11 @@ done
 
 
 
+
 for ac_header in net/bpf.h net/if.h net/if_var.h \
 	    net/if_arp.h net/if_dl.h net/pfilt.h \
 	    net/pfvar.h net/radix.h net/raw.h net/route.h netinet/in_var.h \
+	    netinet/in6_var.h \
 	    net/if_tun.h linux/if_tun.h netinet/ip_fw.h linux/ip_fw.h \
 	    linux/ip_fwchains.h linux/netfilter_ipv4/ipchains_core.h
 do
@@ -14585,10 +14587,10 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
     fi
-	{ echo "$as_me:$LINENO: checking for getkerninfo" >&5
-echo $ECHO_N "checking for getkerninfo... $ECHO_C" >&6; }
+	{ $as_echo "$as_me:$LINENO: checking for getkerninfo" >&5
+$as_echo_n "checking for getkerninfo... " >&6; }
     if test "${ac_cv_dnet_getkerninfo+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
+  $as_echo_n "(cached) " >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -14612,20 +14614,21 @@ case "(($ac_try" in
   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
   *) ac_try_echo=$ac_try;;
 esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
   (eval "$ac_compile") 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
   cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); } && {
 	 test -z "$ac_c_werror_flag" ||
 	 test ! -s conftest.err
        } && test -s conftest.$ac_objext; then
   ac_cv_dnet_getkerninfo=yes
 else
-  echo "$as_me: failed program was:" >&5
+  $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
 	ac_cv_dnet_getkerninfo=no
@@ -14634,8 +14637,8 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 
-    { echo "$as_me:$LINENO: result: $ac_cv_dnet_getkerninfo" >&5
-echo "${ECHO_T}$ac_cv_dnet_getkerninfo" >&6; }
+    { $as_echo "$as_me:$LINENO: result: $ac_cv_dnet_getkerninfo" >&5
+$as_echo "$ac_cv_dnet_getkerninfo" >&6; }
     if test $ac_cv_dnet_getkerninfo = yes ; then
 
 cat >>confdefs.h <<\_ACEOF
