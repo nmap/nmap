@@ -35,7 +35,7 @@ o Improvements to the Nmap multicast IPv6 host discovery scripts
    should do something smart if no specific device name is given.
    Examples include performing on all compatable devices or trying to
    pick the best device.  The all-devices appraoch may be the best,
-   IMHO.
+   IMHO.  That is how our broadcast-ping script works now.
 
 
 o We should add fields to the service submitter
