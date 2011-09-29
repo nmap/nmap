@@ -1,5 +1,19 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+Nmap 5.61TEST2 [2011-09-30]
+
+o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
+  more about any of them at http://nmap.org/nsedoc/. Here are the new
+  ones (authors listed in brackets):
+  + lltd-discovery uses the Microsoft LLTD protocol to discover hosts
+    on a local network. [Gorjan Petrovski]
+
+  + ssl-google-cert-catalog queries Google's Certificate Catalog for
+    the SSL certificates retrieved from target hosts. [Vasiliy Kulikov]
+
+  + quake3-info extracts information from a Quake3-like game
+    server. [Toni Ruottu]
+
 o Improved AIX support for raw scans. This includes some patches
   originally written by Peter O'Gorman and Florian Schmid. It also
   involved various build fixes found necessary on AIX 6.1 and 7.1.
@@ -25,13 +39,152 @@ o [NSE] Made irc-info.nse handle the case where the MOTD is missing.
 
 Nmap 5.61TEST1 [2011-09-19]
 
-o The changelog entries below for this test release are not yet
-  finished or comprehensive.  We'll update them soon.
+o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
+  output for OS and service versions. This is a standard way of
+  identifying operating systems and applications so that Nmap can
+  better interoperate with other software.  Nmap's own
+  taxonomy/classification system is still supported as well.  Some OS
+  and version detection results don't have CPE entries yet.  CPE
+  entries show up in normal output with the headings "OS CPE:" and
+  "Service Info:":
+    OS CPE: cpe:/o:linux:kernel:2.6.39
+    Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
+  These also appear in XML output, which additionally has CPE entries
+  for service versions. [David, Henri]
 
-o [Ncat] Updated ca-bundle.crt (primarily to remove DigiNotar).
+o Added IPv6 Neighbor Discovery ping. This is the IPv6 analog to IPv4
+  ARP scan. It is the default ping type for local IPv6 networks.
+  [Weilin]
+
+o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
+  more about any of them at http://nmap.org/nsedoc/. Here are the new
+  ones (authors listed in brackets):
+
+  + address-info shows extra information about IPv6 addresses, such as
+    embedded MAC or IPv4 addresses when available. [David Fifield]
+
+  + bittorrent-discovery discovers bittorrent peers sharing a file
+    based on a user-supplied torrent file or magnet link. [Gorjan
+    Petrovski]
+
+  + broadcast-db2-discover attempts to discover DB2 servers on the
+    network by sending a broadcast request to port 523/udp. [Patrik
+    Karlsson]
+
+  + broadcast-dhcp-discover sends a DHCP request to the broadcast
+    address (255.255.255.255) and reports the results. [Patrik
+    Karlsson]
+
+  + broadcast-listener sniffs the network for incoming broadcast
+    communication and attempts to decode the received packets. It
+    supports protocols like CDP, HSRP, Spotify, DropBox, DHCP, ARP and
+    a few more. [Patrik Karlsson]
+
+  + broadcast-ping sends broadcast pings on a selected interface using
+    raw ethernet packets and outputs the responding hosts' IP and MAC
+    addresses or (if requested) adds them as targets. []
+
+  + cvs-brute performs brute force password auditing against CVS
+    pserver authentication. [Patrik Karlsson]
+
+  + cvs-brute-repository attempts to guess the name of the CVS
+    repositories hosted on the remote server.  With knowledge of the
+    correct repository name, usernames and passwords can be
+    guessed. [Patrik Karlsson]
+
+  + ftp-vsftpd-backdoor tests for the presence of the vsFTPd 2.3.4
+    backdoor reported on 2011-07-04 (CVE-2011-2523). This script
+    attempts to exploit the backdoor using the innocuous 'id' command
+    by default, but that can be changed with the 'exploit.cmd' or
+    'ftp-vsftpd-backdoor.cmd' script arguments. [Daniel Miller]
+
+  + ftp-vuln-cve2010-4221 checks for a stack-based buffer overflow in
+    the ProFTPD server, version between 1.3.2rc3 and 1.3.3b. [Djalal
+    Harouni]
+
+  + http-awstatstotals-exec exploits a remote code execution
+    vulnerability in Awstats Totals 1.0 up to 1.14 and possibly other
+    products based on it (CVE: 2008-3922). [Paulino Calderon]
+
+  + http-axis2-dir-traversal Exploits a directory traversal
+    vulnerability in Apache Axis2 version 1.4.1 by sending a specially
+    crafted request to the parameter 'xsd' (OSVDB-59001). By default
+    it will try to retrieve the configuration file of the Axis2
+    service '/conf/axis2.xml' using the path '/axis2/services/' to
+    return the username and password of the admin account. [Paulino
+    Calderon]
+
+  + http-default-accounts tests for access with default credentials
+    used by a variety of web applications and devices. [Paulino
+    Calderon]
+
+  + http-google-malware checks if hosts are on Google's blacklist of
+    suspected malware and phishing servers. These lists are constantly
+    updated and are part of Google's Safe Browsing service. [Paulino
+    Calderon]
+
+  + http-joomla-brute performs brute force password auditing against
+    Joomla web CMS installations. [Paulino Calderon]
+
+  + http-litespeed-sourcecode-download exploits a null-byte poisoning
+    vulnerability in Litespeed Web Servers 4.0.x before 4.0.15 to
+    retrieve the target script's source code by sending a HTTP request
+    with a null byte followed by a .txt file extension
+    (CVE-2010-2333). [Paulino Calderon]
+
+  + http-vuln-cve2011-3192 detects a denial of service vulnerability
+    in the way the Apache web server handles requests for multiple
+    overlapping/simple ranges of a page. [Duarte Silva]
+
+  + http-waf-detect attempts to determine whether a web server is
+    protected by an IPS (Intrusion Prevention System), IDS (Intrusion
+    Detection System) or WAF (Web Application Firewall) by probing the
+    web server with malicious payloads and detecting changes in the
+    response code and body. [Paulino Calderon]
+
+  + http-wordpress-brute performs brute force password auditing
+    against Wordpress CMS/blog installations. [Paulino Calderon]
+
+  + http-wp-enum enumerates usernames in Wordpress blog/CMS
+    installations by exploiting an information disclosure vulnerability
+    existing in versions 2.6, 3.1, 3.1.1, 3.1.3 and 3.2-beta2 and
+    possibly others. [Paulino Calderon]
+
+  + imap-brute performs brute force password auditing against IMAP
+    servers using either LOGIN, PLAIN, CRAM-MD5, DIGEST-MD5 or NTLM
+    authentication. [Patrik Karlsson]
+
+  + smtp-brute performs brute force password auditing against SMTP
+    servers using either LOGIN, PLAIN, CRAM-MD5, DIGEST-MD5 or NTLM
+    authentication. [Patrik Karlsson]
+
+  + smtp-vuln-cve2011-1764 checks for a format string vulnerability in
+    the Exim SMTP server (version 4.70 through 4.75) with DomainKeys
+    Identified Mail (DKIM) support (CVE-2011-1764). [Djalal Harouni]
+
+  + targets-ipv6-multicast-echo sends an ICMPv6 echo request packet to
+    the all-nodes link-local multicast address (ff02::1) to discover
+    responsive hosts on a LAN without needing to individually ping
+    each IPv6 address. [David Fifield, Xu Weilin]
+
+  + targets-ipv6-multicast-invalid-dst sends an ICMPv6 packet with an
+    invalid extension header to the all-nodes link-local multicast
+    address (ff02::1) to discover (some) available hosts on the
+    LAN. This works because some hosts will respond to this probe with
+    an ICMPv6 parameter problem packet. [David Fifield, Xu Weilin]
+
+  + targets-ipv6-multicast-slaac performs IPv6 host discovery by
+    triggering stateless address auto-configuration (SLAAC). [David
+    Fifield, Xu Weilin]
+
+  + xmpp-brute Performs brute force password auditing against XMPP
+    (Jabber) instant messaging servers. [Patrik Karlsson]
 
 o Fixed compilation on OS X 10.7 Lion. Thanks to Patrik Karlsson and
   Babak Farroki for researching fixes.
+
+o [Ncat] Updated SSL certificate store (ca-bundle.crt), primarily to
+  remove epic fail DigiNotar.
 
 o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse, and
   removed redundant multiple listings of the NULL compressor.
@@ -40,19 +193,17 @@ o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse, and
 o [NSE] Added cipher strength ratings to ssl-enum-ciphers.nse.
   [Gabriel Lawrence]
 
-o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
-  output for OS and service versions. These show up in normal output
-  with the headings "OS CPE:" and "Service Info:":
-    OS CPE: cpe:/o:linux:kernel:2.6.39
-    Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
-  These also appear in XML output, which additionally has CPE entries
-  for service versions. [David, Henri]
+o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
+  displaying any output unless run in debug mode. [Patrik]
 
-o [NSE] Added new default credential list for Oracle and modified the
-  oracle-brute script to make use of it. [Patrik]
+o [NSE] Added new default credential list for Oracle databases and
+  modified the oracle-brute script to make use of it. [Patrik]
 
-o [NSE] Added xmpp-info.nse as a replacement for xmpp.nse. This updated version
-  brings new features and fixes. [Vasiliy Kulikov]
+o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
+  brute force password auditing against XMPP (Jabber) servers. [Patrik]
+
+o [NSE] Replaced xmpp.nse with an an overhauled version named
+  xmpp-info.nse which brings many new features and fixes. [Vasiliy Kulikov]
 
 o Fixed RPC scan for 64-bit architectures by using fixed-size data
   types. [David]
@@ -64,25 +215,8 @@ o Made a service confidence of 8 (used when tcpwrapped) and indeed any
   number between 0 and 10 be legal in XML output according to the DTD.
   [Daniel Miller]
 
-o [NSE] Added three scripts that do host discovery on local IPv6
-  subnets. Each of them uses a different multicast technique, meaning
-  that even very large networks have host discovery done without
-  needing to probe every address individually.
-  + targets-multicast-ipv6-echo: Sends a multicast echo request, like
-    broadcast-ping does for IPv4.
-  + targets-multicast-ipv6-invalid-dst: Sends an invalid packet that
-    can elicit an ICMPv6 Parameter Problem response.
-  + targets-multicast-ipv6-slaac: Sends a phony router advertisement,
-    which causes hosts to allocate a temporary address and then send a
-    packet to discover if anyone else is using the address.
-  [Weilin, David]
-
 o [NSE] Added functions to packet.lua to make it easier to build IPv6
   packets. [Weilin]
-
-o [NSE] Added new script http-vuln-cve2011-3192 which checks whether an instance
-  of Apache is vulnerable to a DoS attack exploiting the byterange filter.
-  [Duarte Silva].
 
 o [NSE] Fixed authentication problems in the TNS library that would prevent
   authentication from working against Oracle 11.2.0.2.0 XE [Chris Woodbury]
@@ -97,76 +231,50 @@ o Rearranged some characters classes in service matches to avoid any
     InitMatch: illegal regexp: POSIX collating elements are not supported
   [Daniel Miller]
 
-o [NSE] Added the address-info.nse script, which shows extra information about IP addresses.
+o [Zenmap] Prevent Zenmap from deleting ports when merging scans
+  results based on newer scans which did not actually scan the ports
+  in question. Additionally Zenmap now only updates ports with new
+  information if the new information is the same protocol. Not just
+  the same port. [Colin Rice]
 
-o [NSE] Added scripts http-joomla-brute, http-wordpress-brute, http-wp-enum and
-  http-awstatstotal-exec. [Paulino]
+o [Ncat] Fixed a crash which would occur when --ssl-verify is combined
+  with -vvv on windows. [Colin Rice]
 
-o [Zenmap] Fixed zenmap deleting ports based on newer scans which did
-  not actually scan the port in question. Additionally ncat now only
-  updates ports with new information if the new information is the same
-  protocol. Not just the same port. [Colin Rice]
+o [NSE] Removed the mac-geolocation script, which relied on a Google
+  DB to determine strikingly accurate GPS coordinates for wireless
+  access points (based on their MAC address).  Google has discontinued
+  this service.
 
-o [Ncat] Fixed ncat crashing with --ssl-verify -vvv on windows. [Colin Rice]
+o [NSE] Added basic query support to the Oracle TNS library so that scripts
+  can now make SQL queries against database servers. [Patrik]
 
-o [NSE] Added script http-waf-detect. This script tries to determine
-  if an IDS/IPS/WAF is protecting a web server. [Paulino]
+o [Ncat] Added an --append-output option which, when used along with
+  -o and/or -x, prevents clobbering (truncating) an existing
+  file. [Shinnok]
 
-o [NSE] Added the bittorrent library and bittorrent-discovery script which 
-  enables us to discover peers and nodes for a particular torrent file or 
-  magnet link.
-
-o [NSE] Added basic query support to the Oracle TNS library making it possible
-  for scripts to query the database server using SQL. [Patrik]
-
-o [Ncat] Added --append-output option, that when used along with -o and/or -x
-  prevents clobbering(truncating) an existing file. [Shinnok]
-
-o [NSE] Added script broadcast-listener that attempts to discover hosts by
-  passively listening to the network. It does so by decoding ethernet and IP
-  broadcast and multicast messages. [Patrik]
-
-o Fixed a bug that would make Nmap segfault if it failed to open an interface
-  using pcap. The bug details and patch are posted here:
+o Fixed a bug that would make Nmap segfault if it failed to open an
+  interface using pcap. The bug details and patch are posted at
   http://seclists.org/nmap-dev/2011/q3/365 [Patrik]
 
-o Ncat SCTP mode supports connection brokering now(--sctp --broker). [Shinnok]
+o Ncat SCTP mode now supports connection brokering 
+  (--sctp --broker). [Shinnok]
 
-o Nmap now defers options parsing until it has read through all the command line
-  arguments. You can now use options like -S with an IPv6 address before
-  specifying -6 at the command line, which previously got you an error.
-  [Shinnok]
-
-o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
-  brute force password auditing against XMPP (Jabber) servers. [Patrik]
-
-o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
-  displaying any output unless run in debug mode. [Patrik]
+o Nmap now defers options parsing until it has read through all the
+  command line arguments.  This removes the few remaining cases where
+  option order mattered (for example, IPv6 scans previously had to
+  specify -6 before -S.) [Shinnok]
 
 o [NSE] Fixed the nsedebug print_hex() function so it does not print an
   empty line if there are no remaining characters, and improved its NSEDoc.
   [Chris Woodbury].
 
-o [NSE] Added the scripts http-axis2-dir-traversal and 
-  http-litespeed-sourcecode-download that exploits a directory traversal and
-  null byte poisoning vulnerabilities in Apache Axis2 and LiteSpeed Web Server
-  respectively. [Paulino]
-  
-o [Ncat] Ncat now no longer blocks while an ssl handshake is taking place or
-  waiting to complete. [Shinnok]
-
-o [NSE] Added the script broadcast-dhcp-discover that sends a DHCP discover
-  message to the broadcast address and collects and reports the network
-  information received from the DHCP server. [Patrik]
-
-o [NSE] Added the script smtp-brute that performs brute force password
-  auditing against SMTP servers. [Patrik]
+o [Ncat] Ncat no longer blocks while an ssl handshake is taking place or
+  waiting to complete.  This could make listening Ncat instances
+  unavailable to other clients because one client was taking too long
+  to complete the SSL handshake. [Shinnok]
 
 o [NSE] Updated SMTP library to support authentication using both plain-text
   and the SASL library. [Patrik]
-
-o [NSE] Added the script imap-brute that performs brute force password
-  auditing against IMAP servers. [Patrik]
 
 o [NSE] Updated IMAP library to support authentication using both plain-text
   and the SASL library. [Patrik]
@@ -181,51 +289,29 @@ o [NSE] Added scripts cvs-brute.nse, cvs-brute-repository.nse and the cvs
   repository names needed in order to perform password guessing using the
   cvs-brute.nse script. [Patrik]
 
-o [Zenmap] The Zenmap crash handler now instructs you to mail in crash
-  information to nmap-dev. [Colin Rice]
-
-o Added IPv6 Neighbor Discovery ping. This is the IPv6 analog to IPv4
-  ARP scan. It is the default ping type for local IPv6 networks.
-  [Weilin]
-
-o [NSE] Added smtp-vuln-cve2011-1764 script, which checks if the Exim
-  SMTP server is vulnerable to the DKIM Format String vulnerability
-  (CVE-2011-1764). [Djalal]
-
-o Added the broadcast-ping script which sends icmp packets to broadcast 
-  addresses on the selected network interface, or all ethernet interfaces if 
-  none is selected. It has the option to add the discovered hosts as targets. 
+o [Zenmap] The Zenmap crash handler now instructs users to mail in
+  crash information to nmap-dev rather than offering to create a
+  Sourceforge bug tracker entry. [Colin Rice]
 
 o [NSE] Applied patch from Chris Woodbury that adds the following additional
-  information to the output of smb-os-discovery:
-  + Forest name
-  + FQDN
-  + NetBIOS computer name
-  + NetBIOS domain name
+  information to the output of smb-os-discovery: Forest name, FQDN,
+  NetBIOS computer name, and NetBIOS domain name.
+
+o [NSE] Updated smb-brute to add detection for valid credentials where the 
+  target account was expired or limited by time or login host constraints.
+  [Tom Sellers]
 
 o [Ncat] Ncat now supports IPV6 addresses by default without the -6 flag.
-  Additionally ncat listens on both :: and localhost when passed
+  Additionally ncat listens on both ::1 and localhost when passed
   -l, or any other listening mode unless a specific listening address is
   supplied.
-
-o [NSE] Split script db2-discover into two scripts, adding a new
-  broadcast-db2-discover script. This script attempts to discover DB2
-  database servers through broadcast requests. [Patrik Karlsson]
 
 o Fixed broken XML output in the case of timed-out hosts; the
   enclosing host element was missing. The fix was suggested by Rémi
   Mollon.
 
-o [NSE] Added ftp-vuln-cve2010-4221 script, which checks if the ProFTPD
-  server is vulnerable to the Telnet IAC stack overflow vulnerability
-  (CVE-2010-4221). [Djalal]
-
-o [NSE] Added ftp-vsftpd-backdoor, which detects a backdoor that was introduced
-  into vsftpd-2.3.4 source code distributions. [Daniel Miller]
-	
-o [NSE] ldap-brute.nse - Multiple changes:
+o [NSE] ldap-brute.nse - Multiple changes by Tom Sellers:
   + Added support for 2008 R2 functional level Active Directory instances
-    to ldap-brute. 
   + Added detection for valid credentials where the target account was 
     expired or limited by time or login host constraints.
   + Added support for specifying a UPN suffix to be appended to usernames
@@ -233,15 +319,10 @@ o [NSE] ldap-brute.nse - Multiple changes:
   + Added support for saving discovered credentials to a CSV file.
   + Now reports valid credentials as they are discovered when the script
     is run with -vv or higher.
-	[Tom Sellers] 
   
 o [NSE] ldap-search.nse - Added support for saving search results to
   CSV.  This is done by using the ldap.savesearch script argument to
   specify an output filename prefix.  [Tom Sellers]  
-
-o [NSE] Updated smb-brute to add detection for valid credentials where the 
-  target account was expired or limited by time or login host constraints.
-  [Tom Sellers]
 
 o [NSE] Updated account status text in brute force password discovery 
   scripts in an effort to make the reporting more consistent across
