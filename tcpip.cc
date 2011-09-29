@@ -1599,6 +1599,11 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
     offset = 16;
     break;
 #endif
+#ifdef DLT_IPNET
+  case DLT_IPNET:
+    offset = 24;
+    break;
+#endif
   default:
     p = (char *) pcap_next(pd, &head);
     if (head.caplen == 0) {
