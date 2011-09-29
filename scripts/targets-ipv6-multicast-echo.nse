@@ -1,10 +1,7 @@
 description = [[
-Multicast echo ping.
-
-This script works by sending an ICMPv6 Echo Request packet to the all-nodes
-link-local multicast address, <code>ff02::1</code>. It can discover all hosts
-responding to echo on an interface, without needing to individually ping each
-address.
+Sends an ICMPv6 echo request packet to the all-nodes link-local
+multicast address (<code>ff02::1</code>) to discover responsive hosts
+on a LAN without needing to individually ping each IPv6 address.
 ]]
 
 ---
@@ -13,7 +10,7 @@ address.
 -- @args newtargets  If true, add discovered targets to the scan queue.
 -- @args targets-ipv6-multicast-echo.interface  The interface to use for host discovery.
 
-author = "David and Weilin"
+author = "David Fifield, Xu Weilin"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

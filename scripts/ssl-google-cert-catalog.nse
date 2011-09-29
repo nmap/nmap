@@ -1,6 +1,5 @@
 description = [[
-Matches SSL certificate hash against Google Certificate Catalog.  It
-uses the certificate gotten from ssl-cert.nse script.
+Queries Google's Certificate Catalog for the SSL certificates retrieved from target hosts.  The Certificate Catalog provides information about how recently and for how long Google has seen the given certificate.  If a certificate doesn't appear in the database, despite being correctly signed by a well-known CA and having a matching domain name, it may be suspicious. It uses the certificate gotten from ssl-cert.nse script, so that script must be run as well.
 ]]
 
 ---

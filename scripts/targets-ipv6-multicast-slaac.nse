@@ -1,5 +1,5 @@
 description = [[
-Does IPv6 host discovery by triggering stateless address auto-configuration
+Performs IPv6 host discovery by triggering stateless address auto-configuration
 (SLAAC).
 
 This script works by sending an ICMPv6 Router Advertisement with a random
@@ -23,7 +23,7 @@ See also:
 -- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0' -sP
 -- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
-author = "David and Weilin"
+author = "David Fifield, Xu Weilin"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

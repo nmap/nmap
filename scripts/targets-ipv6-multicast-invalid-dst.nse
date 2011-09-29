@@ -1,11 +1,9 @@
 description = [[
-Multicast invalid packet host discovery.
-
-This script works by sending an ICMPv6 packet with an invalid extension header
-to the all-nodes link-local multicast address, <code>ff02::1</code>. Some hosts
-will respond to this probe with an ICMPv6 Parameter Problem packet. This script
-can discover hosts reachable on an interface without needing to individually
-ping each address.
+Sends an ICMPv6 packet with an invalid extension header to the
+all-nodes link-local multicast address (<code>ff02::1</code>) to
+discover (some) available hosts on the LAN. This works because some
+hosts will respond to this probe with an ICMPv6 Parameter Problem
+packet.
 ]]
 
 ---
@@ -14,7 +12,7 @@ ping each address.
 -- @args newtargets  If true, add discovered targets to the scan queue.
 -- @args targets-ipv6-multicast-invalid-dst.interface  The interface to use for host discovery.
 
-author = "David and Weilin"
+author = "David Fifield, Xu Weilin"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 

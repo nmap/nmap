@@ -1,5 +1,5 @@
 description = [[
-Performs brute force password auditing against XMPP (Jabber) servers.
+Performs brute force password auditing against XMPP (Jabber) instant messaging servers.
 ]]
 
 ---

@@ -1,5 +1,5 @@
 description = [[
-This script uses the Microsoft LLTD protocol to discover hosts on a local network.
+Uses the Microsoft LLTD protocol to discover hosts on a local network.
 
 For more information on the LLTD protocol please refer to
 http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
@@ -9,7 +9,7 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 -- @usage 
 -- nmap -e <interface> --script lltd-discovery 
 --
--- @arg interface, a string specifying which interface to do lltd discovery on
+-- @arg interface, a string specifying which interface to do lltd discovery on.  If not specified, all ethernet interfaces are tried.
 --
 -- @output
 -- | lltd-discovery: 
