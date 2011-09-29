@@ -1653,7 +1653,7 @@ char *readip_pcap(pcap_t *pd, unsigned int *len, long to_usec,
       if (offset && linknfo) {
         linknfo->datalinktype = datalink;
         linknfo->headerlen = offset;
-        assert(offset < MAX_LINK_HEADERSZ);
+        assert(offset <= MAX_LINK_HEADERSZ);
         memcpy(linknfo->header, p, MIN(sizeof(linknfo->header), offset));
       }
       p += offset;
