@@ -13,18 +13,18 @@ check the first 100 ones. Users can tweak this with an option (see below).
 ]]
 
 ---
--- @args http-wp-plugins.root If set, points to the blog root directory on the website. If not, the script will try to find a WP directory installation or fall back to root.
--- @args http-wp-plugins.search As the plugins list contains tens of thousand of plugins, this script will only search the 100 most popular ones by default.
+-- @args http-wordpress-plugins.root If set, points to the blog root directory on the website. If not, the script will try to find a WP directory installation or fall back to root.
+-- @args http-wordpress-plugins.search As the plugins list contains tens of thousand of plugins, this script will only search the 100 most popular ones by default.
 -- Use this option with a number or "all" as an argument for a more comprehensive brute force.
 --
 -- @usage
--- nmap --script=http-wp-plugins --script-arg http-wp-plugins.root="/blog/",http-wp-plugins.search=500 <targets>
+-- nmap --script=http-wordpress-plugins --script-arg http-wordpress-plugins.root="/blog/",http-wordpress-plugins.search=500 <targets>
 --
 --@output
 -- Interesting ports on my.woot.blog (123.123.123.123):
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-wp-plugins:
+-- | http-wordpress-plugins:
 -- | search amongst the 500 most popular plugins
 -- |   akismet
 -- |   wp-db-backup
@@ -66,9 +66,9 @@ action = function(host, port)
   end
 
   local wp_autoroot
-  local wp_root = stdnse.get_script_args("http-wp-plugins.root")
+  local wp_root = stdnse.get_script_args("http-wordpress-plugins.root")
   local plugins_search = DEFAULT_PLUGINS_SEARCH
-  local plugins_search_arg = stdnse.get_script_args("http-wp-plugins.search")
+  local plugins_search_arg = stdnse.get_script_args("http-wordpress-plugins.search")
 
   if plugins_search_arg == "all" then
     plugins_search = nil
@@ -143,7 +143,7 @@ action = function(host, port)
   for i, data in pairs(pipeline_returns) do
     -- if it's not a four-'o-four, it probably means that the plugin is present
     if http.page_exists(data, result_404, body_404, bfqueries[i][1], true) then
-      stdnse.print_debug(1, "http-wp-plugins.nse: Found a plugin: %s", bfqueries[i][2])
+      stdnse.print_debug(1, "http-wordpress-plugins.nse: Found a plugin: %s", bfqueries[i][2])
       table.insert(result, bfqueries[i][2])
     end
   end
@@ -153,7 +153,7 @@ action = function(host, port)
     result.name = "search amongst the " .. plugin_count .. " most popular plugins"
     return stdnse.format_output(true, result)
   else
-    return "nothing found amongst the " .. plugin_count .. " most popular plugins, use --script-arg http-wp-plugins.search=<number|all> for deeper analysis)\n"
+    return "nothing found amongst the " .. plugin_count .. " most popular plugins, use --script-arg http-wordpress-plugins.search=<number|all> for deeper analysis)\n"
   end
 
 end

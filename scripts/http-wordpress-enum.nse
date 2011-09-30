@@ -7,24 +7,24 @@ Original advisory:
 
 ---
 -- @usage
--- nmap -p80 --script http-wp-enum <target>
--- nmap -sV --script http-wp-enum --script-args limit=50 <target>
+-- nmap -p80 --script http-wordpress-enum <target>
+-- nmap -sV --script http-wordpress-enum --script-args limit=50 <target>
 --
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-wp-enum: 
+-- | http-wordpress-enum: 
 -- | Username found: admin
 -- | Username found: mauricio
 -- | Username found: cesar
 -- | Username found: lean
 -- | Username found: alex
 -- | Username found: ricardo
--- |_Search stopped at ID #25. Increase the upper limit if necessary with 'http-wp-enum.limit'
+-- |_Search stopped at ID #25. Increase the upper limit if necessary with 'http-wordpress-enum.limit'
 -- 
--- @args http-wp-enum.limit Upper limit for ID search. Default: 25
--- @args http-wp-enum.basepath Base path to Wordpress. Default: /
--- @args http-wp-enum.out If set it saves the username list in this file.
+-- @args http-wordpress-enum.limit Upper limit for ID search. Default: 25
+-- @args http-wordpress-enum.basepath Base path to Wordpress. Default: /
+-- @args http-wordpress-enum.out If set it saves the username list in this file.
 ---
 
 author = "Paulino Calderon"
@@ -96,9 +96,9 @@ end
 --MAIN
 ---
 action = function(host, port)
-  local basepath = stdnse.get_script_args("http-wp-enum.basepath") or "/"
-  local limit = stdnse.get_script_args("http-wp-enum.limit") or 25
-  local filewrite = stdnse.get_script_args("http-wp-enum.out")
+  local basepath = stdnse.get_script_args("http-wordpress-enum.basepath") or "/"
+  local limit = stdnse.get_script_args("http-wordpress-enum.limit") or 25
+  local filewrite = stdnse.get_script_args("http-wordpress-enum.out")
   local output = {""}
   local users = {}
   --First, we check this is WP
@@ -130,7 +130,7 @@ action = function(host, port)
   end
  
   if #output > 1 then
-    output[#output+1] = string.format("Search stopped at ID #%s. Increase the upper limit if necessary with 'http-wp-enum.limit'", limit)
+    output[#output+1] = string.format("Search stopped at ID #%s. Increase the upper limit if necessary with 'http-wordpress-enum.limit'", limit)
     return stdnse.strjoin("\n", output)
   end
 end
