@@ -2,21 +2,23 @@
 
 Nmap 5.61TEST2 [2011-09-30]
 
-o Added IPv6 OS detection system!  The new system utilizes many tests
+o Added IPv6 OS detection system! The new system utilizes many tests
   similar to IPv4, and also some IPv6-specific ones that we found to
-  be particularly effective.  And it uses a machine learning approach
-  rather than the static classifier we use for IPv4.  We hope to move
+  be particularly effective. And it uses a machine learning approach
+  rather than the static classifier we use for IPv4. We hope to move
   some of the IPv6 innovations back to our IPv4 system if they work
-  out well.  The database is still very small, so please submit any
-  fingerprints Nmap gives you to the specified URL (as long as you are
-  certain that you know what the target system is running). Usage and
-  results output are basically the same as with IPv4, but we will soon
-  document the internal mechanisms just as we have for IPv4 at
-  http://nmap.org/book/osdetect.html. [David, Luis]
+  out well. The database is still very small, so please submit any
+  fingerprints that Nmap gives you to the specified URL (as long as
+  you are certain that you know what the target system is
+  running). Usage and results output are basically the same as with
+  IPv4, but we will soon document the internal mechanisms at
+  http://nmap.org/book/osdetect.html, just as we have for IPv4. For an
+  example, try "nmap -6 -O scanme.nmap.org". [David, Luis]
 
 o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
-  more about any of them at http://nmap.org/nsedoc/. Here are the new
-  ones (authors listed in brackets):
+  more about them at http://nmap.org/nsedoc/. Here they are (authors
+  listed in brackets):
+
   + lltd-discovery uses the Microsoft LLTD protocol to discover hosts
     on a local network. [Gorjan Petrovski]
 
@@ -28,8 +30,8 @@ o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
 
 o Improved AIX support for raw scans. This includes some patches
   originally written by Peter O'Gorman and Florian Schmid. It also
-  involved various build fixes found necessary on AIX 6.1 and 7.1.
-  [David]
+  involved various build fixes found necessary on AIX 6.1 and 7.1. See
+  http://nmap.org/book/inst-other-platforms.html. [David]
 
 o Fixed Nmap so that it again compiles and runs on Solaris 10,
   including IPv6 support. [David]
@@ -38,33 +40,26 @@ o Made the interface gathering loop work on Linux when an interface
   index is more than two digits in /proc/sys/if_inet6. Joe McEachern
   tracked down the problem and provided the fix.
 
-o [NSE] Added ssl-google-cert-catalog.nse which queries the Google SSL
-  certificates catalog for each discovered certificate. [Vasiliy Kulikov]
-
 o [NSE] Fixed a bug in dns.lua: ensure that dns.query() always return two values
   (status, response) and replaced the workaround in asn-query.nse by the proper
   use. [Henri]
 
-o [NSE] Added quake3-info.nse by Toni Ruottu. This script gets
-  information about games and settings for a Quake 3 (or derived game)
-  server.
-
 o [NSE] Made irc-info.nse handle the case where the MOTD is missing.
   Patch by Sebastian Dragomir.
 
-o Updated nmap-mac-prefixes to the include the latest IEEE assignments
+o Updated nmap-mac-prefixes to include the latest IEEE assignments
   as of 2011-09-29.
 
 Nmap 5.61TEST1 [2011-09-19]
 
 o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
-  output for OS and service versions. This is a standard way of
+  output for OS and service versions. This is a standard way to
   identifying operating systems and applications so that Nmap can
-  better interoperate with other software.  Nmap's own
-  taxonomy/classification system is still supported as well.  Some OS
-  and version detection results don't have CPE entries yet.  CPE
-  entries show up in normal output with the headings "OS CPE:" and
-  "Service Info:":
+  better interoperate with other software. Nmap's own (generally more
+  comprehensive) taxonomy/classification system is still supported as
+  well. Some OS and version detection results don't have CPE entries
+  yet. CPE entries show up in normal output with the headings "OS
+  CPE:" and "Service Info:":
     OS CPE: cpe:/o:linux:kernel:2.6.39
     Service Info: OS: Linux; CPE: cpe:/o:linux:kernel
   These also appear in XML output, which additionally has CPE entries
@@ -75,13 +70,13 @@ o Added IPv6 Neighbor Discovery ping. This is the IPv6 analog to IPv4
   [Weilin]
 
 o Integrated your latest (IPv4) OS detection submissions and
-  corrections until June 22.  New fingerprints include Linux 3,
-  FreeBSD 9.0-CURRENT, Mac OS X 10.7 (Lion), and 300+ more.  The DB
-  size increased 11% to 3,308 fingerprints.  See
-  http://seclists.org/nmap-dev/2011/q3/556.  Please keep those
-  fingerprints coming!  We now take IPv4 and IPv6 OS fingerprints as
-  well as service fingerprints and corrections of all types (if Nmap
-  guess wrong).
+  corrections until June 22. New fingerprints include Linux 3, FreeBSD
+  9, Mac OS X 10.7 (Lion), and 300+ more. The DB size increased 11% to
+  3,308 fingerprints. See
+  http://seclists.org/nmap-dev/2011/q3/556. Please keep those
+  fingerprints coming! We now accept IPv4 and IPv6 OS fingerprints as
+  well as service fingerprints, plus corrections of all types if Nmap
+  guess wrong.
 
 o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
@@ -109,7 +104,8 @@ o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
 
   + broadcast-ping sends broadcast pings on a selected interface using
     raw ethernet packets and outputs the responding hosts' IP and MAC
-    addresses or (if requested) adds them as targets. []
+    addresses or (if requested) adds them as targets. [Gorjan
+    Petrovski]
 
   + cvs-brute performs brute force password auditing against CVS
     pserver authentication. [Patrik Karlsson]
@@ -212,21 +208,31 @@ o Fixed compilation on OS X 10.7 Lion. Thanks to Patrik Karlsson and
 
 o [NSE] The script arguments which start with a script name
   (e.g. http-brute.hostname or afp-ls.maxfiles) can now accept the
-  unqualified arguments as well (hostname, maxfiles).  This lets you
+  unqualified arguments as well (hostname, maxfiles). This lets you
   use the generic version ("hostname") when you want to affect
   multiple scripts, while using the qualified version to target
-  individual scripts.  If both are specified, the qualified version
-  takes precedence for that particular script.  This works for library
+  individual scripts. If both are specified, the qualified version
+  takes precedence for that particular script. This works for library
   script arguments too (e.g. you can specify 'timelimit' rather than
   unpwdb.timelimit). [Paulino]
 
 o [Ncat] Updated SSL certificate store (ca-bundle.crt), primarily to
-  remove epic fail DigiNotar.
+  remove the epic fail known as DigiNotar.
 
 o Nmap now defers options parsing until it has read through all the
   command line arguments.  This removes the few remaining cases where
-  option order mattered (for example, IPv6 scans previously had to
-  specify -6 before -S.) [Shinnok]
+  option order mattered (for example, IPv6 users previously had to
+  specify -6 before -S). [Shinnok]
+
+o [NSE] Added a new default credential list for Oracle databases and
+  modified the oracle-brute script to make use of it. [Patrik]
+
+o [NSE] Our Packet library (packet.lua) now handles IPv6. This is used
+  by the new multicast IPv6 host discovery scripts
+  (targets-ipv6-*). [Weilin]
+
+o [NSE] Replaced xmpp.nse with an an overhauled version named
+  xmpp-info.nse which brings many new features and fixes. [Vasiliy Kulikov]
 
 o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse, and
   removed redundant multiple listings of the NULL compressor.
@@ -238,14 +244,11 @@ o [NSE] Added cipher strength ratings to ssl-enum-ciphers.nse.
 o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
   displaying any output unless run in debug mode. [Patrik]
 
-o [NSE] Added new default credential list for Oracle databases and
-  modified the oracle-brute script to make use of it. [Patrik]
-
 o [NSE] Added 4 more protocol libraries. You can learn more about any
   of them at http://nmap.org/nsedoc/. Here are the new ones (authors
   listed in brackets):
 
-  + bittorrent supports the BitTorrent filesharing protocol [Gorjan
+  + bittorrent supports the BitTorrent file sharing protocol [Gorjan
     Petrovski]
 
   + cvs includes support for the Concurrent Versions System (CVS)
@@ -258,29 +261,36 @@ o [NSE] Added 4 more protocol libraries. You can learn more about any
 
   + xmpp handles XMPP (Jabber) IM servers [Patrik Karlsson]
 
-o [NSE] Our Packet library (packet.lua) now handles IPv6. This is used
-  by the new multicast IPv6 host discovery scripts
-  (targets-ipv6-*). [Weilin]
+o [NSE] Removed the mac-geolocation script, which relied on a Google
+  database to determine strikingly accurate GPS coordinates for
+  anyone's wireless access points (based on their MAC address).  It
+  was very powerful.  Perhaps Google decided it was too powerful, as
+  they discontinued the service before our script was even 2 months
+  old.
 
-o [NSE] Replaced xmpp.nse with an an overhauled version named
-  xmpp-info.nse which brings many new features and fixes. [Vasiliy Kulikov]
+o [Ncat] Added an --append-output option which, when used along with
+  -o and/or -x, prevents clobbering (truncating) an existing
+  file. [Shinnok]
 
 o Fixed RPC scan (part of -sV) to work on the 64-bit machines where
   "unsigned long" is 8 bytes rather than 4.  We now use the more
   portable u32 in the code. [David]
 
-o Fixed RPC scan for 64-bit architectures by using fixed-size data
-  types. [David]
+o [NSE] Moved some scripts into the default category: giop-info,
+  vnc-info, ncp-serverinfo, smb-security-mode, and and
+  afp-serverinfo. [Djalal]
 
 o Relaxed the XML DTD to allow validation of files where the verbosity
-  level changed during the scan. [Daniel Miller]
-
-o Made a service confidence of 8 (used when tcpwrapped) and indeed any
-  number between 0 and 10 be legal in XML output according to the DTD.
-  [Daniel Miller]
+  level changed during the scan.  Also made a service confidence of 8
+  (used when tcpwrapped) or any other number between 0 and 10
+  legal. [Daniel Miller]
 
 o [NSE] Fixed authentication problems in the TNS library that would prevent
   authentication from working against Oracle 11.2.0.2.0 XE [Chris Woodbury]
+
+o [NSE] Added basic query support to the Oracle TNS library so that scripts
+  can now make SQL queries against database servers.  Also improved
+  support for 64-bit database servers and improved the documentation. [Patrik]
 
 o Removed some restrictions on probe matching that, for example,
   prevented a RST/ACK reply from being recognized in a NULL scan. This
@@ -292,9 +302,20 @@ o Rearranged some characters classes in service matches to avoid any
     InitMatch: illegal regexp: POSIX collating elements are not supported
   [Daniel Miller]
 
-o [NSE] Added a more than 100 new signatures to http-enum (many for
+o [NSE] Added more than 100 new signatures to http-enum (many for
   known vulnerabilities). They are in the categories: general,
   attacks, cms, security, management and database [Paulino]
+
+o [NSE] Updated account status text in brute force password discovery 
+  scripts in an effort to make the reporting more consistent across
+  all scripts.  This will have an impact on any code that parses these
+  values.  [Tom Sellers]
+
+o Nmap now includes the Liblinear library for large linear
+  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). We
+  are using it for the upcoming IPv6 OS detection system, and (if that
+  works out well) may eventually use it for IPv4 too.  It uses a
+  three-clause BSD license.
 
 o [NSE] Better error messages (including a traceback) are now provided
   when script loading fails. [Patrick]
@@ -302,28 +323,17 @@ o [NSE] Better error messages (including a traceback) are now provided
 o [Zenmap] Prevent Zenmap from deleting ports when merging scans
   results based on newer scans which did not actually scan the ports
   in question. Additionally Zenmap now only updates ports with new
-  information if the new information is the same protocol. Not just
-  the same port. [Colin Rice]
+  information if the new information uses the same protocol--not just
+  the same port number. [Colin Rice]
 
 o [Ncat] Fixed a crash which would occur when --ssl-verify is combined
   with -vvv on windows. [Colin Rice]
 
-o [NSE] Removed the mac-geolocation script, which relied on a Google
-  DB to determine strikingly accurate GPS coordinates for wireless
-  access points (based on their MAC address).  Google has discontinued
-  this service.
-
-o [NSE] Added basic query support to the Oracle TNS library so that scripts
-  can now make SQL queries against database servers.  Also improved
-  support for 64-bit database servers and improved the documentation. [Patrik]
-
-o [Ncat] Added an --append-output option which, when used along with
-  -o and/or -x, prevents clobbering (truncating) an existing
-  file. [Shinnok]
-
-o [NSE] Moved some scripts into the default category: giop-info,
-  vnc-info, ncp-serverinfo, smb-security-mode, and and
-  afp-serverinfo. [Djalal]
+o [Nping] Added new --safe-payloads option for echo mode which causes
+  returned packet payloads to be zeroed to reduce privacy risks if
+  Nping echo server was to accidentally (or through malicious intent)
+  return a packet which wasn't sent by the Nping echo client.  We hope
+  to soon make this behavior the default. [Luis]
 
 o Fixed a bug that would make Nmap segfault if it failed to open an
   interface using pcap. The bug details and patch are posted at
@@ -332,24 +342,28 @@ o Fixed a bug that would make Nmap segfault if it failed to open an
 o Ncat SCTP mode now supports connection brokering 
   (--sctp --broker). [Shinnok]
 
-o Added a nostore nse argument to the brute force library (used by the
-  brute scripts) which prevents them from storing found credentials in
-  the creds library (they will still be printed in script output).
+o Consolidated a bunch of duplicate code between Ncat's listen
+  (ncat_listen.c) and broker (ncat_broker.c) modes to ease
+  maintenance. [Shinnok]
+
+o Added a 'nostore' nse argument to the brute force library which
+  prevents the brute force authentication cracking scripts from
+  storing found credentials in the creds library (they will still be
+  printed in script output).
 
 o [NSE] Fixed the nsedebug print_hex() function so it does not print an
   empty line if there are no remaining characters, and improved its NSEDoc.
   [Chris Woodbury].
 
-o [Ncat] Ncat no longer blocks while an ssl handshake is taking place or
-  waiting to complete.  This could make listening Ncat instances
+o [Ncat] Ncat no longer blocks while an ssl handshake is taking place
+  or waiting to complete.  This could make listening Ncat instances
   unavailable to other clients because one client was taking too long
-  to complete the SSL handshake. [Shinnok]
+  to complete the SSL handshake.  Our public Ncat chat server is now
+  much more reliable (connect with: ncat --ssl -v chat.nmap.org).
+  [Shinnok]
 
-o [NSE] Updated SMTP library to support authentication using both plain-text
-  and the SASL library. [Patrik]
-
-o [NSE] Updated IMAP library to support authentication using both plain-text
-  and the SASL library. [Patrik]
+o [NSE] Updated SMTP and IMAP libraries to support authentication
+  using both plain-text and the SASL library. [Patrik]
 
 o [Zenmap] The Zenmap crash handler now instructs users to mail in
   crash information to nmap-dev rather than offering to create a
@@ -366,13 +380,13 @@ o [NSE] Updated smb-brute to add detection for valid credentials where the
 o [Ncat] Ncat now supports IPV6 addresses by default without the -6 flag.
   Additionally ncat listens on both ::1 and localhost when passed
   -l, or any other listening mode unless a specific listening address is
-  supplied.
+  supplied. [Colin Rice]
 
 o Fixed broken XML output in the case of timed-out hosts; the
   enclosing host element was missing. The fix was suggested by Rémi
   Mollon.
 
-o [NSE] ldap-brute.nse - Multiple changes by Tom Sellers:
+o [NSE] Multiple ldap-brute changes by Tom Sellers:
   + Added support for 2008 R2 functional level Active Directory instances
   + Added detection for valid credentials where the target account was 
     expired or limited by time or login host constraints.
@@ -382,14 +396,14 @@ o [NSE] ldap-brute.nse - Multiple changes by Tom Sellers:
   + Now reports valid credentials as they are discovered when the script
     is run with -vv or higher.
 
-o Deal with an unconventional IPv6 internal link-local address
-  convention used by Mac OS X. See
-  http://seclists.org/nmap-dev/2011/q3/906. [David]
-  
 o [NSE] ldap-search.nse - Added support for saving search results to
   CSV.  This is done by using the ldap.savesearch script argument to
   specify an output filename prefix.  [Tom Sellers]  
 
+o Handle an unconventional IPv6 internal link-local address convention
+  used by Mac OS X. See
+  http://seclists.org/nmap-dev/2011/q3/906. [David]
+  
 o [NSE] Optimized stdnse.format_output (changing the data structures)
   to improve performance for scripts which produce a lot of output. See
   http://seclists.org/nmap-dev/2011/q3/623. [Djalal]
@@ -399,17 +413,6 @@ o [NSE] Fix nping-brute so that it again works on IPv6. [Toni Ruottu]
 o [NSE] Added the make_array and make_object functions to our json
   library, allowing LUA tables to be treated as JSON arrays or
   objects. See http://seclists.org/nmap-dev/2011/q3/15 [Daniel Miller]
-
-o [NSE] Updated account status text in brute force password discovery 
-  scripts in an effort to make the reporting more consistent across
-  all scripts.  This will have an impact on any code that parses these
-  values.  [Tom Sellers]
-
-o Nmap now includes the Liblinear library for large linear
-  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). We
-  are using it for the upcoming IPv6 OS detection system, and (if that
-  works out well) may eventually use it for IPv4 too.  It uses a
-  three-clause BSD license.
 
 o [NSE] The ip-geolocation-ipinfodb now allows you to specify an
   IPInfoDB API key using the apikey NSE argument. [Gorjan]
