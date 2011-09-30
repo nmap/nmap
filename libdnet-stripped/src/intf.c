@@ -71,6 +71,8 @@
 # define NEXTIFR(i)	(i + 1)
 #endif
 
+#define NEXTLIFR(i)	(i + 1)
+
 /* XXX - superset of ifreq, for portable SIOC{A,D}IFADDR */
 struct dnet_ifaliasreq {
 	char		ifra_name[IFNAMSIZ];
@@ -84,6 +86,9 @@ struct intf_handle {
 	int		fd;
 	int		fd6;
 	struct ifconf	ifc;
+#ifdef SIOCGLIFCONF
+	struct lifconf	lifc;
+#endif
 	u_char		ifcbuf[4192];
 };
 
@@ -388,6 +393,66 @@ _intf_set_type(struct intf_entry *entry)
 		entry->intf_type = INTF_TYPE_OTHER;
 }
 
+#ifdef SIOCGLIFCONF
+int
+_intf_get_noalias(intf_t *intf, struct intf_entry *entry)
+{
+	struct lifreq lifr;
+
+	/* Get interface index. */
+	entry->intf_index = if_nametoindex(entry->intf_name);
+	if (entry->intf_index == 0)
+		return (-1);
+
+	strlcpy(lifr.lifr_name, entry->intf_name, sizeof(lifr.lifr_name));
+
+	/* Get interface flags. */
+	if (ioctl(intf->fd, SIOCGLIFFLAGS, &lifr) < 0)
+		return (-1);
+	
+	entry->intf_flags = intf_iff_to_flags(lifr.lifr_flags);
+	_intf_set_type(entry);
+	
+	/* Get interface MTU. */
+#ifdef SIOCSIFMTU
+	if (ioctl(intf->fd, SIOCGLIFMTU, &lifr) < 0)
+#endif
+		return (-1);
+	entry->intf_mtu = lifr.lifr_mtu;
+
+	entry->intf_addr.addr_type = entry->intf_dst_addr.addr_type =
+	    entry->intf_link_addr.addr_type = ADDR_TYPE_NONE;
+	
+	/* Get primary interface address. */
+	if (ioctl(intf->fd, SIOCGLIFADDR, &lifr) == 0) {
+		addr_ston((struct sockaddr *)&lifr.lifr_addr, &entry->intf_addr);
+		if (ioctl(intf->fd, SIOCGLIFNETMASK, &lifr) < 0)
+			return (-1);
+		addr_stob((struct sockaddr *)&lifr.lifr_addr, &entry->intf_addr.addr_bits);
+	}
+	/* Get other addresses. */
+	if (entry->intf_type == INTF_TYPE_TUN) {
+		if (ioctl(intf->fd, SIOCGLIFDSTADDR, &lifr) == 0) {
+			if (addr_ston((struct sockaddr *)&lifr.lifr_addr,
+			    &entry->intf_dst_addr) < 0)
+				return (-1);
+		}
+	} else if (entry->intf_type == INTF_TYPE_ETH) {
+		eth_t *eth;
+		
+		if ((eth = eth_open(entry->intf_name)) != NULL) {
+			if (!eth_get(eth, &entry->intf_link_addr.addr_eth)) {
+				entry->intf_link_addr.addr_type =
+				    ADDR_TYPE_ETH;
+				entry->intf_link_addr.addr_bits =
+				    ETH_ADDR_BITS;
+			}
+			eth_close(eth);
+		}
+	}
+	return (0);
+}
+#else
 static int
 _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 {
@@ -461,6 +526,7 @@ _intf_get_noalias(intf_t *intf, struct intf_entry *entry)
 	}
 	return (0);
 }
+#endif
 
 #ifdef SIOCLIFADDR
 /* XXX - aliases on IRIX don't show up in SIOCGIFCONF */
@@ -483,6 +549,68 @@ _intf_get_aliases(intf_t *intf, struct intf_entry *entry)
 	    ifra.ifra_cookie > 0 && (ap + 1) < lap) {
 		if (addr_ston(&ifra.ifra_addr, ap) < 0)
 			break;
+		ap++, entry->intf_alias_num++;
+	}
+	entry->intf_len = (u_char *)ap - (u_char *)entry;
+	
+	return (0);
+}
+#elif defined(SIOCGLIFCONF)
+static int
+_intf_get_aliases(intf_t *intf, struct intf_entry *entry)
+{
+	struct lifreq *lifr, *llifr;
+	struct lifreq tmplifr;
+	struct addr *ap, *lap;
+	char *p;
+	
+	if (intf->lifc.lifc_len < (int)sizeof(*lifr)) {
+		errno = EINVAL;
+		return (-1);
+	}
+	entry->intf_alias_num = 0;
+	ap = entry->intf_alias_addrs;
+	llifr = (struct lifreq *)intf->lifc.lifc_buf + 
+	    (intf->lifc.lifc_len / sizeof(*llifr));
+	lap = (struct addr *)((u_char *)entry + entry->intf_len);
+	
+	/* Get addresses for this interface. */
+	for (lifr = intf->lifc.lifc_req; lifr < llifr && (ap + 1) < lap;
+	    lifr = NEXTLIFR(lifr)) {
+		/* XXX - Linux, Solaris ifaliases */
+		if ((p = strchr(lifr->lifr_name, ':')) != NULL)
+			*p = '\0';
+		
+		if (strcmp(lifr->lifr_name, entry->intf_name) != 0) {
+			if (p) *p = ':';
+			continue;
+		}
+		
+		/* Fix the name back up */
+		if (p) *p = ':';
+
+		if (addr_ston((struct sockaddr *)&lifr->lifr_addr, ap) < 0)
+			continue;
+		
+		/* XXX */
+		if (ap->addr_type == ADDR_TYPE_ETH) {
+			memcpy(&entry->intf_link_addr, ap, sizeof(*ap));
+			continue;
+		} else if (ap->addr_type == ADDR_TYPE_IP) {
+			if (ap->addr_ip == entry->intf_addr.addr_ip ||
+			    ap->addr_ip == entry->intf_dst_addr.addr_ip)
+				continue;
+			strlcpy(tmplifr.lifr_name, lifr->lifr_name, sizeof(tmplifr.lifr_name));
+			if (ioctl(intf->fd, SIOCGIFNETMASK, &tmplifr) == 0)
+				addr_stob((struct sockaddr *)&tmplifr.lifr_addr, &ap->addr_bits);
+		} else if (ap->addr_type == ADDR_TYPE_IP6 && intf->fd6 != -1) {
+			strlcpy(tmplifr.lifr_name, lifr->lifr_name, sizeof(tmplifr.lifr_name));
+			if (ioctl(intf->fd, SIOCGLIFNETMASK, &tmplifr) == 0) {
+				addr_stob((struct sockaddr *)&tmplifr.lifr_addr,
+				    &ap->addr_bits);
+			}
+			else perror("SIOCGLIFNETMASK");
+		}
 		ap++, entry->intf_alias_num++;
 	}
 	entry->intf_len = (u_char *)ap - (u_char *)entry;
@@ -752,6 +880,55 @@ intf_loop(intf_t *intf, intf_handler callback, void *arg)
 	fclose(fp);
 	
 	return (ret);
+}
+#elif defined(SIOCGLIFCONF)
+int
+intf_loop(intf_t *intf, intf_handler callback, void *arg)
+{
+	struct intf_entry *entry;
+	struct lifreq *lifr, *llifr, *plifr;
+	char *p, ebuf[BUFSIZ];
+	int ret;
+
+	entry = (struct intf_entry *)ebuf;
+
+	intf->lifc.lifc_buf = (caddr_t)intf->ifcbuf;
+	intf->lifc.lifc_len = sizeof(intf->ifcbuf);
+	
+	if (ioctl(intf->fd, SIOCGLIFCONF, &intf->lifc) < 0)
+		return (-1);
+
+	llifr = (struct lifreq *)&intf->lifc.lifc_buf[intf->lifc.lifc_len];
+	
+	for (lifr = intf->lifc.lifc_req; lifr < llifr; lifr = NEXTLIFR(lifr)) {
+		/* XXX - Linux, Solaris ifaliases */
+		if ((p = strchr(lifr->lifr_name, ':')) != NULL)
+			*p = '\0';
+		
+		for (plifr = intf->lifc.lifc_req; plifr < lifr; plifr = NEXTLIFR(lifr)) {
+			if (strcmp(lifr->lifr_name, plifr->lifr_name) == 0)
+				break;
+		}
+		if (lifr > intf->lifc.lifc_req && plifr < llifr)
+			continue;
+
+		memset(ebuf, 0, sizeof(ebuf));
+		strlcpy(entry->intf_name, lifr->lifr_name,
+		    sizeof(entry->intf_name));
+		entry->intf_len = sizeof(ebuf);
+
+		/* Repair the alias name back up */
+		if (p) *p = ':';
+		
+		if (_intf_get_noalias(intf, entry) < 0)
+			return (-1);
+		if (_intf_get_aliases(intf, entry) < 0)
+			return (-1);
+		
+		if ((ret = (*callback)(entry, arg)) != 0)
+			return (ret);
+	}
+	return (0);
 }
 #else
 int
