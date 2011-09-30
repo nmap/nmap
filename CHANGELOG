@@ -9,8 +9,10 @@ o Added IPv6 OS detection system!  The new system utilizes many tests
   some of the IPv6 innovations back to our IPv4 system if they work
   out well.  The database is still very small, so please submit any
   fingerprints Nmap gives you to the specified URL (as long as you are
-  certain that you know what the target system is running). [David,
-  Luis]
+  certain that you know what the target system is running). Usage and
+  results output are basically the same as with IPv4, but we will soon
+  document the internal mechanisms just as we have for IPv4 at
+  http://nmap.org/book/osdetect.html. [David, Luis]
 
 o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
@@ -28,6 +30,9 @@ o Improved AIX support for raw scans. This includes some patches
   originally written by Peter O'Gorman and Florian Schmid. It also
   involved various build fixes found necessary on AIX 6.1 and 7.1.
   [David]
+
+o Fixed Nmap so that it again compiles and runs on Solaris 10,
+  including IPv6 support. [David]
 
 o Made the interface gathering loop work on Linux when an interface
   index is more than two digits in /proc/sys/if_inet6. Joe McEachern
@@ -253,11 +258,16 @@ o [NSE] Added 4 more protocol libraries. You can learn more about any
 
   + xmpp handles XMPP (Jabber) IM servers [Patrik Karlsson]
 
-o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
-  brute force password auditing against XMPP (Jabber) servers. [Patrik]
+o [NSE] Our Packet library (packet.lua) now handles IPv6. This is used
+  by the new multicast IPv6 host discovery scripts
+  (targets-ipv6-*). [Weilin]
 
 o [NSE] Replaced xmpp.nse with an an overhauled version named
   xmpp-info.nse which brings many new features and fixes. [Vasiliy Kulikov]
+
+o Fixed RPC scan (part of -sV) to work on the 64-bit machines where
+  "unsigned long" is 8 bytes rather than 4.  We now use the more
+  portable u32 in the code. [David]
 
 o Fixed RPC scan for 64-bit architectures by using fixed-size data
   types. [David]
@@ -268,9 +278,6 @@ o Relaxed the XML DTD to allow validation of files where the verbosity
 o Made a service confidence of 8 (used when tcpwrapped) and indeed any
   number between 0 and 10 be legal in XML output according to the DTD.
   [Daniel Miller]
-
-o [NSE] Added functions to packet.lua to make it easier to build IPv6
-  packets. [Weilin]
 
 o [NSE] Fixed authentication problems in the TNS library that would prevent
   authentication from working against Oracle 11.2.0.2.0 XE [Chris Woodbury]
@@ -374,6 +381,10 @@ o [NSE] ldap-brute.nse - Multiple changes by Tom Sellers:
   + Added support for saving discovered credentials to a CSV file.
   + Now reports valid credentials as they are discovered when the script
     is run with -vv or higher.
+
+o Deal with an unconventional IPv6 internal link-local address
+  convention used by Mac OS X. See
+  http://seclists.org/nmap-dev/2011/q3/906. [David]
   
 o [NSE] ldap-search.nse - Added support for saving search results to
   CSV.  This is done by using the ldap.savesearch script argument to
@@ -383,6 +394,8 @@ o [NSE] Optimized stdnse.format_output (changing the data structures)
   to improve performance for scripts which produce a lot of output. See
   http://seclists.org/nmap-dev/2011/q3/623. [Djalal]
 
+o [NSE] Fix nping-brute so that it again works on IPv6. [Toni Ruottu]
+
 o [NSE] Added the make_array and make_object functions to our json
   library, allowing LUA tables to be treated as JSON arrays or
   objects. See http://seclists.org/nmap-dev/2011/q3/15 [Daniel Miller]
@@ -391,6 +404,12 @@ o [NSE] Updated account status text in brute force password discovery
   scripts in an effort to make the reporting more consistent across
   all scripts.  This will have an impact on any code that parses these
   values.  [Tom Sellers]
+
+o Nmap now includes the Liblinear library for large linear
+  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). We
+  are using it for the upcoming IPv6 OS detection system, and (if that
+  works out well) may eventually use it for IPv4 too.  It uses a
+  three-clause BSD license.
 
 o [NSE] The ip-geolocation-ipinfodb now allows you to specify an
   IPInfoDB API key using the apikey NSE argument. [Gorjan]
