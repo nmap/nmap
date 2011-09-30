@@ -395,6 +395,9 @@ do
           filename);
     end
     local basename = match(filename, "([^/\\]+)$") or filename;
+    if selected_by_name then
+      print_debug(2, "Script %s was selected by name.", basename);
+    end
     local short_basename = match(filename, "([^/\\]+)%.nse$") or
         match(filename, "([^/\\]+)%.[^.]*$") or filename;
     local file_closure = assert(loadfile(filename));
@@ -570,14 +573,13 @@ local function get_chosen_scripts (rules)
     end
     local env = {m = m};
 
-    local script;
     for globalized_rule, rule_table in pairs(entry_rules) do
       if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
         used_rules[rule_table.original_rule] = true;
         local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
-            chosen_scripts[#chosen_scripts+1] = Script.new(path);
+            chosen_scripts[#chosen_scripts+1] = Script.new(path, selected_by_name);
             files_loaded[path] = true;
             -- do not break so other rules can be marked as used
           end
@@ -585,12 +587,6 @@ local function get_chosen_scripts (rules)
           log_error("Warning: Could not load '%s': %s", filename, path);
           break;
         end
-      end
-    end
-    if script then
-      script.selected_by_name = selected_by_name;
-      if script.selected_by_name then
-        print_debug(2, "Script %s was selected by name.", script.basename);
       end
     end
   end
@@ -610,7 +606,6 @@ local function get_chosen_scripts (rules)
       elseif t == "file" and not files_loaded[path] then
         local script = Script.new(path, true);
         chosen_scripts[#chosen_scripts+1] = script;
-        print_debug(2, "Script %s was selected by name.", path);
         files_loaded[path] = true;
       elseif t == "directory" then
         for f in cnse.dir(path) do
