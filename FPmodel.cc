@@ -2639,7 +2639,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.line = -1;
 		match.OS_name = (char *) "IBM AIX 7.1";
 		{
-			OS_Classification osclass = {"IBM", "AIX", NULL, NULL};
+			OS_Classification osclass = {"IBM", "AIX", "7.X", "general purpose"};
 			match.OS_class.push_back(osclass);
 		}
 		matches.push_back(match);
@@ -2659,7 +2659,7 @@ std::vector<FingerMatch> load_fp_matches() {
 		match.line = -1;
 		match.OS_name = (char *) "IBM AIX 6.1 - 7.1";
 		{
-			OS_Classification osclass = {"IBM", "AIX", NULL, NULL};
+			OS_Classification osclass = {"IBM", "AIX", "7.X", "general purpose"};
 			match.OS_class.push_back(osclass);
 		}
 		{
