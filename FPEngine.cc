@@ -950,10 +950,7 @@ static void classify(FingerPrintResultsIPv6 *FPR) {
     if (labels[i].prob >= 0.90 * labels[0].prob)
       FPR->num_perfect_matches = i + 1;
   }
-  if (o.disable_ipv6_os_results && o.debugging < 2) {
-    FPR->overall_results = OSSCAN_NOMATCHES;
-    FPR->num_perfect_matches = 0;
-  } else if (FPR->num_perfect_matches == 0) {
+  if (FPR->num_perfect_matches == 0) {
     FPR->overall_results = OSSCAN_NOMATCHES;
   } else if (FPR->num_perfect_matches == 1) {
     FPR->overall_results = OSSCAN_SUCCESS;

@@ -326,7 +326,6 @@ void NmapOps::Initialize() {
   ipopt_firsthop = 0;
   ipopt_lasthop  = 0;  
   release_memory = false;
-  disable_ipv6_os_results = true;
   topportlevel = -1;
 #ifndef NOLUA
   script = 0;
