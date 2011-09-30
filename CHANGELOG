@@ -2,6 +2,16 @@
 
 Nmap 5.61TEST2 [2011-09-30]
 
+o Added IPv6 OS detection system!  The new system utilizes many tests
+  similar to IPv4, and also some IPv6-specific ones that we found to
+  be particularly effective.  And it uses a machine learning approach
+  rather than the static classifier we use for IPv4.  We hope to move
+  some of the IPv6 innovations back to our IPv4 system if they work
+  out well.  The database is still very small, so please submit any
+  fingerprints Nmap gives you to the specified URL (as long as you are
+  certain that you know what the target system is running). [David,
+  Luis]
+
 o [NSE] Added 3 scripts, bringing the total to 246!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
   ones (authors listed in brackets):
@@ -37,6 +47,9 @@ o [NSE] Added quake3-info.nse by Toni Ruottu. This script gets
 o [NSE] Made irc-info.nse handle the case where the MOTD is missing.
   Patch by Sebastian Dragomir.
 
+o Updated nmap-mac-prefixes to the include the latest IEEE assignments
+  as of 2011-09-29.
+
 Nmap 5.61TEST1 [2011-09-19]
 
 o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
@@ -55,6 +68,15 @@ o Added Common Platform Enumeration (CPE, http://cpe.mitre.org/)
 o Added IPv6 Neighbor Discovery ping. This is the IPv6 analog to IPv4
   ARP scan. It is the default ping type for local IPv6 networks.
   [Weilin]
+
+o Integrated your latest (IPv4) OS detection submissions and
+  corrections until June 22.  New fingerprints include Linux 3,
+  FreeBSD 9.0-CURRENT, Mac OS X 10.7 (Lion), and 300+ more.  The DB
+  size increased 11% to 3,308 fingerprints.  See
+  http://seclists.org/nmap-dev/2011/q3/556.  Please keep those
+  fingerprints coming!  We now take IPv4 and IPv6 OS fingerprints as
+  well as service fingerprints and corrections of all types (if Nmap
+  guess wrong).
 
 o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
   more about any of them at http://nmap.org/nsedoc/. Here are the new
@@ -183,8 +205,23 @@ o [NSE] Added 27 scripts, bringing the total to 243!  You can learn
 o Fixed compilation on OS X 10.7 Lion. Thanks to Patrik Karlsson and
   Babak Farroki for researching fixes.
 
+o [NSE] The script arguments which start with a script name
+  (e.g. http-brute.hostname or afp-ls.maxfiles) can now accept the
+  unqualified arguments as well (hostname, maxfiles).  This lets you
+  use the generic version ("hostname") when you want to affect
+  multiple scripts, while using the qualified version to target
+  individual scripts.  If both are specified, the qualified version
+  takes precedence for that particular script.  This works for library
+  script arguments too (e.g. you can specify 'timelimit' rather than
+  unpwdb.timelimit). [Paulino]
+
 o [Ncat] Updated SSL certificate store (ca-bundle.crt), primarily to
   remove epic fail DigiNotar.
+
+o Nmap now defers options parsing until it has read through all the
+  command line arguments.  This removes the few remaining cases where
+  option order mattered (for example, IPv6 scans previously had to
+  specify -6 before -S.) [Shinnok]
 
 o [NSE] Fixed SSL compressor names in ssl-enum-ciphers.nse, and
   removed redundant multiple listings of the NULL compressor.
@@ -198,6 +235,23 @@ o [NSE] Fixed a bug in the ssh2-enum-algos script that would prevent it from
 
 o [NSE] Added new default credential list for Oracle databases and
   modified the oracle-brute script to make use of it. [Patrik]
+
+o [NSE] Added 4 more protocol libraries. You can learn more about any
+  of them at http://nmap.org/nsedoc/. Here are the new ones (authors
+  listed in brackets):
+
+  + bittorrent supports the BitTorrent filesharing protocol [Gorjan
+    Petrovski]
+
+  + cvs includes support for the Concurrent Versions System (CVS)
+    [Patrik Karlsson]
+
+  + sasl provides common code for "Simple Authentication and Security
+    Layer" to services supporting it. The algorithms supported by the
+    library are: PLAIN, CRAM-MD5, DIGEST-MD5 and NTLM. [Djalal
+    Harouni, Patrik Karlsson]
+
+  + xmpp handles XMPP (Jabber) IM servers [Patrik Karlsson]
 
 o [NSE] Added the library xmpp.lua and the script xmpp-brute that performs
   brute force password auditing against XMPP (Jabber) servers. [Patrik]
@@ -231,6 +285,13 @@ o Rearranged some characters classes in service matches to avoid any
     InitMatch: illegal regexp: POSIX collating elements are not supported
   [Daniel Miller]
 
+o [NSE] Added a more than 100 new signatures to http-enum (many for
+  known vulnerabilities). They are in the categories: general,
+  attacks, cms, security, management and database [Paulino]
+
+o [NSE] Better error messages (including a traceback) are now provided
+  when script loading fails. [Patrick]
+
 o [Zenmap] Prevent Zenmap from deleting ports when merging scans
   results based on newer scans which did not actually scan the ports
   in question. Additionally Zenmap now only updates ports with new
@@ -246,11 +307,16 @@ o [NSE] Removed the mac-geolocation script, which relied on a Google
   this service.
 
 o [NSE] Added basic query support to the Oracle TNS library so that scripts
-  can now make SQL queries against database servers. [Patrik]
+  can now make SQL queries against database servers.  Also improved
+  support for 64-bit database servers and improved the documentation. [Patrik]
 
 o [Ncat] Added an --append-output option which, when used along with
   -o and/or -x, prevents clobbering (truncating) an existing
   file. [Shinnok]
+
+o [NSE] Moved some scripts into the default category: giop-info,
+  vnc-info, ncp-serverinfo, smb-security-mode, and and
+  afp-serverinfo. [Djalal]
 
 o Fixed a bug that would make Nmap segfault if it failed to open an
   interface using pcap. The bug details and patch are posted at
@@ -259,10 +325,9 @@ o Fixed a bug that would make Nmap segfault if it failed to open an
 o Ncat SCTP mode now supports connection brokering 
   (--sctp --broker). [Shinnok]
 
-o Nmap now defers options parsing until it has read through all the
-  command line arguments.  This removes the few remaining cases where
-  option order mattered (for example, IPv6 scans previously had to
-  specify -6 before -S.) [Shinnok]
+o Added a nostore nse argument to the brute force library (used by the
+  brute scripts) which prevents them from storing found credentials in
+  the creds library (they will still be printed in script output).
 
 o [NSE] Fixed the nsedebug print_hex() function so it does not print an
   empty line if there are no remaining characters, and improved its NSEDoc.
@@ -279,23 +344,13 @@ o [NSE] Updated SMTP library to support authentication using both plain-text
 o [NSE] Updated IMAP library to support authentication using both plain-text
   and the SASL library. [Patrik]
 
-o [NSE] Added SASL library created by Djalal Harouni and Patrik Karlsson
-  providing common code for "Simple Authentication and Security Layer" to
-  services supporting it. The algorithms supported by the library are:
-  PLAIN, CRAM-MD5, DIGEST-MD5 and NTLM. [Patrik Karlsson, Djalal Harouni]
-
-o [NSE] Added scripts cvs-brute.nse, cvs-brute-repository.nse and the cvs
-  library. The cvs-brute-repository script allows for guessing possible
-  repository names needed in order to perform password guessing using the
-  cvs-brute.nse script. [Patrik]
-
 o [Zenmap] The Zenmap crash handler now instructs users to mail in
   crash information to nmap-dev rather than offering to create a
   Sourceforge bug tracker entry. [Colin Rice]
 
-o [NSE] Applied patch from Chris Woodbury that adds the following additional
-  information to the output of smb-os-discovery: Forest name, FQDN,
-  NetBIOS computer name, and NetBIOS domain name.
+o [NSE] Applied patch from Chris Woodbury that adds the following
+  additional information to the output of smb-os-discovery: NetBIOS
+  computer name, NetBIOS domain name, FQDN, and forest name.
 
 o [NSE] Updated smb-brute to add detection for valid credentials where the 
   target account was expired or limited by time or login host constraints.
@@ -324,10 +379,21 @@ o [NSE] ldap-search.nse - Added support for saving search results to
   CSV.  This is done by using the ldap.savesearch script argument to
   specify an output filename prefix.  [Tom Sellers]  
 
+o [NSE] Optimized stdnse.format_output (changing the data structures)
+  to improve performance for scripts which produce a lot of output. See
+  http://seclists.org/nmap-dev/2011/q3/623. [Djalal]
+
+o [NSE] Added the make_array and make_object functions to our json
+library, allowing LUA tables to be treated as JSON arrays or
+objects. See http://seclists.org/nmap-dev/2011/q3/15 [Daniel Miller]
+
 o [NSE] Updated account status text in brute force password discovery 
   scripts in an effort to make the reporting more consistent across
   all scripts.  This will have an impact on any code that parses these
   values.  [Tom Sellers]
+
+o [NSE] The ip-geolocation-ipinfodb now allows you to specify an
+  IPInfoDB API key using the apikey NSE argument. [Gorjan]
 
 Nmap 5.59BETA1 [2011-06-30]
 
