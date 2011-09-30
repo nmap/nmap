@@ -19,7 +19,7 @@ documentation.
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 require("bin")
 require("nmap")

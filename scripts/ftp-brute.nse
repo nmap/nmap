@@ -28,7 +28,7 @@ author = "Diman Todorov, Vlatko Kosturjak, Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 require "shortport"
 require "stdnse"

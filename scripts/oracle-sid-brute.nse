@@ -30,7 +30,7 @@ author, Alexander Kornbrust (http://seclists.org/nmap-dev/2009/q4/645).
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require 'comm'
 require 'datafiles'

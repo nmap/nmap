@@ -23,7 +23,7 @@ require 'creds'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 portrule = shortport.portnumber(3260, "tcp", {"open", "open|filtered"})
 

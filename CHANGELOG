@@ -306,6 +306,14 @@ o [NSE] Added more than 100 new signatures to http-enum (many for
   known vulnerabilities). They are in the categories: general,
   attacks, cms, security, management and database [Paulino]
 
+o [NSE] Moved our brute force authentication cracking scripts
+  (*-brute) from the "auth" category into a new "brute"
+  category. Nmap's brute force capabilities have grown tremendously!
+  You can see all 32 of them at
+  http://nmap.org/nsedoc/categories/brute.html.  It isn't clear
+  whether dns-brute should be in the brute category, so for now it
+  isn't. [Fyodor]
+
 o [NSE] Updated account status text in brute force password discovery 
   scripts in an effort to make the reporting more consistent across
   all scripts.  This will have an impact on any code that parses these

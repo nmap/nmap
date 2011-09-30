@@ -53,7 +53,7 @@ result in a large number of accounts being locked out on the database server.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require 'shortport'
 require 'brute'

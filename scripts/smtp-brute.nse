@@ -30,7 +30,7 @@ require 'smtp'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service({ 25, 465, 587 },
                 { "smtp", "smtps", "submission" })

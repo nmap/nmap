@@ -34,7 +34,7 @@ the script against).
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require("nmap")
 require("bin")

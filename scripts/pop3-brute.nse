@@ -15,7 +15,7 @@ Tries to log into a POP3 account by guessing usernames and passwords.
 author = "Philip Pickering"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require 'pop3'
 require 'shortport'

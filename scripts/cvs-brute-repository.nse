@@ -27,7 +27,7 @@ With knowledge of the correct repository name, usernames and passwords can be gu
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require 'cvs'
 require 'brute'

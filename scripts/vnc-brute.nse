@@ -27,7 +27,7 @@ Performs brute force password auditing against VNC servers.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 require 'shortport'
 require 'brute'

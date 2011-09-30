@@ -16,7 +16,7 @@ Performs brute force password auditing against the OpenVAS manager using OMPv2.
 
 author = "Henri Doreau"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 require("omp2")
 require("nmap")

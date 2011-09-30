@@ -231,6 +231,7 @@ Black Hat Briefings in 2010.</para>
     Currently defined categories are
     <literal>auth</literal>,
     <literal>broadcast</literal>,
+    <literal>brute</literal>,
     <literal>default</literal>.
     <literal>discovery</literal>,
     <literal>dos</literal>,
@@ -252,8 +253,7 @@ Black Hat Briefings in 2010.</para>
             <option>auth</option>
           </term>
           <listitem>
-            <para>These scripts try to determine authentication credentials
-            on the target system, often through a brute-force attack.  Examples include <literal>snmp-brute</literal>, <literal>http-auth</literal>, and <literal>ftp-anon</literal>.</para>
+            <para>These scripts deal with authentication credentials (or bypassing them) on the target system.  Examples include <literal>x11-access</literal>, <literal>ftp-anon</literal>, and <literal>oracle-enum-users</literal>.  Scripts which use brute force attacks to determine credentials are placed in the <literal>brute</literal> category instead.</para>
           </listitem>
         </varlistentry>
 
@@ -269,6 +269,16 @@ Black Hat Briefings in 2010.</para>
             <varname>newtargets</varname><indexterm><primary><varname>newtargets</varname> script argument</primary></indexterm>
             script argument to allow these scripts to automatically add the
             hosts they discover to the Nmap scanning queue.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>
+            <indexterm><primary sortas="brute script category">&ldquo;<literal>brute</literal>&rdquo; script category</primary></indexterm>
+            <option>brute</option>
+          </term>
+          <listitem>
+            <para>These scripts use brute force attacks to guess authentication credentials of a remote server.  Nmap contains scripts for brute forcing dozens of protocols, including <literal>http-brute</literal>, <literal>oracle-brute</literal>, <literal>snmp-brute</literal>, etc.</para>
           </listitem>
         </varlistentry>
 

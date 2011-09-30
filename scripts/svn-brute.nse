@@ -36,7 +36,7 @@ require 'creds'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"intrusive", "auth"}
+categories = {"intrusive", "brute"}
 
 portrule = shortport.port_or_service(3690, "svnserve", "tcp", "open")
 

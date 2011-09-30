@@ -12,7 +12,7 @@ Performs brute force password auditing against the Netbus backdoor ("remote admi
 
 author = "Toni Ruottu"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 require("nmap")
 require("stdnse")

@@ -66,7 +66,7 @@ be disabled using the <code>mssql.scanned-ports-only</code> script argument.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 dependencies = {"ms-sql-discover", "ms-sql-empty-password"}
 

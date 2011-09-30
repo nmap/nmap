@@ -31,7 +31,7 @@ require 'xmpp'
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "intrusive"}
+categories = {"brute", "intrusive"}
 
 portrule = shortport.port_or_service(5222, {"jabber", "xmpp-client"})
 

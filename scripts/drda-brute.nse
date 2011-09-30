@@ -18,7 +18,7 @@ Performs password guessing against databases supporting the IBM DB2 protocol suc
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories={"intrusive", "auth"}
+categories={"intrusive", "brute"}
 
 require "stdnse"
 require "shortport"
