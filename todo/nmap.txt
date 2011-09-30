@@ -24,12 +24,14 @@ o Improvements to the Nmap multicast IPv6 host discovery scripts
    would be good to improve them for now.
  - They should probably print the discovered IPv6 addresses, otherwise
    they don't actually give the user any information (despite doing
-   their work) unless you give the newtargets script arg.
+   their work) unless you give the newtargets script arg.  This would
+   be similar to the current behavior of broadcast-ping.
  - It might be nice if they gave the target MAC address and vendor
    when printing the discovered IPv6 information too.  Daniel Miller
    wrote an initial patch for this (though we need to make sure it can
    handle (e.g. doesn't crash for) non-ethernet
-   devices:http://seclists.org/nmap-dev/2011/q3/862
+   devices:http://seclists.org/nmap-dev/2011/q3/862.  Our broadcast-ping script
+   currently prints MAC addresses.
  - It is great that the scripts properly use a specific device when
    given the Nmap -e option, but they shouldn't require this.  They
    should do something smart if no specific device name is given.
@@ -37,6 +39,11 @@ o Improvements to the Nmap multicast IPv6 host discovery scripts
    pick the best device.  The all-devices appraoch may be the best,
    IMHO.  That is how our broadcast-ping script works now.
 
+o Make sure we update everywhere relevant (e.g. refguide, etc.) to
+  note the addition in Nmap of the Liblinear library for large linear
+  classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
+  uses a three-clause BSD license:
+  http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
 
 o We should add fields to the service submitter
   (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
@@ -700,6 +707,11 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o We should consider splitting a 'brute' category out of the 'auth'
+  category now that we have so many brute force scripts.  I suppose
+  users can already do "--script *-brute", but having its own category
+  might still be nice.
 
 o IPv6 OS detection merge
  o [DONE] Initial branch working (nmap-exp/luis/nmap-os6)
