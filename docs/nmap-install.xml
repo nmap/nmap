@@ -278,7 +278,7 @@ url="http://cgi.insecure.org/mailman/listinfo/nmap-svn"/>.</para>
 </sect2>
 </sect1>
 
-<sect1 id="inst-source"><title>Unix Compilation and Installation from Source Code</title> 
+<sect1 id="inst-source"><title>Linux/Unix Compilation and Installation from Source Code</title> 
 <indexterm><primary>Unix, installing on</primary></indexterm>
 <indexterm><primary>Linux</primary><secondary>compiling on</secondary></indexterm>
 <indexterm><primary>installation</primary><secondary>from source code</secondary></indexterm>
@@ -987,27 +987,6 @@ command such as <command>nmap scanme.nmap.org</command> from any directory.</par
 
 <indexterm class="endofrange" startref="inst-windows-indexterm"/>
 </sect1>
-<sect1 id="inst-solaris"><title>Sun Solaris</title>
-<indexterm><primary>Solaris, installing on</primary></indexterm>
-<indexterm><primary>Sun Solaris</primary><see>Solaris</see></indexterm>
-
-<para>Solaris has long been well-supported by Nmap.  Sun even donated a complete SPARCstation to the project, which is still being used to test new Nmap builds.  For this reason, many Solaris users compile and install from source code as described in <xref linkend="inst-source" />.</para>
-
-<para>Users who prefer native Solaris packages will be pleased to
-learn that
-Steven Christensen<indexterm><primary>Christensen, Steven</primary></indexterm>
-does an excellent job of maintaining
-Nmap packages at <ulink url="http://www.sunfreeware.com" /> for all modern Solaris versions and architectures.  Instructions are
-on his site, and are generally very simple: download the
-appropriate Nmap package for your version
-of Solaris, decompress it, and then run <command>pkgadd -d <replaceable>packagename</replaceable></command>.
-As is generally the case with contributed binary packages, these
-Solaris packages are simple and quick to install.  The advantages of
-compiling from source are that a newer version may be available and
-you have more flexibility in the build process.
-</para>
-
-</sect1>
 
 <sect1 id="inst-macosx"><title>Apple Mac OS X</title>
 <indexterm class="startofrange" id="inst-macosx-indexterm"><primary>Mac OS X</primary></indexterm>
@@ -1178,9 +1157,22 @@ scans. To run Zenmap in unprivileged mode, select the
 <indexterm class="endofrange" startref="inst-macosx-indexterm"/>
 </sect1>
 
-<sect1 id="inst-bsd"><title>FreeBSD / OpenBSD / NetBSD</title>
-<indexterm><primary>BSDs</primary></indexterm>
 
+
+<sect1 id="inst-other-platforms"><title>Other Platforms (BSD, Solaris, AIX, AmigaOS)</title>
+
+
+<para>Most Nmap users run the software on Linux, Windows, or Mac OS X.  We consider those our top priority platforms and we maintain build and test machines to ensure that each build supports them well.</para>
+
+<para>Nmap also runs on many other platforms that we don't have the resources to personally test or build binaries packages for as frequently.  We rely on a passionate user community to help Nmap maintain top-notch support for the platforms on this page, and we're always happy to see Nmap expand onto other platforms.</para>
+
+<para>The following sections provide tips for running Nmap on specific platforms.</para>
+
+<sect2 id="inst-bsd"><title>FreeBSD / OpenBSD / NetBSD</title>
+<indexterm><primary>BSDs</primary></indexterm>
+<indexterm><primary>FreeBSD, installing on</primary></indexterm>
+<indexterm><primary>OpenBSD, installing on</primary></indexterm>
+<indexterm><primary>NetBSD, installing on</primary></indexterm>
 
 <para>The BSD flavors are well supported by Nmap, so you can simply
 compile it from source as described in <xref linkend="inst-source"
@@ -1191,7 +1183,7 @@ systems also have a <emphasis>ports tree</emphasis> which standardizes the compi
 popular applications.   Instructions for installing Nmap on
 the most popular *BSD variants follow.</para>
 
-<sect2 id="inst-openbsd"><title>OpenBSD Binary Packages and Source Ports Instructions</title>
+<sect3 id="inst-openbsd"><title>OpenBSD Binary Packages and Source Ports Instructions</title>
 <indexterm><primary>OpenBSD, installing on</primary></indexterm>
 
 <para>According to the <ulink
@@ -1215,9 +1207,9 @@ Or obtain it from the OpenBSD distribution CD-ROM.</para></listitem>
 <listitem><para>As root, execute the following command (replace <filename>/usr/ports</filename> with your local ports directory if it differs):</para>
 <para><command>cd /usr/ports/net/nmap &amp;&amp; make install clean</command></para></listitem>
 </orderedlist>
-</sect2>
+</sect3>
 
-<sect2 id="inst-freebsd"><title>FreeBSD Binary Package and Source Ports Instructions</title>
+<sect3 id="inst-freebsd"><title>FreeBSD Binary Package and Source Ports Instructions</title>
 <indexterm><primary>FreeBSD, installing on</primary></indexterm>
 
 <para>The FreeBSD project has a whole <ulink
@@ -1225,7 +1217,7 @@ url="http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/ports.html">chapt
 in their Handbook describing the package and port installation
 processes.  A brief summary of the process follows.</para>
 
-<sect3><title>Installation of the binary package</title>
+<sect4><title>Installation of the binary package</title>
 
 <para>The easiest way to install the binary Nmap package is to run
 <command>pkg_add -r nmap</command>.  You can then run the same command
@@ -1235,10 +1227,9 @@ retrieve it from <ulink
 url="http://freshports.org/security/nmap" /> and <ulink url="http://freshports.org/security/zenmap"/> or
 the CDROM and run <command>pkg_add <replaceable>packagename.tgz</replaceable></command>.
 </para>
-</sect3>
+</sect4>
 
-
-<sect3><title>Installation using the source ports tree</title>
+<sect4><title>Installation using the source ports tree</title>
 <orderedlist>
 <listitem><para>The ports tree is often installed with the system
 itself (usually in <filename>/usr/ports</filename>).  If you do not already have it,
@@ -1247,19 +1238,41 @@ chapter referenced above.</para></listitem>
 <listitem><para>As root, execute the following command (replace <filename>/usr/ports</filename> with your local ports directory if it differs):</para>
 <para><command>cd /usr/ports/security/nmap &amp;&amp; make install clean</command></para></listitem>
 </orderedlist>
+</sect4>
+
 </sect3>
 
-</sect2>
-
-<sect2 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
+<sect3 id="inst-netbsd"><title>NetBSD Binary Package Instructions</title>
 <indexterm><primary>NetBSD, installing on</primary></indexterm>
 <para>NetBSD has packaged Nmap for an enormous number of platforms, from the normal i386 to PlayStation 2, PowerPC, VAX, SPARC, MIPS, Amiga, ARM, and several platforms that I have never even heard of!  A list of NetBSD Nmap packages is available from <ulink url="ftp://ftp.netbsd.org/pub/NetBSD/packages/pkgsrc/net/nmap/README.html" /> and a description of using their package system to install applications is available at <ulink url="http://netbsd.org/Documentation/pkgsrc/using.html" />.</para>
+</sect3>
 </sect2>
-</sect1>
 
-<sect1 id="inst-aix"><title>AIX</title>
+<sect2 id="inst-solaris"><title>Oracle/Sun Solaris</title>
+<indexterm><primary>Solaris, installing on</primary></indexterm>
+<indexterm><primary>Sun Solaris</primary><see>Solaris</see></indexterm>
+<indexterm><primary>Oracle Solaris</primary><see>Solaris</see></indexterm>
+
+<para>Solaris has long been well-supported by Nmap.  Sun even donated a complete SPARCstation to the project, which is still being used to test new Nmap builds.  For this reason, many Solaris users compile and install from source code as described in <xref linkend="inst-source" />.</para>
+
+<para>Users who prefer native Solaris packages will be pleased to
+learn that
+Steven Christensen<indexterm><primary>Christensen, Steven</primary></indexterm>
+does an excellent job of maintaining
+Nmap packages at <ulink url="http://www.sunfreeware.com" /> for all modern Solaris versions and architectures.  Instructions are
+on his site, and are generally very simple: download the
+appropriate Nmap package for your version
+of Solaris, decompress it, and then run <command>pkgadd -d <replaceable>packagename</replaceable></command>.
+As is generally the case with contributed binary packages, these
+Solaris packages are simple and quick to install.  The advantages of
+compiling from source are that a newer version may be available and
+you have more flexibility in the build process.
+</para>
+</sect2>
+
+<sect2 id="inst-aix"><title>IBM AIX</title>
 <indexterm><primary>AIX, installing on</primary></indexterm>
-
+<indexterm><primary>IBM AIX</primary><see>AIX, installing on</see></indexterm>
 <para>
 Nmap can be installed from source on IBM AIX by following the instructions in
 <xref linkend="inst-source"/>. You need only pay attention to a few
@@ -1336,15 +1349,10 @@ $ <userinput>export PATH="/usr/local/bin:$PATH"</userinput>
 <para>
 Now follow the instructions in <xref linkend="inst-source"/>.
 </para>
-</sect1>
+</sect2>
 
-<sect1 id="inst-other-platforms"><title>Amiga, HP-UX, IRIX, and Other Platforms</title>
+<sect2 id="inst-amiga"><title>AmigaOS</title>
 <indexterm><primary>AmigaOS, installing on</primary></indexterm>
-<indexterm><primary>HP-UX, installing on</primary></indexterm>
-<indexterm><primary>IRIX, installing on</primary></indexterm>
-
-
-
 <para>One of the wonders of open source development is that resources
 are often directed towards what people find exciting rather than having
 an exclusive focus on profits as most corporations do.  It is along
@@ -1356,13 +1364,20 @@ to simply follow the source compilation instructions in <xref
 linkend="inst-source" />.  You may encounter a few hurdles on some
 systems, but I presume that must be part of the fun for Amiga
 fanatics.</para>
+</sect2>
 
-<para>Nmap supports many proprietary Unix flavors such as HP-UX and
-SGI IRIX.  The Nmap project depends on the user community to
-help maintain adequate support for these systems.  If you have trouble, try
+<sect2 id="inst-unix"><title>Other proprietary UNIX (HP-UX, IRIX, etc.)</title>
+<indexterm><primary>HP-UX, installing on</primary></indexterm>
+<indexterm><primary>IRIX, installing on</primary></indexterm>
+<para>Nmap has in the past supported many proprietary Unix flavors such as HP-UX and
+SGI IRIX.  We depend heavily on the user community to
+maintain adequate support for these systems.  If you have trouble, try
 sending a report with full details to the <citetitle>nmap-dev</citetitle> mailing list<indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>, as described in <xref linkend="man-bugs"/>.  Also let us know if
 you develop a patch which
 improves support on your platform so we can incorporate it into Nmap.</para>  
+</sect2>
+
+
 </sect1>
 
 <sect1 id="inst-removing-nmap"><title>Removing Nmap</title>
