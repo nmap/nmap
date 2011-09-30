@@ -384,8 +384,8 @@ o [NSE] Optimized stdnse.format_output (changing the data structures)
   http://seclists.org/nmap-dev/2011/q3/623. [Djalal]
 
 o [NSE] Added the make_array and make_object functions to our json
-library, allowing LUA tables to be treated as JSON arrays or
-objects. See http://seclists.org/nmap-dev/2011/q3/15 [Daniel Miller]
+  library, allowing LUA tables to be treated as JSON arrays or
+  objects. See http://seclists.org/nmap-dev/2011/q3/15 [Daniel Miller]
 
 o [NSE] Updated account status text in brute force password discovery 
   scripts in an effort to make the reporting more consistent across
