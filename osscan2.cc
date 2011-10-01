@@ -3059,7 +3059,7 @@ bool HostOsScan::processTUdpResp(HostOsScanStats *hss, struct ip *ip) {
 
   /* Count hop count */
   if (hss->distance == -1) {
-    hss->distance = this->udpttl - ip2->ip_ttl;
+    hss->distance = this->udpttl - ip2->ip_ttl + 1;
   }
 
   return true;

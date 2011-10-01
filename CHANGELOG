@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Increased hop distance estimates from OS detection by one. The
+  distance now counts the number of hops including the final one to
+  the target, not just the number of intermediate nodes. The IPv6
+  distance calculation already worked this way. [David]
+
 Nmap 5.61TEST2 [2011-09-30]
 
 o Added IPv6 OS detection system! The new system utilizes many tests
