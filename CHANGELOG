@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made http-wordpress-enum.nse able to get names of users who
+  have no posts. [Duarte Silva]
+
 o Increased hop distance estimates from OS detection by one. The
   distance now counts the number of hops including the final one to
   the target, not just the number of intermediate nodes. The IPv6

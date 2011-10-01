@@ -51,7 +51,12 @@ local function get_wp_user(host, port, path, id)
   if req.status then
     stdnse.print_debug(1, "%s: User id #%s returned status %s", SCRIPT_NAME, id, req.status)
     if req.status == 301 then
-      local _, _, user = string.find(req.header.location, 'http://.*/.*/(.*)/')
+      local _, _, user = string.find(req.header.location, 'https?://.*/.*/(.*)/')
+      return user
+    elseif req.status == 200 then
+      -- Users with no posts get a 200 response, but the name is in an RSS link.
+      -- http://seclists.org/nmap-dev/2011/q3/812
+      local _, _, user = string.find(req.body, 'https?://.-/author/(.-)/feed/')
       return user
     end
   end
