@@ -37,7 +37,7 @@ action = function(host, port)
         end
         -- match jdwp m|JDWP-Handshake| p/$1/ v/$3/ i/$2\n$4/
         local match = {string.match(result, "^JDWP%-Handshake%z%z..%z%z%z\1\128%z%z%z%z..([^%z\n]*)\n([^%z]*)%z%z..%z%z..%z%z..([0-9._]+)%z%z..([^%z]*)")}
-        if match == nil then
+        if match == nil or #match == 0 then
                 -- if we have one \128 (reply marker), it is at least not echo because the request did not contain \128
                 if (string.match(result,"^JDWP%-Handshake%z.*\128") ~= nil) then
                     port.version.name="jdwp"
