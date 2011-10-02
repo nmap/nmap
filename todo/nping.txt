@@ -149,6 +149,22 @@
    does the IP doesn't reverse resolve) is specified on the command
    line, should we use that version, or the official rDNS, if any?
  - Some more discussion on this topic on nmap-dev may be warranted.
+ 
+* From: David Lam <david@thedavid.net>, "Some general questions about 
+  Nping/Ncat"
+  
+  In TCP traceroute mode, would it be possible to ask Nping to
+  stop once it gets an SYN-ACK response back from the destination host rather
+  than continuously hitting the host until the max TTL?
+  
+* Make broadcast ping work. Currently the following command does not 
+  show any captured packets:
+    nping 192.168.0.255 --dest-mac ff:ff:ff:ff:ff:ff -c 1
+  The cause is probably the BPF filter, which only allows replies from
+  192.168.0.255.
+  Also, look into official multicast addresses like 224.0.0.1. Can we
+  received replies to that probe?
+
 
 * Do some performance testing.  
    Fyodor:
