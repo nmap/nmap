@@ -1616,6 +1616,7 @@ match netsupport m|^.\0\x02\0([^\0]+)\0+.\0\x01\0|s p/NetSupport PC remote contr
 
 match oftp m|^\x10\0\0\x17IODETTE FTP READY \r$| p/ODETTE File Transfer Protocol/
 
+# http://any.openlookup.net:5851/
 match openlookup m|^\d+:d7:smethod,6:shello,8:soptions,\d+:d10:shttp_port,\d+:i\d+,5:sname,\d+:s([\w._-]+),10:ssync_port,\d+:i\d+,10:stimestamp,\d+:f[\d.]+,8:sversion,\d+:s([\w._-]+),| p/OpenLookup/ v/$2/ h/$1/
 
 match parallels-server m|^PRLT\x06\0\0\x00([\w._-]+ \(\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d\))\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0$| p/Parallels Server/ v/$1/
