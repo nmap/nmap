@@ -1,5 +1,7 @@
 description = [[
-Connects to openlookup sync service and extracts information from the handshake.
+Displays the banner information of an OpenLookup server.
+
+OpenLookup is a network-accessible key-value store.
 ]]
 
 ---
