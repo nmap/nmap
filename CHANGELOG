@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added amqp-info.nse by Sebastian Dragomir.
+
 o [NSE] Made http-wordpress-enum.nse able to get names of users who
   have no posts. [Duarte Silva]
 
