@@ -125,7 +125,7 @@ Entry { filename = "ldap-novell-getpass.nse", categories = { "discovery", "safe"
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ldap-search.nse", categories = { "discovery", "safe", } }
 Entry { filename = "lexmark-config.nse", categories = { "discovery", "safe", } }
-Entry { filename = "lltd-discovery.nse", categories = { "discovery", "safe", } }
+Entry { filename = "lltd-discovery.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "modbus-discover.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "mongodb-databases.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "mongodb-info.nse", categories = { "default", "discovery", "safe", } }
@@ -161,6 +161,7 @@ Entry { filename = "ntp-info.nse", categories = { "default", "discovery", "safe"
 Entry { filename = "ntp-monlist.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "omp2-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "omp2-enum-targets.nse", categories = { "discovery", "safe", } }
+Entry { filename = "openlookup-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "oracle-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "oracle-enum-users.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "oracle-sid-brute.nse", categories = { "brute", "intrusive", } }
