@@ -20,15 +20,13 @@ http://www.microsoft.com/whdc/connect/Rally/LLTD-spec.mspx
 
 author = "Gorjan Petrovski"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery","safe"}
+categories = {"broadcast","discovery","safe"}
 
 require "bin"
 require "stdnse"
 require "target"
 require "nmap"
 require "openssl"
-
-require "nsedebug"
 
 prerule = function()
 	if not nmap.is_privileged() then
@@ -189,11 +187,11 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 	while true do
 		local status, plen, l2, l3, _ = pcap:pcap_receive()
 		local packet = l2..l3
-		if status then 
+		if status then
+			local packet = l2..l3
 			if stdnse.tohex(packet:sub(13,14)) == "88d9" then
 				start_s = os.time()
 				
-				local packet=l2..l3
 				local ipv4, mac, ipv6 = parseHello(packet)
 				
 				if ipv4 then
