@@ -32,7 +32,7 @@ author = "Sebastian Dragomir"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"default", "discovery", "safe"}
+categories = {"default", "discovery", "safe", "version"}
 
 require("stdnse")
 require("shortport")

@@ -4,7 +4,7 @@ Entry { filename = "afp-ls.nse", categories = { "discovery", "safe", } }
 Entry { filename = "afp-path-vuln.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "afp-serverinfo.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "afp-showmount.nse", categories = { "discovery", "safe", } }
-Entry { filename = "amqp-info.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "amqp-info.nse", categories = { "default", "discovery", "safe", "version", } }
 Entry { filename = "asn-query.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "auth-owners.nse", categories = { "default", "safe", } }
 Entry { filename = "auth-spoof.nse", categories = { "malware", "safe", } }
