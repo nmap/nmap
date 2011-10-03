@@ -267,16 +267,25 @@ void FingerPrintResults::populateClassification() {
   return;
 }
 
+/* Return true iff s and t are both NULL or both the same string. */
+static bool strnulleq(const char *s, const char *t) {
+  if (s == NULL && t == NULL)
+    return true;
+  else if (s == NULL || t == NULL)
+    return false;
+  else
+    return strcmp(s, t) == 0;
+}
+
 // Go through any previously enterted classes to see if this is a dupe;
 bool FingerPrintResults::classAlreadyExistsInResults(struct OS_Classification *OSC) {
   int i;
 
   for (i=0; i < OSR.OSC_num_matches; i++) {
-    if (!strcmp(OSC->OS_Vendor, OSR.OSC[i]->OS_Vendor)  &&
-	!strcmp(OSC->OS_Family, OSR.OSC[i]->OS_Family)  &&
-	!strcmp(OSC->Device_Type, OSR.OSC[i]->Device_Type) &&
-	!strcmp(OSC->OS_Generation? OSC->OS_Generation : "", 
-		OSR.OSC[i]->OS_Generation? OSR.OSC[i]->OS_Generation : "")) {
+    if (strnulleq(OSC->OS_Vendor, OSR.OSC[i]->OS_Vendor) &&
+        strnulleq(OSC->OS_Family, OSR.OSC[i]->OS_Family) &&
+        strnulleq(OSC->Device_Type, OSR.OSC[i]->Device_Type) &&
+        strnulleq(OSC->OS_Generation, OSR.OSC[i]->OS_Generation)) {
     // Found a duplicate!
     return true;
     }
