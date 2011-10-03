@@ -237,6 +237,7 @@ Entry { filename = "targets-ipv6-multicast-slaac.nse", categories = { "broadcast
 Entry { filename = "targets-sniffer.nse", categories = { "broadcast", "discovery", "safe", } }
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe", } }

@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added tftp-enum by Alexander Rudakov.
+
 o [NSE] Added openlookup-info by Toni Ruottu.
 
 o [NSE] Added amqp-info.nse by Sebastian Dragomir.
