@@ -1,8 +1,18 @@
 description = [[
-    Enumerates filenames at tftp server.
+Checks for TFTP filenames from a list.
 
-    This script is implementation of tftptheft python utility written by Sandro Gauci <sandro@enablesecurity.com>
-    Original utility can be found at http://code.google.com/p/tftptheft/
+TFTP doesn't provide directory listings. This script tries to retrieve
+filenames from a list. The list is composed of static names from the
+file <code>tftplist.txt</code>, plus configuration filenames for Cisco
+devices that change based on the target address, of the form
+<code>A.B.C.X-confg</code> for an IP address A.B.C.D and for X in 0 to
+255.
+
+Use the <code>tftp-enum.filelist</code> script argument to search for
+other static filenames.
+
+This script is a reimplementation of tftptheft from
+http://code.google.com/p/tftptheft/.
 ]]
 
 ---
@@ -10,7 +20,11 @@ description = [[
 --
 -- @args filelist - file name with list of filenames to enumerate at tftp server
 --
---
+-- @output
+-- PORT   STATE SERVICE REASON
+-- 69/udp open  tftp    script-set
+-- | tftp-enum:
+-- |_  bootrom.ld
 
 author = "Alexander Rudakov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
