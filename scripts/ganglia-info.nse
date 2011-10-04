@@ -1,14 +1,16 @@
 description = [[
-Retrieves system information from a listening Ganglia Monitoring Daemon or 
-Ganglia Meta Daemon. Ganglia is a scalable distributed monitoring system for 
-high-performance computing systems such as clusters and Grids. The information 
-retrieved includes HDD size, available memory, OS version, architecture (and 
-more) from each of the systems in each of the clusters in the grid.
+Retrieves system information from a listening Ganglia Monitoring Daemon or
+Ganglia Meta Daemon.
+
+Ganglia is a scalable distributed monitoring system for high-performance
+computing systems such as clusters and Grids. The information retrieved
+includes HDD size, available memory, OS version, architecture (and more) from
+each of the systems in each of the clusters in the grid.
 
 For more information about Ganglia, see:
-http://ganglia.sourceforge.net/
-http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Monitoring_Daemon_.28gmond.29
-http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Meta_Daemon_.28gmetad.29
+* http://ganglia.sourceforge.net/
+* http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Monitoring_Daemon_.28gmond.29
+* http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Meta_Daemon_.28gmetad.29
 ]]
 
 ---
@@ -26,50 +28,48 @@ http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Meta_Daemon_.28gmetad.29
 --		   About 5KB-10KB of data is returned for each host in the cluster.
 --
 -- @output
--- PORT     STATE SERVICE REASON  VERSION
--- 8651/tcp open  ganglia syn-ack Ganglia XML Grid monitor 3.0.7 (Cluster name: Fyodor's Cluster 2; Owner: Fyodor; Source: gmetad)
--- | ganglia-info: 
--- |		Service: Ganglia Meta Daemon
--- |		Version: 3.0.7
--- |		Grid Name: Fyodor's Grid
--- |		Cluster Name: Fyodor's Cluster 1
--- |			Owner: Fyodor
--- |		Cluster Name: Fyodor's Cluster 2
--- |			Owner: Fyodor
--- |			Hostname: ganglia.example.com
--- |				IP: 192.168.1.1
--- |				disk total: 482.853GB
--- |				cpu speed: 2133MHz
--- |				part max used: 74.7%
--- |				swap total: 2097144KB
--- |				os name: Linux
--- |				cpu user: 3.4%
--- |				cpu system: 0.4%
--- |				cpu aidle: 95.2%
--- |				load five: 0.13 
--- |				proc run: 0 
--- |				mem free: 714040KB
--- |				mem buffers: 262100KB
--- |				swap free: 2097144KB
--- |				bytes in: 2332.70bytes/sec
--- |				pkts out: 2.70packets/sec
--- |				cpu num: 2CPUs
--- |				disk free: 188.861GB
--- |				mem total: 3114872KB
--- |				cpu wio: 0.1%
--- |				boottime: 1307115184s
--- |				machine type: x86
--- |				os release: 2.6.18-238.9.1.el5
--- |				cpu nice: 0.0%
--- |				cpu idle: 96.1%
--- |				load one: 0.04 
--- |				load fifteen: 0.14 
--- |				proc total: 245 
--- |				mem shared: 0KB
--- |				mem cached: 1260100KB
--- |				gexec: OFF
--- |				bytes out: 640.10bytes/sec
--- |_				pkts in: 12.90packets/sec
+-- PORT     STATE SERVICE VERSION
+-- 8649/tcp open  ganglia Ganglia XML Grid monitor 2.5.7 (Cluster name: unspecified; Owner: unspecified; Source: gmond)
+-- | ganglia-info:
+-- |   Service: Ganglia Monitoring Daemon
+-- |   Version: 2.5.7
+-- |   Cluster Name: unspecified
+-- |       Owner: unspecified
+-- |       Hostname: localhost
+-- |               IP: 127.0.0.1
+-- |               cpu nice: 0.0%
+-- |               cpu user: 2.0%
+-- |               proc total: 182
+-- |               proc run: 0
+-- |               load fifteen: 0.13
+-- |               pkts in: 0.12packets/sec
+-- |               swap total: 9928700KB
+-- |               load five: 0.15
+-- |               machine type: x86_64
+-- |               disk total: 236.111GB
+-- |               mem buffers: 33148KB
+-- |               mem total: 3845028KB
+-- |               bytes in: 6.57bytes/sec
+-- |               load one: 0.22
+-- |               sys clock: 1317692483s
+-- |               mem free: 3280956KB
+-- |               mtu: 1280B
+-- |               mem shared: 0KB
+-- |               cpu aidle: 97.0%
+-- |               cpu idle: 99.1%
+-- |               cpu speed: 2266MHz
+-- |               mem cached: 271924KB
+-- |               cpu num: 4
+-- |               part max used: 55.9%
+-- |               bytes out: 5.48bytes/sec
+-- |               os release: 2.6.34
+-- |               gexec: OFF
+-- |               disk free: 104.075GB
+-- |               cpu system: 0.1%
+-- |               boottime: 1317692167s
+-- |               swap free: 9928700KB
+-- |               os name: Linux
+-- |_              pkts out: 0.06packets/sec
 
 -- Version 0.1
 -- Created 2011-06-28 - v0.1 - created by Brendan Coles <bcoles@gmail.com>
