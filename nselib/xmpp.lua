@@ -110,6 +110,7 @@ XMPP = {
 	-- 			<code>timeout</code> - sets the socket timeout
 	--			<code>servername</code> - sets the server name to use in
 	--										communication with the server.
+	--			<code>starttls</code> - start TLS handshake even if it is optional.
 	new = function(self, host, port, options)
 		local o = { host = host,
 					port = port,
@@ -206,13 +207,14 @@ XMPP = {
 			return false, "ERROR: Only version 1.0 is supported"
 		end
 		
-		if ( start_tls == "required" ) then
+		if ( start_tls == "required" or self.options.starttls) then
 			status, err = self:send("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>")
 			if ( not(status) ) then return false, "ERROR: Failed to initiate STARTTLS" end
 			local status, tag = self:receive_tag()
 			if ( not(status) ) then return false, "ERROR: Failed to recevice from server" end
 			if ( tag.name == "proceed" ) then
 				status, err = self.socket:reconnect_ssl()
+				self.options.starttls = false
 				return self:connect()
 			end
 		end

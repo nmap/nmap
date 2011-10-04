@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added XMPP support to ssl-cert.nse.
+
 o [NSE] Added http-cors by Toni Ruottu.
 
 o [NSE] Added ganglia-info by Brendan Coles.

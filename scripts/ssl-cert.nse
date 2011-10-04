@@ -68,6 +68,7 @@ require("nmap")
 require("nsedebug")
 require("shortport")
 require("stdnse")
+require("xmpp")
 
 local stringify_name
 local date_to_string
@@ -138,8 +139,29 @@ function smtp_starttls(host, port)
     return "Connected"
 end 
 
+function xmpp_starttls(host, port)
+    local ls = xmpp.XMPP:new(host, port, { starttls = true } )
+    ls.socket = s
+    ls.socket:set_timeout(ls.options.timeout * 1000)
+
+    local status, err = ls.socket:connect(host, port)
+    if not status then
+        return nil
+    end
+
+    status, err = ls:connect()
+    if status then
+        return "Connected"
+    end
+end
+
 -- A table mapping port numbers to specialized SSL negotiation functions.
-local SPECIALIZED_FUNCS = { [25] = smtp_starttls, [587] = smtp_starttls }
+local SPECIALIZED_FUNCS = {
+    [25] = smtp_starttls,
+    [587] = smtp_starttls,
+    [5222] = xmpp_starttls,
+    [5269] = xmpp_starttls
+}
 
 portrule = function(host, port)
     return shortport.ssl(host, port) or SPECIALIZED_FUNCS[port.number]
