@@ -61,6 +61,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 
 require("bit")
+require("datafiles")
 require("stdnse")
 
 hostrule = function(host)
