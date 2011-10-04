@@ -77,6 +77,7 @@ Entry { filename = "http-axis2-dir-traversal.nse", categories = { "exploit", "in
 Entry { filename = "http-barracuda-dir-traversal.nse", categories = { "auth", "exploit", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-cakephp-version.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-cors.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-date.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-default-accounts.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "http-domino-enum-passwords.nse", categories = { "auth", "intrusive", } }
