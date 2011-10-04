@@ -186,7 +186,6 @@ local LLTDDiscover = function(if_table, lltd_responders, timeout)
 	local start_s = os.time()
 	while true do
 		local status, plen, l2, l3, _ = pcap:pcap_receive()
-		local packet = l2..l3
 		if status then
 			local packet = l2..l3
 			if stdnse.tohex(packet:sub(13,14)) == "88d9" then
