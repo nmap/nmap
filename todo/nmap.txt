@@ -158,6 +158,28 @@ o Nmap should have a better way to handle XML script output.
 
 o [NSE] HTTP spidering library/script
 
+o A program to canonicalize and tidy nmap-service-probes.
+  o Order of fields: m p v i d o h cpe:/a cpe:/h cpe:/o.
+  o Check for duplicate templates (except cpe:).
+  o Check for unknown templates.
+  o Canonicalize delimiters (use // first, otherwise try in order
+    | % = @ #).
+  o Check for the same reference (like $1) being used in unrelated fields
+    (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
+    (o, cpe:)).
+    For example if we have v/$1/ h/$1/ it is a bug.
+  o Check that used references start at 1 and are contiguous. If $1 and $3
+    are used but not $2, it's probably a bug.
+    Maybe you can even find out how many there should be by inspecting the
+    regular expression.
+  o Check for e.g. i/French/ without :fr in cpe:/a, and vice versa.
+  o Check a list of common product names that should only appear in p//,
+    not in i//. We still have entries that are like this:
+      p/Foobar 2000 ADSL router/ i/micro_httpd web server/
+    that should rather be written this way:
+      p/micro_httpd/ i/Foobar 2000 ADSL router/
+  o Retain line breaks and comments.
+
 o Summer of Code feature creeper:
   o [Zenmap] should actually parse and use script results. See
     http://seclists.org/nmap-dev/2010/q1/1108
