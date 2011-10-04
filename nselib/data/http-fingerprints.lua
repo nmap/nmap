@@ -1235,6 +1235,21 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/ehcp/?op=applyforftpaccount', method='GET'},
+                {path='/ehcp/?op=applyforaccount', method='GET'},
+		{path='/ehcp/?op=applyfordomainaccount', method='GET'},
+                {path='/vhosts/ehcp/?op=applyforftpaccount', method='GET'},
+                {path='/vhosts/ehcp/?op=applyforaccount', method='GET'},
+		{path='/vhosts/ehcp/?op=applyfordomainaccount', method='GET'},
+	},
+	matches= {
+		{match='', output='Easy Hosting Control Panel'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/tools_admin.cgi?', method='HEAD'}
 	},
 	matches= {
