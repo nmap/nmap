@@ -76,7 +76,7 @@ http://en.wikipedia.org/wiki/Ganglia_(software)#Ganglia_Meta_Daemon_.28gmetad.29
 
 author = "Brendan Coles"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery"}
+categories = {"default", "discovery", "safe"}
 
 require("comm")
 require("shortport")
