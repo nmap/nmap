@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ganglia-info by Brendan Coles.
+
 o [NSE] Added tftp-enum by Alexander Rudakov.
 
 o [NSE] Added openlookup-info by Toni Ruottu.
