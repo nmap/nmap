@@ -14,15 +14,7 @@ o Collect many more IPv6 OS detection training samples from users
 o Integrate more NSE scripts, I think our review queue is getting
   pretty long.
 
-o Unless we get good arguments for keeping it, we should remove Mac OS
-  X PowerPC support from our binaries.  Apple stopped selling PowerPC
-  machines in 2006 and they stopped making new OS releases available
-  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
-  thread: http://seclists.org/nmap-dev/2011/q3/430
-
 o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
-
-o Give CPE visibility to NSE.
 
 o Improvements to the Nmap multicast IPv6 host discovery scripts
  - Note that we hope to move them into core Nmap at some point, but
@@ -54,22 +46,31 @@ o Do more thinking/researching/investigating the way our machine
   o Doing a better job about printing fingerprints for matches with
     aren't close enough
 
+o We should add fields to the service submitter
+  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
+  application name and version.
+
+o Unless we get good arguments for keeping it, we should remove Mac OS
+  X PowerPC support from our binaries.  Apple stopped selling PowerPC
+  machines in 2006 and they stopped making new OS releases available
+  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
+  thread: http://seclists.org/nmap-dev/2011/q3/430
+
+o Give CPE visibility to NSE.
+
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
   classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
   uses a three-clause BSD license:
   http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
-
-o We should add fields to the service submitter
-  (http://insecure.org/cgi-bin/submit.cgi?new-service) for the
-  application name and version.
+  - David has added it to 3rd-party-licenses.txt
 
 o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
 
-o Integrate new service fingerprint submissions (we have about 1,400
-  submissions since 11/30/10)
+o Integrate new service fingerprint submissions (we have more than
+  1,400 submissions since 11/30/10)
 
 o Add many more CPE entries to OS and version detection databases
 
