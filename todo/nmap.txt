@@ -1,21 +1,26 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Fix reported (by many people) crash when trying to launch Zenmap on
+  Mac OS X 10.7 (Lion).
+
+o Add anti-spam defenses to secwiki.com to stop the current onslaught
+  of spam.  An extention like ConfirmEdit
+  (http://www.mediawiki.org/wiki/Extension:ConfirmEdit) may be a good choice.
+
 o Collect many more IPv6 OS detection training samples from users
  - Can start with nmap-dev, but will probably have to do an Nmap
    release too.
 
-o IPv6 OS detection working (when run on) Solaris and AIX
- - AIX 6.1 - iSeries / System p
- - AIX 7.1 - iSeries / System p
- - Solaris 10 - SPARC
+o Integrate more NSE scripts, I think our review queue is getting
+  pretty long.
 
-o Collect a bunch of IPv6 OS detection signatures from users,
-  integrate them, and then when we have enough, re-enable OS detection
-  results.
+o Unless we get good arguments for keeping it, we should remove Mac OS
+  X PowerPC support from our binaries.  Apple stopped selling PowerPC
+  machines in 2006 and they stopped making new OS releases available
+  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
+  thread: http://seclists.org/nmap-dev/2011/q3/430
 
 o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
-
-o Add many more CPE entries to OS and version detection databases
 
 o Give CPE visibility to NSE.
 
@@ -39,6 +44,16 @@ o Improvements to the Nmap multicast IPv6 host discovery scripts
    pick the best device.  The all-devices appraoch may be the best,
    IMHO.  That is how our broadcast-ping script works now.
 
+o Do more thinking/researching/investigating the way our machine
+  learning IPv6 OS detection system decides whether a match is perfect
+  and/or how close the match is.  Maybe our current system works well
+  enough, we'll need to watch how it performs as we increase the DB
+  size and collect/integrate more signatures.  The goal is to:
+  o Producing fewer way-off matches since it would have a way (like our
+    current system) to decide how close the match really is
+  o Doing a better job about printing fingerprints for matches with
+    aren't close enough
+
 o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   note the addition in Nmap of the Liblinear library for large linear
   classification (http://www.csie.ntu.edu.tw/~cjlin/liblinear/). It
@@ -56,14 +71,7 @@ o Make new SecTools.Org site with the 2010 survey results.
 o Integrate new service fingerprint submissions (we have about 1,400
   submissions since 11/30/10)
 
-o Unless we get good arguments for keeping it, we should remove Mac OS
-  X PowerPC support from our binaries.  Apple stopped selling PowerPC
-  machines in 2006 and they stopped making new OS releases available
-  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
-  thread: http://seclists.org/nmap-dev/2011/q3/430
-
-o Fix reported (by many people) crash when trying to launch Zenmap on
-  Mac OS X 10.7 (Lion).
+o Add many more CPE entries to OS and version detection databases
 
 ==Things needed for next STABLE release go ABOVE THIS LINE==
 
@@ -74,10 +82,6 @@ o Move advanced IPv6 host discovery features from NSE into core Nmap.
   - The idea is that Nmap does them automatically if it gets a large
     target specification and sees that it is local so can be multicast
     pinged.
-
-o Add anti-spam defenses to secwiki.com to stop the current onslaught
-  of spam.  An extention like ConfirmEdit
-  (http://www.mediawiki.org/wiki/Extension:ConfirmEdit) may be a good choice.
 
 o We should document Ron's sample script
   (http://nmap.org/svn/docs/sample-script.nse) in docs/scripting.xml so
@@ -105,6 +109,23 @@ o Script review:
 
 o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
   packets.
+
+o To avoid Nmap memory usage bloat, find a way for NSE scripts to
+  store information about a host which expires after Nmap is done
+  scanning that host (e.g. when the hostgroup containing that host is
+  finished).  Right now scripts store such information in the registry
+  and it persists forever.  For example, a web spidering
+  script/library could store information about the web structure and
+  even page contents so that other scripts can use that information
+  without spidering the target again, but ensuring that the memory
+  will be freed after the hostgroup finishes so there is room to store
+  the web information for the next group of systems.  One idea would
+  be to make a host.registry member which contains a registry specific
+  to a specific target.  Scripts could store temporary information
+  there, but still use the global registry for information which must
+  persist (e.g. to be used by postrules, etc.)
+
+o Add CPE support to IPv6 OS detection
 
 o Add IPv6 subnet/pattern support like we offer for IPv4.
  o Obviously we can't go scanning a /48 in IPv6, but small subnets do
@@ -143,13 +164,6 @@ o Nmap Network Scanning, 2nd Edition work [placeholder]
 
 o Nscan work [placeholder]
  - Hosted Nmap system
-
-o IPv6 todo.
-  - CIDR address specification.
-  - Reverse DNS resolution.
-  - Multicast host discovery.
-  - OS detection.
-    - CPE
 
 o Nmap should have a better way to handle XML script output.
  o We currently just stick the current script output text into an XML tag.
@@ -252,6 +266,9 @@ o [NSE] Consider a system where scripts can tell if any other scripts
 
 o NSEDoc generation should be performed automatically on the web
   server on at least a daily (just before VA modules email) basis.
+
+o Add parallel IPv6 reverse DNS support (right now we use the system
+  functions).
 
 o [NSE] Consider whether we need script.db for performance reasons at
   all or should just read through all the scripts and parse on the fly.
@@ -729,6 +746,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Collect a bunch of IPv6 OS detection signatures from users,
+  integrate them, and then when we have enough, re-enable OS detection
+  results.
+
+o IPv6 OS detection working (when run on) Solaris and AIX
+ - AIX 6.1 - iSeries / System p
+ - AIX 7.1 - iSeries / System p
+ - Solaris 10 - SPARC
 
 o We should consider splitting a 'brute' category out of the 'auth'
   category now that we have so many brute force scripts.  I suppose
