@@ -153,7 +153,7 @@ action = function()
 	local start_time = nmap:clock()
 	local cur_time = nmap:clock()
 
-	local found_targets = 0
+	local addrs = {}
 
 	repeat
 		local status, length, layer2, layer3 = pcap:pcap_receive()
@@ -168,13 +168,13 @@ action = function()
 					string.sub(expected_ip6_dst_prefix,1,12) == string.sub(reply.ip6_dst,1,12) then
 					local ula_target_addr_str = packet.toipv6(reply.ns_target)
 					local identifier = get_identifier(reply.ns_target)
-					found_targets = found_targets + 1
 					--Filter out the reduplicative identifiers.
 					--A host will send several NS packets with the same interface identifier if it receives several RA packets with different prefix during the discovery phase.
 					if not id_set[identifier] then
 						id_set[identifier] = true
 						local actual_addr_str = packet.toipv6(actual_prefix .. identifier)
 						target.add(actual_addr_str)
+						addrs[#addrs + 1] = actual_addr_str
 					end
 				end
 			end
@@ -183,5 +183,8 @@ action = function()
 
 	dnet:ethernet_close()
 	pcap:pcap_close()
-	return true
+
+	if #addrs > 0 then
+		return stdnse.format_output(true, addrs)
+	end
 end

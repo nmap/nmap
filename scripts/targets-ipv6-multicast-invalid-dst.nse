@@ -116,7 +116,7 @@ action = function()
 	local start_time = nmap:clock()
 	local cur_time = nmap:clock()
 
-	local found_targets = 0
+	local addrs = {}
 
 	repeat
 		local status, length, layer2, layer3 = pcap:pcap_receive()
@@ -128,12 +128,12 @@ action = function()
 			if reply.mac_dst == src_mac then
 				reply = packet.Packet:new(layer3)
 				local target_addr = reply.ip6_src
-				found_targets = found_targets + 1
 				local identifier = get_identifier(reply.ip6_src)
 				if not id_set[identifier] then
 					id_set[identifier] = true
 					local target_str = packet.toipv6(target_addr)
 					target.add(target_str)
+					addrs[#addrs + 1] = target_str
 				end
 			end
 		end
@@ -142,5 +142,7 @@ action = function()
 	dnet:ethernet_close()
 	pcap:pcap_close()
 
-	return true
+	if #addrs > 0 then
+		return stdnse.format_output(true, addrs)
+	end
 end
