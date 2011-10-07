@@ -34,17 +34,14 @@ require "http"
 portrule = shortport.http
 
 action = function(host, port)
-	local path = nmap.registry.args.path
+	local path = stdnse.get_script_args(SCRIPT_NAME..".path") or "/"
+  local useget = stdnse.get_script_args(SCRIPT_NAME..".useget")
 	local request_type = "HEAD"
-	if(path == nil) then
-		path = '/'
-	end
-
 	local status = false
 	local result
 
 	-- Check if the user didn't want HEAD to be used
-	if(nmap.registry.args.useget == nil) then
+	if(useget == nil) then
 		-- Try using HEAD first
 		status, result = http.can_use_head(host, port, nil, path)
 	end
@@ -73,10 +70,7 @@ action = function(host, port)
 	end
 
 	table.insert(result.rawheader, "(Request type: " .. request_type .. ")")
---	for _, header in ipairs(result.rawheader) do
---		response = response .. header .. "\n"
---	end
-		
+	
 	return stdnse.format_output(true, result.rawheader)
 end
 
