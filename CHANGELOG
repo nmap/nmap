@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a TCP Kerberos service probe. [Patrik]
+
 o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
   interfaces by default. They show the MAC address and interface name
   now too. [David, Daniel Miller]
