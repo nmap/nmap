@@ -29,6 +29,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
 categories = {"discovery","broadcast"}
 
+require 'ipOps'
 require 'nmap'
 require 'target'
 require 'packet'
@@ -89,27 +90,39 @@ local function build_router_advert(mac_src,prefix,prefix_len,valid_time,preferre
 	return icmpv6_payload
 end
 
-action = function()
-	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-	if not if_name then
-		return "Error: need an interface name.\n"
-			.. "Use -e <iface> or --script-args " .. SCRIPT_NAME .. ".interface=<iface>."
+local function get_interfaces()
+	local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
+		or nmap.get_interface()
+
+	-- interfaces list (decide which interfaces to broadcast on)
+	local interfaces = {}
+	if interface_name then
+		-- single interface defined
+		local if_table = nmap.get_interface_info(interface_name)
+		if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+			interfaces[#interfaces + 1] = if_table
+		else
+			stdnse.print_debug("Interface not supported or not properly configured.")
+		end
+	else
+		for _, if_table in ipairs(nmap.list_interfaces()) do
+			if packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+				table.insert(interfaces, if_table)
+			end
+		end
 	end
 
-	local if_nfo, err = nmap.get_interface_info(if_name)
-	if not if_nfo then
-		stdnse.print_debug(err)
-		return false
-	end
-	if if_nfo.link ~= "ethernet" then
-		stdnse.print_debug("Not a Ethernet link.")
-		return false
-	end
+	return interfaces
+end
+
+local function single_interface_broadcast(if_nfo, results)
+	stdnse.print_debug("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
+
+	local condvar = nmap.condvar(results)
 	local src_mac = if_nfo.mac
 	local src_ip6 = packet.ip6tobin(if_nfo.address)
 	local dst_mac = packet.mactobin("33:33:00:00:00:01")
 	local dst_ip6 = packet.ip6tobin("ff02::1")
-	local id_set = {}
 
 ----------------------------------------------------------------------------
 --SLAAC-based host discovery probe
@@ -117,8 +130,8 @@ action = function()
 	local dnet = nmap.new_dnet()
 	local pcap = nmap.new_socket()
 
-	try(dnet:ethernet_open(if_name))
-	pcap:pcap_open(if_name, 128, true, "src ::0/128 and dst net ff02::1:0:0/96 and icmp6 and ip6[6:1] = 58 and ip6[40:1] = 135")
+	try(dnet:ethernet_open(if_nfo.device))
+	pcap:pcap_open(if_nfo.device, 128, true, "src ::0/128 and dst net ff02::1:0:0/96 and icmp6 and ip6[6:1] = 58 and ip6[40:1] = 135")
 
 	local actual_prefix = string.sub(src_ip6,1,8)
 	local ula_prefix, prefix_len = get_radom_ula_prefix()
@@ -153,8 +166,6 @@ action = function()
 	local start_time = nmap:clock()
 	local cur_time = nmap:clock()
 
-	local addrs = {}
-
 	repeat
 		local status, length, layer2, layer3 = pcap:pcap_receive()
 		cur_time = nmap:clock()
@@ -170,11 +181,11 @@ action = function()
 					local identifier = get_identifier(reply.ns_target)
 					--Filter out the reduplicative identifiers.
 					--A host will send several NS packets with the same interface identifier if it receives several RA packets with different prefix during the discovery phase.
-					if not id_set[identifier] then
-						id_set[identifier] = true
-						local actual_addr_str = packet.toipv6(actual_prefix .. identifier)
+					local actual_addr_str = packet.toipv6(actual_prefix .. identifier)
+					if not results[actual_addr_str] then
 						target.add(actual_addr_str)
-						addrs[#addrs + 1] = actual_addr_str
+						results[#results + 1] = actual_addr_str
+						results[actual_addr_str] = true
 					end
 				end
 			end
@@ -184,7 +195,30 @@ action = function()
 	dnet:ethernet_close()
 	pcap:pcap_close()
 
-	if #addrs > 0 then
-		return stdnse.format_output(true, addrs)
+	condvar("signal")
+end
+
+action = function()
+	local threads = {}
+	local results = {}
+	local condvar = nmap.condvar(results)
+
+	for _, if_nfo in ipairs(get_interfaces()) do
+		-- create a thread for each interface
+		if ipOps.ip_in_range(if_nfo.address, "fe80::/10") then
+			local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
+			threads[co] = true
+		end
+	end
+
+	repeat
+		condvar "wait"
+		for thread in pairs(threads) do
+			if coroutine.status(thread) == "dead" then threads[thread] = nil end
+		end
+	until next(threads) == nil
+
+	if #results > 0 then
+		return stdnse.format_output(true, results)
 	end
 end

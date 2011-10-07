@@ -33,10 +33,6 @@ catch = function()
 end
 try = nmap.new_try(catch)
 
-local function get_identifier(ip6_addr)
-	return string.sub(ip6_addr, 9, 16)
-end
-
 --- Build an IPv6 invalid extension header.
 -- @param nxt_hdr integer that stands for next header's type
 local function build_invalid_extension_header(nxt_hdr)
@@ -53,27 +49,39 @@ local function build_invalid_extension_header(nxt_hdr)
 	return ext_header
 end
 
-action = function()
-	local if_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface") or nmap.get_interface()
-	if not if_name then
-		return "Error: need an interface name.\n"
-			.. "Use -e <iface> or --script-args " .. SCRIPT_NAME .. ".interface=<iface>."
+local function get_interfaces()
+	local interface_name = stdnse.get_script_args(SCRIPT_NAME .. ".interface")
+		or nmap.get_interface()
+
+	-- interfaces list (decide which interfaces to broadcast on)
+	local interfaces = {}
+	if interface_name then
+		-- single interface defined
+		local if_table = nmap.get_interface_info(interface_name)
+		if if_table and packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+			interfaces[#interfaces + 1] = if_table
+		else
+			stdnse.print_debug("Interface not supported or not properly configured.")
+		end
+	else
+		for _, if_table in ipairs(nmap.list_interfaces()) do
+			if packet.ip6tobin(if_table.address) and if_table.link == "ethernet" then
+				table.insert(interfaces, if_table)
+			end
+		end
 	end
 
-	local if_nfo, err = nmap.get_interface_info(if_name)
-	if not if_nfo then
-		stdnse.print_debug(err)
-		return false
-	end
-	if if_nfo.link ~= "ethernet" then
-		stdnse.print_debug("Not a Ethernet link.")
-		return false
-	end
+	return interfaces
+end
+
+local function single_interface_broadcast(if_nfo, results)
+	stdnse.print_debug("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
+
+	local condvar = nmap.condvar(results)
 	local src_mac = if_nfo.mac
 	local src_ip6 = packet.ip6tobin(if_nfo.address)
 	local dst_mac = packet.mactobin("33:33:00:00:00:01")
 	local dst_ip6 = packet.ip6tobin("ff02::1")
-	local id_set = {}
 
 ----------------------------------------------------------------------------
 --Multicast invalid destination exheader probe
@@ -81,8 +89,8 @@ action = function()
 	local dnet = nmap.new_dnet()
 	local pcap = nmap.new_socket()
 
-	try(dnet:ethernet_open(if_name))
-	pcap:pcap_open(if_name, 128, false, "icmp6 and ip6[6:1] = 58 and ip6[40:1] = 4")
+	try(dnet:ethernet_open(if_nfo.device))
+	pcap:pcap_open(if_nfo.device, 128, false, "icmp6 and ip6[6:1] = 58 and ip6[40:1] = 4")
 
 	local probe = packet.Frame:new()
 	probe.mac_src = src_mac
@@ -127,13 +135,11 @@ action = function()
 			local reply = packet.Frame:new(layer2)
 			if reply.mac_dst == src_mac then
 				reply = packet.Packet:new(layer3)
-				local target_addr = reply.ip6_src
-				local identifier = get_identifier(reply.ip6_src)
-				if not id_set[identifier] then
-					id_set[identifier] = true
-					local target_str = packet.toipv6(target_addr)
+				local target_str = packet.toipv6(reply.ip6_src)
+				if not results[target_str] then
 					target.add(target_str)
-					addrs[#addrs + 1] = target_str
+					results[#results + 1] = target_str
+					results[target_str] = true
 				end
 			end
 		end
@@ -142,7 +148,28 @@ action = function()
 	dnet:ethernet_close()
 	pcap:pcap_close()
 
-	if #addrs > 0 then
-		return stdnse.format_output(true, addrs)
+	condvar("signal")
+end
+
+action = function()
+	local threads = {}
+	local results = {}
+	local condvar = nmap.condvar(results)
+
+	for _, if_nfo in ipairs(get_interfaces()) do
+		-- create a thread for each interface
+		local co = stdnse.new_thread(single_interface_broadcast, if_nfo, results)
+		threads[co] = true
+	end
+
+	repeat
+		condvar "wait"
+		for thread in pairs(threads) do
+			if coroutine.status(thread) == "dead" then threads[thread] = nil end
+		end
+	until next(threads) == nil
+
+	if #results > 0 then
+		return stdnse.format_output(true, results)
 	end
 end
