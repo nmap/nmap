@@ -31,6 +31,7 @@ categories = {"discovery","broadcast"}
 
 require 'ipOps'
 require 'nmap'
+require 'tab'
 require 'target'
 require 'packet'
 require "os"
@@ -115,6 +116,17 @@ local function get_interfaces()
 	return interfaces
 end
 
+local function format_mac(mac)
+	local octets
+
+	octets = {}
+	for _, v in ipairs({ string.byte(mac, 1, #mac) }) do
+		octets[#octets + 1] = string.format("%02x", v)
+	end
+
+	return stdnse.strjoin(":", octets)
+end
+
 local function single_interface_broadcast(if_nfo, results)
 	stdnse.print_debug("Starting " .. SCRIPT_NAME .. " on " .. if_nfo.device)
 
@@ -172,9 +184,9 @@ local function single_interface_broadcast(if_nfo, results)
 		if not status then
 			pcap_timeout_count = pcap_timeout_count + 1
 		else
-			local reply = packet.Frame:new(layer2)
-			if string.sub(reply.mac_dst, 1, 3) == string.sub(expected_mac_dst_prefix, 1, 3) then
-				reply = packet.Packet:new(layer3)
+			local l2reply = packet.Frame:new(layer2)
+			if string.sub(l2reply.mac_dst, 1, 3) == string.sub(expected_mac_dst_prefix, 1, 3) then
+				local reply = packet.Packet:new(layer3)
 				if reply.ip6_src == expected_ip6_src and
 					string.sub(expected_ip6_dst_prefix,1,12) == string.sub(reply.ip6_dst,1,12) then
 					local ula_target_addr_str = packet.toipv6(reply.ns_target)
@@ -184,7 +196,7 @@ local function single_interface_broadcast(if_nfo, results)
 					local actual_addr_str = packet.toipv6(actual_prefix .. identifier)
 					if not results[actual_addr_str] then
 						target.add(actual_addr_str)
-						results[#results + 1] = actual_addr_str
+						results[#results + 1] = { address = actual_addr_str, mac = format_mac(l2reply.mac_src), iface = if_nfo.device }
 						results[actual_addr_str] = true
 					end
 				end
@@ -196,6 +208,21 @@ local function single_interface_broadcast(if_nfo, results)
 	pcap:pcap_close()
 
 	condvar("signal")
+end
+
+local function format_output(results)
+	local output = tab.new()
+
+	for _, record in ipairs(results) do
+		tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
+	end
+	if #results > 0 then
+		output = { tab.dump(output) }
+		if not target.ALLOW_NEW_TARGETS then
+			output[#output + 1] = "Use --script-args=newtargets to add the results as targets"
+		end
+		return stdnse.format_output(true, output)
+	end
 end
 
 action = function()
@@ -218,7 +245,5 @@ action = function()
 		end
 	until next(threads) == nil
 
-	if #results > 0 then
-		return stdnse.format_output(true, results)
-	end
+	return format_output(results)
 end

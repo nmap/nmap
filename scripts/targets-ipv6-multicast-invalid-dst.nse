@@ -19,6 +19,7 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery","broadcast"}
 
 require 'nmap'
+require 'tab'
 require 'target'
 require 'packet'
 local bit = require 'bit'
@@ -72,6 +73,17 @@ local function get_interfaces()
 	end
 
 	return interfaces
+end
+
+local function format_mac(mac)
+	local octets
+
+	octets = {}
+	for _, v in ipairs({ string.byte(mac, 1, #mac) }) do
+		octets[#octets + 1] = string.format("%02x", v)
+	end
+
+	return stdnse.strjoin(":", octets)
 end
 
 local function single_interface_broadcast(if_nfo, results)
@@ -132,13 +144,13 @@ local function single_interface_broadcast(if_nfo, results)
 		if not status then
 			pcap_timeout_count = pcap_timeout_count + 1
 		else
-			local reply = packet.Frame:new(layer2)
-			if reply.mac_dst == src_mac then
-				reply = packet.Packet:new(layer3)
+			local l2reply = packet.Frame:new(layer2)
+			if l2reply.mac_dst == src_mac then
+				local reply = packet.Packet:new(layer3)
 				local target_str = packet.toipv6(reply.ip6_src)
 				if not results[target_str] then
 					target.add(target_str)
-					results[#results + 1] = target_str
+					results[#results + 1] = { address = target_str, mac = format_mac(l2reply.mac_src), iface = if_nfo.device }
 					results[target_str] = true
 				end
 			end
@@ -149,6 +161,21 @@ local function single_interface_broadcast(if_nfo, results)
 	pcap:pcap_close()
 
 	condvar("signal")
+end
+
+local function format_output(results)
+	local output = tab.new()
+
+	for _, record in ipairs(results) do
+		tab.addrow(output, "IP: " .. record.address, "MAC: " .. record.mac, "IFACE: " .. record.iface)
+	end
+	if #results > 0 then
+		output = { tab.dump(output) }
+		if not target.ALLOW_NEW_TARGETS then
+			output[#output + 1] = "Use --script-args=newtargets to add the results as targets"
+		end
+		return stdnse.format_output(true, output)
+	end
 end
 
 action = function()
@@ -169,7 +196,5 @@ action = function()
 		end
 	until next(threads) == nil
 
-	if #results > 0 then
-		return stdnse.format_output(true, results)
-	end
+	return format_output(results)
 end
