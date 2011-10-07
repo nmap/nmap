@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
+  interfaces by default. They show the MAC address and interface name
+  now too. [David, Daniel Miller]
+
 o [NSE] Added XMPP support to ssl-cert.nse.
 
 o [NSE] Added http-cors by Toni Ruottu.
