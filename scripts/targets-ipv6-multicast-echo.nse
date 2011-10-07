@@ -7,6 +7,11 @@ on a LAN without needing to individually ping each IPv6 address.
 ---
 -- @usage
 -- ./nmap -6 --script=targets-ipv6-multicast-echo.nse --script-args 'newtargets,interface=eth0' -sL
+-- @output
+-- Pre-scan script results:
+-- | targets-ipv6-multicast-echo:
+-- |   IP: 2001:0db8:0000:0000:0000:0000:0000:0001  MAC: 11:22:33:44:55:66  IFACE: eth0
+-- |_  Use --script-args=newtargets to add the results as targets
 -- @args newtargets  If true, add discovered targets to the scan queue.
 -- @args targets-ipv6-multicast-echo.interface  The interface to use for host discovery.
 

@@ -21,6 +21,11 @@ See also:
 ---
 -- @usage
 -- ./nmap -6 --script=slaac_host_discovery.nse --script-args 'newtargets,interface=eth0' -sP
+-- @output
+-- Pre-scan script results:
+-- | targets-ipv6-multicast-slaac:
+-- |   IP: fe80:0000:0000:0000:1322:33ff:fe44:5566  MAC: 11:22:33:44:55:66  IFACE: eth0
+-- |_  Use --script-args=newtargets to add the results as targets
 -- @args targets-ipv6-multicast-slaac.interface  The interface to use for host discovery.
 
 author = "David Fifield, Xu Weilin"
