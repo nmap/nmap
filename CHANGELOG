@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added bitcoinrpc-info by Toni Ruottu.
+
 o Added a TCP Kerberos service probe. [Patrik]
 
 o [NSE] The targets-ipv6-multicast-*.nse scripts now scan all
