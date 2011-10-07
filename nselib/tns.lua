@@ -563,9 +563,9 @@ Packet.Auth = {
 		local sess_id = select(2, bin.unpack("H16", openssl.rand_pseudo_bytes(16)))
 		local unknown = UNKNOWN_MAP[self.version] or ""
 		local data = bin.pack(">SSA", self.flags, 0x0373, unknown)
-		data = data .. bin.pack("CAH", #self.user, self.user, "0c0000000c" )
-		data = data .. bin.pack("AHAH", "AUTH_SESSKEY", "60000000fe40", self.auth_sesskey, "00010000000d0000000d")
-		data = data .. bin.pack("AHAH", "AUTH_PASSWORD", "4000000040", self.auth_pass, "00000000")
+		data = data .. bin.pack("CA", #self.user, self.user )
+		data = data .. Marshaller.marshalKvp( "AUTH_SESSKEY", self.auth_sesskey, 1 )
+		data = data .. Marshaller.marshalKvp( "AUTH_PASSWORD", self.auth_pass )
 								
 		for k, v in ipairs( self.param_order ) do
 			if ( v['def'] ) then
@@ -1559,7 +1559,6 @@ Crypt = {
 
 		cli_sesskey_enc = openssl.encrypt( "aes-192-cbc", pw_hash, nil, cli_sesskey )
 		cli_sesskey_enc = select(2,bin.unpack("H" .. #cli_sesskey_enc, cli_sesskey_enc))
-		cli_sesskey_enc = cli_sesskey_enc:sub(1, 64) .. " " .. cli_sesskey_enc:sub(65)
 
 		auth_password = openssl.encrypt( "aes-192-cbc", combined_sesskey, nil, rnd .. pass, true )
 		auth_password = select(2, bin.unpack("H" .. #auth_password, auth_password))
