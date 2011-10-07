@@ -32,7 +32,7 @@ require 'shortport'
 require 'json'
 require 'creds'
 
-portrule = shortport.port_or_service(8332, "http")
+portrule = shortport.portnumber(8332)
 
 -- JSON-RPC helpers
 
