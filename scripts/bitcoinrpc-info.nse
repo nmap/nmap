@@ -67,7 +67,7 @@ end
 
 function ServiceProxy:remote(req)
 	local httpdata = http.post(self.host, self.port, self.path, self.options, nil, req)
-	if stdnse.strsplit(" ", httpdata["status-line"])[2] ~= "200" then
+	if httpdata.status ~= 200 then
 		return
 	end
 	local body = httpdata["body"]
