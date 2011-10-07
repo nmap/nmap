@@ -38,7 +38,7 @@ is 0. The payload is consisted of random bytes.
 -- | broadcast-ping: 
 -- |   IP: 192.168.1.1    MAC: 00:23:69:2a:b1:25 
 -- |   IP: 192.168.1.106  MAC: 1c:65:9d:88:d8:36
--- |_  Use the newtargets script-arg to add the results as targets
+-- |_  Use --script-args=newtargets to add the results as targets
 --
 --
 
@@ -267,7 +267,7 @@ action = function()
 	if #output > 0 then
 		output = { tab.dump(output) }
 		if not target.ALLOW_NEW_TARGETS then
-			output[#output + 1] = "Use the newtargets script-arg to add the results as targets"
+			output[#output + 1] = "Use --script-args=newtargets to add the results as targets"
 		end
 		return stdnse.format_output(true, output)
 	end
