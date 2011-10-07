@@ -10,9 +10,7 @@ Calls <code>getinfo</code> on Bitcoin daemon's JSON-RPC interface.
 -- 8332/tcp open  unknown
 -- | bitcoinrpc-info.nse: 
 -- |   USER: root
--- |     proxy: 
 -- |     connections: 36
--- |     errors: 
 -- |     hashespersec: 0
 -- |     generate: false
 -- |     keypoololdest: 1309381827
@@ -90,8 +88,10 @@ end
 local function formatpairs(info)
 	local result = {}
 	for k, v in pairs(info) do
-		local line = k .. ": " .. tostring(v)
-		table.insert(result, line)
+		if v ~= "" then
+			local line = k .. ": " .. tostring(v)
+			table.insert(result, line)
+		end
 	end
 	return result
 end
