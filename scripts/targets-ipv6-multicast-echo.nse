@@ -122,7 +122,9 @@ local function single_interface_broadcast(if_nfo, results)
 			if reply.mac_dst == src_mac then
 				local target_str = packet.toipv6(reply.ip6_src)
 				if not results[target_str] then
-					target.add(target_str)
+					if target.ALLOW_NEW_TARGETS then
+						target.add(target_str)
+					end
 					results[#results + 1] = { address = target_str, mac = format_mac(reply.mac_src), iface = if_nfo.device }
 					results[target_str] = true
 				end

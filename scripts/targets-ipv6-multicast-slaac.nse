@@ -200,7 +200,9 @@ local function single_interface_broadcast(if_nfo, results)
 					--A host will send several NS packets with the same interface identifier if it receives several RA packets with different prefix during the discovery phase.
 					local actual_addr_str = packet.toipv6(actual_prefix .. identifier)
 					if not results[actual_addr_str] then
-						target.add(actual_addr_str)
+						if target.ALLOW_NEW_TARGETS then
+							target.add(actual_addr_str)
+						end
 						results[#results + 1] = { address = actual_addr_str, mac = format_mac(l2reply.mac_src), iface = if_nfo.device }
 						results[actual_addr_str] = true
 					end
