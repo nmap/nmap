@@ -67,11 +67,9 @@ end
 
 function ServiceProxy:remote(req)
 	local httpdata = http.post(self.host, self.port, self.path, self.options, nil, req)
-	if httpdata.status ~= 200 then
-		return
+	if httpdata.status == 200 then
+		return httpdata.body
 	end
-	local body = httpdata["body"]
-	return body
 end
 
 function ServiceProxy:call(method, args)
