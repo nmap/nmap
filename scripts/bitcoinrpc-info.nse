@@ -83,6 +83,25 @@ function ServiceProxy:call(method, args)
 	return result
 end
 
+-- Convert an integer into a broken-down version number.
+-- Prior to version 0.3.13, versions are 3-digit numbers as so:
+--   200 -> 0.2.0
+--   300 -> 0.3.0
+--   310 -> 0.3.10
+-- In 0.3.13 and later, they are 5-digit numbers as so:
+--   31300 -> 0.3.13
+--   31900 -> 0.3.19
+-- Version 0.3.13 release announcement: https://bitcointalk.org/?topic=1327.0
+local function decode_bitcoin_version(n)
+	if n < 31300 then
+		local minor, micro = n / 100, n % 100
+		return string.format("0.%d.%d", minor, micro)
+	else
+		local minor, micro = n / 10000, (n / 100) % 100
+		return string.format("0.%d.%d", minor, micro)
+	end
+end
+
 local function formatpairs(info)
 	local result = {}
 	for k, v in pairs(info) do
@@ -97,13 +116,7 @@ end
 local function getinfo(host, port, user, pass)
 	local auth = {username = user, password = pass}
 	local bitcoind = ServiceProxy:new(host, port, "/", {auth = auth})
-	local info = bitcoind.getinfo()
-	if not info then
-		return nil
-	end
-	local result = formatpairs(info)
-	result["name"] = "USER: " .. user
-	return result
+	return bitcoind.getinfo()
 end
 
 action = function(host, port)
@@ -112,8 +125,20 @@ action = function(host, port)
 	local states = creds.State.VALID + creds.State.PARAM
 	for cred in c:getCredentials(states) do
 		local info = getinfo(host, port, cred.user, cred.pass)
-		table.insert(response, info)
+		if info then
+			local result = formatpairs(info)
+			result["name"] = "USER: " .. cred.user
+			table.insert(response, result)
+
+			port.version.name = "http"
+			port.version.product = "Bitcoin JSON-RPC"
+			if info.version then
+				port.version.version = decode_bitcoin_version(info.version)
+			end
+			nmap.set_port_version(host, port, "hardmatched")
+		end
 	end
+
 	return stdnse.format_output(true, response)
 end
 
