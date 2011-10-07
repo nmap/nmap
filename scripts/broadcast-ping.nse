@@ -36,8 +36,8 @@ is 0. The payload is consisted of random bytes.
 --
 -- @output
 -- | broadcast-ping: 
--- |   IP: 192.168.1.1      MAC: 00:23:69:2a:b1:25 
--- |   IP: 192.168.1.106    MAC: 1c:65:9d:88:d8:36
+-- |   IP: 192.168.1.1    MAC: 00:23:69:2a:b1:25 
+-- |   IP: 192.168.1.106  MAC: 1c:65:9d:88:d8:36
 -- |_  Use the newtargets script-arg to add the results as targets
 --
 --
@@ -51,6 +51,7 @@ require "stdnse"
 require "packet"
 require "openssl"
 require "bin"
+require "tab"
 require "target"
 
 prerule = function()
@@ -256,16 +257,18 @@ action = function()
 	until next(threads) == nil
 	
 	-- generate output
-	local output = {}
+	local output = tab.new()
 	for ip_addr, mac_addr in pairs(icmp_responders) do
 		if target.ALLOW_NEW_TARGETS then
 			target.add(ip_addr)
 		end
-		table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
+		tab.addrow(output, "IP: " .. ip_addr, "MAC: " .. mac_addr)
 	end
-	if #output > 0 and not target.ALLOW_NEW_TARGETS then
-		table.insert(output,"Use the newtargets script-arg to add the results as targets")
+	if #output > 0 then
+		output = { tab.dump(output) }
+		if not target.ALLOW_NEW_TARGETS then
+			output[#output + 1] = "Use the newtargets script-arg to add the results as targets"
+		end
+		return stdnse.format_output(true, output)
 	end
-	
-	return stdnse.format_output( (#output>0), output )
 end
