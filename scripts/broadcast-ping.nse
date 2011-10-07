@@ -257,18 +257,14 @@ action = function()
 	
 	-- generate output
 	local output = {}
-	if target.ALLOW_NEW_TARGETS then
-		for ip_addr, mac_addr in pairs(icmp_responders) do
+	for ip_addr, mac_addr in pairs(icmp_responders) do
+		if target.ALLOW_NEW_TARGETS then
 			target.add(ip_addr)
-			table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
 		end
-	else
-		for ip_addr, mac_addr in pairs(icmp_responders) do
-			table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
-		end
-		if #output>0 then
-			table.insert(output,"Use the newtargets script-arg to add the results as targets")
-		end
+		table.insert(output,"IP: "..ip_addr..string.rep(" ",15-#ip_addr).."  MAC: "..mac_addr)
+	end
+	if #output > 0 and not target.ALLOW_NEW_TARGETS then
+		table.insert(output,"Use the newtargets script-arg to add the results as targets")
 	end
 	
 	return stdnse.format_output( (#output>0), output )
