@@ -1547,13 +1547,13 @@ int nmap_main(int argc, char *argv[]) {
 
   parse_options(argc, fakeargv);
 
-#ifdef WIN32
-  win_init();
-#endif
-
   tty_init(); // Put the keyboard in raw mode
 
    apply_delayed_options();
+
+#ifdef WIN32
+  win_init();
+#endif
 
   /* more fakeargv junk, BTW malloc'ing extra space in argv[0] doesn't work */
   if (o.quashargv) {
