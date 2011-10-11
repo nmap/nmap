@@ -27,7 +27,7 @@ discovered by other scripts.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"auth", "discovery", "safe"}
 
 require 'shortport'
 require 'stdnse'
