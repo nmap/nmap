@@ -1549,7 +1549,7 @@ int nmap_main(int argc, char *argv[]) {
 
   tty_init(); // Put the keyboard in raw mode
 
-   apply_delayed_options();
+  apply_delayed_options();
 
 #ifdef WIN32
   win_init();
