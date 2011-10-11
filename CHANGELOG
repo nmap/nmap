@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ms-sql-dump-hashes, a script that dumps the MS SQL hashes in a
+  format suitable for offline cracking. [Patrik]
+
 o [NSE] Added bitcoinrpc-info by Toni Ruottu.
 
 o Added a TCP Kerberos service probe. [Patrik]
