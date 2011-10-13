@@ -26,7 +26,7 @@ NDIFF_STAGING_DIR = Ndiff
 NPING_BUILD_DIR = nping-build
 NPING_STAGING_DIR = Nping
 
-MACPORTS_PREFIX=$(HOME)/macports-10.4u
+MACPORTS_PREFIX=$(HOME)/macports-10.5
 PREFIX = /usr/local
 
 PACKAGEMAKER = /Developer/usr/bin/packagemaker
@@ -38,20 +38,18 @@ CONFIGURE_ARGS = --prefix="$(PREFIX)" --with-libdnet=included --with-libpcap=inc
 # Flags for building universal binaries. See
 # http://developer.apple.com/documentation/Porting/Conceptual/PortingUnix/compiling/chapter_4_section_3.html.
 UNIVERSAL_CONFIGURE_ARGS = --disable-dependency-tracking
-# gcc-4.0 is used to avoid an error with stdarg.h ("No such file or directory")
-# when building against the 10.4u SDK on OS X 10.6.
-UNIVERSAL_CC = gcc-4.0
-UNIVERSAL_CXX = g++-4.0
+UNIVERSAL_CC = gcc
+UNIVERSAL_CXX = g++
 # Setting ARCHFLAGS separately is required. distutils.util.get_platform
 # sniffs it to determine whether to return a universal architecture
 # ("fat" or "universal") or a single one ("i386" or "ppc"). py2app in
 # turn uses the arch value to decide which of its bootstrappers to
 # install.
-UNIVERSAL_ARCHFLAGS = -arch ppc -arch i386
-UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.4u.sdk
-UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.4 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_ARCHFLAGS = -arch i386
+UNIVERSAL_CPPFLAGS = -isysroot /Developer/SDKs/MacOSX10.5.sdk
+UNIVERSAL_CFLAGS = $(UNIVERSAL_CPPFLAGS) -mmacosx-version-min=10.5 $(UNIVERSAL_ARCHFLAGS)
 UNIVERSAL_CXXFLAGS = $(UNIVERSAL_CFLAGS)
-UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 $(UNIVERSAL_ARCHFLAGS)
+UNIVERSAL_LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5 $(UNIVERSAL_ARCHFLAGS)
 
 CC = $(UNIVERSAL_CC)
 CXX = $(UNIVERSAL_CXX)
