@@ -114,7 +114,7 @@ class TargetGroup {
     such as 192.168.0.0/16 , 10.1.0-5.1-254 , or
     fe80::202:e3ff:fe14:1102 .  The af parameter is AF_INET or
     AF_INET6 Returns 0 for success */
-  int parse_expr(const char * const target_expr, int af);
+  int parse_expr(const char *target_expr, int af);
   /* Grab the next host from this expression (if any).  Returns 0 and
      fills in ss if successful.  ss must point to a pre-allocated
      sockaddr_storage structure */

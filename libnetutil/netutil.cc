@@ -1641,7 +1641,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen) {
  * localhost. (eg: the address is something like 127.x.x.x, the address
  * matches one of the local network interfaces' address, etc).
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
-int islocalhost(const struct sockaddr_storage *const ss) {
+int islocalhost(const struct sockaddr_storage *ss) {
   char dev[128];
   struct sockaddr_in *sin = NULL;
   struct sockaddr_in6 *sin6 = NULL;

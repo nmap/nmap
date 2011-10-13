@@ -269,7 +269,7 @@ struct addrinfo *resolve_all(char *hostname, int pf);
    a route is found, true is returned and rnfo is filled in with all
    of the routing details.  This function takes into account -S and -e
    options set by user (o.spoofsource, o.device) */
-int nmap_route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo);
+int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo);
 
 /* Determines what interface packets destined to 'dest' should be
    routed through.  It can also discover the appropriate next hop (if

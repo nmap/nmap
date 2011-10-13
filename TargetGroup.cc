@@ -118,7 +118,7 @@ void TargetGroup::Initialize() {
  /* Initializes (or reinitializes) the object with a new expression, such
     as 192.168.0.0/16 , 10.1.0-5.1-254 , or fe80::202:e3ff:fe14:1102 .  
     Returns 0 for success */  
-int TargetGroup::parse_expr(const char * const target_expr, int af) {
+int TargetGroup::parse_expr(const char *target_expr, int af) {
 
   int i=0,j=0,k=0;
   int start, end;

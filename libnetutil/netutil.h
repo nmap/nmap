@@ -382,7 +382,7 @@ struct sys_route *getsysroutes(int *howmany, char *errstr, size_t errstrlen);
  * localhost. (eg: the address is something like 127.x.x.x, the address
  * matches one of the local network interfaces' address, etc).
  * Returns 1 if the address is thought to be localhost and 0 otherwise */
-int islocalhost(const struct sockaddr_storage *const ss);
+int islocalhost(const struct sockaddr_storage *ss);
 
 /* Determines whether the supplied address corresponds to a private,
  * non-Internet-routable address. See RFC1918 for details.
@@ -435,7 +435,7 @@ const char *ippackethdrinfo(const u8 *packet, u32 len, int detail);
  * Even if spoofss is NULL, if user specified a network device with -e,
  * it should still be passed. Note that it's OK to pass either NULL or
  * an empty string as the "device", as long as spoofss==NULL. */
-int route_dst(const struct sockaddr_storage * const dst, struct route_nfo *rnfo,
+int route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo,
               const char *device, const struct sockaddr_storage *spoofss);
 
 /* Send an IP packet over a raw socket. */
