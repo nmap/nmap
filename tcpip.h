@@ -271,18 +271,6 @@ struct addrinfo *resolve_all(char *hostname, int pf);
    options set by user (o.spoofsource, o.device) */
 int nmap_route_dst(const struct sockaddr_storage *dst, struct route_nfo *rnfo);
 
-/* Determines what interface packets destined to 'dest' should be
-   routed through.  It can also discover the appropriate next hop (if
-   any) for ethernet routing.  If direct_connect is passed in, it will
-   be set to 1 if dst is directly connected on the ifentry network and
-   0 if it requires routing.  If nexthop_ip is not NULL, and routing
-   is required, the next hop is filled into nexthop_ip.  This function
-   returns false if no appropiate interface or route was found and
-   true if it succeeds. */
-bool routethrough(const struct sockaddr_storage * const dest, 
-		  struct intf_entry *ifentry, 
-		  int *direct_connect, struct sockaddr_storage *nexthop_ip);
-
 unsigned short in_cksum(u16 *ptr,int nbytes);
 
 
