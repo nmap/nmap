@@ -1,18 +1,9 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Fix reported (by many people) crash when trying to launch Zenmap on
-  Mac OS X 10.7 (Lion).
-
-o Unless we get good arguments for keeping it, we should remove Mac OS
-  X PowerPC support from our binaries.  Apple stopped selling PowerPC
-  machines in 2006 and they stopped making new OS releases available
-  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
-  thread: http://seclists.org/nmap-dev/2011/q3/430
+o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
 
 o Integrate more NSE scripts, I think our review queue is getting
   pretty long.
-
-o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
 
 o Do more thinking/researching/investigating the way our machine
   learning IPv6 OS detection system decides whether a match is perfect
@@ -723,6 +714,15 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Fix reported (by many people) crash when trying to launch Zenmap on
+  Mac OS X 10.7 (Lion).
+
+o Unless we get good arguments for keeping it, we should remove Mac OS
+  X PowerPC support from our binaries.  Apple stopped selling PowerPC
+  machines in 2006 and they stopped making new OS releases available
+  for PowerPC as of Snow Leopard (10.6) in August 2009.  See this
+  thread: http://seclists.org/nmap-dev/2011/q3/430
 
 o Improvements to the Nmap multicast IPv6 host discovery scripts
  - Note that we hope to move them into core Nmap at some point, but
