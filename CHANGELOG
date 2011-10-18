@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch that fixes a nil table index bug discovered in the
+  mongodb library. [Thomas Buchanan]
+
 o [NSE] Added ms-sql-dump-hashes, a script that dumps the MS SQL hashes in a
   format suitable for offline cracking. [Patrik]
 

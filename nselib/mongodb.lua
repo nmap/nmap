@@ -172,9 +172,10 @@ local function parse(code,data)
 		return obj_size+1, object
 	--6 = _get_null
 	--7 = _get_oid
-	elseif 8 ==code then -- Boolean
+	elseif 8 == code then -- Boolean
 		return 2, data:byte(1) == 1
-	--9 = _get_date
+	elseif 9 == code then -- int64, UTC datetime
+		return bin.unpack("<l", data)
 	elseif 10 == code then -- nullvalue
 		return 0,nil
 	--11= _get_regex
@@ -182,7 +183,7 @@ local function parse(code,data)
 	--13= _get_string, # code
 	--14= _get_string, # symbol
 	--15=  _get_code_w_scope
-	elseif 16== code then -- 4 byte integer
+	elseif 16 == code then -- 4 byte integer
 		return bin.unpack("<i", data)
 	--17= _get_timestamp
 	elseif 18 == code then -- long 
