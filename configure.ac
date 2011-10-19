@@ -121,6 +121,7 @@ case "$host" in
     # use some AIX specific libraries
     AC_CHECK_LIB(odm, odm_initialize)	
     AC_CHECK_LIB(cfg, _system_configuration)
+    AC_CHECK_LIB(crypt, crypt_r)
     ;;
   *-solaris2.0*)  
     AC_DEFINE(STUPID_SOLARIS_CHECKSUM_BUG)
