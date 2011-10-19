@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made nbase compile with the clang compiler that is a part of Xcode
+  4.2. [Daniel J. Luke]
+
 o [NSE] Applied patch that fixes a nil table index bug discovered in the
   mongodb library. [Thomas Buchanan]
 
