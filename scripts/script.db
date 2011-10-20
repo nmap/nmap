@@ -124,6 +124,7 @@ Entry { filename = "irc-unrealircd-backdoor.nse", categories = { "exploit", "int
 Entry { filename = "iscsi-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "iscsi-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "jdwp-version.nse", categories = { "version", } }
+Entry { filename = "krb5-enum-users.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "ldap-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "ldap-novell-getpass.nse", categories = { "discovery", "safe", } }
 Entry { filename = "ldap-rootdse.nse", categories = { "discovery", "safe", } }

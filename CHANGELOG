@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new script krb5-enum-users.nse that performs user enumeration
+  against Kerberos. [Patrik]
+
 o [NSE] Added a new script http-put.nse that allows uploading of local files
   to remote web servers using the HTTP PUT method. Added HTTP PUT support to
   the http library. [Patrik]
