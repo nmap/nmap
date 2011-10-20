@@ -36,6 +36,16 @@ ASN1Decoder = {
             self.__index = self
             return o
     end,
+
+	--- Tells the decoder to stop if it detects an error while decoding
+	-- this should probably be the default, but some scripts depend on being
+	-- able to decode stuff while lacking proper ASN1 decoding functions.
+	--
+	-- @param val boolean, true if decoding should stop on error,
+	--        otherwise false (default)
+	setStopOnError = function(self, val)
+		self.stoponerror = val
+	end,
 		
 	--- Registers the base simple type decoders
 	-- 
@@ -150,6 +160,7 @@ ASN1Decoder = {
 	   while (sPos < len) do
 	      local newSeq
 	      sPos, newSeq = self:decode(sStr, sPos)
+          if ( not(newSeq) and self.stoponerror ) then break end
 	      table.insert(seq, newSeq)
 	   end
 	   return pos, seq
