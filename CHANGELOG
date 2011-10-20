@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a new script http-put.nse that allows uploading of local files
+  to remote web servers using the HTTP PUT method. Added HTTP PUT support to
+  the http library. [Patrik]
+
 o Made nbase compile with the clang compiler that is a part of Xcode
   4.2. [Daniel J. Luke]
 

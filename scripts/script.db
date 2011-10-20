@@ -96,6 +96,7 @@ Entry { filename = "http-methods.nse", categories = { "default", "safe", } }
 Entry { filename = "http-open-proxy.nse", categories = { "default", "discovery", "external", "safe", } }
 Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-put.nse", categories = { "auth", "discovery", "safe", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
@@ -214,6 +215,7 @@ Entry { filename = "smtp-vuln-cve2011-1720.nse", categories = { "intrusive", "vu
 Entry { filename = "smtp-vuln-cve2011-1764.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "sniffer-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "snmp-brute.nse", categories = { "brute", "intrusive", } }
+Entry { filename = "snmp-brute2.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "snmp-interfaces.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "snmp-ios-config.nse", categories = { "intrusive", } }
 Entry { filename = "snmp-netstat.nse", categories = { "default", "discovery", "safe", } }

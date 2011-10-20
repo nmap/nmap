@@ -1171,6 +1171,31 @@ function generic_request(host, port, method, path, options)
   return request(host, port, build_request(host, port, method, path, options), options)
 end
 
+---Uploads a file using the PUT method and returns a result table. This is a simple wrapper
+-- around <code>generic_request</code>
+--
+-- @param host The host to connect to.
+-- @param port The port to connect to.
+-- @param path The path to retrieve.
+-- @param options [optional] A table that lets the caller control socket timeouts, HTTP headers, and other parameters. For full documentation, see the module documentation (above). 
+-- @param putdata The contents of the file to upload
+-- @return <code>nil</code> if an error occurs; otherwise, a table as described in the module documentation. 
+-- @see http.generic_request
+function put(host, port, path, options, putdata)
+  if(not(validate_options(options))) then
+    return nil
+  end
+  if ( not(putdata) ) then
+	return nil
+  end
+  local mod_options = {
+    content = putdata,
+  }
+  table_augment(mod_options, options or {})
+  return generic_request(host, port, "PUT", path, mod_options)
+end
+
+
 ---Fetches a resource with a GET request and returns the result as a table. This is a simple
 -- wraper around <code>generic_request</code>, with the added benefit of having local caching. 
 -- This caching can be controlled in the <code>options</code> array, see module documentation 
