@@ -20,11 +20,12 @@ Uploads a local file to a remote web server using the HTTP PUT method.
 --
 -- Version 0.1
 -- Created 10/15/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+-- Revised 10/20/2011 - v0.2 - changed coding style, fixed categories <patrik@cqure.net>
 --
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "discovery", "safe"}
+categories = {"discovery", "intrusive"}
 
 require 'shortport'
 require 'stdnse'
@@ -35,18 +36,22 @@ portrule = shortport.port_or_service( {80, 443}, {"http", "https"}, "tcp", "open
 action = function( host, port )
 
 	local fname, url = stdnse.get_script_args('http-url.file', 'http-put.url')
-	if ( not(fname) or not(url) ) then return end 
+	if ( not(fname) or not(url) ) then
+		 return
+	end 
 
 	local f = io.open(fname, "r")
-	if ( not(f) ) then return ("ERROR: Failed to open file: %s"):format(fname) end
+	if ( not(f) ) then
+		return stdnse.format_output(true, ("ERROR: Failed to open file: %s"):format(fname))
+	end
 	local content = f:read("*all")
 	f:close()
 
 	local response = http.put(host, port, url,  nil, content)
 	
 	if ( response.status == 200 or response.status == 204 ) then
-		return ("%s was successfully created"):format(url)
+		return stdnse.format_output(true, ("%s was successfully created"):format(url))
 	end
 
-	return ("ERROR: %s could not be created"):format(url)
+	return stdnse.format_output(true, ("ERROR: %s could not be created"):format(url))
 end
