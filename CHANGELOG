@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a vulnerability management library (vulns.lua) to store and to
+  report discovered vulnerabilities. [Djalal]
+
 o [NSE] Added a new script krb5-enum-users.nse that performs user enumeration
   against Kerberos. [Patrik]
 
