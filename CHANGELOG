@@ -1,5 +1,17 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Made changes to the categories of the following scripts. Their new
+  categories are:
+    - http-userdir-enum.nse (auth,intrusive)
+    - mysql-users.nse (auth,intrusive)
+    - http-wordpress-enum.nse (auth,intrusive,vuln)
+    - krb5-enum-users.nse (auth,intrusive)
+    - snmp-win32-users.nse (default,auth,safe)
+    - smtp-enum-users.nse (auth,external,intrusive)
+    - ncp-enum-users.nse (auth,safe)
+    - smb-enum-users.nse (auth,intrusive)
+  [Duarte Silva]
+
 o [NSE] Added a vulnerability management library (vulns.lua) to store and to
   report discovered vulnerabilities. [Djalal, Henri]
 

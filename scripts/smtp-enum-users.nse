@@ -42,7 +42,7 @@ An example of how to specify the methods to use and the order is the following:
 
 author = "Duarte Silva <duarte.silva@serializing.me>"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery","external","intrusive"}
+categories = {"auth","external","intrusive"}
 
 require "shortport"
 require "stdnse"

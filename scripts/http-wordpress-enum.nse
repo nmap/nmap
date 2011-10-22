@@ -29,7 +29,7 @@ Original advisory:
 
 author = "Paulino Calderon"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "auth", "intrusive", "vuln"}
+categories = {"auth", "intrusive", "vuln"}
 
 require "shortport"
 require "http"

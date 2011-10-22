@@ -25,7 +25,7 @@ Attempts to list all users on a MySQL server.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "intrusive"}
+categories = {"auth", "intrusive"}
 
 require 'shortport'
 require 'stdnse'

@@ -135,7 +135,7 @@ The code I wrote for this is largely based on the techniques used by them.
 author = "Ron Bowes"
 copyright = "Ron Bowes"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery","intrusive"}
+categories = {"auth","intrusive"}
 dependencies = {"smb-brute"}
 
 require 'msrpc'

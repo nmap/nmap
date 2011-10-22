@@ -35,7 +35,7 @@ It needs a valid Kerberos REALM in order to operate.
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"auth", "discovery", "safe"}
+categories = {"auth", "intrusive"}
 
 require 'shortport'
 require 'stdnse'

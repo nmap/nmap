@@ -24,7 +24,7 @@ Retrieves a list of all eDirectory users from the Novell NetWare Core Protocol (
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
-categories = {"discovery", "safe"}
+categories = {"auth", "safe"}
 
 require 'shortport'
 require 'ncp'
