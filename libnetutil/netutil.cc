@@ -849,7 +849,7 @@ void set_ttl(int sd, int ttl) {
 
 /* Returns whether the system supports pcap_get_selectable_fd() properly */
 int pcap_selectable_fd_valid() {
-#if defined(WIN32) || defined(MACOSX) || defined(SOLARIS) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return 0;
 #else
   return 1;
@@ -863,7 +863,7 @@ int pcap_selectable_fd_valid() {
    results.  If you just want to test whether the function is supported,
    use pcap_selectable_fd_valid() instead. */
 int my_pcap_get_selectable_fd(pcap_t *p) {
-#if defined(WIN32) || defined(MACOSX) || defined(SOLARIS) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
+#if defined(WIN32) || defined(MACOSX) || (defined(FREEBSD) && (__FreeBSD_version < 500000))
   return -1;
 #else
   assert(pcap_selectable_fd_valid());
