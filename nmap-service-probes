@@ -3559,7 +3559,7 @@ match osiris m|^\x16\x03\x01\0.\x01\0\0|s p/osiris host IDS agent/
 
 match rtsp m|^RTSP/1\.0 400 Bad Request\r\nDate: .*\r\nAllow: OPTIONS, DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN\r\n\r\n$| p/Geovision webcam rtspd/ d/webcam/
 
-match svnserve m|^\( success \( \d \d \( (ANONYMOUS )?\) \( | p/Subversion/
+match svnserve m|^\( success \( \d \d \( (ANONYMOUS )?\) \( | p/Subversion/ cpe:/a:apache:subversion/
 
 match sumatra-ds m|^v7\x87\x12\0\0\0\x01........$|s p/Sumatra DS Server/
 
