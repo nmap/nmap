@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the missing broadcast category to the broadcast-listener script.
+  [Jason DePriest]
+
 o [NSE] Made changes to the categories of the following scripts. Their new
   categories are:
     - http-userdir-enum.nse (auth,intrusive)
