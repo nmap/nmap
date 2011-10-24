@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed an error in the mssql library that was causing the
+  broadcast-ms-sql-discover script to fail when trying to update port version
+  information. [Patrik]
+
 o [NSE] Added the missing broadcast category to the broadcast-listener script.
   [Jason DePriest]
 

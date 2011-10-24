@@ -2005,7 +2005,7 @@ Helper =
 		  				-- Give some version info back to Nmap
 		  				if ( instance.port and instance.version ) then
 							instance.version:PopulateNmapPortVersion( instance.port )
-							nmap.set_port_version( instance.host, instance.port, "hardmatched" )
+							--nmap.set_port_version( instance.host, instance.port, "hardmatched" )
 						end
 		  			end
 	  			end
