@@ -452,9 +452,9 @@ match ftp m/^220-Sambar FTP Server Version (\d\S+)\x0d\x0a/ p/Sambar ftpd/ v/$1/
 match ftp m|^220-FTP Server ready\r\n220-Use USER user@host for native FTP proxy\r\n220 Your FTP Session will expire after 300 seconds of inactivity\.\r\n| p/Sambar ftpd/
 match ftp m/^220 JD FTP Server Ready/ p/HP JetDirect ftpd/ d/print server/
 match ftp m/^220.*Check Point FireWall-1 Secure FTP server running on/s p/Check Point Firewall-1 ftpd/ d/firewall/
-match ftp m/^220[- ].*FTP server \(Version (wu-[-.\w]+)/s p/WU-FTPD/ v/$1/ o/Unix/
-match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/
-match ftp m|^220 ([-.\w]+) FTP server \(Revision ([\d.]+) Version wuftpd-([-.+\w()]+) [^)]*\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$3/ i/revision $2/ o/Unix/
+match ftp m/^220[- ].*FTP server \(Version (wu-[-.\w]+)/s p/WU-FTPD/ v/$1/ o/Unix/ cpe:/a:redhat:wu_ftpd:$1/
+match ftp m|^220-\r\n220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$2/ o/Unix/ cpe:/a:redhat:wu_ftpd:$2/
+match ftp m|^220 ([-.\w]+) FTP server \(Revision ([\d.]+) Version wuftpd-([-.+\w()]+) [^)]*\) ready\.\r\n$| p/WU-FTPD/ h/$1/ v/$3/ i/revision $2/ o/Unix/ cpe:/a:redhat:wu_ftpd:$3/
 match ftp m|^220 ([-.\w]+) FTP server \(Version ([-.+\w()]+)\) ready\.\r\n$| p|WU-FTPD or MIT Kerberos ftpd| h/$1/ v/$2/ o/Unix/
 
 # ProFTPd 1.2.5
