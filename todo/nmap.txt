@@ -60,20 +60,15 @@ o Revive the Nmap Public Source License project (need to find an open
   o Also take close look at Mozilla's license modernization project:
     http://mpl.mozilla.org/scope/
 
-o Script review:
-  - New scripts from Paulino: http-phpself-xss and
-    http-wordpress-brute and http-joomla-brute,
-    http-majordomo2-dir-traversal.nse, http-trace, http-waf-detect
+o Script review
+ o http-phpself-xss
+  - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916. [
+    waiting on response]
   - Martin Swende patch to force script run
     http://seclists.org/nmap-dev/2010/q4/567
-  - http-slowloris. http://seclists.org/nmap-dev/2011/q1/916.
-  - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
-  - quake3-info. http://seclists.org/nmap-dev/2011/q2/172.
-  - smb-os-discovery additional information. http://seclists.org/nmap-dev/2011/q2/276.
   - irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
   - NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307.
-  - Outlook web address. http://seclists.org/nmap-dev/2011/q2/296.
 
 o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
   packets.
@@ -714,6 +709,18 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o Script review:
+  - New scripts from Paulino: http-wordpress-brute and http-joomla-brute,
+    http-majordomo2-dir-traversal.nse, http-trace, http-waf-detect
+  - http-methods patch. http://seclists.org/nmap-dev/2011/q1/936.
+  - quake3-info. http://seclists.org/nmap-dev/2011/q2/172.
+  - smb-os-discovery additional
+    information. http://seclists.org/nmap-dev/2011/q2/276.
+  - Outlook web
+  address. http://seclists.org/nmap-dev/2011/q2/296. [probably not
+  going to merge to Nmap trunk at this point, though it is good that
+  the script is available for d/l for those who need it. ]
 
 o Fix reported (by many people) crash when trying to launch Zenmap on
   Mac OS X 10.7 (Lion).
