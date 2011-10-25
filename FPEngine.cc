@@ -1610,6 +1610,7 @@ int FPHost6::build_probe_list() {
   routing = new RoutingHeader();
   hopbyhop2 = new HopByHopHeader();
   icmp6 = new ICMPv6Header();
+  payload = new RawData();
   this->target_host->SourceSockAddr(&ss, &slen);
   ip6->setSourceAddress(ss6->sin6_addr);
   this->target_host->TargetSockAddr(&ss, &slen);
@@ -1650,9 +1651,10 @@ int FPHost6::build_probe_list() {
   ip6->setHopLimit(get_hoplimit());
   ip6->setNextHeader("ICMPv6");
   ip6->setNextElement(icmp6);
+  icmp6->setNextElement(payload);
+  payload->store((u8 *) &ss6->sin6_addr, IP6_ADDR_LEN);
   icmp6->setType(ICMPv6_NODEINFOQUERY);
   icmp6->setCode(ICMPv6_NODEINFOQUERY_IPv6ADDR);
-  icmp6->setTargetAddress(ss6->sin6_addr); // Should still contain target's addr
   icmp6->setQtype(NI_QTYPE_IPv4ADDRS);
   icmp6->setA();
   icmp6->setNonce((u8 *) "\x01\x02\x03\x04\x05\x06\x07\x0a");

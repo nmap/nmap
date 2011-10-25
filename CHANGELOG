@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Fixed a bug in the IPv6 OS probe called NI. The Node Information
+  Query didn't include the target address as the payload, so at least
+  OS X didn't respond. This differed from the probe sent by the
+  ipv6fp.py program from which some of our fingerprints were derived.
+  [David]
+
 o [NSE] Fixed an error in the mssql library that was causing the
   broadcast-ms-sql-discover script to fail when trying to update port version
   information. [Patrik]
