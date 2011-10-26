@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script nessus-brute that performs password guessing against
+  Nessus using the NTP 1.2 protocol. [Patrik]
+
 o [NSE] Added the scripts rtsp-url-brute, rtsp-methods and the supporting rtsp
   library. The scripts check the supported RTSP methods and attempt to brute
   force valid RTSP urls. [Patrik]
