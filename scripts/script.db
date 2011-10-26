@@ -98,6 +98,7 @@ Entry { filename = "http-passwd.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-php-version.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-put.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-robots.txt.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "http-robtex-reverse-ip.nse", categories = { "discovery", "external", "safe", } }
 Entry { filename = "http-title.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-trace.nse", categories = { "discovery", "safe", "vuln", } }
 Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", } }

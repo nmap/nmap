@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the http-robtex-reverse-ip script that uses the Robtex service to
+  perform a reverse lookup in order to discover all names associated with the
+  IP. [riemann]
+
 o [NSE] Updated script.db to correct some of the category changes made
   previously and to remove the accidental addition of non-existing snmp-brute2
   script. [Patrik]
