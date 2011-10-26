@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script irc-brute that performs password guessing against 
+  password protected IRC servers. [Patrik]
+
 o [NSE] Added the script nessus-brute that performs password guessing against
   Nessus using the NTP 1.2 protocol. [Patrik]
 
