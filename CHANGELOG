@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the scripts rtsp-url-brute, rtsp-methods and the supporting rtsp
+  library. The scripts check the supported RTSP methods and attempt to brute
+  force valid RTSP urls. [Patrik]
+  
 o [NSE] Added the http-robtex-reverse-ip script that uses the Robtex service to
   perform a reverse lookup in order to discover all names associated with the
   IP. [riemann]

@@ -187,6 +187,8 @@ Entry { filename = "realvnc-auth-bypass.nse", categories = { "auth", "default", 
 Entry { filename = "resolveall.nse", categories = { "discovery", "safe", } }
 Entry { filename = "rmi-dumpregistry.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "rpcinfo.nse", categories = { "default", "discovery", "safe", } }
+Entry { filename = "rtsp-methods.nse", categories = { "default", "safe", } }
+Entry { filename = "rtsp-url-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "servicetags.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "sip-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "sip-enum-users.nse", categories = { "auth", "intrusive", } }
