@@ -2,6 +2,9 @@ TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
 o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
 
+o Integrate latest IPv6 OS detection fingerprint submissions
+ - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
+
 o Integrate more NSE scripts, I think our review queue is getting
   pretty long.
 
