@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Updated script.db to correct some of the category changes made
+  previously and to remove the accidental addition of non-existing snmp-brute2
+  script. [Patrik]
+
 o Fixed a bug in the IPv6 OS probe called NI. The Node Information
   Query didn't include the target address as the payload, so at least
   OS X didn't respond. This differed from the probe sent by the
