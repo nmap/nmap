@@ -7044,7 +7044,41 @@ _ACEOF
 
        { $as_echo "$as_me:${as_lineno-$LINENO}: Device for USB sniffing is /dev/$ac_usb_dev_name" >&5
 $as_echo "$as_me: Device for USB sniffing is /dev/$ac_usb_dev_name" >&6;}
-       for ac_header in linux/usbdevice_fs.h
+       #
+       # Do we have a version of <linux/compiler.h> available?
+       # If so, we might need it for <linux/usbdevice_fs.h>.
+       #
+       for ac_header in linux/compiler.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "linux/compiler.h" "ac_cv_header_linux_compiler_h" "$ac_includes_default"
+if test "x$ac_cv_header_linux_compiler_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_COMPILER_H 1
+_ACEOF
+
+fi
+
+done
+
+       if test "$ac_cv_header_linux_compiler_h" = yes; then
+         #
+	 # Yes - include it when testing for <linux/usbdevice_fs.h>.
+	 #
+         for ac_header in linux/usbdevice_fs.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "linux/usbdevice_fs.h" "ac_cv_header_linux_usbdevice_fs_h" "#include <linux/compiler.h>
+"
+if test "x$ac_cv_header_linux_usbdevice_fs_h" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LINUX_USBDEVICE_FS_H 1
+_ACEOF
+
+fi
+
+done
+
+       else
+         for ac_header in linux/usbdevice_fs.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "linux/usbdevice_fs.h" "ac_cv_header_linux_usbdevice_fs_h" "$ac_includes_default"
 if test "x$ac_cv_header_linux_usbdevice_fs_h" = x""yes; then :
@@ -7056,6 +7090,7 @@ fi
 
 done
 
+       fi
        if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
          #
          # OK, does it define bRequestType?  Older versions of the kernel
@@ -7074,6 +7109,9 @@ else
 $ac_includes_default
 #ifdef HAVE_SYS_BITYPES_H
 #include <sys/bitypes.h>
+#endif
+#ifdef HAVE_LINUX_COMPILER_H
+#include <linux/compiler.h>
 #endif
 #            include <linux/usbdevice_fs.h>
 int

@@ -1314,7 +1314,19 @@ linux*)
        fi
        AC_DEFINE_UNQUOTED(LINUX_USB_MON_DEV, "/dev/$ac_usb_dev_name", [path for device for USB sniffing])
        AC_MSG_NOTICE(Device for USB sniffing is /dev/$ac_usb_dev_name)
-       AC_CHECK_HEADERS(linux/usbdevice_fs.h)
+       #
+       # Do we have a version of <linux/compiler.h> available?
+       # If so, we might need it for <linux/usbdevice_fs.h>.
+       #
+       AC_CHECK_HEADERS(linux/compiler.h)
+       if test "$ac_cv_header_linux_compiler_h" = yes; then
+         #
+	 # Yes - include it when testing for <linux/usbdevice_fs.h>.
+	 #
+         AC_CHECK_HEADERS(linux/usbdevice_fs.h,,,[#include <linux/compiler.h>])
+       else
+         AC_CHECK_HEADERS(linux/usbdevice_fs.h)
+       fi
        if test "$ac_cv_header_linux_usbdevice_fs_h" = yes; then
          #
          # OK, does it define bRequestType?  Older versions of the kernel
@@ -1328,6 +1340,9 @@ linux*)
 AC_INCLUDES_DEFAULT
 #ifdef HAVE_SYS_BITYPES_H
 #include <sys/bitypes.h>
+#endif
+#ifdef HAVE_LINUX_COMPILER_H
+#include <linux/compiler.h>
 #endif
 #            include <linux/usbdevice_fs.h>],
              [u_int i = sizeof(((struct usbdevfs_ctrltransfer *)0)->bRequestType)],

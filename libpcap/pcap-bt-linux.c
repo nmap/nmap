@@ -67,7 +67,6 @@ static const char rcsid[] _U_ =
 static int bt_activate(pcap_t *);
 static int bt_read_linux(pcap_t *, int , pcap_handler , u_char *);
 static int bt_inject_linux(pcap_t *, const void *, size_t);
-static int bt_setfilter_linux(pcap_t *, struct bpf_program *);
 static int bt_setdirection_linux(pcap_t *, pcap_direction_t);
 static int bt_stats_linux(pcap_t *, struct pcap_stat *);
 
@@ -172,7 +171,7 @@ bt_activate(pcap_t* handle)
 
 	handle->read_op = bt_read_linux;
 	handle->inject_op = bt_inject_linux;
-	handle->setfilter_op = bt_setfilter_linux;
+	handle->setfilter_op = install_bpf_program; /* no kernel filtering */
 	handle->setdirection_op = bt_setdirection_linux;
 	handle->set_datalink_op = NULL;	/* can't change data link type */
 	handle->getnonblock_op = pcap_getnonblock_fd;
@@ -301,10 +300,11 @@ bt_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_char *us
 	while (cmsg) {
 		switch (cmsg->cmsg_type) {
 			case HCI_CMSG_DIR:
-				in = *((int *) CMSG_DATA(cmsg));
+				memcpy(&in, CMSG_DATA(cmsg), sizeof in);
 				break;
                       	case HCI_CMSG_TSTAMP:
-				pkth.ts = *((struct timeval *) CMSG_DATA(cmsg));
+                      		memcpy(&pkth.ts, CMSG_DATA(cmsg),
+                      		    sizeof pkth.ts);
 				break;
 		}
 		cmsg = CMSG_NXTHDR(&msg, cmsg);
@@ -316,8 +316,13 @@ bt_read_linux(pcap_t *handle, int max_packets, pcap_handler callback, u_char *us
 	bthdr->direction = htonl(in != 0);
 	pkth.caplen+=sizeof(pcap_bluetooth_h4_header);
 	pkth.len = pkth.caplen;
-	callback(user, &pkth, &handle->buffer[handle->offset]);
-	return 1;
+	if (handle->fcode.bf_insns == NULL ||
+	    bpf_filter(handle->fcode.bf_insns, &handle->buffer[handle->offset],
+	      pkth.len, pkth.caplen)) {
+		callback(user, &pkth, &handle->buffer[handle->offset]);
+		return 1;
+	}
+	return 0;	/* didn't pass filter */
 }
 
 static int
@@ -356,13 +361,6 @@ bt_stats_linux(pcap_t *handle, struct pcap_stat *stats)
 	stats->ps_ifdrop = 0;
 	return 0;
 }
-
-static int 
-bt_setfilter_linux(pcap_t *p, struct bpf_program *fp)
-{
-	return 0;
-}
-
 
 static int 
 bt_setdirection_linux(pcap_t *p, pcap_direction_t d)
