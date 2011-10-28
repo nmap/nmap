@@ -116,17 +116,17 @@ class FingerPrintResults {
   virtual ~FingerPrintResults();
 
   double accuracy[MAX_FP_RESULTS]; /* Percentage of match (1.0 == perfect 
-				      match) in same order as pritns[] below */
+				      match) in same order as matches[] below */
   FingerMatch *matches[MAX_FP_RESULTS]; /* ptrs to matching references -- 
 					      highest accuracy matches first */
-  int num_perfect_matches; /* Number of 1.0 accuracy matches in prints[] */
-  int num_matches; /* Total number of matches in prints[] */
+  int num_perfect_matches; /* Number of 1.0 accuracy matches in matches[] */
+  int num_matches; /* Total number of matches in matches[] */
   int overall_results; /* OSSCAN_TOOMANYMATCHES, OSSCAN_NOMATCHES, 
 			  OSSCAN_SUCCESS, etc */
 
   /* Ensures that the results are available and then returns them.
    You should only call this AFTER all matching has been completed
-   (because results are cached and won't change if new prints[] are
+   (because results are cached and won't change if new matches[] are
    added.)  All OS Classes in the results will be unique, and if there
    are any perfect (accuracy 1.0) matches, only those will be
    returned */
