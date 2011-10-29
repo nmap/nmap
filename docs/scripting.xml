@@ -1988,7 +1988,7 @@ socket:close()
 
           <para>Once the dnet object is created, the function <function>ip_open</function>
           can be called to initialize the object for IP sending.  <function>ip_send</function>
-          sends the actual raw packet, which must start with the IPv4 header.
+          sends the actual raw packet, which must start with the IP header.
           The dnet object places no restrictions on which IP hosts may be sent
           to, so the same object may be used to send to many different hosts
           while it is open.  To close the raw socket, call <function>ip_close</function>.</para>

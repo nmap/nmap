@@ -217,35 +217,34 @@ static int ip_close (lua_State *L)
 
 static int ip_send (lua_State *L)
 {
+  struct abstract_ip_hdr hdr;
   nse_dnet_udata *udata = (nse_dnet_udata *) luaL_checkudata(L, 1, DNET_METATABLE);
-  const char *packet = luaL_checkstring(L, 2);
+  const char *packet;
+  size_t packetlen;
+  unsigned int payloadlen;
   char dev[16];
   int ret;
-  struct sockaddr_storage srcss, dstss, *nexthop;
-  struct sockaddr_in *srcsin = (struct sockaddr_in *) &srcss;
-  struct sockaddr_in *dstsin = (struct sockaddr_in *) &dstss;
-  struct ip *ip = (struct ip *) packet;
 
   if (udata->sock == -1)
     return luaL_error(L, "raw socket not open to send");
 
-  if (lua_objlen(L, 2) < sizeof(struct ip))
-    return luaL_error(L, "ip packet too short");
+  packet = luaL_checklstring(L, 2, &packetlen);
+
+  /* Extract src and dst from packet contents. */
+  payloadlen = packetlen;
+  if (ip_get_data_any(packet, &payloadlen, &hdr) == NULL)
+    return luaL_error(L, "can't parse ip packet");
 
   *dev = '\0';
 
-  /* build sockaddr for target from user packet and determine route */
-  memset(&dstss, 0, sizeof(dstss));
-  dstsin->sin_family = AF_INET;
-  dstsin->sin_addr.s_addr = ip->ip_dst.s_addr;
-
   if (o.sendpref & PACKET_SEND_ETH)
   {
+    struct sockaddr_storage *nexthop;
     struct route_nfo route;
     u8 dstmac[6];
     eth_nfo eth;
 
-    if (!nmap_route_dst(&dstss, &route))
+    if (!nmap_route_dst(&hdr.dst, &route))
       goto usesock;
 
     Strncpy(dev, route.ii.devname, sizeof(dev));
@@ -257,17 +256,12 @@ static int ip_send (lua_State *L)
      * route to the host.  From here on out it's ethernet all the way.
      */
 
-    /* build sockaddr for source from user packet to determine next hop mac */
-    memset(&srcss, 0, sizeof(srcss));
-    srcsin->sin_family = AF_INET;
-    srcsin->sin_addr.s_addr = ip->ip_src.s_addr;
-
     if (route.direct_connect)
-      nexthop = &dstss;
+      nexthop = &hdr.dst;
     else
       nexthop = &route.nexthop;
 
-    if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &srcss, nexthop, dstmac))
+    if (!getNextHopMAC(route.ii.devfullname, route.ii.mac, &hdr.src, nexthop, dstmac))
       return luaL_error(L, "failed to determine next hop MAC address");
 
     /* Use cached ethernet device, and use udata's eth and interface to keep
@@ -285,14 +279,14 @@ static int ip_send (lua_State *L)
 
     udata->eth = eth.ethsd = open_eth_cached(L, 1, route.ii.devname);
 
-    ret = send_ip_packet(udata->sock, &eth, &dstss, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, &eth, &hdr.dst, (u8 *) packet, lua_objlen(L, 2));
   } else {
 usesock:
 #ifdef WIN32
     if (strlen(dev) > 0)
       win32_fatal_raw_sockets(dev);
 #endif
-    ret = send_ip_packet(udata->sock, NULL, &dstss, (u8 *) packet, lua_objlen(L, 2));
+    ret = send_ip_packet(udata->sock, NULL, &hdr.dst, (u8 *) packet, lua_objlen(L, 2));
   }
   if (ret == -1)
     return safe_error(L, "error while sending: %s (errno %d)",
