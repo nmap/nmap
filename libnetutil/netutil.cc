@@ -687,11 +687,18 @@ static const void *ip_get_data_primitive(const void *packet, unsigned int *len,
   return NULL;
 }
 
+/* Find the beginning of the data payload in the IP packet beginning at packet.
+   Returns the beginning of the payload, updates *len to be the length of the
+   payload, and fills in hdr if successful. Otherwise returns NULL and *hdr is
+   undefined. */
 const void *ip_get_data(const void *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr) {
   return ip_get_data_primitive(packet, len, hdr, true);
 }
 
+/* As ip_get_data, except that it doesn't insist that the payload be a known
+   upper-layer protocol. This can matter in IPv6 where the last element of a nh
+   chain may be a protocol we don't know about. */
 const void *ip_get_data_any(const void *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr) {
   return ip_get_data_primitive(packet, len, hdr, false);
