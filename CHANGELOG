@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added ipv6-node-info, which gets hostnames and IP addresses
+  with IPv6 Node Information Queries. [David]
+
 o [NSE] Added the script irc-brute that performs password guessing against 
   password protected IRC servers. [Patrik]
 
