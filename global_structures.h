@@ -175,6 +175,11 @@ struct FingerMatch {
   int line; /* For reference prints, the line # in nmap-os-db */
   char *OS_name;
   std::vector<OS_Classification> OS_class;
+
+  FingerMatch() {
+    line = -1;
+    OS_name = NULL;
+  }
 };
 
 struct FingerTest {
