@@ -492,11 +492,16 @@ end
 -- @param raw_ipv6_addr  16-byte string.
 -- @return IPv6 address string.
 function toipv6(raw_ipv6_addr)
+	local long_addr_str
+	local status, addrs
+
 	if not raw_ipv6_addr then
 		return nil, "IPv6 address was not specified."
 	end
-	return string.format("%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x",
-										string.byte(raw_ipv6_addr,1,16))
+	long_addr_str = stdnse.tohex(raw_ipv6_addr, {separator=":", group=4})
+	status, addrs = nmap.resolve(long_addr_str, "inet6")
+
+	return (status and addrs[1]) or long_addr_str
 end
 --- Generate the link-local IPv6 address from the MAC address.
 -- @param mac  MAC address string.
