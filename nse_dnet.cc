@@ -231,6 +231,8 @@ static int ip_send (lua_State *L)
   packet = luaL_checklstring(L, 2, &packetlen);
 
   /* Extract src and dst from packet contents. */
+  /* TODO: This doesn't work for link-local IPv6 addresses; there's no way to
+     recover the scope_id from the packet contents. */
   payloadlen = packetlen;
   if (ip_get_data_any(packet, &payloadlen, &hdr) == NULL)
     return luaL_error(L, "can't parse ip packet");
