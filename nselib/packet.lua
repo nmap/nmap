@@ -299,7 +299,7 @@ function Packet:build_ipv6_packet(src, dst, nx_hdr, payload, h_limit, t_class, f
 	self.buf =
 		ipv6_hdr_pack_tc_fl(self.ip6_tc, self.ip6_fl) ..
 		numtostr16(self.ip6_plen) .. --payload length
-		string.char(self.ip6_nxt_hdr) .. --next header
+		string.char(self.ip6_nhdr) .. --next header
 		string.char(self.ip6_hlimit) .. --hop limit
 		self.ip6_src .. --Source
 		self.ip6_dst ..--dest
@@ -321,7 +321,7 @@ end
 --- Count IPv6 checksum.
 -- @return the checksum.
 function Packet:count_ipv6_pseudoheader_cksum()
-	local pseudoheader = self.ip6_src .. self.ip6_dst .. numtostr16(#self.l4_packet) .. string.char(0x0,0x0,0x0) .. string.char(self.ip6_nxt_hdr)
+	local pseudoheader = self.ip6_src .. self.ip6_dst .. numtostr16(#self.l4_packet) .. string.char(0x0,0x0,0x0) .. string.char(self.ip6_nhdr)
 	local ck_content = pseudoheader .. self.l4_packet
 	return in_cksum(ck_content)
 end
@@ -336,7 +336,7 @@ end
 -- @param ip6_src 16-byte string of the source IPv6 address.
 -- @param ip6_dst 16-byte string of the destination IPv6 address.
 function Packet:build_icmpv6_header(icmpv6_type, icmpv6_code, icmpv6_payload, ip6_src, ip6_dst)
-	self.ip6_nxt_hdr = IPPROTO_ICMPV6
+	self.ip6_nhdr = IPPROTO_ICMPV6
 	self.icmpv6_type = icmpv6_type or self.icmpv6_type
 	self.icmpv6_code = icmpv6_code or self.icmpv6_code
 	self.icmpv6_payload	 = icmpv6_payload or self.icmpv6_payload

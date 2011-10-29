@@ -128,7 +128,7 @@ local function single_interface_broadcast(if_nfo, results)
 	probe:build_icmpv6_header()
 
 	probe.exheader = build_invalid_extension_header(packet.IPPROTO_ICMPV6)
-	probe.ip6_nxt_hdr = packet.IPPROTO_DSTOPTS
+	probe.ip6_nhdr = packet.IPPROTO_DSTOPTS
 
 	probe:build_ipv6_packet()
 	probe:build_ether_frame()
