@@ -1949,8 +1949,8 @@ bool setTargetNextHopMAC(Target *target) {
 }
 
 /* Like to getTargetNextHopMAC(), but for arbitrary hosts (not Targets) */
-bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
-		   struct sockaddr_storage *dstss, u8 *dstmac)
+bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
+		   const struct sockaddr_storage *dstss, u8 *dstmac)
 {
   arp_t *a;
   struct arp_entry ae;

@@ -497,7 +497,7 @@ int ip_is_reserved(struct in_addr *ip)
    returned for the set command. */
 #define MACCACHE_GET 1
 #define MACCACHE_SET 2
-static int do_mac_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
+static int do_mac_cache(int command, const struct sockaddr_storage *ss, u8 *mac) {
   struct MacCache {
     struct sockaddr_storage ip;
     u8 mac[6];
@@ -551,10 +551,10 @@ static int do_mac_cache(int command, struct sockaddr_storage *ss, u8 *mac) {
  * AF_INET. Otherwise the function will return 0 and there would be
  * no way for the caller to tell tell the difference between an error
  * or a cache miss.*/
-int mac_cache_get(struct sockaddr_storage *ss, u8 *mac){
+int mac_cache_get(const struct sockaddr_storage *ss, u8 *mac){
     return do_mac_cache(MACCACHE_GET, ss, mac);
 }
-int mac_cache_set(struct sockaddr_storage *ss, u8 *mac){
+int mac_cache_set(const struct sockaddr_storage *ss, u8 *mac){
     return do_mac_cache(MACCACHE_SET, ss, mac);
 }
 

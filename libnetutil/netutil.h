@@ -193,8 +193,8 @@ int ip_is_reserved(struct in_addr *ip);
  * Function mac_cache_set() adds an entry with the given ip (ss) and
  * mac address.  An existing entry for the IP ss will be overwritten
  * with the new MAC address.  mac_cache_set() always returns true. */
-int mac_cache_get(struct sockaddr_storage *ss, u8 *mac);
-int mac_cache_set(struct sockaddr_storage *ss, u8 *mac);
+int mac_cache_get(const struct sockaddr_storage *ss, u8 *mac);
+int mac_cache_set(const struct sockaddr_storage *ss, u8 *mac);
 
 const void *ip_get_data(const void *packet, unsigned int *len,
   struct abstract_ip_hdr *hdr);

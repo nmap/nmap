@@ -476,8 +476,8 @@ int setTargetMACIfAvailable(Target *target, struct link_header *linkhdr,
    after an ARP scan if many directly connected machines are involved. */
 bool setTargetNextHopMAC(Target *target);
 
-bool getNextHopMAC(char *iface, u8 *srcmac, struct sockaddr_storage *srcss,
-		   struct sockaddr_storage *dstss, u8 *dstmac);
+bool getNextHopMAC(const char *iface, const u8 *srcmac, const struct sockaddr_storage *srcss,
+		   const struct sockaddr_storage *dstss, u8 *dstmac);
 
 
 
