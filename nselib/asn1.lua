@@ -281,7 +281,9 @@ ASN1Encoder = {
     end,
 
 	---
-	-- Encodes an ASN1 sequence
+	-- Encodes an ASN1 sequence, the value of 30 below breaks down as
+	-- 0x30  = 00110000 =  00          1                   10000
+	-- hex       binary    Universal   Constructed value   Data Type = SEQUENCE (16)  
 	encodeSeq = function(self, seqData)
 		return bin.pack('HAA' , '30', self.encodeLength(#seqData), seqData)
 	end,

@@ -6,12 +6,14 @@
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --
--- Version 0.4
+-- Version 0.5
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Revised to fit better fit ASN.1 library
 -- Revised 02/02/2010 - v0.3 - Revised to fit OO ASN.1 Library
 -- Revised 09/05/2011 - v0.4 - Revised to include support for writing output to file, added decoding certain time
 --                             formats
+-- Revised 10/29/2011 - v0.5 - Added support for performing wildcard searches via the substring filter.
+--                             
 
 module("ldap", package.seeall)
 
@@ -404,6 +406,14 @@ end
 -- @param filter table containing the filter to be created
 -- @return string containing the ASN1 byte sequence
 function createFilter( filter )
+
+	-- In the following code the values 0x80, 0x81, 0x82 when used in the context of an 
+	-- LDAP substring FILTER mean:
+	-- 0x80 = 10000000  =				10           0	 00000 = 0 - match beginning of target string
+	-- 0x81 = 10000001  =				10           0	 00001 = 1 - match any location in target string
+	-- 0x82 = 10000010  =				10           0	 00010 = 2 - match end of target string
+	-- hex      binary    Context Specific   Primitive   Sequence meaning
+
 	local asn1_type = asn1.BERtoInt( asn1.BERCLASS.ContextSpecific, true, filter.op )
 	local filter_str = ""
 
@@ -413,7 +423,35 @@ function createFilter( filter )
 		end
 	else
 		local obj = encode( filter.obj ) 
-		local val = encode( filter.val )
+		local val = ''
+		if ( filter.op == FILTER['substrings'] ) then
+			
+			local tmptable = stdnse.strsplit('*', filter.val)
+			local tmp_result = ''
+			
+			if (#tmptable <= 1 ) then
+				tmp_result = bin.pack('HAA' , '81', string.char(#filter.val), filter.val)
+			else
+				for indexval, substr in ipairs(tmptable) do
+					if (indexval == 1) and (substr ~= '') then
+						tmp_result = bin.pack('HAA' , '80', string.char(#substr), substr)
+					end
+
+					if (indexval ~= #tmptable) and (indexval ~= 1) and (substr ~= '') then
+						tmp_result = tmp_result .. bin.pack('HAA' , '81', string.char(#substr), substr)
+					end
+					
+					if (indexval == #tmptable) and (substr ~= '') then
+						tmp_result = tmp_result .. bin.pack('HAA' , '82', string.char(#substr), substr)
+					end
+				end
+			end
+
+		
+			val = asn1.ASN1Encoder:encodeSeq( tmp_result )
+		else
+			val = encode( filter.val )
+		end 
 
 		filter_str = filter_str .. obj .. val
 	end
