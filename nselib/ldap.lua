@@ -6,13 +6,14 @@
 --
 -- Credit goes out to Martin Swende who provided me with the initial code that got me started writing this.
 --
--- Version 0.5
+-- Version 0.6
 -- Created 01/12/2010 - v0.1 - Created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/28/2010 - v0.2 - Revised to fit better fit ASN.1 library
 -- Revised 02/02/2010 - v0.3 - Revised to fit OO ASN.1 Library
 -- Revised 09/05/2011 - v0.4 - Revised to include support for writing output to file, added decoding certain time
 --                             formats
 -- Revised 10/29/2011 - v0.5 - Added support for performing wildcard searches via the substring filter.
+-- Revised 10/30/2011 - v0.6 - Added support for the ldap extensibleMatch filter type for searches
 --                             
 
 module("ldap", package.seeall)
@@ -407,13 +408,6 @@ end
 -- @return string containing the ASN1 byte sequence
 function createFilter( filter )
 
-	-- In the following code the values 0x80, 0x81, 0x82 when used in the context of an 
-	-- LDAP substring FILTER mean:
-	-- 0x80 = 10000000  =				10           0	 00000 = 0 - match beginning of target string
-	-- 0x81 = 10000001  =				10           0	 00001 = 1 - match any location in target string
-	-- 0x82 = 10000010  =				10           0	 00010 = 2 - match end of target string
-	-- hex      binary    Context Specific   Primitive   Sequence meaning
-
 	local asn1_type = asn1.BERtoInt( asn1.BERCLASS.ContextSpecific, true, filter.op )
 	local filter_str = ""
 
@@ -430,30 +424,85 @@ function createFilter( filter )
 			local tmp_result = ''
 			
 			if (#tmptable <= 1 ) then
+				-- 0x81  = 10000001  =  10        0                 00001
+				-- hex     binary       Context   Primitive value   Field: Sequence  Value: 1 (any / any position in string)
 				tmp_result = bin.pack('HAA' , '81', string.char(#filter.val), filter.val)
 			else
 				for indexval, substr in ipairs(tmptable) do
 					if (indexval == 1) and (substr ~= '') then
+						-- 0x81  = 10000000  =  10        0                 00000
+						-- hex     binary       Context   Primitive value   Field: Sequence  Value: 0 (initial / match at start of string)
 						tmp_result = bin.pack('HAA' , '80', string.char(#substr), substr)
 					end
 
 					if (indexval ~= #tmptable) and (indexval ~= 1) and (substr ~= '') then
+						-- 0x81  = 10000001  =  10        0                 00001
+						-- hex     binary       Context   Primitive value   Field: Sequence  Value: 1 (any / match in any position in string)
 						tmp_result = tmp_result .. bin.pack('HAA' , '81', string.char(#substr), substr)
 					end
 					
 					if (indexval == #tmptable) and (substr ~= '') then
+						-- 0x82  = 10000010  =  10        0                 00010
+						-- hex     binary       Context   Primitive value   Field: Sequence  Value: 2 (final / match at end of string)
 						tmp_result = tmp_result .. bin.pack('HAA' , '82', string.char(#substr), substr)
 					end
 				end
 			end
 
-		
 			val = asn1.ASN1Encoder:encodeSeq( tmp_result )
+			
+		elseif ( filter.op == FILTER['extensibleMatch'] ) then
+		
+			local tmptable = stdnse.strsplit(':=', filter.val)
+			local tmp_result = ''
+			local OID, bitmask
+		
+			if ( tmptable[1] ~= nil ) then
+				OID = tmptable[1]
+			else
+				return false, ("ERROR: Invalid extensibleMatch query format")
+			end
+			
+			if ( tmptable[2] ~= nil ) then
+				bitmask = tmptable[2]
+			else
+				return false, ("ERROR: Invalid extensibleMatch query format")
+			end
+		
+			-- Format and create matchingRule using OID
+			-- 0x81  = 10000001  =  10        0                 00001
+			-- hex     binary       Context   Primitive value   Field: matchingRule  Value: 1
+			tmp_result = bin.pack('HAA' , '81', string.char(#OID), OID)
+			
+			-- Format and create type using ldap attribute
+			-- 0x82  = 10000010  =  10        0                 00010
+			-- hex     binary       Context   Primitive value   Field: Type          Value: 2
+			tmp_result = tmp_result .. bin.pack('HAA' , '82', string.char(#filter.obj), filter.obj)
+
+			-- Format and create matchValue using bitmask
+			-- 0x83  = 10000011  =  10        0                 00011
+			-- hex     binary       Context   Primitive value   Field: matchValue    Value: 3
+			tmp_result = tmp_result .. bin.pack('HAA' , '83', string.char(#bitmask), bitmask)			
+
+			-- Format and create dnAttributes, defaulting to false
+			-- 0x84  = 10000100  =  10        0                 00100
+			-- hex     binary       Context   Primitive value   Field: dnAttributes  Value: 4
+			--
+			-- 0x01 =  field length
+			-- 0x00 =  boolean value, in this case false
+			tmp_result = tmp_result .. bin.pack('H' , '840100')				
+
+			-- Format the overall extensibleMatch block
+			-- 0xa9  = 10101001  =  10        1                 01001
+			-- hex     binary       Context   Constructed       Field: Filter       Value: 9 (extensibleMatch)
+			return bin.pack('HAA' , 'a9', asn1.ASN1Encoder.encodeLength(#tmp_result), tmp_result)
+
 		else
 			val = encode( filter.val )
 		end 
+	
+		filter_str = filter_str .. obj .. val			
 
-		filter_str = filter_str .. obj .. val
 	end
 	return encode( { _ldaptype=bin.pack("A", string.format("%X", asn1_type)), filter_str } )
 end

@@ -11,7 +11,7 @@ anonymous bind will be used as a last attempt.
 -- @args ldap.username If set, the script will attempt to perform an LDAP bind using the username and password
 -- @args ldap.password If set, used together with the username to authenticate to the LDAP server
 -- @args ldap.qfilter If set, specifies a quick filter. The library does not support parsing real LDAP filters.
---       The following values are valid for the filter parameter: computer, users,custom or all. If no value is specified it defaults to all.
+--       The following values are valid for the filter parameter: computer, users, ad_dcs, custom or all. If no value is specified it defaults to all.
 -- @args ldap.searchattrib When used with the 'custom' qfilter, this parameter works in conjunction with ldap.searchvalue to allow the user to specify a custom attribute and value as search criteria.
 -- @args ldap.searchvalue When used with the 'custom' qfilter, this parameter works in conjunction with ldap.searchattrib to allow the user to specify a custom attribute and value as search criteria.
 --       This parameter DOES PERMIT the use of the asterisk '*' as a wildcard.
@@ -72,7 +72,7 @@ anonymous bind will be used as a last attempt.
 -- ------
 -- o Martin Swende who provided me with the initial code that got me started writing this.
 
--- Version 0.7
+-- Version 0.8
 -- Created 01/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 01/20/2010 - v0.2 - added SSL support
 -- Revised 01/26/2010 - v0.3 - Changed SSL support to comm.tryssl, prefixed arguments with ldap, changes in determination of namingContexts
@@ -81,6 +81,7 @@ anonymous bind will be used as a last attempt.
 -- Revised 07/16/2010 - v0.5 - Fixed bug with empty contexts, added objectClass person to qfilter users, add error msg for invalid credentials
 -- Revised 09/05/2011 - v0.6 - Added support for saving searches to a file via argument ldap.savesearch
 -- Revised 10/29/2011 - v0.7 - Added support for custom searches and the ability to leverage LDAP substring search functionality added to LDAP.lua
+-- Revised 10/30/2011 - v0.8 - Added support for ad_dcs (AD domain controller ) searches and the ability to leverage LDAP extensibleMatch filter added to LDAP.lua
 
 
 author = "Patrik Karlsson"
@@ -192,6 +193,9 @@ function action(host,port)
 				   }
 	elseif qfilter == "computers" or qfilter == "computer" then
 		filter = { op=ldap.FILTER.equalityMatch, obj='objectClass', val='computer' }
+	
+	elseif qfilter == "ad_dcs" then
+		filter = { op=ldap.FILTER.extensibleMatch, obj='userAccountControl', val='1.2.840.113556.1.4.803:=8192' }
 		
 	elseif qfilter == "custom" then
 		if searchAttrib == nil or searchValue == nil then
