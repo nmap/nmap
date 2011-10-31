@@ -6,7 +6,7 @@ Please review the following information before you start to scan:
  
 ---
 -- @usage
--- nmap --script=dns-zeustracker <target IP/IP-range>
+-- nmap -sn -PN --script=dns-zeustracker <ip>
 -- @output
 -- Host script results:
 -- | dns-zeustracker: 
