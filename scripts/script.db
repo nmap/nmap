@@ -49,6 +49,7 @@ Entry { filename = "dns-random-txid.nse", categories = { "external", "intrusive"
 Entry { filename = "dns-recursion.nse", categories = { "default", "safe", } }
 Entry { filename = "dns-service-discovery.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "dns-update.nse", categories = { "discovery", "safe", } }
+Entry { filename = "dns-zeustracker.nse", categories = { "discovery", "external", "malware", "safe", } }
 Entry { filename = "dns-zone-transfer.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "domcon-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "domcon-cmd.nse", categories = { "auth", "intrusive", } }
