@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a service probe for VMware ESX Server. The probe is based on a
+  script written by Aleksey Tyurin.
+
 o [NSE] Added dns-zeustracker, which checks whether an IP is part of the Zeus
   botnet. [Mikael Keri]
 

@@ -10088,3 +10088,8 @@ rarity 9
 ports 19150
 
 match gkrellm m|^<gkrellmd_setup>\n<version>\ngkrellmd ([\w._-]+)\n| p/GKrellM System Monitor/ v/$1/
+
+##############################NEXT PROBE##############################
+Probe TCP vmware-esx q|<soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Header><operationID>00000001-00000001</operationID></soap:Header><soap:Body><RetrieveServiceContent xmlns="urn:internalvim25"><_this xsi:type="ManagedObjectReference" type="ServiceInstance">ServiceInstance</_this></RetrieveServiceContent></soap:Body></soap:Envelope>|
+ports 443
+rarity 9
