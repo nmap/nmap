@@ -35,6 +35,12 @@ o Make sure we update everywhere relevant (e.g. refguide, etc.) to
   http://www.csie.ntu.edu.tw/~cjlin/liblinear/COPYRIGHT
   - David has added it to 3rd-party-licenses.txt
 
+o Change the interface of nmap.send_ip to take an explicit destination
+  address. It currently extracts the destination from the packet buffer,
+  which does not have enough information to reconstruct link-local
+  addresses. See r26621 for a similar change that was made to Nmap 
+  internals.
+
 o Process Nmap survey and send out results [Fyodor]
 
 o Make new SecTools.Org site with the 2010 survey results.
