@@ -54,7 +54,7 @@ local HOST_LIST = {
 	'mailgate', 'main', 'manage', 'mgmt', 'monitor', 'mirror', 'mobile', 'mssql',
 	'oracle', 'exchange', 'owa', 'mta', 'mx', 'mx0', 'mx1', 'ntp', 'ops', 'pbx',
 	'whois', 'ssl', 'secure', 'server', 'smtp', 'squid', 'stage', 'stats', 'test',
-	'upload', 'vm', 'vnc', 'vpn', 'wiki', 'xml',
+	'upload', 'vm', 'vnc', 'vpn', 'wiki', 'xml', 'direct',
 }
 
 local SRV_LIST = {
