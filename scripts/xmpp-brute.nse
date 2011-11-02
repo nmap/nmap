@@ -22,6 +22,7 @@ Performs brute force password auditing against XMPP (Jabber) instant messaging s
 -- @args xmpp-brute.servername needed when host name cannot be automatically
 --		 determined (eg. when running against an IP, instead of hostname)
 --
+
 -- Version 0.1
 -- Created 07/21/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 
