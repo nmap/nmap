@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added broadcast-rip-discover which gets RIPv2 routers and their routing
+  information by querying the multicast address [Patrik]
+
 o [NSE] Fixed a bug where the brute library would not abort even after all
   retries were exhausted [Patrik]
 

@@ -23,6 +23,7 @@ Entry { filename = "broadcast-ms-sql-discover.nse", categories = { "broadcast", 
 Entry { filename = "broadcast-netbios-master-browser.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-novell-locate.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-ping.nse", categories = { "broadcast", "discovery", "safe", } }
+Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
