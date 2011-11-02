@@ -524,6 +524,8 @@ Engine =
 		if ( retries == 0 ) then
 			Engine.terminate_all = true
 			self.error = "Too many retries, aborted ..."
+			response = Error:new("Too many retries, aborted ...")
+			response.abort = true
 		end
 		return status, response
 	end,

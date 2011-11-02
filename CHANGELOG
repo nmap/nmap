@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed a bug where the brute library would not abort even after all
+  retries were exhausted [Patrik]
+
 o Added a service probe for VMware ESX Server. The probe is based on a
   script written by Aleksey Tyurin.
 
