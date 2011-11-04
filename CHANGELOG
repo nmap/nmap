@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added brute scripts rlogin-brute and rexec-brute for the rlogin and
+  rexec services [Patrik]
+
 o [NSE] Added broadcast-rip-discover which gets RIPv2 routers and their routing
   information by querying the multicast address [Patrik]
 
