@@ -2834,6 +2834,7 @@ table.insert(fingerprints, {
 	},
 	matches={
 		{match='<h1>Pligg Content Management System</h1>%s*<h2>Version (.-)</h2>', output='Pligg version \\1'},
+		{match='<br /> Version (.-)\n', output='WordPress version \\1'},
 		{output='Interesting, a readme.'}
 	}
 })
