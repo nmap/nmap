@@ -1,10 +1,11 @@
 description = [[
-Tests an http server for Cross-Origin Resource Sharing.
+Tests an http server for Cross-Origin Resource Sharing (CORS), a way
+for domains to explicitly opt in to having certain methods invoked by
+another domain.
 
-Cross-Origin Resource Sharing is a way for domains to explicitly opt in
-to having certain methods invoked by another domain. The script works by
-setting the Access-Control-Request-Method header field for certain
-enumerated methods in OPTIONS requests, and checking the responses.
+The script works by setting the Access-Control-Request-Method header
+field for certain enumerated methods in OPTIONS requests, and checking
+the responses.
 ]]
 
 ---

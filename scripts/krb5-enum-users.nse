@@ -1,5 +1,5 @@
 description = [[
-Discovers valid usernames by querying the Kerberos service for a TGT.
+Discovers valid usernames by brute force querying likely usernames against a Kerberos service.
 When an invalid username is requested the server will responde using the
 Kerberos error code KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN, allowing us to determine
 that the user name was invalid. Valid user names will illicit either the

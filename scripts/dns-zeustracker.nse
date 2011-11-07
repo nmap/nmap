@@ -1,5 +1,5 @@
 description = [[
-Check if your IP-range is part of a Zeus botnet by quering ZTDNS @ abuse.ch!
+Checks if the target IP range is part of a Zeus botnet by quering ZTDNS @ abuse.ch.
 Please review the following information before you start to scan:
 * https://zeustracker.abuse.ch/ztdns.php
 ]]

@@ -1,7 +1,5 @@
 description = [[
-This script is inspired from http-reverse-ip to do a reverse ip lookup 
-using robtex website by parsing http://www.robtex.com/ip/ and return 
-maximum of 100 domains
+Obtains up to 100 forward DNS names for a target IP address by querying http://www.robtex.com/ip/.
 ]]
 
 ---

@@ -1,7 +1,5 @@
 description = [[
-Displays the banner information of an OpenLookup server.
-
-OpenLookup is a network-accessible key-value store.
+Displays the banner information of an OpenLookup (network key-value store) server.
 ]]
 
 ---

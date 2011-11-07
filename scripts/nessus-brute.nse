@@ -1,5 +1,5 @@
 description=[[
-Performs password guessing against the Nessus service using the NTP 1.2 protocol.
+Performs brute force password auditing against a Nessus vulnerability scanning daemon using the NTP 1.2 protocol.
 ]]
 
 ---

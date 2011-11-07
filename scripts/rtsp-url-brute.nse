@@ -1,6 +1,5 @@
 description = [[
-Attempts to brute common RTSP media URLs for devices such as surveillance IP
-cameras.
+Attempts to enumerate RTSP media URLS by testing for common paths on devices such as surveillance IP cameras.
 ]]
 
 ---

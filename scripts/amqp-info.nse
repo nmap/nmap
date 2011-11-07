@@ -1,6 +1,5 @@
 description = [[
-Gathers information from an AMQP server.
-It lists all of its server properties.
+Gathers information (a list of all server properties) from an AMQP (advanced message queuing protocol) server.
 
 See http://www.rabbitmq.com/extensions.html for details on the
 <code>server-properties</code> field.

@@ -1,5 +1,6 @@
 description = [[
-Checks for TFTP filenames from a list.
+Enumerates TFTP (trivial file transfer protocol) filenames by testing
+for a list of common ones.
 
 TFTP doesn't provide directory listings. This script tries to retrieve
 filenames from a list. The list is composed of static names from the

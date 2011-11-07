@@ -1,6 +1,6 @@
 description = [[
-Retrieves system information from a listening Ganglia Monitoring Daemon or
-Ganglia Meta Daemon.
+Retrieves system information (OS version, available memory, etc.) from
+a listening Ganglia Monitoring Daemon or Ganglia Meta Daemon.
 
 Ganglia is a scalable distributed monitoring system for high-performance
 computing systems such as clusters and Grids. The information retrieved

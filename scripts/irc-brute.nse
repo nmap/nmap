@@ -1,5 +1,5 @@
 description=[[
-Performs password guessing agains the IRC service
+Performs brute force password auditing against IRC (Internet Relay Chat) servers.
 ]]
 
 ---

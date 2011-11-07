@@ -1,5 +1,5 @@
 description = [[
-Finds out what methods are supported by the RTSP server.
+Determines which methods are supported by the RTSP (real time streaming protocol) server.
 ]]
 
 ---

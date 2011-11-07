@@ -1,5 +1,5 @@
 description = [[
-Gets hostnames, IPv4 and IPv6 addresses through IPv6 Node Information Queries.
+Obtains hostnames, IPv4 and IPv6 addresses through IPv6 Node Information Queries.
 
 IPv6 Node Information Queries are defined in RFC 4620. There are three
 useful types of queries:
