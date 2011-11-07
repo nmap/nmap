@@ -1,5 +1,5 @@
 description = [[
-Calls <code>getinfo</code> on Bitcoin daemon's JSON-RPC interface.
+Obtains information from a Bitcoin server by calling <code>getinfo</code> on its JSON-RPC interface.
 ]]
 
 ---
