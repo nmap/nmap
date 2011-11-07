@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified the http library to support servers that don't return valid
+  chunked encoded data, such as the Citrix XML service. [Patrik]
+
 o [NSE] Added brute scripts rlogin-brute and rexec-brute for the rlogin and
   rexec services [Patrik]
 

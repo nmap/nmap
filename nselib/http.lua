@@ -493,7 +493,9 @@ local function recv_chunked(s, partial)
 
     line, partial = recv_line(s, partial)
     if not line then
-      return nil, string.format("Didn't find CRLF after chunk-data.")
+	  -- this warning message was initially an error but was adapted
+	  -- to support broken servers, such as the Citrix XML Service
+      stdnse.print_debug(2, "Didn't find CRLF after chunk-data.")
     elseif not string.match(line, "^\r?\n") then
       return nil, string.format("Didn't find CRLF after chunk-data; got %q.", line)
     end
