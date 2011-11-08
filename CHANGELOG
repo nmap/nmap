@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added scripts that grab information from the HTTP servers on
+  various ports used by Apache Hadoop and HBase.
+  - hadoop-datanode-info.nse
+  - hadoop-jobtracker-info.nse
+  - hadoop-namenode-info.nse
+  - hadoop-secondary-namenode-info.nse
+  - hadoop-tasktracker-info.nse
+  - hbase-master-info.nse
+  - hbase-region-info.nse
+  [John Bond]
+
 o [NSE] Modified the http library to support servers that don't return valid
   chunked encoded data, such as the Citrix XML service. [Patrik]
 
