@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Turned on promiscuous mode in targets-sniffer.nse so that it
+  finds packets not only from or to the scanning host. [David]
+
 o [NSE] Added scripts that grab information from the HTTP servers on
   various ports used by Apache Hadoop and HBase.
   - hadoop-datanode-info.nse

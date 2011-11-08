@@ -86,7 +86,7 @@ action = function()
     stdnse.print_debug(1,"Error - unable to open socket using interface %s",interface)
     return
   else
-    sock:pcap_open(interface, 104, false , "ip")
+    sock:pcap_open(interface, 104, true, "ip")
     stdnse.print_debug(1, "Will sniff for %s seconds on interface %s.", (timeout/1000),interface)
 
     repeat
