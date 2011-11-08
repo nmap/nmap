@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the http-method-tamper script that detects authentication bypass
+  vulnerabilities using the http HEAD method as reported in CVE-2010-738.
+  [Hani Benhabiles]
+ 
 o [NSE] Turned on promiscuous mode in targets-sniffer.nse so that it
   finds packets not only from or to the scanning host. [David]
 
