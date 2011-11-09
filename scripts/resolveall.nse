@@ -9,6 +9,17 @@ record) returned for each host name.
 -- @usage 
 -- nmap --script=resolveall --script-args=newtargets,resolveall.hosts={<host1>, ...} ...
 -- @args resolveall.hosts Table of hosts to resolve
+-- @output
+-- Pre-scan script results:
+-- | resolveall: 
+-- |   Host 'google.com' resolves to:
+-- |     74.125.39.106
+-- |     74.125.39.147
+-- |     74.125.39.99
+-- |     74.125.39.103
+-- |     74.125.39.105
+-- |     74.125.39.104
+-- |_  Successfully added 6 new targets
 
 author = "Kris Katterjohn"
 
@@ -17,8 +28,17 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe", "discovery"}
 
 require 'target'
+require 'stdnse'
 
-prerule = function() return target.ALLOW_NEW_TARGETS end
+prerule = function()
+  if not stdnse.get_script_args("resolveall.hosts") then
+    stdnse.print_debug(3,
+      "Skipping '%s' %s, 'resolveall.hosts' argument is missing.",
+      SCRIPT_NAME, SCRIPT_TYPE)
+    return false
+  end
+  return true
+end
 
 local addtargets = function(list)
 	local sum = 0
@@ -36,42 +56,29 @@ local addtargets = function(list)
 end
 
 action = function()
-	local hosts
-
-	for _, k in ipairs({"resolveall.hosts", "hosts"}) do
-		if nmap.registry.args[k] then
-			hosts = nmap.registry.args[k]
-		end
-	end
-
-	if not hosts then
-		stdnse.print_debug(3,
-			"Skipping '%s' %s, 'resolveall.hosts' argument is missing.",
-			SCRIPT_NAME, SCRIPT_TYPE)
-		return
-	end
+	local hosts = stdnse.get_script_args("resolveall.hosts")
 
 	if type(hosts) ~= "table" then
-		stdnse.print_debug(3,
-			"Skipping '%s' %s, 'resolveall.hosts' must be a table.",
-			SCRIPT_NAME, SCRIPT_TYPE)
-		return
+	  hosts = {hosts}
 	end
 
-	local sum = 0
-
+	local sum, output = 0, {}
 	for _, host in ipairs(hosts) do
 		local status, list = nmap.resolve(host, nmap.address_family())
-
 		if status and #list > 0 then
+		    if target.ALLOW_NEW_TARGETS then
 			sum = sum + addtargets(list)
+		    end
+	            table.insert(output,
+	              string.format("Host '%s' resolves to:", host))
+		    table.insert(output, list)
 		end
 	end
 
-	if sum == 0 then
-		return
-	end
-
-	return "Successfully added " .. tostring(sum) .. " new targets"
+	if sum > 0 then
+            table.insert(output,
+              string.format("Successfully added %d new targets",
+              tostring(sum)))
+        end
+        return stdnse.format_output(true, output)
 end
-
