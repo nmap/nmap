@@ -25,15 +25,27 @@ For additional information:
 --@output
 -- PORT    STATE SERVICE
 -- 548/tcp open  afp
--- | afp-path-vuln:  
--- |   Patrik Karlsson's Public Folder/../ (5 first items)
--- |     .bash_history
--- |     .bash_profile
--- |     .CFUserTextEncoding
--- |     .config/
--- |     .crash_report_checksum
--- |   
--- |_AFP path traversal (CVE-2010-0533): VULNERABLE
+-- | afp-path-vuln: 
+-- |   VULNERABLE:
+-- |   Apple Mac OS X AFP server directory traversal
+-- |     State: VULNERABLE (Exploitable)
+-- |     IDs:  CVE:CVE-2010-0533
+-- |     Risk factor: High  CVSSv2: 7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)
+-- |     Description:
+-- |       Directory traversal vulnerability in AFP Server in Apple Mac OS X before
+-- |       10.6.3 allows remote attackers to list a share root's parent directory.
+-- |     Disclosure date: 2010-03-29
+-- |     Exploit results:
+-- |       Patrik Karlsson's Public Folder/../ (5 first items)
+-- |       .bash_history
+-- |       .bash_profile
+-- |       .CFUserTextEncoding
+-- |       .config/
+-- |       .crash_report_checksum
+-- |     References:
+-- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-0533
+-- |       http://support.apple.com/kb/HT1222
+-- |_      http://www.cqure.net/wp/2010/03/detecting-apple-mac-os-x-afp-vulnerability-cve-2010-0533-with-nmap
 --
 
 --
@@ -43,6 +55,7 @@ For additional information:
 -- Revised 05/03/2010 - v0.2 - cleaned up and added dependency to afp-brute and added support 
 --                             for credentials by argument or registry
 -- Revised 10/03/2010 - v0.3 - combined afp-path-exploit and afp-path-vuln into this script
+-- Revised 21/10/2011 - v0.4 - Use the vulnerability library vulns.lua
 
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -51,6 +64,7 @@ categories = {"exploit", "intrusive", "vuln"}
 require 'shortport'
 require 'stdnse'
 require 'afp'
+require 'vulns'
 
 dependencies = {"afp-brute"}
 
@@ -110,7 +124,6 @@ end
 action = function(host, port)
 
 	local status, response, shares
-	local result = {}
 	local afp_helper = afp.Helper:new()
 	local args = nmap.registry.args
 	local users = nmap.registry.afp or { ['nil'] = 'nil' }
@@ -118,10 +131,32 @@ action = function(host, port)
 
 	local MAX_FILES = 5
 
+        local afp_vuln = {
+          title = "Apple Mac OS X AFP server directory traversal",
+          IDS = {CVE = 'CVE-2010-0533'},
+          risk_factor = "High",
+          scores = {
+            CVSSv2 = "7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)",
+          },
+          description = [[
+Directory traversal vulnerability in AFP Server in Apple Mac OS X before
+10.6.3 allows remote attackers to list a share root's parent directory.]],
+          references = {
+'http://www.cqure.net/wp/2010/03/detecting-apple-mac-os-x-afp-vulnerability-cve-2010-0533-with-nmap',
+'http://support.apple.com/kb/HT1222',
+          },
+          dates = {
+            disclosure = {year = '2010', month = '03', day = '29'},
+          },
+          exploit_results = {},
+        }
+
+        local report = vulns.Report:new(SCRIPT_NAME, host, port)
+
 	if ( args['afp.username'] ) then
 		users = {}
 		users[args['afp.username']] = args['afp.password']
-	end	
+	end
 
 	for username, password in pairs(users) do
 
@@ -156,21 +191,27 @@ action = function(host, port)
 					vulnerable = true
 					if(nmap.verbosity() > 1) then
 						response = processResponse( response )
-						response.name = share .. "/../"
+						local name = share .. "/../"
+						table.insert(afp_vuln.exploit_results,
+						    name)
 					else
 						response = processResponse( response, MAX_FILES )
-						response.name = share .. ("/../ (%d first items)"):format(MAX_FILES)
+						local name = share .. ("/../ (%d first items)"):format(MAX_FILES)
+						table.insert(afp_vuln.exploit_results,
+						    name)
 					end
-					table.insert(result, response)
+					table.insert(afp_vuln.exploit_results,
+					    response)
 				end
 			end
 		end
 	end
 	
 	if ( vulnerable ) then
-		table.insert(result, "\n\nAFP path traversal (CVE-2010-0533): VULNERABLE")
+	  afp_vuln.state = vulns.STATE.EXPLOIT
+	else
+          afp_vuln.state = vulns.STATE.NOT_VULN
 	end
 
-	return stdnse.format_output(true, result)			
-	
+        return report:make_output(afp_vuln)
 end

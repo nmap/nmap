@@ -9,9 +9,23 @@ Be advised that, if launched against a vulnerable host, this script will crash t
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-libopie: Warning: Looks like the service has crashed!
--- | Likely prone to CVE-2010-1938 (OPIE off-by-one stack overflow)
--- |_See http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc
+-- | ftp-libopie: 
+-- |   VULNERABLE:
+-- |   OPIE off-by-one stack overflow
+-- |     State: LIKELY VULNERABLE
+-- |     IDs:  CVE:CVE-2010-1938  OSVDB:64949
+-- |     Risk factor: High  CVSSv2: 9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)
+-- |     Description:
+-- |       An off-by-one error in OPIE library 2.4.1-test1 and earlier, allows remote
+-- |       attackers to cause a denial of service or possibly execute arbitrary code
+-- |       via a long username.
+-- |     Disclosure date: 2010-05-27
+-- |     References:
+-- |       http://osvdb.org/64949
+-- |       http://site.pi3.com.pl/adv/libopie-adv.txt
+-- |       http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc
+-- |_      http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-1938
+--
 
 
 author = "Ange Gutek"
@@ -19,10 +33,33 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"vuln","intrusive"}
 
 require "shortport"
+require "vulns"
 
 portrule = shortport.port_or_service(21, "ftp")
 
 action = function(host, port)
+        local opie_vuln = {
+          title = "OPIE off-by-one stack overflow",
+          IDS = {CVE = 'CVE-2010-1938', OSVDB = '64949'},
+          risk_factor = "High",
+          scores = {
+            CVSSv2 = "9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)",
+          },
+          description = [[
+An off-by-one error in OPIE library 2.4.1-test1 and earlier, allows remote
+attackers to cause a denial of service or possibly execute arbitrary code
+via a long username.]],
+          references = {
+'http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc',
+'http://site.pi3.com.pl/adv/libopie-adv.txt',
+          },
+          dates = {
+            disclosure = {year = '2010', month = '05', day = '27'},
+          },
+        }
+
+        local report = vulns.Report:new(SCRIPT_NAME, host, port)
+
 	local socket = nmap.new_socket()
 	local result
 	-- If we use more that 31 chars for username, ftpd will crash (quoted from the advisory).
@@ -51,12 +88,11 @@ action = function(host, port)
 
 		  status, result = socket:receive_lines(1);
 		  if status then
-			    return
+		    opie_vuln.state = vulns.STATE.NOT_VULN
 		  else
 		  -- if the server does not answer anymore we may have reached a stack overflow condition
-		  return "Warning: Looks like the service has crashed!\nLikely prone to CVE-2010-1938 (OPIE off-by-one stack overflow)\nSee http://security.freebsd.org/advisories/FreeBSD-SA-10:05.opie.asc"
+		    opie_vuln.state = vulns.STATE.LIKELY_VULN
 		  end
-	else
-		return
 	end
+	return report:make_output(opie_vuln)
 end

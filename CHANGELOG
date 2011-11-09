@@ -1,5 +1,16 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified the following vulnerability scripts to use the new
+  vulnerability library.
+  - ftp-libopie.nse
+  - http-vuln-cve2011-3192.nse
+  - ftp-vuln-cve2010-4221.nse
+  - ftp-vsftpd-backdoor.nse
+  - smtp-vuln-cve2011-1720.nse
+  - smtp-vuln-cve2011-1764.nse
+  - afp-path-vuln.nse
+  [Djalal, Henri]
+
 o [NSE] Add irc-botnet-channels.nse, to check an IRC server for
   channel names that may be used by botnets. [David, Ange Gutek]
 

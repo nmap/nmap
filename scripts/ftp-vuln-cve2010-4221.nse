@@ -19,10 +19,25 @@ Reference:
 -- @output
 -- PORT   STATE SERVICE
 -- 21/tcp open  ftp
--- | ftp-vuln-cve2010-4221:
--- |   ProFTPD version: 1.3.2e
--- |   ProFTPD Telnet IAC buffer overflow (CVE-2011-4221):
--- |_    ProFTPD (CVE-2011-4221): VULNERABLE 
+-- | ftp-vuln-cve2010-4221: 
+-- |   VULNERABLE:
+-- |   ProFTPD server TELNET IAC stack overflow
+-- |     State: VULNERABLE
+-- |     IDs:  CVE:CVE-2010-4221  BID:44562  OSVDB:68985
+-- |     Risk factor: High  CVSSv2: 10.0 (HIGH) (AV:N/AC:L/Au:N/C:C/I:C/A:C)
+-- |     Description:
+-- |       ProFTPD server (version 1.3.2rc3 through 1.3.3b) is vulnerable to
+-- |       stack-based buffer overflow. By sending a large number of TELNET_IAC
+-- |       escape sequence, a remote attacker will be able to corrup the stack and
+-- |       execute arbitrary code.
+-- |     Disclosure date: 2010-11-02
+-- |     References:
+-- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4221
+-- |       http://osvdb.org/68985
+-- |       http://www.metasploit.com/modules/exploit/freebsd/ftp/proftp_telnet_iac
+-- |       http://bugs.proftpd.org/show_bug.cgi?id=3521
+-- |_      http://www.securityfocus.com/bid/44562
+--
 
 author = "Djalal Harouni"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -31,6 +46,7 @@ categories = {"intrusive", "vuln"}
 require "ftp"
 require "shortport"
 require "stdnse"
+require "vulns"
 
 portrule = function (host, port)
   if port.version.product ~= nil and port.version.product ~= "ProFTPD" then
@@ -75,7 +91,7 @@ local function is_version_vulnerable(version)
       end
     elseif relnum == '3' then
       if extra:len() == 0 or extra:match("[abrc]") then
-      	return true
+        return true
       end
     end
   end
@@ -112,9 +128,7 @@ local function kill_proftpd(socket)
 end
 
 local function check_proftpd(ftp_opts)
-  local out, ftp_server = {}, {}
-  local cve, proftpd_vuln = "CVE-2010-4221"
-  local proftpd_str = "ProFTPD Telnet IAC buffer overflow ("..cve.."):"
+  local ftp_server = {}
   local socket, ret = ftp.connect(ftp_opts.host, ftp_opts.port,
                                  {recv_before = true})
   if not socket then
@@ -128,40 +142,60 @@ local function check_proftpd(ftp_opts)
     return ftp_finish(socket, false, "not a ProFTPD server.")
   end
 
+  local vuln = ftp_opts.vuln
   -- check if this version is vulnerable
   if ftp_server.version then
     if not is_version_vulnerable(ftp_server.version) then
-      return ftp_finish(socket, false, "ProFTPD is NOT VULENRABLE.")
+      vuln.state = vulns.STATE.NOT_VULN
+      return ftp_finish(socket, true)
     end
-    table.insert(out, string.format("ProFTPD version: %s",
-                                    ftp_server.version))
-    proftpd_vuln = string.format("  ProFTPD (%s): LIKELY VULNERABLE", cve)
+    vuln.state = vulns.STATE.LIKELY_VULN
   end
 
   local status, killed = kill_proftpd(socket)
   if not status then
     return ftp_finish(socket, false, killed)
   elseif killed then
-    proftpd_vuln = string.format("  ProFTPD (%s): VULNERABLE", cve)
-  elseif not proftpd_vuln then
-    return ftp_finish(socket, false,
-                      'server ProFTPD seems NOT VULNERABLE.')
+    vuln.state = vulns.STATE.VULN
+  elseif not vuln.state then
+    vuln.state = vulns.STATE.NOT_VULN
   end
 
-  table.insert(out, proftpd_str)
-  table.insert(out, proftpd_vuln)
-  return ftp_finish(socket, true, out)
+  return ftp_finish(socket, true)
 end
 
 action = function(host, port)
   local ftp_opts = {
     host = host,
     port = port,
+    vuln = {
+      title = 'ProFTPD server TELNET IAC stack overflow',
+      IDS = {CVE = 'CVE-2010-4221', OSVDB = '68985', BID = '44562'},
+      risk_factor = "High",
+      scores = {
+        CVSSv2 = "10.0 (HIGH) (AV:N/AC:L/Au:N/C:C/I:C/A:C)",
+      },
+      description = [[
+ProFTPD server (version 1.3.2rc3 through 1.3.3b) is vulnerable to
+stack-based buffer overflow. By sending a large number of TELNET_IAC
+escape sequence, a remote attacker will be able to corrup the stack and
+execute arbitrary code.]],
+      references = {
+'http://bugs.proftpd.org/show_bug.cgi?id=3521',
+'http://www.metasploit.com/modules/exploit/freebsd/ftp/proftp_telnet_iac',
+      },
+      dates = {
+        disclosure = {year = 2011, month = 11, day = 02},
+      },
+    }
   }
-  local status, output = check_proftpd(ftp_opts)
+
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+
+  local status, err = check_proftpd(ftp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, output)
+    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
     return nil
   end
-  return stdnse.format_output(status, output)
+  return report:make_output(ftp_opts.vuln)
 end

@@ -15,11 +15,24 @@ Reference:
 -- @output
 -- PORT   STATE SERVICE
 -- 25/tcp open  smtp
--- | smtp-vuln-cve2011-1720:
--- | Postfix Cyrus SASL (CVE-2011-1720):
--- |   AUTH MECHANISMS: CRAM-MD5 DIGEST-MD5 NTLM PLAIN LOGIN
--- |   AUTH tests: CRAM-MD5
--- |_  Postfix Cyrus SASL authentication: VULNERABLE (CRAM-MD5 => DIGEST-MD5)
+-- | smtp-vuln-cve2011-1720: 
+-- |   VULNERABLE:
+-- |   Postfix SMTP server Cyrus SASL Memory Corruption
+-- |     State: VULNERABLE
+-- |     IDs:  CVE:CVE-2011-1720  OSVDB:72259
+-- |     Description:
+-- |       The Postfix SMTP server is vulnerable to a memory corruption vulnerability
+-- |       when the Cyrus SASL library is used with authentication mechanisms other
+-- |       than PLAIN and LOGIN.
+-- |     Disclosure date: 2011-05-08
+-- |     Check results:
+-- |       AUTH tests: CRAM-MD5 NTLM
+-- |     Extra information:
+-- |       Available AUTH MECHANISMS:  CRAM-MD5 DIGEST-MD5 NTLM PLAIN LOGIN
+-- |     References:
+-- |       http://www.postfix.org/CVE-2011-1720.html
+-- |       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1720
+-- |_      http://osvdb.org/72259
 --
 -- @args smtp.domain Define the domain to be used in the SMTP EHLO command.
 
@@ -30,6 +43,7 @@ categories = {"intrusive", "vuln"}
 require "shortport"
 require "smtp"
 require "stdnse"
+require "vulns"
 
 portrule = shortport.port_or_service({25, 465, 587},
                 {"smtp", "smtps", "submission"})
@@ -87,11 +101,11 @@ local function chk_auth_mechanisms(ehlo_res, auth_mlist)
 end
 
 -- Close any remaining connection
-local function smtp_finish(socket, status, msg)
+local function smtp_finish(socket, status, err)
   if socket then
     smtp.quit(socket)
   end
-  return status, msg
+  return status, err
 end
 
 -- Tries to kill the smtpd server
@@ -134,8 +148,6 @@ end
 -- Postfix Cyrus SASL authentication memory corruption
 -- http://www.postfix.org/CVE-2011-1720.html
 local function check_smtpd(smtp_opts)
-  local postfix_vuln = "Postfix Cyrus SASL authentication"
-
   local socket, ret = smtp.connect(smtp_opts.host,
                           smtp_opts.port,
                           {ssl = false,
@@ -186,10 +198,12 @@ local function check_smtpd(smtp_opts)
     end
   end
 
-  local output = {}
-  output.name = "Postfix Cyrus SASL (CVE-2011-1720):"
+  local vuln = smtp_opts.vuln
+  vuln.check_results = {}
   if (#auth_mech_str > 0) then
-    table.insert(output, string.format("AUTH MECHANISMS: %s", auth_mech_str))
+    vuln.extra_info = {}
+    table.insert(vuln.extra_info,
+        string.format("Available AUTH MECHANISMS: %s", auth_mech_str))
 
     -- maybe vulnerable
     if next(auth_mech_list) then
@@ -210,12 +224,12 @@ local function check_smtpd(smtp_opts)
               end
 
               if ret then
-                table.insert(output,
-                    string.format("AUTH tests:%s", auth_tests))
-                table.insert(output,
-                    string.format("%s: VULNERABLE (%s => %s)",
-                        postfix_vuln, mech, mkill))
-                return smtp_finish(nil, true, output)
+                vuln.state = vulns.STATE.VULN
+                table.insert(vuln.check_results,
+                  string.format("AUTH tests:%s", auth_tests))
+                table.insert(vuln.check_results,
+                    string.format("VULNERABLE (%s => %s)", mech, mkill))
+                return smtp_finish(nil, true)
               end
 
             end
@@ -225,14 +239,17 @@ local function check_smtpd(smtp_opts)
         end
       end
 
-      table.insert(output, string.format("AUTH tests:%s", auth_tests))
+      table.insert(vuln.check_results, string.format("AUTH tests:%s",
+                                                     auth_tests))
     end 
   else
-    table.insert(output, "Authentication is not available")
+    stdnse.print_debug(2, "%s: Authentication is not available",
+        SCRIPT_NAME)
+    table.insert(vuln.check_results, "Authentication is not available")
   end
-   
-  table.insert(output, string.format("%s: NOT VULNERABLE", postfix_vuln))
-  return smtp_finish(socket, true, output)
+  
+  vuln.state = vulns.STATE.NOT_VULN
+  return smtp_finish(socket, true)
 end
 
 action = function(host, port)
@@ -241,11 +258,27 @@ action = function(host, port)
     port = port,
     domain = stdnse.get_script_args('smtp-vuln-cve2011-1720.domain') or
                 smtp.get_domain(host),
+    vuln = {
+      title = 'Postfix SMTP server Cyrus SASL Memory Corruption',
+      IDS = {CVE = 'CVE-2011-1720', OSVDB = '72259'},
+      description = [[
+The Postfix SMTP server is vulnerable to a memory corruption vulnerability
+when the Cyrus SASL library is used with authentication mechanisms other
+than PLAIN and LOGIN.]],
+      references = {
+        'http://www.postfix.org/CVE-2011-1720.html',
+      },
+      dates = {
+        disclosure = {year = '2011', month = '05', day = '08'},
+      },
+    },
   }
-  local status, output = check_smtpd(smtp_opts)
+
+  local report = vulns.Report:new(SCRIPT_NAME, host, port)
+  local status, err = check_smtpd(smtp_opts)
   if not status then
-    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, output)
+    stdnse.print_debug(1, "%s: %s", SCRIPT_NAME, err)
     return nil
   end
-  return stdnse.format_output(status, output)
+  return report:make_output(smtp_opts.vuln)
 end
