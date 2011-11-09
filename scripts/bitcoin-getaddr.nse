@@ -2,6 +2,21 @@ description = [[
 Queries a BitCoin server for a list of known BitCoin nodes
 ]]
 
+---
+-- @usage
+-- nmap -p 8333 --script bitcoin-getaddr <ip>
+--
+-- @output
+-- PORT     STATE SERVICE
+-- 8333/tcp open  unknown
+-- | bitcoin-getaddr: 
+-- |   ip                    timestamp
+-- |   10.10.10.10:8333      11/09/11 17:38:00
+-- |   10.10.10.11:8333      11/09/11 17:42:39
+-- |   10.10.10.12:8333      11/09/11 19:34:07
+-- |   10.10.10.13:8333      11/09/11 17:37:45
+-- |_  10.10.10.14:8333      11/09/11 17:37:12
+
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"discovery", "safe"}
@@ -9,6 +24,12 @@ categories = {"discovery", "safe"}
 require 'shortport'
 require 'bitcoin'
 require 'tab'
+
+--
+-- Version 0.1
+-- 
+-- Created 11/09/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
+--
 
 portrule = shortport.port_or_service(8333, "bitcoin", "tcp" )
 
