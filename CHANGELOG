@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Add irc-botnet-channels.nse, to check an IRC server for
+  channel names that may be used by botnets. [David, Ange Gutek]
+
 o [NSE] Added the http-method-tamper script that detects authentication bypass
   vulnerabilities using the http HEAD method as reported in CVE-2010-738.
   [Hani Benhabiles]
