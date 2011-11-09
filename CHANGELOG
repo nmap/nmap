@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the scripts bitcoin-info, bitcoin-getaddr and a supporting
+  Bitcoin library. The script bitcoin-info retrieves information about the
+  remote server, while the bitcoin-getaddr script retrieves a list of
+  discovered remote Bitcoin nodes. [Patrik]
+
 o [NSE] Modified the following vulnerability scripts to use the new
   vulnerability library.
   - ftp-libopie.nse
