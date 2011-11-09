@@ -44,7 +44,14 @@ require "stdnse"
 require "target"
 
 prerule = function()
-	return true
+    if not stdnse.get_script_args(SCRIPT_NAME..".torrent") and
+    not stdnse.get_script_args(SCRIPT_NAME..".magnet") then
+        stdnse.print_debug(3,
+          "Skipping '%s' %s, No magnet link or torrent file arguments.",
+          SCRIPT_NAME, SCRIPT_TYPE)
+        return false
+    end
+    return true
 end
 
 action = function()
@@ -53,10 +60,6 @@ action = function()
 	local magnet = stdnse.get_script_args(SCRIPT_NAME..".magnet")
 	local include_nodes = stdnse.get_script_args(SCRIPT_NAME..".include-nodes")
 	
-	if not (magnet or filename) then
-		stdnse.print_debug(SCRIPT_NAME.." not running. No magnet link or torrent file specified")
-		return
-	end
 	t = bittorrent.Torrent:new()
 	if filename then
 		t:load_from_file(filename)
@@ -126,4 +129,3 @@ action = function()
 
 	return stdnse.format_output( print_out , output)
 end
-
