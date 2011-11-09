@@ -79,6 +79,8 @@ action = function()
             table.insert(output,
               string.format("Successfully added %d new targets",
               tostring(sum)))
+        else
+            table.insert(output, "Use the 'newtargets' script-arg to add the results as targets")
         end
         return stdnse.format_output(true, output)
 end
