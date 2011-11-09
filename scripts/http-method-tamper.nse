@@ -6,7 +6,7 @@ bypassed via a HEAD request. RFC 2616 specifies that the HEAD request should be 
 with no returned response body. The script also detects if the URL does not require authentication at all.
 
 For more information, see:
-* CVE-2010-738 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-0738
+* CVE-2010-0738 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-0738
 * http://www.imperva.com/resources/glossary/http_verb_tampering.html
 * https://www.owasp.org/index.php/Testing_for_HTTP_Methods_and_XST_%28OWASP-CM-008%29
 
