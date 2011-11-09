@@ -29,7 +29,13 @@ license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"intrusive", "discovery"}
 
 prerule = function()
-	return stdnse.get_script_args("dns-brute.domain")
+    if not stdnse.get_script_args("dns-brute.domain") then
+      stdnse.print_debug(3,
+        "Skipping '%s' %s, 'dns-brute.domain' argument is missing.",
+        SCRIPT_NAME, SCRIPT_TYPE)
+      return false
+    end
+    return true
 end
 
 hostrule = function(host)
