@@ -955,13 +955,13 @@ match ftp-proxy m|^220 server ready - login please\r\n| p/Squid ftp proxy/
 match vdr m|^220 (\S+) SVDRP VideoDiskRecorder (\d[^\;]+);| p/VDR/ v/$2/ d/media device/ h/$1/
 match vdr m|^Access denied!\n$| p/VDR/ d/media device/
 
-softmatch ftp m/^220 Welcome to ([-.\w]+) FTP.*\r\n$/i h/$1/
-softmatch ftp m/^220 ([-.\w]+) [-.\w ]+ftp.*\r\n$/i h/$1/
-softmatch ftp m/^220-([-.\w]+) [-.\w ]+ftp.*\r\n220/i h/$1/
-softmatch ftp m/^220 [-.\w ]+ftp.*\r\n$/i
-softmatch ftp m/^220-[-.\w ]+ftp.*\r\n220/i
-softmatch ftp m/^220[- ].*ftp server.*\r\n/i
-softmatch ftp m/^220-\r?\n220 - ftp/i
+softmatch ftp m|^220 Welcome to ([-.\w]+) FTP.*\r\n$|i h/$1/
+softmatch ftp m|^220 ([-.\w]+) [-.\w ]+ftp.*\r\n$|i h/$1/
+softmatch ftp m|^220-([-.\w]+) [-.\w ]+ftp.*\r\n220|i h/$1/
+softmatch ftp m|^220 [-.\w ]+ftp.*\r\n$|i
+softmatch ftp m|^220-[-.\w ]+ftp.*\r\n220|i
+softmatch ftp m|^220[- ].*ftp server.*\r\n|i
+softmatch ftp m|^220-\r?\n220 - ftp|i
 
 match freeswitch-event m|^Content-Type: auth/request\n\n| p/FreeSWITCH mod_event_socket/
 
@@ -1225,8 +1225,8 @@ match imap-proxy m|^\* OK \[CAPABILITY IMAP4rev1\] SpamPal for Windows\r\n| p/Sp
 match imap-proxy m|^\* OK Zarafa IMAP gateway ready\r\n| p/Zarafa imap proxy/ o/Unix/
 match imap-proxy m|\* OK \[CAPABILITY IMAP4rev1 UIDPLUS CHILDREN NAMESPACE THREAD=ORDEREDSUBJECT THREAD=REFERENCES SORT QUOTA IDLE ACL ACL2=UNION\] Courier-IMAP ready\. Copyright 1998-2008 Double Precision, Inc\. See COPYING for distribution information\.\r\n| p/imapproxy/
 
-softmatch imap m/^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i h/$1/
-softmatch imap m/^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$/i
+softmatch imap m|^\* OK ([-.\w]+) [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i h/$1/
+softmatch imap m|^\* OK [-.\w,:+ ]+imap[-.\w,:+ ]+\r\n$|i
 
 # Cyrus IMSPD
 match imsp m|^\* OK Cyrus IMSP version (\d[-.\w]+) ready\r\n$| p/Cyrus IMSPd/ v/$1/
@@ -2639,7 +2639,7 @@ match ssh m|^SSH-([\d.]+)-3Com OS-([\w._-]+ Release \w+)\n| p/3Com switch sshd/ 
 match ssh m|^SSH-2\.0-XXXX\r\n| p/Cyberoam firewall sshd/ d/firewall/
 match ssh m|^SSH-2\.0-Tc6l51-sD1m-m_\n| p/Fortinet FortiWifi 60C firewall sshd/ d/firewall/
 
-softmatch ssh m/^SSH-([\d.]+)-/ i/protocol $1/
+softmatch ssh m|^SSH-([\d.]+)-| i/protocol $1/
 
 
 match soldat m|^Soldat Admin Connection Established\.\.\.\r\nAdmin connected\.\r\n| p/Soldat multiplayer-game server/
@@ -3482,7 +3482,7 @@ match vnc m|^RFB 103\.006\n| p/Microsoft Virtual Server remote control/ o/Window
 match vnc m|^ISD 001\.000\n$| p/iTALC/
 match vnc m|^.{27}\x16\x20\xe4\xb0\x95\x63\x29\x78\xdb\x6e\x35\x92$|s p/Ultr@VNC/
 
-softmatch vnc m/RFB \d\d(\d)\.\d\d\d\n/ i/protocol $1/
+softmatch vnc m|RFB \d\d(\d)\.\d\d\d\n| i/protocol $1/
 
 match vtun m|^VTUN server ver +(\d[-.\w /]+)\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Vtun Virtual Tunnel/ v/$1/
 match vtun m|^VTUN server ver \. (\d[-.\w /]+)\n\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Vtun Virtual Tunnel/ v/$1/
@@ -4737,7 +4737,7 @@ softmatch http m|^HTTP/1\.[01] \d\d\d.*\r\nDate: .*\r\nServer: Apache ([^\r\n]+)
 
 # Apache Stronghold
 match http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold/([-.\w]+) Apache/([-.\w]+)| p/Apache Stronghold httpd/ v/$1/ i/based on Apache $2/
-softmatch http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold| p/Apache Stronghold httpd/  i/based on Apache/
+softmatch http m|^HTTP/1\.[01] \d\d\d.*\r\nDate:.*\r\nServer: Stronghold| p/Apache Stronghold httpd/ i/based on Apache/
 
 
 match http m|^HTTP/1\.[01] \d\d\d [^\r\n]*\r\n.*Server: nginx\r\n| p/nginx/
@@ -8891,7 +8891,7 @@ match postgresql m|^E\0\0\0\xb1S\xec\xb9\x98| p/PostgreSQL DB/ cpe:/a:postgresql
 # PostgreSQL softmatch entries, put all hard matches above this line.
 softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Munsupported frontend protocol 65363| p/PostgreSQL DB/ cpe:/a:postgresql:postgresql/
 softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0MProtocole non support\?e de l'interface 65363| p/PostgreSQL DB/ i/French/ cpe:/a:postgresql:postgresql::::fr/
-softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Mel protocolo 65363|  p/PostgreSQL DB/ i/Spanish/ cpe:/a:postgresql:postgresql::::es/
+softmatch postgresql m|^E\0\0\0.S\w+\0C0A000\0Mel protocolo 65363| p/PostgreSQL DB/ i/Spanish/ cpe:/a:postgresql:postgresql::::es/
 
 match tng-dts m|^\0\0\0\$sequence_number=\[0\] result=\[-2005\] \0$| p/CA DTS Agent/
 
@@ -9396,7 +9396,7 @@ match radmin m|^\x01\x00\x00\x00\x25\x59\x00\x02\x12\x08\x02\x00\x59\x0a| p/Fama
 match radmin m|^\x01\x00\x00\x00\x25\x04\x00\x02\x12\x08\x02\x00\x04\x0a| p/Famatech Radmin/ v/3.0/ o/Windows/ cpe:/a:famatech:radmin:3.0/ cpe:/o:microsoft:windows/a
 match radmin m|^\x01\x00\x00\x00\x09\x00\x00\x10\x4f\x2f\x10\x00\x00\x04\x00\x00\x00\x1c| p/Famatech Radmin/ v/3.X/ i/Source IP blocked/ o/Windows/ cpe:/a:famatech:radmin:3/ cpe:/o:microsoft:windows/a
 
-softmatch radmin m|^\x01\x00\x00\x00\x25.\x00..\x08.\x00..|s p/Famatech Radmin/ o/Windows/ cpe:/o:microsoft:windows/a cpe:/a:famatech:radmin/
+softmatch radmin m|^\x01\x00\x00\x00\x25.\x00..\x08.\x00..|s p/Famatech Radmin/ o/Windows/ cpe:/a:famatech:radmin/ cpe:/o:microsoft:windows/a
 
 ##############################NEXT PROBE##############################
 Probe UDP Sqlping q|\x02|
@@ -9748,11 +9748,11 @@ match ms-sql-s m|^\x04\x01\x00.\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\
 match ms-sql-s m|^\x04\x01\x00.\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32\x09\xc4|s p/Microsoft SQL Server 2008 R2/ v/10.50.2500; SP1/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2:sp1/ cpe:/o:microsoft:windows/
 
 #Major version match lines - in the event that minor versions do not match
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32| p/Microsoft SQL Server 2008 R2/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:microsoft:sql_server:2008_r2/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00| p/Microsoft SQL Server 2008/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:microsoft:sql_server:2008/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09| p/Microsoft SQL Server 2005/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:microsoft:sql_server:2005/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:microsoft:sql_server:2000/
-softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01| p/Microsoft SQL Server/ o/Windows/ cpe:/o:microsoft:windows/ cpe:/a:microsoft:sql_server/
+softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x32| p/Microsoft SQL Server 2008 R2/ o/Windows/ cpe:/a:microsoft:sql_server:2008_r2/ cpe:/o:microsoft:windows/
+softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x0a\x00| p/Microsoft SQL Server 2008/ o/Windows/ cpe:/a:microsoft:sql_server:2008/ cpe:/o:microsoft:windows/
+softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x09| p/Microsoft SQL Server 2005/ o/Windows/ cpe:/a:microsoft:sql_server:2005/ cpe:/o:microsoft:windows/
+softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01\x00\x00\x00\x15\x00\x06\x01\x00\x1b\x00\x01\x02\x00\x1c\x00\x01\x03\x00\x1d\x00\x00\xff\x08| p/Microsoft SQL Server 2000/ o/Windows/ cpe:/a:microsoft:sql_server:2000/ cpe:/o:microsoft:windows/
+softmatch ms-sql-s m|^\x04\x01\x00\x25\x00\x00\x01| p/Microsoft SQL Server/ o/Windows/ cpe:/a:microsoft:sql_server/ cpe:/o:microsoft:windows/
 
 
 ##############################NEXT PROBE##############################
