@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script openvas-otp-brute that performs password auditing
+  against the OpenVas service. [Vlatko Kosturjak]
+
 o [NSE] Fixed bug that would prevent brute scripts from running if no service
   field was present in the port table. [Patrik]
 
