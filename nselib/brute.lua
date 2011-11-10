@@ -604,7 +604,8 @@ Engine =
 		local condvar = nmap.condvar( cvar )
 		
 		assert(self.options.script_name, "SCRIPT_NAME was not set in options.script_name")
-		assert(self.port.number and self.port.protocol and self.port.service, "Invalid port table detected")
+		assert(self.port.number and self.port.protocol, "Invalid port table detected")
+		self.port.service = self.port.service or "unknown"
 		
 		-- Only run the check method if it exist. We should phase this out
 		-- in favor of a check in the action function of the script
