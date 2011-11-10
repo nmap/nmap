@@ -1453,6 +1453,8 @@ match omniback m|^HP Data Protector ([\w.]+): INET, internal build 611, built on
 
 match outpost-ctl m|^\[\xb0`\x81\x91\xd3\x9eI\xa2\*\x0f\x99\xff\x8a_\x12................\x01\0$|s p/Agnitum Outpost Firewall control/ d/firewall/
 
+match ovm-manager m|^\xac\xed\0\x05$| p/Oracle OVM Manager/
+
 match precomd m|^nduid: \x00([0-9a-f]{40})$| p/WebOS precomd/ o/Linux/ i/nduid $1/ d/phone/ cpe:/o:linux:kernel/a
 
 match donkey m|^.*\0\0\0\x06\0Donkey\x01\x0c\0\./donkey\.ini\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0|s p/MLdonkey multi-network P2P GUI port/
