@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script metasploit-xmlrpc-brute that performs password
+  auditing against the Metasploit XMLRPC service. [Vlatko Kosturjak]
+
 o [NSE] Added the script openvas-otp-brute that performs password auditing
   against the OpenVas service. [Vlatko Kosturjak]
 
