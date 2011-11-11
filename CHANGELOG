@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Re-enabled support for guessing the username in addition to password
+  that was incorrectly removed from the metasploit-xmlrpc-brute in previous
+  commit. [Patrik]
+  
 o [NSE] Added the script metasploit-xmlrpc-brute that performs password
   auditing against the Metasploit XMLRPC service. [Vlatko Kosturjak]
 

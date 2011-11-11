@@ -46,7 +46,7 @@ Driver =
 	end,
 
 	login = function( self, username, password )
-		local xmlreq='<?xml version="1.0" ?><methodCall><methodName>auth.login</methodName><params><param><value><string>msf</string></value></param><param><value><string>'..password.."</string></value></param></params></methodCall>\n"..string.char(0)
+		local xmlreq='<?xml version="1.0" ?><methodCall><methodName>auth.login</methodName><params><param><value><string>'..username..'</string></value></param><param><value><string>'..password.."</string></value></param></params></methodCall>\n"..string.char(0)
 		local status, err = self.socket:send(xmlreq)
 
 		if ( not ( status ) ) then
@@ -88,7 +88,6 @@ action = function(host, port)
 	local engine = brute.Engine:new(Driver, host, port, opts)
 	engine.options.script_name = SCRIPT_NAME
 	engine.options.firstonly = true
-	engine.options.passonly = true
 	status, result = engine:start()
 	return result
 end
