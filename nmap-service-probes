@@ -10095,3 +10095,10 @@ match gkrellm m|^<gkrellmd_setup>\n<version>\ngkrellmd ([\w._-]+)\n| p/GKrellM S
 Probe TCP vmware-esx q|<soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Header><operationID>00000001-00000001</operationID></soap:Header><soap:Body><RetrieveServiceContent xmlns="urn:internalvim25"><_this xsi:type="ManagedObjectReference" type="ServiceInstance">ServiceInstance</_this></RetrieveServiceContent></soap:Body></soap:Envelope>|
 ports 443
 rarity 9
+
+##############################NEXT PROBE##############################
+Probe TCP metasploit-xmlrpc q|<?xml version="1.0" ?><methodCall><methodName>nmap.probe</methodName></methodCall>\n\0|
+ports 55553
+sslports 55553
+rarity 9
+match metasploit-xmlrpc m|<\?xml\x20version=\"1\.0\"\x20\?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-99</i4></value></member><member><name>faultString</name><value><string>Method\x20nmap\.probe\x20missing\x20or\x20wrong\x20number\x20of\x20parameters!</string></value></member></struct></value></fault></methodResponse>\n\0|
