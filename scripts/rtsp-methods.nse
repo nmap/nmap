@@ -20,7 +20,7 @@ Determines which methods are supported by the RTSP (real time streaming protocol
 -- Version 0.1
 -- Created 23/10/2011 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 --
-author = "Patrik Karlsson <patrik@cqure.net>"
+author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"default", "safe"}
 

@@ -25,7 +25,7 @@ require 'brute'
 require 'shortport'
 require 'comm'
 
-author = "Patrik Karlsson <patrik@cqure.net>"
+author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories={"brute","intrusive"}
 
