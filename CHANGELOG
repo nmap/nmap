@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a probe for the MongoDB service [Martin Holst Swende]
+
 o Added a probe for the Metasploit XMLRPC service [Vlatko Kosturjak]
 
 o [NSE] Re-enabled support for guessing the username in addition to password

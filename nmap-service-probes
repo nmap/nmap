@@ -10102,3 +10102,11 @@ ports 55553
 sslports 55553
 rarity 9
 match metasploit-xmlrpc m|<\?xml\x20version=\"1\.0\"\x20\?><methodResponse><fault><value><struct><member><name>faultCode</name><value><i4>-99</i4></value></member><member><name>faultString</name><value><string>Method\x20nmap\.probe\x20missing\x20or\x20wrong\x20number\x20of\x20parameters!</string></value></member></struct></value></fault></methodResponse>\n\0|
+
+##############################NEXT PROBE##############################
+# MongoDB probe, this is a status request
+# See http://www.mongodb.org/display/DOCS/Mongo+Wire+Protocol for more details
+Probe TCP mongodb q|\x41\0\0\0\x3a\x30\0\0\xff\xff\xff\xff\xd4\x07\0\0\0\0\0\0test.$cmd\0\0\0\0\0\xff\xff\xff\xff\x1b\0\0\0\x01serverStatus\0\0\0\0\0\0\0\xf0\x3f\0|
+rarity 8
+ports 27017
+match mongodb m|^.*version.....([\.\d]+)| p/MongoDB/ v/$1/
