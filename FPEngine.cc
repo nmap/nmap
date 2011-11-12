@@ -784,7 +784,7 @@ static double vectorize_isr(std::map<std::string, FPPacket>& resps) {
 }
 
 static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
-  const char * const IPV6_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "IE1", "IE2", "NI", "NS", "U1", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
+  const char * const IPV6_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "IE1", "IE2", "NS", "U1", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
   const char * const TCP_PROBE_NAMES[] = {"S1", "S2", "S3", "S4", "S5", "S6", "TECN", "T2", "T3", "T4", "T5", "T6", "T7"};
   unsigned int nr_feature, i, idx;
   struct feature_node *features;
