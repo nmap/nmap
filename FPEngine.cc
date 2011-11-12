@@ -662,8 +662,8 @@ FPEngine6::~FPEngine6() {
 }
 
 
-/* From FPmodel.cc. */
-extern struct model FPmodel;
+/* From FPModel.cc. */
+extern struct model FPModel;
 extern double FPscale[][2];
 extern FingerMatch FPmatches[];
 
@@ -801,7 +801,7 @@ static struct feature_node *vectorize(const FingerPrintResultsIPv6 *FPR) {
     resps[FPR->fp_responses[i]->probe_id].setTime(&FPR->fp_responses[i]->senttime);
   }
 
-  nr_feature = get_nr_feature(&FPmodel);
+  nr_feature = get_nr_feature(&FPModel);
   features = new feature_node[nr_feature + 1];
   for (i = 0; i < nr_feature; i++) {
     features[i].index = i + 1;
@@ -929,15 +929,15 @@ static void classify(FingerPrintResultsIPv6 *FPR) {
   double *values;
   struct label_prob *labels;
 
-  nr_class = get_nr_class(&FPmodel);
+  nr_class = get_nr_class(&FPModel);
 
   features = vectorize(FPR);
   values = new double[nr_class];
   labels = new struct label_prob[nr_class];
 
-  apply_scale(features, get_nr_feature(&FPmodel), FPscale);
+  apply_scale(features, get_nr_feature(&FPModel), FPscale);
 
-  predict_values(&FPmodel, features, values);
+  predict_values(&FPModel, features, values);
   for (i = 0; i < nr_class; i++) {
     labels[i].label = i;
     labels[i].prob = 1.0 / (1.0 + exp(-values[i]));
