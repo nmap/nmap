@@ -623,10 +623,7 @@ Engine =
 	
 		local cvar = {}
 		local condvar = nmap.condvar( cvar )
-		local script_env = getfenv(2)
 		
-		-- get the SCRIPT_NAME of the executing script
-		self.options.script_name = self.options.script_name or script_env.SCRIPT_NAME
 		assert(self.options.script_name, "SCRIPT_NAME was not set in options.script_name")
 		assert(self.port.number and self.port.protocol, "Invalid port table detected")
 		self.port.service = self.port.service or "unknown"
