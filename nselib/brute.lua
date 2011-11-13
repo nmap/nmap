@@ -132,6 +132,8 @@
 --
 -- @args brute.useraspass guess the username as password for each user
 --       (default: true)
+-- @args brute.emptypass guess an empty password for each user
+--       (default: false)
 -- @args brute.unique make sure that each password is only guessed once
 --       (default: true)
 -- @args brute.firstonly stop guessing after first password is found
@@ -158,11 +160,15 @@
 --       iterator the pass mode will be enabled.
 -- @args brute.credfile a file containing username and password pairs delimited
 --       by '/'
+-- @args brute.guesses the number of guesses to perform against each account.
+--       (default: 0 (unlimited)). The argument can be used to prevent account
+--       lockouts.
+--
 -- @author "Patrik Karlsson <patrik@cqure.net>"
 -- @copyright Same as Nmap--See http://nmap.org/book/man-legal.html
 
 --
--- Version 0.7
+-- Version 0.73
 -- Created 06/12/2010 - v0.1 - created by Patrik Karlsson <patrik@cqure.net>
 -- Revised 07/13/2010 - v0.2 - added connect, disconnect methods to Driver
 --							   <patrik@cqure.net>
@@ -179,6 +185,11 @@
 --                             iterator to use a file handle instead of table
 -- Revised 07/21/2011 - v0.72- added code to allow script reporting invalid
 --								(non existing) accounts using setInvalidAccount
+-- Revised 11/12/2011 - v0.73- added support for max guesses per account to 
+--                             prevent account lockouts.
+--                             bugfix: added support for guessing the username
+--                             as password per default, as suggested by the
+--                             documentation.
 
 module(... or "brute", package.seeall)
 require 'unpwdb'
@@ -202,6 +213,10 @@ require 'creds'
 --   * title       - changes the title of the result table where the
 --                   passwords are returned.
 --   * nostore     - don't store the results in the credential library
+--   * max_guesses - the maximum amount of guesses to perform for each
+--                   account.
+--   * useraspass  - guesses the username as password (default: true)
+--   * emptypass   - guesses an empty string as password (default: false)
 --
 Options = {
 	
@@ -210,10 +225,13 @@ Options = {
        	setmetatable(o, self)
         self.__index = self
 
+		o.emptypass = self.checkBoolArg("brute.emptypass", false)
+		o.useraspass = self.checkBoolArg("brute.useraspass", true)
 		o.firstonly = self.checkBoolArg("brute.firstonly", false)
 		o.passonly = self.checkBoolArg("brute.passonly", false)
 		o.max_retries = tonumber( nmap.registry.args["brute.retries"] ) or 3
 		o.delay = tonumber( nmap.registry.args["brute.delay"] ) or 0
+		o.max_guesses = tonumber( nmap.registry.args["brute.guesses"] ) or 0
 
 		return o
 	end,
@@ -224,10 +242,8 @@ Options = {
 	-- @param default boolean containing the default value
 	-- @return boolean, true if argument evaluates to 1 or true, else false
 	checkBoolArg = function( arg, default )
-		local val = nmap.registry.args[arg]
-
-		if ( not(val) ) then return default end
-		return ( val == "true" or val=="1" ) and true or false
+		local val = stdnse.get_script_args(arg) or default
+		return (val == "true" or val==true or tonumber(val)==1)
 	end,
 	
 	--- Sets the brute mode to either iterate over users or passwords
@@ -390,6 +406,7 @@ Engine =
 			tps = {},
 			iterators = {},
 			found_accounts = {},
+			account_guesses = {},
 			options = Options:new(),
 		}
        	setmetatable(o, self)
@@ -467,6 +484,7 @@ Engine =
 		local status, response
 		local next_credential = self:get_next_credential()
 		local retries = self.options.max_retries
+		local username, password
 		
 		repeat
 			local driver = self.driver:new( self.host, self.port, self.driver_options )
@@ -474,8 +492,6 @@ Engine =
 
 			-- Did we succesfully connect?
 			if ( status ) then
-
-				local username, password
 				if ( not(username) and not(password) ) then
 					repeat
 						username, password = next_credential()
@@ -484,7 +500,12 @@ Engine =
 							self.threads[coroutine.running()].terminate = true
 							return false 
 						end
-					until ( not(self.found_accounts) or not(self.found_accounts[username]) )
+					until ( ( not(self.found_accounts) or not(self.found_accounts.username) ) and
+						  ( self.options.max_guesses == 0 or not(self.account_guesses[username]) or 
+						    self.options.max_guesses > self.account_guesses[username] ) )
+					
+					-- increases the number of guesses for an account
+					self.account_guesses[username] = self.account_guesses[username] and self.account_guesses[username] + 1 or 1
 				end
 
 				-- make sure that all threads locked in connect stat terminate quickly
@@ -519,7 +540,7 @@ Engine =
 	
 		-- Increase the amount of total guesses
 		self.counter = self.counter + 1
-			
+					
 		-- did we exhaust all retries, terminate and report?
 		if ( retries == 0 ) then
 			Engine.terminate_all = true
@@ -666,6 +687,21 @@ Engine =
 			table.insert( self.iterators, Iterators.pw_user_iterator( usernames, passwords ) )
 		end
 
+		if ( ( not(mode) or mode == 'user' or mode == 'pass' ) and self.options.useraspass ) then
+			table.insert( self.iterators, 1, Iterators.pw_same_as_user_iterator(usernames, "lower"))
+		end
+		
+		if ( ( not(mode) or mode == 'user' or mode == 'pass' ) and self.options.emptypass ) then
+			local function empty_pass_iter()
+				local function next_pass()
+					coroutine.yield( "" )
+				end
+				return coroutine.wrap(next_pass)
+			end
+			table.insert( self.iterators, 1, Iterators.account_iterator(usernames, empty_pass_iter(), mode or "pass"))
+		end
+			 
+
 		self.starttime = os.time()
 
 		-- Startup all worker threads
@@ -707,6 +743,17 @@ Engine =
 		table.insert(stats, ("Performed %d guesses in %d seconds, average tps: %d"):format( self.counter, time_diff, tps ) )
 		stats.name = "Statistics"
 		table.insert( result, stats )
+		
+		if ( self.options.max_guesses > 0 ) then
+			-- we only display a warning if the guesses are equal to max_guesses
+			for user, guesses in pairs(self.account_guesses) do
+				if ( guesses == self.options.max_guesses ) then
+					table.insert( result, { name = "Information", 
+						  ("Guesses restricted to %d tries per account to avoid lockout"):format(self.options.max_guesses) } )
+					break
+				end
+			end
+		end
 
 		result = ( #result ) and stdnse.format_output( true, result ) or ""
 		
@@ -724,8 +771,8 @@ Iterators = {
 
 	--- Iterates over each user and password
 	--
-	-- @param users table containing list of users
-	-- @param pass table containing list of passwords
+	-- @param users table/function containing list of users
+	-- @param pass table/function containing list of passwords
 	-- @param mode string, should be either 'user' or 'pass' and controls
 	--        whether the users or passwords are in the 'outer' loop
 	-- @return function iterator
@@ -771,8 +818,8 @@ Iterators = {
 
 	--- Try each password for each user (user in outer loop)
 	--
-	-- @param users table containing list of users
-	-- @param pass table containing list of passwords
+	-- @param users table/function containing list of users
+	-- @param pass table/function containing list of passwords
 	-- @return function iterator
 	user_pw_iterator = function( users, pass )
 		return Iterators.account_iterator( users, pass, "user" )
@@ -780,8 +827,8 @@ Iterators = {
 
 	--- Try each user for each password (password in outer loop)
 	--
-	-- @param users table containing list of users
-	-- @param pass table containing list of passwords
+	-- @param users table/function containing list of users
+	-- @param pass table/function containing list of passwords
 	-- @return function iterator
 	pw_user_iterator = function( users, pass )
 		return Iterators.account_iterator( users, pass, "pass" )
@@ -789,21 +836,22 @@ Iterators = {
 
 	--- An iterator that returns the username as password
 	--
-	-- @param users table containing list of users
+	-- @param users function returning the next user
 	-- @param case string [optional] 'upper' or 'lower', specifies if user
 	--        and password pairs should be case converted.
 	-- @return function iterator
 	pw_same_as_user_iterator = function( users, case )	
 		local function next_credential ()
-			for _, user in ipairs(users) do
+			for user in users do
 				if ( case == 'upper' ) then
-					coroutine.yield( user:upper(), user:upper() )
+					coroutine.yield(user, user:upper())
 				elseif( case == 'lower' ) then
-					coroutine.yield( user:lower(), user:lower() )
+					coroutine.yield(user, user:lower())
 				else
-					coroutine.yield( user, user )
-				end	
+					coroutine.yield(user, user)
+				end
 			end
+			users("reset")
 			while true do coroutine.yield(nil, nil) end
 		end
 		return coroutine.wrap( next_credential )

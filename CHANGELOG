@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added new functionality and fixed some bugs in the brute library:
+  - Added support for restricting the amount of guesses performed by the
+    brute library against users, to prevent account lockouts.
+  - Added support to guess the username as password as incorrectly
+    suggested as default behavior by the documentation.
+  - Added support to guess an empty string as password if not present
+    in the dictionary. [Patrik]
+
 o Added a probe for the MongoDB service [Martin Holst Swende]
 
 o Added a probe for the Metasploit XMLRPC service [Vlatko Kosturjak]
