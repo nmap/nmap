@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?><nmaprun start="1313178497" profile_name="" xmloutputversion="1.03" scanner="nmap" version="5.59BETA1" startstr="Fri Aug 12 14:48:17 2011" args="nmap -sU -T4 -F scanme.nmap.org"><scaninfo services="7,9,17,19,49,53,67-69,80,88,111,120,123,135-139,158,161-162,177,427,443,445,497,500,514-515,518,520,593,623,626,631,996-999,1022-1023,1025-1030,1433-1434,1645-1646,1701,1718-1719,1812-1813,1900,2000,2048-2049,2222-2223,3283,3456,3703,4444,4500,5000,5060,5353,5632,9200,10000,17185,20031,30718,31337,32768-32769,32771,32815,33281,49152-49154,49156,49181-49182,49185-49186,49188,49190-49194,49200-49201,65024" protocol="udp" numservices="100" type="udp"></scaninfo><verbose level="0"></verbose><debugging level="0"></debugging><output type="interactive">
+Starting Nmap 5.59BETA1 ( http://nmap.org ) at 2011-08-12 14:48 CDT
+Nmap scan report for scanme.nmap.org (74.207.244.221)
+Host is up (0.25s latency).
+rDNS record for 74.207.244.221: li86-221.members.linode.com
+Not shown: 96 closed ports
+PORT     STATE         SERVICE
+53/udp   open          domain
+68/udp   open|filtered dhcpc
+123/udp  open          ntp
+5060/udp open|filtered sip
+
+Nmap done: 1 IP address (1 host up) scanned in 105.83 seconds
+</output><host comment=""><status state="up"></status><address addrtype="ipv4" vendor="" addr="74.207.244.221"></address><hostnames><hostname type="user" name="scanme.nmap.org"></hostname><hostname type="PTR" name="li86-221.members.linode.com"></hostname></hostnames><ports><extraports count="96" state="closed"></extraports><port protocol="udp" portid="53"><state reason="udp-response" state="open" reason_ttl="62"></state><service method="table" conf="3" name="domain"></service></port><port protocol="udp" portid="68"><state reason="no-response" state="open|filtered" reason_ttl="0"></state><service method="table" conf="3" name="dhcpc"></service></port><port protocol="udp" portid="123"><state reason="udp-response" state="open" reason_ttl="53"></state><service method="table" conf="3" name="ntp"></service></port><port protocol="udp" portid="5060"><state reason="no-response" state="open|filtered" reason_ttl="0"></state><service method="table" conf="3" name="sip"></service></port></ports><os></os><uptime lastboot="" seconds=""></uptime><tcpsequence index="" values="" difficulty=""></tcpsequence><ipidsequence values="" class=""></ipidsequence><tcptssequence values="" class=""></tcptssequence></host><runstats><finished timestr="Fri Aug 12 14:50:02 2011" time="1313178602"></finished><hosts down="0" total="1" up="1"></hosts></runstats></nmaprun>

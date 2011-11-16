@@ -1,0 +1,61 @@
+Introduction
+
+   Zenmap is a multi-platform graphical Nmap frontend and results
+   viewer.
+
+   Zenmap is developed in the Python programming language, and its
+   interface is built with the GTK Toolkit. It was originally derived
+   from Umit, an Nmap GUI created as part of the Google Summer of Code.
+
+   The project goal is to develop an Nmap frontend that is really useful
+   for advanced users and easy to be used by newbies. With Zenmap, a
+   network admin can create scan profiles for faster and easier network
+   scanning and even compare scan results to easily see any changes. New
+   users can also construct powerful scans with Zenmap profile editor.
+
+Installation
+
+   Zenmap is available for multiple platforms. It has been successfully
+   tested on the following platforms/flavors:
+     * Ubuntu 5.04 Hoary Hedgeog
+     * Red Hat Enterprise Linux 4
+     * OpenBSD 3.7
+     * Microsoft Windows 2000
+     * Microsoft Windows XP
+     * Apple MacOS X 10.4 (Tiger)
+
+   The installation instructions are somewhat different for each
+   platform.
+
+Default (source) Installation
+
+   Zenmap is distributed as part of Nmap. Zenmap is installed along with
+   Nmap if its dependencies are installed and Nmap was not configured
+   with --without-zenmap.
+
+   The list of required software follows:
+     * [1]Python 2.4 or higher
+     * [2]GTK+ 2.6 or higher
+     * [3]PyGTK 2.6 or higher
+     * [4]Nmap itself and its requirements
+     * [5]PySQLite2
+
+   Zenmap's source package are provided in such a way that, if you have
+   all the required software, it will run 'out-of-the-tarball'. To run
+   the program without installing it, after unpacking the source
+   distribution do one of the following:
+     * Double click the zenmap file
+     * Call the Python interpreter on the zenmap file
+
+   Zenmap is packaged using Python distutils. To install Zenmap
+   independently of Nmap, enter the zenmap subdirectory and run
+     python setup.py install
+
+Links:
+
+[1] Python official website - http://www.python.org
+[2] GTK official website - http://www.gtk.org
+[3] PyGTK official website - http://www.pygtk.org
+[4] Nmap official website - http://nmap.org
+[5] PySQLite2 official website - http://initd.org/tracker/pysqlite
+[7] Umit website - http://umit.sourceforge.net

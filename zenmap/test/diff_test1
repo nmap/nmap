@@ -1,0 +1,10 @@
+# nmap 3.75 scan initiated Sat Jul 16 11:29:44 2005 as: nmap -oX /tmp/tmpXBsQcL -oN /tmp/tmpepjBH8 10.0.0.138 
+Interesting ports on SpeedTouch.canopo (10.0.0.138):
+(The 1659 ports scanned but not shown below are in state: closed)
+PORT     STATE SERVICE
+21/tcp   open  ftp
+23/tcp   open  telnet
+80/tcp   open  http
+1723/tcp open  pptp
+
+# Nmap run completed at Sat Jul 16 11:29:46 2005 -- 1 IP address (1 host up) scanned in 2.258 seconds

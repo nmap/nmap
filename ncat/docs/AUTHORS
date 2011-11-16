@@ -1,0 +1,28 @@
+Ncat AUTHORS
+============
+
+Ncat is based in concept (but not code) on the original "Netcat"
+written by Hobbit circa 1994. Ncat combines the original Netcat
+feature set as well as various other ideas from other Netcat-like
+products, such as CryptCat, Socat, GNU Netcat, etc.
+
+Ncat was originally written from the ground up by Chris Gibson
+(chris@linuxops.net) and was funded by the Google Summer of Code Program
+2005.
+
+Development, bug fixes, security auditing, improvements by Sean
+(infamous42md@hotpop.com).
+
+Starting with the Google Summer of Code 2008, Ncat development was
+picked back up by Mixter and Kris Katterjohn.  This included many bug
+fixes, new features and code cleanups.
+
+The Ncat requirements, ideas and general support and help were given by
+Fyodor.
+
+Many helpful comments, suggestions and other useful information was
+taken from the nmap-dev list (@insecure.org) as well as other
+contributors via email.
+
+Ncat shares the Nmap infrastructure libraries (Nsock and Nbase) which
+were originally written by Fyodor.

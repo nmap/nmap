@@ -1,0 +1,9 @@
+$Id$
+
+Here are some example programs, they weren't really written to
+present nice and elegant use of the nsock library.  They were
+actually written for my testing purposes during development.  So don't
+be surprised if you see code that looks strange, or even downright
+evil -- I'm testing the code reliability.
+
+-Fyodor

@@ -1,0 +1,882 @@
+<refentry id="ncat-man">
+  <refmeta>
+    <refentrytitle>Ncat</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Ncat</refmiscinfo>
+    <refmiscinfo class="manual">Ncat Reference Guide</refmiscinfo>
+  </refmeta>
+
+  <refnamediv id="ncat-man-name">
+    <refname>ncat</refname>
+    <refpurpose>Concatenate and redirect sockets</refpurpose>
+  </refnamediv>
+
+  <refsynopsisdiv id="ncat-man-synopsis">
+    <cmdsynopsis>
+      <command>ncat</command>
+      <arg choice="opt" rep="repeat">
+        <replaceable>OPTIONS</replaceable>
+      </arg>
+      <arg choice="opt">
+        <replaceable>hostname</replaceable>
+      </arg>
+      <arg choice="opt">
+        <replaceable>port</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+
+  <refsect1 id="ncat-man-description">
+    <title>Description</title>
+
+    <para>Ncat is a feature-packed networking utility which reads and writes
+    data across networks from the command line.  Ncat was written for the Nmap
+    Project and is the culmination of the currently splintered family of Netcat
+    incarnations.  It is designed to
+    be a reliable back-end tool to instantly provide network connectivity to other
+    applications and users. Ncat will not only work with IPv4 and IPv6 but provides
+    the user with a virtually limitless number of potential uses.</para>
+
+    <para>Among Ncat's vast number of features there is the ability to chain Ncats
+    together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy
+    connections via SOCKS4 or HTTP proxies (with optional proxy
+    authentication as well).  Some general principles apply to most applications
+    and thus give you the capability of instantly adding networking support to
+    software that would normally never support it.</para>
+  </refsect1>
+
+  <refsect1 id="ncat-man-options-summary">
+    <title>Options Summary</title>
+
+    <para>
+<screen><xi:include href="ncat.usage.txt" parse="text" xmlns:xi="http://www.w3.org/2001/XInclude" /></screen>
+    </para>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-modes">
+    <indexterm><primary>connect mode (Ncat)</primary></indexterm>
+    <indexterm><primary>client mode (Ncat)</primary><see>connect mode</see></indexterm>
+    <indexterm><primary>listen mode (Ncat)</primary></indexterm>
+    <indexterm><primary>server mode (Ncat)</primary><see>listen mode</see></indexterm>
+    <title>Connect Mode and Listen Mode</title>
+
+    <para>
+    Ncat operates in one of two primary modes: connect mode and listen
+    mode. Other modes, such as the HTTP proxy server, act as special
+    cases of these two. In connect mode, Ncat works as a client. In
+    listen mode it is a server.
+    </para>
+
+    <para>
+    In connect mode, the <option><replaceable>hostname</replaceable></option>
+    and <option><replaceable>port</replaceable></option> arguments tell
+    what to connect to.
+    <option><replaceable>hostname</replaceable></option> is required,
+    and may be a hostname or IP address. If
+    <option><replaceable>port</replaceable></option> is supplied, it
+    must be a decimal port number. If omitted, it defaults to
+    31337.<indexterm><primary>default port of Ncat</primary></indexterm><indexterm><primary>31337</primary><see>default port of Ncat</see></indexterm>
+    </para>
+
+    <para>
+    In listen mode, <option><replaceable>hostname</replaceable></option>
+    and <option><replaceable>port</replaceable></option> control the
+    address the server will bind to. Both arguments are optional in
+    listen mode. If <option><replaceable>hostname</replaceable></option>
+    is omitted, it defaults to listening on all available addresses over
+    IPv4 and IPv6. If <option><replaceable>port</replaceable></option> is
+    omitted, it defaults to 31337.
+    </para>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-proto-options">
+    <title>Protocol Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-4</option> (IPv4 only)
+          <indexterm><primary><option>-4</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Force the use of IPv4 only.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-6</option> (IPv6 only)
+          <indexterm><primary><option>-6</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Force the use of IPv6 only.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-u</option>,
+          <option>--udp</option> (Use UDP)
+          <indexterm><primary><option>-u</option> (Ncat option)</primary><see><option>--udp</option></see></indexterm>
+          <indexterm><primary><option>--udp</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Use UDP for the connection (the default is TCP).</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--sctp</option> (Use SCTP)
+          <indexterm><primary><option>--sctp</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Use SCTP for the connection (the default is TCP).
+          SCTP support is implemented in TCP-compatible mode.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-connect-options">
+    <title>Connect Mode Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-g <replaceable>hop1</replaceable><optional>,<replaceable>hop2</replaceable>,...</optional></option> (Loose source routing)
+          <indexterm><primary><option>-g</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Sets hops for IPv4 loose source routing.  You can use <option>-g</option>
+          once with a comma-separated list of hops, use <option>-g</option> multiple
+          times with single hops to build the list, or combine the two.  Hops can be
+          given as IP addresses or hostnames.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-G <replaceable>ptr</replaceable></option> (Set source routing pointer)
+          <indexterm><primary><option>-G</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Sets the IPv4 source route <quote>pointer</quote> for use with <option>-g</option>.
+          The argument must be a multiple of 4 and no more than 28.  Not all operating
+          systems support setting this pointer to anything other than four.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-p <replaceable>port</replaceable></option>,
+          <option>--source-port <replaceable>port</replaceable></option> (Specify source port)
+          <indexterm><primary><option>--source-port</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-p</option> (Ncat option)</primary><see><option>--source-port</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Set the port number for Ncat to bind to.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-s <replaceable>host</replaceable></option>,
+          <option>--source <replaceable>host</replaceable></option> (Specify source address)
+          <indexterm><primary><option>--source</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-s</option> (Ncat option)</primary><see><option>--source</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Set the address for Ncat to bind to.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-listen-options">
+    <title>Listen Mode Options</title>
+
+    <para>See <xref linkend="ncat-man-access-options"/> for information on limiting the
+    hosts that may connect to the listening Ncat process.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-l</option>,
+          <option>--listen</option> (Listen for connections)
+          <indexterm><primary><option>--listen</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-l</option> (Ncat option)</primary><see><option>--listen</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Listen for connections rather than connecting to a remote
+          machine</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-m <replaceable>numconns</replaceable></option>,
+          <option>--max-conns <replaceable>numconns</replaceable></option> (Specify maximum number of connections)
+          <indexterm><primary><option>--max-conns</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-m</option> (Ncat option)</primary><see><option>--max-conns</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>The maximum number of simultaneous connections accepted by an Ncat
+          instance. 100 is the default.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-k</option>,
+          <option>--keep-open</option> (Accept multiple connections)
+          <indexterm><primary><option>--keep-open</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-k</option> (Ncat option)</primary><see><option>--keep-open</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Normally a listening server accepts only one connection and
+          then quits when the connection is closed. This option makes it accept
+          multiple simultaneous connections and wait for more connections after
+          they have all been closed. It must be combined with
+          <option>--listen</option>. In this mode there is no way for Ncat to
+          know when its network input is finished, so it will keep running
+          until interrupted. This also means that it will never close its
+          output stream, so any program reading from Ncat and looking for
+          end-of-file will also hang.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--broker</option> (Connection brokering)
+          <indexterm><primary><option>--broker</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Allow multiple parties to connect to a centralised Ncat server
+          and communicate with each other. Ncat can broker communication between
+          systems that are behind a NAT or otherwise unable to directly connect.
+          This option is used in conjunction with <option>--listen</option>, which
+          causes the <option>--listen</option> port to have broker mode enabled.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--chat</option> (Ad-hoc <quote>chat server</quote>)
+          <indexterm><primary><option>--chat</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>The <option>--chat</option> option enables chat mode, intended
+          for the exchange of text between several users. In chat mode,
+          connection brokering is turned on. Ncat prefixes each message received
+          with an ID before relaying it to the other connections. The ID is
+          unique for each connected client. This helps distinguish who sent
+          what. Additionally, non-printing characters such as control characters
+          are escaped to keep them from doing damage to a terminal.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-ssl-options">
+    <title>SSL Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>--ssl</option> (Use SSL)
+          <indexterm><primary><option>--ssl</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In connect mode, this option transparently negotiates an SSL
+          session with an SSL server to securely encrypt the connection. This is
+          particularly handy for talking to SSL enabled HTTP servers, etc.</para>
+          <para>In server mode, this option listens for incoming SSL connections,
+          rather than plain untunneled traffic.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-verify</option> (Verify server certificates)
+          <indexterm><primary><option>--ssl-verify</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In client mode, <option>--ssl-verify</option> is like
+          <option>--ssl</option> except that it also requires verification of
+          the server certificate. Ncat comes with a default set of trusted
+          certificates in the file
+          <filename>ca-bundle.crt</filename><indexterm><primary><filename>ca-bundle.crt</filename></primary></indexterm>.
+          Some operating systems provide a default list of
+          trusted certificates; these will also be used if available. Use
+          <option>--ssl-trustfile</option> to give a custom list. Use
+          <option>-v</option> one or more times to get details about
+          verification failures.</para>
+	  <indexterm><primary>revoked certificates</primary><see>certificate revocation</see></indexterm>
+	  <para>Ncat does not check for revoked
+	  certificates<indexterm><primary>certification revocation</primary></indexterm>.</para>
+          <para>This option has no effect in server mode.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-cert <replaceable>certfile.pem</replaceable></option> (Specify SSL certificate)
+          <indexterm><primary><option>--ssl-cert</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option gives the location of a PEM-encoded
+          certificate files used to authenticate the server (in listen
+          mode) or the client (in connect mode). Use it in combination
+          with <option>--ssl-key</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-key <replaceable>keyfile.pem</replaceable></option> (Specify SSL private key)
+          <indexterm><primary><option>--ssl-key</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option gives the location of the PEM-encoded
+          private key file that goes with the certificate named with
+          <option>--ssl-cert</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--ssl-trustfile <replaceable>cert.pem</replaceable></option> (List trusted certificates)
+          <indexterm><primary><option>--ssl-trustfile</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This option sets a list of certificates that are trusted for
+          purposes of certificate verification. It has no effect unless combined
+          with <option>--ssl-verify</option>. The argument to this option is the
+          name of a PEM<indexterm><primary>PEM (Privacy Enhanced Mail)</primary></indexterm>
+          file containing trusted certificates. Typically, the file will contain
+          certificates of certification authorities, though it may also contain
+          server certificates directly. When this option is used, Ncat does not
+          use its default certificates.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-proxy-options">
+    <title>Proxy Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>--proxy <replaceable>host</replaceable>[:<replaceable>port</replaceable>]</option> (Specify proxy address)
+          <indexterm><primary><option>--proxy</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Requests proxying through <replaceable>host</replaceable>:<replaceable>port</replaceable>,
+          using the protocol specified by <option>--proxy-type</option>.</para>
+
+          <para>If no port is specified, the proxy protocol's well-known port is used (1080 for
+          SOCKS and 3128 for HTTP).  However, when specifying an IPv6 HTTP proxy server using
+          the IP address rather than the hostname, the port number MUST be specified as well.
+          If the proxy requires authentication, use <option>--proxy-auth</option>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--proxy-type <replaceable>proto</replaceable></option> (Specify proxy protocol)
+          <indexterm><primary><option>--proxy-type</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In connect mode, this option requests the protocol <replaceable>proto</replaceable>
+          to connect through the proxy host specified by <option>--proxy</option>.  In listen mode,
+          this option has Ncat act as a proxy server using the specified protocol.</para>
+
+          <para>The currently available protocols in connect mode are <literal>http</literal>
+          (CONNECT) and <literal>socks4</literal> (SOCKSv4).  The only server currently supported
+          is <literal>http</literal>.
+          If this option is not used, the default protocol is <literal>http</literal>.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--proxy-auth <replaceable>user</replaceable><optional>:<replaceable>pass</replaceable></optional></option> (Specify proxy credentials)
+          <indexterm><primary><option>--proxy-auth</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>In connect mode, gives the credentials that will be used to
+          connect to the proxy server. In listen mode, gives the credentials
+          that will be required of connecting clients. For use with
+          <option>--proxy-type http</option>, the form should be user:pass.  For
+          <option>--proxy-type socks4</option>, it should be a username only.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-command-options">
+    <title>Command Execution Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-e <replaceable>command</replaceable></option>,
+          <option>--exec <replaceable>command</replaceable></option> (Execute command)
+          <indexterm><primary><option>--exec</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-e</option> (Ncat option)</primary><see><option>--exec</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Execute the specified command after a connection has been
+          established. The command must be specified as a full pathname. All
+          input from the remote client will be sent to the application and
+          responses sent back to the remote client over the socket, thus
+          making your command-line application interactive over a
+          socket. Combined with <option>--keep-open</option>,
+          Ncat will handle multiple simultaneous connections to your
+          specified port/application like inetd. Ncat will only
+          accept a maximum, definable, number of simultaneous connections
+          controlled by the <option>-m</option> option. By default this is set
+          to 100.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-c <replaceable>command</replaceable></option>,
+          <option>--sh-exec <replaceable>command</replaceable></option> (Execute command via sh)
+          <indexterm><primary><option>--sh-exec</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-c</option> (Ncat option)</primary><see><option>--sh-exec</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Same as <option>-e</option>, except it tries to execute
+          the command via <filename>/bin/sh</filename>. This means you don't
+          have to specify the full path for the command, and shell facilities
+          like environment variables are available.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-access-options">
+    <title>Access Control Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>--allow <replaceable>host</replaceable><optional>,<replaceable>host</replaceable>,...</optional></option> (Allow connections)
+          <indexterm><primary><option>--allow</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>The list of hosts specified will be the only hosts allowed
+          to connect to the Ncat process. All other connection attempts will
+          be disconnected. In case of a conflict between
+          <option>--allow</option> and <option>--deny</option>,
+          <option>--allow</option> takes precedence. Host
+          specifications follow the same syntax used
+          by Nmap.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--allowfile <replaceable>file</replaceable></option> (Allow connections from file)
+          <indexterm><primary><option>--allowfile</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This has the same functionality as <option>--allow</option>,
+          except that the allowed hosts are provided in a new-line delimited allow
+          file, rather than directly on the command line.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--deny <replaceable>host</replaceable><optional>,<replaceable>host</replaceable>,...</optional></option> (Deny connections)
+          <indexterm><primary><option>--deny</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Issue Ncat with a list of hosts that will not be allowed to connect
+          to the listening Ncat process. Specified hosts will have their session
+          silently terminated if they try to connect.
+          be disconnected. In case of a conflict between
+          <option>--allow</option> and <option>--deny</option>,
+          <option>--allow</option> takes precedence. Host
+          specifications follow the same syntax used by Nmap.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--denyfile <replaceable>file</replaceable></option> (Deny connections from file)
+          <indexterm><primary><option>--denyfile</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>This is the same functionality as <option>--deny</option>,
+          except that excluded hosts are provided in a new-line delimited deny
+          file, rather than directly on the command line.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-timing-options">
+    <title>Timing Options</title>
+
+    <para>These options accept a <literal>time</literal> parameter.  This is specified
+    in seconds by default, though you can append <literal>ms</literal>, <literal>s</literal>, <literal>m</literal>,
+    or <literal>h</literal> to the value to specify milliseconds, seconds, minutes, or hours.</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-d <replaceable>time</replaceable></option>,
+          <option>--delay <replaceable>time</replaceable></option> (Specify line delay)
+          <indexterm><primary><option>--delay</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-d</option> (Ncat option)</primary><see><option>--delay</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Set the delay interval for lines sent. This effectively limits
+          the number of lines that Ncat will send in the specified period. This
+          may be useful for low-bandwidth sites, or have other uses such as
+          coping with
+          annoying <command>iptables --limit</command> options.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-i <replaceable>time</replaceable></option>,
+          <option>--idle-timeout <replaceable>time</replaceable></option> (Specify idle timeout)
+          <indexterm><primary><option>--idle-timeout</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-i</option> (Ncat option)</primary><see><option>--idle-timeout</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Set a fixed timeout for idle connections. If the idle timeout
+          is reached, the connection is terminated.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-w <replaceable>time</replaceable></option>,
+          <option>--wait <replaceable>time</replaceable></option> (Specify connect timeout)
+          <indexterm><primary><option>--wait</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-w</option> (Ncat option)</primary><see><option>--wait</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Set a fixed timeout for connection attempts.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-output-options">
+    <title>Output Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-o <replaceable>file</replaceable></option>,
+          <option>--output <replaceable>file</replaceable></option> (Save session data)
+          <indexterm><primary><option>--output</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-o</option> (Ncat option)</primary><see><option>--output</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Dump session data to a file</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-x <replaceable>file</replaceable></option>,
+          <option>--hex-dump <replaceable>file</replaceable></option> (Save session data in hex)
+          <indexterm><primary><option>--hex-dump</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-x</option> (Ncat option)</primary><see><option>--hex-dump</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Dump session data in hex to a file. This can be used to
+          <quote>replay</quote> sessions.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--append-output</option> (Append output)
+          <indexterm><primary><option>--append-output</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Issue Ncat with <option>--append-ouput</option> along with
+          <option>-o</option> and/or <option>-x</option> and it will append
+          the resulted output rather than truncating the specified output files.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-v</option>,
+          <option>--verbose</option> (Be verbose)
+          <indexterm><primary><option>--verbose</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-v</option> (Ncat option)</primary><see><option>--verbose</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Issue Ncat with <option>-v</option> and it will be verbose and
+          display all kinds of useful connection based information. Use more
+          than once (<option>-vv</option>, <option>-vvv</option>) for greater
+          verbosity. <option>-vvv</option> is the maximum level.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </refsect1>
+
+  <refsect1 id="ncat-man-misc-options">
+    <title>Misc Options</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+          <option>-C</option>,
+          <option>--crlf</option> (Use CRLF as EOL)
+          <indexterm><primary><option>--crlf</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-C</option> (Ncat option)</primary><see><option>--crlf</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>This option tells Ncat to convert
+          LF<indexterm><primary>LF line ending</primary></indexterm>
+          line endings to
+          CRLF<indexterm><primary>CRLF line ending</primary></indexterm>
+          when taking input from
+          standard input.<indexterm><primary>standard input</primary></indexterm>
+          This is useful for talking to some stringent
+          servers directly from a terminal in one of the many common plain-text
+          protocols that use CRLF for end-of-line.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-h</option>,
+          <option>--help</option> (Help screen)
+          <indexterm><primary><option>--help</option> (Ncat option)</primary></indexterm>
+          <indexterm><primary><option>-h</option> (Ncat option)</primary><see><option>--help</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>Displays a short help screen with common options and parameters,
+          and then exits.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--recv-only</option> (Only receive data)
+          <indexterm><primary><option>--recv-only</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>If this option is passed, Ncat will only receive data and will
+          not try to send anything.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--send-only</option> (Only send data)
+          <indexterm><primary><option>--send-only</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>If this option is passed, then Ncat will only send data and will
+          ignore anything received.  This option also causes Ncat to close the
+          network connection and terminate after EOF is received on standard
+          input.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-t</option>,
+          <option>--telnet</option> (Answer Telnet negotiations)
+          <indexterm><primary><option>-t</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Handle DO/DONT WILL/WONT Telnet negotiations.  This makes it
+          possible to script Telnet sessions with Ncat.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--version</option> (Display version)
+          <indexterm><primary><option>--version</option> (Ncat option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>Displays the Ncat version number and exits.</para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="ncat-man-examples">
+    <title>Examples</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>
+        Connect to example.org on TCP port 8080.
+        </term>
+        <listitem>
+        <para><command>ncat example.org 8080</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Listen for connections on TCP port 8080.
+        </term>
+        <listitem>
+        <para><command>ncat -l 8080</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Redirect TCP port 8080 on the local machine to host on port 80.
+        </term>
+        <listitem>
+        <para><command>ncat --sh-exec "ncat example.org 80" -l 8080 --keep-open</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Bind to TCP port 8081 and attach <filename>/bin/bash</filename>
+        for the world to access freely.
+        </term>
+        <listitem>
+        <para><command>ncat --exec "/bin/bash" -l 8081 --keep-open</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Bind a shell to TCP port 8081, limit access to hosts on a local
+        network, and limit the maximum number of simultaneous connections to 3.
+        </term>
+        <listitem>
+        <para><command>ncat --exec "/bin/bash" --max-conns 3 --allow 192.168.0.0/24 -l 8081 --keep-open</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Connect to smtphost:25 through a SOCKS4 server on port 1080.
+        </term>
+        <listitem>
+        <para><command>ncat --proxy socks4host --proxy-type socks4 --proxy-auth user smtphost 25</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Create an HTTP proxy server on localhost port 8888.
+        </term>
+        <listitem>
+        <para><command>ncat -l --proxy-type http localhost 8888</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Send a file over TCP port 9899 from host2 (client) to host1
+        (server).
+        </term>
+        <listitem>
+<para>HOST1$ <command>ncat -l 9899 &gt; outputfile</command></para>
+<para>HOST2$ <command>ncat HOST1 9899 &lt; inputfile</command></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>
+        Transfer in the other direction, turning Ncat into a <quote>one
+        file</quote> server.
+        </term>
+        <listitem>
+<para>HOST1$ <command>ncat -l 9899 &lt; inputfile</command></para>
+<para>HOST2$ <command>ncat HOST1 9899 &gt; outputfile</command></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </refsect1>
+
+  <refsect1 id="ncat-man-exit-code">
+    <title>Exit Code</title>
+
+    <para>The exit code reflects whether a connection was made and
+    completed successfully. 0 means there was no error. 1 means there
+    was a network error of some kind, for example <quote>Connection
+    refused</quote> or <quote>Connection reset</quote>. 2 is reserved
+    for all other errors, like an invalid option or a nonexistent
+    file.</para>
+  </refsect1>
+
+  <refsect1 id="ncat-man-bugs">
+    <title>Bugs</title>
+
+    <para>Like its authors, Ncat isn't perfect.  But you can help make
+    it better by sending bug reports or even writing patches.  If Ncat
+    doesn't behave the way you expect, first upgrade to the latest
+    version available from <ulink
+    url="http://nmap.org"/>.  If the problem persists,
+    do some research to determine whether it has already been
+    discovered and addressed.  Try Googling the error message or
+    browsing the <citetitle>nmap-dev</citetitle> archives at <ulink
+    url="http://seclists.org/" />.
+    <indexterm><primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+    Read this full manual page as
+    well.  If nothing comes of this, mail a bug report to
+    <email>nmap-dev@insecure.org</email>.  Please include everything
+    you have learned about the problem, as well as what version of
+    Ncat you are running and what operating system version it is
+    running on.  Problem reports and Ncat usage questions sent to
+    nmap-dev@insecure.org are far more likely to be answered than
+    those sent to Fyodor directly.</para>
+
+    <para>Code patches to fix bugs are even better than bug reports.
+    Basic instructions for creating patch files with your changes are
+    available at <ulink
+    url="http://nmap.org/data/HACKING" />.  Patches may
+    be sent to <citetitle>nmap-dev</citetitle> (recommended) or to Fyodor directly.</para>
+  </refsect1>
+
+  <refsect1 id="ncat-man-author">
+    <title>Authors</title>
+
+    <itemizedlist>
+      <listitem>
+        <para>Chris Gibson <email>chris@linuxops.net</email></para>
+      </listitem>
+      <listitem>
+        <para>Kris Katterjohn <email>katterjohn@gmail.com</email></para>
+      </listitem>
+      <listitem>
+        <para>Mixter <email>mixter@gmail.com</email></para>
+      </listitem>
+      <listitem>
+        <para>Fyodor <email>fyodor@insecure.org</email>
+        (<ulink url="http://insecure.org" />)</para>
+      </listitem>
+    </itemizedlist>
+
+
+    <para>The original Netcat was written by *Hobbit* <email>hobbit@avian.org</email>.
+    While Ncat isn't built on any code from the <quote>traditional</quote> Netcat (or any
+    other implementation), Ncat is most definitely based on Netcat in spirit
+    and functionality.</para>
+  </refsect1>
+</refentry>
+

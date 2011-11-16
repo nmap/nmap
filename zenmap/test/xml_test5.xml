@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<!-- nmap 3.75 scan initiated Mon Jul 18 22:38:31 2005 as: nmap -sV -sU -p80,22 -oX xml_test5.xml 10.0.0.100-180 -->
+<nmaprun scanner="nmap" args="nmap -sV -sU -p80,22 -oX xml_test5.xml 10.0.0.100-180" start="1121737111" version="3.75" xmloutputversion="1.01">
+<scaninfo type="udp" protocol="udp" numservices="2" services="22,80" />
+<verbose level="0" />
+<debugging level="0" />
+<host><status state="up" />
+<address addr="10.0.0.100" addrtype="ipv4" />
+<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
+<hostnames><hostname name="canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="udp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="udp" portid="80"><state state="closed" /><service name="http" method="table" conf="3" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.138" addrtype="ipv4" />
+<address addr="00:90:D0:1C:85:AD" addrtype="mac" vendor="Thomson Belgium" />
+<hostnames><hostname name="SpeedTouch.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="udp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="udp" portid="80"><state state="closed" /><service name="http" method="table" conf="3" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.140" addrtype="ipv4" />
+<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
+<hostnames><hostname name="servidor.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="udp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="udp" portid="80"><state state="closed" /><service name="http" method="table" conf="3" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.150" addrtype="ipv4" />
+<hostnames />
+<ports><extraports state="unknown" count="0" />
+<port protocol="udp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="udp" portid="80"><state state="closed" /><service name="http" method="table" conf="3" /></port>
+</ports>
+</host>
+<runstats><finished time="1121737113" /><hosts up="4" down="77" total="81" />
+<!-- Nmap run completed at Mon Jul 18 22:38:33 2005; 81 IP addresses (4 hosts up) scanned in 2.056 seconds -->
+</runstats></nmaprun>

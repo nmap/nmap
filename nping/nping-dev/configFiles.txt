@@ -1,0 +1,12 @@
+These are the configure-related files that need to be distributed with Nping:
+
+configFiles.txt
+config.guess
+config.sub
+configure
+configure.ac
+depcomp
+ltmain.sh
+Makefile.in
+missing
+shtool

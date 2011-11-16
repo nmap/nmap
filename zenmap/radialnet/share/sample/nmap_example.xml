@@ -1,0 +1,480 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet href="/opt/nmap/share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 4.53 scan initiated Sun Jan 27 21:10:02 2008 as: nmap -A -v -oX sample-03.xml freshmeat.net sourceforge.net nmap.org kernel.org openbsd.org netbsd.org google.com gmail.com -->
+<nmaprun scanner="nmap" args="nmap -A -v -oX sample-03.xml freshmeat.net sourceforge.net nmap.org kernel.org openbsd.org netbsd.org google.com gmail.com" start="1201479002" startstr="Sun Jan 27 21:10:02 2008" version="4.53" xmloutputversion="1.01">
+<scaninfo type="syn" protocol="tcp" numservices="1714" services="1-1027,1029-1033,1040,1043,1050,1058-1059,1067-1068,1076,1080,1083-1084,1103,1109-1110,1112,1127,1139,1155,1158,1178,1212,1214,1220,1222,1234,1241,1248,1270,1337,1346-1381,1383-1552,1600,1650-1652,1661-1672,1680,1720,1723,1755,1761-1764,1827,1900,1935,1984,1986-2028,2030,2032-2035,2038,2040-2049,2053,2064-2065,2067-2068,2105-2106,2108,2111-2112,2120-2121,2201,2232,2241,2301,2307,2401,2430-2433,2500-2501,2564,2600-2605,2627-2628,2638,2766,2784,2809,2903,2998,3000-3001,3005-3006,3025,3045,3049,3052,3064,3086,3128,3141,3264,3268-3269,3292,3299,3306,3333,3372,3389,3397-3399,3421,3455-3457,3462,3531,3632,3689,3900,3984-3986,3999-4000,4002,4008,4045,4125,4132-4133,4144,4199,4224,4321,4333,4343,4444,4480,4500,4557,4559,4660,4662,4672,4899,4987,4998,5000-5003,5009-5011,5050,5060,5100-5102,5145,5190-5193,5232,5236,5300-5305,5308,5400,5405,5432,5490,5500,5510,5520,5530,5540,5550,5555,5560,5631-5632,5679-5680,5713-5717,5800-5803,5900-5903,5977-5979,5997-6009,6017,6050,6101,6103,6105-6106,6110-6112,6141-6148,6222,6346-6347,6400-6401,6502,6543-6544,6547-6548,6558,6588,6662,6665-6670,6699-6701,6881,6969,7000-7010,7070,7100,7200-7201,7273,7326,7464,7597,7937-7938,8000,8007,8009,8021,8076,8080-8082,8118,8123,8443,8770,8888,8892,9040,9050-9051,9090,9100-9107,9111,9152,9535,9876,9991-9992,9999-10000,10005,10082-10083,11371,12000,12345-12346,13701-13702,13705-13706,13708-13718,13720-13722,13782-13783,14141,15126,15151,16080,16444,16959,17007,17300,18000,18181-18185,18187,19150,20005,22273,22289,22305,22321,22370,26208,27000-27010,27374,27665,31337,31416,32770-32780,32786-32787,38037,38292,43188,44334,44442-44443,47557,49400,50000,50002,54320,61439-61441,65301" />
+<verbose level="1" />
+<debugging level="0" />
+<taskbegin task="Ping Scan" time="1201479013" />
+<taskend task="Ping Scan" time="1201479014" extrainfo="8 total hosts" />
+<taskbegin task="Parallel DNS resolution of 8 hosts." time="1201479014" />
+<taskend task="Parallel DNS resolution of 8 hosts." time="1201479015" />
+<taskbegin task="System CNAME DNS resolution of 4 hosts." time="1201479015" />
+<taskend task="System CNAME DNS resolution of 4 hosts." time="1201479016" />
+<taskbegin task="SYN Stealth Scan" time="1201479016" />
+<taskprogress task="SYN Stealth Scan" time="1201479046" percent="3.22" remaining="903" etc="1201479949" />
+<taskprogress task="SYN Stealth Scan" time="1201479442" percent="56.66" remaining="325" etc="1201479767" />
+<taskprogress task="SYN Stealth Scan" time="1201479770" percent="77.02" remaining="225" etc="1201479995" />
+<taskprogress task="SYN Stealth Scan" time="1201479996" percent="81.95" remaining="215" etc="1201480212" />
+<taskprogress task="SYN Stealth Scan" time="1201480213" percent="86.79" remaining="182" etc="1201480395" />
+<taskprogress task="SYN Stealth Scan" time="1201480260" percent="87.84" remaining="172" etc="1201480433" />
+<taskprogress task="SYN Stealth Scan" time="1201480435" percent="91.65" remaining="129" etc="1201480564" />
+<taskprogress task="SYN Stealth Scan" time="1201480565" percent="94.43" remaining="91" etc="1201480656" />
+<taskprogress task="SYN Stealth Scan" time="1201480658" percent="96.35" remaining="62" etc="1201480720" />
+<taskprogress task="SYN Stealth Scan" time="1201480721" percent="97.76" remaining="39" etc="1201480760" />
+<taskend task="SYN Stealth Scan" time="1201480878" extrainfo="8570 total ports" />
+<taskbegin task="Service scan" time="1201480879" />
+<taskend task="Service scan" time="1201480984" extrainfo="20 services on 5 hosts" />
+<taskbegin task="Traceroute" time="1201481006" />
+<taskend task="Traceroute" time="1201481028" />
+<taskbegin task="Traceroute" time="1201481028" />
+<taskend task="Traceroute" time="1201481059" />
+<taskbegin task="Parallel DNS resolution of 85 hosts." time="1201481059" />
+<taskend task="Parallel DNS resolution of 85 hosts." time="1201481070" />
+<taskbegin task="System CNAME DNS resolution of 8 hosts." time="1201481070" />
+<taskend task="System CNAME DNS resolution of 8 hosts." time="1201481086" />
+<taskbegin task="SCRIPT ENGINE" time="1201481086" />
+<taskend task="SCRIPT ENGINE" time="1201481197" />
+<host><status state="up" reason="reset"/>
+<address addr="66.35.250.168" addrtype="ipv4" />
+<hostnames><hostname name="freshmeat.net" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="1712">
+<extrareasons reason="host-prohibiteds" count="1712"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="45"/><service name="http" product="Apache httpd" version="1.3.39" extrainfo="(Unix) PHP/4.4.7" method="probed" conf="10" /><script id="robots.txt" output="User-Agent: * /img/ /redir/ " /><script id="HTML title" output="freshmeat.net: Welcome to freshmeat.net" /></port>
+<port protocol="tcp" portid="443"><state state="closed" reason="reset" reason_ttl="46"/><service name="https" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="443" />
+<osclass type="software router" vendor="MikroTik" osfamily="RouterOS" osgen="2.X" accuracy="94" />
+<osclass type="WAP" vendor="Linksys" osfamily="Linux" osgen="2.4.X" accuracy="94" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="94" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94" />
+<osclass type="VoIP phone" vendor="WebVOIZE" osfamily="embedded" accuracy="94" />
+<osclass type="WAP" vendor="D-Link" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="WAP" vendor="Inventel" osfamily="embedded" accuracy="91" />
+<osclass type="broadband router" vendor="USRobotics" osfamily="embedded" accuracy="91" />
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="media device" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="VoIP gateway" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="WAP" vendor="Netgear" osfamily="embedded" accuracy="91" />
+<osclass type="switch" vendor="QLogic" osfamily="embedded" accuracy="91" />
+<osclass type="PDA" vendor="Sharp" osfamily="Linux" osgen="2.4.X" accuracy="91" />
+<osclass type="WAP" vendor="FON" osfamily="Linux" osgen="2.6.X" accuracy="91" />
+<osclass type="WAP" vendor="FON" osfamily="Linux" osgen="2.4.X" accuracy="90" />
+<osclass type="WAP" vendor="Belkin" osfamily="embedded" accuracy="90" />
+<osclass type="WAP" vendor="Asus" osfamily="embedded" accuracy="90" />
+<osclass type="WAP" vendor="Netgear" osfamily="Linux" osgen="2.4.X" accuracy="90" />
+<osclass type="printer" vendor="Xerox" osfamily="embedded" accuracy="90" />
+<osclass type="security-misc" vendor="Aladdin" osfamily="Linux" osgen="2.4.X" accuracy="89" />
+<osclass type="VoIP gateway" vendor="Occam" osfamily="embedded" accuracy="89" />
+<osclass type="media device" vendor="Roku" osfamily="embedded" accuracy="89" />
+<osclass type="WAP" vendor="Siemens" osfamily="Linux" accuracy="89" />
+<osclass type="broadband router" vendor="3Com" osfamily="Linux" osgen="2.4.X" accuracy="89" />
+<osclass type="media device" vendor="Dream Multimedia" osfamily="Linux" osgen="2.6.X" accuracy="89" />
+<osclass type="storage-misc" vendor="Iomega" osfamily="Linux" osgen="2.6.X" accuracy="89" />
+<osmatch name="MicroTik RouterOS 2.9.46" accuracy="94" line="14788"/>
+<osmatch name="Linksys WRT54GS WAP (Linux kernel)" accuracy="94" line="8292"/>
+<osmatch name="Linux 2.4.18 - 2.4.32 (likely embedded)" accuracy="94" line="8499"/>
+<osmatch name="Linux 2.4.21 - 2.4.33" accuracy="94" line="8624"/>
+<osmatch name="Linux 2.4.27" accuracy="94" line="8675"/>
+<osmatch name="Linux 2.4.28 - 2.4.30" accuracy="94" line="8693"/>
+<osmatch name="Linux 2.6.5 - 2.6.18" accuracy="94" line="11411"/>
+<osmatch name="Linux 2.6.8" accuracy="94" line="11485"/>
+<osmatch name="WebVOIZE 120 IP phone" accuracy="94" line="18921"/>
+<osmatch name="Linux 2.4.2 (Red Hat 7.1)" accuracy="91" line="8533"/>
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=80%CT=443%CU=%PV=N%G=N%TM=479D25ED%P=i686-pc-linux-gnu)&#xa;SEQ(SP=F2%GCD=1%ISR=E9%TI=Z%TS=1C)&#xa;OPS(O1=M5B4ST11NW0%O2=M5B4ST11NW0%O3=M5B4NNT11NW0%O4=M5B4ST11NW0%O5=M5B4ST11NW0%O6=M5B4ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%TG=40%W=16D0%O=M5B4NNSNW0%CC=N%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=Y%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW0%RD=0%Q=)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;" />
+</os>
+<uptime seconds="206" lastboot="Sun Jan 27 21:43:11 2008" />
+<tcpsequence index="242" class="unknown class" difficulty="Good luck!" values="457B276,4584FC8,161C122C,161B185F,1605EA95,1614C498" />
+<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
+<tcptssequence class="other" values="3FB03AA9,3FB03C75,45B26360,45B2636A,45B26374,45B2637E" />
+<trace port="80" proto="tcp">
+<hop ttl="1" rtt="1.83" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="18.95" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="18.33" ipaddr="200.217.30.250" host="gigabitethernet5-1.80-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="45.05" ipaddr="200.97.65.250" host="pos15-1-nbv-pe-rotd-03.telemar.net.br"/>
+<hop ttl="5" rtt="43.49" ipaddr="200.223.131.13" host="pos6-0-nbv-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="91.27" ipaddr="200.223.131.205" host="so-0-2-0-0-arc-rj-rotn-01.telemar.net.br"/>
+<hop ttl="8" rtt="191.87" ipaddr="200.223.131.110" host="PO0-3.ARC-RJ-ROTN-01.telemar.net.br"/>
+<hop ttl="9" rtt="177.30" ipaddr="208.173.90.89" host="bpr2-so-5-2-0.miamimit.savvis.net"/>
+<hop ttl="10" rtt="181.50" ipaddr="208.172.97.169" host="cr2-pos-0-3-1-0.miami.savvis.net"/>
+<hop ttl="11" rtt="336.43" ipaddr="206.24.210.70" host="cr1-loopback.sfo.savvis.net"/>
+<hop ttl="12" rtt="245.32" ipaddr="204.70.200.229" host="er1-te-1-0-1.SanJose3Equinix.savvis.net"/>
+<hop ttl="13" rtt="238.47" ipaddr="204.70.200.210" host="hr1-te-2-0-0.santaclarasc4.savvis.net"/>
+<hop ttl="14" rtt="322.90" ipaddr="204.70.200.217" host="hr1-te-2-0-0.santaclarasc9.savvis.net"/>
+<hop ttl="15" rtt="330.96" ipaddr="204.70.203.146"/>
+<hop ttl="16" rtt="342.57" ipaddr="66.35.194.59" host="csr2-ve242.santaclarasc8.savvis.net"/>
+<hop ttl="17" rtt="248.22" ipaddr="66.35.210.202"/>
+<hop ttl="18" rtt="238.36" ipaddr="66.35.250.168" host="freshmeat.net"/>
+</trace>
+<times srtt="269788" rttvar="41141" to="434352" />
+</host>
+<host><status state="up" reason="reset"/>
+<address addr="66.35.250.203" addrtype="ipv4" />
+<hostnames><hostname name="sourceforge.net" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="1711">
+<extrareasons reason="host-prohibiteds" count="1711"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="44"/><service name="http" product="lighttpd" version="1.4.18" method="probed" conf="10" /><script id="HTML title" output="Site doesn&apos;t have a title." /><script id="robots.txt" output="User-agent: * &#xa;/forum /pm /search /softwaremap /top /tracker /users " /></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="44"/><service name="http" product="lighttpd" version="1.4.18" tunnel="ssl" method="probed" conf="10" /><script id="SSLv2" output="server still supports SSLv2&#xa;&#x9;SSL2_DES_192_EDE3_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_WITH_MD5&#xa;&#x9;SSL2_RC4_64_WITH_MD5&#xa;&#x9;SSL2_DES_64_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_EXPORT40_WITH_MD5&#xa;" /><script id="HTML title" output="Site doesn&apos;t have a title." /></port>
+<port protocol="tcp" portid="563"><state state="closed" reason="reset" reason_ttl="45"/><service name="snews" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="563" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="94" />
+<osclass type="WAP" vendor="FON" osfamily="Linux" osgen="2.4.X" accuracy="92" />
+<osclass type="WAP" vendor="Siemens" osfamily="Linux" accuracy="90" />
+<osclass type="broadband router" vendor="3Com" osfamily="Linux" osgen="2.4.X" accuracy="90" />
+<osclass type="media device" vendor="Dream Multimedia" osfamily="Linux" osgen="2.6.X" accuracy="90" />
+<osclass type="storage-misc" vendor="Iomega" osfamily="Linux" osgen="2.6.X" accuracy="90" />
+<osclass type="WAP" vendor="FON" osfamily="Linux" osgen="2.6.X" accuracy="90" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="90" />
+<osmatch name="Linux 2.6.17 - 2.6.18" accuracy="94" line="9533"/>
+<osmatch name="Linux 2.6.17 - 2.6.18 (x86)" accuracy="94" line="9630"/>
+<osmatch name="Linux 2.6.9 - 2.6.21" accuracy="94" line="11799"/>
+<osmatch name="Linux 2.6.9 - 2.6.20 (Fedora Core 5 or 6)" accuracy="94" line="11777"/>
+<osmatch name="FON La Fonera WAP (OpenWrt, Linux 2.4.32)" accuracy="92" line="4356"/>
+<osmatch name="Linux 2.6.18.8 (openSUSE 10.2)" accuracy="91" line="10440"/>
+<osmatch name="FON La Fonera WAP running OpenWrt w/Linux kernel 2.4.32" accuracy="91" line="4390"/>
+<osmatch name="Siemens Gigaset SE515dsl wireless broadband router" accuracy="90" line="17372"/>
+<osmatch name="3Com OfficeConnect" accuracy="90" line="250"/>
+<osmatch name="Linux 2.6.9 - 2.6.19" accuracy="90" line="4200"/>
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=80%CT=563%CU=%PV=N%G=N%TM=479D25ED%P=i686-pc-linux-gnu)&#xa;SEQ(SP=109%GCD=1%ISR=105%TI=Z%TS=1F)&#xa;SEQ(SP=109%GCD=1%ISR=108%TI=Z%II=I%TS=1F)&#xa;OPS(O1=M5B4ST11NW3%O2=M5B4ST11NW3%O3=M5B4NNT11NW3%O4=M5B4ST11NW3%O5=M5B4ST11NW3%O6=M5B4ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%TG=40%W=16D0%O=M5B4NNSNW3%CC=N%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=Y%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW3%RD=0%Q=)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=Y%DFI=N%TG=40%TOSI=S%CD=S%SI=S%DLI=S)&#xa;" />
+</os>
+<uptime seconds="201" lastboot="Sun Jan 27 21:43:16 2008" />
+<tcpsequence index="265" class="unknown class" difficulty="Good luck!" values="E7AA462B,41E21423,41900EE4,B0406748,AF655A96" />
+<ipidsequence class="All zeros" values="0,0,0,0,0" />
+<tcptssequence class="other" values="45702AB,E5E6ADFA,E5E6AE64,FA2DC6F6,FA2DC756" />
+<trace port="80" proto="tcp">
+<hop ttl="1" rtt="--" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="--" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="--" ipaddr="200.217.30.250" host="gigabitethernet5-1.80-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="--" ipaddr="200.97.65.250" host="pos15-1-nbv-pe-rotd-03.telemar.net.br"/>
+<hop ttl="5" rtt="44.53" ipaddr="200.223.131.13" host="pos6-0-nbv-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="96.74" ipaddr="200.223.131.2" host="pos2-0-bvg-pe-rotn-01.telemar.net.br"/>
+<hop ttl="7" rtt="243.94" ipaddr="200.223.131.18" host="pos9-0-asgs-ba-rotn-01.telemar.net.br"/>
+<hop ttl="8" rtt="92.72" ipaddr="200.223.131.74" host="so-0-2-2-0-bot-rj-rotn-01.telemar.net.br"/>
+<hop ttl="9" rtt="189.57" ipaddr="200.223.131.110" host="PO0-3.ARC-RJ-ROTN-01.telemar.net.br"/>
+<hop ttl="10" rtt="187.09" ipaddr="208.173.90.89" host="bpr2-so-5-2-0.miamimit.savvis.net"/>
+<hop ttl="11" rtt="185.44" ipaddr="208.172.97.169" host="cr2-pos-0-3-1-0.miami.savvis.net"/>
+<hop ttl="12" rtt="246.55" ipaddr="206.24.210.70" host="cr1-loopback.sfo.savvis.net"/>
+<hop ttl="13" rtt="246.08" ipaddr="204.70.200.229" host="er1-te-1-0-1.SanJose3Equinix.savvis.net"/>
+<hop ttl="14" rtt="242.86" ipaddr="204.70.200.210" host="hr1-te-2-0-0.santaclarasc4.savvis.net"/>
+<hop ttl="15" rtt="333.68" ipaddr="204.70.200.217" host="hr1-te-2-0-0.santaclarasc9.savvis.net"/>
+<hop ttl="16" rtt="245.30" ipaddr="204.70.203.146"/>
+<hop ttl="17" rtt="258.32" ipaddr="66.35.194.58" host="csr1-ve242.santaclarasc8.savvis.net"/>
+<hop ttl="18" rtt="249.12" ipaddr="66.35.212.174"/>
+<hop ttl="19" rtt="251.98" ipaddr="66.35.250.203" host="sourceforge.net"/>
+</trace>
+<times srtt="285380" rttvar="52198" to="494172" />
+</host>
+<host><status state="up" reason="reset"/>
+<address addr="64.13.134.48" addrtype="ipv4" />
+<hostnames />
+<ports><extraports state="filtered" count="1708">
+<extrareasons reason="no-responses" count="1708"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="48"/><service name="ssh" product="OpenSSH" version="4.3" extrainfo="protocol 2.0" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="25"><state state="closed" reason="reset" reason_ttl="47"/><service name="smtp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="53"><state state="open" reason="syn-ack" reason_ttl="47"/><service name="domain" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="70"><state state="closed" reason="reset" reason_ttl="47"/><service name="gopher" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="47"/><service name="http" product="Apache httpd" version="2.2.2" extrainfo="(Fedora)" method="probed" conf="10" /><script id="HTML title" output="Nmap - Free Security Scanner For Network Exploration &amp; Securit..." /></port>
+<port protocol="tcp" portid="113"><state state="closed" reason="reset" reason_ttl="47"/><service name="auth" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22" />
+<portused state="closed" proto="tcp" portid="25" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
+<osmatch name="Linux 2.6.17 - 2.6.21" accuracy="100" line="9847" />
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=22%CT=25%CU=%PV=N%G=N%TM=479D25ED%P=i686-pc-linux-gnu)&#xa;SEQ(SP=C4%GCD=1%ISR=D4%TI=Z%II=I%TS=A)&#xa;OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11NW7%O6=M5B4ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%TG=40%W=16D0%O=M5B4NNSNW7%CC=N%Q=)&#xa;T1(R=Y%DF=Y%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=Y%TG=40%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW7%RD=0%Q=)&#xa;T4(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%TG=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=Y%DFI=N%TG=40%TOSI=S%CD=S%SI=S%DLI=S)&#xa;" />
+</os>
+<uptime seconds="3678886" lastboot="Sun Dec 16 07:51:51 2007" />
+<tcpsequence index="196" class="unknown class" difficulty="Good luck!" values="3B4828E4,3C05079E,3B93665A,3C0C2FD5,3B4F7938,3BD91399" />
+<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
+<tcptssequence class="1000HZ" values="DB441BF8,DB441C5D,DB441CC1,DB441D24,DB441D88,DB441DED" />
+<trace port="22" proto="tcp">
+<hop ttl="1" rtt="--" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="--" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="--" ipaddr="200.217.30.250" host="gigabitethernet5-1.80-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="--" ipaddr="200.97.65.250" host="pos15-1-nbv-pe-rotd-03.telemar.net.br"/>
+<hop ttl="5" rtt="2887.23" ipaddr="200.223.131.13" host="pos6-0-nbv-pe-rotn-01.telemar.net.br"/>
+<hop ttl="7" rtt="109.87" ipaddr="200.223.131.134" host="so-0-2-1-0-bot-rj-rotn-01.telemar.net.br"/>
+<hop ttl="8" rtt="185.40" ipaddr="200.187.128.66"/>
+<hop ttl="10" rtt="186.95" ipaddr="64.125.13.69" host="ge-6-1-0.mpr1.iad10.us.above.net"/>
+<hop ttl="11" rtt="191.85" ipaddr="64.125.30.118" host="so-4-0-0.mpr1.iad2.us.above.net"/>
+<hop ttl="12" rtt="191.88" ipaddr="64.125.27.74" host="so-6-0-0.mpr1.iad5.us.above.net"/>
+<hop ttl="13" rtt="212.11" ipaddr="64.125.29.229" host="so-4-0-0.mpr1.iad1.us.above.net"/>
+<hop ttl="14" rtt="192.05" ipaddr="64.125.28.62" host="so-0-2-0.mpr1.lga5.us.above.net"/>
+<hop ttl="15" rtt="275.83" ipaddr="64.125.26.229" host="so-2-1-0.mpr1.sjc2.above.net"/>
+<hop ttl="16" rtt="268.86" ipaddr="64.125.28.142" host="so-4-2-0.mpr3.pao1.us.above.net"/>
+<hop ttl="17" rtt="299.43" ipaddr="208.185.168.173" host="metro0.sv.svcolo.com"/>
+<hop ttl="18" rtt="352.22" ipaddr="64.13.134.48"/>
+</trace>
+<times srtt="373460" rttvar="156723" to="1000352" />
+</host>
+<host><status state="up" reason="reset"/>
+<address addr="204.152.191.37" addrtype="ipv4" />
+<hostnames><hostname name="pub2.kernel.org" type="PTR" /></hostnames>
+<ports><extraports state="closed" count="1704">
+<extrareasons reason="resets" count="1704"/>
+</extraports>
+<port protocol="tcp" portid="21"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="ftp" product="vsftpd or WU-FTPD" hostname="Welcome" method="probed" conf="10" /><script id="Anonymous FTP" output="FTP: Anonymous login allowed" /></port>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="ssh" product="OpenSSH" version="4.3" extrainfo="protocol 2.0" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="79"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="finger" servicefp="SF-Port79-TCP:V=4.53%I=7%D=1/27%Time=479D24B2%P=i686-pc-linux-gnu%r(NULL,1&#xa;SF:A3,&quot;The\x20latest\x20stable\x20version\x20of\x20the\x20Linux\x20kernel\&#xa;SF:x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x202\.6\.24\nThe\x20late&#xa;SF:st\x20snapshot\x20for\x20the\x20stable\x20Linux\x20kernel\x20tree\x20is&#xa;SF::\x20\x20\x20\x202\.6\.24-git3\nThe\x20latest\x202\.4\x20version\x20of\&#xa;SF:x20the\x20Linux\x20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x2&#xa;SF:0\x20\x20\x20\x202\.4\.36\nThe\x20latest\x202\.2\x20version\x20of\x20th&#xa;SF:e\x20Linux\x20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20&#xa;SF:\x20\x20\x202\.2\.26\nThe\x20latest\x20prepatch\x20for\x20the\x202\.2\x&#xa;SF:20Linux\x20kernel\x20tree\x20is:\x20\x20\x20\x20\x20\x20\x202\.2\.27-rc&#xa;SF:2\nThe\x20latest\x20-mm\x20patch\x20to\x20the\x20stable\x20Linux\x20ker&#xa;SF:nels\x20is:\x20\x20\x20\x20\x20\x20\x20\x202\.6\.24-rc8-mm1\n&quot;)%r(Gener&#xa;SF:icLines,1A3,&quot;The\x20latest\x20stable\x20version\x20of\x20the\x20Linux\x&#xa;SF:20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x202\.6\.24\nTh&#xa;SF:e\x20latest\x20snapshot\x20for\x20the\x20stable\x20Linux\x20kernel\x20t&#xa;SF:ree\x20is:\x20\x20\x20\x202\.6\.24-git3\nThe\x20latest\x202\.4\x20versi&#xa;SF:on\x20of\x20the\x20Linux\x20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x&#xa;SF:20\x20\x20\x20\x20\x20\x202\.4\.36\nThe\x20latest\x202\.2\x20version\x2&#xa;SF:0of\x20the\x20Linux\x20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x2&#xa;SF:0\x20\x20\x20\x20\x202\.2\.26\nThe\x20latest\x20prepatch\x20for\x20the\&#xa;SF:x202\.2\x20Linux\x20kernel\x20tree\x20is:\x20\x20\x20\x20\x20\x20\x202\&#xa;SF:.2\.27-rc2\nThe\x20latest\x20-mm\x20patch\x20to\x20the\x20stable\x20Lin&#xa;SF:ux\x20kernels\x20is:\x20\x20\x20\x20\x20\x20\x20\x202\.6\.24-rc8-mm1\n&quot;&#xa;SF:)%r(GetRequest,1A3,&quot;The\x20latest\x20stable\x20version\x20of\x20the\x20&#xa;SF:Linux\x20kernel\x20is:\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x202\.6\&#xa;SF:.24\nThe\x20latest\x20snapshot\x" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="http" product="Apache httpd" version="2.2.2" extrainfo="(Fedora)" method="probed" conf="10" /><script id="robots.txt" output="&#xa;/cgi-bin/ /pub/mirrors/ /pub/scm/ &#xa;/mirrors/process-registration.cgi /lsb/ /linuxeda/ /os.org/ /debian/ &#xa;/debian-cd/ /lanana/ /li18nux/ /freestandards/ &#xa;/filehub/ /diff/ /git/ /hg/ " /><script id="HTML title" output="The Linux Kernel Archives" /></port>
+<port protocol="tcp" portid="199"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="smux" product="Linux SNMP multiplexer" ostype="Linux" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="https" tunnel="ssl" method="table" conf="3" /><script id="HTML title" output="The Linux Kernel Archives" /></port>
+<port protocol="tcp" portid="873"><state state="open" reason="syn-ack" reason_ttl="53"/><service name="rsync" extrainfo="protocol version 29" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="1720"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="H.323/Q.931" method="table" conf="3" /></port>
+<port protocol="tcp" portid="5978"><state state="open" reason="syn-ack" reason_ttl="50"/><service name="ncd-diag-tcp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="7000"><state state="open" reason="syn-ack" reason_ttl="53"/><service name="afs3-fileserver" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="21" />
+<portused state="closed" proto="tcp" portid="1" />
+<portused state="closed" proto="udp" portid="34527" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="91" />
+<osclass type="security-misc" vendor="Aladdin" osfamily="Linux" osgen="2.4.X" accuracy="88" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="87" />
+<osclass type="switch" vendor="QLogic" osfamily="embedded" accuracy="87" />
+<osclass type="PDA" vendor="Sharp" osfamily="Linux" osgen="2.4.X" accuracy="87" />
+<osclass type="VoIP gateway" vendor="Tandberg" osfamily="Linux" osgen="2.6.X" accuracy="87" />
+<osclass type="WAP" vendor="Siemens" osfamily="Linux" accuracy="87" />
+<osclass type="server appliance" vendor="Toshiba" osfamily="Linux" osgen="2.4.X" accuracy="87" />
+<osclass type="VoIP gateway" vendor="Occam" osfamily="embedded" accuracy="86" />
+<osclass type="WAP" vendor="FON" osfamily="Linux" osgen="2.4.X" accuracy="86" />
+<osclass type="media device" vendor="Dream Multimedia" osfamily="Linux" osgen="2.6.X" accuracy="85" />
+<osclass type="storage-misc" vendor="Iomega" osfamily="Linux" osgen="2.6.X" accuracy="85" />
+<osclass type="WAP" vendor="Inventel" osfamily="embedded" accuracy="85" />
+<osclass type="broadband router" vendor="USRobotics" osfamily="embedded" accuracy="85" />
+<osclass type="broadband router" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="85" />
+<osclass type="WAP" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="85" />
+<osclass type="media device" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="85" />
+<osclass type="VoIP gateway" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="85" />
+<osmatch name="Linux 2.6.5 - 2.6.9" accuracy="91" line="11429"/>
+<osmatch name="Linux 2.6.17 - 2.6.18" accuracy="91" line="9552"/>
+<osmatch name="Linux 2.6.22" accuracy="89" line="11205"/>
+<osmatch name="Linux 2.6.15.4" accuracy="89" line="9337"/>
+<osmatch name="Linux 2.6.9-022stab078.19-enterprise (CentOS 4.2 x86)" accuracy="89" line="11816"/>
+<osmatch name="Linux 2.6.17 - 2.6.18 (x86_64, SMP)" accuracy="89" line="9650"/>
+<osmatch name="Linux 2.6.17 - 2.6.21" accuracy="89" line="9847"/>
+<osmatch name="Linux 2.6.18 (Gentoo, x86)" accuracy="89" line="10263"/>
+<osmatch name="Linux 2.6.5-7.283-smp (SuSE Enterprise Server 9, x86)" accuracy="88" line="11465"/>
+<osmatch name="Aladdin eSafe security gateway (runs Linux 2.4.21)" accuracy="88" line="463"/>
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=21%CT=1%CU=34527%PV=N%DS=13%G=N%TM=479D25ED%P=i686-pc-linux-gnu)&#xa;SEQ(SP=CB%GCD=1%ISR=CF%TI=Z%TS=E)&#xa;SEQ(SP=CB%GCD=1%ISR=CF%TI=Z%II=I%TS=D)&#xa;OPS(O1=M5B4ST11NW7%O2=M5B4ST11NW7%O3=M5B4NNT11NW7%O4=M5B4ST11NW7%O5=M5B4ST11NW7%O6=M5B4ST11)&#xa;WIN(W1=16A0%W2=16A0%W3=16A0%W4=16A0%W5=16A0%W6=16A0)&#xa;ECN(R=Y%DF=Y%T=3F%W=16D0%O=M5B4NNSNW7%CC=N%Q=)&#xa;T1(R=Y%DF=Y%T=3F%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=Y%T=3F%W=16A0%S=O%A=S+%F=AS%O=M5B4ST11NW7%RD=0%Q=)&#xa;T4(R=Y%DF=Y%T=3F%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=Y%T=3F%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=Y%T=3F%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=Y%T=3F%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=3F%TOS=0%IPL=164%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=ABF4%RUL=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=3F%TOSI=Z%CD=S%SI=S%DLI=S)&#xa;IE(R=Y%DFI=N%T=42%TOSI=Z%CD=S%SI=S%DLI=S)&#xa;" />
+</os>
+<uptime seconds="404814" lastboot="Wed Jan 23 05:19:43 2008" />
+<distance value="13" />
+<tcpsequence index="203" class="unknown class" difficulty="Good luck!" values="51411AEE,509EEED0,508D446B,50BABE19,5110A098,506A461E" />
+<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
+<tcptssequence class="other" values="A4550333,A455026B,A454F6B8,A454F71A,A454F77F,A454F7DB" />
+<trace port="21" proto="tcp">
+<hop ttl="1" rtt="2.66" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="27.86" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="46.94" ipaddr="200.217.30.210" host="gigabitethernet6-1.90-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="53.15" ipaddr="200.97.65.250" host="pos15-1-nbv-pe-rotd-03.telemar.net.br"/>
+<hop ttl="5" rtt="47.43" ipaddr="200.223.131.13" host="pos6-0-nbv-pe-rotn-01.telemar.net.br"/>
+<hop ttl="8" rtt="181.54" ipaddr="200.223.131.246"/>
+<hop ttl="9" rtt="183.95" ipaddr="209.58.18.1" host="if-0-11.ihar1.N60-NewYork.teleglobe.net"/>
+<hop ttl="10" rtt="267.48" ipaddr="216.6.87.17" host="if-12-0.mcore4.NQT-NewYork.teleglobe.net"/>
+<hop ttl="11" rtt="347.36" ipaddr="216.6.86.13" host="if-4-0.mcore4.PDI-PaloAlto.teleglobe.net"/>
+<hop ttl="12" rtt="345.61" ipaddr="216.6.86.2" host="if-7-0.core3.PDI-PaloAlto.teleglobe.net"/>
+<hop ttl="13" rtt="337.96" ipaddr="207.45.196.66" host="ix-4-6.core3.PDI-PaloAlto.Teleglobe.net"/>
+<hop ttl="14" rtt="251.55" ipaddr="204.152.191.37" host="pub2.kernel.org"/>
+</trace>
+<times srtt="302981" rttvar="47378" to="492493" />
+</host>
+<host><status state="up" reason="echo-reply"/>
+<address addr="199.185.137.3" addrtype="ipv4" />
+<hostnames><hostname name="cvs.openbsd.org" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="1019">
+<extrareasons reason="host-unreaches" count="1013"/>
+<extrareasons reason="no-responses" count="6"/>
+</extraports>
+<extraports state="closed" count="690">
+<extrareasons reason="resets" count="690"/>
+</extraports>
+<port protocol="tcp" portid="21"><state state="open" reason="syn-ack" reason_ttl="48"/><service name="ftp" product="bsd-ftpd" hostname="cvs.openbsd.org" ostype="Linux" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="25"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="smtp" product="OpenBSD spamd" method="probed" conf="10" /><script id="SMTP" output="EHLO with errors or timeout.  Enable -&#45;script-trace to see what is happening." /></port>
+<port protocol="tcp" portid="53"><state state="open" reason="syn-ack" reason_ttl="45"/><service name="domain" product="ISC BIND" version="9.X" method="probed" conf="10" /><script id="zone-transfer" output=" &#xa;openbsd.org.                  SOA     zeus.theos.com. root.theos.com.  &#xa;openbsd.org.                  NS      ns.appli.se.                     &#xa;openbsd.org.                  NS      ns&#x9;sigmasoft.com.                &#xa;openbsd.org.                  NS      cvs.openbsd.org.                 &#xa;openbsd.org.                  NS      citi.umich.edu.                  &#xa;openbsd.org.                  NS      zeus.theos.com.                  &#xa;openbsd.org.                  A       199.185.137.3                    &#xa;openbsd.org.                  MX      shear.ucar.edu.                  &#xa;openbsd.org.                  MX      cvs.openbsd.org.                 &#xa;alpha.openbsd.org.            A       199.185.137.77                   &#xa;amd64.openbsd.org.            A       199.185.137.80                   &#xa;anoncvs.openbsd.org.          CNAME  &#xa;ftp.ar.openbsd.org.           CNAME  &#xa;ftp1.ar.openbsd.org.          CNAME  &#xa;www.ar.openbsd.org.           CNAME  &#xa;armish.openbsd.org.           A       199.185.137.155                  &#xa;ftp.as.openbsd.org.           CNAME  &#xa;ftp1.as.openbsd.org.          CNAME  &#xa;ftp2.as.openbsd.org.          CNAME  &#xa;ftp3.as.openbsd.org.          CNAME  &#xa;ftp4.as.openbsd.org.          CNAME  &#xa;anoncvs2.at.openbsd.org.      A       128.130.59.60                    &#xa;www.at.openbsd.org.           CNAME  &#xa;ftp.au.openbsd.org.           CNAME  &#xa;ftp1.au.openbsd.org.          CNAME  &#xa;ftp2.au.openbsd.org.          CNAME  &#xa;ftp3.au.openbsd.org.          CNAME  &#xa;www.au.openbsd.org.           CNAME  &#xa;cvsup.bg.openbsd.org.         A       217.10.246.146                   &#xa;ftp.bg.openbsd.org.           A       217.10.246.146                   &#xa;ftp1.bg.openbsd.org.          A       217.10.246.146                   &#xa;c.openbsd.org.                CNAME  &#xa;anoncvs.ca.openbsd.org.       CNAME  &#xa;anoncvs1.ca.openbsd.org.      CNAME  &#xa;ctm.ca.openbsd.org.           CNAME  &#xa;cvsup.ca.openbsd.org.         A       206.51.28.249                    &#xa;ftp.ca.openbsd.org.           CNAME  &#xa;ftp1.ca.openbsd.org.          CNAME  &#xa;www.ca.openbsd.org.           A       129.128.5.191                    &#xa;cats.openbsd.org.             A       199.185.137.33                   &#xa;ctm.openbsd.org.              CNAME  &#xa;cvs.openbsd.org.              A       199.185.137.3                    &#xa;cvsup.openbsd.org.            CNAME  &#xa;de.openbsd.org.               NS      a.ns.bsws.de.                    &#xa;de.openbsd.org.               NS      a.ns&#x9;pestilenz.org.              &#xa;de.openbsd.org.               NS      b.ns.bsws.de.                    &#xa;de.openbsd.org.               NS      c.ns.bsws.de.                    &#xa;ftp.eu.openbsd.org.           CNAME  &#xa;ftp1.eu.openbsd.org.          CNAME  &#xa;ftp2.eu.openbsd.org.          CNAME  &#xa;ftp3.eu.openbsd.org.          CNAME  &#xa;ftp4.eu.openbsd.org.          CNAME  &#xa;ftp5.eu.openbsd.org.          CNAME  &#xa;ftp6.eu.openbsd.org.          CNAME  &#xa;ftp8.eu.openbsd.org.          CNAME  &#xa;ftp9.eu.openbsd.org.          A       193.120.14.244                   &#xa;cvsup.fr.openbsd.org.         CNAME  &#xa;ftp.fr.openbsd.org.           CNAME  &#xa;ftp1.fr.openbsd.org.          CNAME  &#xa;ftp2.fr.openbsd.org.          CNAME  &#xa;ftp3.fr.openbsd.org.          CNAME  &#xa;ftp.openbsd.org.              CNAME  &#xa;gw.openbsd.org.               A       199.185.230.1                    &#xa;hp3...openbsd.org.            A       199.185.137.74                   &#xa;hppa.openbsd.org.             A       199.185.137.79                   &#xa;https.openbsd.org.            A       68.148.128.241                   &#xa;cvsup.hu.openbsd.org.         CNAME  &#xa;i386.openbsd.org.             A       199.185.137.8                    &#xa;cvsup.id.openbsd.org.         CNAME  &#xa;ftp.ie.openbsd.org.           A       193.120.14.244                   &#xa;ftp19.ie.openbsd.org.         A       193.120.14.244                   &#xa;www.ie.openbsd.org.           A       193.120.14.244                   &#xa;anoncvs.jp.openbsd.org.       CNAME  &#xa;anoncvs1.jp.openbsd.org.      CNAME  &#xa;cvsup.jp.openbsd.org.         CNAME  &#xa;ftp.jp.openbsd.org.           CNAME  &#xa;ftp1.jp.openbsd.org.          CNAME  &#xa;ftp2.jp.openbsd.org.          CNAME  &#xa;www.jp.openbsd.org.           CNAME  &#xa;cvsup.kr.openbsd.org.         CNAME  &#xa;ftp.kr.openbsd.org.           CNAME  &#xa;ftp1.kr.openbsd.org.          CNAME  &#xa;landisk.openbsd.org.          A       199.185.137.81                   &#xa;landiskx.openbsd.org.         A       199.185.137.157                  &#xa;list.openbsd.org.             CNAME  &#xa;lists.openbsd.org.            CNAME  &#xa;localhost.openbsd.org.        A       127.0.0.1                        &#xa;loghost.openbsd.org.          CNAME  &#xa;macppc.openbsd.org.           A       199.185.137.87                   &#xa;mail.openbsd.org.             CNAME  &#xa;music.openbsd.org.            A       199.185.137.230                  &#xa;mvme68k.openbsd.org.          A       199.185.137.42                   &#xa;mvme88k.openbsd.org.          A       199.185.137.88                   &#xa;n.openbsd.org.                A       199.185.136.200                  &#xa;n.openbsd.org.                MX      cvs.openbsd.org.                 &#xa;anoncvs.nl.openbsd.org.       CNAME  &#xa;anoncvs1.nl.openbsd.org.      CNAME  &#xa;anoncvs.no.openbsd.org.       CNAME  &#xa;anoncvs1.no.openbsd.org.      CNAME  &#xa;cvsup.no.openbsd.org.         CNAME  &#xa;anoncvs.nyc.openbsd.org.      CNAME  &#xa;ftp.nyc.openbsd.org.          CNAME  &#xa;ops.openbsd.org.              A       199.185.137.129                  &#xa;pf.openbsd.org.               A       199.185.136.128                  &#xa;pf.openbsd.org.               A       199.185.137.128                  &#xa;pf.openbsd.org.               A       199.185.231.128                  &#xa;pf.openbsd.org.               A       207.153.1.26                     &#xa;anoncvs.pl.openbsd.org.       CNAME  &#xa;anoncvs1.pl.openbsd.org.      CNAME  &#xa;pmax.openbsd.org.             A       199.185.137.52                   &#xa;ports.openbsd.org.            CNAME  &#xa;alpha.ports.openbsd.org.      A       199.185.231.77                   &#xa;amd64.ports.openbsd.org.      A       199.185.231.80                   &#xa;armish.ports.openbsd.org.     A       199.185.231.155                  &#xa;cvs.ports.openbsd.org.        CNAME  &#xa;hppa.ports.openbsd.org.       A       199.185.231.78                   &#xa;i386.ports.openbsd.org.       A       199.185.231.6                    &#xa;landisk.ports.openbsd.org.    A       199.185.231.81                   &#xa;m68k.ports.openbsd.org.       A       199.185.231.7                    &#xa;macppc.ports.openbsd.org.     A       199.185.231.8                    &#xa;serial.ports.openbsd.org.     A       199.185.231.111                  &#xa;sgi.ports.openbsd.org.        A       199.185.231.99                   &#xa;sparc.ports.openbsd.org.      A       199.185.231.5                    &#xa;sparc-..ports.openbsd.org.    CNAME  &#xa;sparc-1.ports.openbsd.org.    A       199.185.231.20                   &#xa;sparc-2.ports.openbsd.org.    A       199.185.231.21                   &#xa;sparc-3.ports.openbsd.org.    A       199.185.231.22                   &#xa;sparc64.ports.openbsd.org.    A       199.185.231.94                   &#xa;sparc64-..ports.openbsd.org.  CNAME  &#xa;sparc64-1.ports.openbsd.org.  A       199.185.231.95                   &#xa;sparc64-2.ports.openbsd.org.  A       199.185.231.96                   &#xa;sparc64-3.ports.openbsd.org.  A       199.185.231.97                   &#xa;sparc64-4.ports.openbsd.org.  A       199.185.231.98                   &#xa;vax.ports.openbsd.org.        A       199.185.231.79                   &#xa;zaurus.ports.openbsd.org.     A       199.185.231.50                   &#xa;cvsup.pt.openbsd.org.         CNAME  &#xa;ftp.ro.openbsd.org.           CNAME  &#xa;ftp1.ro.openbsd.org.          CNAME  &#xa;anoncvs.se.openbsd.org.       CNAME  &#xa;anoncvs1.se.openbsd.org.      CNAME  &#xa;ctm.se.openbsd.org.           CNAME  &#xa;ftp.se.openbsd.org.           CNAME  &#xa;ftp1.se.openbsd.org.          CNAME  &#xa;serial.openbsd.org.           A       199.185.137.111                  &#xa;sgi.openbsd.org.              A       199.185.137.99                   &#xa;sparc.openbsd.org.            A       199.185.137.92                   &#xa;sparc64.openbsd.org.          A       199.185.137.94                   &#xa;test.openbsd.org.             A       199.185.137.17                   &#xa;test2.openbsd.org.            A       199.185.137.18                   &#xa;test3.openbsd.org.            A       199.185.137.19                   &#xa;test4.openbsd.org.            A       199.185.137.20                   &#xa;ftp.th.openbsd.org.           CNAME  &#xa;ftp1.th.openbsd.org.          CNAME  &#xa;www.tr.openbsd.org.           CNAME  &#xa;anoncvs.tw.openbsd.org.       CNAME  &#xa;anoncvs1.tw.openbsd.org.      CNAME  &#xa;cvsup.tw.openbsd.org.         A       140.113.17.208                   &#xa;ftp.tw.openbsd.org.           CNAME  &#xa;ftp1.tw.openbsd.org.          CNAME  &#xa;www.tw.openbsd.org.           CNAME  &#xa;u.openbsd.org.                A       199.185.136.4                    &#xa;u.openbsd.org.                MX      cvs.openbsd.org.                 &#xa;cvsup.uk.openbsd.org.         A       194.242.139.171                  &#xa;anoncvs.usa.openbsd.org.      CNAME  &#xa;anoncvs1.usa.openbsd.org.     CNAME  &#xa;anoncvs2.usa.openbsd.org.     CNAME  &#xa;anoncvs3.usa.openbsd.org.     CNAME  &#xa;anoncvs4.usa.openbsd.org.     CNAME  &#xa;anoncvs5.usa.openbsd.org.     CNAME  &#xa;anoncvs6.usa.openbsd.org.     CNAME  &#xa;cvsup.usa.openbsd.org.        A       128.46.156.46                    &#xa;ftp.usa.openbsd.org.          CNAME  &#xa;ftp1.usa.openbsd.org.         CNAME  &#xa;ftp2.usa.openbsd.org.         CNAME  &#xa;ftp3.usa.openbsd.org.         CNAME  &#xa;ftp5.usa.openbsd.org.         CNAME  &#xa;ftp6.usa.openbsd.org.         CNAME  &#xa;www.usa.openbsd.org.          A       198.175.14.3                     &#xa;v.openbsd.org.                A       199.185.136.2                    &#xa;v.openbsd.org.                MX      cvs.openbsd.org.                 &#xa;vax.openbsd.org.              A       199.185.137.78                   &#xa;w.openbsd.org.                A       199.185.136.3                    &#xa;w.openbsd.org.                MX      cvs.openbsd.org.                 &#xa;www.openbsd.org.              A       129.128.5.191                    &#xa;x.openbsd.org.                A       199.185.136.5                    &#xa;x.openbsd.org.                MX      cvs.openbsd.org.                 &#xa;zaurus.openbsd.org.           A       199.185.137.50                   &#xa;zeus.openbsd.org.             CNAME  &#xa;openbsd.org.                  SOA     zeus.theos.com. root.theos.com.  &#xa;" /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="48"/><service name="http" product="Apache httpd" method="probed" conf="10" /><script id="robots.txt" output="/cgi-bin/ /faq/new/ &#xa;/donations.html " /><script id="HTML title" output="OpenBSD" /></port>
+<port protocol="tcp" portid="7326"><state state="open" reason="syn-ack" reason_ttl="45"/><service name="icb" servicefp="SF-Port7326-TCP:V=4.53%I=7%D=1/27%Time=479D24BC%P=i686-pc-linux-gnu%r(NULL&#xa;SF:,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Server\x20version\x201\.3\&#xa;SF:.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(GenericLines,43,&quot;Bj1\x01cvs\.openb&#xa;SF:sd\.org\x01Darkside\x20Server\x20version\x201\.3\.221\x20\+\x20pain,\x2&#xa;SF:0v0\.100\0&quot;)%r(GetRequest,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20S&#xa;SF:erver\x20version\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(HTTPOptio&#xa;SF:ns,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Server\x20version\x201\.&#xa;SF:3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(RTSPRequest,43,&quot;Bj1\x01cvs\.open&#xa;SF:bsd\.org\x01Darkside\x20Server\x20version\x201\.3\.221\x20\+\x20pain,\x&#xa;SF:20v0\.100\0&quot;)%r(RPCCheck,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Se&#xa;SF:rver\x20version\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(DNSVersion&#xa;SF:BindReq,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Server\x20version\x&#xa;SF:201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(DNSStatusRequest,43,&quot;Bj1\x0&#xa;SF:1cvs\.openbsd\.org\x01Darkside\x20Server\x20version\x201\.3\.221\x20\+\&#xa;SF:x20pain,\x20v0\.100\0&quot;)%r(Help,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside&#xa;SF:\x20Server\x20version\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(SSLS&#xa;SF:essionReq,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Server\x20version&#xa;SF:\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(SMBProgNeg,43,&quot;Bj1\x01cvs&#xa;SF:\.openbsd\.org\x01Darkside\x20Server\x20version\x201\.3\.221\x20\+\x20p&#xa;SF:ain,\x20v0\.100\0&quot;)%r(X11Probe,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside&#xa;SF:\x20Server\x20version\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(Four&#xa;SF:OhFourRequest,43,&quot;Bj1\x01cvs\.openbsd\.org\x01Darkside\x20Server\x20ver&#xa;SF:sion\x201\.3\.221\x20\+\x20pain,\x20v0\.100\0&quot;)%r(LPDString,6C,&quot;Bj1\x01&#xa;SF:cvs\.openbsd\.org\x01Darkside\x20Server\x20version\x201\.3\.221\x20\+\x&#xa;SF:2" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="21" />
+<portused state="closed" proto="tcp" portid="22" />
+<portused state="closed" proto="udp" portid="34307" />
+<osclass type="VoIP gateway" vendor="Netcomm" osfamily="embedded" accuracy="87" />
+<osmatch name="Netcomm V300 VoIP gateway" accuracy="87" line="15324"/>
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=21%CT=22%CU=34307%PV=N%DS=21%G=N%TM=479D25ED%P=i686-pc-linux-gnu)&#xa;SEQ(SP=103%GCD=1%ISR=10B%TI=RD%TS=21)&#xa;OPS(O1=M5B4NNSNW0NNT11%O2=M5B4NNSNW0NNT11%O3=M5B4NW0NNT11%O4=M5B4NNSNW0NNT11%O5=M5B4NNSNW0NNT11%O6=M5B4NNSNNT11)&#xa;WIN(W1=4000%W2=4000%W3=4000%W4=4000%W5=4000%W6=4000)&#xa;ECN(R=Y%DF=Y%T=42%W=4000%O=M5B4NNSNW0%CC=N%Q=)&#xa;ECN(R=N)&#xa;T1(R=Y%DF=Y%T=42%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=N)&#xa;T4(R=N)&#xa;T5(R=Y%DF=Y%T=43%W=0%S=A%A=S+%F=AR%O=%RD=0%Q=)&#xa;T5(R=N)&#xa;T6(R=N)&#xa;T7(R=N)&#xa;U1(R=Y%DF=N%T=101%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=ACD0%RUL=G%RUD=G)&#xa;IE(R=Y%DFI=S%T=104%TOSI=S%CD=S%SI=S%DLI=S)&#xa;IE(R=Y%DFI=S%T=101%TOSI=S%CD=S%SI=S%DLI=S)&#xa;" />
+</os>
+<distance value="21" />
+<trace port="21" proto="tcp">
+<hop ttl="1" rtt="3.40" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="33.50" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="35.53" ipaddr="200.217.30.250" host="gigabitethernet5-1.80-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="52.95" ipaddr="200.97.65.245" host="pos9-1-bvg-pe-rotd-02.telemar.net.br"/>
+<hop ttl="5" rtt="53.04" ipaddr="200.223.131.21" host="pos6-0-bvg-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="87.46" ipaddr="200.223.43.245"/>
+<hop ttl="7" rtt="208.03" ipaddr="200.223.131.138" host="PO12-0.ARC-RJ-ROTD-03.telemar.net.br"/>
+<hop ttl="8" rtt="199.96" ipaddr="144.228.186.117" host="sl-st22-mia-13-0-0.sprintlink.net"/>
+<hop ttl="9" rtt="198.19" ipaddr="144.232.2.205" host="sl-bb20-mia-10-0-0.sprintlink.net"/>
+<hop ttl="10" rtt="203.13" ipaddr="144.232.2.203" host="sl-bb22-mia-3-0-0.sprintlink.net"/>
+<hop ttl="11" rtt="198.98" ipaddr="144.232.18.216" host="sl-crs2-atl-0-0-0-1.sprintlink.net"/>
+<hop ttl="12" rtt="289.94" ipaddr="144.232.9.125" host="sl-bb20-nsh-15-0-0.sprintlink.net"/>
+<hop ttl="13" rtt="206.40" ipaddr="144.232.23.129"/>
+<hop ttl="14" rtt="214.70" ipaddr="144.232.9.126" host="sl-bb25-chi-12-0-0.sprintlink.net"/>
+<hop ttl="15" rtt="259.42" ipaddr="144.232.20.156" host="sl-bb21-sea-1-0.sprintlink.net"/>
+<hop ttl="16" rtt="260.75" ipaddr="144.232.6.134" host="sl-gw14-sea-9-0.sprintlink.net"/>
+<hop ttl="17" rtt="263.99" ipaddr="144.232.219.238" host="sl-callnet-49-0.sprintlink.net"/>
+<hop ttl="18" rtt="282.49" ipaddr="204.50.128.13" host="p3-0-S1.bb1.cal1.rogerstelecom.net"/>
+<hop ttl="19" rtt="273.89" ipaddr="204.50.251.141" host="g5-1-S1.tls2.cal1.rogerstelecom.net"/>
+<hop ttl="20" rtt="277.01" ipaddr="207.107.204.178" host="Z-s4-0-0-5-0-S1.tls2.cal1.rogerstelecom.net"/>
+<hop ttl="21" rtt="280.83" ipaddr="199.185.230.2" host="pf.openbsd.org"/>
+<hop ttl="22" rtt="280.60" ipaddr="199.185.137.3" host="cvs.openbsd.org"/>
+</trace>
+<times srtt="326085" rttvar="47769" to="517161" />
+</host>
+<taskbegin task="SYN Stealth Scan" time="1201481197" />
+<taskprogress task="SYN Stealth Scan" time="1201481228" percent="9.14" remaining="298" etc="1201481526" />
+<taskend task="SYN Stealth Scan" time="1201481433" extrainfo="5142 total ports" />
+<taskbegin task="Service scan" time="1201481433" />
+<taskend task="Service scan" time="1201481455" extrainfo="12 services on 3 hosts" />
+<taskbegin task="Traceroute" time="1201481472" />
+<taskend task="Traceroute" time="1201481512" />
+<taskbegin task="Traceroute" time="1201481512" />
+<taskend task="Traceroute" time="1201481523" />
+<taskbegin task="Parallel DNS resolution of 46 hosts." time="1201481523" />
+<taskend task="Parallel DNS resolution of 46 hosts." time="1201481536" />
+<taskbegin task="System CNAME DNS resolution of 1 host." time="1201481536" />
+<taskend task="System CNAME DNS resolution of 1 host." time="1201481536" />
+<taskbegin task="SCRIPT ENGINE" time="1201481536" />
+<taskend task="SCRIPT ENGINE" time="1201481569" />
+<host><status state="up" reason="reset"/>
+<address addr="204.152.190.12" addrtype="ipv4" />
+<hostnames><hostname name="www.netbsd.org" type="PTR" /></hostnames>
+<ports><extraports state="closed" count="1705">
+<extrareasons reason="resets" count="1705"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="ssh" product="OpenSSH" version="4.4" extrainfo="NetBSD 20061114; protocol 2.0" ostype="NetBSD" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="25"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="smtp" product="Postfix smtpd" hostname=" narn.NetBSD.org" method="probed" conf="10" /><script id="SMTP" output="HELP with errors or timeout.  Enable -&#45;script-trace to see what is happening." /></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="http" product="Apache httpd" version="2.0.61" extrainfo="(Unix) mod_ssl/2.0.61  DAV/2 mod_fastcgi/2.4.2 mod_apreq2-20051231/2.6.0" method="probed" conf="10" /><script id="HTML title" output="The NetBSD Project" /></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="http" product="Apache httpd" version="2.0.61" extrainfo="mod_ssl/2.0.61  DAV/2 mod_fastcgi/2.4.2 mod_apreq2-20051231/2.6.0" hostname="rt.NetBSD.org" method="probed" conf="10" /><script id="HTML title" output="400 Bad Request" /><script id="SSLv2" output="server still supports SSLv2&#xa;&#x9;SSL2_DES_192_EDE3_CBC_WITH_MD5&#xa;&#x9;SSL2_IDEA_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_WITH_MD5&#xa;&#x9;SSL2_DES_64_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_EXPORT40_WITH_MD5&#xa;" /></port>
+<port protocol="tcp" portid="871"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="supfilesrv" method="table" conf="3" /></port>
+<port protocol="tcp" portid="874"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="rsync" extrainfo="protocol version 29" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="1720"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="H.323/Q.931" method="table" conf="3" /></port>
+<port protocol="tcp" portid="1984"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="tcpwrapped" method="probed" conf="8" /></port>
+<port protocol="tcp" portid="2022"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="ssh" product="OpenSSH" version="4.4" extrainfo="NetBSD 20061114; protocol 2.0" ostype="NetBSD" method="probed" conf="10" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22" />
+<portused state="closed" proto="tcp" portid="1" />
+<portused state="closed" proto="udp" portid="32193" />
+<osclass type="WAP" vendor="Apple" osfamily="NetBSD" osgen="4.X" accuracy="90" />
+<osclass type="general purpose" vendor="NetBSD" osfamily="NetBSD" osgen="4.X" accuracy="90" />
+<osmatch name="Apple AirPort Extreme WAP (runs NetBSD)" accuracy="90" line="1382"/>
+<osmatch name="NetBSD 4.99.4 (x86)" accuracy="90" line="15307"/>
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=22%CT=1%CU=32193%PV=N%DS=14%G=N%TM=479D2761%P=i686-pc-linux-gnu)&#xa;SEQ(SP=D7%GCD=1%ISR=E1%TI=I%II=I%SS=O%TS=0)&#xa;SEQ(SP=DD%GCD=1%ISR=DE%TS=0)&#xa;OPS(O1=M5B4NW0NNT01SNN%O2=M5B4NW0NNT01SNN%O3=M5B4NW0NNT01%O4=M5B4NW0NNT01SNN%O5=M5B4NW0NNT01SNN%O6=M5B4NNT01SNN)&#xa;WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)&#xa;ECN(R=Y%DF=Y%T=3C%W=8000%O=M5B4NW0SNN%CC=N%Q=)&#xa;T1(R=Y%DF=Y%T=3C%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=Y%T=3C%W=8000%S=O%A=S+%F=AS%O=M5B4NW0NNT01SNN%RD=0%Q=)&#xa;T4(R=Y%DF=N%T=3C%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=N%T=3C%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=N%T=3C%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=N%T=3C%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)&#xa;U1(R=Y%DF=N%T=FB%TOS=0%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=B43D%RUL=G%RUD=G)&#xa;IE(R=Y%DFI=N%T=FB%TOSI=Z%CD=S%SI=S%DLI=S)&#xa;" />
+</os>
+<distance value="14" />
+<tcpsequence index="221" class="unknown class" difficulty="Good luck!" values="CED51C9E,D2626FBA,D39DAEE3,D423A220,D782D901,D8072C18" />
+<ipidsequence class="Busy server or unknown class" values="712C,713A,713C,7142,7145,7146" />
+<tcptssequence class="zero timestamp" values="0,0,0,0,0,0" />
+<trace port="22" proto="tcp">
+<hop ttl="1" rtt="1.07" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="19.01" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="23.34" ipaddr="200.217.30.210" host="gigabitethernet6-1.90-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="44.72" ipaddr="200.97.65.245" host="pos9-1-bvg-pe-rotd-02.telemar.net.br"/>
+<hop ttl="5" rtt="45.01" ipaddr="200.223.131.21" host="pos6-0-bvg-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="87.41" ipaddr="200.223.43.245"/>
+<hop ttl="7" rtt="242.32" ipaddr="200.223.131.138" host="PO12-0.ARC-RJ-ROTD-03.telemar.net.br"/>
+<hop ttl="8" rtt="197.53" ipaddr="208.51.142.233" host="so-6-2-0.ar2.MIA1.gblx.net"/>
+<hop ttl="10" rtt="329.86" ipaddr="64.215.195.22"/>
+<hop ttl="13" rtt="250.62" ipaddr="149.20.65.32" host="int-1-2-0.r2.sfo2.isc.org"/>
+<hop ttl="14" rtt="246.57" ipaddr="149.20.65.1" host="int-0-2.r1.sql1.isc.org"/>
+<hop ttl="15" rtt="252.50" ipaddr="204.152.190.12" host="www.netbsd.org"/>
+</trace>
+<times srtt="266011" rttvar="14051" to="322215" />
+</host>
+<host><status state="up" reason="reset"/>
+<address addr="72.14.207.99" addrtype="ipv4" />
+<hostnames><hostname name="eh-in-f99.google.com" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="1710">
+<extrareasons reason="no-responses" count="1710"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="49"/><service name="http" product="Google httpd" version="1.3" extrainfo="GFE" ostype="Linux" method="probed" conf="10" /><script id="HTML title" output="302 Moved" /></port>
+<port protocol="tcp" portid="113"><state state="closed" reason="reset" reason_ttl="245"/><service name="auth" method="table" conf="3" /></port>
+<port protocol="tcp" portid="179"><state state="closed" reason="reset" reason_ttl="240"/><service name="bgp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="49"/><service name="http" product="Google httpd" version="1.3" extrainfo="GFE" ostype="Linux" tunnel="ssl" method="probed" conf="10" /><script id="SSLv2" output="server still supports SSLv2&#xa;&#x9;SSL2_DES_192_EDE3_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_WITH_MD5&#xa;&#x9;SSL2_DES_64_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_EXPORT40_WITH_MD5&#xa;" /><script id="HTML title" output="302 Moved" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="113" />
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=80%CT=113%CU=%PV=N%DS=14%G=N%TM=479D2761%P=i686-pc-linux-gnu)&#xa;SEQ(SP=D4%GCD=1%ISR=D8%TI=RD%TS=21)&#xa;SEQ(SP=C4%GCD=1%ISR=C5%TI=RD%TS=20)&#xa;OPS(O1=M596ST11NW0%O2=M596ST11NW0%O3=M596NNT11NW0%O4=M596ST11NW0%O5=M596ST11NW0%O6=M596ST11)&#xa;WIN(W1=1628%W2=1628%W3=1628%W4=1628%W5=1628%W6=1628)&#xa;ECN(R=Y%DF=N%TG=40%W=1658%O=M596NNSNW0%CC=N%Q=)&#xa;T1(R=Y%DF=N%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=N%TG=40%W=1628%S=O%A=S+%F=AS%O=M596ST11NW0%RD=0%Q=)&#xa;T4(R=Y%DF=N%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=N%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T6(R=Y%DF=N%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=N%TG=FF%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)&#xa;T7(R=Y%DF=N%TG=FF%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=R)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;" />
+</os>
+<uptime seconds="105" lastboot="Sun Jan 27 21:51:04 2008" />
+<distance value="14" />
+<tcpsequence index="196" class="unknown class" difficulty="Good luck!" values="CBEEB360,CC4F1B1F,CD1DFB63,CD000A94,CCEE5704,CD2469F3" />
+<ipidsequence class="Randomized" values="5AA6,7CDB,65B,1CCC,65C5,65C" />
+<tcptssequence class="other" values="837BC3C0,2208A10,8375A88B,8372C162,837C9852,8375A8CA" />
+<trace port="80" proto="tcp">
+<hop ttl="1" rtt="1.08" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="20.26" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="28.64" ipaddr="200.217.30.210" host="gigabitethernet6-1.90-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="47.95" ipaddr="200.97.65.245" host="pos9-1-bvg-pe-rotd-02.telemar.net.br"/>
+<hop ttl="5" rtt="47.54" ipaddr="200.223.131.21" host="pos6-0-bvg-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="87.51" ipaddr="200.223.43.245"/>
+<hop ttl="7" rtt="116.31" ipaddr="200.223.43.242"/>
+<hop ttl="8" rtt="99.86" ipaddr="74.125.51.29"/>
+<hop ttl="9" rtt="115.52" ipaddr="209.85.250.242"/>
+<hop ttl="10" rtt="236.86" ipaddr="209.85.249.199"/>
+<hop ttl="11" rtt="232.95" ipaddr="216.239.43.146"/>
+<hop ttl="12" rtt="252.37" ipaddr="66.249.94.92"/>
+<hop ttl="13" rtt="239.82" ipaddr="72.14.236.130"/>
+<hop ttl="14" rtt="254.89" ipaddr="72.14.207.99" host="eh-in-f99.google.com"/>
+</trace>
+<times srtt="116825" rttvar="14467" to="174693" />
+</host>
+<host><status state="up" reason="reset"/>
+<address addr="72.14.253.83" addrtype="ipv4" />
+<hostnames><hostname name="po-in-f83.google.com" type="PTR" /></hostnames>
+<ports><extraports state="filtered" count="1710">
+<extrareasons reason="no-responses" count="1710"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="http" product="Google httpd" version="1.3" extrainfo="GFE" ostype="Linux" method="probed" conf="10" /><script id="HTML title" output="302 Moved" /><script id="robots.txt" output="/news?output=xhtml&amp; /search /groups /images &#xa;/catalogs /catalogues /news /nwshp /? /addurl/image? &#xa;/pagead/ /relpage/ /relcontent /sorry/ /imgres &#xa;/keyword/ /u/ /univ/ /cobrand /custom &#xa;/advanced_group_search /advanced_search /googlesite /preferences &#xa;/setprefs /swr /url /default /m? /m/search? /wml? &#xa;/wml/search? /xhtml? /xhtml/search? /xml? /imode? &#xa;/imode/search? /jsky? /jsky/search? /pda? /pda/search? &#xa;/sprint_xhtml /sprint_wml /pqa /palm /gwt/ /purchases /hws &#xa;/bsd? /linux? /mac? /microsoft? /unclesam? &#xa;/answers/search?q= /local? /local_url /froogle? /products? &#xa;/froogle_ /product_ /products_ /print /books /patents? &#xa;/scholar? /complete /sponsoredlinks /videosearch? &#xa;/videopreview? /videoprograminfo? /maps? /mapstt? /mapslt? &#xa;/translate? /ie? /sms/demo? /katrina? /blogsearch? &#xa;/blogsearch/ /blogsearch_feeds /advanced_blog_search &#xa;/reader/ /uds/ /chart? /transit? /mbd? /extern_js/ &#xa;/calendar/feeds/ /calendar/ical/ /cl2/feeds/ /cl2/ical/ &#xa;/coop/directory /coop/manage /trends? /trends/music? &#xa;/notebook/search? /music /browsersync /call /archivesearch? &#xa;/archivesearch/url /archivesearch/advanced_search &#xa;/base/search? /base/reportbadoffer /base/s2 &#xa;/urchin_test/ /movies? /codesearch? &#xa;/codesearch/feeds/search? /wapsearch? /safebrowsing /reviews/search? &#xa;/orkut/albums /jsapi /views? /c/ /cbk &#xa;/recharge/dashboard/car /recharge/dashboard/static/ /translate_c? &#xa;/s2 /transconsole/portal/ /gcc/ /aclk /cse? &#xa;/tbproxy/ " /></port>
+<port protocol="tcp" portid="113"><state state="closed" reason="reset" reason_ttl="246"/><service name="auth" method="table" conf="3" /></port>
+<port protocol="tcp" portid="179"><state state="closed" reason="reset" reason_ttl="237"/><service name="bgp" method="table" conf="3" /></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack" reason_ttl="46"/><service name="https" tunnel="ssl" method="table" conf="3" /><script id="HTML title" output="302 Moved" /><script id="SSLv2" output="server still supports SSLv2&#xa;&#x9;SSL2_DES_192_EDE3_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_WITH_MD5&#xa;&#x9;SSL2_DES_64_CBC_WITH_MD5&#xa;&#x9;SSL2_RC2_CBC_128_CBC_WITH_MD5&#xa;&#x9;SSL2_RC4_128_EXPORT40_WITH_MD5&#xa;" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="113" />
+<osfingerprint fingerprint="SCAN(V=4.53%D=1/27%OT=80%CT=113%CU=%PV=N%DS=14%G=N%TM=479D2761%P=i686-pc-linux-gnu)&#xa;SEQ(SP=105%GCD=1%ISR=10A%TI=RD%TS=21)&#xa;SEQ(SP=105%GCD=1%ISR=106%TI=RD%TS=21)&#xa;OPS(O1=M596ST11NW6%O2=M596ST11NW6%O3=M596NNT11NW6%O4=M596ST11NW6%O5=M596ST11NW6%O6=M596ST11)&#xa;WIN(W1=1628%W2=1628%W3=1628%W4=1628%W5=1628%W6=1628)&#xa;ECN(R=Y%DF=N%TG=40%W=1658%O=M596NNSNW6%CC=N%Q=)&#xa;T1(R=Y%DF=N%TG=40%S=O%A=S+%F=AS%RD=0%Q=)&#xa;T2(R=N)&#xa;T3(R=Y%DF=N%TG=40%W=1628%S=O%A=S+%F=AS%O=M596ST11NW6%RD=0%Q=)&#xa;T4(R=Y%DF=N%TG=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T5(R=Y%DF=N%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)&#xa;T5(R=Y%DF=N%TG=FF%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=R)&#xa;T6(R=Y%DF=N%TG=FF%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)&#xa;T7(R=Y%DF=N%TG=FF%W=0%S=Z%A=S%F=AR%O=%RD=0%Q=)&#xa;U1(R=N)&#xa;IE(R=N)&#xa;" />
+</os>
+<uptime seconds="105" lastboot="Sun Jan 27 21:51:04 2008" />
+<distance value="14" />
+<tcpsequence index="261" class="unknown class" difficulty="Good luck!" values="6ACD6329,921C6817,E6012864,90104A22,90651704,E5CE7F5A" />
+<ipidsequence class="Randomized" values="D6CC,94A,2253,2AE5,A75E,2254" />
+<tcptssequence class="other" values="52F3E255,22566720,D6046C6E,D4792BF0,22539966,D6046E1B" />
+<trace port="80" proto="tcp">
+<hop ttl="1" rtt="1.60" ipaddr="192.168.254.254"/>
+<hop ttl="2" rtt="25.93" ipaddr="200.217.89.32"/>
+<hop ttl="3" rtt="33.57" ipaddr="200.217.30.250" host="gigabitethernet5-1.80-cto-rn-rotd-02.telemar.net.br"/>
+<hop ttl="4" rtt="47.18" ipaddr="200.97.65.245" host="pos9-1-bvg-pe-rotd-02.telemar.net.br"/>
+<hop ttl="5" rtt="47.91" ipaddr="200.223.131.21" host="pos6-0-bvg-pe-rotn-01.telemar.net.br"/>
+<hop ttl="6" rtt="87.59" ipaddr="200.223.43.245"/>
+<hop ttl="7" rtt="116.58" ipaddr="200.223.43.242"/>
+<hop ttl="8" rtt="117.01" ipaddr="74.125.51.5"/>
+<hop ttl="9" rtt="117.63" ipaddr="209.85.250.242"/>
+<hop ttl="10" rtt="427.06" ipaddr="209.85.249.199"/>
+<hop ttl="11" rtt="279.22" ipaddr="72.14.236.213"/>
+<hop ttl="12" rtt="305.96" ipaddr="209.85.130.22"/>
+<hop ttl="13" rtt="312.64" ipaddr="216.239.46.50"/>
+<hop ttl="14" rtt="291.35" ipaddr="209.85.250.144"/>
+<hop ttl="15" rtt="294.36" ipaddr="216.239.48.143"/>
+<hop ttl="16" rtt="306.89" ipaddr="209.85.251.153"/>
+<hop ttl="17" rtt="291.39" ipaddr="74.125.30.170"/>
+<hop ttl="18" rtt="293.11" ipaddr="74.125.30.42"/>
+<hop ttl="19" rtt="312.18" ipaddr="72.14.253.83" host="po-in-f83.google.com"/>
+</trace>
+<times srtt="244322" rttvar="98383" to="637854" />
+</host>
+<runstats><finished time="1201481569" timestr="Sun Jan 27 21:52:49 2008"/><hosts up="8" down="0" total="8" />
+<!-- Nmap done at Sun Jan 27 21:52:49 2008; 8 IP addresses (8 hosts up) scanned in 2567.750 seconds -->
+</runstats></nmaprun>

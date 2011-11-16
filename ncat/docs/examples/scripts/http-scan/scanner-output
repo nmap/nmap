@@ -1,0 +1,57 @@
+Connected to 66.102.9.147:80
+HTTP/1.0 302 Found
+Location: http://www.google.co.uk/
+Set-Cookie: PREF=ID=b6262fee80b28ffc:TM=1137945347:LM=1137945347:S=s7TLf6mcMNGW-33R; expires=Sun, 17-Jan-2038 19:14:07 GMT; path=/; domain=.google.com
+Content-Type: text/html
+Server: GWS/2.1
+Content-Length: 224
+Date: Sun, 22 Jan 2006 15:55:47 GMT
+Connection: Keep-Alive
+
+Connected to 207.46.198.30:80
+HTTP/1.1 200 OK
+Connection: close
+Date: Sun, 22 Jan 2006 15:55:48 GMT
+Server: Microsoft-IIS/6.0
+P3P: CP="ALL IND DSP COR ADM CONo CUR CUSo IVAo IVDo PSA PSD TAI TELo OUR SAMo CNT COM INT NAV ONL PHY PRE PUR UNI"
+X-Powered-By: ASP.NET
+X-AspNet-Version: 2.0.50727
+Cache-Control: private
+Content-Type: text/html; charset=utf-8
+Content-Length: 21061
+
+Connected to 209.237.227.195:80
+HTTP/1.1 200 OK
+Date: Sun, 22 Jan 2006 15:55:48 GMT
+Server: Apache/2.2.0 (Unix)
+Last-Modified: Wed, 18 Jan 2006 03:00:54 GMT
+ETag: "997bf1-2d93-419e2580"
+Accept-Ranges: bytes
+Content-Length: 11667
+Cache-Control: max-age=86400
+Expires: Mon, 23 Jan 2006 15:55:48 GMT
+Connection: close
+Content-Type: text/html; charset=ISO-8859-1
+
+Connected to 216.136.204.117:80
+HTTP/1.1 200 OK
+Date: Sun, 22 Jan 2006 15:55:49 GMT
+Server: Apache/1.3.x LaHonda (Unix)
+Last-Modified: Fri, 20 Jan 2006 21:24:33 GMT
+ETag: "26f8f7-9839-43d15511"
+Accept-Ranges: bytes
+Content-Length: 38969
+Connection: close
+Content-Type: text/html
+X-Pad: avoid browser bug
+
+Connected to 17.112.152.32:80
+HTTP/1.0 200 OK
+Age: 328
+Date: Sun, 22 Jan 2006 15:50:20 GMT
+Content-Length: 26131
+Content-Type: text/html
+Expires: Sun, 22 Jan 2006 16:10:20 GMT
+Cache-Control: max-age=1200
+Server: Apache/1.3.29 (Darwin) PHP/4.3.1
+

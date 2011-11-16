@@ -1,0 +1,3564 @@
+<refentry id="npìng-man">
+  <refmeta>
+    <refentrytitle>nping</refentrytitle>
+    <manvolnum>1</manvolnum>
+    <refmiscinfo class="source">Nping</refmiscinfo>
+    <refmiscinfo class="manual">Nping Reference Guide</refmiscinfo>
+  </refmeta>
+  <refnamediv id="nping-man-name">
+    <refname>nping</refname>
+    <refpurpose>Network packet generation tool / ping utility</refpurpose>
+  </refnamediv>
+  <!-- body begins here -->
+  <refsynopsisdiv id="nping-man-synopsis">
+    <cmdsynopsis sepchar=" ">
+      <command>nping</command>
+      <arg choice="opt" rep="norepeat">
+        <replaceable>Options</replaceable>
+      </arg>
+      <arg choice="req" rep="norepeat">
+        <replaceable>targets</replaceable>
+      </arg>
+    </cmdsynopsis>
+  </refsynopsisdiv>
+  <refsect1 id="nping-man-description">
+    <title>Description</title>
+    <indexterm><primary>Nping</primary><secondary>description of</secondary></indexterm>
+    <web>
+    <note><para>This document describes the very latest version of
+    Nping available from <ulink url="http://nmap.org/nping"/> Please
+    ensure you are using the latest version before reporting that a
+    feature doesn't work as described.</para></note>
+    </web>
+    <para>Nping is an open-source tool for network packet generation,
+    response analysis and response time measurement. Nping allows
+    users to generate network packets of a wide range of protocols,
+    letting them tune virtually any field of the protocol
+    headers. While Nping can be used as a simple ping utility to
+    detect active hosts, it can also be used as a raw packet generator
+    for network stack stress tests, ARP poisoning, Denial of Service
+    attacks, route tracing, and other purposes.</para>
+
+     <para>Additionally, Nping offers a special mode of operation called
+     the "Echo Mode", that lets users see how the generated probes change
+     in transit, revealing the differences between the transmitted packets and
+     the packets received at the other end. See section "Echo Mode" for details.
+     </para>
+
+    <para>The output from Nping is a list of the packets that are being sent
+    and received. The level of detail depends on the options used.</para>
+<!--
+    <para>Additionally, Nping can provide further information on targets,
+    including reverse DNS names and MAC addresses.</para>
+-->
+
+    <para>A typical Nping execution is shown in <xref linkend="nping-man-ex-repping" xrefstyle="select: label nopage"/>.  The only Nping arguments used in
+    this example are <option>-c</option>, to specify the number of times to
+    target each host, <option>--tcp</option> to specify TCP Probe Mode,
+    <option>-p 80,433</option> to specify the target ports; and then the two
+    target hostnames.</para>
+
+<example id="nping-man-ex-repping"><title>A representative Nping execution</title>
+<indexterm><primary><option>-c</option> (Nping option)</primary><secondary>example of</secondary></indexterm>
+<indexterm><primary><option>--tcp</option> (Nping option)</primary><secondary>example of</secondary></indexterm>
+<indexterm><primary><option>-p</option> (Nping option)</primary><secondary>example of</secondary></indexterm>
+<screen format="linespecific">
+# <userinput>nping -c 1 --tcp -p 80,433 scanme.nmap.org google.com</userinput>
+
+Starting Nping ( http://nmap.org/nping )
+SENT (0.0120s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:80 S ttl=64 id=52072 iple<continuation/>n=40  seq=1077657388 win=1480 
+RCVD (0.1810s) TCP 64.13.134.52:80 &gt; 96.16.226.135:50091 SA ttl=53 id=0 iplen=4<continuation/>4  seq=4158134847 win=5840 &lt;mss 1460&gt;
+SENT (1.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:80 S ttl=64 id=13932 ipl<continuation/>en=40  seq=1077657388 win=1480 
+RCVD (1.1370s) TCP 74.125.45.100:80 &gt; 96.16.226.135:50091 SA ttl=52 id=52913 ip<continuation/>len=44  seq=2650443864 win=5720 &lt;mss 1430&gt;
+SENT (2.0140s) TCP 96.16.226.135:50091 &gt; 64.13.134.52:433 S ttl=64 id=8373 iple<continuation/>n=40  seq=1077657388 win=1480 
+SENT (3.0140s) TCP 96.16.226.135:50091 &gt; 74.125.45.100:433 S ttl=64 id=23624 ip<continuation/>len=40  seq=1077657388 win=1480 
+
+Statistics for host scanme.nmap.org (64.13.134.52):
+ |  Probes Sent: 2 | Rcvd: 1 | Lost: 1  (50.00%)
+ |_ Max rtt: 169.720ms | Min rtt: 169.720ms | Avg rtt: 169.720ms
+Statistics for host google.com (74.125.45.100):
+ |  Probes Sent: 2 | Rcvd: 1 | Lost: 1  (50.00%)
+ |_ Max rtt: 122.686ms | Min rtt: 122.686ms | Avg rtt: 122.686ms
+Raw packets sent: 4 (160B) | Rcvd: 2 (92B) | Lost: 2 (50.00%)
+Tx time: 3.00296s | Tx bytes/s: 53.28 | Tx pkts/s: 1.33
+Rx time: 3.00296s | Rx bytes/s: 30.64 | Rx pkts/s: 0.67
+Nping done: 2 IP addresses pinged in 4.01 seconds
+</screen>
+</example>
+
+<!-- This para is a bit jumbled together for man page rendering reasons -->
+<!--
+<para>The newest version of Nping can be obtained from
+<ulink url="http://nmap.org"/>.  The newest version of this man page
+is available at <ulink url="http://nmap.org/book/nping_man.html"/>.
+<notbook>It is also included as a chapter of <web><ulink url="http://nmap.org/book/"><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle></ulink>.</web><notweb><citetitle>Nmap Network Scanning: The Official Nmap Project Guide to Network Discovery and Security Scanning</citetitle> (see <ulink url="http://nmap.org/book/"/>).</notweb></notbook>
+</para>
+-->
+  </refsect1>
+
+  <refsect1 id="nping-man-briefoptions">
+    <title>Options Summary</title>
+
+
+<para>This options summary is printed when Nping is run
+with no arguments. It helps people remember the most common options,
+but is no substitute for the in-depth documentation in the rest of this manual.
+Some obscure options aren't even included here.</para>
+
+<!-- sortas="#" puts it before the entries that start with '-' in the options
+     section. -->
+<indexterm class="startofrange" id="nping-usage-indexterm"><primary sortas="#">summary of options (Nping)</primary></indexterm>
+<indexterm class="startofrange" id="nping-usage-nping-indexterm"><primary>command-line options</primary><secondary>of Nping</secondary></indexterm>
+
+&nping-usage;
+
+<indexterm class="endofrange" startref="nping-usage-nping-indexterm"/>
+<indexterm class="endofrange" startref="nping-usage-indexterm"/>
+
+  </refsect1>
+
+
+  <refsect1 id="nping-man-target-specification">
+    <title>Target Specification</title>
+    <indexterm><primary>target specification</primary><secondary>in Nping</secondary></indexterm>
+
+     <para>Everything on the Nping command line that isn't an option or an
+           option argument is treated as a target host specification. Nping
+           uses the same syntax for target specifications that Nmap does. The
+           simplest case is a single target given by IP address or hostname.
+     </para>
+
+
+     <para>Nping supports
+           CIDR-style<indexterm><primary>CIDR (Classless Inter-Domain Routing)</primary></indexterm>
+           addressing. You can append <literal>/<replaceable>numbits</replaceable></literal> to an
+           IPv4 address or hostname and Nping will send probes to every IP
+           address for which the first <replaceable>numbits</replaceable> are the same as for the
+           reference IP or hostname given. For example, <literal>192.168.10.0/24</literal> would
+           send probes to the 256 hosts between 192.168.10.0
+           (binary: <literal>11000000 10101000 00001010 00000000</literal>)
+           and 192.168.10.255
+           (binary: <literal>11000000 10101000 00001010 11111111</literal>),
+           inclusive. <literal>192.168.10.40/24</literal> would ping exactly the same targets.
+           Given that the host scanme.nmap.org<indexterm><primary>scanme.nmap.org</primary></indexterm>
+           is at the IP address 64.13.134.52, the specification
+           <literal>scanme.nmap.org/16</literal> would send probes to the 65,536 IP addresses
+           between 64.13.0.0 and 64.13.255.255. The smallest allowed value is
+           <literal>/0</literal>, which targets the whole Internet. The largest value is <literal>/32</literal>,
+           which targets just the named host or IP address because all address
+           bits are fixed.
+     </para>
+
+    <indexterm><primary>address ranges</primary></indexterm>
+     <para>CIDR notation is short but not always flexible enough.  For example,
+           you might want to send probes to 192.168.0.0/16 but skip any IPs
+           ending with .0 or .255 because they may be used as subnet network
+           and broadcast addresses. Nping supports this through octet range
+           addressing. Rather than specify a normal IP address, you can specify
+           a comma-separated list of numbers or ranges for each octet. For
+           example, <literal>192.168.0-255.1-254</literal> will skip all addresses in the range
+           that end in .0 or .255, and <literal>192.168.3-5,7.1</literal> will target the four
+           addresses 192.168.3.1, 192.168.4.1, 192.168.5.1, and 192.168.7.1.
+           Either side of a range may be omitted; the default values are 0 on
+           the left and 255 on the right. Using
+           <literal>-</literal> by itself is the same as <literal>0-255</literal>,
+           but remember to use <literal>0-</literal> in the first octet so the target
+           specification doesn't look like a command-line option. Ranges need
+           not be limited to the final octets: the specifier <literal>0-.-.13.37</literal> will send probes
+           to all IP addresses on the Internet ending in .13.37. This sort of
+           broad sampling can be useful for Internet surveys and research.
+     </para>
+
+     <para>IPv6 addresses can only be specified by their fully qualified IPv6
+           address or hostname. CIDR and octet ranges aren't supported for
+           IPv6 because they are rarely useful.</para>
+
+     <para>Nping accepts multiple host specifications on the command line,
+           and they don't need to be the same type. The command
+           <command>nping scanme.nmap.org
+           192.168.0.0/8 10.0.0,1,3-7.-</command> does what you would expect.
+     </para>
+
+  </refsect1>
+
+
+  <refsect1 id="nping-man-option-specification">
+    <title>Option Specification</title>
+
+     <para>
+        Nping is designed to be very flexible and fit a wide variety of needs.
+        As with most command-line tools, its behavior can be adjusted using
+        command-line options. These general principles apply to option
+        arguments, unless stated otherwise.
+     </para>
+
+     <para>
+        Options that take integer numbers can accept values specified in
+        decimal, octal or hexadecimal base. When a number starts with <literal>0x</literal>,
+        it will be treated as hexadecimal; when it simply starts with <literal>0</literal>, it
+        will be treated as octal. Otherwise, Nping will assume the number has
+        been specified in base 10. Virtually all numbers that can be supplied
+        from the command line are unsigned so, as a general rule, the minimum
+        value is zero. Users may also specify the word <literal>random</literal> or <literal>rand</literal> to
+        make Nping generate a random value within the expected range.
+     </para>
+
+     <para>
+        IP addresses may be given as IPv4 addresses (e.g.
+        <literal>192.168.1.1</literal>), IPv6 addresses (e.g.
+        <literal>2001:db8:85a3::8e4c:760:7146</literal>), or hostnames, which
+        will be resolved using the default DNS server configured in the host
+        system.
+     </para>
+
+     <para>
+        Options that take MAC addresses accept the usual colon-separated 6 hex
+        byte format (e.g. <literal>00:50:56:d4:01:98</literal>). Hyphens may also be used instead
+        of colons (e.g. <literal>00-50-56-c0-00-08</literal>). The special
+        word <literal>random</literal> or <literal>rand</literal> sets a random
+        address and the word <literal>broadcast</literal>
+        or <literal>bcast</literal> sets ff:ff:ff:ff:ff:ff. 
+     </para> 
+
+  </refsect1>
+
+
+   <refsect1 id="nping-man-general-operation">
+    <title>General Operation</title>
+    <indexterm><primary>general operation</primary></indexterm>
+
+     <para>Unlike other ping and packet generation tools, Nping supports
+           multiple target host and port specifications. While
+           this provides great flexibility, it is not obvious how Nping handles
+           situations where there is more than one host and/or more than one
+           port to send probes to. This section explains how Nping behaves in
+           these cases.
+     </para>
+
+     <para>
+            When multiple target hosts are specified, Nping rotates among them
+            in round-robin fashion. This gives slow hosts more time to send
+            their responses before another probe is sent to them. Ports are
+            also scheduled using round robin. So, unless only one port is
+            specified, Nping never sends two probes to the same target host and
+            port consecutively.
+     </para>
+
+     <para>
+            The loop around targets is the <quote>inner loop</quote> and the
+            loop around ports is the <quote>outer loop</quote>. All targets
+            will be sent a probe for a given port before moving on to the next
+            port. Between probes, Nping waits a configurable amount of time
+            called the <quote>inter-probe delay</quote>, which is controlled by
+            the <option>--delay</option> option. These examples show how it
+            works.
+     </para>
+
+     <variablelist>
+       <varlistentry>
+         <term>
+           <para>One target, three ports, and two rounds.</para>
+         </term>
+         <listitem>
+<screen>
+# <userinput>nping --tcp -c 2 1.1.1.1 -p 100-102</userinput>
+
+Starting Nping ( http://nmap.org/nping )
+SENT (0.0210s) TCP 192.168.1.77 &gt; 1.1.1.1:100
+SENT (1.0230s) TCP 192.168.1.77 &gt; 1.1.1.1:101
+SENT (2.0250s) TCP 192.168.1.77 &gt; 1.1.1.1:102
+SENT (3.0280s) TCP 192.168.1.77 &gt; 1.1.1.1:100
+SENT (4.0300s) TCP 192.168.1.77 &gt; 1.1.1.1:101
+SENT (5.0320s) TCP 192.168.1.77 &gt; 1.1.1.1:102
+</screen>
+         </listitem>
+       </varlistentry>
+       <varlistentry>
+         <term>
+           <para>Three targets, one port, and two rounds.</para>
+         </term>
+         <listitem>
+<screen>
+# <userinput>nping --tcp -c 2 1.1.1.1 2.2.2.2 3.3.3.3 -p 8080</userinput>
+
+Starting Nping ( http://nmap.org/nping )
+SENT (0.0230s) TCP 192.168.0.21 &gt; 1.1.1.1:8080
+SENT (1.0240s) TCP 192.168.0.21 &gt; 2.2.2.2:8080
+SENT (2.0260s) TCP 192.168.0.21 &gt; 3.3.3.3:8080
+SENT (3.0270s) TCP 192.168.0.21 &gt; 1.1.1.1:8080
+SENT (4.0290s) TCP 192.168.0.21 &gt; 2.2.2.2:8080
+SENT (5.0310s) TCP 192.168.0.21 &gt; 3.3.3.3:8080
+</screen>
+         </listitem>
+       </varlistentry>
+       <varlistentry>
+         <term>
+           <para>Three hosts, three ports, one round, inter-probe delay of 500&nbsp;ms.</para>
+         </term>
+         <listitem>
+<screen>
+# <userinput>nping --tcp -c 1 --delay 500ms 1.1.1.1 2.2.2.2 3.3.3.3 -p 137-139</userinput>
+
+Starting Nping ( http://nmap.org/nping )
+SENT (0.0230s) TCP 192.168.0.21 &gt; 1.1.1.1:137
+SENT (0.5250s) TCP 192.168.0.21 &gt; 2.2.2.2:137
+SENT (1.0250s) TCP 192.168.0.21 &gt; 3.3.3.3:137
+SENT (1.5280s) TCP 192.168.0.21 &gt; 1.1.1.1:138
+SENT (2.0280s) TCP 192.168.0.21 &gt; 2.2.2.2:138
+SENT (2.5310s) TCP 192.168.0.21 &gt; 3.3.3.3:138
+SENT (3.0300s) TCP 192.168.0.21 &gt; 1.1.1.1:139
+SENT (3.5330s) TCP 192.168.0.21 &gt; 2.2.2.2:139
+SENT (4.0330s) TCP 192.168.0.21 &gt; 3.3.3.3:139
+</screen>
+         </listitem>
+       </varlistentry>
+     </variablelist>    
+   </refsect1>
+
+
+  <refsect1 id="nping-man-probe-modes">
+    <title>Probe Modes</title>
+    <indexterm class="startofrange" id="nping-man-probe-modes-indexterm"><primary>probe modes</primary></indexterm>
+
+    <para>Nping supports a wide variety of protocols. Although in some cases
+          Nping can automatically determine the mode from the options used, it
+          is generally a good idea to specify it explicitly.
+    </para>
+
+    <variablelist>
+
+      <varlistentry>
+        <term>
+        <option>--tcp-connect</option> (TCP Connect mode)
+          <indexterm><primary><option>--tcp-connect</option> (Nping option)</primary></indexterm>
+          <indexterm><primary>TCP connect</primary><secondary>in Nping</secondary></indexterm>
+          <indexterm><primary>TCP connect</primary><seealso>connect scan</seealso></indexterm>
+        </term>
+        <listitem>
+         <para>TCP connect mode is the default mode when a user does not have
+               raw packet privileges. Instead of writing raw packets as most
+               other modes do, Nping asks the underlying operating system to
+               establish a connection with the target machine and port by
+               issuing the <literal>connect</literal> system call. This is the same high-level
+               system call that web browsers, P2P clients, and most other
+               network-enabled applications use to establish a connection.
+               It is part of a programming interface known as the Berkeley
+               Sockets API. Rather than read raw packet responses off the wire,
+               Nping uses this API to obtain status information on each
+               connection attempt. For this reason, you will not be able to
+               see the contents of the packets that are sent or received but
+               only status information about the TCP connection establishment
+               taking place.
+         </para>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--tcp</option> (TCP mode)
+          <indexterm><primary><option>--tcp</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+         <para>TCP is the mode that lets users create and send any kind of TCP
+               packet. TCP packets are sent embedded in IP packets that
+               can also be tuned. This mode can be used for many different
+               purposes. For example you could try to discover open ports by
+               sending TCP SYN messages without completing the three-way
+               handshake. This technique is often referred to as half-open
+               scanning, because you don't open a full TCP connection.
+               You send a SYN packet, as if you are going to open a real
+               connection and then wait for a response. A SYN/ACK indicates
+               the port is open, while a RST indicates it's closed. If no
+               response is received one could assume that some intermediate
+               network device is filtering the responses. Another use could be
+               to see how a remote TCP/IP stack behaves when it receives a
+               non-RFC-compliant packet, like one with both SYN and
+               RST flags set. One could also do some evil by creating custom
+               RST packets using an spoofed IP address with the intent of
+               closing an active TCP connection.
+         </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--udp</option> (UDP mode)
+          <indexterm><primary><option>--udp</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+         <para>UDP mode can have two different behaviours. Under normal 
+               circumstances, it lets users create custom IP/UDP packets. 
+               However, if Nping is run by a user without raw packet privileges
+               and no changes to the default protocol headers are requested, 
+               then Nping enters the unprivileged UDP mode which basically sends
+               UDP packets to the specified target hosts and ports using the 
+               <literal>sendto</literal> system call. Note that in this unprivileged mode it is 
+               not possible to see low-level header information of the packets
+               on the wire but only status information about the amount of bytes
+               that are being transmitted and received. UDP mode can be used to 
+               interact with any UDP-based server. Examples are DNS servers, 
+               streaming servers, online gaming servers, and
+               port knocking/single-packet<indexterm><primary>port knocking</primary></indexterm>
+               authorization daemons.
+          </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--icmp</option> (ICMP mode)
+          <indexterm><primary><option>--icmp</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+         <para>ICMP mode is the default mode when the user runs Nping with
+               raw packet privileges. Any kind of ICMP message can be created.
+               The default ICMP type is Echo, i.e., ping. ICMP mode can be used
+               for many different purposes, from a simple request for a
+               timestamp or a netmask to the transmission of fake destination
+               unreachable messages, custom redirects, and router
+               advertisements.
+          </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--arp</option> (ARP/RARP mode)
+          <indexterm><primary><option>--arp</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+         <para>ARP lets you create and send a few different ARP-related packets.
+               These include ARP, RARP, DRARP, and InARP requests and replies.
+               This mode can ban be used to perform low-level host discovery,
+               and conduct ARP-cache poisoning attacks.</para>
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>
+        <option>--traceroute</option> (Traceroute mode)
+          <indexterm><primary><option>--tcp-connect</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+         <para>Traceroute is not a mode by itself but a complement to
+               TCP, UDP, and ICMP modes. When this option is specified Nping
+               will set the IP TTL value of the first probe to 1. When the
+               next router receives the packet it will drop it due to
+               the expiration of the TTL and it will generate an ICMP
+               destination unreachable message. The next probe will have a TTL
+               of 2 so now the first router will forward the packet while the
+               second router will be the one that drops the packet and
+               generates the ICMP message. The third probe will have a TTL value
+               of 3 and so on. By examining the source addresses of all
+               those ICMP Destination Unreachable messages it is possible to
+               determine the path that the probes take until they reach their
+               final destination.
+          </para>
+
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+    <indexterm class="endofrange" startref="nping-man-probe-modes-indexterm"/>
+  </refsect1>
+
+
+
+<!-- TCP CONNECT MODE ****************************************************** -->
+  <refsect1 id="nping-man-tcp-connect-mode">
+  <title>TCP Connect Mode</title>
+
+    <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>-p <replaceable>port_spec</replaceable></option>,
+          <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
+          <indexterm significance="preferred"><primary><option>--dest-port</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-p</option> (Nping option)</primary><see><option>--dest-port</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which ports you want to try to connect to.  
+           It can be a single port, a comma-separated list of 
+           ports (e.g. <literal>80,443,8080</literal>), a range
+           (e.g. <literal>1-1023</literal>), and any combination
+           of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
+           The beginning and/or end values
+           of a range may be omitted, causing Nping to use 1 and 65535, 
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           65535. Using port zero is allowed if you specify it explicitly.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>-g <replaceable>portnumber</replaceable></option>,
+          <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
+          <indexterm significance="preferred"><primary><option>--source-port</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-g</option> (Nping option)</primary><see><option>--source-port</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option asks Nping to use the specified port as source port for
+           the TCP connections. Note that this might not work on all systems or
+           may require root privileges. Specified value must be an integer in
+           the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+    </variablelist>
+   </refsect1>
+
+
+
+
+<!-- TCP MODE ************************************************************** -->
+  <refsect1 id="nping-man-tcp-mode">
+  <title>TCP Mode</title>
+
+    <variablelist>
+
+
+      <varlistentry>
+        <term>          
+          <option>-p <replaceable>port_spec</replaceable></option>,
+          <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
+        </term>
+        <listitem>
+          <para>
+           This option specifies which destination ports you want to send
+           probes to. It can be a single port, a comma-separated list of 
+           ports (e.g. <literal>80,443,8080</literal>), a range
+           (e.g. <literal>1-1023</literal>), and any combination
+           of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
+           The beginning and/or end values
+           of a range may be omitted, causing Nping to use 1 and 65535, 
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           65535. Using port zero is allowed if you specify it explicitly.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>-g <replaceable>portnumber</replaceable></option>,
+          <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
+        </term>
+        <listitem>
+          <para>
+           This option asks Nping to use the specified port as source port for
+           the TCP connections. Note that this might not work on all systems or
+           may require root privileges. Specified value must be an integer in
+           the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+        <option>--seq <replaceable>seqnumber</replaceable></option> (Sequence Number)
+        <indexterm significance="preferred"><primary><option>--seq</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Specifies the TCP sequence number. In SYN packets this is the initial
+           sequence number (ISN). In a normal transmission this corresponds to 
+           the sequence number of the first byte of data in the segment.
+           <replaceable>seqnumber</replaceable> must be a number in the range 
+           [0&ndash;4294967295].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--flags <replaceable>flags</replaceable></option> (TCP Flags)
+        <indexterm significance="preferred"><primary><option>--flags</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which flags should be set in the TCP packet. 
+           <replaceable>flags</replaceable> may be specified in three different
+           ways:
+          </para>
+
+          <orderedlist spacing="compact">
+            <listitem>
+              <para>As a comma-separated list of flags, e.g. <option>--flags syn,ack,rst</option></para>
+            </listitem>
+            <listitem>
+              <para>As a list of one-character flag initials, e.g. <option>--flags SAR</option> tells Nping to set flags SYN, ACK, and RST.</para>
+            </listitem>
+            <listitem>
+              <para>As an 8-bit hexadecimal number, where the supplied number
+              is the exact value that will be placed in the flags field of the
+              TCP header. The number should start with the prefix
+              <literal>0x</literal> and should be in the range
+              [0x00&ndash;0xFF], e.g. <literal>--flags 0x20</literal> sets the
+              URG flag as 0x20 corresponds to binary 00100000 and the URG flag
+              is represented by the third bit.</para>
+            </listitem>
+          </orderedlist>
+
+          <para>
+            There are 8 possible flags to set:
+            <literal>CWR</literal>,
+            <literal>ECN</literal>,
+            <literal>URG</literal>,
+            <literal>ACK</literal>,
+            <literal>PSH</literal>,
+            <literal>RST</literal>,
+            <literal>SYN</literal>, and
+            <literal>FIN</literal>.
+            The special value <literal>ALL</literal> means to set all flags. 
+            <literal>NONE</literal> means to set no flags. It is important that
+            if you don't want any flag to be set, you request it explicitly
+            because in some cases the SYN flag may be set by default. Here is a
+            brief description of the meaning of each flag:
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term>
+              CWR (Congestion Window Reduced)
+              <indexterm><primary>CWR (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              Set by an ECN-Capable sender
+              when it reduces its congestion window (due to a retransmit
+              timeout, a fast retransmit or in response to an ECN
+              notification.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              ECN (Explicit Congestion Notification)
+              <indexterm><primary>ECN (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              During the three-way
+              handshake it indicates that sender is capable of performing
+              explicit congestion notification. Normally it means that a
+              packet with the IP Congestion Experienced flag set was received
+              during normal transmission. See
+              RFC 3168<indexterm><primary>RFC 3168</primary></indexterm>
+              for more information.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              URG (Urgent)
+              <indexterm><primary>URG (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              Segment is urgent and the urgent pointer field 
+              carries valid information.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              ACK (Acknowledgement)
+              <indexterm><primary>ACK (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              The segment carries an acknowledgement
+              and the value of the acknowledgement number field is valid and
+              contains the next sequence number that is expected from the
+              receiver.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              PSH (Push)
+              <indexterm><primary>PSH (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              The data in this segment should be immediately
+              pushed to the application layer on arrival.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              RST (Reset)
+              <indexterm><primary>RST (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              There was some problem and the sender wants to
+              abort the connection.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              SYN (Synchronize)
+              <indexterm><primary>SYN (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              The segment is a request to synchronize
+              sequence numbers and establish a connection. The sequence
+              number field contains the sender's initial sequence
+              number.
+              </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>
+              FIN (Finish)
+              <indexterm><primary>FIN (TCP flag)</primary></indexterm>
+              </term>
+              <listitem>
+              <para>
+              The sender wants to close the connection.
+              </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+        </listitem>
+      </varlistentry>
+
+
+
+
+      <varlistentry>
+        <term>
+        <option>--win <replaceable>size</replaceable></option> (Window Size)
+        <indexterm significance="preferred"><primary><option>--win</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Specifies the TCP window size, this is, the number of octets the
+           sender of the segment is willing to accept from the receiver at one
+           time. This is usually the size of the reception buffer that the OS 
+           allocates for a given connection. <replaceable>size</replaceable> 
+           must be a number in the range [0&ndash;65535].
+          </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+        <option>--badsum</option> (Invalid Checksum)
+        <indexterm significance="preferred"><primary><option>--badsum</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to use an invalid TCP checksum for the packets sent to 
+           target hosts. Since virtually all host IP stacks properly drop these
+           packets, any responses received are likely coming from a firewall or 
+           an IDS that didn't bother to verify the checksum. For more
+           details on this technique, see
+           <ulink url="http://nmap.org/p60-12.html"/>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+   </refsect1>
+
+
+
+
+<!-- UDP MODE ************************************************************** -->
+  <refsect1 id="nping-man-udp-mode">
+  <title>UDP Mode</title>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>-p <replaceable>port_spec</replaceable></option>,
+          <option>--dest-port <replaceable>port_spec</replaceable></option> (Target ports)
+          <indexterm significance="preferred"><primary><option>--dest-port</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which ports you want UDP datagrams to be sent to.
+           It can be a single port, a comma-separated list of 
+           ports (e.g. <literal>80,443,8080</literal>), a range
+           (e.g. <literal>1-1023</literal>), and any combination
+           of those (e.g. <literal>21-25,80,443,1024-2048</literal>).
+           The beginning and/or end values
+           of a range may be omitted, causing Nping to use 1 and 65535, 
+           respectively. So you can specify <literal>-p-</literal> to target ports from 1 through 
+           65535. Using port zero is allowed if you specify it explicitly.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>-g <replaceable>portnumber</replaceable></option>,
+          <option>--source-port <replaceable>portnumber</replaceable></option> (Spoof source port)
+          <indexterm significance="preferred"><primary><option>--source-port</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option asks Nping to use the specified port as source port for
+           the transmitted datagrams. Note that this might not work on all systems or
+           may require root privileges. Specified value must be an integer in
+           the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+  
+
+      <varlistentry>
+        <term>
+        <option>--badsum</option> (Invalid Checksum)
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to use an invalid UDP checksum for the packets sent to 
+           target hosts. Since virtually all host IP stacks properly drop these
+           packets, any responses received are likely coming from a firewall or 
+           an IDS that didn't bother to verify the checksum. For more
+           details on this technique, see
+           <ulink url="http://nmap.org/p60-12.html"/>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+   </refsect1>
+
+  
+
+
+<!-- ICMP MODE ************************************************************* -->
+  <refsect1 id="nping-man-icmp-mode">
+  <title>ICMP Mode</title>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-type <replaceable>type</replaceable></option> (ICMP type)
+          <indexterm significance="preferred"><primary><option>--icmp-type</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which type of ICMP messages should be
+           generated. <replaceable>type</replaceable> can be supplied in
+           two different ways. You can use the
+           <ulink url="http://www.iana.org/assignments/icmp-parameters">official type numbers assigned by IANA</ulink>
+           (e.g. <option>--icmp-type 8</option> for ICMP Echo Request), or you
+           can use any of the mnemonics listed in
+           <xref linkend="nping-man-icmp-types"/>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-code <replaceable>code</replaceable></option> (ICMP code)
+          <indexterm significance="preferred"><primary><option>--icmp-code</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which ICMP code should be included in 
+           the generated ICMP messages. <replaceable>code</replaceable> can be
+           supplied in two different ways. You can use the
+           <ulink url="http://www.iana.org/assignments/icmp-parameters">official code numbers assigned by IANA</ulink>
+           (e.g. <option>--icmp-code 1</option> for Fragment Reassembly Time
+           Exceeded), or you can use any of the mnemonics listed in
+           <xref linkend="nping-man-icmp-codes"/>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-id <replaceable>id</replaceable></option> (ICMP identifier)
+          <indexterm significance="preferred"><primary><option>--icmp-id</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies the value of the identifier used in some of 
+           the ICMP messages. In general it is used to match request and 
+           reply messages. <replaceable>id</replaceable> must be a number in 
+           the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-seq <replaceable>seq</replaceable></option> (ICMP sequence)
+          <indexterm significance="preferred"><primary><option>--icmp-seq</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies the value of the sequence number field used 
+           in some ICMP messages. In general it is used to match request and 
+           reply messages. <replaceable>id</replaceable> must be a number in 
+           the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-redirect-addr <replaceable>addr</replaceable></option> (ICMP Redirect address)
+          <indexterm significance="preferred"><primary><option>--icmp-redirect-addr</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the address field in ICMP Redirect messages. In 
+           other words, it sets the IP address of the router that should be 
+           used when sending IP datagrams to the original destination. 
+           <replaceable>addr</replaceable> can be either an IPv4 address
+           or a hostname.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-param-pointer <replaceable>pointer</replaceable></option> (ICMP Parameter Problem pointer)
+          <indexterm significance="preferred"><primary><option>--icmp-param-pointer</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies the pointer that indicates the location of 
+           the problem in ICMP Parameter Problem messages. <replaceable>pointer</replaceable>
+           should be a number in the range [0&ndash;255]. Normally this option is
+           only used when ICMP code is set to 0 ("Pointer indicates the error").
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-advert-lifetime <replaceable>ttl</replaceable></option> (ICMP Router Advertisement Lifetime)
+          <indexterm significance="preferred"><primary><option>--icmp-advert-lifetime</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies the router advertisement lifetime, this is, 
+           the number of seconds the information carried in an ICMP Router
+           Advertisement can be considered valid for. <replaceable>ttl</replaceable>
+           must be a positive integer in the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-advert-entry <replaceable>addr</replaceable>,<replaceable>pref</replaceable></option> (ICMP Router Advertisement Entry)
+          <indexterm significance="preferred"><primary><option>--icmp-advert-entry</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option adds a Router Advertisement entry to an ICMP Router
+           Advertisement message. The parameter must be two
+           values separated by a comma. <replaceable>addr</replaceable> is 
+           the router's IP and can be specified either as an IP address in 
+           dot-decimal notation or as a hostname. <replaceable>pref</replaceable>
+           is the preference level for the specified IP. It must be a number
+           in the range [0&ndash;4294967295]. An example is
+           <option>--icmp-advert-entry 192.168.128.1,3</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-orig-time <replaceable>timestamp</replaceable></option> (ICMP Originate Timestamp)
+          <indexterm significance="preferred"><primary><option>--icmp-orig-time</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the Originate Timestamp in ICMP Timestamp messages.
+           The Originate Timestamp is expressed as the number of milliseconds
+           since midnight UTC and it corresponds to the time the sender
+           last touched the Timestamp message before its transmission. 
+           <replaceable>timestamp</replaceable> can be specified as a regular
+           time (e.g. <literal>10s</literal>, <literal>3h</literal>, <literal>1000ms</literal>), or the special string
+           <literal>now</literal>. You can add or subtract
+           values from <literal>now</literal>, for example
+           <option>--icmp-orig-time now-2s</option>,
+           <option>--icmp-orig-time now+1h</option>,
+           <option>--icmp-orig-time now+200ms</option>.           
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-recv-time <replaceable>timestamp</replaceable></option> (ICMP Receive Timestamp)
+          <indexterm significance="preferred"><primary><option>--icmp-recv-time</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the Receive Timestamp in ICMP Timestamp messages.
+           The Receive Timestamp is expressed as the number of milliseconds
+           since midnight UTC and it corresponds to the time the echoer
+           first touched the Timestamp message on receipt.
+           <replaceable>timestamp</replaceable> is as with
+           <option>--icmp-orig-time</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--icmp-trans-time <replaceable>timestamp</replaceable></option> (ICMP Transmit Timestamp)
+          <indexterm significance="preferred"><primary><option>--icmp-trans-time</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the Transmit Timestamp in ICMP Timestamp messages.
+           The Transmit Timestamp is expressed as the number of milliseconds
+           since midnight UTC and it corresponds to the time the echoer
+           last touched the Timestamp message before its transmission.
+           <replaceable>timestamp</replaceable> is as with
+           <option>--icmp-orig-time</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <refsect2 id="nping-man-icmp-types">
+      <indexterm class="startofrange" id="nping-man-icmp-types-indexterm"><primary>ICMP types</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
+      <title>ICMP Types</title>
+  
+      <para>
+      These identifiers may be used as mnemonics for the ICMP type numbers given
+      to the
+      <option>--icmp-type</option><indexterm><primary><option>--icmp-type</option> (Nping option)</primary></indexterm>
+      option. In general there are three forms of each identifier: the full name
+      (e.g. <literal>destination-unreachable</literal>), the short name (e.g.
+      <literal>dest-unr</literal>), or the initials (e.g. <literal>du</literal>).
+      In ICMP types that request something, the word "request" is omitted.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><literal>echo-reply</literal></term>
+          <term><literal>echo-rep</literal></term>
+          <term><literal>er</literal></term>
+          <listitem>
+            <para>
+            Echo Reply (type 0). This message is sent in response to an Echo
+            Request message.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>destination-unreachable</literal></term>
+          <term><literal>dest-unr</literal></term>
+          <term><literal>du</literal></term>
+          <listitem>
+            <para>
+            Destination Unreachable (type 3). This message indicates that
+            a datagram could not be delivered to its destination.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>source-quench</literal></term>
+          <term><literal>sour-que</literal></term>
+          <term><literal>sq</literal></term>
+          <listitem>
+            <para>
+            Source Quench (type 4). This message is used by a congested
+            IP device to tell other device that is sending packets too fast
+            and that it should slow down.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>redirect</literal></term>
+          <term><literal>redi</literal></term>
+          <term><literal>r</literal></term>
+          <listitem>
+            <para>
+            Redirect (type 5). This message is normally used by routers
+            to inform a host that there is a better route to use for sending 
+            datagrams. See also the <option>--icmp-redirect-addr</option>
+            option.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>echo-request</literal></term>
+          <term><literal>echo</literal></term>
+          <term><literal>e</literal></term>
+          <listitem>
+            <para>
+            Echo Request (type 8). This message is used to test the 
+            connectivity of another device on a network.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>router-advertisement</literal></term>
+          <term><literal>rout-adv</literal></term>
+          <term><literal>ra</literal></term>
+          <listitem>
+            <para>
+            Router Advertisement (type 9). This message is used by 
+            routers to let hosts know of their existence and capabilities. See
+            also the <option>--icmp-advert-lifetime</option> option.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>router-solicitation</literal></term>
+          <term><literal>rout-sol</literal></term>
+          <term><literal>rs</literal></term>
+          <listitem>
+            <para>
+            Router Solicitation (type 10). This message is used by hosts 
+            to request Router Advertisement messages from any listening 
+            routers.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>time-exceeded</literal></term>
+          <term><literal>time-exc</literal></term>
+          <term><literal>te</literal></term>
+          <listitem>
+            <para>
+            Time Exceeded (type 11). This message is generated by some
+            intermediate device (normally a router) to indicate that a datagram 
+            has been discarded before reaching its destination because the 
+            IP TTL expired. 
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>parameter-problem</literal></term>
+          <term><literal>member-pro</literal></term>
+          <term><literal>pp</literal></term>
+          <listitem>
+            <para>
+            Parameter Problem (type 12). This message is used when a device
+            finds a problem with a parameter in an IP header and it cannot 
+            continue processing it. See also the
+            <option>--icmp-param-pointer</option> option.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>timestamp</literal></term>
+          <term><literal>time</literal></term>
+          <term><literal>tm</literal></term>
+          <listitem>
+            <para>
+            Timestamp Request (type 13). This message is used to request
+            a device to send a timestamp value for propagation time 
+            calculation and clock synchronization. See also the
+            <option>--icmp-orig-time</option>,
+            <option>--icmp-recv-time</option>, and
+            <option>--icmp-trans-time</option>.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>timestamp-reply</literal></term>
+          <term><literal>time-rep</literal></term>
+          <term><literal>tr</literal></term>
+          <listitem>
+            <para>
+            Timestamp Reply (type 14). This message is sent in response 
+            to a Timestamp Request message.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>information</literal></term>
+          <term><literal>info</literal></term>
+          <term><literal>i</literal></term>
+          <listitem>
+            <para>
+            Information Request (type 15). This message is now obsolete
+            but it was originally used to request configuration information
+            from another device.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>information-reply</literal></term>
+          <term><literal>info-rep</literal></term>
+          <term><literal>ir</literal></term>
+          <listitem>
+            <para>
+            Information Reply (type 16). This message is now obsolete but 
+            it was originally sent in response to an Information Request 
+            message to provide configuration information.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mask-request</literal></term>
+          <term><literal>mask</literal></term>
+          <term><literal>m</literal></term>
+          <listitem>
+            <para>
+            Address Mask Request (type 17). This message is used to
+            ask a device to send its subnet mask.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mask-reply</literal></term>
+          <term><literal>mask-rep</literal></term>
+          <term><literal>mr</literal></term>
+          <listitem>
+            <para>
+            Address Mask Reply (type 18). This message contains a subnet 
+            mask and is sent in response to a Address Mask Request message.
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>traceroute</literal></term>
+          <term><literal>trace</literal></term>
+          <term><literal>tc</literal></term>
+          <listitem>
+            <para>
+            Traceroute (type 30). This message is normally sent 
+            by an intermediate device when it receives an IP datagram
+            with a traceroute option. ICMP Traceroute messages are still 
+            experimental, see
+            RFC 1393<indexterm><primary>RFC 1393</primary></indexterm>
+            for more information. 
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+  
+      <indexterm class="endofrange" startref="nping-man-icmp-types-indexterm"/>
+    </refsect2>
+
+    <refsect2 id="nping-man-icmp-codes">
+      <indexterm class="startofrange" id="nping-man-icmp-codes-indexterm"><primary>ICMP codes</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
+      <title>ICMP Codes</title>
+  
+      <para>
+      These identifiers may be used as mnemonics for the ICMP code numbers given
+      to the
+      <option>--icmp-code</option><indexterm><primary><option>--icmp-code</option> (Nping option)</primary></indexterm>
+      option. They are listed by the ICMP type they correspond to.
+      </para>
+
+      <refsect3>
+        <title>Destination Unreachable</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>network-unreachable</literal></term>
+            <term><literal>netw-unr</literal></term>
+            <term><literal>net</literal></term>
+            <listitem>
+              <para>
+              Code 0. Datagram could not be delivered to its destination
+              network (probably due to some routing problem).
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-unreachable</literal></term>
+            <term><literal>host-unr</literal></term>
+            <term><literal>host</literal></term>
+            <listitem>
+              <para>
+              Code 1. Datagram was delivered to the destination network but it
+              was impossible to reach the specified host (probably due to some
+              routing problem).
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>protocol-unreachable</literal></term>
+            <term><literal>prot-unr</literal></term>
+            <term><literal>proto</literal></term>
+            <listitem>
+              <para>
+              Code 2. The protocol specified in the Protocol field of the IP
+              datagram is not supported by the host to which the datagram was
+              delivered.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>port-unreachable</literal></term>
+            <term><literal>port-unr</literal></term>
+            <term><literal>port</literal></term>
+            <listitem>
+              <para>
+              Code 3. The TCP/UDP destination port was invalid.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>needs-fragmentation</literal></term>
+            <term><literal>need-fra</literal></term>
+            <term><literal>frag</literal></term>
+            <listitem>
+              <para>
+              Code 4. Datagram had the DF bit set but it was too large for the
+              MTU of the next physical network so it had to be dropped.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>source-route-failed</literal></term>
+            <term><literal>sour-rou</literal></term>
+            <term><literal>routefail</literal></term>
+            <listitem>
+              <para>
+              Code 5. IP datagram had a Source Route option but a router
+              couldn't pass it to the next hop.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>network-unknown</literal></term>
+            <term><literal>netw-unk</literal></term>
+            <term><literal>net?</literal></term>
+            <listitem>
+              <para>
+              Code 6. Destination network is unknown. This code is never used.
+              Instead, Network Unreachable is used.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-unknown</literal></term>
+            <term><literal>host-unk</literal></term>
+            <term><literal>host?</literal></term>
+            <listitem>
+              <para>
+              Code 7. Specified host is unknown. Usually generated by a router
+              local to the destination host to inform of a bad address.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-isolated</literal></term>
+            <term><literal>host-iso</literal></term>
+            <term><literal>isolated</literal></term>
+            <listitem>
+              <para>
+              Code 8. Source Host Isolated. Not used.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>network-prohibited</literal></term>
+            <term><literal>netw-pro</literal></term>
+            <term><literal>!net</literal></term>
+            <listitem>
+              <para>
+              Code 9. Communication with destination network is
+              administratively prohibited (source device is not allowed to send
+              packets to the destination network).
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-prohibited</literal></term>
+            <term><literal>host-pro</literal></term>
+            <term><literal>!host</literal></term>
+            <listitem>
+              <para>
+              Code 10. Communication with destination host is administratively
+              prohibited. (The source device is allowed to send packets to the
+              destination network but not to the destination device.)
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>network-tos</literal></term>
+            <term><literal>unreachable-network-tos</literal></term>
+            <term><literal>netw-tos</literal></term>
+            <term><literal>tosnet</literal></term>
+            <listitem>
+              <para>
+              Code 11. Destination network unreachable because it cannot
+              provide the type of service specified in the IP TOS field.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-tos</literal></term>
+            <term><literal>unreachable-host-tos</literal></term>
+            <term><literal>toshost</literal></term>
+            <listitem>
+              <para>
+              Code 12. Destination host unreachable because it cannot provide
+              the type of service specified in the IP TOS field.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>communication-prohibited</literal></term>
+            <term><literal>comm-pro</literal></term>
+            <term><literal>!comm</literal></term>
+            <listitem>
+              <para>
+              Code 13. Datagram could not be forwarded due to filtering that
+              blocks the message based on its contents.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>host-precedence-violation</literal></term>
+            <term><literal>precedence-violation</literal></term>
+            <term><literal>prec-vio</literal></term>
+            <term><literal>violation</literal></term>
+            <listitem>
+              <para>
+              Code 14. Precedence value in the IP TOS field is not permitted.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>precedence-cutoff</literal></term>
+            <term><literal>prec-cut</literal></term>
+            <term><literal>cutoff</literal></term>
+            <listitem>
+              <para>
+              Code 15. Precedence value in the IP TOS field is lower than the
+              minimum allowed for the network.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+
+      <refsect3>
+        <title>Redirect</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>redirect-network</literal></term>
+            <term><literal>redi-net</literal></term>
+            <term><literal>net</literal></term>
+            <listitem>
+              <para>
+              Code 0. Redirect all future datagrams with the same destination
+              network as the original datagram, to the router specified in the
+              Address field. The use of this code is prohibited by
+              RFC 1812.<indexterm><primary>RFC 1812</primary></indexterm>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>redirect-host</literal></term>
+            <term><literal>redi-host</literal></term>
+            <term><literal>host</literal></term>
+            <listitem>
+              <para>
+              Code 1. Redirect all future datagrams with the same destination
+              host as the original datagram, to the router specified in the
+              Address field.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>redirect-network-tos</literal></term>
+            <term><literal>redi-ntos</literal></term>
+            <term><literal>redir-ntos</literal></term>
+            <listitem>
+              <para>
+              Code 2. Redirect all future datagrams with the same destination
+              network and IP TOS value as the original datagram, to the router
+              specified in the Address field. The use of this code is
+              prohibited by RFC 1812.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>redirect-host-tos</literal></term>
+            <term><literal>redi-htos</literal></term>
+            <term><literal>redir-htos</literal></term>
+            <listitem>
+              <para>
+              Code 3. Redirect all future datagrams with the same destination
+              host and IP TOS value as the original datagram, to the router
+              specified in the Address field.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+
+      <refsect3>
+        <title>Router Advertisement</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>normal-advertisement</literal></term>
+            <term><literal>norm-adv</literal></term>
+            <term><literal>normal</literal></term>
+            <term><literal>zero</literal></term>
+            <term><literal>default</literal></term>
+            <term><literal>def</literal></term>
+            <listitem>
+              <para>
+              Code 0. Normal router advertisement. In Mobile IP: Mobility agent
+              can act as a router for IP datagrams not related to mobile nodes.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>not-route-common-traffic</literal></term>
+            <term><literal>not-rou</literal></term>
+            <term><literal>mobile-ip</literal></term>
+            <term><literal>!route</literal></term>
+            <term><literal>!commontraffic</literal></term>
+            <listitem>
+              <para>
+              Code 16. Used for Mobile IP. The mobility agent does not route
+              common traffic. All foreign agents must forward to a default
+              router any datagrams received from a registered mobile node
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+
+      <refsect3>
+        <title>Time Exceeded</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>ttl-exceeded-in-transit</literal></term>
+            <term><literal>ttl-exc</literal></term>
+            <term><literal>ttl-transit</literal></term>
+            <listitem>
+              <para>
+              Code 0. IP Time To Live expired during transit.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>fragment-reassembly-time-exceeded</literal></term>
+            <term><literal>frag-exc</literal></term>
+            <term><literal>frag-time</literal></term>
+            <listitem>
+              <para>
+              Code 1. Fragment reassembly time has been exceeded.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+
+      <refsect3>
+        <title>Parameter Problem</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>pointer-indicates-error</literal></term>
+            <term><literal>poin-ind</literal></term>
+            <term><literal>pointer</literal></term>
+            <listitem>
+              <para>
+              Code 0. The pointer field indicates the location of the problem.
+              See the <option>--icmp-param-pointer</option> option.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>missing-required-option</literal></term>
+            <term><literal>miss-option</literal></term>
+            <term><literal>option-missing</literal></term>
+            <listitem>
+              <para>
+              Code 1. IP datagram was expected to have an option that is not
+              present.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>bad-length</literal></term>
+            <term><literal>bad-len</literal></term>
+            <term><literal>badlen</literal></term>
+            <listitem>
+              <para>
+              Code 2. The length of the IP datagram is incorrect.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+
+<!--
+      <refsect3>
+        <title>ICMP Security Failures Messages (Experimental)</title>
+
+        <variablelist>
+          <varlistentry>
+            <term><literal>bad-spi</literal></term>
+            <term><literal>badspi</literal></term>
+            <term><literal>!spi</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>authentication-failed</literal></term>
+            <term><literal>auth-fai</literal></term>
+            <term><literal>auth-failed</literal></term>
+            <term><literal>authfail</literal></term>
+            <term><literal>!auth</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>decompression-failed</literal></term>
+            <term><literal>deco-fai</literal></term>
+            <term><literal>decom-failed</literal></term>
+            <term><literal>!decompress</literal></term>
+            <term><literal>!decompression</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>decryption-failed</literal></term>
+            <term><literal>decr-fai</literal></term>
+            <term><literal>decrypt-failed</literal></term>
+            <term><literal>!decrypt</literal></term>
+            <term><literal>!decryption</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>need-authentication</literal></term>
+            <term><literal>need-aut</literal></term>
+            <term><literal>need-auth</literal></term>
+            <term><literal>auth-needed</literal></term>
+            <term><literal>!auth</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>need-authorization</literal></term>
+            <term><literal>need-author</literal></term>
+            <term><literal>authorization-needed</literal></term>
+            <term><literal>author-needed</literal></term>
+            <term><literal>!author</literal></term>
+            <term><literal>!authorization</literal></term>
+            <listitem>
+              <para>
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </refsect3>
+-->
+  
+      <indexterm class="endofrange" startref="nping-man-icmp-types-indexterm"/>
+    </refsect2>
+  </refsect1>
+
+<!-- ARP MODE ************************************************************* -->
+  <refsect1 id="nping-man-arp-mode">
+  <title>ARP Mode</title>
+
+
+    <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>--arp-type <replaceable>type</replaceable></option> (ICMP Type)
+          <indexterm significance="preferred"><primary><option>--arp-type</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option specifies which type of ARP messages should be
+           generated. <replaceable>type</replaceable> can be supplied in
+           two different ways. You can use the
+           <ulink url="http://www.iana.org/assignments/arp-parameters/">official
+           numbers assigned by IANA</ulink>
+           (e.g. <option>--arp-type 1</option> for ARP Request), or you can use
+           one of the mnemonics from <xref linkend="nping-man-arp-types"/>.
+        </para>
+       </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--arp-sender-mac <replaceable>mac</replaceable></option> (Sender MAC address)
+          <indexterm significance="preferred"><primary><option>--arp-sender-mac</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option sets the Sender Hardware Address field of the ARP header.
+           Although ARP supports many types of link layer addresses, currently
+           Nping only supports MAC addresses. 
+           <replaceable>mac</replaceable> must be specified using the
+           traditional MAC notation (e.g. <literal>00:0a:8a:32:f4:ae</literal>). You can also use
+           hyphens as separators (e.g. <literal>00-0a-8a-32-f4-ae</literal>).
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--arp-sender-ip <replaceable>addr</replaceable></option> (Sender IP address)
+          <indexterm significance="preferred"><primary><option>--arp-sender-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option sets the Sender IP field of the ARP header.
+           <replaceable>addr</replaceable> can be given as an IPv4 address or a
+           hostname.
+        </para>
+        </listitem>
+      </varlistentry>
+              
+
+      <varlistentry>
+        <term>          
+          <option>--arp-target-mac <replaceable>mac</replaceable></option> (target MAC address)
+          <indexterm significance="preferred"><primary><option>--arp-target-mac</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option sets the Target Hardware Address field of the ARP header.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--arp-target-ip <replaceable>addr</replaceable></option> (target ip address)
+          <indexterm significance="preferred"><primary><option>--arp-target-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option sets the Target IP field of the ARP header.
+        </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <refsect2 id="nping-man-arp-types">
+      <indexterm class="startofrange" id="nping-man-arp-types-indexterm"><primary>ARP types</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
+      <title>ARP Types</title>
+
+      <para>
+      These identifiers may be used as mnemonics for the ARP type numbers given
+      to the
+      <option>--arp-type</option><indexterm><primary><option>--arp-type</option> (Nping option)</primary></indexterm>
+      option.
+      </para>
+
+      <variablelist>
+          <varlistentry>
+            <term><literal>arp-request</literal></term>
+            <term><literal>arp</literal></term>
+            <term><literal>a</literal></term>
+            <listitem>
+              <para>
+              ARP Request (type 1). ARP requests are used to translate network
+              layer addresses (normally IP addresses) to link layer addresses
+              (usually MAC addresses). Basically, and ARP request is a
+              broadcasted message that asks the host in the same network
+              segment that has a given IP address to provide its MAC address.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>arp-reply</literal></term>
+            <term><literal>arp-rep</literal></term>
+            <term><literal>ar</literal></term>
+            <listitem>
+              <para>
+              ARP Reply (type 2). An ARP reply is a message that a host sends in
+              response to an ARP request to provide its link layer address.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>rarp-request</literal></term>
+            <term><literal>rarp</literal></term>
+            <term><literal>r</literal></term>
+            <listitem>
+              <para>
+              RARP Requests (type 3). RARP requests are used to translate a
+              link layer address (normally a MAC address) to a network layer
+              address (usually an IP address). Basically a RARP request is a
+              broadcasted message sent by a host that wants to know his own IP
+              address because it doesn't have any. It was the first protocol
+              designed to solve the bootstrapping problem. However, RARP is now
+              obsolete and DHCP is used instead. For more information about
+              RARP see
+              RFC 903.<indexterm><primary>RFC 903</primary></indexterm>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>rarp-reply</literal></term>
+            <term><literal>rarp-rep</literal></term>
+            <term><literal>rr</literal></term>
+            <listitem>
+              <para>
+              RARP Reply (type 4). A RARP reply is a message sent in response
+              to a RARP request to provide an IP address to the host that sent
+              the RARP request in the first place.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>drarp-request</literal></term>
+            <term><literal>drarp</literal></term>
+            <term><literal>d</literal></term>
+            <listitem>
+              <para>
+              Dynamic RARP Request (type 5). Dynamic RARP is an extension to
+              RARP used to obtain or assign a network layer address from a
+              fixed link layer address. DRARP was used mainly in Sun
+              Microsystems platforms in the late 90's but now it's no longer
+              used. See
+              RFC 1931<indexterm><primary>RFC 1931</primary></indexterm>
+              for more information.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>drarp-reply</literal></term>
+            <term><literal>drarp-rep</literal></term>
+            <term><literal>dr</literal></term>
+            <listitem>
+              <para>
+              Dynamic RARP Reply (type 6). A DRARP reply is a message sent in
+              response to a RARP request to provide network layer address.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>drarp-error</literal></term>
+            <term><literal>drarp-err</literal></term>
+            <term><literal>de</literal></term>
+            <listitem>
+              <para>
+              DRARP Error (type 7). DRARP Error messages are usually sent in
+              response to DRARP requests to inform of some error. In DRARP
+              Error messages, the Target Protocol Address field is used to
+              carry an error code (usually in the first byte). The error code
+              is intended to tell why no target protocol address is being
+              returned. For more information see RFC 1931.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>inarp-request</literal></term>
+            <term><literal>inarp</literal></term>
+            <term><literal>i</literal></term>
+            <listitem>
+              <para>
+              Inverse ARP Request (type 8). InARP requests are used to
+              translate a link layer address to a network layer address. It is
+              similar to RARP request but in this case, the sender of the InARP
+              request wants to know the network layer address of another node,
+              not its own address. InARP is mainly used in Frame Relay and ATM
+              networks. For more information see
+              RFC 2390.<indexterm><primary>RFC 2390</primary></indexterm>
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>inarp-reply</literal></term>
+            <term><literal>inarp-rep</literal></term>
+            <term><literal>ir</literal></term>
+            <listitem>
+              <para>
+              Inverse ARP Reply (type 9). InARP reply messages are sent in
+              response to InARP requests to provide the network layer address
+              associated with the host that has a given link layer address.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term><literal>arp-nak</literal></term>
+            <term><literal>an</literal></term>
+            <listitem>
+              <para>
+              ARP NAK (type 10). ARP NAK messages are an extension to the
+              ATMARP protocol and they are used to improve the robustness of
+              the ATMARP server mechanism. With ARP NAK, a client can determine
+              the difference between a catastrophic server failure and an
+              ATMARP table lookup failure. See
+              RFC 1577<indexterm><primary>RFC 1577</primary></indexterm>
+              for more information.
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+      <indexterm class="endofrange" startref="nping-man-arp-types-indexterm"/>
+    </refsect2>
+
+  </refsect1>
+
+
+
+<!-- IPv4 OPTIONS ********************************************************** -->
+  <refsect1 id="nping-man-ip-options">
+  <title>IPv4 Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>
+          <option>-S <replaceable>addr</replaceable></option>,
+          <option>--source-ip <replaceable>addr</replaceable></option> (Source IP Address)
+          <indexterm significance="preferred"><primary><option>--source-ip</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-S</option> (Nping option)</primary><see><option>--source-ip</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the source IP address. This option lets you specify a custom IP
+           address to be used as source IP address in sent packets. This
+           allows spoofing the sender of the packets.
+           <replaceable>addr</replaceable> can be an IPv4 address or a hostname.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dest-ip <replaceable>addr</replaceable></option> (Destination IP Address)
+          <indexterm significance="preferred"><primary><option>--dest-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Adds a target to Nping's target list.
+           This option is provided for consistency but its use is deprecated
+           in favor of plain target specifications. See
+           <xref linkend="nping-man-target-specification"/>.
+        </para>
+        </listitem>
+      </varlistentry>      
+
+
+       <varlistentry>
+        <term>          
+          <option>--tos <replaceable>tos</replaceable></option> (Type of Service)
+          <indexterm significance="preferred"><primary><option>--tos</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the IP TOS field. The TOS field is used to carry information
+           to provide quality of service features. It is normally used to
+           support a technique called Differentiated Services. See
+           RFC 2474<indexterm><primary>RFC 2474</primary></indexterm>
+           for
+           more information. <replaceable>tos</replaceable> must be a number
+           in the range [0&ndash;255].
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--id <replaceable>id</replaceable></option> (Identification)
+          <indexterm significance="preferred"><primary><option>--id</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the IPv4 Identification field. The Identification field is a
+           16-bit value that is common to all fragments belonging to a particular
+           message. The value is used by the receiver to reassemble the
+           original message from the fragments received. <replaceable>id</replaceable>
+           must be a number in the range [0&ndash;65535].
+        </para>
+        </listitem>
+      </varlistentry>
+
+      
+      <varlistentry>
+        <term>          
+          <option>--df</option> (Don't Fragment)
+          <indexterm significance="preferred"><primary><option>--df</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the Don't Fragment bit in sent packets. When an
+           IP datagram has its DF flag set, intermediate devices are not
+           allowed to fragment it so if it needs to travel across a network
+           with a MTU smaller that datagram length the datagram will have
+           to be dropped. Normally an ICMP Destination Unreachable message
+           is generated and sent back to the sender. 
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>          
+          <option>--md</option> (More Fragments)
+          <indexterm significance="preferred"><primary><option>--mf</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the More Fragments bit in sent packets. The MF
+           flag is set to indicate the receiver that the current datagram is
+           a fragment of some larger datagram. When set to zero it indicates
+           that the current datagram is either the last fragment in the set
+           or that it is the only fragment.
+        </para>
+        </listitem>
+      </varlistentry>
+
+       <varlistentry>
+        <term>          
+          <option>--ttl <replaceable>hops</replaceable></option> (Time To Live)
+          <indexterm significance="preferred"><primary><option>--ttl</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the IPv4 Time-To-Live (TTL) field in sent packets to the given
+           value. The TTL field specifies how long the datagram is allowed
+           to exist on the network. It was originally intended to represent
+           a number of seconds but it actually represents the number of
+           hops a packet can traverse before being dropped. The TTL tries to
+           avoid a situation in which undeliverable datagrams keep being
+           forwarded from one router to another endlessly.
+           <replaceable>hops</replaceable> must be a number in the range [0&ndash;255].
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--badsum-ip</option> (Invalid IP checksum)
+          <indexterm significance="preferred"><primary><option>--badsum-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to use an invalid IP checksum for packets sent to 
+           target hosts. Note that some systems (like most Linux kernels),
+           may fix the checksum before placing the packet on the wire, so
+           even if Nping shows the incorrect checksum in its output, the
+           packets may be transparently corrected by the kernel.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      
+      <varlistentry>
+        <term>          
+          <option>--ip-options <replaceable>S|R [route]|L [route]|T|U ...</replaceable></option>,
+          <option>--ip-options <replaceable>hex string</replaceable></option>  (IP Options)
+          <indexterm significance="preferred"><primary><option>--ip-options</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           The IP protocol offers several options which may be placed in
+           packet headers. Unlike the ubiquitous TCP options, IP options are
+           rarely seen due to practicality and security concerns. In fact,
+           many Internet routers block the most dangerous options such as
+           source routing. Yet options can still be useful in some cases for
+           determining and manipulating the network route to target machines.
+           For example, you may be able to use the record route option to
+           determine a path to a target even when more traditional
+           traceroute-style approaches fail. Or if your packets are being
+           dropped by a certain firewall, you may be able to specify a
+           different route with the strict or loose source routing options.
+          </para>
+
+          <para>
+           The most powerful way to specify IP options is to simply pass in hexadecimal data
+           as the argument to <option>--ip-options</option>. Precede each hex byte value
+           with <literal>\x</literal>. You may repeat certain characters by
+           following them with an asterisk and then the number of times you
+           wish them to repeat. For example,
+           <literal>\x01\x07\x04\x00*4</literal> is the same as
+           <literal>\x01\x07\x04\x00\x00\x00\x00</literal>.
+          </para>
+
+          <para>
+           Note that if you specify a number of bytes that is not a multiple
+           of four, an incorrect IP header length will be set in the IP
+           packet. The reason for this is that the IP header length field
+           can only express multiples of four. In those cases, the length is
+           computed by dividing the header length by 4 and rounding down.
+           This will
+           affect the way the header that follows the IP header is
+           interpreted, showing bogus information in Nping or in the output
+           of any sniffer. Although this kind of situation might be useful
+           for some stack stress tests, users would normally want to
+           specify explicit padding, so the correct header length is set.
+          </para>
+
+          <para>
+           Nping also offers a shortcut mechanism for specifying options.
+           Simply pass the letter <literal>R</literal>, <literal>T</literal>, or <literal>U</literal> to request record-route,
+           record-timestamp, or both options together, respectively. Loose
+           or strict source routing may be specified with an L or S followed
+           by a space and then a space-separated list of IP addresses.
+          </para>
+
+          <para>
+           For more information and examples of using IP options with Nping,
+           see the mailing list post at
+           <ulink url="http://seclists.org/nmap-dev/2006/q3/0052.html"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--mtu <replaceable>size</replaceable></option> (Maximum Transmission Unit)
+          <indexterm significance="preferred"><primary><option>--mtu</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets a fictional MTU in Nping so IP datagrams larger than
+           <replaceable>size</replaceable> are fragmented before transmission.
+           <replaceable>size</replaceable> must be specified in bytes and
+           corresponds to the number of octets that can be carried on a
+           single link-layer frame.
+        </para>
+        </listitem>
+      </varlistentry>      
+      
+
+    </variablelist>
+  </refsect1>
+
+
+
+
+
+<!-- IPv6 OPTIONS ********************************************************** -->
+ <refsect1 id="nping-man-ip6-options">
+  <title>IPv6 Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>
+          <option>-6</option>,
+          <option>--ipv6</option> (Use IPv6)
+          <indexterm significance="preferred"><primary><option>--ipv6</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-6</option> (Nping option)</primary><see><option>--ipv6</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Tells Nping to use IP version 6 instead of the default IPv4.
+           It is generally a good idea to specify this option as early as
+           possible in the command line so Nping can parse it soon and know in
+           advance that the rest of the parameters refer to IPv6. The command
+           syntax is the same as usual except that you also add the <option>-6</option> option.
+           Of course, you must use IPv6 syntax if you specify an address
+           rather than a hostname. An address might look like
+           <option>3ffe:7501:4819:2000:210:f3ff:fe03:14d0</option>, so hostnames are
+           recommended. 
+        </para>
+        <para>
+           While IPv6 hasn't exactly taken the world by storm, it gets
+           significant use in some (usually Asian) countries and most modern
+           operating systems support it. To use Nping with IPv6, both the
+           source and target of your packets must be configured for IPv6. If your
+           ISP (like most of them) does not allocate IPv6 addresses to you,
+           free tunnel brokers are widely available and work fine with Nping.
+           You can use the free IPv6 tunnel broker service at
+           <ulink url="http://www.tunnelbroker.net"/>.
+        </para>
+        <para>
+           Please note that IPv6 support is still highly experimental and
+           many modes and options may not work with it.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+
+      
+      <varlistentry>
+        <term>
+          <option>-S <replaceable>addr</replaceable></option>,
+          <option>--source-ip <replaceable>addr</replaceable></option> (Source IP Address)
+          <indexterm significance="preferred"><primary><option>--source-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Sets the source IP address. This option lets you specify a custom IP
+           address to be used as source IP address in sent packets. This
+           allows spoofing the sender of the packets.
+           <replaceable>addr</replaceable> can be an IPv6 address or a hostname.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--dest-ip <replaceable>addr</replaceable></option> (Destination IP Address)
+          <indexterm significance="preferred"><primary><option>--dest-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Adds a target to Nping's target list.
+           This option is provided for consistency but its use is deprecated
+           in favor of plain target specifications. See
+           <xref linkend="nping-man-target-specification"/>.
+        </para>
+        </listitem>
+      </varlistentry>      
+
+
+       <varlistentry>
+        <term>          
+          <option>--flow <replaceable>label</replaceable></option> (Flow Label)
+          <indexterm significance="preferred"><primary><option>--flow</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+            Sets the IPv6 Flow Label. The Flow Label field is 20 bits long and is
+            intended to provide certain quality-of-service properties for
+            real-time datagram delivery. However, it has not been widely
+            adopted, and not all routers or endpoints support it. Check
+            RFC 2460<indexterm><primary>RFC 2560</primary></indexterm>
+            for more information. <replaceable>label</replaceable> must be an
+            integer in the range [0&ndash;1048575].
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--traffic-class <replaceable>class</replaceable></option> (Traffic Class)
+          <indexterm significance="preferred"><primary><option>--traffic-class</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+          Sets the IPv6 Traffic Class. This field is similar to the TOS field in
+          IPv4, and is intended to provide the Differentiated Services
+          method, enabling scalable service discrimination in the Internet
+          without the need for per-flow state and signaling at every hop. Check
+          RFC 2474<indexterm><primary>RFC 2474</primary></indexterm>
+          for more information. <replaceable>class</replaceable> must
+          be an integer in the range [0&ndash;255].
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+       <varlistentry>
+        <term>          
+          <option>--hop-limit <replaceable>hops</replaceable></option> (Hop Limit)
+          <indexterm significance="preferred"><primary><option>--hop-limit</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           <indexterm><primary>hop limit (IPv6)</primary><seealso>TTL</seealso></indexterm>
+           Sets the IPv6 Hop Limit field in sent packets to the given
+           value. The Hop Limit field specifies how long the datagram is allowed
+           to exist on the network. It represents the number of hops a packet
+           can traverse before being dropped. As with the TTL in IPv4, IPv6 Hop Limit
+           tries to avoid a situation in which undeliverable datagrams keep being
+           forwarded from one router to another endlessly.
+           <replaceable>hops</replaceable> must be a number in the range [0&ndash;255].
+        </para>
+        </listitem>
+      </varlistentry>
+     
+
+    </variablelist>
+  </refsect1>
+
+
+
+
+
+
+<!-- ETHERNET OPTIONS ***************************************************** -->
+ <refsect1 id="nping-man-ethernet-options">
+  <title>Ethernet Options</title>
+
+   <para>
+    In most cases Nping sends packets at the raw IP level. This means that Nping
+    creates its own IP packets and transmits them through a raw socket. However,
+    in some cases it may be necessary to send packets at the raw Ethernet level.
+    This happens, for example, when Nping is run under Windows (as Microsoft
+    has disabled raw socket support since Windows XP SP2), or when Nping is
+    asked to send ARP packets.
+    Since in some cases it is necessary to construct ethernet frames, Nping
+    offers some options to manipulate the different fields.
+   </para>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>--dest-mac <replaceable>mac</replaceable></option> (Ethernet Destination MAC Address)
+          <indexterm significance="preferred"><primary><option>--dest-mac</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the destination MAC address that should be set in
+           outgoing Ethernet frames. This is useful in case Nping can't
+           determine the next hop's MAC address or when you want to route
+           probes through a router other than the configured default
+           gateway. The MAC address should have the usual format of
+           six colon-separated bytes, e.g. <literal>00:50:56:d4:01:98</literal>.
+           Alternatively, hyphens may be used instead of colons.
+           Use the word <literal>random</literal> or <literal>rand</literal> to
+           generate a random address, and <literal>broadcast</literal> or
+           <literal>bcast</literal> to use ff:ff:ff:ff:ff:ff.
+           If you set up a bogus destination MAC address your probes may not
+           reach the intended targets.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--source-mac <replaceable>mac</replaceable></option> (Ethernet Source MAC Address)
+          <indexterm significance="preferred"><primary><option>--source-mac</option> (Nping option)</primary></indexterm>
+        </term>        
+        <listitem>
+          <para> 
+           This option sets the source MAC address that should be set in
+           outgoing Ethernet frames. This is useful in case Nping can't
+           determine your network interface MAC address or when you want to
+           inject traffic into the network while hiding your network card's real
+           address. The syntax is the same as for <literal>--dest-mac</literal>.
+           If you set up a bogus source MAC address
+           you may not receive probe replies.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--ether-type <replaceable>type</replaceable></option> (Ethertype)
+          <indexterm significance="preferred"><primary><option>--ether-type</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option sets the Ethertype field of the ethernet frame.
+           The Ethertype is used to indicate which protocol is encapsulated
+           in the payload. <replaceable>type</replaceable> can be supplied in
+           two different ways. You can use the
+           <ulink url="http://standards.ieee.org/regauth/ethertype/eth.txt">official
+           numbers listed by the IEEE</ulink>
+           (e.g. <option>--ether-type 0x0800</option> for IP version 4),
+           or one of the mnemonics from
+           <xref linkend="nping-man-ether-types" xrefstyle="template:the section called &#x201c;%t&#x201d;"/>.
+           <!-- Hide the page number, but also include the section title. xrefstyle="select: label nopage" doesn't work here. -->
+        </para>
+        
+        </listitem>
+      </varlistentry>          
+
+    </variablelist>
+
+    <refsect2 id="nping-man-ether-types">
+      <indexterm class="startofrange" id="nping-man-arp-ether-indexterm"><primary>Ethernet types</primary><secondary>mnemonics of, in Nping</secondary></indexterm>
+      <title>Ethernet Types</title>
+
+      <para>
+      These identifiers may be used as mnemonics for the Ethertype numbers given
+      to the
+      <option>--arp-type</option><indexterm><primary><option>--arp-type</option> (Nping option)</primary></indexterm>
+      option.
+      </para>
+
+      <variablelist>
+        <varlistentry>
+          <term><literal>ipv4</literal></term>
+          <term><literal>ip</literal></term>
+          <term><literal>4</literal></term>
+          <listitem>
+            <para>
+            Internet Protocol version 4 (type 0x0800).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ipv6</literal></term>
+          <term><literal>6</literal></term>
+          <listitem>
+            <para>
+            Internet Protocol version 6 (type 0x86DD).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>arp</literal></term>
+          <listitem>
+            <para>
+            Address Resolution Protocol (type 0x0806).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>rarp</literal></term>
+          <listitem>
+            <para>
+            Reverse Address Resolution Protocol (type 0x8035).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>frame-relay</literal></term>
+          <term><literal>frelay</literal></term>
+          <term><literal>fr</literal></term>
+          <listitem>
+            <para>
+            Frame Relay (type 0x0808).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ppp</literal></term>
+          <listitem>
+            <para>
+            Point-to-Point Protocol (type 0x880B).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>gsmp</literal></term>
+          <listitem>
+            <para>
+            General Switch Management Protocol (type 0x880C).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mpls</literal></term>
+          <listitem>
+            <para>
+            Multiprotocol Label Switching (type 0x8847).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mps-ual</literal></term>
+          <term><literal>mps</literal></term>
+          <listitem>
+            <para>
+            Multiprotocol Label Switching with Upstream-assigned Label (type 0x8848).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mcap</literal></term>
+          <listitem>
+            <para>
+            Multicast Channel Allocation Protocol (type 0x8861).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>pppoe-discovery</literal></term>
+          <term><literal>pppoe-d</literal></term>
+          <listitem>
+            <para>
+            PPP over Ethernet Discovery Stage (type 0x8863).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>pppoe-session</literal></term>
+          <term><literal>pppoe-s</literal></term>
+          <listitem>
+            <para>
+            PPP over Ethernet Session Stage (type 0x8864).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ctag</literal></term>
+          <listitem>
+            <para>
+            Customer VLAN Tag Type (type 0x8100).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>epon</literal></term>
+          <listitem>
+            <para>
+            Ethernet Passive Optical Network (type 0x8808).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>pbnac</literal></term>
+          <listitem>
+            <para>
+            Port-based network access control (type 0x888E).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>stag</literal></term>
+          <listitem>
+            <para>
+            Service VLAN tag identifier (type 0x88A8).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ethexp1</literal></term>
+          <listitem>
+            <para>
+            Local Experimental Ethertype 1 (type 0x88B5).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ethexp2</literal></term>
+          <listitem>
+            <para>
+            Local Experimental Ethertype 2 (type 0x88B6).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>ethoui</literal></term>
+          <listitem>
+            <para>
+            OUI Extended Ethertype (type 0x88B7).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>preauth</literal></term>
+          <listitem>
+            <para>
+            Pre-Authentication (type 0x88C7).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>lldp</literal></term>
+          <listitem>
+            <para>
+            Link Layer Discovery Protocol (type 0x88CC).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mac-security</literal></term>
+          <term><literal>mac-sec</literal></term>
+          <term><literal>macsec</literal></term>
+          <listitem>
+            <para>
+            Media Access Control Security (type 0x88E5).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mvrp</literal></term>
+          <listitem>
+            <para>
+            Multiple VLAN Registration Protocol (type 0x88F5).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>mmrp</literal></term>
+          <listitem>
+            <para>
+            Multiple Multicast Registration Protocol (type 0x88F6).
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term><literal>frrr</literal></term>
+          <listitem>
+            <para>
+            Fast Roaming Remote Request (type 0x890D).
+            </para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <indexterm class="endofrange" startref="nping-man-ether-types-indexterm"/>
+    </refsect2>
+  </refsect1>
+
+  
+
+
+<!-- PAYLOAD OPTIONS ******************************************************* -->
+ <refsect1 id="nping-man-payload-options">
+  <title>Payload Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>
+           <option>--data <replaceable>hex string</replaceable></option> (Append custom binary data to sent packets)
+          <indexterm significance="preferred"><primary><option>--data</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you include binary data as payload in sent packets.
+           <replaceable>hex string</replaceable> may be specified in any of
+           the following formats: <literal>0xAABBCCDDEEFF<replaceable>...</replaceable></literal>,
+           <literal>AABBCCDDEEFF<replaceable>...</replaceable></literal> or
+           <literal>\xAA\xBB\xCC\xDD\xEE\xFF<replaceable>...</replaceable></literal>.
+           Examples of use are <option>--data 0xdeadbeef</option> and
+           <option>--data \xCA\xFE\x09</option>. Note that if you specify a
+           number like <literal>0x00ff</literal>
+           no byte-order conversion is performed. Make sure you specify
+           the information in the byte order expected by the receiver.
+        </para>
+        </listitem>
+      </varlistentry>
+
+     
+      <varlistentry>
+        <term>
+          <option>--data-string <replaceable>string</replaceable></option> (Append custom string to sent packets)
+          <indexterm significance="preferred"><primary><option>--data-string</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+            This option lets you include a regular string as payload in
+            sent packets. <replaceable>string</replaceable> can
+            contain any string. However, note that some characters
+            may depend on your system's locale and the receiver may not
+            see the same information. Also, make sure you enclose the string
+            in double quotes and escape any special characters from the shell.
+            Example: <option>--data-string "Jimmy Jazz..."</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+       <varlistentry>
+        <term>          
+          <option>--data-length <replaceable>len</replaceable></option> (Append random data to sent packets)
+          <indexterm significance="preferred"><primary><option>--data-length</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you include <replaceable>len</replaceable>
+           random bytes of data as payload in sent packets.
+           <replaceable>len</replaceable> must be an integer in the range
+           [0&ndash;65400]. However, values higher than 1400 are not recommended
+           because it may not be possible to transmit packets due to
+           network MTU limitations.
+        </para>
+        </listitem>
+      </varlistentry>
+     
+
+    </variablelist>
+  </refsect1>
+    
+
+
+
+
+
+<!-- ECHO MODE ****************************************************** -->
+  <refsect1 id="nping-man-echo-mode">
+  <title>Echo Mode</title>
+
+    <para>
+    The "Echo Mode" is a novel technique implemented by Nping which lets users
+    see how network packets change in transit, from the host where they
+    originated to the target machine. Basically, the Echo mode turns Nping into
+    two different pieces: the Echo server and the Echo client. The Echo server
+    is a network service that has the ability to capture packets from the
+    network and send a copy ("echo them") to the originating client through a
+    side TCP channel. The Echo client is the part that generates such network
+    packets, transmits them to the server, and receives their echoed version
+    through a side TCP channel that it has previously established with the Echo
+    server.
+    </para>
+
+    <para>
+    This scheme lets the client see the differences between the packets that it
+    sends and what is actually received by the server. By having the server
+    send back copies of the received packets through the side channel, things
+    like NAT devices become immediately apparent to the client because it
+    notices the changes in the source IP address (and maybe even source
+    port). Other devices like those that perform traffic shaping, changing
+    TCP window sizes or adding TCP options transparently between hosts, turn up
+    too. 
+    </para>
+
+    <para>
+    The Echo mode is also useful for troubleshooting routing and firewall issues.
+    Among other things, it can be used to determine if the traffic generated
+    by the Nping client is being dropped in transit and never gets to its
+    destination or if the responses are the ones that don't get back to it.
+    </para>
+
+    <para>
+    Internally, client and server communicate over an encrypted and
+    authenticated channel, using the Nping Echo Protocol (NEP), whose technical
+    specification can be found in
+    <ulink url="http://nmap.org/svn/nping/docs/EchoProtoRFC.txt"/> 
+    </para>
+
+    <para>
+    The following paragraphs describe the different options available in Nping's
+    Echo mode.
+    </para>
+    
+    <variablelist>
+
+      <varlistentry>
+        <term>          
+          <option>--ec <replaceable>passphrase</replaceable></option>,
+          <option>--echo-client <replaceable>passphrase</replaceable></option> (Run Echo client)
+          <indexterm significance="preferred"><primary><option>--echo-client</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--ec</option> (Nping option)</primary><see><option>--echo-client</option></see></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option tells Nping to run as an Echo client. 
+           <replaceable>passphrase</replaceable> is a sequence of ASCII
+           characters that is used used to generate the cryptographic
+           keys needed for encryption and authentication in a given session.
+           The passphrase should be a secret that is also known by the server, 
+           and it may contain any number of printable ASCII characters.
+           Passphrases that contain whitespace or special characters must be
+           enclosed in double quotes.
+        </para>
+
+        <para>
+           When running Nping as an Echo client, most options from the regular
+           raw probe modes apply. The client may be configured to send specific
+           probes using flags like <option>--tcp</option>,
+           <option>--icmp</option> or <option>--udp</option>. Protocol header
+           fields may be manipulated normally using the appropriate options
+           (e.g. <option>--ttl</option>, <option>--seq</option>,
+           <option>--icmp-type</option>, etc.). The only exceptions are
+           ARP-related flags, which are not supported in Echo mode, as protocols
+           like ARP are closely related to the data link layer and its probes
+           can't pass through different network segments.
+        </para>
+        
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--es <replaceable>passphrase</replaceable></option>,
+          <option>--echo-server <replaceable>passphrase</replaceable></option> (Run Echo server)
+          <indexterm significance="preferred"><primary><option>--echo-server</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--es</option> (Nping option)</primary><see><option>--echo-server</option></see></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option tells Nping to run as an Echo server.
+           <replaceable>passphrase</replaceable> is a sequence of ASCII
+           characters that is used used to generate the cryptographic
+           keys needed for encryption and authentication in a given session.
+           The passphrase should be a secret that is also known by the clients, 
+           and it may contain any number of printable ASCII characters.
+           Passphrases that contain whitespace or special characters must be
+           enclosed in double quotes. Note that although it is not recommended,
+           it is possible to use empty passphrases, supplying
+           <option>--echo-server ""</option>. However, if what you
+           want is to set up an open Echo server, it is better to use option 
+           <option>--no-crypto</option>. See below for details. 
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+
+      <varlistentry>
+        <term>          
+          <option>--ep <replaceable>port</replaceable></option>,
+          <option>--echo-port <replaceable>port</replaceable></option> (Set Echo TCP port number)
+          <indexterm significance="preferred"><primary><option>--echo-port</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--ep</option> (Nping option)</primary><see><option>--echo-port</option></see></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option asks Nping to use the specified TCP port number for the
+           Echo side channel connection. If this option is used with
+           <option>--echo-server</option>, it specifies the port on which the
+           server listens for connections. If it is used with
+           <option>--echo-client</option>, it specifies the port to connect to
+           on the remote host. By default, port number 9929 is used.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--nc</option>,
+          <option>--no-crypto</option> (Disable encryption and authentication)
+          <indexterm significance="preferred"><primary><option>--no-crypto</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--nc</option> (Nping option)</primary><see><option>--no-crypto</option></see></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option asks Nping not to use any cryptographic operations during
+           an Echo session. In practical terms, this means that the Echo side
+           channel session data will be transmitted in the clear, and no
+           authentication will be performed by the server or client
+           during the session establishment phase. When <option>--no-crypto</option>
+           is used, the passphrase supplied with <option>--echo-server</option>
+           or <option>--echo-client</option> is ignored.
+        </para>
+
+        <para>
+           This option must be specified if Nping was compiled without
+           openSSL support. Note that, for technical reasons, a passphrase still
+           needs to be supplied after the --echo-client or --echo-server flags,
+           even though it will be ignored.
+        </para>
+        
+        <para>
+           The --no-crypto flag might be useful when setting up a public Echo
+           server, because it allows users to connect to the Echo server without
+           the need for any passphrase or shared secret. However, it is strongly
+           recommended to not use --no-crypto unless absolutely necessary. Public
+           Echo servers should be configured to use the passphrase "public" or
+           the empty passphrase (--echo-server "") as the use of cryptography
+           does not only provide confidentiality and authentication but also
+           message integrity.
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>          
+          <option>--once</option> (Serve one client and quit)
+          <indexterm significance="preferred"><primary><option>--once</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option asks the Echo server to quit after serving one client.
+           This is useful when only a single Echo session wants to be established
+           as it eliminates the need to access the remote host to shutdown the
+           server.         
+        </para>
+
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>--safe-payloads</option> (Zero application data before echoing a packet)
+          <indexterm significance="preferred"><primary><option>--safe-payloads</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        <para>
+           This option asks the Echo server to erase any application layer data
+           found in client packets before echoing them. When the option is enabled,
+           the Echo server parses the packets received from Echo clients and tries
+           to determine if they contain data beyond the transport layer. If such
+           data is found, it is overwritten with zeroes before transmitting the
+           packets to the appropriate Echo client.
+        </para>
+
+        <para>
+            Echo servers can handle multiple simultaneous clients running
+            multiple echo sessions in parallel. In order to determine which packet
+            needs to be echoed to which client and through which session, the Echo
+            server uses an heuristic algorithm. Although we have taken every
+            security measure that we could think of to prevent that a client
+            receives an echoed packet that it did not generate, there is always
+            a risk that our algorithm makes a mistake and delivers a packet to
+            the wrong client. The --safe-payloads option is useful for public
+            echo servers or critical deployments where that kind of mistake
+            cannot be afforded.
+        </para>
+
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <para>
+        The following examples illustrate how Nping's Echo mode can be used
+        to discover intermediate devices.
+    </para>
+
+    <example id="nping-man-ex-echo1"><title>Discovering NAT devices</title>
+    <indexterm><primary><option>--echo-client</option> (Nping option)</primary><secondary>example of</secondary></indexterm>
+    <screen format="linespecific">
+    # <userinput>nping --echo-client "public" echo.nmap.org --udp </userinput>
+
+    Starting Nping ( http://nmap.org/nping )
+    SENT (1.0970s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28 
+    CAPT (1.1270s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28 
+    RCVD (1.1570s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16619 iplen=56 
+    [...]
+    SENT (5.1020s) UDP 10.1.20.128:53 &gt; 178.79.165.17:40125 ttl=64 id=32523 iplen=28 
+    CAPT (5.1335s) UDP 80.38.10.21:45657 &gt; 178.79.165.17:40125 ttl=54 id=32523 iplen=28 
+    RCVD (5.1600s) ICMP 178.79.165.17 &gt; 10.1.20.128 Port unreachable (type=3/code=3) ttl=49 id=16623 iplen=56 
+     
+    Max rtt: 60.628ms | Min rtt: 58.378ms | Avg rtt: 59.389ms
+    Raw packets sent: 5 (140B) | Rcvd: 5 (280B) | Lost: 0 (0.00%)| Echoed: 5 (140B) 
+    Tx time: 4.00459s | Tx bytes/s: 34.96 | Tx pkts/s: 1.25
+    Rx time: 5.00629s | Rx bytes/s: 55.93 | Rx pkts/s: 1.00
+    Nping done: 1 IP address pinged in 6.18 seconds
+    </screen>
+    </example>
+
+    <para>
+    The output clearly shows the presence of a NAT device in the client's local
+    network. Note how the captured packet (CAPT) differs from the SENT packet: the
+    source address for the original packets is in the reserved 10.0.0.0/8 range,
+    while the address seen by the server is 80.38.10.21, the Internet side address
+    of the NAT device. The source port was also modified by the device. The line
+    starting with RCVD corresponds to the responses generated by the TCP/IP stack
+    of the machine where the Echo server is run.
+    </para>
+
+    <example id="nping-man-ex-echo2"><title>Discovering a transparent proxy</title>
+    <screen format="linespecific">
+    # <userinput>nping --echo-client "public" echo.nmap.org --tcp -p80</userinput>
+
+    Starting Nping ( http://nmap.org/nping )
+    SENT (1.2160s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    RCVD (1.2180s) TCP 178.79.165.17:80 &gt; 10.0.1.77:41659 SA ttl=128 id=13177 iplen=44  seq=3647106954 win=16384 &lt;mss 1460&gt;
+    SENT (2.2150s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    SENT (3.2180s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    SENT (4.2190s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+    SENT (5.2200s) TCP 10.0.1.77:41659 &gt; 178.79.165.17:80 S ttl=64 id=3317 iplen=40  seq=567704200 win=1480 
+     
+    Max rtt: 2.062ms | Min rtt: 2.062ms | Avg rtt: 2.062ms
+    Raw packets sent: 5 (200B) | Rcvd: 1 (46B) | Lost: 4 (80.00%)| Echoed: 0 (0B) 
+    Tx time: 4.00504s | Tx bytes/s: 49.94 | Tx pkts/s: 1.25
+    Rx time: 5.00618s | Rx bytes/s: 9.19 | Rx pkts/s: 0.20
+    Nping done: 1 IP address pinged in 6.39 seconds
+    </screen>
+    </example>
+    
+    <para>
+    In this example, the output is a bit more tricky. The absence of error 
+    messages shows that the Echo client has successfully established an Echo
+    session with the server. However, no CAPT packets can be seen in the output.
+    This means that none of the transmitted packets reached the server.
+    Interestingly, a TCP SYN-ACK packet was received in response to the first
+    TCP-SYN packet (and also, it is known that the target host does not have
+    port 80 open). This behavior reveals the presence of a transparent web proxy
+    cache server (which in this case is an old MS ISA server).
+    </para>
+
+</refsect1>
+
+
+<!-- TIMING AND PERFORMANCE OPTIONS **************************************** -->
+ <refsect1 id="nping-man-timing-performance-options">
+  <title>Timing and Performance Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>
+           <option>--delay <replaceable>time</replaceable></option> (Delay between probes)
+          <indexterm significance="preferred"><primary><option>--delay</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you control for how long will Nping wait before
+           sending the next probe. Like in many other ping tools, the default
+           delay is one second.
+           <replaceable>time</replaceable> must be a positive
+           integer or floating point number. By default it is specified in
+           seconds, however you can give an explicit unit by appending
+           <literal>ms</literal> for milliseconds, <literal>s</literal> for seconds,
+           <literal>m</literal> for minutes, or <literal>h</literal> for hours
+           (e.g. <literal>2.5s</literal>, <literal>45m</literal>, <literal>2h</literal>). 
+        </para>
+        </listitem>
+      </varlistentry>
+
+     
+      <varlistentry>
+        <term>
+          <option>--rate <replaceable>rate</replaceable></option> (Send probes at a given rate)
+          <indexterm significance="preferred"><primary><option>--rate</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+            This option specifies the number of probes that Nping should send
+            per second. This option and <option>--delay</option> are inverses;
+            <option>--rate 20</option> is the same as
+            <option>--delay 0.05</option>. If both options are used, only the
+            last one in the parameter list counts.
+        </para>
+        </listitem>
+      </varlistentry>
+    
+
+    </variablelist>
+  </refsect1>
+
+
+
+
+
+
+
+
+
+<!-- MISCELLANEOUS OPTIONS ************************************************ -->
+ <refsect1 id="nping-man-miscellaneous-options">
+  <title>Miscellaneous Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term><option>-h</option>,
+        <option>--help</option> (Display help)
+          <indexterm significance="preferred"><primary><option>--help</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--h</option> (Nping option)</primary><see><option>--help</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Displays help information and exits.
+        </para>
+        </listitem>
+      </varlistentry>
+
+     
+      <varlistentry>
+        <term>
+          <option>-V</option>,
+          <option>--version</option> (Display version)
+          <indexterm significance="preferred"><primary><option>--version</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-V</option> (Nping option)</primary><see><option>--version</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Displays the program's version number and quits.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-c <replaceable>rounds</replaceable></option>,
+          <option>--count <replaceable>rounds</replaceable></option>  (Stop after a given number of rounds)
+          <indexterm significance="preferred"><primary><option>--count</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-c</option> (Nping option)</primary><see><option>--count</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you specify the number of times that Nping should
+           loop over target hosts (and in some cases target ports). Nping calls
+           these <quote>rounds</quote>. In a basic execution with only one target (and only
+           one target port in TCP/UDP modes), the number of rounds matches the
+           number of probes sent to the target host. However, in more complex
+           executions where Nping is run against multiple targets and multiple
+           ports, the number of rounds is the number of times that Nping sends
+           a complete set of probes that covers all target IPs and all
+           target ports. For example, if Nping is asked to send TCP SYN packets
+           to hosts 192.168.1.0-255 and ports 80 and 433, then 256&thinsp;&times;&thinsp;2&nbsp;=&nbsp;512 packets
+           are sent in one round. So if you specify <option>-c 100</option>, Nping will
+           loop over the different target hosts and ports 100 times, sending
+           a total of 256&thinsp;&times;&thinsp;2&thinsp;&times;&thinsp;100&nbsp;=&nbsp;51200 packets. By default Nping runs for
+           5 rounds. If a value of 0 is specified, Nping will run for 2<superscript>32</superscript> rounds.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <option>-e <replaceable>name</replaceable></option>,
+          <option>--interface <replaceable>name</replaceable></option>  (Set the network interface to be used)
+          <indexterm significance="preferred"><primary><option>--interface</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-e</option> (Nping option)</primary><see><option>--interface</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option tells Nping what interface should be used to send and
+           receive packets. Nping should be able to detect this automatically,
+           but it will tell you if it cannot. <replaceable>name</replaceable>
+           must be the name of an existing network interface with an assigned
+           IP address.
+
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+           <option>--privileged</option> (Assume that the user is fully privileged)
+          <indexterm significance="preferred"><primary><option>--privileged</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Tells Nping to simply assume that it is privileged enough to perform
+           raw socket sends, packet sniffing, and similar operations that
+           usually require special privileges. By default Nping quits if such
+           operations are requested by a user that has no root or administrator
+           privileges. This option may be useful on Linux, BSD or similar
+           systems that can be configured to allow unprivileged users to perform
+           raw-packet transmissions. The
+           <envar>NPING_PRIVILEGED</envar><indexterm><primary><envar>NPING_PRIVILEGED</envar> environment variable</primary></indexterm>
+           environment variable
+           may be set as an alternative to using <option>--privileged</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+           <option>--unprivileged</option> (Assume that the user lacks raw socket privileges)
+          <indexterm significance="preferred"><primary><option>--unprivileged</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option is the opposite of <option>--privileged</option>. It tells Nping to treat
+           the user as lacking network raw socket and sniffing privileges.
+           This is useful for testing, debugging, or when the raw network
+           functionality of your operating system is somehow broken. The
+           <envar>NPING_UNPRIVILEGED</envar><indexterm><primary><envar>NPING_UNPRIVILEGED</envar> environment variable</primary></indexterm>
+           environment variable may be set as an
+           alternative to using <option>--unprivileged</option>.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+           <option>--send-eth</option> (Use raw ethernet sending)
+          <indexterm significance="preferred"><primary><option>--send-eth</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to send packets at the raw ethernet (data link) layer
+           rather than the higher IP (network) layer. By default, Nping chooses
+           the one which is generally best for the platform it is running on.
+           Raw sockets (IP layer) are generally most efficient for Unix
+           machines, while ethernet frames are required for Windows operation
+           since Microsoft disabled raw socket support. Nping still uses raw IP
+           packets despite this option when there is no other choice (such as
+           non-ethernet connections).
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+           <option>--send-ip</option> (Send at raw IP level)
+          <indexterm significance="preferred"><primary><option>--send-ip</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Asks Nping to send packets via raw IP sockets rather than sending
+           lower level ethernet frames. It is the complement to the
+           <option>--send-eth</option> option.
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+           <option>--bpf-filter <replaceable>filter spec</replaceable></option>
+           <option>--filter <replaceable>filter spec</replaceable></option> (Set custom BPF filter)
+          <indexterm significance="preferred"><primary><option>--bpf-filter</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>--filter</option> (Nping option)</primary><see>--bpf-filter</see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option lets you use a custom BPF filter. By default Nping
+           chooses a filter that is intended to capture most common responses
+           to the particular probes that are sent. For example, when sending
+           TCP packets, the filter is set to capture packets whose destination
+           port matches the probe's source port or ICMP error messages that may
+           be generated by the target or any intermediate device as a result of
+           the probe. If for some reason you expect strange packets in response
+           to sent probes or you just want to sniff a particular kind of
+           traffic, you can specify a custom filter using the BPF syntax used
+           by tools like
+           tcpdump.<indexterm><primary>tcpdump</primary></indexterm>
+           See the documentation at <ulink url="http://www.tcpdump.org/"/> for
+           more information.            
+        </para>
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+           <option>-H</option>,
+           <option>--hide-sent</option> (Do not display sent packets)
+          <indexterm significance="preferred"><primary><option>--hide-sent</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-H</option> (Nping option)</primary><see>--hide-sent</see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option tells Nping not to print information about sent packets.
+           This can be useful when using very short inter-probe delays (i.e.,
+           when flooding), because printing information to the standard
+           output has a computational cost and disabling it can probably
+           speed things up a bit. Also, it may be useful when using Nping to
+           detect active hosts or open ports (e.g. sending probes to all TCP
+           ports in a /24 subnet). In that case, users may not want to see
+           thousands of sent probes but just the replies generated by active
+           hosts.
+        </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+           <option>-N</option>,
+           <option>--no-capture</option> (Do not attempt to capture replies)
+          <indexterm significance="preferred"><primary><option>--no-capture</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-N</option> (Nping option)</primary><see><option>--no-capture</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           This option tells Nping to skip packet capture. This means that
+           packets in response to sent probes will not be processed or
+           displayed. This can be useful when doing flooding and network stack
+           stress tests. Note that when this option is specified, most of
+           the statistics shown at the end of the execution will be useless.
+           This option does not work with TCP Connect mode.
+        </para>
+        </listitem>
+      </varlistentry>  
+
+    </variablelist>
+  </refsect1>
+
+
+  
+
+
+
+<!-- OUTPUT OPTIONS **************************************** -->
+ <refsect1 id="nping-man-output-options">
+  <title>Output Options</title>
+
+  <variablelist>
+
+      <varlistentry>
+        <term>
+          <option>-v<optional><replaceable>level</replaceable></optional></option>,
+          <option>--verbose <optional><replaceable>level</replaceable></optional></option> (Increase or set verbosity level)
+          <indexterm significance="preferred"><primary><option>--verbose</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-v</option> (Nping option)</primary><see><option>--verbose</option></see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Increases the verbosity level, causing Nping to print more
+           information during its execution. There are 9 levels of verbosity 
+           (-4 to 4). Every instance of <option>-v</option> increments the verbosity level by one 
+           (from its default value, level 0). Every instance of option <option>-q</option>
+           decrements the verbosity level by one. Alternatively you can specify
+           the level directly, as in <option>-v3</option> or
+           <option>-v-1</option>. These are the available levels:
+           </para>
+
+           <indexterm><primary>verbosity levels of Nping</primary></indexterm>
+           <variablelist>
+            <varlistentry>
+              <term>Level &minus;4</term>
+              <listitem>
+           <para>
+           No output at all. In some circumstances you may not want
+           Nping to produce any output (like when one of your work mates is
+           watching over your shoulder). In that case level &minus;4 can be useful
+           because although you won't see any response packets, probes will
+           still be sent.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level &minus;3</term>
+              <listitem>
+           <para>
+           Like level &minus;4 but displays fatal error messages so you can
+           actually see if Nping is running or it failed due to some error.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level &minus;2</term>
+              <listitem>
+           <para>
+           Like level &minus;3 but also displays warnings and recoverable errors.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level &minus;1</term>
+              <listitem>
+           <para>
+           Displays traditional run-time information (version, start time,
+           statistics, etc.) but does not display sent or received packets.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 0</term>
+              <listitem>
+           <para>
+           This is the default verbosity level. It behaves like level &minus;1 but
+           also displays sent and received packets and some other important information.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 1</term>
+              <listitem>
+           <para>
+           Like level 0 but it displays detailed information about
+           timing, flags, protocol details, etc.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 2</term>
+              <listitem>
+           <para>
+            Like level 1 but displays very detailed information
+            about sent and received packets and other interesting information.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 3</term>
+              <listitem>
+           <para>
+            Like level 2 but also displays the raw hexadecimal dump of sent
+            and received packets.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 4</term>
+              <listitem>
+           <para>
+                Currently unused.
+           </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+        </listitem>
+      </varlistentry>
+
+
+      <varlistentry>
+        <term>
+          <option>-q<optional><replaceable>level</replaceable></optional></option>,
+          <option>--reduce-verbosity <optional><replaceable>level</replaceable></optional></option> (Decrease verbosity level)
+          <indexterm significance="preferred"><primary><option>--reduce-verbosity</option> (Nping option)</primary></indexterm>
+          <indexterm significance="preferred"><primary><option>-q</option> (Nping option)</primary><see>--reduce-verbosity</see></indexterm>
+        </term>
+        <listitem>
+          <para>
+           Decreases the verbosity level, causing Nping to print less
+           information during its execution.
+           </para>
+           
+         </listitem>
+      </varlistentry>
+
+
+     
+      <varlistentry>
+        <term>
+          <option>-d<optional><replaceable>level</replaceable></optional></option> (Increase or set debugging level)
+          <indexterm significance="preferred"><primary><option>-d</option> (Nping option)</primary></indexterm>
+        </term>
+        <listitem>
+        
+          <para>
+           When even verbose mode doesn't provide sufficient data for you,
+           debugging is available to flood you with much more! As with the
+           <option>-v</option>, debugging is enabled with a command-line
+           flag <option>-d</option> and the debug level can be increased by
+           specifying it multiple times. There are 7 debugging levels (0 to 6).
+           Every instance of <option>-d</option> increments debugging level by
+           one. Provide an argument to <option>-d</option> to set the level
+           directly; for example <option>-d4</option>.
+           </para>
+
+          <para>           
+           Debugging output is useful when you suspect a bug in Nping, or if
+           you are simply confused as to what Nping is doing and why. As this
+           feature is mostly intended for developers, debug lines aren't
+           always self-explanatory. You may get something like
+<indexterm><primary>Nsock</primary><secondary>debug output of</secondary></indexterm>
+<screen>
+NSOCK (1.0000s) Callback: TIMER SUCCESS for EID 12; tcpconnect_event_handler<continuation/>(): Received callback of type TIMER with status SUCCESS
+</screen>
+           If you don't understand a line, your only
+           recourses are to ignore it, look it up in the source code, or
+           request help from the development list (<citetitle>nmap-dev</citetitle>). Some lines are
+           self-explanatory, but the messages become more obscure as the debug
+           level is increased. These are the available levels:
+           </para>            
+
+           <indexterm><primary>debug levels of Nping</primary></indexterm>
+           <variablelist>
+            <varlistentry>
+              <term>Level 0</term>
+              <listitem>
+           <para>
+           Level 0. No debug information at all. This is the default level. 
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 1</term>
+              <listitem>
+           <para>
+           In this level, only very important or high-level debug information
+           will be printed.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 2</term>
+              <listitem>
+           <para>
+           Like level 1 but also displays important or medium-level debug
+           information
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 3</term>
+              <listitem>
+           <para>
+           Like level 2 but also displays regular and low-level debug information.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 4</term>
+              <listitem>
+           <para>
+           Like level 3 but also displays messages only a real Nping freak would
+           want to see.
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 5</term>
+              <listitem>
+           <para>
+           Like level 4 but it enables basic debug information related to
+           external libraries like Nsock.<indexterm><primary>Nsock</primary></indexterm>
+           </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>Level 6</term>
+              <listitem>
+           <para>
+           Like level 5 but it enables full, very detailed, debug information
+           related to external libraries like Nsock.
+           </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+  </refsect1>
+   
+  <refsect1 id="nping-man-bugs">
+    <title>Bugs</title>
+    <indexterm><primary>bugs, reporting</primary></indexterm>
+
+    <para>Like its author, Nping isn't perfect.  But you can help make
+    it better by sending bug reports or even writing patches.  If Nping
+    doesn't behave the way you expect, first upgrade to the latest Nmap 
+    version available from <ulink url="http://nmap.org/download.html"/>.  If
+    the problem persists, do some research to determine whether it has already
+    been discovered and addressed.  Try searching for the error message on our
+    search page at <ulink url="http://insecure.org/search.html"/> or at Google.
+    Also try browsing the <citetitle>nmap-dev</citetitle> archives at
+    <ulink url="http://seclists.org/"/><indexterm>
+    <primary><citetitle>nmap-dev</citetitle> mailing list</primary></indexterm>
+    Read this full manual page as
+    well.  If nothing comes out of this, mail a bug report to
+    <email>nmap-dev@insecure.org</email>.  Please include everything
+    you have learned about the problem, as well as what version of
+    Nping you are running and what operating system version it is
+    running on.  Problem reports and Nping usage questions sent to
+    <email>nmap-dev@insecure.org</email> are far more likely to be answered than
+    those sent to Fyodor directly.  If you subscribe to the nmap-dev
+    list before posting, your message will bypass moderation and get
+    through more quickly.  Subscribe at
+    <ulink url="http://cgi.insecure.org/mailman/listinfo/nmap-dev"/>.</para>
+
+    <para>Code patches to fix bugs are even better than bug reports.
+    Basic instructions for creating patch files with your changes are
+    available at <ulink url="http://nmap.org/data/HACKING"/>.  Patches may
+    be sent to <citetitle>nmap-dev</citetitle> (recommended) or to any of the
+    authors listed in the next section directly.</para>
+  </refsect1>
+
+
+
+  <refsect1 id="nping-man-author">
+    <title>Authors</title>
+
+    <para>Luis MartinGarcia <email>luis.mgarc@gmail.com</email> (<ulink url="http://aldabaknocking.com" />)</para>
+
+    <para>Fyodor <email>fyodor@insecure.org</email> (<ulink url="http://insecure.org" />)</para>
+
+  </refsect1>
+
+
+</refentry>

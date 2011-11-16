@@ -1,0 +1,149 @@
+RadialNet 0.44
+--------------
+
+o Fix bug caused by gtk.gdk.PixbufLoader that don't recognize image type in
+  Windows. Now gtk.gdk.pixbuf_new_from_file() is used (thanks to IndianZ).
+
+o Added new version of XMLTreeParser.py called XMLHandler.py.
+
+o Added new version of bestwidgets.
+
+o Change radialnet.py file name to radialnet.pyw to application starts with no
+  command prompt on Windows.
+
+
+RadialNet 0.43
+--------------
+
+o Clean __init__.py files.
+
+o Added vendor to address field when addrtype is MAC.
+
+o Added new version of bestwidgets.
+
+o Fixed bug caused by list key error on NodeNotebook.py.
+
+
+RadialNet 0.42
+--------------
+
+o Fixed bug caused when tcptssequence xml node has no values information.
+
+o Improve the coherence in animation.
+
+
+RadialNet 0.41
+--------------
+
+o Create a solution to fix the gtk issue that don't show text in BWTextEditor
+  class correctly (thanks to Luís Bastião).
+
+o Due to encoding problems the encoding of all file was changed to utf-8.
+
+o Created a new logo and About dialog. New logo was used as window icon too.
+
+o Added a Info module that contains the program information.
+
+o Added a Image superclass in gui/Icons.py file. Change gui/Icons.py filename to
+  gui/Image.py.
+
+o Added a Path class to hold directory base. This make possible RadialNet
+  runnable from any directory.
+
+
+RadialNet 0.4
+-------------
+
+o Incorporated a HostsViewer class that lists the hosts in a left list and show
+  its information in a NodeNotebook in the right side. It can be accessed in the
+  new Tools button on toolbar.
+
+o Added a complete OS Fingerprint and Sequences view with other general
+  informations in the NodeNotebook class.
+
+o Create a set of class to make more easy follow the Gnome HIG 2.0
+  specifications and the creation of complex composed widgets. This set is
+  called bestwidgets.
+
+o Create a class and file named NodeNotebook and move node noetebook pages to
+  it.
+
+o Added a Application class to solve user interface issues like hide and show of
+  widgets.
+
+o Improve command line options with ArgvHandle class. And add a file chooser
+  dialog to interface to open Nmap XML files from the GUI.
+
+o Enable visualization of host with no traceroute information. These nodes are
+  link to localhost and has black dashed connections. This make possible for
+  non-privileged users use the RadialNet.
+
+o Remove statusbar from node's window and put hostname in title.
+
+o Added a new notebook to node's window with all traceroute information.
+
+o By default latency numbers are hidden, ring gap is changed to 30 and fisheye
+  spread factor to 0.5.
+
+o Convert frames in control panel to expanders to grant to user see only he
+  need.
+
+o Move actions toolbar menu to right control panel. And a information button
+  was added. They are placed in a "Action" expander.
+
+o Include "Option" expander in "View" expander.
+
+
+RadialNet 0.31
+--------------
+
+o Improve the animation by coherent calculus of children positions. Using some
+  angle conditions we can perform a better animation.
+
+o Reduce excessive processing on some update methods that check values in
+  RadialNet class periodically.
+
+
+RadialNet 0.3
+-------------
+
+o New services viewer on pop-up windows. With NSE script output support with a
+  text viewer.
+
+o Clean the interface hiding some controllers if no needed using toggle buttons.
+
+o Added option to enable/disable slow-in/slow-out animation in options list.
+
+o Fixes wrong English messages in the program (thanks to DePriest, Jason R.).
+
+
+RadialNet 0.2
+-------------
+
+o Improve icons apparency, size and position.
+
+o Added latency mean for each edge as text and width of edge. The edge's width
+  is normalized between 1 (min value) to 5 (max value) pixels.
+
+o When a node is a group we draw a black circle if localhost (127.0.0.1) is
+  grouped on it.
+
+o Change mouse button events to a toolbar. The options. We include buttons to
+  guide mouse actions. Three options are added, one to change the center of
+  visualization, another to group node's children, and more one to fill node's
+  draw region.
+
+o Added region fill feature. When clicking in a node with this option the
+  hierarchical region that a node use to draw its children is filled with a
+  chosen color (red, yellow or green).
+
+o Added different draw properties for unknown nodes and edges latencies. If a
+  node is unknown we draw a white node with blue stroke, and if the edge latency
+  is unknown we draw it dashed.
+
+o Decrease draw complexity. Reducing the number of draw method and making the
+  methods for draw node and edges more intelligent.
+
+o Fixed division by zero error when number of frames is less than 3. This
+  happens because the interpolation method need a number of pass great or equal
+  to 3 (thanks to Hiroshi).

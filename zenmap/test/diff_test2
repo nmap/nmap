@@ -1,0 +1,11 @@
+# nmap 3.75 scan initiated Sat Jul 16 11:31:58 2005 as: nmap -oX /tmp/tmpg71nwK -oN /tmp/tmptq82bS localhost 
+Interesting ports on localhost.localdomain (127.0.0.1):
+(The 1658 ports scanned but not shown below are in state: closed)
+PORT      STATE SERVICE
+80/tcp    open  http
+111/tcp   open  rpcbind
+631/tcp   open  ipp
+6346/tcp  open  gnutella
+32776/tcp open  sometimes-rpc15
+
+# Nmap run completed at Sat Jul 16 11:32:01 2005 -- 1 IP address (1 host up) scanned in 2.788 seconds

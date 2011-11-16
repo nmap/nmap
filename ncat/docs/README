@@ -1,0 +1,146 @@
+   .       .         
+   \`-"'"-'/
+    } 6 6 {    
+   ==. Y ,==   
+     /^^^\  .
+    /     \  )           
+   (  )-(  )/     _
+   -""---""---   /
+  /   Ncat    \_/
+ (     ____
+  \_.=|____E
+
+
+README for Ncat 
+---------------
+
+Ncat is a reimplementation of the currently splintered and reasonably
+unmaintained Netcat family.  Ncat will do pretty much everything that
+all the other Netcat's do, all in one place.  Plus it has the added
+benefit of spanky new features and ongoing development.
+
+Ncat was designed with the original Netcat interface in mind.  Rather
+than replacing the old Netcat interface with a brand new (and thus more
+convoluted) set of options, the Ncat interface was intentionally kept
+clean and simple to use, just like the original product.
+
+Ncat provides most of the features present in the original Netcat but with
+a complete overhaul and rewrite, along with completely new features and a
+combination of other well received features of other Netcat products, such
+as IPv6 and SSL support.
+
+The port scanning support has been entirely removed from Ncat.  The
+reason for this is fairly obvious: there is a better port scanner out
+there already... :)
+
+Ncat can act as either a client or server, using TCP or UDP over IPv4 or
+IPv6.  SSL support is provided for both the client and server mode.
+
+There is also a new "connection brokering" feature which enables two or
+more hosts to connect that previously were unable to directly communicate
+with each other.
+
+For example: "Host A" can connect to "Host B" but not "Host C"
+             "Host C" can connect to "Host B" but not "Host A"
+
+It is clear, then, that if you could connect to "Host B" then "Host A"
+and "Host C" could directly communicate...
+
+[HostA] <------> [HostB-with-Ncat-Broker] <------> [HostC]
+
+Ncat's connection brokering will allow you to connect between Host A and
+Host C via Host B without the trouble of having to have SOCKS support,
+etc.  This is still somewhat experimental behaviour.
+
+Ncat has support for HTTP "CONNECT" via an HTTP proxy server such as Squid.
+It can also connect via a SOCKS4 server and is very flexible in terms of
+how it shuffles your data around.
+
+Ncat can also spawn it's own it's own HTTP CONNECT proxy server for your
+own relaying requirements.
+
+Ncat has the ability to execute a program and handle the I/O for its data
+over the socket.  In other words, Ncat can "add" networking support to
+applications that currently have none.
+
+For example, you could:
+
+ncat --exec "/bin/bash" -l 5000
+
+NOTE: This is exceptionally dangerous behaviour, as it leaves an open shell
+sitting directly accessible to anyone who is able to connect to port 5000.
+See the allow and deny options below for securing your Ncat processes.
+
+Ncat has a TCP and UDP "redir"-style redirection feature to allow the user
+to redirect traffic from one host to another.
+
+For example:
+
+ncat --exec "/usr/local/bin/ncat www.example.com 80" -l 8888
+
+This command binds Ncat to the local machine on port 8888 and redirects
+connections to www.example.com.  You may also find uses for this as a "host
+hiding" system.  Similar to SOCKS4 but without any of the hassle of having
+to have SOCKS support in the application.
+
+This also begs the question of, "What would happen if you decided you wanted
+to pass the --udp flag in to the above command somewhere?"
+
+In this case, you would have a TCP to UDP "gender changer". 
+
+If you have an application that only makes only TCP connections, for example,
+you could spawn a Ncat process to listen on a the applications TCP port and
+then redirect the TCP connection out to the final destination, only over UDP.
+
+The --allow and --deny options are provided to prevent unauthorized access to
+any Ncat process that is listening on a port.  These options are also paired
+with the --allowfile and --denyfile options, similar in behaviour to Nmap.
+
+The allow and deny options accept a number of different IP address formats
+for maximum flexibility:
+
+A single IP address, of the format:
+
+	ip.ip.ip.ip
+
+EG: 192.168.10.1
+
+A CIDR-style IP address range, of the format:
+ 
+	ip.ip.ip.ip/cidr 
+
+EG: 192.168.10.0/24
+
+An IP and full netmask, of the format:
+
+	ip.ip.ip.ip:nm.nm.nm.nm
+
+EG: 192.168.10.4:255.255.255.255
+
+An IP address with wildcards:
+
+	ip.ip.ip.*
+	ip.ip.*.*
+	ip.*.*.*
+
+These rules may also be used in a flat file, delimited by newlines.  An
+example of a full ACL is included in docs/examples/ labelled 'iplist'.  Also
+note that comments start with a # and are perfectly acceptable for use in
+the ACL's.
+
+For example, the file "ipaccess" might look like:
+
+# Abuse from ADSL user.
+88.223.14.1/32
+
+# This guy is scanning us for SOCKS4 servers to abuse, block his /24
+194.213.167.*
+
+To implement this IP address ACL simply run:
+
+ncat --denyfile /path/to/file/ipaccess -l 7000
+
+For further documentation, please see the man page.
+
+--Chris Gibson and Kris Katterjohn
+

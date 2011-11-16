@@ -1,0 +1,3 @@
+HELO xxx.xxx.xxx
+220 smtp.google.com ESMTP
+250 smtp.google.com Hello xxx.xxx.xxx [xxx.xxx.xxx.xxx], pleased to meet you

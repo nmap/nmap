@@ -1,0 +1,165 @@
+++++++++++++++++++++++++++++++++
+|  NPING PROJECT REQUIREMENTS  |
+++++++++++++++++++++++++++++++++
+
+This document presents a list of requirements for the tool Nping that will
+be developed during this summer as a project for the program Google Summer of
+Code.
+
+Each requirement is tagged with one of the following tags:
+
+[MustHave]   It definitely must be met.
+[ShouldHave] It should be met if providing there is enough time for it.
+[CouldHave]  It would be nice to have but it's not essential.
+[OnRequest]  It would be added to the todo-list if someone asks for it on the
+             list, provides a good reason and some usage scenarios.
+
++------------------------+
+| GENERAL                |
++------------------------+
+
+* Documentation for end-users.........................................[MustHave]  [DONE]
+* Documentation of the source code using Doxygen syntax..............[Couldhave]  [DONE]
+* Command line interface with well-defined option flags...............[MustHave]  [DONE]
+* 6 levels of verbosity (0 to 5)......................................[MustHave]  [DONE]
+* 6 levels of debugging information...................................[MustHave]  [DONE]
+* Written in C++......................................................[MustHave]  [DONE]
+* Run and be tested under Linux.......................................[MustHave]  [DONE]
+* Run and be tested under Windows.....................................[MustHave]
+* Run and be tested under OS X........................................[MustHave]
+* Compile as a single, statically-linked executable..................[CouldHave]
+* Use of libdnet......................................................[MustHave]  [DONE]
+* Designed to be integrated into Nmap tarball.........................[MustHave]
+* Design to allow easy extension to other protocols...................[MustHave]  [DONE]
+
+
++------------------------+
+| LINK LAYER             |
++------------------------+
+* Raw Ethernet frame generation.......................................[MustHave]  [DONE]
+  - Destination MAC address...........................................[MustHave]  [DONE]
+  - Spoofed source MAC address........................................[MustHave]  [DONE]
+  - Custom Ethertype/Length..........................................[OnRequest]  [DONE]
+  - Invalid CRC32 checksum...........................................[OnRequest]
+
+* ARP ping............................................................[MustHave]  [DONE]
+
+* Custom ARP packet generation
+  - Hardware type....................................................[OnRequest]
+  - Protocol type....................................................[OnRequest]
+  - Hardware length..................................................[OnRequest]
+  - Protocol length .................................................[OnRequest]
+  - Operation .......................................................[OnRequest]  [DONE]
+  - Sender hardware address...........................................[MustHave]  [DONE]
+  - Sender protocol address...........................................[MustHave]  [DONE]
+  - Target hardware address...........................................[MustHave]  [DONE]
+  - Target protocol address...........................................[MustHave]  [DONE]
+* Custom RARP packet generation......................................[CouldHave]  [DONE]
+
++------------------------+
+| NETWORK LAYER          |
++------------------------+
+
+* Custom IPv4 packet generation.......................................[MustHave]  [DONE]
+  - Custom version number............................................[OnRequest]
+  - Invalid header lengths...........................................[OnRequest]
+  - Type of Service...................................................[MustHave]  [DONE]
+  - Invalid total lengths............................................[OnRequest]
+  - Custom Idenfication number........................................[MustHave]  [DONE]
+  - Do Not Fragment Flag..............................................[MustHave]  [DONE]
+  - More Fragments Flag...............................................[MustHave]  [DONE]
+  - Reserved flag....................................................[OnRequest]
+  - Incorrect fragment offset........................................[OnRequest]
+  - Custom TTL........................................................[MustHave]  [DONE]
+  - Custom Protocol number...........................................[OnRequest]
+  - Invalid header checksum...........................................[MustHave]  [DONE]
+  - Spoofed source address............................................[MustHave]  [DONE]
+  - Destination address...............................................[MustHave]  [DONE]
+  - IP options........................................................[MustHave]  [DONE]
+
+* IPv6 packet generation
+  - IPv6 support for TCP connect() ping...............................[MustHave]
+  - IPv6 support for UDP pings........................................[MustHave]
+  - IPv6 packet generation............................................[MustHave]
+
+* ICMP packet generation..............................................[MustHave]  [DONE]
+  - Echo Request......................................................[MustHave]  [DONE]
+  - Timestamp request.................................................[MustHave]  [DONE]
+  - Information Request...............................................[MustHave]  [DONE]
+  - Netmask Request...................................................[MustHave]
+  - Redirect..........................................................[MustHave]  [DONE]
+  - Fake Destination Unreachable Message..............................[MustHave]  [DONE]
+  - Fake Echo Reply Message..........................................[OnRequest]  [DONE]
+  - Fake Source Quench Message.......................................[OnRequest]  [DONE]
+  - Fake Time Exceeded message.......................................[OnRequest]  [DONE]
+  - Fake Parameter Problem Message...................................[OnRequest]  [DONE]
+  - Timestamp reply..................................................[OnRequest]  [DONE]
+  - Information Reply................................................[OnRequest]  [DONE]
+  - Netmask Reply....................................................[OnRequest]
+
+
+
++------------------------+
+| TRANSPORT LAYER        |
++------------------------+
+* Custom TCP packet generation........................................[MustHave]  [DONE]
+   - Source port......................................................[MustHave]  [DONE]
+   - Destination port.................................................[MustHave]  [DONE]
+   - Sequence Number..................................................[MustHave]  [DONE]
+   - ACK Number.......................................................[MustHave]  [DONE]
+   - Invalid offset values...........................................[OnRequest]
+   - Custom data in "Reserved" field.................................[OnRequest]
+   - TCP Flags (including CWR and ECE)................................[MustHave]  [DONE]
+   - Window size......................................................[MustHave]  [DONE]
+   - Invalid checksum.................................................[MustHave]  [DONE]
+   - Custom Urgent Pointer...........................................[OnRequest]
+   - TCP Options......................................................[MustHave]
+
+* Custom UDP packet generation........................................[MustHave]  [DONE]
+   - Source / Dest ports .............................................[MustHave]  [DONE]
+   - Incorrect length................................................[OnRequest]  [DONE]
+   - Invalid checksum.................................................[MustHave]  [DONE]
+
++------------------------+
+| APPLICATION LAYER      |
++------------------------+
+* Custom DNS request generation......................................[CouldHave]
+* HTTP request generation............................................[CouldHave]
+
+
++------------------------+
+| Nping ECHO SERVER      |
++------------------------+
+* Encrypted communications symmetrict encryption......................[MustHave]
+* Use of covert channels to transfer information back
+  to the nping client................................................[CouldHave]
+* Echo back layers link+net+transport+payload
+* Echo back layers net+transport+payload
+* Echo back layerstransport+payload
+* Echo back only payload
+
+
+
++------------------------+
+| MISCELLANEOUS          |
++------------------------+
+* Traceroute mode.....................................................[MustHave]  [DONE]
+  - Traceroute to a TCP port..........................................[MustHave]  [DONE]
+  - Traceroute to a UDP port..........................................[MustHave]  [DONE]
+* Nmap style packet output............................................[MustHave]  [DONE]
+* Provide useful stats................................................[MustHave]
+* Save responses in a pcap file......................................[CouldHave]
+* Implement student's t test to compare data-sets of timing
+  information as in QSCAN............................................[CouldHave]
+* Support for multiple target IPs.....................................[MustHave]  [DONE]
+* Support for multiple target ports...................................[MustHave]  [DONE]
+
+
+
+
+
+
+
+
+
+

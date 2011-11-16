@@ -1,0 +1,229 @@
+# Ncat Changelog ($Id$); -*-text-*-
+
+o Reworked the test program test/test-cmdline-split slightly and added
+  additional test cases.  Rewrote cmdline_split in ncat_posix.c [Josh Marlow]
+
+o Added a test program, test/test-cmdline-split to test the cmdline_split
+  function in test/test-cmdline-split in preparation for an eventual rewrite of
+  cmdline_split [Josh Marlow].
+
+Ncat 0.2
+
+o Ported to Windows on Visual C++ Express 2008.  Support isn't perfect because
+  of the lack of a fork() call and because we had to implement a hack to get
+  select()-like support for stdin on Windows, but most everything works fine.
+  We hope to get around these issues in the future. [Kris Katterjohn, Mixter]
+
+o Added IPv6 listen support (including --broker).  Host access control is not
+  yet supported. [Kris]
+
+o Added SSL listen support (including --broker) [Kris]
+
+o Fixed SSL and IPv6 connect issues [Mixter]
+
+o Added IPv4 host access control to UDP listener and --broker [Kris]
+
+o Brokering mode now continually listens for connections rather than exiting
+  after the last client disconnects. [Kris]
+
+o Changed -l to mostly behave like OpenBSD Netcat.  Instead of -l specifying
+  the local port number and -s specifying the local address to listen on, -l
+  is a non-option flag and you specify the local address/port like you do
+  a host to connect to in client-mode. [Kris]
+
+o Ncat's default port number is now 31337 instead of 5000.  This because 5000
+  is used for other protocols, such as UPnP. [Kris]
+
+o Specifying no port number with -l now works to listen on Ncat's default
+  port number.  The original Netcat seems to just use an ephemeral port in
+  this case, and other incarnations make you specify a port number.  So now
+  you don't have to specify a host or port number with -l, in which case
+  Ncat listens on any address, port 31337. [Kris]
+
+o Fixed Ncat so that it actually works like it should when transferring a file
+  between instances.  Running "ncat -l 3333 <input" and then connecting with
+  "ncat host 3333 >output" should send the input file from the server to the
+  client.  However actually doing this would either silently fail or complain
+  about a broken pipe.  Thanks to eldraco for reporting this problem. [Kris]
+
+o Client-mode Ncat now exits upon receipt of EOF from the network side [Kris]
+
+o Client-mode Ncat now just tries to read anything from the network (still via
+  the Nsock library) rather than reading in a line-based manner.  While being
+  an improvement in its own right, this is especially helpful for the new
+  Telnet negotiation option. [Kris]
+
+o Increased the default network data buffer sizes (reading and writing) from
+  a measly 256 bytes to a more respectable 8K for TCP and 128K for UDP.  UDP's
+  is this large because a read returns an entire datagram, or discards what's
+  left if there is no room. [Kris]
+
+o The proxy options have now changed.  Instead of having separate option names
+  for all of the different types of proxy protocols that will be supported,
+  --proxy is available to specify the proxy address and optional port, and
+  --proxy-type is available to specify the proxy protocol to use. [Kris]
+
+o Added an HTTP proxy server feature, which creates a simple forking HTTP proxy
+  server on the listening port (only supports CONNECT).  This is specified by
+  "--proxy-type http" in server mode.  [Kris]
+
+o The SOCKSv4 proxy option is now specified by "--proxy-type socks4" instead
+  of --socks4-proxy.  This option also now takes the username from --proxy-auth
+  rather than the previous user@host:port syntax. [Kris]
+ 
+o The HTTP proxy option is now specified by "--proxy-type http" instead of
+  --http-proxy.  Also, the HTTP CONNECT request now uses CRLF for the EOL
+  instead of just LF. [Kris]
+ 
+o Removed the SOCKS proxy server support because it was broken, didn't have
+  any support for SOCKSv5, and we now have an HTTP proxy server for a similar
+  purpose. [Kris]
+ 
+o Fixed --proxy-auth which always caused a segmentation fault. [Kris]
+ 
+o Fixed an issue which commonly occurred when using --proxy-type socks4 and
+  when reading from a piped or redirected stdin.  The problem was that Ncat
+  was sending the data read from stdin across the network before it was fully
+  connected to the proxy.  Thanks to Jah for noticing this problem. [Kris]
+
+o The output options -o and -x are no longer mutually exclusive.  Also, the
+  documented alias for -x (--hex-dump) now works. [Kris]
+
+o Renamed -t (--idle-timeout) to -i [Kris]
+
+o Added -t/--telnet to handle DO/DONT WILL/WONT Telnet negotiations [Kris]
+
+o Added -C/--crlf to try to use CRLF for line-endings.  This comes in handy
+  when talking to some stringent servers directly from a terminal in one of
+  the many common plain-text protocols which specify CRLF as the required EOL
+  sequence. [Kris]
+
+o Added -w/--wait for specifying a connect timeout [Kris]
+
+o Added -g and -G for IPv4 loose source routing [Kris]
+
+o Added -p to specify a local port to bind to in client-mode [Kris]
+
+o Added -n/--nodns to not resolve any hostnames [Mixter]
+
+o Added -c/--sh-exec, which is like -e but executes via /bin/sh [Kris]
+
+o Made -s (set source address) actually work in client-mode [Kris]
+
+o Changed --recvonly and --sendonly to --recv-only and --send-only [Kris]
+
+o Options taking a time (-d, -i, -w) are now more flexible: you can append
+  an "s" for seconds, "m" for minutes or "h" for hours (e.g. 30s) [Kris]
+
+o Fixed a bug which could cause Nsock tracing (use of -v one or more times)
+  to print very inaccurate times [Kris]
+
+o Removed unused XOR code [Kris]
+
+o Added file dependency checking to the Makefile.  So now, for instance, if
+  a header file is modified, running make again will recompile all of the
+  files which depend on it. [Kris]
+
+o Improved the build system by removing the automake requirement ([Mixter])
+  and by cutting down configure.ac and Makefile.in a lot ([Kris]).  Other
+  various build/configure improvements were made as well.
+
+o Lots of documentation rewrites/updates, including separating the man page
+  into sections such as "Proxy Options", "Client-Mode Options", etc. [Kris]
+
+o Lots of code cleaning up [Kris]
+
+Ncat 0.10rc3
+
+o Autoconf build process. ./configure;make!
+
+o Fixed Segmentation faults on outgoing connections that appeared on on
+  certain platforms/architectures/compilers.
+
+o Improved overall build quality and portability to other platforms and
+  architectures. Should build on multiple different platforms quite well.
+
+o Fixed some bounds checking on a SOCKS4 server buffer in ncat_connect.c
+
+o Fixed some documentation typos and --help/usage typos.
+
+Ncat 0.10rc2
+
+o Fixed inetd-like support so executed programs actually exit when the
+  client does and don't hang.
+
+o Fixed some looping read/write issue with EOF handling.
+  -- Thanks to Sebastian Garcia.
+
+o Moved connect message "Lookup of $foo returned $bar" to the verbosity
+  output set instead of the default output.
+
+o Fixed bug in SOCKS4 server on rejected/refused connections.
+
+o First official release!
+
+Ncat 0.10rc1
+
+o Removed access to XOR code with a view to totally removing it in the next
+  release of Ncat
+
+o One or two minor bug fixes.
+
+Ncat 0.09
+
+o Added hexdump() support.
+
+o Added XOR cipher support.
+
+o Added --allow, --deny support IP address handling CIDR.
+
+o General code tidy up; better documentation in header file.
+
+o Various error messages cleaned up. Added new #define for NCAT_SHORT.
+
+o Added missing 'strerror(errno)' handling to some error messages.
+
+o Cleaned up various bits of code.
+
+o Reformatted code heavily into K&R layout.
+
+o Fixed XOR so it'll use longer passwords.
+
+o Worked on various cross-platform portability issues.
+  -- Thanks to Jonathan Saylor.
+
+Ncat 0.08
+
+o Added millisecond resolution timer for blocking read/writes.
+
+o Added HTTP/1.1 CONNECT method proxying support.
+
+o Added Base64 encoder for handling Proxy-Authorization support.
+
+o Support added for --broker, full I/O multiplexing support.
+
+o Added additional feature of --talk
+
+Ncat 0.07
+
+o Added feature of fork()'ing off on executing a 3rd party program to allow
+  continued incoming connections.
+
+o Added support for ASCII logging.
+
+o Added support for hexdump logging.
+
+o Various bits of code cleaned up. 
+
+Ncat 0.06
+
+o Added --listen support.
+
+o Added TCP/UDP support for --listen.
+
+o Added command line parser for handling options to pass to the command to
+  be executed.
+
+o Polished up --help, --verbose & --version.
+
+

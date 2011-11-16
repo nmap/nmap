@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 5.51SVN scan initiated Mon May 23 19:47:24 2011 as: nmap -F -oX scanme-2.xml scanme.nmap.org -->
+<nmaprun scanner="nmap" args="nmap -F -oX scanme-1.xml scanme.nmap.org" start="1306205232" startstr="Mon May 23 19:47:12 2011" version="5.51SVN" xmloutputversion="1.03">
+<scaninfo type="syn" protocol="tcp" numservices="100" services="7,9,13,21-23,25-26,37,53,79-81,88,106,110-111,113,119,135,139,143-144,179,199,389,427,443-445,465,513-515,543-544,548,554,587,631,646,873,990,993,995,1025-1029,1110,1433,1720,1723,1755,1900,2000-2001,2049,2121,2717,3000,3128,3306,3389,3986,4899,5000,5009,5051,5060,5101,5190,5357,5432,5631,5666,5800,5900,6000-6001,6646,7070,8000,8008-8009,8080-8081,8443,8888,9100,9999-10000,32768,49152-49157"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1306205244" endtime="1306205245"><status state="up" reason="echo-reply"/>
+<address addr="74.207.244.221" addrtype="ipv4"/>
+<hostnames>
+<hostname name="scanme.nmap.org" type="user"/>
+<hostname name="li86-221.members.linode.com" type="PTR"/>
+</hostnames>
+<ports><extraports state="closed" count="98">
+<extrareasons reason="resets" count="98"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="55"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="1720"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="H.323/Q.931" method="table" conf="3"/></port>
+</ports>
+<times srtt="60451" rttvar="8368" to="100000"/>
+</host>
+<runstats><finished time="1306205245" timestr="Mon May 23 19:47:25 2011" elapsed="1.32" summary="Nmap done at Mon May 23 19:47:25 2011; 1 IP address (1 host up) scanned in 1.32 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

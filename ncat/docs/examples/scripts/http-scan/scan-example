@@ -1,0 +1,7 @@
+NCAT_PATH=../../../..
+if [ -a "$NCAT_PATH/ncat" ]
+  then
+	for addr in `cat iplist`; do $NCAT_PATH/ncat --disable-eof-exit $addr 80 < get.request; done;
+else
+	echo "Ncat is not buit. Please build Ncat before you use these scripts";
+fi

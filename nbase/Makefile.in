@@ -1,0 +1,64 @@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+sbindir = @sbindir@
+mandir = @mandir@
+srcdir = @srcdir@
+
+CC = @CC@
+AR = ar
+RANLIB = @RANLIB@
+CCOPT = 
+DEFS = @DEFS@
+# With GCC, add extra security checks to source code.
+DEFS += -D_FORTIFY_SOURCE=2
+CPPFLAGS = @CPPFLAGS@
+CFLAGS = @CFLAGS@ $(CCOPT) $(GLIB_CFLAGS) $(DEFS) $(INCLS)
+STATIC = 
+LDFLAGS = @LDFLAGS@ $(STATIC)
+LIBS =  @LIBS@ 
+SHTOOL = ./shtool
+INSTALL = $(SHTOOL) install 
+MAKEDEPEND = @MAKEDEPEND@
+
+TARGET = libnbase.a
+
+DEPS = getopt.h nbase.h nbase_winconfig.h nbase_config.h nbase_ipv6.h nbase_winunix.h nbase_crc32ct.h nbase_addrset.h
+OBJS = @LIBOBJS@
+
+all: $(TARGET) 
+
+$(TARGET): $(DEPS) $(OBJS)
+	rm -f $@
+	$(AR) cr $@ $(OBJS)
+	$(RANLIB) $@
+
+clean:
+	rm -f $(OBJS) $(TARGET) 
+
+distclean: clean
+	rm -f Makefile config.cache config.log config.status nbase_config.h
+
+depend:
+	$(MAKEDEPEND) $(INCLS) -s "# DO NOT DELETE" -- $(DEFS) -- $(SRCS)
+
+configure: configure.ac
+	autoconf
+
+Makefile: Makefile.in config.status
+	./config.status
+
+config.status: configure
+	./config.status --recheck
+
+.cc.o:
+	$(CC) -c $(CFLAGS) $*.cc
+
+# DO NOT DELETE -- Needed by makedepend
+
+
+
+
+
+
+

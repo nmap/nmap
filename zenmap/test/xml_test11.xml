@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<!-- nmap 3.75 scan initiated Tue Jul 19 00:24:43 2005 as: nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180 -->
+<nmaprun scanner="nmap" args="nmap -A -sV -v -v -v -d -d -O -p80,22 -oX xml_test11.xml 10.0.0.100-180" start="1121743483" version="3.75" xmloutputversion="1.01">
+<scaninfo type="syn" protocol="tcp" numservices="2" services="22,80" />
+<verbose level="5" />
+<debugging level="2" />
+<host><status state="up" />
+<address addr="10.0.0.100" addrtype="ipv4" />
+<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
+<hostnames><hostname name="canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
+</ports>
+<os>
+  <portused state="open" proto="tcp" portid="22" />
+  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
+  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
+  <osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
+  <osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
+</os>
+<uptime seconds="214382" lastboot="Sat Jul 16 12:52:51 2005" />
+<tcpsequence index="3471462" class="random positive increments" difficulty="Good luck!" values="F805E39D,F7B2C1BC,F8651E67,F8513329,F81A71B0,F8603963" />
+<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
+<tcptssequence class="1000HZ" values="CC73164,CC731D3,CC73242,CC732B1,CC73320,CC7338F" />
+</host>
+<host><status state="up" />
+<address addr="10.0.0.138" addrtype="ipv4" />
+<address addr="00:90:D0:1C:85:AD" addrtype="mac" vendor="Thomson Belgium" />
+<hostnames><hostname name="SpeedTouch.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" method="table" conf="3" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="22" />
+<osclass type="broadband router" vendor="Alcatel" osfamily="embedded" accuracy="100" />
+<osmatch name="Alcatel Speed Touch *DSL modem/router" accuracy="100" />
+</os>
+<uptime seconds="38496" lastboot="Mon Jul 18 13:44:20 2005" />
+<tcpsequence index="1" class="64K rule" difficulty="Trivial joke" values="2674DC01,2676D001,2677CA01,2678C401,2679BE01,267AB801" />
+<ipidsequence class="Incremental" values="78D,78E,78F,790,791,792" />
+<tcptssequence class="2HZ" values="12CBC,12CBD,12CBD,12CBD,12CBD,12CBD" />
+</host>
+<host><status state="up" />
+<address addr="10.0.0.140" addrtype="ipv4" />
+<address addr="00:E0:7D:F5:00:7D" addrtype="mac" vendor="Netronix" />
+<hostnames><hostname name="servidor.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="22" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
+<osmatch name="Linux 2.4.18 - 2.6.7" accuracy="100" />
+</os>
+<uptime seconds="214388" lastboot="Sat Jul 16 12:52:51 2005" />
+<tcpsequence index="2030985" class="random positive increments" difficulty="Good luck!" values="F8EE1623,F89FFC06,F84EF04C,F8F1B700,F87B071D,F8F384A3" />
+<ipidsequence class="All zeros" values="0,0,0,0,0,0" />
+<tcptssequence class="1000HZ" values="CC7485C,CC748CB,CC7493A,CC749A9,CC74A18,CC74A87" />
+</host>
+<host><status state="up" />
+<address addr="10.0.0.150" addrtype="ipv4" />
+<hostnames />
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.53" method="probed" conf="10" /></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80" />
+<portused state="closed" proto="tcp" portid="22" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.4.X" accuracy="100" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.5.X" accuracy="100" />
+<osclass type="general purpose" vendor="Linux" osfamily="Linux" osgen="2.6.X" accuracy="100" />
+<osmatch name="Linux 2.5.25 - 2.6.3 or Gentoo 1.2 Linux 2.4.19 rc1-rc7)" accuracy="100" />
+<osmatch name="Linux 2.6.3 - 2.6.8" accuracy="100" />
+</os>
+<uptime seconds="16213" lastboot="Mon Jul 18 19:55:55 2005" />
+<tcpsequence index="1961051" class="random positive increments" difficulty="Good luck!" values="7E43048C,7E790295,7DF24B6C,7E55B1D0,7EA183B0" />
+<ipidsequence class="All zeros" values="0,0,0,0,0" />
+<tcptssequence class="1000HZ" values="F761F3,F76262,F762D1,F76340,F763AF" />
+</host>
+<runstats><finished time="1121743568" /><hosts up="4" down="77" total="81" />
+<!-- Nmap run completed at Tue Jul 19 00:26:08 2005; 81 IP addresses (4 hosts up) scanned in 85.282 seconds -->
+</runstats></nmaprun>

@@ -1,0 +1,23 @@
+#
+# This is a sample IP access list that
+# could potentially be used with Ncat
+# to allow or deny specific users from
+# connecting to an Ncat process, such as
+# a standard listen operation to being
+# able to access your newly spawned SOCKS4
+# server.
+#
+# Obviously, these IP addresses are pretty 
+# useless to most people. It is an example
+# afterall. :)
+#
+# Chris Gibson, <chris@linuxops.net>
+
+# lo interface.
+127.0.0.1/8
+
+# eth0 internal network.
+192.168.0.0/24
+
+# eth1 to outside world.
+55.20.30.1/32

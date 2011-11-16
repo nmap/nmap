@@ -1,0 +1,5 @@
+
+-- Added snprintf.c, inet_aton.c, inet_pton.c, and inet_ntop.c from
+   tcpdump-2000.09.17 ( www.tcpdump.org)
+
+-- Nbase library initially created (9/17/00)

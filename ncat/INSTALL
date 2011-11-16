@@ -1,0 +1,19 @@
+Building Ncat
+=============
+
+On UNIX systems, ideally, you should just be able to do:
+
+./configure
+make
+
+After building is successful, to install:
+make install
+
+For instructions on how to build Ncat for Microsoft Windows or for far more
+in-depth compilation, installation, and removal notes, read the Nmap Install
+Guide at http://nmap.org/install/.
+
+For instructions on how to build Ncat Portable for Microsoft Windows, read
+the how-to available at https://secwiki.org/w/Nmap/Ncat_Portable.
+
+

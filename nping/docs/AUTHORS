@@ -1,0 +1,16 @@
+Nping AUTHORS
+===============
+
+Nping was originally written from the ground up by Luis MartinGarcia
+(luis.mgarc@gmail.com), during the Google Summer of Code program in 2009. Luis
+was mentored by Fyodor.
+
+Further development was done in the Google Summer of Code 2010 by Luis
+once again mentored by Fyodor. 
+
+Many helpful comments, suggestions and other useful information were taken from 
+the nmap-dev list (@insecure.org) as well as other contributors via email.
+
+Nping shares the Nmap infrastructure libraries (Nsock and Nbase) which were
+originally written by Fyodor.
+

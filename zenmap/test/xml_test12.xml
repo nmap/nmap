@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!-- nmap 3.75 scan initiated Tue Jul 19 09:32:35 2005 as: nmap -sP -oX xml_test12.xml localhost -->
+<nmaprun scanner="nmap" args="nmap -sP -oX xml_test12.xml localhost" start="1121776355" version="3.75" xmloutputversion="1.01">
+<verbose level="0" />
+<debugging level="0" />
+<host><status state="up" />
+<address addr="127.0.0.1" addrtype="ipv4" />
+<hostnames><hostname name="localhost.localdomain" type="PTR" /></hostnames>
+</host>
+<runstats><finished time="1121776355" /><hosts up="1" down="0" total="1" />
+<!-- Nmap run completed at Tue Jul 19 09:32:35 2005; 1 IP address (1 host up) scanned in 0.163 seconds -->
+</runstats></nmaprun>

@@ -1,0 +1,210 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.59)
+AC_INIT(ncat_main.c)
+
+AM_CONFIG_HEADER(config.h)
+
+AC_CANONICAL_HOST
+
+use_openssl="yes"
+specialssldir=""
+AC_ARG_WITH(openssl,[  --with-openssl=DIR    Use optional openssl libs and includes from [DIR]/lib/ and [DIR]/include/openssl/],
+[  case "$with_openssl" in
+  yes)
+  ;;
+  no)
+    use_openssl="no"
+  ;;
+  *)
+    specialssldir="$with_openssl"
+    LDFLAGS="$LDFLAGS -L$with_openssl/lib"
+    CFLAGS="-I$with_openssl/include $CFLAGS"
+  ;;
+  esac]
+)
+
+# Checks for programs.
+AC_PROG_CC
+if test -n "$GCC"; then
+  CFLAGS="$CFLAGS -Wall"
+fi
+AC_PROG_INSTALL
+
+AC_PATH_TOOL([STRIP], [strip], [/bin/true])
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_CHECK_HEADERS([fcntl.h limits.h netdb.h netinet/in.h stdlib.h string.h strings.h sys/param.h sys/socket.h sys/time.h sys/timeb.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STAT
+AC_C_CONST
+AC_HEADER_TIME
+
+# Checks for library functions.
+AC_FUNC_FORK
+AC_FUNC_SELECT_ARGTYPES
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([dup2 gettimeofday inet_ntoa memset select socket strcasecmp strchr strdup strerror strncasecmp strtol])
+AC_SEARCH_LIBS(setsockopt, socket)
+# Ncat does not call gethostbyname directly, but some of the libraries
+# it links to (such as libpcap) do. Instead it calls getaddrinfo. At
+# one point we changed this test to use getaddrinfo rather than
+# gethostbyname, but on a Solaris 9 SPARC box that function could be
+# called without -lnsl, while gethostbyname sitll required -lnsl, so
+# we changed the test back.
+AC_SEARCH_LIBS(gethostbyname, nsl)
+# OpenSSL requires dlopen on some platforms
+AC_SEARCH_LIBS(dlopen, dl)
+
+# If they didn't specify it, we try to find it
+if test "$use_openssl" = "yes" -a -z "$specialssldir" ; then
+	AC_CHECK_HEADER(openssl/ssl.h,,
+			[ use_openssl="no"
+        AC_MSG_WARN([Failed to find openssl/ssl.h so OpenSSL will not be used. 
+	If it is installed you can try the --with-openssl=DIR argument]) ])
+
+	if test "$use_openssl" = "yes"; then
+	     AC_CHECK_HEADER(openssl/err.h,,
+	         [ use_openssl="no"
+		     AC_MSG_WARN([Failed to find openssl/err.h so OpenSSL will not be used.
+		      If it is installed you can try the --with-openssl=DIR argument]) ])
+	fi
+
+	if test "$use_openssl" = "yes"; then
+		   AC_CHECK_HEADER(openssl/rand.h,,
+		       [ use_openssl="no"
+		         AC_MSG_WARN([Failed to find openssl/rand.h so OpenSSL will not be used.
+			  If it is installed you can try the --with-openssl=DIR argument]) ])
+	fi
+
+	if test "$use_openssl" = "yes"; then
+	 AC_CHECK_LIB(crypto, BIO_int_ctrl,
+	   [],
+	   [ use_openssl="no"
+	   AC_MSG_WARN([Failed to find libcrypto so OpenSSL will not be used.
+	    If it is installed you can try the --with-openssl=DIR argument]) ])
+	fi
+										     
+	if test "$use_openssl" = "yes"; then
+	   AC_CHECK_LIB(ssl, SSL_new,
+	   [],
+	   [ use_openssl="no"
+	   AC_MSG_WARN([Failed to find libssl so OpenSSL will not be used. 
+If it is installed you can try the --with-openssl=DIR argument]) ])
+	fi
+fi
+
+OPENSSL_LIBS=
+if test "$use_openssl" = "yes"; then
+  AC_DEFINE([HAVE_OPENSSL], [1], [Define to 1 if you have OpenSSL.])
+  AC_DEFINE([HAVE_HTTP_DIGEST], [1], [Define to 1 to enable HTTP Digest authentication (requires OpenSSL).])
+  OPENSSL_LIBS="-lssl -lcrypto"
+  # Define in Makefile also.
+  HAVE_OPENSSL=yes
+  AC_SUBST(HAVE_OPENSSL)
+fi
+
+AC_SUBST(OPENSSL_LIBS)    
+
+libpcapdir=../libpcap
+AC_SUBST(libpcapdir)
+
+dnl Check whether libpcap is already available
+have_libpcap=no
+
+# By default, search for pcap library
+test "${with_libpcap+set}" != "set" && with_libpcap=yes
+
+AC_ARG_WITH(libpcap,
+AC_HELP_STRING([--with-libpcap=DIR], [Look for pcap in DIR/include and DIR/libs.])
+AC_HELP_STRING([--with-libpcap=included], [Always use version included with Nmap]),
+[  case "$with_libpcap" in
+  yes)
+    AC_CHECK_HEADER(pcap.h,[
+      AC_CHECK_LIB(pcap, pcap_datalink,
+      [have_libpcap=yes ])])
+    ;;
+  included)
+    have_libpcap=no
+   ;;
+  *)
+    _cppflags=$CXXFLAGS
+    _ldflags=$LDFLAGS
+
+    CPPFLAGS="-I$with_libpcap/include $CPPFLAGS"
+    LDFLAGS="-L$with_libpcap/lib $LDFLAGS"
+
+    AC_CHECK_HEADER(pcap.h,[
+      AC_CHECK_LIB(pcap, pcap_datalink,
+	[have_libpcap=yes
+	LIBPCAP_INC=$with_libpcap/include
+	LIBPCAP_LIB=$with_libpcap/lib])])
+
+    LDFLAGS=$_ldflags
+    CXXFLAGS=$_cppflags
+    ;;
+  esac]
+)
+
+if test $have_libpcap = yes; then
+  if test "${LIBPCAP_INC+set}" = "set"; then
+    _cflags=$CXXFLAGS
+    _ldflags=$LDFLAGS
+
+    CPPFLAGS="-I$LIBPCAP_INC $CPPFLAGS"
+    LDFLAGS="-L$LIBPCAP_LIB $LDFLAGS"
+  fi
+
+  # link with -lpcap for the purposes of this test
+  LIBS_OLD="$LIBS"
+  LIBS="$LIBS -lpcap"
+  PCAP_IS_SUITABLE([have_libpcap=yes], [have_libpcap=no], [have_libpcap=yes])
+  LIBS="$LIBS_OLD"
+fi
+
+PCAP_LIBS="-lpcap"
+if test $have_libpcap = yes; then
+  PCAP_DEPENDS=""
+  PCAP_BUILD=""
+  PCAP_CLEAN=""
+  PCAP_DIST_CLEAN=""
+  AC_DEFINE(HAVE_LIBPCAP)
+else
+  if test "${LIBPCAP_INC+set}" = "set"; then
+    LDFLAGS="-L$libpcapdir $_ldflags"
+    CPPFLAGS="$CPPFLAGS -I$LIBPCAP_INC"
+  else
+    LDFLAGS="-L$libpcapdir $LDFLAGS"
+    CPPFLAGS="$CPPFLAGS -I$libpcapdir"
+  fi
+  PCAP_DEPENDS='$(LIBPCAPDIR)/libpcap.a'
+  PCAP_BUILD="pcap_build"
+  PCAP_CLEAN="pcap_clean"
+  PCAP_DIST_CLEAN="pcap_dist_clean"
+fi
+
+AC_SUBST(PCAP_DEPENDS)
+AC_SUBST(PCAP_BUILD)
+AC_SUBST(PCAP_CLEAN)
+AC_SUBST(PCAP_DIST_CLEAN)
+AC_SUBST(PCAP_LIBS)
+
+# Needed on AIX.
+AC_CHECK_LIB(odm, odm_initialize)
+
+# Needed on AIX.
+AC_CHECK_LIB(odm, odm_initialize)
+AC_CHECK_LIB(cfg, _system_configuration)
+
+AC_CONFIG_FILES(Makefile)
+AC_OUTPUT
+# NCAT ASCII ART
+if test -f docs/ncat-ascii-art.txt; then
+	cat docs/ncat-ascii-art.txt
+fi
+echo "Configuration complete."

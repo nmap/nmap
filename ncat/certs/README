@@ -1,0 +1,47 @@
+The file ca-bundle.crt contains certificates extracted from Microsoft
+Windows.  These are installed and used as the default trusted root
+certificates when SSL certificate verification is requested with
+--ssl-verify. On some platforms (some Unixes), these certificates are
+used in addition to any certificates installed by the operating system.
+
+Microsoft's bundle was preferred over Mozilla's because Microsoft may be
+more selective in the organizations it trusts. When this bundle was
+created, Microsoft's store had 107 certificates while Mozilla's had 126.
+See below for how to use an alternative trust store.
+
+== How to extract the trusted root CA certificates on Windows
+
+These instructions require the openssl command-line utility.
+
+On Windows XP, run the rootsupd.exe tool to downoad the full list of
+trusted certificates. Otherwise there is only a partial list
+(certificates are downloaded on demand).
+
+http://support.microsoft.com/kb/931125
+http://www.download.windowsupdate.com/msdownload/update/v3/static/trustedr/en/rootsupd.exe
+
+Press "Start", then "Run...". Type "certmgr.msc" and press Enter. Open
+the folder "Trusted Root Certification Authorities" and its subfolder
+"Certificates". Click on "Expiration Date" to sort. Select the first
+certificate that is not expired, then press Shift+down arrow until all
+the non-expired certificates are selected. Right-click on the list of
+certificates, and in the context menu, select "All Tasks", then
+"Export...".  Export to the file ca-bundle.p7b.
+
+In a Cygwin shell, enter the directory containing ca-bundle.p7b and run
+the command
+	openssl pkcs7 -in ca-bundle.p7b -inform der -print_certs -out ca-bundle.crt
+That will create a file ca-bundle.crt containing all the certificates,
+each preceded by its subject and issuer.
+
+== Alternative sources for a certificate bundle
+
+Another commonly used trust store is the one provided by Mozilla. The
+cURL package includes a script that automatically creates a suitable PEM
+file from a file in Mozilla's source repository. They also provide
+ready-made PEM files to download. See http://curl.haxx.se/docs/caextract.html.
+
+Here is how to download Mozilla's trust store:
+
+$ wget https://raw.github.com/bagder/curl/master/lib/mk-ca-bundle.pl
+$ perl mk-ca-bundle.pl

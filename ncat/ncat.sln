@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ncat", "ncat.vcproj", "{C1E04411-E021-468B-83F1-CB624BBA7589}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4} = {F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F} = {B630C8F7-3138-43E8-89ED-78742FA2AC5F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nsock", "..\nsock\nsock.vcproj", "{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F} = {B630C8F7-3138-43E8-89ED-78742FA2AC5F}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nbase", "..\nbase\nbase.vcproj", "{B630C8F7-3138-43E8-89ED-78742FA2AC5F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Debug|Win32.Build.0 = Debug|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.ActiveCfg = Release|Win32
+		{C1E04411-E021-468B-83F1-CB624BBA7589}.Release|Win32.Build.0 = Release|Win32
+		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}.Debug|Win32.Build.0 = Debug|Win32
+		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}.Release|Win32.ActiveCfg = Release|Win32
+		{F8D6D1E3-D4EA-402C-98AA-168E5309BAF4}.Release|Win32.Build.0 = Release|Win32
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Debug|Win32.Build.0 = Debug|Win32
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Release|Win32.ActiveCfg = Release|Win32
+		{B630C8F7-3138-43E8-89ED-78742FA2AC5F}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CDB10BBA-9085-4B9B-AC8F-BA31D3906B36}</ProjectGuid>
+    <RootNamespace>nmap</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/nmap.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>.;..;..\mswin32;../nbase;winip;..\nsock\include;..\mswin32\pcap-include;..\libdnet-stripped\include;..\mswin32\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
+      <PreprocessKeepComments>false</PreprocessKeepComments>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Debug/nmap.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <WarningLevel>Level2</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <OutputFile>.\Debug\nping.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\mswin32\lib;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\mswin32\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/nmap.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "..\mswin32\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Release/nmap.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalIncludeDirectories>.;..;..\mswin32;../nbase;winip;..\nsock\include;..\mswin32\pcap-include;..\libdnet-stripped\include;..\mswin32\OpenSSL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <PrecompiledHeaderOutputFile>.\Release/nping.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Release/</AssemblerListingLocation>
+      <ObjectFileName>.\Release/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Release/</ProgramDataBaseFileName>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>nsock.lib;nbase.lib;libdnet-stripped.lib;ws2_32.lib;IPHlpAPI.Lib;wpcap.lib;packet.lib;advapi32.lib;libeay32.lib;ssleay32.lib;shell32.lib;libnetutil.lib</AdditionalDependencies>
+      <OutputFile>.\Release/nping.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>..\mswin32\lib;..\nsock;..\nbase;..\libdnet-stripped;../libnetutil;..\mswin32\OpenSSL\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>wpcap.dll;iphlpapi.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <ProgramDatabaseFile>.\Release/nping.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)\OpenSSL\bin\*.dll" "$(SolutionDir)\$(Configuration)\" /y </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ArgParser.cc" />
+    <ClCompile Include="common.cc" />
+    <ClCompile Include="common_modified.cc" />
+    <ClCompile Include="Crypto.cc" />
+    <ClCompile Include="EchoClient.cc" />
+    <ClCompile Include="EchoHeader.cc" />
+    <ClCompile Include="EchoServer.cc" />
+    <ClCompile Include="NEPContext.cc" />
+    <ClCompile Include="nping.cc" />
+    <ClCompile Include="NpingOps.cc" />
+    <ClCompile Include="NpingTarget.cc" />
+    <ClCompile Include="NpingTargets.cc" />
+    <ClCompile Include="output.cc" />
+    <ClCompile Include="PacketDiff.cc" />
+    <ClCompile Include="ProbeMode.cc" />
+    <ClCompile Include="stats.cc" />
+    <ClCompile Include="utils.cc" />
+    <ClCompile Include="utils_net.cc" />
+    <ClCompile Include="winfix.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ArgParser.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="common_modified.h" />
+    <ClInclude Include="Crypto.h" />
+    <ClInclude Include="EchoClient.h" />
+    <ClInclude Include="EchoHeader.h" />
+    <ClInclude Include="EchoServer.h" />
+    <ClInclude Include="global_structures.h" />
+    <ClInclude Include="NEPContext.h" />
+    <ClInclude Include="nping.h" />
+    <ClInclude Include="NpingOps.h" />
+    <ClInclude Include="NpingTarget.h" />
+    <ClInclude Include="NpingTargets.h" />
+    <ClInclude Include="output.h" />
+    <ClInclude Include="PacketDiff.h" />
+    <ClInclude Include="ProbeMode.h" />
+    <ClInclude Include="stats.h" />
+    <ClInclude Include="utils.h" />
+    <ClInclude Include="utils_net.h" />
+    <ClInclude Include="winclude.h" />
+    <ClInclude Include="winfix.h" />
+    <ClInclude Include="..\mswin32\pcap-include\bittypes.h" />
+    <ClInclude Include="..\mswin32\pcap-include\bucket_lookup.h" />
+    <ClInclude Include="..\mswin32\pcap-include\count_packets.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Devioctl.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Gnuc.h" />
+    <ClInclude Include="..\mswin32\pcap-include\ip6_misc.h" />
+    <ClInclude Include="..\mswin32\pcap-include\memory_t.h" />
+    <ClInclude Include="..\mswin32\pcap-include\normal_lookup.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Ntddndis.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Ntddpack.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Packet32.h" />
+    <ClInclude Include="..\mswin32\pcap-include\pcap-bpf.h" />
+    <ClInclude Include="..\mswin32\pcap-include\pcap-int.h" />
+    <ClInclude Include="..\mswin32\pcap-include\pcap-stdinc.h" />
+    <ClInclude Include="..\mswin32\pcap-include\pcap.h" />
+    <ClInclude Include="..\mswin32\pcap-include\pthread.h" />
+    <ClInclude Include="..\mswin32\pcap-include\remote-ext.h" />
+    <ClInclude Include="..\mswin32\pcap-include\sched.h" />
+    <ClInclude Include="..\mswin32\pcap-include\semaphore.h" />
+    <ClInclude Include="..\mswin32\pcap-include\tcp_session.h" />
+    <ClInclude Include="..\mswin32\pcap-include\time_calls.h" />
+    <ClInclude Include="..\mswin32\pcap-include\tme.h" />
+    <ClInclude Include="..\mswin32\pcap-include\Win32-Extensions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libdnet-stripped\libdnet-stripped.vcxproj">
+      <Project>{5328e0be-bc0a-4c2a-8cb9-ce00b61b9c4c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\libnetutil\libnetutil.vcxproj">
+      <Project>{99157c3f-39f6-4663-99d7-1d9c1484494e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\nbase\nbase.vcxproj">
+      <Project>{b630c8f7-3138-43e8-89ed-78742fa2ac5f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\nsock\nsock.vcxproj">
+      <Project>{f8d6d1e3-d4ea-402c-98aa-168e5309baf4}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

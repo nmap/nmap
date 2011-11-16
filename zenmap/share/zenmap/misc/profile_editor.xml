@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!-- XML file to populate the Profile Editor interface -->
+<!-- When adding a new option_check, be sure to update the function
+     get_option_check_auxiliary_widget in zenmapGUI/OptionBuilder.py. That
+     function only needs to know about the options in this file. -->
+<interface>
+	<groups>
+		<group name="Scan"/>
+		<group name="Ping"/>
+		<group name="Scripting"/>
+		<group name="Target"/>
+		<group name="Source"/>
+		<group name="Other"/>
+		<group name="Timing"/>
+	</groups>
+	<Scan label="Scan options">
+		<target label="Targets (optional): "/>
+		<option_list label="TCP scan: ">
+			<option label="None"/>
+			<option option="-sA" label="ACK scan" short_desc="Send probes with the ACK flag set. Ports will be marked &quot;filtered&quot; or &quot;unfiltered&quot;. Use ACK scan to map out firewall rulesets."/>
+			<option option="-sF" label="FIN scan" short_desc="Send probes with the FIN bit set. FIN scan can differentiate &quot;closed&quot; and &quot;open|filtered&quot; ports on some systems."/>
+			<option option="-sM" label="Maimon scan" short_desc="Send probes with the FIN and ACK bits set. Against some BSD-derived systems this can differentiate between &quot;closed&quot; and &quot;open|filtered&quot; ports."/>
+			<option option="-sN" label="Null scan" short_desc="Send probes with no flags set (TCP flag header is 0). Null scan can differentiate &quot;closed&quot; and &quot;open|filtered&quot; ports on some systems."/>
+			<option option="-sS" label="TCP SYN scan" short_desc="Send probes with the SYN flag set. This is the most popular scan and the most generally useful. It is known as a &quot;stealth&quot; scan because it avoids making a full TCP connection."/>
+			<option option="-sT" label="TCP connect scan" short_desc="Scan using the connect system call. This is like SYN scan but less stealthy because it makes a full TCP connection. It is the default when a user does not have raw packet privileges or is scanning IPv6 networks."/>
+			<option option="-sW" label="Window scan" short_desc="Same as ACK scan except that it exploits an implementation detail of certain systems to differentiate open ports from closed ones, rather than always printing &quot;unfiltered&quot; when a RST is returned. "/>
+			<option option="-sX" label="Xmas Tree scan" short_desc="Send probes with the FIN, PSH, and URG flags set, lighting the packets up like a Christmas tree. Xmas tree scan can differentiate &quot;closed&quot; and &quot;open|filtered&quot; ports on some systems."/>
+		</option_list>
+		<option_list label="Non-TCP scans: ">
+			<option label="None"/>
+			<option option="-sU" label="UDP scan" short_desc="Scan UDP ports. UDP is in general slower and more difficult to scan than TCP, and is often ignored by security auditors."/>
+			<option option="-sO" label="IP protocol scan" short_desc="Scan IP protocols (TCP, ICMP, IGMP, etc.) to find which are supported by target machines."/>
+			<option option="-sL" label="List scan" short_desc="Do not scan any targets, just list which ones would be scanned (with reverse DNS names if available)."/>
+			<option option="-sn" label="No port scan" short_desc="Skip the port scanning phase. Other phases (host discovery, script scan, traceroute) may still run."/>
+			<option option="-sY" label="SCTP INIT port scan" short_desc="SCTP is a layer 4 protocol used mostly for telephony related applications.  This is the SCTP equivalent of a TCP SYN stealth scan."/>
+			<option option="-sZ" label="SCTP cookie-echo port scan"
+short_desc="SCTP is a layer 4 protocol used mostly for telephony related applications."/>
+		</option_list>
+		<option_list label="Timing template: ">
+			<option label="None"/>
+			<option option="-T" argument="0" label="Paranoid" short_desc="Set the timing template for IDS evasion."/>
+			<option option="-T" argument="1" label="Sneaky" short_desc="Set the timing template for IDS evasion."/>
+			<option option="-T" argument="2" label="Polite" short_desc="Set the timing template to slow down the scan to use less bandwidth and target machine resources."/>
+			<option option="-T" argument="3" label="Normal" short_desc="Set the timing template to not modify the default Nmap value."/>
+			<option option="-T" argument="4" label="Aggressive" short_desc="Set the timing template for faster scan. Used when on a reasonably fast and reliable network."/>
+			<option option="-T" argument="5" label="Insane" short_desc="Set the timing template for the fastest scan. Used when on a fast network or when willing to sacrifice accuracy for speed."/>
+		</option_list>
+        <option_check option="-A" label="Enable all advanced/aggressive options" short_desc="Enable OS detection (-O), version detection (-sV), script scanning (-sC), and traceroute (--traceroute)."/>
+		<option_check option="-O" label="Operating system detection" short_desc="Attempt to discover the operating system running on remote systems." example=""/>
+		<option_check option="-sV" label="Version detection" short_desc="Attempt to discover the version number of services running on remote ports." example=""/>
+		<option_check option="-sI" label="Idle Scan (Zombie)" short_desc="Scan by spoofing packets from a zombie computer so that the targets receive no packets from your IP address. The zombie must meet certain conditions which Nmap will check before scanning." example="zombie.example.com"/>
+		<option_check option="-b" label="FTP bounce attack" short_desc="Use an FTP server to port scan other hosts by sending a file to each interesting port of a target host." example="username:password@server:port"/>
+		<option_check option="-n" label="Disable reverse DNS resolution" short_desc="Never do reverse DNS. This can slash scanning times." example=""/>
+		<option_check option="-6" label="IPv6 support" short_desc="Enable IPv6 scanning." example=""/>
+	</Scan>
+	<Ping label="Ping options">
+		<option_check option="-Pn" label="Don't ping before scanning" short_desc="Don't check if targets are up before scanning them. Scan every target listed." example=""/>
+		<option_check option="-PE" label="ICMP ping" short_desc="Send an ICMP echo request (ping) probe to see if targets are up." example=""/>
+		<option_check option="-PP" label="ICMP timestamp request" short_desc="Send an ICMP timestamp probe to see if targets are up." example=""/>
+		<option_check option="-PM" label="ICMP netmask request" short_desc="Send an ICMP address mask request probe to see if targets are up." example=""/>
+		<option_check option="-PA" label="ACK ping" short_desc="Send one or more ACK probes to see if targets are up. Give a list of ports or leave the argument blank to use a default port." example="22,53,80"/>
+		<option_check option="-PS" label="SYN ping" short_desc="Send one or more SYN probes to see if targets are up. Give a list of ports or leave the argument blank to use a default port." example="22,53,80"/>
+		<option_check option="-PU" label="UDP probes" short_desc="Send one or more UDP probes to see if targets are up. Give a list of ports or leave the argument blank to use a default port." example="100,31338"/>
+		<option_check option="-PO" label="IPProto probes" short_desc="Send one or more raw IP protocol probes to see if targets are up. Give a list of protocols or leave the argument blank to use a default list" example="1,2,4"/>
+		<option_check option="-PY" label="SCTP INIT ping probes" short_desc="Send SCTP INIT chunk packets to see if targets are up.  Give a list of ports or leave the argument blank to use a default port." example="20,80,179"/>
+	</Ping>
+	<Scripting label="Scripting options (NSE)">
+		<option_check option="-sC" label="Script scan" short_desc="Use the Nmap Scripting Engine to gain more information about targets after scanning them." example=""/>
+		<option_check option="--script" label="Scripts to run" short_desc="Run the given scripts. Give script names, directory names, or category names. Categories are &quot;safe&quot;, &quot;intrusive&quot;, &quot;malware&quot;, &quot;discovery&quot;, &quot;vuln&quot;, &quot;auth&quot;, &quot;external&quot;, &quot;default&quot;, and &quot;all&quot;. If blank, scripts in the &quot;default&quot; category are run." example="discovery,auth.malware"/>
+		<option_check option="--script-args" label="Script arguments" short_desc="Give arguments to certain scripts that use them. Arguments are &lt;name&gt;=&lt;value&gt; pairs, separated by commas. Values may be Lua tables." example="user=foo,pass=bar,anonFTP={pass=ftp@foobar.com}"/>
+		<option_check option="--script-trace" label="Trace script execution" short_desc="Show all information sent and received by the scripting engine." example=""/>
+	</Scripting>
+	<Target label="Target options">
+		<option_check option="--exclude" label="Excluded hosts/networks" short_desc="Specifies a comma-separated list of targets to exclude from the scan." example="scanme.nmap.org,foobar.com"/>
+		<option_check option="--excludefile" label="Exclusion file" short_desc="Specifies a newline-, space-, or tab-delimited file of targets to exclude from the scan." example="exclude_file.txt"/>
+		<option_check option="-iL" label="Target list file" short_desc="Reads target list specification from an input file." example="input_file.txt"/>
+		<option_check option="-iR" label="Scan random hosts" short_desc="Option to choose targets at random. Tells Nmap how many IPs to generate. 0 is used for a never-ending scan." example="10"/>
+		<option_check option="-p" label="Ports to scan" short_desc="This option specifies which ports you want to scan and overrides the default." example="1-1023,3389"/>
+		<option_check option="-F" label="Fast scan" short_desc="Only scan ports named in the nmap-services file which comes with Nmap (or nmap-protocols file for -sO)." example=""/>
+	</Target>
+	<Source label="Source options">
+		<option_check option="-D" label="Use decoys to hide identity" short_desc="Send fake decoy probes from spoofed addresses to hide your own address. Give a list of addresses separated by commas. Use RND for a random address and ME to set the position of your address." example="&lt;decoy1&gt;,&lt;decoy2&gt;,ME,RND,RND"/>
+		<option_check option="-S" label="Set source IP address" short_desc="Specify the IP address of the interface you wish to send packets through." example="64.13.134.52"/>
+		<option_check option="--source-port" label="Set source port" short_desc="Provide a port number and Nmap will send packets from that port where possible." example="53"/>
+		<option_check option="-e" label="Set network interface" short_desc="Tells Nmap what interface to send and receive packets on." example="eth0"/>
+	</Source>
+	<Other label="Other options">
+		<option_check option="" label="Extra options defined by user" short_desc="Any extra options to add to the command line." example=""/>
+		<option_check option="--ttl" label="Set IPv4 time to live (ttl)" short_desc="Set the IPv4 time-to-live field in sent packets to the given value." example="100"/>
+		<option_check option="-f" label="Fragment IP packets" short_desc="Causes the requested scan (including ping scans) to split up TCP headers over several packets." example=""/>
+		<option_check option="-v" label="Verbosity level" short_desc="Print more information about the scan in progress. Open ports are shown as they are found as well as completion time estimates." example="4"/>
+		<option_check option="-d" label="Debugging level" short_desc="When even verbose mode doesn't provide sufficient data for you, debugging level is available to show more detailed output." example="2"/>
+		<option_check option="--packet-trace" label="Packet trace" short_desc="Print a summary of every packet sent or received." example=""/>
+		<option_check option="-r" label="Disable randomizing scanned ports" short_desc="Scan ports in order instead of randomizing them." example=""/>
+		<option_check option="--traceroute" label="Trace routes to targets" short_desc="Trace the network path to each target after scanning. This works with all scan types except connect scan (-sT) and idle scan (-sI)."/>
+		<option_check option="--max-retries" label="Max Retries" short_desc="Try sending a probe to each port no more than this many times before giving up." example="10"/>
+	</Other>
+	<Timing label="Timing and performance">
+		<option_check option="--host-timeout" label="Max time to scan a target" short_desc="Give up on a host if it has not finished being scanning in this long. Time is in seconds by default, or may be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours." example="1s; 4m; 2h"/>
+		<option_check option="--max-rtt-timeout" label="Max probe timeout" short_desc="Wait no longer than this for a probe response before giving up or retransmitting the probe. Time is in seconds by default, or may be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours." example="1s; 4m; 2h"/>
+		<option_check option="--min-rtt-timeout" label="Min probe timeout" short_desc="Wait at least this long for a probe response before giving up or retransmitting the probe. Time is in seconds by default, or may be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours." example="1s; 4m; 2h"/>
+		<option_check option="--initial-rtt-timeout" label="Initial probe timeout" short_desc="Use the time given as the initial estimate of round-trip time. This can speed up scans if you know a good time for the network you're scanning." example="1s; 4m; 2h"/>
+		<option_check option="--max-hostgroup" label="Max hosts in parallel" short_desc="Scan no more than this many hosts in parallel." example="1024"/>
+		<option_check option="--min-hostgroup" label="Min hosts in parallel" short_desc="Scan at least this many hosts in parallel." example="50"/>
+		<option_check option="--max-parallelism" label="Max outstanding probes" short_desc="Never allow more than the given number of probes to be outstanding at a time. May be set to 1 to prevent Nmap from sending more than one probe at a time to hosts." example="1"/>
+		<option_check option="--min-parallelism" label="Min outstanding probes" short_desc="Try to maintain at least the given number of probes outstanding during a scan. Common usage is to set to a number higher than 1 to speed up scans of poorly performing hosts or networks." example="10"/>
+		<option_check option="--max-scan-delay" label="Max scan delay" short_desc="Do not allow the scan delay (time delay between successive probes) to grow larger than the given amount of time. Time is in seconds by default, or may be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours." example="20"/>
+		<option_check option="--scan-delay" label="Min delay between probes" short_desc="Wait at least the given amount of time between each probe sent to a given host. Time is in seconds by default, or may be followed by a suffix of 'ms' for milliseconds, 's' for seconds, 'm' for minutes, or 'h' for hours." example="4s; 2m"/>
+	</Timing>
+</interface>

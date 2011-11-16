@@ -1,0 +1,565 @@
+'\" t
+.\"     Title: Ncat
+.\"    Author: [see the "Authors" section]
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 11/14/2011
+.\"    Manual: Ncat Reference Guide
+.\"    Source: Ncat
+.\"  Language: English
+.\"
+.TH "NCAT" "1" "11/14/2011" "Ncat" "Ncat Reference Guide"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+ncat \- Concatenate and redirect sockets
+.SH "SYNOPSIS"
+.HP \w'\fBncat\fR\ 'u
+\fBncat\fR [\fIOPTIONS\fR...] [\fIhostname\fR] [\fIport\fR]
+.SH "DESCRIPTION"
+.PP
+Ncat is a feature\-packed networking utility which reads and writes data across networks from the command line\&. Ncat was written for the Nmap Project and is the culmination of the currently splintered family of Netcat incarnations\&. It is designed to be a reliable back\-end tool to instantly provide network connectivity to other applications and users\&. Ncat will not only work with IPv4 and IPv6 but provides the user with a virtually limitless number of potential uses\&.
+.PP
+Among Ncat\*(Aqs vast number of features there is the ability to chain Ncats together; redirection of TCP, UDP, and SCTP ports to other sites; SSL support; and proxy connections via SOCKS4 or HTTP proxies (with optional proxy authentication as well)\&. Some general principles apply to most applications and thus give you the capability of instantly adding networking support to software that would normally never support it\&.
+.SH "OPTIONS SUMMARY"
+.PP
+
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+Ncat 5\&.61TEST3 ( http://nmap\&.org/ncat )
+Usage: ncat [options] [hostname] [port]
+
+Options taking a time assume seconds\&. Append \*(Aqms\*(Aq for milliseconds,
+\*(Aqs\*(Aq for seconds, \*(Aqm\*(Aq for minutes, or \*(Aqh\*(Aq for hours (e\&.g\&. 500ms)\&.
+  \-4                         Use IPv4 only
+  \-6                         Use IPv6 only
+  \-C, \-\-crlf                 Use CRLF for EOL sequence
+  \-c, \-\-sh\-exec <command>    Executes the given command via /bin/sh
+  \-e, \-\-exec <command>       Executes the given command
+  \-g hop1[,hop2,\&.\&.\&.]         Loose source routing hop points (8 max)
+  \-G <n>                     Loose source routing hop pointer (4, 8, 12, \&.\&.\&.)
+  \-m, \-\-max\-conns <n>        Maximum <n> simultaneous connections
+  \-h, \-\-help                 Display this help screen
+  \-d, \-\-delay <time>         Wait between read/writes
+  \-o, \-\-output <filename>    Dump session data to a file
+  \-x, \-\-hex\-dump <filename>  Dump session data as hex to a file
+  \-i, \-\-idle\-timeout <time>  Idle read/write timeout
+  \-p, \-\-source\-port port     Specify source port to use
+  \-s, \-\-source addr          Specify source address to use (doesn\*(Aqt affect \-l)
+  \-l, \-\-listen               Bind and listen for incoming connections
+  \-k, \-\-keep\-open            Accept multiple connections in listen mode
+  \-n, \-\-nodns                Do not resolve hostnames via DNS
+  \-t, \-\-telnet               Answer Telnet negotiations
+  \-u, \-\-udp                  Use UDP instead of default TCP
+      \-\-sctp                 Use SCTP instead of default TCP
+  \-v, \-\-verbose              Set verbosity level (can be used up to 3 times)
+  \-w, \-\-wait <time>          Connect timeout
+      \-\-append\-output        Append rather than clobber specified output files
+      \-\-send\-only            Only send data, ignoring received; quit on EOF
+      \-\-recv\-only            Only receive data, never send anything
+      \-\-allow                Allow only given hosts to connect to Ncat
+      \-\-allowfile            A file of hosts allowed to connect to Ncat
+      \-\-deny                 Deny given hosts from connecting to Ncat
+      \-\-denyfile             A file of hosts denied from connecting to Ncat
+      \-\-broker               Enable Ncat\*(Aqs connection brokering mode
+      \-\-chat                 Start a simple Ncat chat server
+      \-\-proxy <addr[:port]>  Specify address of host to proxy through
+      \-\-proxy\-type <type>    Specify proxy type ("http" or "socks4")
+      \-\-proxy\-auth <auth>    Authenticate with HTTP or SOCKS proxy server
+      \-\-ssl                  Connect or listen with SSL
+      \-\-ssl\-cert             Specify SSL certificate file (PEM) for listening
+      \-\-ssl\-key              Specify SSL private key (PEM) for listening
+      \-\-ssl\-verify           Verify trust and domain name of certificates
+      \-\-ssl\-trustfile        PEM file containing trusted SSL certificates
+      \-\-version              Display Ncat\*(Aqs version information and exit
+
+See the ncat(1) manpage for full options, descriptions and usage examples
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+.SH "CONNECT MODE AND LISTEN MODE"
+.\" connect mode (Ncat)
+.\" client mode (Ncat)
+.\" listen mode (Ncat)
+.\" server mode (Ncat)
+.PP
+Ncat operates in one of two primary modes: connect mode and listen mode\&. Other modes, such as the HTTP proxy server, act as special cases of these two\&. In connect mode, Ncat works as a client\&. In listen mode it is a server\&.
+.PP
+In connect mode, the
+\fB\fIhostname\fR\fR
+and
+\fB\fIport\fR\fR
+arguments tell what to connect to\&.
+\fB\fIhostname\fR\fR
+is required, and may be a hostname or IP address\&. If
+\fB\fIport\fR\fR
+is supplied, it must be a decimal port number\&. If omitted, it defaults to 31337\&..\" default port of Ncat.\" 31337
+.PP
+In listen mode,
+\fB\fIhostname\fR\fR
+and
+\fB\fIport\fR\fR
+control the address the server will bind to\&. Both arguments are optional in listen mode\&. If
+\fB\fIhostname\fR\fR
+is omitted, it defaults to listening on all available addresses over IPv4 and IPv6\&. If
+\fB\fIport\fR\fR
+is omitted, it defaults to 31337\&.
+.SH "PROTOCOL OPTIONS"
+.PP
+\fB\-4\fR (IPv4 only) .\" -4 (Ncat option)
+.RS 4
+Force the use of IPv4 only\&.
+.RE
+.PP
+\fB\-6\fR (IPv6 only) .\" -6 (Ncat option)
+.RS 4
+Force the use of IPv6 only\&.
+.RE
+.PP
+\fB\-u\fR, \fB\-\-udp\fR (Use UDP) .\" -u (Ncat option) .\" --udp (Ncat option)
+.RS 4
+Use UDP for the connection (the default is TCP)\&.
+.RE
+.PP
+\fB\-\-sctp\fR (Use SCTP) .\" --sctp (Ncat option)
+.RS 4
+Use SCTP for the connection (the default is TCP)\&. SCTP support is implemented in TCP\-compatible mode\&.
+.RE
+.SH "CONNECT MODE OPTIONS"
+.PP
+\fB\-g \fR\fB\fIhop1\fR\fR\fB[,\fIhop2\fR,\&.\&.\&.]\fR (Loose source routing) .\" -g (Ncat option)
+.RS 4
+Sets hops for IPv4 loose source routing\&. You can use
+\fB\-g\fR
+once with a comma\-separated list of hops, use
+\fB\-g\fR
+multiple times with single hops to build the list, or combine the two\&. Hops can be given as IP addresses or hostnames\&.
+.RE
+.PP
+\fB\-G \fR\fB\fIptr\fR\fR (Set source routing pointer) .\" -G (Ncat option)
+.RS 4
+Sets the IPv4 source route
+\(lqpointer\(rq
+for use with
+\fB\-g\fR\&. The argument must be a multiple of 4 and no more than 28\&. Not all operating systems support setting this pointer to anything other than four\&.
+.RE
+.PP
+\fB\-p \fR\fB\fIport\fR\fR, \fB\-\-source\-port \fR\fB\fIport\fR\fR (Specify source port) .\" --source-port (Ncat option) .\" -p (Ncat option)
+.RS 4
+Set the port number for Ncat to bind to\&.
+.RE
+.PP
+\fB\-s \fR\fB\fIhost\fR\fR, \fB\-\-source \fR\fB\fIhost\fR\fR (Specify source address) .\" --source (Ncat option) .\" -s (Ncat option)
+.RS 4
+Set the address for Ncat to bind to\&.
+.RE
+.SH "LISTEN MODE OPTIONS"
+.PP
+See
+the section called \(lqACCESS CONTROL OPTIONS\(rq
+for information on limiting the hosts that may connect to the listening Ncat process\&.
+.PP
+\fB\-l\fR, \fB\-\-listen\fR (Listen for connections) .\" --listen (Ncat option) .\" -l (Ncat option)
+.RS 4
+Listen for connections rather than connecting to a remote machine
+.RE
+.PP
+\fB\-m \fR\fB\fInumconns\fR\fR, \fB\-\-max\-conns \fR\fB\fInumconns\fR\fR (Specify maximum number of connections) .\" --max-conns (Ncat option) .\" -m (Ncat option)
+.RS 4
+The maximum number of simultaneous connections accepted by an Ncat instance\&. 100 is the default\&.
+.RE
+.PP
+\fB\-k\fR, \fB\-\-keep\-open\fR (Accept multiple connections) .\" --keep-open (Ncat option) .\" -k (Ncat option)
+.RS 4
+Normally a listening server accepts only one connection and then quits when the connection is closed\&. This option makes it accept multiple simultaneous connections and wait for more connections after they have all been closed\&. It must be combined with
+\fB\-\-listen\fR\&. In this mode there is no way for Ncat to know when its network input is finished, so it will keep running until interrupted\&. This also means that it will never close its output stream, so any program reading from Ncat and looking for end\-of\-file will also hang\&.
+.RE
+.PP
+\fB\-\-broker\fR (Connection brokering) .\" --broker (Ncat option)
+.RS 4
+Allow multiple parties to connect to a centralised Ncat server and communicate with each other\&. Ncat can broker communication between systems that are behind a NAT or otherwise unable to directly connect\&. This option is used in conjunction with
+\fB\-\-listen\fR, which causes the
+\fB\-\-listen\fR
+port to have broker mode enabled\&.
+.RE
+.PP
+\fB\-\-chat\fR (Ad\-hoc \(lqchat server\(rq) .\" --chat (Ncat option)
+.RS 4
+The
+\fB\-\-chat\fR
+option enables chat mode, intended for the exchange of text between several users\&. In chat mode, connection brokering is turned on\&. Ncat prefixes each message received with an ID before relaying it to the other connections\&. The ID is unique for each connected client\&. This helps distinguish who sent what\&. Additionally, non\-printing characters such as control characters are escaped to keep them from doing damage to a terminal\&.
+.RE
+.SH "SSL OPTIONS"
+.PP
+\fB\-\-ssl\fR (Use SSL) .\" --ssl (Ncat option)
+.RS 4
+In connect mode, this option transparently negotiates an SSL session with an SSL server to securely encrypt the connection\&. This is particularly handy for talking to SSL enabled HTTP servers, etc\&.
+.sp
+In server mode, this option listens for incoming SSL connections, rather than plain untunneled traffic\&.
+.RE
+.PP
+\fB\-\-ssl\-verify\fR (Verify server certificates) .\" --ssl-verify (Ncat option)
+.RS 4
+In client mode,
+\fB\-\-ssl\-verify\fR
+is like
+\fB\-\-ssl\fR
+except that it also requires verification of the server certificate\&. Ncat comes with a default set of trusted certificates in the file
+ca\-bundle\&.crt.\" ca-bundle.crt\&. Some operating systems provide a default list of trusted certificates; these will also be used if available\&. Use
+\fB\-\-ssl\-trustfile\fR
+to give a custom list\&. Use
+\fB\-v\fR
+one or more times to get details about verification failures\&.
+.\" revoked certificates
+Ncat does not check for revoked certificates.\" certification revocation\&.
+.sp
+This option has no effect in server mode\&.
+.RE
+.PP
+\fB\-\-ssl\-cert \fR\fB\fIcertfile\&.pem\fR\fR (Specify SSL certificate) .\" --ssl-cert (Ncat option)
+.RS 4
+This option gives the location of a PEM\-encoded certificate files used to authenticate the server (in listen mode) or the client (in connect mode)\&. Use it in combination with
+\fB\-\-ssl\-key\fR\&.
+.RE
+.PP
+\fB\-\-ssl\-key \fR\fB\fIkeyfile\&.pem\fR\fR (Specify SSL private key) .\" --ssl-key (Ncat option)
+.RS 4
+This option gives the location of the PEM\-encoded private key file that goes with the certificate named with
+\fB\-\-ssl\-cert\fR\&.
+.RE
+.PP
+\fB\-\-ssl\-trustfile \fR\fB\fIcert\&.pem\fR\fR (List trusted certificates) .\" --ssl-trustfile (Ncat option)
+.RS 4
+This option sets a list of certificates that are trusted for purposes of certificate verification\&. It has no effect unless combined with
+\fB\-\-ssl\-verify\fR\&. The argument to this option is the name of a PEM.\" PEM (Privacy Enhanced Mail)
+file containing trusted certificates\&. Typically, the file will contain certificates of certification authorities, though it may also contain server certificates directly\&. When this option is used, Ncat does not use its default certificates\&.
+.RE
+.SH "PROXY OPTIONS"
+.PP
+\fB\-\-proxy \fR\fB\fIhost\fR\fR\fB[:\fR\fB\fIport\fR\fR\fB]\fR (Specify proxy address) .\" --proxy (Ncat option)
+.RS 4
+Requests proxying through
+\fIhost\fR:\fIport\fR, using the protocol specified by
+\fB\-\-proxy\-type\fR\&.
+.sp
+If no port is specified, the proxy protocol\*(Aqs well\-known port is used (1080 for SOCKS and 3128 for HTTP)\&. However, when specifying an IPv6 HTTP proxy server using the IP address rather than the hostname, the port number MUST be specified as well\&. If the proxy requires authentication, use
+\fB\-\-proxy\-auth\fR\&.
+.RE
+.PP
+\fB\-\-proxy\-type \fR\fB\fIproto\fR\fR (Specify proxy protocol) .\" --proxy-type (Ncat option)
+.RS 4
+In connect mode, this option requests the protocol
+\fIproto\fR
+to connect through the proxy host specified by
+\fB\-\-proxy\fR\&. In listen mode, this option has Ncat act as a proxy server using the specified protocol\&.
+.sp
+The currently available protocols in connect mode are
+http
+(CONNECT) and
+socks4
+(SOCKSv4)\&. The only server currently supported is
+http\&. If this option is not used, the default protocol is
+http\&.
+.RE
+.PP
+\fB\-\-proxy\-auth \fR\fB\fIuser\fR\fR\fB[:\fIpass\fR]\fR (Specify proxy credentials) .\" --proxy-auth (Ncat option)
+.RS 4
+In connect mode, gives the credentials that will be used to connect to the proxy server\&. In listen mode, gives the credentials that will be required of connecting clients\&. For use with
+\fB\-\-proxy\-type http\fR, the form should be user:pass\&. For
+\fB\-\-proxy\-type socks4\fR, it should be a username only\&.
+.RE
+.SH "COMMAND EXECUTION OPTIONS"
+.PP
+\fB\-e \fR\fB\fIcommand\fR\fR, \fB\-\-exec \fR\fB\fIcommand\fR\fR (Execute command) .\" --exec (Ncat option) .\" -e (Ncat option)
+.RS 4
+Execute the specified command after a connection has been established\&. The command must be specified as a full pathname\&. All input from the remote client will be sent to the application and responses sent back to the remote client over the socket, thus making your command\-line application interactive over a socket\&. Combined with
+\fB\-\-keep\-open\fR, Ncat will handle multiple simultaneous connections to your specified port/application like inetd\&. Ncat will only accept a maximum, definable, number of simultaneous connections controlled by the
+\fB\-m\fR
+option\&. By default this is set to 100\&.
+.RE
+.PP
+\fB\-c \fR\fB\fIcommand\fR\fR, \fB\-\-sh\-exec \fR\fB\fIcommand\fR\fR (Execute command via sh) .\" --sh-exec (Ncat option) .\" -c (Ncat option)
+.RS 4
+Same as
+\fB\-e\fR, except it tries to execute the command via
+/bin/sh\&. This means you don\*(Aqt have to specify the full path for the command, and shell facilities like environment variables are available\&.
+.RE
+.SH "ACCESS CONTROL OPTIONS"
+.PP
+\fB\-\-allow \fR\fB\fIhost\fR\fR\fB[,\fIhost\fR,\&.\&.\&.]\fR (Allow connections) .\" --allow (Ncat option)
+.RS 4
+The list of hosts specified will be the only hosts allowed to connect to the Ncat process\&. All other connection attempts will be disconnected\&. In case of a conflict between
+\fB\-\-allow\fR
+and
+\fB\-\-deny\fR,
+\fB\-\-allow\fR
+takes precedence\&. Host specifications follow the same syntax used by Nmap\&.
+.RE
+.PP
+\fB\-\-allowfile \fR\fB\fIfile\fR\fR (Allow connections from file) .\" --allowfile (Ncat option)
+.RS 4
+This has the same functionality as
+\fB\-\-allow\fR, except that the allowed hosts are provided in a new\-line delimited allow file, rather than directly on the command line\&.
+.RE
+.PP
+\fB\-\-deny \fR\fB\fIhost\fR\fR\fB[,\fIhost\fR,\&.\&.\&.]\fR (Deny connections) .\" --deny (Ncat option)
+.RS 4
+Issue Ncat with a list of hosts that will not be allowed to connect to the listening Ncat process\&. Specified hosts will have their session silently terminated if they try to connect\&. be disconnected\&. In case of a conflict between
+\fB\-\-allow\fR
+and
+\fB\-\-deny\fR,
+\fB\-\-allow\fR
+takes precedence\&. Host specifications follow the same syntax used by Nmap\&.
+.RE
+.PP
+\fB\-\-denyfile \fR\fB\fIfile\fR\fR (Deny connections from file) .\" --denyfile (Ncat option)
+.RS 4
+This is the same functionality as
+\fB\-\-deny\fR, except that excluded hosts are provided in a new\-line delimited deny file, rather than directly on the command line\&.
+.RE
+.SH "TIMING OPTIONS"
+.PP
+These options accept a
+time
+parameter\&. This is specified in seconds by default, though you can append
+ms,
+s,
+m, or
+h
+to the value to specify milliseconds, seconds, minutes, or hours\&.
+.PP
+\fB\-d \fR\fB\fItime\fR\fR, \fB\-\-delay \fR\fB\fItime\fR\fR (Specify line delay) .\" --delay (Ncat option) .\" -d (Ncat option)
+.RS 4
+Set the delay interval for lines sent\&. This effectively limits the number of lines that Ncat will send in the specified period\&. This may be useful for low\-bandwidth sites, or have other uses such as coping with annoying
+\fBiptables \-\-limit\fR
+options\&.
+.RE
+.PP
+\fB\-i \fR\fB\fItime\fR\fR, \fB\-\-idle\-timeout \fR\fB\fItime\fR\fR (Specify idle timeout) .\" --idle-timeout (Ncat option) .\" -i (Ncat option)
+.RS 4
+Set a fixed timeout for idle connections\&. If the idle timeout is reached, the connection is terminated\&.
+.RE
+.PP
+\fB\-w \fR\fB\fItime\fR\fR, \fB\-\-wait \fR\fB\fItime\fR\fR (Specify connect timeout) .\" --wait (Ncat option) .\" -w (Ncat option)
+.RS 4
+Set a fixed timeout for connection attempts\&.
+.RE
+.SH "OUTPUT OPTIONS"
+.PP
+\fB\-o \fR\fB\fIfile\fR\fR, \fB\-\-output \fR\fB\fIfile\fR\fR (Save session data) .\" --output (Ncat option) .\" -o (Ncat option)
+.RS 4
+Dump session data to a file
+.RE
+.PP
+\fB\-x \fR\fB\fIfile\fR\fR, \fB\-\-hex\-dump \fR\fB\fIfile\fR\fR (Save session data in hex) .\" --hex-dump (Ncat option) .\" -x (Ncat option)
+.RS 4
+Dump session data in hex to a file\&. This can be used to
+\(lqreplay\(rq
+sessions\&.
+.RE
+.PP
+\fB\-\-append\-output\fR (Append output) .\" --append-output (Ncat option)
+.RS 4
+Issue Ncat with
+\fB\-\-append\-ouput\fR
+along with
+\fB\-o\fR
+and/or
+\fB\-x\fR
+and it will append the resulted output rather than truncating the specified output files\&.
+.RE
+.PP
+\fB\-v\fR, \fB\-\-verbose\fR (Be verbose) .\" --verbose (Ncat option) .\" -v (Ncat option)
+.RS 4
+Issue Ncat with
+\fB\-v\fR
+and it will be verbose and display all kinds of useful connection based information\&. Use more than once (\fB\-vv\fR,
+\fB\-vvv\fR) for greater verbosity\&.
+\fB\-vvv\fR
+is the maximum level\&.
+.RE
+.SH "MISC OPTIONS"
+.PP
+\fB\-C\fR, \fB\-\-crlf\fR (Use CRLF as EOL) .\" --crlf (Ncat option) .\" -C (Ncat option)
+.RS 4
+This option tells Ncat to convert LF.\" LF line ending
+line endings to CRLF.\" CRLF line ending
+when taking input from standard input\&..\" standard input
+This is useful for talking to some stringent servers directly from a terminal in one of the many common plain\-text protocols that use CRLF for end\-of\-line\&.
+.RE
+.PP
+\fB\-h\fR, \fB\-\-help\fR (Help screen) .\" --help (Ncat option) .\" -h (Ncat option)
+.RS 4
+Displays a short help screen with common options and parameters, and then exits\&.
+.RE
+.PP
+\fB\-\-recv\-only\fR (Only receive data) .\" --recv-only (Ncat option)
+.RS 4
+If this option is passed, Ncat will only receive data and will not try to send anything\&.
+.RE
+.PP
+\fB\-\-send\-only\fR (Only send data) .\" --send-only (Ncat option)
+.RS 4
+If this option is passed, then Ncat will only send data and will ignore anything received\&. This option also causes Ncat to close the network connection and terminate after EOF is received on standard input\&.
+.RE
+.PP
+\fB\-t\fR, \fB\-\-telnet\fR (Answer Telnet negotiations) .\" -t (Ncat option)
+.RS 4
+Handle DO/DONT WILL/WONT Telnet negotiations\&. This makes it possible to script Telnet sessions with Ncat\&.
+.RE
+.PP
+\fB\-\-version\fR (Display version) .\" --version (Ncat option)
+.RS 4
+Displays the Ncat version number and exits\&.
+.RE
+.SH "EXAMPLES"
+.PP
+Connect to example\&.org on TCP port 8080\&.
+.RS 4
+\fBncat example\&.org 8080\fR
+.RE
+.PP
+Listen for connections on TCP port 8080\&.
+.RS 4
+\fBncat \-l 8080\fR
+.RE
+.PP
+Redirect TCP port 8080 on the local machine to host on port 80\&.
+.RS 4
+\fBncat \-\-sh\-exec "ncat example\&.org 80" \-l 8080 \-\-keep\-open\fR
+.RE
+.PP
+Bind to TCP port 8081 and attach /bin/bash for the world to access freely\&.
+.RS 4
+\fBncat \-\-exec "/bin/bash" \-l 8081 \-\-keep\-open\fR
+.RE
+.PP
+Bind a shell to TCP port 8081, limit access to hosts on a local network, and limit the maximum number of simultaneous connections to 3\&.
+.RS 4
+\fBncat \-\-exec "/bin/bash" \-\-max\-conns 3 \-\-allow 192\&.168\&.0\&.0/24 \-l 8081 \-\-keep\-open\fR
+.RE
+.PP
+Connect to smtphost:25 through a SOCKS4 server on port 1080\&.
+.RS 4
+\fBncat \-\-proxy socks4host \-\-proxy\-type socks4 \-\-proxy\-auth user smtphost 25\fR
+.RE
+.PP
+Create an HTTP proxy server on localhost port 8888\&.
+.RS 4
+\fBncat \-l \-\-proxy\-type http localhost 8888\fR
+.RE
+.PP
+Send a file over TCP port 9899 from host2 (client) to host1 (server)\&.
+.RS 4
+HOST1$
+\fBncat \-l 9899 > outputfile\fR
+.sp
+HOST2$
+\fBncat HOST1 9899 < inputfile\fR
+.RE
+.PP
+Transfer in the other direction, turning Ncat into a \(lqone file\(rq server\&.
+.RS 4
+HOST1$
+\fBncat \-l 9899 < inputfile\fR
+.sp
+HOST2$
+\fBncat HOST1 9899 > outputfile\fR
+.RE
+.SH "EXIT CODE"
+.PP
+The exit code reflects whether a connection was made and completed successfully\&. 0 means there was no error\&. 1 means there was a network error of some kind, for example
+\(lqConnection refused\(rq
+or
+\(lqConnection reset\(rq\&. 2 is reserved for all other errors, like an invalid option or a nonexistent file\&.
+.SH "BUGS"
+.PP
+Like its authors, Ncat isn\*(Aqt perfect\&. But you can help make it better by sending bug reports or even writing patches\&. If Ncat doesn\*(Aqt behave the way you expect, first upgrade to the latest version available from
+\m[blue]\fB\%http://nmap.org\fR\m[]\&. If the problem persists, do some research to determine whether it has already been discovered and addressed\&. Try Googling the error message or browsing the
+nmap\-dev
+archives at
+\m[blue]\fB\%http://seclists.org/\fR\m[]\&.
+.\" nmap-dev mailing list
+Read this full manual page as well\&. If nothing comes of this, mail a bug report to
+nmap\-dev@insecure\&.org\&. Please include everything you have learned about the problem, as well as what version of Ncat you are running and what operating system version it is running on\&. Problem reports and Ncat usage questions sent to nmap\-dev@insecure\&.org are far more likely to be answered than those sent to Fyodor directly\&.
+.PP
+Code patches to fix bugs are even better than bug reports\&. Basic instructions for creating patch files with your changes are available at
+\m[blue]\fB\%http://nmap.org/data/HACKING\fR\m[]\&. Patches may be sent to
+nmap\-dev
+(recommended) or to Fyodor directly\&.
+.SH "AUTHORS"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Chris Gibson
+chris@linuxops\&.net
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Kris Katterjohn
+katterjohn@gmail\&.com
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Mixter
+mixter@gmail\&.com
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Fyodor
+fyodor@insecure\&.org
+(\m[blue]\fB\%http://insecure.org\fR\m[])
+.RE
+.PP
+The original Netcat was written by *Hobbit*
+hobbit@avian\&.org\&. While Ncat isn\*(Aqt built on any code from the
+\(lqtraditional\(rq
+Netcat (or any other implementation), Ncat is most definitely based on Netcat in spirit and functionality\&.

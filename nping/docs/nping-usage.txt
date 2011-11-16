@@ -1,0 +1,119 @@
+Nping 0.5.59BETA1 ( http://nmap.org/nping )
+Usage: nping [Probe mode] [Options] {target specification}
+
+TARGET SPECIFICATION:
+  Targets may be specified as hostnames, IP addresses, networks, etc.
+  Ex: scanme.nmap.org, microsoft.com/24, 192.168.0.1; 10.0.0-255.1-254
+PROBE MODES:
+  --tcp-connect                    : Unprivileged TCP connect probe mode.
+  --tcp                            : TCP probe mode.
+  --udp                            : UDP probe mode.
+  --icmp                           : ICMP probe mode.
+  --arp                            : ARP/RARP probe mode.
+  --tr, --traceroute               : Traceroute mode (can only be used with 
+                                     TCP/UDP/ICMP modes).
+TCP CONNECT MODE:
+   -p, --dest-port <port spec>     : Set destination port(s).
+   -g, --source-port <portnumber>  : Try to use a custom source port.
+TCP PROBE MODE:
+   -g, --source-port <portnumber>  : Set source port.
+   -p, --dest-port <port spec>     : Set destination port(s).
+   --seq <seqnumber>               : Set sequence number.
+   --flags <flag list>             : Set TCP flags (ACK,PSH,RST,SYN,FIN...)
+   --ack <acknumber>               : Set ACK number.
+   --win <size>                    : Set window size.
+   --badsum                        : Use a random invalid checksum. 
+UDP PROBE MODE:
+   -g, --source-port <portnumber>  : Set source port.
+   -p, --dest-port <port spec>     : Set destination port(s).
+   --badsum                        : Use a random invalid checksum. 
+ICMP PROBE MODE:
+  --icmp-type <type>               : ICMP type.
+  --icmp-code <code>               : ICMP code.
+  --icmp-id <id>                   : Set identifier.
+  --icmp-seq <n>                   : Set sequence number.
+  --icmp-redirect-addr <addr>      : Set redirect address.
+  --icmp-param-pointer <pnt>       : Set parameter problem pointer.
+  --icmp-advert-lifetime <time>    : Set router advertisement lifetime.
+  --icmp-advert-entry <IP,pref>    : Add router advertisement entry.
+  --icmp-orig-time  <timestamp>    : Set originate timestamp.
+  --icmp-recv-time  <timestamp>    : Set receive timestamp.
+  --icmp-trans-time <timestamp>    : Set transmit timestamp.
+ARP/RARP PROBE MODE:
+  --arp-type <type>                : Type: ARP, ARP-reply, RARP, RARP-reply.
+  --arp-sender-mac <mac>           : Set sender MAC address.
+  --arp-sender-ip  <addr>          : Set sender IP address.
+  --arp-target-mac <mac>           : Set target MAC address.
+  --arp-target-ip  <addr>          : Set target IP address.
+IPv4 OPTIONS:
+  -S, --source-ip                  : Set source IP address.
+  --dest-ip <addr>                 : Set destination IP address (used as an 
+                                     alternative to {target specification} ). 
+  --tos <tos>                      : Set type of service field (8bits).
+  --id  <id>                       : Set identification field (16 bits).
+  --df                             : Set Don't Fragment flag.
+  --mf                             : Set More Fragments flag.
+  --ttl <hops>                     : Set time to live [0-255].
+  --badsum-ip                      : Use a random invalid checksum. 
+  --ip-options <S|R [route]|L [route]|T|U ...> : Set IP options
+  --ip-options <hex string>                    : Set IP options
+  --mtu <size>                     : Set MTU. Packets get fragmented if MTU is
+                                     small enough.
+IPv6 OPTIONS:
+  -6, --IPv6                       : Use IP version 6.
+  --dest-ip                        : Set destination IP address (used as an
+                                     alternative to {target specification}).
+  --hop-limit                      : Set hop limit (same as IPv4 TTL).
+  --traffic-class <class> :        : Set traffic class.
+  --flow <label>                   : Set flow label.
+ETHERNET OPTIONS:
+  --dest-mac <mac>                 : Set destination mac address. (Disables
+                                     ARP resolution)
+  --source-mac <mac>               : Set source MAC address.
+  --ether-type <type>              : Set EtherType value.
+PAYLOAD OPTIONS:
+  --data <hex string>              : Include a custom payload.
+  --data-string <text>             : Include a custom ASCII text.
+  --data-length <len>              : Include len random bytes as payload.
+ECHO CLIENT/SERVER:
+  --echo-client <passphrase>       : Run Nping in client mode.
+  --echo-server <passphrase>       : Run Nping in server mode.
+  --echo-port <port>               : Use custom <port> to listen or connect.
+  --no-crypto                      : Disable encryption and authentication.
+  --once                           : Stop the server after one connection.
+  --safe-payloads                  : Erase application data in echoed packets.
+TIMING AND PERFORMANCE:
+  Options which take <time> are in seconds, or append 'ms' (milliseconds),
+  's' (seconds), 'm' (minutes), or 'h' (hours) to the value (e.g. 30m, 0.25h).
+  --delay <time>                   : Adjust delay between probes.
+  --rate  <rate>                   : Send num packets per second.
+MISC:
+  -h, --help                       : Display help information.
+  -V, --version                    : Display current version number. 
+  -c, --count <n>                  : Stop after <n> rounds.
+  -e, --interface <name>           : Use supplied network interface.
+  -H, --hide-sent                  : Do not display sent packets.
+  -N, --no-capture                 : Do not try to capture replies.
+  --privileged                     : Assume user is fully privileged.
+  --unprivileged                   : Assume user lacks raw socket privileges.
+  --send-eth                       : Send packets at the raw ethernet layer.
+  --send-ip                        : Send packets using raw IP sockets.
+  --bpf-filter <filter spec>       : Specify custom BPF filter.
+OUTPUT:
+  -v                               : Increment verbosity level by one.
+  -v[level]                        : Set verbosity level. E.g: -v4
+  -d                               : Increment debugging level by one.
+  -d[level]                        : Set debugging level. E.g: -d3
+  -q                               : Decrease verbosity level by one.
+  -q[N]                            : Decrease verbosity level N times
+  --quiet                          : Set verbosity and debug level to minimum.
+  --debug                          : Set verbosity and debug to the max level.
+EXAMPLES:
+  nping scanme.nmap.org
+  nping --tcp -p 80 --flags rst --ttl 2 192.168.1.1
+  nping --icmp --icmp-type time --delay 500ms 192.168.254.254
+  nping --echo-server "public" -e wlan0 -vvv 
+  nping --echo-client "public" echo.nmap.org --tcp -p1-1024 --flags ack
+
+SEE THE MAN PAGE FOR MANY MORE OPTIONS, DESCRIPTIONS, AND EXAMPLES
+

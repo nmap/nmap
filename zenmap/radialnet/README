@@ -1,0 +1,10 @@
+To start the application you may just double-click the radialnet.py file or
+start it with the following command:
+
+    $ python radialnet.py
+
+To view command line list of arguments type '--help':
+
+    $ python radialnet.py --help
+
+Att, João Medeiros <ignotus21@gmail.com>.

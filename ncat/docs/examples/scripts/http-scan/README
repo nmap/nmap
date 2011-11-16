@@ -1,0 +1,14 @@
+HTTP-SCAN with Ncat
+~~~~~~~~~~~~~~~~~~~
+
+This is a simple exercise that uses a small amount of
+scripted automation that will throw out the banner 
+information of n number of hosts listed in the file "iplist".
+
+Ncat uses the "get.request" HTTP header to get the newly
+connected webserver to tell you about itself.
+
+Usage: ./scan-example
+
+Variables to change: None, but you may want to change "iplist" 
+                     to other more informative hosts.

@@ -1,0 +1,20 @@
+Every script under this directory is supposed to be executed from the
+top of the source tree. Don't get into this directory, nor any other
+under this one to execute any of the scripts, or they're not going to
+work as expected.
+
+This is a description of the scripts in this directory and its
+subdirectories.
+
+macosx:
+Files and scripts used to build Mac OS X packages. See macosx/README for a
+description of the files in this directory.
+
+utils/version_update.py:
+Updates the Zenmap version number everywhere it needs to be.
+
+windows/copy_and_compile.bat:
+Builds a Windows executable using py2exe.
+
+windows/nmap-eye.ico:
+An icon used on Windows.

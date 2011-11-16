@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet href="file:///usr/local/bin/../share/nmap/nmap.xsl" type="text/xsl"?><nmaprun start="1313178621" profile_name="Quick scan" xmloutputversion="1.03" scanner="nmap" version="5.59BETA1" startstr="Fri Aug 12 14:50:21 2011" args="nmap -T4 -F scanme.nmap.org"><scaninfo services="7,9,13,21-23,25-26,37,53,79-81,88,106,110-111,113,119,135,139,143-144,179,199,389,427,443-445,465,513-515,543-544,548,554,587,631,646,873,990,993,995,1025-1029,1110,1433,1720,1723,1755,1900,2000-2001,2049,2121,2717,3000,3128,3306,3389,3986,4899,5000,5009,5051,5060,5101,5190,5357,5432,5631,5666,5800,5900,6000-6001,6646,7070,8000,8008-8009,8080-8081,8443,8888,9100,9999-10000,32768,49152-49157" protocol="tcp" numservices="100" type="syn"></scaninfo><verbose level="0"></verbose><debugging level="0"></debugging><output type="interactive">
+Starting Nmap 5.59BETA1 ( http://nmap.org ) at 2011-08-12 14:50 CDT
+Nmap scan report for scanme.nmap.org (74.207.244.221)
+Host is up (0.38s latency).
+rDNS record for 74.207.244.221: li86-221.members.linode.com
+Not shown: 97 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+53/tcp open  domain
+80/tcp open  http
+
+Nmap done: 1 IP address (1 host up) scanned in 3.84 seconds
+</output><host comment=""><status state="up"></status><address addrtype="ipv4" vendor="" addr="74.207.244.221"></address><hostnames><hostname type="user" name="scanme.nmap.org"></hostname><hostname type="PTR" name="li86-221.members.linode.com"></hostname></hostnames><ports><extraports count="97" state="closed"></extraports><port protocol="tcp" portid="22"><state reason="syn-ack" state="open" reason_ttl="53"></state><service method="table" conf="3" name="ssh"></service></port><port protocol="tcp" portid="53"><state reason="syn-ack" state="open" reason_ttl="62"></state><service method="table" conf="3" name="domain"></service></port><port protocol="tcp" portid="80"><state reason="syn-ack" state="open" reason_ttl="53"></state><service method="table" conf="3" name="http"></service></port></ports><os></os><uptime lastboot="" seconds=""></uptime><tcpsequence index="" values="" difficulty=""></tcpsequence><ipidsequence values="" class=""></ipidsequence><tcptssequence values="" class=""></tcptssequence></host><runstats><finished timestr="Fri Aug 12 14:50:25 2011" time="1313178625"></finished><hosts down="0" total="1" up="1"></hosts></runstats></nmaprun>

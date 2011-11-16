@@ -1,0 +1,1158 @@
++-----------------------------------------------------------------------------+
+
+
+
+
+
+
+                           NPING ECHO PROTOCOL
+
+
+
+
+                         PROTOCOL SPECIFICATION
+
+                          Request for Comments
+
+                               August 2010
+
+
+
+
+
+                           Luis MartinGarcia
+                         (luis.mgarc@gmail.com)
+
+
+
+
+
+
++-----------------------------------------------------------------------------+
+
+Status of this document:    DRAFT
+First version:              May 29, 2009.
+Last revision date:         April 27, 2011.
+
++-----------------------------------------------------------------------------+
+
+
+
+                                PREFACE
+
+This documents presents the technical specification of the Nping Echo Protocol.
+
+
+
+
+                           TABLE OF CONTENTS
+
+1.  INTRODUCTION ..................................................... x
+
+2.  NPING ECHO PROTOCOL SPECIFICATION................................. x
+
+  2.1  General Message Format......................................... x
+  2.2  Field Description.............................................. x
+  2.3  Message type codes............................................. x
+  2.4  Message NEP_HANDSHAKE_SERVER................................... x
+  2.5  Message NEP_HANDSHAKE_CLIENT................................... x
+  2.6  Message NEP_HANDSHAKE_FINAL.................................... x
+  2.7  Operation NEP_PACKET_SPEC...................................... x
+  2.8  Operation NEP_READY............................................ x
+  2.9  Operation NEP_ECHO............................................. x
+  2.10 Operation NEP_ERROR............................................ x
+  2.11 Flow diagrams.................................................. x
+  2.12 Security....................................................... x
+  2.13 Cryptographic key derivation................................... x
+  2.14 Encryption process............................................. x
+  2.15 Additional considerations...................................... x
+
+3. GLOSSARY .......................................................... x
+
+4. REFERENCES ........................................................ x
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. INTRODUCTION
+
+    Troubleshooting routing and firewall issues is a common task nowadays.
+    The scenario is generally that some network traffic should be flowing
+    but isn't. The causes of problem can range from routing issues to
+    network firewall to host-based firewalls to all sorts of other strange
+    things.  It is usually the "middle box" problem that is the hardest to
+    find.
+
+    Suppose there is some host with a TCP service listening that you can't
+    connect to for an unknown reason.  If a Nmap -sS scan doesn't show the
+    port as open there are a multitude of possible problems.  Maybe the SYN
+    packet never made it because of some firewall in the middle.  Maybe the
+    SYN did make it but the SYN+ACK got dropped on its way back to you.
+    Maybe the TTL expired in transit but the ICMP message got blocked by
+    another firewall before making it back to you.  Maybe the SYN made it
+    but some intermediate host forged a reset packet to snipe the connection
+    before the SYN+ACK made it back to you.
+
+    When things like the above are going on it is often the case that even
+    nping can't track down the problem alone.  One generally has to turn to
+    Wireshark/tcpdump on one station and nping on the other but sometimes
+    it may be quite difficult to coordinate, specially when the person at
+    the remote host does not even know what an IP address is.
+
+    To solve this problem, Nping implements a new mode of operation, called
+    "Echo mode", which provides a combination of a packet generator and a
+    remote sniffer.
+
+    The Echo mode is based on a client/server architecture. Both ends run Nping,
+    one of them in server mode and the other in client mode. The way it works
+    is: the Nping client performs an initial handshake with the server over some
+    standard port (creating a side-channel). Then it notifies the server
+    what packets are about to be sent. The server sets up a liberal BPF
+    filter that captures those packets, and starts listening. When the server
+    receives a packet it encapsulates it (including the link layer frame)
+    into our own protocol packet and sends it back to the nping client.
+    This would be essentially like running tcpdump on the remote machine
+    and having it report back the packets you sent to it with Nping.
+
+    By having the side-channel to talk to the server, things like NAT would
+    become immediately apparent because you'd see your source IP (and
+    sometimes port) change.  Things like "packet shapers" that change TCP
+    window sizes transparently between hosts would turn up.  It would be
+    easy to tell if the traffic is being dropped in transit and never gets
+    to the box.  It would also be easy to tell if the traffic does make it
+    to the box but the reply never makes it back to you.
+
+    In general, it would be like sending a postal package to someone and
+    having them email you a photo of the package when they get it.  If you
+    think your packages are being abused by the parcel service then having
+    someone on the other end to send information back is a great way to
+    uncover what is going on.
+
+
+
+2. NPING ECHO PROTOCOL SPECIFICATION
+
+
+    2.1 General Message Format
+
+        The following diagram describes the general format of the NEP messages.
+
+        0                   1                   2                   3
+        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |   Version     |  Message Type |          Total Length         |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                        Sequence Number                        |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                           Timestamp                           |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                           Reserved                            |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                                                               |
+        .                                                               .
+        .                              DATA                             .
+        .                                                               .
+        |                                                               |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        |                                                               |
+        .                                                               .
+        .                    Message Authentication Code                .
+        .                                                               .
+        |                                                               |
+        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+        There are 7 different kinds of packets:
+
+            NEP_HANDSHAKE_SERVER (S->C)
+                Informs the client of the highest version it supports and sends
+                the server's authentication parameters.
+
+            NEP_HANDSHAKE_CLIENT (C->S)
+                Informs the server of the highest version it supports and sends
+                the initial authentication parameters.
+
+            NEP_HANDSHAKE_FINAL (S->C)
+                Echoes server nonce back to the server.
+
+            NEP_PACKET_SPEC:  (C->S):
+                Tells the server what kind of packets we are planning to send.
+
+            NEP_READY:  (S->C):
+                Tells the client that the server is ready to start receiving
+                packets.
+
+            NEP_ECHO:  (S->C):
+                Contains the packet that the server receives from the client.
+
+            NEP_ERROR:  (C->S or S->C):
+                Indicates an error and terminates the session.
+
+
+
+    2.2 Field Description
+
+        Version:  8 bits
+            Current version of the protocol. This document covers version 0x01.
+
+
+        Message type: 8 bits
+            Integer that indicates the type of packet. It must be one of the
+            type codes defined in section 2.3.
+
+
+        Total Length:  16 bits
+            Length of the entire packet, measured in 32bit words. Value must
+            be in NETWORK byte order.
+
+
+        Sequence Number: 32 bits
+            Packet sequence number, relative to the sender. Initially this
+            field is set to a random value, and then it is incremented by one
+            for each packet that is sent in a given session. The counter must
+            wrap back to zero after it reaches (2^32)-1. This field is intended
+            to provide flow tracking and basic protection against replay
+            attacks.
+
+        Timestamp:  32 bits
+            Current time of the sender. This time is expressed as the number
+            of seconds elapsed since 00:00, 01/01/1970 UTC (epoch time).
+
+        Reserved:  32 bits
+            Reserved for future use. Reserved fields have been added for two
+            reasons: to allow future extension of the protocol and to make
+            the header a multiple of 128 bits needed to satisfy AES encryption
+            requirements in block size.
+
+
+        Data:  variable length
+            Message specific data.
+
+
+        Message Authentication Code :  256 bits
+            Code that provides integrity and authentication to the rest of the
+            packet. For this, the HMAC-SHA256 suite must be used. The
+            computation of the code includes the whole plain-text message until
+            the first byte of the Message Authentication Code field.
+
+
+    2.3 Message type codes
+
+        Message NEP_HANDSHAKE_SERVER:      0x01
+        Message NEP_HANDSHAKE_CLIENT:      0x02
+        Message NEP_HANDSHAKE_FINAL:       0x03
+        Message NEP_PACKET_SPEC:           0x04
+        Message NEP_READY:                 0x05
+        Message NEP_ECHO:                  0x06
+        Message NEP_ERROR:                 0x07
+
+
+    2.4 Message NEP_HANDSHAKE_SERVER
+
+        The NEP_HANDSHAKE_SERVER message is sent by the server and it requests
+        client's authentication. The packet informs the client of the latest
+        version of the protocol that the server supports and provides the
+        appropriate information for the client authentication process.
+
+        The NEP_HANDSHAKE_SERVER message establishes the following:
+
+            - The identity of the server and that the message was generated
+              by that server.
+            - That the message was intended for the client.
+            - The integrity and originality of the message.
+
+
+        The format of the NEP_HANDSHAKE_SERVER message is the following:
+
+
+             0                   1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        5   +--                                                           --+
+            |                                                               |
+        6   +--                                                           --+
+            |                                                               |
+        7   +--                                                           --+
+            |                          Server Nonce                         |
+        8   +--                                                           --+
+            |                                                               |
+        9   +--                                                           --+
+            |                                                               |
+       10   +--                                                           --+
+            |                                                               |
+       11   +--                                                           --+
+            |                                                               |
+       12   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+       13   +                                                             --+
+            |                                                               |
+       14   +--                         Reserved                          --+
+            |                                                               |
+       15   +--                                                           --+
+            |                                                               |
+       16   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+
+        .   .                                                               .
+            |                                                               |
+       24   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+        Server Nonce:  256 bits
+            Random number. This number must be generated using a
+            cryptographically secure PRNG and must not be reused. This is
+            the data that should be used by the client to construct its
+            cipher block initialization vector.
+
+        Reserved:  120 bits
+            Reserved for future use.
+
+        HMAC-SHA256:  256 bits
+            Message authentication code that covers the entire packet, from
+            byte 0 to the last byte of the last reserved field. The code is
+            computed over the plaintext, before the encryption is applied to
+            part of the packet.
+
+
+
+    2.5 Message NEP_HANDSHAKE_CLIENT
+
+
+        The NEP_HANDSHAKE_CLIENT message is sent by the client and it provides
+        the appropriate information for client-side authentication. This type
+        of message is generated only if the previous NEP_HANDSHAKE_CLIENT
+        message contains a valid message authentication code.
+
+        The NEP_HANDSHAKE_CLIENT message establishes the following:
+
+            - The identity of the client and that reply message has been
+              generated by the client.
+            - That the message was intended for the server.
+            - The integrity and originaltity of the reply.
+
+
+        The format of the NEP_HANDSHAKE_CLIENT message is the following:
+
+
+           0                   1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        5   +--                                                           --+
+            |                                                               |
+        6   +--                                                           --+
+            |                                                               |
+        7   +--                                                           --+
+            |                          Server Nonce                         |
+        8   +--                                                           --+
+            |                                                               |
+        9   +--                                                           --+
+            |                                                               |
+       10   +--                                                           --+
+            |                                                               |
+       11   +--                                                           --+
+            |                                                               |
+       12   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+       13   +--                                                           --+
+            |                                                               |
+       14   +--                                                           --+
+            |                                                               |
+       15   +--                                                           --+
+            |                          Client Nonce                         |
+       16   +--                                                           --+
+            |                                                               |
+       17   +--                                                           --+
+            |                                                               |
+       18   +--                                                           --+
+            |                                                               |
+       19   +--                                                           --+
+            |                                                               |
+       20   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ###################### ENCRYPTION STARTS HERE #######################
+       20   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+       21   +--                                                           --+
+            |                                                               |
+       22   +--                    Partner IP address                     --+
+            |                                                               |
+       23   +--                                                           --+
+            |                                                               |
+       24   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |  IP Version   |                                               |
+       25   +---------------+                                             --+
+            |                                                               |
+       26   +--                         Reserved                          --+
+            |                                                               |
+       27   +--                                                           --+
+            |                                                               |
+       28   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+           ####################### ENCRYPTION ENDS HERE #######################
+       28   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+       36   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+        Server Nonce:  256 bits
+            Nonce value received from the server in the previous
+            NEP_HANDSHAKE_SERVER message. This allows the server to ensure that
+            the received reply is fresh and was generated as a result of its
+            NEP_HANDSHAKE_SERVER message.
+
+        Client Nonce:  256 bits
+            Random number. This number must be generated using a
+            cryptographically secure PRNG and must not be reused. This is
+            the data that should be used by the server to construct its
+            cipher block initialization vector.
+
+        Partner IP address:  128 bits
+            This is the server's IP address as seen by the client. This field
+            has 128 bits to allow use of both IPv4 and IPv6 addresses. When
+            IPv4 is used, only the first four bytes are used. The rest may be
+            set to zero or filled with random data.
+
+        IP version: 8-bits
+            Version of the address in the "Partner IP address" field. It should
+            take one of the following values:
+
+                0x04 : for IP version 4.
+                0x06 : for IP version 6.
+
+    2.6 Message NEP_HANDSHAKE_FINAL
+
+
+             0                   1                   2                   3
+             0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        5   +--                                                           --+
+            |                                                               |
+        6   +--                                                           --+
+            |                                                               |
+        7   +--                                                           --+
+            |                          Client Nonce                         |
+        8   +--                                                           --+
+            |                                                               |
+        9   +--                                                           --+
+            |                                                               |
+       10   +--                                                           --+
+            |                                                               |
+       11   +--                                                           --+
+            |                                                               |
+       12   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ###################### ENCRYPTION STARTS HERE #######################
+       12   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+       13   +--                                                           --+
+            |                                                               |
+       14   +--                    Partner IP address                     --+
+            |                                                               |
+       15   +--                                                           --+
+            |                                                               |
+       16   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |  IP Version   |                                               |
+       17   +---------------+                                             --+
+            |                                                               |
+       18   +--                         Reserved                          --+
+            |                                                               |
+       19   +--                                                           --+
+            |                                                               |
+       20   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ####################### ENCRYPTION ENDS HERE ########################
+       20   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+       28   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+        Client Nonce:  256 bits
+            Nonce value received from the client in the preceding
+            NEP_HANDSHAKE_CLIENT message.
+
+        Partner IP address:  128 bits
+            This is the clients's IP address as seen by the server. This field
+            has 128 bits to allow use of both IPv4 and IPv6 addresses. When
+            IPv4 is used, only the first four bytes are used. The rest may be
+            set to zero or filled with random data. The inclusion of this
+            information lets the client immediately detect the presence of
+            some intermediate devices that change his source IP (e.g a NAT box).
+            This is a modification of the original X.509 three way
+            authentication protocol, provided, among other things, in order to
+            make the man-in-the-middle attack described in [1] more difficult.
+
+        IP version: 8 bits
+            Version of the address in the "Partner IP address" field. It should
+            take one of the following values:
+
+                0x04 : for IP version 4.
+                0x06 : for IP version 6.
+
+
+    2.7 Operation NEP_PACKET_SPEC
+
+        The NEP_PACKET_SPEC message is sent by the client to tell the server
+        what kind of packets it should expect.
+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          ###################### ENCRYPTION STARTS HERE #######################
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |  IP version   |   Protocol    |         Packet Count          |
+        5   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        .   |                                                               |
+        .   .                                                               .
+        .   .                           PacketSpec                          .
+        n   .                                                               .
+            |                                                               |
+        32  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ####################### ENCRYPTION ENDS HERE ########################
+        32  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+        40  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+        IP version: 8 bits
+            Specifies which is the expected IP version. It must contain one
+            of the following values:
+
+                0x04 (IP version 4)
+
+                0x06 (IP version 6)
+
+                0xFF (Any version)
+
+        Protocol:  8 bits.
+            Specifies which kind of packets will be sent to the server. It
+            must contain one of the following values:
+
+                0x06 (Protocol TCP)
+                    Tells the server to listen to TCP packets coming from
+                    the client's IP address.
+
+                0x11 (Protocol UDP)
+                    Tells the server to listen to UDP packets coming from
+                    the client's IP address.
+
+                0x01 (Protocol ICMP)
+                    Tells the server to listen to ICMP packets coming from
+                    the client's IP address.
+
+        Packet count:  16 bits.
+            Specifies how many packets will be sent. It must be in NETWORK
+            byte order.
+
+        PacketSpec:  864 bits.
+            Tells the server which header fields should be checked to match
+            a captured packet with the client that sent it. This is neccessary
+            as the server supports multiple user sessions at a time, and needs
+            a way to distinguish the packets.
+
+            The PacketSpec field consists of a list of protocol fields and
+            their expected value. Every item on that list has the following
+            format:
+
+            {Field Code, Field Value}
+
+            Where "Field Code" is an 8-bit numeric identifier of the field (see
+            definitions below) and "Field Value" is the expected value, that
+            the server should try to match. The length of "Field Value" depends
+            on the "Field Code" (see table below for details) and, in general,
+            it matches the usual length for that field int its original
+            protocol header.
+
+            Items on the PacketSpec list are specified sequentially. However,
+            the final length of the list must be 108 bytes, so null bytes must
+            be added after the last item.
+
+            The following table lists the available field specifiers, their
+            code and the length of their values.
+
+             ====NAME======== ==CODE== ==LENGTH==
+            +----------------+--------+----------+
+            | IPv4_TOS       |  0xA0  | 8 bits   |
+            +----------------+--------+----------+
+            | IPv4_ID        |  0xA1  | 16 bits  |
+            +----------------+--------+----------+
+            | IPv4_FRAGOFF   |  0xA2  | 16 bits  |
+            +----------------+--------+----------+
+            | IPv4_PROTO     |  0xA3  | 8 bits   |
+            +----------------+--------+----------+
+
+            +----------------+--------+----------+
+            | IPv6_TCLASS    |  0xB0  | 8 bits   |
+            +----------------+--------+----------+
+            | IPv6_FLOW      |  0xB1  | 24 bits  |
+            +----------------+--------+----------+
+            | IPv6_NHDR      |  0xB2  | 8 bits   |
+            +----------------+--------+----------+
+
+            +----------------+--------+----------+
+            | TCP_SPORT      |  0xC0  | 16 bits  |
+            +----------------+--------+----------+
+            | TCP_DPORT      |  0xC1  | 16 bits  |
+            +----------------+--------+----------+
+            | TCP_SEQ        |  0xC2  | 32 bits  |
+            +----------------+--------+----------+
+            | TCP_ACK        |  0xC3  | 32 bits  |
+            +----------------+--------+----------+
+            | TCP_FLAGS      |  0xC4  | 8 bits   |
+            +----------------+--------+----------+
+            | TCP_WIN        |  0xC5  | 16 bits  |
+            +----------------+--------+----------+
+            | TCP_URP        |  0xC6  | 16 bits  |
+            +----------------+--------+----------+
+
+            +----------------+--------+----------+
+            | ICMP_TYPE      |  0xD0  | 8 bits   |
+            +----------------+--------+----------+
+            | ICMP_CODE      |  0xD1  | 8 bits   |
+            +----------------+--------+----------+
+
+            +----------------+--------+----------+
+            | UDP_SPORT      |  0xE0  | 16 bits  |
+            +----------------+--------+----------+
+            | UDP_DPORT      |  0xE1  | 16 bits  |
+            +----------------+--------+----------+
+            | UDP_LEN        |  0xE2  | 16 bits  |
+            +----------------+--------+----------+
+
+            +----------------+--------+----------+
+            | PAYLOAD_MAGIC  |  0xFF  | Variable |
+            +----------------+--------+----------+
+
+
+            The PAYLOAD_MAGIC type lets the client specify some magic number
+            included in the packet's payload. This can be used when all other
+            specifiers fail (e.g: in IPv4-to-IPv6 tunnels). The length of
+            its field data is variable and must be specified right after the
+            field code. Note that the length can never be higher than the
+            remaining space in the PacketSpec field. If no other field
+            specifiers are set, "length" can never be higher than 106 bytes.
+            Servers should carefully check the structure of the PacketSpec
+            field and close the session established with the sender if it
+            does not meet the requirements specified in this document.
+
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+               | PAYLOAD_MAGIC |    Length     |                               |
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+         Value                 +
+               |                                                               |
+               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+               PAYLOAD_MAGIC:  8 bits.
+                    Field code. MUST be set to 0xFF.
+
+               Length:  8 bits.
+                    Length of the data in the "Value" field. MUST be greater
+                    than zero; MUST NOT be greater than the remaining space in
+                    the PacketSpec field and MUST NEVER exceed 106 bytes.
+
+               Value: variable length.
+                    Payload data. Its length must be the one specified in the
+                    "Length" field. It may contain any binary value. Comparisons
+                    at the server side should be made at the bit level so the
+                    encoding should match the one used at the application layer
+                    in the packets that are produced and sent by the client.
+
+
+            Here is an example of how a typical specifier list looks like:
+
+         0  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   IPv4_TOS    |     0x00      |   IPv4_ID     |     0xCA      |
+         1  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |     0xFE      |  IPv4_PROTO   |     0x06      |   TCP_SPORT   |
+         2  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |             0x4432            |   TCP_DPORT   |      0x00     |
+         3  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |     0x50      |   TCP_FLAGS   |     0x08      |    TCP_SEQ    |
+         4  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           0x5D33FA6D                          |
+         5  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |     0x00      |     0x00      |     0x00      |     0x00      |
+         6  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            .                                                               .
+            .                                                               .
+            .                                                               .
+            +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |     0x00      |     0x00      |     0x00      |     0x00      |
+         27 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+            All packet specifications MUST include the IPv4_ID specifier
+            (or IPv6_Flow for IPv6) and at least three other fields specifiers.
+            Additionally, clients MUST NEVER specify the same field specifier
+            more than once in a NEP_PACKET_SPEC message. Clients that send
+            messages that do not meet these requirements MUST be rejected by the
+            server.
+
+
+    2.8 Operation NEP_READY
+
+        The READY packet is sent by the server to indicate the client that
+        his SPECS packet was accepted and that everything is ready to start
+        receiving and echoing packets.
+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          ###################### ENCRYPTION STARTS HERE #######################
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ####################### ENCRYPTION ENDS HERE ########################
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+        12  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+
+
+    2.9 Operation NEP_ECHO
+
+        The NEP_ECHO message is sent by the server and it contains an echoed
+        network packet.
+
+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          ###################### ENCRYPTION STARTS HERE #######################
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |          DLT Type             |       Packet Length           |
+        5   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            .                                                               .
+        .   .                             Packet                            .
+        .   .                                                               .
+        .   .                                               +-+-+-+-+-+-+-+-+
+            |                                               |    Padding    |
+        n   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ####################### ENCRYPTION ENDS HERE ########################
+        n   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+        n+8 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+
+        DLT Type:  16 bits.
+            Specifies the type of link layer device used in the server side.
+            Since the server includes link layer frames in echoed packets,
+            the client needs to know the DLT in order to process link layer
+            header information. Values used in this field must match DLT types
+            defined in libpcap and must be transmitted in NETWORK byte order.
+            Servers may use the special value 0x0000 to indicate that no link
+            layer header is included.
+
+        Packet Length:  16 bits.
+            Specifies the length of the echoed packet measured in bytes.
+            The value stored in this field must be in NETWORK byte order and
+            must never be greater than 9212, as that is the maximum number of
+            bytes that can be echoed per packet.
+
+        Packet:  variable length.
+            This corresponds to the packet being echoed. Servers should
+            store the packet exactly as it was received. No byte order
+            conversions or any other alteration should be performed.
+            The whole NEP_ECHO packet must have a length that is a multiple of
+            16 bytes, so if (packet_len+4)mod16 is not zero, the packet field
+            must be padded with NULL bytes. As noted before, the maximum length
+            for an echoed packet is 9212 bytes. Any packet that exceeds that
+            length must be truncated.
+
+
+
+    2.10 Operation NEP_ERROR
+
+        The NEP_ERROR packet is sent by client or server when an error occurs,
+        and informs the other end that the sender is terminating the NEP
+        session and closing the TCP connection. This message includes an error
+        description string that should explain the reason why the session is
+        being terminated (e.g. authentication failed, invalid message format).
+
+            0                   1                   2                   3
+            0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+          ###################### ENCRYPTION STARTS HERE #######################
+        0   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |   Version     |  Message Type |          Total Length         |
+        1   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                        Sequence Number                        |
+        2   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                           Timestamp                           |
+        3   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                            Reserved                           |
+        4   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            .                                                               .
+        .   .                         Error Message                         .
+        .   .                                                               .
+        .   .                                                               .
+            |                                                               |
+        24  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+          ####################### ENCRYPTION ENDS HERE ########################
+        24  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+            |                                                               |
+        .   .                                                               .
+        .   .                   Message Authentication Code                 .
+        .   .                                                               .
+            |                                                               |
+        32  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+
+        Error Message: 640 bits.
+            Contains a NULL-terminated ASCII string that describes the reason
+            why the session is being terminated by the sender. The string MUST
+            contain a NULL character (0x00) at the end of it. The remaining
+            bytes, if any, must also be set to zero.
+
+
+    2.11 Flow diagrams
+
+
+        The following diagram shows a typical client/server session:
+
+         +------+                +------+
+         |CLIENT|                |SERVER|
+         +------+                +------+
+            |                       |
+            | NEP_HANDSHAKE_SERVER  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            | NEP_HANDSHAKE_CLIENT  |
+            |--------------------->>|
+            |                       |
+            |                       |
+            |  NEP_HANDSHAKE_FINAL  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            |                       |
+            |    NEP_PACKET_SPEC    |
+            |--------------------->>|
+            |                       |
+            |                       |
+            |                       |
+            |       NEP_READY       |
+            |<<---------------------|
+            |                       |
+            |                       |
+            |                       |
+            |                       |
+            |       NEP_ECHO        |
+            |<<---------------------|
+            |                       |
+            |       NEP_ECHO        |
+            |<<---------------------|
+            |                       |
+            |       NEP_ECHO        |
+            |<<---------------------|
+            |         .             |
+            |         .             |
+            |         .             |
+            |       NEP_ECHO        |
+            |<<---------------------|
+            |                       |
+            |                       |
+            |                       |
+            |  TCP Connection Close |
+            |<<------------------->>|
+
+
+
+
+
+        The following diagram represents a session where the client sends an
+        invalid PacketSpec message.
+
+
+         +------+                +------+
+         |CLIENT|                |SERVER|
+         +------+                +------+
+            |                       |
+            | NEP_HANDSHAKE_SERVER  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            | NEP_HANDSHAKE_CLIENT  |
+            |--------------------->>|
+            |                       |
+            |                       |
+            |  NEP_HANDSHAKE_FINAL  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            |                       |
+            |    NEP_PACKET_SPEC    |
+            |--------------------->>|
+            |                       |
+            |                       |
+            |        NEP_ERROR      |
+            |<<---------------------|
+            |                       |
+            |  TCP Connection Close |
+            |<<------------------->>|
+
+
+        The following diagram represents a session where the server fails to
+        provide a valid NEP_HANDSHAKE_SERVER message.
+
+         +------+                +------+
+         |CLIENT|                |SERVER|
+         +------+                +------+
+            |                       |
+            | NEP_HANDSHAKE_SERVER  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            |  TCP Connection Close |
+            |<<------------------->>|
+
+
+
+        The following diagram represents a session where the client fails to
+        provide a valid NEP_HANDSHAKE_CLIENT message.
+
+
+         +------+                +------+
+         |CLIENT|                |SERVER|
+         +------+                +------+
+            |                       |
+            | NEP_HANDSHAKE_SERVER  |
+            |<<---------------------|
+            |                       |
+            |                       |
+            | NEP_HANDSHAKE_CLIENT  |
+            |--------------------->>|
+            |                       |
+            |                       |
+            |  TCP Connection Close |
+            |<<------------------->>|
+
+
+
+    2.12 Security
+
+        The NEP client/server authentication process is based on the three-way
+        authentication protocol, described in CITT recommendation X.509 [2].
+        However, it has been slightly modified:
+
+            - Messages are not signed using public-key cryptography but a
+              symmetric encryption key known by both client and server. This
+              provides the same authentication as the original specification
+              but it does not provide non-repudiation.
+
+            - Ciphertext is encrypted using the secret key shared by client and
+              server, instead of using the receiver's public key.
+
+        The cipher suite to be used for data encryption is AES-128.
+
+        When one of the two participating entities receives a fully encrypted
+        message (any message other than NEP_HANDSHAKE_SERVER, NEP_HANDSHAKE_CLIENT
+        or NEP_HANDSHAKE_FINAL), it performs the following steps:
+
+        1. Reads 128 bits and decrypts them.
+        2. Checks that version equals 0x01
+        3. Checks that the value in the message type field corresponds to a
+           valid message type code.
+        4. If message type is not one of NEP_HANDSHAKE_CLIENT or
+           NEP_HANDSHAKE_SERVER, it checks that the received sequence number
+           matches the last received sequence number from the same sender plus
+           one.
+        5. It checks that the received timestamp is inside a "reasonable" time
+           window (where "reasonable" is left undefined on purpose, as it may
+           vary depending on the nature of the implementation or the host
+           system).
+        6. Checks the received total length. For messages whose length is
+           fixed, it should check whether the received length matches the
+           expected length of the message. For variable length messages, it
+           should check that the length is at least, higher than or equal to the
+           minimum length for that kind of message.
+        7. If all tests succeed, then the remaining bits are read
+           (remaining = TotalLength - 128bits)
+        8. Any remaining ciphertext is decrypted.
+        9. An alternative message authentication code is computed over the
+           unencrypted data and matched against the received one. If both codes
+           match, then the message is considered valid (its integrity has been
+           verified and its contents are to be trusted), authentic (the creator
+           of the message is someone who knows the secret) and fresh (the
+           message is new and has not been replayed).
+
+
+    2.13 Cryptographic key derivation.
+
+        Five cryptographic keys are generated for each client session. All of
+        them are derived from a single shared secret (a passphrase), known by
+        client and server. The key derivation process is the following:
+
+            h=SHA256( "passphrase" + NONCES + KEY_TYPE_ID )
+            do(1000 times){
+                h=SHA256(h);
+            }
+
+        Where 'h' is a 256bit buffer that holds the final key, 'SHA256' is the
+        hash computation function for the SHA-256 algorithm, 'NONCES' is the
+        combination of server's and client's nonce values, exchanged during
+        handshake, and KEY_TYPE_ID is a string that varies depending on the
+        type of key being derived. (See below for its definitions).
+
+        As mentioned above, a total of 5 symmetric keys are used. Those keys
+        are:
+
+        NEP_KEY_MAC_S2C : Key used by the server to sign its messages.
+            For this type of key, KEY_TYPE_ID="NEPkeyforMACServer2Client"
+            (unquoted) and NONCES equals the server nonce in the
+            NEP_HANDSHAKE_SERVER message, concatenated with the client nonce
+            in the NEP_HANDSHAKE_CLIENT message (SERVER_NONCE + CLIENT_NONCE).
+
+        NEP_KEY_MAC_S2C_INITIAL : Key used by the server to sign its
+            NEP_HANDSHAKE_SERVER messages. This is a special case key because
+            it needs to be generated before a client nonce is received (this is
+            the only key that is not influenced by the client's nonce). For
+            this type of key, KEY_TYPE_ID="NEPkeyforMACServer2ClientInitial"
+            (unquoted) and NONCES equals the nonce in the NEP_HANDSHAKE_SERVER
+            message, concatenated with an empty client nonce, in other words,
+            a nonce with all its bits set to zero (SERVER_NONCE + ZEROED_NONCE).
+
+        NEP_KEY_MAC_C2S : Key used by the client to sign its messages.
+            For this type of key, KEY_TYPE_ID="NEPkeyforMACClient2Server"
+            (unquoted) and NONCES equals the server nonce in the
+            NEP_HANDSHAKE_SERVER message, concatenated with the client nonce
+            in the NEP_HANDSHAKE_CLIENT message (SERVER_NONCE + CLIENT_NONCE).
+
+        NEP_KEY_CIPHERTEXT_C2S : Key used by the client to encrypt its
+            messages. For this type of key, KEY_TYPE_ID=
+            "NEPkeyforCiphertextClient2Server" (unquoted) and NONCES equals the
+            server nonce in the NEP_HANDSHAKE_SERVER message, concatenated with
+            the client nonce in the NEP_HANDSHAKE_CLIENT message
+            (SERVER_NONCE + CLIENT_NONCE).
+
+        NEP_KEY_CIPHERTEXT_S2C : Key used by the server to encrypt its
+            messages. For this type of key, KEY_TYPE_ID=
+            "NEPkeyforCiphertextServer2Client" (unquoted) and NONCES equals the
+            server nonce in the NEP_HANDSHAKE_SERVER message, concatenated with
+            the client nonce in the NEP_HANDSHAKE_CLIENT message
+            (SERVER_NONCE + CLIENT_NONCE).
+
+        When not all 256 bits are required, the last 256-N bits of key material
+        may be discarded, where N is the desired key length. This is, if less
+        than 256 of key material is needed, discarded bits must be the least
+        significant ones.
+
+    2.14 Encryption process.
+
+        Encryption must be performed using AES-128-CBC. This is, using the AES
+        encryption algorithm in CBC mode, with 128-bit keys.
+
+        For each party producing encrypted data, the first initialization
+        vector should be the nonce that this same party generated during the
+        authentication handshake phase. If the nonce has more bits than needed,
+        only the neccessary number of bits should be used. These bits should be
+        the most significant ones.
+
+        The initialization vector for subsequent encryption operations should
+        be the last ciphertext block produced by the same entitiy. This is, to
+        encrypt the Nth message, the last ciphertext block of the (N-1)th
+        message should be used as the initialization vector for message N. Same
+        rule applies for decryption operations, where the initialization vector
+        should be the last ciphertext block received from the other end.
+
+
+    2.15 Additional considerations.
+
+        - By default, the server side will listen for incoming connections on
+          TCP port 9929.
+
+
+3. GLOSSARY
+
+    C->S : Indicates that a given message is sent from the client to the server
+    S->C : Indicates that a given message is sent from the server to the client
+    NEP  : Acronym for Nping Echo Protocol
+
+
+4. REFERENCES
+
+    [1] I'Anson, C. and Mitchell, C. (1990). "Security defects in CCITT
+        recommendation X.509: the directory authentication framework". ACM
+        SIGCOMM Computer Communication Review, Volume 20, Issue 2. United
+        States.
+
+    [2] C.C.I.T.T. (1988). "Recommendation X .509, The Directory -
+        Authentication Framework"

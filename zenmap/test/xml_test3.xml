@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<!-- nmap 3.75 scan initiated Mon Jul 18 22:23:15 2005 as: nmap -sV -p80,22 -oX xml_test3.xml localhost -->
+<nmaprun scanner="nmap" args="nmap -sV -p80,22 -oX xml_test3.xml localhost" start="1121736195" version="3.75" xmloutputversion="1.01">
+<scaninfo type="connect" protocol="tcp" numservices="2" services="22,80" />
+<verbose level="0" />
+<debugging level="0" />
+<host>
+   <status state="up" />
+   <address addr="127.0.0.1" addrtype="ipv4" />
+   <hostnames>
+      <hostname name="localhost.localdomain" type="PTR" />
+      </hostnames>
+   <ports>
+      <extraports state="unknown" count="0" />
+      <port protocol="tcp" portid="22">
+         <state state="closed" />
+         <service name="ssh" method="table" conf="3" />
+      </port>
+      <port protocol="tcp" portid="80">
+         <state state="open" />
+         <service name="http" product="Apache httpd" version="2.0.53" method="probed" conf="10" />
+      </port>
+   </ports>
+</host>
+<runstats><finished time="1121736201" /><hosts up="1" down="0" total="1" />
+<!-- Nmap run completed at Mon Jul 18 22:23:21 2005; 1 IP address (1 host up) scanned in 5.177 seconds -->
+</runstats></nmaprun>

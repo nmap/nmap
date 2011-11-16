@@ -1,0 +1,5 @@
+NCAT_PATH=../../..
+PROXY_HOST=www.cnn.com:80
+PROXY_AUTH=user:pass
+
+$NCAT_PATH/ncat --http-proxy "$PROXY_HOST" --proxy-auth "$PROXY_AUTH" localhost 3128

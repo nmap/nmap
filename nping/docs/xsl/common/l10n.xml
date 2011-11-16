@@ -1,0 +1,131 @@
+<?xml version='1.0'?>
+<!DOCTYPE l:i18n SYSTEM "l10n.dtd" [
+<!ENTITY af SYSTEM "af.xml">
+<!ENTITY am SYSTEM "am.xml">
+<!ENTITY ar SYSTEM "ar.xml">
+<!ENTITY az SYSTEM "az.xml">
+<!ENTITY bg SYSTEM "bg.xml">
+<!ENTITY bn SYSTEM "bn.xml">
+<!ENTITY bs SYSTEM "bs.xml">
+<!ENTITY ca SYSTEM "ca.xml">
+<!ENTITY cs SYSTEM "cs.xml">
+<!ENTITY cy SYSTEM "cy.xml">
+<!ENTITY da SYSTEM "da.xml">
+<!ENTITY de SYSTEM "de.xml">
+<!ENTITY el SYSTEM "el.xml">
+<!ENTITY en SYSTEM "en.xml">
+<!ENTITY eo SYSTEM "eo.xml">
+<!ENTITY es SYSTEM "es.xml">
+<!ENTITY et SYSTEM "et.xml">
+<!ENTITY eu SYSTEM "eu.xml">
+<!ENTITY fa SYSTEM "fa.xml">
+<!ENTITY fi SYSTEM "fi.xml">
+<!ENTITY fr SYSTEM "fr.xml">
+<!ENTITY ga SYSTEM "ga.xml">
+<!ENTITY gl SYSTEM "gl.xml">
+<!ENTITY gu SYSTEM "gu.xml">
+<!ENTITY he SYSTEM "he.xml">
+<!ENTITY hi SYSTEM "hi.xml">
+<!ENTITY hr SYSTEM "hr.xml">
+<!ENTITY hu SYSTEM "hu.xml">
+<!ENTITY id SYSTEM "id.xml">
+<!ENTITY it SYSTEM "it.xml">
+<!ENTITY ja SYSTEM "ja.xml">
+<!ENTITY kn SYSTEM "kn.xml">
+<!ENTITY ko SYSTEM "ko.xml">
+<!ENTITY la SYSTEM "la.xml">
+<!ENTITY lit SYSTEM "lt.xml">
+<!ENTITY lv SYSTEM "lv.xml">
+<!ENTITY mn SYSTEM "mn.xml">
+<!ENTITY nl SYSTEM "nl.xml">
+<!ENTITY nn SYSTEM "nn.xml">
+<!ENTITY nb SYSTEM "nb.xml">
+<!ENTITY or SYSTEM "or.xml">
+<!ENTITY pa SYSTEM "pa.xml">
+<!ENTITY pl SYSTEM "pl.xml">
+<!ENTITY pt_br SYSTEM "pt_br.xml">
+<!ENTITY pt SYSTEM "pt.xml">
+<!ENTITY ro SYSTEM "ro.xml">
+<!ENTITY ru SYSTEM "ru.xml">
+<!ENTITY sk SYSTEM "sk.xml">
+<!ENTITY sl SYSTEM "sl.xml">
+<!ENTITY sq SYSTEM "sq.xml">
+<!ENTITY sr_Latn SYSTEM "sr_Latn.xml">
+<!ENTITY sr SYSTEM "sr.xml">
+<!ENTITY sv SYSTEM "sv.xml">
+<!ENTITY ta SYSTEM "ta.xml">
+<!ENTITY th SYSTEM "th.xml">
+<!ENTITY tl SYSTEM "tl.xml">
+<!ENTITY tr SYSTEM "tr.xml">
+<!ENTITY uk SYSTEM "uk.xml">
+<!ENTITY vi SYSTEM "vi.xml">
+<!ENTITY xh SYSTEM "xh.xml">
+<!ENTITY zh SYSTEM "zh.xml">
+<!ENTITY zh_cn SYSTEM "zh_cn.xml">
+<!ENTITY zh_tw SYSTEM "zh_tw.xml">
+]>
+<l:i18n xmlns:l="http://docbook.sourceforge.net/xmlns/l10n/1.0">
+&af;
+&am;
+&ar;
+&az;
+&bg;
+&bn;
+&bs;
+&ca;
+&cs;
+&cy;
+&da;
+&de;
+&el;
+&en;
+&eo;
+&es;
+&et;
+&eu;
+&fa;
+&fi;
+&fr;
+&ga;
+&gl;
+&gu;
+&he;
+&hi;
+&hr;
+&hu;
+&id;
+&it;
+&ja;
+&kn;
+&ko;
+&la;
+&lit;
+&lv;
+&mn;
+&nl;
+&nn;
+&nb;
+&or;
+&pa;
+&pl;
+&pt;
+&pt_br;
+&ro;
+&ru;
+&sk;
+&sl;
+&sq;
+&sr;
+&sr_Latn;
+&sv;
+&ta;
+&th;
+&tl;
+&tr;
+&uk;
+&vi;
+&xh;
+&zh;
+&zh_cn;
+&zh_tw;
+</l:i18n>

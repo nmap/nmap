@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<!-- nmap 3.75 scan initiated Mon Jul 18 22:49:43 2005 as: nmap -sV -v -p80,22 -oX xml_test7.xml 10.0.0.100-180 -->
+<nmaprun scanner="nmap" args="nmap -sV -v -p80,22 -oX xml_test7.xml 10.0.0.100-180" start="1121737783" version="3.75" xmloutputversion="1.01">
+<scaninfo type="connect" protocol="tcp" numservices="2" services="22,80" />
+<verbose level="1" />
+<debugging level="0" />
+<host><status state="up" />
+<address addr="10.0.0.100" addrtype="ipv4" />
+<hostnames><hostname name="canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.138" addrtype="ipv4" />
+<hostnames><hostname name="SpeedTouch.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" method="table" conf="3" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.140" addrtype="ipv4" />
+<hostnames><hostname name="servidor.canopo" type="PTR" /></hostnames>
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="open" /><service name="ssh" product="OpenSSH" version="3.9p1" extrainfo="protocol 1.99" method="probed" conf="10" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.52" extrainfo="(Red Hat)" method="probed" conf="10" /></port>
+</ports>
+</host>
+<host><status state="up" />
+<address addr="10.0.0.150" addrtype="ipv4" />
+<hostnames />
+<ports><extraports state="unknown" count="0" />
+<port protocol="tcp" portid="22"><state state="closed" /><service name="ssh" method="table" conf="3" /></port>
+<port protocol="tcp" portid="80"><state state="open" /><service name="http" product="Apache httpd" version="2.0.53" method="probed" conf="10" /></port>
+</ports>
+</host>
+<runstats><finished time="1121737849" /><hosts up="4" down="77" total="81" />
+<!-- Nmap run completed at Mon Jul 18 22:50:49 2005; 81 IP addresses (4 hosts up) scanned in 66.760 seconds -->
+</runstats></nmaprun>

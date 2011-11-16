@@ -1,0 +1,11 @@
+            .       .
+            \`-"'"-'/
+             } 6 6 {
+            ==. Y ,==
+              /^^^\  .
+             /     \  )  Ncat: A modern interpretation of classic Netcat
+            (  )-(  )/
+            -""---""---   /
+           /   Ncat    \_/
+          (     ____
+           \_.=|____E

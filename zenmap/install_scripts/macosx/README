@@ -1,0 +1,94 @@
+This is a description of the files in this directory, all of which have
+to do with packaging on Mac OS X. They are useful only for those wanting
+to build binary distributions of Zenmap for Mac OS X.
+
+== Info.plist
+A properties list file that whose contents are merged with the default
+properties added by py2app.
+
+== make-bundle.sh
+This script builds a .app bundle. It must be run from the root of the
+Zenmap source tree. The finished bundle is put in dist/Zenmap.app.
+
+== test_wrapper.py
+This file contains unit tests for zenmap_wrapper.py, because it needs to
+do some tricky escaping and substitution of configuration files.
+
+== zenmap.icns
+The icon file for the bundle. It was created using the Icon Composer
+utility as described at
+http://developer.apple.com/documentation/Cocoa/Conceptual/ObjCTutorial/08Configuring/08Configuring.html
+
+== zenmap_auth.c
+This is a simple wrapper program that attempts to run zenmap_wrapper.py
+with privileges.
+
+== zenmap_wrapper.py
+This is a wrapper script that gets installed in the application bundle.
+It sets up an execution environment and then calls the main zenmap
+executable.
+
+== MacPorts-ports.diff
+
+This patch against a MacPorts ports tree contains various changes needed
+to install dependencies in a sufficiently portable way. The main thing
+accomplished by this patch is to avoid building a MacPorts libiconv.
+libcups depends on libiconv, but it depends on an Apple version of
+libconv, and MacPorts doesn't have a port for libcups. The MacPorts
+libiconv is incompatible and causes a dynamic linker error at runtime.
+
+The following instructions show how to make a 10.5-compatible
+environment suitable for building Zenmap packages. It will be a separate
+installation in $HOME/macports-10.5 that won't interfere with your
+normal MacPorts installation in /opt/local. These instructions were done
+with MacPorts 2.0.3 on Mac OS X 10.6.8.
+
+1. Install MacPorts.
+	export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+	export PREFIX=$HOME/macports-10.5
+	tar xzvf MacPorts-2.0.3.tar.gz
+	cd MacPorts-2.0.3
+	./configure --with-no-root-privileges --prefix=$PREFIX --with-tclpackage=$PREFIX/Library/Tcl --with-applications-dir=$PREFIX/Applications
+	make
+	make install
+2. Update the ports tree.
+	$PREFIX/bin/port sync
+3. Edit the file $PREFIX/etc/macports/macports.conf.
+   Uncomment the line
+	build_arch			i386
+   Add this line at the bottom:
+	macosx_deployment_target	10.5
+4. Make a local patched ports tree.
+	cd $PREFIX
+	mkdir ports
+	ln -s var/macports/sources/rsync.macports.org/release/tarballs/ports ports.orig
+	for x in devel/atk devel/gettext devel/glib2 gnome/gtk2 graphics/fontconfig perl/p5-locale-gettext python/py26-gobject python/py27-libxml2 textproc/help2man textproc/libxml2 textproc/libxslt; do
+		mkdir -v -p ports/$x;
+		cp -R ports.orig/$x ports/$(dirname $x);
+	done
+	patch -p0 < MacPorts-ports.diff
+5. Build a port index.
+	cd ports
+	$PREFIX/bin/portindex
+6. Edit the file $PREFIX/etc/macports/sources.conf.
+   Add a line
+	file:///Users/user/macports-10.5/ports
+   above the rsync line. (Replace "user" with your user name.)
+7. Install the dependencies of Zenmap.
+	$PREFIX/bin/port install py26-gtk py26-py2app
+
+Here are instructions for updating the patch to keep up with MacPorts
+changes. First, sync the original ports tree.
+	$PREFIX/bin/port sync
+Restore a pristine partial ports tree:
+	cd $PREFIX
+	rsync -rv --existing --delete --exclude=PortIndex ports.orig/ ports/
+Reapply the patch. Resolve any conflicts.
+	patch -p0 --no-backup-if-mismatch < MacPorts-ports.diff
+Make a new patch.
+	diff --unidirectional-new-file -ru -x 'PortIndex*' ports.orig ports | grep -v '^Only in ' > new.diff
+Check that it's all right, then rename it.
+	mv new.diff MacPorts-ports.diff
+Rebuild the port index.
+	cd ports
+	$PREFIX/bin/portindex

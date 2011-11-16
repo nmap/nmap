@@ -1,0 +1,29 @@
+Ncat Acknowledgements
+=====================
+
+This file is a short rambling of various "thank-you"'s to all 
+the very generous support and advice received from various 
+parties.
+
+First and foremost: Thanks go out to Fyodor for all the support
+and great ideas throughout the course of development and no doubt
+also in the future.
+
+Thanks to Google and the Summer of Code team. The points of
+contact with Google being Chris DiBona, Natalie and Jude. Thanks to
+you all for making this possible. Without whom I wouldn't even
+be writing this.
+
+Also, thank you to all the folks from #c on Undernet who kicked
+me in the right direction when things were at their most broken.
+
+Thanks to Jan for all her support and, well, general tolerance. :)
+
+Thanks to all the people who've submitted bug reports, given me
+ideas, helped me test Ncat or just given me general encouragement
+over the previous years. It is most appreciated.
+
+Finally, thanks to Hobbit for writing the original Netcat; it still 
+rocks.
+
+--Chris Gibson, <chris@linuxops.net>
