@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added maxdb-info script that tries to enumerate version and database
+  information from a SAP MaxDB database [Patrik]
+
 o [NSE] Added nexpose-brute a script that performs password auditing against
   the Nexpose vulnerability scanner. [Vlatko Kosturjak]
 
