@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added nexpose-brute a script that performs password auditing against
+  the Nexpose vulnerability scanner. [Vlatko Kosturjak]
+
 o [NSE] Added http-vuln-cve2011-3368 a script that attempts to detect whether
   the remote web server is vulnerable to the Apache reverse proxy bypass
   vulnerability CVE-2011-3368. [Ange Gutek, Patrik]
