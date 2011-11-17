@@ -117,6 +117,7 @@ Entry { filename = "http-userdir-enum.nse", categories = { "auth", "intrusive", 
 Entry { filename = "http-vhosts.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-vmware-path-vuln.nse", categories = { "safe", "vuln", } }
 Entry { filename = "http-vuln-cve2011-3192.nse", categories = { "safe", "vuln", } }
+Entry { filename = "http-vuln-cve2011-3368.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-waf-detect.nse", categories = { "discovery", "intrusive", } }
 Entry { filename = "http-wordpress-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-wordpress-enum.nse", categories = { "auth", "intrusive", "vuln", } }

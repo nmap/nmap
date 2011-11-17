@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added http-vuln-cve2011-3368 a script that attempts to detect whether
+  the remote web server is vulnerable to the Apache reverse proxy bypass
+  vulnerability CVE-2011-3368. [Ange Gutek, Patrik]
+
 o [NSE] Added new functionality and fixed some bugs in the brute library:
   - Added support for restricting the amount of guesses performed by the
     brute library against users, to prevent account lockouts.
