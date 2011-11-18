@@ -1,7 +1,5 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
-o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
-
 o Integrate latest IPv6 OS detection fingerprint submissions
  - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
@@ -144,12 +142,7 @@ o Nmap should have a better way to handle XML script output.
 
 o [NSE] HTTP spidering library/script
 
-o A program to canonicalize and tidy nmap-service-probes.
-  o Order of fields: m p v i d o h cpe:/a cpe:/h cpe:/o.
-  o Check for duplicate templates (except cpe:).
-  o Check for unknown templates.
-  o Canonicalize delimiters (use // first, otherwise try in order
-    | % = @ #).
+o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
   o Check for the same reference (like $1) being used in unrelated fields
     (where related fields are the pairs (p, cpe:), (v, cpe:), (i, cpe:),
     (o, cpe:)).
@@ -164,7 +157,6 @@ o A program to canonicalize and tidy nmap-service-probes.
       p/Foobar 2000 ADSL router/ i/micro_httpd web server/
     that should rather be written this way:
       p/micro_httpd/ i/Foobar 2000 ADSL router/
-  o Retain line breaks and comments.
 
 o Summer of Code feature creeper:
   o [Zenmap] should actually parse and use script results. See
@@ -718,6 +710,16 @@ o Nmap / Nmap-hackers FAQ
 o random tip database
 
 DONE:
+
+o A program to canonicalize and tidy nmap-service-probes.
+  o Order of fields: m p v i d o h cpe:/a cpe:/h cpe:/o.
+  o Check for duplicate templates (except cpe:).
+  o Check for unknown templates.
+  o Canonicalize delimiters (use // first, otherwise try in order
+    | % = @ #).
+  o Retain line breaks and comments.
+
+o Document IPv6 OS detection at http://nmap.org/book/osdetect.html
 
 o Script review:
   - New scripts from Paulino: http-wordpress-brute and http-joomla-brute,
