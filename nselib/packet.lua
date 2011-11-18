@@ -630,10 +630,10 @@ end
 -- @param force_continue Ignored.
 -- @return Whether the parsing succeeded.
 function Packet:ipv6_ext_header_parse(force_continue)
-	local ext_hdr_len = self.u8(self.ip6_data_offset + 1)
+	local ext_hdr_len = self:u8(self.ip6_data_offset + 1)
 	ext_hdr_len = ext_hdr_len*8 + 8
 	self.ip6_data_offset = self.ip6_data_offset + ext_hdr_len
-	self.ip6_nhdr = self.u8(self.ip6_data_offset)
+	self.ip6_nhdr = self:u8(self.ip6_data_offset)
 end
 --- Set the header length field.
 function Packet:ip_set_hl(len)
