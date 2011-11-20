@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-sybase-asa-discover that discovers Sybase
+  SQL Anywhere servers on the local LAN. [Patrik]
+
 o Added a probe for Sybase SQL Anywhere. [Patrik]
 
 o [NSE] Added maxdb-info script that tries to enumerate version and database
