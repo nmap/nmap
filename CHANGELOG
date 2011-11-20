@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added a probe for Sybase SQL Anywhere. [Patrik]
+
 o [NSE] Added maxdb-info script that tries to enumerate version and database
   information from a SAP MaxDB database [Patrik]
 
