@@ -271,6 +271,7 @@ Entry { filename = "targets-sniffer.nse", categories = { "broadcast", "discovery
 Entry { filename = "targets-traceroute.nse", categories = { "discovery", "safe", } }
 Entry { filename = "telnet-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "tftp-enum.nse", categories = { "discovery", "intrusive", } }
+Entry { filename = "unusual-port.nse", categories = { "safe", } }
 Entry { filename = "upnp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "vnc-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "vnc-info.nse", categories = { "default", "discovery", "safe", } }

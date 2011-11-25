@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script unusual-port that compares a detected service on a
+  port against the expected service listed in nmap-services [Patrik]
+
 o [NSE] Added the script broadcast-sybase-asa-discover that discovers Sybase
   SQL Anywhere servers on the LAN. [Patrik]
 
