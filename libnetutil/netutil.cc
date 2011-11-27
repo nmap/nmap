@@ -1190,8 +1190,8 @@ static int nmaskcmp(const void *a, const void *b) {
 /* Convert an address to a string and back again. The first parsing step
    eliminates magical OS-specific syntax, for example on OS X, fe80:4::X:X:X:X
    becomes "fe80::X:X:X:X" (the "4" in this case is another way of writing the
-   zone ID, like "%en0"; i.e., in this case en0 is interface number 4. This must
-   be done before e.g. comparing addresses by netmask. */
+   zone ID, like "%en0"; i.e., in this case en0 is interface number 4). This
+   must be done before e.g. comparing addresses by netmask. */
 static int canonicalize_address(const struct sockaddr_storage *ss,
   struct sockaddr_storage *output) {
   char canonical_ip_string[NI_MAXHOST];
