@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added whitelist capabilities to the unusual-port script to be able
+  to handle legitimate services on dynamic ports and discrepancies between
+  names of services. [Patrik]
+
 o [NSE] Added the script unusual-port that compares a detected service on a
   port against the expected service listed in nmap-services [Patrik]
 

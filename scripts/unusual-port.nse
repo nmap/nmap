@@ -14,8 +14,6 @@ order to be able to discover what service is running on each port.
 -- 25/tcp open   smtp    Postfix smtpd
 --
 
--- Version 0.1
--- Created 11/25/2011 - v0.1 - created by Patrik Karlsson
 author = "Patrik Karlsson"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = { "safe" }
@@ -50,10 +48,65 @@ hostaction = function(host)
 	
 end
 
-portaction = function(host, port)
-	nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
-	nmap.registry[SCRIPT_NAME]['services'] = nmap.registry[SCRIPT_NAME]['services'] or {}
+portchecks = {
+	
+	['tcp'] = {
+		[113] = function(host, port) return ( port.service == "ident" ) end,
+		[445] = function(host, port) return ( port.service == "netbios-ssn" ) end,
+		[587] = function(host, port) return ( port.service == "smtp" ) end,
+		[593] = function(host, port) return ( port.service == "ncacn_http" ) end,
+		[636] = function(host, port) return ( port.service == "ldapssl" ) end,
+		[3268] = function(host, port) return ( port.service == "ldap" ) end,
+	},
+	
+	['udp'] = {
+		[5353] = function(host, port) return ( port.service == "mdns" ) end,
+	}
 
+}
+
+servicechecks = {
+	['http'] = function(host, port)
+		local service = port.service
+		port.service = "unknown"
+		local status = shortport.http(host, port)
+		port.service = service
+		return status
+	end,
+	
+	-- accept msrpc on any port for now, we might want to limit it to certain
+	-- port ranges in the future.
+	['msrpc'] = function(host, port) return true end,
+	
+	-- accept ncacn_http on any port for now, we might want to limit it to
+	-- certain port ranges in the future.
+	['ncacn_http'] = function(host, port) return true end,
+}
+
+local function checkService(host, port)
+	local ok = false
+
+	if ( port.version.name_confidence <= 3 ) then
+		return
+	end
+	if ( portchecks[port.protocol][port.number] ) then
+		ok = portchecks[port.protocol][port.number](host, port)
+	end
+	if ( not(ok) and servicechecks[port.service] ) then
+		ok = servicechecks[port.service](host, port)
+	end
+	if ( not(ok) and port.service and 
+		( port.service == nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number] or
+		  "unknown" == nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number] or
+		  not(nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number]) ) ) then
+		ok = true
+	end	
+	if ( not(ok) ) then
+		return ("%s unexpected on port %s/%d"):format(port.service, port.protocol, port.number)
+	end
+end
+
+local function loadTables()
 	for _, proto in ipairs({"tcp","udp"}) do
 		if ( not(nmap.registry[SCRIPT_NAME]['services'][proto]) ) then
 			local status, svc_table = datafiles.parse_services(proto)
@@ -62,11 +115,13 @@ portaction = function(host, port)
 			end	
 		end
 	end
-	
-	if ( port.version.name_confidence > 3 and port.service and 
-		 port.service ~= nmap.registry[SCRIPT_NAME]['services'][port.protocol][port.number] ) then
-		return ("%s unexpected on port %s/%d"):format(port.service, port.protocol, port.number)
-	end	
+end
+
+portaction = function(host, port)
+	nmap.registry[SCRIPT_NAME] = nmap.registry[SCRIPT_NAME] or {}
+	nmap.registry[SCRIPT_NAME]['services'] = nmap.registry[SCRIPT_NAME]['services'] or {}
+	loadTables()
+	return checkService(host, port)
 end
 
 local Actions = {
