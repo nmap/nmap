@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script reverse-index that creates creates a reverse index
+  showing which hosts run a particular service rather than the services for
+  each host. [Patrik]
+
 o [NSE] Added whitelist capabilities to the unusual-port script to be able
   to handle legitimate services on dynamic ports and discrepancies between
   names of services. [Patrik]
