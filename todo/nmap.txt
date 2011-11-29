@@ -157,6 +157,9 @@ o Finish sv-tidy - a program to canonicalize and tidy nmap-service-probes.
       p/Foobar 2000 ADSL router/ i/micro_httpd web server/
     that should rather be written this way:
       p/micro_httpd/ i/Foobar 2000 ADSL router/
+  o Warn when a match template contains '.' but not the 's' flag.
+    (Maybe only when there are non-ASCII literal characters in the
+    template.)
 
 o Summer of Code feature creeper:
   o [Zenmap] should actually parse and use script results. See
