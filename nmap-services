@@ -219,7 +219,7 @@ rpcbind	111/tcp	0.030034	# portmapper, rpcbind
 rpcbind	111/udp	0.093988	# portmapper, rpcbind
 mcidas	112/tcp	0.000050	# McIDAS Data Transmission Protocol
 mcidas	112/udp	0.002208	# McIDAS Data Transmission Protocol
-auth	113/tcp	0.012370	# ident, tap, Authentication Service
+ident	113/tcp	0.012370	# ident, tap, Authentication Service
 auth	113/udp	0.003031	# ident, tap, Authentication Service
 audionews	114/tcp	0.000025	# Audio News Multicast
 audionews	114/udp	0.000362	# Audio News Multicast
