@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [Nping] The --safe-payloads option is now default. Added --include-payloads for special situations. [Colin Rice]
+
 o [NSE] Added the script reverse-index that creates creates a reverse index
   showing which hosts run a particular service rather than the services for
   each host. [Patrik]
