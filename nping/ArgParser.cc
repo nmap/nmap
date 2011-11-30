@@ -250,6 +250,7 @@ char errstr[256];
   {"nc", no_argument, 0, 0},
   {"once", no_argument, 0, 0},
   {"safe-payloads", no_argument, 0, 0},
+  {"include-payloads", no_argument, 0, 0},
 
   /* Timing and performance */
   {"delay", required_argument, 0, 0},
@@ -902,6 +903,8 @@ char errstr[256];
         o.doCrypto(false);
     } else if (optcmp(long_options[option_index].name, "safe-payloads")==0 ){
         o.echoPayload(false);
+    } else if (optcmp(long_options[option_index].name, "include-payloads")==0 ){
+        o.echoPayload(true);
 
 
 /* TIMING AND PERFORMANCE OPTIONS ********************************************/

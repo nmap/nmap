@@ -337,7 +337,7 @@ NpingOps::NpingOps() {
 
     do_crypto=true;
 
-    echo_payload=true;
+    echo_payload=false;
 
     echo_server_once=false;
     echo_server_once_set=false;
