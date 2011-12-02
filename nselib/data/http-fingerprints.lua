@@ -2053,11 +2053,13 @@ table.insert(fingerprints, {
 	category='management',
 	probes={
 		{path='/web-console/ServerInfo.jsp', method='HEAD'},
+		{path='/web-console/Invoker', method='HEAD'},
+		{path='/invoker/', method='HEAD'},
 		{path='/jmx-console/', method='HEAD'},
 		{path='/admin-console/', method='HEAD'}
 	},
 	matches= {
-		{match='', output='JBOSS Console'}
+		{match='', output='JBoss Console'}
 	}
 })
 
