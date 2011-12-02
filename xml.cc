@@ -90,12 +90,13 @@
 /*
 This is a simple library for writing XML. It handles two main things:
 keeping track of the element stack, and escaping text where necessary.
-Here is an example of writing
+If you wanted to write this XML:
   <?xml version="1.0"?>
   <elem name="&amp;10.5"></elem>
-Each function call is followed by the text it prints enclosed in ||.
+these are the functions you would call. Each one is followed by the text
+it prints enclosed in ||.
 
-xml_start_document()                   |<?xml version="1.0"?>
+xml_start_document()                   |<?xml version="1.0"?>|
 xml_newline();                         |\n|
 xml_open_start_tag("elem");            |<elem|
 xml_attribute("name", "&%.1f", 10.5);  | name="&amp;10.5"|
