@@ -1,6 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o [Nping] The --safe-payloads option is now default. Added --include-payloads for special situations. [Colin Rice]
+o [NSE] Added the a Vuze library, port probe and the script vuze-dht-info. The
+  script connects to a Vuze node and gets protocol, vendor and network
+  information. [Patrik]
+
+o [Nping] The --safe-payloads option is now default. Added --include-payloads
+  for special situations. [Colin Rice]
 
 o [NSE] Added the script reverse-index that creates creates a reverse index
   showing which hosts run a particular service rather than the services for

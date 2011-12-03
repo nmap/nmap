@@ -10117,3 +10117,11 @@ Probe UDP sybaseanywhere q|\x1b\0\0\x3d\0\0\0\0\x12CONNECTIONLESS_TDS\0\0\0\x01\
 rarity 7
 ports 2638
 match sybaseanywhere m|^\x1b\0\0.\0\0\0\0\x12CONNECTIONLESS_TDS\0\0\0\x01\x01\0\x04\0\x05\0\x05\0.(.*)\0\x01\x02..\x03\x01\x02\x04\x08\0\0\0\0\0\0\0\0\x07\x02\x04\xb1|s p/Sybase SQL Anywhere/ i/Instance name: $1/
+
+##############################NEXT PROBE##############################
+# Vuze DHT PING probe
+# See http://wiki.vuze.com/w/Distributed_hash_table#PING
+Probe UDP vuze-dht q|\xff\xf0\x97\x0d\x2e\x60\xd1\x6f\0\0\x04\0\0\x55\xab\xec\x32\0\0\0\0\0\x32\x04\x0a\0\xc8\x75\xf8\x16\0\x5c\xb9\x65\0\0\0\0\x4e\xd1\xf5\x28|
+rarity 8
+ports 17555,49152-49156
+match vuze-dht m|^\0\0\x04\x01\0U\xab\xec\xff\xf0\x97\r\.`\xd1o..........|s p/Vuze/
