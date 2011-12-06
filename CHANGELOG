@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch that replaces a number of GET requests to HEAD in http-
+  fingerprints.lua where no matching was performed on the returned contents.
+  [Hani Benhabiles]
+
 o [NSE] Applied patch to the ssl-cert script that adds support for getting SSL
   certificates from FTP servers. [Matt Selsky]
 

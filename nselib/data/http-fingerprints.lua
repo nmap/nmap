@@ -167,7 +167,7 @@ table.insert(fingerprints, {
 	category='general',
 	probes={
 		{path='/adr.htm', method='HEAD'},
-		{path='/line_login.htm?l=1', method='GET'},
+		{path='/line_login.htm?l=1', method='HEAD'},
 		{path='/tbook.csv', method='HEAD'}
 	},
 	matches= {
@@ -199,7 +199,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/login.stm', method='GET'}
+		{path='/login.stm', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Belkin G Wireless Router'}
@@ -249,7 +249,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='//system.html', method='GET'}
+		{path='//system.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='CMNC-200 IP Camera'}
@@ -259,7 +259,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/main_configure.cgi', method='GET'}
+		{path='/main_configure.cgi', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Intellinet IP Camera'}
@@ -279,7 +279,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/frontend/x3/', method='GET'}
+		{path='/frontend/x3/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='CPanel'}
@@ -289,11 +289,11 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/awstatstotals/awstatstotals.php', method='GET'},
-		{path='/awstats/awstatstotals.php', method='GET'},
-		{path='/awstatstotals.php', method='GET'},
-		{path='/awstats/index.php', method='GET'},
-		{path='/awstatstotals/index.php', method='GET'}
+		{path='/awstatstotals/awstatstotals.php', method='HEAD'},
+		{path='/awstats/awstatstotals.php', method='HEAD'},
+		{path='/awstatstotals.php', method='HEAD'},
+		{path='/awstats/index.php', method='HEAD'},
+		{path='/awstatstotals/index.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='AWStats Totals'}
@@ -303,7 +303,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/egroupware/', method='GET'}
+		{path='/egroupware/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='eGroupware'}
@@ -313,8 +313,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/calendar/cal_search.php', method='GET'},
-		{path='/cal_search.php', method='GET'}
+		{path='/calendar/cal_search.php', method='HEAD'},
+		{path='/cal_search.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='ExtCalendar'}
@@ -324,8 +324,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/a_viewusers.php', method='GET'},
-		{path='/aphpkb/', method='GET'}
+		{path='/a_viewusers.php', method='HEAD'},
+		{path='/aphpkb/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Andys PHP Knowledgebase'}
@@ -335,8 +335,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/webedition/we/include/we_modules/', method='GET'},
-		{path='/webedition/', method='GET'}
+		{path='/webedition/we/include/we_modules/', method='HEAD'},
+		{path='/webedition/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Web Edition'}
@@ -346,7 +346,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/Examples/', method='GET'}
+		{path='/Examples/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Possible documentation files'}
@@ -356,7 +356,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/LightNEasy.php?do=login', method='GET'}
+		{path='/LightNEasy.php?do=login', method='HEAD'}
 	},
 	matches= {
 		{match='', output='LightNEasy'}
@@ -366,7 +366,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/channel_detail.php', method='GET'}
+		{path='/channel_detail.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='DzTube'}
@@ -376,7 +376,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/cgi-bin/vcs', method='GET'}
+		{path='/cgi-bin/vcs', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Mitel Audio and Web Conferencing (AWC)'}
@@ -386,7 +386,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/ocsreports/', method='GET'}
+		{path='/ocsreports/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='OCS Inventory'}
@@ -396,7 +396,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/vbseo.php', method='GET'}
+		{path='/vbseo.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='vBSEO'}
@@ -908,19 +908,19 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/b.sql', method='GET'},
-		{path='/db.sql', method='GET'},
-		{path='/ddb.sql', method='GET'},
-		{path='/users.sql', method='GET'},
-		{path='/database.sql', method='GET'},
-		{path='/mysql.sql', method='GET'},
-		{path='/dump.sql', method='GET'},
-		{path='/respaldo.sql', method='GET'},
-		{path='/data.sql', method='GET'},
-		{path='/old.sql', method='GET'},
-		{path='/usuarios.sql', method='GET'},
-		{path='/bdb.sql', method='GET'},
-		{path='/1.sql', method='GET'},
+		{path='/b.sql', method='HEAD'},
+		{path='/db.sql', method='HEAD'},
+		{path='/ddb.sql', method='HEAD'},
+		{path='/users.sql', method='HEAD'},
+		{path='/database.sql', method='HEAD'},
+		{path='/mysql.sql', method='HEAD'},
+		{path='/dump.sql', method='HEAD'},
+		{path='/respaldo.sql', method='HEAD'},
+		{path='/data.sql', method='HEAD'},
+		{path='/old.sql', method='HEAD'},
+		{path='/usuarios.sql', method='HEAD'},
+		{path='/bdb.sql', method='HEAD'},
+		{path='/1.sql', method='HEAD'},
 		{path='/admin/download/backup.sql', method='HEAD'}
 
 	},
@@ -1235,12 +1235,12 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/ehcp/?op=applyforftpaccount', method='GET'},
-                {path='/ehcp/?op=applyforaccount', method='GET'},
-		{path='/ehcp/?op=applyfordomainaccount', method='GET'},
-                {path='/vhosts/ehcp/?op=applyforftpaccount', method='GET'},
-                {path='/vhosts/ehcp/?op=applyforaccount', method='GET'},
-		{path='/vhosts/ehcp/?op=applyfordomainaccount', method='GET'},
+		{path='/ehcp/?op=applyforftpaccount', method='HEAD'},
+                {path='/ehcp/?op=applyforaccount', method='HEAD'},
+		{path='/ehcp/?op=applyfordomainaccount', method='HEAD'},
+                {path='/vhosts/ehcp/?op=applyforftpaccount', method='HEAD'},
+                {path='/vhosts/ehcp/?op=applyforaccount', method='HEAD'},
+		{path='/vhosts/ehcp/?op=applyfordomainaccount', method='HEAD'},
 	},
 	matches= {
 		{match='', output='Easy Hosting Control Panel'}
@@ -1504,8 +1504,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/nagios3/cgi-bin/statuswml.cgi', method='GET'},
-		{path='/nagios3/', method='GET'}
+		{path='/nagios3/cgi-bin/statuswml.cgi', method='HEAD'},
+		{path='/nagios3/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Nagios3'}
@@ -1537,7 +1537,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/private/sdc.tgz', method='GET'}
+		{path='/private/sdc.tgz', method='HEAD'}
 	},
 	matches= {
 		{match='', output='IBM Bladecenter Management Logs'}
@@ -1547,7 +1547,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/cacti/', method='GET'}
+		{path='/cacti/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Cacti Web Monitoring'}
@@ -1557,7 +1557,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/cgi-bin/awstats.pl', method='GET'}
+		{path='/cgi-bin/awstats.pl', method='HEAD'}
 	},
 	matches= {
 		{match='', output='AWStats'}
@@ -1567,7 +1567,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/wiki/rankings.php', method='GET'}
+		{path='/wiki/rankings.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Bit Weaver'}
@@ -1577,7 +1577,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/reqdetails.php', method='GET'}
+		{path='/reqdetails.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='BtiTracker'}
@@ -1587,7 +1587,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/shared/help.php', method='GET'}
+		{path='/shared/help.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='OpenBiblio/WebBiblio Subject Gateway System'}
@@ -1597,7 +1597,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/seti.php', method='GET'}
+		{path='/seti.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='PHP SETI@home'}
@@ -1607,8 +1607,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/imc/', method='GET'},
-		{path='/imcws/', method='GET'}
+		{path='/imc/', method='HEAD'},
+		{path='/imcws/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='3Com Intelligent Management Center'}
@@ -1618,7 +1618,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/partymgr/', method='GET'}
+		{path='/partymgr/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Apache OFBiz'}
@@ -1639,7 +1639,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/YUI-upload/html', method='GET'}
+		{path='/YUI-upload/html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='YUI Images / File Upload'}
@@ -1649,7 +1649,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/tools/filemanager/skins/mobile/admin1.template.php', method='GET'}
+		{path='/tools/filemanager/skins/mobile/admin1.template.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='ispCP Omega'}
@@ -1659,7 +1659,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
-		{path='/Uploadify/', method='GET'}
+		{path='/Uploadify/', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Uploadify'}
@@ -2552,7 +2552,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='network',
 	probes={
-		{path='/HW_logo.html', method='GET'},
+		{path='/HW_logo.html', method='HEAD'},
 	},
 	matches= {
 		{match='', output='Huawei HG 530'}
@@ -2562,10 +2562,10 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='network',
 	probes={
-		{path='/icons/icon_set_up_2701XX_01.gif', method='GET'},
-		{path='/icons/icon_homeportal_2701XX.gif', method='GET'},
-		{path='/es/images/nav_sl_home_network_01.gif', method='GET'},
-		{path='/en/images/nav_sl_home_network_01.gif', method='GET'}
+		{path='/icons/icon_set_up_2701XX_01.gif', method='HEAD'},
+		{path='/icons/icon_homeportal_2701XX.gif', method='HEAD'},
+		{path='/es/images/nav_sl_home_network_01.gif', method='HEAD'},
+		{path='/en/images/nav_sl_home_network_01.gif', method='HEAD'}
 	},
 	matches= {
 		{match='', output='2WIRE 2701HG'}
@@ -2575,8 +2575,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='network',
 	probes={
-		{path='/images/stxx__xl.gif', method='GET'},
-		{path='/images/bbc__xl.gif', method='GET'}
+		{path='/images/stxx__xl.gif', method='HEAD'},
+		{path='/images/bbc__xl.gif', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Thomson TG585'}
@@ -2711,7 +2711,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
  category='attacks',
  probes={
-         {path='..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/var/mobile/Library/AddressBook/AddressBook.sqlitedb', method='GET'}
+         {path='..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2f/var/mobile/Library/AddressBook/AddressBook.sqlitedb', method='HEAD'}
         },
         matches={
           {match='', output='Possible iPhone/iPod/iPad generic file sharing app Directory Traversal (iOS)'}
@@ -2895,7 +2895,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/cmspages.php', method='GET'}
+		{path='/cmspages.php', method='HEAD'}
 	},
 	matches={
 		{match='', output='2Point Solutions CMS'}
@@ -2905,7 +2905,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/sc_webcat/ecat/cms_view.php', method='GET'}
+		{path='/sc_webcat/ecat/cms_view.php', method='HEAD'}
 	},
 	matches={
 		{match='', output='Webcat'}
@@ -2915,7 +2915,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/kbcat.cgi', method='GET'}
+		{path='/kbcat.cgi', method='HEAD'}
 	},
 	matches={
 		{match='', output='ActivDesk'}
@@ -2976,7 +2976,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/forum_answer.php?que_id=1', method='GET'}
+		{path='/forum_answer.php?que_id=1', method='HEAD'}
 	},
 	matches={
 		{match='', output='Guru JustAnswer'}
@@ -2986,7 +2986,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/templates1/view_product.php', method='GET'}
+		{path='/templates1/view_product.php', method='HEAD'}
 	},
 	matches={
 		{match='', output='HB ECommerce'}
@@ -2996,7 +2996,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/escort-profile.php', method='GET'}
+		{path='/escort-profile.php', method='HEAD'}
 	},
 	matches={
 		{match='', output='First Escort Marketing CMS'}
@@ -3006,9 +3006,9 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/pages/indexheader.php', method='GET'},
-		{path='/pages/searcher.php', method='GET'},
-		{path='/pages/indexviewentry.php', method='GET'}
+		{path='/pages/indexheader.php', method='HEAD'},
+		{path='/pages/searcher.php', method='HEAD'},
+		{path='/pages/indexviewentry.php', method='HEAD'}
 	},
 	matches={
 		{match='', output='Green Pants CMS'}
@@ -3018,7 +3018,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/tinymcpuk/filemanager/browser.html', method='GET'}
+		{path='/tinymcpuk/filemanager/browser.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='CMS Lokomedia'}
@@ -3028,7 +3028,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/admin/libraries/ajaxfilemanager/ajaxfilemanager.php', method='GET'}
+		{path='/admin/libraries/ajaxfilemanager/ajaxfilemanager.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Log1 CMS'}
@@ -3038,7 +3038,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/leftmenubody.php', method='GET'}
+		{path='/leftmenubody.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Quicktech'}
@@ -3048,7 +3048,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/dsp_page.cfm', method='GET'}
+		{path='/dsp_page.cfm', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Alcassofts SOPHIA CMS'}
@@ -3058,7 +3058,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/zikula/index.php', method='GET'}
+		{path='/zikula/index.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Zikula CMS'}
@@ -3068,8 +3068,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/system/admin/header.php', method='GET'},
-		{path='/system/admin/comments_items.php', method='GET'}
+		{path='/system/admin/header.php', method='HEAD'},
+		{path='/system/admin/comments_items.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Habari Blog'}
@@ -3079,8 +3079,8 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/scripts/fckeditor/editor/filemanager/connectors/test.html', method='GET'},
-		{path='/scripts/fckeditor/editor/filemanager/connectors/uploadtest.html', method='GET'}
+		{path='/scripts/fckeditor/editor/filemanager/connectors/test.html', method='HEAD'},
+		{path='/scripts/fckeditor/editor/filemanager/connectors/uploadtest.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Digitalus CMS/FCKEditor File upload'}
@@ -3090,7 +3090,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+		{path='/fckeditor/editor/filemanager/connectors/test.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='phpmotion/FCKeditor File upload'}
@@ -3100,7 +3100,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/fckeditor/editor/filemanager/upload/test.html', method='GET'}
+		{path='/fckeditor/editor/filemanager/upload/test.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='Geeklog/FCKeditor File upload'}
@@ -3110,7 +3110,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='GET'}
+		{path='/admin/view/javascript/fckeditor/editor/filemanager/connectors/test.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='OpenCart/FCKeditor File upload'}
@@ -3120,7 +3120,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/fckeditor/editor/filemanager/connectors/php/config.php', method='GET'}
+		{path='/fckeditor/editor/filemanager/connectors/php/config.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='DM File Manager/FCKeditor File upload'}
@@ -3146,7 +3146,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/FCKEditor/editor/filemanager/browser/default/connectors/test.html', method='GET'}
+		{path='/FCKEditor/editor/filemanager/browser/default/connectors/test.html', method='HEAD'}
 	},
 	matches= {
 		{match='', output='EgO or osCMax/FCKeditor File upload'}
@@ -3156,7 +3156,7 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='cms',
 	probes={
-		{path='/admin/includes/tiny_mce/plugins/tinybrowser/upload.php', method='GET'}
+		{path='/admin/includes/tiny_mce/plugins/tinybrowser/upload.php', method='HEAD'}
 	},
 	matches= {
 		{match='', output='CompactCMS or B-Hind CMS/FCKeditor File upload'}
