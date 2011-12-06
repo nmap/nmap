@@ -10,8 +10,8 @@ Queries Google's Certificate Catalog for the SSL certificates retrieved from tar
 -- PORT     STATE SERVICE
 ---443/tcp open  https
 ---| ssl-google-cert-catalog: 
----|   First/Last time saw: 19 Aug 2011 / 10 Sep 2011
----|_  Days saw between: 20
+---|   First/last date seen: 19 Aug 2011 / 10 Sep 2011
+---|_  Days in between: 20
 
 author = "Vasiliy Kulikov"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
@@ -56,8 +56,8 @@ action = function(host, port)
         local raw_start, raw_stop, delta = string.match(decoded_response, "(%d+) (%d+) (%d+)")
         local date_start, date_stop = format_date(raw_start), format_date(raw_stop)
 
-        table.insert(lines, "First/Last time saw: " .. date_start .. " / " .. date_stop)
-        table.insert(lines, "Days saw between: " .. tonumber(delta))
+        table.insert(lines, "First/last date seen: " .. date_start .. " / " .. date_stop)
+        table.insert(lines, "Days in between: " .. tonumber(delta))
     else
         table.insert(lines, "No DB entry")
     end
