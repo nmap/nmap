@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch to the ssl-cert script that adds support for getting SSL
+  certificates from FTP servers. [Matt Selsky]
+
 o [NSE] Added the a Vuze library, port probe and the script vuze-dht-info. The
   script connects to a Vuze node and gets protocol, vendor and network
   information. [Patrik]

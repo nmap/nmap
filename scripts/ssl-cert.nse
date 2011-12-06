@@ -75,6 +75,55 @@ local date_to_string
 local table_find
 local s
 
+function ftp_starttls(host, port)
+    -- Attempt to negotiate TLS over FTP for services that support it
+    -- Works for FTP (21)
+
+    -- Open a standard TCP socket
+    local status, error = s:connect(host, port, "tcp")
+
+    if not status then
+        return nil
+    else
+
+        -- Loop until the service presents a banner to deal with server
+        -- load and timing issues.  There may be a better way to handle this.
+        local i = 0
+        repeat
+            status, result = s:receive_lines(1)
+            i = i + 1
+        until string.match(result, "^220") or i == 5
+
+        -- Send AUTH TLS command, ask the service to start encryption
+        local query = "AUTH TLS\r\n"
+        status = s:send(query)
+        status, result = s:receive_lines(1)
+
+        if not (string.match(result, "^234")) then
+            stdnse.print_debug("1","%s",result)
+            stdnse.print_debug("1","AUTH TLS failed or unavailable.  Enable --script-trace to see what is happening.")
+
+            -- Send QUIT to clean up server side connection
+            local query = "QUIT\r\n"
+            status = s:send(query)
+            result = ""
+
+            return nil
+        end
+
+        -- Service supports AUTH TLS, tell NSE start SSL negotiation
+        status, error = s:reconnect_ssl()
+        if not status then
+            stdnse.print_debug("1","Could not establish SSL session after AUTH TLS command.")
+            s:close()
+            return nil
+        end
+
+    end
+    -- Should have a solid TLS over FTP session now...
+    return "Connected"
+end
+
 function smtp_starttls(host, port)
     -- Attempt to negotiate TLS over SMTP for services that support it
     -- Works for SMTP (25) and SMTP Submission (587)
@@ -157,6 +206,7 @@ end
 
 -- A table mapping port numbers to specialized SSL negotiation functions.
 local SPECIALIZED_FUNCS = {
+    [21] = ftp_starttls,
     [25] = smtp_starttls,
     [587] = smtp_starttls,
     [5222] = xmpp_starttls,
