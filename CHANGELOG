@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added support for detecting whether a http connection was established
+  using SSL or not by the http.lua library [Patrik]
+
 o [NSE] Applied patch that replaces a number of GET requests to HEAD in http-
   fingerprints.lua where no matching was performed on the returned contents.
   [Hani Benhabiles]

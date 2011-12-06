@@ -1113,7 +1113,7 @@ local function request(host, port, data, options)
     return nil
   end
   local method
-  local header, partial
+  local header
   local response
 
   options = options or {}
@@ -1126,11 +1126,10 @@ local function request(host, port, data, options)
   end
 
   local error_response = {status=nil,["status-line"]=nil,header={},body=""}
-  local socket
 
   method = string.match(data, "^(%S+)")
 
-  socket, partial = comm.tryssl(host, port, data, { timeout = options.timeout })
+  local socket, partial, opts = comm.tryssl(host, port, data, { timeout = options.timeout })
 
   if not socket then
     return error_response
@@ -1147,6 +1146,9 @@ local function request(host, port, data, options)
   until not (response.status >= 100 and response.status <= 199)
 
   socket:close()
+
+  -- if SSL was used to retrieve the URL mark this in the response
+  response.ssl = ( opts == 'ssl' )
 
   return response
 end
