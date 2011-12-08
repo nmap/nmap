@@ -138,7 +138,7 @@ void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
     if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
         for (i = 0; i < 4; i++) {
             for (j = 0; j < sizeof(octet_bitvector) / sizeof(bitvector_t); j++)
-                fprintf(fp, "%08lX ", elem->u.ipv4.bits[i][j]);
+                fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->u.ipv4.bits[i][j]);
             fprintf(fp, "\n");
         }
 #ifdef HAVE_IPV6
