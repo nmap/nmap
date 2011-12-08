@@ -29,7 +29,7 @@ author = "Hani Benhabiles <kroosec@gmail.com>"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"safe", "auth"}
+categories = {"safe", "auth", "vuln"}
 
 require 'shortport'
 require 'http'
@@ -55,7 +55,10 @@ action = function(host, port)
         -- Checks if HTTP authentication or a redirection to a login page is applied.
         if getstatus == 401 or getstatus == 302 then
             local headstatus = http.head(host, port, path).status
-            if headstatus == 200 then
+            if headstatus == 500 and path == "/jmx-console/" then
+                -- JBoss authentication bypass.
+                table.insert(result, ("%s: Vulnerable to CVE-2010-0738."):format(path))
+            elseif headstatus == 200 then
                 -- Vulnerable to authentication bypass.
 				table.insert(result, ("%s: Authentication bypass possible"):format(path))
             end
