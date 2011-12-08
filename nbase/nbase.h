@@ -479,6 +479,7 @@ struct addrset {
 void nbase_set_log(void (*log_user_func)(const char *, ...),void (*log_debug_func)(const char *, ...));
 extern void addrset_init(struct addrset *set);
 extern void addrset_free(struct addrset *set);
+extern void addrset_elem_print(FILE *fp, const struct addrset_elem *elem);
 extern int addrset_add_spec(struct addrset *set, const char *spec, int af, int dns);
 extern int addrset_add_file(struct addrset *set, FILE *fd, int af, int dns);
 extern int addrset_contains(const struct addrset *set, const struct sockaddr *sa);
