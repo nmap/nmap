@@ -133,12 +133,13 @@ void addrset_free(struct addrset *set)
    this is the four bit vectors. For IPv6 it is the address and netmask. */
 void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
 {
+    const size_t num_bitvector = sizeof(octet_bitvector) / sizeof(bitvector_t);
     int i, j;
 
     if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
         for (i = 0; i < 4; i++) {
-            for (j = 0; j < sizeof(octet_bitvector) / sizeof(bitvector_t); j++)
-                fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->u.ipv4.bits[i][j]);
+            for (j = 0; j < num_bitvector; j++)
+                fprintf(fp, "%0*lX ", (int) (sizeof(bitvector_t) * 2), elem->u.ipv4.bits[i][num_bitvector - 1 - j]);
             fprintf(fp, "\n");
         }
 #ifdef HAVE_IPV6
