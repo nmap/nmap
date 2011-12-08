@@ -159,7 +159,6 @@ void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
         fprintf(fp, "\n");
 #endif
     }
-    fprintf(fp, "---\n");
 }
 
 /* This is a wrapper around getaddrinfo that automatically handles hints for
