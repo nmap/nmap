@@ -1482,8 +1482,6 @@ void  apply_delayed_options() {
     o.setSourceSockAddr(&tmpsock, sizeof(tmpsock));
   }
 
-  if (delayed_options.exclude_spec && delayed_options.exclude_file)
-    fatal("--excludefile and --exclude options are mutually exclusive.");
   if(delayed_options.exclude_file) {
     o.excludefd = fopen(delayed_options.exclude_file, "r");
     if (!o.excludefd)
@@ -1698,7 +1696,6 @@ int nmap_main(int argc, char *argv[]) {
     fclose(o.excludefd);
   }
   if (o.exclude_spec != NULL) {
-    /* Simultaneous --excludefile and --exclude are not supported. */
     load_exclude_string(&exclude_group , o.exclude_spec);
   }
 

@@ -92,6 +92,7 @@
 /* $Id$ */
 
 
+#include "nbase/nbase_addrset.h"
 #include "targets.h"
 #include "timing.h"
 #include "NmapOps.h"
@@ -211,16 +212,13 @@ int load_exclude_string(addrset *excludelist, const char *s) {
 
 
 /* A debug routine to dump some information to stdout. Invoked if debugging is
-   set to 3 or higher. I had to make significant changes from wam's code.
-   Although wam displayed much more detail, alot of this is now hidden inside of
-   the Target Group Object. Rather than writing a bunch of methods to return
-   private attributes, which would only be used for debugging, I went for the
-   method below. */
+   set to 3 or higher. */
 int dumpExclude(addrset *exclude_group) {
-  /* When we updated the exclude code to use addrset from nbase (originally
-     from ncat) there was no simple available debugging function. Thus we are
-     zeroing this and if it is needed look in nbase_addrset.c for the lower level
-     debug function -Colin */
+  const struct addrset_elem *elem;
+
+  for (elem = exclude_group->head; elem != NULL; elem = elem->next)
+    addrset_elem_print(stdout, elem);
+
   return 1;
 }
  

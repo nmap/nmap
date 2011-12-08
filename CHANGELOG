@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o The --exclude and --excludefile options can be used together now. [David]
+
 o [NSE] Added the script http-apache-negotiation that detects if the Apache
   module mod_negotiate is enabled. [Hani Benhabiles]
 
