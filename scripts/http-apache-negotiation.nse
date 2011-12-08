@@ -1,0 +1,63 @@
+description = [[
+Checks if the target has mod_negotiation is enabled.
+
+The script works by sending requests for resources like index and home 
+without specifying the extension. If mod_negotiate is enabled (default 
+Apache configuration), the target would reply with content-location header 
+containing target resource (such as index.html) and vary header containing 
+"negotiate" depending on the configuration. 
+This could be leveraged to find hidden resources and spider a web site 
+using less requests.
+
+For more information, see:
+* http://www.wisec.it/sectou.php?id=4698ebdc59d15
+* Metasploit auxiliary module 
+    /modules/auxiliary/scanner/http/mod_negotiation_scanner.rb
+]]
+
+---
+-- @usage
+-- nmap --script=http-apache-negotiation --script-args http-apache-negotiation.root=/root/ <target>
+--
+-- @output
+-- PORT   STATE SERVICE
+-- 80/tcp open  http
+-- |_http-apache-negotiation: mod_negotiation enabled.
+--
+-- @args http-apache-negotiation.root target web site root. 
+--  Defaults to <code>/</code>.
+
+author = "Hani Benhabiles <kroosec@gmail.com>"
+
+license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
+
+categories = {"safe", "discovery"}
+
+require 'shortport'
+require 'http'
+
+portrule = shortport.http
+
+action = function(host, port)
+
+	local root = stdnse.get_script_args("http-apache-negotiation.root") or "/"
+	
+    -- Common default file names. Could add a couple more.
+    local files = {
+		'robots',
+        'index',
+        'home',
+        'blog'
+	}
+
+    for _, file in ipairs(files) do
+        local header = http.get(host, port, root .. file).header
+        
+        -- Matching file. in content-location header
+        --  or negotiate in vary header.
+        if header["content-location"] and string.find(header["content-location"], file ..".")
+            or header["vary"] and string.find(header["vary"], "negotiate")  then
+                return "mod_negotiation enabled."
+        end
+    end
+end

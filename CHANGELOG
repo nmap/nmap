@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-apache-negotiation that detects if the Apache
+  module mod_negotiate is enabled. [Hani Benhabiles]
+
 o [NSE] Applied patch that corrects an issue where the http-method-tamper
   script would fail to properly detect JBoss servers vulnerable to the
   CVE-2010-0738 vulnerability. [Hani Benhabiles]

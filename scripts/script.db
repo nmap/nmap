@@ -84,6 +84,7 @@ Entry { filename = "hbase-region-info.nse", categories = { "default", "discovery
 Entry { filename = "hddtemp-info.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "hostmap.nse", categories = { "discovery", "external", "intrusive", } }
 Entry { filename = "http-affiliate-id.nse", categories = { "discovery", "safe", } }
+Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "http-awstatstotals-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-axis2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
