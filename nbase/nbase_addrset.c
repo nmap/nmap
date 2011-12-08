@@ -131,35 +131,35 @@ void addrset_free(struct addrset *set)
 
 /* A debugging function to print out the contents of an addrset_elem. For IPv4
    this is the four bit vectors. For IPv6 it is the address and netmask. */
-void addrset_elem_print(const struct addrset_elem *elem)
+void addrset_elem_print(FILE *fp, const struct addrset_elem *elem)
 {
     int i, j;
 
     if (elem->type == ADDRSET_TYPE_IPV4_BITVECTOR) {
         for (i = 0; i < 4; i++) {
             for (j = 0; j < sizeof(octet_bitvector) / sizeof(bitvector_t); j++)
-                printf("%08lX ", elem->u.ipv4.bits[i][j]);
-            printf("\n");
+                fprintf(fp, "%08lX ", elem->u.ipv4.bits[i][j]);
+            fprintf(fp, "\n");
         }
 #ifdef HAVE_IPV6
     } else if (elem->type == ADDRSET_TYPE_IPV6_NETMASK) {
         for (i = 0; i < 16; i += 2) {
             if (i > 0)
-                printf(":");
-            printf("%02X", elem->u.ipv6.addr.s6_addr[i]);
-            printf("%02X", elem->u.ipv6.addr.s6_addr[i + 1]);
+                fprintf(fp, ":");
+            fprintf(fp, "%02X", elem->u.ipv6.addr.s6_addr[i]);
+            fprintf(fp, "%02X", elem->u.ipv6.addr.s6_addr[i + 1]);
         }
-        printf(" ");
+        fprintf(fp, " ");
         for (i = 0; i < 16; i += 2) {
             if (i > 0)
-                printf(":");
-            printf("%02X", elem->u.ipv6.mask.s6_addr[i]);
-            printf("%02X", elem->u.ipv6.mask.s6_addr[i + 1]);
+                fprintf(fp, ":");
+            fprintf(fp, "%02X", elem->u.ipv6.mask.s6_addr[i]);
+            fprintf(fp, "%02X", elem->u.ipv6.mask.s6_addr[i + 1]);
         }
-        printf("\n");
+        fprintf(fp, "\n");
 #endif
     }
-    printf("---\n");
+    fprintf(fp, "---\n");
 }
 
 /* This is a wrapper around getaddrinfo that automatically handles hints for
