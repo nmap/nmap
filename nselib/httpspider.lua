@@ -25,6 +25,7 @@ module(... or "httpspider", package.seeall)
 require 'http'
 
 local LIBRARY_NAME = "httpspider"
+local PREFETCH_SIZE = 5
 
 -- The Options class, handling all spidering options
 Options = {
@@ -432,7 +433,6 @@ UrlQueue = {
 	
 }
 
-
 -- The Crawler class
 Crawler = {
 	
@@ -440,7 +440,16 @@ Crawler = {
 	-- @param host table as received by the action method
 	-- @param port table as received by the action method
 	-- @param url string containing the relative URL
-	-- @param options table of options
+	-- @param options table of options:
+	--        <code>noblacklist</code> - do not load default blacklist
+	--        <code>base_url</code> - start url to crawl
+	--        <code>timeout</code> - timeout for the http request
+	--        <code>maxdepth</code> - the maximum directory depth to crawl
+	--        <code>maxpagecount</code> - the maximum amount of pages to retrieve
+	--        <code>withinhost</code> - stay within the host of the base_url
+	--        <code>withindomain</code> - stay within the base_url domain
+	--        <code>scriptname</code> - should be set to SCRIPT_NAME to enable
+	--                                  script specific arguments.
 	-- @return o new instance of Crawler or nil on failure
 	new = function(self, host, port, url, options)
 		local o = {
@@ -452,6 +461,10 @@ Crawler = {
 
 		setmetatable(o, self)
 		self.__index = self
+
+		o:loadScriptArguments()
+		o:loadLibraryArguments()
+		o:loadDefaultArguments()
 
 		local response = http.get(o.host, o.port, '/', { timeout = o.options.timeout } )
 		
@@ -536,47 +549,116 @@ Crawler = {
 	-- unexpected or requires attention we set the error property accordingly.
 	-- This way the script can alert the user of the details by calling
 	-- getError()
-	crawl = function(self)
+	crawl_thread = function(self, response_queue)
+		local condvar = nmap.condvar(response_queue)
 
 		if ( self.options.withinhost and self.options.withindomain ) then
-			return false, { err = true, reason = "Invalid options: withinhost and withindomain can't both be true" }
+			table.insert(response_queue, { false, { err = true, reason = "Invalid options: withinhost and withindomain can't both be true" } })
+			condvar "signal"
+			return
 		end
 
-		-- in case the user set a max page count to retrieve check how many
-		-- pages we have retrieved so far
-		local count = self:getPageCount()
-		if ( self.options.maxpagecount and
-			 ( count > self.options.maxpagecount ) ) then
-			return false, { err = false, msg = "Reached max page count" }
+		while(true) do
+			-- in case the user set a max page count to retrieve check how many
+			-- pages we have retrieved so far
+			local count = self:getPageCount()
+			if ( self.options.maxpagecount and
+				 ( count > self.options.maxpagecount ) ) then
+				table.insert(response_queue, { false, { err = false, msg = "Reached max page count" } })
+				condvar "signal"
+				return
+			end
+		
+			-- pull links from the queue until we get a valid one
+			local url
+			repeat
+				url = self.urlqueue:getNext()
+			until( not(url) or not(self.processed[tostring(url)]) )
+
+			-- if no url could be retrieved from the queue, abort ...
+			if ( not(url) ) then
+				table.insert(response_queue, { false, { err = false, msg = "No more urls" } })
+				condvar "signal"
+				return
+			end
+		
+			if ( self.options.maxpagecount ) then
+				stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
+			else
+				stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
+			end
+
+			-- fetch the url, and then push it to the processed table
+			local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout } )
+			self.processed[tostring(url)] = true
+		
+			-- if we have a response, proceed scraping it
+			if ( response.body ) then
+				local links = LinkExtractor:new(url, response.body, self.options):getLinks()
+				self.urlqueue:add(links)
+			end
+		
+			table.insert(response_queue, { true, { url = url, response = response } } )
+			while ( PREFETCH_SIZE < #response_queue ) do
+				stdnse.print_debug(2, "%s: Response queue full, waiting ...", LIBRARY_NAME)
+				condvar "wait"
+			end
+			condvar "signal"
+		end
+	end,
+	
+	-- Loads the argument set on a script level
+	loadScriptArguments = function(self)
+		local sn = self.options.scriptname
+		if ( not(sn) ) then
+			stdnse.print_debug("%s: WARNING: Script argument could not be loaded as scriptname was not set", LIBRARY_NAME)
+			return
 		end
 		
-		-- pull links from the queue until we get a valid one
-		local url
-		repeat
-			url = self.urlqueue:getNext()
-		until( not(url) or not(self.processed[tostring(url)]) )
+		self.options.maxdepth		= tonumber(stdnse.get_script_args(sn .. ".maxdepth"))
+		self.options.maxpagecount 	= tonumber(stdnse.get_script_args(sn .. ".maxpagecount"))
+		self.url 					= stdnse.get_script_args(sn .. ".url")
+		self.options.withinhost 	= stdnse.get_script_args(sn .. ".withinhost")
+		self.options.withindomain 	= stdnse.get_script_args(sn .. ".withindomain")
+		self.options.noblacklist    = stdnse.get_script_args(sn .. ".noblacklist")
+	end,
+	
+	-- Loads the argument on a library level
+	loadLibraryArguments = function(self)
+		local ln = LIBRARY_NAME
+		
+		self.options.maxdepth		= self.options.maxdepth or tonumber(stdnse.get_script_args(ln .. ".maxdepth"))
+		self.options.maxpagecount 	= self.options.maxpagecount or tonumber(stdnse.get_script_args(ln .. ".maxpagecount"))
+		self.url 					= self.url or stdnse.get_script_args(ln .. ".url")
+		self.options.withinhost 	= self.options.withinhost or stdnse.get_script_args(ln .. ".withinhost")
+		self.options.withindomain 	= self.options.withindomain or stdnse.get_script_args(ln .. ".withindomain")
+		self.options.noblacklist    = self.options.noblacklist or stdnse.get_script_args(ln .. ".noblacklist")
+	end,
+	
+	-- Loads any defaults for arguments that were not set
+	loadDefaultArguments = function(self)
+		self.options.maxdepth = self.options.maxdepth or 3
+		self.options.maxpagecount = self.options.maxpagecount or 20
+		self.url = self.url or '/'
+	end,	
+	
+	crawl = function(self)
 
-		-- if no url could be retrieved from the queue, abort ...
-		if ( not(url) ) then
+		self.response_queue = self.response_queue or {}
+		local condvar = nmap.condvar(self.response_queue)
+		if ( not(self.thread) ) then
+			self.thread = stdnse.new_thread(self.crawl_thread, self, self.response_queue)
+		end
+
+		if ( #self.response_queue == 0 and coroutine.status(self.thread) ~= 'dead') then
+			condvar "wait" 
+		end
+		condvar "signal"
+		if ( #self.response_queue == 0 ) then
 			return false, { err = false, msg = "No more urls" }
-		end
-		
-		if ( self.options.maxpagecount ) then
-			stdnse.print_debug(2, "%s: Fetching url [%d of %d]: %s", LIBRARY_NAME, count, self.options.maxpagecount, tostring(url))
 		else
-			stdnse.print_debug(2, "%s: Fetching url: %s", LIBRARY_NAME, tostring(url))
+			return unpack(table.remove(self.response_queue, 1))
 		end
-
-		-- fetch the url, and then push it to the processed table
-		local response = http.get(url:getHost(), url:getPort(), url:getFile(), { timeout = self.options.timeout } )
-		self.processed[tostring(url)] = true
-		
-		-- if we have a response, proceed scraping it
-		if ( response.body ) then
-			local links = LinkExtractor:new(url, response.body, self.options):getLinks()
-			self.urlqueue:add(links)
-		end
-		return true, { url = url, response = response }
 	end,
 	
 	

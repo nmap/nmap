@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified the httpspider library to prefetch links in the queue and
+  change how script arguments are processed. Script and library arguments are
+  now processed from within the library. [Patrik]
+
 o The --exclude and --excludefile options can be used together now. [David]
 
 o [NSE] Added the script http-apache-negotiation that detects if the Apache

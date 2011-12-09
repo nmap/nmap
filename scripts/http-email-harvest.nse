@@ -38,31 +38,20 @@ portrule = shortport.http
 
 function action(host, port)
 	local EMAIL_PATTERN = "[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?"
-
-	-- by default, we cap the script at a maximum depth of 3 
-	local maxdepth 		= tonumber(stdnse.get_script_args("http-email-harvest.maxdepth")) or 3
-	-- by default, we cap the script at a maximum pagecount of 20
-	local maxpagecount 	= tonumber(stdnse.get_script_args("http-email-harvest.maxpagecount")) or 20
-
-	local url 			= stdnse.get_script_args("http-email-harvest.url") or "/"
-	local withinhost 	= stdnse.get_script_args("http-email-harvest.withinhost")
-	local withindomain 	= stdnse.get_script_args("http-email-harvest.withindomain")
 	
+	local crawler = httpspider.Crawler:new(host, port, url or '/', { 
+			scriptname = SCRIPT_NAME
+		}
+	)
+
+	crawler:set_timeout(10000)
+
+	local maxdepth, maxpagecount = crawler.options.maxdepth, crawler.options.maxpagecount
 	if ( maxdepth < 0 ) then maxdepth = nil end
 	if ( maxpagecount < 0 ) then maxpagecount = nil end
 	
 	stdnse.print_debug(2, "%s: Running crawler maxdepth: %s; maxpagecount: %s", 
 		SCRIPT_NAME, maxdepth or "[none]", maxpagecount or "[none]")
-	
-	local crawler = httpspider.Crawler:new(host, port, url or '/', { 
-			maxdepth = maxdepth, 
-			maxpagecount = maxpagecount,
-			withinhost = withinhost,
-			withindomain= withindomain,
-		}
-	)
-
-	crawler:set_timeout(10000)
 
 	local emails = {}
 	while(true) do
