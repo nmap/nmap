@@ -1,11 +1,12 @@
 /*
     Usage: ./addrset [<specification> ...]
 
-    This program tests the addrset functions in ncat_hostmatch.c, the
-    ones that maintain the lists of addresses for --allow and --deny. It
-    takes as arguments specifications that are added to an addrset. It
-    then reads whitespace-separated host names or IP addresses from
-    standard input and echoes only those that are in the addrset.
+    This program tests the addrset functions in nbase/nbase_addrset.c,
+    the ones that maintain the lists of addresses for --allow and
+    --deny. It takes as arguments specifications that are added to an
+    addrset. It then reads whitespace-separated host names or IP
+    addresses from standard input and echoes only those that are in the
+    addrset.
 
     David Fifield
 
