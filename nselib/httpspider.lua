@@ -501,6 +501,8 @@ Crawler = {
 			o:addDefaultBlacklist()
 		end
 		
+		stdnse.print_debug(2, "%s: %s", LIBRARY_NAME, o:getLimitations())
+		
 		return o
 	end,
 	
@@ -642,6 +644,33 @@ Crawler = {
 		self.url = self.url or '/'
 	end,	
 	
+	-- gets a string of limitations imposed on the crawl
+	getLimitations = function(self)
+		local o = self.options
+		local limits = {}
+		
+		if ( o.maxdepth > 0 or o.maxpagecount > 0 or
+			 o.withinhost or o.wihtindomain ) then
+			if ( o.maxdepth > 0 ) then
+				table.insert(limits, ("maxdepth=%d"):format(o.maxdepth))
+			end
+			if ( o.maxpagecount > 0 ) then
+				table.insert(limits, ("maxpagecount=%d"):format(o.maxpagecount))
+			end
+			if ( o.withindomain ) then
+				table.insert(limits, ("withindomain=%s"):format(o.base_url:getDomain()))
+			end
+			if ( o.withinhost ) then
+				table.insert(limits, ("withinhost=%s"):format(o.base_url:getHost()))
+			end
+		end
+	
+		if ( #limits > 0 ) then
+			return ("Spidering limited to: %s"):format(stdnse.strjoin("; ", limits))
+		end
+	end,
+	
+	-- does the crawling
 	crawl = function(self)
 
 		self.response_queue = self.response_queue or {}

@@ -46,13 +46,6 @@ function action(host, port)
 
 	crawler:set_timeout(10000)
 
-	local maxdepth, maxpagecount = crawler.options.maxdepth, crawler.options.maxpagecount
-	if ( maxdepth < 0 ) then maxdepth = nil end
-	if ( maxpagecount < 0 ) then maxpagecount = nil end
-	
-	stdnse.print_debug(2, "%s: Running crawler maxdepth: %s; maxpagecount: %s", 
-		SCRIPT_NAME, maxdepth or "[none]", maxpagecount or "[none]")
-
 	local emails = {}
 	while(true) do
 		local status, r = crawler:crawl()
@@ -80,20 +73,7 @@ function action(host, port)
 		table.insert(results, email)
   	end
 
-	-- Inform the user of the limitations that were used
-	if ( maxdepth > 0 or maxpagecount > 0 ) then
-		local limit = "Spidering limited to: "
-		if ( maxdepth > 0 ) then
-			limit = limit .. ("maxdepth=%d; "):format(maxdepth)
-		end
-		if ( maxpagecount > 0 ) then
-			limit = limit .. ("maxpagecount=%d"):format(maxpagecount)
-		end
-		if ( #results == 0 ) then
-			table.insert(results, limit)
-		else
-			results.name = limit
-		end
-	end
+	results.name = crawler:getLimitations()
+	
 	return stdnse.format_output(true, results)
 end

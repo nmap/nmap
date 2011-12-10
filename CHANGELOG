@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added getLimitations function to httpspider that returns any 
+  limitations imposed on the crawler. [Patrik]
+
 o [NSE] Modified the httpspider library to prefetch links in the queue and
   change how script arguments are processed. Script and library arguments are
   now processed from within the library. [Patrik]
