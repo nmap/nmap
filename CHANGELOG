@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-backup-finder that searches for backup copies
+  of files discovered by crawling a website. [Patrik]
+
 o [NSE] Added getLimitations function to httpspider that returns any 
   limitations imposed on the crawler. [Patrik]
 

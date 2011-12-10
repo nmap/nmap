@@ -88,6 +88,7 @@ Entry { filename = "http-apache-negotiation.nse", categories = { "discovery", "s
 Entry { filename = "http-auth.nse", categories = { "auth", "default", "safe", } }
 Entry { filename = "http-awstatstotals-exec.nse", categories = { "exploit", "intrusive", "vuln", } }
 Entry { filename = "http-axis2-dir-traversal.nse", categories = { "exploit", "intrusive", "vuln", } }
+Entry { filename = "http-backup-finder.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-barracuda-dir-traversal.nse", categories = { "auth", "exploit", "intrusive", } }
 Entry { filename = "http-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-cakephp-version.nse", categories = { "discovery", "safe", } }
