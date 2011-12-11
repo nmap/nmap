@@ -101,6 +101,7 @@ Entry { filename = "http-enum.nse", categories = { "discovery", "intrusive", "vu
 Entry { filename = "http-favicon.nse", categories = { "default", "discovery", "safe", } }
 Entry { filename = "http-form-brute.nse", categories = { "brute", "intrusive", } }
 Entry { filename = "http-google-malware.nse", categories = { "discovery", "external", "malware", "safe", } }
+Entry { filename = "http-grep.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-headers.nse", categories = { "discovery", "safe", } }
 Entry { filename = "http-iis-webdav-vuln.nse", categories = { "intrusive", "vuln", } }
 Entry { filename = "http-joomla-brute.nse", categories = { "brute", "intrusive", } }

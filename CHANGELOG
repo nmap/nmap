@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-grep that attempts to match web pages and urls
+  against a given pattern. [Patrik]
+
 o [NSE] Added stop function to crawler so that scripts can properly shutdown
   the crawler in case they want to end early. [Patrik]
 

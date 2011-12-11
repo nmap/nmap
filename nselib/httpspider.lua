@@ -17,8 +17,43 @@
 -- * <code>Crawler</code>
 -- ** This class is responsible for the actual crawling.
 -- 
+-- The following sample code shows how the spider could be used:
+-- <code>
+--   local crawler = httpspider.Crawler:new( host, port, '/', { scriptname = SCRIPT_NAME } )
+--   crawler:set_timeout(10000)
+--
+--   local result
+--   while(true) do
+--     local status, r = crawler:crawl()
+--     if ( not(status) ) then
+--       break
+--     end
+--     if ( r.response.body:match(str_match) ) then
+--        crawler:stop()
+--        result = r.url
+--        break
+--     end
+--   end
+--
+--   return result
+-- </code>
+--
 -- @author Patrik Karlsson <patrik@cqure.net>
 -- 
+-- @args httpspider.maxdepth the maximum amount of directories beneath
+--       the initial url to spider. A negative value disables the limit.
+--       (default: 3)
+-- @args httpspider.maxpagecount the maximum amount of pages to visit.
+--       A negative value disables the limit (default: 20)
+-- @args httpspider.url the url to start spidering. This is a URL
+--       relative to the scanned host eg. /default.html (default: /)
+-- @args httpspider.withinhost only spider URLs within the same host.
+--       (default: true)
+-- @args httpspider.withindomain only spider URLs within the same
+--       domain. This widens the scope from <code>withinhost</code> and can
+--       not be used in combination. (default: false)
+-- @args httpspider.noblacklist if set, doesn't load the default blacklist
+--
 
 module(... or "httpspider", package.seeall)
 
@@ -679,7 +714,6 @@ Crawler = {
 	
 	-- does the crawling
 	crawl = function(self)
-
 		self.response_queue = self.response_queue or {}
 		local condvar = nmap.condvar(self.response_queue)
 		if ( not(self.thread) ) then
@@ -704,7 +738,4 @@ Crawler = {
 		condvar "signal"
 		condvar "wait"
 	end
-		
-	
-	
 }
