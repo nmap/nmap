@@ -105,9 +105,14 @@ action = function(host, port)
 					port = (parsed.scheme == 'https') and 443
 					port = port or ((parsed.scheme == 'http') and 80)
 				end
-			
+
+				-- the url.escape doesn't work here as it encodes / to %2F
+				-- which results in 400 bad request, so we simple do a space
+				-- replacement instead.
+				local escaped_link = link:gsub(" ", "%%20")
+
 				-- attempt a HEAD-request against each of the backup files
-				local response = http.head(host, port, link)
+				local response = http.head(host, port, escaped_link)
 				if ( response.status == 200 ) then
 					if ( not(parsed.port) ) then
 						table.insert(backups, 

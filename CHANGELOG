@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed issue in path encoding in the http-backup-finder script. [Patrik]
+
 o [NSE] Added the script http-backup-finder that searches for backup copies
   of files discovered by crawling a website. [Patrik]
 
