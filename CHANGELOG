@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added stop function to crawler so that scripts can properly shutdown
+  the crawler in case they want to end early. [Patrik]
+
 o [NSE] Fixed issue in path encoding in the http-backup-finder script. [Patrik]
 
 o [NSE] Added the script http-backup-finder that searches for backup copies

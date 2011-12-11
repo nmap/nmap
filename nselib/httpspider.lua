@@ -561,6 +561,12 @@ Crawler = {
 		end
 
 		while(true) do
+			
+			if ( self.quit ) then
+				table.insert(response_queue, {false, { err = false, msg = "Quit signalled by crawler" } })
+				break
+			end
+			
 			-- in case the user set a max page count to retrieve check how many
 			-- pages we have retrieved so far
 			local count = self:getPageCount()
@@ -607,6 +613,7 @@ Crawler = {
 			end
 			condvar "signal"
 		end
+		condvar "signal"
 	end,
 	
 	-- Loads the argument set on a script level
@@ -689,6 +696,15 @@ Crawler = {
 			return unpack(table.remove(self.response_queue, 1))
 		end
 	end,
+	
+	-- signals the crawler to stop
+	stop = function(self)
+		local condvar = nmap.condvar(self.response_queue)
+		self.quit = true
+		condvar "signal"
+		condvar "wait"
+	end
+		
 	
 	
 }
