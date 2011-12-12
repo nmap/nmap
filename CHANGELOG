@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Made a syntax change in the zenmap.desktop file for compliance with
+  the XDG standard. [Frederik Schwarzer]
+
 o [NSE] Added the script http-grep that attempts to match web pages and urls
   against a given pattern. [Patrik]
 
