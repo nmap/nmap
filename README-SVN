@@ -1,0 +1,11 @@
+After r27443 the Nmap Subversion repository was moved. To update your
+working directory, run this command:
+
+~/nmap$ svn switch --relocate svn://svn.insecure.org/nmap https://svn.nmap.org/nmap
+
+If you get errors in the nbase, ncat, nping, nsock, and zenmap
+directories after updating, then delete those directories and update
+again.
+
+~/nmap$ rm -rf nbase ncat nping nsock zenmap
+~/nmap$ svn update
