@@ -252,15 +252,13 @@ hasn't yet been formally released.</para>
 <para>
 SVN write access is strictly limited to top Nmap
 developers, but everyone has read access to the repository.  Check out
-the latest code using the command <command>svn co --username guest
---password "" svn://svn.insecure.org/nmap/</command>.  Then you can later
+the latest code using the command <command>svn co
+https://svn.nmap.org/nmap</command>. Then you can later
 update your source code by typing <command>svn up</command> in your
-working directory.  The <quote>guest</quote> username is required due to an svnserve authorization bug.</para>
+working directory.</para>
 
 <para>While most users only follow the <filename>/nmap</filename>
-directory in svn (which pulls
-in <filename>/nbase</filename>, <filename>/nsock</filename>,
-and <filename>/zenmap</filename> on its own), there is one other
+directory in svn, there is one other
 interesting directory: <filename>/nmap-exp</filename>.  This directory
 contains <emphasis>experimental</emphasis> Nmap branches which Nmap
 developers create when they wish to try new things without
