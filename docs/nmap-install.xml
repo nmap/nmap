@@ -258,7 +258,7 @@ update your source code by typing <command>svn up</command> in your
 working directory.</para>
 
 <para>While most users only follow the <filename>/nmap</filename>
-directory in svn, there is one other
+directory in SVN, there is one other
 interesting directory: <filename>/nmap-exp</filename>.  This directory
 contains <emphasis>experimental</emphasis> Nmap branches which Nmap
 developers create when they wish to try new things without
