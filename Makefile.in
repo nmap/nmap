@@ -110,12 +110,7 @@ OBJS = main.o nmap.o targets.o tcpip.o nmap_error.o utils.o idle_scan.o osscan.o
 # large for field of 2 bytes". Disable debugging for this one file.
 FPModel.o: CXXFLAGS += -g0
 
-warn-svn-move:
-	@echo "Nmap's Subversion repository has moved. Run this command:"
-	@echo "svn switch --relocate svn://svn.insecure.org/nmap https://svn.nmap.org/nmap"
-	false
-
-all: warn-svn-move @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
+all: @LUA_BUILD@ @LIBLINEAR_BUILD@ @PCAP_BUILD@ @PCRE_BUILD@ @DNET_BUILD@ @NBASE_BUILD@ @NSOCK_BUILD@ @NCAT_BUILD@ netutil_build
 	$(MAKE) $(TARGET) $(BUILDZENMAP) $(BUILDNDIFF) $(BUILDNPING)
 
 $(TARGET): @LUA_DEPENDS@ @LIBLINEAR_DEPENDS@ @PCAP_DEPENDS@ @PCRE_DEPENDS@ @DNET_DEPENDS@ $(NBASEDIR)/libnbase.a $(NSOCKDIR)/src/libnsock.a libnetutil/libnetutil.a $(OBJS)
