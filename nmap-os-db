@@ -67,7 +67,7 @@ U1(DF=N%T=FA-104%TG=FF%IPL=38%UN=0%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)
 IE(DFI=S%T=FA-104%TG=FF%CD=S)
 
 # BT2700HGV DSL Router version 5.29.107.19
-Fingerprint 2Wire BT2700HGV ADSL modem
+Fingerprint 2Wire BT2700HG-V ADSL modem
 Class 2Wire | embedded || broadband router
 CPE cpe:/h:2wire:bt2700hg-v
 SEQ(SP=6A-BE%GCD=1-6%ISR=96-A0%TI=I%CI=I%II=I%SS=S%TS=A)
