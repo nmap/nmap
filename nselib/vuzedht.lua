@@ -43,7 +43,9 @@ Request = {
 		new = function(self, action, session)
 			local o = {
 				conn_id = string.char(255) .. openssl.rand_pseudo_bytes(7),
-				action = action,
+				-- we need to handle this one like this, due to a bug in nsedoc
+				-- it used to be action = action, but that breaks parsing
+				["action"] = action,
 				trans_id = session:getTransactionId(),
 				proto_version = 0x32,
 				vendor_id = 0,
