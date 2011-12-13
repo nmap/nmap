@@ -242,7 +242,7 @@ downloads.</para>
 
 <para>In addition to regular stable and development releases, the
 latest Nmap source code is always available using the <ulink
-url="http://subversion.tigris.org">Subversion (SVN) revision control
+url="http://subversion.apache.org">Subversion (SVN) revision control
 system</ulink>.  This delivers new features and version/OS detection
 database updates immediately as they are developed.  The downside is that
 SVN head revisions aren't always as stable as official releases.  So
