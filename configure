@@ -1423,24 +1423,6 @@ Optional Packages:
                           DIR/include and DIR/lib.
   --with-liblinear=included
                           Use the liblinear version included with Nmap
-  case "$with_liblinear" in
-  yes)
-  ;;
-  included)
-    CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
-    LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
-    LIBLINEAR_BUILD="liblinear_build"
-    LIBLINEAR_CLEAN="liblinear_clean"
-    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
-    have_liblinear=yes
-  ;;
-  *)
-    CPPFLAGS="-I$with_liblinear/include $CPPFLAGS"
-    LDFLAGS="-L$with_liblinear/lib $LDFLAGS"
-  ;;
-  esac
-
   --with-libnbase=DIR     Look for nbase include/libs in DIR
   --with-libnsock=DIR     Compile and link to libnsock in DIR
   --without-ncat          Skip build and installation of Ncat
@@ -6946,7 +6928,25 @@ have_liblinear=no
 
 # Check whether --with-liblinear was given.
 if test "${with_liblinear+set}" = set; then :
-  withval=$with_liblinear;
+  withval=$with_liblinear;   case "$with_liblinear" in
+  yes)
+  ;;
+  included)
+    CPPFLAGS="-I\$(top_srcdir)/$LIBLINEARDIR $CPPFLAGS"
+    LIBLINEAR_LIBS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_DEPENDS="\$(top_srcdir)/$LIBLINEARDIR/liblinear.a"
+    LIBLINEAR_BUILD="liblinear_build"
+    LIBLINEAR_CLEAN="liblinear_clean"
+    LIBLINEAR_DIST_CLEAN="liblinear_dist_clean"
+    have_liblinear=yes
+  ;;
+  *)
+    CPPFLAGS="-I$with_liblinear/include $CPPFLAGS"
+    LDFLAGS="-L$with_liblinear/lib $LDFLAGS"
+    have_liblinear=yes
+  ;;
+  esac
+
 fi
 
 
