@@ -470,11 +470,11 @@ static int handle_connect(struct socket_buffer *client_sock,
 
     while (!socket_errno() || socket_errno() == EINTR) {
         char buf[DEFAULT_TCP_BUF_LEN];
-        int len, rc, numready;
+        int len, rc;
 
         r = m;
 
-        numready = fselect(maxfd + 1, &r, NULL, NULL, NULL);
+        fselect(maxfd + 1, &r, NULL, NULL, NULL);
 
         zmem(buf, sizeof(buf));
 
