@@ -355,7 +355,6 @@ static void trace (nsock_iod nsiod, const char *message, const char *dir)
   {
     if (!nsi_is_pcap(nsiod))
     {
-      int status;
       int protocol;
       int af;
       char ipstring_local[INET6_ADDRSTRLEN];
@@ -363,7 +362,7 @@ static void trace (nsock_iod nsiod, const char *message, const char *dir)
       struct sockaddr_storage local;
       struct sockaddr_storage remote;
 
-      status = nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
+      nsi_getlastcommunicationinfo(nsiod, &protocol, &af,
           (sockaddr *) &local, (sockaddr *) &remote, sizeof(sockaddr_storage));
       log_write(LOG_STDOUT, "%s: %s %s:%d %s %s:%d | %s\n",
           SCRIPT_ENGINE,
@@ -734,7 +733,6 @@ static int l_receive_buf (lua_State *L)
 static int l_get_info (lua_State *L)
 {
   nse_nsock_udata *nu = check_nsock_udata(L, 1, 1);
-  int status;
   int protocol;                                  // tcp or udp
   int af;                                        // address family
   struct sockaddr_storage local;
@@ -742,7 +740,7 @@ static int l_get_info (lua_State *L)
   char *ipstring_local = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
   char *ipstring_remote = (char *) lua_newuserdata(L, sizeof(char) * INET6_ADDRSTRLEN);
 
-  status = nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
+  nsi_getlastcommunicationinfo(nu->nsiod, &protocol, &af,
       (struct sockaddr*)&local, (struct sockaddr*)&remote,
       sizeof(struct sockaddr_storage));
 
