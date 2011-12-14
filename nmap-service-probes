@@ -371,8 +371,8 @@ match ftp m|^220-.*\r\n220 Please enter your name:\r\n| p/GuildFTPd/ o/Windows/ 
 # Medusa Async V1.21 [experimental] on Linux 2.4
 match ftp m|^220 ([-/.+\w]+) FTP server \(Medusa Async V(\d[^\)]+)\) ready\.\r\n| p/Medusa Async ftpd/ v/$2/ h/$1/
 match ftp m|^220 ([-/.+\w]+)\((\d[-.\w]+)\) FTP server \(EPSON ([^\)]+)\) ready\.\r\n| p/Epson printer ftpd/ v/$2/ i/Epson $3/ d/printer/ h/$1/
-match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| o|OS/2| h/$1/
-match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| i/German/ o|OS/2| h/$1/
+match ftp m|^220 ([-/.+\w]+) IBM TCP/IP for OS/2 - FTP Server [Vv]er \d+:\d+:\d+ on [A-Z]| p|IBM OS/2 ftpd| o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server/ cpe:/o:ibm:os2/
+match ftp m|^220 ([-/.+\w]+) IBM TCP/IP f\xfcr OS/2 - FTP-Server [Vv]er \d+:\d+:\d+ .* bereit\.\r\n| p|IBM OS/2 ftpd| i/German/ o|OS/2| h/$1/ cpe:/a:ibm:os2_ftp_server::::de/ cpe:/o:ibm:os2/
 match ftp m|^220 Internet Rex (\d[-.\w ]+) \(([-/.+\w]+)\) FTP server awaiting your command\.\r\n| p/Internet Rex ftpd/ v/$1/ i/$2/
 match ftp m|^220 ([-.+\w]+) FTP server \(Version (\d[-.\w]+)\([^\)]+\) [A-Z][a-z][a-z] [A-Z].*200\d\) ready\.\r\n| p/HP-UX ftpd/ v/$2/ o/HP-UX/ h/$1/ cpe:/o:hp:hp-ux/a
 match ftp m|^530 Connection refused, unknown IP address\.\r\n$| p/Microsoft IIS ftpd/ i/IP address rejected/ o/Windows/ cpe:/a:microsoft:iis/ cpe:/o:microsoft:windows/a
@@ -708,7 +708,7 @@ match ftp m|^220-Welcome to CrushFTP!\r\n220 CrushFTP Server Ready[!.]\r\n| p/Cr
 match ftp m|^220-Welcome to CrushFTP([\w._-]+)!\r\n220 CrushFTP Server Ready\.\r\n| p/CrushFTP/ v/$1/
 match ftp m|^220 DPO-7300 FTP Server ([\d.]+) ready\.\n| p/NetSilicon DPO-7300 ftpd/ v/$1/
 match ftp m|^220 Welcome to WinFtp Server\.\r\n| p/WinFtpd/ o/Windows/ cpe:/o:microsoft:windows/a
-match ftp m|^220  IBM TCP/IP for OS/2 - FTP Server ver ([\d:.]+) on .* ready\.\r\n| p|IBM OS/2 ftpd| v/$1/ o|OS/2|
+match ftp m|^220  IBM TCP/IP for OS/2 - FTP Server ver ([\d:.]+) on .* ready\.\r\n| p|IBM OS/2 ftpd| v/$1/ o|OS/2| cpe:/a:ibm:os2_ftp_server:$1/ cpe:/o:ibm:os2/
 match ftp m|^220 AudioVAULT FTP server\r\n| p/AudioVault ftpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match ftp m|^220 FTP/VPP Server ([\d.]+) / Current Date: [-\d]+ [\d:]+\r\n| p/Verteiltes Printen und Plotten ftpd/ v/$1/
 match ftp m|^220 Xerox WorkCentre (\w+) Ver ([\d.]+) FTP server\.\r\n| p/Xerox WorkCentre $1 ftpd/ v/$2/ d/printer/
@@ -2332,7 +2332,7 @@ match smtp m|^220 ESMTP on WebEasyMail \[([\d.]+)\] ready\.  http://www\.51webma
 match smtp m|^220 ([-\w_.]+) AntiVir MailGate\r\n| p/AntiVir MailGate smtpd/ h/$1/
 match smtp m|^220 server ESMTP KEN! v([\d.]+); .*\r\n| p/AVM KEN! smtpd/ v/$1/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) NTMail \(v([\d.]+)/[\w.]+\) ready for ESMTP transfer   \r\n| p/NTMail smtpd/ v/$2/ o/Windows/ h/$1/ cpe:/o:microsoft:windows/a
-match smtp m|^220-([-\w_.]+) Sendmail IBM OS/2 SENDMAIL VERSION ([\w./]+) ready at .*\r\n220 ESMTP spoken here\r\n| p/Sendmail smtpd/ v/$2/ o|OS/2| h/$1/ cpe:/a:sendmail:sendmail:$2/
+match smtp m|^220-([-\w_.]+) Sendmail IBM OS/2 SENDMAIL VERSION ([\w./]+) ready at .*\r\n220 ESMTP spoken here\r\n| p/Sendmail smtpd/ v/$2/ o|OS/2| h/$1/ cpe:/a:sendmail:sendmail:$2/ cpe:/o:ibm:os2/
 match smtp m|^220 imss-2 ESMTP ready at .*\r\n| p/Trend IMSS smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
 match smtp m|^220 ([-\w_.]+) Service ready\.\r\n214- Valid commands are:\r\n214- HELO  MAIL  RCPT  DATA  RSET  QUIT  NOOP\r\n214- HELP  VRFY\r\n214- Commands not valid are:\r\n214- SEND  SOML  SAML  TURN\r\n.*214- [-\w_.]+ is running the OS/400 operating system\.\r\n|s p|OS/400 smtpd| o|OS/400|
 match smtp m|^220 shttp\.srv Simple Mail Transfer Service Ready\r\n| p/Small Home Server smtpd/ o/Windows/ cpe:/o:microsoft:windows/a
