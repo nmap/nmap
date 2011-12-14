@@ -653,7 +653,7 @@ have_liblinear=no
 # First we test whether they specified liblinear explicitly
 AC_ARG_WITH(liblinear,
 AC_HELP_STRING([--with-liblinear=DIR], [Use an existing (compiled) liblinear from DIR/include and DIR/lib.])
-AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included with Nmap])
+AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included with Nmap]),
 [  case "$with_liblinear" in
   yes)
   ;;
