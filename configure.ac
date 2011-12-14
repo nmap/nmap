@@ -669,6 +669,7 @@ AC_HELP_STRING([--with-liblinear=included], [Use the liblinear version included 
   *)
     CPPFLAGS="-I$with_liblinear/include $CPPFLAGS"
     LDFLAGS="-L$with_liblinear/lib $LDFLAGS"
+    have_liblinear=yes
   ;;
   esac]
 )
