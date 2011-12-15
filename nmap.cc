@@ -2792,6 +2792,23 @@ static bool same_file(const char *filename_a, const char *filename_b) {
   return stat_a.st_dev == stat_b.st_dev && stat_a.st_ino == stat_b.st_ino;
 }
 
+/* Search for a file in the standard data file locations. The result is stored
+   in filename_returned, which must point to an allocated buffer of at least
+   bufferlen bytes. Returns true iff the search should be considered finished
+   (i.e., the caller shouldn't try to search anywhere else for the file).
+
+   The search order is as follows:
+    * Options like --servicedb and --versiondb set explicit locations for
+      individual data files. If any of these were used those locations are
+      checked. (And no others; if it's not there, don't look in the standard
+      places.)
+    * --datadir
+    * $NMAPDIR
+    * [Non-Windows only] ~/.nmap
+    * The directory containing the nmap binary
+    * [Non-Windows only] The directory containing the nmap binary plus
+      "/../share/nmap"
+    * NMAPDATADIR */
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   char *dirptr;
   int res;
@@ -2800,19 +2817,6 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   char dot_buffer[512];
   static int warningcount = 0;
   std::map<std::string, std::string>::iterator iter;
-
-  /* First, check the map of requested data file names. If there's an entry for
-     file, use it and return.
-     Otherwise, we try [--datadir]/file, then $NMAPDIR/file
-     next we try ~user/.nmap/file
-     then the directory the nmap binary is in
-     then the directory the nmap binary is in plus "../share/nmap"
-     then we try NMAPDATADIR/file <--NMAPDATADIR 
-
-	 -- or on Windows --
-
-	 --datadir -> $NMAPDIR -> nmap.exe directory -> NMAPDATADIR
-  */
 
   /* Check the map of requested data file names. */
   iter = o.requested_data_files.find(file);
