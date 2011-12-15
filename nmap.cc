@@ -2792,6 +2792,8 @@ static bool same_file(const char *filename_a, const char *filename_b) {
   return stat_a.st_dev == stat_b.st_dev && stat_a.st_ino == stat_b.st_ino;
 }
 
+static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char *file);
+
 /* Search for a file in the standard data file locations. The result is stored
    in filename_returned, which must point to an allocated buffer of at least
    bufferlen bytes. Returns true iff the search should be considered finished
@@ -2810,13 +2812,8 @@ static bool same_file(const char *filename_a, const char *filename_b) {
       "/../share/nmap"
     * NMAPDATADIR */
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
-  char *dirptr;
-  int res;
-  int foundsomething = 0;
-  struct passwd *pw;
-  char dot_buffer[512];
-  static int warningcount = 0;
   std::map<std::string, std::string>::iterator iter;
+  int res;
 
   /* Check the map of requested data file names. */
   iter = o.requested_data_files.find(file);
@@ -2828,6 +2825,19 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
        file can't be accessed. */
     return fileexistsandisreadable(filename_returned) || 1;
   }
+
+  res = nmap_fetchfile_sub(filename_returned, bufferlen, file);
+
+  return res;
+}
+
+static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char *file) {
+  char *dirptr;
+  int res;
+  int foundsomething = 0;
+  struct passwd *pw;
+  char dot_buffer[512];
+  static int warningcount = 0;
 
   if (o.datadir) {
     res = Snprintf(filename_returned, bufferlen, "%s/%s", o.datadir, file);
