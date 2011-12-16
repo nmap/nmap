@@ -2803,7 +2803,9 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
    individual data files. If any of these were used those locations are checked
    first, and no other locations are checked.
 
-   After that, the search order is as follows:
+   After that, the following directories are searched in order. First an
+   NMAP_UPDATE_CHANNEL subdirectory is checked in all of them, then they are all
+   tried again directly.
     * --datadir
     * $NMAPDIR
     * [Non-Windows only] ~/.nmap
@@ -2812,7 +2814,9 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
       "/../share/nmap"
     * NMAPDATADIR */
 int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
+  const char *UPDATES_PREFIX = "updates/" NMAP_UPDATE_CHANNEL "/";
   std::map<std::string, std::string>::iterator iter;
+  char buf[BUFSIZ];
   int res;
 
   /* Check the map of requested data file names. */
@@ -2826,7 +2830,13 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
     return fileexistsandisreadable(filename_returned) || 1;
   }
 
-  res = nmap_fetchfile_sub(filename_returned, bufferlen, file);
+  /* Try updates directory first. */
+  Strncpy(buf, UPDATES_PREFIX, sizeof(buf));
+  Strncpy(buf + strlen(UPDATES_PREFIX), file, sizeof(buf) - strlen(UPDATES_PREFIX));
+  res = nmap_fetchfile_sub(filename_returned, bufferlen, buf);
+
+  if (!res)
+    res = nmap_fetchfile_sub(filename_returned, bufferlen, file);
 
   return res;
 }
