@@ -414,13 +414,11 @@ do
     local short_basename = match(filename, "([^/\\]+)%.nse$") or
         match(filename, "([^/\\]+)%.[^.]*$") or filename;
 
-    if debugging() > 1 then
-      print_debug(2, "Script %s was selected by %s%s.",
-          basename,
-          script_params.selection and
-            script_params.selection or "(unknown)",
-          script_params.forced and " and forced to run" or "");
-    end
+    print_debug(2, "Script %s was selected by %s%s.",
+        basename,
+        script_params.selection and
+        script_params.selection or "(unknown)",
+        script_params.forced and " and forced to run" or "");
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
     local env = {
@@ -538,11 +536,12 @@ local function get_chosen_scripts (rules)
   --    Boolean: True if it's forced otherwise false.
   --    String: The new cleaned string.
   local function is_forced_set (str)
-    local substr, count = gsub(str, "^%+", "");
-    if count > 0 then
-      return true, substr;
+    local specification = match(str, "^%+(.*)$");
+    if specification then
+      return true, specification;
+    else
+      return false, str;
     end
-    return false, str;
   end
 
   -- Globalize all names in str that are not protected_lua_tokens
