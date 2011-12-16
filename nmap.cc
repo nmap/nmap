@@ -2799,11 +2799,11 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
    bufferlen bytes. Returns true iff the search should be considered finished
    (i.e., the caller shouldn't try to search anywhere else for the file).
 
-   The search order is as follows:
-    * Options like --servicedb and --versiondb set explicit locations for
-      individual data files. If any of these were used those locations are
-      checked. (And no others; if it's not there, don't look in the standard
-      places.)
+   Options like --servicedb and --versiondb set explicit locations for
+   individual data files. If any of these were used those locations are checked
+   first, and no other locations are checked.
+
+   After that, the search order is as follows:
     * --datadir
     * $NMAPDIR
     * [Non-Windows only] ~/.nmap
