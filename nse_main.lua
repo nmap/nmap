@@ -350,7 +350,7 @@ do
       print_debug(1,
     "A thread for %s yielded unexpectedly in the file or %s function:\n%s\n",
           self.filename, rule, traceback(co));
-    elseif s and rule_return then
+    elseif s and (rule_return or self.forced_to_run) then
       local thread = {
         co = co,
         env = env,
@@ -381,25 +381,46 @@ do
   local quiet_errors = {
     [REQUIRE_ERROR] = true,
   }
+
   -- script = Script.new(filename)
   -- Creates a new Script Class for the script.
   -- Arguments:
   --   filename  The filename (path) of the script to load.
+  --   script_params  The script selection parameters table.
+  --     Possible key/value pairs:
+  --       selection: A string to indicate the script selection type.
+  --                  "name": Selected by name or pattern.
+  --                  "category" Selected by category.
+  --                  "file path" Selected by file path.
+  --                  "directory" Selected by directory.
+  --       verbosity: A boolean, if set to true the script will get a
+  --                verbosity boost. Scripts selected by name or
+  --                file paths must set this to true.
+  --       forced: A boolean to indicate if the script will be
+  --               forced to run regardless to its rule results.
+  --               (e.g. "+script").
   -- Returns:
   --   script  The script (class) created.
-  function Script.new (filename, selected_by_name)
+  function Script.new (filename, script_params)
+    local script_params = script_params or {};
     assert(type(filename) == "string", "string expected");
     if not find(filename, "%.nse$") then
       log_error(
           "Warning: Loading '%s' -- the recommended file extension is '.nse'.",
           filename);
     end
+
     local basename = match(filename, "([^/\\]+)$") or filename;
-    if selected_by_name then
-      print_debug(2, "Script %s was selected by name.", basename);
-    end
     local short_basename = match(filename, "([^/\\]+)%.nse$") or
         match(filename, "([^/\\]+)%.[^.]*$") or filename;
+
+    if debugging() > 1 then
+      print_debug(2, "Script %s was selected by %s%s.",
+          basename,
+          script_params.selection and
+            script_params.selection or "(unknown)",
+          script_params.forced and " and forced to run" or "");
+    end
     local file_closure = assert(loadfile(filename));
     -- Give the closure its own environment, with global access
     local env = {
@@ -470,7 +491,9 @@ do
       license = rawget(env, "license"),
       dependencies = rawget(env, "dependencies"),
       threads = {},
-      selected_by_name = not not selected_by_name,
+      -- Make sure that the following are boolean types.
+      selected_by_name = not not script_params.verbosity,
+      forced_to_run = not not script_params.forced,
     };
     return setmetatable(script, {__index = Script, __metatable = Script});
   end
@@ -500,7 +523,8 @@ local function get_chosen_scripts (rules)
     "database appears to be corrupt or out of date;\n"..
     "\tplease update using: nmap --script-updatedb");
 
-  local chosen_scripts, entry_rules, used_rules, files_loaded = {}, {}, {}, {};
+  local chosen_scripts, files_loaded = {}, {};
+  local entry_rules, used_rules, forced_rules = {}, {}, {};
 
   -- Tokens that are allowed in script rules (--script)
   local protected_lua_tokens = {
@@ -508,6 +532,19 @@ local function get_chosen_scripts (rules)
     ["or"] = true,
     ["not"] = true,
   };
+
+  -- Was this category selection forced to run (e.g. "+script").
+  -- Return:
+  --    Boolean: True if it's forced otherwise false.
+  --    String: The new cleaned string.
+  local function is_forced_set (str)
+    local substr, count = gsub(str, "^%+", "");
+    if count > 0 then
+      return true, substr;
+    end
+    return false, str;
+  end
+
   -- Globalize all names in str that are not protected_lua_tokens
   local function globalize (str)
     local lstr = lower(str);
@@ -520,7 +557,10 @@ local function get_chosen_scripts (rules)
 
   for i, rule in ipairs(rules) do
     rule = match(rule, "^%s*(.-)%s*$"); -- strip surrounding whitespace
+    local original_rule = rule;
+    local forced, rule = is_forced_set(rule);
     used_rules[rule] = false; -- has not been used yet
+    forced_rules[rule] = forced;
     -- Globalize all `names`, all visible characters not ',', '(', ')', and ';'
     local globalized_rule =
         gsub(rule, "[\033-\039\042-\043\045-\058\060-\126]+", globalize);
@@ -528,8 +568,9 @@ local function get_chosen_scripts (rules)
     local compiled_rule, err = loadstring("return "..globalized_rule, "rule");
     if not compiled_rule then
       err = err:match("rule\"]:%d+:(.+)$"); -- remove (luaL_)where in code
-      error("Bad script rule:\n\t"..rule.." -> "..err);
+      error("Bad script rule:\n\t"..original_rule.." -> "..err);
     end
+    -- These are used to reference and check all the rules later.
     entry_rules[globalized_rule] = {
       original_rule = rule,
       compiled_rule = compiled_rule,
@@ -551,35 +592,52 @@ local function get_chosen_scripts (rules)
       r_categories[lower(category)] = true; -- Lowercase the entry
     end
 
-    -- Was this entry selected by name with the --script option? We record
-    -- whether it was so that scripts so selected can get a verbosity boost.
-    -- See nmap.verbosity.
-    local selected_by_name = false;
+    -- The script selection parameters table.
+    local script_params = {};
+
     -- A matching function for each script rule.
     -- If the pattern directly matches a category (e.g. "all"), then
     -- we return true. Otherwise we test if it is a filename or if
     -- the script_entry.filename matches the pattern.
     local function m (pattern)
       -- Check categories
-      if r_categories[lower(pattern)] then return true end
+      if r_categories[lower(pattern)] then
+        script_params.selection = "category";
+        return true;
+      end
+
       -- Check filename with wildcards
       pattern = gsub(pattern, "%.nse$", ""); -- remove optional extension
       pattern = gsub(pattern, "[%^%$%(%)%%%.%[%]%+%-%?]", "%%%1"); -- esc magic
       pattern = gsub(pattern, "%*", ".*"); -- change to Lua wildcard
       pattern = "^"..pattern.."$"; -- anchor to beginning and end
-      local found = not not find(escaped_basename, pattern);
-      selected_by_name = selected_by_name or found;
-      return found;
+      if find(escaped_basename, pattern) then
+        script_params.selection = "name";
+        script_params.verbosity = true;
+        return true;
+      end
+
+      return false;
     end
     local env = {m = m};
 
     for globalized_rule, rule_table in pairs(entry_rules) do
-      if setfenv(rule_table.compiled_rule, env)() then -- run the compiled rule
+      -- Clear and set the environment of the compiled script rule
+      local compiled_rule = setfenv(rule_table.compiled_rule, env)
+      local status, found = pcall(compiled_rule)
+      if not status then
+        error("Bad script rule:\n\t"..rule_table.original_rule..
+              " -> script rule expression not supported.");
+      end
+      -- The script rule matches a category or a pattern
+      if found then 
         used_rules[rule_table.original_rule] = true;
+        script_params.forced = not not forced_rules[rule_table.original_rule];
         local t, path = cnse.fetchscript(filename);
         if t == "file" then
           if not files_loaded[path] then
-            chosen_scripts[#chosen_scripts+1] = Script.new(path, selected_by_name);
+            local script = Script.new(path, script_params)
+            chosen_scripts[#chosen_scripts+1] = script;
             files_loaded[path] = true;
             -- do not break so other rules can be marked as used
           end
@@ -597,6 +655,8 @@ local function get_chosen_scripts (rules)
   -- Now load any scripts listed by name rather than by category.
   for rule, loaded in pairs(used_rules) do
     if not loaded then -- attempt to load the file/directory
+      local script_params = {};
+      script_params.forced = not not forced_rules[rule];
       local t, path = cnse.fetchscript(rule);
       if t == nil then -- perhaps omitted the extension?
         t, path = cnse.fetchscript(rule..".nse");
@@ -604,14 +664,18 @@ local function get_chosen_scripts (rules)
       if t == nil then
         error("'"..rule.."' did not match a category, filename, or directory");
       elseif t == "file" and not files_loaded[path] then
-        local script = Script.new(path, true);
+        script_params.selection = "file path";
+        script_params.verbosity = true;
+        local script = Script.new(path, script_params);
         chosen_scripts[#chosen_scripts+1] = script;
         files_loaded[path] = true;
       elseif t == "directory" then
         for f in cnse.dir(path) do
           local file = path .."/".. f
           if find(f, "%.nse$") and not files_loaded[file] then
-            chosen_scripts[#chosen_scripts+1] = Script.new(file);
+            script_params.selection = "directory";
+            local script = Script.new(path, script_params);
+            chosen_scripts[#chosen_scripts+1] = script;
             files_loaded[file] = true;
           end
         end
