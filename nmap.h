@@ -231,6 +231,9 @@ void *realloc();
 #define NMAP_VERSION "5.61TEST3"
 #define NMAP_NUM_VERSION "5.61.0.3"
 #endif
+/* The version number of updates retrieved by the nmap-update program. It can be
+   different (but should always be earlier) than NMAP_VERSION. */
+#define NMAP_UPDATE_CHANNEL "5.61TEST2"
 
 /* User configurable #defines: */
 #define MAX_PROBE_PORTS 10     /* How many TCP probe ports are allowed ? */
