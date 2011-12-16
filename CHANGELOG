@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-wake-on-lan that wakes systems from sleep
+  by sending a Wake On Lan packet. [Patrik]
+
 o [NSE] Added the script http-unsafe-output-escaping that checks if parameter
   contents are reflected in responses, aiding in discovering potential XSS
   vulnerabilities. [Martin Swende]
