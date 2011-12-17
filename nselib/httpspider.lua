@@ -363,10 +363,10 @@ URL = {
 			self.file = self.raw:match("^http[s]?://[^:/]*[:]?%d*(/[^\#]*)") or '/'
 			self.port = tonumber(self.port)
 			if ( not(self.port) ) then
-				if ( self.proto:match("http") ) then
-					self.port = 80 
-				elseif ( self.proto:match("https")) then
-					self.port = 443
+				if ( self.proto:match("https") ) then
+					self.port = 443 
+				elseif ( self.proto:match("http")) then
+					self.port = 80
 				end
 			end
 			
