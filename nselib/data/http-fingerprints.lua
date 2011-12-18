@@ -199,6 +199,33 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+		{path='/repos/', method='GET'},
+		{path='/repo/', method='GET'},
+		{path='/svn/', method='GET'},
+		{path='/cvs/', method='GET'}
+	},
+	matches= {
+		{match='realm=".-Subversion.-"', output='Subversion Repository'},
+		{match='', output='Possible code repository'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
+		{path='/archiva/index.action', method='GET'},
+		{path='/index.action', method='GET'}
+	},
+	matches= {
+		{match='.*">Apache Archiva (.-)</a>', output='Apache Archiva version \\1'},
+		{match='Apache Archiva (%d-%..-)\n', output='Apache Archiva version \\1'},
+		{match='<title>Apache Archiva \\', output='Apache Archiva'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/login.stm', method='HEAD'}
 	},
 	matches= {

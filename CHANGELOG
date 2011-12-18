@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Added new fingerprints to http-enum for Subversion, CVS and Apache Archiva
+  [Duarte Silva]
+
 o [NSE] Added the script http-open-redirect that finds web pages that do not
   properly validate parameters used for HTTP redirects. [Martin Swende]
 
