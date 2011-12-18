@@ -9361,6 +9361,8 @@ match tibia m|^V\0\x02\0Your terminal version is too old\.\nPlease get a new ver
 
 match xplorer m|Access violation at address \w+ in module 'Xplorer\.exe'\. Read of address| p/SoftOne Business Xplorer/ o/Windows/ cpe:/o:microsoft:windows/a
 
+match pc-anywhere m|\x1bY2\0\x01\x03B\0\0\x01\0\x14....................\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0| p/Symantec PC-Anywhere/
+
 ##############################NEXT PROBE##############################
 Probe TCP DistCCD q|DIST00000001ARGC00000005ARGV00000002ccARGV00000002-cARGV00000006nmap.cARGV00000002-oARGV00000006nmap.oDOTI00000000|
 rarity 8
@@ -10125,3 +10127,24 @@ Probe UDP vuze-dht q|\xff\xf0\x97\x0d\x2e\x60\xd1\x6f\0\0\x04\0\0\x55\xab\xec\x3
 rarity 8
 ports 17555,49152-49156
 match vuze-dht m|^\0\0\x04\x01\0U\xab\xec\xff\xf0\x97\r\.`\xd1o..........|s p/Vuze/
+
+##############################NEXT PROBE##############################
+# PC-Anywhere probe
+Probe UDP pc-anywhere q|NQ|
+rarity 8
+ports 5632
+match pc-anywhere m|^NR([^_]*)_*AHM_3___\0$|s i/Servername: $1/ p/Symantec PC-Anywhere/
+
+##############################NEXT PROBE##############################
+# PC-DUO host probe
+Probe UDP pc-duo q|\0\x80\x80\x08\xff\0|
+rarity 8
+ports 1505
+match pc-duo m|^.........(.*)\0|s i/Servername: $1/ p/Vector PC-Duo/
+
+##############################NEXT PROBE##############################
+# PC-DUO Gateway probe
+Probe UDP pc-duo-gw q|\x20\x90\x80\x08\xff\0|
+rarity 8
+ports 2303
+match pc-duo-gw m|^.........(.*)\0|s i/Servername: $1/ p/Vector PC-Duo Gateway Server/

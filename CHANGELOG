@@ -1,5 +1,13 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script broadcast-pc-anywhere that discovers host running the
+  PC-Anywhere remote control software on the LAN. [Patrik]
+
+o [NSE] Added the script broadcast-pc-duo that discovers hosts running the
+  PC-Duo remote control software on the LAN. [Patrik]
+
+o Added probes for discovering PC-Duo and PC-Anywhere hosts. [Patrik]
+
 o [NSE] Added support for forcing scripts to run agains certain ports by adding
   a plus in front of the script name. [Martin Swende]
 
