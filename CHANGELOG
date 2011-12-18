@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added the script http-open-redirect that finds web pages that do not
+  properly validate parameters used for HTTP redirects. [Martin Swende]
+
 o [NSE] Added the script broadcast-pc-anywhere that discovers host running the
   PC-Anywhere remote control software on the LAN. [Patrik]
 
