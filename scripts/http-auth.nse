@@ -4,18 +4,35 @@ authentication.
 ]]
 
 ---
+-- @usage
+-- nmap --script http-auth [--script-args='http-auth.path=/login/']
+--
 -- @output
 -- PORT   STATE SERVICE REASON
 -- 80/tcp open  http    syn-ack
--- | http-auth: HTTP/1.1 401 Unauthorized
--- |
--- |_Basic realm=WebAdmin
+-- | http-auth: 
+-- |   Negotiate
+-- |   NTLM
+-- |   Digest
+-- |     charset=utf-8
+-- |     nonce=+Upgraded+v1e4e256b4afb7f89bf...0eb280e9c4b015cbe43bb7ab
+-- |     qop=auth
+-- |     algorithm=MD5-sess
+-- |     realm=example.com
+-- |   Basic
+-- |_    realm=example.com
+--
+-- @args http-auth.path The url to query (default: /)
 
 -- HTTP authentication information gathering script
 -- rev 1.1 (2007-05-25)
 -- 2008-11-06 Vlatko Kosturjak <kost@linux.hr>
 -- * bug fixes against base64 encoded strings, more flexible auth/pass check,
 --   corrected sample output
+-- 2011-12-18 Patrik Karlsson <patrik@cqure.net>
+-- * added path argument and changed so that the script processes all
+--   www-authenticate arguments
+
 
 author = "Thomas Buchanan"
 
@@ -28,39 +45,54 @@ require "http"
 
 portrule = shortport.http
 
+local PATH = stdnse.get_script_args("http-auth.path")
+
+local function getChallenges(www_authenticate)
+	local challenges = http.parse_www_authenticate(www_authenticate)
+	local result = {}
+	
+	if not challenges then
+    	table.insert( result, ("WWW-Authenticate: %s"):format(www_authenticate) )
+		return result
+	end
+
+	for _, challenge in ipairs(challenges) do
+		result.name = challenge.scheme
+		for name, value in pairs(challenge.params) do
+			table.insert(result, string.format("%s=%s", name, value))
+		end
+	end
+	return ( #result == 0 and result.name or result )
+end
+
 action = function(host, port)
   local www_authenticate
   local challenges
 
-  local result = {}
-  local answer = http.get(host, port, "/")
+  local request_opts = {
+    bypass_cache = true
+  }
+  local answer = http.get(host, port, PATH or "/", request_opts)
 
   --- check for 401 response code
   if answer.status ~= 401 then
     return
   end
 
-  result[#result + 1] = answer["status-line"]
-
+  local result = {}
   www_authenticate = answer.header["www-authenticate"]
   if not www_authenticate then
-    result[#result + 1] = string.format("Server returned status %d but no WWW-Authenticate header.", answer.status)
-    return table.concat(result, "\n")
-  end
-  challenges = http.parse_www_authenticate(www_authenticate)
-  if not challenges then
-    result[#result + 1] = string.format("Server returned status %d but the WWW-Authenticate header could not be parsed.", answer.status)
-    result[#result + 1] = string.format("WWW-Authenticate: %s", www_authenticate)
-    return table.concat(result, "\n")
+    table.insert(result, ("Server returned status %d but no WWW-Authenticate header."):format(answer.status))
+    return stdnse.format_output(true, result)
   end
 
-  for _, challenge in ipairs(challenges) do
-    local line = challenge.scheme
-    for name, value in pairs(challenge.params) do
-      line = line .. string.format(" %s=%s", name, value)
-    end
-    result[#result + 1] = line
+  for _, header in ipairs(answer.rawheader) do
+    local n, v = header:match("^(.-): (.*)$")
+	if ( n and n:lower() == "www-authenticate" ) then
+      local r = getChallenges(v)
+	  table.insert(result, r)
+	end
   end
 
-  return table.concat(result, "\n")
+  return stdnse.format_output(true, result)
 end

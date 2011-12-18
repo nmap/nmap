@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Modified http-auth to support multiple authentication mechanism and to
+  allow for a path to be specified as an argument. [Patrik]
+
 o Added new fingerprints to http-enum for Subversion, CVS and Apache Archiva
   [Duarte Silva]
 
