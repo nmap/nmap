@@ -1447,6 +1447,40 @@ Proxy-Authenticate: Digest realm=\"$realm\", nonce=\"$nonce\", opaque=\"abcd\"\r
 	die "No Proxy-Authorization: Digest in client request";
 };
 
+# This violates RFC 2617 section 1.2, which requires at least one auth-param.
+# But NTLM and Negotiate don't use any.
+server_client_test "HTTP proxy client handles scheme without auth-params",
+["-k"], ["--proxy", "$HOST:$PORT", "--proxy-auth", "user:pass", "--proxy-type", "http"],
+sub {
+	my $nonce = "0123456789abcdef";
+	my $realm = "realm";
+	my $req = timeout_read($s_out);
+	$req or die "No initial request from client";
+	syswrite($s_in, "HTTP/1.0 407 Authentication Required\r\
+Proxy-Authenticate: Basic realm=\"$realm\"\r\
+Proxy-Authenticate: NTLM\r\
+Proxy-Authenticate: Digest realm=\"$realm\", nonce=\"$nonce\", qop=\"auth\"\r\n\r\n");
+	$req = timeout_read($s_out);
+	$req or die "No followup request from client";
+	$req = HTTP::Request->parse($req);
+	$req->header("Proxy-Authorization") or die "Client didn't sent Proxy-Authorization";
+};
+
+server_client_test "HTTP proxy client handles scheme without auth-params, comma-separated",
+["-k"], ["--proxy", "$HOST:$PORT", "--proxy-auth", "user:pass", "--proxy-type", "http"],
+sub {
+	my $nonce = "0123456789abcdef";
+	my $realm = "realm";
+	my $req = timeout_read($s_out);
+	$req or die "No initial request from client";
+	syswrite($s_in, "HTTP/1.0 407 Authentication Required\r\
+Proxy-Authenticate: Basic realm=\"$realm\", NTLM, Digest realm=\"$realm\", nonce=\"$nonce\", qop=\"auth\"\r\n\r\n");
+	$req = timeout_read($s_out);
+	$req or die "No followup request from client";
+	$req = HTTP::Request->parse($req);
+	$req->header("Proxy-Authorization") or die "Client didn't sent Proxy-Authorization";
+};
+
 # Check that the proxy relays in both directions.
 proxy_test "HTTP CONNECT proxy relays",
 [], [], [], sub {
