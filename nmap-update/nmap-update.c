@@ -575,7 +575,7 @@ static int read_config_file(const char *conf_filename)
 		return -1;
 	}
 
-	return -1;
+	return 0;
 }
 
 
@@ -655,7 +655,10 @@ int main(int argc, char *argv[])
 	if (options.verbose)
 		summarize_options();
 
-	read_config_file(options.conf_filename);
+	if (read_config_file(options.conf_filename) == -1) {
+		fprintf(stderr, "Can't read config file %s.\n", options.conf_filename);
+		exit(1);
+	}
 
 	if (try_channels(options.channels, options.num_channels) == 0)
 		return 0;
