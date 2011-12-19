@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #include "nbase.h"
@@ -496,6 +497,17 @@ static struct {
 	char *password;
 } options;
 
+struct metadata {
+	int is_expired;
+	time_t expiry_date;
+};
+
+static void metadata_init(struct metadata *metadata)
+{
+	metadata->is_expired = 0;
+	metadata->expiry_date = 0;
+}
+
 static void init_options(void)
 {
 	options.verbose = 1;
@@ -578,6 +590,70 @@ static int read_config_file(const char *conf_filename)
 	return 0;
 }
 
+static int parse_date(const char *s, time_t *t)
+{
+	struct tm tm = {0};
+
+	if (strptime(s, "%Y-%d-%m", &tm) == NULL)
+		return -1;
+	*t = mktime(&tm);
+
+	return 0;
+}
+
+static int date_is_after(time_t t, time_t now)
+{
+	return difftime(t, now) > 0;
+}
+
+static int read_metadata_file(const char *metadata_filename, struct metadata *metadata)
+{
+	struct config_parser cp;
+	struct config_entry entry;
+	int ret;
+
+	if (options.verbose)
+		printf("Trying to open metadata file %s.\n", metadata_filename);
+
+	errno = 0;
+	if (config_parser_open(metadata_filename, &cp) == -1) {
+		/* A missing file is not an error for metadata. */
+		return 0;
+	}
+
+	while ((ret = config_parser_next(&cp, &entry)) > 0) {
+		if (streq(entry.key, "expired")) {
+			if (parse_date(entry.value, &metadata->expiry_date) == -1) {
+				fprintf(stderr, "Warning: %s:%lu: can't parse date \"%s\".\n",
+					metadata_filename, cp.lineno, entry.value);
+			} else {
+				if (date_is_after(metadata->expiry_date, time(NULL)))
+					metadata->is_expired = 1;
+			}
+		} else {
+			fprintf(stderr, "Warning: %s:%lu: unknown key \"%s\".\n",
+				metadata_filename, cp.lineno, entry.key);
+		}
+
+		config_entry_free(&entry);
+	}
+	if (ret == -1) {
+		fprintf(stderr, "Parse error on line %lu of %s.\n",
+			cp.lineno, metadata_filename);
+		config_parser_close(&cp);
+		return -1;
+	}
+
+	errno = 0;
+	if (config_parser_close(&cp) == -1) {
+		if (options.verbose)
+			printf("Failed to close %s: %s.\n", metadata_filename, strerror(errno));
+		return -1;
+	}
+
+	return 0;
+}
+
 
 static void usage(FILE *fp)
 {
@@ -599,10 +675,11 @@ static void usage_error(void)
 }
 
 
-static int try_channels(const char *channels[], unsigned int num_channels);
+static const char *try_channels(const char *channels[], unsigned int num_channels);
 static int stage_and_install(const char *channel);
 static int stage_channel(const char *channel, const char *staging_dir);
 static int install(const char *staging_dir, const char *install_dir);
+static int channel_is_expired(const char *channel, time_t *expiry_date);
 
 static void summarize_options(void)
 {
@@ -624,6 +701,8 @@ const struct option LONG_OPTIONS[] = {
 int main(int argc, char *argv[])
 {
 	int opt, longoptidx;
+	const char *successful_channel;
+	time_t expiry_date;
 
 	internal_assert(argc > 0);
 	program_name = argv[0];
@@ -660,10 +739,19 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
-	if (try_channels(options.channels, options.num_channels) == 0)
-		return 0;
+	successful_channel = try_channels(options.channels, options.num_channels);
 
-	if (options.username == NULL) {
+	if (successful_channel != NULL && channel_is_expired(successful_channel, &expiry_date)) {
+		fprintf(stderr, "\
+\n\
+Channel is expired: %s\n\
+\n\
+The channel %s is expired and will not receive any more updates.\n\
+Go to http://nmap.org/download.html to get a newer Nmap release.\n\
+", successful_channel, successful_channel);
+	}
+
+	if (successful_channel == NULL && options.username == NULL) {
 		fprintf(stderr, "\
 \n\
 Could not stage any channels and don't have authentication credentials.\n\
@@ -674,20 +762,23 @@ Edit the file %s and enter your username and password. For example:\n\
 ", options.conf_filename);
 	}
 
-	return 1;
+	if (successful_channel != NULL)
+		return 0;
+	else
+		return 1;
 }
 
 
-static int try_channels(const char *channels[], unsigned int num_channels)
+static const char *try_channels(const char *channels[], unsigned int num_channels)
 {
 	unsigned int i;
 
 	for (i = 0; i < num_channels; i++) {
 		if (stage_and_install(channels[i]) == 0)
-			return 0;
+			return channels[i];
 	}
 
-	return -1;
+	return NULL;
 }
 
 
@@ -796,6 +887,28 @@ static int stage_channel(const char *channel, const char *staging_dir)
 	free(svn_url);
 
 	return rc;
+}
+
+static int channel_is_expired(const char *channel, time_t *expiry_date)
+{
+	char *metadata_filename;
+	struct metadata metadata;
+	int rc;
+
+	metadata_init(&metadata);
+
+	metadata_filename = path_join(options.staging_dir, channel, "metadata.conf", NULL);
+	rc = read_metadata_file(metadata_filename, &metadata);
+	if (rc == -1) {
+		fprintf(stderr, "Can't read config file %s.\n", metadata_filename);
+		free(metadata_filename);
+		exit(1);
+	}
+	free(metadata_filename);
+
+	*expiry_date = metadata.expiry_date;
+
+	return metadata.is_expired;
 }
 
 static int copy_tree(const char *from_dirname, const char *to_dirname);
