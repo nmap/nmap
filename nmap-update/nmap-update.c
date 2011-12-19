@@ -693,45 +693,15 @@ static void fatal_err_svn(svn_error_t *err)
 	svn_handle_error2(err, stderr, TRUE, "nmap-update: ");
 }
 
-static svn_error_t *simple_auth_callback(svn_auth_cred_simple_t **cred,
-	void *baton, const char *realm, const char *username,
-	svn_boolean_t may_save, apr_pool_t *pool)
-{
-	svn_auth_cred_simple_t *ret;
-
-	ret = apr_pcalloc(pool, sizeof(*ret));
-
-	if (options.verbose) {
-		if (realm != NULL)
-			printf("Authenticating to realm %s.\n", realm);
-	}
-
-	if (!(username || options.username) || !options.password) {
-		return svn_error_create(SVN_ERR_RA_UNKNOWN_AUTH, NULL,
-			"Don't have authentication credentials");
-	}
-
-	if (options.username != NULL)
-		ret->username = apr_pstrdup(pool, options.username);
-	else
-		ret->username = apr_pstrdup(pool, username);
-
-	ret->password = apr_pstrdup(pool, options.password);
-
-	*cred = ret;
-
-	return SVN_NO_ERROR;
-}
-
 static svn_error_t *checkout_svn(const char *url, const char *path)
 {
 	svn_error_t *err;
 	apr_pool_t *pool;
 	svn_opt_revision_t peg_revision, revision;
 	svn_client_ctx_t *ctx;
+	svn_auth_baton_t *ab;
 	svn_revnum_t revnum;
-	svn_auth_provider_object_t *provider;
-	apr_array_header_t *providers;
+	svn_config_t *cfg;
 
 	peg_revision.kind = svn_opt_revision_unspecified;
 	revision.kind = svn_opt_revision_head;
@@ -742,19 +712,25 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 	if (err != NULL)
 		fatal_err_svn(err);
 
-	providers = apr_array_make(pool, 10, sizeof (svn_auth_provider_object_t *));
-	svn_auth_get_simple_prompt_provider(&provider,
-		simple_auth_callback,
-		NULL, /* baton */
-		0, /* retry limit */
+	err = svn_config_get_config(&ctx->config, NULL, pool);
+	if (err != NULL)
+		fatal_err_svn(err);
+	cfg = apr_hash_get(ctx->config, SVN_CONFIG_CATEGORY_CONFIG,
+		APR_HASH_KEY_STRING);
+	svn_config_set_bool(cfg, SVN_CONFIG_SECTION_GLOBAL,
+		SVN_CONFIG_OPTION_SSL_TRUST_DEFAULT_CA, TRUE);
+	svn_cmdline_create_auth_baton(&ab,
+		FALSE, /* non_interactive */
+		options.username, /* username */
+		options.password, /* password */
+		NULL, /* config_dir */
+		FALSE, /* no_auth_cache */
+		FALSE, /* trust_server_cert */
+		cfg, /* cfg */
+		NULL, /* cancel_func */
+		NULL, /* cancel_baton */
 		pool);
-	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
-	svn_auth_get_platform_specific_provider(&provider,
-		"windows", "ssl_server_trust", pool);
-	if (provider != NULL)
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
-	/* Register the auth providers into the client context's auth_baton. */
-	svn_auth_open(&ctx->auth_baton, providers, pool);
+	ctx->auth_baton = ab;
 
 	err = svn_client_checkout3(&revnum, url, path,
 		&peg_revision, &revision,
