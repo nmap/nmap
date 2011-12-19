@@ -187,8 +187,6 @@
 #undef  EINTR
 #define EINTR           WSAEINTR      /* Interrupted system call */
 #define ENOBUFS         WSAENOBUFS     /* No buffer space available */
-#undef  ENOENT
-#define ENOENT          WSAENOENT      /* No such file or directory */
 #define EMSGSIZE        WSAEMSGSIZE    /* Message too long */
 #undef  ENOMEM
 #define ENOMEM          WSAENOBUFS
@@ -196,6 +194,13 @@
 #define ENOTSOCK        WSAENOTSOCK
 #undef  EIO
 #define EIO             WSASYSCALLFAILURE
+
+/*
+This is not used by our network code, and causes problems in programs using
+Nbase that legitimately use ENOENT for file operations.
+#undef  ENOENT
+#define ENOENT          WSAENOENT
+*/
 
 #define close(x) closesocket(x)
 
