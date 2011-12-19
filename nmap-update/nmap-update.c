@@ -895,7 +895,7 @@ static int channel_is_expired(const char *channel, time_t *expiry_date)
 	metadata_filename = path_join(options.staging_dir, channel, "metadata.conf", NULL);
 	rc = read_metadata_file(metadata_filename, &metadata);
 	if (rc == -1) {
-		fprintf(stderr, "Can't read config file %s.\n", metadata_filename);
+		fprintf(stderr, "Can't read metadata file %s.\n", metadata_filename);
 		free(metadata_filename);
 		exit(1);
 	}
