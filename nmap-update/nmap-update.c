@@ -624,7 +624,7 @@ static int read_metadata_file(const char *metadata_filename, struct metadata *me
 				fprintf(stderr, "Warning: %s:%lu: can't parse date \"%s\".\n",
 					metadata_filename, cp.lineno, entry.value);
 			} else {
-				if (date_is_after(metadata->expiry_date, time(NULL)))
+				if (date_is_after(time(NULL), metadata->expiry_date))
 					metadata->is_expired = 1;
 			}
 		} else {
