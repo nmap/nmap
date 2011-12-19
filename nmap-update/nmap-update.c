@@ -591,9 +591,13 @@ static int parse_date(const char *s, time_t *t)
 {
 	struct tm tm = {0};
 
-	if (strptime(s, "%Y-%d-%m", &tm) == NULL)
+	if (sscanf(s, "%d-%d-%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday) != 3)
 		return -1;
+	tm.tm_year -= 1900;
+	tm.tm_mon -= 1;
 	*t = mktime(&tm);
+	if (*t == -1)
+		return -1;
 
 	return 0;
 }
