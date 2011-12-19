@@ -273,12 +273,12 @@ static char *get_conf_filename(void) {
 /* Configuration file parsing. */
 
 enum token_type {
-	ERROR,
-	EOL_TOKEN,
-	EOF_TOKEN,
-	WORD,
-	EQUALS,
-	STRING,
+	TOKEN_ERROR,
+	TOKEN_EOL,
+	TOKEN_EOF,
+	TOKEN_WORD,
+	TOKEN_EQUALS,
+	TOKEN_STRING,
 };
 
 struct config_parser {
@@ -382,7 +382,7 @@ static enum token_type config_parser_read_token(struct config_parser *cp,
 			if (errno != 0)
 				goto bail;
 			*token = NULL;
-			return EOF_TOKEN;
+			return TOKEN_EOF;
 		}
 		if (c == '#') {
 			while ((c = fgetc(cp->fp)) != EOF && c != '\n')
@@ -391,7 +391,7 @@ static enum token_type config_parser_read_token(struct config_parser *cp,
 				if (errno != 0)
 					goto bail;
 				*token = NULL;
-				return EOF_TOKEN;
+				return TOKEN_EOF;
 			} else if (c == '\n') {
 				cp->lineno++;
 			}
@@ -402,12 +402,12 @@ static enum token_type config_parser_read_token(struct config_parser *cp,
 	if (cp->lineno != prev_lineno) {
 		ungetc(c, cp->fp);
 		*token = NULL;
-		return EOL_TOKEN;
+		return TOKEN_EOL;
 	}
 
 	if (c == '=') {
 		strbuf_append_char(token, &size, &offset, c);
-		return EQUALS;
+		return TOKEN_EQUALS;
 	} else if (is_word_char(c)) {
 		while (is_word_char(c)) {
 			strbuf_append_char(token, &size, &offset, c);
@@ -416,7 +416,7 @@ static enum token_type config_parser_read_token(struct config_parser *cp,
 			if (c == EOF && errno != 0)
 				goto bail;
 		}
-		return WORD;
+		return TOKEN_WORD;
 	} else if (c == '"') {
 		char *qs;
 
@@ -424,7 +424,7 @@ static enum token_type config_parser_read_token(struct config_parser *cp,
 		if (qs == NULL)
 			goto bail;
 		*token = safe_strdup(qs);
-		return STRING;
+		return TOKEN_STRING;
 	} else {
 		goto bail;
 	}
@@ -434,7 +434,7 @@ bail:
 		free(*token);
 	*token = NULL;
 
-	return ERROR;
+	return TOKEN_ERROR;
 }
 
 static int config_parser_next(struct config_parser *cp, struct config_entry *entry)
@@ -442,27 +442,27 @@ static int config_parser_next(struct config_parser *cp, struct config_entry *ent
 	char *token;
 	enum token_type type;
 
-	while ((type = config_parser_read_token(cp, &token)) == EOL_TOKEN)
+	while ((type = config_parser_read_token(cp, &token)) == TOKEN_EOL)
 		;
-	if (type == EOF_TOKEN) {
+	if (type == TOKEN_EOF) {
 		free(token);
 		return 0;
 	}
-	if (type != WORD) {
+	if (type != TOKEN_WORD) {
 		free(token);
 		return -1;
 	}
 	entry->key = token;
 
 	type = config_parser_read_token(cp, &token);
-	if (type != EQUALS) {
+	if (type != TOKEN_EQUALS) {
 		free(token);
 		return -1;
 	}
 	free(token);
 
 	type = config_parser_read_token(cp, &token);
-	if (!(type == WORD || type == STRING)) {
+	if (!(type == TOKEN_WORD || type == TOKEN_STRING)) {
 		free(token);
 		return -1;
 	}
