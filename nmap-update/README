@@ -1,0 +1,93 @@
+These are instructions for compiling libapr and libsvn1 on Windows.
+
+You need:
+	Python installed at C:\Python27\python.exe
+	Visual C++ 2008 (I don't think 2010 will work)
+	Cygwin
+
+http://svn.apache.org/repos/asf/subversion/trunk/INSTALL
+http://apr.apache.org/compiling_win32.html
+
+Note: you need the "win32" versions of the source packages. Also note that the
+links for apr-iconv are broken: you have to add "-r2".
+http://apr.apache.org/download.cgi
+http://apache.ziply.com/apr/apr-1.4.5-win32-src.zip
+http://apache.ziply.com/apr/apr-util-1.4.1-win32-src.zip
+http://apache.ziply.com/apr/apr-iconv-1.2.1-win32-src-r2.zip
+
+http://subversion.apache.org/download/
+http://subversion.tigris.org/downloads/subversion-1.6.17.tar.bz2
+
+http://sqlite.org/download.html
+http://sqlite.org/sqlite-amalgamation-3070900.zip
+
+http://webdav.org/neon/
+http://webdav.org/neon/neon-0.29.6.tar.gz
+
+http://zlib.net/
+http://zlib.net/zlib-1.2.5.tar.gz
+
+
+$ cd /cygdrive/c
+$ mkdir SVN
+
+$ cd /cygdrive/c/SVN
+$ unzip ~/apr-1.4.5-win32-src.zip
+$ unzip ~/apr-util-1.4.1-win32-src.zip
+$ unzip ~/apr-iconv-1.2.1-win32-src-r2.zip
+$ mv apr-1.4.5/ apr
+$ mv apr-util-1.4.1/ apr-util
+$ mv apr-iconv-1.2.1/ apr-iconv
+$ sed -i -e 's/apr_app/aprapp/g' apr-util/Makefile.win
+$ sed -i -e '1i#define APR_DECLARE_STATIC 1' apr/include/apr.hw
+$ sed -i -e '1i#define APU_DECLARE_STATIC 1' apr-util/include/apu.hw
+
+If you leave off the last two commands you will get tons of __imp__ linker
+errors later.
+
+Open C:\SVN\apr-util\aprutil.dsw in Visual C++ 2008. Say "Yes to All" to the
+conversion dialog. Change to "Release". Right-click on aprutil and select as
+start-up project. Then under the Build menu select "Build aprutil".
+========== Build: 17 succeeded, 10 failed, 0 up-to-date, 0 skipped ==========
+
+$ cd /cygdrive/c/SVN
+$ tar xjvf ~/subversion-1.6.17.tar.bz2
+$ mv subversion-1.6.17 src-trunk
+$ cd src-trunk
+$ tar xzvf ~/neon-0.29.6.tar.gz
+$ mv neon-0.29.6/ neon
+$ sed -i -e 's/\<inc32\>/include/g' -e 's/\<out32\>/lib/g' -e 's/\<out32dll\>/lib/' neon/neon.mak
+$ tar xzvf ~/zlib-1.2.5.tar.gz
+$ mv zlib-1.2.5/ zlib
+$ sed -i -e 's/^LOC =/LOC = -DASMV -DASMINF/' -e 's/^OBJA =/OBJA = inffas32.obj match686.obj/' zlib/win32/Makefile.msc
+If you skip this sed step you will get linker errors about _inflate_fast.
+$ unzip ~/sqlite-amalgamation-3070900.zip
+$ mv sqlite-amalgamation-3070900/ sqlite-amalgamation
+$ /cygdrive/c/Python27/python gen-make.py -t vcproj --with-apr=..\\apr --with-apr-util=..\\apr-util --with-apr-iconv=..\\apr-iconv --with-openssl=C:\\cygwin\\home\\david\\nmap\\mswin32\\OpenSSL --disable-shared
+
+Open C:\SVN\src-trunk\subversion_msvc.dsw in Visual C++ 2008. Upgrade format.
+Change to "Release". Build Solution.
+========== Build: 18 succeeded, 76 failed, 7 up-to-date, 0 skipped ==========
+$ find . -name '*.lib'
+./neon/libneon.lib
+./Release/subversion/libsvn_client/libsvn_client-1.lib
+./Release/subversion/libsvn_delta/libsvn_delta-1.lib
+./Release/subversion/libsvn_diff/libsvn_diff-1.lib
+./Release/subversion/libsvn_fs/libsvn_fs-1.lib
+./Release/subversion/libsvn_fs_fs/libsvn_fs_fs-1.lib
+./Release/subversion/libsvn_fs_util/libsvn_fs_util-1.lib
+./Release/subversion/libsvn_ra/libsvn_ra-1.lib
+./Release/subversion/libsvn_ra_local/libsvn_ra_local-1.lib
+./Release/subversion/libsvn_ra_neon/libsvn_ra_neon-1.lib
+./Release/subversion/libsvn_ra_svn/libsvn_ra_svn-1.lib
+./Release/subversion/libsvn_repos/libsvn_repos-1.lib
+./Release/subversion/libsvn_subr/libsvn_subr-1.lib
+./Release/subversion/libsvn_wc/libsvn_wc-1.lib
+./Release/subversion/tests/libsvn_test-1.lib
+./zlib/zlib.lib
+./zlib/zlibstat.lib
+
+$ cd /cygwin/c/SVN
+$ mkdir lib
+$ find apr/ apr-iconv/ apr-util/ src-trunk/ -name '*.lib' | xargs cp -v -t lib/
+$ find apr/ apr-iconv/ apr-util/ src-trunk/ -name '*.dll' | xargs cp -v -t lib/
