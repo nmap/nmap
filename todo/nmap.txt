@@ -1,5 +1,17 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o Clean up the Nmap repo to remove some bloat we've allowed to creep
+  in.  Should do a more thorough search, but for now here are two
+  obvious candidates:
+  - /nmap/mswin32 should be moved outside of /nmap so that people just
+    wanting to review Nmap source code or compile on UNIX don't get
+    saddled with this.  Of course we'll then have to update the
+    Windows build config/scripts and also the Windows build instructions
+    in install chapter to match the change.  This may also enable us
+    to check in GTK, Glib, etc. so that building on Windows doesn't
+    require installing so many other packages first.
+  - Remove the 5MB of XSL in nping/docs/xsl
+
 o Integrate latest IPv6 OS detection fingerprint submissions
  - In addition to the submission CGI submissions, some were emailed to Fyodor and David on Oct 21
 
