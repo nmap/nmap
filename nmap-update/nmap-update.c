@@ -914,12 +914,17 @@ static char *parent_dir(const char *path)
 	return string_make(path, p + 1);
 }
 
+static int makedir(const char *dirname)
+{
+	return mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+}
+
 static int makedirs(const char *dirname)
 {
 	char *parent;
 	int rc;
 
-	rc = mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	rc = makedir(dirname);
 	if (rc == 0 || errno == EEXIST)
 		return 0;
 
@@ -932,7 +937,7 @@ static int makedirs(const char *dirname)
 	if (rc == -1)
 		return -1;
 
-	rc = mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	rc = makedir(dirname);
 	if (rc == -1)
 		return -1;
 
