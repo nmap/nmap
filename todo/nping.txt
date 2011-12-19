@@ -60,6 +60,24 @@
   to David's tests, better results are obtained when sending UDP probes with a
   payload specific to the protocol.
 
+* Currently, Nping determines the maximum number of open descriptors 
+  (in TCP connect and UDP unprivileged modes), from the value returned
+  by libnetutil::get_max_open_descriptors(). However, it is often the 
+  case that such function returns a value higher than FD_SETSIZE, which 
+  is the maximum number of descriptors that select(2) can handle. 
+  Currently Nsock uses select(2) so we have to limit the number of 
+  descriptor to FD_SETSIZE, and not to the value returned bu
+  get_max_open_descriptors(). However, Henri Doreau is working on a new
+  nsock-engines branch which will provide Nsock engines based on 
+  better I/O syscalls like poll() and epoll(). I've asked Henri if he 
+  could implement a function in Nsock that provides the maximum number
+  of descriptors that can be handled at the same time, based on the 
+  nsock engine being used. So, if that function gets implemented and 
+  his nsock-engines branch merged into trunk, we should consider
+  updating Nping's code to use it. 
+  More info here: 
+    http://seclists.org/nmap-dev/2011/q4/550
+
 * A few ideas for the Echo protocol:
     - Add an authenticated NEP_BYE message, so session termination is explicit
       and both ends can determine if the session was ended because the other end
