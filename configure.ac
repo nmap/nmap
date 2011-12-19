@@ -854,6 +854,57 @@ AC_SUBST(NCAT_UNINSTALL)
 AC_SUBST(NCAT_CLEAN)
 AC_SUBST(NCAT_DIST_CLEAN)
 
+
+AC_ARG_WITH([nmap-update],
+  AC_HELP_STRING([--without-nmap-update], [Skip build and installation of nmap-update]), [], [with_nmap_update=check])
+
+if test "$with_nmap_update" != "no"; then
+  have_libsvn=yes
+  if test "$have_libsvn" = "yes"; then
+    AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
+    old_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
+    AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
+    CPPFLAGS="$old_CPPFLAGS"
+  fi
+  if test "$have_libsvn" = "yes"; then
+    AC_CHECK_LIB([svn_client-1], [svn_client_create_context], [], [have_libsvn=no])
+  fi
+  if test "$have_libsvn" != "yes"; then
+    if test "$with_nmap_update" = "check"; then
+      AC_MSG_WARN([Not building nmap-update because libsvn1 was not found])
+    else
+      AC_MSG_FAILURE([--with-nmap-update requires libsvn1])
+    fi
+    with_nmap_update=no
+  else
+    with_nmap_update=yes
+  fi
+fi
+
+if test "$with_nmap_update" = "no"; then
+  NMAP_UPDATE_BUILD=""
+  NMAP_UPDATE_INSTALL=""
+  NMAP_UPDATE_UNINSTALL=""
+  NMAP_UPDATE_CLEAN=""
+  NMAP_UPDATE_DIST_CLEAN=""
+else
+  NMAP_UPDATE_BUILD="build-nmap-update"
+  NMAP_UPDATE_INSTALL="install-nmap-update"
+  NMAP_UPDATE_UNINSTALL="uninstall-nmap-update"
+  NMAP_UPDATE_CLEAN="clean-nmap-update"
+  NMAP_UPDATE_DIST_CLEAN="distclean-nmap-update"
+fi
+
+AC_SUBST(NMAP_UPDATE_BUILD)
+AC_SUBST(NMAP_UPDATE_INSTALL)
+AC_SUBST(NMAP_UPDATE_UNINSTALL)
+AC_SUBST(NMAP_UPDATE_CLEAN)
+AC_SUBST(NMAP_UPDATE_DIST_CLEAN)
+
+AC_CONFIG_SUBDIRS(nmap-update)
+
+
 AC_OUTPUT(Makefile libnetutil/Makefile)
 # Krad ASCII ART#!#@$!@#$
 if test -f docs/leet-nmap-ascii-art.txt; then
