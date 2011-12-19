@@ -3,7 +3,7 @@ srcdir = @srcdir@
 
 CC = @CC@
 CFLAGS = @CFLAGS@
-CPPFLAGS = @CPPFLAGS@ $(DEFS) $$($(APR_CONFIG) --cppflags --includes)
+CPPFLAGS = @CPPFLAGS@ $(DEFS)
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 DEFS = @DEFS@ -D_FORTIFY_SOURCE=2

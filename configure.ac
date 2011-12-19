@@ -864,7 +864,9 @@ if test "$with_nmap_update" != "no"; then
     AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
     old_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
-    AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
+    AC_CHECK_HEADER([svn_client.h], [], [
+      AC_CHECK_HEADER([subversion-1/svn_client.h], [], [have_libsvn=no])
+    ])
     CPPFLAGS="$old_CPPFLAGS"
   fi
   if test "$have_libsvn" = "yes"; then

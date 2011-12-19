@@ -10,14 +10,24 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "config.h"
+
 /* See the file tools/examples/minimal_client.c in the Subversion source
    directory for an example of using the svn_client API. */
 
+#if HAVE_SUBVERSION_1_SVN_CLIENT_H
 #include <subversion-1/svn_client.h>
 #include <subversion-1/svn_cmdline.h>
 #include <subversion-1/svn_opt.h>
 #include <subversion-1/svn_pools.h>
 #include <subversion-1/svn_types.h>
+#else
+#include <svn_client.h>
+#include <svn_cmdline.h>
+#include <svn_opt.h>
+#include <svn_pools.h>
+#include <svn_types.h>
+#endif
 
 #define NMAP_VERSION "5.61TEST2"
 #define NMAP_DATADIR "/usr/local/share/nmap"

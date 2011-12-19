@@ -15,7 +15,8 @@ AC_CHECK_LIB([svn_subr-1], [svn_handle_error2])
 AC_CHECK_LIB([apr-1], [apr_pool_destroy])
 
 # Checks for header files.
-# AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
+CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
+AC_CHECK_HEADERS([svn_client.h subversion-1/svn_client.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 # AC_TYPE_SIZE_T

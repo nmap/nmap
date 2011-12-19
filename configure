@@ -7652,11 +7652,20 @@ done
 
     old_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$CPPFLAGS $($APR_CONFIG --cppflags --includes)"
-    ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
-if test "x$ac_cv_header_subversion_1_svn_client_h" = xyes; then :
+    ac_fn_c_check_header_mongrel "$LINENO" "svn_client.h" "ac_cv_header_svn_client_h" "$ac_includes_default"
+if test "x$ac_cv_header_svn_client_h" = xyes; then :
 
 else
+
+      ac_fn_c_check_header_mongrel "$LINENO" "subversion-1/svn_client.h" "ac_cv_header_subversion_1_svn_client_h" "$ac_includes_default"
+if test "x$ac_cv_header_subversion_1_svn_client_h" = xyes; then :
+  echo $ac_cv_header_subversion_1_svn_client_h
+else
   have_libsvn=no
+fi
+
+
+
 fi
 
 
