@@ -2241,7 +2241,7 @@ way.</para>
 
       <varlistentry>
         <term>
-          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable><optional>,...</optional></option>
           <indexterm><primary><option>--script</option></primary></indexterm>
         </term>
 
@@ -2252,9 +2252,16 @@ Runs a script scan using the comma-separated list of filenames, script
 categories, and directories. Each element in the list may also be a
 Boolean expression describing a more complex set of scripts. Each
 element is interpreted first as an expression, then as a category, and
-finally as a file or directory name. The special argument
-<literal>all</literal> makes every script in Nmap's script database
-eligible to run.  The <literal>all</literal> argument should be used with caution as NSE may contain dangerous scripts including exploits, brute force authentication crackers, and denial of service attacks.
+finally as a file or directory name.</para>
+
+<para>There are two special features for advanced users only.
+One is to prefix script names and expressions with
+<literal>+</literal> to force them to run even if they normally
+wouldn't (e.g. the relevant service wasn't detected on the target
+port).  The other is that the argument <literal>all</literal> may be
+used to specify every script in Nmap's database.  Be cautious with
+this because NSE contains dangerous scripts such as exploits, brute
+force authentication crackers, and denial of service attacks.
 </para>
 
 <para>

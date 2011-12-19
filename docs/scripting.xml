@@ -619,7 +619,7 @@ Black Hat Briefings in 2010.</para>
      <varlistentry>
         <term>
           <indexterm><primary><option>--script</option></primary></indexterm>
-          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable>|all<optional>,...</optional></option></term>
+          <option>--script <replaceable>filename</replaceable>|<replaceable>category</replaceable>|<replaceable>directory</replaceable>|<replaceable>expression</replaceable><optional>,...</optional></option></term>
 
 <listitem>
 
@@ -634,9 +634,23 @@ eligible to run.  The <literal>all</literal> argument should be used with cautio
 </para>
 
 <para>
+Each element in the script expression list may be prefixed with a
+<literal>+</literal> character to force the given script(s) to run
+regardless of the conditions in their <literal>prerule</literal> or
+<literal>hostrule</literal> functions.  This is generally only done by
+advanced users in special cases.  For example, you might want to do a
+configuration review on a bunch of MS SQL servers, some of which are
+running on nonstandard ports.  Rather than slow the Nmap scan by
+running extensive version detection (<option>-sV
+--version-all</option>) so that Nmap will recognize the ms-sql
+service, you can force the ms-sql-config script to run against all the
+targetted hosts and ports by specifying <option>--script
++ms-sql-config</option>.</para>
+
+<para>
 File and directory names may be relative or absolute. Absolute names are
-used directly. Relative paths are looked for in the
-<filename>scripts</filename> of each of the following places until
+used directly. Relative paths are searched for in the
+<filename>scripts</filename> subdirectory of each of the following places until
 found:
 <indexterm><primary>data files</primary><secondary>directory search order</secondary></indexterm><indexterm><primary>scripts, location of</primary></indexterm>
 <simplelist>
@@ -1214,6 +1228,12 @@ NSE: Script Scanning completed.
       to run against a port.  Example rules are shown in <xref
       linkend="nse-tutorial-rule"/>.  
       </para>
+
+      <para>Advanced users may force a script to run regardless of the
+      results of these rule functions by prefixing the script name (or
+      category or other expression) with a <literal>+</literal> in the
+      <option>--script</option> argument.</para>
+
       <para>
       The current standard to choose between a
       <literal>prerule</literal> or a <literal>postrule</literal> is
