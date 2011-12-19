@@ -526,7 +526,7 @@ static int read_config_file(const char *conf_filename)
 	errno = 0;
 	if (config_parser_open(conf_filename, &cp) == -1) {
 		if (options.verbose)
-			printf("Failed to open %s: %s\n", conf_filename, strerror(errno));
+			printf("Failed to open %s: %s.\n", conf_filename, strerror(errno));
 		return -1;
 	}
 
@@ -561,7 +561,7 @@ static int read_config_file(const char *conf_filename)
 	errno = 0;
 	if (config_parser_close(&cp) == -1) {
 		if (options.verbose)
-			printf("Failed to close %s: %s\n", conf_filename, strerror(errno));
+			printf("Failed to close %s: %s.\n", conf_filename, strerror(errno));
 		return -1;
 	}
 
@@ -848,25 +848,25 @@ static int copy_file(const char *from_filename, const char *to_filename)
 		nw = fwrite(buf, 1, nr, tmp_fd);
 		if (nw != nr || errno != 0) {
 			printf("%lu %lu\n", nw, nr);
-			fprintf(stderr, "Error writing to %s: %s\n", tmp_filename, strerror(errno));
+			fprintf(stderr, "Error writing to %s: %s.\n", tmp_filename, strerror(errno));
 			goto bail;
 		}
 	}
 	if (errno != 0) {
-		fprintf(stderr, "Error reading from %s: %s\n", from_filename, strerror(errno));
+		fprintf(stderr, "Error reading from %s: %s.\n", from_filename, strerror(errno));
 		goto bail;
 	}
 
 	from_rc = fclose(from_fd);
 	from_fd = NULL;
 	if (from_rc == -1) {
-		fprintf(stderr, "Can't close %s: %s\n", from_filename, strerror(errno));
+		fprintf(stderr, "Can't close %s: %s.\n", from_filename, strerror(errno));
 		goto bail;
 	}
 	tmp_rc = fclose(tmp_fd);
 	tmp_fd = NULL;
 	if (tmp_rc == -1) {
-		fprintf(stderr, "Can't close %s: %s\n", to_filename, strerror(errno));
+		fprintf(stderr, "Can't close %s: %s.\n", to_filename, strerror(errno));
 		goto bail;
 	}
 
@@ -949,14 +949,14 @@ static int copy_tree(const char *from_dirname, const char *to_dirname)
 
 	rc = makedirs(to_dirname);
 	if (rc == -1) {
-		fprintf(stderr, "Can't create the directory %s: %s\n",
+		fprintf(stderr, "Can't create the directory %s: %s.\n",
 			to_dirname, strerror(errno));
 		return -1;
 	}
 
 	dir = opendir(from_dirname);
 	if (dir == NULL) {
-		fprintf(stderr, "Can't open the directory %s: %s\n",
+		fprintf(stderr, "Can't open the directory %s: %s.\n",
 			from_dirname, strerror(errno));
 		return -1;
 	}
@@ -1005,7 +1005,7 @@ static int copy_tree(const char *from_dirname, const char *to_dirname)
 
 	rc = closedir(dir);
 	if (rc == -1) {
-		fprintf(stderr, "Can't close the directory %s: %s\n",
+		fprintf(stderr, "Can't close the directory %s: %s.\n",
 			from_dirname, strerror(errno));
 		return -1;
 	}
