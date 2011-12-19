@@ -247,6 +247,16 @@ static char *path_join(const char *first, ...)
 	return result;
 }
 
+#ifdef WIN32
+static char *get_user_dir(const char *subdir) {
+	char appdata[MAX_PATH];
+
+	if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, appdata) != S_OK)
+		return NULL;
+
+	return path_join(appdata, "nmap", subdir, NULL);
+}
+#else
 static char *get_user_dir(const char *subdir) {
 	static struct passwd *pw;
 
@@ -257,6 +267,7 @@ static char *get_user_dir(const char *subdir) {
 
 	return path_join(pw->pw_dir, ".nmap", subdir, NULL);
 }
+#endif
 
 static char *get_install_dir(void) {
 	return get_user_dir("updates");
@@ -921,6 +932,109 @@ static char *parent_dir(const char *path)
 	return string_make(path, p + 1);
 }
 
+#ifdef WIN32
+static int makedir(const char *dirname)
+{
+	return CreateDirectory(dirname, NULL) != 0 ? 0 : -1;
+}
+
+static int makedirs(const char *dirname)
+{
+	char *parent;
+	int rc;
+
+	rc = makedir(dirname);
+	if (rc == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
+		return 0;
+
+	if (GetLastError() != ERROR_PATH_NOT_FOUND)
+		return -1;
+
+	parent = parent_dir(dirname);
+	rc = makedirs(parent);
+	free(parent);
+	if (rc == -1)
+		return -1;
+
+	rc = makedir(dirname);
+	if (rc == 0)
+		return -1;
+
+	return rc;
+}
+
+static int copy_tree(const char *from_dirname, const char *to_dirname)
+{
+	WIN32_FIND_DATA ffd;
+	HANDLE find_handle;
+	DWORD dwError;
+	char *from_pattern;
+	int rc;
+
+	rc = makedirs(to_dirname);
+	if (rc == -1) {
+		fprintf(stderr, "Can't create the directory %s: %s.\n",
+			to_dirname, strerror(errno));
+		return -1;
+	}
+
+	from_pattern = path_join(from_dirname, "*", NULL);
+	find_handle = FindFirstFile(from_pattern, &ffd);
+	free(from_pattern);
+	if (find_handle == INVALID_HANDLE_VALUE) {
+		fprintf(stderr, "Can't open the directory %s.\n", from_dirname);
+		return -1;
+	}
+
+	do {
+		char *from_path, *to_path;
+		int error;
+
+		from_path = path_join(from_dirname, ffd.cFileName, NULL);
+		to_path = path_join(to_dirname, ffd.cFileName, NULL);
+
+		error = 0;
+		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+			if (streq(ffd.cFileName, ".") || streq(ffd.cFileName, ".."))
+				continue;
+			if (streq(ffd.cFileName, ".svn"))
+				continue;
+			rc = makedirs(to_path);
+			if (rc == 0) {
+				rc = copy_tree(from_path, to_path);
+				if (rc == -1)
+					error = 1;
+			} else {
+				error = 1;
+			}
+		} else {
+			rc = copy_file(from_path, to_path);
+			if (rc == -1)
+				error = 1;
+		}
+
+		free(from_path);
+		free(to_path);
+
+		if (error)
+			goto bail;
+	} while (FindNextFile(find_handle, &ffd) != 0);
+	dwError = GetLastError();
+	if (dwError != ERROR_NO_MORE_FILES) {
+		fprintf(stderr, "Error in FindFirstFile/FindNextFile.\n");
+		goto bail;
+	}
+
+	FindClose(find_handle);
+
+	return 0;
+
+bail:
+	FindClose(find_handle);
+
+	return -1;
+}
+#else
 static int makedir(const char *dirname)
 {
 	return mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
@@ -1027,3 +1141,4 @@ bail:
 
 	return -1;
 }
+#endif
