@@ -738,10 +738,11 @@ int main(int argc, char *argv[])
 	if (successful_channel != NULL && channel_is_expired(successful_channel, &expiry_date)) {
 		fprintf(stderr, "\
 \n\
-Channel is expired: %s\n\
+UPDATE CHANNEL %s HAS EXPIRED:\n\
 \n\
-The channel %s is expired and will not receive any more updates.\n\
-Go to http://nmap.org/download.html to get a newer Nmap release.\n\
+The channel %s has expired and won't receive any more\n\
+updates.  Visit http://nmap.org for a newer Nmap release with \n\
+supported updates.\n\
 ", successful_channel, successful_channel);
 	}
 
