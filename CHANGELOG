@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added path argument to the http-auth script and changed so that script
+  output was returned using stdnse.format_output [Duarte Silva, Patrik]
+
 o [NSE] Fixed bug in the http library that would fail parsing authentication
   headers if no parameters were present. [Patrik]
 
