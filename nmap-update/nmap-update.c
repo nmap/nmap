@@ -613,9 +613,6 @@ static int read_metadata_file(const char *metadata_filename, struct metadata *me
 	struct config_entry entry;
 	int ret;
 
-	if (options.verbose)
-		printf("Trying to open metadata file %s.\n", metadata_filename);
-
 	errno = 0;
 	if (config_parser_open(metadata_filename, &cp) == -1) {
 		/* A missing file is not an error for metadata. */
