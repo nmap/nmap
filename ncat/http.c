@@ -1292,8 +1292,23 @@ static const char *http_read_challenge(const char *s, struct http_challenge *cha
     free(scheme);
     scheme = NULL;
 
+    /* RFC 2617, section 1.2, requires at least one auth-param:
+         challenge = auth-scheme 1*SP 1#auth-param
+       But there are some schemes (NTLM and Negotiate) that can be without
+       auth-params, so we allow that here. A comma indicates the end of this
+       challenge and the beginning of the next (see the comment in the loop
+       below). */
     while (is_space_char(*s))
         s++;
+    if (*s == ',') {
+        s++;
+        while (is_space_char(*s))
+            s++;
+        if (*s == '\0')
+            goto bail;
+        return s;
+    }
+
     while (*s != '\0') {
         char *name, *value;
 
