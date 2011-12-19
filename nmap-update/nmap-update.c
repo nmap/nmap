@@ -749,6 +749,10 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 		0, /* retry limit */
 		pool);
 	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
+	svn_auth_get_platform_specific_provider(&provider,
+		"windows", "ssl_server_trust", pool);
+	if (provider != NULL)
+		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
 	/* Register the auth providers into the client context's auth_baton. */
 	svn_auth_open(&ctx->auth_baton, providers, pool);
 
