@@ -13,11 +13,11 @@
 /* See the file tools/examples/minimal_client.c in the Subversion source
    directory for an example of using the svn_client API. */
 
-#include "svn_client.h"
-#include "svn_cmdline.h"
-#include "svn_opt.h"
-#include "svn_pools.h"
-#include "svn_types.h"
+#include <subversion-1/svn_client.h>
+#include <subversion-1/svn_cmdline.h>
+#include <subversion-1/svn_opt.h>
+#include <subversion-1/svn_pools.h>
+#include <subversion-1/svn_types.h>
 
 #define NMAP_VERSION "5.61TEST2"
 #define NMAP_DATADIR "/usr/local/share/nmap"

@@ -1,0 +1,38 @@
+top_srcdir = @top_srcdir@
+srcdir = @srcdir@
+
+CC = @CC@
+CFLAGS = @CFLAGS@
+CPPFLAGS = @CPPFLAGS@ $(DEFS) $$($(APR_CONFIG) --cppflags --includes)
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
+
+APR_CONFIG = @APR_CONFIG@
+
+SOURCES = nmap-update
+C_FILES = $(addsuffix .c,$(SOURCES))
+O_FILES = $(addsuffix .o,$(SOURCES))
+
+all: nmap-update
+
+nmap-update: $(O_FILES)
+	$(CC) -o $@ $(LIBS) $^
+
+%.o: %.c
+	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
+
+clean:
+	rm -f nmap-update *.o makefile.dep
+
+distclean: clean
+	rm -f Makefile
+
+Makefile: Makefile.in
+	./config.status
+
+makefile.dep:
+	$(CC) -MM $(CPPFLAGS) $(C_FILES) > $@
+include makefile.dep
+
+.PHONY: all clean
