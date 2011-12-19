@@ -1,5 +1,3 @@
-#include "nbase.h"
-
 #include <ctype.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -818,6 +816,7 @@ static int stage_channel(const char *channel, const char *staging_dir)
 }
 
 static int copy_tree(const char *from_dirname, const char *to_dirname);
+static int rename_file(const char *from_filename, const char *to_filename);
 
 static int install(const char *staging_dir, const char *install_dir)
 {
@@ -882,7 +881,7 @@ static int copy_file(const char *from_filename, const char *to_filename)
 		goto bail;
 	}
 
-	rc = rename(tmp_filename, to_filename);
+	rc = rename_file(tmp_filename, to_filename);
 	if (rc == -1) {
 		fprintf(stderr, "Can't rename %s to %s: %s.\n",
 			tmp_filename, to_filename, strerror(errno));
@@ -933,6 +932,19 @@ static char *parent_dir(const char *path)
 }
 
 #ifdef WIN32
+static int rename_file(const char *from_filename, const char *to_filename)
+{
+	int rc;
+
+	/* Windows rename doesn't remove the destination if it exists. */
+	errno = 0;
+	rc = unlink(to_filename);
+	if (rc == 0 || errno == ENOENT)
+		return 0;
+
+	return rename(from_filename, to_filename);
+}
+
 static int makedir(const char *dirname)
 {
 	return CreateDirectory(dirname, NULL) != 0 ? 0 : -1;
@@ -1035,6 +1047,11 @@ bail:
 	return -1;
 }
 #else
+static int rename_file(const char *from_filename, const char *to_filename)
+{
+	return rename(from_filename, to_filename);
+}
+
 static int makedir(const char *dirname)
 {
 	return mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
