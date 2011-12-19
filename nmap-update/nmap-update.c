@@ -34,7 +34,11 @@
 #define NMAP_VERSION "5.61TEST2"
 #define NMAP_DATADIR "/usr/local/share/nmap"
 
+#ifdef WIN32
+#define PATHSEP "\\"
+#else
 #define PATHSEP "/"
+#endif
 
 static const char *SVN_REPO = "https://svn.nmap.org";
 static const char *SVN_DIR = "/updates";
@@ -895,7 +899,11 @@ bail:
 
 static int is_pathsep(int c)
 {
+#ifdef WIN32
+	return c == '/' || c == '\\';
+#else
 	return c == '/';
+#endif
 }
 
 static char *parent_dir(const char *path)
