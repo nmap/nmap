@@ -240,37 +240,27 @@ static char *path_join(const char *first, ...)
 	return result;
 }
 
-static char *get_install_dir(void) {
-	struct passwd *pw;
+static char *get_user_dir(const char *subdir) {
+	static struct passwd *pw;
 
 	errno = 0;
 	pw = getpwuid(getuid());
 	if (pw == NULL)
 		return NULL;
 
-	return path_join(pw->pw_dir, ".nmap", "updates", NULL);
+	return path_join(pw->pw_dir, ".nmap", subdir, NULL);
+}
+
+static char *get_install_dir(void) {
+	return get_user_dir("updates");
 }
 
 static char *get_staging_dir(void) {
-	struct passwd *pw;
-
-	errno = 0;
-	pw = getpwuid(getuid());
-	if (pw == NULL)
-		return NULL;
-
-	return path_join(pw->pw_dir, ".nmap", "updates-staging", NULL);
+	return get_user_dir("updates-staging");
 }
 
 static char *get_conf_filename(void) {
-	struct passwd *pw;
-
-	errno = 0;
-	pw = getpwuid(getuid());
-	if (pw == NULL)
-		return NULL;
-
-	return path_join(pw->pw_dir, ".nmap", "nmap-update.conf", NULL);
+	return get_user_dir("nmap-update.conf");
 }
 
 
