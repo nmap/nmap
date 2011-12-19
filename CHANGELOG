@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Fixed bug in the http library that would fail parsing authentication
+  headers if no parameters were present. [Patrik]
+
 o Added new fingerprints to http-enum for Subversion, CVS and Apache Archiva
   [Duarte Silva]
 

@@ -1608,7 +1608,8 @@ local function read_auth_challenge(s, pos)
     tmp_pos = pos
     tmp_pos, name = read_token(s, tmp_pos)
     if not name then
-      return nil
+      pos = skip_space(s, pos + 1)
+      return pos, { scheme = scheme, params = nil }
     end
     tmp_pos = skip_space(s, tmp_pos)
     if string.sub(s, tmp_pos, tmp_pos) ~= "=" then
