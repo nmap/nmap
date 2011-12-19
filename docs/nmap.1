@@ -2,12 +2,12 @@
 .\"     Title: nmap
 .\"    Author: [see the "Author" section]
 .\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 11/14/2011
+.\"      Date: 12/19/2011
 .\"    Manual: Nmap Reference Guide
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/14/2011" "Nmap" "Nmap Reference Guide"
+.TH "NMAP" "1" "12/19/2011" "Nmap" "Nmap Reference Guide"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -1224,13 +1224,15 @@ Performs a script scan using the default set of scripts\&. It is equivalent to
 \fB\-\-script=default\fR\&. Some of the scripts in this category are considered intrusive and should not be run against a target network without permission\&.
 .RE
 .PP
-\fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIexpression\fR\fR\fB|all\fR\fB[,\&.\&.\&.]\fR .\" --script
+\fB\-\-script \fR\fB\fIfilename\fR\fR\fB|\fR\fB\fIcategory\fR\fR\fB|\fR\fB\fIdirectory\fR\fR\fB|\fR\fB\fIexpression\fR\fR\fB[,\&.\&.\&.]\fR .\" --script
 .RS 4
-Runs a script scan using the comma\-separated list of filenames, script categories, and directories\&. Each element in the list may also be a Boolean expression describing a more complex set of scripts\&. Each element is interpreted first as an expression, then as a category, and finally as a file or directory name\&. The special argument
+Runs a script scan using the comma\-separated list of filenames, script categories, and directories\&. Each element in the list may also be a Boolean expression describing a more complex set of scripts\&. Each element is interpreted first as an expression, then as a category, and finally as a file or directory name\&.
+.sp
+There are two special features for advanced users only\&. One is to prefix script names and expressions with
++
+to force them to run even if they normally wouldn\*(Aqt (e\&.g\&. the relevant service wasn\*(Aqt detected on the target port)\&. The other is that the argument
 all
-makes every script in Nmap\*(Aqs script database eligible to run\&. The
-all
-argument should be used with caution as NSE may contain dangerous scripts including exploits, brute force authentication crackers, and denial of service attacks\&.
+may be used to specify every script in Nmap\*(Aqs database\&. Be cautious with this because NSE contains dangerous scripts such as exploits, brute force authentication crackers, and denial of service attacks\&.
 .sp
 File and directory names may be relative or absolute\&. Absolute names are used directly\&. Relative paths are looked for in the
 scripts

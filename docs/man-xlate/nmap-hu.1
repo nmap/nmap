@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 02/16/2010
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 12/19/2011
 .\"    Manual: [FIXME: manual]
 .\"    Source: [FIXME: source]
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "02/16/2010" "[FIXME: source]" "[FIXME: manual]"
+.TH "NMAP" "1" "12/19/2011" "[FIXME: source]" "[FIXME: manual]"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -184,8 +193,8 @@ OPERÁCIÓS RENDSZER FELDERÍTÉSE:
   \-\-osscan\-guess: Agresszívebb operációs rendszer felderítés
 IDŐZÍTÉS ÉS TELJESÍTMÉNY:
   Azoknál a paramétereknél, ahol <idő> meghatározás szerepel, az alapértelmezett
-  egység a milliszekundum, kivéve ha az értékhez hozzáfűzi az \'s\' (másodperc), 
-  \'m\' (perc), vagy \'h\' (óra) módosítót (pl\&. 30m)\&.
+  egység a milliszekundum, kivéve ha az értékhez hozzáfűzi az \*(Aqs\*(Aq (másodperc), 
+  \*(Aqm\*(Aq (perc), vagy \*(Aqh\*(Aq (óra) módosítót (pl\&. 30m)\&.
   \-T[0\-5]: Időzítési sablon megadása (a nagyobb érték a gyorsabb)
   \-\-min\-hostgroup/max\-hostgroup <méret>: A párhuzamosan letapogatható állomások csoportmérete
   \-\-min\-parallelism/max\-parallelism <szám>: A párhuzamosan végezhető próbák száma
@@ -461,7 +470,7 @@ nmap\&.h
 \fB\-\-data\-length\fR
 paramétert is megadta)\&.
 .sp
-Ez a felderítési metódus kétféle választ vár\&. Vagy az elküldött protokollnak megfelelő válasz érkezik, vagy egy \'Protocol Unreachable\' ICMP üzenet, mely szerint az állomás nem támogatja az adott protokollt (mellyel el is árulta a létezését)\&.
+Ez a felderítési metódus kétféle választ vár\&. Vagy az elküldött protokollnak megfelelő válasz érkezik, vagy egy \*(AqProtocol Unreachable\*(Aq ICMP üzenet, mely szerint az állomás nem támogatja az adott protokollt (mellyel el is árulta a létezését)\&.
 .RE
 .PP
 \fB\-PR\fR (ARP Visszhang) .\" -PR .\" ARP visszhang
@@ -1140,7 +1149,7 @@ A letapogatási idő csökkenthetők a nem kritikus tesztek elhagyásával és a
 .PP
 Néhány paraméternél használható a
 time
-kiegészítés is\&. Alaphelyzetben ez milliszekundumban értendő, de az érték után írt \'s\(cq, \(oqm\(cq vagy \(oqh\(cq karakterekkel megadhat másodperces, perces vagy órás időtartamot is\&. Például a
+kiegészítés is\&. Alaphelyzetben ez milliszekundumban értendő, de az érték után írt \*(Aqs\(cq, \(oqm\(cq vagy \(oqh\(cq karakterekkel megadhat másodperces, perces vagy órás időtartamot is\&. Például a
 \fB\-\-host\-timeout\fR
 paraméternek átadott
 900000,
@@ -1570,7 +1579,7 @@ ugyanazt jelenti, mint a
 jelet bármilyen más karakter követi, akkor azt a karaktert egyszerűen tovább adja (például a
 %%
 egy százalékjelet ad tovább)\&. Így az
-\fB\-oX \'scan\-%T\-%D\&.xml\'\fR
+\fB\-oX \*(Aqscan\-%T\-%D\&.xml\*(Aq\fR
 paraméter megadása egy XML fájlt hoz létre
 scan\-144840\-121307\&.xml
 névvel\&.

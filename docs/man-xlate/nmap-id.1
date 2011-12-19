@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: nmap
 .\"    Author: [FIXME: author] [see http://docbook.sf.net/el/author]
-.\" Generator: DocBook XSL Stylesheets v1.74.3 <http://docbook.sf.net/>
-.\"      Date: 11/21/2009
+.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
+.\"      Date: 12/19/2011
 .\"    Manual: Panduan Referensi Nmap
 .\"    Source: Nmap
 .\"  Language: English
 .\"
-.TH "NMAP" "1" "11/21/2009" "Nmap" "Panduan Referensi Nmap"
+.TH "NMAP" "1" "12/19/2011" "Nmap" "Panduan Referensi Nmap"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -134,7 +143,7 @@ HOST DISCOVERY:
   \-PO[protocol list]: IP Protocol Ping
   \-n/\-R: Never do DNS resolution/Always resolve [default: sometimes]
   \-\-dns\-servers <serv1[,serv2],\&.\&.\&.>: Specify custom DNS servers
-  \-\-system\-dns: Use OS\'s DNS resolver
+  \-\-system\-dns: Use OS\*(Aqs DNS resolver
   \-\-traceroute: Trace hop path to each host
 SCAN TECHNIQUES:
   \-sS/sT/sA/sW/sM: TCP SYN/Connect()/ACK/Window/Maimon scans
@@ -148,7 +157,7 @@ PORT SPECIFICATION AND SCAN ORDER:
   \-p <port ranges>: Only scan specified ports
     Ex: \-p22; \-p1\-65535; \-p U:53,111,137,T:21\-25,80,139,8080
   \-F: Fast mode \- Scan fewer ports than the default scan
-  \-r: Scan ports consecutively \- don\'t randomize
+  \-r: Scan ports consecutively \- don\*(Aqt randomize
   \-\-top\-ports <number>: Scan <number> most common ports
   \-\-port\-ratio <ratio>: Scan ports more common than <ratio>
 SERVICE/VERSION DETECTION:
@@ -169,8 +178,8 @@ OS DETECTION:
   \-\-osscan\-limit: Limit OS detection to promising targets
   \-\-osscan\-guess: Guess OS more aggressively
 TIMING AND PERFORMANCE:
-  Options which take <time> are in milliseconds, unless you append \'s\'
-  (seconds), \'m\' (minutes), or \'h\' (hours) to the value (e\&.g\&. 30m)\&.
+  Options which take <time> are in milliseconds, unless you append \*(Aqs\*(Aq
+  (seconds), \*(Aqm\*(Aq (minutes), or \*(Aqh\*(Aq (hours) to the value (e\&.g\&. 30m)\&.
   \-T<0\-5>: Set timing template (higher is faster)
   \-\-min\-hostgroup/max\-hostgroup <size>: Parallel host scan group sizes
   \-\-min\-parallelism/max\-parallelism <time>: Probe parallelization
@@ -1413,7 +1422,7 @@ Pisahkan setiap host umpan dengan koma, dan anda dapat secara opsional menggunak
 ME.\" ME (decoy address)
 sebagai salah satu umpan untuk mewakili posisi alamat IP real anda\&. Jika anda menempatkan
 ME
-pada posisi keenam atau lebih, beberapa detektor scan port umum (seperti Solar Designer\'s.\" Solar Designer
+pada posisi keenam atau lebih, beberapa detektor scan port umum (seperti Solar Designer\*(Aqs.\" Solar Designer
 Scanlogd yang bagus).\" Scanlogd
 tidak akan menampilkan alamat IP anda sama sekali\&. Jika anda tidak menggunakan
 ME, Nmap akan menempatkan anda pada posisi acak\&. Anda dapat juga menggunakan
@@ -1476,7 +1485,7 @@ karena akurasinya membutuhkan konsistensi probe, namun kebanyakan paket ping dan
 .PP
 \fB\-\-ip\-options \fR\fB\fIS|R [route]|L [route]|T|U \&.\&.\&. \fR\fR\fB;\fR \fB\-\-ip\-options \fR\fB\fIhex string\fR\fR (Send packets with specified ip options) .\" --ip-options .\" IP options
 .RS 4
-\m[blue]\fBProtokol IP \fR\m[]\&\s-2\u[11]\d\s+2
+\m[blue]\fBProtokol IP\fR\m[]\&\s-2\u[11]\d\s+2
 menawarkan beberapa opsi yang dapat ditempatkan pada header paket\&. Tidak seperti opsi TCP yang umum, opsi IP jarang ditemukan karena masalah kepraktisan dan keamanan\&. Nyatanya, banyak router Internet memblokir opsi yang paling berbahaya seperti source routing\&. Namun opsi dapat tetap berguna dalam beberapa kasus untuk menentukan dan memanipulasi rute jaringan ke mesin target\&. Sebagai contoh, anda mungkin dapat menggunakan opsi record route untuk menentukan path ke target bahkan ketika pendekatan tradisional bergaya traceroute gagal\&. Atau bila paket anda di\-drop oleh firewall tertentu, anda mungkin dapat menspesifikasikan rute yang berbeda dengan opsi source routing yang ketat atau longgar\&.
 .sp
 Cara paling powerful untuk menspesifikasikan opsi IP adalah cukup dengan memberikan nilainya sebagai argumen ke
@@ -1621,7 +1630,7 @@ sama dengan
 %
 diikuti dengan sembarang karakter hanya menghasilkan karakter itu (%%
 memberikan simbol persentase\&. Sehingga
-\fB\-oX \'scan\-%T\-%D\&.xml\'\fR
+\fB\-oX \*(Aqscan\-%T\-%D\&.xml\*(Aq\fR
 akan menggunakan file XML dalam bentuk
 scan\-144840\-121307\&.xml\&.
 .PP
@@ -2180,7 +2189,7 @@ Links to a library or executes a program that does any of the above\&.
 .PP
 The term
 \(lqNmap\(rq
-should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\'t speak for other people\'s GPL works\&.
+should be taken to also include any portions or derived works of Nmap\&. This list is not exclusive, but is meant to clarify our interpretation of derived works with some common examples\&. Our interpretation applies only to Nmap\(emwe don\*(Aqt speak for other people\*(Aqs GPL works\&.
 .PP
 If you have any questions about the GPL licensing restrictions on using Nmap in non\-GPL works, we would be happy to help\&. As mentioned above, we also offer alternative license to integrate Nmap into proprietary applications and appliances\&. These contracts have been sold to many security vendors, and generally include a perpetual license as well as providing for priority support and updates as well as helping to fund the continued development of Nmap technology\&. Please email
 sales@insecure\&.com
