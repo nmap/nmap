@@ -793,7 +793,6 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 	apr_pool_t *pool;
 	svn_opt_revision_t peg_revision, revision;
 	svn_client_ctx_t *ctx;
-	svn_auth_baton_t *ab;
 	svn_revnum_t revnum;
 	svn_config_t *cfg;
 
@@ -813,7 +812,7 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 		APR_HASH_KEY_STRING);
 	svn_config_set_bool(cfg, SVN_CONFIG_SECTION_GLOBAL,
 		SVN_CONFIG_OPTION_SSL_TRUST_DEFAULT_CA, TRUE);
-	svn_cmdline_create_auth_baton(&ab,
+	svn_cmdline_create_auth_baton(&ctx->auth_baton,
 		FALSE, /* non_interactive */
 		options.username, /* username */
 		options.password, /* password */
@@ -824,7 +823,6 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 		NULL, /* cancel_func */
 		NULL, /* cancel_baton */
 		pool);
-	ctx->auth_baton = ab;
 
 	err = svn_client_checkout3(&revnum, url, path,
 		&peg_revision, &revision,
