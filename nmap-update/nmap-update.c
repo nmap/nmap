@@ -1,0 +1,1025 @@
+#include <ctype.h>
+#include <dirent.h>
+#include <errno.h>
+#include <getopt.h>
+#include <pwd.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+/* See the file tools/examples/minimal_client.c in the Subversion source
+   directory for an example of using the svn_client API. */
+
+#include "svn_client.h"
+#include "svn_cmdline.h"
+#include "svn_opt.h"
+#include "svn_pools.h"
+#include "svn_types.h"
+
+#define NMAP_VERSION "5.61TEST2"
+#define NMAP_DATADIR "/usr/local/share/nmap"
+
+#define PATHSEP "/"
+
+static const char *SVN_REPO = "https://svn.nmap.org";
+static const char *SVN_DIR = "/updates";
+
+static const char *DEFAULT_CHANNELS[] = { NMAP_VERSION };
+
+
+/* Internal error handling. */
+
+#define NELEMS(a) (sizeof(a) / sizeof(*a))
+
+#define internal_error(msg) \
+do {\
+	fprintf(stderr, "%s:%d: internal error: %s.\n", __FILE__, __LINE__, msg); \
+	abort(); \
+} while (0)
+
+#define internal_assert(expr) \
+do { \
+	if (!(expr)) \
+		internal_error("assertion failed: " #expr); \
+} while (0)
+
+static void *safe_malloc(size_t len)
+{
+	void *p;
+
+	p = malloc(len);
+	internal_assert(p != NULL);
+
+	return p;
+}
+
+static void *safe_realloc(void *p, size_t len)
+{
+	p = realloc(p, len);
+	internal_assert(p != NULL);
+
+	return p;
+}
+
+static char *safe_strdup(const char *s)
+{
+	char *t;
+	size_t len;
+
+	len = strlen(s);
+	t = safe_malloc(len + 1);
+	memcpy(t, s, len);
+	t[len] = '\0';
+
+	return t;
+}
+
+static int streq(const char *a, const char *b)
+{
+	return strcmp(a, b) == 0;
+}
+
+static char *string_make(const char *begin, const char *end)
+{
+	char *s;
+
+	s = safe_malloc(end - begin + 1);
+	memcpy(s, begin, end - begin);
+	s[end - begin] = '\0';
+
+	return s;
+}
+
+static char *strbuf_append(char **buf, size_t *size, size_t *offset, const char *s, size_t n)
+{
+	internal_assert(*offset <= *size);
+
+	/* Double the buffer size if necessary. */
+	if (n >= *size - *offset) {
+		*size = (*size + n) * 2;
+		*buf = safe_realloc(*buf, *size + 1);
+	}
+	memcpy(*buf + *offset, s, n);
+	*offset += n;
+	(*buf)[*offset] = '\0';
+
+	return *buf;
+}
+
+/* Append a '\0'-terminated string as with strbuf_append. */
+static char *strbuf_append_str(char **buf, size_t *size, size_t *offset, const char *s)
+{
+	return strbuf_append(buf, size, offset, s, strlen(s));
+}
+
+static char *strbuf_append_char(char **buf, size_t *size, size_t *offset, char c)
+{
+	return strbuf_append(buf, size, offset, &c, 1);
+}
+
+static char *strbuf_trim(char **buf, size_t *size, size_t *offset)
+{
+	if (*offset < *size) {
+		*size = *offset;
+		*buf = safe_realloc(*buf, *size + 1);
+	}
+	internal_assert((*buf)[*size] == '\0');
+
+	return *buf;
+}
+
+static char *string_unescape(const char *escaped)
+{
+	char *buf;
+	size_t size, offset;
+	const char *p;
+
+	buf = NULL;
+	size = 0;
+	offset = 0;
+
+	p = escaped;
+	while (*p != '\0') {
+		char hex[3], *tail;
+		unsigned long byte;
+
+		/* We support backslash escapes for '\\' and '"', and \xXX
+		   hexadecimal only. */
+		if (*p == '\\') {
+			p++;
+			switch (*p) {
+			case '\\':
+			case '"':
+				strbuf_append_char(&buf, &size, &offset, *p);
+				p++;
+				break;
+			case 'x':
+				p++;
+				if (!(isxdigit(*p) && isxdigit(*(p + 1))))
+					goto bail;
+				memcpy(hex, p, 2);
+				hex[2] = '\0';
+
+				errno = 0;
+				byte = strtoul(hex, &tail, 16);
+				if (errno != 0 || byte > 255 || *tail != '\0')
+					goto bail;
+				strbuf_append_char(&buf, &size, &offset, (char) byte);
+
+				p += 2;
+				break;
+			default:
+				goto bail;
+				break;
+			}
+		} else {
+			strbuf_append_char(&buf, &size, &offset, *p);
+			p++;
+		}
+	}
+
+	return strbuf_trim(&buf, &size, &offset);
+
+bail:
+	if (buf != NULL)
+		free(buf);
+
+	return NULL;
+}
+
+/* Return a newly allocated string that is the concatenation of all the va_list
+   args, separated by join:
+     str1 JOIN str2 JOIN str3 ...
+   The final argument must be NULL. */
+static char *strs_vjoin(const char *join, const char *first, va_list ap)
+{
+	char *buf;
+	size_t size, offset;
+	const char *p;
+
+	internal_assert(first != NULL);
+
+	buf = NULL;
+	size = 0;
+	offset = 0;
+
+	strbuf_append_str(&buf, &size, &offset, first);
+
+	while ((p = va_arg(ap, const char *)) != NULL) {
+		strbuf_append_str(&buf, &size, &offset, join);
+		strbuf_append_str(&buf, &size, &offset, p);
+	}
+
+	strbuf_trim(&buf, &size, &offset);
+
+	return buf;
+}
+
+static char *strs_cat(const char *first, ...)
+{
+	va_list ap;
+	char *result;
+
+	va_start(ap, first);
+	result = strs_vjoin("", first, ap);
+	va_end(ap);
+
+	return result;
+}
+
+static char *path_join(const char *first, ...)
+{
+	va_list ap;
+	char *result;
+
+	va_start(ap, first);
+	result = strs_vjoin(PATHSEP, first, ap);
+	va_end(ap);
+
+	return result;
+}
+
+static char *get_install_dir(void) {
+	struct passwd *pw;
+
+	errno = 0;
+	pw = getpwuid(getuid());
+	if (pw == NULL)
+		return NULL;
+
+	return path_join(pw->pw_dir, ".nmap", "updates", NULL);
+}
+
+static char *get_staging_dir(void) {
+	struct passwd *pw;
+
+	errno = 0;
+	pw = getpwuid(getuid());
+	if (pw == NULL)
+		return NULL;
+
+	return path_join(pw->pw_dir, ".nmap", "updates-staging", NULL);
+}
+
+static char *get_conf_filename(void) {
+	struct passwd *pw;
+
+	errno = 0;
+	pw = getpwuid(getuid());
+	if (pw == NULL)
+		return NULL;
+
+	return path_join(pw->pw_dir, ".nmap", "nmap-update.conf", NULL);
+}
+
+
+/* Configuration file parsing. */
+
+enum token_type {
+	ERROR,
+	EOL_TOKEN,
+	EOF_TOKEN,
+	WORD,
+	EQUALS,
+	STRING,
+};
+
+struct config_parser {
+	FILE *fp;
+	unsigned long lineno;
+};
+
+struct config_entry {
+	char *key;
+	char *value;
+};
+
+static void config_entry_free(struct config_entry *entry)
+{
+	free(entry->key);
+	free(entry->value);
+}
+
+static int config_parser_open(const char *filename, struct config_parser *cp)
+{
+	cp->fp = fopen(filename, "r");
+	if (cp->fp == NULL)
+		return -1;
+	cp->lineno = 1;
+
+	return 0;
+}
+
+static int config_parser_close(struct config_parser *cp)
+{
+	int ret;
+
+	ret = fclose(cp->fp);
+	if (ret == EOF)
+		return -1;
+
+	return 0;
+}
+
+static int is_word_char(int c)
+{
+	return c != EOF && !isspace(c) && c != '"' && c != '#';
+}
+
+static char *read_quoted_string(struct config_parser *cp)
+{
+	char *buf, *unescaped;
+	size_t size, offset;
+	int c;
+
+	buf = NULL;
+	size = 0;
+	offset = 0;
+
+	for (;;) {
+		errno = 0;
+		c = fgetc(cp->fp);
+		if (c == EOF)
+			/* EOF in the middle of a string is always an error. */
+			return NULL;
+		if (c == '\n')
+			return NULL;
+		if (c == '"')
+			break;
+		if (c == '\\') {
+			strbuf_append_char(&buf, &size, &offset, c);
+			errno = 0;
+			c = fgetc(cp->fp);
+			if (c == EOF)
+				return NULL;
+		}
+		strbuf_append_char(&buf, &size, &offset, c);
+	}
+
+	unescaped = string_unescape(buf);
+	free(buf);
+
+	return unescaped;
+}
+
+static enum token_type config_parser_read_token(struct config_parser *cp,
+	char **token)
+{
+	size_t size, offset;
+	unsigned long prev_lineno;
+	int c;
+
+	*token = NULL;
+	size = 0;
+	offset = 0;
+
+	/* Skip comments and blank space. */
+	prev_lineno = cp->lineno;
+	do {
+		errno = 0;
+		while (isspace(c = fgetc(cp->fp))) {
+			if (c == '\n')
+				cp->lineno++;
+		}
+		if (c == EOF) {
+			if (errno != 0)
+				goto bail;
+			*token = NULL;
+			return EOF_TOKEN;
+		}
+		if (c == '#') {
+			while ((c = fgetc(cp->fp)) != EOF && c != '\n')
+				;
+			if (c == EOF) {
+				if (errno != 0)
+					goto bail;
+				*token = NULL;
+				return EOF_TOKEN;
+			} else if (c == '\n') {
+				cp->lineno++;
+			}
+		}
+	} while (isspace(c) || c == '#');
+
+	/* Collapse multiple consecutive line endings. */
+	if (cp->lineno != prev_lineno) {
+		ungetc(c, cp->fp);
+		*token = NULL;
+		return EOL_TOKEN;
+	}
+
+	if (c == '=') {
+		strbuf_append_char(token, &size, &offset, c);
+		return EQUALS;
+	} else if (is_word_char(c)) {
+		while (is_word_char(c)) {
+			strbuf_append_char(token, &size, &offset, c);
+			errno = 0;
+			c = fgetc(cp->fp);
+			if (c == EOF && errno != 0)
+				goto bail;
+		}
+		return WORD;
+	} else if (c == '"') {
+		char *qs;
+
+		qs = read_quoted_string(cp);
+		if (qs == NULL)
+			goto bail;
+		*token = safe_strdup(qs);
+		return STRING;
+	} else {
+		goto bail;
+	}
+
+bail:
+	if (*token != NULL)
+		free(*token);
+	*token = NULL;
+
+	return ERROR;
+}
+
+static int config_parser_next(struct config_parser *cp, struct config_entry *entry)
+{
+	char *token;
+	enum token_type type;
+
+	while ((type = config_parser_read_token(cp, &token)) == EOL_TOKEN)
+		;
+	if (type == EOF_TOKEN) {
+		free(token);
+		return 0;
+	}
+	if (type != WORD) {
+		free(token);
+		return -1;
+	}
+	entry->key = token;
+
+	type = config_parser_read_token(cp, &token);
+	if (type != EQUALS) {
+		free(token);
+		return -1;
+	}
+	free(token);
+
+	type = config_parser_read_token(cp, &token);
+	if (!(type == WORD || type == STRING)) {
+		free(token);
+		return -1;
+	}
+	entry->value = token;
+
+	return 1;
+}
+
+
+/* Global state. */
+
+static char *program_name;
+static struct {
+	int verbose;
+	const char *install_dir;
+	const char *staging_dir;
+	const char *conf_filename;
+	const char **channels;
+	unsigned int num_channels;
+	char *username;
+	char *password;
+} options;
+
+static void init_options(void)
+{
+	options.verbose = 1;
+	options.install_dir = get_install_dir();
+	if (options.install_dir == NULL) {
+		fprintf(stderr, "Could not find an install directory: %s.\n",
+			strerror(errno));
+		exit(1);
+	}
+	options.staging_dir = get_staging_dir();
+	if (options.staging_dir == NULL) {
+		fprintf(stderr, "Could not find a staging directory: %s.\n",
+			strerror(errno));
+		exit(1);
+	}
+	options.conf_filename = get_conf_filename();
+	if (options.staging_dir == NULL) {
+		fprintf(stderr, "Could not find the configuration file: %s.\n",
+			strerror(errno));
+		exit(1);
+	}
+	options.channels = DEFAULT_CHANNELS;
+	options.num_channels = NELEMS(DEFAULT_CHANNELS);
+
+	options.username = NULL;
+	options.password = NULL;
+}
+
+static int read_config_file(const char *conf_filename)
+{
+	struct config_parser cp;
+	struct config_entry entry;
+	int ret;
+
+	if (options.verbose)
+		printf("Trying to open configuration file %s.\n", conf_filename);
+
+	errno = 0;
+	if (config_parser_open(conf_filename, &cp) == -1) {
+		if (options.verbose)
+			printf("Failed to open %s: %s\n", conf_filename, strerror(errno));
+		return -1;
+	}
+
+	while ((ret = config_parser_next(&cp, &entry)) > 0) {
+		if (streq(entry.key, "username")) {
+			if (options.username != NULL) {
+				fprintf(stderr, "Warning: %s:%lu: duplicate \"%s\".\n",
+					conf_filename, cp.lineno, entry.key);
+				free(options.username);
+			}
+			options.username = safe_strdup(entry.value);
+		} else if (streq(entry.key, "password")) {
+			if (options.password != NULL) {
+				fprintf(stderr, "Warning: %s:%lu: duplicate \"%s\".\n",
+					conf_filename, cp.lineno, entry.key);
+				free(options.password);
+			}
+			options.password = safe_strdup(entry.value);
+		} else {
+			fprintf(stderr, "Warning: %s:%lu: unknown key \"%s\".\n",
+				conf_filename, cp.lineno, entry.key);
+		}
+
+		config_entry_free(&entry);
+	}
+	if (ret == -1) {
+		fprintf(stderr, "Parse error on line %lu of %s.\n",
+			cp.lineno, conf_filename);
+		exit(1);
+	}
+
+	errno = 0;
+	if (config_parser_close(&cp) == -1) {
+		if (options.verbose)
+			printf("Failed to close %s: %s\n", conf_filename, strerror(errno));
+		return -1;
+	}
+
+	return -1;
+}
+
+
+static void usage(FILE *fp)
+{
+	internal_assert(program_name != NULL);
+	fprintf(fp, "\
+Usage: %s [-d INSTALL_DIR] [CHANNEL...]\n\
+Updates system-independent Nmap files. By default the new files are installed to\n\
+%s. Each CHANNEL is a version number like \"" NMAP_VERSION "\".\n\
+\n\
+  -d DIR      install files to DIR (default %s).\n\
+  -h, --help  show this help.\n\
+", program_name, get_install_dir(), get_install_dir());
+}
+
+static void usage_error(void)
+{
+	usage(stderr);
+	exit(1);
+}
+
+
+static int try_channels(const char *channels[], unsigned int num_channels);
+static int stage_and_install(const char *channel);
+static int stage_channel(const char *channel, const char *staging_dir);
+static int install(const char *staging_dir, const char *install_dir);
+
+static void summarize_options(void)
+{
+	unsigned int i;
+
+	printf("Installing to directory: %s.\n", options.install_dir);
+	printf("Using staging directory: %s.\n", options.staging_dir);
+
+	printf("Using channels:");
+	for (i = 0; i < options.num_channels; i++)
+		printf(" %s", options.channels[i]);
+	printf(".\n");
+}
+
+const struct option LONG_OPTIONS[] = {
+	{ "help", no_argument, NULL, 'h' },
+};
+
+int main(int argc, char *argv[])
+{
+	int opt, longoptidx;
+
+	internal_assert(argc > 0);
+	program_name = argv[0];
+
+	init_options();
+
+	if (svn_cmdline_init(program_name, stderr) != 0)
+		internal_error("svn_cmdline_init");
+
+	while ((opt = getopt_long(argc, argv, "d:h", LONG_OPTIONS, &longoptidx)) != -1) {
+		if (opt == 'd') {
+			options.install_dir = optarg;
+		} else if (opt == 'h') {
+			usage(stdout);
+			exit(0);
+		} else {
+			usage_error();
+		}
+	}
+
+	/* User-specified channels. */
+	if (optind < argc) {
+		options.channels = (const char **) argv + optind;
+		options.num_channels = argc - optind;
+	}
+	internal_assert(options.channels != NULL);
+	internal_assert(options.num_channels > 0);
+
+	if (options.verbose)
+		summarize_options();
+
+	read_config_file(options.conf_filename);
+
+	if (try_channels(options.channels, options.num_channels) == 0)
+		return 0;
+
+	if (options.username == NULL) {
+		fprintf(stderr, "\
+\n\
+Could not stage any channels and don't have authentication credentials.\n\
+\n\
+Edit the file %s and enter your username and password. For example:\n\
+  username = user\n\
+  password = secret\n\
+", options.conf_filename);
+	}
+
+	return 1;
+}
+
+
+static int try_channels(const char *channels[], unsigned int num_channels)
+{
+	unsigned int i;
+
+	for (i = 0; i < num_channels; i++) {
+		if (stage_and_install(channels[i]) == 0)
+			return 0;
+	}
+
+	return 1;
+}
+
+
+static void fatal_err_svn(svn_error_t *err)
+{
+	svn_handle_error2(err, stderr, TRUE, "nmap-update: ");
+}
+
+static svn_error_t *simple_auth_callback(svn_auth_cred_simple_t **cred,
+	void *baton, const char *realm, const char *username,
+	svn_boolean_t may_save, apr_pool_t *pool)
+{
+	svn_auth_cred_simple_t *ret;
+
+	ret = apr_pcalloc(pool, sizeof(*ret));
+
+	if (options.verbose) {
+		if (realm != NULL)
+			printf("Authenticating to realm %s.\n", realm);
+	}
+
+	if (!(username || options.username) || !options.password) {
+		return svn_error_create(SVN_ERR_RA_UNKNOWN_AUTH, NULL,
+			"Don't have authentication credentials");
+	}
+
+	if (options.username != NULL)
+		ret->username = apr_pstrdup(pool, options.username);
+	else
+		ret->username = apr_pstrdup(pool, username);
+
+	ret->password = apr_pstrdup(pool, options.password);
+
+	*cred = ret;
+
+	return SVN_NO_ERROR;
+}
+
+static svn_error_t *checkout_svn(const char *url, const char *path)
+{
+	svn_error_t *err;
+	apr_pool_t *pool;
+	svn_opt_revision_t peg_revision, revision;
+	svn_client_ctx_t *ctx;
+	svn_revnum_t revnum;
+	svn_auth_provider_object_t *provider;
+	apr_array_header_t *providers;
+
+	peg_revision.kind = svn_opt_revision_unspecified;
+	revision.kind = svn_opt_revision_head;
+
+	pool = svn_pool_create(NULL);
+
+	err = svn_client_create_context(&ctx, pool);
+	if (err != NULL)
+		fatal_err_svn(err);
+
+	providers = apr_array_make(pool, 10, sizeof (svn_auth_provider_object_t *));
+	svn_auth_get_simple_prompt_provider(&provider,
+		simple_auth_callback,
+		NULL, /* baton */
+		0, /* retry limit */
+		pool);
+	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
+	/* Register the auth providers into the client context's auth_baton. */
+	svn_auth_open(&ctx->auth_baton, providers, pool);
+
+	err = svn_client_checkout3(&revnum, url, path,
+		&peg_revision, &revision,
+		svn_depth_infinity,
+		TRUE, /* ignore_externals */
+		FALSE, /* allow_unver_obstructions */
+		ctx, pool);
+	svn_pool_destroy(pool);
+	if (err != NULL)
+		return err;
+
+	printf("Checked out r%lu\n", (unsigned long) revnum);
+
+	return SVN_NO_ERROR;
+}
+
+static int stage_and_install(const char *channel)
+{
+	char *staging_dir, *install_dir;
+	int rc;
+
+	internal_assert(options.staging_dir != NULL);
+
+	staging_dir = path_join(options.staging_dir, channel, NULL);
+	rc = stage_channel(channel, staging_dir);
+	if (rc == -1) {
+		free(staging_dir);
+		return -1;
+	}
+
+	install_dir = path_join(options.install_dir, channel, NULL);
+	rc = install(staging_dir, install_dir);
+
+	free(staging_dir);
+	free(install_dir);
+
+	return rc;
+}
+
+static int stage_channel(const char *channel, const char *staging_dir)
+{
+	char *svn_url;
+	svn_error_t *err;
+	int rc;
+
+	rc = 0;
+
+	svn_url = strs_cat(SVN_REPO, SVN_DIR, "/", channel, NULL);
+
+	if (options.verbose)
+		printf("Checking out %s to %s.\n", svn_url, staging_dir);
+
+	err = checkout_svn(svn_url, staging_dir);
+	if (err != NULL) {
+		svn_handle_error2(err, stderr, FALSE, "nmap-update: ");
+		fprintf(stderr, "Error checking out %s.\n", svn_url);
+		rc = 1;
+	}
+
+	free(svn_url);
+
+	return rc;
+}
+
+static int copy_tree(const char *from_dirname, const char *to_dirname);
+
+static int install(const char *staging_dir, const char *install_dir)
+{
+	if (options.verbose)
+		printf("Installing from %s to %s.\n", staging_dir, install_dir);
+
+	return copy_tree(staging_dir, install_dir);
+}
+
+static int copy_file(const char *from_filename, const char *to_filename)
+{
+	char buf[BUFSIZ];
+	char *tmp_filename;
+	FILE *from_fd, *tmp_fd;
+	int rc, from_rc, tmp_rc;
+	size_t nr, nw;
+
+	tmp_filename = NULL;
+	from_fd = NULL;
+	tmp_fd = NULL;
+
+	errno = 0;
+	from_fd = fopen(from_filename, "rb");
+	if (from_fd == NULL) {
+		fprintf(stderr, "Can't open %s: %s.\n", from_filename, strerror(errno));
+		goto bail;
+	}
+
+	tmp_filename = strs_cat(to_filename, "-tmp", NULL);
+	errno = 0;
+	tmp_fd = fopen(tmp_filename, "wb");
+	if (tmp_fd == NULL) {
+		fprintf(stderr, "Can't open %s: %s.\n", tmp_filename, strerror(errno));
+		goto bail;
+	}
+
+	errno = 0;
+	while ((nr = fread(buf, 1, sizeof(buf), from_fd)) != 0) {
+		errno = 0;
+		nw = fwrite(buf, 1, nr, tmp_fd);
+		if (nw != nr || errno != 0) {
+			printf("%lu %lu\n", nw, nr);
+			fprintf(stderr, "Error writing to %s: %s\n", tmp_filename, strerror(errno));
+			goto bail;
+		}
+	}
+	if (errno != 0) {
+		fprintf(stderr, "Error reading from %s: %s\n", from_filename, strerror(errno));
+		goto bail;
+	}
+
+	from_rc = fclose(from_fd);
+	from_fd = NULL;
+	if (from_rc == -1) {
+		fprintf(stderr, "Can't close %s: %s\n", from_filename, strerror(errno));
+		goto bail;
+	}
+	tmp_rc = fclose(tmp_fd);
+	tmp_fd = NULL;
+	if (tmp_rc == -1) {
+		fprintf(stderr, "Can't close %s: %s\n", to_filename, strerror(errno));
+		goto bail;
+	}
+
+	rc = rename(tmp_filename, to_filename);
+	if (rc == -1) {
+		fprintf(stderr, "Can't rename %s to %s: %s.\n",
+			tmp_filename, to_filename, strerror(errno));
+		goto bail;
+	}
+
+	free(tmp_filename);
+	tmp_filename = NULL;
+
+	return 0;
+
+bail:
+	if (from_fd != NULL)
+		fclose(from_fd);
+	if (tmp_fd != NULL)
+		fclose(tmp_fd);
+	if (tmp_filename != NULL)
+		free(tmp_filename);
+
+	return -1;
+}
+
+static int is_pathsep(int c)
+{
+	return c == '/';
+}
+
+static char *parent_dir(const char *path)
+{
+	const char *p;
+
+	p = path + strlen(path) - 1;
+	while (p > path && is_pathsep(*p))
+		p--;
+	while (p > path && !is_pathsep(*p))
+		p--;
+	while (p > path && is_pathsep(*p))
+		p--;
+
+	if (p == path)
+		return safe_strdup("/");
+
+	return string_make(path, p + 1);
+}
+
+static int makedirs(const char *dirname)
+{
+	char *parent;
+	int rc;
+
+	rc = mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	if (rc == 0 || errno == EEXIST)
+		return 0;
+
+	if (errno != ENOENT)
+		return -1;
+
+	parent = parent_dir(dirname);
+	rc = makedirs(parent);
+	free(parent);
+	if (rc == -1)
+		return -1;
+
+	rc = mkdir(dirname, S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+	if (rc == -1)
+		return -1;
+
+	return rc;
+}
+
+static int copy_tree(const char *from_dirname, const char *to_dirname)
+{
+	DIR *dir;
+	const struct dirent *ent;
+	int rc;
+
+	rc = makedirs(to_dirname);
+	if (rc == -1) {
+		fprintf(stderr, "Can't create the directory %s: %s\n",
+			to_dirname, strerror(errno));
+		return -1;
+	}
+
+	dir = opendir(from_dirname);
+	if (dir == NULL) {
+		fprintf(stderr, "Can't open the directory %s: %s\n",
+			from_dirname, strerror(errno));
+		return -1;
+	}
+
+	errno = 0;
+	while ((ent = readdir(dir)) != NULL) {
+		char *from_path, *to_path;
+		int error;
+
+		from_path = path_join(from_dirname, ent->d_name, NULL);
+		to_path = path_join(to_dirname, ent->d_name, NULL);
+
+		error = 0;
+		if (ent->d_type == DT_DIR) {
+			if (streq(ent->d_name, ".") || streq(ent->d_name, ".."))
+				continue;
+			if (streq(ent->d_name, ".svn"))
+				continue;
+			rc = makedirs(to_path);
+			if (rc == 0) {
+				rc = copy_tree(from_path, to_path);
+				if (rc == -1)
+					error = 1;
+			} else {
+				error = 1;
+			}
+		} else if (ent->d_type == DT_REG) {
+			rc = copy_file(from_path, to_path);
+			if (rc == -1)
+				error = 1;
+		} else {
+			fprintf(stderr, "Warning: unknown file type %u of %s.\n",
+				ent->d_type, ent->d_name);
+		}
+
+		free(from_path);
+		free(to_path);
+
+		if (error)
+			goto bail;
+	}
+	if (errno != 0) {
+		fprintf(stderr, "Error in readdir: %s.\n", strerror(errno));
+		goto bail;
+	}
+
+	rc = closedir(dir);
+	if (rc == -1) {
+		fprintf(stderr, "Can't close the directory %s: %s\n",
+			from_dirname, strerror(errno));
+		return -1;
+	}
+
+	return 0;
+
+bail:
+	closedir(dir);
+
+	return -1;
+}
