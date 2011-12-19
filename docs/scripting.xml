@@ -636,7 +636,7 @@ eligible to run.  The <literal>all</literal> argument should be used with cautio
 <para>
 Each element in the script expression list may be prefixed with a
 <literal>+</literal> character to force the given script(s) to run
-regardless of the conditions in their <literal>prerule</literal> or
+regardless of the conditions in their <literal>portrule</literal> or
 <literal>hostrule</literal> functions.  This is generally only done by
 advanced users in special cases.  For example, you might want to do a
 configuration review on a bunch of MS SQL servers, some of which are
