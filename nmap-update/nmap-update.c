@@ -734,10 +734,7 @@ int main(int argc, char *argv[])
 	if (options.verbose)
 		summarize_options();
 
-	if (read_config_file(options.conf_filename) == -1) {
-		fprintf(stderr, "Can't read config file %s.\n", options.conf_filename);
-		exit(1);
-	}
+	read_config_file(options.conf_filename);
 
 	successful_channel = try_channels(options.channels, options.num_channels);
 
