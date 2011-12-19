@@ -502,7 +502,7 @@ static void init_options(void)
 		exit(1);
 	}
 	options.conf_filename = get_conf_filename();
-	if (options.staging_dir == NULL) {
+	if (options.conf_filename == NULL) {
 		fprintf(stderr, "Could not find the configuration file: %s.\n",
 			strerror(errno));
 		exit(1);
