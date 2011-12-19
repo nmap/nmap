@@ -1,18 +1,25 @@
+#include "nbase.h"
+
 #include <ctype.h>
-#include <dirent.h>
 #include <errno.h>
-#include <getopt.h>
-#include <pwd.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include "nbase.h"
 
+#ifndef WIN32
+#include <dirent.h>
+#include <getopt.h>
+#include <pwd.h>
+#include <unistd.h>
 #include "config.h"
+#else
+#include <shlobj.h>
+#include "win_config.h"
+#endif
 
 /* See the file tools/examples/minimal_client.c in the Subversion source
    directory for an example of using the svn_client API. */
