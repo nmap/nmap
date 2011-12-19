@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "nbase.h"
+
 #include "config.h"
 
 /* See the file tools/examples/minimal_client.c in the Subversion source
@@ -55,24 +57,6 @@ do { \
 	if (!(expr)) \
 		internal_error("assertion failed: " #expr); \
 } while (0)
-
-static void *safe_malloc(size_t len)
-{
-	void *p;
-
-	p = malloc(len);
-	internal_assert(p != NULL);
-
-	return p;
-}
-
-static void *safe_realloc(void *p, size_t len)
-{
-	p = realloc(p, len);
-	internal_assert(p != NULL);
-
-	return p;
-}
 
 static char *safe_strdup(const char *s)
 {

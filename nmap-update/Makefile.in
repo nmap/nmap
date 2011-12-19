@@ -3,9 +3,9 @@ srcdir = @srcdir@
 
 CC = @CC@
 CFLAGS = @CFLAGS@
-CPPFLAGS = @CPPFLAGS@ $(DEFS)
+CPPFLAGS = @CPPFLAGS@ $(DEFS) -I$(NBASEDIR)
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
+LIBS = @LIBS@ $(NBASELIB)
 DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
 
 APR_CONFIG = @APR_CONFIG@
@@ -14,13 +14,19 @@ SOURCES = nmap-update
 C_FILES = $(addsuffix .c,$(SOURCES))
 O_FILES = $(addsuffix .o,$(SOURCES))
 
+NBASEDIR = ../nbase
+NBASELIB = $(NBASEDIR)/libnbase.a
+
 all: nmap-update
 
 nmap-update: $(O_FILES)
-	$(CC) -o $@ $(LIBS) $^
+	$(CC) -o $@ $^ $(LIBS)
 
 %.o: %.c
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
+
+$(NBASELIB):
+	cd $(NBASEDIR) && $(MAKE)
 
 clean:
 	rm -f nmap-update *.o makefile.dep
