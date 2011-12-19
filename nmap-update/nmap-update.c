@@ -680,7 +680,7 @@ static int try_channels(const char *channels[], unsigned int num_channels)
 			return 0;
 	}
 
-	return 1;
+	return -1;
 }
 
 
@@ -803,7 +803,7 @@ static int stage_channel(const char *channel, const char *staging_dir)
 	if (err != NULL) {
 		svn_handle_error2(err, stderr, FALSE, "nmap-update: ");
 		fprintf(stderr, "Error checking out %s.\n", svn_url);
-		rc = 1;
+		rc = -1;
 	}
 
 	free(svn_url);
