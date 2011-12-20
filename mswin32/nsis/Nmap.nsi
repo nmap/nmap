@@ -12,6 +12,7 @@
 ;;   /NCAT=NO          don't install Ncat
 ;;   /NDIFF=NO         don't install Ndiff
 ;;   /NPING=NO         don't install Nping
+;;   /NMAPUPDATE=NO    don't install nmap-update
 ;;   /D=C:\dir\...     install to C:\dir\... (overrides InstallDir)
 ;;
 ;;/D is a built-in NSIS option and has these restrictions:
@@ -48,8 +49,8 @@ SetCompressor /SOLID /FINAL lzma
   ;Get installation folder from registry if available 
   InstallDirRegKey HKCU "Software\Nmap" "" 
  
-  !define VERSION "5.51SVN"  
-  VIProductVersion "5.51.0.0"
+  !define VERSION "5.61TEST3"  
+  VIProductVersion "5.61.0.3"
   VIAddVersionKey /LANG=1033 "FileVersion" "${VERSION}"
   VIAddVersionKey /LANG=1033 "ProductName" "Nmap" 
   VIAddVersionKey /LANG=1033 "CompanyName" "Insecure.org" 
@@ -289,6 +290,14 @@ Section "Nping (Packet generator)" SecNping
   Call create_uninstaller
 SectionEnd
 
+Section "nmap-update (updater for architecture-independent files)" SecNmapUpdate
+  SetOutPath "$INSTDIR" 
+  SetOverwrite on 
+  File ..\nmap-${VERSION}\nmap-update.exe
+  Call vcredist2010installer
+  Call create_uninstaller
+SectionEnd
+
 Function vcredist2010installer
   StrCmp $vcredist2010set "" 0 vcredist_done
   StrCpy $vcredist2010set "true"
@@ -388,6 +397,7 @@ Function .onInit
   !insertmacro OptionDisableSection $0 "/NCAT=" ${SecNcat}
   !insertmacro OptionDisableSection $0 "/NDIFF=" ${SecNdiff}
   !insertmacro OptionDisableSection $0 "/NPING=" ${SecNping}
+  !insertmacro OptionDisableSection $0 "/NMAPUPDATE=" ${SecNmapUpdate}
 FunctionEnd
 
 ;-------------------------------- 
@@ -402,6 +412,7 @@ FunctionEnd
   LangString DESC_SecNcat ${LANG_ENGLISH} "Installs Ncat, Nmap's Netcat replacement." 
   LangString DESC_SecNdiff ${LANG_ENGLISH} "Installs Ndiff, a tool for comparing Nmap XML files."
   LangString DESC_SecNping ${LANG_ENGLISH} "Installs Nping, a packet generation tool."
+  LangString DESC_SecNmapUpdate ${LANG_ENGLISH} "Installs nmap-update, an updater for architecture-independent files."
 
   ;Assign language strings to sections 
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN 
@@ -413,6 +424,7 @@ FunctionEnd
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNcat} $(DESC_SecNcat) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNdiff} $(DESC_SecNdiff) 
     !insertmacro MUI_DESCRIPTION_TEXT ${SecNping} $(DESC_SecNping) 
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecNmapUpdate} $(DESC_SecNmapUpdate) 
   !insertmacro MUI_FUNCTION_DESCRIPTION_END 
 ;-------------------------------- 
 ;Uninstaller Section 
@@ -445,6 +457,7 @@ Section "Uninstall"
   IfFileExists $INSTDIR\ncat.exe nmap_installed 
   IfFileExists $INSTDIR\nping.exe nmap_installed 
   IfFileExists $INSTDIR\ndiff.exe nmap_installed 
+  IfFileExists $INSTDIR\nmap-update.exe nmap_installed 
     MessageBox MB_YESNO "It does not appear that Nmap is installed in the directory '$INSTDIR'.$\r$\nContinue anyway (not recommended)?" IDYES nmap_installed 
     Abort "Uninstall aborted by user" 
 
@@ -480,6 +493,7 @@ Section "Uninstall"
   Delete "$INSTDIR\COPYING_HIGWIDGETS"
   Delete "$INSTDIR\ncat.exe"
   Delete "$INSTDIR\nping.exe"
+  Delete "$INSTDIR\nmap-update.exe"
   Delete "$INSTDIR\ca-bundle.crt"
   ;Delete specific subfolders (NB: custom scripts in scripts folder will be lost)
   RMDir /r "$INSTDIR\nselib"
