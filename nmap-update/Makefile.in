@@ -20,7 +20,7 @@ NBASELIB = $(NBASEDIR)/libnbase.a
 all: nmap-update
 
 nmap-update: $(O_FILES)
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $(CFLAGS) $(LDFLAGS) $^ $(LIBS)
 
 %.o: %.c
 	$(CC) -c -o $@ $(CPPFLAGS) $(CFLAGS) $<
