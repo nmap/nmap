@@ -1,5 +1,20 @@
 TODO $Id: TODO 11866 2009-01-24 23:10:05Z fyodor $ -*-text-*-
 
+o finish making nmap-update part of the nmap windows compile-time
+  infrastructure
+  o See if we can build just one project within a solution, rather
+    than having special "with nmap-update" configuration.
+
+o Add homedir support to Nmap for the updater
+
+o Fix expiration date parsing on Nmap Windows for the updater
+
+o Updater: Make a missing nmap-update.conf nonfatal (perhaps doesn't
+  even need to mention it).
+
+o Updater: Clean up the output messages (e.g. only print what user needs to see
+  unless debugging is specified)
+
 o Clean up the Nmap repo to remove some bloat we've allowed to creep
   in.  Should do a more thorough search, but for now here are two
   obvious candidates:
@@ -88,6 +103,16 @@ o Script review
   - irc-info patch. http://seclists.org/nmap-dev/2011/q2/289.
   - NSE-based port scanning and RST idle scan.
     http://seclists.org/nmap-dev/2011/q2/307.
+
+o [UPDATER] Create a way to send an error message to the user
+  (e.g. "your account has expired" or "updates denied due to
+  overuse--please wait 24 hours before trying again", or "account
+  suspended due to abuse")?
+
+o [UPDATER] Create webapp for account creation (can be deferred until later)
+
+o [UPDATER] Release to community, probably starting with a small test
+  group of people.
 
 o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
   packets.
