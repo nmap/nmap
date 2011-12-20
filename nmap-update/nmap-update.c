@@ -820,11 +820,10 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 		NULL, /* cancel_baton */
 		pool);
 
-	err = svn_client_checkout3(&revnum, url, path,
+	err = svn_client_checkout2(&revnum, url, path,
 		&peg_revision, &revision,
-		svn_depth_infinity,
+		TRUE, /* recurse */
 		TRUE, /* ignore_externals */
-		FALSE, /* allow_unver_obstructions */
 		ctx, pool);
 	svn_pool_destroy(pool);
 	if (err != NULL)
