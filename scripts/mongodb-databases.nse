@@ -65,6 +65,10 @@ function action(host,port)
 	status, result = mongodb.query(socket, packet)
 	if not status then return result end-- Error message
 	
+	port.version.name ='mongodb'
+	port.version.product='MongoDB'
+	nmap.set_port_version(host,port,'hardmatched')
+
 	local output = mongodb.queryResultToTable(result)
 	if err ~= nil then 
 		stdnse.log_error(err) 

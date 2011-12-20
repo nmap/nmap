@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch to add additional version information to Mongodb scripts
+  [Martin Swende]
+
 o [NSE] Added path argument to the http-auth script and changed so that script
   output was returned using stdnse.format_output [Duarte Silva, Patrik]
 

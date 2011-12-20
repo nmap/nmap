@@ -75,8 +75,13 @@ function action(host,port)
 	
 	status,statQResult = mongodb.query(socket, packet)
 	
-	if not status then return statResult end
+	if not status then return statQResult end
 	
+	port.version.name ='mongodb'
+	port.version.product='MongoDB'
+	port.version.name_confidence = 100
+	nmap.set_port_version(host,port,'hardmatched')
+
 	status, packet = mongodb.buildInfoQuery()
 	if not status then return packet end
 	
@@ -86,6 +91,10 @@ function action(host,port)
 		stdnse.log_error(buildQResult) 
 		return buildQResult
 	end
+
+	local versionNumber = buildQResult['version']
+	port.version.product='MongoDB '..versionNumber
+	nmap.set_port_version(host,port,'hardmatched')
 
 	local stat_out = mongodb.queryResultToTable(statQResult)
 	local build_out = mongodb.queryResultToTable(buildQResult)
