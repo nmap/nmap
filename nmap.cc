@@ -2866,8 +2866,8 @@ static int nmap_fetchfile_userdir_uid(char *buf, size_t buflen,
   pw = getpwuid(uid);
   if (pw == NULL)
     return 0;
-  res = Snprintf(buf, buflen, "%s/.nmap/%s", ps->pw_dir, file);
-  if (res <= 0 || res >= buflen)
+  res = Snprintf(buf, buflen, "%s/.nmap/%s", pw->pw_dir, file);
+  if (res <= 0 || (size_t) res >= buflen)
     return 0;
 
   return fileexistsandisreadable(buf);
@@ -2877,12 +2877,12 @@ static int nmap_fetchfile_userdir(char *buf, size_t buflen,
   const char *file) {
   int res;
 
-  res = nmap_fetchfile_userdir_uid(buf, buflen, getuid());
+  res = nmap_fetchfile_userdir_uid(buf, buflen, file, getuid());
   if (res != 0)
     return res;
 
   if (getuid() != geteuid()) {
-    res = nmap_fetchfile_userdir_uid(buf, buflen, geteuid());
+    res = nmap_fetchfile_userdir_uid(buf, buflen, file, geteuid());
     if (res != 0)
       return res;
   }
