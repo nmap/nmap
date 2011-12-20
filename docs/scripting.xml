@@ -1657,7 +1657,7 @@ LUALIB_API int luaopen_openssl(lua_State *L) {
 	    <listitem>
 	      <para>MAC address<indexterm><primary>MAC address</primary></indexterm>
                   of the destination host (six-byte-long binary
-		  string) or <literal>nil</literal>, if the host is not directly connected. 
+		  string) if available, otherwise <literal>nil</literal>.  The MAC address is generally only available for hosts directly connected on a LAN and only if Nmap is doing a raw packet scan such as SYN scan.
 		  </para>
 	    </listitem>
 	  </varlistentry>
