@@ -18,6 +18,7 @@ winbuild:
 	@./license-format/licformat.sh ../COPYING > LICENSE
 
 	"$(VCEXPRESS)" nmap.sln /build release /log $(LOGLOC)
+	"$(VCEXPRESS)" nmap.sln /build release /project nmap-update /log $(LOGLOC)
 	$(MAKENSIS) winpcap/winpcap-nmap.nsi
 	rm -rf nmap-$(NMAP_VERSION)
 	rm -f nmap-$(NMAP_VERSION)-win32.zip
@@ -42,6 +43,7 @@ winbuild:
 	cp ../ncat/Release/ncat.exe nmap-$(NMAP_VERSION)
 	cp ../ncat/Release/ca-bundle.crt nmap-$(NMAP_VERSION)
 	cp ../nping/Release/nping.exe nmap-$(NMAP_VERSION)
+	cp ../nmap-update/Release/nmap-update.exe nmap-$(NMAP_VERSION)
 # Install the ndiff batch file wrapper in the zip distribution.
 	cp ../ndiff/ndiff nmap-$(NMAP_VERSION)/ndiff.py
 	cp python-wrap.bat nmap-$(NMAP_VERSION)/ndiff.bat
