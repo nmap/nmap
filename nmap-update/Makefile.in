@@ -13,6 +13,7 @@ DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
 
 INSTALL = @INSTALL@
 STRIP = @STRIP@
+SHTOOL = ../shtool
 
 DESTDIR =
 
@@ -37,6 +38,7 @@ $(NBASELIB):
 	cd $(NBASEDIR) && $(MAKE)
 
 install: nmap-update
+	$(SHTOOL) mkdir -f -p -m 755 $(DESTDIR)$(bindir)
 	$(INSTALL) -c -m 755 nmap-update $(DESTDIR)$(bindir)
 	$(STRIP) -x $(DESTDIR)$(bindir)/nmap-update
 
