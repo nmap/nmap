@@ -1,5 +1,8 @@
 top_srcdir = @top_srcdir@
 srcdir = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
 
 CC = @CC@
 CFLAGS = @CFLAGS@
@@ -7,6 +10,11 @@ CPPFLAGS = @CPPFLAGS@ $(DEFS) -I$(NBASEDIR)
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@ $(NBASELIB)
 DEFS = @DEFS@ -D_FORTIFY_SOURCE=2
+
+INSTALL = @INSTALL@
+STRIP = @STRIP@
+
+DESTDIR =
 
 APR_CONFIG = @APR_CONFIG@
 
@@ -27,6 +35,13 @@ nmap-update: $(O_FILES)
 
 $(NBASELIB):
 	cd $(NBASEDIR) && $(MAKE)
+
+install: nmap-update
+	$(INSTALL) -c -m 755 nmap-update $(DESTDIR)$(bindir)
+	$(STRIP) -x $(DESTDIR)$(bindir)/nmap-update
+
+uninstall:
+	$(RM) -f $(DESTDIR)$(bindir)/nmap-update
 
 clean:
 	rm -f nmap-update *.o makefile.dep

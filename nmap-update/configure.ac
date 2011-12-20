@@ -7,6 +7,8 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_INSTALL
+AC_PATH_TOOL([STRIP], [strip], [/bin/true])
 AC_CHECK_PROGS([APR_CONFIG], [apr-1-config])
 
 # Checks for libraries.
