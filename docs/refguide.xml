@@ -2274,6 +2274,7 @@ found:
 <member><option>--datadir</option></member>
 <member><envar>$NMAPDIR</envar><indexterm><primary><envar>NMAPDIR</envar> environment variable</primary></indexterm></member>
 <member><filename>~/.nmap</filename> (not searched on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
+<member><filename><replaceable>HOME</replaceable>\AppData\Roaming\nmap</filename> (only on Windows)<indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm></member>
 <member>the directory containing the <filename>nmap</filename>
 executable</member>
 <member>the directory containing the <filename>nmap</filename>
@@ -4100,7 +4101,10 @@ hosts with at least one
           environment variable.
           Next comes
 	  <filename>~/.nmap</filename><indexterm><primary sortas="nmap directory"><filename>.nmap</filename> directory</primary></indexterm>
-          for real and effective UIDs (POSIX systems only). This is
+          for real and effective UIDs; or on Windows,
+          <filename><replaceable>HOME</replaceable>\AppData\Roaming\nmap</filename>
+          (where <replaceable>HOME</replaceable> is the user's home directory,
+          like <filename>C:\Users\user</filename>). This is
           followed by the location of the <filename>nmap</filename>
           executable and the same location with
           <code>../share/nmap</code> appended. Then a compiled-in

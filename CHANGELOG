@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o On Windows, the directory <HOME>\AppData\Roaming\nmap is now
+  searched for data files. This is the equivalent of $HOME/.nmap on
+  POSIX. [David]
+
 o [NSE] Applied patch to add additional version information to Mongodb scripts
   [Martin Swende]
 

@@ -117,6 +117,7 @@
 
 #ifdef WIN32
 #include "winfix.h"
+#include <shlobj.h>
 #endif
 
 #if HAVE_OPENSSL
@@ -2809,6 +2810,7 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
     * --datadir
     * $NMAPDIR
     * [Non-Windows only] ~/.nmap
+    * [Windows only] ...\Users\<user>\AppData\Roaming\nmap
     * The directory containing the nmap binary
     * [Non-Windows only] The directory containing the nmap binary plus
       "/../share/nmap"
@@ -2841,11 +2843,58 @@ int nmap_fetchfile(char *filename_returned, int bufferlen, const char *file) {
   return res;
 }
 
+#ifdef WIN32
+static int nmap_fetchfile_userdir(char *buf, size_t buflen,
+  const char *file) {
+  char appdata[MAX_PATH];
+  int res;
+
+  if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, appdata) != S_OK)
+    return 0;
+  res = Snprintf(buf, buflen, "%s\\nmap\\%s", appdata, file);
+  if (res <= 0 || res >= buflen)
+    return 0;
+
+  return fileexistsandisreadable(buf);
+}
+#else
+static int nmap_fetchfile_userdir_uid(char *buf, size_t buflen,
+  const char *file, int uid) {
+  struct passwd *pw;
+  int res;
+
+  pw = getpwuid(uid);
+  if (pw == NULL)
+    return 0;
+  res = Snprintf(buf, buflen, "%s/.nmap/%s", ps->pw_dir, file);
+  if (res <= 0 || res >= buflen)
+    return 0;
+
+  return fileexistsandisreadable(buf);
+}
+
+static int nmap_fetchfile_userdir(char *buf, size_t buflen,
+  const char *file) {
+  int res;
+
+  res = nmap_fetchfile_userdir_uid(buf, buflen, getuid());
+  if (res != 0)
+    return res;
+
+  if (getuid() != geteuid()) {
+    res = nmap_fetchfile_userdir_uid(buf, buflen, geteuid());
+    if (res != 0)
+      return res;
+  }
+
+  return 0;
+}
+#endif
+
 static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char *file) {
   char *dirptr;
   int res;
   int foundsomething = 0;
-  struct passwd *pw;
   char dot_buffer[512];
   static int warningcount = 0;
 
@@ -2862,26 +2911,9 @@ static int nmap_fetchfile_sub(char *filename_returned, int bufferlen, const char
       foundsomething = fileexistsandisreadable(filename_returned);
     }
   }
-#ifndef WIN32
-  if (!foundsomething) {
-    pw = getpwuid(getuid());
-    if (pw) {
-      res = Snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
-      if (res > 0 && res < bufferlen) {
-        foundsomething = fileexistsandisreadable(filename_returned);
-      }
-    }
-    if (!foundsomething && getuid() != geteuid()) {
-      pw = getpwuid(geteuid());
-      if (pw) {
-	res = Snprintf(filename_returned, bufferlen, "%s/.nmap/%s", pw->pw_dir, file);
-	if (res > 0 && res < bufferlen) {
-          foundsomething = fileexistsandisreadable(filename_returned);
-	}
-      }
-    }
-  }
-#endif
+
+  if (!foundsomething)
+    foundsomething = nmap_fetchfile_userdir(filename_returned, bufferlen, file);
 
   const char *argv0;
   char *dir;
