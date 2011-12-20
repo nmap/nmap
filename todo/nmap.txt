@@ -117,6 +117,12 @@ o [UPDATER] Release to community, probably starting with a small test
 o Fix "BOGUS!  Can't parse supposed IP packet" in packet trace of IPv6
   packets.
 
+o Raw scans from Mac OS X seems not to retrieve the MAC address or do
+  ARP ping, except when scanning the router on an interface. For
+  example, scanning 192.168.0.1-5 sends ARP pings to 192.168.0.1, but
+  the normal four-probe combination to the other addresses. The "MAC
+  address:" line appears in the output for .1 but not for the others.
+
 o To avoid Nmap memory usage bloat, find a way for NSE scripts to
   store information about a host which expires after Nmap is done
   scanning that host (e.g. when the hostgroup containing that host is
