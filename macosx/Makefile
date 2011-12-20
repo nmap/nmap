@@ -26,6 +26,9 @@ NDIFF_STAGING_DIR = Ndiff
 NPING_BUILD_DIR = nping-build
 NPING_STAGING_DIR = Nping
 
+NMAP_UPDATE_BUILD_DIR = nmap-update-build
+NMAP_UPDATE_STAGING_DIR = nmap-update
+
 MACPORTS_PREFIX=$(HOME)/macports-10.5
 PREFIX = /usr/local
 
@@ -77,13 +80,13 @@ export-%:
 	svn export ..@BASE $*
 
 stage-nmap: export-$(NMAP_BUILD_DIR)
-	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping $(CONFIGURE_ARGS)
+	cd $(NMAP_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --without-nmap-update $(CONFIGURE_ARGS)
 	make -C $(NMAP_BUILD_DIR)
 	rm -rf $(NMAP_STAGING_DIR)
 	make -C $(NMAP_BUILD_DIR) install DESTDIR="`pwd`/$(NMAP_STAGING_DIR)"
 
 stage-ncat: export-$(NCAT_BUILD_DIR)
-	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping $(CONFIGURE_ARGS)
+	cd $(NCAT_BUILD_DIR) && ./configure --without-zenmap --with-ncat --without-ndiff --without-nping --without-nmap-update $(CONFIGURE_ARGS)
 	make -C $(NCAT_BUILD_DIR)
 	rm -rf $(NCAT_STAGING_DIR)
 	make -C $(NCAT_BUILD_DIR) install-ncat DESTDIR="`pwd`/$(NCAT_STAGING_DIR)"
@@ -92,10 +95,16 @@ stage-nping: export-$(NPING_BUILD_DIR)
 # Link against the local MacPorts openssl because the 10.4u SDK doesn't
 # have EVP_sha256, used by Nping. We let configure find the libraries
 # dynamically, then link with the static libraries with "make".
-	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
+	cd $(NPING_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --with-nping --without-nmap-update --with-openssl="$(MACPORTS_PREFIX)" $(CONFIGURE_ARGS)
 	make -C $(NPING_BUILD_DIR) OPENSSL_LIBS="$(MACPORTS_PREFIX)/lib/libssl.a $(MACPORTS_PREFIX)/lib/libcrypto.a $(MACPORTS_PREFIX)/lib/libz.a"
 	rm -rf $(NPING_STAGING_DIR)
 	make -C $(NPING_BUILD_DIR) install-nping DESTDIR="`pwd`/$(NPING_STAGING_DIR)"
+
+stage-nmap-update: export-$(NMAP_UPDATE_BUILD_DIR)
+	cd $(NMAP_UPDATE_BUILD_DIR) && ./configure --without-zenmap --without-ncat --without-ndiff --without-nping --with-nmap-update $(CONFIGURE_ARGS)
+	make -C $(NMAP_UPDATE_BUILD_DIR)
+	rm -rf $(NMAP_UPDATE_STAGING_DIR)
+	make -C $(NMAP_UPDATE_BUILD_DIR) install-nmap-update DESTDIR="`pwd`/$(NMAP_UPDATE_STAGING_DIR)"
 
 # make-bundle.sh uses these to build its authorization wrapper.
 export CC ARCHFLAGS CPPFLAGS CFLAGS CXXFLAGS LDFLAGS

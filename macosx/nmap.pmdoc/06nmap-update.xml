@@ -1,0 +1,25 @@
+<pkgref spec="1.12" uuid="A488395A-3951-449A-B3F6-A74D5E926D69">
+  <config>
+    <identifier>org.insecure.nmap.nmap-update.pkg</identifier>
+    <version>1</version>
+    <description />
+    <post-install type="none" />
+    <requireAuthorization />
+    <installFrom relative="true" includeRoot="false">nmap-update</installFrom>
+    <installTo>/</installTo>
+    <flags>
+      <followSymbolicLinks />
+    </flags>
+    <packageStore type="internal" />
+    <mod>parent</mod>
+    <mod>installFrom.isRelativeType</mod>
+  </config>
+  <contents>
+    <file-list>06nmap-update-contents.xml</file-list>
+    <filter>/CVS$</filter>
+    <filter>/\.svn$</filter>
+    <filter>/\.cvsignore$</filter>
+    <filter>/\.cvspass$</filter>
+    <filter>/\.DS_Store$</filter>
+  </contents>
+</pkgref>
