@@ -530,45 +530,49 @@ class ScanDiff(object):
 
     def print_xml(self, f = sys.stdout):
         impl = xml.dom.minidom.getDOMImplementation()
-        document = impl.createDocument(None, u"nmapdiff", None)
-        root = document.documentElement
-        root.setAttribute(u"version", NDIFF_XML_VERSION)
-        scandiff_elem = document.createElement(u"scandiff")
-        root.appendChild(scandiff_elem)
+        document = impl.createDocument(None, None, None)
+
+        writer = XMLWriter(f)
+
+        writer.startDocument()
+        writer.startElement(u"nmapdiff", {u"version": NDIFF_XML_VERSION})
+        writer.startElement(u"scandiff", {})
 
         if self.nmaprun_differs():
-            a_elem = document.createElement(u"a")
-            a_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
-            scandiff_elem.appendChild(a_elem)
-            b_elem = document.createElement(u"b")
-            b_elem.appendChild(self.scan_b.nmaprun_to_dom_fragment(document))
-            scandiff_elem.appendChild(b_elem)
+            writer.frag_a(self.scan_a.nmaprun_to_dom_fragment(document))
+            writer.frag_b(self.scan_b.nmaprun_to_dom_fragment(document))
         elif verbose:
-            scandiff_elem.appendChild(self.scan_a.nmaprun_to_dom_fragment(document))
+            writer.frag(self.scan_a.nmaprun_to_dom_fragment(document))
 
         # prerule script changes.
         if len(self.pre_script_result_diffs) > 0 or verbose:
             prescript_elem = document.createElement(u"prescript")
-            scandiff_elem.appendChild(script_result_diffs_to_dom_fragment(
+            frag = script_result_diffs_to_dom_fragment(
                 prescript_elem, self.scan_a.pre_script_results,
                 self.scan_b.pre_script_results, self.pre_script_result_diffs,
-                document))
+                document)
+            writer.frag(frag)
+            frag.unlink()
 
         for host in self.hosts:
             h_diff = self.host_diffs[host]
             frag = h_diff.to_dom_fragment(document)
-            scandiff_elem.appendChild(frag)
+            writer.frag(frag)
+            frag.unlink()
 
         # postrule script changes.
         if len(self.post_script_result_diffs) > 0 or verbose:
             postscript_elem = document.createElement(u"postscript")
-            scandiff_elem.appendChild(script_result_diffs_to_dom_fragment(
+            frag = script_result_diffs_to_dom_fragment(
                 postscript_elem, self.scan_a.post_script_results,
                 self.scan_b.post_script_results, self.post_script_result_diffs,
-                document))
+                document)
+            writer.frag(frag)
+            frag.unlink()
 
-        document.writexml(f, addindent = u"  ", newl = u"\n", encoding = "UTF-8")
-        document.unlink()
+        writer.endElement(u"scandiff")
+        writer.endElement(u"nmapdiff")
+        writer.endDocument()
 
     cost = property(lambda self: sum([hd.cost for hd in self.host_diffs.values()]))
 
