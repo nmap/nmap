@@ -38,7 +38,6 @@
 #endif
 
 #define NMAP_VERSION "5.61TEST2"
-#define NMAP_DATADIR "/usr/local/share/nmap"
 
 #ifdef WIN32
 #define PATHSEP "\\"
