@@ -37,7 +37,7 @@
 #include <svn_types.h>
 #endif
 
-#define NMAP_VERSION "5.61TEST2"
+#include "default_channel.h"
 
 #ifdef WIN32
 #define PATHSEP "\\"
@@ -48,7 +48,7 @@
 static const char *SVN_REPO = "https://svn.nmap.org";
 static const char *SVN_DIR = "/updates";
 
-static const char *DEFAULT_CHANNELS[] = { NMAP_VERSION };
+static const char *DEFAULT_CHANNELS[] = { DEFAULT_CHANNEL };
 
 
 /* Internal error handling. */
@@ -658,7 +658,7 @@ static void usage(FILE *fp)
 	fprintf(fp, "\
 Usage: %s [-d INSTALL_DIR] [CHANNEL...]\n\
 Updates system-independent Nmap files. By default the new files are installed to\n\
-%s. Each CHANNEL is a version number like \"" NMAP_VERSION "\".\n\
+%s. Each CHANNEL is a version number like \"" DEFAULT_CHANNEL "\".\n\
 \n\
   -d DIR      install files to DIR (default %s).\n\
   -h, --help  show this help.\n\

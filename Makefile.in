@@ -1,5 +1,6 @@
 # Extract the version string from nmap.h.
 export NMAP_VERSION := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_VERSION' nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
+export NMAP_UPDATE_CHANNEL := $(shell grep '^\#[ \t]*define[ \t]\+NMAP_UPDATE_CHANNEL' nmap.h | sed -e 's/.*"\(.*\)".*/\1/' -e 'q')
 NMAP_NAME= Nmap
 NMAP_URL= http://nmap.org
 NMAP_PLATFORM=@host@
@@ -151,6 +152,7 @@ lua_build: $(LIBLUADIR)/Makefile
 liblinear_build: $(LIBLINEARDIR)/Makefile
 	@echo Compiling liblinear; cd $(LIBLINEARDIR) && $(MAKE) liblinear.a CC="$(CC)" CXX="$(CXX)" CFLAGS="$(CFLAGS)"
 
+build-nmap-update: nmap-update/default_channel.h
 
 #$(LIBPCAPDIR)/Makefile:
 #	@echo Configuring libpcap; cd $(LIBPCAPDIR); ./configure
@@ -284,6 +286,10 @@ $(NPINGDIR)/nping.h: nmap.h
 # Update the version number used by Zenmap.
 $(ZENMAPDIR)/zenmapCore/Version.py $(ZENMAPDIR)/share/zenmap/config/zenmap_version: nmap.h
 	cd $(ZENMAPDIR) && $(PYTHON) install_scripts/utils/version_update.py "$(NMAP_VERSION)"
+
+nmap-update/default_channel.h: nmap.h
+	sed -e 's/^#[ \t]*define[ \t]\+DEFAULT_CHANNEL[ \t]\+\(".*"\)/#define DEFAULT_CHANNEL "$(NMAP_UPDATE_CHANNEL)"/' $@ > $@.tmp
+	mv -f $@.tmp $@
 
 # By default distutils rewrites installed scripts to hardcode the
 # location of the Python interpreter they were built with (something
