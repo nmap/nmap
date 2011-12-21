@@ -40,12 +40,8 @@ class Scan(object):
         self.pre_script_results = []
         self.post_script_results = []
 
-    def find_host(self, id):
-        for host in self.hosts:
-            if host.get_id() == id:
-                return host
-        else:
-            return None
+    def sort_hosts(self):
+        self.hosts.sort(key = lambda h: h.get_id())
 
     def load(self, f):
         """Load a scan from the Nmap XML in the file-like object f."""
@@ -466,6 +462,32 @@ def script_result_diffs_to_dom_fragment(elem, script_results_a,
             elem.appendChild(sr_diff.to_dom_fragment(document))
         return elem
 
+def host_pairs(a, b):
+    """Take hosts lists a and b, which must be sorted by id, and return pairs.
+    When the heads of both lists have the same ids, they are returned together.
+    Otherwise the one with the smaller id is returned, with an empty host as its
+    counterpart, and the one with the higher id will remain in its list for a
+    later iteration."""
+    i = 0
+    j = 0
+    while i < len(a) and j < len(b):
+        if a[i].get_id() < b[j].get_id():
+            yield a[i], Host()
+            i += 1
+        elif a[i].get_id() > b[j].get_id():
+            yield Host(), b[j]
+            j += 1
+        else:
+            yield a[i], b[j]
+            i += 1
+            j += 1
+    while i < len(a):
+        yield a[i], Host()
+        i += 1
+    while j < len(b):
+        yield Host(), b[j]
+        j += 1
+
 class ScanDiff(object):
     """A complete diff of two scans. It is a container for two scans and a dict
     mapping hosts to HostDiffs."""
@@ -481,14 +503,13 @@ class ScanDiff(object):
         self.diff()
 
     def diff(self):
-        a_ids = [h.get_id() for h in self.scan_a.hosts]
-        b_ids = [h.get_id() for h in self.scan_b.hosts]
-        for id in sorted(set(a_ids).union(set(b_ids))):
-            # Currently we never consider diffing hosts with a different id
-            # (address or host name), which could lead to better diffs.
-            host_a = self.scan_a.find_host(id)
-            host_b = self.scan_b.find_host(id)
-            h_diff = HostDiff(host_a or Host(), host_b or Host())
+        self.scan_a.sort_hosts()
+        self.scan_b.sort_hosts()
+
+        # Currently we never consider diffing hosts with a different id
+        # (address or host name), which could lead to better diffs.
+        for host_a, host_b in host_pairs(self.scan_a.hosts, self.scan_b.hosts):
+            h_diff = HostDiff(host_a, host_b)
             if h_diff.cost > 0 or verbose:
                 host = host_a or host_b
                 self.hosts.append(host)
