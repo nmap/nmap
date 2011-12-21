@@ -489,59 +489,78 @@ def host_pairs(a, b):
         j += 1
 
 class ScanDiff(object):
-    """A complete diff of two scans. It is a container for two scans and a dict
-    mapping hosts to HostDiffs."""
-    def __init__(self, scan_a, scan_b):
+    """An abtract class for different diff output types. Subclasses must define
+    various output methods."""
+    def __init__(self, scan_a, scan_b, f = sys.stdout):
         """Create a ScanDiff from the "before" scan_a and the "after" scan_b."""
         self.scan_a = scan_a
         self.scan_b = scan_b
-        self.hosts = []
-        self.pre_script_result_diffs = []
-        self.post_script_result_diffs = []
-        self.host_diffs = {}
+        self.f = f
 
-        self.diff()
-
-    def diff(self):
+    def output(self):
         self.scan_a.sort_hosts()
         self.scan_b.sort_hosts()
 
+        self.output_beginning()
+
+        pre_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.pre_script_results, self.scan_b.pre_script_results)
+        self.output_pre_scripts(pre_script_result_diffs)
+
+        cost = 0
         # Currently we never consider diffing hosts with a different id
         # (address or host name), which could lead to better diffs.
         for host_a, host_b in host_pairs(self.scan_a.hosts, self.scan_b.hosts):
             h_diff = HostDiff(host_a, host_b)
+            cost += h_diff.cost
             if h_diff.cost > 0 or verbose:
                 host = host_a or host_b
-                self.hosts.append(host)
-                self.host_diffs[host] = h_diff
+                self.output_host_diff(h_diff)
 
-        self.pre_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.pre_script_results, self.scan_b.pre_script_results)
-        self.post_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.post_script_results, self.scan_b.post_script_results)
+        post_script_result_diffs = ScriptResultDiff.diff_lists(self.scan_a.post_script_results, self.scan_b.post_script_results)
+        self.output_post_scripts(post_script_result_diffs)
 
-    def print_text(self, f = sys.stdout):
-        """Print this diff in a human-readable text form."""
+        self.output_ending()
+
+        return cost
+
+class ScanDiffText(ScanDiff):
+    def __init__(self, scan_a, scan_b, f = sys.stdout):
+        ScanDiff.__init__(self, scan_a, scan_b, f)
+
+    def output_beginning(self):
         banner_a = format_banner(self.scan_a)
         banner_b = format_banner(self.scan_b)
-        if self.cost > 0 or verbose:
-            if banner_a != banner_b:
-                print >> f, u"-%s" % banner_a
-                print >> f, u"+%s" % banner_b
-            elif verbose:
-                print >> f, u" %s" % banner_a
+        if banner_a != banner_b:
+            print >> self.f, u"-%s" % banner_a
+            print >> self.f, u"+%s" % banner_b
+        elif verbose:
+            print >> self.f, u" %s" % banner_a
 
+    def output_pre_scripts(self, pre_script_result_diffs):
         print_script_result_diffs_text("Pre-scan script results",
             self.scan_a.pre_script_results, self.scan_b.pre_script_results,
-            self.pre_script_result_diffs)
+            pre_script_result_diffs, self.f)
 
-        for host in self.hosts:
-            print >> f
-
-            h_diff = self.host_diffs[host]
-            h_diff.print_text(f)
-
+    def output_post_scripts(self, post_script_result_diffs):
         print_script_result_diffs_text("Post-scan script results",
             self.scan_a.post_script_results, self.scan_b.post_script_results,
-            self.post_script_result_diffs)
+            post_script_result_diffs, self.f)
+
+    def output_host_diff(self, h_diff):
+        print >> self.f
+        h_diff.print_text(self.f)
+
+    def output_ending(self):
+        pass
+
+class ScanDiffXML(ScanDiff):
+    def __init__(self, scan_a, scan_b, f = sys.stdout):
+        ScanDiff.__init__(self, scan_a, scan_b, f)
+
+        impl = xml.dom.minidom.getDOMImplementation()
+        self.document = impl.createDocument(None, None, None)
+
+        self.writer = XMLWriter(f)
 
     def nmaprun_differs(self):
         for attr in ("scanner", "version", "args", "start_date", "end_date"):
@@ -549,53 +568,46 @@ class ScanDiff(object):
                 return True
         return False
 
-    def print_xml(self, f = sys.stdout):
-        impl = xml.dom.minidom.getDOMImplementation()
-        document = impl.createDocument(None, None, None)
-
-        writer = XMLWriter(f)
-
-        writer.startDocument()
-        writer.startElement(u"nmapdiff", {u"version": NDIFF_XML_VERSION})
-        writer.startElement(u"scandiff", {})
+    def output_beginning(self):
+        self.writer.startDocument()
+        self.writer.startElement(u"nmapdiff", {u"version": NDIFF_XML_VERSION})
+        self.writer.startElement(u"scandiff", {})
 
         if self.nmaprun_differs():
-            writer.frag_a(self.scan_a.nmaprun_to_dom_fragment(document))
-            writer.frag_b(self.scan_b.nmaprun_to_dom_fragment(document))
+            self.writer.frag_a(self.scan_a.nmaprun_to_dom_fragment(self.document))
+            self.writer.frag_b(self.scan_b.nmaprun_to_dom_fragment(self.document))
         elif verbose:
-            writer.frag(self.scan_a.nmaprun_to_dom_fragment(document))
+            self.writer.frag(self.scan_a.nmaprun_to_dom_fragment(self.document))
 
-        # prerule script changes.
-        if len(self.pre_script_result_diffs) > 0 or verbose:
-            prescript_elem = document.createElement(u"prescript")
+    def output_pre_scripts(self, pre_script_result_diffs):
+        if len(pre_script_result_diffs) > 0 or verbose:
+            prescript_elem = self.document.createElement(u"prescript")
             frag = script_result_diffs_to_dom_fragment(
                 prescript_elem, self.scan_a.pre_script_results,
-                self.scan_b.pre_script_results, self.pre_script_result_diffs,
-                document)
-            writer.frag(frag)
+                self.scan_b.pre_script_results, pre_script_result_diffs,
+                self.document)
+            self.writer.frag(frag)
             frag.unlink()
 
-        for host in self.hosts:
-            h_diff = self.host_diffs[host]
-            frag = h_diff.to_dom_fragment(document)
-            writer.frag(frag)
-            frag.unlink()
-
-        # postrule script changes.
-        if len(self.post_script_result_diffs) > 0 or verbose:
-            postscript_elem = document.createElement(u"postscript")
+    def output_post_scripts(self, post_script_result_diffs):
+        if len(post_script_result_diffs) > 0 or verbose:
+            postscript_elem = self.document.createElement(u"postscript")
             frag = script_result_diffs_to_dom_fragment(
                 postscript_elem, self.scan_a.post_script_results,
-                self.scan_b.post_script_results, self.post_script_result_diffs,
-                document)
-            writer.frag(frag)
+                self.scan_b.post_script_results, post_script_result_diffs,
+                self.document)
+            self.writer.frag(frag)
             frag.unlink()
 
-        writer.endElement(u"scandiff")
-        writer.endElement(u"nmapdiff")
-        writer.endDocument()
+    def output_host_diff(self, h_diff):
+        frag = h_diff.to_dom_fragment(self.document)
+        self.writer.frag(frag)
+        frag.unlink()
 
-    cost = property(lambda self: sum([hd.cost for hd in self.host_diffs.values()]))
+    def output_ending(self):
+        self.writer.endElement(u"scandiff")
+        self.writer.endElement(u"nmapdiff")
+        self.writer.endDocument()
 
 class HostDiff(object):
     """A diff of two Hosts. It contains the two hosts, variables describing what
@@ -1354,14 +1366,13 @@ def main():
         print >> sys.stderr, u"Can't open file: %s" % str(e)
         sys.exit(EXIT_ERROR)
 
-    diff = ScanDiff(scan_a, scan_b)
-
     if output_format == "text":
-        diff.print_text()
+        diff = ScanDiffText(scan_a, scan_b)
     elif output_format == "xml":
-        diff.print_xml()
+        diff = ScanDiffXML(scan_a, scan_b)
+    cost = diff.output()
 
-    if diff.cost == 0:
+    if cost == 0:
         return EXIT_EQUAL
     else:
         return EXIT_DIFFERENT
