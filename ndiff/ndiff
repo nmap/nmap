@@ -19,6 +19,7 @@ import getopt
 import sys
 import time
 import xml.sax
+import xml.sax.saxutils
 import xml.dom.minidom
 
 verbose = False
@@ -60,6 +61,22 @@ class Scan(object):
             self.load(f)
         finally:
             f.close()
+
+    def write_nmaprun_open(self, writer):
+        attrs = {}
+        if self.scanner is not None:
+            attrs[u"scanner"] = self.scanner
+        if self.args is not None:
+            attrs[u"args"] = self.args
+        if self.start_date is not None:
+            attrs[u"start"] = "%d" % time.mktime(self.start_date.timetuple())
+            attrs[u"startstr"] = self.start_date.strftime("%a %b %d %H:%M:%S %Y")
+        if self.version is not None:
+            attrs[u"version"] = self.version
+        writer.startElement(u"nmaprun", attrs)
+
+    def write_nmaprun_close(self, writer):
+        writer.endElement(u"nmaprun")
 
     def nmaprun_to_dom_fragment(self, document):
         frag = document.createDocumentFragment()
