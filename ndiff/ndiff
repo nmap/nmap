@@ -1245,6 +1245,27 @@ class NmapContentHandler(xml.sax.handler.ContentHandler):
             self.current_port.script_results.sort()
             self.current_port = None
 
+class XMLWriter (xml.sax.saxutils.XMLGenerator):
+    def __init__(self, f):
+        xml.sax.saxutils.XMLGenerator.__init__(self, f, "utf-8")
+        self.f = f
+
+    def frag(self, frag):
+        for node in frag.childNodes:
+            node.writexml(self.f, newl = u"\n")
+
+    def frag_a(self, frag):
+        self.startElement(u"a", {})
+        for node in frag.childNodes:
+            node.writexml(self.f, newl = u"\n")
+        self.endElement(u"a")
+
+    def frag_b(self, frag):
+        self.startElement(u"b", {})
+        for node in frag.childNodes:
+            node.writexml(self.f, newl = u"\n")
+        self.endElement(u"b")
+
 def usage():
     print u"""\
 Usage: %s [option] FILE1 FILE2
