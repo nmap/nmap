@@ -541,6 +541,9 @@ static int read_config_file(const char *conf_filename)
 	struct config_entry entry;
 	int ret;
 
+	if (options.verbose)
+		printf("Trying to open configuration file %s.\n", conf_filename);
+
 	errno = 0;
 	if (config_parser_open(conf_filename, &cp) == -1) {
 		if (options.verbose)
