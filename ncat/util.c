@@ -393,7 +393,7 @@ int do_listen(int type, int proto, const union sockaddr_u *srcaddr_u)
     if (srcaddr_u->storage.ss_family == AF_INET6) {
         int set = 1;
         /* Tell it to not try and bind to IPV4 */
-        if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &set, sizeof(set))== -1)
+        if (setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &set, sizeof(set)) == -1)
             die("Unable to set IPV6 socket to bind only to IPV6");
     }
 #endif
