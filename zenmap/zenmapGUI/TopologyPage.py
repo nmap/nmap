@@ -108,6 +108,8 @@ from radialnet.bestwidgets.windows import *
 from radialnet.util.integration import make_graph_from_hosts
 
 
+SLOW_LIMIT = 1000
+
 class TopologyPage(HIGVBox):
     def __init__(self, inventory):
         HIGVBox.__init__(self)
@@ -134,8 +136,24 @@ class TopologyPage(HIGVBox):
                                self.control,
                                self.fisheye)
 
+        self.display_panel = HIGVBox()
+
+        self.radialnet.set_no_show_all(True)
+
+        self.slow_vbox = HIGVBox()
+        self.slow_label = gtk.Label()
+        self.slow_vbox.pack_start(self.slow_label, False, False)
+        show_button = gtk.Button(_("Show the topology anyway"))
+        show_button.connect("clicked", self.show_anyway)
+        self.slow_vbox.pack_start(show_button, False, False)
+        self.slow_vbox.show_all()
+        self.slow_vbox.set_no_show_all(True)
+        self.slow_vbox.hide()
+
+        self.radialnet.show()
+
     def _pack_widgets(self):
-        self.rn_hbox.pack_start(self.radialnet, True, True)
+        self.rn_hbox.pack_start(self.display_panel, True, True)
         self.rn_hbox.pack_start(self.control, False)
 
         self.rn_vbox.pack_start(self.rn_hbox, True, True)
@@ -144,6 +162,9 @@ class TopologyPage(HIGVBox):
         self.pack_start(self.rn_toolbar, False, False)
         self.pack_start(self.rn_vbox, True, True)
 
+        self.display_panel.pack_start(self.slow_vbox, True, False)
+        self.display_panel.pack_start(self.radialnet, True, True)
+
     def add_scan(self, scan):
         """Parses a given XML file and adds the parsed result to the network inventory."""
         self.network_inventory.add_scan(scan)
@@ -151,7 +172,29 @@ class TopologyPage(HIGVBox):
 
     def update_radialnet(self):
         """Creates a graph from network inventory's host list and displays it."""
-        graph = make_graph_from_hosts(self.network_inventory.get_hosts_up())
+        hosts_up = self.network_inventory.get_hosts_up()
+
+        self.slow_label.set_text(_("""\
+Topology is disabled because too many hosts can cause it
+to run slowly. The limit is %d hosts and there are %d.\
+""" % (SLOW_LIMIT, len(hosts_up))))
+
+        if len(hosts_up) <= SLOW_LIMIT:
+            self.radialnet.show()
+            self.slow_vbox.hide()
+            self.update_radialnet_unchecked()
+        else:
+            self.radialnet.hide()
+            self.slow_vbox.show()
+
+    def update_radialnet_unchecked(self):
+        hosts_up = self.network_inventory.get_hosts_up()
+        graph = make_graph_from_hosts(hosts_up)
         self.radialnet.set_empty()
         self.radialnet.set_graph(graph)
         self.radialnet.show()
+
+    def show_anyway(self, widget):
+        self.radialnet.show()
+        self.slow_vbox.hide()
+        self.update_radialnet_unchecked()
