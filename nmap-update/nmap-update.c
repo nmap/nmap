@@ -803,6 +803,11 @@ static svn_error_t *checkout_svn(const char *url, const char *path)
 	if (err != NULL)
 		fatal_err_svn(err);
 
+	/* The creation of this directory is needed to cache credentials. */
+	err = svn_config_ensure(NULL, pool);
+	if (err != NULL)
+		fatal_err_svn(err);
+
 	err = svn_config_get_config(&ctx->config, NULL, pool);
 	if (err != NULL)
 		fatal_err_svn(err);
