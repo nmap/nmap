@@ -1539,8 +1539,10 @@ static struct dnet_collector_route_nfo *sysroutes_dnet_find_interfaces(struct dn
 
       strncpy(destbuf, inet_ntop_ez(&dcrn->routes[i].dest, sizeof(dcrn->routes[i].dest)), sizeof(destbuf));
       strncpy(gwbuf, inet_ntop_ez(&dcrn->routes[i].gw, sizeof(dcrn->routes[i].gw)), sizeof(gwbuf));
+      /*
       netutil_error("WARNING: Unable to find appropriate interface for system route to %s/%u gw %s",
         destbuf, dcrn->routes[i].netmask_bits, gwbuf);
+      */
       /* Remove this entry from the table. */
       memmove(dcrn->routes + i, dcrn->routes + i + 1, sizeof(dcrn->routes[0]) * (dcrn->numroutes - i - 1));
       dcrn->numroutes--;
