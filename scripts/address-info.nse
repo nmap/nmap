@@ -166,8 +166,9 @@ local function do_ipv6(addr)
 
 	output = {}
 
-	if matches(addr, "0000:0000:0000:0000:0000:0000:XXXX:XXXX") then
-		-- RFC 4291 2.5.5.1.
+	if matches(addr, "0000:0000:0000:0000:0000:0000:XXXX:XXXX")
+		and not matches(addr, "0000:0000:0000:0000:0000:0000:0000:0001") then
+		-- RFC 4291 2.5.5.1. Specifically exclude ::1 for localhost.
 		local ipv4 = { addr[13], addr[14], addr[15], addr[16] }
 		return format_output("IPv4-compatible",
 			{ "IPv4 address: " .. format_ipv4(ipv4) })
