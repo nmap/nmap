@@ -1059,7 +1059,7 @@ static int makedirs(const char *dirname)
 		return -1;
 
 	rc = makedir(dirname);
-	if (rc == 0)
+	if (rc == -1)
 		return -1;
 
 	return rc;
