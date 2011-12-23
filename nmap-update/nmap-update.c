@@ -1029,8 +1029,8 @@ static int rename_file(const char *from_filename, const char *to_filename)
 	/* Windows rename doesn't remove the destination if it exists. */
 	errno = 0;
 	rc = unlink(to_filename);
-	if (rc == 0 || errno == ENOENT)
-		return 0;
+	if (rc == -1 && errno != ENOENT)
+		return -1;
 
 	return rename(from_filename, to_filename);
 }
