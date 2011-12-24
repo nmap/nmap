@@ -87,3 +87,7 @@ djalal     - Djalal Harouni focuses on the Nmap Scripting Engine.  In
              improved the infrastructure by adding the script
              pre-scanning and post-scanning phases and the newtargets
              (adding new systems to the scan queue) functionality.
+
+martin     - Martin Holst Swende has written many great NSE scripts as
+             well as improvements to the NSE infrastructure (such as
+             the --script-help feature).
