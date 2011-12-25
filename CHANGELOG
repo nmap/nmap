@@ -1,5 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied some code cleanup to the snmp library. [Brendan Byrd]
+
 o [NSE] Fixed a bug with an undeclared variable in snmp-ios-config.nse [Patrik]
 
 o On Windows, the directory <HOME>\AppData\Roaming\nmap is now

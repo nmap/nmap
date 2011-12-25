@@ -76,82 +76,22 @@ local tagDecoder = {}
 --
 -- IP Address
 
+-- Response-PDU
+-- TOOD: Figure out how to remove these dependancies
+tagDecoder["A2"] = function( self, encStr, elen, pos )
+   local seq = {}
+ 
+   pos, seq = self:decodeSeq(encStr, elen, pos)
+   seq._snmp = "A2"
+   return pos, seq
+end
+
 tagDecoder["40"] = function( self, encStr, elen, pos )
 	local ip = {}
 	pos, ip[1], ip[2], ip[3], ip[4] = bin.unpack("C4", encStr, pos)
 	ip._snmp = '40'
 	return pos, ip
 end
-
--- Counter
-tagDecoder["41"] = function( self, encStr, elen, pos )
-	local tbl = {}
-	pos, tbl[1] = self.decodeInt(encStr, elen, pos)
-	tbl._snmp = '41'
-	return pos, tbl
-end
-
--- Gauge
-tagDecoder["42"] = function( self, encStr, elen, pos )
-	local tbl = {}
-	pos, tbl[1] = self.decodeInt(encStr, elen, pos)
-	tbl._snmp = '41'
-	return pos, tbl
-end
-
--- TimeTicks
-tagDecoder["43"] = function( self, encStr, elen, pos )
-	local tbl = {}
-	pos, tbl[1] = self.decodeInt(encStr, elen, pos)
-	tbl._snmp = '41'
-	return pos, tbl
-end
-
--- Opaque
-tagDecoder["44"] = function( self, encStr, elen, pos )
-	local tbl = {}
-	pos, tbl[1] = self.decodeInt(encStr, elen, pos)
-	tbl._snmp = '41'
-	return pos, tbl
-end
-
--- Context specific tags
---
-tagDecoder["A0"] = function( self, encStr, elen, pos )
-  local seq
-  pos, seq = self:decodeSeq(encStr, elen, pos)
-  seq._snmp = "A0"
-  return pos, seq
-end
-
-tagDecoder["A1"] = function( self, encStr, elen, pos )
-  local seq
-  pos, seq = self:decodeSeq(encStr, elen, pos)
-  seq._snmp = "A1"
-  return pos, seq
-end
-
-tagDecoder["A2"] = function( self, encStr, elen, pos )
-  local seq
-  pos, seq = self:decodeSeq(encStr, elen, pos)
-  seq._snmp = "A2"
-  return pos, seq
-end
-
-tagDecoder["A3"] = function( self, encStr, elen, pos )
-  local seq
-  pos, seq = self:decodeSeq(encStr, elen, pos)
-  seq._snmp = "A3"
-  return pos, seq
-end
-
-tagDecoder["A4"] = function( self, encStr, elen, pos )
-  local seq
-  pos, seq = self:decodeSeq(encStr, elen, pos)
-  seq._snmp = "A4"
-  return pos, seq
-end
-
 
 ---
 -- Decodes an SNMP packet or a part of it according to ASN.1 basic encoding
@@ -162,6 +102,31 @@ end
 -- @return The decoded value(s).
 function decode(encStr, pos)
 	local decoder = asn1.ASN1Decoder:new()
+	
+	if ( #tagDecoder == 0 ) then
+		decoder:registerBaseDecoders()
+		-- Application specific tags
+		-- tagDecoder["40"] = decoder.decoder["06"]  -- IP Address; same as OID
+		tagDecoder["41"] = decoder.decoder["02"]  -- Counter; same as Integer
+		tagDecoder["42"] = decoder.decoder["02"]  -- Gauge
+		tagDecoder["43"] = decoder.decoder["02"]  -- TimeTicks
+		tagDecoder["44"] = decoder.decoder["04"]  -- Opaque; same as Octet String
+		tagDecoder["45"] = decoder.decoder["06"]  -- NsapAddress
+		tagDecoder["46"] = decoder.decoder["02"]  -- Counter64
+		tagDecoder["47"] = decoder.decoder["02"]  -- UInteger32
+
+		-- Context specific tags
+		tagDecoder["A0"] = decoder.decoder["30"]  -- GetRequest-PDU
+		tagDecoder["A1"] = decoder.decoder["30"]  -- GetNextRequest-PDU
+		--tagDecoder["A2"] = decoder.decoder["30"]  -- Response-PDU
+		tagDecoder["A3"] = decoder.decoder["30"]  -- SetRequest-PDU
+		tagDecoder["A4"] = decoder.decoder["30"]  -- Trap-PDU
+		tagDecoder["A5"] = decoder.decoder["30"]  -- GetBulkRequest-PDU
+		tagDecoder["A6"] = decoder.decoder["30"]  -- InformRequest-PDU (not implemented here yet)
+		tagDecoder["A7"] = decoder.decoder["30"]  -- SNMPv2-Trap-PDU (not implemented here yet)
+	end
+	
+	
 	decoder:registerTagDecoders( tagDecoder )
 
    return decoder:decode( encStr, pos )
