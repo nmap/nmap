@@ -89,7 +89,7 @@ action = function(host, port)
 	-- build a SNMP v1 packet
 	-- set value: .1.3.6.1.4.1.9.9.96.1.1.1.1.2.9999 (ConfigCopyProtocol is set to TFTP [1] )
 
-	request = sendrequest(socket, ".1.3.6.1.4.1.9.9.96.1.1.1.1.2.9999",1)
+	local request = sendrequest(socket, ".1.3.6.1.4.1.9.9.96.1.1.1.1.2.9999",1)
 
 	-- Fail silently if the first request doesn't get a proper response
 	if ( not(request) ) then return	end
