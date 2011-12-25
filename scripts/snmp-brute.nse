@@ -7,11 +7,12 @@ while the pcap socket sniffs the network for an answer to the probes. If
 valid community strings are found, they are added to the creds database and
 reported in the output.
 
-The default wordlists used to bruteforce the SNMP community strings are 
-<code>nselib/data/snmpcommunities.lst</code> and 
-<code>nselib/data/passwords.lst</code>. If the <code>passdb</code> or 
-<code>snmplist</code> argument is specified, that one is used as the wordlist.
-The <code>passdb</code> argument has precedence over <code>snmplist</code>.
+The script takes the <code>snmp-brute.communitiesdb</code> argument that
+allows the user to define the file that contains the community strings to
+be used. If not defined, the default wordlist used to bruteforce the SNMP
+community strings is <code>nselib/data/snmpcommunities.lst</code>. In case
+this wordlist does not exist, the script falls back to
+<code>nselib/data/passwords.lst</code>
 
 No output is reported if no valid account is found.
 ]]
@@ -22,11 +23,9 @@ No output is reported if no valid account is found.
 
 ---
 -- @usage
--- nmap -sU --script snmp-brute <target> [--script-args [ passdb=<wordlist> | snmplist=<wordlist> ]]
+-- nmap -sU --script snmp-brute <target> [--script-args snmp-brute.communitiesdb=<wordlist> ]
 --
--- @args snmpcommunity The SNMP community string to use. If it's supplied, this
--- script will not run.
--- @args snmplist The filename of a list of community strings to try.
+-- @args snmp-brute.communitiesdb The filename of a list of community strings to try.
 --
 -- @output
 -- PORT    STATE SERVICE
@@ -50,7 +49,13 @@ require "packet"
 
 portrule = shortport.portnumber(161, "udp", {"open", "open|filtered"})
 
+local communitiestable = {}
+
 local filltable = function(filename, table)
+	if #table ~= 0 then
+		return true
+	end
+
 	local file = io.open(filename, "r")
 
 	if not file then
@@ -68,69 +73,64 @@ local filltable = function(filename, table)
 
 	return true
 end
+ 
+local closure = function(table)
+	local i = 1
 
-local communities_iterator = function()
-	local function next_community()
-		local snmplist = stdnse.get_script_args("snmplist")
-		local passdb = stdnse.get_script_args("passdb")
-		if passdb then
-			local communities = {}
-			local filename = nmap.fetchfile(passdb)
-			
-			if not filltable(filename, communities) then
-				stdnse.print_debug("Cannot open snmplist file")
-				return
-			end
-			
-			for _, c in ipairs(communities) do
-				coroutine.yield(c)
-			end		
-		elseif snmplist then
-			local communities = {}
-			local filename = nmap.fetchfile(snmplist)
-			
-			if not filltable(filename, communities) then
-				stdnse.print_debug("Cannot open snmplist file")
-				return
-			end
-			
-			for _, c in ipairs(communities) do
-				coroutine.yield(c)
-			end	
-		else
-			local communities = {}
-			local filename = nmap.fetchfile("nselib/data/snmpcommunities.lst")	
-			if not filltable(filename, communities) then
-				stdnse.print_debug("Cannot open snmp communities file.")
-				return
-			end
-
-			for _, c in ipairs(communities) do
-				coroutine.yield(c)
-			end
-
-			local try = nmap.new_try()
-			passwords = try(unpwdb.passwords())
-			for p in passwords do
-				coroutine.yield(p)
-			end
+	return function(cmd)
+		if cmd == "reset" then
+			i = 1
+			return
 		end
-		
-		while(true) do coroutine.yield(nil, nil) end
+		local elem = table[i]
+		if elem then i = i + 1 end
+		return elem
 	end
-	return coroutine.wrap(next_community)
+end
+
+local communities_raw = function(path)
+	if not path then
+		return false, "Cannot find communities list"
+	end
+
+	if not filltable(path, communitiestable) then
+		return false, "Error parsing communities list"
+	end
+
+	return true, closure(communitiestable)
 end
 
 local communities = function()
-	local time_limit = unpwdb.timelimit() 
-	local count_limit = 0 
-	if stdnse.get_script_args("unpwdb.passlimit") then
-		count_limit = tonumber(stdnse.get_script_args("unpwdb.passlimit"))
+	local communities_file = stdnse.get_script_args('snmp-brute.communitiesdb') or
+			nmap.fetchfile("nselib/data/snmpcommunities.lst")
+
+	if communities_file then
+		stdnse.print_debug(1, "%s: Using the %s as the communities file",
+				SCRIPT_NAME, communities_file)
+
+		local status, iterator = communities_raw(communities_file)
+
+		if not status then
+			return false, iterator
+		end
+
+		local time_limit = unpwdb.timelimit()
+		local count_limit = 0
+
+		if stdnse.get_script_args("unpwdb.passlimit") then
+			count_limit = tonumber(stdnse.get_script_args("unpwdb.passlimit"))
+		end
+
+		return true, unpwdb.limited_iterator(iterator, time_limit, count_limit)
+	else
+		stdnse.print_debug(1, "%s: Cannot read the communities file, using the nmap username/password database instead",
+				SCRIPT_NAME)
+
+		return unpwdb.passwords()
 	end
-	return unpwdb.limited_iterator(communities_iterator, time_limit, count_limit)
 end
 
-local send_snmp_queries = function(host, port, result)
+local send_snmp_queries = function(host, port, result, nextcommunity)
 	local condvar = nmap.condvar(result)
 
 	local socket = nmap.new_socket("udp")
@@ -139,15 +139,15 @@ local send_snmp_queries = function(host, port, result)
 	local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")
 
 	local payload, status, response
-	local comm_iter = communities()
-	for community_string in comm_iter() do	
-		
+	local community = nextcommunity()
+
+	while community do
 		if result.status == false then
 			--in case the sniff_snmp_responses thread was shut down
 			condvar("signal")
 			return
 		end
-		payload = snmp.encode(snmp.buildPacket(request, 0, community_string))
+		payload = snmp.encode(snmp.buildPacket(request, 0, community))
 		status, err = socket:sendto(host, port, payload)
 		if not status then
 			result.status = false
@@ -155,6 +155,8 @@ local send_snmp_queries = function(host, port, result)
 			condvar "signal"
 			return
 		end
+
+		community = nextcommunity()
 	end
 
 	socket:close()
@@ -217,7 +219,11 @@ local sniff_snmp_responses = function(host, port, result)
 end
 
 action = function(host, port)
-	if nmap.registry.snmpcommunity or nmap.registry.args.snmpcommunity then return end
+	local status, nextcommunity = communities()
+
+	if not status then
+		return "\n  ERROR: Failed to read the communities database"
+	end
 
 	local result = {}
 	local threads = {}
@@ -229,9 +235,8 @@ action = function(host, port)
 	result.msg = "" -- Error/Status msg
 	result.status = true -- Status (is everything ok) 
 
-
 	local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, result)
-	local send_co = stdnse.new_thread(send_snmp_queries, host, port, result)
+	local send_co = stdnse.new_thread(send_snmp_queries, host, port, result, nextcommunity)
 	
 	local recv_dead, send_dead
 	while true do 

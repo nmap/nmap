@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch to snmp-brute that solves problems with handling errors
+  that occur when parsing files with community lists. [Duarte Silva]
+
 o [NSE] Applied patch to http-fingerprints adding support for identifying DCVS
   systems Git, Mercurial and Bazaar. [Hani Benhabiles]
 
