@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Applied patch to http-fingerprints adding support for identifying DCVS
+  systems Git, Mercurial and Bazaar. [Hani Benhabiles]
+
 o [NSE] Applied some code cleanup to the snmp library. [Brendan Byrd]
 
 o [NSE] Fixed a bug with an undeclared variable in snmp-ios-config.nse [Patrik]

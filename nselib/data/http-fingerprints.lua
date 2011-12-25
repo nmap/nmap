@@ -959,6 +959,16 @@ table.insert(fingerprints, {
 table.insert(fingerprints, {
 	category='general',
 	probes={
+	{path='/clientaccesspolicy.xml', method='HEAD'},
+	},
+	matches= {
+		{output='Microsoft Silverlight crossdomain policy'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='general',
+	probes={
 		{path='/atom/', method='HEAD'},
 		{path='/atom.aspx', method='HEAD'},
 		{path='/atom.php', method='HEAD'},
@@ -2707,6 +2717,36 @@ table.insert(fingerprints, {
 	},
 	matches= {
 		{match='200', output='Subversion folder'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='attacks',
+	probes={
+	{path='/.git/HEAD', method='GET'},
+	},
+	matches= {
+		{match='ref: refs', output='Git folder'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='attacks',
+	probes={
+	{path='/.hg/requires', method='GET'},
+	},
+	matches= {
+		{match='revlogv1', output='Mercurial folder'}
+	}
+})
+
+table.insert(fingerprints, {
+	category='attacks',
+	probes={
+	{path='/.bzr/README', method='GET'},
+	},
+	matches= {
+		{match='This is a Bazaar', output='Bazaar folder'}
 	}
 })
 
