@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script dns-blacklist that performs DNSBL checks of given or
+  scanned IP addresses against multiple DNSBL services. [Patrik]
+
 o [NSE] Applied patch to snmp-brute that solves problems with handling errors
   that occur when parsing files with community lists. [Duarte Silva]
 
