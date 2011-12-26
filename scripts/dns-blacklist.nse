@@ -16,12 +16,12 @@ Checks may be limited by service category (eg: SPAM, PROXY) or to a specific ser
 -- |   PROXY
 -- |     dnsbl.ahbl.org - PROXY
 -- |     dnsbl.tornevall.org - PROXY
--- |       - IP marked as "abusive host".
--- |       - Proxy is working
--- |       - Proxy has been scanned
+-- |       IP marked as "abusive host".
+-- |       Proxy is working
+-- |       Proxy has been scanned
 -- |   SPAM
 -- |     dnsbl.inps.de - SPAM
--- |       - Spam Received See: http://www.sorbs.net/lookup.shtml?1.2.3.4
+-- |       Spam Received See: http://www.sorbs.net/lookup.shtml?1.2.3.4
 -- |     l2.apews.org - SPAM
 -- |     list.quorum.to - SPAM
 -- |     bl.spamcop.net - SPAM
