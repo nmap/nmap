@@ -144,7 +144,7 @@ action = function(...)
 		return "\n  ERROR: Invalid argument supplied, mode should be either 'short' or 'long'"
 	end
 	
-	if ( not(ipOps.todword(arg_IP)) ) then
+	if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
 		return "\n  ERROR: Invalid IP address was supplied"
 	end
 
