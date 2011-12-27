@@ -26,6 +26,8 @@ Checks may be limited by service category (eg: SPAM, PROXY) or to a specific ser
 -- |     list.quorum.to - SPAM
 -- |     bl.spamcop.net - SPAM
 -- |_    spam.dnsbl.sorbs.net - SPAM
+--
+-- Supported blacklist list mode (--script-arg dns-blacklist.list):
 -- | dns-blacklist: 
 -- |   PROXY
 -- |     dnsbl.ahbl.org
