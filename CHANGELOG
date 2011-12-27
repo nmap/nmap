@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request to query
+  dhcp servers instead of DHCPDISCOVER. Cleaned up some code in the DHCP
+  library. [Patrik]
+
 o [NSE] Added script dns-blacklist that performs DNSBL checks of given or
   scanned IP addresses against multiple DNSBL services. [Patrik]
 

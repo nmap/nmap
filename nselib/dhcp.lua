@@ -359,44 +359,33 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	local result
 	local results = {}
 
-
-	local bind_socket = nmap.new_socket("udp")
-	bind_socket:bind(nil, 68)
-	bind_socket:set_timeout(5000)
-	stdnse.print_debug(1, "dhcp: Starting listener")
-
 	-- Create the UDP socket (TODO: enable SO_BROADCAST if we need to)
-	socket = nmap.new_socket()
-	status, err = socket:connect(host, 67, "udp")
+	socket = nmap.new_socket("udp")
+	socket:bind(nil, 68)
+	socket:set_timeout(5000)
+	-- status, err = socket:connect(host, 67, "udp")
 	if(status == false) then
 		return false, "Couldn't create socket: " .. err
 	end
 	stdnse.print_debug(1, "dhcp: Created UDP socket")
 
 	-- Send out the packet
-	socket:send(packet)
+	socket:sendto(host, { number=67, protocol="udp" }, packet)
 
 	-- Read the response
-	local status, data = bind_socket:receive()
+	local status, data = socket:receive()
+	if ( not(status) ) then
+		return false, data
+	end
+
 	-- This pulls back 4 bytes in the packet that correspond to the transaction id. This should be randomly
 	-- generated and different for every instance of a script (to prevent collisions)
-		while status and data:sub(5, 8) ~= transaction_id do
-			local status, data = bind_socket:receive()
-		end
-	if(status == false) then
-		stdnse.print_debug(1, "dhcp: Error calling bind_socket:receive(): %s", err)
-		return false, "Error calling bind_socket:receive(): " .. err
+	while status and data:sub(5, 8) ~= transaction_id do
+		local status, data = socket:receive()
 	end
-
-	-- If no data was captured (ie, a timeout), return an error
-	if(data == nil) then
-		stdnse.print_debug(1, "dhcp: Error calling pcap_receive(): TIMEOUT")
-		return false, "TIMEOUT"
-	end
-
+	
 	-- Close our sockets
 	socket:close()
-	bind_socket:close()
 
 	-- Finally, return the data
 	return true, data
@@ -625,7 +614,7 @@ function make_request(target, interface, request_type, ip_address, mac_address, 
 	local status, response = dhcp_send(interface, target, packet, transaction_id)
 	if(not(status)) then
 		stdnse.print_debug(1, "dhcp: Couldn't send packet: " .. response)
-		return false, "Couldn't send packet: "  .. response
+		return false, "Couldn't send/receive packet: "  .. response
 	end
 
 	-- Parse the response
