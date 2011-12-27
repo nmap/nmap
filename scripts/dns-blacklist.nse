@@ -27,6 +27,25 @@ Checks may be limited by service category (eg: SPAM, PROXY) or to a specific ser
 -- |     bl.spamcop.net - SPAM
 -- |_    spam.dnsbl.sorbs.net - SPAM
 --
+-- @output
+-- | dns-blacklist: 
+-- |   PROXY
+-- |     dnsbl.ahbl.org
+-- |     socks.dnsbl.sorbs.net
+-- |     http.dnsbl.sorbs.net
+-- |     misc.dnsbl.sorbs.net
+-- |     dnsbl.tornevall.org
+-- |   SPAM
+-- |     dnsbl.ahbl.org
+-- |     dnsbl.inps.de
+-- |     bl.nszones.com
+-- |     l2.apews.org
+-- |     list.quorum.to
+-- |     all.spamrats.com
+-- |     bl.spamcop.net
+-- |     spam.dnsbl.sorbs.net
+-- |_    sbl.spamhaus.org
+--
 -- @args dns-blacklist.ip string containing the IP to check only needed if
 --       running the script as a prerule.
 
