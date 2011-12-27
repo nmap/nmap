@@ -93,12 +93,7 @@ local function formatResult(result)
 end
 
 dnsblAction = function(host)
-	
-	-- if the list argument was given, just list the services and abort
-	if ( arg_list ) then
-		return listServices()
-	end
-	
+		
 	local helper
 	if ( arg_services and ( not(arg_category) or "all" == arg_category:lower() ) ) then
 		return "\n  ERROR: A service filter can't be used without a specific category"
@@ -147,7 +142,12 @@ action = function(...)
 	if ( arg_IP and not(ipOps.todword(arg_IP)) ) then
 		return "\n  ERROR: Invalid IP address was supplied"
 	end
-
+	
+	-- if the list argument was given, just list the services and abort
+	if ( arg_list ) then
+		return listServices()
+	end
+	
 	if ( arg_IP and "prerule" == SCRIPT_TYPE ) then
 		return dnsblAction( { ip = arg_IP } )
 	elseif ( "hostrule" == SCRIPT_TYPE ) then
