@@ -67,7 +67,7 @@ action = function(host, port)
 	local data = bin.pack("H", "FFFD26FFFB26")
 	local result
 
-	socket:set_timeout(10000)
+	socket:set_timeout(7500)
 	status, result = socket:send(data)
 	if ( not(status) ) then
 		return ("\n  ERROR: Failed to send packet: %s"):format(result)
