@@ -125,7 +125,7 @@ local function go(host, port)
 			return false, "Couldn't determine local ip for interface: " .. host.interface
 		end
 		
-		local status, result = dhcp.make_request(host.ip, host.interface, request_type, iface.address, mac_addr)
+		local status, result = dhcp.make_request(host.ip, request_type, iface.address, mac_addr)
 		if( not(status) ) then
 			stdnse.print_debug(1, "dhcp-discover: Couldn't send DHCP request: %s", result)
 			return false, result

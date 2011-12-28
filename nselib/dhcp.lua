@@ -351,19 +351,17 @@ actions[58] = {name="Renewal Time Value",              func=read_time,          
 actions[59] = {name="Rebinding Time Value",            func=read_time,           default=false}
 actions[60] = {name="Class Identifier",                func=read_string,         default=false}
 actions[61] = {name="Client Identifier (client)",      func=read_string,         default=false}
+actions[252]= {name="WPAD",                            func=read_string,         default=false}
 
 --- Does the send/receive, doesn't build/parse anything. 
-local function dhcp_send(interface, host, packet, transaction_id)
+local function dhcp_send(host, packet, transaction_id)
 	local socket
 	local status, err, data
-	local result
-	local results = {}
 
-	-- Create the UDP socket (TODO: enable SO_BROADCAST if we need to)
 	socket = nmap.new_socket("udp")
 	socket:bind(nil, 68)
 	socket:set_timeout(5000)
-	-- status, err = socket:connect(host, 67, "udp")
+
 	if(status == false) then
 		return false, "Couldn't create socket: " .. err
 	end
@@ -375,6 +373,7 @@ local function dhcp_send(interface, host, packet, transaction_id)
 	-- Read the response
 	local status, data = socket:receive()
 	if ( not(status) ) then
+		socket:close()
 		return false, data
 	end
 
@@ -599,7 +598,7 @@ end
 --@param lease_time      [optional] The lease time used when requestint an IP. Default: 1 second. 
 --@return status (true or false)
 --@return The parsed response, as a table. 
-function make_request(target, interface, request_type, ip_address, mac_address, request_options, overrides, lease_time)
+function make_request(target, request_type, ip_address, mac_address, request_options, overrides, lease_time)
 	-- A unique id that identifies this particular session (and lets us filter out what we don't want to see)
 	local transaction_id = bin.pack("<I", math.random(0, 0x7FFFFFFF))
 
@@ -611,7 +610,7 @@ function make_request(target, interface, request_type, ip_address, mac_address, 
 	end
 
 	-- Send the packet and get the response
-	local status, response = dhcp_send(interface, target, packet, transaction_id)
+	local status, response = dhcp_send(target, packet, transaction_id)
 	if(not(status)) then
 		stdnse.print_debug(1, "dhcp: Couldn't send packet: " .. response)
 		return false, "Couldn't send/receive packet: "  .. response
