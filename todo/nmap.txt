@@ -27,6 +27,10 @@ o Clean up the Nmap repo to remove some bloat we've allowed to creep
     require installing so many other packages first.
   - Remove the 5MB of XSL in nping/docs/xsl
 
+o Maybe we should add an analysis or reporting or intelligence (or
+  different name) for our NSE scripts which don't send any packets, but
+  simply analyze Nmap's existing data and report when useful.
+
 o Decide what to do with Henri's nsock-engines branch
   (/nmap-exp/henri/nsock-engines).
 
