@@ -47,7 +47,7 @@ require 'packet'
 --
 -- @return mac_addr string containing a random MAC
 local function randomizeMAC()
-	mac_addr = ""
+	local mac_addr = ""
 	for j=1, 6 do
 		mac_addr = mac_addr .. string.char(math.random(1, 255))
 	end	
