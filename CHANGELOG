@@ -1,5 +1,11 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added a telnet-encryption script which detects if a remote
+  telnet server supports the (weak) encryption option.  This is
+  particularly interesting due to a remotely exploitable root
+  vulnerability just discovered in FreeBSD's telnetd
+  (FreeBSD-SA-11:08.telnetd). [Patrik, David, Fyodor]
+
 o [NSE] Changed the dhcp-discover script to use the DHCPINFORM request to query
   dhcp servers instead of DHCPDISCOVER. Cleaned up some code in the DHCP
   library. [Patrik]
