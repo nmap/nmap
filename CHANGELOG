@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Removed DoS code from dhcp-discover and placed it into the discover and
+  safe categories. Added support for adding options to DHCP requests in the
+  dhcp library. [Patrik]
+
 o [NSE] Added a telnet-encryption script which detects if a remote
   telnet server supports the (weak) encryption option.  This is
   particularly interesting due to a remotely exploitable root

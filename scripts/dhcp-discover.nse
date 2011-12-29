@@ -22,7 +22,7 @@ Some of the more useful fields:
 ]]
 
 ---
--- @args dhcptype The type of DHCP request to make. By default,  DHCPDISCOVER is sent, but this
+-- @args dhcptype The type of DHCP request to make. By default,  DHCPINFORM is sent, but this
 --                argument can change it to DHCPOFFER,  DHCPREQUEST, DHCPDECLINE, DHCPACK, DHCPNAK, 
 --                DHCPRELEASE or DHCPINFORM. Not all types will evoke a response from all servers,
 --                and many require different fields to contain specific values. 
@@ -30,17 +30,13 @@ Some of the more useful fields:
 --                the request (keep in mind that you may  not see the response). This should 
 --                cause the router to reserve a new  IP address each time.
 -- @args requests Set to an integer to make up to  that many requests (and display the results). 
--- @args fake_requests Set to an integer to make that many fake requests  before the real one(s).
---                This could be useful, for example, if you  also use <code>randomize_mac</code>
---                and you want to try exhausting  all addresses. 
 --
 -- @output
 -- Interesting ports on 192.168.1.1:
 -- PORT   STATE SERVICE
 -- 67/udp open  dhcps
 -- |  dhcp-discover:
--- |  |  IP Offered: 192.168.1.101
--- |  |  DHCP Message Type: DHCPOFFER
+-- |  |  DHCP Message Type: DHCPACK
 -- |  |  Server Identifier: 192.168.1.1
 -- |  |  IP Address Lease Time: 1 day, 0:00:00
 -- |  |  Subnet Mask: 255.255.255.0
@@ -48,16 +44,24 @@ Some of the more useful fields:
 -- |_ |_ Domain Name Server: 208.81.7.10, 208.81.7.14
 -- 
 
+--
+-- 2011-12-28 - Revised by Patrik Karlsson <patrik@cqure.net>
+--   o Removed DoS code and placed script into discovery and safe categories
+--
+-- 2011-12-27 - Revised by Patrik Karlsson <patrik@cqure.net>
+--   o Changed script to use DHCPINFORM instead of DHCPDISCOVER
+--
+
+
 author = "Ron Bowes"
 
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 
-categories = {"discovery", "intrusive"}
+categories = {"discovery", "safe"}
 
 require 'bin'
 require 'bit'
 require 'dhcp'
-require 'ipOps'
 require 'shortport'
 require 'stdnse'
 
@@ -73,34 +77,7 @@ end
 
 local function go(host, port)
 
-	-- Create fake requests if the user asked to. These are fired and forgotten, we ignore the responses. 
-	if(nmap.registry.args.fake_requests) then
-		for i=1, tonumber(nmap.registry.args.fake_requests), 1 do
-			-- Build and send a DHCP request using the specified request type, or DHCPDISCOVER
-			local request_type = dhcp.request_types[nmap.registry.args.dhcptype or "DHCPDISCOVER"]
-			if(request_type == nil) then
-				return false, "Valid request types: " .. stdnse.strjoin(", ", dhcp.request_types_str)
-			end
-
-			-- Generate the MAC address, if it's random (TODO: if I can enumerate interfaces, I should fall back to that instead)
-			local mac_addr = host.mac_addr_src
-			if(nmap.registry.args.randomize_mac == 'true' or nmap.registry.args.randomize_mac == '1') then
-				stdnse.print_debug(2, "dhcp-discover: Generating a random MAC address")
-				mac_addr = ""
-				for j=1, 6, 1 do
-					mac_addr = mac_addr .. string.char(math.random(1, 255))
-				end
-			end
-
-			local status, result = dhcp.make_request(host.ip, host.interface, request_type, "0.0.0.0", mac_addr)
-			if(status == false) then
-				stdnse.print_debug(1, "dhcp-discover: Couldn't send DHCP request: %s", result)
-				return false, "Couldn't send DHCP request: " .. result
-			end
-		end
-	end
-
-	-- Build and send a DHCP request using the specified request type, or DHCPDISCOVER
+	-- Build and send a DHCP request using the specified request type, or DHCPINFORM
 	local requests = tonumber(nmap.registry.args.requests or 1)
 	local results = {}
 	for i = 1, requests, 1 do
@@ -142,11 +119,11 @@ action = function(host, port)
 	local status, results = go(host, port)
 
 
-	if(status == false) then
+	if(not(status)) then
 		return stdnse.format_output(false, results)
 	end
 
-	if(results == nil) then
+	if(not(results)) then
 		return nil
 	end
 
