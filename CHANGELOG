@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added script broadcast-wpad-discover which detects proxy servers on the
+  network by using the Web Proxy Auto Discover Protocol (WPAD). [Patrik]
+
 o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
   prevent multiple scripts from receiving the correct responses. The bug was
   discovered by Brendan Bird. [Patrik]

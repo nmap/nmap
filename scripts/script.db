@@ -31,6 +31,7 @@ Entry { filename = "broadcast-rip-discover.nse", categories = { "broadcast", "sa
 Entry { filename = "broadcast-sybase-asa-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-upnp-info.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wake-on-lan.nse", categories = { "broadcast", "safe", } }
+Entry { filename = "broadcast-wpad-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "broadcast-wsdd-discover.nse", categories = { "broadcast", "safe", } }
 Entry { filename = "citrix-brute-xml.nse", categories = { "auth", "intrusive", } }
 Entry { filename = "citrix-enum-apps-xml.nse", categories = { "discovery", "safe", } }
