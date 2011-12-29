@@ -1,5 +1,5 @@
 description = [[
-Checks if a JBoss target is vulnerable to jmx console authentication bypass.
+Checks whether a JBoss target is vulnerable to jmx console authentication bypass (CVE-2010-0738).
 
 It works by checking if the target paths require authentication or redirect to a login page that could be
 bypassed via a HEAD request. RFC 2616 specifies that the HEAD request should be treated exactly like GET but

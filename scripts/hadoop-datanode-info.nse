@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache Hadoop DataNode HTTP status page.
+Discovers information such as log directories from an Apache Hadoop DataNode HTTP status page.
 
 Information gathered:
  * Log directory (relative to http://host:port/)

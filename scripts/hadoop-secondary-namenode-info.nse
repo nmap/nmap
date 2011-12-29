@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache Hadoop secondary NameNode HTTP status page.
+Retrieves information from an Apache Hadoop secondary NameNode HTTP status page.
 
 Information gathered:
  * Date/time the service was started

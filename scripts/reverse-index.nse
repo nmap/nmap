@@ -1,6 +1,5 @@
 description = [[
-This script creates a reverse index showing which hosts run a particular
-service rather than just listing the services on each host.
+Creates a reverse index at the end of scan output showing which hosts run a particular service.  This is in addition to Nmap's normal output listing the services on each host.
 ]]
 
 ---

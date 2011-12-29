@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache Hadoop TaskTracker HTTP status page.
+Retrieves information from an Apache Hadoop TaskTracker HTTP status page.
 
 Information gathered:
  * Hadoop version

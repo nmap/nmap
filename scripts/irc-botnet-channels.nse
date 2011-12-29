@@ -1,5 +1,5 @@
 description = [[
-Checks an IRC server for channels that may be used by botnets.
+Checks an IRC server for channels that are commonly used by malicious botnets.
 
 Control the list of channel names with the <code>irc-botnet-channels.channels</code>
 script argument. The default list of channels is

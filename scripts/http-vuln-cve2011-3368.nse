@@ -1,9 +1,12 @@
 description = [[
-Check against CVE-2011-3368 "Reverse Proxy Bypass", as described by http://www.contextis.com/research/blog/reverseproxybypass/
+Checks for the CVE-2011-3368 (Reverse Proxy Bypass) vulnerability in Apache HTTP server's reverse proxy mode.
 The script will run 3 tests:
  o the loopback test, with 3 payloads to handle different rewrite rules
  o the internal hosts test. According to Contextis, we expect a delay before a server error.
  o The external website test. This does not mean that you can reach a LAN ip, but this is a relevant issue anyway.
+
+References:
+ * http://www.contextis.com/research/blog/reverseproxybypass/
 ]]
 
 ---

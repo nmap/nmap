@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache HBase master HTTP status page.
+Retrieves information from an Apache HBase (Hadoop database) master HTTP status page.
 
 Information gathered:
  * Hbase version

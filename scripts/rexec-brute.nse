@@ -1,5 +1,5 @@
 description=[[
-Performs password guessing against the rexec service.
+Performs brute force password auditing against the classic UNIX rexec (remote exec) service.
 ]]
 
 ---

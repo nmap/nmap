@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache HBase region server HTTP status page.
+Retrieves information from an Apache HBase (Hadoop database) region server HTTP status page.
 
 Information gathered:
  * HBase version

@@ -1,5 +1,5 @@
 description = [[
-Gets information from an Apache Hadoop JobTracker HTTP status page.
+Retrieves information from an Apache Hadoop JobTracker HTTP status page.
 
 Information gathered:
  * State of the JobTracker.

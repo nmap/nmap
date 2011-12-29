@@ -1,6 +1,5 @@
 description=[[
-Performs password guessing against the rlogin service
-The script needs to be run in privileged mode.
+Performs brute force password auditing against the classic UNIX rlogin (remote login) service.  This script must be run in privileged mode on UNIX because it must bind to a low source port number.
 ]]
 
 ---
