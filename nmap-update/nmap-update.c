@@ -663,8 +663,10 @@ Usage: %s [-d INSTALL_DIR] [CHANNEL...]\n\
 Updates system-independent Nmap files. By default the new files are installed to\n\
 %s. Each CHANNEL is a version number like \"" DEFAULT_CHANNEL "\".\n\
 \n\
-  -d DIR      install files to DIR (default %s).\n\
-  -h, --help  show this help.\n\
+  -d DIR               install files to DIR (default %s).\n\
+  -h, --help           show this help.\n\
+  --username USERNAME  use this username.\n\
+  --password PASSWORE  use this password.\n\
 ", program_name, get_install_dir(), get_install_dir());
 }
 
@@ -696,12 +698,15 @@ static void summarize_options(void)
 
 const struct option LONG_OPTIONS[] = {
 	{ "help", no_argument, NULL, 'h' },
+	{ "username", required_argument, NULL, '?' },
+	{ "password", required_argument, NULL, '?' },
 };
 
 int main(int argc, char *argv[])
 {
 	int opt, longoptidx;
 	const char *successful_channel;
+	const char *username, *password;
 	time_t expiry_date;
 
 	internal_assert(argc > 0);
@@ -712,12 +717,19 @@ int main(int argc, char *argv[])
 	if (svn_cmdline_init(program_name, stderr) != 0)
 		internal_error("svn_cmdline_init");
 
+	username = NULL;
+	password = NULL;
+
 	while ((opt = getopt_long(argc, argv, "d:h", LONG_OPTIONS, &longoptidx)) != -1) {
 		if (opt == 'd') {
 			options.install_dir = optarg;
 		} else if (opt == 'h') {
 			usage(stdout);
 			exit(0);
+		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "username")) {
+			username = optarg;
+		} else if (opt == '?' && streq(LONG_OPTIONS[longoptidx].name, "password")) {
+			password = optarg;
 		} else {
 			usage_error();
 		}
@@ -735,6 +747,16 @@ int main(int argc, char *argv[])
 		summarize_options();
 
 	read_config_file(options.conf_filename);
+
+	/* Possibly override configuration file. */
+	if (username != NULL) {
+		free(options.username);
+		options.username = safe_strdup(username);
+	}
+	if (password != NULL) {
+		free(options.password);
+		options.password = safe_strdup(password);
+	}
 
 	successful_channel = try_channels(options.channels, options.num_channels);
 
