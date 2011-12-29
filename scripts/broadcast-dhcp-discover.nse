@@ -155,7 +155,7 @@ action = function()
 
 	-- we nead to set the flags to broadcast
 	local request_options, overrides, lease_time = nil, { flags = 0x8000 }, nil
-	local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, request_options, overrides, lease_time, transaction_id)
+	local status, packet = dhcp.dhcp_build(request_type, ip_address, mac, nil, request_options, overrides, lease_time, transaction_id)
 	if (not(status)) then return "\n  ERROR: Failed to build packet" end
 
 	local socket = nmap.new_socket("udp")
