@@ -20,6 +20,9 @@ No output is reported if no valid account is found.
 -- 2011-07-17 Gorjan Petrovski, Patrik Karlsson, optimization and creds 
 --            accounts, rejected use of the brute library because of 
 --            implementation using unconnected sockets.
+-- 2011-12-29 Patrik Karlsson - Added lport to sniff_snmp_responses to fix
+--                              bug preventing multiple scripts from working
+--                              properly.
 
 ---
 -- @usage
@@ -130,11 +133,8 @@ local communities = function()
 	end
 end
 
-local send_snmp_queries = function(host, port, result, nextcommunity)
+local send_snmp_queries = function(socket, result, nextcommunity)
 	local condvar = nmap.condvar(result)
-
-	local socket = nmap.new_socket("udp")
-	--socket:set_timeout(host.times.timeout*1000)
 
 	local request = snmp.buildGetRequest({}, "1.3.6.1.2.1.1.3.0")
 
@@ -148,7 +148,7 @@ local send_snmp_queries = function(host, port, result, nextcommunity)
 			return
 		end
 		payload = snmp.encode(snmp.buildPacket(request, 0, community))
-		status, err = socket:sendto(host, port, payload)
+		status, err = socket:send(payload)
 		if not status then
 			result.status = false
 			result.msg = "Could not send SNMP probe"
@@ -159,19 +159,18 @@ local send_snmp_queries = function(host, port, result, nextcommunity)
 		community = nextcommunity()
 	end
 
-	socket:close()
 	result.sent = true
 	condvar("signal")
 end
 
-local sniff_snmp_responses = function(host, port, result)
+local sniff_snmp_responses = function(host, port, lport, result)
 	local condvar = nmap.condvar(result)
 	
 	local pcap = nmap.new_socket()
 	pcap:set_timeout(host.times.timeout * 1000 * 3)
 	local ip = host.bin_ip_src
 	ip = string.format("%d.%d.%d.%d",ip:byte(1),ip:byte(2),ip:byte(3),ip:byte(4))
-	pcap:pcap_open(host.interface, 104, false,"dst host " .. ip .. " and udp and port 161")
+	pcap:pcap_open(host.interface, 104, false,"dst host " .. ip .. " and udp and src port 161 and dst port " .. lport)
 	
 	-- last_run indicated whether there will be only one more receive
 	local last_run = false
@@ -235,8 +234,20 @@ action = function(host, port)
 	result.msg = "" -- Error/Status msg
 	result.status = true -- Status (is everything ok) 
 
-	local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, result)
-	local send_co = stdnse.new_thread(send_snmp_queries, host, port, result, nextcommunity)
+	local socket = nmap.new_socket("udp")
+	status = socket:connect(host, port)
+	
+	if ( not(status) ) then
+		return "\n  ERROR: Failed to connect to server"
+	end
+	
+	local status, _, lport = socket:get_info()
+	if( not(status) ) then
+		return "\n  ERROR: Failed to retrieve local port"
+	end
+	
+	local recv_co = stdnse.new_thread(sniff_snmp_responses, host, port, lport, result)
+	local send_co = stdnse.new_thread(send_snmp_queries, socket, result, nextcommunity)
 	
 	local recv_dead, send_dead
 	while true do 
@@ -245,6 +256,8 @@ action = function(host, port)
 		send_dead = (coroutine.status(send_co) == "dead")
 		if recv_dead then break end
 	end
+
+	socket:close()
 
 	if result.status then
 		-- add the community strings to the creds database

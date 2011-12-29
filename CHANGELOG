@@ -1,5 +1,9 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o [NSE] Added local port to BPF filter in snmp-brute to fix bug that would
+  prevent multiple scripts from receiving the correct responses. The bug was
+  discovered by Brendan Bird. [Patrik]
+
 o [NSE] Removed DoS code from dhcp-discover and placed it into the discover and
   safe categories. Added support for adding options to DHCP requests in the
   dhcp library. [Patrik]
