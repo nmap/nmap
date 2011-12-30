@@ -500,7 +500,7 @@ Engine =
 							self.threads[coroutine.running()].terminate = true
 							return false 
 						end
-					until ( ( not(self.found_accounts) or not(self.found_accounts.username) ) and
+					until ( ( not(self.found_accounts) or not(self.found_accounts[username]) ) and
 						  ( self.options.max_guesses == 0 or not(self.account_guesses[username]) or 
 						    self.options.max_guesses > self.account_guesses[username] ) )
 					
