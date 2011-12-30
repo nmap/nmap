@@ -2057,7 +2057,8 @@ int nmap_main(int argc, char *argv[]) {
 /* Returns true iff this target is incompatible with the other hosts in the host
    group. This happens when:
      1. it uses a different interface, or
-     2. it has the same IP address as another target already in the group.
+     2. it uses a different source address, or
+     3. it has the same IP address as another target already in the group.
    These restrictions only apply for raw scans. This function is similar to one
    of the same name in targets.cc. That one is for ping scanning, this one is
    for port scanning. */
@@ -2075,6 +2076,10 @@ static bool target_needs_new_hostgroup(std::vector<Target *> &targets,
       strcmp(targets[0]->deviceName(), target->deviceName()) != 0) {
     return true;
   }
+
+  /* Different source address? */
+  if (sockaddr_storage_cmp(targets[0]->SourceSockAddr(), target->SourceSockAddr()) != 0)
+    return true;
 
   /* Is there already a target with this same IP address? ultra_scan doesn't
      cope with that, because it uses IP addresses to look up targets from

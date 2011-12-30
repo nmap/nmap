@@ -1,5 +1,10 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Targets requiring different source addresses now go into different
+  hostgroups, not only for host discovery but also for port scanning.
+  Before, only responses to one of the source addresses would be
+  processed, and the others would be ignored. [David]
+
 o [NSE] Added script broadcast-wpad-discover which detects proxy servers on the
   network by using the Web Proxy Auto Discover Protocol (WPAD). [Patrik]
 
