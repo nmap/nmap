@@ -54,6 +54,7 @@ author = "Sven Klemm"
 license = "Same as Nmap--See http://nmap.org/book/man-legal.html"
 categories = {"safe","default","discovery"}
 
+require("ipOps")
 require("shortport")
 require("stdnse")
 stdnse.silent_require("openssl")
@@ -151,6 +152,7 @@ local function postaction()
   -- look for hosts using the same hostkey
   for key, hosts in pairs(hostkeys) do
     if #hostkeys[key] > 1 then
+      table.sort(hostkeys[key], function(a, b) return ipOps.compare_ip(a, "lt", b) end)
       local str = 'Key ' .. key .. ' used by:'
       for _, host in ipairs(hostkeys[key]) do
         str = str .. '\n  ' .. host
