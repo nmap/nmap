@@ -1231,6 +1231,15 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
         dropped), or
      2. We get no response after a timeout (rcvdtime == NULL). */
   if (probe->tryno > 0 || rcvdtime == NULL) {
+    if (o.debugging > 1) {
+      if (probe->tryno > 0) {
+        log_write(LOG_PLAIN, "OS scan DROPPED probe to %s detected (tryno %d)\n",
+          hss->target->targetipstr(), probe->tryno);
+      } else {
+        log_write(LOG_PLAIN, "OS scan DROPPED probe to %s detected (rcvdtime == NULL)\n",
+          hss->target->targetipstr());
+      }
+    }
     if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
       hss->timing.drop(hss->numProbesActive(), &perf, &now);
     if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop))
