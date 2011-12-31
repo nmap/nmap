@@ -6890,7 +6890,7 @@ match http m|^HTTP/1\.0 \d\d\d .*Server: lighttpd/([\w._-]+).*<\?xml version=\"1
 match http m|^HTTP/1\.0 \d\d\d .*<\?xml version=\"1\.0\" encoding=\"iso-8859-1\"\?>\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1\.0 Transitional//EN\"\n         \"http://www\.w3\.org/TR/xhtml1/DTD/xhtml1-transitional\.dtd\">\n<html xmlns=\"http://www\.w3\.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n <head>\n  <title>\d\d\d - [\w ]+</title>|s p/lighttpd/
 match http m|^HTTP/1\.1 \d\d\d .*\r\nServer: Optenet Web Server\r\n| p/Optenet httpd/
 match http m|^HTTP/1\.0 200 OK\n.*Server: uClinux-httpd ([\w._-]+)\n|s p/uClinux-httpd/ v/$1/ o/Linux/ cpe:/o:linux:kernel/a
-
+match http m|^HTTP/1\.0 200 OK\r\nVary: Accept\r\nServer: MochiWeb/1\.1 WebMachine/([.\d]*) \(someone had painted it blue\)\r\n| v/$1/ p/MochiWeb/
 
 
 # No more HTTP softmatch because many services that I don't think are
@@ -10156,3 +10156,17 @@ rarity 8
 ports 6379
 match redis-server m|-ERR operation not permitted\r\n|s p/Redis key-value store/
 match redis-server m|^\$\d+\r\nredis_version:([.\d]+)\r\n|s p/Redis key-value store/ v/$1/
+
+##############################NEXT PROBE##############################
+# Memcached distributed memory object caching system
+Probe TCP memcached q|stats\r\n|
+rarity 8
+ports 11211
+match memcached m|^STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$1/
+
+##############################NEXT PROBE##############################
+# Memcached distributed memory object caching system
+Probe UDP memcached q|\0\x01\0\0\0\x01\0\0stats\r\n|
+rarity 8
+ports 11211
+match memcached m|^\0\x01\0\0\0\x01\0\0STAT pid \d+\r\nSTAT uptime \d+\r\nSTAT time \d+\r\nSTAT version ([.\d]+)\r\n|s p/Memcached/ v/$1/

@@ -1,6 +1,7 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
-o Added service probe for Redis key-value store [Patrik]
+o Added service probe for Redis key-value store, memcached and MochiWeb
+  [Patrik]
 
 o Targets requiring different source addresses now go into different
   hostgroups, not only for host discovery but also for port scanning.
