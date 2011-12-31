@@ -688,7 +688,10 @@ Engine =
 		end
 
 		if ( ( not(mode) or mode == 'user' or mode == 'pass' ) and self.options.useraspass ) then
-			table.insert( self.iterators, 1, Iterators.pw_same_as_user_iterator(usernames, "lower"))
+			-- if we're only guessing passwords, this doesn't make sense
+			if ( not(self.options.passonly) ) then
+				table.insert( self.iterators, 1, Iterators.pw_same_as_user_iterator(usernames, "lower"))
+			end
 		end
 		
 		if ( ( not(mode) or mode == 'user' or mode == 'pass' ) and self.options.emptypass ) then
