@@ -2309,7 +2309,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
 	hss->timing.cwnd = hss->timing.ssthresh;
     } else {
       /* Congestion avoidance mode */
-      hss->timing.cwnd += ping_magnifier / hss->timing.cwnd * hss->cc_scale();
+      hss->timing.cwnd += ping_magnifier * USI->perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
     }
     if (hss->timing.cwnd > USI->perf.max_cwnd)
       hss->timing.cwnd = USI->perf.max_cwnd;
