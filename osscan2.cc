@@ -1236,25 +1236,32 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
   } else {
     /* Good news -- got a response to first try.  Increase window as
        appropriate.  */
-    if (hss->timing.cwnd <= hss->timing.ssthresh) {
-      /* In quick start mode */
-      hss->timing.cwnd += perf.slow_incr;
-    } else {
-      /* Congestion control mode */
-      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd;
-    }
-    if (hss->timing.cwnd > perf.max_cwnd)
-      hss->timing.cwnd = perf.max_cwnd;
+    stats->timing.num_replies_received++;
+    hss->timing.num_replies_received++;
 
-    if (stats->timing.cwnd <= stats->timing.ssthresh) {
-      /* In quick start mode */
+    if (stats->timing.cwnd < stats->timing.ssthresh) {
+      /* In slow start mode */
       stats->timing.cwnd += perf.slow_incr;
+      if (stats->timing.cwnd > stats->timing.ssthresh)
+	stats->timing.cwnd = stats->timing.ssthresh;
     } else {
-      /* Congestion control mode */
+      /* Congestion avoidance mode */
       stats->timing.cwnd += perf.ca_incr / stats->timing.cwnd;
     }
     if (stats->timing.cwnd > perf.max_cwnd)
       stats->timing.cwnd = perf.max_cwnd;
+
+    if (hss->timing.cwnd < hss->timing.ssthresh) {
+      /* In slow start mode */
+      hss->timing.cwnd += perf.slow_incr;
+      if (hss->timing.cwnd > hss->timing.ssthresh)
+	hss->timing.cwnd = hss->timing.ssthresh;
+    } else {
+      /* Congestion avoidance mode */
+      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd;
+    }
+    if (hss->timing.cwnd > perf.max_cwnd)
+      hss->timing.cwnd = perf.max_cwnd;
   }
 }
 
