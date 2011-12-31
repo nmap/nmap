@@ -2270,7 +2270,7 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
       || (probe->isPing() && rcvdtime == NULL)) {
     /* We consider it a drop if
        1. We get a positive response to a retransmitted probe, or
-       2. We get no response to a timing print probe. */
+       2. We get no response to a timing ping probe. */
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
