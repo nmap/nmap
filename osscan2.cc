@@ -148,7 +148,7 @@ u16 prbWindowSz[] = { 1, 63, 4, 4, 16, 512, 3, 128, 256, 1024, 31337, 32768, 655
 static struct timeval now;
 
 /* Global to store performance info */
-os_scan_performance_vars_t perf;
+struct scan_performance_vars perf;
 
 
 /******************************************************************************
@@ -321,12 +321,12 @@ static void init_perf_values() {
   perf.max_cwnd = o.max_parallelism? o.max_parallelism : 300;
   perf.group_initial_cwnd = box(o.min_parallelism, perf.max_cwnd, 10);
   perf.host_initial_cwnd = perf.group_initial_cwnd;
-  perf.quick_incr = 1;
-  perf.cc_incr = 1;
-  perf.initial_ccthresh = 50;
+  perf.slow_incr = 1;
+  perf.ca_incr = 1;
+  perf.initial_ssthresh = 50;
   perf.group_drop_cwnd_divisor = 2.0;
-  perf.group_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-  perf.host_drop_ccthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
+  perf.group_drop_ssthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
+  perf.host_drop_ssthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
 }
 
 
@@ -957,7 +957,7 @@ HostOsScanStats::HostOsScanStats(Target * t) {
 
   /* Timing */
   timing.cwnd = perf.host_initial_cwnd;
-  timing.ccthresh = perf.initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
 
@@ -1244,33 +1244,33 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
   if (probe->tryno > 0 || !rcvdtime) {
     if (TIMEVAL_SUBTRACT(probe->sent, hss->timing.last_drop) > 0) {
       hss->timing.cwnd = perf.low_cwnd;
-      hss->timing.ccthresh = (int) MAX(hss->numProbesActive() / perf.host_drop_ccthresh_divisor, 2);
+      hss->timing.ssthresh = (int) MAX(hss->numProbesActive() / perf.host_drop_ssthresh_divisor, 2);
       hss->timing.last_drop = now;
     }
     if (TIMEVAL_SUBTRACT(probe->sent, stats->timing.last_drop) > 0) {
       stats->timing.cwnd = MAX(perf.low_cwnd, stats->timing.cwnd / perf.group_drop_cwnd_divisor);
-      stats->timing.ccthresh = (int) MAX(stats->num_probes_active / perf.group_drop_ccthresh_divisor, 2);
+      stats->timing.ssthresh = (int) MAX(stats->num_probes_active / perf.group_drop_ssthresh_divisor, 2);
       stats->timing.last_drop = now;
     }
   } else {
     /* Good news -- got a response to first try.  Increase window as
        appropriate.  */
-    if (hss->timing.cwnd <= hss->timing.ccthresh) {
+    if (hss->timing.cwnd <= hss->timing.ssthresh) {
       /* In quick start mode */
-      hss->timing.cwnd += perf.quick_incr;
+      hss->timing.cwnd += perf.slow_incr;
     } else {
       /* Congestion control mode */
-      hss->timing.cwnd += perf.cc_incr / hss->timing.cwnd;
+      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd;
     }
     if (hss->timing.cwnd > perf.max_cwnd)
       hss->timing.cwnd = perf.max_cwnd;
 
-    if (stats->timing.cwnd <= stats->timing.ccthresh) {
+    if (stats->timing.cwnd <= stats->timing.ssthresh) {
       /* In quick start mode */
-      stats->timing.cwnd += perf.quick_incr;
+      stats->timing.cwnd += perf.slow_incr;
     } else {
       /* Congestion control mode */
-      stats->timing.cwnd += perf.cc_incr / stats->timing.cwnd;
+      stats->timing.cwnd += perf.ca_incr / stats->timing.cwnd;
     }
     if (stats->timing.cwnd > perf.max_cwnd)
       stats->timing.cwnd = perf.max_cwnd;
@@ -2177,7 +2177,7 @@ int HostOsScan::send_closedudp_probe(HostOsScanStats *hss,
 ScanStats::ScanStats() {
   /* init timing val */
   timing.cwnd = perf.group_initial_cwnd;
-  timing.ccthresh = perf.initial_ccthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
 

@@ -133,47 +133,6 @@ using namespace std;
  * TYPE AND STRUCTURE DEFINITIONS                                             *
  ******************************************************************************/
 
-/* Performance tuning variable. */
-typedef struct os_scan_performance_vars {
-  int low_cwnd;            /* The lowest cwnd (congestion window) allowed */
-  int host_initial_cwnd;   /* Initial congestion window for ind. hosts */
-  int group_initial_cwnd;  /* Initial congestion window for all hosts as a group */
-  int max_cwnd;            /* We should never have more than this many probes
-                              outstanding */
-  int quick_incr;          /* How many probes are incremented for each response
-                              in quick start mode */
-  int cc_incr;             /* How many probes are incremented per (roughly) rtt in
-                              congestion control mode */
-  int initial_ccthresh;
-  double group_drop_cwnd_divisor;     /* all-host group cwnd divided by this
-                                         value if any packet drop occurs */
-  double group_drop_ccthresh_divisor; /* used to drop the group ccthresh when
-                                         any drop occurs */
-  double host_drop_ccthresh_divisor;  /* used to drop the host ccthresh when
-                                         any drop occurs */
-} os_scan_performance_vars_t;
-
-
-
-/* Some of the algorithms used here are TCP congestion control techniques from RFC2581. */
-typedef struct osscan_timing_vals {
-
-  /* Congestion window - in probes */
-  double cwnd;
-
-  /* The threshold after which mode is changed from QUICK_START to
-     CONGESTION_CONTROL */
-  int ccthresh;
-
-  /* Number of updates to this utv (generally packet receipts ) */
-  int num_updates;
-
-  /* Last time values were adjusted for a drop (you usually only want
-     to adjust again based on probes sent after that adjustment so a
-     sudden batch of drops doesn't destroy timing.  Init to now */
-  struct timeval last_drop;
-} osscan_timing_vals_t;
-
 
 typedef enum OFProbeType {
   OFP_UNSET,
@@ -304,7 +263,7 @@ class HostOsScanStats {
   /* When the last probe is sent. */
   struct timeval lastProbeSent;
 
-  osscan_timing_vals_t timing;
+  struct ultra_timing_vals timing;
 
   /* Fingerprint of this target. When a scan is completed, it'll
    * finally be passed to hs->target->FPR->FPs[x]. */
@@ -348,7 +307,7 @@ class ScanStats {
   ScanStats();
   bool sendOK(); /* Returns true if the system says that sending is OK. */
 
-  osscan_timing_vals_t timing;
+  struct ultra_timing_vals timing;
   struct timeout_info to;      /* rtt/timeout info                */
   int num_probes_active;       /* Total number of active probes   */
   int num_probes_sent;         /* Number of probes sent in total. */
