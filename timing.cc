@@ -229,6 +229,35 @@ void enforce_scan_delay(struct timeval *tv) {
   return;    
 }
 
+/* Do initialization after the global NmapOps table has been filled in. */
+void scan_performance_vars::init() {
+  /* TODO: I should revisit these values for tuning.  They should probably
+     at least be affected by -T. */
+  low_cwnd = MAX(o.min_parallelism, 1);
+  max_cwnd = o.max_parallelism? o.max_parallelism : 300;
+  group_initial_cwnd = box(o.min_parallelism, max_cwnd, 10);
+  host_initial_cwnd = group_initial_cwnd;
+  slow_incr = 1;
+  /* The congestion window grows faster with more aggressive timing. */
+  if (o.timing_level < 4)
+    ca_incr = 1;
+  else
+    ca_incr = 2;
+  cc_scale_max = 50;
+  initial_ssthresh = 75;
+  group_drop_cwnd_divisor = 2.0;
+  /* Change the amount that ssthresh drops based on the timing level. */
+  double ssthresh_divisor;
+  if (o.timing_level <= 3)
+    ssthresh_divisor = (3.0 / 2.0);
+  else if (o.timing_level <= 4)
+    ssthresh_divisor = (4.0 / 3.0);
+  else
+    ssthresh_divisor = (5.0 / 4.0);
+  group_drop_ssthresh_divisor = ssthresh_divisor;
+  host_drop_ssthresh_divisor = ssthresh_divisor;
+}
+
 /* current_rate_history defines how far back (in seconds) we look when
    calculating the current rate. */
 RateMeter::RateMeter(double current_rate_history) {

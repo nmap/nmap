@@ -311,25 +311,6 @@ int get_ipid_sequence(int numSamples, int *ipids, int islocalhost) {
 }
 
 
-/* This is the function for tuning the major values that affect
-   scan performance */
-static void init_perf_values() {
-  memset(&perf, 0, sizeof(perf));
-  /* TODO: I should revisit these values for tuning.  They should probably
-     at least be affected by -T. */
-  perf.low_cwnd = MAX(o.min_parallelism, 1);
-  perf.max_cwnd = o.max_parallelism? o.max_parallelism : 300;
-  perf.group_initial_cwnd = box(o.min_parallelism, perf.max_cwnd, 10);
-  perf.host_initial_cwnd = perf.group_initial_cwnd;
-  perf.slow_incr = 1;
-  perf.ca_incr = 1;
-  perf.initial_ssthresh = 50;
-  perf.group_drop_cwnd_divisor = 2.0;
-  perf.group_drop_ssthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-  perf.host_drop_ssthresh_divisor = (o.timing_level < 4)? 2.0 : 1.5;
-}
-
-
 /* Start the timeout clocks of any targets that aren't already timedout */
 static void startTimeOutClocks(OsScanInfo *OSI) {
   list<HostOsScanInfo *>::iterator hostI;
@@ -3550,8 +3531,7 @@ int OSScan::os_scan_ipv4(vector<Target *> &Targets) {
     return OP_FAILURE;
   }
 
-  /* Init the necessary objects to perform the detection */
-  init_perf_values();
+  perf.init();
 
   OsScanInfo OSI(Targets);
   if (OSI.numIncompleteHosts() == 0) {

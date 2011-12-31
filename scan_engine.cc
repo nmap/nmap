@@ -126,6 +126,14 @@ struct ultra_scan_performance_vars : public scan_performance_vars {
    in this many usecs */
   int pingtime; 
   int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
+
+  void init() {
+    scan_performance_vars::init();
+    ping_magnifier = 3;
+    ping_magnifier = 3;
+    pingtime = 1250000;
+    tryno_cap = o.getMaxRetransmissions();
+  }
 };
 
 static const char *pspectype2ascii(int type) {
@@ -1429,40 +1437,6 @@ double UltraScanInfo::getCompletionFraction() {
   return total / gstats->numtargets;
 }
 
-/* This is the function for tuning the major values that affect
-   scan performance */
-static void init_perf_values(struct ultra_scan_performance_vars *perf) {
-  memset(perf, 0, sizeof(*perf));
-  /* TODO: I should revisit these values for tuning.  They should probably
-     at least be affected by -T. */
-  perf->low_cwnd = MAX(o.min_parallelism, 1);
-  perf->max_cwnd = o.max_parallelism? o.max_parallelism : 300;
-  perf->group_initial_cwnd = box(o.min_parallelism, perf->max_cwnd, 10);
-  perf->host_initial_cwnd = perf->group_initial_cwnd;
-  perf->slow_incr = 1;
-  /* The congestion window grows faster with more aggressive timing. */
-  if (o.timing_level < 4)
-    perf->ca_incr = 1;
-  else
-    perf->ca_incr = 2;
-  perf->cc_scale_max = 50;
-  perf->initial_ssthresh = 75;
-  perf->ping_magnifier = 3;
-  perf->pingtime = 1250000;
-  perf->group_drop_cwnd_divisor = 2.0;
-  /* Change the amount that ssthresh drops based on the timing level. */
-  double ssthresh_divisor;
-  if (o.timing_level <= 3)
-    ssthresh_divisor = (3.0 / 2.0);
-  else if (o.timing_level <= 4)
-    ssthresh_divisor = (4.0 / 3.0);
-  else
-    ssthresh_divisor = (5.0 / 4.0);
-  perf->group_drop_ssthresh_divisor = ssthresh_divisor;
-  perf->host_drop_ssthresh_divisor = ssthresh_divisor;
-  perf->tryno_cap = o.getMaxRetransmissions();
-}
-
 /* Initialize the state for ports that don't receive a response in all the
    targets. */
 static void set_default_port_state(vector<Target *> &targets, stype scantype) {
@@ -1580,7 +1554,7 @@ void UltraScanInfo::Init(vector<Target *> &Targets, struct scan_lists *pts, styp
 
   set_default_port_state(Targets, scantype);
 
-  init_perf_values(&perf);
+  perf.init();
 
   /* Keep a completed host around for a standard TCP MSL (2 min) */
   completedHostLifetime = 120000;

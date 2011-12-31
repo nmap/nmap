@@ -245,6 +245,9 @@ struct scan_performance_vars {
 					 any drop occurs */
   double host_drop_ssthresh_divisor; /* used to drop the host ssthresh when
 					 any drop occurs */
+
+  /* Do initialization after the global NmapOps table has been filled in. */
+  void init();
 };
 
 struct timeout_info {
