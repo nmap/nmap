@@ -1223,12 +1223,12 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
 
   /* Adjust window */
   if (probe->tryno > 0 || !rcvdtime) {
-    if (TIMEVAL_SUBTRACT(probe->sent, hss->timing.last_drop) > 0) {
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop)) {
       hss->timing.cwnd = perf.low_cwnd;
       hss->timing.ssthresh = (int) MAX(hss->numProbesActive() / perf.host_drop_ssthresh_divisor, 2);
       hss->timing.last_drop = now;
     }
-    if (TIMEVAL_SUBTRACT(probe->sent, stats->timing.last_drop) > 0) {
+    if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop)) {
       stats->timing.cwnd = MAX(perf.low_cwnd, stats->timing.cwnd / perf.group_drop_cwnd_divisor);
       stats->timing.ssthresh = (int) MAX(stats->num_probes_active / perf.group_drop_ssthresh_divisor, 2);
       stats->timing.last_drop = now;
