@@ -205,6 +205,26 @@ struct FingerPrintDB {
   ~FingerPrintDB();
 };
 
+/* Based on TCP congestion control techniques from RFC2581. */
+struct ultra_timing_vals {
+  double cwnd; /* Congestion window - in probes */
+  int ssthresh; /* The threshold above which mode is changed from slow start
+		   to congestion avoidance */
+  /* The number of replies we would expect if every probe produced a reply. This
+     is almost like the total number of probes sent but it is not incremented
+     until a reply is received or a probe times out. This and
+     num_replies_received are used to scale congestion window increments. */
+  int num_replies_expected;
+  /* The number of replies we've received to probes of any type. */
+  int num_replies_received;
+  /* Number of updates to this timing structure (generally packet receipts). */
+  int num_updates;
+  /* Last time values were adjusted for a drop (you usually only want
+     to adjust again based on probes sent after that adjustment so a
+     sudden batch of drops doesn't destroy timing.  Init to now */
+  struct timeval last_drop;
+};
+
 struct timeout_info {
   int srtt; /* Smoothed rtt estimate (microseconds) */
   int rttvar; /* Rout trip time variance */
