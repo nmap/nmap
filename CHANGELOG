@@ -1,5 +1,8 @@
 # Nmap Changelog ($Id$); -*-text-*-
 
+o Scaled congestion control increments by the response rate during OS
+  scan, just like was done for port scan before. [David]
+
 o Added service probe for Redis key-value store, memcached and MochiWeb
   [Patrik]
 
