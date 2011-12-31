@@ -223,6 +223,13 @@ struct ultra_timing_vals {
      to adjust again based on probes sent after that adjustment so a
      sudden batch of drops doesn't destroy timing.  Init to now */
   struct timeval last_drop;
+
+  double cc_scale(const struct scan_performance_vars *perf);
+  void ack(const struct scan_performance_vars *perf, double scale = 1.0);
+  void drop(unsigned in_flight,
+    const struct scan_performance_vars *perf, const struct timeval *now);
+  void drop_group(unsigned in_flight,
+    const struct scan_performance_vars *perf, const struct timeval *now);
 };
 
 /* These are mainly initializers for ultra_timing_vals. */

@@ -229,6 +229,64 @@ void enforce_scan_delay(struct timeval *tv) {
   return;    
 }
 
+
+/* Returns the scaling factor to use when incrementing the congestion
+   window. */
+double ultra_timing_vals::cc_scale(const struct scan_performance_vars *perf) {
+  double ratio;
+
+  assert(num_replies_received > 0);
+  ratio = (double) num_replies_expected / num_replies_received;
+
+  return MIN(ratio, perf->cc_scale_max);
+}
+
+/* Update congestion variables for the receipt of a reply. */
+void ultra_timing_vals::ack(const struct scan_performance_vars *perf, double scale) {
+  num_replies_received++;
+
+  if (cwnd < ssthresh) {
+    /* In slow start mode. "During slow start, a TCP increments cwnd by at most
+       SMSS bytes for each ACK received that acknowledges new data." */
+    cwnd += perf->slow_incr * cc_scale(perf) * scale;
+    if (cwnd > ssthresh)
+      cwnd = ssthresh;
+  } else {
+    /* Congestion avoidance mode. "During congestion avoidance, cwnd is
+       incremented by 1 full-sized segment per round-trip time (RTT). The
+       equation
+         cwnd += SMSS*SMSS/cwnd
+       provides an acceptable approximation to the underlying principle of
+       increasing cwnd by 1 full-sized segment per RTT." */
+    cwnd += perf->ca_incr / cwnd * cc_scale(perf) * scale;
+  }
+  if (cwnd > perf->max_cwnd)
+    cwnd = perf->max_cwnd;
+}
+
+/* Update congestion variables for a detected drop. */
+void ultra_timing_vals::drop(unsigned in_flight,
+  const struct scan_performance_vars *perf, const struct timeval *now) {
+  /* "When a TCP sender detects segment loss using the retransmission timer, the
+     value of ssthresh MUST be set to no more than the value
+       ssthresh = max (FlightSize / 2, 2*SMSS)
+     Furthermore, upon a timeout cwnd MUST be set to no more than the loss
+     window, LW, which equals 1 full-sized segment (regardless of the value of
+     IW)." */
+  cwnd = perf->low_cwnd;
+  ssthresh = (int) MAX(in_flight / perf->host_drop_ssthresh_divisor, 2);
+  last_drop = *now;
+}
+
+/* Update congestion variables for a detected drop, but less aggressively for
+   group congestion control. */
+void ultra_timing_vals::drop_group(unsigned in_flight,
+  const struct scan_performance_vars *perf, const struct timeval *now) {
+  cwnd = MAX(perf->low_cwnd, cwnd / perf->group_drop_cwnd_divisor);
+  ssthresh = (int) MAX(in_flight / perf->group_drop_ssthresh_divisor, 2);
+  last_drop = *now;
+}
+
 /* Do initialization after the global NmapOps table has been filled in. */
 void scan_performance_vars::init() {
   /* TODO: I should revisit these values for tuning.  They should probably

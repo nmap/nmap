@@ -332,10 +332,6 @@ public:
   /* The last time waitForResponses finished (initialized to GSS creation time */
   int probes_sent; /* Number of probes sent in total.  This DOES include pings and retransmissions */
 
-  /* Returns the scaling factor to use when incrementing the congestion
-     window. */
-  double cc_scale();
-
   /* The most recently received probe response time -- initialized to scan
      start time. */
   struct timeval lastrcvd;
@@ -558,9 +554,6 @@ public:
   bool tryno_mayincrease;
   int ports_finished; /* The number of ports of this host that have been determined */
   int numprobes_sent; /* Number of port probes (not counting pings, but counting retransmits) sent to this host */
-  /* Returns the scaling factor to use when incrementing the congestion
-     window. */
-  double cc_scale();
   /* Boost the scan delay for this host, usually because too many packet
      drops were detected. */
   void boostScanDelay();
@@ -1058,18 +1051,6 @@ bool GroupScanStats::sendOK(struct timeval *when) {
   }
 
   return false;
-}
-
-/* Returns the scaling factor to use when incrementing the congestion window.
-   This is the minimum of num_replies_expected / num_replies_received and
-   cc_scale_max. */
-double GroupScanStats::cc_scale() {
-  double ratio;
-
-  assert(timing.num_replies_received > 0);
-  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
-
-  return MIN(ratio, USI->perf.cc_scale_max);
 }
 
 /* Return true if pingprobe is an appropriate ping probe for the currently
@@ -2210,45 +2191,15 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
-    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop)) {
-      hss->timing.cwnd = USI->perf.low_cwnd;
-      hss->timing.ssthresh = (int) MAX(hss->num_probes_active / USI->perf.host_drop_ssthresh_divisor, 2);
-      hss->timing.last_drop = USI->now;
-    }
-    if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.last_drop)) {
-      USI->gstats->timing.cwnd = MAX(USI->perf.low_cwnd, USI->gstats->timing.cwnd / USI->perf.group_drop_cwnd_divisor);
-      USI->gstats->timing.ssthresh = (int) MAX(USI->gstats->num_probes_active / USI->perf.group_drop_ssthresh_divisor, 2);
-      USI->gstats->timing.last_drop = USI->now;
-    }
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
+      hss->timing.drop(hss->num_probes_active, &USI->perf, &USI->now);
+    if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.last_drop))
+      USI->gstats->timing.drop_group(USI->gstats->num_probes_active, &USI->perf, &USI->now);
   } else if (rcvdtime != NULL) {
     /* Good news -- got a response to first try.  Increase window as 
        appropriate.  */
-    USI->gstats->timing.num_replies_received++;
-    hss->timing.num_replies_received++;
-
-    if (USI->gstats->timing.cwnd < USI->gstats->timing.ssthresh) {
-      /* In slow start mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.slow_incr * USI->gstats->cc_scale();
-      if (USI->gstats->timing.cwnd > USI->gstats->timing.ssthresh)
-	USI->gstats->timing.cwnd = USI->gstats->timing.ssthresh;
-    } else {
-      /* Congestion avoidance mode */
-      USI->gstats->timing.cwnd += ping_magnifier * USI->perf.ca_incr / USI->gstats->timing.cwnd * USI->gstats->cc_scale();
-    }
-    if (USI->gstats->timing.cwnd > USI->perf.max_cwnd)
-      USI->gstats->timing.cwnd = USI->perf.max_cwnd;
-
-    if (hss->timing.cwnd < hss->timing.ssthresh) {
-      /* In slow start mode */
-      hss->timing.cwnd += ping_magnifier * hss->cc_scale();
-      if (hss->timing.cwnd > hss->timing.ssthresh)
-	hss->timing.cwnd = hss->timing.ssthresh;
-    } else {
-      /* Congestion avoidance mode */
-      hss->timing.cwnd += ping_magnifier * USI->perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
-    }
-    if (hss->timing.cwnd > USI->perf.max_cwnd)
-      hss->timing.cwnd = USI->perf.max_cwnd;
+    USI->gstats->timing.ack(&USI->perf, ping_magnifier);
+    hss->timing.ack(&USI->perf, ping_magnifier);
   }
   /* If !probe->isPing() and rcvdtime == NULL, do nothing. */
 
@@ -2673,18 +2624,6 @@ static bool ultrascan_port_pspec_update(UltraScanInfo *USI,
   }
 
   return oldstate != newstate;
-}
-
-/* Returns the scaling factor to use when incrementing the congestion window.
-   This is the minimum of num_replies_expected / num_replies_received and
-   cc_scale_max. */
-double HostScanStats::cc_scale() {
-  double ratio;
-
-  assert(timing.num_replies_received > 0);
-  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
-
-  return MIN(ratio, USI->perf.cc_scale_max);
 }
 
   /* Boost the scan delay for this host, usually because too many packet

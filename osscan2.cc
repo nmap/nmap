@@ -1179,15 +1179,6 @@ double HostOsScanStats::timingRatio() {
   return (double) msec_taken / msec_ideal;
 }
 
-double HostOsScanStats::cc_scale() {
-  double ratio;
-
-  assert(timing.num_replies_received > 0);
-  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
-
-  return MIN(ratio, perf.cc_scale_max);
-}
-
 
 /******************************************************************************
  * Implementation of class HostOsScan                                         *
@@ -1237,45 +1228,15 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
 
   /* Adjust window */
   if (probe->tryno > 0 || !rcvdtime) {
-    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop)) {
-      hss->timing.cwnd = perf.low_cwnd;
-      hss->timing.ssthresh = (int) MAX(hss->numProbesActive() / perf.host_drop_ssthresh_divisor, 2);
-      hss->timing.last_drop = now;
-    }
-    if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop)) {
-      stats->timing.cwnd = MAX(perf.low_cwnd, stats->timing.cwnd / perf.group_drop_cwnd_divisor);
-      stats->timing.ssthresh = (int) MAX(stats->num_probes_active / perf.group_drop_ssthresh_divisor, 2);
-      stats->timing.last_drop = now;
-    }
+    if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
+      hss->timing.drop(hss->numProbesActive(), &perf, &now);
+    if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop))
+      stats->timing.drop_group(stats->num_probes_active, &perf, &now);
   } else {
     /* Good news -- got a response to first try.  Increase window as
        appropriate.  */
-    stats->timing.num_replies_received++;
-    hss->timing.num_replies_received++;
-
-    if (stats->timing.cwnd < stats->timing.ssthresh) {
-      /* In slow start mode */
-      stats->timing.cwnd += perf.slow_incr * stats->cc_scale();
-      if (stats->timing.cwnd > stats->timing.ssthresh)
-	stats->timing.cwnd = stats->timing.ssthresh;
-    } else {
-      /* Congestion avoidance mode */
-      stats->timing.cwnd += perf.ca_incr / stats->timing.cwnd * stats->cc_scale();
-    }
-    if (stats->timing.cwnd > perf.max_cwnd)
-      stats->timing.cwnd = perf.max_cwnd;
-
-    if (hss->timing.cwnd < hss->timing.ssthresh) {
-      /* In slow start mode */
-      hss->timing.cwnd += perf.slow_incr * hss->cc_scale();
-      if (hss->timing.cwnd > hss->timing.ssthresh)
-	hss->timing.cwnd = hss->timing.ssthresh;
-    } else {
-      /* Congestion avoidance mode */
-      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
-    }
-    if (hss->timing.cwnd > perf.max_cwnd)
-      hss->timing.cwnd = perf.max_cwnd;
+    stats->timing.ack(&perf);
+    hss->timing.ack(&perf);
   }
 }
 
@@ -2201,16 +2162,6 @@ bool ScanStats::sendOK() {
     return false;
 
   return true;
-}
-
-
-double ScanStats::cc_scale() {
-  double ratio;
-
-  assert(timing.num_replies_received > 0);
-  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
-
-  return MIN(ratio, perf.cc_scale_max);
 }
 
 
