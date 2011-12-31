@@ -3208,7 +3208,8 @@ IE(DFI=S%T=3B-45%TG=40%CD=S)
 # iPhone 4 running apple IOS 4.2
 # iPod touch 3 with iOS 4.2.1
 # OS X 10.6.6
-Fingerprint Apple Mac OS X 10.5 - 10.6.7 (Leopard - Snow Leopard) (Darwin 9.0.0b5 - 10.7.0) or iOS 4.0 - 4.2.1
+# Darwin 10.8.0 Darwin Kernel Version 10.8.0: Tue Jun  7 16:33:36 PDT 2011; root:xnu-1504.15.3~1/RELEASE_I386 i386
+Fingerprint Apple Mac OS X 10.5 - 10.6.8 (Leopard - Snow Leopard) (Darwin 9.0.0b5 - 10.8.0) or iOS 4.0 - 4.2.1
 Class Apple | iOS | 4.X | phone
 CPE cpe:/o:apple:ios:4 auto
 Class Apple | iOS | 4.X | media device
@@ -3217,7 +3218,7 @@ Class Apple | Mac OS X | 10.6.X | general purpose
 CPE cpe:/o:apple:mac_os_x:10.6 auto
 Class Apple | Mac OS X | 10.6.X | general purpose
 CPE cpe:/o:apple:mac_os_x:10.6 auto
-SEQ(SP=EA-10C%GCD=1-6%ISR=F8-10E%TI=RD%CI=RD|RI%II=RI%TS=3|4)
+SEQ(SP=EA-10C%GCD=1-6%ISR=F8-10E%TI=RD|RI%CI=RD|RI%II=RI%TS=3|4)
 OPS(O1=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O2=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O3=M5B4NW1NNT11|M5B4NW2NNT11|M5B4NW3NNT11%O4=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O5=M5B4NW1NNT11SLL|M5B4NW2NNT11SLL|M5B4NW3NNT11SLL%O6=M5B4NNT11SLL)
 WIN(W1=FFFF%W2=FFFF%W3=FFFF%W4=FFFF%W5=FFFF%W6=FFFF)
 ECN(R=Y%DF=Y%T=3B-45%TG=40%W=FFFF%O=M5B4NW1SLL|M5B4NW2SLL|M5B4NW3SLL%CC=N%Q=)
