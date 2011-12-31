@@ -1226,15 +1226,20 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
   hss->timing.num_replies_expected++;
   hss->timing.num_updates++;
 
-  /* Adjust window */
-  if (probe->tryno > 0 || !rcvdtime) {
+  /* Notice a drop if
+     1. We get a response to a retransmitted probe (meaning the first reply was
+        dropped), or
+     2. We get no response after a timeout (rcvdtime == NULL). */
+  if (probe->tryno > 0 || rcvdtime == NULL) {
     if (TIMEVAL_AFTER(probe->sent, hss->timing.last_drop))
       hss->timing.drop(hss->numProbesActive(), &perf, &now);
     if (TIMEVAL_AFTER(probe->sent, stats->timing.last_drop))
       stats->timing.drop_group(stats->num_probes_active, &perf, &now);
-  } else {
-    /* Good news -- got a response to first try.  Increase window as
-       appropriate.  */
+  }
+
+  /* Increase the window for a positive reply. This can overlap with case (1)
+     above. */
+  if (rcvdtime != NULL) {
     stats->timing.ack(&perf);
     hss->timing.ack(&perf);
   }

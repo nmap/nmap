@@ -2183,11 +2183,12 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
   hss->timing.num_replies_expected++;
   hss->timing.num_updates++;
 
+  /* Notice a drop if
+     1) We get a response to a retransmitted probe (meaning the first reply was
+        dropped), or
+     2) We got no response to a timing ping. */
   if ((probe->tryno > 0 && rcvdtime != NULL)
       || (probe->isPing() && rcvdtime == NULL)) {
-    /* We consider it a drop if
-       1. We get a positive response to a retransmitted probe, or
-       2. We get no response to a timing ping probe. */
     if (o.debugging > 1)
       log_write(LOG_PLAIN, "Ultrascan DROPPED %sprobe packet to %s detected\n", probe->isPing()? "PING " : "", hss->target->targetipstr());
     // Drops often come in big batches, but we only want one decrease per batch.
@@ -2195,13 +2196,15 @@ static void ultrascan_adjust_timing(UltraScanInfo *USI, HostScanStats *hss,
       hss->timing.drop(hss->num_probes_active, &USI->perf, &USI->now);
     if (TIMEVAL_AFTER(probe->sent, USI->gstats->timing.last_drop))
       USI->gstats->timing.drop_group(USI->gstats->num_probes_active, &USI->perf, &USI->now);
-  } else if (rcvdtime != NULL) {
-    /* Good news -- got a response to first try.  Increase window as 
-       appropriate.  */
+  }
+  /* If !probe->isPing() and rcvdtime == NULL, do nothing. */
+
+  /* Increase the window for a positive reply. This can overlap with case (1)
+     above. */
+  if (rcvdtime != NULL) {
     USI->gstats->timing.ack(&USI->perf, ping_magnifier);
     hss->timing.ack(&USI->perf, ping_magnifier);
   }
-  /* If !probe->isPing() and rcvdtime == NULL, do nothing. */
 
   /* If packet drops are particularly bad, enforce a delay between
      packet sends (useful for cases such as UDP scan where responses
