@@ -116,19 +116,8 @@ using namespace std;
 extern NmapOps o;
 class UltraScanInfo;
 
-struct ultra_scan_performance_vars {
-  int low_cwnd;  /* The lowest cwnd (congestion window) allowed */
-  int host_initial_cwnd; /* Initial congestion window for ind. hosts */
-  int group_initial_cwnd; /* Initial congestion window for all hosts as a group */
-  int max_cwnd; /* I should never have more than this many probes
-		   outstanding */
-  int slow_incr; /* How many probes are incremented for each response
-		    in slow start mode */
-  int ca_incr; /* How many probes are incremented per (roughly) rtt in 
-		  congestion avoidance mode */
-  int cc_scale_max; /* The maximum scaling factor for congestion window
-		       increments. */
-  int initial_ssthresh;
+/* A few extra performance tuning parameters specific to ultra_scan. */
+struct ultra_scan_performance_vars : public scan_performance_vars {
   /* When a successful ping response comes back, it counts as this many
      "normal" responses, because the fact that pings are necessary means
      we aren't getting much input. */
@@ -136,12 +125,6 @@ struct ultra_scan_performance_vars {
 /* Try to send a scanping if no response has been received from a target host
    in this many usecs */
   int pingtime; 
-  double group_drop_cwnd_divisor; /* all-host group cwnd divided by this
-				     value if any packet drop occurs */
-  double group_drop_ssthresh_divisor; /* used to drop the group ssthresh when
-					 any drop occurs */
-  double host_drop_ssthresh_divisor; /* used to drop the host ssthresh when
-					 any drop occurs */
   int tryno_cap; /* The maximum trynumber (starts at zero) allowed */
 };
 
