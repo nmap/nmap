@@ -242,6 +242,7 @@ class HostOsScanStats {
    * returned if we didn't send the tseq probes because there was no
    * open tcp port */
   double timingRatio();
+  double cc_scale();
 
  private:
   /* Ports of the targets used in os fingerprinting. */
@@ -306,6 +307,7 @@ class ScanStats {
  public:
   ScanStats();
   bool sendOK(); /* Returns true if the system says that sending is OK. */
+  double cc_scale();
 
   struct ultra_timing_vals timing;
   struct timeout_info to;      /* rtt/timeout info                */

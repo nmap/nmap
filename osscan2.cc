@@ -939,6 +939,8 @@ HostOsScanStats::HostOsScanStats(Target * t) {
   /* Timing */
   timing.cwnd = perf.host_initial_cwnd;
   timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.num_replies_expected = 0;
+  timing.num_replies_received = 0;
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
 
@@ -1177,6 +1179,15 @@ double HostOsScanStats::timingRatio() {
   return (double) msec_taken / msec_ideal;
 }
 
+double HostOsScanStats::cc_scale() {
+  double ratio;
+
+  assert(timing.num_replies_received > 0);
+  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
+
+  return MIN(ratio, perf.cc_scale_max);
+}
+
 
 /******************************************************************************
  * Implementation of class HostOsScan                                         *
@@ -1218,8 +1229,11 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
     adjust_timeouts2(&(probe->sent), rcvdtime, &(stats->to));
   }
 
-  hss->timing.num_updates++;
+  stats->timing.num_replies_expected++;
   stats->timing.num_updates++;
+
+  hss->timing.num_replies_expected++;
+  hss->timing.num_updates++;
 
   /* Adjust window */
   if (probe->tryno > 0 || !rcvdtime) {
@@ -1241,24 +1255,24 @@ void HostOsScan::adjust_times(HostOsScanStats *hss, OFProbe *probe, struct timev
 
     if (stats->timing.cwnd < stats->timing.ssthresh) {
       /* In slow start mode */
-      stats->timing.cwnd += perf.slow_incr;
+      stats->timing.cwnd += perf.slow_incr * stats->cc_scale();
       if (stats->timing.cwnd > stats->timing.ssthresh)
 	stats->timing.cwnd = stats->timing.ssthresh;
     } else {
       /* Congestion avoidance mode */
-      stats->timing.cwnd += perf.ca_incr / stats->timing.cwnd;
+      stats->timing.cwnd += perf.ca_incr / stats->timing.cwnd * stats->cc_scale();
     }
     if (stats->timing.cwnd > perf.max_cwnd)
       stats->timing.cwnd = perf.max_cwnd;
 
     if (hss->timing.cwnd < hss->timing.ssthresh) {
       /* In slow start mode */
-      hss->timing.cwnd += perf.slow_incr;
+      hss->timing.cwnd += perf.slow_incr * hss->cc_scale();
       if (hss->timing.cwnd > hss->timing.ssthresh)
 	hss->timing.cwnd = hss->timing.ssthresh;
     } else {
       /* Congestion avoidance mode */
-      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd;
+      hss->timing.cwnd += perf.ca_incr / hss->timing.cwnd * hss->cc_scale();
     }
     if (hss->timing.cwnd > perf.max_cwnd)
       hss->timing.cwnd = perf.max_cwnd;
@@ -2166,6 +2180,8 @@ ScanStats::ScanStats() {
   /* init timing val */
   timing.cwnd = perf.group_initial_cwnd;
   timing.ssthresh = perf.initial_ssthresh; /* Will be reduced if any packets are dropped anyway */
+  timing.num_replies_expected = 0;
+  timing.num_replies_received = 0;
   timing.num_updates = 0;
   gettimeofday(&timing.last_drop, NULL);
 
@@ -2185,6 +2201,16 @@ bool ScanStats::sendOK() {
     return false;
 
   return true;
+}
+
+
+double ScanStats::cc_scale() {
+  double ratio;
+
+  assert(timing.num_replies_received > 0);
+  ratio = (double) timing.num_replies_expected / timing.num_replies_received;
+
+  return MIN(ratio, perf.cc_scale_max);
 }
 
 
