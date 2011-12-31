@@ -10148,3 +10148,11 @@ Probe UDP pc-duo-gw q|\x20\x90\x80\x08\xff\0|
 rarity 8
 ports 2303
 match pc-duo-gw m|^.........(.*)\0|s i/Servername: $1/ p/Vector PC-Duo Gateway Server/
+
+##############################NEXT PROBE##############################
+# Redis key-value store
+Probe TCP radis-server q|\*1\r\n\$4\r\ninfo\r\n|
+rarity 8
+ports 6379
+match radis-server m|-ERR operation not permitted\r\n|s p/Radis key-value store/
+match radis-server m|^\$\d+\r\nredis_version:([.\d]+)\r\n|s p/Radis key-value store/ v/$1/
