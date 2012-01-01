@@ -990,16 +990,6 @@ bool GroupScanStats::sendOK(struct timeval *when) {
       return false;
   }
 
-  /* There are good arguments for limiting the number of probes sent
-     between waits even when we do get appropriate receive times.  For
-     example, overflowing the pcap receive buffer with responses is no
-     fun.  On one of my Linux boxes, it seems to hold about 113
-     responses when I scan localhost.  And half of those are the @#$#
-     sends being received.  I think I'll put a limit of 50 sends per
-     wait */
-  if (recentsends >= 50)
-    return false;
-
   /* Enforce a maximum scanning rate, if necessary. If it's too early to send,
      return false. If not, mark now as a good time to send and allow the
      congestion control to override it. */
@@ -1028,6 +1018,16 @@ bool GroupScanStats::sendOK(struct timeval *when) {
       return true;
     }
   }
+
+  /* There are good arguments for limiting the number of probes sent
+     between waits even when we do get appropriate receive times.  For
+     example, overflowing the pcap receive buffer with responses is no
+     fun.  On one of my Linux boxes, it seems to hold about 113
+     responses when I scan localhost.  And half of those are the @#$#
+     sends being received.  I think I'll put a limit of 50 sends per
+     wait */
+  if (recentsends >= 50)
+    return false;
 
   /* In case the user specifically asked for no group congestion control */
   if (o.nogcc) {
